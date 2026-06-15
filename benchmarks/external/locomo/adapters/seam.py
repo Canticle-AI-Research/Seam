@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import time as _time
 import uuid
 from dataclasses import dataclass
@@ -73,6 +74,7 @@ class SeamLocomoAdapter:
         keep_db: bool = False,
         record_retrieval_events: bool | None = None,
         run_id: str | None = None,
+        entity_aggregation: bool = False,
     ) -> None:
         # TODO: default db_path should be tmp_path, not a gitignored project dir
         self._db_root = Path(db_path) if db_path is not None else Path("test_seam/locomo")
@@ -104,6 +106,17 @@ class SeamLocomoAdapter:
             record_retrieval_events = _env_truthy(os.environ.get("SEAM_RECORD_RETRIEVAL_EVENTS"))
         self._record_events = bool(record_retrieval_events)
         self._run_id = run_id or os.environ.get("SEAM_RUN_ID") or None
+        # HISTORY#322 prototype: entity-aggregation retrieval. Gathers every claim
+        # SUBJECT-grounded to (or mentioning) the question's entity into a clean,
+        # re-attributed list - the cross-turn coreference the per-turn ingest drops
+        # (each turn's speaker is a fresh ent id with zero edges). Free cat1-recall
+        # A/B (5 dev convs): cat1 +0.043, cat3 +0.075 (concentrated on the weak
+        # categories, not uniform inflation). Subject ids resolve to labels so a
+        # first-person utterance ("I researched X") is re-attributed to the named
+        # entity - the coreference fix in the presented text. Ranked subject-first,
+        # capped to bound the additive context.
+        self._entity_aggregation = bool(entity_aggregation) or _env_truthy(os.environ.get("SEAM_BENCH_ENTITY_AGG"))
+        self._entity_agg_max_claims = int(os.environ.get("SEAM_BENCH_ENTITY_AGG_MAX", "20"))
 
     # ------------------------------------------------------------------
     # Protocol methods
@@ -284,6 +297,17 @@ class SeamLocomoAdapter:
             pack_dict = pack.to_dict() if hasattr(pack, "to_dict") else {}
             retrieved_context = json.dumps(pack_dict, sort_keys=True, indent=2)
 
+        # HISTORY#322 prototype: append a re-attributed list of claims grounded to
+        # (or mentioning) the question's entity - the cross-turn coreference the
+        # per-turn ingest scatters across distinct ent ids.
+        if self._entity_aggregation:
+            agg = self._entity_aggregate(rt, question)
+            if agg:
+                # ADDITIVE: append AFTER the full semantic context so it can never
+                # evict existing evidence (context_recall is set-based). The claim
+                # cap bounds the blob so it doesn't dilute a real answerer's window.
+                retrieved_context = retrieved_context + "\n\n" + _trim_context(agg, self.budget)
+
         generated = None
         answer_latency_ms = None
         answerer_diag: dict | None = None
@@ -427,6 +451,8 @@ class SeamLocomoAdapter:
             return _openai_short_answer(self._answerer_model or "gpt-4o-mini", prompt, **extra)
         if self._answerer == "claude":
             return _claude_short_answer(self._answerer_model or "claude-haiku-4-5-20251001", prompt, **extra)
+        if self._answerer == "ollama":
+            return _ollama_short_answer(self._answerer_model or "qwen2.5:3b", prompt, **extra)
         raise ValueError(f"unknown answerer {self._answerer!r}")
 
     def _build_temporal_window(self, question: str):
@@ -509,6 +535,129 @@ class SeamLocomoAdapter:
         top_k.sort(key=lambda c: c.score, reverse=True)
         result.candidates[:] = top_k + list(rest)
         return result
+
+    # HISTORY#322 prototype: entity-aggregation retrieval.
+    # Lowercased; matched case-insensitively. Question/pronoun words that get
+    # capitalized at sentence start but are never the entity we aggregate on.
+    _ENTITY_STOPWORDS = frozenset(
+        w.lower()
+        for w in (
+            "What", "Where", "When", "Who", "How", "Why", "Which", "Whose", "Whom",
+            "In", "On", "At", "By", "For", "From", "With", "About", "Into",
+            "Has", "Have", "Had", "Is", "Are", "Was", "Were", "Does", "Did", "Do",
+            "Will", "Would", "Can", "Could", "Should", "May", "Might",
+            "The", "A", "An", "To", "Of", "And", "Or", "But", "If", "So",
+            "This", "That", "These", "Those", "There", "Then", "Here",
+            "He", "She", "They", "It", "We", "You", "His", "Her", "Their", "Its",
+            "Him", "Them", "Your", "Our", "My", "Me", "Mr", "Mrs", "Ms", "Dr",
+        )
+    )
+
+    # A proper-noun run (consecutive Capitalized words, e.g. "New York") or an
+    # all-caps acronym (e.g. "LGBTQ"). Captures multi-word + acronym entities the
+    # old single-token regex dropped.
+    _ENTITY_RE = re.compile(r"\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*|[A-Z]{2,})\b")
+
+    def _question_entities(self, question: str) -> list[str]:
+        """Proper-noun entities in the question (capitalized runs + acronyms),
+        stopwords stripped, deduped case-insensitively, order preserved."""
+        out: list[str] = []
+        seen: set[str] = set()
+        for match in self._ENTITY_RE.findall(question):
+            # Trim leading/trailing stopword tokens glued in by sentence-start
+            # capitalization ("Did Caroline" -> "Caroline", "Mr Smith" -> "Smith").
+            tokens = match.split()
+            while tokens and tokens[0].lower() in self._ENTITY_STOPWORDS:
+                tokens.pop(0)
+            while tokens and tokens[-1].lower() in self._ENTITY_STOPWORDS:
+                tokens.pop()
+            ent = " ".join(tokens)
+            if len(ent) < 3 or ent.lower() in self._ENTITY_STOPWORDS:
+                continue
+            key = ent.lower()
+            if key not in seen:
+                seen.add(key)
+                out.append(ent)
+        return out
+
+    @staticmethod
+    def _stem(word: str) -> str:
+        """Crude English suffix-stripper so 'instruments'~'instrument' and
+        'played'/'playing'/'plays'~'play' match during relevance ranking."""
+        for suf in ("ing", "ed", "es", "s"):
+            if word.endswith(suf) and len(word) - len(suf) >= 3:
+                return word[: -len(suf)]
+        return word
+
+    def _query_terms(self, question: str, entities: list[str]) -> set[str]:
+        """Stemmed content (non-stopword, non-entity) words from the question, used
+        to rank an entity's claims by relevance to THIS question."""
+        ent_words = {w for e in entities for w in e.lower().split()}
+        terms: set[str] = set()
+        for tok in re.findall(r"[a-z0-9]{3,}", question.lower()):
+            if tok in self._ENTITY_STOPWORDS or tok in ent_words:
+                continue
+            terms.add(self._stem(tok))
+        return terms
+
+    def _entity_aggregate(self, rt, question: str) -> str:
+        """Gather claims grounded to (subject) or mentioning (object) the question's
+        entity into a clean, re-attributed, query-RANKED list. Subject ids resolve
+        to labels so first-person utterances are re-attributed to the named entity
+        (the coreference fix). Claims relevant to THIS question (lexical overlap
+        with its content words) rank first so the answer needle survives the cap -
+        the fix for the dilution that buried needles in a 40-claim blob. Capped at
+        ``_entity_agg_max_claims`` to bound the additive context."""
+        entities = self._question_entities(question)
+        if not entities:
+            return ""
+        patterns = [
+            re.compile(r"(?<![A-Za-z])" + re.escape(e) + r"(?![A-Za-z])", re.IGNORECASE)
+            for e in entities
+        ]
+        qterms = self._query_terms(question, entities)
+        records = rt.store.load_ir().records
+        # ent id -> label, so a claim's subject id can be matched + displayed.
+        labels = {
+            r.id: str(r.attrs.get("label", "")).strip()
+            for r in records
+            if r.kind.value == "ENT"
+        }
+        scored: list[tuple[tuple[int, int, int, int], str]] = []
+        seen: set[str] = set()
+        for order, record in enumerate(records):
+            if record.kind.value != "CLM":
+                continue
+            obj = str(record.attrs.get("object", "")).strip()
+            if not obj:
+                continue
+            subj_id = str(record.attrs.get("subject", "")).strip()
+            subj_label = labels.get(subj_id, "")
+            subj_hit = bool(subj_label) and any(p.search(subj_label) for p in patterns)
+            obj_hit = any(p.search(obj) for p in patterns)
+            if not (subj_hit or obj_hit):
+                continue
+            line = f"- {subj_label}: {obj}" if subj_label else f"- {obj}"
+            if line in seen:
+                continue
+            seen.add(line)
+            needle_count = sum(
+                1 for p in patterns if (subj_label and p.search(subj_label)) or p.search(obj)
+            )
+            hay_stems = {
+                self._stem(t) for t in re.findall(r"[a-z0-9]{3,}", f"{subj_label} {obj}".lower())
+            }
+            query_overlap = len(qterms & hay_stems)
+            # Question-relevant claims FIRST (needle survives the cap), then
+            # subject-grounded, then more entities matched, then original order.
+            scored.append(
+                ((-query_overlap, 0 if subj_hit else 1, -needle_count, order), line)
+            )
+        if not scored:
+            return ""
+        scored.sort(key=lambda t: t[0])
+        lines = [line for _, line in scored[: self._entity_agg_max_claims]]
+        return f"Known statements about {', '.join(entities)}:\n" + "\n".join(lines)
 
     def _build_evidence_context_from_ids(self, rt, closure_ids: list[str]) -> str:
         """Build a bounded text context from a set of record IDs."""
@@ -711,3 +860,44 @@ def _claude_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
             diag_out["output_tokens"] = getattr(usage, "output_tokens", None)
         diag_out["max_tokens"] = max_tokens
     return raw.strip()
+
+
+def _ollama_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out: dict | None = None) -> str:
+    """FREE local answerer via an Ollama HTTP endpoint - no API cost, no new dep
+    (urllib, mirroring nl_extract.py). Lets answer-quality be measured locally
+    before any operator-gated paid run. Endpoint from SEAM_BENCH_OLLAMA_URL
+    (default http://localhost:11434); model overridable via --answerer-model."""
+    import json as _json
+    import urllib.request
+
+    base = os.environ.get("SEAM_BENCH_OLLAMA_URL", "http://localhost:11434").rstrip("/")
+    # Greedy + fixed seed + top_k=1 for the most deterministic decode this
+    # backend allows (Ollama can still vary at temp=0 via batching; the seed
+    # narrows it). Reproducibility matters for free A/B deltas.
+    payload = _json.dumps(
+        {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0,
+                "top_k": 1,
+                "top_p": 1.0,
+                "seed": int(os.environ.get("SEAM_BENCH_OLLAMA_SEED", "42")),
+                "num_predict": max_tokens,
+            },
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        base + "/api/generate", data=payload, headers={"Content-Type": "application/json"}
+    )
+    with urllib.request.urlopen(req, timeout=180) as resp:
+        data = _json.loads(resp.read().decode("utf-8"))
+    raw = (data.get("response") or "").strip()
+    if diag_out is not None:
+        diag_out["provider"] = "ollama"
+        diag_out["model"] = model
+        diag_out["endpoint"] = base
+        diag_out["content_len"] = len(raw)
+        diag_out["content_preview"] = raw[:120]
+    return raw

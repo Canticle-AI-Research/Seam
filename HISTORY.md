@@ -7184,3 +7184,35 @@ tokens: 198
 ---
 Root test-artifact cleanup and testing documentation routing. Moved 80 ignored root `test_pgvector_*` SQLite sidecar artifacts into ignored `test_seam/pgvector/`, leaving zero root matches by `find . -maxdepth 1 -type f -name "test_pgvector_*"`. Added `tests/docs/README.md` as the tracked testing documentation index and `tests/docs/artifacts/pgvector.md` as the pgvector artifact routing note. Updated `AGENTS.md`, `REPO_LEDGER.md`, and `docs/CODE_LAYOUT.md` with the durable rule: tracked testing documentation belongs under `tests/docs/`; generated local test outputs belong under ignored `test_seam/<area>/`; ad-hoc `Test*`, `test_*`, and `test_pgvector_*` scratch files should not remain in the repo root. Scope note: the pre-existing dirty code file `benchmarks/external/locomo/adapters/seam.py` was not touched.
 ---END-ENTRY-#322---
+
+---BEGIN-ENTRY-#323---
+id: 323
+date: 2026-06-15T14:29:51Z
+agent: claude
+status: done
+topics: retrieval, locomo, cat1, coreference, entity-aggregation, answerer, ollama, benchmark, determinism, history
+commits: none
+refs: benchmarks/external/locomo/adapters/seam.py,tests/audit/test_locomo_entity_aggregation.py,docs/audits/2026-06-15-entity-aggregation-retrieval.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 321
+tokens: 1208
+---
+ENTITY-AGGREGATION RETRIEVAL (cat1 campaign, the #321 NEXT): prototyped + HARDENED the retrieval-time entity-aggregation lever, measured it FREE end-to-end, found it MARGINAL, and landed it default-OFF; the real lever is deferred to the ingest rebuild. Benchmark-adapter only; core/runtime unchanged.
+
+HYPOTHESIS (#321): cat1 single-hop weakness = no cross-turn entity coreference (per-turn ingest -> each turn's speaker is a fresh ent id with zero edges; facts about one person scatter across unlinked ids). Lever: gather every claim grounded to / mentioning the question's entity, re-attributed.
+
+BUILD (benchmarks/external/locomo/adapters/seam.py, opt-in SEAM_BENCH_ENTITY_AGG, default OFF): _entity_aggregate resolves each CLM subject (an ent: id) to its ENT label so a first-person object ("I researched X") is RE-ATTRIBUTED to the named entity ("Caroline: I researched X") = the coreference fix in the presented text; matches the entity in subject OR object (word-boundary); query-relevance ranking (stemmed lexical overlap with the question's content words) floats the answer needle above a cap (default 20). Plus FREE answer-quality infra: a local Ollama answerer (answerer=ollama, _ollama_short_answer, urllib, no new dep) with seed+top_k=1 greedy determinism.
+
+MEASUREMENTS (all FREE, ZERO paid runs):
+1. Free recall A/B (deterministic, context_recall, 10 convs / 1198 dev q): cat1 0.661->0.687 (+0.025), cat3 0.397->0.432 (+0.034), cat2 +0.006, cat4 +0.012. Gains CONCENTRATE on the weak categories = a targeted rescue of ~7-12% of cases (+0.35 recall when it fires), NOT uniform inflation. CAVEAT: the block is additive and context_recall is set-based, so it can only rise = it OVERSTATES value.
+2. Free answer-quality A/B (local qwen2.5:3b, token_f1 vs gold) = DECISIVE, and where the recall win evaporated. First read +0.012 looked like a win; VERIFICATION caught it: qwen is non-deterministic at temperature=0 (11/15 identical), and a re-run flipped +0.012 -> -0.003 -> the ~0.01 effect sat BELOW the answerer's own noise floor. FIX: seed + top_k=1 -> 3/3 deterministic. Deterministic cat1 (112 q): raw hack (cap40) -0.0054 (20 up / 21 down); hardened (cap20 + query-rank + stem) +0.0055 (25 / 25 EVEN). OFF itself drifted 0.2066 -> 0.2039 across processes (~0.003 residual non-determinism) = the hardened effect sits AT the noise floor.
+
+VERDICT: the retrieval-time string-match entity-agg lever is MARGINAL -- a wash on cat1 answer quality, hardened or not (recall recovers the tokens; the answerer does not convert them net-positive because recovered facts compete with the dilution they ride in on). This confirms #321: the ceiling is the INGEST rebuild, not query-time. The wins ARE real coreference re-attribution fixes ("What did Caroline research?" 0.67->1.00; "Do Jon and Gina start businesses out of what they love?" unknown->Yes), which VALIDATE the concept for the ingest rebuild. NO PAID RUN was spent: free measurement settled the direction (operator rule refined this session: paid is the LAST lever, used only after the hypothesis + baseline + pro/regression are nailed over SETS of data, never one-shot).
+
+LANDED: the lever stays default-OFF + documented (a tested-and-parked idea, and the retrieval-side prototype the ingest rebuild can reuse); the FREE answer-quality infra (local Ollama answerer + seed determinism + token_f1 A/B) is the durable win -- it makes future levers testable for free. New tests/audit/test_locomo_entity_aggregation.py (7 CI-safe, network-free: entity extraction incl multi-word/acronym/stopword-trim, stemming, subject re-attribution, query-rank order, cap, default-off, ollama dispatch). Audit: docs/audits/2026-06-15-entity-aggregation-retrieval.md.
+
+VERIFICATION: full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN green (exit 0, 2 known xfailed; +7 CI-safe tests). The 4 free A/B runs are reproducible from the dataset (locomo10.json) via the recall_scorer dev scorer + the local Ollama answerer.
+
+CONCURRENCY: this session ran alongside another agent (Codex) which landed HISTORY#322 (root test-artifact / tests-docs folder organization); Codex left this session's seam.py untouched; #322 was committed separately first, then this #323 on top.
+
+NEXT: the REAL cat1 lever = cross-turn entity coreference at INGEST (link per-turn entity mentions to stable ids + aggregation retrieval over real ir_edges), not string-matched at query time; scope + free-validate (deterministic recall + the local-answerer gate above) BEFORE building. 80% is a milestone to unlock other roadmap items, not a one-fix target. Stage 5 (degenerate compile_nl records) + the server graceful-shutdown gap remain open.
+---END-ENTRY-#323---
