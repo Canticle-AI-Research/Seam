@@ -7170,3 +7170,17 @@ Verified: benchmark-adapter only; no core/runtime change; suite unchanged (1077)
 
 Unresolved next step: the cat1 retrieval rebuild = cross-turn entity coreference (resolve same-entity ids across per-turn ingests) + entity-aggregation retrieval (gather all claims about a subject). Scope+test cheaply (free cat1 recall) BEFORE building, per [[feedback_always_test_before_building]]. That is the campaign work toward 80%. Stage 5 + server graceful-shutdown gap still open.
 ---END-ENTRY-#321---
+
+---BEGIN-ENTRY-#322---
+id: 322
+date: 2026-06-15T12:01:01Z
+agent: Codex
+status: done
+topics: test, pgvector, protocol, docs, history
+commits: none
+refs: AGENTS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,tests/docs/README.md,tests/docs/artifacts/pgvector.md,test_seam/pgvector/
+supersedes: 280
+tokens: 198
+---
+Root test-artifact cleanup and testing documentation routing. Moved 80 ignored root `test_pgvector_*` SQLite sidecar artifacts into ignored `test_seam/pgvector/`, leaving zero root matches by `find . -maxdepth 1 -type f -name "test_pgvector_*"`. Added `tests/docs/README.md` as the tracked testing documentation index and `tests/docs/artifacts/pgvector.md` as the pgvector artifact routing note. Updated `AGENTS.md`, `REPO_LEDGER.md`, and `docs/CODE_LAYOUT.md` with the durable rule: tracked testing documentation belongs under `tests/docs/`; generated local test outputs belong under ignored `test_seam/<area>/`; ad-hoc `Test*`, `test_*`, and `test_pgvector_*` scratch files should not remain in the repo root. Scope note: the pre-existing dirty code file `benchmarks/external/locomo/adapters/seam.py` was not touched.
+---END-ENTRY-#322---

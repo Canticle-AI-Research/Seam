@@ -20,6 +20,11 @@ Then:
 - Treat `archive/code/`, `docs/archive/`, `build/`, `.venv/`, `test_seam/`, and generated/cache paths as inactive unless the user explicitly asks for historical, retired, or local test-artifact material.
 - `test_seam/` is the ignored sink for isolated SQLite `test_seam_*.db` artifacts from test runs. Do not scan it for project source, runtime state, roadmap direction, or repo evidence unless investigating test-artifact cleanup.
 - For normal code search, stay in active paths: `seam_runtime/`, `seam.py`, `experimental/`, `tools/`, `scripts/`, `installers/`, `docs/`, tests, and root status files.
+- Test documentation and local test artifacts have fixed homes: tracked testing
+  notes live under `tests/docs/`, and disposable generated test outputs live
+  under ignored `test_seam/` subdirectories such as `test_seam/pgvector/`.
+  Do not leave ad-hoc `Test*`, `test_*`, or `test_pgvector_*` scratch files in
+  the repo root.
 
 ## Session End
 

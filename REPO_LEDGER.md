@@ -130,6 +130,11 @@ and `HISTORY_INDEX.md`.
   `lib64` venv fallback, installs Python dev dependencies, runs SEAM protocol
   verification, and deliberately leaves `experimental/webui/` untouched.
 - Cross-file duplication is disallowed; use pointer cards (`see HISTORY#NNN`).
+- Tracked testing documentation belongs under `tests/docs/`. Disposable local
+  test outputs belong under ignored `test_seam/<area>/` subdirectories
+  (`test_seam/pgvector/` for `test_pgvector_*` artifacts). Do not leave ad-hoc
+  test notes, `Test*` scratch files, or generated `test_*` artifacts in the
+  repo root.
 
 ## AI-Native Compression Policy
 

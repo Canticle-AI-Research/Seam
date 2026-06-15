@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 321
-total_tokens: ~125682
-latest_id: 321
+total_entries: 322
+total_tokens: ~125880
+latest_id: 322
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 322 | 2026-06-15 | done | e08eb1a6e1c10ef5 | test,pgvector,protocol,docs,+ | 280 |
 | 321 | 2026-06-15 | done | 8f340dc06137a30a | retrieval,answerer,reasoning,locomo,+ | 320 |
 | 320 | 2026-06-15 | done | 25494450ae5a4f8e | retrieval,budget,topk,locomo,+ | 319 |
 | 319 | 2026-06-15 | done | 4081a094aa3d9227 | roadmap,query,sql,bird,+ | 318 |
@@ -385,7 +386,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=30 latest=#318, #310, #279, #278, #277
+- docs: count=31 latest=#322, #318, #310, #279, #278
 - doctor: count=9 latest=#287, #170, #169, #140, #139
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -407,7 +408,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=1 latest=#303
-- history: count=244 latest=#321, #320, #319, #318, #317
+- history: count=245 latest=#322, #321, #320, #319, #318
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - improve: count=1 latest=#302
@@ -444,7 +445,7 @@ compact: true
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid-validation: count=1 latest=#302
 - persist: count=25 latest=#251, #244, #218, #213, #212
-- pgvector: count=26 latest=#295, #294, #280, #220, #219
+- pgvector: count=27 latest=#322, #295, #294, #280, #220
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
 - pr: count=1 latest=#301
@@ -452,7 +453,7 @@ compact: true
 - productize: count=1 latest=#320
 - promotion: count=1 latest=#305
 - proposer: count=1 latest=#291
-- protocol: count=93 latest=#310, #304, #294, #280, #268
+- protocol: count=94 latest=#322, #310, #304, #294, #280
 - prov: count=1 latest=#316
 - pyproject: count=5 latest=#267, #094, #051, #049, #022
 - qr: count=1 latest=#307
@@ -499,7 +500,7 @@ compact: true
 - structure: count=2 latest=#285, #284
 - surface: count=5 latest=#276, #225, #218, #208, #145
 - symbols: count=2 latest=#316, #309
-- test: count=30 latest=#320, #317, #313, #311, #309
+- test: count=31 latest=#322, #320, #317, #313, #311
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -519,6 +520,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 299
+- done: 300
 - in-progress: 2
 - planned: 20

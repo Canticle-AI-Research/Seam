@@ -11,6 +11,8 @@ not have to infer what works from directory names alone.
 - `seam.py` - console entrypoint module for `seam` and `seam-benchmark`.
 - `test_seam_all/test_seam.py` - primary regression suite. Local `test_seam_*.db`
   artifacts live in ignored `test_seam/` so root stays clean.
+- `tests/docs/` - tracked testing documentation, including local artifact
+  routing notes and test-run hygiene rules.
 
 ## Active Tooling
 
@@ -41,7 +43,8 @@ not have to infer what works from directory names alone.
   are ignored by git.
 - `test_seam/` contains local isolated SQLite databases produced by test runs.
   It is not project source, runtime truth, roadmap evidence, or useful context
-  for normal agent scans.
+  for normal agent scans. Scoped subdirectories such as `test_seam/pgvector/`
+  hold adapter-specific generated artifacts.
 - `__pycache__/`, `.pytest_cache/`, `.venv/`, and `*.egg-info/` are local
   environment or packaging artifacts.
 
@@ -50,6 +53,9 @@ not have to infer what works from directory names alone.
 For normal development, read active runtime/tooling/prototype paths first. Do
 not scan `archive/code/` unless the task explicitly asks for historical or
 retired code.
+
+Place new tracked testing documentation under `tests/docs/`. Place generated
+test artifacts under ignored `test_seam/<area>/`, not in the repo root.
 
 ## Search Rule
 

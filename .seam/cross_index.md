@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 378
+total_events: 379
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-08T18:54:30Z | history:150:634ca340 | session-event | done | protocol, audit, history, snapshot, verify | AGENTS.md,docs/CODE_LAYOUT.md,test_seam/ |
 | 2026-05-08T19:57:08Z | history:151:63e01907 | session-event | done | audit, status, verify, history | none |
 | 2026-05-08T21:52:10Z | history:152:9835e5cc | session-event | done | benchmark, holdout, roadmap, status, history | ROADMAP.md,HISTORY_INDEX.md |
 | 2026-05-08T21:52:11Z | history:153:33360327 | session-event | done | benchmark, diff, verify, roadmap, status, history | ROADMAP.md,HISTORY_INDEX.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-06-15T01:17:23Z | history:319:4081a094 | session-event | done | roadmap, query, sql, bird, benchmark, retrieval, multihop... | ROADMAP.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md |
 | 2026-06-15T03:39:08Z | history:320:25494450 | session-event | done | retrieval, budget, topk, locomo, benchmark, judge, recall... | seam_runtime/retrieval.py,seam_runtime/runtime.py,benchmarks/external/locomo/... |
 | 2026-06-15T04:42:47Z | history:321:8f340dc0 | session-event | done | retrieval, answerer, reasoning, locomo, benchmark, judge,... | benchmarks/external/locomo/adapters/seam.py,HISTORY.md,HISTORY_INDEX.md,PROJE... |
+| 2026-06-15T12:01:01Z | history:322:e08eb1a6 | session-event | done | test, pgvector, protocol, docs, history | AGENTS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,tests/docs/README.md,tests/docs/... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0178.cross.md | 2026-04-15T00:00:00Z..2026-05-08T13:45:50Z | 178 | (multi) | (multi) |
+| 0001-0179.cross.md | 2026-04-15T00:00:00Z..2026-05-08T18:54:30Z | 179 | (multi) | (multi) |
