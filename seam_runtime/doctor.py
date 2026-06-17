@@ -94,6 +94,34 @@ def check_commit_gate() -> dict[str, object]:
             "source_sha": source_sha}
 
 
+def check_stashes() -> dict[str, object]:
+    """Advisory: surface git stashes. Stashes are invisible to ``git status``,
+    ``git log``, and branch/PR listings, so an abandoned one (e.g. an agent
+    stashing to clear a tree mid-context-switch and never restoring it) lingers
+    unnoticed - more likely in a multi-agent repo. Never blocks; informational
+    so an "is everything clean?" sweep catches orphaned local WIP."""
+    try:
+        out = subprocess.check_output(
+            ["git", "stash", "list", "--format=%ct%x09%gs"],
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return {"status": "not-a-git-repo"}
+    if not out:
+        return {"status": "clean", "count": 0}
+    import time as _time
+    now = _time.time()
+    stashes: list[dict[str, object]] = []
+    for line in out.splitlines():
+        ts, _, summary = line.partition("\t")
+        try:
+            age_days = int((now - float(ts)) // 86400)
+        except ValueError:
+            age_days = None
+        stashes.append({"age_days": age_days, "summary": summary})
+    return {"status": "advisory", "count": len(stashes), "stashes": stashes}
+
+
 def build_doctor_report() -> dict[str, object]:
     runtime = SeamRuntime(":memory:")
     batch = runtime.compile_nl("SEAM doctor smoke test for durable local memory.")
@@ -131,6 +159,7 @@ def build_doctor_report() -> dict[str, object]:
         "pgvector": check_pgvector(pgvector_dsn),
         "commit_gate": check_commit_gate(),
         "streams": check_streams(),
+        "stashes": check_stashes(),
         "dependencies": dependencies,
         "required_dependencies": required_dependencies,
         "missing_required_dependencies": missing_required,

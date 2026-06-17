@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 323
-total_tokens: ~127088
-latest_id: 323
+total_entries: 324
+total_tokens: ~127771
+latest_id: 324
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 324 | 2026-06-17 | done | e8d2accecf6bbddf | doctor,stash,git,hygiene,+ | 323 |
 | 323 | 2026-06-15 | done | 427968afdcaa05b1 | retrieval,locomo,cat1,coreference,+ | 321 |
 | 322 | 2026-06-15 | done | e08eb1a6e1c10ef5 | test,pgvector,protocol,docs,+ | 280 |
 | 321 | 2026-06-15 | done | 8f340dc06137a30a | retrieval,answerer,reasoning,locomo,+ | 320 |
@@ -389,7 +390,7 @@ compact: true
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
 - docs: count=31 latest=#322, #318, #310, #279, #278
-- doctor: count=9 latest=#287, #170, #169, #140, #139
+- doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
 - enrichment: count=1 latest=#317
@@ -403,6 +404,7 @@ compact: true
 - flags: count=1 latest=#320
 - floor: count=1 latest=#308
 - generalization: count=1 latest=#297
+- git: count=1 latest=#324
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - graph: count=2 latest=#099, #030
@@ -411,9 +413,10 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=1 latest=#303
-- history: count=246 latest=#323, #322, #321, #320, #319
+- history: count=247 latest=#324, #323, #322, #321, #320
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
+- hygiene: count=1 latest=#324
 - improve: count=1 latest=#302
 - infra: count=1 latest=#271
 - ingest: count=2 latest=#317, #303
@@ -456,7 +459,7 @@ compact: true
 - productize: count=1 latest=#320
 - promotion: count=1 latest=#305
 - proposer: count=1 latest=#291
-- protocol: count=94 latest=#322, #310, #304, #294, #280
+- protocol: count=95 latest=#324, #322, #310, #304, #294
 - prov: count=1 latest=#316
 - pyproject: count=5 latest=#267, #094, #051, #049, #022
 - qr: count=1 latest=#307
@@ -497,6 +500,7 @@ compact: true
 - sql: count=1 latest=#319
 - sql2: count=1 latest=#318
 - ssrf: count=2 latest=#300, #288
+- stash: count=1 latest=#324
 - status: count=146 latest=#321, #320, #319, #318, #317
 - storage: count=7 latest=#283, #282, #270, #269, #268
 - streams: count=9 latest=#287, #276, #216, #210, #209
@@ -507,6 +511,7 @@ compact: true
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
+- tooling: count=1 latest=#324
 - topk: count=1 latest=#320
 - traceability: count=1 latest=#316
 - tui: count=25 latest=#137, #121, #120, #119, #118
@@ -523,6 +528,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 301
+- done: 302
 - in-progress: 2
 - planned: 20

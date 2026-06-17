@@ -39,6 +39,8 @@ If you created a git worktree during the session: finish it. Either commit, push
 
 If you created a working branch: push it if the work is real, delete it locally if the work is fully merged. Stale branches accumulate across multi-agent sessions and look like active work to the next agent.
 
+If you stashed anything: restore or drop it before ending. Stashes are invisible to `git status`, `git log`, and branch/PR listings, so an abandoned one lingers unnoticed (especially in this multi-agent repo, where stashing to clear a tree mid-context-switch is common). `git stash list` surfaces them, and `seam doctor` reports them as a non-blocking advisory so a cleanliness sweep catches orphaned local WIP.
+
 Use `tools/history/*` scripts for the canonical history protocol and `tools/streams/*` scripts for the multi-stream substrate (history mirror, roadmap, experience, cross-index). Run `python -m tools.git.scan_stale_branches` on-demand to audit branch health; the repo has `delete_branch_on_merge` enabled on GitHub so merged PR branches auto-delete.
 
 ## Cut-off Recovery

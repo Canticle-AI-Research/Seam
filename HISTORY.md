@@ -7216,3 +7216,27 @@ CONCURRENCY: this session ran alongside another agent (Codex) which landed HISTO
 
 NEXT: the REAL cat1 lever = cross-turn entity coreference at INGEST (link per-turn entity mentions to stable ids + aggregation retrieval over real ir_edges), not string-matched at query time; scope + free-validate (deterministic recall + the local-answerer gate above) BEFORE building. 80% is a milestone to unlock other roadmap items, not a one-fix target. Stage 5 (degenerate compile_nl records) + the server graceful-shutdown gap remain open.
 ---END-ENTRY-#323---
+
+---BEGIN-ENTRY-#324---
+id: 324
+date: 2026-06-17T22:49:30Z
+agent: claude
+status: done
+topics: doctor, stash, git, hygiene, tooling, protocol, history
+commits: none
+refs: seam_runtime/doctor.py,seam_runtime/cli.py,tests/audit/test_doctor_stashes.py,AGENTS.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 323
+tokens: 683
+---
+SEAM-doctor STASH ADVISORY (operator-requested, from the #323 stash post-mortem). `seam doctor` now surfaces git stashes as a NON-blocking advisory, and AGENTS.md Session End documents restoring/dropping them.
+
+WHY: the #323 "is everything pushed/merged?" sweep found a 3-week-old abandoned stash (a 2026-05-27 server-hardening WIP - graceful-shutdown + shell-validation + storage rework, ~85% since re-implemented independently on main; the unique bits were `_install_signal_handlers` + `_validate_shell_executable`, the still-open graceful-shutdown wiring). It lingered unnoticed because stashes are invisible to `git status`, `git log`, and branch/PR listings - more likely in this multi-agent repo where an agent stashes to clear a tree mid-context-switch and never restores it. Operator dropped it (recoverable via reflectog/this thread), then asked to institutionalize the check.
+
+BUILD (seam_runtime/doctor.py): `check_stashes()` runs `git stash list --format=%ct<TAB>%gs` and returns status clean | advisory | not-a-git-repo, with per-stash age_days + summary; wired into `build_doctor_report()` as the "stashes" key. ADVISORY ONLY - it never flips the overall PASS/FAIL status (which stays driven by smoke/lossless/deps, like commit_gate/streams). `cli.py` `_render_doctor_report` adds a "Stashes: N present (oldest Xd) - review abandoned WIP" line (or "Stashes: none"). DELIBERATELY NOT added to the preflight commit gate (`tools/claude/preflight_protocol.sh`): a stash during active work is legitimate, so blocking commits on it would be a false positive - hygiene advisories belong in the health check, correctness gates in the blocking gate. AGENTS.md Session End gains a stash-hygiene line beside the existing branch-hygiene one.
+
+TESTS: tests/audit/test_doctor_stashes.py (5 CI-safe, hermetic via monkeypatched subprocess - no real stash created): clean, advisory+age parsing, not-a-git-repo, advisory-does-not-flip-overall-status, and render output. Verified full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN green. Benchmark-unaffected; no retrieval/MIRL/schema change.
+
+CONTEXT: PR #96 (operator's open docs PR - SEAM engineering manual + `seam-engineer` skill, modeled on "meshyface") was read + reviewed favorably this session: accurate to the real architecture/protocol, well-designed anti-drift (routes to canonical sources, does NOT hardcode commands/counts per the #310 lesson). It's docs-only, still draft/UNSTABLE pending its own SEAM-chain entry + a discoverability pointer (README/REPO_LEDGER) + making restated rules reference AGENTS.md as authority to avoid dual-source drift.
+
+NEXT: the cat1 ingest-coreference rebuild (cross-turn entity coreference at ingest) remains the campaign main thread toward the 80% milestone; complete PR #96's chain when the operator is ready.
+---END-ENTRY-#324---

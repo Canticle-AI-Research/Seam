@@ -1907,6 +1907,22 @@ def _render_doctor_report(payload: dict[str, object]) -> str:
         streams_line = f"Streams: unavailable ({streams.get('error','?')})"
     else:
         streams_line = f"Streams: {streams_status}"
+    stashes = payload.get("stashes", {}) or {}
+    stashes_status = stashes.get("status", "unknown")
+    if stashes_status == "clean":
+        stashes_line = "Stashes: none"
+    elif stashes_status == "advisory":
+        entries = stashes.get("stashes", []) or []
+        ages = [s.get("age_days") for s in entries if isinstance(s.get("age_days"), int)]
+        oldest = max(ages) if ages else 0
+        stashes_line = (
+            f"Stashes: {stashes.get('count', len(entries))} present (oldest {oldest}d) — "
+            "review abandoned WIP (git stash list)"
+        )
+    elif stashes_status == "not-a-git-repo":
+        stashes_line = "Stashes: skipped (not a git repo)"
+    else:
+        stashes_line = f"Stashes: {stashes_status}"
     return "\n".join(
         [
             f"SEAM doctor: {payload.get('status')}",
@@ -1923,6 +1939,7 @@ def _render_doctor_report(payload: dict[str, object]) -> str:
             pg_line,
             commit_gate_line,
             streams_line,
+            stashes_line,
             (
                 "Required deps: OK"
                 if not payload.get("missing_required_dependencies")
