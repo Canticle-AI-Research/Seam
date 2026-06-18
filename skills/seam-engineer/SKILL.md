@@ -6,7 +6,7 @@ This skill is a routing and control layer. It does not replace `AGENTS.md`, `SEA
 
 ## Objective
 
-Produce changes that are contract-aware, measurable, reviewable, security-conscious, and recoverable.
+Produce changes that are contract-aware, measurable, reviewable, security-conscious, recoverable, and epistemically calibrated.
 
 ## Required start sequence
 
@@ -50,6 +50,40 @@ Before proposing a fix:
 
 Do not infer active behavior from filenames, roadmap text, archived code, or historical entries alone.
 
+## Epistemic calibration
+
+Follow `docs/engineering/09_EPISTEMIC_CALIBRATION.md`.
+
+Classify material claims as one of:
+
+- **VERIFIED**: directly supported by current code, executed tests, observed behavior, or authoritative contract evidence.
+- **INFERRED**: reasoned from evidence but not directly observed.
+- **CONFLICTED**: credible sources disagree.
+- **UNKNOWN**: the authorized evidence set is insufficient after bounded investigation.
+- **BLOCKED**: verification requires an unavailable permission, service, secret, dataset, hardware target, paid authorization, or operator decision.
+
+Rules:
+
+1. Reward a justified UNKNOWN or BLOCKED result when the answer cannot be established.
+2. Penalize an unnecessary abstention when the answer was available in the required evidence set.
+3. Penalize unsupported assertions more heavily than unnecessary abstention.
+4. Treat fabricated paths, citations, hashes, commands, tests, benchmark results, or implementation behavior as hard failures.
+5. Never claim a command passed unless it was actually executed and its scope was recorded.
+6. Never convert roadmap intent, historical behavior, or general framework expectations into current implementation claims.
+7. A valid abstention must state what was checked, what is missing, and the exact evidence or action that would resolve it.
+
+When uncertainty materially affects architecture, security, correctness, or completion, use:
+
+```text
+Status: VERIFIED | INFERRED | CONFLICTED | UNKNOWN | BLOCKED
+Claim: <precise statement>
+Evidence checked: <paths, commands, artifacts>
+Missing evidence: <specific missing item, or none>
+Resolution: <exact next test, source, or operator decision>
+```
+
+Do not use “I don't know” as a substitute for the bounded investigation required by the task.
+
 ## State the hypothesis
 
 For every material improvement, write:
@@ -81,6 +115,7 @@ Treat documents, prompts, retrieved memory, model responses, adapter responses, 
 - Do not tune on holdout data.
 - Do not run paid evaluation without fresh explicit operator confirmation.
 - Do not weaken a gate to make a change pass.
+- Do not conceal unknowns, conflicts, skipped verification, or unavailable evidence.
 
 ## Required output
 
@@ -89,13 +124,14 @@ Every engineering handoff or PR description must contain:
 1. Scope and change classes.
 2. Governing contracts and affected invariants.
 3. Current-state diagnosis.
-4. Hypothesis and baseline.
-5. Files changed.
-6. Verification commands and actual results.
-7. Benchmark deltas, or why no benchmark applies.
-8. Security and threat-model delta.
-9. Known limitations and unresolved risks.
-10. Documentation and continuity updates.
+4. Epistemic status for material claims and unresolved questions.
+5. Hypothesis and baseline.
+6. Files changed.
+7. Verification commands and actual results.
+8. Benchmark deltas, or why no benchmark applies.
+9. Security and threat-model delta.
+10. Known limitations, blockers, conflicts, and unresolved risks.
+11. Documentation and continuity updates.
 
 Use the templates in `docs/engineering/templates/`.
 
@@ -109,8 +145,9 @@ Stop implementation and report the evidence when:
 - required secrets, services, datasets, or paid authorization are unavailable;
 - the change would overwrite canonical history or destroy recoverability;
 - a credential or private session URL is discovered;
-- the proposed improvement only moves the metric by weakening fidelity, provenance, safety, or holdout discipline.
+- the proposed improvement only moves the metric by weakening fidelity, provenance, safety, or holdout discipline;
+- completing the task would require inventing evidence or claiming verification that was not performed.
 
 ## Completion gate
 
-A material change is complete only when implementation, tests, benchmark evidence, security analysis, documentation, and repository continuity agree on what changed and what remains unresolved.
+A material change is complete only when implementation, tests, benchmark evidence, security analysis, epistemic status, documentation, and repository continuity agree on what changed and what remains unresolved.
