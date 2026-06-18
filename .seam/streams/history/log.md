@@ -7240,3 +7240,31 @@ CONTEXT: PR #96 (operator's open docs PR - SEAM engineering manual + `seam-engin
 
 NEXT: the cat1 ingest-coreference rebuild (cross-turn entity coreference at ingest) remains the campaign main thread toward the 80% milestone; complete PR #96's chain when the operator is ready.
 ---END-ENTRY-#324---
+
+---BEGIN-ENTRY-#325---
+id: 325
+date: 2026-06-18T01:26:35Z
+agent: claude
+status: done
+topics: calibration, abstention, benchmark, locomo, scorer, epistemic, loader, cat1, graphrag, retrieval
+commits: none
+refs: benchmarks/external/locomo/calibration_scorer.py,benchmarks/external/common/dataset.py,tests/audit/test_locomo_calibration.py,docs/audits/2026-06-17-cat1-coreference-graphrag-blueprint.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 324
+tokens: 1240
+---
+CALIBRATION SCORER + adversarial-loader fix (operationalizes PR #96's epistemic policy) + cat1/GraphRAG blueprint doc. Operator: "yes [build the CalibrationScorer] ... can 96 be used to progress seam? if so, do so." Answer: yes - #96's `docs/engineering/09_EPISTEMIC_CALIBRATION.md` (epistemic calibration + abstention policy) is the SPEC; this lands its executable teeth in `benchmarks/`, and building it ALSO exposed a benchmark-integrity bug.
+
+CALIBRATION SCORER (benchmarks/external/locomo/calibration_scorer.py): a FREE `CalibrationScorer` over the LoCoMo split that turns the policy's "calibrated truthfulness" matrix into measured metrics. Answerability label comes from the dataset, not inference (the policy's own requirement): cat5 adversarial load with `gold==""` => unanswerable; cat1-4 => answerable. Reward matrix mirrors the doc (ORDINAL: hallucination -4 << wrong -3 < unnecessary-abstention -1 < correct +2 == justified-abstention +2). Reports the full selective-prediction set: coverage, selective_accuracy, selective_quality (threshold-free mean token_f1), abstention_precision, hallucination_rate, calibration_utility; fabricated_evidence=None (not measurable without evidence annotations - v1 limit, noted). Conforms to the `Scorer` protocol (aggregate=calibration_utility) AND exposes `calibration_report()`. Abstention vocabulary keyed off the adapter's real signal ("unknown", line 445/316). FREE: local Ollama answerer (deterministic seed+top_k=1, #323 infra); CI uses stub adapters.
+
+BENCHMARK-INTEGRITY FIX (benchmarks/external/common/dataset.py): the headline find. The existing loader's `if "answer" not in qa: continue` SILENTLY DROPPED all 444 LoCoMo cat5 adversarial cases (they carry only `adversarial_answer`, no `answer` key) - so on real LoCoMo the unanswerable arm DID NOT EXIST (load_locomo_cases -> 1542 cases, 0 empty-gold, only 2 cat5). Any abstention/calibration metric measured before this fix would have scored an empty set and looked falsely clean - exactly the failure the policy warns about ("rewarding 'unknown' can produce misleading benchmark gains"). FIX: opt-in `load_locomo_cases(..., include_unanswerable=False)`; default-OFF keeps every existing caller byte-identical (verified: default still 1542 / 0 empty-gold), opt-in yields 1986 cases incl the full 444-case unanswerable arm with `gold==""`. Discipline note: this was caught by validate-before-build/verify-before-claiming (my memory premise "cat5 = 2 cases" was wrong; the data + loader were verified directly before any conclusion).
+
+REAL MEASUREMENT (FREE, qwen2.5:3b on local Ollama :11435, deterministic): on 15 real conv-26 adversarial cases qwen abstained correctly on 11 but FELL FOR THE TRAP on 4 -> hallucination_rate=0.267, abstention_precision=1.0, calibration_utility=0.4. A concrete, actionable defect number that was previously invisible. Methodological note: cat5 is SPARSE per-conversation in the dev split, so production calibration measurement must POOL many scopes (single-conversation undercounts the unanswerable arm).
+
+TESTS (tests/audit/test_locomo_calibration.py, 11 CI-safe hermetic - stub adapter, no Ollama/API/dataset): is_abstention (unknown/empty vs real answers incl long sentences containing "unknown"); classify_case for all 5 matrix outcomes; full metric math on a hand-built set; the POLICY THESIS test (abstain-on-everything scores 0.2 vs calibrated 2.0, coverage 0 - "never hallucinate by never answering is not well calibrated"); reckless-confidence punished on unanswerable; Scorer-protocol shape; + 2 loader tests (default skips adversarial, opt-in admits with empty gold).
+
+cat1/GraphRAG BLUEPRINT DOC (docs/audits/2026-06-17-cat1-coreference-graphrag-blueprint.md): findings/blueprint (NOT a build spec) grounding the cat1 ingest-coreference + entity-aggregation plan in GraphRAG local search (entry-point entities -> 1-hop expansion -> rank+filter -> fit budget; the rank+filter step is the documented fix for the #323 dilution wash) + the understand-anything reference impl (dedup->edge-remap, MIT) + LoCoMo. The detailed build spec stays gated on a free Phase-0 diagnostic (cat1 retrieval-bound vs synthesis-bound).
+
+SCOPE: benchmarks + docs only; core/runtime UNCHANGED. No paid run (local qwen is free; the operator paid-run rule is intact). PR #96 remains the open docs PR (its 09 doc is the spec this scorer references; #96 should merge to make that reference resolvable on main). VERIFICATION: full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN green; calibration suite 11/11.
+
+NEXT: (1) campaign main thread unchanged = cat1 cross-turn entity coreference at INGEST toward 80%; (2) v2 calibration - capture `adversarial_answer` to score "fell for the SPECIFIC trap" (needs a BenchmarkCase field or side map) + multi-scope pooled calibration run; (3) consider a calibration gate once a baseline is pooled; (4) evaluate the meshyface operational-hardening patterns (operator-provided) against the roadmap.
+---END-ENTRY-#325---

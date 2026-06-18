@@ -18,12 +18,22 @@ def _coerce_text(value: Any) -> str:
     return str(value)
 
 
-def load_locomo_cases(path: str | Path) -> list[BenchmarkCase]:
+def load_locomo_cases(
+    path: str | Path, *, include_unanswerable: bool = False
+) -> list[BenchmarkCase]:
     """Parse a LoCoMo JSON file into BenchmarkCase records.
 
     One case per Q/A pair.  case_id = f"{sample_id}::q{qa_index}".
     The full conversation (all sessions / dialogs flattened) is shared across
     every qa pair belonging to the same sample.
+
+    ``include_unanswerable`` (default ``False``) controls the LoCoMo adversarial
+    (category 5) questions, which carry only an ``adversarial_answer`` (a plausible
+    trap) and NO real ``answer``. By default they are skipped (their empty gold
+    would distort recall/judged scoring). When ``True`` they are admitted with
+    ``gold_answer == ""`` so a calibration scorer can treat them as the
+    unanswerable arm (the correct behavior is to abstain, not to emit the trap).
+    The default-off flag keeps every existing caller byte-identical.
     """
     path = Path(path)
 
@@ -51,11 +61,17 @@ def load_locomo_cases(path: str | Path) -> list[BenchmarkCase]:
         # --- one BenchmarkCase per QA pair ---
         qa_list: list[dict[str, Any]] = sample.get("qa", [])
         for qa_index, qa in enumerate(qa_list):
-            if "answer" not in qa:
-                continue
+            raw_answer = qa.get("answer")
+            has_answer = raw_answer is not None and str(raw_answer).strip() != ""
+            if not has_answer:
+                # No real answer. Adversarial (cat5) cases carry only an
+                # `adversarial_answer`; admit them as empty-gold ONLY when
+                # explicitly asked, else preserve the historical skip.
+                if not (include_unanswerable and "adversarial_answer" in qa):
+                    continue
             case_id = f"{sample_id}::q{qa_index}"
             question = _coerce_text(qa["question"])
-            gold_answer = _coerce_text(qa["answer"])
+            gold_answer = _coerce_text(raw_answer) if has_answer else ""
             # category may be absent, an int, or a str
             raw_category = qa.get("category")
             category: str | None = (
