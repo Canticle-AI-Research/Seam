@@ -37,6 +37,12 @@ Use these labels in architecture reviews and documentation:
 
 Never promote a planned, experimental, historical, or unknown property into a statement of current behavior.
 
+## Epistemic rule
+
+A correct, justified abstention is better than an unsupported answer. Fabricated evidence, invented test results, and false certainty are integrity failures.
+
+However, abstention is not rewarded unconditionally. Engineers and agents must perform the bounded investigation required by the task before declaring something unknown. See [Epistemic calibration and abstention](09_EPISTEMIC_CALIBRATION.md) for the required states, scoring matrix, hard gates, and benchmark design.
+
 ## Manual map
 
 - [Architecture](01_ARCHITECTURE.md): system boundaries, canonical state, data and control flow, component ownership, and invariants.
@@ -44,6 +50,7 @@ Never promote a planned, experimental, historical, or unknown property into a st
 - [Engineering change SOP](06_ENGINEERING_CHANGE_SOP.md): mandatory workflow for understanding, changing, and handing off SEAM.
 - [Test and benchmark SOP](07_TEST_AND_BENCHMARK_SOP.md): evidence hierarchy, baseline discipline, regression gates, and publication claims.
 - [Incident response and recovery](08_INCIDENT_RESPONSE.md): containment, preservation, eradication, recovery, and post-incident evidence.
+- [Epistemic calibration and abstention](09_EPISTEMIC_CALIBRATION.md): rewards justified uncertainty, penalizes unsupported certainty, and defines executable calibration metrics.
 - [Verification matrix](VERIFICATION_MATRIX.md): change classes mapped to required checks.
 - [Templates](templates/README.md): change plan, architecture decision, threat-model delta, incident report, and handoff forms.
 - [`skills/seam-engineer/SKILL.md`](../../skills/seam-engineer/SKILL.md): compact routing skill for engineers and agents.
@@ -73,7 +80,7 @@ A material change is complete only when:
 - security impact is reviewed;
 - canonical and generated state remain distinguishable;
 - documentation matches implementation;
-- limitations and unverified claims are explicit;
+- limitations, conflicts, blockers, and unverified claims are explicit;
 - history, indexes, streams, and snapshots are updated and verified when required;
 - the PR contains reproducible evidence and remaining risks.
 
