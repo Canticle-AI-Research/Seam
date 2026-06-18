@@ -2,14 +2,12 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 #
 # Python deps (requirements.txt / pyproject.toml) are covered by Dependabot
-# security updates; the entries below add weekly VERSION updates for the npm
-# (webui) and docker (compose) ecosystems.
+# security updates; the entry below adds weekly VERSION updates for the docker
+# (compose) ecosystem. (The webui Vite/npm tree was archived to
+# archive/webui-vite-source/; the served dashboard is the self-contained
+# seam_runtime/webui/dashboard.html with CDN deps, so there is no npm tree to scan.)
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/webui"      # webui/package.json is the only first-party npm manifest
-    schedule:
-      interval: "weekly"
   - package-ecosystem: "docker-compose"
     directory: "/"           # docker-compose.yaml lives at the repo root; the
                              # "docker" ecosystem only scans Dockerfiles/K8s YAML

@@ -7268,3 +7268,33 @@ SCOPE: benchmarks + docs only; core/runtime UNCHANGED. No paid run (local qwen i
 
 NEXT: (1) campaign main thread unchanged = cat1 cross-turn entity coreference at INGEST toward 80%; (2) v2 calibration - capture `adversarial_answer` to score "fell for the SPECIFIC trap" (needs a BenchmarkCase field or side map) + multi-scope pooled calibration run; (3) consider a calibration gate once a baseline is pooled; (4) evaluate the meshyface operational-hardening patterns (operator-provided) against the roadmap.
 ---END-ENTRY-#325---
+
+---BEGIN-ENTRY-#326---
+id: 326
+date: 2026-06-18T05:27:21Z
+agent: claude
+status: done
+topics: webui, dashboard, cleanup, structure, docs, dependabot, archive, history
+commits: none
+refs: docs/CODE_LAYOUT.md,.github/dependabot.yml,archive/webui-vite-source/ARCHIVED.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 325
+tokens: 814
+---
+WEBUI CONSOLIDATION (operator: "lets fix the mess... if its not touching anything thats running its okay"). The repo had FOUR webui-ish locations causing a "which one is real?" mess; consolidated to ONE canonical, deleted strays, archived the diverged source, with the running server untouched.
+
+TRIGGER: operator asked to launch the webui. Launched it via `seam webui --no-open` (uvicorn at http://127.0.0.1:8765, serving seam_runtime/webui/dashboard.html, health 200, `<title>SEAM - Dashboard</title>`) and also captured the terminal TUI (`seam dashboard`) under tmux. Then asked to make the location clear and clean up duplicates.
+
+THE CANONICAL (unchanged, the running server serves it): `seam_runtime/webui/dashboard.html` - a single self-contained hand-authored file (CDN React, inline) + seam-api.js/favicon.svg/icons.svg/branding/. `server.py:webui_dir()` resolves the package webui dir (override SEAM_WEBUI_DIR); shipped via pyproject package-data `seam_runtime=["webui/*","webui/**/*"]` (package-relative). NOT touched.
+
+CLEANUP:
+- DELETED (untracked/gitignored strays, zero git/running impact): `Webui-final-dash/` (oldest stray duplicate, .gitignore:70), `webui/dist/` (stale build that DIFFERED from the served file = a real confusion source), `webui/node_modules/`.
+- ARCHIVED (reversible `git mv`, 24 tracked files): top-level `webui/` Vite+React+TS project -> `archive/webui-vite-source/`. WHY: its build output had diverged from + was older than the served file (the canonical is hand-authored, NOT built from this tree), and per its own RESTORE_NOTES the React-pane `src/` rewrite was a documented regression reverted to the original shell. Keeping it at repo root made it look like the dashboard's source, which it isn't. Added `archive/webui-vite-source/ARCHIVED.md` pointing to the canonical.
+- DEPENDABOT: dropped the stale `/webui` npm ecosystem entry from `.github/dependabot.yml` (the manifest moved to archive/; the served dashboard uses CDN deps, no npm tree to scan). docker-compose entry kept.
+- DOCS: `docs/CODE_LAYOUT.md` WebUI section rewritten - `seam_runtime/webui/` = the one and only webui; `archive/webui-vite-source/` = the archived Vite source.
+
+CONSTRAINT HONORED: verified the running webui server stayed healthy (curl health=200 + title intact) AFTER all moves - the archive/delete touched only top-level `webui/` and untracked dirs, never `seam_runtime/webui/` or the uvicorn process.
+
+VERIFICATION: full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN green; no Python code changed (file move + yaml/markdown only). No paid run.
+
+NEXT: cat1 is SYNTHESIS/PACKING-bound per Phase 0 (free diagnostic this session: 82% of cat1 gold evidence is retrieved yet all-gold-retrieved token_f1 only ~0.20; qwen fell for 4/15 adversarial traps = hallucination_rate 0.267) -> the next lever is an entity-aggregation dossier PACKER (not the ingest-coreference rebuild). Also open: record the Phase 0 diagnostic as a reusable module; PR #96 (epistemic-calibration docs, the spec for HISTORY#325's calibration scorer) should merge; meshyface operational-hardening patterns banked as a future ROADMAP track ([[project_meshyface_patterns]]).
+---END-ENTRY-#326---
