@@ -7298,3 +7298,25 @@ VERIFICATION: full canonical suite (test_seam_all/ tools/history/test_history_to
 
 NEXT: cat1 is SYNTHESIS/PACKING-bound per Phase 0 (free diagnostic this session: 82% of cat1 gold evidence is retrieved yet all-gold-retrieved token_f1 only ~0.20; qwen fell for 4/15 adversarial traps = hallucination_rate 0.267) -> the next lever is an entity-aggregation dossier PACKER (not the ingest-coreference rebuild). Also open: record the Phase 0 diagnostic as a reusable module; PR #96 (epistemic-calibration docs, the spec for HISTORY#325's calibration scorer) should merge; meshyface operational-hardening patterns banked as a future ROADMAP track ([[project_meshyface_patterns]]).
 ---END-ENTRY-#326---
+
+---BEGIN-ENTRY-#327---
+id: 327
+date: 2026-06-19T00:46:44Z
+agent: claude
+status: done
+topics: judge, benchmark, locomo, openai, reasoning, bugfix, gpt5, history
+commits: none
+refs: benchmarks/external/common/judge.py,tests/audit/test_openai_judge_gpt5.py,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 326
+tokens: 517
+---
+JUDGE BUG FIX: OpenAIJudge reasoning_effort="minimal" rejected by gpt-5.4+ models (operator: "fix the judge bug first ... we want solid architecture"). This is the MISSED half of the HISTORY#321 answerer fix, which corrected the identical hardcode in _openai_short_answer but not the judge.
+
+ROOT: benchmarks/external/common/judge.py OpenAIJudge hardcoded reasoning_effort="minimal" + max_completion_tokens=512 in BOTH score() and _build_batch_request(). gpt-5.4+ reject "minimal" (support only none/low/medium/high/xhigh) -> BadRequestError 400; the judge path is BROKEN for current OpenAI models (this key exposes only gpt-5.x/o-series, no gpt-4o fallback). Found while running the real LoCoMo judged scorer on cat1 dev during the cat1 answerer-bound investigation.
+
+FIX: new module-level _openai_judge_reasoning_params() reads SEAM_BENCH_JUDGE_REASONING_EFFORT (fallback SEAM_BENCH_REASONING_EFFORT, default "low" = broadly supported) + SEAM_BENCH_JUDGE_MAX_COMPLETION_TOKENS (default 512); applied at both call sites. Mirrors _openai_short_answer's env-driven pattern from #321 so judge and answerer stay consistent. ClaudeJudge unaffected (different API, no reasoning_effort).
+
+TESTS: tests/audit/test_openai_judge_gpt5.py - updated the existing pin (gpt-5 reasoning_effort default minimal->low) + 3 new (env override, shared-env fallback, batch-request mirror). Full canonical suite `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/` + PGVECTOR_TEST_DSN + strict no-skip = green (2 known xfails, 0 failures, 0 skips).
+
+CONTEXT: surfaced during the cat1 free->paid investigation (cat1 wall = weak local answerer + a retrieval knee tuned for it, NOT SEAM retrieval; real OpenAI-judge cat1 dev 0.525 at the old knee -> 0.670 at a capable-answerer knee top_k=300/budget=60000; the "raising top_k dilutes" result was a weak-model artifact). NEXT: holdout-validate the capable-answerer retrieval profile, then productize as an answerer-aware RetrievalFlags lever (tighten context for small models' recall; broaden for big models).
+---END-ENTRY-#327---

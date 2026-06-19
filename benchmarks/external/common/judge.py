@@ -210,6 +210,22 @@ class ClaudeJudge:
         return results
 
 
+def _openai_judge_reasoning_params() -> tuple[int, str]:
+    """Completion budget + reasoning effort for gpt-5/o-series judges.
+
+    ``reasoning_effort="minimal"`` is rejected by gpt-5.4+ models (which support
+    only none/low/medium/high/xhigh), so mirror the answerer fix (HISTORY#321):
+    read both from the env with a broadly-supported default of "low". The budget
+    is floored so reasoning tokens do not starve the required JSON verdict.
+    """
+    budget = int(os.environ.get("SEAM_BENCH_JUDGE_MAX_COMPLETION_TOKENS", "512"))
+    effort = os.environ.get(
+        "SEAM_BENCH_JUDGE_REASONING_EFFORT",
+        os.environ.get("SEAM_BENCH_REASONING_EFFORT", "low"),
+    )
+    return budget, effort
+
+
 class OpenAIJudge:
     name = "openai"
 
@@ -243,10 +259,11 @@ class OpenAIJudge:
             }
             if self._uses_completion_token_budget(self.model):
                 # GPT-5/o-series models reject max_tokens and can spend part of the
-                # budget on hidden reasoning tokens. Minimal reasoning keeps judge
-                # calls cheap and leaves room for the required JSON verdict.
-                request["max_completion_tokens"] = 512
-                request["reasoning_effort"] = "minimal"
+                # budget on hidden reasoning tokens. Effort/budget are env-driven
+                # (default "low") because gpt-5.4+ reject the former "minimal".
+                budget, effort = _openai_judge_reasoning_params()
+                request["max_completion_tokens"] = budget
+                request["reasoning_effort"] = effort
             else:
                 request["max_tokens"] = 256
             response = self._client.chat.completions.create(
@@ -267,8 +284,9 @@ class OpenAIJudge:
             "response_format": {"type": "json_object"},
         }
         if self._uses_completion_token_budget(self.model):
-            body["max_completion_tokens"] = 512
-            body["reasoning_effort"] = "minimal"
+            budget, effort = _openai_judge_reasoning_params()
+            body["max_completion_tokens"] = budget
+            body["reasoning_effort"] = effort
         else:
             body["max_tokens"] = 256
         return {
