@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 327
-total_tokens: ~130342
-latest_id: 327
+total_entries: 328
+total_tokens: ~131125
+latest_id: 328
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 328 | 2026-06-19 | done | f5702bd8508fc90f | retrieval,profile,retrievalflags,core,+ | 327 |
 | 327 | 2026-06-19 | done | 52811e9bef7066dd | judge,benchmark,locomo,openai,+ | 326 |
 | 326 | 2026-06-18 | done | cd345e8ff0199df4 | webui,dashboard,cleanup,structure,+ | 325 |
 | 325 | 2026-06-18 | done | 13dd6b9484af20ba | calibration,abstention,benchmark,locomo,+ | 324 |
@@ -346,7 +347,7 @@ compact: true
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
 - animation: count=4 latest=#068, #052, #032, #028
-- answerer: count=2 latest=#323, #321
+- answerer: count=3 latest=#328, #323, #321
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
 - audit: count=74 latest=#303, #290, #288, #280, #279
@@ -361,7 +362,7 @@ compact: true
 - bugfix: count=15 latest=#327, #295, #287, #286, #283
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - calibration: count=1 latest=#325
-- cat1: count=3 latest=#325, #323, #321
+- cat1: count=4 latest=#328, #325, #323, #321
 - chat: count=15 latest=#286, #137, #074, #073, #072
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
@@ -380,9 +381,11 @@ compact: true
 - concepts: count=1 latest=#180
 - consolidation: count=1 latest=#306
 - context: count=3 latest=#316, #315, #314
+- context-budget: count=1 latest=#328
 - continuity: count=3 latest=#310, #193, #192
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
+- core: count=1 latest=#328
 - coreference: count=2 latest=#323, #321
 - correction: count=1 latest=#299
 - cr: count=3 latest=#316, #315, #314
@@ -423,7 +426,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=1 latest=#303
-- history: count=249 latest=#327, #326, #324, #323, #322
+- history: count=250 latest=#328, #327, #326, #324, #323
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -440,13 +443,14 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=25 latest=#327, #325, #323, #321, #320
+- locomo: count=26 latest=#328, #327, #325, #323, #321
 - longmemeval: count=1 latest=#223
 - loop: count=7 latest=#312, #297, #293, #292, #291
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
 - maintenance: count=1 latest=#301
 - mcp: count=15 latest=#222, #218, #213, #212, #211
+- mem0: count=1 latest=#328
 - memory: count=5 latest=#286, #275, #274, #182, #178
 - merge: count=1 latest=#301
 - metrics: count=2 latest=#307, #305
@@ -469,6 +473,7 @@ compact: true
 - pr: count=1 latest=#301
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
+- profile: count=1 latest=#328
 - promotion: count=1 latest=#305
 - proposer: count=1 latest=#291
 - protocol: count=95 latest=#324, #322, #310, #304, #294
@@ -490,7 +495,8 @@ compact: true
 - regex: count=1 latest=#317
 - registry: count=1 latest=#178
 - repo-ledger: count=1 latest=#304
-- retrieval: count=60 latest=#325, #323, #321, #320, #319
+- retrieval: count=61 latest=#328, #325, #323, #321, #320
+- retrievalflags: count=1 latest=#328
 - retry: count=1 latest=#182
 - roadmap: count=52 latest=#319, #318, #284, #276, #243
 - roundtrip: count=2 latest=#007, #006
@@ -540,6 +546,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 305
+- done: 306
 - in-progress: 2
 - planned: 20

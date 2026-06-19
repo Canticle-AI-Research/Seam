@@ -50,6 +50,17 @@ class RetrievalFlags:
     # ("is the gold record in the candidate set"). Tuned by free-LoCoMo / paid
     # judge + a measured default, never by the self-probe watchdog.
     search_top_k: int | None = None
+    # Context/pack CHAR budget the answerer reasons over. None = use the
+    # call-site `budget`. Paired with search_top_k by the answerer-aware
+    # retrieval PROFILES below: a weak/local answerer wants a TIGHT context
+    # (dilution-averse) while a capable answerer converts a BROAD one into more
+    # correct answers (holdout-validated cat1: a capable-answerer broad knee
+    # lifted judged 0.566->0.705, +0.139, where the same broad context COLLAPSED
+    # a weak 3B answerer). Like search_top_k this is a CONFIG knob (env
+    # SEAM_RETRIEVAL_CONTEXT_BUDGET / SEAM_RETRIEVAL_PROFILE), deliberately NOT a
+    # self-improvement candidate_lever: it is tuned by the free-LoCoMo
+    # answer-quality scorer + operator-gated paid judge, never the self-probe.
+    context_budget: int | None = None
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -115,6 +126,30 @@ def coerce_flag_value(key: str, value: object) -> object | None:
     return value if isinstance(value, expected) else None
 
 
+# Answerer-aware retrieval profiles: each maps to a coherent
+# (search_top_k, context_budget) pair tuned to the answerer's capability. The
+# memory layer is local; the caller declares its answerer tier (env
+# SEAM_RETRIEVAL_PROFILE or a flags override) and every surface that goes
+# through `load_retrieval_flags` (CLI/REST/MCP/dashboard/benchmark) inherits it.
+# Holdout-validated on LoCoMo cat1; explicit SEAM_RETRIEVAL_TOP_K /
+# SEAM_RETRIEVAL_CONTEXT_BUDGET override the preset. No profile set = unchanged
+# defaults (no regression).
+RETRIEVAL_PROFILES: dict[str, tuple[int, int]] = {
+    "compact": (100, 8000),   # small/local answerers: tight context, dilution-averse
+    "broad": (300, 60000),    # capable answerers: high coverage, aggregation-friendly
+}
+
+
+def resolve_retrieval_profile(name: str | None) -> tuple[int, int] | None:
+    """Return the (search_top_k, context_budget) pair for a profile name, or None.
+
+    Unknown/empty names return None so the caller falls back to defaults.
+    """
+    if not name:
+        return None
+    return RETRIEVAL_PROFILES.get(name.strip().lower())
+
+
 def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
     """Return only the flag fields whose env var is *explicitly* set.
 
@@ -131,6 +166,10 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         return env.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
     out: dict[str, object] = {}
+    # Profile preset first; the explicit knob vars below override it.
+    profile = resolve_retrieval_profile(env.get("SEAM_RETRIEVAL_PROFILE", ""))
+    if profile is not None:
+        out["search_top_k"], out["context_budget"] = profile
     if _present("SEAM_RETRIEVAL_SEMANTIC_ZERO"):
         out["semantic_zero_no_vector"] = _truthy("SEAM_RETRIEVAL_SEMANTIC_ZERO")
     if _present("SEAM_RETRIEVAL_BM25_ALL"):
@@ -147,6 +186,10 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_RETRIEVAL_TOP_K"].strip()
         if raw.isdigit() and int(raw) > 0:
             out["search_top_k"] = int(raw)
+    if _present("SEAM_RETRIEVAL_CONTEXT_BUDGET"):
+        raw = env["SEAM_RETRIEVAL_CONTEXT_BUDGET"].strip()
+        if raw.isdigit() and int(raw) > 0:
+            out["context_budget"] = int(raw)
     return out
 
 
@@ -160,12 +203,17 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         raw = env.get(name, "").strip()
         return int(raw) if raw.isdigit() and int(raw) > 0 else None
 
+    profile = resolve_retrieval_profile(env.get("SEAM_RETRIEVAL_PROFILE", ""))
+    p_top_k = profile[0] if profile else None
+    p_budget = profile[1] if profile else None
     return RetrievalFlags(
         semantic_zero_no_vector=_on("SEAM_RETRIEVAL_SEMANTIC_ZERO"),
         bm25_all_kinds=_on("SEAM_RETRIEVAL_BM25_ALL"),
         fusion="rrf" if _on("SEAM_RETRIEVAL_RRF") else "weighted",
         scoped_vectors=_on("SEAM_RETRIEVAL_SCOPED_VECTORS"),
-        search_top_k=_pos_int("SEAM_RETRIEVAL_TOP_K"),
+        # explicit knob var wins over the profile preset
+        search_top_k=_pos_int("SEAM_RETRIEVAL_TOP_K") or p_top_k,
+        context_budget=_pos_int("SEAM_RETRIEVAL_CONTEXT_BUDGET") or p_budget,
     )
 
 

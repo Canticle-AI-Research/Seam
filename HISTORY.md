@@ -7320,3 +7320,33 @@ TESTS: tests/audit/test_openai_judge_gpt5.py - updated the existing pin (gpt-5 r
 
 CONTEXT: surfaced during the cat1 free->paid investigation (cat1 wall = weak local answerer + a retrieval knee tuned for it, NOT SEAM retrieval; real OpenAI-judge cat1 dev 0.525 at the old knee -> 0.670 at a capable-answerer knee top_k=300/budget=60000; the "raising top_k dilutes" result was a weak-model artifact). NEXT: holdout-validate the capable-answerer retrieval profile, then productize as an answerer-aware RetrievalFlags lever (tighten context for small models' recall; broaden for big models).
 ---END-ENTRY-#327---
+
+---BEGIN-ENTRY-#328---
+id: 328
+date: 2026-06-19T02:47:17Z
+agent: claude
+status: done
+topics: retrieval, profile, retrievalflags, core, locomo, cat1, answerer, context-budget, mem0, history
+commits: none
+refs: seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_flags.py,REPO_LEDGER.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 327
+tokens: 783
+---
+CORE: answerer-aware retrieval PROFILES (compact/broad) — productized the holdout-validated capable-answerer knee into core RetrievalFlags (operator: "build the core first ... for it to actually improve agent memory ... topping the charts ... same scale as mem0"). Strand A of the agreed A->B->C plan (A core profile / B loop-tune over time / C beat-mem0 head-to-head).
+
+WHY: the cat1 free->paid investigation (#327 context) showed the LoCoMo "wall" was a weak local answerer + a retrieval knee tuned for it, NOT SEAM retrieval. A capable answerer wants a BROADER context. Holdout-validated cat1 (61 never-tuned cases, CLEAN per-scope SQLite, real OpenAI judge): judged 0.566->0.705 (+0.139) at the (top_k=300, budget=60000) knee, where the SAME broad context COLLAPSED a weak 3B answerer (0.46->0.10). Dilution is a weak-model artifact -> the right knee is answerer-dependent.
+
+CHANGE (seam_runtime/retrieval.py + runtime.py):
+- RetrievalFlags gains `context_budget: int | None = None` (context/pack CHAR budget the answerer reasons over) alongside the existing search_top_k.
+- RETRIEVAL_PROFILES = {compact:(100,8000), broad:(300,60000)} + resolve_retrieval_profile(). compact = tight context for small/local answerers (dilution-averse, lifts recall); broad = high coverage for capable answerers.
+- Env SEAM_RETRIEVAL_PROFILE=compact|broad sets the (top_k,budget) pair in BOTH env paths: _retrieval_env_overrides (used by load_retrieval_flags -> every core surface CLI/REST/MCP/dashboard) and retrieval_flags_from_env (used by the benchmark adapter). Explicit SEAM_RETRIEVAL_TOP_K / SEAM_RETRIEVAL_CONTEXT_BUDGET override the preset.
+- search_top_k already honored in search_ir (#320) so the profile reaches every surface automatically; context_budget honored in runtime.pack_ir (budget=None now resolves to flags.context_budget else the prior 512 default).
+- Both are CONFIG knobs, deliberately NOT self-improvement candidate_levers (they would game the #290 self-probe); tuned by free-LoCoMo answer-quality + operator-gated paid judge.
+- NO REGRESSION: no profile set -> both knobs None -> byte-identical baseline; load_retrieval_flags(None, {}) == RetrievalFlags().
+
+CORE not benchmark (operator's goal = real agent memory, local-first, mem0-scale): a live agent over MCP with SEAM_RETRIEVAL_PROFILE=broad now retrieves deeper on its actual memory recalls, not just the LoCoMo number.
+
+TESTS: tests/audit/test_retrieval_flags.py +6 (default no-regression, resolver, profile env, explicit-override, load_retrieval_flags surface path, pack_ir context_budget honoring via pack_records spy). REPO_LEDGER stable decision added. Full canonical suite `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/` + PGVECTOR_TEST_DSN + strict no-skip = green (2 known xfails, 0 failures, 0 skips).
+
+NEXT: B = wire the profile knobs into the self-improvement loop driven by the free-LoCoMo answer-quality scorer (NOT self-probe); C = SEAM(broad)-vs-mem0 head-to-head on LoCoMo (mem0 2.0.2 + adapter present; mem0 does per-turn LLM extraction so its runs are $$, operator-gated).
+---END-ENTRY-#328---
