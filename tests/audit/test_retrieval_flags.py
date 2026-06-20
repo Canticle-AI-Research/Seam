@@ -63,23 +63,17 @@ def test_search_top_k_env_parsing():
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_TOP_K": "abc"}).search_top_k is None
 
 
-def test_search_top_k_overrides_call_site_budget():
+def test_search_top_k_overrides_call_site_budget(tmp_path):
     # search_ir uses flags.search_top_k as the candidate budget when set, so a
     # deeper top_k surfaces records a small budget would miss. Build a store with
     # more records than the call-site budget and confirm the override widens it.
-    import tempfile, os
     from seam_runtime.runtime import SeamRuntime
-    db = tempfile.mktemp(suffix=".db")
-    try:
-        rt = SeamRuntime(db)
-        for i in range(12):
-            rt.ingest_conversation_turn(f"Fact number {i}: the widget {i} ships on day {i}.")
-        narrow = rt.search_ir("widget ships", budget=3, include_raw=True)
-        deep = rt.search_ir("widget ships", budget=3, include_raw=True, flags=RetrievalFlags(search_top_k=20))
-        assert len(deep.candidates) > len(narrow.candidates)
-    finally:
-        if os.path.exists(db):
-            os.remove(db)
+    rt = SeamRuntime(str(tmp_path / "topk.db"))
+    for i in range(12):
+        rt.ingest_conversation_turn(f"Fact number {i}: the widget {i} ships on day {i}.")
+    narrow = rt.search_ir("widget ships", budget=3, include_raw=True)
+    deep = rt.search_ir("widget ships", budget=3, include_raw=True, flags=RetrievalFlags(search_top_k=20))
+    assert len(deep.candidates) > len(narrow.candidates)
 
 
 # --- answerer-aware retrieval profiles (compact / broad) ------------------

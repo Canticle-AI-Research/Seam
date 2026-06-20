@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 329
-total_tokens: ~131463
-latest_id: 329
+total_entries: 330
+total_tokens: ~131783
+latest_id: 330
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 330 | 2026-06-20 | done | 7e2c1696e7c59c3e | security,codeql,test,tempfile | 329 |
 | 329 | 2026-06-19 | done | 475ed6016886c93d | docs,test,benchmark,status,+ | 328 |
 | 328 | 2026-06-19 | done | f5702bd8508fc90f | retrieval,profile,retrievalflags,core,+ | 327 |
 | 327 | 2026-06-19 | done | 52811e9bef7066dd | judge,benchmark,locomo,openai,+ | 326 |
@@ -373,7 +374,7 @@ compact: true
 - clear-text-logging: count=2 latest=#299, #298
 - cli: count=4 latest=#302, #293, #287, #285
 - codec: count=13 latest=#132, #131, #130, #129, #128
-- codeql: count=5 latest=#309, #301, #300, #299, #298
+- codeql: count=6 latest=#330, #309, #301, #300, #299
 - command: count=67 latest=#251, #241, #232, #221, #220
 - compile: count=13 latest=#154, #047, #046, #043, #042
 - compiler: count=9 latest=#317, #313, #311, #309, #308
@@ -507,7 +508,7 @@ compact: true
 - scope: count=1 latest=#318
 - scorer: count=2 latest=#325, #292
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=43 latest=#309, #301, #300, #299, #298
+- security: count=44 latest=#330, #309, #301, #300, #299
 - self-improvement: count=8 latest=#312, #302, #297, #293, #292
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -526,7 +527,8 @@ compact: true
 - structure: count=3 latest=#326, #285, #284
 - surface: count=5 latest=#276, #225, #218, #208, #145
 - symbols: count=2 latest=#316, #309
-- test: count=32 latest=#329, #322, #320, #317, #313
+- tempfile: count=1 latest=#330
+- test: count=33 latest=#330, #329, #322, #320, #317
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -547,6 +549,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 307
+- done: 308
 - in-progress: 2
 - planned: 20

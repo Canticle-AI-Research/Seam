@@ -7375,3 +7375,23 @@ Verification: parsed every CSV with Python `csv.DictReader` successfully (`test_
 
 NEXT: keep appending rows after material test/benchmark/milestone sessions; if the tables begin to drift or grow too large, add a tiny validator/exporter rather than hand-copying facts into multiple docs.
 ---END-ENTRY-#329---
+
+---BEGIN-ENTRY-#330---
+id: 330
+date: 2026-06-20T08:34:57Z
+agent: Claude
+status: done
+topics: security, codeql, test, tempfile
+commits: none
+refs: tests/audit/test_retrieval_flags.py
+supersedes: 329
+tokens: 320
+---
+CODEQL FIX (alert #13, py/insecure-temporary-file, HIGH): tests/audit/test_retrieval_flags.py::test_search_top_k_overrides_call_site_budget used the deprecated tempfile.mktemp() (introduced with the #320 search_top_k depth test). mktemp() returns a path WITHOUT creating the file, leaving a TOCTOU window an attacker could pre-create/symlink between the name being handed out and SeamRuntime opening it -- CodeQL flags it high severity.
+
+FIX: switched the test to the pytest tmp_path fixture -- the exact idiom already used by test_pack_ir_honors_context_budget at line 138 of the same file -- SeamRuntime(str(tmp_path / "topk.db")), and dropped the manual try/finally os.remove cleanup since pytest owns (and cleans) the per-test temp dir. The "import tempfile, os" line is gone. Same test logic and assertion (a deeper search_top_k surfaces more candidates than a narrow call-site budget).
+
+VERIFIED: pytest tests/audit/test_retrieval_flags.py = 16 passed; grep over seam_runtime/ tests/ tools/ benchmarks/ confirms zero remaining tempfile.mktemp / mktemp( in active code. No runtime code changed; benchmark-unaffected. The GitHub alert closes once this lands on main and CodeQL re-scans.
+
+NEXT: merge. The only other open code-scanning item is the deferred SSRF taint-break (py/full-ssrf, dismissed-as-mitigated by PR #70 -- a CodeQL-cosmetic refactor, not a security gap).
+---END-ENTRY-#330---
