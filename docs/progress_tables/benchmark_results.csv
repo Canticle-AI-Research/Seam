@@ -1,0 +1,10 @@
+date,history_id,benchmark,split,cases,answerer,judge,retrieval_profile,score,category_scores,cost,result_bundle,notes
+2026-06-19,328,LoCoMo,cat1-holdout,61,"capable OpenAI answerer","real OpenAI judge","broad top_k=300 context_budget=60000","0.705 vs 0.566 baseline","cat1 +0.139","paid; operator-gated",unknown,"Broad profile validated for capable answerers; weak 3B answerer collapsed on same broad context."
+2026-06-19,327,LoCoMo,cat1-dev,unknown,"capable OpenAI answerer","real OpenAI judge","top_k=300 budget=60000","0.670 vs 0.525 old knee","cat1 +0.145","paid; cents-scale",unknown,"Found judge bug while proving top_k dilution was a weak-model artifact."
+2026-06-18,325,LoCoMo-calibration,conv-26-adversarial,15,"qwen2.5:3b local Ollama","calibration scorer","deterministic seed+top_k=1","calibration_utility=0.4","hallucination_rate=0.267; abstention_precision=1.0","free",none,"11 correct abstentions; 4 trap failures were previously invisible because cat5 adversarial cases were silently dropped."
+2026-06-15,323,LoCoMo,cat1-dev,112,"qwen2.5:3b local Ollama","token_f1 local scorer","entity aggregation default-off","-0.0054 raw; +0.0055 hardened","noise-floor wash","free",none,"Retrieval-time entity aggregation was marginal; answerer did not convert recovered tokens into answer quality."
+2026-06-15,321,LoCoMo,100-case-paid,100,"gpt-4o-mini","gpt-4o-mini judge","knee top_k=100 budget=8000",0.52,"cat1 about 0.45","paid",unknown,"Baseline answerer at budget knee."
+2026-06-15,321,LoCoMo,100-case-paid,100,gpt-4o,"gpt-4o-mini judge","knee top_k=100 budget=8000",0.595,"cat2 0.70; cat1 flat about 0.44","paid",unknown,"Better answerer improved temporal cat2, not cat1."
+2026-06-15,321,LoCoMo,100-case-paid,100,"o4-mini reasoning medium","gpt-4o-mini judge","knee top_k=100 budget=8000",0.595,"cat1 about 0.48; cat3 up; cat2 down","paid",unknown,"Reasoning answerer path fixed but did not solve cat1."
+2026-06-15,320,LoCoMo,100-case-paid,100,"gpt-4o-mini","gpt-4o-mini judge","knee top_k=100 budget=8000","about 0.53","cat1 0.44; cat3 0.42","paid",unknown,"Retrieval budget knee doubled cat1/cat3 from baseline but flattened beyond 200/20000."
+

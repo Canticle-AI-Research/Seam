@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 385
+total_events: 386
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-09T03:30:07Z | history:157:32f10cae | session-event | done | dashboard, roadmap, status, verify | ROADMAP.md#A-Web,experimental/webui/README.md,seam_runtime/server.py |
 | 2026-05-09T04:00:18Z | history:158:99b6a799 | session-event | done | dashboard, verify, protocol, ledger, status, history | experimental/webui,experimental/webui/src/api/apiClient.ts,seam_runtime/serve... |
 | 2026-05-09T04:17:11Z | history:159:3b6a7f68 | session-event | done | dashboard, verify, history, status | experimental/webui/src/App.tsx,experimental/webui/vite.config.ts,experimental... |
 | 2026-05-09T04:26:07Z | history:160:034f2f3f | session-event | done | dashboard, verify, history, status | experimental/webui/prototype-backup/seam-dashboard-prototype.html,experimenta... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-06-18T05:27:21Z | history:326:cd345e8f | session-event | done | webui, dashboard, cleanup, structure, docs, dependabot, a... | docs/CODE_LAYOUT.md,.github/dependabot.yml,archive/webui-vite-source/ARCHIVED... |
 | 2026-06-19T00:46:44Z | history:327:52811e9b | session-event | done | judge, benchmark, locomo, openai, reasoning, bugfix, gpt5... | benchmarks/external/common/judge.py,tests/audit/test_openai_judge_gpt5.py,HIS... |
 | 2026-06-19T02:47:17Z | history:328:f5702bd8 | session-event | done | retrieval, profile, retrievalflags, core, locomo, cat1, a... | seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_... |
+| 2026-06-19T08:20:53Z | history:329:475ed601 | session-event | done | docs, test, benchmark, status, history | docs/progress_tables/README.md,docs/progress_tables/test_runs.csv,docs/progre... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0185.cross.md | 2026-04-15T00:00:00Z..2026-05-08T22:01:15Z | 185 | (multi) | (multi) |
+| 0001-0186.cross.md | 2026-04-15T00:00:00Z..2026-05-09T03:30:07Z | 186 | (multi) | (multi) |

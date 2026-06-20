@@ -7350,3 +7350,28 @@ TESTS: tests/audit/test_retrieval_flags.py +6 (default no-regression, resolver, 
 
 NEXT: B = wire the profile knobs into the self-improvement loop driven by the free-LoCoMo answer-quality scorer (NOT self-probe); C = SEAM(broad)-vs-mem0 head-to-head on LoCoMo (mem0 2.0.2 + adapter present; mem0 does per-turn LLM extraction so its runs are $$, operator-gated).
 ---END-ENTRY-#328---
+
+---BEGIN-ENTRY-#329---
+id: 329
+date: 2026-06-19T08:20:53Z
+agent: Codex
+status: done
+topics: docs, test, benchmark, status, history
+commits: none
+refs: docs/progress_tables/README.md,docs/progress_tables/test_runs.csv,docs/progress_tables/benchmark_results.csv,docs/progress_tables/milestones.csv,HISTORY.md,HISTORY_INDEX.md
+supersedes: 328
+tokens: 338
+---
+PROGRESS TABLES: added a tracked scan-friendly data-table layer for SEAM progress (operator: "we now need to create a table ... can we learn from it?").
+
+Created `docs/progress_tables/` with three human-editable CSV ledgers plus a README that states the contract: `HISTORY.md` remains authoritative; these tables are derived summaries for fast learning/scanning and must cite `history_id`, evidence, and next steps without storing raw generated outputs or secrets.
+
+Tables:
+- `test_runs.csv`: 6 seed rows for recent canonical/pgvector/test-artifact verification runs.
+- `benchmark_results.csv`: 8 seed rows for recent LoCoMo/retrieval/calibration measurements (#328, #327, #325, #323, #321, #320).
+- `milestones.csv`: 9 seed rows for durable progress claims across retrieval profiles, judge compatibility, webui consolidation, calibration, hygiene, entity aggregation, test artifact routing, answerer ladder, and retrieval budget knee.
+
+Verification: parsed every CSV with Python `csv.DictReader` successfully (`test_runs.csv` 6 rows/12 fields; `benchmark_results.csv` 8 rows/13 fields; `milestones.csv` 9 rows/8 fields). No runtime code changed.
+
+NEXT: keep appending rows after material test/benchmark/milestone sessions; if the tables begin to drift or grow too large, add a tiny validator/exporter rather than hand-copying facts into multiple docs.
+---END-ENTRY-#329---
