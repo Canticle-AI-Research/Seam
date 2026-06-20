@@ -7216,3 +7216,182 @@ CONCURRENCY: this session ran alongside another agent (Codex) which landed HISTO
 
 NEXT: the REAL cat1 lever = cross-turn entity coreference at INGEST (link per-turn entity mentions to stable ids + aggregation retrieval over real ir_edges), not string-matched at query time; scope + free-validate (deterministic recall + the local-answerer gate above) BEFORE building. 80% is a milestone to unlock other roadmap items, not a one-fix target. Stage 5 (degenerate compile_nl records) + the server graceful-shutdown gap remain open.
 ---END-ENTRY-#323---
+
+---BEGIN-ENTRY-#324---
+id: 324
+date: 2026-06-17T22:49:30Z
+agent: claude
+status: done
+topics: doctor, stash, git, hygiene, tooling, protocol, history
+commits: none
+refs: seam_runtime/doctor.py,seam_runtime/cli.py,tests/audit/test_doctor_stashes.py,AGENTS.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 323
+tokens: 683
+---
+SEAM-doctor STASH ADVISORY (operator-requested, from the #323 stash post-mortem). `seam doctor` now surfaces git stashes as a NON-blocking advisory, and AGENTS.md Session End documents restoring/dropping them.
+
+WHY: the #323 "is everything pushed/merged?" sweep found a 3-week-old abandoned stash (a 2026-05-27 server-hardening WIP - graceful-shutdown + shell-validation + storage rework, ~85% since re-implemented independently on main; the unique bits were `_install_signal_handlers` + `_validate_shell_executable`, the still-open graceful-shutdown wiring). It lingered unnoticed because stashes are invisible to `git status`, `git log`, and branch/PR listings - more likely in this multi-agent repo where an agent stashes to clear a tree mid-context-switch and never restores it. Operator dropped it (recoverable via reflectog/this thread), then asked to institutionalize the check.
+
+BUILD (seam_runtime/doctor.py): `check_stashes()` runs `git stash list --format=%ct<TAB>%gs` and returns status clean | advisory | not-a-git-repo, with per-stash age_days + summary; wired into `build_doctor_report()` as the "stashes" key. ADVISORY ONLY - it never flips the overall PASS/FAIL status (which stays driven by smoke/lossless/deps, like commit_gate/streams). `cli.py` `_render_doctor_report` adds a "Stashes: N present (oldest Xd) - review abandoned WIP" line (or "Stashes: none"). DELIBERATELY NOT added to the preflight commit gate (`tools/claude/preflight_protocol.sh`): a stash during active work is legitimate, so blocking commits on it would be a false positive - hygiene advisories belong in the health check, correctness gates in the blocking gate. AGENTS.md Session End gains a stash-hygiene line beside the existing branch-hygiene one.
+
+TESTS: tests/audit/test_doctor_stashes.py (5 CI-safe, hermetic via monkeypatched subprocess - no real stash created): clean, advisory+age parsing, not-a-git-repo, advisory-does-not-flip-overall-status, and render output. Verified full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN green. Benchmark-unaffected; no retrieval/MIRL/schema change.
+
+CONTEXT: PR #96 (operator's open docs PR - SEAM engineering manual + `seam-engineer` skill, modeled on "meshyface") was read + reviewed favorably this session: accurate to the real architecture/protocol, well-designed anti-drift (routes to canonical sources, does NOT hardcode commands/counts per the #310 lesson). It's docs-only, still draft/UNSTABLE pending its own SEAM-chain entry + a discoverability pointer (README/REPO_LEDGER) + making restated rules reference AGENTS.md as authority to avoid dual-source drift.
+
+NEXT: the cat1 ingest-coreference rebuild (cross-turn entity coreference at ingest) remains the campaign main thread toward the 80% milestone; complete PR #96's chain when the operator is ready.
+---END-ENTRY-#324---
+
+---BEGIN-ENTRY-#325---
+id: 325
+date: 2026-06-18T01:26:35Z
+agent: claude
+status: done
+topics: calibration, abstention, benchmark, locomo, scorer, epistemic, loader, cat1, graphrag, retrieval
+commits: none
+refs: benchmarks/external/locomo/calibration_scorer.py,benchmarks/external/common/dataset.py,tests/audit/test_locomo_calibration.py,docs/audits/2026-06-17-cat1-coreference-graphrag-blueprint.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 324
+tokens: 1240
+---
+CALIBRATION SCORER + adversarial-loader fix (operationalizes PR #96's epistemic policy) + cat1/GraphRAG blueprint doc. Operator: "yes [build the CalibrationScorer] ... can 96 be used to progress seam? if so, do so." Answer: yes - #96's `docs/engineering/09_EPISTEMIC_CALIBRATION.md` (epistemic calibration + abstention policy) is the SPEC; this lands its executable teeth in `benchmarks/`, and building it ALSO exposed a benchmark-integrity bug.
+
+CALIBRATION SCORER (benchmarks/external/locomo/calibration_scorer.py): a FREE `CalibrationScorer` over the LoCoMo split that turns the policy's "calibrated truthfulness" matrix into measured metrics. Answerability label comes from the dataset, not inference (the policy's own requirement): cat5 adversarial load with `gold==""` => unanswerable; cat1-4 => answerable. Reward matrix mirrors the doc (ORDINAL: hallucination -4 << wrong -3 < unnecessary-abstention -1 < correct +2 == justified-abstention +2). Reports the full selective-prediction set: coverage, selective_accuracy, selective_quality (threshold-free mean token_f1), abstention_precision, hallucination_rate, calibration_utility; fabricated_evidence=None (not measurable without evidence annotations - v1 limit, noted). Conforms to the `Scorer` protocol (aggregate=calibration_utility) AND exposes `calibration_report()`. Abstention vocabulary keyed off the adapter's real signal ("unknown", line 445/316). FREE: local Ollama answerer (deterministic seed+top_k=1, #323 infra); CI uses stub adapters.
+
+BENCHMARK-INTEGRITY FIX (benchmarks/external/common/dataset.py): the headline find. The existing loader's `if "answer" not in qa: continue` SILENTLY DROPPED all 444 LoCoMo cat5 adversarial cases (they carry only `adversarial_answer`, no `answer` key) - so on real LoCoMo the unanswerable arm DID NOT EXIST (load_locomo_cases -> 1542 cases, 0 empty-gold, only 2 cat5). Any abstention/calibration metric measured before this fix would have scored an empty set and looked falsely clean - exactly the failure the policy warns about ("rewarding 'unknown' can produce misleading benchmark gains"). FIX: opt-in `load_locomo_cases(..., include_unanswerable=False)`; default-OFF keeps every existing caller byte-identical (verified: default still 1542 / 0 empty-gold), opt-in yields 1986 cases incl the full 444-case unanswerable arm with `gold==""`. Discipline note: this was caught by validate-before-build/verify-before-claiming (my memory premise "cat5 = 2 cases" was wrong; the data + loader were verified directly before any conclusion).
+
+REAL MEASUREMENT (FREE, qwen2.5:3b on local Ollama :11435, deterministic): on 15 real conv-26 adversarial cases qwen abstained correctly on 11 but FELL FOR THE TRAP on 4 -> hallucination_rate=0.267, abstention_precision=1.0, calibration_utility=0.4. A concrete, actionable defect number that was previously invisible. Methodological note: cat5 is SPARSE per-conversation in the dev split, so production calibration measurement must POOL many scopes (single-conversation undercounts the unanswerable arm).
+
+TESTS (tests/audit/test_locomo_calibration.py, 11 CI-safe hermetic - stub adapter, no Ollama/API/dataset): is_abstention (unknown/empty vs real answers incl long sentences containing "unknown"); classify_case for all 5 matrix outcomes; full metric math on a hand-built set; the POLICY THESIS test (abstain-on-everything scores 0.2 vs calibrated 2.0, coverage 0 - "never hallucinate by never answering is not well calibrated"); reckless-confidence punished on unanswerable; Scorer-protocol shape; + 2 loader tests (default skips adversarial, opt-in admits with empty gold).
+
+cat1/GraphRAG BLUEPRINT DOC (docs/audits/2026-06-17-cat1-coreference-graphrag-blueprint.md): findings/blueprint (NOT a build spec) grounding the cat1 ingest-coreference + entity-aggregation plan in GraphRAG local search (entry-point entities -> 1-hop expansion -> rank+filter -> fit budget; the rank+filter step is the documented fix for the #323 dilution wash) + the understand-anything reference impl (dedup->edge-remap, MIT) + LoCoMo. The detailed build spec stays gated on a free Phase-0 diagnostic (cat1 retrieval-bound vs synthesis-bound).
+
+SCOPE: benchmarks + docs only; core/runtime UNCHANGED. No paid run (local qwen is free; the operator paid-run rule is intact). PR #96 remains the open docs PR (its 09 doc is the spec this scorer references; #96 should merge to make that reference resolvable on main). VERIFICATION: full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN green; calibration suite 11/11.
+
+NEXT: (1) campaign main thread unchanged = cat1 cross-turn entity coreference at INGEST toward 80%; (2) v2 calibration - capture `adversarial_answer` to score "fell for the SPECIFIC trap" (needs a BenchmarkCase field or side map) + multi-scope pooled calibration run; (3) consider a calibration gate once a baseline is pooled; (4) evaluate the meshyface operational-hardening patterns (operator-provided) against the roadmap.
+---END-ENTRY-#325---
+
+---BEGIN-ENTRY-#326---
+id: 326
+date: 2026-06-18T05:27:21Z
+agent: claude
+status: done
+topics: webui, dashboard, cleanup, structure, docs, dependabot, archive, history
+commits: none
+refs: docs/CODE_LAYOUT.md,.github/dependabot.yml,archive/webui-vite-source/ARCHIVED.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 325
+tokens: 814
+---
+WEBUI CONSOLIDATION (operator: "lets fix the mess... if its not touching anything thats running its okay"). The repo had FOUR webui-ish locations causing a "which one is real?" mess; consolidated to ONE canonical, deleted strays, archived the diverged source, with the running server untouched.
+
+TRIGGER: operator asked to launch the webui. Launched it via `seam webui --no-open` (uvicorn at http://127.0.0.1:8765, serving seam_runtime/webui/dashboard.html, health 200, `<title>SEAM - Dashboard</title>`) and also captured the terminal TUI (`seam dashboard`) under tmux. Then asked to make the location clear and clean up duplicates.
+
+THE CANONICAL (unchanged, the running server serves it): `seam_runtime/webui/dashboard.html` - a single self-contained hand-authored file (CDN React, inline) + seam-api.js/favicon.svg/icons.svg/branding/. `server.py:webui_dir()` resolves the package webui dir (override SEAM_WEBUI_DIR); shipped via pyproject package-data `seam_runtime=["webui/*","webui/**/*"]` (package-relative). NOT touched.
+
+CLEANUP:
+- DELETED (untracked/gitignored strays, zero git/running impact): `Webui-final-dash/` (oldest stray duplicate, .gitignore:70), `webui/dist/` (stale build that DIFFERED from the served file = a real confusion source), `webui/node_modules/`.
+- ARCHIVED (reversible `git mv`, 24 tracked files): top-level `webui/` Vite+React+TS project -> `archive/webui-vite-source/`. WHY: its build output had diverged from + was older than the served file (the canonical is hand-authored, NOT built from this tree), and per its own RESTORE_NOTES the React-pane `src/` rewrite was a documented regression reverted to the original shell. Keeping it at repo root made it look like the dashboard's source, which it isn't. Added `archive/webui-vite-source/ARCHIVED.md` pointing to the canonical.
+- DEPENDABOT: dropped the stale `/webui` npm ecosystem entry from `.github/dependabot.yml` (the manifest moved to archive/; the served dashboard uses CDN deps, no npm tree to scan). docker-compose entry kept.
+- DOCS: `docs/CODE_LAYOUT.md` WebUI section rewritten - `seam_runtime/webui/` = the one and only webui; `archive/webui-vite-source/` = the archived Vite source.
+
+CONSTRAINT HONORED: verified the running webui server stayed healthy (curl health=200 + title intact) AFTER all moves - the archive/delete touched only top-level `webui/` and untracked dirs, never `seam_runtime/webui/` or the uvicorn process.
+
+VERIFICATION: full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN green; no Python code changed (file move + yaml/markdown only). No paid run.
+
+NEXT: cat1 is SYNTHESIS/PACKING-bound per Phase 0 (free diagnostic this session: 82% of cat1 gold evidence is retrieved yet all-gold-retrieved token_f1 only ~0.20; qwen fell for 4/15 adversarial traps = hallucination_rate 0.267) -> the next lever is an entity-aggregation dossier PACKER (not the ingest-coreference rebuild). Also open: record the Phase 0 diagnostic as a reusable module; PR #96 (epistemic-calibration docs, the spec for HISTORY#325's calibration scorer) should merge; meshyface operational-hardening patterns banked as a future ROADMAP track ([[project_meshyface_patterns]]).
+---END-ENTRY-#326---
+
+---BEGIN-ENTRY-#327---
+id: 327
+date: 2026-06-19T00:46:44Z
+agent: claude
+status: done
+topics: judge, benchmark, locomo, openai, reasoning, bugfix, gpt5, history
+commits: none
+refs: benchmarks/external/common/judge.py,tests/audit/test_openai_judge_gpt5.py,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 326
+tokens: 517
+---
+JUDGE BUG FIX: OpenAIJudge reasoning_effort="minimal" rejected by gpt-5.4+ models (operator: "fix the judge bug first ... we want solid architecture"). This is the MISSED half of the HISTORY#321 answerer fix, which corrected the identical hardcode in _openai_short_answer but not the judge.
+
+ROOT: benchmarks/external/common/judge.py OpenAIJudge hardcoded reasoning_effort="minimal" + max_completion_tokens=512 in BOTH score() and _build_batch_request(). gpt-5.4+ reject "minimal" (support only none/low/medium/high/xhigh) -> BadRequestError 400; the judge path is BROKEN for current OpenAI models (this key exposes only gpt-5.x/o-series, no gpt-4o fallback). Found while running the real LoCoMo judged scorer on cat1 dev during the cat1 answerer-bound investigation.
+
+FIX: new module-level _openai_judge_reasoning_params() reads SEAM_BENCH_JUDGE_REASONING_EFFORT (fallback SEAM_BENCH_REASONING_EFFORT, default "low" = broadly supported) + SEAM_BENCH_JUDGE_MAX_COMPLETION_TOKENS (default 512); applied at both call sites. Mirrors _openai_short_answer's env-driven pattern from #321 so judge and answerer stay consistent. ClaudeJudge unaffected (different API, no reasoning_effort).
+
+TESTS: tests/audit/test_openai_judge_gpt5.py - updated the existing pin (gpt-5 reasoning_effort default minimal->low) + 3 new (env override, shared-env fallback, batch-request mirror). Full canonical suite `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/` + PGVECTOR_TEST_DSN + strict no-skip = green (2 known xfails, 0 failures, 0 skips).
+
+CONTEXT: surfaced during the cat1 free->paid investigation (cat1 wall = weak local answerer + a retrieval knee tuned for it, NOT SEAM retrieval; real OpenAI-judge cat1 dev 0.525 at the old knee -> 0.670 at a capable-answerer knee top_k=300/budget=60000; the "raising top_k dilutes" result was a weak-model artifact). NEXT: holdout-validate the capable-answerer retrieval profile, then productize as an answerer-aware RetrievalFlags lever (tighten context for small models' recall; broaden for big models).
+---END-ENTRY-#327---
+
+---BEGIN-ENTRY-#328---
+id: 328
+date: 2026-06-19T02:47:17Z
+agent: claude
+status: done
+topics: retrieval, profile, retrievalflags, core, locomo, cat1, answerer, context-budget, mem0, history
+commits: none
+refs: seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_flags.py,REPO_LEDGER.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md
+supersedes: 327
+tokens: 783
+---
+CORE: answerer-aware retrieval PROFILES (compact/broad) — productized the holdout-validated capable-answerer knee into core RetrievalFlags (operator: "build the core first ... for it to actually improve agent memory ... topping the charts ... same scale as mem0"). Strand A of the agreed A->B->C plan (A core profile / B loop-tune over time / C beat-mem0 head-to-head).
+
+WHY: the cat1 free->paid investigation (#327 context) showed the LoCoMo "wall" was a weak local answerer + a retrieval knee tuned for it, NOT SEAM retrieval. A capable answerer wants a BROADER context. Holdout-validated cat1 (61 never-tuned cases, CLEAN per-scope SQLite, real OpenAI judge): judged 0.566->0.705 (+0.139) at the (top_k=300, budget=60000) knee, where the SAME broad context COLLAPSED a weak 3B answerer (0.46->0.10). Dilution is a weak-model artifact -> the right knee is answerer-dependent.
+
+CHANGE (seam_runtime/retrieval.py + runtime.py):
+- RetrievalFlags gains `context_budget: int | None = None` (context/pack CHAR budget the answerer reasons over) alongside the existing search_top_k.
+- RETRIEVAL_PROFILES = {compact:(100,8000), broad:(300,60000)} + resolve_retrieval_profile(). compact = tight context for small/local answerers (dilution-averse, lifts recall); broad = high coverage for capable answerers.
+- Env SEAM_RETRIEVAL_PROFILE=compact|broad sets the (top_k,budget) pair in BOTH env paths: _retrieval_env_overrides (used by load_retrieval_flags -> every core surface CLI/REST/MCP/dashboard) and retrieval_flags_from_env (used by the benchmark adapter). Explicit SEAM_RETRIEVAL_TOP_K / SEAM_RETRIEVAL_CONTEXT_BUDGET override the preset.
+- search_top_k already honored in search_ir (#320) so the profile reaches every surface automatically; context_budget honored in runtime.pack_ir (budget=None now resolves to flags.context_budget else the prior 512 default).
+- Both are CONFIG knobs, deliberately NOT self-improvement candidate_levers (they would game the #290 self-probe); tuned by free-LoCoMo answer-quality + operator-gated paid judge.
+- NO REGRESSION: no profile set -> both knobs None -> byte-identical baseline; load_retrieval_flags(None, {}) == RetrievalFlags().
+
+CORE not benchmark (operator's goal = real agent memory, local-first, mem0-scale): a live agent over MCP with SEAM_RETRIEVAL_PROFILE=broad now retrieves deeper on its actual memory recalls, not just the LoCoMo number.
+
+TESTS: tests/audit/test_retrieval_flags.py +6 (default no-regression, resolver, profile env, explicit-override, load_retrieval_flags surface path, pack_ir context_budget honoring via pack_records spy). REPO_LEDGER stable decision added. Full canonical suite `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/` + PGVECTOR_TEST_DSN + strict no-skip = green (2 known xfails, 0 failures, 0 skips).
+
+NEXT: B = wire the profile knobs into the self-improvement loop driven by the free-LoCoMo answer-quality scorer (NOT self-probe); C = SEAM(broad)-vs-mem0 head-to-head on LoCoMo (mem0 2.0.2 + adapter present; mem0 does per-turn LLM extraction so its runs are $$, operator-gated).
+---END-ENTRY-#328---
+
+---BEGIN-ENTRY-#329---
+id: 329
+date: 2026-06-19T08:20:53Z
+agent: Codex
+status: done
+topics: docs, test, benchmark, status, history
+commits: none
+refs: docs/progress_tables/README.md,docs/progress_tables/test_runs.csv,docs/progress_tables/benchmark_results.csv,docs/progress_tables/milestones.csv,HISTORY.md,HISTORY_INDEX.md
+supersedes: 328
+tokens: 338
+---
+PROGRESS TABLES: added a tracked scan-friendly data-table layer for SEAM progress (operator: "we now need to create a table ... can we learn from it?").
+
+Created `docs/progress_tables/` with three human-editable CSV ledgers plus a README that states the contract: `HISTORY.md` remains authoritative; these tables are derived summaries for fast learning/scanning and must cite `history_id`, evidence, and next steps without storing raw generated outputs or secrets.
+
+Tables:
+- `test_runs.csv`: 6 seed rows for recent canonical/pgvector/test-artifact verification runs.
+- `benchmark_results.csv`: 8 seed rows for recent LoCoMo/retrieval/calibration measurements (#328, #327, #325, #323, #321, #320).
+- `milestones.csv`: 9 seed rows for durable progress claims across retrieval profiles, judge compatibility, webui consolidation, calibration, hygiene, entity aggregation, test artifact routing, answerer ladder, and retrieval budget knee.
+
+Verification: parsed every CSV with Python `csv.DictReader` successfully (`test_runs.csv` 6 rows/12 fields; `benchmark_results.csv` 8 rows/13 fields; `milestones.csv` 9 rows/8 fields). No runtime code changed.
+
+NEXT: keep appending rows after material test/benchmark/milestone sessions; if the tables begin to drift or grow too large, add a tiny validator/exporter rather than hand-copying facts into multiple docs.
+---END-ENTRY-#329---
+
+---BEGIN-ENTRY-#330---
+id: 330
+date: 2026-06-20T08:34:57Z
+agent: Claude
+status: done
+topics: security, codeql, test, tempfile
+commits: none
+refs: tests/audit/test_retrieval_flags.py
+supersedes: 329
+tokens: 320
+---
+CODEQL FIX (alert #13, py/insecure-temporary-file, HIGH): tests/audit/test_retrieval_flags.py::test_search_top_k_overrides_call_site_budget used the deprecated tempfile.mktemp() (introduced with the #320 search_top_k depth test). mktemp() returns a path WITHOUT creating the file, leaving a TOCTOU window an attacker could pre-create/symlink between the name being handed out and SeamRuntime opening it -- CodeQL flags it high severity.
+
+FIX: switched the test to the pytest tmp_path fixture -- the exact idiom already used by test_pack_ir_honors_context_budget at line 138 of the same file -- SeamRuntime(str(tmp_path / "topk.db")), and dropped the manual try/finally os.remove cleanup since pytest owns (and cleans) the per-test temp dir. The "import tempfile, os" line is gone. Same test logic and assertion (a deeper search_top_k surfaces more candidates than a narrow call-site budget).
+
+VERIFIED: pytest tests/audit/test_retrieval_flags.py = 16 passed; grep over seam_runtime/ tests/ tools/ benchmarks/ confirms zero remaining tempfile.mktemp / mktemp( in active code. No runtime code changed; benchmark-unaffected. The GitHub alert closes once this lands on main and CodeQL re-scans.
+
+NEXT: merge. The only other open code-scanning item is the deferred SSRF taint-break (py/full-ssrf, dismissed-as-mitigated by PR #70 -- a CodeQL-cosmetic refactor, not a security gap).
+---END-ENTRY-#330---

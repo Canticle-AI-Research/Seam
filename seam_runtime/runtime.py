@@ -266,11 +266,18 @@ class SeamRuntime:
         self,
         record_ids: list[str] | None = None,
         lens: str = "general",
-        budget: int = 512,
+        budget: int | None = None,
         profile: str = "default",
         mode: str = "context",
         persist: bool = False,
     ) -> Pack:
+        # Honor the answerer-aware retrieval profile's context_budget when the
+        # caller does not pass an explicit budget (None). No profile set ->
+        # context_budget is None -> falls back to the prior 512 default, so
+        # callers that relied on the default are byte-identical (no regression).
+        if budget is None:
+            cb = getattr(self._retrieval_flags_cached(), "context_budget", None)
+            budget = cb if cb else 512
         batch = self.store.load_ir(ids=record_ids) if record_ids else self.store.load_ir()
         namespace = batch.records[0].ns if batch.records else None
         pack = pack_records(batch.records, lens=lens, budget=budget, mode=mode, profile=profile, namespace=namespace)

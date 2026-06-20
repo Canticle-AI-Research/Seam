@@ -21,14 +21,18 @@ not have to infer what works from directory names alone.
 - `scripts/` - active operator scripts and guarded runners.
 - `installers/` - active installation entrypoints and installer docs.
 
-## WebUI Dev Project
+## WebUI
 
-- `webui/` - the Vite + React + TypeScript dev project for the browser dashboard.
-  Its `vite.config.ts` `publicDir` points at `../seam_runtime/webui`, so `npm run
-  dev` serves the same canonical assets the runtime serves. The runtime does NOT
-  depend on Node or a build step: `seam serve` serves the static `dashboard.html`
-  directly. The React panes under `webui/src/` are in-progress rework material;
-  the shipped, working dashboard is the static `seam_runtime/webui/dashboard.html`.
+- `seam_runtime/webui/` - **the one and only webui.** A single self-contained
+  `dashboard.html` (+ `seam-api.js`, `favicon.svg`, `icons.svg`, `branding/`),
+  hand-authored with CDN React. `seam webui` / `seam serve` serves it at
+  `http://127.0.0.1:8765/` (`server.py:webui_dir()`; override `SEAM_WEBUI_DIR`).
+  The runtime needs no Node or build step.
+- `archive/webui-vite-source/` - the **archived** Vite + React + TypeScript dev
+  project (was top-level `webui/`). It had diverged from the served file (the
+  canonical is hand-authored, not built from this tree), so it was archived in
+  HISTORY#326 to end the "which webui is real?" confusion. See its `ARCHIVED.md`.
+  Revivable via git history if the Vite shell is ever resumed.
   (`experimental/` was removed in HISTORY#285 — nothing in this repo is
   experimental.)
 
