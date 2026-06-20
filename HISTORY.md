@@ -7395,3 +7395,25 @@ VERIFIED: pytest tests/audit/test_retrieval_flags.py = 16 passed; grep over seam
 
 NEXT: merge. The only other open code-scanning item is the deferred SSRF taint-break (py/full-ssrf, dismissed-as-mitigated by PR #70 -- a CodeQL-cosmetic refactor, not a security gap).
 ---END-ENTRY-#330---
+
+---BEGIN-ENTRY-#331---
+id: 331
+date: 2026-06-20T14:58:16Z
+agent: Claude
+status: done
+topics: docs, engineering, manual, skill, templates
+commits: none
+refs: docs/engineering/README.md,docs/engineering/templates/README.md,skills/seam-engineer/SKILL.md,docs/README.md
+supersedes: 330
+tokens: 569
+---
+SEAM ENGINEERING MANUAL landed + finalized (PR #96; operator: the manual is "supposed to be for documentation", finalize "full"). The manual = docs/engineering/ (README + 01_ARCHITECTURE, 05_SECURITY_ARCHITECTURE, 06_ENGINEERING_CHANGE_SOP, 07_TEST_AND_BENCHMARK_SOP, 08_INCIDENT_RESPONSE, 09_EPISTEMIC_CALIBRATION, VERIFICATION_MATRIX, templates/) + the compact skills/seam-engineer/SKILL.md routing skill. It is the canonical engineering entrypoint: routes to the governing spec/active code/tests/history/ledgers (anti-drift per #310 - does NOT hardcode commands or counts), mirrors the AGENTS.md Session-Start read order and the #304 "SEAM spec is the governing contract" decision, and carries the epistemic-calibration/abstention policy whose reward matrix benchmarks/external/locomo/calibration_scorer.py (#325) already operationalizes. Landing this CLOSES the dangling docs/engineering/09_EPISTEMIC_CALIBRATION.md reference that has sat on main (in that scorer's docstring + comments) since #325.
+
+FINALIZATION this session (the two gaps that kept #96 a draft):
+(1) DANGLING TEMPLATE LINKS - the SOPs linked templates/{ARCHITECTURE_DECISION,THREAT_MODEL_DELTA,INCIDENT_REPORT,ENGINEERING_HANDOFF}.md as separate files, but all five templates were inlined as sections inside templates/README.md, so those links 404'd. Split all five into their own files (CHANGE_PLAN, ARCHITECTURE_DECISION, THREAT_MODEL_DELTA, ENGINEERING_HANDOFF, INCIDENT_REPORT) with each template's content byte-preserved inside a fenced block, and rewrote templates/README.md into a short index that links them. Every templates/<NAME>.md reference in the manual now resolves (verified by a link check over docs/engineering/).
+(2) DISCOVERABILITY - added a pointer to docs/engineering/README.md from the docs/README.md "Active Docs" index, so the manual is reachable from the canonical docs surface.
+
+Also brought the branch up to date with main (merge, conflict-free) so it carries the #325/#328/#329/#330 work.
+
+VERIFIED: all referenced template links resolve to existing files; docs-only change (no runtime, schema, test, fixture, or dependency code touched); SEAM gates integrity/routing/continuity/streams green. NEXT: none required. Optional future code PR = the runtime calibration scorer's answerability-labeled benchmark schema (the #325 scorer is the free-metric half; 09_EPISTEMIC_CALIBRATION.md specifies the labeled-eval contract).
+---END-ENTRY-#331---

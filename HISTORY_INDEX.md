@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 330
-total_tokens: ~131783
-latest_id: 330
+total_entries: 331
+total_tokens: ~132352
+latest_id: 331
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 331 | 2026-06-20 | done | 7cbe5ba6af57abc0 | docs,engineering,manual,skill,+ | 330 |
 | 330 | 2026-06-20 | done | 7e2c1696e7c59c3e | security,codeql,test,tempfile | 329 |
 | 329 | 2026-06-19 | done | 475ed6016886c93d | docs,test,benchmark,status,+ | 328 |
 | 328 | 2026-06-19 | done | f5702bd8508fc90f | retrieval,profile,retrievalflags,core,+ | 327 |
@@ -401,10 +402,11 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=33 latest=#329, #326, #322, #318, #310
+- docs: count=34 latest=#331, #329, #326, #322, #318
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
+- engineering: count=1 latest=#331
 - enrichment: count=1 latest=#317
 - entity-aggregation: count=1 latest=#323
 - epistemic: count=1 latest=#325
@@ -451,6 +453,7 @@ compact: true
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
 - maintenance: count=1 latest=#301
+- manual: count=1 latest=#331
 - mcp: count=15 latest=#222, #218, #213, #212, #211
 - mem0: count=1 latest=#328
 - memory: count=5 latest=#286, #275, #274, #182, #178
@@ -514,6 +517,7 @@ compact: true
 - server: count=4 latest=#300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
+- skill: count=1 latest=#331
 - skip: count=1 latest=#294
 - snapshot: count=110 latest=#239, #229, #227, #226, #225
 - spec: count=3 latest=#307, #305, #304
@@ -528,6 +532,7 @@ compact: true
 - surface: count=5 latest=#276, #225, #218, #208, #145
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
+- templates: count=1 latest=#331
 - test: count=33 latest=#330, #329, #322, #320, #317
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
@@ -549,6 +554,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 308
+- done: 309
 - in-progress: 2
 - planned: 20

@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 387
+total_events: 388
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-09T04:17:11Z | history:159:3b6a7f68 | session-event | done | dashboard, verify, history, status | experimental/webui/src/App.tsx,experimental/webui/vite.config.ts,experimental... |
 | 2026-05-09T04:26:07Z | history:160:034f2f3f | session-event | done | dashboard, verify, history, status | experimental/webui/prototype-backup/seam-dashboard-prototype.html,experimenta... |
 | 2026-05-09T17:27:20Z | history:161:750a2c4b | session-event | done | dashboard, verify, history, status | experimental/webui/prototype-backup/seam-dashboard-prototype.html,experimenta... |
 | 2026-05-10T00:00:00Z | roadmap:030:7522f63a | status-change | bootstrap | dashboard, webui, command | ROADMAP.md:181 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-06-19T02:47:17Z | history:328:f5702bd8 | session-event | done | retrieval, profile, retrievalflags, core, locomo, cat1, a... | seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_... |
 | 2026-06-19T08:20:53Z | history:329:475ed601 | session-event | done | docs, test, benchmark, status, history | docs/progress_tables/README.md,docs/progress_tables/test_runs.csv,docs/progre... |
 | 2026-06-20T08:34:57Z | history:330:7e2c1696 | session-event | done | security, codeql, test, tempfile | tests/audit/test_retrieval_flags.py |
+| 2026-06-20T14:58:16Z | history:331:7cbe5ba6 | session-event | done | docs, engineering, manual, skill, templates | docs/engineering/README.md,docs/engineering/templates/README.md,skills/seam-e... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0187.cross.md | 2026-04-15T00:00:00Z..2026-05-09T04:00:18Z | 187 | (multi) | (multi) |
+| 0001-0188.cross.md | 2026-04-15T00:00:00Z..2026-05-09T04:17:11Z | 188 | (multi) | (multi) |
