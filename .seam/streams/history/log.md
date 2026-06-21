@@ -7417,3 +7417,34 @@ Also brought the branch up to date with main (merge, conflict-free) so it carrie
 
 VERIFIED: all referenced template links resolve to existing files; docs-only change (no runtime, schema, test, fixture, or dependency code touched); SEAM gates integrity/routing/continuity/streams green. NEXT: none required. Optional future code PR = the runtime calibration scorer's answerability-labeled benchmark schema (the #325 scorer is the free-metric half; 09_EPISTEMIC_CALIBRATION.md specifies the labeled-eval contract).
 ---END-ENTRY-#331---
+
+---BEGIN-ENTRY-#332---
+id: 332
+date: 2026-06-21T17:33:37Z
+agent: Claude
+status: done
+topics: retrieval, self-improvement, loop, profile, locomo
+commits: none
+refs: benchmarks/external/locomo/answer_quality_scorer.py,seam_runtime/self_improve.py,tools/h2/improvement_loop.py,seam_runtime/cli.py,tests/audit/test_locomo_answer_quality_scorer.py
+supersedes: 331
+tokens: 915
+---
+STRAND B (#328 A->B->C plan): the retrieval PROFILE is now LOOP-TUNABLE by a FREE answer-quality scorer, so the self-improvement loop tunes the search_top_k/context_budget knee to the configured answerer over time -- WITHOUT the gaming hazard that kept those knobs out of the candidate set.
+
+THE HAZARD (why this needed care): self-probe (#290) and the free context_recall scorer (#292) both RISE monotonically with a bigger search_top_k/context_budget (more retrieved/packed text trivially contains more gold tokens / more candidates), so making the profile knobs candidate_levers under those scorers would let the loop "win" by flooding context. That is exactly why #320/#328 made them CONFIG knobs, NOT candidate_levers.
+
+THE FIX (dilution-sensitive scorer + a safety gate):
+1. NEW free ANSWER-QUALITY scorer benchmarks/external/locomo/answer_quality_scorer.py (PooledLocomoAnswerQualityScorer): generated-answer token_f1 via a FREE local Ollama answerer over the dev split. token_f1 FALLS when context is over-broad for the answerer (dilution), so it is profile_safe=True -- a bigger budget cannot inflate it, it degrades a weak answerer instead. It also applies the candidate's context_budget to the adapter's char-trim self.budget for the pass (the adapter trims with self.budget, NOT flags.context_budget -- found by reading the adapter, so the knob is not inert).
+2. candidate_levers(profile_levers=False) gains opt-in profile candidates = switch to each named RETRIEVAL_PROFILES preset (compact/broad); default OFF = byte-identical.
+3. The Scorer protocol gains an optional profile_safe marker (default-False via getattr); run_improvement_cycle enables profile_levers ONLY when EVERY scorer is profile_safe (self-probe/recall are not), so the knobs are never tuned under a gameable scorer. report['profile_levers'] surfaces it.
+4. CLI: seam improve cycle --locomo-answerer {none|ollama} (+ --answerer-model). ollama = the answer-quality scorer; profile tuning also needs --probe-sample 0 (self-probe is not profile_safe).
+
+FREE VALIDATION (no paid, ~$0, local qwen2.5:3b on :11435):
+- Falsifying A/B: compact (top_k=100/budget=8000) token_f1 0.342 vs broad (300/60000) 0.028 = +0.314 -> broad COLLAPSES the weak answerer (dilution confirmed, #328's 3B-collapse reproduced harder). Proves the scorer discriminates the profile correctly and is NOT budget-gamed (the recall scorer would have picked broad).
+- End-to-end loop (--probe-sample 0 --locomo-answerer ollama, 1 scope/6 q): profile_levers=true, 13 candidates incl. profile=compact/broad both evaluated, broad correctly NOT selected (proposed w_lexical=0.5, +0.133). The loop tunes against the dilution-sensitive scorer end-to-end.
+HONEST SCOPE: a free-metric DEV demonstration that the loop+profile wiring WORKS (like #312), NOT a paid-validated production claim; big claims still need operator-gated `seam improve validate --confirm-paid`.
+
+TESTS: +7 CI-safe (model-free): tests/audit/test_improvement_loop.py +4 (profile levers opt-in, skip-current-preset, gate ON when all profile_safe, gate OFF when any unsafe); tests/audit/test_locomo_answer_quality_scorer.py +3 (profile_safe marker, context_budget->adapter.budget applied+restored, None leaves it unchanged). Full canonical suite (test_seam_all/ + tools/history + tools/streams + tests/) + PGVECTOR_TEST_DSN + strict no-skip = green, 2 known xfails, 0 failures.
+
+NEXT: C = operator-gated PAID SEAM(broad)-vs-mem0 head-to-head on LoCoMo (the free answer-quality scorer is the pre-gate; the paid judge is the last lever). Optional: run the loop with a CAPABLE answerer to confirm it pulls toward broad (the answerer-aware direction, validated both ways).
+---END-ENTRY-#332---

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 331
-total_tokens: ~132352
-latest_id: 331
+total_entries: 332
+total_tokens: ~133267
+latest_id: 332
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 332 | 2026-06-21 | done | b9cbb8ffdbdb1844 | retrieval,self-improvement,loop,profile,+ | 331 |
 | 331 | 2026-06-20 | done | 7cbe5ba6af57abc0 | docs,engineering,manual,skill,+ | 330 |
 | 330 | 2026-06-20 | done | 7e2c1696e7c59c3e | security,codeql,test,tempfile | 329 |
 | 329 | 2026-06-19 | done | 475ed6016886c93d | docs,test,benchmark,status,+ | 328 |
@@ -447,9 +448,9 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=26 latest=#328, #327, #325, #323, #321
+- locomo: count=27 latest=#332, #328, #327, #325, #323
 - longmemeval: count=1 latest=#223
-- loop: count=7 latest=#312, #297, #293, #292, #291
+- loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
 - maintenance: count=1 latest=#301
@@ -478,7 +479,7 @@ compact: true
 - pr: count=1 latest=#301
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
-- profile: count=1 latest=#328
+- profile: count=2 latest=#332, #328
 - promotion: count=1 latest=#305
 - proposer: count=1 latest=#291
 - protocol: count=95 latest=#324, #322, #310, #304, #294
@@ -500,7 +501,7 @@ compact: true
 - regex: count=1 latest=#317
 - registry: count=1 latest=#178
 - repo-ledger: count=1 latest=#304
-- retrieval: count=61 latest=#328, #325, #323, #321, #320
+- retrieval: count=62 latest=#332, #328, #325, #323, #321
 - retrievalflags: count=1 latest=#328
 - retry: count=1 latest=#182
 - roadmap: count=52 latest=#319, #318, #284, #276, #243
@@ -512,7 +513,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - search: count=16 latest=#276, #242, #240, #181, #154
 - security: count=44 latest=#330, #309, #301, #300, #299
-- self-improvement: count=8 latest=#312, #302, #297, #293, #292
+- self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
@@ -554,6 +555,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 309
+- done: 310
 - in-progress: 2
 - planned: 20

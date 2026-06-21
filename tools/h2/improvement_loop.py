@@ -61,7 +61,14 @@ def run_improvement_cycle(
 
     baseline = load_retrieval_flags(store)
     base_reports = {s.name: s.score(runtime, flags=baseline) for s in scorers}
-    candidates = candidate_levers(baseline, weight_step=weight_step)
+    # The answerer-aware profile knobs (search_top_k/context_budget) are proposed
+    # ONLY when every scorer is dilution-sensitive (profile_safe). A bigger budget
+    # mechanically inflates the self-probe and context_recall scorers, so if either
+    # is present the profile levers stay off (they'd be gamed); the answer-quality
+    # / judged scorers set profile_safe=True, letting the loop tune the knee to the
+    # configured answerer without that hazard.
+    profile_levers = bool(scorers) and all(getattr(s, "profile_safe", False) for s in scorers)
+    candidates = candidate_levers(baseline, weight_step=weight_step, profile_levers=profile_levers)
     evaluations = evaluate_candidates(
         runtime, scorers, candidates, baseline,
         noise_margin=noise_margin, regress_tol=regress_tol,
@@ -71,6 +78,7 @@ def run_improvement_cycle(
     report: dict = {
         "baseline": {name: round(r.aggregate, 6) for name, r in base_reports.items()},
         "n_candidates": len(candidates),
+        "profile_levers": profile_levers,
         "proposed": None,
         "applied": False,
         "reverted": False,

@@ -32,7 +32,7 @@ from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Protocol, Sequence, runtime_checkable
 
 from .mirl import MIRLRecord, RecordKind, iter_textual_fields
-from .retrieval import RetrievalFlags
+from .retrieval import RETRIEVAL_PROFILES, RetrievalFlags
 
 if TYPE_CHECKING:  # avoid import cycle / heavy import at module load
     from .runtime import SeamRuntime
@@ -86,6 +86,15 @@ class Scorer(Protocol):
     LoCoMo string-match) and the paid judged tier implement the same shape."""
 
     name: str
+    # Optional. True iff this scorer is DILUTION-SENSITIVE: it measures answer
+    # quality, so enlarging search_top_k/context_budget cannot inflate it - a
+    # bigger budget that merely floods the context degrades a weak answerer
+    # instead. The loop proposes the profile knobs (search_top_k/context_budget)
+    # ONLY when every scorer is profile_safe; self-probe and context_recall are
+    # NOT (a bigger budget mechanically lifts them), so they leave it unset and
+    # `getattr(scorer, "profile_safe", False)` treats them as unsafe. See the
+    # answer-quality scorer and the Strand-B wiring.
+    profile_safe: bool = False
 
     def score(self, runtime: "SeamRuntime", flags: "RetrievalFlags | None" = None) -> ScoreReport: ...
 
@@ -284,13 +293,21 @@ class CandidateEvaluation:
 
 
 def candidate_levers(
-    baseline: RetrievalFlags, *, weight_step: float = 0.10
+    baseline: RetrievalFlags, *, weight_step: float = 0.10, profile_levers: bool = False
 ) -> list[Candidate]:
     """Bounded candidate set: the boolean/enum levers (when not already set on
     the baseline) plus single-channel weight perturbations (+/- ``weight_step``).
 
     Deliberately small and interpretable - the loop tries one lever at a time so
     an accepted change has a clear attribution. Negative weights are skipped.
+
+    ``profile_levers`` (default off) additionally proposes switching to each named
+    answerer-aware ``RETRIEVAL_PROFILES`` preset (the search_top_k/context_budget
+    pair). These are gated OFF by default because a bigger budget games the
+    self-probe and context_recall scorers; the loop turns them on ONLY when every
+    scorer is dilution-sensitive (``profile_safe``), so the answer-quality scorer
+    can tune the knee to the configured answerer (compact for a weak local model,
+    broad for a capable one) without the gaming hazard.
     """
     candidates: list[Candidate] = []
     for field_name, value in (
@@ -316,6 +333,18 @@ def candidate_levers(
                     label=f"{field_name}{delta:+g}",
                     change={field_name: new_value},
                     flags=replace(baseline, **{field_name: new_value}),
+                )
+            )
+    if profile_levers:
+        current = (baseline.search_top_k, baseline.context_budget)
+        for name, (top_k, budget) in RETRIEVAL_PROFILES.items():
+            if (top_k, budget) == current:
+                continue
+            candidates.append(
+                Candidate(
+                    label=f"profile={name}",
+                    change={"search_top_k": top_k, "context_budget": budget},
+                    flags=replace(baseline, search_top_k=top_k, context_budget=budget),
                 )
             )
     return candidates

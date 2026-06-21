@@ -69,6 +69,25 @@ def test_candidate_levers_skips_already_set_levers():
     assert {"semantic_zero_no_vector": True} in changes
 
 
+def test_candidate_levers_profile_knobs_are_opt_in():
+    # Default OFF: the profile knobs (search_top_k/context_budget) are not proposed
+    # unless profile_levers=True, because a bigger budget games self-probe/recall.
+    base = RetrievalFlags()
+    assert not any(c.label.startswith("profile=") for c in candidate_levers(base))
+    cands = candidate_levers(base, profile_levers=True)
+    profiles = {c.label: c.change for c in cands if c.label.startswith("profile=")}
+    assert profiles["profile=compact"] == {"search_top_k": 100, "context_budget": 8000}
+    assert profiles["profile=broad"] == {"search_top_k": 300, "context_budget": 60000}
+
+
+def test_candidate_levers_profile_skips_current_preset():
+    # Already at the compact knee -> only the other preset is a candidate.
+    base = RetrievalFlags(search_top_k=100, context_budget=8000)
+    labels = {c.label for c in candidate_levers(base, profile_levers=True)}
+    assert "profile=compact" not in labels
+    assert "profile=broad" in labels
+
+
 # ---- evaluate_candidates -----------------------------------------------------
 
 
@@ -113,6 +132,44 @@ def test_cycle_proposes_and_auto_applies_improvement(tmp_path):
     assert report["applied"] is True
     assert report["reverted"] is False
     assert load_retrieval_flags(store, env={}).bm25_all_kinds is True
+
+
+class _ProfileSafeScorer:
+    """A dilution-sensitive fake (profile_safe=True): aggregate is a function of
+    flags so the loop's profile-lever gating can be exercised model-free."""
+
+    profile_safe = True
+
+    def __init__(self, fn, name="aq"):
+        self.name = name
+        self._fn = fn
+
+    def score(self, runtime, flags=None):
+        return ScoreReport(scorer=self.name, aggregate=self._fn(flags), n=10)
+
+
+def test_cycle_profile_levers_active_when_all_scorers_profile_safe(tmp_path):
+    store = _store(tmp_path)
+    # prefers the compact knee (top_k=100); only proposable when profile levers fire
+    safe = _ProfileSafeScorer(lambda fl: 0.9 if fl.search_top_k == 100 else 0.5)
+
+    report = run_improvement_cycle(None, store, [safe], auto_approve=False)
+
+    assert report["profile_levers"] is True
+    assert report["proposed"]["change"] == {"search_top_k": 100, "context_budget": 8000}
+
+
+def test_cycle_profile_levers_off_when_any_scorer_unsafe(tmp_path):
+    store = _store(tmp_path)
+    safe = _ProfileSafeScorer(lambda fl: 0.9 if fl.search_top_k == 100 else 0.5)
+    unsafe = _FlagFnScorer(lambda fl: 0.7)  # no profile_safe attr -> treated unsafe
+
+    report = run_improvement_cycle(None, store, [safe, unsafe], auto_approve=False)
+
+    # A single profile-unsafe scorer disables the profile knobs (anti-gaming),
+    # so the compact knee is never proposed even though `safe` would reward it.
+    assert report["profile_levers"] is False
+    assert report["proposed"] is None
 
 
 def test_cycle_no_headroom_proposes_nothing(tmp_path):

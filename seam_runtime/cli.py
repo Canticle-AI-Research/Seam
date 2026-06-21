@@ -359,6 +359,8 @@ def build_parser() -> argparse.ArgumentParser:
     improve_cycle_parser.add_argument("--locomo-scopes", type=int, default=5, help="Number of LoCoMo conversations pooled into the dev gate (default 5; multi-conversation so proposals generalize)")
     improve_cycle_parser.add_argument("--locomo-split", choices=["dev", "holdout", "all"], default="dev", help="Which split to score (default dev; the loop must NOT tune on holdout)")
     improve_cycle_parser.add_argument("--locomo-questions", type=int, default=None, help="Cap dev questions per LoCoMo conversation")
+    improve_cycle_parser.add_argument("--locomo-answerer", choices=["none", "ollama"], default="none", help="LoCoMo scorer kind: 'none' = free context_recall (default); 'ollama' = free answer-quality (token_f1 via local Ollama), the dilution-sensitive scorer that lets the loop tune the search_top_k/context_budget profile. Profile tuning also requires --probe-sample 0 (self-probe is not profile-safe).")
+    improve_cycle_parser.add_argument("--answerer-model", default="qwen2.5:3b", help="Ollama model for the answer-quality scorer (default qwen2.5:3b); endpoint via SEAM_BENCH_OLLAMA_URL")
     improve_validate_parser = improve_subparsers.add_parser(
         "validate",
         help="PAID holdout validation: judge the applied flag state (or --flags) against the stock baseline with a paid answerer + LLM judge. Dry-run cost estimate by default; spends ONLY with --confirm-paid",
@@ -1135,19 +1137,38 @@ def run_cli(argv: list[str] | None = None) -> None:
         if args.locomo_dataset:
             import tempfile
 
-            from benchmarks.external.locomo.recall_scorer import build_locomo_dev_scorer
-
             # One pooled scorer over the dev split of N conversations: the
             # multi-conversation gate, so an accepted lever generalizes and the
-            # loop never tunes on holdout.
-            adapter, locomo_scorer = build_locomo_dev_scorer(
-                args.locomo_dataset,
-                max_scopes=args.locomo_scopes,
-                split=args.locomo_split,
-                question_limit=args.locomo_questions,
-                db_path=tempfile.mkdtemp(),
-                keep_db=True,
-            )
+            # loop never tunes on holdout. The answerer choice selects the metric:
+            # 'none' = free context_recall (cannot tune the profile - a bigger
+            # budget games recall); 'ollama' = free answer-quality (token_f1), the
+            # dilution-sensitive profile_safe scorer that CAN tune search_top_k/
+            # context_budget to the configured answerer.
+            if args.locomo_answerer == "ollama":
+                from benchmarks.external.locomo.answer_quality_scorer import (
+                    build_locomo_answer_quality_scorer,
+                )
+
+                adapter, locomo_scorer = build_locomo_answer_quality_scorer(
+                    args.locomo_dataset,
+                    max_scopes=args.locomo_scopes,
+                    split=args.locomo_split,
+                    question_limit=args.locomo_questions,
+                    answerer_model=args.answerer_model,
+                    db_path=tempfile.mkdtemp(),
+                    keep_db=True,
+                )
+            else:
+                from benchmarks.external.locomo.recall_scorer import build_locomo_dev_scorer
+
+                adapter, locomo_scorer = build_locomo_dev_scorer(
+                    args.locomo_dataset,
+                    max_scopes=args.locomo_scopes,
+                    split=args.locomo_split,
+                    question_limit=args.locomo_questions,
+                    db_path=tempfile.mkdtemp(),
+                    keep_db=True,
+                )
             scorers.append(locomo_scorer)
         if not scorers:
             print(json.dumps({"error": "no scorers: set --probe-sample > 0 or pass --locomo-dataset"}, indent=2))
