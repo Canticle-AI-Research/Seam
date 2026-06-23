@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 332
-total_tokens: ~133267
-latest_id: 332
+total_entries: 335
+total_tokens: ~133718
+latest_id: 335
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 335 | 2026-06-23 | done | 62408b73ea2af81a | test,tokenizer,continuity,history,+ | 334 |
+| 334 | 2026-06-23 | done | 038c03ed1ccc4e95 | continuity,history,streams,roadmap,+ | 333 |
+| 333 | 2026-06-23 | done | 237bef813bcb8894 | codec,compress,lexical,roadmap,+ | none |
 | 332 | 2026-06-21 | done | b9cbb8ffdbdb1844 | retrieval,self-improvement,loop,profile,+ | 331 |
 | 331 | 2026-06-20 | done | 7cbe5ba6af57abc0 | docs,engineering,manual,skill,+ | 330 |
 | 330 | 2026-06-20 | done | 7e2c1696e7c59c3e | security,codeql,test,tempfile | 329 |
@@ -375,18 +378,18 @@ compact: true
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
 - cli: count=4 latest=#302, #293, #287, #285
-- codec: count=13 latest=#132, #131, #130, #129, #128
+- codec: count=14 latest=#333, #132, #131, #130, #129
 - codeql: count=6 latest=#330, #309, #301, #300, #299
 - command: count=67 latest=#251, #241, #232, #221, #220
 - compile: count=13 latest=#154, #047, #046, #043, #042
 - compiler: count=9 latest=#317, #313, #311, #309, #308
-- compress: count=26 latest=#145, #144, #132, #131, #130
+- compress: count=27 latest=#333, #145, #144, #132, #131
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
 - consolidation: count=1 latest=#306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=3 latest=#310, #193, #192
+- continuity: count=5 latest=#335, #334, #310, #193, #192
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -403,7 +406,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=34 latest=#331, #329, #326, #322, #318
+- docs: count=36 latest=#334, #333, #331, #329, #326
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -431,7 +434,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=1 latest=#303
-- history: count=251 latest=#329, #328, #327, #326, #324
+- history: count=253 latest=#335, #334, #329, #328, #327
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -443,7 +446,7 @@ compact: true
 - isolation: count=2 latest=#275, #274
 - judge: count=4 latest=#327, #321, #320, #302
 - ledger: count=38 latest=#302, #230, #181, #177, #176
-- lexical: count=1 latest=#004
+- lexical: count=2 latest=#333, #004
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
@@ -504,7 +507,7 @@ compact: true
 - retrieval: count=62 latest=#332, #328, #325, #323, #321
 - retrievalflags: count=1 latest=#328
 - retry: count=1 latest=#182
-- roadmap: count=52 latest=#319, #318, #284, #276, #243
+- roadmap: count=54 latest=#334, #333, #319, #318, #284
 - roundtrip: count=2 latest=#007, #006
 - rule: count=1 latest=#304
 - salvage: count=1 latest=#179
@@ -528,16 +531,16 @@ compact: true
 - stash: count=1 latest=#324
 - status: count=147 latest=#329, #321, #320, #319, #318
 - storage: count=7 latest=#283, #282, #270, #269, #268
-- streams: count=9 latest=#287, #276, #216, #210, #209
+- streams: count=11 latest=#335, #334, #287, #276, #216
 - structure: count=3 latest=#326, #285, #284
 - surface: count=5 latest=#276, #225, #218, #208, #145
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=33 latest=#330, #329, #322, #320, #317
+- test: count=34 latest=#335, #330, #329, #322, #320
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
-- tokenizer: count=1 latest=#216
+- tokenizer: count=3 latest=#335, #333, #216
 - tooling: count=1 latest=#324
 - topk: count=1 latest=#320
 - traceability: count=1 latest=#316
@@ -554,7 +557,7 @@ compact: true
 
 ## status rollup
 
-- roots: 66
-- done: 310
+- roots: 67
+- done: 313
 - in-progress: 2
 - planned: 20

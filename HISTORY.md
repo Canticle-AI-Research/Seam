@@ -7448,3 +7448,45 @@ TESTS: +7 CI-safe (model-free): tests/audit/test_improvement_loop.py +4 (profile
 
 NEXT: C = operator-gated PAID SEAM(broad)-vs-mem0 head-to-head on LoCoMo (the free answer-quality scorer is the pre-gate; the paid judge is the last lever). Optional: run the loop with a CAPABLE answerer to confirm it pulls toward broad (the answerer-aware direction, validated both ways).
 ---END-ENTRY-#332---
+
+---BEGIN-ENTRY-#333---
+id: 333
+date: 2026-06-23T09:41:37Z
+agent: Codex
+status: done
+topics: codec, compress, lexical, roadmap, docs, tokenizer
+commits: none
+refs: ROADMAP.md,docs/roadmap/PROMPT_CODEC.md
+supersedes: none
+tokens: 244
+---
+TRACK J CONCEPT CAPTURE: preserved the operator’s lexical-compression proposal in the canonical prompt-codec roadmap, including the retained wording (no private conversation link or transcript). The proposal is explicitly concept-only: for repeated structured terms, preserve a 4–6 character prefix based on term length, strip vowels only from the suffix, retain terminal consonants, restore minimum distinguishing suffix vowels on a collision, and use an immutable scope-local numeric tag only as the final fallback. Scope is derived PACK/prompt transport only; RAW, canonical MIRL/JSON, exact quotes, and RC/1 remain untouched. Promotion is gated on net active-tokenizer savings after dictionary cost, deterministic reversibility, no unresolved collisions, and no packed-context retrieval/answer-quality regression. ROADMAP Track J now points to the full canonical specification. No runtime code or benchmark claim changed. Baseline: pytest tools/streams/ = 18 passed.
+---END-ENTRY-#333---
+
+---BEGIN-ENTRY-#334---
+id: 334
+date: 2026-06-23T09:41:37Z
+agent: Codex
+status: done
+topics: continuity, history, streams, roadmap, docs
+commits: none
+refs: PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/,ROADMAP.md,docs/roadmap/PROMPT_CODEC.md
+supersedes: 333
+tokens: 100
+---
+CONTINUITY FOLLOW-UP: advanced PROJECT_STATUS.md's latest-handoff pointer to the Track J concept capture while preserving #332 as the active runtime resume point. Regenerated history, roadmap, and cross-stream derived state after the roadmap update. The lexical-symbol proposal remains documentation-only; no runtime implementation, tokenizer result, or benchmark claim was introduced. First verification had exposed stale derived history/roadmap stream indexes caused by an incomplete rebuild order; the canonical stream rebuild is now the required follow-up before final continuity verification.
+---END-ENTRY-#334---
+
+---BEGIN-ENTRY-#335---
+id: 335
+date: 2026-06-23T09:41:37Z
+agent: Codex
+status: done
+topics: test, tokenizer, continuity, history, streams
+commits: none
+refs: PROJECT_STATUS.md,tools/tokenization.py,tools/history/test_history_tools.py,docs/roadmap/PROMPT_CODEC.md
+supersedes: 334
+tokens: 107
+---
+VERIFICATION LIMIT RECORDED: continuity and stream checks are green after the Track J documentation change. The combined `pytest tools/history/test_history_tools.py tools/streams/ -q` run has one pre-existing failure on unchanged origin/main: `test_estimate_tokens` expects 5 for "one two three four five", while the documented no-tiktoken `char4_approx` fallback in tools/tokenization.py returns ceil(22/4)=6. This branch did not change the tokenizer or its test; no unrelated fix was made. The focused streams suite remains 18 passed.
+---END-ENTRY-#335---

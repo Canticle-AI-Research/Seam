@@ -1463,6 +1463,15 @@ phase: 1
 
 Evaluate TOON, compact JSON, SEAM-RC/1, SEAM-LX/1, and markdown-table encodings as *derived* prompt transports. Canonical storage (MIRL, JSON, SQLite) does not change. Codec selection is restricted to prompt-bound payloads (PACK, retrieval results, benchmark case matrices, comparator scorecards, etc.). Auto-selection only promotes a codec that beats compact JSON on measured token count under the active tokenizer and round-trips losslessly.
 
+Candidate experiment: a protected-prefix lexical-symbol policy for repeated
+structured terms. It preserves a 4–6-character word prefix, removes vowels
+only from the suffix, retains terminal consonants, repairs collisions by
+restoring minimum distinguishing vowels, then uses an immutable scope-local
+numeric tag only as a last resort. This is concept-only until it demonstrates
+net tokenizer savings (including dictionary cost), deterministic reversibility,
+and no retrieval/answer-quality regression. Canonical details and the
+operator's retained wording: `docs/roadmap/PROMPT_CODEC.md`.
+
 ---
 
 ## Track K — Trust, Security, Lineage, and Auditability

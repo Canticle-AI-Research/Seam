@@ -11,7 +11,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:302
 topics: benchmark, dashboard, animation
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:A2: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#001---
@@ -29,7 +29,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:331
 topics: benchmark, dashboard, graph
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:A3: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#002---
@@ -47,7 +47,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:362
 topics: vector, dashboard, graph
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:A4: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#003---
@@ -65,7 +65,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:433
 topics: dashboard, benchmark, animation
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:A6: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#004---
@@ -83,7 +83,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:465
 topics: naming, alias, command
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:B1: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#005---
@@ -101,7 +101,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:516
 topics: naming, alias, command
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:B2: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#006---
@@ -119,7 +119,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:620
 topics: benchmark, gold-standard, retrieval
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:C3: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#007---
@@ -137,7 +137,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:651
 topics: benchmark, fixture, verify
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:C4: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#008---
@@ -155,7 +155,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:674
 topics: benchmark, verify, windows, linux
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:C5: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#009---
@@ -173,7 +173,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:699
 topics: mcp, chat, multi-agent
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:D1: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#010---
@@ -191,7 +191,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:729
 topics: compress, persist, compile
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:D2: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#011---
@@ -209,7 +209,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:753
 topics: compile, persist, command
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:D3: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#012---
@@ -227,7 +227,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:803
 topics: persist, vector
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:E2: status=planned, status-since=2026-04-18, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#013---
@@ -245,7 +245,7 @@ caused-by: history:063
 supersedes: none
 refs: ROADMAP.md:136
 topics: dashboard, tui, textual
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:A0: status=done, status-since=2026-04-21, caused-by=history:063. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#014---
@@ -263,7 +263,7 @@ caused-by: history:068
 supersedes: none
 refs: ROADMAP.md:270
 topics: dashboard, animation, mirl
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:A1: status=done, status-since=2026-04-25, caused-by=history:068. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#015---
@@ -281,7 +281,7 @@ caused-by: history:074
 supersedes: none
 refs: ROADMAP.md:395
 topics: dashboard, chat, command
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:A5: status=done, status-since=2026-04-25, caused-by=history:074. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#016---
@@ -299,7 +299,7 @@ caused-by: history:152
 supersedes: none
 refs: ROADMAP.md:570
 topics: benchmark, holdout, fixture
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:C1: status=done, status-since=2026-04-27, caused-by=history:152. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#017---
@@ -317,7 +317,7 @@ caused-by: history:153
 supersedes: none
 refs: ROADMAP.md:595
 topics: benchmark, diff, verify
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:C2: status=done, status-since=2026-04-27, caused-by=history:153. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#018---
@@ -335,7 +335,7 @@ caused-by: history:154
 supersedes: none
 refs: ROADMAP.md:826
 topics: command, persist, retrieval
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:E3: status=done, status-since=2026-04-27, caused-by=history:154. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#019---
@@ -353,7 +353,7 @@ caused-by: history:099
 supersedes: none
 refs: ROADMAP.md:1007
 topics: readme, docs, installer
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:F1: status=done, status-since=2026-04-28, caused-by=history:099. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#020---
@@ -371,7 +371,7 @@ caused-by: history:099
 supersedes: none
 refs: ROADMAP.md:1034
 topics: docs, readme, doctor
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:F2: status=done, status-since=2026-04-28, caused-by=history:099. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#021---
@@ -389,7 +389,7 @@ caused-by: history:121
 supersedes: none
 refs: ROADMAP.md:780
 topics: pgvector, vector, docker
-tokens: 42
+tokens: 39
 ---
 Bootstrap status capture for roadmap:track:E1: status=in-progress, status-since=2026-04-30, caused-by=history:121. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#022---
@@ -407,7 +407,7 @@ caused-by: history:117
 supersedes: none
 refs: ROADMAP.md:1137
 topics: surface, ledger, persist
-tokens: 43
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:G2: status=done, status-since=2026-05-06, caused-by=history:117. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#023---
@@ -425,7 +425,7 @@ caused-by: history:117
 supersedes: none
 refs: ROADMAP.md:1158
 topics: surface, retrieval, command
-tokens: 43
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:G3: status=done, status-since=2026-05-06, caused-by=history:117. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#024---
@@ -443,7 +443,7 @@ caused-by: history:117
 supersedes: none
 refs: ROADMAP.md:1181
 topics: surface, benchmark, fixture
-tokens: 43
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:G4: status=done, status-since=2026-05-06, caused-by=history:117. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#025---
@@ -461,7 +461,7 @@ caused-by: history:137
 supersedes: none
 refs: ROADMAP.md:230
 topics: command, chat, dashboard
-tokens: 43
+tokens: 40
 ---
 Bootstrap status capture for roadmap:track:A-CLI: status=in-progress, status-since=2026-05-07, caused-by=history:137. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#026---
@@ -479,7 +479,7 @@ caused-by: history:147
 supersedes: none
 refs: ROADMAP.md:543
 topics: readme, docs, command
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:B3: status=done, status-since=2026-05-08, caused-by=history:147. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#027---
@@ -497,7 +497,7 @@ caused-by: history:147
 supersedes: none
 refs: ROADMAP.md:1065
 topics: docs, readme, command
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:F3: status=done, status-since=2026-05-08, caused-by=history:147. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#028---
@@ -515,7 +515,7 @@ caused-by: history:145
 supersedes: none
 refs: ROADMAP.md:1097
 topics: compile, mirl, surface
-tokens: 43
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:G1: status=done, status-since=2026-05-08, caused-by=history:145. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#029---
@@ -533,7 +533,7 @@ caused-by: history:163
 supersedes: none
 refs: ROADMAP.md:181
 topics: dashboard, webui, command
-tokens: 43
+tokens: 40
 ---
 Bootstrap status capture for roadmap:track:A-Web: status=in-progress, status-since=2026-05-10, caused-by=history:163. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#030---
@@ -551,7 +551,7 @@ caused-by: history:170
 supersedes: none
 refs: ROADMAP.md:1261
 topics: protocol, history, plan, roadmap
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:H1: status=done, status-since=2026-05-15, caused-by=history:170. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#031---
@@ -569,7 +569,7 @@ caused-by: history:165
 supersedes: none
 refs: ROADMAP.md:1339
 topics: protocol, retrieval, search
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:H3: status=later, status-since=2026-05-15, caused-by=history:165. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#032---
@@ -587,7 +587,7 @@ caused-by: history:165
 supersedes: none
 refs: ROADMAP.md:1363
 topics: protocol, retrieval, search, vector
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:H4: status=later, status-since=2026-05-15, caused-by=history:165. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#033---
@@ -605,7 +605,7 @@ caused-by: history:180
 supersedes: none
 refs: ROADMAP.md:1387
 topics: agent, compiler, skills
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:L: status=planned, status-since=2026-05-15, caused-by=history:180. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#034---
@@ -623,7 +623,7 @@ caused-by: history:180
 supersedes: none
 refs: ROADMAP.md:1450
 topics: codec, compress, prompt, benchmark
-tokens: 43
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:J: status=planned, status-since=2026-05-15, caused-by=history:180. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#035---
@@ -639,9 +639,9 @@ from: (initial)
 to: planned
 caused-by: history:180
 supersedes: none
-refs: ROADMAP.md:1470
+refs: ROADMAP.md:1479
 topics: security, audit, trust, benchmark
-tokens: 43
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:K: status=planned, status-since=2026-05-15, caused-by=history:180. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#036---
@@ -659,7 +659,7 @@ caused-by: history:189
 supersedes: none
 refs: ROADMAP.md:1419
 topics: benchmark, retrieval, comparator
-tokens: 41
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:I: status=done, status-since=2026-05-17, caused-by=history:189. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#037---
@@ -677,7 +677,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:852
 topics: tests, quality
-tokens: 48
+tokens: 43
 ---
 Bootstrap status capture for roadmap:track:F:asserttrue-scrub: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#038---
@@ -695,7 +695,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:867
 topics: docs, security
-tokens: 48
+tokens: 44
 ---
 Bootstrap status capture for roadmap:track:F:backlog:security-md: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#039---
@@ -713,7 +713,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:878
 topics: installer, linux
-tokens: 50
+tokens: 46
 ---
 Bootstrap status capture for roadmap:track:F:backlog:installer-symlink: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#040---
@@ -731,7 +731,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:889
 topics: git-hooks, macos
-tokens: 53
+tokens: 47
 ---
 Bootstrap status capture for roadmap:track:F:backlog:git-hooks-macos-sha256: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#041---
@@ -749,7 +749,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:911
 topics: models, retry
-tokens: 50
+tokens: 45
 ---
 Bootstrap status capture for roadmap:track:F:backlog:backoff-jitter: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#042---
@@ -767,7 +767,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:922
 topics: pack, json
-tokens: 52
+tokens: 48
 ---
 Bootstrap status capture for roadmap:track:F:backlog:json-comparison-fragility: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#043---
@@ -785,7 +785,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:933
 topics: scripts, windows
-tokens: 51
+tokens: 46
 ---
 Bootstrap status capture for roadmap:track:F:backlog:ps1-double-backslash: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#044---
@@ -803,7 +803,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:955
 topics: roadmap, docs
-tokens: 51
+tokens: 47
 ---
 Bootstrap status capture for roadmap:track:F:backlog:superseded-phase-tree: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#045---
@@ -821,7 +821,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:966
 topics: tests, judge
-tokens: 53
+tokens: 47
 ---
 Bootstrap status capture for roadmap:track:F:backlog:test-claude-judge-flaky: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#046---
@@ -839,7 +839,7 @@ caused-by: history:PENDING
 supersedes: none
 refs: ROADMAP.md:977
 topics: verify, continuity, history
-tokens: 53
+tokens: 49
 ---
 Bootstrap status capture for roadmap:track:F:backlog:verify-continuity-ref-existence: status=planned, status-since=2026-05-18, caused-by=history:PENDING. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#047---
@@ -855,9 +855,9 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1492
+refs: ROADMAP.md:1501
 topics: verify, audit, retrieval
-tokens: 44
+tokens: 39
 ---
 Bootstrap status capture for roadmap:track:K14: status=planned, status-since=2026-05-18, caused-by=history:196. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#048---
@@ -873,9 +873,9 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1510
+refs: ROADMAP.md:1519
 topics: verify, audit, provenance
-tokens: 44
+tokens: 39
 ---
 Bootstrap status capture for roadmap:track:K15: status=planned, status-since=2026-05-18, caused-by=history:196. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#049---
@@ -891,9 +891,9 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1523
+refs: ROADMAP.md:1532
 topics: verify, command, audit
-tokens: 44
+tokens: 39
 ---
 Bootstrap status capture for roadmap:track:K16: status=planned, status-since=2026-05-18, caused-by=history:196. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#050---
@@ -909,9 +909,9 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1536
+refs: ROADMAP.md:1545
 topics: integrity, audit, snapshot
-tokens: 44
+tokens: 39
 ---
 Bootstrap status capture for roadmap:track:K17: status=planned, status-since=2026-05-18, caused-by=history:196. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#051---
@@ -927,9 +927,9 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1549
+refs: ROADMAP.md:1558
 topics: retrieval, rank, audit
-tokens: 44
+tokens: 39
 ---
 Bootstrap status capture for roadmap:track:K18: status=planned, status-since=2026-05-18, caused-by=history:196. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#052---
@@ -947,7 +947,7 @@ caused-by: history:243
 supersedes: none
 refs: ROADMAP.md:900
 topics: retrieval, benchmark
-tokens: 49
+tokens: 43
 ---
 Bootstrap status capture for roadmap:track:F:backlog:scoring-weights: status=now, status-since=2026-05-25, caused-by=history:243. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#053---
@@ -965,7 +965,7 @@ caused-by: history:243
 supersedes: none
 refs: ROADMAP.md:944
 topics: experience, protocol
-tokens: 48
+tokens: 45
 ---
 Bootstrap status capture for roadmap:track:F:backlog:experience-stream-empty: status=now, status-since=2026-05-25, caused-by=history:243. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#054---
@@ -983,7 +983,7 @@ caused-by: history:243
 supersedes: none
 refs: ROADMAP.md:1294
 topics: protocol, history, plan
-tokens: 42
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:H2: status=now, status-since=2026-05-25, caused-by=history:243. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#055---
@@ -1001,7 +1001,7 @@ caused-by: none
 supersedes: none
 refs: ROADMAP.md:1204
 topics: surface, search, verify, integrity
-tokens: 42
+tokens: 37
 ---
 Bootstrap status capture for roadmap:track:G5: status=planned, status-since=2026-05-31, caused-by=none. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#056---
@@ -1017,9 +1017,27 @@ from: (initial)
 to: planned
 caused-by: history:284
 supersedes: none
-refs: ROADMAP.md:1572
+refs: ROADMAP.md:1581
 topics: packaging, release, distribution
-tokens: 42
+tokens: 38
 ---
 Bootstrap status capture for roadmap:track:N: status=planned, status-since=2026-06-02, caused-by=history:284. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#057---
+
+---BEGIN-ROADMAP-EVENT-#058---
+id: roadmap:058
+date: 2026-06-15T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:O
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: history:319
+supersedes: none
+refs: ROADMAP.md:1609
+topics: query, sql, retrieval, benchmark, bird
+tokens: 38
+---
+Bootstrap status capture for roadmap:track:O: status=planned, status-since=2026-06-15, caused-by=history:319. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#058---
