@@ -7481,3 +7481,27 @@ CONTEXT: ran alongside a concurrent Codex agent; done on branch bench/fair-share
 
 NEXT (Strand C cont.): (1) optional free confirmation -- run the improvement loop with a CAPABLE answerer to confirm it pulls toward the broad profile; (2) the operator-gated PAID SEAM(broad)-vs-mem0 head-to-head, now MEANINGFUL because both systems are judged on the same answerer over their own retrieved context. Paid run stays gated; surface cost first.
 ---END-ENTRY-#333---
+
+---BEGIN-ENTRY-#334---
+id: 334
+date: 2026-06-26T22:11:10Z
+agent: Claude
+status: done
+topics: benchmark, locomo, mem0, judge, retrieval, profile, confound, bugfix, history
+commits: none
+refs: benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py
+supersedes: 333
+tokens: 826
+---
+BENCHMARK CONFOUND FIX + RUNG B PAID VALIDATION (Strand C of #328, operator's A->B->C plan; the broad-profile confirmation, judged + cross-conversation).
+
+THE FIX (benchmarks/external/locomo/judged_scorer.py): JudgedLocomoScorer.score() set rt._retrieval_flags = flags (so search_top_k reached search_ir) but NEVER applied flags.context_budget to the adapter's char-trim self.budget -- unlike the free PooledLocomoAnswerQualityScorer, which does. So a 'broad' candidate (search_top_k=300, context_budget=60000) through the PAID judged path (and seam improve validate --flags) got the wider candidate POOL but the SAME trimmed CONTEXT (adapter trims at self.budget, default 8000). A paid compact-vs-broad or SEAM-vs-mem0 run would have measured a FAKE broad = confounded, spend wasted. FIX: resolve `applied` once, set it on all runtimes, and self.adapter.budget = applied.context_budget when non-None (restored in finally), mirroring the free scorer.
+
+FREE VALIDATE (proved the bug AND the fix, $0, no model, cross-conv -- scratchpad/free_validate_budget.py): measured the actual retrieved-context length the answerer would receive at compact vs broad. CURRENT (flags-only): compact 8000 == broad 8000 -> broad/compact 1.00x (the bug). FIXED (flags + adapter.budget): compact 8000, broad 40574 -> 5.07x. Decisive.
+
+RUNG B PAID RESULT (operator-authorized ~$0.29; gpt-4o-mini answerer+judge, temp=0; 100 HOLDOUT cases across ALL 10 LoCoMo conversations; both knobs applied via the fixed scorer; per-category -- scratchpad/rung_b_paid.py): **broad WINS** -- compact judge_score_mean 0.465 vs broad 0.535, delta +0.070 (3.5x the 0.02 noise margin). Win concentrated in cat1 0.561->0.659 (+0.098) and cat2 0.39->0.45; cat3 flat 0.444. 0 judge retries, 0 empty answers (clean). CONFIRMS the answerer-aware hypothesis cross-conv on holdout: weak LOCAL answerer (qwen2.5 3B AND 14B, free rung A token_f1 -- scratchpad/rung_a_ab.py) -> broad COLLAPSES (~0.03, dilution) -> use compact; capable CLOUD answerer (gpt-4o-mini) -> broad WINS, no dilution. token_f1 was the misleading metric (verbosity-confounded); the judge is the real one (and mem0's).
+
+TESTS: +2 CI-safe (tests/audit/test_judged_scorer.py): context_budget applied to adapter.budget DURING the pass + restored after; context_budget=None leaves it unchanged. Full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN + strict no-skip = exit 0, 2 known xfails, 0 failures (no regression).
+
+NEXT: rung C = SEAM(broad)-vs-mem0 head-to-head on FULL LoCoMo-10 (~1540 Q; operator: 'not 10k'). This is the BIGGER paid run -- mem0 does per-turn LLM extraction at ingest = materially more $$ than rung B's cents; estimate + explicit operator go before launching. Productize follow-up: broad is validated for capable answerers, so the answerer-aware profile default belongs in core RetrievalFlags (capable-answerer profile), not just the benchmark. Branch bench/judged-context-budget-fix + PR.
+---END-ENTRY-#334---
