@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 
@@ -23,11 +24,13 @@ class _StubMem0:
     def add(self, messages: list[dict], user_id: str) -> None:
         self.store.setdefault(user_id, []).extend(messages)
 
-    def search(self, query: str, user_id: str, limit: int) -> dict:
+    def search(self, query: str, *, filters: dict, top_k: int) -> dict:
+        # mem0 2.x: user_id is passed inside filters, and limit is now top_k.
+        user_id = (filters or {}).get("user_id")
         items = [
             {"memory": m["content"], "score": 1.0}
             for m in self.store.get(user_id, [])
-        ][:limit]
+        ][:top_k]
         return {"results": items}
 
     def delete_all(self, user_id: str) -> None:
@@ -201,16 +204,20 @@ def test_integrity_hash_stable_with_stub_mem0() -> None:
 
 
 def test_cli_quickstart_mem0_stub() -> None:
-    """--adapter mem0 with stub inject (real mem0 not installed) exits non-zero
-    since the adapter tries to import mem0. But --adapter mem0 is accepted by CLI."""
+    """--adapter mem0 exits non-zero with a clear error and makes NO paid call.
+
+    Run with no LLM key so the adapter fails fast at construction (missing mem0ai
+    OR missing OPENAI_API_KEY) regardless of whether mem0ai is installed in the
+    test env -- so this never executes a real mem0 quickstart (which would spend)."""
+    env = {k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"}
     result = subprocess.run(
         [sys.executable, "-m", "benchmarks.external.locomo.run", "--quickstart", "--adapter", "mem0"],
         capture_output=True,
         text=True,
+        env=env,
     )
-    # Expected to fail because mem0ai is not installed in test env
     assert result.returncode != 0
-    assert "mem0ai" in result.stderr.lower() or "mem0" in result.stderr.lower()
+    assert "mem0" in result.stderr.lower() or "openai_api_key" in result.stderr.lower()
 
 
 def test_cli_quickstart_mem0_flag_accepted() -> None:

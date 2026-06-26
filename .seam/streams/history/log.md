@@ -7505,3 +7505,27 @@ TESTS: +2 CI-safe (tests/audit/test_judged_scorer.py): context_budget applied to
 
 NEXT: rung C = SEAM(broad)-vs-mem0 head-to-head on FULL LoCoMo-10 (~1540 Q; operator: 'not 10k'). This is the BIGGER paid run -- mem0 does per-turn LLM extraction at ingest = materially more $$ than rung B's cents; estimate + explicit operator go before launching. Productize follow-up: broad is validated for capable answerers, so the answerer-aware profile default belongs in core RetrievalFlags (capable-answerer profile), not just the benchmark. Branch bench/judged-context-budget-fix + PR.
 ---END-ENTRY-#334---
+
+---BEGIN-ENTRY-#335---
+id: 335
+date: 2026-06-26T23:08:35Z
+agent: Claude
+status: done
+topics: benchmark, locomo, mem0, adapter, bugfix, test, history
+commits: none
+refs: benchmarks/external/locomo/adapters/mem0.py,test_seam_all/test_locomo_mem0_adapter.py
+supersedes: 334
+tokens: 809
+---
+MEM0 ADAPTER FIX for mem0 2.x API drift + two test issues it exposed (found by the rung-C pre-flight smoke; operator: fix issues + probe before the paid run).
+
+THE BUG: the LoCoMo mem0 comparator (benchmarks/external/locomo/adapters/mem0.py) was written against an older mem0 API and is BROKEN against the installed mem0ai 2.0.2 -- Memory.search() no longer accepts a top-level user_id (raises ValueError 'Top-level entity parameters {user_id} are not supported in search(); use filters=...') and the limit arg was renamed top_k. So EVERY mem0 retrieval threw -> a paid SEAM-vs-mem0 head-to-head would have produced all-empty mem0 answers (or crashed) = a bogus result + wasted spend. The pre-flight smoke caught it before the $4 run.
+
+PROBED the full mem0 2.0.2 API (inspect.signature on add/search/delete_all/get_all): add(messages, *, user_id=..., infer=True, ...) and delete_all(user_id=...) are STILL valid (the adapter's ingest/reset work); ONLY search drifted. FIX (one call): search(query=question, filters={'user_id': scope_id}, top_k=self.search_limit). Result shape unchanged ({'results':[{'memory':..,'score':..}]}), so the adapter's parsing still holds. Re-smoked end-to-end with mem0 extraction pinned to gpt-4o-mini: mem0 extracts "Ana's favorite color is teal", retrieves it, the shared answerer (#333) returns "Teal", the judge scores correct -> full pipeline verified.
+
+TWO TEST ISSUES the fix exposed (test_seam_all/test_locomo_mem0_adapter.py): (1) _StubMem0.search signature (query, user_id, limit) -> (query, *, filters, top_k) to match 2.x (the adapter now calls it with the new kwargs); (2) test_cli_quickstart_mem0_stub assumed mem0ai is NOT installed and asserted the run fails -- but with mem0 installed + a key, the now-working adapter RAN A REAL mem0 quickstart (a PAID call) and then failed its 'should error' assertion. Hardened: run the subprocess with OPENAI_API_KEY removed so the adapter fails fast at construction (missing mem0ai OR missing key) with a clear error and ZERO spend, regardless of whether mem0 is installed.
+
+VERIFIED: 14/14 mem0 adapter tests pass; rung-C driver composition (run_benchmark_grouped + mem0-wrapped-with-shared-answerer + pinned gpt-4o-mini + judge) validated on tiny real data (judge_score_mean 1.0, 'Teal'/'Nurse' correct). Full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN + strict no-skip = exit 0, 2 known xfails, 0 failures (no regression). spaCy-absent warnings during mem0 runs are harmless (mem0 falls back to the LLM extractor, the path we want).
+
+CONTEXT: this unblocks rung C = SEAM(broad)-vs-mem0 head-to-head on HALF of LoCoMo-10 (first 5 convos / 764 Q, ~$4, operator-approved), currently running (scratchpad/rung_c_paid.py; mem0 extraction + answerer + judge all gpt-4o-mini; SEAM at the validated broad profile top_k=300/budget=60000). NEXT: report the head-to-head number; if SEAM>=mem0, productize the capable-answerer broad profile into core RetrievalFlags + consider the full LoCoMo-10 (~1540 Q) run. Branch bench/mem0-adapter-2x-fix + PR.
+---END-ENTRY-#335---
