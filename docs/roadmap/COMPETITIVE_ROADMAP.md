@@ -24,9 +24,14 @@ the format the harness scores against.
 
 **Why first:** Every other priority — marketing, integrations, MCP registry, migration
 tools — depends on having a public number. Without a LoCoMo score run on the standard
-harness, SEAM has no credible way to enter the conversation. Mem0 publishes 91.6. Zep
-publishes temporal scores. MemMachine publishes 0.9169. SEAM publishes nothing comparable
-yet.
+harness, SEAM has no credible way to enter the conversation. Mem0's paper (arXiv
+2504.19413) reports LoCoMo LLM-as-judge ≈ 66.9% (mem0-graph ~+2%), judged by gpt-4o-mini;
+independent re-evals land ~62%. Zep publishes temporal scores. MemMachine publishes 0.9169
+under its own methodology. SEAM publishes nothing comparable yet. **Vendor numbers are NOT
+apples-to-apples** (different answerer/judge/categories); the only defensible target is
+mem0 run through SEAM's own harness with the answerer + judge held constant (see
+`benchmarks/external/locomo/adapters/mem0.py` + the shared answerer wrapper). The "91.6"
+this doc previously cited for mem0 was wrong — likely conflated with MemMachine's 0.9169.
 
 **Engineering prerequisite check:**
 - [ ] Can `seam.recall(query)` return ranked results with scores right now?

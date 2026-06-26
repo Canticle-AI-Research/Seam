@@ -7448,3 +7448,36 @@ TESTS: +7 CI-safe (model-free): tests/audit/test_improvement_loop.py +4 (profile
 
 NEXT: C = operator-gated PAID SEAM(broad)-vs-mem0 head-to-head on LoCoMo (the free answer-quality scorer is the pre-gate; the paid judge is the last lever). Optional: run the loop with a CAPABLE answerer to confirm it pulls toward broad (the answerer-aware direction, validated both ways).
 ---END-ENTRY-#332---
+
+---BEGIN-ENTRY-#333---
+id: 333
+date: 2026-06-26T08:22:49Z
+agent: Claude
+status: done
+topics: benchmark, locomo, mem0, answerer, harness, comparison, fairness, roadmap
+commits: none
+refs: benchmarks/external/common/answerer.py,benchmarks/external/locomo/run.py,benchmarks/external/locomo/adapters/seam.py,docs/roadmap/COMPETITIVE_ROADMAP.md,tests/audit/test_shared_answerer.py
+supersedes: 332
+tokens: 1012
+---
+STRAND C STEP 1 ("pin mem0's target") + the FAIR-COMPARISON HARNESS FIX (operator: "dependable means SEAM is as good or better than mem0" = Strand C of the #328 A->B->C plan).
+
+PINNED THE TARGET (free investigation): the real mem0 LoCoMo bar is LLM-as-judge ~66.9% (mem0-graph ~+2%), judged by gpt-4o-mini (the SAME judge SEAM uses), per mem0's paper (arXiv 2504.19413); independent re-evals ~62%. The "Mem0 publishes 91.6" that docs/roadmap/COMPETITIVE_ROADMAP.md carried is WRONG (likely conflated with MemMachine's 0.9169 cited in the same line) -- corrected the doc to the paper number plus the caveat that vendor numbers are not apples-to-apples (only mem0-in-our-harness, answerer+judge held constant, is defensible). This REFRAMES Strand C: SEAM's capable-answerer cat1 knee already hit 0.67 (#327 / cat1_answerer_bound), so the race is in striking range, not the hopeless 0.916 gap the doc implied.
+
+THE FAIRNESS GAP FOUND (the real blocker): a judged head-to-head was NOT measurable. The answerer is baked INSIDE the SEAM adapter (adapters/seam.py self._answerer); the mem0 (and zep) adapter returns generated_answer=None; runner._score_case sets pred="" when generated_answer is None -> the LLM judge scored mem0 on an EMPTY string (~0). So a paid run today would have shown mem0 losing for the wrong reason (it never generated an answer) -- measuring answer-generation, not memory quality. Only context_recall (free string overlap) was comparable, and that is not the judged metric.
+
+THE FIX (free, code-only, benchmark-harness only -- no core/runtime change):
+- NEW benchmarks/external/common/answerer.py: build_answer_prompt (single source of the short-answer prompt), generate_short_answer (provider dispatch, lazy-imports seam's _openai/_claude/_ollama_short_answer so it honors tests that monkeypatch those by module path), and SharedAnswererAdapter (wraps a null-answer comparator so the SAME answerer generates its answer from its retrieved context; passes self-generating adapters through untouched; _generate injectable for tests).
+- run.py _maybe_wrap_answerer wraps mem0/zep with SharedAnswererAdapter when an answerer is configured; the SEAM adapter is NOT wrapped (it self-generates through the same shared prompt). No answerer set -> mem0 unwrapped -> context_recall-only, byte-identical to before (no regression).
+- seam.py _generate_answer now sources its prompt from build_answer_prompt, so SEAM and every comparator answer through an IDENTICAL prompt -- only the retrieved context (the memory layer under test) varies = a fair compare.
+
+BLAST RADIUS: benchmark adapter/harness only. The self-improvement loop uses the seam adapter directly (prompt identical, unaffected). No core, runtime, schema, or dependency change.
+
+TESTS: +8 CI-safe, hermetic (tests/audit/test_shared_answerer.py; no network/keys): wrapper generates for null-answer adapters / passes through self-generating ones / delegates lifecycle; _maybe_wrap_answerer noop-without-answerer plus wraps-when-set; generate_short_answer dispatch uses the shared prompt (monkeypatched provider) plus rejects unknown answerer; build_answer_prompt carries question+context. Also re-ran the answerer-path tests I touched (judged_scorer, entity_aggregation, abstain_threshold, decomposer, adapter_evidence_text, mem0 adapter) = pass.
+
+VERIFIED: full canonical suite `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/` with PGVECTOR_TEST_DSN (pgvector :55432) + strict no-skip = exit 0, 2 known xfails, 0 failures.
+
+CONTEXT: ran alongside a concurrent Codex agent; done on branch bench/fair-shared-answerer + PR (not pushed to main directly) so any HISTORY#333 / file collision resolves at merge, never clobbers. Local main also carries an unpushed docs commit (f750259, engineering-manual PDF) that predates this work.
+
+NEXT (Strand C cont.): (1) optional free confirmation -- run the improvement loop with a CAPABLE answerer to confirm it pulls toward the broad profile; (2) the operator-gated PAID SEAM(broad)-vs-mem0 head-to-head, now MEANINGFUL because both systems are judged on the same answerer over their own retrieved context. Paid run stays gated; surface cost first.
+---END-ENTRY-#333---
