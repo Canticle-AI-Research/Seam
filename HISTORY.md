@@ -7704,3 +7704,36 @@ NEXT:
 - Keep README package install examples on `@main` until release tags exist; update to pinned tags once publishing starts.
 - If new operator-facing errors recur, add them to `docs/errors.md` under the Error Index before they become tribal knowledge.
 ---END-ENTRY-#340---
+
+---BEGIN-ENTRY-#341---
+id: 341
+date: 2026-06-27T18:03:10Z
+agent: Codex
+status: done
+topics: readme, docs, test, history
+commits: none
+refs: README.md,tests/audit/test_github_package_metadata.py
+supersedes: 340
+tokens: 381
+---
+README PLACEHOLDER CLEANUP + HELP PATH CLARIFICATION.
+
+CHANGE:
+- Removed the unpublished public installer placeholder block that advertised `https://example.com/seam/install.ps1` and `https://example.com/seam/install.sh`. README now only shows working GitHub/private clone/install paths and the GitHub direct package install form.
+- Made the Operator Manual section explicitly serve as the help path beyond the quickstart: "For help beyond the quickstart, use these docs as the operator manual."
+- Extended the README/package audit test so unpublished public installer placeholders cannot be reintroduced accidentally, and so the operator manual links remain pinned.
+
+SCOPE:
+- Docs/tests/history only.
+- No runtime, installer, package metadata, CI workflow, benchmark, or dashboard behavior changed.
+
+VALIDATION:
+- Placeholder scan of README no longer finds `example.com`, `placeholder`, `TBD`, `TODO`, `FIXME`, or unpublished public-installer wording. Remaining angle-bracket strings are command examples (`<ids>`, `<local-token>`, `<baseline-report.json>`), not unset release placeholders.
+- Red/green audit test: `tests/audit/test_github_package_metadata.py` failed before README cleanup for the `example.com` placeholder and missing explicit help-path wording, then passed after the README patch.
+- Focused audit: `.venv/bin/python -m pytest tests/audit/test_github_package_metadata.py -q` -> 8 passed.
+- Related audit slice: `.venv/bin/python -m pytest tests/audit/test_github_package_metadata.py tests/audit/test_chroma_optional.py tests/audit/test_github_pr_gates.py -q` -> 15 passed.
+- `git diff --check` passed.
+
+NEXT:
+- When a real public installer host exists, add the actual URL with a live smoke path and an audit test that proves the README URL is no longer a placeholder.
+---END-ENTRY-#341---

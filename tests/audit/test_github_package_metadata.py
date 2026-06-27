@@ -24,6 +24,14 @@ def test_readme_documents_github_pip_install() -> None:
     assert GITHUB_SERVER_DASH_URL in readme
 
 
+def test_readme_does_not_advertise_unpublished_public_installer_placeholders() -> None:
+    readme = (REPO / "README.md").read_text(encoding="utf-8")
+
+    assert "example.com/seam" not in readme
+    assert "public URLs are placeholders" not in readme
+    assert "Public release installer shape" not in readme
+
+
 def test_readme_documents_agent_setup_prompt_for_persistent_memory() -> None:
     readme = (REPO / "README.md").read_text(encoding="utf-8")
 
@@ -45,7 +53,11 @@ def test_readme_documents_operator_manual_and_error_index() -> None:
     readme = (REPO / "README.md").read_text(encoding="utf-8")
 
     assert "## Operator Manual" in readme
+    assert "For help beyond the quickstart" in readme
     assert "[Operator guide](docs/SEAM_OPERATOR_GUIDE.md)" in readme
+    assert "[Setup guide](docs/setup.md)" in readme
+    assert "[Task runbooks](docs/howto/README.md)" in readme
+    assert "[Engineering manual](docs/engineering/README.md)" in readme
     assert "[Troubleshooting and error index](docs/errors.md)" in readme
     assert "### Error Index" in readme
     assert "`ModuleNotFoundError: No module named 'textual'`" in readme

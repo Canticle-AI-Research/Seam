@@ -51,19 +51,6 @@ Repo-local Linux development bootstrap:
 gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
-Public release installer shape, for later release packaging:
-
-```powershell
-irm https://example.com/seam/install.ps1 | iex
-```
-
-```bash
-curl -fsSL https://example.com/seam/install.sh | sh
-```
-
-Those public URLs are placeholders until SEAM has a published installer host.
-Use the private `gh repo clone` commands above for this repo today.
-
 ## Agent Setup Prompt
 
 After cloning SEAM, paste this prompt into your coding agent to have it install
@@ -224,7 +211,7 @@ claude-mem comparison, retrieval mode details, and agent bridge notes.
 
 ## Operator Manual
 
-Use these docs as the operator manual:
+For help beyond the quickstart, use these docs as the operator manual:
 
 - [Operator guide](docs/SEAM_OPERATOR_GUIDE.md) - day-to-day commands, doctor checks, benchmark posture, and failure triage.
 - [Setup guide](docs/setup.md) - platform setup, installer flows, dashboard chat model configuration, and supported command shapes.

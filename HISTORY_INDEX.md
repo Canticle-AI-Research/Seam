@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 340
-total_tokens: ~138760
-latest_id: 340
+total_entries: 341
+total_tokens: ~139141
+latest_id: 341
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 341 | 2026-06-27 | done | 1c9841e763fb2ba8 | readme,docs,test,history | 340 |
 | 340 | 2026-06-27 | done | 2681bb08d5b0aa95 | readme,docs,prompt,memory,+ | 339 |
 | 339 | 2026-06-27 | done | 7ca998d1f84e1dbe | pyproject,readme,ci,test,+ | 338 |
 | 338 | 2026-06-27 | done | 5ed0d240db683366 | benchmark,locomo,mem0,retrieval,+ | 337 |
@@ -414,7 +415,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=38 latest=#340, #339, #338, #337, #331
+- docs: count=39 latest=#341, #340, #339, #338, #337
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -443,7 +444,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=258 latest=#340, #339, #338, #337, #336
+- history: count=259 latest=#341, #340, #339, #338, #337
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -504,7 +505,7 @@ compact: true
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=19 latest=#340, #339, #147, #121, #117
+- readme: count=20 latest=#341, #340, #339, #147, #121
 - reasoning: count=2 latest=#327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
@@ -548,7 +549,7 @@ compact: true
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=39 latest=#340, #339, #338, #337, #336
+- test: count=40 latest=#341, #340, #339, #338, #337
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -569,6 +570,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 318
+- done: 319
 - in-progress: 2
 - planned: 20

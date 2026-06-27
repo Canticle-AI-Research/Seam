@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 397
+total_events: 398
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-15T00:00:00Z | roadmap:034:85326313 | status-change | bootstrap | agent, compiler, skills | ROADMAP.md:1387 |
 | 2026-05-15T00:00:00Z | roadmap:035:842b0cf6 | status-change | bootstrap | codec, compress, prompt, benchmark | ROADMAP.md:1450 |
 | 2026-05-15T00:00:00Z | roadmap:036:e51d9c4c | status-change | bootstrap | security, audit, trust, benchmark | ROADMAP.md:1470 |
 | 2026-05-15T06:50:47Z | history:165:89ff7e18 | session-event | done | roadmap, plan, protocol, history, status, audit, classifi... | docs/roadmap/CONTEXT_STREAMS.md,ROADMAP.md,PROJECT_STATUS.md,HISTORY.md,HISTO... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-06-27T00:00:00Z | history:338:5ed0d240 | session-event | done | benchmark, locomo, mem0, retrieval, test, docs, history | benchmarks/external/locomo/adapters/mem0.py,benchmarks/external/locomo/run.py... |
 | 2026-06-27T15:16:28Z | history:339:7ca998d1 | session-event | done | pyproject, readme, ci, test, docs, history | pyproject.toml,README.md,MANIFEST.in,.github/workflows/ci.yml,tests/audit/tes... |
 | 2026-06-27T17:52:01Z | history:340:2681bb08 | session-event | done | readme, docs, prompt, memory, operator, webui, test, history | README.md,docs/README.md,docs/errors.md,tests/audit/test_github_package_metad... |
+| 2026-06-27T18:03:10Z | history:341:1c9841e7 | session-event | done | readme, docs, test, history | README.md,tests/audit/test_github_package_metadata.py |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0197.cross.md | 2026-04-15T00:00:00Z..2026-05-15T00:00:00Z | 197 | (multi) | (multi) |
+| 0001-0198.cross.md | 2026-04-15T00:00:00Z..2026-05-15T00:00:00Z | 198 | (multi) | (multi) |
