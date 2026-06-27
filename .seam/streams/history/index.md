@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 337
-total_tokens: ~137150
-latest_id: 337
+total_entries: 338
+total_tokens: ~137600
+latest_id: 338
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 338 | 2026-06-27 | done | 5ed0d240db683366 | benchmark,locomo,mem0,retrieval,+ | 337 |
 | 337 | 2026-06-27 | done | 1071f2cabed7e3cc | installer,macos,docs,test,+ | 336 |
 | 336 | 2026-06-27 | done | 3a688abdfa8af175 | benchmark,locomo,mem0,retry,+ | 335 |
 | 335 | 2026-06-26 | done | 7b74fc232147ec0c | benchmark,locomo,mem0,adapter,+ | 334 |
@@ -363,7 +364,7 @@ compact: true
 - audit: count=74 latest=#303, #290, #288, #280, #279
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=112 latest=#336, #335, #334, #333, #329
+- benchmark: count=113 latest=#338, #336, #335, #334, #333
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -411,7 +412,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=35 latest=#337, #331, #329, #326, #322
+- docs: count=36 latest=#338, #337, #331, #329, #326
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -440,7 +441,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=255 latest=#337, #336, #335, #334, #329
+- history: count=256 latest=#338, #337, #336, #335, #334
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -457,7 +458,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=31 latest=#336, #335, #334, #333, #332
+- locomo: count=32 latest=#338, #336, #335, #334, #333
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -466,7 +467,7 @@ compact: true
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
 - mcp: count=15 latest=#222, #218, #213, #212, #211
-- mem0: count=5 latest=#336, #335, #334, #333, #328
+- mem0: count=6 latest=#338, #336, #335, #334, #333
 - memory: count=5 latest=#286, #275, #274, #182, #178
 - merge: count=1 latest=#301
 - metrics: count=2 latest=#307, #305
@@ -511,7 +512,7 @@ compact: true
 - regex: count=1 latest=#317
 - registry: count=1 latest=#178
 - repo-ledger: count=1 latest=#304
-- retrieval: count=63 latest=#334, #332, #328, #325, #323
+- retrieval: count=64 latest=#338, #334, #332, #328, #325
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - roadmap: count=53 latest=#333, #319, #318, #284, #276
@@ -544,7 +545,7 @@ compact: true
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=36 latest=#337, #336, #335, #330, #329
+- test: count=37 latest=#338, #337, #336, #335, #330
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -565,6 +566,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 315
+- done: 316
 - in-progress: 2
 - planned: 20

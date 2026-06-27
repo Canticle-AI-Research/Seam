@@ -165,6 +165,12 @@ def build_adapter(name: str):
 
 Lazy-import inside the factory so SEAM-only runs do not require Mem0 installed.
 
+Current runner note: the live LoCoMo runner also exposes
+`--mem0-search-limit` and `SEAM_BENCH_MEM0_SEARCH_LIMIT` so paid diagnostics can
+raise mem0 retrieval depth above the default `8` without editing the adapter.
+Keep the default at `8` for backward-compatible quickstart/comparator smoke
+runs; use explicit higher values for controlled fairness probes.
+
 ### 4.3 `seam_runtime/cli.py` (modify)
 
 Add `--adapter` to `seam bench external` parser. Default `seam`.

@@ -7595,3 +7595,36 @@ SCOPE:
 NEXT:
 - Push the branch so the macOS installer cleanup is not left as local WIP.
 ---END-ENTRY-#337---
+
+---BEGIN-ENTRY-#338---
+id: 338
+date: 2026-06-27T00:00:00Z
+agent: Codex
+status: done
+topics: benchmark, locomo, mem0, retrieval, test, docs, history
+commits: none
+refs: benchmarks/external/locomo/adapters/mem0.py,benchmarks/external/locomo/run.py,test_seam_all/test_locomo_mem0_adapter.py,docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md
+supersedes: 337
+tokens: 450
+---
+MEM0 RETRIEVAL DEPTH KNOB for controlled post-rung-C diagnostics.
+
+CONTEXT:
+- The clean 764-case mem0 rerun from HISTORY#336 was fair operationally (zero case errors, zero judge errors) but scored far below SEAM broad (`0.0844240837696335` vs the banked `0.674` same-slice SEAM score).
+- Audit showed mem0 mostly answered `unknown`, and the adapter had a fixed retrieval depth of `top_k=8`, unlike SEAM broad's much deeper candidate/context budget. Before any further paid rerun, mem0 needed an explicit depth control so diagnostics can separate mem0 storage/extraction quality from a shallow retrieval cap.
+
+CHANGE:
+- `Mem0LocomoAdapter` now resolves `search_limit` from an explicit constructor arg, then `SEAM_BENCH_MEM0_SEARCH_LIMIT`, then the prior default `8`.
+- The LoCoMo runner exposes `--mem0-search-limit` and passes it through `build_adapter("mem0", ...)`.
+- The default remains `8` for backward-compatible quickstart/comparator smoke runs; higher values require an explicit env var or CLI argument.
+- The mem0 comparator SOP now documents the live runner knob and the compatibility rule.
+
+VALIDATION:
+- Added tests proving the env override reaches `Memory.search(top_k=...)` and that `build_adapter()` passes an explicit mem0 search limit.
+- Focused benchmark harness tests passed: `test_seam_all/test_locomo_mem0_adapter.py`, `tests/audit/test_shared_answerer.py`, and `test_seam_all/test_locomo_judge_batch.py`.
+- `py_compile` passed for the touched mem0 adapter and LoCoMo runner modules.
+
+NEXT:
+- Run a small explicitly operator-gated mem0 diagnostic slice at higher `--mem0-search-limit` before spending on another full judged rerun.
+- If a deeper mem0 slice still mostly abstains, keep the fair SEAM win and move to productizing/using the broad core profile path rather than rerunning the full paid comparator immediately.
+---END-ENTRY-#338---

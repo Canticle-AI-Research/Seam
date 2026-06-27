@@ -30,11 +30,11 @@ class Mem0LocomoAdapter:
     def __init__(
         self,
         *,
-        search_limit: int = 8,
+        search_limit: int | None = None,
         config_overrides: dict | None = None,
         _memory: object | None = None,
     ):
-        self.search_limit = search_limit
+        self.search_limit = _resolve_search_limit(search_limit)
 
         if _memory is not None:
             self._memory = _memory
@@ -153,3 +153,15 @@ class Mem0LocomoAdapter:
                 time.sleep(wait)
                 now = time.monotonic()
             _LAST_INGEST_AT = now
+
+
+def _resolve_search_limit(search_limit: int | None) -> int:
+    if search_limit is not None:
+        return max(1, int(search_limit))
+    value = os.environ.get("SEAM_BENCH_MEM0_SEARCH_LIMIT")
+    if value:
+        try:
+            return max(1, int(value))
+        except ValueError:
+            pass
+    return 8

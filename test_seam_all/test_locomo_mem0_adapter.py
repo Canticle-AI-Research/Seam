@@ -20,12 +20,14 @@ class _StubMem0:
 
     def __init__(self):
         self.store: dict[str, list[dict]] = {}
+        self.last_top_k: int | None = None
 
     def add(self, messages: list[dict], user_id: str) -> None:
         self.store.setdefault(user_id, []).extend(messages)
 
     def search(self, query: str, *, filters: dict, top_k: int) -> dict:
         # mem0 2.x: user_id is passed inside filters, and limit is now top_k.
+        self.last_top_k = top_k
         user_id = (filters or {}).get("user_id")
         items = [
             {"memory": m["content"], "score": 1.0}
@@ -134,6 +136,42 @@ def test_mem0_config_model_env_override(monkeypatch) -> None:
     monkeypatch.setenv("SEAM_BENCH_MEM0_LLM_MODEL", "gpt-4o")
     cfg = Mem0LocomoAdapter._build_config("/tmp/mem0-test", None)
     assert cfg["llm"]["config"]["model"] == "gpt-4o"
+
+
+def test_mem0_search_limit_env_override(monkeypatch) -> None:
+    from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
+
+    memory = _StubMem0()
+    monkeypatch.setenv("SEAM_BENCH_MEM0_SEARCH_LIMIT", "32")
+    adapter = Mem0LocomoAdapter(_memory=memory)
+    scope = "case-search-limit"
+
+    adapter.reset(scope)
+    adapter.ingest_turn(scope, ConversationTurn(speaker="Alice", text="Depth fact."))
+    adapter.answer(scope, "What fact?")
+
+    assert adapter.search_limit == 32
+    assert memory.last_top_k == 32
+
+
+def test_build_adapter_passes_explicit_mem0_search_limit(monkeypatch) -> None:
+    from benchmarks.external.locomo import run as locomo_run
+    from benchmarks.external.locomo.adapters import mem0 as mem0_module
+
+    captured: dict[str, int] = {}
+
+    class _FakeMem0:
+        name = "mem0"
+
+        def __init__(self, *, search_limit: int = 8):
+            captured["search_limit"] = search_limit
+
+    monkeypatch.setattr(mem0_module, "Mem0LocomoAdapter", _FakeMem0)
+
+    adapter = locomo_run.build_adapter("mem0", mem0_search_limit=64)
+
+    assert adapter.name == "mem0"
+    assert captured["search_limit"] == 64
 
 
 # -- Protocol tests -----------------------------------------------------

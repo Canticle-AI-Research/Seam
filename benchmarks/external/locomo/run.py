@@ -45,6 +45,7 @@ def build_adapter(
     context_budget: int = 8000,  # HISTORY#320 measured knee (was 2000, starved)
     search_top_k: int = 100,     # HISTORY#320 measured knee (was 20, starved)
     rerank_top_k: int = 20,
+    mem0_search_limit: int | None = None,
     semantic_recovery_mode: str = "baseline",
     record_retrieval_events: bool | None = None,
     retrieval_event_run_id: str | None = None,
@@ -71,7 +72,11 @@ def build_adapter(
     if name == "mem0":
         from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
 
-        return _maybe_wrap_answerer(Mem0LocomoAdapter(), answerer, answerer_model)
+        return _maybe_wrap_answerer(
+            Mem0LocomoAdapter(search_limit=mem0_search_limit),
+            answerer,
+            answerer_model,
+        )
     if name == "zep":
         from benchmarks.external.locomo.adapters.zep import ZepLocomoAdapter
 
@@ -312,6 +317,12 @@ def main() -> None:
         help="(seam adapter) Candidate count re-ranked when --rerank cross-encoder is enabled (default: 20).",
     )
     parser.add_argument(
+        "--mem0-search-limit",
+        type=int,
+        default=None,
+        help="(mem0 adapter) Number of mem0 memories requested per question. Default: 8 or SEAM_BENCH_MEM0_SEARCH_LIMIT.",
+    )
+    parser.add_argument(
         "--record-retrieval-events",
         action="store_true",
         help="(seam adapter) Append retrieval_event rows while answering cases. Default off unless SEAM_RECORD_RETRIEVAL_EVENTS is truthy.",
@@ -394,6 +405,7 @@ def main() -> None:
                 context_budget=args.context_budget,
                 search_top_k=args.search_top_k,
                 rerank_top_k=args.rerank_top_k,
+                mem0_search_limit=args.mem0_search_limit,
                 semantic_recovery_mode=args.semantic_recovery_mode,
                 record_retrieval_events=args.record_retrieval_events,
                 retrieval_event_run_id=args.retrieval_event_run_id,
@@ -424,6 +436,7 @@ def main() -> None:
             context_budget=args.context_budget,
             search_top_k=args.search_top_k,
             rerank_top_k=args.rerank_top_k,
+            mem0_search_limit=args.mem0_search_limit,
             semantic_recovery_mode=args.semantic_recovery_mode,
             record_retrieval_events=args.record_retrieval_events,
             retrieval_event_run_id=args.retrieval_event_run_id,
