@@ -13,10 +13,16 @@ classifiers = [
   "License :: Other/Proprietary License",
   "Private :: Do Not Upload",
 ]
+keywords = ["ai", "agents", "memory", "mcp", "rag"]
 dependencies = [
   "rich>=14.2,<16",
   "tiktoken>=0.8.0,<1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/BlackhatShiftey/Seam_Runtime"
+Repository = "https://github.com/BlackhatShiftey/Seam_Runtime"
+Issues = "https://github.com/BlackhatShiftey/Seam_Runtime/issues"
 
 [project.optional-dependencies]
 dash = ["textual>=0.50,<1.0", "httpx>=0.24,<1.0"]

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 338
-total_tokens: ~137600
-latest_id: 338
+total_entries: 339
+total_tokens: ~138192
+latest_id: 339
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 339 | 2026-06-27 | done | 7ca998d1f84e1dbe | pyproject,readme,ci,test,+ | 338 |
 | 338 | 2026-06-27 | done | 5ed0d240db683366 | benchmark,locomo,mem0,retrieval,+ | 337 |
 | 337 | 2026-06-27 | done | 1071f2cabed7e3cc | installer,macos,docs,test,+ | 336 |
 | 336 | 2026-06-27 | done | 3a688abdfa8af175 | benchmark,locomo,mem0,retry,+ | 335 |
@@ -377,7 +378,7 @@ compact: true
 - chat: count=15 latest=#286, #137, #074, #073, #072
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=10 latest=#301, #295, #294, #293, #283
+- ci: count=11 latest=#339, #301, #295, #294, #293
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
@@ -412,7 +413,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=36 latest=#338, #337, #331, #329, #326
+- docs: count=37 latest=#339, #338, #337, #331, #329
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -441,7 +442,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=256 latest=#338, #337, #336, #335, #334
+- history: count=257 latest=#339, #338, #337, #336, #335
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -495,13 +496,13 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=95 latest=#324, #322, #310, #304, #294
 - prov: count=1 latest=#316
-- pyproject: count=5 latest=#267, #094, #051, #049, #022
+- pyproject: count=6 latest=#339, #267, #094, #051, #049
 - qr: count=1 latest=#307
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=17 latest=#147, #121, #117, #116, #100
+- readme: count=18 latest=#339, #147, #121, #117, #116
 - reasoning: count=2 latest=#327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
@@ -545,7 +546,7 @@ compact: true
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=37 latest=#338, #337, #336, #335, #330
+- test: count=38 latest=#339, #338, #337, #336, #335
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -566,6 +567,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 316
+- done: 317
 - in-progress: 2
 - planned: 20

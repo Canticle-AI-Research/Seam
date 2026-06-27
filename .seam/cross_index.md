@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 395
+total_events: 396
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-15T00:00:00Z | roadmap:032:211f6c94 | status-change | bootstrap | protocol, retrieval, search | ROADMAP.md:1339 |
 | 2026-05-15T00:00:00Z | roadmap:033:e7dd0d7a | status-change | bootstrap | protocol, retrieval, search, vector | ROADMAP.md:1363 |
 | 2026-05-15T00:00:00Z | roadmap:034:85326313 | status-change | bootstrap | agent, compiler, skills | ROADMAP.md:1387 |
 | 2026-05-15T00:00:00Z | roadmap:035:842b0cf6 | status-change | bootstrap | codec, compress, prompt, benchmark | ROADMAP.md:1450 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-06-27T00:00:00Z | history:336:3a688abd | session-event | done | benchmark, locomo, mem0, retry, judge, bugfix, test, history | benchmarks/external/common/provider_retry.py,benchmarks/external/common/answe... |
 | 2026-06-27T00:00:00Z | history:337:1071f2ca | session-event | done | installer, macos, docs, test, history | installers/install_seam_macos.sh,seam_runtime/installer.py,installers/install... |
 | 2026-06-27T00:00:00Z | history:338:5ed0d240 | session-event | done | benchmark, locomo, mem0, retrieval, test, docs, history | benchmarks/external/locomo/adapters/mem0.py,benchmarks/external/locomo/run.py... |
+| 2026-06-27T15:16:28Z | history:339:7ca998d1 | session-event | done | pyproject, readme, ci, test, docs, history | pyproject.toml,README.md,MANIFEST.in,.github/workflows/ci.yml,tests/audit/tes... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0195.cross.md | 2026-04-15T00:00:00Z..2026-05-15T00:00:00Z | 195 | (multi) | (multi) |
+| 0001-0196.cross.md | 2026-04-15T00:00:00Z..2026-05-15T00:00:00Z | 196 | (multi) | (multi) |

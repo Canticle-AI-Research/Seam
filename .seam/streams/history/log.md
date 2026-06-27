@@ -7628,3 +7628,41 @@ NEXT:
 - Run a small explicitly operator-gated mem0 diagnostic slice at higher `--mem0-search-limit` before spending on another full judged rerun.
 - If a deeper mem0 slice still mostly abstains, keep the fair SEAM win and move to productizing/using the broad core profile path rather than rerunning the full paid comparator immediately.
 ---END-ENTRY-#338---
+
+---BEGIN-ENTRY-#339---
+id: 339
+date: 2026-06-27T15:16:28Z
+agent: Codex
+status: done
+topics: pyproject, readme, ci, test, docs, history
+commits: none
+refs: pyproject.toml,README.md,MANIFEST.in,.github/workflows/ci.yml,tests/audit/test_github_package_metadata.py
+supersedes: 338
+tokens: 592
+---
+GITHUB-FIRST PACKAGE INSTALL PATH for `seam-runtime`.
+
+CHANGE:
+- Added project URLs in `pyproject.toml` pointing package metadata at `https://github.com/BlackhatShiftey/Seam_Runtime` and its issue tracker.
+- Added README GitHub direct-install commands for the base runtime and the `server,dash` extras using `pip install "seam-runtime[...] @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"`.
+- Added `MANIFEST.in` so sdists include license/policy/readme files plus the packaged browser-dashboard assets and retrieval-orchestrator README.
+- Added a `package-smoke` CI job that builds wheel+sdist, installs the built wheel, and checks the installed `seam`, `seam-mcp`, and `seam-server` entrypoints.
+- Added `tests/audit/test_github_package_metadata.py` to pin the GitHub package metadata, README install URLs, manifest inclusion rule, and CI package smoke.
+
+SCOPE:
+- Packaging, docs, and CI only.
+- Did not change runtime behavior, benchmark behavior, installer behavior, or the current license posture on this branch.
+- Existing unrelated mem0/status/history/stream changes remained in the working tree and were not folded into this packaging scope.
+
+VALIDATION:
+- Red/green packaging audit test: `tests/audit/test_github_package_metadata.py` failed before implementation for missing URLs/docs/manifest/CI and passed after the patch.
+- Focused regression: `.venv/bin/python -m pytest tests/audit/test_github_package_metadata.py tests/audit/test_chroma_optional.py tests/audit/test_github_pr_gates.py -q` -> 11 passed.
+- Artifact build: `rm -rf dist && .venv/bin/python -m build --wheel --sdist` -> built `seam_runtime-0.1.0-py3-none-any.whl` and `seam_runtime-0.1.0.tar.gz`; setuptools emitted existing license metadata deprecation warnings only.
+- Clean wheel install smoke: fresh `/tmp/seam-package-smoke` venv installed `dist/*.whl`; `seam --help`, `seam-mcp --help`, and `seam-server --help` all exited 0.
+- Installed package-data check confirmed `seam_runtime/webui/dashboard.html`, `seam_runtime/webui/seam-api.js`, and `seam_runtime/webui/branding/seam-glitch.png` are present in the installed wheel.
+- `git diff --check` passed.
+
+NEXT:
+- Push this packaging slice to `BlackhatShiftey/Seam_Runtime` through a PR after the branch's unrelated mem0/history work is either included intentionally or separated.
+- When tags are ready, update the README examples from `@main` to a pinned release tag.
+---END-ENTRY-#339---

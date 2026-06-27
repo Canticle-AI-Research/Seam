@@ -9,6 +9,22 @@ before they are treated as real progress.
 
 ## Install
 
+GitHub package install for the SEAM runtime:
+
+```bash
+python -m pip install "seam-runtime @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"
+```
+
+Install with REST API and dashboard extras:
+
+```bash
+python -m pip install "seam-runtime[server,dash] @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"
+```
+
+Once release tags exist, replace `@main` with a pinned tag such as `@v0.1.0`.
+The clone-and-installer flows below remain the full operator setup path for
+repo-local development, persistent state setup, and platform shims.
+
 Private repo install requires an authenticated GitHub CLI session.
 
 Windows PowerShell:

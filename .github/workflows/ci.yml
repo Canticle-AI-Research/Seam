@@ -117,6 +117,31 @@ jobs:
           PGVECTOR_TEST_DSN: "host=localhost port=55432 dbname=seam_ci user=seam_ci password=seam_ci_password"
         run: python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py -q
 
+  package-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build wheel and source distribution
+        run: |
+          python -m pip install build
+          python -m build --wheel --sdist
+
+      - name: Install built wheel
+        run: python -m pip install dist/*.whl
+
+      - name: Smoke installed commands
+        run: |
+          seam --help
+          seam-mcp --help
+          seam-server --help
+
   repo-hygiene:
     runs-on: ubuntu-latest
     steps:
