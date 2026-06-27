@@ -2,6 +2,15 @@
 
 Use this as the first-stop error playbook. Every section includes exact fix and verify commands.
 
+## Error Index
+
+- [`ModuleNotFoundError: No module named 'textual'`](#error-modulenotfounderror-no-module-named-textual)
+- [`SEAM doctor: FAIL` with missing required deps](#error-seam-doctor-fail-with-missing-required-deps)
+- [`PgVector: configured but unreachable`](#error-pgvector-configured-but-unreachable)
+- [Chroma path/index sync failure](#error-chroma-pathindex-sync-failure)
+- [Benchmark bundle verification failure](#error-benchmark-bundle-verification-failure)
+- [`HTTP 429` provider quota or rate limit](#error-http-429-provider-quota-or-rate-limit)
+
 ## Error: `ModuleNotFoundError: No module named 'textual'`
 
 ### Symptom
@@ -151,6 +160,36 @@ Re-run benchmark and produce a new verified bundle from current environment:
 ### Verify
 
 Benchmark verification output indicates `PASS`.
+
+## Error: `HTTP 429` provider quota or rate limit
+
+### Symptom
+
+Provider-backed commands, dashboard chat, embeddings, or judged benchmark runs
+fail with `HTTP 429`, rate-limit, quota, or billing errors.
+
+### Fix
+
+Set or rotate the provider API key in one of two operator-owned places:
+
+- Web UI: run `seam webui`, open Settings, set the provider key or
+  `SEAM_CHAT_API_KEY`, and save the local env.
+- Manual: export the needed key in the current shell or edit an ignored local
+  `.env`/`.conf` file. Never commit or ingest those files.
+
+If the key is valid, check provider quota, billing, model access, and request
+rate. Paid benchmark dependencies such as `bench-judge`, `bench-mem0`, and
+`bench-zep` should only run after explicit operator approval.
+
+### Verify
+
+Re-run the failed command after the operator confirms provider access. For chat
+or API setup, run:
+
+```bash
+seam doctor
+seam webui --host 127.0.0.1 --port 8765
+```
 
 ## Do-Not-Proceed Blockers
 

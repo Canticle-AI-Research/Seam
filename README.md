@@ -64,6 +64,73 @@ curl -fsSL https://example.com/seam/install.sh | sh
 Those public URLs are placeholders until SEAM has a published installer host.
 Use the private `gh repo clone` commands above for this repo today.
 
+## Agent Setup Prompt
+
+After cloning SEAM, paste this prompt into your coding agent to have it install
+SEAM, verify the local setup, and configure SEAM as persistent memory for the
+workspace.
+
+```text
+You are setting up SEAM from this repository.
+
+Goal:
+Install SEAM completely for local development and operator use, then configure
+it as persistent memory for this agent/workspace.
+
+Rules:
+- Read `AGENTS.md` first and follow repo-local instructions.
+- Do not expose, print, copy, delete, or summarize secrets.
+- Do not ingest secrets, `.env` files, credential files, private keys, provider
+  session links, ignored local artifacts, or private chat/share links.
+- API keys, local `.env` files, and local `.conf` files are operator-owned.
+  The operator can set them in the SEAM Web UI Settings panel or maintain them
+  manually in ignored local config files.
+- Prefer project installers and documented commands over ad hoc setup.
+- Do not install `bench-judge`, `bench-mem0`, or `bench-zep` unless the operator
+  explicitly approves provider/API-key benchmark dependencies.
+- If a command fails, stop and report the exact command and error.
+
+Steps:
+1. Confirm the current directory is the SEAM repo.
+2. Run the platform installer:
+   - Linux/WSL2: `sh ./installers/install_seam_linux.sh --dev`
+   - macOS: `sh ./installers/install_seam_macos.sh --dev`
+   - Windows PowerShell: `powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1 -Dev`
+3. Install useful local extras for normal operator work:
+   `python -m pip install -e ".[server,dash,pgvector,sbert,rerank]"`
+4. Verify the install:
+   `seam doctor`
+5. Ask the operator to set any needed provider keys and local config before
+   enabling paid/provider-backed features:
+   - Web UI path: run `seam webui`, open Settings, enter provider keys,
+     `SEAM_CHAT_API_KEY`, `SEAM_CHAT_BASE_URL`, `SEAM_CHAT_MODEL`,
+     `SEAM_PGVECTOR_DSN`, `SEAM_API_TOKEN`, or `SEAM_LOCAL_ENV` as needed, then
+     save the local env from the Settings panel.
+   - Manual path: create or edit ignored local `.env` or `.conf` files, export
+     the needed variables in the shell, and never commit or ingest those files.
+6. Re-run:
+   `seam doctor`
+7. Ingest safe repo context as persistent memory:
+   `seam ingest README.md --persist`
+   `seam ingest AGENTS.md --persist`
+   `seam ingest PROJECT_STATUS.md --persist`
+   `seam ingest REPO_LEDGER.md --persist`
+8. Test memory retrieval:
+   `seam memory search "current SEAM repo status"`
+   `seam context "current SEAM repo status" --retrieval-mode mix --view prompt`
+9. If this agent supports MCP, configure it to launch:
+   `seam-mcp`
+   Or, when pgvector is needed and Docker is available:
+   `seam-mcp --ensure-pgvector`
+10. Report back with:
+   - install path used
+   - optional extras installed
+   - whether `seam doctor` passed
+   - whether API keys/local config were set in Web UI Settings or manually
+   - whether memory search/context returned useful repo context
+   - whether MCP was configured or only CLI memory is available
+```
+
 ## 60-Second Demo
 
 After install, open a new terminal. The same commands work on Windows
@@ -80,6 +147,18 @@ seam dashboard --snapshot --no-clear
 
 Inside the dashboard, use `reload` or `/reload` to refresh the visible runtime
 state, metrics, panels, and chart surfaces without restarting.
+
+To configure API keys and local runtime settings without editing files by hand,
+run the browser Web UI and open Settings:
+
+```bash
+seam webui --host 127.0.0.1 --port 8765
+```
+
+Settings covers provider keys, chat/API settings, embedding settings, database
+paths, pgvector DSNs, `SEAM_LOCAL_ENV`, REST API tokens, and save/reload local
+env controls. Operators can also maintain ignored local `.env` or `.conf` files
+manually; those files must not be committed or ingested as memory.
 
 ## Why SEAM
 
@@ -142,6 +221,27 @@ claude-mem comparison, retrieval mode details, and agent bridge notes.
 - Troubleshooting: [docs/errors.md](docs/errors.md)
 - Task runbooks: [docs/howto/README.md](docs/howto/README.md)
 - Active/inactive code layout: [docs/CODE_LAYOUT.md](docs/CODE_LAYOUT.md)
+
+## Operator Manual
+
+Use these docs as the operator manual:
+
+- [Operator guide](docs/SEAM_OPERATOR_GUIDE.md) - day-to-day commands, doctor checks, benchmark posture, and failure triage.
+- [Setup guide](docs/setup.md) - platform setup, installer flows, dashboard chat model configuration, and supported command shapes.
+- [Task runbooks](docs/howto/README.md) - short workflows for common operator tasks.
+- [Engineering manual](docs/engineering/README.md) - architecture, security, change/test/incident SOPs, and verification discipline.
+- [Troubleshooting and error index](docs/errors.md) - look up failures by symptom or error type before changing code.
+
+### Error Index
+
+Start with [docs/errors.md](docs/errors.md). Current indexed failure types include:
+
+- `ModuleNotFoundError: No module named 'textual'`
+- `SEAM doctor: FAIL`
+- `PgVector: configured but unreachable`
+- Chroma path/index sync failure
+- Benchmark bundle verification failure
+- `HTTP 429` provider quota or rate-limit symptoms
 
 Default persistent database paths:
 

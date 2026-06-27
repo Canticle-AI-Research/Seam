@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 339
-total_tokens: ~138192
-latest_id: 339
+total_entries: 340
+total_tokens: ~138760
+latest_id: 340
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 340 | 2026-06-27 | done | 2681bb08d5b0aa95 | readme,docs,prompt,memory,+ | 339 |
 | 339 | 2026-06-27 | done | 7ca998d1f84e1dbe | pyproject,readme,ci,test,+ | 338 |
 | 338 | 2026-06-27 | done | 5ed0d240db683366 | benchmark,locomo,mem0,retrieval,+ | 337 |
 | 337 | 2026-06-27 | done | 1071f2cabed7e3cc | installer,macos,docs,test,+ | 336 |
@@ -413,7 +414,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=37 latest=#339, #338, #337, #331, #329
+- docs: count=38 latest=#340, #339, #338, #337, #331
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -442,7 +443,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=257 latest=#339, #338, #337, #336, #335
+- history: count=258 latest=#340, #339, #338, #337, #336
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -469,7 +470,7 @@ compact: true
 - manual: count=1 latest=#331
 - mcp: count=15 latest=#222, #218, #213, #212, #211
 - mem0: count=6 latest=#338, #336, #335, #334, #333
-- memory: count=5 latest=#286, #275, #274, #182, #178
+- memory: count=6 latest=#340, #286, #275, #274, #182
 - merge: count=1 latest=#301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
@@ -480,7 +481,7 @@ compact: true
 - nl: count=7 latest=#317, #313, #311, #309, #308
 - ollama: count=2 latest=#323, #313
 - openai: count=1 latest=#327
-- operator: count=1 latest=#179
+- operator: count=2 latest=#340, #179
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid-validation: count=1 latest=#302
@@ -493,6 +494,7 @@ compact: true
 - productize: count=1 latest=#320
 - profile: count=3 latest=#334, #332, #328
 - promotion: count=1 latest=#305
+- prompt: count=1 latest=#340
 - proposer: count=1 latest=#291
 - protocol: count=95 latest=#324, #322, #310, #304, #294
 - prov: count=1 latest=#316
@@ -502,7 +504,7 @@ compact: true
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=18 latest=#339, #147, #121, #117, #116
+- readme: count=19 latest=#340, #339, #147, #121, #117
 - reasoning: count=2 latest=#327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
@@ -546,7 +548,7 @@ compact: true
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=38 latest=#339, #338, #337, #336, #335
+- test: count=39 latest=#340, #339, #338, #337, #336
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -558,7 +560,7 @@ compact: true
 - vector: count=25 latest=#228, #223, #220, #218, #199
 - verify: count=247 latest=#320, #317, #316, #315, #314
 - vulnerability: count=1 latest=#296
-- webui: count=4 latest=#326, #286, #285, #267
+- webui: count=5 latest=#340, #326, #286, #285, #267
 - windows: count=21 latest=#283, #282, #261, #260, #259
 - workflow-permissions: count=1 latest=#298
 - wsl2: count=1 latest=#021
@@ -567,6 +569,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 317
+- done: 318
 - in-progress: 2
 - planned: 20

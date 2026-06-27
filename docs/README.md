@@ -4,8 +4,9 @@ This folder is the active operator and engineering documentation surface.
 
 ## Active Docs
 
+- `SEAM_OPERATOR_GUIDE.md` - operator manual for day-to-day commands, doctor checks, benchmark posture, and failure triage.
 - `setup.md` - copy/paste setup, dashboard chat model configuration, and supported platform commands.
-- `errors.md` - current troubleshooting playbook.
+- `errors.md` - current troubleshooting playbook and error index by symptom/error type.
 - `howto/README.md` - short task runbooks.
 - `engineering/README.md` - SEAM engineering architecture and change-control manual (architecture, security, change/test/incident SOPs, epistemic calibration, verification matrix, templates) plus the `seam-engineer` routing skill.
 - `CODE_LAYOUT.md` - active code, experimental code, generated code, and inactive code boundaries.

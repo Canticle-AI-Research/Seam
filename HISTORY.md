@@ -7666,3 +7666,41 @@ NEXT:
 - Push this packaging slice to `BlackhatShiftey/Seam_Runtime` through a PR after the branch's unrelated mem0/history work is either included intentionally or separated.
 - When tags are ready, update the README examples from `@main` to a pinned release tag.
 ---END-ENTRY-#339---
+
+---BEGIN-ENTRY-#340---
+id: 340
+date: 2026-06-27T17:52:01Z
+agent: Codex
+status: done
+topics: readme, docs, prompt, memory, operator, webui, test, history
+commits: none
+refs: README.md,docs/README.md,docs/errors.md,tests/audit/test_github_package_metadata.py
+supersedes: 339
+tokens: 568
+---
+AGENT SETUP PROMPT + OPERATOR MANUAL / ERROR INDEX DISCOVERABILITY.
+
+CHANGE:
+- Added a README Agent Setup Prompt that tells downstream coding agents to install SEAM with the platform installer, install normal operator extras, run `seam doctor`, ingest safe repo docs as persistent memory, test memory retrieval/context, and configure MCP with `seam-mcp` or `seam-mcp --ensure-pgvector`.
+- Made the prompt explicit that API keys, local `.env` files, and local `.conf` files are operator-owned; operators can set them through the SEAM Web UI Settings panel or maintain ignored local config manually. The prompt warns agents not to commit, ingest, expose, or summarize those files.
+- Added README Web UI setup guidance for `seam webui --host 127.0.0.1 --port 8765`, including provider keys, chat/API settings, embedding settings, pgvector DSN, `SEAM_LOCAL_ENV`, REST API token, and save/reload local env controls.
+- Added a README Operator Manual section linking the operator guide, setup guide, runbooks, engineering manual, and troubleshooting/error index.
+- Promoted `docs/errors.md` from a linear troubleshooting playbook into an explicit Error Index by symptom/error type and added an `HTTP 429` provider quota/rate-limit entry.
+- Updated `docs/README.md` so `docs/SEAM_OPERATOR_GUIDE.md` is named as the operator manual and `docs/errors.md` is named as the error index.
+- Extended `tests/audit/test_github_package_metadata.py` to pin the agent prompt, persistent-memory setup, Web UI/manual config language, operator manual links, and error index entries.
+
+SCOPE:
+- Docs/tests/history only.
+- No runtime, installer, package metadata, CI workflow, benchmark, or dashboard behavior changed.
+- Provider keys and local config remain explicitly outside git and outside SEAM memory ingest.
+
+VALIDATION:
+- Red/green audit test: `tests/audit/test_github_package_metadata.py` failed before docs changes for missing config/operator/error-index language and passed after implementation.
+- Focused audit: `.venv/bin/python -m pytest tests/audit/test_github_package_metadata.py -q` -> 7 passed.
+- Related audit slice: `.venv/bin/python -m pytest tests/audit/test_github_package_metadata.py tests/audit/test_chroma_optional.py tests/audit/test_github_pr_gates.py -q` -> 14 passed.
+- `git diff --check` passed.
+
+NEXT:
+- Keep README package install examples on `@main` until release tags exist; update to pinned tags once publishing starts.
+- If new operator-facing errors recur, add them to `docs/errors.md` under the Error Index before they become tribal knowledge.
+---END-ENTRY-#340---
