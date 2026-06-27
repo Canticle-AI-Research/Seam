@@ -3465,6 +3465,34 @@ class InstallerLinuxTests(unittest.TestCase):
         self.assertIn("install_seam.py", content)
         self.assertIn("set -eu", content)
 
+    def test_macos_installer_sh_delegates_to_python(self) -> None:
+        sh_path = Path(__file__).resolve().parents[1] / "installers" / "install_seam_macos.sh"
+        content = sh_path.read_text()
+        self.assertTrue(content.startswith("#!/usr/bin/env sh"))
+        self.assertIn("python3", content)
+        self.assertIn("install_seam.py", content)
+        self.assertIn("set -eu", content)
+
+    def test_detect_layout_uses_macos_application_support(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp) / "home"
+            repo_root = Path(tmp) / "repo"
+            with (
+                patch("pathlib.Path.home", return_value=home),
+                patch("seam_runtime.installer.platform.system", return_value="Darwin"),
+            ):
+                layout = detect_layout(repo_root)
+            expected_root = home / "Library" / "Application Support" / "SEAM"
+            self.assertFalse(layout.is_windows)
+            self.assertEqual(layout.install_root, expected_root)
+            self.assertEqual(layout.venv_dir, expected_root / "runtime")
+            self.assertEqual(layout.persistent_db_path, expected_root / "state" / "seam.db")
+            self.assertEqual(layout.bin_dir, home / ".local" / "bin")
+
+    def test_current_platform_label_reports_macos_for_darwin(self) -> None:
+        with patch("seam_runtime.installer.platform.system", return_value="Darwin"):
+            self.assertEqual(installer_module.current_platform_label(), "macos")
+
     def test_detect_layout_includes_dashboard_entry(self) -> None:
         layout = detect_layout()
         self.assertIn("seam-dash", layout.dashboard_entry.name)
@@ -3501,6 +3529,30 @@ class InstallerLinuxTests(unittest.TestCase):
             content = dashboard_shim.read_text(encoding="utf-8")
             self.assertIn("seam-dash", content)
             self.assertIn('export SEAM_DB_PATH=', content)
+
+    def test_write_shims_uses_macos_bootstrap_hint_on_macos(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo_root = root / "repo"
+            install_root = root / "install"
+            venv_dir = install_root / "runtime"
+            bin_dir = install_root / "bin"
+            layout = InstallLayout(
+                repo_root=repo_root,
+                install_root=install_root,
+                venv_dir=venv_dir,
+                bin_dir=bin_dir,
+                seam_entry=venv_dir / "bin" / "seam",
+                benchmark_entry=venv_dir / "bin" / "seam-benchmark",
+                dashboard_entry=venv_dir / "bin" / "seam-dash",
+                persistent_db_path=install_root / "state" / "seam.db",
+                is_windows=False,
+            )
+            with patch("seam_runtime.installer.platform.system", return_value="Darwin"):
+                seam_shim, _, _ = write_shims(layout)
+            content = seam_shim.read_text(encoding="utf-8")
+            self.assertIn("install_seam_macos.sh", content)
+            self.assertNotIn("install_seam_linux.sh", content)
 
     def test_write_shims_returns_three_paths_windows_layout(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 336
-total_tokens: ~136726
-latest_id: 336
+total_entries: 337
+total_tokens: ~137150
+latest_id: 337
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 337 | 2026-06-27 | done | 1071f2cabed7e3cc | installer,macos,docs,test,+ | 336 |
 | 336 | 2026-06-27 | done | 3a688abdfa8af175 | benchmark,locomo,mem0,retry,+ | 335 |
 | 335 | 2026-06-26 | done | 7b74fc232147ec0c | benchmark,locomo,mem0,adapter,+ | 334 |
 | 334 | 2026-06-26 | done | 4a5351728e16bd1e | benchmark,locomo,mem0,judge,+ | 333 |
@@ -410,7 +411,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=34 latest=#331, #329, #326, #322, #318
+- docs: count=35 latest=#337, #331, #329, #326, #322
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -439,14 +440,14 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=254 latest=#336, #335, #334, #329, #328
+- history: count=255 latest=#337, #336, #335, #334, #329
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
 - improve: count=1 latest=#302
 - infra: count=1 latest=#271
 - ingest: count=2 latest=#317, #303
-- installer: count=13 latest=#204, #177, #173, #169, #100
+- installer: count=14 latest=#337, #204, #177, #173, #169
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
 - judge: count=6 latest=#336, #334, #327, #321, #320
@@ -461,6 +462,7 @@ compact: true
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
+- macos: count=1 latest=#337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
 - mcp: count=15 latest=#222, #218, #213, #212, #211
@@ -542,7 +544,7 @@ compact: true
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=35 latest=#336, #335, #330, #329, #322
+- test: count=36 latest=#337, #336, #335, #330, #329
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -563,6 +565,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 314
+- done: 315
 - in-progress: 2
 - planned: 20

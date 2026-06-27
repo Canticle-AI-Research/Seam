@@ -12,6 +12,12 @@ Windows PowerShell:
 gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
+macOS:
+
+```bash
+gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+```
+
 Linux / WSL2:
 
 ```bash
@@ -40,6 +46,12 @@ Windows:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+```
+
+macOS:
+
+```bash
+sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
@@ -86,6 +98,7 @@ Linux `--dev` mode:
 Default persistent database paths:
 
 - Windows: `%LOCALAPPDATA%\SEAM\state\seam.db`
+- macOS: `~/Library/Application Support/SEAM/state/seam.db`
 - Linux / WSL2: `~/.local/share/seam/state/seam.db`
 
 ## First Memory Check
@@ -127,6 +140,12 @@ Linux / WSL2:
 
 ```bash
 ~/.local/share/seam/runtime/bin/python -m pip install -e "/path/to/Seam[all-extras]"
+```
+
+macOS:
+
+```bash
+"$HOME/Library/Application Support/SEAM/runtime/bin/python" -m pip install -e "/path/to/Seam[all-extras]"
 ```
 
 ## PgVector

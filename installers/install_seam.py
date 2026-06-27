@@ -24,7 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Install SEAM as a user-level command with persistent storage")
     parser.add_argument("--repo-root", default=str(REPO_ROOT))
     parser.add_argument("--skip-pip-upgrade", action="store_true")
-    parser.add_argument("--dev", action="store_true", help="set up this checkout as a repo-local Linux development environment")
+    parser.add_argument("--dev", action="store_true", help="set up this checkout as a repo-local development environment")
     args = parser.parse_args(argv)
 
     if args.dev:

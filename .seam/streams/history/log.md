@@ -7566,3 +7566,32 @@ NEXT:
 - Push this branch for review.
 - Resume mem0 diagnosis/productization: parameterize mem0 retrieval depth for controlled slices, then decide whether to rerun a small judged slice before another full paid run.
 ---END-ENTRY-#336---
+
+---BEGIN-ENTRY-#337---
+id: 337
+date: 2026-06-27T00:00:00Z
+agent: Codex
+status: done
+topics: installer, macos, docs, test, history
+commits: none
+refs: installers/install_seam_macos.sh,seam_runtime/installer.py,installers/install_seam.py,README.md,installers/README.md,test_seam_all/test_seam.py
+supersedes: 336
+tokens: 424
+---
+macOS INSTALLER SUPPORT, committed separately after the mem0 rate-limit-resilience push.
+
+CHANGE:
+- Added `installers/install_seam_macos.sh`, a POSIX shell wrapper that delegates to `install_seam.py` through `python3` (or `python`) and fails clearly when Python is unavailable.
+- Added a macOS layout path in `seam_runtime.installer.detect_layout()`: runtime/state live under `~/Library/Application Support/SEAM`, with command shims still written under `~/.local/bin`.
+- Updated generated POSIX shims to point macOS users back to `install_seam_macos.sh` instead of the Linux installer.
+- Normalized the shared installer `--dev` help text from Linux-only to repo-local development.
+- Updated README and installer docs with macOS install commands, macOS persistent DB path, and editable-install path.
+- Added targeted tests for the macOS shell wrapper, Application Support layout, Darwin platform label, and macOS shim bootstrap hint.
+
+SCOPE:
+- Installer/docs/tests only.
+- No runtime retrieval, benchmark, API, dashboard, or storage behavior changed.
+
+NEXT:
+- Push the branch so the macOS installer cleanup is not left as local WIP.
+---END-ENTRY-#337---

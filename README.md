@@ -17,6 +17,12 @@ Windows PowerShell:
 gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
+macOS:
+
+```bash
+gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+```
+
 Linux / WSL2:
 
 ```bash
@@ -124,6 +130,7 @@ claude-mem comparison, retrieval mode details, and agent bridge notes.
 Default persistent database paths:
 
 - Windows: `%LOCALAPPDATA%\SEAM\state\seam.db`
+- macOS: `~/Library/Application Support/SEAM/state/seam.db`
 - Linux / WSL2: `~/.local/share/seam/state/seam.db`
 
 ## Optional Extras

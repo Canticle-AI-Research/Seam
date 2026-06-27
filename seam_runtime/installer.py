@@ -45,6 +45,14 @@ def detect_layout(repo_root: str | Path | None = None) -> InstallLayout:
         benchmark_entry = venv_dir / "Scripts" / "seam-benchmark.exe"
         dashboard_entry = venv_dir / "Scripts" / "seam-dash.exe"
         persistent_db_path = install_root / "state" / "seam.db"
+    elif current_platform_label() == "macos":
+        install_root = Path.home() / "Library" / "Application Support" / "SEAM"
+        venv_dir = install_root / "runtime"
+        bin_dir = Path.home() / ".local" / "bin"
+        seam_entry = venv_dir / "bin" / "seam"
+        benchmark_entry = venv_dir / "bin" / "seam-benchmark"
+        dashboard_entry = venv_dir / "bin" / "seam-dash"
+        persistent_db_path = install_root / "state" / "seam.db"
     else:
         install_root = Path.home() / ".local" / "share" / "seam"
         venv_dir = install_root / "runtime"
@@ -245,7 +253,8 @@ def write_shims(layout: InstallLayout) -> tuple[Path, Path, Path]:
             encoding="ascii",
         )
     else:
-        bootstrap_hint = f'"{layout.repo_root / "installers" / "install_seam_linux.sh"}"'
+        installer_script = "install_seam_macos.sh" if current_platform_label() == "macos" else "install_seam_linux.sh"
+        bootstrap_hint = f'"{layout.repo_root / "installers" / installer_script}"'
         seam_shim = layout.bin_dir / "seam"
         benchmark_shim = layout.bin_dir / "seam-benchmark"
         dashboard_shim = layout.bin_dir / "seam-dash"
@@ -364,7 +373,10 @@ def _ensure_posix_shell_profiles(target: Path) -> list[Path]:
 def current_platform_label() -> str:
     if os.name == "nt":
         return "windows"
-    return platform.system().lower()
+    system = platform.system().lower()
+    if system == "darwin":
+        return "macos"
+    return system
 
 
 def default_runtime_db_path() -> str:
