@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 335
-total_tokens: ~135914
-latest_id: 335
+total_entries: 336
+total_tokens: ~136726
+latest_id: 336
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 336 | 2026-06-27 | done | 3a688abdfa8af175 | benchmark,locomo,mem0,retry,+ | 335 |
 | 335 | 2026-06-26 | done | 7b74fc232147ec0c | benchmark,locomo,mem0,adapter,+ | 334 |
 | 334 | 2026-06-26 | done | 4a5351728e16bd1e | benchmark,locomo,mem0,judge,+ | 333 |
 | 333 | 2026-06-26 | done | 98c0f0f0f2104883 | benchmark,locomo,mem0,answerer,+ | 332 |
@@ -361,13 +362,13 @@ compact: true
 - audit: count=74 latest=#303, #290, #288, #280, #279
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=111 latest=#335, #334, #333, #329, #327
+- benchmark: count=112 latest=#336, #335, #334, #333, #329
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=17 latest=#335, #334, #327, #295, #287
+- bugfix: count=18 latest=#336, #335, #334, #327, #295
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - calibration: count=1 latest=#325
 - cat1: count=4 latest=#328, #325, #323, #321
@@ -438,7 +439,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=253 latest=#335, #334, #329, #328, #327
+- history: count=254 latest=#336, #335, #334, #329, #328
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -448,14 +449,14 @@ compact: true
 - installer: count=13 latest=#204, #177, #173, #169, #100
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
-- judge: count=5 latest=#334, #327, #321, #320, #302
+- judge: count=6 latest=#336, #334, #327, #321, #320
 - ledger: count=38 latest=#302, #230, #181, #177, #176
 - lexical: count=1 latest=#004
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=30 latest=#335, #334, #333, #332, #328
+- locomo: count=31 latest=#336, #335, #334, #333, #332
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -463,7 +464,7 @@ compact: true
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
 - mcp: count=15 latest=#222, #218, #213, #212, #211
-- mem0: count=4 latest=#335, #334, #333, #328
+- mem0: count=5 latest=#336, #335, #334, #333, #328
 - memory: count=5 latest=#286, #275, #274, #182, #178
 - merge: count=1 latest=#301
 - metrics: count=2 latest=#307, #305
@@ -510,7 +511,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - retrieval: count=63 latest=#334, #332, #328, #325, #323
 - retrievalflags: count=1 latest=#328
-- retry: count=1 latest=#182
+- retry: count=2 latest=#336, #182
 - roadmap: count=53 latest=#333, #319, #318, #284, #276
 - roundtrip: count=2 latest=#007, #006
 - rule: count=1 latest=#304
@@ -541,7 +542,7 @@ compact: true
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=34 latest=#335, #330, #329, #322, #320
+- test: count=35 latest=#336, #335, #330, #329, #322
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -562,6 +563,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 313
+- done: 314
 - in-progress: 2
 - planned: 20

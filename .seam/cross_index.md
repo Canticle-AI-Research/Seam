@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 392
+total_events: 393
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-10T08:17:07Z | history:163:a80699bb | session-event | done | dashboard, verify, history, status | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md |
 | 2026-05-13T02:55:16Z | history:164:b3d6e2ef | session-event | done | status, history, snapshot, verify, audit, roadmap | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/snapshots |
 | 2026-05-15T00:00:00Z | roadmap:031:81210641 | status-change | bootstrap | protocol, history, plan, roadmap | ROADMAP.md:1261 |
 | 2026-05-15T00:00:00Z | roadmap:032:211f6c94 | status-change | bootstrap | protocol, retrieval, search | ROADMAP.md:1339 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-06-26T08:22:49Z | history:333:98c0f0f0 | session-event | done | benchmark, locomo, mem0, answerer, harness, comparison, f... | benchmarks/external/common/answerer.py,benchmarks/external/locomo/run.py,benc... |
 | 2026-06-26T22:11:10Z | history:334:4a535172 | session-event | done | benchmark, locomo, mem0, judge, retrieval, profile, confo... | benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py |
 | 2026-06-26T23:08:35Z | history:335:7b74fc23 | session-event | done | benchmark, locomo, mem0, adapter, bugfix, test, history | benchmarks/external/locomo/adapters/mem0.py,test_seam_all/test_locomo_mem0_ad... |
+| 2026-06-27T00:00:00Z | history:336:3a688abd | session-event | done | benchmark, locomo, mem0, retry, judge, bugfix, test, history | benchmarks/external/common/provider_retry.py,benchmarks/external/common/answe... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0192.cross.md | 2026-04-15T00:00:00Z..2026-05-10T08:12:49Z | 192 | (multi) | (multi) |
+| 0001-0193.cross.md | 2026-04-15T00:00:00Z..2026-05-10T08:17:07Z | 193 | (multi) | (multi) |

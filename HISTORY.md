@@ -7529,3 +7529,40 @@ VERIFIED: 14/14 mem0 adapter tests pass; rung-C driver composition (run_benchmar
 
 CONTEXT: this unblocks rung C = SEAM(broad)-vs-mem0 head-to-head on HALF of LoCoMo-10 (first 5 convos / 764 Q, ~$4, operator-approved), currently running (scratchpad/rung_c_paid.py; mem0 extraction + answerer + judge all gpt-4o-mini; SEAM at the validated broad profile top_k=300/budget=60000). NEXT: report the head-to-head number; if SEAM>=mem0, productize the capable-answerer broad profile into core RetrievalFlags + consider the full LoCoMo-10 (~1540 Q) run. Branch bench/mem0-adapter-2x-fix + PR.
 ---END-ENTRY-#335---
+
+---BEGIN-ENTRY-#336---
+id: 336
+date: 2026-06-27T00:00:00Z
+agent: Codex
+status: done
+topics: benchmark, locomo, mem0, retry, judge, bugfix, test, history
+commits: none
+refs: benchmarks/external/common/provider_retry.py,benchmarks/external/common/answerer.py,benchmarks/external/common/runner.py,benchmarks/external/locomo/adapters/mem0.py,test_seam_all/test_locomo_mem0_adapter.py,test_seam_all/test_locomo_judge_batch.py,tests/audit/test_shared_answerer.py
+supersedes: 335
+tokens: 812
+---
+MEM0 RATE-LIMIT RESILIENCE + crash-resilient grouped runner for the rung-C paid comparator.
+
+ROOT ISSUE: the first mem0 head-to-head died during ingest on OpenAI `gpt-4o-mini` 200k TPM limits before a fair mem0 score existed. A fair rerun needed mem0 to run without rate-limit handicap, without dropped extractions, and without losing paid spend to a late crash.
+
+FIX:
+- Added benchmark-only `benchmarks.external.common.provider_retry.provider_retry()` for transient provider failures (`429`, rate limit, timeout, temporarily unavailable, connection resets), controlled by `SEAM_BENCH_PROVIDER_MAX_RETRIES`, `SEAM_BENCH_PROVIDER_RETRY_BASE_SECONDS`, and `SEAM_BENCH_PROVIDER_RETRY_MAX_SECONDS`.
+- Wrapped mem0 `add()` and `search()` with provider retry.
+- Added conservative real-mem0 ingest pacing via `SEAM_BENCH_MEM0_INGEST_MIN_INTERVAL_SECONDS` (stub-backed tests bypass pacing).
+- Pinned mem0's default LLM config to OpenAI `gpt-4o-mini`, overridable by `SEAM_BENCH_MEM0_LLM_MODEL`.
+- Wrapped the shared answerer, sync judge, batch judge, and cross-judge calls in provider retry.
+- Made grouped benchmark execution scope-crash resilient: scope-level ingest/reset failures and per-answer failures now produce per-case error rows with zero scores instead of aborting the whole run. Existing checkpoints also run after batch judging so a late judge-stage crash does not lose all progress.
+
+VALIDATION:
+- Focused tests cover mem0 add/search retry, mem0 LLM model pinning/override, shared-answerer retry, sync-judge retry, scope-crash case recording, and checkpoint preservation.
+- Paid smoke was run before this entry on one mem0 LoCoMo case with pacing and retries: `judge_score_mean=1.0`, zero case errors, zero judge errors.
+- The clean 764-case mem0 rerun completed with zero case errors and zero judge errors. Result: `judge_score_mean=0.0844240837696335`; SEAM's banked same-slice broad score remains `0.674`, so SEAM wins the fair operational rerun. Root-cause follow-up found mem0 mostly abstained (`629/764` unknown predictions) and the adapter retrieves only `top_k=8`, so retrieval-depth/answerability diagnosis remains the next workstream.
+
+SCOPE CONTROL:
+- Benchmark harness/adapters/tests only; no core runtime behavior change.
+- Unrelated local macOS installer changes were intentionally not included.
+
+NEXT:
+- Push this branch for review.
+- Resume mem0 diagnosis/productization: parameterize mem0 retrieval depth for controlled slices, then decide whether to rerun a small judged slice before another full paid run.
+---END-ENTRY-#336---

@@ -11,6 +11,7 @@ from typing import Callable
 from benchmarks.external.common.types import AdapterAnswer, BenchmarkCase, MemorySystemAdapter
 from benchmarks.external.common.scoring import aggregate_judge_scores, context_recall, exact_match, token_f1
 from benchmarks.external.common.judge import JudgeBatchItem, JudgeVerdict
+from benchmarks.external.common.provider_retry import provider_retry
 
 RESULT_VERSION = "SEAM-EXTERNAL-MEMORY-BENCHMARK-RESULT/1"
 
@@ -172,20 +173,24 @@ def run_benchmark_grouped(
     sync_judge = None if batch_judge is not None else judge
 
     for scope, group in _group_cases(cases, scope_id).items():
-        adapter.reset(scope)
-        for turn in group[0].conversation:
-            adapter.ingest_turn(scope, turn)
-        for case in group:
-            answer = adapter.answer(scope, case.question)
-            case_results.append(_score_case(case, answer, sync_judge, save_context=save_context))
-            completed += 1
-            if progress:
-                progress(completed, total)
+        entries = _run_grouped_scope(
+            adapter=adapter,
+            scope=scope,
+            group=group,
+            judge=sync_judge,
+            save_context=save_context,
+        )
+        case_results.extend(entries)
+        completed += len(entries)
+        if progress:
+            progress(completed, total)
         if checkpoint:
             checkpoint(case_results, completed, total)
 
     if batch_judge is not None:
         _finalize_judge_batch(case_results, batch_judge, key="judge")
+        if checkpoint:
+            checkpoint(case_results, completed, total)
 
     elapsed = time.time() - started_ts
     return _build_report(
@@ -250,18 +255,13 @@ def run_benchmark_grouped_parallel(
     def _worker(scope: str, group: list[BenchmarkCase]) -> list[dict]:
         adapter = adapter_factory()
         worker_judge = None if batch_judge is not None else (judge_factory() if judge_factory else None)
-        adapter.reset(scope)
-        for turn in group[0].conversation:
-            adapter.ingest_turn(scope, turn)
-        return [
-            _score_case(
-                case,
-                adapter.answer(scope, case.question),
-                worker_judge,
-                save_context=save_context,
-            )
-            for case in group
-        ]
+        return _run_grouped_scope(
+            adapter=adapter,
+            scope=scope,
+            group=group,
+            judge=worker_judge,
+            save_context=save_context,
+        )
 
     completed = 0
     with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -282,6 +282,8 @@ def run_benchmark_grouped_parallel(
     final_results = [case for case in case_results if case is not None]
     if batch_judge is not None:
         _finalize_judge_batch(final_results, batch_judge, key="judge")
+        if checkpoint:
+            checkpoint(final_results, completed, total)
 
     elapsed = time.time() - started_ts
     return _build_report(
@@ -304,6 +306,34 @@ def _select_batch_judge(judge: object | None, judge_batch: bool) -> object | Non
     return None
 
 
+def _run_grouped_scope(
+    *,
+    adapter: MemorySystemAdapter,
+    scope: str,
+    group: list[BenchmarkCase],
+    judge: object | None,
+    save_context: bool,
+) -> list[dict]:
+    try:
+        adapter.reset(scope)
+        for turn in group[0].conversation:
+            adapter.ingest_turn(scope, turn)
+    except Exception as exc:
+        return [
+            _score_case_error(case, exc, stage="scope", save_context=save_context)
+            for case in group
+        ]
+
+    entries: list[dict] = []
+    for case in group:
+        try:
+            answer = adapter.answer(scope, case.question)
+            entries.append(_score_case(case, answer, judge, save_context=save_context))
+        except Exception as exc:
+            entries.append(_score_case_error(case, exc, stage="answer", save_context=save_context))
+    return entries
+
+
 def _finalize_judge_batch(case_results: list[dict], judge: object, *, key: str) -> None:
     """Submit one batch job for all cases and fill ``case[key]`` with results.
 
@@ -322,7 +352,10 @@ def _finalize_judge_batch(case_results: list[dict], judge: object, *, key: str) 
         for case in case_results
     ]
     try:
-        verdicts = judge.score_batch(items)
+        verdicts = provider_retry(
+            lambda: judge.score_batch(items),
+            label=f"{getattr(judge, 'name', 'judge')}.score_batch",
+        )
     except Exception as exc:
         for case in case_results:
             case[key] = {"error": f"judge batch failed: {exc}"}
@@ -408,10 +441,13 @@ def _score_case(
 
     if judge is not None:
         try:
-            verdict = judge.score(
-                question=case.question,
-                gold=case.gold_answer,
-                pred=pred,
+            verdict = provider_retry(
+                lambda: judge.score(
+                    question=case.question,
+                    gold=case.gold_answer,
+                    pred=pred,
+                ),
+                label=f"{getattr(judge, 'name', 'judge')}.score",
             )
             case_entry["judge"] = {
                 "verdict": verdict.verdict,
@@ -423,6 +459,37 @@ def _score_case(
         except Exception as exc:
             case_entry["judge"] = {"error": str(exc)}
 
+    return case_entry
+
+
+def _score_case_error(
+    case: BenchmarkCase,
+    exc: BaseException,
+    *,
+    stage: str,
+    save_context: bool = False,
+) -> dict:
+    case_entry: dict = {
+        "case_id": case.case_id,
+        "category": case.category,
+        "scores": {
+            "context_recall": 0.0,
+            "answer_em": 0.0,
+            "answer_f1": 0.0,
+        },
+        "retrieval_latency_ms": 0.0,
+        "answer_latency_ms": 0.0,
+        "_prediction": "",
+        "_judge_question": case.question,
+        "_judge_gold": case.gold_answer,
+        "error": {
+            "stage": stage,
+            "type": type(exc).__name__,
+            "message": str(exc),
+        },
+    }
+    if save_context:
+        case_entry["retrieved_context"] = ""
     return case_entry
 
 
@@ -472,10 +539,13 @@ def _build_report(
             for case in case_results:
                 pred = case.get("_prediction", "")
                 try:
-                    verdict = judge_cross.score(
-                        question=case.get("_judge_question", ""),
-                        gold=case.get("_judge_gold", ""),
-                        pred=pred,
+                    verdict = provider_retry(
+                        lambda: judge_cross.score(
+                            question=case.get("_judge_question", ""),
+                            gold=case.get("_judge_gold", ""),
+                            pred=pred,
+                        ),
+                        label=f"{getattr(judge_cross, 'name', 'judge_cross')}.score",
                     )
                     cross_entry = {
                         "verdict": verdict.verdict,

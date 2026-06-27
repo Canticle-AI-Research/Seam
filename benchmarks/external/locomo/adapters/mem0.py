@@ -4,8 +4,14 @@ import os
 import shutil
 import tempfile
 import time
+import threading
 
+from benchmarks.external.common.provider_retry import provider_retry
 from benchmarks.external.common.types import AdapterAnswer, ConversationTurn
+
+
+_INGEST_PACE_LOCK = threading.Lock()
+_LAST_INGEST_AT = 0.0
 
 
 class Mem0LocomoAdapter:
@@ -34,6 +40,7 @@ class Mem0LocomoAdapter:
             self._memory = _memory
             self._store_dir = None
             self._seen_user_ids: set[str] = set()
+            self._pace_real_ingest = False
             return
 
         try:
@@ -55,10 +62,17 @@ class Mem0LocomoAdapter:
         config = self._build_config(self._store_dir, config_overrides)
         self._memory = Memory.from_config(config)
         self._seen_user_ids: set[str] = set()
+        self._pace_real_ingest = True
 
     @staticmethod
     def _build_config(store_dir: str, overrides: dict | None) -> dict:
         cfg = {
+            "llm": {
+                "provider": "openai",
+                "config": {
+                    "model": os.environ.get("SEAM_BENCH_MEM0_LLM_MODEL", "gpt-4o-mini"),
+                },
+            },
             "vector_store": {
                 "provider": "chroma",
                 "config": {
@@ -89,13 +103,20 @@ class Mem0LocomoAdapter:
         ts = turn.timestamp or ""
         prefix = f"[{turn.speaker} {ts}] ".rstrip() + " " if ts else f"[{turn.speaker}] "
         messages = [{"role": role, "content": prefix + turn.text}]
-        self._memory.add(messages, user_id=scope_id)
+        self._pace_ingest()
+        provider_retry(
+            lambda: self._memory.add(messages, user_id=scope_id),
+            label="mem0.add",
+        )
 
     def answer(self, scope_id: str, question: str) -> AdapterAnswer:
         t0 = time.perf_counter()
         # mem0 2.x: user_id moved into filters, and limit was renamed top_k.
-        results = self._memory.search(
-            query=question, filters={"user_id": scope_id}, top_k=self.search_limit
+        results = provider_retry(
+            lambda: self._memory.search(
+                query=question, filters={"user_id": scope_id}, top_k=self.search_limit
+            ),
+            label="mem0.search",
         )
         retrieval_ms = (time.perf_counter() - t0) * 1000.0
         items = (
@@ -117,3 +138,18 @@ class Mem0LocomoAdapter:
     def close(self) -> None:
         if self._store_dir is not None:
             shutil.rmtree(self._store_dir, ignore_errors=True)
+
+    def _pace_ingest(self) -> None:
+        if not self._pace_real_ingest:
+            return
+        interval = float(os.environ.get("SEAM_BENCH_MEM0_INGEST_MIN_INTERVAL_SECONDS", "0.75"))
+        if interval <= 0:
+            return
+        global _LAST_INGEST_AT
+        with _INGEST_PACE_LOCK:
+            now = time.monotonic()
+            wait = interval - (now - _LAST_INGEST_AT)
+            if wait > 0:
+                time.sleep(wait)
+                now = time.monotonic()
+            _LAST_INGEST_AT = now

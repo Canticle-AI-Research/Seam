@@ -69,6 +69,27 @@ def test_wrapper_generates_answer_for_null_answer_adapter():
     assert out.answerer_diagnostics == {"called": True}
 
 
+def test_wrapper_retries_transient_provider_failures(monkeypatch):
+    import benchmarks.external.common.provider_retry as provider_retry
+
+    monkeypatch.setattr(provider_retry.time, "sleep", lambda _delay: None)
+    calls = {"n": 0}
+
+    def flaky_generate(answerer, model, question, context, *, diag_out=None):  # noqa: ARG001
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("429 rate limit exceeded")
+        return "recovered"
+
+    inner = _FakeInner(generated=None)
+    wrapped = SharedAnswererAdapter(inner, "openai", None, _generate=flaky_generate)
+
+    out = wrapped.answer("scope1", "q?")
+
+    assert calls["n"] == 2
+    assert out.generated_answer == "recovered"
+
+
 def test_wrapper_passes_through_when_adapter_already_generated():
     inner = _FakeInner(generated="already here")
     calls = []

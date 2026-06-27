@@ -37,6 +37,25 @@ class _StubMem0:
         self.store.pop(user_id, None)
 
 
+class _FlakyMem0(_StubMem0):
+    def __init__(self):
+        super().__init__()
+        self.add_calls = 0
+        self.search_calls = 0
+
+    def add(self, messages: list[dict], user_id: str) -> None:
+        self.add_calls += 1
+        if self.add_calls == 1:
+            raise RuntimeError("429 rate limit exceeded")
+        super().add(messages, user_id)
+
+    def search(self, query: str, *, filters: dict, top_k: int) -> dict:
+        self.search_calls += 1
+        if self.search_calls == 1:
+            raise RuntimeError("429 rate limit exceeded")
+        return super().search(query, filters=filters, top_k=top_k)
+
+
 def _build_adapter(search_limit: int = 8) -> object:
     from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
 
@@ -100,6 +119,23 @@ def test_constructs_with_config_overrides_no_key() -> None:
     assert adapter.name == "mem0"
 
 
+def test_mem0_config_pins_gpt4o_mini_by_default(monkeypatch) -> None:
+    from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
+
+    monkeypatch.delenv("SEAM_BENCH_MEM0_LLM_MODEL", raising=False)
+    cfg = Mem0LocomoAdapter._build_config("/tmp/mem0-test", None)
+    assert cfg["llm"]["provider"] == "openai"
+    assert cfg["llm"]["config"]["model"] == "gpt-4o-mini"
+
+
+def test_mem0_config_model_env_override(monkeypatch) -> None:
+    from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
+
+    monkeypatch.setenv("SEAM_BENCH_MEM0_LLM_MODEL", "gpt-4o")
+    cfg = Mem0LocomoAdapter._build_config("/tmp/mem0-test", None)
+    assert cfg["llm"]["config"]["model"] == "gpt-4o"
+
+
 # -- Protocol tests -----------------------------------------------------
 
 
@@ -114,6 +150,24 @@ def test_ingest_turn_and_answer() -> None:
     assert answer.retrieved_context, "retrieved_context should not be empty"
     assert "blue" in answer.retrieved_context.lower()
     assert answer.generated_answer is None
+
+
+def test_mem0_add_and_search_retry_transient_rate_limits(monkeypatch) -> None:
+    import benchmarks.external.common.provider_retry as provider_retry
+    from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
+
+    monkeypatch.setattr(provider_retry.time, "sleep", lambda _delay: None)
+    memory = _FlakyMem0()
+    adapter = Mem0LocomoAdapter(_memory=memory)
+    scope = "case-retry"
+
+    adapter.reset(scope)
+    adapter.ingest_turn(scope, ConversationTurn(speaker="Alice", text="Retry fact: teal."))
+    answer = adapter.answer(scope, "What color?")
+
+    assert memory.add_calls == 2
+    assert memory.search_calls == 2
+    assert "teal" in answer.retrieved_context.lower()
 
 
 def test_reset_clears_scope_state() -> None:

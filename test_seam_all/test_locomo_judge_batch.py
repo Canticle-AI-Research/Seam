@@ -49,6 +49,13 @@ class _GeneratedAnswerAdapter:
         return AdapterAnswer(retrieved_context=self._store.get(scope_id, ""), generated_answer="blue")
 
 
+class _FailingScopeAdapter(_GeneratedAnswerAdapter):
+    def ingest_turn(self, scope_id: str, turn: ConversationTurn) -> None:
+        if scope_id == "case-1":
+            raise RuntimeError("429 rate limit exceeded")
+        super().ingest_turn(scope_id, turn)
+
+
 def _cases(n: int = 3) -> list[BenchmarkCase]:
     return [
         BenchmarkCase(
@@ -106,6 +113,14 @@ class _RaisingBatchJudge(_RecordingBatchJudge):
         raise RuntimeError("submit blew up")
 
 
+class _FlakySyncJudge(_RecordingBatchJudge):
+    def score(self, *, question, gold, pred) -> JudgeVerdict:  # noqa: ARG002
+        self.sync_calls += 1
+        if self.sync_calls == 1:
+            raise RuntimeError("429 rate limit exceeded")
+        return JudgeVerdict("correct", 1.0, "retried", self.name, self.model)
+
+
 # ---------- runner-level tests --------------------------------------------------
 
 def test_judge_batch_defers_to_score_batch_when_supported() -> None:
@@ -145,6 +160,26 @@ def test_judge_batch_disabled_uses_sync_path() -> None:
     assert judge.sync_calls == len(cases)
     assert judge.batch_calls == []
     assert all(case["judge"]["rationale"] == "sync" for case in report["cases"])
+
+
+def test_sync_judge_retries_transient_rate_limits(monkeypatch) -> None:
+    import benchmarks.external.common.provider_retry as provider_retry
+
+    monkeypatch.setattr(provider_retry.time, "sleep", lambda _delay: None)
+    adapter = _GeneratedAnswerAdapter()
+    cases = _cases(1)
+    judge = _FlakySyncJudge()
+
+    report = run_benchmark_grouped(
+        adapter=adapter,
+        cases=cases,
+        scope_id=lambda c: c.case_id,
+        judge=judge,
+        judge_batch=False,
+    )
+
+    assert judge.sync_calls == 2
+    assert report["cases"][0]["judge"]["rationale"] == "retried"
 
 
 def test_judge_batch_falls_back_to_sync_when_judge_lacks_score_batch() -> None:
@@ -196,6 +231,36 @@ def test_judge_batch_submission_failure_marks_every_case_as_error() -> None:
     for case in report["cases"]:
         assert "judge batch failed" in case["judge"]["error"]
         assert "submit blew up" in case["judge"]["error"]
+
+
+def test_grouped_runner_records_scope_crashes_and_checkpoints(monkeypatch) -> None:
+    import benchmarks.external.common.provider_retry as provider_retry
+
+    monkeypatch.setattr(provider_retry.time, "sleep", lambda _delay: None)
+    monkeypatch.setenv("SEAM_BENCH_PROVIDER_MAX_RETRIES", "2")
+    checkpoints: list[tuple[int, int, list[str]]] = []
+    cases = _cases(2)
+
+    report = run_benchmark_grouped(
+        adapter=_FailingScopeAdapter(),
+        cases=cases,
+        scope_id=lambda c: c.case_id,
+        checkpoint=lambda rows, completed, total: checkpoints.append(
+            (completed, total, [row["case_id"] for row in rows])
+        ),
+    )
+
+    assert [case["case_id"] for case in report["cases"]] == ["case-0", "case-1"]
+    assert report["cases"][0]["scores"]["answer_f1"] == 1.0
+    failed = report["cases"][1]
+    assert failed["scores"] == {
+        "context_recall": 0.0,
+        "answer_em": 0.0,
+        "answer_f1": 0.0,
+    }
+    assert failed["error"]["stage"] == "scope"
+    assert "429 rate limit" in failed["error"]["message"]
+    assert checkpoints[-1] == (2, 2, ["case-0", "case-1"])
 
 
 def test_judge_batch_preserves_case_order_under_parallel_workers() -> None:

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from benchmarks.external.common.provider_retry import provider_retry
+
 # Single source of truth for the short-answer prompt. Held CONSTANT across every
 # memory-system adapter so a SEAM-vs-mem0 (etc.) head-to-head varies ONLY the
 # retrieved context, never the answerer. SeamLocomoAdapter._generate_answer
@@ -83,8 +85,15 @@ class SharedAnswererAdapter:
         if ans.generated_answer is not None:
             return ans
         diag: dict = {}
-        generated = self._generate(
-            self._answerer, self._answerer_model, question, ans.retrieved_context, diag_out=diag
+        generated = provider_retry(
+            lambda: self._generate(
+                self._answerer,
+                self._answerer_model,
+                question,
+                ans.retrieved_context,
+                diag_out=diag,
+            ),
+            label=f"{self.name}.shared_answerer.{self._answerer}",
         )
         return replace(
             ans,
