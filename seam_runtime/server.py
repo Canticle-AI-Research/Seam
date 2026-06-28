@@ -9,6 +9,7 @@ import signal
 import sys
 import threading
 import time
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -437,6 +438,22 @@ def _call_chat_provider(
     return "(empty response)"
 
 
+def _persist_chat_turn(runtime: SeamRuntime, *, message: str, reply: str) -> dict[str, object]:
+    turn_id = uuid.uuid4().hex
+    user_source_ref = f"chat://{turn_id}/user"
+    assistant_source_ref = f"chat://{turn_id}/assistant"
+    user_batch = runtime.compile_nl(f"User: {message}", source_ref=user_source_ref, ns="local.chat", scope="thread")
+    assistant_batch = runtime.compile_nl(
+        f"Assistant: {reply}", source_ref=assistant_source_ref, ns="local.chat", scope="thread"
+    )
+    report = runtime.persist_ir(IRBatch([*user_batch.records, *assistant_batch.records]))
+    return {
+        "stored_ids": report.stored_ids,
+        "store_path": report.store_path,
+        "turn_source_refs": {"user": user_source_ref, "assistant": assistant_source_ref},
+    }
+
+
 def create_app(
     runtime: SeamRuntime | None = None,
     shutdown_state: ShutdownState | None = None,
@@ -809,6 +826,11 @@ def create_app(
         except Exception as exc:  # noqa: BLE001 - surface provider/network failures to the UI
             raise HTTPException(status_code=502, detail=f"provider call failed: {exc}")
         result: dict[str, object] = {"reply": reply, "memory_used": memory_used, "model": model}
+        if bool(payload.get("persist_chat", True)):
+            try:
+                result["persisted_memory"] = _persist_chat_turn(runtime, message=message, reply=reply)
+            except Exception as exc:  # noqa: BLE001 - persistence failure should not discard a provider answer
+                result["persist_error"] = f"chat persistence unavailable: {exc}"
         if memory_error:
             result["memory_error"] = memory_error
         return result

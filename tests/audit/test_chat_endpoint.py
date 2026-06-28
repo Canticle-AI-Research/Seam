@@ -100,6 +100,52 @@ class TestChatEndpoint:
         assert "Retrieved SEAM memory" in captured["system"]
         assert "alice" in captured["system"].lower()
 
+    def test_chat_persists_user_and_assistant_turns_by_default(self, monkeypatch):
+        monkeypatch.setattr(srv, "_call_chat_provider", lambda **kw: "Alice prefers dark mode.")
+        client = self._client()
+
+        resp = client.post("/chat", json={
+            "message": "Remember that Alice prefers dark mode.",
+            "model": "gpt-4o-mini",
+            "provider": "OpenAI",
+            "base_url": "https://api.openai.com/v1",
+            "api_key": "stub",
+            "use_memory": False,
+        })
+
+        assert resp.status_code == 200
+        body = resp.json()
+        stored_ids = body["persisted_memory"]["stored_ids"]
+        assert stored_ids
+        assert body["persisted_memory"]["turn_source_refs"]["user"].startswith("chat://")
+        assert body["persisted_memory"]["turn_source_refs"]["assistant"].startswith("chat://")
+
+        search = client.get("/search", params={"query": "Alice dark mode", "budget": 5})
+        assert search.status_code == 200
+        payload = search.json()
+        serialized = str(payload).lower()
+        assert "alice prefers dark mode" in serialized
+
+    def test_chat_can_disable_turn_persistence(self, monkeypatch):
+        monkeypatch.setattr(srv, "_call_chat_provider", lambda **kw: "The reply should stay transient.")
+        client = self._client()
+
+        resp = client.post("/chat", json={
+            "message": "This chat turn should not persist.",
+            "model": "gpt-4o-mini",
+            "provider": "OpenAI",
+            "base_url": "https://api.openai.com/v1",
+            "api_key": "stub",
+            "use_memory": False,
+            "persist_chat": False,
+        })
+
+        assert resp.status_code == 200
+        assert "persisted_memory" not in resp.json()
+        search = client.get("/search", params={"query": "transient reply", "budget": 5})
+        assert search.status_code == 200
+        assert "transient reply" not in str(search.json()["candidates"]).lower()
+
     def test_chat_degrades_when_memory_backend_unavailable(self, monkeypatch):
         """Regression: a retrieval/backend failure must degrade to a no-memory answer
         (200 + memory_error), not surface as a raw 500."""

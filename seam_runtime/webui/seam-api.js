@@ -230,7 +230,7 @@
     },
 
     // SEAM-augmented chat: retrieve memory + call the selected model via the server.
-    // opts: { model, provider, baseUrl, apiKey, history, useMemory, budget }
+    // opts: { model, provider, baseUrl, apiKey, history, useMemory, persistChat, budget }
     chat: async function (message, opts) {
       opts = opts || {};
       var payload = {
@@ -241,7 +241,8 @@
         env_key: opts.envKey || '',
         api_key: opts.apiKey || '',
         history: opts.history || [],
-        use_memory: opts.useMemory !== false
+        use_memory: opts.useMemory !== false,
+        persist_chat: opts.persistChat !== false
       };
       if (opts.budget) payload.budget = opts.budget;
       try {

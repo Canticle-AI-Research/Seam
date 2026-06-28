@@ -5171,6 +5171,7 @@ function App() {
   const [voiceRecording, setVoiceRecording] = useState(false);
   const [voiceDuration, setVoiceDuration] = useState(0);
   const [agentToolsOpen, setAgentToolsOpen] = useState(false);
+  const [persistChat, setPersistChat] = useState(true);
   const agentEnd = useRef(null);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -5435,14 +5436,20 @@ function App() {
         envKey: m.envKey,
         apiKey: apiKey,
         history: history,
-        useMemory: true
+        useMemory: true,
+        persistChat: persistChat
       });
       const used = res.memory_error
         ? `\n\n_— ⚠ SEAM memory unavailable (answered without it)_`
         : res.memory_used
           ? `\n\n_— grounded in ${res.memory_used} SEAM memor${res.memory_used === 1 ? 'y' : 'ies'}_`
           : '';
-      setAgentMessages((prev) => [...prev, { id: prev.length, role: 'assistant', text: (res.reply || '(empty response)') + used }]);
+      const remembered = res.persist_error
+        ? `\n\n_— ⚠ chat memory not persisted_`
+        : res.persisted_memory
+          ? `\n\n_— remembered ${res.persisted_memory.stored_ids?.length || 0} MIRL records_`
+          : '';
+      setAgentMessages((prev) => [...prev, { id: prev.length, role: 'assistant', text: (res.reply || '(empty response)') + used + remembered }]);
     } catch (err) {
       const errMsg = err.code === 'DISCONNECTED'
         ? '[disconnected] Cannot reach the SEAM server. Start it with: seam serve'
@@ -6397,6 +6404,14 @@ function App() {
                 )}
 
                   <div style={{ flex: 1 }} />
+                  <label title="Remember this chat turn in MIRL memory" style={{
+                    display: 'flex', alignItems: 'center', gap: 4, fontSize: 9,
+                    color: persistChat ? '#7efdb9' : '#5a7a9a', cursor: 'pointer', userSelect: 'none'
+                  }}>
+                    <input type="checkbox" checked={persistChat} onChange={(e) => setPersistChat(e.target.checked)}
+                    style={{ width: 12, height: 12, margin: 0, accentColor: '#7efdb9' }} />
+                    remember
+                  </label>
                   <span style={{ fontSize: 9, color: '#274063' }}>↵ send · ⇧↵ newline</span>
 
                   {/* Tools dropdown */}

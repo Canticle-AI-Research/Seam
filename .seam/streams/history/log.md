@@ -7737,3 +7737,37 @@ VALIDATION:
 NEXT:
 - When a real public installer host exists, add the actual URL with a live smoke path and an audit test that proves the README URL is no longer a placeholder.
 ---END-ENTRY-#341---
+
+---BEGIN-ENTRY-#342---
+id: 342
+date: 2026-06-28T03:58:48Z
+agent: Codex
+status: done
+topics: chat, dashboard, webui, memory, persist, test, history
+commits: none
+refs: seam_runtime/server.py,seam_runtime/webui/seam-api.js,seam_runtime/webui/dashboard.html,tests/audit/test_chat_endpoint.py,tests/audit/test_webui_chat_memory_controls.py,PROJECT_STATUS.md
+supersedes: 341
+tokens: 438
+---
+DASHBOARD CHAT AUTO-MEMORY.
+
+CHANGE:
+- `/chat` now persists successful user and assistant turns into the active SEAM runtime store by default after the provider returns. The persisted records use `local.chat` / `thread`, role-prefixed text, and `chat://<turn>/user|assistant` source refs so the turn remains traceable without storing provider keys or base URLs.
+- `/chat` responses now include `persisted_memory` with stored IDs, store path, and turn source refs. If the memory write fails, the provider reply is still returned with `persist_error` so chat does not disappear because the memory backend is unavailable.
+- The browser dashboard now threads an explicit `persistChat` option through `SeamAPI.chat()` as `persist_chat` and exposes a compact checked-by-default `remember` control in the agent chat toolbar. Turning it off sends `persist_chat: false`.
+
+SCOPE:
+- Runtime/webui/tests/status/history only.
+- No benchmark, installer, package metadata, provider-calling, or auth policy behavior changed.
+- Provider API keys remain request-time/env-only and are not compiled into MIRL.
+
+VALIDATION:
+- Red/green coverage: new chat persistence tests failed before implementation because `/chat` did not return `persisted_memory`; the dashboard static test failed because no `persist_chat` flag existed. After implementation, the focused slice passed.
+- Focused chat/webui slice: `.venv/bin/python -m pytest tests/audit/test_chat_endpoint.py tests/audit/test_webui_chat_memory_controls.py` -> 10 passed.
+- Runtime import/collection gate: `.venv/bin/python -m pytest --collect-only tests/audit/test_chat_endpoint.py tests/audit/test_webui_chat_memory_controls.py tests/audit/test_audit_2026_06_05.py` -> 31 tests collected.
+- Related chat/security slice: `.venv/bin/python -m pytest tests/audit/test_chat_endpoint.py tests/audit/test_webui_chat_memory_controls.py tests/audit/test_audit_2026_06_05.py` -> 31 passed.
+- `git diff --check` passed.
+
+NEXT:
+- Browser-render smoke the dashboard chat panel in a follow-up UI polish pass if layout churn appears; this slice used static dashboard coverage plus server endpoint tests.
+---END-ENTRY-#342---
