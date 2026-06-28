@@ -65,8 +65,19 @@ class JudgedLocomoScorer:
     def score(self, runtime, flags=None) -> ScoreReport:
         runtimes = {scope: self.adapter._runtime(scope) for scope in self.cases_by_scope}
         previous = {scope: rt._retrieval_flags for scope, rt in runtimes.items()}
+        applied = flags if flags is not None else (
+            load_retrieval_flags(next(iter(runtimes.values())).store) if runtimes else None
+        )
         for rt in runtimes.values():
-            rt._retrieval_flags = flags if flags is not None else load_retrieval_flags(rt.store)
+            rt._retrieval_flags = applied
+        # The adapter trims context with self.budget, NOT flags.context_budget,
+        # so apply the candidate's context_budget to the char trim for the pass
+        # (restored in finally). Without this a 'broad' candidate gets the wider
+        # candidate pool but the SAME trimmed context = a confounded judged A/B
+        # (mirrors PooledLocomoAnswerQualityScorer, the free counterpart).
+        prev_budget = self.adapter.budget
+        if applied is not None and applied.context_budget is not None:
+            self.adapter.budget = applied.context_budget
         per_case: dict[str, float] = {}
         category_values: dict[str, list[float]] = defaultdict(list)
         verdict_counts: dict[str, int] = defaultdict(int)
@@ -95,6 +106,7 @@ class JudgedLocomoScorer:
         finally:
             for scope, rt in runtimes.items():
                 rt._retrieval_flags = previous[scope]
+            self.adapter.budget = prev_budget
         self.last_run = {
             "verdict_counts": dict(verdict_counts),
             "judge_calls": judge_calls,

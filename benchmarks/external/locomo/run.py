@@ -71,12 +71,25 @@ def build_adapter(
     if name == "mem0":
         from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
 
-        return Mem0LocomoAdapter()
+        return _maybe_wrap_answerer(Mem0LocomoAdapter(), answerer, answerer_model)
     if name == "zep":
         from benchmarks.external.locomo.adapters.zep import ZepLocomoAdapter
 
-        return ZepLocomoAdapter()
+        return _maybe_wrap_answerer(ZepLocomoAdapter(), answerer, answerer_model)
     raise ValueError(f"unknown adapter {name!r}")
+
+
+def _maybe_wrap_answerer(inner, answerer: str | None, answerer_model: str | None):
+    """Comparator adapters (mem0/zep) return only retrieved context. When an
+    answerer is configured, wrap them so the SAME answerer generates their
+    answer from that context -- otherwise the runner judges them on an empty
+    prediction (~0) and the head-to-head is not fair. The SEAM adapter is not
+    wrapped: it generates its own answer through the same shared prompt."""
+    if answerer is None:
+        return inner
+    from benchmarks.external.common.answerer import SharedAnswererAdapter
+
+    return SharedAnswererAdapter(inner, answerer, answerer_model)
 
 
 def _fixture_hash(cases) -> str:

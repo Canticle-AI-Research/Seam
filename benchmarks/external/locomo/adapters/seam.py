@@ -438,14 +438,11 @@ class SeamLocomoAdapter:
             pass
 
     def _generate_answer(self, question: str, context: str, diag_out: dict | None = None) -> str:
-        prompt = (
-            "Answer the question using ONLY the context. "
-            "Return the best supported answer found in the context, even when "
-            "the context also contains unrelated snippets. "
-            "Say 'unknown' only when the context contains no answer candidate. "
-            "Reply with the shortest possible answer, no preamble.\n\n"
-            f"Context:\n{context}\n\nQuestion: {question}\nAnswer:"
-        )
+        # Prompt is single-sourced so every comparator's answerer is identical
+        # (fair SEAM-vs-mem0 head-to-head varies only the retrieved context).
+        from benchmarks.external.common.answerer import build_answer_prompt
+
+        prompt = build_answer_prompt(question, context)
         extra = {"diag_out": diag_out} if diag_out is not None else {}
         if self._answerer == "openai":
             return _openai_short_answer(self._answerer_model or "gpt-4o-mini", prompt, **extra)

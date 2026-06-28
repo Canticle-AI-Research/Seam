@@ -7451,42 +7451,111 @@ NEXT: C = operator-gated PAID SEAM(broad)-vs-mem0 head-to-head on LoCoMo (the fr
 
 ---BEGIN-ENTRY-#333---
 id: 333
-date: 2026-06-23T09:41:37Z
-agent: Codex
+date: 2026-06-26T08:22:49Z
+agent: Claude
 status: done
-topics: codec, compress, lexical, roadmap, docs, tokenizer
+topics: benchmark, locomo, mem0, answerer, harness, comparison, fairness, roadmap
 commits: none
-refs: ROADMAP.md,docs/roadmap/PROMPT_CODEC.md
-supersedes: none
-tokens: 244
+refs: benchmarks/external/common/answerer.py,benchmarks/external/locomo/run.py,benchmarks/external/locomo/adapters/seam.py,docs/roadmap/COMPETITIVE_ROADMAP.md,tests/audit/test_shared_answerer.py
+supersedes: 332
+tokens: 1012
 ---
-TRACK J CONCEPT CAPTURE: preserved the operator’s lexical-compression proposal in the canonical prompt-codec roadmap, including the retained wording (no private conversation link or transcript). The proposal is explicitly concept-only: for repeated structured terms, preserve a 4–6 character prefix based on term length, strip vowels only from the suffix, retain terminal consonants, restore minimum distinguishing suffix vowels on a collision, and use an immutable scope-local numeric tag only as the final fallback. Scope is derived PACK/prompt transport only; RAW, canonical MIRL/JSON, exact quotes, and RC/1 remain untouched. Promotion is gated on net active-tokenizer savings after dictionary cost, deterministic reversibility, no unresolved collisions, and no packed-context retrieval/answer-quality regression. ROADMAP Track J now points to the full canonical specification. No runtime code or benchmark claim changed. Baseline: pytest tools/streams/ = 18 passed.
+STRAND C STEP 1 ("pin mem0's target") + the FAIR-COMPARISON HARNESS FIX (operator: "dependable means SEAM is as good or better than mem0" = Strand C of the #328 A->B->C plan).
+
+PINNED THE TARGET (free investigation): the real mem0 LoCoMo bar is LLM-as-judge ~66.9% (mem0-graph ~+2%), judged by gpt-4o-mini (the SAME judge SEAM uses), per mem0's paper (arXiv 2504.19413); independent re-evals ~62%. The "Mem0 publishes 91.6" that docs/roadmap/COMPETITIVE_ROADMAP.md carried is WRONG (likely conflated with MemMachine's 0.9169 cited in the same line) -- corrected the doc to the paper number plus the caveat that vendor numbers are not apples-to-apples (only mem0-in-our-harness, answerer+judge held constant, is defensible). This REFRAMES Strand C: SEAM's capable-answerer cat1 knee already hit 0.67 (#327 / cat1_answerer_bound), so the race is in striking range, not the hopeless 0.916 gap the doc implied.
+
+THE FAIRNESS GAP FOUND (the real blocker): a judged head-to-head was NOT measurable. The answerer is baked INSIDE the SEAM adapter (adapters/seam.py self._answerer); the mem0 (and zep) adapter returns generated_answer=None; runner._score_case sets pred="" when generated_answer is None -> the LLM judge scored mem0 on an EMPTY string (~0). So a paid run today would have shown mem0 losing for the wrong reason (it never generated an answer) -- measuring answer-generation, not memory quality. Only context_recall (free string overlap) was comparable, and that is not the judged metric.
+
+THE FIX (free, code-only, benchmark-harness only -- no core/runtime change):
+- NEW benchmarks/external/common/answerer.py: build_answer_prompt (single source of the short-answer prompt), generate_short_answer (provider dispatch, lazy-imports seam's _openai/_claude/_ollama_short_answer so it honors tests that monkeypatch those by module path), and SharedAnswererAdapter (wraps a null-answer comparator so the SAME answerer generates its answer from its retrieved context; passes self-generating adapters through untouched; _generate injectable for tests).
+- run.py _maybe_wrap_answerer wraps mem0/zep with SharedAnswererAdapter when an answerer is configured; the SEAM adapter is NOT wrapped (it self-generates through the same shared prompt). No answerer set -> mem0 unwrapped -> context_recall-only, byte-identical to before (no regression).
+- seam.py _generate_answer now sources its prompt from build_answer_prompt, so SEAM and every comparator answer through an IDENTICAL prompt -- only the retrieved context (the memory layer under test) varies = a fair compare.
+
+BLAST RADIUS: benchmark adapter/harness only. The self-improvement loop uses the seam adapter directly (prompt identical, unaffected). No core, runtime, schema, or dependency change.
+
+TESTS: +8 CI-safe, hermetic (tests/audit/test_shared_answerer.py; no network/keys): wrapper generates for null-answer adapters / passes through self-generating ones / delegates lifecycle; _maybe_wrap_answerer noop-without-answerer plus wraps-when-set; generate_short_answer dispatch uses the shared prompt (monkeypatched provider) plus rejects unknown answerer; build_answer_prompt carries question+context. Also re-ran the answerer-path tests I touched (judged_scorer, entity_aggregation, abstain_threshold, decomposer, adapter_evidence_text, mem0 adapter) = pass.
+
+VERIFIED: full canonical suite `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/` with PGVECTOR_TEST_DSN (pgvector :55432) + strict no-skip = exit 0, 2 known xfails, 0 failures.
+
+CONTEXT: ran alongside a concurrent Codex agent; done on branch bench/fair-shared-answerer + PR (not pushed to main directly) so any HISTORY#333 / file collision resolves at merge, never clobbers. Local main also carries an unpushed docs commit (f750259, engineering-manual PDF) that predates this work.
+
+NEXT (Strand C cont.): (1) optional free confirmation -- run the improvement loop with a CAPABLE answerer to confirm it pulls toward the broad profile; (2) the operator-gated PAID SEAM(broad)-vs-mem0 head-to-head, now MEANINGFUL because both systems are judged on the same answerer over their own retrieved context. Paid run stays gated; surface cost first.
 ---END-ENTRY-#333---
 
 ---BEGIN-ENTRY-#334---
 id: 334
-date: 2026-06-23T09:41:37Z
-agent: Codex
+date: 2026-06-26T22:11:10Z
+agent: Claude
 status: done
-topics: continuity, history, streams, roadmap, docs
+topics: benchmark, locomo, mem0, judge, retrieval, profile, confound, bugfix, history
 commits: none
-refs: PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/,ROADMAP.md,docs/roadmap/PROMPT_CODEC.md
+refs: benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py
 supersedes: 333
-tokens: 100
+tokens: 826
 ---
-CONTINUITY FOLLOW-UP: advanced PROJECT_STATUS.md's latest-handoff pointer to the Track J concept capture while preserving #332 as the active runtime resume point. Regenerated history, roadmap, and cross-stream derived state after the roadmap update. The lexical-symbol proposal remains documentation-only; no runtime implementation, tokenizer result, or benchmark claim was introduced. First verification had exposed stale derived history/roadmap stream indexes caused by an incomplete rebuild order; the canonical stream rebuild is now the required follow-up before final continuity verification.
+BENCHMARK CONFOUND FIX + RUNG B PAID VALIDATION (Strand C of #328, operator's A->B->C plan; the broad-profile confirmation, judged + cross-conversation).
+
+THE FIX (benchmarks/external/locomo/judged_scorer.py): JudgedLocomoScorer.score() set rt._retrieval_flags = flags (so search_top_k reached search_ir) but NEVER applied flags.context_budget to the adapter's char-trim self.budget -- unlike the free PooledLocomoAnswerQualityScorer, which does. So a 'broad' candidate (search_top_k=300, context_budget=60000) through the PAID judged path (and seam improve validate --flags) got the wider candidate POOL but the SAME trimmed CONTEXT (adapter trims at self.budget, default 8000). A paid compact-vs-broad or SEAM-vs-mem0 run would have measured a FAKE broad = confounded, spend wasted. FIX: resolve `applied` once, set it on all runtimes, and self.adapter.budget = applied.context_budget when non-None (restored in finally), mirroring the free scorer.
+
+FREE VALIDATE (proved the bug AND the fix, $0, no model, cross-conv -- scratchpad/free_validate_budget.py): measured the actual retrieved-context length the answerer would receive at compact vs broad. CURRENT (flags-only): compact 8000 == broad 8000 -> broad/compact 1.00x (the bug). FIXED (flags + adapter.budget): compact 8000, broad 40574 -> 5.07x. Decisive.
+
+RUNG B PAID RESULT (operator-authorized ~$0.29; gpt-4o-mini answerer+judge, temp=0; 100 HOLDOUT cases across ALL 10 LoCoMo conversations; both knobs applied via the fixed scorer; per-category -- scratchpad/rung_b_paid.py): **broad WINS** -- compact judge_score_mean 0.465 vs broad 0.535, delta +0.070 (3.5x the 0.02 noise margin). Win concentrated in cat1 0.561->0.659 (+0.098) and cat2 0.39->0.45; cat3 flat 0.444. 0 judge retries, 0 empty answers (clean). CONFIRMS the answerer-aware hypothesis cross-conv on holdout: weak LOCAL answerer (qwen2.5 3B AND 14B, free rung A token_f1 -- scratchpad/rung_a_ab.py) -> broad COLLAPSES (~0.03, dilution) -> use compact; capable CLOUD answerer (gpt-4o-mini) -> broad WINS, no dilution. token_f1 was the misleading metric (verbosity-confounded); the judge is the real one (and mem0's).
+
+TESTS: +2 CI-safe (tests/audit/test_judged_scorer.py): context_budget applied to adapter.budget DURING the pass + restored after; context_budget=None leaves it unchanged. Full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN + strict no-skip = exit 0, 2 known xfails, 0 failures (no regression).
+
+NEXT: rung C = SEAM(broad)-vs-mem0 head-to-head on FULL LoCoMo-10 (~1540 Q; operator: 'not 10k'). This is the BIGGER paid run -- mem0 does per-turn LLM extraction at ingest = materially more $$ than rung B's cents; estimate + explicit operator go before launching. Productize follow-up: broad is validated for capable answerers, so the answerer-aware profile default belongs in core RetrievalFlags (capable-answerer profile), not just the benchmark. Branch bench/judged-context-budget-fix + PR.
 ---END-ENTRY-#334---
 
 ---BEGIN-ENTRY-#335---
 id: 335
-date: 2026-06-23T09:41:37Z
+date: 2026-06-26T23:08:35Z
+agent: Claude
+status: done
+topics: benchmark, locomo, mem0, adapter, bugfix, test, history
+commits: none
+refs: benchmarks/external/locomo/adapters/mem0.py,test_seam_all/test_locomo_mem0_adapter.py
+supersedes: 334
+tokens: 809
+---
+MEM0 ADAPTER FIX for mem0 2.x API drift + two test issues it exposed (found by the rung-C pre-flight smoke; operator: fix issues + probe before the paid run).
+
+THE BUG: the LoCoMo mem0 comparator (benchmarks/external/locomo/adapters/mem0.py) was written against an older mem0 API and is BROKEN against the installed mem0ai 2.0.2 -- Memory.search() no longer accepts a top-level user_id (raises ValueError 'Top-level entity parameters {user_id} are not supported in search(); use filters=...') and the limit arg was renamed top_k. So EVERY mem0 retrieval threw -> a paid SEAM-vs-mem0 head-to-head would have produced all-empty mem0 answers (or crashed) = a bogus result + wasted spend. The pre-flight smoke caught it before the $4 run.
+
+PROBED the full mem0 2.0.2 API (inspect.signature on add/search/delete_all/get_all): add(messages, *, user_id=..., infer=True, ...) and delete_all(user_id=...) are STILL valid (the adapter's ingest/reset work); ONLY search drifted. FIX (one call): search(query=question, filters={'user_id': scope_id}, top_k=self.search_limit). Result shape unchanged ({'results':[{'memory':..,'score':..}]}), so the adapter's parsing still holds. Re-smoked end-to-end with mem0 extraction pinned to gpt-4o-mini: mem0 extracts "Ana's favorite color is teal", retrieves it, the shared answerer (#333) returns "Teal", the judge scores correct -> full pipeline verified.
+
+TWO TEST ISSUES the fix exposed (test_seam_all/test_locomo_mem0_adapter.py): (1) _StubMem0.search signature (query, user_id, limit) -> (query, *, filters, top_k) to match 2.x (the adapter now calls it with the new kwargs); (2) test_cli_quickstart_mem0_stub assumed mem0ai is NOT installed and asserted the run fails -- but with mem0 installed + a key, the now-working adapter RAN A REAL mem0 quickstart (a PAID call) and then failed its 'should error' assertion. Hardened: run the subprocess with OPENAI_API_KEY removed so the adapter fails fast at construction (missing mem0ai OR missing key) with a clear error and ZERO spend, regardless of whether mem0 is installed.
+
+VERIFIED: 14/14 mem0 adapter tests pass; rung-C driver composition (run_benchmark_grouped + mem0-wrapped-with-shared-answerer + pinned gpt-4o-mini + judge) validated on tiny real data (judge_score_mean 1.0, 'Teal'/'Nurse' correct). Full canonical suite (test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/) + PGVECTOR_TEST_DSN + strict no-skip = exit 0, 2 known xfails, 0 failures (no regression). spaCy-absent warnings during mem0 runs are harmless (mem0 falls back to the LLM extractor, the path we want).
+
+CONTEXT: this unblocks rung C = SEAM(broad)-vs-mem0 head-to-head on HALF of LoCoMo-10 (first 5 convos / 764 Q, ~$4, operator-approved), currently running (scratchpad/rung_c_paid.py; mem0 extraction + answerer + judge all gpt-4o-mini; SEAM at the validated broad profile top_k=300/budget=60000). NEXT: report the head-to-head number; if SEAM>=mem0, productize the capable-answerer broad profile into core RetrievalFlags + consider the full LoCoMo-10 (~1540 Q) run. Branch bench/mem0-adapter-2x-fix + PR.
+---END-ENTRY-#335---
+
+---BEGIN-ENTRY-#336---
+id: 336
+date: 2026-06-28T04:25:00Z
 agent: Codex
 status: done
-topics: test, tokenizer, continuity, history, streams
+topics: docs, roadmap, codec, history, streams, continuity
 commits: none
-refs: PROJECT_STATUS.md,tools/tokenization.py,tools/history/test_history_tools.py,docs/roadmap/PROMPT_CODEC.md
-supersedes: 334
-tokens: 107
+refs: ROADMAP.md,docs/roadmap/PROMPT_CODEC.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/
+supersedes: 335
+tokens: 280
 ---
-VERIFICATION LIMIT RECORDED: continuity and stream checks are green after the Track J documentation change. The combined `pytest tools/history/test_history_tools.py tools/streams/ -q` run has one pre-existing failure on unchanged origin/main: `test_estimate_tokens` expects 5 for "one two three four five", while the documented no-tiktoken `char4_approx` fallback in tools/tokenization.py returns ceil(22/4)=6. This branch did not change the tokenizer or its test; no unrelated fix was made. The focused streams suite remains 18 passed.
----END-ENTRY-#335---
+PR #105 CONFLICT REFRESH: replayed the Track J lexical symbol codec documentation branch on top of current `origin/main`.
+
+CHANGE:
+- Preserved the substantive PR scope in `ROADMAP.md` and `docs/roadmap/PROMPT_CODEC.md`: the lexical symbol codec remains a concept/specification card for derived PACK/prompt transport only, not RAW/MIRL/RC payloads.
+- Resolved stale continuity conflicts by discarding the branch's duplicate old `HISTORY#333-#335` file state and recording this refresh as the next append-only entry on current main.
+- Regenerated derived history, roadmap, and cross-index stream artifacts after the conflict resolution.
+
+SCOPE:
+- Docs/history/derived-stream conflict resolution only.
+- No runtime, benchmark, provider, installer, dependency, or schema behavior changed by this refresh.
+
+VALIDATION:
+- Conflict-marker scan found no unresolved merge-marker blocks after resolution.
+- `tools/streams/roadmap_parser`, `tools/history/rebuild_index`, `tools/streams/history_adapter`, and `tools/streams/rebuild_cross_index` were rerun after this entry.
+
+NEXT:
+- Verify continuity/streams and push the refreshed PR branch so GitHub no longer reports PR #105 as conflicting.
+---END-ENTRY-#336---

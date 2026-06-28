@@ -121,6 +121,49 @@ def test_judged_scorer_scores_and_restores_flags(tmp_path):
     adapter.close()
 
 
+def test_context_budget_applied_to_adapter_during_pass_and_restored(tmp_path):
+    """The fix: score() applies flags.context_budget to the adapter's char-trim
+    budget for the pass (so a 'broad' candidate actually feeds the wider context,
+    not the same trimmed window as compact), and restores it after. Without this
+    the judged compact-vs-broad A/B is confounded."""
+    seen = {}
+
+    def generate(question, context, diag_out=None):
+        seen["budget_during_pass"] = adapter.budget
+        return "Friday"
+
+    adapter = _build_adapter(tmp_path, generate)
+    original_budget = adapter.budget
+    scorer = JudgedLocomoScorer(
+        adapter=adapter, judge=FakeJudge(),
+        cases_by_scope=OrderedDict({"conv-j": CASES[:1]}),
+    )
+    scorer.score(None, flags=RetrievalFlags(context_budget=60000))
+    assert seen["budget_during_pass"] == 60000  # applied during the pass
+    assert adapter.budget == original_budget    # restored after
+    adapter.close()
+
+
+def test_context_budget_none_leaves_adapter_budget_unchanged(tmp_path):
+    """A baseline candidate (context_budget=None) must not touch the trim."""
+    seen = {}
+
+    def generate(question, context, diag_out=None):
+        seen["budget_during_pass"] = adapter.budget
+        return "Friday"
+
+    adapter = _build_adapter(tmp_path, generate)
+    original_budget = adapter.budget
+    scorer = JudgedLocomoScorer(
+        adapter=adapter, judge=FakeJudge(),
+        cases_by_scope=OrderedDict({"conv-j": CASES[:1]}),
+    )
+    scorer.score(None, flags=RetrievalFlags())  # context_budget=None
+    assert seen["budget_during_pass"] == original_budget  # unchanged during pass
+    assert adapter.budget == original_budget              # and after
+    adapter.close()
+
+
 def test_empty_answer_scores_zero_without_judge_call(tmp_path):
     adapter = _build_adapter(tmp_path, lambda question, context, diag_out=None: "")
     judge = FakeJudge()

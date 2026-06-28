@@ -93,8 +93,9 @@ class Mem0LocomoAdapter:
 
     def answer(self, scope_id: str, question: str) -> AdapterAnswer:
         t0 = time.perf_counter()
+        # mem0 2.x: user_id moved into filters, and limit was renamed top_k.
         results = self._memory.search(
-            query=question, user_id=scope_id, limit=self.search_limit
+            query=question, filters={"user_id": scope_id}, top_k=self.search_limit
         )
         retrieval_ms = (time.perf_counter() - t0) * 1000.0
         items = (
