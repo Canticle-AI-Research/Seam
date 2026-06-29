@@ -7771,3 +7771,41 @@ VALIDATION:
 NEXT:
 - Browser-render smoke the dashboard chat panel in a follow-up UI polish pass if layout churn appears; this slice used static dashboard coverage plus server endpoint tests.
 ---END-ENTRY-#342---
+
+---BEGIN-ENTRY-#343---
+id: 343
+date: 2026-06-29T06:15:22Z
+agent: Codex
+status: done
+topics: benchmark, locomo, mem0, scripts, handoff, test, history
+commits: none
+refs: tools/benchmarks/rung_c_paid.py,tests/audit/test_rung_c_paid_runner.py,docs/handoffs/2026-06-26-seam-vs-mem0-rungc-handoff.md,PROJECT_STATUS.md
+supersedes: 342
+tokens: 693
+---
+TRACKED RUNG-C LOCOMO RUNNER.
+
+CONTEXT:
+- The rung-C handoff pointed to `scratchpad/rung_c_paid.py`, but `scratchpad/` and the driver were untracked and absent. The live branch already had the provider retry, crash-resilient grouped runner, fair mem0 rerun result, and `--mem0-search-limit` diagnostic knob from HISTORY#336/#338, so the missing piece was a durable operator runner rather than new rate-limit internals.
+- Before edits, the branch was rebased onto `origin/main`; Git skipped the duplicate rung-C handoff commit and replayed the seven branch commits cleanly.
+
+CHANGE:
+- Added `tools/benchmarks/rung_c_paid.py`, a tracked rung-C planner/executor for SEAM(broad) vs mem0 on the first N LoCoMo conversation scopes. It writes the generated slice under ignored `test_seam/locomo/rung_c/`, emits exact `benchmarks.external.locomo.run` commands, uses SEAM broad settings (`--search-top-k 300 --context-budget 60000`), passes optional `--mem0-search-limit`, and defaults to plan-only.
+- Added `--benchmark-dry-run` for keyless runner smoke checks that execute the benchmark runner's dry-run path without constructing paid providers.
+- Added a hard paid gate: `--execute` requires `--confirm-paid` unless `--benchmark-dry-run` is set.
+- Updated `docs/handoffs/2026-06-26-seam-vs-mem0-rungc-handoff.md` so future agents use `python -m tools.benchmarks.rung_c_paid` instead of the missing scratchpad driver.
+
+SCOPE:
+- Benchmark tooling, handoff docs, tests, status/history only.
+- No paid OpenAI or mem0 judged run was launched. No core runtime behavior changed.
+
+VALIDATION:
+- Red/green TDD: `tests/audit/test_rung_c_paid_runner.py` failed first with `ModuleNotFoundError: No module named 'tools.benchmarks.rung_c_paid'`, then passed after implementation.
+- Focused runner tests: `.venv/bin/python -m pytest tests/audit/test_rung_c_paid_runner.py -q` -> 3 passed.
+- Related benchmark harness slice: `.venv/bin/python -m pytest tests/audit/test_rung_c_paid_runner.py test_seam_all/test_locomo_mem0_adapter.py tests/audit/test_shared_answerer.py -q` -> 31 passed.
+- Compile check: `.venv/bin/python -m py_compile tools/benchmarks/rung_c_paid.py` -> passed.
+- Keyless dry-run smoke: `.venv/bin/python -m tools.benchmarks.rung_c_paid --scopes 1 --adapter mem0 --benchmark-dry-run --execute --output-dir test_seam/locomo/rung_c_smoke` -> exit 0; underlying LoCoMo dry run reported 154 cases, valid=true, estimated_judge_calls=154, and no provider clients were constructed.
+
+NEXT:
+- Before any real paid rerun, use `python -m tools.benchmarks.rung_c_paid --scopes <n> --adapter mem0 --mem0-search-limit <k> --json` to review the exact command, then require explicit operator approval for `--execute --confirm-paid`.
+---END-ENTRY-#343---

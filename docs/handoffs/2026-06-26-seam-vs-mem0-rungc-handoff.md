@@ -12,8 +12,8 @@
 ## Results so far (the A→B→C plan; A,B done)
 - **Rung A (free, local Ollama):** broad COLLAPSES for weak local answerers (qwen2.5 3B and 14B): compact token_f1 ~0.34–0.36 vs broad ~0.03. → compact is right for local; broad needs a capable cloud answerer. Driver: `scratchpad/rung_a_ab.py`.
 - **Rung B (paid ~$0.29, gpt-4o-mini, 100 holdout cases / all 10 convos):** **broad WINS +0.070** (compact 0.465 vs broad 0.535; 3.5× the 0.02 margin; win in cat1 +0.098). → broad validated for capable answerers. Driver: `scratchpad/rung_b_paid.py`.
-- **Rung C (paid, IN PROGRESS — DIED):** SEAM(broad) vs mem0, HALF of LoCoMo-10 = first 5 convos / **764 questions** / 2760 mem0 ingest turns. Operator approved ~$4. Driver: `scratchpad/rung_c_paid.py`.
-  - **SEAM(broad) side COMPLETED, banked:** `judge_score_mean = 0.674` (context_recall 0.862, 43min). Per-cat: cat1 0.528 / cat2 0.535 / cat3 0.293 / cat4 0.817 / cat5 0.75. Report saved at `scratchpad/rungc_seam.json`. **0.674 already matches/passes mem0's published paper number (~66.9% LLM-judge, gpt-4o-mini judge, arXiv 2504.19413).**
+- **Rung C (paid, IN PROGRESS — DIED):** SEAM(broad) vs mem0, HALF of LoCoMo-10 = first 5 convos / **764 questions** / 2760 mem0 ingest turns. Operator approved ~$4. Original driver was the untracked, now-missing `scratchpad/rung_c_paid.py`; use the tracked replacement `python -m tools.benchmarks.rung_c_paid`.
+  - **SEAM(broad) side COMPLETED, banked:** `judge_score_mean = 0.674` (context_recall 0.862, 43min). Per-cat: cat1 0.528 / cat2 0.535 / cat3 0.293 / cat4 0.817 / cat5 0.75. The original report path was `scratchpad/rungc_seam.json`, but `scratchpad/` was not tracked; use durable reports under `benchmarks/runs/locomo/` for follow-up work. **0.674 already matches/passes mem0's published paper number (~66.9% LLM-judge, gpt-4o-mini judge, arXiv 2504.19413).**
   - **mem0 side FAILED:** the process died early in mem0 ingest. Log `scratchpad/rung_c.log` shows only 2 `LLM extraction failed: 429` (TPM rate limit: gpt-4o-mini org limit **200000 tokens/min**), then the process ended with **no `RUNGC_EXIT` line and no mem0 result** (killed by signal, NOT a clean exception; NOT OOM — 20GB RAM free, no oom-killer entry; ollama not resident). Cause unconfirmed — likely a propagated 429 from mem0 ingest OR an external kill. **No mem0-in-our-harness number was obtained.**
 
 ## THE BLOCKER → what "a clean win" needs
@@ -33,7 +33,7 @@ mem0's per-turn LLM extraction (2760 adds, prompts that GROW as memory accumulat
 - `OPENAI_API_KEY` is set in the env (gpt-4o-mini; **200k TPM limit** is the constraint). `SEAM_PGVECTOR_DSN` is set (pgvector :55432); tests want `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN"`. **Never print/commit the DSN value.**
 - mem0ai 2.0.2 + chromadb 1.5.7 installed; mem0 extraction PINNED to gpt-4o-mini via `config_overrides`. spaCy-absent warnings are harmless (mem0 falls back to the LLM extractor).
 - Full canonical suite: `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/` with `PGVECTOR_TEST_DSN` set (strict no-skip; expect exit 0, 2 xfails, 0 failures).
-- Run rung C: `python scratchpad/rung_c_paid.py` (SCOPES=5 hardcoded; edit for fewer convos). It runs SEAM first, then mem0; writes `rungc_seam.json` / `rungc_mem0.json`.
+- Plan rung C without spend: `python -m tools.benchmarks.rung_c_paid --scopes 5 --json`. The tool writes the first-N-scope slice under ignored `test_seam/locomo/rung_c/`, emits exact SEAM-broad and mem0 commands, and requires `--execute --confirm-paid` before provider calls. Use `--benchmark-dry-run --execute` for a keyless runner dry-run smoke.
 
 ## Key memory files (operator's persistent memory)
 `project_mem0_parity_goal.md` (the whole A→B→C log incl. rung A/B numbers + "dependable=beat mem0" vocab), `project_competitor_mnemosyne.md` (mnemosyne = positional twin), `feedback_no_paid_run_without_prompt.md`, `feedback_always_test_before_building.md`.
