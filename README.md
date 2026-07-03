@@ -75,7 +75,9 @@ Rules:
 - Prefer project installers and documented commands over ad hoc setup.
 - Do not install `bench-judge`, `bench-mem0`, or `bench-zep` unless the operator
   explicitly approves provider/API-key benchmark dependencies.
-- If a command fails, stop and report the exact command and error.
+- If a command fails, stop and report the exact command and error. Check
+  `docs/errors.md` for the symptom before giving up, and report whether that
+  reference resolved it.
 
 Steps:
 1. Confirm the current directory is the SEAM repo.
@@ -102,20 +104,31 @@ Steps:
    `seam ingest AGENTS.md --persist`
    `seam ingest PROJECT_STATUS.md --persist`
    `seam ingest REPO_LEDGER.md --persist`
-8. Test memory retrieval:
+8. Test memory retrieval against the ingested docs:
    `seam memory search "current SEAM repo status"`
    `seam context "current SEAM repo status" --retrieval-mode mix --view prompt`
-9. If this agent supports MCP, configure it to launch:
+9. Prove write-then-read persistence with a fact this session creates, not a
+   pre-existing doc:
+   `seam remember "SEAM setup smoke test <unique token>"`
+   `seam memory search "setup smoke test"`
+   Confirm the exact fact just written comes back before treating memory as
+   working.
+10. If this agent supports MCP, configure it to launch:
    `seam-mcp`
    Or, when pgvector is needed and Docker is available:
    `seam-mcp --ensure-pgvector`
-10. Report back with:
+   Verify the server actually responds: issue an MCP tool-list/discovery call
+   against the running process and confirm SEAM's tools (memory search/get,
+   context, ingest) appear before reporting MCP as configured.
+11. Report back with:
    - install path used
    - optional extras installed
    - whether `seam doctor` passed
    - whether API keys/local config were set in Web UI Settings or manually
    - whether memory search/context returned useful repo context
-   - whether MCP was configured or only CLI memory is available
+   - whether the write-then-read smoke test round-tripped correctly
+   - whether MCP was configured and its tool list verified, or only CLI
+     memory is available
 ```
 
 ## 60-Second Demo

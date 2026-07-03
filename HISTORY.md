@@ -7849,3 +7849,17 @@ NEXT:
 - Not yet pushed to origin or opened as a PR; committed locally on a feature branch pending operator go-ahead per AGENTS.md's branch+PR requirement for `main`.
 - The gate is deny-by-default on today's known-sensitive shapes; it is not a substitute for reviewing a push's diff, especially for new content categories not yet covered by the pattern lists.
 ---END-ENTRY-#344---
+
+---BEGIN-ENTRY-#345---
+id: 345
+date: 2026-07-03T15:15:01Z
+agent: claude
+status: done
+topics: readme, prompt, docs
+commits: none
+refs: README.md
+supersedes: none
+tokens: 217
+---
+Strengthened the existing README Agent Setup Prompt section (added HISTORY#340, refined #341): (1) rules now point the agent at docs/errors.md before giving up on a failed command, (2) new step proves write-then-read persistence via 'seam remember' + 'seam memory search' on a session-created fact rather than only static ingested docs, (3) MCP configuration step now requires a tool-list/discovery round-trip against the running seam-mcp process before reporting MCP as configured, and the final report-back list was extended to cover both new checks. Verified by direct diff review of the edited section; no code paths changed, doc-only edit. Separately confirmed (git show) that the public seam-runtime mirror (BlackhatShiftey/Seam_Runtime, last synced 2026-06-27) never received the Agent Setup Prompt section at all -- pre-existing sync lag per HISTORY#344's ledger note, unrelated to this edit and left unresolved pending an operator decision on when to next sync the public mirror.
+---END-ENTRY-#345---

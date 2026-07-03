@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 344
-total_tokens: ~141547
-latest_id: 344
+total_entries: 345
+total_tokens: ~141764
+latest_id: 345
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 345 | 2026-07-03 | done | 677aea14b2e9ebbc | readme,prompt,docs | none |
 | 344 | 2026-07-03 | done | 19f81224ed6a6701 | git-hooks,security,verify,test,+ | 343 |
 | 343 | 2026-06-29 | done | 125c00fcf2fc382f | benchmark,locomo,mem0,scripts,+ | 342 |
 | 342 | 2026-06-28 | done | fff85ad5a496d30b | chat,dashboard,webui,memory,+ | 341 |
@@ -418,7 +419,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=40 latest=#344, #341, #340, #339, #338
+- docs: count=41 latest=#345, #344, #341, #340, #339
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -499,7 +500,7 @@ compact: true
 - productize: count=1 latest=#320
 - profile: count=3 latest=#334, #332, #328
 - promotion: count=1 latest=#305
-- prompt: count=1 latest=#340
+- prompt: count=2 latest=#345, #340
 - proposer: count=1 latest=#291
 - protocol: count=95 latest=#324, #322, #310, #304, #294
 - prov: count=1 latest=#316
@@ -509,7 +510,7 @@ compact: true
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=20 latest=#341, #340, #339, #147, #121
+- readme: count=21 latest=#345, #341, #340, #339, #147
 - reasoning: count=2 latest=#327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
@@ -574,7 +575,7 @@ compact: true
 
 ## status rollup
 
-- roots: 66
-- done: 322
+- roots: 67
+- done: 323
 - in-progress: 2
 - planned: 20

@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 401
+total_events: 402
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-15T16:36:43Z | history:166:f324a81c | session-event | done | protocol, history, audit, classification, plan, snapshot,... | HISTORY.md,docs/roadmap/CONTEXT_STREAMS.md,ROADMAP.md,docs/howto/README.md,HI... |
 | 2026-05-15T16:43:00Z | history:167:757a0270 | session-event | done | protocol, history, audit, classification, plan, verify, s... | .claude/settings.json,tools/claude/preflight_protocol.sh,tools/claude/session... |
 | 2026-05-15T16:45:45Z | history:168:5df27e35 | session-event | done | protocol, history, audit, classification, plan, verify, s... | tools/claude/preflight_protocol.sh,tools/claude/session_start_brief.sh,REPO_L... |
 | 2026-05-15T19:13:24Z | history:169:a06543fe | session-event | done | protocol, history, audit, classification, plan, verify, s... | tools/git-hooks/pre-commit,tools/git-hooks/install.sh,seam_runtime/doctor.py,... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-06-28T03:58:48Z | history:342:fff85ad5 | session-event | done | chat, dashboard, webui, memory, persist, test, history | seam_runtime/server.py,seam_runtime/webui/seam-api.js,seam_runtime/webui/dash... |
 | 2026-06-29T06:15:22Z | history:343:125c00fc | session-event | done | benchmark, locomo, mem0, scripts, handoff, test, history | tools/benchmarks/rung_c_paid.py,tests/audit/test_rung_c_paid_runner.py,docs/h... |
 | 2026-07-03T14:36:09Z | history:344:19f81224 | session-event | done | git-hooks, security, verify, test, docs | tools/release/verify_public_safe.py,tools/release/__init__.py,tools/git-hooks... |
+| 2026-07-03T15:15:01Z | history:345:677aea14 | session-event | done | readme, prompt, docs | README.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0201.cross.md | 2026-04-15T00:00:00Z..2026-05-15T06:50:47Z | 201 | (multi) | (multi) |
+| 0001-0202.cross.md | 2026-04-15T00:00:00Z..2026-05-15T16:36:43Z | 202 | (multi) | (multi) |
