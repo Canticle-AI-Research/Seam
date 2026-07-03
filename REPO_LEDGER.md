@@ -44,20 +44,20 @@ and `HISTORY_INDEX.md`.
   ad-hoc properties. This decision exists because the spec was historically
   absent from the mandatory read order, which let implementations drift from the
   design (the overfit `compile_nl` stub being the clearest case).
-- This GitHub repo is the private source-of-truth home for SEAM runtime,
-  tooling, docs, tests, and repo-owned fixtures. A separate repo will hold
-  user-file surfaces or user-facing file sets when that workflow is created.
-- SEAM is proprietary source-available software if any repo or artifact is
-  later made public. Public repository visibility does not grant open-source
-  rights; commercial, hosted, embedded, derivative, redistribution, or
-  closed-source use is available only with separate written permission through
-  a commercial license.
-  The controlling files are `LICENSE` and `NOTICE`; `COMMERCIAL_LICENSE.md`
-  is the plain-language commercial-use boundary.
-- SEAM accepts contributions only under a contributor grant that lets the
-  project owner keep developing, sublicensing, relicensing, and commercially
-  licensing SEAM without later contributor permission. The contributor-facing
-  summary lives in `CONTRIBUTING.md`.
+- `BlackhatShiftey/Seam_Runtime` is the public Apache-2.0 core repository for
+  SEAM Runtime. The public core includes the local runtime, CLI/REST/MCP/web UI
+  surfaces, public docs, tests, benchmarks, adapters, and repo-owned fixtures
+  intentionally released there.
+- Apache-2.0 applies to the public core through `LICENSE` and `NOTICE`.
+  `COMMERCIAL_LICENSE.md` now describes the separate commercial boundary:
+  hosted services, enterprise connectors, private benchmark holdouts, managed
+  deployments, customer integrations, support/warranty/indemnity, unreleased
+  methods, and private modules may live outside the public core under separate
+  terms. Apache-2.0 rights already granted for public core code are not
+  retracted by later private development.
+- SEAM accepts public-core contributions under Apache-2.0 inbound terms unless
+  a contributor explicitly states otherwise. The contributor-facing summary
+  lives in `CONTRIBUTING.md`.
 - Security-sensitive reports should be handled privately through `SECURITY.md`;
   do not disclose private data, credential material, customer data, or exploit
   details in public issues.
@@ -120,9 +120,9 @@ and `HISTORY_INDEX.md`.
   distinguish required checks from advisory matrix failures, and resolve stale
   PRs/branches as merged, closed, active, or concretely blocked instead of
   letting them accumulate.
-- Benchmark evidence proves SEAM value but never expands license rights; hosted,
-  SaaS, commercial, embedded, redistribution, customer-deployment, or
-  closed-source use still requires a separate written commercial license.
+- Benchmark evidence proves SEAM value but never grants trademark rights,
+  implies endorsement, or grants access to private hosted, enterprise,
+  customer-specific, or unreleased SEAM offerings.
 - Compatibility CLI aliases are acceptable during naming transitions.
 - Agent continuity is protocol-driven (`AGENTS.md`), not model-specific duplicate docs.
 - Linux install has two supported flows: default `install_seam_linux.sh` creates

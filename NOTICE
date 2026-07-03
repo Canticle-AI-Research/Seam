@@ -1,13 +1,13 @@
 SEAM
-Copyright 2026 BlackhatShiftey. All rights reserved.
+Copyright 2026 BlackhatShiftey
 
-SEAM is proprietary source-available software under the SEAM Source-Available
-License. This repository is public for review and contribution, but it is not
-open-source software unless a specific file explicitly says otherwise.
+SEAM Runtime's public core is licensed under the Apache License, Version 2.0.
 
 The SEAM name, logos, visual identity, protocol names, dashboard designs, and
-branding marks are reserved. No trademark or branding rights are granted.
+branding marks are reserved. The Apache-2.0 license does not grant trademark
+or branding rights except as required for reasonable and customary use in
+describing the origin of the public core and reproducing this NOTICE file.
 
-Commercial, hosted, SaaS, API, managed-service, embedded, derivative,
-redistribution, customer-deployment, or closed-source use is available only
-with a separate written commercial license from the copyright holder.
+Hosted services, enterprise modules, private connectors, private benchmark
+holdouts, customer-specific integrations, and unreleased methods may be offered
+from separate private repositories or services under separate commercial terms.

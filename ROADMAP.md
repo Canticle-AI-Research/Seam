@@ -1582,9 +1582,9 @@ phase: 1
 
 **Status:** Planned, deferred (operator decision 2026-06-02 — not a current priority). Build the release/distribution plumbing for `seam-runtime`.
 
-**Distribution target:** PRIVATE for now (GitHub Releases wheels / private index), NOT public PyPI. Keep the `Private :: Do Not Upload` classifier until the operator explicitly flips it. Package name `seam-runtime` (free on PyPI; `seam` is taken). Build plumbing should be target-agnostic so switching to public PyPI later is a one-line change.
+**Distribution target:** public core now targets `BlackhatShiftey/Seam_Runtime` under Apache-2.0. PyPI distribution remains a separate release decision; package name `seam-runtime` is the intended package name (`seam` is taken). Build plumbing should be target-agnostic so switching to public PyPI later is a one-line change.
 
-**License gate:** the license is expected to change from the current proprietary/source-available to Apache-2.0 or MIT (to enable selling SaaS/commercial later) — operator decides. Do NOT change the license as part of packaging. Advisory: Apache-2.0 > MIT for a company (patent grant + defensive clauses); neither prevents competitor SaaS — AGPL-3.0 + dual-licensing or a source-available license (BSL) is the SaaS-protective option if that matters.
+**License gate:** resolved for the public core: Apache-2.0. Hosted services, enterprise modules, private benchmark holdouts, customer integrations, support/warranty/indemnity, and unreleased methods remain outside the public core unless intentionally released.
 
 Phase work:
 

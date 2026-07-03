@@ -1023,3 +1023,21 @@ tokens: 42
 ---
 Bootstrap status capture for roadmap:track:N: status=planned, status-since=2026-06-02, caused-by=history:284. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#057---
+
+---BEGIN-ROADMAP-EVENT-#058---
+id: roadmap:058
+date: 2026-06-15T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:O
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: history:319
+supersedes: none
+refs: ROADMAP.md:1600
+topics: query, sql, retrieval, benchmark, bird
+tokens: 43
+---
+Bootstrap status capture for roadmap:track:O: status=planned, status-since=2026-06-15, caused-by=history:319. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#058---

@@ -335,9 +335,9 @@ section 4 for the failing-case-driven extension runbook.
 
 ### Publication Discipline
 
-Benchmark evidence is the proof layer for SEAM's commercial value; it does not
-grant commercial, hosted, SaaS, API, managed-service, embedded, redistribution,
-or closed-source rights.
+Benchmark evidence is the proof layer for SEAM's commercial value. It does not
+grant trademark rights, imply endorsement, or provide access to private hosted,
+enterprise, customer-specific, or unreleased SEAM offerings.
 
 Publication claims must include bundle hash, case hashes, fixture hashes, git
 SHA, diff output, gate output, and holdout output when the claim is external.
@@ -361,21 +361,20 @@ artifacts must remain useful to an agent without hiding provenance.
 
 ## License
 
-SEAM is proprietary source-available software under the SEAM Source-Available
-License. The repository is public for review, evaluation, and contribution; no
-open-source license is granted.
+SEAM Runtime's public core is licensed under the Apache License 2.0. The public
+core repository is:
 
-You may review, evaluate, fork for contribution, and use SEAM locally for
-personal, educational, research, or non-commercial purposes. You may not host,
-SaaS, sell, embed, redistribute, deploy for customers, commercialize, or use
-SEAM in a closed-source or commercial project without a separate written
-commercial license from the copyright holder.
+<https://github.com/BlackhatShiftey/Seam_Runtime>
 
-Commercial use is available with permission: get a separate written commercial
-license from the copyright holder before using SEAM in a paid product, hosted
-service, customer deployment, closed-source product, or business offering.
+Apache-2.0 permits use, modification, redistribution, and commercial use of the
+public core under the license terms. It does not grant SEAM trademark or
+branding rights, and it does not grant access to private repositories, hosted
+services, enterprise modules, private connectors, private benchmark holdouts,
+customer-specific integrations, or unreleased methods.
 
-Contributions grant the project owner rights to keep developing SEAM and to
-commercially license SEAM without needing later contributor permission.
+Separate commercial offerings may cover hosted SEAM services, enterprise
+connectors, managed deployments, support, warranty, indemnity, private modules,
+or customer-specific implementation work.
 
-See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+See [LICENSE](LICENSE), [NOTICE](NOTICE), and
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).

@@ -2,7 +2,10 @@
 
 Thank you for considering a contribution to SEAM.
 
-SEAM is source-available proprietary software, not open-source software unless a specific file explicitly says otherwise. Contributions are welcome for review, evaluation, documentation, testing, and project improvement, but all contributions must preserve the boundaries described in `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md`.
+SEAM Runtime's public core is licensed under the Apache License 2.0.
+Contributions are welcome for code, documentation, tests, benchmarks, and
+project improvement. Contributions must preserve the public-core/private-module
+boundary described in `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md`.
 
 ## Read first
 
@@ -12,7 +15,8 @@ Before contributing, read:
 2. `PROJECT_STATUS.md` for current operating state.
 3. `REPO_LEDGER.md` for stable repo decisions.
 4. `docs/CODE_LAYOUT.md` for active vs archived paths.
-5. `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md` for permitted use.
+5. `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md` for license, notice, and
+   commercial-boundary terms.
 
 Normal development should stay in active paths: `seam_runtime/`, `seam.py`, `experimental/`, `tools/`, `scripts/`, `installers/`, `docs/`, tests, and root status or policy files.
 
@@ -20,9 +24,13 @@ Do not copy stale code or prose from archived paths back into active paths witho
 
 ## Contribution grant
 
-By submitting a pull request, issue text, code, documentation, test, benchmark, design, or other contribution to SEAM, you agree that your contribution is governed by the contribution terms in `LICENSE`.
+Unless you explicitly state otherwise, any pull request, issue text, code,
+documentation, test, benchmark, design, or other contribution intentionally
+submitted for inclusion in SEAM Runtime's public core is submitted under the
+Apache License 2.0, without additional terms or conditions.
 
-In plain language, you keep copyright you own in your contribution, but you grant the project owner broad rights to use, modify, distribute, sublicense, relicense, and commercially license that contribution as part of SEAM or related SEAM offerings.
+In plain language, you keep copyright you own in your contribution, but the
+public core can use and distribute it under Apache-2.0.
 
 Do not submit anything you do not have the right to contribute.
 
@@ -39,6 +47,10 @@ A good PR should:
 - run relevant tests or clearly state what was skipped and why; and
 - avoid duplicating long continuity prose across multiple docs.
 
-## Commercial-use boundary
+## Public-core boundary
 
-Contributions do not grant commercial-use rights to contributors or third parties. Commercial, hosted, SaaS, API, managed-service, embedded, redistribution, resale, customer-deployment, or closed-source use still requires a separate written commercial license from the project owner.
+Contributions to this repository do not grant access to private SEAM
+repositories, hosted services, enterprise modules, private connectors, private
+benchmark holdouts, customer-specific integrations, unreleased methods, support,
+warranty, indemnity, or trademark rights. Those may be covered by separate
+commercial terms outside the public core.

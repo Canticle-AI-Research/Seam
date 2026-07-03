@@ -7863,3 +7863,17 @@ tokens: 217
 ---
 Strengthened the existing README Agent Setup Prompt section (added HISTORY#340, refined #341): (1) rules now point the agent at docs/errors.md before giving up on a failed command, (2) new step proves write-then-read persistence via 'seam remember' + 'seam memory search' on a session-created fact rather than only static ingested docs, (3) MCP configuration step now requires a tool-list/discovery round-trip against the running seam-mcp process before reporting MCP as configured, and the final report-back list was extended to cover both new checks. Verified by direct diff review of the edited section; no code paths changed, doc-only edit. Separately confirmed (git show) that the public seam-runtime mirror (BlackhatShiftey/Seam_Runtime, last synced 2026-06-27) never received the Agent Setup Prompt section at all -- pre-existing sync lag per HISTORY#344's ledger note, unrelated to this edit and left unresolved pending an operator decision on when to next sync the public mirror.
 ---END-ENTRY-#345---
+
+---BEGIN-ENTRY-#346---
+id: 346
+date: 2026-07-03T16:21:14Z
+agent: claude
+status: done
+topics: readme, ledger, roadmap, protocol
+commits: none
+refs: LICENSE,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,README.md,REPO_LEDGER.md,ROADMAP.md,docs/PROTECTION_MODEL.md,pyproject.toml
+supersedes: none
+tokens: 398
+---
+Ported the 'Adopt Apache public core licensing' relicensing (operator-authored, previously committed directly to the public seam-runtime/main mirror as b9132ac on 2026-06-27, discovered as a genuine git history divergence while wiring the one-command publish flow) onto private main via a reconciling 3-way cherry-pick (git cherry-pick -n b9132ac), not a hand-authored rewrite -- the exact already-approved language now applies to both repos. Changes: LICENSE/NOTICE/COMMERCIAL_LICENSE.md/CONTRIBUTING.md switch from the proprietary SEAM Source-Available License to Apache License 2.0 for the public core, with an explicit public-core (Apache-2.0) vs private/commercial (hosted services, enterprise connectors, private benchmark holdouts, unreleased methods) boundary preserved rather than a blanket open-sourcing. README.md's License and Publication Discipline sections, REPO_LEDGER.md's licensing stable-decision bullets, ROADMAP.md's Track N distribution/license-gate note, and docs/PROTECTION_MODEL.md (renamed in spirit to a public-core-boundary doc) updated to match. pyproject.toml license metadata switched to Apache-2.0 and the 'Private :: Do Not Upload' PyPI classifier removed (PyPI publication itself remains a separate undecided release step; this only removes the license-classifier blocker). History/streams bookkeeping files (HISTORY.md, HISTORY_INDEX.md, PROJECT_STATUS.md, .seam/*) from the cherry-picked commit were deliberately discarded (kept HEAD/private versions) since the public mirror has its own independent, non-canonical history sequence -- this entry is the correct, protocol-following record of the change on private main instead. Verified: tools.history.verify_integrity, verify_routing, verify_continuity, and tools.streams.verify_streams all pass post-merge. No runtime code touched (seam_runtime/, seam.py untouched).
+---END-ENTRY-#346---

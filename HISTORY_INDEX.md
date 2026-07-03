@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 345
-total_tokens: ~141764
-latest_id: 345
+total_entries: 346
+total_tokens: ~142162
+latest_id: 346
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 346 | 2026-07-03 | done | 8e76711dfa129029 | readme,ledger,roadmap,protocol | none |
 | 345 | 2026-07-03 | done | 677aea14b2e9ebbc | readme,prompt,docs | none |
 | 344 | 2026-07-03 | done | 19f81224ed6a6701 | git-hooks,security,verify,test,+ | 343 |
 | 343 | 2026-06-29 | done | 125c00fcf2fc382f | benchmark,locomo,mem0,scripts,+ | 342 |
@@ -460,7 +461,7 @@ compact: true
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
 - judge: count=6 latest=#336, #334, #327, #321, #320
-- ledger: count=38 latest=#302, #230, #181, #177, #176
+- ledger: count=39 latest=#346, #302, #230, #181, #177
 - lexical: count=1 latest=#004
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - llm: count=1 latest=#313
@@ -502,7 +503,7 @@ compact: true
 - promotion: count=1 latest=#305
 - prompt: count=2 latest=#345, #340
 - proposer: count=1 latest=#291
-- protocol: count=95 latest=#324, #322, #310, #304, #294
+- protocol: count=96 latest=#346, #324, #322, #310, #304
 - prov: count=1 latest=#316
 - pyproject: count=6 latest=#339, #267, #094, #051, #049
 - qr: count=1 latest=#307
@@ -510,7 +511,7 @@ compact: true
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=21 latest=#345, #341, #340, #339, #147
+- readme: count=22 latest=#346, #345, #341, #340, #339
 - reasoning: count=2 latest=#327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
@@ -524,7 +525,7 @@ compact: true
 - retrieval: count=64 latest=#338, #334, #332, #328, #325
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
-- roadmap: count=53 latest=#333, #319, #318, #284, #276
+- roadmap: count=54 latest=#346, #333, #319, #318, #284
 - roundtrip: count=2 latest=#007, #006
 - rule: count=1 latest=#304
 - salvage: count=1 latest=#179
@@ -575,7 +576,7 @@ compact: true
 
 ## status rollup
 
-- roots: 67
-- done: 323
+- roots: 68
+- done: 324
 - in-progress: 2
 - planned: 20

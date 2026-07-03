@@ -1,38 +1,50 @@
-# SEAM Commercial Licensing
+# SEAM Commercial Boundary
 
-SEAM is source-available proprietary software. Public source access is provided so people can review, evaluate, learn from, and contribute to the project. Public source access does **not** grant commercial, hosted, SaaS, embedded, redistribution, resale, managed-service, customer-deployment, or closed-source product rights.
+SEAM Runtime's public core is licensed under the [Apache License 2.0](LICENSE).
+That license permits use, modification, distribution, and commercial use of the
+code in this public core repository, subject to the Apache-2.0 terms and the
+notices in [NOTICE](NOTICE).
 
-The controlling terms are the [SEAM Source-Available License](LICENSE). This file summarizes the commercial boundary in plain language.
+## Public core
 
-## Permitted without a separate commercial license
+The public core currently lives at:
 
-Subject to the license, you may:
+<https://github.com/BlackhatShiftey/Seam_Runtime>
 
-- read and review the source code and documentation;
-- run SEAM locally for personal, educational, research, or non-commercial evaluation;
-- fork SEAM to prepare contributions back to this repository;
-- modify SEAM locally for permitted non-commercial evaluation; and
-- use SEAM in a non-commercial open-source project that does not host, resell, embed, redistribute, commercialize, or expose substantial SEAM functionality to third parties.
+The public core may include:
 
-## Not permitted without a separate written commercial license
+- the local runtime;
+- CLI, REST, MCP, dashboard, and operator workflows;
+- public documentation;
+- public regression tests and benchmark harnesses;
+- public adapters and examples; and
+- repo policy files for contribution, security, and attribution.
 
-You may **not** do any of the following without a separate written commercial license from the project owner:
+## Separate commercial offerings
 
-- host SEAM, modified SEAM, or substantially similar SEAM functionality as a service;
-- offer SEAM as SaaS, a hosted API, a managed service, a cloud service, or a customer-facing product;
-- embed SEAM in a closed-source, proprietary, or commercial product;
-- use SEAM for paid consulting, integration, support, operations, or customer deployment;
-- sell, rent, lease, sublicense, redistribute, or charge for access to SEAM;
-- use SEAM to build, operate, or market a competing hosted product or service;
-- remove or obscure copyright, ownership, license, or notice files; or
-- imply that SEAM endorses your product, service, benchmark, or derivative work.
+Apache-2.0 applies to the public core. It does not grant access to code,
+services, credentials, data, trademarks, private repositories, unreleased
+methods, hosted deployments, or enterprise-only modules that are not included
+in this repository.
 
-## Commercial permission
+Separate commercial terms may cover:
 
-Commercial use is available only through a separate written agreement with the project owner. If your use could make money from SEAM, help a customer make money from SEAM, expose SEAM functionality to third parties, or place SEAM inside a paid product or service, get written commercial permission first.
+- hosted SEAM services;
+- enterprise connectors;
+- private benchmark holdouts;
+- managed deployments;
+- customer-specific integrations;
+- commercial support, warranty, indemnity, or service-level commitments;
+- advanced or unreleased modules kept outside the public core; and
+- private training, onboarding, or implementation work.
 
-## Public vs private project boundary
+## Branding and claims
 
-The public repository is intended to prove the product shape, support evaluation, and accept contributions. Advanced commercial modules, private benchmark holdouts, enterprise connectors, hosted-service components, and unreleased methods may live outside this public repository.
+The Apache-2.0 license does not grant trademark rights. The SEAM name, logos,
+visual identity, dashboard designs, protocol names, and branding marks remain
+reserved except as allowed by the license for reasonable identification of the
+origin of the public core.
 
-That split is intentional. The public repository should be useful enough to evaluate and contribute to SEAM while keeping commercial-only implementation details under separate access control.
+Public benchmark or performance claims should cite reproducible evidence and
+must not imply endorsement, partnership, warranty, or access to private SEAM
+offerings.

@@ -7,11 +7,10 @@ name = "seam-runtime"
 version = "0.1.0"
 description = "SEAM memory runtime and glassbox operator tooling for AI agents"
 readme = "README.md"
-license = { text = "Proprietary - source-available evaluation only" }
+license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = [
-  "License :: Other/Proprietary License",
-  "Private :: Do Not Upload",
+  "License :: OSI Approved :: Apache Software License",
 ]
 keywords = ["ai", "agents", "memory", "mcp", "rag"]
 dependencies = [

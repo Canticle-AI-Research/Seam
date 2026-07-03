@@ -1,23 +1,28 @@
-# SEAM Protection Model
+# SEAM Public Core Boundary
 
-This document explains how SEAM can remain useful for public review and non-commercial local evaluation while keeping commercial-only implementation details under separate access control.
+This document explains how SEAM Runtime can keep an Apache-2.0 public core while
+holding hosted, enterprise, customer-specific, and unreleased implementation
+details under separate access control.
 
-`LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md` remain the controlling licensing boundary. This document is an operating model for repo structure and agent workflow.
+`LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md` remain the controlling public
+license, notice, and commercial-boundary files. This document is an operating
+model for repo structure and agent workflow.
 
 ## Goals
 
 SEAM should:
 
-- remain installable and usable for permitted local evaluation;
+- keep the public core installable and usable under Apache-2.0;
 - keep the existing CLI, dashboard, REST, MCP, benchmark, and history workflows intact;
 - preserve the repo bookkeeping protocol in `AGENTS.md`, `PROJECT_STATUS.md`, `REPO_LEDGER.md`, `HISTORY.md`, `HISTORY_INDEX.md`, and `docs/CODE_LAYOUT.md`;
 - avoid adding startup context bloat for future agents;
-- make commercial-use boundaries obvious to readers and contributors; and
+- make the public-core/private-module boundary obvious to readers and contributors; and
 - keep advanced commercial modules, private benchmark holdouts, enterprise connectors, hosted-service code, and unreleased methods outside the public source tree unless intentionally released.
 
-## Public repository boundary
+## Public core boundary
 
-The public repository is the evaluation and contribution surface. It may include:
+The public core repository is the Apache-2.0 distribution and contribution
+surface. It may include:
 
 - the installable local runtime;
 - CLI and operator workflows;
@@ -25,9 +30,13 @@ The public repository is the evaluation and contribution surface. It may include
 - public regression tests and benchmark harnesses;
 - public adapters and examples;
 - public protocol docs; and
-- policy files that explain licensing, contribution, security, and commercial-use boundaries.
+- policy files that explain licensing, contribution, security, and commercial
+  boundaries.
 
-Public visibility does not grant commercial, hosted, SaaS, embedded, redistribution, resale, customer-deployment, or closed-source product rights.
+Apache-2.0 permits use, modification, redistribution, and commercial use of the
+public core under the license terms. It does not grant trademark rights or
+access to code, services, credentials, data, private repositories, hosted
+deployments, enterprise modules, or unreleased methods outside this repository.
 
 ## Private/commercial boundary
 
@@ -42,7 +51,9 @@ Private or commercial repositories may hold:
 - unreleased architecture notes; and
 - any implementation detail that should remain a trade secret or commercial-only module.
 
-Moving future work into a private repository only protects future non-public code. It does not erase public access to code that has already been published.
+Moving future work into a private repository only protects future non-public
+code. It does not retract Apache-2.0 rights already granted for public core code
+that has been released.
 
 ## Agent workflow rule
 
