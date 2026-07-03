@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# SEAM canonical pre-push hook: public/private separation gate.
+#
+# Runs for every `git push` on every machine that has installed this hook
+# (see tools/git-hooks/install.sh). Only takes action when the push target
+# is the `seam-runtime` remote (the public Seam_Runtime mirror) -- pushes to
+# `origin` (the private Seam repo) pass through untouched.
+#
+# For a push to the public remote, scans every git object newly reachable by
+# the push (not just the tip tree, so content introduced and later removed
+# within the same push is still caught) against tools/release/verify_public_safe.py.
+# A BLOCK finding (secret-shaped content, or a disallowed path such as .env,
+# *.db, private keys) aborts the push. See REPO_LEDGER.md for the rationale
+# (this closes the same failure mode that leaked seam.db into Cantlicle).
+#
+# Git invokes this with the remote name as $1 and remote URL as $2, and feeds
+# stdin lines of the form: <local ref> <local sha1> <remote ref> <remote sha1>
+#
+# Use --no-verify to bypass. Per CLAUDE.md and AGENTS.md, do not bypass a
+# push to the public remote unless the operator explicitly authorizes it.
+
+set -u
+
+REMOTE_NAME="${1:-}"
+REMOTE_URL="${2:-}"
+ZERO_SHA="0000000000000000000000000000000000000000"
+
+case "$REMOTE_NAME $REMOTE_URL" in
+  *seam-runtime*|*Seam_Runtime*) ;;
+  *) exit 0 ;;  # not the public remote; nothing to gate
+esac
+
+REPO_ROOT="$(git rev-parse --show-toplevel)" || exit 1
+cd "$REPO_ROOT" || exit 1
+
+PY=python3
+command -v "$PY" >/dev/null 2>&1 || PY=python
+if ! command -v "$PY" >/dev/null 2>&1; then
+  echo "[SEAM pre-push] python not found on PATH; refusing to bypass the public-safety gate." >&2
+  exit 1
+fi
+
+FAIL=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "${local_ref:-}" ] && continue
+  if [ "$local_sha" = "$ZERO_SHA" ]; then
+    continue  # deleting a remote ref; nothing new to scan
+  fi
+  echo "[SEAM pre-push] scanning $local_ref -> $remote_ref ($REMOTE_NAME) for public-safety..." >&2
+  if ! "$PY" -m tools.release.verify_public_safe --old "$remote_sha" --new "$local_sha"; then
+    FAIL=1
+  fi
+done
+
+if [ "$FAIL" -ne 0 ]; then
+  echo "" >&2
+  echo "[SEAM pre-push] Blocking push to public remote '$REMOTE_NAME'." >&2
+  echo "[SEAM pre-push] Remove the flagged content before pushing to Seam_Runtime." >&2
+  exit 1
+fi
+
+exit 0

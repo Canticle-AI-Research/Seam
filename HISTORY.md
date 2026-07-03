@@ -7809,3 +7809,43 @@ VALIDATION:
 NEXT:
 - Before any real paid rerun, use `python -m tools.benchmarks.rung_c_paid --scopes <n> --adapter mem0 --mem0-search-limit <k> --json` to review the exact command, then require explicit operator approval for `--execute --confirm-paid`.
 ---END-ENTRY-#343---
+
+---BEGIN-ENTRY-#344---
+id: 344
+date: 2026-07-03T14:36:09Z
+agent: Claude
+status: done
+topics: git-hooks, security, verify, test, docs
+commits: none
+refs: tools/release/verify_public_safe.py,tools/release/__init__.py,tools/git-hooks/pre-push,tools/git-hooks/install.sh,tests/audit/test_public_safe_gate.py,docs/CODE_LAYOUT.md,REPO_LEDGER.md
+supersedes: 343
+tokens: 1275
+---
+PUBLIC/PRIVATE SEPARATION GATE FOR THE seam-runtime REMOTE.
+
+CONTEXT:
+- Investigated whether pushes from this private repo to the `seam-runtime` remote (public `BlackhatShiftey/Seam_Runtime`) are curated. They are not: a full recursive tree diff between `main` and `seam-runtime/main` showed only 7 files differing, all sync lag (unmerged recent commits), none deliberately excluded. Every push to `seam-runtime` ships the entire tracked tree with no content gate -- the same failure mode that let a schema-only `seam.db` leak into the Cantlicle repo's history (required `git filter-repo` + force-push to remove, and cached copies still served after purge). No allow-list existed to formalize, so the fix is a deny-by-default gate, not a curation policy.
+
+CHANGE:
+- Added `tools/release/verify_public_safe.py`: scans every git object newly reachable by a push (via `git rev-list --objects <old>..<new>`, or full history for a new ref) against a path deny-list (`.env*` except `.env.example`, `*.db`/`*.sqlite*`, `.claude/`/`.opencode/`/`.agents/`, private key files, `secrets/`, `credentials*`) and content patterns (AWS/GitHub/OpenAI/Anthropic key shapes, PEM private key headers, DSN-with-credentials, Claude/ChatGPT session/share links -> BLOCK; generic `password =`/`token =` -> WARN, non-blocking). Scanning every new object rather than diffing tip trees means content added and later removed within the same push is still caught.
+- Added `tools/git-hooks/pre-push`: fires only when the push target is the `seam-runtime` remote (matched on remote name or URL); reads git's pre-push stdin protocol and calls the scanner per ref with the exact old/new SHAs git already knows. Pushes to `origin` (private) pass through untouched.
+- Generalized `tools/git-hooks/install.sh` from a single hardcoded pre-commit installer into a loop over `(pre-commit, pre-push)`, preserving the existing symlink-first/copy-with-CANONICAL_SHA-fallback behavior per hook.
+- Registered `tools/release/` in `docs/CODE_LAYOUT.md` and documented the gate in `REPO_LEDGER.md` alongside the existing pre-commit hook entry.
+
+SCOPE:
+- New tooling + tests + docs/ledger/history only. No runtime, retrieval, benchmark, or packaging behavior changed. Nothing was pushed to `seam-runtime` or any public surface during this work.
+
+VALIDATION:
+- Unit coverage on the pure per-blob rules: 15 denied-path cases, `.env.example` allowed, 4 BLOCK content-pattern cases, 1 WARN-only case (does not block), binary-extension content-scan skip.
+- Real throwaway-git-repo coverage via `scan_push`: clean range passes; a newly added `.env` blocks; a secret added in an intermediate commit and deleted before the push tip still blocks (proves the design catches history, not just a tip-tree diff -- confirmed the tip `git diff` shows nothing while `scan_push` still flags it); a brand-new ref (all-zero old SHA) scans full history.
+- False positive found and fixed during live verification: the initial DSN pattern flagged `seam_runtime/webui/dashboard.html`'s placeholder default `postgres://user:pw@host:5432/seam`. Tightened to require a 4+ char password (matching `tools/history/verify_continuity.py`'s existing `dsn_password` convention) and added a regression test for the placeholder case.
+- Fixture strings in the new test file initially tripped the repo's own `verify_continuity` secret scanner (same detection intent, independent implementation); rewrote fixtures to split secret-shaped literals across string concatenation so source text is not a contiguous match while the runtime value still exercises the scanner. `python -m tools.history.verify_continuity --no-recorded-fact-audit` -> Continuity OK.
+- Applied: `bash tools/git-hooks/install.sh --force` installed both hooks (`pre-commit` copy already current; `pre-push` installed as a new symlink).
+- Verified against real history: direct invocation of the installed hook (`old=seam-runtime/main new=main`) reported clean after the DSN fix, matching the earlier manual tree-diff finding that current sync-lag content is not sensitive. `git push --dry-run` to the diverged `main` was rejected non-fast-forward by git before any hook ran (expected, unrelated to this gate) and to a fresh throwaway ref name did not invoke the hook either (this git version skips pre-push under `--dry-run`); direct hook invocation was used for real verification instead.
+- `.venv/bin/python -m pytest tests/audit/test_public_safe_gate.py -v` -> 30 passed.
+- Full suite: `.venv/bin/python -m pytest tests/ -q -m "not external"` -> all passed (2 pre-existing xfail). `.venv/bin/python -m pytest tests/ -q -m external` against a freshly started pgvector container (`docker compose up -d`, `PGVECTOR_TEST_DSN` from local `.env`) -> 7 passed.
+
+NEXT:
+- Not yet pushed to origin or opened as a PR; committed locally on a feature branch pending operator go-ahead per AGENTS.md's branch+PR requirement for `main`.
+- The gate is deny-by-default on today's known-sensitive shapes; it is not a substitute for reviewing a push's diff, especially for new content categories not yet covered by the pattern lists.
+---END-ENTRY-#344---

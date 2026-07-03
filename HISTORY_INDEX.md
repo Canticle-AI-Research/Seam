@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 343
-total_tokens: ~140272
-latest_id: 343
+total_entries: 344
+total_tokens: ~141547
+latest_id: 344
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 344 | 2026-07-03 | done | 19f81224ed6a6701 | git-hooks,security,verify,test,+ | 343 |
 | 343 | 2026-06-29 | done | 125c00fcf2fc382f | benchmark,locomo,mem0,scripts,+ | 342 |
 | 342 | 2026-06-28 | done | fff85ad5a496d30b | chat,dashboard,webui,memory,+ | 341 |
 | 341 | 2026-06-27 | done | 1c9841e763fb2ba8 | readme,docs,test,history | 340 |
@@ -417,7 +418,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=39 latest=#341, #340, #339, #338, #337
+- docs: count=40 latest=#344, #341, #340, #339, #338
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -436,6 +437,7 @@ compact: true
 - floor: count=1 latest=#308
 - generalization: count=1 latest=#297
 - git: count=1 latest=#324
+- git-hooks: count=1 latest=#344
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
@@ -530,7 +532,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=44 latest=#330, #309, #301, #300, #299
+- security: count=45 latest=#344, #330, #309, #301, #300
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -552,7 +554,7 @@ compact: true
 - symbols: count=2 latest=#316, #309
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- test: count=42 latest=#343, #342, #341, #340, #339
+- test: count=43 latest=#344, #343, #342, #341, #340
 - tests: count=3 latest=#192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -562,7 +564,7 @@ compact: true
 - tui: count=25 latest=#137, #121, #120, #119, #118
 - unify: count=1 latest=#311
 - vector: count=25 latest=#228, #223, #220, #218, #199
-- verify: count=247 latest=#320, #317, #316, #315, #314
+- verify: count=248 latest=#344, #320, #317, #316, #315
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=21 latest=#283, #282, #261, #260, #259
@@ -573,6 +575,6 @@ compact: true
 ## status rollup
 
 - roots: 66
-- done: 321
+- done: 322
 - in-progress: 2
 - planned: 20
