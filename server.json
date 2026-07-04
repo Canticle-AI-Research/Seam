@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.blackhatshiftey/seam-runtime",
-  "description": "SEAM local-first memory runtime for AI agents: persistent lossless memory, prompt-ready context retrieval, and glassbox provenance over MCP.",
+  "description": "SEAM: local-first memory runtime for AI agents, with retrieval and glassbox provenance over MCP.",
   "repository": {
     "url": "https://github.com/BlackhatShiftey/Seam_Runtime",
     "source": "github"
