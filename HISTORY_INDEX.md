@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 347
-total_tokens: ~142628
-latest_id: 347
+total_entries: 348
+total_tokens: ~142763
+latest_id: 348
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 348 | 2026-07-04 | done | a3175bc27f4ba197 | registry,mcp | none |
 | 347 | 2026-07-03 | done | 029e01d230d0f6ef | mcp,pyproject,readme,registry | none |
 | 346 | 2026-07-03 | done | 8e76711dfa129029 | readme,ledger,roadmap,protocol | none |
 | 345 | 2026-07-03 | done | 677aea14b2e9ebbc | readme,prompt,docs | none |
@@ -476,7 +477,7 @@ compact: true
 - macos: count=1 latest=#337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
-- mcp: count=16 latest=#347, #222, #218, #213, #212
+- mcp: count=17 latest=#348, #347, #222, #218, #213
 - mem0: count=7 latest=#343, #338, #336, #335, #334
 - memory: count=7 latest=#342, #340, #286, #275, #274
 - merge: count=1 latest=#301
@@ -521,7 +522,7 @@ compact: true
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
 - regex: count=1 latest=#317
-- registry: count=2 latest=#347, #178
+- registry: count=3 latest=#348, #347, #178
 - repo-ledger: count=1 latest=#304
 - retrieval: count=64 latest=#338, #334, #332, #328, #325
 - retrievalflags: count=1 latest=#328
@@ -577,7 +578,7 @@ compact: true
 
 ## status rollup
 
-- roots: 69
-- done: 325
+- roots: 70
+- done: 326
 - in-progress: 2
 - planned: 20

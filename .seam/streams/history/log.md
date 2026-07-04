@@ -7891,3 +7891,17 @@ tokens: 466
 ---
 Version bump to 1.3.0 + MCP Server Registry manifest, prerequisite for publishing seam-runtime to PyPI and registering it with the official MCP server registry. pyproject.toml version 0.1.0 -> 1.3.0 (first real release-tracked version; matches the GitHub release tag this session is about to cut). Added root server.json (MCP registry manifest: name io.github.blackhatshiftey/seam-runtime, repo pointer, pypi package entry running via 'uvx --from seam-runtime seam-mcp', SEAM_DB_PATH/SEAM_PGVECTOR_DSN env var docs) -- recovered and version-corrected from a stale draft left in an abandoned /tmp scratch worktree (base commit b9132ac) from a prior session; the draft's README/pyproject portions were discarded as superseded by HISTORY#339/#341 already on main, only server.json's structure was reusable. Added the required '<!-- mcp-name: io.github.blackhatshiftey/seam-runtime -->' ownership-verification comment to README.md's top (the MCP registry checks for this before accepting a server.json). Also fixed seam_runtime/mcp_protocol.py's initialize handshake serverInfo.version, which was still hardcoded '0.1.0' and would have reported a stale version over the wire once published -- no test pinned the literal string (tests/audit/test_mcp_stdio_smoke.py only asserts name is a non-empty string), so this was a safe fix. Verified: full mcp-tagged test slice (17 tests) + the mcp stdio smoke test pass. Note: seam_runtime/skills/skill_ir.py's SKILL_IR_VERSION='0.1.0' was deliberately left untouched -- that's an unrelated skill-IR schema version, not the package release version. verify_integrity/verify_routing/verify_continuity/verify_streams all pass. Blocker resolved for actually publishing: seam-runtime was confirmed NOT on PyPI (404) prior to this session; operator has now provided a PyPI API token (stored locally at ~/.config/seam-pypi-token, chmod 600, never pasted into chat) to complete the first upload. PyPI upload and MCP registry submission are separate follow-on steps after this merges.
 ---END-ENTRY-#347---
+
+---BEGIN-ENTRY-#348---
+id: 348
+date: 2026-07-04T00:04:38Z
+agent: claude
+status: done
+topics: registry, mcp
+commits: none
+refs: server.json
+supersedes: none
+tokens: 135
+---
+Fixed server.json's description field: the MCP Server Registry's validate/publish endpoint enforces a hard 100-character limit on body.description (returned HTTP 422 on the first real 'mcp-publisher validate' run against https://registry.modelcontextprotocol.io -- the original 141-char description was never checked against the live schema until this point). Shortened to 96 chars while preserving the key terms (local-first, memory runtime, retrieval, glassbox provenance, MCP). Re-ran 'mcp-publisher validate': passes clean. This is a real constraint from the live registry API, not a style preference -- future server.json edits must stay under it.
+---END-ENTRY-#348---
