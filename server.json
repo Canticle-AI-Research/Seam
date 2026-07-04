@@ -1,0 +1,53 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.blackhatshiftey/seam-runtime",
+  "description": "SEAM local-first memory runtime for AI agents: persistent lossless memory, prompt-ready context retrieval, and glassbox provenance over MCP.",
+  "repository": {
+    "url": "https://github.com/BlackhatShiftey/Seam_Runtime",
+    "source": "github"
+  },
+  "version": "1.3.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "seam-runtime",
+      "version": "1.3.0",
+      "runtimeHint": "uvx",
+      "runtimeArguments": [
+        {
+          "type": "positional",
+          "value": "--from",
+          "isRepeated": false
+        },
+        {
+          "type": "positional",
+          "value": "seam-runtime",
+          "isRepeated": false
+        },
+        {
+          "type": "positional",
+          "value": "seam-mcp",
+          "isRepeated": false
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SEAM_DB_PATH",
+          "description": "Path to the local SQLite memory database. Defaults to a per-user data directory if unset.",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "SEAM_PGVECTOR_DSN",
+          "description": "Optional Postgres/pgvector DSN for the vector adapter. If unset, SEAM runs on the built-in SQLite vector store.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

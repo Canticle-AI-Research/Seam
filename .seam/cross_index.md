@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 404
+total_events: 405
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-15T19:13:24Z | history:169:a06543fe | session-event | done | protocol, history, audit, classification, plan, verify, s... | tools/git-hooks/pre-commit,tools/git-hooks/install.sh,seam_runtime/doctor.py,... |
 | 2026-05-15T19:59:46Z | history:170:941f2b6d | session-event | done | protocol, history, plan, verify, status, ledger, roadmap,... | tools/streams/__init__.py,tools/streams/streams_lib.py,tools/streams/history_... |
 | 2026-05-15T21:15:18Z | history:171:65ae1a6a | session-event | done | protocol, history, plan, verify, status, ledger, roadmap,... | ROADMAP.md,tools/streams/build_context_pack.py,tools/streams/bloat_report.py,... |
 | 2026-05-15T21:52:49Z | history:172:0cc3f09f | session-event | done | verify, history, audit, status, protocol | tools/history/recorded_fact_audit.py,tools/history/test_count_audit.py,tools/... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-03T14:36:09Z | history:344:19f81224 | session-event | done | git-hooks, security, verify, test, docs | tools/release/verify_public_safe.py,tools/release/__init__.py,tools/git-hooks... |
 | 2026-07-03T15:15:01Z | history:345:677aea14 | session-event | done | readme, prompt, docs | README.md |
 | 2026-07-03T16:21:14Z | history:346:8e76711d | session-event | done | readme, ledger, roadmap, protocol | LICENSE,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,README.md,REPO_LEDGER.md... |
+| 2026-07-03T23:54:27Z | history:347:029e01d2 | session-event | done | mcp, pyproject, readme, registry | pyproject.toml,README.md,server.json,seam_runtime/mcp_protocol.py |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0204.cross.md | 2026-04-15T00:00:00Z..2026-05-15T16:45:45Z | 204 | (multi) | (multi) |
+| 0001-0205.cross.md | 2026-04-15T00:00:00Z..2026-05-15T19:13:24Z | 205 | (multi) | (multi) |

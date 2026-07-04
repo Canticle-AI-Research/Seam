@@ -1,5 +1,7 @@
 # SEAM
 
+<!-- mcp-name: io.github.blackhatshiftey/seam-runtime -->
+
 Give your local AI agent persistent memory in one command.
 
 SEAM is a local memory runtime for agents. It stores durable MIRL records in

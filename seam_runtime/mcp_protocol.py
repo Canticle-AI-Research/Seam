@@ -163,7 +163,7 @@ def _dispatch_mcp_method(runtime: SeamRuntime, method: str, params: object) -> d
             "serverInfo": {
                 "name": "seam",
                 "title": "SEAM Memory Runtime",
-                "version": "0.1.0",
+                "version": "1.3.0",
             },
             "instructions": (
                 "Use SEAM tools for persistent local memory, prompt-ready context, "

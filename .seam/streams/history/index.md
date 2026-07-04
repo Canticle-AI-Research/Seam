@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 346
-total_tokens: ~142162
-latest_id: 346
+total_entries: 347
+total_tokens: ~142628
+latest_id: 347
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 347 | 2026-07-03 | done | 029e01d230d0f6ef | mcp,pyproject,readme,registry | none |
 | 346 | 2026-07-03 | done | 8e76711dfa129029 | readme,ledger,roadmap,protocol | none |
 | 345 | 2026-07-03 | done | 677aea14b2e9ebbc | readme,prompt,docs | none |
 | 344 | 2026-07-03 | done | 19f81224ed6a6701 | git-hooks,security,verify,test,+ | 343 |
@@ -475,7 +476,7 @@ compact: true
 - macos: count=1 latest=#337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
-- mcp: count=15 latest=#222, #218, #213, #212, #211
+- mcp: count=16 latest=#347, #222, #218, #213, #212
 - mem0: count=7 latest=#343, #338, #336, #335, #334
 - memory: count=7 latest=#342, #340, #286, #275, #274
 - merge: count=1 latest=#301
@@ -505,13 +506,13 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=96 latest=#346, #324, #322, #310, #304
 - prov: count=1 latest=#316
-- pyproject: count=6 latest=#339, #267, #094, #051, #049
+- pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=22 latest=#346, #345, #341, #340, #339
+- readme: count=23 latest=#347, #346, #345, #341, #340
 - reasoning: count=2 latest=#327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
@@ -520,7 +521,7 @@ compact: true
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
 - regex: count=1 latest=#317
-- registry: count=1 latest=#178
+- registry: count=2 latest=#347, #178
 - repo-ledger: count=1 latest=#304
 - retrieval: count=64 latest=#338, #334, #332, #328, #325
 - retrievalflags: count=1 latest=#328
@@ -576,7 +577,7 @@ compact: true
 
 ## status rollup
 
-- roots: 68
-- done: 324
+- roots: 69
+- done: 325
 - in-progress: 2
 - planned: 20
