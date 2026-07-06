@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 350
-total_tokens: ~143885
-latest_id: 350
+total_entries: 351
+total_tokens: ~144424
+latest_id: 351
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 351 | 2026-07-06 | changed | a07a41030733a393 | protocol,git-hooks,security | none |
 | 350 | 2026-07-06 | done | 4f4608dd3c61f7bf | mcp,registry,pypi,release | none |
 | 349 | 2026-07-04 | changed | 25a779c828107878 | protocol,git-hooks,security | none |
 | 348 | 2026-07-04 | done | a3175bc27f4ba197 | registry,mcp | none |
@@ -443,7 +444,7 @@ compact: true
 - floor: count=1 latest=#308
 - generalization: count=1 latest=#297
 - git: count=1 latest=#324
-- git-hooks: count=2 latest=#349, #344
+- git-hooks: count=3 latest=#351, #349, #344
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
@@ -507,7 +508,7 @@ compact: true
 - promotion: count=1 latest=#305
 - prompt: count=2 latest=#345, #340
 - proposer: count=1 latest=#291
-- protocol: count=97 latest=#349, #346, #324, #322, #310
+- protocol: count=98 latest=#351, #349, #346, #324, #322
 - prov: count=1 latest=#316
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
@@ -540,7 +541,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=46 latest=#349, #344, #330, #309, #301
+- security: count=47 latest=#351, #349, #344, #330, #309
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -582,8 +583,8 @@ compact: true
 
 ## status rollup
 
-- roots: 72
-- changed: 1
+- roots: 73
+- changed: 2
 - done: 327
 - in-progress: 2
 - planned: 20
