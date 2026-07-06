@@ -1,6 +1,6 @@
 # SEAM
 
-<!-- mcp-name: io.github.blackhatshiftey/seam-runtime -->
+<!-- mcp-name: io.github.BlackhatShiftey/seam-runtime -->
 
 Give your local AI agent persistent memory in one command.
 

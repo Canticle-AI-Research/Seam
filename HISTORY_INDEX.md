@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 349
-total_tokens: ~143233
-latest_id: 349
+total_entries: 350
+total_tokens: ~143885
+latest_id: 350
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 350 | 2026-07-06 | done | 4f4608dd3c61f7bf | mcp,registry,pypi,release | none |
 | 349 | 2026-07-04 | changed | 25a779c828107878 | protocol,git-hooks,security | none |
 | 348 | 2026-07-04 | done | a3175bc27f4ba197 | registry,mcp | none |
 | 347 | 2026-07-03 | done | 029e01d230d0f6ef | mcp,pyproject,readme,registry | none |
@@ -478,7 +479,7 @@ compact: true
 - macos: count=1 latest=#337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
-- mcp: count=17 latest=#348, #347, #222, #218, #213
+- mcp: count=18 latest=#350, #348, #347, #222, #218
 - mem0: count=7 latest=#343, #338, #336, #335, #334
 - memory: count=7 latest=#342, #340, #286, #275, #274
 - merge: count=1 latest=#301
@@ -508,6 +509,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=97 latest=#349, #346, #324, #322, #310
 - prov: count=1 latest=#316
+- pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
 - query: count=2 latest=#319, #318
@@ -523,7 +525,8 @@ compact: true
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
 - regex: count=1 latest=#317
-- registry: count=3 latest=#348, #347, #178
+- registry: count=4 latest=#350, #348, #347, #178
+- release: count=1 latest=#350
 - repo-ledger: count=1 latest=#304
 - retrieval: count=64 latest=#338, #334, #332, #328, #325
 - retrievalflags: count=1 latest=#328
@@ -579,8 +582,8 @@ compact: true
 
 ## status rollup
 
-- roots: 71
+- roots: 72
 - changed: 1
-- done: 326
+- done: 327
 - in-progress: 2
 - planned: 20
