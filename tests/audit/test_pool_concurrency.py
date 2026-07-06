@@ -121,6 +121,7 @@ def test_write_methods_are_retry_wrapped():
 def test_transient_lock_retries_then_succeeds(tmp_path):
     """End-to-end: a 'database is locked' error is retried rather than raised."""
     from unittest.mock import patch
+
     from seam_runtime import retry as retry_mod
 
     calls = {"n": 0}

@@ -1,16 +1,14 @@
 """W1 — /tree endpoint safety: path traversal + DoS hardening."""
 
 import os
-import stat
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-from seam_runtime.server import create_app
 from seam_runtime.runtime import SeamRuntime
+from seam_runtime.server import create_app
 
 
 @pytest.fixture

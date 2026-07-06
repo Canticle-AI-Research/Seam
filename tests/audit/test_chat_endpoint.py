@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import seam_runtime.server as srv
-from seam_runtime.server import create_app_from_env, _seam_chat_system_prompt
+from seam_runtime.server import _seam_chat_system_prompt, create_app_from_env
 
 
 class TestChatEndpoint:

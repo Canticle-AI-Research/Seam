@@ -20,8 +20,8 @@ pytestmark = [
 
 
 def _make_adapter():
-    from seam_runtime.vector_adapters import PgVectorAdapter
     from seam_runtime.models import HashEmbeddingModel
+    from seam_runtime.vector_adapters import PgVectorAdapter
     # Unique table name per test run to avoid cross-CI-job collisions.
     table = f"seam_vector_index_test_{uuid.uuid4().hex[:12]}"
     dsn = os.environ["SEAM_PGVECTOR_DSN"]

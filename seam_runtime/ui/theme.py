@@ -28,7 +28,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Mapping
 
-
 # ---- Base tones (kept in sync with dashboard.py:_refresh_logo) -------------
 
 BG_DEEP = "#050b1e"        # dashboard chrome background

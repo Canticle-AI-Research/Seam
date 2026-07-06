@@ -6,12 +6,13 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
 from seam_runtime import cli as seam_cli
 from seam_runtime.benchmark_baseline_policy import (
-    resolve_baseline,
-    _is_reachable,
     _bundle_git_sha,
+    _is_reachable,
     _merge_base,
+    resolve_baseline,
 )
 
 

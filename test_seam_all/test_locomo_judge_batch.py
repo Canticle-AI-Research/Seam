@@ -6,7 +6,6 @@ judge that implements ``score_batch``.
 """
 from __future__ import annotations
 
-import io
 import json
 import types
 
@@ -20,7 +19,6 @@ from benchmarks.external.common.judge import (
     StubJudge,
 )
 from benchmarks.external.common.runner import (
-    run_benchmark,
     run_benchmark_grouped,
     run_benchmark_parallel,
 )
@@ -29,7 +27,6 @@ from benchmarks.external.common.types import (
     BenchmarkCase,
     ConversationTurn,
 )
-
 
 # ---------- in-memory test adapter + cases -------------------------------------
 
@@ -305,7 +302,6 @@ def test_judge_batch_with_cross_judge_applies_to_both() -> None:
 
 def test_judge_batch_integrity_hash_excludes_judge_fields() -> None:
     """Stable integrity hash must be the same whether judge ran sync or batch."""
-    adapter = _GeneratedAnswerAdapter()
     cases = _cases(2)
 
     sync_report = run_benchmark_grouped(
@@ -542,7 +538,6 @@ def test_openai_judge_score_batch_routes_error_file_entries_to_exceptions(monkey
 
 def test_judge_batch_flag_parses_in_cli_help() -> None:
     """--judge-batch is exposed on the LoCoMo CLI; the parser accepts it."""
-    import argparse
     import subprocess
     import sys
 

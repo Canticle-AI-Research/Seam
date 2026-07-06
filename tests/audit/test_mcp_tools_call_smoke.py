@@ -13,7 +13,6 @@ import sys
 
 import pytest
 
-
 INITIALIZE = json.dumps({
     "jsonrpc": "2.0",
     "id": 1,

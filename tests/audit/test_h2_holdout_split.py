@@ -9,7 +9,6 @@ salt/ratio change guardrail, and the manifest round-trip shape.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 

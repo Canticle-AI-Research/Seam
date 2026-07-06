@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 356
-total_tokens: ~146580
-latest_id: 356
+total_entries: 357
+total_tokens: ~147348
+latest_id: 357
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 357 | 2026-07-06 | done | 78e26de9b1e2a0b0 | lint,tooling,docs,tests | none |
 | 356 | 2026-07-06 | done | 2b504aaf4a266cde | protocol,security,release | 355 |
 | 355 | 2026-07-06 | changed | 3e6365ea71757f90 | protocol,security,release,routing | none |
 | 354 | 2026-07-06 | done | e3857106ce206d99 | docs,macos,pgvector,correction | 353 |
@@ -430,7 +431,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=44 latest=#354, #353, #352, #345, #344
+- docs: count=45 latest=#357, #354, #353, #352, #345
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -473,6 +474,7 @@ compact: true
 - judge: count=6 latest=#336, #334, #327, #321, #320
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lexical: count=1 latest=#004
+- lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
@@ -570,10 +572,10 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=3 latest=#192, #191, #182
+- tests: count=4 latest=#357, #192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
-- tooling: count=1 latest=#324
+- tooling: count=2 latest=#357, #324
 - topk: count=1 latest=#320
 - traceability: count=1 latest=#316
 - tui: count=25 latest=#137, #121, #120, #119, #118
@@ -589,8 +591,8 @@ compact: true
 
 ## status rollup
 
-- roots: 75
+- roots: 76
 - changed: 3
-- done: 331
+- done: 332
 - in-progress: 2
 - planned: 20

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-import sqlite3
 from contextlib import closing
 from dataclasses import dataclass
 from typing import Protocol
@@ -14,7 +13,6 @@ from seam_runtime.vector import INDEXABLE_KINDS, SQLiteVectorIndex
 from seam_runtime.vector_adapters import VectorAdapter
 
 from .types import LegHit, RetrievalPlan
-
 
 GRAPH_RETURN_KINDS = {RecordKind.ENT, *INDEXABLE_KINDS}
 

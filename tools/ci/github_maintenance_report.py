@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 PROTECTED_BRANCH_PREFIXES = (
     "origin/main",
     "origin/HEAD",

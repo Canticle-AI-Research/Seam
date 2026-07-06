@@ -15,7 +15,6 @@ from .mirl import IRBatch
 from .pack import pack_records
 from .retrieval import search_batch
 
-
 SURFACE_MAGIC = "SEAM-HS/1"
 SURFACE_MAGIC_BYTES = b"SEAM-HS/1\n"
 SURFACE_MODES = ("bw1", "rgb", "rgb24", "rgba32", "rgba64")

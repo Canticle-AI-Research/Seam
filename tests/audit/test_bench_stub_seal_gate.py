@@ -7,6 +7,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
 from seam_runtime.benchmark_integrity import seal_benchmark_bundle
 
 

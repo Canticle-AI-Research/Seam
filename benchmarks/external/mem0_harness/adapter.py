@@ -13,7 +13,6 @@ Usage (against a local harness clone):
 
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -54,7 +53,6 @@ class SeamMem0HarnessAdapter:
         text = _format_messages(messages)
         if not text.strip():
             return
-        from seam_runtime.runtime import SeamRuntime
 
         rt = _open_runtime(self._db_path(user_id))
         try:
@@ -70,7 +68,6 @@ class SeamMem0HarnessAdapter:
 
     def search(self, query: str, *, user_id: str, limit: int = 10) -> list[MemoryResult]:
         """Search memory for records relevant to *query* and return ranked results."""
-        from seam_runtime.runtime import SeamRuntime
 
         rt = _open_runtime(self._db_path(user_id))
         try:

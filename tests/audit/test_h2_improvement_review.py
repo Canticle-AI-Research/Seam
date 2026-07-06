@@ -369,7 +369,7 @@ def test_cli_summary_reports_counts(tmp_path, capsys):
     db = tmp_path / "h2.db"
     store = SQLiteStore(db)
     p1 = store.write_improvement_proposal(kind="ranking_weight", summary="a")
-    p2 = store.write_improvement_proposal(kind="schema_change", summary="b", holdout_violation=True)
+    store.write_improvement_proposal(kind="schema_change", summary="b", holdout_violation=True)
     store.record_proposal_decision(proposal_id=p1, status="approved")
 
     ir.main(["summary", "--db", str(db), "--json"])

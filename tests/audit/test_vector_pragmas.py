@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from seam_runtime.vector import SQLiteVectorIndex
 from seam_runtime.models import EmbeddingModel
+from seam_runtime.vector import SQLiteVectorIndex
 
 
 class StubModel(EmbeddingModel):

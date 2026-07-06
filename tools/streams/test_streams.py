@@ -10,13 +10,13 @@ from tools.streams.rebuild_cross_index import ARCHIVE_DIR, collect_all_events, r
 from tools.streams.rebuild_index import rebuild_index
 from tools.streams.roadmap_parser import (
     ROADMAP_PATH,
-    parse_roadmap_markers,
     items_to_events,
+    parse_roadmap_markers,
     render_state_md,
 )
 from tools.streams.streams_lib import (
-    STREAMS_ROOT,
     CROSS_INDEX_PATH,
+    STREAMS_ROOT,
     format_event,
     parse_events,
 )
@@ -257,12 +257,18 @@ class BuildContextPackTests(unittest.TestCase):
         self.assertLessEqual(result["tokens_used"], 200)
 
     def test_history_delegation_via_module(self) -> None:
-        import io, sys
+        import io
         from contextlib import redirect_stdout
+
         from tools.streams import build_context_pack as wrapper
         buf = io.StringIO()
         with redirect_stdout(buf):
-            wrapper.main(["--stream", "history", "--latest", "1", "--token-budget", "200"])
+            # This wrapper always reads the real repo HISTORY.md (no
+            # --repo-root/--history override exists), so the budget must
+            # stay well above the largest entry actually written, not just
+            # above whatever the largest entry was when this test was
+            # written -- entries have already reached ~1200 tokens.
+            wrapper.main(["--stream", "history", "--latest", "1", "--token-budget", "4000"])
         out = buf.getvalue()
         # Output should contain a history entry block (legacy ENTRY delim).
         self.assertIn("BEGIN-ENTRY-#", out)
@@ -271,9 +277,10 @@ class BuildContextPackTests(unittest.TestCase):
 class AppendEventLockTests(unittest.TestCase):
     def test_concurrent_append_event_no_interleaving(self) -> None:
         import shutil
-        import threading
         import tempfile
+        import threading
         from unittest.mock import patch
+
         from tools.streams.streams_lib import append_event
 
         tmp_root = Path(tempfile.mkdtemp(prefix=f"{self._testMethodName}-"))

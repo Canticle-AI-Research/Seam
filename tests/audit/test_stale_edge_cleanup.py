@@ -5,7 +5,7 @@ the old edge must be removed. CLM edges are keyed by subject, not record.id,
 so the existing delete-on-src_id=record.id alone is insufficient.
 """
 
-from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.storage import SQLiteStore
 
 
@@ -99,10 +99,10 @@ def test_clm_stale_edge_cleanup_subject_change():
 
     # prov edge (keyed by record.id=clm:1) must also be refreshed.
     assert ("clm:1", "prov", "raw:2") in edges_v2, (
-        f"Expected prov edge (clm:1, prov, raw:2) not found"
+        "Expected prov edge (clm:1, prov, raw:2) not found"
     )
     assert ("clm:1", "prov", "raw:1") not in edges_v2, (
-        f"Stale prov edge from v1 should be gone"
+        "Stale prov edge from v1 should be gone"
     )
 
 
@@ -112,7 +112,6 @@ def test_clm_stale_edge_cleanup_subject_change():
 
 def _dump_edges(store: SQLiteStore) -> set[tuple[str, str, str]]:
     """Return all (src_id, edge_type, dst_id) triples currently in ir_edges."""
-    import sqlite3
     from contextlib import closing
     with closing(store._connect()) as conn:
         rows = conn.execute(

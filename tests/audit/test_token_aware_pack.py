@@ -1,5 +1,4 @@
 """Tests for token-aware context pack budget enforcement."""
-import pytest
 
 from seam_runtime.mirl import MIRLRecord, RecordKind, Status
 from seam_runtime.pack import pack_records

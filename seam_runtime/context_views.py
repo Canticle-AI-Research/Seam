@@ -4,7 +4,6 @@ import json
 from collections import Counter
 from typing import Any
 
-
 CONTEXT_VIEWS = ("pack", "prompt", "evidence", "summary", "records")
 
 

@@ -1,10 +1,16 @@
 from __future__ import annotations
 
-from seam_runtime.mirl import IRBatch
 from seam_runtime.pack import pack_records
 from seam_runtime.runtime import SeamRuntime
 
-from .adapters import ChromaSemanticAdapter, SQLAdapter, SQLiteGraphAdapter, SQLiteIRAdapter, SeamVectorSearchAdapter, SemanticAdapter
+from .adapters import (
+    ChromaSemanticAdapter,
+    SeamVectorSearchAdapter,
+    SemanticAdapter,
+    SQLAdapter,
+    SQLiteGraphAdapter,
+    SQLiteIRAdapter,
+)
 from .merger import merge_hits
 from .planner import build_plan
 from .types import RAGResult, RetrievalPlan, RetrievalSearchResult

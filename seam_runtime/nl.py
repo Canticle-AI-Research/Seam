@@ -7,7 +7,6 @@ from collections import Counter
 
 from .mirl import IRBatch, MIRLRecord, RecordKind, Status
 
-
 STOPWORDS = {"a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "into", "is", "it", "of", "on", "or", "that", "the", "this", "to", "we", "with", "without"}
 
 # --- Unified deterministic compiler (SEAM spec §3.2 + §8) ---------------------

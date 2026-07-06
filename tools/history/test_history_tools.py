@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from tools.history import history_lib
 from tools.history import new_entry as new_entry_module
+from tools.history.build_context_pack import build_context_pack
 from tools.history.history_lib import (
     compute_entry_hash,
     estimate_tokens,
@@ -17,15 +18,14 @@ from tools.history.history_lib import (
     parse_entries,
     resolve_supersedes_chain,
 )
-from tools.history.rebuild_index import build_index_text, rebuild
-from tools.history.verify_integrity import parse_index_hashes, verify
-from tools.history.write_snapshot import write_snapshot
 from tools.history.load_snapshot import find_latest, load_and_verify
-from tools.history.build_context_pack import build_context_pack
-from tools.history.verify_continuity import verify_continuity
-from tools.history.verify_routing import verify_routing
+from tools.history.rebuild_index import rebuild
 from tools.history.recorded_fact_audit import audit_recorded_facts
 from tools.history.test_count_audit import audit_test_count_claims
+from tools.history.verify_continuity import verify_continuity
+from tools.history.verify_integrity import verify
+from tools.history.verify_routing import verify_routing
+from tools.history.write_snapshot import write_snapshot
 
 
 class TempRepoBase(unittest.TestCase):
@@ -47,10 +47,10 @@ class TempRepoBase(unittest.TestCase):
     def patch_paths(self):
         # Patch module constants for both history_lib AND the tools that
         # from-imported those constants at import time.
-        from tools.history import write_snapshot as ws
         from tools.history import load_snapshot as ls
         from tools.history import rebuild_index as ri
         from tools.history import verify_continuity as vc
+        from tools.history import write_snapshot as ws
         return _MultiPatch(
             [
                 (history_lib, "HISTORY_PATH", self.history),

@@ -1,9 +1,9 @@
 """CI1 — Assert .github/workflows/ci.yml contains the four SEAM verify_* steps
 in the correct position (after Run tests, before Run benchmark suite)."""
 
-import yaml
 from pathlib import Path
 
+import yaml
 
 CI_YML = Path(__file__).resolve().parent.parent.parent / ".github" / "workflows" / "ci.yml"
 

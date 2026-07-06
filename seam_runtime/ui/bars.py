@@ -36,7 +36,6 @@ from typing import Literal
 
 from . import theme
 
-
 # ---- Types -----------------------------------------------------------------
 
 BarKind = Literal["solid", "segmented", "indeterminate", "stalled", "error"]

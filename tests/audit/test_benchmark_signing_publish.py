@@ -12,8 +12,6 @@ from __future__ import annotations
 
 import copy
 
-import pytest
-
 from seam_runtime.benchmark_integrity import (
     result_hash,
     seal_benchmark_bundle,

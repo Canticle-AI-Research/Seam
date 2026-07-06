@@ -6,8 +6,8 @@ from unittest import mock
 import pytest
 from fastapi.testclient import TestClient
 
-from seam_runtime.server import create_app
 from seam_runtime.runtime import SeamRuntime
+from seam_runtime.server import create_app
 
 
 @pytest.fixture
@@ -153,7 +153,6 @@ def test_sys_metrics_cpu_unavailable_on_permission_error(metrics_client):
 
 def test_sys_metrics_disk_targets_data_dir(metrics_client, tmp_path):
     """Disk reports live for an existing data dir; unavailable for missing dir."""
-    import seam_runtime.server as server_mod
 
     # Patch _tree_root to not interfere — use a sentinel that won't conflict.
     # The disk metric reads runtime.store.path, which is ":memory:" for our test runtime.

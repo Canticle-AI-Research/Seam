@@ -7,7 +7,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-
 PATH_MARKER_BEGIN = "# >>> SEAM installer >>>"
 PATH_MARKER_END = "# <<< SEAM installer <<<"
 

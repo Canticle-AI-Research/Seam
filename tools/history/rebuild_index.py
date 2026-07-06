@@ -8,9 +8,14 @@ import sys
 from pathlib import Path
 
 from tools.history.history_lib import (
+    # Not read as bare names here (call sites use the live
+    # history_lib.HISTORY_PATH/history_lib.INDEX_PATH so test monkeypatching
+    # of history_lib takes effect) -- re-exported only so
+    # test_history_tools.py's _MultiPatch can also patch this module's own
+    # attribute of the same name.
+    HISTORY_PATH,  # noqa: F401
+    INDEX_PATH,  # noqa: F401
     Entry,
-    HISTORY_PATH,
-    INDEX_PATH,
     parse_entries,
     read_history_bytes,
     resolve_supersedes_chain,

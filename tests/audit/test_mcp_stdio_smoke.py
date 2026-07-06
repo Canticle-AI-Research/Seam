@@ -9,8 +9,8 @@ import json
 import select
 import subprocess
 import sys
-import pytest
 
+import pytest
 
 INITIALIZE = json.dumps({
     "jsonrpc": "2.0",

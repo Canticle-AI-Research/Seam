@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import pytest
+
 from seam_runtime.vector_adapters import PgVectorAdapter, _validate_table_name
 
 

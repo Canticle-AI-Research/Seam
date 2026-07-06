@@ -1,10 +1,10 @@
+import asyncio
 import json
 import os
 import subprocess
 import sys
 import tempfile
 import time
-import asyncio
 import unittest
 from contextlib import redirect_stdout
 from importlib.util import find_spec
@@ -13,19 +13,26 @@ from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
-from seam_runtime.retrieval_orchestrator import ChromaSemanticAdapter, QueryIntent, RetrievalOrchestrator
-from seam_runtime.retrieval_orchestrator.adapters import SQLiteIRAdapter
-from seam_runtime.retrieval_orchestrator.planner import build_plan
 from seam import SeamRuntime, compile_dsl, compile_nl, decompile_ir, load_ir_lines, pack_ir, render_ir, unpack_pack
 from seam_runtime import benchmarks as benchmark_module
-from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
-from seam_runtime.reconcile import reconcile_ir
 from seam_runtime import installer as installer_module
 from seam_runtime.cli import run_cli
-from seam_runtime.dashboard import DEFAULT_CHAT_MODELS, SeamChatClient, TextualDashboardApp, _write_private_text_file, run_dashboard
+from seam_runtime.dashboard import (
+    DEFAULT_CHAT_MODELS,
+    SeamChatClient,
+    TextualDashboardApp,
+    _write_private_text_file,
+    run_dashboard,
+)
+from seam_runtime.holographic import (
+    decode_surface,
+    encode_surface,
+    query_surface,
+    verify_surface,
+)
 from seam_runtime.installer import (
-    InstallLayout,
     PATH_MARKER_BEGIN,
+    InstallLayout,
     _ensure_posix_shell_profiles,
     _powershell_single_quoted,
     default_runtime_db_path,
@@ -44,12 +51,8 @@ from seam_runtime.lossless import (
     decompress_text_readable,
     query_readable_compressed,
 )
-from seam_runtime.holographic import (
-    decode_surface,
-    encode_surface,
-    query_surface,
-    verify_surface,
-)
+from seam_runtime.mcp import dispatch_tool
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.models import (
     HashEmbeddingModel,
     OpenAICompatibleEmbeddingModel,
@@ -57,8 +60,11 @@ from seam_runtime.models import (
     cosine,
     default_embedding_model,
 )
-from seam_runtime.mcp import dispatch_tool
 from seam_runtime.pack import score_pack, unpack_exact_pack
+from seam_runtime.reconcile import reconcile_ir
+from seam_runtime.retrieval_orchestrator import ChromaSemanticAdapter, QueryIntent, RetrievalOrchestrator
+from seam_runtime.retrieval_orchestrator.adapters import SQLiteIRAdapter
+from seam_runtime.retrieval_orchestrator.planner import build_plan
 from seam_runtime.symbols import build_symbol_maps, namespace_chain
 from seam_runtime.ui.animations import AnimationEngine
 from seam_runtime.vector import INDEXABLE_KINDS
@@ -958,7 +964,7 @@ print("ok")
         extra_meta = keys_meta - keys_desc
         if extra_desc or extra_meta:
             self.fail(
-                f"TOOL_DESCRIPTIONS/TOOL_METADATA keys mismatch: "
+                "TOOL_DESCRIPTIONS/TOOL_METADATA keys mismatch: "
                 + (f"desc-only={sorted(extra_desc)}. " if extra_desc else "")
                 + (f"meta-only={sorted(extra_meta)}." if extra_meta else "")
             )
@@ -1193,8 +1199,8 @@ claim c1:
         self.assertEqual(model.dimensions, 256)
 
     def test_sentence_transformer_lock_prevents_double_load_h7(self) -> None:
-        import threading
         import sys
+        import threading
         from unittest.mock import MagicMock
 
         fake_dims = 128
@@ -3967,7 +3973,7 @@ class LX1NotationTests(unittest.TestCase):
     """LX/1 compact AI-readable notation — encode/decode and token savings."""
 
     def _make_ent(self) -> "MIRLRecord":
-        from seam_runtime.mirl import MIRLRecord, RecordKind, Status
+        from seam_runtime.mirl import MIRLRecord, RecordKind
         return MIRLRecord(
             id="ent:user:local",
             kind=RecordKind.ENT,
@@ -3977,7 +3983,7 @@ class LX1NotationTests(unittest.TestCase):
         )
 
     def _make_clm(self) -> "MIRLRecord":
-        from seam_runtime.mirl import MIRLRecord, RecordKind, Status
+        from seam_runtime.mirl import MIRLRecord, RecordKind
         return MIRLRecord(
             id="clm:1",
             kind=RecordKind.CLM,
@@ -4004,7 +4010,7 @@ class LX1NotationTests(unittest.TestCase):
         )
 
     def _make_raw(self) -> "MIRLRecord":
-        from seam_runtime.mirl import MIRLRecord, RecordKind, Status
+        from seam_runtime.mirl import MIRLRecord, RecordKind
         return MIRLRecord(
             id="raw:1",
             kind=RecordKind.RAW,
@@ -4072,7 +4078,6 @@ class LX1NotationTests(unittest.TestCase):
 
     def test_roundtrip_observed_status(self) -> None:
         from seam_runtime.lx1 import decode_record, encode_record
-        from seam_runtime.mirl import Status
         original = self._make_raw()
         line = encode_record(original)
         self.assertIn("~s=o", line)
@@ -4228,7 +4233,7 @@ class LX1NotationTests(unittest.TestCase):
 
     def test_lx1_mirl_conf_type_preservation(self) -> None:
         from seam_runtime.lx1 import decode_record, encode_record
-        from seam_runtime.mirl import MIRLRecord, RecordKind, Status
+        from seam_runtime.mirl import MIRLRecord, RecordKind
         record = MIRLRecord(
             id="clm:conf-test",
             kind=RecordKind.CLM,

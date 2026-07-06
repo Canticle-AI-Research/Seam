@@ -15,6 +15,12 @@ from uuid import uuid4
 from .context_views import build_context_payload, render_context_pretty
 from .dsl import compile_dsl
 from .evals import default_retrieval_fixtures, run_retrieval_benchmark
+from .holographic import (
+    decode_surface,
+    encode_surface,
+    query_surface,
+    verify_surface,
+)
 from .lossless import (
     _structural_quote_spans,
     benchmark_text_lossless,
@@ -23,12 +29,6 @@ from .lossless import (
     decompress_text_readable,
     parse_readable_machine_text,
     query_readable_compressed,
-)
-from .holographic import (
-    encode_surface,
-    decode_surface,
-    query_surface,
-    verify_surface,
 )
 from .models import HashEmbeddingModel, cosine
 from .storage import SQLiteStore

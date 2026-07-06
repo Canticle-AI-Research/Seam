@@ -21,7 +21,6 @@ from tools.history.recorded_fact_audit import audit_recorded_facts
 from tools.history.verify_integrity import verify as verify_integrity
 from tools.history.verify_routing import verify_routing
 
-
 SESSION_OR_SECRET_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "provider_session_url",

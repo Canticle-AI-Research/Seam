@@ -1,5 +1,4 @@
 """Tests for rate limiter key: plaintext token must not be used as dict key."""
-import hashlib
 from seam_runtime.server import _client_key
 
 

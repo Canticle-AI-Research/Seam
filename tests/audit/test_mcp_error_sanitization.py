@@ -11,7 +11,6 @@ import sys
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Test 1: malformed JSON via subprocess -- error must not leak raw input
 # ---------------------------------------------------------------------------

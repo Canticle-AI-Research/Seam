@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from .skill_ir import SkillIR, SkillIRError, canonical_bytes, sha256_of_bytes
 from .factory import (
     AgentIdentity,
     SkillFactoryError,
@@ -11,6 +10,7 @@ from .factory import (
     identify_agent,
     propose_skill_from_observation,
 )
+from .skill_ir import SkillIR, SkillIRError, canonical_bytes, sha256_of_bytes
 
 __all__ = [
     "SkillIR",

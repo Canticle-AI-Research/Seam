@@ -1,15 +1,12 @@
 """Tests for graceful shutdown: signal handling, request draining, resource cleanup."""
-import os
-import signal
 import threading
 import time
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 from fastapi.testclient import TestClient
 
 from seam_runtime.server import (
-    ShutdownMiddleware,
     ShutdownState,
     _cleanup_runtime,
     _shutdown_timeout_from_env,

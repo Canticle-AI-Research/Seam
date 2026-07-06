@@ -44,8 +44,11 @@ def aggregate_judge_scores(verdicts: list) -> dict:
     seen = [v for v in verdicts if v is not None]
     if not seen:
         return {"judge_score_mean": None, "judge_count": 0}
-    _score = lambda v: v.score if hasattr(v, "score") else v["score"]
-    _verdict = lambda v: v.verdict if hasattr(v, "verdict") else v["verdict"]
+    def _score(v):
+        return v.score if hasattr(v, "score") else v["score"]
+
+    def _verdict(v):
+        return v.verdict if hasattr(v, "verdict") else v["verdict"]
     result = {
         "judge_score_mean": sum(_score(v) for v in seen) / len(seen),
         "judge_count": len(seen),

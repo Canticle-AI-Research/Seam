@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import time
-
-from benchmarks.external.common.scoring import context_recall
 from benchmarks.external.common.types import ConversationTurn
 from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 

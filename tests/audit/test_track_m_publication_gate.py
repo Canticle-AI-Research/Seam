@@ -1,5 +1,4 @@
 """Tests for Track M publication gate — stub-judge refusal and required metadata."""
-import pytest
 
 
 def _make_stub_result():

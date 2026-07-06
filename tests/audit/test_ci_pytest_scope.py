@@ -1,9 +1,9 @@
 """CI2 — Assert the CI "Run tests" step includes tools/streams/ and tests/
 alongside the existing test_seam_all/ and tools/history/test_history_tools.py."""
 
-import yaml
 from pathlib import Path
 
+import yaml
 
 CI_YML = Path(__file__).resolve().parent.parent.parent / ".github" / "workflows" / "ci.yml"
 

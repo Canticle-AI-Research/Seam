@@ -8,7 +8,7 @@ from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
 
-from .mirl import IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, SYMBOL_FOR_KIND, TraceGraph, utc_now
+from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
 from .pool import ConnectionPool
 from .retry import retry_db_operation
 

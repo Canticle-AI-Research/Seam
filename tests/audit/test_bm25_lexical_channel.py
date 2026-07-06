@@ -56,5 +56,5 @@ def test_bm25_empty_doc_text():
     idx.add("doc_a", "!!!")
     idx.add("doc_b", "hello world")
     scores = idx.score("hello")
-    assert "doc_a" not in scores, f"Empty-token doc should not appear in scores"
-    assert "doc_b" in scores, f"Doc with matching text should appear in scores"
+    assert "doc_a" not in scores, "Empty-token doc should not appear in scores"
+    assert "doc_b" in scores, "Doc with matching text should appear in scores"

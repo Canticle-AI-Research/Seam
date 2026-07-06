@@ -1,6 +1,8 @@
 """Run the projection comparison with a real sentence-transformer model (all-MiniLM-L6-v2)."""
 
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from seam_runtime.evals import run_retrieval_benchmark

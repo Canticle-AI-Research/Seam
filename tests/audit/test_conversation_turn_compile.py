@@ -15,7 +15,7 @@ import re
 
 import pytest
 
-from seam_runtime.mirl import RecordKind, Status
+from seam_runtime.mirl import RecordKind
 from seam_runtime.nl import compile_nl
 
 
@@ -32,8 +32,8 @@ def test_creates_raw_span_prov_records():
         by_kind.setdefault(record.kind, []).append(record)
 
     assert RecordKind.RAW in by_kind, f"Expected RAW record, got kinds: {list(by_kind.keys())}"
-    assert RecordKind.SPAN in by_kind, f"Expected SPAN record"
-    assert RecordKind.PROV in by_kind, f"Expected PROV record"
+    assert RecordKind.SPAN in by_kind, "Expected SPAN record"
+    assert RecordKind.PROV in by_kind, "Expected PROV record"
 
     raw = by_kind[RecordKind.RAW][0]
     assert raw.attrs.get("content") == "Caroline: I went to the LGBTQ support group on 7 May 2023."

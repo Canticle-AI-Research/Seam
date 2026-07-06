@@ -49,7 +49,6 @@ from typing import Iterable
 from benchmarks.external.common.dataset import load_locomo_cases, load_quickstart_cases
 from benchmarks.external.common.types import BenchmarkCase
 
-
 DEV = "dev"
 HOLDOUT = "holdout"
 _VALID_SPLITS = (DEV, HOLDOUT)

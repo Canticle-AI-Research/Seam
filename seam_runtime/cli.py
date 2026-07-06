@@ -3,20 +3,21 @@
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
-from importlib.util import find_spec
 from pathlib import Path
 
+from .agent_memory import render_memory_index, render_memory_records
 from .benchmark_baseline_policy import resolve_baseline
 from .benchmark_integrity import (
     inspect_benchmark_integrity,
     load_json_payload,
     seal_benchmark_bundle,
     validate_publication_readiness,
-    verify_benchmark_bundle as verify_integrity_bundle,
     write_json_payload,
+)
+from .benchmark_integrity import (
+    verify_benchmark_bundle as verify_integrity_bundle,
 )
 from .benchmarks import (
     BENCHMARK_SUITES,
@@ -29,19 +30,11 @@ from .benchmarks import (
 from .context_views import CONTEXT_VIEWS, build_context_payload, render_context_pretty
 from .dashboard import run_dashboard
 from .doctor import build_doctor_report, check_pgvector
-from .installer import default_runtime_db_path
-from .lossless import (
-    LOSSLESS_CODECS,
-    LOSSLESS_TRANSFORMS,
-    READABLE_GRANULARITIES,
-    TOKENIZER_CHOICES,
-    benchmark_text_lossless,
-    compress_text_readable,
-    compress_text_lossless,
-    decompress_text_readable,
-    decompress_text_lossless,
-    query_readable_compressed,
-    render_lossless_benchmark_pretty,
+from .external_memory_benchmarks import (
+    benchmark_plan,
+    render_external_memory_plan_pretty,
+    render_external_memory_report_pretty,
+    run_external_memory_benchmarks,
 )
 from .holographic import (
     SURFACE_MODES,
@@ -53,14 +46,23 @@ from .holographic import (
     query_surface,
     verify_surface,
 )
-from .lx1 import decode as lx1_decode, encode as lx1_encode, token_savings_report
-from .agent_memory import render_memory_index, render_memory_records
-from .external_memory_benchmarks import (
-    benchmark_plan,
-    render_external_memory_plan_pretty,
-    render_external_memory_report_pretty,
-    run_external_memory_benchmarks,
+from .installer import default_runtime_db_path
+from .lossless import (
+    LOSSLESS_CODECS,
+    LOSSLESS_TRANSFORMS,
+    READABLE_GRANULARITIES,
+    TOKENIZER_CHOICES,
+    benchmark_text_lossless,
+    compress_text_lossless,
+    compress_text_readable,
+    decompress_text_lossless,
+    decompress_text_readable,
+    query_readable_compressed,
+    render_lossless_benchmark_pretty,
 )
+from .lx1 import decode as lx1_decode
+from .lx1 import encode as lx1_encode
+from .lx1 import token_savings_report
 from .mirl import IRBatch
 from .runtime import SeamRuntime
 from .surface_adapters import SurfaceFileAdapter

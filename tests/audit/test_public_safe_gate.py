@@ -14,7 +14,6 @@ import pytest
 
 from tools.release.verify_public_safe import ZERO_SHA, scan_blob, scan_push
 
-
 # --- pure per-blob rules -----------------------------------------------------
 
 @pytest.mark.parametrize(

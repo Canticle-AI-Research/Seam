@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import pytest
+
 from seam_runtime.agent_memory import (
     IngestReport,
     compact_memory_index,

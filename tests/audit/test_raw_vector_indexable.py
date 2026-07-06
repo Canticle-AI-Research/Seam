@@ -1,6 +1,6 @@
 """Tests for RAW records being indexable in the vector index."""
 
-from seam_runtime.mirl import MIRLRecord, RecordKind, Status
+from seam_runtime.mirl import MIRLRecord, RecordKind
 from seam_runtime.vector import INDEXABLE_KINDS, SQLiteVectorIndex
 
 

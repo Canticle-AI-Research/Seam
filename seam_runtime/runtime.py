@@ -5,11 +5,29 @@ import logging
 import os
 from pathlib import Path
 
-from .agent_memory import IngestReport, compact_memory_index, full_memory_records, namespace_ingest_batch, neighbor_timeline, source_hash, stable_document_id
+from .agent_memory import (
+    IngestReport,
+    compact_memory_index,
+    full_memory_records,
+    namespace_ingest_batch,
+    neighbor_timeline,
+    source_hash,
+    stable_document_id,
+)
 from .benchmarks import diff_benchmark_runs, evaluate_benchmark_gate, run_benchmark_suite, verify_benchmark_bundle
 from .dsl import compile_dsl
 from .evals import run_retrieval_benchmark
-from .mirl import Artifact, IRBatch, Pack, PersistReport, ReconcileReport, RecordKind, SearchResult, TraceGraph, VerifyReport
+from .mirl import (
+    Artifact,
+    IRBatch,
+    Pack,
+    PersistReport,
+    ReconcileReport,
+    RecordKind,
+    SearchResult,
+    TraceGraph,
+    VerifyReport,
+)
 from .models import EmbeddingModel, default_embedding_model
 from .nl import compile_nl
 from .pack import pack_record, pack_records
@@ -20,7 +38,6 @@ from .symbols import export_symbol_markdown, propose_symbols
 from .transpile import transpile_python
 from .vector_adapters import PgVectorAdapter, SQLiteVectorAdapter, VectorAdapter
 from .verify import verify_ir
-
 
 LOGGER = logging.getLogger(__name__)
 

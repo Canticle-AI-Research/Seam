@@ -1,9 +1,7 @@
 """W4 — record_kinds symbol-keyed stats contract."""
 
-import pytest
 
 from seam_runtime.mirl import SYMBOL_FOR_KIND, RecordKind
-
 
 CANONICAL_TABLE = {
     RecordKind.ENT: "@",

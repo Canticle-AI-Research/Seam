@@ -32,8 +32,8 @@ def test_max_degree_sums_both_endpoints():
 
 def test_storage_stats_reports_correct_max_degree(tmp_path):
     """End-to-end: store.stats() returns the corrected max_degree field."""
-    from seam_runtime.runtime import SeamRuntime
     from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
+    from seam_runtime.runtime import SeamRuntime
 
     db_path = str(tmp_path / "stats_max_degree.db")
     rt = SeamRuntime(db_path)

@@ -4,9 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
-
 QUICKSTART_PATH = Path(__file__).resolve().parent.parent.parent / "benchmarks" / "external" / "locomo" / "fixtures" / "quickstart.json"
 
 

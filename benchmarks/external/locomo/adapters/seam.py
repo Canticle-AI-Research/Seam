@@ -165,7 +165,6 @@ class SeamLocomoAdapter:
     def ingest_turn(self, scope_id: str, turn: ConversationTurn) -> None:
         """Compile a conversation turn to MIRL and persist it in the
         scope's database. Skipped when the scope is already cached on disk."""
-        from seam_runtime.runtime import SeamRuntime  # lazy
         from seam_runtime.temporal import parse_iso
 
         # anchor always updates so relative-date questions work on cached scopes
@@ -204,7 +203,6 @@ class SeamLocomoAdapter:
         natural-language evidence into symbolic records, so this adapter follows
         evidence/provenance and SPAN-to-RAW links before returning source text.
         """
-        from seam_runtime.runtime import SeamRuntime  # lazy
 
         rt = self._runtime(scope_id)
 
@@ -516,9 +514,8 @@ class SeamLocomoAdapter:
     def _rerank_candidates(self, query: str, result):
         """Re-rank the top-K candidates with a cross-encoder and return a new
         SearchResult with re-scored, re-sorted candidates."""
-        from seam_runtime.mirl import iter_textual_fields
-
         from benchmarks.external.locomo.rerank import cross_encoder_rerank
+        from seam_runtime.mirl import iter_textual_fields
 
         top_k = result.candidates[: self._rerank_top_k]
         rest = result.candidates[self._rerank_top_k :]

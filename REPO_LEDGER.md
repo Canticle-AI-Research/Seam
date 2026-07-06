@@ -204,6 +204,12 @@ and `HISTORY_INDEX.md`.
 - Generated build copies live in ignored paths (`build/` or `archive/code/generated-build*/`) and should not guide implementation decisions.
 - The current code map is `docs/CODE_LAYOUT.md`.
 
+## Lint Policy
+
+- `ruff` is the one general-purpose Python linter (install via `seam[lint]`); config lives in `pyproject.toml`'s `[tool.ruff]`/`[tool.ruff.lint]`. Rule set is deliberately narrow (`E4`, `E7`, `E9`, `F`, `I`) — no `E501`/pure-style rules, no mypy/type-check gate yet.
+- `extend-exclude` skips `archive/` and `build/` (retired/generated code, never a gate). `per-file-ignores` carries structural `E402` exemptions for `seam_runtime/dashboard.py` (optional rich/textual import guards) and `installers/install_seam.py` (sys.path-before-import) — both intentional, not accidents.
+- **`ruff check --fix`'s F401 (unused-import) removal is not always safe**: it only sees usage within the same file, so it can silently delete (a) public re-export facades like `seam.py`'s `from seam_runtime.runtime import SeamRuntime` (kept alive only for downstream `from seam import X`, nothing inside the file calls it), and (b) test-monkeypatch attribute targets — `tools/history/test_history_tools.py`'s `_MultiPatch` patches module attributes by string name via `getattr`/`setattr`, not `from module import name`, so a plain grep won't find the usage either. Before trusting any F401 removal (auto or manual), grep for `from <module> import.*NAME` / `<module>.NAME` AND for `getattr(`/`setattr(`/`monkeypatch.setattr(` references to that name across `tests/`, `test_seam_all/`, `tools/`. If either finds a hit, keep the import with `# noqa: F401` and a one-line comment stating which case it is.
+
 ## Runtime Service Safety Policy
 
 - External services for real-adapter tests (for example Docker pgvector) must be started only for the active test window.

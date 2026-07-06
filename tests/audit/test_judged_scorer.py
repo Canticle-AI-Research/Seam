@@ -17,13 +17,13 @@ import pytest
 from benchmarks.external.common.dataset import QUICKSTART_FIXTURE_PATH, load_locomo_cases
 from benchmarks.external.common.judge import JudgeVerdict
 from benchmarks.external.common.types import BenchmarkCase, ConversationTurn
+from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from benchmarks.external.locomo.judged_scorer import (
-    JudgedLocomoScorer,
     VALIDATION_PASSES,
+    JudgedLocomoScorer,
     build_locomo_holdout_scorer,
     estimate_locomo_paid_validation,
 )
-from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from seam_runtime.cli import run_cli
 from seam_runtime.retrieval import RetrievalFlags
 from seam_runtime.self_improve import ScoreReport

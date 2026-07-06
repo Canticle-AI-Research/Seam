@@ -19,7 +19,6 @@ from seam_runtime.nl_extract import (
     ground_extraction,
 )
 
-
 # --- the grounding gate: only verbatim spans survive --------------------------
 
 def test_ground_extraction_keeps_grounded_drops_hallucinated():

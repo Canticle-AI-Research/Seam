@@ -8,7 +8,11 @@ import sys
 from pathlib import Path
 
 from tools.history.history_lib import (
-    SNAPSHOTS_DIR,
+    # Not read as a bare name here (find_latest() reads the live
+    # history_lib.SNAPSHOTS_DIR so test monkeypatching of history_lib takes
+    # effect) -- re-exported only so test_history_tools.py's _MultiPatch can
+    # also patch this module's own attribute of the same name.
+    SNAPSHOTS_DIR,  # noqa: F401
     parse_entries,
     read_history_bytes,
 )

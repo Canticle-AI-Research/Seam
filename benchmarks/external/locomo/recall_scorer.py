@@ -23,7 +23,7 @@ enlarging the context.
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Sequence
 
 from benchmarks.external.common.dataset import load_locomo_cases

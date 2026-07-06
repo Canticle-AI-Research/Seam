@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 import tomllib
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 GITHUB_DIRECT_URL = "seam-runtime @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"

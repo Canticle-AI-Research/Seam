@@ -3,12 +3,11 @@ from __future__ import annotations
 import os
 import shutil
 import tempfile
-import time
 import threading
+import time
 
 from benchmarks.external.common.provider_retry import provider_retry
 from benchmarks.external.common.types import AdapterAnswer, ConversationTurn
-
 
 _INGEST_PACE_LOCK = threading.Lock()
 _LAST_INGEST_AT = 0.0

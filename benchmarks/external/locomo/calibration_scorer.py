@@ -31,14 +31,12 @@ from __future__ import annotations
 import re
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass, field
-from typing import Sequence
 
 from benchmarks.external.common.dataset import load_locomo_cases
 from benchmarks.external.common.scoring import token_f1
 from benchmarks.external.common.types import BenchmarkCase
 from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from benchmarks.external.locomo.recall_scorer import _group_by_scope, _select_split
-from seam_runtime.retrieval import load_retrieval_flags
 from seam_runtime.self_improve import ScoreReport
 from tools.h2.holdout_split import DEFAULT_RATIO, DEFAULT_SALT, DEV
 

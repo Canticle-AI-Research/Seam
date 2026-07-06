@@ -9,12 +9,11 @@ from __future__ import annotations
 
 import subprocess
 from pathlib import Path
-from unittest import mock
 
 import pytest
 
 from tools.release import sync_public_mirror as sync_mod
-from tools.release.sync_public_mirror import build_public_tree, _ls_tree, _rev_parse
+from tools.release.sync_public_mirror import _ls_tree, build_public_tree
 
 
 def _git(repo: Path, *args: str) -> str:

@@ -13,17 +13,14 @@ from __future__ import annotations
 
 import hashlib
 import os
-from pathlib import Path
 
+from tools.streams.history_adapter import sync_history_mirror
 from tools.streams.streams_lib import (
-    STREAMS_ROOT,
     index_path,
     list_stream_kinds,
-    log_path,
     parse_events,
     read_log,
 )
-from tools.streams.history_adapter import sync_history_mirror
 
 
 def rebuild_index(kind: str) -> dict[str, object]:

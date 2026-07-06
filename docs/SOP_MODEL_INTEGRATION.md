@@ -30,8 +30,8 @@ The runtime flow is:
 
 The model integration layer lives in:
 
-- [seam_runtime/models.py](C:/Users/iwana/OneDrive/Documents/Codex/seam_runtime/models.py:1)
-- [seam_runtime/vector.py](C:/Users/iwana/OneDrive/Documents/Codex/seam_runtime/vector.py:1)
+- [seam_runtime/models.py](../seam_runtime/models.py)
+- [seam_runtime/vector.py](../seam_runtime/vector.py)
 
 SEAM currently supports:
 
@@ -192,7 +192,7 @@ Recommended future adapter order:
 
 SEAM now has a `PgVectorAdapter` scaffold in:
 
-- [seam_runtime/vector_adapters.py](C:/Users/iwana/OneDrive/Documents/Codex/seam_runtime/vector_adapters.py:1)
+- [seam_runtime/vector_adapters.py](../seam_runtime/vector_adapters.py)
 
 Runtime example:
 

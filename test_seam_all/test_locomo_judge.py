@@ -23,7 +23,6 @@ from benchmarks.external.common.types import (
     AdapterAnswer,
     BenchmarkCase,
     ConversationTurn,
-    MemorySystemAdapter,
 )
 
 

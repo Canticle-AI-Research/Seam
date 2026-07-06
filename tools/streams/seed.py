@@ -7,8 +7,6 @@ re-run after pulling roadmap or history changes.
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 from tools.streams.history_adapter import sync_history_mirror
 from tools.streams.rebuild_cross_index import rebuild_cross_index
 from tools.streams.rebuild_index import rebuild_index

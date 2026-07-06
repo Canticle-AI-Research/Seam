@@ -3,9 +3,7 @@
 These tests verify the adapter shape and behaviour against a tiny in-repo
 fixture. No network, upstream harness clone, or API keys required.
 """
-import json
 import tempfile
-from pathlib import Path
 
 import pytest
 

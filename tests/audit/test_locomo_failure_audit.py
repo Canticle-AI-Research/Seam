@@ -5,15 +5,12 @@ import os
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from benchmarks.external.locomo.audit import (
     _classify,
     _context_format_kind,
     run_audit,
     write_markdown,
 )
-
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -421,6 +418,7 @@ def test_context_format_bracket_not_json():
 def test_no_api_client_imports():
     """audit module must not import openai/anthropic clients or their SDKs."""
     import ast
+
     from benchmarks.external.locomo import audit as audit_mod
 
     src = Path(audit_mod.__file__).read_text()

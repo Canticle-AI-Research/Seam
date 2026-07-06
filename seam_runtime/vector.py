@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-import json
-import sqlite3
 import hashlib
 import heapq
+import json
+import sqlite3
 from contextlib import closing
 from typing import Iterable
 
 from .mirl import MIRLRecord, RecordKind, iter_textual_fields
 from .models import EmbeddingModel, cosine
-
 
 INDEXABLE_KINDS = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL, RecordKind.RAW}
 

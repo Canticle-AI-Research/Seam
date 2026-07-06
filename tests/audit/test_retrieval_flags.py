@@ -84,7 +84,7 @@ def test_context_budget_default_none_no_regression():
 
 
 def test_retrieval_profile_resolver():
-    from seam_runtime.retrieval import resolve_retrieval_profile, RETRIEVAL_PROFILES
+    from seam_runtime.retrieval import RETRIEVAL_PROFILES, resolve_retrieval_profile
     assert resolve_retrieval_profile("compact") == (100, 8000)
     assert resolve_retrieval_profile("broad") == (300, 60000)
     assert resolve_retrieval_profile("BROAD") == (300, 60000)  # case-insensitive
