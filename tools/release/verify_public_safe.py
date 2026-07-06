@@ -1,17 +1,22 @@
-"""Deny-list gate for pushes that carry private-repo content to a public remote.
+"""Deny-list + allow-list gate for pushes that carry content to the public remote.
 
 `Seam` (private) mirrors curated state to the `Seam_Runtime` public repo via a
-`seam-runtime` git remote (see REPO_LEDGER.md). Today nothing filters what
-goes public except a human noticing something in the diff before pushing --
-the same failure mode that let a `seam.db` snapshot leak into the Cantlicle
-repo's history. This module is the deterministic replacement: it inspects
-every object newly reachable by a push (not just the tip tree, so content
-introduced and later removed within the same push is still caught) and
-blocks on path or content patterns that must never leave the private repo.
+`seam-runtime` git remote (see REPO_LEDGER.md). The intended path there is
+`tools/release/sync_public_mirror.py`, which only ever builds a commit from
+`public_manifest.py`'s allow-list. This module is the backstop for anything
+that bypasses that script (e.g. a raw `git push seam-runtime main:main`): it
+inspects every object newly reachable by a push (not just the tip tree, so
+content introduced and later removed within the same push is still caught)
+and blocks on path/content patterns plus the allow-list itself.
 
-Two severities:
-  - BLOCK: high-confidence secret/credential shapes and disallowed paths.
-    Any BLOCK finding fails the gate (exit 1).
+Three findings, two severities:
+  - BLOCK (disallowed path / secret-shaped content / not on the public
+    allow-list): any BLOCK finding fails the gate (exit 1). HISTORY#344 added
+    the secret/path deny-list after a `seam.db` snapshot leaked into the
+    Cantlicle repo's history; HISTORY#355 added the allow-list after finding
+    the deny-list alone had let internal bookkeeping (`HISTORY.md`,
+    `docs/audits/`, etc.) sync to the public repo since day one -- a
+    deny-list fails *open*, so this gate now also fails *closed*.
   - WARN: lower-confidence generic patterns (e.g. `password =`). Printed but
     does not fail the gate, to keep false-positive noise from making the
     gate something people route around.
@@ -25,6 +30,8 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+from tools.release.public_manifest import is_allowed_on_public_mirror
 
 ZERO_SHA = "0" * 40
 
@@ -155,6 +162,9 @@ def scan_blob(path: str, content: bytes | None) -> list[Finding]:
         if pattern.search(path):
             findings.append(Finding("BLOCK", path, f"disallowed path ({pattern.pattern})"))
             break  # path-blocked paths are not content-scanned
+
+    if not findings and not is_allowed_on_public_mirror(path):
+        findings.append(Finding("BLOCK", path, "path is not on the public core allow-list (tools/release/public_manifest.py)"))
 
     if findings or content is None:
         return findings

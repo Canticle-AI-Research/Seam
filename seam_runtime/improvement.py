@@ -23,10 +23,35 @@ The flow:
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass, field
-from typing import Iterable
+from pathlib import Path
+from typing import TYPE_CHECKING, Iterable
 
-from tools.h2.holdout_split import SplitAssignment, holdout_case_ids, is_holdout
+if TYPE_CHECKING:
+    from tools.h2.holdout_split import SplitAssignment
+
+
+def _import_holdout_case_ids():
+    """Import ``tools.h2.holdout_split.holdout_case_ids`` for the holdout gate.
+
+    ``tools/`` is a sibling of ``seam_runtime/`` intentionally not shipped in
+    the wheel (see ``cli._import_run_improvement_cycle``), so a genuine
+    PyPI/uvx install falls back to ``None`` here instead of crashing on
+    import; ``validate_proposal`` then reports that the holdout check needs a
+    source checkout rather than raising ``ModuleNotFoundError`` at import time.
+    """
+    try:
+        from tools.h2.holdout_split import holdout_case_ids
+        return holdout_case_ids
+    except ModuleNotFoundError:
+        repo_root = Path(__file__).resolve().parent.parent
+        if (repo_root / "tools" / "h2" / "holdout_split.py").is_file():
+            if str(repo_root) not in sys.path:
+                sys.path.insert(0, str(repo_root))
+            from tools.h2.holdout_split import holdout_case_ids
+            return holdout_case_ids
+        return None
 
 
 VALID_KINDS = (
@@ -87,6 +112,12 @@ def validate_proposal(
         if not case_id_list:
             warnings.append("no evidence case_ids supplied; holdout check is a no-op")
         else:
+            holdout_case_ids = _import_holdout_case_ids()
+            if holdout_case_ids is None:
+                raise RuntimeError(
+                    "Holdout-split checking requires a source checkout: "
+                    "tools/h2/holdout_split.py is not shipped in the wheel"
+                )
             holdout_set = set(holdout_case_ids(holdout_assignment))
             holdout_hits = sorted(set(case_id_list) & holdout_set)
             unknown = [c for c in case_id_list if c not in holdout_assignment.assignments]

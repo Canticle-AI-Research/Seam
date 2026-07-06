@@ -55,6 +55,41 @@ Moving future work into a private repository only protects future non-public
 code. It does not retract Apache-2.0 rights already granted for public core code
 that has been released.
 
+## Public mirror sync mechanism
+
+`tools/release/public_manifest.py` is the fail-closed source of truth for
+what may leave this private repo via the `seam-runtime` git remote. Two
+disjoint categories:
+
+- **Synced paths** (`is_public_synced_path`): copied verbatim from private
+  `main`'s current tree on every sync -- the installable runtime, tests,
+  installers, and public-facing docs.
+- **Owned paths** (`is_public_owned_path`): `HISTORY.md`, `HISTORY_INDEX.md`,
+  `PROJECT_STATUS.md`, `REPO_LEDGER.md`, and `.seam/`. These are the PUBLIC
+  repo's own independent bookkeeping trail, seeded once from
+  `tools/release/public_seed/` and never overwritten by later syncs -- the
+  private repo's actual internal incident log, competitive research, and
+  strategy notes never reach the public repo through this path.
+
+`tools/release/sync_public_mirror.py` builds one new commit on top of the
+mirror's current tip from those two categories combined (fast-forward; it
+never rewrites the mirror's existing history). `tools/release/verify_public_safe.py`'s
+pre-push hook enforces the same allow-list as a fail-closed backstop against
+anything that bypasses the sync script (e.g. a raw `git push seam-runtime
+main:main`).
+
+This replaced an earlier deny-list-only gate (secret/credential shapes and a
+handful of disallowed paths) that failed *open*: any private file that
+wasn't secret-shaped shipped anyway, which is how internal bookkeeping
+(`HISTORY.md`, `docs/audits/`, etc.) ended up mirrored to the public repo
+since its creation. That already-public history was not retroactively purged
+when this router was introduced (a decision requiring a force-push on the
+public repo, deferred pending explicit review) -- this section governs
+*future* syncs only.
+
+Adding a new public-facing file or directory requires adding it to
+`public_manifest.py` first; nothing is public by default.
+
 ## Agent workflow rule
 
 Do not add this document to the mandatory startup read list unless the task specifically touches licensing, commercial boundaries, contribution policy, repo protection, or public/private separation.

@@ -57,25 +57,27 @@ def test_aws_key_shape_blocks() -> None:
     # Fixture value is split across a `+` so the AKIA-prefixed run is not
     # contiguous in this file's own source text (the repo's own
     # verify_continuity secret scanner would otherwise flag this file).
-    findings = scan_blob("notes.md", b"key: AKIA" + b"ABCDEFGHIJKLMNOP")
+    # Path is allow-listed so this exercises content detection, not the
+    # allow-list check (see test_path_not_on_allow_list_blocks for that).
+    findings = scan_blob("seam_runtime/notes.md", b"key: AKIA" + b"ABCDEFGHIJKLMNOP")
     assert any(f.severity == "BLOCK" for f in findings)
 
 
 def test_anthropic_key_shape_blocks() -> None:
-    findings = scan_blob("notes.md", b"sk-ant-" + b"a" * 30)
+    findings = scan_blob("seam_runtime/notes.md", b"sk-ant-" + b"a" * 30)
     assert any(f.severity == "BLOCK" for f in findings)
 
 
 def test_private_key_header_blocks() -> None:
     findings = scan_blob(
-        "notes.txt", b"-----BEGIN RSA " + b"PRIVATE KEY-----\nMIIB...\n"
+        "seam_runtime/notes.txt", b"-----BEGIN RSA " + b"PRIVATE KEY-----\nMIIB...\n"
     )
     assert any(f.severity == "BLOCK" for f in findings)
 
 
 def test_dsn_with_embedded_credentials_blocks() -> None:
     findings = scan_blob(
-        "notes.md", b"dsn = postgresql:" + b"//user:hunter2@db.internal:5432/seam"
+        "seam_runtime/notes.md", b"dsn = postgresql:" + b"//user:hunter2@db.internal:5432/seam"
     )
     assert any(f.severity == "BLOCK" for f in findings)
 
@@ -85,12 +87,14 @@ def test_dsn_with_placeholder_password_does_not_block() -> None:
     # 'postgres://user:pw@host:5432/seam' as an example connector value.
     # That's not a credential; it must not block every future push.
     findings = scan_blob(
-        "dashboard.html", b"baseUrl: 'postgres:" + b"//user:pw@host:5432/seam'"
+        "seam_runtime/webui/dashboard.html", b"baseUrl: 'postgres:" + b"//user:pw@host:5432/seam'"
     )
     assert findings == []
 
 
 def test_claude_share_link_blocks() -> None:
+    # HISTORY.md is public-owned (allow-listed), so this exercises content
+    # detection on a real path this rule protects.
     findings = scan_blob(
         "HISTORY.md", b"see https://claude" + b".ai/share/abc123-def456"
     )
@@ -98,9 +102,52 @@ def test_claude_share_link_blocks() -> None:
 
 
 def test_generic_password_pattern_warns_but_does_not_block() -> None:
-    findings = scan_blob("config.py", b'password = "not-a-real-secret"')
+    findings = scan_blob("seam_runtime/config.py", b'password = "not-a-real-secret"')
     assert findings
     assert all(f.severity == "WARN" for f in findings)
+
+
+# --- allow-list rules ---------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "docs/audits/2026-05-28-deep-health-audit.md",
+        "docs/SOP_TRACK_K_BIL_PHASE1_DEEPSEEK.md",
+        "docs/handoffs/2026-06-08-h2-self-improvement-loop.md",
+        "docs/roadmap/COMPETITIVE_ROADMAP.md",
+        "skills/seam-engineer/SKILL.md",
+        "archive/code/README.md",
+        "tools/release/verify_public_safe.py",
+        "tools/claude/preflight_protocol.sh",
+        "some/brand/new/path/nobody/added/yet.md",
+    ],
+)
+def test_path_not_on_allow_list_blocks(path: str) -> None:
+    findings = scan_blob(path, b"harmless content")
+    assert findings
+    assert findings[0].severity == "BLOCK"
+    assert "allow-list" in findings[0].reason
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "README.md",
+        "seam_runtime/mcp.py",
+        "tests/audit/test_public_safe_gate.py",
+        "docs/MACOS.md",
+        "tools/h2/holdout_split.py",
+        "tools/history/new_entry.py",
+        # public-owned paths (the public repo's own bookkeeping) must also pass
+        "HISTORY.md",
+        "PROJECT_STATUS.md",
+        ".seam/streams/history/log.md",
+    ],
+)
+def test_allow_listed_paths_pass(path: str) -> None:
+    assert scan_blob(path, b"nothing sensitive here\n") == []
 
 
 def test_binary_extension_skips_content_scan() -> None:
@@ -141,9 +188,19 @@ def _commit(repo: Path, files: dict[str, str], message: str) -> str:
 
 def test_scan_push_clean_range_passes(throwaway_repo: Path) -> None:
     old_sha = _commit(throwaway_repo, {"README.md": "hello\n"}, "old state")
-    new_sha = _commit(throwaway_repo, {"docs/notes.md": "more docs\n"}, "new state")
+    new_sha = _commit(throwaway_repo, {"seam_runtime/notes.md": "more docs\n"}, "new state")
     result = scan_push(old_sha, new_sha, throwaway_repo)
     assert result.ok
+
+
+def test_scan_push_flags_path_outside_allow_list(throwaway_repo: Path) -> None:
+    old_sha = _commit(throwaway_repo, {"README.md": "hello\n"}, "old state")
+    new_sha = _commit(
+        throwaway_repo, {"docs/audits/2026-99-99-some-internal-audit.md": "notes\n"}, "new state"
+    )
+    result = scan_push(old_sha, new_sha, throwaway_repo)
+    assert not result.ok
+    assert any("allow-list" in f.reason for f in result.blocking)
 
 
 def test_scan_push_flags_new_bad_file(throwaway_repo: Path) -> None:

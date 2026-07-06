@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 412
+total_events: 413
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-16T04:58:56Z | history:177:65153fde | session-event | done | audit, security, verify, history, protocol, status, class... | docker-compose.yaml,.github/workflows/ci.yml,.gitignore,.rgignore,pyproject.t... |
 | 2026-05-16T05:46:29Z | history:178:5d5cbd56 | session-event | done | benchmark, roadmap, registry, memory, protocol, verify, h... | benchmarks/registry/memory_benchmarks.json,seam_runtime/external_memory_bench... |
 | 2026-05-16T05:58:30Z | history:179:e7611cad | session-event | done | docs, pgvector, benchmark, operator, salvage, protocol, v... | docs/PGVECTOR_LOCAL.md,docs/BENCHMARK_SOP.md,docs/SEAM_OPERATOR_GUIDE.md,docs... |
 | 2026-05-16T06:01:05Z | history:180:2fe45947 | session-event | done | roadmap, plan, protocol, history, concepts | ROADMAP.md,docs/roadmap/MEMORY_BENCHMARKS.md,docs/roadmap/PROMPT_CODEC.md,doc... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-06T02:07:42Z | history:352:71dbffca | session-event | done | docs, macos, installer, readme | docs/MACOS.md,docs/setup.md,docs/README.md,docs/errors.md,docs/howto/README.m... |
 | 2026-07-06T02:10:27Z | history:353:162c9fc2 | session-event | done | docs, macos, operator, readme | docs/SEAM_OPERATOR_GUIDE.md,docs/MACOS.md,docs/README.md,README.md |
 | 2026-07-06T02:20:59Z | history:354:e3857106 | session-event | done | docs, macos, pgvector, correction | docs/MACOS.md,docs/SEAM_OPERATOR_GUIDE.md,docs/PGVECTOR_LOCAL.md |
+| 2026-07-06T03:16:22Z | history:355:3e6365ea | session-event | changed | protocol, security, release, routing | tools/release/public_manifest.py,tools/release/sync_public_mirror.py,tools/re... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0212.cross.md | 2026-04-15T00:00:00Z..2026-05-16T00:29:22Z | 212 | (multi) | (multi) |
+| 0001-0213.cross.md | 2026-04-15T00:00:00Z..2026-05-16T04:58:56Z | 213 | (multi) | (multi) |
