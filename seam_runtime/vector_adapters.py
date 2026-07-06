@@ -223,6 +223,9 @@ class PgVectorAdapter:
         params.extend([_vector_literal(query_vector), limit])
         with self._connect() as connection:
             with connection.cursor() as cursor:
+                # hnsw.ef_search is a session GUC, not a bind-parameterizable
+                # value under SET; set_config's 2nd arg IS a regular parameter.
+                cursor.execute("select set_config('hnsw.ef_search', %s, false)", (str(int(self.ef_search)),))
                 cursor.execute(
                     f"""
                     select record_id, 1 - (embedding <=> %s::vector) as score

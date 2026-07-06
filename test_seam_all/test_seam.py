@@ -3874,6 +3874,19 @@ class _FakePgCursor:
                 # no ALTER TABLE runs against the fake store.
                 self._rows = [("PRIMARY KEY (record_id, model_name)",)]
                 return
+            if "format_type" in sql_lower and "pg_attribute" in sql_lower:
+                # HNSW probe: simulate a fresh table with a dimensionless
+                # ``vector`` column (the real CREATE TABLE DDL's starting state).
+                self._rows = [("vector",)]
+                return
+            if "where dimension !=" in sql_lower:
+                # Mixed-dimension check for the HNSW column-fix: no mismatched
+                # rows in the fake store, so the alter/index path is safe.
+                self._rows = []
+                return
+            if "set_config" in sql_lower:
+                self._rows = [(params[0],)]
+                return
             if "source_hash, dimension" in sql_lower:
                 record_id, model_name = params
                 entry = self._store.get(record_id)
