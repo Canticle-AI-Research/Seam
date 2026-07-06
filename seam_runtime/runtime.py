@@ -32,14 +32,16 @@ class SeamRuntime:
         embedding_model: EmbeddingModel | None = None,
         vector_adapter: VectorAdapter | None = None,
         pgvector_dsn: str | None = None,
+        pgvector_table: str | None = None,
     ) -> None:
         self.store = SQLiteStore(store_path)
         self.embedding_model = embedding_model or default_embedding_model()
         resolved_dsn = pgvector_dsn or os.environ.get("SEAM_PGVECTOR_DSN")
+        resolved_table = pgvector_table or os.environ.get("SEAM_PGVECTOR_TABLE") or "seam_vector_index"
         if vector_adapter is not None:
             self.vector_adapter = vector_adapter
         elif resolved_dsn:
-            self.vector_adapter = PgVectorAdapter(resolved_dsn, self.embedding_model)
+            self.vector_adapter = PgVectorAdapter(resolved_dsn, self.embedding_model, table_name=resolved_table)
         else:
             self.vector_adapter = SQLiteVectorAdapter(str(store_path), self.embedding_model)
         # Retrieval flags are resolved once per runtime (defaults < persisted

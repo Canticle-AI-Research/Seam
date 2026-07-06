@@ -45,9 +45,11 @@ class PgVectorAdapter:
     model: EmbeddingModel
     table_name: str = "seam_vector_index"
     name: str = "pgvector"
+    ef_search: int = 40
 
     def __post_init__(self) -> None:
         _validate_table_name(self.table_name)
+        self.ann_index_status: str | None = None
 
     def _connect(self):
         try:
@@ -99,7 +101,60 @@ class PgVectorAdapter:
                 cursor.execute(f"create index if not exists {self.table_name}_model_name_idx on {self.table_name} (model_name)")
                 cursor.execute(f"create index if not exists {self.table_name}_namespace_idx on {self.table_name} (namespace, model_name)")
                 self._migrate_composite_pk(cursor)
+                if self.ann_index_status != "ok":
+                    self._ensure_hnsw_index(cursor)
             connection.commit()
+
+    def _ensure_hnsw_index(self, cursor) -> None:
+        """Give the ``embedding`` column a fixed dimension and an HNSW index so
+        pgvector search stops being an exact brute-force scan at scale.
+
+        A dimensionless ``vector`` column cannot carry an HNSW index (pgvector
+        requires a fixed dimension for that access method). This table already
+        tracks each row's dimension separately (the ``dimension`` column) to
+        support more than one embedding model/dimension sharing a table; fixing
+        the column type is only safe when every existing row already agrees
+        with the current model's dimension (or the table is empty/fresh).
+        """
+        cursor.execute(
+            """
+            select format_type(a.atttypid, a.atttypmod)
+            from pg_attribute a
+            join pg_class c on a.attrelid = c.oid
+            where c.relname = %s and a.attname = 'embedding' and a.attnum > 0 and not a.attisdropped
+            """,
+            (self.table_name,),
+        )
+        row = cursor.fetchone()
+        current_type = row[0] if row else None
+        target_dimension = int(self.model.dimension)
+
+        if current_type == "vector":
+            cursor.execute(
+                f"select 1 from {self.table_name} where dimension != %s limit 1",
+                (target_dimension,),
+            )
+            if cursor.fetchone() is not None:
+                self.ann_index_status = "skipped_mixed_dimension"
+                return
+            cursor.execute(f"alter table {self.table_name} alter column embedding type vector({target_dimension})")
+            cursor.execute(
+                f"create index if not exists {self.table_name}_hnsw_idx on {self.table_name} using hnsw (embedding vector_cosine_ops)"
+            )
+            self.ann_index_status = "ok"
+            return
+
+        if current_type == f"vector({target_dimension})":
+            cursor.execute(
+                f"create index if not exists {self.table_name}_hnsw_idx on {self.table_name} using hnsw (embedding vector_cosine_ops)"
+            )
+            self.ann_index_status = "ok"
+            return
+
+        # Fixed at some other dimension: a different embedding model owns this
+        # table's column type. Surface it rather than silently searching without
+        # an index (or worse, altering another model's column out from under it).
+        self.ann_index_status = "skipped_dimension_mismatch"
 
     def _migrate_composite_pk(self, cursor) -> None:
         """Idempotent: upgrade single-column PK (record_id) to composite (record_id, model_name)."""
