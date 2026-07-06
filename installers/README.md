@@ -24,11 +24,19 @@ Linux / WSL2:
 gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
+macOS repo-local development:
+
+```bash
+gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
+```
+
 Linux / WSL2 repo-local development:
 
 ```bash
 gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
+
+macOS operator guide: [docs/MACOS.md](../docs/MACOS.md)
 
 Open a new terminal after install:
 
@@ -58,6 +66,12 @@ Linux / WSL2:
 
 ```bash
 sh ./installers/install_seam_linux.sh
+```
+
+macOS development bootstrap:
+
+```bash
+sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 development bootstrap:

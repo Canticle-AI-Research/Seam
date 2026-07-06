@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 351
-total_tokens: ~144424
-latest_id: 351
+total_entries: 354
+total_tokens: ~144999
+latest_id: 354
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 354 | 2026-07-06 | done | e3857106ce206d99 | docs,macos,pgvector,correction | 353 |
+| 353 | 2026-07-06 | done | 162c9fc26a7062c5 | docs,macos,operator,readme | 352 |
+| 352 | 2026-07-06 | done | 71dbffca88525bf4 | docs,macos,installer,readme | none |
 | 351 | 2026-07-06 | changed | a07a41030733a393 | protocol,git-hooks,security | none |
 | 350 | 2026-07-06 | done | 4f4608dd3c61f7bf | mcp,registry,pypi,release | none |
 | 349 | 2026-07-04 | changed | 25a779c828107878 | protocol,git-hooks,security | none |
@@ -413,7 +416,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=2 latest=#323, #321
-- correction: count=1 latest=#299
+- correction: count=2 latest=#354, #299
 - cr: count=3 latest=#316, #315, #314
 - dashboard: count=73 latest=#342, #326, #299, #298, #288
 - decomposition: count=1 latest=#319
@@ -425,7 +428,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=41 latest=#345, #344, #341, #340, #339
+- docs: count=44 latest=#354, #353, #352, #345, #344
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -462,7 +465,7 @@ compact: true
 - improve: count=1 latest=#302
 - infra: count=1 latest=#271
 - ingest: count=2 latest=#317, #303
-- installer: count=14 latest=#337, #204, #177, #173, #169
+- installer: count=15 latest=#352, #337, #204, #177, #173
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
 - judge: count=6 latest=#336, #334, #327, #321, #320
@@ -477,7 +480,7 @@ compact: true
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
-- macos: count=1 latest=#337
+- macos: count=4 latest=#354, #353, #352, #337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
 - mcp: count=18 latest=#350, #348, #347, #222, #218
@@ -493,12 +496,12 @@ compact: true
 - nl: count=7 latest=#317, #313, #311, #309, #308
 - ollama: count=2 latest=#323, #313
 - openai: count=1 latest=#327
-- operator: count=2 latest=#340, #179
+- operator: count=3 latest=#353, #340, #179
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid-validation: count=1 latest=#302
 - persist: count=26 latest=#342, #251, #244, #218, #213
-- pgvector: count=27 latest=#322, #295, #294, #280, #220
+- pgvector: count=28 latest=#354, #322, #295, #294, #280
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
 - pr: count=1 latest=#301
@@ -517,7 +520,7 @@ compact: true
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=23 latest=#347, #346, #345, #341, #340
+- readme: count=25 latest=#353, #352, #347, #346, #345
 - reasoning: count=2 latest=#327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
@@ -583,8 +586,8 @@ compact: true
 
 ## status rollup
 
-- roots: 73
+- roots: 74
 - changed: 2
-- done: 327
+- done: 330
 - in-progress: 2
 - planned: 20

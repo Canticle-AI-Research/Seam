@@ -12,10 +12,22 @@ Windows PowerShell:
 gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
+macOS:
+
+```bash
+gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+```
+
 Linux / WSL2:
 
 ```bash
 gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+```
+
+macOS repo-local development:
+
+```bash
+gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 repo-local development:
@@ -23,6 +35,8 @@ Linux / WSL2 repo-local development:
 ```bash
 gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
+
+Full macOS guide: [docs/MACOS.md](MACOS.md)
 
 Verify in a new terminal:
 
@@ -44,6 +58,13 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dash]"
 .\.venv\Scripts\python.exe -m pytest test_seam_all\test_seam.py tools\history\test_history_tools.py
 .\.venv\Scripts\python.exe seam.py doctor
+```
+
+macOS bash:
+
+```bash
+cd /path/to/Seam
+sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 bash:
@@ -129,7 +150,7 @@ $env:SEAM_CHAT_MODEL = "qwen/qwen3-coder"
 seam dashboard
 ```
 
-Linux / WSL2 temporary session:
+macOS / Linux / WSL2 temporary session:
 
 ```bash
 export SEAM_CHAT_BASE_URL="https://openrouter.ai/api/v1"

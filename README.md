@@ -228,7 +228,8 @@ claude-mem comparison, retrieval mode details, and agent bridge notes.
 
 For help beyond the quickstart, use these docs as the operator manual:
 
-- [Operator guide](docs/SEAM_OPERATOR_GUIDE.md) - day-to-day commands, doctor checks, benchmark posture, and failure triage.
+- [Operator guide](docs/SEAM_OPERATOR_GUIDE.md) - day-to-day commands, doctor checks, benchmark posture, and failure triage (Windows, macOS, and Linux).
+- [macOS guide](docs/MACOS.md) - install paths, Application Support layout, Docker/pgvector, MCP, and macOS troubleshooting.
 - [Setup guide](docs/setup.md) - platform setup, installer flows, dashboard chat model configuration, and supported command shapes.
 - [Task runbooks](docs/howto/README.md) - short workflows for common operator tasks.
 - [Engineering manual](docs/engineering/README.md) - architecture, security, change/test/incident SOPs, and verification discipline.

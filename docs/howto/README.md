@@ -1,11 +1,13 @@
 # SEAM How-To Runbooks
 
 Command-first runbooks for daily operator workflows. Each section gives Windows
-PowerShell and Linux / WSL2 equivalents, then a success checklist.
+PowerShell and bash equivalents (Linux, WSL2, and macOS), then a success checklist.
 
 These commands assume the global `seam` shim from the installer is on `PATH`. If
 you are working from a repo-local dev checkout, replace `seam` with
-`.\.venv\Scripts\seam.exe` (Windows) or `./.venv/bin/seam` (Linux).
+`.\.venv\Scripts\seam.exe` (Windows) or `./.venv/bin/seam` (macOS / Linux).
+
+macOS install and layout: [MACOS.md](MACOS.md)
 
 ## 1) Ingest, Search, Retrieve
 

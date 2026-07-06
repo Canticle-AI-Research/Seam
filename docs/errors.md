@@ -23,10 +23,16 @@ Running `seam-dash` or Textual tests fails with missing `textual`.
 .\.venv\Scripts\python.exe -m pip install -e ".[dash]"
 ```
 
-### Fix (Linux / WSL2)
+### Fix (macOS / Linux / WSL2)
 
 ```bash
 ./.venv/bin/python -m pip install -e ".[dash]"
+```
+
+Managed macOS runtime:
+
+```bash
+"$HOME/Library/Application Support/SEAM/runtime/bin/python" -m pip install -e "/path/to/Seam[dash]"
 ```
 
 ### Verify
@@ -38,7 +44,7 @@ Windows:
 .\.venv\Scripts\python.exe -m pytest test_seam_all/test_seam.py::SeamTests::test_textual_dashboard_mounts_core_panels -q
 ```
 
-Linux / WSL2:
+macOS / Linux / WSL2:
 
 ```bash
 ./.venv/bin/python -m pip show textual
@@ -58,7 +64,7 @@ Linux / WSL2:
 .\.venv\Scripts\seam.exe doctor
 ```
 
-### Fix (Linux / WSL2)
+### Fix (macOS / Linux / WSL2)
 
 ```bash
 ./.venv/bin/python -m pip install -r requirements.txt
@@ -71,6 +77,8 @@ Look for:
 
 - `SEAM doctor: PASS`
 - `Required deps: OK`
+
+macOS-specific install help: [MACOS.md](MACOS.md)
 
 ## Error: `PgVector: configured but unreachable`
 

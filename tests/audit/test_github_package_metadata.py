@@ -56,6 +56,7 @@ def test_readme_documents_operator_manual_and_error_index() -> None:
     assert "For help beyond the quickstart" in readme
     assert "[Operator guide](docs/SEAM_OPERATOR_GUIDE.md)" in readme
     assert "[Setup guide](docs/setup.md)" in readme
+    assert "[macOS guide](docs/MACOS.md)" in readme
     assert "[Task runbooks](docs/howto/README.md)" in readme
     assert "[Engineering manual](docs/engineering/README.md)" in readme
     assert "[Troubleshooting and error index](docs/errors.md)" in readme

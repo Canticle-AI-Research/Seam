@@ -7947,3 +7947,45 @@ tokens: 539
 ---
 INCIDENT: PR#117 (MCP registry publish, HISTORY#350's commit) merged instantly via 'gh pr merge 117 --squash --auto' at 2026-07-06T01:09:47Z while 2 of the 3 required checks -- chroma-real-smoke and locomo-quickstart-bil2 -- were still in_progress (both had literally just started the same second the merge landed). This is the same failure mode as HISTORY#349, but with a different root cause: last time the bypass came from falling back to a plain merge after a misread --auto error; this time '--auto' was called exactly once, with no fallback, and it still merged immediately instead of queuing and waiting. Confirmed via a real GraphQL query (repository.rulesets) that this repo's active 'Protect main (PR + hygiene gates)' ruleset requires exactly repo-hygiene, chroma-real-smoke, and locomo-quickstart-bil2 with strictRequiredStatusChecksPolicy=true -- so the requirement is real and gh's --auto flag is not honoring it reliably on this repo, most likely because GitHub's mergeStateStatus briefly reports CLEAN before the required-check-pending state propagates, and 'gh pr merge --auto' merges on that transient clean read rather than truly enabling deferred auto-merge. No operator authorization was obtained before merging, consistent with AGENTS.md's bypass-disclosure requirement -- this entry is that disclosure. Verified outcome: polled the merge commit's check-runs via 'gh api .../check-runs' until completion -- all three required checks (repo-hygiene, chroma-real-smoke, locomo-quickstart-bil2) passed; test-and-benchmark (windows-latest/ubuntu-latest) is advisory-tier per HISTORY#349's own precedent and was still running at the time of this entry, unrelated to the merged change (version-literal bumps only). No functional regression reached main. Remediation: 'gh pr merge --squash --auto' must not be treated as safe on this repo going forward -- before any future merge, poll 'gh api repos/.../commits/<sha>/check-runs' (or 'gh pr checks --watch') until repo-hygiene, chroma-real-smoke, and locomo-quickstart-bil2 all show status=completed conclusion=success, THEN run a plain 'gh pr merge --squash' (no --auto). This is now the second occurrence of this exact bypass pattern in two consecutive sessions; if it recurs a third time, escalate to the operator rather than attempting another workaround.
 ---END-ENTRY-#351---
+
+---BEGIN-ENTRY-#352---
+id: 352
+date: 2026-07-06T02:07:42Z
+agent: grok
+status: done
+topics: docs, macos, installer, readme
+commits: none
+refs: docs/MACOS.md,docs/setup.md,docs/README.md,docs/errors.md,docs/howto/README.md,installers/README.md,README.md,tests/audit/test_github_package_metadata.py
+supersedes: none
+tokens: 153
+---
+macOS operator documentation: added docs/MACOS.md as the canonical macOS guide (PyPI install, private-repo one-liner, --dev bootstrap, Application Support layout, ~/.local/bin shims, shell PATH blocks, pgvector via Docker Desktop, webui/MCP config, fresh-clone resume, troubleshooting, uninstall). Wired discoverability from docs/README.md, docs/setup.md (was missing macOS entirely), installers/README.md (--dev for macOS), README Operator Manual, docs/howto/README.md, and docs/errors.md (macOS fix paths). Audit: test_readme_documents_operator_manual_and_error_index now requires the macOS guide link. Verification: pytest tests/audit/test_github_package_metadata.py -q -> 8 passed.
+---END-ENTRY-#352---
+
+---BEGIN-ENTRY-#353---
+id: 353
+date: 2026-07-06T02:10:27Z
+agent: grok
+status: done
+topics: docs, macos, operator, readme
+commits: none
+refs: docs/SEAM_OPERATOR_GUIDE.md,docs/MACOS.md,docs/README.md,README.md
+supersedes: 352
+tokens: 149
+---
+Operator manual macOS update: rewrote docs/SEAM_OPERATOR_GUIDE.md from PowerShell-only to a cross-platform runbook. Added platform guide links (MACOS.md, setup.md, howto), default persistent DB paths table (Windows/macOS/Linux), macOS/Linux install and --dev bootstrap commands, bash equivalents for env setup, pgvector/Docker, testing loops, embedding config, and failure triage (command-not-found, Docker Desktop, textual extra). Unified day-to-day examples on the installed seam shim with dev-checkout notes. Added serve/webui and MCP stdio sections. Updated README and docs/README.md operator-guide blurbs. Verification: pytest tests/audit/test_github_package_metadata.py -q -> 8 passed.
+---END-ENTRY-#353---
+
+---BEGIN-ENTRY-#354---
+id: 354
+date: 2026-07-06T02:20:59Z
+agent: claude
+status: done
+topics: docs, macos, pgvector, correction
+commits: none
+refs: docs/MACOS.md,docs/SEAM_OPERATOR_GUIDE.md,docs/PGVECTOR_LOCAL.md
+supersedes: 353
+tokens: 273
+---
+Corrected two stale factual errors that had propagated into the new macOS docs (HISTORY#352/#353) from older pre-existing docs: (1) pgvector image tag was 0.8.2-pg18-trixie in docs/MACOS.md, docs/SEAM_OPERATOR_GUIDE.md, and docs/PGVECTOR_LOCAL.md, but docker-compose.yaml was bumped to 0.8.3-pg18-trixie in commit 64c0fe5 (#100); all three now read 0.8.3. (2) SEAM_PGVECTOR_DSN examples in the same three files hardcoded user=postgres with password=$PGPASSWORD, but .env.example sets POSTGRES_USER=seam (docker-compose default ${POSTGRES_USER:-seam}) and only defines POSTGRES_PASSWORD, so $PGPASSWORD was never set and postgres is not the provisioned role; changed to the dynamic, already-correct pattern used in docs/errors.md: user=$POSTGRES_USER password=$POSTGRES_PASSWORD (and $env: equivalents for the PowerShell block in SEAM_OPERATOR_GUIDE.md / PGVECTOR_LOCAL.md). Verification: pytest tests/audit/test_github_package_metadata.py -q -> 8 passed; full pytest tests/ -q -m 'not external' -> all passed (2 pre-existing xfail).
+---END-ENTRY-#354---
