@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 355
-total_tokens: ~146158
-latest_id: 355
+total_entries: 356
+total_tokens: ~146580
+latest_id: 356
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 356 | 2026-07-06 | done | 2b504aaf4a266cde | protocol,security,release | 355 |
 | 355 | 2026-07-06 | changed | 3e6365ea71757f90 | protocol,security,release,routing | none |
 | 354 | 2026-07-06 | done | e3857106ce206d99 | docs,macos,pgvector,correction | 353 |
 | 353 | 2026-07-06 | done | 162c9fc26a7062c5 | docs,macos,operator,readme | 352 |
@@ -512,7 +513,7 @@ compact: true
 - promotion: count=1 latest=#305
 - prompt: count=2 latest=#345, #340
 - proposer: count=1 latest=#291
-- protocol: count=99 latest=#355, #351, #349, #346, #324
+- protocol: count=100 latest=#356, #355, #351, #349, #346
 - prov: count=1 latest=#316
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
@@ -531,7 +532,7 @@ compact: true
 - refactor: count=1 latest=#284
 - regex: count=1 latest=#317
 - registry: count=4 latest=#350, #348, #347, #178
-- release: count=2 latest=#355, #350
+- release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
 - retrieval: count=64 latest=#338, #334, #332, #328, #325
 - retrievalflags: count=1 latest=#328
@@ -546,7 +547,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=48 latest=#355, #351, #349, #344, #330
+- security: count=49 latest=#356, #355, #351, #349, #344
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -590,6 +591,6 @@ compact: true
 
 - roots: 75
 - changed: 3
-- done: 330
+- done: 331
 - in-progress: 2
 - planned: 20
