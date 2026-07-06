@@ -42,6 +42,20 @@ class RetrievalFlags:
     # cross-ns crowding). ~0 measured LoCoMo recall impact; the value is
     # multi-tenant isolation. End-state ON for any multi-namespace store.
     scoped_vectors: bool = False
+    # Entity-grounded graph scoring (cat1 aggregation lever, HISTORY#321/#323
+    # coreference rebuild). The pre-existing "graph" channel (`_graph_score`)
+    # is effectively dead for real compiled data: it looks up bonuses by a
+    # record's OWN id in an adjacency map keyed by subject/object/src/dst ids,
+    # which a claim's own id is never a member of. When this flag is on,
+    # `_entity_grounded_score` replaces that lookup with the actually-intended
+    # signal: resolve a candidate's grounding entity (a CLM's `subject`; a
+    # REL's `src`/`dst`) to its ENT label and score 1.0 if that label shares a
+    # token with the query. This only has real signal once entities are
+    # cross-turn coreferenced (`storage.persist_ir`) and entity-entity `REL`
+    # edges exist (the opt-in Ollama extractor, `nl.py`) - both landed
+    # alongside this flag. OFF reproduces the exact prior (inert) graph score,
+    # so a store without those upstream changes measures byte-identical.
+    entity_grounded_scoring: bool = False
     # Retrieval DEPTH override (candidate count requested from search). None =
     # use the call-site `budget`. A measured win (HISTORY#320): the benchmark
     # default of 20 was STARVING recall - deeper retrieval lifts paid judge_score
@@ -183,6 +197,8 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
             out["rrf_k"] = int(raw)
     if _present("SEAM_RETRIEVAL_SCOPED_VECTORS"):
         out["scoped_vectors"] = _truthy("SEAM_RETRIEVAL_SCOPED_VECTORS")
+    if _present("SEAM_RETRIEVAL_ENTITY_GROUNDED"):
+        out["entity_grounded_scoring"] = _truthy("SEAM_RETRIEVAL_ENTITY_GROUNDED")
     if _present("SEAM_RETRIEVAL_TOP_K"):
         raw = env["SEAM_RETRIEVAL_TOP_K"].strip()
         if raw.isdigit() and int(raw) > 0:
@@ -212,6 +228,7 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         bm25_all_kinds=_on("SEAM_RETRIEVAL_BM25_ALL"),
         fusion="rrf" if _on("SEAM_RETRIEVAL_RRF") else "weighted",
         scoped_vectors=_on("SEAM_RETRIEVAL_SCOPED_VECTORS"),
+        entity_grounded_scoring=_on("SEAM_RETRIEVAL_ENTITY_GROUNDED"),
         # explicit knob var wins over the profile preset
         search_top_k=_pos_int("SEAM_RETRIEVAL_TOP_K") or p_top_k,
         context_budget=_pos_int("SEAM_RETRIEVAL_CONTEXT_BUDGET") or p_budget,
@@ -268,6 +285,7 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
     batch_by_id = batch.by_id()
     records = [record for record in batch.records if scope is None or record.scope == scope]
     graph = _graph(records)
+    ent_labels = {r.id: str(r.attrs.get("label", "")) for r in records if r.kind == RecordKind.ENT}
     vector_scores = vector_scores or {}
 
     candidate_kinds = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}
@@ -291,7 +309,10 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
             semantic = 0.0
         else:
             semantic = _semantic_score(record, query_vector)
-        graph_bonus = _graph_score(record, tokens, graph)
+        if flags.entity_grounded_scoring:
+            graph_bonus = _entity_grounded_score(record, tokens, ent_labels)
+        else:
+            graph_bonus = _graph_score(record, tokens, graph)
         if temporal_reference is not None:
             temporal = temporal_distance_score(temporal_reference, parse_iso(record.t0))
         elif temporal_window is not None:
@@ -402,6 +423,32 @@ def _graph_score(record: MIRLRecord, query_tokens: list[str], graph: dict[str, s
         return 0.0
     matched = sum(1 for neighbor in neighbors if any(token in neighbor.lower() for token in query_tokens))
     return matched / max(len(neighbors), 1)
+
+
+def _grounding_entity_ids(record: MIRLRecord) -> list[str]:
+    """The entity ids a candidate is grounded to: a CLM's ``subject``, or a
+    REL's ``src``/``dst``. Empty for STA/EVT (no grounding attr today)."""
+    if record.kind == RecordKind.CLM:
+        subject = record.attrs.get("subject")
+        return [str(subject)] if subject is not None else []
+    if record.kind == RecordKind.REL:
+        return [str(v) for v in (record.attrs.get("src"), record.attrs.get("dst")) if v is not None]
+    return []
+
+
+def _entity_grounded_score(record: MIRLRecord, query_tokens: list[str], ent_labels: dict[str, str]) -> float:
+    """Entry-point-entity aggregation signal (cat1 lever): 1.0 if any entity
+    this record is grounded to has a label sharing a token with the query,
+    else 0.0. Only fires once cross-turn coreference + entity-entity REL
+    edges give ``ent_labels``/grounding real, non-per-turn-fresh ids."""
+    query_token_set = set(query_tokens)
+    if not query_token_set:
+        return 0.0
+    for ent_id in _grounding_entity_ids(record):
+        label = ent_labels.get(ent_id)
+        if label and set(_tokens(label)) & query_token_set:
+            return 1.0
+    return 0.0
 
 
 def _temporal_score(record: MIRLRecord) -> float:
