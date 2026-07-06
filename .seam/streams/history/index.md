@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 354
-total_tokens: ~144999
-latest_id: 354
+total_entries: 355
+total_tokens: ~146158
+latest_id: 355
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 355 | 2026-07-06 | changed | 3e6365ea71757f90 | protocol,security,release,routing | none |
 | 354 | 2026-07-06 | done | e3857106ce206d99 | docs,macos,pgvector,correction | 353 |
 | 353 | 2026-07-06 | done | 162c9fc26a7062c5 | docs,macos,operator,readme | 352 |
 | 352 | 2026-07-06 | done | 71dbffca88525bf4 | docs,macos,installer,readme | none |
@@ -511,7 +512,7 @@ compact: true
 - promotion: count=1 latest=#305
 - prompt: count=2 latest=#345, #340
 - proposer: count=1 latest=#291
-- protocol: count=98 latest=#351, #349, #346, #324, #322
+- protocol: count=99 latest=#355, #351, #349, #346, #324
 - prov: count=1 latest=#316
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
@@ -530,13 +531,14 @@ compact: true
 - refactor: count=1 latest=#284
 - regex: count=1 latest=#317
 - registry: count=4 latest=#350, #348, #347, #178
-- release: count=1 latest=#350
+- release: count=2 latest=#355, #350
 - repo-ledger: count=1 latest=#304
 - retrieval: count=64 latest=#338, #334, #332, #328, #325
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - roadmap: count=54 latest=#346, #333, #319, #318, #284
 - roundtrip: count=2 latest=#007, #006
+- routing: count=1 latest=#355
 - rule: count=1 latest=#304
 - salvage: count=1 latest=#179
 - sbert: count=3 latest=#023, #022, #011
@@ -544,7 +546,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=47 latest=#351, #349, #344, #330, #309
+- security: count=48 latest=#355, #351, #349, #344, #330
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -586,8 +588,8 @@ compact: true
 
 ## status rollup
 
-- roots: 74
-- changed: 2
+- roots: 75
+- changed: 3
 - done: 330
 - in-progress: 2
 - planned: 20
