@@ -25,7 +25,7 @@ def _git(repo: Path, *args: str) -> str:
 def private_repo(tmp_path: Path) -> Path:
     repo = tmp_path / "private"
     repo.mkdir()
-    _git(repo, "init", "-q")
+    _git(repo, "init", "-q", "-b", "main")
     _git(repo, "config", "user.email", "test@example.com")
     _git(repo, "config", "user.name", "Test")
     return repo
@@ -84,7 +84,7 @@ def test_build_public_tree_preserves_owned_paths_from_existing_mirror(
     # Seed the "mirror" with its own independent HISTORY.md via a throwaway worktree.
     seed_repo = tmp_path / "seed"
     seed_repo.mkdir()
-    _git(seed_repo, "init", "-q")
+    _git(seed_repo, "init", "-q", "-b", "main")
     _git(seed_repo, "config", "user.email", "test@example.com")
     _git(seed_repo, "config", "user.name", "Test")
     _commit(seed_repo, {"HISTORY.md": "public repo's OWN independent history\n"}, "seed")

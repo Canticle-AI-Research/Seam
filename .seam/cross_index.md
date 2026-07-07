@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 415
+total_events: 417
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-16T06:01:05Z | history:180:2fe45947 | session-event | done | roadmap, plan, protocol, history, concepts | ROADMAP.md,docs/roadmap/MEMORY_BENCHMARKS.md,docs/roadmap/PROMPT_CODEC.md,doc... |
-| 2026-05-16T06:16:00Z | history:181:3081e253 | session-event | done | persist, retrieval, search, vector, security, verify, his... | seam_runtime/storage.py,seam_runtime/vector.py,seam_runtime/server.py,seam_ru... |
 | 2026-05-16T06:38:45Z | history:182:8affbd0f | session-event | done | harden, models, mcp, reconcile, memory, storage, vector, ... | seam_runtime/models.py,seam_runtime/mcp.py,seam_runtime/mcp_protocol.py,seam_... |
 | 2026-05-16T07:31:59Z | history:183:93cfaec8 | session-event | done | mcp, pack, verify, history, audit | seam_runtime/mcp.py,seam_runtime/pack.py,test_seam_all/test_seam.py,HISTORY.m... |
 | 2026-05-17 | history:185:ed014b41 | session-event | done | benchmark, command, protocol, verify | seam_runtime/cli.py,seam_runtime/external_memory_benchmarks.py,tools/run_exte... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-06T03:16:22Z | history:355:3e6365ea | session-event | changed | protocol, security, release, routing | tools/release/public_manifest.py,tools/release/sync_public_mirror.py,tools/re... |
 | 2026-07-06T12:37:09Z | history:356:2b504aaf | session-event | done | protocol, security, release | tools/release/sync_public_mirror.py |
 | 2026-07-06T19:38:33Z | history:357:78e26de9 | session-event | done | lint, tooling, docs, tests | pyproject.toml,REPO_LEDGER.md,docs/CODE_LAYOUT.md,seam.py,tools/history/write... |
+| 2026-07-06T23:21:18Z | history:358:2eb9586d | session-event | done | retrieval, coreference, entity-aggregation, locomo, cat1,... | seam_runtime/storage.py,seam_runtime/nl.py,seam_runtime/retrieval.py,tests/au... |
+| 2026-07-07T18:59:07Z | history:359:951ab6e8 | session-event | done | ci, tests, git-hooks, pr, merge, security, vector-adapter... | tests/audit/test_sync_public_mirror.py,seam_runtime/vector_adapters.py |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0215.cross.md | 2026-04-15T00:00:00Z..2026-05-16T05:58:30Z | 215 | (multi) | (multi) |
+| 0001-0217.cross.md | 2026-04-15T00:00:00Z..2026-05-16T06:16:00Z | 217 | (multi) | (multi) |

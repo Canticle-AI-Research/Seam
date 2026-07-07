@@ -1,7 +1,7 @@
 # cat1 Coreference + Entity-Aggregation Retrieval — External Blueprint
 
 - **Date:** 2026-06-17
-- **Status:** findings / blueprint (NOT a committed build spec — the build spec is gated on the Phase 0 diagnostic below)
+- **Status:** BUILT AND MEASURED (HISTORY#358) — landed default-OFF, tested-and-parked. See the "Outcome" section at the end for the real result; the rest of this doc is the original blueprint, kept for context.
 - **Route:** retrieval / ingest
 - **Supersedes nothing; complements** `docs/audits/2026-06-15-entity-aggregation-retrieval.md` (the #323 marginal-lever audit) and the LoCoMo retrieval audit.
 
@@ -59,3 +59,53 @@ The blueprint covers both outcomes; Phase 0 only decides emphasis and ordering.
 - [LoCoMo — Evaluating Very Long-Term Conversational Memory](https://snap-research.github.io/locomo/) — categories, scale (~300 turns/9k tokens/35 sessions), F1 eval
 - [GraphRAG vs Vector RAG (multi-fact accuracy gap)](https://tianpan.co/blog/2026-04-19-graphrag-vs-vector-rag-architecture-decision) — graph ~86% vs vector ~32% multi-hop; vector→~0% at 10+ entities [web-sourced]
 - [LLMs Meet Knowledge Graphs for QA: Synthesis and Opportunities](https://arxiv.org/pdf/2505.20099) — hybrid: graph disciplines vector retrieval
+
+## Outcome (HISTORY#358, built smaller than sketched above)
+
+Reading `retrieval.py` closely before building found the existing "graph" scoring
+channel (`_graph_score`) was **effectively dead code** for real data — it looked up
+bonuses by a record's own id in an adjacency map keyed by subject/object/src/dst
+ids, which a claim's own id is never a member of. That meant Half B ("entity-
+aggregation retrieval mode") described above was not actually missing new
+*retrieval* machinery so much as a *broken lookup key* in machinery that already
+existed (every claim/REL in a scope is already the full candidate pool scored by
+weighted fusion — there is no separate "expansion" step to add). So the real build
+was smaller than this doc's Half A + Half B split:
+
+1. **Ingest coreference** (Half A, built as designed): `SQLiteStore.persist_ir`
+   dedups `ENT` records by normalized label within one `ns`, first-occurrence-wins,
+   remapping `CLM.subject`/`REL.src`/`REL.dst` before insert. Verified end-to-end:
+   the same name mentioned in separate `ingest_conversation_turn` calls now
+   resolves to one entity id; cross-`ns` isolation holds.
+2. **Real entity-entity edges**: the opt-in Ollama extractor (`nl.py`) now emits a
+   `REL` record when a claim's subject AND object are both extractor-flagged
+   entities (token-subset matched, so "the billing service" still matches "billing
+   service").
+3. **Fixed scoring channel**: `RetrievalFlags.entity_grounded_scoring` (default
+   OFF) replaces the dead lookup with a correct one — a candidate's grounding
+   entity (`CLM.subject`; `REL.src`/`dst`) resolved to its label, scored 1.0 if that
+   label shares a token with the query.
+
+**Measured (free, no paid spend): a NULL/slightly negative result on cat1.** Pooled
+5-conversation LoCoMo dev recall (599 questions, `SEAM_NL_EXTRACTOR=ollama`):
+cat1 0.642 → 0.620 (**−0.022**), aggregate 0.7698 → 0.7681 (−0.0017, noise-level).
+Diagnostic on one full conversation (419 turns, 1330 claims) found **zero `REL`
+records were ever created** — the entity-entity gate (both ends must be
+extractor-flagged entities) is far too conservative for real conversational
+dialogue; it fires on clean declarative prose (verified in tests) but essentially
+never on casual turns. So in practice only the CLM-subject-grounding half of the
+new channel exercised at all, and a flat +1.0 bonus for any claim sharing the
+mentioned entity — with no further rank/filter — appears to dilute the
+fine-grained lexical ranking within that entity's own claims. This is the same
+failure mode `docs/audits/2026-06-15-entity-aggregation-retrieval.md` (#323) hit
+with the earlier query-time string-match prototype.
+
+**Disposition:** matches #323's exactly. The cross-turn coreference fix (Half A)
+is real and landed unconditionally (it is correct independent of retrieval
+effect). The scoring flag stays **default-OFF, tested-and-parked** — the
+mechanism is verified correct in isolation (unit tests), but not a validated
+recall/answer-quality win on real LoCoMo data. No paid judged run was spent
+confirming this, per the free-first validation ladder: recall itself already
+failed the gate. cat1's real ceiling remains open; a future attempt would need to
+either loosen the REL-emission gate significantly (accepting more false-positive
+edges) or find a genuinely different signal for conversational-turn aggregation.
