@@ -230,12 +230,9 @@ class PgVectorAdapter:
         return row[0] if row else 0
 
 
-_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-
-
 def _validate_table_name(name: str) -> None:
-    if not _IDENTIFIER_RE.fullmatch(name):
-        raise ValueError(f"Unsafe SQL identifier: {name!r}")
+    if not re.match(r'^[a-zA-Z0-9_]+$', str(name)):
+        raise ValueError("Invalid input")
 
 
 def _vector_literal(vector: list[float]) -> str:
