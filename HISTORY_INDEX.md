@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 358
-total_tokens: ~148771
-latest_id: 358
+total_entries: 359
+total_tokens: ~149511
+latest_id: 359
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 359 | 2026-07-07 | done | 951ab6e8d5b9b9aa | ci,tests,git-hooks,pr,+ | 358 |
 | 358 | 2026-07-06 | done | 2eb9586de72c4a40 | retrieval,coreference,entity-aggregation,locomo,+ | 357 |
 | 357 | 2026-07-06 | done | 78e26de9b1e2a0b0 | lint,tooling,docs,tests | none |
 | 356 | 2026-07-06 | done | 2b504aaf4a266cde | protocol,security,release | 355 |
@@ -397,7 +398,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=11 latest=#339, #301, #295, #294, #293
+- ci: count=12 latest=#359, #339, #301, #295, #294
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
@@ -451,7 +452,7 @@ compact: true
 - floor: count=1 latest=#308
 - generalization: count=1 latest=#297
 - git: count=1 latest=#324
-- git-hooks: count=3 latest=#351, #349, #344
+- git-hooks: count=4 latest=#359, #351, #349, #344
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
@@ -491,9 +492,10 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - mem0: count=7 latest=#343, #338, #336, #335, #334
 - memory: count=7 latest=#342, #340, #286, #275, #274
-- merge: count=1 latest=#301
+- merge: count=2 latest=#359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
+- mirror-sync: count=1 latest=#359
 - models: count=1 latest=#182
 - multi-agent: count=19 latest=#268, #231, #230, #229, #224
 - multihop: count=3 latest=#321, #319, #318
@@ -509,7 +511,7 @@ compact: true
 - pgvector: count=28 latest=#354, #322, #295, #294, #280
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
-- pr: count=1 latest=#301
+- pr: count=2 latest=#359, #301
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
 - profile: count=3 latest=#334, #332, #328
@@ -550,7 +552,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=49 latest=#356, #355, #351, #349, #344
+- security: count=50 latest=#359, #356, #355, #351, #349
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -573,7 +575,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=4 latest=#357, #192, #191, #182
+- tests: count=5 latest=#359, #357, #192, #191, #182
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -582,6 +584,7 @@ compact: true
 - tui: count=25 latest=#137, #121, #120, #119, #118
 - unify: count=1 latest=#311
 - vector: count=25 latest=#228, #223, #220, #218, #199
+- vector-adapters: count=1 latest=#359
 - verify: count=248 latest=#344, #320, #317, #316, #315
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
@@ -594,6 +597,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 333
+- done: 334
 - in-progress: 2
 - planned: 20

@@ -8070,3 +8070,23 @@ DISPOSITION (operator decision after seeing the honest result): land as tested-a
 
 NEXT: cat1's real ceiling remains open. A future attempt would need to either loosen the REL-emission gate significantly (accept more false-positive edges from casual dialogue) or find a genuinely different aggregation signal for conversational turns -- not a continuation of this exact design. Retrieval/self-improvement loop otherwise unchanged (last touched #332); Strand C (paid SEAM-broad-vs-mem0 head-to-head, tooling built #343 but never executed) remains open and separately operator-gated.
 ---END-ENTRY-#358---
+
+---BEGIN-ENTRY-#359---
+id: 359
+date: 2026-07-07T18:59:07Z
+agent: claude
+status: done
+topics: ci, tests, git-hooks, pr, merge, security, vector-adapters, mirror-sync
+commits: none
+refs: tests/audit/test_sync_public_mirror.py,seam_runtime/vector_adapters.py
+supersedes: 358
+tokens: 740
+---
+PR bookkeeping + a real CI regression found and fixed while doing it. Merged PR#111 (routine pgvector/pgvector docker image bump 0.8.3->0.8.4, all required checks green). Closed PR#122 ([Aikido] auto SAST fix for the pgvector table-name identifier check): the original seam_runtime/vector_adapters.py:_validate_table_name already used re.fullmatch on an anchored ^[A-Za-z_][A-Za-z0-9_]*$ allowlist, which is correct and safe -- Aikido's diff was almost certainly a scanner false positive, and its replacement was actually a downgrade (re.match instead of re.fullmatch reintroduces a trailing-newline edge case since $ under match-mode matches just before a trailing newline, and it dropped the leading letter/underscore requirement). Left the original regex/fullmatch in place and added a one-line comment explaining why fullmatch (not match) matters, so the same false positive is less likely to recur. Closed PR#105 (stale Track J lexical-symbol-codec docs capture, open since 2026-06-23, now CONFLICTING against main) with a note that Track J is still a live planned roadmap track if the writeup is wanted, just needs a fresh capture against current main.
+
+REAL BUG FOUND during this pass: main's own CI (test-and-benchmark ubuntu-latest) has been failing for the last 3 commits landed (858bcac/#355, 78b0ff4/#356, cdfa2db/#358) -- confirmed via gh run list against the main branch, not assumed. tests/audit/test_sync_public_mirror.py (added #355) has two tests (test_build_public_tree_filters_to_allow_list, test_build_public_tree_seeds_owned_path_on_first_sync) and one push (test_build_public_tree_preserves_owned_paths_from_existing_mirror) that all rely on the throwaway git repos' default branch being literally named 'main' after a bare 'git init -q'. That holds locally because this machine's global gitconfig sets init.defaultBranch=main, but GitHub Actions runners do not set that, so git falls back to its own built-in default (master) there -- _rev_parse(repo, 'main') and 'git push seam-runtime main:main' both failed on the runner with the fixture repos actually named 'master'. Fixed by pinning the branch name explicitly at repo creation ('git init -q -b main') in both the private_repo fixture and the seed_repo setup in test_build_public_tree_preserves_owned_paths_from_existing_mirror, removing the dependency on ambient git config. Verified the fix reproduces and resolves the failure: reran, under GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null (forces git's built-in master default, simulating the CI runner), `pytest tests/audit/test_sync_public_mirror.py` -> 3 passed.
+
+ALSO FOUND: HISTORY#358's commit (e2860c0, cat1 cross-turn entity coreference) had been committed locally on main but was NEVER pushed to origin -- origin/main topped out at #357 plus the #111 merge commit before this session pushed it. Bundled onto the same branch/PR as this entry since main requires PR-based landing (no direct push to protected main) and both changes were sitting on the same local main tip.
+
+Verification: full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail, zero regressions, run before this commit.
+---END-ENTRY-#359---
