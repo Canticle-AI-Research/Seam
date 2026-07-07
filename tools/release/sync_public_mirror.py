@@ -42,15 +42,17 @@ SEED_DIR_NAME = "public_seed"
 
 
 def _git(repo_root: Path, args: list[str], *, env: dict[str, str] | None = None, input_text: str | None = None) -> str:
+    # Bytes in/out, not text=True: `update-index --index-info`'s payload is a
+    # strict \n-delimited format, and subprocess's text-mode stdin write
+    # translates '\n' to os.linesep -- '\r\n' on Windows -- which corrupts it.
     result = subprocess.run(
         ["git", "-C", str(repo_root), *args],
         capture_output=True,
-        text=True,
         env=env,
-        input=input_text,
+        input=input_text.encode("utf-8") if input_text is not None else None,
         check=True,
     )
-    return result.stdout.strip()
+    return result.stdout.decode("utf-8").strip()
 
 
 def _rev_parse(repo_root: Path, ref: str) -> str | None:

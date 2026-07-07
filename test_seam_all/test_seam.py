@@ -3486,6 +3486,7 @@ class InstallerLinuxTests(unittest.TestCase):
             with (
                 patch("pathlib.Path.home", return_value=home),
                 patch("seam_runtime.installer.platform.system", return_value="Darwin"),
+                patch("seam_runtime.installer._is_windows_host", return_value=False),
             ):
                 layout = detect_layout(repo_root)
             expected_root = home / "Library" / "Application Support" / "SEAM"
@@ -3496,7 +3497,18 @@ class InstallerLinuxTests(unittest.TestCase):
             self.assertEqual(layout.bin_dir, home / ".local" / "bin")
 
     def test_current_platform_label_reports_macos_for_darwin(self) -> None:
-        with patch("seam_runtime.installer.platform.system", return_value="Darwin"):
+        # current_platform_label checks _is_windows_host() before
+        # platform.system(), so simulating macOS on an actual Windows CI
+        # runner needs that patched too -- otherwise the real host's
+        # os.name short-circuits to "windows" regardless of the Darwin mock.
+        # Patching _is_windows_host (not raw os.name) avoids also flipping
+        # pathlib's own Path flavour selection, which would break any
+        # Path(...) construction made while the patch is active on a real
+        # Windows host (NotImplementedError: cannot instantiate 'PosixPath').
+        with (
+            patch("seam_runtime.installer.platform.system", return_value="Darwin"),
+            patch("seam_runtime.installer._is_windows_host", return_value=False),
+        ):
             self.assertEqual(installer_module.current_platform_label(), "macos")
 
     def test_detect_layout_includes_dashboard_entry(self) -> None:
@@ -3554,7 +3566,10 @@ class InstallerLinuxTests(unittest.TestCase):
                 persistent_db_path=install_root / "state" / "seam.db",
                 is_windows=False,
             )
-            with patch("seam_runtime.installer.platform.system", return_value="Darwin"):
+            with (
+                patch("seam_runtime.installer.platform.system", return_value="Darwin"),
+                patch("seam_runtime.installer._is_windows_host", return_value=False),
+            ):
                 seam_shim, _, _ = write_shims(layout)
             content = seam_shim.read_text(encoding="utf-8")
             self.assertIn("install_seam_macos.sh", content)
