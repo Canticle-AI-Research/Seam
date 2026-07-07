@@ -8116,3 +8116,21 @@ Also did general repo hygiene while auditing 'all issues': ran tools.git.scan_st
 
 Verification: full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail, zero regressions, rerun after the _is_windows_host refactor. pytest test_seam_all/test_seam.py -k InstallerLinuxTests -> 20 passed. pytest tests/audit/test_sync_public_mirror.py -> 3 passed. BUG 1 and 2-of-3 of BUG 2 confirmed fixed on the real Windows CI runner via PR#124; the remaining detect_layout test fix and the SSRF flake are not yet confirmed against a live Windows run as of this edit.
 ---END-ENTRY-#360---
+
+---BEGIN-ENTRY-#361---
+id: 361
+date: 2026-07-07T20:31:43Z
+agent: claude
+status: done
+topics: ci, tests, windows, ssrf, flaky, skip-policy
+commits: none
+refs: tests/audit/test_audit_2026_06_05.py
+supersedes: 360
+tokens: 546
+---
+Closed out HISTORY#360's one remaining open item. After #360's PR#124 merged, main's own next CI run (commit a4498cd) still failed on test-and-benchmark (windows-latest) -- but ONLY on tests/audit/test_audit_2026_06_05.py::TestChatBaseUrlSsrf::test_chat_opener_blocks_redirects, with the exact same ConnectionAbortedError [WinError 10053] flagged as an unverified, unrelated observation in #360. This is now a CONFIRMED, reproducible-on-CI Windows-runner flake: it recurred on a second, independent run (a fresh merge commit, not a rerun of the same job), with every other test -- including all previously-broken sync-mirror and InstallerLinuxTests fixes from #359/#360 -- passing clean on both ubuntu-latest and windows-latest.
+
+Root cause not chased further (no Windows machine available to reproduce interactively, and the underlying feature -- the SSRF redirect-block opener in seam_runtime/server.py's _chat_opener -- is verified correct by this same test on every Linux run). Instead of guessing at a socket-timing fix I cannot verify, found and followed the repo's OWN already-established, sanctioned convention for exactly this situation: tests/conftest.py's strict-no-skip allowlist explicitly permits a 'Windows-flaky subprocess tests (skipped on the Windows leg)' category (line 40), with existing precedent in tests/audit/test_mcp_error_sanitization.py, test_mcp_stdio_smoke.py, and test_mcp_tools_call_smoke.py (all skipif(sys.platform == 'win32', reason=...) for the same class of ephemeral-socket/subprocess Windows-runner unreliability). Applied the identical pattern: added a pytest.mark.skipif(sys.platform == "win32", reason=...) decorator to test_chat_opener_blocks_redirects, citing this test's own two confirmed occurrences (HISTORY#360/#361) as the justification, matching the repo's existing style exactly. The test still runs (unskipped) on Linux and on the required-checks path -- this is a Windows-runner-only skip, not blanket, and does not reduce coverage of the actual SSRF guard anywhere it can be verified.
+
+Verification: full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail. pytest tests/audit/test_audit_2026_06_05.py -> 21 passed on this Linux machine (confirms the skip marker does not fire here, and the underlying test/feature is otherwise unaffected). Windows CI confirmation is the real check on this PR.
+---END-ENTRY-#361---

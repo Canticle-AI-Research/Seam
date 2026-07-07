@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 360
-total_tokens: ~150691
-latest_id: 360
+total_entries: 361
+total_tokens: ~151237
+latest_id: 361
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 361 | 2026-07-07 | done | 5b9cb57760b1bf5a | ci,tests,windows,ssrf,+ | 360 |
 | 360 | 2026-07-07 | done | 4d15dbbe0f2389ac | ci,tests,windows,installer,+ | 359 |
 | 359 | 2026-07-07 | done | 951ab6e8d5b9b9aa | ci,tests,git-hooks,pr,+ | 358 |
 | 358 | 2026-07-06 | done | 2eb9586de72c4a40 | retrieval,coreference,entity-aggregation,locomo,+ | 357 |
@@ -399,7 +400,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=13 latest=#360, #359, #339, #301, #295
+- ci: count=14 latest=#361, #360, #359, #339, #301
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
@@ -451,6 +452,7 @@ compact: true
 - fidelity: count=7 latest=#313, #311, #308, #307, #306
 - fixture: count=6 latest=#265, #187, #145, #092, #039
 - flags: count=1 latest=#320
+- flaky: count=1 latest=#361
 - floor: count=1 latest=#308
 - generalization: count=1 latest=#297
 - git: count=2 latest=#360, #324
@@ -562,11 +564,12 @@ compact: true
 - session-end: count=1 latest=#306
 - skill: count=1 latest=#331
 - skip: count=1 latest=#294
+- skip-policy: count=1 latest=#361
 - snapshot: count=110 latest=#239, #229, #227, #226, #225
 - spec: count=3 latest=#307, #305, #304
 - sql: count=1 latest=#319
 - sql2: count=1 latest=#318
-- ssrf: count=2 latest=#300, #288
+- ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
 - status: count=148 latest=#358, #329, #321, #320, #319
 - storage: count=8 latest=#358, #283, #282, #270, #269
@@ -577,7 +580,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=6 latest=#360, #359, #357, #192, #191
+- tests: count=7 latest=#361, #360, #359, #357, #192
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -590,7 +593,7 @@ compact: true
 - verify: count=248 latest=#344, #320, #317, #316, #315
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
-- windows: count=22 latest=#360, #283, #282, #261, #260
+- windows: count=23 latest=#361, #360, #283, #282, #261
 - workflow-permissions: count=1 latest=#298
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
@@ -599,6 +602,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 335
+- done: 336
 - in-progress: 2
 - planned: 20
