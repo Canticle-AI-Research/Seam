@@ -1,8 +1,39 @@
 # Design task: SQLiteVectorIndex full-scan search (default local backend)
 
-- **Date:** 2026-07-07
-- **Status:** SCOPED, not started — pick up as its own work item
+- **Date:** 2026-07-07 (updated 2026-07-08)
+- **Status:** Option 1 IMPLEMENTED (HISTORY#364); options 2–3 still future.
 - **Origin:** HISTORY#362 handoff (`docs/handoffs/2026-07-07-cat1-cat3-scoping-handoff.md`, perf bug #2) + new measurements from HISTORY#363
+
+## Update 2026-07-08 (HISTORY#364): option 1 landed
+
+Option 1 (in-memory matrix cache) is implemented in `seam_runtime/vector.py`:
+an instance-level cache keyed by `(model_name, dimension, namespace)` holding
+the deserialized float64 matrix + per-row norms, invalidated by a cheap
+`(row count, max updated_at)` fingerprint checked on every search (so writes
+from this process **or another** — the MCP server and CLI share the DB — force
+a rebuild). This kills the per-query `json.loads` (the measured 88%) and
+amortizes deserialization across queries (the write-once/query-many benchmark
+pattern). Measured **7.5x** on a 400–800 row hash-embedding corpus; the real
+LoCoMo win is larger because the paid benchmark issues hundreds of queries
+against a static corpus.
+
+**Byte-identical, verified.** `tests/audit/test_vector_cache_parity.py` pins
+the cached path to return the SAME record ids, order, and float scores as the
+pure-Python scan. Getting there required two non-obvious matches:
+- score PER ROW with `query @ matrix[i]` (a single batched `matrix @ query`
+  gemv rounds differently and flipped tied records — 47/150 reorders measured);
+- compute row norms **per row** at cache-build (`norm(matrix[i])` in a loop),
+  NOT the batched `norm(matrix, axis=1)`, whose reduction also rounds
+  differently and flipped ties.
+With both, parity is exact (max score diff `0.0`, 0 reorders) even on the
+tie-heavy hash embedding — the hardest case for identity.
+
+numpy stays optional: `search()` falls back to the original pure-Python
+per-row scan (`_search_scan`) when numpy is absent. What remains for options
+2–3: the scan is still O(N) dot-products per query (now cheap, no json); BLOB
+float32 storage would shrink cache-build + memory, and an ANN index would make
+search sub-linear. Those are still future and still gated on a measured
+corpus-size need.
 
 ## Problem
 

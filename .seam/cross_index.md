@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 421
+total_events: 422
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-17 | history:188:a4e89290 | session-event | done | benchmark, retrieval, command, protocol | benchmarks/external/common/judge.py,benchmarks/external/common/runner.py,benc... |
 | 2026-05-17 | history:189:054cfd3f | session-event | done | benchmark, retrieval, command, protocol | benchmarks/external/locomo/adapters/mem0.py,benchmarks/external/locomo/adapte... |
 | 2026-05-17T00:00:00Z | roadmap:037:a49767b3 | status-change | bootstrap | benchmark, retrieval, comparator | ROADMAP.md:1419 |
 | 2026-05-17T17:36:37Z | history:184:b8f6f1ed | session-event | done | audit, verify, history, status | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,.seam/cross_index.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-07T20:31:43Z | history:361:5b9cb577 | session-event | done | ci, tests, windows, ssrf, flaky, skip-policy | tests/audit/test_audit_2026_06_05.py |
 | 2026-07-08T03:44:02Z | history:362:f93632fb | session-event | done | handoff, locomo, cat1, cat3, retrieval, performance, prof... | docs/handoffs/2026-07-07-cat1-cat3-scoping-handoff.md |
 | 2026-07-08T04:31:56Z | history:363:00e4e5ea | session-event | done | ci, performance, retrieval, numpy, cosine, disk-space, de... | .github/workflows/ci.yml, seam_runtime/models.py, tests/audit/test_cosine_num... |
+| 2026-07-08T16:08:52Z | history:364:50aeef5f | session-event | done | performance, retrieval, vector, sqlite, cache, numpy, ben... | seam_runtime/vector.py, tests/audit/test_vector_cache_parity.py, test_seam_al... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0221.cross.md | 2026-04-15T00:00:00Z..2026-05-17 | 221 | (multi) | (multi) |
+| 0001-0222.cross.md | 2026-04-15T00:00:00Z..2026-05-17 | 222 | (multi) | (multi) |

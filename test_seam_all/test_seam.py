@@ -545,8 +545,18 @@ claim c1:
             def fetchall(self):
                 raise AssertionError("search must stream vector rows")
 
+        class CountRow:
+            # The cache-invalidation fingerprint query (HISTORY#364):
+            # select count(*), coalesce(max(updated_at), '') ...
+            def fetchone(self):
+                return (2, "2026-01-01T00:00:00")
+
         class FakeConnection:
             def execute(self, query, params=()):
+                # The row scan must stream (StreamingRows.fetchall raises); the
+                # fingerprint COUNT query is a scalar and reads via fetchone.
+                if "count(" in query:
+                    return CountRow()
                 return StreamingRows()
 
             def close(self):

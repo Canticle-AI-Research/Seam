@@ -8172,3 +8172,27 @@ Handoff decision 3 (cat1/cat3 generation-side confirmation) remains OPEN and ope
 
 Verification: pytest tests/audit/test_cosine_numpy_parity.py -> 5 passed; full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> exit 0, all passed (2 pre-existing xfail). CI workflow change verified by this PR's own ubuntu leg (the df -h step output is the breadcrumb).
 ---END-ENTRY-#363---
+
+---BEGIN-ENTRY-#364---
+id: 364
+date: 2026-07-08T16:08:52Z
+agent: claude
+status: done
+topics: performance, retrieval, vector, sqlite, cache, numpy, benchmark
+commits: none
+refs: seam_runtime/vector.py, tests/audit/test_vector_cache_parity.py, test_seam_all/test_seam.py, docs/audits/2026-07-07-sqlite-vector-scan-design-task.md
+supersedes: 363
+tokens: 791
+---
+Executed option 1 of the SQLite-vector-scan design task (docs/audits/2026-07-07-sqlite-vector-scan-design-task.md), fixing the default-local-backend full-scan perf bug that HISTORY#362/#363 found and scoped. Root cause (confirmed by reading the code, not assumption): seam_runtime/vector.py SQLiteVectorIndex.search brute-force scans every stored vector on every query AND json.loads-deserializes each one every time -- profiling in #363 showed json.loads was ~88% of the loop. It is the DEFAULT backend (no pgvector), so every local search pays it, degrading linearly with corpus.
+
+Fix: an instance-level numpy matrix cache keyed by (model_name, dimension, namespace), holding the deserialized float64 matrix + per-row norms, invalidated by a cheap (row count, coalesce(max(updated_at),'')) fingerprint checked on EVERY search. The fingerprint catches writes from this process OR another (the MCP server and CLI share the DB); index_records also clears the cache locally as a fast path. This kills the per-query json.loads and amortizes deserialization across queries (the write-once/query-many benchmark pattern). SQLiteVectorAdapter holds one long-lived index per runtime (runtime.py:61), so the cache is reused across all queries of a scope. numpy stays OPTIONAL (core deps remain rich+tiktoken); search() falls back to the original pure-Python per-row scan (_search_scan) when numpy is absent.
+
+BYTE-IDENTICAL, not just fast -- a perf change must never reorder retrieval. Getting exact parity required two non-obvious matches to cosine()'s arithmetic, both found by an A/B parity harness that initially FAILED (47/150 ranking mismatches at 1e-16 score deltas on tie-heavy hash embeddings): (1) score PER ROW with query @ matrix[i] -- a single batched matrix @ query gemv rounds its reduction differently and flips tied records; (2) compute row norms PER ROW at cache-build (norm(matrix[i]) in a loop), NOT the batched norm(matrix, axis=1), whose reduction also rounds differently. With both, parity is exact: 150/150 identical result dicts, 0 reorders, max score diff 0.0, even on the hardest (tie-heavy) hash-embedding case. Measured 7.5x on a 400-800 row synthetic corpus; the real LoCoMo win is larger (hundreds of queries against a static corpus).
+
+A pre-existing unit test (test_seam_all/test_seam.py::test_sqlite_vector_search_streams_rows_without_fetchall) caught a real gap: its minimal FakeConnection mock modeled only the row scan, not the new fingerprint COUNT query (which reads via fetchone). Updated the mock to model both while preserving the test's actual assertion -- the row scan must STREAM (StreamingRows.fetchall raises), which the cached path still honors (it iterates the cursor row-by-row into the matrix, never calling fetchall).
+
+Options 2 (BLOB float32 storage) and 3 (sub-linear ANN index) remain future and still gated on a measured corpus-size need; the scan is still O(N) cheap dot-products per query, just no longer json-bound. Design doc updated to reflect option 1 landed.
+
+Verification: new tests/audit/test_vector_cache_parity.py (byte-identical parity vs the pure-Python scan across namespaces; fingerprint invalidation on external write; index_records cache clear; empty-namespace/limit<=0 edges) -> passed. Full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail. No paid spend for this change (a separate operator-authorized cat1/cat3 paid diagnostic was running concurrently and is unrelated to this code).
+---END-ENTRY-#364---
