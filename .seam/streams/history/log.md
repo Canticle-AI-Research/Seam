@@ -8148,3 +8148,27 @@ tokens: 1
 ---
 -
 ---END-ENTRY-#362---
+
+---BEGIN-ENTRY-#363---
+id: 363
+date: 2026-07-08T04:31:56Z
+agent: claude
+status: done
+topics: ci, performance, retrieval, numpy, cosine, disk-space, design-task
+commits: none
+refs: .github/workflows/ci.yml, seam_runtime/models.py, tests/audit/test_cosine_numpy_parity.py, docs/audits/2026-07-07-sqlite-vector-scan-design-task.md
+supersedes: 362
+tokens: 882
+---
+Follow-up on the HISTORY#362 handoff's open decisions 1-2, plus a new CI regression found while landing it.
+
+(1) CI disk-space regression (real, reproducible, NOT flaky): PR#126's test-and-benchmark (ubuntu-latest) failed with ENOSPC ([Errno 28] No space left on device) during the Linux installer smoke test, and failed identically on a clean rerun. Root cause read from the job logs: that leg installs the CUDA torch stack twice -- once via 'Install package' (.[server,sbert,rerank] pulls torch 2.12.1 + the full nvidia cu13 wheel set, ~10 GB installed) and again inside install_seam_linux.sh --dev's own .venv with [all-extras] -- plus pip's wheel cache holding a third copy of the wheels. torch 2.12.1's cu13 wheel set (532 MB torch wheel + multi-GB nvidia deps) tipped the stock runner over; main's last green run (28897509369, ~7h earlier) predated the resolver picking it up. Fix: added a 'Free runner disk space' step to the ubuntu leg (removes /usr/share/dotnet, /usr/local/lib/android, /opt/ghc, CodeQL toolcache, prunes docker images; frees ~25-30 GB) with a df -h breadcrumb. test-and-benchmark is advisory (required checks are only repo-hygiene/chroma-real-smoke/locomo-quickstart-bil2, confirmed via GraphQL ruleset query), so PR#126 was merged on green required checks with the failure diagnosed; this entry's PR carries the fix.
+
+(2) numpy cosine fast path (handoff decision 1: shipped, with corrected expectations): seam_runtime/models.py cosine() now uses numpy (asarray + matmul + linalg.norm) when importable, keeping the pure-Python branch as the fallback -- numpy is deliberately NOT added to core deps (core stays rich+tiktoken; numpy arrives transitively with sbert/rerank extras where dense-vector volume makes it matter). Edge-case behavior pinned identical (empty/mismatched/zero-norm -> 0.0). Tested BEFORE building (feedback_always_test_before_building): max abs diff vs pure Python 2.2e-16 over 600 random pairs across dims 8/384/1152; microbenchmark 1.7x on cosine alone. HONEST CORRECTION to the handoff's framing: at the real call site (SQLiteVectorIndex.search loop, measured with 2000 stored dim-1152 vectors) the end-to-end win is only 1.3x, because json.loads of every stored vector is 88% of the optimized loop -- the scan is JSON-deserialization-bound, not cosine-bound. New tests: tests/audit/test_cosine_numpy_parity.py (5 tests: numpy branch active, edge cases, known values, 100-pair random parity at 1e-12, monkeypatched pure-Python fallback).
+
+(3) SQLite vector scan scoped as its own design task (handoff decision 2): docs/audits/2026-07-07-sqlite-vector-scan-design-task.md captures the json-bound measurement and ranks the options -- per-connection in-memory matrix cache (no schema change, fingerprint invalidation for multi-process writers), then BLOB float32 storage behind a dual-read migration, ANN index deferred until a measured corpus size demands it. Constraint pinned: search results must stay byte-identical (perf change, not ranking change).
+
+Handoff decision 3 (cat1/cat3 generation-side confirmation) remains OPEN and operator-gated: it needs the paid judge (feedback_no_paid_run_without_prompt); surfaced to the operator with this session's summary rather than acted on.
+
+Verification: pytest tests/audit/test_cosine_numpy_parity.py -> 5 passed; full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> exit 0, all passed (2 pre-existing xfail). CI workflow change verified by this PR's own ubuntu leg (the df -h step output is the breadcrumb).
+---END-ENTRY-#363---
