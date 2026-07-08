@@ -8196,3 +8196,25 @@ Options 2 (BLOB float32 storage) and 3 (sub-linear ANN index) remain future and 
 
 Verification: new tests/audit/test_vector_cache_parity.py (byte-identical parity vs the pure-Python scan across namespaces; fingerprint invalidation on external write; index_records cache clear; empty-namespace/limit<=0 edges) -> passed. Full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail. No paid spend for this change (a separate operator-authorized cat1/cat3 paid diagnostic was running concurrently and is unrelated to this code).
 ---END-ENTRY-#364---
+
+---BEGIN-ENTRY-#365---
+id: 365
+date: 2026-07-08T16:36:07Z
+agent: claude
+status: done
+topics: locomo, cat1, cat3, benchmark, paid, diagnostic, generation, answerer, prompt
+commits: none
+refs: docs/audits/2026-07-08-cat13-generation-side-paid-confirmation.md
+supersedes: 364
+tokens: 808
+---
+Operator-authorized paid diagnostic answering the HISTORY#362 handoff's decision (c): is the cat1/cat3 judged-score wall generation-side, not retrieval? CONFIRMED yes. Ran an answerer-PROMPT A/B with retrieval held BYTE-IDENTICAL (broad profile top_k=300/budget=60000, same ingested corpus), varying ONLY the answerer prompt via monkeypatch. Split: dev, all 10 LoCoMo conversations, cat1 (221) + cat3 (75) = 296 cases; gpt-4o-mini answerer+judge, temp=0; clean run (0 empty answers, 0 judge retries). Baseline prompt = the current benchmarks/external/common/answerer.py which ends 'Reply with the shortest possible answer, no preamble'; improved prompt drops 'shortest possible' (truncates enumerated lists) and licenses enumeration (cat1) + explicit yes/no-plus-reason inference (cat3) while staying concise.
+
+RESULT (judge_score_mean): cat1 0.5498 -> 0.5905 (+0.041), cat3 0.3600 -> 0.3867 (+0.027), aggregate 0.5017 -> 0.5389 (+0.037); verdicts correct 76 -> 91 (+15), partial 145 -> 137, incorrect 75 -> 68. A pure prompt change moving BOTH categories with retrieval byte-identical is direct evidence the wall is generation-side (the answerer failing to convert already-retrieved context), and that the 'shortest possible answer' instruction was actively costing correct answers.
+
+A FREE local-ollama (qwen2.5:14b) smoke first validated plumbing and showed WHY the paid arm was necessary: the local model ignores the conciseness instruction entirely (both prompts produce near-identical rambling), so the lever is only measurable on a capable answerer that follows the prompt -- matching the handoff's 'token_f1 verbosity-confounded / local ladder understates cat1' note. This is why the free gate could not decide it and the operator-gated paid judge was the correct next move.
+
+HONEST CAVEATS (in the doc): nowhere near the 0.80 bar (cat1 still ~0.21 short, cat3 ~0.41 short) -- the prompt is a real, FREE, fair (held constant across adapters) lever but NOT sufficient alone; cat3's +0.027 is only ~1.3x the ~0.02 rung-B noise margin (cat1's +0.041 and the +15-correct shift are the robust signals); dev split not holdout (holdout confirmation before productizing = another paid run, gated); one prompt design vs one baseline. Cost: the naive /bin/bash.86 call-count scale UNDERESTIMATED -- the broad 60k-char context makes answerer input tokens the driver, realistic spend ~-1.5; driver didn't capture exact usage (future paid diagnostics should log usage).
+
+NO product code changed: productizing the prompt affects every adapter comparison and needs holdout validation, so it is left as an operator-gated decision. Recommended next levers documented: (1) holdout-validate + productize the prompt (highest-EV, one paid run); (2) test a more capable answerer (informs positioning, not SEAM-ownable since the answerer is the agent's model); (3) FREE probe of cat3 retrieval CONTENT quality (is the evidence a correct inference needs actually present, vs recall-token overlap being flat). New doc docs/audits/2026-07-08-cat13-generation-side-paid-confirmation.md carries the full writeup + exact prompt + reproduce steps. Verification: this is a doc-only repo change; the diagnostic itself ran clean (296/296 judged, 0 retries). No further paid spend.
+---END-ENTRY-#365---
