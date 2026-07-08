@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 363
-total_tokens: ~152120
-latest_id: 363
+total_entries: 364
+total_tokens: ~152911
+latest_id: 364
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 364 | 2026-07-08 | done | 50aeef5f886fd4bc | performance,retrieval,vector,sqlite,+ | 363 |
 | 363 | 2026-07-08 | done | 00e4e5ea452c275e | ci,performance,retrieval,numpy,+ | 362 |
 | 362 | 2026-07-08 | done | f93632fbe509936c | handoff,locomo,cat1,cat3,+ | 361 |
 | 361 | 2026-07-07 | done | 5b9cb57760b1bf5a | ci,tests,windows,ssrf,+ | 360 |
@@ -389,7 +390,7 @@ compact: true
 - audit: count=74 latest=#303, #290, #288, #280, #279
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=114 latest=#343, #338, #336, #335, #334
+- benchmark: count=115 latest=#364, #343, #338, #336, #335
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -397,6 +398,7 @@ compact: true
 - bug: count=1 latest=#303
 - bugfix: count=18 latest=#336, #335, #334, #327, #295
 - bundle: count=5 latest=#262, #245, #238, #015, #008
+- cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - cat1: count=6 latest=#362, #358, #328, #325, #323
 - cat3: count=1 latest=#362
@@ -512,14 +514,14 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - naming: count=4 latest=#033, #024, #009, #002
 - nl: count=8 latest=#358, #317, #313, #311, #309
-- numpy: count=1 latest=#363
+- numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
 - openai: count=1 latest=#327
 - operator: count=3 latest=#353, #340, #179
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid-validation: count=1 latest=#302
-- performance: count=2 latest=#363, #362
+- performance: count=3 latest=#364, #363, #362
 - persist: count=26 latest=#342, #251, #244, #218, #213
 - pgvector: count=28 latest=#354, #322, #295, #294, #280
 - plan: count=14 latest=#243, #214, #180, #176, #171
@@ -553,7 +555,7 @@ compact: true
 - registry: count=4 latest=#350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- retrieval: count=67 latest=#363, #362, #358, #338, #334
+- retrieval: count=68 latest=#364, #363, #362, #358, #338
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - roadmap: count=54 latest=#346, #333, #319, #318, #284
@@ -579,6 +581,7 @@ compact: true
 - spec: count=3 latest=#307, #305, #304
 - sql: count=1 latest=#319
 - sql2: count=1 latest=#318
+- sqlite: count=1 latest=#364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
 - status: count=148 latest=#358, #329, #321, #320, #319
@@ -598,7 +601,7 @@ compact: true
 - traceability: count=1 latest=#316
 - tui: count=25 latest=#137, #121, #120, #119, #118
 - unify: count=1 latest=#311
-- vector: count=25 latest=#228, #223, #220, #218, #199
+- vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
 - verify: count=248 latest=#344, #320, #317, #316, #315
 - vulnerability: count=1 latest=#296
@@ -612,6 +615,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 338
+- done: 339
 - in-progress: 2
 - planned: 20
