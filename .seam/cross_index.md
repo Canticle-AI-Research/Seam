@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 419
+total_events: 420
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-17 | history:185:ed014b41 | session-event | done | benchmark, command, protocol, verify | seam_runtime/cli.py,seam_runtime/external_memory_benchmarks.py,tools/run_exte... |
 | 2026-05-17 | history:187:66289df0 | session-event | done | benchmark, fixture, retrieval, protocol | benchmarks/external/common/types.py,benchmarks/external/common/scoring.py,ben... |
 | 2026-05-17 | history:188:a4e89290 | session-event | done | benchmark, retrieval, command, protocol | benchmarks/external/common/judge.py,benchmarks/external/common/runner.py,benc... |
 | 2026-05-17 | history:189:054cfd3f | session-event | done | benchmark, retrieval, command, protocol | benchmarks/external/locomo/adapters/mem0.py,benchmarks/external/locomo/adapte... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-07T18:59:07Z | history:359:951ab6e8 | session-event | done | ci, tests, git-hooks, pr, merge, security, vector-adapter... | tests/audit/test_sync_public_mirror.py,seam_runtime/vector_adapters.py |
 | 2026-07-07T19:33:26Z | history:360:4d15dbbe | session-event | done | ci, tests, windows, installer, git, mirror-sync, cross-pl... | tools/release/sync_public_mirror.py,test_seam_all/test_seam.py,seam_runtime/i... |
 | 2026-07-07T20:31:43Z | history:361:5b9cb577 | session-event | done | ci, tests, windows, ssrf, flaky, skip-policy | tests/audit/test_audit_2026_06_05.py |
+| 2026-07-08T03:44:02Z | history:362:f93632fb | session-event | done | handoff, locomo, cat1, cat3, retrieval, performance, prof... | docs/handoffs/2026-07-07-cat1-cat3-scoping-handoff.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0219.cross.md | 2026-04-15T00:00:00Z..2026-05-16T07:31:59Z | 219 | (multi) | (multi) |
+| 0001-0220.cross.md | 2026-04-15T00:00:00Z..2026-05-17 | 220 | (multi) | (multi) |

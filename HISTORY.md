@@ -8134,3 +8134,17 @@ Root cause not chased further (no Windows machine available to reproduce interac
 
 Verification: full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail. pytest tests/audit/test_audit_2026_06_05.py -> 21 passed on this Linux machine (confirms the skip marker does not fire here, and the underlying test/feature is otherwise unaffected). Windows CI confirmation is the real check on this PR.
 ---END-ENTRY-#361---
+
+---BEGIN-ENTRY-#362---
+id: 362
+date: 2026-07-08T03:44:02Z
+agent: claude
+status: done
+topics: handoff, locomo, cat1, cat3, retrieval, performance, profiling, diagnostic
+commits: none
+refs: docs/handoffs/2026-07-07-cat1-cat3-scoping-handoff.md
+supersedes: 361
+tokens: 1
+---
+-
+---END-ENTRY-#362---
