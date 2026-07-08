@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 364
-total_tokens: ~152911
-latest_id: 364
+total_entries: 365
+total_tokens: ~153719
+latest_id: 365
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 365 | 2026-07-08 | done | 9de603646444af36 | locomo,cat1,cat3,benchmark,+ | 364 |
 | 364 | 2026-07-08 | done | 50aeef5f886fd4bc | performance,retrieval,vector,sqlite,+ | 363 |
 | 363 | 2026-07-08 | done | 00e4e5ea452c275e | ci,performance,retrieval,numpy,+ | 362 |
 | 362 | 2026-07-08 | done | f93632fbe509936c | handoff,locomo,cat1,cat3,+ | 361 |
@@ -384,13 +385,13 @@ compact: true
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
 - animation: count=4 latest=#068, #052, #032, #028
-- answerer: count=4 latest=#333, #328, #323, #321
+- answerer: count=5 latest=#365, #333, #328, #323, #321
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
 - audit: count=74 latest=#303, #290, #288, #280, #279
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=115 latest=#364, #343, #338, #336, #335
+- benchmark: count=116 latest=#365, #364, #343, #338, #336
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -400,8 +401,8 @@ compact: true
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
-- cat1: count=6 latest=#362, #358, #328, #325, #323
-- cat3: count=1 latest=#362
+- cat1: count=7 latest=#365, #362, #358, #328, #325
+- cat3: count=2 latest=#365, #362
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
@@ -440,7 +441,7 @@ compact: true
 - design-task: count=1 latest=#363
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
-- diagnostic: count=1 latest=#362
+- diagnostic: count=2 latest=#365, #362
 - diff: count=4 latest=#153, #093, #092, #037
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
@@ -464,6 +465,7 @@ compact: true
 - flaky: count=1 latest=#361
 - floor: count=1 latest=#308
 - generalization: count=1 latest=#297
+- generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
 - git-hooks: count=4 latest=#359, #351, #349, #344
 - gold-standard: count=1 latest=#038
@@ -494,7 +496,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=35 latest=#362, #358, #343, #338, #336
+- locomo: count=36 latest=#365, #362, #358, #343, #338
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -520,6 +522,7 @@ compact: true
 - operator: count=3 latest=#353, #340, #179
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
+- paid: count=1 latest=#365
 - paid-validation: count=1 latest=#302
 - performance: count=3 latest=#364, #363, #362
 - persist: count=26 latest=#342, #251, #244, #218, #213
@@ -532,7 +535,7 @@ compact: true
 - profile: count=3 latest=#334, #332, #328
 - profiling: count=1 latest=#362
 - promotion: count=1 latest=#305
-- prompt: count=2 latest=#345, #340
+- prompt: count=3 latest=#365, #345, #340
 - proposer: count=1 latest=#291
 - protocol: count=100 latest=#356, #355, #351, #349, #346
 - prov: count=1 latest=#316
@@ -615,6 +618,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 339
+- done: 340
 - in-progress: 2
 - planned: 20
