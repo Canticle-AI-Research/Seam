@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 423
+total_events: 424
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-17T00:00:00Z | roadmap:037:a49767b3 | status-change | bootstrap | benchmark, retrieval, comparator | ROADMAP.md:1419 |
 | 2026-05-17T17:36:37Z | history:184:b8f6f1ed | session-event | done | audit, verify, history, status | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,.seam/cross_index.md |
 | 2026-05-17T21:25:43Z | history:186:6dac80c8 | session-event | done | docs, handoff, protocol | docs/SOP_EXTERNAL_BENCH_LOCOMO_SEAM_ADAPTER.md,docs/SOP_EXTERNAL_BENCH_LLM_JU... |
 | 2026-05-18 | history:190:8ecacfad | session-event | done | handoff, protocol, command | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-08T04:31:56Z | history:363:00e4e5ea | session-event | done | ci, performance, retrieval, numpy, cosine, disk-space, de... | .github/workflows/ci.yml, seam_runtime/models.py, tests/audit/test_cosine_num... |
 | 2026-07-08T16:08:52Z | history:364:50aeef5f | session-event | done | performance, retrieval, vector, sqlite, cache, numpy, ben... | seam_runtime/vector.py, tests/audit/test_vector_cache_parity.py, test_seam_al... |
 | 2026-07-08T16:36:07Z | history:365:9de60364 | session-event | done | locomo, cat1, cat3, benchmark, paid, diagnostic, generati... | docs/audits/2026-07-08-cat13-generation-side-paid-confirmation.md |
+| 2026-07-08T22:50:21Z | history:366:fe1cd501 | session-event | done | benchmark, telemetry, run-record, cost, reasoning, cot, t... | benchmarks/external/common/run_record.py, benchmarks/external/common/pricing.... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0223.cross.md | 2026-04-15T00:00:00Z..2026-05-17 | 223 | (multi) | (multi) |
+| 0001-0224.cross.md | 2026-04-15T00:00:00Z..2026-05-17T00:00:00Z | 224 | (multi) | (multi) |

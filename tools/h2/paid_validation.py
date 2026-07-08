@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
+from benchmarks.external.common.run_record import RunRecord
 from seam_runtime.retrieval import RetrievalFlags, load_retrieval_flags
 from seam_runtime.storage import SQLiteStore
 
@@ -32,6 +33,7 @@ def run_paid_validation(
     *,
     candidate_flags: RetrievalFlags | None = None,
     noise_margin: float = DEFAULT_JUDGED_NOISE_MARGIN,
+    record_path: str | None = None,
 ) -> dict:
     """Score baseline vs candidate flags on the supplied judged scorer.
 
@@ -39,6 +41,13 @@ def run_paid_validation(
     (``load_retrieval_flags(store)``) - the natural post-ratchet audit. When the
     candidate resolves equal to the stock baseline there is nothing to compare,
     so only the baseline pass runs (half the spend) and the verdict says so.
+
+    ``record_path`` (when set) captures a FULL per-case record of the run -- both
+    arms' answers, judge verdict + rationale, retrieved context + its free
+    ``context_recall`` (retrieval-miss vs answerer-miss), exact token usage /
+    latency / USD cost, and any ``<think>`` reasoning trace -- writing a rich
+    JSON to ``record_path`` and a training-shaped JSONL beside it. This is why a
+    paid run is never again reduced to six aggregate numbers.
     """
     baseline = RetrievalFlags()
     if candidate_flags is None:
@@ -48,7 +57,27 @@ def run_paid_validation(
     else:
         candidate = candidate_flags
 
-    base_report = scorer.score(None, flags=baseline)
+    recorder = RunRecord() if record_path else None
+    if recorder is not None:
+        recorder.set_meta(
+            scorer=scorer.name,
+            n=getattr(scorer, "cases_by_scope", None) and sum(len(v) for v in scorer.cases_by_scope.values()),
+            baseline_flags=asdict(baseline),
+            candidate_flags=asdict(candidate),
+            noise_margin=noise_margin,
+            answerer=getattr(getattr(scorer, "adapter", None), "_answerer", None),
+            answerer_model=getattr(getattr(scorer, "adapter", None), "_answerer_model", None),
+            judge_model=getattr(getattr(scorer, "judge", None), "model", None),
+        )
+
+    def _score(flags, arm):
+        # Pass the recorder only when capturing, so a scorer with the plain
+        # score(runtime, flags=) signature (e.g. a test double) still works.
+        if recorder is not None:
+            return scorer.score(None, flags=flags, recorder=recorder, arm=arm)
+        return scorer.score(None, flags=flags)
+
+    base_report = _score(baseline, "baseline")
     base_run = dict(getattr(scorer, "last_run", {}))
 
     report: dict = {
@@ -71,9 +100,11 @@ def run_paid_validation(
             "applied/candidate flags equal the stock baseline; nothing to compare "
             "(candidate pass skipped to avoid pointless spend)"
         )
+        if recorder is not None:
+            report["record"] = _write_record(recorder, record_path)
         return report
 
-    cand_report = scorer.score(None, flags=candidate)
+    cand_report = _score(candidate, "candidate")
     cand_run = dict(getattr(scorer, "last_run", {}))
     delta = cand_report.aggregate - base_report.aggregate
 
@@ -95,4 +126,16 @@ def run_paid_validation(
         for cat, base_val in sorted(base_report.per_category.items())
     }
     report["verdict"] = verdict
+    if recorder is not None:
+        report["record"] = _write_record(recorder, record_path)
     return report
+
+
+def _write_record(recorder: RunRecord, record_path: str) -> dict:
+    """Write the rich JSON + a training-shaped JSONL beside it; return paths."""
+    jsonl_path = record_path[:-5] + ".jsonl" if record_path.endswith(".json") else record_path + ".jsonl"
+    return {
+        "json": recorder.write_json(record_path),
+        "training_jsonl": recorder.write_training_jsonl(jsonl_path),
+        "n_case_rows": len(recorder.cases),
+    }

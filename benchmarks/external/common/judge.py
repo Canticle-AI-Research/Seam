@@ -127,6 +127,11 @@ class ClaudeJudge:
             )
         except Exception as exc:
             raise RuntimeError(f"judge request failed: {type(exc).__name__}") from exc
+        usage = getattr(response, "usage", None)
+        self.last_usage = {
+            "prompt_tokens": getattr(usage, "input_tokens", None),
+            "completion_tokens": getattr(usage, "output_tokens", None),
+        } if usage is not None else None
         return _verdict_from_json_text(response.content[0].text, judge_name=self.name, judge_model=self.model)
 
     def score_batch(
@@ -271,6 +276,13 @@ class OpenAIJudge:
             )
         except Exception as exc:
             raise RuntimeError(f"judge request failed: {type(exc).__name__}") from exc
+        usage = getattr(response, "usage", None)
+        # Additive telemetry side-channel (JudgeVerdict is frozen and widely
+        # used); the run recorder reads last_usage after each score() call.
+        self.last_usage = {
+            "prompt_tokens": getattr(usage, "prompt_tokens", None),
+            "completion_tokens": getattr(usage, "completion_tokens", None),
+        } if usage is not None else None
         text = response.choices[0].message.content or ""
         return _verdict_from_json_text(text, judge_name=self.name, judge_model=self.model)
 
