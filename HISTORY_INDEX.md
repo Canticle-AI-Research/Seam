@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 362
-total_tokens: ~151238
-latest_id: 362
+total_entries: 363
+total_tokens: ~152120
+latest_id: 363
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 363 | 2026-07-08 | done | 00e4e5ea452c275e | ci,performance,retrieval,numpy,+ | 362 |
 | 362 | 2026-07-08 | done | f93632fbe509936c | handoff,locomo,cat1,cat3,+ | 361 |
 | 361 | 2026-07-07 | done | 5b9cb57760b1bf5a | ci,tests,windows,ssrf,+ | 360 |
 | 360 | 2026-07-07 | done | 4d15dbbe0f2389ac | ci,tests,windows,installer,+ | 359 |
@@ -402,7 +403,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=14 latest=#361, #360, #359, #339, #301
+- ci: count=15 latest=#363, #361, #360, #359, #339
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
@@ -426,6 +427,7 @@ compact: true
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
 - correction: count=2 latest=#354, #299
+- cosine: count=1 latest=#363
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
 - dashboard: count=73 latest=#342, #326, #299, #298, #288
@@ -433,10 +435,12 @@ compact: true
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
+- design-task: count=1 latest=#363
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
 - diagnostic: count=1 latest=#362
 - diff: count=4 latest=#153, #093, #092, #037
+- disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
 - docs: count=45 latest=#357, #354, #353, #352, #345
@@ -508,13 +512,14 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - naming: count=4 latest=#033, #024, #009, #002
 - nl: count=8 latest=#358, #317, #313, #311, #309
+- numpy: count=1 latest=#363
 - ollama: count=2 latest=#323, #313
 - openai: count=1 latest=#327
 - operator: count=3 latest=#353, #340, #179
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid-validation: count=1 latest=#302
-- performance: count=1 latest=#362
+- performance: count=2 latest=#363, #362
 - persist: count=26 latest=#342, #251, #244, #218, #213
 - pgvector: count=28 latest=#354, #322, #295, #294, #280
 - plan: count=14 latest=#243, #214, #180, #176, #171
@@ -548,7 +553,7 @@ compact: true
 - registry: count=4 latest=#350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- retrieval: count=66 latest=#362, #358, #338, #334, #332
+- retrieval: count=67 latest=#363, #362, #358, #338, #334
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - roadmap: count=54 latest=#346, #333, #319, #318, #284
@@ -607,6 +612,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 337
+- done: 338
 - in-progress: 2
 - planned: 20
