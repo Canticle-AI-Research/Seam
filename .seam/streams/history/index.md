@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 361
-total_tokens: ~151237
-latest_id: 361
+total_entries: 362
+total_tokens: ~151238
+latest_id: 362
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 362 | 2026-07-08 | done | f93632fbe509936c | handoff,locomo,cat1,cat3,+ | 361 |
 | 361 | 2026-07-07 | done | 5b9cb57760b1bf5a | ci,tests,windows,ssrf,+ | 360 |
 | 360 | 2026-07-07 | done | 4d15dbbe0f2389ac | ci,tests,windows,installer,+ | 359 |
 | 359 | 2026-07-07 | done | 951ab6e8d5b9b9aa | ci,tests,git-hooks,pr,+ | 358 |
@@ -396,7 +397,8 @@ compact: true
 - bugfix: count=18 latest=#336, #335, #334, #327, #295
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - calibration: count=1 latest=#325
-- cat1: count=5 latest=#358, #328, #325, #323, #321
+- cat1: count=6 latest=#362, #358, #328, #325, #323
+- cat3: count=1 latest=#362
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
@@ -433,6 +435,7 @@ compact: true
 - dependencies: count=4 latest=#301, #296, #295, #293
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
+- diagnostic: count=1 latest=#362
 - diff: count=4 latest=#153, #093, #092, #037
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
@@ -463,7 +466,7 @@ compact: true
 - graph: count=2 latest=#099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=12 latest=#343, #306, #229, #228, #224
+- handoff: count=13 latest=#362, #343, #306, #229, #228
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
@@ -485,7 +488,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=34 latest=#358, #343, #338, #336, #335
+- locomo: count=35 latest=#362, #358, #343, #338, #336
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -511,6 +514,7 @@ compact: true
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid-validation: count=1 latest=#302
+- performance: count=1 latest=#362
 - persist: count=26 latest=#342, #251, #244, #218, #213
 - pgvector: count=28 latest=#354, #322, #295, #294, #280
 - plan: count=14 latest=#243, #214, #180, #176, #171
@@ -519,6 +523,7 @@ compact: true
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
 - profile: count=3 latest=#334, #332, #328
+- profiling: count=1 latest=#362
 - promotion: count=1 latest=#305
 - prompt: count=2 latest=#345, #340
 - proposer: count=1 latest=#291
@@ -543,7 +548,7 @@ compact: true
 - registry: count=4 latest=#350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- retrieval: count=65 latest=#358, #338, #334, #332, #328
+- retrieval: count=66 latest=#362, #358, #338, #334, #332
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - roadmap: count=54 latest=#346, #333, #319, #318, #284
@@ -602,6 +607,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 336
+- done: 337
 - in-progress: 2
 - planned: 20
