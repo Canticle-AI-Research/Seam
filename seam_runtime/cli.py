@@ -378,6 +378,8 @@ def build_parser() -> argparse.ArgumentParser:
     improve_validate_parser.add_argument("--judge-model", default=None, help="Judge model override")
     improve_validate_parser.add_argument("--flags", default=None, help="Explicit candidate flags as a JSON object (default: the loop's persisted applied state)")
     improve_validate_parser.add_argument("--noise-margin", type=float, default=None, help="Judged-score noise margin for the verdict (default 0.02)")
+    improve_validate_parser.add_argument("--record-dir", default="benchmarks/runs/records", help="Directory for the full per-case run record (JSON + training JSONL). Default on so no paid run is lost.")
+    improve_validate_parser.add_argument("--no-record", action="store_true", help="Disable the full-record artifact for this run")
     improve_validate_parser.add_argument("--confirm-paid", action="store_true", help="REQUIRED to spend: without it the command prints the call-count estimate and makes zero API calls")
 
     mcp_parser = subparsers.add_parser("mcp", help="Run SEAM agent integration bridges")
@@ -1231,12 +1233,20 @@ def run_cli(argv: list[str] | None = None) -> None:
             db_path=tempfile.mkdtemp(),
             keep_db=True,
         )
+        record_path = None
+        if not args.no_record:
+            import os as _os
+            import time as _time
+
+            stamp = _time.strftime("%Y%m%d-%H%M%S")
+            record_path = _os.path.join(args.record_dir, f"{stamp}-locomo-{args.split}.json")
         try:
             report = run_validation(
                 scorer,
                 runtime.store,
                 candidate_flags=candidate_flags,
                 noise_margin=args.noise_margin if args.noise_margin is not None else DEFAULT_JUDGED_NOISE_MARGIN,
+                record_path=record_path,
             )
         finally:
             adapter.close()

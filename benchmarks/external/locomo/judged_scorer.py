@@ -20,11 +20,14 @@ dev-tuned loop has never seen (the loop tunes on dev ONLY; HISTORY#297).
 
 from __future__ import annotations
 
+import time
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass, field
 
 from benchmarks.external.common.dataset import load_locomo_cases
 from benchmarks.external.common.judge import Judge, JudgeVerdict, build_judge
+from benchmarks.external.common.run_record import RunRecord
+from benchmarks.external.common.scoring import context_recall
 from benchmarks.external.common.types import BenchmarkCase
 from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from benchmarks.external.locomo.recall_scorer import _group_by_scope, _select_split
@@ -62,7 +65,7 @@ class JudgedLocomoScorer:
     judge_retries: int = 1
     last_run: dict = field(default_factory=dict)
 
-    def score(self, runtime, flags=None) -> ScoreReport:
+    def score(self, runtime, flags=None, *, recorder: RunRecord | None = None, arm: str = "single") -> ScoreReport:
         runtimes = {scope: self.adapter._runtime(scope) for scope in self.cases_by_scope}
         previous = {scope: rt._retrieval_flags for scope, rt in runtimes.items()}
         applied = flags if flags is not None else (
@@ -89,6 +92,8 @@ class JudgedLocomoScorer:
                 for case in cases:
                     answer = self.adapter.answer(scope, case.question)
                     pred = (answer.generated_answer or "").strip()
+                    verdict_obj: JudgeVerdict | None = None
+                    judge_latency_ms: float | None = None
                     if not pred:
                         # No generated answer = certain incorrect; skip the judge
                         # call rather than pay to confirm it.
@@ -96,13 +101,39 @@ class JudgedLocomoScorer:
                         verdict_counts["incorrect"] += 1
                         value = 0.0
                     else:
-                        verdict, retries = self._judge_with_retry(case, pred)
+                        _t = time.monotonic()
+                        verdict_obj, retries = self._judge_with_retry(case, pred)
+                        judge_latency_ms = (time.monotonic() - _t) * 1000.0
                         judge_calls += 1 + retries
                         judge_retries_used += retries
-                        verdict_counts[verdict.verdict] += 1
-                        value = verdict.score
+                        verdict_counts[verdict_obj.verdict] += 1
+                        value = verdict_obj.score
                     per_case[case.case_id] = value
                     category_values[case.category or "unknown"].append(value)
+                    if recorder is not None:
+                        diag = answer.answerer_diagnostics or {}
+                        recorder.add_case(
+                            case_id=case.case_id,
+                            scope=scope,
+                            category=case.category,
+                            arm=arm,
+                            question=case.question,
+                            gold_answer=case.gold_answer,
+                            raw_answer=diag.get("raw_response", answer.generated_answer),
+                            verdict=(verdict_obj.verdict if verdict_obj else "empty"),
+                            judge_score=value,
+                            judge_rationale=(verdict_obj.rationale if verdict_obj else None),
+                            judge_model=(verdict_obj.judge_model if verdict_obj else None),
+                            retrieved_context=answer.retrieved_context,
+                            context_recall=context_recall(answer.retrieved_context, case.gold_answer),
+                            candidate_count=diag.get("candidate_count"),
+                            top_score=diag.get("top_score"),
+                            answerer_diagnostics=diag,
+                            judge_usage=getattr(self.judge, "last_usage", None),
+                            retrieval_latency_ms=answer.retrieval_latency_ms,
+                            answer_latency_ms=answer.answer_latency_ms,
+                            judge_latency_ms=judge_latency_ms,
+                        )
         finally:
             for scope, rt in runtimes.items():
                 rt._retrieval_flags = previous[scope]

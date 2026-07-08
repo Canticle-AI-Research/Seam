@@ -815,10 +815,13 @@ def _openai_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
         diag_out["finish_reason"] = getattr(response.choices[0], "finish_reason", None)
         diag_out["content_len"] = len(raw)
         diag_out["content_preview"] = raw[:120]
+        diag_out["raw_response"] = raw
         usage = getattr(response, "usage", None)
         if usage is not None:
             details = getattr(usage, "completion_tokens_details", None)
+            diag_out["prompt_tokens"] = getattr(usage, "prompt_tokens", None)
             diag_out["completion_tokens"] = getattr(usage, "completion_tokens", None)
+            diag_out["total_tokens"] = getattr(usage, "total_tokens", None)
             diag_out["reasoning_tokens"] = getattr(details, "reasoning_tokens", None) if details is not None else None
         diag_out["max_completion_tokens"] = request.get("max_completion_tokens")
         diag_out["reasoning_effort"] = request.get("reasoning_effort")
@@ -849,8 +852,11 @@ def _claude_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
         diag_out["finish_reason"] = getattr(response, "stop_reason", None)
         diag_out["content_len"] = len(raw)
         diag_out["content_preview"] = raw[:120]
+        diag_out["raw_response"] = raw
         usage = getattr(response, "usage", None)
         if usage is not None:
+            diag_out["prompt_tokens"] = getattr(usage, "input_tokens", None)
+            diag_out["completion_tokens"] = getattr(usage, "output_tokens", None)
             diag_out["output_tokens"] = getattr(usage, "output_tokens", None)
         diag_out["max_tokens"] = max_tokens
     return raw.strip()
@@ -894,4 +900,10 @@ def _ollama_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
         diag_out["endpoint"] = base
         diag_out["content_len"] = len(raw)
         diag_out["content_preview"] = raw[:120]
+        diag_out["raw_response"] = raw
+        # Ollama reports exact token counts + durations; capture for telemetry.
+        diag_out["prompt_tokens"] = data.get("prompt_eval_count")
+        diag_out["completion_tokens"] = data.get("eval_count")
+        eval_ns = data.get("eval_duration")
+        diag_out["eval_ms"] = (eval_ns / 1_000_000.0) if isinstance(eval_ns, (int, float)) else None
     return raw

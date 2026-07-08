@@ -76,5 +76,7 @@ benchmarks/fixtures/holdout/*.json
 benchmarks/runs/holdout/*.json
 # Durable LoCoMo result bundles: persisted on disk (not /tmp) but operator-controlled, kept out of git
 benchmarks/runs/locomo/*.json
+# Full per-case run records (rich JSON + training JSONL): bulky run artifacts, operator-controlled, kept out of git
+benchmarks/runs/records/
 # Local durable benchmark dataset copies (redundant with the in-repo committed copy; do not double-commit)
 .dataset_store/
