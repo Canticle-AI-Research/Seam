@@ -36,7 +36,7 @@ from seam_runtime.self_improve import ScoreReport
 from tools.h2.holdout_split import DEFAULT_RATIO, DEFAULT_SALT, HOLDOUT
 
 # Answerers the adapter can actually generate with (seam.py _generate_answer).
-GENERATING_ANSWERERS = ("openai", "claude")
+GENERATING_ANSWERERS = ("openai", "claude", "deepseek")
 
 # One validation = baseline pass + candidate pass.
 VALIDATION_PASSES = 2

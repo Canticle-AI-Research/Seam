@@ -227,7 +227,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--answerer",
-        choices=["none", "openai", "claude"],
+        choices=["none", "openai", "claude", "deepseek"],
         default="none",
         help="Generate a short answer from retrieved context (default: none)",
     )

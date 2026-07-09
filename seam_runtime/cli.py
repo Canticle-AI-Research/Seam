@@ -372,13 +372,13 @@ def build_parser() -> argparse.ArgumentParser:
     improve_validate_parser.add_argument("--locomo-scopes", type=int, default=5, help="Number of conversations pooled into the validation (default 5)")
     improve_validate_parser.add_argument("--locomo-questions", type=int, default=None, help="Cap questions per conversation (bounds spend)")
     improve_validate_parser.add_argument("--split", choices=["dev", "holdout", "all"], default="holdout", help="Split to validate on (default holdout - the cases the loop never tuned on)")
-    improve_validate_parser.add_argument("--answerer", choices=["openai", "claude"], default="openai", help="Paid answerer that generates from retrieved context (default openai)")
+    improve_validate_parser.add_argument("--answerer", choices=["openai", "claude", "deepseek"], default="openai", help="Paid answerer that generates from retrieved context (default openai; deepseek uses deepseek-reasoner and captures its reasoning trace)")
     improve_validate_parser.add_argument("--answerer-model", default=None, help="Answerer model override")
     improve_validate_parser.add_argument("--judge", choices=["openai", "claude"], default="openai", help="Paid LLM judge (default openai)")
     improve_validate_parser.add_argument("--judge-model", default=None, help="Judge model override")
     improve_validate_parser.add_argument("--flags", default=None, help="Explicit candidate flags as a JSON object (default: the loop's persisted applied state)")
     improve_validate_parser.add_argument("--noise-margin", type=float, default=None, help="Judged-score noise margin for the verdict (default 0.02)")
-    improve_validate_parser.add_argument("--record-dir", default="benchmarks/runs/records", help="Directory for the full per-case run record (JSON + training JSONL). Default on so no paid run is lost.")
+    improve_validate_parser.add_argument("--record-dir", default=None, help="Directory for the full per-case run record (JSON + training JSONL). Default: $SEAM_BENCH_RECORD_DIR or benchmarks/runs/records. Default on so no paid run is lost.")
     improve_validate_parser.add_argument("--no-record", action="store_true", help="Disable the full-record artifact for this run")
     improve_validate_parser.add_argument("--confirm-paid", action="store_true", help="REQUIRED to spend: without it the command prints the call-count estimate and makes zero API calls")
 
@@ -1238,8 +1238,14 @@ def run_cli(argv: list[str] | None = None) -> None:
             import os as _os
             import time as _time
 
+            from benchmarks.external.common.run_record import external_mount_ready
+
+            record_dir = args.record_dir or _os.environ.get("SEAM_BENCH_RECORD_DIR", "benchmarks/runs/records")
+            ok, why = external_mount_ready(record_dir)
+            if not ok:
+                raise SystemExit(f"error: {why}")
             stamp = _time.strftime("%Y%m%d-%H%M%S")
-            record_path = _os.path.join(args.record_dir, f"{stamp}-locomo-{args.split}.json")
+            record_path = _os.path.join(record_dir, f"{stamp}-locomo-{args.split}.json")
         try:
             report = run_validation(
                 scorer,

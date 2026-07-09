@@ -38,10 +38,25 @@ fabricated number.
 
 ### Reasoning traces (`<think>`)
 OpenAI models (gpt-4o-mini, o-series) do **not** return chain-of-thought text —
-only a `reasoning_tokens` count. Real `<think>…</think>` traces come from **local
-reasoning models** (deepseek-r1, qwen-thinking via ollama) or Claude
-extended-thinking. To capture actual reasoning as training signal, run a free
-local thinking-model answerer; `reasoning_trace` is `null` for models that hide it.
+only a `reasoning_tokens` count. Real reasoning traces come from:
+- **DeepSeek's API** — `--answerer deepseek` (model `deepseek-reasoner`, the full
+  R1). Its API returns the reasoning in a `reasoning_content` field, which the
+  answerer folds into `<think>…</think>` so the recorder captures it. Requires
+  `DEEPSEEK_API_KEY`; **paid** (cheap), and the data does transit DeepSeek's API.
+- **Local reasoning models** — deepseek-r1 / qwen-thinking via ollama (`--answerer
+  ollama --answerer-model deepseek-r1:8b`). Free and fully on-machine; emits
+  `<think>` in the text directly.
+
+`reasoning_trace` is `null` for models that hide it (OpenAI).
+
+## Where records are saved
+
+The output directory resolves in this order: `--record-dir` → `$SEAM_BENCH_RECORD_DIR`
+→ `benchmarks/runs/records`. A **mount guard** refuses to write when the target is
+under an unmounted external drive (`/media`, `/mnt`) — otherwise the data would
+silently land on the root filesystem instead of the drive. On this machine
+`SEAM_BENCH_RECORD_DIR` is set to a private external drive so records never enter
+the repo.
 
 ## Outputs
 

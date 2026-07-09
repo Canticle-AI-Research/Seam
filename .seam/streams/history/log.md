@@ -8238,3 +8238,23 @@ HONEST notes captured in docs/BENCHMARK_RUN_RECORDS.md: OpenAI hides CoT text (o
 
 Verification: new tests/audit/test_run_record.py (6 tests: pricing known/unknown/prefix/override, <think> split, failure classification, end-to-end capture through the real JudgedLocomoScorer with a fake adapter + stub judge incl. cost/context_recall/latency, and the run_paid_validation record-writing path capturing both arms) -> passed. Backward-compat: test doubles without the recorder kwarg still work (recorder passed only when set); existing paid_validation/improve tests green. Full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail. No paid spend for this change (all validation on free/stub paths).
 ---END-ENTRY-#366---
+
+---BEGIN-ENTRY-#367---
+id: 367
+date: 2026-07-09T00:09:26Z
+agent: claude
+status: done
+topics: benchmark, deepseek, answerer, reasoning, cot, run-record, private-storage, t7, telemetry
+commits: none
+refs: benchmarks/external/locomo/adapters/seam.py, benchmarks/external/common/answerer.py, benchmarks/external/common/pricing.py, benchmarks/external/common/run_record.py, seam_runtime/cli.py, docs/BENCHMARK_RUN_RECORDS.md
+supersedes: 366
+tokens: 642
+---
+Added a DeepSeek API answerer (for real reasoning traces) and routed the full-record output to a private external drive, per operator direction (use the DeepSeek API; not worried about the data transiting the API, wants the RESULTS saved privately; API cost acceptable).
+
+DeepSeek answerer: new _deepseek_short_answer in benchmarks/external/locomo/adapters/seam.py uses DeepSeek's OpenAI-compatible API (base_url https://api.deepseek.com, DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL override; model default deepseek-reasoner = the full R1). KEY POINT: deepseek-reasoner returns its chain-of-thought in a separate reasoning_content field (OpenAI HIDES CoT); the answerer folds that into a <think>...</think> raw_response so the HISTORY#366 run-record pipeline captures the reasoning trace through the exact same split_reasoning path as local models -- no run_record change needed. Also captures prompt/completion/reasoning token usage. Wired 'deepseek' into every answerer enumeration: _generate_answer dispatch, generate_short_answer (answerer.py, for the shared-answerer comparison path), GENERATING_ANSWERERS (judged_scorer), and the --answerer choices on both the improve-validate CLI and the locomo run CLI. Added deepseek-reasoner/deepseek-chat to the pricing table (approximate standard rates, env-overridable) so records show exact cost.
+
+Private T7 storage: record output dir now resolves --record-dir ->  -> benchmarks/runs/records. Persisted SEAM_BENCH_RECORD_DIR=/media/terrabyte/T7/Proprietary/DATA in ~/.bashrc (the folder pre-existed on the drive; write-verified). Added external_mount_ready() guard: refuses to write when the target is under an unmounted external mount (/media, /mnt) whose nearest existing ancestor is on the same device as / -- prevents silently writing to the ROOT filesystem when the drive is unplugged (udisks removes the mountpoint dir on unmount, so a naive makedirs would recreate the tree on root and the data would NOT land on the drive). The CLI enforces the guard BEFORE the run so a paid run never spends then loses its record to the wrong place.
+
+Verification: tests/audit/test_run_record.py extended (now 8 tests): + external mount guard (local ok; unmounted /media path refused), + deepseek answerer folds reasoning_content into <think> and captures usage (mocked openai client, no network), + deepseek pricing present. Full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/) -m 'not external' -> all passed, 2 pre-existing xfail. NO paid spend (deepseek path validated with a mocked client). REMAINING PREREQ for an actual DeepSeek run: DEEPSEEK_API_KEY is not set (operator must add one from platform.deepseek.com); the paid run itself stays operator-gated -- surface the cost estimate and get an explicit go before spending (feedback_no_paid_run_without_prompt).
+---END-ENTRY-#367---

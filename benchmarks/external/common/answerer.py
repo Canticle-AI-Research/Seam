@@ -47,6 +47,8 @@ def generate_short_answer(
         return _seam._claude_short_answer(
             answerer_model or "claude-haiku-4-5-20251001", prompt, **extra
         )
+    if answerer == "deepseek":
+        return _seam._deepseek_short_answer(answerer_model or "deepseek-reasoner", prompt, **extra)
     if answerer == "ollama":
         return _seam._ollama_short_answer(answerer_model or "qwen2.5:3b", prompt, **extra)
     raise ValueError(f"unknown answerer {answerer!r}")

@@ -66,6 +66,33 @@ def classify_failure(verdict: str | None, context_recall: float | None) -> str:
     return "retrieval_miss"     # evidence absent from context
 
 
+def external_mount_ready(path: str) -> tuple[bool, str]:
+    """Guard against silently writing to the root filesystem when an external
+    drive (``/media/...`` or ``/mnt/...``) is not mounted. When such a drive is
+    unmounted its mountpoint dir is removed, so a naive ``makedirs`` would
+    recreate the tree on the root fs and the data would NOT land on the drive.
+
+    Returns (ok, message). ``ok`` is False when ``path`` targets an external
+    mount whose nearest existing ancestor is on the same device as ``/`` (i.e.
+    the drive is not mounted). Non-external paths are always ok."""
+    ap = os.path.abspath(path)
+    if not (ap.startswith("/media/") or ap.startswith("/mnt/")):
+        return True, ""
+    ancestor = ap
+    while not os.path.exists(ancestor) and ancestor != "/":
+        ancestor = os.path.dirname(ancestor)
+    try:
+        if os.stat(ancestor).st_dev == os.stat("/").st_dev:
+            return False, (
+                f"record dir {path!r} is under an external mount that is not mounted "
+                f"(it would resolve to the root filesystem). Mount the drive, or set "
+                f"SEAM_BENCH_RECORD_DIR / --record-dir elsewhere."
+            )
+    except OSError:
+        return True, ""
+    return True, ""
+
+
 def _git_sha() -> str | None:
     try:
         out = subprocess.run(
