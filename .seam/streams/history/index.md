@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 368
-total_tokens: ~156028
-latest_id: 368
+total_entries: 369
+total_tokens: ~157179
+latest_id: 369
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 369 | 2026-07-09 | done | 466ae477a1b3ac99 | locomo,cat1,cat3,deepseek,+ | 368 |
 | 368 | 2026-07-09 | done | f6b7058ab18c6c0d | deepseek,pricing,answerer,model-selection,+ | 367 |
 | 367 | 2026-07-09 | done | 2278b41ac9009671 | benchmark,deepseek,answerer,reasoning,+ | 366 |
 | 366 | 2026-07-08 | done | fe1cd501f1e1c45c | benchmark,telemetry,run-record,cost,+ | 365 |
@@ -394,7 +395,7 @@ compact: true
 - audit: count=74 latest=#303, #290, #288, #280, #279
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=118 latest=#367, #366, #365, #364, #343
+- benchmark: count=119 latest=#369, #367, #366, #365, #364
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -404,8 +405,8 @@ compact: true
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
-- cat1: count=7 latest=#365, #362, #358, #328, #325
-- cat3: count=2 latest=#365, #362
+- cat1: count=8 latest=#369, #365, #362, #358, #328
+- cat3: count=3 latest=#369, #365, #362
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
@@ -441,7 +442,7 @@ compact: true
 - cross-platform: count=1 latest=#360
 - dashboard: count=73 latest=#342, #326, #299, #298, #288
 - decomposition: count=1 latest=#319
-- deepseek: count=2 latest=#368, #367
+- deepseek: count=3 latest=#369, #368, #367
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
@@ -475,13 +476,14 @@ compact: true
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
 - git-hooks: count=4 latest=#359, #351, #349, #344
+- gold-noise: count=1 latest=#369
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
 - graph: count=2 latest=#099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=13 latest=#362, #343, #306, #229, #228
+- handoff: count=14 latest=#369, #362, #343, #306, #229
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
@@ -505,7 +507,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=36 latest=#365, #362, #358, #343, #338
+- locomo: count=37 latest=#369, #365, #362, #358, #343
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -514,6 +516,7 @@ compact: true
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
 - mcp: count=18 latest=#350, #348, #347, #222, #218
+- measurement: count=1 latest=#369
 - mem0: count=7 latest=#343, #338, #336, #335, #334
 - memory: count=7 latest=#342, #340, #286, #275, #274
 - merge: count=2 latest=#359, #301
@@ -634,6 +637,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 343
+- done: 344
 - in-progress: 2
 - planned: 20
