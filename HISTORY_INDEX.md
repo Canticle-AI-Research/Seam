@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 366
-total_tokens: ~154549
-latest_id: 366
+total_entries: 367
+total_tokens: ~155191
+latest_id: 367
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 367 | 2026-07-09 | done | 2278b41ac9009671 | benchmark,deepseek,answerer,reasoning,+ | 366 |
 | 366 | 2026-07-08 | done | fe1cd501f1e1c45c | benchmark,telemetry,run-record,cost,+ | 365 |
 | 365 | 2026-07-08 | done | 9de603646444af36 | locomo,cat1,cat3,benchmark,+ | 364 |
 | 364 | 2026-07-08 | done | 50aeef5f886fd4bc | performance,retrieval,vector,sqlite,+ | 363 |
@@ -386,13 +387,13 @@ compact: true
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
 - animation: count=4 latest=#068, #052, #032, #028
-- answerer: count=5 latest=#365, #333, #328, #323, #321
+- answerer: count=6 latest=#367, #365, #333, #328, #323
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
 - audit: count=74 latest=#303, #290, #288, #280, #279
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=117 latest=#366, #365, #364, #343, #338
+- benchmark: count=118 latest=#367, #366, #365, #364, #343
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -433,11 +434,12 @@ compact: true
 - correction: count=2 latest=#354, #299
 - cosine: count=1 latest=#363
 - cost: count=1 latest=#366
-- cot: count=1 latest=#366
+- cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
 - dashboard: count=73 latest=#342, #326, #299, #298, #288
 - decomposition: count=1 latest=#319
+- deepseek: count=1 latest=#367
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
@@ -534,6 +536,7 @@ compact: true
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
 - pr: count=2 latest=#359, #301
+- private-storage: count=1 latest=#367
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
 - profile: count=3 latest=#334, #332, #328
@@ -551,7 +554,7 @@ compact: true
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
 - readme: count=25 latest=#353, #352, #347, #346, #345
-- reasoning: count=3 latest=#366, #327, #321
+- reasoning: count=4 latest=#367, #366, #327, #321
 - recall: count=2 latest=#320, #317
 - reconcile: count=1 latest=#182
 - reconciliation: count=1 latest=#305
@@ -569,7 +572,7 @@ compact: true
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
-- run-record: count=1 latest=#366
+- run-record: count=2 latest=#367, #366
 - salvage: count=1 latest=#179
 - sbert: count=3 latest=#023, #022, #011
 - scope: count=1 latest=#318
@@ -598,7 +601,8 @@ compact: true
 - structure: count=3 latest=#326, #285, #284
 - surface: count=5 latest=#276, #225, #218, #208, #145
 - symbols: count=2 latest=#316, #309
-- telemetry: count=1 latest=#366
+- t7: count=1 latest=#367
+- telemetry: count=2 latest=#367, #366
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
@@ -625,6 +629,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 341
+- done: 342
 - in-progress: 2
 - planned: 20

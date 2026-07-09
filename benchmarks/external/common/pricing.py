@@ -26,6 +26,10 @@ _DEFAULT_PRICES: dict[str, dict[str, float]] = {
     "o4-mini": {"input": 1.10, "output": 4.40},
     "claude-haiku-4-5": {"input": 1.00, "output": 5.00},
     "claude-3-5-haiku": {"input": 0.80, "output": 4.00},
+    # DeepSeek's own API (deepseek-reasoner = R1, returns reasoning_content).
+    # Approximate standard-price rates; DeepSeek also has off-peak discounts.
+    "deepseek-reasoner": {"input": 0.55, "output": 2.19},
+    "deepseek-chat": {"input": 0.27, "output": 1.10},
 }
 
 

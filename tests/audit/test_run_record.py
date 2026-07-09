@@ -10,6 +10,7 @@ from benchmarks.external.common.judge import JudgeVerdict
 from benchmarks.external.common.run_record import (
     RunRecord,
     classify_failure,
+    external_mount_ready,
     split_reasoning,
 )
 from benchmarks.external.common.types import AdapterAnswer
@@ -180,3 +181,64 @@ def test_run_paid_validation_writes_record(tmp_path):
     assert doc["run"]["scorer"] == scorer.name
     rows = [json.loads(line) for line in open(report["record"]["training_jsonl"])]
     assert len(rows) == 2  # 1 case x 2 arms
+
+
+def test_external_mount_guard(tmp_path):
+    # A normal local path is always ok.
+    ok, _ = external_mount_ready(str(tmp_path / "records"))
+    assert ok
+    # A path under /media whose drive is NOT mounted (nonexistent label) resolves
+    # to the root filesystem -> refused, so data never silently lands on root.
+    ok, msg = external_mount_ready("/media/nobody/NoSuchDrive1234/DATA")
+    assert not ok and "not mounted" in msg
+
+
+def test_deepseek_answerer_folds_reasoning_into_think(monkeypatch):
+    """deepseek-reasoner returns reasoning in a separate reasoning_content field;
+    the answerer must fold it into <think>...</think> raw_response and capture
+    token usage, so the record pipeline harvests the trace + exact cost."""
+    from benchmarks.external.locomo.adapters import seam as seam_mod
+
+    class _Msg:
+        content = "Paris"
+        reasoning_content = "The context says the capital of France is Paris."
+
+    class _Choice:
+        message = _Msg()
+        finish_reason = "stop"
+
+    class _Usage:
+        prompt_tokens = 1200
+        completion_tokens = 4
+        completion_tokens_details = None
+
+    class _Resp:
+        choices = [_Choice()]
+        usage = _Usage()
+
+    class _FakeClient:
+        def __init__(self, *a, **k):
+            self.chat = self
+            self.completions = self
+
+        def create(self, **kwargs):
+            return _Resp()
+
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setattr("openai.OpenAI", _FakeClient)
+    diag: dict = {}
+    answer = seam_mod._deepseek_short_answer("deepseek-reasoner", "Q: capital of France?", diag_out=diag)
+
+    assert answer == "Paris"
+    assert diag["provider"] == "deepseek"
+    assert diag["raw_response"] == "<think>The context says the capital of France is Paris.</think>\nParis"
+    assert diag["prompt_tokens"] == 1200 and diag["completion_tokens"] == 4
+    # and the record pipeline extracts the trace from that raw_response
+    visible, trace = split_reasoning(diag["raw_response"])
+    assert visible == "Paris"
+    assert trace == "The context says the capital of France is Paris."
+
+
+def test_deepseek_pricing_present():
+    assert pricing.is_priced("deepseek-reasoner")
+    assert pricing.estimate_cost_usd("deepseek-reasoner", 1_000_000, 1_000_000) == 0.55 + 2.19
