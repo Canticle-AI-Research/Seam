@@ -8300,3 +8300,17 @@ Total paid spend this session: ~$0.59 (all DeepSeek-v4-pro + gpt-4o-mini judge c
 
 Verification: doc-only repo change (the handoff itself). All prior code (HISTORY#366-368) already verified/merged separately. No new paid spend in this commit -- the $0.59 was spent during the analysis session, before this handoff was written, with the operator's explicit go before each run.
 ---END-ENTRY-#369---
+
+---BEGIN-ENTRY-#370---
+id: 370
+date: 2026-07-09T22:40:39Z
+agent: codex
+status: done
+topics: ci, tests, deepseek, benchmark, windows, bugfix
+commits: none
+refs: tests/audit/test_run_record.py
+supersedes: 368
+tokens: 223
+---
+Fixed the advisory CI regression introduced by the DeepSeek/run-record test coverage, without changing benchmark behavior. Root cause: tests/audit/test_run_record.py mocked the OpenAI-compatible DeepSeek client by monkeypatching openai.OpenAI, but the advisory test-and-benchmark matrix intentionally installs only runtime/server/sbert/rerank dependencies and not the optional bench-judge provider clients; CI therefore failed with ModuleNotFoundError even though the production DeepSeek path still correctly raises a clear runtime error when the optional openai package is absent. The test now supplies a fake openai module through sys.modules, preserving the no-network/no-spend assertion while keeping the optional dependency optional. The same test also assumed Linux /media mount semantics on Windows; it now asserts the unmounted-/media guard only on POSIX and treats /media as a normal local path on Windows. Verification before history closeout: .venv/bin/python -m pytest tests/audit/test_run_record.py -q -m 'not external' passed (9 passed), and .venv/bin/python -m py_compile tests/audit/test_run_record.py passed.
+---END-ENTRY-#370---

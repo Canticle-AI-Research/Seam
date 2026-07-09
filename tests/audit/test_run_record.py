@@ -4,6 +4,10 @@ fake adapter + stub judge (no network, no spend)."""
 from __future__ import annotations
 
 import json
+import os
+import sys
+from collections import OrderedDict
+from types import SimpleNamespace
 
 import pytest
 
@@ -15,10 +19,8 @@ from benchmarks.external.common.run_record import (
     external_mount_ready,
     split_reasoning,
 )
-from benchmarks.external.common.types import AdapterAnswer
+from benchmarks.external.common.types import AdapterAnswer, BenchmarkCase
 from benchmarks.external.locomo.judged_scorer import JudgedLocomoScorer
-from benchmarks.external.common.types import BenchmarkCase
-from collections import OrderedDict
 from seam_runtime.retrieval import RetrievalFlags
 
 
@@ -189,10 +191,15 @@ def test_external_mount_guard(tmp_path):
     # A normal local path is always ok.
     ok, _ = external_mount_ready(str(tmp_path / "records"))
     assert ok
-    # A path under /media whose drive is NOT mounted (nonexistent label) resolves
-    # to the root filesystem -> refused, so data never silently lands on root.
+    # On POSIX, a path under /media whose drive is NOT mounted (nonexistent
+    # label) resolves to the root filesystem -> refused, so data never silently
+    # lands on root. On Windows, "/media/..." is not an external-mount
+    # convention and is treated as a normal local path.
     ok, msg = external_mount_ready("/media/nobody/NoSuchDrive1234/DATA")
-    assert not ok and "not mounted" in msg
+    if os.name == "posix":
+        assert not ok and "not mounted" in msg
+    else:
+        assert ok and msg == ""
 
 
 def test_deepseek_answerer_folds_reasoning_into_think(monkeypatch):
@@ -230,7 +237,7 @@ def test_deepseek_answerer_folds_reasoning_into_think(monkeypatch):
             return _Resp()
 
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
-    monkeypatch.setattr("openai.OpenAI", _FakeClient)
+    monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=_FakeClient))
     diag: dict = {}
     answer = seam_mod._deepseek_short_answer("deepseek-v4-pro", "Q: capital of France?", diag_out=diag)
 
