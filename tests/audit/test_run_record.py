@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from benchmarks.external.common import pricing
 from benchmarks.external.common.judge import JudgeVerdict
 from benchmarks.external.common.run_record import (
@@ -194,9 +196,10 @@ def test_external_mount_guard(tmp_path):
 
 
 def test_deepseek_answerer_folds_reasoning_into_think(monkeypatch):
-    """deepseek-reasoner returns reasoning in a separate reasoning_content field;
-    the answerer must fold it into <think>...</think> raw_response and capture
-    token usage, so the record pipeline harvests the trace + exact cost."""
+    """DeepSeek's v4 models return reasoning in a separate reasoning_content
+    field; the answerer must fold it into <think>...</think> raw_response and
+    capture token usage (incl. served_model + cache_hit_tokens), so the record
+    pipeline harvests the trace + exact cost."""
     from benchmarks.external.locomo.adapters import seam as seam_mod
 
     class _Msg:
@@ -211,10 +214,12 @@ def test_deepseek_answerer_folds_reasoning_into_think(monkeypatch):
         prompt_tokens = 1200
         completion_tokens = 4
         completion_tokens_details = None
+        prompt_cache_hit_tokens = 200
 
     class _Resp:
         choices = [_Choice()]
         usage = _Usage()
+        model = "deepseek-v4-pro"  # server-reported; must match the requested id (no alias reroute)
 
     class _FakeClient:
         def __init__(self, *a, **k):
@@ -227,12 +232,15 @@ def test_deepseek_answerer_folds_reasoning_into_think(monkeypatch):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
     monkeypatch.setattr("openai.OpenAI", _FakeClient)
     diag: dict = {}
-    answer = seam_mod._deepseek_short_answer("deepseek-reasoner", "Q: capital of France?", diag_out=diag)
+    answer = seam_mod._deepseek_short_answer("deepseek-v4-pro", "Q: capital of France?", diag_out=diag)
 
     assert answer == "Paris"
     assert diag["provider"] == "deepseek"
+    assert diag["model"] == "deepseek-v4-pro"
+    assert diag["served_model"] == "deepseek-v4-pro"  # would differ if DeepSeek rerouted the request
     assert diag["raw_response"] == "<think>The context says the capital of France is Paris.</think>\nParis"
     assert diag["prompt_tokens"] == 1200 and diag["completion_tokens"] == 4
+    assert diag["cache_hit_tokens"] == 200
     # and the record pipeline extracts the trace from that raw_response
     visible, trace = split_reasoning(diag["raw_response"])
     assert visible == "Paris"
@@ -240,5 +248,23 @@ def test_deepseek_answerer_folds_reasoning_into_think(monkeypatch):
 
 
 def test_deepseek_pricing_present():
-    assert pricing.is_priced("deepseek-reasoner")
-    assert pricing.estimate_cost_usd("deepseek-reasoner", 1_000_000, 1_000_000) == 0.55 + 2.19
+    # Real rates verified live against api-docs.deepseek.com/quick_start/pricing
+    # 2026-07-09. deepseek-reasoner/deepseek-chat are DEPRECATED aliases and are
+    # deliberately NOT in the price table -- always price the explicit v4 id.
+    assert pricing.is_priced("deepseek-v4-pro")
+    assert pricing.is_priced("deepseek-v4-flash")
+    assert not pricing.is_priced("deepseek-reasoner")
+    # all cache-miss: 1M in @ $0.435 + 1M out @ $0.87
+    cost = pricing.estimate_cost_usd("deepseek-v4-pro", 1_000_000, 1_000_000)
+    assert cost == pytest.approx(0.435 + 0.87)
+
+
+def test_deepseek_pricing_cache_hit_split():
+    # 800k cache-miss @ $0.435/1M + 200k cache-hit @ $0.003625/1M + 100k out @ $0.87/1M
+    cost = pricing.estimate_cost_usd(
+        "deepseek-v4-pro", prompt_tokens=1_000_000, completion_tokens=100_000, cache_hit_tokens=200_000
+    )
+    expected = (800_000 / 1_000_000) * 0.435 + (200_000 / 1_000_000) * 0.003625 + (100_000 / 1_000_000) * 0.87
+    assert cost == pytest.approx(expected)
+    # cache_hit_tokens omitted -> all prompt tokens price at the standard rate
+    assert pricing.estimate_cost_usd("deepseek-v4-pro", 1_000_000, 0) == pytest.approx(0.435)

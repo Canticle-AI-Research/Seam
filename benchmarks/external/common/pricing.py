@@ -17,7 +17,12 @@ import os
 # Approximate USD per 1,000,000 tokens, keyed by model id prefix (longest match
 # wins). Documented as of the pricing snapshot below; override via env when it
 # drifts. Deliberately conservative coverage -- unknown models return None.
-PRICING_SNAPSHOT = "2026-01"
+# "input" is the CACHE-MISS rate (the safe default for prompt_tokens when no
+# cache-hit breakdown is available); "input_cache_hit" is used for the portion
+# of prompt tokens a provider reports as cache hits (see cache_hit_tokens on
+# estimate_cost_usd). Providers without a cache-hit distinction simply omit
+# "input_cache_hit" and all prompt tokens price at "input".
+PRICING_SNAPSHOT = "2026-07"
 _DEFAULT_PRICES: dict[str, dict[str, float]] = {
     "gpt-4o-mini": {"input": 0.15, "output": 0.60},
     "gpt-4o": {"input": 2.50, "output": 10.00},
@@ -26,10 +31,13 @@ _DEFAULT_PRICES: dict[str, dict[str, float]] = {
     "o4-mini": {"input": 1.10, "output": 4.40},
     "claude-haiku-4-5": {"input": 1.00, "output": 5.00},
     "claude-3-5-haiku": {"input": 0.80, "output": 4.00},
-    # DeepSeek's own API (deepseek-reasoner = R1, returns reasoning_content).
-    # Approximate standard-price rates; DeepSeek also has off-peak discounts.
-    "deepseek-reasoner": {"input": 0.55, "output": 2.19},
-    "deepseek-chat": {"input": 0.27, "output": 1.10},
+    # DeepSeek's own API, verified live against api-docs.deepseek.com/quick_start/pricing
+    # 2026-07-09. NOTE: "deepseek-reasoner"/"deepseek-chat" are DEPRECATED aliases
+    # (retiring 2026-07-24 15:59 UTC per DeepSeek's docs) that route to
+    # deepseek-v4-flash's thinking/non-thinking modes -- always request the
+    # explicit v4 model id, never the alias.
+    "deepseek-v4-flash": {"input": 0.14, "input_cache_hit": 0.0028, "output": 0.28},
+    "deepseek-v4-pro": {"input": 0.435, "input_cache_hit": 0.003625, "output": 0.87},
 }
 
 
@@ -60,13 +68,30 @@ def _rate(model: str | None) -> dict[str, float] | None:
     return table[best] if best else None
 
 
-def estimate_cost_usd(model: str | None, prompt_tokens: int | None, completion_tokens: int | None) -> float | None:
+def estimate_cost_usd(
+    model: str | None,
+    prompt_tokens: int | None,
+    completion_tokens: int | None,
+    *,
+    cache_hit_tokens: int | None = None,
+) -> float | None:
     """USD for one call from exact token counts, or None if the model is
-    unpriced or tokens are missing (never a fabricated number)."""
+    unpriced or tokens are missing (never a fabricated number).
+
+    ``cache_hit_tokens`` (optional): the portion of ``prompt_tokens`` a
+    provider reports as served from cache (e.g. DeepSeek's
+    ``prompt_cache_hit_tokens``), priced at the model's ``input_cache_hit``
+    rate if the table has one; the remainder prices at the normal (cache-miss)
+    ``input`` rate. Omit it (or 0) to price all prompt tokens at the standard
+    rate -- the safe default when no cache breakdown is available."""
     rate = _rate(model)
     if rate is None or prompt_tokens is None or completion_tokens is None:
         return None
-    return (prompt_tokens / 1_000_000) * rate["input"] + (completion_tokens / 1_000_000) * rate["output"]
+    hit = min(cache_hit_tokens or 0, prompt_tokens)
+    miss = prompt_tokens - hit
+    hit_rate = rate.get("input_cache_hit", rate["input"])
+    input_cost = (miss / 1_000_000) * rate["input"] + (hit / 1_000_000) * hit_rate
+    return input_cost + (completion_tokens / 1_000_000) * rate["output"]
 
 
 def is_priced(model: str | None) -> bool:

@@ -154,7 +154,9 @@ class RunRecord:
         a_prompt = diag.get("prompt_tokens")
         a_completion = diag.get("completion_tokens") or diag.get("output_tokens") or diag.get("eval_count")
         a_prompt = a_prompt if a_prompt is not None else diag.get("prompt_eval_count")
-        answerer_cost = estimate_cost_usd(answerer_model, a_prompt, a_completion)
+        answerer_cost = estimate_cost_usd(
+            answerer_model, a_prompt, a_completion, cache_hit_tokens=diag.get("cache_hit_tokens")
+        )
         j = judge_usage or {}
         judge_cost = estimate_cost_usd(judge_model, j.get("prompt_tokens"), j.get("completion_tokens"))
         self.cases.append({
@@ -180,9 +182,11 @@ class RunRecord:
             "retrieved_context": retrieved_context,
             "answerer": {
                 "model": answerer_model,
+                "served_model": diag.get("served_model"),  # catches provider alias rerouting
                 "provider": diag.get("provider"),
                 "prompt_tokens": a_prompt,
                 "completion_tokens": a_completion,
+                "cache_hit_tokens": diag.get("cache_hit_tokens"),
                 "reasoning_tokens": diag.get("reasoning_tokens"),
                 "finish_reason": diag.get("finish_reason"),
                 "cost_usd": answerer_cost,

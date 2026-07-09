@@ -372,7 +372,7 @@ def build_parser() -> argparse.ArgumentParser:
     improve_validate_parser.add_argument("--locomo-scopes", type=int, default=5, help="Number of conversations pooled into the validation (default 5)")
     improve_validate_parser.add_argument("--locomo-questions", type=int, default=None, help="Cap questions per conversation (bounds spend)")
     improve_validate_parser.add_argument("--split", choices=["dev", "holdout", "all"], default="holdout", help="Split to validate on (default holdout - the cases the loop never tuned on)")
-    improve_validate_parser.add_argument("--answerer", choices=["openai", "claude", "deepseek"], default="openai", help="Paid answerer that generates from retrieved context (default openai; deepseek uses deepseek-reasoner and captures its reasoning trace)")
+    improve_validate_parser.add_argument("--answerer", choices=["openai", "claude", "deepseek"], default="openai", help="Paid answerer that generates from retrieved context (default openai; deepseek uses deepseek-v4-pro by default and captures its reasoning trace -- use --answerer-model deepseek-v4-flash for the cheaper tier)")
     improve_validate_parser.add_argument("--answerer-model", default=None, help="Answerer model override")
     improve_validate_parser.add_argument("--judge", choices=["openai", "claude"], default="openai", help="Paid LLM judge (default openai)")
     improve_validate_parser.add_argument("--judge-model", default=None, help="Judge model override")
