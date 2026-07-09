@@ -447,7 +447,7 @@ class SeamLocomoAdapter:
         if self._answerer == "claude":
             return _claude_short_answer(self._answerer_model or "claude-haiku-4-5-20251001", prompt, **extra)
         if self._answerer == "deepseek":
-            return _deepseek_short_answer(self._answerer_model or "deepseek-reasoner", prompt, **extra)
+            return _deepseek_short_answer(self._answerer_model or "deepseek-v4-pro", prompt, **extra)
         if self._answerer == "ollama":
             return _ollama_short_answer(self._answerer_model or "qwen2.5:3b", prompt, **extra)
         raise ValueError(f"unknown answerer {self._answerer!r}")
@@ -865,10 +865,17 @@ def _claude_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
 
 
 def _deepseek_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out: dict | None = None) -> str:
-    """DeepSeek via its OpenAI-compatible API. ``deepseek-reasoner`` (R1) returns
-    its chain-of-thought in a separate ``reasoning_content`` field (OpenAI hides
-    this). We fold that into a ``<think>...</think>`` raw_response so the run
-    recorder captures the reasoning trace through the same path as local models.
+    """DeepSeek via its OpenAI-compatible API. Default model is the explicit
+    ``deepseek-v4-pro`` id -- NOT the ``deepseek-reasoner``/``deepseek-chat``
+    aliases, which DeepSeek's docs say are deprecated (retiring 2026-07-24) and
+    currently silently route to deepseek-v4-flash's thinking/non-thinking modes
+    (confirmed live: requesting ``deepseek-reasoner`` returned
+    ``response.model == "deepseek-v4-flash"``). Always pass an explicit v4 id.
+
+    DeepSeek returns its chain-of-thought in a separate ``reasoning_content``
+    field (OpenAI hides this). We fold that into a ``<think>...</think>``
+    raw_response so the run recorder captures the reasoning trace through the
+    same path as local models.
     """
     try:
         from openai import OpenAI
@@ -882,8 +889,9 @@ def _deepseek_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_o
         raise RuntimeError("deepseek answerer requires DEEPSEEK_API_KEY in the environment")
     base_url = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
     client = OpenAI(api_key=api_key, base_url=base_url)
-    # deepseek-reasoner ignores temperature; floor the answer budget so a short
-    # reply is not truncated (reasoning tokens are billed/returned separately).
+    # DeepSeek's v4 models ignore temperature; floor the answer budget so a
+    # short reply is not truncated (reasoning tokens are billed/returned
+    # separately from the visible answer, both counted in completion_tokens).
     budget = max(max_tokens, int(os.environ.get("SEAM_BENCH_DEEPSEEK_MAX_TOKENS", "512")))
     response = client.chat.completions.create(
         model=model,
@@ -896,6 +904,7 @@ def _deepseek_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_o
     if diag_out is not None:
         diag_out["provider"] = "deepseek"
         diag_out["model"] = model
+        diag_out["served_model"] = getattr(response, "model", None)  # catches alias rerouting
         diag_out["endpoint"] = base_url
         diag_out["finish_reason"] = getattr(response.choices[0], "finish_reason", None)
         diag_out["content_len"] = len(answer)
@@ -909,6 +918,9 @@ def _deepseek_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_o
             diag_out["completion_tokens"] = getattr(usage, "completion_tokens", None)
             details = getattr(usage, "completion_tokens_details", None)
             diag_out["reasoning_tokens"] = getattr(details, "reasoning_tokens", None) if details is not None else None
+            # DeepSeek-specific context-cache split (cache hits price far
+            # cheaper -- see pricing.py's input_cache_hit rate).
+            diag_out["cache_hit_tokens"] = getattr(usage, "prompt_cache_hit_tokens", None)
     return answer
 
 

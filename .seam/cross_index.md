@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 425
+total_events: 426
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-17T21:25:43Z | history:186:6dac80c8 | session-event | done | docs, handoff, protocol | docs/SOP_EXTERNAL_BENCH_LOCOMO_SEAM_ADAPTER.md,docs/SOP_EXTERNAL_BENCH_LLM_JU... |
 | 2026-05-18 | history:190:8ecacfad | session-event | done | handoff, protocol, command | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md |
 | 2026-05-18 | history:199:6838df98 | session-event | done | vector, persist, verify, audit | seam_runtime/vector.py,tests/audit/__init__.py,tests/audit/test_vector_pragma... |
 | 2026-05-18T00:00:00Z | roadmap:038:6ee5251d | status-change | bootstrap | tests, quality | ROADMAP.md:852 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-08T16:36:07Z | history:365:9de60364 | session-event | done | locomo, cat1, cat3, benchmark, paid, diagnostic, generati... | docs/audits/2026-07-08-cat13-generation-side-paid-confirmation.md |
 | 2026-07-08T22:50:21Z | history:366:fe1cd501 | session-event | done | benchmark, telemetry, run-record, cost, reasoning, cot, t... | benchmarks/external/common/run_record.py, benchmarks/external/common/pricing.... |
 | 2026-07-09T00:09:26Z | history:367:2278b41a | session-event | done | benchmark, deepseek, answerer, reasoning, cot, run-record... | benchmarks/external/locomo/adapters/seam.py, benchmarks/external/common/answe... |
+| 2026-07-09T13:11:14Z | history:368:f6b7058a | session-event | done | deepseek, pricing, answerer, model-selection, correctness... | benchmarks/external/locomo/adapters/seam.py, benchmarks/external/common/prici... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0225.cross.md | 2026-04-15T00:00:00Z..2026-05-17T17:36:37Z | 225 | (multi) | (multi) |
+| 0001-0226.cross.md | 2026-04-15T00:00:00Z..2026-05-17T21:25:43Z | 226 | (multi) | (multi) |

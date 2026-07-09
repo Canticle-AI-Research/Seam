@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 367
-total_tokens: ~155191
-latest_id: 367
+total_entries: 368
+total_tokens: ~156028
+latest_id: 368
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 368 | 2026-07-09 | done | f6b7058ab18c6c0d | deepseek,pricing,answerer,model-selection,+ | 367 |
 | 367 | 2026-07-09 | done | 2278b41ac9009671 | benchmark,deepseek,answerer,reasoning,+ | 366 |
 | 366 | 2026-07-08 | done | fe1cd501f1e1c45c | benchmark,telemetry,run-record,cost,+ | 365 |
 | 365 | 2026-07-08 | done | 9de603646444af36 | locomo,cat1,cat3,benchmark,+ | 364 |
@@ -387,7 +388,7 @@ compact: true
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
 - animation: count=4 latest=#068, #052, #032, #028
-- answerer: count=6 latest=#367, #365, #333, #328, #323
+- answerer: count=7 latest=#368, #367, #365, #333, #328
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
 - audit: count=74 latest=#303, #290, #288, #280, #279
@@ -432,6 +433,7 @@ compact: true
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
 - correction: count=2 latest=#354, #299
+- correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=1 latest=#366
 - cot: count=2 latest=#367, #366
@@ -439,7 +441,7 @@ compact: true
 - cross-platform: count=1 latest=#360
 - dashboard: count=73 latest=#342, #326, #299, #298, #288
 - decomposition: count=1 latest=#319
-- deepseek: count=1 latest=#367
+- deepseek: count=2 latest=#368, #367
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
@@ -499,6 +501,7 @@ compact: true
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
+- live-verification: count=1 latest=#368
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
@@ -517,6 +520,7 @@ compact: true
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
 - mirror-sync: count=2 latest=#360, #359
+- model-selection: count=1 latest=#368
 - models: count=1 latest=#182
 - multi-agent: count=19 latest=#268, #231, #230, #229, #224
 - multihop: count=3 latest=#321, #319, #318
@@ -536,6 +540,7 @@ compact: true
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
 - pr: count=2 latest=#359, #301
+- pricing: count=1 latest=#368
 - private-storage: count=1 latest=#367
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
@@ -629,6 +634,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 342
+- done: 343
 - in-progress: 2
 - planned: 20

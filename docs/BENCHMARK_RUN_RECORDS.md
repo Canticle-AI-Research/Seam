@@ -39,10 +39,17 @@ fabricated number.
 ### Reasoning traces (`<think>`)
 OpenAI models (gpt-4o-mini, o-series) do **not** return chain-of-thought text —
 only a `reasoning_tokens` count. Real reasoning traces come from:
-- **DeepSeek's API** — `--answerer deepseek` (model `deepseek-reasoner`, the full
-  R1). Its API returns the reasoning in a `reasoning_content` field, which the
-  answerer folds into `<think>…</think>` so the recorder captures it. Requires
-  `DEEPSEEK_API_KEY`; **paid** (cheap), and the data does transit DeepSeek's API.
+- **DeepSeek's API** — `--answerer deepseek` (default model `deepseek-v4-pro`;
+  cheaper `deepseek-v4-flash` also available via `--answerer-model`). Always use
+  an explicit `deepseek-v4-*` id — the `deepseek-reasoner`/`deepseek-chat`
+  aliases are DEPRECATED (DeepSeek retires them 2026-07-24) and silently route
+  to `deepseek-v4-flash`'s thinking/non-thinking modes (confirmed live: a call
+  requesting `deepseek-reasoner` came back reporting `response.model ==
+  "deepseek-v4-flash"`). The API returns reasoning in a `reasoning_content`
+  field, which the answerer folds into `<think>…</think>` so the recorder
+  captures it, and `served_model` records what actually answered (catches
+  future rerouting). Requires `DEEPSEEK_API_KEY`; **paid**, and the data does
+  transit DeepSeek's API.
 - **Local reasoning models** — deepseek-r1 / qwen-thinking via ollama (`--answerer
   ollama --answerer-model deepseek-r1:8b`). Free and fully on-machine; emits
   `<think>` in the text directly.
