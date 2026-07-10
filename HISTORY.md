@@ -8314,3 +8314,23 @@ tokens: 223
 ---
 Fixed the advisory CI regression introduced by the DeepSeek/run-record test coverage, without changing benchmark behavior. Root cause: tests/audit/test_run_record.py mocked the OpenAI-compatible DeepSeek client by monkeypatching openai.OpenAI, but the advisory test-and-benchmark matrix intentionally installs only runtime/server/sbert/rerank dependencies and not the optional bench-judge provider clients; CI therefore failed with ModuleNotFoundError even though the production DeepSeek path still correctly raises a clear runtime error when the optional openai package is absent. The test now supplies a fake openai module through sys.modules, preserving the no-network/no-spend assertion while keeping the optional dependency optional. The same test also assumed Linux /media mount semantics on Windows; it now asserts the unmounted-/media guard only on POSIX and treats /media as a normal local path on Windows. Verification before history closeout: .venv/bin/python -m pytest tests/audit/test_run_record.py -q -m 'not external' passed (9 passed), and .venv/bin/python -m py_compile tests/audit/test_run_record.py passed.
 ---END-ENTRY-#370---
+
+---BEGIN-ENTRY-#371---
+id: 371
+date: 2026-07-10T00:58:27Z
+agent: claude-opus-4-8
+status: done
+topics: benchmark, locomo, audit, quality, tests
+commits: none
+refs: benchmarks/external/common/scoring.py, benchmarks/external/common/run_record.py, tests/audit/test_evidence_status.py, docs/handoffs/2026-07-09-cat1-cat3-deepseek-fixes-handoff.md
+supersedes: 369
+tokens: 268
+---
+PR 1 of the operator's 3-PR cat1/cat3->0.80 program: measurement-integrity only, no answer-generation or benchmark-score behavior change, zero paid spend. Acts on #369's two documented tooling flaws (the crude context_recall precision flaw + the unreliable context_recall>=0.5 failure classifier that mislabels correct "unknown" refusals as answerer failures).
+
+Added a conservative evidence classifier alongside the v1 fields (all preserved for comparability). benchmarks/external/common/scoring.py gains evidence_status(retrieved, gold, category) -> (status, rationale) with statuses present/absent/uncertain/open_domain, plus content_tokens() (drops months, bare numbers/years, yes/no fillers) and is_open_domain_category() (cat3 = open-domain world-knowledge, where gold-token-in-context is not a valid retrieval signal), version-pinned EVIDENCE_CLASSIFIER_VERSION="evidence/1". benchmarks/external/common/run_record.py gains classify_failure_conservative(verdict, ev_status) and records evidence_status/evidence_rationale/evidence_classifier_version/failure_class_conservative per case, plus failure_class_conservative_counts/evidence_status_counts/evidence_classifier_version in totals and the two new fields in the training JSONL. The v1 context_recall, retrieval_hit, failure_class, and all judge scoring are byte-unchanged; classify_failure and its test are untouched.
+
+Design was pinned to REAL documented false positives (private 2026-07-09 holdout records, verified by SHA-256, NOT committed): replaying the corrected 82-case baseline through evidence/1 collapses v1's 33 answerer_miss into 10 strong answerer_miss + 20 uncertain + 14 open_domain_inference + 3 retrieval_miss (23 cases reclassified away from answerer_miss, including the date gold "19 October 2023", the cat3 world-knowledge golds "John Williams"/"Voyageurs National Park", and the pure-FP "Yes"). This shows the prior "SEAM is answerer-bound" framing rested substantially on classifier false confidence. Genuinely-present evidence (e.g. "Pacific northwest, east coast") deliberately stays answerer_miss -- its wrong score is a gold-incompleteness/judge problem reserved for PR 2, not a retrieval misattribution.
+
+Verification: new tests/audit/test_evidence_status.py (regression pins for dates, generic-token FPs, single-name answers, cat3 handling, present/absent, and record integration) + tests/audit/test_run_record.py -> 19 passed; ruff clean; py_compile clean; full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/ -m "not external") exit 0, 2 pre-existing xfail, no failures/skips. Draft PR for the branch agent/cat13-pr1-measurement-integrity. PR 2 (judge alias/specificity correctness + rejudge of the 82 stored answers) and PR 3 (answerer strategy) remain, both operator-gated on any paid call.
+---END-ENTRY-#371---

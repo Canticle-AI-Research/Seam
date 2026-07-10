@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 370
-total_tokens: ~157402
-latest_id: 370
+total_entries: 371
+total_tokens: ~157670
+latest_id: 371
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 371 | 2026-07-10 | done | 1088499e79be2898 | benchmark,locomo,audit,quality,+ | 369 |
 | 370 | 2026-07-09 | done | fe908a9eb7b174fd | ci,tests,deepseek,benchmark,+ | 368 |
 | 369 | 2026-07-09 | done | 466ae477a1b3ac99 | locomo,cat1,cat3,deepseek,+ | 368 |
 | 368 | 2026-07-09 | done | f6b7058ab18c6c0d | deepseek,pricing,answerer,model-selection,+ | 367 |
@@ -393,10 +394,10 @@ compact: true
 - answerer: count=7 latest=#368, #367, #365, #333, #328
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
-- audit: count=74 latest=#303, #290, #288, #280, #279
+- audit: count=75 latest=#371, #303, #290, #288, #280
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=120 latest=#370, #369, #367, #366, #365
+- benchmark: count=121 latest=#371, #370, #369, #367, #366
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -508,7 +509,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=37 latest=#369, #365, #362, #358, #343
+- locomo: count=38 latest=#371, #369, #365, #362, #358
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -558,6 +559,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
+- quality: count=1 latest=#371
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -615,7 +617,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=8 latest=#370, #361, #360, #359, #357
+- tests: count=9 latest=#371, #370, #361, #360, #359
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -638,6 +640,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 345
+- done: 346
 - in-progress: 2
 - planned: 20

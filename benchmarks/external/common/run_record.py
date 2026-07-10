@@ -27,6 +27,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from benchmarks.external.common.pricing import PRICING_SNAPSHOT, estimate_cost_usd
+from benchmarks.external.common.scoring import EVIDENCE_CLASSIFIER_VERSION, evidence_status
 
 _THINK_RE = re.compile(r"<think>(.*?)</think>", re.DOTALL | re.IGNORECASE)
 
@@ -64,6 +65,28 @@ def classify_failure(verdict: str | None, context_recall: float | None) -> str:
     if context_recall >= _HIT_THRESHOLD:
         return "answerer_miss"  # evidence was present, answer still wrong
     return "retrieval_miss"     # evidence absent from context
+
+
+def classify_failure_conservative(verdict: str | None, ev_status: str | None) -> str:
+    """Conservative failure attribution driven by ``scoring.evidence_status``
+    instead of the crude ``context_recall`` threshold. Only calls ``answerer_miss``
+    when evidence presence is strong, routes open-domain (cat3) questions to their
+    own bucket, and keeps an explicit ``uncertain`` class rather than forcing every
+    non-correct case into retrieval-vs-answerer. See ``EVIDENCE_CLASSIFIER_VERSION``.
+
+    This is additive: the v1 ``classify_failure`` output is still recorded so
+    prior runs stay comparable (measurement integrity, not a scoring change)."""
+    if verdict == "correct":
+        return "answered_correct"
+    if verdict == "abstain":
+        return "abstained"
+    if ev_status == "open_domain":
+        return "open_domain_inference"
+    if ev_status == "present":
+        return "answerer_miss"
+    if ev_status == "absent":
+        return "retrieval_miss"
+    return "uncertain"
 
 
 def external_mount_ready(path: str) -> tuple[bool, str]:
@@ -149,6 +172,7 @@ class RunRecord:
         judge_latency_ms: float | None = None,
     ) -> None:
         visible, reasoning = split_reasoning(raw_answer)
+        ev_status, ev_rationale = evidence_status(retrieved_context or "", gold_answer, category)
         diag = answerer_diagnostics or {}
         answerer_model = diag.get("model")
         a_prompt = diag.get("prompt_tokens")
@@ -176,6 +200,13 @@ class RunRecord:
             "context_recall": context_recall,
             "retrieval_hit": (None if context_recall is None else context_recall >= _HIT_THRESHOLD),
             "failure_class": classify_failure(verdict, context_recall),
+            # Conservative measurement-integrity attribution (additive; v1 above
+            # preserved). Only flags answerer_miss on strong evidence, isolates
+            # open-domain cat3, and keeps an explicit uncertain bucket.
+            "evidence_status": ev_status,
+            "evidence_rationale": ev_rationale,
+            "evidence_classifier_version": EVIDENCE_CLASSIFIER_VERSION,
+            "failure_class_conservative": classify_failure_conservative(verdict, ev_status),
             "candidate_count": candidate_count,
             "top_score": top_score,
             "retrieved_context_len": len(retrieved_context or ""),
@@ -208,6 +239,8 @@ class RunRecord:
         by_cat_arm: dict[tuple[str, str], list[float]] = defaultdict(list)
         verdicts: dict[str, int] = defaultdict(int)
         failure_classes: dict[str, int] = defaultdict(int)
+        failure_conservative: dict[str, int] = defaultdict(int)
+        evidence_statuses: dict[str, int] = defaultdict(int)
         a_cost = j_cost = 0.0
         a_tok = j_tok = 0
         n_correct = 0
@@ -216,6 +249,8 @@ class RunRecord:
                 by_cat_arm[(str(c["category"]), c["arm"])].append(c["judge_score"])
             verdicts[str(c["verdict"])] += 1
             failure_classes[c["failure_class"]] += 1
+            failure_conservative[c.get("failure_class_conservative", "unknown")] += 1
+            evidence_statuses[c.get("evidence_status", "unknown")] += 1
             if c["verdict"] == "correct":
                 n_correct += 1
             ac = c["answerer"]["cost_usd"] or 0.0
@@ -234,6 +269,9 @@ class RunRecord:
             "per_category_arm_judge_mean": per_category,
             "verdict_counts": dict(verdicts),
             "failure_class_counts": dict(failure_classes),
+            "failure_class_conservative_counts": dict(failure_conservative),
+            "evidence_status_counts": dict(evidence_statuses),
+            "evidence_classifier_version": EVIDENCE_CLASSIFIER_VERSION,
             "tokens": {"answerer": a_tok, "judge": j_tok, "total": a_tok + j_tok},
             "cost_usd": {
                 "answerer": round(a_cost, 6), "judge": round(j_cost, 6),
@@ -293,5 +331,7 @@ class RunRecord:
                     "judge_score": c["judge_score"],
                     "context_recall": c["context_recall"],
                     "failure_class": c["failure_class"],
+                    "evidence_status": c.get("evidence_status"),
+                    "failure_class_conservative": c.get("failure_class_conservative"),
                 }) + "\n")
         return path
