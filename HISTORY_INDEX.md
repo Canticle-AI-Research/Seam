@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 371
-total_tokens: ~157670
-latest_id: 371
+total_entries: 373
+total_tokens: ~158143
+latest_id: 373
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 373 | 2026-07-10 | done | 7fc68391646bc2f2 | benchmark,locomo,judge,tests,+ | 372 |
+| 372 | 2026-07-10 | done | db3b41ad02a06650 | benchmark,locomo,judge,tests | 371 |
 | 371 | 2026-07-10 | done | 64d25145c43a9744 | benchmark,locomo,audit,quality,+ | 369 |
 | 370 | 2026-07-09 | done | fe908a9eb7b174fd | ci,tests,deepseek,benchmark,+ | 368 |
 | 369 | 2026-07-09 | done | 466ae477a1b3ac99 | locomo,cat1,cat3,deepseek,+ | 368 |
@@ -397,7 +399,7 @@ compact: true
 - audit: count=75 latest=#371, #303, #290, #288, #280
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=121 latest=#371, #370, #369, #367, #366
+- benchmark: count=123 latest=#373, #372, #371, #370, #369
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -500,7 +502,7 @@ compact: true
 - instrumentation: count=1 latest=#366
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
-- judge: count=6 latest=#336, #334, #327, #321, #320
+- judge: count=8 latest=#373, #372, #336, #334, #327
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
@@ -509,7 +511,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=38 latest=#371, #369, #365, #362, #358
+- locomo: count=40 latest=#373, #372, #371, #369, #365
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -556,6 +558,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=100 latest=#356, #355, #351, #349, #346
 - prov: count=1 latest=#316
+- provenance: count=1 latest=#373
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
@@ -617,7 +620,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=9 latest=#371, #370, #361, #360, #359
+- tests: count=11 latest=#373, #372, #371, #370, #361
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -640,6 +643,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 346
+- done: 348
 - in-progress: 2
 - planned: 20

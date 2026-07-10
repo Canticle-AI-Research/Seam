@@ -8334,3 +8334,49 @@ Design was pinned to REAL documented false positives (private 2026-07-09 holdout
 
 Verification: new tests/audit/test_evidence_status.py (regression pins for dates, generic-token FPs, single-name answers, cat3 handling, scattered-multi-token-across-turns vs co-located, present/absent, and record integration) + tests/audit/test_run_record.py -> 20 passed; ruff clean; py_compile clean; full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/ -m "not external") exit 0, 2 pre-existing xfail, no failures/skips. Draft PR for the branch agent/cat13-pr1-measurement-integrity. PR 2 (judge alias/specificity correctness + rejudge of the 82 stored answers) and PR 3 (answerer strategy) remain, both operator-gated on any paid call.
 ---END-ENTRY-#371---
+
+---BEGIN-ENTRY-#372---
+id: 372
+date: 2026-07-10T01:52:55Z
+agent: claude-opus-4-8
+status: done
+topics: benchmark, locomo, judge, tests
+commits: none
+refs: benchmarks/external/common/judge.py, tools/h2/rejudge_record.py, tests/audit/test_rejudge_record.py
+supersedes: 371
+tokens: 241
+---
+PR 2 of the operator's 3-PR cat1/cat3->0.80 program: judge correctness + a REPLAY harness for the 82 already-STORED answers. Built and dry-run validated; zero paid spend, no code merged to main from this session's PR 1 work is touched.
+
+benchmarks/external/common/judge.py gains JUDGE_PROMPT_V2 (fixes three documented judge errors: alias/abbreviation under-scoring "LeBron" vs "LeBron James", subset-phrase under-scoring "the Lord of the Rings trilogy" vs gold "Lord of the Rings", and penalizing non-contradicting extra detail) plus a separate groundedness axis (grounded/unsupported_extra/contradicts/na) that never changes the verdict. Version-registered via JUDGE_PROMPT_VERSIONS={"judge/1": DEFAULT_JUDGE_PROMPT, "judge/2": JUDGE_PROMPT_V2}; judge/1 stays the byte-identical default for every existing caller (OpenAIJudge/ClaudeJudge/build_judge all default prompt_version="judge/1"). _parse_judge_json replaces _verdict_from_json_text internally (kept as a thin wrapper, no external callers) to also extract groundedness via a last_groundedness side-channel, mirroring the existing last_usage telemetry-side-channel idiom (JudgeVerdict stays frozen/unchanged).
+
+New tools/h2/rejudge_record.py: reads question/gold_answer/generated_answer straight out of one or more existing RunRecord JSON files (no adapter, no ingest, no store, no re-retrieval, no re-answer); later files override earlier ones by case_id (mirrors the token-budget-fix reconciliation pattern). Dry-run by default (zero client construction, zero credentials required -- verified by running with OPENAI_API_KEY unset); --confirm-paid (plus mandatory --out, guarded by the existing external_mount_ready check) required to spend. Cost estimate is grounded in each case's REAL stored judge/1 token usage (not a guess) plus the measured character-length delta of the judge/2 template, projecting the FULL cost of a new judge pass (not just the increment) -- an initial version of the estimator only reported the increment and was corrected before use.
+
+Real dry-run against the private, SHA-verified 82-case corrected holdout baseline (T7, NOT committed): 82/82 cases eligible (0 empty answers), max_estimated_cost_usd = $0.007422 (35,971 projected input tokens / 3,377 output tokens on gpt-4o-mini). No paid call made.
+
+A real regression was caught and fixed before landing: the judge.py OpenAIJudge changes initially broke 9 pre-existing tests (test_openai_judge_gpt5.py x6, test_locomo_judge_batch.py x3) that construct OpenAIJudge via object.__new__(OpenAIJudge)/OpenAIJudge.__new__(OpenAIJudge) bypass (an established test idiom for injecting a fake client) and never learned the new prompt_version attribute -- AttributeError. Fixed by reading it via getattr(self, "prompt_version", DEFAULT_JUDGE_PROMPT_VERSION) at both use sites (score(), _build_batch_request()) instead of requiring the attribute unconditionally, so any bypass-constructed judge instance still defaults to judge/1 behavior. ClaudeJudge's own __new__ bypass (test_locomo_judge_batch.py) is unaffected -- ClaudeJudge was not given prompt_version support in this PR.
+
+Verification: new tests/audit/test_rejudge_record.py (7: case-id override merge, deterministic prompt-char-delta, dry-run needs zero credentials, unknown-model cost is None not fabricated, original verdict preserved alongside new, empty-answer skips the judge call, judge/2 prompt contract pins) all passed; full affected slice (test_rejudge_record.py + test_locomo_judge.py + test_locomo_judge_batch.py + test_openai_judge_gpt5.py + test_run_record.py + test_evidence_status.py) -> 74 passed; ruff/py_compile clean on every touched file; full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/ -m "not external") verified clean by grepping for FAILED/ERROR markers directly (not just the runner's exit code) after an earlier background run's exit-0 summary was misleading while masking the 9 real failures above -- re-ran and confirmed only the 2 pre-existing xfail markers, zero FAILED/ERROR lines. Branch agent/cat13-pr2-judge-rejudge (from main @ cf36a8d, post-#135). NOT yet run with --confirm-paid -- operator-gated, dry-run output shown for review first. PR 3 (answerer strategy) remains.
+---END-ENTRY-#372---
+
+---BEGIN-ENTRY-#373---
+id: 373
+date: 2026-07-10T02:13:52Z
+agent: claude-opus-4-8
+status: done
+topics: benchmark, locomo, judge, tests, provenance
+commits: none
+refs: tools/h2/rejudge_record.py, tests/audit/test_rejudge_record.py
+supersedes: 372
+tokens: 232
+---
+Operator-directed hardening of #372's rejudge replay harness, before it goes through CI/review/merge: reproducibility and spend-provenance fields, plus a fail-closed --max-cost-usd guard. No paid call made; still zero spend.
+
+tools/h2/rejudge_record.py: every output (both the free dry-run estimate and the paid report) now carries a provenance block -- code_git_sha (via run_record._git_sha), a UTC timestamp, per-source-record SHA-256 hashes (_sha256_file over the exact input bytes, not the parsed content), and judge_name/judge_model/prompt_version/judge1_prompt_version. New --max-cost-usd CLI flag is REQUIRED alongside --confirm-paid (fail-closed: no cap means no spend, checked before any client is built). rejudge() now takes max_cost_usd as a required keyword arg (no default, so a programmatic caller cannot forget it either) and runs a two-layer guard: (1) pre-flight refuses to make ANY judge call if the full projected cost (same stored-token-grounded projection basis as the dry-run estimate, factored into a shared _prepare_projection/_projected_case_tokens pair so the approved estimate and the enforced guard can never drift) already exceeds the cap; (2) before every subsequent call, re-checks running ACTUAL cost + that call's projection against the cap and aborts the rest of the run the instant it would exceed it. Per-case actual token usage + cost (via judge.last_usage, already exposed by OpenAIJudge/ClaudeJudge) and run-level actual_tokens/actual_cost_usd aggregates are now recorded alongside the existing dry-run cost projection; skipped-by-guard cases are marked explicitly (rejudged=None, skipped_budget_guard=True) rather than silently omitted.
+
+Honesty correction made to the guard's own docstring during this pass: a new regression test (test_budget_guard_aborts_mid_run_when_actual_usage_exceeds_projection) deliberately makes a stub judge's REAL last_usage diverge wildly from the tiny stored-token projection, proving the guard can only bound the overshoot to at most one already-in-flight call whose real cost could not be known before it returned -- not literally guarantee the cap is never exceeded by a single call. The docstrings (module + rejudge()) were corrected to state this precisely instead of the stronger claim from #372's draft.
+
+Real dry-run against the private SHA-verified 82-case baseline re-run after this change: identical max_estimated_cost_usd = $0.007422, with the provenance block's source_records sha256 values matching the previously-verified 887e18af.../7d27969b... hashes exactly, and code_git_sha reflecting the current commit.
+
+Verification: 13 new/updated tests in tests/audit/test_rejudge_record.py (provenance hash-match, provenance fields, max_cost_usd keyword-required TypeError, pre-flight refusal with zero calls made, mid-run abort with divergent actual usage, aggregate actual token/cost totals) all passed; full affected slice (test_rejudge_record.py + test_locomo_judge.py + test_locomo_judge_batch.py + test_openai_judge_gpt5.py + test_run_record.py + test_evidence_status.py) -> 80 passed; ruff/py_compile clean. Full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/ -m "not external") run to a file and verified by grepping directly for FAILED/ERROR (not trusting the runner's exit-code summary alone, per the lesson from #372's earlier false-clean signal) -- confirmed genuinely clean, 2 pre-existing xfail only. Same branch agent/cat13-pr2-judge-rejudge (PR #136), still NOT run with --confirm-paid -- operator-gated, next step is CI + CodeRabbit review + squash-merge per operator instruction.
+---END-ENTRY-#373---
