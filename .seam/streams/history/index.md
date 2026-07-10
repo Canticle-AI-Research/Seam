@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 369
-total_tokens: ~157179
-latest_id: 369
+total_entries: 370
+total_tokens: ~157402
+latest_id: 370
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 370 | 2026-07-09 | done | fe908a9eb7b174fd | ci,tests,deepseek,benchmark,+ | 368 |
 | 369 | 2026-07-09 | done | 466ae477a1b3ac99 | locomo,cat1,cat3,deepseek,+ | 368 |
 | 368 | 2026-07-09 | done | f6b7058ab18c6c0d | deepseek,pricing,answerer,model-selection,+ | 367 |
 | 367 | 2026-07-09 | done | 2278b41ac9009671 | benchmark,deepseek,answerer,reasoning,+ | 366 |
@@ -395,13 +396,13 @@ compact: true
 - audit: count=74 latest=#303, #290, #288, #280, #279
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=119 latest=#369, #367, #366, #365, #364
+- benchmark: count=120 latest=#370, #369, #367, #366, #365
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=18 latest=#336, #335, #334, #327, #295
+- bugfix: count=19 latest=#370, #336, #335, #334, #327
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
@@ -410,7 +411,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=15 latest=#363, #361, #360, #359, #339
+- ci: count=16 latest=#370, #363, #361, #360, #359
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
@@ -442,7 +443,7 @@ compact: true
 - cross-platform: count=1 latest=#360
 - dashboard: count=73 latest=#342, #326, #299, #298, #288
 - decomposition: count=1 latest=#319
-- deepseek: count=3 latest=#369, #368, #367
+- deepseek: count=4 latest=#370, #369, #368, #367
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
@@ -614,7 +615,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=7 latest=#361, #360, #359, #357, #192
+- tests: count=8 latest=#370, #361, #360, #359, #357
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -628,7 +629,7 @@ compact: true
 - verify: count=248 latest=#344, #320, #317, #316, #315
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
-- windows: count=23 latest=#361, #360, #283, #282, #261
+- windows: count=24 latest=#370, #361, #360, #283, #282
 - workflow-permissions: count=1 latest=#298
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
@@ -637,6 +638,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 344
+- done: 345
 - in-progress: 2
 - planned: 20
