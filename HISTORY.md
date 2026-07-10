@@ -8380,3 +8380,21 @@ Real dry-run against the private SHA-verified 82-case baseline re-run after this
 
 Verification: 13 new/updated tests in tests/audit/test_rejudge_record.py (provenance hash-match, provenance fields, max_cost_usd keyword-required TypeError, pre-flight refusal with zero calls made, mid-run abort with divergent actual usage, aggregate actual token/cost totals) all passed; full affected slice (test_rejudge_record.py + test_locomo_judge.py + test_locomo_judge_batch.py + test_openai_judge_gpt5.py + test_run_record.py + test_evidence_status.py) -> 80 passed; ruff/py_compile clean. Full canonical suite (tests/ test_seam_all/ tools/history/test_history_tools.py tools/streams/ -m "not external") run to a file and verified by grepping directly for FAILED/ERROR (not trusting the runner's exit-code summary alone, per the lesson from #372's earlier false-clean signal) -- confirmed genuinely clean, 2 pre-existing xfail only. Same branch agent/cat13-pr2-judge-rejudge (PR #136), still NOT run with --confirm-paid -- operator-gated, next step is CI + CodeRabbit review + squash-merge per operator instruction.
 ---END-ENTRY-#373---
+
+---BEGIN-ENTRY-#374---
+id: 374
+date: 2026-07-10T12:38:26Z
+agent: codex
+status: done
+topics: bugfix, judge, benchmark, tests, verify, history
+commits: none
+refs: benchmarks/external/common/judge.py, test_seam_all/test_locomo_judge.py, test_seam_all/test_locomo_judge_batch.py, PR#136
+supersedes: 373
+tokens: 247
+---
+Fixed the single actionable post-merge review finding on PR#136. The PR merged after all CI and CodeRabbit checks passed, but a Codex review posted three minutes later and correctly found that tools/h2/rejudge_record.py advertised/defaulted judge/2 for --judge claude while build_judge() discarded the requested prompt version and ClaudeJudge still executed DEFAULT_JUDGE_PROMPT (judge/1). A paid Claude replay could therefore have recorded false judge/2 provenance and no groundedness. No paid call was made.
+
+benchmarks/external/common/judge.py now gives ClaudeJudge the same versioned-prompt contract as OpenAIJudge: prompt_version defaults to judge/1 (preserving all existing callers), is validated and stored by __init__, selects JUDGE_PROMPT_VERSIONS in both score() and score_batch(), and is passed through build_judge(). The synchronous score path now parses the separate groundedness axis into last_groundedness while keeping the frozen JudgeVerdict shape unchanged. getattr(..., DEFAULT_JUDGE_PROMPT_VERSION) preserves the established __new__ fake-client test idiom and its byte-identical judge/1 fallback.
+
+Regression coverage proves build_judge forwards judge/2 to Claude, a fake synchronous Claude response uses the exact judge/2 prompt and captures groundedness plus token usage, and the batch path renders the exact JUDGE_PROMPT_V2 template. Verification: collect-only succeeded for all touched test modules; the affected judge/rejudge/run-record/evidence slice passed 95 tests; ruff, py_compile, and git diff --check passed; the full canonical non-external suite (tests/, test_seam_all/, tools/history/test_history_tools.py, tools/streams/) completed with exit 0, no failures/errors/skips, and only 2 pre-existing xfails. CodeRabbit CLI review of the final three-file diff returned zero findings. PR 3 remains separate, and any real rejudge remains operator-gated behind --confirm-paid plus --max-cost-usd.
+---END-ENTRY-#374---
