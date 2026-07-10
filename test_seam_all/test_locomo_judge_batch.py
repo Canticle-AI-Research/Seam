@@ -12,6 +12,7 @@ import types
 import pytest
 
 from benchmarks.external.common.judge import (
+    JUDGE_PROMPT_V2,
     ClaudeJudge,
     JudgeBatchItem,
     JudgeVerdict,
@@ -395,6 +396,27 @@ def test_claude_judge_score_batch_parses_verdicts(monkeypatch) -> None:
     assert isinstance(result["c0"], JudgeVerdict)
     assert result["c0"].verdict == "correct"
     assert result["c1"].verdict == "incorrect"
+
+
+def test_claude_judge_score_batch_uses_selected_prompt_version(monkeypatch) -> None:
+    items = [JudgeBatchItem("c0", "Who plays basketball?", "LeBron James", "LeBron")]
+    entries = [
+        _FakeAnthropicBatchEntry(
+            "c0",
+            '{"verdict": "correct", "groundedness": "grounded", "rationale": "alias"}',
+        )
+    ]
+    judge = _claude_judge_with_fake(monkeypatch, entries)
+    judge.prompt_version = "judge/2"
+
+    result = judge.score_batch(items, poll_seconds=0)
+
+    assert result["c0"].verdict == "correct"
+    request = judge._client.messages.batches.created_with[0][0]
+    prompt = request["params"]["messages"][0]["content"]
+    assert prompt == JUDGE_PROMPT_V2.format(
+        question="Who plays basketball?", gold="LeBron James", pred="LeBron"
+    )
 
 
 def test_claude_judge_score_batch_marks_failed_entries_as_exceptions(monkeypatch) -> None:

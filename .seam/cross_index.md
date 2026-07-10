@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 431
+total_events: 432
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T00:00:00Z | roadmap:041:39250734 | status-change | bootstrap | git-hooks, macos | ROADMAP.md:889 |
 | 2026-05-18T00:00:00Z | roadmap:042:a278d768 | status-change | bootstrap | models, retry | ROADMAP.md:911 |
 | 2026-05-18T00:00:00Z | roadmap:043:1fbb875c | status-change | bootstrap | pack, json | ROADMAP.md:922 |
 | 2026-05-18T00:00:00Z | roadmap:044:d3465bb4 | status-change | bootstrap | scripts, windows | ROADMAP.md:933 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-10T00:58:27Z | history:371:64d25145 | session-event | done | benchmark, locomo, audit, quality, tests | benchmarks/external/common/scoring.py, benchmarks/external/common/run_record.... |
 | 2026-07-10T01:52:55Z | history:372:db3b41ad | session-event | done | benchmark, locomo, judge, tests | benchmarks/external/common/judge.py, tools/h2/rejudge_record.py, tests/audit/... |
 | 2026-07-10T02:13:52Z | history:373:7fc68391 | session-event | done | benchmark, locomo, judge, tests, provenance | tools/h2/rejudge_record.py, tests/audit/test_rejudge_record.py |
+| 2026-07-10T12:38:26Z | history:374:d9ca53b9 | session-event | done | bugfix, judge, benchmark, tests, verify, history | benchmarks/external/common/judge.py, test_seam_all/test_locomo_judge.py, test... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0231.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 231 | (multi) | (multi) |
+| 0001-0232.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 232 | (multi) | (multi) |

@@ -162,7 +162,12 @@ def _verdict_from_json_text(text: str, *, judge_name: str, judge_model: str) -> 
 class ClaudeJudge:
     name = "claude"
 
-    def __init__(self, model: str | None = None):
+    def __init__(
+        self,
+        model: str | None = None,
+        *,
+        prompt_version: str = DEFAULT_JUDGE_PROMPT_VERSION,
+    ):
         model = model or os.environ.get("SEAM_BENCH_JUDGE_MODEL", "claude-haiku-4-5-20251001")
         try:
             from anthropic import Anthropic
@@ -174,11 +179,20 @@ class ClaudeJudge:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise RuntimeError("--judge claude requires ANTHROPIC_API_KEY in the environment")
+        if prompt_version not in JUDGE_PROMPT_VERSIONS:
+            raise ValueError(f"unknown judge prompt version: {prompt_version!r}")
         self.model = model
+        self.prompt_version = prompt_version
         self._client = Anthropic(api_key=api_key)
+        self.last_groundedness: str | None = None
 
     def score(self, *, question, gold, pred) -> JudgeVerdict:
-        prompt = DEFAULT_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
+        # getattr preserves judge/1 behavior for established tests/callers that
+        # construct ClaudeJudge via __new__ and inject a fake client.
+        prompt_version = getattr(self, "prompt_version", DEFAULT_JUDGE_PROMPT_VERSION)
+        prompt = JUDGE_PROMPT_VERSIONS[prompt_version].format(
+            question=question, gold=gold, pred=pred
+        )
         try:
             response = self._client.messages.create(
                 model=self.model,
@@ -192,7 +206,13 @@ class ClaudeJudge:
             "prompt_tokens": getattr(usage, "input_tokens", None),
             "completion_tokens": getattr(usage, "output_tokens", None),
         } if usage is not None else None
-        return _verdict_from_json_text(response.content[0].text, judge_name=self.name, judge_model=self.model)
+        verdict, groundedness = _parse_judge_json(
+            response.content[0].text,
+            judge_name=self.name,
+            judge_model=self.model,
+        )
+        self.last_groundedness = groundedness
+        return verdict
 
     def score_batch(
         self,
@@ -213,11 +233,12 @@ class ClaudeJudge:
             )
         seen_ids: set[str] = set()
         requests_payload: list[dict] = []
+        prompt_version = getattr(self, "prompt_version", DEFAULT_JUDGE_PROMPT_VERSION)
         for item in items:
             if item.custom_id in seen_ids:
                 raise ValueError(f"duplicate custom_id in batch: {item.custom_id!r}")
             seen_ids.add(item.custom_id)
-            prompt = DEFAULT_JUDGE_PROMPT.format(
+            prompt = JUDGE_PROMPT_VERSIONS[prompt_version].format(
                 question=item.question, gold=item.gold, pred=item.pred
             )
             requests_payload.append(
@@ -516,7 +537,7 @@ def build_judge(
     if name == "stub":
         return StubJudge()
     if name == "claude":
-        return ClaudeJudge(model=model)
+        return ClaudeJudge(model=model, prompt_version=prompt_version)
     if name == "openai":
         return OpenAIJudge(model=model, prompt_version=prompt_version)
     raise ValueError(f"unknown judge: {name!r} (use stub|claude|openai|none)")
