@@ -208,7 +208,7 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-09T13:11:14Z | history:368:f6b7058a | session-event | done | deepseek, pricing, answerer, model-selection, correctness... | benchmarks/external/locomo/adapters/seam.py, benchmarks/external/common/prici... |
 | 2026-07-09T22:06:19Z | history:369:466ae477 | session-event | done | locomo, cat1, cat3, deepseek, benchmark, handoff, gold-no... | docs/handoffs/2026-07-09-cat1-cat3-deepseek-fixes-handoff.md |
 | 2026-07-09T22:40:39Z | history:370:fe908a9e | session-event | done | ci, tests, deepseek, benchmark, windows, bugfix | tests/audit/test_run_record.py |
-| 2026-07-10T00:58:27Z | history:371:1088499e | session-event | done | benchmark, locomo, audit, quality, tests | benchmarks/external/common/scoring.py, benchmarks/external/common/run_record.... |
+| 2026-07-10T00:58:27Z | history:371:64d25145 | session-event | done | benchmark, locomo, audit, quality, tests | benchmarks/external/common/scoring.py, benchmarks/external/common/run_record.... |
 
 
 ## Archive Pointers

@@ -91,6 +91,15 @@ def is_open_domain_category(category) -> bool:
     return str(category).strip().lower() in {"3", "cat3"}
 
 
+def _segments(text: str) -> list[str]:
+    """Split packed context into co-occurrence units. LoCoMo's packed context is
+    one conversational turn per line (``[Speaker time] utterance``), so a line is
+    a turn. Falls back to the whole text as one segment when it is unstructured
+    (no newlines), which safely degrades to plain whole-context membership."""
+    segs = [s for s in text.split("\n") if s.strip()]
+    return segs or ([text] if text.strip() else [])
+
+
 def evidence_status(retrieved: str, gold: str, category=None) -> tuple[str, str]:
     """Conservative retrieval-evidence attribution for a gold answer.
 
@@ -98,10 +107,15 @@ def evidence_status(retrieved: str, gold: str, category=None) -> tuple[str, str]
     does not treat coincidental generic-token overlap as evidence, and it
     refuses to attribute open-domain (cat3) answers to retrieval at all.
 
+    A multi-token gold is only ``present`` when its distinctive tokens
+    **co-occur within a single turn** — words that merely appear scattered
+    across unrelated turns are NOT evidence that the answer was retrievable, so
+    they fall to ``uncertain``. A lone distinctive token is likewise too weak.
+
     Statuses:
-      - ``present``     strong: every distinctive gold token is in the context.
-      - ``absent``      no distinctive gold token is in the context.
-      - ``uncertain``   partial / generic-only / single-weak-token overlap.
+      - ``present``     strong: distinctive gold tokens co-occur in one turn.
+      - ``absent``      no distinctive gold token is anywhere in the context.
+      - ``uncertain``   partial / generic-only / scattered / single-weak overlap.
       - ``open_domain`` cat3: not a retrieval-vs-answerer question.
     """
     if is_open_domain_category(category):
@@ -109,25 +123,32 @@ def evidence_status(retrieved: str, gold: str, category=None) -> tuple[str, str]
             "open_domain",
             "cat3 open-domain/world-knowledge: gold-token overlap is not a retrieval signal",
         )
-    gold_content = content_tokens(gold)
-    if not gold_content:
+    gold_set = set(content_tokens(gold))
+    if not gold_set:
         return (
             "uncertain",
             "gold has no distinctive content tokens (dates/numbers/yes-no only); overlap not decisive",
         )
-    ctx = set(_normalize(retrieved).split())
-    present = [t for t in gold_content if t in ctx]
-    coverage = len(present) / len(gold_content)
+    ctx_all = set(_normalize(retrieved).split())
+    present = gold_set & ctx_all
+    coverage = len(present) / len(gold_set)
     if coverage == 0.0:
         return ("absent", "no distinctive gold token found in context")
-    if coverage == 1.0 and len(gold_content) >= 2:
-        return ("present", f"all {len(gold_content)} distinctive gold tokens found in context")
-    if coverage == 1.0:
+    if len(gold_set) == 1:
         return (
             "uncertain",
             "single distinctive gold token present; too weak to confirm evidence",
         )
-    return ("uncertain", f"partial gold-token coverage {len(present)}/{len(gold_content)}")
+    if coverage < 1.0:
+        return ("uncertain", f"partial gold-token coverage {len(present)}/{len(gold_set)}")
+    # Full coverage: require co-occurrence in one turn, else it is scattered.
+    for seg in _segments(retrieved):
+        if gold_set <= set(_normalize(seg).split()):
+            return ("present", f"all {len(gold_set)} distinctive gold tokens co-occur in one turn")
+    return (
+        "uncertain",
+        f"all {len(gold_set)} distinctive gold tokens present but scattered across turns; not co-located",
+    )
 
 
 def aggregate_judge_scores(verdicts: list) -> dict:

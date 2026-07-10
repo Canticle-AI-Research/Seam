@@ -88,6 +88,27 @@ def test_present_strong_stays_answerer_miss():
     assert classify_failure_conservative("incorrect", status) == "answerer_miss"
 
 
+def test_multi_token_gold_scattered_across_turns_is_uncertain():
+    """A multi-token gold must not be 'present' merely because its words appear
+    in unrelated turns. LoCoMo packs one turn per line; co-occurrence is required."""
+    scattered = (
+        "[Amy 9:00 am] I love swimming at the lake every summer.\n"
+        "[Ben 10:00 am] The national museum downtown was closed for repairs.\n"
+        "[Amy 11:00 am] We took the kids to a park by the river.\n"
+    )
+    # 'national' (turn 2) and 'park' (turn 3) never share a turn -> uncertain
+    status, rationale = evidence_status(scattered, "national park", category="1")
+    assert status == "uncertain"
+    assert "scattered" in rationale
+    assert classify_failure_conservative("incorrect", status) == "uncertain"
+
+    # ... but co-located in a single turn IS present
+    colocated = "[Amy 9:00 am] We hiked in the national park all afternoon.\n"
+    status2, _ = evidence_status(colocated, "national park", category="1")
+    assert status2 == "present"
+    assert classify_failure_conservative("incorrect", status2) == "answerer_miss"
+
+
 def test_absent_evidence_is_retrieval_miss():
     ctx = "Today's weather report mentions rain and a cold front."
     status, _ = evidence_status(ctx, "Voyageurs lakeshore trail", category="1")

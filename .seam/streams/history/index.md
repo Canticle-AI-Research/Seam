@@ -11,7 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
-| 371 | 2026-07-10 | done | 1088499e79be2898 | benchmark,locomo,audit,quality,+ | 369 |
+| 371 | 2026-07-10 | done | 64d25145c43a9744 | benchmark,locomo,audit,quality,+ | 369 |
 | 370 | 2026-07-09 | done | fe908a9eb7b174fd | ci,tests,deepseek,benchmark,+ | 368 |
 | 369 | 2026-07-09 | done | 466ae477a1b3ac99 | locomo,cat1,cat3,deepseek,+ | 368 |
 | 368 | 2026-07-09 | done | f6b7058ab18c6c0d | deepseek,pricing,answerer,model-selection,+ | 367 |
