@@ -1,3 +1,10 @@
+---
+handoff_id: 2026-07-07-cat1-cat3-scoping-handoff
+supersedes: 2026-06-26-seam-vs-mem0-rungc-handoff
+handoff_status: superseded
+history: HISTORY#362
+---
+
 # Handoff: cat1/cat3 → 80% scoping + a real local-retrieval perf bug
 
 - **Date:** 2026-07-07

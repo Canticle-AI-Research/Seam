@@ -1,3 +1,10 @@
+---
+handoff_id: 2026-07-09-cat1-cat3-deepseek-fixes-handoff
+supersedes: 2026-07-07-cat1-cat3-scoping-handoff
+handoff_status: superseded
+history: HISTORY#369
+---
+
 # Handoff: cat1/cat3 fix attempts with DeepSeek-v4-pro — 4 levers tried, 1 real fixable pattern found
 
 - **Date:** 2026-07-09

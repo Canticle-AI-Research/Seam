@@ -1,3 +1,10 @@
+---
+handoff_id: 2026-06-26-seam-vs-mem0-rungc-handoff
+supersedes: 2026-06-13-mirl-compiler-fidelity-handoff
+handoff_status: superseded
+history: HISTORY#343
+---
+
 # Handoff: SEAM-vs-mem0 head-to-head (Strand C) — rung C needs a clean re-run
 
 **Date:** 2026-06-26 · **From:** Claude (Opus) · **To:** next agent (GPT/Codex)

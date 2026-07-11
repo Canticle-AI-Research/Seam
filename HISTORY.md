@@ -8456,3 +8456,45 @@ Cat1 disposition: 8 confirmed answerer failures, 5 retrieval gaps, 13 judge/gold
 
 Cat3 disposition: 6 defensible high-confidence world-knowledge inference targets and 8 judge/gold-defective or underspecified cases. Current 8.5/21 (0.404762); perfect conversion of all six defensible targets -> 14.5/21 (0.690476), still 2.5 points short of the 17 needed to exceed 0.80. Safe world-knowledge licensing cannot honestly hit the raw target without benchmark-specific guessing or judge/gold correction. Before code, the operator must choose: product-correct behavior with raw+adjudicated reporting (recommended), raw-benchmark heuristics, or a measurement-first adjudicated overlay. No further paid run is justified or authorized before that choice and free local implementation.
 ---END-ENTRY-#377---
+
+---BEGIN-ENTRY-#378---
+id: 378
+date: 2026-07-11T17:17:35Z
+agent: codex
+status: done
+topics: handoff, protocol, continuity, multi-agent, ci, docs, verify, history
+commits: none
+refs: docs/handoffs/INDEX.md,docs/handoffs/2026-07-11-cat1-cat3-success-contract-handoff.md,tools/history/verify_handoffs.py,tests/audit/test_handoff_registry.py,AGENTS.md,REPO_LEDGER.md,docs/DATA_ROUTING.md,PROJECT_STATUS.md,.github/workflows/ci.yml,tools/git-hooks/pre-commit
+supersedes: 377
+tokens: 299
+---
+Established the canonical tracked handoff registry requested after HISTORY#377.  now carries one explicit  pointer and one newest-first linear chain; all seven tracked handoff documents declare matching , , , and  metadata. Older dated handoffs are explicitly superseded instead of remaining ambiguous startup candidates. The first current successor, , preserves the exact next operator decision: product-correct raw+adjudicated reporting (recommended), raw-benchmark heuristics, or a measurement-first adjudicated overlay. It forbids product implementation or additional paid validation before that choice.\n\nAdded , a fail-closed verifier for registry/document metadata agreement, valid paths and HISTORY refs, registered-file completeness, missing supersession targets, cycles, forks, multiple roots/live heads/current statuses, newest-first order, and  agreement. Routed the canonical index through AGENTS startup, DATA_ROUTING, REPO_LEDGER, CODE_LAYOUT, and the docs index. Added the verifier to the cross-agent pre-commit gate and CI verification chain, with focused coverage in  and updated CI-gate assertions.\n\nNo SEAM product or benchmark behavior changed and no provider call was made. Verification before closeout: 63 focused registry/history/CI tests passed; ruff, py_compile, and git diff check passed; full canonical non-external suite completed with 1,310 passed, 7 external tests deselected, 2 pre-existing xfails, 3 subtests passed, zero failures, and zero skips.
+---END-ENTRY-#378---
+
+---BEGIN-ENTRY-#379---
+id: 379
+date: 2026-07-11T17:18:09Z
+agent: codex
+status: changed
+topics: history, handoff, bugfix, continuity, verify
+commits: none
+refs: docs/handoffs/INDEX.md,docs/handoffs/2026-07-11-cat1-cat3-success-contract-handoff.md,tools/history/verify_handoffs.py,PROJECT_STATUS.md
+supersedes: 378
+tokens: 259
+---
+Corrects HISTORY#378 after shell quoting stripped inline identifiers and rendered paragraph separators literally. No implementation, verification, benchmark, or provider state changed in this correction. The canonical registry is docs/handoffs/INDEX.md; its latest field points to docs/handoffs/2026-07-11-cat1-cat3-success-contract-handoff.md. Seven tracked handoffs form one newest-first linear chain and carry handoff_id, supersedes, handoff_status, and history metadata. tools/history/verify_handoffs.py enforces registered paths, HISTORY references, metadata agreement, missing targets, cycles, forks, one root, one live/current head, order, and latest consistency; local pre-commit and CI both run it. The current handoff preserves the operator choice among product-correct raw plus adjudicated reporting, raw-benchmark heuristics, and a measurement-first adjudicated overlay, with no product change or paid call before that choice. Verification for the substantive #378 change remains: 63 focused tests passed; ruff, py_compile, and git diff check passed; the canonical non-external suite completed with 1,310 passed, 7 external tests deselected, 2 pre-existing xfails, 3 subtests passed, zero failures, and zero skips.
+---END-ENTRY-#379---
+
+---BEGIN-ENTRY-#380---
+id: 380
+date: 2026-07-11T18:01:34Z
+agent: codex
+status: changed
+topics: ci, handoff, bugfix, protocol, verify, tests, history
+commits: none
+refs: .github/workflows/ci.yml,tests/audit/test_ci_verify_gates.py,PR#141
+supersedes: 379
+tokens: 184
+---
+Addressed a valid P2 automated-review finding before merging PR#141. The canonical handoff verifier was present in the advisory test-and-benchmark matrix and the local pre-commit gate, but not in the required repo-hygiene job, so a GitHub-authored or no-verify change could have satisfied every required merge check while breaking the registry. The required repo-hygiene job now runs python -m tools.history.verify_handoffs, and tests/audit/test_ci_verify_gates.py pins that command to the exact required job. No SEAM product or benchmark behavior changed, no provider call was made, and no paid review usage occurred. Local verification before closeout: 19 focused CI, PR-gate, and handoff-registry tests passed; git diff --check and the handoff verifier passed. The pushed head must rerun all GitHub checks and a substantive free CodeRabbit review before plain squash merge.
+---END-ENTRY-#380---

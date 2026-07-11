@@ -12,6 +12,8 @@ This folder is the active operator and engineering documentation surface.
 - `engineering/README.md` - SEAM engineering architecture and change-control manual (architecture, security, change/test/incident SOPs, epistemic calibration, verification matrix, templates) plus the `seam-engineer` routing skill.
 - `CODE_LAYOUT.md` - active code, experimental code, generated code, and inactive code boundaries.
 - `DATA_ROUTING.md` - logical data routes, topic ledgers, context packs, and corruption-defense checks.
+- `handoffs/INDEX.md` - canonical latest handoff pointer and validated
+  supersession chain; read its current document during normal startup.
 - `SOP_MODEL_INTEGRATION.md` - current model integration procedure.
 - `RAG_ARCHITECTURE.md` - current graph/vector/mix retrieval and agent bridge architecture.
 - `MIRL_V1.md` - current MIRL reference and readable lossless compression contract.
@@ -34,3 +36,4 @@ This folder is the active operator and engineering documentation surface.
 - Stable repo decisions live in `../REPO_LEDGER.md`.
 - Current code layout lives in `CODE_LAYOUT.md`.
 - Current data routing and topic-ledger policy lives in `DATA_ROUTING.md`.
+- Current tracked recovery state starts at `handoffs/INDEX.md`.

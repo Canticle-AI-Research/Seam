@@ -9,8 +9,9 @@
 # Two responsibilities:
 #   1. Scope block: reject staged paths that should never enter version
 #      control (agent-local configs, OpenCode workspace, ad-hoc agent state).
-#   2. Verify chain: run verify_integrity, verify_routing, verify_continuity
-#      against the SEAM history protocol. Non-zero gate blocks the commit.
+#   2. Verify chain: run verify_integrity, verify_routing, verify_handoffs,
+#      verify_continuity, and verify_streams against the SEAM continuity
+#      protocol. A non-zero gate blocks the commit.
 #
 # Use --no-verify to bypass. Per CLAUDE.md and AGENTS.md, do not bypass
 # unless the operator explicitly authorizes it.
@@ -66,6 +67,7 @@ run_gate() {
 
 run_gate "verify_integrity"  "$PY" -m tools.history.verify_integrity
 run_gate "verify_routing"    "$PY" -m tools.history.verify_routing
+run_gate "verify_handoffs"   "$PY" -m tools.history.verify_handoffs
 run_gate "verify_continuity" "$PY" -m tools.history.verify_continuity --no-recorded-fact-audit
 run_gate "verify_streams"    "$PY" -m tools.streams.verify_streams
 

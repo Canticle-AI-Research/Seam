@@ -1,3 +1,10 @@
+---
+handoff_id: 2026-06-13-mirl-compiler-fidelity-handoff
+supersedes: 2026-06-08-h2-self-improvement-loop
+handoff_status: superseded
+history: HISTORY#306
+---
+
 # Handoff — MIRL compiler fidelity + governing-contract rule
 
 Date: 2026-06-13
