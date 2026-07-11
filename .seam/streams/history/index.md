@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 374
-total_tokens: ~158390
-latest_id: 374
+total_entries: 375
+total_tokens: ~158641
+latest_id: 375
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 375 | 2026-07-11 | done | 37cbccbaa4ad19dc | benchmark,locomo,handoff,evidence,+ | 374 |
 | 374 | 2026-07-10 | done | d9ca53b99cbeb829 | bugfix,judge,benchmark,tests,+ | 373 |
 | 373 | 2026-07-10 | done | 7fc68391646bc2f2 | benchmark,locomo,judge,tests,+ | 372 |
 | 372 | 2026-07-10 | done | db3b41ad02a06650 | benchmark,locomo,judge,tests | 371 |
@@ -400,7 +401,7 @@ compact: true
 - audit: count=75 latest=#371, #303, #290, #288, #280
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=124 latest=#374, #373, #372, #371, #370
+- benchmark: count=125 latest=#375, #374, #373, #372, #371
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -467,7 +468,7 @@ compact: true
 - enrichment: count=1 latest=#317
 - entity-aggregation: count=2 latest=#358, #323
 - epistemic: count=1 latest=#325
-- evidence: count=1 latest=#316
+- evidence: count=2 latest=#375, #316
 - experiment: count=1 latest=#273
 - extractor: count=1 latest=#313
 - extras: count=1 latest=#022
@@ -488,7 +489,7 @@ compact: true
 - graph: count=2 latest=#099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=14 latest=#369, #362, #343, #306, #229
+- handoff: count=15 latest=#375, #369, #362, #343, #306
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
@@ -503,7 +504,7 @@ compact: true
 - instrumentation: count=1 latest=#366
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
-- judge: count=9 latest=#374, #373, #372, #336, #334
+- judge: count=10 latest=#375, #374, #373, #372, #336
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
@@ -512,7 +513,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=40 latest=#373, #372, #371, #369, #365
+- locomo: count=41 latest=#375, #373, #372, #371, #369
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -644,6 +645,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 349
+- done: 350
 - in-progress: 2
 - planned: 20
