@@ -29,6 +29,12 @@ from benchmarks.external.common.runner import (
     run_benchmark_grouped,
     run_benchmark_grouped_parallel,
 )
+from seam_runtime.conversation import (
+    CONVERSATION_ADAPTER_OFF,
+    CONVERSATION_ADAPTERS,
+    INFERENCE_CONTEXT_ONLY,
+    INFERENCE_POLICIES,
+)
 
 
 def build_adapter(
@@ -49,6 +55,8 @@ def build_adapter(
     semantic_recovery_mode: str = "baseline",
     record_retrieval_events: bool | None = None,
     retrieval_event_run_id: str | None = None,
+    conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
+    inference_policy: str = INFERENCE_CONTEXT_ONLY,
 ):
     """Lazy-import factory so SEAM-only runs don't require Mem0/Zep installed."""
     if name == "seam":
@@ -68,6 +76,8 @@ def build_adapter(
             keep_db=keep_db,
             record_retrieval_events=record_retrieval_events,
             run_id=retrieval_event_run_id,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
         )
     if name == "mem0":
         from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
@@ -76,15 +86,30 @@ def build_adapter(
             Mem0LocomoAdapter(search_limit=mem0_search_limit),
             answerer,
             answerer_model,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
         )
     if name == "zep":
         from benchmarks.external.locomo.adapters.zep import ZepLocomoAdapter
 
-        return _maybe_wrap_answerer(ZepLocomoAdapter(), answerer, answerer_model)
+        return _maybe_wrap_answerer(
+            ZepLocomoAdapter(),
+            answerer,
+            answerer_model,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
+        )
     raise ValueError(f"unknown adapter {name!r}")
 
 
-def _maybe_wrap_answerer(inner, answerer: str | None, answerer_model: str | None):
+def _maybe_wrap_answerer(
+    inner,
+    answerer: str | None,
+    answerer_model: str | None,
+    *,
+    conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
+    inference_policy: str = INFERENCE_CONTEXT_ONLY,
+):
     """Comparator adapters (mem0/zep) return only retrieved context. When an
     answerer is configured, wrap them so the SAME answerer generates their
     answer from that context -- otherwise the runner judges them on an empty
@@ -94,7 +119,13 @@ def _maybe_wrap_answerer(inner, answerer: str | None, answerer_model: str | None
         return inner
     from benchmarks.external.common.answerer import SharedAnswererAdapter
 
-    return SharedAnswererAdapter(inner, answerer, answerer_model)
+    return SharedAnswererAdapter(
+        inner,
+        answerer,
+        answerer_model,
+        conversation_adapter=conversation_adapter,
+        inference_policy=inference_policy,
+    )
 
 
 def _fixture_hash(cases) -> str:
@@ -235,6 +266,24 @@ def main() -> None:
         "--answerer-model",
         default=None,
         help="Override the default answerer model id",
+    )
+    parser.add_argument(
+        "--conversation-adapter",
+        choices=sorted(CONVERSATION_ADAPTERS),
+        default=CONVERSATION_ADAPTER_OFF,
+        help=(
+            "Versioned semantic-conversation projection applied before answer "
+            "generation for every adapter (default: off)."
+        ),
+    )
+    parser.add_argument(
+        "--inference-policy",
+        choices=sorted(INFERENCE_POLICIES),
+        default=INFERENCE_CONTEXT_ONLY,
+        help=(
+            "Versioned answer inference boundary applied equally to every adapter "
+            "(default: context-only)."
+        ),
     )
     parser.add_argument(
         "--judge-cross",
@@ -409,6 +458,8 @@ def main() -> None:
                 semantic_recovery_mode=args.semantic_recovery_mode,
                 record_retrieval_events=args.record_retrieval_events,
                 retrieval_event_run_id=args.retrieval_event_run_id,
+                conversation_adapter=args.conversation_adapter,
+                inference_policy=args.inference_policy,
             ),
             adapter_name=args.adapter,
             cases=cases,
@@ -440,6 +491,8 @@ def main() -> None:
             semantic_recovery_mode=args.semantic_recovery_mode,
             record_retrieval_events=args.record_retrieval_events,
             retrieval_event_run_id=args.retrieval_event_run_id,
+            conversation_adapter=args.conversation_adapter,
+            inference_policy=args.inference_policy,
         )
         judge = build_judge(args.judge, model=args.judge_model)
         report = run_benchmark_grouped(

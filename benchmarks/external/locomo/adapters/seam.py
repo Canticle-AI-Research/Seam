@@ -6,11 +6,17 @@ import os
 import re
 import time as _time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
 from benchmarks.external.common.types import AdapterAnswer, ConversationTurn
+from seam_runtime.conversation import (
+    CONVERSATION_ADAPTER_OFF,
+    CONVERSATION_ADAPTERS,
+    INFERENCE_CONTEXT_ONLY,
+    INFERENCE_POLICIES,
+)
 
 
 def _env_truthy(value: str | None) -> bool:
@@ -75,7 +81,13 @@ class SeamLocomoAdapter:
         record_retrieval_events: bool | None = None,
         run_id: str | None = None,
         entity_aggregation: bool = False,
+        conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
+        inference_policy: str = INFERENCE_CONTEXT_ONLY,
     ) -> None:
+        if conversation_adapter not in CONVERSATION_ADAPTERS:
+            raise ValueError(f"unknown conversation adapter {conversation_adapter!r}")
+        if inference_policy not in INFERENCE_POLICIES:
+            raise ValueError(f"unknown inference policy {inference_policy!r}")
         # TODO: default db_path should be tmp_path, not a gitignored project dir
         self._db_root = Path(db_path) if db_path is not None else Path("test_seam/locomo")
         self.semantic_recovery_policy = SemanticRecoveryPolicy(
@@ -88,6 +100,8 @@ class SeamLocomoAdapter:
         self.include_evidence_closure = include_evidence_closure
         self._answerer = answerer
         self._answerer_model = answerer_model
+        self._conversation_adapter = conversation_adapter
+        self._inference_policy = inference_policy
         self._decomposer = decomposer
         self._decomposer_model = decomposer_model
         self._decomposer_max_subq = decomposer_max_subq
@@ -316,7 +330,20 @@ class SeamLocomoAdapter:
             else:
                 t1 = _time.monotonic()
                 answerer_diag = {}
-                generated = self._generate_answer(question, retrieved_context, diag_out=answerer_diag)
+                flags = rt._retrieval_flags_cached()
+                policy_kwargs = {}
+                if (
+                    getattr(flags, "conversation_adapter", "off") != "off"
+                    or getattr(flags, "inference_policy", "context-only")
+                    != "context-only"
+                ):
+                    policy_kwargs["flags"] = flags
+                generated = self._generate_answer(
+                    question,
+                    retrieved_context,
+                    diag_out=answerer_diag,
+                    **policy_kwargs,
+                )
                 answer_latency_ms = (_time.monotonic() - t1) * 1000.0
 
         diag = self._retrieval_diagnostics(
@@ -435,12 +462,36 @@ class SeamLocomoAdapter:
             # the result bundle does not depend on retrieval_event rows.
             pass
 
-    def _generate_answer(self, question: str, context: str, diag_out: dict | None = None) -> str:
+    def _generate_answer(
+        self,
+        question: str,
+        context: str,
+        diag_out: dict | None = None,
+        *,
+        flags=None,
+    ) -> str:
         # Prompt is single-sourced so every comparator's answerer is identical
         # (fair SEAM-vs-mem0 head-to-head varies only the retrieved context).
         from benchmarks.external.common.answerer import build_answer_prompt
 
-        prompt = build_answer_prompt(question, context)
+        conversation_adapter = getattr(flags, "conversation_adapter", "off")
+        inference_policy = getattr(flags, "inference_policy", "context-only")
+        prompt = build_answer_prompt(
+            question,
+            context,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
+        )
+        if diag_out is not None:
+            from seam_runtime.conversation import classify_conversation_intent
+
+            diag_out.update(
+                {
+                    "conversation_adapter": conversation_adapter,
+                    "inference_policy": inference_policy,
+                    "conversation_intent": classify_conversation_intent(question).value,
+                }
+            )
         extra = {"diag_out": diag_out} if diag_out is not None else {}
         if self._answerer == "openai":
             return _openai_short_answer(self._answerer_model or "gpt-4o-mini", prompt, **extra)
@@ -712,6 +763,15 @@ class SeamLocomoAdapter:
         runtime = self._runtime_by_scope.get(scope_id)
         if runtime is None:
             runtime = _open_runtime(self._db_path(scope_id))
+            if (
+                self._conversation_adapter != CONVERSATION_ADAPTER_OFF
+                or self._inference_policy != INFERENCE_CONTEXT_ONLY
+            ):
+                runtime._retrieval_flags = replace(
+                    runtime._retrieval_flags_cached(),
+                    conversation_adapter=self._conversation_adapter,
+                    inference_policy=self._inference_policy,
+                )
             self._runtime_by_scope[scope_id] = runtime
         return runtime
 

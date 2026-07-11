@@ -8498,3 +8498,17 @@ tokens: 184
 ---
 Addressed a valid P2 automated-review finding before merging PR#141. The canonical handoff verifier was present in the advisory test-and-benchmark matrix and the local pre-commit gate, but not in the required repo-hygiene job, so a GitHub-authored or no-verify change could have satisfied every required merge check while breaking the registry. The required repo-hygiene job now runs python -m tools.history.verify_handoffs, and tests/audit/test_ci_verify_gates.py pins that command to the exact required job. No SEAM product or benchmark behavior changed, no provider call was made, and no paid review usage occurred. Local verification before closeout: 19 focused CI, PR-gate, and handoff-registry tests passed; git diff --check and the handoff verifier passed. The pushed head must rerun all GitHub checks and a substantive free CodeRabbit review before plain squash merge.
 ---END-ENTRY-#380---
+
+---BEGIN-ENTRY-#381---
+id: 381
+date: 2026-07-11T22:58:00Z
+agent: codex
+status: in-progress
+topics: benchmark, locomo, retrieval, answerer, quality, handoff, continuity, protocol
+commits: none
+refs: docs/handoffs/2026-07-11-cat13-semantic-conversation-adapter-in-progress.md,.context-handoffs/context-handoff-20260711T225518Z.md,seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_improve.py,benchmarks/external/common/adjudication.py,benchmarks/external/common/answerer.py,benchmarks/external/locomo/adapters/seam.py,tools/h2/improvement_loop.py,tests/audit/test_semantic_conversation_adapter.py
+supersedes: 380
+tokens: 275
+---
+Cut-off handoff for the operator-approved product-correct semantic conversation adapter and category-driven improvement loop. Branch agent/cat13-semantic-conversation-adapter was created from f0c8ddb after main matched origin/main. In-flight code adds opt-in conversation/1 evidence projection, inference/high-confidence/1, answer-policy candidates, category-floor progress, and a raw-preserving adjudication overlay; defaults remain off and context-only. This is not complete, committed, pushed, or score-validated. Collect-only succeeded for 67 focused tests. Executing the same slice produced 61 passed and 6 failed: one new improvement-loop test lacks the pytest import; five judged-scorer tests expose a compatibility break because injected legacy generator callables do not accept the new flags keyword. No full suite, ruff, py_compile, benchmark, provider call, or paid validation ran. First successor action: preserve the established injected-generator contract, add the missing import, rerun the exact focused slice, then review whether answer policy should remain inside RetrievalFlags before further implementation. The operator set context handoffs to trigger normally at 45 percent within a 40-55 percent band; exceed 45 only to finish an atomic safety boundary and do not continue ordinary implementation past 55 percent. Unrelated .playwright-mcp, .wrangler, and visuals remain untouched.
+---END-ENTRY-#381---

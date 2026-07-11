@@ -284,6 +284,7 @@ def test_cli_workflow_does_not_create_protocol_files(tmp_path):
 
 def test_valid_kinds_and_statuses_are_documented():
     assert "ranking_weight" in VALID_KINDS
+    assert "answer_policy" in VALID_KINDS
     assert "other" in VALID_KINDS
     for s in ("pending", "approved", "rejected", "superseded"):
         assert s in VALID_STATUSES

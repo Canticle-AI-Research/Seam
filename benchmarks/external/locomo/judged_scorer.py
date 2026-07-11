@@ -62,6 +62,8 @@ class JudgedLocomoScorer:
     judge: Judge
     cases_by_scope: "OrderedDict[str, list[BenchmarkCase]]"
     name: str = "locomo_judged"
+    profile_safe: bool = True
+    answer_policy_safe: bool = True
     judge_retries: int = 1
     last_run: dict = field(default_factory=dict)
 

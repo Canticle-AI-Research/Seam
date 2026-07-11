@@ -24,7 +24,7 @@ calls lives in ``seam_runtime.self_improve``.
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from seam_runtime.retrieval import load_retrieval_flags
 from seam_runtime.self_improve import (
@@ -33,6 +33,7 @@ from seam_runtime.self_improve import (
     Scorer,
     candidate_levers,
     evaluate_candidates,
+    score_report_views,
     select_best_improvement,
 )
 from seam_runtime.storage import SQLiteStore
@@ -49,6 +50,7 @@ def run_improvement_cycle(
     noise_margin: float = DEFAULT_NOISE_MARGIN,
     regress_tol: float = DEFAULT_REGRESS_TOL,
     weight_step: float = 0.10,
+    category_floors: Mapping[str, float] | None = None,
 ) -> dict:
     """Run one improvement cycle. Returns a structured report; writes at most one
     proposal, and (only under ``auto_approve``) applies/reverts it.
@@ -58,9 +60,27 @@ def run_improvement_cycle(
     """
     if not scorers:
         raise ValueError("at least one scorer is required")
+    floors = dict(category_floors or {})
+    invalid_keys = [key for key in floors if not isinstance(key, str) or not key]
+    if invalid_keys:
+        raise ValueError(f"category floor names must be non-empty strings: {invalid_keys!r}")
+    invalid_floors = {
+        key: value
+        for key, value in floors.items()
+        if isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not 0.0 <= value <= 1.0
+    }
+    if invalid_floors:
+        raise ValueError(f"category floors must be within [0, 1]: {invalid_floors!r}")
 
     baseline = load_retrieval_flags(store)
-    base_reports = {s.name: s.score(runtime, flags=baseline) for s in scorers}
+    base_reports = {}
+    base_views = {}
+    for scorer in scorers:
+        report, views = score_report_views(scorer, runtime, baseline)
+        base_reports[scorer.name] = report
+        base_views[scorer.name] = views
     # The answerer-aware profile knobs (search_top_k/context_budget) are proposed
     # ONLY when every scorer is dilution-sensitive (profile_safe). A bigger budget
     # mechanically inflates the self-probe and context_recall scorers, so if either
@@ -68,17 +88,43 @@ def run_improvement_cycle(
     # / judged scorers set profile_safe=True, letting the loop tune the knee to the
     # configured answerer without that hazard.
     profile_levers = bool(scorers) and all(getattr(s, "profile_safe", False) for s in scorers)
-    candidates = candidate_levers(baseline, weight_step=weight_step, profile_levers=profile_levers)
+    answer_policy_levers = bool(scorers) and all(
+        getattr(s, "answer_policy_safe", False) for s in scorers
+    )
+    candidates = candidate_levers(
+        baseline,
+        weight_step=weight_step,
+        profile_levers=profile_levers,
+        answer_policy_levers=answer_policy_levers,
+    )
     evaluations = evaluate_candidates(
         runtime, scorers, candidates, baseline,
         noise_margin=noise_margin, regress_tol=regress_tol,
+        category_floors=floors,
+        baseline_reports=base_reports,
+        baseline_views=base_views,
     )
     best = select_best_improvement(evaluations)
 
     report: dict = {
         "baseline": {name: round(r.aggregate, 6) for name, r in base_reports.items()},
+        "baseline_views": {
+            scorer_name: {
+                view_name: {
+                    "aggregate": round(view.aggregate, 6),
+                    "per_category": {
+                        category: round(value, 6)
+                        for category, value in sorted(view.per_category.items())
+                    },
+                }
+                for view_name, view in sorted(views.items())
+            }
+            for scorer_name, views in base_views.items()
+        },
         "n_candidates": len(candidates),
         "profile_levers": profile_levers,
+        "answer_policy_levers": answer_policy_levers,
+        "category_floors": dict(sorted(floors.items())),
         "proposed": None,
         "applied": False,
         "reverted": False,
@@ -88,8 +134,14 @@ def run_improvement_cycle(
         report["reason"] = "no candidate improved beyond noise without regression"
         return report
 
+    proposal_kind = (
+        "answer_policy"
+        if {"conversation_adapter", "inference_policy"}
+        & best.candidate.change.keys()
+        else "ranking_weight"
+    )
     proposal_id = store.write_improvement_proposal(
-        kind="ranking_weight",
+        kind=proposal_kind,
         summary=f"self-improve: {best.candidate.label}",
         rationale=best.reason,
         proposed_change={"flags": best.candidate.change},
@@ -98,6 +150,14 @@ def run_improvement_cycle(
         "proposal_id": proposal_id,
         "change": best.candidate.change,
         "deltas": {k: round(v, 6) for k, v in best.deltas.items()},
+        "score_view_deltas": {
+            scorer_name: {
+                view_name: round(value, 6)
+                for view_name, value in sorted(views.items())
+            }
+            for scorer_name, views in best.view_deltas.items()
+        },
+        "floor_progress": round(best.floor_progress, 6),
         "reason": best.reason,
     }
 
@@ -116,7 +176,7 @@ def run_improvement_cycle(
     # regressed past tolerance against the pre-cycle baseline.
     applied_flags = load_retrieval_flags(store)
     for scorer in scorers:
-        post = scorer.score(runtime, flags=applied_flags)
+        post, post_views = score_report_views(scorer, runtime, applied_flags)
         if post.aggregate < base_reports[scorer.name].aggregate - regress_tol:
             store.record_proposal_decision(
                 proposal_id=proposal_id, status="rejected", actor=actor,
@@ -127,6 +187,30 @@ def run_improvement_cycle(
             report["applied"] = False
             report["reverted"] = True
             report["revert_reason"] = f"{scorer.name} regressed post-apply"
+            break
+        for view_name, base_view in base_views[scorer.name].items():
+            post_view = post_views.get(view_name)
+            if (
+                post_view is not None
+                and post_view.aggregate < base_view.aggregate - regress_tol
+            ):
+                store.record_proposal_decision(
+                    proposal_id=proposal_id,
+                    status="rejected",
+                    actor=actor,
+                    reason=(
+                        f"auto-revert: {scorer.name}/{view_name} regressed post-apply"
+                    ),
+                )
+                desired2, _a, _s = compute_apply_plan(store)
+                store.replace_retrieval_flag_state(desired2)
+                report["applied"] = False
+                report["reverted"] = True
+                report["revert_reason"] = (
+                    f"{scorer.name}/{view_name} regressed post-apply"
+                )
+                break
+        if report["reverted"]:
             break
 
     return report

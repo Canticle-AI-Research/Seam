@@ -56,6 +56,7 @@ def _import_holdout_case_ids():
 
 VALID_KINDS = (
     "ranking_weight",
+    "answer_policy",
     "decomposer_threshold",
     "stale_filter",
     "schema_change",
