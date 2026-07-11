@@ -8420,3 +8420,21 @@ The handoff doc (docs/handoffs/2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff.md) cons
 
 Verification: doc-only change, no tests affected; full SEAM chain rebuilt and verified (verify_integrity/verify_routing/verify_continuity/verify_streams all OK) before commit.
 ---END-ENTRY-#375---
+
+---BEGIN-ENTRY-#376---
+id: 376
+date: 2026-07-11T11:00:41Z
+agent: codex
+status: done
+topics: benchmark, locomo, judge, audit, quality, verify
+commits: none
+refs: docs/audits/2026-07-11-cat13-judge2-paid-rejudge.md, tools/h2/rejudge_record.py, PROJECT_STATUS.md
+supersedes: 375
+tokens: 330
+---
+Executed the operator-approved paid `judge/2` replay against the SHA-verified corrected 82-case cat1/cat3 LoCoMo holdout record. The fresh dry-run at code provenance `e59cadf` reconfirmed 82/82 eligible cases and projected `$0.007422`; the paid command used the fail-closed `--max-cost-usd 0.0075` guard. All 82 stored answers were judged with no retrieval or answer generation, no empty or budget skips, actual usage 35,069 input + 3,349 output tokens, and actual cost `$0.007270`. The private report remains only on T7; its SHA-256 is `87700afc6f25e8b40ed11e2954b98cdd189705236005bb96162d1a03f6497848`.
+
+Combined score moved 0.621951->0.628049. cat1 moved 0.688525->0.704918 (+0.016393; correct 28->29); cat3 moved 0.428571->0.404762 (-0.023809; correct remains 7). Nineteen labels changed, but 12 were score-neutral `incorrect->abstain` relabels for exact `unknown` answers. Of #375's 30 non-correct cat1 `uncertain` cases, only 3 became correct and 27 remain (23 partial, 2 abstain, 2 incorrect), disproving the hand-sample hypothesis that roughly half might resolve at judge level. The two canonical alias/specificity examples did resolve.
+
+The replay also exposed residual judge-contract defects: two previously correct cat1 answers were downgraded to partial, including one penalized solely for non-contradicting extra detail despite `judge/2` explicitly forbidding that, and one cat3 partial was labeled contradictory/incorrect. Because the stored answers were identical, these are measurement changes, not answerer regressions. Before PR 3, perform a free offline review of the 27 survivors plus the three downward score transitions; scope cat1 only to verified list/enumeration-completeness omissions and cat3 to verified world-knowledge/inference abstentions. Any further paid replay remains separately operator-gated. Full aggregate analysis is in the audit doc; per-case data remains private on T7.
+---END-ENTRY-#376---

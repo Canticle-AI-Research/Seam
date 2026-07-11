@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 375
-total_tokens: ~158641
-latest_id: 375
+total_entries: 376
+total_tokens: ~158971
+latest_id: 376
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 376 | 2026-07-11 | done | 73a04b3c3a66cae9 | benchmark,locomo,judge,audit,+ | 375 |
 | 375 | 2026-07-11 | done | 37cbccbaa4ad19dc | benchmark,locomo,handoff,evidence,+ | 374 |
 | 374 | 2026-07-10 | done | d9ca53b99cbeb829 | bugfix,judge,benchmark,tests,+ | 373 |
 | 373 | 2026-07-10 | done | 7fc68391646bc2f2 | benchmark,locomo,judge,tests,+ | 372 |
@@ -398,10 +399,10 @@ compact: true
 - answerer: count=7 latest=#368, #367, #365, #333, #328
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
-- audit: count=75 latest=#371, #303, #290, #288, #280
+- audit: count=76 latest=#376, #371, #303, #290, #288
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=125 latest=#375, #374, #373, #372, #371
+- benchmark: count=126 latest=#376, #375, #374, #373, #372
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -504,7 +505,7 @@ compact: true
 - instrumentation: count=1 latest=#366
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
-- judge: count=10 latest=#375, #374, #373, #372, #336
+- judge: count=11 latest=#376, #375, #374, #373, #372
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
@@ -513,7 +514,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=41 latest=#375, #373, #372, #371, #369
+- locomo: count=42 latest=#376, #375, #373, #372, #371
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -564,7 +565,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=1 latest=#371
+- quality: count=2 latest=#376, #371
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -633,7 +634,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=249 latest=#374, #344, #320, #317, #316
+- verify: count=250 latest=#376, #374, #344, #320, #317
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -645,6 +646,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 350
+- done: 351
 - in-progress: 2
 - planned: 20
