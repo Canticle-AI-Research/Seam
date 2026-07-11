@@ -80,3 +80,13 @@ def test_ci_verify_steps_before_benchmark():
             f"Verify step {steps[pos].get('run')} at index {pos} "
             f"must be before 'Run benchmark suite' at index {bench_idx}"
         )
+
+
+def test_required_repo_hygiene_runs_handoff_verifier():
+    """The handoff gate must run in a required check, not only the advisory matrix."""
+    with open(CI_YML) as fh:
+        doc = yaml.safe_load(fh)
+
+    steps = doc["jobs"]["repo-hygiene"]["steps"]
+    runs = [step.get("run") for step in steps if "run" in step]
+    assert "python -m tools.history.verify_handoffs" in runs

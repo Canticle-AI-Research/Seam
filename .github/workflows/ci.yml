@@ -165,6 +165,9 @@ jobs:
       - name: Check diff hygiene
         run: git diff --check
 
+      - name: Verify SEAM handoff registry
+        run: python -m tools.history.verify_handoffs
+
       - name: Secret/session URL scan
         shell: bash
         run: |

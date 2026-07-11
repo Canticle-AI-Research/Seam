@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 437
+total_events: 438
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T00:00:00Z | roadmap:047:4b8d1581 | status-change | bootstrap | verify, continuity, history | ROADMAP.md:977 |
 | 2026-05-18T00:00:00Z | roadmap:048:3aca64b7 | status-change | bootstrap | verify, audit, retrieval | ROADMAP.md:1492 |
 | 2026-05-18T00:00:00Z | roadmap:049:b181338c | status-change | bootstrap | verify, audit, provenance | ROADMAP.md:1510 |
 | 2026-05-18T00:00:00Z | roadmap:050:6c50c0d9 | status-change | bootstrap | verify, command, audit | ROADMAP.md:1523 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-11T15:32:11Z | history:377:761edaec | session-event | done | benchmark, locomo, audit, judge, retrieval, quality | docs/audits/2026-07-11-cat13-private-offline-adjudication.md, PROJECT_STATUS.md |
 | 2026-07-11T17:17:35Z | history:378:f77e4b36 | session-event | done | handoff, protocol, continuity, multi-agent, ci, docs, ver... | docs/handoffs/INDEX.md,docs/handoffs/2026-07-11-cat1-cat3-success-contract-ha... |
 | 2026-07-11T17:18:09Z | history:379:4c759d1c | session-event | changed | history, handoff, bugfix, continuity, verify | docs/handoffs/INDEX.md,docs/handoffs/2026-07-11-cat1-cat3-success-contract-ha... |
+| 2026-07-11T18:01:34Z | history:380:8b3fadc7 | session-event | changed | ci, handoff, bugfix, protocol, verify, tests, history | .github/workflows/ci.yml,tests/audit/test_ci_verify_gates.py,PR#141 |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0237.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 237 | (multi) | (multi) |
+| 0001-0238.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 238 | (multi) | (multi) |

@@ -8484,3 +8484,17 @@ tokens: 259
 ---
 Corrects HISTORY#378 after shell quoting stripped inline identifiers and rendered paragraph separators literally. No implementation, verification, benchmark, or provider state changed in this correction. The canonical registry is docs/handoffs/INDEX.md; its latest field points to docs/handoffs/2026-07-11-cat1-cat3-success-contract-handoff.md. Seven tracked handoffs form one newest-first linear chain and carry handoff_id, supersedes, handoff_status, and history metadata. tools/history/verify_handoffs.py enforces registered paths, HISTORY references, metadata agreement, missing targets, cycles, forks, one root, one live/current head, order, and latest consistency; local pre-commit and CI both run it. The current handoff preserves the operator choice among product-correct raw plus adjudicated reporting, raw-benchmark heuristics, and a measurement-first adjudicated overlay, with no product change or paid call before that choice. Verification for the substantive #378 change remains: 63 focused tests passed; ruff, py_compile, and git diff check passed; the canonical non-external suite completed with 1,310 passed, 7 external tests deselected, 2 pre-existing xfails, 3 subtests passed, zero failures, and zero skips.
 ---END-ENTRY-#379---
+
+---BEGIN-ENTRY-#380---
+id: 380
+date: 2026-07-11T18:01:34Z
+agent: codex
+status: changed
+topics: ci, handoff, bugfix, protocol, verify, tests, history
+commits: none
+refs: .github/workflows/ci.yml,tests/audit/test_ci_verify_gates.py,PR#141
+supersedes: 379
+tokens: 184
+---
+Addressed a valid P2 automated-review finding before merging PR#141. The canonical handoff verifier was present in the advisory test-and-benchmark matrix and the local pre-commit gate, but not in the required repo-hygiene job, so a GitHub-authored or no-verify change could have satisfied every required merge check while breaking the registry. The required repo-hygiene job now runs python -m tools.history.verify_handoffs, and tests/audit/test_ci_verify_gates.py pins that command to the exact required job. No SEAM product or benchmark behavior changed, no provider call was made, and no paid review usage occurred. Local verification before closeout: 19 focused CI, PR-gate, and handoff-registry tests passed; git diff --check and the handoff verifier passed. The pushed head must rerun all GitHub checks and a substantive free CodeRabbit review before plain squash merge.
+---END-ENTRY-#380---
