@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 376
-total_tokens: ~158971
-latest_id: 376
+total_entries: 377
+total_tokens: ~159329
+latest_id: 377
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 377 | 2026-07-11 | done | 761edaece0f1b844 | benchmark,locomo,audit,judge,+ | 376 |
 | 376 | 2026-07-11 | done | 73a04b3c3a66cae9 | benchmark,locomo,judge,audit,+ | 375 |
 | 375 | 2026-07-11 | done | 37cbccbaa4ad19dc | benchmark,locomo,handoff,evidence,+ | 374 |
 | 374 | 2026-07-10 | done | d9ca53b99cbeb829 | bugfix,judge,benchmark,tests,+ | 373 |
@@ -399,10 +400,10 @@ compact: true
 - answerer: count=7 latest=#368, #367, #365, #333, #328
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
-- audit: count=76 latest=#376, #371, #303, #290, #288
+- audit: count=77 latest=#377, #376, #371, #303, #290
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=126 latest=#376, #375, #374, #373, #372
+- benchmark: count=127 latest=#377, #376, #375, #374, #373
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -505,7 +506,7 @@ compact: true
 - instrumentation: count=1 latest=#366
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
-- judge: count=11 latest=#376, #375, #374, #373, #372
+- judge: count=12 latest=#377, #376, #375, #374, #373
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
@@ -514,7 +515,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=42 latest=#376, #375, #373, #372, #371
+- locomo: count=43 latest=#377, #376, #375, #373, #372
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -565,7 +566,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=2 latest=#376, #371
+- quality: count=3 latest=#377, #376, #371
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -582,7 +583,7 @@ compact: true
 - registry: count=4 latest=#350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- retrieval: count=69 latest=#366, #364, #363, #362, #358
+- retrieval: count=70 latest=#377, #366, #364, #363, #362
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - roadmap: count=54 latest=#346, #333, #319, #318, #284
@@ -646,6 +647,6 @@ compact: true
 
 - roots: 76
 - changed: 3
-- done: 351
+- done: 352
 - in-progress: 2
 - planned: 20
