@@ -1,3 +1,10 @@
+---
+handoff_id: 2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff
+supersedes: 2026-07-09-cat1-cat3-deepseek-fixes-handoff
+handoff_status: superseded
+history: HISTORY#375
+---
+
 # Handoff: cat1/cat3 → 0.80 program — PR 1 + PR 2 merged, PR 3 scoped by real data, nothing paid spent
 
 - **Date:** 2026-07-11

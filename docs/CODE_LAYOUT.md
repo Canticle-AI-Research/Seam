@@ -16,7 +16,8 @@ not have to infer what works from directory names alone.
 
 ## Active Tooling
 
-- `tools/history/` - canonical history, index, integrity, and snapshot tools.
+- `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
+- `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
 - `tools/release/` - public/private separation for the `seam-runtime` mirror: `public_manifest.py` (fail-closed allow-list of what's public), `sync_public_mirror.py` (builds the curated sync commit), `public_seed/` (one-time seed templates for the public repo's own independent bookkeeping), and `verify_public_safe.py` (deny-list + allow-list scanner invoked by the `pre-push` hook as a backstop).
 - `tools/*.py` - active benchmark/projection helper scripts.

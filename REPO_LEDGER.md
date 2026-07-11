@@ -152,7 +152,15 @@ and `HISTORY_INDEX.md`.
 
 ## Handoff Policy
 
-- Default: record state via `HISTORY.md` entries + `HISTORY_INDEX.md`.
+- Default chronology: record state via `HISTORY.md` entries + `HISTORY_INDEX.md`.
+- Canonical tracked recovery route: `docs/handoffs/INDEX.md` points to exactly
+  one current handoff and records one linear, newest-first supersession chain.
+  Every `docs/handoffs/*.md` document must be registered and declare
+  `handoff_id`, `supersedes`, `handoff_status`, and `history`. A new handoff
+  supersedes the current head; standalone dated files are not valid handoffs.
+- `python -m tools.history.verify_handoffs` enforces path/history existence,
+  metadata agreement, one root, no cycles or forks, one current/live head, and
+  `latest`/table-order consistency. It runs in local commit and CI gates.
 - Session close writes one validated snapshot in `.seam/snapshots/`.
 - `HISTORY_INDEX.md` and snapshots are derived artifacts; `HISTORY.md` is authoritative.
 - The `handoff/archive` branch is reserved for PDF and handoff artifact publication, not primary runtime/source work.

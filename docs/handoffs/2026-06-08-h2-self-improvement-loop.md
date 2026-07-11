@@ -1,3 +1,10 @@
+---
+handoff_id: 2026-06-08-h2-self-improvement-loop
+supersedes: none
+handoff_status: superseded
+history: HISTORY#291
+---
+
 # Handoff — H2 self-improvement loop (front half) — for GPT
 
 Date: 2026-06-08

@@ -10,6 +10,11 @@ SEAM preserves complete history without loading complete history.
 - `REPO_LEDGER.md` stores stable repo-wide facts.
 - `PROJECT_STATUS.md` stores the current operating state.
 - `docs/ledgers/` stores durable topic ledgers for facts that should be easy to find without reading sessions.
+- `docs/handoffs/INDEX.md` is the canonical current-handoff route: one `latest`
+  pointer plus one explicit, newest-first supersession chain.
+- `docs/handoffs/*.md` stores tracked recovery documents. Each document is
+  registered, carries chain metadata, and has exactly one current head across
+  the repo.
 - `.seam/snapshots/` stores bounded handoff packs.
 
 ## Routing Rule
@@ -30,6 +35,7 @@ Do not erase the only record of a route decision. When a route changes:
 python -m tools.history.build_context_pack --route maintenance/docker --token-budget 900
 python -m tools.history.build_context_pack --route protocol/context --latest 2 --token-budget 1200
 python -m tools.history.verify_routing
+python -m tools.history.verify_handoffs
 python -m tools.history.verify_continuity
 ```
 
@@ -38,5 +44,8 @@ python -m tools.history.verify_continuity
 - `verify_integrity` checks history/index hashes.
 - `verify_continuity` checks latest snapshot coverage, supersedes links, and secret/session-link hygiene.
 - `verify_routing` checks the classification tree, parent links, route ledgers, route lifecycle fields, and referenced history entries.
+- `verify_handoffs` checks registered documents and history refs, document/index
+  metadata agreement, missing supersession targets, cycles, forks, table order,
+  and agreement between the single live head and `latest`.
 
 If a route is wrong, fix the route and record why. Do not rewrite old history to make the route look clean.
