@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 434
+total_events: 435
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T00:00:00Z | roadmap:044:d3465bb4 | status-change | bootstrap | scripts, windows | ROADMAP.md:933 |
 | 2026-05-18T00:00:00Z | roadmap:045:7353eba3 | status-change | bootstrap | roadmap, docs | ROADMAP.md:955 |
 | 2026-05-18T00:00:00Z | roadmap:046:baf1f8a9 | status-change | bootstrap | tests, judge | ROADMAP.md:966 |
 | 2026-05-18T00:00:00Z | roadmap:047:4b8d1581 | status-change | bootstrap | verify, continuity, history | ROADMAP.md:977 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-10T12:38:26Z | history:374:d9ca53b9 | session-event | done | bugfix, judge, benchmark, tests, verify, history | benchmarks/external/common/judge.py, test_seam_all/test_locomo_judge.py, test... |
 | 2026-07-11T10:19:44Z | history:375:37cbccba | session-event | done | benchmark, locomo, handoff, evidence, judge | docs/handoffs/2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff.md |
 | 2026-07-11T11:00:41Z | history:376:73a04b3c | session-event | done | benchmark, locomo, judge, audit, quality, verify | docs/audits/2026-07-11-cat13-judge2-paid-rejudge.md, tools/h2/rejudge_record.... |
+| 2026-07-11T15:32:11Z | history:377:761edaec | session-event | done | benchmark, locomo, audit, judge, retrieval, quality | docs/audits/2026-07-11-cat13-private-offline-adjudication.md, PROJECT_STATUS.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0234.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 234 | (multi) | (multi) |
+| 0001-0235.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 235 | (multi) | (multi) |

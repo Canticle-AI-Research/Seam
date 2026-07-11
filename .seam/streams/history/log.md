@@ -8438,3 +8438,21 @@ Combined score moved 0.621951->0.628049. cat1 moved 0.688525->0.704918 (+0.01639
 
 The replay also exposed residual judge-contract defects: two previously correct cat1 answers were downgraded to partial, including one penalized solely for non-contradicting extra detail despite `judge/2` explicitly forbidding that, and one cat3 partial was labeled contradictory/incorrect. Because the stored answers were identical, these are measurement changes, not answerer regressions. Before PR 3, perform a free offline review of the 27 survivors plus the three downward score transitions; scope cat1 only to verified list/enumeration-completeness omissions and cat3 to verified world-knowledge/inference abstentions. Any further paid replay remains separately operator-gated. Full aggregate analysis is in the audit doc; per-case data remains private on T7.
 ---END-ENTRY-#376---
+
+---BEGIN-ENTRY-#377---
+id: 377
+date: 2026-07-11T15:32:11Z
+agent: codex
+status: done
+topics: benchmark, locomo, audit, judge, retrieval, quality
+commits: none
+refs: docs/audits/2026-07-11-cat13-private-offline-adjudication.md, PROJECT_STATUS.md
+supersedes: 376
+tokens: 358
+---
+Completed the free private offline adjudication required by #376 before PR 3 product work. Reconstructed the corrected source record by case-id override, joined the paid `judge/2` report, and read stored questions, golds, answers, verdict transitions, retrieved context, and local answerer reasoning for 43 unique cases: 29 cat1 (the 27 surviving non-correct uncertain cases plus two cat1 downward transitions) and all 14 non-correct cat3 cases. No provider call was made and additional spend was `$0.00`. The full per-case table remains only on T7 with SHA-256 `2533688694306ddc66ae2e69ad4b44d4cf04a91c9fe56a93f0343636acb13cc5`; only aggregates are committed.
+
+Cat1 disposition: 8 confirmed answerer failures, 5 retrieval gaps, 13 judge/gold defects, 3 mixed. The confirmed failures share cross-turn set-completion behavior (missed list members, identity, count, or queried fact), supporting collect->provenance->dedupe/coreference->validate->synthesize rather than another generic prompt rewrite. Ceiling: current 43.0/61 (0.704918); perfect conversion of all eight confirmed cases adds at most 4.5 points -> 47.5/61 (0.778689). Exceeding 0.80 requires 49 points; all eight confirmed plus all three mixed yield exactly 49/61 (0.803279), with no tolerance for one miss unless retrieval or judge/gold measurement is corrected.
+
+Cat3 disposition: 6 defensible high-confidence world-knowledge inference targets and 8 judge/gold-defective or underspecified cases. Current 8.5/21 (0.404762); perfect conversion of all six defensible targets -> 14.5/21 (0.690476), still 2.5 points short of the 17 needed to exceed 0.80. Safe world-knowledge licensing cannot honestly hit the raw target without benchmark-specific guessing or judge/gold correction. Before code, the operator must choose: product-correct behavior with raw+adjudicated reporting (recommended), raw-benchmark heuristics, or a measurement-first adjudicated overlay. No further paid run is justified or authorized before that choice and free local implementation.
+---END-ENTRY-#377---
