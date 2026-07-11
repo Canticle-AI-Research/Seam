@@ -66,3 +66,18 @@ def test_improve_cycle_rejects_overlay_without_answer_quality_scorer(
     )
     report = json.loads(capsys.readouterr().out)
     assert "requires --locomo-dataset" in report["error"]
+
+
+def test_improve_cycle_rejects_out_of_range_category_floor(tmp_path, capsys):
+    run_cli(
+        [
+            "--db",
+            str(tmp_path / "s.db"),
+            "improve",
+            "cycle",
+            "--cat1-floor",
+            "1.01",
+        ]
+    )
+    report = json.loads(capsys.readouterr().out)
+    assert report == {"error": "--cat1-floor must be within [0, 1]"}

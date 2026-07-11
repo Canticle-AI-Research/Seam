@@ -102,15 +102,19 @@ class AdjudicatedScorer:
         raw = self.inner.score(runtime, flags=flags)
         self.last_raw_report = raw
         per_case = dict(raw.per_case)
+        unmatched = sorted(set(self.overlay.cases) - set(per_case))
+        if unmatched:
+            raise ValueError(
+                f"adjudication overlay references unknown case ids: {unmatched!r}"
+            )
         for case_id, case in self.overlay.cases.items():
-            if case_id in per_case:
-                expected_category = self.category_by_case.get(case_id)
-                if expected_category is not None and expected_category != case.category:
-                    raise ValueError(
-                        f"adjudication category mismatch for {case_id!r}: "
-                        f"overlay={case.category!r}, scorer={expected_category!r}"
-                    )
-                per_case[case_id] = case.score
+            expected_category = self.category_by_case.get(case_id)
+            if expected_category is not None and expected_category != case.category:
+                raise ValueError(
+                    f"adjudication category mismatch for {case_id!r}: "
+                    f"overlay={case.category!r}, scorer={expected_category!r}"
+                )
+            per_case[case_id] = case.score
 
         category_values: dict[str, list[float]] = defaultdict(list)
         for case_id, value in per_case.items():

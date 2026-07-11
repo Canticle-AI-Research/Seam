@@ -1155,6 +1155,18 @@ def run_cli(argv: list[str] | None = None) -> None:
             return
         from .self_improve import SelfProbeScorer, generate_probes
 
+        for option, floor in (
+            ("--cat1-floor", args.cat1_floor),
+            ("--cat3-floor", args.cat3_floor),
+        ):
+            if not 0.0 <= floor <= 1.0:
+                print(
+                    json.dumps(
+                        {"error": f"{option} must be within [0, 1]"},
+                        indent=2,
+                    )
+                )
+                return
         scorers = []
         if args.adjudication_overlay and (
             not args.locomo_dataset or args.locomo_answerer != "ollama"

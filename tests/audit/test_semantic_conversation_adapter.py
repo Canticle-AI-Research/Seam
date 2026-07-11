@@ -69,6 +69,18 @@ def test_versioned_prompt_requires_complete_set_and_bounded_inference():
     assert "rather than guess" in prompt
 
 
+def test_inference_policy_alone_does_not_enable_set_completion():
+    prompt = build_answer_prompt(
+        "Which activities did Ana mention?",
+        "[Ana] hiking\n[Ana] chess",
+        inference_policy=INFERENCE_HIGH_CONFIDENCE_V1,
+    )
+    assert "one high-confidence interpretation" in prompt
+    assert "complete supported set" not in prompt
+    assert "complete supported answer" not in prompt
+    assert "Reply with a concise answer" in prompt
+
+
 def test_unknown_policy_fails_closed():
     with pytest.raises(ValueError, match="unknown conversation adapter"):
         build_answer_prompt("q", "ctx", conversation_adapter="future/99")
@@ -160,4 +172,32 @@ def test_adjudication_overlay_rejects_category_mismatch(tmp_path):
         category_by_case={"a": "1", "b": "1"},
     )
     with pytest.raises(ValueError, match="category mismatch"):
+        scorer.score(None)
+
+
+def test_adjudication_overlay_rejects_unknown_case_id(tmp_path):
+    path = tmp_path / "unknown.json"
+    path.write_text(
+        json.dumps(
+            {
+                "schema": ADJUDICATION_SCHEMA,
+                "version": "v1",
+                "cases": [
+                    {
+                        "case_id": "missing",
+                        "category": "cat1",
+                        "score": 1.0,
+                        "disposition": "gold-defect",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    scorer = AdjudicatedScorer(
+        _RawScorer(),
+        load_adjudication_overlay(path),
+        category_by_case={"a": "cat1", "b": "cat1"},
+    )
+    with pytest.raises(ValueError, match="unknown case ids.*missing"):
         scorer.score(None)

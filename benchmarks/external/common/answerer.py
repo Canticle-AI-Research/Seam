@@ -54,9 +54,13 @@ def build_answer_prompt(
         conversation_adapter=conversation_adapter,
         inference_policy=inference_policy,
     )
+    set_completion = (
+        conversation_adapter != CONVERSATION_ADAPTER_OFF
+        and intent.value == "set-completion"
+    )
     completion = (
         "Reply with the complete supported answer, no preamble."
-        if intent.value == "set-completion"
+        if set_completion
         else "Reply with a concise answer, no preamble."
     )
     return (

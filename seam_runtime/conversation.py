@@ -155,7 +155,10 @@ def answer_method_directive(
             "before synthesizing the answer."
         )
 
-    if intent == ConversationIntent.SET_COMPLETION:
+    if (
+        conversation_adapter != CONVERSATION_ADAPTER_OFF
+        and intent == ConversationIntent.SET_COMPLETION
+    ):
         method += " Return the complete supported set; do not stop after the first match."
 
     if inference_policy == INFERENCE_HIGH_CONFIDENCE_V1:
