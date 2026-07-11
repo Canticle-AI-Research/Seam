@@ -20,7 +20,9 @@ Scope:
 
 - all 27 cat1 cases from the original non-correct `uncertain` bucket that
   remained non-correct under `judge/2`;
-- the two cat1 downward score transitions introduced by `judge/2`;
+- the two cat1 downward score transitions introduced by `judge/2`, which were
+  originally correct and are therefore additional to and disjoint from those
+  27 non-correct cases;
 - all 14 non-correct cat3 cases, including the cat3 downward transition.
 
 That is 43 unique cases: 29 cat1 and 14 cat3.
@@ -49,11 +51,14 @@ answerer strategy is therefore:
 The ceiling math changes the strategy. Cat1 currently has 43.0 score points
 over 61 cases (`0.704918`). Perfectly converting all eight confirmed answerer
 failures adds at most 4.5 points, reaching 47.5/61 (`0.778689`)—still below
-0.80. Reaching strictly above 0.80 requires at least 49 points. The eight
-confirmed cases plus all three mixed cases provide exactly six points, reaching
-49/61 (`0.803279`) only if every one converts. An answerer-only PR has no
-tolerance for a single miss; retrieval or honest judge/gold correction is
-otherwise required.
+0.80. Reaching strictly above 0.80 requires at least 49 points. Within the eight
+confirmed cases, seven currently score 0.5 and one scores 0, so perfect
+conversion adds `7 * 0.5 + 1 * 1.0 = 4.5` points. All three mixed cases
+currently score 0.5, so their perfect conversion adds another
+`3 * 0.5 = 1.5` points. The confirmed and mixed sets therefore provide exactly
+six points together, reaching 49/61 (`0.803279`) only if every one converts. An
+answerer-only PR has no tolerance for a single miss; retrieval or honest
+judge/gold correction is otherwise required.
 
 ## Cat3 finding
 
