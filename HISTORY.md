@@ -8398,3 +8398,25 @@ benchmarks/external/common/judge.py now gives ClaudeJudge the same versioned-pro
 
 Regression coverage proves build_judge forwards judge/2 to Claude, a fake synchronous Claude response uses the exact judge/2 prompt and captures groundedness plus token usage, and the batch path renders the exact JUDGE_PROMPT_V2 template. Verification: collect-only succeeded for all touched test modules; the affected judge/rejudge/run-record/evidence slice passed 95 tests; ruff, py_compile, and git diff --check passed; the full canonical non-external suite (tests/, test_seam_all/, tools/history/test_history_tools.py, tools/streams/) completed with exit 0, no failures/errors/skips, and only 2 pre-existing xfails. CodeRabbit CLI review of the final three-file diff returned zero findings. PR 3 remains separate, and any real rejudge remains operator-gated behind --confirm-paid plus --max-cost-usd.
 ---END-ENTRY-#374---
+
+---BEGIN-ENTRY-#375---
+id: 375
+date: 2026-07-11T10:19:44Z
+agent: claude-opus-4-8
+status: done
+topics: benchmark, locomo, handoff, evidence, judge
+commits: none
+refs: docs/handoffs/2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff.md
+supersedes: 374
+tokens: 251
+---
+Session handoff for the cat1/cat3->0.80 program after PR 1 (#135), PR 2 (#136), and the same-day PR 2 Claude-parity fix (#137) all merged clean. Doc-only entry; no code changed, no paid spend this session (total $0.00, a <=$0.0075 paid rejudge remains built/tested/operator-gated).
+
+New analysis captured in the handoff doc (read-only against the private, SHA-verified T7 records, not committed): broke down what is actually inside PR 1's 30-case "uncertain" evidence bucket from the corrected 82-case holdout baseline. Finding: the bucket is 100% cat1 (cat3's non-correct cases are entirely open_domain_inference), and splits into two sub-reasons -- partial_token_coverage (15/30) and scattered_across_turns (10/30). Hand-checking 12 real sampled cases shows roughly half look like judge-level false negatives that the already-merged (but not yet paid-executed) judge/2 prompt should fix for free (two cases -- conv-42::q42 Little-Women/LOTR-trilogy, conv-43::q36 LeBron/LeBron-James -- are literally the canonical examples written into the JUDGE_PROMPT_V2 instructions), and roughly half look like genuine answerer-side list/enumeration omissions that only a generation-side fix (a real PR 3) can address (e.g. conv-26::q23 missing one of two gold book titles, conv-42::q10 missing 2 of 5 gold emotions, conv-47::q22 missing "homeless" as a charity beneficiary -- notably the same case HISTORY#369's earlier precision-prompt experiment found the model COULD produce with a tweak, but judge/1 still failed to credit it).
+
+This sharpens PR 3's eventual scope from a broad "cat1 needs enumeration/count/date/identity fixes" into a specific, evidence-backed target (list/enumeration-completeness synthesis), and argues for running the already-built paid rejudge FIRST so PR 3 is scoped and measured only against whatever genuinely survives judge/2, rather than conflating judge-level and generation-level fixes in one measurement pass.
+
+The handoff doc (docs/handoffs/2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff.md) consolidates: full PR 1/2/3(#137) summary, the private data SHA-256 pointers and the corrected-baseline reconciliation pattern, the new uncertain-bucket breakdown with real examples, the recommended next-step sequence (paid rejudge -> read real per-case judge/2 verdicts -> scope PR 3 against the remainder -> cat3's PR 3 spec is still fully untouched by this session), and every guardrail established/reconfirmed this session (no-auto-merge incidents, never-delete-without-confirmation, CodeRabbit draft-vs-ready review timing, background-runner exit-code untrustworthiness, verify-docs-dont-guess-from-memory). Three untracked directories from an unrelated separate session (.playwright-mcp/, .wrangler/, visuals/ -- Playwright browser-automation artifacts) were found in the working tree and deliberately left untouched, not part of this commit.
+
+Verification: doc-only change, no tests affected; full SEAM chain rebuilt and verified (verify_integrity/verify_routing/verify_continuity/verify_streams all OK) before commit.
+---END-ENTRY-#375---
