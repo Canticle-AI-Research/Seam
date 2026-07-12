@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 440
+total_events: 441
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T00:00:00Z | roadmap:050:6c50c0d9 | status-change | bootstrap | verify, command, audit | ROADMAP.md:1523 |
 | 2026-05-18T00:00:00Z | roadmap:051:14b9746c | status-change | bootstrap | integrity, audit, snapshot | ROADMAP.md:1536 |
 | 2026-05-18T00:00:00Z | roadmap:052:e84c2b0c | status-change | bootstrap | retrieval, rank, audit | ROADMAP.md:1549 |
 | 2026-05-18T07:51:08Z | history:191:4007a129 | session-event | done | audit, verify, protocol, roadmap, tests, ci, security, hi... | PROJECT_STATUS.md,REPO_LEDGER.md,ROADMAP.md,seam_runtime/cli.py,seam_runtime/... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-11T18:01:34Z | history:380:8b3fadc7 | session-event | changed | ci, handoff, bugfix, protocol, verify, tests, history | .github/workflows/ci.yml,tests/audit/test_ci_verify_gates.py,PR#141 |
 | 2026-07-11T22:58:00Z | history:381:e34c302b | session-event | in-progress | benchmark, locomo, retrieval, answerer, quality, handoff,... | docs/handoffs/2026-07-11-cat13-semantic-conversation-adapter-in-progress.md,.... |
 | 2026-07-12T00:03:58Z | history:382:32666036 | session-event | done | benchmark, locomo, retrieval, prompt, quality, handoff, c... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
+| 2026-07-12T05:39:56Z | history:383:6b2cac1d | session-event | done | benchmark, locomo, quality, retrieval, merge, verify, pai... | HISTORY.md,PROJECT_STATUS.md,HISTORY_INDEX.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0240.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 240 | (multi) | (multi) |
+| 0001-0241.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 241 | (multi) | (multi) |
