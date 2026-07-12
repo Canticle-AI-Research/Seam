@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-11-cat1-cat3-success-contract-handoff
 supersedes: 2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#379
 ---
 

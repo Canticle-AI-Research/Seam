@@ -60,6 +60,7 @@ class PooledLocomoAnswerQualityScorer:
     cases_by_scope: "OrderedDict[str, list[BenchmarkCase]]"
     name: str = "locomo_answer_quality"
     profile_safe: bool = True
+    answer_policy_safe: bool = True
 
     def score(self, runtime, flags=None) -> ScoreReport:
         runtimes = {scope: self.adapter._runtime(scope) for scope in self.cases_by_scope}

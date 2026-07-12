@@ -16,12 +16,15 @@ from .temporal import parse_iso, temporal_distance_score
 
 @dataclass(frozen=True)
 class RetrievalFlags:
-    """Audit #3 retrieval-scoring levers, all OFF by default.
+    """Versioned applied memory-to-answer policy (legacy public name).
 
-    With every field at its default the scoring path is byte-identical to the
-    pre-audit weighted-sum fusion, so flag-off runs reproduce the locked
-    baseline exactly. Each lever is independent so it can be ablated alone or
-    cumulatively. Read from the environment via ``retrieval_flags_from_env``.
+    The class began as Audit #3 retrieval-scoring flags. H2's transactional
+    proposal/apply/revert path and scorer protocol now use the same immutable
+    value for retrieval, packing, conversation projection, and inference
+    policy. The name and ``retrieval_flag_state`` storage remain for backward
+    compatibility in v1; migrating to a generic applied-policy name is a
+    separate schema/API change. With every field at its default, behavior is
+    byte-identical to the locked baseline.
     """
 
     # P0-1: when a real vector backend is active (vector_scores is non-empty)
@@ -76,6 +79,19 @@ class RetrievalFlags:
     # self-improvement candidate_lever: it is tuned by the free-LoCoMo
     # answer-quality scorer + operator-gated paid judge, never the self-probe.
     context_budget: int | None = None
+    # Query-time semantic conversation projection. ``off`` preserves the
+    # locked single-pass answer path. ``conversation/1`` turns retrieved turns
+    # into a directly readable, provenance-preserving evidence table and gives
+    # the answerer an explicit collect->resolve->validate->synthesize contract.
+    # It lives in the applied policy state beside retrieval knobs so the H2
+    # improvement loop can evaluate, promote, and revert the whole memory-to-
+    # answer path rather than only ranking weights.
+    conversation_adapter: str = "off"
+    # Answer inference boundary. The baseline remains context-only.
+    # ``inference/high-confidence/1`` licenses stable world knowledge only when
+    # the retrieved evidence supports one unambiguous interpretation; otherwise
+    # it requires abstention. Versioned separately from conversation assembly.
+    inference_policy: str = "context-only"
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -137,6 +153,16 @@ def coerce_flag_value(key: str, value: object) -> object | None:
             return None
         if key == "fusion" and value not in ("weighted", "rrf"):
             return None
+        if key == "conversation_adapter":
+            from .conversation import CONVERSATION_ADAPTERS
+
+            if value not in CONVERSATION_ADAPTERS:
+                return None
+        if key == "inference_policy":
+            from .conversation import INFERENCE_POLICIES
+
+            if value not in INFERENCE_POLICIES:
+                return None
         return value
     return value if isinstance(value, expected) else None
 
@@ -207,6 +233,14 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_RETRIEVAL_CONTEXT_BUDGET"].strip()
         if raw.isdigit() and int(raw) > 0:
             out["context_budget"] = int(raw)
+    if _present("SEAM_CONVERSATION_ADAPTER"):
+        raw = env["SEAM_CONVERSATION_ADAPTER"].strip()
+        if coerce_flag_value("conversation_adapter", raw) is not None:
+            out["conversation_adapter"] = raw
+    if _present("SEAM_INFERENCE_POLICY"):
+        raw = env["SEAM_INFERENCE_POLICY"].strip()
+        if coerce_flag_value("inference_policy", raw) is not None:
+            out["inference_policy"] = raw
     return out
 
 
@@ -220,6 +254,10 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         raw = env.get(name, "").strip()
         return int(raw) if raw.isdigit() and int(raw) > 0 else None
 
+    def _policy(name: str, key: str, default: str) -> str:
+        raw = env.get(name, "").strip()
+        return raw if coerce_flag_value(key, raw) is not None else default
+
     profile = resolve_retrieval_profile(env.get("SEAM_RETRIEVAL_PROFILE", ""))
     p_top_k = profile[0] if profile else None
     p_budget = profile[1] if profile else None
@@ -232,6 +270,8 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         # explicit knob var wins over the profile preset
         search_top_k=_pos_int("SEAM_RETRIEVAL_TOP_K") or p_top_k,
         context_budget=_pos_int("SEAM_RETRIEVAL_CONTEXT_BUDGET") or p_budget,
+        conversation_adapter=_policy("SEAM_CONVERSATION_ADAPTER", "conversation_adapter", "off"),
+        inference_policy=_policy("SEAM_INFERENCE_POLICY", "inference_policy", "context-only"),
     )
 
 

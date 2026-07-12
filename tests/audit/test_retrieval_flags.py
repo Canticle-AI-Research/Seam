@@ -42,6 +42,8 @@ def test_flag_defaults_all_off():
     assert flags.rrf_k == 60
     # search_top_k defaults to None = no override of the call-site budget.
     assert flags.search_top_k is None
+    assert flags.conversation_adapter == "off"
+    assert flags.inference_policy == "context-only"
 
 
 def test_flag_env_parsing_truthy_variants():
@@ -53,6 +55,22 @@ def test_flag_env_parsing_truthy_variants():
     # falsy / unset stays off
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_RRF": "0"}).fusion == "weighted"
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_BM25_ALL": "false"}).bm25_all_kinds is False
+
+
+def test_answer_policy_env_parsing_is_versioned_and_fail_closed():
+    flags = retrieval_flags_from_env(
+        {
+            "SEAM_CONVERSATION_ADAPTER": "conversation/1",
+            "SEAM_INFERENCE_POLICY": "inference/high-confidence/1",
+        }
+    )
+    assert flags.conversation_adapter == "conversation/1"
+    assert flags.inference_policy == "inference/high-confidence/1"
+    invalid = retrieval_flags_from_env(
+        {"SEAM_CONVERSATION_ADAPTER": "magic", "SEAM_INFERENCE_POLICY": "guess"}
+    )
+    assert invalid.conversation_adapter == "off"
+    assert invalid.inference_policy == "context-only"
 
 
 def test_search_top_k_env_parsing():

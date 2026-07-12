@@ -347,7 +347,9 @@ def build_parser() -> argparse.ArgumentParser:
     memory_get_parser.add_argument("--timeline", action="store_true")
     memory_get_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
 
-    improve_parser = subparsers.add_parser("improve", help="Self-improvement loop over retrieval-flag levers")
+    improve_parser = subparsers.add_parser(
+        "improve", help="Self-improvement loop over retrieval and answer-policy levers"
+    )
     improve_subparsers = improve_parser.add_subparsers(dest="improve_command", required=True)
     improve_cycle_parser = improve_subparsers.add_parser(
         "cycle",
@@ -363,6 +365,26 @@ def build_parser() -> argparse.ArgumentParser:
     improve_cycle_parser.add_argument("--locomo-questions", type=int, default=None, help="Cap dev questions per LoCoMo conversation")
     improve_cycle_parser.add_argument("--locomo-answerer", choices=["none", "ollama"], default="none", help="LoCoMo scorer kind: 'none' = free context_recall (default); 'ollama' = free answer-quality (token_f1 via local Ollama), the dilution-sensitive scorer that lets the loop tune the search_top_k/context_budget profile. Profile tuning also requires --probe-sample 0 (self-probe is not profile-safe).")
     improve_cycle_parser.add_argument("--answerer-model", default="qwen2.5:3b", help="Ollama model for the answer-quality scorer (default qwen2.5:3b); endpoint via SEAM_BENCH_OLLAMA_URL")
+    improve_cycle_parser.add_argument(
+        "--cat1-floor",
+        type=float,
+        default=0.80,
+        help="Minimum cat1 generated-answer score targeted by the loop (default: 0.80)",
+    )
+    improve_cycle_parser.add_argument(
+        "--cat3-floor",
+        type=float,
+        default=0.80,
+        help="Minimum cat3 generated-answer score targeted by the loop (default: 0.80)",
+    )
+    improve_cycle_parser.add_argument(
+        "--adjudication-overlay",
+        default=None,
+        help=(
+            "Optional seam-adjudication/1 JSON applied to the generated-answer "
+            "scorer; reports raw and adjudicated views from one scorer execution"
+        ),
+    )
     improve_validate_parser = improve_subparsers.add_parser(
         "validate",
         help="PAID holdout validation: judge the applied flag state (or --flags) against the stock baseline with a paid answerer + LLM judge. Dry-run cost estimate by default; spends ONLY with --confirm-paid",
@@ -1133,7 +1155,34 @@ def run_cli(argv: list[str] | None = None) -> None:
             return
         from .self_improve import SelfProbeScorer, generate_probes
 
+        for option, floor in (
+            ("--cat1-floor", args.cat1_floor),
+            ("--cat3-floor", args.cat3_floor),
+        ):
+            if not 0.0 <= floor <= 1.0:
+                print(
+                    json.dumps(
+                        {"error": f"{option} must be within [0, 1]"},
+                        indent=2,
+                    )
+                )
+                return
         scorers = []
+        if args.adjudication_overlay and (
+            not args.locomo_dataset or args.locomo_answerer != "ollama"
+        ):
+            print(
+                json.dumps(
+                    {
+                        "error": (
+                            "--adjudication-overlay requires --locomo-dataset "
+                            "and --locomo-answerer ollama"
+                        )
+                    },
+                    indent=2,
+                )
+            )
+            return
         if args.probe_sample > 0:
             probes = generate_probes(runtime, sample=args.probe_sample)
             scorers.append(SelfProbeScorer(probes, budget=args.probe_budget))
@@ -1173,12 +1222,39 @@ def run_cli(argv: list[str] | None = None) -> None:
                     db_path=tempfile.mkdtemp(),
                     keep_db=True,
                 )
+            if args.adjudication_overlay:
+                from benchmarks.external.common.adjudication import (
+                    AdjudicatedScorer,
+                    load_adjudication_overlay,
+                )
+
+                category_by_case = {
+                    case.case_id: case.category or "unknown"
+                    for cases in locomo_scorer.cases_by_scope.values()
+                    for case in cases
+                }
+                locomo_scorer = AdjudicatedScorer(
+                    locomo_scorer,
+                    load_adjudication_overlay(args.adjudication_overlay),
+                    category_by_case=category_by_case,
+                )
             scorers.append(locomo_scorer)
         if not scorers:
             print(json.dumps({"error": "no scorers: set --probe-sample > 0 or pass --locomo-dataset"}, indent=2))
             return
         try:
-            report = run_cycle(runtime, runtime.store, scorers, auto_approve=args.auto_approve)
+            category_floors = (
+                {"cat1": args.cat1_floor, "cat3": args.cat3_floor}
+                if args.locomo_dataset and args.locomo_answerer == "ollama"
+                else None
+            )
+            report = run_cycle(
+                runtime,
+                runtime.store,
+                scorers,
+                auto_approve=args.auto_approve,
+                category_floors=category_floors,
+            )
         finally:
             if adapter is not None:
                 adapter.close()

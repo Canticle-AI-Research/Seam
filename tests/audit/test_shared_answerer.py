@@ -59,6 +59,17 @@ def test_build_answer_prompt_includes_question_and_context():
     assert "Alice paid the bill" in prompt
 
 
+def test_default_answer_prompt_is_byte_identical_to_locked_prompt():
+    assert build_answer_prompt("Who paid?", "Alice paid the bill") == (
+        "Answer the question using ONLY the context. "
+        "Return the best supported answer found in the context, even when "
+        "the context also contains unrelated snippets. "
+        "Say 'unknown' only when the context contains no answer candidate. "
+        "Reply with the shortest possible answer, no preamble.\n\n"
+        "Context:\nAlice paid the bill\n\nQuestion: Who paid?\nAnswer:"
+    )
+
+
 def test_wrapper_generates_answer_for_null_answer_adapter():
     inner = _FakeInner(generated=None)
     wrapped = SharedAnswererAdapter(inner, "openai", None, _generate=_fake_generate)
@@ -67,6 +78,25 @@ def test_wrapper_generates_answer_for_null_answer_adapter():
     # retrieved context (the memory layer under test) is preserved untouched
     assert out.retrieved_context == "ctx text"
     assert out.answerer_diagnostics == {"called": True}
+
+
+def test_wrapper_passes_same_opt_in_policy_to_comparator_answerer():
+    seen = {}
+
+    def generate(answerer, model, question, context, **kwargs):  # noqa: ARG001
+        seen.update(kwargs)
+        return "answer"
+
+    wrapped = SharedAnswererAdapter(
+        _FakeInner(generated=None),
+        "openai",
+        conversation_adapter="conversation/1",
+        inference_policy="inference/high-confidence/1",
+        _generate=generate,
+    )
+    wrapped.answer("scope1", "q?")
+    assert seen["conversation_adapter"] == "conversation/1"
+    assert seen["inference_policy"] == "inference/high-confidence/1"
 
 
 def test_wrapper_retries_transient_provider_failures(monkeypatch):
@@ -126,6 +156,13 @@ def test_maybe_wrap_answerer_wraps_when_answerer_set():
     wrapped = _maybe_wrap_answerer(inner, "openai", "gpt-4o-mini")
     assert isinstance(wrapped, SharedAnswererAdapter)
     assert wrapped.name == "fake"
+
+
+def test_wrapper_rejects_unknown_policy_at_construction():
+    with pytest.raises(ValueError, match="unknown conversation adapter"):
+        SharedAnswererAdapter(
+            _FakeInner(), "openai", conversation_adapter="future/99"
+        )
 
 
 def test_generate_short_answer_dispatch_uses_shared_prompt(monkeypatch):
