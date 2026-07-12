@@ -24,39 +24,70 @@ class _StubZepUser:
     def delete(self, user_id: str) -> None:
         self._parent.users.discard(user_id)
         self._parent.messages.pop(user_id, None)
-        # Also clean any session_ids that map to this user.
-        stale = [sid for sid, uid in self._parent.sessions.items() if uid == user_id]
-        for sid in stale:
-            self._parent.sessions.pop(sid, None)
-            self._parent.messages.pop(sid, None)
+        # Also clean any thread_ids that map to this user.
+        stale = [tid for tid, uid in self._parent.threads.items() if uid == user_id]
+        for tid in stale:
+            self._parent.threads.pop(tid, None)
 
 
-class _StubZepMemory:
+class _StubZepThread:
     def __init__(self, parent):
         self._parent = parent
 
-    def add_session(self, session_id: str, user_id: str) -> None:
-        self._parent.sessions[session_id] = user_id
-        self._parent.messages.setdefault(session_id, [])
+    def create(self, *, thread_id: str, user_id: str) -> None:
+        self._parent.threads[thread_id] = user_id
+        self._parent.messages.setdefault(user_id, [])
 
-    def add(self, session_id: str, messages: list[dict]) -> None:
-        self._parent.messages.setdefault(session_id, []).extend(messages)
+    def add_messages(self, thread_id: str, *, messages) -> None:
+        user_id = self._parent.threads[thread_id]
+        self._parent.messages.setdefault(user_id, []).extend(messages)
 
-    def search_sessions(self, text: str, session_ids: list[str], limit: int):
-        hits = []
-        for sid in session_ids:
-            for m in self._parent.messages.get(sid, [])[:limit]:
-                hits.append(_types.SimpleNamespace(fact=m["content"]))
-        return _types.SimpleNamespace(results=hits)
+
+class _StubZepEpisode:
+    def __init__(self, parent):
+        self._parent = parent
+
+    def get_by_user_id(self, user_id: str, *, lastn: int | None = None):
+        # Stub processing is synchronous: every ingested message is an
+        # already-processed episode.
+        msgs = self._parent.messages.get(user_id, [])
+        if lastn is not None:
+            msgs = msgs[-lastn:]
+        episodes = [_types.SimpleNamespace(processed=True) for _ in msgs]
+        return _types.SimpleNamespace(episodes=episodes)
+
+
+class _StubZepGraph:
+    def __init__(self, parent):
+        self._parent = parent
+        self.episode = _StubZepEpisode(parent)
+
+    def search(self, *, query: str, user_id: str, scope: str, limit: int):
+        if scope == "edges":
+            edges = [
+                _types.SimpleNamespace(
+                    fact=_content(m), valid_at=None, invalid_at=None
+                )
+                for m in self._parent.messages.get(user_id, [])[:limit]
+            ]
+            return _types.SimpleNamespace(edges=edges, nodes=None)
+        return _types.SimpleNamespace(edges=None, nodes=[])
+
+
+def _content(message) -> str:
+    if isinstance(message, dict):
+        return message["content"]
+    return message.content
 
 
 class _StubZep:
     def __init__(self, **kw):
         self.users: set[str] = set()
-        self.sessions: dict[str, str] = {}
-        self.messages: dict[str, list[dict]] = {}
+        self.threads: dict[str, str] = {}
+        self.messages: dict[str, list] = {}
         self.user = _StubZepUser(self)
-        self.memory = _StubZepMemory(self)
+        self.thread = _StubZepThread(self)
+        self.graph = _StubZepGraph(self)
 
 
 def _build_adapter(search_limit: int = 8) -> object:
@@ -190,12 +221,12 @@ def test_answer_retrieval_latency_populated() -> None:
 
 
 def test_close_cleans_up(monkeypatch) -> None:
-    """close() should clear sessions without raising."""
+    """close() should clear thread state without raising."""
     adapter = _build_adapter()
     scope = "case-z4"
     adapter.reset(scope)
     adapter.close()
-    assert not adapter._sessions
+    assert not adapter._threads
 
 
 # -- Runner integration -------------------------------------------------

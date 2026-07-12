@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 383
-total_tokens: ~161443
-latest_id: 383
+total_entries: 384
+total_tokens: ~162352
+latest_id: 384
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 384 | 2026-07-12 | done | 096e184497089a6f | benchmark,locomo,competitors,zep,+ | 383 |
 | 383 | 2026-07-12 | done | 6b2cac1da2688332 | benchmark,locomo,quality,retrieval,+ | 382 |
 | 382 | 2026-07-12 | done | 326660364510a952 | benchmark,locomo,retrieval,prompt,+ | 381 |
 | 381 | 2026-07-11 | in-progress | e34c302b3831d989 | benchmark,locomo,retrieval,answerer,+ | 380 |
@@ -399,6 +400,7 @@ compact: true
 
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
+- adapters: count=1 latest=#384
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -409,7 +411,7 @@ compact: true
 - audit: count=77 latest=#377, #376, #371, #303, #290
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=130 latest=#383, #382, #381, #377, #376
+- benchmark: count=131 latest=#384, #383, #382, #381, #377
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -433,6 +435,7 @@ compact: true
 - codeql: count=6 latest=#330, #309, #301, #300, #299
 - command: count=67 latest=#251, #241, #232, #221, #220
 - comparison: count=1 latest=#333
+- competitors: count=1 latest=#384
 - compile: count=13 latest=#154, #047, #046, #043, #042
 - compiler: count=9 latest=#317, #313, #311, #309, #308
 - compress: count=26 latest=#145, #144, #132, #131, #130
@@ -521,7 +524,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=46 latest=#383, #382, #381, #377, #376
+- locomo: count=47 latest=#384, #383, #382, #381, #377
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -531,7 +534,7 @@ compact: true
 - manual: count=1 latest=#331
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
-- mem0: count=7 latest=#343, #338, #336, #335, #334
+- mem0: count=8 latest=#384, #343, #338, #336, #335
 - memory: count=7 latest=#342, #340, #286, #275, #274
 - merge: count=3 latest=#383, #359, #301
 - metrics: count=2 latest=#307, #305
@@ -550,7 +553,7 @@ compact: true
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=1 latest=#365
-- paid-validation: count=2 latest=#383, #302
+- paid-validation: count=3 latest=#384, #383, #302
 - performance: count=3 latest=#364, #363, #362
 - persist: count=26 latest=#342, #251, #244, #218, #213
 - pgvector: count=28 latest=#354, #322, #295, #294, #280
@@ -630,7 +633,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=14 latest=#382, #380, #374, #373, #372
+- tests: count=15 latest=#384, #382, #380, #374, #373
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -641,18 +644,19 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=255 latest=#383, #382, #380, #379, #378
+- verify: count=256 latest=#384, #383, #382, #380, #379
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
 - workflow-permissions: count=1 latest=#298
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
+- zep: count=1 latest=#384
 
 ## status rollup
 
 - roots: 76
 - changed: 5
-- done: 355
+- done: 356
 - in-progress: 3
 - planned: 20
