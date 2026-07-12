@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-11-cat13-semantic-conversation-adapter-in-progress
 supersedes: 2026-07-11-cat1-cat3-success-contract-handoff
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#381
 ---
 
