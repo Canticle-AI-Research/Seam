@@ -220,6 +220,18 @@ def main() -> None:
         help="Limit number of cases",
     )
     parser.add_argument(
+        "--split",
+        choices=["all", "dev", "holdout"],
+        default="all",
+        help=(
+            "Restrict cases to the deterministic dev/holdout partition "
+            "(tools.h2.holdout_split, default salt/ratio). 'holdout' matches the "
+            "split used by 'seam improve validate', so comparator adapters "
+            "(mem0/zep) can be scored on the same cases as SEAM's holdout runs. "
+            "Applied before --limit. Default: all."
+        ),
+    )
+    parser.add_argument(
         "--adapter",
         choices=["seam", "mem0", "zep"],
         default="seam",
@@ -402,6 +414,18 @@ def main() -> None:
         cases = load_locomo_cases(dataset_path)
         source = str(dataset_path)
 
+    # Restrict to the deterministic dev/holdout partition before any limit,
+    # so --limit caps the split's cases rather than the split sampling a
+    # limit-truncated list.
+    if args.split != "all":
+        from tools.h2.holdout_split import DEFAULT_RATIO, DEFAULT_SALT, assign_one
+
+        cases = [
+            c
+            for c in cases
+            if assign_one(c.case_id, salt=DEFAULT_SALT, ratio=DEFAULT_RATIO) == args.split
+        ]
+
     # Apply limit
     if args.limit is not None:
         cases = cases[: args.limit]
@@ -569,6 +593,9 @@ def _run_stem(args: argparse.Namespace, n_cases: int) -> str:
     adapter = getattr(args, "adapter", "seam") or "seam"
     judge = getattr(args, "judge", None)
     parts = [timestamp, str(adapter), f"{n_cases}cases"]
+    split = getattr(args, "split", "all") or "all"
+    if split != "all":
+        parts.append(split)
     if judge:
         parts.append(f"judge-{judge}")
     if getattr(args, "quickstart", False):

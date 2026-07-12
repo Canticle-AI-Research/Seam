@@ -206,3 +206,42 @@ class TestLoCoMoFullDatasetRouting:
         report = json.loads(result.stdout)
         assert report["mode"] == "dry-run"
         assert report["case_count"] == 10
+
+
+class TestLoCoMoSplitFlag:
+    """--split must reproduce the exact dev/holdout partition used by
+    ``seam improve validate`` (tools.h2.holdout_split, default salt/ratio),
+    so comparator adapters are scored on the same cases as SEAM holdout runs."""
+
+    def _dry_run(self, *extra):
+        result = subprocess.run(
+            [sys.executable, "-m", "benchmarks.external.locomo.run",
+             "--quickstart", "--dry-run", *extra],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, f"Dry-run failed: {result.stderr}"
+        return json.loads(result.stdout)
+
+    def test_split_partitions_cases_exactly(self):
+        from benchmarks.external.locomo.run import load_quickstart_cases
+        from tools.h2.holdout_split import DEFAULT_RATIO, DEFAULT_SALT, assign_one
+
+        all_report = self._dry_run()
+        dev_report = self._dry_run("--split", "dev")
+        holdout_report = self._dry_run("--split", "holdout")
+        assert dev_report["case_count"] + holdout_report["case_count"] == all_report["case_count"]
+
+        cases = load_quickstart_cases()
+        expected_holdout = sum(
+            1 for c in cases
+            if assign_one(c.case_id, salt=DEFAULT_SALT, ratio=DEFAULT_RATIO) == "holdout"
+        )
+        assert holdout_report["case_count"] == expected_holdout
+
+    def test_split_applies_before_limit(self):
+        holdout_total = self._dry_run("--split", "holdout")["case_count"]
+        limited = self._dry_run("--split", "holdout", "--limit", "1")
+        assert limited["case_count"] == min(1, holdout_total)
+
+    def test_split_default_is_all(self):
+        assert self._dry_run()["case_count"] == self._dry_run("--split", "all")["case_count"]
