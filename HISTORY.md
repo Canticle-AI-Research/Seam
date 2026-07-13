@@ -8562,3 +8562,21 @@ The paid head-to-head (operator command "run it"): both arms on the same 344 hol
 
 HONEST CAVEATS gating any public claim: comparators ran at their default retrieval depth (mem0 8 memories, Zep 8 edges + 4 nodes) versus SEAM's 8K-char budget; a matched-information-budget rerun (~$2.5, mem0 re-ingest unavoidable - comparator stores are ephemeral tempdirs) is the bulletproofing step. cat3 is 21 cases (one case ~ 0.048). Unresolved next steps, operator-gated: (a) matched-budget comparator rerun; (b) broad-profile stack on the policies; (c) default-ON productization decision. Verification this entry: full canonical non-external suite exit 0 after all changes; affected slices green; work committed locally only - push awaits the operator's "push it". Unrelated untracked .playwright-mcp, .wrangler, visuals paths remain untouched.
 ---END-ENTRY-#384---
+
+---BEGIN-ENTRY-#385---
+id: 385
+date: 2026-07-13T03:25:35Z
+agent: claude
+status: done
+topics: benchmark, locomo, retrieval, quality, paid-validation, verify
+commits: none
+refs: PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md
+supersedes: 384
+tokens: 801
+---
+Executed operator gate (a) from #383/#384: the broad-profile stack A/B. Same 344-case holdout, gpt-4o-mini answerer + judge/1 as every #383/#384 arm, candidate = conversation/1 + inference/high-confidence/1 + search_top_k=300 + context_budget=60000 (the validated broad capable-answerer knee), baseline = stock. Driven by a one-off script through build_locomo_holdout_scorer + run_paid_validation because the `seam improve validate --flags` path REJECTS search_top_k/context_budget by design (retrieval_flag_field_types derives NoneType from their None defaults, so coerce_flag_value refuses any value; they are env/profile CONFIG knobs, deliberately not proposal levers). The judged scorer itself applies both correctly per-arm via rt._retrieval_flags and the context-trim override, so no product code was changed to measure.
+
+RESULT verdict=improved: baseline 0.632267 vs candidate 0.732558, delta +0.100291 (~5x the 0.02 noise margin). Per category: cat1 multi-hop 0.4918 -> 0.5902 (+0.0984), cat2 temporal 0.4595 -> 0.6284 (+0.1689), cat3 open-domain 0.4286 -> 0.5476 (+0.1190), cat4 single-hop 0.7674 -> 0.8396 (+0.0722), cat5 flat 1.0. Correct verdicts 173 -> 218, zero empty answers, zero judge retries. Baseline re-measured 0.6323 vs #383's 0.6395 (-0.007, within noise) - consistent re-measurement, not drift. Cross-run on the same cases/judge: the broad stack adds +0.0334 aggregate ON TOP of #383's policy win (0.6991 -> 0.7326); vs the mem0 paper's gpt-4o-mini table the aggregate lead roughly doubles (0.733 vs 0.669). Actual spend $0.790110 (5,175,527 tokens; answerer input at 60K-char contexts is the cost driver, as #365 predicted; cost-per-correct $0.002021). Record: /media/terrabyte/T7/Proprietary/DATA/20260712-broadstack-holdout.json (+.jsonl).
+
+Same-session free record mining of the #383 candidate arm (zero spend) sharpened the remaining program: of 146 non-correct cases, cat1's 45 misses are 34 partial verdicts (the list/enumeration-completeness signature - converting them is worth up to ~+0.28 cat1); cat4's 53 misses are 44 scattered-evidence 'uncertain' (the bucket this broad-stack run just attacked); cat2's 35 are mostly hard incorrects (22) needing their own diagnosis; zero misses answered 'unknown' (policies already eliminated abstention losses). Unresolved next steps, operator-gated: (a) productize the winning stack - plumb a --profile option into improve validate (--flags rejects the knobs by design) and decide default-ON for conversation/1 + inference/high-confidence/1 + broad profile on capable-answerer surfaces; (b) cat1 list-completeness synthesis (PR-3 remainder, free to build); (c) matched-budget comparator rerun for the public head-to-head claim; (d) cat2 hard-incorrect diagnosis from the new record. Verification: measurement-only session (driver script in session scratchpad, no repo code changed); doc-only chain update; PR #144 (the #384 work) was squash-merged to main as 6e2614e earlier this session.
+---END-ENTRY-#385---
