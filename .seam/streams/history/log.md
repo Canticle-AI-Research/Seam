@@ -8600,3 +8600,17 @@ The private record contains 688 rows (344 per arm), 344 unique case ids, 5,357,1
 
 Free verification was completed before the paid run and was not repeated: canonical non-external suite 1,343 passed with two established xfails and no failures/errors/skips; external pgvector 7/7 against the pre-existing operator-owned service; ruff, byte-compilation, and git diff check clean. The service remains running. Unrelated `.playwright-mcp/`, `.wrangler/`, `gated-view.png`, and `visuals/` remain untouched and excluded. The tracked handoff now routes successors to `docs/handoffs/2026-07-13-improve-validate-profile-complete.md`. No push or PR was performed; publication and any default-ON decision remain explicit operator gates. Next measured quality levers are cat1 list-completeness synthesis and cat2 hard-incorrect diagnosis; cat3 moved only one half-step across 21 cases, so the broad profile alone does not solve open-domain behavior.
 ---END-ENTRY-#386---
+
+---BEGIN-ENTRY-#387---
+id: 387
+date: 2026-07-13T23:45:23Z
+agent: codex
+status: changed
+topics: history, handoff, status, verify, ci
+commits: 8a77bad
+refs: PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-13-improve-validate-profile-complete.md,GitHub-PR:146
+supersedes: 386
+tokens: 235
+---
+Published the completed paid-validation retrieval-profile slice after the operator explicitly said 'push it'. Refreshed origin first: origin/main remained 6a9c219 and was an ancestor/clean base of branch agent/improve-validate-profile-386. Re-ran verify_handoffs, verify_integrity, verify_routing, verify_continuity, verify_streams, git diff --check, and the candidate secret/private-session-link scan; all passed. Pushed the three BlackhatShiftey-authored commits through reviewed head 8a77bad to origin with tracking and opened draft PR #146 targeting main via the connected GitHub app. The PR body records scope, root cause, 1,343 non-external + 7 external free-test evidence, exact paid result/cost, private-artifact boundary, and unrelated local exclusions. Updated PROJECT_STATUS and the current tracked handoff from local-only to the live draft-PR route. No runtime/test behavior changed in this publication step, no provider call was made, and no additional spend occurred. Next: inspect PR #146's live required checks and review threads; fix only in-scope current-head findings and do not merge automatically.
+---END-ENTRY-#387---

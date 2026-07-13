@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 444
+total_events: 445
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T08:45:31Z | history:192:d3b2d91d | session-event | done | verify, streams, tests, protocol, continuity, history | tools/streams/verify_streams.py,tools/streams/test_streams.py,docs/SOP_PRODUC... |
 | 2026-05-18T09:30:00Z | history:193:9b402292 | session-event | done | verify, continuity, roadmap, protocol | ROADMAP.md,docs/SOP_PRODUCTION_READINESS_REMEDIATION.md |
 | 2026-05-18T10:26:40Z | history:194:33aefde3 | session-event | done | verify, history, protocol | tools/history/new_entry.py,tools/history/test_history_tools.py,PR#30 |
 | 2026-05-18T10:33:00Z | history:195:bbc6e6d3 | session-event | done | verify, history, protocol | tools/history/new_entry.py,tools/history/test_history_tools.py,PR#30 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-12T21:22:48Z | history:384:096e1844 | session-event | done | benchmark, locomo, competitors, zep, mem0, paid-validatio... | benchmarks/external/locomo/run.py,benchmarks/external/locomo/adapters/zep.py,... |
 | 2026-07-13T03:25:35Z | history:385:4f2a7c73 | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, v... | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md |
 | 2026-07-13T23:21:38Z | history:386:1c619b66 | session-event | done | benchmark, locomo, retrieval, quality, command, tests, ha... | seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_loco... |
+| 2026-07-13T23:45:23Z | history:387:1d31ef23 | session-event | changed | history, handoff, status, verify, ci | PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-13-improve-val... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0244.cross.md | 2026-04-15T00:00:00Z..2026-05-18T07:51:08Z | 244 | (multi) | (multi) |
+| 0001-0245.cross.md | 2026-04-15T00:00:00Z..2026-05-18T08:45:31Z | 245 | (multi) | (multi) |

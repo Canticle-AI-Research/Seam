@@ -2,7 +2,7 @@
 handoff_id: 2026-07-13-improve-validate-profile-complete
 supersedes: 2026-07-11-cat13-semantic-conversation-adapter-complete
 handoff_status: current
-history: HISTORY#386
+history: HISTORY#387
 ---
 
 # Handoff: paid-validation retrieval profile complete
@@ -12,8 +12,9 @@ history: HISTORY#386
 - **Base:** `6a9c219` (`origin/main` when the branch was created)
 - **Implementation commits:** `d6a6ab1`, `99079f7`
 - **State:** implementation, free validation, and the operator-authorized paid
-  holdout validation are complete locally. The branch has no remote tracking
-  branch; do not push or open a PR without explicit operator authorization.
+  holdout validation are complete and published on draft PR #146. Branch
+  `agent/improve-validate-profile-386` tracks the matching `origin` branch at
+  reviewed head `8a77bad`; inspect GitHub live for current CI/review state.
 - **Local exclusions:** `.playwright-mcp/`, `.wrangler/`, `gated-view.png`, and
   `visuals/` are unrelated local paths and remain untouched and excluded.
 - **Service boundary:** the healthy `seam-pgvector` service is operator-owned
@@ -77,10 +78,9 @@ No case text, provider credential, or session link is tracked in the repo.
 
 ## Successor route
 
-1. Treat the implementation and local evidence as complete. If the operator
-   asks to publish, first verify live branch/base drift, then push this branch
-   and open a draft PR with the validation and private-artifact boundary
-   summarized; do not publish autonomously.
+1. Treat the implementation and evidence as complete. Draft PR #146 is the
+   publication route; inspect its live required checks and review threads, fix
+   only current-head in-scope findings, and do not merge automatically.
 2. Keep the new CLI path opt-in unless the operator separately decides which
    capable-answerer surfaces should default to the broad profile and semantic
    answer policies.

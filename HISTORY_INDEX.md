@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 386
-total_tokens: ~163963
-latest_id: 386
+total_entries: 387
+total_tokens: ~164198
+latest_id: 387
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 387 | 2026-07-13 | changed | 1d31ef23a885dccc | history,handoff,status,verify,+ | 386 |
 | 386 | 2026-07-13 | done | 1c619b66cbb03026 | benchmark,locomo,retrieval,quality,+ | 385 |
 | 385 | 2026-07-13 | done | 4f2a7c73fdb93d74 | benchmark,locomo,retrieval,quality,+ | 384 |
 | 384 | 2026-07-12 | done | 096e184497089a6f | benchmark,locomo,competitors,zep,+ | 383 |
@@ -428,7 +429,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=18 latest=#380, #378, #370, #363, #361
+- ci: count=19 latest=#387, #380, #378, #370, #363
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
@@ -502,11 +503,11 @@ compact: true
 - graph: count=2 latest=#099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=21 latest=#386, #382, #381, #380, #379
+- handoff: count=22 latest=#387, #386, #382, #381, #380
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=266 latest=#380, #379, #378, #374, #358
+- history: count=267 latest=#387, #380, #379, #378, #374
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -624,7 +625,7 @@ compact: true
 - sqlite: count=1 latest=#364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=148 latest=#358, #329, #321, #320, #319
+- status: count=149 latest=#387, #358, #329, #321, #320
 - storage: count=8 latest=#358, #283, #282, #270, #269
 - streams: count=9 latest=#287, #276, #216, #210, #209
 - structure: count=3 latest=#326, #285, #284
@@ -646,7 +647,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=258 latest=#386, #385, #384, #383, #382
+- verify: count=259 latest=#387, #386, #385, #384, #383
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -658,7 +659,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 5
+- changed: 6
 - done: 358
 - in-progress: 3
 - planned: 20
