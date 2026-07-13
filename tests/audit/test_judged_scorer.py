@@ -24,7 +24,7 @@ from benchmarks.external.locomo.judged_scorer import (
     build_locomo_holdout_scorer,
     estimate_locomo_paid_validation,
 )
-from seam_runtime.cli import run_cli
+from seam_runtime.cli import _apply_candidate_profile, run_cli
 from seam_runtime.retrieval import RetrievalFlags
 from seam_runtime.self_improve import ScoreReport
 from tools.h2.holdout_split import DEFAULT_RATIO, DEFAULT_SALT, HOLDOUT, assign_one
@@ -303,6 +303,60 @@ def test_cli_validate_dry_run_makes_no_paid_path(tmp_path, capsys):
     assert out["cases"] == 10
     assert out["total_paid_calls_max"] == 40
     assert "confirm-paid" in out["note"]
+
+
+def test_candidate_profile_overlays_only_profile_knobs():
+    policies = RetrievalFlags(
+        conversation_adapter="conversation/1",
+        inference_policy="inference/high-confidence/1",
+        w_lexical=0.55,
+    )
+    candidate = _apply_candidate_profile(policies, "broad", store=None)
+
+    assert candidate.search_top_k == 300
+    assert candidate.context_budget == 60000
+    assert candidate.conversation_adapter == "conversation/1"
+    assert candidate.inference_policy == "inference/high-confidence/1"
+    assert candidate.w_lexical == pytest.approx(0.55)
+    assert policies.search_top_k is None
+    assert policies.context_budget is None
+
+
+def test_cli_validate_dry_run_combines_profile_with_flags(tmp_path, capsys):
+    db = str(tmp_path / "s.db")
+    run_cli([
+        "--db", db,
+        "improve", "validate",
+        "--locomo-dataset", str(QUICKSTART_FIXTURE_PATH),
+        "--split", "all",
+        "--profile", "broad",
+        "--flags", json.dumps({
+            "conversation_adapter": "conversation/1",
+            "inference_policy": "inference/high-confidence/1",
+        }),
+    ])
+    out = json.loads(capsys.readouterr().out)
+
+    assert out["dry_run"] is True
+    assert out["candidate_profile"] == "broad"
+    assert out["candidate_flags"]["search_top_k"] == 300
+    assert out["candidate_flags"]["context_budget"] == 60000
+    assert out["candidate_flags"]["conversation_adapter"] == "conversation/1"
+    assert out["candidate_flags"]["inference_policy"] == "inference/high-confidence/1"
+
+
+def test_cli_validate_profile_keeps_config_knobs_out_of_flags(tmp_path, capsys):
+    db = str(tmp_path / "s.db")
+    run_cli([
+        "--db", db,
+        "improve", "validate",
+        "--locomo-dataset", str(QUICKSTART_FIXTURE_PATH),
+        "--profile", "compact",
+        "--flags", '{"search_top_k": 100}',
+    ])
+    out = json.loads(capsys.readouterr().out)
+
+    assert "invalid --flags" in out["error"]
 
 
 def test_cli_validate_rejects_bad_flags_json(tmp_path, capsys):
