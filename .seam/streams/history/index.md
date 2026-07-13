@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 385
-total_tokens: ~163153
-latest_id: 385
+total_entries: 386
+total_tokens: ~163963
+latest_id: 386
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 386 | 2026-07-13 | done | 1c619b66cbb03026 | benchmark,locomo,retrieval,quality,+ | 385 |
 | 385 | 2026-07-13 | done | 4f2a7c73fdb93d74 | benchmark,locomo,retrieval,quality,+ | 384 |
 | 384 | 2026-07-12 | done | 096e184497089a6f | benchmark,locomo,competitors,zep,+ | 383 |
 | 383 | 2026-07-12 | done | 6b2cac1da2688332 | benchmark,locomo,quality,retrieval,+ | 382 |
@@ -412,7 +413,7 @@ compact: true
 - audit: count=77 latest=#377, #376, #371, #303, #290
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=132 latest=#385, #384, #383, #382, #381
+- benchmark: count=133 latest=#386, #385, #384, #383, #382
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -434,7 +435,7 @@ compact: true
 - cli: count=4 latest=#302, #293, #287, #285
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
-- command: count=67 latest=#251, #241, #232, #221, #220
+- command: count=68 latest=#386, #251, #241, #232, #221
 - comparison: count=1 latest=#333
 - competitors: count=1 latest=#384
 - compile: count=13 latest=#154, #047, #046, #043, #042
@@ -446,7 +447,7 @@ compact: true
 - consolidation: count=1 latest=#306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=7 latest=#382, #381, #379, #378, #310
+- continuity: count=8 latest=#386, #382, #381, #379, #378
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -501,7 +502,7 @@ compact: true
 - graph: count=2 latest=#099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=20 latest=#382, #381, #380, #379, #378
+- handoff: count=21 latest=#386, #382, #381, #380, #379
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
@@ -525,7 +526,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=48 latest=#385, #384, #383, #382, #381
+- locomo: count=49 latest=#386, #385, #384, #383, #382
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -576,7 +577,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=7 latest=#385, #383, #382, #381, #377
+- quality: count=8 latest=#386, #385, #383, #382, #381
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -593,7 +594,7 @@ compact: true
 - registry: count=4 latest=#350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- retrieval: count=74 latest=#385, #383, #382, #381, #377
+- retrieval: count=75 latest=#386, #385, #383, #382, #381
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - roadmap: count=54 latest=#346, #333, #319, #318, #284
@@ -634,7 +635,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=15 latest=#384, #382, #380, #374, #373
+- tests: count=16 latest=#386, #384, #382, #380, #374
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -645,7 +646,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=257 latest=#385, #384, #383, #382, #380
+- verify: count=258 latest=#386, #385, #384, #383, #382
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -658,6 +659,6 @@ compact: true
 
 - roots: 76
 - changed: 5
-- done: 357
+- done: 358
 - in-progress: 3
 - planned: 20
