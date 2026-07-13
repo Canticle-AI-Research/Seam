@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 442
+total_events: 443
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T00:00:00Z | roadmap:052:e84c2b0c | status-change | bootstrap | retrieval, rank, audit | ROADMAP.md:1549 |
 | 2026-05-18T07:51:08Z | history:191:4007a129 | session-event | done | audit, verify, protocol, roadmap, tests, ci, security, hi... | PROJECT_STATUS.md,REPO_LEDGER.md,ROADMAP.md,seam_runtime/cli.py,seam_runtime/... |
 | 2026-05-18T08:45:31Z | history:192:d3b2d91d | session-event | done | verify, streams, tests, protocol, continuity, history | tools/streams/verify_streams.py,tools/streams/test_streams.py,docs/SOP_PRODUC... |
 | 2026-05-18T09:30:00Z | history:193:9b402292 | session-event | done | verify, continuity, roadmap, protocol | ROADMAP.md,docs/SOP_PRODUCTION_READINESS_REMEDIATION.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-12T00:03:58Z | history:382:32666036 | session-event | done | benchmark, locomo, retrieval, prompt, quality, handoff, c... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
 | 2026-07-12T05:39:56Z | history:383:6b2cac1d | session-event | done | benchmark, locomo, quality, retrieval, merge, verify, pai... | HISTORY.md,PROJECT_STATUS.md,HISTORY_INDEX.md |
 | 2026-07-12T21:22:48Z | history:384:096e1844 | session-event | done | benchmark, locomo, competitors, zep, mem0, paid-validatio... | benchmarks/external/locomo/run.py,benchmarks/external/locomo/adapters/zep.py,... |
+| 2026-07-13T03:25:35Z | history:385:4f2a7c73 | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, v... | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0242.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 242 | (multi) | (multi) |
+| 0001-0243.cross.md | 2026-04-15T00:00:00Z..2026-05-18T00:00:00Z | 243 | (multi) | (multi) |
