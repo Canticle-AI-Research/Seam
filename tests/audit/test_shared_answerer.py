@@ -186,3 +186,28 @@ def test_generate_short_answer_dispatch_uses_shared_prompt(monkeypatch):
 def test_generate_short_answer_rejects_unknown_answerer():
     with pytest.raises(ValueError):
         generate_short_answer("bogus", None, "q", "ctx")
+
+
+def test_wrapper_passes_temporal_policy_to_comparator_answerer():
+    seen = {}
+
+    def generate(answerer, model, question, context, **kwargs):  # noqa: ARG001
+        seen.update(kwargs)
+        return "answer"
+
+    wrapped = SharedAnswererAdapter(
+        _FakeInner(generated=None),
+        "openai",
+        temporal_policy="temporal/1",
+        _generate=generate,
+    )
+    wrapped.answer("scope1", "q?")
+    assert seen["temporal_policy"] == "temporal/1"
+    # off policies are omitted so the default path stays byte-identical
+    assert "conversation_adapter" not in seen
+    assert "inference_policy" not in seen
+
+
+def test_wrapper_rejects_unknown_temporal_policy():
+    with pytest.raises(ValueError, match="unknown temporal policy"):
+        SharedAnswererAdapter(_FakeInner(), "openai", temporal_policy="temporal/99")

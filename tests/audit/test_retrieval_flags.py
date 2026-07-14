@@ -326,3 +326,17 @@ def test_entity_grounded_env_parsing():
     assert retrieval_flags_from_env({}).entity_grounded_scoring is False
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_ENTITY_GROUNDED": "1"}).entity_grounded_scoring is True
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_ENTITY_GROUNDED": "false"}).entity_grounded_scoring is False
+
+
+def test_temporal_policy_flag_default_env_and_coercion():
+    from seam_runtime.retrieval import coerce_flag_value
+
+    assert RetrievalFlags().temporal_policy == "off"
+    flags = retrieval_flags_from_env({"SEAM_TEMPORAL_POLICY": "temporal/1"})
+    assert flags.temporal_policy == "temporal/1"
+    # fail-closed on unknown versions
+    assert retrieval_flags_from_env({"SEAM_TEMPORAL_POLICY": "guess"}).temporal_policy == "off"
+    assert coerce_flag_value("temporal_policy", "temporal/1") == "temporal/1"
+    assert coerce_flag_value("temporal_policy", "off") == "off"
+    assert coerce_flag_value("temporal_policy", "temporal/99") is None
+    assert coerce_flag_value("temporal_policy", 1) is None

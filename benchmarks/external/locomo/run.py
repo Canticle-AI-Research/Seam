@@ -34,6 +34,8 @@ from seam_runtime.conversation import (
     CONVERSATION_ADAPTERS,
     INFERENCE_CONTEXT_ONLY,
     INFERENCE_POLICIES,
+    TEMPORAL_POLICIES,
+    TEMPORAL_POLICY_OFF,
 )
 
 
@@ -57,6 +59,7 @@ def build_adapter(
     retrieval_event_run_id: str | None = None,
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
+    temporal_policy: str = TEMPORAL_POLICY_OFF,
 ):
     """Lazy-import factory so SEAM-only runs don't require Mem0/Zep installed."""
     if name == "seam":
@@ -78,6 +81,7 @@ def build_adapter(
             run_id=retrieval_event_run_id,
             conversation_adapter=conversation_adapter,
             inference_policy=inference_policy,
+            temporal_policy=temporal_policy,
         )
     if name == "mem0":
         from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
@@ -88,6 +92,7 @@ def build_adapter(
             answerer_model,
             conversation_adapter=conversation_adapter,
             inference_policy=inference_policy,
+            temporal_policy=temporal_policy,
         )
     if name == "zep":
         from benchmarks.external.locomo.adapters.zep import ZepLocomoAdapter
@@ -98,6 +103,7 @@ def build_adapter(
             answerer_model,
             conversation_adapter=conversation_adapter,
             inference_policy=inference_policy,
+            temporal_policy=temporal_policy,
         )
     raise ValueError(f"unknown adapter {name!r}")
 
@@ -109,6 +115,7 @@ def _maybe_wrap_answerer(
     *,
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
+    temporal_policy: str = TEMPORAL_POLICY_OFF,
 ):
     """Comparator adapters (mem0/zep) return only retrieved context. When an
     answerer is configured, wrap them so the SAME answerer generates their
@@ -125,6 +132,7 @@ def _maybe_wrap_answerer(
         answerer_model,
         conversation_adapter=conversation_adapter,
         inference_policy=inference_policy,
+        temporal_policy=temporal_policy,
     )
 
 
@@ -295,6 +303,16 @@ def main() -> None:
         help=(
             "Versioned answer inference boundary applied equally to every adapter "
             "(default: context-only)."
+        ),
+    )
+    parser.add_argument(
+        "--temporal-policy",
+        choices=sorted(TEMPORAL_POLICIES),
+        default=TEMPORAL_POLICY_OFF,
+        help=(
+            "Versioned temporal grounding applied equally to every adapter: "
+            "temporal/1 resolves relative time expressions against message "
+            "timestamps (default: off)."
         ),
     )
     parser.add_argument(
@@ -484,6 +502,7 @@ def main() -> None:
                 retrieval_event_run_id=args.retrieval_event_run_id,
                 conversation_adapter=args.conversation_adapter,
                 inference_policy=args.inference_policy,
+                temporal_policy=args.temporal_policy,
             ),
             adapter_name=args.adapter,
             cases=cases,
@@ -517,6 +536,7 @@ def main() -> None:
             retrieval_event_run_id=args.retrieval_event_run_id,
             conversation_adapter=args.conversation_adapter,
             inference_policy=args.inference_policy,
+            temporal_policy=args.temporal_policy,
         )
         judge = build_judge(args.judge, model=args.judge_model)
         report = run_benchmark_grouped(

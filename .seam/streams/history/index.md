@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 388
-total_tokens: ~164774
-latest_id: 388
+total_entries: 389
+total_tokens: ~165541
+latest_id: 389
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 389 | 2026-07-14 | done | a8b788fe20eada54 | benchmark,locomo,retrieval,quality,+ | 388 |
 | 388 | 2026-07-14 | done | 1e8e9de6ae174f4f | review,ci,merge,history,+ | 387 |
 | 387 | 2026-07-13 | changed | 1d31ef23a885dccc | history,handoff,status,verify,+ | 386 |
 | 386 | 2026-07-13 | done | 1c619b66cbb03026 | benchmark,locomo,retrieval,quality,+ | 385 |
@@ -415,7 +416,7 @@ compact: true
 - audit: count=77 latest=#377, #376, #371, #303, #290
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=133 latest=#386, #385, #384, #383, #382
+- benchmark: count=134 latest=#389, #386, #385, #384, #383
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -437,7 +438,7 @@ compact: true
 - cli: count=4 latest=#302, #293, #287, #285
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
-- command: count=68 latest=#386, #251, #241, #232, #221
+- command: count=69 latest=#389, #386, #251, #241, #232
 - comparison: count=1 latest=#333
 - competitors: count=1 latest=#384
 - compile: count=13 latest=#154, #047, #046, #043, #042
@@ -528,7 +529,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=49 latest=#386, #385, #384, #383, #382
+- locomo: count=50 latest=#389, #386, #385, #384, #383
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -579,7 +580,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=8 latest=#386, #385, #383, #382, #381
+- quality: count=9 latest=#389, #386, #385, #383, #382
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -596,7 +597,7 @@ compact: true
 - registry: count=4 latest=#350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- retrieval: count=75 latest=#386, #385, #383, #382, #381
+- retrieval: count=76 latest=#389, #386, #385, #383, #382
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -638,7 +639,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=16 latest=#386, #384, #382, #380, #374
+- tests: count=17 latest=#389, #386, #384, #382, #380
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -649,7 +650,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=260 latest=#388, #387, #386, #385, #384
+- verify: count=261 latest=#389, #388, #387, #386, #385
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -662,6 +663,6 @@ compact: true
 
 - roots: 76
 - changed: 6
-- done: 359
+- done: 360
 - in-progress: 3
 - planned: 20

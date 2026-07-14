@@ -379,3 +379,18 @@ def test_cycle_auto_reverts_on_post_apply_regression(tmp_path):
     assert report["applied"] is False
     # flag state backed out -> baseline restored
     assert load_retrieval_flags(store, env={}) == RetrievalFlags()
+
+
+def test_candidate_levers_include_temporal_and_conversation_v2():
+    base = RetrievalFlags()
+    assert not any("temporal_policy" in c.change for c in candidate_levers(base))
+    cands = candidate_levers(base, answer_policy_levers=True)
+    changes = [candidate.change for candidate in cands]
+    assert {"temporal_policy": "temporal/1"} in changes
+    assert {"conversation_adapter": "conversation/2"} in changes
+    # already-applied levers are not re-proposed
+    applied = RetrievalFlags(temporal_policy="temporal/1")
+    re_changes = [
+        c.change for c in candidate_levers(applied, answer_policy_levers=True)
+    ]
+    assert {"temporal_policy": "temporal/1"} not in re_changes
