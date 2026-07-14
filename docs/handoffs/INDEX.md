@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-11-cat13-semantic-conversation-adapter-complete
+latest: 2026-07-13-improve-validate-profile-complete
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-11-cat13-semantic-conversation-adapter-complete` | [2026-07-11-cat13-semantic-conversation-adapter-complete.md](2026-07-11-cat13-semantic-conversation-adapter-complete.md) | `2026-07-11-cat13-semantic-conversation-adapter-in-progress` | `HISTORY#382` | `current` |
+| `2026-07-13-improve-validate-profile-complete` | [2026-07-13-improve-validate-profile-complete.md](2026-07-13-improve-validate-profile-complete.md) | `2026-07-11-cat13-semantic-conversation-adapter-complete` | `HISTORY#387` | `current` |
+| `2026-07-11-cat13-semantic-conversation-adapter-complete` | [2026-07-11-cat13-semantic-conversation-adapter-complete.md](2026-07-11-cat13-semantic-conversation-adapter-complete.md) | `2026-07-11-cat13-semantic-conversation-adapter-in-progress` | `HISTORY#382` | `superseded` |
 | `2026-07-11-cat13-semantic-conversation-adapter-in-progress` | [2026-07-11-cat13-semantic-conversation-adapter-in-progress.md](2026-07-11-cat13-semantic-conversation-adapter-in-progress.md) | `2026-07-11-cat1-cat3-success-contract-handoff` | `HISTORY#381` | `superseded` |
 | `2026-07-11-cat1-cat3-success-contract-handoff` | [2026-07-11-cat1-cat3-success-contract-handoff.md](2026-07-11-cat1-cat3-success-contract-handoff.md) | `2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff` | `HISTORY#379` | `superseded` |
 | `2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff` | [2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff.md](2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff.md) | `2026-07-09-cat1-cat3-deepseek-fixes-handoff` | `HISTORY#375` | `superseded` |

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import types as _types
@@ -278,8 +279,26 @@ def test_cli_quickstart_zep_flag_accepted() -> None:
     assert "zep" in result.stdout
 
 
-def test_cli_quickstart_zep_no_sdk() -> None:
-    """--adapter zep without SDK installed exits non-zero."""
+def test_cli_quickstart_zep_no_sdk(tmp_path) -> None:
+    """--adapter zep fails safely when the optional SDK is unavailable.
+
+    Keep this hermetic even in an all-extras development environment by
+    shadowing the installed package with a temporary module that raises on
+    import.  Removing Zep credentials is defense-in-depth against a broken
+    shadow accidentally reaching the real service.
+    """
+    blocked_sdk = tmp_path / "zep_cloud"
+    blocked_sdk.mkdir()
+    (blocked_sdk / "__init__.py").write_text(
+        'raise ImportError("simulated missing zep-cloud SDK")\n',
+        encoding="utf-8",
+    )
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (str(tmp_path), env.get("PYTHONPATH", "")) if part
+    )
+    env.pop("ZEP_API_KEY", None)
+    env.pop("ZEP_API_URL", None)
     result = subprocess.run(
         [
             sys.executable,
@@ -291,6 +310,7 @@ def test_cli_quickstart_zep_no_sdk() -> None:
         ],
         capture_output=True,
         text=True,
+        env=env,
     )
     assert result.returncode != 0
     assert "zep" in result.stderr.lower()

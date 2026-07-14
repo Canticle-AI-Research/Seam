@@ -8580,3 +8580,37 @@ RESULT verdict=improved: baseline 0.632267 vs candidate 0.732558, delta +0.10029
 
 Same-session free record mining of the #383 candidate arm (zero spend) sharpened the remaining program: of 146 non-correct cases, cat1's 45 misses are 34 partial verdicts (the list/enumeration-completeness signature - converting them is worth up to ~+0.28 cat1); cat4's 53 misses are 44 scattered-evidence 'uncertain' (the bucket this broad-stack run just attacked); cat2's 35 are mostly hard incorrects (22) needing their own diagnosis; zero misses answered 'unknown' (policies already eliminated abstention losses). Unresolved next steps, operator-gated: (a) productize the winning stack - plumb a --profile option into improve validate (--flags rejects the knobs by design) and decide default-ON for conversation/1 + inference/high-confidence/1 + broad profile on capable-answerer surfaces; (b) cat1 list-completeness synthesis (PR-3 remainder, free to build); (c) matched-budget comparator rerun for the public head-to-head claim; (d) cat2 hard-incorrect diagnosis from the new record. Verification: measurement-only session (driver script in session scratchpad, no repo code changed); doc-only chain update; PR #144 (the #384 work) was squash-merged to main as 6e2614e earlier this session.
 ---END-ENTRY-#385---
+
+---BEGIN-ENTRY-#386---
+id: 386
+date: 2026-07-13T23:21:38Z
+agent: codex
+status: done
+topics: benchmark, locomo, retrieval, quality, command, tests, handoff, continuity, verify
+commits: d6a6ab1,99079f7
+refs: seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_locomo_zep_adapter.py,PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-13-improve-validate-profile-complete.md
+supersedes: 385
+tokens: 810
+---
+Productized HISTORY#385's validated retrieval stack in the supported operator-gated CLI. `seam improve validate --profile {compact,broad}` now overlays only the candidate's `search_top_k` and `context_budget`, composes with explicit answer-policy `--flags` or the loop's applied state, records effective flags/profile on the zero-cost dry-run, and leaves the stock baseline unchanged. The configuration knobs remain deliberately unavailable as proposal fields inside `--flags`. No runtime, retrieval, or answer-policy default changed. Commit `99079f7` also makes the missing-Zep-SDK smoke hermetic on machines where the optional SDK is installed by intercepting the adapter-module import boundary itself.
+
+Executed the operator-authorized full 344-case LoCoMo holdout A/B at code provenance `99079f7`, gpt-4o-mini answerer + judge/1, baseline stock, candidate = broad (top_k 300/context_budget 60000) + conversation/1 + inference/high-confidence/1. Pane exited status 0 after about 40 minutes including ingest. RESULT verdict=improved: aggregate 0.613372 -> 0.732558, delta +0.119186 (about 6x the 0.02 noise margin). Per category: cat1 multi-hop 0.467213 -> 0.606557 (+0.139344), cat2 temporal 0.445946 -> 0.601351 (+0.155405), cat3 open-domain 0.476190 -> 0.500000 (+0.023810), cat4 single-hop 0.740642 -> 0.850267 (+0.109626), cat5 flat 1.0. Candidate verdicts were 217 correct / 70 partial / 57 incorrect versus baseline 168 / 86 / 90; both arms had zero empty answers and zero judge retries. The candidate exactly reproduced #385's one-off result (0.732558), proving the new CLI path is behaviorally faithful. The new baseline is 0.018895 below #385's 0.632267, still inside the declared 0.02 noise margin.
+
+The private record contains 688 rows (344 per arm), 344 unique case ids, 5,357,177 exact tokens, and $0.817373 actual cost. Artifacts remain only on T7 at `/media/terrabyte/T7/Proprietary/DATA/20260713-174526-locomo-holdout.json` and the adjacent training JSONL. SHA-256: JSON `38ea1df8842f9d4eb7987146887114c0783cca791ae745de79cc5a99176e64db`; JSONL `2a56bae73b67086bac06eec53f776c9c8c6f6fa869d9061b7d6e5fe5e2f5ae47`. No case text or secret is tracked.
+
+Free verification was completed before the paid run and was not repeated: canonical non-external suite 1,343 passed with two established xfails and no failures/errors/skips; external pgvector 7/7 against the pre-existing operator-owned service; ruff, byte-compilation, and git diff check clean. The service remains running. Unrelated `.playwright-mcp/`, `.wrangler/`, `gated-view.png`, and `visuals/` remain untouched and excluded. The tracked handoff now routes successors to `docs/handoffs/2026-07-13-improve-validate-profile-complete.md`. No push or PR was performed; publication and any default-ON decision remain explicit operator gates. Next measured quality levers are cat1 list-completeness synthesis and cat2 hard-incorrect diagnosis; cat3 moved only one half-step across 21 cases, so the broad profile alone does not solve open-domain behavior.
+---END-ENTRY-#386---
+
+---BEGIN-ENTRY-#387---
+id: 387
+date: 2026-07-13T23:45:23Z
+agent: codex
+status: changed
+topics: history, handoff, status, verify, ci
+commits: 8a77bad
+refs: PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-13-improve-validate-profile-complete.md,GitHub-PR:146
+supersedes: 386
+tokens: 235
+---
+Published the completed paid-validation retrieval-profile slice after the operator explicitly said 'push it'. Refreshed origin first: origin/main remained 6a9c219 and was an ancestor/clean base of branch agent/improve-validate-profile-386. Re-ran verify_handoffs, verify_integrity, verify_routing, verify_continuity, verify_streams, git diff --check, and the candidate secret/private-session-link scan; all passed. Pushed the three BlackhatShiftey-authored commits through reviewed head 8a77bad to origin with tracking and opened draft PR #146 targeting main via the connected GitHub app. The PR body records scope, root cause, 1,343 non-external + 7 external free-test evidence, exact paid result/cost, private-artifact boundary, and unrelated local exclusions. Updated PROJECT_STATUS and the current tracked handoff from local-only to the live draft-PR route. No runtime/test behavior changed in this publication step, no provider call was made, and no additional spend occurred. Next: inspect PR #146's live required checks and review threads; fix only in-scope current-head findings and do not merge automatically.
+---END-ENTRY-#387---

@@ -127,7 +127,34 @@ def _parse_candidate_flags(flags_json: str):
     return RetrievalFlags(**values)
 
 
+def _apply_candidate_profile(candidate_flags, profile: str, store):
+    """Overlay a named retrieval profile on the validation candidate only.
+
+    ``search_top_k`` and ``context_budget`` are configuration knobs rather than
+    improvement-proposal fields, so ``--flags`` intentionally cannot set them.
+    When no explicit flags are supplied, preserve the loop's effective applied
+    state and replace only the two profile knobs.  The stock validation baseline
+    remains ``RetrievalFlags()`` inside ``run_paid_validation``.
+    """
+    from dataclasses import replace
+
+    from .retrieval import load_retrieval_flags, resolve_retrieval_profile
+
+    resolved = resolve_retrieval_profile(profile)
+    if resolved is None:
+        raise ValueError(f"unknown retrieval profile {profile!r}")
+    base = candidate_flags if candidate_flags is not None else load_retrieval_flags(store)
+    search_top_k, context_budget = resolved
+    return replace(
+        base,
+        search_top_k=search_top_k,
+        context_budget=context_budget,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
+    from .retrieval import RETRIEVAL_PROFILES
+
     parser = argparse.ArgumentParser(description="SEAM v1 memory compiler/runtime")
     parser.add_argument("--db", default=default_runtime_db_path(), help="SQLite database path")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -399,6 +426,17 @@ def build_parser() -> argparse.ArgumentParser:
     improve_validate_parser.add_argument("--judge", choices=["openai", "claude"], default="openai", help="Paid LLM judge (default openai)")
     improve_validate_parser.add_argument("--judge-model", default=None, help="Judge model override")
     improve_validate_parser.add_argument("--flags", default=None, help="Explicit candidate flags as a JSON object (default: the loop's persisted applied state)")
+    improve_validate_parser.add_argument(
+        "--profile",
+        choices=sorted(RETRIEVAL_PROFILES),
+        default=None,
+        help=(
+            "Named retrieval profile applied to the candidate only: compact "
+            "uses top_k=100/context_budget=8000; broad uses 300/60000. "
+            "Combines with --flags, or with the loop's applied state when "
+            "--flags is omitted; the stock baseline stays unchanged."
+        ),
+    )
     improve_validate_parser.add_argument("--noise-margin", type=float, default=None, help="Judged-score noise margin for the verdict (default 0.02)")
     improve_validate_parser.add_argument("--record-dir", default=None, help="Directory for the full per-case run record (JSON + training JSONL). Default: $SEAM_BENCH_RECORD_DIR or benchmarks/runs/records. Default on so no paid run is lost.")
     improve_validate_parser.add_argument("--no-record", action="store_true", help="Disable the full-record artifact for this run")
@@ -1279,6 +1317,12 @@ def run_cli(argv: list[str] | None = None) -> None:
             except (ValueError, json.JSONDecodeError) as exc:
                 print(json.dumps({"error": f"invalid --flags: {exc}"}, indent=2))
                 return
+        if args.profile is not None:
+            candidate_flags = _apply_candidate_profile(
+                candidate_flags,
+                args.profile,
+                runtime.store,
+            )
         if not args.confirm_paid:
             # Dry run: count what the validation would cost. No conversation is
             # ingested and no API client is constructed on this path.
@@ -1289,6 +1333,11 @@ def run_cli(argv: list[str] | None = None) -> None:
                 question_limit=args.locomo_questions,
             )
             estimate["dry_run"] = True
+            if candidate_flags is not None:
+                from dataclasses import asdict
+
+                estimate["candidate_flags"] = asdict(candidate_flags)
+            estimate["candidate_profile"] = args.profile
             estimate["note"] = (
                 "no API calls were made; re-run with --confirm-paid to execute "
                 "(one answerer call + up to one judge call per case per pass)"
@@ -1330,6 +1379,7 @@ def run_cli(argv: list[str] | None = None) -> None:
                 noise_margin=args.noise_margin if args.noise_margin is not None else DEFAULT_JUDGED_NOISE_MARGIN,
                 record_path=record_path,
             )
+            report["candidate_profile"] = args.profile
         finally:
             adapter.close()
         print(json.dumps(report, indent=2))
