@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 387
-total_tokens: ~164198
-latest_id: 387
+total_entries: 388
+total_tokens: ~164774
+latest_id: 388
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 388 | 2026-07-14 | done | 1e8e9de6ae174f4f | review,ci,merge,history,+ | 387 |
 | 387 | 2026-07-13 | changed | 1d31ef23a885dccc | history,handoff,status,verify,+ | 386 |
 | 386 | 2026-07-13 | done | 1c619b66cbb03026 | benchmark,locomo,retrieval,quality,+ | 385 |
 | 385 | 2026-07-13 | done | 4f2a7c73fdb93d74 | benchmark,locomo,retrieval,quality,+ | 384 |
@@ -429,7 +430,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=19 latest=#387, #380, #378, #370, #363
+- ci: count=20 latest=#388, #387, #380, #378, #370
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=1 latest=#326
 - clear-text-logging: count=2 latest=#299, #298
@@ -507,7 +508,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=2 latest=#333, #303
-- history: count=267 latest=#387, #380, #379, #378, #374
+- history: count=268 latest=#388, #387, #380, #379, #378
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -539,7 +540,7 @@ compact: true
 - measurement: count=1 latest=#369
 - mem0: count=8 latest=#384, #343, #338, #336, #335
 - memory: count=7 latest=#342, #340, #286, #275, #274
-- merge: count=3 latest=#383, #359, #301
+- merge: count=4 latest=#388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
 - mirror-sync: count=2 latest=#360, #359
@@ -598,6 +599,7 @@ compact: true
 - retrieval: count=75 latest=#386, #385, #383, #382, #381
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
+- review: count=1 latest=#388
 - roadmap: count=54 latest=#346, #333, #319, #318, #284
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
@@ -625,7 +627,7 @@ compact: true
 - sqlite: count=1 latest=#364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=149 latest=#387, #358, #329, #321, #320
+- status: count=150 latest=#388, #387, #358, #329, #321
 - storage: count=8 latest=#358, #283, #282, #270, #269
 - streams: count=9 latest=#287, #276, #216, #210, #209
 - structure: count=3 latest=#326, #285, #284
@@ -647,7 +649,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=259 latest=#387, #386, #385, #384, #383
+- verify: count=260 latest=#388, #387, #386, #385, #384
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -660,6 +662,6 @@ compact: true
 
 - roots: 76
 - changed: 6
-- done: 358
+- done: 359
 - in-progress: 3
 - planned: 20
