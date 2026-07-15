@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 
 from benchmarks.external.common.dataset import load_locomo_cases
 from benchmarks.external.common.judge import Judge, JudgeVerdict, build_judge
+from benchmarks.external.common.provider_retry import provider_retry
 from benchmarks.external.common.run_record import RunRecord
 from benchmarks.external.common.scoring import context_recall
 from benchmarks.external.common.types import BenchmarkCase
@@ -158,8 +159,19 @@ class JudgedLocomoScorer:
         last_exc: Exception | None = None
         for attempt in range(self.judge_retries + 1):
             try:
-                verdict = self.judge.score(
-                    question=case.question, gold=case.gold_answer, pred=pred
+                # Wrap the paid judge call in the same transient-error backoff
+                # the answerer path uses (provider_retry: exponential backoff,
+                # honors the API's Retry-After, up to SEAM_BENCH_PROVIDER_MAX_
+                # RETRIES attempts). Without this a single transient rate-limit
+                # (e.g. a broad-profile run brushing the org TPM cap) aborted an
+                # otherwise-complete multi-dollar run on a 429 the provider asked
+                # us to retry milliseconds later. The outer loop still covers any
+                # non-transient judge transport/parse failure.
+                verdict = provider_retry(
+                    lambda: self.judge.score(
+                        question=case.question, gold=case.gold_answer, pred=pred
+                    ),
+                    label=f"judge.{case.case_id}",
                 )
                 return verdict, attempt
             except Exception as exc:  # judge transport/parse failure
