@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 396
-total_tokens: ~169684
-latest_id: 396
+total_entries: 397
+total_tokens: ~170280
+latest_id: 397
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 397 | 2026-07-15 | done | c5ff6b8a2df66fdc | benchmark,locomo,quality,handoff,+ | 396 |
 | 396 | 2026-07-15 | done | 6f876cc6b2075a72 | benchmark,locomo,quality,audit | 395 |
 | 395 | 2026-07-15 | done | de5bf982bab4199e | benchmark,locomo,mem0,harness,+ | 394 |
 | 394 | 2026-07-15 | done | f348135d5fb489f3 | benchmark,mem0,harness,cleanup | 393 |
@@ -423,7 +424,7 @@ compact: true
 - audit: count=79 latest=#396, #391, #377, #376, #371
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=141 latest=#396, #395, #394, #393, #392
+- benchmark: count=142 latest=#397, #396, #395, #394, #393
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -457,7 +458,7 @@ compact: true
 - consolidation: count=1 latest=#306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=8 latest=#386, #382, #381, #379, #378
+- continuity: count=9 latest=#397, #386, #382, #381, #379
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -512,7 +513,7 @@ compact: true
 - graph: count=2 latest=#099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=22 latest=#387, #386, #382, #381, #380
+- handoff: count=23 latest=#397, #387, #386, #382, #381
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -536,7 +537,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=55 latest=#396, #395, #392, #391, #390
+- locomo: count=56 latest=#397, #396, #395, #392, #391
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -588,7 +589,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=14 latest=#396, #395, #392, #391, #390
+- quality: count=15 latest=#397, #396, #395, #392, #391
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -658,7 +659,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=266 latest=#395, #393, #392, #391, #390
+- verify: count=267 latest=#397, #395, #393, #392, #391
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -671,6 +672,6 @@ compact: true
 
 - roots: 76
 - changed: 6
-- done: 367
+- done: 368
 - in-progress: 3
 - planned: 20

@@ -430,3 +430,45 @@ def test_conversation_v2_and_v3_unchanged_by_v4():
                              conversation_adapter="conversation/3")
     assert "no numbering, no headers" in v3
     assert "neither omitting a responsive one" not in v3
+
+
+# ---- inference/high-confidence/2: anti-abstention + counting (2026-07-15 scan) --
+
+
+def test_inference_v2_adds_antiabstention_and_counting_on_top_of_v1():
+    from seam_runtime.conversation import ConversationIntent, answer_method_directive
+
+    v2 = answer_method_directive(
+        ConversationIntent.DIRECT, inference_policy="inference/high-confidence/2"
+    )
+    # inherits v1's world-knowledge + abstention clause
+    assert "one high-confidence interpretation" in v2
+    # adds the two cheap fixes
+    assert "Do not answer 'unknown' when the context clearly supports one specific answer" in v2
+    assert "list every distinct qualifying item or occurrence" in v2
+    assert "report the count of that list" in v2
+
+    # v1 stays byte-stable (it is a validated champion component)
+    v1 = answer_method_directive(
+        ConversationIntent.DIRECT, inference_policy="inference/high-confidence/1"
+    )
+    assert "Do not answer 'unknown' when the context clearly supports" not in v1
+    assert "list every distinct qualifying item" not in v1
+
+
+def test_inference_v2_composes_with_conversation_and_temporal():
+    prompt = build_answer_prompt(
+        "How many tournaments has Nate won?",
+        "[Nate] I won the spring cup.\n[Nate] Won again in the fall.",
+        conversation_adapter="conversation/2",
+        inference_policy="inference/high-confidence/2",
+        temporal_policy="temporal/1",
+    )
+    assert "Scan every EVIDENCE row" in prompt
+    assert "list every distinct qualifying item or occurrence" in prompt
+    assert "Resolve relative time expressions" in prompt
+
+
+def test_unknown_inference_policy_still_fails_closed():
+    with pytest.raises(ValueError, match="unknown inference policy"):
+        build_answer_prompt("q", "ctx", inference_policy="inference/high-confidence/9")

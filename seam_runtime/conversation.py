@@ -19,7 +19,10 @@ directly-responsive item, exclude merely-adjacent ones — targeting the measure
 over-generation that judge/1 penalizes.
 ``inference/high-confidence/1`` separately licenses ordinary world-knowledge
 inference for questions whose answer is not stated verbatim, while retaining
-ambiguity-aware abstention.  ``temporal/1`` separately requires resolving
+ambiguity-aware abstention.  ``inference/high-confidence/2`` adds two cheap
+measured fixes on top of v1: it forbids abstaining when the context clearly
+supports one answer, and requires enumerate-then-count for cardinality
+questions.  ``temporal/1`` separately requires resolving
 relative time expressions against per-message timestamps before answering;
 ``temporal/2`` adds instance disambiguation (enumerate every dated candidate,
 then pick by tense and time reference).  All policies are opt-in and versioned
@@ -55,7 +58,10 @@ _WIDE_SET_DETECTION = frozenset(
 
 INFERENCE_CONTEXT_ONLY = "context-only"
 INFERENCE_HIGH_CONFIDENCE_V1 = "inference/high-confidence/1"
-INFERENCE_POLICIES = frozenset({INFERENCE_CONTEXT_ONLY, INFERENCE_HIGH_CONFIDENCE_V1})
+INFERENCE_HIGH_CONFIDENCE_V2 = "inference/high-confidence/2"
+INFERENCE_POLICIES = frozenset(
+    {INFERENCE_CONTEXT_ONLY, INFERENCE_HIGH_CONFIDENCE_V1, INFERENCE_HIGH_CONFIDENCE_V2}
+)
 
 TEMPORAL_POLICY_OFF = "off"
 TEMPORAL_GROUNDING_V1 = "temporal/1"
@@ -299,7 +305,7 @@ def answer_method_directive(
             "mention."
         )
 
-    if inference_policy == INFERENCE_HIGH_CONFIDENCE_V1:
+    if inference_policy in (INFERENCE_HIGH_CONFIDENCE_V1, INFERENCE_HIGH_CONFIDENCE_V2):
         method += (
             " You may combine the evidence with stable, widely known world knowledge only "
             "when it supports one high-confidence interpretation. If multiple plausible "
@@ -307,4 +313,18 @@ def answer_method_directive(
         )
     else:
         method += " Do not add facts that are not supported by the context."
+
+    if inference_policy == INFERENCE_HIGH_CONFIDENCE_V2:
+        # v2 attacks the two cheapest measured misses (2026-07-15 scan): 4 cases
+        # answered 'unknown' though a single supported answer was present, and 3
+        # 'how many' questions that under-counted. 'unknown' stays available for
+        # genuinely-absent evidence; this only forbids abstaining when a clear
+        # single answer exists, and requires enumerate-then-count for cardinality.
+        method += (
+            " Do not answer 'unknown' when the context clearly supports one specific "
+            "answer; reserve 'unknown' for questions the evidence genuinely does not "
+            "address. For a 'how many' or 'how much' question, first list every "
+            "distinct qualifying item or occurrence found in the evidence, then report "
+            "the count of that list rather than estimating."
+        )
     return method

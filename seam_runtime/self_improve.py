@@ -398,6 +398,7 @@ def candidate_levers(
             CONVERSATION_ADAPTER_V3,
             CONVERSATION_ADAPTER_V4,
             INFERENCE_HIGH_CONFIDENCE_V1,
+            INFERENCE_HIGH_CONFIDENCE_V2,
             TEMPORAL_GROUNDING_V1,
             TEMPORAL_GROUNDING_V2,
         )
@@ -408,6 +409,7 @@ def candidate_levers(
             ("conversation_adapter", CONVERSATION_ADAPTER_V3),
             ("conversation_adapter", CONVERSATION_ADAPTER_V4),
             ("inference_policy", INFERENCE_HIGH_CONFIDENCE_V1),
+            ("inference_policy", INFERENCE_HIGH_CONFIDENCE_V2),
             ("temporal_policy", TEMPORAL_GROUNDING_V1),
             ("temporal_policy", TEMPORAL_GROUNDING_V2),
         ):

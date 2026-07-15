@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-13-improve-validate-profile-complete
 supersedes: 2026-07-11-cat13-semantic-conversation-adapter-complete
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#387
 ---
 
