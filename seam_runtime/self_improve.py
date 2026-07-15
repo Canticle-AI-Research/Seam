@@ -395,15 +395,19 @@ def candidate_levers(
         from .conversation import (
             CONVERSATION_ADAPTER_V1,
             CONVERSATION_ADAPTER_V2,
+            CONVERSATION_ADAPTER_V3,
             INFERENCE_HIGH_CONFIDENCE_V1,
             TEMPORAL_GROUNDING_V1,
+            TEMPORAL_GROUNDING_V2,
         )
 
         for field_name, value in (
             ("conversation_adapter", CONVERSATION_ADAPTER_V1),
             ("conversation_adapter", CONVERSATION_ADAPTER_V2),
+            ("conversation_adapter", CONVERSATION_ADAPTER_V3),
             ("inference_policy", INFERENCE_HIGH_CONFIDENCE_V1),
             ("temporal_policy", TEMPORAL_GROUNDING_V1),
+            ("temporal_policy", TEMPORAL_GROUNDING_V2),
         ):
             if getattr(baseline, field_name) == value:
                 continue

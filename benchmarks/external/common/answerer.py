@@ -63,11 +63,14 @@ def build_answer_prompt(
         conversation_adapter != CONVERSATION_ADAPTER_OFF
         and intent.value == "set-completion"
     )
-    completion = (
-        "Reply with the complete supported answer, no preamble."
-        if set_completion
-        else "Reply with a concise answer, no preamble."
-    )
+    if conversation_adapter == "conversation/3":
+        # v3 carries its own output contract in the directive; the completion
+        # line reinforces bare-answer output for set and direct alike.
+        completion = "Reply with only the answer itself, no preamble."
+    elif set_completion:
+        completion = "Reply with the complete supported answer, no preamble."
+    else:
+        completion = "Reply with a concise answer, no preamble."
     return (
         f"{directive} {completion}\n\n"
         f"Context:\n{adapted}\n\nQuestion: {question}\nAnswer:"

@@ -10,13 +10,18 @@ original evidence text preserved line-for-line.
 the complete evidence set, resolve aliases/coreferences, validate requested
 counts/dimensions, and only then synthesize.  ``conversation/2`` keeps the v1
 projection byte-identical but detects more enumeration-shaped questions and
-issues a stricter exhaustive set-completion contract.  ``inference/
-high-confidence/1`` separately licenses ordinary world-knowledge inference for
-questions whose answer is not stated verbatim, while retaining ambiguity-aware
-abstention.  ``temporal/1`` separately requires resolving relative time
-expressions against per-message timestamps before answering.  All policies are
-opt-in and versioned so the improvement loop can measure, promote, or revert
-them without changing the locked baseline.
+issues a stricter exhaustive set-completion contract.  ``conversation/3``
+keeps v2's scan and detection but constrains the OUTPUT to the bare answer
+(one comma-separated line for sets, no narration) — v2's measured regression
+mode was list-formatted/narrated answers, not missing knowledge.
+``inference/high-confidence/1`` separately licenses ordinary world-knowledge
+inference for questions whose answer is not stated verbatim, while retaining
+ambiguity-aware abstention.  ``temporal/1`` separately requires resolving
+relative time expressions against per-message timestamps before answering;
+``temporal/2`` adds instance disambiguation (enumerate every dated candidate,
+then pick by tense and time reference).  All policies are opt-in and versioned
+so the improvement loop can measure, promote, or revert them without changing
+the locked baseline.
 """
 
 from __future__ import annotations
@@ -28,8 +33,14 @@ from enum import Enum
 CONVERSATION_ADAPTER_OFF = "off"
 CONVERSATION_ADAPTER_V1 = "conversation/1"
 CONVERSATION_ADAPTER_V2 = "conversation/2"
+CONVERSATION_ADAPTER_V3 = "conversation/3"
 CONVERSATION_ADAPTERS = frozenset(
-    {CONVERSATION_ADAPTER_OFF, CONVERSATION_ADAPTER_V1, CONVERSATION_ADAPTER_V2}
+    {
+        CONVERSATION_ADAPTER_OFF,
+        CONVERSATION_ADAPTER_V1,
+        CONVERSATION_ADAPTER_V2,
+        CONVERSATION_ADAPTER_V3,
+    }
 )
 
 INFERENCE_CONTEXT_ONLY = "context-only"
@@ -38,7 +49,10 @@ INFERENCE_POLICIES = frozenset({INFERENCE_CONTEXT_ONLY, INFERENCE_HIGH_CONFIDENC
 
 TEMPORAL_POLICY_OFF = "off"
 TEMPORAL_GROUNDING_V1 = "temporal/1"
-TEMPORAL_POLICIES = frozenset({TEMPORAL_POLICY_OFF, TEMPORAL_GROUNDING_V1})
+TEMPORAL_GROUNDING_V2 = "temporal/2"
+TEMPORAL_POLICIES = frozenset(
+    {TEMPORAL_POLICY_OFF, TEMPORAL_GROUNDING_V1, TEMPORAL_GROUNDING_V2}
+)
 
 
 class ConversationIntent(str, Enum):
@@ -100,7 +114,9 @@ def classify_conversation_intent(
     if adapter_version not in CONVERSATION_ADAPTERS:
         raise ValueError(f"unknown conversation adapter {adapter_version!r}")
     set_patterns = (
-        _SET_PATTERNS_V2 if adapter_version == CONVERSATION_ADAPTER_V2 else _SET_PATTERNS
+        _SET_PATTERNS_V2
+        if adapter_version in (CONVERSATION_ADAPTER_V2, CONVERSATION_ADAPTER_V3)
+        else _SET_PATTERNS
     )
     text = question.strip()
     if any(pattern.search(text) for pattern in set_patterns):
@@ -207,7 +223,7 @@ def answer_method_directive(
     ):
         method += " Return the complete supported set; do not stop after the first match."
     elif (
-        conversation_adapter == CONVERSATION_ADAPTER_V2
+        conversation_adapter in (CONVERSATION_ADAPTER_V2, CONVERSATION_ADAPTER_V3)
         and intent == ConversationIntent.SET_COMPLETION
     ):
         method += (
@@ -219,7 +235,20 @@ def answer_method_directive(
             "incomplete; return the full deduplicated set."
         )
 
-    if temporal_policy == TEMPORAL_GROUNDING_V1:
+    if conversation_adapter == CONVERSATION_ADAPTER_V3:
+        # v3's fix for the measured v2 regression mode: the exhaustive SCAN is
+        # kept, but the OUTPUT is constrained to the bare answer. List-formatted
+        # / narrated answers were judged correct at 14% vs 67% overall on the
+        # 2026-07-14 record even when they contained the complete gold.
+        method += (
+            " Output contract: after reasoning, state only the answer itself. "
+            "For a set, give every supported item on one line, separated by "
+            "commas, with no numbering, no headers, and no per-item commentary. "
+            "Never restate the question, never narrate where evidence came "
+            "from, and never append additional context beyond what was asked."
+        )
+
+    if temporal_policy in (TEMPORAL_GROUNDING_V1, TEMPORAL_GROUNDING_V2):
         method += (
             " Each context line's bracketed prefix is the timestamp of that message, "
             "and speakers describe events relative to it. Resolve relative time "
@@ -229,6 +258,18 @@ def answer_method_directive(
             "resolved event time, not the time of the message that mentions it; when "
             "asked how long something took or how much time passed, compute the "
             "duration from the resolved event times."
+        )
+    if temporal_policy == TEMPORAL_GROUNDING_V2:
+        # v2 adds instance disambiguation: the dominant surviving temporal
+        # failure on the 2026-07-14 record was picking the WRONG dated mention
+        # of a similar recurring event, not failing to resolve a date.
+        method += (
+            " If several dated mentions could match the question, first list each "
+            "candidate event with its resolved date, then choose deliberately: for "
+            "past-tense questions pick the instance consistent with the question's "
+            "time reference; for future or planning questions pick the earliest "
+            "planned occurrence. Never default to the first or most prominent "
+            "mention."
         )
 
     if inference_policy == INFERENCE_HIGH_CONFIDENCE_V1:

@@ -324,3 +324,69 @@ def test_conversation_v2_view_header_and_evidence_match_v1_projection():
     assert intent == ConversationIntent.SET_COMPLETION
     # identical evidence projection, only the header version differs
     assert adapted_v2.replace("SEAM-CONV/2", "SEAM-CONV/1") == adapted_v1
+
+
+# ---- conversation/3 + temporal/2 (HISTORY#391-record-driven levers) ----------
+
+
+def test_conversation_v3_keeps_v2_scan_and_detection():
+    # same wider detection as v2
+    assert (
+        classify_conversation_intent("What has Melanie painted?", adapter_version="conversation/3")
+        == ConversationIntent.SET_COMPLETION
+    )
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver\n[Melanie] Bailey",
+        conversation_adapter="conversation/3",
+    )
+    assert "SEAM-CONV/3|intent=set-completion" in prompt
+    assert "separate turns far apart" in prompt  # v2 sweep retained
+
+
+def test_conversation_v3_bare_answer_output_contract():
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver",
+        conversation_adapter="conversation/3",
+    )
+    assert "no numbering, no headers" in prompt
+    assert "Never restate the question" in prompt
+    assert "Reply with only the answer itself, no preamble." in prompt
+    # applies to direct questions too (verbosity tax also hit cat4)
+    direct = build_answer_prompt(
+        "When is the meeting?",
+        "[Ana] The meeting is Friday.",
+        conversation_adapter="conversation/3",
+    )
+    assert "state only the answer itself" in direct
+    assert "Reply with only the answer itself, no preamble." in direct
+
+
+def test_conversation_v2_prompt_unchanged_by_v3_addition():
+    # v2 is a validated configuration (0.7689 record); it must not inherit the
+    # v3 output contract.
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver",
+        conversation_adapter="conversation/2",
+    )
+    assert "no numbering, no headers" not in prompt
+    assert "Reply with the complete supported answer, no preamble." in prompt
+
+
+def test_temporal_v2_adds_instance_disambiguation_on_top_of_v1():
+    v2 = build_answer_prompt(
+        "When did Sam's friends mock him?",
+        "[Sam 27 July 2023] They mocked me last Friday.\n[Sam 20 October 2023] It happened again.",
+        temporal_policy="temporal/2",
+    )
+    assert "Resolve relative time expressions" in v2  # v1 core retained
+    assert "list each candidate event with its resolved date" in v2
+    assert "Never default to the first or most prominent mention" in v2
+    v1 = build_answer_prompt(
+        "When did Sam's friends mock him?",
+        "[Sam 27 July 2023] They mocked me last Friday.",
+        temporal_policy="temporal/1",
+    )
+    assert "list each candidate event" not in v1  # temporal/1 stays byte-stable
