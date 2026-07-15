@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 450
+total_events: 451
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T15:31:05Z | history:198:25e22fed | session-event | done | audit, verify, benchmark, docs, history, status | seam_runtime/storage.py,seam_runtime/mirl.py,tools/history/write_snapshot.py,... |
 | 2026-05-19T00:02:24Z | history:200:f75ab478 | session-event | done | streams, security, verify, audit | tools/streams/streams_lib.py,tools/streams/test_streams.py |
 | 2026-05-19T01:03:45Z | history:201:8b9ca2e1 | session-event | done | streams, security, verify, audit | tools/streams/rebuild_cross_index.py,tools/streams/rebuild_index.py,tools/str... |
 | 2026-05-19T01:07:10Z | history:202:239b6a93 | session-event | done | streams, test, verify, audit | tools/streams/test_streams.py,PROJECT_STATUS.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-15T01:05:17Z | history:390:5136df2c | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, b... | benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py... |
 | 2026-07-15T03:19:09Z | history:391:aa60db95 | session-event | done | benchmark, locomo, quality, audit, verify | docs/audits/2026-07-14-post-temporal-per-case-review.md,PROJECT_STATUS.md |
 | 2026-07-15T11:14:21Z | history:392:212b18cf | session-event | done | benchmark, locomo, quality, paid-validation, negative-res... | seam_runtime/conversation.py,tools/h2/rejudge_record.py,tests/audit/test_sema... |
+| 2026-07-15T11:29:48Z | history:393:765c2d9f | session-event | done | benchmark, mem0, harness, command, tests, verify | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0250.cross.md | 2026-04-15T00:00:00Z..2026-05-18T12:01:36Z | 250 | (multi) | (multi) |
+| 0001-0251.cross.md | 2026-04-15T00:00:00Z..2026-05-18T15:31:05Z | 251 | (multi) | (multi) |
