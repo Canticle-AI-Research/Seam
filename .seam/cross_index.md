@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 449
+total_events: 450
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-18T12:01:36Z | history:197:aadd22bd | session-event | done | security, verify, lx1, benchmark, dashboard | seam_runtime/server.py,seam_runtime/lx1.py,seam_runtime/dashboard.py,seam_run... |
 | 2026-05-18T15:31:05Z | history:198:25e22fed | session-event | done | audit, verify, benchmark, docs, history, status | seam_runtime/storage.py,seam_runtime/mirl.py,tools/history/write_snapshot.py,... |
 | 2026-05-19T00:02:24Z | history:200:f75ab478 | session-event | done | streams, security, verify, audit | tools/streams/streams_lib.py,tools/streams/test_streams.py |
 | 2026-05-19T01:03:45Z | history:201:8b9ca2e1 | session-event | done | streams, security, verify, audit | tools/streams/rebuild_cross_index.py,tools/streams/rebuild_index.py,tools/str... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-14T03:41:21Z | history:389:a8b788fe | session-event | done | benchmark, locomo, retrieval, quality, command, tests, ve... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
 | 2026-07-15T01:05:17Z | history:390:5136df2c | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, b... | benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py... |
 | 2026-07-15T03:19:09Z | history:391:aa60db95 | session-event | done | benchmark, locomo, quality, audit, verify | docs/audits/2026-07-14-post-temporal-per-case-review.md,PROJECT_STATUS.md |
+| 2026-07-15T11:14:21Z | history:392:212b18cf | session-event | done | benchmark, locomo, quality, paid-validation, negative-res... | seam_runtime/conversation.py,tools/h2/rejudge_record.py,tests/audit/test_sema... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0249.cross.md | 2026-04-15T00:00:00Z..2026-05-18T10:43:26Z | 249 | (multi) | (multi) |
+| 0001-0250.cross.md | 2026-04-15T00:00:00Z..2026-05-18T12:01:36Z | 250 | (multi) | (multi) |
