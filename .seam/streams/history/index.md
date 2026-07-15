@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 395
-total_tokens: ~169231
-latest_id: 395
+total_entries: 396
+total_tokens: ~169684
+latest_id: 396
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 396 | 2026-07-15 | done | 6f876cc6b2075a72 | benchmark,locomo,quality,audit | 395 |
 | 395 | 2026-07-15 | done | de5bf982bab4199e | benchmark,locomo,mem0,harness,+ | 394 |
 | 394 | 2026-07-15 | done | f348135d5fb489f3 | benchmark,mem0,harness,cleanup | 393 |
 | 393 | 2026-07-15 | done | 765c2d9fe202b0eb | benchmark,mem0,harness,command,+ | 392 |
@@ -419,10 +420,10 @@ compact: true
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
-- audit: count=78 latest=#391, #377, #376, #371, #303
+- audit: count=79 latest=#396, #391, #377, #376, #371
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=140 latest=#395, #394, #393, #392, #391
+- benchmark: count=141 latest=#396, #395, #394, #393, #392
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -535,7 +536,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=54 latest=#395, #392, #391, #390, #389
+- locomo: count=55 latest=#396, #395, #392, #391, #390
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -587,7 +588,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=13 latest=#395, #392, #391, #390, #389
+- quality: count=14 latest=#396, #395, #392, #391, #390
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -670,6 +671,6 @@ compact: true
 
 - roots: 76
 - changed: 6
-- done: 366
+- done: 367
 - in-progress: 3
 - planned: 20
