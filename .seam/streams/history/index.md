@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 390
-total_tokens: ~166344
-latest_id: 390
+total_entries: 391
+total_tokens: ~166905
+latest_id: 391
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 391 | 2026-07-15 | done | aa60db953e8fe0f2 | benchmark,locomo,quality,audit,+ | 390 |
 | 390 | 2026-07-15 | done | 5136df2cda2a4b96 | benchmark,locomo,retrieval,quality,+ | 389 |
 | 389 | 2026-07-14 | done | a8b788fe20eada54 | benchmark,locomo,retrieval,quality,+ | 388 |
 | 388 | 2026-07-14 | done | 1e8e9de6ae174f4f | review,ci,merge,history,+ | 387 |
@@ -414,10 +415,10 @@ compact: true
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
 - atomicity: count=1 latest=#182
-- audit: count=77 latest=#377, #376, #371, #303, #290
+- audit: count=78 latest=#391, #377, #376, #371, #303
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=135 latest=#390, #389, #386, #385, #384
+- benchmark: count=136 latest=#391, #390, #389, #386, #385
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -530,7 +531,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=51 latest=#390, #389, #386, #385, #384
+- locomo: count=52 latest=#391, #390, #389, #386, #385
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -581,7 +582,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=10 latest=#390, #389, #386, #385, #383
+- quality: count=11 latest=#391, #390, #389, #386, #385
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -651,7 +652,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=262 latest=#390, #389, #388, #387, #386
+- verify: count=263 latest=#391, #390, #389, #388, #387
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -664,6 +665,6 @@ compact: true
 
 - roots: 76
 - changed: 6
-- done: 361
+- done: 362
 - in-progress: 3
 - planned: 20
