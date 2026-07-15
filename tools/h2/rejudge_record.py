@@ -42,6 +42,7 @@ from benchmarks.external.common.judge import (
     build_judge,
 )
 from benchmarks.external.common.pricing import estimate_cost_usd
+from benchmarks.external.common.provider_retry import provider_retry
 from benchmarks.external.common.run_record import _git_sha, external_mount_ready
 
 # Judge/1's DEFAULT_JUDGE_PROMPT is the original run's contract; re-judging under
@@ -335,7 +336,13 @@ def rejudge(
             rows.append({**row_base, "rejudged": None, "verdict_changed": None, "skipped_budget_guard": True})
             continue
 
-        verdict_obj = judge.score(question=c.question, gold=c.gold_answer, pred=pred)
+        # Same transient-429 hardening as JudgedLocomoScorer._judge_with_retry:
+        # a paid replay sharing the org TPM budget with another run must ride
+        # out a rate-limit rather than abort mid-record.
+        verdict_obj = provider_retry(
+            lambda: judge.score(question=c.question, gold=c.gold_answer, pred=pred),
+            label=f"rejudge.{c.case_id}",
+        )
         new_ground = getattr(judge, "last_groundedness", None)
         usage = getattr(judge, "last_usage", None) or {}
         case_cost = estimate_cost_usd(judge_model, usage.get("prompt_tokens"), usage.get("completion_tokens"))
