@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 393
-total_tokens: ~168486
-latest_id: 393
+total_entries: 394
+total_tokens: ~168665
+latest_id: 394
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 394 | 2026-07-15 | done | f348135d5fb489f3 | benchmark,mem0,harness,cleanup | 393 |
 | 393 | 2026-07-15 | done | 765c2d9fe202b0eb | benchmark,mem0,harness,command,+ | 392 |
 | 392 | 2026-07-15 | done | 212b18cfe3ad246b | benchmark,locomo,quality,paid-validation,+ | 391 |
 | 391 | 2026-07-15 | done | aa60db953e8fe0f2 | benchmark,locomo,quality,audit,+ | 390 |
@@ -420,7 +421,7 @@ compact: true
 - audit: count=78 latest=#391, #377, #376, #371, #303
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=138 latest=#393, #392, #391, #390, #389
+- benchmark: count=139 latest=#394, #393, #392, #391, #390
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -437,7 +438,7 @@ compact: true
 - chroma: count=5 latest=#296, #295, #293, #017, #001
 - ci: count=20 latest=#388, #387, #380, #378, #370
 - classification: count=11 latest=#177, #176, #171, #170, #169
-- cleanup: count=1 latest=#326
+- cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
 - cli: count=4 latest=#302, #293, #287, #285
 - codec: count=13 latest=#132, #131, #130, #129, #128
@@ -512,7 +513,7 @@ compact: true
 - handoff: count=22 latest=#387, #386, #382, #381, #380
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
-- harness: count=3 latest=#393, #333, #303
+- harness: count=4 latest=#394, #393, #333, #303
 - history: count=268 latest=#388, #387, #380, #379, #378
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
@@ -543,7 +544,7 @@ compact: true
 - manual: count=1 latest=#331
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
-- mem0: count=9 latest=#393, #384, #343, #338, #336
+- mem0: count=10 latest=#394, #393, #384, #343, #338
 - memory: count=7 latest=#342, #340, #286, #275, #274
 - merge: count=4 latest=#388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
@@ -668,6 +669,6 @@ compact: true
 
 - roots: 76
 - changed: 6
-- done: 364
+- done: 365
 - in-progress: 3
 - planned: 20

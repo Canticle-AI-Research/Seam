@@ -1,52 +1,70 @@
-# SEAM mem0 harness adapter
+# Running SEAM inside mem0's own benchmark harness
 
-Thin adapter that wires SEAM into the open-source
-[mem0ai/memory-benchmarks](https://github.com/mem0ai/memory-benchmarks)
-harness so numbers are comparable to the public ecosystem.
+SEAM answers **mem0's own harness** (`mem0ai/memory-benchmarks`) as a drop-in
+memory server. This is the reverse of the in-harness head-to-head (HISTORY#384,
+where mem0/Zep ran inside SEAM's harness) and the basis for a number directly
+comparable to mem0's published tables.
 
-## Protocol
+## Why an HTTP server (and not an in-process adapter)
 
-The adapter exposes `add(messages, user_id)`, `search(query, user_id, limit)`,
-and `delete(user_id)`, matching the harness interface. Each `user_id` maps to
-a per-conversation SQLite database; SEAM's runtime handles ingest, MIRL
-compilation, and retrieval internally.
+mem0's harness is hardwired to Mem0: its `--backend oss` mode is an HTTP client
+(`benchmarks/common/mem0_client.py`) that talks to a Mem0 server over three REST
+endpoints. There is no in-process third-party injection point. So the shim is a
+server that implements those endpoints; the harness runs **unmodified** against
+it.
 
-## Contract tests
+| Endpoint | Request | Response |
+| --- | --- | --- |
+| `POST /memories` | `{messages:[{role,content}], user_id, timestamp?}` | `{"results":[...]}` |
+| `POST /search` | `{query, user_id, limit}` | `{"results":[{memory, score, id, created_at}]}` |
+| `DELETE /memories?user_id=` | (or JSON body `{user_id}`) | `{"message":...}` |
 
-```
-.venv/bin/python -m pytest tests/audit/test_mem0_harness_adapter_contract.py -v
-```
+`seam_mem0_server.py` implements these on top of the real `SeamLocomoAdapter`:
+one SEAM namespace per `user_id`, ingest via the adapter's exact conversation-
+turn path, and search returning the ranked RAW turn strings (`[Speaker date]
+text` — the shape their `format_search_results` + answerer read). Retrieval
+honors `RetrievalFlags` from the environment, so the validated
+conversation/temporal/profile stack applies identically.
 
-Tests use an in-repo tiny fixture and require no network, API keys, or the
-upstream harness clone.
+> The earlier in-process `adapter.py` targeted an interface the current harness
+> does not expose and was never runnable against the real harness; it was
+> retired in favor of this server (HISTORY#394).
 
-## Manual run against a local harness clone
+## Run it
 
-```bash
-git clone https://github.com/mem0ai/memory-benchmarks ../memory-benchmarks
-.venv/bin/python -m benchmarks.external.mem0_harness.adapter \
-    --harness ../memory-benchmarks --dataset locomo --dry-run
-```
+1. **Start SEAM as the memory server** (this repo), matching a validated stack:
 
-Record the upstream commit used in any result claim:
-```bash
-git -C ../memory-benchmarks rev-parse HEAD
-```
+   ```bash
+   export SEAM_CONVERSATION_ADAPTER=conversation/2
+   export SEAM_INFERENCE_POLICY=inference/high-confidence/1
+   export SEAM_TEMPORAL_POLICY=temporal/1
+   export SEAM_RETRIEVAL_PROFILE=broad
+   python -m benchmarks.external.mem0_harness.seam_mem0_server --port 8900
+   ```
 
-## Known comparator gaps
+2. **Point their harness at it** (in a clone of `mem0ai/memory-benchmarks`):
 
-mem0ai's internal client sends `max_tokens` to OpenAI completion endpoints.
-GPT-5 and o-series models reject `max_tokens` and require
-`max_completion_tokens`. To run the mem0 comparator today, pin the mem0
-client model to a chat-completion model that still accepts `max_tokens`:
+   ```bash
+   pip install -r requirements.txt
+   # FREE structural smoke first — stops after retrieval, no answerer/judge spend:
+   python -m benchmarks.locomo.run --project-name seam-smoke \
+       --backend oss --mem0-host http://127.0.0.1:8900 --predict-only
 
-```bash
-export MEM0_LLM_MODEL=gpt-4o-mini
-```
+   # Full run (PAID: their default answerer+judge are gpt-4o, top_k up to 200):
+   python -m benchmarks.locomo.run --project-name seam \
+       --backend oss --mem0-host http://127.0.0.1:8900
+   ```
 
-When `MEM0_LLM_MODEL` is unset or names a gpt-5/o-series model, the mem0
-comparator will fail; report the failure verbatim and skip the comparator
-column rather than fabricating a mem0 score.
+## Comparability notes (read before quoting a number)
 
-If mem0ai's later release accepts the modern parameter, remove this note in
-the same commit that bumps the pin.
+- **Their judge is far more lenient than ours** — a binary CORRECT/WRONG
+  "J-score" that credits partial lists, paraphrases, extra detail, and ±14-day
+  dates. SEAM's number here reads *higher* than its judge/1 number and is the
+  fair basis for a mem0-table comparison.
+- **Their defaults differ**: gpt-4o answerer+judge (vs our gpt-4o-mini), top_k
+  200, categories 1–4. Match these deliberately.
+- **`--predict-only` is free** and proves the round-trip before any gpt-4o spend.
+- Pin a commit of `mem0ai/memory-benchmarks`; it is actively developed.
+
+The endpoint contract is regression-pinned by
+`tests/audit/test_seam_mem0_server.py`.
