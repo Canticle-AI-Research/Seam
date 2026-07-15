@@ -8,6 +8,8 @@ from seam_runtime.conversation import (
     CONVERSATION_ADAPTERS,
     INFERENCE_CONTEXT_ONLY,
     INFERENCE_POLICIES,
+    TEMPORAL_POLICIES,
+    TEMPORAL_POLICY_OFF,
     adapt_conversation_context,
     answer_method_directive,
 )
@@ -32,6 +34,7 @@ def build_answer_prompt(
     *,
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
+    temporal_policy: str = TEMPORAL_POLICY_OFF,
 ) -> str:
     """Build the shared answer prompt under a versioned answer policy.
 
@@ -43,6 +46,7 @@ def build_answer_prompt(
     if (
         conversation_adapter == CONVERSATION_ADAPTER_OFF
         and inference_policy == INFERENCE_CONTEXT_ONLY
+        and temporal_policy == TEMPORAL_POLICY_OFF
     ):
         return _ANSWER_PROMPT.format(context=context, question=question)
 
@@ -53,16 +57,20 @@ def build_answer_prompt(
         intent,
         conversation_adapter=conversation_adapter,
         inference_policy=inference_policy,
+        temporal_policy=temporal_policy,
     )
     set_completion = (
         conversation_adapter != CONVERSATION_ADAPTER_OFF
         and intent.value == "set-completion"
     )
-    completion = (
-        "Reply with the complete supported answer, no preamble."
-        if set_completion
-        else "Reply with a concise answer, no preamble."
-    )
+    if conversation_adapter == "conversation/3":
+        # v3 carries its own output contract in the directive; the completion
+        # line reinforces bare-answer output for set and direct alike.
+        completion = "Reply with only the answer itself, no preamble."
+    elif set_completion:
+        completion = "Reply with the complete supported answer, no preamble."
+    else:
+        completion = "Reply with a concise answer, no preamble."
     return (
         f"{directive} {completion}\n\n"
         f"Context:\n{adapted}\n\nQuestion: {question}\nAnswer:"
@@ -78,6 +86,7 @@ def generate_short_answer(
     diag_out: dict | None = None,
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
+    temporal_policy: str = TEMPORAL_POLICY_OFF,
 ) -> str:
     """Dispatch to a provider short-answer fn over (question, context).
 
@@ -90,6 +99,7 @@ def generate_short_answer(
         context,
         conversation_adapter=conversation_adapter,
         inference_policy=inference_policy,
+        temporal_policy=temporal_policy,
     )
     extra = {"diag_out": diag_out} if diag_out is not None else {}
     from benchmarks.external.locomo.adapters import seam as _seam
@@ -130,18 +140,22 @@ class SharedAnswererAdapter:
         *,
         conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
         inference_policy: str = INFERENCE_CONTEXT_ONLY,
+        temporal_policy: str = TEMPORAL_POLICY_OFF,
         _generate=None,
     ):
         if conversation_adapter not in CONVERSATION_ADAPTERS:
             raise ValueError(f"unknown conversation adapter {conversation_adapter!r}")
         if inference_policy not in INFERENCE_POLICIES:
             raise ValueError(f"unknown inference policy {inference_policy!r}")
+        if temporal_policy not in TEMPORAL_POLICIES:
+            raise ValueError(f"unknown temporal policy {temporal_policy!r}")
         self._inner = inner
         self.name = inner.name
         self._answerer = answerer
         self._answerer_model = answerer_model
         self._conversation_adapter = conversation_adapter
         self._inference_policy = inference_policy
+        self._temporal_policy = temporal_policy
         self._generate = _generate or generate_short_answer
 
     def reset(self, scope_id: str) -> None:
@@ -160,6 +174,8 @@ class SharedAnswererAdapter:
             policy_kwargs["conversation_adapter"] = self._conversation_adapter
         if self._inference_policy != INFERENCE_CONTEXT_ONLY:
             policy_kwargs["inference_policy"] = self._inference_policy
+        if self._temporal_policy != TEMPORAL_POLICY_OFF:
+            policy_kwargs["temporal_policy"] = self._temporal_policy
         generated = provider_retry(
             lambda: self._generate(
                 self._answerer,

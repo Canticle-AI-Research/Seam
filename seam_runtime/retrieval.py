@@ -92,6 +92,13 @@ class RetrievalFlags:
     # the retrieved evidence supports one unambiguous interpretation; otherwise
     # it requires abstention. Versioned separately from conversation assembly.
     inference_policy: str = "context-only"
+    # Temporal grounding for answer generation. ``off`` preserves the locked
+    # baseline. ``temporal/1`` requires resolving relative time expressions
+    # ("last Friday", "last year") against each message's own timestamp before
+    # answering, so event times are reported instead of mention times.
+    # Versioned separately: temporal grounding applies whether or not a
+    # conversation projection is active.
+    temporal_policy: str = "off"
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -162,6 +169,11 @@ def coerce_flag_value(key: str, value: object) -> object | None:
             from .conversation import INFERENCE_POLICIES
 
             if value not in INFERENCE_POLICIES:
+                return None
+        if key == "temporal_policy":
+            from .conversation import TEMPORAL_POLICIES
+
+            if value not in TEMPORAL_POLICIES:
                 return None
         return value
     return value if isinstance(value, expected) else None
@@ -241,6 +253,10 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_INFERENCE_POLICY"].strip()
         if coerce_flag_value("inference_policy", raw) is not None:
             out["inference_policy"] = raw
+    if _present("SEAM_TEMPORAL_POLICY"):
+        raw = env["SEAM_TEMPORAL_POLICY"].strip()
+        if coerce_flag_value("temporal_policy", raw) is not None:
+            out["temporal_policy"] = raw
     return out
 
 
@@ -272,6 +288,7 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         context_budget=_pos_int("SEAM_RETRIEVAL_CONTEXT_BUDGET") or p_budget,
         conversation_adapter=_policy("SEAM_CONVERSATION_ADAPTER", "conversation_adapter", "off"),
         inference_policy=_policy("SEAM_INFERENCE_POLICY", "inference_policy", "context-only"),
+        temporal_policy=_policy("SEAM_TEMPORAL_POLICY", "temporal_policy", "off"),
     )
 
 

@@ -201,3 +201,192 @@ def test_adjudication_overlay_rejects_unknown_case_id(tmp_path):
     )
     with pytest.raises(ValueError, match="unknown case ids.*missing"):
         scorer.score(None)
+
+
+# ---- temporal/1 + conversation/2 (HISTORY#386-record-driven levers) ----------
+
+
+def test_temporal_policy_off_default_prompt_is_byte_identical():
+    locked = build_answer_prompt("When did it happen?", "[Ana 2 May 2023] ctx")
+    explicit_off = build_answer_prompt(
+        "When did it happen?", "[Ana 2 May 2023] ctx", temporal_policy="off"
+    )
+    assert explicit_off == locked
+
+
+def test_temporal_policy_directive_resolves_relative_dates():
+    prompt = build_answer_prompt(
+        "When did Melanie paint the sunrise?",
+        "[Melanie 1:56 pm on 8 May, 2023] I painted that lake sunrise last year!",
+        temporal_policy="temporal/1",
+    )
+    assert "bracketed prefix is the timestamp" in prompt
+    assert "Resolve relative time expressions" in prompt
+    assert "resolved event time, not the time of the message" in prompt
+    assert "compute the duration from the resolved event times" in prompt
+    # temporal grounding alone must not enable conversation projection or
+    # world-knowledge inference
+    assert "EVIDENCE|" not in prompt
+    assert "one high-confidence interpretation" not in prompt
+    # context bytes preserved (conversation adapter stays off)
+    assert "[Melanie 1:56 pm on 8 May, 2023] I painted that lake sunrise last year!" in prompt
+
+
+def test_temporal_policy_composes_with_conversation_and_inference():
+    prompt = build_answer_prompt(
+        "When did Ana start the class?",
+        "[Ana 13 March 2023] Started my yoga class last Friday.",
+        conversation_adapter=CONVERSATION_ADAPTER_V1,
+        inference_policy=INFERENCE_HIGH_CONFIDENCE_V1,
+        temporal_policy="temporal/1",
+    )
+    assert "Scan every EVIDENCE row" in prompt
+    assert "Resolve relative time expressions" in prompt
+    assert "one high-confidence interpretation" in prompt
+
+
+def test_unknown_temporal_policy_fails_closed():
+    with pytest.raises(ValueError, match="unknown temporal policy"):
+        build_answer_prompt("q", "ctx", temporal_policy="temporal/99")
+
+
+def test_conversation_v2_widens_set_detection_without_changing_v1():
+    # Real miss shapes from the 2026-07-13 holdout record: perfect-tense
+    # experience questions and generic plural category nouns.
+    for question in (
+        "What has Melanie painted?",
+        "Which countries has Deborah traveled to?",
+        "What musical artists has Melanie seen?",
+    ):
+        assert (
+            classify_conversation_intent(question, adapter_version="conversation/1")
+            == ConversationIntent.DIRECT
+        ), question
+        assert (
+            classify_conversation_intent(question, adapter_version="conversation/2")
+            == ConversationIntent.SET_COMPLETION
+        ), question
+    # v1 detections stay detections under v2
+    assert (
+        classify_conversation_intent(
+            "Which books did Maya mention?", adapter_version="conversation/2"
+        )
+        == ConversationIntent.SET_COMPLETION
+    )
+    # plain direct questions stay direct under v2
+    assert (
+        classify_conversation_intent("When is the meeting?", adapter_version="conversation/2")
+        == ConversationIntent.DIRECT
+    )
+
+
+def test_conversation_v2_intent_classifier_rejects_unknown_version():
+    with pytest.raises(ValueError, match="unknown conversation adapter"):
+        classify_conversation_intent("q", adapter_version="conversation/99")
+
+
+def test_conversation_v1_directive_is_byte_stable():
+    # conversation/2 must not change what conversation/1 renders: the v1
+    # set-completion sentence is pinned verbatim.
+    from seam_runtime.conversation import answer_method_directive
+
+    directive = answer_method_directive(
+        ConversationIntent.SET_COMPLETION,
+        conversation_adapter=CONVERSATION_ADAPTER_V1,
+    )
+    assert (
+        "Return the complete supported set; do not stop after the first match."
+        in directive
+    )
+    assert "re-check the evidence" not in directive
+
+
+def test_conversation_v2_set_directive_requires_exhaustive_sweep():
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver\n[Melanie] Bailey",
+        conversation_adapter="conversation/2",
+    )
+    assert "SEAM-CONV/2|intent=set-completion" in prompt
+    assert "separate turns far apart" in prompt
+    assert "re-check the evidence" in prompt
+    assert "full deduplicated set" in prompt
+
+
+def test_conversation_v2_view_header_and_evidence_match_v1_projection():
+    context = "[Ana 2026-01-01] Hiking\n[Ben] Chess\n[Ana 2026-01-01] Hiking\n"
+    adapted_v1, _ = adapt_conversation_context(
+        "Which activities were mentioned?", context, version=CONVERSATION_ADAPTER_V1
+    )
+    adapted_v2, intent = adapt_conversation_context(
+        "Which activities were mentioned?", context, version="conversation/2"
+    )
+    assert intent == ConversationIntent.SET_COMPLETION
+    # identical evidence projection, only the header version differs
+    assert adapted_v2.replace("SEAM-CONV/2", "SEAM-CONV/1") == adapted_v1
+
+
+# ---- conversation/3 + temporal/2 (HISTORY#391-record-driven levers) ----------
+
+
+def test_conversation_v3_keeps_v2_scan_and_detection():
+    # same wider detection as v2
+    assert (
+        classify_conversation_intent("What has Melanie painted?", adapter_version="conversation/3")
+        == ConversationIntent.SET_COMPLETION
+    )
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver\n[Melanie] Bailey",
+        conversation_adapter="conversation/3",
+    )
+    assert "SEAM-CONV/3|intent=set-completion" in prompt
+    assert "separate turns far apart" in prompt  # v2 sweep retained
+
+
+def test_conversation_v3_bare_answer_output_contract():
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver",
+        conversation_adapter="conversation/3",
+    )
+    assert "no numbering, no headers" in prompt
+    assert "Never restate the question" in prompt
+    assert "Reply with only the answer itself, no preamble." in prompt
+    # applies to direct questions too (verbosity tax also hit cat4)
+    direct = build_answer_prompt(
+        "When is the meeting?",
+        "[Ana] The meeting is Friday.",
+        conversation_adapter="conversation/3",
+    )
+    assert "state only the answer itself" in direct
+    assert "Reply with only the answer itself, no preamble." in direct
+
+
+def test_conversation_v2_prompt_unchanged_by_v3_addition():
+    # v2 is a validated configuration (0.7689 record); it must not inherit the
+    # v3 output contract.
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver",
+        conversation_adapter="conversation/2",
+    )
+    assert "no numbering, no headers" not in prompt
+    assert "Reply with the complete supported answer, no preamble." in prompt
+
+
+def test_temporal_v2_adds_instance_disambiguation_on_top_of_v1():
+    v2 = build_answer_prompt(
+        "When did Sam's friends mock him?",
+        "[Sam 27 July 2023] They mocked me last Friday.\n[Sam 20 October 2023] It happened again.",
+        temporal_policy="temporal/2",
+    )
+    assert "Resolve relative time expressions" in v2  # v1 core retained
+    assert "list each candidate event with its resolved date" in v2
+    assert "Never default to the first or most prominent mention" in v2
+    v1 = build_answer_prompt(
+        "When did Sam's friends mock him?",
+        "[Sam 27 July 2023] They mocked me last Friday.",
+        temporal_policy="temporal/1",
+    )
+    assert "list each candidate event" not in v1  # temporal/1 stays byte-stable

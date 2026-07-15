@@ -62,6 +62,32 @@ class FlakyJudge(FakeJudge):
         return super().score(question=question, gold=gold, pred=pred)
 
 
+class RateLimitedJudge(FakeJudge):
+    """Raises a judge-wrapped 429 (as ``judge.score`` really does) N times,
+    then behaves like FakeJudge. Simulates an org TPM-cap hit mid-run."""
+
+    def __init__(self, rate_limit_hits: int = 3):
+        super().__init__()
+        self.rate_limit_hits = rate_limit_hits
+
+    def score(self, *, question, gold, pred) -> JudgeVerdict:
+        if self.rate_limit_hits > 0:
+            self.rate_limit_hits -= 1
+            self.calls += 1
+
+            class _RateLimit(Exception):
+                status_code = 429
+
+            try:
+                raise _RateLimit("Rate limit reached ... tokens per min (TPM)")
+            except Exception as exc:
+                # Byte-for-byte how OpenAIJudge.score re-raises a provider error.
+                raise RuntimeError(
+                    f"judge request failed: {type(exc).__name__}"
+                ) from exc
+        return super().score(question=question, gold=gold, pred=pred)
+
+
 TURNS = (
     ConversationTurn(speaker="Ana", text="The project deadline is Friday, March 7."),
     ConversationTurn(speaker="Ben", text="We store everything in Postgres."),
@@ -195,6 +221,24 @@ def test_judge_transient_failure_retried_then_hard_failure_raises(tmp_path):
                                      cases_by_scope=one_case, judge_retries=1)
     with pytest.raises(RuntimeError, match="conv-j::q0"):
         scorer_dead.score(None, flags=RetrievalFlags())
+    adapter.close()
+
+
+def test_judge_rate_limit_absorbed_by_provider_backoff(tmp_path, monkeypatch):
+    # A transient 429 that exceeds judge_retries (=0 -> one outer attempt) must
+    # be ridden out by provider_retry rather than aborting a paid run. Regression
+    # for the mid-run TPM abort where the judge path lacked the answerer's backoff.
+    monkeypatch.setenv("SEAM_BENCH_PROVIDER_RETRY_BASE_SECONDS", "0")
+    monkeypatch.setenv("SEAM_BENCH_PROVIDER_MAX_RETRIES", "8")
+    adapter = _build_adapter(tmp_path, lambda question, context, diag_out=None: "Friday")
+    one_case = OrderedDict({"conv-j": CASES[:1]})
+
+    judge = RateLimitedJudge(rate_limit_hits=3)  # > judge_retries+1, < 8
+    scorer = JudgedLocomoScorer(adapter=adapter, judge=judge,
+                                cases_by_scope=one_case, judge_retries=0)
+    report = scorer.score(None, flags=RetrievalFlags())
+    assert report.per_case == {"conv-j::q0": 1.0}
+    assert judge.rate_limit_hits == 0  # all three transient hits were absorbed
     adapter.close()
 
 
