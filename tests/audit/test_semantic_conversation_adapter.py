@@ -390,3 +390,43 @@ def test_temporal_v2_adds_instance_disambiguation_on_top_of_v1():
         temporal_policy="temporal/1",
     )
     assert "list each candidate event" not in v1  # temporal/1 stays byte-stable
+
+
+# ---- conversation/4 cardinality constraint (HISTORY#392-record-driven) --------
+
+
+def test_conversation_v4_precision_clause_and_natural_output():
+    prompt = build_answer_prompt(
+        "What are Melanie's pets' names?",
+        "[Melanie] Luna\n[Melanie] Oliver\n[Melanie] Bailey",
+        conversation_adapter="conversation/4",
+    )
+    assert "SEAM-CONV/4|intent=set-completion" in prompt
+    assert "separate turns far apart" in prompt          # v2 exhaustive scan retained
+    assert "DIRECTLY answers the specific question" in prompt
+    assert "do NOT add items that are merely related" in prompt
+    assert "neither omitting a responsive one nor padding" in prompt
+    # v4 must NOT inherit v3's regressed terse-format contract
+    assert "no numbering, no headers" not in prompt
+    assert "Reply with the complete supported answer, no preamble." in prompt
+
+
+def test_conversation_v4_uses_wide_set_detection():
+    for q in ("What has Melanie painted?", "Which countries has Deborah traveled to?"):
+        assert (
+            classify_conversation_intent(q, adapter_version="conversation/4")
+            == ConversationIntent.SET_COMPLETION
+        ), q
+
+
+def test_conversation_v2_and_v3_unchanged_by_v4():
+    # v2 is the validated 0.7689 champion; its directive must stay byte-stable.
+    v2 = build_answer_prompt("What are Melanie's pets' names?", "[Melanie] Luna",
+                             conversation_adapter="conversation/2")
+    assert "return the full deduplicated set" in v2
+    assert "DIRECTLY answers" not in v2
+    # v3 keeps its (parked) terse contract, not the v4 precision clause
+    v3 = build_answer_prompt("What are Melanie's pets' names?", "[Melanie] Luna",
+                             conversation_adapter="conversation/3")
+    assert "no numbering, no headers" in v3
+    assert "neither omitting a responsive one" not in v3
