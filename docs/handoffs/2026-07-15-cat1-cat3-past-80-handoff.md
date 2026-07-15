@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-15-cat1-cat3-past-80-handoff
 supersedes: 2026-07-13-improve-validate-profile-complete
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#397
 ---
 

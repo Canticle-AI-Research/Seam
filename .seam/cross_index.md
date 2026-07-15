@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 455
+total_events: 457
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-19T02:42:56Z | history:204:b51b7e85 | session-event | done | audit, security, verify, history, installer, dashboard | seam_runtime/runtime.py,seam_runtime/installer.py,seam_runtime/dashboard.py,t... |
-| 2026-05-19T03:11:04Z | history:205:b1523239 | session-event | done | audit, security, verify, docs, protocol | docs/SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md,PROJECT_STATUS.md,REPO_LEDGER.md |
 | 2026-05-19T03:45:45Z | history:206:9dcce7f9 | session-event | done | audit, verify, benchmark, lx1 | test_seam_all/test_seam.py,docs/SOP_DEEP_AUDIT_REMEDIATION_BLUEPRINT.md |
 | 2026-05-19T04:01:03Z | history:207:cf297116 | session-event | done | audit, verify, history, status | test_seam_all/test_seam.py,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,.sea... |
 | 2026-05-19T07:47:47Z | history:208:4857205d | session-event | done | audit, security, verify, multi-agent, protocol, docs, sur... | docs/SOP_WEBUI_BATCH_HARDENING_DEEPSEEK.md,docs/prompts/DEEPSEEK_WEBUI_BATCH_... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-15T11:49:56Z | history:395:de5bf982 | session-event | done | benchmark, locomo, mem0, harness, retrieval, quality, tes... | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
 | 2026-07-15T12:08:08Z | history:396:6f876cc6 | session-event | done | benchmark, locomo, quality, audit | docs/audits/2026-07-15-champion-problem-scan.md,PROJECT_STATUS.md |
 | 2026-07-15T12:24:16Z | history:397:c5ff6b8a | session-event | done | benchmark, locomo, quality, handoff, continuity, verify | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
+| 2026-07-15T14:14:56Z | history:398:07f4efb0 | session-event | done | benchmark, locomo, judge, quality, audit, handoff, verify... | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
+| 2026-07-15T14:17:19Z | history:399:008c723c | session-event | changed | history, continuity, verify, handoff, benchmark, locomo | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0255.cross.md | 2026-04-15T00:00:00Z..2026-05-19T02:33:34Z | 255 | (multi) | (multi) |
+| 0001-0257.cross.md | 2026-04-15T00:00:00Z..2026-05-19T03:11:04Z | 257 | (multi) | (multi) |

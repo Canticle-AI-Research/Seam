@@ -8754,3 +8754,73 @@ tokens: 596
 ---
 Operator set the mission to get cat1 (multi-hop) and cat3 (open-domain) each past 0.80 with blanket paid authorization, and requested a durable handoff (for another agent, sol). Built inference/high-confidence/2 on top of inference/1: it forbids answering unknown when the context clearly supports one specific answer, and requires enumerate-then-count for how-many questions - targeting the cheapest 6.5-point bucket from the #396 problem scan (4 over-abstentions plus 3 under-counts). Opt-in default off, registered as an answer_policy_lever, wired through coerce_flag_value; inference/1 stays byte-stable (a validated champion component). Functional pre-flight verification done for cents to avoid wasting a full paid test, per operator: ran gpt-4o-mini on the real #390 miss cases using each case stored retrieved_context (no re-retrieval), champion prompt vs new-lever prompt. Result: Gina favorite dance style (gold Contemporary) flipped Unknown to contemporary under the new levers; Nate tournaments count moved 4 to 5 (toward gold seven); the harder cat3 world-knowledge cases (composer John Williams, park Voyageurs) stayed Unknown even with inference/2, showing it is too cautious for name-the-entity-from-clues and cat3 will need a stronger open-domain licensing lever. So inference/2 is functional (recovers over-abstention, improves counting) but not sufficient alone for cat3. This entry is the durable handoff point: full narrative in docs/handoffs/2026-07-15-cat1-cat3-past-80-handoff.md (registered as latest, supersedes 2026-07-13-improve-validate-profile-complete). IN FLIGHT at handoff: the c4 A/B (conversation/4 + inference/1 + temporal/1 + broad vs stock, judge/1, 344 holdout) was still running at about 20 minutes; its result and the decisive stacked cat1/cat3 A/B (conversation/4 + inference/high-confidence/2 + temporal/1 + broad) are the next steps. Honest ceiling from #396: cat1 has about 10 judge-locked misses (full gold already in the answer, judge/1 marks partial, unfixable per the judge/2 rejudge), so cat1 past 0.80 on judge/1 is near that wall and may only clear honestly under the mem0-harness lenient judge (PR#149 shim, predict-only proven). conversation/4 committed earlier as HISTORY#395; inference/high-confidence/2 is committed by this entry. Branch agent/cardinality-constraint. Two PRs open: PR#149 (mem0 shim) and this branch (not yet PR'd). Full suite for inference/2 was launched (scratchpad/fullsuite-inf2.log); affected slices and the functional check are green.
 ---END-ENTRY-#397---
+
+---BEGIN-ENTRY-#398---
+id: 398
+date: 2026-07-15T14:14:56Z
+agent: codex
+status: done
+topics: benchmark, locomo, judge, quality, audit, handoff, verify, tests
+commits: 96117b5
+refs: PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md,20260715-091018-mem0-harness-cat13.json
+supersedes: 397
+tokens: 703
+---
+Closed the operator-authorized cat1/cat3 successor program with the scoring
+contracts kept explicit. The full conversation/4 judge/1 A/B at code 96117b5
+scored 0.754360 against the 0.768895 #390 champion (-0.014535); cat1 stayed
+0.614754 and cat3 stayed 0.595238. The run used 5,200,972 exact tokens and
+$0.793850, with 0 empty answers and 0 judge retries. Conversation/4 is therefore
+tested-and-parked/default-off, not a new champion.
+
+Two stronger uncommitted prompt policies were gated on stored #390 contexts
+before another full holdout. Across 18-case and 10-case answerer-only
+microchecks they produced only one stable cat1 recovery and one cat3 entity
+recovery while preserving broad false positives and canonical-entity misses.
+No second judge/1 holdout was launched. The unsupported conversation/5 and
+inference/high-confidence/3 runtime/test edits were removed with apply_patch;
+their $0.053650 estimated negative is retained only in the audit.
+
+The honest scoreboard pivot then completed against unmodified
+mem0ai/memory-benchmarks commit 4b61c5d using the HISTORY#393/#394 Mem0-OSS
+facade, gpt-4o-mini answerer + binary lenient judge, one top-200 cutoff, all ten
+conversations, and every cat1/cat3 question. Result: cat1 multi-hop 250/282 =
+0.886525 and cat3 open-domain 83/96 = 0.864583; combined 333/378 = 0.880952.
+All 378 answers and judge reasons were non-empty; 27 rate-limit retry-attempt
+warnings all recovered. The unified private artifact is externally retained as
+20260715-091018-mem0-harness-cat13.json with SHA-256
+e93cc7a4cd2611bd7b68906d90d8ad0d63684a933ee637b50403fb74104c2b4f.
+
+The harness does not persist provider usage objects, so cost was reconstructed
+from the exact stored prompts and outputs: 4,545,540 input + 24,512 output
+tokens, estimated $0.696538; the calibration was estimated $0.078264. Known
+successor-slice roll-up is $1.622302 (c4 exact, micro/harness work reconstructed;
+the earlier inference/2 micro excluded rather than guessed).
+
+These numbers do not replace the native judge/1 champion. The facade runs
+SeamLocomoAdapter with answerer=None, so the external harness owns answer
+generation and judgment; SEAM's conversation/inference/temporal answer
+directives do not enter that prompt. The mem0-harness figures are an honest
+public-table-style retrieval scoreboard and must always be labeled separately.
+Full audit: docs/audits/2026-07-15-c4-and-mem0-cat13-score.md. Focused shim and
+conversation-policy regression slice: 36 passed. The inherited canonical log
+at 96117b5 reached 100% with 1,362 pass dots and two established xfails and no
+failure/error/skip markers; its terminal summary/exit code was not independently
+captured, so this entry preserves that qualification.
+---END-ENTRY-#398---
+
+---BEGIN-ENTRY-#399---
+id: 399
+date: 2026-07-15T14:17:19Z
+agent: codex
+status: changed
+topics: history, continuity, verify, handoff, benchmark, locomo
+commits: 96117b5
+refs: PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md
+supersedes: 398
+tokens: 141
+---
+Corrected the closeout entry's durable reference routing after continuity verification caught that HISTORY#398 listed the basename of an external T7 artifact as though it were a repository-relative path. The measured c4 and mem0-harness results, cost accounting, artifact hash, code-removal decision, and verification qualifications recorded in HISTORY#398 remain unchanged. This superseding entry keeps only tracked repository paths in refs; the private artifact's absolute external location and SHA-256 remain recorded in the audit and handoff.
+
+Updated the current status and handoff pointers to this corrective head. Rebuilt the history index, history stream, and cross-index, then wrote a fresh snapshot and reran the repository verification chain.
+---END-ENTRY-#399---
