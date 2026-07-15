@@ -6,6 +6,8 @@ depends on, so the shim can't silently drift from the harness it must satisfy.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 
 from benchmarks.external.mem0_harness.seam_mem0_server import (
@@ -85,8 +87,92 @@ def test_user_scopes_are_isolated(server):
     assert "Denver" not in joined_a  # cross-user leakage would fail the head-to-head
 
 
+def test_retrieve_passes_temporal_constraints_to_search():
+    captured = {}
+    runtime = SimpleNamespace(
+        search_ir=lambda query, **kwargs: (
+            captured.update(query=query, **kwargs)
+            or SimpleNamespace(candidates=[])
+        ),
+    )
+    adapter = SimpleNamespace(
+        _runtime=lambda user_id: runtime,
+        _build_temporal_window=lambda query: "window-sentinel",
+        _build_temporal_reference=lambda user_id, query: "reference-sentinel",
+    )
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._adapter = adapter
+
+    assert server._retrieve("conv-temporal", "What happened last May?", 7) == []
+    assert captured["temporal_window"] == "window-sentinel"
+    assert captured["temporal_reference"] == "reference-sentinel"
+    assert captured["ns"] == "locomo:conv-temporal"
+    assert captured["budget"] == 7
+
+
+def test_retrieve_expands_span_raw_id_before_filtering():
+    def kind(value):
+        return SimpleNamespace(value=value)
+
+    candidate_record = SimpleNamespace(
+        id="claim-1",
+        evidence=["span-1"],
+        prov=[],
+        kind=kind("CLM"),
+        attrs={},
+    )
+    candidate = SimpleNamespace(record=candidate_record, score=0.91)
+    span = SimpleNamespace(
+        id="span-1",
+        kind=kind("SPAN"),
+        attrs={"raw_id": "raw-1"},
+    )
+    raw = SimpleNamespace(
+        id="raw-1",
+        kind=kind("RAW"),
+        attrs={"content": "[Melanie 2023-06-17] I painted a sunrise."},
+    )
+
+    class FakeStore:
+        def __init__(self):
+            self.loaded_ids = []
+
+        def load_ir(self, *, ids):
+            self.loaded_ids.append(list(ids))
+            records = [candidate_record, span]
+            if "raw-1" in ids:
+                records.append(raw)
+            return SimpleNamespace(records=records)
+
+    store = FakeStore()
+    runtime = SimpleNamespace(
+        store=store,
+        search_ir=lambda query, **kwargs: SimpleNamespace(candidates=[candidate]),
+    )
+    adapter = SimpleNamespace(
+        _runtime=lambda user_id: runtime,
+        _build_temporal_window=lambda query: None,
+        _build_temporal_reference=lambda user_id, query: None,
+    )
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._adapter = adapter
+
+    results = server._retrieve("conv-span", "What did Melanie paint?", 5)
+
+    assert store.loaded_ids == [
+        ["claim-1", "span-1"],
+        ["claim-1", "span-1", "raw-1"],
+    ]
+    assert results == [{
+        "memory": "[Melanie 2023-06-17] I painted a sunrise.",
+        "score": 0.91,
+        "id": "raw-1",
+        "created_at": "",
+    }]
+
+
 def test_asgi_routes_match_mem0_oss_contract(tmp_path):
-    fastapi = pytest.importorskip("fastapi")
+    pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient
 
     from benchmarks.external.mem0_harness.seam_mem0_server import build_asgi_app

@@ -135,7 +135,17 @@ class SeamMem0Server:
         joined answer blob)."""
         rt = self._adapter._runtime(user_id)
         ns = f"locomo:{user_id}"
-        result = rt.search_ir(query, scope="thread", budget=limit, include_raw=True, ns=ns)
+        temporal_window = self._adapter._build_temporal_window(query)
+        temporal_reference = self._adapter._build_temporal_reference(user_id, query)
+        result = rt.search_ir(
+            query,
+            scope="thread",
+            budget=limit,
+            include_raw=True,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            ns=ns,
+        )
         out: list[dict] = []
         seen_content: set[str] = set()
         for cand in result.candidates:
@@ -143,6 +153,17 @@ class SeamMem0Server:
                 if hasattr(self._adapter, "_collect_closure_ids_public") \
                 else _closure_ids(cand)
             batch = rt.store.load_ir(ids=ids)
+            expanded_ids = list(ids)
+            seen_ids = set(ids)
+            for record in batch.records:
+                if record.kind.value != "SPAN":
+                    continue
+                raw_id = record.attrs.get("raw_id")
+                if isinstance(raw_id, str) and raw_id and raw_id not in seen_ids:
+                    seen_ids.add(raw_id)
+                    expanded_ids.append(raw_id)
+            if len(expanded_ids) != len(ids):
+                batch = rt.store.load_ir(ids=expanded_ids)
             for record in batch.records:
                 if record.kind.value != "RAW":
                     continue

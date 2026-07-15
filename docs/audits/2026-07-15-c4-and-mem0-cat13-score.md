@@ -141,6 +141,18 @@ Known successor-slice cost roll-up: c4 `$0.793850` exact + v5/inf3 microchecks
 `$1.622302`. This does not invent usage for the earlier inference/2 functional
 microcheck, whose provider response usage was not retained.
 
+### Post-score facade hardening
+
+Review of the pushed closeout head found two parity gaps in the HTTP facade.
+The current code now passes the native adapter's `temporal_window` and
+`temporal_reference` into `search_ir`, and expands `SPAN.raw_id` links before
+filtering candidate closures to RAW records. Regression tests pin both paths.
+
+These corrections were made after the scored artifact above was written. No
+paid rescore was performed, and the retained JSON remains the exact record of
+the pre-hardening run rather than being silently attributed to the corrected
+facade.
+
 ## Decision
 
 - `conversation/4`: tested and parked, default-off; not a new champion.

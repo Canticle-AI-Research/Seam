@@ -2,7 +2,7 @@
 handoff_id: 2026-07-15-cat1-cat3-scoreboard-closeout
 supersedes: 2026-07-15-cat1-cat3-past-80-handoff
 handoff_status: current
-history: HISTORY#399
+history: HISTORY#400
 ---
 
 # Handoff: cat1/cat3 scoreboard closeout
@@ -87,6 +87,11 @@ Full transition analysis and the scorer boundary are in
 - `conversation/5` and `inference/high-confidence/3` do not exist in committed
   runtime code; their negative evidence is documentation-only.
 - No ordinary runtime default changed.
+- Post-score PR review found and fixed two facade parity gaps: searches now pass
+  the native temporal window/reference constraints, and candidate closures now
+  expand `SPAN.raw_id` before filtering to RAW memories. The two regression
+  tests are hermetic. The retained score artifact predates these fixes and was
+  not relabeled or rerun.
 - PR #150 had all nine checks green at pre-closeout head `96117b5`. The
   closeout commit updates only status/audit/history/handoff artifacts; inspect
   the fresh pushed-head checks before merge.
@@ -101,8 +106,9 @@ Full transition analysis and the scorer boundary are in
   error, or skip markers. The terminal summary/exit code was not independently
   captured, so preserve that qualification rather than upgrading it to a new
   exit-code claim.
-- Run the focused shim + conversation-policy tests after this documentation
-  closeout, then run the complete history/handoff/continuity/streams chain.
+- The focused shim + conversation-policy slice passes 38 tests after the two
+  review regressions were added; ruff and module compilation are clean.
+- The complete history/handoff/continuity/streams chain passes at HISTORY#400.
 - The scored harness process exited normally. The temporary facade on port
   8902 was stopped cleanly. No process or worktree created by this successor
   remains active.

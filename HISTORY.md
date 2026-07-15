@@ -8824,3 +8824,19 @@ Corrected the closeout entry's durable reference routing after continuity verifi
 
 Updated the current status and handoff pointers to this corrective head. Rebuilt the history index, history stream, and cross-index, then wrote a fresh snapshot and reran the repository verification chain.
 ---END-ENTRY-#399---
+
+---BEGIN-ENTRY-#400---
+id: 400
+date: 2026-07-15T14:24:23Z
+agent: codex
+status: done
+topics: bugfix, benchmark, locomo, retrieval, temporal, tests, ci, handoff, verify
+commits: 0200010
+refs: benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_mem0_server.py,PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md
+supersedes: 399
+tokens: 180
+---
+Addressed both unresolved current-head review findings on the Mem0-OSS facade. Search now derives and passes the native adapter's temporal window and temporal reference into search_ir, preserving temporal ranking behavior for explicit and relative-time queries. Candidate closure loading now expands every SPAN record's raw_id before filtering to RAW, so semantic candidates whose evidence chain is candidate to SPAN to RAW no longer lose their source turn.
+
+Added hermetic regressions for both paths. The focused facade plus semantic-conversation slice passes 38 tests; ruff, module compilation, and diff checks pass. This is post-score hardening: no paid rescore was performed, and the external 333/378 artifact remains the exact pre-hardening record rather than being silently relabeled. Updated the audit/status/current handoff, rebuilt derived history and stream state, wrote a fresh snapshot, and reran the complete repository verification chain.
+---END-ENTRY-#400---
