@@ -9004,3 +9004,25 @@ performed. Preview remains at `http://127.0.0.1:18770/` using
 `/tmp/seam-kg-auto-ingest.db`; next is operator browser validation, followed by
 publication only on explicit authorization.
 ---END-ENTRY-#404---
+
+---BEGIN-ENTRY-#405---
+id: 405
+date: 2026-07-16T23:08:58Z
+agent: claude
+status: done
+topics: benchmark, locomo, merge, pgvector, analysis, levers, reconcile
+commits: 8ad68ab,ee89343,pending
+refs: PROJECT_STATUS.md,HISTORY.md,seam_runtime/conversation.py,seam_runtime/vector_adapters.py,GitHub-PR:121,GitHub-PR:151
+supersedes: 404
+tokens: 762
+---
+(Renumbered from a local claude #402 that collided with a concurrent codex chain: codex took ids 402-404 via PR#152 while this session was open, so this closeout is re-chained after #404 to keep one linear timeline; content is unchanged from the drafted #402. The PR#121/#151 code it documents is already on main as ee89343/8ad68ab, the pre-fork base.)
+
+Three-part session: PR-board cleanup, one operator-approved paid A/B, and an independently verified miss analysis that sets the next build.
+
+Merges: dependabot PR#151 (pgvector 0.8.4->0.8.5, all checks green, squash 8ad68ab) and PR#121 (pgvector HNSW index + per-run table isolation), which was revived rather than closed: 29 commits behind main but merged cleanly with zero conflicts, local imports plus 16 vector tests green, pushed, all 9 checks green, squash ee89343. Zero open PRs remained at that point. The tmux session seam-paid-386 was confirmed an idle leftover from HISTORY#386 (session leader only, zero CPU, no child process) - not a live concurrent run.
+
+Paid A/B (operator-approved, ~$0.80, gpt-4o-mini answerer+judge judge/1, 344-case holdout): candidate conversation/4 + inference/high-confidence/2 + temporal/1 + broad scored 0.776163 vs stock 0.633721 (+0.142442, verdict improved) - a new best, but only +0.007268 over the #390 champion. Per-case diff vs champion (18 fixed / 16 broken) attributes cleanly: conversation/4 is a measured LOSER (cat1 0.574 vs champion 0.615; its precision balance discards conversation/2's completeness wins - conversation/2 stays the base), while inference/high-confidence/2 is modestly net-positive (cat4 +0.019, cat2 +0.020); its anti-abstention half works, its enumerate-then-count half was null (0/5 counting questions correct). Record: 688 rows in the private external store, basename 20260716-102125-locomo-holdout.json.
+
+An initial token-overlap miss classification overstated the answerer-had-evidence bucket (52%) and the set-drop ratio (4:1); an operator-requested independent Fable re-analysis with phrase-level matching and hand-reading corrected these to ~35% and ~1.5:1 (37 dropped vs 25 not-retrieved set items), and showed set-completion alone is worth only ~+0.015 (misses 0.80). The error was logged to the training corpus (2026-07-16-001). Verified next lever, ranked: (1) build the exact-answer contract - a structural draft-then-verify second answer pass that includes dropped context-supported set items, prunes extras not asked (23 judge-docked partials carry the full gold), and anchors to the correct episode (18 cases); realistic ~+0.04-0.05 to ~0.82, one ~$0.80 A/B on conversation/2 + high-confidence/2 + temporal/1 + broad validates it; (2) retrieval-side temporal instance ranking (20/23 cat2 misses answer the wrong date instance); (3) past ~0.82 stop optimizing judge/1 and move spend to the matched-budget comparator rerun and the mem0-harness full run. No further paid spend occurred beyond the single approved A/B.
+---END-ENTRY-#405---

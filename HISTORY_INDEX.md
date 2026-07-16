@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 404
-total_tokens: ~173402
-latest_id: 404
+total_entries: 405
+total_tokens: ~174164
+latest_id: 405
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 405 | 2026-07-16 | done | 465cd643cdc63c6b | benchmark,locomo,merge,pgvector,+ | 404 |
 | 404 | 2026-07-16 | done | f1d3521014ee95a9 | bugfix,webui,dashboard,persist,+ | 403 |
 | 403 | 2026-07-16 | done | 11d8ecbd7dd33d41 | graph,memory,trust,provenance,+ | 402 |
 | 402 | 2026-07-16 | in-progress | 90136fda23eb320e | graph,memory,provenance,dashboard,+ | 401 |
@@ -425,6 +426,7 @@ compact: true
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
+- analysis: count=1 latest=#405
 - animation: count=4 latest=#068, #052, #032, #028
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
@@ -432,7 +434,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=146 latest=#401, #400, #399, #398, #397
+- benchmark: count=147 latest=#405, #401, #400, #399, #398
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -538,6 +540,7 @@ compact: true
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
 - ledger: count=39 latest=#346, #302, #230, #181, #177
+- levers: count=1 latest=#405
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
@@ -545,7 +548,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=60 latest=#401, #400, #399, #398, #397
+- locomo: count=61 latest=#405, #401, #400, #399, #398
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -557,7 +560,7 @@ compact: true
 - measurement: count=1 latest=#369
 - mem0: count=11 latest=#395, #394, #393, #384, #343
 - memory: count=9 latest=#403, #402, #342, #340, #286
-- merge: count=4 latest=#388, #383, #359, #301
+- merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
 - mirror-sync: count=2 latest=#360, #359
@@ -578,7 +581,7 @@ compact: true
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - performance: count=3 latest=#364, #363, #362
 - persist: count=30 latest=#404, #403, #402, #401, #342
-- pgvector: count=28 latest=#354, #322, #295, #294, #280
+- pgvector: count=29 latest=#405, #354, #322, #295, #294
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
 - pr: count=2 latest=#359, #301
@@ -605,7 +608,7 @@ compact: true
 - readme: count=25 latest=#353, #352, #347, #346, #345
 - reasoning: count=4 latest=#367, #366, #327, #321
 - recall: count=2 latest=#320, #317
-- reconcile: count=1 latest=#182
+- reconcile: count=2 latest=#405, #182
 - reconciliation: count=1 latest=#305
 - recovery: count=1 latest=#271
 - redos: count=2 latest=#309, #298
@@ -682,6 +685,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 373
+- done: 374
 - in-progress: 4
 - planned: 20
