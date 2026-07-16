@@ -8,9 +8,40 @@ from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
 
+from .knowledge_graph import (
+    graph_stats,
+    init_knowledge_graph,
+)
+from .knowledge_graph import (
+    node_detail as knowledge_node_detail,
+)
+from .knowledge_graph import (
+    project_records as project_knowledge_records,
+)
+from .knowledge_graph import (
+    query_graph as query_knowledge_graph,
+)
+from .knowledge_graph import (
+    remove_records as remove_knowledge_records,
+)
+from .knowledge_graph import (
+    supersede_source as supersede_knowledge_source,
+)
 from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
 from .pool import ConnectionPool
 from .retry import retry_db_operation
+from .workspace import (
+    append_workspace_event as append_workspace_event_row,
+)
+from .workspace import (
+    create_workspace_run as create_workspace_run_row,
+)
+from .workspace import (
+    init_workspace_schema,
+    run_status,
+    workspace_event_from_row,
+    workspace_run_from_row,
+)
 
 
 class SQLiteStore:
@@ -304,6 +335,8 @@ class SQLiteStore:
             )
             connection.execute("pragma foreign_keys = on")
             self._cleanup_orphan_edges(connection)
+            init_knowledge_graph(connection)
+            init_workspace_schema(connection)
             connection.commit()
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
@@ -343,6 +376,7 @@ class SQLiteStore:
             surface_artifacts = connection.execute("select count(*) from surface_artifacts").fetchone()[0]
             edge_count = connection.execute("select count(*) from ir_edges").fetchone()[0]
             doc_status_count = connection.execute("select count(*) from document_status").fetchone()[0]
+            knowledge = graph_stats(connection)
 
             kinds_rows = connection.execute("select kind, count(*) as c from ir_records group by kind").fetchall()
             record_kinds: dict[str, int] = {}
@@ -433,7 +467,7 @@ class SQLiteStore:
                 "select count(*) from ir_records where status = 'contradicted'"
             ).fetchone()[0]
 
-        return {
+            return {
             "total_records": total_records,
             "vector_entries": vector_entries,
             "pack_entries": pack_entries,
@@ -443,7 +477,10 @@ class SQLiteStore:
             "machine_artifacts": machine_artifacts,
             "surface_artifacts": surface_artifacts,
             "edge_count": edge_count,
-            "doc_status_count": doc_status_count,
+                "doc_status_count": doc_status_count,
+                "knowledge_graph": knowledge,
+                "knowledge_node_count": knowledge["node_count"],
+                "knowledge_edge_count": knowledge["edge_count"],
             "record_kinds": record_kinds,
             "edge_kinds": edge_kinds,
             "avg_degree": avg_degree,
@@ -582,6 +619,11 @@ class SQLiteStore:
                 )
                 self._persist_specialized(connection, record)
                 self._persist_edges(connection, record, old_clm_subject=old_clm_subject)
+            # The knowledge graph is a deterministic projection of the same
+            # canonical MIRL write. It is built automatically for every ingest
+            # surface and committed atomically with the records it represents.
+            projected = [record for record in batch.records if record.id not in skip_ids]
+            project_knowledge_records(connection, projected)
             connection.commit()
         return PersistReport(stored_ids=stored_ids, store_path=self.path)
 
@@ -646,6 +688,12 @@ class SQLiteStore:
                 "update document_status set deleted_at = ?, updated_at = ? "
                 "where source_ref = ? and document_id != ? and deleted_at is null",
                 (now, now, source_ref, except_document_id),
+            )
+            supersede_knowledge_source(
+                connection,
+                source_ref=source_ref,
+                except_document_id=except_document_id,
+                superseded_at=now,
             )
             connection.commit()
             return cursor.rowcount
@@ -765,6 +813,7 @@ class SQLiteStore:
             return
         placeholders = ",".join("?" for _ in ids)
         with self._pool.checkout() as connection:
+            remove_knowledge_records(connection, ids)
             connection.execute(f"delete from raw_docs where id in ({placeholders})", ids)
             connection.execute(f"delete from raw_spans where id in ({placeholders})", ids)
             connection.execute(f"delete from symbol_table where id in ({placeholders})", ids)
@@ -776,6 +825,73 @@ class SQLiteStore:
                 connection.execute(f"delete from vector_index where record_id in ({placeholders})", ids)
             connection.execute(f"delete from ir_records where id in ({placeholders})", ids)
             connection.commit()
+
+    def knowledge_graph(
+        self,
+        *,
+        query: str | None = None,
+        root_id: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+        agent_id: str | None = None,
+        kinds: list[str] | None = None,
+        at: str | None = None,
+        include_history: bool = False,
+        limit: int = 300,
+        hops: int = 2,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return query_knowledge_graph(
+                connection,
+                query=query,
+                root_id=root_id,
+                namespace=namespace,
+                scope=scope,
+                agent_id=agent_id,
+                kinds=kinds,
+                at=at,
+                include_history=include_history,
+                limit=limit,
+                hops=hops,
+            )
+
+    def knowledge_node(
+        self,
+        node_id: str,
+        *,
+        include_history: bool = True,
+        at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return knowledge_node_detail(
+                connection,
+                node_id,
+                include_history=include_history,
+                at=at,
+            )
+
+    def assertable_record_ids(
+        self,
+        record_ids: list[str],
+        *,
+        at: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> set[str]:
+        """Return the requested records that may enter asserted answer context."""
+
+        # Imported lazily so the answer-context trust boundary does not add a
+        # new module-import dependency to storage initialization.
+        from .knowledge_graph import assertable_record_ids
+
+        with self._pool.checkout() as connection:
+            return assertable_record_ids(
+                connection,
+                record_ids,
+                at=at,
+                namespace=namespace,
+                scope=scope,
+            )
 
     def read_pack(self, pack_id: str) -> Pack:
         batch = self.load_ir(ids=[pack_id])
@@ -796,25 +912,34 @@ class SQLiteStore:
             order = [root_id]
             queue = [root_id]
             edges: list[dict[str, str]] = []
+            edge_keys: set[tuple[str, str, str]] = set()
             while queue:
                 current = queue.pop(0)
                 record = records[current]
-                refs = _trace_refs(record)
+                refs = [(current, "trace", dst, dst) for dst in _trace_refs(record)]
                 edge_rows = connection.execute(
-                    "select dst_id from ir_edges where src_id = ? order by id",
-                    (current,),
+                    "select src_id, predicate, dst_id from knowledge_edges "
+                    "where (src_id = ? or dst_id = ?) and expired_at is null "
+                    "and status not in ('contradicted','superseded','deprecated','deleted_soft') "
+                    "order by id",
+                    (current, current),
                 ).fetchall()
-                refs.extend(row["dst_id"] for row in edge_rows)
-                for dst in dict.fromkeys(refs):
-                    target = _load_record_by_id(connection, dst)
-                    if target is None and dst not in record.prov and dst not in record.evidence:
+                for row in edge_rows:
+                    neighbor = row["dst_id"] if row["src_id"] == current else row["src_id"]
+                    refs.append((row["src_id"], row["predicate"], row["dst_id"], neighbor))
+                for src, edge_type, dst, neighbor in dict.fromkeys(refs):
+                    target = _load_record_by_id(connection, neighbor)
+                    if target is None and neighbor not in record.prov and neighbor not in record.evidence:
                         continue
-                    edges.append({"src": current, "type": "trace", "dst": dst})
-                    if target is not None and dst not in seen:
-                        records[dst] = target
-                        seen.add(dst)
-                        order.append(dst)
-                        queue.append(dst)
+                    edge_key = (src, edge_type, dst)
+                    if edge_key not in edge_keys:
+                        edge_keys.add(edge_key)
+                        edges.append({"src": src, "type": edge_type, "dst": dst})
+                    if target is not None and neighbor not in seen:
+                        records[neighbor] = target
+                        seen.add(neighbor)
+                        order.append(neighbor)
+                        queue.append(neighbor)
         return TraceGraph(root_id=root_id, nodes=[records[node_id] for node_id in order], edges=edges)
 
     def write_machine_artifact(
@@ -1143,6 +1268,154 @@ class SQLiteStore:
             }
             for row in rows
         ]
+
+    # ------------------------------------------------------------------
+    # Structured live workspace (append-only operational telemetry)
+    # ------------------------------------------------------------------
+
+    @retry_db_operation()
+    def create_workspace_run(
+        self,
+        *,
+        run_id: str | None = None,
+        ns: str = "local.chat",
+        scope: str = "thread",
+        agent_id: str | None = None,
+        model: str | None = None,
+        provider: str | None = None,
+        metadata: dict[str, object] | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            run = create_workspace_run_row(
+                connection,
+                run_id=run_id,
+                ns=ns,
+                scope=scope,
+                agent_id=agent_id,
+                model=model,
+                provider=provider,
+                metadata=metadata,
+                created_at=created_at,
+            )
+            connection.commit()
+        return run.to_dict()
+
+    @retry_db_operation()
+    def append_workspace_event(
+        self,
+        *,
+        run_id: str,
+        event_type: str,
+        payload: dict[str, object] | None = None,
+        created_at: str | None = None,
+        agent_id: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            event = append_workspace_event_row(
+                connection,
+                run_id=run_id,
+                event_type=event_type,
+                payload=payload,
+                created_at=created_at,
+                agent_id=agent_id,
+            )
+            connection.commit()
+        return event.to_dict()
+
+    def iter_workspace_events(
+        self,
+        *,
+        run_id: str | None = None,
+        after: int = 0,
+        limit: int = 500,
+        ns: str | None = None,
+        scope: str | None = None,
+    ) -> list[dict[str, object]]:
+        clauses = ["event_id > ?"]
+        params: list[object] = [max(0, int(after))]
+        if run_id is not None:
+            clauses.append("run_id = ?")
+            params.append(run_id)
+        if ns is not None:
+            clauses.append("ns = ?")
+            params.append(ns)
+        if scope is not None:
+            clauses.append("scope = ?")
+            params.append(scope)
+        params.append(max(1, min(int(limit), 2_000)))
+        with self._pool.checkout() as connection:
+            rows = connection.execute(
+                f"select * from workspace_event where {' and '.join(clauses)} order by event_id limit ?",
+                tuple(params),
+            ).fetchall()
+        return [workspace_event_from_row(row).to_dict() for row in rows]
+
+    def get_workspace_run(
+        self,
+        run_id: str,
+        *,
+        include_events: bool = True,
+        after: int = 0,
+        limit: int = 2_000,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            row = connection.execute(
+                "select * from workspace_run where run_id = ?",
+                (run_id,),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"workspace run not found: {run_id}")
+            run = workspace_run_from_row(row)
+            all_event_rows = connection.execute(
+                "select * from workspace_event where run_id = ? order by seq",
+                (run_id,),
+            ).fetchall()
+        all_events = [workspace_event_from_row(event_row) for event_row in all_event_rows]
+        result: dict[str, object] = {"run": run.to_dict(status=run_status(all_events))}
+        if include_events:
+            selected = [event for event in all_events if event.event_id > max(0, int(after))]
+            result["events"] = [event.to_dict() for event in selected[: max(1, min(int(limit), 2_000))]]
+        return result
+
+    def list_workspace_runs(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        clauses: list[str] = []
+        params: list[object] = []
+        if ns is not None:
+            clauses.append("r.ns = ?")
+            params.append(ns)
+        if scope is not None:
+            clauses.append("r.scope = ?")
+            params.append(scope)
+        where = f"where {' and '.join(clauses)}" if clauses else ""
+        params.append(max(1, min(int(limit), 500)))
+        with self._pool.checkout() as connection:
+            rows = connection.execute(
+                f"""
+                select r.*,
+                    (select e.event_type from workspace_event e
+                     where e.run_id = r.run_id and e.event_type in ('completion', 'failure')
+                     order by e.seq desc limit 1) as terminal_type
+                from workspace_run r {where}
+                order by r.created_at desc, r.run_id desc limit ?
+                """,
+                tuple(params),
+            ).fetchall()
+        output: list[dict[str, object]] = []
+        for row in rows:
+            status = "running"
+            if row["terminal_type"] == "completion":
+                status = "completed"
+            elif row["terminal_type"] == "failure":
+                status = "failed"
+            output.append(workspace_run_from_row(row).to_dict(status=status))
+        return output
 
     @retry_db_operation()
     def write_retrieval_event(

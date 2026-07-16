@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 401
-total_tokens: ~171548
-latest_id: 401
+total_entries: 404
+total_tokens: ~173402
+latest_id: 404
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 404 | 2026-07-16 | done | f1d3521014ee95a9 | bugfix,webui,dashboard,persist,+ | 403 |
+| 403 | 2026-07-16 | done | 11d8ecbd7dd33d41 | graph,memory,trust,provenance,+ | 402 |
+| 402 | 2026-07-16 | in-progress | 90136fda23eb320e | graph,memory,provenance,dashboard,+ | 401 |
 | 401 | 2026-07-16 | done | ae65e22b25ed32b7 | bugfix,benchmark,locomo,persist,+ | 400 |
 | 400 | 2026-07-15 | done | 2d638e36f970fd2f | bugfix,benchmark,locomo,retrieval,+ | 399 |
 | 399 | 2026-07-15 | changed | 008c723c1932b98f | history,continuity,verify,handoff,+ | 398 |
@@ -418,6 +421,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
+- agent: count=2 latest=#403, #402
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -434,7 +438,7 @@ compact: true
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=25 latest=#401, #400, #390, #380, #379
+- bugfix: count=26 latest=#404, #401, #400, #390, #380
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
@@ -474,7 +478,7 @@ compact: true
 - cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
-- dashboard: count=73 latest=#342, #326, #299, #298, #288
+- dashboard: count=76 latest=#404, #403, #402, #342, #326
 - decomposition: count=1 latest=#319
 - deepseek: count=4 latest=#370, #369, #368, #367
 - density: count=3 latest=#316, #315, #314
@@ -514,14 +518,14 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=2 latest=#099, #030
+- graph: count=5 latest=#404, #403, #402, #099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
 - handoff: count=27 latest=#401, #400, #399, #398, #397
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=269 latest=#399, #388, #387, #380, #379
+- history: count=272 latest=#404, #403, #402, #399, #388
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=1 latest=#324
@@ -552,13 +556,13 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=11 latest=#395, #394, #393, #384, #343
-- memory: count=7 latest=#342, #340, #286, #275, #274
+- memory: count=9 latest=#403, #402, #342, #340, #286
 - merge: count=4 latest=#388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
-- models: count=1 latest=#182
+- models: count=2 latest=#403, #182
 - multi-agent: count=20 latest=#378, #268, #231, #230, #229
 - multihop: count=3 latest=#321, #319, #318
 - naming: count=4 latest=#033, #024, #009, #002
@@ -573,7 +577,7 @@ compact: true
 - paid: count=1 latest=#365
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - performance: count=3 latest=#364, #363, #362
-- persist: count=27 latest=#401, #342, #251, #244, #218
+- persist: count=30 latest=#404, #403, #402, #401, #342
 - pgvector: count=28 latest=#354, #322, #295, #294, #280
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
@@ -589,7 +593,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=103 latest=#381, #380, #378, #356, #355
 - prov: count=1 latest=#316
-- provenance: count=1 latest=#373
+- provenance: count=3 latest=#403, #402, #373
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
@@ -610,7 +614,7 @@ compact: true
 - registry: count=4 latest=#350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- retrieval: count=79 latest=#400, #395, #390, #389, #386
+- retrieval: count=81 latest=#403, #402, #400, #395, #390
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -625,7 +629,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=50 latest=#359, #356, #355, #351, #349
+- security: count=52 latest=#404, #403, #359, #356, #355
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -641,7 +645,7 @@ compact: true
 - sqlite: count=1 latest=#364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=150 latest=#388, #387, #358, #329, #321
+- status: count=153 latest=#404, #403, #402, #388, #387
 - storage: count=8 latest=#358, #283, #282, #270, #269
 - streams: count=9 latest=#287, #276, #216, #210, #209
 - structure: count=3 latest=#326, #285, #284
@@ -653,20 +657,21 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=1 latest=#400
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=23 latest=#401, #400, #398, #395, #393
+- tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
 - topk: count=1 latest=#320
 - traceability: count=1 latest=#316
 - training-corpus: count=1 latest=#366
+- trust: count=1 latest=#403
 - tui: count=25 latest=#137, #121, #120, #119, #118
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=271 latest=#401, #400, #399, #398, #397
+- verify: count=274 latest=#404, #403, #402, #401, #400
 - vulnerability: count=1 latest=#296
-- webui: count=6 latest=#342, #340, #326, #286, #285
+- webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
 - workflow-permissions: count=1 latest=#298
 - wsl2: count=1 latest=#021
@@ -677,6 +682,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 371
-- in-progress: 3
+- done: 373
+- in-progress: 4
 - planned: 20

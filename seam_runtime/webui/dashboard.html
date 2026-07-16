@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEAM — Dashboard</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -70,6 +71,45 @@
     }
 
     #root { height: 100vh; display: flex; flex-direction: column; }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+      outline: 1px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 1100px) {
+      .kg-workspace-grid { grid-template-columns: 1fr !important; }
+      .kg-workspace-grid aside { height: auto !important; max-height: 520px; }
+      .kg-query-controls { grid-template-columns: minmax(220px,1fr) 140px 160px !important; }
+      .kg-layer-bar { align-items: flex-start !important; }
+    }
+
+    @media (max-width: 760px) {
+      .kg-query-controls { grid-template-columns: 1fr !important; }
+      .kg-layer-bar { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .kg-layer-bar .kg-live-control { grid-column: 1 / -1; margin-left: 0 !important; }
+      .kg-signal-tape { grid-template-columns: 1fr !important; }
+      .kg-signal-tape ol { max-height: 148px !important; }
+    }
+
+    @keyframes kg-activation-ring {
+      0% { opacity: .9; transform: scale(.72); }
+      70%,100% { opacity: 0; transform: scale(1.65); }
+    }
+
+    @keyframes kg-live-scan {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(460%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+      .kg-live-scan { display: none !important; }
+    }
   </style>
 </head>
 <body style="font-family: Merriweather; font-size: 14px">
@@ -1830,21 +1870,35 @@ const MODEL_OPTIONS = [
 
 
 // ── Ingest Panel ─────────────────────────────────────────────────────────
-/* DEMO NOTE: Files added without drag-and-drop (e.g. via addDemoFile button
-     or empty drops) are simulated — they lack a _file reference and use
-     a setInterval-driven pipeline that fakes stage progress.  Only files
-     added via real drag-and-drop or the file-picker (<input type=file>)
-     carry a _file reference and call the real SEAM REST API via
-     ingestFileViaAPI() → SeamAPI.compile(). */
 const ingestStages = ['Select files', 'Parse & chunk', 'Compile MIRL', 'Embed vectors', 'Persist to DB'];
+// Leave room for JSON encoding beneath the server's default 5,000,000-byte
+// request cap. Larger sources need a future chunked-upload endpoint.
+const DASHBOARD_INGEST_MAX_FILE_BYTES = 4500000;
+
+const AUTO_INGEST_EXCLUDED_DIRS = new Set(['.git', '.venv', 'node_modules', '__pycache__']);
+
+function autoIngestExclusion(relativePath) {
+  const parts = String(relativePath || '').split('/').filter(Boolean);
+  const lowerParts = parts.map((part) => part.toLowerCase());
+  if (lowerParts.some((part) => AUTO_INGEST_EXCLUDED_DIRS.has(part))) return 'generated or dependency directory';
+  const basename = lowerParts[lowerParts.length - 1] || '';
+  if (basename === '.env' || basename.startsWith('.env.')) return 'environment file';
+  if (/^(id_rsa|id_ed25519|credentials\.json)$/.test(basename) || /\.(pem|key|p12|pfx)$/.test(basename)) return 'credential-shaped file';
+  return '';
+}
 
 function IngestPanel({ width, onOpenSettings }) {
-  // Persisted file list — starts empty, populated by user drops/picks
-  const [files, setFiles] = usePersisted('seam-dash-ingest-files', []);
+  // Browser File handles cannot be serialized safely. Keep the live queue in
+  // memory and persist only the successful-ingest fingerprint ledger.
+  const [files, setFiles] = useState([]);
+  const filesRef = useRef(files);
   const [dragOver, setDragOver] = useState(false);
   const [batchMode, setBatchMode] = useState('persist');
   const [autoMode, setAutoMode] = useState(false);
+  const autoModeRef = useRef(false);
   const [autoLog, setAutoLog] = useState([]);
+  const workQueueRef = useRef([]);
+  const processingRef = useRef(false);
 
   // Persisted sync ledger — fingerprint of every file that's been ingested so we never re-ingest
   // Stored as array in localStorage, converted to Set for runtime use
@@ -1858,18 +1912,35 @@ function IngestPanel({ width, onOpenSettings }) {
     }
   };
   const [skippedCount, setSkippedCount] = useState(0);
-  const fingerprint = (f) => `${f.name}|${f.size}`;
+  // A browser-relative folder path is stable enough for the persisted sync
+  // ledger. Loose files expose only a basename, so do not risk cross-folder
+  // collisions by pretending they have a durable identity.
+  const fingerprint = (f) => f._fingerprint || null;
+
+  const updateFiles = React.useCallback((updater) => {
+    setFiles((previous) => {
+      const next = typeof updater === 'function' ? updater(previous) : updater;
+      filesRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const appendAutoLog = React.useCallback((msg, kind = 'info') => {
+    setAutoLog((previous) => [...previous.slice(-39), {
+      t: new Date().toLocaleTimeString('en-US', { hour12: false }), msg, kind
+    }]);
+  }, []);
 
   // Dedupe helper — splits incoming files into fresh vs already-ingested
   const dedupe = (incoming) => {
     const fresh = [];
     let dupes = 0;
     const ledger = syncLedger;
-    const seenInBatch = new Set();
+    const seenInBatch = new Set(filesRef.current.map(fingerprint));
     for (const f of incoming) {
       const fp = fingerprint(f);
-      if (ledger.has(fp) || seenInBatch.has(fp)) {dupes++;continue;}
-      seenInBatch.add(fp);
+      if (fp && (ledger.has(fp) || seenInBatch.has(fp))) {dupes++;continue;}
+      if (fp) seenInBatch.add(fp);
       fresh.push(f);
     }
     if (dupes > 0) setSkippedCount((s) => s + dupes);
@@ -1880,190 +1951,178 @@ function IngestPanel({ width, onOpenSettings }) {
     setSyncLedger(new Set());
     setSkippedCount(0);
   };
-  const [watchPath, setWatchPath] = useState('~/projects/seam-watch/');
-  const autoRef = useRef(null);
+  const [watchPath, setWatchPath] = useState('No folder selected');
   const watchPickerRef = useRef(null);
   const filePickerRef = useRef(null);
 
   const handleWatchPick = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    // Derive top-level directory name from webkitRelativePath
-    const first = files[0];
+    const selectedFiles = Array.from(e.target.files || []);
+    if (!selectedFiles.length) return;
+    // Browsers intentionally expose only paths relative to the selected root.
+    const first = selectedFiles[0];
     const rel = first.webkitRelativePath || first.name;
     const dir = rel.split('/')[0];
-    setWatchPath('~/' + dir + '/');
-    const incoming = files.slice(0, 20).map((f, i) => ({
+    setWatchPath(dir + '/');
+    const excluded = selectedFiles.filter((f) => autoIngestExclusion(f.webkitRelativePath || f.name));
+    const incoming = selectedFiles.filter((f) => !autoIngestExclusion(f.webkitRelativePath || f.name)).map((f, i) => ({
       id: 'pick-' + Date.now() + '-' + i,
       name: f.webkitRelativePath || f.name,
+      folder: dir,
       size: (f.size / 1024).toFixed(1) + ' KB',
-      status: 'queued', stage: 0, records: 0
+      sizeBytes: f.size,
+      lastModified: f.lastModified || 0,
+      _fingerprint: `${f.webkitRelativePath || f.name}|${f.size}|${f.lastModified || 0}`,
+      status: 'queued', stage: 0, records: 0,
+      _file: f
     }));
-    const { fresh } = dedupe(incoming);
-    setFiles((prev) => [...prev, ...fresh]);
+    const { fresh, dupes } = dedupe(incoming);
+    const nextFiles = [...filesRef.current, ...fresh];
+    filesRef.current = nextFiles;
+    setFiles(nextFiles);
+    appendAutoLog(`Queued folder ${dir}/ — ${fresh.length} file${fresh.length === 1 ? '' : 's'}${dupes ? `, ${dupes} unchanged` : ''}${excluded.length ? `, ${excluded.length} sensitive/generated skipped` : ''}`, fresh.length ? 'ok' : 'info');
+    if (autoModeRef.current && fresh.length) enqueueFiles(fresh, 'persist', true);
     e.target.value = '';
   };
 
   const handleFilePick = (e) => {
     const pickedFiles = Array.from(e.target.files || []);
     if (!pickedFiles.length) return;
-    const incoming = pickedFiles.map((f, i) => ({
+    const excluded = pickedFiles.filter((f) => autoIngestExclusion(f.name));
+    const incoming = pickedFiles.filter((f) => !autoIngestExclusion(f.name)).map((f, i) => ({
       id: 'file-' + Date.now() + '-' + i,
       name: f.name,
       size: (f.size / 1024).toFixed(1) + ' KB',
+      sizeBytes: f.size,
+      lastModified: f.lastModified || 0,
+      _fingerprint: '',
       status: 'queued', stage: 0, records: 0,
       _file: f  // Keep reference for real API ingest
     }));
     const { fresh } = dedupe(incoming);
-    setFiles((prev) => [...prev, ...fresh]);
+    const nextFiles = [...filesRef.current, ...fresh];
+    filesRef.current = nextFiles;
+    setFiles(nextFiles);
+    if (excluded.length) appendAutoLog(`Skipped ${excluded.length} sensitive file${excluded.length === 1 ? '' : 's'}`, 'error');
+    if (autoModeRef.current && fresh.length) enqueueFiles(fresh, 'persist', true);
     e.target.value = '';
   };
 
   // ── Real API ingest — reads file content and calls SeamAPI.compile ──
-  const ingestFileViaAPI = async (fileEntry) => {
-    if (!fileEntry._file) return null;
+  const ingestFileViaAPI = async (fileEntry, persist) => {
+    if (!fileEntry._file || typeof fileEntry._file.text !== 'function') {
+      return { records: 0, ok: false, error: 'File access expired; select this file or folder again.' };
+    }
     try {
+      if (fileEntry.sizeBytes > DASHBOARD_INGEST_MAX_FILE_BYTES) {
+        return { records: 0, ok: false, error: 'File exceeds the 4.5 MB dashboard ingest limit; use the CLI or a chunked source.' };
+      }
       const text = await fileEntry._file.text();
-      const result = await window.SeamAPI.compile(text, true, 'webui://' + fileEntry.name);
+      if (!text.trim()) return { records: 0, ok: false, error: 'Empty file' };
+      if (text.includes('\0')) return { records: 0, ok: false, error: 'Binary files are not supported by text ingest' };
+      updateFiles((previous) => previous.map((file) => file.id === fileEntry.id ? { ...file, stage: 2 } : file));
+      const sourceRef = 'webui-folder:///' + String(fileEntry.name).split('/').map(encodeURIComponent).join('/');
+      const result = await window.SeamAPI.compile(text, persist, sourceRef);
       return { records: (result.records || []).length, ok: true };
     } catch (err) {
       return { records: 0, ok: false, error: err.message };
     }
   };
 
-  // Auto-ingest loop
+  const processQueue = async () => {
+    if (processingRef.current) return;
+    processingRef.current = true;
+    try {
+      while (workQueueRef.current.length) {
+        const task = workQueueRef.current.shift();
+        if (task.automatic && !autoModeRef.current) {
+          updateFiles((previous) => previous.map((file) => file.id === task.id && file.status === 'scheduled' ? { ...file, status: 'queued' } : file));
+          continue;
+        }
+        const fileEntry = filesRef.current.find((file) => file.id === task.id);
+        if (!fileEntry || !['queued', 'scheduled', 'error', 'preview'].includes(fileEntry.status)) continue;
+        updateFiles((previous) => previous.map((file) => file.id === task.id ? { ...file, status: 'running', stage: 1, mode: task.mode, error: '' } : file));
+        appendAutoLog(`Ingesting ${fileEntry.name}`, 'info');
+        const persist = task.mode === 'persist';
+        const result = await ingestFileViaAPI(fileEntry, persist);
+        if (result.ok) {
+          const finalStatus = persist ? 'done' : 'preview';
+          updateFiles((previous) => previous.map((file) => file.id === task.id ? { ...file, status: finalStatus, stage: ingestStages.length, records: result.records, error: '' } : file));
+          if (persist) {
+            const identity = fingerprint(fileEntry);
+            if (identity) {
+              setSyncLedger((previous) => {
+                const next = new Set(previous);
+                next.add(identity);
+                return next;
+              });
+            }
+          }
+          appendAutoLog(`${persist ? 'Persisted' : 'Previewed'} ${fileEntry.name} — ${result.records} MIRL record${result.records === 1 ? '' : 's'}`, 'ok');
+        } else {
+          updateFiles((previous) => previous.map((file) => file.id === task.id ? { ...file, status: 'error', stage: 0, records: 0, error: result.error || 'Ingest failed' } : file));
+          appendAutoLog(`Failed ${fileEntry.name} — ${result.error || 'Ingest failed'}`, 'error');
+        }
+      }
+    } finally {
+      processingRef.current = false;
+      // A selection may have arrived between the final queue check and this
+      // flag reset. Drain it without requiring another user action.
+      if (workQueueRef.current.length) void processQueue();
+    }
+  };
+
+  const enqueueFiles = (entries, mode = 'persist', automatic = false) => {
+    const scheduled = new Set(workQueueRef.current.map((task) => task.id));
+    const eligibleStatuses = mode === 'persist' ? ['queued', 'error', 'preview'] : ['queued', 'error'];
+    const tasks = entries.filter((file) => !scheduled.has(file.id) && eligibleStatuses.includes(file.status)).map((file) => ({ id: file.id, mode, automatic }));
+    if (!tasks.length) return;
+    workQueueRef.current.push(...tasks);
+    const ids = new Set(tasks.map((task) => task.id));
+    updateFiles((previous) => previous.map((file) => ids.has(file.id) ? { ...file, status: 'scheduled', mode, error: '' } : file));
+    void processQueue();
+  };
+
   useEffect(() => {
-    if (!autoMode) {
-      if (autoRef.current) clearInterval(autoRef.current);
+    autoModeRef.current = autoMode;
+    if (autoMode) {
+      appendAutoLog('Auto-ingest enabled — selected folders will persist in queue order', 'info');
+      enqueueFiles(filesRef.current.filter((file) => file.status === 'queued'), 'persist', true);
       return;
     }
-    setAutoLog((prev) => [...prev, { t: new Date().toLocaleTimeString('en-US', { hour12: false }), msg: `Auto-ingest active — watching ${watchPath}`, kind: 'info' }]);
-    autoRef.current = setInterval(() => {
-      // Simulate agent finding and auto-ingesting data
-      const actions = [
-      'Agent retrieved 3 new MIRL records from context — auto-persisting',
-      'New file detected: agent_output.json — queuing for ingest',
-      'Vector index sync triggered — 12 new embeddings',
-      'Memory consolidation: 4 duplicate records merged',
-      'Auto-ingest: clm:51–clm:56 persisted to SQLite'];
-
-      const msg = actions[Math.floor(Math.random() * actions.length)];
-      setAutoLog((prev) => [...prev.slice(-19), { t: new Date().toLocaleTimeString('en-US', { hour12: false }), msg, kind: 'ok' }]);
-      // Occasionally mark a queued file as running then done
-      setFiles((prev) => {
-        const queued = prev.find((f) => f.status === 'queued');
-        if (queued) return prev.map((f) => f.id === queued.id ? { ...f, status: 'running', stage: 1 } : f);
-        const running = prev.find((f) => f.status === 'running');
-        if (running) return prev.map((f) => f.id === running.id ? { ...f, status: 'done', stage: 5, records: Math.floor(Math.random() * 20) + 5 } : f);
-        return prev;
-      });
-    }, 2200);
-    return () => clearInterval(autoRef.current);
+    const cancelledIds = new Set(workQueueRef.current.filter((task) => task.automatic).map((task) => task.id));
+    workQueueRef.current = workQueueRef.current.filter((task) => !task.automatic);
+    if (cancelledIds.size) updateFiles((previous) => previous.map((file) => cancelledIds.has(file.id) && file.status === 'scheduled' ? { ...file, status: 'queued' } : file));
   }, [autoMode]);
 
   // Retro cyberpunk Apple palette — amber CRT glow for done, phosphor for active
-  const statusColor = { done: '#ffb347', running: '#7fe0ff', queued: '#274063', error: '#ff6b6b', preview: '#d391ff' };
-  const statusLabel = { done: '✓ ingested', running: 'ingesting', queued: 'queued', error: 'error', preview: 'preview (dry-run)' };
+  const statusColor = { done: '#ffb347', running: '#7fe0ff', scheduled: '#4f8cfb', queued: '#274063', error: '#ff6b6b', preview: '#d391ff' };
+  const statusLabel = { done: '✓ ingested', running: 'ingesting', scheduled: 'scheduled', queued: 'queued', error: 'error', preview: 'preview (dry-run)' };
 
-  const addDemoFile = () => {
-    const names = ['agent_memory.py', 'benchmarks.py', 'storage.py', 'mirl.py', 'cli.py', 'runtime.py'];
-    const name = names[Math.floor(Math.random() * names.length)];
-    setFiles((prev) => [...prev, { id: 'f' + Date.now(), name, size: (Math.random() * 60 + 2).toFixed(1) + ' KB', status: 'queued', stage: 0, records: 0 }]);
+  const removeFile = (id) => {
+    workQueueRef.current = workQueueRef.current.filter((task) => task.id !== id);
+    updateFiles((previous) => previous.filter((file) => file.id !== id));
   };
 
-  const removeFile = (id) => setFiles((prev) => prev.filter((f) => f.id !== id));
-
-  // Advance running files through pipeline stages
-  useEffect(() => {
-    const i = setInterval(() => {
-      setFiles((prev) => {
-        const justDone = [];
-        const next = prev.map((f) => {
-          if (f.status !== 'running') return f;
-          const ns = f.stage + 1;
-          if (ns >= ingestStages.length) {
-            const mode = f.mode || 'persist';
-            // Only persist mode commits the fingerprint to the sync ledger
-            if (mode === 'persist') justDone.push(fingerprint(f));
-            if (mode === 'dry-run') return { ...f, status: 'preview', stage: ingestStages.length, records: Math.floor(Math.random() * 15) + 3 };
-            if (mode === 'reindex') return { ...f, status: 'done', stage: ingestStages.length, records: f.records || Math.floor(Math.random() * 12) + 5 };
-            return { ...f, status: 'done', stage: ingestStages.length, records: Math.floor(Math.random() * 18) + 4 };
-          }
-          return { ...f, stage: ns };
-        });
-        if (justDone.length) {
-          setSyncLedger((prev) => {
-            const n = new Set(prev);
-            justDone.forEach((fp) => n.add(fp));
-            return n;
-          });
-        }
-        return next;
-      });
-    }, 600);
-    return () => clearInterval(i);
-  }, []);
-
-  const runAll = () => {
-    // Try real API ingest for files that have _file references
-    setFiles((prev) => {
-      const next = prev.map((f) => {
-        if (f.status !== 'queued') return f;
-          // Trigger real API ingest asynchronously
-          ingestFileViaAPI(f).then((result) => {
-            if (result && result.ok) {
-              setFiles((cur) => cur.map((c) =>
-                c.id === f.id ? { ...c, status: 'done', stage: 5, records: result.records } : c
-              ));
-              if (batchMode === 'persist') {
-                setSyncLedger((prev) => {
-                  const n = new Set(prev);
-                  n.add(fingerprint(f));
-                  return n;
-                });
-              }
-            } else {
-              setFiles((cur) => cur.map((c) =>
-                c.id === f.id ? { ...c, status: 'error', stage: 0, records: 0 } : c
-              ));
-            }
-          });
-          return { ...f, status: 'running', stage: 1, mode: batchMode };
-      });
-      return next;
-    });
-  };
-
-  // Mode actions: persist runs queued. dry-run runs queued without persist tag.
-  // reindex re-runs done/preview files from the embed stage.
+  // Mode actions: persist writes queued files; dry-run compiles without writing.
   const runMode = (m) => {
     setBatchMode(m);
-    if (m === 'reindex') {
-      setFiles((prev) => prev.map((f) =>
-      f.status === 'done' || f.status === 'preview' ?
-      { ...f, status: 'running', stage: 3, mode: 'reindex' } : f
-      ));
-    } else {
-      setFiles((prev) => prev.map((f) =>
-      f.status === 'queued' ? { ...f, status: 'running', stage: 1, mode: m } : f
-      ));
-    }
+    const eligibleStatuses = m === 'persist' ? ['queued', 'error', 'preview'] : ['queued', 'error'];
+    enqueueFiles(filesRef.current.filter((file) => eligibleStatuses.includes(file.status)), m, false);
   };
 
-  const clearDone = () => setFiles((prev) => prev.filter((f) => f.status !== 'done' && f.status !== 'preview'));
+  const clearDone = () => updateFiles((previous) => previous.filter((file) => file.status !== 'done' && file.status !== 'preview'));
 
   const totalRecords = files.reduce((s, f) => s + f.records, 0);
   const done = files.filter((f) => f.status === 'done').length;
   const running = files.filter((f) => f.status === 'running').length;
-  const demoCount = files.filter((f) => !f._file).length;
-  const realCount = files.filter((f) => !!f._file).length;
+  const folderCount = new Set(files.map((file) => file.folder).filter(Boolean)).size;
 
   return (
     <div style={{ width, flexShrink: 0, overflow: 'hidden', transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)', background: '#030d20', borderRight: '1px solid rgba(47,99,255,0.15)', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '7px 12px 0', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#4f8cfb', borderBottom: '1px solid rgba(47,99,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <span>Ingest</span>
-        <span style={{ color: '#7efdb9', fontSize: 9 }}>{done}/{files.length} done · {totalRecords} records{realCount > 0 && demoCount > 0 ? ` · ${realCount} API / ${demoCount} demo` : demoCount > 0 ? ` · [DEMO]` : ''}</span>
+        <span style={{ color: '#7efdb9', fontSize: 9 }}>{done}/{files.length} done · {totalRecords} records{folderCount ? ` · ${folderCount} folder${folderCount === 1 ? '' : 's'}` : ''}</span>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -2080,7 +2139,8 @@ function IngestPanel({ width, onOpenSettings }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
             {/* Auto toggle */}
-            <div onClick={() => setAutoMode((v) => !v)} style={{
+            <div onClick={() => setAutoMode((v) => !v)} role="switch" aria-checked={autoMode} tabIndex={0}
+            onKeyDown={(e) => {if (e.key === 'Enter' || e.key === ' ') {e.preventDefault();setAutoMode((v) => !v);}}} style={{
               width: 34, height: 18, borderRadius: 9, flexShrink: 0, position: 'relative',
               background: autoMode ? '#7efdb9' : '#1a2540',
               border: `1px solid ${autoMode ? '#7efdb9' : '#274063'}`,
@@ -2099,7 +2159,7 @@ function IngestPanel({ width, onOpenSettings }) {
                 {autoMode && <span style={{ fontSize: 8, padding: '1px 5px', borderRadius: 3, background: 'rgba(126,253,185,0.1)', color: '#7efdb9', border: '1px solid rgba(126,253,185,0.2)', animation: 'pulse 1.5s ease-in-out infinite' }}>● live</span>}
               </div>
               <div style={{ fontSize: 9, color: '#274063', marginTop: 1 }}>
-                Agent automatically ingests &amp; persists new data to DB
+                Selected folders persist automatically in queue order
               </div>
               {/* Watch path row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, padding: '4px 6px', background: 'rgba(8,19,42,0.6)', borderRadius: 4, border: '1px solid rgba(47,99,255,0.12)', minWidth: 0, overflow: 'hidden' }}>
@@ -2108,12 +2168,13 @@ function IngestPanel({ width, onOpenSettings }) {
                 </svg>
                 <input
                   value={watchPath}
-                  onChange={(e) => setWatchPath(e.target.value)}
+                  readOnly
+                  title="Last selected folder (browser-relative path)"
                   style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: autoMode ? '#7fe0ff' : '#5a7a9a', fontSize: 10, fontFamily: 'var(--font)', minWidth: 0 }} />
 
                 <button
                   onClick={() => watchPickerRef.current?.click()}
-                  title="Browse for watch directory"
+                  title="Select a folder and queue all supported files"
                   style={{ background: 'none', border: 'none', color: '#7fe0ff', cursor: 'pointer', fontSize: 10, fontFamily: 'var(--font)', padding: '0 2px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
                     <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.7" />
@@ -2163,7 +2224,7 @@ function IngestPanel({ width, onOpenSettings }) {
               {autoLog.slice(-5).map((l, i) =>
             <div key={i} style={{ display: 'flex', gap: 6, fontSize: 9, lineHeight: 1.5 }}>
                   <span style={{ color: '#274063', flexShrink: 0 }}>{l.t}</span>
-                  <span style={{ color: l.kind === 'ok' ? '#7efdb9' : '#4f8cfb' }}>{l.msg}</span>
+                  <span style={{ color: l.kind === 'ok' ? '#7efdb9' : l.kind === 'error' ? '#ff6b6b' : '#4f8cfb' }}>{l.msg}</span>
                 </div>
             )}
             </div>
@@ -2178,16 +2239,24 @@ function IngestPanel({ width, onOpenSettings }) {
             e.preventDefault();
             setDragOver(false);
             const dropped = Array.from(e.dataTransfer.files || []);
-            if (dropped.length === 0) {addDemoFile();return;}
-            const incoming = dropped.map((f, i) => ({
+            if (dropped.length === 0) return;
+            const excluded = dropped.filter((f) => autoIngestExclusion(f.webkitRelativePath || f.name));
+            const incoming = dropped.filter((f) => !autoIngestExclusion(f.webkitRelativePath || f.name)).map((f, i) => ({
               id: 'drop-' + Date.now() + '-' + i,
-              name: f.name,
+              name: f.webkitRelativePath || f.name,
               size: (f.size / 1024).toFixed(1) + ' KB',
+              sizeBytes: f.size,
+              lastModified: f.lastModified || 0,
+              _fingerprint: f.webkitRelativePath ? `${f.webkitRelativePath}|${f.size}|${f.lastModified || 0}` : '',
               status: 'queued', stage: 0, records: 0,
               _file: f  // Keep reference for real API ingest
             }));
             const { fresh } = dedupe(incoming);
-            setFiles((prev) => [...prev, ...fresh]);
+            const nextFiles = [...filesRef.current, ...fresh];
+            filesRef.current = nextFiles;
+            setFiles(nextFiles);
+            if (excluded.length) appendAutoLog(`Skipped ${excluded.length} sensitive/generated dropped file${excluded.length === 1 ? '' : 's'}`, 'error');
+            if (autoModeRef.current && fresh.length) enqueueFiles(fresh, 'persist', true);
           }}
           onClick={() => filePickerRef.current?.click()}
           style={{
@@ -2210,8 +2279,7 @@ function IngestPanel({ width, onOpenSettings }) {
             <span style={{ fontSize: 9, color: '#4f6888', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 4 }}>Mode</span>
             {[
             { id: 'persist', label: 'persist', desc: 'write MIRL records to SQLite' },
-            { id: 'dry-run', label: 'dry-run', desc: 'parse + preview, do not write' },
-            { id: 'reindex', label: 'reindex', desc: 're-embed vectors for done files' }].
+            { id: 'dry-run', label: 'dry-run', desc: 'parse + preview, do not write' }].
             map((m) =>
             <button key={m.id} onClick={() => setBatchMode(m.id)} title={m.desc} style={{
               padding: '3px 8px', fontSize: 9, borderRadius: 3, cursor: 'pointer', fontFamily: 'var(--font)',
@@ -2278,6 +2346,7 @@ function IngestPanel({ width, onOpenSettings }) {
               <span style={{ color: statusColor[f.status] }}>{statusLabel[f.status]}{f.status === 'running' ? ` — ${ingestStages[f.stage]}` : ''}</span>
               {f.records > 0 && <span style={{ color: f.status === 'done' ? '#ffb347' : '#7efdb9' }}>{f.records} MIRL records</span>}
             </div>
+            {f.error && <div title={f.error} style={{ marginTop: 3, fontSize: 8, color: '#ff6b6b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.error}</div>}
           </div>
         )}
 
@@ -2332,57 +2401,58 @@ const writeQueue = [
 { id: 'wq:005', op: 'QUEUE', text: 'Pending: reindex graph edges for clm:1–clm:20', progress: 0, status: 'pending' }];
 
 
-const provenanceNodes = [
-{ id: 'n1', x: 120, y: 60, label: 'README.md', color: '#f4d676', type: 'source' },
-{ id: 'n2', x: 280, y: 40, label: 'clm:1 @SEAM', color: '#a6fcff', type: 'entity' },
-{ id: 'n3', x: 260, y: 120, label: 'clm:4 #SQLite', color: '#7fe0ff', type: 'claim' },
-{ id: 'n4', x: 420, y: 70, label: 'sta:ent:seam', color: '#7efdb9', type: 'state' },
-{ id: 'n5', x: 400, y: 150, label: 'clm:12 !event', color: '#f4d676', type: 'event' },
-{ id: 'n6', x: 540, y: 100, label: 'agent_bridge', color: '#d391ff', type: 'relation' },
-{ id: 'n7', x: 160, y: 150, label: 'SPEC_V0.1.md', color: '#f4d676', type: 'source' },
-{ id: 'n8', x: 320, y: 190, label: 'clm:22 ^bench', color: '#d391ff', type: 'evidence' }];
-
-
-const provenanceEdges = [
-{ from: 'n1', to: 'n2' }, { from: 'n1', to: 'n3' },
-{ from: 'n2', to: 'n4' }, { from: 'n3', to: 'n4' },
-{ from: 'n4', to: 'n6' }, { from: 'n5', to: 'n6' },
-{ from: 'n7', to: 'n3' }, { from: 'n7', to: 'n8' },
-{ from: 'n8', to: 'n4' }, { from: 'n2', to: 'n5' }];
-
-
 const tagColors = { '@': '#a6fcff', '#': '#7fe0ff', '!': '#f4d676', '>': '#9b6cff', '~': '#7efdb9', '^': '#d391ff', '%': '#66b8ff', '=': '#8df6ff' };
 
-function ProvenanceGraph({ nodes, edges, highlight, onHover }) {
-  const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
+function CompactKnowledgeGraph({ graph, highlight, onHover }) {
+  const colors = {
+    agent: '#ff8fbc', entity: '#a6fcff', claim: '#7fe0ff', event: '#f4d676',
+    relation: '#9b6cff', state: '#7efdb9', evidence: '#d391ff', source: '#66b8ff',
+    provenance: '#ffb347', value: '#8df6ff', symbol: '#cdb4ff'
+  };
+  const nodes = (graph?.nodes || []).slice(0, 36).map((node, index, all) => {
+    const columns = Math.max(3, Math.ceil(Math.sqrt(all.length * 2.7)));
+    const rows = Math.max(1, Math.ceil(all.length / columns));
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    return {
+      ...node,
+      x: 44 + column * (552 / Math.max(1, columns - 1)),
+      y: 35 + row * (150 / Math.max(1, rows - 1)),
+      color: colors[node.kind] || '#7fe0ff'
+    };
+  });
+  const visibleIds = new Set(nodes.map((node) => node.id));
+  const edges = (graph?.edges || []).filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
+  const nodeMap = Object.fromEntries(nodes.map((node) => [node.id, node]));
+  const openNode = (nodeId) => {
+    window.location.href = `/?view=knowledge&node=${encodeURIComponent(nodeId)}`;
+  };
   return (
-    <svg width="100%" height="220" viewBox="0 0 640 220" style={{ display: 'block' }}>
+    <svg width="100%" height="220" viewBox="0 0 640 220" role="img" aria-label="Live knowledge graph preview" style={{ display: 'block' }}>
       <defs>
-        <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <marker id="compact-graph-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
           <path d="M0,0 L0,6 L6,3 z" fill="#1a2540" />
         </marker>
       </defs>
-      {/* edges */}
-      {edges.map((e, i) => {
-        const a = nodeMap[e.from],b = nodeMap[e.to];
+      {edges.map((edge) => {
+        const a = nodeMap[edge.source],b = nodeMap[edge.target];
         if (!a || !b) return null;
-        const isHot = highlight === e.from || highlight === e.to;
+        const isHot = highlight === edge.source || highlight === edge.target;
         return (
-          <line key={i}
+          <line key={edge.id}
           x1={a.x} y1={a.y} x2={b.x} y2={b.y}
           stroke={isHot ? '#4f8cfb' : '#1a2540'}
           strokeWidth={isHot ? 1.5 : 1}
           strokeOpacity={isHot ? 0.8 : 0.4}
-          markerEnd="url(#arrow)" />);
+          markerEnd="url(#compact-graph-arrow)" />);
 
 
       })}
-      {/* nodes */}
       {nodes.map((n) => {
         const isHot = highlight === n.id;
         return (
-          <g key={n.id} onMouseEnter={() => onHover(n.id)} onMouseLeave={() => onHover(null)} style={{ cursor: 'pointer' }}>
-            <circle cx={n.x} cy={n.y} r={isHot ? 22 : 18}
+          <g key={n.id} tabIndex="0" role="link" aria-label={`Open ${n.label}`} onClick={() => openNode(n.id)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') openNode(n.id); }} onMouseEnter={() => onHover(n.id)} onMouseLeave={() => onHover(null)} onFocus={() => onHover(n.id)} onBlur={() => onHover(null)} style={{ cursor: 'pointer', outline: 'none' }}>
+            <circle cx={n.x} cy={n.y} r={isHot ? 17 : 14}
             fill={isHot ? n.color + '22' : '#08132a'}
             stroke={n.color}
             strokeWidth={isHot ? 2 : 1}
@@ -2390,10 +2460,10 @@ function ProvenanceGraph({ nodes, edges, highlight, onHover }) {
 
             <text x={n.x} y={n.y + 1} textAnchor="middle" dominantBaseline="middle"
             fontSize="8" fill={n.color} fontFamily="JetBrains Mono, monospace" fontWeight="500">
-              {n.label.length > 10 ? n.label.slice(0, 10) + '…' : n.label}
+              {n.label.length > 9 ? n.label.slice(0, 9) + '…' : n.label}
             </text>
-            <text x={n.x} y={n.y + 30} textAnchor="middle" fontSize="7" fill="#274063" fontFamily="JetBrains Mono, monospace">
-              {n.type}
+            <text x={n.x} y={n.y + 24} textAnchor="middle" fontSize="7" fill="#274063" fontFamily="JetBrains Mono, monospace">
+              {n.kind}
             </text>
           </g>);
 
@@ -2409,6 +2479,8 @@ function MemoryPanel({ width }) {
   // Live API records + stats
   const [liveRecords, setLiveRecords] = useState([]);
   const [liveStats, setLiveStats] = useState(null);
+  const [liveGraph, setLiveGraph] = useState(null);
+  const [graphError, setGraphError] = useState('');
   // Live, advancing write queue (mirrors MemoryFullView behavior)
   const [queue, setQueue] = useState(() => writeQueue.map((w) => ({
     ...w,
@@ -2434,6 +2506,15 @@ function MemoryPanel({ width }) {
           setLiveRecords(mapped);
         }
       } catch (_) { /* silent */ }
+      try {
+        const graph = await window.SeamAPI.knowledgeGraph({ limit: 80, hops: 1 });
+        if (!cancelled) {
+          setLiveGraph(graph);
+          setGraphError('');
+        }
+      } catch (error) {
+        if (!cancelled) setGraphError(error?.message || 'Knowledge graph unavailable');
+      }
     };
     fetchLive();
     const interval = setInterval(fetchLive, 30000);
@@ -2471,13 +2552,13 @@ function MemoryPanel({ width }) {
 
   const memStats = [
   { label: 'Total records', value: totalRecordsValue, color: '#7fe0ff' },
-  { label: 'Indexed today', value: '2,847', color: '#7efdb9' },
+  { label: 'Indexed today', value: liveStats?.records_today != null ? liveStats.records_today.toLocaleString() : '—', color: '#7efdb9' },
   { label: 'Pending write queue', value: String(queue.length), color: '#f4d676' },
-  { label: 'Graph edges', value: '841,203', color: '#9b6cff' },
-  { label: 'Avg retrieval latency', value: '38 ms', color: '#7efdb9' },
-  { label: 'Last compaction', value: '03:00 UTC', color: '#66b8ff' },
-  { label: 'Vector drift', value: '0.8%', color: '#7efdb9' },
-  { label: 'Contradiction flags', value: '3 active', color: '#f4d676' }];
+  { label: 'Knowledge nodes', value: liveStats?.knowledge_node_count != null ? liveStats.knowledge_node_count.toLocaleString() : '—', color: '#7fe0ff' },
+  { label: 'Knowledge edges', value: liveStats?.knowledge_edge_count != null ? liveStats.knowledge_edge_count.toLocaleString() : '—', color: '#9b6cff' },
+  { label: 'Namespaces', value: liveStats?.namespaces != null ? liveStats.namespaces.toLocaleString() : '—', color: '#66b8ff' },
+  { label: 'Drifted vectors', value: liveStats?.drifted_vectors != null ? liveStats.drifted_vectors.toLocaleString() : '—', color: '#7efdb9' },
+  { label: 'Contradiction flags', value: liveStats?.contradicted_count != null ? liveStats.contradicted_count.toLocaleString() : '—', color: '#f4d676' }];
 
 
   const tabs = ['records', 'writing', 'graph', 'stats'];
@@ -2570,11 +2651,21 @@ function MemoryPanel({ width }) {
         {/* ── Graph tab ── */}
         {tab === 'graph' &&
         <div style={{ padding: '8px 0' }}>
-            <div style={{ padding: '2px 12px 6px', fontSize: 9, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Provenance graph — hover nodes to trace</div>
+            <div style={{ padding: '2px 12px 6px', fontSize: 9, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live knowledge graph · select a node to inspect</div>
             <div style={{ padding: '0 8px', background: '#020b1e', borderTop: '1px solid rgba(47,99,255,0.08)', borderBottom: '1px solid rgba(47,99,255,0.08)' }}>
-              <ProvenanceGraph nodes={provenanceNodes} edges={provenanceEdges} highlight={hoveredNode} onHover={setHoveredNode} />
+              {liveGraph?.nodes?.length > 0 ?
+                <CompactKnowledgeGraph graph={liveGraph} highlight={hoveredNode} onHover={setHoveredNode} /> :
+                <div style={{ minHeight: 220, display: 'grid', placeItems: 'center', padding: 18, textAlign: 'center', fontSize: 10, color: graphError ? '#ff9a9a' : '#5a7a9a' }}>
+                  {graphError || 'No knowledge yet. The graph appears automatically when agents write MIRL records.'}
+                </div>
+              }
             </div>
             <div style={{ padding: '8px 12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#4f6888', marginBottom: 8 }}>
+                <span>{liveGraph?.stats?.node_count?.toLocaleString?.() || 0} nodes</span>
+                <span>{liveGraph?.stats?.edge_count?.toLocaleString?.() || 0} edges</span>
+                <span>{liveGraph?.stats?.agent_count?.toLocaleString?.() || 0} agents</span>
+              </div>
               <div style={{ fontSize: 9, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Node legend</div>
               {[['@', 'entity', '#a6fcff'], ['#', 'claim', '#7fe0ff'], ['!', 'event', '#f4d676'], ['>', 'relation', '#9b6cff'], ['~', 'state', '#7efdb9'], ['^', 'evidence', '#d391ff'], ['%', 'source', '#66b8ff']].map(([tag, kind, color]) =>
             <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
@@ -3552,9 +3643,127 @@ function BenchmarkFullView() {
 }
 
 
-// ── MemoryFullView ─────────────────────────────────────────────────────────
-// ── Obsidian-style force-directed provenance graph ──────────────────────
-function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, externalHovered, height = 480 }) {
+// ── Live knowledge-graph canvas ────────────────────────────────────────────
+const knowledgeKindColors = {
+  agent: '#f4d676', entity: '#a6fcff', claim: '#7fe0ff', event: '#ffbf69',
+  relation: '#9b6cff', state: '#7efdb9', evidence: '#d391ff', source: '#66b8ff',
+  episode: '#ff8f70',
+  workspace_event: '#8df6ff', workspace_run: '#66b8ff', activation: '#d391ff',
+  hypothesis: '#b7a0ff', decision: '#7efdb9', verification: '#f4d676',
+  improvement: '#7efdb9', proposal: '#f4d676', benchmark: '#66b8ff',
+  provenance: '#64748b', value: '#8df6ff', concept: '#4f8cfb', symbol: '#8df6ff',
+  pack: '#8090b0', flow: '#7efdb9', metadata: '#5a7a9a'
+};
+
+const knowledgeEdgeStyles = {
+  semantic: { color: '#7fe0ff', label: 'semantic fact' },
+  grounding: { color: '#9b6cff', label: 'record structure' },
+  provenance: { color: '#f4d676', label: 'provenance' },
+  temporal: { color: '#ff8f70', label: 'evolution' },
+  causal: { color: '#ffbf69', label: 'causal path' },
+  trust: { color: '#ff6b6b', label: 'trust / dispute' },
+  workspace: { color: '#8df6ff', label: 'workspace trace' },
+  activation: { color: '#d391ff', label: 'activation-derived' },
+  improvement: { color: '#7efdb9', label: 'improvement loop' }
+};
+
+const knowledgeLayerDefinitions = [
+  { id: 'knowledge', label: 'Knowledge', mark: 'K', color: '#7fe0ff', hint: 'Durable MIRL facts, entities, and relations' },
+  { id: '5w1h', label: '5W1H', mark: '？', color: '#ffbf69', hint: 'Who, what, when, where, why, how, and then' },
+  { id: 'episodes', label: 'Episodes', mark: 'E', color: '#ff8f70', hint: 'Source episodes and temporal provenance' },
+  { id: 'trust', label: 'Trust', mark: 'T', color: '#ff6b6b', hint: 'Support, contradiction, verification, and supersession' },
+  { id: 'workspace', label: 'Workspace', mark: 'W', color: '#8df6ff', hint: 'Structured retrieval, tool, hypothesis, decision, and verification events' },
+  { id: 'activation', label: 'Activation', mark: 'J', color: '#d391ff', hint: 'Activation-derived J-lens concepts only when model internals are available' },
+  { id: 'improvement', label: 'Improvement', mark: 'Δ', color: '#7efdb9', hint: 'Proposals, evaluations, decisions, and applied outcomes' }
+];
+
+const knowledgeFacetLabels = {
+  who: { label: 'WHO', color: '#f4d676' }, what: { label: 'WHAT', color: '#7fe0ff' },
+  when: { label: 'WHEN', color: '#ff8f70' }, where: { label: 'WHERE', color: '#66b8ff' },
+  why: { label: 'WHY', color: '#d391ff' }, how: { label: 'HOW', color: '#7efdb9' },
+  then: { label: 'THEN', color: '#ffbf69' }
+};
+
+function knowledgeFacet(edge) {
+  const predicate = String(edge?.predicate || edge?.kind || '').toLowerCase().replace(/[- ]/g, '_');
+  if (/performed_by|created_by|authored_by|agent|person|owner|actor/.test(predicate)) return 'who';
+  if (/occurred_at|valid_during|recorded_at|created_at|updated_at|time|date|during/.test(predicate)) return 'when';
+  if (/located_in|location|place|where|site|region/.test(predicate)) return 'where';
+  if (/caused_by|motivated_by|because|reason|why|intent|goal/.test(predicate)) return 'why';
+  if (/\bvia\b|used_tool|used_method|method|how|process|mechanism/.test(predicate)) return 'how';
+  if (/precedes|follows|resulted_in|supersedes|then|next|outcome|transition/.test(predicate)) return 'then';
+  if (/did|affected|about|subject|object|what|claim|entity/.test(predicate)) return 'what';
+  return '';
+}
+
+function knowledgeGraphLayerForNode(node) {
+  const kind = String(node?.kind || '').toLowerCase();
+  const properties = node?.properties || {};
+  if (kind === 'episode') return 'episodes';
+  if (/activation|j_lens|jlens/.test(kind) || properties.activation_derived === true) return 'activation';
+  if (/workspace|hypothesis|decision|verification|reasoning_summary|tool_event/.test(kind)) return 'workspace';
+  if (/improvement|proposal|benchmark|candidate|evaluation/.test(kind)) return 'improvement';
+  return 'knowledge';
+}
+
+function knowledgeGraphLayerForEdge(edge) {
+  const type = knowledgeEdgeType(edge);
+  if (type === 'trust') return 'trust';
+  if (type === 'workspace') return 'workspace';
+  if (type === 'activation') return 'activation';
+  if (type === 'improvement') return 'improvement';
+  if (knowledgeFacet(edge)) return '5w1h';
+  if (type === 'provenance' && /episode/.test(String(edge?.predicate || ''))) return 'episodes';
+  return 'knowledge';
+}
+
+function workspaceEventVisual(event) {
+  const type = String(event?.event_type || event?.type || 'event').toLowerCase();
+  if (/j_?lens|activation_concept/.test(type)) return { label: 'J-LENS', color: '#d391ff', layer: 'activation', honest: 'activation-derived concept' };
+  if (/reasoning_summary|provider_summary|summary/.test(type)) return { label: 'SUMMARY', color: '#b7a0ff', layer: 'workspace', honest: 'provider-exposed summary' };
+  if (/retriev|memory|graph_activation/.test(type)) return { label: 'RETRIEVE', color: '#7fe0ff', layer: 'workspace', honest: 'retrieval event' };
+  if (/activation/.test(type)) return { label: 'ACTIVATE', color: '#d391ff', layer: 'activation', honest: 'structured graph activation' };
+  if (/tool|observation/.test(type)) return { label: 'TOOL', color: '#66b8ff', layer: 'workspace', honest: 'tool observation' };
+  if (/hypothesis/.test(type)) return { label: 'HYPOTHESIS', color: '#b7a0ff', layer: 'workspace', honest: 'structured hypothesis' };
+  if (/decision/.test(type)) return { label: 'DECISION', color: '#7efdb9', layer: 'workspace', honest: 'structured decision' };
+  if (/verif|evidence/.test(type)) return { label: 'VERIFY', color: '#f4d676', layer: 'workspace', honest: 'verification event' };
+  if (/improv|proposal|benchmark|candidate|evaluation/.test(type)) return { label: 'IMPROVE', color: '#7efdb9', layer: 'improvement', honest: 'improvement event' };
+  if (/fail|error/.test(type)) return { label: 'FAILURE', color: '#ff6b6b', layer: 'workspace', honest: 'runtime failure' };
+  if (/complete|answer/.test(type)) return { label: 'COMPLETE', color: '#7efdb9', layer: 'workspace', honest: 'run completion' };
+  return { label: 'EVENT', color: '#8090b0', layer: 'workspace', honest: 'structured workspace event' };
+}
+
+function workspaceEventNodeIds(event) {
+  const payload = event?.payload || {};
+  const values = [payload.node_id, payload.record_id, payload.claim_id, payload.source_id]
+    .concat(payload.node_ids || [], payload.record_ids || [], payload.activated_nodes || [], payload.retrieved_node_ids || [], payload.seed_ids || [], payload.asserted_context_ids || [])
+    .concat((payload.nodes || []).map((node) => typeof node === 'string' ? node : node?.node_id || node?.id || node?.record_id))
+    .concat((payload.candidates || []).map((candidate) => typeof candidate === 'string' ? candidate : candidate?.node_id || candidate?.record_id || candidate?.id));
+  return Array.from(new Set(values.filter((value) => typeof value === 'string' && value)));
+}
+
+function knowledgeEdgeType(edge) {
+  const edgeKind = String(edge.edge_kind || edge.edgeKind || '').toLowerCase();
+  const predicate = String(edge.predicate || edge.kind || '').toLowerCase();
+  if (edgeKind === 'trust' || /support|contradict|refut|corroborat|unverified|contested|hallucinat/.test(predicate)) return 'trust';
+  if (edgeKind === 'activation' || /j_?lens|activation|jacobian/.test(predicate)) return 'activation';
+  if (edgeKind === 'workspace' || /retriev|hypothesis|decision|verification|tool_observation|reasoning_summary/.test(predicate)) return 'workspace';
+  if (edgeKind === 'improvement' || /proposal|benchmark|candidate|evaluat|approved|rejected|applied_version/.test(predicate)) return 'improvement';
+  if (edgeKind === 'causal' || /caused|motivated|resulted|because|reason/.test(predicate)) return 'causal';
+  if (edgeKind === 'temporal' || /supersed|refin|revis|preced|follow|expire/.test(predicate)) return 'temporal';
+  if (edgeKind === 'provenance' || /provenance|evidence|source|episode|observed|contribut|produc|excerpt/.test(predicate)) return 'provenance';
+  if (edgeKind === 'grounding' || /\b(about|subject|object|ground)\b/.test(predicate)) return 'grounding';
+  return 'semantic';
+}
+
+function knowledgeGraphDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString(undefined, { year: '2-digit', month: 'short', day: 'numeric' });
+}
+
+function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId, externalHovered, activeNodeIds = [], activeEvent = null, height = 480 }) {
   const containerRef = React.useRef(null);
   const svgRef = React.useRef(null);
   const [size, setSize] = React.useState({ w: 900, h: height });
@@ -3565,15 +3774,26 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
   const [dragNode, setDragNode] = React.useState(null);
   const [panning, setPanning] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [density, setDensity] = React.useState('compact');
+  const [reducedMotion, setReducedMotion] = React.useState(() => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false);
+  const transformRef = React.useRef(transform);
+  React.useEffect(() => {transformRef.current = transform;}, [transform]);
+  React.useEffect(() => {
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!media) return;
+    const update = () => setReducedMotion(media.matches);
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
   // Pulse counter used for flowing-data animation along hot edges
   const [pulse, setPulse] = React.useState(0);
   React.useEffect(() => {
-    if (!hovered && !selectedId) return;
+    if (reducedMotion || !hovered && !selectedId && activeNodeIds.length === 0) return;
     const i = setInterval(() => setPulse((p) => p + 1), 60);
     return () => clearInterval(i);
-  }, [hovered, selectedId]);
+  }, [hovered, selectedId, activeNodeIds.length, reducedMotion]);
 
-  // ── Force-simulation parameters (Obsidian-style settings) ─────────────
+  // ── Force-simulation parameters ───────────────────────────────────────
   const [forces, setForces] = React.useState({
     repel: 1400, // node-to-node repulsion
     linkForce: 0.012, // spring stiffness along edges
@@ -3588,53 +3808,49 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
   // ── Alpha cooling — simulation stabilizes & sleeps ────────────────────
   const alphaRef = React.useRef(1);
   const sleepingRef = React.useRef(false);
+  const [simulationEpoch, wakeSimulation] = React.useReducer((value) => value + 1, 0);
   const kickAlpha = React.useCallback((v = 0.6) => {
     alphaRef.current = Math.max(alphaRef.current, v);
     sleepingRef.current = false;
+    wakeSimulation();
   }, []);
 
-  // ── Build nodes & edges from records + sources ─────────────────────────
+  // ── Normalize the canonical API projection. No edges are synthesized here. ──
   const { nodes, edges } = React.useMemo(() => {
-    const sourceNodes = sources.map((s) => ({
-      id: s.id, label: s.name, kind: 'source', color: '#f4d676', size: 14, weight: 6
+    const normalizedNodes = (graphNodes || []).map((n) => ({
+      id: n.id,
+      label: n.label || n.id,
+      kind: n.kind || 'concept',
+      color: knowledgeKindColors[n.kind] || '#7fe0ff',
+      size: Math.min(20, (n.kind === 'episode' ? 9 : 7) + Math.log2(2 + (n.degree || 0)) * 2.2),
+      weight: 2 + Math.min(8, n.degree || 0),
+      meta: `${n.kind || 'concept'} · d${n.degree || 0} · ${Math.round((n.confidence || 0) * 100)}%`,
+      detail: [
+        n.agents?.length ? `${n.agents.length} agent${n.agents.length === 1 ? '' : 's'}` : '',
+        n.sources?.length ? `${n.sources.length} source${n.sources.length === 1 ? '' : 's'}` : '',
+        n.status && n.status !== 'asserted' ? n.status : '',
+        knowledgeGraphDate(n.updated_at || n.valid_from)
+      ].filter(Boolean).join(' · '),
+      record: n
     }));
-    const recordNodes = records.map((r) => ({
-      id: r.id, label: r.id + ' ' + r.tag,
-      kind: r.kind, color: tagColors[r.tag] || '#7fe0ff',
-      size: 8 + r.score * 6, weight: 3,
-      record: r
-    }));
-    const allNodes = [...sourceNodes, ...recordNodes];
-
-    // Base provenance edges
-    const eds = [...baseEdges];
-
-    // Derive edges from records: claims → state, evidence → source, etc.
-    records.forEach((r) => {
-      if (r.tag === '#' || r.tag === '@') {
-        // Claims & entities link to nearest source
-        const src = sources[Math.floor(Math.random() * sources.length)];
-        if (src) eds.push({ from: src.id, to: r.id, kind: 'derived_from' });
-      }
-      if (r.tag === '^') {
-        // Evidence links to the spec source
-        const spec = sources.find((s) => s.name && s.name.includes('SPEC'));
-        if (spec) eds.push({ from: spec.id, to: r.id, kind: 'evidence_for' });
-      }
-      if (r.tag === '>') {
-        // Relations link to entities they mention
-        const ents = recordNodes.filter((n) => n.kind === 'entity').slice(0, 2);
-        ents.forEach((e) => eds.push({ from: r.id, to: e.id, kind: 'relates_to' }));
-      }
-      if (r.tag === '~') {
-        // States derive from claims
-        const clms = recordNodes.filter((n) => n.kind === 'claim').slice(0, 1);
-        clms.forEach((c) => eds.push({ from: c.id, to: r.id, kind: 'state_of' }));
-      }
+    const normalizedEdges = (graphEdges || []).map((e) => {
+      const type = knowledgeEdgeType(e);
+      return {
+        id: e.id,
+        from: e.source,
+        to: e.target,
+        kind: e.predicate || 'related_to',
+        edgeKind: e.edge_kind,
+        type,
+        facet: knowledgeFacet(e),
+        color: knowledgeEdgeStyles[type].color,
+        confidence: e.confidence,
+        record: e
+      };
     });
-
-    return { nodes: allNodes, edges: eds };
-  }, [records, sources, baseEdges]);
+    return { nodes: normalizedNodes, edges: normalizedEdges };
+  }, [graphNodes, graphEdges]);
+  const activeNodeSet = React.useMemo(() => new Set(activeNodeIds || []), [activeNodeIds]);
 
   // Live physics simulation
   const simNodes = React.useRef([]);
@@ -3710,11 +3926,11 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
         }
       }
       force();
-      raf = requestAnimationFrame(step);
+      if (!sleepingRef.current || dragNode) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [dragNode]);
+  }, [dragNode, simulationEpoch]);
 
   // Resize observer
   React.useEffect(() => {
@@ -3728,11 +3944,38 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
     return () => ro.disconnect();
   }, [height]);
 
+  // React delegates wheel events through a passive root listener in some
+  // browsers. Bind directly to the graph surface so zoom consumes the wheel
+  // gesture and never moves the surrounding dashboard page.
+  React.useEffect(() => {
+    const surface = containerRef.current;
+    const svg = svgRef.current;
+    if (!surface || !svg) return;
+    const zoomGraph = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = svg.getBoundingClientRect();
+      const sx = event.clientX - rect.left;
+      const sy = event.clientY - rect.top;
+      const pixels = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * size.h : event.deltaY;
+      const factor = Math.max(0.75, Math.min(1.25, Math.exp(-pixels * 0.0015)));
+      setTransform((current) => {
+        const worldX = (sx - current.x) / current.k;
+        const worldY = (sy - current.y) / current.k;
+        const k = Math.max(0.3, Math.min(3, current.k * factor));
+        return { k, x: sx - worldX * k, y: sy - worldY * k };
+      });
+    };
+    surface.addEventListener('wheel', zoomGraph, { passive: false });
+    return () => surface.removeEventListener('wheel', zoomGraph);
+  }, [size.h]);
+
   // Mouse coords → world
   const toWorld = (e) => {
     const rect = svgRef.current.getBoundingClientRect();
     const sx = e.clientX - rect.left,sy = e.clientY - rect.top;
-    return { x: (sx - transform.x) / transform.k, y: (sy - transform.y) / transform.k };
+    const current = transformRef.current;
+    return { x: (sx - current.x) / current.k, y: (sy - current.y) / current.k };
   };
 
   // Adjacency for highlight (multi-hop traces)
@@ -3761,9 +4004,10 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
   }, [hovered, selectedId, adjacency, forces.traceDepth]);
   const hot = hovered || selectedId;
   const hotSet = tracedSet;
+  const renderedNodeById = new Map(simNodes.current.map((node) => [node.id, node]));
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', height, background: 'rgba(2,6,19,0.95)', border: '1px solid rgba(47,99,255,0.15)', borderRadius: 12, overflow: 'hidden' }}>
+    <div ref={containerRef} style={{ position: 'relative', height, background: 'rgba(2,6,19,0.95)', border: '1px solid rgba(47,99,255,0.15)', borderRadius: 12, overflow: 'hidden', overscrollBehavior: 'contain', touchAction: 'none' }}>
       {/* Scanline overlay */}
       <div style={{ position: 'absolute', inset: 0, background: 'repeating-linear-gradient(to bottom, rgba(255,255,255,0.012) 0, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 4px)', pointerEvents: 'none', zIndex: 2 }} />
 
@@ -3775,8 +4019,18 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
         <span>{edges.length} edges</span>
         <span style={{ color: '#274063' }}>·</span>
         <span>zoom {transform.k.toFixed(2)}×</span>
+        {activeEvent && <>
+          <span style={{ color: '#274063' }}>·</span>
+          <span style={{ color: workspaceEventVisual(activeEvent).color }}>{workspaceEventVisual(activeEvent).label}</span>
+          <span style={{ color: '#5a7a9a' }}>seq {activeEvent.seq ?? '—'}</span>
+        </>}
       </div>
       <div style={{ position: 'absolute', top: 10, right: 12, zIndex: 3, display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', marginRight: 4, padding: 2, background: 'rgba(3,13,32,0.9)', border: '1px solid rgba(127,224,255,0.16)', borderRadius: 5 }}>
+          {['compact', 'rich'].map((mode) => <button key={mode} onClick={() => setDensity(mode)} aria-pressed={density === mode}
+            title={mode === 'rich' ? 'Show predicates and node metadata' : 'Show labels only on focus'}
+            style={{ height: 18, padding: '0 7px', border: 0, borderRadius: 3, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 8, textTransform: 'uppercase', letterSpacing: '.05em', background: density === mode ? 'rgba(127,224,255,.14)' : 'transparent', color: density === mode ? '#a6fcff' : '#4f6888' }}>{mode}</button>)}
+        </div>
         {[['+', () => setTransform((t) => ({ ...t, k: Math.min(3, t.k * 1.2) }))],
         ['−', () => setTransform((t) => ({ ...t, k: Math.max(0.3, t.k / 1.2) }))],
         ['⊙', () => setTransform({ x: size.w / 2, y: size.h / 2, k: 1 })],
@@ -3786,7 +4040,7 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
         )}
       </div>
 
-      {/* Settings panel — Obsidian-style float */}
+      {/* Graph-layout settings */}
       {settingsOpen &&
       <div style={{
         position: 'absolute', top: 42, right: 12, zIndex: 5,
@@ -3837,19 +4091,20 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
       <div style={{ position: 'absolute', bottom: 10, left: 12, zIndex: 3, fontSize: 9, color: '#274063', fontStyle: 'italic' }}>
         drag nodes · scroll to zoom · drag bg to pan · click node for details
       </div>
+      <div style={{ position: 'absolute', bottom: 9, right: 12, zIndex: 3, display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '5px 10px', maxWidth: '58%', padding: '5px 7px', borderRadius: 5, background: 'rgba(2,6,19,.78)', border: '1px solid rgba(47,99,255,.1)', backdropFilter: 'blur(6px)', fontFamily: 'var(--font)', fontSize: 8, color: '#5a7a9a' }}>
+        {Object.entries(knowledgeEdgeStyles).map(([key, item]) => <span key={key} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ width: 13, height: 0, borderTop: `2px solid ${item.color}`, position: 'relative' }}><span style={{ position: 'absolute', right: -1, top: -4, color: item.color, fontSize: 7 }}>▶</span></span>
+          {item.label}
+        </span>)}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#ffb29e' }}>
+          <span style={{ width: 7, height: 7, background: '#ff8f70', transform: 'rotate(45deg)', boxShadow: '0 0 5px rgba(255,143,112,.55)' }} />
+          episode
+        </span>
+      </div>
 
       <svg ref={svgRef}
       width={size.w} height={size.h}
-      style={{ display: 'block', position: 'absolute', inset: 0, cursor: panning ? 'grabbing' : 'grab' }}
-      onWheel={(e) => {
-        e.preventDefault();
-        const factor = e.deltaY < 0 ? 1.1 : 0.9;
-        const w = toWorld(e);
-        setTransform((t) => {
-          const k = Math.max(0.3, Math.min(3, t.k * factor));
-          return { k, x: e.clientX - svgRef.current.getBoundingClientRect().left - w.x * k, y: e.clientY - svgRef.current.getBoundingClientRect().top - w.y * k };
-        });
-      }}
+      style={{ display: 'block', position: 'absolute', inset: 0, cursor: panning ? 'grabbing' : 'grab', overscrollBehavior: 'contain', touchAction: 'none' }}
       onMouseDown={(e) => {if (e.target === svgRef.current || e.target.tagName === 'rect') setPanning(true);}}
       onMouseUp={() => {setPanning(false);setDragNode(null);}}
       onMouseLeave={() => {setPanning(false);setDragNode(null);}}
@@ -3865,35 +4120,70 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
         <defs>
           <radialGradient id="bgGlow"><stop offset="0%" stopColor="rgba(127,224,255,0.04)" /><stop offset="100%" stopColor="transparent" /></radialGradient>
           <filter id="nodeGlow"><feGaussianBlur stdDeviation="2.5" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          {Object.entries(knowledgeEdgeStyles).map(([key, item]) =>
+          <marker key={key} id={`knowledge-arrow-${key}`} markerWidth={8 / transform.k} markerHeight={8 / transform.k}
+            refX={7 / transform.k} refY={4 / transform.k} orient="auto" markerUnits="userSpaceOnUse"
+            viewBox={`0 0 ${8 / transform.k} ${8 / transform.k}`}>
+              <path d={`M 0 0 L ${8 / transform.k} ${4 / transform.k} L 0 ${8 / transform.k} z`} fill={item.color} />
+            </marker>
+          )}
         </defs>
         <rect x="0" y="0" width={size.w} height={size.h} fill="url(#bgGlow)" />
 
         <g transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}>
           {/* Edges */}
           {simEdges.current.map((e, i) => {
-            const a = simNodes.current.find((n) => n.id === e.from);
-            const b = simNodes.current.find((n) => n.id === e.to);
+            const a = renderedNodeById.get(e.from);
+            const b = renderedNodeById.get(e.to);
             if (!a || !b) return null;
-            const isHot = hot && (e.from === hot || e.to === hot);
-            const isDim = hot && !isHot;
-            const edgeColor = a.color || '#7fe0ff';
+            const directHot = hot && (e.from === hot || e.to === hot);
+            const isHotPath = hot && hotSet?.has(e.from) && hotSet?.has(e.to);
+            const isDim = hot && !isHotPath;
+            const edgeColor = e.color || knowledgeEdgeStyles.semantic.color;
+            const facet = e.facet ? knowledgeFacetLabels[e.facet] : null;
+            const dx = b.x - a.x,dy = b.y - a.y;
+            const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+            const ux = dx / distance,uy = dy / distance;
+            const x1 = a.x + ux * (a.size + 2 / transform.k);
+            const y1 = a.y + uy * (a.size + 2 / transform.k);
+            const x2 = b.x - ux * (b.size + 9 / transform.k);
+            const y2 = b.y - uy * (b.size + 9 / transform.k);
+            const label = e.kind.length > 22 ? e.kind.slice(0, 21) + '…' : e.kind;
+            const showLabel = directHot || (density === 'rich' && transform.k > 0.62);
+            const confidenceLabel = density === 'rich' && (directHot || transform.k > 1.15) && Number.isFinite(e.confidence) ? ` · ${Math.round(e.confidence * 100)}%` : '';
+            const facetPrefix = facet ? `${facet.label} · ` : '';
+            const labelWidth = Math.max(34, (facetPrefix.length + label.length + confidenceLabel.length) * 5.1 + 10) / transform.k;
             return (
-              <g key={i}>
+              <g key={e.id || i} style={{ pointerEvents: 'none' }}>
+                {/* Soft path halo keeps multi-hop lineage visible without hiding context. */}
+                {isHotPath &&
+                <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke={edgeColor} strokeWidth={(directHot ? 8 : 5) / transform.k} strokeOpacity={directHot ? .18 : .1}
+                style={{ filter: `drop-shadow(0 0 5px ${edgeColor})` }} />}
                 {/* Base edge */}
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-                stroke={isHot ? edgeColor : '#1a2540'}
-                strokeWidth={isHot ? 1.8 / transform.k : 0.7 / transform.k}
-                strokeOpacity={isDim ? 0.08 : isHot ? 0.5 : 0.35} />
-                {/* Animated overlay — flowing data pulse */}
-                {isHot &&
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                <line x1={x1} y1={y1} x2={x2} y2={y2}
                 stroke={edgeColor}
-                strokeWidth={2.5 / transform.k}
-                strokeOpacity={0.9}
+                strokeWidth={(directHot ? 2.8 : isHotPath ? 2.1 : 1.25) / transform.k}
+                opacity={isDim ? 0.075 : directHot ? 1 : isHotPath ? .86 : .58}
+                strokeDasharray={e.type === 'trust' ? `${5 / transform.k} ${3 / transform.k}` : e.type === 'workspace' || e.type === 'activation' ? `${2 / transform.k} ${3 / transform.k}` : undefined}
+                markerEnd={`url(#knowledge-arrow-${e.type || 'semantic'})`}
+                style={{ filter: isHotPath ? `drop-shadow(0 0 3px ${edgeColor})` : 'none' }} />
+                {/* Animated overlay — flowing data pulse */}
+                {directHot &&
+                <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke="#ffffff"
+                strokeWidth={1.15 / transform.k}
+                strokeOpacity={0.86}
                 strokeDasharray={`${6 / transform.k} ${20 / transform.k}`}
                 strokeDashoffset={-(pulse * (3 / transform.k)) % (26 / transform.k)}
                 style={{ filter: `drop-shadow(0 0 4px ${edgeColor})` }} />
                 }
+                {showLabel && <g transform={`translate(${(x1 + x2) / 2},${(y1 + y2) / 2})`} opacity={isDim ? .14 : directHot ? 1 : .78}>
+                  <rect x={-labelWidth / 2} y={-7 / transform.k} width={labelWidth} height={14 / transform.k} rx={4 / transform.k}
+                    fill="rgba(2,6,19,.9)" stroke={edgeColor} strokeWidth={(directHot ? 1 : .55) / transform.k} />
+                  <text x="0" y={2.8 / transform.k} textAnchor="middle" fontSize={7.5 / transform.k} fill={directHot ? '#ffffff' : edgeColor}
+                    fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{facetPrefix}{label}{confidenceLabel}</text>
+                </g>}
               </g>);
 
           })}
@@ -3904,6 +4194,21 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
             const isHot = hotSet?.has(n.id);
             const isDim = hot && !isHot;
             const r = n.size + (isSelected ? 4 : isHovered ? 2 : 0);
+            const isEpisode = n.kind === 'episode';
+            const isImprovement = knowledgeGraphLayerForNode(n.record) === 'improvement';
+            const isActive = activeNodeSet.has(n.id);
+            const trustStatus = String(n.record?.trust_state || n.record?.status || '').toLowerCase();
+            const isContested = /contested|contradict|refuted|unverified/.test(trustStatus);
+            const showLabel = isHovered || isSelected || transform.k > (density === 'rich' ? .5 : .82);
+            const showMeta = isHovered || isSelected || density === 'rich' && transform.k > .67;
+            const showDetail = n.detail && (isHovered || isSelected || density === 'rich' && transform.k > 1.2);
+            const label = n.label.length > (density === 'rich' ? 24 : 16) ? n.label.slice(0, density === 'rich' ? 23 : 15) + '…' : n.label;
+            const detail = n.detail.length > 38 ? n.detail.slice(0, 37) + '…' : n.detail;
+            const lineCount = 1 + (showMeta ? 1 : 0) + (showDetail ? 1 : 0);
+            const cardWidth = Math.max(42, label.length * 5.4 + 13, showMeta ? n.meta.length * 4.6 + 13 : 0, showDetail ? detail.length * 4.25 + 13 : 0) / transform.k;
+            const cardHeight = (lineCount === 1 ? 16 : lineCount === 2 ? 27 : 37) / transform.k;
+            const labelTop = n.y + r + 7 / transform.k;
+            const diamond = `${n.x},${n.y - r} ${n.x + r},${n.y} ${n.x},${n.y + r} ${n.x - r},${n.y}`;
             return (
               <g key={n.id}
               onMouseEnter={() => setHovered(n.id)}
@@ -3913,20 +4218,44 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
               onClick={(e) => {e.stopPropagation();onSelectNode(isSelected ? null : n.id);}}
               style={{ cursor: 'pointer' }}>
                 {(isHovered || isSelected) && <circle cx={n.x} cy={n.y} r={r + 8} fill="none" stroke={n.color} strokeWidth={1 / transform.k} opacity={0.3} />}
-                <circle cx={n.x} cy={n.y} r={r}
+                {isActive && <>
+                  <circle cx={n.x} cy={n.y} r={r + 10 / transform.k} fill="none" stroke={workspaceEventVisual(activeEvent || {}).color}
+                    strokeWidth={1.4 / transform.k} opacity={reducedMotion ? .72 : .2 + Math.abs(Math.sin(pulse / 8)) * .7}
+                    style={{ filter: `drop-shadow(0 0 7px ${workspaceEventVisual(activeEvent || {}).color})` }} />
+                  {!reducedMotion && <circle cx={n.x} cy={n.y} r={r + (pulse % 18) / transform.k} fill="none" stroke={workspaceEventVisual(activeEvent || {}).color}
+                    strokeWidth={.8 / transform.k} opacity={Math.max(0, .7 - (pulse % 18) / 24)} />}
+                </>}
+                {isEpisode ? <>
+                  <polygon points={diamond}
+                    fill={n.color + (isHot ? 'd8' : 'b5')} stroke={n.color}
+                    strokeWidth={isSelected ? 2.5 / transform.k : 1.3 / transform.k}
+                    opacity={isDim ? .22 : 1} filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} />
+                  <circle cx={n.x} cy={n.y} r={2.2 / transform.k} fill="#020613" stroke="#ffd2c8" strokeWidth={.7 / transform.k} opacity={isDim ? .2 : .9} />
+                </> : isImprovement ? <polygon points={`${n.x},${n.y - r} ${n.x + r * .87},${n.y - r * .5} ${n.x + r * .87},${n.y + r * .5} ${n.x},${n.y + r} ${n.x - r * .87},${n.y + r * .5} ${n.x - r * .87},${n.y - r * .5}`}
+                  fill={n.color + (isHot ? 'cc' : '99')} stroke={n.color} strokeWidth={isSelected ? 2.5 / transform.k : 1 / transform.k}
+                  opacity={isDim ? .22 : 1} filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} /> : <circle cx={n.x} cy={n.y} r={r}
                 fill={n.color + (isHot ? 'cc' : '99')}
                 stroke={n.color}
                 strokeWidth={isSelected ? 2.5 / transform.k : 1 / transform.k}
-                opacity={isDim ? 0.25 : 1}
-                filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} />
-                {(transform.k > 0.7 || isHovered || isSelected) &&
-                <text x={n.x} y={n.y + r + 9 / transform.k} textAnchor="middle"
-                fontSize={9 / transform.k} fill={isDim ? '#274063' : isHovered || isSelected ? n.color : '#8090b0'}
-                fontFamily="JetBrains Mono, monospace"
-                style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                    {n.label.length > 14 ? n.label.slice(0, 14) + '…' : n.label}
-                  </text>
-                }
+                opacity={isDim ? 0.22 : 1}
+                filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} />}
+                {(n.record?.status === 'superseded' || n.record?.valid_to) &&
+                <circle cx={n.x} cy={n.y} r={r + 4 / transform.k} fill="none" stroke="#ff8f70" strokeWidth={.8 / transform.k}
+                  strokeDasharray={`${2 / transform.k} ${3 / transform.k}`} opacity={isDim ? .15 : .72} />}
+                {isContested && <circle cx={n.x} cy={n.y} r={r + 6 / transform.k} fill="none" stroke="#ff6b6b"
+                  strokeWidth={1.3 / transform.k} strokeDasharray={`${4 / transform.k} ${2 / transform.k}`}
+                  opacity={isDim ? .15 : .88} style={{ filter: 'drop-shadow(0 0 4px rgba(255,107,107,.7))' }} />}
+                {showLabel && <g transform={`translate(${n.x},${labelTop})`} opacity={isDim ? .14 : 1} style={{ pointerEvents: 'none' }}>
+                  <rect x={-cardWidth / 2} y="0" width={cardWidth} height={cardHeight} rx={4 / transform.k}
+                    fill="rgba(2,6,19,.88)" stroke={isHovered || isSelected ? n.color : 'rgba(79,104,136,.42)'}
+                    strokeWidth={(isHovered || isSelected ? 1 : .5) / transform.k} />
+                  <text x="0" y={11 / transform.k} textAnchor="middle" fontSize={8.5 / transform.k}
+                    fill={isHovered || isSelected ? n.color : '#bfefff'} fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{label}</text>
+                  {showMeta && <text x="0" y={21 / transform.k} textAnchor="middle" fontSize={6.9 / transform.k}
+                    fill={isEpisode ? '#ffb29e' : '#6f8dab'} fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{n.meta}</text>}
+                  {showDetail && <text x="0" y={31 / transform.k} textAnchor="middle" fontSize={6.5 / transform.k}
+                    fill="#4f6888" fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{detail}</text>}
+                </g>}
               </g>);
 
           })}
@@ -4170,11 +4499,443 @@ function SystemResources() {
 
 }
 
+function workspaceEventText(event) {
+  const payload = event?.payload || {};
+  const concept = payload.concept && typeof payload.concept === 'object' ? payload.concept.label || payload.concept.name || payload.concept.description || payload.concept.text : payload.concept;
+  const value = payload.summary || payload.message || payload.text || payload.label || concept || payload.tool || payload.tool_name || payload.decision || payload.check || payload.query || event?.event_type || 'workspace event';
+  return String(value).replace(/\s+/g, ' ').trim();
+}
+
+function WorkspaceSignalTape({ events, index, setIndex, isLive, status, error, playing, setPlaying }) {
+  const current = events[index] || null;
+  const visual = workspaceEventVisual(current || {});
+  const visibleEvents = events.slice(Math.max(0, index - 3), index + 2);
+  const offset = Math.max(0, index - 3);
+  return <section className="kg-signal-tape" aria-label="Workspace event replay" style={{
+    display: 'grid', gridTemplateColumns: 'minmax(230px,.72fr) minmax(300px,1.28fr)', gap: 10,
+    marginBottom: 12, padding: 10, minHeight: 104, overflow: 'hidden', position: 'relative',
+    background: 'linear-gradient(110deg,rgba(3,13,32,.96),rgba(13,20,47,.93))',
+    border: `1px solid ${isLive ? 'rgba(126,253,185,.3)' : 'rgba(127,224,255,.15)'}`, borderRadius: 9
+  }}>
+    {isLive && <span className="kg-live-scan" aria-hidden="true" style={{ position: 'absolute', inset: '0 auto 0 0', width: '22%', pointerEvents: 'none', background: 'linear-gradient(90deg,transparent,rgba(126,253,185,.045),transparent)', animation: 'kg-live-scan 4.8s linear infinite' }} />}
+    <div style={{ minWidth: 0, position: 'relative' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+        <span style={{ fontSize: 9, color: isLive ? '#7efdb9' : '#7fe0ff', letterSpacing: '.12em', textTransform: 'uppercase' }}>{isLive ? 'Live signal tape' : 'Workspace replay'}</span>
+        <span style={{ fontSize: 8, color: '#4f6888' }}>{status}</span>
+        <span style={{ marginLeft: 'auto', fontSize: 8, color: '#4f6888' }}>{events.length ? `${index + 1}/${events.length}` : '0 events'}</span>
+      </div>
+      {events.length ? <>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <button type="button" onClick={() => setPlaying(!playing)} disabled={isLive} aria-label={playing ? 'Pause workspace replay' : 'Play workspace replay'}
+            style={{ width: 27, height: 27, flexShrink: 0, borderRadius: 5, border: '1px solid rgba(127,224,255,.22)', background: 'rgba(127,224,255,.06)', color: isLive ? '#274063' : '#7fe0ff', cursor: isLive ? 'default' : 'pointer', fontFamily: 'var(--font)' }}>{playing ? 'Ⅱ' : '▶'}</button>
+          <input type="range" min="0" max={Math.max(0, events.length - 1)} value={index} onChange={(event) => {setPlaying(false);setIndex(+event.target.value);}}
+            aria-label="Scrub workspace event timeline" style={{ flex: 1, accentColor: visual.color }} />
+        </div>
+        <div style={{ marginTop: 8, paddingLeft: 34, minWidth: 0 }}>
+          <span style={{ padding: '2px 6px', marginRight: 6, borderRadius: 3, border: `1px solid ${visual.color}45`, background: `${visual.color}12`, color: visual.color, fontSize: 8 }}>{visual.label}</span>
+          <span style={{ color: '#8090b0', fontSize: 8 }}>{visual.honest}</span>
+          <div style={{ color: '#bfefff', fontSize: 9, marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{workspaceEventText(current)}</div>
+        </div>
+      </> : <div style={{ color: error ? '#ff9a9a' : '#5a7a9a', fontSize: 9, lineHeight: 1.6 }}>
+        {error || 'No structured workspace events yet. Start a chat with workspace telemetry enabled, then switch LIVE on here.'}
+      </div>}
+    </div>
+    <ol style={{ listStyle: 'none', minWidth: 0, maxHeight: 84, overflowY: 'auto', borderLeft: '1px solid rgba(127,224,255,.1)', paddingLeft: 10 }}>
+      {visibleEvents.map((event, localIndex) => {
+        const eventIndex = offset + localIndex;
+        const itemVisual = workspaceEventVisual(event);
+        const selected = eventIndex === index;
+        return <li key={event.event_id || `${event.run_id || 'run'}:${event.seq ?? eventIndex}`}>
+          <button type="button" onClick={() => {setPlaying(false);setIndex(eventIndex);}}
+            aria-current={selected ? 'step' : undefined}
+            style={{ width: '100%', display: 'grid', gridTemplateColumns: '66px 1fr auto', gap: 7, alignItems: 'center', padding: '4px 6px', marginBottom: 2, borderRadius: 4, border: `1px solid ${selected ? itemVisual.color + '40' : 'transparent'}`, background: selected ? `${itemVisual.color}0d` : 'transparent', color: '#8090b0', cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--font)', fontSize: 8 }}>
+            <span style={{ color: itemVisual.color }}>{itemVisual.label}</span>
+            <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{workspaceEventText(event)}</span>
+            <span style={{ color: '#274063' }}>{event.seq ?? eventIndex + 1}</span>
+          </button>
+        </li>;
+      })}
+    </ol>
+  </section>;
+}
+
+function KnowledgeGraphWorkspace({
+  graph, loading, error, query, setQuery, kind, setKind, agent, setAgent,
+  knownAgents, includeHistory, setIncludeHistory, at, setAt, hops, setHops,
+  selectedId, setSelectedId, selectedDetail, detailLoading, detailError
+}) {
+  const nodeKinds = React.useMemo(() => {
+    const values = Object.keys(graph.facets?.kinds || {});
+    if (kind && !values.includes(kind)) values.push(kind);
+    return values.sort();
+  }, [graph.facets?.kinds, kind]);
+  const node = selectedDetail?.node;
+  const nodeColor = knowledgeKindColors[node?.kind] || '#7fe0ff';
+  const trustState = String(node?.trust_state || 'not_applicable');
+  const trustProfile = node?.trust || {};
+  const trustColor = /verified|supported/.test(trustState) ? '#7efdb9' : /contested|refuted/.test(trustState) ? '#ff6b6b' : trustState === 'unverified' ? '#f4d676' : '#8090b0';
+  const nodeById = React.useMemo(() => new Map((graph.nodes || []).map((item) => [item.id, item])), [graph.nodes]);
+  const controlStyle = {
+    height: 34, background: 'rgba(2,11,30,0.92)', border: '1px solid rgba(127,224,255,0.18)',
+    borderRadius: 6, color: '#bfefff', fontFamily: 'var(--font)', fontSize: 10, outline: 'none'
+  };
+  const formatWhen = (value) => value ? new Date(value).toLocaleString() : 'open';
+  const [layers, setLayers] = React.useState({ knowledge: true, '5w1h': true, episodes: true, trust: true, workspace: false, activation: false, improvement: false });
+  const [workspaceEvents, setWorkspaceEvents] = React.useState([]);
+  const [workspaceCursor, setWorkspaceCursor] = React.useState('');
+  const cursorRef = React.useRef('');
+  const workspaceRunRef = React.useRef('');
+  const [workspaceCapabilities, setWorkspaceCapabilities] = React.useState(null);
+  const [workspaceStatus, setWorkspaceStatus] = React.useState('checking capability');
+  const [workspaceError, setWorkspaceError] = React.useState('');
+  const [liveEnabled, setLiveEnabled] = React.useState(false);
+  const [replayIndex, setReplayIndex] = React.useState(0);
+  const [replayPlaying, setReplayPlaying] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    if (!window.SeamAPI?.workspaceCapabilities) {
+      setWorkspaceStatus('runtime does not expose workspace telemetry');
+      return;
+    }
+    window.SeamAPI.workspaceCapabilities().then((value) => {
+      if (cancelled) return;
+      setWorkspaceCapabilities(value || {});
+      setWorkspaceStatus('ready');
+      setWorkspaceError('');
+    }).catch((capabilityError) => {
+      if (cancelled) return;
+      setWorkspaceStatus('unavailable on this runtime');
+      setWorkspaceError('This runtime does not expose workspace events. Durable knowledge remains fully available.');
+    });
+    return () => {cancelled = true;};
+  }, []);
+
+  React.useEffect(() => {
+    if (!liveEnabled || !window.SeamAPI?.workspaceEvents) return;
+    let cancelled = false;
+    let timer = null;
+    const poll = async () => {
+      try {
+        let latestRunId = workspaceCapabilities?.latest_run_id || workspaceCapabilities?.run_id || '';
+        try { latestRunId = sessionStorage.getItem('seam-workspace-latest-run') || latestRunId; } catch (_) { /* storage unavailable */ }
+        if (latestRunId && workspaceRunRef.current !== latestRunId) {
+          workspaceRunRef.current = latestRunId;
+          cursorRef.current = '';
+          setWorkspaceCursor('');
+        }
+        const result = await window.SeamAPI.workspaceEvents({ runId: latestRunId, after: cursorRef.current, limit: 160 });
+        if (cancelled) return;
+        const incoming = Array.isArray(result?.events) ? result.events : [];
+        if (incoming.length) {
+          setWorkspaceEvents((previous) => {
+            const byId = new Map(previous.map((event) => [event.event_id || `${event.run_id}:${event.seq}`, event]));
+            incoming.forEach((event) => byId.set(event.event_id || `${event.run_id}:${event.seq}`, event));
+            const merged = Array.from(byId.values()).sort((a, b) => (a.created_at || '').localeCompare(b.created_at || '') || (a.seq || 0) - (b.seq || 0)).slice(-500);
+            setReplayIndex(Math.max(0, merged.length - 1));
+            return merged;
+          });
+        }
+        const nextCursor = result?.next_after;
+        if (nextCursor !== undefined && nextCursor !== null) {
+          cursorRef.current = nextCursor;
+          setWorkspaceCursor(String(nextCursor));
+        }
+        setWorkspaceStatus('listening');
+        setWorkspaceError('');
+      } catch (pollError) {
+        if (cancelled) return;
+        setWorkspaceStatus('live feed unavailable');
+        setWorkspaceError('Workspace telemetry stopped. The durable graph is still current; try LIVE again when the runtime supports /workspace/events.');
+        setLiveEnabled(false);
+      }
+    };
+    poll();
+    timer = setInterval(poll, 1400);
+    return () => {cancelled = true;if (timer) clearInterval(timer);};
+  }, [liveEnabled, workspaceCapabilities]);
+
+  React.useEffect(() => {
+    if (!replayPlaying || liveEnabled || workspaceEvents.length < 2) return;
+    const timer = setInterval(() => setReplayIndex((value) => value >= workspaceEvents.length - 1 ? 0 : value + 1), 850);
+    return () => clearInterval(timer);
+  }, [replayPlaying, liveEnabled, workspaceEvents.length]);
+
+  const toggleLayer = (layerId) => setLayers((current) => ({ ...current, [layerId]: !current[layerId] }));
+  const visibleGraph = React.useMemo(() => {
+    const nodes = (graph.nodes || []).filter((item) => layers[knowledgeGraphLayerForNode(item)] !== false);
+    const ids = new Set(nodes.map((item) => item.id));
+    const edges = (graph.edges || []).filter((edge) => ids.has(edge.source) && ids.has(edge.target) && layers[knowledgeGraphLayerForEdge(edge)] !== false);
+    return { nodes, edges };
+  }, [graph.nodes, graph.edges, layers]);
+  const activeEvent = workspaceEvents[replayIndex] || null;
+  const activeNodeIds = activeEvent ? workspaceEventNodeIds(activeEvent) : [];
+  const facetGroups = React.useMemo(() => {
+    const groups = { who: [], what: [], when: [], where: [], why: [], how: [], then: [] };
+    if (!selectedId) return groups;
+    (graph.edges || []).forEach((edge) => {
+      if (edge.source !== selectedId && edge.target !== selectedId) return;
+      const facet = knowledgeFacet(edge);
+      if (facet) groups[facet].push(edge);
+    });
+    return groups;
+  }, [graph.edges, selectedId]);
+  const trustEdges = React.useMemo(() => selectedId ? (graph.edges || []).filter((edge) => (edge.source === selectedId || edge.target === selectedId) && knowledgeEdgeType(edge) === 'trust') : [], [graph.edges, selectedId]);
+  const jlensCapability = workspaceCapabilities?.jlens;
+  const activationCapable = Boolean(workspaceCapabilities?.jspace === true || workspaceCapabilities?.activation === true || workspaceCapabilities?.activation_available === true || jlensCapability === true || jlensCapability?.available === true || jlensCapability?.genuine_jacobian_lens === true);
+
+  return (
+    <div>
+      <div className="kg-layer-bar" role="group" aria-label="Knowledge graph layers" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 10, padding: '8px 9px', background: 'rgba(2,11,30,.74)', border: '1px solid rgba(127,224,255,.1)', borderRadius: 9 }}>
+        {knowledgeLayerDefinitions.map((layer) => {
+          const enabled = layers[layer.id];
+          const unavailableActivation = layer.id === 'activation' && workspaceCapabilities && !activationCapable;
+          return <button key={layer.id} type="button" onClick={() => toggleLayer(layer.id)} aria-pressed={enabled} title={unavailableActivation ? 'No activation-capable model is connected; provider traces will not be mislabeled as J-Space.' : layer.hint}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 27, padding: '4px 8px', borderRadius: 5, border: `1px solid ${enabled ? layer.color + '48' : 'rgba(79,104,136,.18)'}`, background: enabled ? `${layer.color}0e` : 'transparent', color: enabled ? layer.color : '#4f6888', opacity: unavailableActivation ? .62 : 1, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 9 }}>
+            <span aria-hidden="true" style={{ width: 17, height: 17, display: 'grid', placeItems: 'center', borderRadius: layer.id === 'episodes' ? 2 : '50%', border: `1px solid ${enabled ? layer.color + '70' : '#274063'}`, transform: layer.id === 'episodes' ? 'rotate(45deg)' : 'none' }}><span style={{ transform: layer.id === 'episodes' ? 'rotate(-45deg)' : 'none', fontSize: 7 }}>{layer.mark}</span></span>
+            {layer.label}
+          </button>;
+        })}
+        <div className="kg-live-control" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ maxWidth: 260, color: '#4f6888', fontSize: 8, lineHeight: 1.35 }}>Structured events only. Hidden chain-of-thought is never shown or stored.</span>
+          <button type="button" onClick={() => {
+            const next = !liveEnabled;
+            setLiveEnabled(next);
+            setReplayPlaying(false);
+            if (next) setLayers((current) => ({ ...current, workspace: true }));
+          }} disabled={workspaceStatus === 'unavailable on this runtime'} aria-pressed={liveEnabled} aria-label={liveEnabled ? 'Stop live workspace view' : 'Start live workspace view'}
+            style={{ minWidth: 78, height: 29, borderRadius: 5, border: `1px solid ${liveEnabled ? 'rgba(126,253,185,.5)' : 'rgba(255,143,112,.35)'}`, background: liveEnabled ? 'rgba(126,253,185,.12)' : 'rgba(255,143,112,.06)', color: liveEnabled ? '#7efdb9' : workspaceStatus === 'unavailable on this runtime' ? '#4f6888' : '#ffb29e', cursor: workspaceStatus === 'unavailable on this runtime' ? 'not-allowed' : 'pointer', fontFamily: 'var(--font)', fontSize: 9, letterSpacing: '.08em' }}>
+            <span aria-hidden="true" style={{ display: 'inline-block', width: 6, height: 6, marginRight: 6, borderRadius: '50%', background: liveEnabled ? '#7efdb9' : '#ff8f70', boxShadow: liveEnabled ? '0 0 7px #7efdb9' : 'none' }} />LIVE
+          </button>
+        </div>
+      </div>
+
+      {workspaceStatus === 'unavailable on this runtime' && workspaceEvents.length === 0 ?
+      <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '7px 10px', borderRadius: 7, border: '1px solid rgba(127,224,255,.11)', background: 'rgba(3,13,32,.7)', color: '#5a7a9a', fontSize: 8 }}>
+        <span style={{ color: '#7fe0ff', letterSpacing: '.1em' }}>WORKSPACE REPLAY</span>
+        <span>{workspaceError}</span>
+      </div> :
+      <WorkspaceSignalTape events={workspaceEvents} index={replayIndex} setIndex={setReplayIndex} isLive={liveEnabled}
+        status={`${workspaceStatus}${workspaceCursor ? ` · cursor ${workspaceCursor}` : ''}`} error={workspaceError}
+        playing={replayPlaying} setPlaying={setReplayPlaying} />}
+
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'minmax(220px,1fr) 150px 170px auto auto',
+        gap: 8, alignItems: 'center', marginBottom: 12, padding: 10,
+        background: 'linear-gradient(120deg,rgba(79,140,251,0.05),rgba(155,108,255,0.04))',
+        border: '1px solid rgba(127,224,255,0.13)', borderRadius: 9
+      }} className="kg-query-controls">
+        <div style={{ position: 'relative' }}>
+          <span style={{ position: 'absolute', left: 10, top: 9, color: '#5a7a9a', fontSize: 11 }}>⌕</span>
+          <input value={query} onChange={(e) => setQuery(e.target.value)}
+            aria-label="Search knowledge graph"
+            placeholder="Search entities, claims, sources, relationships…"
+            style={{ ...controlStyle, width: '100%', padding: '0 30px' }} />
+          {query && <button onClick={() => setQuery('')} aria-label="Clear graph search"
+            style={{ position: 'absolute', right: 7, top: 5, border: 0, background: 'transparent', color: '#5a7a9a', cursor: 'pointer', fontSize: 15 }}>×</button>}
+        </div>
+        <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Filter by knowledge type" style={{ ...controlStyle, padding: '0 8px' }}>
+          <option value="">all node types</option>
+          {nodeKinds.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+        <select value={agent} onChange={(e) => setAgent(e.target.value)} aria-label="Filter by agent" style={{ ...controlStyle, padding: '0 8px' }}>
+          <option value="">all agents</option>
+          {knownAgents.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+        <label style={{ ...controlStyle, padding: '0 10px', display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', color: includeHistory ? '#f4d676' : '#8090b0' }}>
+          <input type="checkbox" checked={includeHistory} onChange={(e) => {
+            const enabled = e.target.checked;
+            setIncludeHistory(enabled);
+            if (!enabled) setAt('');
+          }} style={{ accentColor: '#f4d676' }} />
+          history
+        </label>
+        <label style={{ ...controlStyle, padding: '0 10px', display: 'flex', alignItems: 'center', gap: 7, color: '#8090b0' }}>
+          <span>{hops} hop{hops === 1 ? '' : 's'}</span>
+          <input type="range" min="1" max="4" value={hops} onChange={(e) => setHops(+e.target.value)} style={{ width: 54, accentColor: '#9b6cff' }} />
+        </label>
+      </div>
+
+      {includeHistory &&
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, padding: '8px 11px', borderRadius: 7, background: 'rgba(244,214,118,0.045)', border: '1px solid rgba(244,214,118,0.15)' }}>
+        <span style={{ fontSize: 10, color: '#f4d676', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Knowledge horizon</span>
+        <span style={{ fontSize: 9, color: '#5a7a9a' }}>Inspect what SEAM knew at a point in time</span>
+        <input type="datetime-local" value={at} onChange={(e) => setAt(e.target.value)}
+          style={{ ...controlStyle, height: 28, marginLeft: 'auto', padding: '0 8px', colorScheme: 'dark' }} />
+        {at && <button onClick={() => setAt('')} style={{ ...controlStyle, height: 28, padding: '0 9px', cursor: 'pointer', color: '#f4d676' }}>now</button>}
+      </div>}
+
+      <div className="kg-workspace-grid" style={{ display: 'grid', gridTemplateColumns: selectedId ? 'minmax(0,1fr) minmax(290px,350px)' : '1fr', gap: 12, alignItems: 'stretch' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: error ? '#ff6b6b' : loading ? '#f4d676' : '#7efdb9', boxShadow: `0 0 7px ${error ? '#ff6b6b' : loading ? '#f4d676' : '#7efdb9'}` }} />
+            <span style={{ fontSize: 10, color: error ? '#ff6b6b' : '#8090b0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              {error ? 'graph unavailable' : loading ? 'projecting knowledge…' : 'self-building · live from SQLite'}
+            </span>
+            <span style={{ color: '#274063' }}>·</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{visibleGraph.nodes.length} visible nodes</span>
+            <span style={{ color: '#274063' }}>·</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{(graph.stats?.node_count || 0).toLocaleString()} durable records + {(graph.stats?.episode_count || 0).toLocaleString()} episodes</span>
+            <span style={{ color: '#274063' }}>·</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{visibleGraph.edges.length} visible connections · {(graph.stats?.edge_count || 0).toLocaleString()} durable edges</span>
+          </div>
+
+          {error ?
+          <div style={{ height: 520, display: 'grid', placeItems: 'center', background: 'rgba(2,6,19,0.95)', border: '1px solid rgba(255,107,107,0.2)', borderRadius: 12 }}>
+            <div style={{ maxWidth: 480, textAlign: 'center' }}>
+              <div style={{ color: '#ff6b6b', fontSize: 13, marginBottom: 7 }}>Could not load the knowledge graph</div>
+              <div style={{ color: '#5a7a9a', fontSize: 10, lineHeight: 1.6 }}>{error}</div>
+            </div>
+          </div> : (graph.nodes || []).length === 0 && !loading ?
+          <div style={{ height: 520, display: 'grid', placeItems: 'center', background: 'radial-gradient(circle at 50% 44%,rgba(127,224,255,0.055),transparent 44%),rgba(2,6,19,0.95)', border: '1px dashed rgba(127,224,255,0.2)', borderRadius: 12 }}>
+            <div style={{ maxWidth: 520, textAlign: 'center', padding: 30 }}>
+              <div style={{ fontSize: 32, color: '#7fe0ff', filter: 'drop-shadow(0 0 14px rgba(127,224,255,.45))', marginBottom: 10 }}>◎</div>
+              <div style={{ color: '#a6fcff', fontSize: 14, marginBottom: 7 }}>The graph builds itself as SEAM learns</div>
+              <div style={{ color: '#5a7a9a', fontSize: 10, lineHeight: 1.7 }}>
+                Chat, ingest a document, compile text, or let an agent write through MCP. SEAM will extract and connect the entities, claims, events, sources, and provenance automatically.
+              </div>
+            </div>
+          </div> :
+          <KnowledgeGraphCanvas graphNodes={visibleGraph.nodes} graphEdges={visibleGraph.edges}
+            selectedId={selectedId} externalHovered={null} activeNodeIds={activeNodeIds} activeEvent={activeEvent}
+            onSelectNode={setSelectedId} height={520} />}
+        </div>
+
+        {selectedId &&
+        <aside style={{ minWidth: 0, height: 553, overflowY: 'auto', background: 'linear-gradient(180deg,rgba(8,19,42,0.96),rgba(2,11,30,0.96))', border: `1px solid ${nodeColor}38`, borderRadius: 11, boxShadow: `0 0 28px ${nodeColor}0c` }}>
+          <div style={{ position: 'sticky', top: 0, zIndex: 2, padding: '13px 14px 11px', background: 'rgba(8,19,42,0.96)', borderBottom: `1px solid ${nodeColor}28`, backdropFilter: 'blur(12px)' }}>
+            <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
+              <span style={{ width: 10, height: 10, marginTop: 3, flexShrink: 0, borderRadius: '50%', background: nodeColor, boxShadow: `0 0 9px ${nodeColor}` }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: nodeColor, lineHeight: 1.35, fontWeight: 600, overflowWrap: 'anywhere' }}>{node?.label || selectedId}</div>
+                <div style={{ marginTop: 4, fontSize: 9, color: '#5a7a9a', textTransform: 'uppercase', letterSpacing: '0.09em' }}>{node?.kind || 'loading'} · knowledge page</div>
+              </div>
+              <button onClick={() => setSelectedId(null)} aria-label="Close knowledge page" style={{ marginLeft: 'auto', background: 'none', border: 0, color: '#5a7a9a', cursor: 'pointer', fontSize: 16 }}>×</button>
+            </div>
+          </div>
+
+          {detailLoading ? <div style={{ padding: 16, color: '#5a7a9a', fontSize: 10 }}>Loading provenance…</div> :
+          detailError ? <div style={{ padding: 16, color: '#ff9a9a', fontSize: 10, lineHeight: 1.6 }}>{detailError}</div> :
+          !selectedDetail ? <div style={{ padding: 16, color: '#5a7a9a', fontSize: 10 }}>No knowledge page is available for this horizon.</div> :
+          <div style={{ padding: 14 }}>
+            <div style={{ color: '#bfefff', fontSize: 11, lineHeight: 1.65, marginBottom: 14 }}>{selectedDetail.page?.summary}</div>
+
+            <section role="status" aria-label="Answer eligibility" style={{ marginBottom: 12, padding: '10px 11px', borderRadius: 7, background: `${trustColor}0b`, border: `1px solid ${trustColor}38`, boxShadow: `inset 3px 0 0 ${trustColor}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ color: trustColor, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.09em' }}>{trustState.replace(/_/g, ' ')}</span>
+                <span style={{ marginLeft: 'auto', padding: '2px 6px', borderRadius: 9, color: node?.assertable ? '#7efdb9' : '#ff9a9a', background: node?.assertable ? 'rgba(126,253,185,.09)' : 'rgba(255,107,107,.09)', border: `1px solid ${node?.assertable ? 'rgba(126,253,185,.25)' : 'rgba(255,107,107,.25)'}`, fontSize: 8, textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                  answer context: {node?.assertable ? 'eligible' : 'excluded'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 11, marginTop: 7, color: '#8090b0', fontSize: 8 }}>
+                <span><b style={{ color: '#7efdb9' }}>{trustProfile.independent_evidence_count || 0}</b> independent evidence</span>
+                <span><b style={{ color: '#d391ff' }}>{trustProfile.model_output_evidence_count || 0}</b> model-output evidence</span>
+                {trustProfile.support_edge_count != null && <span><b style={{ color: '#7fe0ff' }}>{trustProfile.support_edge_count}</b> verified support edges</span>}
+              </div>
+              {(trustProfile.reasons || []).map((reason, index) => <div key={index} style={{ marginTop: 6, color: '#bfefff', fontSize: 8, lineHeight: 1.45 }}>• {reason}</div>)}
+              <div style={{ marginTop: 7, color: '#4f6888', fontSize: 7.5, lineHeight: 1.4 }}>Verification is evidence-derived and separate from the MIRL status and confidence below.</div>
+            </section>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginBottom: 15 }}>
+              {[
+                ['MIRL confidence', `${Math.round((node?.confidence || 0) * 100)}%`, '#7efdb9'],
+                ['degree', node?.degree ?? 0, '#7fe0ff'],
+                ['valid from', formatWhen(node?.valid_from), '#f4d676'],
+                ['MIRL status', node?.status || '—', node?.status === 'asserted' ? '#7efdb9' : '#8090b0']
+              ].map(([label, value, color]) => <div key={label} style={{ padding: '7px 8px', borderRadius: 6, background: 'rgba(2,11,30,0.8)', border: '1px solid rgba(47,99,255,0.1)' }}>
+                <div style={{ color: '#4f6888', fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>{label}</div>
+                <div style={{ color, fontSize: 10, overflowWrap: 'anywhere' }}>{value}</div>
+              </div>)}
+            </div>
+
+            {selectedDetail.page?.agents?.length > 0 && <KnowledgeInspectorSection title="Known by" color="#f4d676">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>{selectedDetail.page.agents.map((item) =>
+                <button key={item} onClick={() => setAgent(item)} style={{ padding: '3px 7px', borderRadius: 10, border: '1px solid rgba(244,214,118,.25)', background: 'rgba(244,214,118,.07)', color: '#f4d676', fontFamily: 'var(--font)', fontSize: 9, cursor: 'pointer' }}>{item}</button>)}</div>
+            </KnowledgeInspectorSection>}
+
+            {Object.values(facetGroups).some((items) => items.length > 0) && <KnowledgeInspectorSection title="5W1H + Then" color="#ffbf69">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+                {Object.entries(facetGroups).map(([facet, facetEdges]) => {
+                  if (!facetEdges.length) return null;
+                  const facetStyle = knowledgeFacetLabels[facet];
+                  const edge = facetEdges[0];
+                  const otherId = edge.source === selectedId ? edge.target : edge.source;
+                  return <button key={facet} type="button" onClick={() => setSelectedId(otherId)} title={facetEdges.map((item) => item.predicate).join(', ')}
+                    style={{ minWidth: 0, padding: '6px 7px', border: `1px solid ${facetStyle.color}28`, borderRadius: 5, background: `${facetStyle.color}08`, cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--font)' }}>
+                    <div style={{ color: facetStyle.color, fontSize: 8, letterSpacing: '.08em' }}>{facetStyle.label} <span style={{ color: '#4f6888' }}>· {facetEdges.length}</span></div>
+                    <div style={{ marginTop: 3, color: '#bfefff', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nodeById.get(otherId)?.label || otherId}</div>
+                  </button>;
+                })}
+              </div>
+            </KnowledgeInspectorSection>}
+
+            {trustEdges.length > 0 && <KnowledgeInspectorSection title={`Trust & disputes (${trustEdges.length})`} color="#ff6b6b">
+              {trustEdges.slice(0, 10).map((edge) => {
+                const otherId = edge.source === selectedId ? edge.target : edge.source;
+                return <button key={edge.id} type="button" onClick={() => setSelectedId(otherId)}
+                  style={{ width: '100%', display: 'grid', gridTemplateColumns: '84px 1fr auto', gap: 6, padding: '6px 7px', marginBottom: 4, textAlign: 'left', background: 'rgba(255,107,107,.045)', border: '1px dashed rgba(255,107,107,.25)', borderRadius: 5, cursor: 'pointer', fontFamily: 'var(--font)' }}>
+                  <span style={{ color: '#ff8f70', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis' }}>{edge.predicate}</span>
+                  <span style={{ color: '#bfefff', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis' }}>{nodeById.get(otherId)?.label || otherId}</span>
+                  <span style={{ color: '#5a7a9a', fontSize: 8 }}>{Number.isFinite(edge.confidence) ? `${Math.round(edge.confidence * 100)}%` : '—'}</span>
+                </button>;
+              })}
+              <div style={{ color: '#5a7a9a', fontSize: 8, lineHeight: 1.5, marginTop: 5 }}>Dispute edges flag evidence state; they do not by themselves prove a hallucination.</div>
+            </KnowledgeInspectorSection>}
+
+            <KnowledgeInspectorSection title={`Facts (${selectedDetail.page?.facts?.length || 0})`} color="#9b6cff">
+              {(selectedDetail.page?.facts || []).length === 0 ? <span style={{ color: '#4f6888', fontSize: 9 }}>No outgoing semantic facts.</span> :
+              selectedDetail.page.facts.slice(0, 12).map((edge) => <button key={edge.id} onClick={() => setSelectedId(edge.target)}
+                style={{ width: '100%', display: 'grid', gridTemplateColumns: '80px 1fr', gap: 7, padding: '6px 7px', marginBottom: 4, textAlign: 'left', background: 'rgba(155,108,255,.045)', border: '1px solid rgba(155,108,255,.12)', borderRadius: 5, cursor: 'pointer', fontFamily: 'var(--font)' }}>
+                <span style={{ color: '#9b6cff', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis' }}>{edge.predicate}</span>
+                <span style={{ color: '#bfefff', fontSize: 9, overflowWrap: 'anywhere' }}>{nodeById.get(edge.target)?.label || edge.target}</span>
+              </button>)}
+            </KnowledgeInspectorSection>
+
+            <KnowledgeInspectorSection title={`Backlinks (${selectedDetail.page?.backlinks?.length || 0})`} color="#7fe0ff">
+              {(selectedDetail.page?.backlinks || []).slice(0, 10).map((edge) => <button key={edge.id} onClick={() => setSelectedId(edge.source)}
+                style={{ display: 'block', width: '100%', padding: '5px 7px', marginBottom: 4, textAlign: 'left', color: '#8090b0', background: 'rgba(127,224,255,.035)', border: '1px solid rgba(127,224,255,.1)', borderRadius: 5, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 9, overflowWrap: 'anywhere' }}>
+                <span style={{ color: '#7fe0ff' }}>{nodeById.get(edge.source)?.label || edge.source}</span> <span style={{ color: '#4f6888' }}>→ {edge.predicate}</span>
+              </button>)}
+            </KnowledgeInspectorSection>
+
+            <KnowledgeInspectorSection title="Sources & provenance" color="#66b8ff">
+              {(selectedDetail.episodes || []).length === 0 ? <span style={{ color: '#4f6888', fontSize: 9 }}>No source episode attached.</span> :
+              selectedDetail.episodes.slice(0, 8).map((episode) => <div key={episode.id} style={{ padding: '6px 7px', marginBottom: 5, borderLeft: `2px solid ${episode.status === 'active' ? '#7efdb9' : '#f4d676'}`, background: 'rgba(2,11,30,.72)' }}>
+                <div style={{ color: '#bfefff', fontSize: 9, overflowWrap: 'anywhere' }}>{episode.source_ref || episode.source_record_id}</div>
+                <div style={{ color: '#4f6888', fontSize: 8, marginTop: 3 }}>{episode.agent_id || 'unknown agent'} · {episode.status} · {formatWhen(episode.recorded_at)}</div>
+              </div>)}
+            </KnowledgeInspectorSection>
+
+            {selectedDetail.record && <details style={{ marginTop: 12 }}>
+              <summary style={{ color: '#5a7a9a', fontSize: 9, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Canonical MIRL record</summary>
+              <pre style={{ marginTop: 7, padding: 8, maxHeight: 220, overflow: 'auto', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', background: '#020613', border: '1px solid rgba(47,99,255,.1)', borderRadius: 5, color: '#8090b0', fontSize: 8, lineHeight: 1.5 }}>{JSON.stringify(selectedDetail.record, null, 2)}</pre>
+            </details>}
+          </div>}
+        </aside>}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 13, marginTop: 12, padding: '8px 10px', background: 'rgba(8,19,42,.45)', border: '1px solid rgba(47,99,255,.09)', borderRadius: 7 }}>
+        {nodeKinds.map((item) => <button key={item} onClick={() => setKind(kind === item ? '' : item)}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, border: 0, background: 'transparent', color: kind === item ? knowledgeKindColors[item] : '#8090b0', fontFamily: 'var(--font)', fontSize: 9, cursor: 'pointer', opacity: kind && kind !== item ? .45 : 1 }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: knowledgeKindColors[item], boxShadow: `0 0 5px ${knowledgeKindColors[item]}80` }} />
+          {item} <span style={{ color: '#4f6888' }}>{graph.stats?.node_kinds?.[item] || 0}</span>
+        </button>)}
+        <span style={{ marginLeft: 'auto', color: '#274063', fontSize: 9 }}>click a node to open its facts, backlinks, agents, sources, and history</span>
+      </div>
+    </div>
+  );
+}
+
+function KnowledgeInspectorSection({ title, color, children }) {
+  return <section style={{ marginTop: 13 }}>
+    <div style={{ color, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6, paddingBottom: 4, borderBottom: `1px solid ${color}20` }}>{title}</div>
+    {children}
+  </section>;
+}
+
 function MemoryFullView() {
   const [tab, setTab] = useState('graph');
-  const [hoveredNode, setHoveredNode] = useState(null);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [recordHoverNode, setRecordHoverNode] = useState(null); // node ID hovered via a record card
+  const [selectedNode, setSelectedNode] = useState(() => new URLSearchParams(window.location.search).get('node'));
   const [tick, setTick] = useState(0);
   // Live API stats for header badges
   const [liveStats, setLiveStats] = useState(null);
@@ -4182,40 +4943,80 @@ function MemoryFullView() {
     ? `${(liveStats.total_records / 1000000).toFixed(2)}M records`
     : '1.41M records';
 
-  // Live Graph Trace
-  const [graphTrace, setGraphTrace] = useState({ nodes: [], edges: [] });
+  // Live canonical knowledge graph. The API projection is the only topology
+  // source; the client never manufactures fallback nodes or edges.
+  const [knowledgeGraph, setKnowledgeGraph] = useState({ nodes: [], edges: [], stats: {}, facets: { kinds: {}, agents: {}, sources: {} } });
+  const [knowledgeLoading, setKnowledgeLoading] = useState(true);
+  const [knowledgeError, setKnowledgeError] = useState('');
+  const [graphQuery, setGraphQuery] = useState('');
+  const [graphKind, setGraphKind] = useState('');
+  const [graphAgent, setGraphAgent] = useState('');
+  const [graphHistory, setGraphHistory] = useState(false);
+  const [graphAt, setGraphAt] = useState('');
+  const [graphHops, setGraphHops] = useState(2);
+  const [selectedDetail, setSelectedDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState('');
+  const [knownAgents, setKnownAgents] = useState([]);
   useEffect(() => {
     let cancelled = false;
-    const fetchTrace = async () => {
+    const timer = setTimeout(async () => {
+      setKnowledgeLoading(true);
       try {
-        // Try to trace from 'ent:seam' as a hub node
-        const data = await window.SeamAPI.trace('ent:seam');
-        if (!cancelled && data && data.nodes) {
-          setGraphTrace({
-            nodes: data.nodes.map(n => ({
-              id: n.id,
-              label: n.id,
-              kind: n.kind,
-              color: tagColors[n.kind === 'entity' ? '@' : n.kind === 'claim' ? '#' : n.kind === 'event' ? '!' : n.kind === 'relation' ? '>' : n.kind === 'state' ? '~' : '^'] || '#7fe0ff',
-              size: 8 + (n.score || 0.5) * 6,
-              weight: 3,
-              record: n,
-              tag: n.kind === 'entity' ? '@' : n.kind === 'claim' ? '#' : n.kind === 'event' ? '!' : n.kind === 'relation' ? '>' : n.kind === 'state' ? '~' : '^'
-            })),
-            edges: data.edges.map(e => ({
-              from: e.source || e.from,
-              to: e.target || e.to,
-              kind: e.kind || e.label || 'relates_to'
-            }))
-          });
+        const data = await window.SeamAPI.knowledgeGraph({
+          query: graphQuery,
+          kinds: graphKind ? [graphKind] : [],
+          agentId: graphAgent,
+          includeHistory: graphHistory,
+          at: graphHistory && graphAt ? new Date(graphAt).toISOString() : '',
+          hops: graphHops,
+          limit: 420
+        });
+        if (!cancelled) {
+          setKnowledgeGraph(data);
+          setKnowledgeError('');
+          const agents = Object.keys(data.facets?.agents || {});
+          if (agents.length) setKnownAgents((prev) => Array.from(new Set([...prev, ...agents])).sort());
         }
       } catch (err) {
-        // Fallback to procedural generation if backend trace fails or missing
-        setGraphTrace({ nodes: [], edges: [] });
+        if (!cancelled) setKnowledgeError(err.message || 'Knowledge graph unavailable');
+      } finally {
+        if (!cancelled) setKnowledgeLoading(false);
       }
-    };
-    fetchTrace();
-  }, []);
+    }, 220);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [graphQuery, graphKind, graphAgent, graphHistory, graphAt, graphHops]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', 'knowledge');
+    if (selectedNode) url.searchParams.set('node', selectedNode); else url.searchParams.delete('node');
+    window.history.replaceState({}, '', url);
+    setSelectedDetail(null);
+    setDetailError('');
+    if (!selectedNode) {
+      setDetailLoading(false);
+      return () => { cancelled = true; };
+    }
+    setDetailLoading(true);
+    const horizon = graphHistory && graphAt ? new Date(graphAt).toISOString() : '';
+    window.SeamAPI.knowledgeNode(selectedNode, graphHistory, horizon)
+      .then((data) => {
+        if (!cancelled) {
+          setSelectedDetail(data);
+          setDetailError('');
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setSelectedDetail(null);
+          setDetailError(error?.message || 'Knowledge page unavailable at this horizon.');
+        }
+      })
+      .finally(() => { if (!cancelled) setDetailLoading(false); });
+    return () => { cancelled = true; };
+  }, [selectedNode, graphHistory, graphAt]);
 
   const [liveRecords, setLiveRecords] = useState([]);
   // Live write queue & records — each queue item advances monotonically until done, then moves to records
@@ -4295,7 +5096,7 @@ function MemoryFullView() {
     });
   }, [tick]);
 
-  // Use live records when available, fall back to mock
+  // Legacy memory cards remain available on non-graph tabs.
   const baseRecords = liveRecords.length > 0 ? liveRecords : memoryRecords;
   const allRecords = [...graduated, ...baseRecords].slice(0, 24);
 
@@ -4307,16 +5108,16 @@ function MemoryFullView() {
       <div style={{ padding: '20px 28px 0', borderBottom: '1px solid rgba(47,99,255,0.12)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#9b6cff', marginBottom: 4 }}>SEAM / Memory</div>
-            <div style={{ fontSize: 22, color: '#a6fcff', fontWeight: 600, letterSpacing: '0.04em' }}>Provenance &amp; Memory Store</div>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#9b6cff', marginBottom: 4 }}>SEAM / Knowledge</div>
+            <div style={{ fontSize: 22, color: '#a6fcff', fontWeight: 600, letterSpacing: '0.04em' }}>All-Agent Knowledge Graph</div>
           </div>
           <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', gap: 10 }}>
             {[
-              { v: totalRecordsLabel, l: 'Records', c: '#7fe0ff' }, 
-              { v: liveStats?.edge_count != null ? (liveStats.edge_count >= 1000 ? (liveStats.edge_count / 1000).toFixed(1) + 'K' : liveStats.edge_count) : '841K', l: 'Graph Edges', c: '#9b6cff' }, 
-              { v: '91%', l: 'Recall Acc.', c: '#7efdb9' }, 
-              { v: '38ms', l: 'Avg Latency', c: '#f4d676' }
+              { v: (knowledgeGraph.stats?.node_count ?? liveStats?.knowledge_node_count ?? 0).toLocaleString(), l: 'Knowledge Nodes', c: '#7fe0ff' },
+              { v: (knowledgeGraph.stats?.edge_count ?? liveStats?.knowledge_edge_count ?? 0).toLocaleString(), l: 'Typed Edges', c: '#9b6cff' },
+              { v: (knowledgeGraph.stats?.agent_count ?? 0).toLocaleString(), l: 'Agents', c: '#f4d676' },
+              { v: (knowledgeGraph.stats?.source_count ?? 0).toLocaleString(), l: 'Sources', c: '#7efdb9' }
             ].map((s) =>
             <div key={s.l} style={{ textAlign: 'center', padding: '7px 14px', background: 'rgba(8,19,42,0.8)', border: `1px solid ${s.c}30`, borderRadius: 8 }}>
                 <div style={{ fontSize: 20, color: s.c, fontWeight: 600, lineHeight: 1, filter: `drop-shadow(0 0 6px ${s.c})` }}>{s.v}</div>
@@ -4338,244 +5139,30 @@ function MemoryFullView() {
 
       <div style={{ padding: '24px 28px' }}>
 
-        {/* ── Provenance Graph ── */}
         {tab === 'graph' &&
-        <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <span style={{ fontSize: 10, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-                Brain graph — every MIRL record is a node. New records auto-attach.
-              </span>
-              <div style={{ flex: 1 }} />
-              <span style={{ fontSize: 10, color: '#7efdb9', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#7efdb9', boxShadow: '0 0 5px #7efdb9', animation: 'pulse 1.5s ease-in-out infinite' }} />
-                live · {graduated.length} new this session
-              </span>
-            </div>
-
-            <ObsidianGraph
-            records={graphTrace.nodes.length > 0 ? graphTrace.nodes : allRecords}
-            sources={graphTrace.nodes.length > 0 ? [] : [
-            { id: 'src:readme', name: 'README.md' },
-            { id: 'src:spec', name: 'SEAM_SPEC_V0.1.md' },
-            { id: 'src:roadmap', name: 'ROADMAP.md' },
-            { id: 'src:cli', name: 'cli.py' },
-            { id: 'src:runtime', name: 'runtime.py' }]
-            }
-            baseEdges={graphTrace.edges.length > 0 ? graphTrace.edges : [
-            { from: 'src:readme', to: 'clm:1' },
-            { from: 'src:readme', to: 'clm:4' },
-            { from: 'src:spec', to: 'clm:22' },
-            { from: 'src:spec', to: 'clm:29' },
-            { from: 'src:roadmap', to: 'clm:17' },
-            { from: 'src:cli', to: 'clm:33' },
-            { from: 'src:runtime', to: 'sta:ent:seam' }]
-            }
-            selectedId={selectedNode}
-            externalHovered={recordHoverNode}
-            onSelectNode={(id) => setSelectedNode(id)}
-            height={520} />
-
-
-            {/* ── Details panel for selected node ── */}
-            {selectedNode && (() => {
-            const rec = allRecords.find((r) => r.id === selectedNode);
-            const isSource = selectedNode.startsWith('src:');
-            const color = rec ? tagColors[rec.tag] || '#7fe0ff' : '#f4d676';
-            const sourceName = isSource ?
-            { 'src:readme': 'README.md', 'src:spec': 'SEAM_SPEC_V0.1.md', 'src:roadmap': 'ROADMAP.md', 'src:cli': 'cli.py', 'src:runtime': 'runtime.py' }[selectedNode] :
-            null;
-
-            return (
-              <div style={{ marginTop: 18, padding: '16px 18px', background: 'rgba(8,19,42,0.85)', border: `1px solid ${color}40`, borderRadius: 10, boxShadow: `0 0 20px ${color}15` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingBottom: 10, borderBottom: `1px solid ${color}25` }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}` }} />
-                    <span style={{ fontSize: 14, color: color, fontWeight: 600, fontFamily: 'var(--font)' }}>{selectedNode}</span>
-                    <span style={{ fontSize: 10, color: '#5a7a9a', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-                      {isSource ? 'source file' : rec ? rec.kind : 'unknown'}
-                    </span>
-                    <div style={{ flex: 1 }} />
-                    <button onClick={() => setSelectedNode(null)} style={{ background: 'none', border: '1px solid rgba(47,99,255,0.2)', borderRadius: 4, color: '#5a7a9a', cursor: 'pointer', fontSize: 11, fontFamily: 'var(--font)', padding: '3px 9px' }}>× close</button>
-                  </div>
-
-                  {isSource ?
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Source file</div>
-                        <div style={{ fontSize: 13, color: '#bfefff', fontFamily: 'var(--font)', marginBottom: 8 }}>{sourceName}</div>
-                        <div style={{ fontSize: 11, color: '#8090b0', lineHeight: 1.6 }}>This file has been ingested into MIRL. Each record below was compiled from a chunk of its text.</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Records derived</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                          {allRecords.filter((r) => r.id.startsWith('clm') || r.id.startsWith('sta')).slice(0, 6).map((r) =>
-                      <span key={r.id} onClick={() => setSelectedNode(r.id)} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 3, background: `${tagColors[r.tag]}18`, border: `1px solid ${tagColors[r.tag]}40`, color: tagColors[r.tag], fontFamily: 'var(--font)', cursor: 'pointer' }}>{r.id}</span>
-                      )}
-                        </div>
-                      </div>
-                    </div> :
-                rec ?
-                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Record text</div>
-                        <div style={{ fontSize: 13, color: '#bfefff', lineHeight: 1.6, padding: '10px 12px', background: '#020b1e', borderRadius: 6, border: '1px solid rgba(47,99,255,0.1)' }}>
-                          <span style={{ color, fontWeight: 700, marginRight: 6 }}>{rec.tag}</span>{rec.text}
-                        </div>
-
-                        <div style={{ marginTop: 14, fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Provenance trail</div>
-                        <div style={{ fontSize: 11, color: '#8090b0', fontFamily: 'var(--font)' }}>
-                          <span style={{ color: '#f4d676' }}>%</span> <span style={{ color: '#bfefff' }}>README.md</span>
-                          <span style={{ color: '#274063', margin: '0 6px' }}>→</span>
-                          <span style={{ color: '#7efdb9' }}>ingested</span> @ <span style={{ color: '#5a7a9a' }}>{rec.age}</span>
-                          <span style={{ color: '#274063', margin: '0 6px' }}>→</span>
-                          <span style={{ color }}>{rec.id}</span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Metadata</div>
-                        <div style={{ background: '#020b1e', border: '1px solid rgba(47,99,255,0.1)', borderRadius: 6, padding: '8px 12px', fontSize: 11 }}>
-                          {[
-                      ['id', rec.id, color],
-                      ['tag', `${rec.tag} (${rec.kind})`, color],
-                      ['retrieval score', `${(rec.score * 100).toFixed(1)}%`, '#7efdb9'],
-                      ['age', rec.age, '#bfefff'],
-                      ['status', rec.status, '#7efdb9'],
-                      ['vector dim', '1536', '#9b6cff'],
-                      ['index lag', '< 1s', '#7efdb9']].
-                      map(([k, v, c]) =>
-                      <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px dashed rgba(47,99,255,0.08)' }}>
-                              <span style={{ color: '#5a7a9a' }}>{k}</span>
-                              <span style={{ color: c, fontFamily: 'var(--font)' }}>{v}</span>
-                            </div>
-                      )}
-                        </div>
-
-                        <div style={{ marginTop: 12, fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Score breakdown</div>
-                        {[
-                    { k: 'vector cosine', v: 0.92, c: '#9b6cff' },
-                    { k: 'graph proximity', v: 0.81, c: '#7fe0ff' },
-                    { k: 'lexical (BM25)', v: 0.74, c: '#f4d676' },
-                    { k: 'temporal decay', v: 0.86, c: '#7efdb9' }].
-                    map((s) =>
-                    <div key={s.k} style={{ marginBottom: 4 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10 }}>
-                              <span style={{ color: '#5a7a9a' }}>{s.k}</span>
-                              <span style={{ color: s.c }}>{(s.v * 100).toFixed(0)}%</span>
-                            </div>
-                            <div style={{ height: 3, background: '#1a2540', borderRadius: 2, marginTop: 2 }}>
-                              <div style={{ height: '100%', width: `${s.v * 100}%`, background: s.c, borderRadius: 2 }} />
-                            </div>
-                          </div>
-                    )}
-                      </div>
-                    </div> :
-
-                <div style={{ fontSize: 11, color: '#5a7a9a' }}>No data available for this node.</div>
-                }
-                </div>);
-
-          })()}
-
-            {/* Legend */}
-            <div style={{ display: 'flex', gap: 16, marginTop: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-              {[['@', 'entity', '#a6fcff'], ['#', 'claim', '#7fe0ff'], ['!', 'event', '#f4d676'], ['>', 'relation', '#9b6cff'], ['~', 'state', '#7efdb9'], ['^', 'evidence', '#d391ff'], ['%', 'source', '#66b8ff']].map(([tag, kind, color]) =>
-            <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, boxShadow: `0 0 5px ${color}` }} />
-                  <span style={{ fontSize: 10, color: '#8090b0' }}><span style={{ color, fontWeight: 700 }}>{tag}</span> {kind}</span>
-                </div>
-            )}
-              <div style={{ flex: 1 }} />
-              {selectedNode ?
-            <button onClick={() => setSelectedNode(null)} style={{ padding: '3px 9px', background: 'rgba(127,224,255,0.08)', border: '1px solid rgba(127,224,255,0.25)', borderRadius: 4, color: '#7fe0ff', fontSize: 10, fontFamily: 'var(--font)', cursor: 'pointer' }}>
-                  × clear node filter
-                </button> :
-
-            <span style={{ fontSize: 10, color: '#274063', fontStyle: 'italic' }}>click a node to filter records</span>
-            }
-            </div>
-
-            {/* ── Records — interactable with graph above ── */}
-            {(() => {
-            // Build node→records mapping
-            const recordsByNode = {
-              n1: ['clm:1', 'clm:4'], // README.md → @SEAM, #SQLite
-              n2: ['clm:1', 'clm:17'], // @SEAM → entity + agent_bridge relation
-              n3: ['clm:4', 'clm:22'], // #SQLite → claim + bench evidence
-              n4: ['sta:ent:seam'], // sta:ent:seam state
-              n5: ['clm:12'], // event
-              n6: ['clm:17'], // agent_bridge relation
-              n7: ['clm:29', 'clm:22'], // SPEC.md → source + evidence
-              n8: ['clm:22', 'clm:33'] // bench evidence + alias
-            };
-            const allowedIds = selectedNode ? new Set(recordsByNode[selectedNode] || []) : null;
-            const filtered = selectedNode ? allRecords.filter((r) => allowedIds.has(r.id)) : allRecords;
-            const node = selectedNode ? provenanceNodes.find((n) => n.id === selectedNode) : null;
-
-            return (
-              <div style={{ marginTop: 22 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${node ? node.color + '40' : 'rgba(47,99,255,0.12)'}` }}>
-                    <span style={{ fontSize: 12, color: node ? node.color : '#a6fcff' }}>◈</span>
-                    <span style={{ fontSize: 12, color: node ? node.color : '#a6fcff', textTransform: 'uppercase', letterSpacing: '0.11em', fontWeight: 600 }}>
-                      {node ? `Records for ${node.label}` : 'All MIRL records'}
-                    </span>
-                    <span style={{ fontSize: 10, color: '#274063' }}>{filtered.length} record{filtered.length === 1 ? '' : 's'}</span>
-                    {node &&
-                  <>
-                        <span style={{ color: '#274063', fontSize: 10 }}>·</span>
-                        <span style={{ fontSize: 10, color: '#5a7a9a' }}>{provenanceEdges.filter((e) => e.from === node.id || e.to === node.id).length} edges</span>
-                      </>
-                  }
-                  </div>
-
-                  {filtered.length === 0 ?
-                <div style={{ padding: '24px 16px', textAlign: 'center', background: 'rgba(8,19,42,0.6)', border: '1px dashed rgba(47,99,255,0.15)', borderRadius: 8 }}>
-                      <div style={{ fontSize: 11, color: '#5a7a9a' }}>No records linked to this node yet.</div>
-                    </div> :
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 12 }}>
-                      {filtered.map((r) => {
-                    const isHotRecord = hoveredNode && (recordsByNode[hoveredNode] || []).includes(r.id);
-                    return (
-                      <div key={r.id}
-                      onMouseEnter={() => {
-                        const owner = Object.entries(recordsByNode).find(([_, ids]) => ids.includes(r.id))?.[0] || r.id;
-                        setRecordHoverNode(owner);
-                        setHoveredNode(owner);
-                      }}
-                      onMouseLeave={() => {setRecordHoverNode(null);setHoveredNode(null);}}
-                      style={{
-                        background: 'rgba(8,19,42,0.9)',
-                        border: `1px solid ${isHotRecord ? (tagColors[r.tag] || '#7fe0ff') + '60' : 'rgba(47,99,255,0.12)'}`,
-                        borderRadius: 10, padding: '12px 14px',
-                        borderLeft: `3px solid ${tagColors[r.tag] || '#7fe0ff'}`,
-                        transition: 'all 0.15s',
-                        boxShadow: isHotRecord ? `0 0 12px ${tagColors[r.tag]}30` : 'none',
-                        cursor: 'pointer'
-                      }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                              <span style={{ fontSize: 14, color: tagColors[r.tag], fontWeight: 700, filter: `drop-shadow(0 0 4px ${tagColors[r.tag]})` }}>{r.tag}</span>
-                              <span style={{ fontSize: 10, color: '#4f8cfb' }}>{r.id}</span>
-                              <div style={{ flex: 1 }} />
-                              <span style={{ fontSize: 10, color: '#7efdb9', fontWeight: 500 }}>{(r.score * 100).toFixed(0)}%</span>
-                              <span style={{ fontSize: 9, color: '#274063' }}>{r.age}</span>
-                            </div>
-                            <div style={{ fontSize: 12, color: '#bfefff', lineHeight: 1.5, marginBottom: 8 }}>{r.text}</div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <div style={{ flex: 1, height: 3, background: '#1a2540', borderRadius: 2 }}>
-                                <div style={{ height: '100%', width: `${r.score * 100}%`, background: tagColors[r.tag] || '#7fe0ff', borderRadius: 2, boxShadow: `0 0 5px ${tagColors[r.tag]}` }} />
-                              </div>
-                              <span style={{ fontSize: 9, color: '#274063' }}>{r.kind}</span>
-                            </div>
-                          </div>);
-
-                  })}
-                    </div>
-                }
-                </div>);
-
-          })()}
-          </div>
-        }
+        <KnowledgeGraphWorkspace
+          graph={knowledgeGraph}
+          loading={knowledgeLoading}
+          error={knowledgeError}
+          query={graphQuery}
+          setQuery={setGraphQuery}
+          kind={graphKind}
+          setKind={setGraphKind}
+          agent={graphAgent}
+          setAgent={setGraphAgent}
+          knownAgents={knownAgents}
+          includeHistory={graphHistory}
+          setIncludeHistory={setGraphHistory}
+          at={graphAt}
+          setAt={setGraphAt}
+          hops={graphHops}
+          setHops={setGraphHops}
+          selectedId={selectedNode}
+          setSelectedId={setSelectedNode}
+          selectedDetail={selectedDetail}
+          detailLoading={detailLoading}
+          detailError={detailError}
+        />}
 
         {/* ── Write Queue ── */}
         {tab === 'write queue' &&
@@ -4964,6 +5551,7 @@ function WindowsTaskbar({ buttons, statusBar }) {
 // ── MAIN APP ──────────────────────────────────────────────────────────────
 function App() {
   const { TweaksPanel, useTweaks } = window;
+  const initialKnowledgeView = new URLSearchParams(window.location.search).get('view') === 'knowledge';
 
   const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
     "accentColor": "#7fe0ff",
@@ -4976,13 +5564,13 @@ function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULS);
 
   // Panel state
-  const [explorerOpen, setExplorerOpen] = useState(true);
-  const [terminalOpen, setTerminalOpen] = useState(true);
+  const [explorerOpen, setExplorerOpen] = useState(!initialKnowledgeView);
+  const [terminalOpen, setTerminalOpen] = useState(false);
   const [agentOpen, setAgentOpen] = useState(true);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [ingestOpen, setIngestOpen] = useState(false);
   const [benchmarkOpen, setBenchmarkOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState('explorer');
+  const [activeNav, setActiveNav] = useState(initialKnowledgeView ? 'memory' : 'explorer');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Explorer sub-tab: 'project' | 'system'
@@ -5097,9 +5685,9 @@ function App() {
   }, [openMenu]);
 
   // File tabs
-  const [openTabs, setOpenTabs] = useState(['cli', 'dashboard', 'readme']);
-  const [activeTab, setActiveTab] = useState('cli');
-  const [activeFile, setActiveFile] = useState('cli');
+  const [openTabs, setOpenTabs] = useState(initialKnowledgeView ? ['cli', 'dashboard', 'readme', '__memory'] : ['cli', 'dashboard', 'readme']);
+  const [activeTab, setActiveTab] = useState(initialKnowledgeView ? '__memory' : 'cli');
+  const [activeFile, setActiveFile] = useState(initialKnowledgeView ? '__memory' : 'cli');
 
   // Editable file buffers — initialized lazily from editorContent
   const buildTextFromLines = (lines) => (lines || []).map((l) =>
@@ -5172,6 +5760,8 @@ function App() {
   const [voiceDuration, setVoiceDuration] = useState(0);
   const [agentToolsOpen, setAgentToolsOpen] = useState(false);
   const [persistChat, setPersistChat] = useState(true);
+  const [workspaceLiveChat, setWorkspaceLiveChat] = useState(false);
+  const [jspaceChat, setJspaceChat] = useState(false);
   const agentEnd = useRef(null);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -5429,7 +6019,7 @@ function App() {
         .filter((x) => x.role === 'user' || x.role === 'assistant')
         .slice(-12)
         .map((x) => ({ role: x.role, text: x.text }));
-      const res = await window.SeamAPI.chat(queryText, {
+      const chatOptions = {
         model: m.model || m.id,
         provider: m.provider,
         baseUrl: m.baseUrl,
@@ -5438,7 +6028,63 @@ function App() {
         history: history,
         useMemory: true,
         persistChat: persistChat
-      });
+      };
+      let res = null;
+      if (workspaceLiveChat && window.SeamAPI.streamChat) {
+        const streamId = `workspace-stream-${Date.now()}`;
+        let streamedText = '';
+        let runId = '';
+        setAgentMessages((prev) => [...prev, { id: streamId, role: 'assistant', text: '_Opening structured workspace stream…_' }]);
+        const stream = window.SeamAPI.streamChat({
+          message: queryText,
+          model: chatOptions.model,
+          provider: chatOptions.provider,
+          base_url: chatOptions.baseUrl,
+          env_key: chatOptions.envKey,
+          api_key: chatOptions.apiKey,
+          history: chatOptions.history,
+          use_memory: true,
+          persist_chat: persistChat,
+          workspace_live: true,
+          jspace: jspaceChat
+        }, {
+          onEvent: (event) => {
+            if (!event || typeof event !== 'object') return;
+            const payload = event.payload || {};
+            const eventType = String(event.event_type || '').toLowerCase();
+            runId = event.run_id || runId;
+            if (runId) {
+              try { sessionStorage.setItem('seam-workspace-latest-run', runId); } catch (_) { /* storage unavailable */ }
+            }
+            if (/answer_delta|response_delta|token/.test(eventType)) streamedText += payload.delta || payload.text || payload.token || '';
+            if (/completion|complete|answer/.test(eventType) && !/delta/.test(eventType)) streamedText = payload.reply || payload.answer || payload.text || streamedText;
+            if (/failure|error/.test(eventType) && !streamedText) streamedText = `[workspace failure] ${payload.message || payload.error || 'The run did not complete.'}`;
+            const traceNote = runId ? `\n\n_— structured workspace run ${runId}_` : '';
+            setAgentMessages((prev) => prev.map((item) => item.id === streamId ? { ...item, text: (streamedText || '_Receiving structured workspace events…_') + traceNote } : item));
+          }
+        });
+        try {
+          await stream.done;
+          setAgentMessages((prev) => prev.map((item) => item.id === streamId ? { ...item, text: streamedText ? item.text : `_Workspace run completed without an answer frame.${runId ? ` Run: ${runId}.` : ''}_` } : item));
+        } catch (streamError) {
+          // Older runtimes keep the established /chat behavior. Falling back
+          // is explicit in the answer so absent telemetry is never mistaken
+          // for an empty reasoning trace.
+          if (streamError?.status === 404 || streamError?.status === 405 || /API error 40[45]/.test(streamError?.message || '')) {
+            setAgentMessages((prev) => prev.filter((item) => item.id !== streamId));
+            res = await window.SeamAPI.chat(queryText, chatOptions);
+            res.workspace_fallback = true;
+          } else {
+            throw streamError;
+          }
+        }
+      } else {
+        res = await window.SeamAPI.chat(queryText, chatOptions);
+      }
+      if (!res) {
+        setAgentLoading(false);
+        return;
+      }
       const used = res.memory_error
         ? `\n\n_— ⚠ SEAM memory unavailable (answered without it)_`
         : res.memory_used
@@ -5449,7 +6095,8 @@ function App() {
         : res.persisted_memory
           ? `\n\n_— remembered ${res.persisted_memory.stored_ids?.length || 0} MIRL records_`
           : '';
-      setAgentMessages((prev) => [...prev, { id: prev.length, role: 'assistant', text: (res.reply || '(empty response)') + used + remembered }]);
+      const fallback = res.workspace_fallback ? '\n\n_— workspace telemetry unavailable; answered through standard chat_' : '';
+      setAgentMessages((prev) => [...prev, { id: prev.length, role: 'assistant', text: (res.reply || '(empty response)') + used + remembered + fallback }]);
     } catch (err) {
       const errMsg = err.code === 'DISCONNECTED'
         ? '[disconnected] Cannot reach the SEAM server. Start it with: seam serve'
@@ -6404,6 +7051,22 @@ function App() {
                 )}
 
                   <div style={{ flex: 1 }} />
+                  <label title="Stream structured retrieval, tool, hypothesis, decision, verification, and answer events. This is not hidden chain-of-thought." style={{
+                    display: 'flex', alignItems: 'center', gap: 4, marginRight: 5, fontSize: 9,
+                    color: workspaceLiveChat ? '#8df6ff' : '#5a7a9a', cursor: 'pointer', userSelect: 'none'
+                  }}>
+                    <input type="checkbox" checked={workspaceLiveChat} onChange={(e) => {setWorkspaceLiveChat(e.target.checked);if (!e.target.checked) setJspaceChat(false);}}
+                      style={{ width: 12, height: 12, margin: 0, accentColor: '#8df6ff' }} />
+                    workspace
+                  </label>
+                  <label title="Request activation-derived J-lens concepts when the selected model exposes internals. Provider reasoning summaries are never relabeled as J-Space." style={{
+                    display: 'flex', alignItems: 'center', gap: 4, marginRight: 5, fontSize: 9,
+                    color: jspaceChat ? '#d391ff' : '#5a7a9a', cursor: workspaceLiveChat ? 'pointer' : 'not-allowed', userSelect: 'none', opacity: workspaceLiveChat ? 1 : .5
+                  }}>
+                    <input type="checkbox" checked={jspaceChat} disabled={!workspaceLiveChat} onChange={(e) => setJspaceChat(e.target.checked)}
+                      style={{ width: 12, height: 12, margin: 0, accentColor: '#d391ff' }} />
+                    J-lens
+                  </label>
                   <label title="Remember this chat turn in MIRL memory" style={{
                     display: 'flex', alignItems: 'center', gap: 4, fontSize: 9,
                     color: persistChat ? '#7efdb9' : '#5a7a9a', cursor: 'pointer', userSelect: 'none'

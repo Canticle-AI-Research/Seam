@@ -144,12 +144,30 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
     claim_index = 1
     rel_index = 1
 
-    def add_claim(predicate: str, obj: object, subject: str, span_id: str, confidence: float = 0.9) -> None:
+    def add_claim(
+        predicate: str,
+        obj: object,
+        subject: str,
+        span_id: str,
+        confidence: float = 0.9,
+        *,
+        facets: dict[str, str] | None = None,
+        epistemic_basis: str | None = None,
+        extraction_method: str | None = None,
+    ) -> None:
         nonlocal claim_index
+        attrs = {"subject": subject, "predicate": predicate, "object": obj}
+        if facets:
+            attrs["facets"] = dict(facets)
+        ext = {}
+        if epistemic_basis:
+            ext["epistemic_basis"] = epistemic_basis
+        if extraction_method:
+            ext["extraction_method"] = extraction_method
         records.append(
             MIRLRecord(id=f"clm:{source_hash}:{claim_index}", kind=RecordKind.CLM, ns=ns, scope=scope,
                        conf=confidence, prov=[prov_id], evidence=[span_id],
-                       attrs={"subject": subject, "predicate": predicate, "object": obj})
+                       ext=ext, attrs=attrs)
         )
         claim_index += 1
 
@@ -197,7 +215,16 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
             for claim in extraction.claims:
                 claim_subject = entity_id(claim.subject, "entity")
                 object_ent_id = entity_id(claim.obj, "entity")  # the object phrase is a grounded entity too
-                add_claim(claim.relation, claim.obj, claim_subject, span_id, 0.85)
+                add_claim(
+                    claim.relation,
+                    claim.obj,
+                    claim_subject,
+                    span_id,
+                    0.85,
+                    facets=claim.facets(),
+                    epistemic_basis=claim.epistemic_basis,
+                    extraction_method="grounded_local_model",
+                )
                 # Cross-turn entity coreference (storage.persist_ir) only has
                 # teeth for retrieval if a real entity-to-entity edge exists;
                 # the verbatim CLM above never qualifies (object is text, not

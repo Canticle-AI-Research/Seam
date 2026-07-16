@@ -963,7 +963,7 @@ print("ok")
         with self.assertRaises(ValueError):
             dispatch_tool(runtime, {"tool": "seam_retrieve", "arguments": {"query": ""}})
 
-    def test_mcp_bridge_ready_line_announces_16_tools_with_no_metadata_warnings(self) -> None:
+    def test_mcp_bridge_ready_line_announces_18_tools_with_no_metadata_warnings(self) -> None:
         from seam_runtime.mcp import run_stdio_bridge
 
         runtime = SeamRuntime(self.db_path)
@@ -984,8 +984,8 @@ print("ok")
 
         ready_line = json.loads(output.getvalue().splitlines()[0])
         self.assertEqual(ready_line["type"], "ready")
-        self.assertEqual(len(ready_line["tools"]), 16)
-        self.assertEqual(len(ready_line["tool_metadata"]), 16)
+        self.assertEqual(len(ready_line["tools"]), 18)
+        self.assertEqual(len(ready_line["tool_metadata"]), 18)
 
         for tool_name in ("seam_surface_verify", "seam_surface_context", "seam_index_status", "seam_retrieve"):
             self.assertIn(tool_name, ready_line["tools"], f"{tool_name} missing from ready line")

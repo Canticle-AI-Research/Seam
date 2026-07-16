@@ -15,8 +15,10 @@ from pathlib import Path
 from typing import Any
 
 from .installer import default_runtime_db_path
+from .jspace import JLensUnavailable, JLensWorker, jlens_worker_from_env, workspace_capabilities
 from .mirl import IRBatch
 from .runtime import SeamRuntime
+from .workspace import WORKSPACE_EVENT_TYPES, content_fingerprint, spread_graph_activation, sse_frame
 
 LOGGER = logging.getLogger(__name__)
 
@@ -438,14 +440,43 @@ def _call_chat_provider(
     return "(empty response)"
 
 
-def _persist_chat_turn(runtime: SeamRuntime, *, message: str, reply: str) -> dict[str, object]:
+def _persist_chat_turn(
+    runtime: SeamRuntime,
+    *,
+    message: str,
+    reply: str,
+    assistant_agent: str,
+    assistant_provider: str = "",
+    ns: str = "local.chat",
+    scope: str = "thread",
+) -> dict[str, object]:
     turn_id = uuid.uuid4().hex
     user_source_ref = f"chat://{turn_id}/user"
     assistant_source_ref = f"chat://{turn_id}/assistant"
-    user_batch = runtime.compile_nl(f"User: {message}", source_ref=user_source_ref, ns="local.chat", scope="thread")
-    assistant_batch = runtime.compile_nl(
-        f"Assistant: {reply}", source_ref=assistant_source_ref, ns="local.chat", scope="thread"
+    user_batch = runtime.compile_nl(
+        f"User: {message}",
+        source_ref=user_source_ref,
+        ns=ns,
+        scope=scope,
+        agent_id="user",
     )
+    assistant_batch = runtime.compile_nl(
+        f"Assistant: {reply}",
+        source_ref=assistant_source_ref,
+        ns=ns,
+        scope=scope,
+        agent_id=assistant_agent,
+    )
+    # A provider response is an observation of model output, not independent
+    # evidence. Stamp every generated record before persistence so the RAW and
+    # its graph episode retain this immutable trust boundary. User text cannot
+    # influence these values because the server assigns them after compilation.
+    for record in assistant_batch.records:
+        record.attrs["source_type"] = "model_output"
+        record.attrs["model_output"] = True
+        record.ext["producer_model"] = assistant_agent
+        if assistant_provider:
+            record.ext["producer_provider"] = assistant_provider
     report = runtime.persist_ir(IRBatch([*user_batch.records, *assistant_batch.records]))
     return {
         "stored_ids": report.stored_ids,
@@ -454,9 +485,46 @@ def _persist_chat_turn(runtime: SeamRuntime, *, message: str, reply: str) -> dic
     }
 
 
+def _asserted_memory_context(
+    runtime: SeamRuntime,
+    candidates: list[object],
+    *,
+    namespace: str | None,
+    scope: str | None,
+) -> tuple[str, list[str]]:
+    """Render only evidence-gated candidates for a provider system prompt.
+
+    Candidate order remains retrieval order. Rejected records remain available
+    to graph/workspace exploration; this helper controls only the asserted
+    answer-context boundary.
+    """
+
+    from .mirl import iter_textual_fields
+
+    record_ids = [str(candidate.record.id) for candidate in candidates]
+    allowed = runtime.store.assertable_record_ids(
+        record_ids,
+        namespace=namespace,
+        scope=scope,
+    )
+    lines: list[str] = []
+    asserted_ids: list[str] = []
+    for candidate in candidates:
+        record = candidate.record
+        if record.id not in allowed:
+            continue
+        fields = [field.strip() for field in iter_textual_fields(record) if field and field.strip()]
+        if not fields:
+            continue
+        lines.append((f"[{record.id}] ({record.kind.value}) " + " ".join(fields))[:400])
+        asserted_ids.append(record.id)
+    return "\n".join(lines), asserted_ids
+
+
 def create_app(
     runtime: SeamRuntime | None = None,
     shutdown_state: ShutdownState | None = None,
+    jlens_worker: JLensWorker | None = None,
 ) -> Any:
     Depends, FastAPI, Header, HTTPException, Query, Request = _require_fastapi()
     # Required: `from __future__ import annotations` defers annotation evaluation,
@@ -470,6 +538,7 @@ def create_app(
     limiter = RateLimiter(_rate_limit_from_env(), max_keys=_rate_limit_max_keys_from_env())
     token = os.environ.get("SEAM_API_TOKEN")
     state = shutdown_state or ShutdownState()
+    resolved_jlens_worker = jlens_worker or jlens_worker_from_env()
 
     app = FastAPI(title="SEAM Runtime API", version="0.1")
     app.add_middleware(ShutdownMiddleware, state=state)
@@ -507,6 +576,91 @@ def create_app(
     @app.get("/stats", dependencies=[Depends(guard)])
     def stats() -> dict[str, object]:
         return runtime.store.get_stats()
+
+    @app.get("/workspace/capabilities", dependencies=[Depends(guard)])
+    def workspace_capability_report() -> dict[str, object]:
+        report = workspace_capabilities(resolved_jlens_worker)
+        report["event_types"] = sorted(WORKSPACE_EVENT_TYPES)
+        return report
+
+    @app.get("/workspace/events", dependencies=[Depends(guard)])
+    def workspace_events(
+        run_id: str | None = None,
+        after: int = Query(default=0, ge=0),
+        limit: int = Query(default=500, ge=1, le=2000),
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> dict[str, object]:
+        events = runtime.store.iter_workspace_events(
+            run_id=run_id,
+            after=after,
+            limit=limit,
+            ns=namespace,
+            scope=scope,
+        )
+        next_after = int(events[-1]["event_id"]) if events else after
+        return {"events": events, "run_id": run_id, "next_after": next_after}
+
+    @app.get("/workspace/runs", dependencies=[Depends(guard)])
+    def workspace_runs(
+        namespace: str | None = None,
+        scope: str | None = None,
+        limit: int = Query(default=100, ge=1, le=500),
+    ) -> dict[str, object]:
+        return {"runs": runtime.store.list_workspace_runs(ns=namespace, scope=scope, limit=limit)}
+
+    @app.get("/workspace/runs/{run_id}", dependencies=[Depends(guard)])
+    def workspace_run(
+        run_id: str,
+        after: int = Query(default=0, ge=0),
+        limit: int = Query(default=2000, ge=1, le=2000),
+    ) -> dict[str, object]:
+        try:
+            return runtime.store.get_workspace_run(run_id, after=after, limit=limit)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    @app.get("/knowledge-graph", dependencies=[Depends(guard)])
+    def knowledge_graph(
+        query: str | None = None,
+        root_id: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+        agent_id: str | None = None,
+        kinds: str | None = None,
+        at: str | None = None,
+        include_history: bool = False,
+        limit: int = Query(default=300, ge=1, le=1000),
+        hops: int = Query(default=2, ge=0, le=5),
+    ) -> dict[str, object]:
+        parsed_kinds = None if kinds is None else [kind.strip() for kind in kinds.split(",") if kind.strip()]
+        return runtime.store.knowledge_graph(
+            query=query,
+            root_id=root_id,
+            namespace=namespace,
+            scope=scope,
+            agent_id=agent_id,
+            kinds=parsed_kinds,
+            at=at,
+            include_history=include_history,
+            limit=limit,
+            hops=hops,
+        )
+
+    @app.get("/knowledge-node", dependencies=[Depends(guard)])
+    def knowledge_node(
+        node_id: str,
+        include_history: bool = True,
+        at: str | None = None,
+    ) -> dict[str, object]:
+        try:
+            return runtime.store.knowledge_node(
+                node_id,
+                include_history=include_history,
+                at=at,
+            )
+        except KeyError:
+            raise HTTPException(status_code=404, detail=f"knowledge node not found: {node_id}")
 
     @app.get("/trace", dependencies=[Depends(guard)])
     def trace(root_id: str) -> dict[str, object]:
@@ -668,6 +822,7 @@ def create_app(
             source_ref=str(payload.get("source_ref") or "api://compile"),
             ns=str(payload.get("ns") or "local.default"),
             scope=str(payload.get("scope") or "thread"),
+            agent_id=str(payload.get("agent_id") or "").strip() or None,
         )
         result: dict[str, object] = {"records": batch.to_json()}
         if bool(payload.get("persist", False)):
@@ -748,8 +903,6 @@ def create_app(
         """
         import urllib.error
 
-        from .mirl import iter_textual_fields
-
         message = str(payload.get("message", "")).strip()
         if not message:
             raise HTTPException(status_code=400, detail="message is required")
@@ -776,6 +929,12 @@ def create_app(
         if not api_key:
             api_key = "local"  # Ollama / local OpenAI-compatible servers ignore the key
         use_memory = bool(payload.get("use_memory", True))
+        raw_ns = payload.get("ns")
+        raw_scope = payload.get("scope")
+        ns = "local.chat" if raw_ns is None else str(raw_ns).strip()
+        scope = "thread" if raw_scope is None else str(raw_scope).strip()
+        if not ns or not scope:
+            raise HTTPException(status_code=400, detail="ns and scope must be non-empty")
 
         context_text = ""
         memory_used = 0
@@ -783,20 +942,20 @@ def create_app(
         if use_memory:
             budget = max(1, min(20, int(payload.get("budget") or 6)))
             try:
-                search_result = runtime.search_ir(query=message, budget=budget, lens="general")
-                lines = []
-                for cand in search_result.candidates:
-                    rec = cand.record
-                    # MIRL records (CLM/STA/EVT/REL) carry no plain "text" field; their
-                    # content lives in attrs. iter_textual_fields yields the same strings
-                    # the embedder indexes, so the injected context matches what was
-                    # retrieved. Only count a memory once we actually have text for it.
-                    fields = [f.strip() for f in iter_textual_fields(rec) if f and f.strip()]
-                    if fields:
-                        line = f"[{rec.id}] ({rec.kind.value}) " + " ".join(fields)
-                        lines.append(line[:400])
-                memory_used = len(lines)
-                context_text = "\n".join(lines)
+                search_result = runtime.search_ir(
+                    query=message,
+                    budget=budget,
+                    lens="general",
+                    ns=ns,
+                    scope=scope,
+                )
+                context_text, asserted_ids = _asserted_memory_context(
+                    runtime,
+                    list(search_result.candidates),
+                    namespace=ns,
+                    scope=scope,
+                )
+                memory_used = len(asserted_ids)
             except Exception as exc:  # noqa: BLE001 - a memory backend outage must not 500 the chat
                 # Degrade gracefully: answer without memory and let the UI surface why.
                 memory_error = f"memory retrieval unavailable: {exc}"
@@ -828,12 +987,320 @@ def create_app(
         result: dict[str, object] = {"reply": reply, "memory_used": memory_used, "model": model}
         if bool(payload.get("persist_chat", True)):
             try:
-                result["persisted_memory"] = _persist_chat_turn(runtime, message=message, reply=reply)
+                result["persisted_memory"] = _persist_chat_turn(
+                    runtime,
+                    message=message,
+                    reply=reply,
+                    assistant_agent=model,
+                    assistant_provider=provider,
+                    ns=ns,
+                    scope=scope,
+                )
             except Exception as exc:  # noqa: BLE001 - persistence failure should not discard a provider answer
                 result["persist_error"] = f"chat persistence unavailable: {exc}"
         if memory_error:
             result["memory_error"] = memory_error
         return result
+
+    @app.post("/chat/stream", dependencies=[Depends(guard)])
+    def chat_stream(payload: dict[str, object]):
+        """Stream an append-only, structured workspace trace around one chat turn.
+
+        This surface reports observable orchestration events and optional
+        activation-lens concepts. It never claims hosted-provider traces are
+        hidden chain-of-thought or J-Space, and the persistence layer recursively
+        removes raw reasoning/activation fields before writing any event.
+        """
+        from starlette.responses import StreamingResponse
+
+        message = str(payload.get("message", "")).strip()
+        if not message:
+            raise HTTPException(status_code=400, detail="message is required")
+        model = str(payload.get("model") or "").strip()
+        if not model:
+            raise HTTPException(status_code=400, detail="model is required")
+        provider = str(payload.get("provider") or "")
+        base_url = str(payload.get("base_url") or "")
+        _validate_provider_base_url(base_url)
+        env_key = str(payload.get("env_key") or "")
+        api_key = str(payload.get("api_key") or "").strip()
+        if not api_key and env_key:
+            api_key = (os.environ.get(env_key) or "").strip()
+        is_local = any(host in base_url for host in ("localhost", "127.0.0.1", "0.0.0.0"))
+        if not api_key and not is_local:
+            label = env_key or (f"{provider} API key" if provider else "the provider API key")
+            raise HTTPException(
+                status_code=400,
+                detail=f"No API key found. Set {label} in your environment or in Settings → API Keys.",
+            )
+        if not api_key:
+            api_key = "local"
+
+        raw_ns = payload.get("ns")
+        raw_scope = payload.get("scope")
+        ns = "local.chat" if raw_ns is None else str(raw_ns).strip()
+        scope = "thread" if raw_scope is None else str(raw_scope).strip()
+        if not ns or not scope:
+            raise HTTPException(status_code=400, detail="ns and scope must be non-empty")
+        use_memory = bool(payload.get("use_memory", True))
+        persist_chat = bool(payload.get("persist_chat", True))
+        use_jspace = bool(payload.get("jspace", False))
+        budget = max(1, min(20, int(payload.get("budget") or 6)))
+        run = runtime.store.create_workspace_run(
+            ns=ns,
+            scope=scope,
+            agent_id=model,
+            model=model,
+            provider=provider,
+            metadata={
+                "message_sha256": content_fingerprint(message),
+                "message_chars": len(message),
+                "use_memory": use_memory,
+                "persist_chat": persist_chat,
+                "jspace_requested": use_jspace,
+            },
+        )
+        run_id = str(run["run_id"])
+
+        def event_stream():
+            def emit(event_type: str, event_payload: dict[str, object]) -> str:
+                event = runtime.store.append_workspace_event(
+                    run_id=run_id,
+                    event_type=event_type,
+                    payload=event_payload,
+                )
+                return sse_frame(event)
+
+            yield emit(
+                "run",
+                {
+                    "status": "started",
+                    "model": model,
+                    "provider": provider,
+                    "memory_enabled": use_memory,
+                    "jspace_requested": use_jspace,
+                    "jlens_capability": resolved_jlens_worker.capability(),
+                },
+            )
+            try:
+                context_text = ""
+                memory_error = ""
+                candidates = []
+                asserted_context_ids: list[str] = []
+                if use_memory:
+                    try:
+                        search_result = runtime.search_ir(
+                            query=message,
+                            budget=budget,
+                            lens="general",
+                            scope=scope,
+                            ns=ns,
+                        )
+                        candidates = list(search_result.candidates)
+                        context_text, asserted_context_ids = _asserted_memory_context(
+                            runtime,
+                            candidates,
+                            namespace=ns,
+                            scope=scope,
+                        )
+                    except Exception as exc:  # noqa: BLE001 - chat continues without memory
+                        memory_error = f"memory retrieval unavailable: {type(exc).__name__}"
+
+                candidate_payload = [
+                    {
+                        "record_id": candidate.record.id,
+                        "kind": candidate.record.kind.value,
+                        "score": round(float(candidate.score), 6),
+                        "reasons": list(candidate.reasons),
+                    }
+                    for candidate in candidates
+                ]
+                yield emit(
+                    "retrieval",
+                    {
+                        "status": "unavailable" if memory_error else "completed",
+                        "query_sha256": content_fingerprint(message),
+                        "candidates": candidate_payload,
+                        "asserted_context_ids": asserted_context_ids,
+                        "error": memory_error or None,
+                    },
+                )
+
+                seed_ids = [candidate.record.id for candidate in candidates]
+                activation_rows: list[dict[str, object]] = []
+                graph_error = ""
+                if seed_ids:
+                    try:
+                        graph = runtime.store.knowledge_graph(
+                            root_id=seed_ids[0],
+                            namespace=ns,
+                            scope=scope,
+                            include_history=False,
+                            limit=120,
+                            hops=2,
+                        )
+                        activation_rows = spread_graph_activation(graph, seed_ids, max_hops=2, limit=64)
+                    except Exception as exc:  # noqa: BLE001 - visualization failure cannot block chat
+                        graph_error = f"graph activation unavailable: {type(exc).__name__}"
+                yield emit(
+                    "graph_activation",
+                    {
+                        "status": "unavailable" if graph_error else "completed",
+                        "seed_ids": seed_ids,
+                        "nodes": activation_rows,
+                        "decay": 0.72,
+                        "max_hops": 2,
+                        "error": graph_error or None,
+                    },
+                )
+                yield emit(
+                    "reasoning_summary",
+                    {
+                        "summary": (
+                            f"Prepared {len(asserted_context_ids)} evidence-gated memory records for the answer."
+                            if use_memory
+                            else "Memory retrieval was disabled for this answer."
+                        ),
+                        "source": "seam_orchestration",
+                        "hidden_chain_of_thought": False,
+                    },
+                )
+                yield emit(
+                    "decision",
+                    {
+                        "decision": "call_provider",
+                        "memory_records": len(asserted_context_ids),
+                        "memory_context_chars": len(context_text),
+                    },
+                )
+
+                messages: list[dict[str, str]] = [
+                    {"role": "system", "content": _seam_chat_system_prompt(context_text)}
+                ]
+                history = payload.get("history")
+                if isinstance(history, list):
+                    for item in history[-12:]:
+                        if not isinstance(item, dict):
+                            continue
+                        role = item.get("role")
+                        text = item.get("text") or item.get("content")
+                        if role in ("user", "assistant") and text:
+                            messages.append({"role": str(role), "content": str(text)})
+                messages.append({"role": "user", "content": message})
+
+                yield emit(
+                    "tool",
+                    {"tool": "chat_provider", "status": "started", "provider": provider, "model": model},
+                )
+                reply = _call_chat_provider(
+                    provider=provider,
+                    base_url=base_url,
+                    api_key=api_key,
+                    model=model,
+                    messages=messages,
+                )
+                yield emit(
+                    "tool",
+                    {"tool": "chat_provider", "status": "completed", "provider": provider, "model": model},
+                )
+                offset = 0
+                chunk_size = 96
+                for chunk_start in range(0, len(reply), chunk_size):
+                    chunk = reply[chunk_start : chunk_start + chunk_size]
+                    yield emit(
+                        "answer_delta",
+                        {"text": chunk, "offset": offset, "final": chunk_start + chunk_size >= len(reply)},
+                    )
+                    offset += len(chunk)
+
+                if use_jspace:
+                    try:
+                        result = resolved_jlens_worker.analyze(messages=messages, answer=reply)
+                        for concept in result.concepts:
+                            yield emit(
+                                "jlens_concept",
+                                {
+                                    "concept": dict(concept),
+                                    "backend": result.backend,
+                                    "model": result.model,
+                                    "revision": result.revision,
+                                    "model_artifact_hash": result.model_artifact_hash,
+                                    "lens_artifact_hash": result.lens_artifact_hash,
+                                    "identity_verified": result.identity_verified,
+                                    "raw_activations_persisted": False,
+                                },
+                            )
+                    except JLensUnavailable as exc:
+                        yield emit(
+                            "verification",
+                            {"check": "jlens", "status": "unavailable", "reason": str(exc)},
+                        )
+                    except Exception as exc:  # noqa: BLE001 - J-lens is optional and cannot block chat
+                        yield emit(
+                            "verification",
+                            {"check": "jlens", "status": "failed", "reason": type(exc).__name__},
+                        )
+
+                persist_result: dict[str, object] | None = None
+                persist_error = ""
+                if persist_chat:
+                    try:
+                        persist_result = _persist_chat_turn(
+                            runtime,
+                            message=message,
+                            reply=reply,
+                            assistant_agent=model,
+                            assistant_provider=provider,
+                            ns=ns,
+                            scope=scope,
+                        )
+                    except Exception as exc:  # noqa: BLE001 - keep completed answer visible
+                        persist_error = f"chat persistence unavailable: {type(exc).__name__}"
+                yield emit(
+                    "verification",
+                    {
+                        "check": "answer_and_memory",
+                        "status": "passed" if not persist_error else "partial",
+                        "answer_sha256": content_fingerprint(reply),
+                        "answer_chars": len(reply),
+                        "memory_records": len(asserted_context_ids),
+                        "chat_persisted": persist_result is not None,
+                        "error": persist_error or None,
+                    },
+                )
+                yield emit(
+                    "completion",
+                    {
+                        "status": "completed",
+                        "model": model,
+                        "memory_used": len(asserted_context_ids),
+                        "answer_chars": len(reply),
+                        "memory_error": memory_error or None,
+                        "persist_error": persist_error or None,
+                    },
+                )
+            except Exception as exc:  # noqa: BLE001 - terminal failures are represented in-band for SSE
+                LOGGER.warning("Streaming chat run %s failed", run_id, exc_info=True)
+                yield emit(
+                    "failure",
+                    {
+                        "status": "failed",
+                        "stage": "chat",
+                        "error_type": type(exc).__name__,
+                        "message": "The streaming chat run failed; inspect server logs for details.",
+                    },
+                )
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache, no-transform",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+                "X-SEAM-Workspace-Run": run_id,
+            },
+        )
 
     # Serve the static dashboard from this same server (added last so the API
     # routes above take precedence over the static mount).

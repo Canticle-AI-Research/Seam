@@ -142,6 +142,29 @@ def cmd_show(args: argparse.Namespace) -> int:
 
 def _record_decision(args: argparse.Namespace, status: str) -> int:
     store = SQLiteStore(Path(args.db))
+    if status == "approved":
+        proposal = next(
+            (
+                row
+                for row in store.iter_improvement_proposals()
+                if row["proposal_id"] == args.proposal_id
+            ),
+            None,
+        )
+        if proposal is None:
+            print(f"proposal {args.proposal_id} not found", file=sys.stderr)
+            return 1
+        change = proposal.get("proposed_change")
+        ratchet = change.get("ratchet") if isinstance(change, dict) else None
+        # Existing/manual proposals predate the strict ratchet and retain their
+        # current operator workflow. New cycle proposals carry this marker and
+        # may be approved only after a complete ratchet pass.
+        if isinstance(ratchet, dict) and ratchet.get("status") != "pending_approval":
+            print(
+                f"proposal {args.proposal_id} failed its strict ratchet and cannot be approved",
+                file=sys.stderr,
+            )
+            return 2
     decision_id = store.record_proposal_decision(
         proposal_id=args.proposal_id,
         status=status,
@@ -218,6 +241,7 @@ def compute_apply_plan(store: SQLiteStore):
         pid = p["proposal_id"]
         change = p.get("proposed_change")
         flags_payload = change.get("flags") if isinstance(change, dict) else None
+        ratchet = change.get("ratchet") if isinstance(change, dict) else None
         has_payload = isinstance(flags_payload, dict) and bool(flags_payload)
         if proposal_blocks_promotion(p):
             if has_payload:
@@ -229,6 +253,11 @@ def compute_apply_plan(store: SQLiteStore):
                         "holdout_violation": bool(p.get("holdout_violation")),
                     }
                 )
+            continue
+        if isinstance(ratchet, dict) and ratchet.get("status") != "pending_approval":
+            skipped.append(
+                {"proposal_id": pid, "reason": "strict ratchet did not pass"}
+            )
             continue
         if not has_payload:
             continue  # approved but nothing to apply (schema_change / other)

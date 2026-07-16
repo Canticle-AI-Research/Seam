@@ -8858,3 +8858,149 @@ Added a hermetic restart regression that writes one turn, closes the server, reo
 
 Git ancestry proves PR #149's head is contained by PR #150's head. PR #150 is the sole canonical merge vehicle and PR #149 is superseded rather than independently mergeable. PR #150's pre-fix head had all nine checks green; the fresh pushed-head required checks remain the final merge gate.
 ---END-ENTRY-#401---
+
+---BEGIN-ENTRY-#402---
+id: 402
+date: 2026-07-16T13:46:22Z
+agent: codex
+status: in-progress
+topics: graph, memory, provenance, dashboard, webui, retrieval, agent, persist, tests, verify, history, status
+commits: none
+refs: seam_runtime/knowledge_graph.py,seam_runtime/storage.py,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtime/mcp.py,seam_runtime/cli.py,seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/webui/dashboard.html,seam_runtime/webui/seam-api.js,tests/audit/test_knowledge_graph.py,test_seam_all/test_seam.py,docs/KNOWLEDGE_GRAPH.md,README.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,PROJECT_STATUS.md
+supersedes: 401
+tokens: 660
+---
+Completed the implementation slice for SEAM's self-building temporal knowledge graph on the deliberately uncommitted `agent/temporal-knowledge-graph` worktree. `SQLiteStore.persist_ir` now maintains a versioned MIRL-derived projection rather than depending on manually authored dashboard nodes. The canonical graph records entities, MIRL records/facts, agents, sources, and first-class episodes; preserves namespace/scope isolation, temporal validity, current/history views, provenance, source succession, and agent attribution; and exposes graph search, statistics, and graph-backed node pages through storage, REST, CLI, MCP, and the retrieval adapter. Existing-database backfill is versioned and the projection remains evidence-bound: dashboard connectivity comes from persisted or query-time provenance relationships, not invented client-side edges. Documentation and release-layout pointers now route through `docs/KNOWLEDGE_GRAPH.md` and this entry.
+
+The dashboard knowledge workspace now makes that structure operational instead of decorative. Episodes are visible nodes linked to the records/facts/entities they introduced or support; direction arrows, predicate labels, stronger default strokes, and semantic/provenance/grounding/temporal edge colors make connections legible; selected neighborhoods receive path emphasis; and rich versus compact display modes expose label, kind, degree, confidence, agent/source counts, status, and time without forcing permanent clutter. The graph wheel handler is a native non-passive listener with containment, so mouse-wheel zoom over the canvas does not move the surrounding page. The same server-backed graph powers the compact live view and the full knowledge workspace. Automated review findings from the first pass were addressed, including projection-version/backfill safety, stale-node cleanup, filter/query correctness, endpoint validation, and dashboard interaction boundaries.
+
+Verified the focused graph suite at 18 passed and the dashboard/API compatibility slice at 44 passed. Live browser inspection produced `/tmp/seam-knowledge-graph-connections.png`, showing visible episode/provenance nodes, type-coded directional connections, predicate labels, and richer on-map data. The attempted canonical non-external suite was interrupted after about 20 minutes while repeated LoCoMo quickstarts were still running; no failures were observed before interruption, but this is NOT a full-suite pass and is recorded as incomplete. No provider call or paid benchmark was made.
+
+Cut-off state is intentionally `in-progress` because the runtime tree is dirty and no commit, push, or PR exists yet, even though the requested implementation slice is complete. No missing constants, helpers, undefined symbols, or known focused-test mismatches remain. The successor must first rerun collection against the affected modules and the full canonical non-external suite with `SEAM_PGVECTOR_DSN` unset; then scan candidate files for secrets/private session links, commit the coherent slice, push the branch, open or update a draft PR, and complete required CI/review before claiming publication. The branch is one commit behind `origin/main`, so base drift must be reconciled without discarding this work.
+---END-ENTRY-#402---
+
+---BEGIN-ENTRY-#403---
+id: 403
+date: 2026-07-16T19:01:09Z
+agent: codex
+status: done
+topics: graph, memory, trust, provenance, webui, dashboard, retrieval, agent, persist, security, models, tests, verify, history, status
+commits: none
+refs: seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py,seam_runtime/self_improve.py,seam_runtime/workspace.py,seam_runtime/jspace.py,seam_runtime/storage.py,seam_runtime/server.py,seam_runtime/webui/dashboard.html,seam_runtime/webui/seam-api.js,tools/h2/improvement_loop.py,tools/h2/improvement_review.py,tests/audit/test_deep_knowledge_graph.py,tests/audit/test_grounding_ratchet_hardening.py,tests/audit/test_workspace_jspace.py,tests/audit/test_knowledge_graph.py,tests/audit/test_improvement_loop.py,tests/audit/test_chat_endpoint.py,docs/KNOWLEDGE_GRAPH.md,README.md,docs/CODE_LAYOUT.md,REPO_LEDGER.md,PROJECT_STATUS.md
+supersedes: 402
+tokens: 707
+---
+Completed the deep knowledge/workspace/improvement successor to the temporal
+projection recorded by #402 on `agent/temporal-knowledge-graph`. Canonical
+RAW/MIRL persistence now projects a conservative 5W1H+Then lens and derives
+evidence-based trust states without inventing missing facets. Multiple
+independent evidence paths can verify an assertion, one can support it, and
+model/agent output remains provenance rather than independent corroboration.
+The asserted answer boundary is fail-closed: both `/chat` and `/chat/stream`
+admit only current supported/verified claims, relations, events, and states in
+the requested namespace/scope. Unknown, cross-boundary, model-only, contested,
+unverified, refuted, stale, and superseded records remain inspectable in the
+graph/history workspace but do not enter the provider system prompt.
+
+Added append-only `workspace_run`/`workspace_event` operational telemetry with
+stable event IDs, per-run sequence ordering, POST-backed SSE, cursor replay,
+bounded graph spreading activation, one terminal completion/failure event, and
+recursive allowlist sanitization. Unknown fields, credential-shaped keys,
+hidden chain-of-thought, raw activations, tensor-like data, logits, and attention
+weights do not persist. The optional J-lens boundary reports structured-only by
+default: no bundled weights, download, network request, or raw activation
+persistence. Genuine capability requires an activation-capable local Qwen model
+plus external analyzer and exact local artifact hashes, or an authenticated
+remote worker with HTTPS/loopback rules, operator host allowlisting, exact DNS
+pins, redirect/response limits, and matching model/revision/model/lens identity.
+Hosted-provider traces remain honestly labeled structured summaries rather than
+J-Space.
+
+The browser Memory workspace now exposes seven independently selectable layers:
+Knowledge, 5W1H, Episodes, Trust, Workspace, Activation, and Improvement, plus a
+LIVE cursor feed and scrub/play replay. Activation is visibly unavailable when
+no genuine J-lens is connected. Final graph hardening aggregates every
+episode/node provenance relationship into one stable edge carrying all
+`contributing_record_ids`; this closes the exact repeated-edge rows observed in
+the live API payload without discarding provenance. Graph-derived deterministic
+probes now feed the real H2 candidate/proposal substrate. The strict ratchet
+requires aggregate, category, integrity, trust, temporal, provenance, and
+holdout evidence families; failed, missing, malformed, duplicate, non-finite,
+or holdout-violating gates append a rejection. A full pass remains
+`pending_approval` with `can_apply=false`, and compatibility `auto_approve`
+cannot bypass explicit approval before the existing apply path.
+
+Verification evidence from the completed implementation session: the combined
+compatibility slice passed 533 tests with zero skips; 16 adversarial checks
+passed; the graph/duplicate-edge slice passed 29 tests; workspace/security
+passed 42 tests; grounding/ratchet passed 79 tests. Browser acceptance covered
+default graph, trust inspection, LIVE workspace signals, and replay in
+`/tmp/seam-deep-final-{default,trust,live,replay}.png`; no final known visual
+defect remained after the duplicate-edge live-payload diagnosis and aggregation
+fix. Ruff, module compilation, and `git diff --check` were also clean for the
+implementation slices. No provider or paid call occurred.
+
+Qualification: this is not publication evidence for a canonical full
+non-external suite. No canonical full non-external run, real local Qwen/lens
+artifact analysis, remote/cloud worker call, hosted-provider chat call, paid
+benchmark, or real pgvector run was performed for this successor. The base
+temporal projection is local commit `d71ca2a`; the deep runtime/tests remain a
+coherent uncommitted dirty slice, with no push or PR. The ignored `.venv` remains
+untouched pending explicit operator approval. Next: review and commit the whole
+coherent slice, run the canonical non-external suite plus separately configured
+real pgvector/J-lens gates, then push/open a draft PR only when authorized.
+---END-ENTRY-#403---
+---BEGIN-ENTRY-#404---
+id: 404
+date: 2026-07-16T21:24:03Z
+agent: codex
+status: done
+topics: bugfix, webui, dashboard, persist, graph, security, tests, verify, history, status
+commits: pending
+refs: seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJECT_STATUS.md
+supersedes: 403
+tokens: 487
+---
+Replaced the dashboard Ingest panel's simulated Auto behavior with a real,
+ordered browser-file queue. Folder selection now retains every `File` object
+and its `webkitRelativePath`, removes the prior 20-file slice, and appends
+successive folder selections instead of replacing the queue. Enabling Auto
+drains queued files sequentially through `SeamAPI.compile(..., persist=true)`;
+manual persist and dry-run use the same worker, and a dry-run preview can later
+be persisted. Turning Auto off cancels not-yet-started automatic tasks while
+allowing the active request to finish. Only successful persisted folder files
+enter the local sync ledger.
+
+Removed the fake interval, random success counts, unserializable queue
+persistence, and simulated reindex mode. The UI now exposes scheduled,
+running, done, preview, and error states based on actual API outcomes. Folder
+fingerprints use relative path, byte size, and modification time; loose files
+do not enter persistent dedupe because browsers expose only basenames and
+would collide across directories. Empty/binary files fail visibly, files over
+4.5 MB are rejected before loading under the default 5 MB API request cap, and
+obvious `.env`, key/certificate, `.git`, `.venv`, `node_modules`, and
+`__pycache__` paths are excluded before folder/file/drop queueing. Source refs
+retain the selected folder hierarchy, so successful persistence immediately
+feeds the existing self-building temporal knowledge graph and provenance
+episodes.
+
+Focused collect-only resolved 23 tests before the final hardening test was
+added; the final affected compatibility slice passed 24 tests with zero skips.
+Ruff and `git diff --check` passed. Browser acceptance against the fresh
+preview queued 104 files from one directory (proving the cap removal), excluded
+a synthetic `.env` while the safe dropped sibling produced one HTTP 200
+compile, proved dry-run `persist=false` followed by `persist=true`, and ingested
+the three files under `docs/ledgers/maintenance` through three HTTP 200 calls,
+showing 3 completed and 75 compiled MIRL records with no browser error. The
+SQLite preview graph reported three source episodes after that folder ingest.
+Screenshot: `/tmp/seam-auto-ingest-fixed.png`.
+
+The first live acceptance inherited an unrelated `SEAM_PGVECTOR_DSN`; without
+psycopg, atomic persistence correctly rolled back and the UI correctly showed
+three failures. The preview was restarted with that variable unset, after
+which the same acceptance passed. Final CodeRabbit review reported zero
+findings. No external provider, paid benchmark, real pgvector, push, or PR was
+performed. Preview remains at `http://127.0.0.1:18770/` using
+`/tmp/seam-kg-auto-ingest.db`; next is operator browser validation, followed by
+publication only on explicit authorization.
+---END-ENTRY-#404---

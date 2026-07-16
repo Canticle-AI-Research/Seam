@@ -181,6 +181,8 @@ seam ingest path/to/file.txt --persist
 seam remember "SEAM stores durable memory for agents."
 seam memory search "durable memory"
 seam memory get clm:1,sta:ent:project:seam --timeline
+seam knowledge search "durable memory" --hops 2
+seam knowledge node ent:project:seam
 seam retrieve "durable memory" --mode mix --trace
 seam context "durable memory" --retrieval-mode mix --view evidence
 seam surface compile path/to/file.txt --output file.seam.png --mode rgb24
@@ -196,6 +198,22 @@ seam serve --host 127.0.0.1 --port 8765
 seam benchmark run all --persist
 seam benchmark gate seam-benchmark-report.json
 ```
+
+Every persisted chat, ingest, MCP write, or MIRL batch automatically updates
+SEAM's temporal all-agent knowledge graph. Open the dashboard's **Memory** tab
+(or `/?view=knowledge`) to search entities and claims, traverse typed edges,
+filter by contributing agent, inspect historical knowledge, and open graph-backed
+pages with facts, backlinks, sources, confidence, and canonical MIRL. See
+[`docs/KNOWLEDGE_GRAPH.md`](docs/KNOWLEDGE_GRAPH.md).
+
+The Memory workspace also exposes a conservative **5W1H+Then** lens, explicit
+evidence-derived trust states, seven selectable graph/workspace layers, and an
+append-only **LIVE** event replay. Chat asserts only supported or verified
+memory; contested, model-only, stale, refuted, and superseded records remain
+visible for inspection but fail closed at the answer-context boundary. Optional
+local Qwen or authenticated remote J-lens workers require verified artifacts and
+activation access; ordinary hosted-provider traces are labeled only as
+structured workspace telemetry, never hidden reasoning or J-Space.
 
 ## RAG Architecture
 
@@ -272,6 +290,12 @@ Extras keep the base install focused:
 - `sbert`: local sentence-transformer embeddings
 - `agent`: reserved agent bridge extra; current stdio bridge has no extra dependency
 - `rerank`: reranker model dependencies
+
+J-lens model weights, analyzers, cloud workers, provider credentials, and
+pgvector remain operator-configured optional resources outside the repository.
+With no `SEAM_JSPACE_BACKEND`, SEAM reports `structured_workspace_only`, performs
+no model download/network call, and still provides the graph, trust gate,
+structured SSE workspace, LIVE view, and replay.
 
 ## REST API
 

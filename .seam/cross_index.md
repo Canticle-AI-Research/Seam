@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 459
+total_events: 462
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-19T07:47:47Z | history:208:4857205d | session-event | done | audit, security, verify, multi-agent, protocol, docs, sur... | docs/SOP_WEBUI_BATCH_HARDENING_DEEPSEEK.md,docs/prompts/DEEPSEEK_WEBUI_BATCH_... |
-| 2026-05-19T08:48:15Z | history:209:30392e3d | session-event | done | audit, verify, streams, integrity, security | tools/streams/streams_lib.py,.gitignore,tools/history/test_count_audit.py,too... |
-| 2026-05-19T15:02:40Z | history:210:d8bccd3e | session-event | done | audit, verify, security, protocol, multi-agent, streams, mcp | .github/workflows/ci.yml,tests/audit/test_ci_verify_gates.py,tests/audit/test... |
 | 2026-05-19T18:30:00Z | history:211:39fe0103 | session-event | done | audit, verify, benchmark, ci, pgvector, mcp | .github/workflows/ci.yml,tests/audit/test_sys_metrics_honesty.py,tests/audit/... |
 | 2026-05-19T18:50:18Z | history:212:fb28c991 | session-event | done | audit, verify, benchmark, pgvector, mcp, persist, retriev... | tests/audit/test_pgvector_real_adapter.py,tests/audit/test_mcp_stdio_smoke.py... |
 | 2026-05-19T18:54:10Z | history:213:2850402b | session-event | done | audit, verify, mcp, persist, protocol, history | seam_runtime/mcp.py,tests/audit/test_context_pack_persist_policy.py,PROJECT_S... |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-15T14:17:19Z | history:399:008c723c | session-event | changed | history, continuity, verify, handoff, benchmark, locomo | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
 | 2026-07-15T14:24:23Z | history:400:2d638e36 | session-event | done | bugfix, benchmark, locomo, retrieval, temporal, tests, ci... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 | 2026-07-16T12:38:06Z | history:401:ae65e22b | session-event | done | bugfix, benchmark, locomo, persist, tests, ci, handoff, v... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
+| 2026-07-16T13:46:22Z | history:402:90136fda | session-event | in-progress | graph, memory, provenance, dashboard, webui, retrieval, a... | seam_runtime/knowledge_graph.py,seam_runtime/storage.py,seam_runtime/runtime.... |
+| 2026-07-16T19:01:09Z | history:403:11d8ecbd | session-event | done | graph, memory, trust, provenance, webui, dashboard, retri... | seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py... |
+| 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0259.cross.md | 2026-04-15T00:00:00Z..2026-05-19T04:01:03Z | 259 | (multi) | (multi) |
+| 0001-0262.cross.md | 2026-04-15T00:00:00Z..2026-05-19T15:02:40Z | 262 | (multi) | (multi) |

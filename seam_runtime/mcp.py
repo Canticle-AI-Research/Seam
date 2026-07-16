@@ -18,6 +18,8 @@ TOOL_DESCRIPTIONS = {
     "seam_memory_search": "Return compact progressive-disclosure memory search results.",
     "seam_memory_get": "Return full MIRL records for selected ids.",
     "seam_ingest": "Compile and persist text into SEAM memory.",
+    "seam_knowledge_graph": "Search and traverse SEAM's self-building temporal knowledge graph.",
+    "seam_knowledge_node": "Open one graph-backed knowledge page with facts, backlinks, agents, and sources.",
     "seam_stats": "Return SQLite store stats (record counts, vector index size, document totals).",
     "seam_documents": "List recent persisted document_status rows (source_ref, hash, indexed state).",
     "seam_context": "Search and pack a prompt-ready context payload for a query (mirrors `seam context`).",
@@ -60,8 +62,34 @@ TOOL_METADATA = {
         "input_schema": {
             "text": {"type": "string", "required": True, "description": "Raw natural-language text to compile + persist."},
             "source_ref": {"type": "string", "required": False, "default": "agent://input", "description": "Stable source identifier for document_status."},
+            "agent_id": {"type": "string", "required": False, "description": "Identity of the contributing agent; defaults to SEAM_AGENT when set."},
         },
         "annotations": {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
+    },
+    "seam_knowledge_graph": {
+        "description": TOOL_DESCRIPTIONS["seam_knowledge_graph"],
+        "input_schema": {
+            "query": {"type": "string", "required": False, "description": "Optional node, fact, or source search text."},
+            "root_id": {"type": "string", "required": False, "description": "Optional node id to traverse from."},
+            "agent_id": {"type": "string", "required": False, "description": "Restrict results to knowledge contributed by this agent."},
+            "namespace": {"type": "string", "required": False},
+            "scope": {"type": "string", "required": False},
+            "kinds": {"type": "string", "required": False, "description": "Comma-separated node kinds."},
+            "include_history": {"type": "boolean", "required": False, "default": False},
+            "at": {"type": "string", "required": False, "description": "ISO-8601 knowledge-time horizon."},
+            "limit": {"type": "integer", "required": False, "default": 100, "minimum": 1, "maximum": 1000},
+            "hops": {"type": "integer", "required": False, "default": 2, "minimum": 0, "maximum": 5},
+        },
+        "annotations": {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
+    },
+    "seam_knowledge_node": {
+        "description": TOOL_DESCRIPTIONS["seam_knowledge_node"],
+        "input_schema": {
+            "node_id": {"type": "string", "required": True, "description": "Knowledge node id returned by seam_knowledge_graph."},
+            "include_history": {"type": "boolean", "required": False, "default": True},
+            "at": {"type": "string", "required": False, "description": "ISO-8601 knowledge-time horizon."},
+        },
+        "annotations": {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     },
     "seam_stats": {
         "description": TOOL_DESCRIPTIONS["seam_stats"],
@@ -205,7 +233,31 @@ def dispatch_tool(runtime: SeamRuntime, request: dict[str, object]) -> dict[str,
     if name == "seam_ingest":
         text = _required_text(arguments.get("text"), field="text", tool=name)
         source_ref = str(arguments.get("source_ref") or "agent://input")
-        return {"type": "result", "tool": name, "result": runtime.ingest_text(text, source_ref=source_ref, persist=True).to_dict()}
+        agent_id = str(arguments.get("agent_id") or "").strip() or None
+        return {"type": "result", "tool": name, "result": runtime.ingest_text(text, source_ref=source_ref, agent_id=agent_id, persist=True).to_dict()}
+    if name == "seam_knowledge_graph":
+        kinds = str(arguments.get("kinds") or "")
+        result = runtime.store.knowledge_graph(
+            query=str(arguments.get("query") or "") or None,
+            root_id=str(arguments.get("root_id") or "") or None,
+            agent_id=str(arguments.get("agent_id") or "") or None,
+            namespace=str(arguments.get("namespace") or "") or None,
+            scope=str(arguments.get("scope") or "") or None,
+            kinds=[item.strip() for item in kinds.split(",") if item.strip()] or None,
+            include_history=bool(arguments.get("include_history", False)),
+            at=str(arguments.get("at") or "") or None,
+            limit=_bounded_int(arguments.get("limit"), default=100, low=1, high=1000),
+            hops=_bounded_int(arguments.get("hops"), default=2, low=0, high=5),
+        )
+        return {"type": "result", "tool": name, "result": result}
+    if name == "seam_knowledge_node":
+        node_id = _required_text(arguments.get("node_id"), field="node_id", tool=name)
+        result = runtime.store.knowledge_node(
+            node_id,
+            include_history=bool(arguments.get("include_history", True)),
+            at=str(arguments.get("at") or "") or None,
+        )
+        return {"type": "result", "tool": name, "result": result}
     if name == "seam_stats":
         return {"type": "result", "tool": name, "result": runtime.store.get_stats()}
     if name == "seam_documents":

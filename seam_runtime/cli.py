@@ -163,6 +163,7 @@ def build_parser() -> argparse.ArgumentParser:
     ingest_parser.add_argument("source")
     ingest_parser.add_argument("--persist", action="store_true", help="Persist compiled memory records and index them")
     ingest_parser.add_argument("--source-ref")
+    ingest_parser.add_argument("--agent-id", help="Identity recorded on the self-building knowledge graph (defaults to SEAM_AGENT)")
     ingest_parser.add_argument("--ns", default="local.default")
     ingest_parser.add_argument("--scope", default="thread")
     ingest_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
@@ -334,6 +335,7 @@ def build_parser() -> argparse.ArgumentParser:
     compile_nl_parser = subparsers.add_parser("compile-nl", aliases=["remember"], help="Compile natural language into MIRL and persist (use --no-persist to skip storing)")
     compile_nl_parser.add_argument("text")
     compile_nl_parser.add_argument("--source-ref", default="local://input")
+    compile_nl_parser.add_argument("--agent-id", help="Identity recorded on the self-building knowledge graph (defaults to SEAM_AGENT)")
     compile_nl_parser.add_argument("--no-persist", dest="persist", action="store_false", default=True)
     _add_rag_sync_args(compile_nl_parser)
 
@@ -374,16 +376,36 @@ def build_parser() -> argparse.ArgumentParser:
     memory_get_parser.add_argument("--timeline", action="store_true")
     memory_get_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
 
+    knowledge_parser = subparsers.add_parser("knowledge", aliases=["graph"], help="Search and inspect the self-building SEAM knowledge graph")
+    knowledge_subparsers = knowledge_parser.add_subparsers(dest="knowledge_command", required=True)
+    knowledge_search_parser = knowledge_subparsers.add_parser("search", aliases=["show"], help="Search or traverse knowledge nodes and typed edges")
+    knowledge_search_parser.add_argument("query", nargs="?", default="")
+    knowledge_search_parser.add_argument("--root-id")
+    knowledge_search_parser.add_argument("--agent-id")
+    knowledge_search_parser.add_argument("--namespace")
+    knowledge_search_parser.add_argument("--scope")
+    knowledge_search_parser.add_argument("--kind", dest="kinds", action="append", default=[])
+    knowledge_search_parser.add_argument("--history", action="store_true")
+    knowledge_search_parser.add_argument("--at", help="ISO-8601 knowledge-time horizon")
+    knowledge_search_parser.add_argument("--limit", type=int, default=100)
+    knowledge_search_parser.add_argument("--hops", type=int, default=2)
+    knowledge_search_parser.add_argument("--format", choices=["pretty", "json", "ids"], default="pretty")
+    knowledge_node_parser = knowledge_subparsers.add_parser("node", aliases=["page"], help="Open a graph-backed knowledge page")
+    knowledge_node_parser.add_argument("node_id")
+    knowledge_node_parser.add_argument("--current", action="store_true", help="Exclude historical/superseded relationships")
+    knowledge_node_parser.add_argument("--at", help="ISO-8601 knowledge-time horizon")
+    knowledge_node_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
+
     improve_parser = subparsers.add_parser(
         "improve", help="Self-improvement loop over retrieval and answer-policy levers"
     )
     improve_subparsers = improve_parser.add_subparsers(dest="improve_command", required=True)
     improve_cycle_parser = improve_subparsers.add_parser(
         "cycle",
-        help="Run one improvement cycle: evaluate levers against free scorers, propose the best non-regressing gain, optionally auto-apply with revert-on-regression",
+        help="Run one improvement cycle: evaluate levers, record strict ratchet evidence, and leave passing proposals pending operator approval",
     )
     improve_cycle_parser.add_argument("--db", default=argparse.SUPPRESS, help="SQLite database path (may also be given before the subcommand)")
-    improve_cycle_parser.add_argument("--auto-approve", action="store_true", help="Approve + apply the proposal and auto-revert if it regresses post-apply (default: propose only)")
+    improve_cycle_parser.add_argument("--auto-approve", action="store_true", help="Deprecated compatibility flag; strict-ratchet proposals always require separate operator approval")
     improve_cycle_parser.add_argument("--probe-sample", type=int, default=50, help="Self-probe sample size from the local corpus (default 50; 0 disables the self-probe scorer)")
     improve_cycle_parser.add_argument("--probe-budget", type=int, default=20, help="Fixed eval budget for the self-probe scorer (default 20)")
     improve_cycle_parser.add_argument("--locomo-dataset", default=None, help="Optional free LoCoMo context_recall scorer from this dataset path (source checkout only)")
@@ -1056,13 +1078,13 @@ def run_cli(argv: list[str] | None = None) -> None:
     if args.command == "ingest":
         text = _read_text_source(args.source)
         if args.persist:
-            report = runtime.ingest_text(text, source_ref=args.source_ref or args.source, ns=args.ns, scope=args.scope, persist=True)
+            report = runtime.ingest_text(text, source_ref=args.source_ref or args.source, ns=args.ns, scope=args.scope, persist=True, agent_id=args.agent_id)
             if args.format == "json":
                 print(json.dumps(report.to_dict(), indent=2))
                 return
             print(_render_ingest_report(report.to_dict()))
             return
-        print(runtime.compile_nl(text, source_ref=args.source_ref or args.source, ns=args.ns, scope=args.scope).to_text())
+        print(runtime.compile_nl(text, source_ref=args.source_ref or args.source, ns=args.ns, scope=args.scope, agent_id=args.agent_id).to_text())
         return
     if args.command == "surface" and args.surface_command == "compile":
         text = _read_text_source(args.source)
@@ -1126,7 +1148,7 @@ def run_cli(argv: list[str] | None = None) -> None:
         _print_text(_render_surface_import_pretty(report))
         return
     if args.command in {"compile-nl", "remember"}:
-        batch = runtime.compile_nl(args.text, source_ref=args.source_ref)
+        batch = runtime.compile_nl(args.text, source_ref=args.source_ref, agent_id=args.agent_id)
         if args.persist or args.sync_index:
             runtime.persist_ir(batch)
             if args.sync_index:
@@ -1185,6 +1207,33 @@ def run_cli(argv: list[str] | None = None) -> None:
                 print(json.dumps(payload, indent=2))
                 return
             print(render_memory_records(payload))
+            return
+    if args.command in {"knowledge", "graph"}:
+        if args.knowledge_command in {"search", "show"}:
+            payload = runtime.store.knowledge_graph(
+                query=args.query or None,
+                root_id=args.root_id,
+                agent_id=args.agent_id,
+                namespace=args.namespace,
+                scope=args.scope,
+                kinds=args.kinds or None,
+                include_history=args.history,
+                at=args.at,
+                limit=max(1, min(1000, args.limit)),
+                hops=max(0, min(5, args.hops)),
+            )
+            _print_retrieval_output(payload, output_format=args.format, renderer=_render_knowledge_graph_pretty)
+            return
+        if args.knowledge_command in {"node", "page"}:
+            payload = runtime.store.knowledge_node(
+                args.node_id,
+                include_history=not args.current,
+                at=args.at,
+            )
+            if args.format == "json":
+                print(json.dumps(payload, indent=2))
+                return
+            print(_render_knowledge_node_pretty(payload))
             return
     if args.command == "improve" and args.improve_command == "cycle":
         run_cycle = _import_run_improvement_cycle()
@@ -2171,6 +2220,71 @@ def _render_plan_pretty(payload: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def _render_knowledge_graph_pretty(payload: dict[str, object]) -> str:
+    stats = payload.get("stats") or {}
+    nodes = payload.get("nodes") or []
+    edges = payload.get("edges") or []
+    lines = [
+        "SEAM knowledge graph",
+        (
+            f"showing {len(nodes)} nodes / {len(edges)} edges "
+            f"(store: {stats.get('node_count', 0)} nodes, {stats.get('edge_count', 0)} edges, "
+            f"{stats.get('agent_count', 0)} agents, {stats.get('source_count', 0)} sources)"
+        ),
+    ]
+    if not nodes:
+        lines.append("(no matching knowledge)")
+        return "\n".join(lines)
+    lines.append("")
+    for node in nodes:
+        agents = ",".join(node.get("agents") or [])
+        suffix = f" agent={agents}" if agents else ""
+        lines.append(
+            f"{node.get('id')} [{node.get('kind')}] degree={node.get('degree', 0)} "
+            f"conf={float(node.get('confidence', 0.0)):.2f}{suffix}"
+        )
+        lines.append(f"  {node.get('label')}")
+    if edges:
+        lines.append("")
+        lines.append("typed edges")
+        for edge in edges[:200]:
+            lines.append(
+                f"  {edge.get('source')} -[{edge.get('predicate')}]-> {edge.get('target')} "
+                f"({edge.get('edge_kind')}, {float(edge.get('confidence', 0.0)):.2f})"
+            )
+        if len(edges) > 200:
+            lines.append(f"  … {len(edges) - 200} more edges; use --format json for the complete result")
+    return "\n".join(lines)
+
+
+def _render_knowledge_node_pretty(payload: dict[str, object]) -> str:
+    node = payload.get("node") or {}
+    page = payload.get("page") or {}
+    lines = [
+        f"{page.get('title') or node.get('label') or node.get('id')} [{node.get('kind', 'unknown')}]",
+        str(page.get("summary") or ""),
+        f"id={node.get('id')} status={node.get('status')} confidence={float(node.get('confidence', 0.0)):.2f}",
+        f"agents={', '.join(page.get('agents') or []) or '(none)'}",
+        f"sources={', '.join(page.get('sources') or []) or '(none)'}",
+        "",
+        "facts",
+    ]
+    facts = page.get("facts") or []
+    lines.extend(
+        f"  -[{edge.get('predicate')}]-> {edge.get('target')} ({float(edge.get('confidence', 0.0)):.2f})"
+        for edge in facts
+    )
+    if not facts:
+        lines.append("  (none)")
+    backlinks = page.get("backlinks") or []
+    lines.append("")
+    lines.append("backlinks")
+    lines.extend(f"  {edge.get('source')} -[{edge.get('predicate')}]->" for edge in backlinks)
+    if not backlinks:
+        lines.append("  (none)")
+    return "\n".join(lines)
+
+
 def _render_search_pretty(payload: dict[str, object]) -> str:
     lines = [
         f"Intent: {payload.get('intent')}",
@@ -2234,6 +2348,8 @@ def _render_ids(payload: dict[str, object]) -> str:
         return "\n".join(payload.get("candidate_ids", []))
     if "results" in payload:
         return "\n".join(str(item.get("id")) for item in payload.get("results", []))
+    if "nodes" in payload:
+        return "\n".join(str(item.get("id")) for item in payload.get("nodes", []))
     if "legs" in payload:
         return "\n".join(leg["name"] for leg in payload.get("legs", []))
     if "record_ids" in payload:

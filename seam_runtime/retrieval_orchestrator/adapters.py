@@ -86,32 +86,47 @@ class SQLiteGraphAdapter:
             return []
         batch = self.store.load_ir(scope=plan.filters.scope, ns=plan.filters.namespace)
         by_id = batch.by_id()
-        graph: dict[str, set[str]] = {}
-        # Restrict the edge load to edges that TOUCH an in-scope/in-namespace
-        # record instead of scanning the entire ir_edges table on every graph
-        # search. We keep every edge incident to a loaded record (src OR dst in
-        # the record set), so neighbor counts/bonuses are byte-identical to the
-        # prior full scan; only edges between two out-of-scope records — which
-        # were already unreachable downstream (filtered by by_id + matches) —
-        # are dropped. With no scope/ns filter this is the full scan as before.
-        record_where: list[str] = []
-        record_params: list[object] = []
-        if plan.filters.scope:
-            record_where.append("scope = ?")
-            record_params.append(plan.filters.scope)
-        if plan.filters.namespace:
-            record_where.append("ns = ?")
-            record_params.append(plan.filters.namespace)
-        if record_where:
-            subquery = f"select id from ir_records where {' and '.join(record_where)}"
-            edge_sql = (
-                "select src_id, edge_type, dst_id from ir_edges "
-                f"where src_id in ({subquery}) or dst_id in ({subquery})"
-            )
-            edge_params = record_params + record_params  # subquery is referenced twice
+        matching_records = []
+        for record in batch.records:
+            if not plan.filters.matches(record):
+                continue
+            haystack = " ".join([record.id, record.kind.value, *iter_textual_fields(record)]).lower()
+            if not tokens or any(token in haystack for token in tokens):
+                matching_records.append(record)
+        if not matching_records:
+            return []
+        if tokens:
+            matching_records.sort(key=lambda record: (-_lexical_score(record, tokens), record.id))
         else:
-            edge_sql = "select src_id, edge_type, dst_id from ir_edges"
-            edge_params = []
+            matching_records.sort(key=lambda record: record.id)
+        seed_limit = max(50, min(250, limit * 20))
+        lexical_seed_ids = {record.id for record in matching_records[:seed_limit]}
+
+        graph: dict[str, set[str]] = {}
+        # The graph leg reads the same self-building temporal graph exposed by
+        # the dashboard. Unlike the retired ir_edges projection, these rows
+        # carry semantic predicates, provenance, validity, and source records.
+        edge_where = [
+            "expired_at is null",
+            "status not in ('contradicted','superseded','deprecated','deleted_soft')",
+        ]
+        edge_params: list[object] = []
+        if plan.filters.scope:
+            edge_where.append("scope = ?")
+            edge_params.append(plan.filters.scope)
+        if plan.filters.namespace:
+            edge_where.append("ns = ?")
+            edge_params.append(plan.filters.namespace)
+        placeholders = ",".join("?" for _ in lexical_seed_ids)
+        edge_where.append(
+            f"(src_id in ({placeholders}) or dst_id in ({placeholders}) "
+            f"or source_record_id in ({placeholders}))"
+        )
+        edge_params.extend([*lexical_seed_ids, *lexical_seed_ids, *lexical_seed_ids])
+        edge_sql = (
+            "select src_id, predicate as edge_type, dst_id from knowledge_edges "
+            f"where {' and '.join(edge_where)}"
+        )
         with closing(self.store._connect()) as connection:
             rows = connection.execute(edge_sql, edge_params).fetchall()
         for row in rows:
@@ -122,14 +137,9 @@ class SQLiteGraphAdapter:
             graph.setdefault(dst, set()).add(src)
             graph.setdefault(edge_type, set()).update([src, dst])
 
-        seed_ids: set[str] = set()
-        for record in batch.records:
-            if not plan.filters.matches(record):
-                continue
-            haystack = " ".join([record.id, record.kind.value, *iter_textual_fields(record)]).lower()
-            if not tokens or any(token in haystack for token in tokens):
-                seed_ids.add(record.id)
-                seed_ids.update(graph.get(record.id, set()))
+        seed_ids = set(lexical_seed_ids)
+        for record_id in lexical_seed_ids:
+            seed_ids.update(graph.get(record_id, set()))
         hits: list[LegHit] = []
         for record_id in seed_ids:
             record = by_id.get(record_id)
@@ -137,7 +147,7 @@ class SQLiteGraphAdapter:
                 continue
             lexical = _lexical_score(record, tokens)
             neighbor_bonus = min(0.6, len(graph.get(record_id, set())) * 0.1)
-            seed_bonus = 0.5 if record_id in seed_ids else 0.0
+            seed_bonus = 0.5 if record_id in lexical_seed_ids else 0.0
             score = lexical + neighbor_bonus + seed_bonus
             if score <= 0:
                 score = neighbor_bonus

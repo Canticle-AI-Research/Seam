@@ -7,15 +7,15 @@ One ``run_improvement_cycle`` is the whole front-to-back loop:
 3. evaluate each against the supplied free scorers at fixed eval budget
    (``self_improve.evaluate_candidates`` - the no-regression gate),
 4. write a proposal for the best genuine improvement (or nothing),
-5. optionally (``auto_approve``) approve + apply it through the #289 reconcile,
-   then RE-MEASURE and AUTO-REVERT if the applied state regressed any scorer.
+5. run the strict multi-family ratchet and persist its evidence with the
+   proposal: failures are append-only rejections and passes remain pending for
+   an explicit operator approval.
 
 The cycle is scorer-agnostic: the same machinery runs the always-on FREE loop
 (self-probe + free-LoCoMo scorers) and an operator-triggered PAID validation
 (judged scorers implementing the same ``Scorer`` protocol added to the list).
-Free scorers never require a paid call; paid scorers are opt-in. The reversible
-apply makes step 5 a ratchet - applied state can only move scores up or flat,
-because anything that regresses is backed out in the same cycle.
+Free scorers never require a paid call; paid scorers are opt-in. ``auto_approve``
+remains accepted for CLI compatibility but cannot bypass the operator gate.
 
 This lives in tools/ (not seam_runtime/) because it orchestrates runtime +
 scorers + the proposal store + the apply CLI; the pure evaluation logic it
@@ -30,14 +30,15 @@ from seam_runtime.retrieval import load_retrieval_flags
 from seam_runtime.self_improve import (
     DEFAULT_NOISE_MARGIN,
     DEFAULT_REGRESS_TOL,
+    RatchetGateEvidence,
     Scorer,
     candidate_levers,
     evaluate_candidates,
     score_report_views,
     select_best_improvement,
+    strict_ratchet_decision,
 )
 from seam_runtime.storage import SQLiteStore
-from tools.h2.improvement_review import compute_apply_plan
 
 
 def run_improvement_cycle(
@@ -51,12 +52,16 @@ def run_improvement_cycle(
     regress_tol: float = DEFAULT_REGRESS_TOL,
     weight_step: float = 0.10,
     category_floors: Mapping[str, float] | None = None,
+    ratchet_gates: Sequence[RatchetGateEvidence] = (),
 ) -> dict:
-    """Run one improvement cycle. Returns a structured report; writes at most one
-    proposal, and (only under ``auto_approve``) applies/reverts it.
+    """Run one improvement cycle and write at most one auditable proposal.
 
     ``runtime`` and ``store`` should share the same SQLite database so the
     applied flag state the cycle writes is what ``runtime.search_ir`` reads.
+    Aggregate and category evidence are derived from the candidate evaluation.
+    Callers must supply the integrity, trust, temporal, provenance, and holdout
+    families through ``ratchet_gates``. Missing families reject the proposal;
+    a full pass remains pending for an operator to approve and apply separately.
     """
     if not scorers:
         raise ValueError("at least one scorer is required")
@@ -140,11 +145,45 @@ def run_improvement_cycle(
         & best.candidate.change.keys()
         else "ranking_weight"
     )
+    derived_gates: list[RatchetGateEvidence] = []
+    for scorer_name, delta in sorted(best.deltas.items()):
+        baseline_value = base_reports[scorer_name].aggregate
+        derived_gates.append(RatchetGateEvidence(
+            name=f"aggregate:{scorer_name}",
+            family="aggregate",
+            passed=delta >= -regress_tol,
+            baseline=baseline_value,
+            candidate=baseline_value + delta,
+            threshold=baseline_value - regress_tol,
+            details="candidate aggregate must not regress beyond tolerance",
+            refs=(f"scorer:{scorer_name}",),
+        ))
+    category_refs: list[str] = []
+    category_passed = True
+    for scorer_name, deltas in sorted(best.category_deltas.items()):
+        for category, delta in sorted(deltas.items()):
+            category_refs.append(f"scorer:{scorer_name}:category:{category}")
+            if delta < -regress_tol:
+                category_passed = False
+    derived_gates.append(RatchetGateEvidence(
+        name="category:no-regression",
+        family="category",
+        passed=category_passed,
+        threshold=-regress_tol,
+        details="every measured category must remain within regression tolerance",
+        refs=tuple(category_refs) or ("evaluation:no-category-breakdown",),
+    ))
+    ratchet = strict_ratchet_decision([*derived_gates, *ratchet_gates])
+    proposed_change = {
+        "flags": best.candidate.change,
+        "ratchet": ratchet.to_dict(),
+    }
     proposal_id = store.write_improvement_proposal(
         kind=proposal_kind,
         summary=f"self-improve: {best.candidate.label}",
         rationale=best.reason,
-        proposed_change={"flags": best.candidate.change},
+        proposed_change=proposed_change,
+        holdout_violation=any(gate.holdout_violation for gate in ratchet.evidence),
     )
     report["proposed"] = {
         "proposal_id": proposal_id,
@@ -159,58 +198,20 @@ def run_improvement_cycle(
         },
         "floor_progress": round(best.floor_progress, 6),
         "reason": best.reason,
+        "ratchet": ratchet.to_dict(),
     }
 
-    if not auto_approve:
-        return report
-
-    store.record_proposal_decision(
-        proposal_id=proposal_id, status="approved", actor=actor,
-        reason="auto: dev-validated, no regression",
-    )
-    desired, _applied, _skipped = compute_apply_plan(store)
-    store.replace_retrieval_flag_state(desired)
-    report["applied"] = True
-
-    # Ratchet: re-measure the full reconciled applied state; revert if any scorer
-    # regressed past tolerance against the pre-cycle baseline.
-    applied_flags = load_retrieval_flags(store)
-    for scorer in scorers:
-        post, post_views = score_report_views(scorer, runtime, applied_flags)
-        if post.aggregate < base_reports[scorer.name].aggregate - regress_tol:
-            store.record_proposal_decision(
-                proposal_id=proposal_id, status="rejected", actor=actor,
-                reason=f"auto-revert: {scorer.name} regressed post-apply",
-            )
-            desired2, _a, _s = compute_apply_plan(store)
-            store.replace_retrieval_flag_state(desired2)
-            report["applied"] = False
-            report["reverted"] = True
-            report["revert_reason"] = f"{scorer.name} regressed post-apply"
-            break
-        for view_name, base_view in base_views[scorer.name].items():
-            post_view = post_views.get(view_name)
-            if (
-                post_view is not None
-                and post_view.aggregate < base_view.aggregate - regress_tol
-            ):
-                store.record_proposal_decision(
-                    proposal_id=proposal_id,
-                    status="rejected",
-                    actor=actor,
-                    reason=(
-                        f"auto-revert: {scorer.name}/{view_name} regressed post-apply"
-                    ),
-                )
-                desired2, _a, _s = compute_apply_plan(store)
-                store.replace_retrieval_flag_state(desired2)
-                report["applied"] = False
-                report["reverted"] = True
-                report["revert_reason"] = (
-                    f"{scorer.name}/{view_name} regressed post-apply"
-                )
-                break
-        if report["reverted"]:
-            break
+    report["auto_approve_requested"] = bool(auto_approve)
+    if ratchet.status == "rejected":
+        store.record_proposal_decision(
+            proposal_id=proposal_id,
+            status="rejected",
+            actor=actor,
+            reason="strict ratchet rejected: " + ", ".join(ratchet.failed_gates),
+        )
+    elif auto_approve:
+        report["approval_required"] = (
+            "auto-approve cannot bypass the strict ratchet operator gate"
+        )
 
     return report
