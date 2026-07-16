@@ -213,22 +213,35 @@ def test_search_respects_ef_search_override():
         calls: list[tuple[str, object]] = []
         original_connect = adapter._connect
 
+        class _ExecuteSpyCursor:
+            """Wraps a real psycopg cursor rather than monkeypatching it -
+            psycopg's C-optimized Cursor doesn't allow reassigning instance
+            methods like `execute` (unlike the plain-Python fake used in
+            test_seam_all/test_seam.py)."""
+
+            def __init__(self, real_cursor):
+                self._real_cursor = real_cursor
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc_info):
+                return self._real_cursor.__exit__(*exc_info)
+
+            def execute(self, sql, params=None):
+                calls.append((sql, params))
+                return self._real_cursor.execute(sql, params) if params is not None else self._real_cursor.execute(sql)
+
+            def fetchall(self):
+                return self._real_cursor.fetchall()
+
+            def fetchone(self):
+                return self._real_cursor.fetchone()
+
         def _spying_connect():
             connection = original_connect()
             real_cursor_factory = connection.cursor
-
-            def _spying_cursor(*args, **kwargs):
-                cursor = real_cursor_factory(*args, **kwargs)
-                real_execute = cursor.execute
-
-                def _spying_execute(sql, params=None):
-                    calls.append((sql, params))
-                    return real_execute(sql, params) if params is not None else real_execute(sql)
-
-                cursor.execute = _spying_execute
-                return cursor
-
-            connection.cursor = _spying_cursor
+            connection.cursor = lambda *a, **kw: _ExecuteSpyCursor(real_cursor_factory(*a, **kw))
             return connection
 
         adapter._connect = _spying_connect
