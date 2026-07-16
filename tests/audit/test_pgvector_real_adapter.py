@@ -125,3 +125,119 @@ def test_pgvector_real_adapter_stale_records_detects_changes():
         assert stale_after_mutation[0]["record_id"] in indexable_ids
     finally:
         _drop_table(adapter, table)
+
+
+def test_ensure_schema_creates_hnsw_partial_index_on_fresh_table():
+    """ensure_schema() builds a dimension-scoped partial HNSW index and
+    reports ann_index_status == "ok", without narrowing the shared
+    dimensionless ``embedding`` column."""
+    adapter, table = _make_adapter()
+    try:
+        adapter.ensure_schema()
+        assert adapter.ann_index_status == "ok"
+        with adapter._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select indexdef from pg_indexes where tablename = %s", (table,))
+                index_defs = [row[0] for row in cursor.fetchall()]
+                cursor.execute(
+                    """
+                    select format_type(a.atttypid, a.atttypmod)
+                    from pg_attribute a
+                    join pg_class c on a.attrelid = c.oid
+                    where c.relname = %s and a.attname = 'embedding' and a.attnum > 0 and not a.attisdropped
+                    """,
+                    (table,),
+                )
+                column_type = cursor.fetchone()[0]
+        assert any("hnsw" in d.lower() for d in index_defs), f"Expected an hnsw index, got {index_defs}"
+        assert column_type == "vector", (
+            f"embedding column must stay dimensionless so other dimensions can still "
+            f"share this table; got {column_type!r}"
+        )
+    finally:
+        _drop_table(adapter, table)
+
+
+def test_hnsw_index_coexists_across_dimensions_sharing_one_table():
+    """Regression test: two embedding models at DIFFERENT dimensions sharing
+    the same table_name must both be able to index and search their own rows.
+
+    Prior to the partial-index fix, ensure_schema() ALTERed the shared
+    ``embedding`` column to whichever dimension touched the table first,
+    permanently breaking every other dimension's INSERTs against that table -
+    a real regression for the common case of a shared default table_name
+    used across runs with different embedding configs (e.g. a hash-embedding
+    dev fallback vs. a real sentence-transformer model).
+    """
+    from seam_runtime.vector_adapters import PgVectorAdapter
+    from seam_runtime.models import HashEmbeddingModel
+
+    dsn = os.environ["SEAM_PGVECTOR_DSN"]
+    table = f"seam_vector_index_test_{uuid.uuid4().hex[:12]}"
+    model_a = HashEmbeddingModel(name="model-a", dimension=64)
+    model_b = HashEmbeddingModel(name="model-b", dimension=32)
+    adapter_a = PgVectorAdapter(dsn=dsn, model=model_a, table_name=table)
+    adapter_b = PgVectorAdapter(dsn=dsn, model=model_b, table_name=table)
+    try:
+        records = _make_records()
+        # model_a touches the table first (would have won the ALTER pre-fix).
+        adapter_a.index_records(records)
+        # model_b, a DIFFERENT dimension, must still be able to index into
+        # the same shared table without a pgvector dimension-mismatch error.
+        adapter_b.index_records(records)
+
+        scores_a = adapter_a.search("databases context windows", limit=5)
+        scores_b = adapter_b.search("databases context windows", limit=5)
+        assert len(scores_a) > 0, "model_a search returned no hits"
+        assert len(scores_b) > 0, "model_b search returned no hits"
+        assert adapter_a.vector_count() == adapter_b.vector_count()
+    finally:
+        _drop_table(adapter_a, table)
+
+
+def test_search_respects_ef_search_override():
+    """A non-default ef_search is set via set_config before the ANN query
+    runs, with the configured value (session GUCs can't be verified via a
+    separate connection since they don't outlive the connection that set
+    them, so this spies on the same connection search() uses)."""
+    from seam_runtime.vector_adapters import PgVectorAdapter
+    from seam_runtime.models import HashEmbeddingModel
+
+    dsn = os.environ["SEAM_PGVECTOR_DSN"]
+    table = f"seam_vector_index_test_{uuid.uuid4().hex[:12]}"
+    adapter = PgVectorAdapter(dsn=dsn, model=HashEmbeddingModel(), table_name=table, ef_search=17)
+    try:
+        records = _make_records()
+        adapter.index_records(records)
+
+        calls: list[tuple[str, object]] = []
+        original_connect = adapter._connect
+
+        def _spying_connect():
+            connection = original_connect()
+            real_cursor_factory = connection.cursor
+
+            def _spying_cursor(*args, **kwargs):
+                cursor = real_cursor_factory(*args, **kwargs)
+                real_execute = cursor.execute
+
+                def _spying_execute(sql, params=None):
+                    calls.append((sql, params))
+                    return real_execute(sql, params) if params is not None else real_execute(sql)
+
+                cursor.execute = _spying_execute
+                return cursor
+
+            connection.cursor = _spying_cursor
+            return connection
+
+        adapter._connect = _spying_connect
+        scores = adapter.search("databases context windows", limit=5)
+
+        set_config_calls = [(sql, params) for sql, params in calls if "set_config" in sql.lower()]
+        assert set_config_calls, "expected search() to call set_config for hnsw.ef_search"
+        assert set_config_calls[0][1] == ("17",)
+        assert len(scores) > 0
+    finally:
+        adapter._connect = original_connect
+        _drop_table(adapter, table)
