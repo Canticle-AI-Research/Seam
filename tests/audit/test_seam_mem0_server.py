@@ -69,6 +69,45 @@ def test_empty_messages_and_blank_content_are_skipped(server):
     assert out["results"] == []
 
 
+def test_first_add_after_restart_preserves_persisted_user_memories(tmp_path):
+    db_root = str(tmp_path / "scopes")
+    uid = "resume-user"
+
+    first = SeamMem0Server(db_path=db_root)
+    try:
+        first.add({
+            "user_id": uid,
+            "timestamp": 1687000000,
+            "messages": [{
+                "role": "user",
+                "content": "Melanie: I painted a lake sunrise.",
+            }],
+        })
+    finally:
+        first.close()
+
+    resumed = SeamMem0Server(db_path=db_root)
+    try:
+        resumed.add({
+            "user_id": uid,
+            "timestamp": 1687086400,
+            "messages": [{
+                "role": "user",
+                "content": "Melanie: I later adopted a cat named Luna.",
+            }],
+        })
+        batch = resumed._adapter._runtime(uid).store.load_ir(ns=f"locomo:{uid}")
+        raw_contents = {
+            record.attrs.get("content")
+            for record in batch.records
+            if record.kind.value == "RAW"
+        }
+        assert any("lake sunrise" in content for content in raw_contents if content)
+        assert any("cat named Luna" in content for content in raw_contents if content)
+    finally:
+        resumed.close()
+
+
 def test_add_requires_user_id_and_messages(server):
     with pytest.raises(ValueError):
         server.add({"messages": []})

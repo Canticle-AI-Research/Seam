@@ -8840,3 +8840,21 @@ Addressed both unresolved current-head review findings on the Mem0-OSS facade. S
 
 Added hermetic regressions for both paths. The focused facade plus semantic-conversation slice passes 38 tests; ruff, module compilation, and diff checks pass. This is post-score hardening: no paid rescore was performed, and the external 333/378 artifact remains the exact pre-hardening record rather than being silently relabeled. Updated the audit/status/current handoff, rebuilt derived history and stream state, wrote a fresh snapshot, and reran the complete repository verification chain.
 ---END-ENTRY-#400---
+
+---BEGIN-ENTRY-#401---
+id: 401
+date: 2026-07-16T12:38:06Z
+agent: codex
+status: done
+topics: bugfix, benchmark, locomo, persist, tests, ci, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_mem0_server.py,PROJECT_STATUS.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md,GitHub-PR:149,GitHub-PR:150
+supersedes: 400
+tokens: 244
+---
+Live review of PRs #149 and #150 found one additional facade correctness defect before merge. SeamMem0Server tracked users only in process memory and reset a user's per-scope database on the first add after every restart. That violated additive Mem0 semantics and the upstream harness's checkpoint/resume flow, which reuses the persisted user_id while skipping already-completed chunks. Removed the implicit first-add reset; POST /memories is now additive across restarts and DELETE /memories remains the explicit cleanup boundary.
+
+Added a hermetic restart regression that writes one turn, closes the server, reopens the same database root, writes a second turn, and proves both RAW turns remain. The focused facade plus semantic-conversation slice collects and passes 39 tests. Ruff, module compilation, diff checks, candidate secret/session-link scan, and local CodeRabbit reviews of the fix and full PR delta are clean. No paid call or score relabel occurred.
+
+Git ancestry proves PR #149's head is contained by PR #150's head. PR #150 is the sole canonical merge vehicle and PR #149 is superseded rather than independently mergeable. PR #150's pre-fix head had all nine checks green; the fresh pushed-head required checks remain the final merge gate.
+---END-ENTRY-#401---

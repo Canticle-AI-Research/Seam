@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 400
-total_tokens: ~171304
-latest_id: 400
+total_entries: 401
+total_tokens: ~171548
+latest_id: 401
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 401 | 2026-07-16 | done | ae65e22b25ed32b7 | bugfix,benchmark,locomo,persist,+ | 400 |
 | 400 | 2026-07-15 | done | 2d638e36f970fd2f | bugfix,benchmark,locomo,retrieval,+ | 399 |
 | 399 | 2026-07-15 | changed | 008c723c1932b98f | history,continuity,verify,handoff,+ | 398 |
 | 398 | 2026-07-15 | done | 07f4efb0308e8479 | benchmark,locomo,judge,quality,+ | 397 |
@@ -427,13 +428,13 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=145 latest=#400, #399, #398, #397, #396
+- benchmark: count=146 latest=#401, #400, #399, #398, #397
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=24 latest=#400, #390, #380, #379, #374
+- bugfix: count=25 latest=#401, #400, #390, #380, #379
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
@@ -442,7 +443,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=21 latest=#400, #388, #387, #380, #378
+- ci: count=22 latest=#401, #400, #388, #387, #380
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -516,7 +517,7 @@ compact: true
 - graph: count=2 latest=#099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=26 latest=#400, #399, #398, #397, #387
+- handoff: count=27 latest=#401, #400, #399, #398, #397
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -540,7 +541,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=59 latest=#400, #399, #398, #397, #396
+- locomo: count=60 latest=#401, #400, #399, #398, #397
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -572,7 +573,7 @@ compact: true
 - paid: count=1 latest=#365
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - performance: count=3 latest=#364, #363, #362
-- persist: count=26 latest=#342, #251, #244, #218, #213
+- persist: count=27 latest=#401, #342, #251, #244, #218
 - pgvector: count=28 latest=#354, #322, #295, #294, #280
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
@@ -652,7 +653,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=1 latest=#400
 - test: count=43 latest=#344, #343, #342, #341, #340
-- tests: count=22 latest=#400, #398, #395, #393, #390
+- tests: count=23 latest=#401, #400, #398, #395, #393
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=2 latest=#357, #324
@@ -663,7 +664,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=270 latest=#400, #399, #398, #397, #395
+- verify: count=271 latest=#401, #400, #399, #398, #397
 - vulnerability: count=1 latest=#296
 - webui: count=6 latest=#342, #340, #326, #286, #285
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -676,6 +677,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 370
+- done: 371
 - in-progress: 3
 - planned: 20

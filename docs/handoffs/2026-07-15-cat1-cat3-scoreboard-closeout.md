@@ -11,9 +11,9 @@ history: HISTORY#400
 - **Branch:** `agent/cardinality-constraint`
 - **PR:** #150 (`agent/cardinality-constraint` -> `main`)
 - **Pre-closeout head:** `96117b5`
-- **Local exclusions:** `.playwright-mcp/`, `.wrangler/`, `gated-view.png`, and
-  `visuals/` are unrelated operator/local paths and remain untouched and
-  excluded.
+- **Local exclusions:** `.playwright-mcp/`, `.wrangler/`, `gated-view.png`,
+  `mem0-harness-scoreboard.png`, `page-snapshot.md`, and `visuals/` are
+  unrelated operator/local paths and remain untouched and excluded.
 
 ## Outcome
 
@@ -92,6 +92,15 @@ Full transition analysis and the scorer boundary are in
   expand `SPAN.raw_id` before filtering to RAW memories. The two regression
   tests are hermetic. The retained score artifact predates these fixes and was
   not relabeled or rerun.
+- Live disposition review found one additional restart-safety bug: the first
+  add seen by a newly started facade process reset an existing persisted user
+  scope. That reset is removed. Adds are now additive across restarts and the
+  DELETE endpoint is the explicit cleanup boundary, matching the upstream
+  harness checkpoint/resume behavior. A hermetic restart regression proves the
+  RAW turns written before and after restart both survive.
+- PR #149's head is an ancestor of PR #150's head. PR #150 is therefore the
+  sole canonical merge vehicle; PR #149 must be closed as superseded, not
+  merged separately.
 - PR #150 had all nine checks green at pre-closeout head `96117b5`. The
   closeout commit updates only status/audit/history/handoff artifacts; inspect
   the fresh pushed-head checks before merge.
@@ -106,8 +115,9 @@ Full transition analysis and the scorer boundary are in
   error, or skip markers. The terminal summary/exit code was not independently
   captured, so preserve that qualification rather than upgrading it to a new
   exit-code claim.
-- The focused shim + conversation-policy slice passes 38 tests after the two
-  review regressions were added; ruff and module compilation are clean.
+- The focused shim + conversation-policy slice collects and passes 39 tests
+  after the restart regression was added; ruff, module compilation, diff
+  checks, and local CodeRabbit review are clean.
 - The complete history/handoff/continuity/streams chain passes at HISTORY#400.
 - The scored harness process exited normally. The temporary facade on port
   8902 was stopped cleanly. No process or worktree created by this successor
@@ -119,7 +129,7 @@ Full transition analysis and the scorer boundary are in
    stored-context result that shows broad, non-regressing movement.
 2. Keep native judge/1 and mem0-harness numbers side by side and labeled; never
    splice their category scores into one trend line.
-3. Decide PR #150 on its actual contents: useful opt-in research levers plus a
-   complete negative/scoreboard record, not a new native champion.
-4. Inspect PR #149/#150 live before merge. Required checks and the no-default-
-   change contract remain the merge gates.
+3. Treat PR #150 as the only merge candidate: useful opt-in research levers
+   plus a complete negative/scoreboard record, not a new native champion.
+4. Close PR #149 as superseded. Merge PR #150 only after its fresh pushed-head
+   required checks pass; the no-default-change contract remains a merge gate.

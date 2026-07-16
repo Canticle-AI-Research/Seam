@@ -78,7 +78,6 @@ class SeamMem0Server:
             search_top_k=search_top_k,
             budget=context_budget,
         )
-        self._seen_users: set[str] = set()
 
     # -- endpoint handlers (pure dict-in/dict-out; framework-agnostic) ------
 
@@ -88,9 +87,6 @@ class SeamMem0Server:
         if not user_id or not isinstance(messages, list):
             raise ValueError("add requires user_id and a messages list")
         iso = _epoch_to_iso(payload.get("timestamp"))
-        if user_id not in self._seen_users:
-            self._adapter.reset(user_id)
-            self._seen_users.add(user_id)
         added = 0
         for msg in messages:
             content = (msg or {}).get("content") or ""
@@ -118,10 +114,7 @@ class SeamMem0Server:
     def delete_user(self, user_id: str) -> dict:
         if not user_id:
             raise ValueError("delete requires user_id")
-        try:
-            self._adapter.reset(user_id)
-        finally:
-            self._seen_users.discard(user_id)
+        self._adapter.reset(user_id)
         return {"message": f"deleted memories for {user_id}"}
 
     # -- retrieval ---------------------------------------------------------
