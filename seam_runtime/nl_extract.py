@@ -27,18 +27,49 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
-_WORD_RE = re.compile(r"[a-z0-9]+")
-# Function words that do not need to be grounded for a phrase to count as drawn
-# from the text (mirrors the fidelity harness's stopword handling).
-_STOPWORDS = frozenset({
-    "a", "an", "the", "of", "to", "in", "on", "at", "by", "with", "for",
-    "is", "are", "was", "were", "be", "and", "or", "that", "this", "it",
-    "as", "from", "into", "my", "our", "their", "his", "her", "its",
-})
+_BOUNDARY = r"(?<!\w){body}(?!\w)"
 
 
-def _content_tokens(text: str) -> frozenset[str]:
-    return frozenset(t for t in _WORD_RE.findall(text.lower()) if t not in _STOPWORDS)
+@dataclass(frozen=True)
+class GroundedSpan:
+    """One normalized-contiguous field copied from the original source.
+
+    ``start`` is inclusive and ``end`` is exclusive, so ``source[start:end]``
+    is exactly ``text``. Matching is case-insensitive and treats runs of
+    whitespace as equivalent, but it never reorders tokens or skips source
+    words. The stored text is always the original source slice.
+    """
+
+    field: str
+    text: str
+    start: int
+    end: int
+
+
+def _contiguous_source_span(value: object, source: str, *, field: str) -> GroundedSpan | None:
+    """Locate ``value`` as one normalized contiguous span in ``source``.
+
+    This deliberately does not use token-set inclusion. For example,
+    ``"tool release"`` cannot ground against ``"release tool"``, and
+    ``"release tool"`` cannot jump across ``"release safety tool"``.
+    """
+
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    if not candidate:
+        return None
+    parts = re.split(r"\s+", candidate)
+    body = r"\s+".join(re.escape(part) for part in parts)
+    match = re.search(_BOUNDARY.format(body=body), source, flags=re.IGNORECASE)
+    if match is None:
+        return None
+    return GroundedSpan(
+        field=field,
+        text=source[match.start():match.end()],
+        start=match.start(),
+        end=match.end(),
+    )
 
 
 @dataclass(frozen=True)
@@ -52,6 +83,41 @@ class ExtractedClaim:
     subject: str
     relation: str
     obj: str
+    when: str | None = None
+    where: str | None = None
+    why: str | None = None
+    how: str | None = None
+    then: str | None = None
+    epistemic_basis: str = "explicit"
+    source_spans: tuple[GroundedSpan, ...] = ()
+
+    def facets(self) -> dict[str, str]:
+        """Return the grounded 5W1H+Then slots carried by this extraction.
+
+        ``who``/``what`` are the triple's subject/object. Optional slots are
+        included only after :func:`ground_extraction` has proved that their
+        surface text occurs in the source proposition.
+        """
+
+        values = {
+            "who": self.subject,
+            "what": self.obj,
+            "when": self.when,
+            "where": self.where,
+            "why": self.why,
+            "how": self.how,
+            "then": self.then,
+        }
+        return {key: value for key, value in values.items() if value}
+
+    def span_for(self, field: str) -> GroundedSpan | None:
+        """Return the source anchor for a grounded claim field, if available."""
+
+        source_field = {"who": "subject", "what": "object"}.get(field, field)
+        return next(
+            (span for span in self.source_spans if span.field == source_field),
+            None,
+        )
 
 
 @dataclass(frozen=True)
@@ -78,13 +144,24 @@ _SYSTEM = (
     "name, claim subject, claim relation and claim object MUST be a contiguous "
     "span of words copied VERBATIM from the sentence. Never invent, rephrase, or "
     "normalize a word. The relation is the verb or preposition exactly as written. "
+    "For each claim, optionally identify when, where, why, how, and then; each "
+    "optional value must also be copied verbatim. Mark epistemic_basis as "
+    "explicit, inferred, or hypothetical. Omit a slot when the sentence does "
+    "not state it. "
     "Output JSON only."
 )
 _EXAMPLE_IN = "Akira teaches an evening pottery class at the community center."
 _EXAMPLE_OUT = json.dumps(
     {
         "entities": [{"name": "Akira", "type": "person"}, {"name": "community center", "type": "place"}],
-        "claims": [{"subject": "Akira", "relation": "teaches", "object": "an evening pottery class"}],
+        "claims": [{
+            "subject": "Akira",
+            "relation": "teaches",
+            "object": "an evening pottery class",
+            "where": "community center",
+            "how": "evening pottery class",
+            "epistemic_basis": "explicit",
+        }],
     }
 )
 _SCHEMA = {
@@ -102,7 +179,20 @@ _SCHEMA = {
             "type": "array",
             "items": {
                 "type": "object",
-                "properties": {"subject": {"type": "string"}, "relation": {"type": "string"}, "object": {"type": "string"}},
+                "properties": {
+                    "subject": {"type": "string"},
+                    "relation": {"type": "string"},
+                    "object": {"type": "string"},
+                    "when": {"type": "string"},
+                    "where": {"type": "string"},
+                    "why": {"type": "string"},
+                    "how": {"type": "string"},
+                    "then": {"type": "string"},
+                    "epistemic_basis": {
+                        "type": "string",
+                        "enum": ["explicit", "inferred", "hypothetical"],
+                    },
+                },
                 "required": ["subject", "relation", "object"],
             },
         },
@@ -155,26 +245,24 @@ class OllamaExtractor:
 def ground_extraction(raw: dict, text: str) -> Extraction:
     """Filter a model's raw output against ``text`` — the fabrication firewall.
 
-    Keep an entity only when its content tokens are a subset of the text's;
-    keep a claim only when its subject, relation, AND object are each grounded.
+    Every retained entity and claim field must match one normalized-contiguous
+    source span. Required claim fields (subject, relation, object) fail closed:
+    if any one is reordered, scattered, or fabricated, the entire claim is
+    dropped. Optional 5W1H+Then facets fail individually and are omitted. Each
+    retained claim carries exact character offsets back to the source.
+
     Empty/malformed input yields an empty Extraction (-> floor fallback)."""
-    allowed = _content_tokens(text)
     if not isinstance(raw, dict):
         return Extraction()
-
-    def grounded(value: object) -> bool:
-        if not isinstance(value, str) or not value.strip():
-            return False
-        want = _content_tokens(value)
-        return bool(want) and want <= allowed
 
     entities: list[ExtractedEntity] = []
     seen_ent: set[str] = set()
     for item in raw.get("entities", []) or []:
         if not isinstance(item, dict):
             continue
-        name = str(item.get("name", "")).strip()
-        if grounded(name) and name.lower() not in seen_ent:
+        span = _contiguous_source_span(item.get("name"), text, field="name")
+        if span is not None and span.text.lower() not in seen_ent:
+            name = span.text
             seen_ent.add(name.lower())
             etype = str(item.get("type", "entity")).strip() or "entity"
             entities.append(ExtractedEntity(name=name, entity_type=etype))
@@ -184,14 +272,47 @@ def ground_extraction(raw: dict, text: str) -> Extraction:
     for item in raw.get("claims", []) or []:
         if not isinstance(item, dict):
             continue
-        subject = str(item.get("subject", "")).strip()
-        relation = str(item.get("relation", "")).strip()
-        obj = str(item.get("object", "")).strip()
-        if grounded(subject) and grounded(obj) and relation and (_content_tokens(relation) <= allowed):
+        required = {
+            field: _contiguous_source_span(item.get(raw_key), text, field=field)
+            for field, raw_key in (
+                ("subject", "subject"),
+                ("relation", "relation"),
+                ("object", "object"),
+            )
+        }
+        if all(required.values()):
+            subject_span = required["subject"]
+            relation_span = required["relation"]
+            object_span = required["object"]
+            assert subject_span is not None
+            assert relation_span is not None
+            assert object_span is not None
+            subject = subject_span.text
+            relation = relation_span.text
+            obj = object_span.text
             key = (subject.lower(), relation.lower(), obj.lower())
             if key not in seen_clm:
                 seen_clm.add(key)
-                claims.append(ExtractedClaim(subject=subject, relation=relation, obj=obj))
+                optional: dict[str, str | None] = {}
+                spans = [subject_span, relation_span, object_span]
+                for facet in ("when", "where", "why", "how", "then"):
+                    span = _contiguous_source_span(item.get(facet), text, field=facet)
+                    optional[facet] = span.text if span is not None else None
+                    if span is not None:
+                        spans.append(span)
+                basis = str(item.get("epistemic_basis", "explicit")).strip().lower()
+                if basis not in {"explicit", "inferred", "hypothetical"}:
+                    basis = "explicit"
+                claims.append(
+                    ExtractedClaim(
+                        subject=subject,
+                        relation=relation,
+                        obj=obj,
+                        epistemic_basis=basis,
+                        source_spans=tuple(spans),
+                        **optional,
+                    )
+                )
 
     return Extraction(entities=tuple(entities), claims=tuple(claims))
 

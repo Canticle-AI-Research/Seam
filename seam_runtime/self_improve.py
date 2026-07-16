@@ -25,8 +25,12 @@ deterministic sampling are what this module pins.
 
 from __future__ import annotations
 
+import hashlib
+import json
+import math
 import random
 import re
+import sqlite3
 from collections import defaultdict
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Mapping, Protocol, Sequence, runtime_checkable
@@ -60,6 +64,20 @@ class Probe:
     category: str
     masked: str = ""
     style: str = "cloze"
+
+
+@dataclass(frozen=True)
+class GraphProbe:
+    """A deterministic test case generated from a knowledge-graph motif."""
+
+    case_id: str
+    motif: str
+    query: str
+    expected_node_ids: tuple[str, ...]
+    source_record_ids: tuple[str, ...] = ()
+    evidence_episode_ids: tuple[str, ...] = ()
+    expected_action: str = "retrieve"
+    rationale: str = ""
 
 
 @dataclass(frozen=True)
@@ -232,6 +250,198 @@ def generate_probes(
     return candidates
 
 
+def generate_graph_probes(
+    connection: sqlite3.Connection,
+    *,
+    namespace: str | None = None,
+    scope: str | None = None,
+    sample: int | None = 100,
+    seed: int = 1234,
+) -> list[GraphProbe]:
+    """Generate free deterministic probes from the live graph projection.
+
+    The seven motif families cover 5W1H completeness, multi-hop paths, causal
+    and temporal relations, contradictions, provenance recovery, and
+    unsupported-claim abstention. The graph supplies both the prompt and gold
+    ids; no model or external judge participates in generation.
+    """
+
+    from .knowledge_graph import _trust_profiles, predicate_family
+
+    node_where = [
+        "status not in ('contradicted','superseded','deprecated','deleted_soft')",
+    ]
+    node_params: list[object] = []
+    edge_where = [
+        "expired_at is null",
+        "status not in ('contradicted','superseded','deprecated','deleted_soft')",
+    ]
+    edge_params: list[object] = []
+    if namespace:
+        node_where.append("ns = ?")
+        edge_where.append("ns = ?")
+        node_params.append(namespace)
+        edge_params.append(namespace)
+    if scope:
+        node_where.append("scope = ?")
+        edge_where.append("scope = ?")
+        node_params.append(scope)
+        edge_params.append(scope)
+    nodes = connection.execute(
+        "select * from knowledge_nodes "
+        f"where {' and '.join(node_where)} order by id limit 5000",
+        node_params,
+    ).fetchall()
+    edges = connection.execute(
+        "select * from knowledge_edges "
+        f"where {' and '.join(edge_where)} order by id limit 10000",
+        edge_params,
+    ).fetchall()
+    by_id = {str(row["id"]): row for row in nodes}
+    outgoing: dict[str, list[sqlite3.Row]] = defaultdict(list)
+    for edge in edges:
+        outgoing[str(edge["src_id"])].append(edge)
+    trust = _trust_profiles(connection, nodes, at=None, include_history=False)
+
+    probes: list[GraphProbe] = []
+    seen: set[tuple[str, tuple[str, ...]]] = set()
+
+    def add(
+        motif: str,
+        query: str,
+        expected: Sequence[str],
+        *,
+        source_records: Sequence[str] = (),
+        episodes: Sequence[str] = (),
+        action: str = "retrieve",
+        rationale: str,
+    ) -> None:
+        expected_ids = tuple(dict.fromkeys(str(value) for value in expected if value))
+        key = motif, expected_ids
+        if not expected_ids or key in seen:
+            return
+        seen.add(key)
+        material = json.dumps(
+            [motif, query, expected_ids, tuple(source_records), tuple(episodes), action],
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        probes.append(GraphProbe(
+            case_id=f"graph:{motif}:{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}",
+            motif=motif,
+            query=query,
+            expected_node_ids=expected_ids,
+            source_record_ids=tuple(dict.fromkeys(str(value) for value in source_records if value)),
+            evidence_episode_ids=tuple(dict.fromkeys(str(value) for value in episodes if value)),
+            expected_action=action,
+            rationale=rationale,
+        ))
+
+    # 5W1H+Then completeness probes.
+    for row in nodes:
+        properties = json.loads(row["properties_json"] or "{}")
+        facets = properties.get("facets")
+        if not isinstance(facets, dict) or len(facets) < 2:
+            continue
+        names = ", ".join(key for key in ("who", "what", "when", "where", "why", "how", "then") if key in facets)
+        add(
+            "five_w_one_h_then",
+            f"Recover the {names} context for {row['label']}",
+            [str(row["id"])],
+            source_records=[str(row["source_record_id"] or "")],
+            rationale="tests recovery of grounded 5W1H+Then facets",
+        )
+
+    # Typed single-edge motifs.
+    for edge in edges:
+        src_id = str(edge["src_id"])
+        dst_id = str(edge["dst_id"])
+        if src_id not in by_id or dst_id not in by_id:
+            continue
+        predicate = str(edge["predicate"])
+        family = predicate_family(predicate, str(edge["edge_kind"]))
+        motif = None
+        if family == "causal":
+            motif = "causal"
+        elif family == "temporal":
+            motif = "temporal"
+        elif predicate.lower() in {"contradicts", "refutes"}:
+            motif = "contradiction"
+        if motif:
+            add(
+                motif,
+                f"What does {by_id[src_id]['label']} {predicate} with respect to {by_id[dst_id]['label']}?",
+                [src_id, dst_id],
+                source_records=[str(edge["source_record_id"])],
+                action="surface_dispute" if motif == "contradiction" else "retrieve",
+                rationale=f"tests the graph's {family} relation path",
+            )
+
+    # Two-edge paths are deterministic multi-hop probes.
+    for first in edges:
+        start = str(first["src_id"])
+        middle = str(first["dst_id"])
+        for second in outgoing.get(middle, ())[:3]:
+            end = str(second["dst_id"])
+            if len({start, middle, end}) != 3 or not {start, middle, end} <= by_id.keys():
+                continue
+            add(
+                "multi_hop",
+                f"Trace from {by_id[start]['label']} through {by_id[middle]['label']} to {by_id[end]['label']}",
+                [start, middle, end],
+                source_records=[str(first["source_record_id"]), str(second["source_record_id"])],
+                rationale="tests a factual two-edge traversal",
+            )
+
+    # Episode-to-record provenance probes.
+    provenance_where = ["ep.status = 'active'"]
+    provenance_params: list[object] = []
+    if namespace:
+        provenance_where.append("ep.ns = ?")
+        provenance_params.append(namespace)
+    if scope:
+        provenance_where.append("ep.scope = ?")
+        provenance_params.append(scope)
+    episode_links = connection.execute(
+        "select distinct ne.node_id, ep.id as episode_id, ep.source_ref, ep.source_record_id "
+        "from knowledge_node_episodes ne join knowledge_episodes ep on ep.id = ne.episode_id "
+        f"where {' and '.join(provenance_where)} order by ne.node_id, ep.id limit 10000",
+        provenance_params,
+    ).fetchall()
+    for link in episode_links:
+        node_id = str(link["node_id"])
+        if node_id not in by_id:
+            continue
+        add(
+            "provenance",
+            f"Which episode supports or produced {by_id[node_id]['label']}?",
+            [node_id],
+            source_records=[str(link["source_record_id"])],
+            episodes=[str(link["episode_id"])],
+            rationale="tests traceability from projected knowledge back to an episode",
+        )
+
+    # Unsupported knowledge must generate an abstention/verification probe.
+    for node_id, profile in sorted(trust.items()):
+        if profile["trust_state"] != "unverified" or node_id not in by_id:
+            continue
+        add(
+            "unsupported",
+            f"Can SEAM assert this as established knowledge: {by_id[node_id]['label']}?",
+            [node_id],
+            source_records=[str(by_id[node_id]["source_record_id"] or "")],
+            action="abstain_or_qualify",
+            rationale="tests that model-only or evidence-free claims are not silently asserted",
+        )
+
+    probes.sort(key=lambda probe: probe.case_id)
+    rng = random.Random(seed)
+    rng.shuffle(probes)
+    if sample is not None:
+        probes = probes[:max(0, sample)]
+    return probes
+
+
 @dataclass
 class SelfProbeScorer:
     """Scores a probe set: fraction of probes whose gold record is in the
@@ -271,6 +481,146 @@ class SelfProbeScorer:
 # rejected (the #273 R1 lesson, enforced automatically).
 DEFAULT_NOISE_MARGIN = 0.005
 DEFAULT_REGRESS_TOL = 0.005
+
+STRICT_RATCHET_FAMILIES = frozenset({
+    "aggregate",
+    "category",
+    "integrity",
+    "trust",
+    "temporal",
+    "provenance",
+    "holdout",
+})
+
+
+@dataclass(frozen=True)
+class RatchetGateEvidence:
+    """One auditable pass/fail fact used by the strict ratchet."""
+
+    name: str
+    family: str
+    passed: bool
+    baseline: float | None = None
+    candidate: float | None = None
+    threshold: float | None = None
+    details: str = ""
+    refs: tuple[str, ...] = ()
+    holdout_violation: bool = False
+
+
+@dataclass(frozen=True)
+class StrictRatchetDecision:
+    """Fail-closed decision; a pass is still only pending operator approval."""
+
+    status: str
+    accepted_for_review: bool
+    requires_approval: bool
+    can_apply: bool
+    failed_gates: tuple[str, ...]
+    evidence: tuple[RatchetGateEvidence, ...]
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "status": self.status,
+            "accepted_for_review": self.accepted_for_review,
+            "requires_approval": self.requires_approval,
+            "can_apply": self.can_apply,
+            "failed_gates": list(self.failed_gates),
+            "evidence": [
+                {
+                    "name": gate.name,
+                    "family": gate.family,
+                    "passed": gate.passed,
+                    "baseline": gate.baseline,
+                    "candidate": gate.candidate,
+                    "threshold": gate.threshold,
+                    "details": gate.details,
+                    "refs": list(gate.refs),
+                    "holdout_violation": gate.holdout_violation,
+                }
+                for gate in self.evidence
+            ],
+        }
+
+
+def strict_ratchet_decision(
+    gates: Sequence[RatchetGateEvidence],
+) -> StrictRatchetDecision:
+    """Reject on any failed or missing gate; never auto-approve a passing run.
+
+    Rejected evidence remains in the returned append-ready decision object.
+    Passing all gates yields ``pending_approval`` with ``can_apply=False`` so an
+    operator decision remains a separate, explicit transition.
+    """
+
+    evidence = tuple(gates)
+    present: set[str] = set()
+    failed: list[str] = []
+    seen_names: set[str] = set()
+
+    for index, gate in enumerate(evidence):
+        name = gate.name.strip() if isinstance(gate.name, str) else ""
+        family = gate.family.strip() if isinstance(gate.family, str) else ""
+        gate_key = name or f"gate[{index}]"
+        valid = True
+        if not name:
+            failed.append(f"invalid:{gate_key}:blank-metric")
+            valid = False
+        elif name in seen_names:
+            failed.append(f"duplicate:{name}")
+            valid = False
+        else:
+            seen_names.add(name)
+        if family not in STRICT_RATCHET_FAMILIES:
+            failed.append(f"invalid:{gate_key}:unknown-family:{family or '<blank>'}")
+            valid = False
+        refs = gate.refs if isinstance(gate.refs, (tuple, list)) else ()
+        if not refs or any(not isinstance(ref, str) or not ref.strip() for ref in refs):
+            failed.append(f"invalid:{gate_key}:blank-refs")
+            valid = False
+        for metric_name in ("baseline", "candidate", "threshold"):
+            value = getattr(gate, metric_name)
+            if value is not None and (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(float(value))
+            ):
+                failed.append(f"invalid:{gate_key}:non-finite-{metric_name}")
+                valid = False
+        if not isinstance(gate.passed, bool):
+            failed.append(f"invalid:{gate_key}:non-boolean-result")
+            valid = False
+        elif not gate.passed:
+            failed.append(gate_key)
+        if gate.holdout_violation:
+            failed.append(f"holdout-violation:{gate_key}")
+            valid = False
+        if valid:
+            present.add(family)
+
+    failed.extend(
+        f"missing:{family}"
+        for family in STRICT_RATCHET_FAMILIES
+        if family not in present
+    )
+    failed = sorted(dict.fromkeys(failed))
+    if failed:
+        return StrictRatchetDecision(
+            status="rejected",
+            accepted_for_review=False,
+            requires_approval=True,
+            can_apply=False,
+            failed_gates=tuple(failed),
+            evidence=evidence,
+        )
+    return StrictRatchetDecision(
+        status="pending_approval",
+        accepted_for_review=True,
+        requires_approval=True,
+        can_apply=False,
+        failed_gates=(),
+        evidence=evidence,
+    )
 
 
 @dataclass(frozen=True)

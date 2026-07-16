@@ -5,17 +5,92 @@ import json
 import re
 import sqlite3
 from collections import Counter
-from typing import Iterable
+from datetime import datetime, timezone
+from typing import Iterable, Mapping
 
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
 
-PROJECTION_VERSION = "knowledge-graph/3"
+PROJECTION_VERSION = "knowledge-graph/4"
 CURRENT_EXCLUDED_STATUSES = {
     Status.CONTRADICTED.value,
     Status.SUPERSEDED.value,
     Status.DEPRECATED.value,
     Status.DELETED_SOFT.value,
 }
+
+ASSERTION_KINDS = frozenset({"claim", "relation", "event", "state"})
+ASSERTABLE_TRUST_STATES = frozenset({"verified", "supported"})
+TRUST_STATES = (
+    "verified",
+    "supported",
+    "contested",
+    "unverified",
+    "refuted",
+    "stale",
+    "superseded",
+)
+
+EPISTEMIC_PREDICATES = frozenset({
+    "supports",
+    "contradicts",
+    "refutes",
+    "corroborates",
+    "derived_from",
+    "unverified_by",
+})
+CAUSAL_PREDICATES = frozenset({
+    "caused_by",
+    "causes",
+    "motivated_by",
+    "because",
+    "reason",
+    "resulted_in",
+    "leads_to",
+})
+TEMPORAL_PREDICATES = frozenset({
+    "precedes",
+    "follows",
+    "before",
+    "after",
+    "then",
+    "occurred_at",
+    "valid_during",
+    "supersedes",
+})
+PROVENANCE_PREDICATES = frozenset({
+    "provenance",
+    "evidence",
+    "excerpt_of",
+    "contributed",
+    "produced",
+})
+
+_FACET_PREDICATES = {
+    "who": "performed_by",
+    "what": "about",
+    "when": "occurred_at",
+    "where": "located_in",
+    "why": "caused_by",
+    "how": "via",
+    "then": "resulted_in",
+}
+
+
+def predicate_family(predicate: object, default: str = "semantic") -> str:
+    """Classify a predicate without rewriting the open MIRL vocabulary."""
+
+    value = str(predicate or "").strip().lower()
+    if value in EPISTEMIC_PREDICATES:
+        return "epistemic"
+    if value in CAUSAL_PREDICATES:
+        return "causal"
+    if value in TEMPORAL_PREDICATES:
+        return "temporal"
+    if value in PROVENANCE_PREDICATES:
+        return "provenance"
+    if value in {"who", "what", "when", "where", "why", "how", "then"}:
+        return "facet"
+    return default
 
 _KIND_NAMES = {
     RecordKind.RAW: "source",
@@ -435,7 +510,7 @@ def query_graph(
             "nodes": [],
             "edges": [],
             "stats": _graph_stats(connection, include_history=include_history),
-            "facets": {"kinds": {}, "agents": {}, "sources": {}},
+            "facets": {"kinds": {}, "agents": {}, "sources": {}, "trust_states": {}},
             "query": _query_payload(query, root_id, namespace, scope, agent_id, kind_values, at, include_history, limit, hops),
             "generated_at": utc_now(),
         }
@@ -489,8 +564,21 @@ def query_graph(
         at=at,
         include_history=include_history,
     )
+    trust_by_node = _trust_profiles(
+        connection,
+        node_rows,
+        at=at,
+        include_history=include_history,
+        namespace=namespace,
+        scope=scope,
+    )
     nodes: list[dict[str, object]] = [
-        _node_payload(row, agents_by_node.get(str(row["id"]), []), sources_by_node.get(str(row["id"]), []))
+        _node_payload(
+            row,
+            agents_by_node.get(str(row["id"]), []),
+            sources_by_node.get(str(row["id"]), []),
+            trust_by_node.get(str(row["id"])),
+        )
         for row in node_rows
     ]
     episode_rows = _graph_episode_rows(
@@ -527,6 +615,11 @@ def query_graph(
             "kinds": dict(sorted(Counter(str(node["kind"]) for node in nodes).items())),
             "agents": dict(sorted(Counter(agent for node in nodes for agent in node["agents"]).items())),
             "sources": dict(sorted(Counter(source for node in nodes for source in node["sources"]).items())),
+            "trust_states": dict(sorted(Counter(
+                str(node["trust_state"])
+                for node in nodes
+                if node.get("trust_state") not in {None, "not_applicable", "evidence"}
+            ).items())),
         },
         "query": _query_payload(query, root_id, namespace, scope, agent_id, kind_values, at, include_history, limit, hops),
         "generated_at": utc_now(),
@@ -662,6 +755,72 @@ def node_detail(
     }
 
 
+def assertable_record_ids(
+    connection: sqlite3.Connection,
+    record_ids: Iterable[str],
+    *,
+    at: str | None = None,
+    namespace: str | None = None,
+    scope: str | None = None,
+) -> set[str]:
+    """Return records safe to place in an asserted answer context.
+
+    The gate is fail-closed for unknown ids. Claim-like MIRL records (CLM,
+    REL, EVT, STA) pass only when their derived trust state is ``supported`` or
+    ``verified``. Evidence and descriptive records may pass when current unless
+    their only provenance is model/agent output; they never independently
+    upgrade a model-produced claim. ``at`` evaluates
+    the same rule at a historical knowledge horizon.
+
+    This function does not delete or hide rejected records from graph
+    exploration; callers use the returned id set only at an asserted-context
+    boundary. Optional namespace/scope constraints are fail-closed: ids outside
+    either boundary are absent from the result.
+    """
+
+    ids = sorted({str(record_id) for record_id in record_ids if str(record_id).strip()})
+    if not ids:
+        return set()
+    placeholders = ",".join("?" for _ in ids)
+    where = [f"id in ({placeholders})"]
+    params: list[object] = list(ids)
+    if namespace:
+        where.append("ns = ?")
+        params.append(namespace)
+    if scope:
+        where.append("scope = ?")
+        params.append(scope)
+    rows = connection.execute(
+        f"select * from knowledge_nodes where {' and '.join(where)}",
+        params,
+    ).fetchall()
+    profiles = _trust_profiles(
+        connection,
+        rows,
+        at=at,
+        include_history=bool(at),
+        namespace=namespace,
+        scope=scope,
+    )
+    allowed: set[str] = set()
+    for row in rows:
+        record_id = str(row["id"])
+        if not _node_visible_at(row, at=at):
+            continue
+        kind = str(row["kind"])
+        if kind not in ASSERTION_KINDS:
+            profile = profiles[record_id]
+            if not (
+                profile["model_output_evidence_count"]
+                and not profile["independent_evidence_count"]
+            ):
+                allowed.add(record_id)
+            continue
+        if profiles[record_id]["trust_state"] in ASSERTABLE_TRUST_STATES:
+            allowed.add(record_id)
+    return allowed
+
+
 def graph_stats(connection: sqlite3.Connection, *, include_history: bool = False) -> dict[str, object]:
     return _graph_stats(connection, include_history=include_history)
 
@@ -673,10 +832,14 @@ def _project_record(
 ) -> None:
     agent_id = _record_agent(connection, record, batch_by_id)
     label = _record_label(record, batch_by_id)
+    facets = _record_facets(record)
+    epistemic_basis = _epistemic_basis(record)
     properties = {
         "record_kind": record.kind.value,
         "attrs": {key: value for key, value in record.attrs.items() if key != "content"},
         "ext": record.ext,
+        "facets": facets,
+        "epistemic_basis": epistemic_basis,
     }
     if record.kind == RecordKind.RAW:
         content = str(record.attrs.get("content") or "")
@@ -734,7 +897,14 @@ def _project_record(
     def edge(src: str | None, predicate: str, dst: str | None, edge_kind: str, **extra: object) -> None:
         if not src or not dst or src == dst:
             return
-        edge_id = _edge_id(record.id, src, predicate, dst, edge_kind)
+        family = predicate_family(predicate, edge_kind)
+        projected_kind = family if edge_kind == "semantic" and family != "semantic" else edge_kind
+        edge_id = _edge_id(record.id, src, predicate, dst, projected_kind)
+        edge_properties = {
+            "semantic_family": family,
+            "epistemic_basis": epistemic_basis,
+            **extra,
+        }
         connection.execute(
             "insert or replace into knowledge_edges "
             "(id, src_id, dst_id, predicate, edge_kind, ns, scope, status, confidence, valid_from, valid_to, "
@@ -745,7 +915,7 @@ def _project_record(
                 src,
                 dst,
                 predicate or "related_to",
-                edge_kind,
+                projected_kind,
                 record.ns,
                 record.scope,
                 record.status.value,
@@ -757,7 +927,7 @@ def _project_record(
                 record.updated_at if record.status.value in CURRENT_EXCLUDED_STATUSES else None,
                 agent_id,
                 record.id,
-                _json(extra),
+                _json(edge_properties),
             ),
         )
         for episode_id in episode_ids:
@@ -814,14 +984,14 @@ def _project_record(
         predicate = str(attrs.get("predicate") or "asserts")
         edge(record.id, "about", subject, "grounding")
         edge(record.id, "object", obj, "grounding")
-        edge(subject, predicate, obj, "semantic", claim_id=record.id)
+        edge(subject, predicate, obj, "semantic", claim_id=record.id, facets=facets)
     elif record.kind == RecordKind.REL:
         src = reference(attrs.get("src"))
         dst = reference(attrs.get("dst"))
         predicate = str(attrs.get("predicate") or "related_to")
         edge(record.id, "subject", src, "grounding")
         edge(record.id, "object", dst, "grounding")
-        edge(src, predicate, dst, "semantic", relation_id=record.id)
+        edge(src, predicate, dst, "semantic", relation_id=record.id, facets=facets)
     elif record.kind == RecordKind.EVT:
         actor = reference(attrs.get("actor") or attrs.get("subject"))
         obj = reference(attrs.get("object"), literal=not isinstance(attrs.get("object"), str))
@@ -837,6 +1007,29 @@ def _project_record(
         edge(_agent_node_id(agent_id) if agent_id else record.id, str(attrs.get("activity") or "produced"), entity, "provenance")
     elif record.kind == RecordKind.FLOW:
         edge(reference(attrs.get("src")), str(attrs.get("predicate") or "flows_to"), reference(attrs.get("dst")), "semantic")
+
+    # 5W1H+Then is a derived, rebuildable lens over canonical MIRL. Keep the
+    # original open predicate above and add only grounded facet links here.
+    for facet, value in facets.items():
+        if facet not in _FACET_PREDICATES:
+            continue
+        is_reference = isinstance(value, str) and (
+            value in batch_by_id
+            or value.split(":", 1)[0].lower() in _PREFIX_KINDS
+        )
+        edge(
+            record.id,
+            facet,
+            reference(value, literal=not is_reference),
+            "facet",
+            canonical_predicate=_FACET_PREDICATES[facet],
+        )
+
+    # Explicit reconciliation pointers may be supplied as MIRL extension
+    # fields. They become typed graph relations but never replace old records.
+    for predicate in (*sorted(EPISTEMIC_PREDICATES), "supersedes"):
+        for target in _reference_values(record.ext.get(predicate) or attrs.get(predicate)):
+            edge(record.id, predicate, reference(target), predicate_family(predicate))
 
 
 def _episode_ids(
@@ -892,7 +1085,12 @@ def _episode_ids(
                 raw.t0,
                 raw.created_at,
                 None,
-                _json({"media_type": raw.attrs.get("media_type"), "byte_count": len(content.encode("utf-8"))}),
+                _json({
+                    "media_type": raw.attrs.get("media_type"),
+                    "byte_count": len(content.encode("utf-8")),
+                    "source_type": raw.attrs.get("source_type") or raw.ext.get("source_type"),
+                    "model_output": bool(raw.attrs.get("model_output") or raw.ext.get("model_output")),
+                }),
             ),
         )
         episode_ids.append(episode_id)
@@ -1053,6 +1251,88 @@ def _record_label(record: MIRLRecord, batch_by_id: dict[str, MIRLRecord]) -> str
     return str(attrs.get("label") or attrs.get("name") or record.id)
 
 
+def _epistemic_basis(record: MIRLRecord) -> str:
+    declared = str(record.ext.get("epistemic_basis") or "").strip().lower()
+    if declared in {"explicit", "inferred", "hypothetical"}:
+        return declared
+    if record.status == Status.HYPOTHETICAL:
+        return "hypothetical"
+    if record.status == Status.INFERRED:
+        return "inferred"
+    return "explicit"
+
+
+def _record_facets(record: MIRLRecord) -> dict[str, object]:
+    """Build a conservative 5W1H+Then projection from canonical MIRL.
+
+    Explicit ``attrs.facets`` values win. Fallbacks use only already-present
+    MIRL fields and known predicate families; this function never invents a
+    missing why/how/where value.
+    """
+
+    attrs = record.attrs
+    supplied = attrs.get("facets")
+    facets: dict[str, object] = (
+        {
+            str(key): value
+            for key, value in supplied.items()
+            if str(key) in _FACET_PREDICATES and value not in (None, "", [], {})
+        }
+        if isinstance(supplied, Mapping)
+        else {}
+    )
+
+    predicate = str(attrs.get("predicate") or attrs.get("action") or "").strip().lower()
+    family = predicate_family(predicate)
+    subject = attrs.get("subject") or attrs.get("actor") or attrs.get("src") or attrs.get("target")
+    obj = attrs.get("object") or attrs.get("dst")
+    if subject not in (None, ""):
+        # Prefer the canonical entity/reference id to an extractor's surface
+        # spelling so the facet connects to the real person/agent node.
+        facets["who"] = subject
+    if obj not in (None, ""):
+        facets.setdefault("what", obj)
+    when = attrs.get("when") or attrs.get("timestamp") or attrs.get("ts") or record.t0
+    if when not in (None, ""):
+        facets.setdefault("when", when)
+    where = attrs.get("where") or attrs.get("location")
+    if where not in (None, ""):
+        facets.setdefault("where", where)
+    why = attrs.get("why") or attrs.get("reason")
+    if why not in (None, ""):
+        facets.setdefault("why", why)
+    how = attrs.get("how") or attrs.get("method") or attrs.get("via")
+    if how not in (None, ""):
+        facets.setdefault("how", how)
+    then = attrs.get("then") or attrs.get("result") or attrs.get("outcome")
+    if then not in (None, ""):
+        facets.setdefault("then", then)
+
+    if obj not in (None, ""):
+        if predicate in {"location", "located_in", "at"}:
+            facets.setdefault("where", obj)
+        if family == "causal":
+            if predicate in {"resulted_in", "leads_to", "causes"}:
+                facets.setdefault("then", obj)
+            else:
+                facets.setdefault("why", obj)
+        if family == "temporal":
+            facets.setdefault("then", obj)
+        if predicate in {"via", "used_tool", "used_method", "method"}:
+            facets.setdefault("how", obj)
+    return facets
+
+
+def _reference_values(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value] if value.strip() else []
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return [str(item) for item in value if str(item).strip()]
+    return [str(value)]
+
+
 def _node_time_clauses(params: list[object], *, at: str | None, include_history: bool) -> list[str]:
     clauses: list[str] = []
     if at:
@@ -1203,16 +1483,25 @@ def _episode_provenance_edges(
         f"and ne.node_id in ({node_placeholders}) order by ne.episode_id, ne.node_id",
         [*sorted(episode_by_id), *sorted(node_ids)],
     ).fetchall()
-    edges: list[dict[str, object]] = []
+    contributors_by_link: dict[tuple[str, str], set[str]] = {}
     for link in links:
-        episode = episode_by_id[str(link["episode_id"])]
-        material = "\x1f".join((str(episode["id"]), "supports", str(link["node_id"])))
+        key = (str(link["episode_id"]), str(link["node_id"]))
+        contributors_by_link.setdefault(key, set()).add(str(link["source_record_id"]))
+
+    edges: list[dict[str, object]] = []
+    for (episode_id, node_id), contributor_ids in sorted(contributors_by_link.items()):
+        episode = episode_by_id[episode_id]
+        independent = _episode_is_independent(episode)
+        predicate = "supports" if independent else "unverified_by"
+        material = "\x1f".join((episode_id, predicate, node_id))
         edges.append({
             "id": f"kgep:{hashlib.sha256(material.encode('utf-8')).hexdigest()[:24]}",
-            "source": str(episode["id"]),
-            "target": str(link["node_id"]),
-            "predicate": "supports",
-            "edge_kind": "provenance",
+            "source": episode_id,
+            "target": node_id,
+            "predicate": predicate,
+            "edge_kind": "provenance" if independent else "epistemic",
+            "semantic_family": "provenance" if independent else "epistemic",
+            "epistemic_basis": "explicit",
             "namespace": str(episode["ns"]),
             "scope": str(episode["scope"]),
             "status": str(episode["status"]),
@@ -1223,10 +1512,12 @@ def _episode_provenance_edges(
             "updated_at": str(episode["expired_at"] or episode["recorded_at"]),
             "expired_at": episode["expired_at"],
             "agent_id": episode["agent_id"],
-            "source_record_id": str(link["source_record_id"]),
+            "source_record_id": str(episode["source_record_id"]),
             "properties": {
                 "projection": "episode_provenance",
                 "episode_source_record_id": str(episode["source_record_id"]),
+                "contributing_record_ids": sorted(contributor_ids),
+                "independent_evidence": independent,
             },
         })
     return edges
@@ -1282,6 +1573,272 @@ def _node_episode_facets(
         {key: sorted(values) for key, values in agents.items()},
         {key: sorted(values) for key, values in sources.items()},
     )
+
+
+def _episode_is_independent(row: sqlite3.Row) -> bool:
+    """Whether an episode is independent evidence rather than model output."""
+
+    metadata = json.loads(row["metadata_json"] or "{}")
+    source_type = str(metadata.get("source_type") or "").strip().lower()
+    if metadata.get("model_output") or metadata.get("direct_mirl"):
+        return False
+    if source_type in {"model", "model_output", "llm", "reasoning_summary", "provider_trace"}:
+        return False
+    source_ref = str(row["source_ref"] or "").strip().lower()
+    if source_ref.startswith("chat://") and source_ref.rstrip("/").endswith(("/assistant", "/model")):
+        return False
+    if source_ref.startswith("agent://") and row["agent_id"]:
+        return False
+    return True
+
+
+def _evidence_key(row: sqlite3.Row) -> str:
+    source_ref = str(row["source_ref"] or "").strip()
+    if source_ref:
+        return f"source:{source_ref}"
+    content_hash = str(row["content_hash"] or "").strip()
+    return f"content:{content_hash}" if content_hash else f"episode:{row['id']}"
+
+
+def _node_visible_at(row: sqlite3.Row, *, at: str | None) -> bool:
+    status = str(row["status"])
+    if at is None:
+        return status not in CURRENT_EXCLUDED_STATUSES and not _time_reached(row["valid_to"], utc_now())
+    start = row["valid_from"] or row["created_at"]
+    end = row["valid_to"]
+    if start and str(start) > at:
+        return False
+    if end and str(end) <= at:
+        return False
+    return status not in CURRENT_EXCLUDED_STATUSES or str(row["updated_at"]) > at
+
+
+def _time_reached(value: object, horizon: str) -> bool:
+    if value in (None, ""):
+        return False
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00")) <= datetime.fromisoformat(
+            horizon.replace("Z", "+00:00")
+        )
+    except ValueError:
+        return str(value) <= horizon
+
+
+def _trust_profiles(
+    connection: sqlite3.Connection,
+    node_rows: Iterable[sqlite3.Row],
+    *,
+    at: str | None,
+    include_history: bool,
+    namespace: str | None = None,
+    scope: str | None = None,
+) -> dict[str, dict[str, object]]:
+    """Derive tenant-isolated trust from episodes and epistemic edges.
+
+    An incoming epistemic edge is usable only when the edge, its source node,
+    and every evidence episode used from that path share the target claim's
+    namespace and scope. ``namespace``/``scope`` add an explicit fail-closed
+    caller boundary. Support and corroboration edges must also carry their own
+    independent episode; an evidenced source cannot validate an unevidenced
+    model-produced relation.
+    """
+
+    rows = list(node_rows)
+    if not rows:
+        return {}
+    ids = {str(row["id"]) for row in rows}
+    placeholders = ",".join("?" for _ in ids)
+
+    edge_params: list[object] = [*sorted(ids)]
+    edge_where = [
+        f"e.dst_id in ({placeholders})",
+        f"lower(e.predicate) in ({','.join('?' for _ in EPISTEMIC_PREDICATES | {'supersedes'})})",
+    ]
+    edge_params.extend(sorted(EPISTEMIC_PREDICATES | {"supersedes"}))
+    edge_where.extend(_edge_time_clauses(edge_params, at=at, include_history=include_history))
+    candidate_edges = connection.execute(
+        "select e.* from knowledge_edges e "
+        f"where {' and '.join(edge_where)} order by e.id",
+        edge_params,
+    ).fetchall()
+
+    source_ids = {str(edge["src_id"]) for edge in candidate_edges}
+    source_rows: list[sqlite3.Row] = []
+    if source_ids:
+        source_placeholders = ",".join("?" for _ in source_ids)
+        source_rows = connection.execute(
+            f"select * from knowledge_nodes where id in ({source_placeholders})",
+            sorted(source_ids),
+        ).fetchall()
+    node_by_id = {str(row["id"]): row for row in [*rows, *source_rows]}
+    target_by_id = {str(row["id"]): row for row in rows}
+
+    def same_tenant(candidate: sqlite3.Row, target: sqlite3.Row) -> bool:
+        if str(candidate["ns"]) != str(target["ns"]) or str(candidate["scope"]) != str(target["scope"]):
+            return False
+        if namespace is not None and str(candidate["ns"]) != namespace:
+            return False
+        if scope is not None and str(candidate["scope"]) != scope:
+            return False
+        return True
+
+    epistemic_edges: list[sqlite3.Row] = []
+    for edge in candidate_edges:
+        target = target_by_id.get(str(edge["dst_id"]))
+        source = node_by_id.get(str(edge["src_id"]))
+        if target is None or source is None:
+            continue
+        if not same_tenant(edge, target) or not same_tenant(source, target):
+            continue
+        epistemic_edges.append(edge)
+
+    evidence_node_ids = ids | {str(edge["src_id"]) for edge in epistemic_edges}
+    evidence_placeholders = ",".join("?" for _ in evidence_node_ids)
+    episode_where = [f"ne.node_id in ({evidence_placeholders})"]
+    episode_params: list[object] = [*sorted(evidence_node_ids)]
+    if at:
+        episode_where.extend(["ep.recorded_at <= ?", "(ep.expired_at is null or ep.expired_at > ?)"])
+        episode_params.extend([at, at])
+    elif not include_history:
+        episode_where.append("ep.status = 'active'")
+    episode_rows = connection.execute(
+        "select distinct ne.node_id, ep.* from knowledge_node_episodes ne "
+        "join knowledge_episodes ep on ep.id = ne.episode_id "
+        f"where {' and '.join(episode_where)} order by ne.node_id, ep.id",
+        episode_params,
+    ).fetchall()
+    independent: dict[str, set[str]] = {}
+    model_only: dict[str, set[str]] = {}
+    for episode in episode_rows:
+        node_id = str(episode["node_id"])
+        linked_node = node_by_id.get(node_id)
+        if linked_node is None or not same_tenant(episode, linked_node):
+            continue
+        target = independent if _episode_is_independent(episode) else model_only
+        target.setdefault(node_id, set()).add(_evidence_key(episode))
+
+    independent_edge_evidence: dict[str, set[str]] = {}
+    edge_ids = {str(edge["id"]) for edge in epistemic_edges}
+    if edge_ids:
+        edge_placeholders = ",".join("?" for _ in edge_ids)
+        edge_episode_rows = connection.execute(
+            "select distinct ee.edge_id, ep.* from knowledge_edge_episodes ee "
+            "join knowledge_episodes ep on ep.id = ee.episode_id "
+            f"where ee.edge_id in ({edge_placeholders}) order by ee.edge_id, ep.id",
+            sorted(edge_ids),
+        ).fetchall()
+        edge_by_id = {str(edge["id"]): edge for edge in epistemic_edges}
+        for episode in edge_episode_rows:
+            edge = edge_by_id[str(episode["edge_id"])]
+            target = target_by_id[str(edge["dst_id"])]
+            if not same_tenant(episode, target) or not _episode_is_independent(episode):
+                continue
+            independent_edge_evidence.setdefault(str(edge["id"]), set()).add(_evidence_key(episode))
+
+    incoming: dict[str, list[sqlite3.Row]] = {}
+    for edge in epistemic_edges:
+        incoming.setdefault(str(edge["dst_id"]), []).append(edge)
+
+    horizon = at or datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    profiles: dict[str, dict[str, object]] = {}
+    for row in rows:
+        node_id = str(row["id"])
+        kind = str(row["kind"])
+        if kind not in ASSERTION_KINDS:
+            profiles[node_id] = {
+                "trust_state": "not_applicable",
+                "assertable": True,
+                "epistemic_basis": _row_epistemic_basis(row),
+                "independent_evidence_count": len(independent.get(node_id, ())),
+                "model_output_evidence_count": len(model_only.get(node_id, ())),
+                "reasons": [],
+            }
+            continue
+
+        status = str(row["status"])
+        if at and status in CURRENT_EXCLUDED_STATUSES and str(row["updated_at"]) > at:
+            # The row stores current status, while point-in-time visibility
+            # admits it before that transition. Treat the later status as not
+            # yet effective at the requested horizon.
+            status = Status.ASSERTED.value
+        basis = _row_epistemic_basis(row)
+        node_edges = incoming.get(node_id, [])
+        supported_by = [
+            edge for edge in node_edges
+            if str(edge["predicate"]).lower() in {"supports", "corroborates"}
+            and independent.get(str(edge["src_id"]))
+            and independent_edge_evidence.get(str(edge["id"]))
+        ]
+        verified_refutations = [
+            edge for edge in node_edges
+            if str(edge["predicate"]).lower() == "refutes"
+            and independent.get(str(edge["src_id"]))
+            and independent_edge_evidence.get(str(edge["id"]))
+        ]
+        disputes = [
+            edge for edge in node_edges
+            if str(edge["predicate"]).lower() in {"contradicts", "refutes"}
+        ]
+        verified_supersessions = [
+            edge for edge in node_edges
+            if str(edge["predicate"]).lower() == "supersedes"
+            and independent.get(str(edge["src_id"]))
+            and independent_edge_evidence.get(str(edge["id"]))
+        ]
+        independent_evidence = set(independent.get(node_id, ()))
+        for edge in supported_by:
+            independent_evidence.update(independent.get(str(edge["src_id"]), ()))
+            independent_evidence.update(independent_edge_evidence.get(str(edge["id"]), ()))
+        independent_count = len(independent_evidence)
+        reasons: list[str] = []
+        if status == Status.SUPERSEDED.value or verified_supersessions:
+            trust_state = "superseded"
+            reasons.append("superseded by canonical lifecycle or independently evidenced relation")
+        elif status == Status.CONTRADICTED.value or verified_refutations:
+            trust_state = "refuted"
+            reasons.append("refuted by independently evidenced knowledge")
+        elif disputes:
+            trust_state = "contested"
+            reasons.append("a contradiction or refutation edge requires resolution")
+        elif _time_reached(row["valid_to"], horizon):
+            trust_state = "stale"
+            reasons.append("validity interval ended before the knowledge horizon")
+        elif basis == "hypothetical" or status == Status.HYPOTHETICAL.value:
+            trust_state = "unverified"
+            reasons.append("hypothetical claims are never asserted as established knowledge")
+        elif independent_count >= 2:
+            trust_state = "verified"
+            reasons.append("corroborated by multiple independent evidence paths")
+        elif independent_count >= 1 or supported_by:
+            trust_state = "supported"
+            reasons.append("grounded in at least one independent evidence episode")
+        else:
+            trust_state = "unverified"
+            reasons.append("no independent non-model evidence path")
+        profiles[node_id] = {
+            "trust_state": trust_state,
+            "assertable": trust_state in ASSERTABLE_TRUST_STATES,
+            "epistemic_basis": basis,
+            "independent_evidence_count": independent_count,
+            "model_output_evidence_count": len(model_only.get(node_id, ())),
+            "support_edge_count": len(supported_by),
+            "dispute_edge_count": len(disputes),
+            "reasons": reasons,
+        }
+    return profiles
+
+
+def _row_epistemic_basis(row: sqlite3.Row) -> str:
+    properties = json.loads(row["properties_json"] or "{}")
+    value = str(properties.get("epistemic_basis") or "").strip().lower()
+    if value in {"explicit", "inferred", "hypothetical"}:
+        return value
+    status = str(row["status"])
+    if status == Status.HYPOTHETICAL.value:
+        return "hypothetical"
+    if status == Status.INFERRED.value:
+        return "inferred"
+    return "explicit"
 
 
 def _graph_stats(connection: sqlite3.Connection, *, include_history: bool) -> dict[str, object]:
@@ -1342,7 +1899,21 @@ def _graph_stats(connection: sqlite3.Connection, *, include_history: bool) -> di
     }
 
 
-def _node_payload(row: sqlite3.Row, agents: list[str], sources: list[str]) -> dict[str, object]:
+def _node_payload(
+    row: sqlite3.Row,
+    agents: list[str],
+    sources: list[str],
+    trust: dict[str, object] | None = None,
+) -> dict[str, object]:
+    properties = json.loads(row["properties_json"])
+    profile = trust or {
+        "trust_state": "not_applicable",
+        "assertable": True,
+        "epistemic_basis": properties.get("epistemic_basis", "explicit"),
+        "independent_evidence_count": 0,
+        "model_output_evidence_count": 0,
+        "reasons": [],
+    }
     return {
         "id": str(row["id"]),
         "kind": str(row["kind"]),
@@ -1358,7 +1929,12 @@ def _node_payload(row: sqlite3.Row, agents: list[str], sources: list[str]) -> di
         "agents": agents or ([str(row["agent_id"])] if row["agent_id"] else []),
         "sources": sources,
         "synthetic": bool(row["synthetic"]),
-        "properties": json.loads(row["properties_json"]),
+        "facets": properties.get("facets", {}),
+        "epistemic_basis": profile["epistemic_basis"],
+        "trust_state": profile["trust_state"],
+        "assertable": bool(profile["assertable"]),
+        "trust": profile,
+        "properties": properties,
     }
 
 
@@ -1366,6 +1942,7 @@ def _episode_node_payload(row: sqlite3.Row) -> dict[str, object]:
     source_ref = str(row["source_ref"] or "").strip()
     source_record_id = str(row["source_record_id"])
     recorded_at = str(row["recorded_at"])
+    independent = _episode_is_independent(row)
     return {
         "id": str(row["id"]),
         "kind": "episode",
@@ -1381,6 +1958,20 @@ def _episode_node_payload(row: sqlite3.Row) -> dict[str, object]:
         "agents": [str(row["agent_id"])] if row["agent_id"] else [],
         "sources": [source_ref] if source_ref else [],
         "synthetic": True,
+        "facets": {"when": row["valid_at"] or recorded_at},
+        "epistemic_basis": "explicit",
+        "trust_state": "evidence",
+        "assertable": independent,
+        "trust": {
+            "trust_state": "evidence",
+            "assertable": independent,
+            "independent_evidence_count": int(independent),
+            "model_output_evidence_count": int(not independent),
+            "reasons": [
+                "independent source episode" if independent
+                else "model or agent output is provenance, not independent evidence"
+            ],
+        },
         "properties": {
             "source_record_id": source_record_id,
             "source_ref": source_ref or None,
@@ -1393,6 +1984,7 @@ def _episode_node_payload(row: sqlite3.Row) -> dict[str, object]:
 
 
 def _edge_payload(row: sqlite3.Row) -> dict[str, object]:
+    properties = json.loads(row["properties_json"])
     return {
         "id": str(row["id"]),
         "source": str(row["src_id"]),
@@ -1410,7 +2002,12 @@ def _edge_payload(row: sqlite3.Row) -> dict[str, object]:
         "expired_at": row["expired_at"],
         "agent_id": row["agent_id"],
         "source_record_id": str(row["source_record_id"]),
-        "properties": json.loads(row["properties_json"]),
+        "semantic_family": properties.get(
+            "semantic_family",
+            predicate_family(row["predicate"], str(row["edge_kind"])),
+        ),
+        "epistemic_basis": properties.get("epistemic_basis", "explicit"),
+        "properties": properties,
     }
 
 

@@ -84,13 +84,18 @@ class TestChatEndpoint:
         monkeypatch.setattr(srv, "_call_chat_provider", fake_provider)
         client = self._client()
         seed = client.post("/compile", json={
-            "text": "Alice prefers dark mode and drinks oat milk lattes.", "persist": True})
+            "text": "Alice prefers dark mode and drinks oat milk lattes.",
+            "ns": "local.chat",
+            "scope": "thread",
+            "persist": True,
+        })
         assert seed.status_code == 200
 
         resp = client.post("/chat", json={
             "message": "what does alice prefer?", "model": "gpt-4o-mini",
             "provider": "OpenAI", "base_url": "https://api.openai.com/v1",
-            "api_key": "stub", "use_memory": True, "budget": 5})
+            "api_key": "stub", "use_memory": True, "budget": 5,
+            "ns": "local.chat", "scope": "thread"})
         assert resp.status_code == 200
         body = resp.json()
         assert body["memory_used"] >= 1

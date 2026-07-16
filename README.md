@@ -206,6 +206,15 @@ filter by contributing agent, inspect historical knowledge, and open graph-backe
 pages with facts, backlinks, sources, confidence, and canonical MIRL. See
 [`docs/KNOWLEDGE_GRAPH.md`](docs/KNOWLEDGE_GRAPH.md).
 
+The Memory workspace also exposes a conservative **5W1H+Then** lens, explicit
+evidence-derived trust states, seven selectable graph/workspace layers, and an
+append-only **LIVE** event replay. Chat asserts only supported or verified
+memory; contested, model-only, stale, refuted, and superseded records remain
+visible for inspection but fail closed at the answer-context boundary. Optional
+local Qwen or authenticated remote J-lens workers require verified artifacts and
+activation access; ordinary hosted-provider traces are labeled only as
+structured workspace telemetry, never hidden reasoning or J-Space.
+
 ## RAG Architecture
 
 SEAM takes the useful parts of graph RAG systems while keeping canonical memory
@@ -281,6 +290,12 @@ Extras keep the base install focused:
 - `sbert`: local sentence-transformer embeddings
 - `agent`: reserved agent bridge extra; current stdio bridge has no extra dependency
 - `rerank`: reranker model dependencies
+
+J-lens model weights, analyzers, cloud workers, provider credentials, and
+pgvector remain operator-configured optional resources outside the repository.
+With no `SEAM_JSPACE_BACKEND`, SEAM reports `structured_workspace_only`, performs
+no model download/network call, and still provides the graph, trust gate,
+structured SSE workspace, LIVE view, and replay.
 
 ## REST API
 

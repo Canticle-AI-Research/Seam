@@ -18,6 +18,7 @@ from benchmarks.external.common.adjudication import (
 from seam_runtime.retrieval import RetrievalFlags, load_retrieval_flags
 from seam_runtime.self_improve import (
     Candidate,
+    RatchetGateEvidence,
     ScoreReport,
     candidate_levers,
     evaluate_candidates,
@@ -29,6 +30,18 @@ from tools.h2.improvement_loop import run_improvement_cycle
 
 def _store(tmp_path):
     return SQLiteStore(tmp_path / "loop.db")
+
+
+def _strict_non_evaluation_gates():
+    return [
+        RatchetGateEvidence(
+            name=f"{family}:verified",
+            family=family,
+            passed=True,
+            refs=(f"probe:{family}:1",),
+        )
+        for family in ("integrity", "trust", "temporal", "provenance", "holdout")
+    ]
 
 
 class _FlagFnScorer:
@@ -137,17 +150,25 @@ def test_select_best_picks_largest_total_gain():
 # ---- run_improvement_cycle ---------------------------------------------------
 
 
-def test_cycle_proposes_and_auto_applies_improvement(tmp_path):
+def test_cycle_proposes_but_auto_approve_cannot_bypass_operator(tmp_path):
     store = _store(tmp_path)
     scorer = _FlagFnScorer(lambda fl: 0.9 if fl.bm25_all_kinds else 0.5)
 
-    report = run_improvement_cycle(None, store, [scorer], auto_approve=True)
+    report = run_improvement_cycle(
+        None,
+        store,
+        [scorer],
+        auto_approve=True,
+        ratchet_gates=_strict_non_evaluation_gates(),
+    )
 
     assert report["proposed"] is not None
     assert report["proposed"]["change"] == {"bm25_all_kinds": True}
-    assert report["applied"] is True
+    assert report["proposed"]["ratchet"]["status"] == "pending_approval"
+    assert report["applied"] is False
     assert report["reverted"] is False
-    assert load_retrieval_flags(store, env={}).bm25_all_kinds is True
+    assert load_retrieval_flags(store, env={}).bm25_all_kinds is False
+    assert store.iter_improvement_proposals()[0]["latest_status"] == "pending"
 
 
 class _ProfileSafeScorer:
@@ -197,12 +218,19 @@ def test_cycle_answer_policy_levers_require_answer_quality_scorers(tmp_path):
     safe = _AnswerPolicySafeScorer(
         lambda flags: 0.9 if flags.conversation_adapter == "conversation/1" else 0.5
     )
-    report = run_improvement_cycle(None, store, [safe], auto_approve=True)
+    report = run_improvement_cycle(
+        None,
+        store,
+        [safe],
+        auto_approve=True,
+        ratchet_gates=_strict_non_evaluation_gates(),
+    )
     assert report["answer_policy_levers"] is True
     assert report["proposed"]["change"] == {"conversation_adapter": "conversation/1"}
-    assert load_retrieval_flags(store, env={}).conversation_adapter == "conversation/1"
+    assert load_retrieval_flags(store, env={}).conversation_adapter == "off"
     [proposal] = store.iter_improvement_proposals()
     assert proposal["kind"] == "answer_policy"
+    assert proposal["latest_status"] == "pending"
 
 
 def test_category_floor_progress_can_select_small_aggregate_gain():
@@ -368,16 +396,17 @@ class _RevertScorer:
         return ScoreReport(scorer=self.name, aggregate=agg, n=10)
 
 
-def test_cycle_auto_reverts_on_post_apply_regression(tmp_path):
+def test_cycle_auto_approve_never_mutates_applied_state(tmp_path):
     store = _store(tmp_path)
     scorer = _RevertScorer(store)
 
     report = run_improvement_cycle(None, store, [scorer], auto_approve=True)
 
     assert report["proposed"] is not None      # it looked like an improvement
-    assert report["reverted"] is True           # ...but confirm regressed
+    assert report["reverted"] is False
     assert report["applied"] is False
-    # flag state backed out -> baseline restored
+    assert report["proposed"]["ratchet"]["status"] == "rejected"
+    # No pre-approval mutation occurs, so no revert is needed.
     assert load_retrieval_flags(store, env={}) == RetrievalFlags()
 
 

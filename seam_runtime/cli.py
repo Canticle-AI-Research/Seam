@@ -402,10 +402,10 @@ def build_parser() -> argparse.ArgumentParser:
     improve_subparsers = improve_parser.add_subparsers(dest="improve_command", required=True)
     improve_cycle_parser = improve_subparsers.add_parser(
         "cycle",
-        help="Run one improvement cycle: evaluate levers against free scorers, propose the best non-regressing gain, optionally auto-apply with revert-on-regression",
+        help="Run one improvement cycle: evaluate levers, record strict ratchet evidence, and leave passing proposals pending operator approval",
     )
     improve_cycle_parser.add_argument("--db", default=argparse.SUPPRESS, help="SQLite database path (may also be given before the subcommand)")
-    improve_cycle_parser.add_argument("--auto-approve", action="store_true", help="Approve + apply the proposal and auto-revert if it regresses post-apply (default: propose only)")
+    improve_cycle_parser.add_argument("--auto-approve", action="store_true", help="Deprecated compatibility flag; strict-ratchet proposals always require separate operator approval")
     improve_cycle_parser.add_argument("--probe-sample", type=int, default=50, help="Self-probe sample size from the local corpus (default 50; 0 disables the self-probe scorer)")
     improve_cycle_parser.add_argument("--probe-budget", type=int, default=20, help="Fixed eval budget for the self-probe scorer (default 20)")
     improve_cycle_parser.add_argument("--locomo-dataset", default=None, help="Optional free LoCoMo context_recall scorer from this dataset path (source checkout only)")

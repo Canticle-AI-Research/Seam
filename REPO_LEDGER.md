@@ -77,6 +77,37 @@ and `HISTORY_INDEX.md`.
   graph retrieval and the dashboard consume the same projection, and inactive
   claims remain available only through explicit history views. See
   `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
+- The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
+  parallel truth store. Explicit facets and already-present MIRL fields may
+  project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing
+  facets are never invented. Graph provenance edges aggregate contributors by
+  episode/node pair so the API has stable unique edge IDs without losing the
+  contributing record list. See HISTORY#403.
+- Assertion trust is evidence-gated and fail-closed. Claim/relation/event/state
+  records enter `/chat` and `/chat/stream` asserted memory only when current and
+  `supported` or `verified` inside the requested namespace and scope. Model or
+  agent output is provenance, not independent evidence. Contested, unverified,
+  refuted, stale, superseded, unknown, and cross-boundary records remain visible
+  in graph/history exploration but are excluded from answer context.
+- Structured workspace runs/events are append-only operational telemetry, not
+  canonical MIRL. The schema allowlists event payload fields and strips unknown,
+  credential-shaped, hidden-chain-of-thought, raw-activation, and tensor data.
+  POST-backed SSE and replay share stable event IDs and per-run sequence order;
+  every stream has exactly one completion/failure terminal event.
+- J-lens capability claims are honest and opt-in. The default is structured
+  workspace only, with no bundled weights, network access, downloads, or raw
+  activation persistence. A genuine J-lens requires activation-capable local
+  model access or an authenticated remote worker plus verified model/revision
+  and model/lens artifact hashes. Hosted-provider traces are never relabeled as
+  J-Space. Remote workers require operator host allowlisting and exact IP pins;
+  credentials/artifacts remain outside the repository.
+- The H2 improvement loop is a strict propose-and-approve ratchet. It can derive
+  free probes from the live graph and writes proposals into the existing H2
+  store, but aggregate/category/integrity/trust/temporal/provenance/holdout gates
+  must all pass with evidence. Any failure or missing/malformed gate records an
+  append-only rejection; a full pass remains pending until explicit approval,
+  and `auto_approve` cannot bypass that boundary. The apply path admits only an
+  approved, non-violating proposal with a passing stored ratchet.
 - Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam[chroma]`, `seam[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
 - Document ingest status is canonical SQLite metadata. Source refs, source hashes, extraction status, index status, and deletion state belong in `document_status`, not only in derived vector stores.
 - Agent-facing retrieval should use progressive disclosure where possible: compact search/index results first, then full MIRL records by selected IDs.

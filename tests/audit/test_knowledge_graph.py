@@ -73,15 +73,21 @@ def test_query_graph_projects_episodes_as_connected_provenance_nodes(runtime: Se
     assert episode["agents"] == ["codex"]
     assert episode["sources"] == ["agent://codex/session-episode"]
     assert episode["properties"]["source_record_id"].startswith("raw:")
-    supports = [
+    provenance = [
         edge
         for edge in graph["edges"]
-        if edge["source"] == episode["id"] and edge["predicate"] == "supports"
+        if edge["source"] == episode["id"] and edge["predicate"] == "unverified_by"
     ]
-    assert supports
-    assert all(edge["edge_kind"] == "provenance" for edge in supports)
-    assert all(edge["properties"]["projection"] == "episode_provenance" for edge in supports)
-    assert {edge["target"] for edge in supports} <= {node["id"] for node in graph["nodes"]}
+    assert provenance
+    edge_ids = [edge["id"] for edge in graph["edges"]]
+    assert len(edge_ids) == len(set(edge_ids))
+    endpoint_pairs = [(edge["source"], edge["target"]) for edge in provenance]
+    assert len(endpoint_pairs) == len(set(endpoint_pairs))
+    assert all(edge["edge_kind"] == "epistemic" for edge in provenance)
+    assert all(edge["properties"]["projection"] == "episode_provenance" for edge in provenance)
+    assert all(edge["properties"]["contributing_record_ids"] for edge in provenance)
+    assert all(edge["properties"]["independent_evidence"] is False for edge in provenance)
+    assert {edge["target"] for edge in provenance} <= {node["id"] for node in graph["nodes"]}
     assert graph["stats"]["episode_count"] == 1
     assert graph["facets"]["kinds"]["episode"] == 1
 
@@ -540,6 +546,20 @@ def test_dashboard_graph_is_live_only_and_has_no_synthetic_edge_builder() -> Non
     assert "knowledgeGraph: async function" in api
     assert "knowledgeNode: async function" in api
     assert "if (at) params.set('at', at)" in api
+    assert '<link rel="icon" href="favicon.svg" type="image/svg+xml" />' in dashboard
+    assert "const [density, setDensity] = React.useState('compact')" in dashboard
+    assert "const [terminalOpen, setTerminalOpen] = useState(false)" in dashboard
+    assert "if (!sleepingRef.current || dragNode) raf = requestAnimationFrame(step)" in dashboard
+    assert "visible /" not in workspace
+    assert "durable records +" in workspace
+    assert "answer context:" in workspace
+    assert "MIRL confidence" in workspace
+    assert "Verification is evidence-derived and separate" in workspace
+    assert dashboard.index("graph_activation/.test(type)") < dashboard.index("if (/activation/.test(type))")
+    assert "var terminalCount = 0" in api
+    assert "duplicate terminal event" in api
+    assert "terminalCount !== 1" in api
+    assert api.index("if (terminalCount !== 1)") < api.index("if (handlers.onDone) handlers.onDone()")
 
 
 def test_knowledge_properties_are_valid_json(runtime: SeamRuntime) -> None:

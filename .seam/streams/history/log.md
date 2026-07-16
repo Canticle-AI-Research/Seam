@@ -8878,3 +8878,75 @@ Verified the focused graph suite at 18 passed and the dashboard/API compatibilit
 
 Cut-off state is intentionally `in-progress` because the runtime tree is dirty and no commit, push, or PR exists yet, even though the requested implementation slice is complete. No missing constants, helpers, undefined symbols, or known focused-test mismatches remain. The successor must first rerun collection against the affected modules and the full canonical non-external suite with `SEAM_PGVECTOR_DSN` unset; then scan candidate files for secrets/private session links, commit the coherent slice, push the branch, open or update a draft PR, and complete required CI/review before claiming publication. The branch is one commit behind `origin/main`, so base drift must be reconciled without discarding this work.
 ---END-ENTRY-#402---
+
+---BEGIN-ENTRY-#403---
+id: 403
+date: 2026-07-16T19:01:09Z
+agent: codex
+status: done
+topics: graph, memory, trust, provenance, webui, dashboard, retrieval, agent, persist, security, models, tests, verify, history, status
+commits: none
+refs: seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py,seam_runtime/self_improve.py,seam_runtime/workspace.py,seam_runtime/jspace.py,seam_runtime/storage.py,seam_runtime/server.py,seam_runtime/webui/dashboard.html,seam_runtime/webui/seam-api.js,tools/h2/improvement_loop.py,tools/h2/improvement_review.py,tests/audit/test_deep_knowledge_graph.py,tests/audit/test_grounding_ratchet_hardening.py,tests/audit/test_workspace_jspace.py,tests/audit/test_knowledge_graph.py,tests/audit/test_improvement_loop.py,tests/audit/test_chat_endpoint.py,docs/KNOWLEDGE_GRAPH.md,README.md,docs/CODE_LAYOUT.md,REPO_LEDGER.md,PROJECT_STATUS.md
+supersedes: 402
+tokens: 707
+---
+Completed the deep knowledge/workspace/improvement successor to the temporal
+projection recorded by #402 on `agent/temporal-knowledge-graph`. Canonical
+RAW/MIRL persistence now projects a conservative 5W1H+Then lens and derives
+evidence-based trust states without inventing missing facets. Multiple
+independent evidence paths can verify an assertion, one can support it, and
+model/agent output remains provenance rather than independent corroboration.
+The asserted answer boundary is fail-closed: both `/chat` and `/chat/stream`
+admit only current supported/verified claims, relations, events, and states in
+the requested namespace/scope. Unknown, cross-boundary, model-only, contested,
+unverified, refuted, stale, and superseded records remain inspectable in the
+graph/history workspace but do not enter the provider system prompt.
+
+Added append-only `workspace_run`/`workspace_event` operational telemetry with
+stable event IDs, per-run sequence ordering, POST-backed SSE, cursor replay,
+bounded graph spreading activation, one terminal completion/failure event, and
+recursive allowlist sanitization. Unknown fields, credential-shaped keys,
+hidden chain-of-thought, raw activations, tensor-like data, logits, and attention
+weights do not persist. The optional J-lens boundary reports structured-only by
+default: no bundled weights, download, network request, or raw activation
+persistence. Genuine capability requires an activation-capable local Qwen model
+plus external analyzer and exact local artifact hashes, or an authenticated
+remote worker with HTTPS/loopback rules, operator host allowlisting, exact DNS
+pins, redirect/response limits, and matching model/revision/model/lens identity.
+Hosted-provider traces remain honestly labeled structured summaries rather than
+J-Space.
+
+The browser Memory workspace now exposes seven independently selectable layers:
+Knowledge, 5W1H, Episodes, Trust, Workspace, Activation, and Improvement, plus a
+LIVE cursor feed and scrub/play replay. Activation is visibly unavailable when
+no genuine J-lens is connected. Final graph hardening aggregates every
+episode/node provenance relationship into one stable edge carrying all
+`contributing_record_ids`; this closes the exact repeated-edge rows observed in
+the live API payload without discarding provenance. Graph-derived deterministic
+probes now feed the real H2 candidate/proposal substrate. The strict ratchet
+requires aggregate, category, integrity, trust, temporal, provenance, and
+holdout evidence families; failed, missing, malformed, duplicate, non-finite,
+or holdout-violating gates append a rejection. A full pass remains
+`pending_approval` with `can_apply=false`, and compatibility `auto_approve`
+cannot bypass explicit approval before the existing apply path.
+
+Verification evidence from the completed implementation session: the combined
+compatibility slice passed 533 tests with zero skips; 16 adversarial checks
+passed; the graph/duplicate-edge slice passed 29 tests; workspace/security
+passed 42 tests; grounding/ratchet passed 79 tests. Browser acceptance covered
+default graph, trust inspection, LIVE workspace signals, and replay in
+`/tmp/seam-deep-final-{default,trust,live,replay}.png`; no final known visual
+defect remained after the duplicate-edge live-payload diagnosis and aggregation
+fix. Ruff, module compilation, and `git diff --check` were also clean for the
+implementation slices. No provider or paid call occurred.
+
+Qualification: this is not publication evidence for a canonical full
+non-external suite. No canonical full non-external run, real local Qwen/lens
+artifact analysis, remote/cloud worker call, hosted-provider chat call, paid
+benchmark, or real pgvector run was performed for this successor. The base
+temporal projection is local commit `d71ca2a`; the deep runtime/tests remain a
+coherent uncommitted dirty slice, with no push or PR. The ignored `.venv` remains
+untouched pending explicit operator approval. Next: review and commit the whole
+coherent slice, run the canonical non-external suite plus separately configured
+real pgvector/J-lens gates, then push/open a draft PR only when authorized.
+---END-ENTRY-#403---

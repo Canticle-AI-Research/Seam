@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEAM — Dashboard</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -79,6 +80,26 @@
     @media (max-width: 1100px) {
       .kg-workspace-grid { grid-template-columns: 1fr !important; }
       .kg-workspace-grid aside { height: auto !important; max-height: 520px; }
+      .kg-query-controls { grid-template-columns: minmax(220px,1fr) 140px 160px !important; }
+      .kg-layer-bar { align-items: flex-start !important; }
+    }
+
+    @media (max-width: 760px) {
+      .kg-query-controls { grid-template-columns: 1fr !important; }
+      .kg-layer-bar { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .kg-layer-bar .kg-live-control { grid-column: 1 / -1; margin-left: 0 !important; }
+      .kg-signal-tape { grid-template-columns: 1fr !important; }
+      .kg-signal-tape ol { max-height: 148px !important; }
+    }
+
+    @keyframes kg-activation-ring {
+      0% { opacity: .9; transform: scale(.72); }
+      70%,100% { opacity: 0; transform: scale(1.65); }
+    }
+
+    @keyframes kg-live-scan {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(460%); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -87,6 +108,7 @@
         animation-iteration-count: 1 !important;
         scroll-behavior: auto !important;
       }
+      .kg-live-scan { display: none !important; }
     }
   </style>
 </head>
@@ -3597,6 +3619,9 @@ const knowledgeKindColors = {
   agent: '#f4d676', entity: '#a6fcff', claim: '#7fe0ff', event: '#ffbf69',
   relation: '#9b6cff', state: '#7efdb9', evidence: '#d391ff', source: '#66b8ff',
   episode: '#ff8f70',
+  workspace_event: '#8df6ff', workspace_run: '#66b8ff', activation: '#d391ff',
+  hypothesis: '#b7a0ff', decision: '#7efdb9', verification: '#f4d676',
+  improvement: '#7efdb9', proposal: '#f4d676', benchmark: '#66b8ff',
   provenance: '#64748b', value: '#8df6ff', concept: '#4f8cfb', symbol: '#8df6ff',
   pack: '#8090b0', flow: '#7efdb9', metadata: '#5a7a9a'
 };
@@ -3605,13 +3630,98 @@ const knowledgeEdgeStyles = {
   semantic: { color: '#7fe0ff', label: 'semantic fact' },
   grounding: { color: '#9b6cff', label: 'record structure' },
   provenance: { color: '#f4d676', label: 'provenance' },
-  temporal: { color: '#ff8f70', label: 'evolution' }
+  temporal: { color: '#ff8f70', label: 'evolution' },
+  causal: { color: '#ffbf69', label: 'causal path' },
+  trust: { color: '#ff6b6b', label: 'trust / dispute' },
+  workspace: { color: '#8df6ff', label: 'workspace trace' },
+  activation: { color: '#d391ff', label: 'activation-derived' },
+  improvement: { color: '#7efdb9', label: 'improvement loop' }
 };
+
+const knowledgeLayerDefinitions = [
+  { id: 'knowledge', label: 'Knowledge', mark: 'K', color: '#7fe0ff', hint: 'Durable MIRL facts, entities, and relations' },
+  { id: '5w1h', label: '5W1H', mark: '？', color: '#ffbf69', hint: 'Who, what, when, where, why, how, and then' },
+  { id: 'episodes', label: 'Episodes', mark: 'E', color: '#ff8f70', hint: 'Source episodes and temporal provenance' },
+  { id: 'trust', label: 'Trust', mark: 'T', color: '#ff6b6b', hint: 'Support, contradiction, verification, and supersession' },
+  { id: 'workspace', label: 'Workspace', mark: 'W', color: '#8df6ff', hint: 'Structured retrieval, tool, hypothesis, decision, and verification events' },
+  { id: 'activation', label: 'Activation', mark: 'J', color: '#d391ff', hint: 'Activation-derived J-lens concepts only when model internals are available' },
+  { id: 'improvement', label: 'Improvement', mark: 'Δ', color: '#7efdb9', hint: 'Proposals, evaluations, decisions, and applied outcomes' }
+];
+
+const knowledgeFacetLabels = {
+  who: { label: 'WHO', color: '#f4d676' }, what: { label: 'WHAT', color: '#7fe0ff' },
+  when: { label: 'WHEN', color: '#ff8f70' }, where: { label: 'WHERE', color: '#66b8ff' },
+  why: { label: 'WHY', color: '#d391ff' }, how: { label: 'HOW', color: '#7efdb9' },
+  then: { label: 'THEN', color: '#ffbf69' }
+};
+
+function knowledgeFacet(edge) {
+  const predicate = String(edge?.predicate || edge?.kind || '').toLowerCase().replace(/[- ]/g, '_');
+  if (/performed_by|created_by|authored_by|agent|person|owner|actor/.test(predicate)) return 'who';
+  if (/occurred_at|valid_during|recorded_at|created_at|updated_at|time|date|during/.test(predicate)) return 'when';
+  if (/located_in|location|place|where|site|region/.test(predicate)) return 'where';
+  if (/caused_by|motivated_by|because|reason|why|intent|goal/.test(predicate)) return 'why';
+  if (/\bvia\b|used_tool|used_method|method|how|process|mechanism/.test(predicate)) return 'how';
+  if (/precedes|follows|resulted_in|supersedes|then|next|outcome|transition/.test(predicate)) return 'then';
+  if (/did|affected|about|subject|object|what|claim|entity/.test(predicate)) return 'what';
+  return '';
+}
+
+function knowledgeGraphLayerForNode(node) {
+  const kind = String(node?.kind || '').toLowerCase();
+  const properties = node?.properties || {};
+  if (kind === 'episode') return 'episodes';
+  if (/activation|j_lens|jlens/.test(kind) || properties.activation_derived === true) return 'activation';
+  if (/workspace|hypothesis|decision|verification|reasoning_summary|tool_event/.test(kind)) return 'workspace';
+  if (/improvement|proposal|benchmark|candidate|evaluation/.test(kind)) return 'improvement';
+  return 'knowledge';
+}
+
+function knowledgeGraphLayerForEdge(edge) {
+  const type = knowledgeEdgeType(edge);
+  if (type === 'trust') return 'trust';
+  if (type === 'workspace') return 'workspace';
+  if (type === 'activation') return 'activation';
+  if (type === 'improvement') return 'improvement';
+  if (knowledgeFacet(edge)) return '5w1h';
+  if (type === 'provenance' && /episode/.test(String(edge?.predicate || ''))) return 'episodes';
+  return 'knowledge';
+}
+
+function workspaceEventVisual(event) {
+  const type = String(event?.event_type || event?.type || 'event').toLowerCase();
+  if (/j_?lens|activation_concept/.test(type)) return { label: 'J-LENS', color: '#d391ff', layer: 'activation', honest: 'activation-derived concept' };
+  if (/reasoning_summary|provider_summary|summary/.test(type)) return { label: 'SUMMARY', color: '#b7a0ff', layer: 'workspace', honest: 'provider-exposed summary' };
+  if (/retriev|memory|graph_activation/.test(type)) return { label: 'RETRIEVE', color: '#7fe0ff', layer: 'workspace', honest: 'retrieval event' };
+  if (/activation/.test(type)) return { label: 'ACTIVATE', color: '#d391ff', layer: 'activation', honest: 'structured graph activation' };
+  if (/tool|observation/.test(type)) return { label: 'TOOL', color: '#66b8ff', layer: 'workspace', honest: 'tool observation' };
+  if (/hypothesis/.test(type)) return { label: 'HYPOTHESIS', color: '#b7a0ff', layer: 'workspace', honest: 'structured hypothesis' };
+  if (/decision/.test(type)) return { label: 'DECISION', color: '#7efdb9', layer: 'workspace', honest: 'structured decision' };
+  if (/verif|evidence/.test(type)) return { label: 'VERIFY', color: '#f4d676', layer: 'workspace', honest: 'verification event' };
+  if (/improv|proposal|benchmark|candidate|evaluation/.test(type)) return { label: 'IMPROVE', color: '#7efdb9', layer: 'improvement', honest: 'improvement event' };
+  if (/fail|error/.test(type)) return { label: 'FAILURE', color: '#ff6b6b', layer: 'workspace', honest: 'runtime failure' };
+  if (/complete|answer/.test(type)) return { label: 'COMPLETE', color: '#7efdb9', layer: 'workspace', honest: 'run completion' };
+  return { label: 'EVENT', color: '#8090b0', layer: 'workspace', honest: 'structured workspace event' };
+}
+
+function workspaceEventNodeIds(event) {
+  const payload = event?.payload || {};
+  const values = [payload.node_id, payload.record_id, payload.claim_id, payload.source_id]
+    .concat(payload.node_ids || [], payload.record_ids || [], payload.activated_nodes || [], payload.retrieved_node_ids || [], payload.seed_ids || [], payload.asserted_context_ids || [])
+    .concat((payload.nodes || []).map((node) => typeof node === 'string' ? node : node?.node_id || node?.id || node?.record_id))
+    .concat((payload.candidates || []).map((candidate) => typeof candidate === 'string' ? candidate : candidate?.node_id || candidate?.record_id || candidate?.id));
+  return Array.from(new Set(values.filter((value) => typeof value === 'string' && value)));
+}
 
 function knowledgeEdgeType(edge) {
   const edgeKind = String(edge.edge_kind || edge.edgeKind || '').toLowerCase();
   const predicate = String(edge.predicate || edge.kind || '').toLowerCase();
-  if (edgeKind === 'temporal' || /supersed|contradict|refin|revis|preced|follow|expire/.test(predicate)) return 'temporal';
+  if (edgeKind === 'trust' || /support|contradict|refut|corroborat|unverified|contested|hallucinat/.test(predicate)) return 'trust';
+  if (edgeKind === 'activation' || /j_?lens|activation|jacobian/.test(predicate)) return 'activation';
+  if (edgeKind === 'workspace' || /retriev|hypothesis|decision|verification|tool_observation|reasoning_summary/.test(predicate)) return 'workspace';
+  if (edgeKind === 'improvement' || /proposal|benchmark|candidate|evaluat|approved|rejected|applied_version/.test(predicate)) return 'improvement';
+  if (edgeKind === 'causal' || /caused|motivated|resulted|because|reason/.test(predicate)) return 'causal';
+  if (edgeKind === 'temporal' || /supersed|refin|revis|preced|follow|expire/.test(predicate)) return 'temporal';
   if (edgeKind === 'provenance' || /provenance|evidence|source|episode|observed|contribut|produc|excerpt/.test(predicate)) return 'provenance';
   if (edgeKind === 'grounding' || /\b(about|subject|object|ground)\b/.test(predicate)) return 'grounding';
   return 'semantic';
@@ -3624,7 +3734,7 @@ function knowledgeGraphDate(value) {
   return date.toLocaleDateString(undefined, { year: '2-digit', month: 'short', day: 'numeric' });
 }
 
-function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId, externalHovered, height = 480 }) {
+function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId, externalHovered, activeNodeIds = [], activeEvent = null, height = 480 }) {
   const containerRef = React.useRef(null);
   const svgRef = React.useRef(null);
   const [size, setSize] = React.useState({ w: 900, h: height });
@@ -3635,16 +3745,24 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
   const [dragNode, setDragNode] = React.useState(null);
   const [panning, setPanning] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
-  const [density, setDensity] = React.useState('rich');
+  const [density, setDensity] = React.useState('compact');
+  const [reducedMotion, setReducedMotion] = React.useState(() => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false);
   const transformRef = React.useRef(transform);
   React.useEffect(() => {transformRef.current = transform;}, [transform]);
+  React.useEffect(() => {
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!media) return;
+    const update = () => setReducedMotion(media.matches);
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
   // Pulse counter used for flowing-data animation along hot edges
   const [pulse, setPulse] = React.useState(0);
   React.useEffect(() => {
-    if (!hovered && !selectedId) return;
+    if (reducedMotion || !hovered && !selectedId && activeNodeIds.length === 0) return;
     const i = setInterval(() => setPulse((p) => p + 1), 60);
     return () => clearInterval(i);
-  }, [hovered, selectedId]);
+  }, [hovered, selectedId, activeNodeIds.length, reducedMotion]);
 
   // ── Force-simulation parameters ───────────────────────────────────────
   const [forces, setForces] = React.useState({
@@ -3661,9 +3779,11 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
   // ── Alpha cooling — simulation stabilizes & sleeps ────────────────────
   const alphaRef = React.useRef(1);
   const sleepingRef = React.useRef(false);
+  const [simulationEpoch, wakeSimulation] = React.useReducer((value) => value + 1, 0);
   const kickAlpha = React.useCallback((v = 0.6) => {
     alphaRef.current = Math.max(alphaRef.current, v);
     sleepingRef.current = false;
+    wakeSimulation();
   }, []);
 
   // ── Normalize the canonical API projection. No edges are synthesized here. ──
@@ -3693,6 +3813,7 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
         kind: e.predicate || 'related_to',
         edgeKind: e.edge_kind,
         type,
+        facet: knowledgeFacet(e),
         color: knowledgeEdgeStyles[type].color,
         confidence: e.confidence,
         record: e
@@ -3700,6 +3821,7 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
     });
     return { nodes: normalizedNodes, edges: normalizedEdges };
   }, [graphNodes, graphEdges]);
+  const activeNodeSet = React.useMemo(() => new Set(activeNodeIds || []), [activeNodeIds]);
 
   // Live physics simulation
   const simNodes = React.useRef([]);
@@ -3775,11 +3897,11 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
         }
       }
       force();
-      raf = requestAnimationFrame(step);
+      if (!sleepingRef.current || dragNode) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [dragNode]);
+  }, [dragNode, simulationEpoch]);
 
   // Resize observer
   React.useEffect(() => {
@@ -3868,6 +3990,11 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
         <span>{edges.length} edges</span>
         <span style={{ color: '#274063' }}>·</span>
         <span>zoom {transform.k.toFixed(2)}×</span>
+        {activeEvent && <>
+          <span style={{ color: '#274063' }}>·</span>
+          <span style={{ color: workspaceEventVisual(activeEvent).color }}>{workspaceEventVisual(activeEvent).label}</span>
+          <span style={{ color: '#5a7a9a' }}>seq {activeEvent.seq ?? '—'}</span>
+        </>}
       </div>
       <div style={{ position: 'absolute', top: 10, right: 12, zIndex: 3, display: 'flex', gap: 4 }}>
         <div style={{ display: 'flex', marginRight: 4, padding: 2, background: 'rgba(3,13,32,0.9)', border: '1px solid rgba(127,224,255,0.16)', borderRadius: 5 }}>
@@ -3984,6 +4111,7 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
             const isHotPath = hot && hotSet?.has(e.from) && hotSet?.has(e.to);
             const isDim = hot && !isHotPath;
             const edgeColor = e.color || knowledgeEdgeStyles.semantic.color;
+            const facet = e.facet ? knowledgeFacetLabels[e.facet] : null;
             const dx = b.x - a.x,dy = b.y - a.y;
             const distance = Math.sqrt(dx * dx + dy * dy) || 1;
             const ux = dx / distance,uy = dy / distance;
@@ -3994,7 +4122,8 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
             const label = e.kind.length > 22 ? e.kind.slice(0, 21) + '…' : e.kind;
             const showLabel = directHot || (density === 'rich' && transform.k > 0.62);
             const confidenceLabel = density === 'rich' && (directHot || transform.k > 1.15) && Number.isFinite(e.confidence) ? ` · ${Math.round(e.confidence * 100)}%` : '';
-            const labelWidth = Math.max(34, (label.length + confidenceLabel.length) * 5.1 + 10) / transform.k;
+            const facetPrefix = facet ? `${facet.label} · ` : '';
+            const labelWidth = Math.max(34, (facetPrefix.length + label.length + confidenceLabel.length) * 5.1 + 10) / transform.k;
             return (
               <g key={e.id || i} style={{ pointerEvents: 'none' }}>
                 {/* Soft path halo keeps multi-hop lineage visible without hiding context. */}
@@ -4007,6 +4136,7 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
                 stroke={edgeColor}
                 strokeWidth={(directHot ? 2.8 : isHotPath ? 2.1 : 1.25) / transform.k}
                 opacity={isDim ? 0.075 : directHot ? 1 : isHotPath ? .86 : .58}
+                strokeDasharray={e.type === 'trust' ? `${5 / transform.k} ${3 / transform.k}` : e.type === 'workspace' || e.type === 'activation' ? `${2 / transform.k} ${3 / transform.k}` : undefined}
                 markerEnd={`url(#knowledge-arrow-${e.type || 'semantic'})`}
                 style={{ filter: isHotPath ? `drop-shadow(0 0 3px ${edgeColor})` : 'none' }} />
                 {/* Animated overlay — flowing data pulse */}
@@ -4023,7 +4153,7 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
                   <rect x={-labelWidth / 2} y={-7 / transform.k} width={labelWidth} height={14 / transform.k} rx={4 / transform.k}
                     fill="rgba(2,6,19,.9)" stroke={edgeColor} strokeWidth={(directHot ? 1 : .55) / transform.k} />
                   <text x="0" y={2.8 / transform.k} textAnchor="middle" fontSize={7.5 / transform.k} fill={directHot ? '#ffffff' : edgeColor}
-                    fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{label}{confidenceLabel}</text>
+                    fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{facetPrefix}{label}{confidenceLabel}</text>
                 </g>}
               </g>);
 
@@ -4036,6 +4166,10 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
             const isDim = hot && !isHot;
             const r = n.size + (isSelected ? 4 : isHovered ? 2 : 0);
             const isEpisode = n.kind === 'episode';
+            const isImprovement = knowledgeGraphLayerForNode(n.record) === 'improvement';
+            const isActive = activeNodeSet.has(n.id);
+            const trustStatus = String(n.record?.trust_state || n.record?.status || '').toLowerCase();
+            const isContested = /contested|contradict|refuted|unverified/.test(trustStatus);
             const showLabel = isHovered || isSelected || transform.k > (density === 'rich' ? .5 : .82);
             const showMeta = isHovered || isSelected || density === 'rich' && transform.k > .67;
             const showDetail = n.detail && (isHovered || isSelected || density === 'rich' && transform.k > 1.2);
@@ -4055,13 +4189,22 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
               onClick={(e) => {e.stopPropagation();onSelectNode(isSelected ? null : n.id);}}
               style={{ cursor: 'pointer' }}>
                 {(isHovered || isSelected) && <circle cx={n.x} cy={n.y} r={r + 8} fill="none" stroke={n.color} strokeWidth={1 / transform.k} opacity={0.3} />}
+                {isActive && <>
+                  <circle cx={n.x} cy={n.y} r={r + 10 / transform.k} fill="none" stroke={workspaceEventVisual(activeEvent || {}).color}
+                    strokeWidth={1.4 / transform.k} opacity={reducedMotion ? .72 : .2 + Math.abs(Math.sin(pulse / 8)) * .7}
+                    style={{ filter: `drop-shadow(0 0 7px ${workspaceEventVisual(activeEvent || {}).color})` }} />
+                  {!reducedMotion && <circle cx={n.x} cy={n.y} r={r + (pulse % 18) / transform.k} fill="none" stroke={workspaceEventVisual(activeEvent || {}).color}
+                    strokeWidth={.8 / transform.k} opacity={Math.max(0, .7 - (pulse % 18) / 24)} />}
+                </>}
                 {isEpisode ? <>
                   <polygon points={diamond}
                     fill={n.color + (isHot ? 'd8' : 'b5')} stroke={n.color}
                     strokeWidth={isSelected ? 2.5 / transform.k : 1.3 / transform.k}
                     opacity={isDim ? .22 : 1} filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} />
                   <circle cx={n.x} cy={n.y} r={2.2 / transform.k} fill="#020613" stroke="#ffd2c8" strokeWidth={.7 / transform.k} opacity={isDim ? .2 : .9} />
-                </> : <circle cx={n.x} cy={n.y} r={r}
+                </> : isImprovement ? <polygon points={`${n.x},${n.y - r} ${n.x + r * .87},${n.y - r * .5} ${n.x + r * .87},${n.y + r * .5} ${n.x},${n.y + r} ${n.x - r * .87},${n.y + r * .5} ${n.x - r * .87},${n.y - r * .5}`}
+                  fill={n.color + (isHot ? 'cc' : '99')} stroke={n.color} strokeWidth={isSelected ? 2.5 / transform.k : 1 / transform.k}
+                  opacity={isDim ? .22 : 1} filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} /> : <circle cx={n.x} cy={n.y} r={r}
                 fill={n.color + (isHot ? 'cc' : '99')}
                 stroke={n.color}
                 strokeWidth={isSelected ? 2.5 / transform.k : 1 / transform.k}
@@ -4070,6 +4213,9 @@ function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId
                 {(n.record?.status === 'superseded' || n.record?.valid_to) &&
                 <circle cx={n.x} cy={n.y} r={r + 4 / transform.k} fill="none" stroke="#ff8f70" strokeWidth={.8 / transform.k}
                   strokeDasharray={`${2 / transform.k} ${3 / transform.k}`} opacity={isDim ? .15 : .72} />}
+                {isContested && <circle cx={n.x} cy={n.y} r={r + 6 / transform.k} fill="none" stroke="#ff6b6b"
+                  strokeWidth={1.3 / transform.k} strokeDasharray={`${4 / transform.k} ${2 / transform.k}`}
+                  opacity={isDim ? .15 : .88} style={{ filter: 'drop-shadow(0 0 4px rgba(255,107,107,.7))' }} />}
                 {showLabel && <g transform={`translate(${n.x},${labelTop})`} opacity={isDim ? .14 : 1} style={{ pointerEvents: 'none' }}>
                   <rect x={-cardWidth / 2} y="0" width={cardWidth} height={cardHeight} rx={4 / transform.k}
                     fill="rgba(2,6,19,.88)" stroke={isHovered || isSelected ? n.color : 'rgba(79,104,136,.42)'}
@@ -4324,6 +4470,66 @@ function SystemResources() {
 
 }
 
+function workspaceEventText(event) {
+  const payload = event?.payload || {};
+  const concept = payload.concept && typeof payload.concept === 'object' ? payload.concept.label || payload.concept.name || payload.concept.description || payload.concept.text : payload.concept;
+  const value = payload.summary || payload.message || payload.text || payload.label || concept || payload.tool || payload.tool_name || payload.decision || payload.check || payload.query || event?.event_type || 'workspace event';
+  return String(value).replace(/\s+/g, ' ').trim();
+}
+
+function WorkspaceSignalTape({ events, index, setIndex, isLive, status, error, playing, setPlaying }) {
+  const current = events[index] || null;
+  const visual = workspaceEventVisual(current || {});
+  const visibleEvents = events.slice(Math.max(0, index - 3), index + 2);
+  const offset = Math.max(0, index - 3);
+  return <section className="kg-signal-tape" aria-label="Workspace event replay" style={{
+    display: 'grid', gridTemplateColumns: 'minmax(230px,.72fr) minmax(300px,1.28fr)', gap: 10,
+    marginBottom: 12, padding: 10, minHeight: 104, overflow: 'hidden', position: 'relative',
+    background: 'linear-gradient(110deg,rgba(3,13,32,.96),rgba(13,20,47,.93))',
+    border: `1px solid ${isLive ? 'rgba(126,253,185,.3)' : 'rgba(127,224,255,.15)'}`, borderRadius: 9
+  }}>
+    {isLive && <span className="kg-live-scan" aria-hidden="true" style={{ position: 'absolute', inset: '0 auto 0 0', width: '22%', pointerEvents: 'none', background: 'linear-gradient(90deg,transparent,rgba(126,253,185,.045),transparent)', animation: 'kg-live-scan 4.8s linear infinite' }} />}
+    <div style={{ minWidth: 0, position: 'relative' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+        <span style={{ fontSize: 9, color: isLive ? '#7efdb9' : '#7fe0ff', letterSpacing: '.12em', textTransform: 'uppercase' }}>{isLive ? 'Live signal tape' : 'Workspace replay'}</span>
+        <span style={{ fontSize: 8, color: '#4f6888' }}>{status}</span>
+        <span style={{ marginLeft: 'auto', fontSize: 8, color: '#4f6888' }}>{events.length ? `${index + 1}/${events.length}` : '0 events'}</span>
+      </div>
+      {events.length ? <>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <button type="button" onClick={() => setPlaying(!playing)} disabled={isLive} aria-label={playing ? 'Pause workspace replay' : 'Play workspace replay'}
+            style={{ width: 27, height: 27, flexShrink: 0, borderRadius: 5, border: '1px solid rgba(127,224,255,.22)', background: 'rgba(127,224,255,.06)', color: isLive ? '#274063' : '#7fe0ff', cursor: isLive ? 'default' : 'pointer', fontFamily: 'var(--font)' }}>{playing ? 'Ⅱ' : '▶'}</button>
+          <input type="range" min="0" max={Math.max(0, events.length - 1)} value={index} onChange={(event) => {setPlaying(false);setIndex(+event.target.value);}}
+            aria-label="Scrub workspace event timeline" style={{ flex: 1, accentColor: visual.color }} />
+        </div>
+        <div style={{ marginTop: 8, paddingLeft: 34, minWidth: 0 }}>
+          <span style={{ padding: '2px 6px', marginRight: 6, borderRadius: 3, border: `1px solid ${visual.color}45`, background: `${visual.color}12`, color: visual.color, fontSize: 8 }}>{visual.label}</span>
+          <span style={{ color: '#8090b0', fontSize: 8 }}>{visual.honest}</span>
+          <div style={{ color: '#bfefff', fontSize: 9, marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{workspaceEventText(current)}</div>
+        </div>
+      </> : <div style={{ color: error ? '#ff9a9a' : '#5a7a9a', fontSize: 9, lineHeight: 1.6 }}>
+        {error || 'No structured workspace events yet. Start a chat with workspace telemetry enabled, then switch LIVE on here.'}
+      </div>}
+    </div>
+    <ol style={{ listStyle: 'none', minWidth: 0, maxHeight: 84, overflowY: 'auto', borderLeft: '1px solid rgba(127,224,255,.1)', paddingLeft: 10 }}>
+      {visibleEvents.map((event, localIndex) => {
+        const eventIndex = offset + localIndex;
+        const itemVisual = workspaceEventVisual(event);
+        const selected = eventIndex === index;
+        return <li key={event.event_id || `${event.run_id || 'run'}:${event.seq ?? eventIndex}`}>
+          <button type="button" onClick={() => {setPlaying(false);setIndex(eventIndex);}}
+            aria-current={selected ? 'step' : undefined}
+            style={{ width: '100%', display: 'grid', gridTemplateColumns: '66px 1fr auto', gap: 7, alignItems: 'center', padding: '4px 6px', marginBottom: 2, borderRadius: 4, border: `1px solid ${selected ? itemVisual.color + '40' : 'transparent'}`, background: selected ? `${itemVisual.color}0d` : 'transparent', color: '#8090b0', cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--font)', fontSize: 8 }}>
+            <span style={{ color: itemVisual.color }}>{itemVisual.label}</span>
+            <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{workspaceEventText(event)}</span>
+            <span style={{ color: '#274063' }}>{event.seq ?? eventIndex + 1}</span>
+          </button>
+        </li>;
+      })}
+    </ol>
+  </section>;
+}
+
 function KnowledgeGraphWorkspace({
   graph, loading, error, query, setQuery, kind, setKind, agent, setAgent,
   knownAgents, includeHistory, setIncludeHistory, at, setAt, hops, setHops,
@@ -4336,21 +4542,160 @@ function KnowledgeGraphWorkspace({
   }, [graph.facets?.kinds, kind]);
   const node = selectedDetail?.node;
   const nodeColor = knowledgeKindColors[node?.kind] || '#7fe0ff';
+  const trustState = String(node?.trust_state || 'not_applicable');
+  const trustProfile = node?.trust || {};
+  const trustColor = /verified|supported/.test(trustState) ? '#7efdb9' : /contested|refuted/.test(trustState) ? '#ff6b6b' : trustState === 'unverified' ? '#f4d676' : '#8090b0';
   const nodeById = React.useMemo(() => new Map((graph.nodes || []).map((item) => [item.id, item])), [graph.nodes]);
   const controlStyle = {
     height: 34, background: 'rgba(2,11,30,0.92)', border: '1px solid rgba(127,224,255,0.18)',
     borderRadius: 6, color: '#bfefff', fontFamily: 'var(--font)', fontSize: 10, outline: 'none'
   };
   const formatWhen = (value) => value ? new Date(value).toLocaleString() : 'open';
+  const [layers, setLayers] = React.useState({ knowledge: true, '5w1h': true, episodes: true, trust: true, workspace: false, activation: false, improvement: false });
+  const [workspaceEvents, setWorkspaceEvents] = React.useState([]);
+  const [workspaceCursor, setWorkspaceCursor] = React.useState('');
+  const cursorRef = React.useRef('');
+  const workspaceRunRef = React.useRef('');
+  const [workspaceCapabilities, setWorkspaceCapabilities] = React.useState(null);
+  const [workspaceStatus, setWorkspaceStatus] = React.useState('checking capability');
+  const [workspaceError, setWorkspaceError] = React.useState('');
+  const [liveEnabled, setLiveEnabled] = React.useState(false);
+  const [replayIndex, setReplayIndex] = React.useState(0);
+  const [replayPlaying, setReplayPlaying] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    if (!window.SeamAPI?.workspaceCapabilities) {
+      setWorkspaceStatus('runtime does not expose workspace telemetry');
+      return;
+    }
+    window.SeamAPI.workspaceCapabilities().then((value) => {
+      if (cancelled) return;
+      setWorkspaceCapabilities(value || {});
+      setWorkspaceStatus('ready');
+      setWorkspaceError('');
+    }).catch((capabilityError) => {
+      if (cancelled) return;
+      setWorkspaceStatus('unavailable on this runtime');
+      setWorkspaceError('This runtime does not expose workspace events. Durable knowledge remains fully available.');
+    });
+    return () => {cancelled = true;};
+  }, []);
+
+  React.useEffect(() => {
+    if (!liveEnabled || !window.SeamAPI?.workspaceEvents) return;
+    let cancelled = false;
+    let timer = null;
+    const poll = async () => {
+      try {
+        let latestRunId = workspaceCapabilities?.latest_run_id || workspaceCapabilities?.run_id || '';
+        try { latestRunId = sessionStorage.getItem('seam-workspace-latest-run') || latestRunId; } catch (_) { /* storage unavailable */ }
+        if (latestRunId && workspaceRunRef.current !== latestRunId) {
+          workspaceRunRef.current = latestRunId;
+          cursorRef.current = '';
+          setWorkspaceCursor('');
+        }
+        const result = await window.SeamAPI.workspaceEvents({ runId: latestRunId, after: cursorRef.current, limit: 160 });
+        if (cancelled) return;
+        const incoming = Array.isArray(result?.events) ? result.events : [];
+        if (incoming.length) {
+          setWorkspaceEvents((previous) => {
+            const byId = new Map(previous.map((event) => [event.event_id || `${event.run_id}:${event.seq}`, event]));
+            incoming.forEach((event) => byId.set(event.event_id || `${event.run_id}:${event.seq}`, event));
+            const merged = Array.from(byId.values()).sort((a, b) => (a.created_at || '').localeCompare(b.created_at || '') || (a.seq || 0) - (b.seq || 0)).slice(-500);
+            setReplayIndex(Math.max(0, merged.length - 1));
+            return merged;
+          });
+        }
+        const nextCursor = result?.next_after;
+        if (nextCursor !== undefined && nextCursor !== null) {
+          cursorRef.current = nextCursor;
+          setWorkspaceCursor(String(nextCursor));
+        }
+        setWorkspaceStatus('listening');
+        setWorkspaceError('');
+      } catch (pollError) {
+        if (cancelled) return;
+        setWorkspaceStatus('live feed unavailable');
+        setWorkspaceError('Workspace telemetry stopped. The durable graph is still current; try LIVE again when the runtime supports /workspace/events.');
+        setLiveEnabled(false);
+      }
+    };
+    poll();
+    timer = setInterval(poll, 1400);
+    return () => {cancelled = true;if (timer) clearInterval(timer);};
+  }, [liveEnabled, workspaceCapabilities]);
+
+  React.useEffect(() => {
+    if (!replayPlaying || liveEnabled || workspaceEvents.length < 2) return;
+    const timer = setInterval(() => setReplayIndex((value) => value >= workspaceEvents.length - 1 ? 0 : value + 1), 850);
+    return () => clearInterval(timer);
+  }, [replayPlaying, liveEnabled, workspaceEvents.length]);
+
+  const toggleLayer = (layerId) => setLayers((current) => ({ ...current, [layerId]: !current[layerId] }));
+  const visibleGraph = React.useMemo(() => {
+    const nodes = (graph.nodes || []).filter((item) => layers[knowledgeGraphLayerForNode(item)] !== false);
+    const ids = new Set(nodes.map((item) => item.id));
+    const edges = (graph.edges || []).filter((edge) => ids.has(edge.source) && ids.has(edge.target) && layers[knowledgeGraphLayerForEdge(edge)] !== false);
+    return { nodes, edges };
+  }, [graph.nodes, graph.edges, layers]);
+  const activeEvent = workspaceEvents[replayIndex] || null;
+  const activeNodeIds = activeEvent ? workspaceEventNodeIds(activeEvent) : [];
+  const facetGroups = React.useMemo(() => {
+    const groups = { who: [], what: [], when: [], where: [], why: [], how: [], then: [] };
+    if (!selectedId) return groups;
+    (graph.edges || []).forEach((edge) => {
+      if (edge.source !== selectedId && edge.target !== selectedId) return;
+      const facet = knowledgeFacet(edge);
+      if (facet) groups[facet].push(edge);
+    });
+    return groups;
+  }, [graph.edges, selectedId]);
+  const trustEdges = React.useMemo(() => selectedId ? (graph.edges || []).filter((edge) => (edge.source === selectedId || edge.target === selectedId) && knowledgeEdgeType(edge) === 'trust') : [], [graph.edges, selectedId]);
+  const jlensCapability = workspaceCapabilities?.jlens;
+  const activationCapable = Boolean(workspaceCapabilities?.jspace === true || workspaceCapabilities?.activation === true || workspaceCapabilities?.activation_available === true || jlensCapability === true || jlensCapability?.available === true || jlensCapability?.genuine_jacobian_lens === true);
 
   return (
     <div>
+      <div className="kg-layer-bar" role="group" aria-label="Knowledge graph layers" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 10, padding: '8px 9px', background: 'rgba(2,11,30,.74)', border: '1px solid rgba(127,224,255,.1)', borderRadius: 9 }}>
+        {knowledgeLayerDefinitions.map((layer) => {
+          const enabled = layers[layer.id];
+          const unavailableActivation = layer.id === 'activation' && workspaceCapabilities && !activationCapable;
+          return <button key={layer.id} type="button" onClick={() => toggleLayer(layer.id)} aria-pressed={enabled} title={unavailableActivation ? 'No activation-capable model is connected; provider traces will not be mislabeled as J-Space.' : layer.hint}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 27, padding: '4px 8px', borderRadius: 5, border: `1px solid ${enabled ? layer.color + '48' : 'rgba(79,104,136,.18)'}`, background: enabled ? `${layer.color}0e` : 'transparent', color: enabled ? layer.color : '#4f6888', opacity: unavailableActivation ? .62 : 1, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 9 }}>
+            <span aria-hidden="true" style={{ width: 17, height: 17, display: 'grid', placeItems: 'center', borderRadius: layer.id === 'episodes' ? 2 : '50%', border: `1px solid ${enabled ? layer.color + '70' : '#274063'}`, transform: layer.id === 'episodes' ? 'rotate(45deg)' : 'none' }}><span style={{ transform: layer.id === 'episodes' ? 'rotate(-45deg)' : 'none', fontSize: 7 }}>{layer.mark}</span></span>
+            {layer.label}
+          </button>;
+        })}
+        <div className="kg-live-control" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ maxWidth: 260, color: '#4f6888', fontSize: 8, lineHeight: 1.35 }}>Structured events only. Hidden chain-of-thought is never shown or stored.</span>
+          <button type="button" onClick={() => {
+            const next = !liveEnabled;
+            setLiveEnabled(next);
+            setReplayPlaying(false);
+            if (next) setLayers((current) => ({ ...current, workspace: true }));
+          }} disabled={workspaceStatus === 'unavailable on this runtime'} aria-pressed={liveEnabled} aria-label={liveEnabled ? 'Stop live workspace view' : 'Start live workspace view'}
+            style={{ minWidth: 78, height: 29, borderRadius: 5, border: `1px solid ${liveEnabled ? 'rgba(126,253,185,.5)' : 'rgba(255,143,112,.35)'}`, background: liveEnabled ? 'rgba(126,253,185,.12)' : 'rgba(255,143,112,.06)', color: liveEnabled ? '#7efdb9' : workspaceStatus === 'unavailable on this runtime' ? '#4f6888' : '#ffb29e', cursor: workspaceStatus === 'unavailable on this runtime' ? 'not-allowed' : 'pointer', fontFamily: 'var(--font)', fontSize: 9, letterSpacing: '.08em' }}>
+            <span aria-hidden="true" style={{ display: 'inline-block', width: 6, height: 6, marginRight: 6, borderRadius: '50%', background: liveEnabled ? '#7efdb9' : '#ff8f70', boxShadow: liveEnabled ? '0 0 7px #7efdb9' : 'none' }} />LIVE
+          </button>
+        </div>
+      </div>
+
+      {workspaceStatus === 'unavailable on this runtime' && workspaceEvents.length === 0 ?
+      <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '7px 10px', borderRadius: 7, border: '1px solid rgba(127,224,255,.11)', background: 'rgba(3,13,32,.7)', color: '#5a7a9a', fontSize: 8 }}>
+        <span style={{ color: '#7fe0ff', letterSpacing: '.1em' }}>WORKSPACE REPLAY</span>
+        <span>{workspaceError}</span>
+      </div> :
+      <WorkspaceSignalTape events={workspaceEvents} index={replayIndex} setIndex={setReplayIndex} isLive={liveEnabled}
+        status={`${workspaceStatus}${workspaceCursor ? ` · cursor ${workspaceCursor}` : ''}`} error={workspaceError}
+        playing={replayPlaying} setPlaying={setReplayPlaying} />}
+
       <div style={{
         display: 'grid', gridTemplateColumns: 'minmax(220px,1fr) 150px 170px auto auto',
         gap: 8, alignItems: 'center', marginBottom: 12, padding: 10,
         background: 'linear-gradient(120deg,rgba(79,140,251,0.05),rgba(155,108,255,0.04))',
         border: '1px solid rgba(127,224,255,0.13)', borderRadius: 9
-      }}>
+      }} className="kg-query-controls">
         <div style={{ position: 'relative' }}>
           <span style={{ position: 'absolute', left: 10, top: 9, color: '#5a7a9a', fontSize: 11 }}>⌕</span>
           <input value={query} onChange={(e) => setQuery(e.target.value)}
@@ -4399,9 +4744,11 @@ function KnowledgeGraphWorkspace({
               {error ? 'graph unavailable' : loading ? 'projecting knowledge…' : 'self-building · live from SQLite'}
             </span>
             <span style={{ color: '#274063' }}>·</span>
-            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{(graph.nodes || []).length} shown / {(graph.stats?.node_count || 0).toLocaleString()} total nodes</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{visibleGraph.nodes.length} visible nodes</span>
             <span style={{ color: '#274063' }}>·</span>
-            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{(graph.edges || []).length} shown / {(graph.stats?.edge_count || 0).toLocaleString()} typed edges</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{(graph.stats?.node_count || 0).toLocaleString()} durable records + {(graph.stats?.episode_count || 0).toLocaleString()} episodes</span>
+            <span style={{ color: '#274063' }}>·</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{visibleGraph.edges.length} visible connections · {(graph.stats?.edge_count || 0).toLocaleString()} durable edges</span>
           </div>
 
           {error ?
@@ -4420,8 +4767,9 @@ function KnowledgeGraphWorkspace({
               </div>
             </div>
           </div> :
-          <KnowledgeGraphCanvas graphNodes={graph.nodes || []} graphEdges={graph.edges || []}
-            selectedId={selectedId} externalHovered={null} onSelectNode={setSelectedId} height={520} />}
+          <KnowledgeGraphCanvas graphNodes={visibleGraph.nodes} graphEdges={visibleGraph.edges}
+            selectedId={selectedId} externalHovered={null} activeNodeIds={activeNodeIds} activeEvent={activeEvent}
+            onSelectNode={setSelectedId} height={520} />}
         </div>
 
         {selectedId &&
@@ -4443,12 +4791,28 @@ function KnowledgeGraphWorkspace({
           <div style={{ padding: 14 }}>
             <div style={{ color: '#bfefff', fontSize: 11, lineHeight: 1.65, marginBottom: 14 }}>{selectedDetail.page?.summary}</div>
 
+            <section role="status" aria-label="Answer eligibility" style={{ marginBottom: 12, padding: '10px 11px', borderRadius: 7, background: `${trustColor}0b`, border: `1px solid ${trustColor}38`, boxShadow: `inset 3px 0 0 ${trustColor}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ color: trustColor, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.09em' }}>{trustState.replace(/_/g, ' ')}</span>
+                <span style={{ marginLeft: 'auto', padding: '2px 6px', borderRadius: 9, color: node?.assertable ? '#7efdb9' : '#ff9a9a', background: node?.assertable ? 'rgba(126,253,185,.09)' : 'rgba(255,107,107,.09)', border: `1px solid ${node?.assertable ? 'rgba(126,253,185,.25)' : 'rgba(255,107,107,.25)'}`, fontSize: 8, textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                  answer context: {node?.assertable ? 'eligible' : 'excluded'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 11, marginTop: 7, color: '#8090b0', fontSize: 8 }}>
+                <span><b style={{ color: '#7efdb9' }}>{trustProfile.independent_evidence_count || 0}</b> independent evidence</span>
+                <span><b style={{ color: '#d391ff' }}>{trustProfile.model_output_evidence_count || 0}</b> model-output evidence</span>
+                {trustProfile.support_edge_count != null && <span><b style={{ color: '#7fe0ff' }}>{trustProfile.support_edge_count}</b> verified support edges</span>}
+              </div>
+              {(trustProfile.reasons || []).map((reason, index) => <div key={index} style={{ marginTop: 6, color: '#bfefff', fontSize: 8, lineHeight: 1.45 }}>• {reason}</div>)}
+              <div style={{ marginTop: 7, color: '#4f6888', fontSize: 7.5, lineHeight: 1.4 }}>Verification is evidence-derived and separate from the MIRL status and confidence below.</div>
+            </section>
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginBottom: 15 }}>
               {[
-                ['confidence', `${Math.round((node?.confidence || 0) * 100)}%`, '#7efdb9'],
+                ['MIRL confidence', `${Math.round((node?.confidence || 0) * 100)}%`, '#7efdb9'],
                 ['degree', node?.degree ?? 0, '#7fe0ff'],
                 ['valid from', formatWhen(node?.valid_from), '#f4d676'],
-                ['status', node?.status || '—', node?.status === 'asserted' ? '#7efdb9' : '#8090b0']
+                ['MIRL status', node?.status || '—', node?.status === 'asserted' ? '#7efdb9' : '#8090b0']
               ].map(([label, value, color]) => <div key={label} style={{ padding: '7px 8px', borderRadius: 6, background: 'rgba(2,11,30,0.8)', border: '1px solid rgba(47,99,255,0.1)' }}>
                 <div style={{ color: '#4f6888', fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>{label}</div>
                 <div style={{ color, fontSize: 10, overflowWrap: 'anywhere' }}>{value}</div>
@@ -4458,6 +4822,35 @@ function KnowledgeGraphWorkspace({
             {selectedDetail.page?.agents?.length > 0 && <KnowledgeInspectorSection title="Known by" color="#f4d676">
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>{selectedDetail.page.agents.map((item) =>
                 <button key={item} onClick={() => setAgent(item)} style={{ padding: '3px 7px', borderRadius: 10, border: '1px solid rgba(244,214,118,.25)', background: 'rgba(244,214,118,.07)', color: '#f4d676', fontFamily: 'var(--font)', fontSize: 9, cursor: 'pointer' }}>{item}</button>)}</div>
+            </KnowledgeInspectorSection>}
+
+            {Object.values(facetGroups).some((items) => items.length > 0) && <KnowledgeInspectorSection title="5W1H + Then" color="#ffbf69">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+                {Object.entries(facetGroups).map(([facet, facetEdges]) => {
+                  if (!facetEdges.length) return null;
+                  const facetStyle = knowledgeFacetLabels[facet];
+                  const edge = facetEdges[0];
+                  const otherId = edge.source === selectedId ? edge.target : edge.source;
+                  return <button key={facet} type="button" onClick={() => setSelectedId(otherId)} title={facetEdges.map((item) => item.predicate).join(', ')}
+                    style={{ minWidth: 0, padding: '6px 7px', border: `1px solid ${facetStyle.color}28`, borderRadius: 5, background: `${facetStyle.color}08`, cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--font)' }}>
+                    <div style={{ color: facetStyle.color, fontSize: 8, letterSpacing: '.08em' }}>{facetStyle.label} <span style={{ color: '#4f6888' }}>· {facetEdges.length}</span></div>
+                    <div style={{ marginTop: 3, color: '#bfefff', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nodeById.get(otherId)?.label || otherId}</div>
+                  </button>;
+                })}
+              </div>
+            </KnowledgeInspectorSection>}
+
+            {trustEdges.length > 0 && <KnowledgeInspectorSection title={`Trust & disputes (${trustEdges.length})`} color="#ff6b6b">
+              {trustEdges.slice(0, 10).map((edge) => {
+                const otherId = edge.source === selectedId ? edge.target : edge.source;
+                return <button key={edge.id} type="button" onClick={() => setSelectedId(otherId)}
+                  style={{ width: '100%', display: 'grid', gridTemplateColumns: '84px 1fr auto', gap: 6, padding: '6px 7px', marginBottom: 4, textAlign: 'left', background: 'rgba(255,107,107,.045)', border: '1px dashed rgba(255,107,107,.25)', borderRadius: 5, cursor: 'pointer', fontFamily: 'var(--font)' }}>
+                  <span style={{ color: '#ff8f70', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis' }}>{edge.predicate}</span>
+                  <span style={{ color: '#bfefff', fontSize: 8, overflow: 'hidden', textOverflow: 'ellipsis' }}>{nodeById.get(otherId)?.label || otherId}</span>
+                  <span style={{ color: '#5a7a9a', fontSize: 8 }}>{Number.isFinite(edge.confidence) ? `${Math.round(edge.confidence * 100)}%` : '—'}</span>
+                </button>;
+              })}
+              <div style={{ color: '#5a7a9a', fontSize: 8, lineHeight: 1.5, marginTop: 5 }}>Dispute edges flag evidence state; they do not by themselves prove a hallucination.</div>
             </KnowledgeInspectorSection>}
 
             <KnowledgeInspectorSection title={`Facts (${selectedDetail.page?.facts?.length || 0})`} color="#9b6cff">
@@ -5143,7 +5536,7 @@ function App() {
 
   // Panel state
   const [explorerOpen, setExplorerOpen] = useState(!initialKnowledgeView);
-  const [terminalOpen, setTerminalOpen] = useState(true);
+  const [terminalOpen, setTerminalOpen] = useState(false);
   const [agentOpen, setAgentOpen] = useState(true);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [ingestOpen, setIngestOpen] = useState(false);
@@ -5338,6 +5731,8 @@ function App() {
   const [voiceDuration, setVoiceDuration] = useState(0);
   const [agentToolsOpen, setAgentToolsOpen] = useState(false);
   const [persistChat, setPersistChat] = useState(true);
+  const [workspaceLiveChat, setWorkspaceLiveChat] = useState(false);
+  const [jspaceChat, setJspaceChat] = useState(false);
   const agentEnd = useRef(null);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -5595,7 +5990,7 @@ function App() {
         .filter((x) => x.role === 'user' || x.role === 'assistant')
         .slice(-12)
         .map((x) => ({ role: x.role, text: x.text }));
-      const res = await window.SeamAPI.chat(queryText, {
+      const chatOptions = {
         model: m.model || m.id,
         provider: m.provider,
         baseUrl: m.baseUrl,
@@ -5604,7 +5999,63 @@ function App() {
         history: history,
         useMemory: true,
         persistChat: persistChat
-      });
+      };
+      let res = null;
+      if (workspaceLiveChat && window.SeamAPI.streamChat) {
+        const streamId = `workspace-stream-${Date.now()}`;
+        let streamedText = '';
+        let runId = '';
+        setAgentMessages((prev) => [...prev, { id: streamId, role: 'assistant', text: '_Opening structured workspace stream…_' }]);
+        const stream = window.SeamAPI.streamChat({
+          message: queryText,
+          model: chatOptions.model,
+          provider: chatOptions.provider,
+          base_url: chatOptions.baseUrl,
+          env_key: chatOptions.envKey,
+          api_key: chatOptions.apiKey,
+          history: chatOptions.history,
+          use_memory: true,
+          persist_chat: persistChat,
+          workspace_live: true,
+          jspace: jspaceChat
+        }, {
+          onEvent: (event) => {
+            if (!event || typeof event !== 'object') return;
+            const payload = event.payload || {};
+            const eventType = String(event.event_type || '').toLowerCase();
+            runId = event.run_id || runId;
+            if (runId) {
+              try { sessionStorage.setItem('seam-workspace-latest-run', runId); } catch (_) { /* storage unavailable */ }
+            }
+            if (/answer_delta|response_delta|token/.test(eventType)) streamedText += payload.delta || payload.text || payload.token || '';
+            if (/completion|complete|answer/.test(eventType) && !/delta/.test(eventType)) streamedText = payload.reply || payload.answer || payload.text || streamedText;
+            if (/failure|error/.test(eventType) && !streamedText) streamedText = `[workspace failure] ${payload.message || payload.error || 'The run did not complete.'}`;
+            const traceNote = runId ? `\n\n_— structured workspace run ${runId}_` : '';
+            setAgentMessages((prev) => prev.map((item) => item.id === streamId ? { ...item, text: (streamedText || '_Receiving structured workspace events…_') + traceNote } : item));
+          }
+        });
+        try {
+          await stream.done;
+          setAgentMessages((prev) => prev.map((item) => item.id === streamId ? { ...item, text: streamedText ? item.text : `_Workspace run completed without an answer frame.${runId ? ` Run: ${runId}.` : ''}_` } : item));
+        } catch (streamError) {
+          // Older runtimes keep the established /chat behavior. Falling back
+          // is explicit in the answer so absent telemetry is never mistaken
+          // for an empty reasoning trace.
+          if (streamError?.status === 404 || streamError?.status === 405 || /API error 40[45]/.test(streamError?.message || '')) {
+            setAgentMessages((prev) => prev.filter((item) => item.id !== streamId));
+            res = await window.SeamAPI.chat(queryText, chatOptions);
+            res.workspace_fallback = true;
+          } else {
+            throw streamError;
+          }
+        }
+      } else {
+        res = await window.SeamAPI.chat(queryText, chatOptions);
+      }
+      if (!res) {
+        setAgentLoading(false);
+        return;
+      }
       const used = res.memory_error
         ? `\n\n_— ⚠ SEAM memory unavailable (answered without it)_`
         : res.memory_used
@@ -5615,7 +6066,8 @@ function App() {
         : res.persisted_memory
           ? `\n\n_— remembered ${res.persisted_memory.stored_ids?.length || 0} MIRL records_`
           : '';
-      setAgentMessages((prev) => [...prev, { id: prev.length, role: 'assistant', text: (res.reply || '(empty response)') + used + remembered }]);
+      const fallback = res.workspace_fallback ? '\n\n_— workspace telemetry unavailable; answered through standard chat_' : '';
+      setAgentMessages((prev) => [...prev, { id: prev.length, role: 'assistant', text: (res.reply || '(empty response)') + used + remembered + fallback }]);
     } catch (err) {
       const errMsg = err.code === 'DISCONNECTED'
         ? '[disconnected] Cannot reach the SEAM server. Start it with: seam serve'
@@ -6570,6 +7022,22 @@ function App() {
                 )}
 
                   <div style={{ flex: 1 }} />
+                  <label title="Stream structured retrieval, tool, hypothesis, decision, verification, and answer events. This is not hidden chain-of-thought." style={{
+                    display: 'flex', alignItems: 'center', gap: 4, marginRight: 5, fontSize: 9,
+                    color: workspaceLiveChat ? '#8df6ff' : '#5a7a9a', cursor: 'pointer', userSelect: 'none'
+                  }}>
+                    <input type="checkbox" checked={workspaceLiveChat} onChange={(e) => {setWorkspaceLiveChat(e.target.checked);if (!e.target.checked) setJspaceChat(false);}}
+                      style={{ width: 12, height: 12, margin: 0, accentColor: '#8df6ff' }} />
+                    workspace
+                  </label>
+                  <label title="Request activation-derived J-lens concepts when the selected model exposes internals. Provider reasoning summaries are never relabeled as J-Space." style={{
+                    display: 'flex', alignItems: 'center', gap: 4, marginRight: 5, fontSize: 9,
+                    color: jspaceChat ? '#d391ff' : '#5a7a9a', cursor: workspaceLiveChat ? 'pointer' : 'not-allowed', userSelect: 'none', opacity: workspaceLiveChat ? 1 : .5
+                  }}>
+                    <input type="checkbox" checked={jspaceChat} disabled={!workspaceLiveChat} onChange={(e) => setJspaceChat(e.target.checked)}
+                      style={{ width: 12, height: 12, margin: 0, accentColor: '#d391ff' }} />
+                    J-lens
+                  </label>
                   <label title="Remember this chat turn in MIRL memory" style={{
                     display: 'flex', alignItems: 'center', gap: 4, fontSize: 9,
                     color: persistChat ? '#7efdb9' : '#5a7a9a', cursor: 'pointer', userSelect: 'none'

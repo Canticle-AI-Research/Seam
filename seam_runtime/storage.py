@@ -30,6 +30,18 @@ from .knowledge_graph import (
 from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
 from .pool import ConnectionPool
 from .retry import retry_db_operation
+from .workspace import (
+    append_workspace_event as append_workspace_event_row,
+)
+from .workspace import (
+    create_workspace_run as create_workspace_run_row,
+)
+from .workspace import (
+    init_workspace_schema,
+    run_status,
+    workspace_event_from_row,
+    workspace_run_from_row,
+)
 
 
 class SQLiteStore:
@@ -324,6 +336,7 @@ class SQLiteStore:
             connection.execute("pragma foreign_keys = on")
             self._cleanup_orphan_edges(connection)
             init_knowledge_graph(connection)
+            init_workspace_schema(connection)
             connection.commit()
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
@@ -857,6 +870,29 @@ class SQLiteStore:
                 at=at,
             )
 
+    def assertable_record_ids(
+        self,
+        record_ids: list[str],
+        *,
+        at: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> set[str]:
+        """Return the requested records that may enter asserted answer context."""
+
+        # Imported lazily so the answer-context trust boundary does not add a
+        # new module-import dependency to storage initialization.
+        from .knowledge_graph import assertable_record_ids
+
+        with self._pool.checkout() as connection:
+            return assertable_record_ids(
+                connection,
+                record_ids,
+                at=at,
+                namespace=namespace,
+                scope=scope,
+            )
+
     def read_pack(self, pack_id: str) -> Pack:
         batch = self.load_ir(ids=[pack_id])
         if not batch.records:
@@ -1232,6 +1268,154 @@ class SQLiteStore:
             }
             for row in rows
         ]
+
+    # ------------------------------------------------------------------
+    # Structured live workspace (append-only operational telemetry)
+    # ------------------------------------------------------------------
+
+    @retry_db_operation()
+    def create_workspace_run(
+        self,
+        *,
+        run_id: str | None = None,
+        ns: str = "local.chat",
+        scope: str = "thread",
+        agent_id: str | None = None,
+        model: str | None = None,
+        provider: str | None = None,
+        metadata: dict[str, object] | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            run = create_workspace_run_row(
+                connection,
+                run_id=run_id,
+                ns=ns,
+                scope=scope,
+                agent_id=agent_id,
+                model=model,
+                provider=provider,
+                metadata=metadata,
+                created_at=created_at,
+            )
+            connection.commit()
+        return run.to_dict()
+
+    @retry_db_operation()
+    def append_workspace_event(
+        self,
+        *,
+        run_id: str,
+        event_type: str,
+        payload: dict[str, object] | None = None,
+        created_at: str | None = None,
+        agent_id: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            event = append_workspace_event_row(
+                connection,
+                run_id=run_id,
+                event_type=event_type,
+                payload=payload,
+                created_at=created_at,
+                agent_id=agent_id,
+            )
+            connection.commit()
+        return event.to_dict()
+
+    def iter_workspace_events(
+        self,
+        *,
+        run_id: str | None = None,
+        after: int = 0,
+        limit: int = 500,
+        ns: str | None = None,
+        scope: str | None = None,
+    ) -> list[dict[str, object]]:
+        clauses = ["event_id > ?"]
+        params: list[object] = [max(0, int(after))]
+        if run_id is not None:
+            clauses.append("run_id = ?")
+            params.append(run_id)
+        if ns is not None:
+            clauses.append("ns = ?")
+            params.append(ns)
+        if scope is not None:
+            clauses.append("scope = ?")
+            params.append(scope)
+        params.append(max(1, min(int(limit), 2_000)))
+        with self._pool.checkout() as connection:
+            rows = connection.execute(
+                f"select * from workspace_event where {' and '.join(clauses)} order by event_id limit ?",
+                tuple(params),
+            ).fetchall()
+        return [workspace_event_from_row(row).to_dict() for row in rows]
+
+    def get_workspace_run(
+        self,
+        run_id: str,
+        *,
+        include_events: bool = True,
+        after: int = 0,
+        limit: int = 2_000,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            row = connection.execute(
+                "select * from workspace_run where run_id = ?",
+                (run_id,),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"workspace run not found: {run_id}")
+            run = workspace_run_from_row(row)
+            all_event_rows = connection.execute(
+                "select * from workspace_event where run_id = ? order by seq",
+                (run_id,),
+            ).fetchall()
+        all_events = [workspace_event_from_row(event_row) for event_row in all_event_rows]
+        result: dict[str, object] = {"run": run.to_dict(status=run_status(all_events))}
+        if include_events:
+            selected = [event for event in all_events if event.event_id > max(0, int(after))]
+            result["events"] = [event.to_dict() for event in selected[: max(1, min(int(limit), 2_000))]]
+        return result
+
+    def list_workspace_runs(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        clauses: list[str] = []
+        params: list[object] = []
+        if ns is not None:
+            clauses.append("r.ns = ?")
+            params.append(ns)
+        if scope is not None:
+            clauses.append("r.scope = ?")
+            params.append(scope)
+        where = f"where {' and '.join(clauses)}" if clauses else ""
+        params.append(max(1, min(int(limit), 500)))
+        with self._pool.checkout() as connection:
+            rows = connection.execute(
+                f"""
+                select r.*,
+                    (select e.event_type from workspace_event e
+                     where e.run_id = r.run_id and e.event_type in ('completion', 'failure')
+                     order by e.seq desc limit 1) as terminal_type
+                from workspace_run r {where}
+                order by r.created_at desc, r.run_id desc limit ?
+                """,
+                tuple(params),
+            ).fetchall()
+        output: list[dict[str, object]] = []
+        for row in rows:
+            status = "running"
+            if row["terminal_type"] == "completion":
+                status = "completed"
+            elif row["terminal_type"] == "failure":
+                status = "failed"
+            output.append(workspace_run_from_row(row).to_dict(status=status))
+        return output
 
     @retry_db_operation()
     def write_retrieval_event(
