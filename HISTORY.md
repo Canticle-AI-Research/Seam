@@ -8684,3 +8684,177 @@ tokens: 820
 ---
 Executed the operator-approved 'do it all' program: judge/2 rejudge of the #390 record + two record-driven levers + stacked revalidation. TWO NEGATIVE RESULTS worth more than a win, both honestly recorded; the #390 champion (conversation/2 + inference/high-confidence/1 + temporal/1 + broad = 0.7689) STANDS. (1) judge/2 rejudge replay of BOTH #390 arms (stored answers only, no re-answer; candidate /bin/bash.0312 + baseline /bin/bash.0295 = /bin/bash.0607, capped, provenance-hashed): candidate 0.7689->0.7587, baseline 0.6337->0.6076. The strict-judge tax is a judge-MODEL capability limit, NOT a prompt defect - judge/2's own rationales violate its rubric (penalizes extra detail it is told to accept, fails the dog-shelter/animal-shelter alias, hallucinates a cat5 contradiction). So judge/2 is unusable as a primary judge. BUT the key datum: under judge/2 the #390 candidate's lead over stock WIDENS to +0.1512 (vs +0.1352 under judge/1), so the temporal/1+conversation/2 win is judge-robust, not a judge/1 artifact. (2) Built conversation/3 (keeps v2 scan, constrains OUTPUT to a bare comma-separated line - the #391 review's prescription for the 14%-correct list-format bucket) and temporal/2 (instance disambiguation: enumerate dated candidates, pick by tense/reference). Stacked revalidation (conversation/3 + inference + temporal/2 + broad vs stock, judge/1, same 344 cases, $ ~0.80, 0 backoff events): candidate 0.6933, REGRESSION of -0.0756 vs the #390 champion. Baseline re-measured 0.6323 (stable). Case-level attribution (v2->v3 transitions): 46 correct answers became partial/incorrect; cat4 net -22 (cat4 has NO temporal component, so this isolates conversation/3's terse contract as net-harmful ON ITS OWN); cat2 net -13 (temporal/2 net-harmful). ROOT CAUSE overturns the #391 prescription: the terse-set contract made the model emit MORE-complete sets, and judge/1's extra-detail penalty fires HARDER on a visible bare list ('counseling, mental health, LGBTQ advocacy, art' vs gold 'Psychology, counseling certification' -> partial for the extras) than on buried narrative; the real defect is answer OVER-GENERATION of set items beyond gold, not answer FORMAT. temporal/2's enumeration also pushed the model toward wrong specific dates ('9 June 2023' / 'last weekend'). DISPOSITION: conversation/3 + temporal/2 land as TESTED-AND-PARKED opt-in flags (default off, same disposition as entity_grounded_scoring #358) with this negative result documented; NOT recommended, NOT a candidate. Also hardened tools/h2/rejudge_record.py to ride out transient 429s via provider_retry (commit 7d77531, same class as 8c26770 - its judge call was bare). Verification: full canonical non-external suite 1,359 passed + 2 xfail (raw-verified); rejudge tests 13 passed; ruff clean; both paid runs completed clean with the 429 backoff. Next real lever (operator-gated): attack answer over-generation directly (a 'match the requested cardinality; do not exceed the gold set' constraint), or isolate whether conversation/3-alone vs temporal/2-alone differ (2 more paid runs). PR #148 CI now fully green (GitHub billing cleared); merging with the validated #390 work + these parked negatives + both fixes.
 ---END-ENTRY-#392---
+
+---BEGIN-ENTRY-#393---
+id: 393
+date: 2026-07-15T11:29:48Z
+agent: claude
+status: done
+topics: benchmark, mem0, harness, command, tests, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_mem0_server.py,PROJECT_STATUS.md
+supersedes: 392
+tokens: 761
+---
+Built the mem0-harness shim the operator asked for: SEAM answering mem0's OWN benchmark harness (mem0ai/memory-benchmarks) as a drop-in Mem0-OSS memory server, the reverse of the #384 in-SEAM's-harness head-to-head and the basis for a number directly comparable to mem0's published tables. KEY DISCOVERY / honesty note: a prior benchmarks/external/mem0_harness/adapter.py already existed (committed ~Jul 6, passing contract test, README) - this is likely why the shim seemed 'already done' - BUT it targets the WRONG interface: an in-process Python add/search/delete protocol returning JSON-pack blobs as memories. mem0's actual current harness connects over HTTP (--backend oss --mem0-host URL) via benchmarks/common/mem0_client.py; there is no in-process injection point, which is why adapter.py's own README calls real harness runs 'deferred' - it was never runnable against the real harness. Verified the real contract live from their repo: three REST endpoints POST /memories {messages,user_id,timestamp?}, POST /search {query,user_id,limit} -> {results:[{memory,score,id,created_at}]}, DELETE /memories?user_id=. New benchmarks/external/mem0_harness/seam_mem0_server.py implements exactly those on top of the real SeamLocomoAdapter: one SEAM namespace per user_id, ingest reuses the adapter's exact conversation-turn path, search returns the ranked RAW turn strings ([Speaker date] text - the shape their format_search_results + answerer read, carrying the date inline) rather than SEAM's joined answer blob; retrieval honors RetrievalFlags from the env so the validated conversation/temporal/profile stack applies identically. Framework-agnostic dict-in/dict-out handlers + a FastAPI build_asgi_app + a uvicorn CLI (python -m benchmarks.external.mem0_harness.seam_mem0_server --port 8900). Verification: functional round-trip against a real temp SEAM db (ingest 3 turns -> relevant turn retrieved with inline date -> delete), plus tests/audit/test_seam_mem0_server.py (6 tests: epoch/speaker parsing, add/search/delete round-trip, blank-message skip, input validation, per-user scope isolation proving no cross-user leakage, and the ASGI routes via FastAPI TestClient matching the Mem0-OSS contract) all pass; ruff clean; did NOT run the paid gpt-4o harness (operator-gated - their default answerer+judge are gpt-4o at top_k up to 200, materially more expensive; --predict-only is a free structural smoke to run first). DISPOSITION (operator to confirm): adapter.py targets a stale interface and was never wired to the real harness; recommend RETIRING it in favor of seam_mem0_server.py, but it is committed work I did not create so I left it untouched and did not delete it. IMPORTANT comparability note for any number: mem0's harness judge is a binary CORRECT/WRONG J-score far MORE lenient than our judge/1 (credits partial lists, paraphrases, extra detail, +-14-day dates), so SEAM's number there will read HIGHER than its 0.7689 judge/1 number and is the fair basis for a mem0-table claim; their defaults (gpt-4o, top_k 200, cats 1-4) must be matched deliberately. Also did NOT overwrite the existing README.md (documents the old adapter); a README update pointing to the HTTP server is deferred to the disposition decision. Verification chain run after this doc-only-plus-new-module change.
+---END-ENTRY-#393---
+
+---BEGIN-ENTRY-#394---
+id: 394
+date: 2026-07-15T11:35:53Z
+agent: claude
+status: done
+topics: benchmark, mem0, harness, cleanup
+commits: pending
+refs: benchmarks/external/mem0_harness/README.md,benchmarks/external/mem0_harness/seam_mem0_server.py,PROJECT_STATUS.md
+supersedes: 393
+tokens: 179
+---
+Retired the stale mem0-harness adapter per operator authorization. Deleted benchmarks/external/mem0_harness/adapter.py (in-process add/search/delete protocol returning JSON-pack blobs, targeting an interface mem0's current HTTP harness does not expose - never runnable against the real harness, per #393) and its only consumer tests/audit/test_mem0_harness_adapter_contract.py; verified beforehand that nothing else in the tree referenced SeamMem0HarnessAdapter/MemoryResult/the module. Rewrote README.md to document the HTTP server (seam_mem0_server.py) as the supported path with the retirement noted. seam_mem0_server.py still imports clean and its 6 hermetic tests still pass. No behavior change to any live surface; the retired adapter was only ever exercised by its own contract test. Bundled onto PR #149 with #393 as one mem0-shim disposition.
+---END-ENTRY-#394---
+
+---BEGIN-ENTRY-#395---
+id: 395
+date: 2026-07-15T11:49:56Z
+agent: claude
+status: done
+topics: benchmark, locomo, mem0, harness, retrieval, quality, tests, verify
+commits: pending
+refs: seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_semantic_conversation_adapter.py,PROJECT_STATUS.md
+supersedes: 394
+tokens: 566
+---
+Two operator-approved deliverables. (1) FREE mem0-harness predict-only smoke: cloned mem0ai/memory-benchmarks (commit 4b61c5d), stood up SEAM's new seam_mem0_server (HISTORY#393 shim) on :8900 with the #390 champion stack in env (conversation/2 + inference/high-confidence/1 + temporal/1 + broad), and ran their real harness locomo.run with --backend oss --mem0-host and --conversations 0 --predict-only. FULL ROUND-TRIP CONFIRMED against their unmodified harness: 419 chunks ingested via POST /memories, 152 questions searched via POST /search, 152/153 (99.3%) retrieved >=1 relevant memory, real [Speaker date] turns returned with dates inline across all categories (single-hop 70, temporal 37, multi-hop 32, open-domain 13). Zero spend (predict-only skips answer+judge). IMPORTANT UPDATE: their current default answerer AND judge are now gpt-5 (their older README said gpt-4o) - a paid full run is even more expensive than scoped; the free predict-only proves the shim end-to-end so a paid run is de-risked. (2) BUILT conversation/4, the cardinality constraint the #392 over-generation finding pointed to. Root cause recap: conversation/2's completeness pressure ('return the full deduplicated set; an omitted item is incomplete') drove OVER-generation - the answerer padded sets with adjacent/related items and judge/1's extra-detail penalty scored them partial; v3's terse-format fix REGRESSED (-0.076) because the defect was over-generation, not format. conversation/4 keeps v2's exhaustive scan + wide set detection but REPLACES the completeness-only clause with a balanced precision+recall clause: include every item that DIRECTLY answers the specific question (still swept across far-apart turns), but do NOT add merely-related/adjacent items; match the question's scope exactly. Keeps v2's natural output (NOT v3's regressed terse contract). Opt-in flag default off, registered as an answer_policy_lever, wired through coerce_flag_value + env; v1/v2/v3 directives pinned byte-stable by tests (v2 = the validated 0.7689 champion must not change). 6 new/updated tests; affected slices green; ruff clean. conversation/4 is BUILT-NOT-YET-VALIDATED: it needs one ~0.80 USD holdout A/B (candidate = conversation/4 + inference + temporal/1 + broad vs stock, judge/1, comparable to #390's 0.7689) - OPERATOR-GATED, not launched. Branch agent/cardinality-constraint. Full canonical suite verification pending in this same session before commit.
+---END-ENTRY-#395---
+
+---BEGIN-ENTRY-#396---
+id: 396
+date: 2026-07-15T12:08:08Z
+agent: claude
+status: done
+topics: benchmark, locomo, quality, audit
+commits: none
+refs: docs/audits/2026-07-15-champion-problem-scan.md,PROJECT_STATUS.md
+supersedes: 395
+tokens: 453
+---
+Free problem scan of the champion #390 record (0.7689), committed as docs/audits/2026-07-15-champion-problem-scan.md, classifying all 115 misses by root cause and owner. Headline for the road to amazing: the path to 0.80 exists comfortably on SEAM-ownable answerer levers - set handling 26 pts, temporal precision 13.5, over-abstention 4, counting 2.5 = about 46 pts of answerer-side headroom vs the 10.7 needed, all synthesizing evidence ALREADY retrieved (retrieval breakthroughs not required). But about 14.5 pts are locked behind judge/1 defects (24 misses contain the complete gold in the answer text; the judge/2 rejudge proved this is a judge-model limit, unfixable by us), so 0.80 on judge/1 is realistic while roughly 0.85-plus is where the judge ceiling bites - past about 0.82 we fight the judge, not memory, which is why the mem0-harness lenient-judge number matters for true standing. Five ranked findings: (1) conversation/4 targets the set over-generation half of the 26-pt bucket, validating now; (2) over-abstention 4 cases answered unknown with the one-item answer in context plus 3 counting under-counts = 6.5 pts, both untried one-directive fixes and the cheapest ignored wins; (3) set incompleteness needs a recall lever for scattered entity claims, ties to the #358 coreference thread; (4) temporal precision is the hardest unsolved SEAM problem - temporal/1 resolves dates but picks the WRONG event instance and temporal/2 regressed, so it needs a retrieval-side ranking fix not a prompt; (5) at least one gold is corrupted and prior audits found gold-incompleteness, so the achievable ceiling under judge/1 is low-0.90s even with a perfect answerer. Doc-only change; two paid runs, the conversation/4 A/B and the mem0 calibration, were in flight during this scan and are recorded separately.
+---END-ENTRY-#396---
+
+---BEGIN-ENTRY-#397---
+id: 397
+date: 2026-07-15T12:24:16Z
+agent: claude
+status: done
+topics: benchmark, locomo, quality, handoff, continuity, verify
+commits: none
+refs: seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_semantic_conversation_adapter.py,docs/handoffs/2026-07-15-cat1-cat3-past-80-handoff.md,docs/handoffs/INDEX.md
+supersedes: 396
+tokens: 596
+---
+Operator set the mission to get cat1 (multi-hop) and cat3 (open-domain) each past 0.80 with blanket paid authorization, and requested a durable handoff (for another agent, sol). Built inference/high-confidence/2 on top of inference/1: it forbids answering unknown when the context clearly supports one specific answer, and requires enumerate-then-count for how-many questions - targeting the cheapest 6.5-point bucket from the #396 problem scan (4 over-abstentions plus 3 under-counts). Opt-in default off, registered as an answer_policy_lever, wired through coerce_flag_value; inference/1 stays byte-stable (a validated champion component). Functional pre-flight verification done for cents to avoid wasting a full paid test, per operator: ran gpt-4o-mini on the real #390 miss cases using each case stored retrieved_context (no re-retrieval), champion prompt vs new-lever prompt. Result: Gina favorite dance style (gold Contemporary) flipped Unknown to contemporary under the new levers; Nate tournaments count moved 4 to 5 (toward gold seven); the harder cat3 world-knowledge cases (composer John Williams, park Voyageurs) stayed Unknown even with inference/2, showing it is too cautious for name-the-entity-from-clues and cat3 will need a stronger open-domain licensing lever. So inference/2 is functional (recovers over-abstention, improves counting) but not sufficient alone for cat3. This entry is the durable handoff point: full narrative in docs/handoffs/2026-07-15-cat1-cat3-past-80-handoff.md (registered as latest, supersedes 2026-07-13-improve-validate-profile-complete). IN FLIGHT at handoff: the c4 A/B (conversation/4 + inference/1 + temporal/1 + broad vs stock, judge/1, 344 holdout) was still running at about 20 minutes; its result and the decisive stacked cat1/cat3 A/B (conversation/4 + inference/high-confidence/2 + temporal/1 + broad) are the next steps. Honest ceiling from #396: cat1 has about 10 judge-locked misses (full gold already in the answer, judge/1 marks partial, unfixable per the judge/2 rejudge), so cat1 past 0.80 on judge/1 is near that wall and may only clear honestly under the mem0-harness lenient judge (PR#149 shim, predict-only proven). conversation/4 committed earlier as HISTORY#395; inference/high-confidence/2 is committed by this entry. Branch agent/cardinality-constraint. Two PRs open: PR#149 (mem0 shim) and this branch (not yet PR'd). Full suite for inference/2 was launched (scratchpad/fullsuite-inf2.log); affected slices and the functional check are green.
+---END-ENTRY-#397---
+
+---BEGIN-ENTRY-#398---
+id: 398
+date: 2026-07-15T14:14:56Z
+agent: codex
+status: done
+topics: benchmark, locomo, judge, quality, audit, handoff, verify, tests
+commits: 96117b5
+refs: PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md,20260715-091018-mem0-harness-cat13.json
+supersedes: 397
+tokens: 703
+---
+Closed the operator-authorized cat1/cat3 successor program with the scoring
+contracts kept explicit. The full conversation/4 judge/1 A/B at code 96117b5
+scored 0.754360 against the 0.768895 #390 champion (-0.014535); cat1 stayed
+0.614754 and cat3 stayed 0.595238. The run used 5,200,972 exact tokens and
+$0.793850, with 0 empty answers and 0 judge retries. Conversation/4 is therefore
+tested-and-parked/default-off, not a new champion.
+
+Two stronger uncommitted prompt policies were gated on stored #390 contexts
+before another full holdout. Across 18-case and 10-case answerer-only
+microchecks they produced only one stable cat1 recovery and one cat3 entity
+recovery while preserving broad false positives and canonical-entity misses.
+No second judge/1 holdout was launched. The unsupported conversation/5 and
+inference/high-confidence/3 runtime/test edits were removed with apply_patch;
+their $0.053650 estimated negative is retained only in the audit.
+
+The honest scoreboard pivot then completed against unmodified
+mem0ai/memory-benchmarks commit 4b61c5d using the HISTORY#393/#394 Mem0-OSS
+facade, gpt-4o-mini answerer + binary lenient judge, one top-200 cutoff, all ten
+conversations, and every cat1/cat3 question. Result: cat1 multi-hop 250/282 =
+0.886525 and cat3 open-domain 83/96 = 0.864583; combined 333/378 = 0.880952.
+All 378 answers and judge reasons were non-empty; 27 rate-limit retry-attempt
+warnings all recovered. The unified private artifact is externally retained as
+20260715-091018-mem0-harness-cat13.json with SHA-256
+e93cc7a4cd2611bd7b68906d90d8ad0d63684a933ee637b50403fb74104c2b4f.
+
+The harness does not persist provider usage objects, so cost was reconstructed
+from the exact stored prompts and outputs: 4,545,540 input + 24,512 output
+tokens, estimated $0.696538; the calibration was estimated $0.078264. Known
+successor-slice roll-up is $1.622302 (c4 exact, micro/harness work reconstructed;
+the earlier inference/2 micro excluded rather than guessed).
+
+These numbers do not replace the native judge/1 champion. The facade runs
+SeamLocomoAdapter with answerer=None, so the external harness owns answer
+generation and judgment; SEAM's conversation/inference/temporal answer
+directives do not enter that prompt. The mem0-harness figures are an honest
+public-table-style retrieval scoreboard and must always be labeled separately.
+Full audit: docs/audits/2026-07-15-c4-and-mem0-cat13-score.md. Focused shim and
+conversation-policy regression slice: 36 passed. The inherited canonical log
+at 96117b5 reached 100% with 1,362 pass dots and two established xfails and no
+failure/error/skip markers; its terminal summary/exit code was not independently
+captured, so this entry preserves that qualification.
+---END-ENTRY-#398---
+
+---BEGIN-ENTRY-#399---
+id: 399
+date: 2026-07-15T14:17:19Z
+agent: codex
+status: changed
+topics: history, continuity, verify, handoff, benchmark, locomo
+commits: 96117b5
+refs: PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md
+supersedes: 398
+tokens: 141
+---
+Corrected the closeout entry's durable reference routing after continuity verification caught that HISTORY#398 listed the basename of an external T7 artifact as though it were a repository-relative path. The measured c4 and mem0-harness results, cost accounting, artifact hash, code-removal decision, and verification qualifications recorded in HISTORY#398 remain unchanged. This superseding entry keeps only tracked repository paths in refs; the private artifact's absolute external location and SHA-256 remain recorded in the audit and handoff.
+
+Updated the current status and handoff pointers to this corrective head. Rebuilt the history index, history stream, and cross-index, then wrote a fresh snapshot and reran the repository verification chain.
+---END-ENTRY-#399---
+
+---BEGIN-ENTRY-#400---
+id: 400
+date: 2026-07-15T14:24:23Z
+agent: codex
+status: done
+topics: bugfix, benchmark, locomo, retrieval, temporal, tests, ci, handoff, verify
+commits: 0200010
+refs: benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_mem0_server.py,PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md
+supersedes: 399
+tokens: 180
+---
+Addressed both unresolved current-head review findings on the Mem0-OSS facade. Search now derives and passes the native adapter's temporal window and temporal reference into search_ir, preserving temporal ranking behavior for explicit and relative-time queries. Candidate closure loading now expands every SPAN record's raw_id before filtering to RAW, so semantic candidates whose evidence chain is candidate to SPAN to RAW no longer lose their source turn.
+
+Added hermetic regressions for both paths. The focused facade plus semantic-conversation slice passes 38 tests; ruff, module compilation, and diff checks pass. This is post-score hardening: no paid rescore was performed, and the external 333/378 artifact remains the exact pre-hardening record rather than being silently relabeled. Updated the audit/status/current handoff, rebuilt derived history and stream state, wrote a fresh snapshot, and reran the complete repository verification chain.
+---END-ENTRY-#400---
+
+---BEGIN-ENTRY-#401---
+id: 401
+date: 2026-07-16T12:38:06Z
+agent: codex
+status: done
+topics: bugfix, benchmark, locomo, persist, tests, ci, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_mem0_server.py,PROJECT_STATUS.md,docs/handoffs/2026-07-15-cat1-cat3-scoreboard-closeout.md,GitHub-PR:149,GitHub-PR:150
+supersedes: 400
+tokens: 244
+---
+Live review of PRs #149 and #150 found one additional facade correctness defect before merge. SeamMem0Server tracked users only in process memory and reset a user's per-scope database on the first add after every restart. That violated additive Mem0 semantics and the upstream harness's checkpoint/resume flow, which reuses the persisted user_id while skipping already-completed chunks. Removed the implicit first-add reset; POST /memories is now additive across restarts and DELETE /memories remains the explicit cleanup boundary.
+
+Added a hermetic restart regression that writes one turn, closes the server, reopens the same database root, writes a second turn, and proves both RAW turns remain. The focused facade plus semantic-conversation slice collects and passes 39 tests. Ruff, module compilation, diff checks, candidate secret/session-link scan, and local CodeRabbit reviews of the fix and full PR delta are clean. No paid call or score relabel occurred.
+
+Git ancestry proves PR #149's head is contained by PR #150's head. PR #150 is the sole canonical merge vehicle and PR #149 is superseded rather than independently mergeable. PR #150's pre-fix head had all nine checks green; the fresh pushed-head required checks remain the final merge gate.
+---END-ENTRY-#401---
