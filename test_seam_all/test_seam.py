@@ -3905,6 +3905,9 @@ class _FakePgCursor:
                 # no ALTER TABLE runs against the fake store.
                 self._rows = [("PRIMARY KEY (record_id, model_name)",)]
                 return
+            if "set_config" in sql_lower:
+                self._rows = [(params[0],)]
+                return
             if "source_hash, dimension" in sql_lower:
                 record_id, model_name = params
                 entry = self._store.get(record_id)

@@ -45,9 +45,11 @@ class PgVectorAdapter:
     model: EmbeddingModel
     table_name: str = "seam_vector_index"
     name: str = "pgvector"
+    ef_search: int = 40
 
     def __post_init__(self) -> None:
         _validate_table_name(self.table_name)
+        self.ann_index_status: str | None = None
 
     def _connect(self):
         try:
@@ -99,7 +101,45 @@ class PgVectorAdapter:
                 cursor.execute(f"create index if not exists {self.table_name}_model_name_idx on {self.table_name} (model_name)")
                 cursor.execute(f"create index if not exists {self.table_name}_namespace_idx on {self.table_name} (namespace, model_name)")
                 self._migrate_composite_pk(cursor)
+                if self.ann_index_status != "ok":
+                    self._ensure_hnsw_index(cursor)
             connection.commit()
+
+    def _ensure_hnsw_index(self, cursor) -> None:
+        """Ensure an HNSW index covers this adapter's own embedding dimension,
+        so pgvector search stops being an exact brute-force scan at scale.
+
+        pgvector's hnsw access method requires a fixed-dimension vector type,
+        but the ``embedding`` column itself stays dimensionless: this table's
+        schema (composite PK on (record_id, model_name), a per-row
+        ``dimension`` column, model_name+dimension filtering on every query)
+        is built to let more than one embedding model/dimension share a table.
+        ALTERing the column to one fixed dimension would permanently break
+        every other dimension's ability to insert into this table again - a
+        real regression when the default table is shared across runs with
+        different embedding configs (e.g. a dev fallback to a small hash
+        embedding vs. a real sentence-transformer model, both against the
+        same DSN/table).
+
+        Instead, build a partial expression index scoped to this dimension:
+        the cast to ``vector(N)`` only runs for rows where ``dimension = N``
+        (partial-index predicates short-circuit expression evaluation for
+        non-matching rows), so it's always safe regardless of what other
+        dimensions already live in the table. Each distinct dimension that
+        calls ensure_schema() gets its own index; none of them touch the
+        underlying column type.
+        """
+        target_dimension = int(self.model.dimension)
+        index_name = f"{self.table_name}_hnsw_{target_dimension}_idx"
+        cursor.execute(
+            f"""
+            create index if not exists {index_name}
+            on {self.table_name}
+            using hnsw ((embedding::vector({target_dimension})) vector_cosine_ops)
+            where dimension = {target_dimension}
+            """
+        )
+        self.ann_index_status = "ok"
 
     def _migrate_composite_pk(self, cursor) -> None:
         """Idempotent: upgrade single-column PK (record_id) to composite (record_id, model_name)."""
@@ -168,6 +208,9 @@ class PgVectorAdapter:
         params.extend([_vector_literal(query_vector), limit])
         with self._connect() as connection:
             with connection.cursor() as cursor:
+                # hnsw.ef_search is a session GUC, not a bind-parameterizable
+                # value under SET; set_config's 2nd arg IS a regular parameter.
+                cursor.execute("select set_config('hnsw.ef_search', %s, false)", (str(int(self.ef_search)),))
                 cursor.execute(
                     f"""
                     select record_id, 1 - (embedding <=> %s::vector) as score
