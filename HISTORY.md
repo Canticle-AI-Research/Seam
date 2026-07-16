@@ -8950,3 +8950,57 @@ untouched pending explicit operator approval. Next: review and commit the whole
 coherent slice, run the canonical non-external suite plus separately configured
 real pgvector/J-lens gates, then push/open a draft PR only when authorized.
 ---END-ENTRY-#403---
+---BEGIN-ENTRY-#404---
+id: 404
+date: 2026-07-16T21:24:03Z
+agent: codex
+status: done
+topics: bugfix, webui, dashboard, persist, graph, security, tests, verify, history, status
+commits: pending
+refs: seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJECT_STATUS.md
+supersedes: 403
+tokens: 487
+---
+Replaced the dashboard Ingest panel's simulated Auto behavior with a real,
+ordered browser-file queue. Folder selection now retains every `File` object
+and its `webkitRelativePath`, removes the prior 20-file slice, and appends
+successive folder selections instead of replacing the queue. Enabling Auto
+drains queued files sequentially through `SeamAPI.compile(..., persist=true)`;
+manual persist and dry-run use the same worker, and a dry-run preview can later
+be persisted. Turning Auto off cancels not-yet-started automatic tasks while
+allowing the active request to finish. Only successful persisted folder files
+enter the local sync ledger.
+
+Removed the fake interval, random success counts, unserializable queue
+persistence, and simulated reindex mode. The UI now exposes scheduled,
+running, done, preview, and error states based on actual API outcomes. Folder
+fingerprints use relative path, byte size, and modification time; loose files
+do not enter persistent dedupe because browsers expose only basenames and
+would collide across directories. Empty/binary files fail visibly, files over
+4.5 MB are rejected before loading under the default 5 MB API request cap, and
+obvious `.env`, key/certificate, `.git`, `.venv`, `node_modules`, and
+`__pycache__` paths are excluded before folder/file/drop queueing. Source refs
+retain the selected folder hierarchy, so successful persistence immediately
+feeds the existing self-building temporal knowledge graph and provenance
+episodes.
+
+Focused collect-only resolved 23 tests before the final hardening test was
+added; the final affected compatibility slice passed 24 tests with zero skips.
+Ruff and `git diff --check` passed. Browser acceptance against the fresh
+preview queued 104 files from one directory (proving the cap removal), excluded
+a synthetic `.env` while the safe dropped sibling produced one HTTP 200
+compile, proved dry-run `persist=false` followed by `persist=true`, and ingested
+the three files under `docs/ledgers/maintenance` through three HTTP 200 calls,
+showing 3 completed and 75 compiled MIRL records with no browser error. The
+SQLite preview graph reported three source episodes after that folder ingest.
+Screenshot: `/tmp/seam-auto-ingest-fixed.png`.
+
+The first live acceptance inherited an unrelated `SEAM_PGVECTOR_DSN`; without
+psycopg, atomic persistence correctly rolled back and the UI correctly showed
+three failures. The preview was restarted with that variable unset, after
+which the same acceptance passed. Final CodeRabbit review reported zero
+findings. No external provider, paid benchmark, real pgvector, push, or PR was
+performed. Preview remains at `http://127.0.0.1:18770/` using
+`/tmp/seam-kg-auto-ingest.db`; next is operator browser validation, followed by
+publication only on explicit authorization.
+---END-ENTRY-#404---

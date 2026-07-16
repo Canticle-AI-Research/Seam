@@ -1870,21 +1870,35 @@ const MODEL_OPTIONS = [
 
 
 // ── Ingest Panel ─────────────────────────────────────────────────────────
-/* DEMO NOTE: Files added without drag-and-drop (e.g. via addDemoFile button
-     or empty drops) are simulated — they lack a _file reference and use
-     a setInterval-driven pipeline that fakes stage progress.  Only files
-     added via real drag-and-drop or the file-picker (<input type=file>)
-     carry a _file reference and call the real SEAM REST API via
-     ingestFileViaAPI() → SeamAPI.compile(). */
 const ingestStages = ['Select files', 'Parse & chunk', 'Compile MIRL', 'Embed vectors', 'Persist to DB'];
+// Leave room for JSON encoding beneath the server's default 5,000,000-byte
+// request cap. Larger sources need a future chunked-upload endpoint.
+const DASHBOARD_INGEST_MAX_FILE_BYTES = 4500000;
+
+const AUTO_INGEST_EXCLUDED_DIRS = new Set(['.git', '.venv', 'node_modules', '__pycache__']);
+
+function autoIngestExclusion(relativePath) {
+  const parts = String(relativePath || '').split('/').filter(Boolean);
+  const lowerParts = parts.map((part) => part.toLowerCase());
+  if (lowerParts.some((part) => AUTO_INGEST_EXCLUDED_DIRS.has(part))) return 'generated or dependency directory';
+  const basename = lowerParts[lowerParts.length - 1] || '';
+  if (basename === '.env' || basename.startsWith('.env.')) return 'environment file';
+  if (/^(id_rsa|id_ed25519|credentials\.json)$/.test(basename) || /\.(pem|key|p12|pfx)$/.test(basename)) return 'credential-shaped file';
+  return '';
+}
 
 function IngestPanel({ width, onOpenSettings }) {
-  // Persisted file list — starts empty, populated by user drops/picks
-  const [files, setFiles] = usePersisted('seam-dash-ingest-files', []);
+  // Browser File handles cannot be serialized safely. Keep the live queue in
+  // memory and persist only the successful-ingest fingerprint ledger.
+  const [files, setFiles] = useState([]);
+  const filesRef = useRef(files);
   const [dragOver, setDragOver] = useState(false);
   const [batchMode, setBatchMode] = useState('persist');
   const [autoMode, setAutoMode] = useState(false);
+  const autoModeRef = useRef(false);
   const [autoLog, setAutoLog] = useState([]);
+  const workQueueRef = useRef([]);
+  const processingRef = useRef(false);
 
   // Persisted sync ledger — fingerprint of every file that's been ingested so we never re-ingest
   // Stored as array in localStorage, converted to Set for runtime use
@@ -1898,18 +1912,35 @@ function IngestPanel({ width, onOpenSettings }) {
     }
   };
   const [skippedCount, setSkippedCount] = useState(0);
-  const fingerprint = (f) => `${f.name}|${f.size}`;
+  // A browser-relative folder path is stable enough for the persisted sync
+  // ledger. Loose files expose only a basename, so do not risk cross-folder
+  // collisions by pretending they have a durable identity.
+  const fingerprint = (f) => f._fingerprint || null;
+
+  const updateFiles = React.useCallback((updater) => {
+    setFiles((previous) => {
+      const next = typeof updater === 'function' ? updater(previous) : updater;
+      filesRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const appendAutoLog = React.useCallback((msg, kind = 'info') => {
+    setAutoLog((previous) => [...previous.slice(-39), {
+      t: new Date().toLocaleTimeString('en-US', { hour12: false }), msg, kind
+    }]);
+  }, []);
 
   // Dedupe helper — splits incoming files into fresh vs already-ingested
   const dedupe = (incoming) => {
     const fresh = [];
     let dupes = 0;
     const ledger = syncLedger;
-    const seenInBatch = new Set();
+    const seenInBatch = new Set(filesRef.current.map(fingerprint));
     for (const f of incoming) {
       const fp = fingerprint(f);
-      if (ledger.has(fp) || seenInBatch.has(fp)) {dupes++;continue;}
-      seenInBatch.add(fp);
+      if (fp && (ledger.has(fp) || seenInBatch.has(fp))) {dupes++;continue;}
+      if (fp) seenInBatch.add(fp);
       fresh.push(f);
     }
     if (dupes > 0) setSkippedCount((s) => s + dupes);
@@ -1920,190 +1951,178 @@ function IngestPanel({ width, onOpenSettings }) {
     setSyncLedger(new Set());
     setSkippedCount(0);
   };
-  const [watchPath, setWatchPath] = useState('~/projects/seam-watch/');
-  const autoRef = useRef(null);
+  const [watchPath, setWatchPath] = useState('No folder selected');
   const watchPickerRef = useRef(null);
   const filePickerRef = useRef(null);
 
   const handleWatchPick = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    // Derive top-level directory name from webkitRelativePath
-    const first = files[0];
+    const selectedFiles = Array.from(e.target.files || []);
+    if (!selectedFiles.length) return;
+    // Browsers intentionally expose only paths relative to the selected root.
+    const first = selectedFiles[0];
     const rel = first.webkitRelativePath || first.name;
     const dir = rel.split('/')[0];
-    setWatchPath('~/' + dir + '/');
-    const incoming = files.slice(0, 20).map((f, i) => ({
+    setWatchPath(dir + '/');
+    const excluded = selectedFiles.filter((f) => autoIngestExclusion(f.webkitRelativePath || f.name));
+    const incoming = selectedFiles.filter((f) => !autoIngestExclusion(f.webkitRelativePath || f.name)).map((f, i) => ({
       id: 'pick-' + Date.now() + '-' + i,
       name: f.webkitRelativePath || f.name,
+      folder: dir,
       size: (f.size / 1024).toFixed(1) + ' KB',
-      status: 'queued', stage: 0, records: 0
+      sizeBytes: f.size,
+      lastModified: f.lastModified || 0,
+      _fingerprint: `${f.webkitRelativePath || f.name}|${f.size}|${f.lastModified || 0}`,
+      status: 'queued', stage: 0, records: 0,
+      _file: f
     }));
-    const { fresh } = dedupe(incoming);
-    setFiles((prev) => [...prev, ...fresh]);
+    const { fresh, dupes } = dedupe(incoming);
+    const nextFiles = [...filesRef.current, ...fresh];
+    filesRef.current = nextFiles;
+    setFiles(nextFiles);
+    appendAutoLog(`Queued folder ${dir}/ — ${fresh.length} file${fresh.length === 1 ? '' : 's'}${dupes ? `, ${dupes} unchanged` : ''}${excluded.length ? `, ${excluded.length} sensitive/generated skipped` : ''}`, fresh.length ? 'ok' : 'info');
+    if (autoModeRef.current && fresh.length) enqueueFiles(fresh, 'persist', true);
     e.target.value = '';
   };
 
   const handleFilePick = (e) => {
     const pickedFiles = Array.from(e.target.files || []);
     if (!pickedFiles.length) return;
-    const incoming = pickedFiles.map((f, i) => ({
+    const excluded = pickedFiles.filter((f) => autoIngestExclusion(f.name));
+    const incoming = pickedFiles.filter((f) => !autoIngestExclusion(f.name)).map((f, i) => ({
       id: 'file-' + Date.now() + '-' + i,
       name: f.name,
       size: (f.size / 1024).toFixed(1) + ' KB',
+      sizeBytes: f.size,
+      lastModified: f.lastModified || 0,
+      _fingerprint: '',
       status: 'queued', stage: 0, records: 0,
       _file: f  // Keep reference for real API ingest
     }));
     const { fresh } = dedupe(incoming);
-    setFiles((prev) => [...prev, ...fresh]);
+    const nextFiles = [...filesRef.current, ...fresh];
+    filesRef.current = nextFiles;
+    setFiles(nextFiles);
+    if (excluded.length) appendAutoLog(`Skipped ${excluded.length} sensitive file${excluded.length === 1 ? '' : 's'}`, 'error');
+    if (autoModeRef.current && fresh.length) enqueueFiles(fresh, 'persist', true);
     e.target.value = '';
   };
 
   // ── Real API ingest — reads file content and calls SeamAPI.compile ──
-  const ingestFileViaAPI = async (fileEntry) => {
-    if (!fileEntry._file) return null;
+  const ingestFileViaAPI = async (fileEntry, persist) => {
+    if (!fileEntry._file || typeof fileEntry._file.text !== 'function') {
+      return { records: 0, ok: false, error: 'File access expired; select this file or folder again.' };
+    }
     try {
+      if (fileEntry.sizeBytes > DASHBOARD_INGEST_MAX_FILE_BYTES) {
+        return { records: 0, ok: false, error: 'File exceeds the 4.5 MB dashboard ingest limit; use the CLI or a chunked source.' };
+      }
       const text = await fileEntry._file.text();
-      const result = await window.SeamAPI.compile(text, true, 'webui://' + fileEntry.name);
+      if (!text.trim()) return { records: 0, ok: false, error: 'Empty file' };
+      if (text.includes('\0')) return { records: 0, ok: false, error: 'Binary files are not supported by text ingest' };
+      updateFiles((previous) => previous.map((file) => file.id === fileEntry.id ? { ...file, stage: 2 } : file));
+      const sourceRef = 'webui-folder:///' + String(fileEntry.name).split('/').map(encodeURIComponent).join('/');
+      const result = await window.SeamAPI.compile(text, persist, sourceRef);
       return { records: (result.records || []).length, ok: true };
     } catch (err) {
       return { records: 0, ok: false, error: err.message };
     }
   };
 
-  // Auto-ingest loop
+  const processQueue = async () => {
+    if (processingRef.current) return;
+    processingRef.current = true;
+    try {
+      while (workQueueRef.current.length) {
+        const task = workQueueRef.current.shift();
+        if (task.automatic && !autoModeRef.current) {
+          updateFiles((previous) => previous.map((file) => file.id === task.id && file.status === 'scheduled' ? { ...file, status: 'queued' } : file));
+          continue;
+        }
+        const fileEntry = filesRef.current.find((file) => file.id === task.id);
+        if (!fileEntry || !['queued', 'scheduled', 'error', 'preview'].includes(fileEntry.status)) continue;
+        updateFiles((previous) => previous.map((file) => file.id === task.id ? { ...file, status: 'running', stage: 1, mode: task.mode, error: '' } : file));
+        appendAutoLog(`Ingesting ${fileEntry.name}`, 'info');
+        const persist = task.mode === 'persist';
+        const result = await ingestFileViaAPI(fileEntry, persist);
+        if (result.ok) {
+          const finalStatus = persist ? 'done' : 'preview';
+          updateFiles((previous) => previous.map((file) => file.id === task.id ? { ...file, status: finalStatus, stage: ingestStages.length, records: result.records, error: '' } : file));
+          if (persist) {
+            const identity = fingerprint(fileEntry);
+            if (identity) {
+              setSyncLedger((previous) => {
+                const next = new Set(previous);
+                next.add(identity);
+                return next;
+              });
+            }
+          }
+          appendAutoLog(`${persist ? 'Persisted' : 'Previewed'} ${fileEntry.name} — ${result.records} MIRL record${result.records === 1 ? '' : 's'}`, 'ok');
+        } else {
+          updateFiles((previous) => previous.map((file) => file.id === task.id ? { ...file, status: 'error', stage: 0, records: 0, error: result.error || 'Ingest failed' } : file));
+          appendAutoLog(`Failed ${fileEntry.name} — ${result.error || 'Ingest failed'}`, 'error');
+        }
+      }
+    } finally {
+      processingRef.current = false;
+      // A selection may have arrived between the final queue check and this
+      // flag reset. Drain it without requiring another user action.
+      if (workQueueRef.current.length) void processQueue();
+    }
+  };
+
+  const enqueueFiles = (entries, mode = 'persist', automatic = false) => {
+    const scheduled = new Set(workQueueRef.current.map((task) => task.id));
+    const eligibleStatuses = mode === 'persist' ? ['queued', 'error', 'preview'] : ['queued', 'error'];
+    const tasks = entries.filter((file) => !scheduled.has(file.id) && eligibleStatuses.includes(file.status)).map((file) => ({ id: file.id, mode, automatic }));
+    if (!tasks.length) return;
+    workQueueRef.current.push(...tasks);
+    const ids = new Set(tasks.map((task) => task.id));
+    updateFiles((previous) => previous.map((file) => ids.has(file.id) ? { ...file, status: 'scheduled', mode, error: '' } : file));
+    void processQueue();
+  };
+
   useEffect(() => {
-    if (!autoMode) {
-      if (autoRef.current) clearInterval(autoRef.current);
+    autoModeRef.current = autoMode;
+    if (autoMode) {
+      appendAutoLog('Auto-ingest enabled — selected folders will persist in queue order', 'info');
+      enqueueFiles(filesRef.current.filter((file) => file.status === 'queued'), 'persist', true);
       return;
     }
-    setAutoLog((prev) => [...prev, { t: new Date().toLocaleTimeString('en-US', { hour12: false }), msg: `Auto-ingest active — watching ${watchPath}`, kind: 'info' }]);
-    autoRef.current = setInterval(() => {
-      // Simulate agent finding and auto-ingesting data
-      const actions = [
-      'Agent retrieved 3 new MIRL records from context — auto-persisting',
-      'New file detected: agent_output.json — queuing for ingest',
-      'Vector index sync triggered — 12 new embeddings',
-      'Memory consolidation: 4 duplicate records merged',
-      'Auto-ingest: clm:51–clm:56 persisted to SQLite'];
-
-      const msg = actions[Math.floor(Math.random() * actions.length)];
-      setAutoLog((prev) => [...prev.slice(-19), { t: new Date().toLocaleTimeString('en-US', { hour12: false }), msg, kind: 'ok' }]);
-      // Occasionally mark a queued file as running then done
-      setFiles((prev) => {
-        const queued = prev.find((f) => f.status === 'queued');
-        if (queued) return prev.map((f) => f.id === queued.id ? { ...f, status: 'running', stage: 1 } : f);
-        const running = prev.find((f) => f.status === 'running');
-        if (running) return prev.map((f) => f.id === running.id ? { ...f, status: 'done', stage: 5, records: Math.floor(Math.random() * 20) + 5 } : f);
-        return prev;
-      });
-    }, 2200);
-    return () => clearInterval(autoRef.current);
+    const cancelledIds = new Set(workQueueRef.current.filter((task) => task.automatic).map((task) => task.id));
+    workQueueRef.current = workQueueRef.current.filter((task) => !task.automatic);
+    if (cancelledIds.size) updateFiles((previous) => previous.map((file) => cancelledIds.has(file.id) && file.status === 'scheduled' ? { ...file, status: 'queued' } : file));
   }, [autoMode]);
 
   // Retro cyberpunk Apple palette — amber CRT glow for done, phosphor for active
-  const statusColor = { done: '#ffb347', running: '#7fe0ff', queued: '#274063', error: '#ff6b6b', preview: '#d391ff' };
-  const statusLabel = { done: '✓ ingested', running: 'ingesting', queued: 'queued', error: 'error', preview: 'preview (dry-run)' };
+  const statusColor = { done: '#ffb347', running: '#7fe0ff', scheduled: '#4f8cfb', queued: '#274063', error: '#ff6b6b', preview: '#d391ff' };
+  const statusLabel = { done: '✓ ingested', running: 'ingesting', scheduled: 'scheduled', queued: 'queued', error: 'error', preview: 'preview (dry-run)' };
 
-  const addDemoFile = () => {
-    const names = ['agent_memory.py', 'benchmarks.py', 'storage.py', 'mirl.py', 'cli.py', 'runtime.py'];
-    const name = names[Math.floor(Math.random() * names.length)];
-    setFiles((prev) => [...prev, { id: 'f' + Date.now(), name, size: (Math.random() * 60 + 2).toFixed(1) + ' KB', status: 'queued', stage: 0, records: 0 }]);
+  const removeFile = (id) => {
+    workQueueRef.current = workQueueRef.current.filter((task) => task.id !== id);
+    updateFiles((previous) => previous.filter((file) => file.id !== id));
   };
 
-  const removeFile = (id) => setFiles((prev) => prev.filter((f) => f.id !== id));
-
-  // Advance running files through pipeline stages
-  useEffect(() => {
-    const i = setInterval(() => {
-      setFiles((prev) => {
-        const justDone = [];
-        const next = prev.map((f) => {
-          if (f.status !== 'running') return f;
-          const ns = f.stage + 1;
-          if (ns >= ingestStages.length) {
-            const mode = f.mode || 'persist';
-            // Only persist mode commits the fingerprint to the sync ledger
-            if (mode === 'persist') justDone.push(fingerprint(f));
-            if (mode === 'dry-run') return { ...f, status: 'preview', stage: ingestStages.length, records: Math.floor(Math.random() * 15) + 3 };
-            if (mode === 'reindex') return { ...f, status: 'done', stage: ingestStages.length, records: f.records || Math.floor(Math.random() * 12) + 5 };
-            return { ...f, status: 'done', stage: ingestStages.length, records: Math.floor(Math.random() * 18) + 4 };
-          }
-          return { ...f, stage: ns };
-        });
-        if (justDone.length) {
-          setSyncLedger((prev) => {
-            const n = new Set(prev);
-            justDone.forEach((fp) => n.add(fp));
-            return n;
-          });
-        }
-        return next;
-      });
-    }, 600);
-    return () => clearInterval(i);
-  }, []);
-
-  const runAll = () => {
-    // Try real API ingest for files that have _file references
-    setFiles((prev) => {
-      const next = prev.map((f) => {
-        if (f.status !== 'queued') return f;
-          // Trigger real API ingest asynchronously
-          ingestFileViaAPI(f).then((result) => {
-            if (result && result.ok) {
-              setFiles((cur) => cur.map((c) =>
-                c.id === f.id ? { ...c, status: 'done', stage: 5, records: result.records } : c
-              ));
-              if (batchMode === 'persist') {
-                setSyncLedger((prev) => {
-                  const n = new Set(prev);
-                  n.add(fingerprint(f));
-                  return n;
-                });
-              }
-            } else {
-              setFiles((cur) => cur.map((c) =>
-                c.id === f.id ? { ...c, status: 'error', stage: 0, records: 0 } : c
-              ));
-            }
-          });
-          return { ...f, status: 'running', stage: 1, mode: batchMode };
-      });
-      return next;
-    });
-  };
-
-  // Mode actions: persist runs queued. dry-run runs queued without persist tag.
-  // reindex re-runs done/preview files from the embed stage.
+  // Mode actions: persist writes queued files; dry-run compiles without writing.
   const runMode = (m) => {
     setBatchMode(m);
-    if (m === 'reindex') {
-      setFiles((prev) => prev.map((f) =>
-      f.status === 'done' || f.status === 'preview' ?
-      { ...f, status: 'running', stage: 3, mode: 'reindex' } : f
-      ));
-    } else {
-      setFiles((prev) => prev.map((f) =>
-      f.status === 'queued' ? { ...f, status: 'running', stage: 1, mode: m } : f
-      ));
-    }
+    const eligibleStatuses = m === 'persist' ? ['queued', 'error', 'preview'] : ['queued', 'error'];
+    enqueueFiles(filesRef.current.filter((file) => eligibleStatuses.includes(file.status)), m, false);
   };
 
-  const clearDone = () => setFiles((prev) => prev.filter((f) => f.status !== 'done' && f.status !== 'preview'));
+  const clearDone = () => updateFiles((previous) => previous.filter((file) => file.status !== 'done' && file.status !== 'preview'));
 
   const totalRecords = files.reduce((s, f) => s + f.records, 0);
   const done = files.filter((f) => f.status === 'done').length;
   const running = files.filter((f) => f.status === 'running').length;
-  const demoCount = files.filter((f) => !f._file).length;
-  const realCount = files.filter((f) => !!f._file).length;
+  const folderCount = new Set(files.map((file) => file.folder).filter(Boolean)).size;
 
   return (
     <div style={{ width, flexShrink: 0, overflow: 'hidden', transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)', background: '#030d20', borderRight: '1px solid rgba(47,99,255,0.15)', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '7px 12px 0', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#4f8cfb', borderBottom: '1px solid rgba(47,99,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <span>Ingest</span>
-        <span style={{ color: '#7efdb9', fontSize: 9 }}>{done}/{files.length} done · {totalRecords} records{realCount > 0 && demoCount > 0 ? ` · ${realCount} API / ${demoCount} demo` : demoCount > 0 ? ` · [DEMO]` : ''}</span>
+        <span style={{ color: '#7efdb9', fontSize: 9 }}>{done}/{files.length} done · {totalRecords} records{folderCount ? ` · ${folderCount} folder${folderCount === 1 ? '' : 's'}` : ''}</span>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -2120,7 +2139,8 @@ function IngestPanel({ width, onOpenSettings }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
             {/* Auto toggle */}
-            <div onClick={() => setAutoMode((v) => !v)} style={{
+            <div onClick={() => setAutoMode((v) => !v)} role="switch" aria-checked={autoMode} tabIndex={0}
+            onKeyDown={(e) => {if (e.key === 'Enter' || e.key === ' ') {e.preventDefault();setAutoMode((v) => !v);}}} style={{
               width: 34, height: 18, borderRadius: 9, flexShrink: 0, position: 'relative',
               background: autoMode ? '#7efdb9' : '#1a2540',
               border: `1px solid ${autoMode ? '#7efdb9' : '#274063'}`,
@@ -2139,7 +2159,7 @@ function IngestPanel({ width, onOpenSettings }) {
                 {autoMode && <span style={{ fontSize: 8, padding: '1px 5px', borderRadius: 3, background: 'rgba(126,253,185,0.1)', color: '#7efdb9', border: '1px solid rgba(126,253,185,0.2)', animation: 'pulse 1.5s ease-in-out infinite' }}>● live</span>}
               </div>
               <div style={{ fontSize: 9, color: '#274063', marginTop: 1 }}>
-                Agent automatically ingests &amp; persists new data to DB
+                Selected folders persist automatically in queue order
               </div>
               {/* Watch path row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, padding: '4px 6px', background: 'rgba(8,19,42,0.6)', borderRadius: 4, border: '1px solid rgba(47,99,255,0.12)', minWidth: 0, overflow: 'hidden' }}>
@@ -2148,12 +2168,13 @@ function IngestPanel({ width, onOpenSettings }) {
                 </svg>
                 <input
                   value={watchPath}
-                  onChange={(e) => setWatchPath(e.target.value)}
+                  readOnly
+                  title="Last selected folder (browser-relative path)"
                   style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: autoMode ? '#7fe0ff' : '#5a7a9a', fontSize: 10, fontFamily: 'var(--font)', minWidth: 0 }} />
 
                 <button
                   onClick={() => watchPickerRef.current?.click()}
-                  title="Browse for watch directory"
+                  title="Select a folder and queue all supported files"
                   style={{ background: 'none', border: 'none', color: '#7fe0ff', cursor: 'pointer', fontSize: 10, fontFamily: 'var(--font)', padding: '0 2px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
                     <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.7" />
@@ -2203,7 +2224,7 @@ function IngestPanel({ width, onOpenSettings }) {
               {autoLog.slice(-5).map((l, i) =>
             <div key={i} style={{ display: 'flex', gap: 6, fontSize: 9, lineHeight: 1.5 }}>
                   <span style={{ color: '#274063', flexShrink: 0 }}>{l.t}</span>
-                  <span style={{ color: l.kind === 'ok' ? '#7efdb9' : '#4f8cfb' }}>{l.msg}</span>
+                  <span style={{ color: l.kind === 'ok' ? '#7efdb9' : l.kind === 'error' ? '#ff6b6b' : '#4f8cfb' }}>{l.msg}</span>
                 </div>
             )}
             </div>
@@ -2218,16 +2239,24 @@ function IngestPanel({ width, onOpenSettings }) {
             e.preventDefault();
             setDragOver(false);
             const dropped = Array.from(e.dataTransfer.files || []);
-            if (dropped.length === 0) {addDemoFile();return;}
-            const incoming = dropped.map((f, i) => ({
+            if (dropped.length === 0) return;
+            const excluded = dropped.filter((f) => autoIngestExclusion(f.webkitRelativePath || f.name));
+            const incoming = dropped.filter((f) => !autoIngestExclusion(f.webkitRelativePath || f.name)).map((f, i) => ({
               id: 'drop-' + Date.now() + '-' + i,
-              name: f.name,
+              name: f.webkitRelativePath || f.name,
               size: (f.size / 1024).toFixed(1) + ' KB',
+              sizeBytes: f.size,
+              lastModified: f.lastModified || 0,
+              _fingerprint: f.webkitRelativePath ? `${f.webkitRelativePath}|${f.size}|${f.lastModified || 0}` : '',
               status: 'queued', stage: 0, records: 0,
               _file: f  // Keep reference for real API ingest
             }));
             const { fresh } = dedupe(incoming);
-            setFiles((prev) => [...prev, ...fresh]);
+            const nextFiles = [...filesRef.current, ...fresh];
+            filesRef.current = nextFiles;
+            setFiles(nextFiles);
+            if (excluded.length) appendAutoLog(`Skipped ${excluded.length} sensitive/generated dropped file${excluded.length === 1 ? '' : 's'}`, 'error');
+            if (autoModeRef.current && fresh.length) enqueueFiles(fresh, 'persist', true);
           }}
           onClick={() => filePickerRef.current?.click()}
           style={{
@@ -2250,8 +2279,7 @@ function IngestPanel({ width, onOpenSettings }) {
             <span style={{ fontSize: 9, color: '#4f6888', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 4 }}>Mode</span>
             {[
             { id: 'persist', label: 'persist', desc: 'write MIRL records to SQLite' },
-            { id: 'dry-run', label: 'dry-run', desc: 'parse + preview, do not write' },
-            { id: 'reindex', label: 'reindex', desc: 're-embed vectors for done files' }].
+            { id: 'dry-run', label: 'dry-run', desc: 'parse + preview, do not write' }].
             map((m) =>
             <button key={m.id} onClick={() => setBatchMode(m.id)} title={m.desc} style={{
               padding: '3px 8px', fontSize: 9, borderRadius: 3, cursor: 'pointer', fontFamily: 'var(--font)',
@@ -2318,6 +2346,7 @@ function IngestPanel({ width, onOpenSettings }) {
               <span style={{ color: statusColor[f.status] }}>{statusLabel[f.status]}{f.status === 'running' ? ` — ${ingestStages[f.stage]}` : ''}</span>
               {f.records > 0 && <span style={{ color: f.status === 'done' ? '#ffb347' : '#7efdb9' }}>{f.records} MIRL records</span>}
             </div>
+            {f.error && <div title={f.error} style={{ marginTop: 3, fontSize: 8, color: '#ff6b6b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.error}</div>}
           </div>
         )}
 
