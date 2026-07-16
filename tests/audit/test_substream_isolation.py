@@ -15,7 +15,7 @@ import os
 
 import pytest
 
-from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
+from seam_runtime.mirl import MIRLRecord, RecordKind
 from seam_runtime.models import HashEmbeddingModel
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.vector_adapters import PgVectorAdapter, SQLiteVectorAdapter

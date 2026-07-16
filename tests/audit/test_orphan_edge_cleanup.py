@@ -4,7 +4,6 @@ The _cleanup_orphan_edges method must remove edges where EITHER endpoint
 (src_id or dst_id) is missing from ir_records, regardless of prefix.
 """
 
-import sqlite3
 from contextlib import closing
 
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
@@ -40,10 +39,9 @@ def test_orphan_edge_cleanup_non_clm_prefix():
         conn.execute("delete from ir_records where id = ?", ("rel:1",))
         conn.commit()
 
-    # Reopen triggers _cleanup_orphan_edges via _init_schema.
-    store2 = SQLiteStore(":memory:")
-    # Copy the state: we need to use the same in-memory DB.
-    # Instead, manually call cleanup on the existing connection.
+    # `:memory:` connections aren't shared across SQLiteStore instances, so
+    # reopening can't be simulated by constructing a second store here;
+    # call the cleanup method directly on the existing connection instead.
     with closing(store._connect()) as conn:
         store._cleanup_orphan_edges(conn)
         conn.commit()

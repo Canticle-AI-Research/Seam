@@ -3,8 +3,6 @@ import json
 import sqlite3
 from contextlib import closing
 
-import pytest
-
 from seam_runtime.storage import SQLiteStore
 from seam_runtime.vector import SQLiteVectorIndex
 
@@ -12,7 +10,7 @@ from seam_runtime.vector import SQLiteVectorIndex
 class TestVectorOrphanDetection:
     def test_orphan_detected_when_record_missing(self, tmp_path):
         db_path = str(tmp_path / "test_orphan.db")
-        store = SQLiteStore(db_path)
+        SQLiteStore(db_path)  # side effect: initializes ir_records schema
         vector_idx = SQLiteVectorIndex(
             db_path, _make_hash_embedding_model()
         )
@@ -34,7 +32,7 @@ class TestVectorOrphanDetection:
 
     def test_no_orphans_when_all_records_present(self, tmp_path):
         db_path = str(tmp_path / "test_no_orphan.db")
-        store = SQLiteStore(db_path)
+        SQLiteStore(db_path)  # side effect: initializes ir_records schema
         vector_idx = SQLiteVectorIndex(
             db_path, _make_hash_embedding_model()
         )

@@ -1,23 +1,47 @@
 from __future__ import annotations
 
-import json
-import sqlite3
 import hashlib
 import heapq
+import json
+import sqlite3
 from contextlib import closing
+from dataclasses import dataclass
 from typing import Iterable
 
 from .mirl import MIRLRecord, RecordKind, iter_textual_fields
 from .models import EmbeddingModel, cosine
 
+try:
+    # Optional fast path. numpy is not a core dep (core = rich + tiktoken); it
+    # arrives with the sbert/rerank extras. Without it, search() falls back to
+    # the pure-Python per-row scan below.
+    import numpy as _numpy
+except ImportError:  # pragma: no cover - exercised via the pure-Python branch
+    _numpy = None
 
 INDEXABLE_KINDS = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL, RecordKind.RAW}
+
+
+@dataclass
+class _VectorCache:
+    """Deserialized vectors for one (model, dimension, namespace), reused across
+    queries. ``fingerprint`` = (row count, max updated_at) for the slice; a
+    mismatch on the next search rebuilds, so writes from THIS process or any
+    other (the MCP server and CLI share the DB) invalidate correctly."""
+
+    fingerprint: tuple[int, str]
+    ids: list[str]
+    matrix: "object"  # numpy.ndarray (n, dim), float64
+    norms: "object"  # numpy.ndarray (n,), float64 row norms
 
 
 class SQLiteVectorIndex:
     def __init__(self, path: str, model: EmbeddingModel) -> None:
         self.path = path
         self.model = model
+        # Keyed by (model_name, dimension, namespace). Only used on the numpy
+        # fast path; harmless (unread) on the pure-Python fallback.
+        self._cache: dict[tuple[str, int, str | None], _VectorCache] = {}
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.path, timeout=5.0)
@@ -80,12 +104,104 @@ class SQLiteVectorIndex:
                     (record.id, self.model.name, len(vector), source_text, source_hash, record.ns or "", json.dumps(vector), record.updated_at),
                 )
             connection.commit()
+        # A local write may invalidate any cached matrix; the per-search
+        # fingerprint check would catch it anyway, but clearing here avoids one
+        # stale-detection round-trip.
+        self._cache.clear()
 
     def search(self, query: str, limit: int = 10, namespace: str | None = None) -> dict[str, float]:
         self.ensure_schema()
         if limit <= 0:
             return {}
         query_vector = self.model.embed(query)
+        if _numpy is None:
+            return self._search_scan(query_vector, limit, namespace)
+        return self._search_cached(query_vector, limit, namespace)
+
+    def _fingerprint(self, connection, dimension: int, namespace: str | None) -> tuple[int, str]:
+        """Cheap invalidation key: (row count, max updated_at) for the slice.
+
+        An ``insert or replace`` stamps the record's ``updated_at`` (monotonic
+        at ingest), so both new rows (count) and content changes (max ts) move
+        the fingerprint; a stale cache is rebuilt on the next search."""
+        sql = "select count(*), coalesce(max(updated_at), '') from vector_index where model_name = ? and dimension = ?"
+        params: list[object] = [self.model.name, dimension]
+        if namespace is not None:
+            sql += " and namespace = ?"
+            params.append(namespace)
+        row = connection.execute(sql, params).fetchone()
+        return (int(row[0]), str(row[1]))
+
+    def _load_cache(self, connection, dimension: int, namespace: str | None) -> _VectorCache:
+        key = (self.model.name, dimension, namespace)
+        fingerprint = self._fingerprint(connection, dimension, namespace)
+        cached = self._cache.get(key)
+        if cached is not None and cached.fingerprint == fingerprint:
+            return cached
+        sql = "select record_id, vector_json from vector_index where model_name = ? and dimension = ?"
+        params: list[object] = [self.model.name, dimension]
+        if namespace is not None:
+            sql += " and namespace = ?"
+            params.append(namespace)
+        ids: list[str] = []
+        vectors: list[list[float]] = []
+        for row in connection.execute(sql, params):
+            ids.append(row["record_id"])
+            vectors.append(json.loads(row["vector_json"]))
+        if vectors:
+            matrix = _numpy.asarray(vectors, dtype=_numpy.float64)
+            # Per-row norm (NOT batched norm(matrix, axis=1)): the batched
+            # reduction rounds differently than cosine()'s per-vector
+            # np.linalg.norm, which would flip tied records. Matching it per row
+            # keeps scores bit-identical to the pure-Python scan.
+            norms = _numpy.array(
+                [_numpy.linalg.norm(matrix[i]) for i in range(matrix.shape[0])],
+                dtype=_numpy.float64,
+            )
+        else:
+            matrix = _numpy.zeros((0, dimension), dtype=_numpy.float64)
+            norms = _numpy.zeros(0, dtype=_numpy.float64)
+        cached = _VectorCache(fingerprint=fingerprint, ids=ids, matrix=matrix, norms=norms)
+        self._cache[key] = cached
+        return cached
+
+    def _search_cached(self, query_vector: list[float], limit: int, namespace: str | None) -> dict[str, float]:
+        with closing(self._connect()) as connection:
+            cache = self._load_cache(connection, len(query_vector), namespace)
+        if not cache.ids:
+            return {}
+        query = _numpy.asarray(query_vector, dtype=_numpy.float64)
+        query_norm = float(_numpy.linalg.norm(query))
+        if not query_norm:
+            return {}
+        matrix = cache.matrix
+        norms = cache.norms
+        # Score PER ROW with ``matrix[i] @ query`` -- the identical operation
+        # ``cosine()`` performs (same float64 operands, same np.dot reduction,
+        # same norms), so scores are bit-identical to the pure-Python scan and
+        # rankings never change. A single batched ``matrix @ query`` is faster
+        # but its gemv reduction rounds differently, flipping tied records
+        # (measured: reorders on hash-embedding ties). The win here is skipping
+        # json.loads (was ~88% of the scan) and re-deserialization across
+        # queries, not vectorizing the dot.
+        top: list[tuple[float, str]] = []
+        for i, record_id in enumerate(cache.ids):
+            row_norm = float(norms[i])
+            if not row_norm:
+                continue
+            score = float(query @ matrix[i]) / (row_norm * query_norm)
+            if score <= 0:
+                continue
+            item = (score, record_id)
+            if len(top) < limit:
+                heapq.heappush(top, item)
+            elif item > top[0]:
+                heapq.heapreplace(top, item)
+        ordered = sorted(((record_id, score) for score, record_id in top), key=lambda item: item[1], reverse=True)
+        return dict(ordered)
+
+    def _search_scan(self, query_vector: list[float], limit: int, namespace: str | None) -> dict[str, float]:
+        """Pure-Python fallback (numpy absent): brute-force per-row cosine."""
         top: list[tuple[float, str]] = []
         sql = "select record_id, vector_json from vector_index where model_name = ? and dimension = ?"
         params: list[object] = [self.model.name, len(query_vector)]

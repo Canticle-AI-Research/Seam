@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tools.streams.streams_lib import REPO_ROOT, STREAMS_ROOT, CROSS_INDEX_PATH
+from tools.streams.streams_lib import CROSS_INDEX_PATH, REPO_ROOT, STREAMS_ROOT
 
 
 def tokens(text: str) -> int:

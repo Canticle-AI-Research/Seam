@@ -29,7 +29,7 @@ import random
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING, Protocol, Sequence, runtime_checkable
+from typing import TYPE_CHECKING, Mapping, Protocol, Sequence, runtime_checkable
 
 from .mirl import MIRLRecord, RecordKind, iter_textual_fields
 from .retrieval import RETRIEVAL_PROFILES, RetrievalFlags
@@ -95,6 +95,10 @@ class Scorer(Protocol):
     # `getattr(scorer, "profile_safe", False)` treats them as unsafe. See the
     # answer-quality scorer and the Strand-B wiring.
     profile_safe: bool = False
+    # True iff the scorer measures generated-answer quality and can therefore
+    # evaluate semantic-conversation / inference-policy candidates. Retrieval-
+    # only scorers leave this false because answer policies cannot move them.
+    answer_policy_safe: bool = False
 
     def score(self, runtime: "SeamRuntime", flags: "RetrievalFlags | None" = None) -> ScoreReport: ...
 
@@ -290,10 +294,50 @@ class CandidateEvaluation:
     category_deltas: dict[str, dict[str, float]]   # scorer -> {category -> delta}
     is_improvement: bool
     reason: str
+    floor_progress: float = 0.0
+    view_deltas: dict[str, dict[str, float]] = field(default_factory=dict)
+
+
+def score_report_views(
+    scorer: Scorer,
+    runtime: "SeamRuntime",
+    flags: RetrievalFlags,
+) -> tuple[ScoreReport, dict[str, ScoreReport]]:
+    """Run one scorer call and return its primary and named score views.
+
+    Ordinary scorers expose only ``primary``. Wrappers such as
+    ``AdjudicatedScorer`` publish ``last_views`` after the same underlying call,
+    allowing the loop to report and guard raw plus corrected outcomes without
+    executing generation or judging twice.
+    """
+
+    report = scorer.score(runtime, flags=flags)
+    views = getattr(scorer, "last_views", None)
+    if not isinstance(views, Mapping):
+        return report, {"primary": report}
+    valid = {
+        str(name): view
+        for name, view in views.items()
+        if isinstance(name, str) and isinstance(view, ScoreReport)
+    }
+    return report, valid or {"primary": report}
+
+
+def _category_floor(floors: Mapping[str, float], category: str) -> float | None:
+    """Resolve LoCoMo's numeric category ids and human ``catN`` aliases."""
+
+    if category in floors:
+        return floors[category]
+    alias = f"cat{category}" if category.isdigit() else None
+    return floors.get(alias) if alias is not None else None
 
 
 def candidate_levers(
-    baseline: RetrievalFlags, *, weight_step: float = 0.10, profile_levers: bool = False
+    baseline: RetrievalFlags,
+    *,
+    weight_step: float = 0.10,
+    profile_levers: bool = False,
+    answer_policy_levers: bool = False,
 ) -> list[Candidate]:
     """Bounded candidate set: the boolean/enum levers (when not already set on
     the baseline) plus single-channel weight perturbations (+/- ``weight_step``).
@@ -347,6 +391,37 @@ def candidate_levers(
                     flags=replace(baseline, search_top_k=top_k, context_budget=budget),
                 )
             )
+    if answer_policy_levers:
+        from .conversation import (
+            CONVERSATION_ADAPTER_V1,
+            CONVERSATION_ADAPTER_V2,
+            CONVERSATION_ADAPTER_V3,
+            CONVERSATION_ADAPTER_V4,
+            INFERENCE_HIGH_CONFIDENCE_V1,
+            INFERENCE_HIGH_CONFIDENCE_V2,
+            TEMPORAL_GROUNDING_V1,
+            TEMPORAL_GROUNDING_V2,
+        )
+
+        for field_name, value in (
+            ("conversation_adapter", CONVERSATION_ADAPTER_V1),
+            ("conversation_adapter", CONVERSATION_ADAPTER_V2),
+            ("conversation_adapter", CONVERSATION_ADAPTER_V3),
+            ("conversation_adapter", CONVERSATION_ADAPTER_V4),
+            ("inference_policy", INFERENCE_HIGH_CONFIDENCE_V1),
+            ("inference_policy", INFERENCE_HIGH_CONFIDENCE_V2),
+            ("temporal_policy", TEMPORAL_GROUNDING_V1),
+            ("temporal_policy", TEMPORAL_GROUNDING_V2),
+        ):
+            if getattr(baseline, field_name) == value:
+                continue
+            candidates.append(
+                Candidate(
+                    label=f"{field_name}={value}",
+                    change={field_name: value},
+                    flags=replace(baseline, **{field_name: value}),
+                )
+            )
     return candidates
 
 
@@ -358,6 +433,9 @@ def evaluate_candidates(
     *,
     noise_margin: float = DEFAULT_NOISE_MARGIN,
     regress_tol: float = DEFAULT_REGRESS_TOL,
+    category_floors: Mapping[str, float] | None = None,
+    baseline_reports: Mapping[str, ScoreReport] | None = None,
+    baseline_views: Mapping[str, Mapping[str, ScoreReport]] | None = None,
 ) -> list[CandidateEvaluation]:
     """Score every candidate against every scorer relative to ``baseline``.
 
@@ -367,15 +445,31 @@ def evaluate_candidates(
     with - hold it fixed across the sweep (the anti-gaming guard for the
     record-in-set signal).
     """
-    base = {s.name: s.score(runtime, flags=baseline) for s in scorers}
+    base: dict[str, ScoreReport] = dict(baseline_reports or {})
+    base_views: dict[str, dict[str, ScoreReport]] = {
+        scorer_name: dict(views)
+        for scorer_name, views in (baseline_views or {}).items()
+    }
+    for scorer in scorers:
+        if scorer.name not in base:
+            report, views = score_report_views(scorer, runtime, baseline)
+            base[scorer.name] = report
+            base_views[scorer.name] = views
+        elif scorer.name not in base_views:
+            base_views[scorer.name] = {"primary": base[scorer.name]}
+    floors = dict(category_floors or {})
     evaluations: list[CandidateEvaluation] = []
     for candidate in candidates:
         deltas: dict[str, float] = {}
         category_deltas: dict[str, dict[str, float]] = {}
         improved = False
+        floor_progress = 0.0
+        view_deltas: dict[str, dict[str, float]] = {}
         regressed_reason = ""
         for scorer in scorers:
-            report = scorer.score(runtime, flags=candidate.flags)
+            report, candidate_views = score_report_views(
+                scorer, runtime, candidate.flags
+            )
             base_report = base[scorer.name]
             delta = report.aggregate - base_report.aggregate
             deltas[scorer.name] = delta
@@ -385,22 +479,59 @@ def evaluate_candidates(
                 regressed_reason = f"{scorer.name} aggregate {delta:+.4f}"
             cat_d: dict[str, float] = {}
             for category, base_value in base_report.per_category.items():
-                cat_delta = report.per_category.get(category, 0.0) - base_value
+                candidate_value = report.per_category.get(category, 0.0)
+                cat_delta = candidate_value - base_value
                 cat_d[category] = cat_delta
+                floor = _category_floor(floors, category)
+                if floor is not None:
+                    floor_progress += min(candidate_value, floor) - min(base_value, floor)
                 if cat_delta < -regress_tol and not regressed_reason:
                     regressed_reason = f"{scorer.name}/{category} {cat_delta:+.4f}"
             category_deltas[scorer.name] = cat_d
+            scorer_view_deltas: dict[str, float] = {}
+            for view_name, candidate_view in candidate_views.items():
+                base_view = base_views[scorer.name].get(view_name)
+                if base_view is None:
+                    continue
+                view_delta = candidate_view.aggregate - base_view.aggregate
+                scorer_view_deltas[view_name] = view_delta
+                if view_delta < -regress_tol and not regressed_reason:
+                    regressed_reason = (
+                        f"{scorer.name}/{view_name} aggregate {view_delta:+.4f}"
+                    )
+                for category, base_value in base_view.per_category.items():
+                    cat_delta = (
+                        candidate_view.per_category.get(category, 0.0) - base_value
+                    )
+                    if cat_delta < -regress_tol and not regressed_reason:
+                        regressed_reason = (
+                            f"{scorer.name}/{view_name}/{category} {cat_delta:+.4f}"
+                        )
+            view_deltas[scorer.name] = scorer_view_deltas
+        if floor_progress > noise_margin:
+            improved = True
         is_improvement = improved and not regressed_reason
         if is_improvement:
-            reason = "improves " + ", ".join(
+            parts = [
                 f"{name} {d:+.4f}" for name, d in deltas.items() if d > noise_margin
-            )
+            ]
+            if floor_progress > noise_margin:
+                parts.append(f"category-floor progress {floor_progress:+.4f}")
+            reason = "improves " + ", ".join(parts)
         elif regressed_reason:
             reason = f"regresses {regressed_reason}"
         else:
             reason = "no change beyond noise"
         evaluations.append(
-            CandidateEvaluation(candidate, deltas, category_deltas, is_improvement, reason)
+            CandidateEvaluation(
+                candidate,
+                deltas,
+                category_deltas,
+                is_improvement,
+                reason,
+                floor_progress,
+                view_deltas,
+            )
         )
     return evaluations
 
@@ -412,4 +543,4 @@ def select_best_improvement(
     improving = [e for e in evaluations if e.is_improvement]
     if not improving:
         return None
-    return max(improving, key=lambda e: sum(e.deltas.values()))
+    return max(improving, key=lambda e: (e.floor_progress, sum(e.deltas.values())))

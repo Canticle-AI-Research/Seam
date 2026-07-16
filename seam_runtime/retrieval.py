@@ -3,7 +3,8 @@ from __future__ import annotations
 import os
 import re
 from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass, fields as dataclass_fields
+from dataclasses import asdict, dataclass
+from dataclasses import fields as dataclass_fields
 from datetime import datetime
 from typing import Iterable, Mapping, Protocol
 
@@ -15,12 +16,15 @@ from .temporal import parse_iso, temporal_distance_score
 
 @dataclass(frozen=True)
 class RetrievalFlags:
-    """Audit #3 retrieval-scoring levers, all OFF by default.
+    """Versioned applied memory-to-answer policy (legacy public name).
 
-    With every field at its default the scoring path is byte-identical to the
-    pre-audit weighted-sum fusion, so flag-off runs reproduce the locked
-    baseline exactly. Each lever is independent so it can be ablated alone or
-    cumulatively. Read from the environment via ``retrieval_flags_from_env``.
+    The class began as Audit #3 retrieval-scoring flags. H2's transactional
+    proposal/apply/revert path and scorer protocol now use the same immutable
+    value for retrieval, packing, conversation projection, and inference
+    policy. The name and ``retrieval_flag_state`` storage remain for backward
+    compatibility in v1; migrating to a generic applied-policy name is a
+    separate schema/API change. With every field at its default, behavior is
+    byte-identical to the locked baseline.
     """
 
     # P0-1: when a real vector backend is active (vector_scores is non-empty)
@@ -41,6 +45,20 @@ class RetrievalFlags:
     # cross-ns crowding). ~0 measured LoCoMo recall impact; the value is
     # multi-tenant isolation. End-state ON for any multi-namespace store.
     scoped_vectors: bool = False
+    # Entity-grounded graph scoring (cat1 aggregation lever, HISTORY#321/#323
+    # coreference rebuild). The pre-existing "graph" channel (`_graph_score`)
+    # is effectively dead for real compiled data: it looks up bonuses by a
+    # record's OWN id in an adjacency map keyed by subject/object/src/dst ids,
+    # which a claim's own id is never a member of. When this flag is on,
+    # `_entity_grounded_score` replaces that lookup with the actually-intended
+    # signal: resolve a candidate's grounding entity (a CLM's `subject`; a
+    # REL's `src`/`dst`) to its ENT label and score 1.0 if that label shares a
+    # token with the query. This only has real signal once entities are
+    # cross-turn coreferenced (`storage.persist_ir`) and entity-entity `REL`
+    # edges exist (the opt-in Ollama extractor, `nl.py`) - both landed
+    # alongside this flag. OFF reproduces the exact prior (inert) graph score,
+    # so a store without those upstream changes measures byte-identical.
+    entity_grounded_scoring: bool = False
     # Retrieval DEPTH override (candidate count requested from search). None =
     # use the call-site `budget`. A measured win (HISTORY#320): the benchmark
     # default of 20 was STARVING recall - deeper retrieval lifts paid judge_score
@@ -61,6 +79,26 @@ class RetrievalFlags:
     # self-improvement candidate_lever: it is tuned by the free-LoCoMo
     # answer-quality scorer + operator-gated paid judge, never the self-probe.
     context_budget: int | None = None
+    # Query-time semantic conversation projection. ``off`` preserves the
+    # locked single-pass answer path. ``conversation/1`` turns retrieved turns
+    # into a directly readable, provenance-preserving evidence table and gives
+    # the answerer an explicit collect->resolve->validate->synthesize contract.
+    # It lives in the applied policy state beside retrieval knobs so the H2
+    # improvement loop can evaluate, promote, and revert the whole memory-to-
+    # answer path rather than only ranking weights.
+    conversation_adapter: str = "off"
+    # Answer inference boundary. The baseline remains context-only.
+    # ``inference/high-confidence/1`` licenses stable world knowledge only when
+    # the retrieved evidence supports one unambiguous interpretation; otherwise
+    # it requires abstention. Versioned separately from conversation assembly.
+    inference_policy: str = "context-only"
+    # Temporal grounding for answer generation. ``off`` preserves the locked
+    # baseline. ``temporal/1`` requires resolving relative time expressions
+    # ("last Friday", "last year") against each message's own timestamp before
+    # answering, so event times are reported instead of mention times.
+    # Versioned separately: temporal grounding applies whether or not a
+    # conversation projection is active.
+    temporal_policy: str = "off"
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -122,6 +160,21 @@ def coerce_flag_value(key: str, value: object) -> object | None:
             return None
         if key == "fusion" and value not in ("weighted", "rrf"):
             return None
+        if key == "conversation_adapter":
+            from .conversation import CONVERSATION_ADAPTERS
+
+            if value not in CONVERSATION_ADAPTERS:
+                return None
+        if key == "inference_policy":
+            from .conversation import INFERENCE_POLICIES
+
+            if value not in INFERENCE_POLICIES:
+                return None
+        if key == "temporal_policy":
+            from .conversation import TEMPORAL_POLICIES
+
+            if value not in TEMPORAL_POLICIES:
+                return None
         return value
     return value if isinstance(value, expected) else None
 
@@ -182,6 +235,8 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
             out["rrf_k"] = int(raw)
     if _present("SEAM_RETRIEVAL_SCOPED_VECTORS"):
         out["scoped_vectors"] = _truthy("SEAM_RETRIEVAL_SCOPED_VECTORS")
+    if _present("SEAM_RETRIEVAL_ENTITY_GROUNDED"):
+        out["entity_grounded_scoring"] = _truthy("SEAM_RETRIEVAL_ENTITY_GROUNDED")
     if _present("SEAM_RETRIEVAL_TOP_K"):
         raw = env["SEAM_RETRIEVAL_TOP_K"].strip()
         if raw.isdigit() and int(raw) > 0:
@@ -190,6 +245,18 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_RETRIEVAL_CONTEXT_BUDGET"].strip()
         if raw.isdigit() and int(raw) > 0:
             out["context_budget"] = int(raw)
+    if _present("SEAM_CONVERSATION_ADAPTER"):
+        raw = env["SEAM_CONVERSATION_ADAPTER"].strip()
+        if coerce_flag_value("conversation_adapter", raw) is not None:
+            out["conversation_adapter"] = raw
+    if _present("SEAM_INFERENCE_POLICY"):
+        raw = env["SEAM_INFERENCE_POLICY"].strip()
+        if coerce_flag_value("inference_policy", raw) is not None:
+            out["inference_policy"] = raw
+    if _present("SEAM_TEMPORAL_POLICY"):
+        raw = env["SEAM_TEMPORAL_POLICY"].strip()
+        if coerce_flag_value("temporal_policy", raw) is not None:
+            out["temporal_policy"] = raw
     return out
 
 
@@ -203,6 +270,10 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         raw = env.get(name, "").strip()
         return int(raw) if raw.isdigit() and int(raw) > 0 else None
 
+    def _policy(name: str, key: str, default: str) -> str:
+        raw = env.get(name, "").strip()
+        return raw if coerce_flag_value(key, raw) is not None else default
+
     profile = resolve_retrieval_profile(env.get("SEAM_RETRIEVAL_PROFILE", ""))
     p_top_k = profile[0] if profile else None
     p_budget = profile[1] if profile else None
@@ -211,9 +282,13 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         bm25_all_kinds=_on("SEAM_RETRIEVAL_BM25_ALL"),
         fusion="rrf" if _on("SEAM_RETRIEVAL_RRF") else "weighted",
         scoped_vectors=_on("SEAM_RETRIEVAL_SCOPED_VECTORS"),
+        entity_grounded_scoring=_on("SEAM_RETRIEVAL_ENTITY_GROUNDED"),
         # explicit knob var wins over the profile preset
         search_top_k=_pos_int("SEAM_RETRIEVAL_TOP_K") or p_top_k,
         context_budget=_pos_int("SEAM_RETRIEVAL_CONTEXT_BUDGET") or p_budget,
+        conversation_adapter=_policy("SEAM_CONVERSATION_ADAPTER", "conversation_adapter", "off"),
+        inference_policy=_policy("SEAM_INFERENCE_POLICY", "inference_policy", "context-only"),
+        temporal_policy=_policy("SEAM_TEMPORAL_POLICY", "temporal_policy", "off"),
     )
 
 
@@ -267,6 +342,7 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
     batch_by_id = batch.by_id()
     records = [record for record in batch.records if scope is None or record.scope == scope]
     graph = _graph(records)
+    ent_labels = {r.id: str(r.attrs.get("label", "")) for r in records if r.kind == RecordKind.ENT}
     vector_scores = vector_scores or {}
 
     candidate_kinds = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}
@@ -290,7 +366,10 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
             semantic = 0.0
         else:
             semantic = _semantic_score(record, query_vector)
-        graph_bonus = _graph_score(record, tokens, graph)
+        if flags.entity_grounded_scoring:
+            graph_bonus = _entity_grounded_score(record, tokens, ent_labels)
+        else:
+            graph_bonus = _graph_score(record, tokens, graph)
         if temporal_reference is not None:
             temporal = temporal_distance_score(temporal_reference, parse_iso(record.t0))
         elif temporal_window is not None:
@@ -401,6 +480,32 @@ def _graph_score(record: MIRLRecord, query_tokens: list[str], graph: dict[str, s
         return 0.0
     matched = sum(1 for neighbor in neighbors if any(token in neighbor.lower() for token in query_tokens))
     return matched / max(len(neighbors), 1)
+
+
+def _grounding_entity_ids(record: MIRLRecord) -> list[str]:
+    """The entity ids a candidate is grounded to: a CLM's ``subject``, or a
+    REL's ``src``/``dst``. Empty for STA/EVT (no grounding attr today)."""
+    if record.kind == RecordKind.CLM:
+        subject = record.attrs.get("subject")
+        return [str(subject)] if subject is not None else []
+    if record.kind == RecordKind.REL:
+        return [str(v) for v in (record.attrs.get("src"), record.attrs.get("dst")) if v is not None]
+    return []
+
+
+def _entity_grounded_score(record: MIRLRecord, query_tokens: list[str], ent_labels: dict[str, str]) -> float:
+    """Entry-point-entity aggregation signal (cat1 lever): 1.0 if any entity
+    this record is grounded to has a label sharing a token with the query,
+    else 0.0. Only fires once cross-turn coreference + entity-entity REL
+    edges give ``ent_labels``/grounding real, non-per-turn-fresh ids."""
+    query_token_set = set(query_tokens)
+    if not query_token_set:
+        return 0.0
+    for ent_id in _grounding_entity_ids(record):
+        label = ent_labels.get(ent_id)
+        if label and set(_tokens(label)) & query_token_set:
+            return 1.0
+    return 0.0
 
 
 def _temporal_score(record: MIRLRecord) -> float:

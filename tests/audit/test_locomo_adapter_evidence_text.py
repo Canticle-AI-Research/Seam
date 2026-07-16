@@ -253,6 +253,8 @@ def test_locomo_adapter_keep_db_skips_reingest_on_second_reset(tmp_path):
     assert second_count == first_count, (
         f"keep_db should skip re-ingest; got {second_count} records vs {first_count}"
     )
+    second_mtime = db_path.stat().st_mtime_ns
+    assert second_mtime == first_mtime, "keep_db should skip re-ingest; DB file was rewritten"
 
     # Retrieval must still work against the cached DB.
     answer = adapter.answer(scope_id, "What is the cat named?")

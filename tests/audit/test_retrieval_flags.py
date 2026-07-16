@@ -42,6 +42,8 @@ def test_flag_defaults_all_off():
     assert flags.rrf_k == 60
     # search_top_k defaults to None = no override of the call-site budget.
     assert flags.search_top_k is None
+    assert flags.conversation_adapter == "off"
+    assert flags.inference_policy == "context-only"
 
 
 def test_flag_env_parsing_truthy_variants():
@@ -53,6 +55,22 @@ def test_flag_env_parsing_truthy_variants():
     # falsy / unset stays off
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_RRF": "0"}).fusion == "weighted"
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_BM25_ALL": "false"}).bm25_all_kinds is False
+
+
+def test_answer_policy_env_parsing_is_versioned_and_fail_closed():
+    flags = retrieval_flags_from_env(
+        {
+            "SEAM_CONVERSATION_ADAPTER": "conversation/1",
+            "SEAM_INFERENCE_POLICY": "inference/high-confidence/1",
+        }
+    )
+    assert flags.conversation_adapter == "conversation/1"
+    assert flags.inference_policy == "inference/high-confidence/1"
+    invalid = retrieval_flags_from_env(
+        {"SEAM_CONVERSATION_ADAPTER": "magic", "SEAM_INFERENCE_POLICY": "guess"}
+    )
+    assert invalid.conversation_adapter == "off"
+    assert invalid.inference_policy == "context-only"
 
 
 def test_search_top_k_env_parsing():
@@ -84,7 +102,7 @@ def test_context_budget_default_none_no_regression():
 
 
 def test_retrieval_profile_resolver():
-    from seam_runtime.retrieval import resolve_retrieval_profile, RETRIEVAL_PROFILES
+    from seam_runtime.retrieval import RETRIEVAL_PROFILES, resolve_retrieval_profile
     assert resolve_retrieval_profile("compact") == (100, 8000)
     assert resolve_retrieval_profile("broad") == (300, 60000)
     assert resolve_retrieval_profile("BROAD") == (300, 60000)  # case-insensitive
@@ -255,3 +273,70 @@ def test_rrf_record_with_no_positive_channel_is_excluded():
                           flags=RetrievalFlags(fusion="rrf"))
     for cand in result.candidates:
         assert cand.score > 0.0
+
+
+# --- entity-grounded graph scoring (cat1 coreference lever, HISTORY#321/#323) ---
+
+def _melanie_scope():
+    """A scope with one entity ('Melanie') coreferenced across two claims
+    (subject already the SAME ent id, as storage.persist_ir now guarantees)
+    plus an unrelated claim about a different entity."""
+    ent_melanie = MIRLRecord(id="ent:melanie", kind=RecordKind.ENT, ns="test", scope="thread",
+                              attrs={"entity_type": "person", "label": "Melanie"})
+    ent_caroline = MIRLRecord(id="ent:caroline", kind=RecordKind.ENT, ns="test", scope="thread",
+                               attrs={"entity_type": "person", "label": "Caroline"})
+    clm_pottery = MIRLRecord(id="clm:pottery", kind=RecordKind.CLM, ns="test", scope="thread",
+                              attrs={"subject": "ent:melanie", "predicate": "content", "object": "Melanie: I love pottery."})
+    clm_sweden = MIRLRecord(id="clm:sweden", kind=RecordKind.CLM, ns="test", scope="thread",
+                             attrs={"subject": "ent:melanie", "predicate": "content", "object": "Melanie: I moved to Sweden."})
+    clm_caroline = MIRLRecord(id="clm:caroline", kind=RecordKind.CLM, ns="test", scope="thread",
+                               attrs={"subject": "ent:caroline", "predicate": "content", "object": "Caroline: I researched adoption agencies."})
+    return IRBatch([ent_melanie, ent_caroline, clm_pottery, clm_sweden, clm_caroline])
+
+
+def test_entity_grounded_scoring_default_off_is_byte_identical():
+    batch = _melanie_scope()
+    off = search_batch(batch, query="What does Melanie do", limit=10)
+    baseline = search_batch(batch, query="What does Melanie do", limit=10,
+                            flags=RetrievalFlags(entity_grounded_scoring=False))
+    assert [(c.record.id, c.score) for c in off.candidates] == [(c.record.id, c.score) for c in baseline.candidates]
+
+
+def test_entity_grounded_scoring_on_boosts_coreferenced_claims():
+    batch = _melanie_scope()
+    on = search_batch(batch, query="What does Melanie do", limit=10,
+                      flags=RetrievalFlags(entity_grounded_scoring=True))
+    scores = {c.record.id: c.score for c in on.candidates}
+    # Both of Melanie's claims outrank the unrelated Caroline claim once her
+    # entity is coreferenced to one id and grounding is scored correctly.
+    assert scores["clm:pottery"] > scores["clm:caroline"]
+    assert scores["clm:sweden"] > scores["clm:caroline"]
+
+
+def test_entity_grounded_scoring_no_match_scores_like_off():
+    # A query that mentions no entity in the scope should not get any
+    # artificial boost from the new channel.
+    batch = _melanie_scope()
+    on = search_batch(batch, query="zzznomatch", limit=10, flags=RetrievalFlags(entity_grounded_scoring=True))
+    off = search_batch(batch, query="zzznomatch", limit=10, flags=RetrievalFlags(entity_grounded_scoring=False))
+    assert {c.record.id for c in on.candidates} == {c.record.id for c in off.candidates}
+
+
+def test_entity_grounded_env_parsing():
+    assert retrieval_flags_from_env({}).entity_grounded_scoring is False
+    assert retrieval_flags_from_env({"SEAM_RETRIEVAL_ENTITY_GROUNDED": "1"}).entity_grounded_scoring is True
+    assert retrieval_flags_from_env({"SEAM_RETRIEVAL_ENTITY_GROUNDED": "false"}).entity_grounded_scoring is False
+
+
+def test_temporal_policy_flag_default_env_and_coercion():
+    from seam_runtime.retrieval import coerce_flag_value
+
+    assert RetrievalFlags().temporal_policy == "off"
+    flags = retrieval_flags_from_env({"SEAM_TEMPORAL_POLICY": "temporal/1"})
+    assert flags.temporal_policy == "temporal/1"
+    # fail-closed on unknown versions
+    assert retrieval_flags_from_env({"SEAM_TEMPORAL_POLICY": "guess"}).temporal_policy == "off"
+    assert coerce_flag_value("temporal_policy", "temporal/1") == "temporal/1"
+    assert coerce_flag_value("temporal_policy", "off") == "off"
+    assert coerce_flag_value("temporal_policy", "temporal/99") is None
+    assert coerce_flag_value("temporal_policy", 1) is None

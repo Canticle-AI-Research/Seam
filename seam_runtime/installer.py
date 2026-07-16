@@ -7,7 +7,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-
 PATH_MARKER_BEGIN = "# >>> SEAM installer >>>"
 PATH_MARKER_END = "# <<< SEAM installer <<<"
 
@@ -33,9 +32,13 @@ class DevInstallResult:
     checks_run: tuple[str, ...]
 
 
+def _is_windows_host() -> bool:
+    return os.name == "nt"
+
+
 def detect_layout(repo_root: str | Path | None = None) -> InstallLayout:
     root = Path(repo_root or Path(__file__).resolve().parents[1]).resolve()
-    is_windows = os.name == "nt"
+    is_windows = _is_windows_host()
     if is_windows:
         local_app_data = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
         install_root = local_app_data / "SEAM"
@@ -371,7 +374,7 @@ def _ensure_posix_shell_profiles(target: Path) -> list[Path]:
 
 
 def current_platform_label() -> str:
-    if os.name == "nt":
+    if _is_windows_host():
         return "windows"
     system = platform.system().lower()
     if system == "darwin":

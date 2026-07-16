@@ -23,9 +23,8 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-
 
 PROTECTED_PATTERNS: tuple[str, ...] = (
     "main",

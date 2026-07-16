@@ -110,7 +110,7 @@ def _new_blobs(old_sha: str, new_sha: str, repo_root: Path) -> list[tuple[str, s
     if old_sha == ZERO_SHA or not old_sha:
         rev_args = [new_sha]
     else:
-        rev_args = [new_sha, f"--not", old_sha]
+        rev_args = [new_sha, "--not", old_sha]
     out = _run(
         ["git", "rev-list", "--objects", *rev_args],
         repo_root,

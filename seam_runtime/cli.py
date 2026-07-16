@@ -3,20 +3,21 @@
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
-from importlib.util import find_spec
 from pathlib import Path
 
+from .agent_memory import render_memory_index, render_memory_records
 from .benchmark_baseline_policy import resolve_baseline
 from .benchmark_integrity import (
     inspect_benchmark_integrity,
     load_json_payload,
     seal_benchmark_bundle,
     validate_publication_readiness,
-    verify_benchmark_bundle as verify_integrity_bundle,
     write_json_payload,
+)
+from .benchmark_integrity import (
+    verify_benchmark_bundle as verify_integrity_bundle,
 )
 from .benchmarks import (
     BENCHMARK_SUITES,
@@ -29,19 +30,11 @@ from .benchmarks import (
 from .context_views import CONTEXT_VIEWS, build_context_payload, render_context_pretty
 from .dashboard import run_dashboard
 from .doctor import build_doctor_report, check_pgvector
-from .installer import default_runtime_db_path
-from .lossless import (
-    LOSSLESS_CODECS,
-    LOSSLESS_TRANSFORMS,
-    READABLE_GRANULARITIES,
-    TOKENIZER_CHOICES,
-    benchmark_text_lossless,
-    compress_text_readable,
-    compress_text_lossless,
-    decompress_text_readable,
-    decompress_text_lossless,
-    query_readable_compressed,
-    render_lossless_benchmark_pretty,
+from .external_memory_benchmarks import (
+    benchmark_plan,
+    render_external_memory_plan_pretty,
+    render_external_memory_report_pretty,
+    run_external_memory_benchmarks,
 )
 from .holographic import (
     SURFACE_MODES,
@@ -53,14 +46,23 @@ from .holographic import (
     query_surface,
     verify_surface,
 )
-from .lx1 import decode as lx1_decode, encode as lx1_encode, token_savings_report
-from .agent_memory import render_memory_index, render_memory_records
-from .external_memory_benchmarks import (
-    benchmark_plan,
-    render_external_memory_plan_pretty,
-    render_external_memory_report_pretty,
-    run_external_memory_benchmarks,
+from .installer import default_runtime_db_path
+from .lossless import (
+    LOSSLESS_CODECS,
+    LOSSLESS_TRANSFORMS,
+    READABLE_GRANULARITIES,
+    TOKENIZER_CHOICES,
+    benchmark_text_lossless,
+    compress_text_lossless,
+    compress_text_readable,
+    decompress_text_lossless,
+    decompress_text_readable,
+    query_readable_compressed,
+    render_lossless_benchmark_pretty,
 )
+from .lx1 import decode as lx1_decode
+from .lx1 import encode as lx1_encode
+from .lx1 import token_savings_report
 from .mirl import IRBatch
 from .runtime import SeamRuntime
 from .surface_adapters import SurfaceFileAdapter
@@ -125,7 +127,34 @@ def _parse_candidate_flags(flags_json: str):
     return RetrievalFlags(**values)
 
 
+def _apply_candidate_profile(candidate_flags, profile: str, store):
+    """Overlay a named retrieval profile on the validation candidate only.
+
+    ``search_top_k`` and ``context_budget`` are configuration knobs rather than
+    improvement-proposal fields, so ``--flags`` intentionally cannot set them.
+    When no explicit flags are supplied, preserve the loop's effective applied
+    state and replace only the two profile knobs.  The stock validation baseline
+    remains ``RetrievalFlags()`` inside ``run_paid_validation``.
+    """
+    from dataclasses import replace
+
+    from .retrieval import load_retrieval_flags, resolve_retrieval_profile
+
+    resolved = resolve_retrieval_profile(profile)
+    if resolved is None:
+        raise ValueError(f"unknown retrieval profile {profile!r}")
+    base = candidate_flags if candidate_flags is not None else load_retrieval_flags(store)
+    search_top_k, context_budget = resolved
+    return replace(
+        base,
+        search_top_k=search_top_k,
+        context_budget=context_budget,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
+    from .retrieval import RETRIEVAL_PROFILES
+
     parser = argparse.ArgumentParser(description="SEAM v1 memory compiler/runtime")
     parser.add_argument("--db", default=default_runtime_db_path(), help="SQLite database path")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -345,7 +374,9 @@ def build_parser() -> argparse.ArgumentParser:
     memory_get_parser.add_argument("--timeline", action="store_true")
     memory_get_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
 
-    improve_parser = subparsers.add_parser("improve", help="Self-improvement loop over retrieval-flag levers")
+    improve_parser = subparsers.add_parser(
+        "improve", help="Self-improvement loop over retrieval and answer-policy levers"
+    )
     improve_subparsers = improve_parser.add_subparsers(dest="improve_command", required=True)
     improve_cycle_parser = improve_subparsers.add_parser(
         "cycle",
@@ -361,6 +392,26 @@ def build_parser() -> argparse.ArgumentParser:
     improve_cycle_parser.add_argument("--locomo-questions", type=int, default=None, help="Cap dev questions per LoCoMo conversation")
     improve_cycle_parser.add_argument("--locomo-answerer", choices=["none", "ollama"], default="none", help="LoCoMo scorer kind: 'none' = free context_recall (default); 'ollama' = free answer-quality (token_f1 via local Ollama), the dilution-sensitive scorer that lets the loop tune the search_top_k/context_budget profile. Profile tuning also requires --probe-sample 0 (self-probe is not profile-safe).")
     improve_cycle_parser.add_argument("--answerer-model", default="qwen2.5:3b", help="Ollama model for the answer-quality scorer (default qwen2.5:3b); endpoint via SEAM_BENCH_OLLAMA_URL")
+    improve_cycle_parser.add_argument(
+        "--cat1-floor",
+        type=float,
+        default=0.80,
+        help="Minimum cat1 generated-answer score targeted by the loop (default: 0.80)",
+    )
+    improve_cycle_parser.add_argument(
+        "--cat3-floor",
+        type=float,
+        default=0.80,
+        help="Minimum cat3 generated-answer score targeted by the loop (default: 0.80)",
+    )
+    improve_cycle_parser.add_argument(
+        "--adjudication-overlay",
+        default=None,
+        help=(
+            "Optional seam-adjudication/1 JSON applied to the generated-answer "
+            "scorer; reports raw and adjudicated views from one scorer execution"
+        ),
+    )
     improve_validate_parser = improve_subparsers.add_parser(
         "validate",
         help="PAID holdout validation: judge the applied flag state (or --flags) against the stock baseline with a paid answerer + LLM judge. Dry-run cost estimate by default; spends ONLY with --confirm-paid",
@@ -370,12 +421,25 @@ def build_parser() -> argparse.ArgumentParser:
     improve_validate_parser.add_argument("--locomo-scopes", type=int, default=5, help="Number of conversations pooled into the validation (default 5)")
     improve_validate_parser.add_argument("--locomo-questions", type=int, default=None, help="Cap questions per conversation (bounds spend)")
     improve_validate_parser.add_argument("--split", choices=["dev", "holdout", "all"], default="holdout", help="Split to validate on (default holdout - the cases the loop never tuned on)")
-    improve_validate_parser.add_argument("--answerer", choices=["openai", "claude"], default="openai", help="Paid answerer that generates from retrieved context (default openai)")
+    improve_validate_parser.add_argument("--answerer", choices=["openai", "claude", "deepseek"], default="openai", help="Paid answerer that generates from retrieved context (default openai; deepseek uses deepseek-v4-pro by default and captures its reasoning trace -- use --answerer-model deepseek-v4-flash for the cheaper tier)")
     improve_validate_parser.add_argument("--answerer-model", default=None, help="Answerer model override")
     improve_validate_parser.add_argument("--judge", choices=["openai", "claude"], default="openai", help="Paid LLM judge (default openai)")
     improve_validate_parser.add_argument("--judge-model", default=None, help="Judge model override")
     improve_validate_parser.add_argument("--flags", default=None, help="Explicit candidate flags as a JSON object (default: the loop's persisted applied state)")
+    improve_validate_parser.add_argument(
+        "--profile",
+        choices=sorted(RETRIEVAL_PROFILES),
+        default=None,
+        help=(
+            "Named retrieval profile applied to the candidate only: compact "
+            "uses top_k=100/context_budget=8000; broad uses 300/60000. "
+            "Combines with --flags, or with the loop's applied state when "
+            "--flags is omitted; the stock baseline stays unchanged."
+        ),
+    )
     improve_validate_parser.add_argument("--noise-margin", type=float, default=None, help="Judged-score noise margin for the verdict (default 0.02)")
+    improve_validate_parser.add_argument("--record-dir", default=None, help="Directory for the full per-case run record (JSON + training JSONL). Default: $SEAM_BENCH_RECORD_DIR or benchmarks/runs/records. Default on so no paid run is lost.")
+    improve_validate_parser.add_argument("--no-record", action="store_true", help="Disable the full-record artifact for this run")
     improve_validate_parser.add_argument("--confirm-paid", action="store_true", help="REQUIRED to spend: without it the command prints the call-count estimate and makes zero API calls")
 
     mcp_parser = subparsers.add_parser("mcp", help="Run SEAM agent integration bridges")
@@ -1129,7 +1193,34 @@ def run_cli(argv: list[str] | None = None) -> None:
             return
         from .self_improve import SelfProbeScorer, generate_probes
 
+        for option, floor in (
+            ("--cat1-floor", args.cat1_floor),
+            ("--cat3-floor", args.cat3_floor),
+        ):
+            if not 0.0 <= floor <= 1.0:
+                print(
+                    json.dumps(
+                        {"error": f"{option} must be within [0, 1]"},
+                        indent=2,
+                    )
+                )
+                return
         scorers = []
+        if args.adjudication_overlay and (
+            not args.locomo_dataset or args.locomo_answerer != "ollama"
+        ):
+            print(
+                json.dumps(
+                    {
+                        "error": (
+                            "--adjudication-overlay requires --locomo-dataset "
+                            "and --locomo-answerer ollama"
+                        )
+                    },
+                    indent=2,
+                )
+            )
+            return
         if args.probe_sample > 0:
             probes = generate_probes(runtime, sample=args.probe_sample)
             scorers.append(SelfProbeScorer(probes, budget=args.probe_budget))
@@ -1169,12 +1260,39 @@ def run_cli(argv: list[str] | None = None) -> None:
                     db_path=tempfile.mkdtemp(),
                     keep_db=True,
                 )
+            if args.adjudication_overlay:
+                from benchmarks.external.common.adjudication import (
+                    AdjudicatedScorer,
+                    load_adjudication_overlay,
+                )
+
+                category_by_case = {
+                    case.case_id: case.category or "unknown"
+                    for cases in locomo_scorer.cases_by_scope.values()
+                    for case in cases
+                }
+                locomo_scorer = AdjudicatedScorer(
+                    locomo_scorer,
+                    load_adjudication_overlay(args.adjudication_overlay),
+                    category_by_case=category_by_case,
+                )
             scorers.append(locomo_scorer)
         if not scorers:
             print(json.dumps({"error": "no scorers: set --probe-sample > 0 or pass --locomo-dataset"}, indent=2))
             return
         try:
-            report = run_cycle(runtime, runtime.store, scorers, auto_approve=args.auto_approve)
+            category_floors = (
+                {"cat1": args.cat1_floor, "cat3": args.cat3_floor}
+                if args.locomo_dataset and args.locomo_answerer == "ollama"
+                else None
+            )
+            report = run_cycle(
+                runtime,
+                runtime.store,
+                scorers,
+                auto_approve=args.auto_approve,
+                category_floors=category_floors,
+            )
         finally:
             if adapter is not None:
                 adapter.close()
@@ -1199,6 +1317,12 @@ def run_cli(argv: list[str] | None = None) -> None:
             except (ValueError, json.JSONDecodeError) as exc:
                 print(json.dumps({"error": f"invalid --flags: {exc}"}, indent=2))
                 return
+        if args.profile is not None:
+            candidate_flags = _apply_candidate_profile(
+                candidate_flags,
+                args.profile,
+                runtime.store,
+            )
         if not args.confirm_paid:
             # Dry run: count what the validation would cost. No conversation is
             # ingested and no API client is constructed on this path.
@@ -1209,6 +1333,11 @@ def run_cli(argv: list[str] | None = None) -> None:
                 question_limit=args.locomo_questions,
             )
             estimate["dry_run"] = True
+            if candidate_flags is not None:
+                from dataclasses import asdict
+
+                estimate["candidate_flags"] = asdict(candidate_flags)
+            estimate["candidate_profile"] = args.profile
             estimate["note"] = (
                 "no API calls were made; re-run with --confirm-paid to execute "
                 "(one answerer call + up to one judge call per case per pass)"
@@ -1229,13 +1358,28 @@ def run_cli(argv: list[str] | None = None) -> None:
             db_path=tempfile.mkdtemp(),
             keep_db=True,
         )
+        record_path = None
+        if not args.no_record:
+            import os as _os
+            import time as _time
+
+            from benchmarks.external.common.run_record import external_mount_ready
+
+            record_dir = args.record_dir or _os.environ.get("SEAM_BENCH_RECORD_DIR", "benchmarks/runs/records")
+            ok, why = external_mount_ready(record_dir)
+            if not ok:
+                raise SystemExit(f"error: {why}")
+            stamp = _time.strftime("%Y%m%d-%H%M%S")
+            record_path = _os.path.join(record_dir, f"{stamp}-locomo-{args.split}.json")
         try:
             report = run_validation(
                 scorer,
                 runtime.store,
                 candidate_flags=candidate_flags,
                 noise_margin=args.noise_margin if args.noise_margin is not None else DEFAULT_JUDGED_NOISE_MARGIN,
+                record_path=record_path,
             )
+            report["candidate_profile"] = args.profile
         finally:
             adapter.close()
         print(json.dumps(report, indent=2))

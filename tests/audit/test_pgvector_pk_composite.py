@@ -54,17 +54,14 @@ def _insert_row_old_schema(connection, table, record_id, model_name, vector_vals
 
 class TestPgVectorCompositePK:
     def test_composite_pk_allows_two_models_same_record(self):
-        from seam_runtime.vector_adapters import PgVectorAdapter
         from seam_runtime.models import HashEmbeddingModel
+        from seam_runtime.vector_adapters import PgVectorAdapter
 
         dsn = os.environ["PGVECTOR_TEST_DSN"]
         table = f"seam_vector_pk_test_{uuid.uuid4().hex[:12]}"
 
         model_a = HashEmbeddingModel(name="model-a", dimension=64)
-        model_b = HashEmbeddingModel(name="model-b", dimension=64)
-
         adapter_a = PgVectorAdapter(dsn=dsn, model=model_a, table_name=table)
-        adapter_b = PgVectorAdapter(dsn=dsn, model=model_b, table_name=table)
 
         try:
             adapter_a.ensure_schema()
@@ -109,8 +106,8 @@ class TestPgVectorCompositePK:
 
     def test_migration_old_single_pk_upgrades_to_composite(self):
         """ensure_schema() migrates old PRIMARY KEY (record_id) → (record_id, model_name)."""
-        from seam_runtime.vector_adapters import PgVectorAdapter
         from seam_runtime.models import HashEmbeddingModel
+        from seam_runtime.vector_adapters import PgVectorAdapter
 
         dsn = os.environ["PGVECTOR_TEST_DSN"]
         table = f"seam_vector_migrate_{uuid.uuid4().hex[:12]}"
@@ -155,8 +152,8 @@ class TestPgVectorCompositePK:
 
     def test_ensure_schema_idempotent_on_composite_pk(self):
         """Running ensure_schema() twice with composite PK is safe."""
-        from seam_runtime.vector_adapters import PgVectorAdapter
         from seam_runtime.models import HashEmbeddingModel
+        from seam_runtime.vector_adapters import PgVectorAdapter
 
         dsn = os.environ["PGVECTOR_TEST_DSN"]
         table = f"seam_vector_idem_{uuid.uuid4().hex[:12]}"

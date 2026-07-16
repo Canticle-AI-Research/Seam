@@ -42,6 +42,8 @@ bench-mem0 = ["mem0ai>=0.1.0,<1.0", "chromadb>=0.4.0,<1.0"]
 bench-zep = ["zep-cloud>=2.0.0,<3.0"]
 # chromadb intentionally excluded: unpatched critical advisory (see `chroma` above); install via `seam[chroma]` only.
 all-extras = ["textual>=0.50,<1.0", "httpx>=0.24,<1.0", "psycopg[binary]>=3.0,<4.0", "sentence-transformers>=2.0,<3.0", "fastapi>=0.100,<1.0", "uvicorn[standard]>=0.23,<1.0", "python-multipart>=0.0.6,<1.0", "anthropic>=0.40,<1.0", "openai>=1.0,<2.0", "mem0ai>=0.1.0,<1.0", "zep-cloud>=2.0.0,<3.0"]
+# Dev-only static analysis tool, never a runtime dependency; install via `seam[lint]`.
+lint = ["ruff>=0.6,<1.0"]
 
 [project.scripts]
 seam = "seam:main"
@@ -64,3 +66,20 @@ seam_runtime = ["webui/*", "webui/**/*"]
 [tool.setuptools.exclude-package-data]
 # Operator-local Codex profile; never ship in the wheel.
 seam_runtime = ["config.toml"]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["archive", "build"]
+
+[tool.ruff.lint]
+# Correctness (F, E4/E7/E9) + import ordering (I). Deliberately excludes E501
+# (line-too-long) and other pure-style rules: this repo has no formatter
+# convention yet, and style-only noise would drown the findings that matter.
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Both structurally require imports after non-import statements: dashboard.py
+# guards optional rich/textual imports with try/except fallback assignments,
+# and install_seam.py must mutate sys.path before importing the local package.
+"seam_runtime/dashboard.py" = ["E402"]
+"installers/install_seam.py" = ["E402"]

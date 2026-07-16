@@ -7,7 +7,6 @@ from collections import Counter
 
 from .mirl import IRBatch, MIRLRecord, RecordKind, Status
 
-
 STOPWORDS = {"a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "into", "is", "it", "of", "on", "or", "that", "the", "this", "to", "we", "with", "without"}
 
 # --- Unified deterministic compiler (SEAM spec §3.2 + §8) ---------------------
@@ -143,6 +142,7 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
 
     span_index = 1
     claim_index = 1
+    rel_index = 1
 
     def add_claim(predicate: str, obj: object, subject: str, span_id: str, confidence: float = 0.9) -> None:
         nonlocal claim_index
@@ -152,6 +152,15 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
                        attrs={"subject": subject, "predicate": predicate, "object": obj})
         )
         claim_index += 1
+
+    def add_relation(src: str, predicate: str, dst: str, span_id: str, confidence: float = 0.85) -> None:
+        nonlocal rel_index
+        records.append(
+            MIRLRecord(id=f"rel:{source_hash}:{rel_index}", kind=RecordKind.REL, ns=ns, scope=scope,
+                       conf=confidence, prov=[prov_id], evidence=[span_id],
+                       attrs={"src": src, "predicate": predicate, "dst": dst})
+        )
+        rel_index += 1
 
     for proposition, start, end in _segment_propositions(raw_text):
         subject_label = _leading_subject(proposition)
@@ -176,10 +185,26 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
         if extraction is not None and extraction.claims:
             for entity in extraction.entities:
                 entity_id(entity.name, entity.entity_type)
+            # Extractor-identified entity names gate REL emission below: a
+            # claim's object is only a real entity-entity edge when the
+            # extractor itself flagged that phrase (or its head words) as an
+            # entity, not merely a descriptive object ("an evening pottery
+            # class" is a valid claim object but not an entity to link).
+            # Token-subset match (not exact string equality) so an object
+            # phrase carrying a determiner ("the billing service") still
+            # matches the bare entity name ("billing service").
+            extracted_entity_word_sets = [_content_words(e.name) for e in extraction.entities]
             for claim in extraction.claims:
                 claim_subject = entity_id(claim.subject, "entity")
-                entity_id(claim.obj, "entity")  # the object phrase is a grounded entity too
+                object_ent_id = entity_id(claim.obj, "entity")  # the object phrase is a grounded entity too
                 add_claim(claim.relation, claim.obj, claim_subject, span_id, 0.85)
+                # Cross-turn entity coreference (storage.persist_ir) only has
+                # teeth for retrieval if a real entity-to-entity edge exists;
+                # the verbatim CLM above never qualifies (object is text, not
+                # an id). Emit one only when both ends are genuine entities.
+                object_words = _content_words(claim.obj)
+                if any(words and words <= object_words for words in extracted_entity_word_sets):
+                    add_relation(claim_subject, claim.relation, object_ent_id, span_id)
         elif regex_enrich:
             # Legacy regex enrichment (default OFF; see SEAM_NL_REGEX_ENRICH above).
             _extract_conversational(proposition, subject, span_id, add_claim, speaker_match)
@@ -266,6 +291,11 @@ def _segment_propositions(text: str) -> list[tuple[str, int, int]]:
     if not result:
         emit(0, length)
     return result
+
+
+def _content_words(text: str) -> frozenset[str]:
+    """Lowercased word tokens of ``text``, for token-subset entity matching."""
+    return frozenset(match.group(0).lower() for match in _WORD.finditer(text))
 
 
 def _leading_subject(proposition: str) -> str:

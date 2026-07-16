@@ -29,6 +29,14 @@ from benchmarks.external.common.runner import (
     run_benchmark_grouped,
     run_benchmark_grouped_parallel,
 )
+from seam_runtime.conversation import (
+    CONVERSATION_ADAPTER_OFF,
+    CONVERSATION_ADAPTERS,
+    INFERENCE_CONTEXT_ONLY,
+    INFERENCE_POLICIES,
+    TEMPORAL_POLICIES,
+    TEMPORAL_POLICY_OFF,
+)
 
 
 def build_adapter(
@@ -49,6 +57,9 @@ def build_adapter(
     semantic_recovery_mode: str = "baseline",
     record_retrieval_events: bool | None = None,
     retrieval_event_run_id: str | None = None,
+    conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
+    inference_policy: str = INFERENCE_CONTEXT_ONLY,
+    temporal_policy: str = TEMPORAL_POLICY_OFF,
 ):
     """Lazy-import factory so SEAM-only runs don't require Mem0/Zep installed."""
     if name == "seam":
@@ -68,6 +79,9 @@ def build_adapter(
             keep_db=keep_db,
             record_retrieval_events=record_retrieval_events,
             run_id=retrieval_event_run_id,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
+            temporal_policy=temporal_policy,
         )
     if name == "mem0":
         from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
@@ -76,15 +90,33 @@ def build_adapter(
             Mem0LocomoAdapter(search_limit=mem0_search_limit),
             answerer,
             answerer_model,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
+            temporal_policy=temporal_policy,
         )
     if name == "zep":
         from benchmarks.external.locomo.adapters.zep import ZepLocomoAdapter
 
-        return _maybe_wrap_answerer(ZepLocomoAdapter(), answerer, answerer_model)
+        return _maybe_wrap_answerer(
+            ZepLocomoAdapter(),
+            answerer,
+            answerer_model,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
+            temporal_policy=temporal_policy,
+        )
     raise ValueError(f"unknown adapter {name!r}")
 
 
-def _maybe_wrap_answerer(inner, answerer: str | None, answerer_model: str | None):
+def _maybe_wrap_answerer(
+    inner,
+    answerer: str | None,
+    answerer_model: str | None,
+    *,
+    conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
+    inference_policy: str = INFERENCE_CONTEXT_ONLY,
+    temporal_policy: str = TEMPORAL_POLICY_OFF,
+):
     """Comparator adapters (mem0/zep) return only retrieved context. When an
     answerer is configured, wrap them so the SAME answerer generates their
     answer from that context -- otherwise the runner judges them on an empty
@@ -94,7 +126,14 @@ def _maybe_wrap_answerer(inner, answerer: str | None, answerer_model: str | None
         return inner
     from benchmarks.external.common.answerer import SharedAnswererAdapter
 
-    return SharedAnswererAdapter(inner, answerer, answerer_model)
+    return SharedAnswererAdapter(
+        inner,
+        answerer,
+        answerer_model,
+        conversation_adapter=conversation_adapter,
+        inference_policy=inference_policy,
+        temporal_policy=temporal_policy,
+    )
 
 
 def _fixture_hash(cases) -> str:
@@ -189,6 +228,18 @@ def main() -> None:
         help="Limit number of cases",
     )
     parser.add_argument(
+        "--split",
+        choices=["all", "dev", "holdout"],
+        default="all",
+        help=(
+            "Restrict cases to the deterministic dev/holdout partition "
+            "(tools.h2.holdout_split, default salt/ratio). 'holdout' matches the "
+            "split used by 'seam improve validate', so comparator adapters "
+            "(mem0/zep) can be scored on the same cases as SEAM's holdout runs. "
+            "Applied before --limit. Default: all."
+        ),
+    )
+    parser.add_argument(
         "--adapter",
         choices=["seam", "mem0", "zep"],
         default="seam",
@@ -227,7 +278,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--answerer",
-        choices=["none", "openai", "claude"],
+        choices=["none", "openai", "claude", "deepseek"],
         default="none",
         help="Generate a short answer from retrieved context (default: none)",
     )
@@ -235,6 +286,34 @@ def main() -> None:
         "--answerer-model",
         default=None,
         help="Override the default answerer model id",
+    )
+    parser.add_argument(
+        "--conversation-adapter",
+        choices=sorted(CONVERSATION_ADAPTERS),
+        default=CONVERSATION_ADAPTER_OFF,
+        help=(
+            "Versioned semantic-conversation projection applied before answer "
+            "generation for every adapter (default: off)."
+        ),
+    )
+    parser.add_argument(
+        "--inference-policy",
+        choices=sorted(INFERENCE_POLICIES),
+        default=INFERENCE_CONTEXT_ONLY,
+        help=(
+            "Versioned answer inference boundary applied equally to every adapter "
+            "(default: context-only)."
+        ),
+    )
+    parser.add_argument(
+        "--temporal-policy",
+        choices=sorted(TEMPORAL_POLICIES),
+        default=TEMPORAL_POLICY_OFF,
+        help=(
+            "Versioned temporal grounding applied equally to every adapter: "
+            "temporal/1 resolves relative time expressions against message "
+            "timestamps (default: off)."
+        ),
     )
     parser.add_argument(
         "--judge-cross",
@@ -353,6 +432,18 @@ def main() -> None:
         cases = load_locomo_cases(dataset_path)
         source = str(dataset_path)
 
+    # Restrict to the deterministic dev/holdout partition before any limit,
+    # so --limit caps the split's cases rather than the split sampling a
+    # limit-truncated list.
+    if args.split != "all":
+        from tools.h2.holdout_split import DEFAULT_RATIO, DEFAULT_SALT, assign_one
+
+        cases = [
+            c
+            for c in cases
+            if assign_one(c.case_id, salt=DEFAULT_SALT, ratio=DEFAULT_RATIO) == args.split
+        ]
+
     # Apply limit
     if args.limit is not None:
         cases = cases[: args.limit]
@@ -409,6 +500,9 @@ def main() -> None:
                 semantic_recovery_mode=args.semantic_recovery_mode,
                 record_retrieval_events=args.record_retrieval_events,
                 retrieval_event_run_id=args.retrieval_event_run_id,
+                conversation_adapter=args.conversation_adapter,
+                inference_policy=args.inference_policy,
+                temporal_policy=args.temporal_policy,
             ),
             adapter_name=args.adapter,
             cases=cases,
@@ -440,6 +534,9 @@ def main() -> None:
             semantic_recovery_mode=args.semantic_recovery_mode,
             record_retrieval_events=args.record_retrieval_events,
             retrieval_event_run_id=args.retrieval_event_run_id,
+            conversation_adapter=args.conversation_adapter,
+            inference_policy=args.inference_policy,
+            temporal_policy=args.temporal_policy,
         )
         judge = build_judge(args.judge, model=args.judge_model)
         report = run_benchmark_grouped(
@@ -516,6 +613,9 @@ def _run_stem(args: argparse.Namespace, n_cases: int) -> str:
     adapter = getattr(args, "adapter", "seam") or "seam"
     judge = getattr(args, "judge", None)
     parts = [timestamp, str(adapter), f"{n_cases}cases"]
+    split = getattr(args, "split", "all") or "all"
+    if split != "all":
+        parts.append(split)
     if judge:
         parts.append(f"judge-{judge}")
     if getattr(args, "quickstart", False):

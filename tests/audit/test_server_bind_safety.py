@@ -1,7 +1,7 @@
 """Tests for server bind safety: remote unauthenticated bind refusal."""
-import os
 import pytest
-from seam_runtime.server import _validate_server_safety, _is_remote_bind
+
+from seam_runtime.server import _is_remote_bind, _validate_server_safety
 
 
 class TestRemoteBindSafety:

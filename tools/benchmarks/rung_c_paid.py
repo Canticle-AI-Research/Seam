@@ -10,7 +10,6 @@ from typing import Iterable
 
 from benchmarks.external.common.dataset import load_locomo_cases
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET = REPO_ROOT / "benchmarks" / "external" / "locomo" / "data" / "locomo10.json"
 DEFAULT_SLICE_DIR = REPO_ROOT / "test_seam" / "locomo" / "rung_c"

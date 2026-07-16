@@ -31,7 +31,6 @@ from tools.history.history_lib import (
 )
 from tools.history.rebuild_index import rebuild
 
-
 _PROCESS_LOCK = threading.Lock()
 
 
@@ -115,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 supersedes_id = int(supersedes)
             except ValueError:
-                print(f"ERROR: --supersedes must be an entry id or 'none'", file=sys.stderr)
+                print("ERROR: --supersedes must be an entry id or 'none'", file=sys.stderr)
                 return 2
             if supersedes_id not in {e.id for e in entries}:
                 print(

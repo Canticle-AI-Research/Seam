@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 import subprocess
 import sys
@@ -9,7 +8,6 @@ import pytest
 
 from benchmarks.external.common.runner import run_benchmark
 from benchmarks.external.common.types import (
-    AdapterAnswer,
     BenchmarkCase,
     ConversationTurn,
 )
@@ -105,7 +103,6 @@ def test_missing_api_key_raises_clear_error(monkeypatch) -> None:
 
 def test_module_level_does_not_import_mem0ai() -> None:
     """Importing the adapter module must not load mem0ai into sys.modules."""
-    import benchmarks.external.locomo.adapters.mem0  # noqa: F811
 
     assert "mem0ai" not in sys.modules
 

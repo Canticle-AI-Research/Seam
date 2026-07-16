@@ -9,9 +9,8 @@ from pathlib import Path
 from typing import TextIO
 
 from .doctor import build_doctor_report
-from .holographic import decode_surface, query_surface, verify_surface, context_surface
+from .holographic import context_surface, decode_surface, query_surface, verify_surface
 from .runtime import SeamRuntime
-
 
 # Backwards-compatible name->description map. The ready line still emits this
 # under the "tools" key so existing JSONL clients keep working.
@@ -184,7 +183,7 @@ def run_stdio_bridge(runtime: SeamRuntime, input_stream: TextIO | None = None, o
         try:
             request = json.loads(line)
             response = dispatch_tool(runtime, request)
-        except Exception as exc:  # pragma: no cover - defensive bridge boundary
+        except Exception:  # pragma: no cover - defensive bridge boundary
             traceback.print_exc(file=sys.stderr)
             response = {"type": "error", "error": "Internal error processing MCP request"}
         _write(output_stream, response)
@@ -331,7 +330,7 @@ def dispatch_tool(runtime: SeamRuntime, request: dict[str, object]) -> dict[str,
         budget = _bounded_int(arguments.get("budget"), default=5, low=1, high=50)
         mode = str(arguments.get("mode") or "hybrid").strip()
         if mode not in {"vector", "graph", "hybrid", "mix"}:
-            raise ValueError(f"mode must be one of ['vector', 'graph', 'hybrid', 'mix']")
+            raise ValueError("mode must be one of ['vector', 'graph', 'hybrid', 'mix']")
         include_trace = bool(arguments.get("include_trace"))
         orchestrator = RetrievalOrchestrator(runtime)
         result = orchestrator.search(

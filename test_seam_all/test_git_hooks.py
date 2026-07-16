@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import os
-import pytest
 import shutil
 import subprocess
 from pathlib import Path
+
+import pytest
 
 
 def test_pre_commit_refuses_when_python_missing(tmp_path: Path) -> None:

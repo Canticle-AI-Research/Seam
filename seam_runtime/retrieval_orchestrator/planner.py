@@ -4,7 +4,6 @@ import re
 
 from .types import QueryFilters, QueryIntent, RetrievalLeg, RetrievalPlan
 
-
 FILTER_PATTERN = re.compile(r"\b(?P<key>id|kind|ns|scope|predicate|subject|object):(?P<value>[^\s]+)")
 
 

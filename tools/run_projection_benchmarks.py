@@ -3,7 +3,9 @@ Run the projection benchmark with both HashEmbedding and SentenceTransformer mod
 persist results to the DB, and export JSON bundles to benchmarks/runs/.
 """
 
-import sys, os, json
+import json
+import os
+import sys
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -76,4 +78,4 @@ for track in all_tracks:
     delta_str = f"+{delta:.3f}" if delta > 0 else f"{delta:.3f}" if delta < 0 else "  =  "
     print(f"{track:<25s}  {h:12.3f}  {s:13.3f}  {delta_str:>8s}")
 
-print(f"\nAll bundles saved to: benchmarks/runs/")
+print("\nAll bundles saved to: benchmarks/runs/")

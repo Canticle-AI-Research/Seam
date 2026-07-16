@@ -10,7 +10,7 @@ build Probe objects directly.
 
 from __future__ import annotations
 
-from seam_runtime.mirl import RecordKind
+from seam_runtime.mirl import MIRLRecord, RecordKind
 from seam_runtime.retrieval import RetrievalFlags
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.self_improve import (
@@ -20,7 +20,6 @@ from seam_runtime.self_improve import (
     _record_text,
     generate_probes,
 )
-from seam_runtime.mirl import MIRLRecord
 
 _FACTS = [
     "Maria adopted a rescue greyhound named Pixel in March 2021.",

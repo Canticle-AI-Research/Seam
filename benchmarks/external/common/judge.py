@@ -42,6 +42,54 @@ Score the system answer:
 Respond ONLY with strict JSON in this exact shape:
 {{"verdict": "correct" | "partial" | "incorrect" | "abstain", "rationale": "one short sentence"}}"""
 
+# judge/2 (PR 2, HISTORY#371 follow-up): fixes three documented judge errors --
+# alias/abbreviation under-scoring ("LeBron" vs "LeBron James"), subset-phrase
+# under-scoring ("the Lord of the Rings trilogy" vs gold "Lord of the Rings"),
+# and penalizing non-contradicting extra detail -- and separates groundedness
+# (does the answer contain unsupported/contradicting claims?) from the verdict
+# so a genuinely complete-and-correct answer is never marked down for detail
+# the gold happened not to capture. NEVER changes DEFAULT_JUDGE_PROMPT (judge/1
+# stays the byte-identical default for every existing caller).
+JUDGE_PROMPT_V2 = """You are an impartial scorer for a memory-benchmark question.
+
+Question: {question}
+Gold answer: {gold}
+System answer: {pred}
+
+Score the SYSTEM ANSWER against the GOLD ANSWER on two independent axes.
+
+1) verdict -- does the system answer convey the gold answer?
+   - "correct": the system answer states the same fact(s) as the gold answer.
+     Aliases, abbreviations, and equal-or-greater specificity all count as a
+     match (e.g. "LeBron" satisfies gold "LeBron James"; "the Lord of the
+     Rings trilogy" satisfies gold "Lord of the Rings"). Extra correct detail
+     that does NOT contradict the gold answer must NOT lower the verdict.
+   - "partial": the right entity/fact is present but a required part of the
+     gold answer is missing, or a minor part is wrong.
+   - "incorrect": the system answer is wrong, contradicts the gold answer, or
+     is empty.
+   - "abstain": the system answer is exactly "unknown".
+
+2) groundedness -- recorded separately, must NEVER change the verdict above:
+   - "grounded": every claim in the system answer is supported by the gold
+     answer or is a reasonable inference from it.
+   - "unsupported_extra": the system answer adds extra claims not supported
+     by the gold answer, but they do not contradict it.
+   - "contradicts": the system answer contains a claim that contradicts the
+     gold answer.
+   - "na": not applicable (e.g. the verdict is "abstain").
+
+Respond ONLY with strict JSON in this exact shape:
+{{"verdict": "correct" | "partial" | "incorrect" | "abstain", "groundedness": "grounded" | "unsupported_extra" | "contradicts" | "na", "rationale": "one short sentence"}}"""
+
+# Version registry: "judge/1" is the pre-existing DEFAULT_JUDGE_PROMPT, kept as
+# the byte-identical default for every current caller. Bump when the contract
+# changes; record the version alongside every verdict so runs stay comparable.
+JUDGE_PROMPT_VERSIONS = {"judge/1": DEFAULT_JUDGE_PROMPT, "judge/2": JUDGE_PROMPT_V2}
+DEFAULT_JUDGE_PROMPT_VERSION = "judge/1"
+
+_GROUNDEDNESS_VALUES = {"grounded", "unsupported_extra", "contradicts", "na"}
+
 
 @dataclass(frozen=True)
 class JudgeVerdict:
@@ -86,7 +134,11 @@ def _strip_json_fence(text: str) -> str:
     return text.strip()
 
 
-def _verdict_from_json_text(text: str, *, judge_name: str, judge_model: str) -> JudgeVerdict:
+def _parse_judge_json(
+    text: str, *, judge_name: str, judge_model: str
+) -> tuple[JudgeVerdict, str | None]:
+    """Parse a judge JSON response into (verdict, groundedness). ``groundedness``
+    is None for judge/1 responses (no such field) or an unrecognized value."""
     try:
         data = json.loads(_strip_json_fence(text))
     except json.JSONDecodeError as exc:
@@ -96,13 +148,26 @@ def _verdict_from_json_text(text: str, *, judge_name: str, judge_model: str) -> 
     if verdict not in score_map:
         raise ValueError("judge returned invalid verdict")
     rationale = str(data.get("rationale") or "judge returned no rationale")
-    return JudgeVerdict(verdict, score_map[verdict], rationale, judge_name, judge_model)
+    groundedness = data.get("groundedness")
+    if groundedness not in _GROUNDEDNESS_VALUES:
+        groundedness = None
+    return JudgeVerdict(verdict, score_map[verdict], rationale, judge_name, judge_model), groundedness
+
+
+def _verdict_from_json_text(text: str, *, judge_name: str, judge_model: str) -> JudgeVerdict:
+    verdict, _ = _parse_judge_json(text, judge_name=judge_name, judge_model=judge_model)
+    return verdict
 
 
 class ClaudeJudge:
     name = "claude"
 
-    def __init__(self, model: str | None = None):
+    def __init__(
+        self,
+        model: str | None = None,
+        *,
+        prompt_version: str = DEFAULT_JUDGE_PROMPT_VERSION,
+    ):
         model = model or os.environ.get("SEAM_BENCH_JUDGE_MODEL", "claude-haiku-4-5-20251001")
         try:
             from anthropic import Anthropic
@@ -114,11 +179,20 @@ class ClaudeJudge:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise RuntimeError("--judge claude requires ANTHROPIC_API_KEY in the environment")
+        if prompt_version not in JUDGE_PROMPT_VERSIONS:
+            raise ValueError(f"unknown judge prompt version: {prompt_version!r}")
         self.model = model
+        self.prompt_version = prompt_version
         self._client = Anthropic(api_key=api_key)
+        self.last_groundedness: str | None = None
 
     def score(self, *, question, gold, pred) -> JudgeVerdict:
-        prompt = DEFAULT_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
+        # getattr preserves judge/1 behavior for established tests/callers that
+        # construct ClaudeJudge via __new__ and inject a fake client.
+        prompt_version = getattr(self, "prompt_version", DEFAULT_JUDGE_PROMPT_VERSION)
+        prompt = JUDGE_PROMPT_VERSIONS[prompt_version].format(
+            question=question, gold=gold, pred=pred
+        )
         try:
             response = self._client.messages.create(
                 model=self.model,
@@ -127,7 +201,18 @@ class ClaudeJudge:
             )
         except Exception as exc:
             raise RuntimeError(f"judge request failed: {type(exc).__name__}") from exc
-        return _verdict_from_json_text(response.content[0].text, judge_name=self.name, judge_model=self.model)
+        usage = getattr(response, "usage", None)
+        self.last_usage = {
+            "prompt_tokens": getattr(usage, "input_tokens", None),
+            "completion_tokens": getattr(usage, "output_tokens", None),
+        } if usage is not None else None
+        verdict, groundedness = _parse_judge_json(
+            response.content[0].text,
+            judge_name=self.name,
+            judge_model=self.model,
+        )
+        self.last_groundedness = groundedness
+        return verdict
 
     def score_batch(
         self,
@@ -148,11 +233,12 @@ class ClaudeJudge:
             )
         seen_ids: set[str] = set()
         requests_payload: list[dict] = []
+        prompt_version = getattr(self, "prompt_version", DEFAULT_JUDGE_PROMPT_VERSION)
         for item in items:
             if item.custom_id in seen_ids:
                 raise ValueError(f"duplicate custom_id in batch: {item.custom_id!r}")
             seen_ids.add(item.custom_id)
-            prompt = DEFAULT_JUDGE_PROMPT.format(
+            prompt = JUDGE_PROMPT_VERSIONS[prompt_version].format(
                 question=item.question, gold=item.gold, pred=item.pred
             )
             requests_payload.append(
@@ -229,7 +315,7 @@ def _openai_judge_reasoning_params() -> tuple[int, str]:
 class OpenAIJudge:
     name = "openai"
 
-    def __init__(self, model: str | None = None):
+    def __init__(self, model: str | None = None, *, prompt_version: str = DEFAULT_JUDGE_PROMPT_VERSION):
         model = model or os.environ.get("SEAM_BENCH_JUDGE_MODEL", "gpt-4o-mini")
         try:
             from openai import OpenAI
@@ -241,8 +327,12 @@ class OpenAIJudge:
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise RuntimeError("--judge openai requires OPENAI_API_KEY in the environment")
+        if prompt_version not in JUDGE_PROMPT_VERSIONS:
+            raise ValueError(f"unknown judge prompt version: {prompt_version!r}")
         self.model = model
+        self.prompt_version = prompt_version
         self._client = OpenAI(api_key=api_key)
+        self.last_groundedness: str | None = None
 
     @staticmethod
     def _uses_completion_token_budget(model: str) -> bool:
@@ -250,7 +340,10 @@ class OpenAIJudge:
         return model_id.startswith(("gpt-5", "o1", "o3", "o4"))
 
     def score(self, *, question, gold, pred) -> JudgeVerdict:
-        prompt = DEFAULT_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
+        # getattr, not self.prompt_version: some tests construct this class via
+        # object.__new__ to inject a fake client, bypassing __init__ entirely.
+        prompt_version = getattr(self, "prompt_version", DEFAULT_JUDGE_PROMPT_VERSION)
+        prompt = JUDGE_PROMPT_VERSIONS[prompt_version].format(question=question, gold=gold, pred=pred)
         try:
             request = {
                 "model": self.model,
@@ -271,11 +364,21 @@ class OpenAIJudge:
             )
         except Exception as exc:
             raise RuntimeError(f"judge request failed: {type(exc).__name__}") from exc
+        usage = getattr(response, "usage", None)
+        # Additive telemetry side-channel (JudgeVerdict is frozen and widely
+        # used); the run recorder reads last_usage after each score() call.
+        self.last_usage = {
+            "prompt_tokens": getattr(usage, "prompt_tokens", None),
+            "completion_tokens": getattr(usage, "completion_tokens", None),
+        } if usage is not None else None
         text = response.choices[0].message.content or ""
-        return _verdict_from_json_text(text, judge_name=self.name, judge_model=self.model)
+        verdict, groundedness = _parse_judge_json(text, judge_name=self.name, judge_model=self.model)
+        self.last_groundedness = groundedness
+        return verdict
 
     def _build_batch_request(self, item: JudgeBatchItem) -> dict:
-        prompt = DEFAULT_JUDGE_PROMPT.format(
+        prompt_version = getattr(self, "prompt_version", DEFAULT_JUDGE_PROMPT_VERSION)
+        prompt = JUDGE_PROMPT_VERSIONS[prompt_version].format(
             question=item.question, gold=item.gold, pred=item.pred
         )
         body: dict = {
@@ -426,13 +529,15 @@ def _decode_file_content(blob) -> str:
     raise RuntimeError(f"cannot decode OpenAI file content of type {type(blob).__name__}")
 
 
-def build_judge(name: str | None, model: str | None = None) -> Judge | None:
+def build_judge(
+    name: str | None, model: str | None = None, *, prompt_version: str = DEFAULT_JUDGE_PROMPT_VERSION
+) -> Judge | None:
     if name is None or name == "none":
         return None
     if name == "stub":
         return StubJudge()
     if name == "claude":
-        return ClaudeJudge(model=model)
+        return ClaudeJudge(model=model, prompt_version=prompt_version)
     if name == "openai":
-        return OpenAIJudge(model=model)
+        return OpenAIJudge(model=model, prompt_version=prompt_version)
     raise ValueError(f"unknown judge: {name!r} (use stub|claude|openai|none)")

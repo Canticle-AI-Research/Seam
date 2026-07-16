@@ -1,6 +1,6 @@
+from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.storage import SQLiteStore
-from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 
 
 def test_sqlite_store_load_ir_preserves_requested_id_order(tmp_path):

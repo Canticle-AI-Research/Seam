@@ -49,8 +49,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from benchmarks.fidelity.contract import (
-    _claims,
     _claim_text,
+    _claims,
     _ents_by_id,
     _spans_by_id,
     claim_content_tokens,

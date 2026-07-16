@@ -6,7 +6,6 @@ from typing import Any
 
 from .mirl import IRBatch, MIRLRecord, RecordKind, Status, utc_now
 
-
 ENTITY_RE = re.compile(r'^entity\s+(\w+)\s+"([^"]+)"\s+as\s+(\S+)$')
 BLOCK_RE = re.compile(r"^(claim|state|pack|retrieve|raw|span|rel|symbol)\s+(\S+):$")
 

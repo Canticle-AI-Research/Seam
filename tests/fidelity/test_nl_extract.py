@@ -19,7 +19,6 @@ from seam_runtime.nl_extract import (
     ground_extraction,
 )
 
-
 # --- the grounding gate: only verbatim spans survive --------------------------
 
 def test_ground_extraction_keeps_grounded_drops_hallucinated():
@@ -87,6 +86,69 @@ def test_compile_nl_falls_back_to_floor_when_extractor_returns_empty():
     predicates = {r.attrs.get("predicate") for r in batch.records if r.kind == RecordKind.CLM}
     assert "content" in predicates  # floor path
     assert "owns" not in predicates  # the stub returned nothing for this text
+
+
+# --- entity-to-entity REL edges (HISTORY#321/#323 cat1 aggregation lever) -----
+#
+# Real ir_edges only exist for retrieval if extractor-derived triples produce
+# a genuine REL between two grounded entities, not just a verbatim CLM (whose
+# `object` is text, never an id). See seam_runtime/storage.py's coreference
+# pass for the other half (stable ids across turns).
+
+class _EntityRelationExtractor:
+    """Both subject and object of the one claim are extractor-flagged entities."""
+
+    def extract(self, text: str) -> Extraction:
+        if "mentored" in text:
+            return Extraction(
+                entities=(ExtractedEntity("Akira", "person"), ExtractedEntity("Priya", "person")),
+                claims=(ExtractedClaim("Akira", "mentored", "Priya"),),
+            )
+        return Extraction()
+
+
+def test_entity_to_entity_claim_emits_a_rel_edge():
+    batch = compile_nl("Akira mentored Priya at the community center.", extractor=_EntityRelationExtractor())
+    ents = {r.attrs["label"]: r.id for r in batch.records if r.kind == RecordKind.ENT}
+    rels = [r for r in batch.records if r.kind == RecordKind.REL]
+    assert len(rels) == 1
+    assert rels[0].attrs == {"src": ents["Akira"], "predicate": "mentored", "dst": ents["Priya"]}
+
+
+def test_descriptive_object_does_not_emit_a_rel_edge():
+    """A claim's object that is NOT a flagged entity (a description, not a
+    thing to link) must not produce a spurious REL -- only the verbatim CLM."""
+
+    class _DescriptiveObjectExtractor:
+        def extract(self, text: str) -> Extraction:
+            # "Priya" is the only flagged entity; the object is a plain
+            # description the extractor never listed as an entity.
+            return Extraction(
+                entities=(ExtractedEntity("Priya", "person"),),
+                claims=(ExtractedClaim("Priya", "teaches", "an evening pottery class"),),
+            )
+
+    batch = compile_nl("Priya teaches an evening pottery class.", extractor=_DescriptiveObjectExtractor())
+    rels = [r for r in batch.records if r.kind == RecordKind.REL]
+    assert rels == []
+
+
+def test_rel_matches_object_despite_leading_determiner():
+    """The claim object often carries a determiner ("the billing service")
+    that the standalone entity name ("billing service") does not; the REL
+    gate must match on content words, not exact string equality."""
+
+    class _DeterminerExtractor:
+        def extract(self, text: str) -> Extraction:
+            return Extraction(
+                entities=(ExtractedEntity("Priya", "person"), ExtractedEntity("billing service", "thing")),
+                claims=(ExtractedClaim("Priya", "owns", "the billing service"),),
+            )
+
+    batch = compile_nl("Priya owns the billing service.", extractor=_DeterminerExtractor())
+    rels = [r for r in batch.records if r.kind == RecordKind.REL]
+    assert len(rels) == 1
+    assert rels[0].attrs["predicate"] == "owns"
 
 
 def test_extractor_from_env_defaults_to_floor(monkeypatch):

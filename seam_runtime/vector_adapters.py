@@ -288,6 +288,9 @@ class PgVectorAdapter:
         return row[0] if row else 0
 
 
+# fullmatch (not match) anchors both ends, so a trailing newline can't slip
+# an unmatched suffix past the pattern -- the guard against SQL injection via
+# an interpolated table name.
 _IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 

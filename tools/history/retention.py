@@ -15,7 +15,7 @@ import re
 import sys
 from pathlib import Path
 
-from tools.history.history_lib import INDEX_PATH, SNAPSHOTS_DIR
+from tools.history.history_lib import SNAPSHOTS_DIR
 
 FILENAME_RE = re.compile(r"^(\d{8})-(\d{6})(?:-(\d{6}))?-(.+)\.json$")
 

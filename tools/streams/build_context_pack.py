@@ -13,8 +13,6 @@ and --around <event_id> cross-index walking.
 from __future__ import annotations
 
 import argparse
-import sys
-from pathlib import Path
 
 from tools.streams.streams_lib import (
     StreamEvent,

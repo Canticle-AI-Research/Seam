@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Iterable
 
-
 SCHEMA_VERSION = "mirl/0.1"
 VALID_SCOPES = {"global", "org", "project", "user", "thread", "ephemeral"}
 PACK_MODES = {"exact", "context", "narrative"}

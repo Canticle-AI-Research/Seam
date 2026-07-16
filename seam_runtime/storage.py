@@ -8,7 +8,7 @@ from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
 
-from .mirl import IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, SYMBOL_FOR_KIND, TraceGraph, utc_now
+from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
 from .pool import ConnectionPool
 from .retry import retry_db_operation
 
@@ -490,10 +490,77 @@ class SQLiteStore:
             ).fetchall()
         return [dict(row) for row in rows]
 
+    def _reconcile_entities(self, connection: sqlite3.Connection, batch: IRBatch) -> tuple[dict[str, str], set[str]]:
+        """Cross-turn entity coreference, scoped strictly per ``ns``.
+
+        Every ``compile_nl`` call is independent and mints a fresh ``ent:``
+        id per label, so the same real-world entity gets a different id in
+        every turn it is mentioned in (HISTORY#321/#323 cat1 root cause).
+        This makes the FIRST occurrence of a normalized label within an ``ns``
+        canonical: later ENT records with the same normalized label (from an
+        earlier persist call, or earlier in this same incoming batch) are not
+        inserted; ``id_map`` carries their id to the canonical one so callers
+        can rewrite CLM/REL references before persisting. Never merges across
+        ``ns`` (SEAM's existing multi-tenant isolation boundary, HISTORY#274).
+        """
+        id_map: dict[str, str] = {}
+        skip_ids: set[str] = set()
+        batch_ent_records = [r for r in batch.records if r.kind == RecordKind.ENT]
+        if not batch_ent_records:
+            return id_map, skip_ids
+        namespaces = {r.ns for r in batch_ent_records}
+        for ns in namespaces:
+            canonical_by_norm: dict[str, str] = {}
+            for row in connection.execute(
+                "select id, payload_json from ir_records where kind = ? and ns = ? order by created_at, id",
+                (RecordKind.ENT.value, ns),
+            ):
+                existing_attrs = json.loads(row["payload_json"]).get("attrs", {})
+                label = existing_attrs.get("label")
+                if not label:
+                    continue
+                canonical_by_norm.setdefault(_normalize_entity_label(str(label)), row["id"])
+            for record in batch_ent_records:
+                if record.ns != ns:
+                    continue
+                label = record.attrs.get("label")
+                if not label:
+                    continue
+                norm = _normalize_entity_label(str(label))
+                canonical_id = canonical_by_norm.get(norm)
+                if canonical_id is not None and canonical_id != record.id:
+                    id_map[record.id] = canonical_id
+                    skip_ids.add(record.id)
+                else:
+                    canonical_by_norm.setdefault(norm, record.id)
+        return id_map, skip_ids
+
+    @staticmethod
+    def _remap_entity_refs(record: MIRLRecord, id_map: dict[str, str]) -> None:
+        if not id_map:
+            return
+        if record.kind == RecordKind.CLM:
+            subject = record.attrs.get("subject")
+            if subject in id_map:
+                record.attrs["subject"] = id_map[subject]
+        elif record.kind == RecordKind.REL:
+            src = record.attrs.get("src")
+            if src in id_map:
+                record.attrs["src"] = id_map[src]
+            dst = record.attrs.get("dst")
+            if dst in id_map:
+                record.attrs["dst"] = id_map[dst]
+
     @retry_db_operation()
     def persist_ir(self, batch: IRBatch) -> PersistReport:
         with self._pool.checkout() as connection:
+            id_map, skip_ids = self._reconcile_entities(connection, batch)
+            stored_ids: list[str] = []
             for record in batch.records:
+                if record.id in skip_ids:
+                    continue
+                self._remap_entity_refs(record, id_map)
+                stored_ids.append(record.id)
                 # Capture old CLM subject before overwriting.
                 old_clm_subject: str | None = None
                 if record.kind == RecordKind.CLM:
@@ -516,7 +583,7 @@ class SQLiteStore:
                 self._persist_specialized(connection, record)
                 self._persist_edges(connection, record, old_clm_subject=old_clm_subject)
             connection.commit()
-        return PersistReport(stored_ids=[record.id for record in batch.records], store_path=self.path)
+        return PersistReport(stored_ids=stored_ids, store_path=self.path)
 
     @retry_db_operation()
     def upsert_document_status(
@@ -1568,6 +1635,11 @@ def _document_status_row(row: sqlite3.Row) -> dict[str, object]:
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
+
+
+def _normalize_entity_label(label: str) -> str:
+    """Lowercase + collapsed whitespace, the coreference dedup key."""
+    return " ".join(label.lower().split())
 
 
 def _load_record_by_id(connection: sqlite3.Connection, record_id: str) -> MIRLRecord | None:

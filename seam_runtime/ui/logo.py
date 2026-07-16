@@ -36,7 +36,6 @@ from typing import Iterable, Sequence
 
 from . import theme
 
-
 # ---- Glyph grids -----------------------------------------------------------
 #
 # Each grid is a tuple of row strings. ``1`` = lit, anything else = off.

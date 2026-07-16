@@ -9,8 +9,9 @@ Read in order:
 2. `REPO_LEDGER.md`
 3. `HISTORY_INDEX.md`
 4. `docs/CODE_LAYOUT.md`
-5. `docs/DATA_ROUTING.md` when the task touches history, ledgers, maintenance records, routing, context budget, or auditability.
-6. `SEAM_SPEC_V0.1.md` **and** `docs/MIRL_V1.md` when the task touches SEAM product behavior — compilation/`compile_nl`, MIRL/IR records, compression, PACK, retrieval, surfaces (HS/1), codecs (RC/1, LX/1), the symbol/improvement loop, benchmarks, or any design decision or measurement claim about how SEAM should behave. The spec is the **governing contract**: do not redesign, "improve", or declare a component broken without first checking the contract it is actually supposed to satisfy (see REPO_LEDGER "SEAM spec is the governing contract"). The process docs above tell you the repo's *state*; the spec tells you what SEAM *is*.
+5. `docs/handoffs/INDEX.md`, then the document named by its `latest` field.
+6. `docs/DATA_ROUTING.md` when the task touches history, ledgers, maintenance records, routing, context budget, or auditability.
+7. `SEAM_SPEC_V0.1.md` **and** `docs/MIRL_V1.md` when the task touches SEAM product behavior — compilation/`compile_nl`, MIRL/IR records, compression, PACK, retrieval, surfaces (HS/1), codecs (RC/1, LX/1), the symbol/improvement loop, benchmarks, or any design decision or measurement claim about how SEAM should behave. The spec is the **governing contract**: do not redesign, "improve", or declare a component broken without first checking the contract it is actually supposed to satisfy (see REPO_LEDGER "SEAM spec is the governing contract"). The process docs above tell you the repo's *state*; the spec tells you what SEAM *is*.
 
 Then:
 - Prefer latest valid snapshot in `.seam/snapshots/`.
@@ -32,7 +33,7 @@ If state changed:
 1. Append one entry to `HISTORY.md`.
 2. Rebuild `HISTORY_INDEX.md`.
 3. Write one snapshot JSON.
-4. Run `python -m tools.history.verify_continuity` and `python -m tools.streams.verify_streams`.
+4. Run `python -m tools.history.verify_handoffs`, `python -m tools.history.verify_continuity`, and `python -m tools.streams.verify_streams`.
 5. If `ROADMAP.md` changed: rerun `python -m tools.streams.roadmap_parser` to refresh the roadmap stream + state view; if any stream changed: rerun `python -m tools.streams.rebuild_cross_index` to refresh the derived global timeline.
 
 If you created a git worktree during the session: finish it. Either commit, push, and `git worktree remove` it, or remove the worktree even if abandoning the work. Never leave a dirty worktree on a stale base for the next agent to find — that pattern caused real regressions before (see HISTORY#223 worktree triage).
@@ -96,7 +97,7 @@ Bounded reading protocol that keeps session-start cost flat as the repo grows. T
 
 ### Phase 1 — Session Start (do NOT read full HISTORY.md or full ROADMAP.md)
 
-1. `PROJECT_STATUS.md` + `REPO_LEDGER.md` + `HISTORY_INDEX.md` + `docs/CODE_LAYOUT.md` (and `docs/DATA_ROUTING.md` when the task touches history/ledgers/routing/audit; and `SEAM_SPEC_V0.1.md` + `docs/MIRL_V1.md` — the **governing contract** — when the task touches SEAM product behavior: compilation, MIRL/IR, compression, PACK, retrieval, surfaces, codecs, the symbol/improvement loop, benchmarks, or any design/measurement claim).
+1. `PROJECT_STATUS.md` + `REPO_LEDGER.md` + `HISTORY_INDEX.md` + `docs/CODE_LAYOUT.md` + `docs/handoffs/INDEX.md` and its `latest` document (and `docs/DATA_ROUTING.md` when the task touches history/ledgers/routing/audit; and `SEAM_SPEC_V0.1.md` + `docs/MIRL_V1.md` — the **governing contract** — when the task touches SEAM product behavior: compilation, MIRL/IR, compression, PACK, retrieval, surfaces, codecs, the symbol/improvement loop, benchmarks, or any design/measurement claim).
 2. `.seam/streams/roadmap/state.md` — derived view of the roadmap stream, grouped by status (`now`, `later`, `done`, etc.). Read this **instead of** `ROADMAP.md`. Only fall through to the prose in `ROADMAP.md` when the task is to edit the roadmap or to read a specific track's narrative.
 3. `.seam/cross_index.md` hot zone — the temporal join across `history`, `roadmap`, `experience`, and any opted-in library streams. Use it for "what happened recently across the whole repo" without reading per-stream logs.
 4. `tools.history.build_context_pack --topics <tags> --latest <n> --token-budget <budget>` for history entries the task actually needs. Never `cat HISTORY.md`.
@@ -110,6 +111,7 @@ Bounded reading protocol that keeps session-start cost flat as the repo grows. T
 ### Phase 3 — Session End
 
 - Follow the Session End checklist above. Both `verify_continuity` and `verify_streams` must pass.
+- `verify_handoffs` must pass whenever tracked handoff state exists or changes; never leave an unindexed handoff document or more than one live head.
 - If `ROADMAP.md` items changed status, re-run the roadmap parser so the stream and the derived `state.md` stay aligned with the authored prose.
 - The cross-index always regenerates from the streams; never hand-edit it.
 

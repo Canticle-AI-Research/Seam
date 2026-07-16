@@ -9,7 +9,7 @@ import sqlite3
 import subprocess
 import sys
 import time
-from collections import Counter, deque
+from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -28,7 +28,10 @@ try:
     _RICH_IMPORT_ERROR = None
 except ImportError as exc:  # pragma: no cover - user-facing guard
     box = Console = Group = Panel = Prompt = Table = Text = None  # type: ignore[assignment]
-    escape = lambda value: value  # type: ignore[assignment]
+
+    def escape(value):  # type: ignore[misc]
+        return value
+
     _RICH_IMPORT_ERROR = exc
 
 try:
@@ -45,6 +48,7 @@ except ImportError as exc:  # pragma: no cover - optional dashboard path
     _TEXTUAL_IMPORT_ERROR = exc
 
 from .context_views import CONTEXT_VIEWS, build_context_payload
+from .installer import default_runtime_db_path
 from .lossless import (
     LOSSLESS_CODECS,
     LOSSLESS_TRANSFORMS,
@@ -60,7 +64,6 @@ from .lossless import (
 from .mirl import IRBatch
 from .models import HashEmbeddingModel
 from .runtime import SeamRuntime
-from .installer import default_runtime_db_path
 from .ui import animations as _ui_animations
 from .ui import bars as _ui_bars
 from .ui import logo as _ui_logo

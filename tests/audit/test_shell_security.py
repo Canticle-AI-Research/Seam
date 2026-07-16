@@ -1,6 +1,5 @@
 """Dashboard shell command injection hardening tests."""
 
-import os
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock

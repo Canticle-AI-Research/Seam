@@ -22,9 +22,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import sys
 from collections import Counter
-from pathlib import Path
 from typing import Any
 
 from benchmarks.external.common.dataset import load_locomo_cases
@@ -265,7 +263,7 @@ def _raw_snippet_count(ctx: str) -> int:
     """Count lines that are non-empty and not JSON structural."""
     if not ctx or not ctx.strip():
         return 0
-    lines = [l for l in ctx.split("\n") if l.strip() and not l.strip().startswith(("{", "}", "[", "]"))]
+    lines = [line for line in ctx.split("\n") if line.strip() and not line.strip().startswith(("{", "}", "[", "]"))]
     return len(lines)
 
 
@@ -339,7 +337,6 @@ def run_context_replay(
     # replay per scope — single adapter, per-scope DB isolation
     replay_rows: list[dict] = []
 
-    import os as _os
     from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 
     adapter = SeamLocomoAdapter(answerer=None)
@@ -493,7 +490,9 @@ def _summarise_replay(replay_rows: list[dict]) -> dict:
 
 def write_replay_markdown(replay_rows: list[dict], summary: dict, md_path: str) -> None:
     lines: list[str] = []
-    a = lambda s: lines.append(s)
+    def a(s):
+        lines.append(s)
+
 
     a("# Context Replay Report")
     a("")
@@ -567,7 +566,9 @@ def _md_escape(text: str) -> str:
 
 def write_markdown(audit: dict, md_path: str) -> None:
     lines: list[str] = []
-    a = lambda s: lines.append(s)
+    def a(s):
+        lines.append(s)
+
 
     a("# LoCoMo Baseline Audit")
     a("")
@@ -681,7 +682,7 @@ def write_markdown(audit: dict, md_path: str) -> None:
     a(f"3. **{unknown_count} cases ({unknown_count/total*100:.1f}%) predicted 'unknown'** — answerer abstention dominates")
     a(f"4. **{bc['high_recall_unknown']} cases have high recall (>=0.8) but still answer 'unknown'** — abstention is not caused by bad retrieval alone")
     a(f"5. **Context snippets present in result: {audit['context_snippets_present']}** — {'context is persisted' if audit['context_snippets_present'] else 'diagnosis of retrieval quality relies entirely on recall scores and judge rationales'}")
-    a(f"6. **pack_json fallback as root cause is a hypothesis pending context replay** — see replay report for per-case evidence")
+    a("6. **pack_json fallback as root cause is a hypothesis pending context replay** — see replay report for per-case evidence")
     a(f"7. **{audit['judge_error_count']} judge errors** — minor, but worth noting")
     a(f"8. **Dataset fixture hash**: `{audit.get('dataset_fixture_hash', 'N/A')}`")
 
@@ -737,7 +738,7 @@ def main() -> None:
         print(f"Gold tokens found: {summary['gold_tokens_found']}")
         print(f"Gold tokens missing: {summary['gold_tokens_missing']}")
         print(f"Errors: {summary['errors']}")
-        print(f"By bucket:")
+        print("By bucket:")
         for b, info in summary["by_bucket"].items():
             print(f"  {b}: {info['count']} cases, formats={info['format_counts']}")
 

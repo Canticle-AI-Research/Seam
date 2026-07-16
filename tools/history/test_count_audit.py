@@ -9,7 +9,6 @@ from pathlib import Path
 
 from tools.history.history_lib import HISTORY_PATH, parse_entries, read_history_bytes
 
-
 CLAIM_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\b(?:existing\s+)?tests?\s+pass(?:ed)?\s*\((?P<count>\d+)(?P<plus>\+)?\)", re.I),
     re.compile(r"\b(?P<count>\d+)(?P<plus>\+)?\s+(?:existing\s+)?tests?\s+pass(?:ed)?\b", re.I),

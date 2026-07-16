@@ -11,6 +11,14 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
+try:
+    # Optional fast path only; core deps stay lean (rich + tiktoken). numpy
+    # arrives transitively with the sbert/rerank extras, where dense-vector
+    # search volume makes it matter.
+    import numpy as _numpy
+except ImportError:  # pragma: no cover - exercised via the pure-Python branch
+    _numpy = None
+
 
 class EmbeddingModel(Protocol):
     name: str
@@ -185,6 +193,13 @@ def cosine(left: list[float], right: list[float]) -> float:
     """
     if not left or not right or len(left) != len(right):
         return 0.0
+    if _numpy is not None:
+        left_arr = _numpy.asarray(left, dtype=_numpy.float64)
+        right_arr = _numpy.asarray(right, dtype=_numpy.float64)
+        denominator = float(_numpy.linalg.norm(left_arr)) * float(_numpy.linalg.norm(right_arr))
+        if not denominator:
+            return 0.0
+        return float(left_arr @ right_arr) / denominator
     numerator = sum(a * b for a, b in zip(left, right, strict=False))
     left_norm = math.sqrt(sum(a * a for a in left))
     right_norm = math.sqrt(sum(b * b for b in right))

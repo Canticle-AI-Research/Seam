@@ -73,6 +73,7 @@ and `HISTORY_INDEX.md`.
 - Agent-facing retrieval should use progressive disclosure where possible: compact search/index results first, then full MIRL records by selected IDs.
 - Default agent RAG should prefer `mix` retrieval only after benchmark validation; the supported retrieval modes are `vector`, `graph`, `hybrid`, and `mix`.
 - Retrieval is ANSWERER-AWARE via named profiles in `RetrievalFlags` (`RETRIEVAL_PROFILES`, env `SEAM_RETRIEVAL_PROFILE`): `compact`=(top_k 100, context_budget 8000) for small/local answerers (tight context, dilution-averse) and `broad`=(300, 60000) for capable answerers (high coverage). The right retrieval knee is answerer-dependent — holdout-validated on LoCoMo cat1 (a capable answerer's broad knee +0.139 judged where the same broad context COLLAPSED a weak 3B answerer). `search_top_k` and `context_budget` are CONFIG knobs (env-driven, explicit vars override the preset). They are loop-tunable as candidate levers (`candidate_levers(profile_levers=True)`) ONLY when every scorer in the improvement loop is dilution-sensitive (`profile_safe`) — the free-LoCoMo answer-quality scorer (`PooledLocomoAnswerQualityScorer`, generated-answer `token_f1` via a local Ollama answerer) or the operator-gated paid judge — and NEVER under the `#290` self-probe or `#292` context_recall scorers, which a bigger budget mechanically inflates (the gaming hazard `#320`/`#328` originally avoided by excluding the knobs entirely; `#332`/Strand B re-admits them behind the `profile_safe` gate). `run_improvement_cycle` enables `profile_levers` iff every scorer reports `profile_safe`; `getattr(scorer, "profile_safe", False)` defaults unmarked scorers to unsafe. Default (no profile) is byte-identical to the prior baseline — both knobs `None` → call-site budget / prior 512 pack default. The profile flows through `load_retrieval_flags` so every surface (CLI/REST/MCP/dashboard/benchmark) inherits it, not just the benchmark.
+- The canonical paid holdout path accepts `seam improve validate --profile {compact,broad}`. The named profile overlays only the candidate's `search_top_k` and `context_budget`, composes with explicit answer-policy `--flags` (or the loop's applied state), and never changes the stock baseline. A full 344-case operator-approved run at `99079f7` reproduced the prior broad-stack candidate exactly (`0.732558`) through this CLI path. This is an opt-in validation surface, not a default-ON decision for any runtime or policy.
 - Agent ecosystem integrations should be thin wrappers over SEAM CLI/REST/MCP surfaces. Do not rewrite the Python runtime into Node just to fit Claude Code-style plugin ecosystems.
 - Standard MCP stdio is the canonical agent-tool protocol for Gemini, Claude,
   Cursor, OpenCode, and future MCP clients: use `seam mcp stdio` or `seam-mcp`
@@ -152,7 +153,15 @@ and `HISTORY_INDEX.md`.
 
 ## Handoff Policy
 
-- Default: record state via `HISTORY.md` entries + `HISTORY_INDEX.md`.
+- Default chronology: record state via `HISTORY.md` entries + `HISTORY_INDEX.md`.
+- Canonical tracked recovery route: `docs/handoffs/INDEX.md` points to exactly
+  one current handoff and records one linear, newest-first supersession chain.
+  Every `docs/handoffs/*.md` document must be registered and declare
+  `handoff_id`, `supersedes`, `handoff_status`, and `history`. A new handoff
+  supersedes the current head; standalone dated files are not valid handoffs.
+- `python -m tools.history.verify_handoffs` enforces path/history existence,
+  metadata agreement, one root, no cycles or forks, one current/live head, and
+  `latest`/table-order consistency. It runs in local commit and CI gates.
 - Session close writes one validated snapshot in `.seam/snapshots/`.
 - `HISTORY_INDEX.md` and snapshots are derived artifacts; `HISTORY.md` is authoritative.
 - The `handoff/archive` branch is reserved for PDF and handoff artifact publication, not primary runtime/source work.
@@ -203,6 +212,12 @@ and `HISTORY_INDEX.md`.
 - Inactive or retired code lives under `archive/code/` and must not be imported, packaged, or used as current behavior.
 - Generated build copies live in ignored paths (`build/` or `archive/code/generated-build*/`) and should not guide implementation decisions.
 - The current code map is `docs/CODE_LAYOUT.md`.
+
+## Lint Policy
+
+- `ruff` is the one general-purpose Python linter (install via `seam[lint]`); config lives in `pyproject.toml`'s `[tool.ruff]`/`[tool.ruff.lint]`. Rule set is deliberately narrow (`E4`, `E7`, `E9`, `F`, `I`) — no `E501`/pure-style rules, no mypy/type-check gate yet.
+- `extend-exclude` skips `archive/` and `build/` (retired/generated code, never a gate). `per-file-ignores` carries structural `E402` exemptions for `seam_runtime/dashboard.py` (optional rich/textual import guards) and `installers/install_seam.py` (sys.path-before-import) — both intentional, not accidents.
+- **`ruff check --fix`'s F401 (unused-import) removal is not always safe**: it only sees usage within the same file, so it can silently delete (a) public re-export facades like `seam.py`'s `from seam_runtime.runtime import SeamRuntime` (kept alive only for downstream `from seam import X`, nothing inside the file calls it), and (b) test-monkeypatch attribute targets — `tools/history/test_history_tools.py`'s `_MultiPatch` patches module attributes by string name via `getattr`/`setattr`, not `from module import name`, so a plain grep won't find the usage either. Before trusting any F401 removal (auto or manual), grep for `from <module> import.*NAME` / `<module>.NAME` AND for `getattr(`/`setattr(`/`monkeypatch.setattr(` references to that name across `tests/`, `test_seam_all/`, `tools/`. If either finds a hit, keep the import with `# noqa: F401` and a one-line comment stating which case it is.
 
 ## Runtime Service Safety Policy
 

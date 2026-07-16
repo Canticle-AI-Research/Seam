@@ -7,8 +7,8 @@ import os
 from unittest import mock
 
 from seam_runtime.mcp_protocol import (
-    MAX_MCP_LINE_BYTES,
     _OVERSIZED_LINE,
+    MAX_MCP_LINE_BYTES,
     _read_capped_lines,
     run_mcp_server,
 )
@@ -71,6 +71,7 @@ def test_env_override_increases_cap() -> None:
     """SEAM_MCP_MAX_LINE_BYTES=20000000 allows 10 MiB line."""
     with mock.patch.dict(os.environ, {"SEAM_MCP_MAX_LINE_BYTES": "20000000"}):
         import importlib
+
         import seam_runtime.mcp_protocol as mcp_mod
 
         importlib.reload(mcp_mod)

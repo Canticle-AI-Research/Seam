@@ -17,7 +17,6 @@ from seam_runtime.external_memory_benchmarks import (
     validate_memory_benchmark_registry,
 )
 
-
 # ---------------------------------------------------------------------------
 # Existing tests (preserved)
 # ---------------------------------------------------------------------------

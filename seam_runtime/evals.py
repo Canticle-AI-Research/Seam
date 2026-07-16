@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from .dsl import compile_dsl
+from .lossless import compress_text_lossless
 from .models import EmbeddingModel, HashEmbeddingModel, cosine
 from .pack import pack_records, score_pack
 from .retrieval import raw_search, search_batch
-from .lossless import compress_text_lossless
 from .vector import INDEXABLE_KINDS, SQLiteVectorIndex
 
 FIXTURE_PATH = Path(__file__).resolve().parent.parent / "docs" / "retrieval_gold_fixtures.json"

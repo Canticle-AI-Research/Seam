@@ -5,8 +5,8 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from seam_runtime.server import create_app
 from seam_runtime.runtime import SeamRuntime
+from seam_runtime.server import create_app
 
 
 @pytest.fixture

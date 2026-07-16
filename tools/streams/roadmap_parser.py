@@ -16,9 +16,9 @@ from pathlib import Path
 
 from tools.streams.streams_lib import (
     REPO_ROOT,
+    estimate_tokens,
     format_event,
     write_log,
-    estimate_tokens,
 )
 
 ROADMAP_PATH = REPO_ROOT / "ROADMAP.md"

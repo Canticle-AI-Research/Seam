@@ -6,11 +6,19 @@ import os
 import re
 import time as _time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
 from benchmarks.external.common.types import AdapterAnswer, ConversationTurn
+from seam_runtime.conversation import (
+    CONVERSATION_ADAPTER_OFF,
+    CONVERSATION_ADAPTERS,
+    INFERENCE_CONTEXT_ONLY,
+    INFERENCE_POLICIES,
+    TEMPORAL_POLICIES,
+    TEMPORAL_POLICY_OFF,
+)
 
 
 def _env_truthy(value: str | None) -> bool:
@@ -75,7 +83,16 @@ class SeamLocomoAdapter:
         record_retrieval_events: bool | None = None,
         run_id: str | None = None,
         entity_aggregation: bool = False,
+        conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
+        inference_policy: str = INFERENCE_CONTEXT_ONLY,
+        temporal_policy: str = TEMPORAL_POLICY_OFF,
     ) -> None:
+        if conversation_adapter not in CONVERSATION_ADAPTERS:
+            raise ValueError(f"unknown conversation adapter {conversation_adapter!r}")
+        if inference_policy not in INFERENCE_POLICIES:
+            raise ValueError(f"unknown inference policy {inference_policy!r}")
+        if temporal_policy not in TEMPORAL_POLICIES:
+            raise ValueError(f"unknown temporal policy {temporal_policy!r}")
         # TODO: default db_path should be tmp_path, not a gitignored project dir
         self._db_root = Path(db_path) if db_path is not None else Path("test_seam/locomo")
         self.semantic_recovery_policy = SemanticRecoveryPolicy(
@@ -88,6 +105,9 @@ class SeamLocomoAdapter:
         self.include_evidence_closure = include_evidence_closure
         self._answerer = answerer
         self._answerer_model = answerer_model
+        self._conversation_adapter = conversation_adapter
+        self._inference_policy = inference_policy
+        self._temporal_policy = temporal_policy
         self._decomposer = decomposer
         self._decomposer_model = decomposer_model
         self._decomposer_max_subq = decomposer_max_subq
@@ -165,7 +185,6 @@ class SeamLocomoAdapter:
     def ingest_turn(self, scope_id: str, turn: ConversationTurn) -> None:
         """Compile a conversation turn to MIRL and persist it in the
         scope's database. Skipped when the scope is already cached on disk."""
-        from seam_runtime.runtime import SeamRuntime  # lazy
         from seam_runtime.temporal import parse_iso
 
         # anchor always updates so relative-date questions work on cached scopes
@@ -204,7 +223,6 @@ class SeamLocomoAdapter:
         natural-language evidence into symbolic records, so this adapter follows
         evidence/provenance and SPAN-to-RAW links before returning source text.
         """
-        from seam_runtime.runtime import SeamRuntime  # lazy
 
         rt = self._runtime(scope_id)
 
@@ -318,7 +336,21 @@ class SeamLocomoAdapter:
             else:
                 t1 = _time.monotonic()
                 answerer_diag = {}
-                generated = self._generate_answer(question, retrieved_context, diag_out=answerer_diag)
+                flags = rt._retrieval_flags_cached()
+                policy_kwargs = {}
+                if (
+                    getattr(flags, "conversation_adapter", "off") != "off"
+                    or getattr(flags, "inference_policy", "context-only")
+                    != "context-only"
+                    or getattr(flags, "temporal_policy", "off") != "off"
+                ):
+                    policy_kwargs["flags"] = flags
+                generated = self._generate_answer(
+                    question,
+                    retrieved_context,
+                    diag_out=answerer_diag,
+                    **policy_kwargs,
+                )
                 answer_latency_ms = (_time.monotonic() - t1) * 1000.0
 
         diag = self._retrieval_diagnostics(
@@ -437,17 +469,56 @@ class SeamLocomoAdapter:
             # the result bundle does not depend on retrieval_event rows.
             pass
 
-    def _generate_answer(self, question: str, context: str, diag_out: dict | None = None) -> str:
+    def _generate_answer(
+        self,
+        question: str,
+        context: str,
+        diag_out: dict | None = None,
+        *,
+        flags=None,
+    ) -> str:
         # Prompt is single-sourced so every comparator's answerer is identical
         # (fair SEAM-vs-mem0 head-to-head varies only the retrieved context).
         from benchmarks.external.common.answerer import build_answer_prompt
 
-        prompt = build_answer_prompt(question, context)
+        conversation_adapter = getattr(flags, "conversation_adapter", "off")
+        inference_policy = getattr(flags, "inference_policy", "context-only")
+        temporal_policy = getattr(flags, "temporal_policy", "off")
+        prompt = build_answer_prompt(
+            question,
+            context,
+            conversation_adapter=conversation_adapter,
+            inference_policy=inference_policy,
+            temporal_policy=temporal_policy,
+        )
+        if diag_out is not None:
+            from seam_runtime.conversation import (
+                CONVERSATION_ADAPTER_V1,
+                classify_conversation_intent,
+            )
+
+            intent_version = (
+                conversation_adapter
+                if conversation_adapter != CONVERSATION_ADAPTER_OFF
+                else CONVERSATION_ADAPTER_V1
+            )
+            diag_out.update(
+                {
+                    "conversation_adapter": conversation_adapter,
+                    "inference_policy": inference_policy,
+                    "temporal_policy": temporal_policy,
+                    "conversation_intent": classify_conversation_intent(
+                        question, adapter_version=intent_version
+                    ).value,
+                }
+            )
         extra = {"diag_out": diag_out} if diag_out is not None else {}
         if self._answerer == "openai":
             return _openai_short_answer(self._answerer_model or "gpt-4o-mini", prompt, **extra)
         if self._answerer == "claude":
             return _claude_short_answer(self._answerer_model or "claude-haiku-4-5-20251001", prompt, **extra)
+        if self._answerer == "deepseek":
+            return _deepseek_short_answer(self._answerer_model or "deepseek-v4-pro", prompt, **extra)
         if self._answerer == "ollama":
             return _ollama_short_answer(self._answerer_model or "qwen2.5:3b", prompt, **extra)
         raise ValueError(f"unknown answerer {self._answerer!r}")
@@ -516,9 +587,8 @@ class SeamLocomoAdapter:
     def _rerank_candidates(self, query: str, result):
         """Re-rank the top-K candidates with a cross-encoder and return a new
         SearchResult with re-scored, re-sorted candidates."""
-        from seam_runtime.mirl import iter_textual_fields
-
         from benchmarks.external.locomo.rerank import cross_encoder_rerank
+        from seam_runtime.mirl import iter_textual_fields
 
         top_k = result.candidates[: self._rerank_top_k]
         rest = result.candidates[self._rerank_top_k :]
@@ -713,6 +783,17 @@ class SeamLocomoAdapter:
         runtime = self._runtime_by_scope.get(scope_id)
         if runtime is None:
             runtime = _open_runtime(self._db_path(scope_id))
+            if (
+                self._conversation_adapter != CONVERSATION_ADAPTER_OFF
+                or self._inference_policy != INFERENCE_CONTEXT_ONLY
+                or self._temporal_policy != TEMPORAL_POLICY_OFF
+            ):
+                runtime._retrieval_flags = replace(
+                    runtime._retrieval_flags_cached(),
+                    conversation_adapter=self._conversation_adapter,
+                    inference_policy=self._inference_policy,
+                    temporal_policy=self._temporal_policy,
+                )
             self._runtime_by_scope[scope_id] = runtime
         return runtime
 
@@ -818,10 +899,13 @@ def _openai_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
         diag_out["finish_reason"] = getattr(response.choices[0], "finish_reason", None)
         diag_out["content_len"] = len(raw)
         diag_out["content_preview"] = raw[:120]
+        diag_out["raw_response"] = raw
         usage = getattr(response, "usage", None)
         if usage is not None:
             details = getattr(usage, "completion_tokens_details", None)
+            diag_out["prompt_tokens"] = getattr(usage, "prompt_tokens", None)
             diag_out["completion_tokens"] = getattr(usage, "completion_tokens", None)
+            diag_out["total_tokens"] = getattr(usage, "total_tokens", None)
             diag_out["reasoning_tokens"] = getattr(details, "reasoning_tokens", None) if details is not None else None
         diag_out["max_completion_tokens"] = request.get("max_completion_tokens")
         diag_out["reasoning_effort"] = request.get("reasoning_effort")
@@ -852,11 +936,74 @@ def _claude_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
         diag_out["finish_reason"] = getattr(response, "stop_reason", None)
         diag_out["content_len"] = len(raw)
         diag_out["content_preview"] = raw[:120]
+        diag_out["raw_response"] = raw
         usage = getattr(response, "usage", None)
         if usage is not None:
+            diag_out["prompt_tokens"] = getattr(usage, "input_tokens", None)
+            diag_out["completion_tokens"] = getattr(usage, "output_tokens", None)
             diag_out["output_tokens"] = getattr(usage, "output_tokens", None)
         diag_out["max_tokens"] = max_tokens
     return raw.strip()
+
+
+def _deepseek_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out: dict | None = None) -> str:
+    """DeepSeek via its OpenAI-compatible API. Default model is the explicit
+    ``deepseek-v4-pro`` id -- NOT the ``deepseek-reasoner``/``deepseek-chat``
+    aliases, which DeepSeek's docs say are deprecated (retiring 2026-07-24) and
+    currently silently route to deepseek-v4-flash's thinking/non-thinking modes
+    (confirmed live: requesting ``deepseek-reasoner`` returned
+    ``response.model == "deepseek-v4-flash"``). Always pass an explicit v4 id.
+
+    DeepSeek returns its chain-of-thought in a separate ``reasoning_content``
+    field (OpenAI hides this). We fold that into a ``<think>...</think>``
+    raw_response so the run recorder captures the reasoning trace through the
+    same path as local models.
+    """
+    try:
+        from openai import OpenAI
+    except ImportError as exc:
+        raise RuntimeError(
+            "deepseek answerer requires the openai package (its API is OpenAI-compatible). "
+            "Install with: pip install openai"
+        ) from exc
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
+        raise RuntimeError("deepseek answerer requires DEEPSEEK_API_KEY in the environment")
+    base_url = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    # DeepSeek's v4 models ignore temperature; floor the answer budget so a
+    # short reply is not truncated (reasoning tokens are billed/returned
+    # separately from the visible answer, both counted in completion_tokens).
+    budget = max(max_tokens, int(os.environ.get("SEAM_BENCH_DEEPSEEK_MAX_TOKENS", "512")))
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=budget,
+    )
+    message = response.choices[0].message
+    answer = (message.content or "").strip()
+    reasoning = getattr(message, "reasoning_content", None)
+    if diag_out is not None:
+        diag_out["provider"] = "deepseek"
+        diag_out["model"] = model
+        diag_out["served_model"] = getattr(response, "model", None)  # catches alias rerouting
+        diag_out["endpoint"] = base_url
+        diag_out["finish_reason"] = getattr(response.choices[0], "finish_reason", None)
+        diag_out["content_len"] = len(answer)
+        diag_out["content_preview"] = answer[:120]
+        # Fold reasoning into <think> so the recorder's split_reasoning captures it.
+        diag_out["raw_response"] = (f"<think>{reasoning}</think>\n{answer}" if reasoning else answer)
+        diag_out["reasoning_content_len"] = len(reasoning) if reasoning else 0
+        usage = getattr(response, "usage", None)
+        if usage is not None:
+            diag_out["prompt_tokens"] = getattr(usage, "prompt_tokens", None)
+            diag_out["completion_tokens"] = getattr(usage, "completion_tokens", None)
+            details = getattr(usage, "completion_tokens_details", None)
+            diag_out["reasoning_tokens"] = getattr(details, "reasoning_tokens", None) if details is not None else None
+            # DeepSeek-specific context-cache split (cache hits price far
+            # cheaper -- see pricing.py's input_cache_hit rate).
+            diag_out["cache_hit_tokens"] = getattr(usage, "prompt_cache_hit_tokens", None)
+    return answer
 
 
 def _ollama_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out: dict | None = None) -> str:
@@ -897,4 +1044,10 @@ def _ollama_short_answer(model: str, prompt: str, max_tokens: int = 64, diag_out
         diag_out["endpoint"] = base
         diag_out["content_len"] = len(raw)
         diag_out["content_preview"] = raw[:120]
+        diag_out["raw_response"] = raw
+        # Ollama reports exact token counts + durations; capture for telemetry.
+        diag_out["prompt_tokens"] = data.get("prompt_eval_count")
+        diag_out["completion_tokens"] = data.get("eval_count")
+        eval_ns = data.get("eval_duration")
+        diag_out["eval_ms"] = (eval_ns / 1_000_000.0) if isinstance(eval_ns, (int, float)) else None
     return raw

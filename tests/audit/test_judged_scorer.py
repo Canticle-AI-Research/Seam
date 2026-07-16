@@ -17,14 +17,14 @@ import pytest
 from benchmarks.external.common.dataset import QUICKSTART_FIXTURE_PATH, load_locomo_cases
 from benchmarks.external.common.judge import JudgeVerdict
 from benchmarks.external.common.types import BenchmarkCase, ConversationTurn
+from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from benchmarks.external.locomo.judged_scorer import (
-    JudgedLocomoScorer,
     VALIDATION_PASSES,
+    JudgedLocomoScorer,
     build_locomo_holdout_scorer,
     estimate_locomo_paid_validation,
 )
-from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
-from seam_runtime.cli import run_cli
+from seam_runtime.cli import _apply_candidate_profile, run_cli
 from seam_runtime.retrieval import RetrievalFlags
 from seam_runtime.self_improve import ScoreReport
 from tools.h2.holdout_split import DEFAULT_RATIO, DEFAULT_SALT, HOLDOUT, assign_one
@@ -59,6 +59,32 @@ class FlakyJudge(FakeJudge):
             self.failures -= 1
             self.calls += 1
             raise RuntimeError("transient judge failure")
+        return super().score(question=question, gold=gold, pred=pred)
+
+
+class RateLimitedJudge(FakeJudge):
+    """Raises a judge-wrapped 429 (as ``judge.score`` really does) N times,
+    then behaves like FakeJudge. Simulates an org TPM-cap hit mid-run."""
+
+    def __init__(self, rate_limit_hits: int = 3):
+        super().__init__()
+        self.rate_limit_hits = rate_limit_hits
+
+    def score(self, *, question, gold, pred) -> JudgeVerdict:
+        if self.rate_limit_hits > 0:
+            self.rate_limit_hits -= 1
+            self.calls += 1
+
+            class _RateLimit(Exception):
+                status_code = 429
+
+            try:
+                raise _RateLimit("Rate limit reached ... tokens per min (TPM)")
+            except Exception as exc:
+                # Byte-for-byte how OpenAIJudge.score re-raises a provider error.
+                raise RuntimeError(
+                    f"judge request failed: {type(exc).__name__}"
+                ) from exc
         return super().score(question=question, gold=gold, pred=pred)
 
 
@@ -198,6 +224,24 @@ def test_judge_transient_failure_retried_then_hard_failure_raises(tmp_path):
     adapter.close()
 
 
+def test_judge_rate_limit_absorbed_by_provider_backoff(tmp_path, monkeypatch):
+    # A transient 429 that exceeds judge_retries (=0 -> one outer attempt) must
+    # be ridden out by provider_retry rather than aborting a paid run. Regression
+    # for the mid-run TPM abort where the judge path lacked the answerer's backoff.
+    monkeypatch.setenv("SEAM_BENCH_PROVIDER_RETRY_BASE_SECONDS", "0")
+    monkeypatch.setenv("SEAM_BENCH_PROVIDER_MAX_RETRIES", "8")
+    adapter = _build_adapter(tmp_path, lambda question, context, diag_out=None: "Friday")
+    one_case = OrderedDict({"conv-j": CASES[:1]})
+
+    judge = RateLimitedJudge(rate_limit_hits=3)  # > judge_retries+1, < 8
+    scorer = JudgedLocomoScorer(adapter=adapter, judge=judge,
+                                cases_by_scope=one_case, judge_retries=0)
+    report = scorer.score(None, flags=RetrievalFlags())
+    assert report.per_case == {"conv-j::q0": 1.0}
+    assert judge.rate_limit_hits == 0  # all three transient hits were absorbed
+    adapter.close()
+
+
 def test_build_holdout_scorer_validates_before_any_side_effect():
     # invalid answerer fails before the (nonexistent) dataset is even opened
     with pytest.raises(ValueError, match="generating answerer"):
@@ -303,6 +347,60 @@ def test_cli_validate_dry_run_makes_no_paid_path(tmp_path, capsys):
     assert out["cases"] == 10
     assert out["total_paid_calls_max"] == 40
     assert "confirm-paid" in out["note"]
+
+
+def test_candidate_profile_overlays_only_profile_knobs():
+    policies = RetrievalFlags(
+        conversation_adapter="conversation/1",
+        inference_policy="inference/high-confidence/1",
+        w_lexical=0.55,
+    )
+    candidate = _apply_candidate_profile(policies, "broad", store=None)
+
+    assert candidate.search_top_k == 300
+    assert candidate.context_budget == 60000
+    assert candidate.conversation_adapter == "conversation/1"
+    assert candidate.inference_policy == "inference/high-confidence/1"
+    assert candidate.w_lexical == pytest.approx(0.55)
+    assert policies.search_top_k is None
+    assert policies.context_budget is None
+
+
+def test_cli_validate_dry_run_combines_profile_with_flags(tmp_path, capsys):
+    db = str(tmp_path / "s.db")
+    run_cli([
+        "--db", db,
+        "improve", "validate",
+        "--locomo-dataset", str(QUICKSTART_FIXTURE_PATH),
+        "--split", "all",
+        "--profile", "broad",
+        "--flags", json.dumps({
+            "conversation_adapter": "conversation/1",
+            "inference_policy": "inference/high-confidence/1",
+        }),
+    ])
+    out = json.loads(capsys.readouterr().out)
+
+    assert out["dry_run"] is True
+    assert out["candidate_profile"] == "broad"
+    assert out["candidate_flags"]["search_top_k"] == 300
+    assert out["candidate_flags"]["context_budget"] == 60000
+    assert out["candidate_flags"]["conversation_adapter"] == "conversation/1"
+    assert out["candidate_flags"]["inference_policy"] == "inference/high-confidence/1"
+
+
+def test_cli_validate_profile_keeps_config_knobs_out_of_flags(tmp_path, capsys):
+    db = str(tmp_path / "s.db")
+    run_cli([
+        "--db", db,
+        "improve", "validate",
+        "--locomo-dataset", str(QUICKSTART_FIXTURE_PATH),
+        "--profile", "compact",
+        "--flags", '{"search_top_k": 100}',
+    ])
+    out = json.loads(capsys.readouterr().out)
+
+    assert "invalid --flags" in out["error"]
 
 
 def test_cli_validate_rejects_bad_flags_json(tmp_path, capsys):

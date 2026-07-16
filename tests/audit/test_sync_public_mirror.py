@@ -9,12 +9,11 @@ from __future__ import annotations
 
 import subprocess
 from pathlib import Path
-from unittest import mock
 
 import pytest
 
 from tools.release import sync_public_mirror as sync_mod
-from tools.release.sync_public_mirror import build_public_tree, _ls_tree, _rev_parse
+from tools.release.sync_public_mirror import _ls_tree, build_public_tree
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -26,7 +25,7 @@ def _git(repo: Path, *args: str) -> str:
 def private_repo(tmp_path: Path) -> Path:
     repo = tmp_path / "private"
     repo.mkdir()
-    _git(repo, "init", "-q")
+    _git(repo, "init", "-q", "-b", "main")
     _git(repo, "config", "user.email", "test@example.com")
     _git(repo, "config", "user.name", "Test")
     return repo
@@ -85,7 +84,7 @@ def test_build_public_tree_preserves_owned_paths_from_existing_mirror(
     # Seed the "mirror" with its own independent HISTORY.md via a throwaway worktree.
     seed_repo = tmp_path / "seed"
     seed_repo.mkdir()
-    _git(seed_repo, "init", "-q")
+    _git(seed_repo, "init", "-q", "-b", "main")
     _git(seed_repo, "config", "user.email", "test@example.com")
     _git(seed_repo, "config", "user.name", "Test")
     _commit(seed_repo, {"HISTORY.md": "public repo's OWN independent history\n"}, "seed")

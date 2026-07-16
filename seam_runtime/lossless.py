@@ -12,7 +12,6 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Callable
 
-
 LOSSLESS_MAGIC = "SEAM-LX/1"
 READABLE_MAGIC = "SEAM-RC/1"
 LOSSLESS_CODECS = ("zlib", "bz2", "lzma")

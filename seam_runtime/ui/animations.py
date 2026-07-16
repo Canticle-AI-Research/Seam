@@ -24,11 +24,10 @@ import random
 import sys
 import time
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Iterable
 
 from . import bars, theme
-
 
 # ---- IR sample emission ---------------------------------------------------
 #

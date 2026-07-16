@@ -12,8 +12,13 @@ from pathlib import Path
 
 from tools.history.history_lib import (
     HISTORY_PATH,
-    INDEX_PATH,
-    SNAPSHOTS_DIR,
+    # INDEX_PATH/SNAPSHOTS_DIR aren't read as bare names here (call sites use
+    # the live history_lib.INDEX_PATH/history_lib.SNAPSHOTS_DIR so test
+    # monkeypatching of history_lib takes effect) -- re-exported only so
+    # test_history_tools.py's _MultiPatch can also patch this module's own
+    # attribute of the same name.
+    INDEX_PATH,  # noqa: F401
+    SNAPSHOTS_DIR,  # noqa: F401
     parse_entries,
     read_history_bytes,
 )

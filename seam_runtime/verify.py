@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import re
 
-from .mirl import IRBatch, MIRLRecord, PACK_MODES, RecordKind, Status, VALID_SCOPES, VerifyReport
-
+from .mirl import PACK_MODES, VALID_SCOPES, IRBatch, MIRLRecord, RecordKind, Status, VerifyReport
 
 NS_PATTERN = re.compile(r"^[A-Za-z0-9_.:-]+$")
 

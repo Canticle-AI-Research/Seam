@@ -60,7 +60,6 @@ from benchmarks.external.common.dataset import load_locomo_cases, load_quickstar
 from benchmarks.external.common.types import BenchmarkCase
 from seam_runtime.storage import SQLiteStore
 
-
 _QUICKSTART_FIXTURE = (
     Path(__file__).resolve().parents[2]
     / "benchmarks"

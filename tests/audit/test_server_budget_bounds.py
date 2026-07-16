@@ -1,7 +1,8 @@
 """Tests for REST API budget parameter clamping."""
 import pytest
-from seam_runtime.server import create_app_from_env
 from fastapi.testclient import TestClient
+
+from seam_runtime.server import create_app_from_env
 
 
 class TestBudgetBounds:

@@ -1,9 +1,9 @@
-"""CI1 — Assert .github/workflows/ci.yml contains the four SEAM verify_* steps
+"""CI1 — Assert .github/workflows/ci.yml contains the five SEAM verify_* steps
 in the correct position (after Run tests, before Run benchmark suite)."""
 
-import yaml
 from pathlib import Path
 
+import yaml
 
 CI_YML = Path(__file__).resolve().parent.parent.parent / ".github" / "workflows" / "ci.yml"
 
@@ -11,6 +11,7 @@ VERIFY_STEPS = [
     "python -m tools.history.verify_integrity",
     "python -m tools.history.verify_continuity --no-snapshot",
     "python -m tools.history.verify_routing",
+    "python -m tools.history.verify_handoffs",
     "python -m tools.streams.verify_streams",
 ]
 
@@ -28,7 +29,7 @@ def test_ci_yaml_loads():
     assert len(steps) > 0
 
 
-def test_ci_has_all_four_verify_steps():
+def test_ci_has_all_five_verify_steps():
     """Every verify step is present in the step list with exact run value."""
     steps = _load_steps()
     runs = [s.get("run") for s in steps if "run" in s]
@@ -79,3 +80,13 @@ def test_ci_verify_steps_before_benchmark():
             f"Verify step {steps[pos].get('run')} at index {pos} "
             f"must be before 'Run benchmark suite' at index {bench_idx}"
         )
+
+
+def test_required_repo_hygiene_runs_handoff_verifier():
+    """The handoff gate must run in a required check, not only the advisory matrix."""
+    with open(CI_YML) as fh:
+        doc = yaml.safe_load(fh)
+
+    steps = doc["jobs"]["repo-hygiene"]["steps"]
+    runs = [step.get("run") for step in steps if "run" in step]
+    assert "python -m tools.history.verify_handoffs" in runs

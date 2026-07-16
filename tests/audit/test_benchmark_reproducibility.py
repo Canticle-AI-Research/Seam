@@ -3,6 +3,7 @@
 import copy
 
 import pytest
+
 from benchmarks.external.common.dataset import load_quickstart_cases
 from benchmarks.external.common.runner import run_benchmark
 from benchmarks.external.locomo.run import build_adapter, build_judge

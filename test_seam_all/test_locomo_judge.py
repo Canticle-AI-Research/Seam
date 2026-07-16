@@ -7,6 +7,7 @@ import sys
 
 import pytest
 
+import benchmarks.external.common.judge as judge_module
 from benchmarks.external.common.judge import (
     ClaudeJudge,
     JudgeVerdict,
@@ -23,7 +24,6 @@ from benchmarks.external.common.types import (
     AdapterAnswer,
     BenchmarkCase,
     ConversationTurn,
-    MemorySystemAdapter,
 )
 
 
@@ -124,6 +124,21 @@ def test_build_judge_unknown_raises() -> None:
         build_judge("unknown")
 
 
+def test_build_judge_passes_prompt_version_to_claude(monkeypatch) -> None:
+    captured = {}
+
+    def _fake_claude_judge(model=None, *, prompt_version):
+        captured.update(model=model, prompt_version=prompt_version)
+        return object()
+
+    monkeypatch.setattr(judge_module, "ClaudeJudge", _fake_claude_judge)
+
+    built = build_judge("claude", "claude-haiku-test", prompt_version="judge/2")
+
+    assert built is not None
+    assert captured == {"model": "claude-haiku-test", "prompt_version": "judge/2"}
+
+
 # --- missing dep / missing API key tests ---
 
 def test_claude_judge_missing_dep(monkeypatch) -> None:
@@ -154,6 +169,38 @@ def test_claude_judge_does_not_import_anthropic_at_module_level() -> None:
         check=True,
     )
     assert result.stdout.strip() == "False"
+
+
+def test_claude_judge_score_uses_judge2_and_captures_groundedness() -> None:
+    class _Messages:
+        def __init__(self):
+            self.kwargs = None
+
+        def create(self, **kwargs):
+            self.kwargs = kwargs
+            return type("Response", (), {
+                "content": [type("Block", (), {
+                    "text": json.dumps({
+                        "verdict": "correct",
+                        "groundedness": "grounded",
+                        "rationale": "alias matches",
+                    })
+                })()],
+                "usage": type("Usage", (), {"input_tokens": 100, "output_tokens": 12})(),
+            })()
+
+    messages = _Messages()
+    judge = ClaudeJudge.__new__(ClaudeJudge)
+    judge.model = "claude-haiku-test"
+    judge.prompt_version = "judge/2"
+    judge._client = type("Client", (), {"messages": messages})()
+
+    verdict = judge.score(question="Who plays basketball?", gold="LeBron James", pred="LeBron")
+
+    assert verdict.verdict == "correct"
+    assert judge.last_groundedness == "grounded"
+    assert judge.last_usage == {"prompt_tokens": 100, "completion_tokens": 12}
+    assert "groundedness" in messages.kwargs["messages"][0]["content"]
 
 
 # --- runner integration tests ---

@@ -8,6 +8,13 @@ deterministically without ingesting a corpus. The real free scorers
 
 from __future__ import annotations
 
+import pytest
+
+from benchmarks.external.common.adjudication import (
+    AdjudicatedCase,
+    AdjudicatedScorer,
+    AdjudicationOverlay,
+)
 from seam_runtime.retrieval import RetrievalFlags, load_retrieval_flags
 from seam_runtime.self_improve import (
     Candidate,
@@ -88,6 +95,15 @@ def test_candidate_levers_profile_skips_current_preset():
     assert "profile=broad" in labels
 
 
+def test_candidate_levers_answer_policies_are_opt_in_and_versioned():
+    base = RetrievalFlags()
+    assert not any("conversation_adapter" in c.change for c in candidate_levers(base))
+    cands = candidate_levers(base, answer_policy_levers=True)
+    changes = [candidate.change for candidate in cands]
+    assert {"conversation_adapter": "conversation/1"} in changes
+    assert {"inference_policy": "inference/high-confidence/1"} in changes
+
+
 # ---- evaluate_candidates -----------------------------------------------------
 
 
@@ -148,6 +164,10 @@ class _ProfileSafeScorer:
         return ScoreReport(scorer=self.name, aggregate=self._fn(flags), n=10)
 
 
+class _AnswerPolicySafeScorer(_ProfileSafeScorer):
+    answer_policy_safe = True
+
+
 def test_cycle_profile_levers_active_when_all_scorers_profile_safe(tmp_path):
     store = _store(tmp_path)
     # prefers the compact knee (top_k=100); only proposable when profile levers fire
@@ -170,6 +190,140 @@ def test_cycle_profile_levers_off_when_any_scorer_unsafe(tmp_path):
     # so the compact knee is never proposed even though `safe` would reward it.
     assert report["profile_levers"] is False
     assert report["proposed"] is None
+
+
+def test_cycle_answer_policy_levers_require_answer_quality_scorers(tmp_path):
+    store = _store(tmp_path)
+    safe = _AnswerPolicySafeScorer(
+        lambda flags: 0.9 if flags.conversation_adapter == "conversation/1" else 0.5
+    )
+    report = run_improvement_cycle(None, store, [safe], auto_approve=True)
+    assert report["answer_policy_levers"] is True
+    assert report["proposed"]["change"] == {"conversation_adapter": "conversation/1"}
+    assert load_retrieval_flags(store, env={}).conversation_adapter == "conversation/1"
+    [proposal] = store.iter_improvement_proposals()
+    assert proposal["kind"] == "answer_policy"
+
+
+def test_category_floor_progress_can_select_small_aggregate_gain():
+    base = RetrievalFlags()
+
+    def aggregate(flags):
+        return 0.503 if flags.conversation_adapter == "conversation/1" else 0.5
+
+    def categories(flags):
+        return {
+            "cat1": 0.79 if flags.conversation_adapter == "conversation/1" else 0.77,
+            "cat3": 0.6,
+        }
+
+    scorer = _FlagFnScorer(aggregate, cat_fn=categories)
+    candidate = Candidate(
+        "conversation",
+        {"conversation_adapter": "conversation/1"},
+        RetrievalFlags(conversation_adapter="conversation/1"),
+    )
+    [evaluation] = evaluate_candidates(
+        None,
+        [scorer],
+        [candidate],
+        base,
+        category_floors={"cat1": 0.8, "cat3": 0.8},
+    )
+    assert evaluation.is_improvement is True
+    assert evaluation.floor_progress == pytest.approx(0.02)
+    assert "category-floor progress" in evaluation.reason
+
+
+def test_category_floor_human_alias_matches_numeric_locomo_category():
+    base = RetrievalFlags()
+    scorer = _FlagFnScorer(
+        lambda flags: 0.503 if flags.conversation_adapter == "conversation/1" else 0.5,
+        cat_fn=lambda flags: {
+            "1": 0.79 if flags.conversation_adapter == "conversation/1" else 0.77,
+            "3": 0.6,
+        },
+    )
+    candidate = Candidate(
+        "conversation",
+        {"conversation_adapter": "conversation/1"},
+        RetrievalFlags(conversation_adapter="conversation/1"),
+    )
+    [evaluation] = evaluate_candidates(
+        None,
+        [scorer],
+        [candidate],
+        base,
+        category_floors={"cat1": 0.8, "cat3": 0.8},
+    )
+    assert evaluation.floor_progress == pytest.approx(0.02)
+
+
+def test_adjudicated_view_does_not_hide_raw_regression():
+    class RawScorer:
+        name = "raw"
+        profile_safe = True
+        answer_policy_safe = True
+
+        def score(self, runtime, flags=None):  # noqa: ARG002
+            candidate = flags.conversation_adapter == "conversation/1"
+            per_case = {"a": 0.0 if candidate else 1.0, "b": 0.8 if candidate else 0.0}
+            return ScoreReport(
+                scorer=self.name,
+                aggregate=sum(per_case.values()) / 2,
+                n=2,
+                per_category={"1": sum(per_case.values()) / 2},
+                per_case=per_case,
+            )
+
+    scorer = AdjudicatedScorer(
+        RawScorer(),
+        AdjudicationOverlay(
+            version="review/1",
+            cases={
+                "a": AdjudicatedCase(
+                    case_id="a",
+                    category="1",
+                    score=0.0,
+                    disposition="judge-correction",
+                )
+            },
+        ),
+        category_by_case={"a": "1", "b": "1"},
+    )
+    candidate = Candidate(
+        "conversation",
+        {"conversation_adapter": "conversation/1"},
+        RetrievalFlags(conversation_adapter="conversation/1"),
+    )
+    [evaluation] = evaluate_candidates(
+        None,
+        [scorer],
+        [candidate],
+        RetrievalFlags(),
+    )
+    assert evaluation.deltas[scorer.name] == pytest.approx(0.4)
+    assert evaluation.view_deltas[scorer.name]["raw"] == pytest.approx(-0.1)
+    assert evaluation.is_improvement is False
+    assert "/raw" in evaluation.reason
+
+
+def test_cycle_scores_baseline_once(tmp_path):
+    store = _store(tmp_path)
+
+    class CountingScorer(_AnswerPolicySafeScorer):
+        def __init__(self):
+            super().__init__(lambda flags: 0.5)
+            self.default_calls = 0
+
+        def score(self, runtime, flags=None):
+            if flags == RetrievalFlags():
+                self.default_calls += 1
+            return super().score(runtime, flags=flags)
+
+    scorer = CountingScorer()
+    run_improvement_cycle(None, store, [scorer], auto_approve=False)
+    assert scorer.default_calls == 1
 
 
 def test_cycle_no_headroom_proposes_nothing(tmp_path):
@@ -225,3 +379,18 @@ def test_cycle_auto_reverts_on_post_apply_regression(tmp_path):
     assert report["applied"] is False
     # flag state backed out -> baseline restored
     assert load_retrieval_flags(store, env={}) == RetrievalFlags()
+
+
+def test_candidate_levers_include_temporal_and_conversation_v2():
+    base = RetrievalFlags()
+    assert not any("temporal_policy" in c.change for c in candidate_levers(base))
+    cands = candidate_levers(base, answer_policy_levers=True)
+    changes = [candidate.change for candidate in cands]
+    assert {"temporal_policy": "temporal/1"} in changes
+    assert {"conversation_adapter": "conversation/2"} in changes
+    # already-applied levers are not re-proposed
+    applied = RetrievalFlags(temporal_policy="temporal/1")
+    re_changes = [
+        c.change for c in candidate_levers(applied, answer_policy_levers=True)
+    ]
+    assert {"temporal_policy": "temporal/1"} not in re_changes

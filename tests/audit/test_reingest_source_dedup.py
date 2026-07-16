@@ -153,7 +153,7 @@ def test_reingest_no_persist_skips_dedup(runtime: SeamRuntime):
     # persist=False skips the dedup call).
     doc1_after = runtime.store.read_document_status(doc1_id)
     assert doc1_after["deleted_at"] is None, (
-        f"Persisted document should NOT be superseded when reingest had persist=False"
+        "Persisted document should NOT be superseded when reingest had persist=False"
     )
 
     # The report should still have the document info even without persist.

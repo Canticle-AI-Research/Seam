@@ -15,7 +15,6 @@ from __future__ import annotations
 import hashlib
 import re
 import sys
-from pathlib import Path
 
 from tools.streams.history_adapter import verify_history_mirror
 from tools.streams.rebuild_cross_index import collect_all_events

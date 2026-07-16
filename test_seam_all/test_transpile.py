@@ -1,7 +1,7 @@
 from __future__ import annotations
-import pytest
-from seam_runtime.transpile import transpile_python
+
 from seam_runtime.mirl import MIRLRecord
+from seam_runtime.transpile import transpile_python
 
 
 def _make_record(id: str) -> MIRLRecord:

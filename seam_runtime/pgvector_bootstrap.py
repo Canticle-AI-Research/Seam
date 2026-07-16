@@ -8,7 +8,6 @@ import time
 from pathlib import Path
 from typing import TextIO
 
-
 DEFAULT_PGVECTOR_PORT = "55432"
 DEFAULT_CONTAINER_NAME = "seam-pgvector"
 DEFAULT_SERVICE_NAME = "pgvector"

@@ -4,7 +4,19 @@ import sys
 from pathlib import Path
 
 from seam_runtime.cli import run_cli
-from seam_runtime.dsl import compile_dsl
+from seam_runtime.dsl import compile_dsl  # noqa: F401 -- re-exported for `from seam import compile_dsl`
+from seam_runtime.holographic import (
+    HolographicReader,  # noqa: F401 -- re-exported for `from seam import HolographicReader`
+    SurfaceArtifact,
+    SurfacePayload,
+    SurfaceQueryResult,
+    SurfaceVerification,
+    context_surface,  # noqa: F401 -- re-exported for `from seam import context_surface`
+    decode_surface,
+    encode_surface,
+    query_surface,
+    verify_surface,
+)
 from seam_runtime.lossless import (
     LosslessArtifact,
     LosslessBenchmarkResult,
@@ -17,24 +29,15 @@ from seam_runtime.lossless import (
     decompress_text_readable,
     query_readable_compressed,
 )
-from seam_runtime.holographic import (
-    HolographicReader,
-    SurfaceArtifact,
-    SurfacePayload,
-    SurfaceQueryResult,
-    SurfaceVerification,
-    context_surface,
-    decode_surface,
-    encode_surface,
-    query_surface,
-    verify_surface,
-)
 from seam_runtime.mirl import IRBatch, MIRLRecord, Pack, RecordKind
-from seam_runtime.models import HashEmbeddingModel, OpenAICompatibleEmbeddingModel
+from seam_runtime.models import (
+    HashEmbeddingModel,  # noqa: F401 -- re-exported for `from seam import HashEmbeddingModel`
+    OpenAICompatibleEmbeddingModel,  # noqa: F401 -- re-exported for `from seam import OpenAICompatibleEmbeddingModel`
+)
 from seam_runtime.nl import compile_nl
 from seam_runtime.pack import pack_records, unpack_exact_pack
-from seam_runtime.runtime import SeamRuntime
-from seam_runtime.verify import verify_ir
+from seam_runtime.runtime import SeamRuntime  # noqa: F401 -- re-exported for `from seam import SeamRuntime`
+from seam_runtime.verify import verify_ir  # noqa: F401 -- re-exported for `from seam import verify_ir`
 
 
 def pack_ir(records, lens: str = "general", budget: int = 512, mode: str = "context") -> Pack:

@@ -3,8 +3,6 @@ from __future__ import annotations
 import math
 import re
 from collections import Counter
-from typing import Iterable
-
 
 _TOKEN = re.compile(r"[a-z0-9_:-]+")
 

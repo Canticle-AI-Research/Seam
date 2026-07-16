@@ -8,7 +8,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools.history.history_lib import Entry, HISTORY_PATH, parse_entries, read_history_bytes
+from tools.history.history_lib import HISTORY_PATH, Entry, parse_entries, read_history_bytes
 from tools.history.verify_routing import MANIFEST_PATH, load_manifest, verify_routing
 
 

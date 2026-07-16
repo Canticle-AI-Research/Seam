@@ -14,9 +14,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from benchmarks.external.locomo import run as locomo_run
 from benchmarks.external.locomo.adapters import seam as seam_adapter
 from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
-from benchmarks.external.locomo import run as locomo_run
 from seam_runtime.storage import SQLiteStore
 
 

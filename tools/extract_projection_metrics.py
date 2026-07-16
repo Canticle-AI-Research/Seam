@@ -1,6 +1,8 @@
 """Extract and display the projection comparison metrics from the retrieval benchmark."""
 
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from seam_runtime.evals import run_retrieval_benchmark

@@ -6,7 +6,6 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-
 DEFAULT_SURFACE_DIR = Path(".seam") / "surfaces"
 
 

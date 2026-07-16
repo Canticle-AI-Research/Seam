@@ -8,7 +8,6 @@ from pathlib import Path
 from tools.history.history_lib import HISTORY_PATH, Entry, parse_entries, read_history_bytes
 from tools.history.test_count_audit import CountFactRecord, audit_test_count_claims, collect_test_count_facts
 
-
 HANDOFF_RE = re.compile(r"\bLatest continuity handoff is [`']?HISTORY#(?P<id>\d+)[`']?", re.I)
 
 

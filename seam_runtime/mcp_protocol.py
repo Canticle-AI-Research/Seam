@@ -13,7 +13,6 @@ from .mcp import TOOL_METADATA, dispatch_tool
 from .pgvector_bootstrap import PgVectorBootstrapError, ensure_pgvector
 from .runtime import SeamRuntime
 
-
 SUPPORTED_PROTOCOL_VERSIONS = ("2025-06-18", "2025-03-26", "2024-11-05")
 DEFAULT_PROTOCOL_VERSION = SUPPORTED_PROTOCOL_VERSIONS[0]
 
@@ -119,7 +118,7 @@ def run_mcp_server(
 def _handle_jsonrpc_line(runtime: SeamRuntime, line: str) -> list[dict[str, object] | None]:
     try:
         message = json.loads(line)
-    except json.JSONDecodeError as exc:
+    except json.JSONDecodeError:
         return [_error_response(None, JSONRPC_PARSE_ERROR, "Parse error")]
 
     if isinstance(message, list):
@@ -146,7 +145,7 @@ def _handle_jsonrpc_message(runtime: SeamRuntime, message: object) -> dict[str, 
         return {"jsonrpc": "2.0", "id": request_id, "result": result}
     except JsonRpcError as exc:
         return _error_response(request_id, exc.code, exc.message, exc.data)
-    except Exception as exc:  # pragma: no cover - defensive protocol boundary
+    except Exception:  # pragma: no cover - defensive protocol boundary
         traceback.print_exc(file=sys.stderr)
         return _error_response(request_id, JSONRPC_INTERNAL_ERROR, "Internal error")
 
@@ -194,7 +193,7 @@ def _call_tool(runtime: SeamRuntime, name: str, arguments: dict[str, object]) ->
         return {"content": [{"type": "text", "text": str(exc)}], "isError": True}
     except KeyError as exc:
         return {"content": [{"type": "text", "text": str(exc)}], "isError": True}
-    except Exception as exc:
+    except Exception:
         traceback.print_exc(file=sys.stderr)
         return {"content": [{"type": "text", "text": "Internal tool execution error"}], "isError": True}
     result = response.get("result")
