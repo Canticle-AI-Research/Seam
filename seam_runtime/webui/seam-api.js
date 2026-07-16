@@ -188,6 +188,45 @@
       }
     },
 
+    // Query the canonical, self-building knowledge graph.
+    knowledgeGraph: async function (opts) {
+      opts = opts || {};
+      var params = new URLSearchParams();
+      if (opts.query) params.set('query', opts.query);
+      if (opts.rootId) params.set('root_id', opts.rootId);
+      if (opts.namespace) params.set('namespace', opts.namespace);
+      if (opts.scope) params.set('scope', opts.scope);
+      if (opts.agentId) params.set('agent_id', opts.agentId);
+      if (opts.kinds && opts.kinds.length) params.set('kinds', opts.kinds.join(','));
+      if (opts.at) params.set('at', opts.at);
+      if (opts.includeHistory) params.set('include_history', 'true');
+      params.set('limit', String(opts.limit || 300));
+      params.set('hops', String(opts.hops == null ? 2 : opts.hops));
+      try {
+        const data = await _fetch('/knowledge-graph?' + params.toString());
+        _notifyListeners(true);
+        return data;
+      } catch (err) {
+        if (err.code === 'DISCONNECTED') _notifyListeners(false);
+        throw err;
+      }
+    },
+
+    knowledgeNode: async function (nodeId, includeHistory, at) {
+      var params = new URLSearchParams();
+      params.set('node_id', nodeId);
+      params.set('include_history', includeHistory === false ? 'false' : 'true');
+      if (at) params.set('at', at);
+      try {
+        const data = await _fetch('/knowledge-node?' + params.toString());
+        _notifyListeners(true);
+        return data;
+      } catch (err) {
+        if (err.code === 'DISCONNECTED') _notifyListeners(false);
+        throw err;
+      }
+    },
+
     // Compile text into MIRL records
     compile: async function (text, persist, sourceRef, ns, scope) {
       var payload = { text: text };

@@ -70,6 +70,24 @@
     }
 
     #root { height: 100vh; display: flex; flex-direction: column; }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+      outline: 1px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 1100px) {
+      .kg-workspace-grid { grid-template-columns: 1fr !important; }
+      .kg-workspace-grid aside { height: auto !important; max-height: 520px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 <body style="font-family: Merriweather; font-size: 14px">
@@ -2332,57 +2350,58 @@ const writeQueue = [
 { id: 'wq:005', op: 'QUEUE', text: 'Pending: reindex graph edges for clm:1–clm:20', progress: 0, status: 'pending' }];
 
 
-const provenanceNodes = [
-{ id: 'n1', x: 120, y: 60, label: 'README.md', color: '#f4d676', type: 'source' },
-{ id: 'n2', x: 280, y: 40, label: 'clm:1 @SEAM', color: '#a6fcff', type: 'entity' },
-{ id: 'n3', x: 260, y: 120, label: 'clm:4 #SQLite', color: '#7fe0ff', type: 'claim' },
-{ id: 'n4', x: 420, y: 70, label: 'sta:ent:seam', color: '#7efdb9', type: 'state' },
-{ id: 'n5', x: 400, y: 150, label: 'clm:12 !event', color: '#f4d676', type: 'event' },
-{ id: 'n6', x: 540, y: 100, label: 'agent_bridge', color: '#d391ff', type: 'relation' },
-{ id: 'n7', x: 160, y: 150, label: 'SPEC_V0.1.md', color: '#f4d676', type: 'source' },
-{ id: 'n8', x: 320, y: 190, label: 'clm:22 ^bench', color: '#d391ff', type: 'evidence' }];
-
-
-const provenanceEdges = [
-{ from: 'n1', to: 'n2' }, { from: 'n1', to: 'n3' },
-{ from: 'n2', to: 'n4' }, { from: 'n3', to: 'n4' },
-{ from: 'n4', to: 'n6' }, { from: 'n5', to: 'n6' },
-{ from: 'n7', to: 'n3' }, { from: 'n7', to: 'n8' },
-{ from: 'n8', to: 'n4' }, { from: 'n2', to: 'n5' }];
-
-
 const tagColors = { '@': '#a6fcff', '#': '#7fe0ff', '!': '#f4d676', '>': '#9b6cff', '~': '#7efdb9', '^': '#d391ff', '%': '#66b8ff', '=': '#8df6ff' };
 
-function ProvenanceGraph({ nodes, edges, highlight, onHover }) {
-  const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
+function CompactKnowledgeGraph({ graph, highlight, onHover }) {
+  const colors = {
+    agent: '#ff8fbc', entity: '#a6fcff', claim: '#7fe0ff', event: '#f4d676',
+    relation: '#9b6cff', state: '#7efdb9', evidence: '#d391ff', source: '#66b8ff',
+    provenance: '#ffb347', value: '#8df6ff', symbol: '#cdb4ff'
+  };
+  const nodes = (graph?.nodes || []).slice(0, 36).map((node, index, all) => {
+    const columns = Math.max(3, Math.ceil(Math.sqrt(all.length * 2.7)));
+    const rows = Math.max(1, Math.ceil(all.length / columns));
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    return {
+      ...node,
+      x: 44 + column * (552 / Math.max(1, columns - 1)),
+      y: 35 + row * (150 / Math.max(1, rows - 1)),
+      color: colors[node.kind] || '#7fe0ff'
+    };
+  });
+  const visibleIds = new Set(nodes.map((node) => node.id));
+  const edges = (graph?.edges || []).filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
+  const nodeMap = Object.fromEntries(nodes.map((node) => [node.id, node]));
+  const openNode = (nodeId) => {
+    window.location.href = `/?view=knowledge&node=${encodeURIComponent(nodeId)}`;
+  };
   return (
-    <svg width="100%" height="220" viewBox="0 0 640 220" style={{ display: 'block' }}>
+    <svg width="100%" height="220" viewBox="0 0 640 220" role="img" aria-label="Live knowledge graph preview" style={{ display: 'block' }}>
       <defs>
-        <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <marker id="compact-graph-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
           <path d="M0,0 L0,6 L6,3 z" fill="#1a2540" />
         </marker>
       </defs>
-      {/* edges */}
-      {edges.map((e, i) => {
-        const a = nodeMap[e.from],b = nodeMap[e.to];
+      {edges.map((edge) => {
+        const a = nodeMap[edge.source],b = nodeMap[edge.target];
         if (!a || !b) return null;
-        const isHot = highlight === e.from || highlight === e.to;
+        const isHot = highlight === edge.source || highlight === edge.target;
         return (
-          <line key={i}
+          <line key={edge.id}
           x1={a.x} y1={a.y} x2={b.x} y2={b.y}
           stroke={isHot ? '#4f8cfb' : '#1a2540'}
           strokeWidth={isHot ? 1.5 : 1}
           strokeOpacity={isHot ? 0.8 : 0.4}
-          markerEnd="url(#arrow)" />);
+          markerEnd="url(#compact-graph-arrow)" />);
 
 
       })}
-      {/* nodes */}
       {nodes.map((n) => {
         const isHot = highlight === n.id;
         return (
-          <g key={n.id} onMouseEnter={() => onHover(n.id)} onMouseLeave={() => onHover(null)} style={{ cursor: 'pointer' }}>
-            <circle cx={n.x} cy={n.y} r={isHot ? 22 : 18}
+          <g key={n.id} tabIndex="0" role="link" aria-label={`Open ${n.label}`} onClick={() => openNode(n.id)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') openNode(n.id); }} onMouseEnter={() => onHover(n.id)} onMouseLeave={() => onHover(null)} onFocus={() => onHover(n.id)} onBlur={() => onHover(null)} style={{ cursor: 'pointer', outline: 'none' }}>
+            <circle cx={n.x} cy={n.y} r={isHot ? 17 : 14}
             fill={isHot ? n.color + '22' : '#08132a'}
             stroke={n.color}
             strokeWidth={isHot ? 2 : 1}
@@ -2390,10 +2409,10 @@ function ProvenanceGraph({ nodes, edges, highlight, onHover }) {
 
             <text x={n.x} y={n.y + 1} textAnchor="middle" dominantBaseline="middle"
             fontSize="8" fill={n.color} fontFamily="JetBrains Mono, monospace" fontWeight="500">
-              {n.label.length > 10 ? n.label.slice(0, 10) + '…' : n.label}
+              {n.label.length > 9 ? n.label.slice(0, 9) + '…' : n.label}
             </text>
-            <text x={n.x} y={n.y + 30} textAnchor="middle" fontSize="7" fill="#274063" fontFamily="JetBrains Mono, monospace">
-              {n.type}
+            <text x={n.x} y={n.y + 24} textAnchor="middle" fontSize="7" fill="#274063" fontFamily="JetBrains Mono, monospace">
+              {n.kind}
             </text>
           </g>);
 
@@ -2409,6 +2428,8 @@ function MemoryPanel({ width }) {
   // Live API records + stats
   const [liveRecords, setLiveRecords] = useState([]);
   const [liveStats, setLiveStats] = useState(null);
+  const [liveGraph, setLiveGraph] = useState(null);
+  const [graphError, setGraphError] = useState('');
   // Live, advancing write queue (mirrors MemoryFullView behavior)
   const [queue, setQueue] = useState(() => writeQueue.map((w) => ({
     ...w,
@@ -2434,6 +2455,15 @@ function MemoryPanel({ width }) {
           setLiveRecords(mapped);
         }
       } catch (_) { /* silent */ }
+      try {
+        const graph = await window.SeamAPI.knowledgeGraph({ limit: 80, hops: 1 });
+        if (!cancelled) {
+          setLiveGraph(graph);
+          setGraphError('');
+        }
+      } catch (error) {
+        if (!cancelled) setGraphError(error?.message || 'Knowledge graph unavailable');
+      }
     };
     fetchLive();
     const interval = setInterval(fetchLive, 30000);
@@ -2471,13 +2501,13 @@ function MemoryPanel({ width }) {
 
   const memStats = [
   { label: 'Total records', value: totalRecordsValue, color: '#7fe0ff' },
-  { label: 'Indexed today', value: '2,847', color: '#7efdb9' },
+  { label: 'Indexed today', value: liveStats?.records_today != null ? liveStats.records_today.toLocaleString() : '—', color: '#7efdb9' },
   { label: 'Pending write queue', value: String(queue.length), color: '#f4d676' },
-  { label: 'Graph edges', value: '841,203', color: '#9b6cff' },
-  { label: 'Avg retrieval latency', value: '38 ms', color: '#7efdb9' },
-  { label: 'Last compaction', value: '03:00 UTC', color: '#66b8ff' },
-  { label: 'Vector drift', value: '0.8%', color: '#7efdb9' },
-  { label: 'Contradiction flags', value: '3 active', color: '#f4d676' }];
+  { label: 'Knowledge nodes', value: liveStats?.knowledge_node_count != null ? liveStats.knowledge_node_count.toLocaleString() : '—', color: '#7fe0ff' },
+  { label: 'Knowledge edges', value: liveStats?.knowledge_edge_count != null ? liveStats.knowledge_edge_count.toLocaleString() : '—', color: '#9b6cff' },
+  { label: 'Namespaces', value: liveStats?.namespaces != null ? liveStats.namespaces.toLocaleString() : '—', color: '#66b8ff' },
+  { label: 'Drifted vectors', value: liveStats?.drifted_vectors != null ? liveStats.drifted_vectors.toLocaleString() : '—', color: '#7efdb9' },
+  { label: 'Contradiction flags', value: liveStats?.contradicted_count != null ? liveStats.contradicted_count.toLocaleString() : '—', color: '#f4d676' }];
 
 
   const tabs = ['records', 'writing', 'graph', 'stats'];
@@ -2570,11 +2600,21 @@ function MemoryPanel({ width }) {
         {/* ── Graph tab ── */}
         {tab === 'graph' &&
         <div style={{ padding: '8px 0' }}>
-            <div style={{ padding: '2px 12px 6px', fontSize: 9, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Provenance graph — hover nodes to trace</div>
+            <div style={{ padding: '2px 12px 6px', fontSize: 9, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live knowledge graph · select a node to inspect</div>
             <div style={{ padding: '0 8px', background: '#020b1e', borderTop: '1px solid rgba(47,99,255,0.08)', borderBottom: '1px solid rgba(47,99,255,0.08)' }}>
-              <ProvenanceGraph nodes={provenanceNodes} edges={provenanceEdges} highlight={hoveredNode} onHover={setHoveredNode} />
+              {liveGraph?.nodes?.length > 0 ?
+                <CompactKnowledgeGraph graph={liveGraph} highlight={hoveredNode} onHover={setHoveredNode} /> :
+                <div style={{ minHeight: 220, display: 'grid', placeItems: 'center', padding: 18, textAlign: 'center', fontSize: 10, color: graphError ? '#ff9a9a' : '#5a7a9a' }}>
+                  {graphError || 'No knowledge yet. The graph appears automatically when agents write MIRL records.'}
+                </div>
+              }
             </div>
             <div style={{ padding: '8px 12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#4f6888', marginBottom: 8 }}>
+                <span>{liveGraph?.stats?.node_count?.toLocaleString?.() || 0} nodes</span>
+                <span>{liveGraph?.stats?.edge_count?.toLocaleString?.() || 0} edges</span>
+                <span>{liveGraph?.stats?.agent_count?.toLocaleString?.() || 0} agents</span>
+              </div>
               <div style={{ fontSize: 9, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Node legend</div>
               {[['@', 'entity', '#a6fcff'], ['#', 'claim', '#7fe0ff'], ['!', 'event', '#f4d676'], ['>', 'relation', '#9b6cff'], ['~', 'state', '#7efdb9'], ['^', 'evidence', '#d391ff'], ['%', 'source', '#66b8ff']].map(([tag, kind, color]) =>
             <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
@@ -3552,9 +3592,39 @@ function BenchmarkFullView() {
 }
 
 
-// ── MemoryFullView ─────────────────────────────────────────────────────────
-// ── Obsidian-style force-directed provenance graph ──────────────────────
-function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, externalHovered, height = 480 }) {
+// ── Live knowledge-graph canvas ────────────────────────────────────────────
+const knowledgeKindColors = {
+  agent: '#f4d676', entity: '#a6fcff', claim: '#7fe0ff', event: '#ffbf69',
+  relation: '#9b6cff', state: '#7efdb9', evidence: '#d391ff', source: '#66b8ff',
+  episode: '#ff8f70',
+  provenance: '#64748b', value: '#8df6ff', concept: '#4f8cfb', symbol: '#8df6ff',
+  pack: '#8090b0', flow: '#7efdb9', metadata: '#5a7a9a'
+};
+
+const knowledgeEdgeStyles = {
+  semantic: { color: '#7fe0ff', label: 'semantic fact' },
+  grounding: { color: '#9b6cff', label: 'record structure' },
+  provenance: { color: '#f4d676', label: 'provenance' },
+  temporal: { color: '#ff8f70', label: 'evolution' }
+};
+
+function knowledgeEdgeType(edge) {
+  const edgeKind = String(edge.edge_kind || edge.edgeKind || '').toLowerCase();
+  const predicate = String(edge.predicate || edge.kind || '').toLowerCase();
+  if (edgeKind === 'temporal' || /supersed|contradict|refin|revis|preced|follow|expire/.test(predicate)) return 'temporal';
+  if (edgeKind === 'provenance' || /provenance|evidence|source|episode|observed|contribut|produc|excerpt/.test(predicate)) return 'provenance';
+  if (edgeKind === 'grounding' || /\b(about|subject|object|ground)\b/.test(predicate)) return 'grounding';
+  return 'semantic';
+}
+
+function knowledgeGraphDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString(undefined, { year: '2-digit', month: 'short', day: 'numeric' });
+}
+
+function KnowledgeGraphCanvas({ graphNodes, graphEdges, onSelectNode, selectedId, externalHovered, height = 480 }) {
   const containerRef = React.useRef(null);
   const svgRef = React.useRef(null);
   const [size, setSize] = React.useState({ w: 900, h: height });
@@ -3565,6 +3635,9 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
   const [dragNode, setDragNode] = React.useState(null);
   const [panning, setPanning] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [density, setDensity] = React.useState('rich');
+  const transformRef = React.useRef(transform);
+  React.useEffect(() => {transformRef.current = transform;}, [transform]);
   // Pulse counter used for flowing-data animation along hot edges
   const [pulse, setPulse] = React.useState(0);
   React.useEffect(() => {
@@ -3573,7 +3646,7 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
     return () => clearInterval(i);
   }, [hovered, selectedId]);
 
-  // ── Force-simulation parameters (Obsidian-style settings) ─────────────
+  // ── Force-simulation parameters ───────────────────────────────────────
   const [forces, setForces] = React.useState({
     repel: 1400, // node-to-node repulsion
     linkForce: 0.012, // spring stiffness along edges
@@ -3593,48 +3666,40 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
     sleepingRef.current = false;
   }, []);
 
-  // ── Build nodes & edges from records + sources ─────────────────────────
+  // ── Normalize the canonical API projection. No edges are synthesized here. ──
   const { nodes, edges } = React.useMemo(() => {
-    const sourceNodes = sources.map((s) => ({
-      id: s.id, label: s.name, kind: 'source', color: '#f4d676', size: 14, weight: 6
+    const normalizedNodes = (graphNodes || []).map((n) => ({
+      id: n.id,
+      label: n.label || n.id,
+      kind: n.kind || 'concept',
+      color: knowledgeKindColors[n.kind] || '#7fe0ff',
+      size: Math.min(20, (n.kind === 'episode' ? 9 : 7) + Math.log2(2 + (n.degree || 0)) * 2.2),
+      weight: 2 + Math.min(8, n.degree || 0),
+      meta: `${n.kind || 'concept'} · d${n.degree || 0} · ${Math.round((n.confidence || 0) * 100)}%`,
+      detail: [
+        n.agents?.length ? `${n.agents.length} agent${n.agents.length === 1 ? '' : 's'}` : '',
+        n.sources?.length ? `${n.sources.length} source${n.sources.length === 1 ? '' : 's'}` : '',
+        n.status && n.status !== 'asserted' ? n.status : '',
+        knowledgeGraphDate(n.updated_at || n.valid_from)
+      ].filter(Boolean).join(' · '),
+      record: n
     }));
-    const recordNodes = records.map((r) => ({
-      id: r.id, label: r.id + ' ' + r.tag,
-      kind: r.kind, color: tagColors[r.tag] || '#7fe0ff',
-      size: 8 + r.score * 6, weight: 3,
-      record: r
-    }));
-    const allNodes = [...sourceNodes, ...recordNodes];
-
-    // Base provenance edges
-    const eds = [...baseEdges];
-
-    // Derive edges from records: claims → state, evidence → source, etc.
-    records.forEach((r) => {
-      if (r.tag === '#' || r.tag === '@') {
-        // Claims & entities link to nearest source
-        const src = sources[Math.floor(Math.random() * sources.length)];
-        if (src) eds.push({ from: src.id, to: r.id, kind: 'derived_from' });
-      }
-      if (r.tag === '^') {
-        // Evidence links to the spec source
-        const spec = sources.find((s) => s.name && s.name.includes('SPEC'));
-        if (spec) eds.push({ from: spec.id, to: r.id, kind: 'evidence_for' });
-      }
-      if (r.tag === '>') {
-        // Relations link to entities they mention
-        const ents = recordNodes.filter((n) => n.kind === 'entity').slice(0, 2);
-        ents.forEach((e) => eds.push({ from: r.id, to: e.id, kind: 'relates_to' }));
-      }
-      if (r.tag === '~') {
-        // States derive from claims
-        const clms = recordNodes.filter((n) => n.kind === 'claim').slice(0, 1);
-        clms.forEach((c) => eds.push({ from: c.id, to: r.id, kind: 'state_of' }));
-      }
+    const normalizedEdges = (graphEdges || []).map((e) => {
+      const type = knowledgeEdgeType(e);
+      return {
+        id: e.id,
+        from: e.source,
+        to: e.target,
+        kind: e.predicate || 'related_to',
+        edgeKind: e.edge_kind,
+        type,
+        color: knowledgeEdgeStyles[type].color,
+        confidence: e.confidence,
+        record: e
+      };
     });
-
-    return { nodes: allNodes, edges: eds };
-  }, [records, sources, baseEdges]);
+    return { nodes: normalizedNodes, edges: normalizedEdges };
+  }, [graphNodes, graphEdges]);
 
   // Live physics simulation
   const simNodes = React.useRef([]);
@@ -3728,11 +3793,38 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
     return () => ro.disconnect();
   }, [height]);
 
+  // React delegates wheel events through a passive root listener in some
+  // browsers. Bind directly to the graph surface so zoom consumes the wheel
+  // gesture and never moves the surrounding dashboard page.
+  React.useEffect(() => {
+    const surface = containerRef.current;
+    const svg = svgRef.current;
+    if (!surface || !svg) return;
+    const zoomGraph = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = svg.getBoundingClientRect();
+      const sx = event.clientX - rect.left;
+      const sy = event.clientY - rect.top;
+      const pixels = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * size.h : event.deltaY;
+      const factor = Math.max(0.75, Math.min(1.25, Math.exp(-pixels * 0.0015)));
+      setTransform((current) => {
+        const worldX = (sx - current.x) / current.k;
+        const worldY = (sy - current.y) / current.k;
+        const k = Math.max(0.3, Math.min(3, current.k * factor));
+        return { k, x: sx - worldX * k, y: sy - worldY * k };
+      });
+    };
+    surface.addEventListener('wheel', zoomGraph, { passive: false });
+    return () => surface.removeEventListener('wheel', zoomGraph);
+  }, [size.h]);
+
   // Mouse coords → world
   const toWorld = (e) => {
     const rect = svgRef.current.getBoundingClientRect();
     const sx = e.clientX - rect.left,sy = e.clientY - rect.top;
-    return { x: (sx - transform.x) / transform.k, y: (sy - transform.y) / transform.k };
+    const current = transformRef.current;
+    return { x: (sx - current.x) / current.k, y: (sy - current.y) / current.k };
   };
 
   // Adjacency for highlight (multi-hop traces)
@@ -3761,9 +3853,10 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
   }, [hovered, selectedId, adjacency, forces.traceDepth]);
   const hot = hovered || selectedId;
   const hotSet = tracedSet;
+  const renderedNodeById = new Map(simNodes.current.map((node) => [node.id, node]));
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', height, background: 'rgba(2,6,19,0.95)', border: '1px solid rgba(47,99,255,0.15)', borderRadius: 12, overflow: 'hidden' }}>
+    <div ref={containerRef} style={{ position: 'relative', height, background: 'rgba(2,6,19,0.95)', border: '1px solid rgba(47,99,255,0.15)', borderRadius: 12, overflow: 'hidden', overscrollBehavior: 'contain', touchAction: 'none' }}>
       {/* Scanline overlay */}
       <div style={{ position: 'absolute', inset: 0, background: 'repeating-linear-gradient(to bottom, rgba(255,255,255,0.012) 0, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 4px)', pointerEvents: 'none', zIndex: 2 }} />
 
@@ -3777,6 +3870,11 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
         <span>zoom {transform.k.toFixed(2)}×</span>
       </div>
       <div style={{ position: 'absolute', top: 10, right: 12, zIndex: 3, display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', marginRight: 4, padding: 2, background: 'rgba(3,13,32,0.9)', border: '1px solid rgba(127,224,255,0.16)', borderRadius: 5 }}>
+          {['compact', 'rich'].map((mode) => <button key={mode} onClick={() => setDensity(mode)} aria-pressed={density === mode}
+            title={mode === 'rich' ? 'Show predicates and node metadata' : 'Show labels only on focus'}
+            style={{ height: 18, padding: '0 7px', border: 0, borderRadius: 3, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 8, textTransform: 'uppercase', letterSpacing: '.05em', background: density === mode ? 'rgba(127,224,255,.14)' : 'transparent', color: density === mode ? '#a6fcff' : '#4f6888' }}>{mode}</button>)}
+        </div>
         {[['+', () => setTransform((t) => ({ ...t, k: Math.min(3, t.k * 1.2) }))],
         ['−', () => setTransform((t) => ({ ...t, k: Math.max(0.3, t.k / 1.2) }))],
         ['⊙', () => setTransform({ x: size.w / 2, y: size.h / 2, k: 1 })],
@@ -3786,7 +3884,7 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
         )}
       </div>
 
-      {/* Settings panel — Obsidian-style float */}
+      {/* Graph-layout settings */}
       {settingsOpen &&
       <div style={{
         position: 'absolute', top: 42, right: 12, zIndex: 5,
@@ -3837,19 +3935,20 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
       <div style={{ position: 'absolute', bottom: 10, left: 12, zIndex: 3, fontSize: 9, color: '#274063', fontStyle: 'italic' }}>
         drag nodes · scroll to zoom · drag bg to pan · click node for details
       </div>
+      <div style={{ position: 'absolute', bottom: 9, right: 12, zIndex: 3, display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '5px 10px', maxWidth: '58%', padding: '5px 7px', borderRadius: 5, background: 'rgba(2,6,19,.78)', border: '1px solid rgba(47,99,255,.1)', backdropFilter: 'blur(6px)', fontFamily: 'var(--font)', fontSize: 8, color: '#5a7a9a' }}>
+        {Object.entries(knowledgeEdgeStyles).map(([key, item]) => <span key={key} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ width: 13, height: 0, borderTop: `2px solid ${item.color}`, position: 'relative' }}><span style={{ position: 'absolute', right: -1, top: -4, color: item.color, fontSize: 7 }}>▶</span></span>
+          {item.label}
+        </span>)}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#ffb29e' }}>
+          <span style={{ width: 7, height: 7, background: '#ff8f70', transform: 'rotate(45deg)', boxShadow: '0 0 5px rgba(255,143,112,.55)' }} />
+          episode
+        </span>
+      </div>
 
       <svg ref={svgRef}
       width={size.w} height={size.h}
-      style={{ display: 'block', position: 'absolute', inset: 0, cursor: panning ? 'grabbing' : 'grab' }}
-      onWheel={(e) => {
-        e.preventDefault();
-        const factor = e.deltaY < 0 ? 1.1 : 0.9;
-        const w = toWorld(e);
-        setTransform((t) => {
-          const k = Math.max(0.3, Math.min(3, t.k * factor));
-          return { k, x: e.clientX - svgRef.current.getBoundingClientRect().left - w.x * k, y: e.clientY - svgRef.current.getBoundingClientRect().top - w.y * k };
-        });
-      }}
+      style={{ display: 'block', position: 'absolute', inset: 0, cursor: panning ? 'grabbing' : 'grab', overscrollBehavior: 'contain', touchAction: 'none' }}
       onMouseDown={(e) => {if (e.target === svgRef.current || e.target.tagName === 'rect') setPanning(true);}}
       onMouseUp={() => {setPanning(false);setDragNode(null);}}
       onMouseLeave={() => {setPanning(false);setDragNode(null);}}
@@ -3865,35 +3964,67 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
         <defs>
           <radialGradient id="bgGlow"><stop offset="0%" stopColor="rgba(127,224,255,0.04)" /><stop offset="100%" stopColor="transparent" /></radialGradient>
           <filter id="nodeGlow"><feGaussianBlur stdDeviation="2.5" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          {Object.entries(knowledgeEdgeStyles).map(([key, item]) =>
+          <marker key={key} id={`knowledge-arrow-${key}`} markerWidth={8 / transform.k} markerHeight={8 / transform.k}
+            refX={7 / transform.k} refY={4 / transform.k} orient="auto" markerUnits="userSpaceOnUse"
+            viewBox={`0 0 ${8 / transform.k} ${8 / transform.k}`}>
+              <path d={`M 0 0 L ${8 / transform.k} ${4 / transform.k} L 0 ${8 / transform.k} z`} fill={item.color} />
+            </marker>
+          )}
         </defs>
         <rect x="0" y="0" width={size.w} height={size.h} fill="url(#bgGlow)" />
 
         <g transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}>
           {/* Edges */}
           {simEdges.current.map((e, i) => {
-            const a = simNodes.current.find((n) => n.id === e.from);
-            const b = simNodes.current.find((n) => n.id === e.to);
+            const a = renderedNodeById.get(e.from);
+            const b = renderedNodeById.get(e.to);
             if (!a || !b) return null;
-            const isHot = hot && (e.from === hot || e.to === hot);
-            const isDim = hot && !isHot;
-            const edgeColor = a.color || '#7fe0ff';
+            const directHot = hot && (e.from === hot || e.to === hot);
+            const isHotPath = hot && hotSet?.has(e.from) && hotSet?.has(e.to);
+            const isDim = hot && !isHotPath;
+            const edgeColor = e.color || knowledgeEdgeStyles.semantic.color;
+            const dx = b.x - a.x,dy = b.y - a.y;
+            const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+            const ux = dx / distance,uy = dy / distance;
+            const x1 = a.x + ux * (a.size + 2 / transform.k);
+            const y1 = a.y + uy * (a.size + 2 / transform.k);
+            const x2 = b.x - ux * (b.size + 9 / transform.k);
+            const y2 = b.y - uy * (b.size + 9 / transform.k);
+            const label = e.kind.length > 22 ? e.kind.slice(0, 21) + '…' : e.kind;
+            const showLabel = directHot || (density === 'rich' && transform.k > 0.62);
+            const confidenceLabel = density === 'rich' && (directHot || transform.k > 1.15) && Number.isFinite(e.confidence) ? ` · ${Math.round(e.confidence * 100)}%` : '';
+            const labelWidth = Math.max(34, (label.length + confidenceLabel.length) * 5.1 + 10) / transform.k;
             return (
-              <g key={i}>
+              <g key={e.id || i} style={{ pointerEvents: 'none' }}>
+                {/* Soft path halo keeps multi-hop lineage visible without hiding context. */}
+                {isHotPath &&
+                <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke={edgeColor} strokeWidth={(directHot ? 8 : 5) / transform.k} strokeOpacity={directHot ? .18 : .1}
+                style={{ filter: `drop-shadow(0 0 5px ${edgeColor})` }} />}
                 {/* Base edge */}
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-                stroke={isHot ? edgeColor : '#1a2540'}
-                strokeWidth={isHot ? 1.8 / transform.k : 0.7 / transform.k}
-                strokeOpacity={isDim ? 0.08 : isHot ? 0.5 : 0.35} />
-                {/* Animated overlay — flowing data pulse */}
-                {isHot &&
-                <line x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                <line x1={x1} y1={y1} x2={x2} y2={y2}
                 stroke={edgeColor}
-                strokeWidth={2.5 / transform.k}
-                strokeOpacity={0.9}
+                strokeWidth={(directHot ? 2.8 : isHotPath ? 2.1 : 1.25) / transform.k}
+                opacity={isDim ? 0.075 : directHot ? 1 : isHotPath ? .86 : .58}
+                markerEnd={`url(#knowledge-arrow-${e.type || 'semantic'})`}
+                style={{ filter: isHotPath ? `drop-shadow(0 0 3px ${edgeColor})` : 'none' }} />
+                {/* Animated overlay — flowing data pulse */}
+                {directHot &&
+                <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke="#ffffff"
+                strokeWidth={1.15 / transform.k}
+                strokeOpacity={0.86}
                 strokeDasharray={`${6 / transform.k} ${20 / transform.k}`}
                 strokeDashoffset={-(pulse * (3 / transform.k)) % (26 / transform.k)}
                 style={{ filter: `drop-shadow(0 0 4px ${edgeColor})` }} />
                 }
+                {showLabel && <g transform={`translate(${(x1 + x2) / 2},${(y1 + y2) / 2})`} opacity={isDim ? .14 : directHot ? 1 : .78}>
+                  <rect x={-labelWidth / 2} y={-7 / transform.k} width={labelWidth} height={14 / transform.k} rx={4 / transform.k}
+                    fill="rgba(2,6,19,.9)" stroke={edgeColor} strokeWidth={(directHot ? 1 : .55) / transform.k} />
+                  <text x="0" y={2.8 / transform.k} textAnchor="middle" fontSize={7.5 / transform.k} fill={directHot ? '#ffffff' : edgeColor}
+                    fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{label}{confidenceLabel}</text>
+                </g>}
               </g>);
 
           })}
@@ -3904,6 +4035,17 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
             const isHot = hotSet?.has(n.id);
             const isDim = hot && !isHot;
             const r = n.size + (isSelected ? 4 : isHovered ? 2 : 0);
+            const isEpisode = n.kind === 'episode';
+            const showLabel = isHovered || isSelected || transform.k > (density === 'rich' ? .5 : .82);
+            const showMeta = isHovered || isSelected || density === 'rich' && transform.k > .67;
+            const showDetail = n.detail && (isHovered || isSelected || density === 'rich' && transform.k > 1.2);
+            const label = n.label.length > (density === 'rich' ? 24 : 16) ? n.label.slice(0, density === 'rich' ? 23 : 15) + '…' : n.label;
+            const detail = n.detail.length > 38 ? n.detail.slice(0, 37) + '…' : n.detail;
+            const lineCount = 1 + (showMeta ? 1 : 0) + (showDetail ? 1 : 0);
+            const cardWidth = Math.max(42, label.length * 5.4 + 13, showMeta ? n.meta.length * 4.6 + 13 : 0, showDetail ? detail.length * 4.25 + 13 : 0) / transform.k;
+            const cardHeight = (lineCount === 1 ? 16 : lineCount === 2 ? 27 : 37) / transform.k;
+            const labelTop = n.y + r + 7 / transform.k;
+            const diamond = `${n.x},${n.y - r} ${n.x + r},${n.y} ${n.x},${n.y + r} ${n.x - r},${n.y}`;
             return (
               <g key={n.id}
               onMouseEnter={() => setHovered(n.id)}
@@ -3913,20 +4055,32 @@ function ObsidianGraph({ records, sources, baseEdges, onSelectNode, selectedId, 
               onClick={(e) => {e.stopPropagation();onSelectNode(isSelected ? null : n.id);}}
               style={{ cursor: 'pointer' }}>
                 {(isHovered || isSelected) && <circle cx={n.x} cy={n.y} r={r + 8} fill="none" stroke={n.color} strokeWidth={1 / transform.k} opacity={0.3} />}
-                <circle cx={n.x} cy={n.y} r={r}
+                {isEpisode ? <>
+                  <polygon points={diamond}
+                    fill={n.color + (isHot ? 'd8' : 'b5')} stroke={n.color}
+                    strokeWidth={isSelected ? 2.5 / transform.k : 1.3 / transform.k}
+                    opacity={isDim ? .22 : 1} filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} />
+                  <circle cx={n.x} cy={n.y} r={2.2 / transform.k} fill="#020613" stroke="#ffd2c8" strokeWidth={.7 / transform.k} opacity={isDim ? .2 : .9} />
+                </> : <circle cx={n.x} cy={n.y} r={r}
                 fill={n.color + (isHot ? 'cc' : '99')}
                 stroke={n.color}
                 strokeWidth={isSelected ? 2.5 / transform.k : 1 / transform.k}
-                opacity={isDim ? 0.25 : 1}
-                filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} />
-                {(transform.k > 0.7 || isHovered || isSelected) &&
-                <text x={n.x} y={n.y + r + 9 / transform.k} textAnchor="middle"
-                fontSize={9 / transform.k} fill={isDim ? '#274063' : isHovered || isSelected ? n.color : '#8090b0'}
-                fontFamily="JetBrains Mono, monospace"
-                style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                    {n.label.length > 14 ? n.label.slice(0, 14) + '…' : n.label}
-                  </text>
-                }
+                opacity={isDim ? 0.22 : 1}
+                filter={isHovered || isSelected ? 'url(#nodeGlow)' : 'none'} />}
+                {(n.record?.status === 'superseded' || n.record?.valid_to) &&
+                <circle cx={n.x} cy={n.y} r={r + 4 / transform.k} fill="none" stroke="#ff8f70" strokeWidth={.8 / transform.k}
+                  strokeDasharray={`${2 / transform.k} ${3 / transform.k}`} opacity={isDim ? .15 : .72} />}
+                {showLabel && <g transform={`translate(${n.x},${labelTop})`} opacity={isDim ? .14 : 1} style={{ pointerEvents: 'none' }}>
+                  <rect x={-cardWidth / 2} y="0" width={cardWidth} height={cardHeight} rx={4 / transform.k}
+                    fill="rgba(2,6,19,.88)" stroke={isHovered || isSelected ? n.color : 'rgba(79,104,136,.42)'}
+                    strokeWidth={(isHovered || isSelected ? 1 : .5) / transform.k} />
+                  <text x="0" y={11 / transform.k} textAnchor="middle" fontSize={8.5 / transform.k}
+                    fill={isHovered || isSelected ? n.color : '#bfefff'} fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{label}</text>
+                  {showMeta && <text x="0" y={21 / transform.k} textAnchor="middle" fontSize={6.9 / transform.k}
+                    fill={isEpisode ? '#ffb29e' : '#6f8dab'} fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{n.meta}</text>}
+                  {showDetail && <text x="0" y={31 / transform.k} textAnchor="middle" fontSize={6.5 / transform.k}
+                    fill="#4f6888" fontFamily="JetBrains Mono, monospace" style={{ userSelect: 'none' }}>{detail}</text>}
+                </g>}
               </g>);
 
           })}
@@ -4170,11 +4324,196 @@ function SystemResources() {
 
 }
 
+function KnowledgeGraphWorkspace({
+  graph, loading, error, query, setQuery, kind, setKind, agent, setAgent,
+  knownAgents, includeHistory, setIncludeHistory, at, setAt, hops, setHops,
+  selectedId, setSelectedId, selectedDetail, detailLoading, detailError
+}) {
+  const nodeKinds = React.useMemo(() => {
+    const values = Object.keys(graph.facets?.kinds || {});
+    if (kind && !values.includes(kind)) values.push(kind);
+    return values.sort();
+  }, [graph.facets?.kinds, kind]);
+  const node = selectedDetail?.node;
+  const nodeColor = knowledgeKindColors[node?.kind] || '#7fe0ff';
+  const nodeById = React.useMemo(() => new Map((graph.nodes || []).map((item) => [item.id, item])), [graph.nodes]);
+  const controlStyle = {
+    height: 34, background: 'rgba(2,11,30,0.92)', border: '1px solid rgba(127,224,255,0.18)',
+    borderRadius: 6, color: '#bfefff', fontFamily: 'var(--font)', fontSize: 10, outline: 'none'
+  };
+  const formatWhen = (value) => value ? new Date(value).toLocaleString() : 'open';
+
+  return (
+    <div>
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'minmax(220px,1fr) 150px 170px auto auto',
+        gap: 8, alignItems: 'center', marginBottom: 12, padding: 10,
+        background: 'linear-gradient(120deg,rgba(79,140,251,0.05),rgba(155,108,255,0.04))',
+        border: '1px solid rgba(127,224,255,0.13)', borderRadius: 9
+      }}>
+        <div style={{ position: 'relative' }}>
+          <span style={{ position: 'absolute', left: 10, top: 9, color: '#5a7a9a', fontSize: 11 }}>⌕</span>
+          <input value={query} onChange={(e) => setQuery(e.target.value)}
+            aria-label="Search knowledge graph"
+            placeholder="Search entities, claims, sources, relationships…"
+            style={{ ...controlStyle, width: '100%', padding: '0 30px' }} />
+          {query && <button onClick={() => setQuery('')} aria-label="Clear graph search"
+            style={{ position: 'absolute', right: 7, top: 5, border: 0, background: 'transparent', color: '#5a7a9a', cursor: 'pointer', fontSize: 15 }}>×</button>}
+        </div>
+        <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Filter by knowledge type" style={{ ...controlStyle, padding: '0 8px' }}>
+          <option value="">all node types</option>
+          {nodeKinds.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+        <select value={agent} onChange={(e) => setAgent(e.target.value)} aria-label="Filter by agent" style={{ ...controlStyle, padding: '0 8px' }}>
+          <option value="">all agents</option>
+          {knownAgents.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+        <label style={{ ...controlStyle, padding: '0 10px', display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', color: includeHistory ? '#f4d676' : '#8090b0' }}>
+          <input type="checkbox" checked={includeHistory} onChange={(e) => {
+            const enabled = e.target.checked;
+            setIncludeHistory(enabled);
+            if (!enabled) setAt('');
+          }} style={{ accentColor: '#f4d676' }} />
+          history
+        </label>
+        <label style={{ ...controlStyle, padding: '0 10px', display: 'flex', alignItems: 'center', gap: 7, color: '#8090b0' }}>
+          <span>{hops} hop{hops === 1 ? '' : 's'}</span>
+          <input type="range" min="1" max="4" value={hops} onChange={(e) => setHops(+e.target.value)} style={{ width: 54, accentColor: '#9b6cff' }} />
+        </label>
+      </div>
+
+      {includeHistory &&
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, padding: '8px 11px', borderRadius: 7, background: 'rgba(244,214,118,0.045)', border: '1px solid rgba(244,214,118,0.15)' }}>
+        <span style={{ fontSize: 10, color: '#f4d676', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Knowledge horizon</span>
+        <span style={{ fontSize: 9, color: '#5a7a9a' }}>Inspect what SEAM knew at a point in time</span>
+        <input type="datetime-local" value={at} onChange={(e) => setAt(e.target.value)}
+          style={{ ...controlStyle, height: 28, marginLeft: 'auto', padding: '0 8px', colorScheme: 'dark' }} />
+        {at && <button onClick={() => setAt('')} style={{ ...controlStyle, height: 28, padding: '0 9px', cursor: 'pointer', color: '#f4d676' }}>now</button>}
+      </div>}
+
+      <div className="kg-workspace-grid" style={{ display: 'grid', gridTemplateColumns: selectedId ? 'minmax(0,1fr) minmax(290px,350px)' : '1fr', gap: 12, alignItems: 'stretch' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: error ? '#ff6b6b' : loading ? '#f4d676' : '#7efdb9', boxShadow: `0 0 7px ${error ? '#ff6b6b' : loading ? '#f4d676' : '#7efdb9'}` }} />
+            <span style={{ fontSize: 10, color: error ? '#ff6b6b' : '#8090b0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              {error ? 'graph unavailable' : loading ? 'projecting knowledge…' : 'self-building · live from SQLite'}
+            </span>
+            <span style={{ color: '#274063' }}>·</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{(graph.nodes || []).length} shown / {(graph.stats?.node_count || 0).toLocaleString()} total nodes</span>
+            <span style={{ color: '#274063' }}>·</span>
+            <span style={{ fontSize: 10, color: '#5a7a9a' }}>{(graph.edges || []).length} shown / {(graph.stats?.edge_count || 0).toLocaleString()} typed edges</span>
+          </div>
+
+          {error ?
+          <div style={{ height: 520, display: 'grid', placeItems: 'center', background: 'rgba(2,6,19,0.95)', border: '1px solid rgba(255,107,107,0.2)', borderRadius: 12 }}>
+            <div style={{ maxWidth: 480, textAlign: 'center' }}>
+              <div style={{ color: '#ff6b6b', fontSize: 13, marginBottom: 7 }}>Could not load the knowledge graph</div>
+              <div style={{ color: '#5a7a9a', fontSize: 10, lineHeight: 1.6 }}>{error}</div>
+            </div>
+          </div> : (graph.nodes || []).length === 0 && !loading ?
+          <div style={{ height: 520, display: 'grid', placeItems: 'center', background: 'radial-gradient(circle at 50% 44%,rgba(127,224,255,0.055),transparent 44%),rgba(2,6,19,0.95)', border: '1px dashed rgba(127,224,255,0.2)', borderRadius: 12 }}>
+            <div style={{ maxWidth: 520, textAlign: 'center', padding: 30 }}>
+              <div style={{ fontSize: 32, color: '#7fe0ff', filter: 'drop-shadow(0 0 14px rgba(127,224,255,.45))', marginBottom: 10 }}>◎</div>
+              <div style={{ color: '#a6fcff', fontSize: 14, marginBottom: 7 }}>The graph builds itself as SEAM learns</div>
+              <div style={{ color: '#5a7a9a', fontSize: 10, lineHeight: 1.7 }}>
+                Chat, ingest a document, compile text, or let an agent write through MCP. SEAM will extract and connect the entities, claims, events, sources, and provenance automatically.
+              </div>
+            </div>
+          </div> :
+          <KnowledgeGraphCanvas graphNodes={graph.nodes || []} graphEdges={graph.edges || []}
+            selectedId={selectedId} externalHovered={null} onSelectNode={setSelectedId} height={520} />}
+        </div>
+
+        {selectedId &&
+        <aside style={{ minWidth: 0, height: 553, overflowY: 'auto', background: 'linear-gradient(180deg,rgba(8,19,42,0.96),rgba(2,11,30,0.96))', border: `1px solid ${nodeColor}38`, borderRadius: 11, boxShadow: `0 0 28px ${nodeColor}0c` }}>
+          <div style={{ position: 'sticky', top: 0, zIndex: 2, padding: '13px 14px 11px', background: 'rgba(8,19,42,0.96)', borderBottom: `1px solid ${nodeColor}28`, backdropFilter: 'blur(12px)' }}>
+            <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
+              <span style={{ width: 10, height: 10, marginTop: 3, flexShrink: 0, borderRadius: '50%', background: nodeColor, boxShadow: `0 0 9px ${nodeColor}` }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: nodeColor, lineHeight: 1.35, fontWeight: 600, overflowWrap: 'anywhere' }}>{node?.label || selectedId}</div>
+                <div style={{ marginTop: 4, fontSize: 9, color: '#5a7a9a', textTransform: 'uppercase', letterSpacing: '0.09em' }}>{node?.kind || 'loading'} · knowledge page</div>
+              </div>
+              <button onClick={() => setSelectedId(null)} aria-label="Close knowledge page" style={{ marginLeft: 'auto', background: 'none', border: 0, color: '#5a7a9a', cursor: 'pointer', fontSize: 16 }}>×</button>
+            </div>
+          </div>
+
+          {detailLoading ? <div style={{ padding: 16, color: '#5a7a9a', fontSize: 10 }}>Loading provenance…</div> :
+          detailError ? <div style={{ padding: 16, color: '#ff9a9a', fontSize: 10, lineHeight: 1.6 }}>{detailError}</div> :
+          !selectedDetail ? <div style={{ padding: 16, color: '#5a7a9a', fontSize: 10 }}>No knowledge page is available for this horizon.</div> :
+          <div style={{ padding: 14 }}>
+            <div style={{ color: '#bfefff', fontSize: 11, lineHeight: 1.65, marginBottom: 14 }}>{selectedDetail.page?.summary}</div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginBottom: 15 }}>
+              {[
+                ['confidence', `${Math.round((node?.confidence || 0) * 100)}%`, '#7efdb9'],
+                ['degree', node?.degree ?? 0, '#7fe0ff'],
+                ['valid from', formatWhen(node?.valid_from), '#f4d676'],
+                ['status', node?.status || '—', node?.status === 'asserted' ? '#7efdb9' : '#8090b0']
+              ].map(([label, value, color]) => <div key={label} style={{ padding: '7px 8px', borderRadius: 6, background: 'rgba(2,11,30,0.8)', border: '1px solid rgba(47,99,255,0.1)' }}>
+                <div style={{ color: '#4f6888', fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>{label}</div>
+                <div style={{ color, fontSize: 10, overflowWrap: 'anywhere' }}>{value}</div>
+              </div>)}
+            </div>
+
+            {selectedDetail.page?.agents?.length > 0 && <KnowledgeInspectorSection title="Known by" color="#f4d676">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>{selectedDetail.page.agents.map((item) =>
+                <button key={item} onClick={() => setAgent(item)} style={{ padding: '3px 7px', borderRadius: 10, border: '1px solid rgba(244,214,118,.25)', background: 'rgba(244,214,118,.07)', color: '#f4d676', fontFamily: 'var(--font)', fontSize: 9, cursor: 'pointer' }}>{item}</button>)}</div>
+            </KnowledgeInspectorSection>}
+
+            <KnowledgeInspectorSection title={`Facts (${selectedDetail.page?.facts?.length || 0})`} color="#9b6cff">
+              {(selectedDetail.page?.facts || []).length === 0 ? <span style={{ color: '#4f6888', fontSize: 9 }}>No outgoing semantic facts.</span> :
+              selectedDetail.page.facts.slice(0, 12).map((edge) => <button key={edge.id} onClick={() => setSelectedId(edge.target)}
+                style={{ width: '100%', display: 'grid', gridTemplateColumns: '80px 1fr', gap: 7, padding: '6px 7px', marginBottom: 4, textAlign: 'left', background: 'rgba(155,108,255,.045)', border: '1px solid rgba(155,108,255,.12)', borderRadius: 5, cursor: 'pointer', fontFamily: 'var(--font)' }}>
+                <span style={{ color: '#9b6cff', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis' }}>{edge.predicate}</span>
+                <span style={{ color: '#bfefff', fontSize: 9, overflowWrap: 'anywhere' }}>{nodeById.get(edge.target)?.label || edge.target}</span>
+              </button>)}
+            </KnowledgeInspectorSection>
+
+            <KnowledgeInspectorSection title={`Backlinks (${selectedDetail.page?.backlinks?.length || 0})`} color="#7fe0ff">
+              {(selectedDetail.page?.backlinks || []).slice(0, 10).map((edge) => <button key={edge.id} onClick={() => setSelectedId(edge.source)}
+                style={{ display: 'block', width: '100%', padding: '5px 7px', marginBottom: 4, textAlign: 'left', color: '#8090b0', background: 'rgba(127,224,255,.035)', border: '1px solid rgba(127,224,255,.1)', borderRadius: 5, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 9, overflowWrap: 'anywhere' }}>
+                <span style={{ color: '#7fe0ff' }}>{nodeById.get(edge.source)?.label || edge.source}</span> <span style={{ color: '#4f6888' }}>→ {edge.predicate}</span>
+              </button>)}
+            </KnowledgeInspectorSection>
+
+            <KnowledgeInspectorSection title="Sources & provenance" color="#66b8ff">
+              {(selectedDetail.episodes || []).length === 0 ? <span style={{ color: '#4f6888', fontSize: 9 }}>No source episode attached.</span> :
+              selectedDetail.episodes.slice(0, 8).map((episode) => <div key={episode.id} style={{ padding: '6px 7px', marginBottom: 5, borderLeft: `2px solid ${episode.status === 'active' ? '#7efdb9' : '#f4d676'}`, background: 'rgba(2,11,30,.72)' }}>
+                <div style={{ color: '#bfefff', fontSize: 9, overflowWrap: 'anywhere' }}>{episode.source_ref || episode.source_record_id}</div>
+                <div style={{ color: '#4f6888', fontSize: 8, marginTop: 3 }}>{episode.agent_id || 'unknown agent'} · {episode.status} · {formatWhen(episode.recorded_at)}</div>
+              </div>)}
+            </KnowledgeInspectorSection>
+
+            {selectedDetail.record && <details style={{ marginTop: 12 }}>
+              <summary style={{ color: '#5a7a9a', fontSize: 9, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Canonical MIRL record</summary>
+              <pre style={{ marginTop: 7, padding: 8, maxHeight: 220, overflow: 'auto', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', background: '#020613', border: '1px solid rgba(47,99,255,.1)', borderRadius: 5, color: '#8090b0', fontSize: 8, lineHeight: 1.5 }}>{JSON.stringify(selectedDetail.record, null, 2)}</pre>
+            </details>}
+          </div>}
+        </aside>}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 13, marginTop: 12, padding: '8px 10px', background: 'rgba(8,19,42,.45)', border: '1px solid rgba(47,99,255,.09)', borderRadius: 7 }}>
+        {nodeKinds.map((item) => <button key={item} onClick={() => setKind(kind === item ? '' : item)}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, border: 0, background: 'transparent', color: kind === item ? knowledgeKindColors[item] : '#8090b0', fontFamily: 'var(--font)', fontSize: 9, cursor: 'pointer', opacity: kind && kind !== item ? .45 : 1 }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: knowledgeKindColors[item], boxShadow: `0 0 5px ${knowledgeKindColors[item]}80` }} />
+          {item} <span style={{ color: '#4f6888' }}>{graph.stats?.node_kinds?.[item] || 0}</span>
+        </button>)}
+        <span style={{ marginLeft: 'auto', color: '#274063', fontSize: 9 }}>click a node to open its facts, backlinks, agents, sources, and history</span>
+      </div>
+    </div>
+  );
+}
+
+function KnowledgeInspectorSection({ title, color, children }) {
+  return <section style={{ marginTop: 13 }}>
+    <div style={{ color, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6, paddingBottom: 4, borderBottom: `1px solid ${color}20` }}>{title}</div>
+    {children}
+  </section>;
+}
+
 function MemoryFullView() {
   const [tab, setTab] = useState('graph');
-  const [hoveredNode, setHoveredNode] = useState(null);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [recordHoverNode, setRecordHoverNode] = useState(null); // node ID hovered via a record card
+  const [selectedNode, setSelectedNode] = useState(() => new URLSearchParams(window.location.search).get('node'));
   const [tick, setTick] = useState(0);
   // Live API stats for header badges
   const [liveStats, setLiveStats] = useState(null);
@@ -4182,40 +4521,80 @@ function MemoryFullView() {
     ? `${(liveStats.total_records / 1000000).toFixed(2)}M records`
     : '1.41M records';
 
-  // Live Graph Trace
-  const [graphTrace, setGraphTrace] = useState({ nodes: [], edges: [] });
+  // Live canonical knowledge graph. The API projection is the only topology
+  // source; the client never manufactures fallback nodes or edges.
+  const [knowledgeGraph, setKnowledgeGraph] = useState({ nodes: [], edges: [], stats: {}, facets: { kinds: {}, agents: {}, sources: {} } });
+  const [knowledgeLoading, setKnowledgeLoading] = useState(true);
+  const [knowledgeError, setKnowledgeError] = useState('');
+  const [graphQuery, setGraphQuery] = useState('');
+  const [graphKind, setGraphKind] = useState('');
+  const [graphAgent, setGraphAgent] = useState('');
+  const [graphHistory, setGraphHistory] = useState(false);
+  const [graphAt, setGraphAt] = useState('');
+  const [graphHops, setGraphHops] = useState(2);
+  const [selectedDetail, setSelectedDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState('');
+  const [knownAgents, setKnownAgents] = useState([]);
   useEffect(() => {
     let cancelled = false;
-    const fetchTrace = async () => {
+    const timer = setTimeout(async () => {
+      setKnowledgeLoading(true);
       try {
-        // Try to trace from 'ent:seam' as a hub node
-        const data = await window.SeamAPI.trace('ent:seam');
-        if (!cancelled && data && data.nodes) {
-          setGraphTrace({
-            nodes: data.nodes.map(n => ({
-              id: n.id,
-              label: n.id,
-              kind: n.kind,
-              color: tagColors[n.kind === 'entity' ? '@' : n.kind === 'claim' ? '#' : n.kind === 'event' ? '!' : n.kind === 'relation' ? '>' : n.kind === 'state' ? '~' : '^'] || '#7fe0ff',
-              size: 8 + (n.score || 0.5) * 6,
-              weight: 3,
-              record: n,
-              tag: n.kind === 'entity' ? '@' : n.kind === 'claim' ? '#' : n.kind === 'event' ? '!' : n.kind === 'relation' ? '>' : n.kind === 'state' ? '~' : '^'
-            })),
-            edges: data.edges.map(e => ({
-              from: e.source || e.from,
-              to: e.target || e.to,
-              kind: e.kind || e.label || 'relates_to'
-            }))
-          });
+        const data = await window.SeamAPI.knowledgeGraph({
+          query: graphQuery,
+          kinds: graphKind ? [graphKind] : [],
+          agentId: graphAgent,
+          includeHistory: graphHistory,
+          at: graphHistory && graphAt ? new Date(graphAt).toISOString() : '',
+          hops: graphHops,
+          limit: 420
+        });
+        if (!cancelled) {
+          setKnowledgeGraph(data);
+          setKnowledgeError('');
+          const agents = Object.keys(data.facets?.agents || {});
+          if (agents.length) setKnownAgents((prev) => Array.from(new Set([...prev, ...agents])).sort());
         }
       } catch (err) {
-        // Fallback to procedural generation if backend trace fails or missing
-        setGraphTrace({ nodes: [], edges: [] });
+        if (!cancelled) setKnowledgeError(err.message || 'Knowledge graph unavailable');
+      } finally {
+        if (!cancelled) setKnowledgeLoading(false);
       }
-    };
-    fetchTrace();
-  }, []);
+    }, 220);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [graphQuery, graphKind, graphAgent, graphHistory, graphAt, graphHops]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', 'knowledge');
+    if (selectedNode) url.searchParams.set('node', selectedNode); else url.searchParams.delete('node');
+    window.history.replaceState({}, '', url);
+    setSelectedDetail(null);
+    setDetailError('');
+    if (!selectedNode) {
+      setDetailLoading(false);
+      return () => { cancelled = true; };
+    }
+    setDetailLoading(true);
+    const horizon = graphHistory && graphAt ? new Date(graphAt).toISOString() : '';
+    window.SeamAPI.knowledgeNode(selectedNode, graphHistory, horizon)
+      .then((data) => {
+        if (!cancelled) {
+          setSelectedDetail(data);
+          setDetailError('');
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setSelectedDetail(null);
+          setDetailError(error?.message || 'Knowledge page unavailable at this horizon.');
+        }
+      })
+      .finally(() => { if (!cancelled) setDetailLoading(false); });
+    return () => { cancelled = true; };
+  }, [selectedNode, graphHistory, graphAt]);
 
   const [liveRecords, setLiveRecords] = useState([]);
   // Live write queue & records — each queue item advances monotonically until done, then moves to records
@@ -4295,7 +4674,7 @@ function MemoryFullView() {
     });
   }, [tick]);
 
-  // Use live records when available, fall back to mock
+  // Legacy memory cards remain available on non-graph tabs.
   const baseRecords = liveRecords.length > 0 ? liveRecords : memoryRecords;
   const allRecords = [...graduated, ...baseRecords].slice(0, 24);
 
@@ -4307,16 +4686,16 @@ function MemoryFullView() {
       <div style={{ padding: '20px 28px 0', borderBottom: '1px solid rgba(47,99,255,0.12)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#9b6cff', marginBottom: 4 }}>SEAM / Memory</div>
-            <div style={{ fontSize: 22, color: '#a6fcff', fontWeight: 600, letterSpacing: '0.04em' }}>Provenance &amp; Memory Store</div>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#9b6cff', marginBottom: 4 }}>SEAM / Knowledge</div>
+            <div style={{ fontSize: 22, color: '#a6fcff', fontWeight: 600, letterSpacing: '0.04em' }}>All-Agent Knowledge Graph</div>
           </div>
           <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', gap: 10 }}>
             {[
-              { v: totalRecordsLabel, l: 'Records', c: '#7fe0ff' }, 
-              { v: liveStats?.edge_count != null ? (liveStats.edge_count >= 1000 ? (liveStats.edge_count / 1000).toFixed(1) + 'K' : liveStats.edge_count) : '841K', l: 'Graph Edges', c: '#9b6cff' }, 
-              { v: '91%', l: 'Recall Acc.', c: '#7efdb9' }, 
-              { v: '38ms', l: 'Avg Latency', c: '#f4d676' }
+              { v: (knowledgeGraph.stats?.node_count ?? liveStats?.knowledge_node_count ?? 0).toLocaleString(), l: 'Knowledge Nodes', c: '#7fe0ff' },
+              { v: (knowledgeGraph.stats?.edge_count ?? liveStats?.knowledge_edge_count ?? 0).toLocaleString(), l: 'Typed Edges', c: '#9b6cff' },
+              { v: (knowledgeGraph.stats?.agent_count ?? 0).toLocaleString(), l: 'Agents', c: '#f4d676' },
+              { v: (knowledgeGraph.stats?.source_count ?? 0).toLocaleString(), l: 'Sources', c: '#7efdb9' }
             ].map((s) =>
             <div key={s.l} style={{ textAlign: 'center', padding: '7px 14px', background: 'rgba(8,19,42,0.8)', border: `1px solid ${s.c}30`, borderRadius: 8 }}>
                 <div style={{ fontSize: 20, color: s.c, fontWeight: 600, lineHeight: 1, filter: `drop-shadow(0 0 6px ${s.c})` }}>{s.v}</div>
@@ -4338,244 +4717,30 @@ function MemoryFullView() {
 
       <div style={{ padding: '24px 28px' }}>
 
-        {/* ── Provenance Graph ── */}
         {tab === 'graph' &&
-        <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <span style={{ fontSize: 10, color: '#274063', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-                Brain graph — every MIRL record is a node. New records auto-attach.
-              </span>
-              <div style={{ flex: 1 }} />
-              <span style={{ fontSize: 10, color: '#7efdb9', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#7efdb9', boxShadow: '0 0 5px #7efdb9', animation: 'pulse 1.5s ease-in-out infinite' }} />
-                live · {graduated.length} new this session
-              </span>
-            </div>
-
-            <ObsidianGraph
-            records={graphTrace.nodes.length > 0 ? graphTrace.nodes : allRecords}
-            sources={graphTrace.nodes.length > 0 ? [] : [
-            { id: 'src:readme', name: 'README.md' },
-            { id: 'src:spec', name: 'SEAM_SPEC_V0.1.md' },
-            { id: 'src:roadmap', name: 'ROADMAP.md' },
-            { id: 'src:cli', name: 'cli.py' },
-            { id: 'src:runtime', name: 'runtime.py' }]
-            }
-            baseEdges={graphTrace.edges.length > 0 ? graphTrace.edges : [
-            { from: 'src:readme', to: 'clm:1' },
-            { from: 'src:readme', to: 'clm:4' },
-            { from: 'src:spec', to: 'clm:22' },
-            { from: 'src:spec', to: 'clm:29' },
-            { from: 'src:roadmap', to: 'clm:17' },
-            { from: 'src:cli', to: 'clm:33' },
-            { from: 'src:runtime', to: 'sta:ent:seam' }]
-            }
-            selectedId={selectedNode}
-            externalHovered={recordHoverNode}
-            onSelectNode={(id) => setSelectedNode(id)}
-            height={520} />
-
-
-            {/* ── Details panel for selected node ── */}
-            {selectedNode && (() => {
-            const rec = allRecords.find((r) => r.id === selectedNode);
-            const isSource = selectedNode.startsWith('src:');
-            const color = rec ? tagColors[rec.tag] || '#7fe0ff' : '#f4d676';
-            const sourceName = isSource ?
-            { 'src:readme': 'README.md', 'src:spec': 'SEAM_SPEC_V0.1.md', 'src:roadmap': 'ROADMAP.md', 'src:cli': 'cli.py', 'src:runtime': 'runtime.py' }[selectedNode] :
-            null;
-
-            return (
-              <div style={{ marginTop: 18, padding: '16px 18px', background: 'rgba(8,19,42,0.85)', border: `1px solid ${color}40`, borderRadius: 10, boxShadow: `0 0 20px ${color}15` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingBottom: 10, borderBottom: `1px solid ${color}25` }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}` }} />
-                    <span style={{ fontSize: 14, color: color, fontWeight: 600, fontFamily: 'var(--font)' }}>{selectedNode}</span>
-                    <span style={{ fontSize: 10, color: '#5a7a9a', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-                      {isSource ? 'source file' : rec ? rec.kind : 'unknown'}
-                    </span>
-                    <div style={{ flex: 1 }} />
-                    <button onClick={() => setSelectedNode(null)} style={{ background: 'none', border: '1px solid rgba(47,99,255,0.2)', borderRadius: 4, color: '#5a7a9a', cursor: 'pointer', fontSize: 11, fontFamily: 'var(--font)', padding: '3px 9px' }}>× close</button>
-                  </div>
-
-                  {isSource ?
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Source file</div>
-                        <div style={{ fontSize: 13, color: '#bfefff', fontFamily: 'var(--font)', marginBottom: 8 }}>{sourceName}</div>
-                        <div style={{ fontSize: 11, color: '#8090b0', lineHeight: 1.6 }}>This file has been ingested into MIRL. Each record below was compiled from a chunk of its text.</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Records derived</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                          {allRecords.filter((r) => r.id.startsWith('clm') || r.id.startsWith('sta')).slice(0, 6).map((r) =>
-                      <span key={r.id} onClick={() => setSelectedNode(r.id)} style={{ fontSize: 10, padding: '2px 7px', borderRadius: 3, background: `${tagColors[r.tag]}18`, border: `1px solid ${tagColors[r.tag]}40`, color: tagColors[r.tag], fontFamily: 'var(--font)', cursor: 'pointer' }}>{r.id}</span>
-                      )}
-                        </div>
-                      </div>
-                    </div> :
-                rec ?
-                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Record text</div>
-                        <div style={{ fontSize: 13, color: '#bfefff', lineHeight: 1.6, padding: '10px 12px', background: '#020b1e', borderRadius: 6, border: '1px solid rgba(47,99,255,0.1)' }}>
-                          <span style={{ color, fontWeight: 700, marginRight: 6 }}>{rec.tag}</span>{rec.text}
-                        </div>
-
-                        <div style={{ marginTop: 14, fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Provenance trail</div>
-                        <div style={{ fontSize: 11, color: '#8090b0', fontFamily: 'var(--font)' }}>
-                          <span style={{ color: '#f4d676' }}>%</span> <span style={{ color: '#bfefff' }}>README.md</span>
-                          <span style={{ color: '#274063', margin: '0 6px' }}>→</span>
-                          <span style={{ color: '#7efdb9' }}>ingested</span> @ <span style={{ color: '#5a7a9a' }}>{rec.age}</span>
-                          <span style={{ color: '#274063', margin: '0 6px' }}>→</span>
-                          <span style={{ color }}>{rec.id}</span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={{ fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Metadata</div>
-                        <div style={{ background: '#020b1e', border: '1px solid rgba(47,99,255,0.1)', borderRadius: 6, padding: '8px 12px', fontSize: 11 }}>
-                          {[
-                      ['id', rec.id, color],
-                      ['tag', `${rec.tag} (${rec.kind})`, color],
-                      ['retrieval score', `${(rec.score * 100).toFixed(1)}%`, '#7efdb9'],
-                      ['age', rec.age, '#bfefff'],
-                      ['status', rec.status, '#7efdb9'],
-                      ['vector dim', '1536', '#9b6cff'],
-                      ['index lag', '< 1s', '#7efdb9']].
-                      map(([k, v, c]) =>
-                      <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px dashed rgba(47,99,255,0.08)' }}>
-                              <span style={{ color: '#5a7a9a' }}>{k}</span>
-                              <span style={{ color: c, fontFamily: 'var(--font)' }}>{v}</span>
-                            </div>
-                      )}
-                        </div>
-
-                        <div style={{ marginTop: 12, fontSize: 10, color: '#4f8cfb', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 6 }}>Score breakdown</div>
-                        {[
-                    { k: 'vector cosine', v: 0.92, c: '#9b6cff' },
-                    { k: 'graph proximity', v: 0.81, c: '#7fe0ff' },
-                    { k: 'lexical (BM25)', v: 0.74, c: '#f4d676' },
-                    { k: 'temporal decay', v: 0.86, c: '#7efdb9' }].
-                    map((s) =>
-                    <div key={s.k} style={{ marginBottom: 4 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10 }}>
-                              <span style={{ color: '#5a7a9a' }}>{s.k}</span>
-                              <span style={{ color: s.c }}>{(s.v * 100).toFixed(0)}%</span>
-                            </div>
-                            <div style={{ height: 3, background: '#1a2540', borderRadius: 2, marginTop: 2 }}>
-                              <div style={{ height: '100%', width: `${s.v * 100}%`, background: s.c, borderRadius: 2 }} />
-                            </div>
-                          </div>
-                    )}
-                      </div>
-                    </div> :
-
-                <div style={{ fontSize: 11, color: '#5a7a9a' }}>No data available for this node.</div>
-                }
-                </div>);
-
-          })()}
-
-            {/* Legend */}
-            <div style={{ display: 'flex', gap: 16, marginTop: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-              {[['@', 'entity', '#a6fcff'], ['#', 'claim', '#7fe0ff'], ['!', 'event', '#f4d676'], ['>', 'relation', '#9b6cff'], ['~', 'state', '#7efdb9'], ['^', 'evidence', '#d391ff'], ['%', 'source', '#66b8ff']].map(([tag, kind, color]) =>
-            <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, boxShadow: `0 0 5px ${color}` }} />
-                  <span style={{ fontSize: 10, color: '#8090b0' }}><span style={{ color, fontWeight: 700 }}>{tag}</span> {kind}</span>
-                </div>
-            )}
-              <div style={{ flex: 1 }} />
-              {selectedNode ?
-            <button onClick={() => setSelectedNode(null)} style={{ padding: '3px 9px', background: 'rgba(127,224,255,0.08)', border: '1px solid rgba(127,224,255,0.25)', borderRadius: 4, color: '#7fe0ff', fontSize: 10, fontFamily: 'var(--font)', cursor: 'pointer' }}>
-                  × clear node filter
-                </button> :
-
-            <span style={{ fontSize: 10, color: '#274063', fontStyle: 'italic' }}>click a node to filter records</span>
-            }
-            </div>
-
-            {/* ── Records — interactable with graph above ── */}
-            {(() => {
-            // Build node→records mapping
-            const recordsByNode = {
-              n1: ['clm:1', 'clm:4'], // README.md → @SEAM, #SQLite
-              n2: ['clm:1', 'clm:17'], // @SEAM → entity + agent_bridge relation
-              n3: ['clm:4', 'clm:22'], // #SQLite → claim + bench evidence
-              n4: ['sta:ent:seam'], // sta:ent:seam state
-              n5: ['clm:12'], // event
-              n6: ['clm:17'], // agent_bridge relation
-              n7: ['clm:29', 'clm:22'], // SPEC.md → source + evidence
-              n8: ['clm:22', 'clm:33'] // bench evidence + alias
-            };
-            const allowedIds = selectedNode ? new Set(recordsByNode[selectedNode] || []) : null;
-            const filtered = selectedNode ? allRecords.filter((r) => allowedIds.has(r.id)) : allRecords;
-            const node = selectedNode ? provenanceNodes.find((n) => n.id === selectedNode) : null;
-
-            return (
-              <div style={{ marginTop: 22 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${node ? node.color + '40' : 'rgba(47,99,255,0.12)'}` }}>
-                    <span style={{ fontSize: 12, color: node ? node.color : '#a6fcff' }}>◈</span>
-                    <span style={{ fontSize: 12, color: node ? node.color : '#a6fcff', textTransform: 'uppercase', letterSpacing: '0.11em', fontWeight: 600 }}>
-                      {node ? `Records for ${node.label}` : 'All MIRL records'}
-                    </span>
-                    <span style={{ fontSize: 10, color: '#274063' }}>{filtered.length} record{filtered.length === 1 ? '' : 's'}</span>
-                    {node &&
-                  <>
-                        <span style={{ color: '#274063', fontSize: 10 }}>·</span>
-                        <span style={{ fontSize: 10, color: '#5a7a9a' }}>{provenanceEdges.filter((e) => e.from === node.id || e.to === node.id).length} edges</span>
-                      </>
-                  }
-                  </div>
-
-                  {filtered.length === 0 ?
-                <div style={{ padding: '24px 16px', textAlign: 'center', background: 'rgba(8,19,42,0.6)', border: '1px dashed rgba(47,99,255,0.15)', borderRadius: 8 }}>
-                      <div style={{ fontSize: 11, color: '#5a7a9a' }}>No records linked to this node yet.</div>
-                    </div> :
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 12 }}>
-                      {filtered.map((r) => {
-                    const isHotRecord = hoveredNode && (recordsByNode[hoveredNode] || []).includes(r.id);
-                    return (
-                      <div key={r.id}
-                      onMouseEnter={() => {
-                        const owner = Object.entries(recordsByNode).find(([_, ids]) => ids.includes(r.id))?.[0] || r.id;
-                        setRecordHoverNode(owner);
-                        setHoveredNode(owner);
-                      }}
-                      onMouseLeave={() => {setRecordHoverNode(null);setHoveredNode(null);}}
-                      style={{
-                        background: 'rgba(8,19,42,0.9)',
-                        border: `1px solid ${isHotRecord ? (tagColors[r.tag] || '#7fe0ff') + '60' : 'rgba(47,99,255,0.12)'}`,
-                        borderRadius: 10, padding: '12px 14px',
-                        borderLeft: `3px solid ${tagColors[r.tag] || '#7fe0ff'}`,
-                        transition: 'all 0.15s',
-                        boxShadow: isHotRecord ? `0 0 12px ${tagColors[r.tag]}30` : 'none',
-                        cursor: 'pointer'
-                      }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                              <span style={{ fontSize: 14, color: tagColors[r.tag], fontWeight: 700, filter: `drop-shadow(0 0 4px ${tagColors[r.tag]})` }}>{r.tag}</span>
-                              <span style={{ fontSize: 10, color: '#4f8cfb' }}>{r.id}</span>
-                              <div style={{ flex: 1 }} />
-                              <span style={{ fontSize: 10, color: '#7efdb9', fontWeight: 500 }}>{(r.score * 100).toFixed(0)}%</span>
-                              <span style={{ fontSize: 9, color: '#274063' }}>{r.age}</span>
-                            </div>
-                            <div style={{ fontSize: 12, color: '#bfefff', lineHeight: 1.5, marginBottom: 8 }}>{r.text}</div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <div style={{ flex: 1, height: 3, background: '#1a2540', borderRadius: 2 }}>
-                                <div style={{ height: '100%', width: `${r.score * 100}%`, background: tagColors[r.tag] || '#7fe0ff', borderRadius: 2, boxShadow: `0 0 5px ${tagColors[r.tag]}` }} />
-                              </div>
-                              <span style={{ fontSize: 9, color: '#274063' }}>{r.kind}</span>
-                            </div>
-                          </div>);
-
-                  })}
-                    </div>
-                }
-                </div>);
-
-          })()}
-          </div>
-        }
+        <KnowledgeGraphWorkspace
+          graph={knowledgeGraph}
+          loading={knowledgeLoading}
+          error={knowledgeError}
+          query={graphQuery}
+          setQuery={setGraphQuery}
+          kind={graphKind}
+          setKind={setGraphKind}
+          agent={graphAgent}
+          setAgent={setGraphAgent}
+          knownAgents={knownAgents}
+          includeHistory={graphHistory}
+          setIncludeHistory={setGraphHistory}
+          at={graphAt}
+          setAt={setGraphAt}
+          hops={graphHops}
+          setHops={setGraphHops}
+          selectedId={selectedNode}
+          setSelectedId={setSelectedNode}
+          selectedDetail={selectedDetail}
+          detailLoading={detailLoading}
+          detailError={detailError}
+        />}
 
         {/* ── Write Queue ── */}
         {tab === 'write queue' &&
@@ -4964,6 +5129,7 @@ function WindowsTaskbar({ buttons, statusBar }) {
 // ── MAIN APP ──────────────────────────────────────────────────────────────
 function App() {
   const { TweaksPanel, useTweaks } = window;
+  const initialKnowledgeView = new URLSearchParams(window.location.search).get('view') === 'knowledge';
 
   const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
     "accentColor": "#7fe0ff",
@@ -4976,13 +5142,13 @@ function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULS);
 
   // Panel state
-  const [explorerOpen, setExplorerOpen] = useState(true);
+  const [explorerOpen, setExplorerOpen] = useState(!initialKnowledgeView);
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [agentOpen, setAgentOpen] = useState(true);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [ingestOpen, setIngestOpen] = useState(false);
   const [benchmarkOpen, setBenchmarkOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState('explorer');
+  const [activeNav, setActiveNav] = useState(initialKnowledgeView ? 'memory' : 'explorer');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Explorer sub-tab: 'project' | 'system'
@@ -5097,9 +5263,9 @@ function App() {
   }, [openMenu]);
 
   // File tabs
-  const [openTabs, setOpenTabs] = useState(['cli', 'dashboard', 'readme']);
-  const [activeTab, setActiveTab] = useState('cli');
-  const [activeFile, setActiveFile] = useState('cli');
+  const [openTabs, setOpenTabs] = useState(initialKnowledgeView ? ['cli', 'dashboard', 'readme', '__memory'] : ['cli', 'dashboard', 'readme']);
+  const [activeTab, setActiveTab] = useState(initialKnowledgeView ? '__memory' : 'cli');
+  const [activeFile, setActiveFile] = useState(initialKnowledgeView ? '__memory' : 'cli');
 
   // Editable file buffers — initialized lazily from editorContent
   const buildTextFromLines = (lines) => (lines || []).map((l) =>

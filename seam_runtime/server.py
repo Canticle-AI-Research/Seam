@@ -438,13 +438,29 @@ def _call_chat_provider(
     return "(empty response)"
 
 
-def _persist_chat_turn(runtime: SeamRuntime, *, message: str, reply: str) -> dict[str, object]:
+def _persist_chat_turn(
+    runtime: SeamRuntime,
+    *,
+    message: str,
+    reply: str,
+    assistant_agent: str,
+) -> dict[str, object]:
     turn_id = uuid.uuid4().hex
     user_source_ref = f"chat://{turn_id}/user"
     assistant_source_ref = f"chat://{turn_id}/assistant"
-    user_batch = runtime.compile_nl(f"User: {message}", source_ref=user_source_ref, ns="local.chat", scope="thread")
+    user_batch = runtime.compile_nl(
+        f"User: {message}",
+        source_ref=user_source_ref,
+        ns="local.chat",
+        scope="thread",
+        agent_id="user",
+    )
     assistant_batch = runtime.compile_nl(
-        f"Assistant: {reply}", source_ref=assistant_source_ref, ns="local.chat", scope="thread"
+        f"Assistant: {reply}",
+        source_ref=assistant_source_ref,
+        ns="local.chat",
+        scope="thread",
+        agent_id=assistant_agent,
     )
     report = runtime.persist_ir(IRBatch([*user_batch.records, *assistant_batch.records]))
     return {
@@ -507,6 +523,48 @@ def create_app(
     @app.get("/stats", dependencies=[Depends(guard)])
     def stats() -> dict[str, object]:
         return runtime.store.get_stats()
+
+    @app.get("/knowledge-graph", dependencies=[Depends(guard)])
+    def knowledge_graph(
+        query: str | None = None,
+        root_id: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+        agent_id: str | None = None,
+        kinds: str | None = None,
+        at: str | None = None,
+        include_history: bool = False,
+        limit: int = Query(default=300, ge=1, le=1000),
+        hops: int = Query(default=2, ge=0, le=5),
+    ) -> dict[str, object]:
+        parsed_kinds = None if kinds is None else [kind.strip() for kind in kinds.split(",") if kind.strip()]
+        return runtime.store.knowledge_graph(
+            query=query,
+            root_id=root_id,
+            namespace=namespace,
+            scope=scope,
+            agent_id=agent_id,
+            kinds=parsed_kinds,
+            at=at,
+            include_history=include_history,
+            limit=limit,
+            hops=hops,
+        )
+
+    @app.get("/knowledge-node", dependencies=[Depends(guard)])
+    def knowledge_node(
+        node_id: str,
+        include_history: bool = True,
+        at: str | None = None,
+    ) -> dict[str, object]:
+        try:
+            return runtime.store.knowledge_node(
+                node_id,
+                include_history=include_history,
+                at=at,
+            )
+        except KeyError:
+            raise HTTPException(status_code=404, detail=f"knowledge node not found: {node_id}")
 
     @app.get("/trace", dependencies=[Depends(guard)])
     def trace(root_id: str) -> dict[str, object]:
@@ -668,6 +726,7 @@ def create_app(
             source_ref=str(payload.get("source_ref") or "api://compile"),
             ns=str(payload.get("ns") or "local.default"),
             scope=str(payload.get("scope") or "thread"),
+            agent_id=str(payload.get("agent_id") or "").strip() or None,
         )
         result: dict[str, object] = {"records": batch.to_json()}
         if bool(payload.get("persist", False)):
@@ -828,7 +887,12 @@ def create_app(
         result: dict[str, object] = {"reply": reply, "memory_used": memory_used, "model": model}
         if bool(payload.get("persist_chat", True)):
             try:
-                result["persisted_memory"] = _persist_chat_turn(runtime, message=message, reply=reply)
+                result["persisted_memory"] = _persist_chat_turn(
+                    runtime,
+                    message=message,
+                    reply=reply,
+                    assistant_agent=model,
+                )
             except Exception as exc:  # noqa: BLE001 - persistence failure should not discard a provider answer
                 result["persist_error"] = f"chat persistence unavailable: {exc}"
         if memory_error:

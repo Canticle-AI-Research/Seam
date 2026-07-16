@@ -68,6 +68,15 @@ and `HISTORY_INDEX.md`.
   metadata, CLI commands, installer behavior, dashboard behavior, API behavior,
   benchmark behavior, or history tooling behavior.
 - SQLite is canonical source of truth.
+- SEAM's knowledge graph is a self-building, versioned SQLite projection of
+  canonical MIRL, not a manually authored or browser-generated topology.
+  `knowledge_nodes`, `knowledge_edges`, and `knowledge_episodes` preserve typed
+  semantics, agent/source provenance, confidence/status, and temporal validity;
+  every `SQLiteStore.persist_ir` write maintains the projection atomically and
+  existing databases receive a versioned backfill. RAW/MIRL remain the truth,
+  graph retrieval and the dashboard consume the same projection, and inactive
+  claims remain available only through explicit history views. See
+  `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
 - Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam[chroma]`, `seam[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
 - Document ingest status is canonical SQLite metadata. Source refs, source hashes, extraction status, index status, and deletion state belong in `document_status`, not only in derived vector stores.
 - Agent-facing retrieval should use progressive disclosure where possible: compact search/index results first, then full MIRL records by selected IDs.

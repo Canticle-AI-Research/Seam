@@ -181,6 +181,8 @@ seam ingest path/to/file.txt --persist
 seam remember "SEAM stores durable memory for agents."
 seam memory search "durable memory"
 seam memory get clm:1,sta:ent:project:seam --timeline
+seam knowledge search "durable memory" --hops 2
+seam knowledge node ent:project:seam
 seam retrieve "durable memory" --mode mix --trace
 seam context "durable memory" --retrieval-mode mix --view evidence
 seam surface compile path/to/file.txt --output file.seam.png --mode rgb24
@@ -196,6 +198,13 @@ seam serve --host 127.0.0.1 --port 8765
 seam benchmark run all --persist
 seam benchmark gate seam-benchmark-report.json
 ```
+
+Every persisted chat, ingest, MCP write, or MIRL batch automatically updates
+SEAM's temporal all-agent knowledge graph. Open the dashboard's **Memory** tab
+(or `/?view=knowledge`) to search entities and claims, traverse typed edges,
+filter by contributing agent, inspect historical knowledge, and open graph-backed
+pages with facts, backlinks, sources, confidence, and canonical MIRL. See
+[`docs/KNOWLEDGE_GRAPH.md`](docs/KNOWLEDGE_GRAPH.md).
 
 ## RAG Architecture
 

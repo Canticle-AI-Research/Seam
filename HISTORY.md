@@ -8858,3 +8858,23 @@ Added a hermetic restart regression that writes one turn, closes the server, reo
 
 Git ancestry proves PR #149's head is contained by PR #150's head. PR #150 is the sole canonical merge vehicle and PR #149 is superseded rather than independently mergeable. PR #150's pre-fix head had all nine checks green; the fresh pushed-head required checks remain the final merge gate.
 ---END-ENTRY-#401---
+
+---BEGIN-ENTRY-#402---
+id: 402
+date: 2026-07-16T13:46:22Z
+agent: codex
+status: in-progress
+topics: graph, memory, provenance, dashboard, webui, retrieval, agent, persist, tests, verify, history, status
+commits: none
+refs: seam_runtime/knowledge_graph.py,seam_runtime/storage.py,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtime/mcp.py,seam_runtime/cli.py,seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/webui/dashboard.html,seam_runtime/webui/seam-api.js,tests/audit/test_knowledge_graph.py,test_seam_all/test_seam.py,docs/KNOWLEDGE_GRAPH.md,README.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,PROJECT_STATUS.md
+supersedes: 401
+tokens: 660
+---
+Completed the implementation slice for SEAM's self-building temporal knowledge graph on the deliberately uncommitted `agent/temporal-knowledge-graph` worktree. `SQLiteStore.persist_ir` now maintains a versioned MIRL-derived projection rather than depending on manually authored dashboard nodes. The canonical graph records entities, MIRL records/facts, agents, sources, and first-class episodes; preserves namespace/scope isolation, temporal validity, current/history views, provenance, source succession, and agent attribution; and exposes graph search, statistics, and graph-backed node pages through storage, REST, CLI, MCP, and the retrieval adapter. Existing-database backfill is versioned and the projection remains evidence-bound: dashboard connectivity comes from persisted or query-time provenance relationships, not invented client-side edges. Documentation and release-layout pointers now route through `docs/KNOWLEDGE_GRAPH.md` and this entry.
+
+The dashboard knowledge workspace now makes that structure operational instead of decorative. Episodes are visible nodes linked to the records/facts/entities they introduced or support; direction arrows, predicate labels, stronger default strokes, and semantic/provenance/grounding/temporal edge colors make connections legible; selected neighborhoods receive path emphasis; and rich versus compact display modes expose label, kind, degree, confidence, agent/source counts, status, and time without forcing permanent clutter. The graph wheel handler is a native non-passive listener with containment, so mouse-wheel zoom over the canvas does not move the surrounding page. The same server-backed graph powers the compact live view and the full knowledge workspace. Automated review findings from the first pass were addressed, including projection-version/backfill safety, stale-node cleanup, filter/query correctness, endpoint validation, and dashboard interaction boundaries.
+
+Verified the focused graph suite at 18 passed and the dashboard/API compatibility slice at 44 passed. Live browser inspection produced `/tmp/seam-knowledge-graph-connections.png`, showing visible episode/provenance nodes, type-coded directional connections, predicate labels, and richer on-map data. The attempted canonical non-external suite was interrupted after about 20 minutes while repeated LoCoMo quickstarts were still running; no failures were observed before interruption, but this is NOT a full-suite pass and is recorded as incomplete. No provider call or paid benchmark was made.
+
+Cut-off state is intentionally `in-progress` because the runtime tree is dirty and no commit, push, or PR exists yet, even though the requested implementation slice is complete. No missing constants, helpers, undefined symbols, or known focused-test mismatches remain. The successor must first rerun collection against the affected modules and the full canonical non-external suite with `SEAM_PGVECTOR_DSN` unset; then scan candidate files for secrets/private session links, commit the coherent slice, push the branch, open or update a draft PR, and complete required CI/review before claiming publication. The branch is one commit behind `origin/main`, so base drift must be reconciled without discarding this work.
+---END-ENTRY-#402---

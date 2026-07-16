@@ -88,8 +88,30 @@ class SeamRuntime:
     def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
 
-    def compile_nl(self, raw_text: str, source_ref: str = "local://input", ns: str = "local.default", scope: str = "thread") -> IRBatch:
-        return compile_nl(raw_text, source_ref=source_ref, ns=ns, scope=scope)
+    @staticmethod
+    def _resolve_agent_id(agent_id: str | None) -> str | None:
+        resolved = (agent_id or os.environ.get("SEAM_AGENT") or "").strip()
+        return resolved or None
+
+    def compile_nl(
+        self,
+        raw_text: str,
+        source_ref: str = "local://input",
+        ns: str = "local.default",
+        scope: str = "thread",
+        agent_id: str | None = None,
+    ) -> IRBatch:
+        batch = compile_nl(raw_text, source_ref=source_ref, ns=ns, scope=scope)
+        resolved_agent = self._resolve_agent_id(agent_id)
+        if resolved_agent:
+            for record in batch.records:
+                record.ext["agent_id"] = resolved_agent
+                if record.kind == RecordKind.PROV:
+                    compiler_agent = record.attrs.get("agent")
+                    if compiler_agent and compiler_agent != resolved_agent:
+                        record.ext["compiler_agent"] = compiler_agent
+                    record.attrs["agent"] = resolved_agent
+        return batch
 
     def compile_dsl(self, dsl_text: str, ns: str = "local.default", scope: str = "project") -> IRBatch:
         return compile_dsl(dsl_text, ns=ns, scope=scope)
@@ -101,9 +123,14 @@ class SeamRuntime:
         ns: str = "local.default",
         scope: str = "thread",
         persist: bool = True,
+        agent_id: str | None = None,
     ) -> IngestReport:
+        resolved_agent = self._resolve_agent_id(agent_id)
         document_id = stable_document_id(source_ref, text)
-        batch = namespace_ingest_batch(self.compile_nl(text, source_ref=source_ref, ns=ns, scope=scope), document_id)
+        batch = namespace_ingest_batch(
+            self.compile_nl(text, source_ref=source_ref, ns=ns, scope=scope, agent_id=resolved_agent),
+            document_id,
+        )
         stored_ids: list[str] = []
         if persist:
             stored_ids = self.persist_ir(batch).stored_ids
@@ -122,6 +149,7 @@ class SeamRuntime:
             metadata={
                 "record_count": len(batch.records),
                 "indexable_count": len([record for record in batch.records if record.kind in {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}]),
+                "agent_id": resolved_agent,
             },
         )
         return IngestReport(document=document, stored_ids=stored_ids)
@@ -222,13 +250,15 @@ class SeamRuntime:
         ns: str = "local.default",
         scope: str = "thread",
         persist: bool = True,
+        agent_id: str | None = None,
     ) -> IngestReport:
         # Unified compiler (HISTORY#311): conversation turns and plain memories
         # share one faithful pipeline. `ingest_conversation_turn` is kept as the
         # benchmark/agent entry point but delegates to compile_nl.
+        resolved_agent = self._resolve_agent_id(agent_id)
         document_id = stable_document_id(source_ref, text)
         batch = namespace_ingest_batch(
-            compile_nl(text, source_ref=source_ref, ns=ns, scope=scope),
+            self.compile_nl(text, source_ref=source_ref, ns=ns, scope=scope, agent_id=resolved_agent),
             document_id,
         )
         stored_ids: list[str] = []
@@ -253,6 +283,7 @@ class SeamRuntime:
                     r for r in batch.records
                     if r.kind in {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL, RecordKind.RAW}
                 ]),
+                "agent_id": resolved_agent,
             },
         )
         return IngestReport(document=document, stored_ids=stored_ids)

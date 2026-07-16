@@ -27,7 +27,7 @@ set, `seam-pgvector` healthy, port 5432):
 - `seam serve` (REST API) on 127.0.0.1:7891 → `/health`, `/stats`,
   `/compile` returned valid JSON; uvicorn process clean shutdown.
 - `seam_runtime.mcp_protocol` (MCP stdio) → `initialize`, `tools/list`
-  (16 tools, all canonical `seam_*` prefix), `tools/call seam_stats`
+  (18 tools, all canonical `seam_*` prefix), `tools/call seam_stats`
   and `tools/call seam_doctor` all returned `isError: false`.
 - `seam surface compile|verify|query` on a small text fixture → mechanical
   flow clean; **but semantically broken in the same way as LoCoMo (see
