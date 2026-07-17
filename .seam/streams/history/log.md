@@ -9148,3 +9148,37 @@ tokens: 625
 ---
 Built inference/high-confidence/3, the on-goal cat3 open-domain lever, after HISTORY#412's exact-answer rejection + a free per-case scan of the #390 champion's 11 cat3 misses. The scan found the real gap: ~4-5 cases where the answerer abstains/describes instead of NAMING a well-known entity the retrieved clues uniquely identify (composer John Williams from 'plays Star Wars tunes', Voyageurs NP, Star Wars Ireland locations, Exploding Kittens). hc/3 builds on hc/2 (keeps its anti-abstention + enumerate-then-count) and adds an open-domain world-knowledge NAMING clause with an ambiguity guard (name the one well-known entity that uniquely matches the clues; if several fit, do not guess). This is the OPPOSITE lever from the rejected exact-answer prune - completeness/naming, not pruning - matching the data (judge/1 rewards fuller answers). Low wiring: inference_policy is an existing RetrievalFlags field, so only conversation.py (constant + INFERENCE_POLICIES frozenset + directive clause + docstring) and self_improve.py (candidate lever) changed; coerce_flag_value/env/all adapters inherit hc/3 automatically via the frozenset. Opt-in default off; v1/v2 pinned byte-stable; every default prompt byte-identical (test-pinned). Verification (free, no paid call): 3 new tests + affected slices green (81 in the conversation/flags/loop slice), end-to-end wiring smoke green (lever registered, prompt contains the naming clause, defaults unchanged), ruff clean; full pytest tests/ green EXCEPT 2 embedder-env-dependent test_seam_mem0_server tests that FAIL only because the suite shell lacked HF_HUB_CACHE/HF_HUB_OFFLINE (the same T7-cache issue behind HISTORY#412's two zero-spend run failures) and all nine pass with that env set - not a regression from this change. BUILT-NOT-YET-VALIDATED. Lined up for SOL a tracked handoff (docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md, registered latest) carrying: the MANDATORY env exports, a ~0.05 USD cat3 preflight (hc/2 vs hc/3 on the champion's stored cat3 contexts, isolates the naming clause) inline verbatim, and the dry-run-verified full A/B command (candidate conversation/2 + hc/3 + temporal/1 + broad vs stock, ~0.80 USD, 344 holdout). Operator gates every paid run; SOL executes, none run here. Advisor/Fable was requested but is disabled this conversation, so the data analysis was done directly (offered operator to invoke Fable independently). cat1->91% mem0 remains a separate retrieval-side track (native cat1 misses are set-partials the lenient judge already credits). Champions unchanged (#405 0.7762 / #390 0.7689).
 ---END-ENTRY-#413---
+
+---BEGIN-ENTRY-#414---
+id: 414
+date: 2026-07-17T19:52:56Z
+agent: codex
+status: planned
+topics: roadmap, benchmark, graph, memory, retrieval, comparator, provenance, quality, plan
+commits: pending
+refs: ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md,docs/KNOWLEDGE_GRAPH.md
+supersedes: 413
+tokens: 394
+---
+Recorded the operator's benchmark-first sequencing decision as new planned
+ROADMAP Track R, Zep-Class Temporal Graph Parity. SEAM's native judge/1
+holdout remains the primary quality standard because its contract is more
+discriminating about exactness, temporal correctness, unsupported additions,
+and completeness. The roadmap explicitly avoids the inverse fallacy: a lower
+score on a stricter harness is not by itself proof of correctness; the claim
+depends on the documented scorer contract and per-case audits.
+
+The external gate is separate: run Mem0 and SEAM inside Mem0's own harness with
+dataset, split, answerer, judge, retrieval budget, and cutoff held constant,
+and surpass Mem0 there. Native and Mem0-harness results must remain separate
+scoreboards and must never be averaged or relabeled as movement on each other.
+Track R starts only after native progress and that matched Mem0-harness win.
+Its planned sequence is hybrid graph retrieval, semantic and reversible entity
+resolution, entity/community summaries and observations, context assembly,
+user/thread lifecycle plus auditable deletion, and corpus-scale ingestion,
+latency, concurrency, portability, and direct-parity qualification. The
+existing Track P Mem0/Zep migration direction becomes a delivery surface.
+
+This is roadmap/status/history only. No runtime behavior, benchmark result,
+provider call, paid spend, or default changed.
+---END-ENTRY-#414---

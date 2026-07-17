@@ -1,15 +1,18 @@
 # Roadmap Index
 
-total_events: 58
-latest_id: 58
+total_events: 61
+latest_id: 61
 source: streams/roadmap/log.md
 schema: seam-stream-index/v1
-content_hash: f5272a1322addfd19af11669f05e90887f637f5a8cbc9871a83aeebcb7237558
+content_hash: da42d090f829abf5f78aea34b36a70dcd9c7a4cb5ee9014cad37f7eb92681c6e
 
 ## entries (newest first)
 
 | id | date | kind | item | event | hash | supersedes | topics |
 |---|---|---|---|---|---|---|---|
+| 061 | 2026-07-17T00:00:00Z | status-change | roadmap:track:R | bootstrap | 80e16dab2dcaa5eb | none | graph, memory, retrieval, benchmark, ... |
+| 060 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | cca32742086e599e | none | android, mobile, small-models, memory... |
+| 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | 00bb3f54b2eb5d5c | none | agent, openclaw, namespaces, profiles... |
 | 058 | 2026-06-15T00:00:00Z | status-change | roadmap:track:O | bootstrap | 83363fb400bb4b81 | none | query, sql, retrieval, benchmark, bird |
 | 057 | 2026-06-02T00:00:00Z | status-change | roadmap:track:N | bootstrap | fd920cab3ff36573 | none | packaging, release, distribution |
 | 056 | 2026-05-31T00:00:00Z | status-change | roadmap:track:G5 | bootstrap | 659e2ea60107e32c | none | surface, search, verify, integrity |

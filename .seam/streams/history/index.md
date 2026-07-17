@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 413
-total_tokens: ~178481
-latest_id: 413
+total_entries: 414
+total_tokens: ~178875
+latest_id: 414
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 414 | 2026-07-17 | planned | 96038f7dcae4fd4b | roadmap,benchmark,graph,memory,+ | 413 |
 | 413 | 2026-07-17 | done | a74254d921062762 | benchmark,locomo,cat3,open-domain,+ | 412 |
 | 412 | 2026-07-17 | done | 626d3dccf0dd76da | benchmark,locomo,exact-answer,negative-result,+ | 411 |
 | 411 | 2026-07-17 | done | e9c275f8a2528c01 | benchmark,results,reproduce,fix,+ | 410 |
@@ -445,7 +446,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=152 latest=#413, #412, #411, #410, #408
+- benchmark: count=153 latest=#414, #413, #412, #411, #410
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -470,6 +471,7 @@ compact: true
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
 - command: count=70 latest=#393, #389, #386, #251, #241
+- comparator: count=1 latest=#414
 - comparison: count=1 latest=#333
 - competitors: count=1 latest=#384
 - compile: count=13 latest=#154, #047, #046, #043, #042
@@ -536,7 +538,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=5 latest=#404, #403, #402, #099, #030
+- graph: count=6 latest=#414, #404, #403, #402, #099
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
 - handoff: count=29 latest=#413, #409, #401, #400, #399
@@ -577,7 +579,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- memory: count=9 latest=#403, #402, #342, #340, #286
+- memory: count=10 latest=#414, #403, #402, #342, #340
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
@@ -604,7 +606,7 @@ compact: true
 - performance: count=3 latest=#364, #363, #362
 - persist: count=30 latest=#404, #403, #402, #401, #342
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
-- plan: count=14 latest=#243, #214, #180, #176, #171
+- plan: count=15 latest=#414, #243, #214, #180, #176
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
@@ -620,12 +622,12 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=103 latest=#381, #380, #378, #356, #355
 - prov: count=1 latest=#316
-- provenance: count=4 latest=#410, #403, #402, #373
+- provenance: count=5 latest=#414, #410, #403, #402, #373
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=16 latest=#398, #397, #396, #395, #392
+- quality: count=17 latest=#414, #398, #397, #396, #395
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -644,11 +646,11 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=81 latest=#403, #402, #400, #395, #390
+- retrieval: count=82 latest=#414, #403, #402, #400, #395
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
-- roadmap: count=55 latest=#407, #346, #333, #319, #318
+- roadmap: count=56 latest=#414, #407, #346, #333, #319
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -715,4 +717,4 @@ compact: true
 - changed: 7
 - done: 382
 - in-progress: 4
-- planned: 20
+- planned: 21
