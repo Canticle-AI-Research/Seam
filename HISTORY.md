@@ -9078,3 +9078,17 @@ Threaded end-to-end mirroring temporal_policy exactly: RetrievalFlags field + co
 
 Verification (free, no provider/paid call): a 6-point functional smoke (default byte-identity, directive rendering per intent, coercion, env load, fail-closed, lever registration) all pass; 15 new regression tests across test_semantic_conversation_adapter.py (6), test_retrieval_flags.py (1), test_shared_answerer.py (extended); affected slice 92 passed; ruff clean on all touched files (2 pre-existing I001 findings in the untouched test_pgvector_real_adapter.py are from PR#152's base, not this change); full `pytest tests/` suite completed exit 0 with zero failures and zero errors, 2 established xfails, and only the four environment-gated pgvector external skips (PGVECTOR_TEST_DSN unset locally). The lever is BUILT-NOT-YET-VALIDATED: the decisive step is one operator-gated ~$0.80 344-case holdout A/B (candidate = conversation/2 + inference/high-confidence/2 + temporal/1 + broad + answer_contract=exact-answer/1 vs the #405 champion conversation/2 + hc/2 + temporal/1 + broad, judge/1). Optionally a cents-level functional pre-flight on the stored #405 miss cases first (per the #397 precedent) to de-risk before the full A/B. No paid spend this session.
 ---END-ENTRY-#408---
+
+---BEGIN-ENTRY-#409---
+id: 409
+date: 2026-07-17T09:27:04Z
+agent: claude
+status: done
+topics: handoff, registry, exact-answer, closeout
+commits: pending
+refs: docs/handoffs/2026-07-17-exact-answer-contract-handoff.md,docs/handoffs/INDEX.md
+supersedes: 408
+tokens: 407
+---
+Wrote the tracked handoff for the exact-answer-contract build into the canonical registry, per operator request. New document docs/handoffs/2026-07-17-exact-answer-contract-handoff.md (handoff_id 2026-07-17-exact-answer-contract-handoff, supersedes 2026-07-15-cat1-cat3-scoreboard-closeout, status current, history HISTORY#409); INDEX.md latest advanced and the predecessor 2026-07-15-cat1-cat3-scoreboard-closeout demoted to superseded (was HISTORY#400's current head). The document captures full state for the next agent: the three committed deliverables this session (concurrent-chain reconciliation #405, worktree hygiene #406, exact-answer contract build #408), the preserved separate-session ROADMAP #407 (commit 2c3755d) and the linear #408->#407->#406 chaining, the exact-answer/1 design and end-to-end wiring, the free verification (15 new tests, 92 affected passed, full tests/ exit 0), and THE decisive next step: one operator-gated ~0.80 USD 344-case judge/1 holdout A/B (candidate conversation/2 + inference/high-confidence/2 + temporal/1 + broad + answer_contract=exact-answer/1 vs the #405 champion without the contract), with an optional cents pre-flight on stored #405 miss cases first. Push state recorded: main == agent/roadmap-zep-after-benchmarks == 85eb0bc, a clean fast-forward 2 commits ahead of origin/main (5c508e2), unpushed pending operator confirmation; git checkout main && git push origin main sends both #407 and #408 up. Doc-only change; no code, provider call, paid run, or push. Verification: verify_handoffs green after this entry resolves the HISTORY#409 reference; full SEAM chain verifiers run in this closeout.
+---END-ENTRY-#409---

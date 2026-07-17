@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 408
-total_tokens: ~175847
-latest_id: 408
+total_entries: 409
+total_tokens: ~176254
+latest_id: 409
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 409 | 2026-07-17 | done | 144ab2d93af9b7f8 | handoff,registry,exact-answer,closeout | 408 |
 | 408 | 2026-07-17 | done | 324140f0884f98a8 | benchmark,locomo,levers,answer-contract,+ | 407 |
 | 407 | 2026-07-17 | done | 2a544db0b27af149 | roadmap,agent,openclaw,android,+ | 406 |
 | 406 | 2026-07-17 | done | ed2e561702dbd341 | hygiene,gitignore,worktree,artifacts | 405 |
@@ -461,6 +462,7 @@ compact: true
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
 - cli: count=4 latest=#302, #293, #287, #285
+- closeout: count=1 latest=#409
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
 - command: count=70 latest=#393, #389, #386, #251, #241
@@ -510,7 +512,7 @@ compact: true
 - entity-aggregation: count=2 latest=#358, #323
 - epistemic: count=1 latest=#325
 - evidence: count=2 latest=#375, #316
-- exact-answer: count=1 latest=#408
+- exact-answer: count=2 latest=#409, #408
 - experiment: count=1 latest=#273
 - extractor: count=1 latest=#313
 - extras: count=1 latest=#022
@@ -532,7 +534,7 @@ compact: true
 - graph: count=5 latest=#404, #403, #402, #099, #030
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=27 latest=#401, #400, #399, #398, #397
+- handoff: count=28 latest=#409, #401, #400, #399, #398
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -626,7 +628,7 @@ compact: true
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
 - regex: count=1 latest=#317
-- registry: count=4 latest=#350, #348, #347, #178
+- registry: count=5 latest=#409, #350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
 - retrieval: count=81 latest=#403, #402, #400, #395, #390
@@ -698,6 +700,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 377
+- done: 378
 - in-progress: 4
 - planned: 20
