@@ -30,6 +30,8 @@ from benchmarks.external.common.runner import (
     run_benchmark_grouped_parallel,
 )
 from seam_runtime.conversation import (
+    ANSWER_CONTRACT_OFF,
+    ANSWER_CONTRACTS,
     CONVERSATION_ADAPTER_OFF,
     CONVERSATION_ADAPTERS,
     INFERENCE_CONTEXT_ONLY,
@@ -60,6 +62,7 @@ def build_adapter(
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
     temporal_policy: str = TEMPORAL_POLICY_OFF,
+    answer_contract: str = ANSWER_CONTRACT_OFF,
 ):
     """Lazy-import factory so SEAM-only runs don't require Mem0/Zep installed."""
     if name == "seam":
@@ -82,6 +85,7 @@ def build_adapter(
             conversation_adapter=conversation_adapter,
             inference_policy=inference_policy,
             temporal_policy=temporal_policy,
+            answer_contract=answer_contract,
         )
     if name == "mem0":
         from benchmarks.external.locomo.adapters.mem0 import Mem0LocomoAdapter
@@ -93,6 +97,7 @@ def build_adapter(
             conversation_adapter=conversation_adapter,
             inference_policy=inference_policy,
             temporal_policy=temporal_policy,
+            answer_contract=answer_contract,
         )
     if name == "zep":
         from benchmarks.external.locomo.adapters.zep import ZepLocomoAdapter
@@ -104,6 +109,7 @@ def build_adapter(
             conversation_adapter=conversation_adapter,
             inference_policy=inference_policy,
             temporal_policy=temporal_policy,
+            answer_contract=answer_contract,
         )
     raise ValueError(f"unknown adapter {name!r}")
 
@@ -116,6 +122,7 @@ def _maybe_wrap_answerer(
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
     temporal_policy: str = TEMPORAL_POLICY_OFF,
+    answer_contract: str = ANSWER_CONTRACT_OFF,
 ):
     """Comparator adapters (mem0/zep) return only retrieved context. When an
     answerer is configured, wrap them so the SAME answerer generates their
@@ -133,6 +140,7 @@ def _maybe_wrap_answerer(
         conversation_adapter=conversation_adapter,
         inference_policy=inference_policy,
         temporal_policy=temporal_policy,
+        answer_contract=answer_contract,
     )
 
 
@@ -313,6 +321,17 @@ def main() -> None:
             "Versioned temporal grounding applied equally to every adapter: "
             "temporal/1 resolves relative time expressions against message "
             "timestamps (default: off)."
+        ),
+    )
+    parser.add_argument(
+        "--answer-contract",
+        choices=sorted(ANSWER_CONTRACTS),
+        default=ANSWER_CONTRACT_OFF,
+        help=(
+            "Versioned answer-output contract applied equally to every adapter: "
+            "exact-answer/1 adds a draft-then-verify pass that completes dropped "
+            "set items, prunes unrequested extras, and anchors to the referenced "
+            "episode (default: off)."
         ),
     )
     parser.add_argument(
@@ -503,6 +522,7 @@ def main() -> None:
                 conversation_adapter=args.conversation_adapter,
                 inference_policy=args.inference_policy,
                 temporal_policy=args.temporal_policy,
+                answer_contract=args.answer_contract,
             ),
             adapter_name=args.adapter,
             cases=cases,
@@ -537,6 +557,7 @@ def main() -> None:
             conversation_adapter=args.conversation_adapter,
             inference_policy=args.inference_policy,
             temporal_policy=args.temporal_policy,
+            answer_contract=args.answer_contract,
         )
         judge = build_judge(args.judge, model=args.judge_model)
         report = run_benchmark_grouped(

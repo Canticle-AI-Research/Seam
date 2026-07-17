@@ -12,6 +12,8 @@ from pathlib import Path
 
 from benchmarks.external.common.types import AdapterAnswer, ConversationTurn
 from seam_runtime.conversation import (
+    ANSWER_CONTRACT_OFF,
+    ANSWER_CONTRACTS,
     CONVERSATION_ADAPTER_OFF,
     CONVERSATION_ADAPTERS,
     INFERENCE_CONTEXT_ONLY,
@@ -86,6 +88,7 @@ class SeamLocomoAdapter:
         conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
         inference_policy: str = INFERENCE_CONTEXT_ONLY,
         temporal_policy: str = TEMPORAL_POLICY_OFF,
+        answer_contract: str = ANSWER_CONTRACT_OFF,
     ) -> None:
         if conversation_adapter not in CONVERSATION_ADAPTERS:
             raise ValueError(f"unknown conversation adapter {conversation_adapter!r}")
@@ -93,6 +96,8 @@ class SeamLocomoAdapter:
             raise ValueError(f"unknown inference policy {inference_policy!r}")
         if temporal_policy not in TEMPORAL_POLICIES:
             raise ValueError(f"unknown temporal policy {temporal_policy!r}")
+        if answer_contract not in ANSWER_CONTRACTS:
+            raise ValueError(f"unknown answer contract {answer_contract!r}")
         # TODO: default db_path should be tmp_path, not a gitignored project dir
         self._db_root = Path(db_path) if db_path is not None else Path("test_seam/locomo")
         self.semantic_recovery_policy = SemanticRecoveryPolicy(
@@ -108,6 +113,7 @@ class SeamLocomoAdapter:
         self._conversation_adapter = conversation_adapter
         self._inference_policy = inference_policy
         self._temporal_policy = temporal_policy
+        self._answer_contract = answer_contract
         self._decomposer = decomposer
         self._decomposer_model = decomposer_model
         self._decomposer_max_subq = decomposer_max_subq
@@ -343,6 +349,7 @@ class SeamLocomoAdapter:
                     or getattr(flags, "inference_policy", "context-only")
                     != "context-only"
                     or getattr(flags, "temporal_policy", "off") != "off"
+                    or getattr(flags, "answer_contract", "off") != "off"
                 ):
                     policy_kwargs["flags"] = flags
                 generated = self._generate_answer(
@@ -484,12 +491,14 @@ class SeamLocomoAdapter:
         conversation_adapter = getattr(flags, "conversation_adapter", "off")
         inference_policy = getattr(flags, "inference_policy", "context-only")
         temporal_policy = getattr(flags, "temporal_policy", "off")
+        answer_contract = getattr(flags, "answer_contract", "off")
         prompt = build_answer_prompt(
             question,
             context,
             conversation_adapter=conversation_adapter,
             inference_policy=inference_policy,
             temporal_policy=temporal_policy,
+            answer_contract=answer_contract,
         )
         if diag_out is not None:
             from seam_runtime.conversation import (
@@ -507,6 +516,7 @@ class SeamLocomoAdapter:
                     "conversation_adapter": conversation_adapter,
                     "inference_policy": inference_policy,
                     "temporal_policy": temporal_policy,
+                    "answer_contract": answer_contract,
                     "conversation_intent": classify_conversation_intent(
                         question, adapter_version=intent_version
                     ).value,
@@ -787,12 +797,14 @@ class SeamLocomoAdapter:
                 self._conversation_adapter != CONVERSATION_ADAPTER_OFF
                 or self._inference_policy != INFERENCE_CONTEXT_ONLY
                 or self._temporal_policy != TEMPORAL_POLICY_OFF
+                or self._answer_contract != ANSWER_CONTRACT_OFF
             ):
                 runtime._retrieval_flags = replace(
                     runtime._retrieval_flags_cached(),
                     conversation_adapter=self._conversation_adapter,
                     inference_policy=self._inference_policy,
                     temporal_policy=self._temporal_policy,
+                    answer_contract=self._answer_contract,
                 )
             self._runtime_by_scope[scope_id] = runtime
         return runtime

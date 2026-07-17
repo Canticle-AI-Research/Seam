@@ -340,3 +340,19 @@ def test_temporal_policy_flag_default_env_and_coercion():
     assert coerce_flag_value("temporal_policy", "off") == "off"
     assert coerce_flag_value("temporal_policy", "temporal/99") is None
     assert coerce_flag_value("temporal_policy", 1) is None
+
+
+def test_answer_contract_flag_default_env_and_coercion():
+    from seam_runtime.retrieval import coerce_flag_value
+
+    assert RetrievalFlags().answer_contract == "off"
+    flags = retrieval_flags_from_env({"SEAM_ANSWER_CONTRACT": "exact-answer/1"})
+    assert flags.answer_contract == "exact-answer/1"
+    # fail-closed on unknown versions
+    assert (
+        retrieval_flags_from_env({"SEAM_ANSWER_CONTRACT": "guess"}).answer_contract == "off"
+    )
+    assert coerce_flag_value("answer_contract", "exact-answer/1") == "exact-answer/1"
+    assert coerce_flag_value("answer_contract", "off") == "off"
+    assert coerce_flag_value("answer_contract", "exact-answer/99") is None
+    assert coerce_flag_value("answer_contract", 1) is None

@@ -92,11 +92,13 @@ def test_wrapper_passes_same_opt_in_policy_to_comparator_answerer():
         "openai",
         conversation_adapter="conversation/1",
         inference_policy="inference/high-confidence/1",
+        answer_contract="exact-answer/1",
         _generate=generate,
     )
     wrapped.answer("scope1", "q?")
     assert seen["conversation_adapter"] == "conversation/1"
     assert seen["inference_policy"] == "inference/high-confidence/1"
+    assert seen["answer_contract"] == "exact-answer/1"
 
 
 def test_wrapper_retries_transient_provider_failures(monkeypatch):

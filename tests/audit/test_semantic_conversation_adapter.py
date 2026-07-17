@@ -472,3 +472,83 @@ def test_inference_v2_composes_with_conversation_and_temporal():
 def test_unknown_inference_policy_still_fails_closed():
     with pytest.raises(ValueError, match="unknown inference policy"):
         build_answer_prompt("q", "ctx", inference_policy="inference/high-confidence/9")
+
+
+def test_answer_contract_off_default_prompt_is_byte_identical():
+    locked = build_answer_prompt("What books did Ana read?", "[Ana] I read Dune.")
+    explicit_off = build_answer_prompt(
+        "What books did Ana read?", "[Ana] I read Dune.", answer_contract="off"
+    )
+    assert explicit_off == locked
+
+
+def test_exact_answer_contract_adds_draft_then_verify_pass():
+    from seam_runtime.conversation import ConversationIntent, answer_method_directive
+
+    # set-completion intent gets the coverage clause plus precision + anchoring
+    set_dir = answer_method_directive(
+        ConversationIntent.SET_COMPLETION,
+        conversation_adapter="conversation/2",
+        answer_contract="exact-answer/1",
+    )
+    assert "verify your draft against the retrieved context" in set_dir
+    assert "Coverage:" in set_dir
+    assert "Precision: REMOVE" in set_dir
+    assert "Anchoring:" in set_dir
+    assert "output only the corrected answer" in set_dir
+
+    # direct intent still gets precision + anchoring but NOT the set coverage clause
+    direct_dir = answer_method_directive(
+        ConversationIntent.DIRECT,
+        conversation_adapter="conversation/2",
+        answer_contract="exact-answer/1",
+    )
+    assert "Coverage:" not in direct_dir
+    assert "Precision: REMOVE" in direct_dir
+    assert "Anchoring:" in direct_dir
+
+
+def test_exact_answer_contract_off_adds_no_verify_clause():
+    from seam_runtime.conversation import ConversationIntent, answer_method_directive
+
+    off = answer_method_directive(
+        ConversationIntent.SET_COMPLETION,
+        conversation_adapter="conversation/2",
+        answer_contract="off",
+    )
+    assert "verify your draft" not in off
+    assert "Anchoring:" not in off
+
+
+def test_exact_answer_contract_composes_with_conversation_and_temporal():
+    prompt = build_answer_prompt(
+        "What sports has Nate played?",
+        "[Nate] I play tennis.\n[Nate] I also fenced in college.",
+        conversation_adapter="conversation/2",
+        temporal_policy="temporal/1",
+        answer_contract="exact-answer/1",
+    )
+    # conversation/2's exhaustive sweep survives (broad collection kept)
+    assert "Scan every EVIDENCE row" in prompt
+    # temporal grounding survives
+    assert "Resolve relative time expressions" in prompt
+    # the verify pass is present
+    assert "verify your draft against the retrieved context" in prompt
+
+
+def test_exact_answer_contract_standalone_without_conversation_adapter():
+    # exact-answer/1 must engage the policy prompt even when the conversation
+    # adapter is off (it is orthogonal), and reference the context generically
+    # rather than EVIDENCE rows that would not exist.
+    prompt = build_answer_prompt(
+        "Where did Ana go on her birthday?",
+        "[Ana] For my birthday we drove to the coast.",
+        answer_contract="exact-answer/1",
+    )
+    assert "verify your draft against the retrieved context" in prompt
+    assert "EVIDENCE|" not in prompt
+
+
+def test_unknown_answer_contract_fails_closed():
+    with pytest.raises(ValueError, match="unknown answer contract"):
+        build_answer_prompt("q", "ctx", answer_contract="exact-answer/99")

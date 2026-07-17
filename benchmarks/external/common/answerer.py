@@ -4,6 +4,8 @@ from dataclasses import replace
 
 from benchmarks.external.common.provider_retry import provider_retry
 from seam_runtime.conversation import (
+    ANSWER_CONTRACT_OFF,
+    ANSWER_CONTRACTS,
     CONVERSATION_ADAPTER_OFF,
     CONVERSATION_ADAPTERS,
     INFERENCE_CONTEXT_ONLY,
@@ -35,6 +37,7 @@ def build_answer_prompt(
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
     temporal_policy: str = TEMPORAL_POLICY_OFF,
+    answer_contract: str = ANSWER_CONTRACT_OFF,
 ) -> str:
     """Build the shared answer prompt under a versioned answer policy.
 
@@ -47,6 +50,7 @@ def build_answer_prompt(
         conversation_adapter == CONVERSATION_ADAPTER_OFF
         and inference_policy == INFERENCE_CONTEXT_ONLY
         and temporal_policy == TEMPORAL_POLICY_OFF
+        and answer_contract == ANSWER_CONTRACT_OFF
     ):
         return _ANSWER_PROMPT.format(context=context, question=question)
 
@@ -58,6 +62,7 @@ def build_answer_prompt(
         conversation_adapter=conversation_adapter,
         inference_policy=inference_policy,
         temporal_policy=temporal_policy,
+        answer_contract=answer_contract,
     )
     set_completion = (
         conversation_adapter != CONVERSATION_ADAPTER_OFF
@@ -87,6 +92,7 @@ def generate_short_answer(
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
     temporal_policy: str = TEMPORAL_POLICY_OFF,
+    answer_contract: str = ANSWER_CONTRACT_OFF,
 ) -> str:
     """Dispatch to a provider short-answer fn over (question, context).
 
@@ -100,6 +106,7 @@ def generate_short_answer(
         conversation_adapter=conversation_adapter,
         inference_policy=inference_policy,
         temporal_policy=temporal_policy,
+        answer_contract=answer_contract,
     )
     extra = {"diag_out": diag_out} if diag_out is not None else {}
     from benchmarks.external.locomo.adapters import seam as _seam
@@ -141,6 +148,7 @@ class SharedAnswererAdapter:
         conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
         inference_policy: str = INFERENCE_CONTEXT_ONLY,
         temporal_policy: str = TEMPORAL_POLICY_OFF,
+        answer_contract: str = ANSWER_CONTRACT_OFF,
         _generate=None,
     ):
         if conversation_adapter not in CONVERSATION_ADAPTERS:
@@ -149,6 +157,8 @@ class SharedAnswererAdapter:
             raise ValueError(f"unknown inference policy {inference_policy!r}")
         if temporal_policy not in TEMPORAL_POLICIES:
             raise ValueError(f"unknown temporal policy {temporal_policy!r}")
+        if answer_contract not in ANSWER_CONTRACTS:
+            raise ValueError(f"unknown answer contract {answer_contract!r}")
         self._inner = inner
         self.name = inner.name
         self._answerer = answerer
@@ -156,6 +166,7 @@ class SharedAnswererAdapter:
         self._conversation_adapter = conversation_adapter
         self._inference_policy = inference_policy
         self._temporal_policy = temporal_policy
+        self._answer_contract = answer_contract
         self._generate = _generate or generate_short_answer
 
     def reset(self, scope_id: str) -> None:
@@ -176,6 +187,8 @@ class SharedAnswererAdapter:
             policy_kwargs["inference_policy"] = self._inference_policy
         if self._temporal_policy != TEMPORAL_POLICY_OFF:
             policy_kwargs["temporal_policy"] = self._temporal_policy
+        if self._answer_contract != ANSWER_CONTRACT_OFF:
+            policy_kwargs["answer_contract"] = self._answer_contract
         generated = provider_retry(
             lambda: self._generate(
                 self._answerer,

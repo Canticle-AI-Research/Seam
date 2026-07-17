@@ -25,7 +25,13 @@ supports one answer, and requires enumerate-then-count for cardinality
 questions.  ``temporal/1`` separately requires resolving
 relative time expressions against per-message timestamps before answering;
 ``temporal/2`` adds instance disambiguation (enumerate every dated candidate,
-then pick by tense and time reference).  All policies are opt-in and versioned
+then pick by tense and time reference).  ``exact-answer/1`` is an orthogonal
+answer-output contract: a single-pass draft-then-verify directive that composes
+on top of the collection policies (champion base ``conversation/2``) and, after
+the draft, adds dropped set items, prunes anything the question did not ask for
+(a post-draft precision pass, unlike ``conversation/4`` which pruned at
+collection time and lost recall), and anchors the answer to the specific
+person/event/date the question refers to.  All policies are opt-in and versioned
 so the improvement loop can measure, promote, or revert them without changing
 the locked baseline.
 """
@@ -69,6 +75,10 @@ TEMPORAL_GROUNDING_V2 = "temporal/2"
 TEMPORAL_POLICIES = frozenset(
     {TEMPORAL_POLICY_OFF, TEMPORAL_GROUNDING_V1, TEMPORAL_GROUNDING_V2}
 )
+
+ANSWER_CONTRACT_OFF = "off"
+EXACT_ANSWER_CONTRACT_V1 = "exact-answer/1"
+ANSWER_CONTRACTS = frozenset({ANSWER_CONTRACT_OFF, EXACT_ANSWER_CONTRACT_V1})
 
 
 class ConversationIntent(str, Enum):
@@ -211,6 +221,7 @@ def answer_method_directive(
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
     inference_policy: str = INFERENCE_CONTEXT_ONLY,
     temporal_policy: str = TEMPORAL_POLICY_OFF,
+    answer_contract: str = ANSWER_CONTRACT_OFF,
 ) -> str:
     """Build the bounded reasoning contract placed before the answer context."""
 
@@ -220,6 +231,8 @@ def answer_method_directive(
         raise ValueError(f"unknown inference policy {inference_policy!r}")
     if temporal_policy not in TEMPORAL_POLICIES:
         raise ValueError(f"unknown temporal policy {temporal_policy!r}")
+    if answer_contract not in ANSWER_CONTRACTS:
+        raise ValueError(f"unknown answer contract {answer_contract!r}")
 
     if conversation_adapter == CONVERSATION_ADAPTER_OFF:
         method = "Use the retrieved context as evidence."
@@ -326,5 +339,36 @@ def answer_method_directive(
             "address. For a 'how many' or 'how much' question, first list every "
             "distinct qualifying item or occurrence found in the evidence, then report "
             "the count of that list rather than estimating."
+        )
+
+    if answer_contract == EXACT_ANSWER_CONTRACT_V1:
+        # exact-answer/1 = a structural draft-then-verify pass that composes on
+        # TOP of the collection policies above (the champion base is
+        # conversation/2, which sweeps broadly). It attacks the three miss
+        # buckets the 2026-07-16 record mining isolated: (a) supported set items
+        # dropped from the draft (recall), (b) 23 judge-docked partials that
+        # carried the full gold but were scored partial because the draft padded
+        # extras the question did not ask for (precision — a POST-draft prune,
+        # unlike the regressed conversation/4 which pruned at collection time and
+        # lost recall), and (c) 18 cases answered from a similar-but-wrong
+        # person/event/date instance (episode anchoring). It is a single-pass
+        # prompt directive, not a second model call.
+        set_clause = ""
+        if intent == ConversationIntent.SET_COMPLETION:
+            set_clause = (
+                " Coverage: this question asks for a set, so re-scan every part of the "
+                "retrieved context and ADD any qualifying item your draft left out — "
+                "supported items are frequently stated in separate turns far apart."
+            )
+        method += (
+            " Before giving your final answer, verify your draft against the retrieved "
+            "context in one pass." + set_clause + " Precision: REMOVE anything in your "
+            "draft that the question did not ask for — extra facts, adjacent details, "
+            "restated question text, or explanation — and keep only the exact "
+            "information requested. Anchoring: confirm every part of the answer comes "
+            "from the specific person, event, and time the question refers to, not a "
+            "similar-looking but different one elsewhere in the context; when the "
+            "question fixes a date or occasion, use only evidence matching it. Then "
+            "output only the corrected answer."
         )
     return method

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 407
-total_tokens: ~175038
-latest_id: 407
+total_entries: 408
+total_tokens: ~175847
+latest_id: 408
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 408 | 2026-07-17 | done | 324140f0884f98a8 | benchmark,locomo,levers,answer-contract,+ | 407 |
 | 407 | 2026-07-17 | done | 2a544db0b27af149 | roadmap,agent,openclaw,android,+ | 406 |
 | 406 | 2026-07-17 | done | ed2e561702dbd341 | hygiene,gitignore,worktree,artifacts | 405 |
 | 405 | 2026-07-16 | done | 465cd643cdc63c6b | benchmark,locomo,merge,pgvector,+ | 404 |
@@ -431,6 +432,7 @@ compact: true
 - analysis: count=1 latest=#405
 - android: count=1 latest=#407
 - animation: count=4 latest=#068, #052, #032, #028
+- answer-contract: count=1 latest=#408
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
@@ -438,13 +440,14 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=147 latest=#405, #401, #400, #399, #398
+- benchmark: count=148 latest=#408, #405, #401, #400, #399
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
 - bugfix: count=26 latest=#404, #401, #400, #390, #380
+- build: count=1 latest=#408
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
@@ -507,6 +510,7 @@ compact: true
 - entity-aggregation: count=2 latest=#358, #323
 - epistemic: count=1 latest=#325
 - evidence: count=2 latest=#375, #316
+- exact-answer: count=1 latest=#408
 - experiment: count=1 latest=#273
 - extractor: count=1 latest=#313
 - extras: count=1 latest=#022
@@ -545,7 +549,7 @@ compact: true
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
 - ledger: count=39 latest=#346, #302, #230, #181, #177
-- levers: count=1 latest=#405
+- levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
@@ -553,7 +557,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=61 latest=#405, #401, #400, #399, #398
+- locomo: count=62 latest=#408, #405, #401, #400, #399
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -694,6 +698,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 376
+- done: 377
 - in-progress: 4
 - planned: 20

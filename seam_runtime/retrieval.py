@@ -99,6 +99,13 @@ class RetrievalFlags:
     # Versioned separately: temporal grounding applies whether or not a
     # conversation projection is active.
     temporal_policy: str = "off"
+    # Answer-output contract. ``off`` preserves the locked baseline.
+    # ``exact-answer/1`` adds a single-pass draft-then-verify directive that
+    # composes on top of the collection policies: after drafting, it adds dropped
+    # set items, prunes anything the question did not ask for, and anchors the
+    # answer to the specific person/event/date referenced. Orthogonal to the
+    # conversation projection; versioned so the loop can measure/promote/revert it.
+    answer_contract: str = "off"
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -174,6 +181,11 @@ def coerce_flag_value(key: str, value: object) -> object | None:
             from .conversation import TEMPORAL_POLICIES
 
             if value not in TEMPORAL_POLICIES:
+                return None
+        if key == "answer_contract":
+            from .conversation import ANSWER_CONTRACTS
+
+            if value not in ANSWER_CONTRACTS:
                 return None
         return value
     return value if isinstance(value, expected) else None
@@ -257,6 +269,10 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_TEMPORAL_POLICY"].strip()
         if coerce_flag_value("temporal_policy", raw) is not None:
             out["temporal_policy"] = raw
+    if _present("SEAM_ANSWER_CONTRACT"):
+        raw = env["SEAM_ANSWER_CONTRACT"].strip()
+        if coerce_flag_value("answer_contract", raw) is not None:
+            out["answer_contract"] = raw
     return out
 
 
@@ -289,6 +305,7 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         conversation_adapter=_policy("SEAM_CONVERSATION_ADAPTER", "conversation_adapter", "off"),
         inference_policy=_policy("SEAM_INFERENCE_POLICY", "inference_policy", "context-only"),
         temporal_policy=_policy("SEAM_TEMPORAL_POLICY", "temporal_policy", "off"),
+        answer_contract=_policy("SEAM_ANSWER_CONTRACT", "answer_contract", "off"),
     )
 
 

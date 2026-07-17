@@ -747,6 +747,7 @@ def candidate_levers(
             CONVERSATION_ADAPTER_V2,
             CONVERSATION_ADAPTER_V3,
             CONVERSATION_ADAPTER_V4,
+            EXACT_ANSWER_CONTRACT_V1,
             INFERENCE_HIGH_CONFIDENCE_V1,
             INFERENCE_HIGH_CONFIDENCE_V2,
             TEMPORAL_GROUNDING_V1,
@@ -762,6 +763,7 @@ def candidate_levers(
             ("inference_policy", INFERENCE_HIGH_CONFIDENCE_V2),
             ("temporal_policy", TEMPORAL_GROUNDING_V1),
             ("temporal_policy", TEMPORAL_GROUNDING_V2),
+            ("answer_contract", EXACT_ANSWER_CONTRACT_V1),
         ):
             if getattr(baseline, field_name) == value:
                 continue
