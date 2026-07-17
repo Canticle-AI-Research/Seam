@@ -69,6 +69,15 @@ seam_runtime/_handoff_20260419/
 # Local artifact dumps
 Webui-final-dash/
 diag_out/
+# Browser/tooling caches (Playwright MCP screenshots+logs, Wrangler cache)
+.playwright-mcp/
+.wrangler/
+# Generated handoff/scoreboard visualizations (local presentation material, regenerable)
+visuals/
+# One-off local screenshots / page snapshots
+gated-view.png
+mem0-harness-scoreboard.png
+page-snapshot.md
 
 # Publish-only benchmark material stays local unless intentionally released
 benchmarks/fixtures/holdout/*.json

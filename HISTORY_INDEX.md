@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 405
-total_tokens: ~174164
-latest_id: 405
+total_entries: 406
+total_tokens: ~174413
+latest_id: 406
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 406 | 2026-07-17 | done | ed2e561702dbd341 | hygiene,gitignore,worktree,artifacts | 405 |
 | 405 | 2026-07-16 | done | 465cd643cdc63c6b | benchmark,locomo,merge,pgvector,+ | 404 |
 | 404 | 2026-07-16 | done | f1d3521014ee95a9 | bugfix,webui,dashboard,persist,+ | 403 |
 | 403 | 2026-07-16 | done | 11d8ecbd7dd33d41 | graph,memory,trust,provenance,+ | 402 |
@@ -430,6 +431,7 @@ compact: true
 - animation: count=4 latest=#068, #052, #032, #028
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
+- artifacts: count=1 latest=#406
 - atomicity: count=1 latest=#182
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
@@ -516,6 +518,7 @@ compact: true
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
 - git-hooks: count=4 latest=#359, #351, #349, #344
+- gitignore: count=1 latest=#406
 - gold-noise: count=1 latest=#369
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
@@ -530,7 +533,7 @@ compact: true
 - history: count=272 latest=#404, #403, #402, #399, #388
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
-- hygiene: count=1 latest=#324
+- hygiene: count=2 latest=#406, #324
 - improve: count=1 latest=#302
 - infra: count=1 latest=#271
 - ingest: count=2 latest=#317, #303
@@ -677,6 +680,7 @@ compact: true
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
 - workflow-permissions: count=1 latest=#298
+- worktree: count=1 latest=#406
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -685,6 +689,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 374
+- done: 375
 - in-progress: 4
 - planned: 20

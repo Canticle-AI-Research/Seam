@@ -9026,3 +9026,17 @@ Paid A/B (operator-approved, ~$0.80, gpt-4o-mini answerer+judge judge/1, 344-cas
 
 An initial token-overlap miss classification overstated the answerer-had-evidence bucket (52%) and the set-drop ratio (4:1); an operator-requested independent Fable re-analysis with phrase-level matching and hand-reading corrected these to ~35% and ~1.5:1 (37 dropped vs 25 not-retrieved set items), and showed set-completion alone is worth only ~+0.015 (misses 0.80). The error was logged to the training corpus (2026-07-16-001). Verified next lever, ranked: (1) build the exact-answer contract - a structural draft-then-verify second answer pass that includes dropped context-supported set items, prunes extras not asked (23 judge-docked partials carry the full gold), and anchors to the correct episode (18 cases); realistic ~+0.04-0.05 to ~0.82, one ~$0.80 A/B on conversation/2 + high-confidence/2 + temporal/1 + broad validates it; (2) retrieval-side temporal instance ranking (20/23 cat2 misses answer the wrong date instance); (3) past ~0.82 stop optimizing judge/1 and move spend to the matched-budget comparator rerun and the mem0-harness full run. No further paid spend occurred beyond the single approved A/B.
 ---END-ENTRY-#405---
+
+---BEGIN-ENTRY-#406---
+id: 406
+date: 2026-07-17T04:04:48Z
+agent: claude
+status: done
+topics: hygiene, gitignore, worktree, artifacts
+commits: pending
+refs: .gitignore
+supersedes: 405
+tokens: 249
+---
+Worktree hygiene closeout after the #405 chain reconciliation. A pile of untracked local artifacts remained: .playwright-mcp/ (Playwright MCP screenshots + console logs), .wrangler/ caches, visuals/ (a generated Charm/Lipgloss Go handoff-report generator + 4.5MB compiled binary + generated HTML/PNG scoreboards + .snapshot.md), and loose one-off outputs gated-view.png, mem0-harness-scoreboard.png, page-snapshot.md. None were tracked, so none are referenced by committed history. Per operator direction (clean worktree, my recommendation) added gitignore patterns for all of them under the existing 'Local artifact dumps' section (alongside Webui-final-dash/ and diag_out/) - fully non-destructive: every file stays on disk and is force-add-able, but git status is now clean (0 untracked) so neither agent accidentally commits regenerable presentation material. No source, test, or product code touched; no provider/paid call. Verification: git status shows only .gitignore modified, 0 untracked; SEAM chain verifiers (integrity/continuity/routing/handoffs) re-run green in this closeout.
+---END-ENTRY-#406---
