@@ -343,16 +343,23 @@ def answer_method_directive(
 
     if answer_contract == EXACT_ANSWER_CONTRACT_V1:
         # exact-answer/1 = a structural draft-then-verify pass that composes on
-        # TOP of the collection policies above (the champion base is
-        # conversation/2, which sweeps broadly). It attacks the three miss
-        # buckets the 2026-07-16 record mining isolated: (a) supported set items
-        # dropped from the draft (recall), (b) 23 judge-docked partials that
-        # carried the full gold but were scored partial because the draft padded
-        # extras the question did not ask for (precision — a POST-draft prune,
-        # unlike the regressed conversation/4 which pruned at collection time and
-        # lost recall), and (c) 18 cases answered from a similar-but-wrong
-        # person/event/date instance (episode anchoring). It is a single-pass
-        # prompt directive, not a second model call.
+        # TOP of the collection policies above. It attacks three miss buckets the
+        # 2026-07-16 record mining isolated: (a) supported set items dropped from
+        # the draft (recall), (b) judge-docked partials that carried the full gold
+        # but padded extras (precision — a POST-draft prune), and (c) cases
+        # answered from a similar-but-wrong instance (episode anchoring).
+        #
+        # MEASURED LOSER — TESTED AND PARKED (HISTORY#412, record
+        # 20260717-132158). On the 344 holdout with conversation/2 + hc/2 +
+        # temporal/1 + broad it scored 0.7471, BELOW both champions (#390 0.7689,
+        # #405 0.7762); every category regressed vs #390, including cat3
+        # -0.048. Root cause overturns the design premise: the PRECISION prune is
+        # backwards for judge/1 — the judge REWARDS the fuller answer because it
+        # is likelier to contain the gold, so pruning "extras" deletes gold (e.g.
+        # gold "filmmaker" pruned from "screenwriter and filmmaker"), the same
+        # over-terse failure mode that sank conversation/3. Kept default-off for
+        # provenance; do NOT enable. The cat3 lesson is the opposite lever:
+        # completeness + open-domain world-knowledge licensing, not pruning.
         set_clause = ""
         if intent == ConversationIntent.SET_COMPLETION:
             set_clause = (

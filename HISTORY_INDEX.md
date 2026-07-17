@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 411
-total_tokens: ~177103
-latest_id: 411
+total_entries: 412
+total_tokens: ~177856
+latest_id: 412
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 412 | 2026-07-17 | done | 626d3dccf0dd76da | benchmark,locomo,exact-answer,negative-result,+ | 411 |
 | 411 | 2026-07-17 | done | e9c275f8a2528c01 | benchmark,results,reproduce,fix,+ | 410 |
 | 410 | 2026-07-17 | done | 97eaf38f02097a13 | benchmark,results,proof,provenance,+ | 409 |
 | 409 | 2026-07-17 | done | 144ab2d93af9b7f8 | handoff,registry,exact-answer,closeout | 408 |
@@ -443,7 +444,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=150 latest=#411, #410, #408, #405, #401
+- benchmark: count=151 latest=#412, #411, #410, #408, #405
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -455,7 +456,7 @@ compact: true
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - cat1: count=8 latest=#369, #365, #362, #358, #328
-- cat3: count=3 latest=#369, #365, #362
+- cat3: count=4 latest=#412, #369, #365, #362
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
@@ -514,7 +515,7 @@ compact: true
 - entity-aggregation: count=2 latest=#358, #323
 - epistemic: count=1 latest=#325
 - evidence: count=2 latest=#375, #316
-- exact-answer: count=2 latest=#409, #408
+- exact-answer: count=3 latest=#412, #409, #408
 - experiment: count=1 latest=#273
 - extractor: count=1 latest=#313
 - extras: count=1 latest=#022
@@ -562,7 +563,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=63 latest=#410, #408, #405, #401, #400
+- locomo: count=64 latest=#412, #410, #408, #405, #401
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -584,7 +585,7 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=4 latest=#033, #024, #009, #002
-- negative-result: count=1 latest=#392
+- negative-result: count=2 latest=#412, #392
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
@@ -593,8 +594,9 @@ compact: true
 - operator: count=3 latest=#353, #340, #179
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
-- paid: count=1 latest=#365
+- paid: count=2 latest=#412, #365
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
+- parked: count=1 latest=#412
 - performance: count=3 latest=#364, #363, #362
 - persist: count=30 latest=#404, #403, #402, #401, #342
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
@@ -707,6 +709,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 380
+- done: 381
 - in-progress: 4
 - planned: 20
