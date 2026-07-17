@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 406
-total_tokens: ~174413
-latest_id: 406
+total_entries: 407
+total_tokens: ~175038
+latest_id: 407
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 407 | 2026-07-17 | done | 2a544db0b27af149 | roadmap,agent,openclaw,android,+ | 406 |
 | 406 | 2026-07-17 | done | ed2e561702dbd341 | hygiene,gitignore,worktree,artifacts | 405 |
 | 405 | 2026-07-16 | done | 465cd643cdc63c6b | benchmark,locomo,merge,pgvector,+ | 404 |
 | 404 | 2026-07-16 | done | f1d3521014ee95a9 | bugfix,webui,dashboard,persist,+ | 403 |
@@ -423,11 +424,12 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=2 latest=#403, #402
+- agent: count=3 latest=#407, #403, #402
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
 - analysis: count=1 latest=#405
+- android: count=1 latest=#407
 - animation: count=4 latest=#068, #052, #032, #028
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
@@ -571,12 +573,14 @@ compact: true
 - models: count=2 latest=#403, #182
 - multi-agent: count=20 latest=#378, #268, #231, #230, #229
 - multihop: count=3 latest=#321, #319, #318
+- namespaces: count=1 latest=#407
 - naming: count=4 latest=#033, #024, #009, #002
 - negative-result: count=1 latest=#392
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
 - openai: count=1 latest=#327
+- openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
 - pack: count=5 latest=#316, #315, #314, #218, #183
 - packaging: count=4 latest=#296, #293, #287, #284
@@ -587,6 +591,7 @@ compact: true
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
 - plan: count=14 latest=#243, #214, #180, #176, #171
 - planner: count=1 latest=#288
+- planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
 - pricing: count=1 latest=#368
 - private-storage: count=1 latest=#367
@@ -624,7 +629,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
-- roadmap: count=54 latest=#346, #333, #319, #318, #284
+- roadmap: count=55 latest=#407, #346, #333, #319, #318
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -689,6 +694,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 375
+- done: 376
 - in-progress: 4
 - planned: 20

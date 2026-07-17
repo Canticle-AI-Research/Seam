@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 464
+total_events: 465
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-19T18:54:10Z | history:213:2850402b | session-event | done | audit, verify, mcp, persist, protocol, history | seam_runtime/mcp.py,tests/audit/test_context_pack_persist_policy.py,PROJECT_S... |
 | 2026-05-20T00:37:49Z | history:214:152513ad | session-event | done | benchmark, audit, verify, docs, plan, security, history | docs/SOP_TRACK_K_BIL_PHASE1_DEEPSEEK.md,docs/prompts/DEEPSEEK_TRACK_K_BIL_PHA... |
 | 2026-05-20T02:15:17Z | history:215:9560b39d | session-event | done | benchmark, audit, verify, command, docs, status, history,... | seam_runtime/benchmark_integrity.py,seam_runtime/cli.py,test_seam_all/test_be... |
 | 2026-05-20T03:12:17Z | history:216:45c3fc22 | session-event | done | benchmark, audit, verify, history, streams, command, docs... | seam_runtime/tokenization.py,tools/tokenization.py,seam_runtime/mirl.py,tools... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
 | 2026-07-16T23:08:58Z | history:405:465cd643 | session-event | done | benchmark, locomo, merge, pgvector, analysis, levers, rec... | PROJECT_STATUS.md,HISTORY.md,seam_runtime/conversation.py,seam_runtime/vector... |
 | 2026-07-17T04:04:48Z | history:406:ed2e5617 | session-event | done | hygiene, gitignore, worktree, artifacts | .gitignore |
+| 2026-07-17T04:52:38Z | history:407:2a544db0 | session-event | done | roadmap, agent, openclaw, android, namespaces, planning | ROADMAP.md,PROJECT_STATUS.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0264.cross.md | 2026-04-15T00:00:00Z..2026-05-19T18:50:18Z | 264 | (multi) | (multi) |
+| 0001-0265.cross.md | 2026-04-15T00:00:00Z..2026-05-19T18:54:10Z | 265 | (multi) | (multi) |

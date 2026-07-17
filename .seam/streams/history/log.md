@@ -9040,3 +9040,23 @@ tokens: 249
 ---
 Worktree hygiene closeout after the #405 chain reconciliation. A pile of untracked local artifacts remained: .playwright-mcp/ (Playwright MCP screenshots + console logs), .wrangler/ caches, visuals/ (a generated Charm/Lipgloss Go handoff-report generator + 4.5MB compiled binary + generated HTML/PNG scoreboards + .snapshot.md), and loose one-off outputs gated-view.png, mem0-harness-scoreboard.png, page-snapshot.md. None were tracked, so none are referenced by committed history. Per operator direction (clean worktree, my recommendation) added gitignore patterns for all of them under the existing 'Local artifact dumps' section (alongside Webui-final-dash/ and diag_out/) - fully non-destructive: every file stays on disk and is force-add-able, but git status is now clean (0 untracked) so neither agent accidentally commits regenerable presentation material. No source, test, or product code touched; no provider/paid call. Verification: git status shows only .gitignore modified, 0 untracked; SEAM chain verifiers (integrity/continuity/routing/handoffs) re-run green in this closeout.
 ---END-ENTRY-#406---
+
+---BEGIN-ENTRY-#407---
+id: 407
+date: 2026-07-17T04:52:38Z
+agent: claude
+status: done
+topics: roadmap, agent, openclaw, android, namespaces, planning
+commits: pending
+refs: ROADMAP.md,PROJECT_STATUS.md
+supersedes: 406
+tokens: 625
+---
+Doc-only ROADMAP planning session: recorded the operator's post-benchmark horizon decisions as two new planned tracks, both explicitly gated behind the exact-answer-contract benchmark build (~0.82 target).
+
+Track P (Agent Runtimes & Memory Profiles, OpenClaw first): SEAM holds multiple agents' brains. Design decision recorded from the session: per-agent memory PROFILES, not one collective brain - a private namespace per agent (identity + memory contract + trust/retention rules) plus explicit shared namespaces carrying per-agent provenance, recall scoped private-first; subagents are the special case that shares the parent namespace; builds on Track E2. OpenClaw is the first target runtime (its native memory is flat markdown - the adoption wedge), with a 3-level integration ladder: SEAM skill over the existing MCP server (advisory), OpenClaw hooks injecting recall and capturing outcomes (push-based, the first deliverable), and SEAM as OpenClaw's memory backend (the prize). Scoping precondition: verify OpenClaw's current plugin/hook API from live docs. The operator surface is a memory console on the existing knowledge-graph dashboard - provision profiles, per-agent memory timeline, provenance drill-down, trust/forget controls, Track L drift audit - with the hard boundary that it governs memory and never runs agents. The full-agent-SDK direction (memory-native loop grown inside-out) and mem0/Zep migration facades/importers (seed: the #393 seam_mem0_server) are recorded inside Track P as brainstormed-NOT-committed.
+
+Track Q (SEAM Lite for Android): a lite runtime for super-small on-phone agents (1-3B), push-based by design because models that small cannot sustain tool-calling memory discipline - the runtime injects recall and captures output structurally every turn (the same memory-native loop as Track P). SQLite-first reusing the existing core; open decisions: on-device embedder, Termux vs native packaging; the parked SQLite vector-scan performance fix (docs/audits/2026-07-07-sqlite-vector-scan-design-task.md) becomes load-bearing on phone hardware.
+
+Files changed: ROADMAP.md (two new track sections inserted before Recommended Course, seam:item ids roadmap:track:P and roadmap:track:Q), PROJECT_STATUS.md (new current-update paragraph), HISTORY chain files. No code, tests, provider calls, paid runs, push, or PR. Verification: SEAM chain verifiers run in this closeout. Unresolved next step: none for this change; the active build remains the exact-answer contract.
+---END-ENTRY-#407---

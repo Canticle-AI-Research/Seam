@@ -1659,6 +1659,103 @@ ledger). Do not start before the retrieval-quality work lands.
 
 ---
 
+## Track P — Agent Runtimes & Memory Profiles (OpenClaw first)
+
+<!-- seam:item
+id: roadmap:track:P
+status: planned
+status-since: 2026-07-16
+status-by: history:407
+supersedes: none
+topics: agent, openclaw, namespaces, profiles, console
+priority: 2
+phase: 1
+-->
+
+**Status:** Planned (operator decision 2026-07-16). Do not start before the
+exact-answer-contract benchmark build lands (~0.82 target); benchmarks remain
+the primary touchpoint.
+
+**What:** SEAM holds multiple agents' brains. External runtimes (OpenClaw is
+the first target) run the agents; SEAM provisions and governs their memory.
+
+**Memory profiles (the core model):** one private namespace per agent — the
+agent's *profile*: identity, memory contract (what to remember), trust and
+retention rules — plus explicit shared namespaces an agent opts into. Recall
+scopes private-first, then shared; every shared record carries per-agent
+provenance so readers can weigh the writer. Subagents are the degenerate case
+(they share their parent's namespace). Builds on Track E2 multi-tenant
+namespacing; the semantics (who reads what, shared vs private boundaries) must
+be designed explicitly before any console renders them.
+
+**OpenClaw integration ladder** (its native memory is flat markdown files —
+the adoption wedge is "the memory upgrade for OpenClaw"):
+
+1. Skill/tool level: a SEAM skill so OpenClaw agents can call
+   search/compile over the existing MCP server (`seam mcp stdio`). Advisory;
+   the model must choose to remember.
+2. Hook level (**first deliverable**): OpenClaw plugin/hook points inject
+   SEAM recall into each message and capture conversation outcomes back —
+   memory pushed by the runtime, not requested by the model.
+3. Backend level (the prize): SEAM as OpenClaw's memory backend, so every
+   agent on an install gets provenance-tracked memory transparently.
+
+Precondition for scoping: verify OpenClaw's *current* plugin/hook API against
+live docs — it moves fast and prior knowledge is presumed stale.
+
+**Memory console:** the operator surface for this track is a memory factory +
+observatory built on the existing knowledge-graph dashboard: provision
+profiles, per-agent "what does this agent remember" timeline, provenance
+drill-down, trust/forget/expire controls, Track L drift audit as UI,
+shared-vs-private visibility. Hard boundary: the console governs memory and
+NEVER runs agents (no run button, no orchestration, no prompt editing).
+
+**Related direction (brainstormed, NOT committed):** a memory-native agent
+loop — recall/inject/capture structural in every turn — as the possible core
+of a SEAM agent SDK grown inside-out (loop → providers/tools → orchestration).
+The same loop is the intended runtime core of Track Q. Adjacent adoption
+lever, also uncommitted: mem0/Zep migration facades + importers (the #393
+`seam_mem0_server` drop-in facade is the existing seed).
+
+---
+
+## Track Q — SEAM Lite for Android (small-agent memory runtime)
+
+<!-- seam:item
+id: roadmap:track:Q
+status: planned
+status-since: 2026-07-16
+status-by: history:407
+supersedes: none
+topics: android, mobile, small-models, memory-loop
+priority: 3
+phase: 1
+-->
+
+**Status:** Planned (operator decision 2026-07-16). Same gate as Track P:
+after the exact-answer-contract benchmark build.
+
+**What:** a lite SEAM for Android focused on improving super-small on-phone
+agents (1–3B class) that use the phone to run memory. The architectural claim:
+memory is what makes small agents viable. Models this small cannot sustain
+tool-calling memory discipline, so SEAM Lite is push-based by design — the
+runtime injects recall before the model sees the prompt and captures output
+after, structurally every turn (the Track P memory-native loop is the core).
+
+**Components / open decisions:**
+
+1. SQLite-first core (already phone-shaped; reuse, do not fork, the runtime).
+2. On-device embedder: small quantized/ONNX model — selection open.
+3. The SQLite vector-scan performance fix becomes load-bearing on phone
+   hardware (design already scoped:
+   `docs/audits/2026-07-07-sqlite-vector-scan-design-task.md`; results must
+   stay byte-identical).
+4. Packaging: Termux vs native app — open decision.
+5. v0 demo definition: one small local model on-device, remembering across
+   sessions with zero cloud calls.
+
+---
+
 ## Recommended Course — Priority Order
 
 Use this section for current priority. Older planned entries `HISTORY#028`-
