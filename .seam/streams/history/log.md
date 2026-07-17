@@ -9106,3 +9106,17 @@ tokens: 585
 ---
 Posted the undeniable proof of specific benchmark runs to the repo as a new canonical doc benchmarks/RESULTS.md (operator: GitHub gets the verifiable truth of specific runs; the narrative/lab-data page goes on the website separately). Two runs, each fully specified and anchored: (1) SEAM LoCoMo native judged holdout A/B (record 20260716-102125-locomo-holdout.json, SHA-256 af816aa1e228cb9d264e115f260112363937cd4f8f7f44f6fafc761613012716, git af5698b, gpt-4o-mini answerer+judge judge/1, 344-case holdout): candidate broad + conversation/4 + inference/high-confidence/2 + temporal/1 = 0.776163 vs stock 0.633721 (+0.142442); per-category candidate cat1 0.5738/cat2 0.7432/cat3 0.5952/cat4 0.8743/cat5 1.0; both aggregates RECOMPUTED from the raw per-case judge_score rows (not a stored scalar) and matched HISTORY#405 exactly. (2) SEAM on mem0's unmodified harness (mem0ai/memory-benchmarks @4b61c5d) as a drop-in Mem0-OSS server, lenient binary judge (record 20260715-091018-mem0-harness-cat13.json, SHA-256 e93cc7a4... VERIFIED matching HISTORY#400): multi-hop 250/282=88.65%, open-domain 83/96=86.46%, overall 333/378=88.10%. The doc's design is deliberate: full per-case records are NOT committed (LoCoMo is a licensed dataset; dumping rows redistributes the eval set), so proof rests on three checkable legs - reproduce command, aggregate recomputable from the record, and the record SHA-256 as an out-of-band integrity anchor. Honest caveats included and load-bearing: 0.776163 is only +0.0073 over the cleaner #390 stack and its conversation/4 component is net-negative on cat1 (conversation/2 is the recommended base); the mem0-harness lenient judge is NOT on the same scale as native judge/1 and the two must not be averaged; cat3 holdout n=21. The unvalidated exact-answer/1 lever (#408) explicitly has NO entry. Added a pointer from BENCHMARK_LOG.md. Doc-only; no code, no provider call, no paid run, no raw case data committed. Verification: SHA-256s computed from the mounted T7 records; mem0 SHA byte-matches the committed HISTORY#400 value; SEAM chain verifiers run in this closeout.
 ---END-ENTRY-#410---
+
+---BEGIN-ENTRY-#411---
+id: 411
+date: 2026-07-17T17:48:07Z
+agent: claude
+status: done
+topics: benchmark, results, reproduce, fix, cli
+commits: pending
+refs: benchmarks/RESULTS.md
+supersedes: 410
+tokens: 264
+---
+Corrected the Run 1 reproduce command in benchmarks/RESULTS.md (HISTORY#410), which was non-runnable as committed - a real defect in a doc whose entire value is reproducibility. Two problems: (1) it invoked 'python -m seam_runtime.cli', but that module has no __main__ guard so it imports and exits 0 with zero output; the real entrypoint is the 'seam' console script (pyproject 'seam = seam:main'). (2) it omitted the required --locomo-dataset and the --locomo-scopes needed to select the 344-case holdout. Fixed to 'seam improve validate --locomo-dataset benchmarks/external/locomo/data/locomo10.json --locomo-scopes 10 --split holdout ...' and added a note that omitting --confirm-paid prints a free cost estimate. VERIFIED by a real free dry-run: the corrected command reports cases=344, passes=2, candidate conversation/4 - exactly matching the #405 champion record it documents. Found while setting up the exact-answer/1 A/B (which is running in the background as a separate paid task, recorded separately on completion). Doc-only; no code, no provider call, no paid spend in this entry.
+---END-ENTRY-#411---

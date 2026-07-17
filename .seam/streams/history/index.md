@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 410
-total_tokens: ~176839
-latest_id: 410
+total_entries: 411
+total_tokens: ~177103
+latest_id: 411
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 411 | 2026-07-17 | done | e9c275f8a2528c01 | benchmark,results,reproduce,fix,+ | 410 |
 | 410 | 2026-07-17 | done | 97eaf38f02097a13 | benchmark,results,proof,provenance,+ | 409 |
 | 409 | 2026-07-17 | done | 144ab2d93af9b7f8 | handoff,registry,exact-answer,closeout | 408 |
 | 408 | 2026-07-17 | done | 324140f0884f98a8 | benchmark,locomo,levers,answer-contract,+ | 407 |
@@ -442,7 +443,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=149 latest=#410, #408, #405, #401, #400
+- benchmark: count=150 latest=#411, #410, #408, #405, #401
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -462,7 +463,7 @@ compact: true
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
-- cli: count=4 latest=#302, #293, #287, #285
+- cli: count=5 latest=#411, #302, #293, #287, #285
 - closeout: count=1 latest=#409
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
@@ -519,6 +520,7 @@ compact: true
 - extras: count=1 latest=#022
 - fairness: count=1 latest=#333
 - fidelity: count=7 latest=#313, #311, #308, #307, #306
+- fix: count=1 latest=#411
 - fixture: count=6 latest=#265, #187, #145, #092, #039
 - flags: count=1 latest=#320
 - flaky: count=1 latest=#361
@@ -634,7 +636,8 @@ compact: true
 - registry: count=5 latest=#409, #350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- results: count=1 latest=#410
+- reproduce: count=1 latest=#411
+- results: count=2 latest=#411, #410
 - retrieval: count=81 latest=#403, #402, #400, #395, #390
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
@@ -704,6 +707,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 379
+- done: 380
 - in-progress: 4
 - planned: 20
