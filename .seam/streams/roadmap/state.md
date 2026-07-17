@@ -53,7 +53,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:O` — since 2026-06-15 via history:319 — topics: query, sql, retrieval, benchmark, bird
 - `roadmap:track:P` — since 2026-07-16 via history:407 — topics: agent, openclaw, namespaces, profiles, console
 - `roadmap:track:Q` — since 2026-07-16 via history:407 — topics: android, mobile, small-models, memory-loop
-- `roadmap:track:R` — since 2026-07-17 via history:414 — topics: graph, memory, retrieval, benchmark, comparator, provenance
+- `roadmap:track:R` — since 2026-07-17 via history:415 — topics: graph, memory, retrieval, benchmark, comparator, provenance
 
 ## later (2)
 

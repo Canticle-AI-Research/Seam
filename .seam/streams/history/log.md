@@ -9182,3 +9182,31 @@ existing Track P Mem0/Zep migration direction becomes a delivery surface.
 This is roadmap/status/history only. No runtime behavior, benchmark result,
 provider call, paid spend, or default changed.
 ---END-ENTRY-#414---
+
+---BEGIN-ENTRY-#415---
+id: 415
+date: 2026-07-17T19:55:01Z
+agent: codex
+status: changed
+topics: roadmap, benchmark, graph, memory, retrieval, comparator, quality, plan
+commits: pending
+refs: ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md
+supersedes: 414
+tokens: 237
+---
+Corrected Track R's benchmark policy after the operator rejected #414's
+primary/secondary hierarchy. SEAM native judge/1 and Mem0's harness are now
+explicitly co-primary evidence lanes. Native judge/1 is especially valuable
+for stricter internal diagnosis and ratcheting. Mem0-harness data is equally
+first-class and may be more valuable for incumbent-relative, migration, and
+market-facing decisions because it evaluates SEAM under Mem0's own contract.
+All available evidence from both lanes should be analyzed and may set work
+priorities.
+
+The scoreboards remain separate because their scoring contracts differ, not
+because either is secondary. Results must not be averaged or relabeled across
+harnesses. Track R's gate remains progress on the native standard plus a
+matched Mem0-vs-SEAM win inside Mem0's harness with the evaluation contract
+held constant. No runtime behavior, score, provider call, paid spend, or
+default changed.
+---END-ENTRY-#415---
