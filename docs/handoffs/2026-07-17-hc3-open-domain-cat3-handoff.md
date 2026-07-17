@@ -1,0 +1,115 @@
+---
+handoff_id: 2026-07-17-hc3-open-domain-cat3-handoff
+supersedes: 2026-07-17-exact-answer-contract-handoff
+handoff_status: current
+history: HISTORY#413
+---
+
+# Handoff (for SOL): validate inference/high-confidence/3 (open-domain cat3 naming)
+
+- **Date:** 2026-07-17
+- **Branch:** `agent/roadmap-zep-after-benchmarks` (== `main`)
+- **Task for SOL:** run the paid A/B for the new `inference/high-confidence/3`
+  lever and report cat1/cat2/cat3/cat4 separately. **Operator gates every paid
+  run** — surface cost and get an explicit go first.
+
+## Context: why this lever exists
+
+The exact-answer contract (`answer_contract=exact-answer/1`, HISTORY#408) was
+**A/B-tested and REJECTED** (HISTORY#412): 0.7471, below both champions; its
+precision-prune *deleted gold* (judge/1 rewards fuller answers). Parked
+default-off.
+
+The free per-case scan of the #390 champion's 11 cat3 misses that followed found
+the real open-domain gap: ~4–5 cases where the model **abstained/described
+instead of naming** a well-known entity the clues uniquely identify — composer
+**John Williams** (plays Star Wars tunes), **Voyageurs** National Park, Star
+Wars Ireland locations, **Exploding Kittens**. That is the OPPOSITE of pruning:
+completeness + naming.
+
+`inference/high-confidence/3` (HISTORY#413) builds on hc/2 and licenses naming a
+well-known real-world entity from uniquely-identifying clues, with an ambiguity
+guard (don't guess when clues fit several entities). Opt-in, default-off,
+defaults byte-identical; affected tests + smoke green, ruff clean, full suite
+green except 2 embedder-env mem0-server tests that pass with the HF env below.
+
+## ⚠️ MANDATORY env (the cause of two prior zero-spend run failures)
+
+The bge embedder is cached on T7; a non-interactive shell must export this or the
+run dies loading `BAAI/bge-small-en-v1.5`:
+
+```bash
+export HF_HUB_CACHE=/media/terrabyte/T7/hf-cache HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+export SEAM_BENCH_RECORD_DIR=/media/terrabyte/T7/Proprietary/DATA
+```
+
+## Step 1 (optional, ~$0.05): cheap cat3 preflight — isolates the naming clause
+
+Reuses the champion's STORED cat3 contexts (no re-retrieval); compares hc/2 vs
+hc/3. Green-light the full A/B if the naming misses flip Unknown/described →
+named. Save this as `scratchpad/preflight_hc3_cat3.py` and run it:
+
+```python
+#!/usr/bin/env python
+"""Cheap cat3 preflight for inference/high-confidence/3."""
+import json
+from benchmarks.external.common.answerer import build_answer_prompt
+from benchmarks.external.locomo.adapters import seam as _seam
+RECORD = "/media/terrabyte/T7/Proprietary/DATA/20260714-192938-locomo-holdout.json"  # #390
+MODEL = "gpt-4o-mini"
+def answer(p): return _seam._openai_short_answer(MODEL, p)
+def main():
+    rec = json.load(open(RECORD))
+    cat3 = [c for c in rec["cases"] if c["arm"] == "candidate" and c.get("category") == "3"]
+    print(f"cat3 cases: {len(cat3)}\n"); flips = 0
+    for c in cat3:
+        base = dict(conversation_adapter="conversation/2", temporal_policy="temporal/1")
+        p2 = build_answer_prompt(c["question"], c["retrieved_context"], inference_policy="inference/high-confidence/2", **base)
+        p3 = build_answer_prompt(c["question"], c["retrieved_context"], inference_policy="inference/high-confidence/3", **base)
+        a2, a3 = answer(p2), answer(p3); changed = a2.strip() != a3.strip(); flips += changed
+        print("="*70); print(f"Q: {c['question'][:95]}{'  <-- CHANGED' if changed else ''}")
+        print(f"GOLD : {str(c['gold_answer'])[:80]}"); print(f"hc/2 : {a2[:110]}"); print(f"hc/3 : {a3[:110]}")
+    print("="*70); print(f"\ncat3 changed by hc/3: {flips}/{len(cat3)} — check the CHANGED cases name the correct entity.")
+if __name__ == "__main__": main()
+```
+
+Run: `OPENAI_API_KEY=... .venv/bin/python scratchpad/preflight_hc3_cat3.py`
+
+## Step 2 (~$0.80, ~45 min): the full holdout A/B
+
+Dry-run-verified (344 cases, hc/3 candidate). Omit `--confirm-paid` for a free
+cost estimate; add it to spend.
+
+```bash
+seam improve validate \
+  --locomo-dataset benchmarks/external/locomo/data/locomo10.json \
+  --locomo-scopes 10 --split holdout \
+  --answerer openai --answerer-model gpt-4o-mini \
+  --judge openai --judge-model gpt-4o-mini \
+  --profile broad \
+  --flags '{"conversation_adapter":"conversation/2","inference_policy":"inference/high-confidence/3","temporal_policy":"temporal/1"}' \
+  --confirm-paid
+```
+
+## Success bar & attribution
+
+- **Win:** candidate cat3 > 0.5952 (champion) with no other-category regression and
+  aggregate ≥ 0.7689. Realistic ceiling is small (~4–5 cat3 cases of 21, noisy).
+- After the run, free per-case attribution: diff the new record's cat3 rows vs the
+  #390 champion (`20260714-192938-locomo-holdout.json`) to confirm the naming
+  cases (John Williams / Voyageurs / Exploding Kittens) converted, and that hc/3
+  did not over-license wrong names on ambiguous cases (the Mafia/Among Us hazard).
+- Record lands in `$SEAM_BENCH_RECORD_DIR`; compute its SHA-256, and if it wins,
+  add it to `benchmarks/RESULTS.md`.
+
+## Not this lever
+
+cat1 → 91% on the mem0 harness is a SEPARATE track: native cat1 misses are mostly
+incomplete-SET partials that the mem0 lenient judge already credits, so the mem0
+headroom (+7 cases) is the genuinely-wrong multi-hop cases → a retrieval-side
+lever (graph closure / decomposition), not this answer-side naming lever.
+
+## Champions unchanged
+
+#405 conv/4 stack 0.7762 (highest) / #390 conv/2 stack 0.7689 (cleaner base).
+Advisor/Fable was unavailable this session; the analysis above was done directly.

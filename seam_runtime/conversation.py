@@ -22,7 +22,12 @@ inference for questions whose answer is not stated verbatim, while retaining
 ambiguity-aware abstention.  ``inference/high-confidence/2`` adds two cheap
 measured fixes on top of v1: it forbids abstaining when the context clearly
 supports one answer, and requires enumerate-then-count for cardinality
-questions.  ``temporal/1`` separately requires resolving
+questions.  ``inference/high-confidence/3`` builds on v2 and licenses
+open-domain world-knowledge NAMING: when retrieved clues uniquely identify a
+well-known real-world entity (person, place, work, product, game), it names the
+entity instead of describing it or abstaining, with an ambiguity guard for
+clues that fit several entities — targeting the champion's dominant cat3
+open-domain miss shape.  ``temporal/1`` separately requires resolving
 relative time expressions against per-message timestamps before answering;
 ``temporal/2`` adds instance disambiguation (enumerate every dated candidate,
 then pick by tense and time reference).  ``exact-answer/1`` is an orthogonal
@@ -65,8 +70,14 @@ _WIDE_SET_DETECTION = frozenset(
 INFERENCE_CONTEXT_ONLY = "context-only"
 INFERENCE_HIGH_CONFIDENCE_V1 = "inference/high-confidence/1"
 INFERENCE_HIGH_CONFIDENCE_V2 = "inference/high-confidence/2"
+INFERENCE_HIGH_CONFIDENCE_V3 = "inference/high-confidence/3"
 INFERENCE_POLICIES = frozenset(
-    {INFERENCE_CONTEXT_ONLY, INFERENCE_HIGH_CONFIDENCE_V1, INFERENCE_HIGH_CONFIDENCE_V2}
+    {
+        INFERENCE_CONTEXT_ONLY,
+        INFERENCE_HIGH_CONFIDENCE_V1,
+        INFERENCE_HIGH_CONFIDENCE_V2,
+        INFERENCE_HIGH_CONFIDENCE_V3,
+    }
 )
 
 TEMPORAL_POLICY_OFF = "off"
@@ -318,7 +329,11 @@ def answer_method_directive(
             "mention."
         )
 
-    if inference_policy in (INFERENCE_HIGH_CONFIDENCE_V1, INFERENCE_HIGH_CONFIDENCE_V2):
+    if inference_policy in (
+        INFERENCE_HIGH_CONFIDENCE_V1,
+        INFERENCE_HIGH_CONFIDENCE_V2,
+        INFERENCE_HIGH_CONFIDENCE_V3,
+    ):
         method += (
             " You may combine the evidence with stable, widely known world knowledge only "
             "when it supports one high-confidence interpretation. If multiple plausible "
@@ -327,7 +342,7 @@ def answer_method_directive(
     else:
         method += " Do not add facts that are not supported by the context."
 
-    if inference_policy == INFERENCE_HIGH_CONFIDENCE_V2:
+    if inference_policy in (INFERENCE_HIGH_CONFIDENCE_V2, INFERENCE_HIGH_CONFIDENCE_V3):
         # v2 attacks the two cheapest measured misses (2026-07-15 scan): 4 cases
         # answered 'unknown' though a single supported answer was present, and 3
         # 'how many' questions that under-counted. 'unknown' stays available for
@@ -339,6 +354,27 @@ def answer_method_directive(
             "address. For a 'how many' or 'how much' question, first list every "
             "distinct qualifying item or occurrence found in the evidence, then report "
             "the count of that list rather than estimating."
+        )
+
+    if inference_policy == INFERENCE_HIGH_CONFIDENCE_V3:
+        # v3 = open-domain world-knowledge NAMING, built on v2. Targets the
+        # champion's dominant cat3 miss shape (2026-07-17 scan of the #390 record,
+        # HISTORY#412 follow-up): the answerer DESCRIBES or abstains ('Unknown')
+        # when the retrieved clues uniquely identify a well-known real-world named
+        # entity. Measured examples it should convert: context says Tim plays Star
+        # Wars piano tunes -> name the composer 'John Williams'; a national park
+        # described by its features -> name it; a card game described by its rules
+        # -> name it. v2's high-confidence + no-abstention rules still apply; this
+        # extends them to NAMING the specific entity, with an explicit ambiguity
+        # guard so it does not confidently guess when clues fit several entities.
+        method += (
+            " When the retrieved context describes a specific real-world named entity "
+            "— a person, place, creative work, product, team, or game — through "
+            "distinctive attributes or clues, and stable widely-known world knowledge "
+            "identifies exactly one well-known entity matching those clues, NAME that "
+            "entity rather than only describing it or answering 'unknown'. If the clues "
+            "could plausibly fit more than one well-known entity, do not guess — name "
+            "none and answer with what the context supports."
         )
 
     if answer_contract == EXACT_ANSWER_CONTRACT_V1:

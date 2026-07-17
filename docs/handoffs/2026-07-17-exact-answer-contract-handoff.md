@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-17-exact-answer-contract-handoff
 supersedes: 2026-07-15-cat1-cat3-scoreboard-closeout
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#409
 ---
 
