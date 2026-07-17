@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 467
+total_events: 468
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-20T03:12:17Z | history:216:45c3fc22 | session-event | done | benchmark, audit, verify, history, streams, command, docs... | seam_runtime/tokenization.py,tools/tokenization.py,seam_runtime/mirl.py,tools... |
 | 2026-05-20T04:47:38Z | history:217:7eab9308 | session-event | done | benchmark, audit, verify, command, docs, status, history,... | seam_runtime/benchmark_integrity.py,seam_runtime/benchmark_baseline_policy.py... |
 | 2026-05-20T07:34:43Z | history:218:bbeb7960 | session-event | done | security, audit, verify, mcp, persist, retrieval, vector,... | seam_runtime/server.py,seam_runtime/mcp.py,seam_runtime/mcp_protocol.py,seam_... |
 | 2026-05-20T09:35:56Z | history:219:a514a615 | session-event | done | audit, verify, pgvector, test, docs, history, status, ben... | PROJECT_STATUS.md,test_seam_all/test_seam.py,docs/SOP_CRITICAL_BENCHMARKABILI... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-17T04:52:38Z | history:407:2a544db0 | session-event | done | roadmap, agent, openclaw, android, namespaces, planning | ROADMAP.md,PROJECT_STATUS.md |
 | 2026-07-17T04:59:20Z | history:408:324140f0 | session-event | done | benchmark, locomo, levers, answer-contract, exact-answer,... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
 | 2026-07-17T09:27:04Z | history:409:144ab2d9 | session-event | done | handoff, registry, exact-answer, closeout | docs/handoffs/2026-07-17-exact-answer-contract-handoff.md,docs/handoffs/INDEX.md |
+| 2026-07-17T09:39:49Z | history:410:97eaf38f | session-event | done | benchmark, results, proof, provenance, locomo, mem0, publish | benchmarks/RESULTS.md,benchmarks/BENCHMARK_LOG.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0267.cross.md | 2026-04-15T00:00:00Z..2026-05-20T02:15:17Z | 267 | (multi) | (multi) |
+| 0001-0268.cross.md | 2026-04-15T00:00:00Z..2026-05-20T03:12:17Z | 268 | (multi) | (multi) |

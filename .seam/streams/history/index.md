@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 409
-total_tokens: ~176254
-latest_id: 409
+total_entries: 410
+total_tokens: ~176839
+latest_id: 410
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 410 | 2026-07-17 | done | 97eaf38f02097a13 | benchmark,results,proof,provenance,+ | 409 |
 | 409 | 2026-07-17 | done | 144ab2d93af9b7f8 | handoff,registry,exact-answer,closeout | 408 |
 | 408 | 2026-07-17 | done | 324140f0884f98a8 | benchmark,locomo,levers,answer-contract,+ | 407 |
 | 407 | 2026-07-17 | done | 2a544db0b27af149 | roadmap,agent,openclaw,android,+ | 406 |
@@ -441,7 +442,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=148 latest=#408, #405, #401, #400, #399
+- benchmark: count=149 latest=#410, #408, #405, #401, #400
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -559,7 +560,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=62 latest=#408, #405, #401, #400, #399
+- locomo: count=63 latest=#410, #408, #405, #401, #400
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -569,7 +570,7 @@ compact: true
 - manual: count=1 latest=#331
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
-- mem0: count=11 latest=#395, #394, #393, #384, #343
+- mem0: count=12 latest=#410, #395, #394, #393, #384
 - memory: count=9 latest=#403, #402, #342, #340, #286
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
@@ -607,10 +608,12 @@ compact: true
 - profiling: count=1 latest=#362
 - promotion: count=1 latest=#305
 - prompt: count=4 latest=#382, #365, #345, #340
+- proof: count=1 latest=#410
 - proposer: count=1 latest=#291
 - protocol: count=103 latest=#381, #380, #378, #356, #355
 - prov: count=1 latest=#316
-- provenance: count=3 latest=#403, #402, #373
+- provenance: count=4 latest=#410, #403, #402, #373
+- publish: count=1 latest=#410
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
@@ -631,6 +634,7 @@ compact: true
 - registry: count=5 latest=#409, #350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
+- results: count=1 latest=#410
 - retrieval: count=81 latest=#403, #402, #400, #395, #390
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
@@ -700,6 +704,6 @@ compact: true
 
 - roots: 76
 - changed: 7
-- done: 378
+- done: 379
 - in-progress: 4
 - planned: 20

@@ -2,6 +2,11 @@
 
 This file tracks the historical performance of the SEAM runtime. All significant benchmark runs that involve architecture or model changes should be recorded here.
 
+> **Verifiable run proofs:** for the specific validated LoCoMo runs (native
+> judged holdout A/B and the mem0-harness competitive standing), with exact
+> config, code provenance, reproduce commands, and record SHA-256 anchors, see
+> [`RESULTS.md`](RESULTS.md).
+
 ## Storage Rule: Run Artifacts
 - All benchmark run bundles are stored as JSON in `benchmarks/runs/`.
 - Filename format: `YYYYMMDD_HHMMSS_[label]_projection.json`
