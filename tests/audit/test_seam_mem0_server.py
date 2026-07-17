@@ -12,9 +12,11 @@ import pytest
 
 from benchmarks.external.mem0_harness.seam_mem0_server import (
     SeamMem0Server,
+    _apply_count_context_policy,
     _epoch_to_iso,
     _split_speaker,
 )
+from seam_runtime.retrieval import RetrievalFlags
 
 
 def test_epoch_to_iso_and_speaker_split():
@@ -208,6 +210,144 @@ def test_retrieve_expands_span_raw_id_before_filtering():
         "id": "raw-1",
         "created_at": "",
     }]
+
+
+def test_count_context_policy_off_preserves_results_byte_for_byte():
+    results = [
+        {
+            "memory": "[Nate 2023-03-01] I won a tournament.",
+            "score": 0.8,
+            "id": "raw:1",
+            "created_at": "2023-03-01",
+        }
+    ]
+    runtime = SimpleNamespace(
+        _retrieval_flags_cached=lambda: RetrievalFlags()
+    )
+
+    assert _apply_count_context_policy(
+        runtime, "How many tournaments did Nate win?", results, 10
+    ) is results
+
+
+def test_count_context_policy_prepends_projection_and_preserves_raw_provenance():
+    results = [
+        {
+            "memory": "[Nate 2023-03-03] I will enter a tournament next week.",
+            "score": 0.9,
+            "id": "raw:plan",
+            "created_at": "2023-03-03",
+        },
+        {
+            "memory": "[Nate 2023-03-01] I won a tournament.",
+            "score": 0.7,
+            "id": "raw:observed",
+            "created_at": "2023-03-01",
+        },
+    ]
+    runtime = SimpleNamespace(
+        _retrieval_flags_cached=lambda: RetrievalFlags(
+            count_context_policy="event-count/distinct/1"
+        )
+    )
+
+    projected = _apply_count_context_policy(
+        runtime, "How many tournaments did Nate win?", results, 3
+    )
+
+    assert len(projected) == 3
+    assert projected[0]["id"].startswith("seam-count:")
+    assert projected[0]["memory"].startswith("SEAM-COUNT/1|")
+    assert projected[1]["id"] == "raw:observed"
+    assert {item["id"] for item in projected[1:]} == {
+        "raw:observed",
+        "raw:plan",
+    }
+
+
+def test_count_context_at_capacity_references_only_retained_raw_records():
+    results = [
+        {
+            "memory": f"[Nate 2023-03-0{index}] I won tournament {index}.",
+            "score": 1.0 - index / 10,
+            "id": f"raw:{index}",
+            "created_at": f"2023-03-0{index}",
+        }
+        for index in range(1, 4)
+    ]
+    runtime = SimpleNamespace(
+        _retrieval_flags_cached=lambda: RetrievalFlags(
+            count_context_policy="event-count/distinct/1"
+        )
+    )
+
+    projected = _apply_count_context_policy(
+        runtime, "How many tournaments did Nate win?", results, 3
+    )
+
+    assert len(projected) == 3
+    retained_ids = {item["id"] for item in projected[1:]}
+    projection_text = projected[0]["memory"]
+    for raw_id in retained_ids:
+        assert raw_id in projection_text
+    dropped_ids = {item["id"] for item in results} - retained_ids
+    for raw_id in dropped_ids:
+        assert raw_id not in projection_text
+
+
+def test_count_context_policy_does_not_change_non_count_queries():
+    results = [
+        {
+            "memory": "[Nate 2023-03-01] I won a tournament.",
+            "score": 0.8,
+            "id": "raw:1",
+            "created_at": "2023-03-01",
+        }
+    ]
+    runtime = SimpleNamespace(
+        _retrieval_flags_cached=lambda: RetrievalFlags(
+            count_context_policy="event-count/distinct/1"
+        )
+    )
+
+    assert _apply_count_context_policy(
+        runtime, "Which tournament did Nate win?", results, 10
+    ) is results
+
+
+def test_count_context_policy_env_reaches_real_facade(monkeypatch, tmp_path):
+    monkeypatch.setenv("SEAM_COUNT_CONTEXT_POLICY", "event-count/distinct/1")
+    server = SeamMem0Server(db_path=str(tmp_path / "count-scopes"))
+    try:
+        server.add(
+            {
+                "user_id": "count-user",
+                "timestamp": 1687000000,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Nate: I won a tournament yesterday.",
+                    },
+                    {
+                        "role": "user",
+                        "content": "Nate: I will enter another tournament next week.",
+                    },
+                ],
+            }
+        )
+        results = server.search(
+            {
+                "user_id": "count-user",
+                "query": "How many tournaments did Nate win?",
+                "limit": 10,
+            }
+        )["results"]
+
+        assert results[0]["id"].startswith("seam-count:")
+        assert results[0]["memory"].startswith("SEAM-COUNT/1|")
+        assert any(item["id"].startswith("raw:") for item in results[1:])
+    finally:
+        server.close()
 
 
 def test_asgi_routes_match_mem0_oss_contract(tmp_path):

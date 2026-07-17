@@ -55,6 +55,35 @@ conversation/temporal/profile stack applies identically.
        --backend oss --mem0-host http://127.0.0.1:8900
    ```
 
+## Distinct-count context preflight (default off)
+
+`event-count/distinct/1` is an opt-in query-time context policy for questions
+such as "how many" and "how many times." It prepends a disposable
+`SEAM-COUNT/1` projection that organizes retrieved RAW turns by likely observed,
+planned, negated, or reference-only status; asks the downstream harness
+answerer to count distinct occurrences/items rather than mentions; and retains
+RAW ids as provenance. It does not generate the answer or mutate stored MIRL.
+All defaults remain unchanged.
+
+Enable it on the facade with:
+
+```bash
+export SEAM_COUNT_CONTEXT_POLICY=event-count/distinct/1
+```
+
+Before any answerer or judge call, run the free structural preflight against a
+private saved Mem0-harness result:
+
+```bash
+python -m benchmarks.external.mem0_harness.preflight_event_count_context \
+    /path/to/mem0-harness-cat13.json --summary-only
+```
+
+The command makes zero provider calls, writes no files, and prints aggregate
+projection diagnostics without reproducing licensed questions or memory text.
+It is a structural gate only; it does not claim a score improvement. A scored
+answerer microgate and any full harness run remain operator-gated.
+
 ## Comparability notes (read before quoting a number)
 
 - **Their judge is far more lenient than ours** — a binary CORRECT/WRONG

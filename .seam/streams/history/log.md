@@ -9210,3 +9210,51 @@ matched Mem0-vs-SEAM win inside Mem0's harness with the evaluation contract
 held constant. No runtime behavior, score, provider call, paid spend, or
 default changed.
 ---END-ENTRY-#415---
+
+---BEGIN-ENTRY-#416---
+id: 416
+date: 2026-07-17T20:50:51Z
+agent: codex
+status: done
+topics: benchmark, locomo, memory, retrieval, pack, provenance, quality, test, handoff
+commits: pending
+refs: seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/preflight_event_count_context.py,benchmarks/external/mem0_harness/README.md,tests/audit/test_event_count_context.py,tests/audit/test_event_count_preflight.py,tests/audit/test_retrieval_flags.py,tests/audit/test_seam_mem0_server.py,docs/handoffs/2026-07-17-event-count-context-handoff.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 415
+tokens: 913
+---
+Built `event-count/distinct/1`, the smallest high-evidence cat1 probe surfaced
+by a free offline audit of the private HISTORY#400 Mem0-harness artifact. Mem0
+cat1 remains 250/282 (88.65%); exceeding 91% requires seven more correct cases.
+Of 32 misses, 22 already have all gold evidence in top-200 retrieval, 8 have
+partial evidence, and 2 have none. Fourteen misses are count questions and
+12/14 contain all required evidence. This is a narrow context-assembly target,
+not a broad retrieval or scoreboard claim.
+
+Added a default-off `RetrievalFlags.count_context_policy` and bounded,
+injection-resistant `SEAM-COUNT/1` projection for count questions. It
+classifies clauses as observed, mixed, mentioned, reference-only, planned, or
+negated; ranks query-relevant observed evidence first; preserves retained-RAW
+provenance; discloses truncation; and never cites a RAW memory dropped by the
+facade's response capacity. Flag-off and non-count behavior remain unchanged.
+The tracked free preflight reads a stored artifact, emits aggregate counts
+only, and makes no provider call. It selected and projected all 14 failed cat1
+count cases, preserved 2560 raw candidates in projections, promoted 96
+observed rows, and demoted 79 non-qualifying rows. These are structural
+results, not judged-answer results.
+
+Verification with the mandatory T7 offline HF cache environment: 50 focused
+tests passed; the full non-external `tests/` suite exited zero with two
+established xfails; ruff and `git diff --check` were clean; final CodeRabbit
+review reported zero findings after four earlier findings were fixed with
+regressions. One focused invocation that omitted the HF offline exports
+reproduced the known BGE cache/load failure in five real-facade tests at zero
+provider calls; the exact slice passed after rerunning with the documented
+environment. No paid call or score-validation run occurred.
+
+NEXT: the operator gates an answerer-only stored-context microgate over the 14
+selected misses, then a matched full Mem0-harness validation only if the lever
+converts at least seven cases without regression. Keep that evidence separate
+from native judge/1. The independent `inference/high-confidence/3` cat3 naming
+lever from HISTORY#413 remains built, default-off, and unvalidated in the
+preserved predecessor handoff.
+---END-ENTRY-#416---

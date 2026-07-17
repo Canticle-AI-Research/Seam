@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-17-hc3-open-domain-cat3-handoff
 supersedes: 2026-07-17-exact-answer-contract-handoff
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#413
 ---
 

@@ -37,6 +37,10 @@ from datetime import datetime, timezone
 
 from benchmarks.external.common.types import ConversationTurn
 from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
+from seam_runtime.event_count_context import (
+    CountEvidence,
+    build_count_context_projection,
+)
 
 
 def _epoch_to_iso(timestamp: int | None) -> str:
@@ -141,6 +145,7 @@ class SeamMem0Server:
         )
         out: list[dict] = []
         seen_content: set[str] = set()
+        reached_limit = False
         for cand in result.candidates:
             ids = self._adapter._collect_closure_ids_public(cand) \
                 if hasattr(self._adapter, "_collect_closure_ids_public") \
@@ -171,8 +176,11 @@ class SeamMem0Server:
                     "created_at": _created_at(record),
                 })
                 if len(out) >= limit:
-                    return out
-        return out
+                    reached_limit = True
+                    break
+            if reached_limit:
+                break
+        return _apply_count_context_policy(rt, query, out, limit)
 
     def close(self) -> None:
         self._adapter.close()
@@ -193,6 +201,60 @@ def _closure_ids(candidate) -> list[str]:
     for rid in candidate.record.prov or []:
         add(rid)
     return ids
+
+
+def _apply_count_context_policy(
+    runtime, query: str, results: list[dict], limit: int
+) -> list[dict]:
+    """Apply the optional count projection without changing the off path."""
+
+    get_flags = getattr(runtime, "_retrieval_flags_cached", None)
+    flags = get_flags() if callable(get_flags) else None
+    policy = getattr(flags, "count_context_policy", "off")
+    projection = build_count_context_projection(
+        query,
+        [
+            CountEvidence(
+                record_id=str(item["id"]),
+                text=str(item["memory"]),
+                score=float(item.get("score", 0.0)),
+                created_at=str(item.get("created_at") or ""),
+                original_rank=index,
+            )
+            for index, item in enumerate(results, 1)
+        ],
+        policy=policy,
+    )
+    if projection is None or limit < 2:
+        return results
+
+    by_id = {str(item["id"]): item for item in results}
+    reranked_results = [
+        by_id[row.evidence.record_id]
+        for row in projection.ranked
+        if row.evidence.record_id in by_id
+    ]
+    retained_results = reranked_results[: max(0, limit - 1)]
+    retained_ids = {str(item["id"]) for item in retained_results}
+    retained_evidence = [
+        row.evidence
+        for row in projection.ranked
+        if row.evidence.record_id in retained_ids
+    ]
+    projection = build_count_context_projection(
+        query,
+        retained_evidence,
+        policy=policy,
+    )
+    if projection is None:
+        return results
+    projected = {
+        "memory": projection.render(),
+        "score": max((float(item.get("score", 0.0)) for item in results), default=0.0),
+        "id": projection.projection_id,
+        "created_at": "",
+    }
+    return [projected, *retained_results]
 
 
 def _created_at(record) -> str:

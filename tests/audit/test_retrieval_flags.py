@@ -356,3 +356,26 @@ def test_answer_contract_flag_default_env_and_coercion():
     assert coerce_flag_value("answer_contract", "off") == "off"
     assert coerce_flag_value("answer_contract", "exact-answer/99") is None
     assert coerce_flag_value("answer_contract", 1) is None
+
+
+def test_count_context_policy_default_env_and_coercion():
+    from seam_runtime.retrieval import coerce_flag_value
+
+    assert RetrievalFlags().count_context_policy == "off"
+    flags = retrieval_flags_from_env(
+        {"SEAM_COUNT_CONTEXT_POLICY": "event-count/distinct/1"}
+    )
+    assert flags.count_context_policy == "event-count/distinct/1"
+    assert (
+        retrieval_flags_from_env(
+            {"SEAM_COUNT_CONTEXT_POLICY": "event-count/distinct/99"}
+        ).count_context_policy
+        == "off"
+    )
+    assert (
+        coerce_flag_value("count_context_policy", "event-count/distinct/1")
+        == "event-count/distinct/1"
+    )
+    assert coerce_flag_value("count_context_policy", "off") == "off"
+    assert coerce_flag_value("count_context_policy", "event-count/distinct/99") is None
+    assert coerce_flag_value("count_context_policy", True) is None

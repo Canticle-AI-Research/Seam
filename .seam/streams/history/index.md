@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 415
-total_tokens: ~179112
-latest_id: 415
+total_entries: 416
+total_tokens: ~180025
+latest_id: 416
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 416 | 2026-07-17 | done | 2c227cbce47c99dc | benchmark,locomo,memory,retrieval,+ | 415 |
 | 415 | 2026-07-17 | changed | 4f266a98d14dada0 | roadmap,benchmark,graph,memory,+ | 414 |
 | 414 | 2026-07-17 | planned | 96038f7dcae4fd4b | roadmap,benchmark,graph,memory,+ | 413 |
 | 413 | 2026-07-17 | done | a74254d921062762 | benchmark,locomo,cat3,open-domain,+ | 412 |
@@ -447,7 +448,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=154 latest=#415, #414, #413, #412, #411
+- benchmark: count=155 latest=#416, #415, #414, #413, #412
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -542,7 +543,7 @@ compact: true
 - graph: count=7 latest=#415, #414, #404, #403, #402
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=29 latest=#413, #409, #401, #400, #399
+- handoff: count=30 latest=#416, #413, #409, #401, #400
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -569,7 +570,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=65 latest=#413, #412, #410, #408, #405
+- locomo: count=66 latest=#416, #413, #412, #410, #408
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -580,7 +581,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- memory: count=11 latest=#415, #414, #403, #402, #342
+- memory: count=12 latest=#416, #415, #414, #403, #402
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
@@ -599,7 +600,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
-- pack: count=5 latest=#316, #315, #314, #218, #183
+- pack: count=6 latest=#416, #316, #315, #314, #218
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
@@ -623,12 +624,12 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=103 latest=#381, #380, #378, #356, #355
 - prov: count=1 latest=#316
-- provenance: count=5 latest=#414, #410, #403, #402, #373
+- provenance: count=6 latest=#416, #414, #410, #403, #402
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=18 latest=#415, #414, #398, #397, #396
+- quality: count=19 latest=#416, #415, #414, #398, #397
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -647,7 +648,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=83 latest=#415, #414, #403, #402, #400
+- retrieval: count=84 latest=#416, #415, #414, #403, #402
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -689,7 +690,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=1 latest=#400
-- test: count=43 latest=#344, #343, #342, #341, #340
+- test: count=44 latest=#416, #344, #343, #342, #341
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -716,6 +717,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 382
+- done: 383
 - in-progress: 4
 - planned: 21
