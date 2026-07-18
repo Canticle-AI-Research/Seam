@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 416
-total_tokens: ~180025
-latest_id: 416
+total_entries: 417
+total_tokens: ~180624
+latest_id: 417
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 417 | 2026-07-18 | done | 5760e59a94518720 | benchmark,locomo,memory,retrieval,+ | 416 |
 | 416 | 2026-07-17 | done | 2c227cbce47c99dc | benchmark,locomo,memory,retrieval,+ | 415 |
 | 415 | 2026-07-17 | changed | 4f266a98d14dada0 | roadmap,benchmark,graph,memory,+ | 414 |
 | 414 | 2026-07-17 | planned | 96038f7dcae4fd4b | roadmap,benchmark,graph,memory,+ | 413 |
@@ -448,7 +449,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=155 latest=#416, #415, #414, #413, #412
+- benchmark: count=156 latest=#417, #416, #415, #414, #413
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -543,7 +544,7 @@ compact: true
 - graph: count=7 latest=#415, #414, #404, #403, #402
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=30 latest=#416, #413, #409, #401, #400
+- handoff: count=31 latest=#417, #416, #413, #409, #401
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -570,7 +571,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=66 latest=#416, #413, #412, #410, #408
+- locomo: count=67 latest=#417, #416, #413, #412, #410
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -581,7 +582,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- memory: count=12 latest=#416, #415, #414, #403, #402
+- memory: count=13 latest=#417, #416, #415, #414, #403
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
@@ -629,7 +630,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=19 latest=#416, #415, #414, #398, #397
+- quality: count=20 latest=#417, #416, #415, #414, #398
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -648,7 +649,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=84 latest=#416, #415, #414, #403, #402
+- retrieval: count=85 latest=#417, #416, #415, #414, #403
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -690,7 +691,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=1 latest=#400
-- test: count=44 latest=#416, #344, #343, #342, #341
+- test: count=45 latest=#417, #416, #344, #343, #342
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -703,7 +704,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=274 latest=#404, #403, #402, #401, #400
+- verify: count=275 latest=#417, #404, #403, #402, #401
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -717,6 +718,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 383
+- done: 384
 - in-progress: 4
 - planned: 21

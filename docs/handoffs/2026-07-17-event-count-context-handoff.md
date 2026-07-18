@@ -87,13 +87,43 @@ provider_calls: 0
 This proves the structural lever fires on the intended misses; it is not a
 quality claim.
 
+## Microgate result (2026-07-17, operator-approved, HISTORY#417)
+
+The answerer-only microgate ran via
+`benchmarks.external.mem0_harness.microgate_event_count_context` (both arms
+re-answered and re-judged same-day through the verbatim upstream contract,
+`mem0ai/memory-benchmarks` @ `4b61c5d`, gpt-4o-mini answerer+judge, temp 0):
+
+```text
+selected_cases: 14
+baseline_rerun_correct: 1   (pure rerun noise)
+candidate_correct: 6
+net_candidate_minus_baseline: +5
+gate_threshold_flips: 7  ->  GATE NOT MET
+```
+
+Cost ≈ $0.08. Record: private
+`20260717-195655-mem0-microgate-event-count.json` beside the source artifact.
+
+**Decision: the full Mem0-harness validation is NOT green-lit** (6 < 7 flips;
+even 6 flips ≈ 256/282 = 90.8% cat1, still under 91%). The lever is real —
++5 net over a same-day paired baseline — but insufficient alone.
+
+Failure shape of the 8 remaining misses: every one is a wrong *number*, 5
+overcounts and 3 undercounts. The projection classifies observed vs.
+planned/mentioned correctly but its same-event grouping is too weak: repeated
+descriptions of one event still count separately, and the harness re-sorts
+memories (score desc, then chrono), so only the projection *text block*
+survives into the prompt — the reranking does not. A v2 would need stronger
+same-event `group_id` merging inside the projection rows themselves.
+
 ## Next decision
 
-Run an operator-approved, answerer-only stored-context microgate on the 14
-selected failures. Green-light a matched full Mem0-harness validation only if
-at least seven previously incorrect cat1 answers flip without regressions.
-Report cat1 and cat3 separately and do not relabel this as movement on the
-native judge/1 scoreboard.
+Either build `event-count/distinct/2` with explicit same-event clustering in
+the rendered rows (targeting the 5 overcounts), or park the count lane and
+spend the next probe on the ~18 non-count cat1 misses. Operator's call.
+Report cat1 and cat3 separately and do not relabel any of this as movement on
+the native judge/1 scoreboard.
 
 The prior `inference/high-confidence/3` cat3 naming lever remains built,
 default-off, and unvalidated. Its preserved runbook is

@@ -9258,3 +9258,52 @@ from native judge/1. The independent `inference/high-confidence/3` cat3 naming
 lever from HISTORY#413 remains built, default-off, and unvalidated in the
 preserved predecessor handoff.
 ---END-ENTRY-#416---
+
+---BEGIN-ENTRY-#417---
+id: 417
+date: 2026-07-18T01:03:48Z
+agent: claude
+status: done
+topics: benchmark, locomo, memory, retrieval, quality, test, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit/test_event_count_microgate.py,docs/handoffs/2026-07-17-event-count-context-handoff.md,PROJECT_STATUS.md
+supersedes: 416
+tokens: 599
+---
+Ran the operator-approved paid answerer-only microgate for
+`event-count/distinct/1` (HISTORY#416's gate) over the 14 failed cat1 count
+cases in the private HISTORY#400 Mem0-harness artifact. Built the committed
+runner `benchmarks.external.mem0_harness.microgate_event_count_context`: it
+re-answers and re-judges BOTH arms same-day through the verbatim upstream
+contract (`mem0ai/memory-benchmarks` @ `4b61c5d` prompts loaded by file path,
+gpt-4o-mini answerer+judge, temperature 0, top-200, no-evidence judge), with
+the candidate context produced by the facade's real
+`_apply_count_context_policy` code path. Case selection is predicate-identical
+to the free preflight; a zero-spend dry run against the real artifact verified
+14/14 selection, projection firing, and that exactly the 14 candidate answer
+prompts contain the SEAM-COUNT/1 block before any paid call.
+
+RESULT: baseline rerun 1/14 correct (rerun noise), candidate 6/14, net +5.
+The >=7-flip gate is NOT met, so the full Mem0-harness validation is NOT
+green-lit. Even 6 flips would be ~256/282 = 90.8 percent cat1, under the 91
+percent bar. The lever is real but insufficient alone. Failure shape of the 8
+remaining misses: every one is a wrong number (5 overcounts, 3 undercounts) -
+the projection's observed/planned classification lands, but same-event
+grouping is too weak, and because the upstream harness re-sorts memories
+(score desc, then chronological) only the projection text block survives into
+the prompt, not the reranking. Cost ~USD 0.08; private record
+`20260717-195655-mem0-microgate-event-count.json` beside the source artifact.
+
+Verification: 5 new hermetic microgate tests (no provider calls); ruff clean;
+full non-external `tests/` suite green from raw log with exit code captured -
+1025 passed + 2 established xfails, ZERO failures/errors/skips, with
+PGVECTOR_TEST_DSN set against the live seam-pgvector container so the two
+previously DSN-gated tests ran for real. Handoff updated in place with the
+measured result and marked: full-run NOT green-lit.
+
+Unresolved next step (operator decision): build `event-count/distinct/2` with
+explicit same-event clustering in the rendered rows (targets the 5
+overcounts), or park the count lane and probe the ~18 non-count cat1 misses.
+The independent hc/3 cat3 naming lever (HISTORY#413) remains built, default
+off, unvalidated.
+---END-ENTRY-#417---
