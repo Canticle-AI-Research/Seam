@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 481
+total_events: 482
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-22T07:46:11Z | history:230:db816fc2 | session-event | done | docs, ledger, protocol, multi-agent, history, verify | docs/SOP_ADVISOR_EXECUTOR_LOOP.md,docs/prompts/DEEPSEEK_ADVISED_EXECUTOR_PROM... |
 | 2026-05-22T07:56:51Z | history:231:bccee17e | session-event | done | docs, protocol, multi-agent, benchmark, history, verify | docs/prompts/DEEPSEEK_TRACK_M_BATCH_JUDGE_ADVISED_PROMPT.md,PROJECT_STATUS.md |
 | 2026-05-22T08:50:21Z | history:232:cf622b5f | session-event | done | benchmark, verify, command, history, status | benchmarks/external/common/judge.py,benchmarks/external/common/runner.py,benc... |
 | 2026-05-22T09:38:42Z | history:233:563a0f5c | session-event | done | benchmark, retrieval, verify, history, status | seam_runtime/temporal.py,seam_runtime/retrieval.py,seam_runtime/runtime.py,be... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-18T04:00:00Z | history:418:caca6117 | session-event | done | roadmap, docs, agent, memory |  |
 | 2026-07-18T11:21:47Z | history:419:3f64d78d | session-event | done | benchmark, locomo, retrieval, quality, verify | docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md |
 | 2026-07-18T11:28:05Z | history:420:cf6c4060 | session-event | done | benchmark, locomo, retrieval, memory, quality, plan | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
+| 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0281.cross.md | 2026-04-15T00:00:00Z..2026-05-22T06:25:30Z | 281 | (multi) | (multi) |
+| 0001-0282.cross.md | 2026-04-15T00:00:00Z..2026-05-22T07:46:11Z | 282 | (multi) | (multi) |

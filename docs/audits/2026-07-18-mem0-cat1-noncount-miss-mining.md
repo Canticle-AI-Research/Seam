@@ -92,3 +92,33 @@ cat1 misses are answer/context-assembly-side; ~11 involve a retrieval gap.**
   same artifact population).
 
 All paid probes above are operator-gated; none were run in this slice.
+
+## Addendum: free retrieval diff vs the scored run (2026-07-18, $0)
+
+Question: did the post-score #400 facade fixes (temporal window pass-through,
+SPAN→RAW closure expansion) or the merged #152 graph/auto-ingest work change
+the Mem0-harness retrieval surface? Method: fresh full `--predict-only` pass
+(378 questions, cats 1+3) through today's facade (README validated-stack env,
+top-k 200, fresh scratch store, upstream harness @ `4b61c5d`, zero provider
+calls), then per-question diff of fresh vs stored top-200 lists and a rerun of
+the evidence-presence mining on both.
+
+Result — **the code changes are effectively NEUTRAL on this lane**:
+
+- 378/378 compared. Membership changed on 316 lists but shallowly: mean
+  Jaccard 0.924 (15 more are pure reorders, 47 byte-identical). Tail churn,
+  not systematic movement.
+- **Miss set (45): evidence improved on 1 (conv3_q62, a count case that was
+  already answer-side), regressed on 0, unchanged on 44.** The fixes did not
+  materially bind on the miss set, and #152 did NOT displace RAW (no mass
+  evidence loss anywhere).
+- Correct set: 6 evidence-improved (already correct), **2 regressed
+  ALL→PARTIAL (conv3_q61, conv5_q36)** — the only regression risk a fresh
+  judged run would carry.
+
+Conclusions: the 88.65% baseline remains valid within noise; a fresh $0.70
+judged rerun would measure ±1–2 cases of ranking noise, so it is NOT
+worthwhile as a fixes-probe — defer it to pre-publication re-anchoring. The
+answerer-parity probe (~$2, stored contexts, unaffected by any of this)
+remains the highest-information paid move, followed by the two levers.
+Watch conv3_q61/conv5_q36 in any future full run.

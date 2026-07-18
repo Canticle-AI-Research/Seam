@@ -9429,3 +9429,42 @@ the existing microgate machinery before any new code. All paid probes remain
 operator-gated; none ran in this slice. SOL's uncommitted v2 work untouched;
 this commit stages only the audit doc, status, and chain files.
 ---END-ENTRY-#420---
+
+---BEGIN-ENTRY-#421---
+id: 421
+date: 2026-07-18T20:13:22Z
+agent: claude
+status: done
+topics: benchmark, locomo, retrieval, verify, quality
+commits: pending
+refs: docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md
+supersedes: 420
+tokens: 465
+---
+Free retrieval diff answering whether code changes since the scored HISTORY#400
+Mem0-harness run (88.65% cat1) moved the benchmark path: ran a fresh full
+--predict-only pass (378 cat1+cat3 questions, upstream harness @ 4b61c5d,
+README validated-stack env, top-k 200, fresh scratch store, local BGE, ZERO
+provider calls) through today's facade, then diffed fresh vs stored top-200
+lists per question and reran the evidence-presence mining on both sides.
+
+RESULT: effectively NEUTRAL. 316/378 lists changed membership but shallowly
+(mean Jaccard 0.924; 15 pure reorders, 47 identical) - tail churn from the
+post-#400 fixes and #152, not systematic movement. On the 45 miss cases,
+evidence presence improved on exactly 1 (conv3_q62, a count case whose failure
+is answer-side anyway), regressed on 0, unchanged on 44. The #400 SPAN-closure
+and temporal-window fixes do not bind on the miss set, and #152's graph/auto-
+ingest did NOT displace RAW (no mass evidence loss). Two already-correct cases
+lost partial evidence (conv3_q61, conv5_q36 ALL->PARTIAL) - the only regression
+risk a fresh judged run would carry.
+
+DECISIONS RECORDED: the 88.65% baseline remains valid within noise; the ~$0.70
+judged re-baseline is NOT worth running as a fixes-probe (would measure +-1-2
+cases of ranking noise) and is deferred to pre-publication re-anchoring. The
+~$2 answerer-parity probe on stored contexts (unaffected by retrieval drift)
+remains the highest-information paid move, then the two levers from #420.
+Findings appended to docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md.
+Facade run on scratch store, server stopped, nothing persisted in-repo. SOL's
+uncommitted event-count/distinct/2 work remains untouched; this commit stages
+only the audit doc, status, and chain files.
+---END-ENTRY-#421---
