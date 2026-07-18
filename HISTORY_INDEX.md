@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 418
-total_tokens: ~180624
-latest_id: 418
+total_entries: 419
+total_tokens: ~181101
+latest_id: 419
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 419 | 2026-07-18 | done | 3f64d78d0a2465e7 | benchmark,locomo,retrieval,quality,+ | 418 |
 | 418 | 2026-07-18 | done | caca61176227ff50 | roadmap,docs,agent,memory | 417 |
 | 417 | 2026-07-18 | done | 5760e59a94518720 | benchmark,locomo,memory,retrieval,+ | 416 |
 | 416 | 2026-07-17 | done | 2c227cbce47c99dc | benchmark,locomo,memory,retrieval,+ | 415 |
@@ -450,7 +451,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=156 latest=#417, #416, #415, #414, #413
+- benchmark: count=157 latest=#419, #417, #416, #415, #414
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -572,7 +573,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=67 latest=#417, #416, #413, #412, #410
+- locomo: count=68 latest=#419, #417, #416, #413, #412
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -631,7 +632,7 @@ compact: true
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=20 latest=#417, #416, #415, #414, #398
+- quality: count=21 latest=#419, #417, #416, #415, #414
 - query: count=2 latest=#319, #318
 - rank: count=6 latest=#243, #242, #240, #017, #005
 - ratchet: count=1 latest=#291
@@ -650,7 +651,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=85 latest=#417, #416, #415, #414, #403
+- retrieval: count=86 latest=#419, #417, #416, #415, #414
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -705,7 +706,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=26 latest=#364, #228, #223, #220, #218
 - vector-adapters: count=1 latest=#359
-- verify: count=275 latest=#417, #404, #403, #402, #401
+- verify: count=276 latest=#419, #417, #404, #403, #402
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -719,6 +720,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 385
+- done: 386
 - in-progress: 4
 - planned: 21

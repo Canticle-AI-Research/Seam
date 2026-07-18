@@ -9347,3 +9347,48 @@ CrewAI second (save/search, comparable volume), AutoGen third
 
 Doc-only change. No code, no provider call, no push.
 ---END-ENTRY-#418---
+
+---BEGIN-ENTRY-#419---
+id: 419
+date: 2026-07-18T11:21:47Z
+agent: claude
+status: done
+topics: benchmark, locomo, retrieval, quality, verify
+commits: pending
+refs: docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md
+supersedes: 418
+tokens: 477
+---
+Ran the operator-approved ~USD 0.04 stored-context preflight for
+inference/high-confidence/3 (HISTORY#413's Step 1): 21 champion cat3 cases,
+hc/2 vs hc/3, identical contexts both arms, gpt-4o-mini. RESULT NEGATIVE:
+14/21 answers changed but all changes are paraphrase noise - zero of the
+designed naming targets converted (John Williams still unknown, Voyageurs
+still unnamed, Exploding Kittens still described generically, Star Wars
+Ireland unchanged). The ambiguity guard held: no wrong names were licensed on
+the Mafia hazard case. Byte-level prompt diffing confirmed the hc/3 clause
+renders correctly, so the lever is inert, not mis-wired.
+
+Free root-cause verification against the source dataset shows the #413
+premise was wrong: the uniquely-identifying clues are absent from the
+retrieved context, and for three of four flagship cases absent from any
+single turn. The John Williams case needs a separate entity-preference turn
+("definitely Star Wars! my favorite", 2 Jan 2024) that exists and retrieves
+for other questions but shares no surface overlap with the composer question
+- a multi-hop retrieval gap. Voyageurs is never named in the conversation;
+Exploding Kittens is "a game I don't remember the name of"; Skellig/Ireland
+had clues retrieved but a 4-item gold list that hc/3's single-entity license
+correctly refuses to guess.
+
+DECISION: the planned ~USD 0.80 full holdout A/B for hc/3 is CANCELLED.
+hc/3 is tested-and-parked, default-off. The cat3 naming wall moves to the
+retrieval side: get the second-hop entity-preference turn into context
+(graph closure / entity-preference aggregation; query decomposition remains
+measured-harmful). Handoff updated in place with the negative and the
+cancellation. Preflight stdout retained in session scratchpad only; no repo
+artifact contains licensed dataset text.
+
+Concurrent-agent note: SOL's uncommitted event-count/distinct/2 build (same-
+event grouping) is in the working tree and was left strictly untouched; this
+entry's commit stages only the handoff, status, and chain files.
+---END-ENTRY-#419---

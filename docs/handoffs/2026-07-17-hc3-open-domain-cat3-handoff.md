@@ -75,7 +75,37 @@ if __name__ == "__main__": main()
 
 Run: `OPENAI_API_KEY=... .venv/bin/python scratchpad/preflight_hc3_cat3.py`
 
-## Step 2 (~$0.80, ~45 min): the full holdout A/B
+## ❌ Step 1 RESULT (2026-07-18, operator-approved, ~$0.04): PREFLIGHT NEGATIVE — do not run Step 2
+
+The 21-case stored-context preflight ran (gpt-4o-mini, hc/2 vs hc/3, same
+contexts both arms). 14/21 answers changed, but **every change is paraphrase
+noise — zero of the target naming cases converted**: John Williams still
+"unknown", Voyageurs still unnamed, Exploding Kittens still a generic
+description, Star Wars Ireland unchanged. The ambiguity guard held (no wrong
+names licensed on the Mafia case), and byte-level prompt diffing confirmed the
+hc/3 clause renders correctly — the lever is inert, not broken.
+
+Root cause (verified against the source dataset, free): **this handoff's
+premise was wrong — the identifying clues are not in the retrieved context**,
+and for 3 of the 4 flagship cases they cannot be:
+
+- John Williams: no "Star Wars + piano" turn exists; the chain needs the
+  separate "definitely Star Wars! my favorite" turn (2 Jan 2024), which exists
+  and retrieves for OTHER questions but has no lexical/semantic overlap with
+  the composer question. Multi-hop retrieval gap.
+- Voyageurs: the conversation only ever says "a beautiful national park";
+  only "kayak" reached the context.
+- Exploding Kittens: "played a game, I don't remember what it's called";
+  only "cat" reached the context.
+- Skellig/Ireland: clues WERE retrieved, but the gold is a 4-item location
+  list and hc/3's single-entity license correctly refuses list-guessing.
+
+**Decision: the ~$0.80 full A/B is cancelled.** The cat3 naming wall is
+retrieval-side — the second-hop entity-preference turn must reach the context
+(graph closure / entity-preference aggregation; note query decomposition was
+already measured harmful). hc/3 stays built, default-off, tested-and-parked.
+
+## Step 2 (CANCELLED — see above) (~$0.80, ~45 min): the full holdout A/B
 
 Dry-run-verified (344 cases, hc/3 candidate). Omit `--confirm-paid` for a free
 cost estimate; add it to spend.
