@@ -9392,3 +9392,40 @@ Concurrent-agent note: SOL's uncommitted event-count/distinct/2 build (same-
 event grouping) is in the working tree and was left strictly untouched; this
 entry's commit stages only the handoff, status, and chain files.
 ---END-ENTRY-#419---
+
+---BEGIN-ENTRY-#420---
+id: 420
+date: 2026-07-18T11:28:05Z
+agent: claude
+status: done
+topics: benchmark, locomo, retrieval, memory, quality, plan
+commits: pending
+refs: docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md
+supersedes: 419
+tokens: 431
+---
+Free mining of the 18 non-count cat1 misses in the HISTORY#400 Mem0-harness
+artifact (zero provider calls): resolved each miss's gold evidence dia_ids
+against the local LoCoMo dataset and shingle-matched them into the stored
+top-200 retrieval, then classified failure shapes from gold/generated/judge
+fields. Split: 9 ALL-evidence-present, 7 PARTIAL, 2 NONE. Combined with #416's
+count-case audit, 21 of 32 cat1 misses are answer/context-assembly-side and
+~11 involve a retrieval gap. Shapes: wrong-instance selection (~5), cross-turn
+joins (2), bracket-timestamp date resolution (2), planned-vs-done confusion
+(1, the count classifier already distinguishes this), partial-retrieval set
+enumeration (~6), and 2 second-hop entity-naming cases IDENTICAL in shape to
+the #419 cat3 root cause - one retrieval lever serves both categories.
+
+Ranked levers recorded in docs/audits/2026-07-18-mem0-cat1-noncount-miss-
+mining.md: (1) generalize the count projection into a query-aware evidence-
+digest block (blocked until SOL's uncommitted event-count/distinct/2 lands -
+same module); (2) second-hop entity/preference retrieval assembly (serves
+cat1+cat3, the durable core lever; decomposition remains measured-harmful);
+(3) fold planned-vs-observed gating into yes/no questions. Also recorded the
+answerer-parity finding: our 88.65 used gpt-4o-mini while mem0's published
+table uses gpt-4o defaults, so the cheapest informative next paid probe (~USD
+2) is rerunning the 32 stored-context cat1 misses with a gpt-4o answerer via
+the existing microgate machinery before any new code. All paid probes remain
+operator-gated; none ran in this slice. SOL's uncommitted v2 work untouched;
+this commit stages only the audit doc, status, and chain files.
+---END-ENTRY-#420---
