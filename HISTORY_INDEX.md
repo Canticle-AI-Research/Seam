@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 417
+total_entries: 418
 total_tokens: ~180624
-latest_id: 417
+latest_id: 418
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 418 | 2026-07-18 | done | caca61176227ff50 | roadmap,docs,agent,memory | 417 |
 | 417 | 2026-07-18 | done | 5760e59a94518720 | benchmark,locomo,memory,retrieval,+ | 416 |
 | 416 | 2026-07-17 | done | 2c227cbce47c99dc | benchmark,locomo,memory,retrieval,+ | 415 |
 | 415 | 2026-07-17 | changed | 4f266a98d14dada0 | roadmap,benchmark,graph,memory,+ | 414 |
@@ -434,7 +435,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=3 latest=#407, #403, #402
+- agent: count=4 latest=#418, #407, #403, #402
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -512,7 +513,7 @@ compact: true
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=46 latest=#378, #357, #354, #353, #352
+- docs: count=47 latest=#418, #378, #357, #354, #353
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -582,7 +583,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- memory: count=13 latest=#417, #416, #415, #414, #403
+- memory: count=14 latest=#418, #417, #416, #415, #414
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=30 latest=#313, #311, #309, #308, #307
@@ -653,7 +654,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
-- roadmap: count=57 latest=#415, #414, #407, #346, #333
+- roadmap: count=58 latest=#418, #415, #414, #407, #346
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -718,6 +719,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 384
+- done: 385
 - in-progress: 4
 - planned: 21

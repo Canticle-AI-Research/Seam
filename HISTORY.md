@@ -9307,3 +9307,43 @@ overcounts), or park the count lane and probe the ~18 non-count cat1 misses.
 The independent hc/3 cat3 naming lever (HISTORY#413) remains built, default
 off, unvalidated.
 ---END-ENTRY-#417---
+
+---BEGIN-ENTRY-#418---
+
+id: 418
+date: 2026-07-18T04:00:00Z
+agent: claude
+status: done
+topics: roadmap, docs, agent, memory
+commits: pending
+refs:
+  - docs/roadmap/COMPETITIVE_ROADMAP.md
+  - docs/roadmap/FRAMEWORK_ADAPTERS_PATH.md
+supersedes: 417
+tokens: 0
+---
+Updated the competitive roadmap P3.2 (Framework Integrations) with the
+three operator-selected Python adapters: LangGraph BaseCheckpointSaver
+(seam-langgraph), CrewAI memory provider (seam-crewai), and AutoGen
+context-manager hook (seam-autogen). Each has a one-line-change pitch,
+a specific technical method, and a defined adoption signal.
+
+Added competitive positioning section to COMPETITIVE_ROADMAP.md: SEAM is
+the higher-grade, more efficient Mem0 — the industry-standard local memory
+runtime. Every framework adapter reinforces this position.
+
+Wrote docs/roadmap/FRAMEWORK_ADAPTERS_PATH.md — a zero-code-change
+exploration showing every SEAM capability each adapter maps to already
+exists: SeamRuntime(store_path) for zero-config construction,
+search_ir(ns=..., scope=...) for per-framework isolation,
+ingest_text(ns=..., scope=...) for turn-by-turn ingestion, compile_nl()
+for AutoGen compression, and the optional-extras + stub-test patterns
+from the existing mem0/zep adapters. No SEAM core changes are required
+for any of the three adapters.
+
+Build order: LangGraph first (3-method interface, largest user pool),
+CrewAI second (save/search, comparable volume), AutoGen third
+(compress_history hook).
+
+Doc-only change. No code, no provider call, no push.
+---END-ENTRY-#418---
