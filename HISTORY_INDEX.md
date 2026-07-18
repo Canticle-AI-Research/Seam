@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 421
-total_tokens: ~181997
-latest_id: 421
+total_entries: 422
+total_tokens: ~182458
+latest_id: 422
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 422 | 2026-07-18 | done | b54c82e68e2ba760 | benchmark,locomo,handoff,test,+ | 421 |
 | 421 | 2026-07-18 | done | 95bef19bdc2ae76d | benchmark,locomo,retrieval,verify,+ | 420 |
 | 420 | 2026-07-18 | done | cf6c406042c1f929 | benchmark,locomo,retrieval,memory,+ | 419 |
 | 419 | 2026-07-18 | done | 3f64d78d0a2465e7 | benchmark,locomo,retrieval,quality,+ | 418 |
@@ -453,7 +454,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=159 latest=#421, #420, #419, #417, #416
+- benchmark: count=160 latest=#422, #421, #420, #419, #417
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -548,7 +549,7 @@ compact: true
 - graph: count=7 latest=#415, #414, #404, #403, #402
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=31 latest=#417, #416, #413, #409, #401
+- handoff: count=32 latest=#422, #417, #416, #413, #409
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -575,7 +576,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=70 latest=#421, #420, #419, #417, #416
+- locomo: count=71 latest=#422, #421, #420, #419, #417
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -613,7 +614,7 @@ compact: true
 - performance: count=3 latest=#364, #363, #362
 - persist: count=30 latest=#404, #403, #402, #401, #342
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
-- plan: count=17 latest=#420, #415, #414, #243, #214
+- plan: count=18 latest=#422, #420, #415, #414, #243
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
@@ -695,7 +696,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=1 latest=#400
-- test: count=45 latest=#417, #416, #344, #343, #342
+- test: count=46 latest=#422, #417, #416, #344, #343
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -722,6 +723,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 388
+- done: 389
 - in-progress: 4
 - planned: 21

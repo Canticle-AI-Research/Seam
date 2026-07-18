@@ -9468,3 +9468,42 @@ Facade run on scratch store, server stopped, nothing persisted in-repo. SOL's
 uncommitted event-count/distinct/2 work remains untouched; this commit stages
 only the audit doc, status, and chain files.
 ---END-ENTRY-#421---
+
+---BEGIN-ENTRY-#422---
+id: 422
+date: 2026-07-18T21:24:25Z
+agent: claude
+status: done
+topics: benchmark, locomo, handoff, test, plan
+commits: pending
+refs: benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_parity_probe_answerer.py,docs/handoffs/2026-07-18-answerer-parity-probe-handoff.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 421
+tokens: 461
+---
+Built and handed off the answerer-parity probe, the next operator-approved
+paid gate (~USD 1.35). New standalone runner
+benchmarks/external/mem0_harness/parity_probe_answerer.py: for every stored
+top-200 miss in the HISTORY#400 artifact it re-answers the FROZEN stored
+context with gpt-4o-mini AND gpt-4o same-day and judges both arms with gpt-4o
+(mem0's published contract) through the verbatim upstream prompts loaded by
+file path from mem0ai/memory-benchmarks @ 4b61c5d. This isolates the answerer
+variable (parity vs baseline arm) from judge-model drift (baseline arm vs
+stored artifact). The runner deliberately imports no SEAM runtime module so it
+stays safe to run while SOL's uncommitted event-count/distinct/2 edits are in
+flight, and never re-runs retrieval (#421 established the stored lists remain
+representative).
+
+Verification: 3 hermetic tests (one caught assertion bug fixed and logged -
+PARITY_ANSWERER and JUDGE_MODEL are the same model id, so call counts must
+key on (model, json_mode)); ruff clean; free dry-run against the real
+artifact selects 32 cat1 misses / 45 with cat3 and renders ~2.8M answer-
+prompt chars, giving the cost estimate (mini ~0.07 + 4o ~1.22 + judges
+~0.05). Tracked handoff docs/handoffs/2026-07-18-answerer-parity-probe-
+handoff.md registered latest (event-count handoff flipped superseded) with
+the exact run command, decision thresholds (>=7 cat1 parity flips = matched-
+answerer full run next, 3-6 = combine with the v2 microgate, <=2 = go
+straight to the #420 levers), and the judge-drift readout. Full non-external
+suite run was started with SOL's WIP in-tree; its result is recorded in the
+commit if complete, otherwise the focused new-test slice (3 passed) plus
+ruff gate this change, which touches no runtime module.
+---END-ENTRY-#422---
