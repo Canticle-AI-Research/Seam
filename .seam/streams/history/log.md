@@ -9679,3 +9679,42 @@ docker wake hook. Known accepted tradeoffs: single runner = serial jobs;
 pip/HF caches persist between runs (not hermetic); CPU contention with
 local benchmark work while a CI run is active.
 ---END-ENTRY-#425---
+
+---BEGIN-ENTRY-#426---
+id: 426
+date: 2026-07-19T16:04:15Z
+agent: claude
+status: done
+topics: benchmark, locomo, ci, ops
+commits: pending
+refs: .github/workflows/ci.yml
+supersedes: 425
+tokens: 479
+---
+Completed the cat2+cat4 recon (#424) after the operator fixed both billing
+blockers, and root-caused the first self-hosted CI failure.
+
+RECON FINAL (mem0 harness @4b61c5d, mini answerer+judge, top-200, all 1,162
+questions cleanly judged, zero empties): cat2 temporal 231/321 = 71.96
+percent (unchanged; was complete); cat4 single-hop 733/841 = 87.16 percent
+(the 21 quota-stranded cases resolved at the top of the projected 84.66-87.16
+bounds). Overall cat2+cat4 82.96 percent. Versus mem0 published: cat4 gap
+now 4.0 points (87.16 vs 91.2, prime answerer-parity territory), cat2 gap
+20.0 (mechanism: wrong-instance date selection; lever: facade temporal
+projection). Complete private artifact REPLACES the partial #424 one: T7
+20260719-114500-mem0-harness-cat24-recon-final.json (sha256 8003eefb...).
+OpenAI quota verified live (1-token probe) before spending.
+
+SELF-HOSTED CI: first real run executed ON THE BOX (billing lock cleared by
+operator; package-smoke green 17s; test-and-benchmark ran 6m37s through
+install+installer-smoke) but "Run tests" FAILED with 401 Unauthorized
+fetching public BAAI/bge-small-en-v1.5: the box's STALE HF token file
+(~/.cache/huggingface/token, dated Jun 18) is sent by huggingface_hub
+regardless of env and is rejected, killing embedder loads for any process
+missing the offline exports (same root cause as this session's earlier local
+suite failure). Fix, both layers: token file MOVED ASIDE (not deleted) to
+~/.cache/huggingface/token.stale-2026-07-19, and the offline HF env added as
+systemd Environment= lines on seam-actions-runner.service (belt to the
+runner .env braces; verified in `systemctl --user show`). Failed jobs
+re-dispatched; result pending at entry time.
+---END-ENTRY-#426---
