@@ -9,31 +9,27 @@ on:
 
 permissions: read-all
 
+# One CI run per ref; a new push cancels the superseded run. On a single
+# self-hosted runner this stops stale runs from queueing behind fresh ones.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# All jobs run on the seam-box self-hosted runner (private-repo hosted minutes
+# were burning real money; see HISTORY#425). The windows leg lives in
+# ci-windows.yml (workflow_dispatch) because it cannot run on a Linux host.
+# Self-hosted rules: no sudo steps, no host-mutating cleanup (the old hosted
+# "Free runner disk space" step is deliberately gone), pip/HF caches persist
+# between runs by design.
 jobs:
   test-and-benchmark:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: [self-hosted, seam-box]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
       - name: Check diff hygiene
-        if: matrix.os == 'ubuntu-latest'
         run: git diff --check
-
-      - name: Free runner disk space
-        # This leg installs the CUDA torch stack (~10 GB via the sbert extra)
-        # twice: once in "Install package" and again inside the installer smoke
-        # test's own .venv, plus pip's wheel cache. torch 2.12.1's cu13 wheel
-        # set exceeded the stock runner's free space (ENOSPC, 2026-07-08).
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force > /dev/null
-          df -h /
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -49,7 +45,6 @@ jobs:
         run: python -m pip install pytest httpx
 
       - name: Linux installer smoke test
-        if: matrix.os == 'ubuntu-latest'
         run: sh ./installers/install_seam_linux.sh --dev
 
       - name: Run tests
@@ -89,7 +84,7 @@ jobs:
           path: external-memory-benchmark-plan.json
 
   pgvector-integration:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, seam-box]
     services:
       pgvector:
         image: pgvector/pgvector:0.8.2-pg18-trixie
@@ -98,7 +93,7 @@ jobs:
           POSTGRES_USER: seam_ci
           POSTGRES_PASSWORD: seam_ci_password
         ports:
-          - 55432:5432
+          - 55433:5432
         options: >-
           --health-cmd "pg_isready -U seam_ci -d seam_ci"
           --health-interval 5s
@@ -127,12 +122,12 @@ jobs:
         # (tests/conftest.py, default on) fails the job if any of these skip.
         env:
           PGPASSWORD: seam_ci_password
-          SEAM_PGVECTOR_DSN: postgresql://seam_ci@localhost:55432/seam_ci
-          PGVECTOR_TEST_DSN: "host=localhost port=55432 dbname=seam_ci user=seam_ci password=seam_ci_password"
+          SEAM_PGVECTOR_DSN: postgresql://seam_ci@localhost:55433/seam_ci
+          PGVECTOR_TEST_DSN: "host=localhost port=55433 dbname=seam_ci user=seam_ci password=seam_ci_password"
         run: python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py -q
 
   package-smoke:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, seam-box]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -157,10 +152,17 @@ jobs:
           seam-server --help
 
   repo-hygiene:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, seam-box]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        # The self-hosted box exposes python3 but no bare `python`; hosted
+        # runners provided one implicitly.
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Check diff hygiene
         run: git diff --check
@@ -182,7 +184,7 @@ jobs:
           fi
 
   chroma-real-smoke:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, seam-box]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -199,7 +201,7 @@ jobs:
         run: python -m tools.ci.chroma_real_smoke
 
   locomo-quickstart-bil2:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, seam-box]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

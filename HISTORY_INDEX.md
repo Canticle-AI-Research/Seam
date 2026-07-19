@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 424
-total_tokens: ~184090
-latest_id: 424
+total_entries: 425
+total_tokens: ~184805
+latest_id: 425
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 425 | 2026-07-19 | done | 9d000c10ad7a98ca | ci,ops,infra,cost | 424 |
 | 424 | 2026-07-19 | done | 43ca04340bd63360 | benchmark,locomo,paid-run,mem0-harness,+ | 423 |
 | 423 | 2026-07-19 | done | 22ed4a4c15ef367f | benchmark,locomo,paid-run,handoff,+ | 422 |
 | 422 | 2026-07-18 | done | b54c82e68e2ba760 | benchmark,locomo,handoff,test,+ | 421 |
@@ -472,7 +473,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=22 latest=#401, #400, #388, #387, #380
+- ci: count=23 latest=#425, #401, #400, #388, #387
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -501,7 +502,7 @@ compact: true
 - correction: count=2 latest=#354, #299
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
-- cost: count=1 latest=#366
+- cost: count=2 latest=#425, #366
 - cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
@@ -561,7 +562,7 @@ compact: true
 - hygiene: count=2 latest=#406, #324
 - improve: count=1 latest=#302
 - inference: count=1 latest=#413
-- infra: count=1 latest=#271
+- infra: count=2 latest=#425, #271
 - ingest: count=2 latest=#317, #303
 - installer: count=16 latest=#360, #352, #337, #204, #177
 - instrumentation: count=1 latest=#366
@@ -609,7 +610,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
-- ops: count=1 latest=#424
+- ops: count=2 latest=#425, #424
 - pack: count=6 latest=#416, #316, #315, #314, #218
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
@@ -728,6 +729,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 391
+- done: 392
 - in-progress: 4
 - planned: 21

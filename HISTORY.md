@@ -9622,3 +9622,60 @@ family actually uses o200k_base, holographic.py:340 hardcodes len//4).
 No repo code changed this session-segment; facade/harness/crawl processes
 all stopped; worktrees cleaned.
 ---END-ENTRY-#424---
+
+---BEGIN-ENTRY-#425---
+id: 425
+date: 2026-07-19T15:01:35Z
+agent: claude
+status: done
+topics: ci, ops, infra, cost
+commits: pending
+refs: .github/workflows/ci.yml,.github/workflows/ci-windows.yml
+supersedes: 424
+tokens: 715
+---
+Moved CI off paid GitHub-hosted runners onto a self-hosted runner on the
+operator's Linux box, per operator decision, to stop private-repo Actions
+spend. Context verified first: BlackhatShiftey/Seam is PRIVATE (hosted
+minutes bill after the plan allowance; the public Seam_Runtime repo is
+unaffected), CI has been billing-LOCKED since 2026-07-18 ~10:26Z (every job
+fails in 2-3s with "recent account payments have failed or your spending
+limit needs to be increased"), and successful runs cost ~10-13 wall minutes
+across 7 jobs per trigger including a windows-latest leg, multiple triggers
+per day from the multi-agent workflow. The accumulating-balance/can't-pay
+symptom matches GitHub's known arrears lock: metered usage bills on the
+monthly billing date, a failed payment locks Actions server-side, remedies
+are re-add payment method / nudge spending limit / GitHub Support.
+
+RUNNER (installed and ONLINE): actions-runner 2.335.1 at
+~/actions-runner-seam, registered to the repo as "seam-terrabyte" with
+labels self-hosted,Linux,X64,seam-box; systemd USER service
+seam-actions-runner.service (enabled, active) with linger enabled for
+terrabyte so it survives logout/reboot. Runner .env: (a)
+ACTIONS_RUNNER_HOOK_JOB_STARTED=~/actions-runner-seam/wake-docker.sh which
+runs ~/.local/bin/docker-up (Docker Desktop on this box auto-stops after 30
+idle minutes; the pgvector service container needs the engine up), (b) the
+T7 offline HF env (HF_HUB_CACHE=/media/terrabyte/T7/hf-cache,
+HF_HUB_OFFLINE=1, TRANSFORMERS_OFFLINE=1) because the box's stale HF OAuth
+token breaks fresh hub downloads (root-caused earlier this session).
+
+WORKFLOW CHANGES (committed, push operator-gated): ci.yml - all 6 Linux
+jobs now runs-on [self-hosted, seam-box]; the hosted-only "Free runner disk
+space" step (sudo rm + docker image prune - destructive on a real host) is
+REMOVED; pgvector service host port moved 55432->55433 (55432 is the box's
+own seam-pgvector container) with both DSNs updated; repo-hygiene gained a
+setup-python step (box has python3 but no bare python); new top-level
+concurrency group cancels superseded runs per ref. New ci-windows.yml:
+the former windows-latest matrix leg preserved verbatim as a
+workflow_dispatch-only manual workflow (cannot run on a Linux host; most
+expensive hosted tier; also dead until the billing lock clears).
+
+VERIFIED: YAML parses; runner shows status=online via the repo API; service
+active after restart with the new .env. NOT yet verified end-to-end: an
+actual CI run on the runner requires pushing the workflow change (operator
+push gate) - first real run will exercise setup-python toolcache, pip cache
+warm-up (~10 GB sbert stack on first run, cached thereafter), and the
+docker wake hook. Known accepted tradeoffs: single runner = serial jobs;
+pip/HF caches persist between runs (not hermetic); CPU contention with
+local benchmark work while a CI run is active.
+---END-ENTRY-#425---
