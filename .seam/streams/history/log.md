@@ -9718,3 +9718,59 @@ systemd Environment= lines on seam-actions-runner.service (belt to the
 runner .env braces; verified in `systemctl --user show`). Failed jobs
 re-dispatched; result pending at entry time.
 ---END-ENTRY-#426---
+
+---BEGIN-ENTRY-#427---
+id: 427
+date: 2026-07-19T19:47:29Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, handoff, retrieval, ci
+commits: pending
+refs: seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_temporal_instance_context.py,docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md,docs/handoffs/INDEX.md
+supersedes: 426
+tokens: 685
+---
+Operator green-lit "build it, also run paid benchmarks" then requested a
+handoff; this entry is that handoff's chain anchor (tracked doc
+docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md
+registered latest, predecessor superseded).
+
+MATCHED-ANSWERER RUN (the #423 gate, ~USD 10-15) IS IN FLIGHT: facade from
+clean worktree @db47740 on :8902 (fresh scratch store), free predict pass
+completed cleanly (378/378, median 200 results, zero empties), paid
+gpt-4o answerer+judge evaluate running detached at workers=2 rpm=8,
+self-throttling against the org's 30K-TPM gpt-4o cap at ~2.4 cases/min
+(~241/378 done at entry time; ~1.2% empty-answer rate, strip-and-rerun
+recipe in the handoff makes completion idempotent). OPERATIONAL ERROR
+LOGGED (2026-07-19-003): I briefly killed this healthy run after misjudging
+elapsed wall-clock as ~4 min (actually 1h42m) and pattern-matching to the
+earlier real corruption; file-mtime timeline exonerated it; resumed from
+checkpoints, ~2 cases lost.
+
+BUILT (default-off, unvalidated): temporal-instance/1, the cat2 lever from
+#424's wrong-instance-date finding. New self-contained
+seam_runtime/temporal_instance_context.py (no import from
+event_count_context - SOL edits that module) + facade hook
+_apply_temporal_context_policy in seam_mem0_server.py, enabled only via
+SEAM_TEMPORAL_CONTEXT_POLICY env (deliberately NOT a RetrievalFlags field
+while SOL edits retrieval.py; core productization follows a measured win).
+Prepends a bounded SEAM-TEMPORAL/1 date->observations index parsed from
+[Speaker YYYY-MM-DD] stamps with instance-matching + relative-wording
+instructions - the retrieval-side twin of native temporal/1 which cannot
+reach the harness lane. Off path byte-identical (projection None; facade
+returns the same list object). 8 hermetic tests in NEW file
+tests/audit/test_temporal_instance_context.py; ruff clean; FULL suite
+exit 0 (2 xfails) with SOL's WIP in tree.
+
+QUEUED NEXT PAID (command in handoff): cat4+cat2 answerer-parity probe on
+the #426 artifact (~USD 6 both / 3.2 cat4-only; corrected from my earlier
+wrong ~USD 1 estimate). Decision table in handoff: cat4 >=34 net flips =
+single-hop topped with zero code; cat2 flips decide whether
+temporal-instance/1 is the path or margin.
+
+Also this entry records: first self-hosted CI run went fully green after
+the token fix (all 6 jobs, incl pgvector service via the docker wake hook)
+- the #426 "rerun pending" is resolved SUCCESS; hosted-minute burn is over.
+This commit stages the lever, its tests, the facade hook, handoff docs, and
+chain files only; SOL's uncommitted work remains untouched.
+---END-ENTRY-#427---

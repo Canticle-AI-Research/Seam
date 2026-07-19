@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-19-matched-answerer-full-run-handoff
 supersedes: 2026-07-18-answerer-parity-probe-handoff
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#423
 ---
 

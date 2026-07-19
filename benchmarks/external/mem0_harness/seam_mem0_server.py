@@ -33,6 +33,7 @@ validated conversation/temporal/profile stack applies exactly as in-harness).
 from __future__ import annotations
 
 import argparse
+import os
 from datetime import datetime, timezone
 
 from benchmarks.external.common.types import ConversationTurn
@@ -40,6 +41,10 @@ from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from seam_runtime.event_count_context import (
     CountEvidence,
     build_count_context_projection,
+)
+from seam_runtime.temporal_instance_context import (
+    TemporalEvidence,
+    build_temporal_context_projection,
 )
 
 
@@ -180,7 +185,10 @@ class SeamMem0Server:
                     break
             if reached_limit:
                 break
-        return _apply_count_context_policy(rt, query, out, limit)
+        projected = _apply_count_context_policy(rt, query, out, limit)
+        if projected is not out:
+            return projected
+        return _apply_temporal_context_policy(query, out, limit)
 
     def close(self) -> None:
         self._adapter.close()
@@ -255,6 +263,44 @@ def _apply_count_context_policy(
         "created_at": "",
     }
     return [projected, *retained_results]
+
+
+def _apply_temporal_context_policy(
+    query: str, results: list[dict], limit: int
+) -> list[dict]:
+    """Optional SEAM-TEMPORAL/1 projection (HISTORY#426 cat2 lever).
+
+    Facade-scoped enablement via the ``SEAM_TEMPORAL_CONTEXT_POLICY`` env var
+    (not a ``RetrievalFlags`` field yet: the flags module has in-flight
+    concurrent edits and the lever is unvalidated; core productization follows
+    a measured win). Off path returns ``results`` unchanged. Runs only when
+    the count policy did not already project — the two intents are disjoint
+    and only one disposable projection should spend context per query."""
+
+    policy = os.environ.get("SEAM_TEMPORAL_CONTEXT_POLICY", "off")
+    projection = build_temporal_context_projection(
+        query,
+        [
+            TemporalEvidence(
+                record_id=str(item["id"]),
+                text=str(item["memory"]),
+                score=float(item.get("score", 0.0)),
+                original_rank=index,
+            )
+            for index, item in enumerate(results, 1)
+        ],
+        policy=policy,
+    )
+    if projection is None or limit < 2:
+        return results
+    retained = results[: max(0, limit - 1)]
+    projected = {
+        "memory": projection.render(),
+        "score": max((float(item.get("score", 0.0)) for item in results), default=0.0),
+        "id": projection.projection_id,
+        "created_at": "",
+    }
+    return [projected, *retained]
 
 
 def _created_at(record) -> str:

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 426
-total_tokens: ~185284
-latest_id: 426
+total_entries: 427
+total_tokens: ~185969
+latest_id: 427
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 427 | 2026-07-19 | done | 8872a7d316b02d16 | benchmark,locomo,paid-run,handoff,+ | 426 |
 | 426 | 2026-07-19 | done | f3bd1e40528e2c6e | benchmark,locomo,ci,ops | 425 |
 | 425 | 2026-07-19 | done | 9d000c10ad7a98ca | ci,ops,infra,cost | 424 |
 | 424 | 2026-07-19 | done | 43ca04340bd63360 | benchmark,locomo,paid-run,mem0-harness,+ | 423 |
@@ -458,7 +459,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=163 latest=#426, #424, #423, #422, #421
+- benchmark: count=164 latest=#427, #426, #424, #423, #422
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -474,7 +475,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=24 latest=#426, #425, #401, #400, #388
+- ci: count=25 latest=#427, #426, #425, #401, #400
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -553,7 +554,7 @@ compact: true
 - graph: count=7 latest=#415, #414, #404, #403, #402
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=33 latest=#423, #422, #417, #416, #413
+- handoff: count=34 latest=#427, #423, #422, #417, #416
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -580,7 +581,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=74 latest=#426, #424, #423, #422, #421
+- locomo: count=75 latest=#427, #426, #424, #423, #422
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -615,7 +616,7 @@ compact: true
 - pack: count=6 latest=#416, #316, #315, #314, #218
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
-- paid-run: count=2 latest=#424, #423
+- paid-run: count=3 latest=#427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - parked: count=1 latest=#412
 - performance: count=3 latest=#364, #363, #362
@@ -661,7 +662,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=88 latest=#421, #420, #419, #417, #416
+- retrieval: count=89 latest=#427, #421, #420, #419, #417
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -730,6 +731,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 393
+- done: 394
 - in-progress: 4
 - planned: 21
