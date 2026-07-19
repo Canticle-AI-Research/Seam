@@ -1,5 +1,7 @@
 # SEAM Project Status
 
+Current update: 2026-07-19 (HISTORY#428 - tokenizer-true cost tool cost_report.py landed (o200k for 4o-family, renders real prompts, LOWER-BOUND caveat for invisible re-run passes); reconciliation: recon true $2.23 single-pass / ~$3.1 real, matched ~$9.5 so far, day ~$18 vs ~$13 quoted; practice = cost_report before quoting + after completion. Matched final leg (109 cases) running after second quota top-up.)
+
 Current update: 2026-07-19 (HISTORY#427 - HANDOFF: matched gpt-4o cat1+cat3 run IN FLIGHT (~241/378 at entry, ~2.4 cases/min vs 30K TPM cap, idempotent strip-and-rerun recipe in the tracked handoff 2026-07-19-matched-run-inflight-and-cat2-lever); temporal-instance/1 cat2 lever BUILT default-off (new temporal_instance_context.py + facade env hook, 8 tests, full suite exit 0, NOT a RetrievalFlags field while SOL edits retrieval.py); cat4+cat2 parity probe queued (~$6, corrected estimate); first self-hosted CI run fully GREEN all 6 jobs.)
 
 Current update: 2026-07-19 (HISTORY#426 - recon COMPLETE: cat4 single-hop FINAL 733/841 = 87.16% (gap to mem0 4.0pts), cat2 temporal 71.96% final; artifact T7 20260719-114500-...-final.json. Self-hosted CI executed its first run on the box; Run-tests failed on the stale ~/.cache/huggingface/token (401 on public model) - token moved aside + offline HF env added to the runner systemd unit; rerun dispatched. Both billing blockers cleared by operator; OpenAI verified live.)

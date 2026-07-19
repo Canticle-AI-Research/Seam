@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 427
-total_tokens: ~185969
-latest_id: 427
+total_entries: 428
+total_tokens: ~186413
+latest_id: 428
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 428 | 2026-07-19 | done | bf0ea1683bf91d9c | ops,cost,benchmark,tooling | 427 |
 | 427 | 2026-07-19 | done | 8872a7d316b02d16 | benchmark,locomo,paid-run,handoff,+ | 426 |
 | 426 | 2026-07-19 | done | f3bd1e40528e2c6e | benchmark,locomo,ci,ops | 425 |
 | 425 | 2026-07-19 | done | 9d000c10ad7a98ca | ci,ops,infra,cost | 424 |
@@ -459,7 +460,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=164 latest=#427, #426, #424, #423, #422
+- benchmark: count=165 latest=#428, #427, #426, #424, #423
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -504,7 +505,7 @@ compact: true
 - correction: count=2 latest=#354, #299
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
-- cost: count=2 latest=#425, #366
+- cost: count=3 latest=#428, #425, #366
 - cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
@@ -612,7 +613,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
-- ops: count=3 latest=#426, #425, #424
+- ops: count=4 latest=#428, #426, #425, #424
 - pack: count=6 latest=#416, #316, #315, #314, #218
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
@@ -708,7 +709,7 @@ compact: true
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
-- tooling: count=2 latest=#357, #324
+- tooling: count=3 latest=#428, #357, #324
 - topk: count=1 latest=#320
 - traceability: count=1 latest=#316
 - training-corpus: count=1 latest=#366
@@ -731,6 +732,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 394
+- done: 395
 - in-progress: 4
 - planned: 21

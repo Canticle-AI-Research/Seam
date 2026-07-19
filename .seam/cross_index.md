@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 488
+total_events: 489
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-24T16:42:58Z | history:237:d1e9036b | session-event | done | benchmark, retrieval, verify, history | benchmarks/external/common/types.py,benchmarks/external/common/runner.py,benc... |
 | 2026-05-24T21:01:24Z | history:238:8633cd12 | session-event | done | retrieval, verify, bundle, history, status | /tmp/seam-track-m/step0b_locomo_gpt5mini_gpt5nano_save_context.json,/tmp/seam... |
 | 2026-05-24T21:10:00Z | history:239:57a615b2 | session-event | done | verify, history, snapshot, status | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,.seam/streams/history/log.md,.s... |
 | 2026-05-24T21:59:02Z | history:240:395c3322 | session-event | done | benchmark, retrieval, search, rank, verify, history, status | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/common/types.... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-19T15:01:35Z | history:425:9d000c10 | session-event | done | ci, ops, infra, cost | .github/workflows/ci.yml,.github/workflows/ci-windows.yml |
 | 2026-07-19T16:04:15Z | history:426:f3bd1e40 | session-event | done | benchmark, locomo, ci, ops | .github/workflows/ci.yml |
 | 2026-07-19T19:47:29Z | history:427:8872a7d3 | session-event | done | benchmark, locomo, paid-run, handoff, retrieval, ci | seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/se... |
+| 2026-07-19T21:02:19Z | history:428:bf0ea168 | session-event | done | ops, cost, benchmark, tooling | benchmarks/external/common/cost_report.py,tests/audit/test_cost_report.py |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0288.cross.md | 2026-04-15T00:00:00Z..2026-05-24T06:20:32Z | 288 | (multi) | (multi) |
+| 0001-0289.cross.md | 2026-04-15T00:00:00Z..2026-05-24T16:42:58Z | 289 | (multi) | (multi) |

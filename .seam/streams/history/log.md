@@ -9774,3 +9774,44 @@ the token fix (all 6 jobs, incl pgvector service via the docker wake hook)
 This commit stages the lever, its tests, the facade hook, handoff docs, and
 chain files only; SOL's uncommitted work remains untouched.
 ---END-ENTRY-#427---
+
+---BEGIN-ENTRY-#428---
+id: 428
+date: 2026-07-19T21:02:19Z
+agent: claude
+status: done
+topics: ops, cost, benchmark, tooling
+commits: pending
+refs: benchmarks/external/common/cost_report.py,tests/audit/test_cost_report.py
+supersedes: 427
+tokens: 444
+---
+Built the tokenizer-true cost measurement the operator escalated ("cost has
+always been off, I've just never cared till now"). Root causes identified:
+(1) mem0-harness-lane runs and scratch runners never capture provider usage
+- all quoted costs there were chars/4 arithmetic or cross-run scaling
+(native-lane run_record.py DOES capture exact usage and was internally
+consistent); (2) re-run passes are invisible - strip-and-rerun corruption
+recovery and aborted partials bill on top of what any artifact shows; (3)
+wrong encoding assumptions - the gpt-4o/4.1/5 families tokenize with
+o200k_base, not the repo-canonical cl100k_base (internal budget tokenizer
+deliberately left untouched: changing it would shift retrieval behavior).
+
+NEW: benchmarks/external/common/cost_report.py - re-renders every stored
+case's actual answer+judge prompts through the pinned upstream prompts.py,
+counts with tiktoken using a model->encoding prefix map, prices via the
+existing pricing.py table, and prints a single-pass figure explicitly
+labeled a LOWER BOUND with the invisible-passes caveat. 3 hermetic tests
+(stub prompts module, no provider calls); ruff clean.
+
+RECONCILIATION RUN (today): cat2+cat4 recon true single-pass = $2.2347
+(1,162 cases, 13.8M answer prompt tokens) vs my "~$2" quote - but ~1.4x
+passes were actually billed (433 re-runs + 107 phantom judges) => ~$3.1
+real. Matched run: ~$9.5 spent through 269 clean gpt-4o cases, ~$4 to
+finish. Day total ~$18 vs ~$13 quoted. Practice going forward: run
+cost_report BEFORE quoting any run estimate (render+count, don't scale) and
+AFTER completion; treat provider dashboard as ground truth.
+
+Concurrent state: matched-run final leg (109 cases) resumed and running
+detached after the second quota top-up; operator standing by to add credit.
+---END-ENTRY-#428---
