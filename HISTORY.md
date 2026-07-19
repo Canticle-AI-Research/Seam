@@ -9815,3 +9815,51 @@ AFTER completion; treat provider dashboard as ground truth.
 Concurrent state: matched-run final leg (109 cases) resumed and running
 detached after the second quota top-up; operator standing by to add credit.
 ---END-ENTRY-#428---
+
+---BEGIN-ENTRY-#429---
+id: 429
+date: 2026-07-19T21:18:24Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, negative-result
+commits: pending
+refs: benchmarks/external/common/cost_report.py,docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md
+supersedes: 428
+tokens: 652
+---
+THE MATCHED-ANSWERER RUN IS COMPLETE - the #423 gate's decisive result, and
+it is a NEGATIVE for the 95% projection. Full 378-case cat1+cat3 run on
+mem0's unmodified harness @4b61c5d, gpt-4o answerer AND gpt-4o judge (the
+published contract), top-200, zero empty answers after three quota/TPM
+recovery legs. FINAL: cat1 multi-hop 248/282 = 87.94% (mem0 published
+91.3 - BELOW by 3.4); cat3 open-domain 67/96 = 69.79% (mem0 72.7 - BELOW by
+2.9); combined 315/378 = 83.33%. Artifact: T7
+20260719-161639-mem0-harness-cat13-matched-final.json, SHA-256 3790631b....
+Measured cost (new cost_report tool): $12.18 single-pass, ~$13 real with
+recovery legs.
+
+WHY THE #423 PROJECTION (268/282=95%) FAILED: the parity probe only
+re-tested the 32 stored MISSES; the gpt-4o judge's added severity applies to
+the whole distribution, and it revoked roughly as many previously-credited
+answers as the stronger answerer earned (250 stored corrects -> 248 final
+under the strict judge, net -2 on the corrects side wiping the +18 flip
+gain). Fresh-retrieval drift also contributed (fragile pair split:
+conv3_q61 WRONG, conv5_q36 CORRECT, as #421 predicted possible). Lesson
+recorded: a miss-only probe measures answerer lift but NOT judge-severity
+tax on the corrects - future projections must re-judge a sample of stored
+corrects too.
+
+HONEST SCOREBOARD CONSEQUENCE: under matched conditions SEAM currently tops
+mem0 in NOTHING on this lane; the earlier "cat3 topped" claim held only
+under the lenient mini judge and must never be quoted matched. Gaps are
+small and mapped: cat1 needs +10 net (miss buckets: 12 counts, 10
+entity/naming, 6 set/list, 1 date, 5 other), cat3 needs +3 net (18 of 29
+misses are entity/naming = the #419/#420 second-hop wall). Only 8/63 misses
+have gold text visible in top-200 (crude match) - the strict-judge residual
+is dominantly retrieval/second-hop, SEAM's home turf. Lever->bucket map:
+SOL event-count/distinct/2 -> 12 cat1 counts; second-hop entity retrieval
+(#420 lever 2, unbuilt) -> 28 naming misses across both cats; set-recall ->
+6; temporal-instance/1 -> cat2 lane margin. Validation cadence: free
+preflight -> ~$0.4 microgate on these 63 stored contexts -> levers ride
+together in ONE full matched rerun (~$13 measured).
+---END-ENTRY-#429---
