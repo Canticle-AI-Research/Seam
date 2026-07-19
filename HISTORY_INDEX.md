@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 423
-total_tokens: ~183210
-latest_id: 423
+total_entries: 424
+total_tokens: ~184090
+latest_id: 424
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 424 | 2026-07-19 | done | 43ca04340bd63360 | benchmark,locomo,paid-run,mem0-harness,+ | 423 |
 | 423 | 2026-07-19 | done | 22ed4a4c15ef367f | benchmark,locomo,paid-run,handoff,+ | 422 |
 | 422 | 2026-07-18 | done | b54c82e68e2ba760 | benchmark,locomo,handoff,test,+ | 421 |
 | 421 | 2026-07-18 | done | 95bef19bdc2ae76d | benchmark,locomo,retrieval,verify,+ | 420 |
@@ -455,7 +456,7 @@ compact: true
 - audit: count=80 latest=#398, #396, #391, #377, #376
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=161 latest=#423, #422, #421, #420, #419
+- benchmark: count=162 latest=#424, #423, #422, #421, #420
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -577,7 +578,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=72 latest=#423, #422, #421, #420, #419
+- locomo: count=73 latest=#424, #423, #422, #421, #420
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -588,6 +589,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
+- mem0-harness: count=1 latest=#424
 - memory: count=15 latest=#420, #418, #417, #416, #415
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
@@ -607,10 +609,11 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
+- ops: count=1 latest=#424
 - pack: count=6 latest=#416, #316, #315, #314, #218
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
-- paid-run: count=1 latest=#423
+- paid-run: count=2 latest=#424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - parked: count=1 latest=#412
 - performance: count=3 latest=#364, #363, #362
@@ -725,6 +728,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 390
+- done: 391
 - in-progress: 4
 - planned: 21

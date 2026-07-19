@@ -9560,3 +9560,65 @@ LLM-Logs 2026-07-19-001) and a live pgvector with the LOCAL container DSN
 CI-only seam_ci DSN does not exist locally. This commit stages only the
 chain/status/handoff files.
 ---END-ENTRY-#423---
+
+---BEGIN-ENTRY-#424---
+id: 424
+date: 2026-07-19T13:48:23Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, mem0-harness, ops
+commits: pending
+refs: benchmarks/external/mem0_harness/seam_mem0_server.py,docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md
+supersedes: 423
+tokens: 880
+---
+Ran the operator-approved ~USD 2 cat2+cat4 recon on mem0's unmodified
+harness (mem0ai/memory-benchmarks @ 4b61c5d) - the two LoCoMo categories
+never before scored on this lane - using the #400 methodology: facade
+seam_mem0_server launched from a CLEAN HEAD worktree (db47740; SOL's
+uncommitted event-count/distinct/2 edits deliberately isolated away via
+sys.path shadowing of the editable install), broad + conversation/2 + hc/1 +
+temporal/1 env, scratch DB, harness venv at /tmp/memory-benchmarks. FREE
+predict-only pass first: all 1,162 questions (321 cat2 + 841 cat4) ingested
+and searched at top-200, zero empty retrievals, zero spend. Paid phase:
+gpt-4o-mini answerer+judge, single top-200 cutoff.
+
+OPERATIONAL FAILURES SURVIVED (all diagnosed from raw evidence, logged):
+(1) first evaluate blast at 10 workers/200 rpm tripped the org 200K TPM cap
+- 5,792 rate-limit lines; the harness's own LLMClient returns "" after 5
+shallow retries and the judge then scores the empty answer, silently
+corrupting 433 cases BOTH ways (326 scored WRONG with no answer, 107 empty
+answers scored CORRECT by the lenient mini judge). Cases with empty
+generated_answer were stripped and re-run. (2) Second pass at 12 rpm hit the
+10,000 requests-per-day gpt-4o-mini cap; restarted at 1 worker / 5 rpm below
+the RPD refill. (3) Near the end the account hit insufficient_quota (OpenAI
+credit exhausted) - 21 cat4 cases remain STRANDED with empty answers and
+must be re-run once credit exists (~USD 0.05).
+
+RESULT (clean cases only, mini answerer, directly comparable to #400's
+cat1 88.65 / cat3 86.46 on the same lane): cat2 temporal 231/321 = 71.96
+percent COMPLETE (vs mem0 published 92.0 - a real ~20 pt gap; dominant
+signature is wrong-instance date selection, the SAME failure temporal/1
+fixes natively, but the harness owns the answer prompt so temporal/1 cannot
+reach this lane - candidate lever: a facade-injected temporal projection,
+the mechanism event-count/distinct already proved). cat4 single-hop 712/820
+= 86.83 percent clean, bounds 84.66-87.16 with the 21 stranded (vs mem0
+91.2 - a ~4.4 pt gap with ~49 of 86 first-batch real misses answer-side =
+prime parity-probe territory, same shape cat1 had before #423's 18/32
+flips). Overall picture vs mem0's published table: cat3 TOPPED already
+(86.46 vs 72.7), cat1 one matched run from topped (95.0 projected vs 91.3),
+cat4 close (parity probe next), cat2 the real fight (lever identified).
+Private artifact (never commit): T7
+20260719-055500-mem0-harness-cat24-recon.json, SHA-256 69848c3d....
+
+BLOCKER RECORDED: OpenAI credit exhausted - ALL paid work gated on top-up
+(21 stranded cases ~USD 0.05, cat4 parity probe ~USD 1, matched-answerer
+full run ~USD 10-15 per the current handoff). Operator also flagged that
+quoted cost estimates diverge from actual spend - investigation explicitly
+DEFERRED by operator (repo run_record path prices exact provider usage
+tokens; the mem0-harness lane does not capture usage; tokenizer facts so
+far: tokenization.py canonical cl100k_base loads fine in-venv, gpt-4o
+family actually uses o200k_base, holographic.py:340 hardcodes len//4).
+No repo code changed this session-segment; facade/harness/crawl processes
+all stopped; worktrees cleaned.
+---END-ENTRY-#424---
