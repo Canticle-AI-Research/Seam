@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 483
+total_events: 484
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-22T08:50:21Z | history:232:cf622b5f | session-event | done | benchmark, verify, command, history, status | benchmarks/external/common/judge.py,benchmarks/external/common/runner.py,benc... |
 | 2026-05-22T09:38:42Z | history:233:563a0f5c | session-event | done | benchmark, retrieval, verify, history, status | seam_runtime/temporal.py,seam_runtime/retrieval.py,seam_runtime/runtime.py,be... |
 | 2026-05-22T12:52:58Z | history:234:c7001cf4 | session-event | done | benchmark, bugfix, locomo, verify, history, status | benchmarks/external/locomo/adapters/seam.py,PROJECT_STATUS.md |
 | 2026-05-23T03:58:36Z | history:235:66be1596 | session-event | done | benchmark, retrieval, verify, history, status | benchmarks/external/locomo/rerank.py,benchmarks/external/locomo/run.py,benchm... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-18T11:28:05Z | history:420:cf6c4060 | session-event | done | benchmark, locomo, retrieval, memory, quality, plan | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 | 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 | 2026-07-18T21:24:25Z | history:422:b54c82e6 | session-event | done | benchmark, locomo, handoff, test, plan | benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_pa... |
+| 2026-07-19T05:20:46Z | history:423:22ed4a4c | session-event | done | benchmark, locomo, paid-run, handoff, test | docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md,docs/handoffs/2... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0283.cross.md | 2026-04-15T00:00:00Z..2026-05-22T07:56:51Z | 283 | (multi) | (multi) |
+| 0001-0284.cross.md | 2026-04-15T00:00:00Z..2026-05-22T08:50:21Z | 284 | (multi) | (multi) |

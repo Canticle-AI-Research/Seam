@@ -9507,3 +9507,56 @@ suite run was started with SOL's WIP in-tree; its result is recorded in the
 commit if complete, otherwise the focused new-test slice (3 passed) plus
 ruff gate this change, which touches no runtime module.
 ---END-ENTRY-#422---
+
+---BEGIN-ENTRY-#423---
+id: 423
+date: 2026-07-19T05:20:46Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, handoff, test
+commits: pending
+refs: docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md,docs/handoffs/2026-07-18-answerer-parity-probe-handoff.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 422
+tokens: 752
+---
+EXECUTED the operator-approved answerer-parity probe from the #422 handoff
+(paid, ~USD 1.35 dry-run estimate). Preconditions verified first at zero
+spend: pinned mem0ai/memory-benchmarks clone @ 4b61c5d recreated at
+/tmp/memory-benchmarks, T7 source artifact present, and the free selection
+check reproduced exactly 32 cat1 / 45 cat1+cat3 miss cases with the expected
+answer-prompt volume (no artifact or code drift). Run: every stored top-200
+miss re-answered from its FROZEN context with gpt-4o-mini AND gpt-4o
+same-day, both arms judged by gpt-4o via the verbatim upstream contract.
+
+RESULT - the >=7 cat1 flip gate is met at 18. cat1: parity arm 18/32 correct
+vs baseline mini-rerun 6/32. Projected matched-answerer cat1 = 250+18 =
+268/282 = 95.0 percent, well past mem0's published 91 percent (caveat: the
+250 stored-correct cases were not re-judged under the gpt-4o judge - only
+misses were probed - so the full run is what makes the number citable).
+Effect split reported separately per the handoff: 6/32 flip under the gpt-4o
+JUDGE with the mini answerer (judge-drift + rerun noise, ~90.8 percent cat1
+alone, matching #417 arithmetic and still under 91), 12/32 are parity-only =
+pure answerer strength. cat3: 4/13 vs 3/13 (+1 net, conv0_q59 flipped the
+other way = noise) - an answerer upgrade does NOT buy cat3, confirming the
+#419 retrieval-side wall. Residual 14 cat1 still-wrong under gpt-4o: event
+count numerics (SOL's event-count/distinct/2 territory), set/list
+enumeration gaps, and specific-entity second-hop misses - the #420 levers
+are now margin, as the handoff predicted. Private record (never commit):
+T7 20260718-164944-mem0-parity-probe-answerer.json.
+
+DECISION RECORDED: next paid step = full matched-answerer Mem0-harness run
+(gpt-4o answerer + judge, all 378 cat1+cat3, ~USD 10-15), operator-gated
+separately and NOT yet approved; no new code first. Tracked handoff
+docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md registered
+latest (parity-probe handoff flipped superseded).
+
+VERIFIED: full pytest tests/ exit 0, zero failures, zero skips, 2
+established xfails, with SOL's uncommitted event-count/distinct/2 WIP left
+untouched in-tree. Ops facts learned: the suite REQUIRES the T7 offline HF
+env exports (first run without them failed 17 tests on HF OAuth network
+fetches - my env error, initially misread as SOL WIP breakage, logged to
+LLM-Logs 2026-07-19-001) and a live pgvector with the LOCAL container DSN
+(dbname=seam user=seam, password via docker inspect seam-pgvector); the
+CI-only seam_ci DSN does not exist locally. This commit stages only the
+chain/status/handoff files.
+---END-ENTRY-#423---

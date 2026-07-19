@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-18-answerer-parity-probe-handoff
 supersedes: 2026-07-17-event-count-context-handoff
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#422
 ---
 

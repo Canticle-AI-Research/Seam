@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-18-answerer-parity-probe-handoff
+latest: 2026-07-19-matched-answerer-full-run-handoff
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-18-answerer-parity-probe-handoff` | [2026-07-18-answerer-parity-probe-handoff.md](2026-07-18-answerer-parity-probe-handoff.md) | `2026-07-17-event-count-context-handoff` | `HISTORY#422` | `current` |
+| `2026-07-19-matched-answerer-full-run-handoff` | [2026-07-19-matched-answerer-full-run-handoff.md](2026-07-19-matched-answerer-full-run-handoff.md) | `2026-07-18-answerer-parity-probe-handoff` | `HISTORY#423` | `current` |
+| `2026-07-18-answerer-parity-probe-handoff` | [2026-07-18-answerer-parity-probe-handoff.md](2026-07-18-answerer-parity-probe-handoff.md) | `2026-07-17-event-count-context-handoff` | `HISTORY#422` | `superseded` |
 | `2026-07-17-event-count-context-handoff` | [2026-07-17-event-count-context-handoff.md](2026-07-17-event-count-context-handoff.md) | `2026-07-17-hc3-open-domain-cat3-handoff` | `HISTORY#416` | `superseded` |
 | `2026-07-17-hc3-open-domain-cat3-handoff` | [2026-07-17-hc3-open-domain-cat3-handoff.md](2026-07-17-hc3-open-domain-cat3-handoff.md) | `2026-07-17-exact-answer-contract-handoff` | `HISTORY#413` | `superseded` |
 | `2026-07-17-exact-answer-contract-handoff` | [2026-07-17-exact-answer-contract-handoff.md](2026-07-17-exact-answer-contract-handoff.md) | `2026-07-15-cat1-cat3-scoreboard-closeout` | `HISTORY#409` | `superseded` |
