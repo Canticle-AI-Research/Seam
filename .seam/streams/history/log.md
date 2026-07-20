@@ -10187,3 +10187,41 @@ grounding precision, and retrieval lift. Installing or selecting that model
 remains an operator decision; core chat/MCP product surfacing is a separate
 follow-on from this benchmark slice.
 ---END-ENTRY-#435---
+
+---BEGIN-ENTRY-#436---
+id: 436
+date: 2026-07-20T14:03:53Z
+agent: claude
+status: done
+topics: handoff, benchmark, retrieval, derived-facts, plan
+commits: pending
+refs: docs/handoffs/2026-07-20-derived-facts-landed-and-kb-scaffold.md,docs/handoffs/INDEX.md
+supersedes: 435
+tokens: 454
+---
+Wrote the tracked handoff docs/handoffs/2026-07-20-derived-facts-landed-and-
+kb-scaffold.md and caught the handoff registry up from #432 to #436 (my #433/
+#434 and codex's #435 landed without registering handoffs; registry latest was
+stale at 2026-07-20-second-hop). Handoff-first per operator priority, committed
+as its own durable slice before the KB build (#437).
+
+Surveyed and verified the operator/codex work I was asked to review: HISTORY
+#435 grounded-clm/1 derived-facts lever is REAL and complete - the exact
+#432-diagnosed derived-facts-at-ingest architecture. Re-ran
+tests/audit/test_derived_fact_context.py this session = all pass. Confirmed
+the honest next gate: only qwen2.5:14b is installed (ollama list) at ~138s/turn
+= too slow for a full-corpus preflight; no free coverage/precision preflight
+runner exists yet for derived facts (only the event-count one does). Recorded
+both as the highest-value next build in the handoff.
+
+Handoff content captures the full arc for the next agent: matched-conditions
+scoreboard (SEAM tops mem0 on NOTHING: cat1 87.94/91.3, cat3 69.79/72.7, cat4
+87.16/91.2, cat2 71.96/92.0; native champion 0.7762 separate); the two
+facade-only levers EXHAUSTED (entity-bridge/1 free-gate 0, event-count/distinct
+/2 paid +1); grounded-clm/1 as the live architectural path with its free next
+gate; the new docs/kb/ memory-systems KB (#437); and standing infra (self-hosted
+CI, cost_report o200k lower-bound discipline, paid-run model-constant check).
+
+No code, provider call, or paid run in this entry - handoff + registry + chain
+only. Derived-facts lever was NOT rebuilt (already built #435, verified).
+---END-ENTRY-#436---

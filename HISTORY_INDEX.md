@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 435
-total_tokens: ~191537
-latest_id: 435
+total_entries: 436
+total_tokens: ~191991
+latest_id: 436
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 436 | 2026-07-20 | done | 1394218c4094abdf | handoff,benchmark,retrieval,derived-facts,+ | 435 |
 | 435 | 2026-07-20 | done | ec6982808a096a0f | benchmark,locomo,mirl,retrieval,+ | 434 |
 | 434 | 2026-07-20 | done | 291b0956612e376a | benchmark,locomo,paid-run,negative-result,+ | 433 |
 | 433 | 2026-07-20 | done | c3150c723b150692 | retrieval,benchmark,mem0-harness,lever,+ | 432 |
@@ -467,7 +468,7 @@ compact: true
 - audit: count=82 latest=#435, #430, #398, #396, #391
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=172 latest=#435, #434, #433, #432, #431
+- benchmark: count=173 latest=#436, #435, #434, #433, #432
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -522,6 +523,7 @@ compact: true
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
+- derived-facts: count=1 latest=#436
 - design-task: count=1 latest=#363
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
@@ -562,7 +564,7 @@ compact: true
 - graph: count=7 latest=#415, #414, #404, #403, #402
 - graphrag: count=1 latest=#325
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=35 latest=#430, #427, #423, #422, #417
+- handoff: count=36 latest=#436, #430, #427, #423, #422
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -630,7 +632,7 @@ compact: true
 - performance: count=3 latest=#364, #363, #362
 - persist: count=31 latest=#435, #404, #403, #402, #401
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
-- plan: count=19 latest=#432, #422, #420, #415, #414
+- plan: count=20 latest=#436, #432, #422, #420, #415
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
@@ -670,7 +672,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=93 latest=#435, #433, #432, #431, #427
+- retrieval: count=94 latest=#436, #435, #433, #432, #431
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -739,6 +741,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 402
+- done: 403
 - in-progress: 4
 - planned: 21

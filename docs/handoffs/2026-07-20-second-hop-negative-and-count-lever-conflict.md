@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-20-second-hop-negative-and-count-lever-conflict
 supersedes: 2026-07-19-matched-run-complete-recovery-closeout
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#432
 ---
 
