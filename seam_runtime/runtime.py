@@ -50,10 +50,15 @@ class SeamRuntime:
         vector_adapter: VectorAdapter | None = None,
         pgvector_dsn: str | None = None,
         pgvector_table: str | None = None,
+        allow_pgvector_env: bool = True,
     ) -> None:
         self.store = SQLiteStore(store_path)
         self.embedding_model = embedding_model or default_embedding_model()
-        resolved_dsn = pgvector_dsn or os.environ.get("SEAM_PGVECTOR_DSN")
+        resolved_dsn = pgvector_dsn or (
+            os.environ.get("SEAM_PGVECTOR_DSN")
+            if allow_pgvector_env
+            else None
+        )
         resolved_table = pgvector_table or os.environ.get("SEAM_PGVECTOR_TABLE") or "seam_vector_index"
         if vector_adapter is not None:
             self.vector_adapter = vector_adapter
@@ -100,8 +105,24 @@ class SeamRuntime:
         ns: str = "local.default",
         scope: str = "thread",
         agent_id: str | None = None,
+        *,
+        extractor=None,
+        speaker: str | None = None,
+        source_timestamp: str | None = None,
+        derived_fact_policy: str | None = None,
+        allow_env_extractor: bool = True,
     ) -> IRBatch:
-        batch = compile_nl(raw_text, source_ref=source_ref, ns=ns, scope=scope)
+        batch = compile_nl(
+            raw_text,
+            source_ref=source_ref,
+            ns=ns,
+            scope=scope,
+            extractor=extractor,
+            speaker=speaker,
+            source_timestamp=source_timestamp,
+            derived_fact_policy=derived_fact_policy,
+            allow_env_extractor=allow_env_extractor,
+        )
         resolved_agent = self._resolve_agent_id(agent_id)
         if resolved_agent:
             for record in batch.records:
@@ -251,6 +272,12 @@ class SeamRuntime:
         scope: str = "thread",
         persist: bool = True,
         agent_id: str | None = None,
+        *,
+        extractor=None,
+        speaker: str | None = None,
+        source_timestamp: str | None = None,
+        derived_fact_policy: str | None = None,
+        allow_env_extractor: bool = True,
     ) -> IngestReport:
         # Unified compiler (HISTORY#311): conversation turns and plain memories
         # share one faithful pipeline. `ingest_conversation_turn` is kept as the
@@ -258,7 +285,18 @@ class SeamRuntime:
         resolved_agent = self._resolve_agent_id(agent_id)
         document_id = stable_document_id(source_ref, text)
         batch = namespace_ingest_batch(
-            self.compile_nl(text, source_ref=source_ref, ns=ns, scope=scope, agent_id=resolved_agent),
+            self.compile_nl(
+                text,
+                source_ref=source_ref,
+                ns=ns,
+                scope=scope,
+                agent_id=resolved_agent,
+                extractor=extractor,
+                speaker=speaker,
+                source_timestamp=source_timestamp,
+                derived_fact_policy=derived_fact_policy,
+                allow_env_extractor=allow_env_extractor,
+            ),
             document_id,
         )
         stored_ids: list[str] = []
@@ -267,6 +305,30 @@ class SeamRuntime:
             self.store.mark_document_superseded_by_source_ref(
                 source_ref, except_document_id=document_id
             )
+        metadata: dict[str, object] = {
+            "record_count": len(batch.records),
+            "indexable_count": len([
+                r for r in batch.records
+                if r.kind in {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL, RecordKind.RAW}
+            ]),
+            "agent_id": resolved_agent,
+        }
+        if derived_fact_policy:
+            rich_claims = [
+                record
+                for record in batch.records
+                if record.kind == RecordKind.CLM
+                and record.ext.get("derived_fact_policy") == derived_fact_policy
+            ]
+            metadata["derived_fact_policy"] = derived_fact_policy
+            metadata["derived_fact_count"] = len(rich_claims)
+            fingerprints = {
+                str(record.ext.get("derived_fact_config_fingerprint"))
+                for record in rich_claims
+                if record.ext.get("derived_fact_config_fingerprint")
+            }
+            if len(fingerprints) == 1:
+                metadata["derived_fact_config_fingerprint"] = fingerprints.pop()
         document = self.store.upsert_document_status(
             document_id=document_id,
             ns=ns,
@@ -277,14 +339,7 @@ class SeamRuntime:
             chunk_count=max(1, len(batch.kind(RecordKind.SPAN))),
             extraction_status="compiled",
             indexed_status="indexed" if persist else "not_indexed",
-            metadata={
-                "record_count": len(batch.records),
-                "indexable_count": len([
-                    r for r in batch.records
-                    if r.kind in {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL, RecordKind.RAW}
-                ]),
-                "agent_id": resolved_agent,
-            },
+            metadata=metadata,
         )
         return IngestReport(document=document, stored_ids=stored_ids)
 

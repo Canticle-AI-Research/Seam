@@ -38,6 +38,14 @@ from datetime import datetime, timezone
 
 from benchmarks.external.common.types import ConversationTurn
 from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
+from seam_runtime.derived_fact_context import (
+    DERIVED_FACTS_OFF,
+    DERIVED_FACTS_POLICIES,
+    DerivedFact,
+    grounded_spans_match_source,
+    is_eligible_derived_claim,
+    splice_derived_facts,
+)
 from seam_runtime.event_count_context import (
     CountEvidence,
     build_count_context_projection,
@@ -60,15 +68,22 @@ def _epoch_to_iso(timestamp: int | None) -> str:
         return ""
 
 
-def _split_speaker(content: str) -> tuple[str, str]:
+def _split_speaker(
+    content: str,
+) -> tuple[str, str, bool]:
     """Mem0 chunks a turn as ``"Speaker: text"``. Recover (speaker, text) so the
     SEAM turn carries the same ``[Speaker ts] text`` shape as the native adapter.
-    Falls back to a generic speaker when the colon convention is absent."""
+    The first two return values preserve the legacy facade behavior exactly.
+    The third is a stricter, derived-facts-only trust signal."""
     if ": " in content:
         speaker, text = content.split(": ", 1)
         if speaker and len(speaker) <= 64 and "\n" not in speaker:
-            return speaker, text
-    return "user", content
+            explicit_for_facts = (
+                speaker == speaker.strip()
+                and not any(char in speaker for char in "\r\n[]")
+            )
+            return speaker, text, explicit_for_facts
+    return "user", content, False
 
 
 class SeamMem0Server:
@@ -80,13 +95,30 @@ class SeamMem0Server:
     the adapter, so the exact validated stack is reproducible here.
     """
 
-    def __init__(self, *, db_path: str | None = None, search_top_k: int = 100,
-                 context_budget: int = 8000):
+    def __init__(
+        self,
+        *,
+        db_path: str | None = None,
+        search_top_k: int = 100,
+        context_budget: int = 8000,
+        derived_facts_policy: str | None = None,
+        nl_extractor=None,
+        derived_facts_cache_path: str | None = None,
+    ):
         self._adapter = SeamLocomoAdapter(
             db_path=db_path,
             answerer=None,
             search_top_k=search_top_k,
             budget=context_budget,
+            derived_facts_policy=derived_facts_policy,
+            nl_extractor=nl_extractor,
+            derived_facts_cache_path=derived_facts_cache_path,
+        )
+        self._derived_facts_policy = (
+            self._adapter._derived_facts.config.policy
+        )
+        self._derived_fact_config_fingerprint = (
+            self._adapter._derived_facts.config.fingerprint
         )
 
     # -- endpoint handlers (pure dict-in/dict-out; framework-agnostic) ------
@@ -102,10 +134,11 @@ class SeamMem0Server:
             content = (msg or {}).get("content") or ""
             if not content.strip():
                 continue
-            speaker, text = _split_speaker(content)
+            speaker, text, explicit_speaker = _split_speaker(content)
             self._adapter.ingest_turn(
                 user_id,
                 ConversationTurn(speaker=speaker, text=text, timestamp=iso),
+                derive_facts=explicit_speaker,
             )
             added += 1
         # Mem0 returns the extracted-memory list; the harness only needs a
@@ -125,6 +158,9 @@ class SeamMem0Server:
         if not user_id:
             raise ValueError("delete requires user_id")
         self._adapter.reset(user_id)
+        cached_extractor = self._adapter._derived_facts.extractor
+        if cached_extractor is not None:
+            cached_extractor.purge_owner(f"locomo:{user_id}")
         return {"message": f"deleted memories for {user_id}"}
 
     # -- retrieval ---------------------------------------------------------
@@ -142,7 +178,23 @@ class SeamMem0Server:
         projected = _apply_count_context_policy(rt, query, out, limit)
         if projected is not out:
             return projected
-        return _apply_temporal_context_policy(query, out, limit)
+        projected = _apply_temporal_context_policy(query, out, limit)
+        if projected is not out:
+            return projected
+        policy = getattr(
+            self,
+            "_derived_facts_policy",
+            DERIVED_FACTS_OFF,
+        )
+        if policy == DERIVED_FACTS_OFF:
+            return out
+        facts = self._search_derived_facts(user_id, query, limit)
+        return splice_derived_facts(
+            out,
+            facts,
+            limit=limit,
+            policy=policy,
+        )
 
     def _apply_second_hop_policy(
         self, user_id: str, query: str, primary: list[dict], limit: int
@@ -226,6 +278,196 @@ class SeamMem0Server:
             if reached_limit:
                 break
         return out
+
+    def _search_derived_facts(
+        self,
+        user_id: str,
+        query: str,
+        limit: int,
+    ) -> list[DerivedFact]:
+        """Retrieve explicit grounded CLMs with a complete live RAW backtrace."""
+
+        rt = self._adapter._runtime(user_id)
+        ns = f"locomo:{user_id}"
+        temporal_window = self._adapter._build_temporal_window(query)
+        temporal_reference = self._adapter._build_temporal_reference(
+            user_id,
+            query,
+        )
+        result = rt.search_ir(
+            query,
+            scope="thread",
+            budget=limit,
+            include_raw=False,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            ns=ns,
+        )
+        candidates = [
+            candidate
+            for candidate in result.candidates
+            if candidate.record.ns == ns
+            and candidate.record.scope == "thread"
+            and is_eligible_derived_claim(
+                candidate.record,
+                policy=self._derived_facts_policy,
+            )
+            and candidate.record.ext.get(
+                "derived_fact_config_fingerprint"
+            )
+            == self._derived_fact_config_fingerprint
+        ]
+        if not candidates:
+            return []
+
+        allowed = rt.store.assertable_record_ids(
+            [candidate.record.id for candidate in candidates],
+            namespace=ns,
+            scope="thread",
+        )
+        candidates = [
+            candidate
+            for candidate in candidates
+            if candidate.record.id in allowed
+        ]
+        if not candidates:
+            return []
+
+        initial_ids: list[str] = []
+        seen_ids: set[str] = set()
+
+        def add_id(record_id: object) -> None:
+            if (
+                isinstance(record_id, str)
+                and record_id
+                and record_id not in seen_ids
+            ):
+                seen_ids.add(record_id)
+                initial_ids.append(record_id)
+
+        for candidate in candidates:
+            add_id(candidate.record.id)
+            add_id(candidate.record.attrs.get("subject"))
+            for evidence_id in candidate.record.evidence:
+                add_id(evidence_id)
+
+        initial_batch = rt.store.load_ir(ids=initial_ids)
+        by_id = initial_batch.by_id()
+        raw_ids: list[str] = []
+        for record in initial_batch.records:
+            if record.kind.value != "SPAN":
+                continue
+            raw_id = record.attrs.get("raw_id")
+            if isinstance(raw_id, str) and raw_id not in raw_ids:
+                raw_ids.append(raw_id)
+        raw_batch = rt.store.load_ir(ids=raw_ids)
+        by_id.update(raw_batch.by_id())
+        live_chain_ids = rt.store.assertable_record_ids(
+            list(by_id),
+            namespace=ns,
+            scope="thread",
+        )
+
+        facts: list[DerivedFact] = []
+        for candidate in candidates:
+            claim = candidate.record
+            subject = by_id.get(str(claim.attrs.get("subject") or ""))
+            if (
+                subject is None
+                or subject.kind.value != "ENT"
+                or subject.ns != ns
+                or subject.scope != "thread"
+                or subject.id not in live_chain_ids
+            ):
+                continue
+            subject_label = str(subject.attrs.get("label") or "").strip()
+            recorded_label = str(
+                claim.attrs.get("subject_label") or ""
+            ).strip()
+            if (
+                not subject_label
+                or " ".join(subject_label.lower().split())
+                != " ".join(recorded_label.lower().split())
+            ):
+                continue
+
+            source_raw = None
+            source_span = None
+            for evidence_id in claim.evidence:
+                span = by_id.get(evidence_id)
+                if (
+                    span is None
+                    or span.kind.value != "SPAN"
+                    or span.ns != ns
+                    or span.scope != "thread"
+                    or span.id not in live_chain_ids
+                ):
+                    continue
+                raw_id = span.attrs.get("raw_id")
+                raw = by_id.get(str(raw_id or ""))
+                if (
+                    raw is not None
+                    and raw.kind.value == "RAW"
+                    and raw.ns == ns
+                    and raw.scope == "thread"
+                    and raw.id in live_chain_ids
+                ):
+                    source_raw = raw
+                    source_span = span
+                    break
+            if source_raw is None or source_span is None:
+                continue
+            source_text = source_raw.attrs.get("content")
+            source_metadata = source_raw.ext.get("source_metadata")
+            if (
+                not isinstance(source_metadata, dict)
+                or source_metadata.get("format") != "locomo-turn/1"
+            ):
+                continue
+            source_speaker = (
+                source_metadata.get("speaker")
+                if isinstance(source_metadata, dict)
+                else None
+            )
+            source_timestamp = (
+                source_metadata.get("timestamp")
+                if isinstance(source_metadata, dict)
+                else None
+            )
+            source_prefix_end = (
+                source_metadata.get("prefix_end")
+                if isinstance(source_metadata, dict)
+                else None
+            )
+            if (
+                not isinstance(source_text, str)
+                or not source_text
+                or not grounded_spans_match_source(
+                    claim,
+                    source_text,
+                    evidence_start=source_span.attrs.get("start"),
+                    evidence_end=source_span.attrs.get("end"),
+                    source_speaker=source_speaker,
+                    source_timestamp=source_timestamp,
+                    source_prefix_end=source_prefix_end,
+                    require_evidence_bounds=True,
+                    require_source_metadata=True,
+                )
+            ):
+                continue
+            facts.append(
+                DerivedFact(
+                    claim_id=claim.id,
+                    subject=subject_label,
+                    predicate=str(claim.attrs["predicate"]).strip(),
+                    obj=str(claim.attrs["object"]).strip(),
+                    source_raw_id=source_raw.id,
+                    source_text=source_text,
+                    score=float(candidate.score),
+                    created_at=_created_at(source_raw),
+                )
+            )
+        return facts
 
     def close(self) -> None:
         self._adapter.close()
@@ -363,15 +605,15 @@ def build_asgi_app(server: SeamMem0Server):
     app = FastAPI(title="SEAM Mem0-OSS facade")
 
     @app.post("/memories")
-    async def add_memories(payload: dict[str, Any] = Body(...)):
+    def add_memories(payload: dict[str, Any] = Body(...)):
         return server.add(payload)
 
     @app.post("/search")
-    async def search_memories(payload: dict[str, Any] = Body(...)):
+    def search_memories(payload: dict[str, Any] = Body(...)):
         return server.search(payload)
 
     @app.delete("/memories")
-    async def delete_memories(
+    def delete_memories(
         user_id: str | None = None,
         payload: dict[str, Any] | None = Body(default=None),
     ):
@@ -392,6 +634,20 @@ def main() -> None:
     parser.add_argument("--db-path", default=None)
     parser.add_argument("--search-top-k", type=int, default=100)
     parser.add_argument("--context-budget", type=int, default=8000)
+    parser.add_argument(
+        "--derived-facts-policy",
+        choices=sorted(DERIVED_FACTS_POLICIES),
+        default=None,
+        help=(
+            "frozen ingest+retrieval policy; defaults to "
+            "SEAM_DERIVED_FACTS_POLICY or off"
+        ),
+    )
+    parser.add_argument(
+        "--derived-facts-cache-path",
+        default=None,
+        help="optional content-addressed extraction-cache path",
+    )
     args = parser.parse_args()
 
     import uvicorn
@@ -400,6 +656,8 @@ def main() -> None:
         db_path=args.db_path,
         search_top_k=args.search_top_k,
         context_budget=args.context_budget,
+        derived_facts_policy=args.derived_facts_policy,
+        derived_facts_cache_path=args.derived_facts_cache_path,
     )
     uvicorn.run(build_asgi_app(server), host=args.host, port=args.port)
 

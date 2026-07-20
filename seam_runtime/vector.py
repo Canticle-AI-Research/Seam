@@ -273,6 +273,18 @@ class SQLiteVectorIndex:
             content = record.attrs.get("content")
             if isinstance(content, str) and content.strip():
                 return content
+        if (
+            record.kind == RecordKind.CLM
+            and record.ext.get("derived_fact_policy") == "grounded-clm/1"
+        ):
+            subject = record.attrs.get("subject_label")
+            predicate = record.attrs.get("predicate")
+            obj = record.attrs.get("object")
+            if all(
+                isinstance(value, str) and value.strip()
+                for value in (subject, predicate, obj)
+            ):
+                return f"{subject} {predicate} {obj}"
         parts = [record.kind.value]
         parts.extend(iter_textual_fields(record))
         return " ".join(part for part in parts if part)

@@ -10121,3 +10121,69 @@ spending on any full rerun.
 
 v2 stays committed and default-off (harmless); no full harness rerun green-lit.
 ---END-ENTRY-#434---
+
+---BEGIN-ENTRY-#435---
+id: 435
+date: 2026-07-20T13:40:00Z
+agent: codex
+status: done
+topics: benchmark, locomo, mirl, retrieval, compile, provenance, persist, vector, test, audit
+commits: pending
+refs: seam_runtime/derived_fact_context.py,seam_runtime/nl_extract.py,seam_runtime/nl.py,benchmarks/external/locomo/adapters/seam.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/README.md,tests/audit/test_derived_fact_context.py
+supersedes: 434
+tokens: 1168
+---
+IMPLEMENTED `grounded-clm/1`, the #432/#434 derived-facts direction, as an
+auditable default-off LoCoMo/Mem0 ingest-and-retrieval lever. This is a
+benchmark-evaluable vertical slice, not a new product default and not a score
+claim.
+
+COMPILER/INGEST CONTRACT: the candidate persists only explicit singular
+first-person claims that can be losslessly grounded to a canonical turn and
+rebased to that turn's named speaker. Unresolved third-person, possessive,
+plural, contraction, quotation, negation, conditional, reported-speech,
+cross-clause, and symbol-wrapped-I shapes fail closed to the RAW floor.
+Injected/custom extractor output is revalidated against the exact source spans
+before it can enter either storage or vector text.
+
+REPRODUCIBILITY/TRUST CONTRACT: each candidate store carries a frozen manifest
+covering policy, extraction schema/prompt/decoder, the installed Ollama model
+digest, cache identity, splice policy, and the exact local embedding contract
+(`BAAI/bge-small-en-v1.5` at revision
+`5c38ec7c405ec4b44b94cc5a9bb96e735b38267a`, 384 dimensions,
+local-files-only). Fresh/warm-store mismatches, digest drift, a shared pgvector
+environment, or a remote embedding provider are refused. Extraction cache
+rows are content-addressed, namespace-owner bound, replayable after restart,
+and purged when their final owner is deleted.
+
+SERVE CONTRACT: eligible current/assertable CLM records render as
+`SEAM-FACT/1` beside an exact `SEAM-SOURCE/1` RAW record. Serve-time validation
+rechecks canonical proposition bounds, content hash, speaker/timestamp, span
+coverage, live CLM->SPAN->RAW provenance, namespace/scope, and the frozen
+configuration fingerprint. The `raw-prefix-floor/2` splice places four RAW
+records before each fact, so every returned prefix - not only the top-200
+total - contains at most 20% facts, and a fact never precedes its source RAW.
+Count and temporal projections retain precedence. Mem0's blocking add/search/
+delete handlers are synchronous so FastAPI dispatches them through its
+threadpool; the documented upstream candidate contract remains one worker.
+Flag-off behavior retains the legacy RAW-only contract.
+
+VALIDATION: 159/159 focused tests pass; collect-only resolves the same 159
+tests; Ruff, diff hygiene, and the candidate secret/private-session-link scan
+are clean. An earlier complete 1,057-test non-external audit run passed 1,055
+and hit CUDA OOM only in the two real-embedding LoCoMo decomposer tests while
+the local qwen2.5:14b smoke occupied the GPU; those exact two tests pass 2/2
+after the GPU contention is removed. A final real local extraction smoke
+(qwen2.5:14b, 138.12 seconds) produced one grounded `John likes surfing` fact,
+with its source RAW first, one fact among six returned rows, the pinned BGE
+revision, and SQLite vectors. No provider call, paid answerer/judge call, or
+full-corpus score run occurred.
+
+HONEST NEXT GATE: qwen2.5:14b's observed per-turn latency makes a full 10-
+conversation extraction preflight impractical on the installed model. Run the
+free corpus coverage/precision preflight with a faster locally installed
+extractor first, then gate any paid answerer microgate on measured fact yield,
+grounding precision, and retrieval lift. Installing or selecting that model
+remains an operator decision; core chat/MCP product surfacing is a separate
+follow-on from this benchmark slice.
+---END-ENTRY-#435---

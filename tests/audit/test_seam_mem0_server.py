@@ -6,6 +6,8 @@ depends on, so the shim can't silently drift from the harness it must satisfy.
 
 from __future__ import annotations
 
+import inspect
+import sqlite3
 from types import SimpleNamespace
 
 import pytest
@@ -16,16 +18,66 @@ from benchmarks.external.mem0_harness.seam_mem0_server import (
     _epoch_to_iso,
     _split_speaker,
 )
+from seam_runtime.derived_fact_context import (
+    DERIVED_FACTS_EMBEDDING_CONFIG,
+    GROUNDED_CLM_V1,
+)
+from seam_runtime.mirl import IRBatch, RecordKind, Status
+from seam_runtime.nl_extract import Extraction, ground_extraction
 from seam_runtime.retrieval import RetrievalFlags
+
+
+@pytest.fixture(autouse=True)
+def _isolated_sqlite_vector_contract(monkeypatch):
+    monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+
+
+class _SurfingExtractor:
+    def config_metadata(self):
+        return {"type": "test-surfing", "version": 1}
+
+    def extract(self, text: str) -> Extraction:
+        if "surfing" not in text.lower():
+            return Extraction()
+        return ground_extraction(
+            {
+                "entities": [
+                    {"name": "I", "type": "person"},
+                    {"name": "surfing", "type": "activity"},
+                ],
+                "claims": [
+                    {
+                        "subject": "I",
+                        "relation": "like",
+                        "object": "surfing",
+                        "epistemic_basis": "explicit",
+                    }
+                ],
+            },
+            text,
+        )
 
 
 def test_epoch_to_iso_and_speaker_split():
     assert _epoch_to_iso(1687000000) == "2023-06-17"
     assert _epoch_to_iso(None) == ""
     assert _epoch_to_iso("not-an-int") == ""
-    assert _split_speaker("Melanie: I painted a sunrise") == ("Melanie", "I painted a sunrise")
-    # no colon convention -> generic speaker, full text preserved
-    assert _split_speaker("just some text") == ("user", "just some text")
+    assert _split_speaker("Melanie: I painted a sunrise") == (
+        "Melanie",
+        "I painted a sunrise",
+        True,
+    )
+    # no colon convention -> legacy generic RAW speaker, non-explicit for facts
+    assert _split_speaker("just some text") == (
+        "user",
+        "just some text",
+        False,
+    )
+    assert _split_speaker("[odd]: text") == (
+        "[odd]",
+        "text",
+        False,
+    )
 
 
 @pytest.fixture
@@ -126,6 +178,230 @@ def test_user_scopes_are_isolated(server):
     joined_a = " ".join(m["memory"] for m in a["results"])
     assert "Seattle" in joined_a
     assert "Denver" not in joined_a  # cross-user leakage would fail the head-to-head
+
+
+def test_grounded_clm_policy_serves_readable_fact_with_raw_provenance(
+    monkeypatch,
+    tmp_path,
+):
+    server = SeamMem0Server(
+        db_path=str(tmp_path / "derived-scopes"),
+        derived_facts_policy=GROUNDED_CLM_V1,
+        nl_extractor=_SurfingExtractor(),
+    )
+    try:
+        monkeypatch.setenv(
+            "SEAM_PGVECTOR_DSN",
+            "postgresql://invalid.local/seam",
+        )
+        monkeypatch.setenv("SEAM_EMBEDDING_PROVIDER", "openai")
+        server.add({
+            "user_id": "derived-user",
+            "timestamp": 1687000000,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "John: I like surfing.",
+                },
+                {
+                    "role": "assistant",
+                    "content": "Caroline: That sounds fun.",
+                },
+                {
+                    "role": "user",
+                    "content": "John: The weather was sunny.",
+                },
+                {
+                    "role": "assistant",
+                    "content": "Caroline: The beach was nearby.",
+                },
+                {
+                    "role": "user",
+                    "content": "John: I packed a blue towel.",
+                },
+            ],
+        })
+        results = server.search({
+            "user_id": "derived-user",
+            "query": "What sport does John like?",
+            "limit": 10,
+        })["results"]
+
+        facts = [
+            item for item in results
+            if str(item["id"]).startswith("clm:")
+        ]
+        assert facts
+        runtime = server._adapter._runtime("derived-user")
+        assert type(runtime.vector_adapter).__name__ == "SQLiteVectorAdapter"
+        assert (
+            runtime.embedding_model.name
+            == DERIVED_FACTS_EMBEDDING_CONFIG["name"]
+        )
+        assert (
+            runtime.embedding_model.dimension
+            == DERIVED_FACTS_EMBEDDING_CONFIG["dimension"]
+        )
+        assert facts[0]["memory"].startswith("SEAM-FACT/1|")
+        assert '"subject":"John"' in facts[0]["memory"]
+        assert '"object":"surfing"' in facts[0]["memory"]
+        assert "SEAM-SOURCE/1|" in facts[0]["memory"]
+
+        fact_payload = facts[0]["memory"].splitlines()[0]
+        import json
+
+        source_raw_id = json.loads(fact_payload.split("|", 1)[1])[
+            "source_raw_id"
+        ]
+        assert source_raw_id in {str(item["id"]) for item in results}
+        assert any(
+            "I like surfing" in str(item["memory"])
+            for item in results
+            if item["id"] == source_raw_id
+        )
+    finally:
+        server.close()
+
+
+def test_grounded_clm_policy_never_crosses_user_namespace(tmp_path):
+    server = SeamMem0Server(
+        db_path=str(tmp_path / "derived-isolation"),
+        derived_facts_policy=GROUNDED_CLM_V1,
+        nl_extractor=_SurfingExtractor(),
+    )
+    try:
+        server.add({
+            "user_id": "a",
+            "messages": [{
+                "role": "user",
+                "content": "John: I like surfing.",
+            }],
+        })
+        server.add({
+            "user_id": "b",
+            "messages": [{
+                "role": "user",
+                "content": "Maya: I like painting.",
+            }],
+        })
+        results = server.search({
+            "user_id": "b",
+            "query": "Who likes surfing?",
+            "limit": 10,
+        })["results"]
+        assert all("surfing" not in str(item["memory"]).lower() for item in results)
+        assert all(not str(item["id"]).startswith("clm:") for item in results)
+    finally:
+        server.close()
+
+
+@pytest.mark.parametrize("retired_kind", [RecordKind.SPAN, RecordKind.RAW])
+def test_grounded_clm_policy_requires_live_assertable_provenance_chain(
+    tmp_path,
+    retired_kind,
+):
+    server = SeamMem0Server(
+        db_path=str(tmp_path / f"retired-{retired_kind.value.lower()}"),
+        derived_facts_policy=GROUNDED_CLM_V1,
+        nl_extractor=_SurfingExtractor(),
+    )
+    try:
+        server.add({
+            "user_id": "retired-source",
+            "messages": [{
+                "role": "user",
+                "content": "John: I like surfing.",
+            }],
+        })
+        runtime = server._adapter._runtime("retired-source")
+        batch = runtime.store.load_ir(ns="locomo:retired-source")
+        rich_claim = next(
+            record
+            for record in batch.records
+            if record.ext.get("derived_fact_policy") == GROUNDED_CLM_V1
+        )
+        by_id = batch.by_id()
+        span = by_id[rich_claim.evidence[0]]
+        raw = by_id[span.attrs["raw_id"]]
+        retired = span if retired_kind == RecordKind.SPAN else raw
+        retired.status = Status.SUPERSEDED
+        runtime.persist_ir(IRBatch([retired]))
+
+        assert server._search_derived_facts(
+            "retired-source",
+            "What does John like?",
+            10,
+        ) == []
+    finally:
+        server.close()
+
+
+def test_grounded_clm_policy_does_not_attribute_unlabeled_first_person_to_role(
+    tmp_path,
+):
+    server = SeamMem0Server(
+        db_path=str(tmp_path / "derived-unlabeled"),
+        derived_facts_policy=GROUNDED_CLM_V1,
+        nl_extractor=_SurfingExtractor(),
+    )
+    try:
+        server.add({
+            "user_id": "unlabeled",
+            "messages": [{
+                "role": "assistant",
+                "content": "I like surfing.",
+            }],
+        })
+        batch = server._adapter._runtime("unlabeled").store.load_ir(
+            ns="locomo:unlabeled",
+        )
+        assert not any(
+            record.ext.get("derived_fact_policy") == GROUNDED_CLM_V1
+            for record in batch.records
+        )
+        raw = next(
+            record
+            for record in batch.records
+            if record.kind.value == "RAW"
+        )
+        assert raw.attrs["content"] == "[user ] I like surfing."
+    finally:
+        server.close()
+
+
+def test_delete_user_purges_unshared_derived_fact_cache_rows(tmp_path):
+    server = SeamMem0Server(
+        db_path=str(tmp_path / "derived-delete"),
+        derived_facts_policy=GROUNDED_CLM_V1,
+        nl_extractor=_SurfingExtractor(),
+    )
+    try:
+        server.add({
+            "user_id": "delete-me",
+            "messages": [{
+                "role": "user",
+                "content": "John: I like surfing.",
+            }],
+        })
+        cache_path = (
+            server._adapter._derived_facts.config.cache_path
+        )
+        with sqlite3.connect(cache_path) as connection:
+            assert connection.execute(
+                "select count(*) from derived_fact_cache",
+            ).fetchone()[0] == 1
+
+        server.delete_user("delete-me")
+
+        with sqlite3.connect(cache_path) as connection:
+            assert connection.execute(
+                "select count(*) from derived_fact_cache",
+            ).fetchone()[0] == 0
+            assert connection.execute(
+                "select count(*) from derived_fact_cache_owners",
+            ).fetchone()[0] == 0
+    finally:
+        server.close()
 
 
 def test_retrieve_passes_temporal_constraints_to_search():
@@ -356,6 +632,50 @@ def test_count_context_policy_does_not_change_non_count_queries():
     ) is results
 
 
+def test_specialized_count_projection_takes_precedence_over_derived_facts():
+    raw = [
+        {
+            "memory": "[Nate 2023-03-01] I won a tournament.",
+            "score": 0.9,
+            "id": "raw:win",
+            "created_at": "2023-03-01",
+        },
+        {
+            "memory": "[Nate 2023-03-02] I will enter another tournament.",
+            "score": 0.8,
+            "id": "raw:plan",
+            "created_at": "2023-03-02",
+        },
+    ]
+    runtime = SimpleNamespace(
+        _retrieval_flags_cached=lambda: RetrievalFlags(
+            count_context_policy="event-count/distinct/1"
+        )
+    )
+    adapter = SimpleNamespace(_runtime=lambda user_id: runtime)
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._adapter = adapter
+    server._derived_facts_policy = GROUNDED_CLM_V1
+    server._search_raw = lambda user_id, query, limit: raw
+    server._apply_second_hop_policy = (
+        lambda user_id, query, results, limit: results
+    )
+    server._search_derived_facts = lambda *args: pytest.fail(
+        "derived facts must not run after a specialized projection"
+    )
+
+    results = server._retrieve(
+        "count-user",
+        "How many tournaments did Nate win?",
+        3,
+    )
+    assert results[0]["memory"].startswith("SEAM-COUNT/1|")
+    assert all(
+        not str(item["memory"]).startswith("SEAM-FACT/1|")
+        for item in results
+    )
+
+
 def test_count_context_policy_env_reaches_real_facade(monkeypatch, tmp_path):
     monkeypatch.setenv("SEAM_COUNT_CONTEXT_POLICY", "event-count/distinct/1")
     server = SeamMem0Server(db_path=str(tmp_path / "count-scopes"))
@@ -399,7 +719,14 @@ def test_asgi_routes_match_mem0_oss_contract(tmp_path):
 
     server = SeamMem0Server(db_path=str(tmp_path / "scopes"))
     try:
-        client = TestClient(build_asgi_app(server))
+        app = build_asgi_app(server)
+        blocking_paths = {"/memories", "/search"}
+        assert all(
+            not inspect.iscoroutinefunction(route.endpoint)
+            for route in app.routes
+            if getattr(route, "path", None) in blocking_paths
+        )
+        client = TestClient(app)
         assert client.get("/health").json() == {"status": "ok"}
         r = client.post("/memories", json={
             "user_id": "conv-x", "timestamp": 1687000000,

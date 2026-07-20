@@ -26,6 +26,10 @@ text` — the shape their `format_search_results` + answerer read). Retrieval
 honors `RetrievalFlags` from the environment, so the validated
 conversation/temporal/profile stack applies identically.
 
+The default-off `grounded-clm/1` policy can additionally serve explicit,
+speaker-grounded MIRL facts beside those RAW turns. It does not change the
+default response.
+
 > The earlier in-process `adapter.py` targeted an interface the current harness
 > does not expose and was never runnable against the real harness; it was
 > retired in favor of this server (HISTORY#394).
@@ -54,6 +58,61 @@ conversation/temporal/profile stack applies identically.
    python -m benchmarks.locomo.run --project-name seam \
        --backend oss --mem0-host http://127.0.0.1:8900
    ```
+
+## Grounded derived-facts lever (default off)
+
+`grounded-clm/1` is one frozen benchmark ingest-and-retrieval policy. It runs
+SEAM's local grounded extractor and serves only singular first-person facts
+that resolve to the explicit turn speaker. Unresolved pronouns and contractions
+fail closed in v1. It stores readable rich CLMs with exact field spans and
+CLM→SPAN→RAW provenance, and serves only gap-free S-R-O partitions that do not
+drop clause qualifiers or recombine text across clauses. It reserves at most
+20% of the rows actually returned for `SEAM-FACT/1` rows.
+At least 80% of a full response remains RAW, and every served fact's source
+RAW appears before that fact. The same ceiling holds for every response
+prefix, including the harness's scored 10/20/50/200 cutoffs.
+
+Enable it only against a new, isolated candidate database root:
+
+```bash
+unset SEAM_PGVECTOR_DSN SEAM_PGVECTOR_TABLE SEAM_EMBEDDING_PROVIDER
+export SEAM_DERIVED_FACTS_POLICY=grounded-clm/1
+export SEAM_OLLAMA_MODEL=qwen2.5:14b  # choose a locally installed model
+python -m benchmarks.external.mem0_harness.seam_mem0_server \
+    --db-path /tmp/seam-grounded-clm-candidate --port 8900
+```
+
+For this candidate, run the upstream harness with `--max-workers 1`. The
+facade dispatches blocking ingest/search work through FastAPI's worker
+threadpool, but v1 deliberately does not claim concurrent extraction
+reproducibility, and local Ollama commonly serializes generation internally.
+
+The first enablement writes an immutable configuration manifest and a
+content-addressed extraction cache inside that root. A pre-existing database
+without the manifest, or a later model-digest/prompt/policy fingerprint
+mismatch, fails closed. The configured Ollama tag is resolved to its installed
+content digest; an optional configured digest is verified rather than trusted,
+and the installed digest is checked again before every uncached generation.
+V1 accepts only a credential-free loopback Ollama origin. Extraction errors
+also fail closed instead of silently becoming empty facts. The candidate is
+pinned to its own SQLite vector index and the exact local
+`BAAI/bge-small-en-v1.5` revision recorded in its manifest. It refuses a leaked
+`SEAM_PGVECTOR_DSN` or remote embedding provider; run the separate floor
+baseline with those variables unset as well.
+Use a separate fresh floor-only store for the baseline: rich CLMs participate
+in retrieval as well as presentation, so toggling presentation on one shared
+enriched store is rejected rather than treated as a valid A/B.
+
+Count and temporal projections take precedence when co-enabled; derived facts
+run only when neither specialized projection fires. The policy uses local
+Ollama only and makes no provider call, but a paid answerer/judge run remains
+operator-gated. `DELETE /memories` drops the user's candidate database and its
+cache ownership; an extraction cache row is removed once no remaining user
+owns it.
+
+This is the auditable LoCoMo/Mem0 evaluation slice of the derived-facts
+architecture, not yet a general SEAM product surface. Core chat/MCP ingestion
+and serving remain a separate productization step.
 
 ## Distinct-count context preflight (default off)
 

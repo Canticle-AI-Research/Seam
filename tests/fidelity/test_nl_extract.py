@@ -9,12 +9,16 @@ policy forbids a skipping test).
 
 from __future__ import annotations
 
+import pytest
+
+from seam_runtime.derived_fact_context import GROUNDED_CLM_V1
 from seam_runtime.mirl import RecordKind
 from seam_runtime.nl import compile_nl
 from seam_runtime.nl_extract import (
     ExtractedClaim,
     ExtractedEntity,
     Extraction,
+    GroundedSpan,
     extractor_from_env,
     ground_extraction,
 )
@@ -40,6 +44,7 @@ def test_ground_extraction_keeps_grounded_drops_hallucinated():
     assert "Acme Corp" not in names  # fabrication firewall drops it
     relations = {c.relation for c in ex.claims}
     assert "owns" in relations and "sold" not in relations  # ungrounded claim dropped
+    assert next(c for c in ex.claims if c.relation == "owns").epistemic_basis == "unknown"
 
 
 def test_ground_extraction_empty_on_garbage_or_ungrounded():
@@ -48,6 +53,159 @@ def test_ground_extraction_empty_on_garbage_or_ungrounded():
     # every span foreign to the text -> nothing survives
     raw = {"claims": [{"subject": "foo", "relation": "bar", "object": "baz"}]}
     assert ground_extraction(raw, "totally different sentence").is_empty()
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "John likes surfing, but Mary likes skiing.",
+        "John likes surfing and Mary likes skiing.",
+        "John likes surfing because Mary likes skiing.",
+        "John said Mary likes skiing.",
+        "John likes surfing\nMary likes skiing.",
+    ],
+)
+def test_ground_extraction_rejects_cross_clause_recombination(text):
+    raw = {
+        "claims": [
+            {
+                "subject": "John",
+                "relation": "likes",
+                "object": "skiing",
+            },
+            {
+                "subject": "Mary",
+                "relation": "likes",
+                "object": "surfing",
+            },
+        ]
+    }
+    assert ground_extraction(raw, text).claims == ()
+
+
+@pytest.mark.parametrize(
+    ("text", "subject", "obj"),
+    [
+        (
+            "John likes surfing, but Mary likes skiing.",
+            "John",
+            "surfing, but Mary likes skiing",
+        ),
+        (
+            "John likes surfing\nMary likes skiing.",
+            "John",
+            "surfing\nMary likes skiing",
+        ),
+        ("If John likes surfing.", "If John", "surfing"),
+        (
+            "Hypothetical John likes surfing.",
+            "Hypothetical John",
+            "surfing",
+        ),
+    ],
+)
+def test_ground_extraction_rejects_clause_markers_swallowed_by_fields(
+    text,
+    subject,
+    obj,
+):
+    raw = {
+        "claims": [{
+            "subject": subject,
+            "relation": "likes",
+            "object": obj,
+            "epistemic_basis": "explicit",
+        }]
+    }
+    assert ground_extraction(raw, text).claims == ()
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "John does not like skiing.",
+        "Does John like skiing?",
+        'Mary said "John like skiing."',
+        'John wrote "like skiing".',
+        "John pretended to like skiing.",
+        "John wants to like skiing.",
+        "John hopes to like skiing.",
+        "John intends to like skiing.",
+        "John has 0 cats.",
+        "John has 3 cats.",
+        "John ranked #2 nationally.",
+        "¬John likes skiing.",
+        "John ¬ likes skiing.",
+        "«John like skiing.»",
+        "‹John like skiing.›",
+        "「John like skiing.」",
+        "『John like skiing.』",
+        "`John like skiing.`",
+    ],
+)
+def test_ground_extraction_rejects_negated_question_or_reported_fact(text):
+    subject = "John"
+    relation = "like"
+    obj = "skiing"
+    if "cats" in text:
+        relation = "has"
+        obj = "cats"
+    elif "ranked" in text:
+        relation = "ranked"
+        obj = "nationally"
+    raw = {
+        "claims": [
+            {
+                "subject": subject,
+                "relation": relation,
+                "object": obj,
+            }
+        ]
+    }
+    assert ground_extraction(raw, text).claims == ()
+
+
+@pytest.mark.parametrize(
+    ("text", "relation"),
+    [
+        ("John does not like skiing.", "does not like"),
+        ("John really likes skiing.", "really likes"),
+        ("John pretended to like skiing.", "pretended to like"),
+    ],
+)
+def test_ground_extraction_keeps_gap_free_predicate_phrase(text, relation):
+    raw = {
+        "claims": [
+            {
+                "subject": "John",
+                "relation": relation,
+                "object": "skiing",
+                "epistemic_basis": "explicit",
+            }
+        ]
+    }
+    [claim] = ground_extraction(raw, text).claims
+    assert claim.relation == relation
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "[John 2024-01-01] Mary likes skiing.",
+        "[John 2024-01-01] Mary said she likes skiing.",
+    ],
+)
+def test_ground_extraction_rejects_speaker_prefix_as_claim_subject(text):
+    raw = {
+        "claims": [
+            {
+                "subject": "John",
+                "relation": "likes",
+                "object": "skiing",
+            }
+        ]
+    }
+    assert ground_extraction(raw, text).claims == ()
 
 
 # --- compile_nl integration with a stub extractor (no Ollama) -----------------
@@ -65,6 +223,31 @@ class _StubExtractor:
         return Extraction()
 
 
+class _FirstPersonExtractor:
+    def __init__(self):
+        self.inputs = []
+
+    def extract(self, text: str) -> Extraction:
+        self.inputs.append(text)
+        return ground_extraction(
+            {
+                "entities": [
+                    {"name": "I", "type": "person"},
+                    {"name": "surfing", "type": "activity"},
+                ],
+                "claims": [
+                    {
+                        "subject": "I",
+                        "relation": "like",
+                        "object": "surfing",
+                        "epistemic_basis": "explicit",
+                    }
+                ],
+            },
+            text,
+        )
+
+
 def test_compile_nl_extractor_adds_real_triples_and_keeps_content():
     batch = compile_nl("Priya owns the billing service.", extractor=_StubExtractor())
     claims = [r for r in batch.records if r.kind == RecordKind.CLM]
@@ -79,6 +262,259 @@ def test_compile_nl_extractor_adds_real_triples_and_keeps_content():
     # every claim subject resolves to a grounded ENT (no fabrication)
     ent_ids = {r.id for r in batch.records if r.kind == RecordKind.ENT}
     assert all(c.attrs.get("subject") in ent_ids for c in claims)
+
+
+def test_grounded_clm_rebases_first_person_to_explicit_turn_speaker():
+    text = "[John 2023-05-01] I like surfing."
+    floor = compile_nl(text)
+    extractor = _FirstPersonExtractor()
+    rich = compile_nl(
+        text,
+        extractor=extractor,
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=GROUNDED_CLM_V1,
+    )
+
+    floor_raw = next(record for record in floor.records if record.kind == RecordKind.RAW)
+    rich_raw = next(record for record in rich.records if record.kind == RecordKind.RAW)
+    assert extractor.inputs == ["I like surfing."]
+    assert rich_raw.id == floor_raw.id
+    assert rich_raw.attrs["content"] == floor_raw.attrs["content"] == text
+    assert rich_raw.ext["source_metadata"] == {
+        "format": "locomo-turn/1",
+        "speaker": "John",
+        "timestamp": "2023-05-01",
+        "prefix_end": text.index("I"),
+    }
+
+    floor_content_ids = {
+        record.id
+        for record in floor.records
+        if record.kind == RecordKind.CLM
+        and record.attrs.get("predicate") == "content"
+    }
+    rich_content_ids = {
+        record.id
+        for record in rich.records
+        if record.kind == RecordKind.CLM
+        and record.attrs.get("predicate") == "content"
+    }
+    assert rich_content_ids == floor_content_ids
+    floor_ids = {record.id for record in floor.records}
+    candidate_only = [
+        record for record in rich.records if record.id not in floor_ids
+    ]
+    assert candidate_only
+    assert all(
+        record.kind == RecordKind.CLM
+        and record.ext.get("derived_fact_policy") == GROUNDED_CLM_V1
+        for record in candidate_only
+    )
+
+    fact = next(
+        record
+        for record in rich.records
+        if record.kind == RecordKind.CLM
+        and record.attrs.get("predicate") == "like"
+    )
+    by_id = rich.by_id()
+    speaker_ent = by_id[fact.attrs["subject"]]
+    assert fact.id.startswith(f"clm:{floor_raw.id.split(':', 1)[1]}:derived:")
+    assert fact.attrs["subject_label"] == "John"
+    assert speaker_ent.attrs == {"entity_type": "person", "label": "John"}
+    assert fact.attrs["facets"]["who"] == "John"
+    assert fact.ext["subject_resolution"] == {
+        "method": "first_person_to_turn_speaker",
+        "surface": "I",
+        "speaker": "John",
+    }
+    assert {
+        span["field"] for span in fact.ext["grounded_spans"]
+    } >= {"subject", "relation", "object"}
+    assert all(
+        text[span["start"]:span["end"]] == span["text"]
+        for span in fact.ext["grounded_spans"]
+    )
+    labels = {
+        str(record.attrs.get("label") or "").lower()
+        for record in rich.records
+        if record.kind == RecordKind.ENT
+    }
+    assert "i" not in labels
+
+
+def test_speaker_metadata_is_ignored_when_rich_extraction_is_off():
+    text = "[John 2023-05-01] I like surfing."
+    baseline = compile_nl(text)
+    annotated = compile_nl(
+        text,
+        speaker="John",
+        source_timestamp="2023-05-01",
+    )
+
+    def stable(batch):
+        payload = []
+        for record in batch.records:
+            item = record.to_dict()
+            item.pop("created_at")
+            item.pop("updated_at")
+            payload.append(item)
+        return payload
+
+    assert stable(annotated) == stable(baseline)
+
+
+def test_candidate_policy_does_not_index_rich_claim_without_canonical_turn():
+    batch = compile_nl(
+        "Mary likes skiing.",
+        extractor=_StubExtractor(),
+        speaker="John",
+        source_timestamp="not-a-date",
+        derived_fact_policy=GROUNDED_CLM_V1,
+    )
+    assert not any(
+        record.ext.get("derived_fact_policy") == GROUNDED_CLM_V1
+        for record in batch.records
+    )
+    assert {
+        record.attrs.get("predicate")
+        for record in batch.records
+        if record.kind == RecordKind.CLM
+    } == {"content"}
+
+
+@pytest.mark.parametrize(
+    ("body", "subject", "relation", "obj"),
+    [
+        ("Mary likes skiing.", "Mary", "likes", "skiing"),
+        (
+            "My favorite sport is surfing.",
+            "My favorite sport",
+            "is",
+            "surfing",
+        ),
+        ("I've visited Paris.", "I've", "visited", "Paris"),
+        ("We like surfing.", "We", "like", "surfing"),
+        ("¬I like surfing.", "¬I", "like", "surfing"),
+        ("~I like surfing.", "~I", "like", "surfing"),
+        ("(I) like surfing.", "(I)", "like", "surfing"),
+    ],
+)
+def test_candidate_policy_does_not_index_unresolved_subjects(
+    body,
+    subject,
+    relation,
+    obj,
+):
+    class UnresolvedExtractor:
+        def extract(self, text):
+            return ground_extraction(
+                {
+                    "entities": [
+                        {"name": subject, "type": "person"},
+                        {"name": obj, "type": "entity"},
+                    ],
+                    "claims": [{
+                        "subject": subject,
+                        "relation": relation,
+                        "object": obj,
+                        "epistemic_basis": "explicit",
+                    }],
+                },
+                text,
+            )
+
+    text = f"[John 2023-05-01] {body}"
+    baseline = compile_nl(text)
+    candidate = compile_nl(
+        text,
+        extractor=UnresolvedExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=GROUNDED_CLM_V1,
+    )
+    assert not any(
+        record.ext.get("derived_fact_policy") == GROUNDED_CLM_V1
+        for record in candidate.records
+    )
+    assert {
+        record.id for record in candidate.records
+    } == {
+        record.id for record in baseline.records
+    }
+
+
+def test_candidate_revalidates_extractor_attrs_before_indexing():
+    class LyingExtractor:
+        def extract(self, text):
+            return Extraction(
+                claims=(
+                    ExtractedClaim(
+                        "I",
+                        "fabricated relation",
+                        "fabricated object",
+                        epistemic_basis="explicit",
+                        source_spans=(
+                            GroundedSpan("subject", "I", 0, 1),
+                            GroundedSpan("relation", "like", 2, 6),
+                            GroundedSpan("object", "surfing", 7, 14),
+                        ),
+                    ),
+                ),
+            )
+
+    text = "[John 2023-05-01] I like surfing."
+    baseline = compile_nl(text)
+    candidate = compile_nl(
+        text,
+        extractor=LyingExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=GROUNDED_CLM_V1,
+    )
+    assert not any(
+        record.ext.get("derived_fact_policy") == GROUNDED_CLM_V1
+        for record in candidate.records
+    )
+    assert {record.id for record in candidate.records} == {
+        record.id for record in baseline.records
+    }
+
+
+def test_quoted_or_conflicting_first_person_subject_fails_closed():
+    for text in (
+        '[John 2023-05-01] Mary said "I like surfing."',
+        "[John 2023-05-01] Mary said 'I like surfing.'",
+    ):
+        quoted = compile_nl(
+            text,
+            extractor=_FirstPersonExtractor(),
+            speaker="John",
+            source_timestamp="2023-05-01",
+            derived_fact_policy=GROUNDED_CLM_V1,
+        )
+        quoted_facts = [
+            record
+            for record in quoted.records
+            if record.kind == RecordKind.CLM
+            and record.attrs.get("predicate") == "like"
+        ]
+        assert quoted_facts == []
+
+    conflicting = compile_nl(
+        "Alice: I like surfing.",
+        extractor=_FirstPersonExtractor(),
+        speaker="John",
+        derived_fact_policy=GROUNDED_CLM_V1,
+    )
+    conflicting_facts = [
+        record
+        for record in conflicting.records
+        if record.kind == RecordKind.CLM
+        and record.attrs.get("predicate") == "like"
+    ]
+    assert conflicting_facts == []
 
 
 def test_compile_nl_falls_back_to_floor_when_extractor_returns_empty():
@@ -158,3 +594,59 @@ def test_extractor_from_env_defaults_to_floor(monkeypatch):
     from seam_runtime.nl_extract import OllamaExtractor
 
     assert isinstance(extractor_from_env(), OllamaExtractor)
+
+
+def test_strict_ollama_extractor_fails_closed_and_records_config(monkeypatch):
+    from seam_runtime.nl_extract import OllamaExtractor
+
+    extractor = OllamaExtractor(
+        model="unit-model",
+        model_digest="sha256:unit-digest",
+        timeout=1,
+        num_predict=64,
+        strict=True,
+    )
+    monkeypatch.setattr(
+        extractor,
+        "_installed_model_digest",
+        lambda: "sha256:unit-digest",
+    )
+    monkeypatch.setattr(
+        extractor,
+        "_generate",
+        lambda text: (_ for _ in ()).throw(TimeoutError("slow")),
+    )
+    with pytest.raises(RuntimeError, match="grounded fact extraction failed"):
+        extractor.extract("John likes surfing.")
+
+    metadata = extractor.config_metadata()
+    assert metadata["model"] == "unit-model"
+    assert metadata["model_digest"] == "sha256:unit-digest"
+    assert metadata["num_predict"] == 64
+    assert metadata["strict"] is True
+    assert metadata["timeout"] == 1
+    assert len(str(metadata["prompt_fingerprint"])) == 64
+
+
+def test_strict_ollama_extractor_rejects_digest_drift(monkeypatch):
+    from seam_runtime.nl_extract import OllamaExtractor
+
+    extractor = OllamaExtractor(
+        model="unit-model",
+        model_digest="sha256:one",
+        strict=True,
+    )
+    installed = iter(("sha256:one", "sha256:two"))
+    monkeypatch.setattr(
+        extractor,
+        "_installed_model_digest",
+        lambda: next(installed),
+    )
+    assert extractor.config_metadata()["model_digest"] == "sha256:one"
+    monkeypatch.setattr(
+        extractor,
+        "_generate",
+        lambda text: pytest.fail("drift must stop generation"),
+    )
+    with pytest.raises(RuntimeError, match="grounded fact extraction failed"):
+        extractor.extract("John likes surfing.")
