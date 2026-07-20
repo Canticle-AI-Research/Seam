@@ -9863,3 +9863,44 @@ SOL event-count/distinct/2 -> 12 cat1 counts; second-hop entity retrieval
 preflight -> ~$0.4 microgate on these 63 stored contexts -> levers ride
 together in ONE full matched rerun (~$13 measured).
 ---END-ENTRY-#429---
+
+---BEGIN-ENTRY-#430---
+id: 430
+date: 2026-07-20T00:26:26Z
+agent: codex
+status: done
+topics: bugfix, benchmark, locomo, handoff, verify, audit, continuity, security, test
+commits: pending
+refs: seam_runtime/temporal_instance_context.py,benchmarks/external/common/cost_report.py,benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_temporal_instance_context.py,tests/audit/test_cost_report.py,tests/audit/test_parity_probe_answerer.py,docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md,docs/handoffs/2026-07-19-matched-run-complete-recovery-closeout.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md
+supersedes: 429
+tokens: 716
+---
+Recovered and closed the cut-off HISTORY#419-#429 work without shipping the
+operator-rejected event-count/distinct/2 experiment. Live git attribution was
+unambiguous: branch and origin were already equal at 651176b/HISTORY#429;
+the only eight pre-existing dirty paths were the timestamp-matched rejected
+experiment, and all eight remain preserved, unstaged, and excluded.
+
+Repaired objective incompleteness in the attributable committed slice.
+temporal-instance/1 no longer treats future "when will" questions as already
+completed events. The tokenizer-true cost report now rejects a missing or
+non-list evaluations field and returns a null aggregate plus explicit
+unpriced roles instead of silently summing unknown prices as zero. The
+answerer-parity probe now skips missing/non-numeric/non-finite stored scores,
+requires the local memory-benchmarks checkout to resolve exactly to the
+audited 4b61c5d commit before importing its prompt contract, and records the
+verified full revision. The cancelled hc/3 paid command was removed from its
+historical handoff. A new tracked completion handoff supersedes the stale
+HISTORY#427 in-flight state and carries an explicit no-paid-work boundary.
+
+Verification was entirely free: a clean detached worktree at 651176b
+collected and passed 28 focused tests across temporal projection, the Mem0
+facade, the parity probe, and cost reporting; workflow YAML parsed; ruff,
+symbol-reference, and diff checks passed. After the fixes, focused tests and
+the real local audited-harness revision smoke passed with no provider call.
+The candidate range secret/private-session-link scan was clean. CodeRabbit
+reviewed only the clean HISTORY#419-#429 range; valid warning findings were
+fixed with regression coverage. Suggestions that would rewrite append-only
+history, alter intentional derived previews, or broaden self-hosted-runner
+architecture were not applied.
+---END-ENTRY-#430---

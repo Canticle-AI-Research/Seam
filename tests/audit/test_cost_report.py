@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from benchmarks.external.common.cost_report import (
     encoding_for_model,
     report_for_artifact,
@@ -82,3 +84,16 @@ def test_unpriced_model_yields_none_not_fabrication() -> None:
         _artifact(), _StubPrompts, answerer_model="totally-unknown-model", judge_model="gpt-4o"
     )
     assert report["roles"]["answerer"]["cost_usd"] is None
+    assert report["single_pass_cost_usd"] is None
+    assert report["unpriced_roles"] == ["answerer"]
+
+
+@pytest.mark.parametrize("evaluations", [None, {}, "invalid"])
+def test_report_rejects_missing_or_non_list_evaluations(evaluations) -> None:
+    with pytest.raises(ValueError, match="evaluations.*list"):
+        report_for_artifact(
+            {"evaluations": evaluations},
+            _StubPrompts,
+            answerer_model="gpt-4o",
+            judge_model="gpt-4o",
+        )

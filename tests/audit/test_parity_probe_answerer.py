@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from unittest import mock
 
 import pytest
 
@@ -66,11 +67,36 @@ def test_select_misses_filters_score_and_category():
     assert ids13 == ["q-cat1-miss", "q-cat3-miss"]
 
 
+def test_select_misses_skips_missing_or_non_numeric_scores():
+    payload = _payload()
+    payload["evaluations"].extend(
+        [
+            {"question_id": "missing", "category": 1, "cutoff_results": {"top_200": {}}},
+            {
+                "question_id": "string",
+                "category": 1,
+                "cutoff_results": {"top_200": {"score": "0"}},
+            },
+        ]
+    )
+    ids = [e["question_id"] for e in select_misses(payload, {1})]
+    assert ids == ["q-cat1-miss"]
+
+
+def test_select_misses_rejects_malformed_evaluations():
+    with pytest.raises(ValueError, match="evaluations.*list"):
+        select_misses({}, {1})
+
+
 def test_run_probe_isolates_answerer_variable(tmp_path):
     prompts_dir = tmp_path / "benchmarks" / "locomo"
     prompts_dir.mkdir(parents=True)
     (prompts_dir / "prompts.py").write_text(_FAKE_PROMPTS, encoding="utf-8")
-    prompts = load_harness_prompts(tmp_path)
+    with mock.patch(
+        "benchmarks.external.mem0_harness.parity_probe_answerer._resolve_git_revision",
+        side_effect=["full-audited-sha", "full-audited-sha"],
+    ):
+        prompts = load_harness_prompts(tmp_path)
 
     calls = []
 
@@ -87,6 +113,7 @@ def test_run_probe_isolates_answerer_variable(tmp_path):
     assert report["baseline_rerun_correct"] == 0
     assert report["parity_correct"] == 1
     assert report["net_parity_minus_baseline"] == 1
+    assert report["harness_revision"] == "full-audited-sha"
     assert report["per_category"] == {"1": {"cases": 1, "baseline": 0, "parity": 1}}
     # both arms answered, both judged by the same judge model
     # (PARITY_ANSWERER and JUDGE_MODEL may be the same model id, so
@@ -99,3 +126,14 @@ def test_run_probe_isolates_answerer_variable(tmp_path):
 def test_load_harness_prompts_missing_path(tmp_path):
     with pytest.raises(FileNotFoundError):
         load_harness_prompts(tmp_path / "nope")
+
+
+def test_load_harness_prompts_rejects_wrong_revision(tmp_path):
+    prompts_dir = tmp_path / "benchmarks" / "locomo"
+    prompts_dir.mkdir(parents=True)
+    (prompts_dir / "prompts.py").write_text(_FAKE_PROMPTS, encoding="utf-8")
+    with mock.patch(
+        "benchmarks.external.mem0_harness.parity_probe_answerer._resolve_git_revision",
+        side_effect=["actual-sha", "audited-sha"],
+    ), pytest.raises(RuntimeError, match="revision mismatch"):
+        load_harness_prompts(tmp_path)

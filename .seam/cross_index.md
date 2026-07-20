@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 490
+total_events: 491
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-24T21:10:00Z | history:239:57a615b2 | session-event | done | verify, history, snapshot, status | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,.seam/streams/history/log.md,.s... |
 | 2026-05-24T21:59:02Z | history:240:395c3322 | session-event | done | benchmark, retrieval, search, rank, verify, history, status | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/common/types.... |
 | 2026-05-24T23:39:52Z | history:241:ff3c9fc6 | session-event | done | benchmark, command, verify, history, status | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py... |
 | 2026-05-25T00:00:00Z | roadmap:053:b5337aac | status-change | bootstrap | retrieval, benchmark | ROADMAP.md:900 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-19T19:47:29Z | history:427:8872a7d3 | session-event | done | benchmark, locomo, paid-run, handoff, retrieval, ci | seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/se... |
 | 2026-07-19T21:02:19Z | history:428:bf0ea168 | session-event | done | ops, cost, benchmark, tooling | benchmarks/external/common/cost_report.py,tests/audit/test_cost_report.py |
 | 2026-07-19T21:18:24Z | history:429:121a6292 | session-event | done | benchmark, locomo, paid-run, negative-result | benchmarks/external/common/cost_report.py,docs/handoffs/2026-07-19-matched-ru... |
+| 2026-07-20T00:26:26Z | history:430:8b5c726f | session-event | done | bugfix, benchmark, locomo, handoff, verify, audit, contin... | seam_runtime/temporal_instance_context.py,benchmarks/external/common/cost_rep... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0290.cross.md | 2026-04-15T00:00:00Z..2026-05-24T21:01:24Z | 290 | (multi) | (multi) |
+| 0001-0291.cross.md | 2026-04-15T00:00:00Z..2026-05-24T21:10:00Z | 291 | (multi) | (multi) |

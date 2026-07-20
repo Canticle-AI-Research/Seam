@@ -36,7 +36,7 @@ POLICY_OFF = "off"
 POLICY_V1 = "temporal-instance/1"
 
 _TEMPORAL_QUERY = re.compile(
-    r"\b(when did|when was|when will|what (?:date|day|time|year|month)|"
+    r"\b(when did|when was|what (?:date|day|time|year|month)|"
     r"on (?:what|which) (?:date|day)|how long (?:ago|did|has|было)?|"
     r"how (?:many|much) (?:days|weeks|months|years)|what day did)\b",
     re.IGNORECASE,

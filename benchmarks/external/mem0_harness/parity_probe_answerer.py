@@ -30,6 +30,8 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import math
+import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,17 +41,40 @@ BASELINE_ANSWERER = "gpt-4o-mini"
 PARITY_ANSWERER = "gpt-4o"
 JUDGE_MODEL = "gpt-4o"
 SEARCH_LIMIT = 200
+AUDITED_HARNESS_REV = "4b61c5d"
+
+
+def _resolve_git_revision(harness_root: Path, revision: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(harness_root), "rev-parse", "--verify", revision],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
 
 
 def load_harness_prompts(harness_root: Path):
     """Import the upstream ``benchmarks/locomo/prompts.py`` by file path."""
 
     path = harness_root / "benchmarks" / "locomo" / "prompts.py"
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    actual_revision = _resolve_git_revision(harness_root, "HEAD")
+    audited_revision = _resolve_git_revision(
+        harness_root, f"{AUDITED_HARNESS_REV}^{{commit}}"
+    )
+    if actual_revision != audited_revision:
+        raise RuntimeError(
+            "harness revision mismatch: "
+            f"expected {audited_revision}, found {actual_revision}"
+        )
     spec = importlib.util.spec_from_file_location("mem0_locomo_prompts_parity", path)
     if spec is None or spec.loader is None:
         raise FileNotFoundError(path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    module._seam_harness_revision = actual_revision
     return module
 
 
@@ -73,11 +98,21 @@ def select_misses(payload: dict[str, Any], categories: set[int]) -> list[dict[st
     """All stored misses (top-200 score < 1) in the requested categories."""
 
     selected = []
-    for evaluation in payload.get("evaluations", []):
+    evaluations = payload.get("evaluations")
+    if not isinstance(evaluations, list):
+        raise ValueError("artifact field 'evaluations' must be a list")
+    for evaluation in evaluations:
         cutoff = (evaluation.get("cutoff_results") or {}).get("top_200") or {}
+        score = cutoff.get("score")
+        if (
+            isinstance(score, bool)
+            or not isinstance(score, (int, float))
+            or not math.isfinite(float(score))
+        ):
+            continue
         if (
             int(evaluation.get("category") or 0) not in categories
-            or float(cutoff.get("score") or 0.0) >= 1.0
+            or float(score) >= 1.0
         ):
             continue
         selected.append(evaluation)
@@ -178,6 +213,7 @@ def run_probe(
             }
         )
     return {
+        "harness_revision": getattr(prompts, "_seam_harness_revision", None),
         "baseline_answerer": BASELINE_ANSWERER,
         "parity_answerer": PARITY_ANSWERER,
         "judge_model": JUDGE_MODEL,

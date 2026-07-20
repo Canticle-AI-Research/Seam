@@ -100,8 +100,11 @@ def report_for_artifact(
         "answerer": {"model": answerer_model, "prompt_tokens": 0, "completion_tokens": 0},
         "judge": {"model": judge_model, "prompt_tokens": 0, "completion_tokens": 0},
     }
+    evaluations = payload.get("evaluations")
+    if not isinstance(evaluations, list):
+        raise ValueError("artifact field 'evaluations' must be a list")
     cases = 0
-    for ev in payload.get("evaluations", []):
+    for ev in evaluations:
         cr = (ev.get("cutoff_results") or {}).get(cutoff) or {}
         generated = (cr.get("generated_answer") or "").strip()
         if not generated:
@@ -134,12 +137,22 @@ def report_for_artifact(
         role["cost_usd"] = estimate_cost_usd(
             role["model"], role["prompt_tokens"], role["completion_tokens"]
         )
-    total_cost = sum(r["cost_usd"] or 0.0 for r in totals.values())
+    unpriced_roles = [
+        name for name, role in totals.items() if role["cost_usd"] is None
+    ]
+    total_cost = (
+        None
+        if unpriced_roles
+        else sum(float(role["cost_usd"]) for role in totals.values())
+    )
     return {
         "pricing_snapshot": PRICING_SNAPSHOT,
         "cases_counted": cases,
         "roles": totals,
-        "single_pass_cost_usd": round(total_cost, 4),
+        "single_pass_cost_usd": (
+            round(total_cost, 4) if total_cost is not None else None
+        ),
+        "unpriced_roles": unpriced_roles,
         "caveat": (
             "LOWER BOUND: single clean pass over stored cases only. Stripped-and-"
             "rerun cases, aborted partial passes, and provider-side retries are "

@@ -105,32 +105,12 @@ retrieval-side — the second-hop entity-preference turn must reach the context
 (graph closure / entity-preference aggregation; note query decomposition was
 already measured harmful). hc/3 stays built, default-off, tested-and-parked.
 
-## Step 2 (CANCELLED — see above) (~$0.80, ~45 min): the full holdout A/B
+## Step 2 — CANCELLED, HISTORICAL, NON-EXECUTABLE
 
-Dry-run-verified (344 cases, hc/3 candidate). Omit `--confirm-paid` for a free
-cost estimate; add it to spend.
-
-```bash
-seam improve validate \
-  --locomo-dataset benchmarks/external/locomo/data/locomo10.json \
-  --locomo-scopes 10 --split holdout \
-  --answerer openai --answerer-model gpt-4o-mini \
-  --judge openai --judge-model gpt-4o-mini \
-  --profile broad \
-  --flags '{"conversation_adapter":"conversation/2","inference_policy":"inference/high-confidence/3","temporal_policy":"temporal/1"}' \
-  --confirm-paid
-```
-
-## Success bar & attribution
-
-- **Win:** candidate cat3 > 0.5952 (champion) with no other-category regression and
-  aggregate ≥ 0.7689. Realistic ceiling is small (~4–5 cat3 cases of 21, noisy).
-- After the run, free per-case attribution: diff the new record's cat3 rows vs the
-  #390 champion (`20260714-192938-locomo-holdout.json`) to confirm the naming
-  cases (John Williams / Voyageurs / Exploding Kittens) converted, and that hc/3
-  did not over-license wrong names on ambiguous cases (the Mafia/Among Us hazard).
-- Record lands in `$SEAM_BENCH_RECORD_DIR`; compute its SHA-256, and if it wins,
-  add it to `benchmarks/RESULTS.md`.
+The proposed paid command and success criteria were removed from this live
+handoff after the Step 1 preflight falsified the lever. Do not reconstruct or
+run that experiment: `hc/3` is tested-and-parked, and HISTORY#419 supersedes
+the original plan.
 
 ## Not this lever
 

@@ -68,6 +68,7 @@ def test_temporal_intent_detection() -> None:
     assert is_temporal_question("When did Melanie paint the sunrise?")
     assert is_temporal_question("How long ago did John adopt the dog?")
     assert is_temporal_question("What year did Joanna sell a screenplay?")
+    assert not is_temporal_question("When will Melanie run another race?")
     assert not is_temporal_question("How many times did Dave attend car shows?")
     assert not is_temporal_question("What did Maria donate?")
 

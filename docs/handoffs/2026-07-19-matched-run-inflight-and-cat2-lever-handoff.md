@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-19-matched-run-inflight-and-cat2-lever-handoff
 supersedes: 2026-07-19-matched-answerer-full-run-handoff
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#427
 ---
 
