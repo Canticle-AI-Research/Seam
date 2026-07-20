@@ -275,7 +275,7 @@ class SQLiteVectorIndex:
                 return content
         if (
             record.kind == RecordKind.CLM
-            and record.ext.get("derived_fact_policy") == "grounded-clm/1"
+            and str(record.ext.get("derived_fact_policy") or "").startswith("grounded-clm/")
         ):
             subject = record.attrs.get("subject_label")
             predicate = record.attrs.get("predicate")

@@ -275,6 +275,33 @@ def grounded_sro_is_coherent(
     )
 
 
+def clause_window(source: str, subject_start: int, obj_end: int) -> tuple[int, int]:
+    """Return the [start, end) of the clause enclosing an S-R-O span.
+
+    The window runs from the end of the clause boundary immediately before the
+    subject to the start of the first clause boundary at/after the object (or the
+    string ends). ``grounded-clm/2`` validates a rebased claim against this window
+    instead of the whole proposition, so a clean self-claim inside a compound
+    sentence ("... and I love surfing") passes the same complete-clause gate that
+    ``grounded-clm/1`` only applied to single-clause propositions. Boundaries
+    themselves (conjunctions/punctuation) are never included, so the strict
+    verbatim/ordered/single-clause guarantees are unchanged.
+    """
+
+    start = 0
+    for match in _CLAUSE_BOUNDARY.finditer(source):
+        if match.end() <= subject_start:
+            start = match.end()
+        else:
+            break
+    end = len(source)
+    for match in _CLAUSE_BOUNDARY.finditer(source):
+        if match.start() >= obj_end:
+            end = match.start()
+            break
+    return start, end
+
+
 def _coherent_required_spans(
     item: dict,
     source: str,

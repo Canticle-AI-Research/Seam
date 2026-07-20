@@ -10289,3 +10289,81 @@ reference (route: docs), sourced from committed HISTORY + T7 artifact SHAs;
 external-system pages flagged with the 2026-07 cutoff + verify-before-quoting
 discipline.
 ---END-ENTRY-#437---
+
+---BEGIN-ENTRY-#438---
+id: 438
+date: 2026-07-20T22:26:20Z
+agent: claude
+status: done
+topics: derived-facts, grounded-clm, retrieval, benchmark, compile, preflight, tooling, negative-result
+commits: pending
+refs: seam_runtime/nl_extract.py,seam_runtime/nl.py,seam_runtime/derived_fact_context.py,seam_runtime/vector.py,tests/fidelity/test_nl_extract.py,benchmarks/external/mem0_harness/preflight_derived_facts.py
+supersedes: 437
+tokens: 1129
+---
+Built the free derived-facts coverage/precision/lift preflight (the #436
+"highest-value next build") AND landed grounded-clm/2, a clause-scoped
+derived-facts policy — then FREE-MEASURED both. Honest headline: the strict
+verbatim-grounded derived-facts mechanism is ~0-lift on the #429 cat1/cat3 miss
+set, and grounded-clm/2 does not change that. This is a measured negative that
+redirects the lever to sentence-grounded facts (operator decision).
+
+New tool: benchmarks/external/mem0_harness/preflight_derived_facts.py (the
+analogue of preflight_event_count_context.py). Extracts grounded-clm facts from
+the GOLD evidence turns of the stored matched-run misses via the real compile_nl
+ingest path, and measures per-turn yield, grounding precision, and a bge-space
+wording-closure delta. Validation baked in and passed: reconstructed turn
+envelopes match the artifact's stored memory strings 417/417 verbatim (after
+reproducing the mem0 harness photo-tag + YYYY-MM-DD date normalization);
+1077/1084 gold ids resolve. Key methodology finding recorded in-tool: the
+artifact's stored `score` is SEAM's retrieval-PIPELINE score in an unrecorded
+embedding space (Pearson ~0.1 vs a plain bge-small cosine), NOT reproducible —
+so the tool measures ENTIRELY in bge-small space (the embedder grounded-clm
+forces on) and reports the relative closure delta, not an absolute floor.
+
+Extractor infra (no paid work): qwen2.5:14b (9.9 GB) spills 69% to CPU on the
+8 GB RTX 2070 (>300 s/turn); imported the operator's on-T7
+Qwen2.5-7B-Instruct-1M-Q4 GGUF into Ollama as qwen2.5-7b-1m (4.7 GB, 100% GPU,
+~6 s/turn), which made the full 63-miss preflight practical.
+
+grounded-clm/1 free preflight (qwen2.5-7b, $0): 7/63 misses reached, yield
+0.043/gold-turn, grounding precision 1.00, mean wording-closure +0.085 (6/7 beat
+the raw gold turn) — the mechanism WORKS where it fires but fires on ~nothing.
+Root cause: real LoCoMo gold turns are conversational; the strict contract's
+stack of guards (complete-clause, quoted-object, gap-free S-R-O, first-person-
+only) each rejects different turns and nearly every real turn trips one.
+
+grounded-clm/2 (this commit) relaxes ONE of those guards: the complete-clause
+gate now validates the S-R-O against its enclosing CLAUSE (clause_window in
+nl_extract.py) instead of the whole proposition, so a clean self-claim inside a
+compound sentence ("... and I love surfing") is admitted. Default OFF; v1 is
+byte-identical; all other guards (verbatim spans, ordered gap-free single-clause
+S-R-O, explicit basis, first-person->speaker rebasing) unchanged, so precision
+is preserved (negation/questions are dropped upstream by ground_extraction).
+FREE-MEASURED: ~0 additional facts on the miss set, because the DOMINANT wall is
+the OTHER guards (e.g. quoted titles like "Little Women", adverbial S-R-O gaps),
+not complete-clause. So v2 is correct + safe + tested but 0-flip on LoCoMo;
+landed as infra per operator, explicitly NOT a score win.
+
+Strategic consequence (recorded for the next lever): SEAM's verbatim-grounding
+auditability guarantee is in direct tension with the fact COVERAGE that makes
+mem0's derived facts work — mem0 stores loose paraphrases. Free ceiling for a
+sentence-grounded approach (paraphrase fact + provenance to the exact source
+sentence, dropping the verbatim-span rule): 60/63 misses (95%) have a first-
+person declarative gold sentence, vs 7 for the strict contract. Operator chose
+sentence-grounded facts as the next direction; to be validated FREE (real gate
+against candidate turns) BEFORE building policy plumbing (lesson logged: v2 was
+built on an optimistic regex ceiling before running the real gate).
+
+Files: seam_runtime/nl_extract.py (clause_window helper),
+seam_runtime/nl.py (_candidate_claim_is_lossless clause_scoped),
+seam_runtime/derived_fact_context.py (GROUNDED_CLM_V2 + GROUNDED_CLM_POLICIES +
+enabled), seam_runtime/vector.py (render_record_text generalized to grounded-clm/*),
+tests/fidelity/test_nl_extract.py (4 new v2 tests),
+benchmarks/external/mem0_harness/preflight_derived_facts.py (new free tool).
+
+Verification: full `pytest tests/` exit 0, ZERO skips (strict-no-skip) with the
+local pgvector DSN + T7 offline HF env; ruff clean on all touched files; the 58
+nl_extract fidelity tests (incl. the 4 new v2 tests) green; v1 byte-identity
+confirmed. No provider/paid call. No push.
+---END-ENTRY-#438---

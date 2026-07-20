@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-20-derived-facts-landed-and-kb-scaffold
 supersedes: 2026-07-20-second-hop-negative-and-count-lever-conflict
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#436
 ---
 

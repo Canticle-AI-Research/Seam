@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from seam_runtime.derived_fact_context import GROUNDED_CLM_V1
+from seam_runtime.derived_fact_context import GROUNDED_CLM_V1, GROUNDED_CLM_V2
 from seam_runtime.mirl import RecordKind
 from seam_runtime.nl import compile_nl
 from seam_runtime.nl_extract import (
@@ -650,3 +650,112 @@ def test_strict_ollama_extractor_rejects_digest_drift(monkeypatch):
     )
     with pytest.raises(RuntimeError, match="grounded fact extraction failed"):
         extractor.extract("John likes surfing.")
+
+
+class _CompoundFirstPersonExtractor:
+    """Emits the two per-clause triples a real model returns for a compound turn."""
+
+    def extract(self, text: str) -> Extraction:
+        return ground_extraction(
+            {
+                "entities": [{"name": "I", "type": "person"}],
+                "claims": [
+                    {"subject": "I", "relation": "love", "object": "surfing",
+                     "epistemic_basis": "explicit"},
+                    {"subject": "I", "relation": "go to",
+                     "object": "the beach every weekend",
+                     "epistemic_basis": "explicit"},
+                ],
+            },
+            text,
+        )
+
+
+def _derived_facts(batch):
+    from seam_runtime.derived_fact_context import is_eligible_derived_claim
+
+    return [
+        record
+        for record in batch.records
+        if record.kind == RecordKind.CLM
+        and record.ext.get("derived_fact_policy")
+        and is_eligible_derived_claim(record, policy=record.ext["derived_fact_policy"])
+    ]
+
+
+def test_clause_window_isolates_selfclaim_in_compound_sentence():
+    from seam_runtime.nl_extract import clause_window
+
+    src = "I love surfing and I go to the beach every weekend"
+    # first clause: subject "I" [0:1], object "surfing" ends at 14
+    assert src[slice(*clause_window(src, 0, 14))] == "I love surfing "
+    # second clause: subject "I" at 19
+    second = src.index("I", 15)
+    assert src[slice(*clause_window(src, second, len(src)))].strip() == (
+        "I go to the beach every weekend"
+    )
+
+
+def test_grounded_clm_v2_admits_clause_scoped_selfclaim_v1_rejects():
+    text = "[John 2023-05-01] I love surfing and I go to the beach every weekend."
+    strict = compile_nl(
+        text,
+        extractor=_CompoundFirstPersonExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=GROUNDED_CLM_V1,
+    )
+    relaxed = compile_nl(
+        text,
+        extractor=_CompoundFirstPersonExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=GROUNDED_CLM_V2,
+    )
+    # grounded-clm/1 requires the S-R-O to fill the whole proposition -> nothing.
+    assert _derived_facts(strict) == []
+    # grounded-clm/2 admits the clean self-claim inside the compound sentence,
+    # rebased to the turn speaker.
+    facts = _derived_facts(relaxed)
+    rendered = {
+        (f.attrs["subject_label"], f.attrs["predicate"], f.attrs["object"])
+        for f in facts
+    }
+    assert ("John", "love", "surfing") in rendered
+
+
+def test_grounded_clm_v2_still_rejects_non_first_person_like_v1():
+    # A bare non-first-person turn yields no derived fact under either policy.
+    text = "[John 2023-05-01] The weather is nice today."
+    for policy in (GROUNDED_CLM_V1, GROUNDED_CLM_V2):
+        batch = compile_nl(
+            text,
+            extractor=_CompoundFirstPersonExtractor(),
+            speaker="John",
+            source_timestamp="2023-05-01",
+            derived_fact_policy=policy,
+        )
+        # extractor grounds against the (non-matching) body -> no rebased claim
+        assert _derived_facts(batch) == []
+
+
+def test_v2_policy_plumbing_and_rendering():
+    from seam_runtime.derived_fact_context import (
+        DerivedFactsConfig,
+        resolve_derived_facts_policy,
+    )
+    from seam_runtime.vector import SQLiteVectorIndex
+
+    assert resolve_derived_facts_policy("grounded-clm/2") == GROUNDED_CLM_V2
+    assert DerivedFactsConfig(policy=GROUNDED_CLM_V2, fingerprint="x", payload={}).enabled
+
+    relaxed = compile_nl(
+        "[John 2023-05-01] I love surfing and I go to the beach every weekend.",
+        extractor=_CompoundFirstPersonExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=GROUNDED_CLM_V2,
+    )
+    fact = _derived_facts(relaxed)[0]
+    # a v2 fact renders as "subject predicate object" for embedding, same as v1
+    assert SQLiteVectorIndex.render_record_text(fact) == "John love surfing"

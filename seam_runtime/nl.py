@@ -281,6 +281,7 @@ def compile_nl(
                 and _candidate_claim_is_lossless(
                     extraction_text,
                     claim,
+                    clause_scoped=(derived_fact_policy == "grounded-clm/2"),
                 )
             }
             rebased_subjects = {
@@ -470,10 +471,19 @@ def _validated_turn_metadata(
 def _candidate_claim_is_lossless(
     proposition: str,
     claim,
+    *,
+    clause_scoped: bool = False,
 ) -> bool:
-    """Revalidate injected extractor output before candidate indexing."""
+    """Revalidate injected extractor output before candidate indexing.
 
-    from .nl_extract import grounded_sro_is_coherent
+    ``clause_scoped`` (grounded-clm/2) validates the complete-clause gate against
+    the clause enclosing the S-R-O rather than the whole proposition, so a clean
+    self-claim inside a compound sentence is admitted. All other checks (single
+    verbatim spans, explicit basis, ordered gap-free single-clause S-R-O) are
+    unchanged, so precision is preserved.
+    """
+
+    from .nl_extract import clause_window, grounded_sro_is_coherent
 
     if str(getattr(claim, "epistemic_basis", "")).strip().lower() != "explicit":
         return False
@@ -509,13 +519,21 @@ def _candidate_claim_is_lossless(
         or normalized(spans["object"].text) != normalized(claim.obj)
     ):
         return False
+    if clause_scoped:
+        evidence_start, evidence_end = clause_window(
+            proposition,
+            spans["subject"].start,
+            spans["object"].end,
+        )
+    else:
+        evidence_start, evidence_end = 0, len(proposition)
     return grounded_sro_is_coherent(
         proposition,
         spans["subject"],
         spans["relation"],
         spans["object"],
-        evidence_start=0,
-        evidence_end=len(proposition),
+        evidence_start=evidence_start,
+        evidence_end=evidence_end,
         require_complete_clause=True,
     )
 

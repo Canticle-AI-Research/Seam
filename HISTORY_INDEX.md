@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 437
-total_tokens: ~192757
-latest_id: 437
+total_entries: 438
+total_tokens: ~193886
+latest_id: 438
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 438 | 2026-07-20 | done | 2d0eac31eb11dbdd | derived-facts,grounded-clm,retrieval,benchmark,+ | 437 |
 | 437 | 2026-07-20 | done | d729f0ca3d6c8634 | kb,docs,retrieval,benchmark,+ | 436 |
 | 436 | 2026-07-20 | done | 1394218c4094abdf | handoff,benchmark,retrieval,derived-facts,+ | 435 |
 | 435 | 2026-07-20 | done | ec6982808a096a0f | benchmark,locomo,mirl,retrieval,+ | 434 |
@@ -469,7 +470,7 @@ compact: true
 - audit: count=82 latest=#435, #430, #398, #396, #391
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=174 latest=#437, #436, #435, #434, #433
+- benchmark: count=175 latest=#438, #437, #436, #435, #434
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -497,7 +498,7 @@ compact: true
 - comparator: count=2 latest=#415, #414
 - comparison: count=1 latest=#333
 - competitors: count=1 latest=#384
-- compile: count=14 latest=#435, #154, #047, #046, #043
+- compile: count=15 latest=#438, #435, #154, #047, #046
 - compiler: count=9 latest=#317, #313, #311, #309, #308
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
@@ -524,7 +525,7 @@ compact: true
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
-- derived-facts: count=1 latest=#436
+- derived-facts: count=2 latest=#438, #436
 - design-task: count=1 latest=#363
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
@@ -564,6 +565,7 @@ compact: true
 - gpt5: count=1 latest=#327
 - graph: count=7 latest=#415, #414, #404, #403, #402
 - graphrag: count=1 latest=#325
+- grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
 - handoff: count=36 latest=#436, #430, #427, #423, #422
 - harden: count=1 latest=#182
@@ -616,7 +618,7 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=4 latest=#033, #024, #009, #002
-- negative-result: count=5 latest=#434, #432, #429, #412, #392
+- negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
@@ -638,6 +640,7 @@ compact: true
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
+- preflight: count=1 latest=#438
 - pricing: count=1 latest=#368
 - private-storage: count=1 latest=#367
 - process: count=1 latest=#304
@@ -675,7 +678,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=95 latest=#437, #436, #435, #433, #432
+- retrieval: count=96 latest=#438, #437, #436, #435, #433
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -721,7 +724,7 @@ compact: true
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
-- tooling: count=3 latest=#428, #357, #324
+- tooling: count=4 latest=#438, #428, #357, #324
 - topk: count=1 latest=#320
 - traceability: count=1 latest=#316
 - training-corpus: count=1 latest=#366
@@ -744,6 +747,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 404
+- done: 405
 - in-progress: 4
 - planned: 21

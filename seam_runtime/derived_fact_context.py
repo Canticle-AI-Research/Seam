@@ -24,7 +24,9 @@ from .nl_extract import (
 
 DERIVED_FACTS_OFF = "off"
 GROUNDED_CLM_V1 = "grounded-clm/1"
-DERIVED_FACTS_POLICIES = frozenset({DERIVED_FACTS_OFF, GROUNDED_CLM_V1})
+GROUNDED_CLM_V2 = "grounded-clm/2"
+GROUNDED_CLM_POLICIES = frozenset({GROUNDED_CLM_V1, GROUNDED_CLM_V2})
+DERIVED_FACTS_POLICIES = frozenset({DERIVED_FACTS_OFF}) | GROUNDED_CLM_POLICIES
 DERIVED_FACTS_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 DERIVED_FACTS_EMBEDDING_REVISION = (
     "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
@@ -194,7 +196,7 @@ class DerivedFactsConfig:
 
     @property
     def enabled(self) -> bool:
-        return self.policy == GROUNDED_CLM_V1
+        return self.policy in GROUNDED_CLM_POLICIES
 
     def manifest(self) -> dict[str, object]:
         return {
