@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-19-matched-run-complete-recovery-closeout
 supersedes: 2026-07-19-matched-run-inflight-and-cat2-lever-handoff
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#430
 ---
 
