@@ -5,6 +5,7 @@ from __future__ import annotations
 from benchmarks.external.mem0_harness.preflight_event_count_context import (
     summarize_record,
 )
+from seam_runtime.event_count_context import EVENT_COUNT_DISTINCT_V2
 
 
 def _evaluation(*, question: str, score: float, category: int = 1) -> dict:
@@ -85,3 +86,33 @@ def test_preflight_distinguishes_selected_case_from_projected_case():
 
     assert report["selected_failed_cat1_count_cases"] == 1
     assert report["projected_cases"] == 0
+
+
+def test_preflight_v2_reports_grouping_without_exposing_memory_text():
+    evaluation = _evaluation(
+        question="How many tournaments did Nate win?", score=0.0
+    )
+    evaluation["retrieval"]["search_results"] = [
+        {
+            "id": "raw:win",
+            "memory": "[Nate 2023-03-01] I won a tournament.",
+            "score": 0.9,
+        },
+        {
+            "id": "raw:followup",
+            "memory": "[Nate 2023-03-01] Winning that tournament felt great.",
+            "score": 0.8,
+        },
+    ]
+
+    report = summarize_record(
+        {"evaluations": [evaluation]},
+        policy=EVENT_COUNT_DISTINCT_V2,
+    )
+
+    assert report["policy"] == EVENT_COUNT_DISTINCT_V2
+    assert report["event_groups"] == 1
+    assert report["direct_match_groups"] == 1
+    assert report["multi_member_groups"] == 1
+    assert report["grouped_member_savings"] == 1
+    assert "Winning that tournament" not in str(report)

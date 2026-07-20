@@ -57,18 +57,24 @@ conversation/temporal/profile stack applies identically.
 
 ## Distinct-count context preflight (default off)
 
-`event-count/distinct/1` is an opt-in query-time context policy for questions
-such as "how many" and "how many times." It prepends a disposable
-`SEAM-COUNT/1` projection that organizes retrieved RAW turns by likely observed,
-planned, negated, or reference-only status; asks the downstream harness
-answerer to count distinct occurrences/items rather than mentions; and retains
-RAW ids as provenance. It does not generate the answer or mutate stored MIRL.
-All defaults remain unchanged.
+`event-count/distinct/1` is the original opt-in query-time context policy for
+questions such as "how many" and "how many times." `event-count/distinct/2`
+keeps the same default-off, disposable boundary and adds explicit same-event
+groups inside the rendered `SEAM-COUNT/2` block. Every group retains all member
+RAW ids and texts, marks whether the question-specific action/object is
+an explicit direct match, distinguishes occurrence counts from item/event
+counts, and carries ordinal hints without turning them into an answer or
+durable truth. Repeated
+descriptions in one group are counted once. Plans or mentions qualify only when
+the question asks about plans or mentions.
+
+Neither policy generates the answer or mutates stored MIRL. Flag-off and v1
+behavior remain unchanged.
 
 Enable it on the facade with:
 
 ```bash
-export SEAM_COUNT_CONTEXT_POLICY=event-count/distinct/1
+export SEAM_COUNT_CONTEXT_POLICY=event-count/distinct/2
 ```
 
 Before any answerer or judge call, run the free structural preflight against a
@@ -76,13 +82,16 @@ private saved Mem0-harness result:
 
 ```bash
 python -m benchmarks.external.mem0_harness.preflight_event_count_context \
-    /path/to/mem0-harness-cat13.json --summary-only
+    /path/to/mem0-harness-cat13.json \
+    --policy event-count/distinct/2 --summary-only
 ```
 
 The command makes zero provider calls, writes no files, and prints aggregate
-projection diagnostics without reproducing licensed questions or memory text.
-It is a structural gate only; it does not claim a score improvement. A scored
-answerer microgate and any full harness run remain operator-gated.
+projection/grouping diagnostics without reproducing licensed questions or
+memory text. It is a structural gate only; it does not claim a score
+improvement. The committed microgate runner remains pinned to the historical
+v1 experiment; any v2 answerer microgate or full harness run requires separate
+operator authorization.
 
 ## Comparability notes (read before quoting a number)
 

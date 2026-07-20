@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 432
-total_tokens: ~188896
-latest_id: 432
+total_entries: 433
+total_tokens: ~189605
+latest_id: 433
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 433 | 2026-07-20 | done | c3150c723b150692 | retrieval,benchmark,mem0-harness,lever,+ | 432 |
 | 432 | 2026-07-20 | done | 99068044200991c5 | retrieval,benchmark,negative-result,plan | 431 |
 | 431 | 2026-07-20 | done | c0a57164b503ab15 | retrieval,benchmark,mem0-harness,lever | 430 |
 | 430 | 2026-07-20 | done | 8b5c726f0c2d373b | bugfix,benchmark,locomo,handoff,+ | 429 |
@@ -464,7 +465,7 @@ compact: true
 - audit: count=81 latest=#430, #398, #396, #391, #377
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=169 latest=#432, #431, #430, #429, #428
+- benchmark: count=170 latest=#433, #432, #431, #430, #429
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -577,7 +578,7 @@ compact: true
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
 - ledger: count=39 latest=#346, #302, #230, #181, #177
-- lever: count=2 latest=#431, #413
+- lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
@@ -597,7 +598,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- mem0-harness: count=2 latest=#431, #424
+- mem0-harness: count=3 latest=#433, #431, #424
 - memory: count=15 latest=#420, #418, #417, #416, #415
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
@@ -658,7 +659,7 @@ compact: true
 - recall: count=2 latest=#320, #317
 - reconcile: count=2 latest=#405, #182
 - reconciliation: count=1 latest=#305
-- recovery: count=1 latest=#271
+- recovery: count=2 latest=#433, #271
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
 - regex: count=1 latest=#317
@@ -667,7 +668,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=91 latest=#432, #431, #427, #421, #420
+- retrieval: count=92 latest=#433, #432, #431, #427, #421
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -736,6 +737,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 399
+- done: 400
 - in-progress: 4
 - planned: 21

@@ -265,6 +265,47 @@ def test_count_context_policy_prepends_projection_and_preserves_raw_provenance()
     }
 
 
+def test_count_context_v2_renders_explicit_same_event_groups():
+    results = [
+        {
+            "memory": "[Nate 2023-03-01] I won a tournament.",
+            "score": 0.9,
+            "id": "raw:win",
+            "created_at": "2023-03-01",
+        },
+        {
+            "memory": "[Nate 2023-03-01] Winning that tournament felt great.",
+            "score": 0.8,
+            "id": "raw:followup",
+            "created_at": "2023-03-01",
+        },
+        {
+            "memory": "[Nate 2023-04-01] I won another tournament.",
+            "score": 0.7,
+            "id": "raw:another",
+            "created_at": "2023-04-01",
+        },
+    ]
+    runtime = SimpleNamespace(
+        _retrieval_flags_cached=lambda: RetrievalFlags(
+            count_context_policy="event-count/distinct/2"
+        )
+    )
+
+    projected = _apply_count_context_policy(
+        runtime, "How many tournaments did Nate win?", results, 4
+    )
+
+    assert projected[0]["memory"].startswith("SEAM-COUNT/2|")
+    assert "direct_match_group_count=2" in projected[0]["memory"]
+    assert '"member_count":2' in projected[0]["memory"]
+    assert all(raw_id in projected[0]["memory"] for raw_id in {
+        "raw:win",
+        "raw:followup",
+        "raw:another",
+    })
+
+
 def test_count_context_at_capacity_references_only_retained_raw_records():
     results = [
         {

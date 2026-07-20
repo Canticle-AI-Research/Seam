@@ -13,6 +13,7 @@ from benchmarks.external.mem0_harness.microgate_event_count_context import (
     run_microgate,
     select_cases,
 )
+from seam_runtime.event_count_context import EVENT_COUNT_DISTINCT_V2
 
 _FAKE_PROMPTS = '''
 JUDGE_SYSTEM_PROMPT = "judge"
@@ -87,6 +88,41 @@ def test_candidate_results_prepends_projection():
     # retained rows keep provenance ids from the stored results
     retained_ids = {row["id"] for row in projected[1:]}
     assert retained_ids <= {row["id"] for row in stored}
+
+
+def test_candidate_results_default_policy_is_v1():
+    stored = _payload()["evaluations"][0]["retrieval"]["search_results"]
+    projected = candidate_results(stored, "How many times did Melanie go camping?")
+    assert "SEAM-COUNT/1" in projected[0]["memory"]
+
+
+def test_candidate_results_accepts_v2_policy():
+    stored = _payload()["evaluations"][0]["retrieval"]["search_results"]
+    projected = candidate_results(
+        stored, "How many times did Melanie go camping?", policy=EVENT_COUNT_DISTINCT_V2
+    )
+    assert projected[0]["id"].startswith("seam-count:")
+    assert "SEAM-COUNT/2" in projected[0]["memory"]
+
+
+def test_run_microgate_threads_selected_policy_into_candidate_arm(tmp_path):
+    prompts_dir = tmp_path / "benchmarks" / "locomo"
+    prompts_dir.mkdir(parents=True)
+    (prompts_dir / "prompts.py").write_text(_FAKE_PROMPTS, encoding="utf-8")
+    prompts = load_harness_prompts(tmp_path)
+
+    def fake_call(model, system, user, *, json_mode):
+        if json_mode:
+            label = "CORRECT" if "SEAM-COUNT/2" in user else "WRONG"
+            return json.dumps({"label": label, "reasoning": "test"})
+        return f"ANSWER: {'SEAM-COUNT/2' if 'SEAM-COUNT/2' in user else 'plain'}"
+
+    report = run_microgate(
+        _payload(), prompts, fake_call, policy=EVENT_COUNT_DISTINCT_V2
+    )
+    assert report["policy"] == EVENT_COUNT_DISTINCT_V2
+    assert report["candidate_correct"] == 1
+    assert "SEAM-COUNT/1" not in report["cases"][0]["candidate"]["generated_answer"]
 
 
 def test_format_search_results_sorts_score_desc_and_keeps_keys():

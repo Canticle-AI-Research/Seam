@@ -376,6 +376,10 @@ def test_count_context_policy_default_env_and_coercion():
         coerce_flag_value("count_context_policy", "event-count/distinct/1")
         == "event-count/distinct/1"
     )
+    assert (
+        coerce_flag_value("count_context_policy", "event-count/distinct/2")
+        == "event-count/distinct/2"
+    )
     assert coerce_flag_value("count_context_policy", "off") == "off"
     assert coerce_flag_value("count_context_policy", "event-count/distinct/99") is None
     assert coerce_flag_value("count_context_policy", True) is None

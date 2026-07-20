@@ -1,13 +1,15 @@
-"""Paid answerer-only microgate for ``event-count/distinct/1``.
+"""Paid answerer-only microgate for versioned ``event-count/distinct`` policies.
 
 Reruns ONLY the failed cat1 count questions from a saved Mem0-harness result
 artifact through the unmodified upstream answer/judge contract, in two arms:
 
 - ``baseline``: the stored ``retrieval.search_results`` exactly as recorded.
 - ``candidate``: the same stored results passed through the facade's real
-  ``_apply_count_context_policy`` code path (SEAM-COUNT/1 projection first,
-  one lowest-ranked memory displaced), i.e. what ``/search`` would have
-  returned with ``SEAM_COUNT_CONTEXT_POLICY=event-count/distinct/1``.
+  ``_apply_count_context_policy`` code path (SEAM-COUNT projection first, one
+  lowest-ranked memory displaced), i.e. what ``/search`` would have returned
+  with ``SEAM_COUNT_CONTEXT_POLICY`` set to the selected policy (``--policy``,
+  default ``event-count/distinct/1``; pass ``event-count/distinct/2`` to gate
+  the same-event-grouping revision).
 
 Both arms are answered and judged fresh in the same invocation so lever effect
 is separable from answerer rerun noise. The stored per-case judgments remain
@@ -45,6 +47,7 @@ from benchmarks.external.mem0_harness.seam_mem0_server import (
 )
 from seam_runtime.event_count_context import (
     EVENT_COUNT_DISTINCT_V1,
+    EVENT_COUNT_POLICIES,
     is_count_question,
 )
 from seam_runtime.retrieval import RetrievalFlags
@@ -109,12 +112,15 @@ def select_cases(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return selected
 
 
-def candidate_results(stored_results: list[dict], question: str) -> list[dict]:
+def candidate_results(
+    stored_results: list[dict],
+    question: str,
+    *,
+    policy: str = EVENT_COUNT_DISTINCT_V1,
+) -> list[dict]:
     """Run the stored results through the facade's real projection path."""
 
-    runtime = _FlagRuntime(
-        RetrievalFlags(count_context_policy=EVENT_COUNT_DISTINCT_V1)
-    )
+    runtime = _FlagRuntime(RetrievalFlags(count_context_policy=policy))
     normalized = [
         {
             "id": str(item.get("id") or ""),
@@ -192,6 +198,8 @@ def run_microgate(
     payload: dict[str, Any],
     prompts,
     call: Callable[..., str],
+    *,
+    policy: str = EVENT_COUNT_DISTINCT_V1,
 ) -> dict[str, Any]:
     cases = []
     baseline_correct = 0
@@ -199,7 +207,7 @@ def run_microgate(
     for evaluation in select_cases(payload):
         question = str(evaluation.get("question") or "")
         stored = list((evaluation.get("retrieval") or {}).get("search_results") or [])
-        projected = candidate_results(stored, question)
+        projected = candidate_results(stored, question, policy=policy)
         baseline = run_case_arm(prompts, evaluation, stored, call)
         candidate = run_case_arm(prompts, evaluation, projected, call)
         baseline_correct += int(baseline["correct"])
@@ -216,7 +224,7 @@ def run_microgate(
             }
         )
     return {
-        "policy": EVENT_COUNT_DISTINCT_V1,
+        "policy": policy,
         "answerer_model": ANSWERER_MODEL,
         "judge_model": JUDGE_MODEL,
         "selected_cases": len(cases),
@@ -240,6 +248,12 @@ def main() -> None:
         help="Local clone of mem0ai/memory-benchmarks (pin the audited commit)",
     )
     parser.add_argument(
+        "--policy",
+        choices=sorted(EVENT_COUNT_POLICIES - {"off"}),
+        default=EVENT_COUNT_DISTINCT_V1,
+        help="count context policy to gate (default: event-count/distinct/1)",
+    )
+    parser.add_argument(
         "--out",
         type=Path,
         default=None,
@@ -258,7 +272,7 @@ def main() -> None:
     with args.record.open(encoding="utf-8") as handle:
         payload = json.load(handle)
 
-    report = run_microgate(payload, prompts, call)
+    report = run_microgate(payload, prompts, call, policy=args.policy)
     report["source_artifact"] = args.record.name
     report["timestamp"] = datetime.now(timezone.utc).isoformat()
 

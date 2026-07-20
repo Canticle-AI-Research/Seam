@@ -10003,3 +10003,65 @@ entry; bridge stays committed, default-off, harmless.
 Still queued: SOL count-lever microgate (14 count misses, highest EV, ~$0.5
 when v2 lands); cat4+cat2 parity probe ~$6 (operator-gated).
 ---END-ENTRY-#432---
+
+---BEGIN-ENTRY-#433---
+id: 433
+date: 2026-07-20T02:46:05Z
+agent: claude
+status: done
+topics: retrieval, benchmark, mem0-harness, lever, recovery
+commits: pending
+refs: seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/external/mem0_harness/preflight_event_count_context.py,benchmarks/external/mem0_harness/microgate_event_count_context.py,benchmarks/external/mem0_harness/README.md
+supersedes: 432
+tokens: 709
+---
+RESOLVED the count-lever conflict from #432 and landed
+event-count/distinct/2. Investigation: the operator raised that "operator-
+rejected" (per #430's handoff) was probably a mislabel from an interrupted
+session, not a real decision. Verified with file mtimes + reflog: the three
+core files (event_count_context.py, retrieval.py,
+preflight_event_count_context.py) were last modified 2026-07-18 05:38-05:47,
+between commits 15b1b1b (05:25) and 756bbbb (06:22) - a build stopped mid-
+session and never committed, then sat dirty and untouched through 15+
+downstream commits with zero HISTORY/commit trace of an operator rejection.
+No evidence of rejection was found anywhere in the accessible record.
+Operator confirmed and directed picking it up.
+
+WHAT WAS RECOVERED (all pre-existing work, read in full before acting):
+same-event grouping for count questions - deterministic action/object/
+subject eligibility classification (with negation scoping, ordinal identity,
+plan-vs-mention mode detection, alias/stem normalization), groups same-date
+or high-anchor-overlap rows into one countable event, renders a
+SEAM-COUNT/2 block (group+member JSON rows, explicit direct_match flags,
+raw-id provenance) that asks the answerer to count QUALIFYING GROUPS not
+member mentions. All existing tests (60 across the 4 touched test files)
+were ALREADY GREEN and ALREADY COMPLETE - this was finished code, not a
+broken WIP, confirming the interrupted-session theory over the rejection
+theory.
+
+MY CONTRIBUTION this entry: the committed microgate runner
+(microgate_event_count_context.py) was still hardcoded to
+EVENT_COUNT_DISTINCT_V1 (README already said "any v2 answerer microgate...
+requires separate operator authorization" - the recovered work correctly
+left the paid path unwired for v1-only). Parameterized candidate_results/
+run_microgate/main with a --policy flag (default v1, unchanged behavior;
+accepts v2), added 3 new hermetic tests proving the flag threads through to
+the real facade projection call and the default stays byte-identical. Full
+suite exit 0 (2 xfails), ruff clean, ALL 68 tests across the six touched
+files pass (60 recovered + 8 new/extended microgate).
+
+FREE PREFLIGHT run against tonight's real matched-run artifact (T7
+20260719-161639-...cat13-matched-final.json, the #429 miss autopsy source):
+event-count/distinct/2 fires on 13 of the failed cat1 count cases, grouping
+2600 raw candidates into 2017 event groups (196 multi-member, 583 redundant
+rows merged), surfacing 28 direct-match groups. This is real consolidation
+signal, not a no-op, against the actual current miss set - not a synthetic
+smoke.
+
+NEXT: paid answerer-only microgate (~$0.5, gpt-4o-mini both roles per the
+existing runner defaults) via
+`microgate_event_count_context.py --policy event-count/distinct/2` against
+the same artifact - operator-gated, not run this entry. Gate: report's own
+gate_threshold_flips=7 (net candidate-minus-baseline flips) decides whether
+a full matched rerun folding this lever in is next.
+---END-ENTRY-#433---
