@@ -42,6 +42,7 @@ from seam_runtime.event_count_context import (
     CountEvidence,
     build_count_context_projection,
 )
+from seam_runtime.second_hop_context import build_bridge_plan, splice_results
 from seam_runtime.temporal_instance_context import (
     TemporalEvidence,
     build_temporal_context_projection,
@@ -131,6 +132,45 @@ class SeamMem0Server:
     def _retrieve(self, user_id: str, query: str, limit: int) -> list[dict]:
         """Return ranked RAW turn memories as Mem0-shaped result dicts.
 
+        Primary raw search, then the optional env-gated context policies in
+        order: second-hop entity-bridge expansion (fills a reserved tail with
+        evidence the primary query's wording cannot reach), then at most one
+        disposable projection (count, else temporal)."""
+        out = self._search_raw(user_id, query, limit)
+        out = self._apply_second_hop_policy(user_id, query, out, limit)
+        rt = self._adapter._runtime(user_id)
+        projected = _apply_count_context_policy(rt, query, out, limit)
+        if projected is not out:
+            return projected
+        return _apply_temporal_context_policy(query, out, limit)
+
+    def _apply_second_hop_policy(
+        self, user_id: str, query: str, primary: list[dict], limit: int
+    ) -> list[dict]:
+        """Optional entity-bridge second hop (HISTORY#429 miss autopsy lever).
+
+        Env-gated by ``SEAM_SECOND_HOP_POLICY``; off path returns ``primary``
+        unchanged. Secondary searches reuse the exact raw search path, so the
+        memory under test is unchanged — only the query set widens."""
+        plan = build_bridge_plan(
+            query,
+            [str(item.get("memory") or "") for item in primary],
+            policy=os.environ.get("SEAM_SECOND_HOP_POLICY", "off"),
+        )
+        if plan is None:
+            return primary
+        secondary: list[dict] = []
+        for bridge_query in plan.queries:
+            secondary.extend(
+                self._search_raw(user_id, bridge_query, plan.reserve_slots)
+            )
+        return splice_results(
+            primary, secondary, limit=limit, reserve_slots=plan.reserve_slots
+        )
+
+    def _search_raw(self, user_id: str, query: str, limit: int) -> list[dict]:
+        """The unexpanded ranked-RAW search (shared by primary + bridge hops).
+
         Uses the adapter's per-scope runtime + the same ``search_ir`` call the
         native benchmark uses, then maps each ranked candidate's closure to its
         RAW content so the harness sees individual memory strings (not SEAM's
@@ -185,10 +225,7 @@ class SeamMem0Server:
                     break
             if reached_limit:
                 break
-        projected = _apply_count_context_policy(rt, query, out, limit)
-        if projected is not out:
-            return projected
-        return _apply_temporal_context_policy(query, out, limit)
+        return out
 
     def close(self) -> None:
         self._adapter.close()

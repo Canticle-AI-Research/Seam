@@ -9904,3 +9904,52 @@ fixed with regression coverage. Suggestions that would rewrite append-only
 history, alter intentional derived previews, or broaden self-hosted-runner
 architecture were not applied.
 ---END-ENTRY-#430---
+
+---BEGIN-ENTRY-#431---
+id: 431
+date: 2026-07-20T01:39:34Z
+agent: claude
+status: done
+topics: retrieval, benchmark, mem0-harness, lever
+commits: pending
+refs: seam_runtime/second_hop_context.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_second_hop_context.py
+supersedes: 430
+tokens: 535
+---
+Built the second-hop entity-bridge retrieval lever (entity-bridge/1), the
+#429 miss-autopsy's highest-value unbuilt item, targeting the ~30 matched
+misses (16 evidence-absent abstentions + ~13 cat3 naming + wrong-instance
+overlaps) where only 8/63 misses had gold text anywhere in top-200 - the
+residual is retrieval-side.
+
+DESIGN (default OFF, env SEAM_SECOND_HOP_POLICY=entity-bridge/1, facade
+lane): pseudo-relevance feedback, entity-flavored. New self-contained
+seam_runtime/second_hop_context.py: extract_bridge_terms mines the primary
+results' raw texts for quoted titles + mid-sentence capitalized entity
+spans absent from the query (frequency-ranked, max 3); build_bridge_plan
+gates on policy; splice_results merges secondary hits into a RESERVED TAIL
+(40 of 200 slots) scored below the primary floor so the harness's
+score-descending re-sort preserves the primary head - bounding the #369
+displacement risk to the weakest tail ranks. Facade: _retrieve refactored
+into _search_raw (shared by primary + bridge hops; memory under test
+unchanged, only the query set widens) + _apply_second_hop_policy; policy
+order = second-hop, then count projection, else temporal projection.
+Deliberately no RetrievalFlags field (retrieval.py has in-flight SOL edits;
+core productization follows a measured win).
+
+VERIFIED: 8 hermetic tests in NEW tests/audit/test_second_hop_context.py
+(term extraction incl. speaker-prefix/query-overlap exclusions, splice
+head-preservation + backfill + identity-off-path, facade off-path
+byte-identity with a no-secondary-search tripwire, on-path bridge query
+execution); one caught fixture bug (wrong class name Mem0FacadeServer ->
+SeamMem0Server) fixed; ruff clean; FULL suite exit 0 (2 xfails) with SOL's
+WIP untouched in tree.
+
+NEXT (free, this session): structural preflight measuring REAL recall lift
+- rerun the 63 stored matched-miss questions against the preserved
+seam-cat13-matched scratch store from a clean worktree, policy off vs on,
+scoring gold-text presence in the returned top-200. Gate for the ~$0.5
+answerer microgate: bridge must surface gold evidence for >=6 previously
+evidence-absent misses. Then SOL's count microgate (14 count misses) and
+one combined ~$13 matched rerun decide the scoreboard.
+---END-ENTRY-#431---
