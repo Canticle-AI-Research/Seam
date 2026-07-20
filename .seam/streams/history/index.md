@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 431
-total_tokens: ~188316
-latest_id: 431
+total_entries: 432
+total_tokens: ~188896
+latest_id: 432
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 432 | 2026-07-20 | done | 99068044200991c5 | retrieval,benchmark,negative-result,plan | 431 |
 | 431 | 2026-07-20 | done | c0a57164b503ab15 | retrieval,benchmark,mem0-harness,lever | 430 |
 | 430 | 2026-07-20 | done | 8b5c726f0c2d373b | bugfix,benchmark,locomo,handoff,+ | 429 |
 | 429 | 2026-07-19 | done | 121a6292726aad96 | benchmark,locomo,paid-run,negative-result | 428 |
@@ -463,7 +464,7 @@ compact: true
 - audit: count=81 latest=#430, #398, #396, #391, #377
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=168 latest=#431, #430, #429, #428, #427
+- benchmark: count=169 latest=#432, #431, #430, #429, #428
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -608,7 +609,7 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=4 latest=#033, #024, #009, #002
-- negative-result: count=3 latest=#429, #412, #392
+- negative-result: count=4 latest=#432, #429, #412, #392
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
@@ -626,7 +627,7 @@ compact: true
 - performance: count=3 latest=#364, #363, #362
 - persist: count=30 latest=#404, #403, #402, #401, #342
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
-- plan: count=18 latest=#422, #420, #415, #414, #243
+- plan: count=19 latest=#432, #422, #420, #415, #414
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
@@ -666,7 +667,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=90 latest=#431, #427, #421, #420, #419
+- retrieval: count=91 latest=#432, #431, #427, #421, #420
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -735,6 +736,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 398
+- done: 399
 - in-progress: 4
 - planned: 21

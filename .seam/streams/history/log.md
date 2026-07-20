@@ -9953,3 +9953,53 @@ answerer microgate: bridge must surface gold evidence for >=6 previously
 evidence-absent misses. Then SOL's count microgate (14 count misses) and
 one combined ~$13 matched rerun decide the scoreboard.
 ---END-ENTRY-#431---
+
+---BEGIN-ENTRY-#432---
+id: 432
+date: 2026-07-20T01:52:14Z
+agent: claude
+status: done
+topics: retrieval, benchmark, negative-result, plan
+commits: pending
+refs: seam_runtime/second_hop_context.py,tests/audit/test_second_hop_context.py
+supersedes: 431
+tokens: 580
+---
+FREE preflight verdict on entity-bridge/1 (#431): TESTED-INERT at the free
+gate - parked default-off, no paid microgate. Method: re-ran the matched-run
+miss questions against the preserved seam-cat13-matched scratch store from a
+clean worktree at #431 HEAD (full #400 env parity), policy off vs on,
+scoring gold-text presence in the returned top-200. Result: evidence
+present OFF 8/48 textual-gold misses, ON 7/48, GAINED 0, LOST 1 (tail
+displacement). A follow-up query-side-reformulation probe (subject/content
+word queries) also reached 0/40. The design flaw is structural: bridge
+terms are mined from primary results, but these misses are precisely cases
+where nothing lexically adjacent was retrieved - you cannot hop from
+evidence you do not have, and reformulations cannot guess a target word
+("surfing") they have never seen.
+
+DIAGNOSIS CORRECTED EN ROUTE (error logged 2026-07-20-001): an initial
+blanket store scan wrongly claimed 36/40 golds were absent from the store
+(suggesting a caption-ingest gap); targeted SQL disproved it - the harness
+DOES append [Sharing image ...] captions, our facade ingests them (164
+caption docs in conv4 alone), and the evidence IS stored and retrievable:
+querying "surfing" directly returns the gold turn at rank 1, while the
+natural question ("what sports does John like besides basketball") returns
+40 sports turns without it. TRUE root cause of the ~30-miss retrieval
+bucket: query<->evidence WORDING DISTANCE at embedding search, not ingest,
+not answer-side.
+
+STRATEGIC CONSEQUENCE recorded for the next lever decision: mem0 reaches
+91+ on this dataset partly because its LLM-extraction ingest stores
+distilled facts ("John likes surfing") that lexically match questions; SEAM
+serves raw turns. The structurally on-goal fix is serving DERIVED fact
+records (MIRL ENT/CLM-class, compile-layer - the actual product direction)
+alongside retained RAW at top-200 - large enough headroom (200 slots) to
+avoid the #369 displacement trap, and it is core-product work, not
+benchmark tuning. Alternatives (LLM query expansion at search time) cost
+per-query provider calls and violate the local-first goal. No new code this
+entry; bridge stays committed, default-off, harmless.
+
+Still queued: SOL count-lever microgate (14 count misses, highest EV, ~$0.5
+when v2 lands); cat4+cat2 parity probe ~$6 (operator-gated).
+---END-ENTRY-#432---

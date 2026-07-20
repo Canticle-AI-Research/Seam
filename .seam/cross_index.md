@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 492
+total_events: 493
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-24T23:39:52Z | history:241:ff3c9fc6 | session-event | done | benchmark, command, verify, history, status | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py... |
 | 2026-05-25T00:00:00Z | roadmap:053:b5337aac | status-change | bootstrap | retrieval, benchmark | ROADMAP.md:900 |
 | 2026-05-25T00:00:00Z | roadmap:054:4b2f3d54 | status-change | bootstrap | experience, protocol | ROADMAP.md:944 |
 | 2026-05-25T00:00:00Z | roadmap:055:2bde78b6 | status-change | bootstrap | protocol, history, plan | ROADMAP.md:1294 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-19T21:18:24Z | history:429:121a6292 | session-event | done | benchmark, locomo, paid-run, negative-result | benchmarks/external/common/cost_report.py,docs/handoffs/2026-07-19-matched-ru... |
 | 2026-07-20T00:26:26Z | history:430:8b5c726f | session-event | done | bugfix, benchmark, locomo, handoff, verify, audit, contin... | seam_runtime/temporal_instance_context.py,benchmarks/external/common/cost_rep... |
 | 2026-07-20T01:39:34Z | history:431:c0a57164 | session-event | done | retrieval, benchmark, mem0-harness, lever | seam_runtime/second_hop_context.py,benchmarks/external/mem0_harness/seam_mem0... |
+| 2026-07-20T01:52:14Z | history:432:99068044 | session-event | done | retrieval, benchmark, negative-result, plan | seam_runtime/second_hop_context.py,tests/audit/test_second_hop_context.py |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0292.cross.md | 2026-04-15T00:00:00Z..2026-05-24T21:59:02Z | 292 | (multi) | (multi) |
+| 0001-0293.cross.md | 2026-04-15T00:00:00Z..2026-05-24T23:39:52Z | 293 | (multi) | (multi) |
