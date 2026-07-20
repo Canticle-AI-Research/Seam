@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 436
-total_tokens: ~191991
-latest_id: 436
+total_entries: 437
+total_tokens: ~192757
+latest_id: 437
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 437 | 2026-07-20 | done | d729f0ca3d6c8634 | kb,docs,retrieval,benchmark,+ | 436 |
 | 436 | 2026-07-20 | done | 1394218c4094abdf | handoff,benchmark,retrieval,derived-facts,+ | 435 |
 | 435 | 2026-07-20 | done | ec6982808a096a0f | benchmark,locomo,mirl,retrieval,+ | 434 |
 | 434 | 2026-07-20 | done | 291b0956612e376a | benchmark,locomo,paid-run,negative-result,+ | 433 |
@@ -468,7 +469,7 @@ compact: true
 - audit: count=82 latest=#435, #430, #398, #396, #391
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=173 latest=#436, #435, #434, #433, #432
+- benchmark: count=174 latest=#437, #436, #435, #434, #433
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -532,7 +533,7 @@ compact: true
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=47 latest=#418, #378, #357, #354, #353
+- docs: count=48 latest=#437, #418, #378, #357, #354
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -581,6 +582,7 @@ compact: true
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
+- kb: count=1 latest=#437
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
@@ -632,7 +634,7 @@ compact: true
 - performance: count=3 latest=#364, #363, #362
 - persist: count=31 latest=#435, #404, #403, #402, #401
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
-- plan: count=20 latest=#436, #432, #422, #420, #415
+- plan: count=21 latest=#437, #436, #432, #422, #420
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
@@ -666,13 +668,14 @@ compact: true
 - recovery: count=2 latest=#433, #271
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
+- reference: count=1 latest=#437
 - regex: count=1 latest=#317
 - registry: count=5 latest=#409, #350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=94 latest=#436, #435, #433, #432, #431
+- retrieval: count=95 latest=#437, #436, #435, #433, #432
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -741,6 +744,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 403
+- done: 404
 - in-progress: 4
 - planned: 21

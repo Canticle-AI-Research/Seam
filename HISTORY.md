@@ -10225,3 +10225,67 @@ CI, cost_report o200k lower-bound discipline, paid-run model-constant check).
 No code, provider call, or paid run in this entry - handoff + registry + chain
 only. Derived-facts lever was NOT rebuilt (already built #435, verified).
 ---END-ENTRY-#436---
+
+---BEGIN-ENTRY-#437---
+id: 437
+date: 2026-07-20T14:09:56Z
+agent: claude
+status: done
+topics: kb, docs, retrieval, benchmark, reference, plan
+commits: pending
+refs: docs/kb/README.md,docs/kb/eval-methodology/benchmark-traps.md,docs/kb/eval-methodology/locomo-mem0-harness.md,docs/kb/memory-systems/mem0.md,docs/kb/memory-systems/zep-graphiti.md,docs/kb/memory-systems/langmem-letta-cognee.md,docs/kb/memory-systems/seam-positioning.md,docs/kb/seam-internals/lever-graveyard.md,docs/kb/seam-internals/derived-facts-grounded-clm.md
+supersedes: 436
+tokens: 766
+---
+Scaffolded and seeded a versioned memory-systems knowledgebase at docs/kb/
+(Leeroopedia-style), the asset half of the "SEAM retrieval specialist"
+direction the operator asked about. Rationale (from the #423-#434 arc): the
+scarce inputs for improving SEAM's retrieval are not coding throughput but
+(a) knowing how competitors architect ingest->store->retrieve and (b) knowing
+the ways memory benchmarks lie - so the KB seeds exactly those, plus the lever
+graveyard, so any agent (me, SOL, codex) stops re-deriving them.
+
+Pages (9, all committed under docs/kb/, shared + version-controlled):
+- README.md - index, purpose, how-agents-use-it, accuracy discipline.
+- eval-methodology/benchmark-traps.md - 8 traps, each costing a real paid run
+  to learn: judge non-determinism (#434 6/13 rerun-recovery), answerer-strength
+  headroom shift (#417 vs #434), model-mismatch (#434), lenient-vs-strict judge
+  never-average (#415/#429), token-overlap false positives (#369/#405), store-
+  scan mis-diagnosis (#432), invisible-pass cost lower-bound (#428), retrieval
+  neutrality (#421). This is the highest-value debugging asset.
+- eval-methodology/locomo-mem0-harness.md - the facade run contract, two-phase
+  free-then-paid pattern, rate-limit corruption recovery recipe, key T7
+  artifacts by SHA.
+- memory-systems/mem0.md - extraction-at-ingest = why mem0 wins on LoCoMo
+  (distilled facts lexically match queries; the #432 wording-distance wall),
+  costs = SEAM's opening.
+- memory-systems/zep-graphiti.md - temporal graph + validity intervals = cat2
+  design reference (Track R).
+- memory-systems/langmem-letta-cognee.md - semantic/episodic/procedural
+  taxonomy + agent-managed memory (Letta = the "SEAM deep agent"/Track P
+  pattern).
+- memory-systems/seam-positioning.md - honest competitive picture (tops nothing
+  matched) + the real daylight (lossless+auditable compile, provenance, self-
+  improve loop); competitor quick-map.
+- seam-internals/lever-graveyard.md - every lever tried, measured verdict,
+  why; the cross-cutting pattern (facade/answer-side tricks exhausted, compile-
+  side is the headroom).
+- seam-internals/derived-facts-grounded-clm.md - the #435 live lever, its three
+  contracts, and its free next gate.
+
+Also created a LOCAL (.claude gitignored) subagent .claude/agents/seam-
+retrieval.md that consults the KB - a thin wrapper; the durable value is the
+committed KB. Deliberately did NOT build an autonomous code-writing improver
+(the #434 arc showed the bottleneck is validation judgment, not hypothesis
+throughput).
+
+Derived-facts lever (grounded-clm/1) was NOT rebuilt - already complete at
+#435 (verified: test_derived_fact_context.py passes this session). Its honest
+next gate (faster local extractor + a free coverage preflight that does not yet
+exist) is recorded in the KB and the #436 handoff.
+
+Docs-only change; no runtime code, provider call, or paid run. KB content is
+reference (route: docs), sourced from committed HISTORY + T7 artifact SHAs;
+external-system pages flagged with the 2026-07 cutoff + verify-before-quoting
+discipline.
+---END-ENTRY-#437---

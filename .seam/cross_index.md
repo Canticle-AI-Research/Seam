@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 497
+total_events: 498
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T08:02:25Z | history:243:ba34a614 | session-event | done | roadmap, plan, retrieval, rank, history, status | ROADMAP.md,docs/roadmap/CONTEXT_STREAMS.md,PROJECT_STATUS.md |
 | 2026-05-25T08:49:55Z | history:244:7fe45cf1 | session-event | done | persist, retrieval, verify, history, audit | seam_runtime/storage.py,tests/audit/test_retrieval_event_store.py,PROJECT_STA... |
 | 2026-05-25T12:22:20Z | history:245:93877919 | session-event | done | benchmark, bundle, verify, security, protocol | .github/workflows/ci.yml,.github/pull_request_template.md,tools/ci/chroma_rea... |
 | 2026-05-25T12:33:37Z | history:246:8a53e31a | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,REPO_LEDGER.md,GitHub-ruleset:15143368 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-20T09:48:51Z | history:434:291b0956 | session-event | done | benchmark, locomo, paid-run, negative-result, mem0-harness | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
 | 2026-07-20T13:40:00Z | history:435:ec698280 | session-event | done | benchmark, locomo, mirl, retrieval, compile, provenance, ... | seam_runtime/derived_fact_context.py,seam_runtime/nl_extract.py,seam_runtime/... |
 | 2026-07-20T14:03:53Z | history:436:1394218c | session-event | done | handoff, benchmark, retrieval, derived-facts, plan | docs/handoffs/2026-07-20-derived-facts-landed-and-kb-scaffold.md,docs/handoff... |
+| 2026-07-20T14:09:56Z | history:437:d729f0ca | session-event | done | kb, docs, retrieval, benchmark, reference, plan | docs/kb/README.md,docs/kb/eval-methodology/benchmark-traps.md,docs/kb/eval-me... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0297.cross.md | 2026-04-15T00:00:00Z..2026-05-25T02:50:25Z | 297 | (multi) | (multi) |
+| 0001-0298.cross.md | 2026-04-15T00:00:00Z..2026-05-25T08:02:25Z | 298 | (multi) | (multi) |
