@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 433
-total_tokens: ~189605
-latest_id: 433
+total_entries: 434
+total_tokens: ~190369
+latest_id: 434
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 434 | 2026-07-20 | done | 291b0956612e376a | benchmark,locomo,paid-run,negative-result,+ | 433 |
 | 433 | 2026-07-20 | done | c3150c723b150692 | retrieval,benchmark,mem0-harness,lever,+ | 432 |
 | 432 | 2026-07-20 | done | 99068044200991c5 | retrieval,benchmark,negative-result,plan | 431 |
 | 431 | 2026-07-20 | done | c0a57164b503ab15 | retrieval,benchmark,mem0-harness,lever | 430 |
@@ -465,7 +466,7 @@ compact: true
 - audit: count=81 latest=#430, #398, #396, #391, #377
 - baseline: count=1 latest=#303
 - beam: count=1 latest=#223
-- benchmark: count=170 latest=#433, #432, #431, #430, #429
+- benchmark: count=171 latest=#434, #433, #432, #431, #430
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -587,7 +588,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=77 latest=#430, #429, #427, #426, #424
+- locomo: count=78 latest=#434, #430, #429, #427, #426
 - longmemeval: count=1 latest=#223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -598,7 +599,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- mem0-harness: count=3 latest=#433, #431, #424
+- mem0-harness: count=4 latest=#434, #433, #431, #424
 - memory: count=15 latest=#420, #418, #417, #416, #415
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
@@ -610,7 +611,7 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=4 latest=#033, #024, #009, #002
-- negative-result: count=4 latest=#432, #429, #412, #392
+- negative-result: count=5 latest=#434, #432, #429, #412, #392
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
@@ -622,7 +623,7 @@ compact: true
 - pack: count=6 latest=#416, #316, #315, #314, #218
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
-- paid-run: count=4 latest=#429, #427, #424, #423
+- paid-run: count=5 latest=#434, #429, #427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - parked: count=1 latest=#412
 - performance: count=3 latest=#364, #363, #362
@@ -737,6 +738,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 400
+- done: 401
 - in-progress: 4
 - planned: 21

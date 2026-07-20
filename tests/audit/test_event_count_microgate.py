@@ -167,6 +167,29 @@ def test_run_microgate_flip_accounting(tmp_path):
     assert len(calls) == 4
 
 
+def test_run_microgate_threads_answerer_and_judge_model_overrides(tmp_path):
+    prompts_dir = tmp_path / "benchmarks" / "locomo"
+    prompts_dir.mkdir(parents=True)
+    (prompts_dir / "prompts.py").write_text(_FAKE_PROMPTS, encoding="utf-8")
+    prompts = load_harness_prompts(tmp_path)
+
+    seen_models: set[str] = set()
+
+    def fake_call(model, system, user, *, json_mode):
+        seen_models.add(model)
+        if json_mode:
+            return json.dumps({"label": "WRONG", "reasoning": "test"})
+        return "ANSWER: plain"
+
+    report = run_microgate(
+        _payload(), prompts, fake_call,
+        answerer_model="gpt-4o", judge_model="gpt-4o",
+    )
+    assert seen_models == {"gpt-4o"}
+    assert report["answerer_model"] == "gpt-4o"
+    assert report["judge_model"] == "gpt-4o"
+
+
 def test_load_harness_prompts_missing_path(tmp_path):
     with pytest.raises(FileNotFoundError):
         load_harness_prompts(tmp_path / "nope")

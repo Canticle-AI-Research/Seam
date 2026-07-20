@@ -10065,3 +10065,59 @@ the same artifact - operator-gated, not run this entry. Gate: report's own
 gate_threshold_flips=7 (net candidate-minus-baseline flips) decides whether
 a full matched rerun folding this lever in is next.
 ---END-ENTRY-#433---
+
+---BEGIN-ENTRY-#434---
+id: 434
+date: 2026-07-20T09:48:51Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, negative-result, mem0-harness
+commits: pending
+refs: benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit/test_event_count_microgate.py
+supersedes: 433
+tokens: 764
+---
+Ran the event-count/distinct/2 paid answerer-only microgate against the 13
+failed cat1 count cases from the matched run artifact (#429,
+20260719-161639). NEGATIVE: gate NOT met, v2 tested-and-parked default-off.
+
+MODEL-MISMATCH ERROR CAUGHT AND FIXED FIRST (logged 2026-07-20-002): the
+committed runner hardcoded ANSWERER_MODEL/JUDGE_MODEL=gpt-4o-mini (a v1/#417
+mini-lane leftover); I fired it once at mini before noticing baseline rerun
+6/13 was implausibly high for gpt-4o-stored misses. Parameterized run_case_arm/
+run_microgate/main with --answerer-model/--judge-model (default now resolves
+from the artifact's own metadata answerer_model/judge_model, else gpt-4o-mini),
++1 hermetic test asserting the override threads to the call. The invalid mini
+run was cheap and is disregarded.
+
+CORRECTED RUN (gpt-4o answerer + gpt-4o judge, the matched contract these
+cases actually failed under; record 20260720-044428): baseline_rerun 6/13,
+candidate 7/13, net +1, gate_threshold_flips=7 -> NOT MET. Per-case isolation:
+lever flips 2 UP (conv3_q62 letters 1->2, conv9_q47 car-shows 3->2) and 1 DOWN
+(conv9_q18 2->1); clean lever contrast = +2/-1 = +1.
+
+DECISIVE FINDING (the real signal): 6 of 13 stored count-MISSES recover to
+CORRECT on a plain no-lever re-answer. gpt-4o at temperature 0 is not
+deterministic enough; ~46% of the count-miss set is unstable rerun noise, so
+the matched run's cat1 87.94% understates the stable score and the count-miss
+bucket is much smaller than 13. STRATEGIC CONSEQUENCE: with a strong (gpt-4o)
+answerer the count bucket has little headroom - the strong model already counts
+correctly most of the time (baseline 6/13 without any lever), so the projection
+only adds ~+1. This is the inverse of v1's #417 net +5, which was measured
+against a WEAK answerer scoring 1/14. The count lever helps weak answerers far
+more than the matched-contract strong one. The autopsy's "biggest, most
+fixable bucket" does not hold under matched conditions.
+
+WHERE THIS LEAVES THE SCORE-RAISING EFFORT: the two biggest #429 buckets have
+now both come up short under free/paid gates - second-hop retrieval
+(entity-bridge/1) failed its free preflight (#432, 0 gained), and counts yield
+only +1 paid here. The honest remaining path is the #432 derived-facts-at-
+ingest direction (serve distilled MIRL ENT/CLM fact records beside RAW, the
+mem0-parity mechanism done auditable), which is architectural, not a facade
+lever, and needs deliberate scoping before any build. Also worth a cheap
+follow-up: quantify the rerun-noise floor (rerun the full 63-miss set once more
+to see how much of the 87.94/69.79 is non-determinism vs stable gap) before
+spending on any full rerun.
+
+v2 stays committed and default-off (harmless); no full harness rerun green-lit.
+---END-ENTRY-#434---

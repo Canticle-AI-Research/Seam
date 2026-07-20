@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 494
+total_events: 495
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T00:00:00Z | roadmap:054:4b2f3d54 | status-change | bootstrap | experience, protocol | ROADMAP.md:944 |
 | 2026-05-25T00:00:00Z | roadmap:055:2bde78b6 | status-change | bootstrap | protocol, history, plan | ROADMAP.md:1294 |
 | 2026-05-25T02:50:25Z | history:242:e6d10168 | session-event | done | benchmark, retrieval, search, rank, verify, history, status | seam_runtime/storage.py,tests/audit/test_sqlite_load_order.py,PROJECT_STATUS.md |
 | 2026-05-25T08:02:25Z | history:243:ba34a614 | session-event | done | roadmap, plan, retrieval, rank, history, status | ROADMAP.md,docs/roadmap/CONTEXT_STREAMS.md,PROJECT_STATUS.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-20T01:39:34Z | history:431:c0a57164 | session-event | done | retrieval, benchmark, mem0-harness, lever | seam_runtime/second_hop_context.py,benchmarks/external/mem0_harness/seam_mem0... |
 | 2026-07-20T01:52:14Z | history:432:99068044 | session-event | done | retrieval, benchmark, negative-result, plan | seam_runtime/second_hop_context.py,tests/audit/test_second_hop_context.py |
 | 2026-07-20T02:46:05Z | history:433:c3150c72 | session-event | done | retrieval, benchmark, mem0-harness, lever, recovery | seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/exte... |
+| 2026-07-20T09:48:51Z | history:434:291b0956 | session-event | done | benchmark, locomo, paid-run, negative-result, mem0-harness | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0294.cross.md | 2026-04-15T00:00:00Z..2026-05-25T00:00:00Z | 294 | (multi) | (multi) |
+| 0001-0295.cross.md | 2026-04-15T00:00:00Z..2026-05-25T00:00:00Z | 295 | (multi) | (multi) |

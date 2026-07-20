@@ -162,6 +162,9 @@ def run_case_arm(
     evaluation: dict[str, Any],
     results: list[dict],
     call: Callable[..., str],
+    *,
+    answerer_model: str = ANSWERER_MODEL,
+    judge_model: str = JUDGE_MODEL,
 ) -> dict[str, Any]:
     """Answer + judge one arm using the upstream contract verbatim."""
 
@@ -174,13 +177,13 @@ def run_case_arm(
         question, formatted, reference_date=reference_date,
         user_profile=evaluation.get("user_profile"),
     )
-    generated = call(ANSWERER_MODEL, "", gen_prompt, json_mode=False)
+    generated = call(answerer_model, "", gen_prompt, json_mode=False)
     if "ANSWER:" in generated:
         generated = generated.rsplit("ANSWER:", 1)[-1].strip()
 
     processed_gold = prompts.preprocess_answer(1, gold)
     judge_prompt = prompts.get_judge_prompt(1, question, processed_gold, generated)
-    raw = call(JUDGE_MODEL, prompts.JUDGE_SYSTEM_PROMPT, judge_prompt, json_mode=True)
+    raw = call(judge_model, prompts.JUDGE_SYSTEM_PROMPT, judge_prompt, json_mode=True)
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError:
@@ -200,6 +203,8 @@ def run_microgate(
     call: Callable[..., str],
     *,
     policy: str = EVENT_COUNT_DISTINCT_V1,
+    answerer_model: str = ANSWERER_MODEL,
+    judge_model: str = JUDGE_MODEL,
 ) -> dict[str, Any]:
     cases = []
     baseline_correct = 0
@@ -208,8 +213,14 @@ def run_microgate(
         question = str(evaluation.get("question") or "")
         stored = list((evaluation.get("retrieval") or {}).get("search_results") or [])
         projected = candidate_results(stored, question, policy=policy)
-        baseline = run_case_arm(prompts, evaluation, stored, call)
-        candidate = run_case_arm(prompts, evaluation, projected, call)
+        baseline = run_case_arm(
+            prompts, evaluation, stored, call,
+            answerer_model=answerer_model, judge_model=judge_model,
+        )
+        candidate = run_case_arm(
+            prompts, evaluation, projected, call,
+            answerer_model=answerer_model, judge_model=judge_model,
+        )
         baseline_correct += int(baseline["correct"])
         candidate_correct += int(candidate["correct"])
         cases.append(
@@ -225,8 +236,8 @@ def run_microgate(
         )
     return {
         "policy": policy,
-        "answerer_model": ANSWERER_MODEL,
-        "judge_model": JUDGE_MODEL,
+        "answerer_model": answerer_model,
+        "judge_model": judge_model,
         "selected_cases": len(cases),
         "baseline_rerun_correct": baseline_correct,
         "candidate_correct": candidate_correct,
@@ -238,7 +249,7 @@ def run_microgate(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Paid answerer-only microgate for event-count/distinct/1"
+        description="Paid answerer-only microgate for versioned event-count/distinct policies"
     )
     parser.add_argument("record", type=Path, help="Mem0-harness JSON result artifact")
     parser.add_argument(
@@ -252,6 +263,21 @@ def main() -> None:
         choices=sorted(EVENT_COUNT_POLICIES - {"off"}),
         default=EVENT_COUNT_DISTINCT_V1,
         help="count context policy to gate (default: event-count/distinct/1)",
+    )
+    parser.add_argument(
+        "--answerer-model",
+        default=None,
+        help=(
+            "Answerer for both arms (default: artifact metadata's "
+            f"answerer_model, else {ANSWERER_MODEL!r}). Match the source "
+            "artifact's contract -- selected cases are misses under ITS "
+            "answerer/judge, not necessarily under the microgate default."
+        ),
+    )
+    parser.add_argument(
+        "--judge-model",
+        default=None,
+        help="Judge for both arms (default: --answerer-model's value)",
     )
     parser.add_argument(
         "--out",
@@ -271,8 +297,14 @@ def main() -> None:
     prompts = load_harness_prompts(args.harness_root)
     with args.record.open(encoding="utf-8") as handle:
         payload = json.load(handle)
+    meta = payload.get("metadata") or {}
+    answerer_model = args.answerer_model or meta.get("answerer_model") or ANSWERER_MODEL
+    judge_model = args.judge_model or meta.get("judge_model") or answerer_model
 
-    report = run_microgate(payload, prompts, call, policy=args.policy)
+    report = run_microgate(
+        payload, prompts, call,
+        policy=args.policy, answerer_model=answerer_model, judge_model=judge_model,
+    )
     report["source_artifact"] = args.record.name
     report["timestamp"] = datetime.now(timezone.utc).isoformat()
 
