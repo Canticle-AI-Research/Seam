@@ -78,12 +78,27 @@ class SentenceTransformerModel:
                 from sentence_transformers import SentenceTransformer
             except ImportError as exc:
                 raise RuntimeError("sentence-transformers is not installed") from exc
-            kwargs = {}
-            if self.revision:
-                kwargs["revision"] = self.revision
             if self.local_files_only:
-                kwargs["local_files_only"] = True
-            self._model = SentenceTransformer(self.model_name, **kwargs)
+                model_source = self.model_name
+                if not os.path.exists(model_source):
+                    # Resolve the exact cached snapshot through huggingface_hub
+                    # first. Passing the resulting local path preserves offline
+                    # behavior across the supported sentence-transformers 2.x
+                    # range, whose constructor lacks local_files_only.
+                    from huggingface_hub import snapshot_download
+
+                    model_source = snapshot_download(
+                        repo_id=self.model_name,
+                        revision=self.revision,
+                        local_files_only=True,
+                    )
+                kwargs = {}
+            else:
+                model_source = self.model_name
+                kwargs = {}
+                if self.revision:
+                    kwargs["revision"] = self.revision
+            self._model = SentenceTransformer(model_source, **kwargs)
             getter = getattr(self._model, "get_embedding_dimension", None) or self._model.get_sentence_embedding_dimension
             self.dimension = getter()
         return self._model

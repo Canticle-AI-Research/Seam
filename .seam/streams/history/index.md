@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 446
-total_tokens: ~199179
-latest_id: 446
+total_entries: 447
+total_tokens: ~199447
+latest_id: 447
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 447 | 2026-07-21 | done | c51ad1e0d1b9e6d1 | ci,test,benchmark,bugfix,+ | 446 |
 | 446 | 2026-07-21 | done | 365a3c989e8cac1f | benchmark,beam,pack,retrieval,+ | 445 |
 | 445 | 2026-07-21 | in-progress | 3c8a382dfdff32ea | benchmark,beam,pack,retrieval,+ | 444 |
 | 444 | 2026-07-21 | changed | f50aee8b616a65f0 | graph,memory,retrieval,benchmark,+ | 443 |
@@ -478,13 +479,13 @@ compact: true
 - audit: count=90 latest=#446, #445, #444, #443, #442
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
-- benchmark: count=183 latest=#446, #445, #444, #443, #442
+- benchmark: count=184 latest=#447, #446, #445, #444, #443
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=31 latest=#444, #442, #441, #440, #430
+- bugfix: count=32 latest=#447, #444, #442, #441, #440
 - build: count=2 latest=#413, #408
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
@@ -494,7 +495,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=25 latest=#427, #426, #425, #401, #400
+- ci: count=26 latest=#447, #427, #426, #425, #401
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -515,7 +516,7 @@ compact: true
 - consolidation: count=1 latest=#306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=11 latest=#430, #399, #397, #386, #382
+- continuity: count=12 latest=#447, #430, #399, #397, #386
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -641,7 +642,7 @@ compact: true
 - paid-run: count=5 latest=#434, #429, #427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - parked: count=1 latest=#412
-- performance: count=3 latest=#364, #363, #362
+- performance: count=4 latest=#447, #364, #363, #362
 - persist: count=31 latest=#435, #404, #403, #402, #401
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
 - plan: count=21 latest=#437, #436, #432, #422, #420
@@ -728,7 +729,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=56 latest=#446, #445, #444, #442, #441
+- test: count=57 latest=#447, #446, #445, #444, #442
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -741,7 +742,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=27 latest=#435, #364, #228, #223, #220
 - vector-adapters: count=1 latest=#359
-- verify: count=284 latest=#446, #445, #444, #443, #442
+- verify: count=285 latest=#447, #446, #445, #444, #443
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -755,6 +756,6 @@ compact: true
 
 - roots: 76
 - changed: 9
-- done: 410
+- done: 411
 - in-progress: 6
 - planned: 21

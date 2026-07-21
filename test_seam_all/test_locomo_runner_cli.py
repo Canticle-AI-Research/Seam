@@ -6,6 +6,8 @@ import subprocess
 import sys
 import time
 
+import pytest
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -28,25 +30,32 @@ def _parse_stdout_json(result: subprocess.CompletedProcess) -> dict:
     return data
 
 
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
-
-def test_quickstart_cli_exits_zero() -> None:
-    """`--quickstart` exits with returncode 0 and emits valid JSON on stdout."""
+@pytest.fixture(scope="module")
+def quickstart_run() -> tuple[subprocess.CompletedProcess, dict, float]:
+    """Run the common full quickstart once for all read-only output assertions."""
+    t0 = time.monotonic()
     result = _run_quickstart()
+    elapsed = time.monotonic() - t0
     assert result.returncode == 0, (
         f"expected returncode 0, got {result.returncode}\n"
         f"stderr: {result.stderr}"
     )
-    data = _parse_stdout_json(result)
+    return result, _parse_stdout_json(result), elapsed
+
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+def test_quickstart_cli_exits_zero(quickstart_run) -> None:
+    """`--quickstart` exits with returncode 0 and emits valid JSON on stdout."""
+    _, data, _ = quickstart_run
     assert data, "parsed JSON should be non-empty"
 
 
-def test_quickstart_cli_output_has_integrity_hash() -> None:
+def test_quickstart_cli_output_has_integrity_hash(quickstart_run) -> None:
     """`--quickstart` output contains a 64-character hex integrity_hash."""
-    result = _run_quickstart()
-    data = _parse_stdout_json(result)
+    _, data, _ = quickstart_run
     ih = data.get("integrity_hash")
     assert isinstance(ih, str), f"integrity_hash should be str, got {type(ih).__name__}"
     assert len(ih) == 64, f"expected 64-char hex, got {len(ih)} chars"
@@ -54,10 +63,9 @@ def test_quickstart_cli_output_has_integrity_hash() -> None:
     int(ih, 16)
 
 
-def test_quickstart_cli_output_version() -> None:
+def test_quickstart_cli_output_version(quickstart_run) -> None:
     """`--quickstart` output declares the expected version, benchmark, and adapter."""
-    result = _run_quickstart()
-    data = _parse_stdout_json(result)
+    _, data, _ = quickstart_run
 
     assert data.get("version") == "SEAM-EXTERNAL-MEMORY-BENCHMARK-RESULT/1", (
         f"unexpected version: {data.get('version')!r}"
@@ -70,10 +78,9 @@ def test_quickstart_cli_output_version() -> None:
     )
 
 
-def test_quickstart_cli_output_scores_populated() -> None:
+def test_quickstart_cli_output_scores_populated(quickstart_run) -> None:
     """`--quickstart` output includes scores and a non-empty cases list."""
-    result = _run_quickstart()
-    data = _parse_stdout_json(result)
+    _, data, _ = quickstart_run
 
     scores = data.get("scores")
     assert isinstance(scores, dict), f"scores should be dict, got {type(scores).__name__}"
@@ -93,18 +100,14 @@ def test_quickstart_cli_output_scores_populated() -> None:
     assert len(cases) > 0, "cases list should be non-empty"
 
 
-def test_integrity_hash_stable_across_runs(tmp_path) -> None:
+def test_integrity_hash_stable_across_runs(tmp_path, quickstart_run) -> None:
     """Running --quickstart twice produces the same integrity_hash."""
-    out_a = str(tmp_path / "run_a.json")
     out_b = str(tmp_path / "run_b.json")
 
-    res_a = _run_quickstart(output_path=out_a)
-    assert res_a.returncode == 0, f"run_a failed with returncode {res_a.returncode}\nstderr: {res_a.stderr}"
     res_b = _run_quickstart(output_path=out_b)
     assert res_b.returncode == 0, f"run_b failed with returncode {res_b.returncode}\nstderr: {res_b.stderr}"
 
-    with open(out_a) as f:
-        data_a = json.load(f)
+    _, data_a, _ = quickstart_run
     with open(out_b) as f:
         data_b = json.load(f)
 
@@ -136,15 +139,9 @@ def test_save_context_cli_includes_retrieved_context_without_changing_integrity_
     assert data_context["integrity_hash"] == data_default["integrity_hash"]
 
 
-def test_quickstart_completes_under_180_seconds() -> None:
+def test_quickstart_completes_under_180_seconds(quickstart_run) -> None:
     """`--quickstart` completes in under 180 seconds."""
-    t0 = time.monotonic()
-    result = _run_quickstart()
-    elapsed = time.monotonic() - t0
-
-    assert result.returncode == 0, (
-        f"expected returncode 0, got {result.returncode}\nstderr: {result.stderr}"
-    )
+    _, _, elapsed = quickstart_run
     assert elapsed < 180, (
         f"expected elapsed < 180 s, got {elapsed:.2f} s"
     )
