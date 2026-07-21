@@ -6,6 +6,7 @@ import re
 from collections import Counter
 
 from .derived_fact_context import (
+    SENTENCE_GROUNDED_CLM_V1,
     canonical_turn_prefix_end,
     is_singular_first_person,
     segment_propositions,
@@ -267,6 +268,101 @@ def compile_nl(
         ):
             extraction_offset = source_prefix_end - start
             extraction_text = proposition[extraction_offset:]
+        if derived_fact_policy == SENTENCE_GROUNDED_CLM_V1:
+            sentence_method = getattr(
+                rich_extractor,
+                "extract_sentence_facts",
+                None,
+            )
+            sentence_facts = (
+                sentence_method(extraction_text, speaker=explicit_speaker)
+                if callable(sentence_method) and explicit_speaker
+                else ()
+            )
+            for sentence_fact in sentence_facts:
+                claim_subject = entity_id(
+                    explicit_speaker,
+                    "person",
+                    promote_type=True,
+                )
+                evidence_start = (
+                    start
+                    + extraction_offset
+                    + sentence_fact.evidence_start
+                )
+                evidence_end = (
+                    start
+                    + extraction_offset
+                    + sentence_fact.evidence_end
+                )
+                evidence_text = sentence_fact.evidence_sentence
+                ext_fields: dict[str, object] = {
+                    "derived_fact_policy": derived_fact_policy,
+                    "fact_sha256": hashlib.sha256(
+                        sentence_fact.fact.encode()
+                    ).hexdigest(),
+                    "grounded_spans": [
+                        {
+                            "field": "evidence_sentence",
+                            "text": evidence_text,
+                            "start": evidence_start,
+                            "end": evidence_end,
+                        }
+                    ],
+                    "source_sentence": {
+                        "text": evidence_text,
+                        "start": evidence_start,
+                        "end": evidence_end,
+                        "sha256": hashlib.sha256(
+                            evidence_text.encode()
+                        ).hexdigest(),
+                    },
+                    "subject_resolution": {
+                        "method": "sentence_fact_to_turn_speaker",
+                        "speaker": explicit_speaker,
+                    },
+                }
+                extractor_metadata = getattr(
+                    rich_extractor,
+                    "config_metadata",
+                    None,
+                )
+                if callable(extractor_metadata):
+                    config = extractor_metadata()
+                    if isinstance(config, dict):
+                        ext_fields["extractor"] = config
+                config_fingerprint = getattr(
+                    rich_extractor,
+                    "config_fingerprint",
+                    None,
+                )
+                if isinstance(config_fingerprint, str) and config_fingerprint:
+                    ext_fields["derived_fact_config_fingerprint"] = (
+                        config_fingerprint
+                    )
+                add_claim(
+                    "sentence_fact",
+                    sentence_fact.fact,
+                    claim_subject,
+                    span_id,
+                    0.85,
+                    epistemic_basis="explicit",
+                    extraction_method="sentence_grounded_local_model",
+                    subject_label=explicit_speaker,
+                    record_id=_sentence_fact_record_id(
+                        source_hash,
+                        span_id,
+                        sentence_fact.fact,
+                        explicit_speaker,
+                        evidence_start,
+                        evidence_end,
+                    ),
+                    ext_fields=ext_fields,
+                )
+            # The sentence extractor intentionally has no S-R-O ``extract``
+            # fallback. An empty result leaves only the faithful RAW/content
+            # floor; it never activates the older strict grounded-CLM path.
+            continue
         extraction = (
             rich_extractor.extract(extraction_text)
             if rich_extractor is not None
@@ -571,6 +667,27 @@ def _derived_claim_record_id(
     )
     digest = hashlib.sha256(seed.encode()).hexdigest()[:12]
     return f"clm:{source_hash}:derived:{digest}"
+
+
+def _sentence_fact_record_id(
+    source_hash: str,
+    span_id: str,
+    fact: str,
+    subject_label: str,
+    evidence_start: int,
+    evidence_end: int,
+) -> str:
+    seed = "\0".join(
+        (
+            span_id,
+            subject_label,
+            fact,
+            str(evidence_start),
+            str(evidence_end),
+        )
+    )
+    digest = hashlib.sha256(seed.encode()).hexdigest()[:12]
+    return f"clm:{source_hash}:sentence-derived:{digest}"
 
 
 def _leading_subject(proposition: str) -> str:

@@ -26,8 +26,9 @@ text` — the shape their `format_search_results` + answerer read). Retrieval
 honors `RetrievalFlags` from the environment, so the validated
 conversation/temporal/profile stack applies identically.
 
-The default-off `grounded-clm/1` policy can additionally serve explicit,
-speaker-grounded MIRL facts beside those RAW turns. It does not change the
+The default-off `grounded-clm/1`, `grounded-clm/2`, and
+`sentence-grounded-clm/1` policies can additionally serve explicit,
+speaker-grounded MIRL facts beside those RAW turns. They do not change the
 default response.
 
 > The earlier in-process `adapter.py` targeted an interface the current harness
@@ -113,6 +114,46 @@ owns it.
 This is the auditable LoCoMo/Mem0 evaluation slice of the derived-facts
 architecture, not yet a general SEAM product surface. Core chat/MCP ingestion
 and serving remain a separate productization step.
+
+### Sentence-grounded facts (default off)
+
+`sentence-grounded-clm/1` is the higher-coverage successor candidate. The local
+model writes a concise indexing paraphrase and selects an eligible source
+sentence by integer index; SEAM itself attaches the exact canonical sentence,
+offsets, sentence hash, fact hash, speaker resolution, and CLM→SPAN→RAW chain.
+Paraphrases that drop source numbers or sentence-level negation, retain first
+person, or fail to name the canonical speaker are rejected. Accepted facts use
+the same source-before-fact ordering and 20% prefix ceiling as strict
+`grounded-clm/*` facts.
+
+The free preflight passed on the 63 stored cat1/cat3 matched-run misses with
+the shared runtime prompt: 51 misses reached, 46 facts closer to the query than
+RAW, mean closure +0.1138, exact binding 0.9956, and local fact/evidence cosine
+0.7147. This is a direction/build gate, not a judged score claim.
+
+Run or resume that provider-free gate:
+
+```bash
+HF_HUB_CACHE=/media/terrabyte/T7/hf-cache \
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 SEAM_OLLAMA_TIMEOUT_S=600 \
+python -m benchmarks.external.mem0_harness.preflight_sentence_grounded_facts \
+  /path/to/matched-cat13-final.json \
+  --model qwen2.5-7b-1m:latest --summary-only
+```
+
+Enable the runtime candidate only on a fresh shadow store:
+
+```bash
+unset SEAM_PGVECTOR_DSN SEAM_PGVECTOR_TABLE SEAM_EMBEDDING_PROVIDER
+export SEAM_DERIVED_FACTS_POLICY=sentence-grounded-clm/1
+export SEAM_SENTENCE_FACT_MODEL=qwen2.5-7b-1m:latest
+python -m benchmarks.external.mem0_harness.seam_mem0_server \
+  --db-path /tmp/seam-sentence-grounded-candidate --port 8900
+```
+
+The default model/config matches the passed free gate (4096 context, 512 output)
+and is frozen with its installed Ollama digest in the store manifest. A paid
+paired answerer/judge microgate is still operator-gated.
 
 ## Distinct-count context preflight (default off)
 

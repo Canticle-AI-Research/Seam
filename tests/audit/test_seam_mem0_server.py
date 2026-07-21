@@ -21,10 +21,12 @@ from benchmarks.external.mem0_harness.seam_mem0_server import (
 from seam_runtime.derived_fact_context import (
     DERIVED_FACTS_EMBEDDING_CONFIG,
     GROUNDED_CLM_V1,
+    SENTENCE_GROUNDED_CLM_V1,
 )
 from seam_runtime.mirl import IRBatch, RecordKind, Status
 from seam_runtime.nl_extract import Extraction, ground_extraction
 from seam_runtime.retrieval import RetrievalFlags
+from seam_runtime.sentence_grounded_facts import SentenceGroundedFact
 
 
 @pytest.fixture(autouse=True)
@@ -55,6 +57,23 @@ class _SurfingExtractor:
                 ],
             },
             text,
+        )
+
+
+class _SentenceSurfingExtractor:
+    def config_metadata(self):
+        return {"type": "test-sentence-surfing", "version": 1}
+
+    def extract_sentence_facts(self, text: str, *, speaker: str):
+        if "surfing" not in text.lower():
+            return ()
+        return (
+            SentenceGroundedFact(
+                fact=f"{speaker} likes surfing.",
+                evidence_sentence=text,
+                evidence_start=0,
+                evidence_end=len(text),
+            ),
         )
 
 
@@ -259,6 +278,42 @@ def test_grounded_clm_policy_serves_readable_fact_with_raw_provenance(
             for item in results
             if item["id"] == source_raw_id
         )
+    finally:
+        server.close()
+
+
+def test_sentence_grounded_policy_serves_paraphrase_after_exact_source(tmp_path):
+    server = SeamMem0Server(
+        db_path=str(tmp_path / "sentence-derived-scopes"),
+        derived_facts_policy=SENTENCE_GROUNDED_CLM_V1,
+        nl_extractor=_SentenceSurfingExtractor(),
+    )
+    try:
+        server.add({
+            "user_id": "sentence-derived-user",
+            "timestamp": 1687000000,
+            "messages": [
+                {"role": "user", "content": "John: I like surfing."},
+                {"role": "assistant", "content": "Caroline: That sounds fun."},
+                {"role": "user", "content": "John: The weather was sunny."},
+                {"role": "assistant", "content": "Caroline: The beach was nearby."},
+                {"role": "user", "content": "John: I packed a blue towel."},
+            ],
+        })
+        results = server.search({
+            "user_id": "sentence-derived-user",
+            "query": "What sport does John like?",
+            "limit": 10,
+        })["results"]
+
+        fact = next(item for item in results if str(item["id"]).startswith("clm:"))
+        fact_index = results.index(fact)
+        assert '"object":"John likes surfing."' in fact["memory"]
+        assert any(
+            "I like surfing" in str(item["memory"])
+            for item in results[:fact_index]
+        )
+        assert sum(str(item["id"]).startswith("clm:") for item in results) * 5 <= len(results)
     finally:
         server.close()
 

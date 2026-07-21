@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next
+latest: 2026-07-20-sentence-grounded-pass-and-competitor-ratchet
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | [2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md](2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md) | `2026-07-20-derived-facts-landed-and-kb-scaffold` | `HISTORY#438` | `current` |
+| `2026-07-20-sentence-grounded-pass-and-competitor-ratchet` | [2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md](2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md) | `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | `HISTORY#439` | `current` |
+| `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | [2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md](2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md) | `2026-07-20-derived-facts-landed-and-kb-scaffold` | `HISTORY#438` | `superseded` |
 | `2026-07-20-derived-facts-landed-and-kb-scaffold` | [2026-07-20-derived-facts-landed-and-kb-scaffold.md](2026-07-20-derived-facts-landed-and-kb-scaffold.md) | `2026-07-20-second-hop-negative-and-count-lever-conflict` | `HISTORY#436` | `superseded` |
 | `2026-07-20-second-hop-negative-and-count-lever-conflict` | [2026-07-20-second-hop-negative-and-count-lever-conflict.md](2026-07-20-second-hop-negative-and-count-lever-conflict.md) | `2026-07-19-matched-run-complete-recovery-closeout` | `HISTORY#432` | `superseded` |
 | `2026-07-19-matched-run-complete-recovery-closeout` | [2026-07-19-matched-run-complete-recovery-closeout.md](2026-07-19-matched-run-complete-recovery-closeout.md) | `2026-07-19-matched-run-inflight-and-cat2-lever-handoff` | `HISTORY#430` | `superseded` |

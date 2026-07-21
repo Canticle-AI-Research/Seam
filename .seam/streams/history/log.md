@@ -10367,3 +10367,70 @@ local pgvector DSN + T7 offline HF env; ruff clean on all touched files; the 58
 nl_extract fidelity tests (incl. the 4 new v2 tests) green; v1 byte-identity
 confirmed. No provider/paid call. No push.
 ---END-ENTRY-#438---
+---BEGIN-ENTRY-#439---
+id: 439
+date: 2026-07-21T01:17:20Z
+agent: codex
+status: done
+topics: benchmark,locomo,memory,retrieval,compile,provenance,audit,rank,test,handoff
+commits: pending
+refs: docs/audits/2026-07-20-memory-competitor-ratchet.md,seam_runtime/sentence_grounded_facts.py,seam_runtime/derived_fact_context.py,seam_runtime/nl.py,seam_runtime/vector.py,benchmarks/external/mem0_harness/preflight_sentence_grounded_facts.py,benchmarks/external/mem0_harness/README.md,tests/audit/test_sentence_grounded_preflight.py,tests/audit/test_sentence_grounded_runtime.py,tests/audit/test_seam_mem0_server.py,docs/handoffs/2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md,PROJECT_STATUS.md
+supersedes: 438
+tokens: 1920
+---
+Researched the current Mem0, Hindsight, Zep/Graphiti, and Cognee memory
+approaches under their actual evaluation contracts, then implemented and
+FREE-VALIDATED sentence-grounded-clm/1, the highest-value representation
+ratchet selected from #438. Durable audit:
+docs/audits/2026-07-20-memory-competitor-ratchet.md.
+
+Competitor finding: SEAM already has the generic lexical, semantic, graph,
+temporal, fusion, and reranking substrate. The transferable advantage is
+multiple first-class representations searched and deliberately composed:
+extracted facts, raw episodes, entities/relations, observations/summaries, and
+temporal validity. Published headline scores are not interchangeable: current
+Mem0, Hindsight AMB, and Zep results use different readers, judges, retrieval
+modes, query counts, and context budgets; Cognee has no full directly
+comparable current LoCoMo artifact. Therefore this entry makes no borrowed
+score claim.
+
+New shared runtime seam_runtime/sentence_grounded_facts.py defines one prompt,
+schema, model fingerprint, validator, and strict-local Ollama extractor for
+both the free preflight and real compiler. The model emits a speaker-canonical
+fact plus an integer evidence-sentence index; SEAM, not the model, attaches the
+canonical exact source sentence, offsets, and hash. Safety rejects speaker
+drift, first-person facts, missing literal numbers, sentence-level negation
+loss, questions, and malformed/oversized output.
+
+sentence-grounded-clm/1 is default-off. compile_nl preserves RAW and emits the
+paraphrase as a sentence_fact CLM with exact source-sentence provenance,
+fact hash, deterministic ID, owner-scoped cache lifecycle, and frozen local
+model manifest. Retrieval revalidates the raw slice/hash, fact hash, sentence
+bounds, canonical speaker, and safety contract before serving it. Vector
+indexing uses the paraphrase as the derived representation; packing reuses the
+source-before-fact ordering and <=20% derived-fact prefix ceiling. Flag-off
+behavior is unchanged.
+
+Full #429 cat1/cat3 miss-set free gate, local qwen2.5-7b-1m:latest + local BGE:
+63 misses, 61 with candidate turns, 127 unique candidate turns/calls, 229 model
+fact items, 228 canonically bound, 199 safety-valid, 51/63 misses reached,
+46/63 facts closer to the query than RAW, binding precision 0.9956, safety
+acceptance 0.8690, mean closure +0.1138, and mean fact/evidence cosine 0.7147.
+All five predeclared gates passed. A real configure -> cache -> compile -> MIRL
+validation smoke emitted one valid fact with the frozen model fingerprint.
+
+Verification: affected suites passed (147 before the final facade integration
+test, plus the final four-test slice); full strict non-external tests exited 0
+with zero skips and two established xfails; external pgvector tests passed
+10/10 with zero skips; touched-file Ruff and diff check clean. Repo-wide Ruff
+continues to report two unrelated pre-existing import-order findings in
+tests/audit/test_pgvector_real_adapter.py. No provider/paid call and no score
+claim. No push. Operator-owned report*.png files remained untouched/excluded.
+
+NEXT: run a full free pinned Mem0-harness predict-only baseline/candidate
+displacement audit. Only after a clean evidence/sentinel gate, request approval
+for a paired paid microgate; promotion requires net +2 across cat1+cat3 (+0.53
+points) with zero sentinel losses. The next architectural rung is reserved
+multi-scope packing, then evidence-backed observations/entity summaries and a
+query-shape router.
+---END-ENTRY-#439---

@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 499
+total_events: 500
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T12:22:20Z | history:245:93877919 | session-event | done | benchmark, bundle, verify, security, protocol | .github/workflows/ci.yml,.github/pull_request_template.md,tools/ci/chroma_rea... |
 | 2026-05-25T12:33:37Z | history:246:8a53e31a | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,REPO_LEDGER.md,GitHub-ruleset:15143368 |
 | 2026-05-25T12:37:57Z | history:247:bb5fbd5f | session-event | in-progress | security, protocol, verify, history, status | PROJECT_STATUS.md,.github/workflows/repository-maintenance.yml,tools/ci/githu... |
 | 2026-05-25T12:45:28Z | history:248:19849f93 | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,.github/workflows/repository-maintenance.yml,tools/ci/githu... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-20T14:03:53Z | history:436:1394218c | session-event | done | handoff, benchmark, retrieval, derived-facts, plan | docs/handoffs/2026-07-20-derived-facts-landed-and-kb-scaffold.md,docs/handoff... |
 | 2026-07-20T14:09:56Z | history:437:d729f0ca | session-event | done | kb, docs, retrieval, benchmark, reference, plan | docs/kb/README.md,docs/kb/eval-methodology/benchmark-traps.md,docs/kb/eval-me... |
 | 2026-07-20T22:26:20Z | history:438:2d0eac31 | session-event | done | derived-facts, grounded-clm, retrieval, benchmark, compil... | seam_runtime/nl_extract.py,seam_runtime/nl.py,seam_runtime/derived_fact_conte... |
+| 2026-07-21T01:17:20Z | history:439:f81b36f6 | session-event | done | benchmark,locomo,memory,retrieval,compile,provenance,audi... | docs/audits/2026-07-20-memory-competitor-ratchet.md,seam_runtime/sentence_gro... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0299.cross.md | 2026-04-15T00:00:00Z..2026-05-25T08:49:55Z | 299 | (multi) | (multi) |
+| 0001-0300.cross.md | 2026-04-15T00:00:00Z..2026-05-25T12:22:20Z | 300 | (multi) | (multi) |

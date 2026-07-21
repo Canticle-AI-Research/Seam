@@ -21,12 +21,23 @@ from .nl_extract import (
     OllamaExtractor,
     grounded_sro_is_coherent,
 )
+from .sentence_grounded_facts import (
+    OllamaSentenceFactExtractor,
+    SentenceGroundedFact,
+    sentence_fact_is_safe,
+)
 
 DERIVED_FACTS_OFF = "off"
 GROUNDED_CLM_V1 = "grounded-clm/1"
 GROUNDED_CLM_V2 = "grounded-clm/2"
 GROUNDED_CLM_POLICIES = frozenset({GROUNDED_CLM_V1, GROUNDED_CLM_V2})
-DERIVED_FACTS_POLICIES = frozenset({DERIVED_FACTS_OFF}) | GROUNDED_CLM_POLICIES
+SENTENCE_GROUNDED_CLM_V1 = "sentence-grounded-clm/1"
+SENTENCE_GROUNDED_CLM_POLICIES = frozenset({SENTENCE_GROUNDED_CLM_V1})
+DERIVED_FACTS_POLICIES = (
+    frozenset({DERIVED_FACTS_OFF})
+    | GROUNDED_CLM_POLICIES
+    | SENTENCE_GROUNDED_CLM_POLICIES
+)
 DERIVED_FACTS_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 DERIVED_FACTS_EMBEDDING_REVISION = (
     "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
@@ -45,9 +56,9 @@ DERIVED_FACTS_EMBEDDING_CONFIG = {
 }
 
 _CONFIG_SCHEMA = "seam-derived-facts-config/1"
-_CACHE_SCHEMA = "seam-derived-facts-cache/2"
+_CACHE_SCHEMA = "seam-derived-facts-cache/3"
 _SPEAKER_ATTRIBUTION_VERSION = "first-person-speaker/3"
-_COMPILER_POLICY_VERSION = "grounded-clm-compiler/3"
+_COMPILER_POLICY_VERSION = "grounded-clm-compiler/4"
 _SPLICE_POLICY_VERSION = "raw-prefix-floor/2"
 _FACT_RENDER_VERSION = "SEAM-FACT/1"
 _SINGULAR_FIRST_PERSON = frozenset({"i", "me", "my", "mine", "myself"})
@@ -196,7 +207,7 @@ class DerivedFactsConfig:
 
     @property
     def enabled(self) -> bool:
-        return self.policy in GROUNDED_CLM_POLICIES
+        return self.policy in DERIVED_FACTS_POLICIES - {DERIVED_FACTS_OFF}
 
     def manifest(self) -> dict[str, object]:
         return {
@@ -232,7 +243,21 @@ def configure_derived_facts(
             extractor=None,
         )
 
-    resolved_extractor = extractor or OllamaExtractor(strict=True)
+    resolved_extractor = extractor or (
+        OllamaSentenceFactExtractor(
+            strict=True,
+            model=os.environ.get(
+                "SEAM_SENTENCE_FACT_MODEL",
+                "qwen2.5-7b-1m:latest",
+            ),
+            num_ctx=4096,
+            num_predict=int(
+                os.environ.get("SEAM_SENTENCE_FACT_NUM_PREDICT", "512")
+            ),
+        )
+        if resolved in SENTENCE_GROUNDED_CLM_POLICIES
+        else OllamaExtractor(strict=True)
+    )
     if str(os.environ.get("SEAM_PGVECTOR_DSN") or "").strip():
         raise RuntimeError(
             "grounded-clm/1 requires SEAM_PGVECTOR_DSN to be unset so "
@@ -533,6 +558,84 @@ class CachedExtractor:
                     )
         return extraction
 
+    def extract_sentence_facts(
+        self,
+        text: str,
+        *,
+        speaker: str,
+        owner: str | None = None,
+    ) -> tuple[SentenceGroundedFact, ...]:
+        """Cache sentence-grounded facts under both source and speaker."""
+
+        self._validate_extractor_config()
+        candidate_speaker = str(speaker).strip()
+        if not candidate_speaker:
+            raise ValueError("sentence-grounded extraction requires a speaker")
+        method = getattr(self.extractor, "extract_sentence_facts", None)
+        if not callable(method):
+            raise TypeError(
+                "sentence-grounded policy requires extract_sentence_facts()"
+            )
+        source_hash = hashlib.sha256(text.encode()).hexdigest()
+        cache_key = hashlib.sha256(
+            (
+                f"{self.config_fingerprint}\0sentence-facts/1\0"
+                f"{candidate_speaker}\0{source_hash}"
+            ).encode()
+        ).hexdigest()
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                """
+                select payload_json
+                from derived_fact_cache
+                where cache_key = ? and config_fingerprint = ?
+                """,
+                (cache_key, self.config_fingerprint),
+            ).fetchone()
+        if row is not None:
+            self.hits += 1
+            self._record_owner(cache_key, owner)
+            return _sentence_facts_from_dict(json.loads(row["payload_json"]))
+
+        self.misses += 1
+        facts = method(text, speaker=candidate_speaker)
+        if not isinstance(facts, tuple) or not all(
+            isinstance(fact, SentenceGroundedFact) for fact in facts
+        ):
+            raise TypeError(
+                "sentence-grounded extractor must return a tuple of facts"
+            )
+        payload_json = json.dumps(
+            _sentence_facts_to_dict(facts),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        with closing(self._connect()) as connection:
+            with connection:
+                connection.execute(
+                    """
+                    insert or replace into derived_fact_cache
+                    (cache_key, config_fingerprint, source_hash, payload_json)
+                    values (?, ?, ?, ?)
+                    """,
+                    (
+                        cache_key,
+                        self.config_fingerprint,
+                        source_hash,
+                        payload_json,
+                    ),
+                )
+                if owner is not None:
+                    connection.execute(
+                        """
+                        insert or ignore into derived_fact_cache_owners
+                        (cache_key, owner)
+                        values (?, ?)
+                        """,
+                        (cache_key, owner),
+                    )
+        return facts
+
     def purge_owner(self, owner: str) -> None:
         """Forget one scope and remove cache rows no remaining scope owns."""
 
@@ -577,6 +680,18 @@ class ScopedCachedExtractor:
 
     def extract(self, text: str) -> Extraction:
         return self._cache.extract(text, owner=self.owner)
+
+    def extract_sentence_facts(
+        self,
+        text: str,
+        *,
+        speaker: str,
+    ) -> tuple[SentenceGroundedFact, ...]:
+        return self._cache.extract_sentence_facts(
+            text,
+            speaker=speaker,
+            owner=self.owner,
+        )
 
 
 def _extraction_to_dict(extraction: Extraction) -> dict[str, object]:
@@ -647,6 +762,39 @@ def _extraction_from_dict(payload: dict[str, Any]) -> Extraction:
     return Extraction(entities=entities, claims=tuple(claims))
 
 
+def _sentence_facts_to_dict(
+    facts: tuple[SentenceGroundedFact, ...],
+) -> dict[str, object]:
+    return {
+        "schema": "sentence-grounded-facts/1",
+        "facts": [
+            {
+                "fact": fact.fact,
+                "evidence_sentence": fact.evidence_sentence,
+                "evidence_start": fact.evidence_start,
+                "evidence_end": fact.evidence_end,
+            }
+            for fact in facts
+        ],
+    }
+
+
+def _sentence_facts_from_dict(
+    payload: dict[str, Any],
+) -> tuple[SentenceGroundedFact, ...]:
+    if payload.get("schema") != "sentence-grounded-facts/1":
+        raise RuntimeError("invalid sentence-grounded cache payload")
+    return tuple(
+        SentenceGroundedFact(
+            fact=str(item["fact"]),
+            evidence_sentence=str(item["evidence_sentence"]),
+            evidence_start=int(item["evidence_start"]),
+            evidence_end=int(item["evidence_end"]),
+        )
+        for item in payload.get("facts", [])
+    )
+
+
 def is_eligible_derived_claim(
     record: MIRLRecord,
     *,
@@ -675,9 +823,31 @@ def is_eligible_derived_claim(
         return False
     if (
         ext.get("derived_fact_policy") != policy
-        or ext.get("extraction_method") != "grounded_local_model"
         or ext.get("epistemic_basis") != "explicit"
     ):
+        return False
+    if policy == SENTENCE_GROUNDED_CLM_V1:
+        resolution = ext.get("subject_resolution")
+        evidence = ext.get("source_sentence")
+        return (
+            str(predicate).strip() == "sentence_fact"
+            and ext.get("extraction_method")
+            == "sentence_grounded_local_model"
+            and isinstance(resolution, dict)
+            and resolution.get("method")
+            == "sentence_fact_to_turn_speaker"
+            and " ".join(
+                str(resolution.get("speaker") or "").lower().split()
+            )
+            == " ".join(str(subject_label).lower().split())
+            and isinstance(evidence, dict)
+            and isinstance(evidence.get("start"), int)
+            and isinstance(evidence.get("end"), int)
+            and isinstance(evidence.get("text"), str)
+            and isinstance(evidence.get("sha256"), str)
+            and isinstance(ext.get("fact_sha256"), str)
+        )
+    if ext.get("extraction_method") != "grounded_local_model":
         return False
     resolution = ext.get("subject_resolution")
     if (
@@ -714,6 +884,19 @@ def grounded_spans_match_source(
     require_source_metadata: bool = False,
 ) -> bool:
     """Bind rich claim fields to exact offsets in their cited RAW evidence."""
+
+    if record.ext.get("derived_fact_policy") == SENTENCE_GROUNDED_CLM_V1:
+        return sentence_grounded_fact_matches_source(
+            record,
+            source_text,
+            evidence_start=evidence_start,
+            evidence_end=evidence_end,
+            source_speaker=source_speaker,
+            source_timestamp=source_timestamp,
+            source_prefix_end=source_prefix_end,
+            require_evidence_bounds=require_evidence_bounds,
+            require_source_metadata=require_source_metadata,
+        )
 
     spans = record.ext.get("grounded_spans")
     if not isinstance(spans, list) or not spans:
@@ -849,6 +1032,94 @@ def grounded_spans_match_source(
         == normalized(required["subject"]["text"])
         and normalized(resolution.get("speaker")) == subject_label
         and normalized(source_speaker) == subject_label
+    )
+
+
+def sentence_grounded_fact_matches_source(
+    record: MIRLRecord,
+    source_text: str,
+    *,
+    evidence_start: int | None = None,
+    evidence_end: int | None = None,
+    source_speaker: str | None = None,
+    source_timestamp: str | None = None,
+    source_prefix_end: int | None = None,
+    require_evidence_bounds: bool = False,
+    require_source_metadata: bool = False,
+) -> bool:
+    """Validate an indexing paraphrase against its exact source sentence."""
+
+    source = record.ext.get("source_sentence")
+    resolution = record.ext.get("subject_resolution")
+    if not isinstance(source, dict) or not isinstance(resolution, dict):
+        return False
+    start = source.get("start")
+    end = source.get("end")
+    text = source.get("text")
+    digest = source.get("sha256")
+    if (
+        not isinstance(start, int)
+        or not isinstance(end, int)
+        or not isinstance(text, str)
+        or start < 0
+        or end <= start
+        or end > len(source_text)
+        or source_text[start:end] != text
+        or hashlib.sha256(text.encode()).hexdigest() != digest
+    ):
+        return False
+    if require_evidence_bounds and (
+        not isinstance(evidence_start, int)
+        or not isinstance(evidence_end, int)
+    ):
+        return False
+    if (
+        isinstance(evidence_start, int)
+        and isinstance(evidence_end, int)
+        and (start < evidence_start or end > evidence_end)
+    ):
+        return False
+    metadata_requested = (
+        require_source_metadata
+        or source_speaker is not None
+        or source_timestamp is not None
+        or source_prefix_end is not None
+    )
+    if metadata_requested:
+        canonical_prefix_end = canonical_turn_prefix_end(
+            source_text,
+            speaker=source_speaker,
+            timestamp=source_timestamp,
+        )
+        if canonical_prefix_end is None or source_prefix_end != canonical_prefix_end:
+            return False
+    subject_label = " ".join(
+        str(record.attrs.get("subject_label") or "").casefold().split()
+    )
+    resolved_speaker = " ".join(
+        str(resolution.get("speaker") or "").casefold().split()
+    )
+    source_speaker_normalized = " ".join(
+        str(source_speaker or "").casefold().split()
+    )
+    fact = record.attrs.get("object")
+    return (
+        record.attrs.get("predicate") == "sentence_fact"
+        and isinstance(fact, str)
+        and hashlib.sha256(fact.encode()).hexdigest()
+        == record.ext.get("fact_sha256")
+        and resolution.get("method") == "sentence_fact_to_turn_speaker"
+        and bool(subject_label)
+        and resolved_speaker == subject_label
+        and (
+            not metadata_requested
+            or source_speaker_normalized == subject_label
+        )
+        and sentence_fact_is_safe(
+            fact=fact,
+            evidence_sentence=text,
+            speaker=str(record.attrs.get("subject_label") or ""),
+        )
     )
 
 
