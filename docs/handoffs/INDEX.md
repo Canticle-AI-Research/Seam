@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-21-multiscope-and-local-beam-complete
+latest: 2026-07-21-multi-speaker-derived-facts-cloud-probe
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-21-multiscope-and-local-beam-complete` | [2026-07-21-multiscope-and-local-beam-complete.md](2026-07-21-multiscope-and-local-beam-complete.md) | `2026-07-21-multiscope-gate-and-local-beam-in-progress` | `HISTORY#446` | `current` |
+| `2026-07-21-multi-speaker-derived-facts-cloud-probe` | [2026-07-21-multi-speaker-derived-facts-cloud-probe.md](2026-07-21-multi-speaker-derived-facts-cloud-probe.md) | `2026-07-21-multiscope-and-local-beam-complete` | `HISTORY#448` | `current` |
+| `2026-07-21-multiscope-and-local-beam-complete` | [2026-07-21-multiscope-and-local-beam-complete.md](2026-07-21-multiscope-and-local-beam-complete.md) | `2026-07-21-multiscope-gate-and-local-beam-in-progress` | `HISTORY#446` | `superseded` |
 | `2026-07-21-multiscope-gate-and-local-beam-in-progress` | [2026-07-21-multiscope-gate-and-local-beam-in-progress.md](2026-07-21-multiscope-gate-and-local-beam-in-progress.md) | `2026-07-21-canonical-graph-fill-broad-profile-correction` | `HISTORY#445` | `superseded` |
 | `2026-07-21-canonical-graph-fill-broad-profile-correction` | [2026-07-21-canonical-graph-fill-broad-profile-correction.md](2026-07-21-canonical-graph-fill-broad-profile-correction.md) | `2026-07-21-canonical-graph-fill-free-gate` | `HISTORY#444` | `superseded` |
 | `2026-07-21-canonical-graph-fill-free-gate` | [2026-07-21-canonical-graph-fill-free-gate.md](2026-07-21-canonical-graph-fill-free-gate.md) | `2026-07-21-longmemeval-beam-contract-repair-complete` | `HISTORY#443` | `superseded` |

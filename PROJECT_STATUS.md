@@ -1,5 +1,23 @@
 # SEAM Project Status
 
+Current update: 2026-07-21 (HISTORY#448 - completed the GPT-4o multi-speaker
+derived-facts contract-vs-model probe on the exact conversations 3/4/5 slice:
+130 questions, 34 baseline misses, and 96 sentinels. GPT-4o improved accepted
+extractor yield from the local turn-scope 0.73 to 0.8015, but remained below the
+borrowed 0.90 gate. The probe exposed and fixed a real harness contract mismatch:
+the upstream client re-sorted the protected splice by semantic score; composed
+responses now carry ordinal transport scores so source-before-fact order and the
+20% prefix ceiling survive. The conservative validator now fails closed on
+ambiguous antecedents, compound/quoted/reported evidence, clause recombination,
+unsupported lexical content, and tense/modality/number/negation loss. A zero-paid
+strict replay gained three miss references and lost one (net +2) but lost eleven
+sentinel references. Caps 1/2/4 all reduced this to miss net +1 and four sentinel
+losses; even one fact per query therefore failed the no-regression gate. Promotion,
+full cloud ingest, and paid judging are parked. Next derived-fact/graph work must
+use a non-displacing PACK; graph retrieval specifically needs query-conditioned
+edge/source-record bridges plus multi-node path agreement. The isolated direct
+episode-link graph slice gained zero and retained no code.)
+
 Current update: 2026-07-21 (HISTORY#447 - CI latency and sentence-transformers compatibility follow-up after PR #153 merged as `c5dbb279`. The single self-hosted runner had selected the 20-30 minute advisory `test-and-benchmark` job before required `repo-hygiene`; the advisory suite then exposed seven failures because merged commit `6cbaf81` passed the v3-only `local_files_only` constructor keyword while SEAM declares sentence-transformers 2.x. The follow-up makes the long suite depend on all five short Linux jobs, emits the 25 slowest tests, reduces LoCoMo CLI quickstart subprocesses from nine to four without dropping contract coverage, and preserves 2.x offline behavior by resolving the pinned cached Hugging Face snapshot before constructing the model from its local path. Targeted guards pass locally and the exact retained CI 2.7 stack passes the three new compatibility tests plus the seven formerly failing cases. NEXT: finish continuity verification, push the isolated CI branch, and use its run to confirm fast gates execute before the advisory suite.)
 
 Current update: 2026-07-21 (HISTORY#446 - COMPLETE: landed and fully verified the default-off `reserved-multi-scope/1` free evidence ratchet plus official local BEAM layout ingestion. The multi-scope corrected-profile gate remains evidence presence only: across 378 LoCoMo cat1/cat3 questions it gained 10 exact references, lost zero, made five newly complete and one newly evidenced, with a maximum 5,259-character PACK; no paid score claim or promotion. Real `/home/terrabyte/BEAM/BEAM` 1M validation now passes at 35 conversations / 700 questions / 74,630 turns / all ten categories / 70 content-hashed source files, fixture `74fdc646e27b...`; competitive execution still uses the pinned upstream harness. Verification: affected 61/61 passed; strict non-external 1,415 passed plus two established xfails and zero skips; live pgvector 6/6 passed; Ruff/diff clean. No installs, downloads, provider calls, or 10M execution. NEXT: merge PR #153; then a separate provider-free Needle-in-a-Haystack adapter slice. Operator-owned `report*.png` and the unrelated untracked displacement-audit work remain excluded.)
