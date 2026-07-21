@@ -10588,3 +10588,31 @@ requires explicit gain ids from a currently passing broad-profile free gate,
 so the retracted ids cannot authorize spend. The canonical handoff now routes
 to this correction. Operator-owned report*.png remained untouched and excluded.
 ---END-ENTRY-#444---
+
+---BEGIN-ENTRY-#445---
+id: 445
+date: 2026-07-21T19:47:21Z
+agent: codex
+status: in-progress
+topics: benchmark, beam, pack, retrieval, audit, test, handoff, verify
+commits: pending
+refs: seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/preflight_multi_scope_pack.py,tests/audit/test_multi_scope_pack.py,docs/handoffs/2026-07-21-multiscope-gate-and-local-beam-in-progress.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md,.seam/cross_index_archive/0001-0307.cross.md
+supersedes: 444
+tokens: 345
+---
+IN-PROGRESS cut-off breadcrumb. Implemented the default-off reserved-multi-scope/1 context PACK and a provider-free matched-profile preflight. The direct-readable PACK preserves the displaced RAW tail verbatim while adding bounded grounded-fact, entity/relation, date-diverse temporal, and deeper RAW content. Across all 378 LoCoMo cat1/cat3 questions under search 300 / context 60,000 / response top-200, baseline measured 353 any / 252 complete / 887 exact references and candidate 354 / 257 / 897: 10 exact references gained, zero lost, five newly complete, one newly any, maximum PACK 5,259 characters, and zero provider calls. This is evidence presence, not an answer-score win. Focused collect-only found 36 tests and focused execution passed 36/36; touched Ruff, compileall, and diff checks passed. Full suite, external pgvector, docs, and promotion decision remain unfinished. The operator then supplied local benchmark checkouts under /home/terrabyte/BEAM. Read-only inventory found the official BEAM corpus complete at 100 conversations / 2,000 questions, including the supported 1M tier at 35/700 and separately gated 10M tier at 10/200; the other named benchmark checkouts lack their released data. SEAM cannot yet parse the official nested local BEAM directory layout. Resume from the canonical handoff and detailed context handoff; first add official local BEAM layout ingestion and validate 1M without copying the corpus, installing dependencies, downloading data, making provider calls, or executing 10M. Operator-owned report PNG files remain untouched and excluded.
+---END-ENTRY-#445---
+
+---BEGIN-ENTRY-#446---
+id: 446
+date: 2026-07-21T20:24:11Z
+agent: codex
+status: done
+topics: benchmark, beam, pack, retrieval, audit, test, handoff, verify
+commits: pending
+refs: seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/preflight_multi_scope_pack.py,benchmarks/external/beam/run.py,benchmarks/external/beam/README.md,benchmarks/external/README.md,tests/audit/test_multi_scope_pack.py,tests/audit/test_beam_routing.py,docs/handoffs/2026-07-21-multiscope-and-local-beam-complete.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md,.seam/cross_index_archive/0001-0307.cross.md,PR#153
+supersedes: 445
+tokens: 318
+---
+Completed the HISTORY#445 cut-off scope without installs, downloads, provider calls, paid scoring, or BEAM-10M execution. The default-off reserved-multi-scope/1 candidate retains its corrected-profile provider-free evidence result over all 378 LoCoMo cat1/cat3 questions: baseline 353 any / 252 complete / 887 exact references versus candidate 354 / 257 / 897, gaining ten exact references with zero lost, five newly complete, one newly evidenced, and a maximum 5,259-character directly readable PACK. This remains evidence-presence validation, not an answer-score win or promotion. Added official local BEAM layout discovery and fail-closed validation for checkout, chats-root, and scale-root inputs; every chat, question, rubric, category, and expected track total is checked, while each source file is hashed once under a root-independent relative path. Real local BEAM-1M validation passed at 35 conversations, 700 questions, 74,630 normalized turns, 70 questions in each of all ten categories, 70 source files, and fixture hash 74fdc646e27b1c380368f66cd6360ccf94e39bb5cc3627a14d58f32b3d692bef. Competitive and predict-only execution remains pinned to the upstream task-specific harness. Affected collect/execution passed 61/61; the strict non-external suite collected 1,417 with 1,415 passed, two established xfails, and zero skips; live external pgvector passed 6/6 with zero skips; touched Ruff and diff checks were clean. CodeRabbit's scoped review findings were fixed with regressions for zero quotas, null scores, consistent PACK classification, and empty probing-question diagnostics. The canonical handoff closes this slice and routes next to a separate provider-free Needle-in-a-Haystack adapter. Operator-owned report PNGs and unrelated untracked displacement-audit files remained untouched and excluded.
+---END-ENTRY-#446---

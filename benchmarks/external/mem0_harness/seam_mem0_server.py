@@ -50,6 +50,22 @@ from seam_runtime.event_count_context import (
     CountEvidence,
     build_count_context_projection,
 )
+from seam_runtime.multi_scope_pack import (
+    POLICIES as MULTI_SCOPE_POLICIES,
+)
+from seam_runtime.multi_scope_pack import (
+    POLICY_OFF as MULTI_SCOPE_OFF,
+)
+from seam_runtime.multi_scope_pack import (
+    POLICY_V1 as MULTI_SCOPE_V1,
+)
+from seam_runtime.multi_scope_pack import (
+    compose_reserved_multi_scope,
+    select_date_diverse_rows,
+)
+from seam_runtime.multi_scope_pack import (
+    resolve_policy as resolve_multi_scope_policy,
+)
 from seam_runtime.retrieval_orchestrator.orchestrator import RetrievalOrchestrator
 from seam_runtime.second_hop_context import build_bridge_plan, splice_results
 from seam_runtime.temporal_instance_context import (
@@ -61,6 +77,7 @@ GRAPH_CONTEXT_OFF = "off"
 GRAPH_CONTEXT_FILL_V1 = "canonical-graph-fill/1"
 GRAPH_CONTEXT_POLICIES = frozenset({GRAPH_CONTEXT_OFF, GRAPH_CONTEXT_FILL_V1})
 GRAPH_CONTEXT_MAX_ROWS = 40
+MULTI_SCOPE_PROBE_ROWS = 40
 
 
 def _epoch_to_iso(timestamp: int | None, *, preserve_subday: bool = False) -> str:
@@ -112,6 +129,7 @@ class SeamMem0Server:
         context_budget: int = 8000,
         derived_facts_policy: str | None = None,
         graph_context_policy: str | None = None,
+        multi_scope_pack_policy: str | None = None,
         nl_extractor=None,
         derived_facts_cache_path: str | None = None,
     ):
@@ -122,6 +140,11 @@ class SeamMem0Server:
             raise ValueError(
                 f"unknown graph context policy {resolved_graph_policy!r}"
             )
+        resolved_multi_scope_policy = resolve_multi_scope_policy(
+            multi_scope_pack_policy
+            if multi_scope_pack_policy is not None
+            else os.environ.get("SEAM_MULTI_SCOPE_PACK_POLICY", MULTI_SCOPE_OFF)
+        )
         self._adapter = SeamLocomoAdapter(
             db_path=db_path,
             answerer=None,
@@ -138,6 +161,7 @@ class SeamMem0Server:
             self._adapter._derived_facts.config.fingerprint
         )
         self._graph_context_policy = resolved_graph_policy
+        self._multi_scope_pack_policy = resolved_multi_scope_policy
 
     # -- endpoint handlers (pure dict-in/dict-out; framework-agnostic) ------
 
@@ -197,6 +221,16 @@ class SeamMem0Server:
         evidence the primary query's wording cannot reach), then at most one
         disposable projection (count, else temporal)."""
         out = self._search_raw(user_id, query, limit)
+        if (
+            getattr(self, "_multi_scope_pack_policy", MULTI_SCOPE_OFF)
+            != MULTI_SCOPE_OFF
+        ):
+            return self._apply_multi_scope_pack_policy(
+                user_id,
+                query,
+                out,
+                limit,
+            )
         out = self._apply_second_hop_policy(user_id, query, out, limit)
         out = self._apply_graph_context_policy(user_id, query, out, limit)
         rt = self._adapter._runtime(user_id)
@@ -217,6 +251,63 @@ class SeamMem0Server:
         return splice_derived_facts(
             out,
             facts,
+            limit=limit,
+            policy=policy,
+        )
+
+    def _apply_multi_scope_pack_policy(
+        self,
+        user_id: str,
+        query: str,
+        primary: list[dict],
+        limit: int,
+    ) -> list[dict]:
+        """Compose independent representation lanes into one protected PACK.
+
+        This is a standalone ratchet candidate: when enabled it does not stack
+        the older second-hop, count, temporal-projection, graph-fill, or legacy
+        fact splicers.  A deeper RAW probe must preserve the primary prefix;
+        otherwise the candidate fails closed to the exact primary list.
+        """
+
+        policy = getattr(self, "_multi_scope_pack_policy", MULTI_SCOPE_OFF)
+        if policy == MULTI_SCOPE_OFF:
+            return primary
+        if policy != MULTI_SCOPE_V1:
+            raise ValueError(f"unknown multi-scope pack policy {policy!r}")
+        deep_limit = max(limit, limit + MULTI_SCOPE_PROBE_ROWS)
+        deep_raw = self._search_raw(user_id, query, deep_limit)
+        if deep_raw[: len(primary)] != primary:
+            return primary
+
+        fact_rows: list[dict] = []
+        if self._derived_facts_policy != DERIVED_FACTS_OFF:
+            fact_rows = [
+                fact.result()
+                for fact in self._search_derived_facts(
+                    user_id,
+                    query,
+                    MULTI_SCOPE_PROBE_ROWS,
+                )
+            ]
+        graph_rows = self._search_graph_raw(
+            user_id,
+            query,
+            MULTI_SCOPE_PROBE_ROWS,
+        )
+        temporal_rows = select_date_diverse_rows(
+            deep_raw,
+            exclude=primary,
+            limit=MULTI_SCOPE_PROBE_ROWS,
+        )
+        return compose_reserved_multi_scope(
+            primary,
+            {
+                "grounded_fact": fact_rows,
+                "entity_relation": graph_rows,
+                "temporal": temporal_rows,
+                "raw_episode": deep_raw,
+            },
             limit=limit,
             policy=policy,
         )
@@ -783,6 +874,15 @@ def main() -> None:
             "SEAM_GRAPH_CONTEXT_POLICY or off"
         ),
     )
+    parser.add_argument(
+        "--multi-scope-pack-policy",
+        choices=sorted(MULTI_SCOPE_POLICIES),
+        default=None,
+        help=(
+            "default-off direct-readable reserved context pack; defaults to "
+            "SEAM_MULTI_SCOPE_PACK_POLICY or off"
+        ),
+    )
     args = parser.parse_args()
 
     import uvicorn
@@ -793,6 +893,7 @@ def main() -> None:
         context_budget=args.context_budget,
         derived_facts_policy=args.derived_facts_policy,
         graph_context_policy=args.graph_context_policy,
+        multi_scope_pack_policy=args.multi_scope_pack_policy,
         derived_facts_cache_path=args.derived_facts_cache_path,
     )
     uvicorn.run(build_asgi_app(server), host=args.host, port=args.port)

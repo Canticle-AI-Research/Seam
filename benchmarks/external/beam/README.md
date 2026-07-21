@@ -13,10 +13,10 @@ Evaluates memory over long conversations with probing questions.
 ## Quickstart
 
 ```bash
-# A directory scan validates counts only; an exported HF rows JSON additionally
-# validates chat payloads, question types, and rubric nuggets.
+# Accepts the official checkout root, chats root, 1M scale root, or an
+# exported Hugging Face rows JSON.
 .venv/bin/python -m benchmarks.external.beam.run \
-    --track 1m --dataset-path /path/to/beam_rows.json --dry-run
+    --track 1m --dataset-path /path/to/BEAM --dry-run
 ```
 
 ## Dataset
@@ -29,11 +29,24 @@ BEAM-1M expected shape: 35 conversations and 700 total probing questions.
 
 ## Dry-run validation
 
-Dry-run scans the dataset directory, counts conversations and questions, and
-reports validation issues without executing the judge or adapter.
+For the official local layout, dry-run resolves
+`chats/<scale>/<conversation>/chat.json` and the matching nested
+`probing_questions/probing_questions.json`. It fully parses every chat and
+question, requires nonempty conversations and rubric nuggets, validates all
+ten question types and expected track totals, and emits a root-independent
+content hash over the exact source files. It reads and hashes each source file
+once instead of serializing a million-token conversation once per question.
 
-Directory scans are never executable: the older directory reader did not load
-the chat payload and could otherwise evaluate questions against empty memory.
+Unknown legacy directory layouts remain structural-only and invalid for
+execution because they cannot prove that questions are paired with their
+official chat payloads. Competitive and predict-only execution still uses the
+pinned upstream task-specific harness; local validation does not substitute a
+generic scorer.
+
+The audited local 1M release at `/home/terrabyte/BEAM/BEAM` validates as 35
+conversations, 700 questions, 74,630 normalized turns, 70 questions in each of
+the ten categories, and 70 hashed source files. This is corpus-readiness
+evidence, not an answer score.
 
 ## Faithful execution
 

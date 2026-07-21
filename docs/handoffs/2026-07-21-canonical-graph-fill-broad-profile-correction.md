@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-21-canonical-graph-fill-broad-profile-correction
 supersedes: 2026-07-21-canonical-graph-fill-free-gate
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#444
 ---
 

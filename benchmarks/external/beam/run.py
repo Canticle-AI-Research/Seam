@@ -21,6 +21,7 @@ import hashlib
 import json
 from collections import Counter
 from pathlib import Path
+from typing import Iterable
 
 from benchmarks.external.common.types import BenchmarkCase, ConversationTurn
 from benchmarks.external.mem0_harness.upstream_runner import (
@@ -45,6 +46,10 @@ BEAM_QUESTION_TYPES = (
     "summarization",
     "temporal_reasoning",
 )
+BEAM_TRACK_DIRS = {
+    "1m": "1M",
+    "10m": "10M",
+}
 
 
 def _scan_beam_dataset(dataset_path: str, track: str):
@@ -83,14 +88,160 @@ def _scan_beam_dataset(dataset_path: str, track: str):
     return conversations, total_questions
 
 
-def _load_beam_cases(dataset_path: str | Path) -> list[BenchmarkCase]:
+def _resolve_official_local_track_root(dataset_path: str | Path, track: str) -> Path:
+    """Resolve a released BEAM checkout, chats directory, or scale directory."""
+    root = Path(dataset_path)
+    if not root.is_dir():
+        raise FileNotFoundError(f"BEAM dataset directory not found: {dataset_path}")
+    track_dir = BEAM_TRACK_DIRS[track]
+    candidates = (
+        root,
+        root / track_dir,
+        root / "chats" / track_dir,
+        root / "test_chats" / track_dir,
+    )
+    for candidate in candidates:
+        if candidate.name.casefold() != track_dir.casefold() and candidate == root:
+            continue
+        if candidate.is_dir() and any(
+            child.is_dir()
+            and (child / "chat.json").is_file()
+            and (child / "probing_questions" / "probing_questions.json").is_file()
+            for child in candidate.iterdir()
+        ):
+            return candidate.resolve()
+    raise ValueError(
+        f"official local BEAM {track_dir} layout not found under {root}; expected "
+        f"chats/{track_dir}/<conversation>/chat.json and probing_questions/probing_questions.json"
+    )
+
+
+def _source_manifest_hash(files: Iterable[tuple[str, bytes]]) -> str:
+    digest = hashlib.sha256()
+    _update_source_manifest(digest, files)
+    return digest.hexdigest()
+
+
+def _update_source_manifest(
+    digest,
+    files: Iterable[tuple[str, bytes]],
+) -> int:
+    count = 0
+    for relative_path, payload in files:
+        digest.update(relative_path.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(hashlib.sha256(payload).digest())
+        count += 1
+    return count
+
+
+def _official_local_conversation_dirs(track_root: Path) -> list[Path]:
+    return sorted(
+        (
+            child
+            for child in track_root.iterdir()
+            if child.is_dir()
+            and (child / "chat.json").is_file()
+            and (child / "probing_questions" / "probing_questions.json").is_file()
+        ),
+        key=lambda path: _beam_plan_sort_key(path.name),
+    )
+
+
+def _load_official_local_conversation(
+    conversation_dir: Path,
+    *,
+    dataset_format: str = "official-local-repo",
+) -> tuple[list[BenchmarkCase], tuple[tuple[str, bytes], ...]]:
+    chat_path = conversation_dir / "chat.json"
+    questions_path = conversation_dir / "probing_questions" / "probing_questions.json"
+    chat_bytes = chat_path.read_bytes()
+    questions_bytes = questions_path.read_bytes()
+    try:
+        chat = json.loads(chat_bytes)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"BEAM {chat_path} is not valid JSON: {exc}") from exc
+    try:
+        probing_questions = json.loads(questions_bytes)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"BEAM {questions_path} is not valid JSON: {exc}") from exc
+    row = {
+        "conversation_id": conversation_dir.name,
+        "chat": chat,
+        "probing_questions": probing_questions,
+    }
+    cases = _cases_from_beam_rows([row], dataset_format=dataset_format)
+    source_files = (
+        (f"{conversation_dir.name}/chat.json", chat_bytes),
+        (
+            f"{conversation_dir.name}/probing_questions/probing_questions.json",
+            questions_bytes,
+        ),
+    )
+    return cases, source_files
+
+
+def _scan_official_local_dataset(dataset_path: str | Path, track: str) -> dict:
+    """Fully validate the local released layout without retaining the full corpus."""
+    track_root = _resolve_official_local_track_root(dataset_path, track)
+    conversations: list[dict] = []
+    category_counts: Counter[str] = Counter()
+    source_digest = hashlib.sha256()
+    source_file_count = 0
+    total_questions = 0
+    total_turns = 0
+    for conversation_dir in _official_local_conversation_dirs(track_root):
+        cases, conversation_files = _load_official_local_conversation(conversation_dir)
+        question_count = len(cases)
+        conversation_turns = len(cases[0].conversation) if cases else 0
+        if conversation_turns == 0:
+            raise ValueError(f"BEAM {conversation_dir.name} has an empty chat")
+        conversations.append(
+            {
+                "dir": conversation_dir.name,
+                "question_count": question_count,
+                "turn_count": conversation_turns,
+            }
+        )
+        total_questions += question_count
+        total_turns += conversation_turns
+        category_counts.update(case.category for case in cases)
+        source_file_count += _update_source_manifest(source_digest, conversation_files)
+    return {
+        "conversations": conversations,
+        "total_questions": total_questions,
+        "total_turns": total_turns,
+        "category_counts": category_counts,
+        "fixture_hash": source_digest.hexdigest(),
+        "source_root": str(track_root),
+        "source_file_count": source_file_count,
+    }
+
+
+def _load_beam_cases(dataset_path: str | Path, track: str | None = None) -> list[BenchmarkCase]:
     path = Path(dataset_path)
     if path.is_dir():
-        raise ValueError(
-            "directory-only BEAM layouts cannot preserve official chat payloads; "
-            "use an exported Hugging Face rows JSON for validation or the pinned "
-            "upstream harness for execution"
-        )
+        if track is None:
+            normalized_name = path.name.casefold()
+            track = next(
+                (
+                    key
+                    for key, dirname in BEAM_TRACK_DIRS.items()
+                    if dirname.casefold() == normalized_name
+                ),
+                None,
+            )
+        if track is None:
+            raise ValueError(
+                "loading a BEAM repository or chats root requires "
+                "track='1m' or track='10m'"
+            )
+        track_root = _resolve_official_local_track_root(path, track)
+        cases: list[BenchmarkCase] = []
+        for conversation_dir in _official_local_conversation_dirs(track_root):
+            conversation_cases, _ = _load_official_local_conversation(conversation_dir)
+            cases.extend(conversation_cases)
+        return cases
     with path.open("r", encoding="utf-8") as fh:
         payload = json.load(fh)
     if isinstance(payload, dict):
@@ -101,6 +252,10 @@ def _load_beam_cases(dataset_path: str | Path) -> list[BenchmarkCase]:
         raise ValueError("BEAM JSON root must be a rows object or list")
     if not isinstance(rows, list):
         raise ValueError("BEAM rows must be a list")
+    return _cases_from_beam_rows(rows, dataset_format="official-hf-rows")
+
+
+def _cases_from_beam_rows(rows: list, *, dataset_format: str) -> list[BenchmarkCase]:
     cases: list[BenchmarkCase] = []
     seen_case_ids: set[str] = set()
     for row_index, item in enumerate(rows):
@@ -114,6 +269,7 @@ def _load_beam_cases(dataset_path: str | Path) -> list[BenchmarkCase]:
         if not conversation:
             raise ValueError(f"BEAM {conversation_id} has an empty or unsupported chat")
         questions = _parse_probing_questions(row.get("probing_questions", {}))
+        row_case_count = 0
         for category, category_questions in questions.items():
             if not isinstance(category_questions, list):
                 raise ValueError(
@@ -144,13 +300,16 @@ def _load_beam_cases(dataset_path: str | Path) -> list[BenchmarkCase]:
                         gold_answer=_beam_gold_answer(question_data),
                         category=str(category),
                         metadata={
-                            "dataset_format": "official-hf-rows",
+                            "dataset_format": dataset_format,
                             "conversation_id": conversation_id,
                             "rubric_nuggets": tuple(nuggets),
                             "user_profile": row.get("user_profile", {}),
                         },
                     )
                 )
+                row_case_count += 1
+        if row_case_count == 0:
+            raise ValueError(f"BEAM {conversation_id} has no probing questions")
     return cases
 
 
@@ -260,6 +419,12 @@ def _dry_run_report(
     *,
     cases: list[BenchmarkCase] | None = None,
     executable_format: bool,
+    category_counts: Counter[str] | None = None,
+    fixture_hash: str | None = None,
+    source_root: str | None = None,
+    source_file_count: int | None = None,
+    total_turns: int | None = None,
+    dataset_format: str | None = None,
 ):
     issues = []
     expected = EXPECTED_BY_TRACK.get(track, {})
@@ -273,7 +438,7 @@ def _dry_run_report(
         issues.append(
             f"Expected {expected_questions} questions, found {total_questions}"
         )
-    category_counts = Counter(case.category for case in cases or [])
+    category_counts = category_counts or Counter(case.category for case in cases or [])
     missing_types = [
         question_type
         for question_type in BEAM_QUESTION_TYPES
@@ -285,31 +450,24 @@ def _dry_run_report(
         issues.append(
             "Directory scan is structural only and cannot preserve official chat payloads"
         )
-    payload = json.dumps(
-        {
-            "conversations": conversations,
-            "cases": [
-                {
-                    "case_id": case.case_id,
-                    "question": case.question,
-                    "category": case.category,
-                    "conversation": [
-                        {
-                            "speaker": turn.speaker,
-                            "text": turn.text,
-                            "timestamp": turn.timestamp,
-                        }
-                        for turn in case.conversation
-                    ],
-                    "metadata": case.metadata,
-                }
-                for case in cases or []
-            ],
-        },
-        sort_keys=True,
-        default=list,
-    )
-    fixture_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    if fixture_hash is None:
+        payload = json.dumps(
+            {
+                "conversations": conversations,
+                "cases": [
+                    {
+                        "case_id": case.case_id,
+                        "question": case.question,
+                        "category": case.category,
+                        "metadata": case.metadata,
+                    }
+                    for case in cases or []
+                ],
+            },
+            sort_keys=True,
+            default=list,
+        )
+        fixture_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
     return {
         "dataset_path": str(dataset_path),
         "benchmark": "beam",
@@ -319,9 +477,13 @@ def _dry_run_report(
         "total_questions": total_questions,
         "expected_questions": expected_questions,
         "fixture_hash": fixture_hash,
+        "source_root": source_root,
+        "source_file_count": source_file_count,
+        "total_turns": total_turns,
         "question_types": dict(category_counts),
         "missing_question_types": missing_types,
-        "dataset_format": "official-hf-rows" if executable_format else "directory-scan-only",
+        "dataset_format": dataset_format
+        or ("official-hf-rows" if executable_format else "directory-scan-only"),
         "execution_contract": "pinned-upstream-memory-benchmarks-only",
         "estimated_judge_calls": total_questions if judge_name and judge_name not in ("none", "stub") else 0,
         "judge": judge_name or "none",
@@ -381,17 +543,52 @@ def main() -> None:
         if not dataset_path.exists():
             parser.error("BEAM dataset path not found")
         if dataset_path.is_dir():
-            conversations, total_questions = _scan_beam_dataset(
-                str(dataset_path), args.track
-            )
-            cases = None
-            executable_format = False
+            try:
+                _resolve_official_local_track_root(dataset_path, args.track)
+            except ValueError:
+                conversations, total_questions = _scan_beam_dataset(
+                    str(dataset_path), args.track
+                )
+                cases = None
+                executable_format = False
+                report_kwargs = {}
+            else:
+                try:
+                    local_scan = _scan_official_local_dataset(dataset_path, args.track)
+                except ValueError as exc:
+                    parser.error(str(exc))
+                conversations = local_scan["conversations"]
+                total_questions = local_scan["total_questions"]
+                cases = None
+                executable_format = True
+                report_kwargs = {
+                    "category_counts": local_scan["category_counts"],
+                    "fixture_hash": local_scan["fixture_hash"],
+                    "source_root": local_scan["source_root"],
+                    "source_file_count": local_scan["source_file_count"],
+                    "total_turns": local_scan["total_turns"],
+                    "dataset_format": "official-local-repo",
+                }
         else:
-            cases = _load_beam_cases(dataset_path)
+            try:
+                cases = _load_beam_cases(dataset_path)
+            except ValueError as exc:
+                parser.error(str(exc))
             if args.limit is not None:
                 cases = cases[: args.limit]
             conversations, total_questions = _conversation_summary_from_cases(cases)
             executable_format = True
+            report_kwargs = {
+                "fixture_hash": hashlib.sha256(dataset_path.read_bytes()).hexdigest(),
+                "source_root": str(dataset_path.resolve()),
+                "source_file_count": 1,
+                "total_turns": sum(
+                    {
+                        _beam_scope_id(case): len(case.conversation)
+                        for case in cases
+                    }.values()
+                ),
+            }
         report = _dry_run_report(
             conversations,
             total_questions,
@@ -400,6 +597,7 @@ def main() -> None:
             args.judge,
             cases=cases,
             executable_format=executable_format,
+            **report_kwargs,
         )
         print(json.dumps(report, indent=2))
         raise SystemExit(0 if report["valid"] else 1)

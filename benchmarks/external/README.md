@@ -70,9 +70,13 @@ seam bench external beam \
 ```
 
 BEAM as a whole has 100 conversations and 2,000 questions. The 1M track is
-35 conversations / 700 questions. Directory inputs are structural scans only;
-real execution uses the pinned upstream harness and official nugget scoring.
-BEAM-10M is separately deferred and gated.
+35 conversations / 700 questions. Official local repository layouts are fully
+validated from `chats/<scale>/<conversation>/chat.json` and nested probing
+questions, including nonempty chats, rubric nuggets, all ten categories, exact
+track totals, and a root-independent source-file hash. Unknown legacy
+directory layouts remain structural-only and invalid. Real execution uses the
+pinned upstream harness and official nugget scoring. BEAM-10M is separately
+deferred and gated.
 
 ## mem0 harness adapter
 

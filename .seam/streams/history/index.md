@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 444
-total_tokens: ~198516
-latest_id: 444
+total_entries: 446
+total_tokens: ~199179
+latest_id: 446
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 446 | 2026-07-21 | done | 365a3c989e8cac1f | benchmark,beam,pack,retrieval,+ | 445 |
+| 445 | 2026-07-21 | in-progress | 3c8a382dfdff32ea | benchmark,beam,pack,retrieval,+ | 444 |
 | 444 | 2026-07-21 | changed | f50aee8b616a65f0 | graph,memory,retrieval,benchmark,+ | 443 |
 | 443 | 2026-07-21 | done | dc33c3b073872ac8 | history,verify,audit,benchmark,+ | 442 |
 | 442 | 2026-07-21 | done | 4d879e7775669073 | graph,memory,retrieval,benchmark,+ | 441 |
@@ -473,10 +475,10 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=1 latest=#182
-- audit: count=88 latest=#444, #443, #442, #441, #440
+- audit: count=90 latest=#446, #445, #444, #443, #442
 - baseline: count=1 latest=#303
-- beam: count=3 latest=#441, #440, #223
-- benchmark: count=181 latest=#444, #443, #442, #441, #440
+- beam: count=5 latest=#446, #445, #441, #440, #223
+- benchmark: count=183 latest=#446, #445, #444, #443, #442
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -573,7 +575,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=42 latest=#444, #443, #442, #441, #440
+- handoff: count=44 latest=#446, #445, #444, #443, #442
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -633,7 +635,7 @@ compact: true
 - openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
-- pack: count=6 latest=#416, #316, #315, #314, #218
+- pack: count=8 latest=#446, #445, #416, #316, #315
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
 - paid-run: count=5 latest=#434, #429, #427, #424, #423
@@ -684,7 +686,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=99 latest=#444, #442, #439, #438, #437
+- retrieval: count=101 latest=#446, #445, #444, #442, #439
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -726,7 +728,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=54 latest=#444, #442, #441, #440, #439
+- test: count=56 latest=#446, #445, #444, #442, #441
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -739,7 +741,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=27 latest=#435, #364, #228, #223, #220
 - vector-adapters: count=1 latest=#359
-- verify: count=282 latest=#444, #443, #442, #441, #430
+- verify: count=284 latest=#446, #445, #444, #443, #442
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -753,6 +755,6 @@ compact: true
 
 - roots: 76
 - changed: 9
-- done: 409
-- in-progress: 5
+- done: 410
+- in-progress: 6
 - planned: 21
