@@ -6,6 +6,7 @@ import re
 from collections import Counter
 
 from .derived_fact_context import (
+    MULTI_SPEAKER_GROUNDED_V1,
     SENTENCE_GROUNDED_CLM_V1,
     canonical_turn_prefix_end,
     is_singular_first_person,
@@ -241,6 +242,24 @@ def compile_nl(
         )
         rel_index += 1
 
+    multi_speaker_body_start = source_prefix_end or 0
+    multi_speaker_turn_facts = ()
+    if (
+        derived_fact_policy == MULTI_SPEAKER_GROUNDED_V1
+        and rich_extractor is not None
+        and explicit_speaker
+    ):
+        turn_method = getattr(
+            rich_extractor,
+            "extract_sentence_facts",
+            None,
+        )
+        if callable(turn_method):
+            multi_speaker_turn_facts = turn_method(
+                raw_text[multi_speaker_body_start:],
+                speaker=explicit_speaker,
+            )
+
     for proposition, start, end in segment_propositions(raw_text):
         subject_label = _leading_subject(proposition)
         if not subject_label:
@@ -268,33 +287,40 @@ def compile_nl(
         ):
             extraction_offset = source_prefix_end - start
             extraction_text = proposition[extraction_offset:]
-        if derived_fact_policy == SENTENCE_GROUNDED_CLM_V1:
-            sentence_method = getattr(
-                rich_extractor,
-                "extract_sentence_facts",
-                None,
-            )
-            sentence_facts = (
-                sentence_method(extraction_text, speaker=explicit_speaker)
-                if callable(sentence_method) and explicit_speaker
-                else ()
-            )
+        if derived_fact_policy in {
+            SENTENCE_GROUNDED_CLM_V1,
+            MULTI_SPEAKER_GROUNDED_V1,
+        }:
+            if derived_fact_policy == MULTI_SPEAKER_GROUNDED_V1:
+                sentence_facts = tuple(
+                    fact
+                    for fact in multi_speaker_turn_facts
+                    if start
+                    <= multi_speaker_body_start + fact.evidence_start
+                    < multi_speaker_body_start + fact.evidence_end
+                    <= end
+                )
+                evidence_offset = multi_speaker_body_start
+            else:
+                sentence_method = getattr(
+                    rich_extractor,
+                    "extract_sentence_facts",
+                    None,
+                )
+                sentence_facts = (
+                    sentence_method(extraction_text, speaker=explicit_speaker)
+                    if callable(sentence_method) and explicit_speaker
+                    else ()
+                )
+                evidence_offset = start + extraction_offset
             for sentence_fact in sentence_facts:
                 claim_subject = entity_id(
                     explicit_speaker,
                     "person",
                     promote_type=True,
                 )
-                evidence_start = (
-                    start
-                    + extraction_offset
-                    + sentence_fact.evidence_start
-                )
-                evidence_end = (
-                    start
-                    + extraction_offset
-                    + sentence_fact.evidence_end
-                )
+                evidence_start = evidence_offset + sentence_fact.evidence_start
+                evidence_end = evidence_offset + sentence_fact.evidence_end
                 evidence_text = sentence_fact.evidence_sentence
                 ext_fields: dict[str, object] = {
                     "derived_fact_policy": derived_fact_policy,
@@ -347,7 +373,11 @@ def compile_nl(
                     span_id,
                     0.85,
                     epistemic_basis="explicit",
-                    extraction_method="sentence_grounded_local_model",
+                    extraction_method=(
+                        "multi_speaker_grounded_model"
+                        if derived_fact_policy == MULTI_SPEAKER_GROUNDED_V1
+                        else "sentence_grounded_local_model"
+                    ),
                     subject_label=explicit_speaker,
                     record_id=_sentence_fact_record_id(
                         source_hash,
