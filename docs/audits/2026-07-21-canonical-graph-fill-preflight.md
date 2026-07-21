@@ -2,24 +2,22 @@
 
 Date: 2026-07-21
 
-Status: free evidence gate passed; paid score gate not run
+Status: corrected broad-profile free evidence gate failed; paid score gate canceled
 
 Scope: LoCoMo cat1/cat3 matched-facade retrieval composition
 
 ## Decision
 
-Keep canonical graph context default-off and advance only the non-displacing
-`canonical-graph-fill/1` policy. It appends unique RAW evidence reached through
-SEAM's existing `knowledge_edges` retriever only when the primary top-k result
-has vacant rows. It never removes or reorders a primary row.
+Keep canonical graph context default-off and do not advance it to a paid score
+gate. Under the frozen capable-answerer `broad` retrieval profile, the
+non-displacing `canonical-graph-fill/1` policy gained zero exact evidence
+references across the full cat1/cat3 slice. It therefore failed the declared
+free gate before any provider call.
 
-Do not advance the aggressive reserved-tail composition. It found the same five
-additional exact evidence references but displaced one exact reference already
-present in the baseline.
-
-This is an evidence-presence result, not an answer score, benchmark win, or
-production-policy promotion. A paired paid microgate still requires explicit
-operator approval.
+The earlier +5 result used an unintended compact 8,000-character retrieval
+budget. That baseline was not the frozen matched `gpt-4o` contract and the
+result is retracted. The policy implementation remains a valid default-off
+investigation path, but it has no matched-harness gain claim.
 
 ## Matched corpus and execution contract
 
@@ -36,9 +34,10 @@ operator approval.
   had to equal the committed dataset turn set before measurement.
 - Categories measured: cat1 and cat3, 378 questions, 1,076 resolved gold
   references plus seven unresolved dataset references.
-- Retrieval: frozen matched facade RAW baseline at top-200; graph candidate uses
-  the canonical retrieval orchestrator in `mode="graph"` and resolves graph
-  records back to exact RAW provenance.
+- Retrieval: frozen capable-answerer `broad` profile (search depth 300, context
+  budget 60,000) with the facade response truncated to top-200; graph candidate
+  uses the canonical retrieval orchestrator in `mode="graph"` and resolves
+  graph records back to exact RAW provenance.
 
 Older preserved replay stores were rejected rather than reused: conversations
 1 and 2 were each missing two canonical RAW turns. Fresh exact stores were
@@ -57,25 +56,32 @@ when graph retrieval supplied fewer than 40 unique rows. That result was
 discarded. The audited reserved-tail implementation displaces exactly the
 number of unique graph rows it actually adds.
 
-## Results
+During the operator-authorized paid-gate dry run, an exact fresh-checkpoint
+comparison stopped before provider initialization: the preflight baseline had
+193 rows where the frozen predict-only checkpoint had 200. The cause was that
+the preflight explicitly replaced the broad profile with an 8,000-character
+context budget. Pinning 300/60,000 restored exact checkpoint parity and changed
+the evidence result from +5 to zero. The runner now requires that parity and a
+currently passing broad-profile gain list before it can accept `--allow-paid`.
+
+## Corrected broad-profile results
 
 | Measure | RAW baseline | graph standalone | fill-only candidate |
 | --- | ---: | ---: | ---: |
-| Cases with any gold evidence | 349 | 228 | 349 |
-| Cases with all gold evidence | 240 | 42 | 241 |
-| Exact gold-reference hits | 859 | 364 | 864 |
-| Result rows | 66,250 | 14,513 | 69,654 |
+| Cases with any gold evidence | 353 | 228 | 353 |
+| Cases with all gold evidence | 252 | 42 | 252 |
+| Exact gold-reference hits | 887 | 364 | 887 |
+| Result rows | 75,490 | 14,513 | 75,522 |
 
-Fill-only added 3,404 unique graph-reached RAW rows across the slice. It gained
-five exact gold references across four questions, made one question newly
-complete, and lost zero exact references, any-evidence cases, or complete
-cases. The declared free gate required at least one gained reference and zero
-lost references, so it passed.
+Fill-only added 32 unique graph-reached RAW rows across the slice. It gained
+zero exact gold references and lost zero. The declared free gate required at
+least one gained reference and zero lost references, so it failed.
 
-The aggressive 40-row reserved-tail candidate added 3,730 unique graph rows.
-It gained five exact references and one complete case but lost one exact
-reference and one complete case. It therefore failed the same zero-displacement
-gate and remains unshipped.
+For auditability, the rejected compact-budget run reported 349 any-evidence
+cases, 240 complete cases, and 859 exact hits at baseline versus 349, 241, and
+864 for fill-only. Those values describe an unmatched 8,000-character
+baseline and must not be quoted as matched `gpt-4o` evidence. The reserved-tail
+result from that same invalid baseline is likewise not a promotion result.
 
 ## Runtime policy
 
@@ -103,9 +109,7 @@ python -m benchmarks.external.mem0_harness.preflight_graph_memory \
 
 ## Promotion boundary
 
-The next step is an operator-approved same-day paired paid microgate under the
-frozen `gpt-4o` answerer/judge contract. Baseline and candidate must use the
-same fresh ingest and harness revision. Promotion still requires a real net
-answer-score improvement with no candidate-caused sentinel regression; the
-free evidence result alone does not authorize a full paid run or default-on
-policy.
+The paid microgate is canceled. No answerer or judge call was made and no
+private paid record was created. A future graph-composition proposal must first
+produce a new non-displacing evidence gain under the pinned 300/60,000 broad
+profile; only then may it request a separate paid authorization.

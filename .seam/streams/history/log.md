@@ -10555,3 +10555,36 @@ tokens: 86
 ---
 Correction to HISTORY#442 verification arithmetic: the final strict non-external run collected 1,636 tests and completed with 1,634 passed, two established xfailed, and zero skips. HISTORY#442 incorrectly described all 1,636 as passed in addition to the xfails. All runtime, preflight, evidence-gain, no-displacement, provider-boundary, and next-step claims from #442 remain unchanged.
 ---END-ENTRY-#443---
+---BEGIN-ENTRY-#444---
+id: 444
+date: 2026-07-21T11:08:11Z
+agent: codex
+status: changed
+topics: graph, memory, retrieval, benchmark, audit, bugfix, test, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/external/mem0_harness/microgate_graph_memory.py,tests/audit/test_graph_memory_preflight.py,tests/audit/test_graph_memory_microgate.py,benchmarks/external/mem0_harness/README.md,docs/audits/2026-07-21-canonical-graph-fill-preflight.md,docs/handoffs/2026-07-21-canonical-graph-fill-broad-profile-correction.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 443
+tokens: 238
+---
+Corrected and retracted HISTORY#442/#443's canonical-graph evidence-gain claim
+before any paid call. The operator-authorized paired microgate dry run failed
+closed when live retrieval did not match the fresh predict-only checkpoint:
+the free preflight had forced search depth 200 / context budget 8,000 instead
+of the frozen matched gpt-4o broad profile 300 / 60,000. Pinning the broad
+profile restored exact selected-case checkpoint parity.
+
+Repeated the provider-free all-378 cat1/cat3 audit on the same fresh stores.
+Baseline measured 353 any-evidence cases, 252 complete cases, and 887 exact
+gold-reference hits; fill-only measured the identical 353 / 252 / 887. Graph
+fill added 32 unique rows, gained 0 exact references, and lost 0. The declared
+free gate therefore failed, and the paid microgate was canceled with zero
+provider calls and zero spend. canonical-graph-fill/1 remains default-off with
+no matched-harness score or evidence-gain claim.
+
+The corrected preflight now pins and reports the broad profile. A guarded
+paired runner checks the audited harness revision, exact fresh retrieval,
+matched store corpus, sentinel contract, provider flag, and cost ceiling; it
+requires explicit gain ids from a currently passing broad-profile free gate,
+so the retracted ids cannot authorize spend. The canonical handoff now routes
+to this correction. Operator-owned report*.png remained untouched and excluded.
+---END-ENTRY-#444---

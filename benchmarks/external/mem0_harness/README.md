@@ -240,6 +240,10 @@ python -m benchmarks.external.mem0_harness.preflight_graph_memory \
 The command copies the stores to a temporary directory before current graph
 schema/backfill code opens them, validates every stored RAW turn against the
 canonical LoCoMo dataset, and runs the matched facade RAW baseline at top-200.
+The baseline pins the frozen capable-answerer `broad` profile (retrieval depth
+300, context budget 60,000) before the harness truncates the returned surface
+to 200 rows. Substituting the compact 8,000-character budget is not matched and
+can create false evidence gains.
 The default candidate fills only unused top-200 rows with genuinely new RAW
 evidence reached through the canonical graph retriever, so it cannot displace a
 baseline row. Pass `--composition reserved-tail` to separately test the more
@@ -248,8 +252,24 @@ displacement. The command never emits licensed text and makes zero provider
 calls. Promotion requires at least one newly present exact gold turn and zero
 displaced exact gold turns; this is not an answer score.
 
-The exact passing composition can be enabled on the real facade for a fresh
-candidate run with:
+Only a composition that passes this broad-profile free gate may advance to a
+paid microgate. A provider-free dry run of the paired runner additionally
+requires explicit gain-case ids from that passing report and revalidates them
+before accepting `--allow-paid`:
+
+```bash
+python -m benchmarks.external.mem0_harness.microgate_graph_memory \
+  /path/to/matched-store-root --run-id <run-id> \
+  --predicted-dir /path/to/fresh-predict-only \
+  --sentinel-record /path/to/prior-matched-gpt4o-record.json \
+  --harness-root /path/to/pinned-memory-benchmarks \
+  --gain-ids convN_qN,...
+```
+
+The current broad-profile result has zero gained references, so there are no
+valid gain ids and no paid graph-fill microgate is authorized.
+
+The policy can still be enabled for controlled local investigation with:
 
 ```bash
 export SEAM_GRAPH_CONTEXT_POLICY=canonical-graph-fill/1

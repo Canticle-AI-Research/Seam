@@ -1,11 +1,18 @@
 from __future__ import annotations
 
 from benchmarks.external.mem0_harness.preflight_graph_memory import (
+    MATCHED_CONTEXT_BUDGET,
+    MATCHED_SEARCH_TOP_K,
     compose_graph_rows,
     compose_reserved_graph_rows,
     measure_case,
     summarize_cases,
 )
+
+
+def test_graph_preflight_pins_the_frozen_broad_gpt4o_profile() -> None:
+    assert MATCHED_SEARCH_TOP_K == 300
+    assert MATCHED_CONTEXT_BUDGET == 60000
 
 
 def _row(memory: str) -> dict[str, str]:

@@ -38,6 +38,8 @@ _BLOCKED_ENV = (
     "SEAM_EMBEDDING_PROVIDER",
 )
 _COMPOSITIONS = frozenset({"fill-only", "reserved-tail"})
+MATCHED_SEARCH_TOP_K = 300
+MATCHED_CONTEXT_BUDGET = 60000
 
 
 def _memory(row: dict[str, Any]) -> str:
@@ -276,8 +278,13 @@ def run_preflight(
                 runtime = server._adapter._runtime(user_id)
                 runtime._retrieval_flags = replace(
                     runtime._retrieval_flags_cached(),
-                    search_top_k=top_k,
-                    context_budget=8000,
+                    # The frozen gpt-4o facade uses the broad retrieval profile
+                    # (300 candidates / 60k context chars) before the harness
+                    # truncates the response to top_k=200.  Do not substitute
+                    # the compact 8k context here: it changes both row count and
+                    # ordering and is not matched-harness evidence.
+                    search_top_k=MATCHED_SEARCH_TOP_K,
+                    context_budget=MATCHED_CONTEXT_BUDGET,
                     conversation_adapter="conversation/2",
                     inference_policy="inference/high-confidence/1",
                     temporal_policy="temporal/1",
@@ -341,6 +348,8 @@ def run_preflight(
             "run_id": run_id,
             "categories": sorted(categories),
             "top_k": top_k,
+            "retrieval_search_top_k": MATCHED_SEARCH_TOP_K,
+            "retrieval_context_budget": MATCHED_CONTEXT_BUDGET,
             "graph_slots": graph_slots,
             "baseline": "matched-facade-raw",
             "candidate": f"baseline-plus-canonical-graph-{composition}",

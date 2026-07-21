@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-21-canonical-graph-fill-free-gate
 supersedes: 2026-07-21-longmemeval-beam-contract-repair-complete
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#443
 ---
 
