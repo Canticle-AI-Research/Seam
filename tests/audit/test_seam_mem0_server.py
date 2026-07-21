@@ -13,10 +13,12 @@ from types import SimpleNamespace
 import pytest
 
 from benchmarks.external.mem0_harness.seam_mem0_server import (
+    GRAPH_CONTEXT_FILL_V1,
     SeamMem0Server,
     _apply_count_context_policy,
     _epoch_to_iso,
     _split_speaker,
+    append_unique_graph_rows,
 )
 from seam_runtime.derived_fact_context import (
     DERIVED_FACTS_EMBEDDING_CONFIG,
@@ -32,6 +34,7 @@ from seam_runtime.sentence_grounded_facts import SentenceGroundedFact
 @pytest.fixture(autouse=True)
 def _isolated_sqlite_vector_contract(monkeypatch):
     monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+    monkeypatch.delenv("SEAM_GRAPH_CONTEXT_POLICY", raising=False)
 
 
 class _SurfingExtractor:
@@ -211,6 +214,83 @@ def test_add_requires_user_id_and_messages(server):
         server.add({"messages": []})
     with pytest.raises(ValueError):
         server.search({"user_id": "x", "query": "  "})
+
+
+def test_graph_context_policy_rejects_unknown_value_before_opening_store(
+    tmp_path,
+):
+    with pytest.raises(ValueError, match="unknown graph context policy"):
+        SeamMem0Server(
+            db_path=str(tmp_path / "unused"),
+            graph_context_policy="unknown",
+        )
+    assert not (tmp_path / "unused").exists()
+
+
+def test_append_unique_graph_rows_only_fills_vacant_rows():
+    primary = [
+        {"memory": "primary-a", "id": "raw:a"},
+        {"memory": "primary-b", "id": "raw:b"},
+    ]
+    graph = [
+        {"memory": "primary-b", "id": "raw:duplicate"},
+        {"memory": "graph-c", "id": "raw:c"},
+        {"memory": "graph-d", "id": "raw:d"},
+    ]
+
+    composed = append_unique_graph_rows(primary, graph, limit=3)
+
+    assert composed == [primary[0], primary[1], graph[1]]
+    assert primary == [
+        {"memory": "primary-a", "id": "raw:a"},
+        {"memory": "primary-b", "id": "raw:b"},
+    ]
+
+
+def test_graph_context_off_preserves_primary_object():
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._graph_context_policy = "off"
+    primary = [{"memory": "primary", "id": "raw:primary"}]
+    server._search_graph_raw = lambda *args: pytest.fail(
+        "off policy must not search the graph"
+    )
+
+    assert server._apply_graph_context_policy("user", "query", primary, 5) is primary
+
+
+def test_graph_context_fill_probes_past_duplicates_but_uses_only_available_rows():
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._graph_context_policy = GRAPH_CONTEXT_FILL_V1
+    primary = [
+        {"memory": "primary-a", "id": "raw:a"},
+        {"memory": "primary-b", "id": "raw:b"},
+    ]
+    captured = {}
+
+    def graph_search(user_id, query, limit):
+        captured.update(user_id=user_id, query=query, limit=limit)
+        return [
+            {"memory": "primary-b", "id": "raw:duplicate"},
+            {"memory": "graph-c", "id": "raw:c"},
+            {"memory": "graph-d", "id": "raw:d"},
+        ]
+
+    server._search_graph_raw = graph_search
+    composed = server._apply_graph_context_policy("user", "query", primary, 3)
+
+    assert captured == {"user_id": "user", "query": "query", "limit": 40}
+    assert composed == [primary[0], primary[1], {"memory": "graph-c", "id": "raw:c"}]
+
+
+def test_graph_context_fill_does_not_search_at_capacity():
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._graph_context_policy = GRAPH_CONTEXT_FILL_V1
+    primary = [{"memory": "primary", "id": "raw:primary"}]
+    server._search_graph_raw = lambda *args: pytest.fail(
+        "full result set must not search the graph"
+    )
+
+    assert server._apply_graph_context_policy("user", "query", primary, 1) is primary
 
 
 def test_user_scopes_are_isolated(server):

@@ -10527,3 +10527,31 @@ session-link scans passed. No install, dataset/model download, provider call,
 paid work, score, BEAM-10M execution, or push occurred. Operator-owned
 `report*.png` remained untouched and excluded.
 ---END-ENTRY-#441---
+
+---BEGIN-ENTRY-#442---
+id: 442
+date: 2026-07-21T07:08:50Z
+agent: codex
+status: done
+topics: graph, memory, retrieval, benchmark, audit, bugfix, test, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/external/mem0_harness/seam_mem0_server.py,seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_graph_memory_preflight.py,tests/audit/test_knowledge_graph.py,tests/audit/test_seam_mem0_server.py,docs/audits/2026-07-21-canonical-graph-fill-preflight.md,docs/handoffs/2026-07-21-canonical-graph-fill-free-gate.md,PROJECT_STATUS.md
+supersedes: 441
+tokens: 240
+---
+Passed the free matched-harness canonical-graph evidence gate and implemented its exact non-displacing policy default-off. Fresh stores generated through memory-benchmarks@4b61c5d predict-only matched all committed LoCoMo RAW turns; older replay stores were rejected for corpus mismatch. Across 378 cat1/cat3 questions at top-200, canonical-graph-fill/1 gained 5 exact gold references, made 1 case newly complete, and lost 0 references. The aggressive reserved-tail probe gained 5 but lost 1 and remains rejected. Fixed process-dependent graph score ties by stable record-id ordering; added a copied-store, local-only, no-licensed-text preflight and facade contract tests. Verification: 51 touched tests collected and passed; 1,636 strict non-external tests passed with 2 established xfails and zero skips; Ruff, compileall, repeated 378-case preflight, and diff checks passed. No provider/paid call, install, download, scored run, default-on promotion, or push. Next: operator decision on a small paired paid microgate under the frozen matched gpt-4o contract; no full paid run before that gate.
+---END-ENTRY-#442---
+
+---BEGIN-ENTRY-#443---
+id: 443
+date: 2026-07-21T07:20:56Z
+agent: codex
+status: done
+topics: history, verify, audit, benchmark, handoff
+commits: pending
+refs: HISTORY.md,PROJECT_STATUS.md,docs/handoffs/2026-07-21-canonical-graph-fill-free-gate.md,docs/handoffs/INDEX.md
+supersedes: 442
+tokens: 86
+---
+Correction to HISTORY#442 verification arithmetic: the final strict non-external run collected 1,636 tests and completed with 1,634 passed, two established xfailed, and zero skips. HISTORY#442 incorrectly described all 1,636 as passed in addition to the xfails. All runtime, preflight, evidence-gain, no-displacement, provider-boundary, and next-step claims from #442 remain unchanged.
+---END-ENTRY-#443---

@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 502
+total_events: 504
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T12:45:28Z | history:248:19849f93 | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,.github/workflows/repository-maintenance.yml,tools/ci/githu... |
-| 2026-05-25T12:59:52Z | history:249:edf07639 | session-event | done | protocol, security, verify, history, status | AGENTS.md,REPO_LEDGER.md,PROJECT_STATUS.md,GitHub-PR:32 |
 | 2026-05-25T13:51:15Z | history:250:d76f57b7 | session-event | done | protocol, verify, history, status, security | PROJECT_STATUS.md,GitHub-PR:31,GitHub-PR:32,GitHub-branch:main |
 | 2026-05-25T17:37:36Z | history:251:2938605e | session-event | done | persist, retrieval, benchmark, command, verify, history, ... | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py... |
 | 2026-05-25T17:39:47Z | history:252:f6bcabd9 | session-event | done | protocol, verify, history, status | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.s... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-21T01:17:20Z | history:439:f81b36f6 | session-event | done | benchmark,locomo,memory,retrieval,compile,provenance,audi... | docs/audits/2026-07-20-memory-competitor-ratchet.md,seam_runtime/sentence_gro... |
 | 2026-07-21T03:37:52Z | history:440:c44f9f60 | session-event | in-progress | benchmark,longmemeval,beam,memory,audit,bugfix,protocol,t... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
 | 2026-07-21T04:38:43Z | history:441:ea8c3fb0 | session-event | done | benchmark,longmemeval,beam,memory,temporal,graph,audit,bu... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
+| 2026-07-21T07:08:50Z | history:442:4d879e77 | session-event | done | graph, memory, retrieval, benchmark, audit, bugfix, test,... | benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/externa... |
+| 2026-07-21T07:20:56Z | history:443:dc33c3b0 | session-event | done | history, verify, audit, benchmark, handoff | HISTORY.md,PROJECT_STATUS.md,docs/handoffs/2026-07-21-canonical-graph-fill-fr... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0302.cross.md | 2026-04-15T00:00:00Z..2026-05-25T12:37:57Z | 302 | (multi) | (multi) |
+| 0001-0304.cross.md | 2026-04-15T00:00:00Z..2026-05-25T12:59:52Z | 304 | (multi) | (multi) |

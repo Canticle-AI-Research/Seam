@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-21-longmemeval-beam-contract-repair-complete
 supersedes: 2026-07-20-longmemeval-beam-contract-repair-in-progress
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#441
 ---
 

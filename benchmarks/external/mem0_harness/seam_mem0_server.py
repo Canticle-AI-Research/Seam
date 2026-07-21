@@ -50,11 +50,17 @@ from seam_runtime.event_count_context import (
     CountEvidence,
     build_count_context_projection,
 )
+from seam_runtime.retrieval_orchestrator.orchestrator import RetrievalOrchestrator
 from seam_runtime.second_hop_context import build_bridge_plan, splice_results
 from seam_runtime.temporal_instance_context import (
     TemporalEvidence,
     build_temporal_context_projection,
 )
+
+GRAPH_CONTEXT_OFF = "off"
+GRAPH_CONTEXT_FILL_V1 = "canonical-graph-fill/1"
+GRAPH_CONTEXT_POLICIES = frozenset({GRAPH_CONTEXT_OFF, GRAPH_CONTEXT_FILL_V1})
+GRAPH_CONTEXT_MAX_ROWS = 40
 
 
 def _epoch_to_iso(timestamp: int | None, *, preserve_subday: bool = False) -> str:
@@ -105,9 +111,17 @@ class SeamMem0Server:
         search_top_k: int = 100,
         context_budget: int = 8000,
         derived_facts_policy: str | None = None,
+        graph_context_policy: str | None = None,
         nl_extractor=None,
         derived_facts_cache_path: str | None = None,
     ):
+        resolved_graph_policy = graph_context_policy or os.environ.get(
+            "SEAM_GRAPH_CONTEXT_POLICY", GRAPH_CONTEXT_OFF
+        )
+        if resolved_graph_policy not in GRAPH_CONTEXT_POLICIES:
+            raise ValueError(
+                f"unknown graph context policy {resolved_graph_policy!r}"
+            )
         self._adapter = SeamLocomoAdapter(
             db_path=db_path,
             answerer=None,
@@ -123,6 +137,7 @@ class SeamMem0Server:
         self._derived_fact_config_fingerprint = (
             self._adapter._derived_facts.config.fingerprint
         )
+        self._graph_context_policy = resolved_graph_policy
 
     # -- endpoint handlers (pure dict-in/dict-out; framework-agnostic) ------
 
@@ -183,6 +198,7 @@ class SeamMem0Server:
         disposable projection (count, else temporal)."""
         out = self._search_raw(user_id, query, limit)
         out = self._apply_second_hop_policy(user_id, query, out, limit)
+        out = self._apply_graph_context_policy(user_id, query, out, limit)
         rt = self._adapter._runtime(user_id)
         projected = _apply_count_context_policy(rt, query, out, limit)
         if projected is not out:
@@ -228,6 +244,86 @@ class SeamMem0Server:
         return splice_results(
             primary, secondary, limit=limit, reserve_slots=plan.reserve_slots
         )
+
+    def _apply_graph_context_policy(
+        self,
+        user_id: str,
+        query: str,
+        primary: list[dict],
+        limit: int,
+    ) -> list[dict]:
+        """Fill unused result rows from the canonical graph without displacement."""
+
+        policy = getattr(self, "_graph_context_policy", GRAPH_CONTEXT_OFF)
+        if policy == GRAPH_CONTEXT_OFF:
+            return primary
+        if policy != GRAPH_CONTEXT_FILL_V1:
+            raise ValueError(f"unknown graph context policy {policy!r}")
+        available = max(0, limit - len(primary))
+        if available == 0:
+            return primary
+        graph_rows = self._search_graph_raw(
+            user_id,
+            query,
+            GRAPH_CONTEXT_MAX_ROWS,
+        )
+        return append_unique_graph_rows(primary, graph_rows, limit=limit)
+
+    def _search_graph_raw(
+        self,
+        user_id: str,
+        query: str,
+        limit: int,
+    ) -> list[dict]:
+        """Resolve canonical ``knowledge_edges`` graph hits back to RAW turns."""
+
+        if limit <= 0:
+            return []
+        runtime = self._adapter._runtime(user_id)
+        graph = RetrievalOrchestrator(runtime).search(
+            query,
+            scope="thread",
+            budget=limit,
+            mode="graph",
+        )
+        out: list[dict] = []
+        seen_content: set[str] = set()
+        for candidate in graph.candidates:
+            ids = _closure_ids(candidate)
+            batch = runtime.store.load_ir(ids=ids)
+            expanded_ids = list(ids)
+            seen_ids = set(ids)
+            for record in batch.records:
+                if record.kind.value != "SPAN":
+                    continue
+                raw_id = record.attrs.get("raw_id")
+                if isinstance(raw_id, str) and raw_id and raw_id not in seen_ids:
+                    seen_ids.add(raw_id)
+                    expanded_ids.append(raw_id)
+            if len(expanded_ids) != len(ids):
+                batch = runtime.store.load_ir(ids=expanded_ids)
+            for record in batch.records:
+                if record.kind.value != "RAW":
+                    continue
+                content = record.attrs.get("content")
+                if (
+                    not isinstance(content, str)
+                    or not content
+                    or content in seen_content
+                ):
+                    continue
+                seen_content.add(content)
+                out.append(
+                    {
+                        "memory": content,
+                        "score": float(candidate.score),
+                        "id": record.id,
+                        "created_at": _created_at(record),
+                    }
+                )
+                if len(out) >= limit:
+                    return out
+        return out
 
     def _search_raw(self, user_id: str, query: str, limit: int) -> list[dict]:
         """The unexpanded ranked-RAW search (shared by primary + bridge hops).
@@ -499,6 +595,27 @@ def _closure_ids(candidate) -> list[str]:
     return ids
 
 
+def append_unique_graph_rows(
+    primary: list[dict],
+    graph_rows: list[dict],
+    *,
+    limit: int,
+) -> list[dict]:
+    """Fill unused rows only; never remove or reorder a primary result."""
+
+    out = list(primary[:limit])
+    seen = {str(item.get("memory") or "") for item in out}
+    for row in graph_rows:
+        content = str(row.get("memory") or "")
+        if not content or content in seen:
+            continue
+        seen.add(content)
+        out.append(row)
+        if len(out) >= limit:
+            break
+    return out
+
+
 def _apply_count_context_policy(
     runtime, query: str, results: list[dict], limit: int
 ) -> list[dict]:
@@ -657,6 +774,15 @@ def main() -> None:
         default=None,
         help="optional content-addressed extraction-cache path",
     )
+    parser.add_argument(
+        "--graph-context-policy",
+        choices=sorted(GRAPH_CONTEXT_POLICIES),
+        default=None,
+        help=(
+            "default-off canonical graph composition; defaults to "
+            "SEAM_GRAPH_CONTEXT_POLICY or off"
+        ),
+    )
     args = parser.parse_args()
 
     import uvicorn
@@ -666,6 +792,7 @@ def main() -> None:
         search_top_k=args.search_top_k,
         context_budget=args.context_budget,
         derived_facts_policy=args.derived_facts_policy,
+        graph_context_policy=args.graph_context_policy,
         derived_facts_cache_path=args.derived_facts_cache_path,
     )
     uvicorn.run(build_asgi_app(server), host=args.host, port=args.port)

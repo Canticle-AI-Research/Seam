@@ -224,3 +224,39 @@ operator authorization.
 
 The endpoint contract is regression-pinned by
 `tests/audit/test_seam_mem0_server.py`.
+
+## Canonical graph evidence/displacement preflight
+
+Before enabling graph-composed context in the facade, measure the existing
+`knowledge_edges` retriever against preserved matched-harness SQLite stores:
+
+```bash
+unset SEAM_PGVECTOR_DSN PGVECTOR_TEST_DSN SEAM_EMBEDDING_PROVIDER
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+python -m benchmarks.external.mem0_harness.preflight_graph_memory \
+  /path/to/matched-store-root --run-id <run-id> --summary-only
+```
+
+The command copies the stores to a temporary directory before current graph
+schema/backfill code opens them, validates every stored RAW turn against the
+canonical LoCoMo dataset, and runs the matched facade RAW baseline at top-200.
+The default candidate fills only unused top-200 rows with genuinely new RAW
+evidence reached through the canonical graph retriever, so it cannot displace a
+baseline row. Pass `--composition reserved-tail` to separately test the more
+aggressive policy that reserves up to 40 graph rows and measures the resulting
+displacement. The command never emits licensed text and makes zero provider
+calls. Promotion requires at least one newly present exact gold turn and zero
+displaced exact gold turns; this is not an answer score.
+
+The exact passing composition can be enabled on the real facade for a fresh
+candidate run with:
+
+```bash
+export SEAM_GRAPH_CONTEXT_POLICY=canonical-graph-fill/1
+python -m benchmarks.external.mem0_harness.seam_mem0_server \
+  --db-path /tmp/seam-graph-fill-candidate --port 8900
+```
+
+The policy is default-off. It uses the same canonical `knowledge_edges` graph
+retriever as the dashboard and appends only into vacant result rows; it never
+removes or reorders a primary RAW result.
