@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-21-multiscope-and-local-beam-complete
 supersedes: 2026-07-21-multiscope-gate-and-local-beam-in-progress
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#446
 ---
 

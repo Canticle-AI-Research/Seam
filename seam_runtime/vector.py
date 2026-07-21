@@ -280,6 +280,7 @@ class SQLiteVectorIndex:
                 "grounded-clm/1",
                 "grounded-clm/2",
                 "sentence-grounded-clm/1",
+                "multi-speaker-grounded/1",
             }
         ):
             subject = record.attrs.get("subject_label")
@@ -287,7 +288,10 @@ class SQLiteVectorIndex:
             obj = record.attrs.get("object")
             if (
                 record.ext.get("derived_fact_policy")
-                == "sentence-grounded-clm/1"
+                in {
+                    "sentence-grounded-clm/1",
+                    "multi-speaker-grounded/1",
+                }
                 and isinstance(obj, str)
                 and obj.strip()
             ):

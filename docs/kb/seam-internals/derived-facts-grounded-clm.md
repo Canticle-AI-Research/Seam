@@ -74,3 +74,34 @@ and the facade `seam_mem0_server.py`. Tests:
   loosening it to chase yield.
 - **This is a benchmark slice, not a product default.** Surfacing derived facts
   in the chat/MCP product is a separate, later decision.
+
+## Broadened multi-speaker variant (default-off research, 2026-07-21)
+
+The free representation gate showed `sentence-grounded-clm/1` reaches only 51/63
+misses. Reading mem0's actual extractor (`../memory-systems/mem0.md`, source-
+verified) isolated why: SEAM extracts **singular first-person only**, but the
+LoCoMo corpus is multi-speaker — most gold turns state facts about a *named
+other* ("Maria got a cat named Bailey"), which the first-person gate refuses.
+
+`multi-speaker-grounded/1` (`seam_runtime/multi_speaker_facts.py`, default-off,
+preflight-first) takes mem0's recall breadth — named third-party facts — while
+keeping grounding as the precision mechanism instead of mem0's LLM reconcile:
+
+1. Eligibility broadens from `first_person_declarative_evidence` to
+   `declarative_evidence` (any non-question sentence with a proper noun or a
+   first-person pronoun).
+2. The validator keeps number/negation preservation and adds fail-closed guards
+   for unresolved or ambiguous subjects, fabricated names, reported claims,
+   modality/state loss, and unsupported lexical content. Sentence scope requires
+   the name in the cited sentence. Turn scope permits only one unique preceding
+   named antecedent and rejects multiple candidates or a differently named
+   evidence subject.
+
+These are auditable syntactic guards, not a proof of arbitrary semantic
+entailment. The displacement audit therefore also requires exact candidate
+coverage and zero sentinel evidence loss before this lever can move forward.
+
+**Gate discipline:** measure coverage first, then run the exact-scope
+displacement auditor (`preflight_displacement_audit.py`) to prove every expected
+question is present, gold surfaces without harmful RAW displacement, and no
+sentinel loses evidence. Runtime plumbing stays explicit and default-off.

@@ -590,15 +590,40 @@ def test_splice_caps_facts_at_twenty_percent_and_preserves_raw_floor():
     }
     for size in range(1, len(mixed) + 1):
         prefix = mixed[:size]
-        assert (
-            sum(str(item["id"]).startswith("clm:") for item in prefix) * 5
-            <= len(prefix)
+        assert sum(str(item["id"]).startswith("clm:") for item in prefix) * 5 <= len(
+            prefix
         )
     assert [
-        index
-        for index, item in enumerate(mixed)
-        if str(item["id"]).startswith("clm:")
+        index for index, item in enumerate(mixed) if str(item["id"]).startswith("clm:")
     ][:4] == [4, 9, 14, 19]
+
+
+def test_splice_respects_smaller_research_fact_cap():
+    raw = [
+        {"id": f"raw:{index}", "memory": f"raw {index}", "score": 1.0}
+        for index in range(20)
+    ]
+    mixed = splice_derived_facts(
+        raw,
+        [_fact(index) for index in range(10)],
+        limit=20,
+        policy=GROUNDED_CLM_V1,
+        max_facts=2,
+    )
+    assert sum(str(item["id"]).startswith("clm:") for item in mixed) == 2
+
+
+def test_splice_rejects_negative_fact_cap():
+    import pytest
+
+    with pytest.raises(ValueError, match="max_facts"):
+        splice_derived_facts(
+            [{"id": "raw:0", "memory": "raw", "score": 1.0}],
+            [_fact(0)],
+            limit=10,
+            policy=GROUNDED_CLM_V1,
+            max_facts=-1,
+        )
 
 
 def test_splice_deduplicates_facts_and_forces_missing_source_raw():
@@ -628,23 +653,15 @@ def test_splice_deduplicates_facts_and_forces_missing_source_raw():
     assert sum(str(item["id"]).startswith("clm:") for item in mixed) == 2
     assert "raw:outside" in {str(item["id"]) for item in mixed}
     fact_positions = [
-        index
-        for index, item in enumerate(mixed)
-        if str(item["id"]).startswith("clm:")
+        index for index, item in enumerate(mixed) if str(item["id"]).startswith("clm:")
     ]
     assert fact_positions == [4, 9]
     for position in fact_positions:
         fact_row = mixed[position]
         assert fact_row["memory"].startswith("SEAM-FACT/1|")
         assert "SEAM-SOURCE/1|" in fact_row["memory"]
-        fact = next(
-            item
-            for item in facts
-            if item.claim_id == fact_row["id"]
-        )
-        assert fact.source_raw_id in {
-            str(item["id"]) for item in mixed[:position]
-        }
+        fact = next(item for item in facts if item.claim_id == fact_row["id"])
+        assert fact.source_raw_id in {str(item["id"]) for item in mixed[:position]}
 
 
 def test_splice_caps_facts_against_sparse_actual_output():
@@ -661,10 +678,7 @@ def test_splice_caps_facts_against_sparse_actual_output():
         limit=50,
         policy=GROUNDED_CLM_V1,
     )
-    fact_count = sum(
-        str(item["id"]).startswith("clm:")
-        for item in mixed
-    )
+    fact_count = sum(str(item["id"]).startswith("clm:") for item in mixed)
     assert fact_count * 5 <= len(mixed)
 
 
@@ -872,11 +886,7 @@ def test_manifest_binds_cache_identity_and_requires_cache_on_resume(
     monkeypatch.setattr(
         Path,
         "is_file",
-        lambda self: (
-            False
-            if self == expected_cache
-            else original_is_file(self)
-        ),
+        lambda self: False if self == expected_cache else original_is_file(self),
     )
     with pytest.raises(RuntimeError, match="cache is missing"):
         configure_derived_facts(
@@ -1090,9 +1100,7 @@ def test_candidate_accepts_official_locomo_timestamp_contract(tmp_path):
             timestamp="1:56 pm on 8 May, 2023",
         ),
     )
-    assert captured["text"] == (
-        "[John 1:56 pm on 8 May, 2023] I like surfing."
-    )
+    assert captured["text"] == ("[John 1:56 pm on 8 May, 2023] I like surfing.")
     batch = compile_nl(
         captured["text"],
         extractor=FirstPersonExtractor(),
@@ -1108,18 +1116,9 @@ def test_candidate_accepts_official_locomo_timestamp_contract(tmp_path):
     ]
     assert rich
     assert rich[0].attrs["subject_label"] == "John"
-    assert (
-        rich[0].ext["subject_resolution"]["method"]
-        == "first_person_to_turn_speaker"
-    )
-    raw = next(
-        record
-        for record in batch.records
-        if record.kind == RecordKind.RAW
-    )
-    assert raw.ext["source_metadata"]["timestamp"] == (
-        "1:56 pm on 8 May, 2023"
-    )
+    assert rich[0].ext["subject_resolution"]["method"] == "first_person_to_turn_speaker"
+    raw = next(record for record in batch.records if record.kind == RecordKind.RAW)
+    assert raw.ext["source_metadata"]["timestamp"] == ("1:56 pm on 8 May, 2023")
 
 
 def test_floor_adapter_blocks_legacy_env_extractor(monkeypatch, tmp_path):

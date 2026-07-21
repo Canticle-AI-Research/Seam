@@ -10632,3 +10632,35 @@ Closed the CI latency and compatibility defects observed while merging PR #153. 
 
 The merged advisory run also failed seven derived-fact tests under the declared sentence-transformers 2.7 dependency. Commit 6cbaf81 had passed a constructor keyword introduced after 2.7; the local 5.5 environment masked the mismatch. Local-only model loading now resolves the exact pinned Hugging Face snapshot with `local_files_only=True` and passes its local path to SentenceTransformer, preserving the declared 2.x contract and fail-closed no-network behavior without a major dependency bump. Three compatibility regressions cover cached repository resolution, existing local paths, and normal revision forwarding. Local CI guards passed 20/20; the retained exact CI 2.7 stack passed those three regressions plus all seven previously failing tests. The attempted broad replay through the retained Actions interpreter was invalid outside its Actions environment and hit unrelated mixed-environment failures plus a native crash; it is not counted as verification. Its authoritative broad rerun is deferred to the pushed Actions workflow and remains a pre-merge requirement for this follow-up. No provider call, paid benchmark, dataset download, or install occurred.
 ---END-ENTRY-#447---
+
+---BEGIN-ENTRY-#448---
+id: 448
+date: 2026-07-21T23:48:47Z
+agent: codex
+status: done
+topics: benchmark, locomo, retrieval, compile, provenance, audit, test, handoff, verify, graph, pack
+commits: pending
+refs: seam_runtime/multi_speaker_facts.py,seam_runtime/derived_fact_context.py,seam_runtime/nl.py,seam_runtime/vector.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/preflight_multi_speaker_facts.py,benchmarks/external/mem0_harness/preflight_displacement_audit.py,tests/audit/test_derived_fact_context.py,tests/audit/test_multi_speaker_runtime.py,tests/audit/test_multi_speaker_facts.py,tests/audit/test_displacement_audit.py,tests/audit/test_multi_speaker_preflight.py,docs/kb/memory-systems/mem0.md,docs/kb/seam-internals/derived-facts-grounded-clm.md,docs/handoffs/2026-07-21-multi-speaker-derived-facts-cloud-probe.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md
+supersedes: 447
+tokens: 614
+---
+Completed the GPT-4o multi-speaker derived-facts contract-vs-model probe on the exact LoCoMo conversations 3/4/5 slice: 130 questions comprising 34 baseline misses and 96 sentinels. The faithful cloud extraction made 1,968 GPT-4o calls with 686,738 input and 39,641 output tokens, accepted 1,046 of 1,305 model items for 80.15 percent yield, and cost $2.113255; observed extraction spend including the stopped fidelity check and synthetic smoke was approximately $2.147285. No answerer or judge call ran. The probe found and fixed a real pinned-harness transport mismatch: the upstream client re-sorted composed responses by score, so ordinal transport scores now preserve source-before-fact order and the 20 percent prefix ceiling. The broadened contract remains explicit, benchmark-only, and default-off, with fail-closed guards for ambiguous antecedents, compound, quoted, or reported evidence, clause recombination, unsupported lexical content, and tense, modality, number, or negation loss.
+
+The authoritative zero-provider strict replay gained three miss references and lost one for net plus two, but gained seven and lost eleven sentinel references. Caps 1, 2, and 4 each reduced miss movement to plus two and minus one for net plus one, while still gaining twelve and losing four sentinel references; order and ceiling violations were zero. Therefore no nonzero additive fact-row cap passed no-regression. Promotion, full cloud ingest, and paid judging are parked. The isolated direct episode-link graph slice measured zero gain and retained no code. The next derived-fact or graph experiment must use a non-displacing PACK; the graph lane additionally requires query-conditioned edge and source-record bridging plus multi-node or path agreement.
+
+Verification is scoped honestly. The exact affected slice collected 94 tests and passed all 94: 90 core runtime, validator, facade, and displacement tests plus four OpenAI extractor and preflight tests. Touched-file Ruff, compileall, git diff check, and the exact candidate secret and session-link scan passed. The strict non-external suite did not complete and is not claimed green: it was interrupted at 12 percent after the sole observed failure, test_quickstart_completes_under_180_seconds, measured 319.99 seconds against 180 seconds; no correctness failure had appeared. The changed nl and vector behavior is gated on explicit multi-speaker-grounded/1 while that quickstart runs with derived facts off. Host load at failure was 20.5, 22.3, 22.8 with concurrent GPU workloads including Ollama at approximately 6.4 GiB, so the event is recorded as environment-contended performance evidence rather than attributed to the default-off probe. External pgvector was not rerun because this slice does not modify that adapter. Operator-owned report PNGs and all external probe artifacts remain local, untouched, and excluded from git.
+---END-ENTRY-#448---
+
+---BEGIN-ENTRY-#449---
+id: 449
+date: 2026-07-21T23:50:13Z
+agent: codex
+status: changed
+topics: test, verify, history, continuity, audit
+commits: pending
+refs: HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md
+supersedes: 448
+tokens: 128
+---
+Correction to HISTORY#448 verification scope. The command pytest tests/audit/test_derived_fact_context.py tests/audit/test_multi_speaker_runtime.py tests/audit/test_multi_speaker_facts.py tests/audit/test_displacement_audit.py -q passed 90 tests. The separate command pytest tests/audit/test_multi_speaker_preflight.py -q passed 4 tests. The five-file collect-only command over those same paths collected the corresponding disjoint cases. This supplies the exact path scope required for the recorded test-count facts; all benchmark results, the full-suite performance failure and interruption, and the promotion decision in HISTORY#448 remain unchanged.
+---END-ENTRY-#449---

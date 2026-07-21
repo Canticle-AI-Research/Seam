@@ -41,9 +41,11 @@ from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 from seam_runtime.derived_fact_context import (
     DERIVED_FACTS_OFF,
     DERIVED_FACTS_POLICIES,
+    MULTI_SPEAKER_GROUNDED_V1,
     DerivedFact,
     grounded_spans_match_source,
     is_eligible_derived_claim,
+    resolve_derived_facts_policy,
     splice_derived_facts,
 )
 from seam_runtime.event_count_context import (
@@ -104,9 +106,8 @@ def _split_speaker(
     if ": " in content:
         speaker, text = content.split(": ", 1)
         if speaker and len(speaker) <= 64 and "\n" not in speaker:
-            explicit_for_facts = (
-                speaker == speaker.strip()
-                and not any(char in speaker for char in "\r\n[]")
+            explicit_for_facts = speaker == speaker.strip() and not any(
+                char in speaker for char in "\r\n[]"
             )
             return speaker, text, explicit_for_facts
     return "user", content, False
@@ -132,14 +133,13 @@ class SeamMem0Server:
         multi_scope_pack_policy: str | None = None,
         nl_extractor=None,
         derived_facts_cache_path: str | None = None,
+        derived_facts_max_facts: int = 40,
     ):
         resolved_graph_policy = graph_context_policy or os.environ.get(
             "SEAM_GRAPH_CONTEXT_POLICY", GRAPH_CONTEXT_OFF
         )
         if resolved_graph_policy not in GRAPH_CONTEXT_POLICIES:
-            raise ValueError(
-                f"unknown graph context policy {resolved_graph_policy!r}"
-            )
+            raise ValueError(f"unknown graph context policy {resolved_graph_policy!r}")
         resolved_multi_scope_policy = resolve_multi_scope_policy(
             multi_scope_pack_policy
             if multi_scope_pack_policy is not None
@@ -154,12 +154,13 @@ class SeamMem0Server:
             nl_extractor=nl_extractor,
             derived_facts_cache_path=derived_facts_cache_path,
         )
-        self._derived_facts_policy = (
-            self._adapter._derived_facts.config.policy
-        )
+        self._derived_facts_policy = self._adapter._derived_facts.config.policy
         self._derived_fact_config_fingerprint = (
             self._adapter._derived_facts.config.fingerprint
         )
+        if derived_facts_max_facts < 0:
+            raise ValueError("derived_facts_max_facts must be nonnegative")
+        self._derived_facts_max_facts = derived_facts_max_facts
         self._graph_context_policy = resolved_graph_policy
         self._multi_scope_pack_policy = resolved_multi_scope_policy
 
@@ -174,9 +175,7 @@ class SeamMem0Server:
         # depend on hour/minute anchors. Keep the historical LoCoMo envelope
         # date-only while retaining full UTC time for LongMemEval and BEAM.
         preserve_subday = str(user_id).startswith(("longmemeval_", "beam_"))
-        iso = _epoch_to_iso(
-            payload.get("timestamp"), preserve_subday=preserve_subday
-        )
+        iso = _epoch_to_iso(payload.get("timestamp"), preserve_subday=preserve_subday)
         added = 0
         for msg in messages:
             content = (msg or {}).get("content") or ""
@@ -210,6 +209,35 @@ class SeamMem0Server:
         if cached_extractor is not None:
             cached_extractor.purge_owner(f"locomo:{user_id}")
         return {"message": f"deleted memories for {user_id}"}
+
+    def probe_stats(self) -> dict[str, object]:
+        """Return numeric-only research extractor/cache counters."""
+
+        cached = self._adapter._derived_facts.extractor
+        if cached is None:
+            return {
+                "derived_facts_policy": self._derived_facts_policy,
+                "enabled": False,
+            }
+        provider = cached.extractor
+        rejection_counts = getattr(provider, "rejection_counts", {})
+        return {
+            "derived_facts_policy": self._derived_facts_policy,
+            "enabled": True,
+            "cache": cached.stats(),
+            "provider_calls": int(getattr(provider, "calls", 0) or 0),
+            "input_tokens": int(getattr(provider, "input_tokens", 0) or 0),
+            "output_tokens": int(getattr(provider, "output_tokens", 0) or 0),
+            "model_fact_items": int(getattr(provider, "model_fact_items", 0) or 0),
+            "validated_fact_items": int(
+                getattr(provider, "validated_fact_items", 0) or 0
+            ),
+            "max_facts_per_query": self._derived_facts_max_facts,
+            "rejection_counts": {
+                str(key): int(value)
+                for key, value in sorted(dict(rejection_counts).items())
+            },
+        }
 
     # -- retrieval ---------------------------------------------------------
 
@@ -248,11 +276,14 @@ class SeamMem0Server:
         if policy == DERIVED_FACTS_OFF:
             return out
         facts = self._search_derived_facts(user_id, query, limit)
-        return splice_derived_facts(
-            out,
-            facts,
-            limit=limit,
-            policy=policy,
+        return _pin_composed_order(
+            splice_derived_facts(
+                out,
+                facts,
+                limit=limit,
+                policy=policy,
+                max_facts=self._derived_facts_max_facts,
+            )
         )
 
     def _apply_multi_scope_pack_policy(
@@ -440,9 +471,11 @@ class SeamMem0Server:
         seen_content: set[str] = set()
         reached_limit = False
         for cand in result.candidates:
-            ids = self._adapter._collect_closure_ids_public(cand) \
-                if hasattr(self._adapter, "_collect_closure_ids_public") \
+            ids = (
+                self._adapter._collect_closure_ids_public(cand)
+                if hasattr(self._adapter, "_collect_closure_ids_public")
                 else _closure_ids(cand)
+            )
             batch = rt.store.load_ir(ids=ids)
             expanded_ids = list(ids)
             seen_ids = set(ids)
@@ -459,15 +492,21 @@ class SeamMem0Server:
                 if record.kind.value != "RAW":
                     continue
                 content = record.attrs.get("content")
-                if not isinstance(content, str) or not content or content in seen_content:
+                if (
+                    not isinstance(content, str)
+                    or not content
+                    or content in seen_content
+                ):
                     continue
                 seen_content.add(content)
-                out.append({
-                    "memory": content,
-                    "score": float(getattr(cand, "score", 0.0)),
-                    "id": record.id,
-                    "created_at": _created_at(record),
-                })
+                out.append(
+                    {
+                        "memory": content,
+                        "score": float(getattr(cand, "score", 0.0)),
+                        "id": record.id,
+                        "created_at": _created_at(record),
+                    }
+                )
                 if len(out) >= limit:
                     reached_limit = True
                     break
@@ -508,9 +547,7 @@ class SeamMem0Server:
                 candidate.record,
                 policy=self._derived_facts_policy,
             )
-            and candidate.record.ext.get(
-                "derived_fact_config_fingerprint"
-            )
+            and candidate.record.ext.get("derived_fact_config_fingerprint")
             == self._derived_fact_config_fingerprint
         ]
         if not candidates:
@@ -522,9 +559,7 @@ class SeamMem0Server:
             scope="thread",
         )
         candidates = [
-            candidate
-            for candidate in candidates
-            if candidate.record.id in allowed
+            candidate for candidate in candidates if candidate.record.id in allowed
         ]
         if not candidates:
             return []
@@ -533,11 +568,7 @@ class SeamMem0Server:
         seen_ids: set[str] = set()
 
         def add_id(record_id: object) -> None:
-            if (
-                isinstance(record_id, str)
-                and record_id
-                and record_id not in seen_ids
-            ):
+            if isinstance(record_id, str) and record_id and record_id not in seen_ids:
                 seen_ids.add(record_id)
                 initial_ids.append(record_id)
 
@@ -577,13 +608,9 @@ class SeamMem0Server:
             ):
                 continue
             subject_label = str(subject.attrs.get("label") or "").strip()
-            recorded_label = str(
-                claim.attrs.get("subject_label") or ""
-            ).strip()
-            if (
-                not subject_label
-                or " ".join(subject_label.lower().split())
-                != " ".join(recorded_label.lower().split())
+            recorded_label = str(claim.attrs.get("subject_label") or "").strip()
+            if not subject_label or " ".join(subject_label.lower().split()) != " ".join(
+                recorded_label.lower().split()
             ):
                 continue
 
@@ -809,6 +836,20 @@ def _created_at(record) -> str:
     return ""
 
 
+def _pin_composed_order(results: list[dict]) -> list[dict]:
+    """Keep a composed response stable through the pinned harness client.
+
+    ``memory-benchmarks`` sorts every OSS response by ``score`` even when the
+    facade has already composed a contract-bearing order. Replace only the
+    transport score with a strictly descending value so RAW-prefix spacing and
+    source-before-fact ordering survive that normalization step.
+    """
+
+    return [
+        {**item, "score": 1.0 - (index * 1e-9)} for index, item in enumerate(results)
+    ]
+
+
 def build_asgi_app(server: SeamMem0Server):
     """Wrap a SeamMem0Server in a FastAPI app exposing the Mem0-OSS routes.
 
@@ -841,6 +882,10 @@ def build_asgi_app(server: SeamMem0Server):
     async def health():
         return {"status": "ok"}
 
+    @app.get("/probe-stats")
+    async def probe_stats():
+        return server.probe_stats()
+
     return app
 
 
@@ -856,8 +901,7 @@ def main() -> None:
         choices=sorted(DERIVED_FACTS_POLICIES),
         default=None,
         help=(
-            "frozen ingest+retrieval policy; defaults to "
-            "SEAM_DERIVED_FACTS_POLICY or off"
+            "frozen ingest+retrieval policy; defaults to SEAM_DERIVED_FACTS_POLICY or off"
         ),
     )
     parser.add_argument(
@@ -866,12 +910,30 @@ def main() -> None:
         help="optional content-addressed extraction-cache path",
     )
     parser.add_argument(
+        "--derived-facts-max-facts",
+        type=int,
+        default=40,
+        help="research cap for derived facts composed into one response",
+    )
+    parser.add_argument(
+        "--multi-speaker-openai-model",
+        default=None,
+        help=(
+            "research-probe-only OpenAI extractor model; required when derived-facts-policy is multi-speaker-grounded/1"
+        ),
+    )
+    parser.add_argument(
+        "--multi-speaker-ground-scope",
+        choices=("sentence", "turn"),
+        default="turn",
+        help="name-grounding scope for the multi-speaker research probe",
+    )
+    parser.add_argument(
         "--graph-context-policy",
         choices=sorted(GRAPH_CONTEXT_POLICIES),
         default=None,
         help=(
-            "default-off canonical graph composition; defaults to "
-            "SEAM_GRAPH_CONTEXT_POLICY or off"
+            "default-off canonical graph composition; defaults to SEAM_GRAPH_CONTEXT_POLICY or off"
         ),
     )
     parser.add_argument(
@@ -879,13 +941,32 @@ def main() -> None:
         choices=sorted(MULTI_SCOPE_POLICIES),
         default=None,
         help=(
-            "default-off direct-readable reserved context pack; defaults to "
-            "SEAM_MULTI_SCOPE_PACK_POLICY or off"
+            "default-off direct-readable reserved context pack; defaults to SEAM_MULTI_SCOPE_PACK_POLICY or off"
         ),
     )
     args = parser.parse_args()
 
     import uvicorn
+
+    resolved_derived_policy = resolve_derived_facts_policy(args.derived_facts_policy)
+    nl_extractor = None
+    if resolved_derived_policy == MULTI_SPEAKER_GROUNDED_V1:
+        if not args.multi_speaker_openai_model:
+            parser.error(
+                "multi-speaker-grounded/1 requires --multi-speaker-openai-model"
+            )
+        from benchmarks.external.mem0_harness.preflight_multi_speaker_facts import (
+            OpenAIMultiSpeakerFactExtractor,
+        )
+
+        nl_extractor = OpenAIMultiSpeakerFactExtractor(
+            model=args.multi_speaker_openai_model,
+            ground_scope=args.multi_speaker_ground_scope,
+        )
+    elif args.multi_speaker_openai_model:
+        parser.error(
+            "--multi-speaker-openai-model requires --derived-facts-policy multi-speaker-grounded/1"
+        )
 
     server = SeamMem0Server(
         db_path=args.db_path,
@@ -894,7 +975,9 @@ def main() -> None:
         derived_facts_policy=args.derived_facts_policy,
         graph_context_policy=args.graph_context_policy,
         multi_scope_pack_policy=args.multi_scope_pack_policy,
+        nl_extractor=nl_extractor,
         derived_facts_cache_path=args.derived_facts_cache_path,
+        derived_facts_max_facts=args.derived_facts_max_facts,
     )
     uvicorn.run(build_asgi_app(server), host=args.host, port=args.port)
 
