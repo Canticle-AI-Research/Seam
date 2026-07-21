@@ -1,5 +1,15 @@
 from pathlib import Path
 
+import yaml
+
+FAST_CI_JOBS = {
+    "repo-hygiene",
+    "chroma-real-smoke",
+    "locomo-quickstart-bil2",
+    "package-smoke",
+    "pgvector-integration",
+}
+
 
 def test_ci_workflow_requires_locomo_bil2_and_chroma_smokes() -> None:
     workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
@@ -26,6 +36,32 @@ def test_ci_enforces_no_silent_skips() -> None:
     # the pgvector job runs the real-service test files (so they cannot silently skip)
     assert "test_pgvector_pk_composite.py" in workflow
     assert "test_substream_isolation.py" in workflow
+
+
+def test_advisory_suite_waits_for_fast_ci_jobs() -> None:
+    """The sole self-hosted runner must finish merge gates before the long suite."""
+    workflow = yaml.safe_load(
+        Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+    )
+
+    needs = workflow["jobs"]["test-and-benchmark"]["needs"]
+    assert set(needs) == FAST_CI_JOBS
+    assert len(needs) == len(FAST_CI_JOBS)
+    assert set(needs) <= set(workflow["jobs"])
+
+
+def test_advisory_suite_reports_slowest_tests() -> None:
+    workflow = yaml.safe_load(
+        Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+    )
+    runs = [
+        step.get("run", "")
+        for step in workflow["jobs"]["test-and-benchmark"]["steps"]
+    ]
+    assert any(
+        "python -m pytest" in run and "--durations=25" in run
+        for run in runs
+    )
 
 
 def test_strict_no_skip_hook_present() -> None:

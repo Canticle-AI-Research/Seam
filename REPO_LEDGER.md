@@ -156,6 +156,11 @@ and `HISTORY_INDEX.md`.
   `locomo-quickstart-bil2` required with strict latest-code status checks.
   Do not reintroduce direct-push bypass except as a time-boxed emergency
   with a follow-up HISTORY entry.
+- On the single `seam-box` runner, the advisory `test-and-benchmark` job must
+  depend on all five short Linux jobs so required merge feedback completes
+  before the 20-30 minute suite can occupy the runner. Do not remove that
+  ordering unless equivalent runner capacity or a stronger scheduling
+  guarantee replaces it.
 - `AGENTS.md` contains the cross-agent GitHub PR workflow: work through
   branches and draft PRs, isolate unrelated dirty files, keep PR bodies current,
   distinguish required checks from advisory matrix failures, and resolve stale
