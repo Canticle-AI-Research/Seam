@@ -46,6 +46,21 @@ def test_render_record_text_still_works_for_clm():
     assert "build_a_vector_search" in text, f"Expected object in text, got: {text!r}"
 
 
+def test_render_record_text_uses_readable_subject_for_grounded_fact():
+    clm = MIRLRecord(
+        id="clm:derived",
+        kind=RecordKind.CLM,
+        ext={"derived_fact_policy": "grounded-clm/1"},
+        attrs={
+            "subject": "ent:opaque:john",
+            "subject_label": "John",
+            "predicate": "likes",
+            "object": "surfing",
+        },
+    )
+    assert SQLiteVectorIndex.render_record_text(clm) == "John likes surfing"
+
+
 def test_raw_record_is_indexed(tmp_path):
     """RAW records pass through index_records and get vector entries."""
     from seam_runtime.models import HashEmbeddingModel

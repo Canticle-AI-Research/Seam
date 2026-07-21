@@ -13,10 +13,10 @@ not new benchmark plumbing.
 Produce auditable real-run evidence for:
 
 1. LoCoMo full dataset with SEAM adapter and a real judge.
-2. LongMemEval full dataset dry-run validation, then real-run only after a
-   judge adapter exists.
-3. BEAM-1M full dataset dry-run validation, then real-run only after a judge
-   adapter exists.
+2. LongMemEval full dataset validation, then execution through the pinned
+   upstream benchmark-specific answer/judge contract.
+3. BEAM-1M validation, then execution through the pinned upstream nugget-rubric
+   contract.
 4. Optional mem0 and Zep comparator runs when local credentials and dependencies
    are present.
 5. BIL-2 sealed bundles and verification reports for any real result.
@@ -58,7 +58,10 @@ paths outside git:
 
 - `LOCOMO_DATASET_PATH`: full LoCoMo JSON.
 - `LONGMEMEVAL_DATASET_PATH`: full LongMemEval JSON.
-- `BEAM_1M_DATASET_PATH`: BEAM-1M dataset directory.
+- `BEAM_1M_DATASET_PATH`: exported Hugging Face rows JSON for local validation,
+  or `BEAM_DATASET_CACHE_DIR` for upstream execution.
+- `MEMORY_BENCHMARKS_ROOT`: checkout of `mem0ai/memory-benchmarks` at the
+  revision pinned by `benchmarks/external/mem0_harness/upstream_runner.py`.
 - `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`: real judge credential.
 - Optional comparator credentials: `MEM0_API_KEY`, `ZEP_API_KEY`, or local
   service endpoints, depending on the comparator adapter.
@@ -81,9 +84,9 @@ the missing variable/path. Do not fake a score.
 5. A result is not publication-ready unless
    `validate_publication_readiness(...)` receives a passing BIL-2 verification
    report and returns `ready: true`.
-6. If a full runner is not implemented yet, do not invent one during this run.
-   Return the exact blocking implementation gap and stop that benchmark at
-   dry-run validation.
+6. The in-repo LongMemEval and BEAM parsers are validators only. Never use the
+   generic external-memory scorer for a competitive result; use the pinned
+   upstream harness through SEAM's loopback facade.
 
 ## Pre-flight
 
@@ -147,8 +150,30 @@ Dry-run:
   --dry-run --format json
 ```
 
-If full execution still reports "dry-run validation is supported" only, record
-that implementation gap and do not fabricate a result.
+Start the SEAM facade in a persistent shell, then run the free upstream
+predict-only path first:
+
+```bash
+.venv/bin/python -m seam bench external longmemeval \
+  --dataset-path "$LONGMEMEVAL_DATASET_PATH" \
+  --harness-root "$MEMORY_BENCHMARKS_ROOT" \
+  --project-name seam-longmemeval-readiness \
+  --predict-only --plan --format json
+
+.venv/bin/python -m benchmarks.external.mem0_harness.seam_mem0_server \
+  --db-path /tmp/seam-longmemeval --port 8900
+
+.venv/bin/python -m seam bench external longmemeval \
+  --dataset-path "$LONGMEMEVAL_DATASET_PATH" \
+  --harness-root "$MEMORY_BENCHMARKS_ROOT" \
+  --project-name seam-longmemeval-predict \
+  --mem0-host http://127.0.0.1:8900 \
+  --predict-only --workers 1 --format json
+```
+
+Only after the predict artifact and displacement checks pass may a separately
+approved scored run omit `--predict-only`; it must name the real judge and add
+`--allow-paid`.
 
 ### BEAM-1M
 
@@ -161,17 +186,40 @@ Dry-run:
   --dry-run --format json
 ```
 
-BEAM-10M remains deferred unless an operator explicitly approves a separate
-infrastructure plan.
+The directory dry-run is count-only. Use an exported official rows JSON to
+validate chat payloads and rubric nuggets. Real BEAM-1M execution uses:
+
+```bash
+.venv/bin/python -m seam bench external beam \
+  --track 1m \
+  --harness-root "$MEMORY_BENCHMARKS_ROOT" \
+  --project-name seam-beam-1m-readiness \
+  --dataset-cache-dir "$BEAM_DATASET_CACHE_DIR" \
+  --predict-only --plan --format json
+
+.venv/bin/python -m seam bench external beam \
+  --track 1m \
+  --harness-root "$MEMORY_BENCHMARKS_ROOT" \
+  --project-name seam-beam-1m-predict \
+  --mem0-host http://127.0.0.1:8900 \
+  --dataset-cache-dir "$BEAM_DATASET_CACHE_DIR" \
+  --predict-only --workers 1 --format json
+```
+
+BEAM-1M is 35 conversations / 700 questions; 100 / 2,000 describes the whole
+four-scale release. BEAM-10M remains deferred unless an operator explicitly
+approves a separate infrastructure plan and passes `--allow-10m`.
+If the selected BEAM cache is missing, the upstream runner's automatic large
+download is separately refused until the operator passes `--allow-download`.
 
 ### Comparator Runs
 
 Only run comparators when the local dependency and credentials are present.
 Report missing extras or env vars exactly.
 
-```bash
-.venv/bin/python -m benchmarks.external.mem0_harness.adapter --dry-run
-```
+The retired in-process `mem0_harness.adapter` must not be used. The supported
+comparator surface is the loopback `seam_mem0_server` HTTP contract plus the
+pinned upstream harness.
 
 Do not commit upstream harness clones or comparator-generated stores.
 

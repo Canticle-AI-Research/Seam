@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 410
-total_tokens: ~176839
-latest_id: 410
+total_entries: 446
+total_tokens: ~199179
+latest_id: 446
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,42 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 446 | 2026-07-21 | done | 365a3c989e8cac1f | benchmark,beam,pack,retrieval,+ | 445 |
+| 445 | 2026-07-21 | in-progress | 3c8a382dfdff32ea | benchmark,beam,pack,retrieval,+ | 444 |
+| 444 | 2026-07-21 | changed | f50aee8b616a65f0 | graph,memory,retrieval,benchmark,+ | 443 |
+| 443 | 2026-07-21 | done | dc33c3b073872ac8 | history,verify,audit,benchmark,+ | 442 |
+| 442 | 2026-07-21 | done | 4d879e7775669073 | graph,memory,retrieval,benchmark,+ | 441 |
+| 441 | 2026-07-21 | done | ea8c3fb04c79ea47 | benchmark,longmemeval,beam,memory,+ | 440 |
+| 440 | 2026-07-21 | in-progress | c44f9f6063559bb7 | benchmark,longmemeval,beam,memory,+ | 439 |
+| 439 | 2026-07-21 | done | f81b36f6a26058fd | benchmark,locomo,memory,retrieval,+ | 438 |
+| 438 | 2026-07-20 | done | 2d0eac31eb11dbdd | derived-facts,grounded-clm,retrieval,benchmark,+ | 437 |
+| 437 | 2026-07-20 | done | d729f0ca3d6c8634 | kb,docs,retrieval,benchmark,+ | 436 |
+| 436 | 2026-07-20 | done | 1394218c4094abdf | handoff,benchmark,retrieval,derived-facts,+ | 435 |
+| 435 | 2026-07-20 | done | ec6982808a096a0f | benchmark,locomo,mirl,retrieval,+ | 434 |
+| 434 | 2026-07-20 | done | 291b0956612e376a | benchmark,locomo,paid-run,negative-result,+ | 433 |
+| 433 | 2026-07-20 | done | c3150c723b150692 | retrieval,benchmark,mem0-harness,lever,+ | 432 |
+| 432 | 2026-07-20 | done | 99068044200991c5 | retrieval,benchmark,negative-result,plan | 431 |
+| 431 | 2026-07-20 | done | c0a57164b503ab15 | retrieval,benchmark,mem0-harness,lever | 430 |
+| 430 | 2026-07-20 | done | 8b5c726f0c2d373b | bugfix,benchmark,locomo,handoff,+ | 429 |
+| 429 | 2026-07-19 | done | 121a6292726aad96 | benchmark,locomo,paid-run,negative-result | 428 |
+| 428 | 2026-07-19 | done | bf0ea1683bf91d9c | ops,cost,benchmark,tooling | 427 |
+| 427 | 2026-07-19 | done | 8872a7d316b02d16 | benchmark,locomo,paid-run,handoff,+ | 426 |
+| 426 | 2026-07-19 | done | f3bd1e40528e2c6e | benchmark,locomo,ci,ops | 425 |
+| 425 | 2026-07-19 | done | 9d000c10ad7a98ca | ci,ops,infra,cost | 424 |
+| 424 | 2026-07-19 | done | 43ca04340bd63360 | benchmark,locomo,paid-run,mem0-harness,+ | 423 |
+| 423 | 2026-07-19 | done | 22ed4a4c15ef367f | benchmark,locomo,paid-run,handoff,+ | 422 |
+| 422 | 2026-07-18 | done | b54c82e68e2ba760 | benchmark,locomo,handoff,test,+ | 421 |
+| 421 | 2026-07-18 | done | 95bef19bdc2ae76d | benchmark,locomo,retrieval,verify,+ | 420 |
+| 420 | 2026-07-18 | done | cf6c406042c1f929 | benchmark,locomo,retrieval,memory,+ | 419 |
+| 419 | 2026-07-18 | done | 3f64d78d0a2465e7 | benchmark,locomo,retrieval,quality,+ | 418 |
+| 418 | 2026-07-18 | done | caca61176227ff50 | roadmap,docs,agent,memory | 417 |
+| 417 | 2026-07-18 | done | 5760e59a94518720 | benchmark,locomo,memory,retrieval,+ | 416 |
+| 416 | 2026-07-17 | done | 2c227cbce47c99dc | benchmark,locomo,memory,retrieval,+ | 415 |
+| 415 | 2026-07-17 | changed | 4f266a98d14dada0 | roadmap,benchmark,graph,memory,+ | 414 |
+| 414 | 2026-07-17 | planned | 96038f7dcae4fd4b | roadmap,benchmark,graph,memory,+ | 413 |
+| 413 | 2026-07-17 | done | a74254d921062762 | benchmark,locomo,cat3,open-domain,+ | 412 |
+| 412 | 2026-07-17 | done | 626d3dccf0dd76da | benchmark,locomo,exact-answer,negative-result,+ | 411 |
+| 411 | 2026-07-17 | done | e9c275f8a2528c01 | benchmark,results,reproduce,fix,+ | 410 |
 | 410 | 2026-07-17 | done | 97eaf38f02097a13 | benchmark,results,proof,provenance,+ | 409 |
 | 409 | 2026-07-17 | done | 144ab2d93af9b7f8 | handoff,registry,exact-answer,closeout | 408 |
 | 408 | 2026-07-17 | done | 324140f0884f98a8 | benchmark,locomo,levers,answer-contract,+ | 407 |
@@ -427,7 +463,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=3 latest=#407, #403, #402
+- agent: count=4 latest=#418, #407, #403, #402
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -439,37 +475,38 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=1 latest=#182
-- audit: count=80 latest=#398, #396, #391, #377, #376
+- audit: count=90 latest=#446, #445, #444, #443, #442
 - baseline: count=1 latest=#303
-- beam: count=1 latest=#223
-- benchmark: count=149 latest=#410, #408, #405, #401, #400
+- beam: count=5 latest=#446, #445, #441, #440, #223
+- benchmark: count=183 latest=#446, #445, #444, #443, #442
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=26 latest=#404, #401, #400, #390, #380
-- build: count=1 latest=#408
+- bugfix: count=31 latest=#444, #442, #441, #440, #430
+- build: count=2 latest=#413, #408
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - cat1: count=8 latest=#369, #365, #362, #358, #328
-- cat3: count=3 latest=#369, #365, #362
+- cat3: count=5 latest=#413, #412, #369, #365, #362
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=22 latest=#401, #400, #388, #387, #380
+- ci: count=25 latest=#427, #426, #425, #401, #400
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
-- cli: count=4 latest=#302, #293, #287, #285
+- cli: count=5 latest=#411, #302, #293, #287, #285
 - closeout: count=1 latest=#409
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
 - command: count=70 latest=#393, #389, #386, #251, #241
+- comparator: count=2 latest=#415, #414
 - comparison: count=1 latest=#333
 - competitors: count=1 latest=#384
-- compile: count=13 latest=#154, #047, #046, #043, #042
+- compile: count=16 latest=#439, #438, #435, #154, #047
 - compiler: count=9 latest=#317, #313, #311, #309, #308
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
@@ -478,7 +515,7 @@ compact: true
 - consolidation: count=1 latest=#306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=10 latest=#399, #397, #386, #382, #381
+- continuity: count=11 latest=#430, #399, #397, #386, #382
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -486,7 +523,7 @@ compact: true
 - correction: count=2 latest=#354, #299
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
-- cost: count=1 latest=#366
+- cost: count=3 latest=#428, #425, #366
 - cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
@@ -496,6 +533,7 @@ compact: true
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
+- derived-facts: count=2 latest=#438, #436
 - design-task: count=1 latest=#363
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
@@ -504,7 +542,7 @@ compact: true
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=46 latest=#378, #357, #354, #353, #352
+- docs: count=48 latest=#437, #418, #378, #357, #354
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -513,12 +551,13 @@ compact: true
 - entity-aggregation: count=2 latest=#358, #323
 - epistemic: count=1 latest=#325
 - evidence: count=2 latest=#375, #316
-- exact-answer: count=2 latest=#409, #408
+- exact-answer: count=3 latest=#412, #409, #408
 - experiment: count=1 latest=#273
 - extractor: count=1 latest=#313
 - extras: count=1 latest=#022
 - fairness: count=1 latest=#333
 - fidelity: count=7 latest=#313, #311, #308, #307, #306
+- fix: count=1 latest=#411
 - fixture: count=6 latest=#265, #187, #145, #092, #039
 - flags: count=1 latest=#320
 - flaky: count=1 latest=#361
@@ -532,26 +571,30 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=5 latest=#404, #403, #402, #099, #030
+- graph: count=10 latest=#444, #442, #441, #415, #414
 - graphrag: count=1 latest=#325
+- grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=28 latest=#409, #401, #400, #399, #398
+- handoff: count=44 latest=#446, #445, #444, #443, #442
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=272 latest=#404, #403, #402, #399, #388
+- history: count=273 latest=#443, #404, #403, #402, #399
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=2 latest=#406, #324
 - improve: count=1 latest=#302
-- infra: count=1 latest=#271
+- inference: count=1 latest=#413
+- infra: count=2 latest=#425, #271
 - ingest: count=2 latest=#317, #303
 - installer: count=16 latest=#360, #352, #337, #204, #177
 - instrumentation: count=1 latest=#366
 - integrity: count=9 latest=#281, #276, #218, #209, #133
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
+- kb: count=1 latest=#437
 - ledger: count=39 latest=#346, #302, #230, #181, #177
+- lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
 - lint: count=1 latest=#357
@@ -560,8 +603,8 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
-- locomo: count=63 latest=#410, #408, #405, #401, #400
-- longmemeval: count=1 latest=#223
+- locomo: count=80 latest=#439, #435, #434, #430, #429
+- longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
@@ -571,10 +614,11 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- memory: count=9 latest=#403, #402, #342, #340, #286
+- mem0-harness: count=4 latest=#434, #433, #431, #424
+- memory: count=20 latest=#444, #442, #441, #440, #439
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
-- mirl: count=30 latest=#313, #311, #309, #308, #307
+- mirl: count=31 latest=#435, #313, #311, #309, #308
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
 - models: count=2 latest=#403, #182
@@ -582,24 +626,29 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=4 latest=#033, #024, #009, #002
-- negative-result: count=1 latest=#392
+- negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
+- open-domain: count=1 latest=#413
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
-- pack: count=5 latest=#316, #315, #314, #218, #183
+- ops: count=4 latest=#428, #426, #425, #424
+- pack: count=8 latest=#446, #445, #416, #316, #315
 - packaging: count=4 latest=#296, #293, #287, #284
-- paid: count=1 latest=#365
+- paid: count=2 latest=#412, #365
+- paid-run: count=5 latest=#434, #429, #427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
+- parked: count=1 latest=#412
 - performance: count=3 latest=#364, #363, #362
-- persist: count=30 latest=#404, #403, #402, #401, #342
+- persist: count=31 latest=#435, #404, #403, #402, #401
 - pgvector: count=29 latest=#405, #354, #322, #295, #294
-- plan: count=14 latest=#243, #214, #180, #176, #171
+- plan: count=21 latest=#437, #436, #432, #422, #420
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
+- preflight: count=1 latest=#438
 - pricing: count=1 latest=#368
 - private-storage: count=1 latest=#367
 - process: count=1 latest=#304
@@ -610,16 +659,16 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=103 latest=#381, #380, #378, #356, #355
+- protocol: count=105 latest=#441, #440, #381, #380, #378
 - prov: count=1 latest=#316
-- provenance: count=4 latest=#410, #403, #402, #373
+- provenance: count=8 latest=#439, #435, #416, #414, #410
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
 - qr: count=1 latest=#307
-- quality: count=16 latest=#398, #397, #396, #395, #392
+- quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
-- rank: count=6 latest=#243, #242, #240, #017, #005
+- rank: count=7 latest=#439, #243, #242, #240, #017
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
 - readme: count=25 latest=#353, #352, #347, #346, #345
@@ -627,19 +676,21 @@ compact: true
 - recall: count=2 latest=#320, #317
 - reconcile: count=2 latest=#405, #182
 - reconciliation: count=1 latest=#305
-- recovery: count=1 latest=#271
+- recovery: count=2 latest=#433, #271
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
+- reference: count=1 latest=#437
 - regex: count=1 latest=#317
 - registry: count=5 latest=#409, #350, #348, #347, #178
 - release: count=3 latest=#356, #355, #350
 - repo-ledger: count=1 latest=#304
-- results: count=1 latest=#410
-- retrieval: count=81 latest=#403, #402, #400, #395, #390
+- reproduce: count=1 latest=#411
+- results: count=2 latest=#411, #410
+- retrieval: count=101 latest=#446, #445, #444, #442, #439
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
-- roadmap: count=55 latest=#407, #346, #333, #319, #318
+- roadmap: count=58 latest=#418, #415, #414, #407, #346
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -650,7 +701,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=52 latest=#404, #403, #359, #356, #355
+- security: count=53 latest=#430, #404, #403, #359, #356
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=4 latest=#300, #288, #286, #285
@@ -676,21 +727,21 @@ compact: true
 - telemetry: count=2 latest=#367, #366
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- temporal: count=1 latest=#400
-- test: count=43 latest=#344, #343, #342, #341, #340
+- temporal: count=2 latest=#441, #400
+- test: count=56 latest=#446, #445, #444, #442, #441
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
-- tooling: count=2 latest=#357, #324
+- tooling: count=4 latest=#438, #428, #357, #324
 - topk: count=1 latest=#320
 - traceability: count=1 latest=#316
 - training-corpus: count=1 latest=#366
 - trust: count=1 latest=#403
 - tui: count=25 latest=#137, #121, #120, #119, #118
 - unify: count=1 latest=#311
-- vector: count=26 latest=#364, #228, #223, #220, #218
+- vector: count=27 latest=#435, #364, #228, #223, #220
 - vector-adapters: count=1 latest=#359
-- verify: count=274 latest=#404, #403, #402, #401, #400
+- verify: count=284 latest=#446, #445, #444, #443, #442
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -703,7 +754,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 7
-- done: 379
-- in-progress: 4
-- planned: 20
+- changed: 9
+- done: 410
+- in-progress: 6
+- planned: 21

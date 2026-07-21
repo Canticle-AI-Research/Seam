@@ -5,6 +5,12 @@ import os
 import re
 from collections import Counter
 
+from .derived_fact_context import (
+    SENTENCE_GROUNDED_CLM_V1,
+    canonical_turn_prefix_end,
+    is_singular_first_person,
+    segment_propositions,
+)
 from .mirl import IRBatch, MIRLRecord, RecordKind, Status
 
 STOPWORDS = {"a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "into", "is", "it", "of", "on", "or", "that", "the", "this", "to", "we", "with", "without"}
@@ -34,7 +40,6 @@ _NON_ENTITY_CAPS = {"The", "A", "An", "My", "Our", "Your", "His", "Her", "Its", 
 # Sentence-ending punctuation. A run of these is a boundary only when followed by
 # whitespace or end-of-string (so 4.2 / 9:30 / B12 don't split). Detected by a
 # linear scan, NOT a regex (`[.!?]+(?=\s|$)` is polynomial on uncontrolled input).
-_SENTENCE_PUNCT = frozenset(".!?")
 _WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9'-]*")
 _PROPER_NOUN_RUN = re.compile(r"[A-Z][A-Za-z0-9]*(?:\s+[A-Z][A-Za-z0-9]*)*")
 
@@ -63,7 +68,18 @@ _LOCATION_REJECT = {"the", "a", "an", "i", "me", "my"}
 _ENTITY_REJECT = {"the", "a", "an", "i", "me", "my", "this", "that"}
 
 
-def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "local.default", scope: str = "thread", extractor=None) -> IRBatch:
+def compile_nl(
+    raw_text: str,
+    source_ref: str = "local://input",
+    ns: str = "local.default",
+    scope: str = "thread",
+    extractor=None,
+    *,
+    speaker: str | None = None,
+    source_timestamp: str | None = None,
+    derived_fact_policy: str | None = None,
+    allow_env_extractor: bool = True,
+) -> IRBatch:
     """Compile arbitrary natural language (memory or conversation turn) into
     faithful MIRL.
 
@@ -84,7 +100,11 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
     deterministic only (the floor is the determinism guarantee). Resolved from
     ``SEAM_NL_EXTRACTOR`` when not passed; CI never sets it, so the floor stays
     the default + only CI-measured behavior."""
-    if extractor is None and os.environ.get("SEAM_NL_EXTRACTOR"):
+    if (
+        extractor is None
+        and allow_env_extractor
+        and os.environ.get("SEAM_NL_EXTRACTOR")
+    ):
         from .nl_extract import extractor_from_env
 
         extractor = extractor_from_env()
@@ -107,13 +127,23 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
 
     entity_ids: dict[str, str] = {}
 
-    def entity_id(label: str, entity_type: str = "entity") -> str:
+    def entity_id(
+        label: str,
+        entity_type: str = "entity",
+        *,
+        promote_type: bool = False,
+    ) -> str:
         """Resolve (and lazily create) an ENT for ``label``, deduped by its
         lowercased form. The first call's ``entity_type`` wins (so a speaker
         resolved as ``person`` is not downgraded by a later generic mention)."""
         key = label.lower()
         existing = entity_ids.get(key)
         if existing is not None:
+            if promote_type:
+                for record in records:
+                    if record.id == existing and record.kind == RecordKind.ENT:
+                        record.attrs["entity_type"] = entity_type
+                        break
             return existing
         slug = re.sub(r"[^a-z0-9]+", "_", key).strip("_") or "entity"
         base = f"ent:{slug}:{source_hash}"
@@ -135,6 +165,30 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
     speaker_match = _SPEAKER_RE.match(raw_text)
     if speaker_match:
         speaker_subject = entity_id(speaker_match.group(1), "person")
+    turn_metadata = (
+        _validated_turn_metadata(
+            raw_text,
+            speaker=speaker,
+            source_timestamp=source_timestamp,
+        )
+        if extractor is not None and derived_fact_policy
+        else None
+    )
+    explicit_speaker = turn_metadata[0] if turn_metadata is not None else None
+    source_prefix_end = turn_metadata[1] if turn_metadata is not None else None
+    rich_extractor = extractor
+    if derived_fact_policy and turn_metadata is None:
+        # A candidate-policy CLM without a canonical speaker envelope cannot
+        # be safely attributed or served. Do not even index it: rich CLMs
+        # participate in retrieval before the presentation gate.
+        rich_extractor = None
+    if turn_metadata is not None:
+        records[0].ext["source_metadata"] = {
+            "format": "locomo-turn/1",
+            "speaker": explicit_speaker,
+            "timestamp": source_timestamp or "",
+            "prefix_end": source_prefix_end,
+        }
 
     # High-confidence proper-noun entities anywhere in the text.
     for run in _proper_noun_runs(raw_text):
@@ -154,22 +208,29 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
         facets: dict[str, str] | None = None,
         epistemic_basis: str | None = None,
         extraction_method: str | None = None,
+        subject_label: str | None = None,
+        record_id: str | None = None,
+        ext_fields: dict[str, object] | None = None,
     ) -> None:
         nonlocal claim_index
         attrs = {"subject": subject, "predicate": predicate, "object": obj}
+        if subject_label:
+            attrs["subject_label"] = subject_label
         if facets:
             attrs["facets"] = dict(facets)
-        ext = {}
+        ext = dict(ext_fields or {})
         if epistemic_basis:
             ext["epistemic_basis"] = epistemic_basis
         if extraction_method:
             ext["extraction_method"] = extraction_method
+        resolved_id = record_id or f"clm:{source_hash}:{claim_index}"
         records.append(
-            MIRLRecord(id=f"clm:{source_hash}:{claim_index}", kind=RecordKind.CLM, ns=ns, scope=scope,
+            MIRLRecord(id=resolved_id, kind=RecordKind.CLM, ns=ns, scope=scope,
                        conf=confidence, prov=[prov_id], evidence=[span_id],
                        ext=ext, attrs=attrs)
         )
-        claim_index += 1
+        if record_id is None:
+            claim_index += 1
 
     def add_relation(src: str, predicate: str, dst: str, span_id: str, confidence: float = 0.85) -> None:
         nonlocal rel_index
@@ -180,7 +241,7 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
         )
         rel_index += 1
 
-    for proposition, start, end in _segment_propositions(raw_text):
+    for proposition, start, end in segment_propositions(raw_text):
         subject_label = _leading_subject(proposition)
         if not subject_label:
             continue
@@ -199,10 +260,138 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
         # Opt-in rich extractor: REAL (subject, relation, object) triples + entities
         # (already grounded against this proposition), replacing the regex
         # enrichment. Falls back to the regex enrichment when it returns nothing.
-        extraction = extractor.extract(proposition) if extractor is not None else None
+        extraction_text = proposition
+        extraction_offset = 0
+        if (
+            source_prefix_end is not None
+            and start <= source_prefix_end <= end
+        ):
+            extraction_offset = source_prefix_end - start
+            extraction_text = proposition[extraction_offset:]
+        if derived_fact_policy == SENTENCE_GROUNDED_CLM_V1:
+            sentence_method = getattr(
+                rich_extractor,
+                "extract_sentence_facts",
+                None,
+            )
+            sentence_facts = (
+                sentence_method(extraction_text, speaker=explicit_speaker)
+                if callable(sentence_method) and explicit_speaker
+                else ()
+            )
+            for sentence_fact in sentence_facts:
+                claim_subject = entity_id(
+                    explicit_speaker,
+                    "person",
+                    promote_type=True,
+                )
+                evidence_start = (
+                    start
+                    + extraction_offset
+                    + sentence_fact.evidence_start
+                )
+                evidence_end = (
+                    start
+                    + extraction_offset
+                    + sentence_fact.evidence_end
+                )
+                evidence_text = sentence_fact.evidence_sentence
+                ext_fields: dict[str, object] = {
+                    "derived_fact_policy": derived_fact_policy,
+                    "fact_sha256": hashlib.sha256(
+                        sentence_fact.fact.encode()
+                    ).hexdigest(),
+                    "grounded_spans": [
+                        {
+                            "field": "evidence_sentence",
+                            "text": evidence_text,
+                            "start": evidence_start,
+                            "end": evidence_end,
+                        }
+                    ],
+                    "source_sentence": {
+                        "text": evidence_text,
+                        "start": evidence_start,
+                        "end": evidence_end,
+                        "sha256": hashlib.sha256(
+                            evidence_text.encode()
+                        ).hexdigest(),
+                    },
+                    "subject_resolution": {
+                        "method": "sentence_fact_to_turn_speaker",
+                        "speaker": explicit_speaker,
+                    },
+                }
+                extractor_metadata = getattr(
+                    rich_extractor,
+                    "config_metadata",
+                    None,
+                )
+                if callable(extractor_metadata):
+                    config = extractor_metadata()
+                    if isinstance(config, dict):
+                        ext_fields["extractor"] = config
+                config_fingerprint = getattr(
+                    rich_extractor,
+                    "config_fingerprint",
+                    None,
+                )
+                if isinstance(config_fingerprint, str) and config_fingerprint:
+                    ext_fields["derived_fact_config_fingerprint"] = (
+                        config_fingerprint
+                    )
+                add_claim(
+                    "sentence_fact",
+                    sentence_fact.fact,
+                    claim_subject,
+                    span_id,
+                    0.85,
+                    epistemic_basis="explicit",
+                    extraction_method="sentence_grounded_local_model",
+                    subject_label=explicit_speaker,
+                    record_id=_sentence_fact_record_id(
+                        source_hash,
+                        span_id,
+                        sentence_fact.fact,
+                        explicit_speaker,
+                        evidence_start,
+                        evidence_end,
+                    ),
+                    ext_fields=ext_fields,
+                )
+            # The sentence extractor intentionally has no S-R-O ``extract``
+            # fallback. An empty result leaves only the faithful RAW/content
+            # floor; it never activates the older strict grounded-CLM path.
+            continue
+        extraction = (
+            rich_extractor.extract(extraction_text)
+            if rich_extractor is not None
+            else None
+        )
         if extraction is not None and extraction.claims:
-            for entity in extraction.entities:
-                entity_id(entity.name, entity.entity_type)
+            rebased_claim_ids = {
+                id(claim)
+                for claim in extraction.claims
+                if explicit_speaker
+                and is_singular_first_person(claim.subject)
+                and _candidate_claim_is_lossless(
+                    extraction_text,
+                    claim,
+                    clause_scoped=(derived_fact_policy == "grounded-clm/2"),
+                )
+            }
+            rebased_subjects = {
+                _normalized_label(claim.subject)
+                for claim in extraction.claims
+                if id(claim) in rebased_claim_ids
+            }
+            if not derived_fact_policy:
+                for entity in extraction.entities:
+                    if (
+                        _normalized_label(entity.name) in rebased_subjects
+                    ):
+                        continue
+                    entity_id(entity.name, entity.entity_type)
             # Extractor-identified entity names gate REL emission below: a
             # claim's object is only a real entity-entity edge when the
             # extractor itself flagged that phrase (or its head words) as an
@@ -213,24 +402,91 @@ def compile_nl(raw_text: str, source_ref: str = "local://input", ns: str = "loca
             # matches the bare entity name ("billing service").
             extracted_entity_word_sets = [_content_words(e.name) for e in extraction.entities]
             for claim in extraction.claims:
-                claim_subject = entity_id(claim.subject, "entity")
-                object_ent_id = entity_id(claim.obj, "entity")  # the object phrase is a grounded entity too
+                rebased = id(claim) in rebased_claim_ids
+                if derived_fact_policy and not rebased:
+                    continue
+                resolved_subject_label = (
+                    explicit_speaker if rebased else claim.subject
+                )
+                assert resolved_subject_label is not None
+                claim_subject = entity_id(
+                    resolved_subject_label,
+                    "person" if rebased else "entity",
+                    promote_type=rebased,
+                )
+                object_ent_id = (
+                    entity_id(claim.obj, "entity")
+                    if not derived_fact_policy
+                    else None
+                )
+                facets = claim.facets()
+                resolution: dict[str, object] | None = None
+                if rebased:
+                    facets["who"] = resolved_subject_label
+                    resolution = {
+                        "method": "first_person_to_turn_speaker",
+                        "surface": claim.subject,
+                        "speaker": resolved_subject_label,
+                    }
+                grounded_spans = _grounded_spans_payload(
+                    claim,
+                    proposition_start=start + extraction_offset,
+                )
+                ext_fields: dict[str, object] = {
+                    "grounded_spans": grounded_spans,
+                }
+                if derived_fact_policy:
+                    ext_fields["derived_fact_policy"] = derived_fact_policy
+                extractor_metadata = getattr(
+                    rich_extractor,
+                    "config_metadata",
+                    None,
+                )
+                if callable(extractor_metadata):
+                    config = extractor_metadata()
+                    if isinstance(config, dict):
+                        ext_fields["extractor"] = config
+                config_fingerprint = getattr(
+                    rich_extractor,
+                    "config_fingerprint",
+                    None,
+                )
+                if isinstance(config_fingerprint, str) and config_fingerprint:
+                    ext_fields["derived_fact_config_fingerprint"] = (
+                        config_fingerprint
+                    )
+                if resolution is not None:
+                    ext_fields["subject_resolution"] = resolution
                 add_claim(
                     claim.relation,
                     claim.obj,
                     claim_subject,
                     span_id,
                     0.85,
-                    facets=claim.facets(),
+                    facets=facets,
                     epistemic_basis=claim.epistemic_basis,
                     extraction_method="grounded_local_model",
+                    subject_label=resolved_subject_label,
+                    record_id=_derived_claim_record_id(
+                        source_hash,
+                        span_id,
+                        claim,
+                        resolved_subject_label,
+                    ),
+                    ext_fields=ext_fields,
                 )
                 # Cross-turn entity coreference (storage.persist_ir) only has
                 # teeth for retrieval if a real entity-to-entity edge exists;
                 # the verbatim CLM above never qualifies (object is text, not
                 # an id). Emit one only when both ends are genuine entities.
                 object_words = _content_words(claim.obj)
-                if any(words and words <= object_words for words in extracted_entity_word_sets):
+                if (
+                    object_ent_id is not None
+                    and any(
+                        words and words <= object_words
+                        for words in extracted_entity_word_sets
+                    )
+                ):
                     add_relation(claim_subject, claim.relation, object_ent_id, span_id)
         elif regex_enrich:
             # Legacy regex enrichment (default OFF; see SEAM_NL_REGEX_ENRICH above).
@@ -280,49 +536,158 @@ def _extract_conversational(text: str, subject: str, span_id: str, add_claim, sp
                 add_claim(predicate, obj, subject, span_id, 0.85)
 
 
-def _segment_propositions(text: str) -> list[tuple[str, int, int]]:
-    """Split ``text`` into propositions (sentences) with REAL character offsets.
-
-    A run of ``.!?`` is a boundary only when followed by whitespace or end of
-    string (so 4.2 / 9:30 / B12 don't split). Each result is
-    ``(proposition_text, start, end)`` with ``text[start:end] == proposition_text``
-    (surrounding whitespace trimmed); only propositions with at least one word are
-    kept. The scan is O(n) and backtracking-free, so it is safe on uncontrolled
-    input."""
-    result: list[tuple[str, int, int]] = []
-
-    def emit(start: int, end: int) -> None:
-        segment = text[start:end]
-        lead = len(segment) - len(segment.lstrip())
-        trimmed = segment.strip()
-        if trimmed and _WORD.search(trimmed):
-            real_start = start + lead
-            result.append((text[real_start:real_start + len(trimmed)], real_start, real_start + len(trimmed)))
-
-    length = len(text)
-    cursor = 0
-    index = 0
-    while index < length:
-        if text[index] in _SENTENCE_PUNCT:
-            run_end = index
-            while run_end < length and text[run_end] in _SENTENCE_PUNCT:
-                run_end += 1
-            if run_end >= length or text[run_end].isspace():
-                emit(cursor, run_end)
-                cursor = run_end
-            index = run_end
-        else:
-            index += 1
-    if cursor < length:
-        emit(cursor, length)
-    if not result:
-        emit(0, length)
-    return result
-
-
 def _content_words(text: str) -> frozenset[str]:
     """Lowercased word tokens of ``text``, for token-subset entity matching."""
     return frozenset(match.group(0).lower() for match in _WORD.finditer(text))
+
+
+def _normalized_label(text: str) -> str:
+    return " ".join(match.group(0).lower() for match in _WORD.finditer(text))
+
+
+def _validated_turn_metadata(
+    raw_text: str,
+    *,
+    speaker: str | None,
+    source_timestamp: str | None,
+) -> tuple[str, int] | None:
+    """Validate the adapter's exact bracketed speaker/timestamp envelope."""
+
+    prefix_end = canonical_turn_prefix_end(
+        raw_text,
+        speaker=speaker,
+        timestamp=source_timestamp,
+    )
+    if prefix_end is None or not isinstance(speaker, str):
+        return None
+    candidate = speaker.strip()
+    return candidate, prefix_end
+
+
+def _candidate_claim_is_lossless(
+    proposition: str,
+    claim,
+    *,
+    clause_scoped: bool = False,
+) -> bool:
+    """Revalidate injected extractor output before candidate indexing.
+
+    ``clause_scoped`` (grounded-clm/2) validates the complete-clause gate against
+    the clause enclosing the S-R-O rather than the whole proposition, so a clean
+    self-claim inside a compound sentence is admitted. All other checks (single
+    verbatim spans, explicit basis, ordered gap-free single-clause S-R-O) are
+    unchanged, so precision is preserved.
+    """
+
+    from .nl_extract import clause_window, grounded_sro_is_coherent
+
+    if str(getattr(claim, "epistemic_basis", "")).strip().lower() != "explicit":
+        return False
+    source_spans = getattr(claim, "source_spans", ())
+    required = {
+        field: [
+            span
+            for span in source_spans
+            if getattr(span, "field", None) == field
+        ]
+        for field in ("subject", "relation", "object")
+    }
+    if any(len(spans) != 1 for spans in required.values()):
+        return False
+    spans = {field: values[0] for field, values in required.items()}
+    for span in spans.values():
+        if (
+            not isinstance(span.start, int)
+            or not isinstance(span.end, int)
+            or span.start < 0
+            or span.end <= span.start
+            or span.end > len(proposition)
+            or proposition[span.start:span.end] != span.text
+        ):
+            return False
+
+    def normalized(value: object) -> str:
+        return " ".join(str(value or "").casefold().split())
+
+    if (
+        normalized(spans["subject"].text) != normalized(claim.subject)
+        or normalized(spans["relation"].text) != normalized(claim.relation)
+        or normalized(spans["object"].text) != normalized(claim.obj)
+    ):
+        return False
+    if clause_scoped:
+        evidence_start, evidence_end = clause_window(
+            proposition,
+            spans["subject"].start,
+            spans["object"].end,
+        )
+    else:
+        evidence_start, evidence_end = 0, len(proposition)
+    return grounded_sro_is_coherent(
+        proposition,
+        spans["subject"],
+        spans["relation"],
+        spans["object"],
+        evidence_start=evidence_start,
+        evidence_end=evidence_end,
+        require_complete_clause=True,
+    )
+
+
+def _grounded_spans_payload(
+    claim,
+    *,
+    proposition_start: int,
+) -> list[dict[str, object]]:
+    return [
+        {
+            "field": span.field,
+            "text": span.text,
+            "start": proposition_start + span.start,
+            "end": proposition_start + span.end,
+        }
+        for span in getattr(claim, "source_spans", ())
+    ]
+
+
+def _derived_claim_record_id(
+    source_hash: str,
+    span_id: str,
+    claim,
+    subject_label: str,
+) -> str:
+    seed = "\0".join(
+        (
+            span_id,
+            subject_label,
+            str(claim.relation),
+            str(claim.obj),
+            str(claim.epistemic_basis),
+        )
+    )
+    digest = hashlib.sha256(seed.encode()).hexdigest()[:12]
+    return f"clm:{source_hash}:derived:{digest}"
+
+
+def _sentence_fact_record_id(
+    source_hash: str,
+    span_id: str,
+    fact: str,
+    subject_label: str,
+    evidence_start: int,
+    evidence_end: int,
+) -> str:
+    seed = "\0".join(
+        (
+            span_id,
+            subject_label,
+            fact,
+            str(evidence_start),
+            str(evidence_end),
+        )
+    )
+    digest = hashlib.sha256(seed.encode()).hexdigest()[:12]
+    return f"clm:{source_hash}:sentence-derived:{digest}"
 
 
 def _leading_subject(proposition: str) -> str:

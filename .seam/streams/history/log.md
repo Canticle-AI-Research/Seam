@@ -9106,3 +9106,1513 @@ tokens: 585
 ---
 Posted the undeniable proof of specific benchmark runs to the repo as a new canonical doc benchmarks/RESULTS.md (operator: GitHub gets the verifiable truth of specific runs; the narrative/lab-data page goes on the website separately). Two runs, each fully specified and anchored: (1) SEAM LoCoMo native judged holdout A/B (record 20260716-102125-locomo-holdout.json, SHA-256 af816aa1e228cb9d264e115f260112363937cd4f8f7f44f6fafc761613012716, git af5698b, gpt-4o-mini answerer+judge judge/1, 344-case holdout): candidate broad + conversation/4 + inference/high-confidence/2 + temporal/1 = 0.776163 vs stock 0.633721 (+0.142442); per-category candidate cat1 0.5738/cat2 0.7432/cat3 0.5952/cat4 0.8743/cat5 1.0; both aggregates RECOMPUTED from the raw per-case judge_score rows (not a stored scalar) and matched HISTORY#405 exactly. (2) SEAM on mem0's unmodified harness (mem0ai/memory-benchmarks @4b61c5d) as a drop-in Mem0-OSS server, lenient binary judge (record 20260715-091018-mem0-harness-cat13.json, SHA-256 e93cc7a4... VERIFIED matching HISTORY#400): multi-hop 250/282=88.65%, open-domain 83/96=86.46%, overall 333/378=88.10%. The doc's design is deliberate: full per-case records are NOT committed (LoCoMo is a licensed dataset; dumping rows redistributes the eval set), so proof rests on three checkable legs - reproduce command, aggregate recomputable from the record, and the record SHA-256 as an out-of-band integrity anchor. Honest caveats included and load-bearing: 0.776163 is only +0.0073 over the cleaner #390 stack and its conversation/4 component is net-negative on cat1 (conversation/2 is the recommended base); the mem0-harness lenient judge is NOT on the same scale as native judge/1 and the two must not be averaged; cat3 holdout n=21. The unvalidated exact-answer/1 lever (#408) explicitly has NO entry. Added a pointer from BENCHMARK_LOG.md. Doc-only; no code, no provider call, no paid run, no raw case data committed. Verification: SHA-256s computed from the mounted T7 records; mem0 SHA byte-matches the committed HISTORY#400 value; SEAM chain verifiers run in this closeout.
 ---END-ENTRY-#410---
+
+---BEGIN-ENTRY-#411---
+id: 411
+date: 2026-07-17T17:48:07Z
+agent: claude
+status: done
+topics: benchmark, results, reproduce, fix, cli
+commits: pending
+refs: benchmarks/RESULTS.md
+supersedes: 410
+tokens: 264
+---
+Corrected the Run 1 reproduce command in benchmarks/RESULTS.md (HISTORY#410), which was non-runnable as committed - a real defect in a doc whose entire value is reproducibility. Two problems: (1) it invoked 'python -m seam_runtime.cli', but that module has no __main__ guard so it imports and exits 0 with zero output; the real entrypoint is the 'seam' console script (pyproject 'seam = seam:main'). (2) it omitted the required --locomo-dataset and the --locomo-scopes needed to select the 344-case holdout. Fixed to 'seam improve validate --locomo-dataset benchmarks/external/locomo/data/locomo10.json --locomo-scopes 10 --split holdout ...' and added a note that omitting --confirm-paid prints a free cost estimate. VERIFIED by a real free dry-run: the corrected command reports cases=344, passes=2, candidate conversation/4 - exactly matching the #405 champion record it documents. Found while setting up the exact-answer/1 A/B (which is running in the background as a separate paid task, recorded separately on completion). Doc-only; no code, no provider call, no paid spend in this entry.
+---END-ENTRY-#411---
+
+---BEGIN-ENTRY-#412---
+id: 412
+date: 2026-07-17T19:11:22Z
+agent: claude
+status: done
+topics: benchmark, locomo, exact-answer, negative-result, paid, parked, cat3
+commits: pending
+refs: seam_runtime/conversation.py
+supersedes: 411
+tokens: 753
+---
+Ran the operator-authorized exact-answer/1 paid A/B (344 holdout, gpt-4o-mini answerer+judge judge/1, git dd39fc5). NEGATIVE RESULT - exact-answer/1 is a MEASURED LOSER, tested-and-parked default-off. Candidate conversation/2 + inference/high-confidence/2 + temporal/1 + broad + answer_contract=exact-answer/1 scored 0.747093 (recomputed from raw rows) vs stock 0.629360, verdict 'improved' vs stock BUT below both existing champions: #390 (conversation/2 + hc/1 + temporal/1 + broad) 0.768895 and #405 (conversation/4 stack) 0.776163. Per-category vs #390 (same conv/2 base, differs only by hc/1->hc/2 and +exact-answer/1): EVERY category regressed - cat1 0.5984 (-0.016), cat2 0.6824 (-0.041), cat3 0.5476 (-0.048), cat4 0.8476 (-0.008), cat5 1->0 (n=1). FREE per-case attribution confirmed the mechanism and overturns the design premise: the contract's PRECISION-prune clause ('remove anything the question did not ask for') is BACKWARDS for judge/1. Example conv Joanna filmmaker: gold 'filmmaker'; #390 answered 'screenwriter and filmmaker' (correct 1.0); this run pruned to 'screenwriter' (partial 0.5) - the prune DELETED the gold. cat3 candidate answers are terser (mean 101 vs 140 chars). judge/1 REWARDS the fuller answer because it is likelier to contain the gold, so pruning extras loses gold - the same over-terse failure mode that sank conversation/3 (#392). The coverage+anchoring halves did not offset the prune damage; cat1 net -0.016 too. DECISION: exact-answer/1 parked default-off (kept in code with a MEASURED LOSER comment for provenance, precedent conversation/3/4 + temporal/2); do NOT enable. Champions unchanged (#405 0.7762 / #390 0.7689). Record: 20260717-132158-locomo-holdout.json, SHA-256 1b6b5f6adb506c78624523f5faf7522d546fed1a124213b9f2d4c3936673cfa8, 688 rows, cost 0.803004 USD, 5263485 tokens, 0 empty/0 judge-retries. Env note: 2 prior attempts failed at ZERO spend (non-interactive run shell lacked the T7 HF cache config; embedder BAAI/bge-small-en-v1.5 unresolvable) - fixed with HF_HUB_CACHE=/media/terrabyte/T7/hf-cache + HF_HUB_OFFLINE=1/TRANSFORMERS_OFFLINE=1, verified offline load + OpenAI reachability before re-spending; logged incident 2026-07-17-001. NEXT (per operator goals to lift cat3 open-domain and pass 91% cat1 on the mem0 harness): the data proves cat3 wants COMPLETENESS + open-domain world-knowledge licensing (the #398 gap, name-the-entity-from-clues), NOT pruning; cat1->91% mem0 is likely retrieval-bound (multi-hop), separate track. Doc+comment only; the negative result is the deliverable.
+---END-ENTRY-#412---
+
+---BEGIN-ENTRY-#413---
+id: 413
+date: 2026-07-17T19:32:03Z
+agent: claude
+status: done
+topics: benchmark, locomo, cat3, open-domain, inference, lever, handoff, build
+commits: pending
+refs: seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_semantic_conversation_adapter.py,docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,docs/handoffs/INDEX.md
+supersedes: 412
+tokens: 625
+---
+Built inference/high-confidence/3, the on-goal cat3 open-domain lever, after HISTORY#412's exact-answer rejection + a free per-case scan of the #390 champion's 11 cat3 misses. The scan found the real gap: ~4-5 cases where the answerer abstains/describes instead of NAMING a well-known entity the retrieved clues uniquely identify (composer John Williams from 'plays Star Wars tunes', Voyageurs NP, Star Wars Ireland locations, Exploding Kittens). hc/3 builds on hc/2 (keeps its anti-abstention + enumerate-then-count) and adds an open-domain world-knowledge NAMING clause with an ambiguity guard (name the one well-known entity that uniquely matches the clues; if several fit, do not guess). This is the OPPOSITE lever from the rejected exact-answer prune - completeness/naming, not pruning - matching the data (judge/1 rewards fuller answers). Low wiring: inference_policy is an existing RetrievalFlags field, so only conversation.py (constant + INFERENCE_POLICIES frozenset + directive clause + docstring) and self_improve.py (candidate lever) changed; coerce_flag_value/env/all adapters inherit hc/3 automatically via the frozenset. Opt-in default off; v1/v2 pinned byte-stable; every default prompt byte-identical (test-pinned). Verification (free, no paid call): 3 new tests + affected slices green (81 in the conversation/flags/loop slice), end-to-end wiring smoke green (lever registered, prompt contains the naming clause, defaults unchanged), ruff clean; full pytest tests/ green EXCEPT 2 embedder-env-dependent test_seam_mem0_server tests that FAIL only because the suite shell lacked HF_HUB_CACHE/HF_HUB_OFFLINE (the same T7-cache issue behind HISTORY#412's two zero-spend run failures) and all nine pass with that env set - not a regression from this change. BUILT-NOT-YET-VALIDATED. Lined up for SOL a tracked handoff (docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md, registered latest) carrying: the MANDATORY env exports, a ~0.05 USD cat3 preflight (hc/2 vs hc/3 on the champion's stored cat3 contexts, isolates the naming clause) inline verbatim, and the dry-run-verified full A/B command (candidate conversation/2 + hc/3 + temporal/1 + broad vs stock, ~0.80 USD, 344 holdout). Operator gates every paid run; SOL executes, none run here. Advisor/Fable was requested but is disabled this conversation, so the data analysis was done directly (offered operator to invoke Fable independently). cat1->91% mem0 remains a separate retrieval-side track (native cat1 misses are set-partials the lenient judge already credits). Champions unchanged (#405 0.7762 / #390 0.7689).
+---END-ENTRY-#413---
+
+---BEGIN-ENTRY-#414---
+id: 414
+date: 2026-07-17T19:52:56Z
+agent: codex
+status: planned
+topics: roadmap, benchmark, graph, memory, retrieval, comparator, provenance, quality, plan
+commits: pending
+refs: ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md,docs/KNOWLEDGE_GRAPH.md
+supersedes: 413
+tokens: 394
+---
+Recorded the operator's benchmark-first sequencing decision as new planned
+ROADMAP Track R, Zep-Class Temporal Graph Parity. SEAM's native judge/1
+holdout remains the primary quality standard because its contract is more
+discriminating about exactness, temporal correctness, unsupported additions,
+and completeness. The roadmap explicitly avoids the inverse fallacy: a lower
+score on a stricter harness is not by itself proof of correctness; the claim
+depends on the documented scorer contract and per-case audits.
+
+The external gate is separate: run Mem0 and SEAM inside Mem0's own harness with
+dataset, split, answerer, judge, retrieval budget, and cutoff held constant,
+and surpass Mem0 there. Native and Mem0-harness results must remain separate
+scoreboards and must never be averaged or relabeled as movement on each other.
+Track R starts only after native progress and that matched Mem0-harness win.
+Its planned sequence is hybrid graph retrieval, semantic and reversible entity
+resolution, entity/community summaries and observations, context assembly,
+user/thread lifecycle plus auditable deletion, and corpus-scale ingestion,
+latency, concurrency, portability, and direct-parity qualification. The
+existing Track P Mem0/Zep migration direction becomes a delivery surface.
+
+This is roadmap/status/history only. No runtime behavior, benchmark result,
+provider call, paid spend, or default changed.
+---END-ENTRY-#414---
+
+---BEGIN-ENTRY-#415---
+id: 415
+date: 2026-07-17T19:55:01Z
+agent: codex
+status: changed
+topics: roadmap, benchmark, graph, memory, retrieval, comparator, quality, plan
+commits: pending
+refs: ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md
+supersedes: 414
+tokens: 237
+---
+Corrected Track R's benchmark policy after the operator rejected #414's
+primary/secondary hierarchy. SEAM native judge/1 and Mem0's harness are now
+explicitly co-primary evidence lanes. Native judge/1 is especially valuable
+for stricter internal diagnosis and ratcheting. Mem0-harness data is equally
+first-class and may be more valuable for incumbent-relative, migration, and
+market-facing decisions because it evaluates SEAM under Mem0's own contract.
+All available evidence from both lanes should be analyzed and may set work
+priorities.
+
+The scoreboards remain separate because their scoring contracts differ, not
+because either is secondary. Results must not be averaged or relabeled across
+harnesses. Track R's gate remains progress on the native standard plus a
+matched Mem0-vs-SEAM win inside Mem0's harness with the evaluation contract
+held constant. No runtime behavior, score, provider call, paid spend, or
+default changed.
+---END-ENTRY-#415---
+
+---BEGIN-ENTRY-#416---
+id: 416
+date: 2026-07-17T20:50:51Z
+agent: codex
+status: done
+topics: benchmark, locomo, memory, retrieval, pack, provenance, quality, test, handoff
+commits: pending
+refs: seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/preflight_event_count_context.py,benchmarks/external/mem0_harness/README.md,tests/audit/test_event_count_context.py,tests/audit/test_event_count_preflight.py,tests/audit/test_retrieval_flags.py,tests/audit/test_seam_mem0_server.py,docs/handoffs/2026-07-17-event-count-context-handoff.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 415
+tokens: 913
+---
+Built `event-count/distinct/1`, the smallest high-evidence cat1 probe surfaced
+by a free offline audit of the private HISTORY#400 Mem0-harness artifact. Mem0
+cat1 remains 250/282 (88.65%); exceeding 91% requires seven more correct cases.
+Of 32 misses, 22 already have all gold evidence in top-200 retrieval, 8 have
+partial evidence, and 2 have none. Fourteen misses are count questions and
+12/14 contain all required evidence. This is a narrow context-assembly target,
+not a broad retrieval or scoreboard claim.
+
+Added a default-off `RetrievalFlags.count_context_policy` and bounded,
+injection-resistant `SEAM-COUNT/1` projection for count questions. It
+classifies clauses as observed, mixed, mentioned, reference-only, planned, or
+negated; ranks query-relevant observed evidence first; preserves retained-RAW
+provenance; discloses truncation; and never cites a RAW memory dropped by the
+facade's response capacity. Flag-off and non-count behavior remain unchanged.
+The tracked free preflight reads a stored artifact, emits aggregate counts
+only, and makes no provider call. It selected and projected all 14 failed cat1
+count cases, preserved 2560 raw candidates in projections, promoted 96
+observed rows, and demoted 79 non-qualifying rows. These are structural
+results, not judged-answer results.
+
+Verification with the mandatory T7 offline HF cache environment: 50 focused
+tests passed; the full non-external `tests/` suite exited zero with two
+established xfails; ruff and `git diff --check` were clean; final CodeRabbit
+review reported zero findings after four earlier findings were fixed with
+regressions. One focused invocation that omitted the HF offline exports
+reproduced the known BGE cache/load failure in five real-facade tests at zero
+provider calls; the exact slice passed after rerunning with the documented
+environment. No paid call or score-validation run occurred.
+
+NEXT: the operator gates an answerer-only stored-context microgate over the 14
+selected misses, then a matched full Mem0-harness validation only if the lever
+converts at least seven cases without regression. Keep that evidence separate
+from native judge/1. The independent `inference/high-confidence/3` cat3 naming
+lever from HISTORY#413 remains built, default-off, and unvalidated in the
+preserved predecessor handoff.
+---END-ENTRY-#416---
+
+---BEGIN-ENTRY-#417---
+id: 417
+date: 2026-07-18T01:03:48Z
+agent: claude
+status: done
+topics: benchmark, locomo, memory, retrieval, quality, test, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit/test_event_count_microgate.py,docs/handoffs/2026-07-17-event-count-context-handoff.md,PROJECT_STATUS.md
+supersedes: 416
+tokens: 599
+---
+Ran the operator-approved paid answerer-only microgate for
+`event-count/distinct/1` (HISTORY#416's gate) over the 14 failed cat1 count
+cases in the private HISTORY#400 Mem0-harness artifact. Built the committed
+runner `benchmarks.external.mem0_harness.microgate_event_count_context`: it
+re-answers and re-judges BOTH arms same-day through the verbatim upstream
+contract (`mem0ai/memory-benchmarks` @ `4b61c5d` prompts loaded by file path,
+gpt-4o-mini answerer+judge, temperature 0, top-200, no-evidence judge), with
+the candidate context produced by the facade's real
+`_apply_count_context_policy` code path. Case selection is predicate-identical
+to the free preflight; a zero-spend dry run against the real artifact verified
+14/14 selection, projection firing, and that exactly the 14 candidate answer
+prompts contain the SEAM-COUNT/1 block before any paid call.
+
+RESULT: baseline rerun 1/14 correct (rerun noise), candidate 6/14, net +5.
+The >=7-flip gate is NOT met, so the full Mem0-harness validation is NOT
+green-lit. Even 6 flips would be ~256/282 = 90.8 percent cat1, under the 91
+percent bar. The lever is real but insufficient alone. Failure shape of the 8
+remaining misses: every one is a wrong number (5 overcounts, 3 undercounts) -
+the projection's observed/planned classification lands, but same-event
+grouping is too weak, and because the upstream harness re-sorts memories
+(score desc, then chronological) only the projection text block survives into
+the prompt, not the reranking. Cost ~USD 0.08; private record
+`20260717-195655-mem0-microgate-event-count.json` beside the source artifact.
+
+Verification: 5 new hermetic microgate tests (no provider calls); ruff clean;
+full non-external `tests/` suite green from raw log with exit code captured -
+1025 passed + 2 established xfails, ZERO failures/errors/skips, with
+PGVECTOR_TEST_DSN set against the live seam-pgvector container so the two
+previously DSN-gated tests ran for real. Handoff updated in place with the
+measured result and marked: full-run NOT green-lit.
+
+Unresolved next step (operator decision): build `event-count/distinct/2` with
+explicit same-event clustering in the rendered rows (targets the 5
+overcounts), or park the count lane and probe the ~18 non-count cat1 misses.
+The independent hc/3 cat3 naming lever (HISTORY#413) remains built, default
+off, unvalidated.
+---END-ENTRY-#417---
+
+---BEGIN-ENTRY-#418---
+
+id: 418
+date: 2026-07-18T04:00:00Z
+agent: claude
+status: done
+topics: roadmap, docs, agent, memory
+commits: pending
+refs:
+  - docs/roadmap/COMPETITIVE_ROADMAP.md
+  - docs/roadmap/FRAMEWORK_ADAPTERS_PATH.md
+supersedes: 417
+tokens: 0
+---
+Updated the competitive roadmap P3.2 (Framework Integrations) with the
+three operator-selected Python adapters: LangGraph BaseCheckpointSaver
+(seam-langgraph), CrewAI memory provider (seam-crewai), and AutoGen
+context-manager hook (seam-autogen). Each has a one-line-change pitch,
+a specific technical method, and a defined adoption signal.
+
+Added competitive positioning section to COMPETITIVE_ROADMAP.md: SEAM is
+the higher-grade, more efficient Mem0 — the industry-standard local memory
+runtime. Every framework adapter reinforces this position.
+
+Wrote docs/roadmap/FRAMEWORK_ADAPTERS_PATH.md — a zero-code-change
+exploration showing every SEAM capability each adapter maps to already
+exists: SeamRuntime(store_path) for zero-config construction,
+search_ir(ns=..., scope=...) for per-framework isolation,
+ingest_text(ns=..., scope=...) for turn-by-turn ingestion, compile_nl()
+for AutoGen compression, and the optional-extras + stub-test patterns
+from the existing mem0/zep adapters. No SEAM core changes are required
+for any of the three adapters.
+
+Build order: LangGraph first (3-method interface, largest user pool),
+CrewAI second (save/search, comparable volume), AutoGen third
+(compress_history hook).
+
+Doc-only change. No code, no provider call, no push.
+---END-ENTRY-#418---
+
+---BEGIN-ENTRY-#419---
+id: 419
+date: 2026-07-18T11:21:47Z
+agent: claude
+status: done
+topics: benchmark, locomo, retrieval, quality, verify
+commits: pending
+refs: docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md
+supersedes: 418
+tokens: 477
+---
+Ran the operator-approved ~USD 0.04 stored-context preflight for
+inference/high-confidence/3 (HISTORY#413's Step 1): 21 champion cat3 cases,
+hc/2 vs hc/3, identical contexts both arms, gpt-4o-mini. RESULT NEGATIVE:
+14/21 answers changed but all changes are paraphrase noise - zero of the
+designed naming targets converted (John Williams still unknown, Voyageurs
+still unnamed, Exploding Kittens still described generically, Star Wars
+Ireland unchanged). The ambiguity guard held: no wrong names were licensed on
+the Mafia hazard case. Byte-level prompt diffing confirmed the hc/3 clause
+renders correctly, so the lever is inert, not mis-wired.
+
+Free root-cause verification against the source dataset shows the #413
+premise was wrong: the uniquely-identifying clues are absent from the
+retrieved context, and for three of four flagship cases absent from any
+single turn. The John Williams case needs a separate entity-preference turn
+("definitely Star Wars! my favorite", 2 Jan 2024) that exists and retrieves
+for other questions but shares no surface overlap with the composer question
+- a multi-hop retrieval gap. Voyageurs is never named in the conversation;
+Exploding Kittens is "a game I don't remember the name of"; Skellig/Ireland
+had clues retrieved but a 4-item gold list that hc/3's single-entity license
+correctly refuses to guess.
+
+DECISION: the planned ~USD 0.80 full holdout A/B for hc/3 is CANCELLED.
+hc/3 is tested-and-parked, default-off. The cat3 naming wall moves to the
+retrieval side: get the second-hop entity-preference turn into context
+(graph closure / entity-preference aggregation; query decomposition remains
+measured-harmful). Handoff updated in place with the negative and the
+cancellation. Preflight stdout retained in session scratchpad only; no repo
+artifact contains licensed dataset text.
+
+Concurrent-agent note: SOL's uncommitted event-count/distinct/2 build (same-
+event grouping) is in the working tree and was left strictly untouched; this
+entry's commit stages only the handoff, status, and chain files.
+---END-ENTRY-#419---
+
+---BEGIN-ENTRY-#420---
+id: 420
+date: 2026-07-18T11:28:05Z
+agent: claude
+status: done
+topics: benchmark, locomo, retrieval, memory, quality, plan
+commits: pending
+refs: docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md
+supersedes: 419
+tokens: 431
+---
+Free mining of the 18 non-count cat1 misses in the HISTORY#400 Mem0-harness
+artifact (zero provider calls): resolved each miss's gold evidence dia_ids
+against the local LoCoMo dataset and shingle-matched them into the stored
+top-200 retrieval, then classified failure shapes from gold/generated/judge
+fields. Split: 9 ALL-evidence-present, 7 PARTIAL, 2 NONE. Combined with #416's
+count-case audit, 21 of 32 cat1 misses are answer/context-assembly-side and
+~11 involve a retrieval gap. Shapes: wrong-instance selection (~5), cross-turn
+joins (2), bracket-timestamp date resolution (2), planned-vs-done confusion
+(1, the count classifier already distinguishes this), partial-retrieval set
+enumeration (~6), and 2 second-hop entity-naming cases IDENTICAL in shape to
+the #419 cat3 root cause - one retrieval lever serves both categories.
+
+Ranked levers recorded in docs/audits/2026-07-18-mem0-cat1-noncount-miss-
+mining.md: (1) generalize the count projection into a query-aware evidence-
+digest block (blocked until SOL's uncommitted event-count/distinct/2 lands -
+same module); (2) second-hop entity/preference retrieval assembly (serves
+cat1+cat3, the durable core lever; decomposition remains measured-harmful);
+(3) fold planned-vs-observed gating into yes/no questions. Also recorded the
+answerer-parity finding: our 88.65 used gpt-4o-mini while mem0's published
+table uses gpt-4o defaults, so the cheapest informative next paid probe (~USD
+2) is rerunning the 32 stored-context cat1 misses with a gpt-4o answerer via
+the existing microgate machinery before any new code. All paid probes remain
+operator-gated; none ran in this slice. SOL's uncommitted v2 work untouched;
+this commit stages only the audit doc, status, and chain files.
+---END-ENTRY-#420---
+
+---BEGIN-ENTRY-#421---
+id: 421
+date: 2026-07-18T20:13:22Z
+agent: claude
+status: done
+topics: benchmark, locomo, retrieval, verify, quality
+commits: pending
+refs: docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md
+supersedes: 420
+tokens: 465
+---
+Free retrieval diff answering whether code changes since the scored HISTORY#400
+Mem0-harness run (88.65% cat1) moved the benchmark path: ran a fresh full
+--predict-only pass (378 cat1+cat3 questions, upstream harness @ 4b61c5d,
+README validated-stack env, top-k 200, fresh scratch store, local BGE, ZERO
+provider calls) through today's facade, then diffed fresh vs stored top-200
+lists per question and reran the evidence-presence mining on both sides.
+
+RESULT: effectively NEUTRAL. 316/378 lists changed membership but shallowly
+(mean Jaccard 0.924; 15 pure reorders, 47 identical) - tail churn from the
+post-#400 fixes and #152, not systematic movement. On the 45 miss cases,
+evidence presence improved on exactly 1 (conv3_q62, a count case whose failure
+is answer-side anyway), regressed on 0, unchanged on 44. The #400 SPAN-closure
+and temporal-window fixes do not bind on the miss set, and #152's graph/auto-
+ingest did NOT displace RAW (no mass evidence loss). Two already-correct cases
+lost partial evidence (conv3_q61, conv5_q36 ALL->PARTIAL) - the only regression
+risk a fresh judged run would carry.
+
+DECISIONS RECORDED: the 88.65% baseline remains valid within noise; the ~$0.70
+judged re-baseline is NOT worth running as a fixes-probe (would measure +-1-2
+cases of ranking noise) and is deferred to pre-publication re-anchoring. The
+~$2 answerer-parity probe on stored contexts (unaffected by retrieval drift)
+remains the highest-information paid move, then the two levers from #420.
+Findings appended to docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md.
+Facade run on scratch store, server stopped, nothing persisted in-repo. SOL's
+uncommitted event-count/distinct/2 work remains untouched; this commit stages
+only the audit doc, status, and chain files.
+---END-ENTRY-#421---
+
+---BEGIN-ENTRY-#422---
+id: 422
+date: 2026-07-18T21:24:25Z
+agent: claude
+status: done
+topics: benchmark, locomo, handoff, test, plan
+commits: pending
+refs: benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_parity_probe_answerer.py,docs/handoffs/2026-07-18-answerer-parity-probe-handoff.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 421
+tokens: 461
+---
+Built and handed off the answerer-parity probe, the next operator-approved
+paid gate (~USD 1.35). New standalone runner
+benchmarks/external/mem0_harness/parity_probe_answerer.py: for every stored
+top-200 miss in the HISTORY#400 artifact it re-answers the FROZEN stored
+context with gpt-4o-mini AND gpt-4o same-day and judges both arms with gpt-4o
+(mem0's published contract) through the verbatim upstream prompts loaded by
+file path from mem0ai/memory-benchmarks @ 4b61c5d. This isolates the answerer
+variable (parity vs baseline arm) from judge-model drift (baseline arm vs
+stored artifact). The runner deliberately imports no SEAM runtime module so it
+stays safe to run while SOL's uncommitted event-count/distinct/2 edits are in
+flight, and never re-runs retrieval (#421 established the stored lists remain
+representative).
+
+Verification: 3 hermetic tests (one caught assertion bug fixed and logged -
+PARITY_ANSWERER and JUDGE_MODEL are the same model id, so call counts must
+key on (model, json_mode)); ruff clean; free dry-run against the real
+artifact selects 32 cat1 misses / 45 with cat3 and renders ~2.8M answer-
+prompt chars, giving the cost estimate (mini ~0.07 + 4o ~1.22 + judges
+~0.05). Tracked handoff docs/handoffs/2026-07-18-answerer-parity-probe-
+handoff.md registered latest (event-count handoff flipped superseded) with
+the exact run command, decision thresholds (>=7 cat1 parity flips = matched-
+answerer full run next, 3-6 = combine with the v2 microgate, <=2 = go
+straight to the #420 levers), and the judge-drift readout. Full non-external
+suite run was started with SOL's WIP in-tree; its result is recorded in the
+commit if complete, otherwise the focused new-test slice (3 passed) plus
+ruff gate this change, which touches no runtime module.
+---END-ENTRY-#422---
+
+---BEGIN-ENTRY-#423---
+id: 423
+date: 2026-07-19T05:20:46Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, handoff, test
+commits: pending
+refs: docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md,docs/handoffs/2026-07-18-answerer-parity-probe-handoff.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 422
+tokens: 752
+---
+EXECUTED the operator-approved answerer-parity probe from the #422 handoff
+(paid, ~USD 1.35 dry-run estimate). Preconditions verified first at zero
+spend: pinned mem0ai/memory-benchmarks clone @ 4b61c5d recreated at
+/tmp/memory-benchmarks, T7 source artifact present, and the free selection
+check reproduced exactly 32 cat1 / 45 cat1+cat3 miss cases with the expected
+answer-prompt volume (no artifact or code drift). Run: every stored top-200
+miss re-answered from its FROZEN context with gpt-4o-mini AND gpt-4o
+same-day, both arms judged by gpt-4o via the verbatim upstream contract.
+
+RESULT - the >=7 cat1 flip gate is met at 18. cat1: parity arm 18/32 correct
+vs baseline mini-rerun 6/32. Projected matched-answerer cat1 = 250+18 =
+268/282 = 95.0 percent, well past mem0's published 91 percent (caveat: the
+250 stored-correct cases were not re-judged under the gpt-4o judge - only
+misses were probed - so the full run is what makes the number citable).
+Effect split reported separately per the handoff: 6/32 flip under the gpt-4o
+JUDGE with the mini answerer (judge-drift + rerun noise, ~90.8 percent cat1
+alone, matching #417 arithmetic and still under 91), 12/32 are parity-only =
+pure answerer strength. cat3: 4/13 vs 3/13 (+1 net, conv0_q59 flipped the
+other way = noise) - an answerer upgrade does NOT buy cat3, confirming the
+#419 retrieval-side wall. Residual 14 cat1 still-wrong under gpt-4o: event
+count numerics (SOL's event-count/distinct/2 territory), set/list
+enumeration gaps, and specific-entity second-hop misses - the #420 levers
+are now margin, as the handoff predicted. Private record (never commit):
+T7 20260718-164944-mem0-parity-probe-answerer.json.
+
+DECISION RECORDED: next paid step = full matched-answerer Mem0-harness run
+(gpt-4o answerer + judge, all 378 cat1+cat3, ~USD 10-15), operator-gated
+separately and NOT yet approved; no new code first. Tracked handoff
+docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md registered
+latest (parity-probe handoff flipped superseded).
+
+VERIFIED: full pytest tests/ exit 0, zero failures, zero skips, 2
+established xfails, with SOL's uncommitted event-count/distinct/2 WIP left
+untouched in-tree. Ops facts learned: the suite REQUIRES the T7 offline HF
+env exports (first run without them failed 17 tests on HF OAuth network
+fetches - my env error, initially misread as SOL WIP breakage, logged to
+LLM-Logs 2026-07-19-001) and a live pgvector with the LOCAL container DSN
+(dbname=seam user=seam, password via docker inspect seam-pgvector); the
+CI-only seam_ci DSN does not exist locally. This commit stages only the
+chain/status/handoff files.
+---END-ENTRY-#423---
+
+---BEGIN-ENTRY-#424---
+id: 424
+date: 2026-07-19T13:48:23Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, mem0-harness, ops
+commits: pending
+refs: benchmarks/external/mem0_harness/seam_mem0_server.py,docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md
+supersedes: 423
+tokens: 880
+---
+Ran the operator-approved ~USD 2 cat2+cat4 recon on mem0's unmodified
+harness (mem0ai/memory-benchmarks @ 4b61c5d) - the two LoCoMo categories
+never before scored on this lane - using the #400 methodology: facade
+seam_mem0_server launched from a CLEAN HEAD worktree (db47740; SOL's
+uncommitted event-count/distinct/2 edits deliberately isolated away via
+sys.path shadowing of the editable install), broad + conversation/2 + hc/1 +
+temporal/1 env, scratch DB, harness venv at /tmp/memory-benchmarks. FREE
+predict-only pass first: all 1,162 questions (321 cat2 + 841 cat4) ingested
+and searched at top-200, zero empty retrievals, zero spend. Paid phase:
+gpt-4o-mini answerer+judge, single top-200 cutoff.
+
+OPERATIONAL FAILURES SURVIVED (all diagnosed from raw evidence, logged):
+(1) first evaluate blast at 10 workers/200 rpm tripped the org 200K TPM cap
+- 5,792 rate-limit lines; the harness's own LLMClient returns "" after 5
+shallow retries and the judge then scores the empty answer, silently
+corrupting 433 cases BOTH ways (326 scored WRONG with no answer, 107 empty
+answers scored CORRECT by the lenient mini judge). Cases with empty
+generated_answer were stripped and re-run. (2) Second pass at 12 rpm hit the
+10,000 requests-per-day gpt-4o-mini cap; restarted at 1 worker / 5 rpm below
+the RPD refill. (3) Near the end the account hit insufficient_quota (OpenAI
+credit exhausted) - 21 cat4 cases remain STRANDED with empty answers and
+must be re-run once credit exists (~USD 0.05).
+
+RESULT (clean cases only, mini answerer, directly comparable to #400's
+cat1 88.65 / cat3 86.46 on the same lane): cat2 temporal 231/321 = 71.96
+percent COMPLETE (vs mem0 published 92.0 - a real ~20 pt gap; dominant
+signature is wrong-instance date selection, the SAME failure temporal/1
+fixes natively, but the harness owns the answer prompt so temporal/1 cannot
+reach this lane - candidate lever: a facade-injected temporal projection,
+the mechanism event-count/distinct already proved). cat4 single-hop 712/820
+= 86.83 percent clean, bounds 84.66-87.16 with the 21 stranded (vs mem0
+91.2 - a ~4.4 pt gap with ~49 of 86 first-batch real misses answer-side =
+prime parity-probe territory, same shape cat1 had before #423's 18/32
+flips). Overall picture vs mem0's published table: cat3 TOPPED already
+(86.46 vs 72.7), cat1 one matched run from topped (95.0 projected vs 91.3),
+cat4 close (parity probe next), cat2 the real fight (lever identified).
+Private artifact (never commit): T7
+20260719-055500-mem0-harness-cat24-recon.json, SHA-256 69848c3d....
+
+BLOCKER RECORDED: OpenAI credit exhausted - ALL paid work gated on top-up
+(21 stranded cases ~USD 0.05, cat4 parity probe ~USD 1, matched-answerer
+full run ~USD 10-15 per the current handoff). Operator also flagged that
+quoted cost estimates diverge from actual spend - investigation explicitly
+DEFERRED by operator (repo run_record path prices exact provider usage
+tokens; the mem0-harness lane does not capture usage; tokenizer facts so
+far: tokenization.py canonical cl100k_base loads fine in-venv, gpt-4o
+family actually uses o200k_base, holographic.py:340 hardcodes len//4).
+No repo code changed this session-segment; facade/harness/crawl processes
+all stopped; worktrees cleaned.
+---END-ENTRY-#424---
+
+---BEGIN-ENTRY-#425---
+id: 425
+date: 2026-07-19T15:01:35Z
+agent: claude
+status: done
+topics: ci, ops, infra, cost
+commits: pending
+refs: .github/workflows/ci.yml,.github/workflows/ci-windows.yml
+supersedes: 424
+tokens: 715
+---
+Moved CI off paid GitHub-hosted runners onto a self-hosted runner on the
+operator's Linux box, per operator decision, to stop private-repo Actions
+spend. Context verified first: BlackhatShiftey/Seam is PRIVATE (hosted
+minutes bill after the plan allowance; the public Seam_Runtime repo is
+unaffected), CI has been billing-LOCKED since 2026-07-18 ~10:26Z (every job
+fails in 2-3s with "recent account payments have failed or your spending
+limit needs to be increased"), and successful runs cost ~10-13 wall minutes
+across 7 jobs per trigger including a windows-latest leg, multiple triggers
+per day from the multi-agent workflow. The accumulating-balance/can't-pay
+symptom matches GitHub's known arrears lock: metered usage bills on the
+monthly billing date, a failed payment locks Actions server-side, remedies
+are re-add payment method / nudge spending limit / GitHub Support.
+
+RUNNER (installed and ONLINE): actions-runner 2.335.1 at
+~/actions-runner-seam, registered to the repo as "seam-terrabyte" with
+labels self-hosted,Linux,X64,seam-box; systemd USER service
+seam-actions-runner.service (enabled, active) with linger enabled for
+terrabyte so it survives logout/reboot. Runner .env: (a)
+ACTIONS_RUNNER_HOOK_JOB_STARTED=~/actions-runner-seam/wake-docker.sh which
+runs ~/.local/bin/docker-up (Docker Desktop on this box auto-stops after 30
+idle minutes; the pgvector service container needs the engine up), (b) the
+T7 offline HF env (HF_HUB_CACHE=/media/terrabyte/T7/hf-cache,
+HF_HUB_OFFLINE=1, TRANSFORMERS_OFFLINE=1) because the box's stale HF OAuth
+token breaks fresh hub downloads (root-caused earlier this session).
+
+WORKFLOW CHANGES (committed, push operator-gated): ci.yml - all 6 Linux
+jobs now runs-on [self-hosted, seam-box]; the hosted-only "Free runner disk
+space" step (sudo rm + docker image prune - destructive on a real host) is
+REMOVED; pgvector service host port moved 55432->55433 (55432 is the box's
+own seam-pgvector container) with both DSNs updated; repo-hygiene gained a
+setup-python step (box has python3 but no bare python); new top-level
+concurrency group cancels superseded runs per ref. New ci-windows.yml:
+the former windows-latest matrix leg preserved verbatim as a
+workflow_dispatch-only manual workflow (cannot run on a Linux host; most
+expensive hosted tier; also dead until the billing lock clears).
+
+VERIFIED: YAML parses; runner shows status=online via the repo API; service
+active after restart with the new .env. NOT yet verified end-to-end: an
+actual CI run on the runner requires pushing the workflow change (operator
+push gate) - first real run will exercise setup-python toolcache, pip cache
+warm-up (~10 GB sbert stack on first run, cached thereafter), and the
+docker wake hook. Known accepted tradeoffs: single runner = serial jobs;
+pip/HF caches persist between runs (not hermetic); CPU contention with
+local benchmark work while a CI run is active.
+---END-ENTRY-#425---
+
+---BEGIN-ENTRY-#426---
+id: 426
+date: 2026-07-19T16:04:15Z
+agent: claude
+status: done
+topics: benchmark, locomo, ci, ops
+commits: pending
+refs: .github/workflows/ci.yml
+supersedes: 425
+tokens: 479
+---
+Completed the cat2+cat4 recon (#424) after the operator fixed both billing
+blockers, and root-caused the first self-hosted CI failure.
+
+RECON FINAL (mem0 harness @4b61c5d, mini answerer+judge, top-200, all 1,162
+questions cleanly judged, zero empties): cat2 temporal 231/321 = 71.96
+percent (unchanged; was complete); cat4 single-hop 733/841 = 87.16 percent
+(the 21 quota-stranded cases resolved at the top of the projected 84.66-87.16
+bounds). Overall cat2+cat4 82.96 percent. Versus mem0 published: cat4 gap
+now 4.0 points (87.16 vs 91.2, prime answerer-parity territory), cat2 gap
+20.0 (mechanism: wrong-instance date selection; lever: facade temporal
+projection). Complete private artifact REPLACES the partial #424 one: T7
+20260719-114500-mem0-harness-cat24-recon-final.json (sha256 8003eefb...).
+OpenAI quota verified live (1-token probe) before spending.
+
+SELF-HOSTED CI: first real run executed ON THE BOX (billing lock cleared by
+operator; package-smoke green 17s; test-and-benchmark ran 6m37s through
+install+installer-smoke) but "Run tests" FAILED with 401 Unauthorized
+fetching public BAAI/bge-small-en-v1.5: the box's STALE HF token file
+(~/.cache/huggingface/token, dated Jun 18) is sent by huggingface_hub
+regardless of env and is rejected, killing embedder loads for any process
+missing the offline exports (same root cause as this session's earlier local
+suite failure). Fix, both layers: token file MOVED ASIDE (not deleted) to
+~/.cache/huggingface/token.stale-2026-07-19, and the offline HF env added as
+systemd Environment= lines on seam-actions-runner.service (belt to the
+runner .env braces; verified in `systemctl --user show`). Failed jobs
+re-dispatched; result pending at entry time.
+---END-ENTRY-#426---
+
+---BEGIN-ENTRY-#427---
+id: 427
+date: 2026-07-19T19:47:29Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, handoff, retrieval, ci
+commits: pending
+refs: seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_temporal_instance_context.py,docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md,docs/handoffs/INDEX.md
+supersedes: 426
+tokens: 685
+---
+Operator green-lit "build it, also run paid benchmarks" then requested a
+handoff; this entry is that handoff's chain anchor (tracked doc
+docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md
+registered latest, predecessor superseded).
+
+MATCHED-ANSWERER RUN (the #423 gate, ~USD 10-15) IS IN FLIGHT: facade from
+clean worktree @db47740 on :8902 (fresh scratch store), free predict pass
+completed cleanly (378/378, median 200 results, zero empties), paid
+gpt-4o answerer+judge evaluate running detached at workers=2 rpm=8,
+self-throttling against the org's 30K-TPM gpt-4o cap at ~2.4 cases/min
+(~241/378 done at entry time; ~1.2% empty-answer rate, strip-and-rerun
+recipe in the handoff makes completion idempotent). OPERATIONAL ERROR
+LOGGED (2026-07-19-003): I briefly killed this healthy run after misjudging
+elapsed wall-clock as ~4 min (actually 1h42m) and pattern-matching to the
+earlier real corruption; file-mtime timeline exonerated it; resumed from
+checkpoints, ~2 cases lost.
+
+BUILT (default-off, unvalidated): temporal-instance/1, the cat2 lever from
+#424's wrong-instance-date finding. New self-contained
+seam_runtime/temporal_instance_context.py (no import from
+event_count_context - SOL edits that module) + facade hook
+_apply_temporal_context_policy in seam_mem0_server.py, enabled only via
+SEAM_TEMPORAL_CONTEXT_POLICY env (deliberately NOT a RetrievalFlags field
+while SOL edits retrieval.py; core productization follows a measured win).
+Prepends a bounded SEAM-TEMPORAL/1 date->observations index parsed from
+[Speaker YYYY-MM-DD] stamps with instance-matching + relative-wording
+instructions - the retrieval-side twin of native temporal/1 which cannot
+reach the harness lane. Off path byte-identical (projection None; facade
+returns the same list object). 8 hermetic tests in NEW file
+tests/audit/test_temporal_instance_context.py; ruff clean; FULL suite
+exit 0 (2 xfails) with SOL's WIP in tree.
+
+QUEUED NEXT PAID (command in handoff): cat4+cat2 answerer-parity probe on
+the #426 artifact (~USD 6 both / 3.2 cat4-only; corrected from my earlier
+wrong ~USD 1 estimate). Decision table in handoff: cat4 >=34 net flips =
+single-hop topped with zero code; cat2 flips decide whether
+temporal-instance/1 is the path or margin.
+
+Also this entry records: first self-hosted CI run went fully green after
+the token fix (all 6 jobs, incl pgvector service via the docker wake hook)
+- the #426 "rerun pending" is resolved SUCCESS; hosted-minute burn is over.
+This commit stages the lever, its tests, the facade hook, handoff docs, and
+chain files only; SOL's uncommitted work remains untouched.
+---END-ENTRY-#427---
+
+---BEGIN-ENTRY-#428---
+id: 428
+date: 2026-07-19T21:02:19Z
+agent: claude
+status: done
+topics: ops, cost, benchmark, tooling
+commits: pending
+refs: benchmarks/external/common/cost_report.py,tests/audit/test_cost_report.py
+supersedes: 427
+tokens: 444
+---
+Built the tokenizer-true cost measurement the operator escalated ("cost has
+always been off, I've just never cared till now"). Root causes identified:
+(1) mem0-harness-lane runs and scratch runners never capture provider usage
+- all quoted costs there were chars/4 arithmetic or cross-run scaling
+(native-lane run_record.py DOES capture exact usage and was internally
+consistent); (2) re-run passes are invisible - strip-and-rerun corruption
+recovery and aborted partials bill on top of what any artifact shows; (3)
+wrong encoding assumptions - the gpt-4o/4.1/5 families tokenize with
+o200k_base, not the repo-canonical cl100k_base (internal budget tokenizer
+deliberately left untouched: changing it would shift retrieval behavior).
+
+NEW: benchmarks/external/common/cost_report.py - re-renders every stored
+case's actual answer+judge prompts through the pinned upstream prompts.py,
+counts with tiktoken using a model->encoding prefix map, prices via the
+existing pricing.py table, and prints a single-pass figure explicitly
+labeled a LOWER BOUND with the invisible-passes caveat. 3 hermetic tests
+(stub prompts module, no provider calls); ruff clean.
+
+RECONCILIATION RUN (today): cat2+cat4 recon true single-pass = $2.2347
+(1,162 cases, 13.8M answer prompt tokens) vs my "~$2" quote - but ~1.4x
+passes were actually billed (433 re-runs + 107 phantom judges) => ~$3.1
+real. Matched run: ~$9.5 spent through 269 clean gpt-4o cases, ~$4 to
+finish. Day total ~$18 vs ~$13 quoted. Practice going forward: run
+cost_report BEFORE quoting any run estimate (render+count, don't scale) and
+AFTER completion; treat provider dashboard as ground truth.
+
+Concurrent state: matched-run final leg (109 cases) resumed and running
+detached after the second quota top-up; operator standing by to add credit.
+---END-ENTRY-#428---
+
+---BEGIN-ENTRY-#429---
+id: 429
+date: 2026-07-19T21:18:24Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, negative-result
+commits: pending
+refs: benchmarks/external/common/cost_report.py,docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md
+supersedes: 428
+tokens: 652
+---
+THE MATCHED-ANSWERER RUN IS COMPLETE - the #423 gate's decisive result, and
+it is a NEGATIVE for the 95% projection. Full 378-case cat1+cat3 run on
+mem0's unmodified harness @4b61c5d, gpt-4o answerer AND gpt-4o judge (the
+published contract), top-200, zero empty answers after three quota/TPM
+recovery legs. FINAL: cat1 multi-hop 248/282 = 87.94% (mem0 published
+91.3 - BELOW by 3.4); cat3 open-domain 67/96 = 69.79% (mem0 72.7 - BELOW by
+2.9); combined 315/378 = 83.33%. Artifact: T7
+20260719-161639-mem0-harness-cat13-matched-final.json, SHA-256 3790631b....
+Measured cost (new cost_report tool): $12.18 single-pass, ~$13 real with
+recovery legs.
+
+WHY THE #423 PROJECTION (268/282=95%) FAILED: the parity probe only
+re-tested the 32 stored MISSES; the gpt-4o judge's added severity applies to
+the whole distribution, and it revoked roughly as many previously-credited
+answers as the stronger answerer earned (250 stored corrects -> 248 final
+under the strict judge, net -2 on the corrects side wiping the +18 flip
+gain). Fresh-retrieval drift also contributed (fragile pair split:
+conv3_q61 WRONG, conv5_q36 CORRECT, as #421 predicted possible). Lesson
+recorded: a miss-only probe measures answerer lift but NOT judge-severity
+tax on the corrects - future projections must re-judge a sample of stored
+corrects too.
+
+HONEST SCOREBOARD CONSEQUENCE: under matched conditions SEAM currently tops
+mem0 in NOTHING on this lane; the earlier "cat3 topped" claim held only
+under the lenient mini judge and must never be quoted matched. Gaps are
+small and mapped: cat1 needs +10 net (miss buckets: 12 counts, 10
+entity/naming, 6 set/list, 1 date, 5 other), cat3 needs +3 net (18 of 29
+misses are entity/naming = the #419/#420 second-hop wall). Only 8/63 misses
+have gold text visible in top-200 (crude match) - the strict-judge residual
+is dominantly retrieval/second-hop, SEAM's home turf. Lever->bucket map:
+SOL event-count/distinct/2 -> 12 cat1 counts; second-hop entity retrieval
+(#420 lever 2, unbuilt) -> 28 naming misses across both cats; set-recall ->
+6; temporal-instance/1 -> cat2 lane margin. Validation cadence: free
+preflight -> ~$0.4 microgate on these 63 stored contexts -> levers ride
+together in ONE full matched rerun (~$13 measured).
+---END-ENTRY-#429---
+
+---BEGIN-ENTRY-#430---
+id: 430
+date: 2026-07-20T00:26:26Z
+agent: codex
+status: done
+topics: bugfix, benchmark, locomo, handoff, verify, audit, continuity, security, test
+commits: pending
+refs: seam_runtime/temporal_instance_context.py,benchmarks/external/common/cost_report.py,benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_temporal_instance_context.py,tests/audit/test_cost_report.py,tests/audit/test_parity_probe_answerer.py,docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,docs/handoffs/2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md,docs/handoffs/2026-07-19-matched-run-complete-recovery-closeout.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md
+supersedes: 429
+tokens: 716
+---
+Recovered and closed the cut-off HISTORY#419-#429 work without shipping the
+operator-rejected event-count/distinct/2 experiment. Live git attribution was
+unambiguous: branch and origin were already equal at 651176b/HISTORY#429;
+the only eight pre-existing dirty paths were the timestamp-matched rejected
+experiment, and all eight remain preserved, unstaged, and excluded.
+
+Repaired objective incompleteness in the attributable committed slice.
+temporal-instance/1 no longer treats future "when will" questions as already
+completed events. The tokenizer-true cost report now rejects a missing or
+non-list evaluations field and returns a null aggregate plus explicit
+unpriced roles instead of silently summing unknown prices as zero. The
+answerer-parity probe now skips missing/non-numeric/non-finite stored scores,
+requires the local memory-benchmarks checkout to resolve exactly to the
+audited 4b61c5d commit before importing its prompt contract, and records the
+verified full revision. The cancelled hc/3 paid command was removed from its
+historical handoff. A new tracked completion handoff supersedes the stale
+HISTORY#427 in-flight state and carries an explicit no-paid-work boundary.
+
+Verification was entirely free: a clean detached worktree at 651176b
+collected and passed 28 focused tests across temporal projection, the Mem0
+facade, the parity probe, and cost reporting; workflow YAML parsed; ruff,
+symbol-reference, and diff checks passed. After the fixes, focused tests and
+the real local audited-harness revision smoke passed with no provider call.
+The candidate range secret/private-session-link scan was clean. CodeRabbit
+reviewed only the clean HISTORY#419-#429 range; valid warning findings were
+fixed with regression coverage. Suggestions that would rewrite append-only
+history, alter intentional derived previews, or broaden self-hosted-runner
+architecture were not applied.
+---END-ENTRY-#430---
+
+---BEGIN-ENTRY-#431---
+id: 431
+date: 2026-07-20T01:39:34Z
+agent: claude
+status: done
+topics: retrieval, benchmark, mem0-harness, lever
+commits: pending
+refs: seam_runtime/second_hop_context.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_second_hop_context.py
+supersedes: 430
+tokens: 535
+---
+Built the second-hop entity-bridge retrieval lever (entity-bridge/1), the
+#429 miss-autopsy's highest-value unbuilt item, targeting the ~30 matched
+misses (16 evidence-absent abstentions + ~13 cat3 naming + wrong-instance
+overlaps) where only 8/63 misses had gold text anywhere in top-200 - the
+residual is retrieval-side.
+
+DESIGN (default OFF, env SEAM_SECOND_HOP_POLICY=entity-bridge/1, facade
+lane): pseudo-relevance feedback, entity-flavored. New self-contained
+seam_runtime/second_hop_context.py: extract_bridge_terms mines the primary
+results' raw texts for quoted titles + mid-sentence capitalized entity
+spans absent from the query (frequency-ranked, max 3); build_bridge_plan
+gates on policy; splice_results merges secondary hits into a RESERVED TAIL
+(40 of 200 slots) scored below the primary floor so the harness's
+score-descending re-sort preserves the primary head - bounding the #369
+displacement risk to the weakest tail ranks. Facade: _retrieve refactored
+into _search_raw (shared by primary + bridge hops; memory under test
+unchanged, only the query set widens) + _apply_second_hop_policy; policy
+order = second-hop, then count projection, else temporal projection.
+Deliberately no RetrievalFlags field (retrieval.py has in-flight SOL edits;
+core productization follows a measured win).
+
+VERIFIED: 8 hermetic tests in NEW tests/audit/test_second_hop_context.py
+(term extraction incl. speaker-prefix/query-overlap exclusions, splice
+head-preservation + backfill + identity-off-path, facade off-path
+byte-identity with a no-secondary-search tripwire, on-path bridge query
+execution); one caught fixture bug (wrong class name Mem0FacadeServer ->
+SeamMem0Server) fixed; ruff clean; FULL suite exit 0 (2 xfails) with SOL's
+WIP untouched in tree.
+
+NEXT (free, this session): structural preflight measuring REAL recall lift
+- rerun the 63 stored matched-miss questions against the preserved
+seam-cat13-matched scratch store from a clean worktree, policy off vs on,
+scoring gold-text presence in the returned top-200. Gate for the ~$0.5
+answerer microgate: bridge must surface gold evidence for >=6 previously
+evidence-absent misses. Then SOL's count microgate (14 count misses) and
+one combined ~$13 matched rerun decide the scoreboard.
+---END-ENTRY-#431---
+
+---BEGIN-ENTRY-#432---
+id: 432
+date: 2026-07-20T01:52:14Z
+agent: claude
+status: done
+topics: retrieval, benchmark, negative-result, plan
+commits: pending
+refs: seam_runtime/second_hop_context.py,tests/audit/test_second_hop_context.py
+supersedes: 431
+tokens: 580
+---
+FREE preflight verdict on entity-bridge/1 (#431): TESTED-INERT at the free
+gate - parked default-off, no paid microgate. Method: re-ran the matched-run
+miss questions against the preserved seam-cat13-matched scratch store from a
+clean worktree at #431 HEAD (full #400 env parity), policy off vs on,
+scoring gold-text presence in the returned top-200. Result: evidence
+present OFF 8/48 textual-gold misses, ON 7/48, GAINED 0, LOST 1 (tail
+displacement). A follow-up query-side-reformulation probe (subject/content
+word queries) also reached 0/40. The design flaw is structural: bridge
+terms are mined from primary results, but these misses are precisely cases
+where nothing lexically adjacent was retrieved - you cannot hop from
+evidence you do not have, and reformulations cannot guess a target word
+("surfing") they have never seen.
+
+DIAGNOSIS CORRECTED EN ROUTE (error logged 2026-07-20-001): an initial
+blanket store scan wrongly claimed 36/40 golds were absent from the store
+(suggesting a caption-ingest gap); targeted SQL disproved it - the harness
+DOES append [Sharing image ...] captions, our facade ingests them (164
+caption docs in conv4 alone), and the evidence IS stored and retrievable:
+querying "surfing" directly returns the gold turn at rank 1, while the
+natural question ("what sports does John like besides basketball") returns
+40 sports turns without it. TRUE root cause of the ~30-miss retrieval
+bucket: query<->evidence WORDING DISTANCE at embedding search, not ingest,
+not answer-side.
+
+STRATEGIC CONSEQUENCE recorded for the next lever decision: mem0 reaches
+91+ on this dataset partly because its LLM-extraction ingest stores
+distilled facts ("John likes surfing") that lexically match questions; SEAM
+serves raw turns. The structurally on-goal fix is serving DERIVED fact
+records (MIRL ENT/CLM-class, compile-layer - the actual product direction)
+alongside retained RAW at top-200 - large enough headroom (200 slots) to
+avoid the #369 displacement trap, and it is core-product work, not
+benchmark tuning. Alternatives (LLM query expansion at search time) cost
+per-query provider calls and violate the local-first goal. No new code this
+entry; bridge stays committed, default-off, harmless.
+
+Still queued: SOL count-lever microgate (14 count misses, highest EV, ~$0.5
+when v2 lands); cat4+cat2 parity probe ~$6 (operator-gated).
+---END-ENTRY-#432---
+
+---BEGIN-ENTRY-#433---
+id: 433
+date: 2026-07-20T02:46:05Z
+agent: claude
+status: done
+topics: retrieval, benchmark, mem0-harness, lever, recovery
+commits: pending
+refs: seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/external/mem0_harness/preflight_event_count_context.py,benchmarks/external/mem0_harness/microgate_event_count_context.py,benchmarks/external/mem0_harness/README.md
+supersedes: 432
+tokens: 709
+---
+RESOLVED the count-lever conflict from #432 and landed
+event-count/distinct/2. Investigation: the operator raised that "operator-
+rejected" (per #430's handoff) was probably a mislabel from an interrupted
+session, not a real decision. Verified with file mtimes + reflog: the three
+core files (event_count_context.py, retrieval.py,
+preflight_event_count_context.py) were last modified 2026-07-18 05:38-05:47,
+between commits 15b1b1b (05:25) and 756bbbb (06:22) - a build stopped mid-
+session and never committed, then sat dirty and untouched through 15+
+downstream commits with zero HISTORY/commit trace of an operator rejection.
+No evidence of rejection was found anywhere in the accessible record.
+Operator confirmed and directed picking it up.
+
+WHAT WAS RECOVERED (all pre-existing work, read in full before acting):
+same-event grouping for count questions - deterministic action/object/
+subject eligibility classification (with negation scoping, ordinal identity,
+plan-vs-mention mode detection, alias/stem normalization), groups same-date
+or high-anchor-overlap rows into one countable event, renders a
+SEAM-COUNT/2 block (group+member JSON rows, explicit direct_match flags,
+raw-id provenance) that asks the answerer to count QUALIFYING GROUPS not
+member mentions. All existing tests (60 across the 4 touched test files)
+were ALREADY GREEN and ALREADY COMPLETE - this was finished code, not a
+broken WIP, confirming the interrupted-session theory over the rejection
+theory.
+
+MY CONTRIBUTION this entry: the committed microgate runner
+(microgate_event_count_context.py) was still hardcoded to
+EVENT_COUNT_DISTINCT_V1 (README already said "any v2 answerer microgate...
+requires separate operator authorization" - the recovered work correctly
+left the paid path unwired for v1-only). Parameterized candidate_results/
+run_microgate/main with a --policy flag (default v1, unchanged behavior;
+accepts v2), added 3 new hermetic tests proving the flag threads through to
+the real facade projection call and the default stays byte-identical. Full
+suite exit 0 (2 xfails), ruff clean, ALL 68 tests across the six touched
+files pass (60 recovered + 8 new/extended microgate).
+
+FREE PREFLIGHT run against tonight's real matched-run artifact (T7
+20260719-161639-...cat13-matched-final.json, the #429 miss autopsy source):
+event-count/distinct/2 fires on 13 of the failed cat1 count cases, grouping
+2600 raw candidates into 2017 event groups (196 multi-member, 583 redundant
+rows merged), surfacing 28 direct-match groups. This is real consolidation
+signal, not a no-op, against the actual current miss set - not a synthetic
+smoke.
+
+NEXT: paid answerer-only microgate (~$0.5, gpt-4o-mini both roles per the
+existing runner defaults) via
+`microgate_event_count_context.py --policy event-count/distinct/2` against
+the same artifact - operator-gated, not run this entry. Gate: report's own
+gate_threshold_flips=7 (net candidate-minus-baseline flips) decides whether
+a full matched rerun folding this lever in is next.
+---END-ENTRY-#433---
+
+---BEGIN-ENTRY-#434---
+id: 434
+date: 2026-07-20T09:48:51Z
+agent: claude
+status: done
+topics: benchmark, locomo, paid-run, negative-result, mem0-harness
+commits: pending
+refs: benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit/test_event_count_microgate.py
+supersedes: 433
+tokens: 764
+---
+Ran the event-count/distinct/2 paid answerer-only microgate against the 13
+failed cat1 count cases from the matched run artifact (#429,
+20260719-161639). NEGATIVE: gate NOT met, v2 tested-and-parked default-off.
+
+MODEL-MISMATCH ERROR CAUGHT AND FIXED FIRST (logged 2026-07-20-002): the
+committed runner hardcoded ANSWERER_MODEL/JUDGE_MODEL=gpt-4o-mini (a v1/#417
+mini-lane leftover); I fired it once at mini before noticing baseline rerun
+6/13 was implausibly high for gpt-4o-stored misses. Parameterized run_case_arm/
+run_microgate/main with --answerer-model/--judge-model (default now resolves
+from the artifact's own metadata answerer_model/judge_model, else gpt-4o-mini),
++1 hermetic test asserting the override threads to the call. The invalid mini
+run was cheap and is disregarded.
+
+CORRECTED RUN (gpt-4o answerer + gpt-4o judge, the matched contract these
+cases actually failed under; record 20260720-044428): baseline_rerun 6/13,
+candidate 7/13, net +1, gate_threshold_flips=7 -> NOT MET. Per-case isolation:
+lever flips 2 UP (conv3_q62 letters 1->2, conv9_q47 car-shows 3->2) and 1 DOWN
+(conv9_q18 2->1); clean lever contrast = +2/-1 = +1.
+
+DECISIVE FINDING (the real signal): 6 of 13 stored count-MISSES recover to
+CORRECT on a plain no-lever re-answer. gpt-4o at temperature 0 is not
+deterministic enough; ~46% of the count-miss set is unstable rerun noise, so
+the matched run's cat1 87.94% understates the stable score and the count-miss
+bucket is much smaller than 13. STRATEGIC CONSEQUENCE: with a strong (gpt-4o)
+answerer the count bucket has little headroom - the strong model already counts
+correctly most of the time (baseline 6/13 without any lever), so the projection
+only adds ~+1. This is the inverse of v1's #417 net +5, which was measured
+against a WEAK answerer scoring 1/14. The count lever helps weak answerers far
+more than the matched-contract strong one. The autopsy's "biggest, most
+fixable bucket" does not hold under matched conditions.
+
+WHERE THIS LEAVES THE SCORE-RAISING EFFORT: the two biggest #429 buckets have
+now both come up short under free/paid gates - second-hop retrieval
+(entity-bridge/1) failed its free preflight (#432, 0 gained), and counts yield
+only +1 paid here. The honest remaining path is the #432 derived-facts-at-
+ingest direction (serve distilled MIRL ENT/CLM fact records beside RAW, the
+mem0-parity mechanism done auditable), which is architectural, not a facade
+lever, and needs deliberate scoping before any build. Also worth a cheap
+follow-up: quantify the rerun-noise floor (rerun the full 63-miss set once more
+to see how much of the 87.94/69.79 is non-determinism vs stable gap) before
+spending on any full rerun.
+
+v2 stays committed and default-off (harmless); no full harness rerun green-lit.
+---END-ENTRY-#434---
+
+---BEGIN-ENTRY-#435---
+id: 435
+date: 2026-07-20T13:40:00Z
+agent: codex
+status: done
+topics: benchmark, locomo, mirl, retrieval, compile, provenance, persist, vector, test, audit
+commits: pending
+refs: seam_runtime/derived_fact_context.py,seam_runtime/nl_extract.py,seam_runtime/nl.py,benchmarks/external/locomo/adapters/seam.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/README.md,tests/audit/test_derived_fact_context.py
+supersedes: 434
+tokens: 1168
+---
+IMPLEMENTED `grounded-clm/1`, the #432/#434 derived-facts direction, as an
+auditable default-off LoCoMo/Mem0 ingest-and-retrieval lever. This is a
+benchmark-evaluable vertical slice, not a new product default and not a score
+claim.
+
+COMPILER/INGEST CONTRACT: the candidate persists only explicit singular
+first-person claims that can be losslessly grounded to a canonical turn and
+rebased to that turn's named speaker. Unresolved third-person, possessive,
+plural, contraction, quotation, negation, conditional, reported-speech,
+cross-clause, and symbol-wrapped-I shapes fail closed to the RAW floor.
+Injected/custom extractor output is revalidated against the exact source spans
+before it can enter either storage or vector text.
+
+REPRODUCIBILITY/TRUST CONTRACT: each candidate store carries a frozen manifest
+covering policy, extraction schema/prompt/decoder, the installed Ollama model
+digest, cache identity, splice policy, and the exact local embedding contract
+(`BAAI/bge-small-en-v1.5` at revision
+`5c38ec7c405ec4b44b94cc5a9bb96e735b38267a`, 384 dimensions,
+local-files-only). Fresh/warm-store mismatches, digest drift, a shared pgvector
+environment, or a remote embedding provider are refused. Extraction cache
+rows are content-addressed, namespace-owner bound, replayable after restart,
+and purged when their final owner is deleted.
+
+SERVE CONTRACT: eligible current/assertable CLM records render as
+`SEAM-FACT/1` beside an exact `SEAM-SOURCE/1` RAW record. Serve-time validation
+rechecks canonical proposition bounds, content hash, speaker/timestamp, span
+coverage, live CLM->SPAN->RAW provenance, namespace/scope, and the frozen
+configuration fingerprint. The `raw-prefix-floor/2` splice places four RAW
+records before each fact, so every returned prefix - not only the top-200
+total - contains at most 20% facts, and a fact never precedes its source RAW.
+Count and temporal projections retain precedence. Mem0's blocking add/search/
+delete handlers are synchronous so FastAPI dispatches them through its
+threadpool; the documented upstream candidate contract remains one worker.
+Flag-off behavior retains the legacy RAW-only contract.
+
+VALIDATION: 159/159 focused tests pass; collect-only resolves the same 159
+tests; Ruff, diff hygiene, and the candidate secret/private-session-link scan
+are clean. An earlier complete 1,057-test non-external audit run passed 1,055
+and hit CUDA OOM only in the two real-embedding LoCoMo decomposer tests while
+the local qwen2.5:14b smoke occupied the GPU; those exact two tests pass 2/2
+after the GPU contention is removed. A final real local extraction smoke
+(qwen2.5:14b, 138.12 seconds) produced one grounded `John likes surfing` fact,
+with its source RAW first, one fact among six returned rows, the pinned BGE
+revision, and SQLite vectors. No provider call, paid answerer/judge call, or
+full-corpus score run occurred.
+
+HONEST NEXT GATE: qwen2.5:14b's observed per-turn latency makes a full 10-
+conversation extraction preflight impractical on the installed model. Run the
+free corpus coverage/precision preflight with a faster locally installed
+extractor first, then gate any paid answerer microgate on measured fact yield,
+grounding precision, and retrieval lift. Installing or selecting that model
+remains an operator decision; core chat/MCP product surfacing is a separate
+follow-on from this benchmark slice.
+---END-ENTRY-#435---
+
+---BEGIN-ENTRY-#436---
+id: 436
+date: 2026-07-20T14:03:53Z
+agent: claude
+status: done
+topics: handoff, benchmark, retrieval, derived-facts, plan
+commits: pending
+refs: docs/handoffs/2026-07-20-derived-facts-landed-and-kb-scaffold.md,docs/handoffs/INDEX.md
+supersedes: 435
+tokens: 454
+---
+Wrote the tracked handoff docs/handoffs/2026-07-20-derived-facts-landed-and-
+kb-scaffold.md and caught the handoff registry up from #432 to #436 (my #433/
+#434 and codex's #435 landed without registering handoffs; registry latest was
+stale at 2026-07-20-second-hop). Handoff-first per operator priority, committed
+as its own durable slice before the KB build (#437).
+
+Surveyed and verified the operator/codex work I was asked to review: HISTORY
+#435 grounded-clm/1 derived-facts lever is REAL and complete - the exact
+#432-diagnosed derived-facts-at-ingest architecture. Re-ran
+tests/audit/test_derived_fact_context.py this session = all pass. Confirmed
+the honest next gate: only qwen2.5:14b is installed (ollama list) at ~138s/turn
+= too slow for a full-corpus preflight; no free coverage/precision preflight
+runner exists yet for derived facts (only the event-count one does). Recorded
+both as the highest-value next build in the handoff.
+
+Handoff content captures the full arc for the next agent: matched-conditions
+scoreboard (SEAM tops mem0 on NOTHING: cat1 87.94/91.3, cat3 69.79/72.7, cat4
+87.16/91.2, cat2 71.96/92.0; native champion 0.7762 separate); the two
+facade-only levers EXHAUSTED (entity-bridge/1 free-gate 0, event-count/distinct
+/2 paid +1); grounded-clm/1 as the live architectural path with its free next
+gate; the new docs/kb/ memory-systems KB (#437); and standing infra (self-hosted
+CI, cost_report o200k lower-bound discipline, paid-run model-constant check).
+
+No code, provider call, or paid run in this entry - handoff + registry + chain
+only. Derived-facts lever was NOT rebuilt (already built #435, verified).
+---END-ENTRY-#436---
+
+---BEGIN-ENTRY-#437---
+id: 437
+date: 2026-07-20T14:09:56Z
+agent: claude
+status: done
+topics: kb, docs, retrieval, benchmark, reference, plan
+commits: pending
+refs: docs/kb/README.md,docs/kb/eval-methodology/benchmark-traps.md,docs/kb/eval-methodology/locomo-mem0-harness.md,docs/kb/memory-systems/mem0.md,docs/kb/memory-systems/zep-graphiti.md,docs/kb/memory-systems/langmem-letta-cognee.md,docs/kb/memory-systems/seam-positioning.md,docs/kb/seam-internals/lever-graveyard.md,docs/kb/seam-internals/derived-facts-grounded-clm.md
+supersedes: 436
+tokens: 766
+---
+Scaffolded and seeded a versioned memory-systems knowledgebase at docs/kb/
+(Leeroopedia-style), the asset half of the "SEAM retrieval specialist"
+direction the operator asked about. Rationale (from the #423-#434 arc): the
+scarce inputs for improving SEAM's retrieval are not coding throughput but
+(a) knowing how competitors architect ingest->store->retrieve and (b) knowing
+the ways memory benchmarks lie - so the KB seeds exactly those, plus the lever
+graveyard, so any agent (me, SOL, codex) stops re-deriving them.
+
+Pages (9, all committed under docs/kb/, shared + version-controlled):
+- README.md - index, purpose, how-agents-use-it, accuracy discipline.
+- eval-methodology/benchmark-traps.md - 8 traps, each costing a real paid run
+  to learn: judge non-determinism (#434 6/13 rerun-recovery), answerer-strength
+  headroom shift (#417 vs #434), model-mismatch (#434), lenient-vs-strict judge
+  never-average (#415/#429), token-overlap false positives (#369/#405), store-
+  scan mis-diagnosis (#432), invisible-pass cost lower-bound (#428), retrieval
+  neutrality (#421). This is the highest-value debugging asset.
+- eval-methodology/locomo-mem0-harness.md - the facade run contract, two-phase
+  free-then-paid pattern, rate-limit corruption recovery recipe, key T7
+  artifacts by SHA.
+- memory-systems/mem0.md - extraction-at-ingest = why mem0 wins on LoCoMo
+  (distilled facts lexically match queries; the #432 wording-distance wall),
+  costs = SEAM's opening.
+- memory-systems/zep-graphiti.md - temporal graph + validity intervals = cat2
+  design reference (Track R).
+- memory-systems/langmem-letta-cognee.md - semantic/episodic/procedural
+  taxonomy + agent-managed memory (Letta = the "SEAM deep agent"/Track P
+  pattern).
+- memory-systems/seam-positioning.md - honest competitive picture (tops nothing
+  matched) + the real daylight (lossless+auditable compile, provenance, self-
+  improve loop); competitor quick-map.
+- seam-internals/lever-graveyard.md - every lever tried, measured verdict,
+  why; the cross-cutting pattern (facade/answer-side tricks exhausted, compile-
+  side is the headroom).
+- seam-internals/derived-facts-grounded-clm.md - the #435 live lever, its three
+  contracts, and its free next gate.
+
+Also created a LOCAL (.claude gitignored) subagent .claude/agents/seam-
+retrieval.md that consults the KB - a thin wrapper; the durable value is the
+committed KB. Deliberately did NOT build an autonomous code-writing improver
+(the #434 arc showed the bottleneck is validation judgment, not hypothesis
+throughput).
+
+Derived-facts lever (grounded-clm/1) was NOT rebuilt - already complete at
+#435 (verified: test_derived_fact_context.py passes this session). Its honest
+next gate (faster local extractor + a free coverage preflight that does not yet
+exist) is recorded in the KB and the #436 handoff.
+
+Docs-only change; no runtime code, provider call, or paid run. KB content is
+reference (route: docs), sourced from committed HISTORY + T7 artifact SHAs;
+external-system pages flagged with the 2026-07 cutoff + verify-before-quoting
+discipline.
+---END-ENTRY-#437---
+
+---BEGIN-ENTRY-#438---
+id: 438
+date: 2026-07-20T22:26:20Z
+agent: claude
+status: done
+topics: derived-facts, grounded-clm, retrieval, benchmark, compile, preflight, tooling, negative-result
+commits: pending
+refs: seam_runtime/nl_extract.py,seam_runtime/nl.py,seam_runtime/derived_fact_context.py,seam_runtime/vector.py,tests/fidelity/test_nl_extract.py,benchmarks/external/mem0_harness/preflight_derived_facts.py
+supersedes: 437
+tokens: 1129
+---
+Built the free derived-facts coverage/precision/lift preflight (the #436
+"highest-value next build") AND landed grounded-clm/2, a clause-scoped
+derived-facts policy — then FREE-MEASURED both. Honest headline: the strict
+verbatim-grounded derived-facts mechanism is ~0-lift on the #429 cat1/cat3 miss
+set, and grounded-clm/2 does not change that. This is a measured negative that
+redirects the lever to sentence-grounded facts (operator decision).
+
+New tool: benchmarks/external/mem0_harness/preflight_derived_facts.py (the
+analogue of preflight_event_count_context.py). Extracts grounded-clm facts from
+the GOLD evidence turns of the stored matched-run misses via the real compile_nl
+ingest path, and measures per-turn yield, grounding precision, and a bge-space
+wording-closure delta. Validation baked in and passed: reconstructed turn
+envelopes match the artifact's stored memory strings 417/417 verbatim (after
+reproducing the mem0 harness photo-tag + YYYY-MM-DD date normalization);
+1077/1084 gold ids resolve. Key methodology finding recorded in-tool: the
+artifact's stored `score` is SEAM's retrieval-PIPELINE score in an unrecorded
+embedding space (Pearson ~0.1 vs a plain bge-small cosine), NOT reproducible —
+so the tool measures ENTIRELY in bge-small space (the embedder grounded-clm
+forces on) and reports the relative closure delta, not an absolute floor.
+
+Extractor infra (no paid work): qwen2.5:14b (9.9 GB) spills 69% to CPU on the
+8 GB RTX 2070 (>300 s/turn); imported the operator's on-T7
+Qwen2.5-7B-Instruct-1M-Q4 GGUF into Ollama as qwen2.5-7b-1m (4.7 GB, 100% GPU,
+~6 s/turn), which made the full 63-miss preflight practical.
+
+grounded-clm/1 free preflight (qwen2.5-7b, $0): 7/63 misses reached, yield
+0.043/gold-turn, grounding precision 1.00, mean wording-closure +0.085 (6/7 beat
+the raw gold turn) — the mechanism WORKS where it fires but fires on ~nothing.
+Root cause: real LoCoMo gold turns are conversational; the strict contract's
+stack of guards (complete-clause, quoted-object, gap-free S-R-O, first-person-
+only) each rejects different turns and nearly every real turn trips one.
+
+grounded-clm/2 (this commit) relaxes ONE of those guards: the complete-clause
+gate now validates the S-R-O against its enclosing CLAUSE (clause_window in
+nl_extract.py) instead of the whole proposition, so a clean self-claim inside a
+compound sentence ("... and I love surfing") is admitted. Default OFF; v1 is
+byte-identical; all other guards (verbatim spans, ordered gap-free single-clause
+S-R-O, explicit basis, first-person->speaker rebasing) unchanged, so precision
+is preserved (negation/questions are dropped upstream by ground_extraction).
+FREE-MEASURED: ~0 additional facts on the miss set, because the DOMINANT wall is
+the OTHER guards (e.g. quoted titles like "Little Women", adverbial S-R-O gaps),
+not complete-clause. So v2 is correct + safe + tested but 0-flip on LoCoMo;
+landed as infra per operator, explicitly NOT a score win.
+
+Strategic consequence (recorded for the next lever): SEAM's verbatim-grounding
+auditability guarantee is in direct tension with the fact COVERAGE that makes
+mem0's derived facts work — mem0 stores loose paraphrases. Free ceiling for a
+sentence-grounded approach (paraphrase fact + provenance to the exact source
+sentence, dropping the verbatim-span rule): 60/63 misses (95%) have a first-
+person declarative gold sentence, vs 7 for the strict contract. Operator chose
+sentence-grounded facts as the next direction; to be validated FREE (real gate
+against candidate turns) BEFORE building policy plumbing (lesson logged: v2 was
+built on an optimistic regex ceiling before running the real gate).
+
+Files: seam_runtime/nl_extract.py (clause_window helper),
+seam_runtime/nl.py (_candidate_claim_is_lossless clause_scoped),
+seam_runtime/derived_fact_context.py (GROUNDED_CLM_V2 + GROUNDED_CLM_POLICIES +
+enabled), seam_runtime/vector.py (render_record_text generalized to grounded-clm/*),
+tests/fidelity/test_nl_extract.py (4 new v2 tests),
+benchmarks/external/mem0_harness/preflight_derived_facts.py (new free tool).
+
+Verification: full `pytest tests/` exit 0, ZERO skips (strict-no-skip) with the
+local pgvector DSN + T7 offline HF env; ruff clean on all touched files; the 58
+nl_extract fidelity tests (incl. the 4 new v2 tests) green; v1 byte-identity
+confirmed. No provider/paid call. No push.
+---END-ENTRY-#438---
+---BEGIN-ENTRY-#439---
+id: 439
+date: 2026-07-21T01:17:20Z
+agent: codex
+status: done
+topics: benchmark,locomo,memory,retrieval,compile,provenance,audit,rank,test,handoff
+commits: pending
+refs: docs/audits/2026-07-20-memory-competitor-ratchet.md,seam_runtime/sentence_grounded_facts.py,seam_runtime/derived_fact_context.py,seam_runtime/nl.py,seam_runtime/vector.py,benchmarks/external/mem0_harness/preflight_sentence_grounded_facts.py,benchmarks/external/mem0_harness/README.md,tests/audit/test_sentence_grounded_preflight.py,tests/audit/test_sentence_grounded_runtime.py,tests/audit/test_seam_mem0_server.py,docs/handoffs/2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md,PROJECT_STATUS.md
+supersedes: 438
+tokens: 1920
+---
+Researched the current Mem0, Hindsight, Zep/Graphiti, and Cognee memory
+approaches under their actual evaluation contracts, then implemented and
+FREE-VALIDATED sentence-grounded-clm/1, the highest-value representation
+ratchet selected from #438. Durable audit:
+docs/audits/2026-07-20-memory-competitor-ratchet.md.
+
+Competitor finding: SEAM already has the generic lexical, semantic, graph,
+temporal, fusion, and reranking substrate. The transferable advantage is
+multiple first-class representations searched and deliberately composed:
+extracted facts, raw episodes, entities/relations, observations/summaries, and
+temporal validity. Published headline scores are not interchangeable: current
+Mem0, Hindsight AMB, and Zep results use different readers, judges, retrieval
+modes, query counts, and context budgets; Cognee has no full directly
+comparable current LoCoMo artifact. Therefore this entry makes no borrowed
+score claim.
+
+New shared runtime seam_runtime/sentence_grounded_facts.py defines one prompt,
+schema, model fingerprint, validator, and strict-local Ollama extractor for
+both the free preflight and real compiler. The model emits a speaker-canonical
+fact plus an integer evidence-sentence index; SEAM, not the model, attaches the
+canonical exact source sentence, offsets, and hash. Safety rejects speaker
+drift, first-person facts, missing literal numbers, sentence-level negation
+loss, questions, and malformed/oversized output.
+
+sentence-grounded-clm/1 is default-off. compile_nl preserves RAW and emits the
+paraphrase as a sentence_fact CLM with exact source-sentence provenance,
+fact hash, deterministic ID, owner-scoped cache lifecycle, and frozen local
+model manifest. Retrieval revalidates the raw slice/hash, fact hash, sentence
+bounds, canonical speaker, and safety contract before serving it. Vector
+indexing uses the paraphrase as the derived representation; packing reuses the
+source-before-fact ordering and <=20% derived-fact prefix ceiling. Flag-off
+behavior is unchanged.
+
+Full #429 cat1/cat3 miss-set free gate, local qwen2.5-7b-1m:latest + local BGE:
+63 misses, 61 with candidate turns, 127 unique candidate turns/calls, 229 model
+fact items, 228 canonically bound, 199 safety-valid, 51/63 misses reached,
+46/63 facts closer to the query than RAW, binding precision 0.9956, safety
+acceptance 0.8690, mean closure +0.1138, and mean fact/evidence cosine 0.7147.
+All five predeclared gates passed. A real configure -> cache -> compile -> MIRL
+validation smoke emitted one valid fact with the frozen model fingerprint.
+
+Verification: affected suites passed (147 before the final facade integration
+test, plus the final four-test slice); full strict non-external tests exited 0
+with zero skips and two established xfails; external pgvector tests passed
+10/10 with zero skips; touched-file Ruff and diff check clean. Repo-wide Ruff
+continues to report two unrelated pre-existing import-order findings in
+tests/audit/test_pgvector_real_adapter.py. No provider/paid call and no score
+claim. No push. Operator-owned report*.png files remained untouched/excluded.
+
+NEXT: run a full free pinned Mem0-harness predict-only baseline/candidate
+displacement audit. Only after a clean evidence/sentinel gate, request approval
+for a paired paid microgate; promotion requires net +2 across cat1+cat3 (+0.53
+points) with zero sentinel losses. The next architectural rung is reserved
+multi-scope packing, then evidence-backed observations/entity summaries and a
+query-shape router.
+---END-ENTRY-#439---
+---BEGIN-ENTRY-#440---
+id: 440
+date: 2026-07-21T03:37:52Z
+agent: codex
+status: in-progress
+topics: benchmark,longmemeval,beam,memory,audit,bugfix,protocol,test,handoff
+commits: pending
+refs: benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/common/types.py,benchmarks/external/longmemeval/run.py,benchmarks/external/beam/run.py,seam_runtime/cli.py,tests/audit/test_longmemeval_routing.py,tests/audit/test_beam_routing.py,tests/audit/test_upstream_memory_harness.py,docs/audits/2026-07-20-longmemeval-beam-execution-contract.md,docs/handoffs/2026-07-20-longmemeval-beam-contract-repair-in-progress.md,.context-handoffs/context-handoff-20260721T033701Z.md
+supersedes: 439
+tokens: 1134
+---
+IN-PROGRESS cut-off breadcrumb. The operator requested an observant audit of
+whether a Mem0 side-by-side, LongMemEval, and BEAM could be run, then authorized
+repair of all discovered issues and explicitly requested a durable handoff.
+
+Found that the pinned `mem0ai/memory-benchmarks` checkout already exists at
+`/tmp/memory-benchmarks` revision 4b61c5d with its isolated venv; SEAM does not
+need another Mem0 install for its side of the HTTP comparison. No LongMemEval
+or BEAM dataset was found, and the harness venv lacks BEAM's `datasets`
+dependency. No install/download/provider call occurred.
+
+Correctness defects: the local LongMemEval and BEAM real-run paths substituted
+the generic LoCoMo scorer for benchmark-specific evaluation; LongMemEval
+dropped question date, abstention marker, and evidence-session metadata; BEAM
+could create cases from directory questions with an empty conversation and its
+JSON list-root path was broken; documentation confused the complete BEAM
+100-conversation/2,000-question release with the 1M track's 35/700 contract.
+
+Dirty WIP adds a pinned upstream-harness bridge through SEAM's existing
+loopback Mem0 facade and turns local runners into strict structural validators.
+The bridge checks revision, isolated Python, loopback URL, BEAM dependency,
+explicit provider-spend approval, and separate BEAM-10M approval. Local parsing
+now preserves LongMemEval metadata and BEAM rubric/chat structure and fails
+closed on malformed inputs. Active docs and the real-run SOP are being updated.
+
+Verification so far: touched-code Ruff clean, touched modules compile, and 23
+focused LongMemEval/BEAM/bridge tests pass. NOT YET RUN: final diff check,
+plan-only readiness, collect-only, full non-external suite, external pgvector,
+secret scan, or session-end verifiers. The implementation is uncommitted.
+
+Resume from the canonical handoff and detailed context handoff named in refs.
+First inspect the dirty diff, preserve unrelated operator-owned `report*.png`,
+finish readiness/CLI/timestamp review, then run all required verification and
+replace this handoff with a done successor before committing. Do not install
+`datasets`, download large corpora, run a provider judge, push, or execute
+BEAM-10M without the corresponding operator gate.
+---END-ENTRY-#440---
+---BEGIN-ENTRY-#441---
+id: 441
+date: 2026-07-21T04:38:43Z
+agent: codex
+status: done
+topics: benchmark,longmemeval,beam,memory,temporal,graph,audit,bugfix,protocol,test,handoff,verify
+commits: pending
+refs: benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/common/types.py,benchmarks/external/longmemeval/run.py,benchmarks/external/beam/run.py,benchmarks/external/mem0_harness/seam_mem0_server.py,seam_runtime/cli.py,tests/audit/test_longmemeval_routing.py,tests/audit/test_beam_routing.py,tests/audit/test_upstream_memory_harness.py,tests/audit/test_seam_mem0_server.py,docs/audits/2026-07-20-longmemeval-beam-execution-contract.md,docs/handoffs/2026-07-21-longmemeval-beam-contract-repair-complete.md,PROJECT_STATUS.md
+supersedes: 440
+tokens: 1012
+---
+Completed the LongMemEval/BEAM execution-contract repair begun in #440. Local
+parsers are now fail-closed structural validators; real and predict-only runs
+delegate to the pinned clean `mem0ai/memory-benchmarks` task-specific harness
+through SEAM's loopback facade. The bridge gates revision, isolated Python,
+clean checkout, loopback URL, provider/model/cutoff argv, missing dependencies,
+implicit BEAM cache downloads, provider spend, and BEAM-10M separately.
+
+LongMemEval preserves question date, abstention, evidence-session metadata,
+roles, ids, and source history. BEAM validates actual chat plus rubric/nugget
+structure across supported encodings and no longer permits empty-conversation
+cases. Active docs now distinguish the official 1M 35/700 and 10M 10/200
+tracks and prohibit comparing the old generic LoCoMo score path.
+
+Temporal boundary: audited LongMemEval/BEAM RAW envelopes retain second-level
+UTC timestamps, while the pinned LoCoMo date-only envelope is unchanged. Normal
+turn ingest still does not reliably populate event-time `t0`/`t1` or lifecycle;
+ingestion `created_at` is not event time, LongMemEval `question_date` does not
+yet shape facade retrieval, and timestamp parsing is narrower than real corpus
+variants. This repair records that gap rather than silently becoming a core
+temporal rewrite.
+
+Graph boundary: graph memory is a vital next competitive direction. SEAM has a
+canonical MIRL-to-graph projector and graph retrieval substrate, but this slice
+does not prove a graph score gain. Next is a free matched-harness evidence and
+displacement measurement before any score claim or paid gate.
+
+Verification: touched collect-only resolved 51 tests; the focused slice passed
+51/51; strict non-external passed 1,627 with two established xfails and zero
+skips; external pgvector passed 10/10 with zero skips after both documented DSN
+variables were bound to the same existing service without printing the value.
+Touched Ruff, module compilation, diff check, and candidate secret/private-
+session-link scans passed. No install, dataset/model download, provider call,
+paid work, score, BEAM-10M execution, or push occurred. Operator-owned
+`report*.png` remained untouched and excluded.
+---END-ENTRY-#441---
+
+---BEGIN-ENTRY-#442---
+id: 442
+date: 2026-07-21T07:08:50Z
+agent: codex
+status: done
+topics: graph, memory, retrieval, benchmark, audit, bugfix, test, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/external/mem0_harness/seam_mem0_server.py,seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_graph_memory_preflight.py,tests/audit/test_knowledge_graph.py,tests/audit/test_seam_mem0_server.py,docs/audits/2026-07-21-canonical-graph-fill-preflight.md,docs/handoffs/2026-07-21-canonical-graph-fill-free-gate.md,PROJECT_STATUS.md
+supersedes: 441
+tokens: 240
+---
+Passed the free matched-harness canonical-graph evidence gate and implemented its exact non-displacing policy default-off. Fresh stores generated through memory-benchmarks@4b61c5d predict-only matched all committed LoCoMo RAW turns; older replay stores were rejected for corpus mismatch. Across 378 cat1/cat3 questions at top-200, canonical-graph-fill/1 gained 5 exact gold references, made 1 case newly complete, and lost 0 references. The aggressive reserved-tail probe gained 5 but lost 1 and remains rejected. Fixed process-dependent graph score ties by stable record-id ordering; added a copied-store, local-only, no-licensed-text preflight and facade contract tests. Verification: 51 touched tests collected and passed; 1,636 strict non-external tests passed with 2 established xfails and zero skips; Ruff, compileall, repeated 378-case preflight, and diff checks passed. No provider/paid call, install, download, scored run, default-on promotion, or push. Next: operator decision on a small paired paid microgate under the frozen matched gpt-4o contract; no full paid run before that gate.
+---END-ENTRY-#442---
+
+---BEGIN-ENTRY-#443---
+id: 443
+date: 2026-07-21T07:20:56Z
+agent: codex
+status: done
+topics: history, verify, audit, benchmark, handoff
+commits: pending
+refs: HISTORY.md,PROJECT_STATUS.md,docs/handoffs/2026-07-21-canonical-graph-fill-free-gate.md,docs/handoffs/INDEX.md
+supersedes: 442
+tokens: 86
+---
+Correction to HISTORY#442 verification arithmetic: the final strict non-external run collected 1,636 tests and completed with 1,634 passed, two established xfailed, and zero skips. HISTORY#442 incorrectly described all 1,636 as passed in addition to the xfails. All runtime, preflight, evidence-gain, no-displacement, provider-boundary, and next-step claims from #442 remain unchanged.
+---END-ENTRY-#443---
+---BEGIN-ENTRY-#444---
+id: 444
+date: 2026-07-21T11:08:11Z
+agent: codex
+status: changed
+topics: graph, memory, retrieval, benchmark, audit, bugfix, test, handoff, verify
+commits: pending
+refs: benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/external/mem0_harness/microgate_graph_memory.py,tests/audit/test_graph_memory_preflight.py,tests/audit/test_graph_memory_microgate.py,benchmarks/external/mem0_harness/README.md,docs/audits/2026-07-21-canonical-graph-fill-preflight.md,docs/handoffs/2026-07-21-canonical-graph-fill-broad-profile-correction.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md
+supersedes: 443
+tokens: 238
+---
+Corrected and retracted HISTORY#442/#443's canonical-graph evidence-gain claim
+before any paid call. The operator-authorized paired microgate dry run failed
+closed when live retrieval did not match the fresh predict-only checkpoint:
+the free preflight had forced search depth 200 / context budget 8,000 instead
+of the frozen matched gpt-4o broad profile 300 / 60,000. Pinning the broad
+profile restored exact selected-case checkpoint parity.
+
+Repeated the provider-free all-378 cat1/cat3 audit on the same fresh stores.
+Baseline measured 353 any-evidence cases, 252 complete cases, and 887 exact
+gold-reference hits; fill-only measured the identical 353 / 252 / 887. Graph
+fill added 32 unique rows, gained 0 exact references, and lost 0. The declared
+free gate therefore failed, and the paid microgate was canceled with zero
+provider calls and zero spend. canonical-graph-fill/1 remains default-off with
+no matched-harness score or evidence-gain claim.
+
+The corrected preflight now pins and reports the broad profile. A guarded
+paired runner checks the audited harness revision, exact fresh retrieval,
+matched store corpus, sentinel contract, provider flag, and cost ceiling; it
+requires explicit gain ids from a currently passing broad-profile free gate,
+so the retracted ids cannot authorize spend. The canonical handoff now routes
+to this correction. Operator-owned report*.png remained untouched and excluded.
+---END-ENTRY-#444---
+
+---BEGIN-ENTRY-#445---
+id: 445
+date: 2026-07-21T19:47:21Z
+agent: codex
+status: in-progress
+topics: benchmark, beam, pack, retrieval, audit, test, handoff, verify
+commits: pending
+refs: seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/preflight_multi_scope_pack.py,tests/audit/test_multi_scope_pack.py,docs/handoffs/2026-07-21-multiscope-gate-and-local-beam-in-progress.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md,.seam/cross_index_archive/0001-0307.cross.md
+supersedes: 444
+tokens: 345
+---
+IN-PROGRESS cut-off breadcrumb. Implemented the default-off reserved-multi-scope/1 context PACK and a provider-free matched-profile preflight. The direct-readable PACK preserves the displaced RAW tail verbatim while adding bounded grounded-fact, entity/relation, date-diverse temporal, and deeper RAW content. Across all 378 LoCoMo cat1/cat3 questions under search 300 / context 60,000 / response top-200, baseline measured 353 any / 252 complete / 887 exact references and candidate 354 / 257 / 897: 10 exact references gained, zero lost, five newly complete, one newly any, maximum PACK 5,259 characters, and zero provider calls. This is evidence presence, not an answer-score win. Focused collect-only found 36 tests and focused execution passed 36/36; touched Ruff, compileall, and diff checks passed. Full suite, external pgvector, docs, and promotion decision remain unfinished. The operator then supplied local benchmark checkouts under /home/terrabyte/BEAM. Read-only inventory found the official BEAM corpus complete at 100 conversations / 2,000 questions, including the supported 1M tier at 35/700 and separately gated 10M tier at 10/200; the other named benchmark checkouts lack their released data. SEAM cannot yet parse the official nested local BEAM directory layout. Resume from the canonical handoff and detailed context handoff; first add official local BEAM layout ingestion and validate 1M without copying the corpus, installing dependencies, downloading data, making provider calls, or executing 10M. Operator-owned report PNG files remain untouched and excluded.
+---END-ENTRY-#445---
+
+---BEGIN-ENTRY-#446---
+id: 446
+date: 2026-07-21T20:24:11Z
+agent: codex
+status: done
+topics: benchmark, beam, pack, retrieval, audit, test, handoff, verify
+commits: pending
+refs: seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_server.py,benchmarks/external/mem0_harness/preflight_multi_scope_pack.py,benchmarks/external/beam/run.py,benchmarks/external/beam/README.md,benchmarks/external/README.md,tests/audit/test_multi_scope_pack.py,tests/audit/test_beam_routing.py,docs/handoffs/2026-07-21-multiscope-and-local-beam-complete.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md,.seam/cross_index_archive/0001-0307.cross.md,PR#153
+supersedes: 445
+tokens: 318
+---
+Completed the HISTORY#445 cut-off scope without installs, downloads, provider calls, paid scoring, or BEAM-10M execution. The default-off reserved-multi-scope/1 candidate retains its corrected-profile provider-free evidence result over all 378 LoCoMo cat1/cat3 questions: baseline 353 any / 252 complete / 887 exact references versus candidate 354 / 257 / 897, gaining ten exact references with zero lost, five newly complete, one newly evidenced, and a maximum 5,259-character directly readable PACK. This remains evidence-presence validation, not an answer-score win or promotion. Added official local BEAM layout discovery and fail-closed validation for checkout, chats-root, and scale-root inputs; every chat, question, rubric, category, and expected track total is checked, while each source file is hashed once under a root-independent relative path. Real local BEAM-1M validation passed at 35 conversations, 700 questions, 74,630 normalized turns, 70 questions in each of all ten categories, 70 source files, and fixture hash 74fdc646e27b1c380368f66cd6360ccf94e39bb5cc3627a14d58f32b3d692bef. Competitive and predict-only execution remains pinned to the upstream task-specific harness. Affected collect/execution passed 61/61; the strict non-external suite collected 1,417 with 1,415 passed, two established xfails, and zero skips; live external pgvector passed 6/6 with zero skips; touched Ruff and diff checks were clean. CodeRabbit's scoped review findings were fixed with regressions for zero quotas, null scores, consistent PACK classification, and empty probing-question diagnostics. The canonical handoff closes this slice and routes next to a separate provider-free Needle-in-a-Haystack adapter. Operator-owned report PNGs and unrelated untracked displacement-audit files remained untouched and excluded.
+---END-ENTRY-#446---

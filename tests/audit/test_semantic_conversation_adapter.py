@@ -552,3 +552,59 @@ def test_exact_answer_contract_standalone_without_conversation_adapter():
 def test_unknown_answer_contract_fails_closed():
     with pytest.raises(ValueError, match="unknown answer contract"):
         build_answer_prompt("q", "ctx", answer_contract="exact-answer/99")
+
+
+def test_inference_v3_adds_open_domain_naming_on_top_of_v2():
+    from seam_runtime.conversation import ConversationIntent, answer_method_directive
+
+    v3 = answer_method_directive(
+        ConversationIntent.DIRECT, inference_policy="inference/high-confidence/3"
+    )
+    # inherits v1's world-knowledge clause
+    assert "one high-confidence interpretation" in v3
+    # inherits v2's anti-abstention + counting
+    assert "Do not answer 'unknown' when the context clearly supports one specific answer" in v3
+    assert "list every distinct qualifying item or occurrence" in v3
+    # adds the open-domain NAMING clause + ambiguity guard
+    assert "NAME that entity rather than only describing it" in v3
+    assert "could plausibly fit more than one well-known entity, do not guess" in v3
+
+    # v1 and v2 stay byte-stable: neither gets the naming clause
+    v1 = answer_method_directive(
+        ConversationIntent.DIRECT, inference_policy="inference/high-confidence/1"
+    )
+    v2 = answer_method_directive(
+        ConversationIntent.DIRECT, inference_policy="inference/high-confidence/2"
+    )
+    assert "NAME that entity" not in v1
+    assert "NAME that entity" not in v2
+    # v2's own additions remain absent from v1
+    assert "Do not answer 'unknown' when the context clearly supports" not in v1
+
+
+def test_inference_v3_composes_with_conversation_and_temporal():
+    prompt = build_answer_prompt(
+        "Which composer's tunes does Tim enjoy?",
+        "[Tim] I love playing the Star Wars themes on piano.",
+        conversation_adapter="conversation/2",
+        inference_policy="inference/high-confidence/3",
+        temporal_policy="temporal/1",
+    )
+    assert "Scan every EVIDENCE row" in prompt
+    assert "NAME that entity rather than only describing it" in prompt
+    assert "Resolve relative time expressions" in prompt
+
+
+def test_inference_v3_is_a_valid_policy_and_default_prompt_byte_identical():
+    from seam_runtime.retrieval import RetrievalFlags, coerce_flag_value, retrieval_flags_from_env
+
+    assert coerce_flag_value("inference_policy", "inference/high-confidence/3") == (
+        "inference/high-confidence/3"
+    )
+    assert retrieval_flags_from_env(
+        {"SEAM_INFERENCE_POLICY": "inference/high-confidence/3"}
+    ).inference_policy == "inference/high-confidence/3"
+    # default (context-only) prompt stays byte-identical to the locked prompt
+    assert RetrievalFlags().inference_policy == "context-only"
+    locked = build_answer_prompt("q?", "ctx")
+    assert build_answer_prompt("q?", "ctx", inference_policy="context-only") == locked

@@ -30,6 +30,7 @@ def _env_truthy(value: str | None) -> bool:
 
 
 _DEFAULT_SENTENCE_TRANSFORMER_MODEL = None
+_DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL = None
 
 
 @dataclass(frozen=True)
@@ -89,6 +90,9 @@ class SeamLocomoAdapter:
         inference_policy: str = INFERENCE_CONTEXT_ONLY,
         temporal_policy: str = TEMPORAL_POLICY_OFF,
         answer_contract: str = ANSWER_CONTRACT_OFF,
+        derived_facts_policy: str | None = None,
+        nl_extractor=None,
+        derived_facts_cache_path: str | None = None,
     ) -> None:
         if conversation_adapter not in CONVERSATION_ADAPTERS:
             raise ValueError(f"unknown conversation adapter {conversation_adapter!r}")
@@ -100,6 +104,14 @@ class SeamLocomoAdapter:
             raise ValueError(f"unknown answer contract {answer_contract!r}")
         # TODO: default db_path should be tmp_path, not a gitignored project dir
         self._db_root = Path(db_path) if db_path is not None else Path("test_seam/locomo")
+        from seam_runtime.derived_fact_context import configure_derived_facts
+
+        self._derived_facts = configure_derived_facts(
+            self._db_root,
+            policy=derived_facts_policy,
+            extractor=nl_extractor,
+            cache_path=derived_facts_cache_path,
+        )
         self.semantic_recovery_policy = SemanticRecoveryPolicy(
             mode=semantic_recovery_mode,
             context_char_budget=budget,
@@ -188,9 +200,20 @@ class SeamLocomoAdapter:
     def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
 
-    def ingest_turn(self, scope_id: str, turn: ConversationTurn) -> None:
+    def ingest_turn(
+        self,
+        scope_id: str,
+        turn: ConversationTurn,
+        *,
+        derive_facts: bool = True,
+    ) -> None:
         """Compile a conversation turn to MIRL and persist it in the
-        scope's database. Skipped when the scope is already cached on disk."""
+        scope's database. Skipped when the scope is already cached on disk.
+
+        ``derive_facts=False`` is the facade's fail-closed path for a message
+        whose displayed speaker came from a role fallback rather than an
+        explicit ``Name:`` prefix. The RAW floor is still ingested unchanged.
+        """
         from seam_runtime.temporal import parse_iso
 
         # anchor always updates so relative-date questions work on cached scopes
@@ -204,12 +227,30 @@ class SeamLocomoAdapter:
         text = _format_turn(turn)
         turn_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
         rt = self._runtime(scope_id)
+        derived_enabled = (
+            self._derived_facts.config.enabled and derive_facts
+        )
+        derived_policy = self._derived_facts.config.policy
+        derived_extractor = (
+            self._derived_facts.extractor.bind(f"locomo:{scope_id}")
+            if derived_enabled
+            else None
+        )
         rt.ingest_conversation_turn(
             text=text,
             source_ref=f"locomo:{scope_id}:turn:{turn_hash}",
             ns=f"locomo:{scope_id}",
             scope="thread",
             persist=True,
+            extractor=derived_extractor,
+            speaker=turn.speaker if derived_enabled else None,
+            source_timestamp=(
+                (turn.timestamp or "") if derived_enabled else None
+            ),
+            derived_fact_policy=(
+                derived_policy if derived_enabled else None
+            ),
+            allow_env_extractor=False,
         )
 
     def _scope_has_records(self, scope_id: str) -> bool:
@@ -792,7 +833,13 @@ class SeamLocomoAdapter:
     def _runtime(self, scope_id: str):
         runtime = self._runtime_by_scope.get(scope_id)
         if runtime is None:
-            runtime = _open_runtime(self._db_path(scope_id))
+            runtime = _open_runtime(
+                self._db_path(scope_id),
+                allow_pgvector_env=not self._derived_facts.config.enabled,
+                force_derived_facts_embedding=(
+                    self._derived_facts.config.enabled
+                ),
+            )
             if (
                 self._conversation_adapter != CONVERSATION_ADAPTER_OFF
                 or self._inference_policy != INFERENCE_CONTEXT_ONLY
@@ -820,12 +867,50 @@ def _format_turn(turn: ConversationTurn) -> str:
     return f"[{turn.speaker} {ts}] {turn.text}".strip()
 
 
-def _open_runtime(db_path: Path):
+def _open_runtime(
+    db_path: Path,
+    *,
+    allow_pgvector_env: bool = True,
+    force_derived_facts_embedding: bool = False,
+):
     """Open (or reopen) a SeamRuntime for a per-scope SQLite database."""
     from seam_runtime.models import SentenceTransformerModel, embedding_settings_from_env
     from seam_runtime.runtime import SeamRuntime  # lazy
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if force_derived_facts_embedding:
+        from seam_runtime.derived_fact_context import (
+            DERIVED_FACTS_EMBEDDING_CONFIG,
+            DERIVED_FACTS_EMBEDDING_MODEL,
+            DERIVED_FACTS_EMBEDDING_REVISION,
+        )
+
+        global _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL
+        if _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL is None:
+            _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL = (
+                SentenceTransformerModel(
+                    model_name=DERIVED_FACTS_EMBEDDING_MODEL,
+                    revision=DERIVED_FACTS_EMBEDDING_REVISION,
+                    local_files_only=True,
+                )
+            )
+        model = _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL
+        if (
+            model.name != DERIVED_FACTS_EMBEDDING_CONFIG["name"]
+            or model.dimension
+            != DERIVED_FACTS_EMBEDDING_CONFIG["dimension"]
+            or not model.local_files_only
+        ):
+            raise RuntimeError(
+                "derived-facts embedding contract does not match the "
+                "configured local model"
+            )
+        return SeamRuntime(
+            str(db_path),
+            embedding_model=model,
+            allow_pgvector_env=False,
+        )
 
     settings = embedding_settings_from_env()
     if settings.provider in {"hash", "local", "deterministic"}:
@@ -842,9 +927,16 @@ def _open_runtime(db_path: Path):
                 "SEAM_EMBEDDING_API_KEY_ENV. "
                 f"Default-model load failed: {exc}"
             ) from exc
-        return SeamRuntime(str(db_path), embedding_model=model)
+        return SeamRuntime(
+            str(db_path),
+            embedding_model=model,
+            allow_pgvector_env=allow_pgvector_env,
+        )
 
-    return SeamRuntime(str(db_path))
+    return SeamRuntime(
+        str(db_path),
+        allow_pgvector_env=allow_pgvector_env,
+    )
 
 
 def _remove_db_files(db_path: Path) -> None:

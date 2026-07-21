@@ -69,7 +69,7 @@ def _install_fake_runtime(monkeypatch, store: SQLiteStore, candidates=None):
     rt = _FakeRuntime(store, candidates=candidates)
     monkeypatch.setattr(
         "benchmarks.external.locomo.adapters.seam._open_runtime",
-        lambda _db_path: rt,
+        lambda _db_path, **_kwargs: rt,
     )
     return rt
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
 
@@ -18,6 +18,7 @@ class BenchmarkCase:
     question: str
     gold_answer: str
     category: str | None = None  # LoCoMo question category if present
+    metadata: dict = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

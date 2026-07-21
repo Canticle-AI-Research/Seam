@@ -56,6 +56,8 @@ class HashEmbeddingModel:
 @dataclass
 class SentenceTransformerModel:
     model_name: str = "all-MiniLM-L6-v2"
+    revision: str | None = None
+    local_files_only: bool = False
     name: str = ""
     dimension: int = 384
     _model: Any = None
@@ -63,7 +65,8 @@ class SentenceTransformerModel:
 
     def __post_init__(self) -> None:
         if not self.name:
-            self.name = f"st:{self.model_name}"
+            revision = f"@{self.revision}" if self.revision else ""
+            self.name = f"st:{self.model_name}{revision}"
 
     def _load(self):
         if self._model is not None:
@@ -75,7 +78,12 @@ class SentenceTransformerModel:
                 from sentence_transformers import SentenceTransformer
             except ImportError as exc:
                 raise RuntimeError("sentence-transformers is not installed") from exc
-            self._model = SentenceTransformer(self.model_name)
+            kwargs = {}
+            if self.revision:
+                kwargs["revision"] = self.revision
+            if self.local_files_only:
+                kwargs["local_files_only"] = True
+            self._model = SentenceTransformer(self.model_name, **kwargs)
             getter = getattr(self._model, "get_embedding_dimension", None) or self._model.get_sentence_embedding_dimension
             self.dimension = getter()
         return self._model

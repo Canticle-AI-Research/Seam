@@ -15,7 +15,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:A-Web` — since 2026-05-10 via history:163 — topics: dashboard, webui, command
 - `roadmap:track:E1` — since 2026-04-30 via history:121 — topics: pgvector, vector, docker
 
-## planned (34)
+## planned (37)
 
 - `roadmap:track:A2` — since 2026-04-18 via none — topics: benchmark, dashboard, animation
 - `roadmap:track:A3` — since 2026-04-18 via none — topics: benchmark, dashboard, graph
@@ -51,6 +51,9 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:L` — since 2026-05-15 via history:180 — topics: agent, compiler, skills
 - `roadmap:track:N` — since 2026-06-02 via history:284 — topics: packaging, release, distribution
 - `roadmap:track:O` — since 2026-06-15 via history:319 — topics: query, sql, retrieval, benchmark, bird
+- `roadmap:track:P` — since 2026-07-16 via history:407 — topics: agent, openclaw, namespaces, profiles, console
+- `roadmap:track:Q` — since 2026-07-16 via history:407 — topics: android, mobile, small-models, memory-loop
+- `roadmap:track:R` — since 2026-07-17 via history:415 — topics: graph, memory, retrieval, benchmark, comparator, provenance
 
 ## later (2)
 

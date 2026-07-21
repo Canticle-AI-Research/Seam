@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-17-exact-answer-contract-handoff
+latest: 2026-07-21-multiscope-and-local-beam-complete
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,23 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-17-exact-answer-contract-handoff` | [2026-07-17-exact-answer-contract-handoff.md](2026-07-17-exact-answer-contract-handoff.md) | `2026-07-15-cat1-cat3-scoreboard-closeout` | `HISTORY#409` | `current` |
+| `2026-07-21-multiscope-and-local-beam-complete` | [2026-07-21-multiscope-and-local-beam-complete.md](2026-07-21-multiscope-and-local-beam-complete.md) | `2026-07-21-multiscope-gate-and-local-beam-in-progress` | `HISTORY#446` | `current` |
+| `2026-07-21-multiscope-gate-and-local-beam-in-progress` | [2026-07-21-multiscope-gate-and-local-beam-in-progress.md](2026-07-21-multiscope-gate-and-local-beam-in-progress.md) | `2026-07-21-canonical-graph-fill-broad-profile-correction` | `HISTORY#445` | `superseded` |
+| `2026-07-21-canonical-graph-fill-broad-profile-correction` | [2026-07-21-canonical-graph-fill-broad-profile-correction.md](2026-07-21-canonical-graph-fill-broad-profile-correction.md) | `2026-07-21-canonical-graph-fill-free-gate` | `HISTORY#444` | `superseded` |
+| `2026-07-21-canonical-graph-fill-free-gate` | [2026-07-21-canonical-graph-fill-free-gate.md](2026-07-21-canonical-graph-fill-free-gate.md) | `2026-07-21-longmemeval-beam-contract-repair-complete` | `HISTORY#443` | `superseded` |
+| `2026-07-21-longmemeval-beam-contract-repair-complete` | [2026-07-21-longmemeval-beam-contract-repair-complete.md](2026-07-21-longmemeval-beam-contract-repair-complete.md) | `2026-07-20-longmemeval-beam-contract-repair-in-progress` | `HISTORY#441` | `superseded` |
+| `2026-07-20-longmemeval-beam-contract-repair-in-progress` | [2026-07-20-longmemeval-beam-contract-repair-in-progress.md](2026-07-20-longmemeval-beam-contract-repair-in-progress.md) | `2026-07-20-sentence-grounded-pass-and-competitor-ratchet` | `HISTORY#440` | `superseded` |
+| `2026-07-20-sentence-grounded-pass-and-competitor-ratchet` | [2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md](2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md) | `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | `HISTORY#439` | `superseded` |
+| `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | [2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md](2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md) | `2026-07-20-derived-facts-landed-and-kb-scaffold` | `HISTORY#438` | `superseded` |
+| `2026-07-20-derived-facts-landed-and-kb-scaffold` | [2026-07-20-derived-facts-landed-and-kb-scaffold.md](2026-07-20-derived-facts-landed-and-kb-scaffold.md) | `2026-07-20-second-hop-negative-and-count-lever-conflict` | `HISTORY#436` | `superseded` |
+| `2026-07-20-second-hop-negative-and-count-lever-conflict` | [2026-07-20-second-hop-negative-and-count-lever-conflict.md](2026-07-20-second-hop-negative-and-count-lever-conflict.md) | `2026-07-19-matched-run-complete-recovery-closeout` | `HISTORY#432` | `superseded` |
+| `2026-07-19-matched-run-complete-recovery-closeout` | [2026-07-19-matched-run-complete-recovery-closeout.md](2026-07-19-matched-run-complete-recovery-closeout.md) | `2026-07-19-matched-run-inflight-and-cat2-lever-handoff` | `HISTORY#430` | `superseded` |
+| `2026-07-19-matched-run-inflight-and-cat2-lever-handoff` | [2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md](2026-07-19-matched-run-inflight-and-cat2-lever-handoff.md) | `2026-07-19-matched-answerer-full-run-handoff` | `HISTORY#427` | `superseded` |
+| `2026-07-19-matched-answerer-full-run-handoff` | [2026-07-19-matched-answerer-full-run-handoff.md](2026-07-19-matched-answerer-full-run-handoff.md) | `2026-07-18-answerer-parity-probe-handoff` | `HISTORY#423` | `superseded` |
+| `2026-07-18-answerer-parity-probe-handoff` | [2026-07-18-answerer-parity-probe-handoff.md](2026-07-18-answerer-parity-probe-handoff.md) | `2026-07-17-event-count-context-handoff` | `HISTORY#422` | `superseded` |
+| `2026-07-17-event-count-context-handoff` | [2026-07-17-event-count-context-handoff.md](2026-07-17-event-count-context-handoff.md) | `2026-07-17-hc3-open-domain-cat3-handoff` | `HISTORY#416` | `superseded` |
+| `2026-07-17-hc3-open-domain-cat3-handoff` | [2026-07-17-hc3-open-domain-cat3-handoff.md](2026-07-17-hc3-open-domain-cat3-handoff.md) | `2026-07-17-exact-answer-contract-handoff` | `HISTORY#413` | `superseded` |
+| `2026-07-17-exact-answer-contract-handoff` | [2026-07-17-exact-answer-contract-handoff.md](2026-07-17-exact-answer-contract-handoff.md) | `2026-07-15-cat1-cat3-scoreboard-closeout` | `HISTORY#409` | `superseded` |
 | `2026-07-15-cat1-cat3-scoreboard-closeout` | [2026-07-15-cat1-cat3-scoreboard-closeout.md](2026-07-15-cat1-cat3-scoreboard-closeout.md) | `2026-07-15-cat1-cat3-past-80-handoff` | `HISTORY#400` | `superseded` |
 | `2026-07-15-cat1-cat3-past-80-handoff` | [2026-07-15-cat1-cat3-past-80-handoff.md](2026-07-15-cat1-cat3-past-80-handoff.md) | `2026-07-13-improve-validate-profile-complete` | `HISTORY#397` | `superseded` |
 | `2026-07-13-improve-validate-profile-complete` | [2026-07-13-improve-validate-profile-complete.md](2026-07-13-improve-validate-profile-complete.md) | `2026-07-11-cat13-semantic-conversation-adapter-complete` | `HISTORY#387` | `superseded` |

@@ -1756,6 +1756,68 @@ after, structurally every turn (the Track P memory-native loop is the core).
 
 ---
 
+## Track R — Zep-Class Temporal Graph Parity (post-benchmark)
+
+<!-- seam:item
+id: roadmap:track:R
+status: planned
+status-since: 2026-07-17
+status-by: history:415
+supersedes: none
+topics: graph, memory, retrieval, benchmark, comparator, provenance
+priority: 2
+phase: 2
+-->
+
+**Status:** Planned (operator decision 2026-07-17). Do not start until the
+benchmark-first gates below are satisfied.
+
+**Dual-evidence contract:**
+
+1. **Use all benchmark evidence.** SEAM's native holdout and Mem0's harness are
+   co-primary evidence lanes. Neither is demoted. Mem0 data may be more valuable
+   for market-facing comparison and migration decisions because it measures
+   SEAM under the incumbent's own contract.
+2. **Native diagnostic lane.** The native judged holdout is more discriminating
+   about exactness, temporal correctness, unsupported additions, and answer
+   completeness, making it especially useful for internal diagnosis and
+   ratcheting. A lower number on a stricter harness is not itself proof of
+   correctness; claims rest on the documented scoring contract and per-case
+   audits.
+3. **Mem0 comparator lane.** Run a matched Mem0-vs-SEAM comparison inside
+   Mem0's own harness with dataset, split, answerer, judge, retrieval budget,
+   and cutoff held constant, and surpass Mem0 there before starting this track.
+4. **Keep the scoreboards distinct, not unequal.** The harnesses answer
+   different questions. Analyze both fully and let either surface priorities,
+   but never average them or present movement on one as movement on the other.
+
+**What:** close the remaining gap between SEAM's existing self-building
+temporal knowledge graph and a production Zep/Graphiti-class memory graph,
+without replacing SEAM's MIRL source of truth or its trust, provenance,
+J-Space, and improvement-loop advantages.
+
+Planned sequence:
+
+1. Hybrid graph search over nodes, facts, and episodes: semantic + lexical +
+   graph traversal, with measured fusion/reranking.
+2. Semantic entity resolution: aliases, fuzzy coreference, reversible merges,
+   merge evidence, and conflict-aware identity handling.
+3. Evolving entity summaries, graph communities, community summaries, and
+   evidence-backed cross-entity observations.
+4. First-class context assembly that combines facts, entities, episodes,
+   summaries, and observations under explicit token and trust budgets.
+5. User/thread/graph lifecycle APIs, cross-thread context, scoped deletion, and
+   auditable right-to-be-forgotten behavior.
+6. Corpus-scale qualification: asynchronous/batch ingestion, recovery,
+   concurrency, latency, graph-backend portability, and direct parity/load
+   benchmarks.
+
+The Track P Mem0/Zep migration facade/importer direction becomes a delivery
+surface for this track. Do not claim full Zep parity or enterprise-scale
+performance until the direct comparator and scale gates exist and pass.
+
+---
+
 ## Recommended Course — Priority Order
 
 Use this section for current priority. Older planned entries `HISTORY#028`-
@@ -1774,6 +1836,13 @@ Done - functional visual memory + foundational polish
 - C1: Holdout suites (implemented; supersedes HISTORY#036)
 - C2: Benchmark diff tooling (implemented; supersedes HISTORY#037)
 - E3: REST API surface (implemented; supersedes HISTORY#046)
+
+Now - benchmark truth before platform expansion
+- Treat native SEAM judge/1 and the Mem0 harness as co-primary evidence lanes; inspect all data from both
+- Use native judge/1 for stricter diagnosis and ratcheting; use Mem0's harness for incumbent-relative and market-facing decisions
+- Keep exact-answer/1 parked after its measured regression; validate hc/3 through its staged cat3 gate
+- Run the matched Mem0-vs-SEAM comparison in Mem0's harness with the evaluation contract held constant
+- Start Track R only after SEAM advances on its native standard and surpasses Mem0 under the matched Mem0-harness contract
 
 Now - retrieval feedback loop + browser dashboard / REST API GUI + context streams substrate
 - H2: Track M retrieval-feedback substrate (retrieval_event data, stale-bundle backfill, current no-paid labels, improvement review guardrail)

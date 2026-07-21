@@ -63,14 +63,19 @@ answer). Every category improved; the delta is ~7× the 0.02 noise margin.
 the command prints the call-count estimate and makes zero API calls):
 
 ```bash
-OPENAI_API_KEY=... python -m seam_runtime.cli improve validate \
-  --split holdout \
+OPENAI_API_KEY=... seam improve validate \
+  --locomo-dataset benchmarks/external/locomo/data/locomo10.json \
+  --locomo-scopes 10 --split holdout \
   --answerer openai --answerer-model gpt-4o-mini \
   --judge openai    --judge-model    gpt-4o-mini \
   --profile broad \
   --flags '{"conversation_adapter":"conversation/4","inference_policy":"inference/high-confidence/2","temporal_policy":"temporal/1"}' \
   --confirm-paid
 ```
+
+> Dry-run first (omit `--confirm-paid`) to print the exact call-count/cost
+> estimate and make zero API calls; add `--confirm-paid` to spend. Records land
+> in `$SEAM_BENCH_RECORD_DIR`.
 
 **Honest caveats.** `0.776163` is the single highest verified native number, but
 it is only **+0.0073 over the prior clean-stack run** (HISTORY#390, `0.768895`,

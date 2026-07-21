@@ -133,6 +133,9 @@ class TestLongMemEvalRouting:
                 "question_type": "temporal-reasoning",
                 "question": "What happened first?",
                 "answer": "The car service",
+                "question_date": "2023/04/20 (Thu) 10:00",
+                "haystack_session_ids": ["session-1"],
+                "answer_session_ids": ["session-1"],
                 "haystack_dates": ["2023/04/10 (Mon) 17:50"],
                 "haystack_sessions": [[
                     {"role": "user", "content": "I got my car serviced first."},
@@ -154,3 +157,70 @@ class TestLongMemEvalRouting:
         assert cases[0].category == "temporal-reasoning"
         assert cases[0].gold_answer == "The car service"
         assert cases[0].conversation[0].speaker == "user"
+        assert cases[0].metadata["question_date"] == "2023/04/20 (Thu) 10:00"
+        assert cases[0].metadata["answer_session_ids"] == ("session-1",)
+
+    def test_official_abstention_marker_is_preserved_without_relabeling_type(self, tmp_path):
+        from benchmarks.external.longmemeval.run import _load_longmemeval_cases
+
+        dataset_path = tmp_path / "longmemeval.json"
+        dataset_path.write_text(json.dumps([{
+            "question_id": "q-abs_abs",
+            "question_type": "single-session-user",
+            "question": "What instrument did I buy?",
+            "answer": "The information provided is not enough",
+            "question_date": "2023/04/20 (Thu) 10:00",
+            "haystack_session_ids": ["session-1"],
+            "haystack_dates": ["2023/04/10 (Mon) 17:50"],
+            "haystack_sessions": [[
+                {"role": "user", "content": "I listened to some music."},
+                {"role": "assistant", "content": "That sounds relaxing."},
+            ]],
+            "answer_session_ids": [],
+        }]), encoding="utf-8")
+
+        case = _load_longmemeval_cases(str(dataset_path))[0]
+
+        assert case.category == "single-session-user"
+        assert case.metadata["is_abstention"] is True
+
+    def test_official_session_date_mismatch_fails_closed(self, tmp_path):
+        from benchmarks.external.longmemeval.run import _load_longmemeval_cases
+
+        dataset_path = tmp_path / "longmemeval.json"
+        dataset_path.write_text(json.dumps([{
+            "question_id": "q-bad",
+            "question_type": "single-session-user",
+            "question": "What did I say?",
+            "answer": "A fact",
+            "haystack_session_ids": ["session-1"],
+            "haystack_dates": [],
+            "haystack_sessions": [[{"role": "user", "content": "A fact"}]],
+        }]), encoding="utf-8")
+
+        try:
+            _load_longmemeval_cases(str(dataset_path))
+        except ValueError as exc:
+            assert "dates/session count mismatch" in str(exc)
+        else:
+            raise AssertionError("malformed official dataset was accepted")
+
+    def test_real_execution_refuses_generic_local_scorer(self, tmp_path):
+        dataset_path = tmp_path / "longmemeval.json"
+        dataset_path.write_text(json.dumps(_make_minimal_longmemeval_dataset()), encoding="utf-8")
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "benchmarks.external.longmemeval.run",
+                "--dataset-path",
+                str(dataset_path),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        assert result.returncode != 0
+        assert "local generic scorer is intentionally disabled" in result.stderr

@@ -141,7 +141,12 @@ class SQLiteGraphAdapter:
         for record_id in lexical_seed_ids:
             seed_ids.update(graph.get(record_id, set()))
         hits: list[LegHit] = []
-        for record_id in seed_ids:
+        # ``seed_ids`` is a set because the graph expansion deduplicates lexical
+        # seeds and neighbors.  Iterating it directly made equal-score graph
+        # hits depend on the process hash seed, which in turn made reserved-tail
+        # benchmark composition non-reproducible.  Stabilize both construction
+        # and the final score-tie order by canonical record id.
+        for record_id in sorted(seed_ids):
             record = by_id.get(record_id)
             if record is None or record.kind not in GRAPH_RETURN_KINDS or not plan.filters.matches(record):
                 continue
@@ -159,7 +164,7 @@ class SQLiteGraphAdapter:
                     reasons=[f"graph_neighbors={len(graph.get(record_id, set()))}", f"lexical={lexical:.2f}"],
                 )
             )
-        return sorted(hits, key=lambda item: item.score, reverse=True)[:limit]
+        return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
 @dataclass

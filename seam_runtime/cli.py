@@ -614,6 +614,21 @@ def build_parser() -> argparse.ArgumentParser:
     bench_external_parser.add_argument("--track", choices=["1m", "10m"], default="1m", help="BEAM track")
     bench_external_parser.add_argument("--limit", type=int, default=None, help="Limit external benchmark cases where supported")
     bench_external_parser.add_argument("--workers", type=int, default=1, help="Parallel case workers where supported")
+    bench_external_parser.add_argument("--harness-root", help="Pinned mem0ai/memory-benchmarks checkout for LongMemEval/BEAM execution")
+    bench_external_parser.add_argument("--project-name", help="Upstream LongMemEval/BEAM run identifier")
+    bench_external_parser.add_argument("--mem0-host", default="http://127.0.0.1:8900", help="Loopback SEAM Mem0 facade URL")
+    bench_external_parser.add_argument("--predict-only", action="store_true", help="Run upstream ingest+search without paid answerer/judge calls")
+    bench_external_parser.add_argument("--allow-paid", action="store_true", help="Acknowledge provider-paid upstream answerer/judge execution")
+    bench_external_parser.add_argument("--allow-10m", action="store_true", help="Explicitly authorize the separately deferred BEAM-10M track")
+    bench_external_parser.add_argument("--allow-download", action="store_true", help="Explicitly authorize a missing BEAM cache download")
+    bench_external_parser.add_argument("--dataset-cache-dir", help="Upstream BEAM Hugging Face cache directory")
+    bench_external_parser.add_argument("--conversations", help="Upstream BEAM conversation indices, for example 0-34")
+    bench_external_parser.add_argument("--per-type", type=int, help="Upstream LongMemEval stratified smoke count")
+    bench_external_parser.add_argument("--top-k", type=int, default=200, help="Upstream retrieval result count")
+    bench_external_parser.add_argument("--top-k-cutoffs", help="Comma-separated upstream evaluation cutoffs")
+    bench_external_parser.add_argument("--harness-output-dir", help="External directory for upstream checkpoints and results")
+    bench_external_parser.add_argument("--answerer-model", default="gpt-4o", help="Upstream answer-generation model")
+    bench_external_parser.add_argument("--provider", choices=["openai", "anthropic", "azure"], default="openai", help="Upstream answerer provider")
 
     bench_seal_parser = bench_subparsers.add_parser("seal", help="Seal a benchmark result as a BIL bundle")
     bench_seal_parser.add_argument("result", help="Benchmark result JSON path")
@@ -948,30 +963,75 @@ def run_cli(argv: list[str] | None = None) -> None:
                 if not args.dataset_path:
                     raise SystemExit("longmemeval requires --dataset-path")
                 cmd = [sys.executable, "-m", "benchmarks.external.longmemeval.run", "--dataset-path", args.dataset_path]
-                if args.adapter:
-                    cmd.extend(["--adapter", args.adapter])
                 if args.limit is not None:
                     cmd.extend(["--limit", str(args.limit)])
                 if args.workers is not None:
                     cmd.extend(["--workers", str(args.workers)])
+                if args.harness_root:
+                    cmd.extend(["--harness-root", args.harness_root])
+                if args.project_name:
+                    cmd.extend(["--project-name", args.project_name])
+                cmd.extend(["--mem0-host", args.mem0_host])
+                if args.predict_only:
+                    cmd.append("--predict-only")
+                if args.allow_paid:
+                    cmd.append("--allow-paid")
+                if args.per_type is not None:
+                    cmd.extend(["--per-type", str(args.per_type)])
+                cmd.extend(["--top-k", str(args.top_k)])
+                if args.top_k_cutoffs:
+                    cmd.extend(["--top-k-cutoffs", args.top_k_cutoffs])
+                if args.harness_output_dir:
+                    cmd.extend(["--output-dir", args.harness_output_dir])
+                cmd.extend(["--answerer-model", args.answerer_model, "--provider", args.provider])
+                if args.plan:
+                    cmd.append("--plan")
             elif args.target == "beam":
-                if not args.dataset_path:
-                    raise SystemExit("beam requires --dataset-path")
                 cmd = [
                     sys.executable, "-m", "benchmarks.external.beam.run",
-                    "--track", args.track, "--dataset-path", args.dataset_path,
+                    "--track", args.track,
                 ]
-                if args.adapter:
-                    cmd.extend(["--adapter", args.adapter])
+                if args.dataset_path:
+                    cmd.extend(["--dataset-path", args.dataset_path])
                 if args.limit is not None:
                     cmd.extend(["--limit", str(args.limit)])
                 if args.workers is not None:
                     cmd.extend(["--workers", str(args.workers)])
+                if args.harness_root:
+                    cmd.extend(["--harness-root", args.harness_root])
+                if args.project_name:
+                    cmd.extend(["--project-name", args.project_name])
+                cmd.extend(["--mem0-host", args.mem0_host])
+                if args.predict_only:
+                    cmd.append("--predict-only")
+                if args.allow_paid:
+                    cmd.append("--allow-paid")
+                if args.allow_10m:
+                    cmd.append("--allow-10m")
+                if args.allow_download:
+                    cmd.append("--allow-download")
+                if args.dataset_cache_dir:
+                    cmd.extend(["--dataset-cache-dir", args.dataset_cache_dir])
+                if args.conversations:
+                    cmd.extend(["--conversations", args.conversations])
+                cmd.extend(["--top-k", str(args.top_k)])
+                if args.top_k_cutoffs:
+                    cmd.extend(["--top-k-cutoffs", args.top_k_cutoffs])
+                if args.harness_output_dir:
+                    cmd.extend(["--output-dir", args.harness_output_dir])
+                cmd.extend(["--answerer-model", args.answerer_model, "--provider", args.provider])
+                if args.plan:
+                    cmd.append("--plan")
             else:
                 raise SystemExit(f"Unknown external benchmark target: {args.target!r}")
             if args.dry_run:
                 cmd.append("--dry-run")
             if args.output:
+                if args.target != "locomo":
+                    raise SystemExit(
+                        "--output is a LoCoMo result-file option; use "
+                        "--harness-output-dir for LongMemEval/BEAM checkpoints"
+                    )
                 cmd.extend(["--output", args.output])
             if args.judge:
                 cmd.extend(["--judge", args.judge])

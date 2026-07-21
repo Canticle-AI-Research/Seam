@@ -57,9 +57,10 @@ seam bench external longmemeval \
     --dataset-path /path/to/longmemeval.json --dry-run --format json
 ```
 
-500 questions, 5 categories (information extraction, multi-session reasoning,
-temporal reasoning, knowledge updates, abstention). Dry-run validates dataset
-shape and reports expected totals.
+500 questions across five abilities represented by six official
+`question_type` values. Dry-run validates exact dates/session alignment,
+question metadata, abstention markers, and expected totals. Real execution is
+delegated to the pinned upstream harness; the generic LoCoMo scorer is refused.
 
 ## BEAM
 
@@ -68,16 +69,22 @@ seam bench external beam \
     --track 1m --dataset-path /path/to/beam-dataset-dir --dry-run --format json
 ```
 
-BEAM-1M: 100 conversations, 2,000 probing questions. BEAM-10M is explicitly
-deferred and blocked by the runner.
+BEAM as a whole has 100 conversations and 2,000 questions. The 1M track is
+35 conversations / 700 questions. Official local repository layouts are fully
+validated from `chats/<scale>/<conversation>/chat.json` and nested probing
+questions, including nonempty chats, rubric nuggets, all ten categories, exact
+track totals, and a root-independent source-file hash. Unknown legacy
+directory layouts remain structural-only and invalid. Real execution uses the
+pinned upstream harness and official nugget scoring. BEAM-10M is separately
+deferred and gated.
 
 ## mem0 harness adapter
 
 ```bash
-.venv/bin/python -m benchmarks.external.mem0_harness.adapter --dry-run
+.venv/bin/python -m benchmarks.external.mem0_harness.seam_mem0_server --port 8900
 ```
 
-SEAM adapter for the `mem0ai/memory-benchmarks` harness. See
+SEAM's loopback HTTP facade for the `mem0ai/memory-benchmarks` harness. See
 `benchmarks/external/mem0_harness/README.md` for setup instructions.
 
 ## Publication gate
@@ -90,7 +97,7 @@ and BIL-2 verification. See `tests/audit/test_track_m_publication_gate.py`.
 ## Judges
 
 - Default: string-match only (no API key or extra deps needed)
-- `--judge stub`: deterministic test judge, always returns correct
+- `--judge stub`: deterministic smoke-only judge that abstains and never claims correctness
 - `--judge claude`: requires `pip install seam[bench-judge]` and `ANTHROPIC_API_KEY`
 - `--judge openai`: requires `pip install seam[bench-judge]` and `OPENAI_API_KEY`
 - Cost: one LLM call per case. Quickstart has ~10 cases.

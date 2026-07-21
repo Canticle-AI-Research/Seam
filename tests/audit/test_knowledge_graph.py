@@ -447,6 +447,28 @@ def test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges(run
     assert any("graph_neighbors=" in reason and not reason.endswith("=0") for hit in hits for reason in hit.reasons)
 
 
+def test_graph_retrieval_score_ties_are_ordered_by_record_id(runtime: SeamRuntime) -> None:
+    for index in range(8):
+        runtime.persist_ir(
+            runtime.compile_nl(
+                f"Priya manages project {index}.",
+                source_ref=f"local://graph-order/{index}",
+            )
+        )
+
+    plan = RetrievalPlan(
+        query="Priya",
+        normalized_query="Priya",
+        intent=QueryIntent.GRAPH,
+        filters=QueryFilters(),
+        legs=[],
+        mode="graph",
+    )
+    hits = SQLiteGraphAdapter(runtime.store).search(plan, limit=100)
+    ordering = [(-hit.score, hit.record.id) for hit in hits]
+    assert ordering == sorted(ordering)
+
+
 def test_knowledge_graph_api_exposes_filters_and_graph_backed_pages(runtime: SeamRuntime) -> None:
     with TestClient(create_app(runtime)) as client:
         response = client.post(

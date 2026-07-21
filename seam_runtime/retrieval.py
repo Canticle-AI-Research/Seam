@@ -106,6 +106,14 @@ class RetrievalFlags:
     # answer to the specific person/event/date referenced. Orthogonal to the
     # conversation projection; versioned so the loop can measure/promote/revert it.
     answer_contract: str = "off"
+    # Query-time distinct-event/item count context. ``off`` preserves the exact
+    # ranked-memory surface. ``event-count/distinct/1`` applies only to count-
+    # shaped questions and adds a disposable, provenance-preserving SEAM-COUNT
+    # projection. ``event-count/distinct/2`` preserves that boundary while
+    # rendering explicit same-event groups and question-aware eligibility so
+    # repeated descriptions cannot masquerade as separate countable rows. Both
+    # remain default-off and never mutate durable MIRL or generate the answer.
+    count_context_policy: str = "off"
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -186,6 +194,11 @@ def coerce_flag_value(key: str, value: object) -> object | None:
             from .conversation import ANSWER_CONTRACTS
 
             if value not in ANSWER_CONTRACTS:
+                return None
+        if key == "count_context_policy":
+            from .event_count_context import EVENT_COUNT_POLICIES
+
+            if value not in EVENT_COUNT_POLICIES:
                 return None
         return value
     return value if isinstance(value, expected) else None
@@ -273,6 +286,10 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_ANSWER_CONTRACT"].strip()
         if coerce_flag_value("answer_contract", raw) is not None:
             out["answer_contract"] = raw
+    if _present("SEAM_COUNT_CONTEXT_POLICY"):
+        raw = env["SEAM_COUNT_CONTEXT_POLICY"].strip()
+        if coerce_flag_value("count_context_policy", raw) is not None:
+            out["count_context_policy"] = raw
     return out
 
 
@@ -306,6 +323,9 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         inference_policy=_policy("SEAM_INFERENCE_POLICY", "inference_policy", "context-only"),
         temporal_policy=_policy("SEAM_TEMPORAL_POLICY", "temporal_policy", "off"),
         answer_contract=_policy("SEAM_ANSWER_CONTRACT", "answer_contract", "off"),
+        count_context_policy=_policy(
+            "SEAM_COUNT_CONTEXT_POLICY", "count_context_policy", "off"
+        ),
     )
 
 

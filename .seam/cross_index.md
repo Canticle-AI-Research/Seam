@@ -2,52 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 468
+total_events: 507
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-20T04:47:38Z | history:217:7eab9308 | session-event | done | benchmark, audit, verify, command, docs, status, history,... | seam_runtime/benchmark_integrity.py,seam_runtime/benchmark_baseline_policy.py... |
-| 2026-05-20T07:34:43Z | history:218:bbeb7960 | session-event | done | security, audit, verify, mcp, persist, retrieval, vector,... | seam_runtime/server.py,seam_runtime/mcp.py,seam_runtime/mcp_protocol.py,seam_... |
-| 2026-05-20T09:35:56Z | history:219:a514a615 | session-event | done | audit, verify, pgvector, test, docs, history, status, ben... | PROJECT_STATUS.md,test_seam_all/test_seam.py,docs/SOP_CRITICAL_BENCHMARKABILI... |
-| 2026-05-21T02:47:05Z | history:220:a230b025 | session-event | done | benchmark, audit, verify, pgvector, vector, command, docs... | benchmarks/external/README.md,benchmarks/external/locomo/adapters/seam.py,ben... |
-| 2026-05-21T03:53:02Z | history:221:a202dc65 | session-event | done | benchmark, audit, verify, command, docs, status, history | benchmarks/external/common/dataset.py,tests/audit/test_locomo_full_dataset_ro... |
-| 2026-05-21T13:40:54Z | history:222:978c2fec | session-event | done | audit, verify, mcp, security, test, retrieval, history, p... | experimental/retrieval_orchestrator/adapters.py,tests/audit/test_chroma_sync_... |
-| 2026-05-21T14:37:12Z | history:223:d5a079a6 | session-event | done | benchmark, locomo, longmemeval, beam, retrieval, vector, ... | seam_runtime/vector.py,tests/audit/test_raw_vector_indexable.py,seam_runtime/... |
-| 2026-05-21T17:07:38Z | history:224:1586813e | session-event | done | protocol, history, multi-agent, verify, docs, handoff | tools/git/scan_stale_branches.py,tools/git/__init__.py,AGENTS.md |
-| 2026-05-21T18:21:11Z | history:225:29d04ffc | session-event | in-progress | audit, security, benchmark, verify, history, snapshot, da... | benchmarks/external/common/judge.py,benchmarks/external/common/runner.py,seam... |
-| 2026-05-21T18:22:19Z | history:226:cff72e64 | session-event | done | status, history, snapshot, verify, audit, security, bench... | PROJECT_STATUS.md,docs/SOP_DEEPSEEK_SECURITY_BENCHMARK_REMEDIATION.md,HISTORY... |
-| 2026-05-21T18:22:55Z | history:227:8ad73efe | session-event | done | status, history, snapshot, verify, audit, security, bench... | PROJECT_STATUS.md,docs/SOP_DEEPSEEK_SECURITY_BENCHMARK_REMEDIATION.md,HISTORY... |
-| 2026-05-21T23:38:48Z | history:228:0ffdb776 | session-event | done | docs, handoff, benchmark, locomo, retrieval, vector, prot... | docs/SOP_TRACK_M_P4_SCORE_IMPROVEMENTS_AND_MEASUREMENT.md |
-| 2026-05-22T06:25:30Z | history:229:cd21a37f | session-event | done | audit, history, snapshot, verify, security, benchmark, ha... | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,.seam/streams/history/log.md,.s... |
-| 2026-05-22T07:46:11Z | history:230:db816fc2 | session-event | done | docs, ledger, protocol, multi-agent, history, verify | docs/SOP_ADVISOR_EXECUTOR_LOOP.md,docs/prompts/DEEPSEEK_ADVISED_EXECUTOR_PROM... |
-| 2026-05-22T07:56:51Z | history:231:bccee17e | session-event | done | docs, protocol, multi-agent, benchmark, history, verify | docs/prompts/DEEPSEEK_TRACK_M_BATCH_JUDGE_ADVISED_PROMPT.md,PROJECT_STATUS.md |
-| 2026-05-22T08:50:21Z | history:232:cf622b5f | session-event | done | benchmark, verify, command, history, status | benchmarks/external/common/judge.py,benchmarks/external/common/runner.py,benc... |
-| 2026-05-22T09:38:42Z | history:233:563a0f5c | session-event | done | benchmark, retrieval, verify, history, status | seam_runtime/temporal.py,seam_runtime/retrieval.py,seam_runtime/runtime.py,be... |
-| 2026-05-22T12:52:58Z | history:234:c7001cf4 | session-event | done | benchmark, bugfix, locomo, verify, history, status | benchmarks/external/locomo/adapters/seam.py,PROJECT_STATUS.md |
-| 2026-05-23T03:58:36Z | history:235:66be1596 | session-event | done | benchmark, retrieval, verify, history, status | benchmarks/external/locomo/rerank.py,benchmarks/external/locomo/run.py,benchm... |
-| 2026-05-24T06:20:32Z | history:236:cd41a03c | session-event | done | benchmark, retrieval, verify, history, status | benchmarks/external/common/runner.py,benchmarks/external/locomo/adapters/seam... |
-| 2026-05-24T16:42:58Z | history:237:d1e9036b | session-event | done | benchmark, retrieval, verify, history | benchmarks/external/common/types.py,benchmarks/external/common/runner.py,benc... |
-| 2026-05-24T21:01:24Z | history:238:8633cd12 | session-event | done | retrieval, verify, bundle, history, status | /tmp/seam-track-m/step0b_locomo_gpt5mini_gpt5nano_save_context.json,/tmp/seam... |
-| 2026-05-24T21:10:00Z | history:239:57a615b2 | session-event | done | verify, history, snapshot, status | HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,.seam/streams/history/log.md,.s... |
-| 2026-05-24T21:59:02Z | history:240:395c3322 | session-event | done | benchmark, retrieval, search, rank, verify, history, status | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/common/types.... |
-| 2026-05-24T23:39:52Z | history:241:ff3c9fc6 | session-event | done | benchmark, command, verify, history, status | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py... |
-| 2026-05-25T00:00:00Z | roadmap:053:b5337aac | status-change | bootstrap | retrieval, benchmark | ROADMAP.md:900 |
-| 2026-05-25T00:00:00Z | roadmap:054:4b2f3d54 | status-change | bootstrap | experience, protocol | ROADMAP.md:944 |
-| 2026-05-25T00:00:00Z | roadmap:055:2bde78b6 | status-change | bootstrap | protocol, history, plan | ROADMAP.md:1294 |
-| 2026-05-25T02:50:25Z | history:242:e6d10168 | session-event | done | benchmark, retrieval, search, rank, verify, history, status | seam_runtime/storage.py,tests/audit/test_sqlite_load_order.py,PROJECT_STATUS.md |
-| 2026-05-25T08:02:25Z | history:243:ba34a614 | session-event | done | roadmap, plan, retrieval, rank, history, status | ROADMAP.md,docs/roadmap/CONTEXT_STREAMS.md,PROJECT_STATUS.md |
-| 2026-05-25T08:49:55Z | history:244:7fe45cf1 | session-event | done | persist, retrieval, verify, history, audit | seam_runtime/storage.py,tests/audit/test_retrieval_event_store.py,PROJECT_STA... |
-| 2026-05-25T12:22:20Z | history:245:93877919 | session-event | done | benchmark, bundle, verify, security, protocol | .github/workflows/ci.yml,.github/pull_request_template.md,tools/ci/chroma_rea... |
-| 2026-05-25T12:33:37Z | history:246:8a53e31a | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,REPO_LEDGER.md,GitHub-ruleset:15143368 |
-| 2026-05-25T12:37:57Z | history:247:bb5fbd5f | session-event | in-progress | security, protocol, verify, history, status | PROJECT_STATUS.md,.github/workflows/repository-maintenance.yml,tools/ci/githu... |
-| 2026-05-25T12:45:28Z | history:248:19849f93 | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,.github/workflows/repository-maintenance.yml,tools/ci/githu... |
-| 2026-05-25T12:59:52Z | history:249:edf07639 | session-event | done | protocol, security, verify, history, status | AGENTS.md,REPO_LEDGER.md,PROJECT_STATUS.md,GitHub-PR:32 |
-| 2026-05-25T13:51:15Z | history:250:d76f57b7 | session-event | done | protocol, verify, history, status, security | PROJECT_STATUS.md,GitHub-PR:31,GitHub-PR:32,GitHub-branch:main |
-| 2026-05-25T17:37:36Z | history:251:2938605e | session-event | done | persist, retrieval, benchmark, command, verify, history, ... | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py... |
-| 2026-05-25T17:39:47Z | history:252:f6bcabd9 | session-event | done | protocol, verify, history, status | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.s... |
 | 2026-05-25T19:28:36Z | history:253:2e18e819 | session-event | done | security, protocol, verify, history, status | tools/ci/github_maintenance_report.py,tests/audit/test_github_maintenance_rep... |
 | 2026-05-25T20:20:47Z | history:254:d1a59a90 | session-event | done | verify, benchmark, protocol, history, status | .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,tests/audit/test... |
 | 2026-05-25T20:36:15Z | history:255:dba3e5e7 | session-event | done | verify, windows, protocol, history, status | test_seam_all/test_git_hooks.py,tools/streams/streams_lib.py,PROJECT_STATUS.m... |
@@ -199,20 +160,59 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-15T14:14:56Z | history:398:07f4efb0 | session-event | done | benchmark, locomo, judge, quality, audit, handoff, verify... | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
 | 2026-07-15T14:17:19Z | history:399:008c723c | session-event | changed | history, continuity, verify, handoff, benchmark, locomo | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
 | 2026-07-15T14:24:23Z | history:400:2d638e36 | session-event | done | bugfix, benchmark, locomo, retrieval, temporal, tests, ci... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
+| 2026-07-16T00:00:00Z | roadmap:059:00bb3f54 | status-change | bootstrap | agent, openclaw, namespaces, profiles, console | ROADMAP.md:1664 |
+| 2026-07-16T00:00:00Z | roadmap:060:cca32742 | status-change | bootstrap | android, mobile, small-models, memory-loop | ROADMAP.md:1724 |
 | 2026-07-16T12:38:06Z | history:401:ae65e22b | session-event | done | bugfix, benchmark, locomo, persist, tests, ci, handoff, v... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 | 2026-07-16T13:46:22Z | history:402:90136fda | session-event | in-progress | graph, memory, provenance, dashboard, webui, retrieval, a... | seam_runtime/knowledge_graph.py,seam_runtime/storage.py,seam_runtime/runtime.... |
 | 2026-07-16T19:01:09Z | history:403:11d8ecbd | session-event | done | graph, memory, trust, provenance, webui, dashboard, retri... | seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py... |
 | 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
 | 2026-07-16T23:08:58Z | history:405:465cd643 | session-event | done | benchmark, locomo, merge, pgvector, analysis, levers, rec... | PROJECT_STATUS.md,HISTORY.md,seam_runtime/conversation.py,seam_runtime/vector... |
+| 2026-07-17T00:00:00Z | roadmap:061:158589ee | status-change | bootstrap | graph, memory, retrieval, benchmark, comparator, provenance | ROADMAP.md:1761 |
 | 2026-07-17T04:04:48Z | history:406:ed2e5617 | session-event | done | hygiene, gitignore, worktree, artifacts | .gitignore |
 | 2026-07-17T04:52:38Z | history:407:2a544db0 | session-event | done | roadmap, agent, openclaw, android, namespaces, planning | ROADMAP.md,PROJECT_STATUS.md |
 | 2026-07-17T04:59:20Z | history:408:324140f0 | session-event | done | benchmark, locomo, levers, answer-contract, exact-answer,... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
 | 2026-07-17T09:27:04Z | history:409:144ab2d9 | session-event | done | handoff, registry, exact-answer, closeout | docs/handoffs/2026-07-17-exact-answer-contract-handoff.md,docs/handoffs/INDEX.md |
 | 2026-07-17T09:39:49Z | history:410:97eaf38f | session-event | done | benchmark, results, proof, provenance, locomo, mem0, publish | benchmarks/RESULTS.md,benchmarks/BENCHMARK_LOG.md |
+| 2026-07-17T17:48:07Z | history:411:e9c275f8 | session-event | done | benchmark, results, reproduce, fix, cli | benchmarks/RESULTS.md |
+| 2026-07-17T19:11:22Z | history:412:626d3dcc | session-event | done | benchmark, locomo, exact-answer, negative-result, paid, p... | seam_runtime/conversation.py |
+| 2026-07-17T19:32:03Z | history:413:a74254d9 | session-event | done | benchmark, locomo, cat3, open-domain, inference, lever, h... | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
+| 2026-07-17T19:52:56Z | history:414:96038f7d | session-event | planned | roadmap, benchmark, graph, memory, retrieval, comparator,... | ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md,docs/KNOWLEDGE_GRAPH.md |
+| 2026-07-17T19:55:01Z | history:415:4f266a98 | session-event | changed | roadmap, benchmark, graph, memory, retrieval, comparator,... | ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md |
+| 2026-07-17T20:50:51Z | history:416:2c227cbc | session-event | done | benchmark, locomo, memory, retrieval, pack, provenance, q... | seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/exte... |
+| 2026-07-18T01:03:48Z | history:417:5760e59a | session-event | done | benchmark, locomo, memory, retrieval, quality, test, hand... | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
+| 2026-07-18T04:00:00Z | history:418:caca6117 | session-event | done | roadmap, docs, agent, memory |  |
+| 2026-07-18T11:21:47Z | history:419:3f64d78d | session-event | done | benchmark, locomo, retrieval, quality, verify | docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md |
+| 2026-07-18T11:28:05Z | history:420:cf6c4060 | session-event | done | benchmark, locomo, retrieval, memory, quality, plan | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
+| 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
+| 2026-07-18T21:24:25Z | history:422:b54c82e6 | session-event | done | benchmark, locomo, handoff, test, plan | benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_pa... |
+| 2026-07-19T05:20:46Z | history:423:22ed4a4c | session-event | done | benchmark, locomo, paid-run, handoff, test | docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md,docs/handoffs/2... |
+| 2026-07-19T13:48:23Z | history:424:43ca0434 | session-event | done | benchmark, locomo, paid-run, mem0-harness, ops | benchmarks/external/mem0_harness/seam_mem0_server.py,docs/handoffs/2026-07-19... |
+| 2026-07-19T15:01:35Z | history:425:9d000c10 | session-event | done | ci, ops, infra, cost | .github/workflows/ci.yml,.github/workflows/ci-windows.yml |
+| 2026-07-19T16:04:15Z | history:426:f3bd1e40 | session-event | done | benchmark, locomo, ci, ops | .github/workflows/ci.yml |
+| 2026-07-19T19:47:29Z | history:427:8872a7d3 | session-event | done | benchmark, locomo, paid-run, handoff, retrieval, ci | seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/se... |
+| 2026-07-19T21:02:19Z | history:428:bf0ea168 | session-event | done | ops, cost, benchmark, tooling | benchmarks/external/common/cost_report.py,tests/audit/test_cost_report.py |
+| 2026-07-19T21:18:24Z | history:429:121a6292 | session-event | done | benchmark, locomo, paid-run, negative-result | benchmarks/external/common/cost_report.py,docs/handoffs/2026-07-19-matched-ru... |
+| 2026-07-20T00:26:26Z | history:430:8b5c726f | session-event | done | bugfix, benchmark, locomo, handoff, verify, audit, contin... | seam_runtime/temporal_instance_context.py,benchmarks/external/common/cost_rep... |
+| 2026-07-20T01:39:34Z | history:431:c0a57164 | session-event | done | retrieval, benchmark, mem0-harness, lever | seam_runtime/second_hop_context.py,benchmarks/external/mem0_harness/seam_mem0... |
+| 2026-07-20T01:52:14Z | history:432:99068044 | session-event | done | retrieval, benchmark, negative-result, plan | seam_runtime/second_hop_context.py,tests/audit/test_second_hop_context.py |
+| 2026-07-20T02:46:05Z | history:433:c3150c72 | session-event | done | retrieval, benchmark, mem0-harness, lever, recovery | seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/exte... |
+| 2026-07-20T09:48:51Z | history:434:291b0956 | session-event | done | benchmark, locomo, paid-run, negative-result, mem0-harness | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
+| 2026-07-20T13:40:00Z | history:435:ec698280 | session-event | done | benchmark, locomo, mirl, retrieval, compile, provenance, ... | seam_runtime/derived_fact_context.py,seam_runtime/nl_extract.py,seam_runtime/... |
+| 2026-07-20T14:03:53Z | history:436:1394218c | session-event | done | handoff, benchmark, retrieval, derived-facts, plan | docs/handoffs/2026-07-20-derived-facts-landed-and-kb-scaffold.md,docs/handoff... |
+| 2026-07-20T14:09:56Z | history:437:d729f0ca | session-event | done | kb, docs, retrieval, benchmark, reference, plan | docs/kb/README.md,docs/kb/eval-methodology/benchmark-traps.md,docs/kb/eval-me... |
+| 2026-07-20T22:26:20Z | history:438:2d0eac31 | session-event | done | derived-facts, grounded-clm, retrieval, benchmark, compil... | seam_runtime/nl_extract.py,seam_runtime/nl.py,seam_runtime/derived_fact_conte... |
+| 2026-07-21T01:17:20Z | history:439:f81b36f6 | session-event | done | benchmark,locomo,memory,retrieval,compile,provenance,audi... | docs/audits/2026-07-20-memory-competitor-ratchet.md,seam_runtime/sentence_gro... |
+| 2026-07-21T03:37:52Z | history:440:c44f9f60 | session-event | in-progress | benchmark,longmemeval,beam,memory,audit,bugfix,protocol,t... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
+| 2026-07-21T04:38:43Z | history:441:ea8c3fb0 | session-event | done | benchmark,longmemeval,beam,memory,temporal,graph,audit,bu... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
+| 2026-07-21T07:08:50Z | history:442:4d879e77 | session-event | done | graph, memory, retrieval, benchmark, audit, bugfix, test,... | benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/externa... |
+| 2026-07-21T07:20:56Z | history:443:dc33c3b0 | session-event | done | history, verify, audit, benchmark, handoff | HISTORY.md,PROJECT_STATUS.md,docs/handoffs/2026-07-21-canonical-graph-fill-fr... |
+| 2026-07-21T11:08:11Z | history:444:f50aee8b | session-event | changed | graph, memory, retrieval, benchmark, audit, bugfix, test,... | benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/externa... |
+| 2026-07-21T19:47:21Z | history:445:3c8a382d | session-event | in-progress | benchmark, beam, pack, retrieval, audit, test, handoff, v... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_s... |
+| 2026-07-21T20:24:11Z | history:446:365a3c98 | session-event | done | benchmark, beam, pack, retrieval, audit, test, handoff, v... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_s... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0268.cross.md | 2026-04-15T00:00:00Z..2026-05-20T03:12:17Z | 268 | (multi) | (multi) |
+| 0001-0307.cross.md | 2026-04-15T00:00:00Z..2026-05-25T17:39:47Z | 307 | (multi) | (multi) |

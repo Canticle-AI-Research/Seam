@@ -60,7 +60,7 @@ def test_locomo_adapter_uses_separate_search_top_k(monkeypatch, tmp_path):
 
     monkeypatch.setattr(
         "benchmarks.external.locomo.adapters.seam._open_runtime",
-        lambda _db_path: FakeRuntime(),
+        lambda _db_path, **_kwargs: FakeRuntime(),
     )
     adapter = SeamLocomoAdapter(db_path=str(tmp_path), budget=2000, search_top_k=20)
 
@@ -79,7 +79,7 @@ def test_locomo_adapter_reports_retrieval_policy_diagnostics(monkeypatch, tmp_pa
 
     monkeypatch.setattr(
         "benchmarks.external.locomo.adapters.seam._open_runtime",
-        lambda _db_path: FakeRuntime(),
+        lambda _db_path, **_kwargs: FakeRuntime(),
     )
     adapter = SeamLocomoAdapter(
         db_path=str(tmp_path),
@@ -120,7 +120,7 @@ def test_locomo_adapter_reuses_runtime_per_scope(monkeypatch, tmp_path):
 
             return Result()
 
-    def fake_open_runtime(db_path):
+    def fake_open_runtime(db_path, **_kwargs):
         opens.append(db_path)
         return FakeRuntime()
 
@@ -157,9 +157,15 @@ def test_open_runtime_reuses_default_embedding_model(monkeypatch, tmp_path):
             return [1.0, 0.0, 0.0]
 
     class FakeRuntime:
-        def __init__(self, store_path, embedding_model=None):
+        def __init__(
+            self,
+            store_path,
+            embedding_model=None,
+            allow_pgvector_env=True,
+        ):
             self.store_path = store_path
             self.embedding_model = embedding_model
+            self.allow_pgvector_env = allow_pgvector_env
 
     monkeypatch.setattr(seam_adapter, "_DEFAULT_SENTENCE_TRANSFORMER_MODEL", None, raising=False)
     monkeypatch.setattr("seam_runtime.models.embedding_settings_from_env", lambda: FakeSettings())
