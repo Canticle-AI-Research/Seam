@@ -79,6 +79,7 @@ class _SentenceSurfingExtractor:
 
 def test_epoch_to_iso_and_speaker_split():
     assert _epoch_to_iso(1687000000) == "2023-06-17"
+    assert _epoch_to_iso(1687000000, preserve_subday=True) == "2023-06-17T11:06:40Z"
     assert _epoch_to_iso(None) == ""
     assert _epoch_to_iso("not-an-int") == ""
     assert _split_speaker("Melanie: I painted a sunrise") == (
@@ -97,6 +98,30 @@ def test_epoch_to_iso_and_speaker_split():
         "text",
         False,
     )
+
+
+def test_facade_preserves_subday_only_for_upstream_temporal_contracts():
+    captured = []
+
+    class CaptureAdapter:
+        def ingest_turn(self, user_id, turn, *, derive_facts):
+            captured.append((user_id, turn, derive_facts))
+
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._adapter = CaptureAdapter()
+
+    for user_id in ("locomo_0_run", "longmemeval_q1_run", "beam_1M_0_run"):
+        server.add(
+            {
+                "user_id": user_id,
+                "timestamp": 1687000000,
+                "messages": [{"content": "Melanie: I painted a sunrise."}],
+            }
+        )
+
+    assert captured[0][1].timestamp == "2023-06-17"
+    assert captured[1][1].timestamp == "2023-06-17T11:06:40Z"
+    assert captured[2][1].timestamp == "2023-06-17T11:06:40Z"
 
 
 @pytest.fixture

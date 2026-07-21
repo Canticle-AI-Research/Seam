@@ -10434,3 +10434,96 @@ points) with zero sentinel losses. The next architectural rung is reserved
 multi-scope packing, then evidence-backed observations/entity summaries and a
 query-shape router.
 ---END-ENTRY-#439---
+---BEGIN-ENTRY-#440---
+id: 440
+date: 2026-07-21T03:37:52Z
+agent: codex
+status: in-progress
+topics: benchmark,longmemeval,beam,memory,audit,bugfix,protocol,test,handoff
+commits: pending
+refs: benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/common/types.py,benchmarks/external/longmemeval/run.py,benchmarks/external/beam/run.py,seam_runtime/cli.py,tests/audit/test_longmemeval_routing.py,tests/audit/test_beam_routing.py,tests/audit/test_upstream_memory_harness.py,docs/audits/2026-07-20-longmemeval-beam-execution-contract.md,docs/handoffs/2026-07-20-longmemeval-beam-contract-repair-in-progress.md,.context-handoffs/context-handoff-20260721T033701Z.md
+supersedes: 439
+tokens: 1134
+---
+IN-PROGRESS cut-off breadcrumb. The operator requested an observant audit of
+whether a Mem0 side-by-side, LongMemEval, and BEAM could be run, then authorized
+repair of all discovered issues and explicitly requested a durable handoff.
+
+Found that the pinned `mem0ai/memory-benchmarks` checkout already exists at
+`/tmp/memory-benchmarks` revision 4b61c5d with its isolated venv; SEAM does not
+need another Mem0 install for its side of the HTTP comparison. No LongMemEval
+or BEAM dataset was found, and the harness venv lacks BEAM's `datasets`
+dependency. No install/download/provider call occurred.
+
+Correctness defects: the local LongMemEval and BEAM real-run paths substituted
+the generic LoCoMo scorer for benchmark-specific evaluation; LongMemEval
+dropped question date, abstention marker, and evidence-session metadata; BEAM
+could create cases from directory questions with an empty conversation and its
+JSON list-root path was broken; documentation confused the complete BEAM
+100-conversation/2,000-question release with the 1M track's 35/700 contract.
+
+Dirty WIP adds a pinned upstream-harness bridge through SEAM's existing
+loopback Mem0 facade and turns local runners into strict structural validators.
+The bridge checks revision, isolated Python, loopback URL, BEAM dependency,
+explicit provider-spend approval, and separate BEAM-10M approval. Local parsing
+now preserves LongMemEval metadata and BEAM rubric/chat structure and fails
+closed on malformed inputs. Active docs and the real-run SOP are being updated.
+
+Verification so far: touched-code Ruff clean, touched modules compile, and 23
+focused LongMemEval/BEAM/bridge tests pass. NOT YET RUN: final diff check,
+plan-only readiness, collect-only, full non-external suite, external pgvector,
+secret scan, or session-end verifiers. The implementation is uncommitted.
+
+Resume from the canonical handoff and detailed context handoff named in refs.
+First inspect the dirty diff, preserve unrelated operator-owned `report*.png`,
+finish readiness/CLI/timestamp review, then run all required verification and
+replace this handoff with a done successor before committing. Do not install
+`datasets`, download large corpora, run a provider judge, push, or execute
+BEAM-10M without the corresponding operator gate.
+---END-ENTRY-#440---
+---BEGIN-ENTRY-#441---
+id: 441
+date: 2026-07-21T04:38:43Z
+agent: codex
+status: done
+topics: benchmark,longmemeval,beam,memory,temporal,graph,audit,bugfix,protocol,test,handoff,verify
+commits: pending
+refs: benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/common/types.py,benchmarks/external/longmemeval/run.py,benchmarks/external/beam/run.py,benchmarks/external/mem0_harness/seam_mem0_server.py,seam_runtime/cli.py,tests/audit/test_longmemeval_routing.py,tests/audit/test_beam_routing.py,tests/audit/test_upstream_memory_harness.py,tests/audit/test_seam_mem0_server.py,docs/audits/2026-07-20-longmemeval-beam-execution-contract.md,docs/handoffs/2026-07-21-longmemeval-beam-contract-repair-complete.md,PROJECT_STATUS.md
+supersedes: 440
+tokens: 1012
+---
+Completed the LongMemEval/BEAM execution-contract repair begun in #440. Local
+parsers are now fail-closed structural validators; real and predict-only runs
+delegate to the pinned clean `mem0ai/memory-benchmarks` task-specific harness
+through SEAM's loopback facade. The bridge gates revision, isolated Python,
+clean checkout, loopback URL, provider/model/cutoff argv, missing dependencies,
+implicit BEAM cache downloads, provider spend, and BEAM-10M separately.
+
+LongMemEval preserves question date, abstention, evidence-session metadata,
+roles, ids, and source history. BEAM validates actual chat plus rubric/nugget
+structure across supported encodings and no longer permits empty-conversation
+cases. Active docs now distinguish the official 1M 35/700 and 10M 10/200
+tracks and prohibit comparing the old generic LoCoMo score path.
+
+Temporal boundary: audited LongMemEval/BEAM RAW envelopes retain second-level
+UTC timestamps, while the pinned LoCoMo date-only envelope is unchanged. Normal
+turn ingest still does not reliably populate event-time `t0`/`t1` or lifecycle;
+ingestion `created_at` is not event time, LongMemEval `question_date` does not
+yet shape facade retrieval, and timestamp parsing is narrower than real corpus
+variants. This repair records that gap rather than silently becoming a core
+temporal rewrite.
+
+Graph boundary: graph memory is a vital next competitive direction. SEAM has a
+canonical MIRL-to-graph projector and graph retrieval substrate, but this slice
+does not prove a graph score gain. Next is a free matched-harness evidence and
+displacement measurement before any score claim or paid gate.
+
+Verification: touched collect-only resolved 51 tests; the focused slice passed
+51/51; strict non-external passed 1,627 with two established xfails and zero
+skips; external pgvector passed 10/10 with zero skips after both documented DSN
+variables were bound to the same existing service without printing the value.
+Touched Ruff, module compilation, diff check, and candidate secret/private-
+session-link scans passed. No install, dataset/model download, provider call,
+paid work, score, BEAM-10M execution, or push occurred. Operator-owned
+`report*.png` remained untouched and excluded.
+---END-ENTRY-#441---

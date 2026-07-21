@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 500
+total_events: 502
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T12:33:37Z | history:246:8a53e31a | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,REPO_LEDGER.md,GitHub-ruleset:15143368 |
-| 2026-05-25T12:37:57Z | history:247:bb5fbd5f | session-event | in-progress | security, protocol, verify, history, status | PROJECT_STATUS.md,.github/workflows/repository-maintenance.yml,tools/ci/githu... |
 | 2026-05-25T12:45:28Z | history:248:19849f93 | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,.github/workflows/repository-maintenance.yml,tools/ci/githu... |
 | 2026-05-25T12:59:52Z | history:249:edf07639 | session-event | done | protocol, security, verify, history, status | AGENTS.md,REPO_LEDGER.md,PROJECT_STATUS.md,GitHub-PR:32 |
 | 2026-05-25T13:51:15Z | history:250:d76f57b7 | session-event | done | protocol, verify, history, status, security | PROJECT_STATUS.md,GitHub-PR:31,GitHub-PR:32,GitHub-branch:main |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-20T14:09:56Z | history:437:d729f0ca | session-event | done | kb, docs, retrieval, benchmark, reference, plan | docs/kb/README.md,docs/kb/eval-methodology/benchmark-traps.md,docs/kb/eval-me... |
 | 2026-07-20T22:26:20Z | history:438:2d0eac31 | session-event | done | derived-facts, grounded-clm, retrieval, benchmark, compil... | seam_runtime/nl_extract.py,seam_runtime/nl.py,seam_runtime/derived_fact_conte... |
 | 2026-07-21T01:17:20Z | history:439:f81b36f6 | session-event | done | benchmark,locomo,memory,retrieval,compile,provenance,audi... | docs/audits/2026-07-20-memory-competitor-ratchet.md,seam_runtime/sentence_gro... |
+| 2026-07-21T03:37:52Z | history:440:c44f9f60 | session-event | in-progress | benchmark,longmemeval,beam,memory,audit,bugfix,protocol,t... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
+| 2026-07-21T04:38:43Z | history:441:ea8c3fb0 | session-event | done | benchmark,longmemeval,beam,memory,temporal,graph,audit,bu... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0300.cross.md | 2026-04-15T00:00:00Z..2026-05-25T12:22:20Z | 300 | (multi) | (multi) |
+| 0001-0302.cross.md | 2026-04-15T00:00:00Z..2026-05-25T12:37:57Z | 302 | (multi) | (multi) |

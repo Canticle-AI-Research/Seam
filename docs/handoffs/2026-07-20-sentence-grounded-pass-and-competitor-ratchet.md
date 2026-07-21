@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-20-sentence-grounded-pass-and-competitor-ratchet
 supersedes: 2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#439
 ---
 

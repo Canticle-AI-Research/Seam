@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-20-sentence-grounded-pass-and-competitor-ratchet
+latest: 2026-07-21-longmemeval-beam-contract-repair-complete
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,9 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-20-sentence-grounded-pass-and-competitor-ratchet` | [2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md](2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md) | `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | `HISTORY#439` | `current` |
+| `2026-07-21-longmemeval-beam-contract-repair-complete` | [2026-07-21-longmemeval-beam-contract-repair-complete.md](2026-07-21-longmemeval-beam-contract-repair-complete.md) | `2026-07-20-longmemeval-beam-contract-repair-in-progress` | `HISTORY#441` | `current` |
+| `2026-07-20-longmemeval-beam-contract-repair-in-progress` | [2026-07-20-longmemeval-beam-contract-repair-in-progress.md](2026-07-20-longmemeval-beam-contract-repair-in-progress.md) | `2026-07-20-sentence-grounded-pass-and-competitor-ratchet` | `HISTORY#440` | `superseded` |
+| `2026-07-20-sentence-grounded-pass-and-competitor-ratchet` | [2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md](2026-07-20-sentence-grounded-pass-and-competitor-ratchet.md) | `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | `HISTORY#439` | `superseded` |
 | `2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next` | [2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md](2026-07-20-derived-facts-clause-scope-and-sentence-grounded-next.md) | `2026-07-20-derived-facts-landed-and-kb-scaffold` | `HISTORY#438` | `superseded` |
 | `2026-07-20-derived-facts-landed-and-kb-scaffold` | [2026-07-20-derived-facts-landed-and-kb-scaffold.md](2026-07-20-derived-facts-landed-and-kb-scaffold.md) | `2026-07-20-second-hop-negative-and-count-lever-conflict` | `HISTORY#436` | `superseded` |
 | `2026-07-20-second-hop-negative-and-count-lever-conflict` | [2026-07-20-second-hop-negative-and-count-lever-conflict.md](2026-07-20-second-hop-negative-and-count-lever-conflict.md) | `2026-07-19-matched-run-complete-recovery-closeout` | `HISTORY#432` | `superseded` |

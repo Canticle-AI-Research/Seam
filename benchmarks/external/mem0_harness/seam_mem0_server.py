@@ -57,13 +57,16 @@ from seam_runtime.temporal_instance_context import (
 )
 
 
-def _epoch_to_iso(timestamp: int | None) -> str:
+def _epoch_to_iso(timestamp: int | None, *, preserve_subday: bool = False) -> str:
     """Mem0's client sends observation dates as a unix epoch. SEAM turns want an
     ISO string for relative-date grounding; fall back to empty when absent."""
     if timestamp is None:
         return ""
     try:
-        return datetime.fromtimestamp(int(timestamp), tz=timezone.utc).strftime("%Y-%m-%d")
+        resolved = datetime.fromtimestamp(int(timestamp), tz=timezone.utc)
+        if preserve_subday:
+            return resolved.isoformat(timespec="seconds").replace("+00:00", "Z")
+        return resolved.strftime("%Y-%m-%d")
     except (ValueError, OverflowError, OSError):
         return ""
 
@@ -128,7 +131,13 @@ class SeamMem0Server:
         messages = payload.get("messages") or []
         if not user_id or not isinstance(messages, list):
             raise ValueError("add requires user_id and a messages list")
-        iso = _epoch_to_iso(payload.get("timestamp"))
+        # The audited upstream ids identify contracts whose temporal questions
+        # depend on hour/minute anchors. Keep the historical LoCoMo envelope
+        # date-only while retaining full UTC time for LongMemEval and BEAM.
+        preserve_subday = str(user_id).startswith(("longmemeval_", "beam_"))
+        iso = _epoch_to_iso(
+            payload.get("timestamp"), preserve_subday=preserve_subday
+        )
         added = 0
         for msg in messages:
             content = (msg or {}).get("content") or ""

@@ -26,6 +26,19 @@ text` — the shape their `format_search_results` + answerer read). Retrieval
 honors `RetrievalFlags` from the environment, so the validated
 conversation/temporal/profile stack applies identically.
 
+The facade preserves the historical date-only timestamp envelope for upstream
+LoCoMo ids. Audited LongMemEval and BEAM ids retain the full UTC second-level
+timestamp because those contracts include sub-day temporal anchors.
+
+The endpoint contract is shared by the upstream LoCoMo, LongMemEval, and BEAM
+runners. SEAM's local LongMemEval/BEAM modules validate dataset structure but
+do not reimplement their task-specific prompts or judges. Competitive and
+predict-only execution goes through the pinned upstream checkout via
+`upstream_runner.py`; revision drift, non-loopback facade URLs, missing BEAM
+dependencies, a missing BEAM cache without download approval, paid execution
+without approval, and accidental BEAM-10M runs all fail closed. Targeted
+`--plan` prints these gates and never launches the harness.
+
 The default-off `grounded-clm/1`, `grounded-clm/2`, and
 `sentence-grounded-clm/1` policies can additionally serve explicit,
 speaker-grounded MIRL facts beside those RAW turns. They do not change the
@@ -59,6 +72,11 @@ default response.
    python -m benchmarks.locomo.run --project-name seam \
        --backend oss --mem0-host http://127.0.0.1:8900
    ```
+
+LongMemEval and BEAM commands are documented in their respective runner
+READMEs. The harness source is sufficient for SEAM-side evaluation; installing
+or launching Mem0 itself is not required because SEAM supplies the OSS HTTP
+contract.
 
 ## Grounded derived-facts lever (default off)
 

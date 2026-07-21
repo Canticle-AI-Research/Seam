@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 439
-total_tokens: ~195806
-latest_id: 439
+total_entries: 441
+total_tokens: ~197952
+latest_id: 441
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 441 | 2026-07-21 | done | ea8c3fb04c79ea47 | benchmark,longmemeval,beam,memory,+ | 440 |
+| 440 | 2026-07-21 | in-progress | c44f9f6063559bb7 | benchmark,longmemeval,beam,memory,+ | 439 |
 | 439 | 2026-07-21 | done | f81b36f6a26058fd | benchmark,locomo,memory,retrieval,+ | 438 |
 | 438 | 2026-07-20 | done | 2d0eac31eb11dbdd | derived-facts,grounded-clm,retrieval,benchmark,+ | 437 |
 | 437 | 2026-07-20 | done | d729f0ca3d6c8634 | kb,docs,retrieval,benchmark,+ | 436 |
@@ -468,16 +470,16 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=1 latest=#182
-- audit: count=83 latest=#439, #435, #430, #398, #396
+- audit: count=85 latest=#441, #440, #439, #435, #430
 - baseline: count=1 latest=#303
-- beam: count=1 latest=#223
-- benchmark: count=176 latest=#439, #438, #437, #436, #435
+- beam: count=3 latest=#441, #440, #223
+- benchmark: count=178 latest=#441, #440, #439, #438, #437
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=27 latest=#430, #404, #401, #400, #390
+- bugfix: count=29 latest=#441, #440, #430, #404, #401
 - build: count=2 latest=#413, #408
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
@@ -564,11 +566,11 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=7 latest=#415, #414, #404, #403, #402
+- graph: count=8 latest=#441, #415, #414, #404, #403
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=37 latest=#439, #436, #430, #427, #423
+- handoff: count=39 latest=#441, #440, #439, #436, #430
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -597,7 +599,7 @@ compact: true
 - loader: count=1 latest=#325
 - locking: count=2 latest=#283, #182
 - locomo: count=80 latest=#439, #435, #434, #430, #429
-- longmemeval: count=1 latest=#223
+- longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
@@ -608,7 +610,7 @@ compact: true
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
 - mem0-harness: count=4 latest=#434, #433, #431, #424
-- memory: count=16 latest=#439, #420, #418, #417, #416
+- memory: count=18 latest=#441, #440, #439, #420, #418
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=31 latest=#435, #313, #311, #309, #308
@@ -652,7 +654,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=103 latest=#381, #380, #378, #356, #355
+- protocol: count=105 latest=#441, #440, #381, #380, #378
 - prov: count=1 latest=#316
 - provenance: count=8 latest=#439, #435, #416, #414, #410
 - publish: count=1 latest=#410
@@ -720,8 +722,8 @@ compact: true
 - telemetry: count=2 latest=#367, #366
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
-- temporal: count=1 latest=#400
-- test: count=50 latest=#439, #435, #430, #423, #422
+- temporal: count=2 latest=#441, #400
+- test: count=52 latest=#441, #440, #439, #435, #430
 - tests: count=26 latest=#404, #403, #402, #401, #400
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -734,7 +736,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=27 latest=#435, #364, #228, #223, #220
 - vector-adapters: count=1 latest=#359
-- verify: count=278 latest=#430, #421, #419, #417, #404
+- verify: count=279 latest=#441, #430, #421, #419, #417
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -748,6 +750,6 @@ compact: true
 
 - roots: 76
 - changed: 8
-- done: 406
-- in-progress: 4
+- done: 407
+- in-progress: 5
 - planned: 21
