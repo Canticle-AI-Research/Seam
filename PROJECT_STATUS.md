@@ -1,5 +1,29 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#458 - BUILT graph-maturity stage G3 slice-1,
+the FIRST retrieval-touching graph capability. `select_graph_source_raw`
+(`seam_runtime/graph_source_selector.py`) gains a default-off `resolve_identity`
+param that folds accepted-merge alias seeds onto their canonical (via G2.1
+`resolve_canonical`) before corroboration: an alias-only query now reaches the
+canonical entity's evidence RAW (alias->canonical REACH), and an alias plus its
+canonical stop double-counting as two concepts for one identity. New
+default-empty `GraphSourceSelection.folded_aliases` trace; off-path and
+no-accepted-merge path byte-identical (mem0-harness facade caller passes no
+resolve_identity, unchanged). HONEST BOUNDARY: mechanism-only, NOT a score
+claim - the fold only fires when accepted merges exist and the LoCoMo corpus
+(ns locomo:<user>, scope thread) has none yet; and this is slice-1 (identity
+fusion into one lane), not full roadmap G3 (semantic vectors + bounded traversal
++ latency fixtures still to come). Verification: 4 new selector G3 tests
+(alias reach only when resolved; proposed merge does NOT fold; flag-off ==
+no-merge byte-identical; alias+canonical collapse agreement 2->1) + field-set
+leak guard updated; full `pytest tests/` exit 0 with T7 offline HF env + both
+pgvector DSNs, two xfails, zero skips; ruff + compileall clean; no
+provider/paid/install/download. NEXT: G3 MEASUREMENT (free, provider-free) -
+generate/accept merges on the LoCoMo scope, add a facade policy variant enabling
+resolve_identity, run the free displacement audit, gate promotion on >=1 net
+miss-gold gain with zero sentinel loss before any paid confirm; then G3 slice-2
+for the full roadmap stage.)
+
 Current update: 2026-07-22 (HISTORY#457 - BUILT graph-maturity stage G2.3, the
 operator/agent surface over the G2.1/G2.2 identity-merge ledger, across four
 surfaces. Store (`seam_runtime/storage.py`): `identity_merges` (filtered list),

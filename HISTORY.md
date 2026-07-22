@@ -11127,3 +11127,65 @@ an alias query reaches its canonical node's evidence; this is the FIRST stage
 that can move a benchmark score, gated by the free deterministic-recall A/B
 before any paid run. Optional G2.3 tail: TUI dashboard ledger widget.
 ---END-ENTRY-#457---
+
+---BEGIN-ENTRY-#458---
+id: 458
+date: 2026-07-22T11:15:01Z
+agent: claude-opus-4-8
+status: done
+topics: graph, identity, resolution, retrieval, vector, knowledge-graph, verify, tests, track-r
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md
+supersedes: 457
+tokens: 760
+---
+Graph maturity G3 slice-1 - identity resolution fused into source-RAW retrieval
+
+BUILT the first retrieval-touching graph capability: `select_graph_source_raw`
+(`seam_runtime/graph_source_selector.py`) can now fold accepted-merge alias
+seeds onto their canonical identity before corroboration, via the G2.1
+`resolve_canonical`. This is the first stage that CAN change a served retrieval
+result (G1-G2.3 were all retrieval-inert substrate); it is NOT yet a score
+claim (see boundary below).
+
+Mechanism: new default-off param `resolve_identity: bool = False`. When set,
+`_resolve_seed_identity` remaps each query-matched seed node to
+`resolve_canonical(ns, scope)` (ACCEPTED merges only; merges are scope-bound so
+nothing folds without a concrete ns/scope), merging the alias's covered query
+tokens onto the canonical node. Two correct effects: (1) alias -> canonical
+REACH - a query naming only an alias ("Big Blue") now corroborates the canonical
+entity's ("IBM") evidence RAW through the canonical's edges/episodes, which is
+the entire point of the merge ledger; (2) no DOUBLE-COUNT - an alias and its
+canonical stop counting as two independent concepts (agreement 2) for one
+identity. New default-empty `GraphSourceSelection.folded_aliases` records the
+(alias, canonical) folds for the audit trace. Off-path and no-accepted-merges
+path are byte-identical to before (the mem0-harness facade caller passes no
+resolve_identity, so its behavior is unchanged).
+
+HONEST BOUNDARY: this is slice-1 (identity fusion into the one source-RAW
+selector lane), NOT all of roadmap G3 (which also wants semantic node/fact
+vectors, bounded traversal, and latency fixtures). It is mechanism-only: the
+fusion fires only when accepted merges exist, and the LoCoMo/mem0-harness corpus
+(ns `locomo:<user>`, scope `thread`) has NONE yet. So no score has moved and none
+is claimed. Measuring G3's real value is the NEXT step and is gated by the free,
+provider-free deterministic displacement audit: generate + accept merge
+candidates on the benchmark ns/scope, wire a facade policy that sets
+resolve_identity=True, then run the free preflight displacement audit before any
+promotion or paid run. No auto-accept, no facade promotion, no paid work here.
+
+Verification: `tests/audit/test_graph_source_selector.py` +4 G3 tests
+(alias-only query reaches canonical RAW only when resolved; proposed merge does
+NOT fold; flag-off == no-merge byte-identical; alias+canonical collapse from
+agreement 2 to 1 as one entity) and the field-set leak guard updated for
+folded_aliases; identity suite unchanged. Combined selector+identity suites
+green. Full `pytest tests/` exit 0 with the T7 offline HF env + both pgvector
+DSNs, two established xfails, zero skips. Ruff + compileall clean on touched
+files. No provider, paid, install, or download call occurred.
+
+NEXT: G3 measurement - generate/accept merges on the LoCoMo scope, add a facade
+graph-source-raw policy variant that enables resolve_identity, run the free
+displacement audit; gate any promotion on >= 1 net miss-gold gain with zero
+sentinel loss (the standing free-gate bar), only then consider a paid confirm.
+Then G3 slice-2 (semantic + bounded traversal + latency fixtures) for the full
+roadmap stage.
+---END-ENTRY-#458---

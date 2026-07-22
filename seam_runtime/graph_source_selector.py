@@ -28,6 +28,7 @@ import sqlite3
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
+from .identity_resolution import resolve_canonical
 from .knowledge_graph import tokenize_graph_term
 
 # Lifecycle statuses that remove an edge, episode, or node from the current
@@ -77,6 +78,11 @@ class GraphSourceSelection:
     nodes and distinct query tokens. One long label cannot count as multiple
     concepts, and duplicate nodes matching the same query token cannot inflate
     the score. ``matched_pairs`` exposes the exact concept/token assignment.
+
+    ``folded_aliases`` records ``(alias_node_id, canonical_node_id)`` pairs when
+    identity resolution (graph maturity G3) collapsed an accepted-merge alias
+    seed onto its canonical before corroboration. Empty on the default
+    identity-unaware path, so the off-path selection is byte-identical.
     """
 
     source_record_id: str
@@ -88,6 +94,7 @@ class GraphSourceSelection:
     edge_ids: tuple[str, ...]
     score: float
     paths: tuple[GraphSourcePath, ...] = field(default_factory=tuple)
+    folded_aliases: tuple[tuple[str, str], ...] = ()
 
 
 def tokenize_query(text: str) -> list[str]:
@@ -135,6 +142,35 @@ def _seed_nodes(
         node_id: frozenset(mutable[node_id])
         for node_id in sorted(mutable)[:max_seeds]
     }
+
+
+def _resolve_seed_identity(
+    connection: sqlite3.Connection,
+    seeds: dict[str, frozenset[str]],
+    *,
+    ns: str | None,
+    scope: str | None,
+) -> tuple[dict[str, frozenset[str]], tuple[tuple[str, str], ...]]:
+    """Collapse accepted-merge alias seeds onto their canonical identity.
+
+    Graph maturity G3: an alias node's query-matched tokens are re-attributed to
+    its canonical node so an alias query reaches the canonical's evidence, and an
+    alias plus its canonical stop counting as two independent concepts for one
+    identity. Only ACCEPTED merges fold (``resolve_canonical`` follows accepted
+    links only); merges are scope-bound, so nothing folds without a concrete
+    ns/scope. Returns the remapped seeds and the ``(alias, canonical)`` pairs
+    folded, for the audit trace.
+    """
+
+    remapped: dict[str, set[str]] = {}
+    folded: list[tuple[str, str]] = []
+    for node_id, tokens in seeds.items():
+        canonical = resolve_canonical(connection, node_id, ns=ns, scope=scope)
+        remapped.setdefault(canonical, set()).update(tokens)
+        if canonical != node_id:
+            folded.append((node_id, canonical))
+    frozen = {cid: frozenset(toks) for cid, toks in remapped.items()}
+    return frozen, tuple(sorted(folded))
 
 
 def _maximum_concept_token_matching(
@@ -267,6 +303,7 @@ def select_graph_source_raw(
     min_agreement: int = _DEFAULT_MIN_AGREEMENT,
     limit: int = _DEFAULT_LIMIT,
     max_seeds: int = _DEFAULT_MAX_SEEDS,
+    resolve_identity: bool = False,
 ) -> list[GraphSourceSelection]:
     """Select source RAW ids corroborated by multiple query-matched seed nodes.
 
@@ -275,6 +312,12 @@ def select_graph_source_raw(
     in-scope edges and episodes. Results are ranked by agreement, then supporting edge count, then
     source record id, so ties are fully deterministic.  The selector reads only;
     it never writes, and it returns ids and provenance, never source text.
+
+    When ``resolve_identity`` is set (graph maturity G3), accepted-merge alias
+    seeds are folded onto their canonical identity before corroboration so an
+    alias query reaches the canonical's evidence. Default-off: with the flag
+    unset, or with no accepted merges, the result is byte-identical to the
+    identity-unaware path.
     """
 
     if min_agreement < 1:
@@ -289,6 +332,11 @@ def select_graph_source_raw(
     seeds = _seed_nodes(
         connection, tokens, ns=ns, scope=scope, max_seeds=max_seeds
     )
+    folded_pairs: tuple[tuple[str, str], ...] = ()
+    if resolve_identity:
+        seeds, folded_pairs = _resolve_seed_identity(
+            connection, seeds, ns=ns, scope=scope
+        )
     if len(_maximum_concept_token_matching(seeds)) < min_agreement:
         return []
     paths = _support_paths(connection, list(seeds), ns=ns, scope=scope)
@@ -319,6 +367,12 @@ def select_graph_source_raw(
         # Score is a deterministic function of the evidence only: token
         # agreement dominates, supporting-edge breadth is a bounded tiebreak.
         score = float(agreement) + min(0.9, 0.1 * len(edge_ids))
+        seed_set = set(seed_ids)
+        selection_folded = tuple(
+            (alias, canonical)
+            for alias, canonical in folded_pairs
+            if canonical in seed_set
+        )
         selections.append(
             GraphSourceSelection(
                 source_record_id=source_record_id,
@@ -330,6 +384,7 @@ def select_graph_source_raw(
                 edge_ids=edge_ids,
                 score=score,
                 paths=ordered_paths,
+                folded_aliases=selection_folded,
             )
         )
 

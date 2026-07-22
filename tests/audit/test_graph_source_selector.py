@@ -42,6 +42,11 @@ create table knowledge_node_terms (
     token text not null, term_kind text not null, ns text not null,
     scope text not null, source_record_id text not null
 );
+create table identity_merges (
+    id text primary key, canonical_node_id text not null,
+    alias_node_id text not null, ns text not null, scope text not null,
+    status text not null
+);
 """
 
 
@@ -124,6 +129,37 @@ def _mention(conn, node_id, episode_id, source_record_id):
         "values (?,?,?)",
         (node_id, episode_id, source_record_id),
     )
+
+
+def _merge(conn, canonical, alias, *, ns="n", scope="s", status="accepted"):
+    conn.execute(
+        "insert into identity_merges "
+        "(id, canonical_node_id, alias_node_id, ns, scope, status) "
+        "values (?,?,?,?,?,?)",
+        (f"merge:{alias}->{canonical}", canonical, alias, ns, scope, status),
+    )
+
+
+def _alias_reach_graph(*, merge_status: str | None) -> sqlite3.Connection:
+    """Canonical IBM holds the evidence; 'Big Blue' is a bare alias node.
+
+    ``raw:R1`` is corroborated by the canonical entity (ent:ibm) and a value
+    concept (val:revenue). The alias node ent:bigblue has NO edges/episodes of
+    its own, so a query naming only the alias cannot reach raw:R1 unless the
+    alias is folded onto its canonical.
+    """
+    conn = _connect()
+    _node(conn, "ent:ibm", "IBM")
+    _node(conn, "ent:bigblue", "BigBlue")
+    _node(conn, "val:revenue", "revenue", kind="value")
+    _episode(conn, "ep1", "raw:R1")
+    _episode(conn, "ep2", "raw:R1")
+    _edge(conn, "e1", "ent:ibm", "val:revenue", "ep1", predicate="reported")
+    _mention(conn, "val:revenue", "ep2", "raw:R1")
+    if merge_status is not None:
+        _merge(conn, "ent:ibm", "ent:bigblue", status=merge_status)
+    conn.commit()
+    return conn
 
 
 def _two_seed_graph() -> sqlite3.Connection:
@@ -376,6 +412,7 @@ def test_selection_exposes_no_source_text_field() -> None:
         "edge_ids",
         "score",
         "paths",
+        "folded_aliases",
     }
 
 
@@ -398,3 +435,70 @@ def test_negative_max_seeds_is_rejected_and_zero_disables_selection() -> None:
     with pytest.raises(ValueError, match="max_seeds"):
         select_graph_source_raw(conn, "alice bob", max_seeds=-1)
     assert select_graph_source_raw(conn, "alice bob", max_seeds=0) == []
+
+
+def test_identity_resolution_folds_alias_seed_to_reach_canonical_evidence() -> None:
+    # Graph maturity G3: a query naming only the alias 'BigBlue' reaches IBM's
+    # evidence RAW only when the accepted merge is resolved.
+    conn = _alias_reach_graph(merge_status="accepted")
+
+    without = select_graph_source_raw(conn, "bigblue revenue", ns="n", scope="s")
+    assert [s.source_record_id for s in without] == []
+
+    resolved = select_graph_source_raw(
+        conn, "bigblue revenue", ns="n", scope="s", resolve_identity=True
+    )
+    assert [s.source_record_id for s in resolved] == ["raw:R1"]
+    selection = resolved[0]
+    assert selection.agreement == 2
+    assert "ent:ibm" in selection.seed_ids
+    assert "ent:bigblue" not in selection.seed_ids
+    # The fold is recorded for the audit trace.
+    assert selection.folded_aliases == (("ent:bigblue", "ent:ibm"),)
+
+
+def test_alias_reach_requires_accepted_merge() -> None:
+    # A merely proposed merge must not fold: resolution follows accepted only.
+    conn = _alias_reach_graph(merge_status="proposed")
+    resolved = select_graph_source_raw(
+        conn, "bigblue revenue", ns="n", scope="s", resolve_identity=True
+    )
+    assert [s.source_record_id for s in resolved] == []
+
+
+def test_identity_resolution_off_is_byte_identical() -> None:
+    # With the flag off, an accepted merge changes nothing versus no merge.
+    accepted = _alias_reach_graph(merge_status="accepted")
+    none = _alias_reach_graph(merge_status=None)
+    off = select_graph_source_raw(accepted, "bigblue revenue", ns="n", scope="s")
+    baseline = select_graph_source_raw(none, "bigblue revenue", ns="n", scope="s")
+    assert off == baseline == []
+
+
+def test_identity_resolution_collapses_double_counted_entity() -> None:
+    # An alias and its canonical must not count as two concepts for one entity.
+    conn = _connect()
+    _node(conn, "ent:ibm", "IBM")
+    _node(conn, "ent:bigblue", "BigBlue")
+    _episode(conn, "ep1", "raw:R1")
+    _episode(conn, "ep2", "raw:R1")
+    _mention(conn, "ent:ibm", "ep1", "raw:R1")
+    _mention(conn, "ent:bigblue", "ep2", "raw:R1")
+    _merge(conn, "ent:ibm", "ent:bigblue", status="accepted")
+    conn.commit()
+
+    # Without resolution the two nodes falsely corroborate as agreement 2.
+    without = select_graph_source_raw(conn, "ibm bigblue", ns="n", scope="s")
+    assert without[0].agreement == 2
+
+    # Resolved, they are one entity: agreement collapses to 1 (only surfaced
+    # when min_agreement permits it), with a single canonical seed.
+    resolved = select_graph_source_raw(
+        conn, "ibm bigblue", ns="n", scope="s", resolve_identity=True
+    )
+    assert resolved == []
+    resolved_one = select_graph_source_raw(
+        conn, "ibm bigblue", ns="n", scope="s", min_agreement=1, resolve_identity=True
+    )
+    assert resolved_one[0].agreement == 1
+    assert resolved_one[0].seed_ids == ("ent:ibm",)
