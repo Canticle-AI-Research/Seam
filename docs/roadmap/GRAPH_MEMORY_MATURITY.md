@@ -50,14 +50,28 @@ Already present:
 - G2 reversible identity merge proposals, evidence, acceptance, conflicts, and
   terminal split/undo history;
 - R1 append-only run-scoped reasoning nodes, edges, state history, scoped
-  knowledge/evidence references, and a local Python SDK boundary.
+  knowledge/evidence references, and a local Python SDK boundary;
+- R2 atomic retrieval decisions with bounded selected/rejected candidate
+  ledgers, fixed planner/fusion identities, exact evidence IDs, and compact SDK
+  reads;
+- G3a provider-free semantic fact/episode MIRL seeds feeding 0-3-hop
+  current-graph traversal, deterministic lexical/vector/graph fusion, and
+  explicit decision/latency traces. A semantic seed receives graph credit only
+  after an in-boundary edge actually connects it. This is a bounded first
+  slice, not the complete G3 contract.
 
 Remaining structural gaps:
 
 - G2 still needs broader fuzzy/coreference evidence beyond the reversible
   identity-ledger foundation;
-- G3 has initial identity-aware source selection but lacks one complete measured
-  lexical + semantic + path fusion contract;
+- G3 still lacks semantic vectors for entity/value/agent/symbol nodes,
+  calibrated or rank-normalized cross-leg fusion, historical-view semantics,
+  exact returned path/episode traces, and corpus-scale latency/quality
+  qualification. Native SQLite and pgvector searches now prefilter namespace
+  and scope before top-K; existing pgvector indexes created before the scope
+  column require an explicit index resync because the external table cannot be
+  backfilled from canonical SQLite automatically. That resync repairs boundary
+  metadata without recomputing unchanged embeddings;
 - entities have no durable evolving summaries; graph-wide communities and
   evidence-backed observations are absent;
 - no first-class context block composes facts, entities, episodes, summaries,
@@ -78,7 +92,7 @@ Remaining structural gaps:
 | G7 Qualification | Native SEAM and matched Mem0/Zep benchmark lanes plus scale and ablation suites | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims |
 
 The parallel reasoning-graph sequence is defined in
-`docs/REASONING_GRAPH.md`. R1 is implemented; R2-R6 remain open. Reasoning
+`docs/REASONING_GRAPH.md`. R1-R2 are implemented; R3-R6 remain open. Reasoning
 outcomes are never benchmarked or advertised as knowledge unless a later
 reviewed-promotion contract explicitly admits them into MIRL.
 

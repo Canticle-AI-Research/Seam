@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-22-reasoning-graph-sdk-foundation
 supersedes: 2026-07-22-graph-memory-identity-foundation
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#461
 ---
 

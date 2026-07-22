@@ -39,9 +39,11 @@ class SQLiteVectorIndex:
     def __init__(self, path: str, model: EmbeddingModel) -> None:
         self.path = path
         self.model = model
-        # Keyed by (model_name, dimension, namespace). Only used on the numpy
+        # Keyed by (model_name, dimension, namespace, scope). Only used on the numpy
         # fast path; harmless (unread) on the pure-Python fallback.
-        self._cache: dict[tuple[str, int, str | None], _VectorCache] = {}
+        self._cache: dict[
+            tuple[str, int, str | None, str | None], _VectorCache
+        ] = {}
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.path, timeout=5.0)
@@ -64,6 +66,7 @@ class SQLiteVectorIndex:
                     source_text text not null,
                     source_hash text not null default '',
                     namespace text not null default '',
+                    scope text not null default '',
                     vector_json text not null,
                     updated_at text not null,
                     primary key (record_id, model_name)
@@ -71,10 +74,29 @@ class SQLiteVectorIndex:
                 """
             )
             columns = {row["name"] for row in connection.execute("pragma table_info(vector_index)").fetchall()}
+            has_ir_records = connection.execute(
+                "select 1 from sqlite_master where type = 'table' and name = 'ir_records'"
+            ).fetchone() is not None
             if "source_hash" not in columns:
                 connection.execute("alter table vector_index add column source_hash text not null default ''")
             if "namespace" not in columns:
                 connection.execute("alter table vector_index add column namespace text not null default ''")
+                if has_ir_records:
+                    connection.execute(
+                        "update vector_index set namespace = coalesce(("
+                        "select r.ns from ir_records r where r.id = vector_index.record_id"
+                        "), '')"
+                    )
+            if "scope" not in columns:
+                connection.execute(
+                    "alter table vector_index add column scope text not null default ''"
+                )
+                if has_ir_records:
+                    connection.execute(
+                        "update vector_index set scope = coalesce(("
+                        "select r.scope from ir_records r where r.id = vector_index.record_id"
+                        "), '')"
+                    )
             connection.commit()
 
     def index_records(self, records: Iterable[MIRLRecord]) -> None:
@@ -87,21 +109,50 @@ class SQLiteVectorIndex:
                 source_hash = _source_hash(source_text)
                 current = connection.execute(
                     """
-                    select source_hash, dimension
+                    select source_hash, dimension, namespace, scope
                     from vector_index
                     where record_id = ? and model_name = ?
                     """,
                     (record.id, self.model.name),
                 ).fetchone()
-                if current and current["source_hash"] == source_hash and int(current["dimension"]) == int(self.model.dimension):
+                if current and current["source_hash"] == source_hash and int(
+                    current["dimension"]
+                ) == int(self.model.dimension):
+                    if (
+                        current["namespace"] != (record.ns or "")
+                        or current["scope"] != (record.scope or "")
+                    ):
+                        connection.execute(
+                            "update vector_index set namespace = ?, scope = ?, "
+                            "updated_at = ? where record_id = ? and model_name = ?",
+                            (
+                                record.ns or "",
+                                record.scope or "",
+                                record.updated_at,
+                                record.id,
+                                self.model.name,
+                            ),
+                        )
                     continue
                 vector = self.model.embed(source_text)
                 connection.execute(
                     """
-                    insert or replace into vector_index (record_id, model_name, dimension, source_text, source_hash, namespace, vector_json, updated_at)
-                    values (?, ?, ?, ?, ?, ?, ?, ?)
+                    insert or replace into vector_index
+                        (record_id, model_name, dimension, source_text, source_hash,
+                         namespace, scope, vector_json, updated_at)
+                    values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (record.id, self.model.name, len(vector), source_text, source_hash, record.ns or "", json.dumps(vector), record.updated_at),
+                    (
+                        record.id,
+                        self.model.name,
+                        len(vector),
+                        source_text,
+                        source_hash,
+                        record.ns or "",
+                        record.scope or "",
+                        json.dumps(vector),
+                        record.updated_at,
+                    ),
                 )
             connection.commit()
         # A local write may invalidate any cached matrix; the per-search
@@ -109,16 +160,28 @@ class SQLiteVectorIndex:
         # stale-detection round-trip.
         self._cache.clear()
 
-    def search(self, query: str, limit: int = 10, namespace: str | None = None) -> dict[str, float]:
+    def search(
+        self,
+        query: str,
+        limit: int = 10,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> dict[str, float]:
         self.ensure_schema()
         if limit <= 0:
             return {}
         query_vector = self.model.embed(query)
         if _numpy is None:
-            return self._search_scan(query_vector, limit, namespace)
-        return self._search_cached(query_vector, limit, namespace)
+            return self._search_scan(query_vector, limit, namespace, scope)
+        return self._search_cached(query_vector, limit, namespace, scope)
 
-    def _fingerprint(self, connection, dimension: int, namespace: str | None) -> tuple[int, str]:
+    def _fingerprint(
+        self,
+        connection,
+        dimension: int,
+        namespace: str | None,
+        scope: str | None,
+    ) -> tuple[int, str]:
         """Cheap invalidation key: (row count, max updated_at) for the slice.
 
         An ``insert or replace`` stamps the record's ``updated_at`` (monotonic
@@ -129,12 +192,21 @@ class SQLiteVectorIndex:
         if namespace is not None:
             sql += " and namespace = ?"
             params.append(namespace)
+        if scope is not None:
+            sql += " and scope = ?"
+            params.append(scope)
         row = connection.execute(sql, params).fetchone()
         return (int(row[0]), str(row[1]))
 
-    def _load_cache(self, connection, dimension: int, namespace: str | None) -> _VectorCache:
-        key = (self.model.name, dimension, namespace)
-        fingerprint = self._fingerprint(connection, dimension, namespace)
+    def _load_cache(
+        self,
+        connection,
+        dimension: int,
+        namespace: str | None,
+        scope: str | None,
+    ) -> _VectorCache:
+        key = (self.model.name, dimension, namespace, scope)
+        fingerprint = self._fingerprint(connection, dimension, namespace, scope)
         cached = self._cache.get(key)
         if cached is not None and cached.fingerprint == fingerprint:
             return cached
@@ -143,6 +215,9 @@ class SQLiteVectorIndex:
         if namespace is not None:
             sql += " and namespace = ?"
             params.append(namespace)
+        if scope is not None:
+            sql += " and scope = ?"
+            params.append(scope)
         ids: list[str] = []
         vectors: list[list[float]] = []
         for row in connection.execute(sql, params):
@@ -165,9 +240,17 @@ class SQLiteVectorIndex:
         self._cache[key] = cached
         return cached
 
-    def _search_cached(self, query_vector: list[float], limit: int, namespace: str | None) -> dict[str, float]:
+    def _search_cached(
+        self,
+        query_vector: list[float],
+        limit: int,
+        namespace: str | None,
+        scope: str | None,
+    ) -> dict[str, float]:
         with closing(self._connect()) as connection:
-            cache = self._load_cache(connection, len(query_vector), namespace)
+            cache = self._load_cache(
+                connection, len(query_vector), namespace, scope
+            )
         if not cache.ids:
             return {}
         query = _numpy.asarray(query_vector, dtype=_numpy.float64)
@@ -200,7 +283,13 @@ class SQLiteVectorIndex:
         ordered = sorted(((record_id, score) for score, record_id in top), key=lambda item: item[1], reverse=True)
         return dict(ordered)
 
-    def _search_scan(self, query_vector: list[float], limit: int, namespace: str | None) -> dict[str, float]:
+    def _search_scan(
+        self,
+        query_vector: list[float],
+        limit: int,
+        namespace: str | None,
+        scope: str | None,
+    ) -> dict[str, float]:
         """Pure-Python fallback (numpy absent): brute-force per-row cosine."""
         top: list[tuple[float, str]] = []
         sql = "select record_id, vector_json from vector_index where model_name = ? and dimension = ?"
@@ -208,6 +297,9 @@ class SQLiteVectorIndex:
         if namespace is not None:
             sql += " and namespace = ?"
             params.append(namespace)
+        if scope is not None:
+            sql += " and scope = ?"
+            params.append(scope)
         with closing(self._connect()) as connection:
             rows = connection.execute(sql, params)
             for row in rows:
@@ -233,7 +325,7 @@ class SQLiteVectorIndex:
                 source_hash = _source_hash(source_text)
                 row = connection.execute(
                     """
-                    select source_hash, dimension
+                    select source_hash, dimension, namespace, scope
                     from vector_index
                     where record_id = ? and model_name = ?
                     """,
@@ -245,6 +337,10 @@ class SQLiteVectorIndex:
                     stale.append({"record_id": record.id, "reason": "source_changed"})
                 elif int(row["dimension"]) != int(self.model.dimension):
                     stale.append({"record_id": record.id, "reason": "dimension_changed"})
+                elif row["namespace"] != (record.ns or ""):
+                    stale.append({"record_id": record.id, "reason": "namespace_changed"})
+                elif row["scope"] != (record.scope or ""):
+                    stale.append({"record_id": record.id, "reason": "scope_changed"})
         return stale
 
     def orphan_records(self) -> list[dict[str, object]]:

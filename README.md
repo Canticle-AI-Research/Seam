@@ -43,6 +43,12 @@ with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
         agent_id="planner",
     )
     run.add_node("question", "Which option has verified rollback evidence?")
+    retrieval = run.retrieve(
+        "verified rollback evidence",
+        mode="mix",
+        budget=5,
+        graph_hops=2,
+    )
     reasoning_graph = run.graph()
 ```
 
@@ -50,6 +56,12 @@ Reasoning nodes are concise, typed, append-only public justifications—not
 hidden chain-of-thought or canonical facts. Accepted conclusions require
 explicit support, and nothing is promoted into MIRL automatically. See
 [`docs/REASONING_GRAPH.md`](docs/REASONING_GRAPH.md).
+
+`run.retrieve(...)` returns live selected records while atomically recording a
+bounded decision and content-free candidate ledger: plan/policy/model identity,
+selected and rejected record IDs, evidence fingerprints, scores, controlled
+reason codes, and latency. It makes no provider call by default and does not
+copy record payloads into the reasoning graph.
 
 Private repo install requires an authenticated GitHub CLI session.
 

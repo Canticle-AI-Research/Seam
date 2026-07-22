@@ -144,7 +144,11 @@ knowledge and live telemetry. It anchors typed objectives, premises,
 hypotheses, inferences, decisions, and outcomes to `workspace_run`, with exact
 knowledge/MIRL evidence references and append-only state history. It is public
 justification, never hidden chain-of-thought, and it cannot promote itself into
-MIRL. See `docs/REASONING_GRAPH.md`.
+MIRL. R2 adds a fixed retrieval decision and content-free candidate ledger:
+bounded selected and rejected record IDs, boundary/content fingerprints,
+scores, controlled reason codes, plan/policy/model identity, and latency.
+Record payloads stay in MIRL and are never copied into that ledger. See
+`docs/REASONING_GRAPH.md`.
 
 ## Honest J-lens capability boundary
 
@@ -210,6 +214,19 @@ The graph retrieval leg reads `knowledge_edges`, not the legacy minimal
 shown in the dashboard, including typed predicates and current-state filtering.
 Graph hits still resolve back to MIRL records for ranking, packing, and complete
 RAW/provenance backtraces.
+
+The G3a slice can explicitly seed the graph leg from in-boundary semantic
+fact/episode MIRL hits and traverse the current graph for 0-3 hops. A semantic
+seed receives graph credit only when an actual current edge connects it. The SDK
+opts into that behavior for `ReasoningSession.retrieve`; existing orchestrator
+callers retain the default-off semantic-seeding behavior. Ranking is
+deterministic and its current sum/max-per-leg overlap policy is fingerprinted in
+each R2 decision. This is not the full G3 claim: entity-class vectors,
+calibrated cross-leg scoring, historical paths, exact path/episode return, and
+scale qualification remain. Native vector top-K now prefilters namespace and
+scope; existing pgvector indexes from before the scope column require an
+explicit resync because canonical SQLite cannot backfill the external table.
+Boundary-only resync updates metadata without calling the embedding model again.
 
 The default-off graph-to-source-RAW lane seeds only from
 `knowledge_node_terms`. Its agreement score is a deterministic maximum

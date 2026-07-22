@@ -11304,3 +11304,47 @@ VERIFICATION: the R1 audit suite has eight tests covering grounded graph roundtr
 
 NEXT: R2 should make retrieval queries, candidates, selected and rejected alternatives, ranking policy, and exact retrieval evidence first-class reasoning artifacts. In parallel, finish G3 semantic + lexical + bounded-path fusion with deterministic trace and latency gates. Preserve the explicit reviewed boundary before any future promotion of reasoning outcomes into MIRL.
 ---END-ENTRY-#461---
+
+---BEGIN-ENTRY-#462---
+id: 462
+date: 2026-07-22T16:50:30Z
+agent: codex-gpt-5
+status: done
+topics: graph, retrieval, memory, agent, verify, vector
+commits: pending
+refs: docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-22-reasoned-retrieval-g3a.md
+supersedes: 461
+tokens: 457
+---
+Implemented the R2 retrieval-decision plane and exposed it through the public
+Python SDK. Each retrieval now records a bounded, append-only parent decision
+and candidate ledger with exact namespace/scope, normalized plan, policy and
+ordered candidate fingerprints, selected/rejected dispositions, fixed source
+and reason codes, backend/model identity, latency, and live MIRL content hashes.
+Finalization fails closed on ranking drift, non-contiguous ranks, cross-boundary
+evidence, or a search-to-record race; later MIRL moves or edits surface as
+integrity drift without mutating history. Additive migration preserves earlier
+R2 rows and backfills explicit unknown provenance where old data cannot prove it.
+
+Implemented provider-free G3a: semantic fact/episode MIRL hits may explicitly
+seed bounded 0-3-hop traversal of current knowledge edges, while isolated seeds
+receive no graph credit. Traversal, SQL candidate selection, filters, result
+sets, and pages are bounded and deterministically tie-broken. SQLite, pgvector,
+and Chroma now enforce namespace plus scope before top-K; SQLite can backfill
+canonical boundaries, while existing external pgvector rows require one
+explicit resync. Boundary-only repair does not call the embedding model.
+
+This closes R2 as a mature foundation, not the overall graph program. Remaining
+work includes calibrated/entity-class fusion, exact historical path and episode
+traces, scale/latency qualification, G4-G7, and R3-R6. Updated the SDK exports,
+README, reasoning/knowledge graph docs, roadmap maturity contract, code layout,
+ledger, project status, and current handoff accordingly.
+
+Verification: the authoritative non-external suite selected 1,823 tests: 1,821
+passed, two established xfailed, zero failed or skipped. Seven live pgvector
+tests passed; the direct R1/R2 collection contains 38 tests; the wider reviewed
+graph/retrieval slice passed 92 tests. Touched-file Ruff, compileall, and diff
+checks passed. No provider, paid model, install, or download action occurred.
+The one-shot closeout wrapper was used here to exercise the repaired accelerated
+commit path through all derived-state rebuilds and canonical gates.
+---END-ENTRY-#462---

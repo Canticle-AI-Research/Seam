@@ -12,7 +12,7 @@ from .mirl import (
     VerifyReport,
 )
 from .runtime import SeamRuntime
-from .sdk import ReasoningSession, SeamSDK
+from .sdk import ReasonedRetrieval, ReasoningSession, SeamSDK
 
 __all__ = [
     "Artifact",
@@ -22,6 +22,7 @@ __all__ = [
     "PersistReport",
     "ReconcileReport",
     "RecordKind",
+    "ReasonedRetrieval",
     "ReasoningSession",
     "SearchResult",
     "SeamRuntime",

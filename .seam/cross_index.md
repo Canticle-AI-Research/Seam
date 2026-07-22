@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 522
+total_events: 523
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-28T05:22:24Z | history:268:d817ea8f | session-event | done | bugfix, hardening, security, storage, multi-agent, protoc... | seam_runtime/storage.py,seam_runtime/server.py,seam_runtime/dashboard.py,seam... |
 | 2026-05-29T00:42:30Z | history:269:4b1818d8 | session-event | done | bugfix, storage, benchmark, security, retrieval, audit, v... | seam_runtime/pool.py,seam_runtime/benchmark_integrity.py,seam_runtime/cli.py,... |
 | 2026-05-29T07:28:25Z | history:270:9ef6f8de | session-event | done | bugfix, storage, security, audit, verify | seam_runtime/pool.py,seam_runtime/storage.py,tests/audit/test_pool_concurrenc... |
 | 2026-05-29T15:52:57Z | history:271:c925b3b4 | session-event | done | benchmark, locomo, recovery, infra, verify, audit | benchmarks/external/locomo/data/locomo10.json,benchmarks/external/locomo/data... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
 | 2026-07-22T14:59:22Z | history:460:f3d5ac63 | session-event | done | graph, bugfix, verify, history, continuity, retrieval, pa... | seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,... |
 | 2026-07-22T15:21:34Z | history:461:d0e59411 | session-event | done | graph, memory, agent, protocol, storage, workspace, atomi... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,s... |
+| 2026-07-22T16:50:30Z | history:462:2b05af6b | session-event | done | graph, retrieval, memory, agent, verify, vector | docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0322.cross.md | 2026-04-15T00:00:00Z..2026-05-27T13:27:37Z | 322 | (multi) | (multi) |
+| 0001-0323.cross.md | 2026-04-15T00:00:00Z..2026-05-28T05:22:24Z | 323 | (multi) | (multi) |

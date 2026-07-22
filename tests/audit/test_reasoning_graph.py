@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import itertools
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -207,3 +208,16 @@ def test_start_is_atomic_and_concurrent_sequence_allocation_is_unique(
         )
     assert len({node["seq"] for node in nodes}) == 20
     assert [node["seq"] for node in session.graph()["nodes"]] == list(range(1, 22))
+
+
+def test_reference_iterables_are_bounded_before_materialization(
+    runtime: SeamRuntime,
+) -> None:
+    session = SeamSDK(runtime=runtime).start_reasoning("Bound untrusted iterables.")
+    with pytest.raises(ValueError, match="at most 256 references"):
+        session.add_node(
+            "hypothesis",
+            "This insert must fail before consuming an infinite iterator.",
+            evidence_refs=itertools.repeat("raw:missing"),
+        )
+    assert len(session.graph()["nodes"]) == 1

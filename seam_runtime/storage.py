@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import sqlite3
+from collections.abc import Iterable
 from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
@@ -45,6 +46,14 @@ from .knowledge_graph import (
 from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
 from .pool import ConnectionPool
 from .reasoning_graph import (
+    ReasoningRetrievalCandidate,
+    init_reasoning_graph,
+    list_reasoning_retrievals,
+    reasoning_graph,
+    record_reasoning_retrieval,
+    transition_reasoning_node,
+)
+from .reasoning_graph import (
     add_reasoning_edge as add_reasoning_edge_row,
 )
 from .reasoning_graph import (
@@ -53,11 +62,7 @@ from .reasoning_graph import (
 from .reasoning_graph import (
     get_reasoning_node as get_reasoning_node_row,
 )
-from .reasoning_graph import (
-    init_reasoning_graph,
-    reasoning_graph,
-    transition_reasoning_node,
-)
+from .reasoning_graph import get_reasoning_retrieval as get_reasoning_retrieval_row
 from .retry import retry_db_operation
 from .workspace import (
     append_workspace_event as append_workspace_event_row,
@@ -212,6 +217,9 @@ class SQLiteStore:
                     model_name text not null,
                     dimension integer not null,
                     source_text text not null,
+                    source_hash text not null default '',
+                    namespace text not null default '',
+                    scope text not null default '',
                     vector_json text not null,
                     updated_at text not null,
                     primary key (record_id, model_name)
@@ -1396,8 +1404,8 @@ class SQLiteStore:
         confidence: float | None = None,
         agent_id: str | None = None,
         operation: str | None = None,
-        knowledge_refs: tuple[str, ...] = (),
-        evidence_record_ids: tuple[str, ...] = (),
+        knowledge_refs: Iterable[str] = (),
+        evidence_record_ids: Iterable[str] = (),
         node_id: str | None = None,
         created_at: str | None = None,
     ) -> dict[str, object]:
@@ -1509,6 +1517,93 @@ class SQLiteStore:
     def reasoning_graph(self, run_id: str) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return reasoning_graph(connection, run_id)
+
+    @retry_db_operation()
+    def record_reasoning_retrieval(
+        self,
+        *,
+        run_id: str,
+        query: str,
+        normalized_query: str,
+        filter_ids: Iterable[str],
+        filter_kinds: Iterable[str],
+        filter_predicate: str | None,
+        filter_subject: str | None,
+        filter_object_text: str | None,
+        leg_limits: dict[str, int],
+        mode: str,
+        intent: str,
+        budget: int,
+        graph_hops: int,
+        semantic_graph_seeding: bool,
+        semantic_backend: str,
+        semantic_adapter: str,
+        embedding_model: str,
+        embedding_dimension: int,
+        embedding_revision: str | None,
+        candidates: tuple[ReasoningRetrievalCandidate, ...],
+        total_candidates: int,
+        candidates_truncated: bool,
+        candidate_set_sha256: str,
+        leg_latency_ms: dict[str, float],
+        total_latency_ms: float,
+        policy: str,
+        agent_id: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            retrieval = record_reasoning_retrieval(
+                connection,
+                run_id=run_id,
+                query=query,
+                normalized_query=normalized_query,
+                filter_ids=filter_ids,
+                filter_kinds=filter_kinds,
+                filter_predicate=filter_predicate,
+                filter_subject=filter_subject,
+                filter_object_text=filter_object_text,
+                leg_limits=leg_limits,
+                mode=mode,
+                intent=intent,
+                budget=budget,
+                graph_hops=graph_hops,
+                semantic_graph_seeding=semantic_graph_seeding,
+                semantic_backend=semantic_backend,
+                semantic_adapter=semantic_adapter,
+                embedding_model=embedding_model,
+                embedding_dimension=embedding_dimension,
+                embedding_revision=embedding_revision,
+                candidates=candidates,
+                total_candidates=total_candidates,
+                candidates_truncated=candidates_truncated,
+                candidate_set_sha256=candidate_set_sha256,
+                leg_latency_ms=leg_latency_ms,
+                total_latency_ms=total_latency_ms,
+                policy=policy,
+                agent_id=agent_id,
+            )
+            connection.commit()
+        return retrieval
+
+    def reasoning_retrieval(self, retrieval_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_retrieval_row(connection, retrieval_id)
+
+    def reasoning_retrievals(
+        self,
+        *,
+        run_id: str,
+        limit: int = 100,
+        after: str | None = None,
+        include_candidates: bool = False,
+    ) -> list[dict[str, object]]:
+        with self._pool.checkout() as connection:
+            return list_reasoning_retrievals(
+                connection,
+                run_id=run_id,
+                limit=limit,
+                after=after,
+                include_candidates=include_candidates,
+            )
 
     @retry_db_operation()
     def append_workspace_event(

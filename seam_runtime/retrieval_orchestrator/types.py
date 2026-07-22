@@ -87,6 +87,8 @@ class RetrievalPlan:
     filters: QueryFilters
     legs: list[RetrievalLeg]
     mode: str = "hybrid"
+    graph_hops: int = 1
+    semantic_graph_seeding: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -94,6 +96,8 @@ class RetrievalPlan:
             "normalized_query": self.normalized_query,
             "intent": self.intent.value,
             "mode": self.mode,
+            "graph_hops": self.graph_hops,
+            "semantic_graph_seeding": self.semantic_graph_seeding,
             "filters": self.filters.to_dict(),
             "legs": [leg.to_dict() for leg in self.legs],
         }
@@ -146,6 +150,39 @@ class RetrievalSearchResult:
             "intent": self.intent.value,
             "candidates": [candidate.to_dict() for candidate in self.candidates],
             "trace": self.trace,
+        }
+
+
+@dataclass
+class RetrievalDecisionResult:
+    plan: RetrievalPlan
+    selected: list[RetrievalCandidate]
+    rejected: list[RetrievalCandidate]
+    policy: str
+    candidate_set_sha256: str
+    total_candidates: int
+    candidates_truncated: bool
+    leg_hits: dict[str, list[LegHit]] = field(default_factory=dict)
+    leg_latency_ms: dict[str, float] = field(default_factory=dict)
+    total_latency_ms: float = 0.0
+
+    @property
+    def ranked(self) -> list[RetrievalCandidate]:
+        return [*self.selected, *self.rejected]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "plan": self.plan.to_dict(),
+            "policy": self.policy,
+            "candidate_set_sha256": self.candidate_set_sha256,
+            "selected": [candidate.to_dict() for candidate in self.selected],
+            "rejected": [candidate.to_dict() for candidate in self.rejected],
+            "total_candidates": self.total_candidates,
+            "candidates_truncated": self.candidates_truncated,
+            "leg_latency_ms": {
+                name: round(value, 6) for name, value in self.leg_latency_ms.items()
+            },
+            "total_latency_ms": round(self.total_latency_ms, 6),
         }
 
 

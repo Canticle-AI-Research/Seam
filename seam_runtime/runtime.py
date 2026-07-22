@@ -36,7 +36,12 @@ from .retrieval import search_batch
 from .storage import SQLiteStore
 from .symbols import export_symbol_markdown, propose_symbols
 from .transpile import transpile_python
-from .vector_adapters import PgVectorAdapter, SQLiteVectorAdapter, VectorAdapter
+from .vector_adapters import (
+    PgVectorAdapter,
+    SQLiteVectorAdapter,
+    VectorAdapter,
+    search_vector_adapter,
+)
 from .verify import verify_ir
 
 LOGGER = logging.getLogger(__name__)
@@ -242,12 +247,17 @@ class SeamRuntime:
         # deeper retrieval is a measured paid-judge win (0.40->0.52). None = use
         # the caller's `budget` unchanged.
         budget = flags.search_top_k if getattr(flags, "search_top_k", None) else budget
-        # Substream isolation: when ``ns`` is given, confine BOTH the candidate
-        # load and the vector top-K to that namespace so a shared store/vector
-        # pool cannot leak another namespace's records. ns=None reproduces the
-        # prior global behavior exactly.
+        # Substream isolation: confine both the candidate load and vector top-K
+        # to the requested namespace/scope boundary. Omitted filters reproduce
+        # the prior global behavior exactly.
         batch = self.store.load_ir(ns=ns, scope=scope)
-        vector_scores = self.vector_adapter.search(query, limit=max(budget * 3, 10), namespace=ns)
+        vector_scores = search_vector_adapter(
+            self.vector_adapter,
+            query,
+            limit=max(budget * 3, 10),
+            namespace=ns,
+            scope=scope,
+        )
         namespace = batch.records[0].ns if batch.records else None
         bm25 = None
         if include_raw or flags.bm25_all_kinds:

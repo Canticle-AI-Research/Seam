@@ -1,5 +1,31 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#462 - BUILT R2 reasoned retrieval and the
+provider-free G3a fusion slice through the public Python SDK. Retrieval now
+persists one typed, append-only decision plus a bounded candidate ledger with
+the exact namespace/scope boundary, normalized query and plan, policy and
+candidate-set fingerprints, selected/rejected dispositions, source/reason
+codes, model identity, latency, and content hashes. Finalization rejects
+ranking drift, non-contiguous ranks, evidence changes between search and write,
+and cross-boundary candidates; later record moves or edits surface as explicit
+integrity drift instead of silently rewriting the decision. `ReasoningSession`
+now exposes bounded `retrieve`/`retrieval`/`retrievals` entrypoints. G3a adds
+deterministic lexical/vector/graph fusion with explicit semantic MIRL seeding
+and real 0-3-hop traversal of current `knowledge_edges`; isolated semantic hits
+receive no graph credit. SQLite, pgvector, and Chroma now apply namespace plus
+scope before top-K, and boundary-only index repair does not re-embed. Existing
+pgvector rows created before the scope column need one explicit resync. This is
+NOT end-to-end graph maturity: calibrated/entity-class fusion, exact historical
+paths and episode traces, scale/latency qualification, G4-G7, and R3-R6 remain.
+Verification: authoritative non-external run selected 1,823 tests (1,821 pass,
+two established xfails, zero failures/skips); seven live pgvector tests pass;
+38 direct R1/R2 tests collect; touched-file Ruff, compileall, and diff checks
+pass. The repaired one-shot closeout path was used for HISTORY, streams,
+snapshot, and all five canonical gates. No provider, paid model, install, or
+download action. NEXT: resync any pre-scope pgvector index, then finish G3 with
+calibrated fusion, exact path/episode evidence, and scale/latency gates before
+claiming graph maturity.)
+
 Current update: 2026-07-22 (HISTORY#461 - BUILT the operator-approved parallel
 reasoning plane and initial SEAM Python SDK. The architecture now separates the
 canonical MIRL-backed knowledge graph (what SEAM knows) from an append-only,

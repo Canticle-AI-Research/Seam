@@ -108,10 +108,17 @@ and `HISTORY_INDEX.md`.
   `workspace_run`, parallel to the canonical MIRL-backed knowledge graph. It
   stores only typed summaries, relationships, status history, and exact scoped
   knowledge/evidence references; it never stores hidden chain-of-thought or raw
-  model internals and never promotes itself into MIRL. The local Python SDK is
-  the initial stable integration boundary; CLI, REST, MCP, and framework
-  adapters should wrap that contract rather than depend on SQLite tables. See
-  `docs/REASONING_GRAPH.md`.
+  model internals and never promotes itself into MIRL. R2 retrieval decisions
+  use fixed typed columns plus a bounded content-free candidate ledger (record
+  IDs, boundary/content fingerprints, scores, and reason codes), enforce the
+  insertion-time run/namespace/scope boundary in SQLite, detect later evidence
+  drift, and pin planner/fusion plus semantic-adapter/model identities; raw
+  record/provider payloads are forbidden. The
+  local Python SDK is the stable integration boundary; CLI, REST, MCP, and
+  framework adapters should wrap that contract rather than depend on SQLite
+  tables. SDK semantic graph seeding is an explicit opt-in over the legacy
+  orchestrator default and does not establish a full G3 quality/scale claim.
+  See `docs/REASONING_GRAPH.md`.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
   activation persistence. A genuine J-lens requires activation-capable local
@@ -127,6 +134,13 @@ and `HISTORY_INDEX.md`.
   and `auto_approve` cannot bypass that boundary. The apply path admits only an
   approved, non-violating proposal with a passing stored ratchet.
 - Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam[chroma]`, `seam[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
+- Native SQLite and pgvector vector searches carry both namespace and scope into
+  pre-top-K filtering; post-filtering remains a fail-closed defense. SQLite
+  upgrades backfill both fields from canonical `ir_records`. Existing external
+  pgvector rows created before the scope column must be resynced explicitly;
+  their scope cannot be inferred safely inside the external vector table.
+  Namespace/scope-only repair must update metadata without recomputing an
+  unchanged embedding, including when the configured embedder is paid/remote.
 - Document ingest status is canonical SQLite metadata. Source refs, source hashes, extraction status, index status, and deletion state belong in `document_status`, not only in derived vector stores.
 - Agent-facing retrieval should use progressive disclosure where possible: compact search/index results first, then full MIRL records by selected IDs.
 - Default agent RAG should prefer `mix` retrieval only after benchmark validation; the supported retrieval modes are `vector`, `graph`, `hybrid`, and `mix`.

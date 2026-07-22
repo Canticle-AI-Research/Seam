@@ -1,10 +1,60 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from .reasoning_graph import ReasoningRetrievalCandidate
+from .retrieval_policy import mirl_record_fingerprint
 from .runtime import SeamRuntime
+
+if TYPE_CHECKING:
+    from .retrieval_orchestrator import RetrievalDecisionResult
+
+
+@dataclass(frozen=True)
+class ReasonedRetrieval:
+    result: RetrievalDecisionResult
+    reasoning: dict[str, object]
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "retrieval": self.result.to_dict(),
+            "reasoning": dict(self.reasoning),
+        }
+
+
+_REASON_CODE_MAP = {
+    "matched=id": "matched_id",
+    "matched=kind": "matched_kind",
+    "matched=ns": "matched_namespace",
+    "matched=scope": "matched_scope",
+    "matched=predicate": "matched_predicate",
+    "matched=subject": "matched_subject",
+    "matched=object": "matched_object",
+    "structured": "structured_score",
+    "lexical": "lexical_score",
+    "token_hits": "token_hits",
+    "semantic": "semantic_score",
+    "graph_neighbors": "graph_neighbors",
+    "graph_hop": "graph_hop",
+    "semantic_seed": "semantic_seed",
+    "chroma": "chroma_score",
+}
+
+
+def _reason_codes(reasons: Iterable[str]) -> tuple[str, ...]:
+    codes: list[str] = []
+    for reason in reasons:
+        signal = reason.split(":", 1)[-1]
+        key = signal.split("=", 1)[0]
+        code = _REASON_CODE_MAP.get(signal) or _REASON_CODE_MAP.get(key)
+        if code is None:
+            raise ValueError(f"unsupported retrieval reason emitted by adapter: {reason}")
+        if code not in codes:
+            codes.append(code)
+    return tuple(codes)
 
 
 class ReasoningSession:
@@ -37,8 +87,8 @@ class ReasoningSession:
             confidence=confidence,
             agent_id=self.agent_id if isinstance(self.agent_id, str) else None,
             operation=operation,
-            knowledge_refs=tuple(knowledge_refs),
-            evidence_record_ids=tuple(evidence_refs),
+            knowledge_refs=knowledge_refs,
+            evidence_record_ids=evidence_refs,
         )
 
     def link(
@@ -105,6 +155,125 @@ class ReasoningSession:
 
     def graph(self) -> dict[str, object]:
         return self._runtime.store.reasoning_graph(self.run_id)
+
+    def retrieve(
+        self,
+        query: str,
+        *,
+        budget: int = 5,
+        mode: str = "mix",
+        graph_hops: int = 1,
+        semantic_graph_seeding: bool = True,
+        semantic_backend: str = "seam",
+    ) -> ReasonedRetrieval:
+        """Run and atomically record a bounded retrieval decision."""
+
+        if not isinstance(query, str):
+            raise TypeError("retrieval query must be a string")
+        if len(query) > 4096:
+            raise ValueError("retrieval query exceeds 4096 characters")
+        resolved_query = query.strip()
+        if not resolved_query:
+            raise ValueError("retrieval query is required")
+        if isinstance(budget, bool) or not isinstance(budget, int):
+            raise TypeError("reasoning retrieval budget must be an integer")
+        if not 1 <= budget <= 64:
+            raise ValueError("reasoning retrieval budget must be between 1 and 64")
+        if isinstance(graph_hops, bool) or not isinstance(graph_hops, int):
+            raise TypeError("graph_hops must be an integer")
+        if not 0 <= graph_hops <= 3:
+            raise ValueError("graph_hops must be between 0 and 3")
+        if not isinstance(semantic_graph_seeding, bool):
+            raise TypeError("semantic_graph_seeding must be a boolean")
+        if semantic_backend not in {"seam", "chroma"}:
+            raise ValueError("semantic_backend must be 'seam' or 'chroma'")
+        from .retrieval_orchestrator import RetrievalOrchestrator
+
+        orchestrator = RetrievalOrchestrator(
+            self._runtime, semantic_backend=semantic_backend
+        )
+        result = orchestrator.decide(
+            query=resolved_query,
+            scope=self.scope,
+            namespace=self.ns,
+            budget=budget,
+            mode=mode,
+            graph_hops=graph_hops,
+            semantic_graph_seeding=semantic_graph_seeding,
+            candidate_trace_limit=128,
+        )
+        selected_count = len(result.selected)
+        candidates = tuple(
+            ReasoningRetrievalCandidate(
+                record_id=candidate.record.id,
+                rank=rank,
+                score=candidate.score,
+                selected=rank <= selected_count,
+                sources=dict(candidate.sources),
+                record_sha256=mirl_record_fingerprint(candidate.record.to_dict()),
+                reasons=_reason_codes(candidate.reasons),
+            )
+            for rank, candidate in enumerate(result.ranked, start=1)
+        )
+        reasoning = self._runtime.store.record_reasoning_retrieval(
+            run_id=self.run_id,
+            query=resolved_query,
+            normalized_query=result.plan.normalized_query,
+            filter_ids=result.plan.filters.ids,
+            filter_kinds=result.plan.filters.kinds,
+            filter_predicate=result.plan.filters.predicate,
+            filter_subject=result.plan.filters.subject,
+            filter_object_text=result.plan.filters.object_text,
+            leg_limits={leg.name: leg.limit for leg in result.plan.legs},
+            mode=result.plan.mode,
+            intent=result.plan.intent.value,
+            budget=budget,
+            graph_hops=result.plan.graph_hops,
+            semantic_graph_seeding=result.plan.semantic_graph_seeding,
+            semantic_backend=semantic_backend,
+            semantic_adapter=(
+                "chroma-embedded"
+                if semantic_backend == "chroma"
+                else str(getattr(self._runtime.vector_adapter, "name", "unknown"))
+            ),
+            embedding_model=str(self._runtime.embedding_model.name),
+            embedding_dimension=int(self._runtime.embedding_model.dimension),
+            embedding_revision=(
+                str(revision)
+                if (revision := getattr(self._runtime.embedding_model, "revision", None))
+                is not None
+                else None
+            ),
+            candidates=candidates,
+            total_candidates=result.total_candidates,
+            candidates_truncated=result.candidates_truncated,
+            candidate_set_sha256=result.candidate_set_sha256,
+            leg_latency_ms=result.leg_latency_ms,
+            total_latency_ms=result.total_latency_ms,
+            policy=result.policy,
+            agent_id=self.agent_id if isinstance(self.agent_id, str) else None,
+        )
+        return ReasonedRetrieval(result=result, reasoning=reasoning)
+
+    def retrieval(self, retrieval_id: str) -> dict[str, object]:
+        retrieval = self._runtime.store.reasoning_retrieval(retrieval_id)
+        if retrieval["run_id"] != self.run_id:
+            raise ValueError("reasoning retrieval does not belong to this session")
+        return retrieval
+
+    def retrievals(
+        self,
+        *,
+        limit: int = 100,
+        after: str | None = None,
+        include_candidates: bool = False,
+    ) -> list[dict[str, object]]:
+        return self._runtime.store.reasoning_retrievals(
+            run_id=self.run_id,
+            limit=limit,
+            after=after,
+            include_candidates=include_candidates,
+        )
 
 
 class SeamSDK:
