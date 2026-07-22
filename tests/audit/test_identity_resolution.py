@@ -21,6 +21,7 @@ from seam_runtime.identity_resolution import (
     IdentityMergeError,
     accept_merge,
     apply_identity_merges,
+    generate_merge_candidates,
     list_merges,
     merge_audit,
     propose_merge,
@@ -341,3 +342,136 @@ def test_proposed_status_default(runtime: SeamRuntime) -> None:
         connection.commit()
         row = {m["id"]: m for m in list_merges(connection)}[merge_id]
         assert row["status"] == STATUS_PROPOSED
+
+
+def _seed_alias_pair(runtime: SeamRuntime) -> None:
+    """An entity whose canonical name is another entity's explicit alias."""
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id="ent:ibm",
+                    kind=RecordKind.ENT,
+                    ns="people",
+                    scope="project",
+                    attrs={"label": "IBM", "entity_type": "org"},
+                ),
+                MIRLRecord(
+                    id="ent:ibm-corp",
+                    kind=RecordKind.ENT,
+                    ns="people",
+                    scope="project",
+                    attrs={
+                        "label": "International Business Machines",
+                        "entity_type": "org",
+                        "aliases": ["IBM"],
+                    },
+                ),
+            ]
+        )
+    )
+
+
+def test_candidate_generator_proposes_shared_alias_in_canonical_direction(
+    runtime: SeamRuntime,
+) -> None:
+    _seed_alias_pair(runtime)
+    with runtime.store._pool.checkout() as connection:
+        summary = generate_merge_candidates(connection, ns="people", scope="project")
+        connection.commit()
+
+        assert len(summary["proposed"]) == 1
+        assert summary["conflicts"] == []
+        merges = list_merges(connection, statuses=[STATUS_PROPOSED])
+        assert len(merges) == 1
+        merge = merges[0]
+        # The node that OWNS "ibm" as its canonical label is canonical; the one
+        # that merely aliases it is absorbed.
+        assert merge["canonical_node_id"] == "ent:ibm"
+        assert merge["alias_node_id"] == "ent:ibm-corp"
+        assert merge["confidence"] == 0.6
+        # Never auto-accepted.
+        assert merge["status"] == STATUS_PROPOSED
+        audit = merge_audit(connection, "ent:ibm-corp")[0]
+        assert audit["evidence"][0]["evidence_kind"] == "shared-alias"
+        assert audit["evidence"][0]["detail"] == "ibm"
+
+
+def test_candidate_generator_excludes_pure_homonyms(runtime: SeamRuntime) -> None:
+    # Two distinct people both literally named "John", neither aliasing the other.
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id=f"ent:john-{n}",
+                    kind=RecordKind.ENT,
+                    ns="people",
+                    scope="project",
+                    attrs={"label": "John", "entity_type": "person"},
+                )
+                for n in (1, 2)
+            ]
+        )
+    )
+    with runtime.store._pool.checkout() as connection:
+        summary = generate_merge_candidates(connection, ns="people", scope="project")
+        connection.commit()
+        assert summary["proposed"] == []
+        assert list_merges(connection) == []
+
+
+def test_candidate_generator_respects_scope_isolation(runtime: SeamRuntime) -> None:
+    _seed_alias_pair(runtime)
+    # A same-named org in a different scope must not be pulled into the merge.
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id="ent:ibm-eu",
+                    kind=RecordKind.ENT,
+                    ns="people",
+                    scope="user",
+                    attrs={"label": "IBM Europe", "entity_type": "org", "aliases": ["IBM"]},
+                )
+            ]
+        )
+    )
+    with runtime.store._pool.checkout() as connection:
+        generate_merge_candidates(connection)
+        connection.commit()
+        proposals = list_merges(connection, statuses=[STATUS_PROPOSED])
+        # Only the within-scope pair; nothing crosses scope.
+        assert len(proposals) == 1
+        assert {proposals[0]["canonical_node_id"], proposals[0]["alias_node_id"]} == {
+            "ent:ibm",
+            "ent:ibm-corp",
+        }
+        assert proposals[0]["scope"] == "project"
+
+
+def test_candidate_generator_is_idempotent(runtime: SeamRuntime) -> None:
+    _seed_alias_pair(runtime)
+    with runtime.store._pool.checkout() as connection:
+        first = generate_merge_candidates(connection, ns="people", scope="project")
+        connection.commit()
+        second = generate_merge_candidates(connection, ns="people", scope="project")
+        connection.commit()
+        assert first["proposed"] == second["proposed"]
+        assert len(list_merges(connection)) == 1
+
+
+def test_candidate_generator_does_not_downgrade_accepted(runtime: SeamRuntime) -> None:
+    _seed_alias_pair(runtime)
+    with runtime.store._pool.checkout() as connection:
+        summary = generate_merge_candidates(connection, ns="people", scope="project")
+        merge_id = summary["proposed"][0]
+        accept_merge(connection, merge_id)
+        connection.commit()
+        # Re-running the generator must not revert an accepted decision.
+        generate_merge_candidates(connection, ns="people", scope="project")
+        connection.commit()
+        assert list_merges(connection)[0]["status"] == STATUS_ACCEPTED
+        assert (
+            resolve_canonical(connection, "ent:ibm-corp", ns="people", scope="project")
+            == "ent:ibm"
+        )

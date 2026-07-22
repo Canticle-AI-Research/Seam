@@ -11007,3 +11007,57 @@ coreference) as `proposed`-only, never auto-accepted; then G2.3 CLI/MCP/dashboar
 read of the ledger for audit, before G3 hybrid path-ranking fusion consumes
 `resolve_canonical`.
 ---END-ENTRY-#455---
+
+---BEGIN-ENTRY-#456---
+id: 456
+date: 2026-07-22T08:31:29Z
+agent: claude-opus-4-8
+status: done
+topics: graph, identity, resolution, candidate, knowledge-graph, verify, tests, track-r
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md
+supersedes: 455
+tokens: 634
+---
+Graph maturity G2.2 - automatic merge-candidate generation (proposed-only)
+
+BUILT the candidate generator that feeds the HISTORY#455 identity-merge ledger:
+`generate_merge_candidates` in `seam_runtime/identity_resolution.py`. It
+auto-discovers likely-same entity pairs from the identity index and files them
+as `proposed` merges; it NEVER accepts, so acceptance stays the deliberate G2.1
+decision and no merge is ever silent. Still substrate / retrieval-inert (no
+served result or ranking changes); the score signal arrives at G3 fusion.
+
+Signal: two DISTINCT entity nodes sharing a full `normalized_term` within the
+same ns/scope. Precision guards: (1) requires real alias evidence - at least one
+shared term where a side's term_kind is `alias`; a name both sides own only as
+their `canonical` label is a homonym and is excluded, so the ledger is not
+flooded with false same-name merges; (2) deterministic direction - the node that
+owns a shared term as its canonical label wins the canonical slot (the other
+aliases into it) via per-term alias votes, ties (shared-alias-only or symmetric)
+fall back to the lexicographically smaller node id at lower confidence (0.6 vs
+0.4); (3) ns/scope isolation enforced in the self-join; (4) idempotent -
+deterministic merge ids mean re-running upserts the same proposals and
+`propose_merge` never downgrades an accepted decision. Evidence rows record the
+shared term as `shared-alias` with its source. Returns a summary
+{proposed, conflicts, pairs_examined}.
+
+Two self/tool/-caught errors during the build were logged to LLM-Logs
+(2026-07-22-002 invalid test scope caught by tool-error; 2026-07-22-003
+over-broad homonym exclusion caught by self-review before running) plus a
+meta instruction-violation (2026-07-22-001, deferred logging, caught by
+operator).
+
+Verification: `tests/audit/test_identity_resolution.py` 14/14 (5 new G2.2:
+shared-alias proposes in canonical direction; pure homonyms excluded; scope
+isolation; idempotent; accepted decision not downgraded on re-run). Graph
+regression tests/audit/test_knowledge_graph.py + test_graph_source_selector.py
+43 pass. Full `pytest tests/` exit 0 with the T7 offline HF env + local pgvector
+DSN (both SEAM_PGVECTOR_DSN and PGVECTOR_TEST_DSN set), two established xfails,
+zero skips. Ruff + compileall clean on touched files. No provider, paid,
+install, or download call occurred.
+
+NEXT: G2.3 - CLI/MCP/dashboard read of the merge ledger (list proposals with
+confidence + evidence, per-node merge audit, accept/split operator actions) for
+auditability, before G3 hybrid path-ranking fusion consumes `resolve_canonical`.
+---END-ENTRY-#456---

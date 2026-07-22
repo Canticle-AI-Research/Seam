@@ -182,6 +182,135 @@ def _add_evidence(
         )
 
 
+def generate_merge_candidates(
+    connection: sqlite3.Connection,
+    *,
+    ns: str | None = None,
+    scope: str | None = None,
+    max_candidates: int = 500,
+) -> dict[str, object]:
+    """Auto-discover likely-same entity pairs and file them as ``proposed``.
+
+    Graph maturity stage G2.2: the candidate generator that feeds the G2.1
+    ledger. It never accepts -- acceptance stays a deliberate decision, so no
+    merge is ever silent.
+
+    Signal: two DISTINCT entity nodes sharing a full ``normalized_term`` within
+    the same ns/scope, where at least one side carries that term as an
+    ``alias`` (one node explicitly lists a name that is another node's name).
+    Pure same-canonical-name homonyms (two entities both literally named the
+    same, neither aliasing the other) are excluded as low-precision noise --
+    merging every same-named entity would flood the ledger with false merges.
+
+    Direction is deterministic: the node that owns a shared term as its
+    ``canonical`` label is the canonical identity; ties (both alias-only, or
+    both canonical) fall back to the lexicographically smaller node id.
+
+    Returns a summary ``{"proposed": [...ids], "conflicts": [...ids],
+    "pairs_examined": N}``. Idempotent: deterministic merge ids mean re-running
+    upserts the same proposals and never downgrades an accepted decision.
+    """
+
+    where = [
+        "t1.normalized_term = t2.normalized_term",
+        "t1.ns = t2.ns",
+        "t1.scope = t2.scope",
+        "t1.node_id < t2.node_id",
+        "na.kind = 'entity'",
+        "nb.kind = 'entity'",
+    ]
+    params: list[object] = []
+    if ns is not None:
+        where.append("t1.ns = ?")
+        params.append(ns)
+    if scope is not None:
+        where.append("t1.scope = ?")
+        params.append(scope)
+    rows = connection.execute(
+        "select t1.node_id, t2.node_id, t1.normalized_term, t1.ns, t1.scope, "
+        "t1.term_kind, t2.term_kind, t1.source_record_id, t2.source_record_id "
+        "from knowledge_node_terms t1 "
+        "join knowledge_node_terms t2 "
+        "  on t1.normalized_term = t2.normalized_term "
+        "join knowledge_nodes na on na.id = t1.node_id "
+        "join knowledge_nodes nb on nb.id = t2.node_id "
+        "where " + " and ".join(where) + " "
+        "order by t1.ns, t1.scope, t1.node_id, t2.node_id, t1.normalized_term",
+        params,
+    ).fetchall()
+
+    # Aggregate shared terms per unordered entity pair.
+    pairs: dict[tuple[str, str, str, str], dict] = {}
+    for row in rows:
+        node_a = str(row[0])
+        node_b = str(row[1])
+        key = (node_a, node_b, str(row[3]), str(row[4]))
+        entry = pairs.setdefault(
+            key,
+            {"terms": {}, "votes": {node_a: 0, node_b: 0}, "alias_evidence": False},
+        )
+        term = str(row[2])
+        kind_a = str(row[5])
+        kind_b = str(row[6])
+        # Keep the most informative source per shared term.
+        entry["terms"].setdefault(term, (row[7] if row[7] is not None else row[8]))
+        # A shared term where exactly one side owns it as its canonical label and
+        # the other holds it as an alias points to who is canonical (the other
+        # aliases into it) and is genuine alias evidence.
+        if kind_a == "alias" or kind_b == "alias":
+            entry["alias_evidence"] = True
+        if kind_a == "canonical" and kind_b == "alias":
+            entry["votes"][node_a] += 1
+        elif kind_b == "canonical" and kind_a == "alias":
+            entry["votes"][node_b] += 1
+
+    proposed: list[str] = []
+    conflicts: list[str] = []
+    for (node_a, node_b, pair_ns, pair_scope), entry in pairs.items():
+        # Require at least one alias relationship; a name both sides own only as
+        # their canonical label is a homonym, not evidence of one identity.
+        if not entry["alias_evidence"]:
+            continue
+        votes = entry["votes"]
+        if votes[node_a] != votes[node_b]:
+            canonical_node_id = node_a if votes[node_a] > votes[node_b] else node_b
+            alias_node_id = node_b if canonical_node_id == node_a else node_a
+            confidence = 0.6
+        else:
+            # No directional signal (shared alias only, or symmetric): pick a
+            # stable direction and let the human decide the real canonical.
+            canonical_node_id, alias_node_id = sorted((node_a, node_b))
+            confidence = 0.4
+        evidence = [
+            ("shared-alias", term, source)
+            for term, source in sorted(entry["terms"].items())
+        ]
+        merge_id = propose_merge(
+            connection,
+            canonical_node_id=canonical_node_id,
+            alias_node_id=alias_node_id,
+            ns=pair_ns,
+            scope=pair_scope,
+            evidence=evidence,
+            confidence=confidence,
+        )
+        status = connection.execute(
+            "select status from identity_merges where id = ?", (merge_id,)
+        ).fetchone()[0]
+        if status == STATUS_CONFLICT:
+            conflicts.append(merge_id)
+        elif status == STATUS_PROPOSED:
+            proposed.append(merge_id)
+        if len(proposed) >= max_candidates:
+            break
+
+    return {
+        "proposed": proposed,
+        "conflicts": conflicts,
+        "pairs_examined": len(pairs),
+    }
+
+
 def accept_merge(connection: sqlite3.Connection, merge_id: str) -> str:
     """Promote a proposed merge to ``accepted``.
 

@@ -1,5 +1,24 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#456 - BUILT graph-maturity stage G2.2, the
+automatic merge-candidate generator that feeds the G2.1 ledger.
+`generate_merge_candidates` in `seam_runtime/identity_resolution.py`
+auto-discovers likely-same entity pairs (two distinct entity nodes sharing a
+full normalized_term in the same ns/scope) and files them as `proposed` merges;
+it NEVER accepts, so acceptance stays a deliberate decision and no merge is
+silent. Precision guards: requires real alias evidence (excludes pure
+same-canonical-name homonyms); deterministic direction by per-term alias votes
+(canonical-owner wins, ties -> lexicographic at 0.4 vs 0.6 confidence); ns/scope
+isolation; idempotent, never downgrades an accepted decision. Still
+retrieval-inert substrate - the score signal arrives at G3 fusion. Verification:
+identity suite 14/14 (5 new), graph regression 43, full `pytest tests/` exit 0
+with T7 offline HF env + both pgvector DSNs, two xfails, zero skips; ruff +
+compileall clean; no provider/paid/install/download. Three caught errors logged
+to LLM-Logs (deferred-logging instruction-violation caught by operator, invalid
+test scope, homonym over-exclusion). NEXT: G2.3 CLI/MCP/dashboard read of the
+merge ledger (proposals + confidence + evidence, per-node audit, accept/split
+actions), then G3 hybrid path-ranking fusion consuming `resolve_canonical`.)
+
 Current update: 2026-07-22 (HISTORY#455 - BUILT graph-maturity stage G2.1, the
 first slice of reversible identity resolution. New module
 `seam_runtime/identity_resolution.py` owns a durable, reversible identity-merge
