@@ -44,6 +44,20 @@ from .knowledge_graph import (
 )
 from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
 from .pool import ConnectionPool
+from .reasoning_graph import (
+    add_reasoning_edge as add_reasoning_edge_row,
+)
+from .reasoning_graph import (
+    add_reasoning_node as add_reasoning_node_row,
+)
+from .reasoning_graph import (
+    get_reasoning_node as get_reasoning_node_row,
+)
+from .reasoning_graph import (
+    init_reasoning_graph,
+    reasoning_graph,
+    transition_reasoning_node,
+)
 from .retry import retry_db_operation
 from .workspace import (
     append_workspace_event as append_workspace_event_row,
@@ -352,6 +366,7 @@ class SQLiteStore:
             self._cleanup_orphan_edges(connection)
             init_knowledge_graph(connection)
             init_workspace_schema(connection)
+            init_reasoning_graph(connection)
             connection.commit()
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
@@ -1366,6 +1381,134 @@ class SQLiteStore:
             )
             connection.commit()
         return run.to_dict()
+
+    # ------------------------------------------------------------------
+    # Public reasoning graph (append-only, non-canonical artifacts)
+    # ------------------------------------------------------------------
+
+    @retry_db_operation()
+    def add_reasoning_node(
+        self,
+        *,
+        run_id: str,
+        kind: str,
+        summary: str,
+        confidence: float | None = None,
+        agent_id: str | None = None,
+        operation: str | None = None,
+        knowledge_refs: tuple[str, ...] = (),
+        evidence_record_ids: tuple[str, ...] = (),
+        node_id: str | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            node = add_reasoning_node_row(
+                connection,
+                run_id=run_id,
+                kind=kind,
+                summary=summary,
+                confidence=confidence,
+                agent_id=agent_id,
+                operation=operation,
+                knowledge_refs=knowledge_refs,
+                evidence_record_ids=evidence_record_ids,
+                node_id=node_id,
+                created_at=created_at,
+            )
+            connection.commit()
+        return node
+
+    @retry_db_operation()
+    def create_reasoning_run(
+        self,
+        *,
+        objective: str,
+        ns: str = "local.reasoning",
+        scope: str = "thread",
+        agent_id: str | None = None,
+        model: str | None = None,
+        provider: str | None = None,
+    ) -> tuple[dict[str, object], dict[str, object]]:
+        """Atomically create a workspace run and its objective node."""
+
+        with self._pool.checkout() as connection:
+            run = create_workspace_run_row(
+                connection,
+                ns=ns,
+                scope=scope,
+                agent_id=agent_id,
+                model=model,
+                provider=provider,
+            )
+            objective_node = add_reasoning_node_row(
+                connection,
+                run_id=run.run_id,
+                kind="objective",
+                summary=objective,
+                agent_id=agent_id,
+            )
+            connection.commit()
+        return run.to_dict(), objective_node
+
+    @retry_db_operation()
+    def add_reasoning_edge(
+        self,
+        *,
+        run_id: str,
+        src_node_id: str,
+        relation: str,
+        dst_node_id: str,
+        agent_id: str | None = None,
+        edge_id: str | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            edge = add_reasoning_edge_row(
+                connection,
+                run_id=run_id,
+                src_node_id=src_node_id,
+                relation=relation,
+                dst_node_id=dst_node_id,
+                agent_id=agent_id,
+                edge_id=edge_id,
+                created_at=created_at,
+            )
+            connection.commit()
+        return edge
+
+    @retry_db_operation()
+    def transition_reasoning_node(
+        self,
+        *,
+        node_id: str,
+        status: str,
+        reason: str | None = None,
+        actor: str | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            state = transition_reasoning_node(
+                connection,
+                node_id=node_id,
+                status=status,
+                reason=reason,
+                actor=actor,
+                created_at=created_at,
+            )
+            connection.commit()
+        return state
+
+    def reasoning_node(
+        self, node_id: str, *, include_history: bool = True
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_node_row(
+                connection, node_id, include_history=include_history
+            )
+
+    def reasoning_graph(self, run_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return reasoning_graph(connection, run_id)
 
     @retry_db_operation()
     def append_workspace_event(

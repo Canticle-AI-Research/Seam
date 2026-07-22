@@ -11278,3 +11278,29 @@ Verification: touched Ruff and compileall pass. Ninety-nine focused tests pass a
 
 NEXT: implement the operator-approved knowledge/reasoning dual-plane R1 and a stable Python SDK boundary. Reasoning artifacts must be structured public justifications, never hidden chain-of-thought or canonical truth; promotion into MIRL remains explicit and gated.
 ---END-ENTRY-#460---
+
+---BEGIN-ENTRY-#461---
+id: 461
+date: 2026-07-22T15:21:34Z
+agent: codex
+status: done
+topics: graph, memory, agent, protocol, storage, workspace, atomicity, locking, provenance, test, docs, verify
+commits: pending
+refs: seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,seam_runtime/__init__.py,seam.py,tests/audit/test_reasoning_graph.py,docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,ROADMAP.md,REPO_LEDGER.md,README.md,tools/release/public_manifest.py,PROJECT_STATUS.md,docs/handoffs/2026-07-22-reasoning-graph-sdk-foundation.md
+supersedes: 460
+tokens: 728
+---
+Built the operator-approved knowledge/reasoning dual-plane foundation and the first stable SEAM Python SDK boundary.
+
+ARCHITECTURE: canonical RAW/MIRL and its knowledge-graph projection remain what SEAM knows. The new reasoning graph records how one workspace run publicly justified an outcome through typed objective, question, premise, hypothesis, inference, decision, and outcome nodes. It is append-only and explicitly non-canonical. There is no arbitrary payload, hidden chain-of-thought, raw activation, logits, or automatic reasoning-to-MIRL promotion field or path. Graph reads state canonical_truth=false and automatic_promotion=false. `docs/REASONING_GRAPH.md` defines the parallel R1-R6 maturity path beside knowledge stages G1-G7.
+
+R1 STORAGE: `reasoning_node`, `reasoning_edge`, and `reasoning_state` are anchored to `workspace_run`, protected by no-update/no-delete triggers, typed schema constraints, stable per-run/node sequences, and immutable state history. Knowledge-node and MIRL evidence references must exist in the run's exact namespace/scope. Reasoning edges cannot cross runs or scopes. Premises require a real knowledge/evidence reference. An inference, decision, or outcome cannot transition to accepted without a direct reference or incoming supporting relation. Accepted and rejected conclusions can only be superseded, preserving the temporal audit trail. Sequence allocation uses the same SQLite immediate-write-lock pattern as workspace events; a 20-writer audit proves unique ordered allocation.
+
+SDK: `SeamSDK` and `ReasoningSession` provide local ingest/knowledge access plus atomic start, resume, add_node, link, transition, finalize, node, and graph operations without exposing SQLite. Failed objective creation rolls back the workspace run and objective together. SDKs attached to operator-owned runtimes do not close them. The public README, docs index, code layout, knowledge-graph boundary, roadmap, stable ledger, maturity document, and fail-closed public release manifest now carry this contract. Future CLI, REST, MCP, LangGraph, CrewAI, and AutoGen packages should adapt this SDK rather than bind to storage tables.
+
+LOCAL REVIEW: CodeRabbit authenticated on its Free plan but rate-limited the review and offered $0.25/file usage-based overage. No billing setting or paid review was enabled. Manual review found and fixed three issues before closeout: concurrent sequence allocation lacked a write lock, failed SDK start could leave an orphan run, and the public README linked a reasoning doc not yet present in the fail-closed public manifest.
+
+VERIFICATION: the R1 audit suite has eight tests covering grounded graph roundtrip, namespace/scope and cross-run isolation, explicit-support acceptance, terminal transitions, append-only triggers, no automatic promotion/hidden-trace API, runtime ownership/resume, atomic failed-start rollback, and 20 concurrent writers. R1 plus public-manifest/public-safety suites pass. Seventy-one related graph, workspace/J-lens, identity-resolution, and history-closeout tests pass. The full non-external collection contains 1,793 tests and reached 100% with no failure markers and two established xfails. Touched-file Ruff, compileall, and git diff checks pass. No provider, paid model, install, or download action occurred.
+
+NEXT: R2 should make retrieval queries, candidates, selected and rejected alternatives, ranking policy, and exact retrieval evidence first-class reasoning artifacts. In parallel, finish G3 semantic + lexical + bounded-path fusion with deterministic trace and latency gates. Preserve the explicit reviewed boundary before any future promotion of reasoning outcomes into MIRL.
+---END-ENTRY-#461---

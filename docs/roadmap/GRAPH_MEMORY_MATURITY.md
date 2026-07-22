@@ -1,9 +1,12 @@
 # SEAM Graph Memory Maturity
 
-SEAM's graph is a projection of canonical RAW/MIRL, not a competing truth
-store. Graph maturity therefore means improving identity, temporal relations,
-retrieval, and context assembly while every served item remains traceable to
-MIRL and exact source evidence.
+SEAM's knowledge graph is a projection of canonical RAW/MIRL, not a competing
+truth store. It now grows beside an append-only reasoning graph that records
+public run justifications without becoming canonical truth. Graph maturity
+therefore has two parallel lanes: improve identity, temporal relations,
+retrieval, and context assembly in G1-G7; improve inspectable reasoning,
+verification, reuse, and reviewed promotion in R1-R6. The planes join through
+exact references, never by silently promoting a conclusion into knowledge.
 
 ## Target architecture
 
@@ -22,6 +25,9 @@ flowchart LR
     I --> J[PACK / agent context]
     J -. retrieval events and gates .-> K[SEAM improvement ratchet]
     K -. approved policies only .-> G
+    B -. exact knowledge and evidence refs .-> L[Reasoning graph\nobjective to outcome]
+    L -. explicit reviewed promotion only .-> B
+    L --> M[Python SDK\nagent and framework boundary]
 ```
 
 The identity, fact, and episode layers are independently queryable. Retrieval
@@ -38,14 +44,20 @@ Already present:
 - current and historical validity views, supersession, trust gating, namespace
   and scope isolation;
 - exact episode/source-record backtraces and graph-backed CLI, REST, MCP, and
-  dashboard surfaces.
+  dashboard surfaces;
+- G1 scoped canonical term and explicit alias indexing with provenance and no
+  assertion/source-text leakage;
+- G2 reversible identity merge proposals, evidence, acceptance, conflicts, and
+  terminal split/undo history;
+- R1 append-only run-scoped reasoning nodes, edges, state history, scoped
+  knowledge/evidence references, and a local Python SDK boundary.
 
-Structural gaps:
+Remaining structural gaps:
 
-- identity lookup has depended on labels and record IDs instead of a dedicated
-  canonical term/alias index;
-- entity resolution is exact-label only and has no reversible merge ledger;
-- graph retrieval lacks one measured lexical + semantic + path fusion contract;
+- G2 still needs broader fuzzy/coreference evidence beyond the reversible
+  identity-ledger foundation;
+- G3 has initial identity-aware source selection but lacks one complete measured
+  lexical + semantic + path fusion contract;
 - entities have no durable evolving summaries; graph-wide communities and
   evidence-backed observations are absent;
 - no first-class context block composes facts, entities, episodes, summaries,
@@ -64,6 +76,11 @@ Structural gaps:
 | G5 Context assembly | Facts, entities, episodes, summaries, and observations packed by task, trust, time, and token budget | Exact refs/backtraces, non-displacement tests, deterministic budget behavior |
 | G6 Lifecycle and scale | User/thread/graph APIs, scoped deletion, async/batch ingest, recovery, backend portability | Deletion audit, crash recovery, concurrency/load gates, no tenant leakage |
 | G7 Qualification | Native SEAM and matched Mem0/Zep benchmark lanes plus scale and ablation suites | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims |
+
+The parallel reasoning-graph sequence is defined in
+`docs/REASONING_GRAPH.md`. R1 is implemented; R2-R6 remain open. Reasoning
+outcomes are never benchmarked or advertised as knowledge unless a later
+reviewed-promotion contract explicitly admits them into MIRL.
 
 Benchmarks remain qualification evidence throughout, but they no longer gate
 whether the graph substrate may be built. Each stage first passes structural,

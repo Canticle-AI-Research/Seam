@@ -104,6 +104,14 @@ and `HISTORY_INDEX.md`.
   credential-shaped, hidden-chain-of-thought, raw-activation, and tensor data.
   POST-backed SSE and replay share stable event IDs and per-run sequence order;
   every stream has exactly one completion/failure terminal event.
+- The reasoning graph is an append-only public justification plane anchored to
+  `workspace_run`, parallel to the canonical MIRL-backed knowledge graph. It
+  stores only typed summaries, relationships, status history, and exact scoped
+  knowledge/evidence references; it never stores hidden chain-of-thought or raw
+  model internals and never promotes itself into MIRL. The local Python SDK is
+  the initial stable integration boundary; CLI, REST, MCP, and framework
+  adapters should wrap that contract rather than depend on SQLite tables. See
+  `docs/REASONING_GRAPH.md`.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
   activation persistence. A genuine J-lens requires activation-capable local

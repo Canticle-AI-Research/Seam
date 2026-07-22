@@ -139,6 +139,13 @@ Workspace telemetry is operational trace, not canonical knowledge. Only a
 separate, explicit MIRL persistence step turns selected conclusions into durable
 knowledge.
 
+The durable reasoning graph is a third, bounded role alongside canonical
+knowledge and live telemetry. It anchors typed objectives, premises,
+hypotheses, inferences, decisions, and outcomes to `workspace_run`, with exact
+knowledge/MIRL evidence references and append-only state history. It is public
+justification, never hidden chain-of-thought, and it cannot promote itself into
+MIRL. See `docs/REASONING_GRAPH.md`.
+
 ## Honest J-lens capability boundary
 
 SEAM distinguishes structured workspace trace from activation-derived J-lens
@@ -228,6 +235,9 @@ maintained in `docs/roadmap/GRAPH_MEMORY_MATURITY.md`.
   does not promote a hypothesis into an asserted fact.
 - Structured reasoning summaries and graph activation are observable telemetry;
   they are not hidden chain-of-thought or raw neural activations.
+- Durable reasoning nodes are non-canonical public artifacts. Cross-run edges
+  and cross-namespace/scope evidence references fail closed, and accepted
+  conclusions require explicit support.
 - Real-model, provider, remote-worker, pgvector, and paid benchmark execution
   remain optional operator-configured boundaries; the local graph/workspace
   feature does not require any of them.

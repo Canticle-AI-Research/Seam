@@ -1769,10 +1769,11 @@ priority: 2
 phase: 2
 -->
 
-**Status:** In progress (operator direction 2026-07-22). Mature the graph
-substrate first; use benchmarks as staged qualification and attribution rather
-than as a gate on building missing graph capabilities. Detailed architecture
-and stage contracts: `docs/roadmap/GRAPH_MEMORY_MATURITY.md`.
+**Status:** In progress (operator direction 2026-07-22). Mature the canonical
+knowledge graph and the non-canonical reasoning graph in parallel; use
+benchmarks as staged qualification and attribution rather than as a gate on
+building missing graph capabilities. Detailed architecture and stage contracts:
+`docs/roadmap/GRAPH_MEMORY_MATURITY.md` and `docs/REASONING_GRAPH.md`.
 
 **Dual-evidence contract:**
 
@@ -1816,6 +1817,16 @@ Planned sequence:
    concurrency, latency, graph-backend portability, and direct parity/load
    benchmarks.
 
+Parallel reasoning sequence:
+
+1. Durable run-scoped public reasoning graph and local Python SDK.
+2. Retrieval decisions and rejected-alternative traces.
+3. Verification, tool-result, retry, contradiction, and supersession loops.
+4. Scoped retrieval and reuse of prior reasoning patterns without conclusion
+   laundering.
+5. Explicit reviewed promotion proposals into MIRL; never automatic promotion.
+6. Cross-agent adapters, recovery/concurrency, and usefulness qualification.
+
 The Track P Mem0/Zep migration facade/importer direction becomes a delivery
 surface for this track. Do not claim full Zep parity or enterprise-scale
 performance until the direct comparator and scale gates exist and pass.
@@ -1845,6 +1856,8 @@ Now - graph-memory maturity with benchmark qualification
 - Treat native SEAM judge/1 and the Mem0 harness as co-primary evidence lanes; inspect all data from both
 - Use native judge/1 for stricter diagnosis and ratcheting; use Mem0's harness for incumbent-relative and market-facing decisions
 - Build Track R in the staged order in `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; structural graph gates precede score claims
+- Advance the R1-R6 public reasoning graph beside G1-G7 knowledge maturity;
+  keep reasoning non-canonical and route integrations through the Python SDK
 - Keep exact-answer/1 parked after its measured regression; use native and matched external runs to qualify completed graph stages
 - Do not claim Zep parity or a Mem0 win until the relevant matched capability, scale, and benchmark gates pass
 

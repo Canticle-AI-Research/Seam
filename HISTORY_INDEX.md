@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 460
-total_tokens: ~207624
-latest_id: 460
+total_entries: 461
+total_tokens: ~208352
+latest_id: 461
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 461 | 2026-07-22 | done | d0e59411c8560885 | graph,memory,agent,protocol,+ | 460 |
 | 460 | 2026-07-22 | done | f3d5ac635c75c5a0 | graph,bugfix,verify,history,+ | 459 |
 | 459 | 2026-07-22 | done | a7cf1232662e6424 | graph,identity,resolution,measurement,+ | 458 |
 | 458 | 2026-07-22 | done | e7f532c2fa7afcec | graph,identity,resolution,retrieval,+ | 457 |
@@ -478,7 +479,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=4 latest=#418, #407, #403, #402
+- agent: count=5 latest=#461, #418, #407, #403, #402
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -489,7 +490,7 @@ compact: true
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
-- atomicity: count=1 latest=#182
+- atomicity: count=2 latest=#461, #182
 - audit: count=94 latest=#451, #450, #449, #448, #446
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
@@ -558,7 +559,7 @@ compact: true
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=48 latest=#437, #418, #378, #357, #354
+- docs: count=49 latest=#461, #437, #418, #378, #357
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -587,7 +588,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=20 latest=#460, #459, #458, #457, #456
+- graph: count=21 latest=#461, #460, #459, #458, #457
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -620,7 +621,7 @@ compact: true
 - live-verification: count=1 latest=#368
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
-- locking: count=2 latest=#283, #182
+- locking: count=3 latest=#461, #283, #182
 - locomo: count=82 latest=#450, #448, #439, #435, #434
 - longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
@@ -633,7 +634,7 @@ compact: true
 - measurement: count=2 latest=#459, #369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
-- memory: count=21 latest=#454, #444, #442, #441, #440
+- memory: count=22 latest=#461, #454, #444, #442, #441
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=31 latest=#435, #313, #311, #309, #308
@@ -678,9 +679,9 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=106 latest=#459, #441, #440, #381, #380
+- protocol: count=107 latest=#461, #459, #441, #440, #381
 - prov: count=1 latest=#316
-- provenance: count=10 latest=#454, #448, #439, #435, #416
+- provenance: count=11 latest=#461, #454, #448, #439, #435
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
@@ -739,7 +740,7 @@ compact: true
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
 - status: count=153 latest=#404, #403, #402, #388, #387
-- storage: count=8 latest=#358, #283, #282, #270, #269
+- storage: count=9 latest=#461, #358, #283, #282, #270
 - streams: count=9 latest=#287, #276, #216, #210, #209
 - structure: count=3 latest=#326, #285, #284
 - surface: count=5 latest=#276, #225, #218, #208, #145
@@ -749,7 +750,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=62 latest=#460, #451, #450, #449, #448
+- test: count=63 latest=#461, #460, #451, #450, #449
 - tests: count=31 latest=#458, #457, #456, #455, #454
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -763,11 +764,12 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=28 latest=#458, #435, #364, #228, #223
 - vector-adapters: count=1 latest=#359
-- verify: count=298 latest=#460, #459, #458, #457, #456
+- verify: count=299 latest=#461, #460, #459, #458, #457
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
 - workflow-permissions: count=1 latest=#298
+- workspace: count=1 latest=#461
 - worktree: count=1 latest=#406
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
@@ -777,6 +779,6 @@ compact: true
 
 - roots: 76
 - changed: 13
-- done: 420
+- done: 421
 - in-progress: 6
 - planned: 21

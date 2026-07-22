@@ -1,5 +1,27 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#461 - BUILT the operator-approved parallel
+reasoning plane and initial SEAM Python SDK. The architecture now separates the
+canonical MIRL-backed knowledge graph (what SEAM knows) from an append-only,
+non-canonical reasoning graph (how a workspace run publicly justified an
+outcome). R1 adds typed objective/question/premise/hypothesis/inference/decision/
+outcome nodes, typed same-run edges, immutable status history, exact scoped
+knowledge and MIRL evidence references, and an explicit-support guard before an
+inference/decision/outcome can be accepted. There is no hidden chain-of-thought,
+raw activation, arbitrary payload, or automatic MIRL promotion field/path. The
+new `SeamSDK` provides local `ingest`, `knowledge`, `start_reasoning`, resume,
+node/link/transition/finalize, and graph reads without exposing SQLite; run plus
+objective creation is atomic, and concurrent sequence allocation uses an
+immediate write lock. The dual G1-G7/R1-R6 maturity contract and public SDK are
+documented. Verification: 7 initial R1 tests plus atomic/concurrent coverage,
+release-manifest/security suites, and 71 graph/workspace/identity/closeout tests
+pass; the full 1,793-test non-external collection reached 100% with zero failure
+markers and two established xfails. CodeRabbit was free-tier rate-limited before
+review and no paid overage was enabled; local review found and fixed the atomicity,
+concurrency, and public-manifest gaps. No provider, paid model, install, or
+download action. NEXT: R2 retrieval-decision nodes/candidate alternatives and
+G3 measured semantic+lexical+bounded-path fusion, both through the SDK boundary.)
+
 Current update: 2026-07-22 (HISTORY#460 - AUDITED the graph-maturity branch and
 the new one-shot closeout path before extending either. The graph is NOT mature
 end-to-end: G1 + G2.1-G2.3 are substantial substrate, G3 is only identity-fold
