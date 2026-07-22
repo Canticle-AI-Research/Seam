@@ -482,6 +482,78 @@ def test_candidate_generator_does_not_downgrade_accepted(runtime: SeamRuntime) -
         )
 
 
+def test_candidate_generator_does_not_resurrect_split_decision(
+    runtime: SeamRuntime,
+) -> None:
+    _seed_alias_pair(runtime)
+    with runtime.store._pool.checkout() as connection:
+        summary = generate_merge_candidates(connection, ns="people", scope="project")
+        merge_id = summary["proposed"][0]
+        accept_merge(connection, merge_id)
+        split_merge(connection, merge_id, reason="operator undo")
+        connection.commit()
+
+        rerun = generate_merge_candidates(connection, ns="people", scope="project")
+        connection.commit()
+
+        merge = merge_audit(connection, "ent:ibm-corp")[0]
+        assert merge["status"] == STATUS_SPLIT
+        assert merge["reason"] == "operator undo"
+        assert merge["superseded_by"].startswith("split:")
+        assert merge_id not in rerun["proposed"]
+
+
+def test_candidate_generator_bounds_pairs_before_materialization(
+    runtime: SeamRuntime,
+) -> None:
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id=f"ent:{prefix}",
+                    kind=RecordKind.ENT,
+                    ns="people",
+                    scope="project",
+                    attrs={"label": short, "entity_type": "org"},
+                )
+                for prefix, short in (("ibm", "IBM"), ("ms", "MS"))
+            ]
+            + [
+                MIRLRecord(
+                    id=f"ent:{prefix}-corp",
+                    kind=RecordKind.ENT,
+                    ns="people",
+                    scope="project",
+                    attrs={
+                        "label": label,
+                        "entity_type": "org",
+                        "aliases": [short],
+                    },
+                )
+                for prefix, short, label in (
+                    ("ibm", "IBM", "International Business Machines"),
+                    ("ms", "MS", "Microsoft"),
+                )
+            ]
+        )
+    )
+    with runtime.store._pool.checkout() as connection:
+        summary = generate_merge_candidates(
+            connection,
+            ns="people",
+            scope="project",
+            max_candidates=1,
+        )
+        connection.commit()
+
+        assert summary["pairs_examined"] == 1
+        assert len(summary["proposed"]) == 1
+        assert len(list_merges(connection)) == 1
+
+        with pytest.raises(ValueError, match="at least 1"):
+            generate_merge_candidates(connection, max_candidates=0)
+
+
 def test_store_surface_read_and_operator_actions(runtime: SeamRuntime) -> None:
     _seed_alias_pair(runtime)
     summary = runtime.store.generate_identity_merge_candidates(
@@ -618,3 +690,24 @@ def test_cli_merges_generate_list_accept_split_roundtrip(tmp_path, capsys) -> No
     assert audit["merges"][0]["status"] == STATUS_SPLIT
     # Evidence survives the operator split at the CLI surface too.
     assert audit["merges"][0]["evidence"][0]["evidence_kind"] == "shared-alias"
+
+
+def test_cli_merge_actions_are_unambiguous(tmp_path: Path) -> None:
+    db = str(tmp_path / "s.db")
+    with pytest.raises(SystemExit) as conflicting:
+        run_cli(
+            [
+                "--db",
+                db,
+                "knowledge",
+                "merges",
+                "--generate",
+                "--accept",
+                "merge:example",
+            ]
+        )
+    assert conflicting.value.code == 2
+
+    with pytest.raises(SystemExit) as orphan_reason:
+        run_cli(["--db", db, "knowledge", "merges", "--reason", "why"])
+    assert orphan_reason.value.code == 2

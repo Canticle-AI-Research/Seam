@@ -11254,3 +11254,27 @@ second-hop / gold-not-in-top-200 -- rather than chasing identity fuel this corpu
 lacks. Graph substrate (G1-G3) is complete and correct; further graph score
 movement is not expected on LoCoMo.
 ---END-ENTRY-#459---
+
+---BEGIN-ENTRY-#460---
+id: 460
+date: 2026-07-22T14:59:22Z
+agent: codex
+status: done
+topics: graph, bugfix, verify, history, continuity, retrieval, pack, mcp, test
+commits: pending
+refs: seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,test_seam_all/test_seam.py,tests/audit/test_identity_resolution.py,tools/history/closeout.py,tests/audit/test_history_closeout.py,PROJECT_STATUS.md
+supersedes: 459
+tokens: 608
+---
+Audited and stabilized the graph-maturity branch and the new closeout wrapper before extending the architecture.
+
+GRAPH MATURITY VERDICT: the graph is not mature end-to-end. G1 and G2.1-G2.3 are substantial identity/provenance substrate, but G3 contains only identity-fold slice-1; its required semantic fusion, bounded traversal, stable ranking, and latency fixtures remain, and G4-G7 are unbuilt. An adversarial live probe reproduced a direct G2 acceptance-boundary failure: after an operator accepted and split a merge, the next candidate-generation pass changed it back to proposed while retaining the split supersession marker. The upsert now treats accepted and split decisions as terminal while still allowing additive evidence. Candidate discovery now selects and caps qualifying entity pairs in SQL before fetching their shared terms, so max_candidates is a real materialization guard. The CLI now rejects simultaneous generate/accept/split actions and rejects --reason without --split.
+
+G1's correct entity provenance exposed a pre-existing mismatch in CONTEXT PACK scoring: the pack deliberately excludes structural ENT/RAW/PROV/SPAN/SYM rows, but traceability was scored across those excluded records. CONTEXT ref coverage, provenance retention, and evidence retention now use the meaning-bearing CLM/STA/EVT/REL set the contract actually carries. The stale MCP bridge count assertion now reflects the nineteenth read-only identity-ledger tool.
+
+CLOSEOUT TOOLING: tools/history/closeout.py now matches all five canonical tools/git-hooks/pre-commit gates, including verify_handoffs; rejects zero/negative snapshot counts; conditionally refreshes the roadmap stream/state before rebuilding the cross-index; and supports --resume-entry after a post-append failure so retrying cannot append a duplicate HISTORY entry. Resume mode no longer requires the original body file. New regression tests compare the wrapper gate list directly to the canonical hook and cover resume, roadmap refresh, safe failure guidance, and argument validation. CodeRabbit's second uncommitted review returned zero findings.
+
+Verification: touched Ruff and compileall pass. Ninety-nine focused tests pass across identity resolution, graph source selection, PACK traceability, MCP bridge metadata, closeout, and history tooling. The canonical non-external run was operator-interrupted after 486 passed and four failures; the three correctness failures are fixed and pass in the focused rerun. The remaining isolated CPU timing gate reproduced at 209.40 seconds versus 180 seconds while the host reported approximately 15 load on 6 cores and unrelated processes consumed multiple cores; the same quickstart completed in 16.475 seconds with the available accelerator. The performance threshold was not weakened; a quiet-host CPU rerun remains outstanding. No provider, paid, install, or download call occurred.
+
+NEXT: implement the operator-approved knowledge/reasoning dual-plane R1 and a stable Python SDK boundary. Reasoning artifacts must be structured public justifications, never hidden chain-of-thought or canonical truth; promotion into MIRL remains explicit and gated.
+---END-ENTRY-#460---

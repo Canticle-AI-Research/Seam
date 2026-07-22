@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 459
-total_tokens: ~207016
-latest_id: 459
+total_entries: 460
+total_tokens: ~207624
+latest_id: 460
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 460 | 2026-07-22 | done | f3d5ac635c75c5a0 | graph,bugfix,verify,history,+ | 459 |
 | 459 | 2026-07-22 | done | a7cf1232662e6424 | graph,identity,resolution,measurement,+ | 458 |
 | 458 | 2026-07-22 | done | e7f532c2fa7afcec | graph,identity,resolution,retrieval,+ | 457 |
 | 457 | 2026-07-22 | done | 2a4d73afa70c8302 | graph,identity,resolution,mcp,+ | 456 |
@@ -498,7 +499,7 @@ compact: true
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=32 latest=#447, #444, #442, #441, #440
+- bugfix: count=33 latest=#460, #447, #444, #442, #441
 - build: count=2 latest=#413, #408
 - bundle: count=5 latest=#262, #245, #238, #015, #008
 - cache: count=1 latest=#364
@@ -530,7 +531,7 @@ compact: true
 - consolidation: count=1 latest=#306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=14 latest=#451, #449, #447, #430, #399
+- continuity: count=15 latest=#460, #451, #449, #447, #430
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -586,7 +587,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=19 latest=#459, #458, #457, #456, #455
+- graph: count=20 latest=#460, #459, #458, #457, #456
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -594,7 +595,7 @@ compact: true
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=275 latest=#451, #449, #443, #404, #403
+- history: count=276 latest=#460, #451, #449, #443, #404
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hygiene: count=2 latest=#406, #324
@@ -628,7 +629,7 @@ compact: true
 - macos: count=4 latest=#354, #353, #352, #337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
-- mcp: count=19 latest=#457, #350, #348, #347, #222
+- mcp: count=20 latest=#460, #457, #350, #348, #347
 - measurement: count=2 latest=#459, #369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
@@ -653,7 +654,7 @@ compact: true
 - openclaw: count=1 latest=#407
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
-- pack: count=10 latest=#450, #448, #446, #445, #416
+- pack: count=11 latest=#460, #450, #448, #446, #445
 - packaging: count=4 latest=#296, #293, #287, #284
 - paid: count=2 latest=#412, #365
 - paid-run: count=5 latest=#434, #429, #427, #424, #423
@@ -706,7 +707,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=107 latest=#458, #454, #453, #452, #450
+- retrieval: count=108 latest=#460, #458, #454, #453, #452
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -748,7 +749,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=61 latest=#451, #450, #449, #448, #447
+- test: count=62 latest=#460, #451, #450, #449, #448
 - tests: count=31 latest=#458, #457, #456, #455, #454
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -762,7 +763,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=28 latest=#458, #435, #364, #228, #223
 - vector-adapters: count=1 latest=#359
-- verify: count=297 latest=#459, #458, #457, #456, #455
+- verify: count=298 latest=#460, #459, #458, #457, #456
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -776,6 +777,6 @@ compact: true
 
 - roots: 76
 - changed: 13
-- done: 419
+- done: 420
 - in-progress: 6
 - planned: 21

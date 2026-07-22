@@ -1,5 +1,30 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#460 - AUDITED the graph-maturity branch and
+the new one-shot closeout path before extending either. The graph is NOT mature
+end-to-end: G1 + G2.1-G2.3 are substantial substrate, G3 is only identity-fold
+slice-1, and roadmap G3 semantic fusion/bounded traversal/latency plus G4-G7
+remain. The audit reproduced and fixed a real reversible-resolution breach:
+candidate regeneration changed an operator-split merge back to proposed while
+retaining its split marker. Accepted/split decisions are now terminal against
+generator reruns; graph-wide candidate generation caps pairs in SQL before
+Python materialization; conflicting CLI actions fail at parse time. G1's correct
+entity provenance exposed a PACK scorer mismatch; context traceability now
+measures the meaning-bearing records the CONTEXT contract actually carries.
+The MCP bridge count guard now reflects the added read-only identity tool. The
+commit-speed wrapper was also repaired: it now runs all five canonical commit
+gates including verify_handoffs, rejects non-positive snapshot counts, refreshes
+roadmap state when needed, and resumes safely after a post-append failure without
+duplicating HISTORY. Verification: 99 focused tests pass; closeout CodeRabbit
+re-review returned zero findings. A full non-external run was interrupted at
+486 passed / 4 failed; all three correctness failures are fixed in the focused
+rerun. The remaining isolated CPU timing check measured 209.40s against the 180s
+gate while `uptime` reported ~15 load on 6 cores and unrelated processes consumed
+multiple cores; the same quickstart completed in 16.475s with the available
+accelerator, so the threshold remains unchanged and a quiet-host CPU rerun is
+still required. NEXT: build the operator-approved knowledge/reasoning dual-plane
+R1 plus a stable Python SDK boundary; no provider, paid, install, or download.)
+
 Current update: 2026-07-22 (HISTORY#459 - two changes. (1) G3 FREE MEASUREMENT
 FALSIFIED: the identity-fold has ZERO fuel on LoCoMo. A provider-free probe over
 3 conversations (~360/296/361 entities) found the G2.2 generator proposes

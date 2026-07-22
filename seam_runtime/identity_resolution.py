@@ -95,10 +95,10 @@ def propose_merge(
         "reason, created_at, updated_at, superseded_by) "
         "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, null) "
         "on conflict(id) do update set "
-        "status = case when identity_merges.status = ? then identity_merges.status "
-        "else excluded.status end, "
+        "status = excluded.status, "
         "confidence = excluded.confidence, reason = excluded.reason, "
-        "updated_at = excluded.updated_at",
+        "updated_at = excluded.updated_at "
+        "where identity_merges.status not in (?, ?)",
         (
             merge_id,
             canonical_node_id,
@@ -111,6 +111,7 @@ def propose_merge(
             now,
             now,
             STATUS_ACCEPTED,
+            STATUS_SPLIT,
         ),
     )
     _add_evidence(connection, merge_id, evidence, now)
@@ -208,8 +209,11 @@ def generate_merge_candidates(
 
     Returns a summary ``{"proposed": [...ids], "conflicts": [...ids],
     "pairs_examined": N}``. Idempotent: deterministic merge ids mean re-running
-    upserts the same proposals and never downgrades an accepted decision.
+    upserts the same proposals and never changes an accepted or split decision.
     """
+
+    if max_candidates < 1:
+        raise ValueError("max_candidates must be at least 1")
 
     where = [
         "t1.normalized_term = t2.normalized_term",
@@ -226,17 +230,36 @@ def generate_merge_candidates(
     if scope is not None:
         where.append("t1.scope = ?")
         params.append(scope)
+    # Select and cap entity PAIRS in SQL before fetching their shared terms.
+    # This keeps a graph-wide call from materializing an unbounded cross-join in
+    # Python while retaining every shared term needed to choose direction and
+    # preserve evidence for each selected pair.
     rows = connection.execute(
-        "select t1.node_id, t2.node_id, t1.normalized_term, t1.ns, t1.scope, "
-        "t1.term_kind, t2.term_kind, t1.source_record_id, t2.source_record_id "
+        "with candidate_pairs as ("
+        "select t1.node_id as node_a, t2.node_id as node_b, "
+        "t1.ns as pair_ns, t1.scope as pair_scope "
         "from knowledge_node_terms t1 "
         "join knowledge_node_terms t2 "
         "  on t1.normalized_term = t2.normalized_term "
         "join knowledge_nodes na on na.id = t1.node_id "
         "join knowledge_nodes nb on nb.id = t2.node_id "
         "where " + " and ".join(where) + " "
+        "group by t1.node_id, t2.node_id, t1.ns, t1.scope "
+        "having max(case when t1.term_kind = 'alias' or t2.term_kind = 'alias' "
+        "then 1 else 0 end) = 1 "
+        "order by t1.ns, t1.scope, t1.node_id, t2.node_id "
+        "limit ?"
+        ") "
+        "select t1.node_id, t2.node_id, t1.normalized_term, t1.ns, t1.scope, "
+        "t1.term_kind, t2.term_kind, t1.source_record_id, t2.source_record_id "
+        "from candidate_pairs pairs "
+        "join knowledge_node_terms t1 on t1.node_id = pairs.node_a "
+        "  and t1.ns = pairs.pair_ns and t1.scope = pairs.pair_scope "
+        "join knowledge_node_terms t2 on t2.node_id = pairs.node_b "
+        "  and t2.ns = pairs.pair_ns and t2.scope = pairs.pair_scope "
+        "  and t2.normalized_term = t1.normalized_term "
         "order by t1.ns, t1.scope, t1.node_id, t2.node_id, t1.normalized_term",
-        params,
+        [*params, int(max_candidates)],
     ).fetchall()
 
     # Aggregate shared terms per unordered entity pair.

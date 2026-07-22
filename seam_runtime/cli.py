@@ -400,9 +400,10 @@ def build_parser() -> argparse.ArgumentParser:
     knowledge_merges_parser.add_argument("--scope", help="Filter listing / candidate generation by scope")
     knowledge_merges_parser.add_argument("--status", dest="statuses", action="append", default=[], help="Filter by status (repeatable): proposed, accepted, conflict, split")
     knowledge_merges_parser.add_argument("--node-id", help="Show the full merge audit (any status, with evidence) for this node id")
-    knowledge_merges_parser.add_argument("--generate", action="store_true", help="Auto-propose merge candidates (proposed-only; never accepts)")
-    knowledge_merges_parser.add_argument("--accept", metavar="MERGE_ID", help="Operator action: accept a proposed merge")
-    knowledge_merges_parser.add_argument("--split", metavar="MERGE_ID", help="Operator action: reversibly undo a merge (evidence retained)")
+    knowledge_merge_actions = knowledge_merges_parser.add_mutually_exclusive_group()
+    knowledge_merge_actions.add_argument("--generate", action="store_true", help="Auto-propose merge candidates (proposed-only; never accepts)")
+    knowledge_merge_actions.add_argument("--accept", metavar="MERGE_ID", help="Operator action: accept a proposed merge")
+    knowledge_merge_actions.add_argument("--split", metavar="MERGE_ID", help="Operator action: reversibly undo a merge (evidence retained)")
     knowledge_merges_parser.add_argument("--reason", help="Reason recorded with --split")
     knowledge_merges_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
 
@@ -673,6 +674,13 @@ def build_parser() -> argparse.ArgumentParser:
 def run_cli(argv: list[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if (
+        args.command in {"knowledge", "graph"}
+        and args.knowledge_command == "merges"
+        and args.reason
+        and not args.split
+    ):
+        parser.error("--reason requires --split")
 
     if args.command in {"lossless-compress", "compress-doc"}:
         text = _read_text_source(args.source)
