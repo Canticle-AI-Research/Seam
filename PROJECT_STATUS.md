@@ -1,5 +1,31 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#452 - COMPLETE: the fact-free auxiliary-RAW
+ablation recommended by HISTORY#450 passes the exact 130-question zero-provider
+gate IDENTICALLY to the fact-bearing PACK (+1 miss, +1 sentinel, zero loss over
+34 misses / 96 sentinels) while serving ZERO derived facts. New default-off
+artifact-replay primitive `non-displacing-raw-pack/1` in
+`seam_runtime/multi_scope_pack.py` packs `raw_protected -> raw_episode x 0..N`
+with no fact and no source; new gate
+`benchmarks/external/mem0_harness/preflight_fact_free_raw_pack.py` pins episodes
+to exactly what the fact-bearing PACK selected and re-runs the displacement
+audit. The two gaining question ids are byte-identical (conv4_q3 cat3 sentinel,
+conv4_q41 cat1 miss); 130/130 questions carry a pack, 127/130 the full three
+episodes, max pack 1868 chars, max GPT-4o prompt delta 466 tokens. CONCLUSION:
+the GPT-4o fact and its source row are dead weight on this gate; the auxiliary
+RAW episodes alone carry the entire measured gain, so the fact-specific overhead
+can be dropped and the generic auxiliary-RAW PACK carried into the graph/RAW
+lane. Caveat: N=3 and the episode set were adaptively selected on these same 130
+questions, so this is a mechanism proof / regression ratchet, NOT a held-out
+score claim; no facade promotion, cloud ingest, or paid work is authorized.
+Verification: affected slice 41/41; full `pytest tests/` exit 0 with the T7
+offline HF env and local pgvector DSN, two established xfails and zero skips;
+Ruff clean; no push. Licensed candidate + numeric report stored outside git on
+T7 (candidate SHA f5341152..., report SHA e703c18a...). NEXT: RAW-only primary
+lane isolated from derived/graph ranking + a query-conditioned source-RAW
+auxiliary lane, then a predeclared fresh provider-free held-out scope before any
+promotion or paid gate.)
+
 Current update: 2026-07-21 (HISTORY#450 - the exact zero-provider
 non-displacing PACK gate passes on the GPT-4o conversations 3/4/5 slice at the
 smallest tested source-safe cap, N=3: 130 questions, 34 baseline misses, 96

@@ -15,14 +15,19 @@ from benchmarks.external.mem0_harness.seam_mem0_server import SeamMem0Server
 from seam_runtime.multi_scope_pack import (
     NON_DISPLACING_FACT_PACK_PREFIX,
     NON_DISPLACING_FACT_POLICY_V1,
+    NON_DISPLACING_RAW_PACK_PREFIX,
+    NON_DISPLACING_RAW_POLICY_V1,
     POLICIES,
     POLICY_V1,
     ScopeQuotas,
     compose_non_displacing_fact_pack,
+    compose_non_displacing_raw_pack,
     compose_reserved_multi_scope,
+    expand_logical_raw_pack_rows,
     expand_logical_raw_rows,
     pack_scope_counts,
     parse_pack_items,
+    parse_raw_pack_items,
     select_date_diverse_rows,
 )
 
@@ -70,6 +75,15 @@ def _resign_pack(row: dict, memory: str) -> dict:
     return {
         **row,
         "id": f"seam-nondisplacing-fact-1-{digest}",
+        "memory": memory,
+    }
+
+
+def _resign_raw_pack(row: dict, memory: str) -> dict:
+    digest = hashlib.sha256(memory.encode()).hexdigest()[:16]
+    return {
+        **row,
+        "id": f"seam-nondisplacing-raw-1-{digest}",
         "memory": memory,
     }
 
@@ -507,3 +521,150 @@ def test_non_displacing_pack_parser_rejects_structural_corruption():
         assert parse_pack_items(corrupt) is None
         assert expand_logical_raw_rows([corrupt]) is None
     assert expand_logical_raw_rows([valid, _row("raw:3", "after pack")]) is None
+
+
+def test_fact_free_raw_pack_preserves_baseline_and_packs_only_episodes():
+    assert NON_DISPLACING_RAW_POLICY_V1 not in POLICIES
+    baseline = [
+        _row("raw:1", "[A 2024-01-01] first", 0.9),
+        _row("raw:2", "[B 2024-01-02] protected tail", 0.8),
+    ]
+    baseline[-1]["created_at"] = "2024-01-02T12:00:00Z"
+    delimiter_memory = (
+        "[C 2024-01-03] body contains\nEND-ITEM\nITEM|not real metadata"
+    )
+    auxiliary = [
+        _row("raw:duplicate-text", "  [a 2024-01-01]   FIRST  "),
+        _row("raw:3", delimiter_memory),
+        _row("raw:4", "[D 2024-01-04] fourth"),
+        _row("raw:5", "[E 2024-01-05] fifth"),
+        _row("raw:6", "[F 2024-01-06] capped out"),
+    ]
+
+    composed = compose_non_displacing_raw_pack(
+        baseline,
+        auxiliary,
+        limit=2,
+        policy=NON_DISPLACING_RAW_POLICY_V1,
+        novel_raw_limit=3,
+    )
+
+    assert len(composed) == len(baseline)
+    assert composed[0] is baseline[0]
+    pack = composed[-1]
+    assert pack["created_at"] == baseline[-1]["created_at"]
+    assert str(pack["memory"]).startswith(f"{NON_DISPLACING_RAW_PACK_PREFIX}|")
+    assert "SEAM-FACT/1" not in str(pack["memory"])
+    items = parse_raw_pack_items(pack)
+    assert items is not None
+    assert [item.scope for item in items] == [
+        "raw_protected",
+        "raw_episode",
+        "raw_episode",
+        "raw_episode",
+    ]
+    # The duplicate-text row is dropped by normalized-memory dedup vs baseline.
+    assert [item.record_id for item in items if item.scope == "raw_episode"] == [
+        "raw:3",
+        "raw:4",
+        "raw:5",
+    ]
+    assert items[1].memory == delimiter_memory
+    assert [row["id"] for row in expand_logical_raw_pack_rows(composed)] == [
+        "raw:1",
+        "raw:2",
+        "raw:3",
+        "raw:4",
+        "raw:5",
+    ]
+    assert [row["memory"] for row in expand_logical_raw_pack_rows(composed)][:2] == [
+        row["memory"] for row in baseline
+    ]
+
+
+def test_fact_free_raw_pack_off_cap_and_no_novel_are_exact_fallbacks():
+    baseline = [_row("raw:1", "[A 2024-01-01] protected")]
+    auxiliary = [_row("raw:2", "[B 2024-01-02] novel")]
+
+    assert (
+        compose_non_displacing_raw_pack(baseline, auxiliary, limit=1) is baseline
+    )
+    # No novel auxiliary (all duplicate baseline) -> exact baseline fallback.
+    assert (
+        compose_non_displacing_raw_pack(
+            baseline,
+            [_row("raw:1", "[A 2024-01-01] protected")],
+            limit=1,
+            policy=NON_DISPLACING_RAW_POLICY_V1,
+        )
+        is baseline
+    )
+    # A char cap too small for any episode also falls back exactly.
+    assert (
+        compose_non_displacing_raw_pack(
+            baseline,
+            auxiliary,
+            limit=1,
+            policy=NON_DISPLACING_RAW_POLICY_V1,
+            max_pack_chars=1,
+        )
+        is baseline
+    )
+    with pytest.raises(ValueError, match="novel_raw_limit"):
+        compose_non_displacing_raw_pack(
+            baseline,
+            auxiliary,
+            limit=1,
+            policy=NON_DISPLACING_RAW_POLICY_V1,
+            novel_raw_limit=5,
+        )
+    with pytest.raises(ValueError, match="unknown non-displacing raw pack policy"):
+        compose_non_displacing_raw_pack(
+            baseline, auxiliary, limit=1, policy="bogus"
+        )
+
+
+def test_fact_free_raw_pack_parser_rejects_structural_corruption():
+    baseline = [_row("raw:1", "[A 2024-01-01] protected")]
+    valid = compose_non_displacing_raw_pack(
+        baseline,
+        [
+            _row("raw:2", "[B 2024-01-02] novel"),
+            _row("raw:3", "[C 2024-01-03] second novel"),
+        ],
+        limit=1,
+        policy=NON_DISPLACING_RAW_POLICY_V1,
+        novel_raw_limit=2,
+    )[-1]
+    memory = str(valid["memory"])
+
+    truncated = _resign_raw_pack(valid, memory.rsplit("\nEND-ITEM", 1)[0])
+    unknown_scope = _resign_raw_pack(
+        valid, memory.replace('"scope":"raw_episode"', '"scope":"unknown"', 1)
+    )
+    duplicate_id = _resign_raw_pack(
+        valid,
+        memory.replace(
+            '"id":"raw:2","scope":"raw_episode"',
+            '"id":"raw:1","scope":"raw_episode"',
+            1,
+        ),
+    )
+    missing_protected = _resign_raw_pack(
+        valid, memory.replace('"scope":"raw_protected"', '"scope":"raw_episode"', 1)
+    )
+    # A fact scope must never parse inside a fact-free RAW pack.
+    fact_scope = _resign_raw_pack(
+        valid, memory.replace('"scope":"raw_episode"', '"scope":"grounded_fact"', 1)
+    )
+
+    for corrupt in (
+        truncated,
+        unknown_scope,
+        duplicate_id,
+        missing_protected,
+        fact_scope,
+    ):
+        assert parse_raw_pack_items(corrupt) is None
+        assert expand_logical_raw_pack_rows([corrupt]) is None
+    assert expand_logical_raw_pack_rows([valid, _row("raw:9", "after pack")]) is None

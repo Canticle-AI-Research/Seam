@@ -10750,3 +10750,65 @@ tests/audit/test_displacement_audit.py tests/audit/test_github_pr_gates.py passe
 the recorded test-count fact; all PACK results, hashes, attribution, CI timing,
 promotion boundary, and next-build decisions in HISTORY#450 remain unchanged.
 ---END-ENTRY-#451---
+
+---BEGIN-ENTRY-#452---
+id: 452
+date: 2026-07-22T05:03:16Z
+agent: claude
+status: changed
+topics: benchmark, retrieval, derived-facts, non-displacing-pack, ablation, mem0-harness, verify
+commits: pending
+refs: seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_fact_free_raw_pack.py,tests/audit/test_fact_free_raw_pack_preflight.py,tests/audit/test_multi_scope_pack.py,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,docs/handoffs/2026-07-22-fact-free-auxiliary-raw-ablation.md,docs/handoffs/INDEX.md
+supersedes: 451
+tokens: 854
+---
+Built the fact-free auxiliary-RAW ablation recommended by HISTORY#450 and ran
+its exact zero-provider replay gate. New default-off artifact-replay primitive
+non-displacing-raw-pack/1 in seam_runtime/multi_scope_pack.py packs the protected
+baseline RAW tail followed by up to N novel auxiliary RAW episodes with no
+grounded fact and no fact-bound source item (raw_protected -> raw_episode x
+0..N): it adds compose_non_displacing_raw_pack, parse_raw_pack_items, and
+expand_logical_raw_pack_rows, and extends _valid_raw_row to reject the new pack
+prefix. New gate benchmarks/external/mem0_harness/preflight_fact_free_raw_pack.py
+reuses the frozen GPT-4o conversations 3/4/5 baseline and auxiliary artifacts,
+pins the episode set to exactly what the fact-bearing PACK selected (derives the
+raw_episode ids from compose_non_displacing_fact_pack), then repacks those same
+ids fact-free and re-runs the 130-question displacement audit.
+
+RESULT, zero provider/extraction/answerer/judge/embedding/retrieval calls: the
+fact-free ablation reproduces the HISTORY#450 result EXACTLY - miss_gold_gained
+1, sentinel_gold_gained 1, zero miss and zero sentinel loss across 34 misses and
+96 sentinels. The two gaining question ids are byte-identical to the fact-bearing
+gate (conv4_q3 the cat3 sentinel, conv4_q41 the cat1 miss). 130/130 questions
+carry a pack, 0 fact items are served anywhere, 127/130 carry the full three
+episodes, logical RAW prefix and physical row count are preserved, maximum pack
+is 1868 characters, and the maximum GPT-4o answerer prompt delta is 466 tokens
+with 109192 tokens of headroom. CONCLUSION: on this gate the GPT-4o derived fact
+and its mandatory source row are dead weight; the auxiliary RAW episodes alone
+carry the entire measured non-displacing gain. Per the HISTORY#450 directive the
+fact-specific overhead can be dropped and the generic auxiliary-RAW PACK carried
+into the graph/RAW lane.
+
+Caveats retained: N=3 and the episode set were selected adaptively on the same
+130 questions, so this is a mechanism proof and regression ratchet, not a
+held-out score claim; no live facade promotion, cloud ingest, or paid
+answerer/judge is authorized. Next is the RAW-only primary lane isolated from
+derived/graph ranking plus a query-conditioned source-RAW auxiliary lane, then a
+predeclared fresh provider-free held-out scope before any promotion or paid gate.
+
+Licensed candidate and its numeric report are stored outside git under
+/media/terrabyte/T7/Proprietary/DATA/seam-ms-gpt4o-probe.ekhTRe/ (candidate
+candidate-ms4o0721b-fact-free-raw-n3.json SHA-256
+f5341152a2ba066d49b2b70961f47f6dd2cedf309c6911b310c7829001806086; numeric report
+fact-free-raw-n3-report.json SHA-256
+e703c18a8d8a1d068bc5d421bf763e5ad8b5f72a5f4bd86a19ee36ea4fee609e). The preflight
+rejects candidate output paths inside the repository.
+
+Verification: the exact affected slice collected 41 and passed all 41
+(tests/audit/test_multi_scope_pack.py 16, test_fact_free_raw_pack_preflight.py 6,
+test_non_displacing_pack_preflight.py 10, test_displacement_audit.py 9). Full
+pytest tests/ passed exit 0 with the T7 offline HF env and the local pgvector
+DSN, two established xfails and zero skips. Touched-file Ruff clean. No provider
+call, no paid work, no push. Operator-owned .ua/ and the report PNG files remain
+untouched and excluded.
+---END-ENTRY-#452---

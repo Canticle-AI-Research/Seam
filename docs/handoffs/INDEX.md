@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-21-non-displacing-pack-aux-raw-gate
+latest: 2026-07-22-fact-free-auxiliary-raw-ablation
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-21-non-displacing-pack-aux-raw-gate` | [2026-07-21-non-displacing-pack-aux-raw-gate.md](2026-07-21-non-displacing-pack-aux-raw-gate.md) | `2026-07-21-multi-speaker-derived-facts-cloud-probe` | `HISTORY#450` | `current` |
+| `2026-07-22-fact-free-auxiliary-raw-ablation` | [2026-07-22-fact-free-auxiliary-raw-ablation.md](2026-07-22-fact-free-auxiliary-raw-ablation.md) | `2026-07-21-non-displacing-pack-aux-raw-gate` | `HISTORY#452` | `current` |
+| `2026-07-21-non-displacing-pack-aux-raw-gate` | [2026-07-21-non-displacing-pack-aux-raw-gate.md](2026-07-21-non-displacing-pack-aux-raw-gate.md) | `2026-07-21-multi-speaker-derived-facts-cloud-probe` | `HISTORY#450` | `superseded` |
 | `2026-07-21-multi-speaker-derived-facts-cloud-probe` | [2026-07-21-multi-speaker-derived-facts-cloud-probe.md](2026-07-21-multi-speaker-derived-facts-cloud-probe.md) | `2026-07-21-multiscope-and-local-beam-complete` | `HISTORY#448` | `superseded` |
 | `2026-07-21-multiscope-and-local-beam-complete` | [2026-07-21-multiscope-and-local-beam-complete.md](2026-07-21-multiscope-and-local-beam-complete.md) | `2026-07-21-multiscope-gate-and-local-beam-in-progress` | `HISTORY#446` | `superseded` |
 | `2026-07-21-multiscope-gate-and-local-beam-in-progress` | [2026-07-21-multiscope-gate-and-local-beam-in-progress.md](2026-07-21-multiscope-gate-and-local-beam-in-progress.md) | `2026-07-21-canonical-graph-fill-broad-profile-correction` | `HISTORY#445` | `superseded` |

@@ -37,6 +37,23 @@ _NON_DISPLACING_FACT_SCOPES = frozenset(
     {"raw_protected", "raw_source", "grounded_fact", "raw_episode"}
 )
 
+# Fact-free ablation of the non-displacing PACK.  Same protected-tail /
+# auxiliary-RAW mechanism, but no derived fact and no fact-bound source item:
+# ``raw_protected -> raw_episode x 0..N``.  This isolates whether the measured
+# non-displacing gains come from the auxiliary RAW episodes alone or require the
+# grounded-fact overhead.  Also artifact-replay-only and default-off.
+NON_DISPLACING_RAW_POLICY_V1 = "non-displacing-raw-pack/1"
+NON_DISPLACING_RAW_POLICIES = frozenset(
+    {POLICY_OFF, NON_DISPLACING_RAW_POLICY_V1}
+)
+NON_DISPLACING_RAW_PACK_PREFIX = "SEAM-NONDISPLACING-RAW-PACK/1"
+_NON_DISPLACING_RAW_PACK_ID_PREFIX = "seam-nondisplacing-raw-1-"
+_NON_DISPLACING_RAW_SCOPES = frozenset({"raw_protected", "raw_episode"})
+_NON_DISPLACING_RAW_PACK_HEADER_NOTE = (
+    "Context PACK: the protected RAW is the exact baseline tail; auxiliary "
+    "RAW episodes are additive evidence."
+)
+
 SCOPE_ORDER = (
     "grounded_fact",
     "entity_relation",
@@ -133,6 +150,17 @@ def _render_non_displacing_fact_pack(
     return "\n".join([header, *[_render_item(scope, row) for scope, row in items]])
 
 
+def _render_non_displacing_raw_pack(
+    items: Sequence[tuple[str, Mapping[str, object]]],
+) -> str:
+    header = (
+        f"{NON_DISPLACING_RAW_PACK_PREFIX}|"
+        f"policy={NON_DISPLACING_RAW_POLICY_V1}|direct_read=1|items={len(items)}\n"
+        f"{_NON_DISPLACING_RAW_PACK_HEADER_NOTE}"
+    )
+    return "\n".join([header, *[_render_item(scope, row) for scope, row in items]])
+
+
 def _valid_raw_row(row: Mapping[str, object]) -> bool:
     record_id = _record_id(row)
     memory = _memory(row)
@@ -144,6 +172,7 @@ def _valid_raw_row(row: Mapping[str, object]) -> bool:
                 "SEAM-FACT/1|",
                 "SEAM-MULTISCOPE/1|",
                 f"{NON_DISPLACING_FACT_PACK_PREFIX}|",
+                f"{NON_DISPLACING_RAW_PACK_PREFIX}|",
             )
         )
     )
@@ -338,6 +367,133 @@ def expand_logical_raw_rows(
                 if item.scope in {"raw_protected", "raw_source", "raw_episode"}
             ]
             for item in raw_items:
+                if item.record_id in seen_ids:
+                    return None
+                seen_ids.add(item.record_id)
+                expanded.append({"id": item.record_id, "memory": item.memory})
+            continue
+        if not _valid_raw_row(row):
+            return None
+        record_id = _record_id(row)
+        if record_id in seen_ids:
+            return None
+        seen_ids.add(record_id)
+        expanded.append({"id": record_id, "memory": memory})
+    return expanded
+
+
+def parse_raw_pack_items(row: Mapping[str, object]) -> tuple[PackItem, ...] | None:
+    """Strictly parse a ``non-displacing-raw-pack/1`` (fact-free) result row.
+
+    Mirrors :func:`parse_pack_items` but accepts only the fact-free scope set
+    ``raw_protected -> raw_episode x 0..N``.  Any fact, source, header, digest,
+    scope, ordering, or duplicate-id defect fails closed with ``None``.
+    """
+
+    memory = _memory(row)
+    record_id = _record_id(row)
+    if not memory.startswith(f"{NON_DISPLACING_RAW_PACK_PREFIX}|"):
+        return None
+    digest = hashlib.sha256(memory.encode()).hexdigest()[:16]
+    if record_id != f"{_NON_DISPLACING_RAW_PACK_ID_PREFIX}{digest}":
+        return None
+
+    first_end = memory.find("\n")
+    second_end = memory.find("\n", first_end + 1) if first_end >= 0 else -1
+    if first_end < 0 or second_end < 0:
+        return None
+    header = memory[:first_end]
+    header_match = re.fullmatch(
+        rf"{re.escape(NON_DISPLACING_RAW_PACK_PREFIX)}\|"
+        rf"policy={re.escape(NON_DISPLACING_RAW_POLICY_V1)}\|"
+        r"direct_read=1\|items=(\d+)",
+        header,
+    )
+    if header_match is None:
+        return None
+    if memory[first_end + 1 : second_end] != _NON_DISPLACING_RAW_PACK_HEADER_NOTE:
+        return None
+
+    expected_items = int(header_match.group(1))
+    cursor = second_end + 1
+    items: list[PackItem] = []
+    seen_ids: set[str] = set()
+    while cursor < len(memory):
+        if not memory.startswith("ITEM|", cursor):
+            return None
+        metadata_end = memory.find("\n", cursor)
+        if metadata_end < 0:
+            return None
+        try:
+            metadata = json.loads(memory[cursor + len("ITEM|") : metadata_end])
+        except (TypeError, ValueError):
+            return None
+        if not isinstance(metadata, dict) or set(metadata) != {"chars", "id", "scope"}:
+            return None
+        chars = metadata.get("chars")
+        item_id = metadata.get("id")
+        scope = metadata.get("scope")
+        if (
+            not isinstance(chars, int)
+            or isinstance(chars, bool)
+            or chars < 0
+            or not isinstance(item_id, str)
+            or not item_id
+            or item_id in seen_ids
+            or not isinstance(scope, str)
+            or scope not in _NON_DISPLACING_RAW_SCOPES
+        ):
+            return None
+        body_start = metadata_end + 1
+        body_end = body_start + chars
+        marker = "\nEND-ITEM"
+        if body_end > len(memory) or memory[body_end : body_end + len(marker)] != marker:
+            return None
+        body = memory[body_start:body_end]
+        if not body:
+            return None
+        cursor = body_end + len(marker)
+        if cursor < len(memory):
+            if memory[cursor] != "\n":
+                return None
+            cursor += 1
+        seen_ids.add(item_id)
+        items.append(PackItem(scope=scope, record_id=item_id, memory=body))
+
+    if len(items) != expected_items or not items:
+        return None
+    scopes = [item.scope for item in items]
+    if (
+        scopes[0] != "raw_protected"
+        or scopes.count("raw_protected") != 1
+        or scopes.count("raw_episode") > 4
+        or scopes != ["raw_protected", *(["raw_episode"] * scopes.count("raw_episode"))]
+    ):
+        return None
+    for item in items:
+        if not _valid_raw_row({"id": item.record_id, "memory": item.memory}):
+            return None
+    return tuple(items)
+
+
+def expand_logical_raw_pack_rows(
+    rows: Sequence[Mapping[str, object]],
+) -> list[dict[str, str]] | None:
+    """Expand rows carrying a tail fact-free RAW pack into logical RAW ids/text."""
+
+    expanded: list[dict[str, str]] = []
+    seen_ids: set[str] = set()
+    pack_seen = False
+    for index, row in enumerate(rows):
+        memory = _memory(row)
+        if memory.startswith(f"{NON_DISPLACING_RAW_PACK_PREFIX}|"):
+            if pack_seen or index != len(rows) - 1:
+                return None
+            pack_seen = True
+            items = parse_raw_pack_items(row)
+            if items is None:
+                return None
+            for item in items:
                 if item.record_id in seen_ids:
                     return None
                 seen_ids.add(item.record_id)
@@ -597,6 +753,120 @@ def compose_non_displacing_fact_pack(
     composed = [*bounded[:-1], pack_row]
 
     logical = expand_logical_raw_rows(composed)
+    expected_baseline = [
+        {"id": _record_id(row), "memory": _memory(row)} for row in bounded
+    ]
+    if logical is None or logical[: len(expected_baseline)] != expected_baseline:
+        return fallback
+    return composed
+
+
+def compose_non_displacing_raw_pack(
+    baseline_rows: list[dict],
+    auxiliary_rows: Sequence[dict],
+    *,
+    limit: int,
+    policy: str = POLICY_OFF,
+    novel_raw_limit: int = 3,
+    max_pack_chars: int = DEFAULT_MAX_PACK_CHARS,
+) -> list[dict]:
+    """Attach bounded novel auxiliary RAWs without losing any baseline RAW.
+
+    This is the fact-free ablation of :func:`compose_non_displacing_fact_pack`:
+    the tail PACK holds the protected baseline RAW followed by up to
+    ``novel_raw_limit`` novel auxiliary RAW episodes, with no grounded fact and
+    no fact-bound source item.  Like its fact-bearing sibling it is a pure
+    artifact-replay primitive with no facade wiring: the live runtime cannot use
+    it until RAW-primary retrieval is isolated from the auxiliary lane.
+    """
+
+    resolved = str(policy or POLICY_OFF).strip().lower() or POLICY_OFF
+    if resolved not in NON_DISPLACING_RAW_POLICIES:
+        raise ValueError(f"unknown non-displacing raw pack policy {resolved!r}")
+    if resolved == POLICY_OFF:
+        return baseline_rows
+    if (
+        not isinstance(novel_raw_limit, int)
+        or isinstance(novel_raw_limit, bool)
+        or not 0 <= novel_raw_limit <= 4
+    ):
+        raise ValueError("novel_raw_limit must be between zero and four")
+    if max_pack_chars <= 0:
+        raise ValueError("max_pack_chars must be positive")
+    if limit <= 0:
+        return []
+
+    bounded = baseline_rows[:limit]
+    fallback = baseline_rows if len(baseline_rows) <= limit else bounded
+    if not bounded:
+        return fallback
+    if any(not _valid_raw_row(row) for row in bounded):
+        return fallback
+    baseline_ids = [_record_id(row) for row in bounded]
+    if len(set(baseline_ids)) != len(baseline_ids):
+        return fallback
+    if any(not _valid_raw_row(row) for row in auxiliary_rows):
+        return fallback
+
+    baseline_memories = {
+        " ".join(_memory(row).casefold().split()) for row in bounded
+    }
+    selected_auxiliary: list[Mapping[str, object]] = []
+    seen_auxiliary_ids = set(baseline_ids)
+    seen_auxiliary_memories = set(baseline_memories)
+    if novel_raw_limit:
+        for row in auxiliary_rows:
+            record_id = _record_id(row)
+            normalized_memory = " ".join(_memory(row).casefold().split())
+            if (
+                record_id in seen_auxiliary_ids
+                or normalized_memory in seen_auxiliary_memories
+            ):
+                continue
+            seen_auxiliary_ids.add(record_id)
+            seen_auxiliary_memories.add(normalized_memory)
+            selected_auxiliary.append(row)
+            if len(selected_auxiliary) >= novel_raw_limit:
+                break
+    if not selected_auxiliary:
+        return fallback
+
+    protected = bounded[-1]
+    prefix_items: list[tuple[str, Mapping[str, object]]] = [
+        ("raw_protected", protected)
+    ]
+    accepted_auxiliary: list[Mapping[str, object]] = []
+    for row in selected_auxiliary:
+        trial = [
+            *prefix_items,
+            *[("raw_episode", item) for item in accepted_auxiliary],
+            ("raw_episode", row),
+        ]
+        if len(_render_non_displacing_raw_pack(trial)) > max_pack_chars:
+            continue
+        accepted_auxiliary.append(row)
+    if not accepted_auxiliary:
+        return fallback
+    items = [
+        *prefix_items,
+        *[("raw_episode", row) for row in accepted_auxiliary],
+    ]
+
+    body = _render_non_displacing_raw_pack(items)
+    digest = hashlib.sha256(body.encode()).hexdigest()[:16]
+    try:
+        protected_score = float(protected.get("score") or 0.0)
+    except (TypeError, ValueError):
+        return fallback
+    pack_row = {
+        "memory": body,
+        "score": protected_score,
+        "id": f"{_NON_DISPLACING_RAW_PACK_ID_PREFIX}{digest}",
+        "created_at": protected.get("created_at", ""),
+    }
+    composed = [*bounded[:-1], pack_row]
+
+    logical = expand_logical_raw_pack_rows(composed)
     expected_baseline = [
         {"id": _record_id(row), "memory": _memory(row)} for row in bounded
     ]

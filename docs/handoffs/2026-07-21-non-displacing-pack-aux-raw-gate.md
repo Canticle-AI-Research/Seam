@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-21-non-displacing-pack-aux-raw-gate
 supersedes: 2026-07-21-multi-speaker-derived-facts-cloud-probe
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#450
 ---
 
