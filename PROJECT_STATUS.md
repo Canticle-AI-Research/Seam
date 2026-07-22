@@ -1,5 +1,29 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#455 - BUILT graph-maturity stage G2.1, the
+first slice of reversible identity resolution. New module
+`seam_runtime/identity_resolution.py` owns a durable, reversible identity-merge
+ledger - the first graph-side DECISION state that cannot be re-derived from MIRL.
+Two durable tables (`identity_merges`, `identity_merge_evidence`) added to
+`init_knowledge_graph` sit OUTSIDE the reprojection delete-list, so accepted
+merges survive the drop+rebuild. Ops: `propose_merge` -> `accept_merge` (guards
+re-checked at accept), `mark_conflict`, `split_merge` (reversible undo, evidence
+retained, nothing deleted); readers `resolve_canonical` (cycle/depth-guarded),
+`list_merges`, `merge_audit`. Contradictions (reverse merge, cycle, alias already
+absorbed) resolve to an auditable `conflict` status. Post-pass
+`apply_identity_merges` re-validates accepted merges after backfill and after
+deletions, flagging vanished-node references as conflict. Retrieval-inert - no
+`knowledge_node_terms` change; fusion is G3. Acceptance boundary MET: no silent
+destructive merge, identities+evidence stay auditable, decisions survive
+reprojection. Verification: new test suite 9/9, graph regression 43 pass, full
+`pytest tests/` exit 0 with T7 offline HF env + local pgvector DSN, two xfails,
+zero unexplained skips (4 PGVECTOR_TEST_DSN-gated tests pass separately); ruff +
+compileall clean; no provider/paid/install/download. Track R stays graph-first
+per HISTORY#454 - benchmarks qualify, do not gate. NEXT: G2.2 auto-generate
+alias CANDIDATES (shared-alias / symbol-expansion / coreference) as proposed-only,
+then G2.3 CLI/MCP/dashboard ledger audit read, before G3 hybrid path-ranking
+fusion consumes `resolve_canonical`.)
+
 Current update: 2026-07-22 (HISTORY#454 - BUILT graph-maturity stage G1 and
 changed Track R from post-benchmark to graph-first qualification per operator
 direction. Projection `knowledge-graph/5` adds a versioned, scoped

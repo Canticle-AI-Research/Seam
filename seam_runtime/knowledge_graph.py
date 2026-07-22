@@ -309,6 +309,28 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
             key text primary key,
             value text not null
         );
+        create table if not exists identity_merges (
+            id text primary key,
+            canonical_node_id text not null,
+            alias_node_id text not null,
+            ns text not null,
+            scope text not null,
+            status text not null,
+            confidence real not null default 0,
+            reason text,
+            created_at text not null,
+            updated_at text not null,
+            superseded_by text,
+            unique (canonical_node_id, alias_node_id, ns, scope)
+        );
+        create table if not exists identity_merge_evidence (
+            merge_id text not null,
+            evidence_kind text not null,
+            detail text not null,
+            source_record_id text,
+            created_at text not null,
+            primary key (merge_id, evidence_kind, detail)
+        );
         create index if not exists idx_knowledge_nodes_kind on knowledge_nodes (kind);
         create index if not exists idx_knowledge_nodes_ns_scope on knowledge_nodes (ns, scope);
         create index if not exists idx_knowledge_nodes_agent on knowledge_nodes (agent_id);
@@ -326,6 +348,8 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
         create index if not exists idx_knowledge_node_terms_normalized on knowledge_node_terms (normalized_term, ns, scope);
         create index if not exists idx_knowledge_node_terms_node on knowledge_node_terms (node_id);
         create index if not exists idx_knowledge_node_terms_source on knowledge_node_terms (source_record_id);
+        create index if not exists idx_identity_merges_alias on identity_merges (alias_node_id, ns, scope, status);
+        create index if not exists idx_identity_merges_canonical on identity_merges (canonical_node_id, ns, scope, status);
         """
     )
     episode_columns = {row[1] for row in connection.execute("pragma table_info(knowledge_episodes)").fetchall()}
@@ -375,6 +399,13 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
                 # can be repaired independently of this derived projection.
                 continue
         project_records(connection, records)
+    # The identity merge ledger is durable decision state that survives the
+    # projection drop+rebuild above. Re-validate accepted merges against the
+    # freshly rebuilt node set so a merge whose node vanished becomes an
+    # auditable conflict rather than a silent dangling reference.
+    from .identity_resolution import apply_identity_merges
+
+    apply_identity_merges(connection)
     connection.execute(
         "insert or replace into knowledge_graph_meta (key, value) values ('projection_version', ?)",
         (PROJECTION_VERSION,),
@@ -476,6 +507,12 @@ def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) ->
                 node_id,
             ),
         )
+    # Deletion is where nodes actually disappear; re-validate the durable merge
+    # ledger so any merge that lost a referenced node becomes an auditable
+    # conflict instead of a dangling reference.
+    from .identity_resolution import apply_identity_merges
+
+    apply_identity_merges(connection)
 
 
 def supersede_source(

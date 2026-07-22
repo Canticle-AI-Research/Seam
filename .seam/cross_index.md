@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 515
+total_events: 516
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T21:35:57Z | history:261:9d37437e | session-event | done | verify, windows, protocol, history, status | tests/audit/test_ci_verify_gates.py,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDE... |
 | 2026-05-26T05:42:57Z | history:262:7d02e345 | session-event | done | retrieval, benchmark, bundle, verify, history, protocol | tools/h2/__init__.py,tools/h2/backfill_bundle.py,tests/audit/test_h2_backfill... |
 | 2026-05-26T11:34:45Z | history:263:e16bf8c8 | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,experimental/retrieval_orchestr... |
 | 2026-05-26T11:47:25Z | history:264:4ddd19ed | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.s... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-22T05:03:16Z | history:452:92876be2 | session-event | changed | benchmark, retrieval, derived-facts, non-displacing-pack,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_f... |
 | 2026-07-22T06:23:10Z | history:453:5dd3c7e3 | session-event | changed | retrieval, graph, knowledge-graph, non-displacing-pack, m... | seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_m... |
 | 2026-07-22T07:28:54Z | history:454:74725c05 | session-event | done | graph, memory, retrieval, provenance, compile, roadmap, b... | seam_runtime/knowledge_graph.py,seam_runtime/graph_source_selector.py,seam_ru... |
+| 2026-07-22T08:10:43Z | history:455:133e97d5 | session-event | done | graph, identity, resolution, knowledge-graph, verify, tes... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0315.cross.md | 2026-04-15T00:00:00Z..2026-05-25T21:24:33Z | 315 | (multi) | (multi) |
+| 0001-0316.cross.md | 2026-04-15T00:00:00Z..2026-05-25T21:35:57Z | 316 | (multi) | (multi) |

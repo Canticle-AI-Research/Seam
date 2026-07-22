@@ -10939,3 +10939,71 @@ call occurred. NEXT: G2 append-only reversible identity resolution with
 candidate aliases, canonical-of links, merge evidence, conflict/reject/undo/split
 states, and exact episode backtraces before G3 hybrid ranking.
 ---END-ENTRY-#454---
+
+---BEGIN-ENTRY-#455---
+id: 455
+date: 2026-07-22T08:10:43Z
+agent: claude-opus-4-8
+status: done
+topics: graph, identity, resolution, knowledge-graph, verify, tests, track-r
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md
+supersedes: 454
+tokens: 818
+---
+Graph maturity G2.1 - reversible identity resolution ledger (durable merge state)
+
+BUILT the first slice of graph-maturity stage G2 (the HISTORY#454 next build):
+a durable, reversible identity-merge ledger that survives the projection
+drop+rebuild. This is the first graph-side DECISION state that cannot be
+re-derived from MIRL - "these two identity nodes are the same entity" is a
+judgement layered on the canonical truth, not an extracted fact - so it lives
+in its own tables outside the disposable projection, per the operator-approved
+"separate merge ledger" design.
+
+New module `seam_runtime/identity_resolution.py`: pure ops `propose_merge` ->
+`accept_merge` with re-checked guards, `mark_conflict`, and `split_merge`
+(reversible undo = status flip + `superseded_by` supersession stamp, evidence
+retained, nothing deleted); readers `resolve_canonical` (transitive alias->
+canonical, cycle- and depth-guarded), `list_merges`, and `merge_audit`
+(every merge touching a node plus its evidence, any status). Contradictions
+resolve to an auditable `conflict` status instead of corrupting the graph:
+reverse merge, identity cycle, and an alias already absorbed by another
+canonical are all detected at propose AND re-checked at accept time. An identity
+can be absorbed by at most one canonical.
+
+Two durable tables added to `init_knowledge_graph`'s schema in
+`seam_runtime/knowledge_graph.py`: `identity_merges`
+(canonical/alias/ns/scope/status/confidence/reason/temporal/superseded_by,
+unique per canonical+alias+ns+scope) and `identity_merge_evidence`
+(kind/detail/source_record_id). Both sit OUTSIDE the reprojection delete-list so
+accepted decisions survive the drop+rebuild by construction. Post-pass
+`apply_identity_merges` re-validates accepted merges against the freshly rebuilt
+node set and flags any merge whose referenced node vanished as an auditable
+`conflict` (never a dangling reference); wired to run once after backfill in
+`init_knowledge_graph` and after deletions in `remove_records`, NOT inside
+`project_records` (mid-backfill would false-flag). This stage is
+retrieval-inert: it does not alter `knowledge_node_terms`; signal fusion into
+ranking is stage G3.
+
+Acceptance boundary MET: no silent destructive merge (split is reversible and
+evidence-preserving), old identities and their supporting evidence stay
+auditable via `merge_audit`, accepted decisions survive reprojection.
+
+Verification: new `tests/audit/test_identity_resolution.py` 9/9 pass
+(propose->accept->resolve; proposal is non-committal; reversible split retains
+evidence; reverse-merge / cycle / double-absorption -> conflict; accepted merge
+survives a forced full reprojection; node-vanish -> conflict via apply;
+self-merge rejected; default proposed status). Existing graph regression:
+tests/audit/test_knowledge_graph.py + test_graph_source_selector.py all pass
+(43). Full `pytest tests/` exit 0 with the T7 offline HF env + local pgvector
+DSN (host 127.0.0.1:55432), two established xfails, zero unexplained skips; the
+4 PGVECTOR_TEST_DSN-gated pgvector-composite/substream tests were run separately
+with that DSN set and all pass. Ruff + compileall clean on all touched files.
+No provider, paid, install, or download call occurred.
+
+NEXT: G2.2 - auto-generate alias CANDIDATES (shared alias / symbol-expansion /
+coreference) as `proposed`-only, never auto-accepted; then G2.3 CLI/MCP/dashboard
+read of the ledger for audit, before G3 hybrid path-ranking fusion consumes
+`resolve_canonical`.
+---END-ENTRY-#455---
