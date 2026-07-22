@@ -662,6 +662,55 @@ def create_app(
         except KeyError:
             raise HTTPException(status_code=404, detail=f"knowledge node not found: {node_id}")
 
+    @app.get("/identity-merges", dependencies=[Depends(guard)])
+    def identity_merges(
+        node_id: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+        statuses: str | None = None,
+    ) -> dict[str, object]:
+        if node_id is not None:
+            return {"node_id": node_id, "merges": runtime.store.identity_merge_audit(node_id)}
+        parsed = None if statuses is None else [s.strip() for s in statuses.split(",") if s.strip()]
+        return {
+            "merges": runtime.store.identity_merges(
+                ns=namespace, scope=scope, statuses=parsed
+            )
+        }
+
+    @app.post("/identity-merges/generate", dependencies=[Depends(guard)])
+    def identity_merges_generate(
+        namespace: str | None = None,
+        scope: str | None = None,
+        max_candidates: int = Query(default=500, ge=1, le=5000),
+    ) -> dict[str, object]:
+        return runtime.store.generate_identity_merge_candidates(
+            ns=namespace, scope=scope, max_candidates=max_candidates
+        )
+
+    def _merge_action_error(exc: ValueError) -> HTTPException:
+        message = str(exc)
+        code = 404 if message.startswith("unknown merge") else 409
+        return HTTPException(status_code=code, detail=message)
+
+    @app.post("/identity-merges/{merge_id}/accept", dependencies=[Depends(guard)])
+    def identity_merge_accept(merge_id: str) -> dict[str, object]:
+        try:
+            status = runtime.store.accept_identity_merge(merge_id)
+        except ValueError as exc:
+            raise _merge_action_error(exc)
+        return {"merge_id": merge_id, "status": status}
+
+    @app.post("/identity-merges/{merge_id}/split", dependencies=[Depends(guard)])
+    def identity_merge_split(
+        merge_id: str, reason: str | None = None
+    ) -> dict[str, object]:
+        try:
+            runtime.store.split_identity_merge(merge_id, reason=reason)
+        except ValueError as exc:
+            raise _merge_action_error(exc)
+        return {"merge_id": merge_id, "status": "split"}
+
     @app.get("/trace", dependencies=[Depends(guard)])
     def trace(root_id: str) -> dict[str, object]:
         try:

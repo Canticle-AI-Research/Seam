@@ -1,5 +1,31 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#457 - BUILT graph-maturity stage G2.3, the
+operator/agent surface over the G2.1/G2.2 identity-merge ledger, across four
+surfaces. Store (`seam_runtime/storage.py`): `identity_merges` (filtered list),
+`identity_merge_audit` (per-node, any status, with evidence), and mutating
+`generate_identity_merge_candidates` / `accept_identity_merge` /
+`split_identity_merge`. MCP (`seam_runtime/mcp.py`): new read-only tool
+`seam_identity_merges` (readOnlyHint True) - agents can inspect the ledger but
+cannot accept or undo a merge. REST (`seam_runtime/server.py`): GET
+`/identity-merges` (list or per-node audit) plus operator POST
+`/identity-merges/generate|{id}/accept|{id}/split` (404 unknown merge, 409
+invalid-state action). CLI (`seam_runtime/cli.py`): `seam knowledge merges`
+(alias `graph merges`) with --generate/--accept/--split/--node-id, verified
+live end to end via the `seam` console script. Deliberately deferred: the TUI
+dashboard visual widget (heavier, separate surface; operator visual-graph
+location still TBD). Still retrieval-inert substrate - score signal arrives at
+G3 fusion. One process error caught and logged to LLM-Logs
+(`python -m seam_runtime.cli` silently no-ops; correct entry is the `seam`
+console script). Verification: `pytest tests/audit/test_identity_resolution.py`
+18/18 (3 new G2.3 surface tests), MCP+server+knowledge_graph surface suites 116
+pass, full `pytest tests/` exit 0 with T7 offline HF env + both pgvector DSNs,
+two xfails, zero skips; ruff + compileall clean; no provider/paid/install/
+download. NEXT: G3 hybrid path-ranking fusion - fold `resolve_canonical` into
+retrieval so an alias query reaches its canonical node's evidence; first stage
+that can move a benchmark score, gated by the free deterministic-recall A/B
+before any paid run.)
+
 Current update: 2026-07-22 (HISTORY#456 - BUILT graph-maturity stage G2.2, the
 automatic merge-candidate generator that feeds the G2.1 ledger.
 `generate_merge_candidates` in `seam_runtime/identity_resolution.py`
@@ -10,8 +36,9 @@ silent. Precision guards: requires real alias evidence (excludes pure
 same-canonical-name homonyms); deterministic direction by per-term alias votes
 (canonical-owner wins, ties -> lexicographic at 0.4 vs 0.6 confidence); ns/scope
 isolation; idempotent, never downgrades an accepted decision. Still
-retrieval-inert substrate - the score signal arrives at G3 fusion. Verification:
-identity suite 14/14 (5 new), graph regression 43, full `pytest tests/` exit 0
+retrieval-inert substrate - the score signal arrives at G3 fusion. Verification
+at the time: the new identity-resolution suite (14 tests, 5 new; later grown by
+G2.3) passed, graph regression 43, full `pytest tests/` exit 0
 with T7 offline HF env + both pgvector DSNs, two xfails, zero skips; ruff +
 compileall clean; no provider/paid/install/download. Three caught errors logged
 to LLM-Logs (deferred-logging instruction-violation caught by operator, invalid

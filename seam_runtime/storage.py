@@ -8,6 +8,21 @@ from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
 
+from .identity_resolution import (
+    accept_merge as accept_identity_merge_op,
+)
+from .identity_resolution import (
+    generate_merge_candidates as generate_identity_merge_candidates_op,
+)
+from .identity_resolution import (
+    list_merges as list_identity_merges,
+)
+from .identity_resolution import (
+    merge_audit as identity_merge_audit_detail,
+)
+from .identity_resolution import (
+    split_merge as split_identity_merge_op,
+)
 from .knowledge_graph import (
     graph_stats,
     init_knowledge_graph,
@@ -869,6 +884,57 @@ class SQLiteStore:
                 include_history=include_history,
                 at=at,
             )
+
+    def identity_merges(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        statuses: list[str] | None = None,
+    ) -> list[dict[str, object]]:
+        """Read the identity-merge ledger (graph maturity G2)."""
+        with self._pool.checkout() as connection:
+            return list_identity_merges(
+                connection, ns=ns, scope=scope, statuses=statuses
+            )
+
+    def identity_merge_audit(self, node_id: str) -> list[dict[str, object]]:
+        """Every merge touching ``node_id`` (any status) plus its evidence."""
+        with self._pool.checkout() as connection:
+            return identity_merge_audit_detail(connection, node_id)
+
+    @retry_db_operation()
+    def generate_identity_merge_candidates(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        max_candidates: int = 500,
+    ) -> dict[str, object]:
+        """Auto-propose merge candidates; proposals only, never accepted."""
+        with self._pool.checkout() as connection:
+            summary = generate_identity_merge_candidates_op(
+                connection, ns=ns, scope=scope, max_candidates=max_candidates
+            )
+            connection.commit()
+            return summary
+
+    @retry_db_operation()
+    def accept_identity_merge(self, merge_id: str) -> str:
+        """Operator action: promote a proposed merge to accepted."""
+        with self._pool.checkout() as connection:
+            status = accept_identity_merge_op(connection, merge_id)
+            connection.commit()
+            return status
+
+    @retry_db_operation()
+    def split_identity_merge(
+        self, merge_id: str, *, reason: str | None = None
+    ) -> None:
+        """Operator action: reversibly undo a merge, retaining evidence."""
+        with self._pool.checkout() as connection:
+            split_identity_merge_op(connection, merge_id, reason=reason)
+            connection.commit()
 
     def assertable_record_ids(
         self,

@@ -11061,3 +11061,69 @@ NEXT: G2.3 - CLI/MCP/dashboard read of the merge ledger (list proposals with
 confidence + evidence, per-node merge audit, accept/split operator actions) for
 auditability, before G3 hybrid path-ranking fusion consumes `resolve_canonical`.
 ---END-ENTRY-#456---
+
+---BEGIN-ENTRY-#457---
+id: 457
+date: 2026-07-22T08:47:52Z
+agent: claude-opus-4-8
+status: done
+topics: graph, identity, resolution, mcp, cli, rest, server, knowledge-graph, verify, tests, track-r
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md
+supersedes: 456
+tokens: 767
+---
+Graph maturity G2.3 - identity-merge ledger surfaced on store, MCP, REST, CLI
+
+BUILT the operator/agent surface over the HISTORY#455/#456 identity-merge
+ledger across four surfaces. Read is available everywhere; mutating operator
+actions (accept / reversible split / candidate generation) are exposed on the
+operator-facing surfaces only, and the agent-facing MCP tool is strictly
+read-only so an agent cannot silently accept or undo a merge. Still substrate /
+retrieval-inert - no served result or ranking changes; the score signal arrives
+at G3 fusion.
+
+Store (`seam_runtime/storage.py`): `identity_merges` (filter by ns/scope/status),
+`identity_merge_audit` (per-node, any status, with evidence); mutating
+`generate_identity_merge_candidates`, `accept_identity_merge`,
+`split_identity_merge` all commit and carry the @retry_db_operation guard.
+
+MCP (`seam_runtime/mcp.py`): new read-only tool `seam_identity_merges`
+(readOnlyHint True) - list the ledger with filters, or full per-node audit when
+`node_id` is given. Descriptions/metadata consistency check still passes.
+
+REST (`seam_runtime/server.py`): GET `/identity-merges` (list, or per-node audit
+when `node_id` set); operator POST `/identity-merges/generate`,
+`/identity-merges/{id}/accept`, `/identity-merges/{id}/split`. Unknown merge id
+-> 404, invalid-state action (e.g. accepting a split) -> 409, all under the
+existing auth guard.
+
+CLI (`seam_runtime/cli.py`): `seam knowledge merges` (alias `graph merges`) -
+list (filters --namespace/--scope/--status/--node-id) and operator actions
+--generate / --accept MERGE_ID / --split MERGE_ID [--reason]. Verified live end
+to end via the `seam` console script: generate -> list -> accept -> split ->
+node audit, evidence retained through the split.
+
+Scope boundary: the TUI dashboard visual widget is intentionally deferred (a
+heavier, separate surface; operator visual-graph location still TBD), NOT part
+of this slice.
+
+One process error caught and logged to LLM-Logs: I first drove the CLI via
+`python -m seam_runtime.cli`, which has no __main__ block and silently no-ops
+(exit 0, no output); the real entry is the `seam` console script (seam:main ->
+run_cli). Corrected and re-verified.
+
+Verification: `tests/audit/test_identity_resolution.py` 18/18 (3 new G2.3
+surface tests: store read+actions round-trip; MCP read-only list+audit; REST
+list/audit/generate/accept/split with 404 + 409; CLI generate/list/accept/split/
+audit round-trip). MCP+server+knowledge_graph surface suites 116 pass; no
+hardcoded MCP tool-count assertion to update. Full `pytest tests/` exit 0 with
+the T7 offline HF env + both pgvector DSNs, two established xfails, zero skips.
+Ruff + compileall clean on all touched files (storage, mcp, server, cli, tests).
+No provider, paid, install, or download call occurred.
+
+NEXT: G3 hybrid path-ranking fusion - fold `resolve_canonical` into retrieval so
+an alias query reaches its canonical node's evidence; this is the FIRST stage
+that can move a benchmark score, gated by the free deterministic-recall A/B
+before any paid run. Optional G2.3 tail: TUI dashboard ledger widget.
+---END-ENTRY-#457---

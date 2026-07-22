@@ -9,10 +9,13 @@ drop+rebuild.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 
+from seam_runtime.cli import run_cli
 from seam_runtime.identity_resolution import (
     STATUS_ACCEPTED,
     STATUS_CONFLICT,
@@ -29,8 +32,10 @@ from seam_runtime.identity_resolution import (
     split_merge,
 )
 from seam_runtime.knowledge_graph import init_knowledge_graph
+from seam_runtime.mcp import TOOL_METADATA, dispatch_tool
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.runtime import SeamRuntime
+from seam_runtime.server import create_app
 
 
 @pytest.fixture
@@ -475,3 +480,141 @@ def test_candidate_generator_does_not_downgrade_accepted(runtime: SeamRuntime) -
             resolve_canonical(connection, "ent:ibm-corp", ns="people", scope="project")
             == "ent:ibm"
         )
+
+
+def test_store_surface_read_and_operator_actions(runtime: SeamRuntime) -> None:
+    _seed_alias_pair(runtime)
+    summary = runtime.store.generate_identity_merge_candidates(
+        ns="people", scope="project"
+    )
+    assert len(summary["proposed"]) == 1
+    merge_id = summary["proposed"][0]
+
+    proposals = runtime.store.identity_merges(statuses=[STATUS_PROPOSED])
+    assert [m["id"] for m in proposals] == [merge_id]
+    audit = runtime.store.identity_merge_audit("ent:ibm-corp")
+    assert audit[0]["evidence"][0]["evidence_kind"] == "shared-alias"
+
+    assert runtime.store.accept_identity_merge(merge_id) == STATUS_ACCEPTED
+    assert runtime.store.identity_merges(statuses=[STATUS_ACCEPTED])[0]["id"] == merge_id
+
+    runtime.store.split_identity_merge(merge_id, reason="operator undo")
+    split = runtime.store.identity_merges(statuses=[STATUS_SPLIT])
+    assert split[0]["id"] == merge_id
+    # Evidence survives the operator split.
+    assert runtime.store.identity_merge_audit("ent:ibm-corp")[0]["evidence"]
+
+
+def test_mcp_identity_merges_tool_is_read_only(runtime: SeamRuntime) -> None:
+    assert TOOL_METADATA["seam_identity_merges"]["annotations"]["readOnlyHint"] is True
+    _seed_alias_pair(runtime)
+    runtime.store.generate_identity_merge_candidates(ns="people", scope="project")
+
+    listed = dispatch_tool(
+        runtime,
+        {"tool": "seam_identity_merges", "arguments": {"statuses": "proposed"}},
+    )["result"]
+    assert len(listed["merges"]) == 1
+    assert listed["merges"][0]["canonical_node_id"] == "ent:ibm"
+
+    audited = dispatch_tool(
+        runtime,
+        {"tool": "seam_identity_merges", "arguments": {"node_id": "ent:ibm-corp"}},
+    )["result"]
+    assert audited["node_id"] == "ent:ibm-corp"
+    assert audited["merges"][0]["evidence"][0]["detail"] == "ibm"
+
+
+def test_rest_identity_merge_ledger_and_actions(runtime: SeamRuntime) -> None:
+    _seed_alias_pair(runtime)
+    with TestClient(create_app(runtime)) as client:
+        gen = client.post(
+            "/identity-merges/generate",
+            params={"namespace": "people", "scope": "project"},
+        )
+        assert gen.status_code == 200
+        merge_id = gen.json()["proposed"][0]
+
+        listed = client.get("/identity-merges", params={"statuses": "proposed"})
+        assert listed.status_code == 200
+        assert listed.json()["merges"][0]["id"] == merge_id
+
+        audit = client.get("/identity-merges", params={"node_id": "ent:ibm-corp"})
+        assert audit.json()["merges"][0]["alias_node_id"] == "ent:ibm-corp"
+
+        accepted = client.post(f"/identity-merges/{merge_id}/accept")
+        assert accepted.status_code == 200
+        assert accepted.json()["status"] == STATUS_ACCEPTED
+
+        split = client.post(
+            f"/identity-merges/{merge_id}/split", params={"reason": "undo"}
+        )
+        assert split.status_code == 200
+        assert split.json()["status"] == "split"
+
+        # Unknown merge id -> 404; accepting a split merge -> 409 invalid state.
+        assert client.post("/identity-merges/merge:missing/accept").status_code == 404
+        assert client.post(f"/identity-merges/{merge_id}/accept").status_code == 409
+
+
+def test_cli_merges_generate_list_accept_split_roundtrip(tmp_path, capsys) -> None:
+    db = str(tmp_path / "s.db")
+    run_cli(
+        [
+            "--db",
+            db,
+            "compile-nl",
+            "IBM ships mainframes.",
+        ]
+    )
+    capsys.readouterr()
+
+    # Seed a second entity that aliases the first, via a fresh runtime on the db.
+    seed = SeamRuntime(Path(db))
+    try:
+        seed.persist_ir(
+            IRBatch(
+                [
+                    MIRLRecord(
+                        id="ent:ibm",
+                        kind=RecordKind.ENT,
+                        ns="people",
+                        scope="project",
+                        attrs={"label": "IBM", "entity_type": "org"},
+                    ),
+                    MIRLRecord(
+                        id="ent:ibm-corp",
+                        kind=RecordKind.ENT,
+                        ns="people",
+                        scope="project",
+                        attrs={
+                            "label": "International Business Machines",
+                            "entity_type": "org",
+                            "aliases": ["IBM"],
+                        },
+                    ),
+                ]
+            )
+        )
+    finally:
+        seed.close()
+
+    run_cli(["--db", db, "knowledge", "merges", "--generate", "--namespace", "people", "--scope", "project"])
+    gen = json.loads(capsys.readouterr().out)
+    merge_id = gen["proposed"][0]
+
+    run_cli(["--db", db, "graph", "merges", "--status", "proposed"])
+    listed = json.loads(capsys.readouterr().out)
+    assert listed["merges"][0]["id"] == merge_id
+
+    run_cli(["--db", db, "knowledge", "merges", "--accept", merge_id])
+    assert json.loads(capsys.readouterr().out)["status"] == STATUS_ACCEPTED
+
+    run_cli(["--db", db, "knowledge", "merges", "--split", merge_id, "--reason", "undo"])
+    assert json.loads(capsys.readouterr().out)["status"] == "split"
+
+    run_cli(["--db", db, "knowledge", "merges", "--node-id", "ent:ibm-corp"])
+    audit = json.loads(capsys.readouterr().out)
+    assert audit["merges"][0]["status"] == STATUS_SPLIT
+    # Evidence survives the operator split at the CLI surface too.
+    assert audit["merges"][0]["evidence"][0]["evidence_kind"] == "shared-alias"
