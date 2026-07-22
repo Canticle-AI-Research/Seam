@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-22-graph-source-raw-lane
 supersedes: 2026-07-22-fact-free-auxiliary-raw-ablation
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#453
 ---
 

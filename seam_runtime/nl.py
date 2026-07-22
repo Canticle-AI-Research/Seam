@@ -156,8 +156,14 @@ def compile_nl(
             suffix += 1
         entity_ids[key] = ent_id
         records.append(
-            MIRLRecord(id=ent_id, kind=RecordKind.ENT, ns=ns, scope=scope,
-                       attrs={"entity_type": entity_type, "label": label})
+            MIRLRecord(
+                id=ent_id,
+                kind=RecordKind.ENT,
+                ns=ns,
+                scope=scope,
+                prov=(prov_id,),
+                attrs={"entity_type": entity_type, "label": label},
+            )
         )
         return ent_id
 

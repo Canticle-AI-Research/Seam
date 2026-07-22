@@ -77,6 +77,16 @@ and `HISTORY_INDEX.md`.
   graph retrieval and the dashboard consume the same projection, and inactive
   claims remain available only through explicit history views. See
   `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
+- Graph identity lookup is a scoped, rebuildable projection, not inference from
+  assertion/source labels. `knowledge_node_terms` indexes canonical entity
+  names, explicit aliases, symbols, agents, and short concept literals with
+  source-record provenance; sentence-like values stay out. Extracted entities
+  carry compile provenance to their RAW episode, and graph-to-source agreement
+  uses one-to-one concept/query-term matching over semantic-edge and episode-
+  mention paths. Track R's graph-first G1-G7 contract lives in
+  `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; benchmarks qualify completed graph
+  stages but do not gate construction of missing graph substrate. See
+  HISTORY#454.
 - The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
   parallel truth store. Explicit facets and already-present MIRL fields may
   project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing

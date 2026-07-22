@@ -17,6 +17,7 @@ This folder is the active operator and engineering documentation surface.
 - `SOP_MODEL_INTEGRATION.md` - current model integration procedure.
 - `RAG_ARCHITECTURE.md` - current graph/vector/mix retrieval and agent bridge architecture.
 - `KNOWLEDGE_GRAPH.md` - self-building all-agent knowledge graph, temporal/provenance model, dashboard, CLI, REST, and MCP surfaces.
+- `roadmap/GRAPH_MEMORY_MATURITY.md` - graph-first target architecture and the staged G1-G7 path from identity indexing through hybrid retrieval, context assembly, lifecycle, scale, and qualification.
 - `MIRL_V1.md` - current MIRL reference and readable lossless compression contract.
 - `HOLOGRAPHIC_SURFACE.md` - SEAM-HS/1 visual memory surface architecture.
 - `SOP_HOLOGRAPHIC_SURFACE.md` - operator workflow for encoding, verifying, querying, and importing surfaces.

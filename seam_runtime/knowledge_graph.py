@@ -4,13 +4,14 @@ import hashlib
 import json
 import re
 import sqlite3
+import unicodedata
 from collections import Counter
 from datetime import datetime, timezone
 from typing import Iterable, Mapping
 
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
 
-PROJECTION_VERSION = "knowledge-graph/4"
+PROJECTION_VERSION = "knowledge-graph/5"
 CURRENT_EXCLUDED_STATUSES = {
     Status.CONTRADICTED.value,
     Status.SUPERSEDED.value,
@@ -124,6 +125,109 @@ _PREFIX_KINDS = {
     "value": "value",
 }
 
+_GRAPH_TERM_TOKEN_RE = re.compile(r"[^\W]+(?:[:-][^\W]+)*", re.UNICODE)
+_INDEXABLE_CONCEPT_KINDS = frozenset({"entity", "value", "agent", "symbol"})
+
+
+def normalize_graph_term(value: object) -> str:
+    """Return the stable, Unicode-aware identity/search form for a graph term."""
+
+    normalized = unicodedata.normalize("NFKC", str(value or "")).casefold()
+    return " ".join(normalized.split())
+
+
+def tokenize_graph_term(value: object) -> tuple[str, ...]:
+    """Tokenize a graph term without reading assertion or episode text."""
+
+    normalized = normalize_graph_term(value)
+    return tuple(dict.fromkeys(_GRAPH_TERM_TOKEN_RE.findall(normalized)))
+
+
+def _term_values(value: object) -> list[str]:
+    if isinstance(value, str):
+        return [value] if value.strip() else []
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return [str(item) for item in value if str(item).strip()]
+    return []
+
+
+def _record_graph_terms(record: MIRLRecord, label: str) -> list[tuple[str, str]]:
+    """Return explicit concept terms for a canonical MIRL node.
+
+    Assertion labels are deliberately absent: CLM/REL/EVT/STA labels can carry
+    an entire source sentence and must never masquerade as independent graph
+    concepts. Entity aliases and symbol expansions are explicit, rebuildable
+    identity evidence and are safe to index.
+    """
+
+    attrs = record.attrs
+    terms: list[tuple[str, str]] = []
+    if record.kind == RecordKind.ENT:
+        terms.append((label, "canonical"))
+        for key in ("alias", "aliases"):
+            terms.extend((value, "alias") for value in _term_values(attrs.get(key)))
+    elif record.kind == RecordKind.SYM:
+        for key, term_kind in (
+            ("symbol", "symbol"),
+            ("short", "symbol"),
+            ("expansion", "expansion"),
+            ("long", "expansion"),
+            ("alias", "alias"),
+            ("aliases", "alias"),
+        ):
+            terms.extend((value, term_kind) for value in _term_values(attrs.get(key)))
+        if not terms:
+            terms.append((label, "canonical"))
+    return terms
+
+
+def _safe_reference_term(kind: str, label: str) -> bool:
+    if kind not in _INDEXABLE_CONCEPT_KINDS:
+        return False
+    if kind != "value":
+        return True
+    # Deterministic-floor CLMs store the full source turn as their object. A
+    # short literal can be a real concept; sentence-like values are evidence
+    # text and must stay out of the identity index.
+    tokens = tokenize_graph_term(label)
+    return (
+        bool(tokens)
+        and len(tokens) <= 4
+        and len(label) <= 80
+        and not re.search(r"[!?;\n]|\.(?:\s|$)", label)
+    )
+
+
+def _index_node_term(
+    connection: sqlite3.Connection,
+    *,
+    node_id: str,
+    term: object,
+    term_kind: str,
+    record: MIRLRecord,
+) -> None:
+    text = str(term or "").strip()
+    normalized = normalize_graph_term(text)
+    tokens = tokenize_graph_term(text)
+    if not normalized or not tokens:
+        return
+    for token in tokens:
+        connection.execute(
+            "insert or ignore into knowledge_node_terms "
+            "(node_id, term, normalized_term, token, term_kind, ns, scope, source_record_id) "
+            "values (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                node_id,
+                text,
+                normalized,
+                token,
+                term_kind,
+                record.ns,
+                record.scope,
+                record.id,
+            ),
+        )
+
 
 def init_knowledge_graph(connection: sqlite3.Connection) -> None:
     """Create and, once per schema version, backfill the live graph projection."""
@@ -190,6 +294,17 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
             episode_id text not null,
             primary key (edge_id, episode_id)
         );
+        create table if not exists knowledge_node_terms (
+            node_id text not null,
+            term text not null,
+            normalized_term text not null,
+            token text not null,
+            term_kind text not null,
+            ns text not null,
+            scope text not null,
+            source_record_id text not null,
+            primary key (node_id, normalized_term, token, term_kind, source_record_id)
+        );
         create table if not exists knowledge_graph_meta (
             key text primary key,
             value text not null
@@ -207,6 +322,10 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
         create index if not exists idx_knowledge_episodes_agent on knowledge_episodes (agent_id);
         create index if not exists idx_knowledge_node_episodes_episode on knowledge_node_episodes (episode_id);
         create index if not exists idx_knowledge_edge_episodes_episode on knowledge_edge_episodes (episode_id);
+        create index if not exists idx_knowledge_node_terms_token on knowledge_node_terms (token, ns, scope);
+        create index if not exists idx_knowledge_node_terms_normalized on knowledge_node_terms (normalized_term, ns, scope);
+        create index if not exists idx_knowledge_node_terms_node on knowledge_node_terms (node_id);
+        create index if not exists idx_knowledge_node_terms_source on knowledge_node_terms (source_record_id);
         """
     )
     episode_columns = {row[1] for row in connection.execute("pragma table_info(knowledge_episodes)").fetchall()}
@@ -220,6 +339,7 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
 
     connection.execute("delete from knowledge_edge_episodes")
     connection.execute("delete from knowledge_node_episodes")
+    connection.execute("delete from knowledge_node_terms")
     connection.execute("delete from knowledge_edges")
     connection.execute("delete from knowledge_episodes")
     connection.execute("delete from knowledge_nodes")
@@ -284,6 +404,7 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
             )
         connection.execute("delete from knowledge_edges where source_record_id = ?", (record.id,))
         connection.execute("delete from knowledge_node_episodes where source_record_id = ?", (record.id,))
+        connection.execute("delete from knowledge_node_terms where source_record_id = ?", (record.id,))
 
     for record in records:
         _project_record(connection, record, batch_by_id)
@@ -295,6 +416,9 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
         "and id not in (select src_id from knowledge_edges) "
         "and id not in (select dst_id from knowledge_edges) "
         "and id not in (select node_id from knowledge_node_episodes)"
+    )
+    connection.execute(
+        "delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)"
     )
 
 
@@ -319,6 +443,9 @@ def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) ->
         f"delete from knowledge_node_episodes where source_record_id in ({placeholders})", ids
     )
     connection.execute(
+        f"delete from knowledge_node_terms where source_record_id in ({placeholders})", ids
+    )
+    connection.execute(
         f"delete from knowledge_episodes where source_record_id in ({placeholders})", ids
     )
     connection.execute(
@@ -326,6 +453,9 @@ def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) ->
         "and id not in (select src_id from knowledge_edges) "
         "and id not in (select dst_id from knowledge_edges)",
         ids,
+    )
+    connection.execute(
+        "delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)"
     )
     retained = connection.execute(
         f"select id from knowledge_nodes where source_record_id in ({placeholders})",
@@ -414,8 +544,20 @@ def query_graph(
         where.append(f"lower(n.kind) in ({','.join('?' for _ in canonical_kind_values)})")
         params.extend(canonical_kind_values)
     if query:
-        where.append("lower(n.id || ' ' || n.label || ' ' || n.properties_json) like ?")
-        params.append(f"%{query.lower()}%")
+        normalized_query = normalize_graph_term(query)
+        query_tokens = tokenize_graph_term(query)
+        term_match = "t.normalized_term like ?"
+        term_params: list[object] = [f"%{normalized_query}%"]
+        if query_tokens:
+            term_match += f" or t.token in ({','.join('?' for _ in query_tokens)})"
+            term_params.extend(query_tokens)
+        where.append(
+            "(lower(n.id || ' ' || n.label || ' ' || n.properties_json) like ? "
+            "or exists (select 1 from knowledge_node_terms t where t.node_id = n.id and ("
+            + term_match
+            + ")))"
+        )
+        params.extend([f"%{query.lower()}%", *term_params])
     if agent_id:
         where.append(
             "(n.id = ? or n.agent_id = ? or exists ("
@@ -854,6 +996,14 @@ def _project_record(
         properties=properties,
         synthetic=False,
     )
+    for term, term_kind in _record_graph_terms(record, label):
+        _index_node_term(
+            connection,
+            node_id=record.id,
+            term=term,
+            term_kind=term_kind,
+            record=record,
+        )
 
     episode_ids = _episode_ids(connection, record, batch_by_id, agent_id)
     for episode_id in episode_ids:
@@ -887,6 +1037,14 @@ def _project_record(
             properties={"reference": text},
             synthetic=node_id != record.id,
         )
+        if _safe_reference_term(kind, node_label):
+            _index_node_term(
+                connection,
+                node_id=node_id,
+                term=node_label,
+                term_kind="reference",
+                record=record,
+            )
         for episode_id in episode_ids:
             connection.execute(
                 "insert or ignore into knowledge_node_episodes (node_id, episode_id, source_record_id) values (?, ?, ?)",
@@ -963,6 +1121,13 @@ def _project_record(
                 _json({"agent_id": agent_id}),
                 agent_node,
             ),
+        )
+        _index_node_term(
+            connection,
+            node_id=agent_node,
+            term=agent_id,
+            term_kind="agent",
+            record=record,
         )
         for episode_id in episode_ids:
             connection.execute(
@@ -1875,6 +2040,14 @@ def _graph_stats(connection: sqlite3.Connection, *, include_history: bool) -> di
     episode_count = connection.execute(
         "select count(*) from knowledge_episodes where 1=1" + episode_status
     ).fetchone()[0]
+    term_count = connection.execute(
+        "select count(*) from (select distinct node_id, normalized_term, term_kind, source_record_id "
+        "from knowledge_node_terms)"
+    ).fetchone()[0]
+    alias_count = connection.execute(
+        "select count(*) from (select distinct node_id, normalized_term, source_record_id "
+        "from knowledge_node_terms where term_kind = 'alias')"
+    ).fetchone()[0]
     kinds = {
         str(row[0]): int(row[1])
         for row in connection.execute(
@@ -1891,6 +2064,8 @@ def _graph_stats(connection: sqlite3.Connection, *, include_history: bool) -> di
         "node_count": int(node_count),
         "edge_count": int(edge_count),
         "episode_count": int(episode_count),
+        "term_count": int(term_count),
+        "alias_count": int(alias_count),
         "agent_count": int(agent_count),
         "source_count": int(source_count),
         "node_kinds": kinds,

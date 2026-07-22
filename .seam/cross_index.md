@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 514
+total_events: 515
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T21:24:33Z | history:260:3af70289 | session-event | done | verify, windows, protocol, history, status | .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,PROJECT_STATUS.m... |
 | 2026-05-25T21:35:57Z | history:261:9d37437e | session-event | done | verify, windows, protocol, history, status | tests/audit/test_ci_verify_gates.py,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDE... |
 | 2026-05-26T05:42:57Z | history:262:7d02e345 | session-event | done | retrieval, benchmark, bundle, verify, history, protocol | tools/h2/__init__.py,tools/h2/backfill_bundle.py,tests/audit/test_h2_backfill... |
 | 2026-05-26T11:34:45Z | history:263:e16bf8c8 | session-event | done | security, protocol, verify, history, status | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,experimental/retrieval_orchestr... |
@@ -160,7 +159,6 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-16T19:01:09Z | history:403:11d8ecbd | session-event | done | graph, memory, trust, provenance, webui, dashboard, retri... | seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py... |
 | 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
 | 2026-07-16T23:08:58Z | history:405:465cd643 | session-event | done | benchmark, locomo, merge, pgvector, analysis, levers, rec... | PROJECT_STATUS.md,HISTORY.md,seam_runtime/conversation.py,seam_runtime/vector... |
-| 2026-07-17T00:00:00Z | roadmap:061:158589ee | status-change | bootstrap | graph, memory, retrieval, benchmark, comparator, provenance | ROADMAP.md:1761 |
 | 2026-07-17T04:04:48Z | history:406:ed2e5617 | session-event | done | hygiene, gitignore, worktree, artifacts | .gitignore |
 | 2026-07-17T04:52:38Z | history:407:2a544db0 | session-event | done | roadmap, agent, openclaw, android, namespaces, planning | ROADMAP.md,PROJECT_STATUS.md |
 | 2026-07-17T04:59:20Z | history:408:324140f0 | session-event | done | benchmark, locomo, levers, answer-contract, exact-answer,... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
@@ -205,14 +203,16 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-21T21:26:08Z | history:447:c51ad1e0 | session-event | done | ci, test, benchmark, bugfix, performance, verify, continuity | .github/workflows/ci.yml,seam_runtime/models.py,test_seam_all/test_locomo_run... |
 | 2026-07-21T23:48:47Z | history:448:8fa1aac6 | session-event | done | benchmark, locomo, retrieval, compile, provenance, audit,... | seam_runtime/multi_speaker_facts.py,seam_runtime/derived_fact_context.py,seam... |
 | 2026-07-21T23:50:13Z | history:449:3656720f | session-event | changed | test, verify, history, continuity, audit | HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/histor... |
+| 2026-07-22T00:00:00Z | roadmap:061:b4ee7a16 | status-change | bootstrap | graph, memory, retrieval, benchmark, comparator, provenance | ROADMAP.md:1761 |
 | 2026-07-22T03:34:11Z | history:450:2b21583d | session-event | done | benchmark, locomo, retrieval, pack, graph, models, audit,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_n... |
 | 2026-07-22T03:38:17Z | history:451:1236931e | session-event | changed | test, verify, history, continuity, audit | HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/histor... |
 | 2026-07-22T05:03:16Z | history:452:92876be2 | session-event | changed | benchmark, retrieval, derived-facts, non-displacing-pack,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_f... |
 | 2026-07-22T06:23:10Z | history:453:5dd3c7e3 | session-event | changed | retrieval, graph, knowledge-graph, non-displacing-pack, m... | seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_m... |
+| 2026-07-22T07:28:54Z | history:454:74725c05 | session-event | done | graph, memory, retrieval, provenance, compile, roadmap, b... | seam_runtime/knowledge_graph.py,seam_runtime/graph_source_selector.py,seam_ru... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0314.cross.md | 2026-04-15T00:00:00Z..2026-05-25T21:14:05Z | 314 | (multi) | (multi) |
+| 0001-0315.cross.md | 2026-04-15T00:00:00Z..2026-05-25T21:24:33Z | 315 | (multi) | (multi) |

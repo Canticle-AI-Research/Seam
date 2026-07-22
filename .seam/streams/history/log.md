@@ -10884,3 +10884,58 @@ gold gain with zero sentinel loss before any promotion; then concept-dedup /
 projection-side seeding if it wins. Operator-owned .ua/, seam_runtime/.ua/, and
 report PNG files remain untouched and excluded.
 ---END-ENTRY-#453---
+
+---BEGIN-ENTRY-#454---
+id: 454
+date: 2026-07-22T07:28:54Z
+agent: codex
+status: done
+topics: graph, memory, retrieval, provenance, compile, roadmap, benchmark, tests, verify, handoff
+commits: pending
+refs: seam_runtime/knowledge_graph.py,seam_runtime/graph_source_selector.py,seam_runtime/nl.py,tests/audit/test_knowledge_graph.py,tests/audit/test_graph_source_selector.py,docs/KNOWLEDGE_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/README.md,REPO_LEDGER.md,ROADMAP.md,PROJECT_STATUS.md,docs/handoffs/2026-07-22-graph-memory-identity-foundation.md,docs/handoffs/INDEX.md
+supersedes: 453
+tokens: 604
+---
+Changed Track R from post-benchmark to graph-first qualification per the
+operator's direction that benchmark movement should follow graph maturity, then
+built stage G1 instead of running another score gate. The durable architecture
+plot and G1-G7 sequence now live in
+docs/roadmap/GRAPH_MEMORY_MATURITY.md: identity index, reversible resolution,
+hybrid path search, graph summaries/observations, context assembly,
+lifecycle/scale, and qualification. Native and matched external benchmarks stay
+co-primary but qualify completed capabilities rather than block construction.
+
+Projection knowledge-graph/5 adds scoped, source-provenanced
+knowledge_node_terms for canonical entity names, explicit aliases, symbols,
+agents, and short concept literals. Assertion/source labels and sentence-like
+values are excluded so a RAW sentence cannot masquerade as multiple graph
+concepts; decimals, domains, and version-like embedded periods remain
+indexable. Existing stores rebuild the index through the versioned projection.
+query_graph can resolve indexed aliases/tokens, and graph stats expose distinct
+term and alias counts.
+
+The real projector smoke exposed that extracted secondary entities were present
+as nodes but lacked an episode path because compile_nl ENTs carried no
+provenance. compile_nl now binds every extracted ENT to the canonical compile
+PROV record, which resolves to the exact RAW episode. The graph-source selector
+now follows both knowledge edges and knowledge_node_episodes mention paths. Its
+agreement is a deterministic maximum one-to-one matching between graph concepts
+and distinct query tokens, exposed as matched_pairs: one long label contributes
+once, and multiple nodes cannot reuse one query word to inflate agreement. A
+real in-memory projection indexed alias IBM, excluded the sentence-like value,
+and selected Alice/Bob's exact RAW at agreement two through edge plus mention
+paths.
+
+Verification: the exact affected collection comprised 200 tests across graph
+selector/projection/deep graph, trust/ratchet, workspace, facade, PACK,
+compiler/coreference, and extraction; all 200 passed. Full tests/ collected
+1,327 and exited zero with downloads forced offline and PGVECTOR_TEST_DSN set
+from the already-configured local SEAM pgvector service: two established xfails,
+zero skips. Touched-file Ruff, compileall, and diff checks passed. CodeRabbit's
+first pass found four minor hardening items (negative max_seeds, alias fixture
+kind, blank terms, and embedded-period literals); all were fixed with tests and
+the second pass returned zero findings. No provider, paid, install, or download
+call occurred. NEXT: G2 append-only reversible identity resolution with
+candidate aliases, canonical-of links, merge evidence, conflict/reject/undo/split
+states, and exact episode backtraces before G3 hybrid ranking.
+---END-ENTRY-#454---

@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-22-graph-source-raw-lane
+latest: 2026-07-22-graph-memory-identity-foundation
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-22-graph-source-raw-lane` | [2026-07-22-graph-source-raw-lane.md](2026-07-22-graph-source-raw-lane.md) | `2026-07-22-fact-free-auxiliary-raw-ablation` | `HISTORY#453` | `current` |
+| `2026-07-22-graph-memory-identity-foundation` | [2026-07-22-graph-memory-identity-foundation.md](2026-07-22-graph-memory-identity-foundation.md) | `2026-07-22-graph-source-raw-lane` | `HISTORY#454` | `current` |
+| `2026-07-22-graph-source-raw-lane` | [2026-07-22-graph-source-raw-lane.md](2026-07-22-graph-source-raw-lane.md) | `2026-07-22-fact-free-auxiliary-raw-ablation` | `HISTORY#453` | `superseded` |
 | `2026-07-22-fact-free-auxiliary-raw-ablation` | [2026-07-22-fact-free-auxiliary-raw-ablation.md](2026-07-22-fact-free-auxiliary-raw-ablation.md) | `2026-07-21-non-displacing-pack-aux-raw-gate` | `HISTORY#452` | `superseded` |
 | `2026-07-21-non-displacing-pack-aux-raw-gate` | [2026-07-21-non-displacing-pack-aux-raw-gate.md](2026-07-21-non-displacing-pack-aux-raw-gate.md) | `2026-07-21-multi-speaker-derived-facts-cloud-probe` | `HISTORY#450` | `superseded` |
 | `2026-07-21-multi-speaker-derived-facts-cloud-probe` | [2026-07-21-multi-speaker-derived-facts-cloud-probe.md](2026-07-21-multi-speaker-derived-facts-cloud-probe.md) | `2026-07-21-multiscope-and-local-beam-complete` | `HISTORY#448` | `superseded` |

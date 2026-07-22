@@ -33,6 +33,15 @@ create table knowledge_edge_episodes (
     edge_id text not null, episode_id text not null,
     primary key (edge_id, episode_id)
 );
+create table knowledge_node_episodes (
+    node_id text not null, episode_id text not null, source_record_id text not null,
+    primary key (node_id, episode_id, source_record_id)
+);
+create table knowledge_node_terms (
+    node_id text not null, term text not null, normalized_term text not null,
+    token text not null, term_kind text not null, ns text not null,
+    scope text not null, source_record_id text not null
+);
 """
 
 
@@ -43,12 +52,37 @@ def _connect() -> sqlite3.Connection:
     return connection
 
 
-def _node(conn, node_id, label, *, kind="entity", ns="n", scope="s", status="active"):
+def _node(
+    conn,
+    node_id,
+    label,
+    *,
+    kind="entity",
+    ns="n",
+    scope="s",
+    status="active",
+    terms=None,
+    aliases=None,
+):
     conn.execute(
         "insert into knowledge_nodes (id, label, kind, ns, scope, status) "
         "values (?,?,?,?,?,?)",
         (node_id, label, kind, ns, scope, status),
     )
+    if terms is None and kind in {"entity", "value", "agent", "symbol"}:
+        indexed_terms = [(label, "canonical")]
+    else:
+        indexed_terms = [(term, "canonical") for term in (terms or [])]
+    indexed_terms.extend((alias, "alias") for alias in (aliases or []))
+    for term, term_kind in indexed_terms:
+        normalized = " ".join(term.casefold().split())
+        for token in tokenize_query(term):
+            conn.execute(
+                "insert into knowledge_node_terms "
+                "(node_id, term, normalized_term, token, term_kind, ns, scope, source_record_id) "
+                "values (?,?,?,?,?,?,?,?)",
+                (node_id, term, normalized, token, term_kind, ns, scope, f"src:{node_id}"),
+            )
 
 
 def _episode(conn, episode_id, raw_id, *, ns="n", scope="s", status="active", expired_at=None):
@@ -81,6 +115,14 @@ def _edge(
     conn.execute(
         "insert into knowledge_edge_episodes (edge_id, episode_id) values (?,?)",
         (edge_id, episode_id),
+    )
+
+
+def _mention(conn, node_id, episode_id, source_record_id):
+    conn.execute(
+        "insert into knowledge_node_episodes (node_id, episode_id, source_record_id) "
+        "values (?,?,?)",
+        (node_id, episode_id, source_record_id),
     )
 
 
@@ -171,8 +213,8 @@ def test_contradicted_superseded_expired_and_cross_scope_are_excluded() -> None:
 
 def test_one_concept_across_multiple_nodes_does_not_inflate_agreement() -> None:
     # "Carol" is a single query term represented as both an entity and a value
-    # node, both grounding raw:R1.  Agreement counts distinct query tokens, so
-    # this stays at 1 and is rejected at the default threshold.
+    # node, both grounding raw:R1. One-to-one concept/token matching means the
+    # single query token can be assigned only once, so agreement stays at 1.
     conn = _connect()
     _node(conn, "ent:carol", "Carol", kind="entity")
     _node(conn, "value:carol", "Carol", kind="value")
@@ -216,6 +258,62 @@ def test_content_bearing_node_kinds_do_not_seed_agreement() -> None:
     # Agreement is exactly the two concept nodes, not the claim or source node.
     assert result[0].seed_ids == ("ent:alice", "value:bob")
     assert result[0].agreement == 2
+
+
+def test_one_long_concept_label_cannot_cover_two_query_terms() -> None:
+    conn = _connect()
+    _node(conn, "value:alice-bob", "Alice met Bob", kind="value")
+    _node(conn, "ent:hub", "Hub", kind="entity")
+    _episode(conn, "ep1", "raw:R1")
+    _edge(conn, "e1", "value:alice-bob", "ent:hub", "ep1")
+    conn.commit()
+
+    assert select_graph_source_raw(conn, "alice bob", ns="n", scope="s") == []
+    admitted = select_graph_source_raw(
+        conn, "alice bob", ns="n", scope="s", min_agreement=1
+    )
+    assert admitted[0].agreement == 1
+    assert len(admitted[0].matched_pairs) == 1
+
+
+def test_alias_term_resolves_to_the_canonical_entity_seed() -> None:
+    conn = _connect()
+    _node(
+        conn,
+        "ent:international-business-machines",
+        "International Business Machines",
+        aliases=["IBM"],
+    )
+    _node(conn, "ent:alice", "Alice")
+    _episode(conn, "ep1", "raw:R1")
+    _edge(
+        conn,
+        "e1",
+        "ent:international-business-machines",
+        "ent:alice",
+        "ep1",
+    )
+    conn.commit()
+
+    [selection] = select_graph_source_raw(conn, "IBM Alice", ns="n", scope="s")
+    assert selection.agreement == 2
+    assert ("ent:international-business-machines", "ibm") in selection.matched_pairs
+
+
+def test_direct_episode_mentions_supply_source_paths_without_semantic_edges() -> None:
+    conn = _connect()
+    _node(conn, "ent:alice", "Alice")
+    _node(conn, "ent:bob", "Bob")
+    _episode(conn, "ep1", "raw:R1")
+    _mention(conn, "ent:alice", "ep1", "clm:1")
+    _mention(conn, "ent:bob", "ep1", "ent:bob")
+    conn.commit()
+
+    [selection] = select_graph_source_raw(conn, "Alice Bob", ns="n", scope="s")
+    assert selection.source_record_id == "raw:R1"
+    assert selection.agreement == 2
+    assert {path.path_kind for path in selection.paths} == {"mention"}
+    assert {path.predicate for path in selection.paths} == {"mentions"}
 
 
 def test_ties_are_deterministic_by_source_record_id() -> None:
@@ -273,6 +371,7 @@ def test_selection_exposes_no_source_text_field() -> None:
         "agreement",
         "edge_count",
         "covered_tokens",
+        "matched_pairs",
         "seed_ids",
         "edge_ids",
         "score",
@@ -292,3 +391,10 @@ def test_min_agreement_below_one_is_rejected() -> None:
     conn = _two_seed_graph()
     with pytest.raises(ValueError, match="min_agreement"):
         select_graph_source_raw(conn, "alice bob", min_agreement=0)
+
+
+def test_negative_max_seeds_is_rejected_and_zero_disables_selection() -> None:
+    conn = _two_seed_graph()
+    with pytest.raises(ValueError, match="max_seeds"):
+        select_graph_source_raw(conn, "alice bob", max_seeds=-1)
+    assert select_graph_source_raw(conn, "alice bob", max_seeds=0) == []

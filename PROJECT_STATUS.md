@@ -1,5 +1,26 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#454 - BUILT graph-maturity stage G1 and
+changed Track R from post-benchmark to graph-first qualification per operator
+direction. Projection `knowledge-graph/5` adds a versioned, scoped
+`knowledge_node_terms` identity index for canonical entity names, explicit
+aliases, symbols, agents, and short concept literals; assertion/source labels
+and sentence-like values are excluded. `compile_nl` now provenance-binds every
+extracted ENT to its RAW episode. The graph->source selector uses the identity
+index plus semantic-edge and direct episode-mention paths, with deterministic
+one-to-one concept/token matching so neither one long label nor duplicate nodes
+matching one word can inflate agreement. Added the durable architecture plot
+and G1-G7 sequence in `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; benchmarks now
+qualify completed graph stages instead of blocking their construction.
+Verification: 200/200 affected graph/compiler/facade tests; full `tests/`
+collected 1,327 and passed exit 0 with the healthy local pgvector service,
+two established xfails and zero skips; Ruff/compile/diff clean; CodeRabbit
+second pass zero findings after four minor hardening fixes; real in-memory
+projector smoke resolved alias `IBM`, excluded sentence-value terms, and traced
+`Alice Bob` to exact RAW at agreement 2. No provider or paid calls. NEXT: G2
+reversible identity resolution -- candidate aliases, canonical-of links, merge
+evidence, conflict states, and undo/split before hybrid path-ranking work.)
+
 Current update: 2026-07-22 (HISTORY#453 - BUILT the first query-conditioned
 graph -> source-RAW infrastructure slice (the HISTORY#452 next build),
 default-off, verified end-to-end against the real knowledge-graph projection. No
