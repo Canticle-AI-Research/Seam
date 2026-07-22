@@ -10664,3 +10664,89 @@ tokens: 128
 ---
 Correction to HISTORY#448 verification scope. The command pytest tests/audit/test_derived_fact_context.py tests/audit/test_multi_speaker_runtime.py tests/audit/test_multi_speaker_facts.py tests/audit/test_displacement_audit.py -q passed 90 tests. The separate command pytest tests/audit/test_multi_speaker_preflight.py -q passed 4 tests. The five-file collect-only command over those same paths collected the corresponding disjoint cases. This supplies the exact path scope required for the recorded test-count facts; all benchmark results, the full-suite performance failure and interruption, and the promotion decision in HISTORY#448 remain unchanged.
 ---END-ENTRY-#449---
+
+---BEGIN-ENTRY-#450---
+id: 450
+date: 2026-07-22T03:34:11Z
+agent: codex
+status: done
+topics: benchmark, locomo, retrieval, pack, graph, models, audit, test, handoff, verify, ci
+commits: 69b7686,e9ecc87
+refs: seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_non_displacing_pack.py,tests/audit/test_multi_scope_pack.py,tests/audit/test_non_displacing_pack_preflight.py,docs/handoffs/2026-07-21-non-displacing-pack-aux-raw-gate.md,docs/handoffs/2026-07-21-multi-speaker-derived-facts-cloud-probe.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md
+supersedes: 449
+tokens: 523
+---
+Completed the HISTORY#448 non-displacing-PACK next boundary with a source-safe,
+artifact-only implementation and the same exact zero-provider LoCoMo gate. The
+scope is conversations 3/4/5, categories 1/3: 130 unique questions comprising
+34 baseline misses and 96 sentinels. The strict PACK preserves the complete
+baseline RAW sequence as its logical prefix while replacing only the physical
+tail with directly readable items ordered protected RAW, exact fact-source RAW,
+zero to four novel auxiliary RAW episodes, then one grounded fact. Digest-bound,
+character-length parsing rejects malformed, duplicate, reordered, truncated,
+missing-source, over-budget, or preservation-breaking candidates. The measured
+N=3 default remains outside live POLICIES because live RAW-primary retrieval is
+not yet isolated from derived or graph candidate ranking.
+
+The zero-provider cap sweep measured N=0 at zero miss and zero sentinel gains,
+N=1 and N=2 at zero miss plus one sentinel gain, and N=3 and N=4 at one miss plus
+one sentinel gain. Every cap lost zero miss and zero sentinel references. N=3 is
+therefore the smallest tested passing slice: 130/130 physical counts, baseline
+logical RAW prefixes, protected tail scores/dates, exact source-id/body ordering,
+upstream score-sort positions, and chronological prompt positions are preserved.
+Maximum N=3 PACK size is 3,197 characters. The largest pinned GPT-4o answerer
+prompt is 15,190 o200k_base tokens, an 891-token maximum increase over baseline
+and 108,714 tokens of remaining context after a 4,096-token output reserve. The
+external N=3 candidate SHA-256 is
+b703fc3fa83f070c952017fb3aa1a57b1d0a4d8c493af3c056556683a682546d;
+its numeric-only audit SHA-256 is
+05d5ec8b496b6d8eab3205ce1f323104adbe6eab19fc46499dfc4a0239c941d5.
+Licensed candidates remain outside git, and the replay CLI now rejects an
+in-repository candidate-output path.
+
+Independent recomputation supplies the decisive attribution correction: both
+new gold hits are auxiliary raw_episode items, not the GPT-4o fact or its exact
+source. Fact plus source alone gains zero misses. This is a non-displacing PACK
+and auxiliary-RAW retrieval-contract win, not a derived-fact or benchmark-score
+win. GPT-4o provenance is verified for the frozen baseline and extraction, but
+direct fact lift remains zero and extraction yield remains below the prior 0.90
+gate. The cap was selected adaptively on this 130-question slice, so no live
+facade promotion, cloud ingest, paid answerer/judge, or generalization claim is
+authorized. Next is a RAW-only primary lane isolated from derived/graph ranking,
+plus a query-conditioned source-RAW auxiliary lane. Graph work should bridge
+edge source_record_id values with multi-node/path agreement into a lane-neutral
+N<=3 PACK, then pass this ratchet and a predeclared fresh provider-free scope.
+
+Verification: the exact affected and adjacent comparator/CI-guard slice
+collected 38 tests and passed all 38. Touched-file Ruff, compileall, diff hygiene,
+candidate secret/session-link scan, two CodeRabbit committed-diff reviews with
+zero findings, and an independent artifact/parser/prompt/hash recomputation are
+green. The HISTORY#447 ordering item is resolved intra-run: PR #154, PR #155,
+and the 0e87c58 merge run all started advisory test-and-benchmark after their
+five fast jobs completed. Global single-runner contention remains possible; the
+PR #155 and merge advisory runs were red only on the 180-second quickstart timing
+guard at 269.57 and 285.81 seconds, and the sentence-transformers 2.7 failures
+did not recur. Required checks on the new PR remain the merge authority.
+Operator-owned .ua/ and five report PNG files remain untouched and excluded.
+---END-ENTRY-#450---
+
+---BEGIN-ENTRY-#451---
+id: 451
+date: 2026-07-22T03:38:17Z
+agent: codex
+status: changed
+topics: test, verify, history, continuity, audit
+commits: pending
+refs: HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/history/index.md,.seam/cross_index.md
+supersedes: 450
+tokens: 144
+---
+Correction to HISTORY#450 verification scope. The command .venv/bin/python -m
+pytest -q tests/audit/test_multi_scope_pack.py
+tests/audit/test_non_displacing_pack_preflight.py
+tests/audit/test_displacement_audit.py tests/audit/test_github_pr_gates.py passed
+38 tests. The collect-only command over those same four paths collected 13, 10,
+9, and 6 tests respectively. This supplies the exact path scope required for
+the recorded test-count fact; all PACK results, hashes, attribution, CI timing,
+promotion boundary, and next-build decisions in HISTORY#450 remain unchanged.
+---END-ENTRY-#451---
