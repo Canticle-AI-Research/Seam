@@ -10750,3 +10750,137 @@ tests/audit/test_displacement_audit.py tests/audit/test_github_pr_gates.py passe
 the recorded test-count fact; all PACK results, hashes, attribution, CI timing,
 promotion boundary, and next-build decisions in HISTORY#450 remain unchanged.
 ---END-ENTRY-#451---
+
+---BEGIN-ENTRY-#452---
+id: 452
+date: 2026-07-22T05:03:16Z
+agent: claude
+status: changed
+topics: benchmark, retrieval, derived-facts, non-displacing-pack, ablation, mem0-harness, verify
+commits: pending
+refs: seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_fact_free_raw_pack.py,tests/audit/test_fact_free_raw_pack_preflight.py,tests/audit/test_multi_scope_pack.py,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,docs/handoffs/2026-07-22-fact-free-auxiliary-raw-ablation.md,docs/handoffs/INDEX.md
+supersedes: 451
+tokens: 854
+---
+Built the fact-free auxiliary-RAW ablation recommended by HISTORY#450 and ran
+its exact zero-provider replay gate. New default-off artifact-replay primitive
+non-displacing-raw-pack/1 in seam_runtime/multi_scope_pack.py packs the protected
+baseline RAW tail followed by up to N novel auxiliary RAW episodes with no
+grounded fact and no fact-bound source item (raw_protected -> raw_episode x
+0..N): it adds compose_non_displacing_raw_pack, parse_raw_pack_items, and
+expand_logical_raw_pack_rows, and extends _valid_raw_row to reject the new pack
+prefix. New gate benchmarks/external/mem0_harness/preflight_fact_free_raw_pack.py
+reuses the frozen GPT-4o conversations 3/4/5 baseline and auxiliary artifacts,
+pins the episode set to exactly what the fact-bearing PACK selected (derives the
+raw_episode ids from compose_non_displacing_fact_pack), then repacks those same
+ids fact-free and re-runs the 130-question displacement audit.
+
+RESULT, zero provider/extraction/answerer/judge/embedding/retrieval calls: the
+fact-free ablation reproduces the HISTORY#450 result EXACTLY - miss_gold_gained
+1, sentinel_gold_gained 1, zero miss and zero sentinel loss across 34 misses and
+96 sentinels. The two gaining question ids are byte-identical to the fact-bearing
+gate (conv4_q3 the cat3 sentinel, conv4_q41 the cat1 miss). 130/130 questions
+carry a pack, 0 fact items are served anywhere, 127/130 carry the full three
+episodes, logical RAW prefix and physical row count are preserved, maximum pack
+is 1868 characters, and the maximum GPT-4o answerer prompt delta is 466 tokens
+with 109192 tokens of headroom. CONCLUSION: on this gate the GPT-4o derived fact
+and its mandatory source row are dead weight; the auxiliary RAW episodes alone
+carry the entire measured non-displacing gain. Per the HISTORY#450 directive the
+fact-specific overhead can be dropped and the generic auxiliary-RAW PACK carried
+into the graph/RAW lane.
+
+Caveats retained: N=3 and the episode set were selected adaptively on the same
+130 questions, so this is a mechanism proof and regression ratchet, not a
+held-out score claim; no live facade promotion, cloud ingest, or paid
+answerer/judge is authorized. Next is the RAW-only primary lane isolated from
+derived/graph ranking plus a query-conditioned source-RAW auxiliary lane, then a
+predeclared fresh provider-free held-out scope before any promotion or paid gate.
+
+Licensed candidate and its numeric report are stored outside git under
+/media/terrabyte/T7/Proprietary/DATA/seam-ms-gpt4o-probe.ekhTRe/ (candidate
+candidate-ms4o0721b-fact-free-raw-n3.json SHA-256
+f5341152a2ba066d49b2b70961f47f6dd2cedf309c6911b310c7829001806086; numeric report
+fact-free-raw-n3-report.json SHA-256
+e703c18a8d8a1d068bc5d421bf763e5ad8b5f72a5f4bd86a19ee36ea4fee609e). The preflight
+rejects candidate output paths inside the repository.
+
+Verification: the exact affected slice collected 41 and passed all 41
+(tests/audit/test_multi_scope_pack.py 16, test_fact_free_raw_pack_preflight.py 6,
+test_non_displacing_pack_preflight.py 10, test_displacement_audit.py 9). Full
+pytest tests/ passed exit 0 with the T7 offline HF env and the local pgvector
+DSN, two established xfails and zero skips. Touched-file Ruff clean. No provider
+call, no paid work, no push. Operator-owned .ua/ and the report PNG files remain
+untouched and excluded.
+---END-ENTRY-#452---
+
+---BEGIN-ENTRY-#453---
+id: 453
+date: 2026-07-22T06:23:10Z
+agent: claude
+status: changed
+topics: retrieval, graph, knowledge-graph, non-displacing-pack, mem0-harness, infra, verify
+commits: pending
+refs: seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_graph_source_selector.py,tests/audit/test_seam_mem0_server.py,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,docs/handoffs/2026-07-22-graph-source-raw-lane.md,docs/handoffs/INDEX.md
+supersedes: 452
+tokens: 908
+---
+BUILT the first query-conditioned graph -> source-RAW infrastructure slice (the
+HISTORY#452 next build), default-off, and verified it end-to-end against the real
+knowledge-graph projection. No provider or paid call; local ingest + graph
+projection only. This is a mechanism + facade-wiring deliverable, NOT a benchmark
+or promotion claim: the provider-free held-out evidence/displacement measurement
+has not been run.
+
+New pure read-only selector seam_runtime/graph_source_selector.py:
+select_graph_source_raw finds lexically-matched concept seed nodes, follows
+current in-scope knowledge_edges incident to them through knowledge_edge_episodes
+-> knowledge_episodes.source_record_id, and returns exact source RAW ids that
+clear a multi-node agreement bar with a full auditable trace
+(GraphSourceSelection carries agreement, covered_tokens, seed_ids, edge_ids,
+score, and per-path seed/edge/episode/source). It invents no source text (ids and
+provenance only) and excludes contradicted/superseded/deprecated/deleted_soft/
+refuted/stale and expired edges and episodes plus cross-ns/scope evidence.
+
+Facade wiring in benchmarks/external/mem0_harness/seam_mem0_server.py: default-off
+policy graph-source-raw/1 (env SEAM_GRAPH_SOURCE_RAW_POLICY, CLI
+--graph-source-raw-policy). _apply_graph_source_raw_policy runs primary RAW once,
+independently selects at most 3 corroborated source RAW rows (min agreement 2) via
+_search_graph_source_raw, then folds them into compose_non_displacing_raw_pack
+(HISTORY#452). Standalone lane: it does not stack second-hop/count/temporal/
+graph-fill/fact splicers, graph candidates never enter or perturb primary ranking,
+and it fails closed to the exact primary object when no novel corroborated RAW
+exists. Off path is object-identical.
+
+DECISIVE VERIFICATION FINDING: a real 3-turn facade smoke exposed that the
+deterministic projection embeds the originating RAW turn text in concept-node
+labels and represents one concept as several nodes (entity + value + claim), so
+naive lexical seed-matching over-counted same-turn nodes and would have degraded
+multi-node agreement into plain token presence. Corrected the mechanism so
+agreement counts distinct query TOKENS independently corroborated (not raw node
+count), and content-embedding kinds (entity/relation/event/state) match on their
+id while only short concept kinds (value/agent/symbol) match on label. Re-verified
+on the same store: 'Alice Bob' -> agreement 2 {alice,bob}; 'Carol' (one concept,
+two nodes) -> rejected; 'coffee tea' -> agreement 2. The composer also correctly
+declined to pack when the selected RAW was already in primary (non-novel ->
+exact fallback). HONEST BOUNDARY: concept seeding is still lexical over an
+imperfect projection; whether it adds evidence beyond lexical RAW retrieval is
+what the held-out measurement must decide, and a cleaner fix is a projection-side
+concept label/index.
+
+Tests: tests/audit/test_graph_source_selector.py 15 hermetic cases (two
+independent paths select one RAW; single noisy adjacency rejected; one concept
+across many nodes does not inflate; content-bearing kinds do not seed;
+contradicted/superseded/expired/cross-scope excluded; deterministic ties; exact
+source id; no text field; limit/min_agreement/tokenize) plus facade
+on/off/no-rows/unknown-policy cases in tests/audit/test_seam_mem0_server.py.
+
+Verification: affected slice 64/64 (test_graph_source_selector.py 15,
+test_seam_mem0_server.py 33, test_multi_scope_pack.py 16). Full pytest tests/
+passed exit 0 with the T7 offline HF env and the local pgvector DSN, two
+established xfails and zero skips. Touched-file Ruff and compileall clean. No
+provider call, no paid work, no push. NEXT: provider-free held-out displacement
+measurement on a fresh LoCoMo scope (NOT the adaptive 130), gate >= 1 net miss
+gold gain with zero sentinel loss before any promotion; then concept-dedup /
+projection-side seeding if it wins. Operator-owned .ua/, seam_runtime/.ua/, and
+report PNG files remain untouched and excluded.
+---END-ENTRY-#453---

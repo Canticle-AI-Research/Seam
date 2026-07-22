@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 512
+total_events: 514
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-25T21:05:09Z | history:258:73267294 | session-event | done | verify, windows, protocol, history, status | tools/streams/streams_lib.py,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.s... |
-| 2026-05-25T21:14:05Z | history:259:e2b36892 | session-event | done | verify, windows, protocol, history, status | .gitattributes,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md,.seam/streams/hi... |
 | 2026-05-25T21:24:33Z | history:260:3af70289 | session-event | done | verify, windows, protocol, history, status | .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,PROJECT_STATUS.m... |
 | 2026-05-25T21:35:57Z | history:261:9d37437e | session-event | done | verify, windows, protocol, history, status | tests/audit/test_ci_verify_gates.py,PROJECT_STATUS.md,HISTORY.md,HISTORY_INDE... |
 | 2026-05-26T05:42:57Z | history:262:7d02e345 | session-event | done | retrieval, benchmark, bundle, verify, history, protocol | tools/h2/__init__.py,tools/h2/backfill_bundle.py,tests/audit/test_h2_backfill... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-21T23:50:13Z | history:449:3656720f | session-event | changed | test, verify, history, continuity, audit | HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/histor... |
 | 2026-07-22T03:34:11Z | history:450:2b21583d | session-event | done | benchmark, locomo, retrieval, pack, graph, models, audit,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_n... |
 | 2026-07-22T03:38:17Z | history:451:1236931e | session-event | changed | test, verify, history, continuity, audit | HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/histor... |
+| 2026-07-22T05:03:16Z | history:452:92876be2 | session-event | changed | benchmark, retrieval, derived-facts, non-displacing-pack,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_f... |
+| 2026-07-22T06:23:10Z | history:453:5dd3c7e3 | session-event | changed | retrieval, graph, knowledge-graph, non-displacing-pack, m... | seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_m... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0312.cross.md | 2026-04-15T00:00:00Z..2026-05-25T20:54:52Z | 312 | (multi) | (multi) |
+| 0001-0314.cross.md | 2026-04-15T00:00:00Z..2026-05-25T21:14:05Z | 314 | (multi) | (multi) |

@@ -1,5 +1,59 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#453 - BUILT the first query-conditioned
+graph -> source-RAW infrastructure slice (the HISTORY#452 next build),
+default-off, verified end-to-end against the real knowledge-graph projection. No
+provider or paid call; mechanism + facade wiring only, NOT a benchmark/promotion
+claim. New pure selector `seam_runtime/graph_source_selector.py` follows current
+in-scope `knowledge_edges` -> `knowledge_edge_episodes` ->
+`knowledge_episodes.source_record_id` from lexically-matched concept seed nodes
+and returns exact source RAW ids clearing a multi-node agreement bar, with a full
+auditable trace and no invented text; excludes contradicted/superseded/expired
+and cross-ns/scope evidence. Default-off facade policy `graph-source-raw/1` (env
+`SEAM_GRAPH_SOURCE_RAW_POLICY`) runs primary RAW once, independently selects <=3
+corroborated source RAW (min agreement 2), and folds them into
+`compose_non_displacing_raw_pack`; standalone lane that never perturbs primary
+ranking and fails closed to the exact primary object; off path object-identical.
+DECISIVE VERIFICATION: a real facade smoke exposed that the deterministic
+projection embeds RAW turn text in concept-node labels and splits one concept
+across several nodes, so naive lexical seeding over-counted same-turn nodes;
+corrected agreement to count distinct query TOKENS corroborated (content-embedding
+kinds match on id, only value/agent/symbol match on label), re-verified on the
+same store ('Alice Bob' agreement 2, 'Carol' rejected, 'coffee tea' agreement 2).
+Honest boundary: concept seeding is still lexical over an imperfect projection;
+the held-out measurement decides real value. Verification: affected slice 64/64;
+full `pytest tests/` exit 0 with T7 offline HF env + local pgvector DSN, two
+established xfails, zero skips; Ruff/compileall clean; no push. NEXT: provider-free
+held-out displacement measurement on a fresh LoCoMo scope (NOT the adaptive 130),
+gate >= 1 net miss gold gain with zero sentinel loss before any promotion; then
+concept-dedup / projection-side seeding if it wins.)
+
+Current update: 2026-07-22 (HISTORY#452 - COMPLETE: the fact-free auxiliary-RAW
+ablation recommended by HISTORY#450 passes the exact 130-question zero-provider
+gate IDENTICALLY to the fact-bearing PACK (+1 miss, +1 sentinel, zero loss over
+34 misses / 96 sentinels) while serving ZERO derived facts. New default-off
+artifact-replay primitive `non-displacing-raw-pack/1` in
+`seam_runtime/multi_scope_pack.py` packs `raw_protected -> raw_episode x 0..N`
+with no fact and no source; new gate
+`benchmarks/external/mem0_harness/preflight_fact_free_raw_pack.py` pins episodes
+to exactly what the fact-bearing PACK selected and re-runs the displacement
+audit. The two gaining question ids are byte-identical (conv4_q3 cat3 sentinel,
+conv4_q41 cat1 miss); 130/130 questions carry a pack, 127/130 the full three
+episodes, max pack 1868 chars, max GPT-4o prompt delta 466 tokens. CONCLUSION:
+the GPT-4o fact and its source row are dead weight on this gate; the auxiliary
+RAW episodes alone carry the entire measured gain, so the fact-specific overhead
+can be dropped and the generic auxiliary-RAW PACK carried into the graph/RAW
+lane. Caveat: N=3 and the episode set were adaptively selected on these same 130
+questions, so this is a mechanism proof / regression ratchet, NOT a held-out
+score claim; no facade promotion, cloud ingest, or paid work is authorized.
+Verification: affected slice 41/41; full `pytest tests/` exit 0 with the T7
+offline HF env and local pgvector DSN, two established xfails and zero skips;
+Ruff clean; no push. Licensed candidate + numeric report stored outside git on
+T7 (candidate SHA f5341152..., report SHA e703c18a...). NEXT: RAW-only primary
+lane isolated from derived/graph ranking + a query-conditioned source-RAW
+auxiliary lane, then a predeclared fresh provider-free held-out scope before any
+promotion or paid gate.)
+
 Current update: 2026-07-21 (HISTORY#450 - the exact zero-provider
 non-displacing PACK gate passes on the GPT-4o conversations 3/4/5 slice at the
 smallest tested source-safe cap, N=3: 130 questions, 34 baseline misses, 96

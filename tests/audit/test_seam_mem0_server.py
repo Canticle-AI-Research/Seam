@@ -14,6 +14,7 @@ import pytest
 
 from benchmarks.external.mem0_harness.seam_mem0_server import (
     GRAPH_CONTEXT_FILL_V1,
+    GRAPH_SOURCE_RAW_V1,
     SeamMem0Server,
     _apply_count_context_policy,
     _epoch_to_iso,
@@ -26,6 +27,10 @@ from seam_runtime.derived_fact_context import (
     SENTENCE_GROUNDED_CLM_V1,
 )
 from seam_runtime.mirl import IRBatch, RecordKind, Status
+from seam_runtime.multi_scope_pack import (
+    expand_logical_raw_pack_rows,
+    parse_raw_pack_items,
+)
 from seam_runtime.nl_extract import Extraction, ground_extraction
 from seam_runtime.retrieval import RetrievalFlags
 from seam_runtime.sentence_grounded_facts import SentenceGroundedFact
@@ -291,6 +296,74 @@ def test_graph_context_fill_does_not_search_at_capacity():
     )
 
     assert server._apply_graph_context_policy("user", "query", primary, 1) is primary
+
+
+def test_graph_source_raw_off_preserves_primary_object():
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._graph_source_raw_policy = "off"
+    primary = [{"memory": "primary", "id": "raw:primary", "score": 0.5}]
+    server._search_graph_source_raw = lambda *args: pytest.fail(
+        "off policy must not touch the graph"
+    )
+
+    assert (
+        server._apply_graph_source_raw_policy("user", "query", primary, 5) is primary
+    )
+
+
+def test_graph_source_raw_on_composes_non_displacing_pack_preserving_prefix():
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._graph_source_raw_policy = GRAPH_SOURCE_RAW_V1
+    primary = [
+        {"memory": "[A 2024-01-01] first", "id": "raw:a", "score": 0.9},
+        {"memory": "[B 2024-01-02] protected tail", "id": "raw:b", "score": 0.5},
+    ]
+    captured = {}
+
+    def graph_search(user_id, query, limit):
+        captured.update(user_id=user_id, query=query, limit=limit)
+        return [
+            {"memory": "[C 2024-01-03] corroborated source", "id": "raw:c", "score": 2.1},
+            {"memory": "[D 2024-01-04] second source", "id": "raw:d", "score": 2.0},
+        ]
+
+    server._search_graph_source_raw = graph_search
+    composed = server._apply_graph_source_raw_policy("user", "query", primary, 5)
+
+    assert captured == {"user_id": "user", "query": "query", "limit": 3}
+    # Physical row count is stable and the tail is a fact-free RAW pack.
+    assert len(composed) == len(primary)
+    items = parse_raw_pack_items(composed[-1])
+    assert items is not None
+    assert [item.scope for item in items] == [
+        "raw_protected",
+        "raw_episode",
+        "raw_episode",
+    ]
+    assert all("SEAM-FACT/1" not in item.memory for item in items)
+    # The complete baseline RAW prefix is preserved logically.
+    logical = expand_logical_raw_pack_rows(composed)
+    assert [row["id"] for row in logical] == ["raw:a", "raw:b", "raw:c", "raw:d"]
+    assert [row["memory"] for row in logical][:2] == [row["memory"] for row in primary]
+
+
+def test_graph_source_raw_on_with_no_graph_rows_fails_closed():
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._graph_source_raw_policy = GRAPH_SOURCE_RAW_V1
+    primary = [{"memory": "primary", "id": "raw:primary", "score": 0.5}]
+    server._search_graph_source_raw = lambda *args: []
+
+    assert (
+        server._apply_graph_source_raw_policy("user", "query", primary, 5) is primary
+    )
+
+
+def test_graph_source_raw_policy_rejects_unknown_value_before_opening_store(tmp_path):
+    with pytest.raises(ValueError, match="graph source raw policy"):
+        SeamMem0Server(
+            db_path=str(tmp_path / "scopes"),
+            graph_source_raw_policy="bogus",
+        )
 
 
 def test_user_scopes_are_isolated(server):

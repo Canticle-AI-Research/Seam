@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 451
-total_tokens: ~200856
-latest_id: 451
+total_entries: 453
+total_tokens: ~202618
+latest_id: 453
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 453 | 2026-07-22 | changed | 5dd3c7e362c422fd | retrieval,graph,knowledge-graph,non-displacing-pack,+ | 452 |
+| 452 | 2026-07-22 | changed | 92876be2de960427 | benchmark,retrieval,derived-facts,non-displacing-pack,+ | 451 |
 | 451 | 2026-07-22 | changed | 1236931ee1a00feb | test,verify,history,continuity,+ | 450 |
 | 450 | 2026-07-22 | done | 2b21583db9f212b8 | benchmark,locomo,retrieval,pack,+ | 449 |
 | 449 | 2026-07-21 | changed | 3656720f50fee949 | test,verify,history,continuity,+ | 448 |
@@ -465,6 +467,7 @@ compact: true
 
 ## topic index (latest ids, max 5)
 
+- ablation: count=1 latest=#452
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
@@ -483,7 +486,7 @@ compact: true
 - audit: count=94 latest=#451, #450, #449, #448, #446
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
-- benchmark: count=186 latest=#450, #448, #447, #446, #445
+- benchmark: count=187 latest=#452, #450, #448, #447, #446
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -538,7 +541,7 @@ compact: true
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
-- derived-facts: count=2 latest=#438, #436
+- derived-facts: count=3 latest=#452, #438, #436
 - design-task: count=1 latest=#363
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
@@ -576,7 +579,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=12 latest=#450, #448, #444, #442, #441
+- graph: count=13 latest=#453, #450, #448, #444, #442
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -590,7 +593,7 @@ compact: true
 - hygiene: count=2 latest=#406, #324
 - improve: count=1 latest=#302
 - inference: count=1 latest=#413
-- infra: count=2 latest=#425, #271
+- infra: count=3 latest=#453, #425, #271
 - ingest: count=2 latest=#317, #303
 - installer: count=16 latest=#360, #352, #337, #204, #177
 - instrumentation: count=1 latest=#366
@@ -598,6 +601,7 @@ compact: true
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
 - kb: count=1 latest=#437
+- knowledge-graph: count=1 latest=#453
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
@@ -619,7 +623,7 @@ compact: true
 - mcp: count=18 latest=#350, #348, #347, #222, #218
 - measurement: count=1 latest=#369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
-- mem0-harness: count=4 latest=#434, #433, #431, #424
+- mem0-harness: count=6 latest=#453, #452, #434, #433, #431
 - memory: count=20 latest=#444, #442, #441, #440, #439
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
@@ -633,6 +637,7 @@ compact: true
 - naming: count=4 latest=#033, #024, #009, #002
 - negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
+- non-displacing-pack: count=2 latest=#453, #452
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
 - open-domain: count=1 latest=#413
@@ -691,7 +696,7 @@ compact: true
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - results: count=2 latest=#411, #410
-- retrieval: count=103 latest=#450, #448, #446, #445, #444
+- retrieval: count=105 latest=#453, #452, #450, #448, #446
 - retrievalflags: count=1 latest=#328
 - retry: count=2 latest=#336, #182
 - review: count=1 latest=#388
@@ -746,7 +751,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=27 latest=#435, #364, #228, #223, #220
 - vector-adapters: count=1 latest=#359
-- verify: count=289 latest=#451, #450, #449, #448, #447
+- verify: count=291 latest=#453, #452, #451, #450, #449
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -759,7 +764,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 11
+- changed: 13
 - done: 413
 - in-progress: 6
 - planned: 21
