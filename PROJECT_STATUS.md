@@ -1,5 +1,26 @@
 # SEAM Project Status
 
+Current update: 2026-07-22 (HISTORY#459 - two changes. (1) G3 FREE MEASUREMENT
+FALSIFIED: the identity-fold has ZERO fuel on LoCoMo. A provider-free probe over
+3 conversations (~360/296/361 entities) found the G2.2 generator proposes
+nothing (pairs_examined=0); a conv0 diagnostic showed the honest-minimal
+extractor emits 0 alias terms and 0 normalized terms shared across distinct
+entity nodes (exact-label coreference already dedups identity at ingest). So
+resolve_identity can never fire on LoCoMo and cannot move that score. G1-G3
+remain architecturally correct and land value for AGENT memory (non-exact
+aliases), but the identity path is NOT a LoCoMo lever; banked in
+docs/kb/seam-internals/lever-graveyard.md. LoCoMo's real wall stays retrieval-
+side second-hop / gold-not-in-top-200, orthogonal to identity. (2) TOOLING: new
+tools/history/closeout.py collapses the 8-step Session-End chain into one command
+that ends in a first-try-passing preflight state; changes NO gate behavior (same
+modules, same flags as the preflight hook incl. verify_continuity
+--no-recorded-fact-audit), neither stages nor commits. Per operator guardrail,
+re-enabling the recorded-fact gate + editing the audit modules were REVERTED (add
+risk without speeding commits). Verification: closeout.py ruff/compileall clean,
+all four preflight gates pass as run by the wrapper (which appended this entry);
+no product code touched. NEXT: return to LoCoMo's retrieval-side second-hop
+bottleneck; graph substrate G1-G3 is complete.)
+
 Current update: 2026-07-22 (HISTORY#458 - BUILT graph-maturity stage G3 slice-1,
 the FIRST retrieval-touching graph capability. `select_graph_source_raw`
 (`seam_runtime/graph_source_selector.py`) gains a default-off `resolve_identity`

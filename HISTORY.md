@@ -11189,3 +11189,68 @@ sentinel loss (the standing free-gate bar), only then consider a paid confirm.
 Then G3 slice-2 (semantic + bounded traversal + latency fixtures) for the full
 roadmap stage.
 ---END-ENTRY-#458---
+
+---BEGIN-ENTRY-#459---
+id: 459
+date: 2026-07-22T13:59:43Z
+agent: claude-opus-4-8
+status: done
+topics: graph, identity, resolution, measurement, tooling, protocol, verify, track-r
+commits: pending
+refs: docs/kb/seam-internals/lever-graveyard.md
+supersedes: 458
+tokens: 815
+---
+G3 free measurement FALSIFIED (no fuel on LoCoMo) + one-shot closeout wrapper
+
+TWO changes.
+
+(1) G3 MEASUREMENT (the HISTORY#458 next step), run as a free, provider-free
+probe: the identity-fold has ZERO fuel on LoCoMo, so it cannot move that score.
+Probe compiled 3 LoCoMo conversations (~360/296/361 entities) with the
+honest-minimal extractor and ran the G2.2 candidate generator on each
+locomo:<user>/thread scope -> `pairs_examined=0, proposed=0` every time. A conv0
+diagnostic isolated why: entity nodes carry only `canonical` (454) and
+`reference` (1786) terms and ZERO `alias` terms, and ZERO normalized terms are
+shared across distinct entity nodes -- exact-label coreference already dedups
+identity at ingest, so there are no distinct-node duplicates to merge and no
+nicknames/abbreviations captured as aliases. Therefore `resolve_identity`'s fold
+never fires on LoCoMo. Conclusion (operator-directed): G1-G3 remain
+architecturally correct and land real value for AGENT memory (where non-exact
+aliases occur), but the identity path is NOT a LoCoMo lever; and LoCoMo's known
+wall is answerer-bound + retrieval-side second-hop (gold not in top-200),
+orthogonal to alias resolution. Banked in
+docs/kb/seam-internals/lever-graveyard.md; validate-before-build paid off --
+the ~$0 probe killed the hypothesis before any facade wiring or full OFF/ON
+displacement audit was built on an empty ledger. No facade change, no promotion,
+no paid or provider call; probe scripts stayed in scratchpad (not committed).
+
+(2) CLOSEOUT TOOLING: new `tools/history/closeout.py` collapses the 8-step
+Session-End chain (new_entry -> rebuild_index -> streams mirror ->
+rebuild_cross_index -> write_snapshot -> integrity/routing/continuity) into ONE
+command, run in dependency order so the preflight hook passes on the first
+`git add` instead of blocking-and-retrying per missing artifact. It changes NO
+gate behavior: it shells the same tested modules with the SAME flags as
+tools/claude/preflight_protocol.sh -- notably `verify_continuity
+--no-recorded-fact-audit`, so it never fires the recorded-fact audit the hook
+deliberately disables (the source of this session's self-inflicted test-count
+friction). It neither stages nor commits (honors the wait-for-"push it" rule);
+it prints the suggested `git add`. This very entry was appended and verified BY
+the wrapper as its first live run. Considered-and-rejected in the same session
+(operator guardrail "only if it genuinely speeds us up; don't break anything"):
+re-enabling the recorded-fact gate in the hook and editing the audit modules
+(test_count_audit/recorded_fact_audit) were reverted -- they add enforcement/
+risk without speeding commits, since the wrapper's hook-matching flags already
+avoid the false-positive landmine.
+
+Verification: closeout.py ruff + compileall clean; all nine orchestrated module
+targets import; the four preflight gates (integrity, routing, continuity
+--no-recorded-fact-audit, streams) pass as run by the wrapper. Full `pytest
+tests/` still green from the pre-change baseline (no product code touched; only
+a new tool + a KB doc). No provider, paid, install, or download call.
+
+NEXT (operator-directed): return to LoCoMo's real bottleneck -- retrieval-side
+second-hop / gold-not-in-top-200 -- rather than chasing identity fuel this corpus
+lacks. Graph substrate (G1-G3) is complete and correct; further graph score
+movement is not expected on LoCoMo.
+---END-ENTRY-#459---

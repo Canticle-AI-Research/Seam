@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 519
+total_events: 520
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-26T17:30:36Z | history:265:38c7f5ed | session-event | done | retrieval, benchmark, fixture, verify, history, protocol | tools/h2/holdout_split.py,tests/audit/test_h2_holdout_split.py,PROJECT_STATUS.md |
 | 2026-05-26T22:06:52Z | history:266:55f1f930 | session-event | done | protocol, history, verify, benchmark, retrieval | seam_runtime/storage.py,seam_runtime/improvement.py,tools/h2/improvement_revi... |
 | 2026-05-27T13:27:37Z | history:267:853c5503 | session-event | done | bugfix, storage, retrieval, docs, pyproject, ci, webui, h... | seam_runtime/storage.py,seam_runtime/temporal.py,seam_runtime/mirl.py,seam_ru... |
 | 2026-05-28T05:22:24Z | history:268:d817ea8f | session-event | done | bugfix, hardening, security, storage, multi-agent, protoc... | seam_runtime/storage.py,seam_runtime/server.py,seam_runtime/dashboard.py,seam... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-22T08:31:29Z | history:456:c5d91902 | session-event | done | graph, identity, resolution, candidate, knowledge-graph, ... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
+| 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0319.cross.md | 2026-04-15T00:00:00Z..2026-05-26T11:47:25Z | 319 | (multi) | (multi) |
+| 0001-0320.cross.md | 2026-04-15T00:00:00Z..2026-05-26T17:30:36Z | 320 | (multi) | (multi) |
