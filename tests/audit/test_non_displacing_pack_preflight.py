@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -12,6 +13,7 @@ from benchmarks.external.mem0_harness.preflight_non_displacing_pack import (
     audit_prompt_headroom,
     build_candidate_payload,
     run_replay,
+    validate_candidate_output_path,
     validate_gpt4o_source_contract,
 )
 
@@ -344,3 +346,14 @@ def test_prompt_audit_reports_exact_budget_boundary() -> None:
     assert prompt["max_candidate_prompt_tokens"] == 80
     assert prompt["headroom_tokens"] == 0
     assert prompt["fits_context"] is True
+
+
+def test_licensed_candidate_output_must_stay_outside_repository(
+    tmp_path: Path,
+) -> None:
+    repo_candidate = Path(__file__).resolve().parents[2] / "licensed-candidate.json"
+    with pytest.raises(ValueError, match="outside the repository"):
+        validate_candidate_output_path(repo_candidate)
+
+    external_candidate = tmp_path / "licensed-candidate.json"
+    assert validate_candidate_output_path(external_candidate) == external_candidate

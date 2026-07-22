@@ -59,6 +59,7 @@ DEFAULT_NOVEL_RAW_CAP = 3
 DEFAULT_MAX_PACK_CHARS = 12_000
 DEFAULT_CONTEXT_WINDOW = 128_000
 DEFAULT_OUTPUT_RESERVE = 4_096
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _load_object(path: Path) -> dict[str, Any]:
@@ -585,6 +586,15 @@ def _write_new_json(path: Path, payload: Mapping[str, Any]) -> None:
         handle.write("\n")
 
 
+def validate_candidate_output_path(path: Path) -> Path:
+    """Reject licensed candidate artifacts inside the repository tree."""
+
+    resolved = path.expanduser().resolve()
+    if resolved == _REPO_ROOT or resolved.is_relative_to(_REPO_ROOT):
+        raise ValueError("candidate output must be outside the repository")
+    return path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Zero-provider exact-scope non-displacing PACK replay gate"
@@ -609,6 +619,8 @@ def main() -> None:
     parser.add_argument("--context-window", type=int, default=128_000)
     parser.add_argument("--output-reserve", type=int, default=4_096)
     args = parser.parse_args()
+
+    validate_candidate_output_path(args.candidate_output)
 
     revision = _git_revision(args.harness_root)
     if revision != PINNED_HARNESS_REVISION:
