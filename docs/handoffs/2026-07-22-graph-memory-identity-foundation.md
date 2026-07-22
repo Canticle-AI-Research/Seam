@@ -7,8 +7,8 @@ history: HISTORY#454
 
 # Handoff: graph-memory identity foundation (G1)
 
-**Date:** 2026-07-22  
-**Branch:** `agent/graph-memory-identity-foundation`  
+**Date:** 2026-07-22
+**Branch:** `agent/graph-memory-identity-foundation`
 **Spend:** zero provider/paid calls; local SQLite projection and tests only.
 
 ## One-line state
@@ -75,4 +75,3 @@ completed stages; they no longer gate building missing graph substrate.
   summary/observation.
 - Operator-owned `.ua/`, `seam_runtime/.ua/`, and `report*.png` files remain
   untouched and excluded.
-
