@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-22-fact-free-auxiliary-raw-ablation
 supersedes: 2026-07-21-non-displacing-pack-aux-raw-gate
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#452
 ---
 

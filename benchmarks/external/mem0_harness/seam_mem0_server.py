@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from contextlib import closing
 from datetime import datetime, timezone
 
 from benchmarks.external.common.types import ConversationTurn
@@ -52,6 +53,13 @@ from seam_runtime.event_count_context import (
     CountEvidence,
     build_count_context_projection,
 )
+from seam_runtime.graph_source_selector import select_graph_source_raw
+from seam_runtime.multi_scope_pack import (
+    NON_DISPLACING_RAW_POLICY_V1,
+    compose_non_displacing_raw_pack,
+    compose_reserved_multi_scope,
+    select_date_diverse_rows,
+)
 from seam_runtime.multi_scope_pack import (
     POLICIES as MULTI_SCOPE_POLICIES,
 )
@@ -60,10 +68,6 @@ from seam_runtime.multi_scope_pack import (
 )
 from seam_runtime.multi_scope_pack import (
     POLICY_V1 as MULTI_SCOPE_V1,
-)
-from seam_runtime.multi_scope_pack import (
-    compose_reserved_multi_scope,
-    select_date_diverse_rows,
 )
 from seam_runtime.multi_scope_pack import (
     resolve_policy as resolve_multi_scope_policy,
@@ -80,6 +84,16 @@ GRAPH_CONTEXT_FILL_V1 = "canonical-graph-fill/1"
 GRAPH_CONTEXT_POLICIES = frozenset({GRAPH_CONTEXT_OFF, GRAPH_CONTEXT_FILL_V1})
 GRAPH_CONTEXT_MAX_ROWS = 40
 MULTI_SCOPE_PROBE_ROWS = 40
+
+# Default-off query-conditioned graph-source-RAW lane (HISTORY#452 next build).
+# It selects at most a few source RAW ids corroborated by multiple query-matched
+# graph nodes, then folds them into a non-displacing PACK that preserves the
+# whole primary RAW prefix.  It never enters or perturbs the primary ranker.
+GRAPH_SOURCE_RAW_OFF = "off"
+GRAPH_SOURCE_RAW_V1 = "graph-source-raw/1"
+GRAPH_SOURCE_RAW_POLICIES = frozenset({GRAPH_SOURCE_RAW_OFF, GRAPH_SOURCE_RAW_V1})
+GRAPH_SOURCE_RAW_MAX_ROWS = 3
+GRAPH_SOURCE_RAW_MIN_AGREEMENT = 2
 
 
 def _epoch_to_iso(timestamp: int | None, *, preserve_subday: bool = False) -> str:
@@ -131,6 +145,7 @@ class SeamMem0Server:
         derived_facts_policy: str | None = None,
         graph_context_policy: str | None = None,
         multi_scope_pack_policy: str | None = None,
+        graph_source_raw_policy: str | None = None,
         nl_extractor=None,
         derived_facts_cache_path: str | None = None,
         derived_facts_max_facts: int = 40,
@@ -140,6 +155,13 @@ class SeamMem0Server:
         )
         if resolved_graph_policy not in GRAPH_CONTEXT_POLICIES:
             raise ValueError(f"unknown graph context policy {resolved_graph_policy!r}")
+        resolved_graph_source_raw_policy = graph_source_raw_policy or os.environ.get(
+            "SEAM_GRAPH_SOURCE_RAW_POLICY", GRAPH_SOURCE_RAW_OFF
+        )
+        if resolved_graph_source_raw_policy not in GRAPH_SOURCE_RAW_POLICIES:
+            raise ValueError(
+                f"unknown graph source raw policy {resolved_graph_source_raw_policy!r}"
+            )
         resolved_multi_scope_policy = resolve_multi_scope_policy(
             multi_scope_pack_policy
             if multi_scope_pack_policy is not None
@@ -163,6 +185,7 @@ class SeamMem0Server:
         self._derived_facts_max_facts = derived_facts_max_facts
         self._graph_context_policy = resolved_graph_policy
         self._multi_scope_pack_policy = resolved_multi_scope_policy
+        self._graph_source_raw_policy = resolved_graph_source_raw_policy
 
     # -- endpoint handlers (pure dict-in/dict-out; framework-agnostic) ------
 
@@ -259,6 +282,11 @@ class SeamMem0Server:
                 out,
                 limit,
             )
+        if (
+            getattr(self, "_graph_source_raw_policy", GRAPH_SOURCE_RAW_OFF)
+            != GRAPH_SOURCE_RAW_OFF
+        ):
+            return self._apply_graph_source_raw_policy(user_id, query, out, limit)
         out = self._apply_second_hop_policy(user_id, query, out, limit)
         out = self._apply_graph_context_policy(user_id, query, out, limit)
         rt = self._adapter._runtime(user_id)
@@ -342,6 +370,91 @@ class SeamMem0Server:
             limit=limit,
             policy=policy,
         )
+
+    def _apply_graph_source_raw_policy(
+        self,
+        user_id: str,
+        query: str,
+        primary: list[dict],
+        limit: int,
+    ) -> list[dict]:
+        """Fold multi-node-corroborated source RAW into a non-displacing PACK.
+
+        Standalone lane (HISTORY#452 next build): it does not stack the second-
+        hop, count, temporal-projection, graph-fill, or fact splicers.  The
+        primary RAW list is the logical prefix; graph-source candidates are
+        selected independently and can only add a bounded tail PACK, never enter
+        or perturb primary ranking.  Fails closed to the exact primary list.
+        """
+
+        policy = getattr(self, "_graph_source_raw_policy", GRAPH_SOURCE_RAW_OFF)
+        if policy == GRAPH_SOURCE_RAW_OFF:
+            return primary
+        if policy != GRAPH_SOURCE_RAW_V1:
+            raise ValueError(f"unknown graph source raw policy {policy!r}")
+        graph_rows = self._search_graph_source_raw(
+            user_id,
+            query,
+            GRAPH_SOURCE_RAW_MAX_ROWS,
+        )
+        if not graph_rows:
+            return primary
+        return compose_non_displacing_raw_pack(
+            primary,
+            graph_rows,
+            limit=limit,
+            policy=NON_DISPLACING_RAW_POLICY_V1,
+            novel_raw_limit=min(GRAPH_SOURCE_RAW_MAX_ROWS, 3),
+        )
+
+    def _search_graph_source_raw(
+        self,
+        user_id: str,
+        query: str,
+        limit: int,
+    ) -> list[dict]:
+        """Resolve multi-node-corroborated source RAW ids to verbatim RAW rows.
+
+        The selector returns ids and provenance only; the RAW wording is read
+        verbatim from the canonical record here, so no source text is invented.
+        """
+
+        if limit <= 0:
+            return []
+        runtime = self._adapter._runtime(user_id)
+        ns = f"locomo:{user_id}"
+        with closing(runtime.store._connect()) as connection:
+            selections = select_graph_source_raw(
+                connection,
+                query,
+                ns=ns,
+                scope="thread",
+                min_agreement=GRAPH_SOURCE_RAW_MIN_AGREEMENT,
+                limit=limit,
+            )
+        if not selections:
+            return []
+        batch = runtime.store.load_ir(
+            ids=[selection.source_record_id for selection in selections]
+        )
+        by_id = batch.by_id()
+        out: list[dict] = []
+        for selection in selections:
+            record = by_id.get(selection.source_record_id)
+            if record is None or record.kind.value != "RAW":
+                continue
+            content = record.attrs.get("content")
+            if not isinstance(content, str) or not content:
+                continue
+            out.append(
+                {
+                    "memory": content,
+                    "score": float(selection.score),
+                    "id": record.id,
+                    "created_at": _created_at(record),
+                }
+            )
+        return out
 
     def _apply_second_hop_policy(
         self, user_id: str, query: str, primary: list[dict], limit: int
@@ -944,6 +1057,15 @@ def main() -> None:
             "default-off direct-readable reserved context pack; defaults to SEAM_MULTI_SCOPE_PACK_POLICY or off"
         ),
     )
+    parser.add_argument(
+        "--graph-source-raw-policy",
+        choices=sorted(GRAPH_SOURCE_RAW_POLICIES),
+        default=None,
+        help=(
+            "default-off query-conditioned graph-source-RAW non-displacing lane; "
+            "defaults to SEAM_GRAPH_SOURCE_RAW_POLICY or off"
+        ),
+    )
     args = parser.parse_args()
 
     import uvicorn
@@ -975,6 +1097,7 @@ def main() -> None:
         derived_facts_policy=args.derived_facts_policy,
         graph_context_policy=args.graph_context_policy,
         multi_scope_pack_policy=args.multi_scope_pack_policy,
+        graph_source_raw_policy=args.graph_source_raw_policy,
         nl_extractor=nl_extractor,
         derived_facts_cache_path=args.derived_facts_cache_path,
         derived_facts_max_facts=args.derived_facts_max_facts,

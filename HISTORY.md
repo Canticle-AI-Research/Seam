@@ -10812,3 +10812,75 @@ DSN, two established xfails and zero skips. Touched-file Ruff clean. No provider
 call, no paid work, no push. Operator-owned .ua/ and the report PNG files remain
 untouched and excluded.
 ---END-ENTRY-#452---
+
+---BEGIN-ENTRY-#453---
+id: 453
+date: 2026-07-22T06:23:10Z
+agent: claude
+status: changed
+topics: retrieval, graph, knowledge-graph, non-displacing-pack, mem0-harness, infra, verify
+commits: pending
+refs: seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_graph_source_selector.py,tests/audit/test_seam_mem0_server.py,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md,docs/handoffs/2026-07-22-graph-source-raw-lane.md,docs/handoffs/INDEX.md
+supersedes: 452
+tokens: 908
+---
+BUILT the first query-conditioned graph -> source-RAW infrastructure slice (the
+HISTORY#452 next build), default-off, and verified it end-to-end against the real
+knowledge-graph projection. No provider or paid call; local ingest + graph
+projection only. This is a mechanism + facade-wiring deliverable, NOT a benchmark
+or promotion claim: the provider-free held-out evidence/displacement measurement
+has not been run.
+
+New pure read-only selector seam_runtime/graph_source_selector.py:
+select_graph_source_raw finds lexically-matched concept seed nodes, follows
+current in-scope knowledge_edges incident to them through knowledge_edge_episodes
+-> knowledge_episodes.source_record_id, and returns exact source RAW ids that
+clear a multi-node agreement bar with a full auditable trace
+(GraphSourceSelection carries agreement, covered_tokens, seed_ids, edge_ids,
+score, and per-path seed/edge/episode/source). It invents no source text (ids and
+provenance only) and excludes contradicted/superseded/deprecated/deleted_soft/
+refuted/stale and expired edges and episodes plus cross-ns/scope evidence.
+
+Facade wiring in benchmarks/external/mem0_harness/seam_mem0_server.py: default-off
+policy graph-source-raw/1 (env SEAM_GRAPH_SOURCE_RAW_POLICY, CLI
+--graph-source-raw-policy). _apply_graph_source_raw_policy runs primary RAW once,
+independently selects at most 3 corroborated source RAW rows (min agreement 2) via
+_search_graph_source_raw, then folds them into compose_non_displacing_raw_pack
+(HISTORY#452). Standalone lane: it does not stack second-hop/count/temporal/
+graph-fill/fact splicers, graph candidates never enter or perturb primary ranking,
+and it fails closed to the exact primary object when no novel corroborated RAW
+exists. Off path is object-identical.
+
+DECISIVE VERIFICATION FINDING: a real 3-turn facade smoke exposed that the
+deterministic projection embeds the originating RAW turn text in concept-node
+labels and represents one concept as several nodes (entity + value + claim), so
+naive lexical seed-matching over-counted same-turn nodes and would have degraded
+multi-node agreement into plain token presence. Corrected the mechanism so
+agreement counts distinct query TOKENS independently corroborated (not raw node
+count), and content-embedding kinds (entity/relation/event/state) match on their
+id while only short concept kinds (value/agent/symbol) match on label. Re-verified
+on the same store: 'Alice Bob' -> agreement 2 {alice,bob}; 'Carol' (one concept,
+two nodes) -> rejected; 'coffee tea' -> agreement 2. The composer also correctly
+declined to pack when the selected RAW was already in primary (non-novel ->
+exact fallback). HONEST BOUNDARY: concept seeding is still lexical over an
+imperfect projection; whether it adds evidence beyond lexical RAW retrieval is
+what the held-out measurement must decide, and a cleaner fix is a projection-side
+concept label/index.
+
+Tests: tests/audit/test_graph_source_selector.py 15 hermetic cases (two
+independent paths select one RAW; single noisy adjacency rejected; one concept
+across many nodes does not inflate; content-bearing kinds do not seed;
+contradicted/superseded/expired/cross-scope excluded; deterministic ties; exact
+source id; no text field; limit/min_agreement/tokenize) plus facade
+on/off/no-rows/unknown-policy cases in tests/audit/test_seam_mem0_server.py.
+
+Verification: affected slice 64/64 (test_graph_source_selector.py 15,
+test_seam_mem0_server.py 33, test_multi_scope_pack.py 16). Full pytest tests/
+passed exit 0 with the T7 offline HF env and the local pgvector DSN, two
+established xfails and zero skips. Touched-file Ruff and compileall clean. No
+provider call, no paid work, no push. NEXT: provider-free held-out displacement
+measurement on a fresh LoCoMo scope (NOT the adaptive 130), gate >= 1 net miss
+gold gain with zero sentinel loss before any promotion; then concept-dedup /
+projection-side seeding if it wins. Operator-owned .ua/, seam_runtime/.ua/, and
+report PNG files remain untouched and excluded.
+---END-ENTRY-#453---
