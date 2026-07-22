@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-21-multi-speaker-derived-facts-cloud-probe
 supersedes: 2026-07-21-multiscope-and-local-beam-complete
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#448
 ---
 

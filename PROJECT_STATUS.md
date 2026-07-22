@@ -1,5 +1,20 @@
 # SEAM Project Status
 
+Current update: 2026-07-21 (HISTORY#450 - the exact zero-provider
+non-displacing PACK gate passes on the GPT-4o conversations 3/4/5 slice at the
+smallest tested source-safe cap, N=3: 130 questions, 34 baseline misses, 96
+sentinels, one miss reference gained, one sentinel reference gained, and zero
+losses. All baseline RAW rows, physical counts, tail score/date, exact source
+ordering, and prompt placement are preserved; maximum PACK is 3,197 characters
+and the largest GPT-4o prompt leaves 108,714 tokens of headroom. The decisive
+ablation is contract-side: fact plus source alone gains zero misses, and both
+N=3 gains come from auxiliary RAW episodes. This is an artifact-only
+non-displacing PACK/auxiliary-RAW mechanism proof, not a derived-fact or score
+win; live promotion and paid work remain parked. Next build is an isolated
+RAW-only primary lane plus a query-conditioned auxiliary source-RAW lane, with
+graph source-record bridges and multi-node/path agreement feeding a
+lane-neutral PACK.)
+
 Current update: 2026-07-21 (HISTORY#448 - completed the GPT-4o multi-speaker
 derived-facts contract-vs-model probe on the exact conversations 3/4/5 slice:
 130 questions, 34 baseline misses, and 96 sentinels. GPT-4o improved accepted
@@ -260,7 +275,7 @@ SEAM is operating as a local machine-first memory runtime with:
 ## Current Resume Point
 
 - `main` is the source-of-truth branch. After pulling, verify local `HEAD` equals `origin/main` before starting new work.
-- Latest continuity event is `HISTORY#447`; the canonical tracked benchmark handoff remains HISTORY#446 via `docs/handoffs/INDEX.md` → `docs/handoffs/2026-07-21-multiscope-and-local-beam-complete.md`. **Resume CI work from #447:** verify the pushed fast jobs complete before advisory `test-and-benchmark`, and confirm the advisory job passes with the sentence-transformers 2.7 compatibility repair and four-run LoCoMo CLI test. The next benchmark slice remains a separate provider-free Needle-in-a-Haystack adapter; no provider call, paid benchmark, download, or BEAM-10M execution is authorized by this CI follow-up.
+- Latest continuity event is `HISTORY#451`, the verification-scope correction to substantive HISTORY#450; resume through `docs/handoffs/INDEX.md` → `docs/handoffs/2026-07-21-non-displacing-pack-aux-raw-gate.md`. The N=3 artifact-only gate proves a complete non-displacing PACK can gain one miss and one sentinel reference with zero losses, but both gains are auxiliary RAW episodes and direct derived-fact lift is zero. **Next:** build a RAW-only primary retrieval lane isolated from derived/graph ranking, add a separate query-conditioned source-RAW auxiliary lane (graph `source_record_id` bridges plus multi-node/path agreement), then feed at most three novel RAW episodes into a lane-neutral non-displacing PACK. Reproduce the 130-case ratchet and predeclare a fresh provider-free held-out scope before promotion. No live fact policy, cloud ingest, paid judge, or score claim is authorized by this result. HISTORY#447's intra-run fast-before-advisory ordering is verified on the merged workflows; global single-runner contention and the advisory quickstart timing guard remain separate CI concerns.
 - Prior continuity handoff is `HISTORY#373` — **PR 2 hardened with reproducibility + spend provenance and a fail-closed `--max-cost-usd` guard, then merged as PR #136.** `tools/h2/rejudge_record.py` stamps dry-run and paid outputs with code/input/provider provenance, records actual per-case and aggregate usage/cost, requires `--max-cost-usd` with `--confirm-paid`, and refuses/aborts calls fail-closed against the approved projection. The verified private dry-run estimate remains **$0.007422** for 82 cases. HISTORY#374 fixes the only actionable review finding posted after the merge.
 - Prior continuity handoff is `HISTORY#372` — **PR 2 of the cat1/cat3→0.80 program: judge correctness + a replay harness, built and dry-run validated, NO paid spend yet.** `judge.py` gains `JUDGE_PROMPT_V2` (fixes alias/abbreviation and subset-phrase under-scoring, stops penalizing non-contradicting extra detail, separates groundedness from the verdict); `judge/1` stays byte-identical default. A real regression (9 pre-existing tests broken by the new `prompt_version` attribute on `object.__new__`-bypassed judge instances) was caught and fixed via `getattr` defaulting.
 - Prior continuity handoff is `HISTORY#371` — **PR 1 of the cat1/cat3→0.80 program: measurement integrity only.** A conservative, version-pinned evidence classifier (`scoring.evidence_status`, `run_record.classify_failure_conservative`, `evidence/1`) now records alongside the untouched v1 `context_recall`/`failure_class`; it stops mislabeling correct "unknown" refusals as answerer failures (drops date/number/yes-no generic tokens; isolates cat3 open-domain; requires multi-token gold to co-occur in one turn so scattered words → uncertain). No answer/score behavior change, zero paid spend. Replaying the real 82-case baseline yields ZERO clean `answerer_miss` (v1 had 33): 35 correct + 14 open-domain + 3 retrieval-miss + 30 uncertain, with the only 5 strong `present` cases all answered correctly — the "answerer-bound" story rested substantially on classifier false confidence. Merged as PR #135.
