@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-22-reasoned-retrieval-g3a
 supersedes: 2026-07-22-reasoning-graph-sdk-foundation
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#462
 ---
 

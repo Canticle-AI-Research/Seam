@@ -65,6 +65,31 @@ with zero selected candidates; it is not represented by invented evidence.
 is available through the bounded `retrieval(...)` and `retrievals(...)` reads,
 so a long-running reasoning graph does not inline an unbounded trace history.
 
+## R3 verification-loop contract
+
+R3 records tests, tool checks, reviews, and challenges against one same-run
+reasoning node. Each append-only verification stores a stable check reference,
+controlled verdict (`passed`, `failed`, `error`, or `contradicted`), bounded
+public summary, optional exit code and duration, agent attribution, and exact
+scoped knowledge/MIRL evidence references. Raw logs, commands, provider
+responses, and arbitrary tool payloads are not fields in the schema. When a
+caller supplies result text, SEAM retains only its SHA-256 and UTF-8 byte
+length.
+
+Retries form a linear `retry_of` chain over the same run, subject, check kind,
+and check reference. Prior attempts are immutable; reads derive
+`superseded_by` from the next attempt instead of rewriting the old row.
+`reasoning_graph()` includes at most 100 compact verification summaries, while
+`verification(...)` and `verifications(...)` provide bounded detail reads.
+
+`finalize_verified(...)` is one transaction: every cited verification must be
+the current passed attempt from the same run, each checked subject is linked as
+support for the new outcome, the exact verification IDs are associated with
+that outcome, and the outcome becomes accepted. Any missing, failed,
+superseded, forked, or cross-run check rolls back the entire finalization.
+This is verification provenance, not proof that an outcome is canonical truth,
+and it never promotes the outcome into MIRL.
+
 ## Python SDK
 
 The initial SDK is local and provider-free:
@@ -94,6 +119,19 @@ with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
         budget=5,
         graph_hops=2,
     )
+    check = run.verify(
+        decision["node_id"],
+        check_kind="test",
+        check_ref="tests/test_migration.py::test_rollback",
+        verdict="passed",
+        summary="The rollback acceptance test passed.",
+        result="1 passed",
+        exit_code=0,
+    )
+    outcome = run.finalize_verified(
+        "Use the reversible migration.",
+        verification_ids=[check["verification_id"]],
+    )
     graph = run.graph()
 ```
 
@@ -119,9 +157,10 @@ and framework-specific packages can grow as adapters over this boundary.
 | R5 Reviewed promotion | Explicit proposal/review path from selected outcomes to new MIRL assertions | Human or policy approval, exact evidence, reversible audit, no automatic promotion |
 | R6 Qualification | Cross-agent SDK adapters, concurrency/recovery, latency and usefulness evaluations | Stable versioned contract, tenant isolation, crash recovery, measured value over event-only traces |
 
-R1 and R2 are implemented. R3-R6 remain open; an R2 retrieval decision is an
+R1-R3 are implemented. R4-R6 remain open; an R2 retrieval decision is an
 auditable record of what the current policy selected, not proof that the policy
-is optimal or that the selected records are true.
+is optimal or that the selected records are true. An R3 passed check is
+similarly scoped verification evidence, not automatic canonical truth.
 
 Knowledge stages G1-G7 and reasoning stages R1-R6 advance in parallel. The
 planes meet through stable references and reviewed promotion boundaries, not by

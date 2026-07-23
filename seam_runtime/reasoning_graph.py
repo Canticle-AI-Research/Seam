@@ -21,6 +21,7 @@ from .retrieval_policy import (
 
 REASONING_SCHEMA_VERSION = 1
 REASONING_RETRIEVAL_SCHEMA_VERSION = 1
+REASONING_VERIFICATION_SCHEMA_VERSION = 1
 REASONING_NODE_KINDS = frozenset(
     {
         "objective",
@@ -63,6 +64,8 @@ RETRIEVAL_MODES = frozenset({"vector", "graph", "hybrid", "mix"})
 RETRIEVAL_INTENTS = frozenset({"structured", "semantic", "hybrid", "graph", "mix"})
 RETRIEVAL_SOURCES = frozenset({"sql", "vector", "graph", "chroma"})
 MAX_RETRIEVAL_CANDIDATES = 128
+REASONING_CHECK_KINDS = frozenset({"test", "tool", "review", "challenge"})
+REASONING_VERDICTS = frozenset({"passed", "failed", "error", "contradicted"})
 
 
 @dataclass(frozen=True)
@@ -304,6 +307,56 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
             unique (retrieval_id, rank),
             unique (retrieval_id, record_id)
         );
+        create table if not exists reasoning_verification (
+            verification_id text primary key,
+            run_id text not null,
+            seq integer not null check (seq >= 1),
+            ns text not null,
+            scope text not null,
+            subject_node_id text not null,
+            check_kind text not null check (check_kind in
+                ('test', 'tool', 'review', 'challenge')),
+            check_ref text not null,
+            verdict text not null check (verdict in
+                ('passed', 'failed', 'error', 'contradicted')),
+            summary text not null,
+            result_sha256 text check (
+                result_sha256 is null or
+                (length(result_sha256) = 64
+                 and result_sha256 not glob '*[^0-9a-f]*')
+            ),
+            result_length integer check (
+                result_length is null or result_length >= 0
+            ),
+            exit_code integer,
+            duration_ms real check (duration_ms is null or duration_ms >= 0),
+            knowledge_refs_json text not null,
+            evidence_record_ids_json text not null,
+            agent_id text,
+            retry_of text unique,
+            created_at text not null,
+            schema_version integer not null default 1,
+            foreign key (run_id) references workspace_run(run_id),
+            foreign key (subject_node_id) references reasoning_node(node_id),
+            foreign key (retry_of) references reasoning_verification(verification_id),
+            unique (run_id, seq),
+            check (
+                (result_sha256 is null and result_length is null)
+                or
+                (result_sha256 is not null and result_length is not null)
+            )
+        );
+        create table if not exists reasoning_outcome_verification (
+            outcome_node_id text not null,
+            verification_id text not null,
+            seq integer not null check (seq >= 1),
+            created_at text not null,
+            schema_version integer not null default 1,
+            primary key (outcome_node_id, verification_id),
+            unique (outcome_node_id, seq),
+            foreign key (outcome_node_id) references reasoning_node(node_id),
+            foreign key (verification_id) references reasoning_verification(verification_id)
+        );
         create index if not exists idx_reasoning_node_run on reasoning_node (run_id, seq);
         create index if not exists idx_reasoning_node_ns_scope on reasoning_node (ns, scope);
         create index if not exists idx_reasoning_edge_run on reasoning_edge (run_id, seq);
@@ -315,6 +368,12 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
             on reasoning_retrieval (run_id, seq);
         create index if not exists idx_reasoning_retrieval_candidate_decision
             on reasoning_retrieval_candidate (retrieval_id, rank);
+        create index if not exists idx_reasoning_verification_run
+            on reasoning_verification (run_id, seq);
+        create index if not exists idx_reasoning_verification_subject
+            on reasoning_verification (subject_node_id, seq);
+        create index if not exists idx_reasoning_outcome_verification
+            on reasoning_outcome_verification (outcome_node_id, seq);
         create trigger if not exists reasoning_node_no_update
         before update on reasoning_node begin
             select raise(abort, 'reasoning_node is append-only');
@@ -360,6 +419,75 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
         create trigger if not exists reasoning_retrieval_candidate_no_delete
         before delete on reasoning_retrieval_candidate begin
             select raise(abort, 'reasoning_retrieval_candidate is append-only');
+        end;
+        create trigger if not exists reasoning_verification_no_update
+        before update on reasoning_verification begin
+            select raise(abort, 'reasoning_verification is append-only');
+        end;
+        create trigger if not exists reasoning_verification_no_delete
+        before delete on reasoning_verification begin
+            select raise(abort, 'reasoning_verification is append-only');
+        end;
+        create trigger if not exists reasoning_outcome_verification_no_update
+        before update on reasoning_outcome_verification begin
+            select raise(abort, 'reasoning_outcome_verification is append-only');
+        end;
+        create trigger if not exists reasoning_outcome_verification_no_delete
+        before delete on reasoning_outcome_verification begin
+            select raise(abort, 'reasoning_outcome_verification is append-only');
+        end;
+        create trigger if not exists reasoning_verification_scope_guard
+        before insert on reasoning_verification
+        when not exists (
+            select 1
+            from workspace_run r
+            join reasoning_node n on n.node_id = new.subject_node_id
+            where r.run_id = new.run_id
+              and n.run_id = r.run_id
+              and new.ns = r.ns and new.scope = r.scope
+              and n.ns = r.ns and n.scope = r.scope
+        ) begin
+            select raise(abort, 'reasoning verification crosses run or scope');
+        end;
+        create trigger if not exists reasoning_verification_retry_guard
+        before insert on reasoning_verification
+        when new.retry_of is not null and not exists (
+            select 1
+            from reasoning_verification prior
+            where prior.verification_id = new.retry_of
+              and prior.run_id = new.run_id
+              and prior.subject_node_id = new.subject_node_id
+              and prior.check_kind = new.check_kind
+              and prior.check_ref = new.check_ref
+        ) begin
+            select raise(abort, 'reasoning verification retry identity mismatch');
+        end;
+        create trigger if not exists reasoning_outcome_verification_guard
+        before insert on reasoning_outcome_verification
+        when not exists (
+            select 1
+            from reasoning_node outcome
+            join reasoning_verification verification
+              on verification.verification_id = new.verification_id
+            join reasoning_state outcome_state
+              on outcome_state.node_id = outcome.node_id
+            where outcome.node_id = new.outcome_node_id
+              and outcome.kind = 'outcome'
+              and outcome.run_id = verification.run_id
+              and outcome.ns = verification.ns
+              and outcome.scope = verification.scope
+              and outcome_state.seq = (
+                  select max(latest.seq) from reasoning_state latest
+                  where latest.node_id = outcome.node_id
+              )
+              and outcome_state.status = 'open'
+              and verification.verdict = 'passed'
+              and not exists (
+                  select 1 from reasoning_verification retry
+                  where retry.retry_of = verification.verification_id
+              )
+        ) begin
+            select raise(abort, 'outcome verification is not a current passed check');
         end;
         create trigger if not exists reasoning_retrieval_scope_guard
         before insert on reasoning_retrieval
@@ -445,6 +573,7 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
         """
     )
     _validate_reasoning_retrieval_schema(connection)
+    _validate_reasoning_verification_schema(connection)
 
 
 def _validate_reasoning_retrieval_schema(connection: sqlite3.Connection) -> None:
@@ -552,6 +681,75 @@ def _validate_reasoning_retrieval_schema(connection: sqlite3.Connection) -> None
     if missing_triggers:
         raise RuntimeError(
             "incompatible reasoning retrieval schema; missing triggers: "
+            + ", ".join(sorted(missing_triggers))
+        )
+
+
+def _validate_reasoning_verification_schema(connection: sqlite3.Connection) -> None:
+    required_columns = {
+        "verification_id",
+        "run_id",
+        "seq",
+        "ns",
+        "scope",
+        "subject_node_id",
+        "check_kind",
+        "check_ref",
+        "verdict",
+        "summary",
+        "result_sha256",
+        "result_length",
+        "exit_code",
+        "duration_ms",
+        "knowledge_refs_json",
+        "evidence_record_ids_json",
+        "agent_id",
+        "retry_of",
+        "created_at",
+        "schema_version",
+    }
+    columns = _table_columns(connection, "reasoning_verification")
+    missing = required_columns - columns
+    if missing:
+        raise RuntimeError(
+            "incompatible reasoning verification schema; missing columns: "
+            + ", ".join(sorted(missing))
+        )
+    required_association_columns = {
+        "outcome_node_id",
+        "verification_id",
+        "seq",
+        "created_at",
+        "schema_version",
+    }
+    association_columns = _table_columns(
+        connection, "reasoning_outcome_verification"
+    )
+    missing_association = required_association_columns - association_columns
+    if missing_association:
+        raise RuntimeError(
+            "incompatible reasoning outcome-verification schema; missing columns: "
+            + ", ".join(sorted(missing_association))
+        )
+    required_triggers = {
+        "reasoning_verification_no_update",
+        "reasoning_verification_no_delete",
+        "reasoning_verification_scope_guard",
+        "reasoning_verification_retry_guard",
+        "reasoning_outcome_verification_no_update",
+        "reasoning_outcome_verification_no_delete",
+        "reasoning_outcome_verification_guard",
+    }
+    triggers = {
+        str(row[0])
+        for row in connection.execute(
+            "select name from sqlite_master where type = 'trigger'"
+        ).fetchall()
+    }
+    missing_triggers = required_triggers - triggers
+    if missing_triggers:
+        raise RuntimeError(
+            "incompatible reasoning verification schema; missing triggers: "
             + ", ".join(sorted(missing_triggers))
         )
 
@@ -1292,6 +1490,349 @@ def record_reasoning_retrieval(
     return get_reasoning_retrieval(connection, retrieval_id)
 
 
+def record_reasoning_verification(
+    connection: sqlite3.Connection,
+    *,
+    run_id: str,
+    subject_node_id: str,
+    check_kind: str,
+    check_ref: str,
+    verdict: str,
+    summary: str,
+    result: str | None = None,
+    exit_code: int | None = None,
+    duration_ms: float | None = None,
+    knowledge_refs: Iterable[str] = (),
+    evidence_record_ids: Iterable[str] = (),
+    agent_id: str | None = None,
+    retry_of: str | None = None,
+    verification_id: str | None = None,
+    created_at: str | None = None,
+) -> dict[str, object]:
+    """Append one bounded public check result without retaining its raw output."""
+
+    if not connection.in_transaction:
+        connection.execute("begin immediate")
+    run = _run_row(connection, run_id)
+    subject = connection.execute(
+        "select run_id, ns, scope from reasoning_node where node_id = ?",
+        (subject_node_id,),
+    ).fetchone()
+    if subject is None:
+        raise KeyError(f"reasoning node not found: {subject_node_id}")
+    if (
+        subject["run_id"] != run_id
+        or subject["ns"] != run["ns"]
+        or subject["scope"] != run["scope"]
+    ):
+        raise ValueError("verification subject does not belong to this session")
+
+    resolved_kind = str(check_kind).strip().lower()
+    if resolved_kind not in REASONING_CHECK_KINDS:
+        raise ValueError(f"unsupported verification check kind: {check_kind}")
+    resolved_ref = _required_text(check_ref, "verification check_ref", limit=512)
+    resolved_verdict = str(verdict).strip().lower()
+    if resolved_verdict not in REASONING_VERDICTS:
+        raise ValueError(f"unsupported verification verdict: {verdict}")
+    resolved_summary = _required_text(summary, "verification summary", limit=2048)
+    if result is not None and not isinstance(result, str):
+        raise TypeError("verification result must be a string")
+    result_bytes = result.encode("utf-8") if result is not None else None
+    result_sha256 = (
+        hashlib.sha256(result_bytes).hexdigest() if result_bytes is not None else None
+    )
+    result_length = len(result_bytes) if result_bytes is not None else None
+    if exit_code is not None and (
+        isinstance(exit_code, bool) or not isinstance(exit_code, int)
+    ):
+        raise TypeError("verification exit_code must be an integer")
+    if duration_ms is not None:
+        if isinstance(duration_ms, bool) or not isinstance(duration_ms, (int, float)):
+            raise TypeError("verification duration_ms must be numeric")
+        if not math.isfinite(float(duration_ms)) or float(duration_ms) < 0:
+            raise ValueError("verification duration_ms must be finite and non-negative")
+    resolved_knowledge = _reference_ids(
+        knowledge_refs, "verification knowledge_refs"
+    )
+    resolved_evidence = _reference_ids(
+        evidence_record_ids, "verification evidence_record_ids"
+    )
+    _validate_references(
+        connection,
+        ns=run["ns"],
+        scope=run["scope"],
+        knowledge_refs=resolved_knowledge,
+        evidence_record_ids=resolved_evidence,
+    )
+
+    resolved_retry = None
+    if retry_of is not None:
+        resolved_retry = _required_text(retry_of, "verification retry_of", limit=128)
+        prior = connection.execute(
+            "select * from reasoning_verification where verification_id = ?",
+            (resolved_retry,),
+        ).fetchone()
+        if prior is None:
+            raise KeyError(f"reasoning verification not found: {resolved_retry}")
+        if prior["run_id"] != run_id:
+            raise ValueError("verification retry does not belong to this session")
+        if (
+            prior["subject_node_id"] != subject_node_id
+            or prior["check_kind"] != resolved_kind
+            or prior["check_ref"] != resolved_ref
+        ):
+            raise ValueError(
+                "verification retry must use the same subject and check identity"
+            )
+        successor = connection.execute(
+            "select verification_id from reasoning_verification where retry_of = ?",
+            (resolved_retry,),
+        ).fetchone()
+        if successor is not None:
+            raise ValueError("reasoning verification already has a retry")
+
+    resolved_id = verification_id or f"reason-verify:{uuid4().hex}"
+    resolved_created_at = created_at or utc_now()
+    next_seq = int(
+        connection.execute(
+            "select coalesce(max(seq), 0) + 1 from reasoning_verification "
+            "where run_id = ?",
+            (run_id,),
+        ).fetchone()[0]
+    )
+    connection.execute(
+        """
+        insert into reasoning_verification
+            (verification_id, run_id, seq, ns, scope, subject_node_id,
+             check_kind, check_ref, verdict, summary, result_sha256,
+             result_length, exit_code, duration_ms, knowledge_refs_json,
+             evidence_record_ids_json, agent_id, retry_of, created_at,
+             schema_version)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            resolved_id,
+            run_id,
+            next_seq,
+            run["ns"],
+            run["scope"],
+            subject_node_id,
+            resolved_kind,
+            resolved_ref,
+            resolved_verdict,
+            resolved_summary,
+            result_sha256,
+            result_length,
+            exit_code,
+            None if duration_ms is None else float(duration_ms),
+            json.dumps(resolved_knowledge, separators=(",", ":")),
+            json.dumps(resolved_evidence, separators=(",", ":")),
+            agent_id or run["agent_id"],
+            resolved_retry,
+            resolved_created_at,
+            REASONING_VERIFICATION_SCHEMA_VERSION,
+        ),
+    )
+    return get_reasoning_verification(connection, resolved_id)
+
+
+def _verification_from_row(
+    connection: sqlite3.Connection,
+    row: sqlite3.Row,
+    *,
+    compact: bool = False,
+) -> dict[str, object]:
+    successor = connection.execute(
+        "select verification_id from reasoning_verification where retry_of = ?",
+        (row["verification_id"],),
+    ).fetchone()
+    result: dict[str, object] = {
+        "verification_id": row["verification_id"],
+        "run_id": row["run_id"],
+        "seq": row["seq"],
+        "subject_node_id": row["subject_node_id"],
+        "check_kind": row["check_kind"],
+        "check_ref": row["check_ref"],
+        "verdict": row["verdict"],
+        "summary": row["summary"],
+        "retry_of": row["retry_of"],
+        "superseded_by": (
+            successor["verification_id"] if successor is not None else None
+        ),
+        "created_at": row["created_at"],
+        "schema_version": row["schema_version"],
+    }
+    if compact:
+        result.pop("run_id")
+        return result
+    result.update(
+        {
+            "ns": row["ns"],
+            "scope": row["scope"],
+            "result_sha256": row["result_sha256"],
+            "result_length": row["result_length"],
+            "exit_code": row["exit_code"],
+            "duration_ms": row["duration_ms"],
+            "knowledge_refs": json.loads(row["knowledge_refs_json"]),
+            "evidence_record_ids": json.loads(row["evidence_record_ids_json"]),
+            "agent_id": row["agent_id"],
+        }
+    )
+    return result
+
+
+def get_reasoning_verification(
+    connection: sqlite3.Connection, verification_id: str
+) -> dict[str, object]:
+    row = connection.execute(
+        "select * from reasoning_verification where verification_id = ?",
+        (verification_id,),
+    ).fetchone()
+    if row is None:
+        raise KeyError(f"reasoning verification not found: {verification_id}")
+    return _verification_from_row(connection, row)
+
+
+def list_reasoning_verifications(
+    connection: sqlite3.Connection,
+    *,
+    run_id: str,
+    limit: int = 100,
+    after: str | None = None,
+) -> list[dict[str, object]]:
+    _run_row(connection, run_id)
+    if isinstance(limit, bool) or not isinstance(limit, int):
+        raise TypeError("reasoning verification limit must be an integer")
+    if not 1 <= limit <= 100:
+        raise ValueError("reasoning verification limit must be between 1 and 100")
+    clauses = ["run_id = ?"]
+    params: list[object] = [run_id]
+    if after is not None:
+        cursor = connection.execute(
+            "select seq from reasoning_verification "
+            "where run_id = ? and verification_id = ?",
+            (run_id, after),
+        ).fetchone()
+        if cursor is None:
+            raise KeyError(f"reasoning verification cursor not found: {after}")
+        clauses.append("seq > ?")
+        params.append(cursor["seq"])
+    params.append(limit)
+    rows = connection.execute(
+        f"select * from reasoning_verification where {' and '.join(clauses)} "
+        "order by seq limit ?",
+        tuple(params),
+    ).fetchall()
+    return [_verification_from_row(connection, row) for row in rows]
+
+
+def finalize_verified_reasoning_outcome(
+    connection: sqlite3.Connection,
+    *,
+    run_id: str,
+    summary: str,
+    verification_ids: Iterable[str],
+    confidence: float | None = None,
+    knowledge_refs: Iterable[str] = (),
+    evidence_record_ids: Iterable[str] = (),
+    supporting_node_ids: Iterable[str] = (),
+    agent_id: str | None = None,
+    created_at: str | None = None,
+) -> dict[str, object]:
+    """Atomically accept an outcome supported by current passed checks."""
+
+    if not connection.in_transaction:
+        connection.execute("begin immediate")
+    bounded_ids = list(islice(iter(verification_ids), 65))
+    if len(bounded_ids) > 64:
+        raise ValueError("verified outcomes support at most 64 verifications")
+    resolved_ids: list[str] = []
+    for value in bounded_ids:
+        if not isinstance(value, str):
+            raise TypeError("verification_ids values must be strings")
+        item = value.strip()
+        if item and item not in resolved_ids:
+            resolved_ids.append(item)
+    if not resolved_ids:
+        raise ValueError("verified outcomes require at least one verification")
+
+    verification_rows: list[sqlite3.Row] = []
+    for verification_id in resolved_ids:
+        row = connection.execute(
+            "select * from reasoning_verification where verification_id = ?",
+            (verification_id,),
+        ).fetchone()
+        if row is None:
+            raise KeyError(f"reasoning verification not found: {verification_id}")
+        if row["run_id"] != run_id:
+            raise ValueError("reasoning verification does not belong to this session")
+        successor = connection.execute(
+            "select 1 from reasoning_verification where retry_of = ?",
+            (verification_id,),
+        ).fetchone()
+        if row["verdict"] != "passed" or successor is not None:
+            raise ValueError(
+                "verified outcomes require current passed verifications"
+            )
+        verification_rows.append(row)
+
+    resolved_supporting = _reference_ids(
+        supporting_node_ids, "supporting_node_ids"
+    )
+    resolved_created_at = created_at or utc_now()
+    outcome = add_reasoning_node(
+        connection,
+        run_id=run_id,
+        kind="outcome",
+        summary=summary,
+        confidence=confidence,
+        agent_id=agent_id,
+        knowledge_refs=knowledge_refs,
+        evidence_record_ids=evidence_record_ids,
+        created_at=resolved_created_at,
+    )
+    outcome_id = str(outcome["node_id"])
+    support_ids = list(resolved_supporting)
+    for row in verification_rows:
+        subject_id = str(row["subject_node_id"])
+        if subject_id not in support_ids:
+            support_ids.append(subject_id)
+    for subject_id in support_ids:
+        add_reasoning_edge(
+            connection,
+            run_id=run_id,
+            src_node_id=subject_id,
+            relation="supports",
+            dst_node_id=outcome_id,
+            agent_id=agent_id,
+            created_at=resolved_created_at,
+        )
+    for seq, verification_id in enumerate(resolved_ids, start=1):
+        connection.execute(
+            """
+            insert into reasoning_outcome_verification
+                (outcome_node_id, verification_id, seq, created_at, schema_version)
+            values (?, ?, ?, ?, ?)
+            """,
+            (
+                outcome_id,
+                verification_id,
+                seq,
+                resolved_created_at,
+                REASONING_VERIFICATION_SCHEMA_VERSION,
+            ),
+        )
+    transition_reasoning_node(
+        connection,
+        node_id=outcome_id,
+        status="accepted",
+        reason="session outcome verified",
+        actor=agent_id,
+        created_at=resolved_created_at,
+    )
+    return get_reasoning_node(connection, outcome_id)
+
+
 def _state_from_row(row: sqlite3.Row) -> dict[str, object]:
     return {
         "state_id": row["state_id"],
@@ -1327,6 +1868,14 @@ def _node_from_row(
         "evidence_record_ids": json.loads(row["evidence_record_ids_json"]),
         "created_at": row["created_at"],
         "schema_version": row["schema_version"],
+        "verification_ids": [
+            association["verification_id"]
+            for association in connection.execute(
+                "select verification_id from reasoning_outcome_verification "
+                "where outcome_node_id = ? order by seq",
+                (row["node_id"],),
+            ).fetchall()
+        ],
     }
     if include_history:
         result["state_history"] = [_state_from_row(state) for state in states]
@@ -1508,6 +2057,11 @@ def reasoning_graph(connection: sqlite3.Connection, run_id: str) -> dict[str, ob
         "order by seq limit 101",
         (run_id,),
     ).fetchall()
+    verification_rows = connection.execute(
+        "select * from reasoning_verification where run_id = ? "
+        "order by seq limit 101",
+        (run_id,),
+    ).fetchall()
     return {
         "run_id": run_id,
         "ns": run["ns"],
@@ -1519,6 +2073,11 @@ def reasoning_graph(connection: sqlite3.Connection, run_id: str) -> dict[str, ob
             for row in retrieval_rows[:100]
         ],
         "retrievals_truncated": len(retrieval_rows) > 100,
+        "verifications": [
+            _verification_from_row(connection, row, compact=True)
+            for row in verification_rows[:100]
+        ],
+        "verifications_truncated": len(verification_rows) > 100,
         "nodes": [
             _node_from_row(connection, row, include_history=True) for row in node_rows
         ],

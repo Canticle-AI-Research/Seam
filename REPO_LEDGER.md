@@ -118,6 +118,12 @@ and `HISTORY_INDEX.md`.
   framework adapters should wrap that contract rather than depend on SQLite
   tables. SDK semantic graph seeding is an explicit opt-in over the legacy
   orchestrator default and does not establish a full G3 quality/scale claim.
+  R3 verification records are likewise append-only and content-free:
+  controlled check identity/verdict, bounded public summary, exact scoped
+  evidence references, and a hash/byte length instead of raw tool output.
+  Retries form one immutable linear chain. Only current same-run passed checks
+  may atomically support a verified outcome; failed and superseded attempts
+  remain visible, and no verification path promotes itself into MIRL.
   See `docs/REASONING_GRAPH.md`.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw

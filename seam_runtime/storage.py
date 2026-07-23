@@ -47,10 +47,14 @@ from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, Rec
 from .pool import ConnectionPool
 from .reasoning_graph import (
     ReasoningRetrievalCandidate,
+    finalize_verified_reasoning_outcome,
+    get_reasoning_verification,
     init_reasoning_graph,
     list_reasoning_retrievals,
+    list_reasoning_verifications,
     reasoning_graph,
     record_reasoning_retrieval,
+    record_reasoning_verification,
     transition_reasoning_node,
 )
 from .reasoning_graph import (
@@ -1604,6 +1608,88 @@ class SQLiteStore:
                 after=after,
                 include_candidates=include_candidates,
             )
+
+    @retry_db_operation()
+    def record_reasoning_verification(
+        self,
+        *,
+        run_id: str,
+        subject_node_id: str,
+        check_kind: str,
+        check_ref: str,
+        verdict: str,
+        summary: str,
+        result: str | None = None,
+        exit_code: int | None = None,
+        duration_ms: float | None = None,
+        knowledge_refs: Iterable[str] = (),
+        evidence_record_ids: Iterable[str] = (),
+        agent_id: str | None = None,
+        retry_of: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            verification = record_reasoning_verification(
+                connection,
+                run_id=run_id,
+                subject_node_id=subject_node_id,
+                check_kind=check_kind,
+                check_ref=check_ref,
+                verdict=verdict,
+                summary=summary,
+                result=result,
+                exit_code=exit_code,
+                duration_ms=duration_ms,
+                knowledge_refs=knowledge_refs,
+                evidence_record_ids=evidence_record_ids,
+                agent_id=agent_id,
+                retry_of=retry_of,
+            )
+            connection.commit()
+        return verification
+
+    def reasoning_verification(self, verification_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_verification(connection, verification_id)
+
+    def reasoning_verifications(
+        self,
+        *,
+        run_id: str,
+        limit: int = 100,
+        after: str | None = None,
+    ) -> list[dict[str, object]]:
+        with self._pool.checkout() as connection:
+            return list_reasoning_verifications(
+                connection, run_id=run_id, limit=limit, after=after
+            )
+
+    @retry_db_operation()
+    def finalize_verified_reasoning_outcome(
+        self,
+        *,
+        run_id: str,
+        summary: str,
+        verification_ids: Iterable[str],
+        confidence: float | None = None,
+        knowledge_refs: Iterable[str] = (),
+        evidence_record_ids: Iterable[str] = (),
+        supporting_node_ids: Iterable[str] = (),
+        agent_id: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            outcome = finalize_verified_reasoning_outcome(
+                connection,
+                run_id=run_id,
+                summary=summary,
+                verification_ids=verification_ids,
+                confidence=confidence,
+                knowledge_refs=knowledge_refs,
+                evidence_record_ids=evidence_record_ids,
+                supporting_node_ids=supporting_node_ids,
+                agent_id=agent_id,
+            )
+            connection.commit()
+        return outcome
 
     @retry_db_operation()
     def append_workspace_event(

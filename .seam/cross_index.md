@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 526
+total_events: 527
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-29T20:10:02Z | history:272:8826bb65 | session-event | done | security, dashboard, audit, bugfix, verify | seam_runtime/dashboard.py,tests/audit/test_shell_security.py,docs/audits/2026... |
 | 2026-05-30T07:57:40Z | history:273:95ed7b6f | session-event | done | retrieval, benchmark, locomo, audit, experiment, verify | seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_... |
 | 2026-05-30T13:48:08Z | history:274:6c12c07b | session-event | done | retrieval, memory, isolation, security, benchmark, locomo... | seam_runtime/retrieval.py,seam_runtime/vector.py,seam_runtime/vector_adapters... |
 | 2026-05-31T00:00:00Z | roadmap:056:659e2ea6 | status-change | bootstrap | surface, search, verify, integrity | ROADMAP.md:1204 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-23T02:46:46Z | history:463:3c16da17 | session-event | done | vector, retrieval, memory, verify | docs/RAG_ARCHITECTURE.md,tests/audit/test_pgvector_boundary_resync.py |
 | 2026-07-23T08:59:28Z | history:464:5d53be0e | session-event | done | vector, retrieval, bugfix, verify, test | seam_runtime/runtime.py,tests/audit/test_pgvector_boundary_resync.py,docs/RAG... |
 | 2026-07-23T09:34:00Z | history:465:f120ba7d | session-event | done | vector, retrieval, memory, verify, test | seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval... |
+| 2026-07-23T16:42:06Z | history:466:dfaafd98 | session-event | done | graph, memory, agent, verify, test, provenance, atomicity... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,t... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0326.cross.md | 2026-04-15T00:00:00Z..2026-05-29T15:52:57Z | 326 | (multi) | (multi) |
+| 0001-0327.cross.md | 2026-04-15T00:00:00Z..2026-05-29T20:10:02Z | 327 | (multi) | (multi) |
