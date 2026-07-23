@@ -147,6 +147,78 @@ class ReasoningSession:
         )
         return self._runtime.store.reasoning_node(str(outcome["node_id"]))
 
+    def verify(
+        self,
+        subject_node_id: str,
+        *,
+        check_kind: str,
+        check_ref: str,
+        verdict: str,
+        summary: str,
+        result: str | None = None,
+        exit_code: int | None = None,
+        duration_ms: float | None = None,
+        knowledge_refs: Iterable[str] = (),
+        evidence_refs: Iterable[str] = (),
+        retry_of: str | None = None,
+    ) -> dict[str, object]:
+        """Append a bounded check result without persisting raw tool output."""
+
+        return self._runtime.store.record_reasoning_verification(
+            run_id=self.run_id,
+            subject_node_id=subject_node_id,
+            check_kind=check_kind,
+            check_ref=check_ref,
+            verdict=verdict,
+            summary=summary,
+            result=result,
+            exit_code=exit_code,
+            duration_ms=duration_ms,
+            knowledge_refs=knowledge_refs,
+            evidence_record_ids=evidence_refs,
+            agent_id=self.agent_id if isinstance(self.agent_id, str) else None,
+            retry_of=retry_of,
+        )
+
+    def verification(self, verification_id: str) -> dict[str, object]:
+        verification = self._runtime.store.reasoning_verification(verification_id)
+        if verification["run_id"] != self.run_id:
+            raise ValueError("reasoning verification does not belong to this session")
+        return verification
+
+    def verifications(
+        self,
+        *,
+        limit: int = 100,
+        after: str | None = None,
+    ) -> list[dict[str, object]]:
+        return self._runtime.store.reasoning_verifications(
+            run_id=self.run_id, limit=limit, after=after
+        )
+
+    def finalize_verified(
+        self,
+        summary: str,
+        *,
+        verification_ids: Iterable[str],
+        confidence: float | None = None,
+        knowledge_refs: Iterable[str] = (),
+        evidence_refs: Iterable[str] = (),
+        supporting_node_ids: Iterable[str] = (),
+    ) -> dict[str, object]:
+        """Atomically accept an outcome supported by current passed checks."""
+
+        return self._runtime.store.finalize_verified_reasoning_outcome(
+            run_id=self.run_id,
+            summary=summary,
+            verification_ids=verification_ids,
+            confidence=confidence,
+            knowledge_refs=knowledge_refs,
+            evidence_record_ids=evidence_refs,
+            supporting_node_ids=supporting_node_ids,
+            agent_id=self.agent_id if isinstance(self.agent_id, str) else None,
+        )
+
     def node(self, node_id: str) -> dict[str, object]:
         node = self._runtime.store.reasoning_node(node_id)
         if node["run_id"] != self.run_id:

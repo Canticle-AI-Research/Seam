@@ -1,5 +1,26 @@
 # SEAM Project Status
 
+Current update: 2026-07-23 (HISTORY#466 - BUILT R3 verification loops through
+the public Python SDK. Reasoning checks are append-only, scoped to one run and
+subject, and retain controlled check identity/verdict, bounded public summary,
+exact evidence references, optional exit/duration metadata, and only a SHA-256
+plus UTF-8 byte length for supplied result text. Retries form immutable linear
+chains; only current same-run passed attempts may support an outcome.
+`finalize_verified` atomically creates and accepts that outcome, links checked
+subjects as support, and records the exact verification IDs, while any failed,
+stale, forked, missing, or cross-run check rolls the transaction back. R1
+`finalize` remains compatible, raw tool output and hidden reasoning are not
+schema fields, and verification never promotes itself into MIRL. Verification:
+the exact R1/R2/R3 focused slice passed 45 tests; the authoritative
+`pytest tests/ -m "not external"` run selected 1,416 tests, with 1,414 passed,
+two established xfails, 23 external tests deselected, and zero failures/skips;
+the monolithic compatibility suite passed 189 tests; touched-file Ruff,
+compileall, and diff checks pass; CodeRabbit returned zero findings. No
+provider, paid model, install, download, or external pgvector action. NEXT:
+build R4 reasoning retrieval/reuse with freshness, trust, and provenance gates;
+R5 reviewed promotion and R6 qualification remain open, and G3 still needs
+exact historical paths/episodes, calibrated fusion, and scale/latency gates.)
+
 Current update: 2026-07-23 (HISTORY#465 - BUILT the versioned deterministic
 vector-text migration required by HISTORY#464. `mirl-vector-text/2` renders
 generic MIRL records deterministically across JSON/storage round trips while

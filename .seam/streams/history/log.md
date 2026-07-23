@@ -11510,3 +11510,63 @@ untracked pricing, report, architecture-audit, and `.ua` files were left out.
 NEXT: finish G3 with exact historical path/episode evidence, calibrated fusion,
 and scale/latency gates. R3 remains separately open.
 ---END-ENTRY-#465---
+
+---BEGIN-ENTRY-#466---
+id: 466
+date: 2026-07-23T16:42:06Z
+agent: codex
+status: done
+topics: graph, memory, agent, verify, test, provenance, atomicity, retry, handoff
+commits: pending
+refs: seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,tests/audit/test_reasoning_verification.py,docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,REPO_LEDGER.md,PROJECT_STATUS.md,docs/handoffs/2026-07-23-reasoning-verification-r3.md,docs/handoffs/INDEX.md
+supersedes: 465
+tokens: 602
+---
+Built R3 verification loops through the public Python SDK without changing the
+canonical knowledge boundary.
+
+STORAGE: versioned `reasoning_verification` and
+`reasoning_outcome_verification` tables record append-only public checks
+against one same-run reasoning subject. A check stores controlled kind and
+verdict, stable check reference, bounded summary, optional exit code/duration,
+exact scoped knowledge/MIRL evidence references, agent attribution, and only
+the SHA-256 plus UTF-8 byte length of supplied result text. Update/delete and
+run/scope triggers fail closed. Retries must preserve subject and check
+identity, form one immutable linear chain, and expose `superseded_by` as a
+derived read rather than rewriting prior attempts.
+
+SDK: `ReasoningSession.verify`, `verification`, and `verifications` provide
+bounded write/detail/list access through `SeamSDK`.
+`ReasoningSession.finalize_verified` validates every check before writing,
+accepts only current passed attempts from the same run, links checked subjects
+as support, associates the exact verification IDs, and accepts the outcome in
+one transaction. Failed, stale, forked, missing, and cross-run checks roll back
+the whole finalization. Existing R1 `finalize` remains compatible.
+
+BOUNDARY: verification provenance is not canonical truth. Raw logs, commands,
+provider payloads, arbitrary tool output, hidden chain-of-thought, and
+automatic MIRL promotion are absent from the schema and public API. Stable
+ledger, reasoning-contract, maturity-roadmap, and canonical handoff docs now
+record R1-R3 as implemented while R4-R6 remain open.
+
+Verification:
+
+- `.venv/bin/python -m pytest -q tests/audit/test_reasoning_verification.py
+  tests/audit/test_reasoning_graph.py tests/audit/test_reasoning_retrieval.py`:
+  45 passed after all three files collected together.
+- `.venv/bin/python -m pytest tests/ -m "not external" -q`: 1,416 selected,
+  1,414 passed, two established xfails, 23 external tests deselected, zero
+  failures/skips.
+- `.venv/bin/python -m pytest test_seam_all/test_seam.py -q`: 189 passed.
+- Touched-file Ruff, compileall, and `git diff --check`: pass.
+- CodeRabbit uncommitted review against `main`: zero findings.
+
+No provider, paid model, install, download, or external pgvector action
+occurred. Operator-owned untracked pricing, architecture-audit, report-image,
+and `.ua` files remain excluded.
+
+NEXT: build R4 reasoning retrieval/reuse with task/run, freshness, trust, and
+provenance gates that prevent conclusion laundering. R5 reviewed promotion and
+R6 qualification remain open. Independently finish G3 exact historical
+path/episode evidence, calibrated fusion, and scale/latency qualification.
+---END-ENTRY-#466---

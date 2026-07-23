@@ -54,6 +54,9 @@ Already present:
 - R2 atomic retrieval decisions with bounded selected/rejected candidate
   ledgers, fixed planner/fusion identities, exact evidence IDs, and compact SDK
   reads;
+- R3 append-only verification checks with result fingerprints, scoped evidence,
+  immutable linear retries, compact reads, and atomic verified outcomes that
+  retain exact supporting verification IDs;
 - G3a provider-free semantic fact/episode MIRL seeds feeding 0-3-hop
   current-graph traversal, deterministic lexical/vector/graph fusion, and
   explicit decision/latency traces. A semantic seed receives graph credit only
@@ -92,7 +95,7 @@ Remaining structural gaps:
 | G7 Qualification | Native SEAM and matched Mem0/Zep benchmark lanes plus scale and ablation suites | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims |
 
 The parallel reasoning-graph sequence is defined in
-`docs/REASONING_GRAPH.md`. R1-R2 are implemented; R3-R6 remain open. Reasoning
+`docs/REASONING_GRAPH.md`. R1-R3 are implemented; R4-R6 remain open. Reasoning
 outcomes are never benchmarked or advertised as knowledge unless a later
 reviewed-promotion contract explicitly admits them into MIRL.
 

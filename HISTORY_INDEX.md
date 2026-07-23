@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 465
-total_tokens: ~210557
-latest_id: 465
+total_entries: 466
+total_tokens: ~211159
+latest_id: 466
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 466 | 2026-07-23 | done | dfaafd98ba4dfb8b | graph,memory,agent,verify,+ | 465 |
 | 465 | 2026-07-23 | done | f120ba7d26064a62 | vector,retrieval,memory,verify,+ | 464 |
 | 464 | 2026-07-23 | done | 5d53be0e7b61e813 | vector,retrieval,bugfix,verify,+ | 463 |
 | 463 | 2026-07-23 | done | 3c16da1759fa81a3 | vector,retrieval,memory,verify | 462 |
@@ -483,7 +484,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=6 latest=#462, #461, #418, #407, #403
+- agent: count=7 latest=#466, #462, #461, #418, #407
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -494,7 +495,7 @@ compact: true
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
-- atomicity: count=2 latest=#461, #182
+- atomicity: count=3 latest=#466, #461, #182
 - audit: count=94 latest=#451, #450, #449, #448, #446
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
@@ -592,11 +593,11 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=22 latest=#462, #461, #460, #459, #458
+- graph: count=23 latest=#466, #462, #461, #460, #459
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=47 latest=#454, #450, #448, #446, #445
+- handoff: count=48 latest=#466, #454, #450, #448, #446
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -638,7 +639,7 @@ compact: true
 - measurement: count=2 latest=#459, #369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
-- memory: count=25 latest=#465, #463, #462, #461, #454
+- memory: count=26 latest=#466, #465, #463, #462, #461
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - mirl: count=31 latest=#435, #313, #311, #309, #308
@@ -685,7 +686,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=107 latest=#461, #459, #441, #440, #381
 - prov: count=1 latest=#316
-- provenance: count=11 latest=#461, #454, #448, #439, #435
+- provenance: count=12 latest=#466, #461, #454, #448, #439
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
 - pyproject: count=7 latest=#347, #339, #267, #094, #051
@@ -714,7 +715,7 @@ compact: true
 - results: count=2 latest=#411, #410
 - retrieval: count=112 latest=#465, #464, #463, #462, #460
 - retrievalflags: count=1 latest=#328
-- retry: count=2 latest=#336, #182
+- retry: count=3 latest=#466, #336, #182
 - review: count=1 latest=#388
 - roadmap: count=59 latest=#454, #418, #415, #414, #407
 - roundtrip: count=2 latest=#007, #006
@@ -754,7 +755,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=65 latest=#465, #464, #461, #460, #451
+- test: count=66 latest=#466, #465, #464, #461, #460
 - tests: count=31 latest=#458, #457, #456, #455, #454
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -768,7 +769,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=303 latest=#465, #464, #463, #462, #461
+- verify: count=304 latest=#466, #465, #464, #463, #462
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -783,6 +784,6 @@ compact: true
 
 - roots: 76
 - changed: 13
-- done: 425
+- done: 426
 - in-progress: 6
 - planned: 21
