@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import logging
@@ -496,12 +496,33 @@ class SeamRuntime:
     def list_benchmark_runs(self, limit: int = 10) -> list[dict[str, object]]:
         return self.store.list_benchmark_runs(limit=limit)
 
-    def reindex_vectors(self, record_ids: list[str] | None = None) -> dict[str, object]:
-        batch = self.store.load_ir(ids=record_ids) if record_ids else self.store.load_ir()
+    def reindex_vectors(
+        self,
+        record_ids: list[str] | None = None,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        boundary_only: bool = False,
+    ) -> dict[str, object]:
+        batch = self.store.load_ir(ids=record_ids, ns=ns, scope=scope) if (record_ids or ns or scope) else self.store.load_ir()
         stale = []
         inspector = getattr(self.vector_adapter, "stale_records", None)
         if inspector is not None:
             stale = inspector(batch.records)
+        if boundary_only:
+            syncer = getattr(self.vector_adapter, "sync_boundaries", None)
+            if syncer is not None:
+                sync_result = syncer(batch.records)
+                return {
+                    "mode": "boundary_only",
+                    "record_count": len(batch.records),
+                    "model": self.embedding_model.name,
+                    "adapter": getattr(self.vector_adapter, "name", "unknown"),
+                    "stale_before": stale,
+                    **sync_result,
+                }
+            # Adapter has no sync_boundaries; fall through to full reindex
+            # but still report the boundary_only intent.
         self.vector_adapter.index_records(batch.records)
         return {
             "indexed_ids": [record.id for record in batch.records],

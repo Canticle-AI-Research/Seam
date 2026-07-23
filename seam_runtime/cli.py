@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import hashlib
@@ -574,6 +574,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     reindex_parser = subparsers.add_parser("reindex", help="Rebuild vector index entries")
     reindex_parser.add_argument("--record-ids", default="")
+    reindex_parser.add_argument("--namespace", default=None, help="Filter records by namespace")
+    reindex_parser.add_argument("--scope", default=None, help="Filter records by scope")
+    reindex_parser.add_argument("--boundary-only", action="store_true", help="Update namespace/scope metadata only, no re-embedding")
 
     promote_symbols_parser = subparsers.add_parser("promote-symbols", help="Propose and persist machine-only symbols")
     promote_symbols_parser.add_argument("--record-ids", default="")
@@ -1619,7 +1622,12 @@ def run_cli(argv: list[str] | None = None) -> None:
         return
     if args.command == "reindex":
         record_ids = _split_ids(args.record_ids) if args.record_ids else None
-        print(json.dumps(runtime.reindex_vectors(record_ids=record_ids), indent=2))
+        print(json.dumps(runtime.reindex_vectors(
+            record_ids=record_ids,
+            ns=args.namespace,
+            scope=args.scope,
+            boundary_only=getattr(args, 'boundary_only', False),
+        ), indent=2))
         return
     if args.command == "promote-symbols":
         record_ids = _split_ids(args.record_ids) if args.record_ids else None

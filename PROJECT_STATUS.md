@@ -1,5 +1,34 @@
 # SEAM Project Status
 
+Current update: 2026-07-23 (HISTORY#463 - BUILT the pgvector boundary-only
+resync carried over from HISTORY#462's NEXT item. `PgVectorAdapter.
+sync_boundaries` repairs namespace/scope metadata on vector rows without
+re-embedding, updating only rows whose source_hash/dimension still match the
+canonical MIRL record; `SeamRuntime.reindex_vectors` gains ns/scope filters
+plus a `boundary_only` flag, and `seam reindex` exposes `--namespace`/
+`--scope`/`--boundary-only`. Live-testing against the real reload path used by
+the CLI (through `store.load_ir`, a JSON round trip) found the mechanism is
+conservative-correct but under-fires on plain CLM/ENT/EVT/REL records: storage
+writes `attrs` with `sort_keys=True`, so a reloaded record's generic text
+render (`iter_textual_fields`/`render_record_text`) differs from the original
+in-memory insertion order, changing the source hash even with no real content
+change. RAW and grounded-CLM records are unaffected. Root cause pinpointed and
+banked as a follow-up (needs a full-reindex migration plan since the same
+render function feeds live embedding text corpus-wide) rather than fixed
+inline; captured in a real regression test and documented in
+`docs/RAG_ARCHITECTURE.md` plus a code comment. Verification: full non-external
+`pytest tests/` (1,823 selected, 1,821 passed, two established xfails, zero
+failures/skips) run with both `SEAM_PGVECTOR_DSN` and `PGVECTOR_TEST_DSN`
+against the local `seam-pgvector` docker container plus mandatory T7 offline HF
+env; new `tests/audit/test_pgvector_boundary_resync.py` (10 tests, 7 live
+pgvector) passes standalone; manual CLI smoke test of `seam reindex
+--boundary-only` against a real moved pgvector row confirmed end-to-end.
+Touched-file Ruff and compileall clean. No provider, paid model, install, or
+download action. NEXT: scope the `render_record_text` attrs-order determinism
+fix as its own task before boundary-only resync will fire reliably on
+realistic data; G3 calibrated fusion, exact path/episode evidence, and
+scale/latency gates from #462 remain separately open.)
+
 Current update: 2026-07-22 (HISTORY#462 - BUILT R2 reasoned retrieval and the
 provider-free G3a fusion slice through the public Python SDK. Retrieval now
 persists one typed, append-only decision plus a bounded candidate ledger with

@@ -11348,3 +11348,69 @@ checks passed. No provider, paid model, install, or download action occurred.
 The one-shot closeout wrapper was used here to exercise the repaired accelerated
 commit path through all derived-state rebuilds and canonical gates.
 ---END-ENTRY-#462---
+
+---BEGIN-ENTRY-#463---
+id: 463
+date: 2026-07-23T02:46:46Z
+agent: claude-sonnet-5
+status: done
+topics: vector, retrieval, memory, verify
+commits: pending
+refs: docs/RAG_ARCHITECTURE.md,tests/audit/test_pgvector_boundary_resync.py
+supersedes: 462
+tokens: 859
+---
+Completed HISTORY#462's carried-over NEXT item: resync pgvector rows written
+before namespace/scope boundary enforcement, without re-embedding.
+
+BUILT: `PgVectorAdapter.sync_boundaries` (seam_runtime/vector_adapters.py)
+updates only the `namespace`/`scope` columns for vector rows whose
+`source_hash`/dimension still match the canonical MIRL record; rows with a
+missing vector row or real content drift are reported
+(`skipped_missing`/`skipped_content_changed`) and left untouched, never
+mis-written. `SeamRuntime.reindex_vectors` gains `ns`/`scope` load filters and
+a `boundary_only` flag that calls the syncer instead of re-embedding when the
+adapter supports it. `seam reindex` exposes `--namespace`/`--scope`/
+`--boundary-only`. Session picked up this work already in progress
+(uncommitted diff present at session start); fixed one bug in the test helper
+(`compile_dsl(namespace=...)` does not exist, the kwarg is `ns`).
+
+FOUND AND DOCUMENTED (not fixed, out of scope): live-testing `sync_boundaries`
+against a record reloaded the way the real CLI reloads it (through
+`store.load_ir`, i.e. a JSON round trip) rather than the same in-memory object
+used at index time showed it lands in `skipped_content_changed` even with no
+real content change. Root cause: `storage.persist_ir` writes
+`json.dumps(..., sort_keys=True)`, so a reloaded record's `attrs` dict is
+alphabetized; `iter_textual_fields`/`render_record_text` (seam_runtime/mirl.py,
+seam_runtime/vector.py) iterate `attrs.items()` in dict order for the generic
+(non-RAW, non-grounded-CLM) render path, so the same logical record's text —
+and therefore its source hash — differs from insertion order alone. RAW
+(single content string) and grounded-CLM (fixed subject/predicate/object
+order) records are unaffected; plain CLM/ENT/EVT/REL records using the generic
+path are. This makes `sync_boundaries` conservative-correct (never a wrong
+write) but able to under-fire on realistic reload paths for those record
+kinds. Not fixed here: `render_record_text` also feeds the live embedding text
+for the whole corpus, so making it order-stable needs its own scoped
+follow-up with a full-reindex migration story, not a silent change riding
+along with this slice. Captured as a real regression test
+(`test_sync_boundaries_conservative_after_storage_reload`) and a code comment
+on `sync_boundaries`, and documented in `docs/RAG_ARCHITECTURE.md`.
+
+VERIFICATION: full non-external `pytest tests/` run with both
+`SEAM_PGVECTOR_DSN` and `PGVECTOR_TEST_DSN` set against the local
+`seam-pgvector` docker container (real postgres, not mocked) plus the
+mandatory T7 offline HF env: 1,823 selected, 1,821 passed, two established
+xfails, zero failures, zero skips (STRICT_NO_SKIP clean). New
+`tests/audit/test_pgvector_boundary_resync.py` (10 tests, including 7 real
+pgvector integration cases) passes standalone against the same live
+container. Manually smoke-tested `seam reindex --boundary-only` end-to-end via
+the actual CLI entrypoint against a seeded pgvector row moved across
+namespace/scope. Touched-file Ruff and compileall clean.
+
+NEXT: scope the `render_record_text` attrs-order determinism fix as its own
+task (affects live embedding text corpus-wide, needs a full-reindex migration
+plan, not a boundary-only patch); after that, `sync_boundaries` will actually
+fire on realistic plain CLM/ENT/EVT/REL data instead of conservative-skipping
+it. G3 calibrated fusion, exact path/episode evidence, and scale/latency gates
+(from #462) remain separately open.
+---END-ENTRY-#463---

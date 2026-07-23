@@ -352,6 +352,78 @@ class PgVectorAdapter:
                         stale.append({"record_id": record.id, "reason": "scope_changed"})
         return stale
 
+    def sync_boundaries(self, records: list[MIRLRecord]) -> dict[str, object]:
+        """Update namespace/scope metadata without re-embedding.
+
+        For each record, if a matching vector row exists (same record_id and
+        model_name) whose namespace or scope differs from the canonical MIRL
+        record, update the metadata columns only.  Rows that are missing or
+        whose source_hash/dimension changed are reported but NOT re-embedded;
+        use ``index_records`` for a full resync.
+
+        Conservative by design: for records reached through a storage
+        reload (e.g. the real ``seam reindex`` CLI path via ``load_ir``),
+        the generic non-RAW/non-grounded-CLM text render is sensitive to
+        ``attrs`` dict key order, which JSON round-tripping does not
+        preserve (``storage.py`` writes with ``sort_keys=True``). That can
+        make an unchanged record's recomputed hash disagree with the hash
+        recorded at original index time, routing it into
+        ``skipped_content_changed`` instead of an update. This never writes
+        wrong metadata — it just under-fires on some record kinds; see
+        ``test_sync_boundaries_conservative_after_storage_reload``.
+
+        Returns a summary dict with counts and per-record details.
+        """
+        _validate_table_name(self.table_name)
+        self.ensure_schema()
+        updated: list[str] = []
+        skipped_missing: list[str] = []
+        skipped_content: list[str] = []
+        already_ok: list[str] = []
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                for record in records:
+                    if record.kind not in INDEXABLE_KINDS:
+                        continue
+                    source_text = SQLiteVectorIndex.render_record_text(record)
+                    source_hash = _hash_text(source_text)
+                    cursor.execute(
+                        f"select source_hash, dimension, namespace, scope from {self.table_name} where record_id = %s and model_name = %s",
+                        (record.id, self.model.name),
+                    )
+                    current = cursor.fetchone()
+                    if current is None:
+                        skipped_missing.append(record.id)
+                        continue
+                    if current[0] != source_hash or int(current[1]) != int(self.model.dimension):
+                        skipped_content.append(record.id)
+                        continue
+                    expected_ns = record.ns or ""
+                    expected_scope = record.scope or ""
+                    if current[2] == expected_ns and current[3] == expected_scope:
+                        already_ok.append(record.id)
+                        continue
+                    cursor.execute(
+                        f"update {self.table_name} "
+                        "set namespace = %s, scope = %s, updated_at = %s "
+                        "where record_id = %s and model_name = %s",
+                        (
+                            expected_ns,
+                            expected_scope,
+                            record.updated_at,
+                            record.id,
+                            self.model.name,
+                        ),
+                    )
+                    updated.append(record.id)
+            connection.commit()
+        return {
+            "updated": updated,
+            "already_ok": len(already_ok),
+            "skipped_missing": skipped_missing,
+            "skipped_content_changed": skipped_content,
+        }
+
     def orphan_records(self, valid_record_ids: set[str] | None = None) -> list[dict[str, object]]:
         """Return vector rows whose record_id is not in valid_record_ids.
 

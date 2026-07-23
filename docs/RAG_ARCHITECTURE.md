@@ -128,6 +128,30 @@ PgVector follows the same derived-index rule. If the embedding model or vector
 dimension changes, reindex vectors instead of treating the old vector table as
 canonical memory.
 
+Pgvector rows written before namespace/scope boundaries were enforced at the
+adapter level (or moved across namespace/scope after indexing) carry stale
+`namespace`/`scope` metadata even though their embedding is still valid. Repair
+this without re-embedding:
+
+```powershell
+seam reindex --boundary-only --namespace <ns> --scope <scope>
+```
+
+`--boundary-only` calls `PgVectorAdapter.sync_boundaries`, which updates only
+the `namespace`/`scope` columns for rows whose `source_hash`/dimension still
+match the canonical MIRL record; rows with content drift or a missing vector
+row are reported (`skipped_content_changed`, `skipped_missing`) but not
+touched — rerun a full `seam reindex` for those. `--namespace`/`--scope`
+scope which MIRL records are considered; omit both to sweep every record.
+
+This is conservative on purpose and can under-fire: plain (non-RAW,
+non-grounded-CLM) records carry a text-render that is sensitive to `attrs`
+dict key order, and the CLI's storage reload does not preserve the original
+insertion order, so an unchanged record can fail the hash check and land in
+`skipped_content_changed` instead of getting its boundary repaired. If a
+boundary-only sweep leaves records behind, a full `seam reindex` (re-embeds)
+is the fallback.
+
 ## Boundaries
 
 - SQLite remains canonical.
