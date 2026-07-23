@@ -99,6 +99,60 @@ def _seed_chain(runtime: SeamRuntime) -> None:
     )
 
 
+def _seed_chain_with_episodes(runtime: SeamRuntime) -> None:
+    """Seed the graph chain with direct-write episodes for path backtraces."""
+
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id="ent:alpha",
+                    kind=RecordKind.ENT,
+                    ns="work",
+                    scope="thread",
+                    attrs={"label": "Alpha", "entity_type": "concept"},
+                ),
+                MIRLRecord(
+                    id="ent:beta",
+                    kind=RecordKind.ENT,
+                    ns="work",
+                    scope="thread",
+                    attrs={"label": "Beta", "entity_type": "concept"},
+                ),
+                MIRLRecord(
+                    id="ent:gamma",
+                    kind=RecordKind.ENT,
+                    ns="work",
+                    scope="thread",
+                    attrs={"label": "Gamma", "entity_type": "concept"},
+                ),
+                MIRLRecord(
+                    id="rel:alpha-beta",
+                    kind=RecordKind.REL,
+                    ns="work",
+                    scope="thread",
+                    attrs={"src": "ent:alpha", "predicate": "connects", "dst": "ent:beta"},
+                    ext={"agent_id": "tester"},
+                ),
+                MIRLRecord(
+                    id="rel:beta-gamma",
+                    kind=RecordKind.REL,
+                    ns="work",
+                    scope="thread",
+                    attrs={"src": "ent:beta", "predicate": "connects", "dst": "ent:gamma"},
+                    ext={"agent_id": "tester"},
+                ),
+            ]
+        )
+    )
+
+
+def _direct_write_episode_id(record_id: str) -> str:
+    import hashlib
+
+    return f"episode:{hashlib.sha256(('direct:' + record_id).encode('utf-8')).hexdigest()[:20]}"
+
+
 def test_sdk_records_selected_and_rejected_retrieval_candidates(runtime: SeamRuntime) -> None:
     _seed_text(runtime, "Ada owns the compiler rollback plan.", "local://ada")
     _seed_text(runtime, "Lin reviews compiler migrations.", "local://lin")
@@ -315,6 +369,138 @@ def test_graph_hops_are_real_and_bounded(runtime: SeamRuntime) -> None:
     assert "ent:beta" in ids(1)
     assert "ent:gamma" not in ids(1)
     assert "ent:gamma" in ids(2)
+
+
+def test_graph_hits_report_exact_paths_and_episode_traces(runtime: SeamRuntime) -> None:
+    _seed_chain_with_episodes(runtime)
+    plan = build_plan(
+        "Alpha", scope="thread", namespace="work", budget=20, mode="graph", graph_hops=2
+    )
+    hits = {
+        hit.record.id: hit
+        for hit in SQLiteGraphAdapter(runtime.store).search(plan, limit=20)
+    }
+
+    assert hits["ent:alpha"].path == ()
+    beta_path = hits["ent:beta"].path
+    assert len(beta_path) == 1
+    assert beta_path[0].predicate == "connects"
+    assert {beta_path[0].src_id, beta_path[0].dst_id} == {"ent:alpha", "ent:beta"}
+    assert beta_path[0].source_record_id == "rel:alpha-beta"
+    assert beta_path[0].episode_ids == (_direct_write_episode_id("rel:alpha-beta"),)
+
+    gamma_path = hits["ent:gamma"].path
+    assert [hop.source_record_id for hop in gamma_path] == [
+        "rel:alpha-beta",
+        "rel:beta-gamma",
+    ]
+    assert gamma_path[-1].episode_ids == (_direct_write_episode_id("rel:beta-gamma"),)
+
+
+def test_graph_paths_are_deterministic_and_stay_on_the_graph_leg(runtime: SeamRuntime) -> None:
+    _seed_chain(runtime)
+    adapter = SQLiteGraphAdapter(runtime.store)
+    plan = build_plan(
+        "Alpha", scope="thread", namespace="work", budget=20, mode="graph", graph_hops=2
+    )
+    first = {hit.record.id: hit.path for hit in adapter.search(plan, limit=20)}
+    second = {hit.record.id: hit.path for hit in adapter.search(plan, limit=20)}
+    assert first == second
+
+    result = RetrievalOrchestrator(runtime).decide(
+        "Alpha", scope="thread", namespace="work", budget=5, mode="hybrid"
+    )
+    assert all(
+        hit.path == ()
+        for name, hits in result.leg_hits.items()
+        if name != "graph"
+        for hit in hits
+    )
+    assert all(
+        candidate.graph_path == ()
+        for candidate in result.ranked
+        if "graph" not in candidate.sources
+    )
+
+
+def test_graph_historical_view_uses_edge_node_and_episode_validity(runtime: SeamRuntime) -> None:
+    _seed_chain_with_episodes(runtime)
+    old = "2026-01-01T00:00:00+00:00"
+    retired = "2026-02-01T00:00:00+00:00"
+    with runtime.store._pool.checkout() as connection:
+        connection.execute(
+            "update knowledge_nodes set created_at = ?, valid_from = ? where ns = ? and scope = ?",
+            (old, old, "work", "thread"),
+        )
+        connection.execute(
+            "update knowledge_edges set created_at = ?, updated_at = ?, valid_from = ? "
+            "where ns = ? and scope = ?",
+            (old, old, old, "work", "thread"),
+        )
+        connection.execute(
+            "update knowledge_episodes set recorded_at = ? where ns = ? and scope = ?",
+            (old, "work", "thread"),
+        )
+        connection.execute(
+            "update knowledge_edges set status = 'superseded', valid_to = ?, expired_at = ? "
+            "where source_record_id = 'rel:beta-gamma'",
+            (retired, retired),
+        )
+        connection.execute(
+            "update knowledge_episodes set status = 'superseded', expired_at = ? "
+            "where source_record_id = 'rel:beta-gamma'",
+            (retired,),
+        )
+        connection.commit()
+
+    adapter = SQLiteGraphAdapter(runtime.store)
+    current = build_plan(
+        "Alpha", scope="thread", namespace="work", budget=20, mode="graph", graph_hops=2
+    )
+    at_old = build_plan(
+        "Alpha",
+        scope="thread",
+        namespace="work",
+        budget=20,
+        mode="graph",
+        graph_hops=2,
+        graph_at="2026-01-15T00:00:00+00:00",
+    )
+    all_history = build_plan(
+        "Alpha",
+        scope="thread",
+        namespace="work",
+        budget=20,
+        mode="graph",
+        graph_hops=2,
+        graph_include_history=True,
+    )
+
+    assert "ent:gamma" not in {hit.record.id for hit in adapter.search(current, limit=20)}
+    historical_hits = {hit.record.id: hit for hit in adapter.search(at_old, limit=20)}
+    assert "ent:gamma" in historical_hits
+    assert historical_hits["ent:gamma"].path[-1].episode_ids == (
+        _direct_write_episode_id("rel:beta-gamma"),
+    )
+    assert "ent:gamma" in {
+        hit.record.id for hit in adapter.search(all_history, limit=20)
+    }
+
+
+def test_reasoning_retrieval_records_graph_time_view(runtime: SeamRuntime) -> None:
+    _seed_chain(runtime)
+    session = SeamSDK(runtime=runtime).start_reasoning(
+        "Inspect prior graph evidence.", ns="work", scope="thread"
+    )
+    recorded = session.retrieve(
+        "Alpha",
+        mode="graph",
+        graph_at="2999-01-01T00:00:00+00:00",
+        graph_include_history=True,
+    )
+    assert recorded.result.plan.graph_at == "2999-01-01T00:00:00+00:00"
+    assert recorded.reasoning["graph_at"] == "2999-01-01T00:00:00+00:00"
+    assert recorded.reasoning["graph_include_history"] is True
 
 
 class _EmptySQL:

@@ -1,5 +1,25 @@
 # SEAM Project Status
 
+Current update: 2026-07-23 (HISTORY#466 - BUILT the next bounded G3
+provenance/temporal slice. Graph hits reached after hop zero now return an exact
+deterministic shortest `GraphPathHop` edge chain and only the backing episodes
+visible in the chosen graph view. `graph_at` and `graph_include_history` flow
+through planner, orchestrator, and public `ReasoningSession.retrieve`, reuse
+the knowledge graph's node/edge/episode validity predicates, and are persisted
+on the append-only retrieval decision through an additive migration. Thus a
+historical decision retains the exact point-in-time/history view that produced
+its path, without changing any score, rank, fusion policy, PACK, or canonical
+truth. G3 remains partial: entity/value/agent/symbol vectors, calibrated
+cross-leg fusion, and corpus-scale latency/quality qualification are still
+open, as are G4-G7 and R3-R6. Verification: 93 focused graph/reasoning tests
+passed; authoritative `pytest tests/ -m "not external"` passed 1,411 tests,
+with 23 external tests deselected and two established xfails (zero failures or
+skips); Ruff, compileall, and diff checks pass. No provider, paid-model,
+install, or download action. Operator-owned pricing, report, architecture-audit
+and `.ua` files remain untouched. NEXT: a fixed versioned calibrated or
+rank-normalized cross-leg fusion policy, then bounded corpus-scale
+query-shape/latency qualification before any claim that G3 is complete.)
+
 Current update: 2026-07-23 (HISTORY#465 - BUILT the versioned deterministic
 vector-text migration required by HISTORY#464. `mirl-vector-text/2` renders
 generic MIRL records deterministically across JSON/storage round trips while

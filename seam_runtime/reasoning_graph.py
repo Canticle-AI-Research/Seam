@@ -245,6 +245,8 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
             budget integer not null check (budget >= 1 and budget <= 64),
             graph_hops integer not null check (graph_hops >= 0 and graph_hops <= 3),
             semantic_graph_seeding integer not null check (semantic_graph_seeding in (0, 1)),
+            graph_at text,
+            graph_include_history integer not null default 0 check (graph_include_history in (0, 1)),
             filter_ids_json text not null,
             filter_kinds_json text not null,
             filter_predicate text,
@@ -444,7 +446,23 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
         end;
         """
     )
+    _migrate_reasoning_retrieval_time_view(connection)
     _validate_reasoning_retrieval_schema(connection)
+
+
+def _migrate_reasoning_retrieval_time_view(connection: sqlite3.Connection) -> None:
+    """Add G3 plan-time fields without rewriting append-only decisions."""
+
+    columns = {
+        str(row[1])
+        for row in connection.execute("pragma table_info(reasoning_retrieval)").fetchall()
+    }
+    if "graph_at" not in columns:
+        connection.execute("alter table reasoning_retrieval add column graph_at text")
+    if "graph_include_history" not in columns:
+        connection.execute(
+            "alter table reasoning_retrieval add column graph_include_history integer not null default 0"
+        )
 
 
 def _validate_reasoning_retrieval_schema(connection: sqlite3.Connection) -> None:
@@ -464,6 +482,8 @@ def _validate_reasoning_retrieval_schema(connection: sqlite3.Connection) -> None
         "budget",
         "graph_hops",
         "semantic_graph_seeding",
+        "graph_at",
+        "graph_include_history",
         "filter_ids_json",
         "filter_kinds_json",
         "filter_predicate",
@@ -1003,6 +1023,8 @@ def record_reasoning_retrieval(
     leg_latency_ms: Mapping[str, float],
     total_latency_ms: float,
     policy: str = RETRIEVAL_POLICY,
+    graph_at: str | None = None,
+    graph_include_history: bool = False,
     agent_id: str | None = None,
     created_at: str | None = None,
 ) -> dict[str, object]:
@@ -1052,6 +1074,13 @@ def record_reasoning_retrieval(
         raise ValueError("reasoning retrieval graph_hops must be between 0 and 3")
     if not isinstance(semantic_graph_seeding, bool):
         raise TypeError("semantic_graph_seeding must be a boolean")
+    resolved_graph_at = (
+        _required_text(graph_at, "graph_at", limit=128)
+        if graph_at is not None
+        else None
+    )
+    if not isinstance(graph_include_history, bool):
+        raise TypeError("graph_include_history must be a boolean")
     unknown_legs = set(leg_limits) - {"sql", "vector", "graph"}
     if unknown_legs:
         raise ValueError(f"unsupported retrieval leg: {sorted(unknown_legs)[0]}")
@@ -1206,8 +1235,9 @@ def record_reasoning_retrieval(
              total_candidates, recorded_candidates,
              selected_count, candidates_truncated, sql_latency_ms,
              vector_latency_ms, graph_latency_ms, total_latency_ms, created_at,
+             graph_at, graph_include_history,
              schema_version)
-        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
         """,
         (
             retrieval_id,
@@ -1250,6 +1280,8 @@ def record_reasoning_retrieval(
             latencies["graph"],
             resolved_total_latency,
             resolved_created_at,
+            resolved_graph_at,
+            int(graph_include_history),
         ),
     )
     for candidate in resolved_candidates:
@@ -1400,6 +1432,8 @@ def _retrieval_from_row(
         "budget": row["budget"],
         "graph_hops": row["graph_hops"],
         "semantic_graph_seeding": bool(row["semantic_graph_seeding"]),
+        "graph_at": row["graph_at"],
+        "graph_include_history": bool(row["graph_include_history"]),
         "filters": {
             "ids": json.loads(row["filter_ids_json"]),
             "kinds": json.loads(row["filter_kinds_json"]),

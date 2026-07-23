@@ -11510,3 +11510,17 @@ untracked pricing, report, architecture-audit, and `.ua` files were left out.
 NEXT: finish G3 with exact historical path/episode evidence, calibrated fusion,
 and scale/latency gates. R3 remains separately open.
 ---END-ENTRY-#465---
+
+---BEGIN-ENTRY-#466---
+id: 466
+date: 2026-07-23T11:43:31Z
+agent: codex
+status: done
+topics: graph, retrieval, provenance, history, handoff, verify, test, storage
+commits: pending
+refs: seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orchestrator/types.py,seam_runtime/retrieval_orchestrator/planner.py,seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,tests/audit/test_reasoning_retrieval.py,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-23-g3-paths-historical-view.md
+supersedes: 465
+tokens: 186
+---
+Built the bounded G3 exact-path and historical-view retrieval slice. Hop-positive graph hits now expose deterministic shortest edge paths plus only episodes visible in the selected current, history, or point-in-time view. graph_at and graph_include_history flow through planner, orchestrator, and ReasoningSession.retrieve, reuse knowledge-graph node/edge/episode visibility predicates, and persist on the append-only reasoning retrieval decision through an additive migration. No ranking, fusion, PACK, canonical-truth, or provider behavior changed. Verification: focused graph/reasoning slice 93 passed; pytest tests/ -m not external passed 1411 with 23 external deselected and two established xfails, zero failures/skips; Ruff, compileall, and diff check passed. No provider, paid-model, install, or download action. G3 remains partial: entity/value/agent/symbol vectors, calibrated fusion, and corpus-scale qualification remain.
+---END-ENTRY-#466---

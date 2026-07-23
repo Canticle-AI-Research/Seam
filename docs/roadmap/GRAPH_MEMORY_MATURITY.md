@@ -55,23 +55,26 @@ Already present:
   ledgers, fixed planner/fusion identities, exact evidence IDs, and compact SDK
   reads;
 - G3a provider-free semantic fact/episode MIRL seeds feeding 0-3-hop
-  current-graph traversal, deterministic lexical/vector/graph fusion, and
-  explicit decision/latency traces. A semantic seed receives graph credit only
-  after an in-boundary edge actually connects it. This is a bounded first
-  slice, not the complete G3 contract.
+  graph traversal, deterministic lexical/vector/graph fusion, and explicit
+  decision/latency traces. A semantic seed receives graph credit only after an
+  in-boundary edge actually connects it. Each hop >=1 hit now carries its exact
+  deterministic shortest edge path plus only the path episodes visible in the
+  selected current, historical, or `at` time view; hop-0 seeds remain path-free.
+  The time view is recorded in the append-only R2 retrieval decision. This is
+  still a bounded partial G3 slice, not the complete G3 contract.
 
 Remaining structural gaps:
 
 - G2 still needs broader fuzzy/coreference evidence beyond the reversible
   identity-ledger foundation;
 - G3 still lacks semantic vectors for entity/value/agent/symbol nodes,
-  calibrated or rank-normalized cross-leg fusion, historical-view semantics,
-  exact returned path/episode traces, and corpus-scale latency/quality
-  qualification. Native SQLite and pgvector searches now prefilter namespace
-  and scope before top-K. Vector text is deterministic and versioned across
-  SQLite, pgvector, and Chroma; legacy rows fail closed until an explicit full
-  reindex upgrades them. Boundary-only pgvector repair updates namespace/scope
-  metadata only for rows already on the current render contract and never embeds;
+  calibrated or rank-normalized cross-leg fusion, and corpus-scale
+  latency/quality qualification. Native SQLite and pgvector searches now
+  prefilter namespace and scope before top-K. Vector text is deterministic and
+  versioned across SQLite, pgvector, and Chroma; legacy rows fail closed until
+  an explicit full reindex upgrades them. Boundary-only pgvector repair updates
+  namespace/scope metadata only for rows already on the current render contract
+  and never embeds;
 - entities have no durable evolving summaries; graph-wide communities and
   evidence-backed observations are absent;
 - no first-class context block composes facts, entities, episodes, summaries,

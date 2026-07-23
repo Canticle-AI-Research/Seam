@@ -60,6 +60,8 @@ class RetrievalOrchestrator:
         namespace: str | None = None,
         graph_hops: int = 1,
         semantic_graph_seeding: bool = False,
+        graph_at: str | None = None,
+        graph_include_history: bool = False,
     ) -> RetrievalPlan:
         return build_plan(
             query=query,
@@ -69,6 +71,8 @@ class RetrievalOrchestrator:
             namespace=namespace,
             graph_hops=graph_hops,
             semantic_graph_seeding=semantic_graph_seeding,
+            graph_at=graph_at,
+            graph_include_history=graph_include_history,
         )
 
     def decide(
@@ -81,6 +85,8 @@ class RetrievalOrchestrator:
         namespace: str | None = None,
         graph_hops: int = 1,
         semantic_graph_seeding: bool = False,
+        graph_at: str | None = None,
+        graph_include_history: bool = False,
         candidate_trace_limit: int = 128,
     ) -> RetrievalDecisionResult:
         if isinstance(candidate_trace_limit, bool) or not isinstance(
@@ -99,6 +105,8 @@ class RetrievalOrchestrator:
             namespace=namespace,
             graph_hops=graph_hops,
             semantic_graph_seeding=semantic_graph_seeding,
+            graph_at=graph_at,
+            graph_include_history=graph_include_history,
         )
         retained = ranked[:candidate_trace_limit]
         return RetrievalDecisionResult(
@@ -127,6 +135,8 @@ class RetrievalOrchestrator:
         namespace: str | None,
         graph_hops: int,
         semantic_graph_seeding: bool,
+        graph_at: str | None,
+        graph_include_history: bool,
     ) -> tuple[RetrievalPlan, dict[str, list], dict[str, float], float, list]:
         plan = self.plan(
             query=query,
@@ -136,6 +146,8 @@ class RetrievalOrchestrator:
             namespace=namespace,
             graph_hops=graph_hops,
             semantic_graph_seeding=semantic_graph_seeding,
+            graph_at=graph_at,
+            graph_include_history=graph_include_history,
         )
         leg_hits: dict[str, list] = {}
         leg_latency_ms: dict[str, float] = {}
@@ -180,6 +192,8 @@ class RetrievalOrchestrator:
         namespace: str | None = None,
         graph_hops: int = 1,
         semantic_graph_seeding: bool = False,
+        graph_at: str | None = None,
+        graph_include_history: bool = False,
     ) -> RetrievalSearchResult:
         plan, leg_hits, leg_latency_ms, total_latency_ms, ranked = self._execute(
             query=query,
@@ -189,6 +203,8 @@ class RetrievalOrchestrator:
             namespace=namespace,
             graph_hops=graph_hops,
             semantic_graph_seeding=semantic_graph_seeding,
+            graph_at=graph_at,
+            graph_include_history=graph_include_history,
         )
         selected = ranked[:budget]
         rejected_trace = ranked[budget : budget + 128]

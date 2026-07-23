@@ -1548,6 +1548,8 @@ class SQLiteStore:
         leg_latency_ms: dict[str, float],
         total_latency_ms: float,
         policy: str,
+        graph_at: str | None = None,
+        graph_include_history: bool = False,
         agent_id: str | None = None,
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
@@ -1579,6 +1581,8 @@ class SQLiteStore:
                 leg_latency_ms=leg_latency_ms,
                 total_latency_ms=total_latency_ms,
                 policy=policy,
+                graph_at=graph_at,
+                graph_include_history=graph_include_history,
                 agent_id=agent_id,
             )
             connection.commit()
