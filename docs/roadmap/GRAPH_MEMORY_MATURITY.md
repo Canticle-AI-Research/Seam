@@ -60,21 +60,27 @@ Already present:
   in-boundary edge actually connects it. Each hop >=1 hit now carries its exact
   deterministic shortest edge path plus only the path episodes visible in the
   selected current, historical, or `at` time view; hop-0 seeds remain path-free.
-  The time view is recorded in the append-only R2 retrieval decision. This is
-  still a bounded partial G3 slice, not the complete G3 contract.
+  The time view is recorded in the append-only R2 retrieval decision.
+  `reciprocal-rank-fusion/2` now makes cross-leg contributions comparable
+  without comparing raw score domains, with a versioned stored fingerprint.
+  The provider-free G3 qualification fixture covers 2,048 nodes and 2,047 edges
+  across structured, 1-hop, 3-hop, historical, and semantic-seeded mixed query
+  shapes, checking exact evidence/path, boundary isolation, deterministic
+  ranking, cross-leg evidence, and a fixed latency budget. This is still a
+  bounded partial G3 slice, not the complete G3 contract.
 
 Remaining structural gaps:
 
 - G2 still needs broader fuzzy/coreference evidence beyond the reversible
   identity-ledger foundation;
-- G3 still lacks semantic vectors for entity/value/agent/symbol nodes,
-  calibrated or rank-normalized cross-leg fusion, and corpus-scale
-  latency/quality qualification. Native SQLite and pgvector searches now
-  prefilter namespace and scope before top-K. Vector text is deterministic and
-  versioned across SQLite, pgvector, and Chroma; legacy rows fail closed until
-  an explicit full reindex upgrades them. Boundary-only pgvector repair updates
-  namespace/scope metadata only for rows already on the current render contract
-  and never embeds;
+- G3 still lacks semantic vectors for entity/value/agent/symbol nodes and
+  real-corpus quality qualification. Its rank-normalized cross-leg policy,
+  synthetic corpus query-shape fixture, and latency gate are now fixed and
+  versioned. Native SQLite and pgvector searches prefilter namespace and scope
+  before top-K. Vector text is deterministic and versioned across SQLite,
+  pgvector, and Chroma; legacy rows fail closed until an explicit full reindex
+  upgrades them. Boundary-only pgvector repair updates namespace/scope metadata
+  only for rows already on the current render contract and never embeds;
 - entities have no durable evolving summaries; graph-wide communities and
   evidence-backed observations are absent;
 - no first-class context block composes facts, entities, episodes, summaries,

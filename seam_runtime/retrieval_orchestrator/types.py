@@ -157,6 +157,7 @@ class RetrievalCandidate:
     record: MIRLRecord
     score: float
     sources: dict[str, float] = field(default_factory=dict)
+    source_ranks: dict[str, int] = field(default_factory=dict)
     reasons: list[str] = field(default_factory=list)
     graph_path: tuple[GraphPathHop, ...] = ()
 
@@ -165,6 +166,7 @@ class RetrievalCandidate:
             "record": self.record.to_dict(),
             "score": round(self.score, 6),
             "sources": {key: round(value, 6) for key, value in self.sources.items()},
+            "source_ranks": dict(sorted(self.source_ranks.items())),
             "reasons": list(self.reasons),
             "graph_path": [hop.to_dict() for hop in self.graph_path],
         }

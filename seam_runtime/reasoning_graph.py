@@ -17,6 +17,8 @@ from .retrieval_policy import (
     RETRIEVAL_PLANNER,
     RETRIEVAL_REASON_CODES,
     candidate_set_fingerprint,
+    contribution_rank,
+    fusion_score,
 )
 
 REASONING_SCHEMA_VERSION = 1
@@ -962,8 +964,8 @@ def _retrieval_candidate_rows(
                 raise TypeError("retrieval source scores must be numeric")
             if not math.isfinite(float(score)) or abs(float(score)) > 1_000_000:
                 raise ValueError("retrieval source scores must be finite")
-        expected_score = sum(float(score) for score in candidate.sources.values())
-        expected_score += 0.15 * max(len(candidate.sources) - 1, 0)
+            contribution_rank(float(score))
+        expected_score = fusion_score(candidate.sources)
         if not math.isclose(
             float(candidate.score), expected_score, rel_tol=1e-12, abs_tol=1e-12
         ):

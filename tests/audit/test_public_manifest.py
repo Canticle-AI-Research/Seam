@@ -32,6 +32,7 @@ from tools.release.public_manifest import (
         "tools/h2/holdout_split.py",  # real seam_runtime.improvement runtime dependency
         "tools/history/new_entry.py",
         "tools/streams/verify_streams.py",
+        "tools/graph_retrieval_qualification.py",
         "docs/MACOS.md",
         "docs/CODE_LAYOUT.md",
         "docs/REASONING_GRAPH.md",

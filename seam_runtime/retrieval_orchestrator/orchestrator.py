@@ -3,7 +3,11 @@ from __future__ import annotations
 from time import perf_counter
 
 from seam_runtime.pack import pack_records
-from seam_runtime.retrieval_policy import FUSION_POLICY, candidate_set_fingerprint
+from seam_runtime.retrieval_policy import (
+    FUSION_POLICY,
+    FUSION_RANK_CONSTANT,
+    candidate_set_fingerprint,
+)
 from seam_runtime.runtime import SeamRuntime
 
 from .adapters import (
@@ -219,6 +223,11 @@ class RetrievalOrchestrator:
                 },
                 "fusion": {
                     "policy": FUSION_POLICY,
+                    "normalization": {
+                        "method": "reciprocal_rank",
+                        "rank_constant": FUSION_RANK_CONSTANT,
+                        "source_value": "1/(rank_constant+rank)",
+                    },
                     "tie_breaker": "record_id",
                     "total_candidates": len(ranked),
                     "selected_ids": [

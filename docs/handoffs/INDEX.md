@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-23-g3-paths-historical-view
+latest: 2026-07-23-g3-rank-fusion-scale-qualification
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-23-g3-paths-historical-view` | [2026-07-23-g3-paths-historical-view.md](2026-07-23-g3-paths-historical-view.md) | `2026-07-22-reasoned-retrieval-g3a` | `HISTORY#466` | `current` |
+| `2026-07-23-g3-rank-fusion-scale-qualification` | [2026-07-23-g3-rank-fusion-scale-qualification.md](2026-07-23-g3-rank-fusion-scale-qualification.md) | `2026-07-23-g3-paths-historical-view` | `HISTORY#467` | `current` |
+| `2026-07-23-g3-paths-historical-view` | [2026-07-23-g3-paths-historical-view.md](2026-07-23-g3-paths-historical-view.md) | `2026-07-22-reasoned-retrieval-g3a` | `HISTORY#466` | `superseded` |
 | `2026-07-22-reasoned-retrieval-g3a` | [2026-07-22-reasoned-retrieval-g3a.md](2026-07-22-reasoned-retrieval-g3a.md) | `2026-07-22-reasoning-graph-sdk-foundation` | `HISTORY#462` | `superseded` |
 | `2026-07-22-reasoning-graph-sdk-foundation` | [2026-07-22-reasoning-graph-sdk-foundation.md](2026-07-22-reasoning-graph-sdk-foundation.md) | `2026-07-22-graph-memory-identity-foundation` | `HISTORY#461` | `superseded` |
 | `2026-07-22-graph-memory-identity-foundation` | [2026-07-22-graph-memory-identity-foundation.md](2026-07-22-graph-memory-identity-foundation.md) | `2026-07-22-graph-source-raw-lane` | `HISTORY#454` | `superseded` |

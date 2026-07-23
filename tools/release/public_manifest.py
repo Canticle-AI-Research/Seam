@@ -111,6 +111,7 @@ PUBLIC_TOOLS_ROOT_FILES: frozenset[str] = frozenset(
         "tools/tokenization.py",
         "tools/extract_projection_metrics.py",
         "tools/projection_sbert_comparison.py",
+        "tools/graph_retrieval_qualification.py",
         "tools/run_external_memory_benchmarks.py",
         "tools/run_projection_benchmarks.py",
         "tools/lossless_demo_input.txt",

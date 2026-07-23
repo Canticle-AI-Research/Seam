@@ -1,5 +1,28 @@
 # SEAM Project Status
 
+Current update: 2026-07-23 (HISTORY#467 - BUILT the next bounded G3 ranking
+and qualification slice. Cross-leg fusion is now the fixed, versioned
+`reciprocal-rank-fusion/2` contract: each leg deduplicates by best raw score,
+ranks by raw score then record ID, maps rank to `1 / (60 + rank)`, and sums
+those comparable contributions. Raw SQL/vector/graph magnitudes remain in the
+live leg trace instead of being compared across incompatible score domains;
+new R2 decisions persist the policy fingerprint and exact contribution values,
+and validation recomputes both legal ranks and fused order. A provider-free
+qualification tool now builds a temporary 2,048-node/2,047-edge graph and
+gates structured, 1-hop, 3-hop, historical, and semantic-seeded mixed shapes
+for expected evidence/path, boundary isolation, deterministic ranking,
+cross-leg evidence, and a 250 ms p95 budget. The five-repeat run passed all
+checks with observed p95s from 7.714 to 43.262 ms. Verification: 108 focused
+tests passed; authoritative `pytest tests/ -m "not external"` collected 1,420
+and completed with 1,418 passed plus the two established xfails, zero failures
+or unexplained skips; the 189-test monolithic compatibility suite passed;
+Ruff, compileall, diff, public-manifest, and secret/session-URL checks pass.
+CodeRabbit accepted the scoped diff twice but returned only status events and
+no findings summary, so it is recorded as unavailable rather than clean. No
+provider, paid-model, install, or download action. G3 remains partial:
+semantic vectors for entity/value/agent/symbol graph nodes and real-corpus
+quality qualification remain before a completion claim.)
+
 Current update: 2026-07-23 (HISTORY#466 - BUILT the next bounded G3
 provenance/temporal slice. Graph hits reached after hop zero now return an exact
 deterministic shortest `GraphPathHop` edge chain and only the backing episodes

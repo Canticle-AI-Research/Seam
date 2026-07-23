@@ -122,6 +122,16 @@ and `HISTORY_INDEX.md`.
   tables. SDK semantic graph seeding is an explicit opt-in over the legacy
   orchestrator default and does not establish a full G3 quality/scale claim.
   See `docs/REASONING_GRAPH.md`.
+- Cross-leg retrieval fusion uses the fixed, versioned
+  `reciprocal-rank-fusion/2` contract. Each SQL, vector, graph, or Chroma leg
+  deduplicates records by best raw score, ranks within its own score domain by
+  raw score then record ID, contributes `1 / (60 + rank)`, and sums those
+  comparable values. Raw leg magnitudes remain in the live trace; new R2
+  decisions persist the policy fingerprint and legal rank-derived
+  contributions. The provider-free qualification gate covers structured,
+  bounded-hop, historical, and semantic-seeded mixed shapes on a synthetic
+  2,048-node graph, but does not replace real-corpus quality qualification.
+  See `docs/REASONING_GRAPH.md` and HISTORY#467.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
   activation persistence. A genuine J-lens requires activation-capable local
