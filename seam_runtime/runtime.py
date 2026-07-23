@@ -505,24 +505,29 @@ class SeamRuntime:
         boundary_only: bool = False,
     ) -> dict[str, object]:
         batch = self.store.load_ir(ids=record_ids, ns=ns, scope=scope) if (record_ids or ns or scope) else self.store.load_ir()
+        syncer = None
+        if boundary_only:
+            syncer = getattr(self.vector_adapter, "sync_boundaries", None)
+            if not callable(syncer):
+                adapter_name = getattr(self.vector_adapter, "name", "unknown")
+                raise NotImplementedError(
+                    "Unsupported boundary-only reindex for vector adapter: "
+                    f"{adapter_name}"
+                )
         stale = []
         inspector = getattr(self.vector_adapter, "stale_records", None)
         if inspector is not None:
             stale = inspector(batch.records)
         if boundary_only:
-            syncer = getattr(self.vector_adapter, "sync_boundaries", None)
-            if syncer is not None:
-                sync_result = syncer(batch.records)
-                return {
-                    "mode": "boundary_only",
-                    "record_count": len(batch.records),
-                    "model": self.embedding_model.name,
-                    "adapter": getattr(self.vector_adapter, "name", "unknown"),
-                    "stale_before": stale,
-                    **sync_result,
-                }
-            # Adapter has no sync_boundaries; fall through to full reindex
-            # but still report the boundary_only intent.
+            sync_result = syncer(batch.records)
+            return {
+                "mode": "boundary_only",
+                "record_count": len(batch.records),
+                "model": self.embedding_model.name,
+                "adapter": getattr(self.vector_adapter, "name", "unknown"),
+                "stale_before": stale,
+                **sync_result,
+            }
         self.vector_adapter.index_records(batch.records)
         return {
             "indexed_ids": [record.id for record in batch.records],

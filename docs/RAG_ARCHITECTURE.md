@@ -143,6 +143,9 @@ match the canonical MIRL record; rows with content drift or a missing vector
 row are reported (`skipped_content_changed`, `skipped_missing`) but not
 touched — rerun a full `seam reindex` for those. `--namespace`/`--scope`
 scope which MIRL records are considered; omit both to sweep every record.
+Adapters without a boundary-sync capability fail closed with an unsupported
+operation error. They never fall through to a full reindex, because
+`--boundary-only` must not invoke the embedding model.
 
 This is conservative on purpose and can under-fire: plain (non-RAW,
 non-grounded-CLM) records carry a text-render that is sensitive to `attrs`

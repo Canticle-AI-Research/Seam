@@ -3,7 +3,8 @@
 Covers:
 - PgVectorAdapter.sync_boundaries() on real postgres (external marker).
 - PgVectorAdapter.stale_records() reporting scope_changed (external marker).
-- SeamRuntime.reindex_vectors(boundary_only=True) hermetic flow via SQLite.
+- SeamRuntime.reindex_vectors(boundary_only=True) hermetic success and
+  unsupported-adapter fail-closed behavior with zero embedding calls.
 """
 
 from __future__ import annotations
@@ -190,43 +191,149 @@ def test_sync_boundaries_skips_already_ok_records():
         _drop_table(adapter, table)
 
 
-# ── Hermetic test (SQLite, no pgvector needed) ──────────────────────────
+# ── Hermetic tests (no pgvector needed) ─────────────────────────────────
 
 
-def test_runtime_reindex_boundary_only_hermetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    """reindex_vectors(boundary_only=True) calls sync_boundaries when available."""
-    monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+class _NoEmbeddingModel:
+    name = "no-embedding"
+    dimension = 8
 
-    from seam_runtime.models import HashEmbeddingModel
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def embed(self, text: str) -> list[float]:
+        self.calls += 1
+        raise AssertionError(f"boundary-only reindex attempted to embed: {text}")
+
+
+class _BoundarySyncAdapter:
+    name = "boundary-sync-spy"
+
+    def __init__(self) -> None:
+        self.index_calls = 0
+        self.synced_records: list[MIRLRecord] = []
+
+    def index_records(self, records: list[MIRLRecord]) -> None:
+        self.index_calls += 1
+        raise AssertionError(f"boundary-only reindex attempted full indexing: {records}")
+
+    def stale_records(self, records: list[MIRLRecord]) -> list[dict[str, object]]:
+        return [{"record_id": record.id, "reason": "namespace_changed"} for record in records]
+
+    def sync_boundaries(self, records: list[MIRLRecord]) -> dict[str, object]:
+        self.synced_records = list(records)
+        return {
+            "updated": [record.id for record in records],
+            "already_ok": 0,
+            "skipped_missing": [],
+            "skipped_content_changed": [],
+        }
+
+    def search(
+        self,
+        query: str,
+        limit: int = 10,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> dict[str, float]:
+        return {}
+
+
+def test_runtime_reindex_boundary_only_hermetic(tmp_path: Path):
+    """Boundary-only sync preserves filters and never indexes or embeds."""
     from seam_runtime.runtime import SeamRuntime
 
-    model = HashEmbeddingModel()
+    model = _NoEmbeddingModel()
+    adapter = _BoundarySyncAdapter()
     rt = SeamRuntime(
         tmp_path / "boundary-resync.db",
         embedding_model=model,
+        vector_adapter=adapter,
+        allow_pgvector_env=False,
+    )
+    try:
+        selected = MIRLRecord(
+            id="clm:boundary-selected",
+            kind=RecordKind.CLM,
+            ns="beta",
+            scope="project",
+            attrs={"subject": "test", "predicate": "has", "object": "boundary"},
+        )
+        excluded = MIRLRecord(
+            id="clm:boundary-excluded",
+            kind=RecordKind.CLM,
+            ns="alpha",
+            scope="thread",
+            attrs={"subject": "other", "predicate": "has", "object": "boundary"},
+        )
+        rt.store.persist_ir(IRBatch([selected, excluded]))
+
+        result = rt.reindex_vectors(
+            ns="beta",
+            scope="project",
+            boundary_only=True,
+        )
+
+        assert [record.id for record in adapter.synced_records] == [selected.id]
+        assert adapter.index_calls == 0
+        assert model.calls == 0
+        assert result == {
+            "mode": "boundary_only",
+            "record_count": 1,
+            "model": model.name,
+            "adapter": adapter.name,
+            "stale_before": [
+                {"record_id": selected.id, "reason": "namespace_changed"}
+            ],
+            "updated": [selected.id],
+            "already_ok": 0,
+            "skipped_missing": [],
+            "skipped_content_changed": [],
+        }
+    finally:
+        rt.close()
+
+
+def test_runtime_reindex_boundary_only_unsupported_adapter_fails_closed(
+    tmp_path: Path,
+):
+    """An adapter without sync_boundaries never falls through to full indexing."""
+    from seam_runtime.runtime import SeamRuntime
+    from seam_runtime.vector_adapters import SQLiteVectorAdapter
+
+    model = _NoEmbeddingModel()
+    store_path = tmp_path / "unsupported-boundary-resync.db"
+    adapter = SQLiteVectorAdapter(str(store_path), model)
+    rt = SeamRuntime(
+        store_path,
+        embedding_model=model,
+        vector_adapter=adapter,
         allow_pgvector_env=False,
     )
     try:
         record = MIRLRecord(
-            id="clm:boundary-resync-test",
+            id="clm:boundary-unsupported",
             kind=RecordKind.CLM,
-            ns="alpha",
-            scope="thread",
+            ns="beta",
+            scope="project",
             attrs={"subject": "test", "predicate": "has", "object": "boundary"},
         )
-        rt.persist_ir(IRBatch([record]))
+        rt.store.persist_ir(IRBatch([record]))
 
-        # Move the record's boundary in the store
-        moved = MIRLRecord.from_dict(record.to_dict())
-        moved.ns = "beta"
-        moved.scope = "project"
-        rt.persist_ir(IRBatch([moved]))
+        with pytest.raises(
+            NotImplementedError,
+            match=r"Unsupported boundary-only reindex.*sqlite-vector",
+        ):
+            rt.reindex_vectors(
+                ns="beta",
+                scope="project",
+                boundary_only=True,
+            )
 
-        # The SQLite adapter's index_records already handles the move inline,
-        # so the reindex should report the record as indexed
-        result = rt.reindex_vectors(ns="beta", scope="project")
-        assert record.id in result["indexed_ids"]
-        assert result["adapter"] in ("sqlite-vector", "unknown")
+        assert model.calls == 0
+        assert adapter.index.stale_records([record]) == [
+            {"record_id": record.id, "reason": "missing"}
+        ]
     finally:
         rt.close()
 

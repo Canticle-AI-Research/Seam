@@ -11414,3 +11414,46 @@ fire on realistic plain CLM/ENT/EVT/REL data instead of conservative-skipping
 it. G3 calibrated fusion, exact path/episode evidence, and scale/latency gates
 (from #462) remain separately open.
 ---END-ENTRY-#463---
+
+---BEGIN-ENTRY-#464---
+id: 464
+date: 2026-07-23T08:59:28Z
+agent: codex
+status: done
+topics: vector, retrieval, bugfix, verify, test
+commits: pending
+refs: seam_runtime/runtime.py,tests/audit/test_pgvector_boundary_resync.py,docs/RAG_ARCHITECTURE.md,PROJECT_STATUS.md
+supersedes: 463
+tokens: 378
+---
+Hardened HISTORY#463's boundary-only pgvector repair before merge.
+
+A split-mind migration audit found a contract breach in
+`SeamRuntime.reindex_vectors`: when `boundary_only=True` was requested for an
+adapter without `sync_boundaries`, the runtime silently fell through to
+`index_records`, which could invoke an embedding model and perform a full
+reindex. The existing hermetic test did not catch it because it never actually
+passed `boundary_only=True`.
+
+The runtime now capability-checks the adapter before stale inspection or any
+index operation and raises `NotImplementedError` for unsupported boundary-only
+repair. Supported adapters retain namespace/scope filtering and return the
+same bounded sync report. The corrected hermetic tests use a boundary-sync spy
+and an embedding model that raises on use, proving only filtered records reach
+`sync_boundaries`, `index_records` is never called, and embedding calls stay
+zero. A real SQLite unsupported-adapter case proves fail-closed behavior and
+that no vector row is created.
+
+VERIFICATION: `tests/audit/test_pgvector_boundary_resync.py` passes 11/11 with
+eight live pgvector cases and zero skips. The directly affected non-external
+boundary-only reasoning test passes. Touched-file Ruff, compileall, and
+`git diff --check` pass. The local pgvector service started for verification
+was stopped and removed. No provider, paid model, install, or download action
+occurred.
+
+NEXT: implement the versioned deterministic vector-text contract
+(`mirl-vector-text/2`) as a separate migration: preserve RAW and grounded CLM
+rendering, make generic record rendering stable across JSON round trips, stamp
+derived vector rows with the render contract, fail closed on legacy rows, and
+require an explicit full reindex rather than auto-embedding at startup.
+---END-ENTRY-#464---

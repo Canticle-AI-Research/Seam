@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 524
+total_events: 525
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-05-29T07:28:25Z | history:270:9ef6f8de | session-event | done | bugfix, storage, security, audit, verify | seam_runtime/pool.py,seam_runtime/storage.py,tests/audit/test_pool_concurrenc... |
 | 2026-05-29T15:52:57Z | history:271:c925b3b4 | session-event | done | benchmark, locomo, recovery, infra, verify, audit | benchmarks/external/locomo/data/locomo10.json,benchmarks/external/locomo/data... |
 | 2026-05-29T20:10:02Z | history:272:8826bb65 | session-event | done | security, dashboard, audit, bugfix, verify | seam_runtime/dashboard.py,tests/audit/test_shell_security.py,docs/audits/2026... |
 | 2026-05-30T07:57:40Z | history:273:95ed7b6f | session-event | done | retrieval, benchmark, locomo, audit, experiment, verify | seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-22T15:21:34Z | history:461:d0e59411 | session-event | done | graph, memory, agent, protocol, storage, workspace, atomi... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,s... |
 | 2026-07-22T16:50:30Z | history:462:2b05af6b | session-event | done | graph, retrieval, memory, agent, verify, vector | docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2... |
 | 2026-07-23T02:46:46Z | history:463:3c16da17 | session-event | done | vector, retrieval, memory, verify | docs/RAG_ARCHITECTURE.md,tests/audit/test_pgvector_boundary_resync.py |
+| 2026-07-23T08:59:28Z | history:464:5d53be0e | session-event | done | vector, retrieval, bugfix, verify, test | seam_runtime/runtime.py,tests/audit/test_pgvector_boundary_resync.py,docs/RAG... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0324.cross.md | 2026-04-15T00:00:00Z..2026-05-29T00:42:30Z | 324 | (multi) | (multi) |
+| 0001-0325.cross.md | 2026-04-15T00:00:00Z..2026-05-29T07:28:25Z | 325 | (multi) | (multi) |

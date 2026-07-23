@@ -1,5 +1,23 @@
 # SEAM Project Status
 
+Current update: 2026-07-23 (HISTORY#464 - HARDENED the HISTORY#463
+boundary-only resync before merge. A split-mind audit found that
+`SeamRuntime.reindex_vectors(boundary_only=True)` silently fell through to a
+full `index_records` call when an adapter lacked `sync_boundaries`, violating
+the command's no-reembedding contract; its hermetic test also never passed
+`boundary_only=True`. The runtime now capability-checks first and fails closed
+with `NotImplementedError` before stale inspection, indexing, or embedding.
+The corrected hermetic coverage proves namespace/scope filtering, zero
+embedding/index calls on the supported path, and zero vector-row creation on
+the unsupported SQLite path. Verification: the complete boundary-resync file
+passes 11/11 with eight live pgvector cases and zero skips; the directly
+affected non-external boundary test passes; touched-file Ruff, compileall, and
+diff checks pass. The local pgvector service used for verification was stopped
+and removed. No provider, paid model, install, or download action. NEXT:
+implement the versioned deterministic vector-text contract and explicit full
+reindex migration before claiming boundary-only repair is reliable for generic
+CLM/ENT/EVT/REL reloads; full G3 and R3 remain separately open.)
+
 Current update: 2026-07-23 (HISTORY#463 - BUILT the pgvector boundary-only
 resync carried over from HISTORY#462's NEXT item. `PgVectorAdapter.
 sync_boundaries` repairs namespace/scope metadata on vector rows without
