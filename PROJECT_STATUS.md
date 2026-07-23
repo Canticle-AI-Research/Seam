@@ -1,5 +1,29 @@
 # SEAM Project Status
 
+Current update: 2026-07-23 (HISTORY#465 - BUILT the versioned deterministic
+vector-text migration required by HISTORY#464. `mirl-vector-text/2` renders
+generic MIRL records deterministically across JSON/storage round trips while
+preserving byte-exact RAW `content` and complete grounded-CLM special forms.
+SQLite and pgvector add render-version metadata without embedding existing
+rows, label those rows v1, exclude legacy rows from reuse and retrieval, and
+upgrade them exactly once on an explicit full `seam reindex`; repeated full
+reindexing reuses current embeddings. Chroma stamps the same contract and
+source hash on upsert, filters legacy rows before top-K, and uses its existing
+explicit `seam index --vector-backend chroma` rebuild path. Boundary-only
+pgvector repair remains embedding-free and now reports legacy rows as
+`skipped_render_version` instead of migrating them. Full reindex reports expose
+their mode and vector-text version. Verification: the authoritative
+non-external `pytest tests/ -m "not external"` run completed with 1,406 passed,
+23 deselected external tests, two established xfails, and zero failures/skips;
+the monolithic compatibility suite passed 189 tests plus three subtests; 23
+live pgvector tests passed against a temporary local service; the integrated
+focused slice passed 71 tests with 13 external tests deselected; and the final
+deterministic-fallback regression slice passed 29/29. Touched-file Ruff,
+compileall, and diff checks pass. The pgvector service was stopped and removed.
+No provider, paid model, install, or download action. NEXT: finish G3 with exact
+historical path/episode evidence, calibrated fusion, and scale/latency gates;
+R3 remains separately open.)
+
 Current update: 2026-07-23 (HISTORY#464 - HARDENED the HISTORY#463
 boundary-only resync before merge. A split-mind audit found that
 `SeamRuntime.reindex_vectors(boundary_only=True)` silently fell through to a

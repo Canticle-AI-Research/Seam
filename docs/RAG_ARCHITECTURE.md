@@ -139,21 +139,36 @@ seam reindex --boundary-only --namespace <ns> --scope <scope>
 
 `--boundary-only` calls `PgVectorAdapter.sync_boundaries`, which updates only
 the `namespace`/`scope` columns for rows whose `source_hash`/dimension still
-match the canonical MIRL record; rows with content drift or a missing vector
-row are reported (`skipped_content_changed`, `skipped_missing`) but not
-touched — rerun a full `seam reindex` for those. `--namespace`/`--scope`
-scope which MIRL records are considered; omit both to sweep every record.
+match the canonical MIRL record under the current vector-text contract. Rows
+with a legacy render version, content drift, or a missing vector row are
+reported (`skipped_render_version`, `skipped_content_changed`,
+`skipped_missing`) but not touched. `--namespace`/`--scope` scope which MIRL
+records are considered; omit both to sweep every record.
 Adapters without a boundary-sync capability fail closed with an unsupported
 operation error. They never fall through to a full reindex, because
 `--boundary-only` must not invoke the embedding model.
 
-This is conservative on purpose and can under-fire: plain (non-RAW,
-non-grounded-CLM) records carry a text-render that is sensitive to `attrs`
-dict key order, and the CLI's storage reload does not preserve the original
-insertion order, so an unchanged record can fail the hash check and land in
-`skipped_content_changed` instead of getting its boundary repaired. If a
-boundary-only sweep leaves records behind, a full `seam reindex` (re-embeds)
-is the fallback.
+Vector text is versioned as `mirl-vector-text/2`. Generic CLM, STA, EVT, and
+REL records use semantic top-level field order plus recursively sorted map
+keys, so SQLite JSON round trips cannot change their text or source hash.
+List order remains semantic and unchanged. RAW content and the grounded-CLM
+special render paths remain byte-identical.
+
+Existing SQLite/pgvector rows receive the legacy
+`mirl-vector-text/1` marker through a metadata-only schema migration and are
+excluded from search until an explicit full `seam reindex` upgrades them.
+Schema initialization never embeds. Chroma rows carry the same version in
+metadata and are excluded when the field is missing or stale; migrate them
+explicitly with:
+
+```powershell
+seam index --vector-backend chroma
+```
+
+Both migrations can invoke the configured embedding model. Keep paid/remote
+models operator-gated. Repeating a full reindex after a successful v2 upgrade
+reuses unchanged current-version rows and performs no additional record
+embeddings.
 
 ## Boundaries
 

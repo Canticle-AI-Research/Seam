@@ -68,10 +68,10 @@ Remaining structural gaps:
   calibrated or rank-normalized cross-leg fusion, historical-view semantics,
   exact returned path/episode traces, and corpus-scale latency/quality
   qualification. Native SQLite and pgvector searches now prefilter namespace
-  and scope before top-K; existing pgvector indexes created before the scope
-  column require an explicit index resync because the external table cannot be
-  backfilled from canonical SQLite automatically. That resync repairs boundary
-  metadata without recomputing unchanged embeddings;
+  and scope before top-K. Vector text is deterministic and versioned across
+  SQLite, pgvector, and Chroma; legacy rows fail closed until an explicit full
+  reindex upgrades them. Boundary-only pgvector repair updates namespace/scope
+  metadata only for rows already on the current render contract and never embeds;
 - entities have no durable evolving summaries; graph-wide communities and
   evidence-backed observations are absent;
 - no first-class context block composes facts, entities, episodes, summaries,

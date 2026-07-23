@@ -7,7 +7,12 @@ from typing import Protocol
 
 from .mirl import MIRLRecord
 from .models import EmbeddingModel
-from .vector import INDEXABLE_KINDS, SQLiteVectorIndex
+from .vector import (
+    INDEXABLE_KINDS,
+    LEGACY_VECTOR_TEXT_VERSION,
+    VECTOR_TEXT_VERSION,
+    SQLiteVectorIndex,
+)
 
 
 class VectorAdapter(Protocol):
@@ -114,6 +119,7 @@ class PgVectorAdapter:
                         dimension integer not null,
                         source_text text not null,
                         source_hash text not null default '',
+                        render_version text not null default '{VECTOR_TEXT_VERSION}',
                         namespace text not null default '',
                         scope text not null default '',
                         embedding vector not null,
@@ -126,7 +132,8 @@ class PgVectorAdapter:
                     """
                     select column_name
                     from information_schema.columns
-                    where table_name = %s and column_name = 'source_hash'
+                    where table_schema = current_schema()
+                      and table_name = %s and column_name = 'source_hash'
                     """,
                     (self.table_name,),
                 )
@@ -136,7 +143,32 @@ class PgVectorAdapter:
                     """
                     select column_name
                     from information_schema.columns
-                    where table_name = %s and column_name = 'namespace'
+                    where table_schema = current_schema()
+                      and table_name = %s and column_name = 'render_version'
+                    """,
+                    (self.table_name,),
+                )
+                if cursor.fetchone() is None:
+                    # Adding the column is metadata-only and deliberately
+                    # stamps all pre-contract embeddings as legacy. Merely
+                    # opening the adapter must never invoke an embedding
+                    # model or silently bless those vectors as current.
+                    cursor.execute(
+                        f"alter table {self.table_name} "
+                        "add column render_version text not null "
+                        f"default '{LEGACY_VECTOR_TEXT_VERSION}'"
+                    )
+                    cursor.execute(
+                        f"alter table {self.table_name} alter column "
+                        "render_version "
+                        f"set default '{VECTOR_TEXT_VERSION}'"
+                    )
+                cursor.execute(
+                    """
+                    select column_name
+                    from information_schema.columns
+                    where table_schema = current_schema()
+                      and table_name = %s and column_name = 'namespace'
                     """,
                     (self.table_name,),
                 )
@@ -146,7 +178,8 @@ class PgVectorAdapter:
                     """
                     select column_name
                     from information_schema.columns
-                    where table_name = %s and column_name = 'scope'
+                    where table_schema = current_schema()
+                      and table_name = %s and column_name = 'scope'
                     """,
                     (self.table_name,),
                 )
@@ -233,16 +266,21 @@ class PgVectorAdapter:
                     source_text = SQLiteVectorIndex.render_record_text(record)
                     source_hash = _hash_text(source_text)
                     cursor.execute(
-                        f"select source_hash, dimension, namespace, scope from {self.table_name} where record_id = %s and model_name = %s",
+                        f"select source_hash, dimension, render_version, "
+                        f"namespace, scope from {self.table_name} "
+                        "where record_id = %s and model_name = %s",
                         (record.id, self.model.name),
                     )
                     current = cursor.fetchone()
-                    if current and current[0] == source_hash and int(
-                        current[1]
-                    ) == int(self.model.dimension):
+                    if (
+                        current
+                        and current[2] == VECTOR_TEXT_VERSION
+                        and current[0] == source_hash
+                        and int(current[1]) == int(self.model.dimension)
+                    ):
                         if (
-                            current[2] != (record.ns or "")
-                            or current[3] != (record.scope or "")
+                            current[3] != (record.ns or "")
+                            or current[4] != (record.scope or "")
                         ):
                             cursor.execute(
                                 f"update {self.table_name} "
@@ -262,13 +300,15 @@ class PgVectorAdapter:
                         f"""
                         insert into {self.table_name}
                             (record_id, model_name, dimension, source_text,
-                             source_hash, namespace, scope, embedding, updated_at)
-                        values (%s, %s, %s, %s, %s, %s, %s, %s::vector, %s)
+                             source_hash, render_version, namespace, scope,
+                             embedding, updated_at)
+                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s::vector, %s)
                         on conflict (record_id, model_name) do update
                         set model_name = excluded.model_name,
                             dimension = excluded.dimension,
                             source_text = excluded.source_text,
                             source_hash = excluded.source_hash,
+                            render_version = excluded.render_version,
                             namespace = excluded.namespace,
                             scope = excluded.scope,
                             embedding = excluded.embedding,
@@ -280,6 +320,7 @@ class PgVectorAdapter:
                             len(vector),
                             source_text,
                             source_hash,
+                            VECTOR_TEXT_VERSION,
                             record.ns or "",
                             record.scope or "",
                             _vector_literal(vector),
@@ -300,7 +341,12 @@ class PgVectorAdapter:
         query_vector = self.model.embed(query)
         ns_clause = "and namespace = %s " if namespace is not None else ""
         scope_clause = "and scope = %s " if scope is not None else ""
-        params: list[object] = [_vector_literal(query_vector), self.model.name, len(query_vector)]
+        params: list[object] = [
+            _vector_literal(query_vector),
+            self.model.name,
+            len(query_vector),
+            VECTOR_TEXT_VERSION,
+        ]
         if namespace is not None:
             params.append(namespace)
         if scope is not None:
@@ -315,7 +361,8 @@ class PgVectorAdapter:
                     f"""
                     select record_id, 1 - (embedding <=> %s::vector) as score
                     from {self.table_name}
-                    where model_name = %s and dimension = %s {ns_clause}{scope_clause}
+                    where model_name = %s and dimension = %s
+                      and render_version = %s {ns_clause}{scope_clause}
                     order by embedding <=> %s::vector
                     limit %s
                     """,
@@ -336,19 +383,28 @@ class PgVectorAdapter:
                     source_text = SQLiteVectorIndex.render_record_text(record)
                     source_hash = _hash_text(source_text)
                     cursor.execute(
-                        f"select source_hash, dimension, namespace, scope from {self.table_name} where record_id = %s and model_name = %s",
+                        f"select source_hash, dimension, render_version, "
+                        f"namespace, scope from {self.table_name} "
+                        "where record_id = %s and model_name = %s",
                         (record.id, self.model.name),
                     )
                     row = cursor.fetchone()
                     if row is None:
                         stale.append({"record_id": record.id, "reason": "missing"})
+                    elif row[2] != VECTOR_TEXT_VERSION:
+                        stale.append(
+                            {
+                                "record_id": record.id,
+                                "reason": "render_version_changed",
+                            }
+                        )
                     elif row[0] != source_hash:
                         stale.append({"record_id": record.id, "reason": "source_changed"})
                     elif int(row[1]) != int(self.model.dimension):
                         stale.append({"record_id": record.id, "reason": "dimension_changed"})
-                    elif row[2] != (record.ns or ""):
+                    elif row[3] != (record.ns or ""):
                         stale.append({"record_id": record.id, "reason": "namespace_changed"})
-                    elif row[3] != (record.scope or ""):
+                    elif row[4] != (record.scope or ""):
                         stale.append({"record_id": record.id, "reason": "scope_changed"})
         return stale
 
@@ -358,19 +414,8 @@ class PgVectorAdapter:
         For each record, if a matching vector row exists (same record_id and
         model_name) whose namespace or scope differs from the canonical MIRL
         record, update the metadata columns only.  Rows that are missing or
-        whose source_hash/dimension changed are reported but NOT re-embedded;
-        use ``index_records`` for a full resync.
-
-        Conservative by design: for records reached through a storage
-        reload (e.g. the real ``seam reindex`` CLI path via ``load_ir``),
-        the generic non-RAW/non-grounded-CLM text render is sensitive to
-        ``attrs`` dict key order, which JSON round-tripping does not
-        preserve (``storage.py`` writes with ``sort_keys=True``). That can
-        make an unchanged record's recomputed hash disagree with the hash
-        recorded at original index time, routing it into
-        ``skipped_content_changed`` instead of an update. This never writes
-        wrong metadata — it just under-fires on some record kinds; see
-        ``test_sync_boundaries_conservative_after_storage_reload``.
+        whose render contract, source_hash, or dimension changed are reported
+        but NOT re-embedded; use ``index_records`` for a full resync.
 
         Returns a summary dict with counts and per-record details.
         """
@@ -378,6 +423,7 @@ class PgVectorAdapter:
         self.ensure_schema()
         updated: list[str] = []
         skipped_missing: list[str] = []
+        skipped_render_version: list[str] = []
         skipped_content: list[str] = []
         already_ok: list[str] = []
         with self._connect() as connection:
@@ -388,19 +434,24 @@ class PgVectorAdapter:
                     source_text = SQLiteVectorIndex.render_record_text(record)
                     source_hash = _hash_text(source_text)
                     cursor.execute(
-                        f"select source_hash, dimension, namespace, scope from {self.table_name} where record_id = %s and model_name = %s",
+                        f"select source_hash, dimension, render_version, "
+                        f"namespace, scope from {self.table_name} "
+                        "where record_id = %s and model_name = %s",
                         (record.id, self.model.name),
                     )
                     current = cursor.fetchone()
                     if current is None:
                         skipped_missing.append(record.id)
                         continue
+                    if current[2] != VECTOR_TEXT_VERSION:
+                        skipped_render_version.append(record.id)
+                        continue
                     if current[0] != source_hash or int(current[1]) != int(self.model.dimension):
                         skipped_content.append(record.id)
                         continue
                     expected_ns = record.ns or ""
                     expected_scope = record.scope or ""
-                    if current[2] == expected_ns and current[3] == expected_scope:
+                    if current[3] == expected_ns and current[4] == expected_scope:
                         already_ok.append(record.id)
                         continue
                     cursor.execute(
@@ -421,6 +472,7 @@ class PgVectorAdapter:
             "updated": updated,
             "already_ok": len(already_ok),
             "skipped_missing": skipped_missing,
+            "skipped_render_version": skipped_render_version,
             "skipped_content_changed": skipped_content,
         }
 

@@ -8,7 +8,7 @@ from contextlib import closing
 from dataclasses import dataclass
 from typing import Iterable
 
-from .mirl import MIRLRecord, RecordKind, iter_textual_fields
+from .mirl import MIRLRecord, RecordKind
 from .models import EmbeddingModel, cosine
 
 try:
@@ -20,6 +20,25 @@ except ImportError:  # pragma: no cover - exercised via the pure-Python branch
     _numpy = None
 
 INDEXABLE_KINDS = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL, RecordKind.RAW}
+LEGACY_VECTOR_TEXT_VERSION = "mirl-vector-text/1"
+VECTOR_TEXT_VERSION = "mirl-vector-text/2"
+
+_SEMANTIC_ATTR_ORDER: dict[RecordKind, tuple[str, ...]] = {
+    RecordKind.CLM: ("subject", "predicate", "object"),
+    RecordKind.STA: ("target", "fields"),
+    RecordKind.EVT: ("actor", "action", "object"),
+    RecordKind.REL: ("src", "predicate", "dst"),
+}
+_GROUNDED_CLM_POLICIES = {
+    "grounded-clm/1",
+    "grounded-clm/2",
+    "sentence-grounded-clm/1",
+    "multi-speaker-grounded/1",
+}
+_OBJECT_ONLY_GROUNDED_CLM_POLICIES = {
+    "sentence-grounded-clm/1",
+    "multi-speaker-grounded/1",
+}
 
 
 @dataclass
@@ -65,6 +84,7 @@ class SQLiteVectorIndex:
                     dimension integer not null,
                     source_text text not null,
                     source_hash text not null default '',
+                    render_version text not null default 'mirl-vector-text/2',
                     namespace text not null default '',
                     scope text not null default '',
                     vector_json text not null,
@@ -79,6 +99,11 @@ class SQLiteVectorIndex:
             ).fetchone() is not None
             if "source_hash" not in columns:
                 connection.execute("alter table vector_index add column source_hash text not null default ''")
+            if "render_version" not in columns:
+                connection.execute(
+                    "alter table vector_index add column render_version text "
+                    f"not null default '{LEGACY_VECTOR_TEXT_VERSION}'"
+                )
             if "namespace" not in columns:
                 connection.execute("alter table vector_index add column namespace text not null default ''")
                 if has_ir_records:
@@ -109,15 +134,18 @@ class SQLiteVectorIndex:
                 source_hash = _source_hash(source_text)
                 current = connection.execute(
                     """
-                    select source_hash, dimension, namespace, scope
+                    select source_hash, render_version, dimension, namespace, scope
                     from vector_index
                     where record_id = ? and model_name = ?
                     """,
                     (record.id, self.model.name),
                 ).fetchone()
-                if current and current["source_hash"] == source_hash and int(
-                    current["dimension"]
-                ) == int(self.model.dimension):
+                if (
+                    current
+                    and current["render_version"] == VECTOR_TEXT_VERSION
+                    and current["source_hash"] == source_hash
+                    and int(current["dimension"]) == int(self.model.dimension)
+                ):
                     if (
                         current["namespace"] != (record.ns or "")
                         or current["scope"] != (record.scope or "")
@@ -139,8 +167,8 @@ class SQLiteVectorIndex:
                     """
                     insert or replace into vector_index
                         (record_id, model_name, dimension, source_text, source_hash,
-                         namespace, scope, vector_json, updated_at)
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         render_version, namespace, scope, vector_json, updated_at)
+                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         record.id,
@@ -148,6 +176,7 @@ class SQLiteVectorIndex:
                         len(vector),
                         source_text,
                         source_hash,
+                        VECTOR_TEXT_VERSION,
                         record.ns or "",
                         record.scope or "",
                         json.dumps(vector),
@@ -187,8 +216,15 @@ class SQLiteVectorIndex:
         An ``insert or replace`` stamps the record's ``updated_at`` (monotonic
         at ingest), so both new rows (count) and content changes (max ts) move
         the fingerprint; a stale cache is rebuilt on the next search."""
-        sql = "select count(*), coalesce(max(updated_at), '') from vector_index where model_name = ? and dimension = ?"
-        params: list[object] = [self.model.name, dimension]
+        sql = (
+            "select count(*), coalesce(max(updated_at), '') from vector_index "
+            "where model_name = ? and dimension = ? and render_version = ?"
+        )
+        params: list[object] = [
+            self.model.name,
+            dimension,
+            VECTOR_TEXT_VERSION,
+        ]
         if namespace is not None:
             sql += " and namespace = ?"
             params.append(namespace)
@@ -210,8 +246,15 @@ class SQLiteVectorIndex:
         cached = self._cache.get(key)
         if cached is not None and cached.fingerprint == fingerprint:
             return cached
-        sql = "select record_id, vector_json from vector_index where model_name = ? and dimension = ?"
-        params: list[object] = [self.model.name, dimension]
+        sql = (
+            "select record_id, vector_json from vector_index "
+            "where model_name = ? and dimension = ? and render_version = ?"
+        )
+        params: list[object] = [
+            self.model.name,
+            dimension,
+            VECTOR_TEXT_VERSION,
+        ]
         if namespace is not None:
             sql += " and namespace = ?"
             params.append(namespace)
@@ -292,8 +335,15 @@ class SQLiteVectorIndex:
     ) -> dict[str, float]:
         """Pure-Python fallback (numpy absent): brute-force per-row cosine."""
         top: list[tuple[float, str]] = []
-        sql = "select record_id, vector_json from vector_index where model_name = ? and dimension = ?"
-        params: list[object] = [self.model.name, len(query_vector)]
+        sql = (
+            "select record_id, vector_json from vector_index "
+            "where model_name = ? and dimension = ? and render_version = ?"
+        )
+        params: list[object] = [
+            self.model.name,
+            len(query_vector),
+            VECTOR_TEXT_VERSION,
+        ]
         if namespace is not None:
             sql += " and namespace = ?"
             params.append(namespace)
@@ -325,7 +375,7 @@ class SQLiteVectorIndex:
                 source_hash = _source_hash(source_text)
                 row = connection.execute(
                     """
-                    select source_hash, dimension, namespace, scope
+                    select source_hash, render_version, dimension, namespace, scope
                     from vector_index
                     where record_id = ? and model_name = ?
                     """,
@@ -333,6 +383,13 @@ class SQLiteVectorIndex:
                 ).fetchone()
                 if row is None:
                     stale.append({"record_id": record.id, "reason": "missing"})
+                elif row["render_version"] != VECTOR_TEXT_VERSION:
+                    stale.append(
+                        {
+                            "record_id": record.id,
+                            "reason": "render_version_changed",
+                        }
+                    )
                 elif row["source_hash"] != source_hash:
                     stale.append({"record_id": record.id, "reason": "source_changed"})
                 elif int(row["dimension"]) != int(self.model.dimension):
@@ -369,25 +426,13 @@ class SQLiteVectorIndex:
             content = record.attrs.get("content")
             if isinstance(content, str) and content.strip():
                 return content
-        if (
-            record.kind == RecordKind.CLM
-            and str(record.ext.get("derived_fact_policy") or "")
-            in {
-                "grounded-clm/1",
-                "grounded-clm/2",
-                "sentence-grounded-clm/1",
-                "multi-speaker-grounded/1",
-            }
-        ):
+        policy = str(record.ext.get("derived_fact_policy") or "")
+        if record.kind == RecordKind.CLM and policy in _GROUNDED_CLM_POLICIES:
             subject = record.attrs.get("subject_label")
             predicate = record.attrs.get("predicate")
             obj = record.attrs.get("object")
             if (
-                record.ext.get("derived_fact_policy")
-                in {
-                    "sentence-grounded-clm/1",
-                    "multi-speaker-grounded/1",
-                }
+                policy in _OBJECT_ONLY_GROUNDED_CLM_POLICIES
                 and isinstance(obj, str)
                 and obj.strip()
             ):
@@ -398,8 +443,28 @@ class SQLiteVectorIndex:
             ):
                 return f"{subject} {predicate} {obj}"
         parts = [record.kind.value]
-        parts.extend(iter_textual_fields(record))
+        parts.extend(_iter_deterministic_textual_fields(record))
         return " ".join(part for part in parts if part)
+
+
+def _iter_deterministic_textual_fields(record: MIRLRecord) -> Iterable[str]:
+    preferred = _SEMANTIC_ATTR_ORDER.get(record.kind, ())
+    ordered_keys = [key for key in preferred if key in record.attrs]
+    preferred_keys = set(preferred)
+    ordered_keys.extend(sorted(key for key in record.attrs if key not in preferred_keys))
+    for key in ordered_keys:
+        yield from _iter_text_values(record.attrs[key])
+
+
+def _iter_text_values(value: object) -> Iterable[str]:
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, list):
+        for item in value:
+            yield from _iter_text_values(item)
+    elif isinstance(value, dict):
+        for key in sorted(value):
+            yield from _iter_text_values(value[key])
 
 
 def _source_hash(source_text: str) -> str:

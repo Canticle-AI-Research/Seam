@@ -641,6 +641,7 @@ def test_chroma_leg_filters_namespace_and_scope_before_top_k(
     assert adapter.search(plan, limit=5) == []
     assert collection.options["where"] == {
         "$and": [
+            {"vector_text_version": {"$eq": "mirl-vector-text/2"}},
             {"ns": {"$eq": "alpha"}},
             {"scope": {"$eq": "thread"}},
         ]
