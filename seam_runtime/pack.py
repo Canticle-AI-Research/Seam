@@ -145,10 +145,27 @@ def score_pack(pack: Pack, records: Iterable[MIRLRecord]) -> dict[str, float | i
         traceability = 1.0
         overall = (0.50 * reversibility) + (0.20 * ref_coverage) + (0.15 * provenance_retention) + (0.15 * evidence_retention)
     elif pack.mode == "context":
+        # CONTEXT deliberately excludes structural RAW/PROV/SPAN/ENT/SYM rows.
+        # Measure coverage and traceability against the meaning-bearing record
+        # set the contract actually carries; otherwise adding correct provenance
+        # to a structural entity makes a faithful context pack score worse.
+        context_records = [
+            record for record in ordered if record.kind in _CONTEXT_CONTENT_KINDS
+        ]
+        context_record_ids = {record.id for record in context_records}
+        ref_coverage = (
+            len(context_record_ids & set(pack.refs)) / len(context_record_ids)
+            if context_record_ids
+            else 1.0
+        )
         entries = _context_entries_by_id(pack)
         id_unalias = pack.payload.get("idsym", {})
-        provenance_retention = _list_field_retention(ordered, entries, "prov", id_unalias)
-        evidence_retention = _list_field_retention(ordered, entries, "evidence", id_unalias)
+        provenance_retention = _list_field_retention(
+            context_records, entries, "prov", id_unalias
+        )
+        evidence_retention = _list_field_retention(
+            context_records, entries, "evidence", id_unalias
+        )
         reversibility = 0.0
         traceability = (ref_coverage + provenance_retention + evidence_retention) / 3
         overall = (0.40 * traceability) + (0.25 * budget_fit) + (0.20 * compression_score) + (0.15 * ref_coverage)

@@ -20,6 +20,7 @@ TOOL_DESCRIPTIONS = {
     "seam_ingest": "Compile and persist text into SEAM memory.",
     "seam_knowledge_graph": "Search and traverse SEAM's self-building temporal knowledge graph.",
     "seam_knowledge_node": "Open one graph-backed knowledge page with facts, backlinks, agents, and sources.",
+    "seam_identity_merges": "Read the identity-merge ledger: proposed/accepted/conflict/split entity merges with confidence and evidence, or the full merge audit for one node id.",
     "seam_stats": "Return SQLite store stats (record counts, vector index size, document totals).",
     "seam_documents": "List recent persisted document_status rows (source_ref, hash, indexed state).",
     "seam_context": "Search and pack a prompt-ready context payload for a query (mirrors `seam context`).",
@@ -88,6 +89,16 @@ TOOL_METADATA = {
             "node_id": {"type": "string", "required": True, "description": "Knowledge node id returned by seam_knowledge_graph."},
             "include_history": {"type": "boolean", "required": False, "default": True},
             "at": {"type": "string", "required": False, "description": "ISO-8601 knowledge-time horizon."},
+        },
+        "annotations": {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
+    },
+    "seam_identity_merges": {
+        "description": TOOL_DESCRIPTIONS["seam_identity_merges"],
+        "input_schema": {
+            "node_id": {"type": "string", "required": False, "description": "If set, return the full merge audit (any status, with evidence) for this node id."},
+            "namespace": {"type": "string", "required": False, "description": "Filter the ledger listing by namespace."},
+            "scope": {"type": "string", "required": False, "description": "Filter the ledger listing by scope."},
+            "statuses": {"type": "string", "required": False, "description": "Comma-separated status filter: proposed, accepted, conflict, split."},
         },
         "annotations": {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     },
@@ -258,6 +269,19 @@ def dispatch_tool(runtime: SeamRuntime, request: dict[str, object]) -> dict[str,
             at=str(arguments.get("at") or "") or None,
         )
         return {"type": "result", "tool": name, "result": result}
+    if name == "seam_identity_merges":
+        node_id = str(arguments.get("node_id") or "").strip() or None
+        if node_id is not None:
+            audit = runtime.store.identity_merge_audit(node_id)
+            return {"type": "result", "tool": name, "result": {"node_id": node_id, "merges": audit}}
+        statuses_arg = str(arguments.get("statuses") or "")
+        statuses = [item.strip() for item in statuses_arg.split(",") if item.strip()] or None
+        merges = runtime.store.identity_merges(
+            ns=str(arguments.get("namespace") or "") or None,
+            scope=str(arguments.get("scope") or "") or None,
+            statuses=statuses,
+        )
+        return {"type": "result", "tool": name, "result": {"merges": merges}}
     if name == "seam_stats":
         return {"type": "result", "tool": name, "result": runtime.store.get_stats()}
     if name == "seam_documents":

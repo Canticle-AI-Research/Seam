@@ -10,11 +10,30 @@ FILTER_PATTERN = re.compile(r"\b(?P<key>id|kind|ns|scope|predicate|subject|objec
 RETRIEVAL_MODES = {"vector", "graph", "hybrid", "mix"}
 
 
-def build_plan(query: str, scope: str | None = None, budget: int = 5, mode: str = "hybrid") -> RetrievalPlan:
+def build_plan(
+    query: str,
+    scope: str | None = None,
+    budget: int = 5,
+    mode: str = "hybrid",
+    *,
+    namespace: str | None = None,
+    graph_hops: int = 1,
+    semantic_graph_seeding: bool = False,
+) -> RetrievalPlan:
     mode = mode.lower().strip() or "hybrid"
     if mode not in RETRIEVAL_MODES:
         raise ValueError(f"Unsupported retrieval mode: {mode}")
-    filters = _extract_filters(query, scope=scope)
+    if isinstance(budget, bool) or not isinstance(budget, int):
+        raise TypeError("retrieval budget must be an integer")
+    if budget < 1:
+        raise ValueError("retrieval budget must be positive")
+    if isinstance(graph_hops, bool) or not isinstance(graph_hops, int):
+        raise TypeError("graph_hops must be an integer")
+    if not 0 <= graph_hops <= 3:
+        raise ValueError("graph_hops must be between 0 and 3")
+    if not isinstance(semantic_graph_seeding, bool):
+        raise TypeError("semantic_graph_seeding must be a boolean")
+    filters = _extract_filters(query, scope=scope, namespace=namespace)
     normalized_query = _strip_filters(query)
     intent = _classify_intent(filters, normalized_query, mode)
     leg_limit = max(budget * 2, 5) if mode in {"hybrid", "mix"} else max(budget, 5)
@@ -38,11 +57,17 @@ def build_plan(query: str, scope: str | None = None, budget: int = 5, mode: str 
         filters=filters,
         legs=legs,
         mode=mode,
+        graph_hops=graph_hops,
+        semantic_graph_seeding=semantic_graph_seeding,
     )
 
 
-def _extract_filters(query: str, scope: str | None = None) -> QueryFilters:
-    filters = QueryFilters(scope=scope)
+def _extract_filters(
+    query: str,
+    scope: str | None = None,
+    namespace: str | None = None,
+) -> QueryFilters:
+    filters = QueryFilters(scope=scope, namespace=namespace)
     for match in FILTER_PATTERN.finditer(query):
         key = match.group("key")
         value = match.group("value")
@@ -51,8 +76,12 @@ def _extract_filters(query: str, scope: str | None = None) -> QueryFilters:
         elif key == "kind":
             filters.kinds.extend(item.upper() for item in _split_csv(value))
         elif key == "ns":
+            if namespace is not None and value != namespace:
+                raise ValueError("query namespace conflicts with the retrieval boundary")
             filters.namespace = value
         elif key == "scope":
+            if scope is not None and value != scope:
+                raise ValueError("query scope conflicts with the retrieval boundary")
             filters.scope = value
         elif key == "predicate":
             filters.predicate = value
@@ -60,6 +89,10 @@ def _extract_filters(query: str, scope: str | None = None) -> QueryFilters:
             filters.subject = value
         elif key == "object":
             filters.object_text = value
+    if len(filters.ids) > 64:
+        raise ValueError("retrieval supports at most 64 id filters")
+    if len(filters.kinds) > 32:
+        raise ValueError("retrieval supports at most 32 kind filters")
     return filters
 
 

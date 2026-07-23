@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import logging
@@ -36,7 +36,12 @@ from .retrieval import search_batch
 from .storage import SQLiteStore
 from .symbols import export_symbol_markdown, propose_symbols
 from .transpile import transpile_python
-from .vector_adapters import PgVectorAdapter, SQLiteVectorAdapter, VectorAdapter
+from .vector_adapters import (
+    PgVectorAdapter,
+    SQLiteVectorAdapter,
+    VectorAdapter,
+    search_vector_adapter,
+)
 from .verify import verify_ir
 
 LOGGER = logging.getLogger(__name__)
@@ -242,12 +247,17 @@ class SeamRuntime:
         # deeper retrieval is a measured paid-judge win (0.40->0.52). None = use
         # the caller's `budget` unchanged.
         budget = flags.search_top_k if getattr(flags, "search_top_k", None) else budget
-        # Substream isolation: when ``ns`` is given, confine BOTH the candidate
-        # load and the vector top-K to that namespace so a shared store/vector
-        # pool cannot leak another namespace's records. ns=None reproduces the
-        # prior global behavior exactly.
+        # Substream isolation: confine both the candidate load and vector top-K
+        # to the requested namespace/scope boundary. Omitted filters reproduce
+        # the prior global behavior exactly.
         batch = self.store.load_ir(ns=ns, scope=scope)
-        vector_scores = self.vector_adapter.search(query, limit=max(budget * 3, 10), namespace=ns)
+        vector_scores = search_vector_adapter(
+            self.vector_adapter,
+            query,
+            limit=max(budget * 3, 10),
+            namespace=ns,
+            scope=scope,
+        )
         namespace = batch.records[0].ns if batch.records else None
         bm25 = None
         if include_raw or flags.bm25_all_kinds:
@@ -486,12 +496,38 @@ class SeamRuntime:
     def list_benchmark_runs(self, limit: int = 10) -> list[dict[str, object]]:
         return self.store.list_benchmark_runs(limit=limit)
 
-    def reindex_vectors(self, record_ids: list[str] | None = None) -> dict[str, object]:
-        batch = self.store.load_ir(ids=record_ids) if record_ids else self.store.load_ir()
+    def reindex_vectors(
+        self,
+        record_ids: list[str] | None = None,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        boundary_only: bool = False,
+    ) -> dict[str, object]:
+        batch = self.store.load_ir(ids=record_ids, ns=ns, scope=scope) if (record_ids or ns or scope) else self.store.load_ir()
+        syncer = None
+        if boundary_only:
+            syncer = getattr(self.vector_adapter, "sync_boundaries", None)
+            if not callable(syncer):
+                adapter_name = getattr(self.vector_adapter, "name", "unknown")
+                raise NotImplementedError(
+                    "Unsupported boundary-only reindex for vector adapter: "
+                    f"{adapter_name}"
+                )
         stale = []
         inspector = getattr(self.vector_adapter, "stale_records", None)
         if inspector is not None:
             stale = inspector(batch.records)
+        if boundary_only:
+            sync_result = syncer(batch.records)
+            return {
+                "mode": "boundary_only",
+                "record_count": len(batch.records),
+                "model": self.embedding_model.name,
+                "adapter": getattr(self.vector_adapter, "name", "unknown"),
+                "stale_before": stale,
+                **sync_result,
+            }
         self.vector_adapter.index_records(batch.records)
         return {
             "indexed_ids": [record.id for record in batch.records],

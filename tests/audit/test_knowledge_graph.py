@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from seam_runtime.graph_source_selector import select_graph_source_raw
 from seam_runtime.mcp import TOOL_METADATA, dispatch_tool
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.retrieval_orchestrator.adapters import SQLiteGraphAdapter
@@ -56,6 +57,187 @@ def test_every_persist_automatically_builds_agent_attributed_graph(runtime: Seam
     assert detail["page"]["sources"] == ["agent://codex/session-1"]
     assert detail["page"]["facts"][0]["source_record_id"].startswith("clm:")
     assert detail["record"]["kind"] == "ENT"
+
+
+def test_projection_builds_scoped_canonical_and_alias_term_index(runtime: SeamRuntime) -> None:
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id="ent:ada-lovelace",
+                    kind=RecordKind.ENT,
+                    ns="people",
+                    scope="project",
+                    attrs={
+                        "label": "Ada Lovelace",
+                        "entity_type": "person",
+                        "aliases": ["", "Augusta Ada King", "Enchantress of Numbers"],
+                    },
+                )
+            ]
+        )
+    )
+
+    with runtime.store._pool.checkout() as connection:
+        rows = connection.execute(
+            "select normalized_term, token, term_kind, ns, scope, source_record_id "
+            "from knowledge_node_terms where node_id = ? order by normalized_term, token",
+            ("ent:ada-lovelace",),
+        ).fetchall()
+    normalized_terms = {str(row["normalized_term"]) for row in rows}
+    assert normalized_terms == {
+        "ada lovelace",
+        "augusta ada king",
+        "enchantress of numbers",
+    }
+    assert {str(row["term_kind"]) for row in rows} == {"canonical", "alias"}
+    assert {(str(row["ns"]), str(row["scope"])) for row in rows} == {
+        ("people", "project")
+    }
+    assert {str(row["source_record_id"]) for row in rows} == {"ent:ada-lovelace"}
+
+    graph = runtime.store.knowledge_graph(
+        query="Enchantress",
+        namespace="people",
+        scope="project",
+        kinds=["entity"],
+        hops=0,
+    )
+    assert [node["id"] for node in graph["nodes"]] == ["ent:ada-lovelace"]
+    assert graph["stats"]["term_count"] == 3
+    assert graph["stats"]["alias_count"] == 2
+    assert graph["stats"]["projection_version"] == "knowledge-graph/5"
+
+
+def test_sentence_like_claim_values_do_not_enter_concept_term_index(runtime: SeamRuntime) -> None:
+    runtime.persist_ir(
+        runtime.compile_nl(
+            "Carol likes pottery.",
+            source_ref="unit://content-bearing-value",
+        )
+    )
+
+    with runtime.store._pool.checkout() as connection:
+        indexed_value_terms = connection.execute(
+            "select t.term from knowledge_node_terms t "
+            "join knowledge_nodes n on n.id = t.node_id "
+            "where n.kind = 'value' order by t.term"
+        ).fetchall()
+    assert indexed_value_terms == []
+
+
+def test_short_literals_with_embedded_periods_remain_indexable(runtime: SeamRuntime) -> None:
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id="clm:domain",
+                    kind=RecordKind.CLM,
+                    attrs={
+                        "subject": "ent:service",
+                        "predicate": "uses_domain",
+                        "object": "example.com",
+                    },
+                )
+            ]
+        )
+    )
+
+    with runtime.store._pool.checkout() as connection:
+        terms = connection.execute(
+            "select distinct normalized_term from knowledge_node_terms "
+            "where normalized_term = 'example.com'"
+        ).fetchall()
+    assert [str(row[0]) for row in terms] == ["example.com"]
+
+
+def test_compiled_entities_are_episode_grounded_and_select_exact_raw(runtime: SeamRuntime) -> None:
+    batch = runtime.compile_nl(
+        "Alice met Bob at GraphConf.",
+        source_ref="unit://entity-mentions",
+        ns="people",
+        scope="thread",
+    )
+    runtime.persist_ir(batch)
+    raw_id = next(record.id for record in batch.records if record.kind == RecordKind.RAW)
+    entity_ids = {
+        str(record.attrs["label"]): record.id
+        for record in batch.records
+        if record.kind == RecordKind.ENT
+    }
+
+    with runtime.store._pool.checkout() as connection:
+        linked = connection.execute(
+            "select ne.node_id, ep.source_record_id "
+            "from knowledge_node_episodes ne "
+            "join knowledge_episodes ep on ep.id = ne.episode_id "
+            "where ne.node_id in (?, ?) order by ne.node_id",
+            (entity_ids["Alice"], entity_ids["Bob"]),
+        ).fetchall()
+        selected = select_graph_source_raw(
+            connection,
+            "Alice Bob",
+            ns="people",
+            scope="thread",
+        )
+
+    assert {(str(row["node_id"]), str(row["source_record_id"])) for row in linked} == {
+        (entity_ids["Alice"], raw_id),
+        (entity_ids["Bob"], raw_id),
+    }
+    assert [item.source_record_id for item in selected] == [raw_id]
+    assert selected[0].agreement == 2
+    assert {path.path_kind for path in selected[0].paths} == {"edge", "mention"}
+
+
+def test_projection_v5_backfills_identity_terms_from_canonical_mirl(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+    db_path = tmp_path / "graph-v4.db"
+    first = SeamRuntime(db_path)
+    try:
+        first.persist_ir(
+            IRBatch(
+                [
+                    MIRLRecord(
+                        id="ent:orion",
+                        kind=RecordKind.ENT,
+                        attrs={
+                            "label": "Orion",
+                            "entity_type": "project",
+                            "aliases": ["Project Orion"],
+                        },
+                    )
+                ]
+            )
+        )
+        with first.store._pool.checkout() as connection:
+            connection.execute("delete from knowledge_node_terms")
+            connection.execute(
+                "update knowledge_graph_meta set value = 'knowledge-graph/4' "
+                "where key = 'projection_version'"
+            )
+            connection.commit()
+    finally:
+        first.close()
+
+    second = SeamRuntime(db_path)
+    try:
+        with second.store._pool.checkout() as connection:
+            rows = connection.execute(
+                "select distinct normalized_term from knowledge_node_terms "
+                "where node_id = ? order by normalized_term",
+                ("ent:orion",),
+            ).fetchall()
+            version = connection.execute(
+                "select value from knowledge_graph_meta where key = 'projection_version'"
+            ).fetchone()[0]
+        assert [str(row[0]) for row in rows] == ["orion", "project orion"]
+        assert version == "knowledge-graph/5"
+    finally:
+        second.close()
 
 
 def test_query_graph_projects_episodes_as_connected_provenance_nodes(runtime: SeamRuntime) -> None:

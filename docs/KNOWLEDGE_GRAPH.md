@@ -17,6 +17,10 @@ The projection distinguishes semantic knowledge from its evidence:
   contributing agents, namespaces, scopes, and recorded/valid times;
 - temporal state: `valid_from`, `valid_to`, status, and `expired_at` preserve
   current and historical views without silently overwriting earlier claims.
+- identity terms: `knowledge_node_terms` indexes scoped canonical entity names,
+  explicit aliases, symbols, agents, and short concept literals with source
+  record provenance. Assertion labels, episode text, and sentence-like literal
+  values are excluded so source prose cannot masquerade as extra concepts.
 
 MIRL and RAW remain the canonical truth. `knowledge_nodes`, `knowledge_edges`,
 and `knowledge_episodes` are durable indexed projections that can be rebuilt
@@ -69,6 +73,10 @@ exploration retains them with their trust labels. Both `/chat` and
    queries while preserving it for history and knowledge-horizon inspection.
 6. Opening an existing database performs a one-time versioned backfill, so old
    SEAM knowledge appears without manual migration.
+
+The identity index is part of that rebuildable projection. Alias rows never
+rewrite canonical MIRL or silently merge entities; reversible entity merges and
+conflict handling remain a later graph-maturity stage.
 
 The deterministic compiler always produces grounded source, entity, claim,
 value, evidence, and provenance topology. When the configured NL extractor
@@ -130,6 +138,17 @@ persistence. A stream emits exactly one terminal completion or failure event.
 Workspace telemetry is operational trace, not canonical knowledge. Only a
 separate, explicit MIRL persistence step turns selected conclusions into durable
 knowledge.
+
+The durable reasoning graph is a third, bounded role alongside canonical
+knowledge and live telemetry. It anchors typed objectives, premises,
+hypotheses, inferences, decisions, and outcomes to `workspace_run`, with exact
+knowledge/MIRL evidence references and append-only state history. It is public
+justification, never hidden chain-of-thought, and it cannot promote itself into
+MIRL. R2 adds a fixed retrieval decision and content-free candidate ledger:
+bounded selected and rejected record IDs, boundary/content fingerprints,
+scores, controlled reason codes, plan/policy/model identity, and latency.
+Record payloads stay in MIRL and are never copied into that ledger. See
+`docs/REASONING_GRAPH.md`.
 
 ## Honest J-lens capability boundary
 
@@ -196,6 +215,31 @@ shown in the dashboard, including typed predicates and current-state filtering.
 Graph hits still resolve back to MIRL records for ranking, packing, and complete
 RAW/provenance backtraces.
 
+The G3a slice can explicitly seed the graph leg from in-boundary semantic
+fact/episode MIRL hits and traverse the current graph for 0-3 hops. A semantic
+seed receives graph credit only when an actual current edge connects it. The SDK
+opts into that behavior for `ReasoningSession.retrieve`; existing orchestrator
+callers retain the default-off semantic-seeding behavior. Ranking is
+deterministic and its current sum/max-per-leg overlap policy is fingerprinted in
+each R2 decision. This is not the full G3 claim: entity-class vectors,
+calibrated cross-leg scoring, historical paths, exact path/episode return, and
+scale qualification remain. Native vector top-K now prefilters namespace and
+scope; existing pgvector indexes from before the scope column require an
+explicit resync because canonical SQLite cannot backfill the external table.
+Boundary-only resync updates metadata without calling the embedding model again.
+
+The default-off graph-to-source-RAW lane seeds only from
+`knowledge_node_terms`. Its agreement score is a deterministic maximum
+one-to-one match between supporting graph concepts and distinct query tokens:
+one long label cannot count as several concepts, and several nodes matching the
+same query word cannot inflate agreement. Selected paths still terminate at
+exact `knowledge_episodes.source_record_id` values and enter only a
+non-displacing RAW PACK.
+
+The staged path from this identity foundation through hybrid path search,
+summaries/observations, context assembly, lifecycle, and scale qualification is
+maintained in `docs/roadmap/GRAPH_MEMORY_MATURITY.md`.
+
 ## Trust boundaries
 
 - The graph never invents client-side topology; the browser renders only API
@@ -208,6 +252,9 @@ RAW/provenance backtraces.
   does not promote a hypothesis into an asserted fact.
 - Structured reasoning summaries and graph activation are observable telemetry;
   they are not hidden chain-of-thought or raw neural activations.
+- Durable reasoning nodes are non-canonical public artifacts. Cross-run edges
+  and cross-namespace/scope evidence references fail closed, and accepted
+  conclusions require explicit support.
 - Real-model, provider, remote-worker, pgvector, and paid benchmark execution
   remain optional operator-configured boundaries; the local graph/workspace
   feature does not require any of them.

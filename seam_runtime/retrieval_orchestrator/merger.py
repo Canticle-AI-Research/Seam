@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import math
+
 from .types import LegHit, RetrievalCandidate
 
 
-def merge_hits(grouped_hits: list[list[LegHit]], limit: int) -> list[RetrievalCandidate]:
+def rank_hits(grouped_hits: list[list[LegHit]]) -> list[RetrievalCandidate]:
+    """Fuse all leg hits into one deterministic ranked candidate pool."""
+
     merged: dict[str, RetrievalCandidate] = {}
     for hits in grouped_hits:
         for hit in hits:
+            if not math.isfinite(float(hit.score)) or abs(float(hit.score)) > 1_000_000:
+                raise ValueError("retrieval leg scores must be finite and bounded")
             candidate = merged.get(hit.record.id)
             if candidate is None:
                 candidate = RetrievalCandidate(record=hit.record, score=0.0)
@@ -19,4 +25,8 @@ def merge_hits(grouped_hits: list[list[LegHit]], limit: int) -> list[RetrievalCa
         candidate.score = sum(candidate.sources.values()) + overlap_bonus
         candidate.reasons = list(dict.fromkeys(candidate.reasons))
 
-    return sorted(merged.values(), key=lambda item: item.score, reverse=True)[:limit]
+    return sorted(merged.values(), key=lambda item: (-item.score, item.record.id))
+
+
+def merge_hits(grouped_hits: list[list[LegHit]], limit: int) -> list[RetrievalCandidate]:
+    return rank_hits(grouped_hits)[:limit]

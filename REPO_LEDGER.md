@@ -77,6 +77,16 @@ and `HISTORY_INDEX.md`.
   graph retrieval and the dashboard consume the same projection, and inactive
   claims remain available only through explicit history views. See
   `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
+- Graph identity lookup is a scoped, rebuildable projection, not inference from
+  assertion/source labels. `knowledge_node_terms` indexes canonical entity
+  names, explicit aliases, symbols, agents, and short concept literals with
+  source-record provenance; sentence-like values stay out. Extracted entities
+  carry compile provenance to their RAW episode, and graph-to-source agreement
+  uses one-to-one concept/query-term matching over semantic-edge and episode-
+  mention paths. Track R's graph-first G1-G7 contract lives in
+  `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; benchmarks qualify completed graph
+  stages but do not gate construction of missing graph substrate. See
+  HISTORY#454.
 - The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
   parallel truth store. Explicit facets and already-present MIRL fields may
   project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing
@@ -94,6 +104,21 @@ and `HISTORY_INDEX.md`.
   credential-shaped, hidden-chain-of-thought, raw-activation, and tensor data.
   POST-backed SSE and replay share stable event IDs and per-run sequence order;
   every stream has exactly one completion/failure terminal event.
+- The reasoning graph is an append-only public justification plane anchored to
+  `workspace_run`, parallel to the canonical MIRL-backed knowledge graph. It
+  stores only typed summaries, relationships, status history, and exact scoped
+  knowledge/evidence references; it never stores hidden chain-of-thought or raw
+  model internals and never promotes itself into MIRL. R2 retrieval decisions
+  use fixed typed columns plus a bounded content-free candidate ledger (record
+  IDs, boundary/content fingerprints, scores, and reason codes), enforce the
+  insertion-time run/namespace/scope boundary in SQLite, detect later evidence
+  drift, and pin planner/fusion plus semantic-adapter/model identities; raw
+  record/provider payloads are forbidden. The
+  local Python SDK is the stable integration boundary; CLI, REST, MCP, and
+  framework adapters should wrap that contract rather than depend on SQLite
+  tables. SDK semantic graph seeding is an explicit opt-in over the legacy
+  orchestrator default and does not establish a full G3 quality/scale claim.
+  See `docs/REASONING_GRAPH.md`.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
   activation persistence. A genuine J-lens requires activation-capable local
@@ -109,6 +134,13 @@ and `HISTORY_INDEX.md`.
   and `auto_approve` cannot bypass that boundary. The apply path admits only an
   approved, non-violating proposal with a passing stored ratchet.
 - Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam[chroma]`, `seam[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
+- Native SQLite and pgvector vector searches carry both namespace and scope into
+  pre-top-K filtering; post-filtering remains a fail-closed defense. SQLite
+  upgrades backfill both fields from canonical `ir_records`. Existing external
+  pgvector rows created before the scope column must be resynced explicitly;
+  their scope cannot be inferred safely inside the external vector table.
+  Namespace/scope-only repair must update metadata without recomputing an
+  unchanged embedding, including when the configured embedder is paid/remote.
 - Document ingest status is canonical SQLite metadata. Source refs, source hashes, extraction status, index status, and deletion state belong in `document_status`, not only in derived vector stores.
 - Agent-facing retrieval should use progressive disclosure where possible: compact search/index results first, then full MIRL records by selected IDs.
 - Default agent RAG should prefer `mix` retrieval only after benchmark validation; the supported retrieval modes are `vector`, `graph`, `hybrid`, and `mix`.

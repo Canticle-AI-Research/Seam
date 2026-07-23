@@ -1080,18 +1080,18 @@ Bootstrap status capture for roadmap:track:Q: status=planned, status-since=2026-
 
 ---BEGIN-ROADMAP-EVENT-#061---
 id: roadmap:061
-date: 2026-07-17T00:00:00Z
+date: 2026-07-22T00:00:00Z
 agent: bootstrap
 kind: status-change
 item: roadmap:track:R
 event: bootstrap
 from: (initial)
-to: planned
-caused-by: history:415
+to: in-progress
+caused-by: history:454
 supersedes: none
 refs: ROADMAP.md:1761
 topics: graph, memory, retrieval, benchmark, comparator, provenance
-tokens: 43
+tokens: 42
 ---
-Bootstrap status capture for roadmap:track:R: status=planned, status-since=2026-07-17, caused-by=history:415. Sourced from ROADMAP.md seam:item marker.
+Bootstrap status capture for roadmap:track:R: status=in-progress, status-since=2026-07-22, caused-by=history:454. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#061---

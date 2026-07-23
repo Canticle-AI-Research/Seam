@@ -20,6 +20,7 @@ parked · 🔴 measured loser / killed · ⚙️ live, under evaluation.
 | `event-count/distinct/1` (count projection v1) | 🟡 | Microgate net +5 vs a *weak* answerer but 6/14 < 7 gate; full run not green-lit (#417). |
 | `event-count/distinct/2` (same-event grouping) | 🔴 (matched) | Paid microgate net +1, gate 7. Strong gpt-4o answerer already counts well (baseline 6/13); count bucket has little headroom under the matched contract (#434). Built, default-off. |
 | `entity_grounded_scoring`, `dossier`, `entity_agg`, `decomposition` | 🔴 | Null/negative on cat1; decomposition measured harmful (#358, #396, #405). |
+| `resolve_identity` (G3 graph identity-fold into source-RAW retrieval) | 🟡 | Correct mechanism (alias→canonical reach + no double-count, default-off), but ZERO fuel on LoCoMo: a free probe over 3 conversations found `pairs_examined=0` — the honest-minimal extractor emits 0 alias terms and 0 entity labels are shared across distinct nodes (exact-label coreference already dedups identity at ingest). The alias-fold can never fire on LoCoMo, so it cannot move that score. Banked as an agent-memory capability, not a LoCoMo lever; would need a non-exact alias SOURCE (richer extractor / embedding-based candidates) to have any fuel, and even then LoCoMo's wall is retrieval-side second-hop, not identity (#458/#459). |
 
 ## Validated (in a champion)
 

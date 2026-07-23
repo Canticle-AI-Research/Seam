@@ -37,6 +37,11 @@ from seam_runtime.models import (
 from seam_runtime.nl import compile_nl
 from seam_runtime.pack import pack_records, unpack_exact_pack
 from seam_runtime.runtime import SeamRuntime  # noqa: F401 -- re-exported for `from seam import SeamRuntime`
+from seam_runtime.sdk import (  # noqa: F401 -- public SDK re-exports
+    ReasonedRetrieval,
+    ReasoningSession,
+    SeamSDK,
+)
 from seam_runtime.verify import verify_ir  # noqa: F401 -- re-exported for `from seam import verify_ir`
 
 

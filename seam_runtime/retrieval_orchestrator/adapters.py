@@ -10,7 +10,7 @@ from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, iter_textual_fiel
 from seam_runtime.models import EmbeddingModel
 from seam_runtime.storage import SQLiteStore
 from seam_runtime.vector import INDEXABLE_KINDS, SQLiteVectorIndex
-from seam_runtime.vector_adapters import VectorAdapter
+from seam_runtime.vector_adapters import VectorAdapter, search_vector_adapter
 
 from .types import LegHit, RetrievalPlan
 
@@ -59,7 +59,13 @@ class SeamVectorSearchAdapter:
         query_text = plan.normalized_query or plan.query
         if not query_text.strip():
             return []
-        raw_scores = self.vector_adapter.search(query_text, limit=max(limit * 3, 10))
+        raw_scores = search_vector_adapter(
+            self.vector_adapter,
+            query_text,
+            limit=max(limit * 3, 10),
+            namespace=plan.filters.namespace,
+            scope=plan.filters.scope,
+        )
         if not raw_scores:
             return []
         batch = self.store.load_ir(ids=list(raw_scores))
@@ -72,35 +78,62 @@ class SeamVectorSearchAdapter:
             if plan.filters.active():
                 raw_score += 0.05 * _matched_filter_count(record, plan)
             hits.append(LegHit(leg="vector", record=record, score=raw_score, reasons=[f"semantic={raw_score:.2f}"]))
-        return sorted(hits, key=lambda item: item.score, reverse=True)[:limit]
+        return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
 class SQLiteGraphAdapter:
     def __init__(self, store: SQLiteStore) -> None:
         self.store = store
 
-    def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
+    def search(
+        self,
+        plan: RetrievalPlan,
+        limit: int,
+        *,
+        seed_record_ids: list[str] | tuple[str, ...] = (),
+    ) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
         tokens = _unique_tokens(_tokens(query_text))
-        if not tokens and not plan.filters.active():
+        if not tokens and not plan.filters.active() and not seed_record_ids:
             return []
-        batch = self.store.load_ir(scope=plan.filters.scope, ns=plan.filters.namespace)
-        by_id = batch.by_id()
-        matching_records = []
-        for record in batch.records:
-            if not plan.filters.matches(record):
-                continue
-            haystack = " ".join([record.id, record.kind.value, *iter_textual_fields(record)]).lower()
-            if not tokens or any(token in haystack for token in tokens):
-                matching_records.append(record)
-        if not matching_records:
+        seed_limit = max(50, min(250, limit * 20))
+        seed_sql, seed_params = _build_structured_sql(
+            plan,
+            tokens,
+            seed_limit,
+            include_graph_kinds=True,
+        )
+        with closing(self.store._connect()) as connection:
+            seed_rows = connection.execute(seed_sql, seed_params).fetchall()
+        matching_records = [
+            MIRLRecord.from_dict(json.loads(row["payload_json"])) for row in seed_rows
+        ]
+        bounded_semantic_ids = sorted(set(seed_record_ids))[:300]
+        semantic_batch = (
+            self.store.load_ir(
+                ids=bounded_semantic_ids,
+                ns=plan.filters.namespace,
+                scope=plan.filters.scope,
+            )
+            if bounded_semantic_ids
+            else IRBatch([])
+        )
+        semantic_seed_ids = {
+            record.id
+            for record in semantic_batch.records
+            if plan.filters.matches(record)
+        }
+        if not matching_records and not semantic_seed_ids:
             return []
         if tokens:
             matching_records.sort(key=lambda record: (-_lexical_score(record, tokens), record.id))
         else:
             matching_records.sort(key=lambda record: record.id)
-        seed_limit = max(50, min(250, limit * 20))
         lexical_seed_ids = {record.id for record in matching_records[:seed_limit]}
+        semantic_seed_ids = set(
+            sorted(semantic_seed_ids)[: max(0, 300 - len(lexical_seed_ids))]
+        )
+        initial_seed_ids = lexical_seed_ids | semantic_seed_ids
 
         graph: dict[str, set[str]] = {}
         # The graph leg reads the same self-building temporal graph exposed by
@@ -117,43 +150,87 @@ class SQLiteGraphAdapter:
         if plan.filters.namespace:
             edge_where.append("ns = ?")
             edge_params.append(plan.filters.namespace)
-        placeholders = ",".join("?" for _ in lexical_seed_ids)
-        edge_where.append(
-            f"(src_id in ({placeholders}) or dst_id in ({placeholders}) "
-            f"or source_record_id in ({placeholders}))"
+        node_budget = max(
+            len(initial_seed_ids), min(512, max(64, limit * 32))
         )
-        edge_params.extend([*lexical_seed_ids, *lexical_seed_ids, *lexical_seed_ids])
-        edge_sql = (
-            "select src_id, predicate as edge_type, dst_id from knowledge_edges "
-            f"where {' and '.join(edge_where)}"
-        )
-        with closing(self.store._connect()) as connection:
-            rows = connection.execute(edge_sql, edge_params).fetchall()
-        for row in rows:
-            src = str(row["src_id"])
-            dst = str(row["dst_id"])
-            edge_type = str(row["edge_type"])
-            graph.setdefault(src, set()).add(dst)
-            graph.setdefault(dst, set()).add(src)
-            graph.setdefault(edge_type, set()).update([src, dst])
+        edge_budget = min(4096, max(256, node_budget * 8))
+        hop_by_id = {record_id: 0 for record_id in initial_seed_ids}
+        reached_ids = set(initial_seed_ids)
+        frontier = set(initial_seed_ids)
+        for hop in range(1, plan.graph_hops + 1):
+            if not frontier or len(reached_ids) >= node_budget:
+                break
+            ordered_frontier = sorted(frontier)
+            placeholders = ",".join("?" for _ in ordered_frontier)
+            hop_where = [*edge_where]
+            hop_params = [*edge_params]
+            hop_where.append(
+                f"(src_id in ({placeholders}) or dst_id in ({placeholders}) "
+                f"or source_record_id in ({placeholders}))"
+            )
+            hop_params.extend(
+                [*ordered_frontier, *ordered_frontier, *ordered_frontier, edge_budget]
+            )
+            edge_sql = (
+                "select id, src_id, predicate as edge_type, dst_id, source_record_id "
+                "from knowledge_edges "
+                f"where {' and '.join(hop_where)} order by id limit ?"
+            )
+            with closing(self.store._connect()) as connection:
+                rows = connection.execute(edge_sql, hop_params).fetchall()
+            discovered: set[str] = set()
+            for row in rows:
+                src = str(row["src_id"])
+                dst = str(row["dst_id"])
+                source = str(row["source_record_id"] or "")
+                graph.setdefault(src, set()).add(dst)
+                graph.setdefault(dst, set()).add(src)
+                if source:
+                    graph.setdefault(source, set()).update((src, dst))
+                    graph.setdefault(src, set()).add(source)
+                    graph.setdefault(dst, set()).add(source)
+                if src in frontier:
+                    discovered.add(dst)
+                if dst in frontier:
+                    discovered.add(src)
+                if source in frontier:
+                    discovered.update((src, dst))
+            available = node_budget - len(reached_ids)
+            next_frontier = set(sorted(discovered - reached_ids)[:available])
+            for record_id in next_frontier:
+                hop_by_id[record_id] = hop
+            reached_ids.update(next_frontier)
+            frontier = next_frontier
 
-        seed_ids = set(lexical_seed_ids)
-        for record_id in lexical_seed_ids:
-            seed_ids.update(graph.get(record_id, set()))
+        reached_batch = self.store.load_ir(
+            ids=sorted(reached_ids),
+            ns=plan.filters.namespace,
+            scope=plan.filters.scope,
+        )
+        by_id = reached_batch.by_id()
         hits: list[LegHit] = []
         # ``seed_ids`` is a set because the graph expansion deduplicates lexical
         # seeds and neighbors.  Iterating it directly made equal-score graph
         # hits depend on the process hash seed, which in turn made reserved-tail
         # benchmark composition non-reproducible.  Stabilize both construction
         # and the final score-tie order by canonical record id.
-        for record_id in sorted(seed_ids):
+        for record_id in sorted(reached_ids):
             record = by_id.get(record_id)
             if record is None or record.kind not in GRAPH_RETURN_KINDS or not plan.filters.matches(record):
+                continue
+            if (
+                record_id in semantic_seed_ids
+                and record_id not in lexical_seed_ids
+                and not graph.get(record_id)
+            ):
+                # A semantic result is not graph evidence by itself. It gains a
+                # graph source only after an actual in-boundary edge connects it.
                 continue
             lexical = _lexical_score(record, tokens)
             neighbor_bonus = min(0.6, len(graph.get(record_id, set())) * 0.1)
             seed_bonus = 0.5 if record_id in lexical_seed_ids else 0.0
-            score = lexical + neighbor_bonus + seed_bonus
+            semantic_seed_bonus = 0.25 if record_id in semantic_seed_ids else 0.0
+            score = lexical + neighbor_bonus + seed_bonus + semantic_seed_bonus
             if score <= 0:
                 score = neighbor_bonus
             hits.append(
@@ -161,7 +238,12 @@ class SQLiteGraphAdapter:
                     leg="graph",
                     record=record,
                     score=score,
-                    reasons=[f"graph_neighbors={len(graph.get(record_id, set()))}", f"lexical={lexical:.2f}"],
+                    reasons=[
+                        f"graph_neighbors={len(graph.get(record_id, set()))}",
+                        f"graph_hop={hop_by_id.get(record_id, 0)}",
+                        f"lexical={lexical:.2f}",
+                        *( ["semantic_seed=true"] if record_id in semantic_seed_ids else [] ),
+                    ],
                 )
             )
         return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
@@ -220,11 +302,21 @@ class ChromaSemanticAdapter:
         if self.sync_on_search:
             self.sync_records(plan)
         collection = self._collection()
-        response = collection.query(
-            query_embeddings=[self.embedding_model.embed(query_text)],
-            n_results=max(limit * 3, 10),
-            include=["metadatas", "distances", "documents"],
-        )
+        query_options: dict[str, object] = {
+            "query_embeddings": [self.embedding_model.embed(query_text)],
+            "n_results": max(limit * 3, 10),
+            "include": ["metadatas", "distances", "documents"],
+        }
+        boundary_filters = []
+        if plan.filters.namespace:
+            boundary_filters.append({"ns": {"$eq": plan.filters.namespace}})
+        if plan.filters.scope:
+            boundary_filters.append({"scope": {"$eq": plan.filters.scope}})
+        if len(boundary_filters) == 1:
+            query_options["where"] = boundary_filters[0]
+        elif boundary_filters:
+            query_options["where"] = {"$and": boundary_filters}
+        response = collection.query(**query_options)
         ids = response.get("ids", [[]])[0]
         distances = response.get("distances", [[]])[0]
         if not ids:
@@ -241,7 +333,7 @@ class ChromaSemanticAdapter:
             if plan.filters.active():
                 score += 0.05 * _matched_filter_count(record, plan)
             hits.append(LegHit(leg="chroma", record=record, score=score, reasons=[f"chroma={score:.2f}"]))
-        return sorted(hits, key=lambda item: item.score, reverse=True)[:limit]
+        return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
 def _structured_reasons(record: MIRLRecord, plan: RetrievalPlan) -> tuple[float, list[str]]:
@@ -307,9 +399,19 @@ def _unique_tokens(tokens: list[str]) -> list[str]:
     return list(dict.fromkeys(tokens))
 
 
-def _build_structured_sql(plan: RetrievalPlan, query_tokens: list[str], limit: int) -> tuple[str, list[object]]:
-    where_clauses = ["r.kind in ('CLM', 'STA', 'EVT', 'REL')"]
-    where_params: list[object] = []
+def _build_structured_sql(
+    plan: RetrievalPlan,
+    query_tokens: list[str],
+    limit: int,
+    *,
+    include_graph_kinds: bool = False,
+) -> tuple[str, list[object]]:
+    allowed_kinds = ["CLM", "EVT", "REL", "STA"]
+    if include_graph_kinds:
+        allowed_kinds.extend(("ENT", "RAW"))
+    kind_placeholders = ",".join("?" for _ in allowed_kinds)
+    where_clauses = [f"r.kind in ({kind_placeholders})"]
+    where_params: list[object] = list(allowed_kinds)
 
     if plan.filters.ids:
         placeholders = ",".join("?" for _ in plan.filters.ids)
@@ -410,6 +512,7 @@ with record_rows as (
 ),
 scored_rows as (
     select
+        id,
         payload_json,
         conf,
         updated_at,
@@ -420,6 +523,7 @@ scored_rows as (
     from record_rows
 )
 select
+    id,
     payload_json,
     structured_score,
     lexical_hits,
@@ -428,7 +532,7 @@ select
 from scored_rows
 where (structured_score + lexical_score) > 0
 {gating_clause}
-order by sql_score desc, lexical_hits desc, updated_at desc
+order by sql_score desc, lexical_hits desc, updated_at desc, id asc
 limit ?
 """
     params: list[object] = []

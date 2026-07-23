@@ -1756,21 +1756,24 @@ after, structurally every turn (the Track P memory-native loop is the core).
 
 ---
 
-## Track R — Zep-Class Temporal Graph Parity (post-benchmark)
+## Track R — Zep-Class Temporal Graph Parity (graph-first)
 
 <!-- seam:item
 id: roadmap:track:R
-status: planned
-status-since: 2026-07-17
-status-by: history:415
+status: in-progress
+status-since: 2026-07-22
+status-by: history:454
 supersedes: none
 topics: graph, memory, retrieval, benchmark, comparator, provenance
 priority: 2
 phase: 2
 -->
 
-**Status:** Planned (operator decision 2026-07-17). Do not start until the
-benchmark-first gates below are satisfied.
+**Status:** In progress (operator direction 2026-07-22). Mature the canonical
+knowledge graph and the non-canonical reasoning graph in parallel; use
+benchmarks as staged qualification and attribution rather than as a gate on
+building missing graph capabilities. Detailed architecture and stage contracts:
+`docs/roadmap/GRAPH_MEMORY_MATURITY.md` and `docs/REASONING_GRAPH.md`.
 
 **Dual-evidence contract:**
 
@@ -1784,9 +1787,9 @@ benchmark-first gates below are satisfied.
    ratcheting. A lower number on a stricter harness is not itself proof of
    correctness; claims rest on the documented scoring contract and per-case
    audits.
-3. **Mem0 comparator lane.** Run a matched Mem0-vs-SEAM comparison inside
+3. **Mem0 comparator lane.** Run matched Mem0-vs-SEAM comparisons inside
    Mem0's own harness with dataset, split, answerer, judge, retrieval budget,
-   and cutoff held constant, and surpass Mem0 there before starting this track.
+   and cutoff held constant as graph stages become testable.
 4. **Keep the scoreboards distinct, not unequal.** The harnesses answer
    different questions. Analyze both fully and let either surface priorities,
    but never average them or present movement on one as movement on the other.
@@ -1798,19 +1801,40 @@ J-Space, and improvement-loop advantages.
 
 Planned sequence:
 
-1. Hybrid graph search over nodes, facts, and episodes: semantic + lexical +
-   graph traversal, with measured fusion/reranking.
+1. Scoped graph identity index: canonical terms and explicit aliases without
+   assertion/source-text leakage, feeding concept-aware source paths. **G1
+   implemented.**
 2. Semantic entity resolution: aliases, fuzzy coreference, reversible merges,
-   merge evidence, and conflict-aware identity handling.
-3. Evolving entity summaries, graph communities, community summaries, and
+   merge evidence, and conflict-aware identity handling. **G2 reversible
+   foundation implemented; broader fuzzy/coreference evidence remains.**
+3. Hybrid graph search over nodes, facts, and episodes: semantic + lexical +
+   graph traversal, with measured fusion/reranking. **G3a implemented:**
+   provider-free semantic fact/episode seeds, bounded 0-3-hop current
+   traversal, deterministic legacy fusion, and explicit decision/latency
+   traces. Entity vectors, calibrated fusion, history/path traces, legacy
+   pgvector scope-column resync, and scale qualification remain before G3 is
+   complete.
+4. Evolving entity summaries, graph communities, community summaries, and
    evidence-backed cross-entity observations.
-4. First-class context assembly that combines facts, entities, episodes,
+5. First-class context assembly that combines facts, entities, episodes,
    summaries, and observations under explicit token and trust budgets.
-5. User/thread/graph lifecycle APIs, cross-thread context, scoped deletion, and
+6. User/thread/graph lifecycle APIs, cross-thread context, scoped deletion, and
    auditable right-to-be-forgotten behavior.
-6. Corpus-scale qualification: asynchronous/batch ingestion, recovery,
+7. Corpus-scale qualification: asynchronous/batch ingestion, recovery,
    concurrency, latency, graph-backend portability, and direct parity/load
    benchmarks.
+
+Parallel reasoning sequence:
+
+1. Durable run-scoped public reasoning graph and local Python SDK. **R1
+   implemented.**
+2. Retrieval decisions and rejected-alternative traces. **R2 implemented with
+   a fixed append-only bounded ledger through the SDK.**
+3. Verification, tool-result, retry, contradiction, and supersession loops.
+4. Scoped retrieval and reuse of prior reasoning patterns without conclusion
+   laundering.
+5. Explicit reviewed promotion proposals into MIRL; never automatic promotion.
+6. Cross-agent adapters, recovery/concurrency, and usefulness qualification.
 
 The Track P Mem0/Zep migration facade/importer direction becomes a delivery
 surface for this track. Do not claim full Zep parity or enterprise-scale
@@ -1837,12 +1861,14 @@ Done - functional visual memory + foundational polish
 - C2: Benchmark diff tooling (implemented; supersedes HISTORY#037)
 - E3: REST API surface (implemented; supersedes HISTORY#046)
 
-Now - benchmark truth before platform expansion
+Now - graph-memory maturity with benchmark qualification
 - Treat native SEAM judge/1 and the Mem0 harness as co-primary evidence lanes; inspect all data from both
 - Use native judge/1 for stricter diagnosis and ratcheting; use Mem0's harness for incumbent-relative and market-facing decisions
-- Keep exact-answer/1 parked after its measured regression; validate hc/3 through its staged cat3 gate
-- Run the matched Mem0-vs-SEAM comparison in Mem0's harness with the evaluation contract held constant
-- Start Track R only after SEAM advances on its native standard and surpasses Mem0 under the matched Mem0-harness contract
+- Build Track R in the staged order in `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; structural graph gates precede score claims
+- Advance R3-R6 beside the remaining G3-G7 knowledge maturity work;
+  keep reasoning non-canonical and route integrations through the Python SDK
+- Keep exact-answer/1 parked after its measured regression; use native and matched external runs to qualify completed graph stages
+- Do not claim Zep parity or a Mem0 win until the relevant matched capability, scale, and benchmark gates pass
 
 Now - retrieval feedback loop + browser dashboard / REST API GUI + context streams substrate
 - H2: Track M retrieval-feedback substrate (retrieval_event data, stale-bundle backfill, current no-paid labels, improvement review guardrail)

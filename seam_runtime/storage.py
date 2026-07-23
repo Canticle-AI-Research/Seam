@@ -4,10 +4,26 @@ import hashlib
 import json
 import os
 import sqlite3
+from collections.abc import Iterable
 from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
 
+from .identity_resolution import (
+    accept_merge as accept_identity_merge_op,
+)
+from .identity_resolution import (
+    generate_merge_candidates as generate_identity_merge_candidates_op,
+)
+from .identity_resolution import (
+    list_merges as list_identity_merges,
+)
+from .identity_resolution import (
+    merge_audit as identity_merge_audit_detail,
+)
+from .identity_resolution import (
+    split_merge as split_identity_merge_op,
+)
 from .knowledge_graph import (
     graph_stats,
     init_knowledge_graph,
@@ -29,6 +45,24 @@ from .knowledge_graph import (
 )
 from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
 from .pool import ConnectionPool
+from .reasoning_graph import (
+    ReasoningRetrievalCandidate,
+    init_reasoning_graph,
+    list_reasoning_retrievals,
+    reasoning_graph,
+    record_reasoning_retrieval,
+    transition_reasoning_node,
+)
+from .reasoning_graph import (
+    add_reasoning_edge as add_reasoning_edge_row,
+)
+from .reasoning_graph import (
+    add_reasoning_node as add_reasoning_node_row,
+)
+from .reasoning_graph import (
+    get_reasoning_node as get_reasoning_node_row,
+)
+from .reasoning_graph import get_reasoning_retrieval as get_reasoning_retrieval_row
 from .retry import retry_db_operation
 from .workspace import (
     append_workspace_event as append_workspace_event_row,
@@ -183,6 +217,9 @@ class SQLiteStore:
                     model_name text not null,
                     dimension integer not null,
                     source_text text not null,
+                    source_hash text not null default '',
+                    namespace text not null default '',
+                    scope text not null default '',
                     vector_json text not null,
                     updated_at text not null,
                     primary key (record_id, model_name)
@@ -337,6 +374,7 @@ class SQLiteStore:
             self._cleanup_orphan_edges(connection)
             init_knowledge_graph(connection)
             init_workspace_schema(connection)
+            init_reasoning_graph(connection)
             connection.commit()
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
@@ -870,6 +908,57 @@ class SQLiteStore:
                 at=at,
             )
 
+    def identity_merges(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        statuses: list[str] | None = None,
+    ) -> list[dict[str, object]]:
+        """Read the identity-merge ledger (graph maturity G2)."""
+        with self._pool.checkout() as connection:
+            return list_identity_merges(
+                connection, ns=ns, scope=scope, statuses=statuses
+            )
+
+    def identity_merge_audit(self, node_id: str) -> list[dict[str, object]]:
+        """Every merge touching ``node_id`` (any status) plus its evidence."""
+        with self._pool.checkout() as connection:
+            return identity_merge_audit_detail(connection, node_id)
+
+    @retry_db_operation()
+    def generate_identity_merge_candidates(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        max_candidates: int = 500,
+    ) -> dict[str, object]:
+        """Auto-propose merge candidates; proposals only, never accepted."""
+        with self._pool.checkout() as connection:
+            summary = generate_identity_merge_candidates_op(
+                connection, ns=ns, scope=scope, max_candidates=max_candidates
+            )
+            connection.commit()
+            return summary
+
+    @retry_db_operation()
+    def accept_identity_merge(self, merge_id: str) -> str:
+        """Operator action: promote a proposed merge to accepted."""
+        with self._pool.checkout() as connection:
+            status = accept_identity_merge_op(connection, merge_id)
+            connection.commit()
+            return status
+
+    @retry_db_operation()
+    def split_identity_merge(
+        self, merge_id: str, *, reason: str | None = None
+    ) -> None:
+        """Operator action: reversibly undo a merge, retaining evidence."""
+        with self._pool.checkout() as connection:
+            split_identity_merge_op(connection, merge_id, reason=reason)
+            connection.commit()
+
     def assertable_record_ids(
         self,
         record_ids: list[str],
@@ -1300,6 +1389,221 @@ class SQLiteStore:
             )
             connection.commit()
         return run.to_dict()
+
+    # ------------------------------------------------------------------
+    # Public reasoning graph (append-only, non-canonical artifacts)
+    # ------------------------------------------------------------------
+
+    @retry_db_operation()
+    def add_reasoning_node(
+        self,
+        *,
+        run_id: str,
+        kind: str,
+        summary: str,
+        confidence: float | None = None,
+        agent_id: str | None = None,
+        operation: str | None = None,
+        knowledge_refs: Iterable[str] = (),
+        evidence_record_ids: Iterable[str] = (),
+        node_id: str | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            node = add_reasoning_node_row(
+                connection,
+                run_id=run_id,
+                kind=kind,
+                summary=summary,
+                confidence=confidence,
+                agent_id=agent_id,
+                operation=operation,
+                knowledge_refs=knowledge_refs,
+                evidence_record_ids=evidence_record_ids,
+                node_id=node_id,
+                created_at=created_at,
+            )
+            connection.commit()
+        return node
+
+    @retry_db_operation()
+    def create_reasoning_run(
+        self,
+        *,
+        objective: str,
+        ns: str = "local.reasoning",
+        scope: str = "thread",
+        agent_id: str | None = None,
+        model: str | None = None,
+        provider: str | None = None,
+    ) -> tuple[dict[str, object], dict[str, object]]:
+        """Atomically create a workspace run and its objective node."""
+
+        with self._pool.checkout() as connection:
+            run = create_workspace_run_row(
+                connection,
+                ns=ns,
+                scope=scope,
+                agent_id=agent_id,
+                model=model,
+                provider=provider,
+            )
+            objective_node = add_reasoning_node_row(
+                connection,
+                run_id=run.run_id,
+                kind="objective",
+                summary=objective,
+                agent_id=agent_id,
+            )
+            connection.commit()
+        return run.to_dict(), objective_node
+
+    @retry_db_operation()
+    def add_reasoning_edge(
+        self,
+        *,
+        run_id: str,
+        src_node_id: str,
+        relation: str,
+        dst_node_id: str,
+        agent_id: str | None = None,
+        edge_id: str | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            edge = add_reasoning_edge_row(
+                connection,
+                run_id=run_id,
+                src_node_id=src_node_id,
+                relation=relation,
+                dst_node_id=dst_node_id,
+                agent_id=agent_id,
+                edge_id=edge_id,
+                created_at=created_at,
+            )
+            connection.commit()
+        return edge
+
+    @retry_db_operation()
+    def transition_reasoning_node(
+        self,
+        *,
+        node_id: str,
+        status: str,
+        reason: str | None = None,
+        actor: str | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            state = transition_reasoning_node(
+                connection,
+                node_id=node_id,
+                status=status,
+                reason=reason,
+                actor=actor,
+                created_at=created_at,
+            )
+            connection.commit()
+        return state
+
+    def reasoning_node(
+        self, node_id: str, *, include_history: bool = True
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_node_row(
+                connection, node_id, include_history=include_history
+            )
+
+    def reasoning_graph(self, run_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return reasoning_graph(connection, run_id)
+
+    @retry_db_operation()
+    def record_reasoning_retrieval(
+        self,
+        *,
+        run_id: str,
+        query: str,
+        normalized_query: str,
+        filter_ids: Iterable[str],
+        filter_kinds: Iterable[str],
+        filter_predicate: str | None,
+        filter_subject: str | None,
+        filter_object_text: str | None,
+        leg_limits: dict[str, int],
+        mode: str,
+        intent: str,
+        budget: int,
+        graph_hops: int,
+        semantic_graph_seeding: bool,
+        semantic_backend: str,
+        semantic_adapter: str,
+        embedding_model: str,
+        embedding_dimension: int,
+        embedding_revision: str | None,
+        candidates: tuple[ReasoningRetrievalCandidate, ...],
+        total_candidates: int,
+        candidates_truncated: bool,
+        candidate_set_sha256: str,
+        leg_latency_ms: dict[str, float],
+        total_latency_ms: float,
+        policy: str,
+        agent_id: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            retrieval = record_reasoning_retrieval(
+                connection,
+                run_id=run_id,
+                query=query,
+                normalized_query=normalized_query,
+                filter_ids=filter_ids,
+                filter_kinds=filter_kinds,
+                filter_predicate=filter_predicate,
+                filter_subject=filter_subject,
+                filter_object_text=filter_object_text,
+                leg_limits=leg_limits,
+                mode=mode,
+                intent=intent,
+                budget=budget,
+                graph_hops=graph_hops,
+                semantic_graph_seeding=semantic_graph_seeding,
+                semantic_backend=semantic_backend,
+                semantic_adapter=semantic_adapter,
+                embedding_model=embedding_model,
+                embedding_dimension=embedding_dimension,
+                embedding_revision=embedding_revision,
+                candidates=candidates,
+                total_candidates=total_candidates,
+                candidates_truncated=candidates_truncated,
+                candidate_set_sha256=candidate_set_sha256,
+                leg_latency_ms=leg_latency_ms,
+                total_latency_ms=total_latency_ms,
+                policy=policy,
+                agent_id=agent_id,
+            )
+            connection.commit()
+        return retrieval
+
+    def reasoning_retrieval(self, retrieval_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_retrieval_row(connection, retrieval_id)
+
+    def reasoning_retrievals(
+        self,
+        *,
+        run_id: str,
+        limit: int = 100,
+        after: str | None = None,
+        include_candidates: bool = False,
+    ) -> list[dict[str, object]]:
+        with self._pool.checkout() as connection:
+            return list_reasoning_retrievals(
+                connection,
+                run_id=run_id,
+                limit=limit,
+                after=after,
+                include_candidates=include_candidates,
+            )
 
     @retry_db_operation()
     def append_workspace_event(

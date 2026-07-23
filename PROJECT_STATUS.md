@@ -1,5 +1,261 @@
 # SEAM Project Status
 
+Current update: 2026-07-23 (HISTORY#464 - HARDENED the HISTORY#463
+boundary-only resync before merge. A split-mind audit found that
+`SeamRuntime.reindex_vectors(boundary_only=True)` silently fell through to a
+full `index_records` call when an adapter lacked `sync_boundaries`, violating
+the command's no-reembedding contract; its hermetic test also never passed
+`boundary_only=True`. The runtime now capability-checks first and fails closed
+with `NotImplementedError` before stale inspection, indexing, or embedding.
+The corrected hermetic coverage proves namespace/scope filtering, zero
+embedding/index calls on the supported path, and zero vector-row creation on
+the unsupported SQLite path. Verification: the complete boundary-resync file
+passes 11/11 with eight live pgvector cases and zero skips; the directly
+affected non-external boundary test passes; touched-file Ruff, compileall, and
+diff checks pass. The local pgvector service used for verification was stopped
+and removed. No provider, paid model, install, or download action. NEXT:
+implement the versioned deterministic vector-text contract and explicit full
+reindex migration before claiming boundary-only repair is reliable for generic
+CLM/ENT/EVT/REL reloads; full G3 and R3 remain separately open.)
+
+Current update: 2026-07-23 (HISTORY#463 - BUILT the pgvector boundary-only
+resync carried over from HISTORY#462's NEXT item. `PgVectorAdapter.
+sync_boundaries` repairs namespace/scope metadata on vector rows without
+re-embedding, updating only rows whose source_hash/dimension still match the
+canonical MIRL record; `SeamRuntime.reindex_vectors` gains ns/scope filters
+plus a `boundary_only` flag, and `seam reindex` exposes `--namespace`/
+`--scope`/`--boundary-only`. Live-testing against the real reload path used by
+the CLI (through `store.load_ir`, a JSON round trip) found the mechanism is
+conservative-correct but under-fires on plain CLM/ENT/EVT/REL records: storage
+writes `attrs` with `sort_keys=True`, so a reloaded record's generic text
+render (`iter_textual_fields`/`render_record_text`) differs from the original
+in-memory insertion order, changing the source hash even with no real content
+change. RAW and grounded-CLM records are unaffected. Root cause pinpointed and
+banked as a follow-up (needs a full-reindex migration plan since the same
+render function feeds live embedding text corpus-wide) rather than fixed
+inline; captured in a real regression test and documented in
+`docs/RAG_ARCHITECTURE.md` plus a code comment. Verification: full non-external
+`pytest tests/` (1,823 selected, 1,821 passed, two established xfails, zero
+failures/skips) run with both `SEAM_PGVECTOR_DSN` and `PGVECTOR_TEST_DSN`
+against the local `seam-pgvector` docker container plus mandatory T7 offline HF
+env; new `tests/audit/test_pgvector_boundary_resync.py` (10 tests, 7 live
+pgvector) passes standalone; manual CLI smoke test of `seam reindex
+--boundary-only` against a real moved pgvector row confirmed end-to-end.
+Touched-file Ruff and compileall clean. No provider, paid model, install, or
+download action. NEXT: scope the `render_record_text` attrs-order determinism
+fix as its own task before boundary-only resync will fire reliably on
+realistic data; G3 calibrated fusion, exact path/episode evidence, and
+scale/latency gates from #462 remain separately open.)
+
+Current update: 2026-07-22 (HISTORY#462 - BUILT R2 reasoned retrieval and the
+provider-free G3a fusion slice through the public Python SDK. Retrieval now
+persists one typed, append-only decision plus a bounded candidate ledger with
+the exact namespace/scope boundary, normalized query and plan, policy and
+candidate-set fingerprints, selected/rejected dispositions, source/reason
+codes, model identity, latency, and content hashes. Finalization rejects
+ranking drift, non-contiguous ranks, evidence changes between search and write,
+and cross-boundary candidates; later record moves or edits surface as explicit
+integrity drift instead of silently rewriting the decision. `ReasoningSession`
+now exposes bounded `retrieve`/`retrieval`/`retrievals` entrypoints. G3a adds
+deterministic lexical/vector/graph fusion with explicit semantic MIRL seeding
+and real 0-3-hop traversal of current `knowledge_edges`; isolated semantic hits
+receive no graph credit. SQLite, pgvector, and Chroma now apply namespace plus
+scope before top-K, and boundary-only index repair does not re-embed. Existing
+pgvector rows created before the scope column need one explicit resync. This is
+NOT end-to-end graph maturity: calibrated/entity-class fusion, exact historical
+paths and episode traces, scale/latency qualification, G4-G7, and R3-R6 remain.
+Verification: authoritative non-external run selected 1,823 tests (1,821 pass,
+two established xfails, zero failures/skips); seven live pgvector tests pass;
+38 direct R1/R2 tests collect; touched-file Ruff, compileall, and diff checks
+pass. The repaired one-shot closeout path was used for HISTORY, streams,
+snapshot, and all five canonical gates. No provider, paid model, install, or
+download action. NEXT: resync any pre-scope pgvector index, then finish G3 with
+calibrated fusion, exact path/episode evidence, and scale/latency gates before
+claiming graph maturity.)
+
+Current update: 2026-07-22 (HISTORY#461 - BUILT the operator-approved parallel
+reasoning plane and initial SEAM Python SDK. The architecture now separates the
+canonical MIRL-backed knowledge graph (what SEAM knows) from an append-only,
+non-canonical reasoning graph (how a workspace run publicly justified an
+outcome). R1 adds typed objective/question/premise/hypothesis/inference/decision/
+outcome nodes, typed same-run edges, immutable status history, exact scoped
+knowledge and MIRL evidence references, and an explicit-support guard before an
+inference/decision/outcome can be accepted. There is no hidden chain-of-thought,
+raw activation, arbitrary payload, or automatic MIRL promotion field/path. The
+new `SeamSDK` provides local `ingest`, `knowledge`, `start_reasoning`, resume,
+node/link/transition/finalize, and graph reads without exposing SQLite; run plus
+objective creation is atomic, and concurrent sequence allocation uses an
+immediate write lock. The dual G1-G7/R1-R6 maturity contract and public SDK are
+documented. Verification: 7 initial R1 tests plus atomic/concurrent coverage,
+release-manifest/security suites, and 71 graph/workspace/identity/closeout tests
+pass; the full 1,793-test non-external collection reached 100% with zero failure
+markers and two established xfails. CodeRabbit was free-tier rate-limited before
+review and no paid overage was enabled; local review found and fixed the atomicity,
+concurrency, and public-manifest gaps. No provider, paid model, install, or
+download action. NEXT: R2 retrieval-decision nodes/candidate alternatives and
+G3 measured semantic+lexical+bounded-path fusion, both through the SDK boundary.)
+
+Current update: 2026-07-22 (HISTORY#460 - AUDITED the graph-maturity branch and
+the new one-shot closeout path before extending either. The graph is NOT mature
+end-to-end: G1 + G2.1-G2.3 are substantial substrate, G3 is only identity-fold
+slice-1, and roadmap G3 semantic fusion/bounded traversal/latency plus G4-G7
+remain. The audit reproduced and fixed a real reversible-resolution breach:
+candidate regeneration changed an operator-split merge back to proposed while
+retaining its split marker. Accepted/split decisions are now terminal against
+generator reruns; graph-wide candidate generation caps pairs in SQL before
+Python materialization; conflicting CLI actions fail at parse time. G1's correct
+entity provenance exposed a PACK scorer mismatch; context traceability now
+measures the meaning-bearing records the CONTEXT contract actually carries.
+The MCP bridge count guard now reflects the added read-only identity tool. The
+commit-speed wrapper was also repaired: it now runs all five canonical commit
+gates including verify_handoffs, rejects non-positive snapshot counts, refreshes
+roadmap state when needed, and resumes safely after a post-append failure without
+duplicating HISTORY. Verification: 99 focused tests pass; closeout CodeRabbit
+re-review returned zero findings. A full non-external run was interrupted at
+486 passed / 4 failed; all three correctness failures are fixed in the focused
+rerun. The remaining isolated CPU timing check measured 209.40s against the 180s
+gate while `uptime` reported ~15 load on 6 cores and unrelated processes consumed
+multiple cores; the same quickstart completed in 16.475s with the available
+accelerator, so the threshold remains unchanged and a quiet-host CPU rerun is
+still required. NEXT: build the operator-approved knowledge/reasoning dual-plane
+R1 plus a stable Python SDK boundary; no provider, paid, install, or download.)
+
+Current update: 2026-07-22 (HISTORY#459 - two changes. (1) G3 FREE MEASUREMENT
+FALSIFIED: the identity-fold has ZERO fuel on LoCoMo. A provider-free probe over
+3 conversations (~360/296/361 entities) found the G2.2 generator proposes
+nothing (pairs_examined=0); a conv0 diagnostic showed the honest-minimal
+extractor emits 0 alias terms and 0 normalized terms shared across distinct
+entity nodes (exact-label coreference already dedups identity at ingest). So
+resolve_identity can never fire on LoCoMo and cannot move that score. G1-G3
+remain architecturally correct and land value for AGENT memory (non-exact
+aliases), but the identity path is NOT a LoCoMo lever; banked in
+docs/kb/seam-internals/lever-graveyard.md. LoCoMo's real wall stays retrieval-
+side second-hop / gold-not-in-top-200, orthogonal to identity. (2) TOOLING: new
+tools/history/closeout.py collapses the 8-step Session-End chain into one command
+that ends in a first-try-passing preflight state; changes NO gate behavior (same
+modules, same flags as the preflight hook incl. verify_continuity
+--no-recorded-fact-audit), neither stages nor commits. Per operator guardrail,
+re-enabling the recorded-fact gate + editing the audit modules were REVERTED (add
+risk without speeding commits). Verification: closeout.py ruff/compileall clean,
+all four preflight gates pass as run by the wrapper (which appended this entry);
+no product code touched. NEXT: return to LoCoMo's retrieval-side second-hop
+bottleneck; graph substrate G1-G3 is complete.)
+
+Current update: 2026-07-22 (HISTORY#458 - BUILT graph-maturity stage G3 slice-1,
+the FIRST retrieval-touching graph capability. `select_graph_source_raw`
+(`seam_runtime/graph_source_selector.py`) gains a default-off `resolve_identity`
+param that folds accepted-merge alias seeds onto their canonical (via G2.1
+`resolve_canonical`) before corroboration: an alias-only query now reaches the
+canonical entity's evidence RAW (alias->canonical REACH), and an alias plus its
+canonical stop double-counting as two concepts for one identity. New
+default-empty `GraphSourceSelection.folded_aliases` trace; off-path and
+no-accepted-merge path byte-identical (mem0-harness facade caller passes no
+resolve_identity, unchanged). HONEST BOUNDARY: mechanism-only, NOT a score
+claim - the fold only fires when accepted merges exist and the LoCoMo corpus
+(ns locomo:<user>, scope thread) has none yet; and this is slice-1 (identity
+fusion into one lane), not full roadmap G3 (semantic vectors + bounded traversal
++ latency fixtures still to come). Verification: 4 new selector G3 tests
+(alias reach only when resolved; proposed merge does NOT fold; flag-off ==
+no-merge byte-identical; alias+canonical collapse agreement 2->1) + field-set
+leak guard updated; full `pytest tests/` exit 0 with T7 offline HF env + both
+pgvector DSNs, two xfails, zero skips; ruff + compileall clean; no
+provider/paid/install/download. NEXT: G3 MEASUREMENT (free, provider-free) -
+generate/accept merges on the LoCoMo scope, add a facade policy variant enabling
+resolve_identity, run the free displacement audit, gate promotion on >=1 net
+miss-gold gain with zero sentinel loss before any paid confirm; then G3 slice-2
+for the full roadmap stage.)
+
+Current update: 2026-07-22 (HISTORY#457 - BUILT graph-maturity stage G2.3, the
+operator/agent surface over the G2.1/G2.2 identity-merge ledger, across four
+surfaces. Store (`seam_runtime/storage.py`): `identity_merges` (filtered list),
+`identity_merge_audit` (per-node, any status, with evidence), and mutating
+`generate_identity_merge_candidates` / `accept_identity_merge` /
+`split_identity_merge`. MCP (`seam_runtime/mcp.py`): new read-only tool
+`seam_identity_merges` (readOnlyHint True) - agents can inspect the ledger but
+cannot accept or undo a merge. REST (`seam_runtime/server.py`): GET
+`/identity-merges` (list or per-node audit) plus operator POST
+`/identity-merges/generate|{id}/accept|{id}/split` (404 unknown merge, 409
+invalid-state action). CLI (`seam_runtime/cli.py`): `seam knowledge merges`
+(alias `graph merges`) with --generate/--accept/--split/--node-id, verified
+live end to end via the `seam` console script. Deliberately deferred: the TUI
+dashboard visual widget (heavier, separate surface; operator visual-graph
+location still TBD). Still retrieval-inert substrate - score signal arrives at
+G3 fusion. One process error caught and logged to LLM-Logs
+(`python -m seam_runtime.cli` silently no-ops; correct entry is the `seam`
+console script). Verification: `pytest tests/audit/test_identity_resolution.py`
+18/18 (3 new G2.3 surface tests), MCP+server+knowledge_graph surface suites 116
+pass, full `pytest tests/` exit 0 with T7 offline HF env + both pgvector DSNs,
+two xfails, zero skips; ruff + compileall clean; no provider/paid/install/
+download. NEXT: G3 hybrid path-ranking fusion - fold `resolve_canonical` into
+retrieval so an alias query reaches its canonical node's evidence; first stage
+that can move a benchmark score, gated by the free deterministic-recall A/B
+before any paid run.)
+
+Current update: 2026-07-22 (HISTORY#456 - BUILT graph-maturity stage G2.2, the
+automatic merge-candidate generator that feeds the G2.1 ledger.
+`generate_merge_candidates` in `seam_runtime/identity_resolution.py`
+auto-discovers likely-same entity pairs (two distinct entity nodes sharing a
+full normalized_term in the same ns/scope) and files them as `proposed` merges;
+it NEVER accepts, so acceptance stays a deliberate decision and no merge is
+silent. Precision guards: requires real alias evidence (excludes pure
+same-canonical-name homonyms); deterministic direction by per-term alias votes
+(canonical-owner wins, ties -> lexicographic at 0.4 vs 0.6 confidence); ns/scope
+isolation; idempotent, never downgrades an accepted decision. Still
+retrieval-inert substrate - the score signal arrives at G3 fusion. Verification
+at the time: the new identity-resolution suite (14 tests, 5 new; later grown by
+G2.3) passed, graph regression 43, full `pytest tests/` exit 0
+with T7 offline HF env + both pgvector DSNs, two xfails, zero skips; ruff +
+compileall clean; no provider/paid/install/download. Three caught errors logged
+to LLM-Logs (deferred-logging instruction-violation caught by operator, invalid
+test scope, homonym over-exclusion). NEXT: G2.3 CLI/MCP/dashboard read of the
+merge ledger (proposals + confidence + evidence, per-node audit, accept/split
+actions), then G3 hybrid path-ranking fusion consuming `resolve_canonical`.)
+
+Current update: 2026-07-22 (HISTORY#455 - BUILT graph-maturity stage G2.1, the
+first slice of reversible identity resolution. New module
+`seam_runtime/identity_resolution.py` owns a durable, reversible identity-merge
+ledger - the first graph-side DECISION state that cannot be re-derived from MIRL.
+Two durable tables (`identity_merges`, `identity_merge_evidence`) added to
+`init_knowledge_graph` sit OUTSIDE the reprojection delete-list, so accepted
+merges survive the drop+rebuild. Ops: `propose_merge` -> `accept_merge` (guards
+re-checked at accept), `mark_conflict`, `split_merge` (reversible undo, evidence
+retained, nothing deleted); readers `resolve_canonical` (cycle/depth-guarded),
+`list_merges`, `merge_audit`. Contradictions (reverse merge, cycle, alias already
+absorbed) resolve to an auditable `conflict` status. Post-pass
+`apply_identity_merges` re-validates accepted merges after backfill and after
+deletions, flagging vanished-node references as conflict. Retrieval-inert - no
+`knowledge_node_terms` change; fusion is G3. Acceptance boundary MET: no silent
+destructive merge, identities+evidence stay auditable, decisions survive
+reprojection. Verification: new test suite 9/9, graph regression 43 pass, full
+`pytest tests/` exit 0 with T7 offline HF env + local pgvector DSN, two xfails,
+zero unexplained skips (4 PGVECTOR_TEST_DSN-gated tests pass separately); ruff +
+compileall clean; no provider/paid/install/download. Track R stays graph-first
+per HISTORY#454 - benchmarks qualify, do not gate. NEXT: G2.2 auto-generate
+alias CANDIDATES (shared-alias / symbol-expansion / coreference) as proposed-only,
+then G2.3 CLI/MCP/dashboard ledger audit read, before G3 hybrid path-ranking
+fusion consumes `resolve_canonical`.)
+
+Current update: 2026-07-22 (HISTORY#454 - BUILT graph-maturity stage G1 and
+changed Track R from post-benchmark to graph-first qualification per operator
+direction. Projection `knowledge-graph/5` adds a versioned, scoped
+`knowledge_node_terms` identity index for canonical entity names, explicit
+aliases, symbols, agents, and short concept literals; assertion/source labels
+and sentence-like values are excluded. `compile_nl` now provenance-binds every
+extracted ENT to its RAW episode. The graph->source selector uses the identity
+index plus semantic-edge and direct episode-mention paths, with deterministic
+one-to-one concept/token matching so neither one long label nor duplicate nodes
+matching one word can inflate agreement. Added the durable architecture plot
+and G1-G7 sequence in `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; benchmarks now
+qualify completed graph stages instead of blocking their construction.
+Verification: 200/200 affected graph/compiler/facade tests; full `tests/`
+collected 1,327 and passed exit 0 with the healthy local pgvector service,
+two established xfails and zero skips; Ruff/compile/diff clean; CodeRabbit
+second pass zero findings after four minor hardening fixes; real in-memory
+projector smoke resolved alias `IBM`, excluded sentence-value terms, and traced
+`Alice Bob` to exact RAW at agreement 2. No provider or paid calls. NEXT: G2
+reversible identity resolution -- candidate aliases, canonical-of links, merge
+evidence, conflict states, and undo/split before hybrid path-ranking work.)
+
 Current update: 2026-07-22 (HISTORY#453 - BUILT the first query-conditioned
 graph -> source-RAW infrastructure slice (the HISTORY#452 next build),
 default-off, verified end-to-end against the real knowledge-graph projection. No

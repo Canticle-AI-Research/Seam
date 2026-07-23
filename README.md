@@ -27,6 +27,42 @@ Once release tags exist, replace `@main` with a pinned tag such as `@v0.1.0`.
 The clone-and-installer flows below remain the full operator setup path for
 repo-local development, persistent state setup, and platform shims.
 
+## Python SDK
+
+Agents can use one local SDK for canonical knowledge and non-canonical public
+reasoning records:
+
+```python
+from seam_runtime import SeamSDK
+
+with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
+    run = seam.start_reasoning(
+        "Choose the safest implementation path.",
+        ns="my-project",
+        scope="thread",
+        agent_id="planner",
+    )
+    run.add_node("question", "Which option has verified rollback evidence?")
+    retrieval = run.retrieve(
+        "verified rollback evidence",
+        mode="mix",
+        budget=5,
+        graph_hops=2,
+    )
+    reasoning_graph = run.graph()
+```
+
+Reasoning nodes are concise, typed, append-only public justifications—not
+hidden chain-of-thought or canonical facts. Accepted conclusions require
+explicit support, and nothing is promoted into MIRL automatically. See
+[`docs/REASONING_GRAPH.md`](docs/REASONING_GRAPH.md).
+
+`run.retrieve(...)` returns live selected records while atomically recording a
+bounded decision and content-free candidate ledger: plan/policy/model identity,
+selected and rejected record IDs, evidence fingerprints, scores, controlled
+reason codes, and latency. It makes no provider call by default and does not
+copy record payloads into the reasoning graph.
+
 Private repo install requires an authenticated GitHub CLI session.
 
 Windows PowerShell:

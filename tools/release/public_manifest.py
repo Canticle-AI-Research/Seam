@@ -88,6 +88,7 @@ PUBLIC_DOC_FILES: frozenset[str] = frozenset(
         "docs/PGVECTOR_LOCAL.md",
         "docs/RAG_ARCHITECTURE.md",
         "docs/KNOWLEDGE_GRAPH.md",
+        "docs/REASONING_GRAPH.md",
         "docs/MIRL_V1.md",
         "docs/RETRIEVAL_EVAL_V1.md",
         "docs/HOLOGRAPHIC_SURFACE.md",

@@ -963,7 +963,7 @@ print("ok")
         with self.assertRaises(ValueError):
             dispatch_tool(runtime, {"tool": "seam_retrieve", "arguments": {"query": ""}})
 
-    def test_mcp_bridge_ready_line_announces_18_tools_with_no_metadata_warnings(self) -> None:
+    def test_mcp_bridge_ready_line_announces_19_tools_with_no_metadata_warnings(self) -> None:
         from seam_runtime.mcp import run_stdio_bridge
 
         runtime = SeamRuntime(self.db_path)
@@ -984,8 +984,8 @@ print("ok")
 
         ready_line = json.loads(output.getvalue().splitlines()[0])
         self.assertEqual(ready_line["type"], "ready")
-        self.assertEqual(len(ready_line["tools"]), 18)
-        self.assertEqual(len(ready_line["tool_metadata"]), 18)
+        self.assertEqual(len(ready_line["tools"]), 19)
+        self.assertEqual(len(ready_line["tool_metadata"]), 19)
 
         for tool_name in ("seam_surface_verify", "seam_surface_context", "seam_index_status", "seam_retrieve"):
             self.assertIn(tool_name, ready_line["tools"], f"{tool_name} missing from ready line")
@@ -3893,9 +3893,26 @@ class _FakePgCursor:
         self._sql_log.append(sql.strip())
         sql_lower = sql.strip().lower()
         if sql_lower.startswith("insert") and params:
-            record_id, model_name, dimension, source_text, source_hash, namespace, vec_literal, updated_at = params
+            (
+                record_id,
+                model_name,
+                dimension,
+                source_text,
+                source_hash,
+                namespace,
+                scope,
+                vec_literal,
+                updated_at,
+            ) = params
             vec = [float(x) for x in vec_literal.strip("[]").split(",")]
-            self._store[record_id] = {"model": model_name, "dim": dimension, "vec": vec, "source_hash": source_hash, "namespace": namespace}
+            self._store[record_id] = {
+                "model": model_name,
+                "dim": dimension,
+                "vec": vec,
+                "source_hash": source_hash,
+                "namespace": namespace,
+                "scope": scope,
+            }
         elif sql_lower.startswith("select") and params:
             if "information_schema.columns" in sql_lower:
                 self._rows = [("source_hash",)]
@@ -3911,13 +3928,30 @@ class _FakePgCursor:
             if "source_hash, dimension" in sql_lower:
                 record_id, model_name = params
                 entry = self._store.get(record_id)
-                self._rows = [(entry["source_hash"], entry["dim"])] if entry and entry["model"] == model_name else []
+                self._rows = [
+                    (
+                        entry["source_hash"],
+                        entry["dim"],
+                        entry["namespace"],
+                        entry["scope"],
+                    )
+                ] if entry and entry["model"] == model_name else []
                 return
-            vec_literal, model_name, dimension, _, limit = params
+            vec_literal, model_name, dimension = params[:3]
+            filter_values = list(params[3:-2])
+            namespace = (
+                filter_values.pop(0) if "namespace = %s" in sql_lower else None
+            )
+            scope = filter_values.pop(0) if "scope = %s" in sql_lower else None
+            limit = params[-1]
             query_vec = [float(x) for x in vec_literal.strip("[]").split(",")]
             scored = []
             for rid, entry in self._store.items():
                 if entry["model"] != model_name or entry["dim"] != dimension:
+                    continue
+                if namespace is not None and entry["namespace"] != namespace:
+                    continue
+                if scope is not None and entry["scope"] != scope:
                     continue
                 score = cosine(query_vec, entry["vec"])
                 if score > 0:

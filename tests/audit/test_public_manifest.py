@@ -34,6 +34,7 @@ from tools.release.public_manifest import (
         "tools/streams/verify_streams.py",
         "docs/MACOS.md",
         "docs/CODE_LAYOUT.md",
+        "docs/REASONING_GRAPH.md",
         "benchmarks/external/locomo/adapter.py",
         "benchmarks/README.md",
     ],

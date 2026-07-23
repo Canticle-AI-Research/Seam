@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import hashlib
@@ -395,6 +395,17 @@ def build_parser() -> argparse.ArgumentParser:
     knowledge_node_parser.add_argument("--current", action="store_true", help="Exclude historical/superseded relationships")
     knowledge_node_parser.add_argument("--at", help="ISO-8601 knowledge-time horizon")
     knowledge_node_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
+    knowledge_merges_parser = knowledge_subparsers.add_parser("merges", help="Read and act on the reversible identity-merge ledger")
+    knowledge_merges_parser.add_argument("--namespace", help="Filter listing / candidate generation by namespace")
+    knowledge_merges_parser.add_argument("--scope", help="Filter listing / candidate generation by scope")
+    knowledge_merges_parser.add_argument("--status", dest="statuses", action="append", default=[], help="Filter by status (repeatable): proposed, accepted, conflict, split")
+    knowledge_merges_parser.add_argument("--node-id", help="Show the full merge audit (any status, with evidence) for this node id")
+    knowledge_merge_actions = knowledge_merges_parser.add_mutually_exclusive_group()
+    knowledge_merge_actions.add_argument("--generate", action="store_true", help="Auto-propose merge candidates (proposed-only; never accepts)")
+    knowledge_merge_actions.add_argument("--accept", metavar="MERGE_ID", help="Operator action: accept a proposed merge")
+    knowledge_merge_actions.add_argument("--split", metavar="MERGE_ID", help="Operator action: reversibly undo a merge (evidence retained)")
+    knowledge_merges_parser.add_argument("--reason", help="Reason recorded with --split")
+    knowledge_merges_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
 
     improve_parser = subparsers.add_parser(
         "improve", help="Self-improvement loop over retrieval and answer-policy levers"
@@ -563,6 +574,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     reindex_parser = subparsers.add_parser("reindex", help="Rebuild vector index entries")
     reindex_parser.add_argument("--record-ids", default="")
+    reindex_parser.add_argument("--namespace", default=None, help="Filter records by namespace")
+    reindex_parser.add_argument("--scope", default=None, help="Filter records by scope")
+    reindex_parser.add_argument("--boundary-only", action="store_true", help="Update namespace/scope metadata only, no re-embedding")
 
     promote_symbols_parser = subparsers.add_parser("promote-symbols", help="Propose and persist machine-only symbols")
     promote_symbols_parser.add_argument("--record-ids", default="")
@@ -663,6 +677,13 @@ def build_parser() -> argparse.ArgumentParser:
 def run_cli(argv: list[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if (
+        args.command in {"knowledge", "graph"}
+        and args.knowledge_command == "merges"
+        and args.reason
+        and not args.split
+    ):
+        parser.error("--reason requires --split")
 
     if args.command in {"lossless-compress", "compress-doc"}:
         text = _read_text_source(args.source)
@@ -1295,6 +1316,34 @@ def run_cli(argv: list[str] | None = None) -> None:
                 return
             print(_render_knowledge_node_pretty(payload))
             return
+        if args.knowledge_command == "merges":
+            if args.generate:
+                result = runtime.store.generate_identity_merge_candidates(
+                    ns=args.namespace, scope=args.scope
+                )
+            elif args.accept:
+                result = {
+                    "merge_id": args.accept,
+                    "status": runtime.store.accept_identity_merge(args.accept),
+                }
+            elif args.split:
+                runtime.store.split_identity_merge(args.split, reason=args.reason)
+                result = {"merge_id": args.split, "status": "split"}
+            elif args.node_id:
+                result = {
+                    "node_id": args.node_id,
+                    "merges": runtime.store.identity_merge_audit(args.node_id),
+                }
+            else:
+                result = {
+                    "merges": runtime.store.identity_merges(
+                        ns=args.namespace,
+                        scope=args.scope,
+                        statuses=args.statuses or None,
+                    )
+                }
+            print(json.dumps(result, indent=2))
+            return
     if args.command == "improve" and args.improve_command == "cycle":
         run_cycle = _import_run_improvement_cycle()
         if run_cycle is None:
@@ -1573,7 +1622,12 @@ def run_cli(argv: list[str] | None = None) -> None:
         return
     if args.command == "reindex":
         record_ids = _split_ids(args.record_ids) if args.record_ids else None
-        print(json.dumps(runtime.reindex_vectors(record_ids=record_ids), indent=2))
+        print(json.dumps(runtime.reindex_vectors(
+            record_ids=record_ids,
+            ns=args.namespace,
+            scope=args.scope,
+            boundary_only=getattr(args, 'boundary_only', False),
+        ), indent=2))
         return
     if args.command == "promote-symbols":
         record_ids = _split_ids(args.record_ids) if args.record_ids else None
