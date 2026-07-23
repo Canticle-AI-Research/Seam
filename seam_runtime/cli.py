@@ -572,11 +572,18 @@ def build_parser() -> argparse.ArgumentParser:
     transpile_parser.add_argument("record_ids")
     transpile_parser.add_argument("--target", default="python")
 
-    reindex_parser = subparsers.add_parser("reindex", help="Rebuild vector index entries")
+    reindex_parser = subparsers.add_parser(
+        "reindex",
+        help="Explicitly rebuild vector entries and migrate them to the current text contract",
+    )
     reindex_parser.add_argument("--record-ids", default="")
     reindex_parser.add_argument("--namespace", default=None, help="Filter records by namespace")
     reindex_parser.add_argument("--scope", default=None, help="Filter records by scope")
-    reindex_parser.add_argument("--boundary-only", action="store_true", help="Update namespace/scope metadata only, no re-embedding")
+    reindex_parser.add_argument(
+        "--boundary-only",
+        action="store_true",
+        help="Update namespace/scope metadata only; never embed or migrate legacy text contracts",
+    )
 
     promote_symbols_parser = subparsers.add_parser("promote-symbols", help="Propose and persist machine-only symbols")
     promote_symbols_parser.add_argument("--record-ids", default="")

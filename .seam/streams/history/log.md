@@ -11457,3 +11457,56 @@ rendering, make generic record rendering stable across JSON round trips, stamp
 derived vector rows with the render contract, fail closed on legacy rows, and
 require an explicit full reindex rather than auto-embedding at startup.
 ---END-ENTRY-#464---
+
+---BEGIN-ENTRY-#465---
+id: 465
+date: 2026-07-23T09:34:00Z
+agent: codex
+status: done
+topics: vector, retrieval, memory, verify, test
+commits: pending
+refs: seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/runtime.py,tests/audit/test_vector_text_contract.py,tests/audit/test_pgvector_render_contract.py,tests/audit/test_chroma_render_contract.py,docs/RAG_ARCHITECTURE.md
+supersedes: 464
+tokens: 511
+---
+BUILT the `mirl-vector-text/2` migration required by HISTORY#464.
+
+The shared renderer now gives generic MIRL records stable semantic top-level
+field order, recursively sorted map keys, and stable list order across
+JSON/storage round trips. RAW `content` and complete grounded-CLM special forms
+remain byte-exact. SQLite and pgvector add render-version metadata without
+embedding existing rows, mark those rows as v1, fail closed on legacy rows
+during reuse/search, and upgrade them exactly once through an explicit full
+`seam reindex`. Chroma stamps v2 plus the rendered-text SHA-256 in metadata,
+filters legacy/missing versions before top-K, and uses the existing explicit
+`seam index --vector-backend chroma` rebuild path. Boundary-only pgvector
+repair remains embedding-free, handles deterministic JSON-reloaded records,
+and reports legacy rows as `skipped_render_version`.
+
+The runtime reports authoritative mode and vector-text version fields for full
+and boundary-only reindex operations. An independent split review found and
+closed two final hardening gaps: pgvector schema introspection now binds column
+checks to `current_schema()` so a same-named table in another schema cannot
+mask migration work, and adapter-returned details can no longer overwrite
+authoritative boundary-report fields. Documentation records the explicit,
+operator-gated migration contract and the remaining G3 boundary.
+
+Verification:
+
+- `pytest tests/ -m "not external"`: 1,406 passed, 23 external deselected,
+  two established xfails, zero failures/skips.
+- `pytest test_seam_all/test_seam.py`: 189 passed plus three subtests.
+- Live pgvector migration/boundary/adapter slice: 23 passed, seven deselected;
+  the temporary local service was stopped and removed afterward.
+- Integrated focused renderer/SQLite/pgvector/Chroma/retrieval slice:
+  71 passed, 13 external deselected.
+- Final deterministic fallback slice: 29 passed.
+- Post-review pgvector/boundary/fake-adapter regressions: 14 passed.
+- Touched-file Ruff, compileall, and `git diff --check`: pass.
+
+No provider, paid model, install, or download action occurred. Operator-owned
+untracked pricing, report, architecture-audit, and `.ua` files were left out.
+
+NEXT: finish G3 with exact historical path/episode evidence, calibrated fusion,
+and scale/latency gates. R3 remains separately open.
+---END-ENTRY-#465---

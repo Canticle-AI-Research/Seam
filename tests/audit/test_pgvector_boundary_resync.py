@@ -109,6 +109,7 @@ class TestPgVectorBoundaryResyncExternal:
             result = adapter.sync_boundaries(moved)
             assert len(result["updated"]) > 0, f"Expected updates, got {result}"
             assert result["skipped_missing"] == []
+            assert result["skipped_render_version"] == []
             assert result["skipped_content_changed"] == []
             # After sync, stale_records against the moved set should be empty
             stale_after = adapter.stale_records(moved)
@@ -125,27 +126,14 @@ class TestPgVectorBoundaryResyncExternal:
     not os.environ.get("SEAM_PGVECTOR_DSN"),
     reason="SEAM_PGVECTOR_DSN not set; skipping real-postgres pgvector integration",
 )
-def test_sync_boundaries_conservative_after_storage_reload():
+def test_sync_boundaries_repairs_after_storage_reload():
     """Realistic path: index a fresh in-memory record, then resync a copy
     reloaded through JSON (as the real ``seam reindex`` CLI does via
     ``store.load_ir``), not the same in-memory object used at index time.
 
-    Root cause: ``persist_ir`` writes ``json.dumps(..., sort_keys=True)``,
-    so a record read back via ``load_ir`` has its ``attrs`` dict in
-    alphabetical key order. ``iter_textual_fields`` (seam_runtime/mirl.py)
-    iterates ``attrs.items()`` in dict order, so the generic (non-RAW,
-    non-grounded-CLM) text render for a multi-attr record — e.g. a plain
-    CLM's ``subject``/``predicate``/``object`` — differs between the
-    original in-process object and the reloaded one, changing the source
-    hash. ``sync_boundaries`` correctly refuses to touch metadata when the
-    hash doesn't match (falls back to ``skipped_content_changed``, never a
-    wrong write), but this makes it conservative-skip on plain CLM/ENT/EVT/
-    REL records reached via the real reload path. RAW records (content is a
-    single string) and grounded-CLM records (fixed subject/predicate/object
-    order, not dict iteration order) are unaffected. Not fixed here: the
-    shared render function feeds live embedding text for the whole corpus,
-    so reordering it needs its own scoped follow-up with a full-reindex
-    migration story, not a silent change riding along with boundary resync.
+    Vector text v2 canonicalizes the generic attrs traversal, so a JSON storage
+    round trip no longer changes the source hash. Boundary-only repair can now
+    update realistic plain CLM/ENT/EVT/REL records without embedding.
     """
     from seam_runtime.mirl import MIRLRecord as _Rec
 
@@ -167,8 +155,9 @@ def test_sync_boundaries_conservative_after_storage_reload():
         reloaded.scope = "project"
 
         result = adapter.sync_boundaries([reloaded])
-        assert result["updated"] == []
-        assert result["skipped_content_changed"] == ["clm:boundary-reload-test"]
+        assert result["updated"] == ["clm:boundary-reload-test"]
+        assert result["skipped_render_version"] == []
+        assert result["skipped_content_changed"] == []
     finally:
         _drop_table(adapter, table)
 
@@ -223,6 +212,12 @@ class _BoundarySyncAdapter:
     def sync_boundaries(self, records: list[MIRLRecord]) -> dict[str, object]:
         self.synced_records = list(records)
         return {
+            "mode": "untrusted-adapter-mode",
+            "record_count": 999,
+            "model": "untrusted-adapter-model",
+            "adapter": "untrusted-adapter-name",
+            "vector_text_version": "untrusted-vector-text-version",
+            "stale_before": [],
             "updated": [record.id for record in records],
             "already_ok": 0,
             "skipped_missing": [],
@@ -282,6 +277,7 @@ def test_runtime_reindex_boundary_only_hermetic(tmp_path: Path):
             "record_count": 1,
             "model": model.name,
             "adapter": adapter.name,
+            "vector_text_version": "mirl-vector-text/2",
             "stale_before": [
                 {"record_id": selected.id, "reason": "namespace_changed"}
             ],

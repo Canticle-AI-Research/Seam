@@ -36,6 +36,7 @@ from .retrieval import search_batch
 from .storage import SQLiteStore
 from .symbols import export_symbol_markdown, propose_symbols
 from .transpile import transpile_python
+from .vector import VECTOR_TEXT_VERSION
 from .vector_adapters import (
     PgVectorAdapter,
     SQLiteVectorAdapter,
@@ -521,17 +522,20 @@ class SeamRuntime:
         if boundary_only:
             sync_result = syncer(batch.records)
             return {
+                **sync_result,
                 "mode": "boundary_only",
                 "record_count": len(batch.records),
                 "model": self.embedding_model.name,
                 "adapter": getattr(self.vector_adapter, "name", "unknown"),
+                "vector_text_version": VECTOR_TEXT_VERSION,
                 "stale_before": stale,
-                **sync_result,
             }
         self.vector_adapter.index_records(batch.records)
         return {
+            "mode": "full",
             "indexed_ids": [record.id for record in batch.records],
             "model": self.embedding_model.name,
             "adapter": getattr(self.vector_adapter, "name", "unknown"),
+            "vector_text_version": VECTOR_TEXT_VERSION,
             "stale_before": stale,
         }

@@ -141,6 +141,14 @@ and `HISTORY_INDEX.md`.
   their scope cannot be inferred safely inside the external vector table.
   Namespace/scope-only repair must update metadata without recomputing an
   unchanged embedding, including when the configured embedder is paid/remote.
+- Derived vector text is governed by the explicit
+  `mirl-vector-text/2` contract. Generic records render in deterministic
+  semantic field order with recursively sorted maps and stable list order;
+  RAW content and grounded-CLM special rendering stay byte-identical.
+  SQLite, pgvector, and Chroma search only current-version rows. Additive
+  schema migration labels older rows v1 without embedding; operators must run
+  an explicit full reindex (or explicit Chroma index sync) to upgrade them.
+  Boundary-only repair never upgrades render versions or invokes embeddings.
 - Document ingest status is canonical SQLite metadata. Source refs, source hashes, extraction status, index status, and deletion state belong in `document_status`, not only in derived vector stores.
 - Agent-facing retrieval should use progressive disclosure where possible: compact search/index results first, then full MIRL records by selected IDs.
 - Default agent RAG should prefer `mix` retrieval only after benchmark validation; the supported retrieval modes are `vector`, `graph`, `hybrid`, and `mix`.

@@ -573,6 +573,11 @@ claim c1:
         claim_id = next(r.id for r in batch.records if r.kind == RecordKind.CLM)
         runtime.store.persist_ir(batch)
         reindex_report = runtime.reindex_vectors()
+        self.assertEqual(reindex_report["mode"], "full")
+        self.assertEqual(
+            reindex_report["vector_text_version"],
+            "mirl-vector-text/2",
+        )
         self.assertIn(claim_id, reindex_report["indexed_ids"])
         self.assertTrue(reindex_report["stale_before"])
         second_reindex = runtime.reindex_vectors()
@@ -3899,6 +3904,7 @@ class _FakePgCursor:
                 dimension,
                 source_text,
                 source_hash,
+                render_version,
                 namespace,
                 scope,
                 vec_literal,
@@ -3910,6 +3916,7 @@ class _FakePgCursor:
                 "dim": dimension,
                 "vec": vec,
                 "source_hash": source_hash,
+                "render_version": render_version,
                 "namespace": namespace,
                 "scope": scope,
             }
@@ -3925,20 +3932,21 @@ class _FakePgCursor:
             if "set_config" in sql_lower:
                 self._rows = [(params[0],)]
                 return
-            if "source_hash, dimension" in sql_lower:
+            if "source_hash, dimension, render_version" in sql_lower:
                 record_id, model_name = params
                 entry = self._store.get(record_id)
                 self._rows = [
                     (
                         entry["source_hash"],
                         entry["dim"],
+                        entry["render_version"],
                         entry["namespace"],
                         entry["scope"],
                     )
                 ] if entry and entry["model"] == model_name else []
                 return
-            vec_literal, model_name, dimension = params[:3]
-            filter_values = list(params[3:-2])
+            vec_literal, model_name, dimension, render_version = params[:4]
+            filter_values = list(params[4:-2])
             namespace = (
                 filter_values.pop(0) if "namespace = %s" in sql_lower else None
             )
@@ -3947,7 +3955,11 @@ class _FakePgCursor:
             query_vec = [float(x) for x in vec_literal.strip("[]").split(",")]
             scored = []
             for rid, entry in self._store.items():
-                if entry["model"] != model_name or entry["dim"] != dimension:
+                if (
+                    entry["model"] != model_name
+                    or entry["dim"] != dimension
+                    or entry["render_version"] != render_version
+                ):
                     continue
                 if namespace is not None and entry["namespace"] != namespace:
                     continue
@@ -4006,10 +4018,13 @@ class FakeChromaCollection:
                 "metadata": metadata,
             }
 
-    def query(self, query_embeddings, n_results, include):
+    def query(self, query_embeddings, n_results, include, where=None):
         query_embedding = query_embeddings[0]
         scored = []
         for record_id, payload in self.entries.items():
+            metadata = payload["metadata"]
+            if where and not _fake_chroma_matches_where(metadata, where):
+                continue
             similarity = cosine(query_embedding, payload["embedding"])
             distance = max(0.0, 1.0 - similarity)
             scored.append((record_id, distance, payload))
@@ -4021,6 +4036,18 @@ class FakeChromaCollection:
             "documents": [[item[2]["document"] for item in top]],
             "metadatas": [[item[2]["metadata"] for item in top]],
         }
+
+
+def _fake_chroma_matches_where(metadata, where):
+    if "$and" in where:
+        return all(
+            _fake_chroma_matches_where(metadata, condition)
+            for condition in where["$and"]
+        )
+    return all(
+        metadata.get(key) == condition.get("$eq")
+        for key, condition in where.items()
+    )
 
 
 class FakeChromaClient:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from contextlib import closing
@@ -9,7 +10,7 @@ from typing import Protocol
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, iter_textual_fields
 from seam_runtime.models import EmbeddingModel
 from seam_runtime.storage import SQLiteStore
-from seam_runtime.vector import INDEXABLE_KINDS, SQLiteVectorIndex
+from seam_runtime.vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION, SQLiteVectorIndex
 from seam_runtime.vector_adapters import VectorAdapter, search_vector_adapter
 
 from .types import LegHit, RetrievalPlan
@@ -291,7 +292,10 @@ class ChromaSemanticAdapter:
             ids=[record.id for record in records],
             embeddings=[self.embedding_model.embed(text) for text in rendered],
             documents=rendered,
-            metadatas=[_chroma_metadata(record) for record in records],
+            metadatas=[
+                _chroma_metadata(record, source_text)
+                for record, source_text in zip(records, rendered, strict=True)
+            ],
         )
         return len(records)
 
@@ -307,7 +311,9 @@ class ChromaSemanticAdapter:
             "n_results": max(limit * 3, 10),
             "include": ["metadatas", "distances", "documents"],
         }
-        boundary_filters = []
+        boundary_filters = [
+            {"vector_text_version": {"$eq": VECTOR_TEXT_VERSION}}
+        ]
         if plan.filters.namespace:
             boundary_filters.append({"ns": {"$eq": plan.filters.namespace}})
         if plan.filters.scope:
@@ -545,12 +551,14 @@ limit ?
     return query, params
 
 
-def _chroma_metadata(record: MIRLRecord) -> dict[str, str]:
+def _chroma_metadata(record: MIRLRecord, source_text: str) -> dict[str, str]:
     attrs = record.attrs
     metadata = {
         "kind": record.kind.value,
         "ns": record.ns,
         "scope": record.scope,
+        "vector_text_version": VECTOR_TEXT_VERSION,
+        "source_hash": hashlib.sha256(source_text.encode("utf-8")).hexdigest(),
     }
     if "predicate" in attrs:
         metadata["predicate"] = str(attrs.get("predicate"))
