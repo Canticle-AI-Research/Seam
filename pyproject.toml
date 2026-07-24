@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seam-runtime"
-version = "2.3.0"
+version = "2.3.1"
 description = "SEAM memory runtime and glassbox operator tooling for AI agents"
 readme = "README.md"
 license = "LicenseRef-SEAM-Proprietary AND Apache-2.0"

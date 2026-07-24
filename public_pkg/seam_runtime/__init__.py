@@ -1,22 +1,25 @@
 """
-SEAM Runtime v2.3.0
+SEAM Runtime v2.3.1
 
 The public client surface for the SEAM agent memory runtime.
-Connect to a SEAM server by setting ``SEAM_SERVER_URL``.
+Connect to a SEAM server by setting ``SEAM_SERVER_URL`` or ``SEAM_BASE_URL``.
 
 Quick start::
 
     export SEAM_SERVER_URL=https://your-seam-server.example.com
+    export SEAM_API_TOKEN=sk-...
     seam status
+    seam remember "The user prefers dark mode"
+    seam recall "UI preferences"
 
 For the full private runtime with MIRL, HS/1, local vector storage, and
 operator tooling, install from the private GitHub release.
 """
 
-__version__ = "2.3.0"
+__version__ = "2.3.1"
 
 # ---------------------------------------------------------------------------
-# Public API surface — always available
+# Public API surface — re-exported from seam-client
 # ---------------------------------------------------------------------------
 
 PUBLIC_API_VERSION = "v1"
@@ -34,6 +37,29 @@ class PublicAPIInputError(SeamError, ValueError):
 
 class ConnectionError(SeamError):
     """Could not reach the configured SEAM server."""
+
+
+# Re-export the seam-client so users can do:
+#   from seam_runtime import SeamClient
+#   client = SeamClient.from_env()
+try:
+    from seam_client import (  # noqa: F401
+        AsyncSeamClient,
+        ContextResult,
+        Health,
+        Memory,
+        RecallResult,
+        RememberReceipt,
+        SeamClient,
+    )
+    _HAS_SEAM_CLIENT = True
+except ImportError:
+    _HAS_SEAM_CLIENT = False
+
+
+def has_client() -> bool:
+    """Return True when seam-client is installed and importable."""
+    return _HAS_SEAM_CLIENT
 
 
 # ---------------------------------------------------------------------------
@@ -84,6 +110,8 @@ __all__ = [
     "SeamError",
     "PublicAPIInputError",
     "ConnectionError",
+    "SeamClient",
+    "has_client",
     "has_full_runtime",
     "__version__",
 ]
