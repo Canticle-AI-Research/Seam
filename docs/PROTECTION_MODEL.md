@@ -69,20 +69,32 @@ The old private-to-public synchronization path is disabled:
 These controls prevent accidental publication. They do not rewrite public git
 history and they must not be bypassed.
 
-## Future public artifacts
+## Approved public SDK artifact
 
-A future public client or SDK must be a separately designed artifact. Before
-publication it needs:
+The operator-approved public integration surface is the independently authored
+Apache-2.0 `seam-client` package under
+`BlackhatShiftey/Seam_Runtime/sdk`. It is not produced by reactivating or
+filtering the private mirror.
 
-1. an explicit product and dependency boundary that does not copy MIRL or HS/1
-   Reserved Materials;
-2. a new allow-list manifest owned by that artifact rather than reactivating
-   the legacy mirror;
-3. package metadata and documentation that do not imply the private runtime is
-   included;
-4. a fresh license and third-party-license review;
-5. secret, private-history, and reserved-material scanning; and
-6. explicit written approval from the project owner.
+The artifact is limited to:
+
+1. HTTP transport and bearer authentication;
+2. typed public request/response models;
+3. synchronous and asynchronous clients;
+4. framework-neutral agent-memory lifecycle hooks;
+5. public examples, tests, CI, and release automation; and
+6. the stable opaque `/v1` contract documented in `docs/PUBLIC_SDK_API.md`.
+
+It must not import, package, copy, or expose MIRL or HS/1 Reserved Materials,
+private runtime modules, storage, retrieval, graph, PACK, ranking,
+provenance, surface, or benchmark internals. Its own build-root allow-list and
+artifact scanner must pass before every release.
+
+The first PyPI publication also requires review and merge of both repository
+boundary branches, a protected GitHub `pypi` environment, one-time PyPI
+Trusted Publisher registration for the exact public workflow, and explicit
+manual dispatch for the reviewed version. No long-lived PyPI token belongs in
+either repository.
 
 The private runtime must remain installable and testable from the private
 repository. Protection changes must not silently weaken runtime, verification,

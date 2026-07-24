@@ -4,17 +4,17 @@ total_events: 61
 latest_id: 61
 source: streams/roadmap/log.md
 schema: seam-stream-index/v1
-content_hash: 627ca4308d23b4b5b8325b7162300017599ff7aa1e34aa938edf1bb46285865e
+content_hash: 428db833ec4aceb14be3cf2c20f89e809033c8905cc9068fd37f8711d8f6c847
 
 ## entries (newest first)
 
 | id | date | kind | item | event | hash | supersedes | topics |
 |---|---|---|---|---|---|---|---|
 | 061 | 2026-07-24T00:00:00Z | status-change | roadmap:track:N | bootstrap | ad80b0d378104714 | none | packaging, release, distribution |
-| 060 | 2026-07-22T00:00:00Z | status-change | roadmap:track:R | bootstrap | 9d2363fe91bb3e61 | none | graph, memory, retrieval, benchmark, ... |
-| 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | 67d10d48f35e9a2f | none | android, mobile, small-models, memory... |
-| 058 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | 1cf25a97adb4e5f0 | none | agent, openclaw, namespaces, profiles... |
-| 057 | 2026-06-15T00:00:00Z | status-change | roadmap:track:O | bootstrap | 1a79104986f7c646 | none | query, sql, retrieval, benchmark, bird |
+| 060 | 2026-07-22T00:00:00Z | status-change | roadmap:track:R | bootstrap | fff8adfb32e27bea | none | graph, memory, retrieval, benchmark, ... |
+| 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | 05870b8bf2548360 | none | android, mobile, small-models, memory... |
+| 058 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | 38066b3b840cc75f | none | agent, openclaw, namespaces, profiles... |
+| 057 | 2026-06-15T00:00:00Z | status-change | roadmap:track:O | bootstrap | fcad8d080ff7708f | none | query, sql, retrieval, benchmark, bird |
 | 056 | 2026-05-31T00:00:00Z | status-change | roadmap:track:G5 | bootstrap | 659e2ea60107e32c | none | surface, search, verify, integrity |
 | 055 | 2026-05-25T00:00:00Z | status-change | roadmap:track:H2 | bootstrap | 2bde78b68bbe2d5f | none | protocol, history, plan |
 | 054 | 2026-05-25T00:00:00Z | status-change | roadmap:track:F:backlog:experience-stream-empty | bootstrap | 4b2f3d540cf06dfc | none | experience, protocol |

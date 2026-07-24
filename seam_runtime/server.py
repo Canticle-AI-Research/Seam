@@ -573,6 +573,39 @@ def create_app(
     def health() -> dict[str, object]:
         return {"status": "ok"}
 
+    @app.get("/v1/health", dependencies=[Depends(rate_limit_only)])
+    def public_health() -> dict[str, object]:
+        from .public_api import PUBLIC_API_VERSION
+
+        return {"status": "ok", "api_version": PUBLIC_API_VERSION}
+
+    @app.post("/v1/memories", dependencies=[Depends(guard)])
+    def public_remember(payload: dict[str, object]) -> dict[str, object]:
+        from .public_api import PublicAPIInputError, remember
+
+        try:
+            return remember(runtime, payload)
+        except PublicAPIInputError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/v1/memories/recall", dependencies=[Depends(guard)])
+    def public_recall(payload: dict[str, object]) -> dict[str, object]:
+        from .public_api import PublicAPIInputError, recall
+
+        try:
+            return recall(runtime, payload)
+        except PublicAPIInputError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/v1/context", dependencies=[Depends(guard)])
+    def public_context(payload: dict[str, object]) -> dict[str, object]:
+        from .public_api import PublicAPIInputError, context
+
+        try:
+            return context(runtime, payload)
+        except PublicAPIInputError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     @app.get("/stats", dependencies=[Depends(guard)])
     def stats() -> dict[str, object]:
         return runtime.store.get_stats()

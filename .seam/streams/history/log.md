@@ -11672,3 +11672,66 @@ with `protected_branches=true`, `custom_branch_policies=false`, and one
 current handoff now state the confirmed boundary and the unsupported
 wait-timer limitation.
 ---END-ENTRY-#468---
+
+---BEGIN-ENTRY-#469---
+id: 469
+date: 2026-07-24T12:53:45Z
+agent: codex
+status: done
+topics: agent, surface, pyproject, security, test, handoff, docs
+commits: pending
+refs: seam_runtime/public_api.py,seam_runtime/server.py,tests/audit/test_public_sdk_api_boundary.py,docs/PUBLIC_SDK_API.md,docs/PROTECTION_MODEL.md,docs/handoffs/2026-07-24-public-agent-sdk-boundary.md
+supersedes: 468
+tokens: 975
+---
+Built the separately licensed public agent SDK boundary on top of the
+MIRL/HS/1 proprietary split.
+
+PRIVATE IMPLEMENTATION:
+
+- `seam_runtime/public_api.py` implements a bounded, opaque v1 agent-memory
+  contract for remember, recall, and prompt-ready context. Public namespaces
+  are mapped under `sdk.*`; optional session identifiers are represented
+  internally only by a truncated SHA-256 partition; user input cannot address
+  arbitrary private namespaces.
+- `seam_runtime/server.py` exposes `/v1/health`, `/v1/memories`,
+  `/v1/memories/recall`, and `/v1/context`. Stateful calls use the existing
+  bearer guard. Remotely reachable deployments must configure
+  `SEAM_API_TOKEN`; the current loopback development behavior is unchanged.
+- Responses carry user-facing text, timestamps, relevance scores, and opaque
+  `rcpt_`/`mem_` identifiers. They do not return MIRL record shapes or IDs,
+  HS/1/surface data, PACK, storage paths, graph/provenance structures,
+  candidate ledgers, or ranking reasons.
+
+PUBLIC ARTIFACT:
+
+- In the separate public `BlackhatShiftey/Seam_Runtime` repository, added the
+  independently authored Apache-2.0 `seam-client` 0.1.0 build root under
+  `sdk/`, with synchronous/asynchronous clients, typed public models/errors,
+  and framework-neutral before-turn/after-turn agent-memory adapters.
+- Added isolated public SDK CI, a wheel/sdist allow-list and private-marker
+  scanner, and a manual PyPI Trusted Publishing workflow using GitHub OIDC
+  through environment `pypi`. No long-lived PyPI token is used.
+- Public policy now records the old `seam-runtime` 1.x source and tags as a
+  frozen legacy Apache line whose existing grants remain intact. It is not the
+  source or destination for new private runtime implementation.
+
+VERIFICATION:
+
+- `.venv/bin/python -m pytest tests/audit/test_public_sdk_api_boundary.py -q`
+  passed 5 tests. The server/auth regression command covering
+  `test_public_sdk_api_boundary.py`, `test_chat_endpoint.py`,
+  `test_server_bind_safety.py`, `test_server_budget_bounds.py`,
+  `test_rate_limiter_key_hash.py`, and `test_shutdown.py` passed 59 tests.
+  Touched-file Ruff and collect-only passed.
+- The public repo command `pytest sdk/tests -q` passed 12 tests. Ruff passed;
+  clean wheel and sdist built,
+  `twine check` passed, both artifacts passed the boundary scanner, and
+  `sdk/LICENSE` matched the Apache-2.0 repository license.
+- Cross-repository ASGI smoke passed with SQLite: `AsyncAgentMemory` remembered
+  and retrieved context through the private `/v1` API without exposing
+  internal record identifiers.
+- No package or hosted endpoint was published. The private package remains
+  blocked from PyPI. First `seam-client` publication requires both repository
+  reviews/merges and the one-time PyPI Trusted Publisher registration.
+---END-ENTRY-#469---

@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-24-mirl-hs1-proprietary-boundary
+latest: 2026-07-24-public-agent-sdk-boundary
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-24-mirl-hs1-proprietary-boundary` | [2026-07-24-mirl-hs1-proprietary-boundary.md](2026-07-24-mirl-hs1-proprietary-boundary.md) | `2026-07-23-reasoning-verification-r3` | `HISTORY#468` | `current` |
+| `2026-07-24-public-agent-sdk-boundary` | [2026-07-24-public-agent-sdk-boundary.md](2026-07-24-public-agent-sdk-boundary.md) | `2026-07-24-mirl-hs1-proprietary-boundary` | `HISTORY#469` | `current` |
+| `2026-07-24-mirl-hs1-proprietary-boundary` | [2026-07-24-mirl-hs1-proprietary-boundary.md](2026-07-24-mirl-hs1-proprietary-boundary.md) | `2026-07-23-reasoning-verification-r3` | `HISTORY#468` | `superseded` |
 | `2026-07-23-reasoning-verification-r3` | [2026-07-23-reasoning-verification-r3.md](2026-07-23-reasoning-verification-r3.md) | `2026-07-22-reasoned-retrieval-g3a` | `HISTORY#466` | `superseded` |
 | `2026-07-22-reasoned-retrieval-g3a` | [2026-07-22-reasoned-retrieval-g3a.md](2026-07-22-reasoned-retrieval-g3a.md) | `2026-07-22-reasoning-graph-sdk-foundation` | `HISTORY#462` | `superseded` |
 | `2026-07-22-reasoning-graph-sdk-foundation` | [2026-07-22-reasoning-graph-sdk-foundation.md](2026-07-22-reasoning-graph-sdk-foundation.md) | `2026-07-22-graph-memory-identity-foundation` | `HISTORY#461` | `superseded` |

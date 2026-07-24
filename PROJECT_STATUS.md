@@ -1,5 +1,20 @@
 # SEAM Project Status
 
+Current update: 2026-07-24 (HISTORY#469 - BUILT the split public agent SDK
+boundary without reopening the private mirror. The private runtime adds an
+opaque authenticated `/v1` surface for health, remember, recall, and
+prompt-ready context; public namespaces are SDK-prefixed, optional session IDs
+are hash-partitioned, and responses contain user-facing text plus opaque
+receipts/IDs rather than MIRL records, HS/1/surface data, PACK, storage, graph,
+or ranking internals. The separate public `Seam_Runtime/sdk` project defines
+Apache-2.0 `seam-client` 0.1.0 with sync/async clients and framework-neutral
+agent hooks, its own tests, CI, wheel/sdist boundary scanner, and tokenless PyPI
+workflow. Private API tests pass 4/4, public SDK tests pass 12/12, wheel/sdist
+builds pass `twine` and the public boundary scanner, and a cross-repository
+ASGI smoke proved remember-to-context without private identifiers. Neither PR
+is merged and no SDK package or hosted endpoint was published; PyPI Trusted
+Publisher configuration remains an operator-side gate.)
+
 Current update: 2026-07-24 (HISTORY#468 - CONFIGURED the private repository's
 `private-package-release` and `pypi` GitHub Actions environments. Both now
 restrict deployments to protected branches. The account plan rejected a wait
