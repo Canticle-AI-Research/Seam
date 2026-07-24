@@ -28,7 +28,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seam-runtime"
-version = "2.3.0"
+version = "2.3.1"
 description = "SEAM memory runtime — public client"
 readme = "README.md"
 license = "Apache-2.0"
@@ -42,6 +42,7 @@ classifiers = [
 ]
 keywords = ["ai", "agents", "memory", "mcp", "rag"]
 dependencies = [
+    "seam-client>=0.1.0",
     "rich>=14.2,<16",
     "tiktoken>=0.8.0,<1.0",
 ]
