@@ -26,7 +26,17 @@ Repository authorization is required. Once private release tags exist, replace
 operator setup path for repo-local development, persistent state setup, and
 platform shims.
 
-## Python SDK
+## Public agent SDK
+
+Custom agents should depend on the separate Apache-2.0 `seam-client` package,
+not this private runtime package. The public SDK provides sync/async
+`remember`, `recall`, and context hooks over the stable `/v1` API without
+shipping MIRL, HS/1, storage, retrieval, graph, PACK, or benchmark internals.
+
+See [`docs/PUBLIC_SDK_API.md`](docs/PUBLIC_SDK_API.md). Hosted access and API
+credentials remain separately provisioned.
+
+## Private local Python SDK
 
 Agents can use one local SDK for canonical knowledge and non-canonical public
 reasoning records:

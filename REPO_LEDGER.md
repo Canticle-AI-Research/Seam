@@ -64,6 +64,17 @@ and `HISTORY_INDEX.md`.
   legacy public remote. Any future public client/SDK requires a separate
   artifact, manifest, dependency boundary, license review, and written owner
   approval; do not reactivate the old mirror.
+- The operator-approved public integration surface is the separately authored
+  Apache-2.0 `seam-client` package under `BlackhatShiftey/Seam_Runtime/sdk`.
+  It may contain HTTP transport, typed public models, sync/async clients, and
+  framework-neutral agent-memory hooks. It must not import, package, copy, or
+  expose private runtime modules, MIRL/HS/1 implementation, storage, retrieval,
+  graph, PACK, surface, or benchmark internals.
+- The stable public server boundary is `/v1/health`, `/v1/memories`,
+  `/v1/memories/recall`, and `/v1/context`. Public stateful calls use the
+  existing bearer-token guard. Public namespaces are mapped under an
+  SDK-only prefix with optional hashed session partitions, and responses use
+  opaque receipts/IDs plus user-facing text rather than private record shapes.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - `seam-runtime` 2.3.0 is a private distribution and must retain the
@@ -71,9 +82,11 @@ and `HISTORY_INDEX.md`.
   defaults to a private GitHub Release and scans both wheel and sdist before
   release. Its PyPI Trusted Publishing job uses GitHub OIDC without a stored
   PyPI token, but the current package must fail that target because it contains
-  MIRL or HS/1 Reserved Materials. The existing PyPI and MCP-registry record remains
-  the legacy Apache-2.0 version 1.3.1 until a separate clean public artifact is
-  designed, licensed, and approved.
+  MIRL or HS/1 Reserved Materials. The existing PyPI and MCP-registry record
+  remains legacy Apache-2.0 `seam-runtime` 1.3.1. New public publication uses
+  the distinct `seam-client` name and the public repository's
+  `sdk-publish.yml` OIDC workflow; it never publishes the private
+  `seam-runtime` artifact.
 - The private GitHub repository has `private-package-release` and `pypi`
   environments restricted to protected branches. The current account plan did
   not accept a wait-timer protection rule, so do not describe either

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 468
-total_tokens: ~212162
-latest_id: 468
+total_entries: 469
+total_tokens: ~213137
+latest_id: 469
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 469 | 2026-07-24 | done | 3b2e4a9a76588edd | agent,surface,pyproject,security,+ | 468 |
 | 468 | 2026-07-24 | done | e8590966f3bf6bb1 | ci,security,pyproject,verify,+ | 467 |
 | 467 | 2026-07-24 | changed | 9e9791e2048c7df9 | security,mirl,surface,pyproject,+ | 466 |
 | 466 | 2026-07-23 | done | dfaafd98ba4dfb8b | graph,memory,agent,verify,+ | 465 |
@@ -486,7 +487,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=7 latest=#466, #462, #461, #418, #407
+- agent: count=8 latest=#469, #466, #462, #461, #418
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -566,7 +567,7 @@ compact: true
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=50 latest=#467, #461, #437, #418, #378
+- docs: count=51 latest=#469, #467, #461, #437, #418
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -599,7 +600,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=50 latest=#468, #467, #466, #454, #450
+- handoff: count=51 latest=#469, #468, #467, #466, #454
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -691,7 +692,7 @@ compact: true
 - provenance: count=12 latest=#466, #461, #454, #448, #439
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
-- pyproject: count=9 latest=#468, #467, #347, #339, #267
+- pyproject: count=10 latest=#469, #468, #467, #347, #339
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -730,7 +731,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=55 latest=#468, #467, #430, #404, #403
+- security: count=56 latest=#469, #468, #467, #430, #404
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=5 latest=#457, #300, #288, #286, #285
@@ -750,14 +751,14 @@ compact: true
 - storage: count=9 latest=#461, #358, #283, #282, #270
 - streams: count=9 latest=#287, #276, #216, #210, #209
 - structure: count=3 latest=#326, #285, #284
-- surface: count=6 latest=#467, #276, #225, #218, #208
+- surface: count=7 latest=#469, #467, #276, #225, #218
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
 - telemetry: count=2 latest=#367, #366
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=66 latest=#466, #465, #464, #461, #460
+- test: count=67 latest=#469, #466, #465, #464, #461
 - tests: count=31 latest=#458, #457, #456, #455, #454
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -786,6 +787,6 @@ compact: true
 
 - roots: 76
 - changed: 14
-- done: 427
+- done: 428
 - in-progress: 6
 - planned: 21

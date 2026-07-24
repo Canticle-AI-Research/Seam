@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-24-mirl-hs1-proprietary-boundary
 supersedes: 2026-07-23-reasoning-verification-r3
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#468
 ---
 

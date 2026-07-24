@@ -1581,8 +1581,9 @@ phase: 1
 -->
 
 **Status:** In progress. Private release plumbing and the public-distribution
-fail-closed gate are implemented; a separately safe public client artifact
-does not yet exist.
+fail-closed gate are implemented. A separately authored `seam-client` 0.1.0
+SDK and opaque `/v1` agent-memory API are implemented on review branches;
+publication and hosted availability remain pending.
 
 **Distribution target:** private authenticated distribution from
 `BlackhatShiftey/Seam`. The legacy public `BlackhatShiftey/Seam_Runtime`
@@ -1610,12 +1611,17 @@ Phase work:
    `Private :: Do Not Upload`. The `private-package-release` and `pypi`
    environments are configured for protected branches; the account plan did
    not accept a wait-timer rule.
-4. Do not publish the current package or resume the legacy mirror. A future
-   public client or SDK must be designed as a separate artifact with its own
-   manifest, dependency boundary, license, and legal review. The OIDC-only
-   `pypi` job and `pypi` environment are present for that future artifact, but
-   the current MIRL/HS/1-bearing wheel and sdist fail the boundary gate and the
-   PyPI Trusted Publisher has not been configured.
+4. Do not publish the current private package or resume the legacy mirror.
+   `seam-client` is a separate Apache-2.0 artifact under the frozen public
+   repository's `sdk/` build root. Its sync/async clients and agent hooks call
+   opaque `/v1` memory endpoints; wheel/sdist allow-list gates reject private
+   runtime paths and markers. The private MIRL/HS/1-bearing artifacts remain
+   blocked from PyPI.
+5. Before the first `seam-client` upload, merge both boundary PRs, configure
+   the public repository's PyPI Trusted Publisher for `sdk-publish.yml` and
+   environment `pypi`, verify the protected-branch deployment rule, then run
+   the manual workflow for the exact reviewed version. Hosted access is a
+   separate activation gate.
 
 ---
 
