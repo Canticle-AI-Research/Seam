@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 469
-total_tokens: ~213137
-latest_id: 469
+total_entries: 470
+total_tokens: ~213457
+latest_id: 470
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 470 | 2026-07-24 | done | 31703e92e798eed8 | agent,ci,pyproject,verify,+ | 469 |
 | 469 | 2026-07-24 | done | 3b2e4a9a76588edd | agent,surface,pyproject,security,+ | 468 |
 | 468 | 2026-07-24 | done | e8590966f3bf6bb1 | ci,security,pyproject,verify,+ | 467 |
 | 467 | 2026-07-24 | changed | 9e9791e2048c7df9 | security,mirl,surface,pyproject,+ | 466 |
@@ -487,7 +488,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=8 latest=#469, #466, #462, #461, #418
+- agent: count=9 latest=#470, #469, #466, #462, #461
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -519,7 +520,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=29 latest=#468, #467, #450, #447, #427
+- ci: count=30 latest=#470, #468, #467, #450, #447
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -600,7 +601,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=51 latest=#469, #468, #467, #466, #454
+- handoff: count=52 latest=#470, #469, #468, #467, #466
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -692,7 +693,7 @@ compact: true
 - provenance: count=12 latest=#466, #461, #454, #448, #439
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
-- pyproject: count=10 latest=#469, #468, #467, #347, #339
+- pyproject: count=11 latest=#470, #469, #468, #467, #347
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -747,7 +748,7 @@ compact: true
 - sqlite: count=1 latest=#364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=154 latest=#468, #404, #403, #402, #388
+- status: count=155 latest=#470, #468, #404, #403, #402
 - storage: count=9 latest=#461, #358, #283, #282, #270
 - streams: count=9 latest=#287, #276, #216, #210, #209
 - structure: count=3 latest=#326, #285, #284
@@ -772,7 +773,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=306 latest=#468, #467, #466, #465, #464
+- verify: count=307 latest=#470, #468, #467, #466, #465
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -787,6 +788,6 @@ compact: true
 
 - roots: 76
 - changed: 14
-- done: 428
+- done: 429
 - in-progress: 6
 - planned: 21

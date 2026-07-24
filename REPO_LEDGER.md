@@ -87,6 +87,12 @@ and `HISTORY_INDEX.md`.
   the distinct `seam-client` name and the public repository's
   `sdk-publish.yml` OIDC workflow; it never publishes the private
   `seam-runtime` artifact.
+- Apache-2.0 `seam-client` 0.1.0 is live at
+  `https://pypi.org/project/seam-client/`. It was published from reviewed
+  public `Seam_Runtime/main` by workflow run 30107050434 through the protected
+  `pypi` environment and PyPI Trusted Publishing/OIDC. Live metadata and a
+  clean isolated install were verified. No stored PyPI token was used, and
+  this release does not change the private `seam-runtime` PyPI prohibition.
 - The private GitHub repository has `private-package-release` and `pypi`
   environments restricted to protected branches. The current account plan did
   not accept a wait-timer protection rule, so do not describe either

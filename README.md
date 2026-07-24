@@ -33,6 +33,10 @@ not this private runtime package. The public SDK provides sync/async
 `remember`, `recall`, and context hooks over the stable `/v1` API without
 shipping MIRL, HS/1, storage, retrieval, graph, PACK, or benchmark internals.
 
+```bash
+python -m pip install seam-client
+```
+
 See [`docs/PUBLIC_SDK_API.md`](docs/PUBLIC_SDK_API.md). Hosted access and API
 credentials remain separately provisioned.
 
