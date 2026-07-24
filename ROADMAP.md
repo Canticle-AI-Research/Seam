@@ -1571,27 +1571,51 @@ high recall; that may be an answerer failure, not a retrieval failure.
 
 <!-- seam:item
 id: roadmap:track:N
-status: planned
-status-since: 2026-06-02
-status-by: history:284
+status: in-progress
+status-since: 2026-07-24
+status-by: history:467
 supersedes: none
 topics: packaging, release, distribution
 priority: 3
 phase: 1
 -->
 
-**Status:** Planned, deferred (operator decision 2026-06-02 — not a current priority). Build the release/distribution plumbing for `seam-runtime`.
+**Status:** In progress. Private release plumbing and the public-distribution
+fail-closed gate are implemented; a separately safe public client artifact
+does not yet exist.
 
-**Distribution target:** public core now targets `BlackhatShiftey/Seam_Runtime` under Apache-2.0. PyPI distribution remains a separate release decision; package name `seam-runtime` is the intended package name (`seam` is taken). Build plumbing should be target-agnostic so switching to public PyPI later is a one-line change.
+**Distribution target:** private authenticated distribution from
+`BlackhatShiftey/Seam`. The legacy public `BlackhatShiftey/Seam_Runtime`
+snapshot remains available under the license attached to its published
+versions, but private-to-public synchronization is frozen as of 2026-07-24.
+Package name `seam-runtime` remains the intended private package name.
 
-**License gate:** resolved for the public core: Apache-2.0. Hosted services, enterprise modules, private benchmark holdouts, customer integrations, support/warranty/indemnity, and unreleased methods remain outside the public core unless intentionally released.
+**License gate:** the current private repository and new MIRL- and HS/1-related
+material are proprietary. Exact versions already published under Apache-2.0
+keep that license; later private versions do not inherit it. Any future public
+client, SDK, or runtime distribution requires a newly reviewed boundary that
+does not export MIRL or HS/1 Reserved Materials.
 
 Phase work:
 
-1. Complete project metadata (authors, `project.urls`, keywords, long-description content type); confirm `seam_runtime*` packaging only (experimental promoted out — see HISTORY#284).
-2. `python -m build` + `twine check` validation in CI on every tag.
-3. Private-distribution release workflow: build sdist+wheel on a `v*` tag, `twine check`, attach artifacts to a GitHub Release (private repo). Keep `Do Not Upload`.
-4. When/if the license flips and the operator approves public release: remove `Do Not Upload`, wire Trusted Publishing (OIDC) to PyPI, publish `seam-runtime`.
+1. Complete remaining project metadata (authors and long-description content
+   type); package URLs, keywords, package discovery, private license metadata,
+   and version 2.3.0 are set.
+2. The manual Package release workflow builds wheel+sdist, runs `twine check`,
+   enforces the distribution boundary, smoke-installs the wheel, and retains
+   reviewed artifacts.
+3. Private-distribution release workflow: the `private-github` target is the
+   default, requires the `private-package-release` environment, attaches
+   artifacts to a private GitHub Release, and keeps
+   `Private :: Do Not Upload`. The `private-package-release` and `pypi`
+   environments are configured for protected branches; the account plan did
+   not accept a wait-timer rule.
+4. Do not publish the current package or resume the legacy mirror. A future
+   public client or SDK must be designed as a separate artifact with its own
+   manifest, dependency boundary, license, and legal review. The OIDC-only
+   `pypi` job and `pypi` environment are present for that future artifact, but
+   the current MIRL/HS/1-bearing wheel and sdist fail the boundary gate and the
+   PyPI Trusted Publisher has not been configured.
 
 ---
 

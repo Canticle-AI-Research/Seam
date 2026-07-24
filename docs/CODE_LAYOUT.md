@@ -26,7 +26,18 @@ not have to infer what works from directory names alone.
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
 - `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
-- `tools/release/` - public/private separation for the `seam-runtime` mirror: `public_manifest.py` (fail-closed allow-list of what's public), `sync_public_mirror.py` (builds the curated sync commit), `public_seed/` (one-time seed templates for the public repo's own independent bookkeeping), and `verify_public_safe.py` (deny-list + allow-list scanner invoked by the `pre-push` hook as a backstop).
+- `tools/release/` - frozen legacy-public boundary: `public_manifest.py`
+  classifies MIRL and HS/1 Reserved Materials and exposes no private synced paths,
+  `sync_public_mirror.py` refuses legacy mirror construction, retired
+  `public_seed/` files document the former public-owned bookkeeping seed, and
+  `verify_public_safe.py` blocks reserved/private paths.
+  `verify_distribution_boundary.py` scans built wheel/sdist contents and fails
+  closed when the private MIRL/HS/1 package is aimed at PyPI. The pre-push hook
+  refuses every update to the legacy `seam-runtime` remote.
+- `.github/workflows/package-release.yml` - manual private-package build,
+  metadata check, boundary scan, smoke install, and private GitHub Release
+  workflow, with a tokenless OIDC PyPI job reserved for a future separately
+  reviewed public artifact.
 - `tools/*.py` - active benchmark/projection helper scripts.
 - `scripts/` - active operator scripts and guarded runners.
 - `installers/` - active installation entrypoints and installer docs.

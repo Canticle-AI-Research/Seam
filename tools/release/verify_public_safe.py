@@ -1,13 +1,10 @@
-"""Deny-list + allow-list gate for pushes that carry content to the public remote.
+"""Frozen-mirror and reserved-material gate for the legacy public remote.
 
-`Seam` (private) mirrors curated state to the `Seam_Runtime` public repo via a
-`seam-runtime` git remote (see REPO_LEDGER.md). The intended path there is
-`tools/release/sync_public_mirror.py`, which only ever builds a commit from
-`public_manifest.py`'s allow-list. This module is the backstop for anything
-that bypasses that script (e.g. a raw `git push seam-runtime main:main`): it
+`Seam` is private and the legacy `Seam_Runtime` mirror is frozen. This module
+is a defense-in-depth scanner for old automation or an attempted raw push. It
 inspects every object newly reachable by a push (not just the tip tree, so
 content introduced and later removed within the same push is still caught)
-and blocks on path/content patterns plus the allow-list itself.
+and blocks MIRL or HS/1 Reserved Materials, private paths, and secret-shaped content.
 
 Three findings, two severities:
   - BLOCK (disallowed path / secret-shaped content / not on the public
@@ -31,7 +28,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools.release.public_manifest import is_allowed_on_public_mirror
+from tools.release.public_manifest import is_allowed_on_public_mirror, is_reserved_material_path
 
 ZERO_SHA = "0" * 40
 
@@ -158,13 +155,30 @@ def scan_blob(path: str, content: bytes | None) -> list[Finding]:
     """Pure scan of a single (path, content) pair. `content` may be None to
     skip content scanning (path-only check)."""
     findings: list[Finding] = []
+    if is_reserved_material_path(path):
+        findings.append(
+            Finding(
+                "BLOCK",
+                path,
+                "MIRL or HS/1 reserved material may not be published to the legacy public mirror",
+            )
+        )
+
     for pattern in DENY_PATH_PATTERNS:
         if pattern.search(path):
-            findings.append(Finding("BLOCK", path, f"disallowed path ({pattern.pattern})"))
+            if not findings:
+                findings.append(Finding("BLOCK", path, f"disallowed path ({pattern.pattern})"))
             break  # path-blocked paths are not content-scanned
 
     if not findings and not is_allowed_on_public_mirror(path):
-        findings.append(Finding("BLOCK", path, "path is not on the public core allow-list (tools/release/public_manifest.py)"))
+        findings.append(
+            Finding(
+                "BLOCK",
+                path,
+                "private path is not eligible for the frozen legacy mirror "
+                "(tools/release/public_manifest.py)",
+            )
+        )
 
     if findings or content is None:
         return findings

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 466
-total_tokens: ~211159
-latest_id: 466
+total_entries: 468
+total_tokens: ~212162
+latest_id: 468
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 468 | 2026-07-24 | done | e8590966f3bf6bb1 | ci,security,pyproject,verify,+ | 467 |
+| 467 | 2026-07-24 | changed | 9e9791e2048c7df9 | security,mirl,surface,pyproject,+ | 466 |
 | 466 | 2026-07-23 | done | dfaafd98ba4dfb8b | graph,memory,agent,verify,+ | 465 |
 | 465 | 2026-07-23 | done | f120ba7d26064a62 | vector,retrieval,memory,verify,+ | 464 |
 | 464 | 2026-07-23 | done | 5d53be0e7b61e813 | vector,retrieval,bugfix,verify,+ | 463 |
@@ -516,7 +518,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=27 latest=#450, #447, #427, #426, #425
+- ci: count=29 latest=#468, #467, #450, #447, #427
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -564,7 +566,7 @@ compact: true
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=49 latest=#461, #437, #418, #378, #357
+- docs: count=50 latest=#467, #461, #437, #418, #378
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -597,7 +599,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=48 latest=#466, #454, #450, #448, #446
+- handoff: count=50 latest=#468, #467, #466, #454, #450
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -642,7 +644,7 @@ compact: true
 - memory: count=26 latest=#466, #465, #463, #462, #461
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
-- mirl: count=31 latest=#435, #313, #311, #309, #308
+- mirl: count=32 latest=#467, #435, #313, #311, #309
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
 - models: count=3 latest=#450, #403, #182
@@ -689,7 +691,7 @@ compact: true
 - provenance: count=12 latest=#466, #461, #454, #448, #439
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
-- pyproject: count=7 latest=#347, #339, #267, #094, #051
+- pyproject: count=9 latest=#468, #467, #347, #339, #267
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -728,7 +730,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=53 latest=#430, #404, #403, #359, #356
+- security: count=55 latest=#468, #467, #430, #404, #403
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=5 latest=#457, #300, #288, #286, #285
@@ -744,11 +746,11 @@ compact: true
 - sqlite: count=1 latest=#364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=153 latest=#404, #403, #402, #388, #387
+- status: count=154 latest=#468, #404, #403, #402, #388
 - storage: count=9 latest=#461, #358, #283, #282, #270
 - streams: count=9 latest=#287, #276, #216, #210, #209
 - structure: count=3 latest=#326, #285, #284
-- surface: count=5 latest=#276, #225, #218, #208, #145
+- surface: count=6 latest=#467, #276, #225, #218, #208
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
 - telemetry: count=2 latest=#367, #366
@@ -769,7 +771,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=304 latest=#466, #465, #464, #463, #462
+- verify: count=306 latest=#468, #467, #466, #465, #464
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -783,7 +785,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 13
-- done: 426
+- changed: 14
+- done: 427
 - in-progress: 6
 - planned: 21

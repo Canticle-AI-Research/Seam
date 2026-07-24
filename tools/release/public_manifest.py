@@ -1,125 +1,55 @@
-"""Allow-list defining the public-core subset of the Seam tree.
+"""Frozen legacy-public boundary for the private SEAM repository.
 
-HISTORY#344 added `verify_public_safe.py`, a deny-list scanner that blocks
-secret-shaped content from reaching the public `seam-runtime` mirror. A
-deny-list fails *open*: any private file that isn't secret-shaped ships
-anyway. HISTORY#355 found that's exactly what happened -- `HISTORY.md`,
-`.seam/`, `docs/audits/`, and other internal bookkeeping had been fully
-mirrored to the public repo since day one via a plain `git push main:main`.
+The public ``BlackhatShiftey/Seam_Runtime`` repository contains versions that
+were intentionally published under Apache-2.0. Those exact versions keep that
+license. As of 2026-07-24, however, the private repository is no longer a
+source for automatic public synchronization: MIRL, HS/1, and the runtime that
+implements them are reserved proprietary materials.
 
-This module is the fail-closed replacement: nothing leaves the private repo
-via `sync_public_mirror.py` unless its path is explicitly listed here. Adding
-a new private file requires no action; adding a new *public* file requires
-adding it here first.
-
-Two disjoint categories:
-  - `is_public_synced_path`: copied verbatim from private `main`'s tree on
-    every sync.
-  - `is_public_owned_path`: the public repo's OWN independent bookkeeping
-    (its own `HISTORY.md`, `PROJECT_STATUS.md`, etc.) -- seeded once, then
-    left alone by every subsequent sync so the private repo's actual
-    internal incident log and strategy notes are never copied over.
-
-See `docs/PROTECTION_MODEL.md` for the reasoning behind this split.
+There is deliberately no synced-path allow-list. A future public client or SDK
+must define a new artifact, dependency boundary, manifest, and license after
+legal review. It must not reactivate this legacy whole-runtime mirror.
 """
 
 from __future__ import annotations
 
-# Exact top-level files synced verbatim from private main's tree.
-PUBLIC_FILES: frozenset[str] = frozenset(
+LEGACY_PUBLIC_REPOSITORY = "https://github.com/BlackhatShiftey/Seam_Runtime"
+LEGACY_PUBLIC_HEAD_AT_FREEZE = "0f4b40aab7fda643ce776e597f0b430faa465ca8"
+PUBLIC_SYNC_FROZEN = True
+
+# These paths identify obvious MIRL and HS/1 expression plus implementation,
+# evaluation, and integration surfaces coupled to them. The private repository
+# is private-by-default beyond these lists; they exist so safety reports can
+# distinguish a reserved-material violation from an ordinary non-public path.
+MIRL_RESERVED_FILES: frozenset[str] = frozenset(
     {
-        ".env.example",
-        ".gitattributes",
-        ".gitignore",
-        ".rgignore",
-        "LICENSE",
-        "NOTICE",
-        "COMMERCIAL_LICENSE.md",
-        "CONTRIBUTING.md",
-        "SECURITY.md",
-        "README.md",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "GEMINI.md",
-        "QWEN.md",
-        "ANTIGRAVITY.md",
-        "ROADMAP.md",
         "SEAM_SPEC_V0.1.md",
-        "MANIFEST.in",
-        "pyproject.toml",
-        "requirements.txt",
-        "docker-compose.yaml",
-        "pytest.ini",
+        "docs/MIRL_V1.md",
+        "docs/RAG_ARCHITECTURE.md",
         "seam.py",
-        "server.json",
     }
 )
 
-# Directory prefixes synced verbatim (recursively) from private main's tree.
-PUBLIC_DIR_PREFIXES: tuple[str, ...] = (
+HS1_RESERVED_FILES: frozenset[str] = frozenset(
+    {
+        "docs/HOLOGRAPHIC_SURFACE.md",
+        "seam_runtime/holographic.py",
+        "seam_runtime/surface_adapters.py",
+    }
+)
+
+MIRL_RESERVED_DIR_PREFIXES: tuple[str, ...] = (
     "seam_runtime/",
     "tests/",
     "test_seam_all/",
-    "installers/",
-    "branding/",
-    "scripts/",
-    "tools/h2/",  # real seam_runtime.improvement runtime dependency, not dev-only tooling
-    "tools/history/",  # protocol tooling AGENTS.md/CONTRIBUTING.md tell contributors to use
-    "tools/streams/",  # multi-stream substrate AGENTS.md's Context Loop references
-    "benchmarks/external/",
-    "benchmarks/fixtures/",
-    "benchmarks/fidelity/",
-    "benchmarks/registry/",
-    "docs/howto/",
+    "benchmarks/",
+    "tools/h2/",
 )
 
-# Individual doc files synced verbatim; docs/ is private-by-default otherwise
-# (docs/audits/, docs/handoffs/, docs/roadmap/, docs/SOP_*.md, etc. are
-# internal research/process material, not public product documentation).
-PUBLIC_DOC_FILES: frozenset[str] = frozenset(
-    {
-        "docs/README.md",
-        "docs/setup.md",
-        "docs/errors.md",
-        "docs/CODE_LAYOUT.md",
-        "docs/DATA_ROUTING.md",
-        "docs/MACOS.md",
-        "docs/SEAM_OPERATOR_GUIDE.md",
-        "docs/PGVECTOR_LOCAL.md",
-        "docs/RAG_ARCHITECTURE.md",
-        "docs/KNOWLEDGE_GRAPH.md",
-        "docs/REASONING_GRAPH.md",
-        "docs/MIRL_V1.md",
-        "docs/RETRIEVAL_EVAL_V1.md",
-        "docs/HOLOGRAPHIC_SURFACE.md",
-        "docs/PROTECTION_MODEL.md",
-        "docs/BENCHMARK_SOP.md",
-    }
-)
-
-PUBLIC_BENCHMARK_ROOT_FILES: frozenset[str] = frozenset(
-    {
-        "benchmarks/README.md",
-        "benchmarks/SEAM_BENCHMARK_BLUEPRINT_V1.md",
-    }
-)
-
-# tools/ root-level utility scripts that are benchmark/analysis harness code,
-# not private dev/release tooling.
-PUBLIC_TOOLS_ROOT_FILES: frozenset[str] = frozenset(
-    {
-        "tools/tokenization.py",
-        "tools/extract_projection_metrics.py",
-        "tools/projection_sbert_comparison.py",
-        "tools/run_external_memory_benchmarks.py",
-        "tools/run_projection_benchmarks.py",
-        "tools/lossless_demo_input.txt",
-    }
-)
-
-# Paths the public mirror owns independently. The sync never overwrites these
-# once seeded -- they carry the PUBLIC repo's own bookkeeping trail, never a
-# copy of the private repo's actual internal history/state/ledger content.
+# These paths belong to the legacy public repository's independent history.
+# They are not synced from private SEAM. Retaining this classifier lets audit
+# tools reason about the legacy repository without treating private copies as
+# publication sources.
 PUBLIC_OWNED_PATHS: frozenset[str] = frozenset(
     {
         "PROJECT_STATUS.md",
@@ -131,26 +61,42 @@ PUBLIC_OWNED_PATHS: frozenset[str] = frozenset(
 PUBLIC_OWNED_DIR_PREFIXES: tuple[str, ...] = (".seam/",)
 
 
-def is_public_synced_path(path: str) -> bool:
-    """True if `path` is eligible to be copied verbatim from private main."""
-    if (
-        path in PUBLIC_FILES
-        or path in PUBLIC_DOC_FILES
-        or path in PUBLIC_BENCHMARK_ROOT_FILES
-        or path in PUBLIC_TOOLS_ROOT_FILES
-    ):
+def is_mirl_reserved_path(path: str) -> bool:
+    """Return whether ``path`` is an explicit MIRL reserved-material surface."""
+    if path in HS1_RESERVED_FILES:
+        return False
+    if path in MIRL_RESERVED_FILES:
         return True
-    return any(path.startswith(prefix) for prefix in PUBLIC_DIR_PREFIXES)
+    return any(path.startswith(prefix) for prefix in MIRL_RESERVED_DIR_PREFIXES)
+
+
+def is_hs1_reserved_path(path: str) -> bool:
+    """Return whether ``path`` is an explicit HS/1 reserved-material surface."""
+    return path in HS1_RESERVED_FILES
+
+
+def is_reserved_material_path(path: str) -> bool:
+    """Return whether ``path`` is an explicit MIRL or HS/1 reserved surface."""
+    return is_mirl_reserved_path(path) or is_hs1_reserved_path(path)
+
+
+def is_public_synced_path(path: str) -> bool:
+    """No private-repository path is eligible for legacy mirror synchronization."""
+    del path
+    return False
 
 
 def is_public_owned_path(path: str) -> bool:
-    """True if `path` is public-repo-owned bookkeeping the sync must never overwrite."""
+    """Identify bookkeeping owned independently by the legacy public repo."""
     if path in PUBLIC_OWNED_PATHS:
         return True
     return any(path.startswith(prefix) for prefix in PUBLIC_OWNED_DIR_PREFIXES)
 
 
 def is_allowed_on_public_mirror(path: str) -> bool:
-    """True if `path` may legitimately exist on the public mirror at all --
-    either synced from private main, or owned independently by the public repo."""
-    return is_public_synced_path(path) or is_public_owned_path(path)
+    """Only legacy-public-owned bookkeeping is recognizable as public state.
+
+    This is not permission to push it: the pre-push hook and sync command freeze
+    every update to the legacy mirror. It exists for historical audit only.
+    """
+    return is_public_owned_path(path)

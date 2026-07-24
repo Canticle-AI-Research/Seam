@@ -1,5 +1,39 @@
 # SEAM Project Status
 
+Current update: 2026-07-24 (HISTORY#468 - CONFIGURED the private repository's
+`private-package-release` and `pypi` GitHub Actions environments. Both now
+restrict deployments to protected branches. The account plan rejected a wait
+timer protection rule, so neither environment has a wait timer or confirmed
+reviewer-approval rule; the branch policy and package boundary scanner remain
+the enforced controls. No PyPI Trusted Publisher is configured or verified,
+and no package was published.)
+
+Current update: 2026-07-24 (HISTORY#467 - CHANGED the repository licensing and
+release boundary prospectively. The private `BlackhatShiftey/Seam` repository
+and new MIRL- and HS/1-related material are proprietary. MIRL's authored
+specification, source code, schemas as expressed, documentation, examples,
+tests, diagrams, and related implementation surfaces are copyrighted Reserved
+Materials. HS/1's authored specification, container expression, visual
+designs, codecs, surface library, source, docs, tests, and related
+implementation surfaces are separately named copyrighted Reserved Materials.
+Exact versions already published in the legacy public `Seam_Runtime`
+repository keep their Apache-2.0 rights and are not retroactively restricted;
+the Apache text is preserved at `LICENSES/Apache-2.0.txt` for incorporated
+legacy material.
+The legacy mirror is frozen at public head
+`0f4b40aab7fda643ce776e597f0b430faa465ca8`:
+the manifest exposes no synced private paths, the sync command fails closed,
+the safety scanner recognizes MIRL and HS/1 Reserved Materials, and the pre-push hook
+refuses the public remote. Private package 2.3.0 carries
+`Private :: Do Not Upload` plus a PEP 639 mixed proprietary/legacy expression.
+The manual package workflow builds, checks, smoke-tests, and boundary-scans
+wheel/sdist artifacts; private GitHub Release is the default, while the
+tokenless PyPI OIDC job cannot publish the current MIRL/HS/1-bearing package. The
+legacy PyPI/MCP registry record remains pinned to Apache 1.3.1. No public
+history rewrite, deletion, archive, visibility change, package publication, or
+public remote push occurred. NEXT: obtain legal review of the terms and design
+a separate clean public client before any later PyPI upload.)
+
 Current update: 2026-07-23 (HISTORY#466 - BUILT R3 verification loops through
 the public Python SDK. Reasoning checks are append-only, scoped to one run and
 subject, and retain controlled check identity/verdict, bounded public summary,

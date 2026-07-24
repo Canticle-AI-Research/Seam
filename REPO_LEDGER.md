@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-06-12
+Last updated: 2026-07-24
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -44,29 +44,51 @@ and `HISTORY_INDEX.md`.
   ad-hoc properties. This decision exists because the spec was historically
   absent from the mandatory read order, which let implementations drift from the
   design (the overfit `compile_nl` stub being the clearest case).
-- `BlackhatShiftey/Seam_Runtime` is the public Apache-2.0 core repository for
-  SEAM Runtime. The public core includes the local runtime, CLI/REST/MCP/web UI
-  surfaces, public docs, tests, benchmarks, adapters, and repo-owned fixtures
-  intentionally released there.
-- Apache-2.0 applies to the public core through `LICENSE` and `NOTICE`.
-  `COMMERCIAL_LICENSE.md` now describes the separate commercial boundary:
-  hosted services, enterprise connectors, private benchmark holdouts, managed
-  deployments, customer integrations, support/warranty/indemnity, unreleased
-  methods, and private modules may live outside the public core under separate
-  terms. Apache-2.0 rights already granted for public core code are not
-  retracted by later private development.
-- SEAM accepts public-core contributions under Apache-2.0 inbound terms unless
-  a contributor explicitly states otherwise. The contributor-facing summary
-  lives in `CONTRIBUTING.md`.
+- `BlackhatShiftey/Seam` is the proprietary private development repository as
+  of 2026-07-24. MIRL's authored specification, source, schemas as expressed,
+  documentation, examples, tests, diagrams, and related implementation
+  material are copyrighted Reserved Materials under `LICENSE`. HS/1's authored
+  specification, container expression, visual designs, codecs, surface
+  library, source, docs, tests, and related implementation material are
+  separately named copyrighted Reserved Materials under the same terms.
+- `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
+  versions already published there retain Apache-2.0 and cannot be clawed
+  back; later private versions and new MIRL or HS/1 material do not inherit that
+  license. Its public `main` head at the freeze was
+  `0f4b40aab7fda643ce776e597f0b430faa465ca8`. The required Apache text is
+  preserved at `LICENSES/Apache-2.0.txt` for unchanged legacy material
+  incorporated into later private distributions.
+- The private-to-public mirror is disabled. `public_manifest.py` exposes no
+  synced private paths, `sync_public_mirror.py` fails closed, the public-safety
+  scanner blocks MIRL and HS/1 Reserved Materials, and the pre-push hook refuses the
+  legacy public remote. Any future public client/SDK requires a separate
+  artifact, manifest, dependency boundary, license review, and written owner
+  approval; do not reactivate the old mirror.
+- Private contributions use the proprietary contribution grant in
+  `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
+- `seam-runtime` 2.3.0 is a private distribution and must retain the
+  `Private :: Do Not Upload` classifier. `.github/workflows/package-release.yml`
+  defaults to a private GitHub Release and scans both wheel and sdist before
+  release. Its PyPI Trusted Publishing job uses GitHub OIDC without a stored
+  PyPI token, but the current package must fail that target because it contains
+  MIRL or HS/1 Reserved Materials. The existing PyPI and MCP-registry record remains
+  the legacy Apache-2.0 version 1.3.1 until a separate clean public artifact is
+  designed, licensed, and approved.
+- The private GitHub repository has `private-package-release` and `pypi`
+  environments restricted to protected branches. The current account plan did
+  not accept a wait-timer protection rule, so do not describe either
+  environment as reviewer-approved or time-delayed. PyPI itself still requires
+  the separate Trusted Publisher registration before any OIDC upload can work.
 - Security-sensitive reports should be handled privately through `SECURITY.md`;
   do not disclose private data, credential material, customer data, or exploit
   details in public issues.
 - `docs/PROTECTION_MODEL.md` documents the public/private repo split and must
   not be added to the mandatory startup read list unless the task touches
   licensing, contribution policy, repo protection, or public/private separation.
-- Protection-only changes must not silently alter runtime behavior, package
-  metadata, CLI commands, installer behavior, dashboard behavior, API behavior,
-  benchmark behavior, or history tooling behavior.
+- Protection changes must not silently alter runtime behavior, CLI commands,
+  installer behavior, dashboard behavior, API behavior, benchmark behavior, or
+  history tooling. Package and release metadata must accurately identify the
+  private proprietary distribution.
 - SQLite is canonical source of truth.
 - SEAM's knowledge graph is a self-building, versioned SQLite projection of
   canonical MIRL, not a manually authored or browser-generated topology.
@@ -266,8 +288,18 @@ and `HISTORY_INDEX.md`.
 - Agents must update `PROJECT_STATUS.md` when the current operating state or active focus changes.
 - Model-specific guides such as `CLAUDE.md`, `GEMINI.md`, and `ANTIGRAVITY.md` must route back to `AGENTS.md` and must not create a competing protocol.
 - Cross-agent commit gate: `tools/git-hooks/pre-commit` is the canonical pre-commit hook for this repo. It runs for every `git commit` regardless of who initiated it (Claude, Codex, Gemini, Aider, Cursor, OpenCode, human operator) because git itself enforces `.git/hooks/pre-commit`. The hook scope-blocks `.claude/`, `.opencode/`, `.agents/`, and `opencode.jsonc?` paths from staging, then runs `verify_integrity`, `verify_routing`, `verify_continuity`, and `verify_streams` against the SEAM history + streams protocols; non-zero gate exits non-zero and blocks the commit. Operators install the hook into `.git/hooks/pre-commit` with `bash tools/git-hooks/install.sh`, which symlinks where supported and falls back to a copy with a `CANONICAL_SHA` marker on filesystems that do not support symlinks (exFAT, FAT32, some Windows configurations). `seam doctor` reports the gate state under `commit_gate` and the streams substrate state under `streams`, and tells the operator how to repair drift.
-- Public/private separation gate (HISTORY#344, superseded in part by HISTORY#355): this repo mirrors curated state to the public `Seam_Runtime` repo via a `seam-runtime` git remote. `tools/git-hooks/pre-push` fires only when the push target is the `seam-runtime` remote and runs `tools/release/verify_public_safe.py`, which scans every git object newly reachable by the push (not just the tip tree, so content added and later removed within the same push is still caught) against a path deny-list (`.env*` except `.env.example`, `*.db`/`*.sqlite*`, agent-local config dirs, private key files, `secrets/`, `credentials*`), content patterns (cloud/VCS/model-provider API key shapes, PEM private key headers, DSN-with-credentials of 4+ chars, Claude/ChatGPT session/share links block the push; generic `password =`/`token =` only warn), AND (as of HISTORY#355) `tools/release/public_manifest.py`'s fail-closed allow-list -- any path not explicitly allow-listed blocks the push, closing the gap where the deny-list alone had let internal bookkeeping (`HISTORY.md`, `docs/audits/`, etc.) mirror to the public repo since day one (a deny-list fails open; only secret-shaped content or a handful of paths were ever blocked). `tools/git-hooks/install.sh` installs `pre-commit` and `pre-push` via the same symlink-first/copy-with-`CANONICAL_SHA` mechanism. Pushes to `origin` (private) are unaffected. This closes the failure mode that let a `seam.db` snapshot leak into the Cantlicle repo's history (required `git filter-repo` + force-push, and cached copies still served after the purge).
-- Curated public mirror sync (HISTORY#355): the actual sync path is now `tools/release/sync_public_mirror.py`, not a raw `git push seam-runtime main:main`. It builds one new commit on top of the mirror's current tip from `public_manifest.py`'s allow-listed paths, fast-forward only (never rewrites the mirror's existing history -- a retroactive purge of the already-public internal-bookkeeping history was explicitly considered and deferred pending separate explicit review, since it requires a force-push on the public repo). The public repo's `HISTORY.md`/`HISTORY_INDEX.md`/`PROJECT_STATUS.md`/`REPO_LEDGER.md`/`.seam/` are its OWN independent bookkeeping (seeded once from `tools/release/public_seed/`, never overwritten by later syncs) -- never a copy of this private repo's actual internal history. See `docs/PROTECTION_MODEL.md`'s "Public mirror sync mechanism" section. Canticle.cc's `release/package_release.py --publish` now calls this script instead of the old raw push.
+- Legacy public-mirror freeze (HISTORY#467, superseding HISTORY#344/#355/#356
+  as current policy): `tools/git-hooks/pre-push` unconditionally refuses any
+  update to the `seam-runtime`/`Seam_Runtime` remote. The safety scanner
+  explicitly blocks MIRL and HS/1 Reserved Materials and every private-by-default path,
+  `public_manifest.py` exposes no synced private paths, and
+  `sync_public_mirror.py` exits with the frozen-boundary error in every mode.
+  Pushes to private `origin` are unaffected. Do not bypass the freeze.
+- The former curated-sync implementation and `public_seed/` content are
+  retained only as historical tooling evidence. They are not an active release
+  mechanism. A future public client/SDK must use a separate repository,
+  dependency boundary, manifest, license, and review; it must not reuse or
+  reactivate the whole-runtime mirror.
 - Recorded-fact discrepancy audit is part of `verify_continuity`. Checkable facts written into active docs or the latest history entry must include enough scope to verify them later. The initial typed checks cover scoped pytest count claims, ambiguous hard-coded test totals, current handoff pointers, latest history refs that point at missing files, and same-scope test-count precedence drops (for example a later `150 passed` claim after an earlier same-scope `180 passed`). Future fact types should be added as extractors under `tools/history/recorded_fact_audit.py` so continuity catches disappearing data instead of relying on manual review.
 - Context Streams substrate (Track H1 implemented and measured): `tools/streams/` provides generic stream tooling that generalizes the single-stream history protocol into a multi-stream substrate. Root `HISTORY.md` + `HISTORY_INDEX.md` remain canonical; `.seam/streams/history/log.md` + `index.md` are byte-equivalent derived mirrors via `tools/streams/history_adapter.py`. The `roadmap` stream is populated for every track in `ROADMAP.md` via `seam:item` markers (34 items as of HISTORY#171). New `experience` stream lives entirely under `.seam/streams/`. `roadmap/state.md` is the compact agent-facing status view; `.seam/cross_index.md` is the derived global temporal join with two-tier indexing (200-event hot zone plus `.seam/cross_index_archive/` chunks). `tools/streams/build_context_pack.py` is the stream-aware pack builder; for `--stream history` it delegates to the canonical history pack so output is byte-equivalent. `tools/streams/bloat_report.py` measures the H1 reduction under the canonical cl100k_base tokenizer: roadmap status reads drop 88.4 percent (ROADMAP.md to state.md), history map reads drop 89.5 percent (HISTORY.md to HISTORY_INDEX.md), and cross-stream recent reads drop 88.6 percent (HISTORY.md plus ROADMAP.md to cross_index.md). Earlier-cited 93.5/90.5/91.0 numbers used a word-count heuristic that overstated savings; see HISTORY#216 for the tokenizer unification. The `verify_streams` gate enforces parseability, history-mirror byte-equivalence, per-stream index consistency, and cross-index presence; it runs in the canonical pre-commit hook and the Claude preflight as a fourth gate. Path canonicality flip for `history` (root → `.seam/streams/history/`) is explicitly deferred to a separate later HISTORY entry per `docs/roadmap/CONTEXT_STREAMS.md` §9. AGENTS.md "Context Loop" describes the bounded session-start read protocol that uses `roadmap/state.md` instead of full `ROADMAP.md` and `cross_index.md` for cross-stream temporal queries.
 - Claude Code defense-in-depth: a per-operator-local `.claude/settings.json` may wire `tools/claude/preflight_protocol.sh` (PreToolUse Bash hook) and `tools/claude/session_start_brief.sh` (SessionStart hook) so Claude Code reproduces the same verify chain before invoking git and prints the AGENTS.md read order on session start. `.claude/` stays gitignored and is rejected by the canonical pre-commit hook; each Claude Code operator wires their own machine. The Claude hook is belt-and-suspenders to the canonical git hook; the git hook is the protocol enforcement, the Claude hook is the early warning. Equivalent wiring for Codex, Gemini, and other agents is open follow-up work tracked in HISTORY; the canonical git hook covers them today even without per-agent wiring.

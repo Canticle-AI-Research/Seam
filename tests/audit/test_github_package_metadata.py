@@ -1,19 +1,37 @@
 from __future__ import annotations
 
+import json
 import tomllib
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-GITHUB_DIRECT_URL = "seam-runtime @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"
-GITHUB_SERVER_DASH_URL = "seam-runtime[server,dash] @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"
+GITHUB_DIRECT_URL = "seam-runtime @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
+GITHUB_SERVER_DASH_URL = "seam-runtime[server,dash] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
 
 
-def test_pyproject_points_at_public_runtime_repo() -> None:
+def test_pyproject_points_at_private_runtime_repo() -> None:
     pyproject = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))
 
     assert pyproject["project"]["name"] == "seam-runtime"
-    assert pyproject["project"]["urls"]["Repository"] == "https://github.com/BlackhatShiftey/Seam_Runtime"
-    assert pyproject["project"]["urls"]["Issues"] == "https://github.com/BlackhatShiftey/Seam_Runtime/issues"
+    assert pyproject["project"]["urls"]["Repository"] == "https://github.com/BlackhatShiftey/Seam"
+    assert pyproject["project"]["urls"]["Issues"] == "https://github.com/BlackhatShiftey/Seam/issues"
+    assert pyproject["project"]["license"] == "LicenseRef-SEAM-Proprietary AND Apache-2.0"
+    assert pyproject["project"]["license-files"] == [
+        "LICENSE",
+        "NOTICE",
+        "COMMERCIAL_LICENSE.md",
+        "LICENSES/Apache-2.0.txt",
+    ]
+    assert "Private :: Do Not Upload" in pyproject["project"]["classifiers"]
+
+
+def test_mcp_registry_manifest_remains_pinned_to_legacy_public_release() -> None:
+    server = json.loads((REPO / "server.json").read_text(encoding="utf-8"))
+
+    assert server["repository"]["url"] == "https://github.com/BlackhatShiftey/Seam_Runtime"
+    assert server["version"] == "1.3.1"
+    assert server["packages"][0]["identifier"] == "seam-runtime"
+    assert server["packages"][0]["version"] == "1.3.1"
 
 
 def test_readme_documents_github_pip_install() -> None:
@@ -80,7 +98,19 @@ def test_manifest_includes_package_assets_and_license_files() -> None:
     manifest = (REPO / "MANIFEST.in").read_text(encoding="utf-8")
 
     assert "include LICENSE NOTICE README.md SECURITY.md CONTRIBUTING.md COMMERCIAL_LICENSE.md" in manifest
+    assert "include LICENSES/Apache-2.0.txt" in manifest
     assert "recursive-include seam_runtime/webui *" in manifest
+
+
+def test_legacy_apache_text_and_notice_are_preserved() -> None:
+    apache = (REPO / "LICENSES" / "Apache-2.0.txt").read_text(encoding="utf-8")
+    notice = (REPO / "NOTICE").read_text(encoding="utf-8")
+
+    assert "Apache License" in apache
+    assert "Version 2.0, January 2004" in apache
+    assert "END OF TERMS AND CONDITIONS" in apache
+    assert "LICENSES/Apache-2.0.txt" in notice
+    assert "Nothing in the private license narrows" in notice
 
 
 def test_ci_builds_and_installs_distribution_artifacts() -> None:
@@ -89,3 +119,16 @@ def test_ci_builds_and_installs_distribution_artifacts() -> None:
     assert "package-smoke:" in workflow
     assert "python -m build --wheel --sdist" in workflow
     assert "python -m pip install dist/*.whl" in workflow
+
+
+def test_release_workflow_is_versioned_gated_and_oidc_only() -> None:
+    workflow = (REPO / ".github" / "workflows" / "package-release.yml").read_text(encoding="utf-8")
+
+    assert "workflow_dispatch:" in workflow
+    assert "private-github" in workflow
+    assert "environment: private-package-release" in workflow
+    assert "tools.release.verify_distribution_boundary" in workflow
+    assert "environment: pypi" in workflow
+    assert "id-token: write" in workflow
+    assert "pypa/gh-action-pypi-publish@release/v1" in workflow
+    assert "PYPI_TOKEN" not in workflow

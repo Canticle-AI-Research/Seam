@@ -1,50 +1,50 @@
-# SEAM Commercial Boundary
+# SEAM and MIRL commercial permissions
 
-SEAM Runtime's public core is licensed under the [Apache License 2.0](LICENSE).
-That license permits use, modification, distribution, and commercial use of the
-code in this public core repository, subject to the Apache-2.0 terms and the
-notices in [NOTICE](NOTICE).
+The private SEAM repository and all non-public MIRL- and HS/1-related material
+are proprietary. The controlling terms are in [LICENSE](LICENSE).
 
-## Public core
+## No permission from repository access
 
-The public core currently lives at:
+Access to this repository does not authorize evaluation, copying,
+redistribution, publication, implementation, hosting, commercial use,
+model-training use, or use in another product or project. Authorized
+contributors may use the material only for approved SEAM work.
 
-<https://github.com/BlackhatShiftey/Seam_Runtime>
+MIRL-related material includes the authored specification and schemas, source
+code, compiler and translation paths, record implementation, PACK and symbol
+machinery, codecs and surfaces, storage and retrieval behavior, SDK and
+integration surfaces, and tests or benchmarks that expose the non-public
+implementation.
 
-The public core may include:
+HS/1-related material includes the authored Holographic Surface specification,
+container format and visual expression, surface compiler, pixel
+encoding/decoding, hashing, verification, repair, storage, query, SDK and
+integration surfaces, and tests or benchmarks that expose the non-public
+implementation.
 
-- the local runtime;
-- CLI, REST, MCP, dashboard, and operator workflows;
-- public documentation;
-- public regression tests and benchmark harnesses;
-- public adapters and examples; and
-- repo policy files for contribution, security, and attribution.
+## Separate written agreements
 
-## Separate commercial offerings
+Any external permission requires a separate written agreement from the project
+owner. Agreements may cover a specifically defined evaluation, research,
+commercial, hosted, enterprise, integration, standards, distribution, support,
+or customer scope. No permission is implied by discussions, repository access,
+issues, pull requests, documentation, or prior collaboration.
 
-Apache-2.0 applies to the public core. It does not grant access to code,
-services, credentials, data, trademarks, private repositories, unreleased
-methods, hosted deployments, or enterprise-only modules that are not included
-in this repository.
+## Legacy Apache release
 
-Separate commercial terms may cover:
+Exact file versions previously published in
+<https://github.com/BlackhatShiftey/Seam_Runtime> under Apache-2.0 remain under
+that license. Those rights cannot be retracted. The Apache-2.0 text is
+preserved at [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt) for legacy
+material incorporated into the private repository.
 
-- hosted SEAM services;
-- enterprise connectors;
-- private benchmark holdouts;
-- managed deployments;
-- customer-specific integrations;
-- commercial support, warranty, indemnity, or service-level commitments;
-- advanced or unreleased modules kept outside the public core; and
-- private training, onboarding, or implementation work.
+The legacy grant does not place the private repository, later versions,
+unpublished changes, or new MIRL or HS/1 material under Apache-2.0. Similar
+filenames, interfaces, ancestry, or functionality do not create a new public
+license grant.
 
-## Branding and claims
+## Branding and other rights
 
-The Apache-2.0 license does not grant trademark rights. The SEAM name, logos,
-visual identity, dashboard designs, protocol names, and branding marks remain
-reserved except as allowed by the license for reasonable identification of the
-origin of the public core.
-
-Public benchmark or performance claims should cite reproducible evidence and
-must not imply endorsement, partnership, warranty, or access to private SEAM
-offerings.
+No trademark, branding, certification, or patent permission is granted. SEAM
+and MIRL names, logos, protocol identifiers, visual identity, and associated
+marks remain reserved to the extent protected by applicable law.

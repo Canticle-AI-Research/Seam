@@ -1,20 +1,25 @@
-"""Public-core allow-list: tools/release/public_manifest.py.
+"""Frozen private/public boundary in tools/release/public_manifest.py."""
 
-Fail-closed contract: a path is only eligible for the public seam-runtime
-mirror if it's explicitly listed here (synced) or is one of the public
-repo's own independently-owned bookkeeping paths. Everything else -- in
-particular anything new added to the private repo later -- is private by
-default until someone deliberately adds it to this manifest.
-"""
 from __future__ import annotations
 
 import pytest
 
 from tools.release.public_manifest import (
+    HS1_RESERVED_FILES,
+    LEGACY_PUBLIC_HEAD_AT_FREEZE,
+    PUBLIC_SYNC_FROZEN,
     is_allowed_on_public_mirror,
+    is_hs1_reserved_path,
+    is_mirl_reserved_path,
     is_public_owned_path,
     is_public_synced_path,
+    is_reserved_material_path,
 )
+
+
+def test_legacy_public_sync_is_frozen_at_an_exact_head() -> None:
+    assert PUBLIC_SYNC_FROZEN is True
+    assert len(LEGACY_PUBLIC_HEAD_AT_FREEZE) == 40
 
 
 @pytest.mark.parametrize(
@@ -24,25 +29,45 @@ from tools.release.public_manifest import (
         "LICENSE",
         "AGENTS.md",
         "pyproject.toml",
-        "seam_runtime/mcp_protocol.py",
-        "seam_runtime/webui/dashboard.html",
-        "tests/audit/test_public_manifest.py",
-        "test_seam_all/conftest.py",
+        "docs/setup.md",
         "installers/install_seam_linux.sh",
-        "tools/h2/holdout_split.py",  # real seam_runtime.improvement runtime dependency
         "tools/history/new_entry.py",
-        "tools/streams/verify_streams.py",
-        "docs/MACOS.md",
-        "docs/CODE_LAYOUT.md",
-        "docs/REASONING_GRAPH.md",
-        "benchmarks/external/locomo/adapter.py",
-        "benchmarks/README.md",
+        "some/brand/new/path/nobody/added/yet.md",
     ],
 )
-def test_public_synced_paths(path: str) -> None:
-    assert is_public_synced_path(path)
-    assert is_allowed_on_public_mirror(path)
-    assert not is_public_owned_path(path)
+def test_no_private_path_is_synced(path: str) -> None:
+    assert not is_public_synced_path(path)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "SEAM_SPEC_V0.1.md",
+        "docs/MIRL_V1.md",
+        "seam.py",
+        "seam_runtime/mirl.py",
+        "seam_runtime/nl.py",
+        "seam_runtime/pack.py",
+        "tests/fidelity/test_compile_fidelity.py",
+        "test_seam_all/test_seam.py",
+        "benchmarks/fidelity/contract.py",
+        "tools/h2/improvement_loop.py",
+    ],
+)
+def test_mirl_reserved_paths_are_explicit_and_never_public_synced(path: str) -> None:
+    assert is_mirl_reserved_path(path)
+    assert is_reserved_material_path(path)
+    assert not is_public_synced_path(path)
+    assert not is_allowed_on_public_mirror(path)
+
+
+@pytest.mark.parametrize("path", sorted(HS1_RESERVED_FILES))
+def test_hs1_reserved_paths_are_explicit_and_never_public_synced(path: str) -> None:
+    assert is_hs1_reserved_path(path)
+    assert is_reserved_material_path(path)
+    assert not is_mirl_reserved_path(path)
+    assert not is_public_synced_path(path)
+    assert not is_allowed_on_public_mirror(path)
 
 
 @pytest.mark.parametrize(
@@ -56,39 +81,17 @@ def test_public_synced_paths(path: str) -> None:
         ".seam/cross_index.md",
     ],
 )
-def test_public_owned_paths(path: str) -> None:
+def test_legacy_public_owned_paths_are_historical_not_synced(path: str) -> None:
     assert is_public_owned_path(path)
     assert is_allowed_on_public_mirror(path)
     assert not is_public_synced_path(path)
 
 
-@pytest.mark.parametrize(
-    "path",
-    [
-        "docs/audits/2026-05-28-deep-health-audit.md",
-        "docs/handoffs/2026-06-08-h2-self-improvement-loop.md",
-        "docs/roadmap/COMPETITIVE_ROADMAP.md",
-        "docs/SOP_TRACK_K_BIL_PHASE1_DEEPSEEK.md",
-        "docs/engineering/08_INCIDENT_RESPONSE.md",
-        "docs/progress_tables/benchmark_results.csv",
-        "docs/prompts/DEEPSEEK_TRACK_K_BIL_PHASE1_PROMPT.md",
-        "docs/archive/README.md",
-        ".opencode/skills/seam-architect/SKILL.md",
-        "skills/seam-engineer/SKILL.md",
-        "archive/code/README.md",
-        "benchmarks/BENCHMARK_LOG.md",
-        "benchmarks/runs/20260417_111912_hash_projection.json",
-        "tools/release/verify_public_safe.py",
-        "tools/release/sync_public_mirror.py",
-        "tools/ci/chroma_real_smoke.py",
-        "tools/claude/preflight_protocol.sh",
-        "tools/git-hooks/pre-push",
-        "tools/skills/compiler.py",
-        ".github/workflows/ci.yml",
-        "some/brand/new/path/nobody/added/yet.md",
-    ],
-)
-def test_private_by_default_paths(path: str) -> None:
-    assert not is_public_synced_path(path)
+def test_unclassified_private_path_is_private_by_default() -> None:
+    path = "docs/new-unreleased-design.md"
+    assert not is_mirl_reserved_path(path)
+    assert not is_hs1_reserved_path(path)
+    assert not is_reserved_material_path(path)
     assert not is_public_owned_path(path)
+    assert not is_public_synced_path(path)
     assert not is_allowed_on_public_mirror(path)

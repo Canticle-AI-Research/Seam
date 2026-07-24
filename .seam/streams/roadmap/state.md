@@ -9,14 +9,15 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:F:backlog:scoring-weights` — since 2026-05-25 via history:243 — topics: retrieval, benchmark
 - `roadmap:track:H2` — since 2026-05-25 via history:243 — topics: protocol, history, plan
 
-## in-progress (4)
+## in-progress (5)
 
 - `roadmap:track:A-CLI` — since 2026-05-07 via history:137 — topics: command, chat, dashboard
 - `roadmap:track:A-Web` — since 2026-05-10 via history:163 — topics: dashboard, webui, command
 - `roadmap:track:E1` — since 2026-04-30 via history:121 — topics: pgvector, vector, docker
+- `roadmap:track:N` — since 2026-07-24 via history:467 — topics: packaging, release, distribution
 - `roadmap:track:R` — since 2026-07-22 via history:454 — topics: graph, memory, retrieval, benchmark, comparator, provenance
 
-## planned (36)
+## planned (35)
 
 - `roadmap:track:A2` — since 2026-04-18 via none — topics: benchmark, dashboard, animation
 - `roadmap:track:A3` — since 2026-04-18 via none — topics: benchmark, dashboard, graph
@@ -50,7 +51,6 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:K17` — since 2026-05-18 via history:196 — topics: integrity, audit, snapshot
 - `roadmap:track:K18` — since 2026-05-18 via history:196 — topics: retrieval, rank, audit
 - `roadmap:track:L` — since 2026-05-15 via history:180 — topics: agent, compiler, skills
-- `roadmap:track:N` — since 2026-06-02 via history:284 — topics: packaging, release, distribution
 - `roadmap:track:O` — since 2026-06-15 via history:319 — topics: query, sql, retrieval, benchmark, bird
 - `roadmap:track:P` — since 2026-07-16 via history:407 — topics: agent, openclaw, namespaces, profiles, console
 - `roadmap:track:Q` — since 2026-07-16 via history:407 — topics: android, mobile, small-models, memory-loop
