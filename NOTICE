@@ -1,13 +1,26 @@
-SEAM
-Copyright 2026 BlackhatShiftey
+SEAM / MIRL
+Copyright © 2026 Nicholas Thomas (BlackhatShiftey). All rights reserved.
 
-SEAM Runtime's public core is licensed under the Apache License, Version 2.0.
+This private repository and its non-public contents are proprietary. MIRL's
+specification text, source code, schemas as expressed, documentation, examples,
+tests, diagrams, and other original works of authorship are copyrighted and
+reserved under LICENSE. SEAM-HS/1's specification, container expression,
+visual designs, source code, codecs, surface library, documentation, examples,
+tests, and related original works are separately named copyrighted and
+reserved HS/1 materials.
 
-The SEAM name, logos, visual identity, protocol names, dashboard designs, and
-branding marks are reserved. The Apache-2.0 license does not grant trademark
-or branding rights except as required for reasonable and customary use in
-describing the origin of the public core and reproducing this NOTICE file.
+Exact versions previously published at
+https://github.com/BlackhatShiftey/Seam_Runtime under Apache-2.0 retain that
+license. Portions of the current repository that are unchanged Legacy Apache
+Materials retain their Apache-2.0 terms; the license text is preserved at
+LICENSES/Apache-2.0.txt. Nothing in the private license narrows those existing
+rights.
 
-Hosted services, enterprise modules, private connectors, private benchmark
-holdouts, customer-specific integrations, and unreleased methods may be offered
-from separate private repositories or services under separate commercial terms.
+No public, commercial, hosted, redistribution, derivative-work, model-training,
+or implementation right is granted by access to new private material. The
+legacy grant does not apply automatically to later private versions,
+unpublished changes, or new MIRL- or HS/1-related material.
+
+Third-party materials remain subject to their own licenses. SEAM and MIRL
+names, logos, protocol identifiers, visual identity, and associated marks are
+reserved to the extent protected by applicable law.

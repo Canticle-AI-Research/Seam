@@ -18,23 +18,23 @@ For failures by symptom, see [errors.md](errors.md).
 
 ## Install options
 
-### Option A — PyPI package (public runtime)
+### Option A — Private Git package
 
-When you only need the runtime, not the full private development repo:
+Requires authorization to the private repository and working SSH credentials:
 
 ```bash
 python3 -m pip install --upgrade pip
-python3 -m pip install "seam-runtime[server,dash]"
+python3 -m pip install "seam-runtime[server,dash] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
 seam doctor
 ```
 
 Add pgvector or local embeddings when needed:
 
 ```bash
-python3 -m pip install "seam-runtime[pgvector,sbert]"
+python3 -m pip install "seam-runtime[pgvector,sbert] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
 ```
 
-### Option B — One-line private repo install
+### Option B — Private repository clone
 
 Requires `gh auth login` first.
 

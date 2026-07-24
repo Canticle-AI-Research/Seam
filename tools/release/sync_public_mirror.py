@@ -1,30 +1,12 @@
-"""Build and push a curated public-core snapshot to the `seam-runtime` mirror.
+"""Disabled legacy public-mirror tooling.
 
-Replaces the old `git push seam-runtime main:main` (a full-history, full-tree
-mirror gated only by `verify_public_safe.py`'s deny-list secret scanner).
-HISTORY#355 found that denylist-only gate had let internal bookkeeping
-(`HISTORY.md`, `.seam/`, `docs/audits/`, etc.) sync to the public repo since
-day one, because a deny-list fails *open* -- anything not secret-shaped ships.
+The ``BlackhatShiftey/Seam_Runtime`` repository is a frozen legacy Apache-2.0
+release. The private SEAM repository and MIRL or HS/1 Reserved Materials must
+not be synchronized to it. This module retains a recognizable command path so old
+automation fails with an explicit policy error instead of silently publishing.
 
-This script is fail-*closed*: only paths matching `public_manifest.py`'s
-allow-list are ever copied to the mirror. It builds ONE new commit on top of
-the mirror's current tip (fast-forward; past mirror commits are left exactly
-as they are -- a retroactive history purge was explicitly considered and
-deferred, see HISTORY#355) whose tree is:
-
-  1. every `is_public_synced_path` path, copied verbatim from private main's
-     current committed tree, plus
-  2. every `is_public_owned_path` path (the public repo's own independent
-     `HISTORY.md`/`PROJECT_STATUS.md`/`REPO_LEDGER.md`/`HISTORY_INDEX.md`/
-     `.seam/`), carried over unchanged from whatever the mirror already has --
-     or, the first time the mirror has none of them yet, seeded once from
-     `tools/release/public_seed/`.
-
-No working tree or local index is touched; everything happens via git
-plumbing (a throwaway `GIT_INDEX_FILE`) against the existing object
-databases. Nothing is pushed unless `--push` is passed; the default is to
-print the new commit and a diffstat against the mirror's current tip for
-review.
+A future public client or SDK must use a separate repository, artifact,
+manifest, dependency boundary, and license after legal review.
 """
 
 from __future__ import annotations
@@ -39,6 +21,16 @@ from tools.release.public_manifest import is_public_owned_path, is_public_synced
 
 PUBLIC_REMOTE = "seam-runtime"
 SEED_DIR_NAME = "public_seed"
+
+
+class PublicMirrorFrozenError(RuntimeError):
+    """Raised whenever legacy mirror construction is attempted."""
+
+
+FROZEN_MESSAGE = (
+    "The legacy Seam_Runtime public mirror is frozen. "
+    "MIRL, HS/1, and the private runtime may not be synchronized from this repository."
+)
 
 
 def _git(repo_root: Path, args: list[str], *, env: dict[str, str] | None = None, input_text: str | None = None) -> str:
@@ -84,7 +76,13 @@ def _seed_dir() -> Path:
 
 
 def build_public_tree(repo_root: Path, private_ref: str = "main") -> tuple[str, str | None]:
-    """Build the curated public tree object. Returns (new_tree_sha, mirror_tip_sha_or_None)."""
+    """Refuse construction of a new legacy-public tree."""
+    del repo_root, private_ref
+    raise PublicMirrorFrozenError(FROZEN_MESSAGE)
+
+
+def _build_public_tree_retired(repo_root: Path, private_ref: str = "main") -> tuple[str, str | None]:
+    """Retired implementation retained only for code-history readability."""
     private_sha = _rev_parse(repo_root, private_ref)
     if not private_sha:
         raise SystemExit(f"Cannot resolve private ref {private_ref!r}")
@@ -162,30 +160,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--no-fetch", action="store_true", help="Skip fetching the seam-runtime remote first")
     args = parser.parse_args(argv)
 
-    repo_root = Path(args.repo_root).resolve()
-    if not args.no_fetch:
-        _git(repo_root, ["fetch", PUBLIC_REMOTE])
-
-    private_sha = _rev_parse(repo_root, args.ref)
-    message = args.message or f"Sync public core from private {args.ref}@{private_sha[:12] if private_sha else '?'}"
-
-    new_commit_sha, mirror_tip = build_public_commit(repo_root, args.ref, message)
-
-    print(f"Private ref:  {args.ref} @ {private_sha}")
-    print(f"Mirror tip:   {mirror_tip or '(no existing main -- first sync)'}")
-    print(f"New commit:   {new_commit_sha}")
-    if mirror_tip:
-        diffstat = _git(repo_root, ["diff", "--stat", mirror_tip, new_commit_sha])
-        print("--- diffstat vs current mirror tip ---")
-        print(diffstat if diffstat else "(no changes)")
-
-    if args.push:
-        _git(repo_root, ["push", PUBLIC_REMOTE, f"{new_commit_sha}:main"])
-        print(f"Pushed {new_commit_sha} to {PUBLIC_REMOTE}/main")
-    else:
-        print("Dry run only (pass --push to actually push).")
-
-    return 0
+    del args
+    print(FROZEN_MESSAGE, file=sys.stderr)
+    print(
+        "Create a separately reviewed public client/SDK artifact instead of "
+        "reactivating this mirror.",
+        file=sys.stderr,
+    )
+    return 2
 
 
 if __name__ == "__main__":

@@ -11570,3 +11570,105 @@ provenance gates that prevent conclusion laundering. R5 reviewed promotion and
 R6 qualification remain open. Independently finish G3 exact historical
 path/episode evidence, calibrated fusion, and scale/latency qualification.
 ---END-ENTRY-#466---
+
+---BEGIN-ENTRY-#467---
+id: 467
+date: 2026-07-24T10:21:50Z
+agent: codex
+status: changed
+topics: security, mirl, surface, pyproject, ci, docs, verify, handoff
+commits: pending
+refs: LICENSE,LICENSES/Apache-2.0.txt,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,README.md,pyproject.toml,MANIFEST.in,.github/workflows/package-release.yml,tools/release/public_manifest.py,tools/release/sync_public_mirror.py,tools/release/verify_public_safe.py,tools/release/verify_distribution_boundary.py,tools/git-hooks/pre-push,tests/audit/test_distribution_boundary.py,tests/audit/test_github_package_metadata.py,tests/audit/test_public_manifest.py,tests/audit/test_public_safe_gate.py,tests/audit/test_sync_public_mirror.py,docs/PROTECTION_MODEL.md,ROADMAP.md,REPO_LEDGER.md,PROJECT_STATUS.md,docs/handoffs/2026-07-24-mirl-hs1-proprietary-boundary.md,docs/handoffs/INDEX.md
+supersedes: 466
+tokens: 783
+---
+Changed the repository licensing and release boundary prospectively so new
+private MIRL and HS/1 material is explicitly proprietary without pretending
+the prior Apache grant can be revoked.
+
+LEGAL BOUNDARY: `LICENSE` now names MIRL and HS/1 as separate Reserved Material
+categories and defines authorized-contributor limits, prohibited external use,
+confidentiality, contributions, termination, warranty, liability, and legacy
+non-retroactivity. `LICENSES/Apache-2.0.txt` preserves the full Apache text for
+unchanged Legacy Apache Materials incorporated into later private
+distributions. NOTICE, commercial/contribution terms, README, protection
+model, status, ledger, code layout, macOS install docs, and Track N carry the
+same split. The docs correctly distinguish copyright in authored expression
+from abstract ideas, facts, systems, methods, and short names.
+
+PUBLIC BOUNDARY: the legacy public mirror is frozen at verified live head
+`0f4b40aab7fda643ce776e597f0b430faa465ca8`. The manifest exposes no synced
+private paths and separately classifies obvious MIRL and HS/1 material; all
+other private paths fail closed. The sync CLI refuses every mode, the scanner
+reports reserved/private paths, and the pre-push hook refuses the
+`seam-runtime`/`Seam_Runtime` remote. No public history rewrite, archive,
+visibility change, deletion, or remote push occurred.
+
+PACKAGING: private `seam-runtime` is version 2.3.0 with the PEP 639 expression
+`LicenseRef-SEAM-Proprietary AND Apache-2.0`, all controlling license files,
+private repository URLs, and `Private :: Do Not Upload`. The manual Package
+release workflow builds wheel+sdist, runs `twine check`, scans archive
+contents, smoke-installs the wheel, and defaults to a private GitHub Release.
+The PyPI job uses Trusted Publishing/OIDC with no stored token, but the current
+MIRL/HS/1-bearing artifact intentionally fails that target. Live PyPI and the
+MCP registry manifest remain pinned to legacy Apache 1.3.1. DeepSeek's stale
+pre-final-license build files were moved intact to
+`/tmp/seam-deepseek-dist-prelicense-20260724` rather than left as ambiguous
+release candidates.
+
+VERIFICATION:
+
+- focused release/licensing suite: 99 passed;
+- `.venv/bin/python -m pytest -q tests/audit -m "not external"`: 1,300
+  collected and passed;
+- fresh wheel+sdist: `twine check` passed; both passed the private target and
+  were expectedly rejected by the PyPI target with 82 reserved runtime paths
+  plus private license/metadata findings;
+- both archives contain the proprietary MIRL/HS/1 terms and
+  `LICENSES/Apache-2.0.txt`;
+- isolated wheel install, `seam --help`, and `seam-mcp --help`: passed;
+- touched-file Ruff, YAML parse, Bash syntax, hook behavior, frozen-sync
+  refusal, and `git diff --check`: passed.
+
+No CodeRabbit review upload occurred because transmitting the private diff to
+an external review service would conflict with the new policy. No provider,
+paid model, or PyPI publication occurred. Operator-owned untracked pricing,
+architecture-audit, report-image, and `.ua` files remain excluded.
+
+NEXT: obtain legal review, merge the private boundary PR, and do not upload
+private 2.3.0 to PyPI. A future PyPI update requires either a separately built
+clean public client or an explicitly scoped legacy Apache maintenance release,
+plus operator approval and the one-time Trusted Publisher/environment setup.
+---END-ENTRY-#467---
+
+---BEGIN-ENTRY-#468---
+id: 468
+date: 2026-07-24T10:24:48Z
+agent: codex
+status: done
+topics: ci, security, pyproject, verify, handoff, status
+commits: pending
+refs: .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,ROADMAP.md,README.md,docs/handoffs/2026-07-24-mirl-hs1-proprietary-boundary.md,docs/handoffs/INDEX.md
+supersedes: 467
+tokens: 220
+---
+Configured the GitHub Actions environment boundary that accompanies
+HISTORY#467.
+
+The private `BlackhatShiftey/Seam` repository now has
+`private-package-release` and `pypi` environments. Both restrict deployments
+to protected branches. GitHub rejected the requested wait-timer field because
+the current account plan does not support that protection, so neither
+environment is represented as time-delayed or reviewer-approved.
+
+This is GitHub-side release configuration only. The PyPI Trusted Publisher has
+not been configured or verified, no PyPI token was created, and no package was
+published. Private 2.3.0 remains blocked from PyPI by both
+`Private :: Do Not Upload` and the MIRL/HS/1 archive-content gate.
+
+Verification: the GitHub environments API returned both environment names
+with `protected_branches=true`, `custom_branch_policies=false`, and one
+`branch_policy` protection rule each. Status, ledger, roadmap, README, and the
+current handoff now state the confirmed boundary and the unsupported
+wait-timer limitation.
+---END-ENTRY-#468---

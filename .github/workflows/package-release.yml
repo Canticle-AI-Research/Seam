@@ -1,0 +1,119 @@
+name: Package release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact version already set in pyproject.toml
+        required: true
+        type: string
+      target:
+        description: Release destination
+        required: true
+        default: private-github
+        type: choice
+        options:
+          - private-github
+          - pypi
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check out the selected commit
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify requested version
+        id: version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          python - <<'PY'
+          import os
+          import tomllib
+          from pathlib import Path
+
+          version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          requested = os.environ["REQUESTED_VERSION"].strip()
+          if version != requested:
+              raise SystemExit(f"pyproject version {version!r} does not match requested version {requested!r}")
+          print(f"version={version}", file=open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"))
+          PY
+
+      - name: Build distributions
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build --wheel --sdist
+          python -m twine check dist/*
+
+      - name: Enforce private/public distribution boundary
+        env:
+          RELEASE_TARGET: ${{ inputs.target }}
+        run: python -m tools.release.verify_distribution_boundary --target "$RELEASE_TARGET" dist/*
+
+      - name: Smoke-test wheel
+        run: |
+          python -m pip install dist/*.whl
+          seam --help
+          seam-mcp --help
+
+      - name: Upload reviewed distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions-${{ steps.version.outputs.version }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  private-github-release:
+    if: inputs.target == 'private-github'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: private-package-release
+    permissions:
+      contents: write
+    steps:
+      - name: Download reviewed distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-distributions-${{ needs.build.outputs.version }}
+          path: dist/
+
+      - name: Create private GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          gh release create "v${VERSION}" dist/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${COMMIT_SHA}" \
+            --title "SEAM ${VERSION}" \
+            --notes "Private proprietary SEAM runtime release ${VERSION}."
+
+  pypi-publish:
+    if: inputs.target == 'pypi'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download reviewed distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-distributions-${{ needs.build.outputs.version }}
+          path: dist/
+
+      - name: Publish boundary-approved distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

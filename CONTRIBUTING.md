@@ -1,56 +1,51 @@
-# Contributing to SEAM
+# Contributing to private SEAM development
 
-Thank you for considering a contribution to SEAM.
+SEAM, MIRL, and HS/1 development in this repository is proprietary. Access is
+limited to people expressly authorized by the project owner. Read
+[LICENSE](LICENSE), [NOTICE](NOTICE), and
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) before working with repository
+material.
 
-SEAM Runtime's public core is licensed under the Apache License 2.0.
-Contributions are welcome for code, documentation, tests, benchmarks, and
-project improvement. Contributions must preserve the public-core/private-module
-boundary described in `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md`.
+## Authorized scope
 
-## Read first
+Repository access permits an authorized contributor to use and modify the
+material only for approved work on SEAM, within approved private systems. It
+does not permit publication, external distribution, independent use,
+model-training use, commercial use, or use in another project.
 
-Before contributing, read:
-
-1. `AGENTS.md` for the canonical repo protocol.
-2. `PROJECT_STATUS.md` for current operating state.
-3. `REPO_LEDGER.md` for stable repo decisions.
-4. `docs/CODE_LAYOUT.md` for active vs archived paths.
-5. `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md` for license, notice, and
-   commercial-boundary terms.
-
-Normal development should stay in active paths: `seam_runtime/`, `seam.py`, `experimental/`, `tools/`, `scripts/`, `installers/`, `docs/`, tests, and root status or policy files.
-
-Do not copy stale code or prose from archived paths back into active paths without rewriting, verifying, and recording the reason.
+Do not copy source, specifications, schemas, tests, benchmarks, history,
+research, prompts, private URLs, or implementation details into public issues,
+public repositories, external assistants, datasets, or unapproved services.
 
 ## Contribution grant
 
-Unless you explicitly state otherwise, any pull request, issue text, code,
-documentation, test, benchmark, design, or other contribution intentionally
-submitted for inclusion in SEAM Runtime's public core is submitted under the
-Apache License 2.0, without additional terms or conditions.
+By intentionally submitting code, documentation, tests, benchmarks, issue
+text, patches, designs, or other material for inclusion in the private
+repository, you represent that you have the right to submit it and grant the
+project owner the contribution rights stated in [LICENSE](LICENSE). A separate
+signed agreement controls if it conflicts with those terms.
 
-In plain language, you keep copyright you own in your contribution, but the
-public core can use and distribute it under Apache-2.0.
+Do not submit third-party material unless its license and provenance have been
+reviewed and recorded.
 
-Do not submit anything you do not have the right to contribute.
+## Development protocol
 
-## Pull request expectations
+Before changing the repository, read:
 
-A good PR should:
+1. `AGENTS.md`
+2. `PROJECT_STATUS.md`
+3. `REPO_LEDGER.md`
+4. `HISTORY_INDEX.md`
+5. `docs/CODE_LAYOUT.md`
 
-- explain what changed and why;
-- keep active and archived paths separated;
-- update `REPO_LEDGER.md` when changing stable repo policy, architecture, routing, runtime safety rules, durable workflows, or cross-agent protocol;
-- update `PROJECT_STATUS.md` when changing current operating state or active focus;
-- append one `HISTORY.md` entry for material changes;
-- rebuild derived history, index, and snapshot artifacts when local tooling is available;
-- run relevant tests or clearly state what was skipped and why; and
-- avoid duplicating long continuity prose across multiple docs.
+Keep work scoped, preserve unrelated changes, follow the branch and pull-request
+workflow, run the relevant tests, and complete the repository's history,
+snapshot, handoff, continuity, and stream gates for material changes.
 
-## Public-core boundary
+## Legacy public versions
 
-Contributions to this repository do not grant access to private SEAM
-repositories, hosted services, enterprise modules, private connectors, private
-benchmark holdouts, customer-specific integrations, unreleased methods, support,
-warranty, indemnity, or trademark rights. Those may be covered by separate
-commercial terms outside the public core.
+Exact versions previously released through
+<https://github.com/BlackhatShiftey/Seam_Runtime> remain under the license
+attached to those public versions. Do not copy later private changes into that
+repository. The private-to-public mirror is frozen unless the project owner
+approves a new, legally reviewed distribution boundary in writing.

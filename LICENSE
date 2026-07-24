@@ -1,201 +1,220 @@
-                                 Apache License
-                           Version 2.0, January 2004
-                        https://www.apache.org/licenses/
+SEAM PRIVATE REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE
+Version 2.0 — Effective July 24, 2026
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+Copyright © 2026 Nicholas Thomas (BlackhatShiftey). All rights reserved.
 
-   1. Definitions.
+IMPORTANT: THIS IS A PROPRIETARY LICENSE, NOT AN OPEN-SOURCE LICENSE.
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+This license governs the private SEAM repository and all Reserved Materials
+made available from it on or after the Effective Date, except for third-party
+materials or a specific file or version that the Project Owner has expressly
+licensed under different written terms.
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+1. DEFINITIONS
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+"Project Owner" means Nicholas Thomas, operating as BlackhatShiftey, or a
+successor that owns the applicable copyrights.
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+"Private Repository" means the non-public SEAM development repository,
+including its source code, specifications, schemas, documentation, tests,
+benchmarks, fixtures, designs, research, build and release tooling, history,
+and other materials.
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+"Reserved Materials" means all material in the Private Repository that is not
+expressly identified in writing by the Project Owner as carrying another
+license.
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+"MIRL Reserved Materials" means the copyrighted expression and non-public
+implementation materials relating to MIRL, including:
 
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
+- the MIRL specifications, explanatory text, diagrams, examples, record
+  definitions, schemas, grammars, serializations, field selections, and
+  authored arrangements or compilations;
+- source code and documentation for MIRL records, compilation, decompilation,
+  extraction, grounding, normalization, reconciliation, storage, indexing,
+  retrieval, graph projection, vectorization, and provenance;
+- PACK, symbol-table, improvement-loop, compression, readable-compression,
+  lossless, LX, RC, and related codec implementations or documentation;
+- SDK, CLI, API, MCP, dashboard, benchmark, test, fixture, and integration
+  material that implements, exposes, evaluates, or is derived from the
+  non-public MIRL implementation; and
+- non-public modifications, extensions, ports, translations, or derivative
+  works of any of the foregoing.
 
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
+"HS/1 Reserved Materials" means the copyrighted expression and non-public
+implementation materials relating to SEAM-HS/1 Holographic Surfaces, including:
 
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+- the HS/1 specification, explanatory text, diagrams, examples, container
+  format, headers, metadata, authored arrangements, and visual designs;
+- source code and documentation for surface compilation, pixel packing,
+  encoding, decoding, hashing, verification, repair, storage, lookup, query,
+  context extraction, import, export, rendering, and provenance;
+- surface libraries, adapters, SDK, CLI, API, MCP, dashboard, benchmark, test,
+  fixture, and integration material that implements, exposes, evaluates, or is
+  derived from the non-public HS/1 implementation; and
+- non-public modifications, extensions, ports, translations, or derivative
+  works of any of the foregoing.
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
+"Authorized Contributor" means a person whom the Project Owner has expressly
+authorized in writing to access the Private Repository for work on SEAM.
 
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
+"Legacy Apache Materials" means only the exact file versions that the Project
+Owner previously published in the public repository at
+https://github.com/BlackhatShiftey/Seam_Runtime while those versions carried
+the Apache License, Version 2.0. The public repository's commit history
+identifies those versions.
 
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
+2. COPYRIGHT AND OWNERSHIP
 
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
+The MIRL specifications, source code, documentation, examples, tests, diagrams,
+and other original works of authorship are copyrighted. The Project Owner
+reserves all copyright and other rights in the Reserved Materials and MIRL
+Reserved Materials except where an express written license says otherwise.
 
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
+Access to the Private Repository, possession of a copy, discussion of MIRL, or
+knowledge that a feature exists does not grant any license or permission.
 
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
+This license does not claim copyright in abstract ideas, facts, procedures,
+systems, methods of operation, or short names as such. It reserves copyright
+in their original expression and reserves any separate trademark, patent,
+contract, confidentiality, and trade-secret rights that may apply.
 
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+3. NO PUBLIC LICENSE GRANT
 
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
+No right is granted to use, copy, reproduce, modify, adapt, translate,
+distribute, publish, display, perform, sublicense, sell, host, disclose, or
+create derivative works from the Reserved Materials, MIRL Reserved Materials,
+or HS/1 Reserved Materials. All rights not expressly granted in a separate
+written agreement are reserved.
 
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
+4. LIMITED AUTHORIZED-CONTRIBUTOR PERMISSION
 
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
+An Authorized Contributor may access, run, copy, and modify Reserved Materials
+only:
 
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
+- within access controls approved by the Project Owner;
+- solely to perform work for the benefit of the SEAM project;
+- only for the period and scope of that authorization; and
+- subject to this license and any separate confidentiality, employment,
+  contractor, or contribution agreement.
 
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
+This permission is personal, limited, revocable, non-exclusive,
+non-transferable, and non-sublicensable. It does not authorize publication,
+external distribution, independent commercial use, or use for another project.
 
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
+5. PROHIBITED CONDUCT
 
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
+Unless the Project Owner gives prior written permission, You may not:
 
-   END OF TERMS AND CONDITIONS
+- copy, publish, distribute, mirror, upload, transmit, or disclose Reserved
+  Materials outside approved private systems;
+- use Reserved Materials, MIRL Reserved Materials, or HS/1 Reserved Materials
+  in any product, service, library, standard, specification, hosted offering,
+  customer deployment, or commercial activity;
+- use non-public MIRL material to create or assist a competing, substitute,
+  compatible, or substantially similar implementation;
+- use non-public HS/1 material to create or assist a competing, substitute,
+  compatible, or substantially similar image-surface or visual-memory
+  implementation;
+- extract, scrape, mine, index, benchmark, or use Reserved Materials as
+  training, fine-tuning, retrieval, evaluation, or synthetic-data material for
+  a model or dataset;
+- remove or alter copyright, ownership, confidentiality, license, provenance,
+  or access-control notices;
+- bypass or help another person bypass repository, release, export, or
+  publication controls; or
+- represent that access to SEAM grants rights in MIRL, SEAM branding, or any
+  private offering.
 
-   APPENDIX: How to apply the Apache License to your work.
+Nothing in this section restricts a right that applicable law does not permit
+the Project Owner to restrict. Where such a mandatory right applies, it must be
+exercised only to the minimum extent the law requires.
 
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!) The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
+6. CONFIDENTIALITY
 
-   Copyright 2026 BlackhatShiftey
+Non-public Reserved Materials are confidential. Authorized Contributors must
+use reasonable safeguards, limit access to authorized people, and promptly
+report suspected loss, disclosure, or unauthorized access to the Project
+Owner. Confidentiality obligations do not apply to information that the
+recipient can document was lawfully public through no breach of an obligation,
+but public availability of Legacy Apache Materials does not make later private
+versions public.
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+7. LEGACY APACHE-2.0 MATERIALS
 
-       https://www.apache.org/licenses/LICENSE-2.0
+This license does not revoke, narrow, or replace rights already granted for
+Legacy Apache Materials. Those exact published versions remain available under
+the Apache License, Version 2.0, according to their public repository history.
+The required Apache-2.0 text is preserved at `LICENSES/Apache-2.0.txt`.
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+No later private version, unpublished change, MIRL extension, HS/1 extension,
+or other Reserved Material becomes Apache-licensed merely because it has the
+same filename, purpose, interface, ancestry, or relationship to a Legacy
+Apache Material. Only an express written license grant by the Project Owner
+can publish a new version under Apache-2.0 or another license.
+
+8. THIRD-PARTY MATERIALS
+
+Third-party software, datasets, models, media, or other components remain
+subject to their own licenses. Legacy Apache Materials incorporated into this
+repository also remain subject to Apache-2.0 for those exact materials. This
+license governs new Reserved Materials and the repository as a private
+collection; it grants no rights in third-party or Legacy Apache Materials and
+does not override their terms.
+
+9. CONTRIBUTIONS
+
+By intentionally submitting a contribution for inclusion in the Private
+Repository, the contributor represents that the contributor has the right to
+submit it and grants the Project Owner a perpetual, worldwide, irrevocable,
+non-exclusive, royalty-free, fully paid-up license to use, reproduce, modify,
+adapt, prepare derivative works of, display, perform, distribute, sublicense,
+relicense, commercially license, and otherwise exploit that contribution as
+part of SEAM, MIRL, or related offerings.
+
+The contributor retains any copyright the contributor owns. A separate signed
+agreement controls if it conflicts with this section.
+
+10. TRADEMARKS AND PATENTS
+
+No trademark, service-mark, trade-name, branding, certification, or patent
+license is granted. The SEAM and MIRL names, logos, protocol identifiers,
+visual identity, and associated branding remain reserved to the extent
+protected by applicable law.
+
+11. TERMINATION
+
+Any permission under this license terminates automatically upon breach. Upon
+termination or revocation of access, the recipient must stop using the
+Reserved Materials and return or securely delete copies under the recipient's
+control, except for copies that applicable law or an authorized written
+retention policy requires.
+
+12. NO WARRANTY
+
+THE RESERVED MATERIALS ARE PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT,
+SECURITY, ACCURACY, AVAILABILITY, OR ERROR-FREE OPERATION.
+
+13. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE PROJECT OWNER AND CONTRIBUTORS WILL
+NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL,
+EXEMPLARY, OR PUNITIVE DAMAGES, LOST PROFITS, LOST REVENUE, LOST DATA, BUSINESS
+INTERRUPTION, OR OTHER LOSS ARISING FROM THE RESERVED MATERIALS, THIS LICENSE,
+OR ANY USE OR INABILITY TO USE THE RESERVED MATERIALS.
+
+14. SEVERABILITY AND NO WAIVER
+
+If a provision is unenforceable, it will be limited to the minimum extent
+necessary and the remaining provisions will continue in effect. A failure to
+enforce a provision is not a waiver. A waiver or additional permission must be
+in writing from the Project Owner.
+
+15. SEPARATE WRITTEN TERMS
+
+Evaluation, research, commercial, hosted, enterprise, integration,
+distribution, standards, or other permissions are available only through a
+separate written agreement from the Project Owner. That agreement controls for
+the scope it expressly covers.

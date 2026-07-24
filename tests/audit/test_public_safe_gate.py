@@ -14,6 +14,8 @@ import pytest
 
 from tools.release.verify_public_safe import ZERO_SHA, scan_blob, scan_push
 
+REPO = Path(__file__).resolve().parents[2]
+
 # --- pure per-blob rules -----------------------------------------------------
 
 @pytest.mark.parametrize(
@@ -42,14 +44,25 @@ def test_denied_paths_block_regardless_of_content(path: str) -> None:
     assert findings[0].severity == "BLOCK"
 
 
-def test_env_example_is_not_blocked() -> None:
+def test_env_example_is_private_after_freeze() -> None:
     findings = scan_blob(".env.example", b"API_KEY=<your-key-here>")
-    assert findings == []
+    assert findings
+    assert any(f.severity == "BLOCK" for f in findings)
 
 
-@pytest.mark.parametrize("path", ["README.md", "seam_runtime/mcp.py"])
-def test_clean_content_has_no_findings(path: str) -> None:
-    assert scan_blob(path, b"nothing sensitive here\n") == []
+@pytest.mark.parametrize(
+    "path",
+    [
+        "README.md",
+        "seam_runtime/mcp.py",
+        "docs/HOLOGRAPHIC_SURFACE.md",
+        "seam_runtime/holographic.py",
+    ],
+)
+def test_private_source_paths_are_blocked_even_when_clean(path: str) -> None:
+    findings = scan_blob(path, b"nothing sensitive here\n")
+    assert findings
+    assert any(f.severity == "BLOCK" for f in findings)
 
 
 def test_aws_key_shape_blocks() -> None:
@@ -58,25 +71,25 @@ def test_aws_key_shape_blocks() -> None:
     # verify_continuity secret scanner would otherwise flag this file).
     # Path is allow-listed so this exercises content detection, not the
     # allow-list check (see test_path_not_on_allow_list_blocks for that).
-    findings = scan_blob("seam_runtime/notes.md", b"key: AKIA" + b"ABCDEFGHIJKLMNOP")
+    findings = scan_blob("HISTORY.md", b"key: AKIA" + b"ABCDEFGHIJKLMNOP")
     assert any(f.severity == "BLOCK" for f in findings)
 
 
 def test_anthropic_key_shape_blocks() -> None:
-    findings = scan_blob("seam_runtime/notes.md", b"sk-ant-" + b"a" * 30)
+    findings = scan_blob("HISTORY.md", b"sk-ant-" + b"a" * 30)
     assert any(f.severity == "BLOCK" for f in findings)
 
 
 def test_private_key_header_blocks() -> None:
     findings = scan_blob(
-        "seam_runtime/notes.txt", b"-----BEGIN RSA " + b"PRIVATE KEY-----\nMIIB...\n"
+        "HISTORY.md", b"-----BEGIN RSA " + b"PRIVATE KEY-----\nMIIB...\n"
     )
     assert any(f.severity == "BLOCK" for f in findings)
 
 
 def test_dsn_with_embedded_credentials_blocks() -> None:
     findings = scan_blob(
-        "seam_runtime/notes.md", b"dsn = postgresql:" + b"//user:hunter2@db.internal:5432/seam"
+        "HISTORY.md", b"dsn = postgresql:" + b"//user:hunter2@db.internal:5432/seam"
     )
     assert any(f.severity == "BLOCK" for f in findings)
 
@@ -86,7 +99,7 @@ def test_dsn_with_placeholder_password_does_not_block() -> None:
     # 'postgres://user:pw@host:5432/seam' as an example connector value.
     # That's not a credential; it must not block every future push.
     findings = scan_blob(
-        "seam_runtime/webui/dashboard.html", b"baseUrl: 'postgres:" + b"//user:pw@host:5432/seam'"
+        "HISTORY.md", b"baseUrl: 'postgres:" + b"//user:pw@host:5432/seam'"
     )
     assert findings == []
 
@@ -101,7 +114,7 @@ def test_claude_share_link_blocks() -> None:
 
 
 def test_generic_password_pattern_warns_but_does_not_block() -> None:
-    findings = scan_blob("seam_runtime/config.py", b'password = "not-a-real-secret"')
+    findings = scan_blob("HISTORY.md", b'password = "not-a-real-secret"')
     assert findings
     assert all(f.severity == "WARN" for f in findings)
 
@@ -123,29 +136,22 @@ def test_generic_password_pattern_warns_but_does_not_block() -> None:
         "some/brand/new/path/nobody/added/yet.md",
     ],
 )
-def test_path_not_on_allow_list_blocks(path: str) -> None:
+def test_private_path_blocks_after_mirror_freeze(path: str) -> None:
     findings = scan_blob(path, b"harmless content")
     assert findings
     assert findings[0].severity == "BLOCK"
-    assert "allow-list" in findings[0].reason
+    assert "frozen legacy mirror" in findings[0].reason
 
 
 @pytest.mark.parametrize(
     "path",
     [
-        "README.md",
-        "seam_runtime/mcp.py",
-        "tests/audit/test_public_safe_gate.py",
-        "docs/MACOS.md",
-        "tools/h2/holdout_split.py",
-        "tools/history/new_entry.py",
-        # public-owned paths (the public repo's own bookkeeping) must also pass
         "HISTORY.md",
         "PROJECT_STATUS.md",
         ".seam/streams/history/log.md",
     ],
 )
-def test_allow_listed_paths_pass(path: str) -> None:
+def test_legacy_public_owned_paths_pass_content_scan(path: str) -> None:
     assert scan_blob(path, b"nothing sensitive here\n") == []
 
 
@@ -153,7 +159,8 @@ def test_binary_extension_skips_content_scan() -> None:
     # A secret-shaped string inside a binary-extension file should not be
     # flagged by content scanning -- only the path rules apply to binaries.
     findings = scan_blob("branding/logo.png", b"AKIA" + b"ABCDEFGHIJKLMNOP")
-    assert findings == []
+    assert findings
+    assert any(f.severity == "BLOCK" for f in findings)
 
 
 # --- scan_push against real throwaway git repos ------------------------------
@@ -187,19 +194,19 @@ def _commit(repo: Path, files: dict[str, str], message: str) -> str:
 
 def test_scan_push_clean_range_passes(throwaway_repo: Path) -> None:
     old_sha = _commit(throwaway_repo, {"README.md": "hello\n"}, "old state")
-    new_sha = _commit(throwaway_repo, {"seam_runtime/notes.md": "more docs\n"}, "new state")
+    new_sha = _commit(throwaway_repo, {"HISTORY.md": "public-owned update\n"}, "new state")
     result = scan_push(old_sha, new_sha, throwaway_repo)
     assert result.ok
 
 
-def test_scan_push_flags_path_outside_allow_list(throwaway_repo: Path) -> None:
+def test_scan_push_flags_private_path(throwaway_repo: Path) -> None:
     old_sha = _commit(throwaway_repo, {"README.md": "hello\n"}, "old state")
     new_sha = _commit(
         throwaway_repo, {"docs/audits/2026-99-99-some-internal-audit.md": "notes\n"}, "new state"
     )
     result = scan_push(old_sha, new_sha, throwaway_repo)
     assert not result.ok
-    assert any("allow-list" in f.reason for f in result.blocking)
+    assert any("frozen legacy mirror" in f.reason for f in result.blocking)
 
 
 def test_scan_push_flags_new_bad_file(throwaway_repo: Path) -> None:
@@ -240,3 +247,30 @@ def test_scan_push_new_branch_scans_full_history(throwaway_repo: Path) -> None:
     result = scan_push(ZERO_SHA, new_sha, throwaway_repo)
     assert not result.ok
     assert any(f.path == ".env" for f in result.blocking)
+
+
+def test_pre_push_hook_refuses_legacy_public_remote() -> None:
+    hook = REPO / "tools" / "git-hooks" / "pre-push"
+    result = subprocess.run(
+        ["bash", str(hook), "seam-runtime", "https://github.com/BlackhatShiftey/Seam_Runtime"],
+        cwd=REPO,
+        input="",
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 1
+    assert "public mirror is frozen" in result.stderr
+
+
+def test_pre_push_hook_allows_private_origin() -> None:
+    hook = REPO / "tools" / "git-hooks" / "pre-push"
+    result = subprocess.run(
+        ["bash", str(hook), "origin", "https://github.com/BlackhatShiftey/Seam"],
+        cwd=REPO,
+        input="",
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0

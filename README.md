@@ -1,7 +1,5 @@
 # SEAM
 
-<!-- mcp-name: io.github.BlackhatShiftey/seam-runtime -->
-
 Give your local AI agent persistent memory in one command.
 
 SEAM is a local memory runtime for agents. It stores durable MIRL records in
@@ -11,21 +9,22 @@ before they are treated as real progress.
 
 ## Install
 
-GitHub package install for the SEAM runtime:
+Authorized private-repository install:
 
 ```bash
-python -m pip install "seam-runtime @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"
+python -m pip install "seam-runtime @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
 ```
 
 Install with REST API and dashboard extras:
 
 ```bash
-python -m pip install "seam-runtime[server,dash] @ git+https://github.com/BlackhatShiftey/Seam_Runtime.git@main"
+python -m pip install "seam-runtime[server,dash] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
 ```
 
-Once release tags exist, replace `@main` with a pinned tag such as `@v0.1.0`.
-The clone-and-installer flows below remain the full operator setup path for
-repo-local development, persistent state setup, and platform shims.
+Repository authorization is required. Once private release tags exist, replace
+`@main` with a pinned tag. The clone-and-installer flows below remain the full
+operator setup path for repo-local development, persistent state setup, and
+platform shims.
 
 ## Python SDK
 
@@ -422,22 +421,50 @@ The design stance is unchanged: SQLite is canonical, derived indexes are
 rebuildable, lossless claims require exact reconstruction, and compressed
 artifacts must remain useful to an agent without hiding provenance.
 
+## Package Releases
+
+The manual **Package release** GitHub Actions workflow builds, checks, and
+smoke-tests versioned wheel and source-distribution artifacts. Its safe default
+is `private-github`, which creates a release in the private
+`BlackhatShiftey/Seam` repository after the `private-package-release`
+environment allows it. Both release environments are restricted to protected
+branches; the current GitHub plan does not provide a configured wait timer or
+reviewer-approval rule.
+
+The workflow also contains a tokenless PyPI Trusted Publishing job for a future
+separately reviewed public client artifact. The current full `seam-runtime`
+package is deliberately marked `Private :: Do Not Upload`, and the distribution
+boundary gate rejects it for the `pypi` target because it contains MIRL and HS/1
+Reserved Materials. Do not remove or bypass that gate to publish the private
+runtime.
+
+The existing `seam-runtime` 1.3.1 release on PyPI and `server.json` describe the
+legacy Apache-2.0 artifact. They remain pinned to that legacy public release.
+Publishing a later PyPI version requires a clean public artifact with its own
+license, package layout, and review; it does not authorize publishing this
+repository.
+
 ## License
 
-SEAM Runtime's public core is licensed under the Apache License 2.0. The public
-core repository is:
+The current SEAM repository and all non-public MIRL- and HS/1-related material
+are proprietary. MIRL's specification text, source code, schemas as expressed,
+documentation, examples, tests, diagrams, and other original works of
+authorship are copyrighted and reserved. HS/1's specification, container
+expression, visual designs, codecs, surface library, source, documentation,
+examples, tests, and related original works are separately named copyrighted
+and reserved materials. Repository access does not grant a right to copy,
+publish, distribute, implement, host, commercialize, train on, or use that
+material in another project.
 
-<https://github.com/BlackhatShiftey/Seam_Runtime>
+Exact versions previously published at
+<https://github.com/BlackhatShiftey/Seam_Runtime> under Apache-2.0 retain that
+license. The legacy grant is not revoked, but it does not apply automatically
+to later private versions, unpublished changes, or new MIRL or HS/1 material.
+The private-to-public mirror is frozen pending a separately designed and
+legally reviewed distribution boundary. The Apache text applicable to legacy
+material is preserved at
+[LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
 
-Apache-2.0 permits use, modification, redistribution, and commercial use of the
-public core under the license terms. It does not grant SEAM trademark or
-branding rights, and it does not grant access to private repositories, hosted
-services, enterprise modules, private connectors, private benchmark holdouts,
-customer-specific integrations, or unreleased methods.
-
-Separate commercial offerings may cover hosted SEAM services, enterprise
-connectors, managed deployments, support, warranty, indemnity, private modules,
-or customer-specific implementation work.
-
-See [LICENSE](LICENSE), [NOTICE](NOTICE), and
-[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
+The controlling terms are [LICENSE](LICENSE), [NOTICE](NOTICE), and
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md). Any external permission
+requires a separate written agreement from the project owner.
