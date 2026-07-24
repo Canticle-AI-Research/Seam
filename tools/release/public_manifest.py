@@ -75,6 +75,21 @@ def is_hs1_reserved_path(path: str) -> bool:
     return path in HS1_RESERVED_FILES
 
 
+# -- Thin public client (seam-runtime >= 2.3.0 on PyPI) -------------------
+# The public PyPI package ships only seam.py + seam_runtime/__init__.py
+# with NO MIRL/HS/1 imports.  These paths overlap with the reserved set
+# (seam.py is MIRL_RESERVED, seam_runtime/ is a reserved prefix), so the
+# distribution-boundary verifier performs a *content-level* check on files
+# at these paths rather than blocking on the path alone.  See
+# ``verify_distribution_boundary._is_thin_client_file()``.
+PUBLIC_CLIENT_SAFE_PATHS: frozenset[str] = frozenset(
+    {
+        "seam_runtime/__init__.py",
+        "seam.py",
+    }
+)
+
+
 def is_reserved_material_path(path: str) -> bool:
     """Return whether ``path`` is an explicit MIRL or HS/1 reserved surface."""
     return is_mirl_reserved_path(path) or is_hs1_reserved_path(path)

@@ -9,7 +9,52 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
-from tools.release.public_manifest import is_reserved_material_path
+from tools.release.public_manifest import (
+    PUBLIC_CLIENT_SAFE_PATHS,
+    is_reserved_material_path,
+)
+
+# Imports that indicate a file contains MIRL/HS/1 reserved material.
+# The thin public client files must NOT import from these.
+_MIRL_HS1_IMPORT_MARKERS: tuple[bytes, ...] = (
+    b"from .mirl import",
+    b"from .runtime import",
+    b"from .sdk import",
+    b"from .holographic import",
+    b"from .lossless import",
+    b"from .pack import",
+    b"from .storage import",
+    b"from .vector import",
+    b"from .graph",
+    b"from .retrieval import",
+    b"from .reconcile import",
+    b"from .surface_adapters import",
+    b"from .knowledge_graph import",
+    b"from .reasoning_graph import",
+    b"from seam_runtime.mirl",
+    b"from seam_runtime.runtime",
+    b"from seam_runtime.holographic",
+    b"from seam_runtime.lossless",
+    b"from seam_runtime.pack",
+    b"from seam_runtime.storage",
+    b"from seam_runtime.sdk",
+    b"from seam_runtime.retrieval",
+    b"from seam_runtime.vector",
+    b"from seam_runtime.cli",
+    b"from seam_runtime.dashboard",
+    b"from seam_runtime.server",
+    b"from seam_runtime.surface_adapters",
+    b"from seam_runtime.knowledge_graph",
+    b"from seam_runtime.reasoning_graph",
+)
+
+
+def _is_thin_client_file(entry_path: str, content: bytes) -> bool:
+    """Return True if a path in PUBLIC_CLIENT_SAFE_PATHS has safe content."""
+    if entry_path not in PUBLIC_CLIENT_SAFE_PATHS:
+        return False
+    # Check that the file does NOT import any MIRL/HS/1 internals.
+    return not any(marker in content for marker in _MIRL_HS1_IMPORT_MARKERS)
 
 PRIVATE_LICENSE_MARKER = b"SEAM PRIVATE REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE"
 PRIVATE_CLASSIFIER = b"Classifier: Private :: Do Not Upload"
@@ -92,7 +137,13 @@ def verify_archive(path: Path, *, target: str) -> tuple[str, ...]:
     if target != "pypi":
         raise ValueError(f"unsupported target: {target}")
 
-    reserved = sorted({entry.path for entry in entries if is_reserved_material_path(entry.path)})
+    reserved = sorted(
+        {
+            entry.path
+            for entry in entries
+            if is_reserved_material_path(entry.path) and not _is_thin_client_file(entry.path, entry.content)
+        }
+    )
     if reserved:
         preview = ", ".join(reserved[:8])
         suffix = "" if len(reserved) <= 8 else f", and {len(reserved) - 8} more"

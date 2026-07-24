@@ -50,22 +50,37 @@ jobs:
           print(f"version={version}", file=open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"))
           PY
 
-      - name: Build distributions
+      - name: Build distributions (private)
+        if: inputs.target == 'private-github'
         run: |
           python -m pip install --upgrade build twine
           python -m build --wheel --sdist
           python -m twine check dist/*
+
+      - name: Build distributions (public PyPI)
+        if: inputs.target == 'pypi'
+        run: |
+          python -m pip install --upgrade build twine
+          python tools/release/build_public.py
 
       - name: Enforce private/public distribution boundary
         env:
           RELEASE_TARGET: ${{ inputs.target }}
         run: python -m tools.release.verify_distribution_boundary --target "$RELEASE_TARGET" dist/*
 
-      - name: Smoke-test wheel
+      - name: Smoke-test wheel (private)
+        if: inputs.target == 'private-github'
         run: |
           python -m pip install dist/*.whl
           seam --help
           seam-mcp --help
+
+      - name: Smoke-test wheel (public PyPI)
+        if: inputs.target == 'pypi'
+        run: |
+          python -m pip install dist/*.whl
+          seam status
+          python -c "import seam_runtime; assert not seam_runtime.has_full_runtime(), 'public package must not ship full runtime'; print('OK — thin public package')"
 
       - name: Upload reviewed distributions
         uses: actions/upload-artifact@v4
