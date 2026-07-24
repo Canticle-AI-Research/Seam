@@ -9,12 +9,11 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:F:backlog:scoring-weights` — since 2026-05-25 via history:243 — topics: retrieval, benchmark
 - `roadmap:track:H2` — since 2026-05-25 via history:243 — topics: protocol, history, plan
 
-## in-progress (5)
+## in-progress (4)
 
 - `roadmap:track:A-CLI` — since 2026-05-07 via history:137 — topics: command, chat, dashboard
 - `roadmap:track:A-Web` — since 2026-05-10 via history:163 — topics: dashboard, webui, command
 - `roadmap:track:E1` — since 2026-04-30 via history:121 — topics: pgvector, vector, docker
-- `roadmap:track:N` — since 2026-07-24 via history:467 — topics: packaging, release, distribution
 - `roadmap:track:R` — since 2026-07-22 via history:454 — topics: graph, memory, retrieval, benchmark, comparator, provenance
 
 ## planned (35)
@@ -60,7 +59,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:H3` — since 2026-05-15 via history:165 — topics: protocol, retrieval, search
 - `roadmap:track:H4` — since 2026-05-15 via history:165 — topics: protocol, retrieval, search, vector
 
-## done (16)
+## done (17)
 
 - `roadmap:track:A0` — since 2026-04-21 via history:063 — topics: dashboard, tui, textual
 - `roadmap:track:A1` — since 2026-04-25 via history:068 — topics: dashboard, animation, mirl
@@ -78,3 +77,4 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:G4` — since 2026-05-06 via history:117 — topics: surface, benchmark, fixture
 - `roadmap:track:H1` — since 2026-05-15 via history:170 — topics: protocol, history, plan, roadmap
 - `roadmap:track:I` — since 2026-05-17 via history:189 — topics: benchmark, retrieval, comparator
+- `roadmap:track:N` — since 2026-07-24 via history:470 — topics: packaging, release, distribution

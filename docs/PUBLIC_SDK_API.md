@@ -4,6 +4,14 @@ The public SDK talks to a deliberately small, opaque `/v1` API. This document
 is the private runtime-side contract. The public implementation and examples
 live in `BlackhatShiftey/Seam_Runtime/sdk`.
 
+Install the released public client with:
+
+```bash
+python -m pip install seam-client
+```
+
+PyPI project: <https://pypi.org/project/seam-client/>
+
 ## Boundary
 
 The public API exposes:

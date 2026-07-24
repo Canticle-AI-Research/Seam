@@ -4,13 +4,13 @@ total_events: 61
 latest_id: 61
 source: streams/roadmap/log.md
 schema: seam-stream-index/v1
-content_hash: 428db833ec4aceb14be3cf2c20f89e809033c8905cc9068fd37f8711d8f6c847
+content_hash: dff367bdb1601180fc65ab9ec2f2889628333b7a57b9f85a24e0782d3f5db445
 
 ## entries (newest first)
 
 | id | date | kind | item | event | hash | supersedes | topics |
 |---|---|---|---|---|---|---|---|
-| 061 | 2026-07-24T00:00:00Z | status-change | roadmap:track:N | bootstrap | ad80b0d378104714 | none | packaging, release, distribution |
+| 061 | 2026-07-24T00:00:00Z | status-change | roadmap:track:N | bootstrap | f52ecd5e6ac764ae | none | packaging, release, distribution |
 | 060 | 2026-07-22T00:00:00Z | status-change | roadmap:track:R | bootstrap | fff8adfb32e27bea | none | graph, memory, retrieval, benchmark, ... |
 | 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | 05870b8bf2548360 | none | android, mobile, small-models, memory... |
 | 058 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | 38066b3b840cc75f | none | agent, openclaw, namespaces, profiles... |

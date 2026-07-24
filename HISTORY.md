@@ -11735,3 +11735,50 @@ VERIFICATION:
   blocked from PyPI. First `seam-client` publication requires both repository
   reviews/merges and the one-time PyPI Trusted Publisher registration.
 ---END-ENTRY-#469---
+
+---BEGIN-ENTRY-#470---
+id: 470
+date: 2026-07-24T15:52:53Z
+agent: codex
+status: done
+topics: agent, ci, pyproject, verify, handoff, status
+commits: pending
+refs: docs/PUBLIC_SDK_API.md,docs/handoffs/2026-07-24-seam-client-0-1-0-live.md,README.md,ROADMAP.md
+supersedes: 469
+tokens: 320
+---
+Released the independently authored Apache-2.0 `seam-client` 0.1.0 package on
+PyPI after completing the proprietary/public split.
+
+MERGED STATE:
+
+- Private licensing PR #163 and opaque public-API PR #164 are merged on
+  private `main`.
+- Public SDK PR #1 is merged on `BlackhatShiftey/Seam_Runtime/main`.
+- Private post-merge run 30095773474 passed the complete test-and-benchmark
+  matrix, repo hygiene, package smoke, Chroma smoke, live pgvector, and LoCoMo
+  BIL-2.
+- Public PR and post-merge `main` SDK CI passed Python 3.10, Python 3.12, and
+  the wheel/sdist distribution-boundary job.
+
+PUBLICATION:
+
+- Public workflow run 30107050434 passed exact-version verification, clean
+  wheel/sdist build, `twine check`, the artifact allow-list, artifact transfer,
+  PyPI Trusted Publishing/OIDC upload, and digital attestations.
+- The workflow deployed through the public protected `pypi` GitHub
+  environment. No stored PyPI upload token was created or used.
+- Live PyPI metadata reports project `seam-client`, version `0.1.0`, license
+  expression `Apache-2.0`, one universal wheel, and one sdist.
+- A fresh isolated network install of `seam-client==0.1.0` succeeded and
+  imported `SeamClient`, `AsyncSeamClient`, `AgentMemory`, and
+  `AsyncAgentMemory`.
+
+BOUNDARY:
+
+This release contains only the separate public client. Private
+`seam-runtime` 2.3.0 remains proprietary, `Private :: Do Not Upload`, and
+blocked by the PyPI archive-content gate. MIRL, HS/1, PACK, private storage,
+graph/provenance, ranking, and benchmark internals were not published. Hosted
+endpoint access remains separately provisioned.
+---END-ENTRY-#470---

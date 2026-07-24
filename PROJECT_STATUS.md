@@ -1,5 +1,7 @@
 # SEAM Project Status
 
+Current update: 2026-07-24 (HISTORY#470 - RELEASED the separately authored Apache-2.0 `seam-client` 0.1.0 SDK on PyPI after merging the licensing boundary PR #163, opaque private API PR #164, and public SDK PR #1. Public workflow run 30107050434 passed exact-version verification, wheel/sdist build, `twine check`, the artifact allow-list, protected-environment deployment, PyPI Trusted Publishing/OIDC upload, and digital attestations without a stored token. Live PyPI metadata reports only the public `seam-client` wheel/sdist and Apache-2.0; a clean isolated network install imported all four SDK entry points. Private `seam-runtime` 2.3.0 remains proprietary and blocked from PyPI; hosted endpoint access remains separately provisioned.)
+
 Current update: 2026-07-24 (HISTORY#469 - BUILT the split public agent SDK
 boundary without reopening the private mirror. The private runtime adds an
 opaque authenticated `/v1` surface for health, remember, recall, and

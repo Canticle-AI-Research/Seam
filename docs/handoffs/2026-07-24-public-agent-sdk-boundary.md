@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-24-public-agent-sdk-boundary
 supersedes: 2026-07-24-mirl-hs1-proprietary-boundary
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#469
 ---
 

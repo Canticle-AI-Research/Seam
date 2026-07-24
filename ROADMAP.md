@@ -1571,19 +1571,19 @@ high recall; that may be an answerer failure, not a retrieval failure.
 
 <!-- seam:item
 id: roadmap:track:N
-status: in-progress
+status: done
 status-since: 2026-07-24
-status-by: history:467
+status-by: history:470
 supersedes: none
 topics: packaging, release, distribution
 priority: 3
 phase: 1
 -->
 
-**Status:** In progress. Private release plumbing and the public-distribution
-fail-closed gate are implemented. A separately authored `seam-client` 0.1.0
-SDK and opaque `/v1` agent-memory API are implemented on review branches;
-publication and hosted availability remain pending.
+**Status:** Done for the current release boundary. Private release plumbing
+and fail-closed gates are implemented; the opaque `/v1` API is merged; and the
+separately authored Apache-2.0 `seam-client` 0.1.0 SDK is live on PyPI.
+Hosted availability remains a separate product activation decision.
 
 **Distribution target:** private authenticated distribution from
 `BlackhatShiftey/Seam`. The legacy public `BlackhatShiftey/Seam_Runtime`
@@ -1617,11 +1617,11 @@ Phase work:
    opaque `/v1` memory endpoints; wheel/sdist allow-list gates reject private
    runtime paths and markers. The private MIRL/HS/1-bearing artifacts remain
    blocked from PyPI.
-5. Before the first `seam-client` upload, merge both boundary PRs, configure
-   the public repository's PyPI Trusted Publisher for `sdk-publish.yml` and
-   environment `pypi`, verify the protected-branch deployment rule, then run
-   the manual workflow for the exact reviewed version. Hosted access is a
-   separate activation gate.
+5. Done: merged private PRs #163/#164 and public PR #1, configured the public
+   repository's protected `pypi` environment and pending Trusted Publisher,
+   then published exact version 0.1.0 from reviewed public `main`. Workflow
+   30107050434 and a fresh PyPI install passed. Hosted access is a separate
+   activation gate.
 
 ---
 
