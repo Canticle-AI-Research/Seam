@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-07-24
+Last updated: 2026-07-27
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -75,6 +75,18 @@ and `HISTORY_INDEX.md`.
   existing bearer-token guard. Public namespaces are mapped under an
   SDK-only prefix with optional hashed session partitions, and responses use
   opaque receipts/IDs plus user-facing text rather than private record shapes.
+- The proprietary compiled self-host edition is a controlled Linux/amd64
+  distribution of the private engine behind that exact opaque `/v1` boundary.
+  Its build tool is local-only and has no push mode; release requires explicit
+  operator approval. The image contains a compiled runtime and an entitlement
+  public key, never the signing private key, customer entitlement, API token,
+  or database. A signed entitlement must be time-bounded. Standard compilation,
+  a distroless/read-only/non-root container, encrypted storage, and registry
+  controls reduce accidental leakage and casual inspection but do not protect
+  code or unlocked data from a malicious customer host administrator.
+  Host-resistant confidentiality requires a separately qualified confidential
+  VM/container tier with attestation and remote key release; ordinary OCI layer
+  encryption must not be marketed as equivalent.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - `seam-runtime` 2.3.0 is a private distribution and must retain the

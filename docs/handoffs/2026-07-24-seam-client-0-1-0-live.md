@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-24-seam-client-0-1-0-live
 supersedes: 2026-07-24-public-agent-sdk-boundary
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#470
 ---
 

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 470
-total_tokens: ~213457
-latest_id: 470
+total_entries: 471
+total_tokens: ~214562
+latest_id: 471
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 471 | 2026-07-27 | done | d5f50357d276103c | docker,mirl,security,bundle,+ | 470 |
 | 470 | 2026-07-24 | done | 31703e92e798eed8 | agent,ci,pyproject,verify,+ | 469 |
 | 469 | 2026-07-24 | done | 3b2e4a9a76588edd | agent,surface,pyproject,security,+ | 468 |
 | 468 | 2026-07-24 | done | e8590966f3bf6bb1 | ci,security,pyproject,verify,+ | 467 |
@@ -488,7 +489,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=9 latest=#470, #469, #466, #462, #461
+- agent: count=10 latest=#471, #470, #469, #466, #462
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -511,7 +512,7 @@ compact: true
 - bug: count=1 latest=#303
 - bugfix: count=34 latest=#464, #460, #447, #444, #442
 - build: count=2 latest=#413, #408
-- bundle: count=5 latest=#262, #245, #238, #015, #008
+- bundle: count=6 latest=#471, #262, #245, #238, #015
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - candidate: count=1 latest=#456
@@ -567,7 +568,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - disk-space: count=1 latest=#363
 - dns-rebinding: count=1 latest=#300
-- docker: count=3 latest=#149, #085, #084
+- docker: count=4 latest=#471, #149, #085, #084
 - docs: count=51 latest=#469, #467, #461, #437, #418
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
@@ -601,7 +602,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=52 latest=#470, #469, #468, #467, #466
+- handoff: count=53 latest=#471, #470, #469, #468, #467
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -646,7 +647,7 @@ compact: true
 - memory: count=26 latest=#466, #465, #463, #462, #461
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
-- mirl: count=32 latest=#467, #435, #313, #311, #309
+- mirl: count=33 latest=#471, #467, #435, #313, #311
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
 - models: count=3 latest=#450, #403, #182
@@ -732,7 +733,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=56 latest=#469, #468, #467, #430, #404
+- security: count=57 latest=#471, #469, #468, #467, #430
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - server: count=5 latest=#457, #300, #288, #286, #285
@@ -773,7 +774,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=307 latest=#470, #468, #467, #466, #465
+- verify: count=308 latest=#471, #470, #468, #467, #466
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -788,6 +789,6 @@ compact: true
 
 - roots: 76
 - changed: 14
-- done: 429
+- done: 430
 - in-progress: 6
 - planned: 21

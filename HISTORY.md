@@ -11782,3 +11782,101 @@ blocked by the PyPI archive-content gate. MIRL, HS/1, PACK, private storage,
 graph/provenance, ranking, and benchmark internals were not published. Hosted
 endpoint access remains separately provisioned.
 ---END-ENTRY-#470---
+
+---BEGIN-ENTRY-#471---
+id: 471
+date: 2026-07-27T17:21:39Z
+agent: codex
+status: done
+topics: docker, mirl, security, bundle, agent, verify, handoff
+commits: pending
+refs: seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/Dockerfile,selfhost/compose.yaml,tools/release/build_selfhost.py,tools/release/issue_selfhost_entitlement.py,tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.py,docs/SELF_HOST_SECURITY.md,docs/handoffs/2026-07-27-proprietary-compiled-selfhost-v1.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 470
+tokens: 1105
+---
+Built and verified the first proprietary compiled self-host MIRL edition for
+Linux/amd64 without disturbing existing work or publishing an artifact.
+
+RECONCILIATION:
+
+- Documents `origin/main` at
+  `0006698ead19b024da903b66be33285b2669daeb` was the canonical base.
+- The original Documents checkout remains dirty on
+  `fix/public-shim-2.3.1`; none of its shim/package changes were edited,
+  staged, or incorporated.
+- The T7 checkout was fetched and found stale: local `main` was 169 commits
+  behind the same `origin/main`, while `feat/dashboard-functional` was one
+  commit behind its tracking branch. It was not used as an implementation
+  base.
+- Implementation was isolated in a clean worktree on
+  `feat/proprietary-selfhost-v1`.
+
+STANDARD EDITION:
+
+- Added an exact four-route self-host app over the existing opaque public API.
+  It exposes health, remember, recall, and context only; it does not register
+  docs/OpenAPI, dashboard, stats, graph, storage, benchmark, operator, MIRL,
+  PACK, or HS/1 routes.
+- Added strict Ed25519 offline entitlements with an image-baked public key,
+  exact schema/product/feature checks, bounded identifiers and validity
+  window, mandatory expiry, exclusive issuer output, and ongoing expiry
+  enforcement. Stateful calls require a bearer token from a secret file.
+- Added a pinned Nuitka 4.1.3 and BuildKit Linux/amd64 build into a pinned
+  distroless base. The final profile is non-root uid 65532, read-only,
+  loopback-only, capability-free, no-new-privileges, and persists only its
+  mounted SQLite data volume.
+- Added a local-only no-push build tool, hardened Compose/operator template,
+  threat model and confidential-tier boundary, and a Docker/OCI archive
+  scanner for source/private-doc paths, secrets, runtime tools, platform and
+  config drift, and required runtime libraries.
+
+REAL ARTIFACT VERIFICATION:
+
+- Final local image ID:
+  `sha256:e1cce54cdde63046c54320fc2b7c043afb850df26e08008ec5d141bef6cef6a2`;
+  size: 60,202,804 bytes.
+- Exported archive SHA-256:
+  `2130245186f12089cd5ec65baacc4845f1a4ec6ba2b6560380c21e5da98c1dc0`;
+  `verify_selfhost_artifact` passed.
+- Real boot testing found missing `libz.so.1` and then `libgcc_s.so.1` in the
+  first minimal-base attempts. Both are now explicit required image paths.
+  The final flattened filesystem resolved all 16 unique ELF dependencies.
+- The final executable had zero defined symbol lines and no embedded
+  `SEAM_SPEC_V0.1` or `MIRL_V1.md` filename. One `mirl.py`, one `selfhost.py`,
+  and six generic `/src/` strings remain; the threat model explicitly treats
+  module names and constants as customer-discoverable.
+- Installed public `seam-client` 0.1.0 passed health, remember, recall, and
+  context against the real container. Non-public routes returned 404,
+  unauthenticated stateful writes returned 401, and recalled state persisted
+  across restart. Container inspection confirmed loopback-only mapping, uid
+  65532, read-only root, all capabilities dropped, and no-new-privileges.
+
+TESTS AND BOUNDARY:
+
+- `pytest tests/audit -m "not external"` collected and passed all 1,313
+  selected tests with 23 external tests deselected and zero skips/failures.
+- The focused self-host/public/distribution/package slice passed 30 tests.
+  After adding the explicit Linux/amd64 platform gate, its final focused slice
+  passed 13 tests. Touched-file Ruff, collect-only, artifact verification,
+  secret/session-URL filename scan, and `git diff --check` passed. The only
+  secret-pattern filename hit was the intentional synthetic private-key
+  fixture in `test_selfhost_edition.py`.
+- No private image, package, key, entitlement, API token, database, or other
+  proprietary artifact was pushed or published. No provider or paid-model
+  call occurred.
+
+PROTECTION CLAIM:
+
+The standard edition raises casual reverse-engineering cost and reduces
+accidental source, secret, registry, and at-rest leakage. It does not protect
+the executable, process memory, system calls, entitlement enforcement, or
+unlocked data from a malicious administrator controlling the customer host.
+A host-resistant tier requires separately qualified confidential compute,
+attestation, and remote key release; ordinary OCI encryption is not equivalent.
+
+NEXT: obtain operator and legal/commercial approval before any distribution.
+Only then build from the reviewed commit, generate SBOM/provenance, repeat the
+archive and SDK gates, sign the immutable digest, and grant per-customer
+private-registry access. Qualify Linux/arm64 separately. Design the
+confidential-computing tier as a distinct product/security claim.
+---END-ENTRY-#471---
