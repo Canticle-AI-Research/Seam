@@ -46,7 +46,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install package
-        run: python -m pip install -e ".[server,sbert,rerank]"
+        run: python -m pip install -e ".[server,sbert,rerank,selfhost]"
 
       - name: Install test dependencies
         # httpx is required by starlette.testclient (the server tests use TestClient);

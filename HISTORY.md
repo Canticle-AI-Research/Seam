@@ -11880,3 +11880,51 @@ archive and SDK gates, sign the immutable digest, and grant per-customer
 private-registry access. Qualify Linux/arm64 separately. Design the
 confidential-computing tier as a distinct product/security claim.
 ---END-ENTRY-#471---
+
+---BEGIN-ENTRY-#472---
+id: 472
+date: 2026-07-27T20:02:02Z
+agent: codex
+status: done
+topics: ci, bugfix, test, verify, history
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,PR#169
+supersedes: 471
+tokens: 374
+---
+Fixed PR #169's advisory `test-and-benchmark` collection failure without
+touching runtime behavior or publishing any artifact.
+
+ROOT CAUSE:
+
+- GitHub Actions run 30289205681 reached the full non-external test command
+  after the required smoke jobs passed, then collection stopped because
+  `tests/audit/test_selfhost_edition.py` imports `cryptography` while the job
+  installed only the server, SBERT, and rerank extras.
+- The self-host feature already declares `cryptography>=45,<50` in the
+  `selfhost` optional dependency group, so the workflow was missing the
+  feature extra rather than a package declaration.
+
+FIX:
+
+- The advisory CI package-install step now installs
+  `.[server,sbert,rerank,selfhost]`, reusing the existing self-host dependency
+  contract instead of duplicating a cryptography version pin in workflow YAML.
+- The GitHub PR-gate audit now requires the self-host extra in that install
+  command so the dependency cannot silently regress.
+
+VERIFICATION:
+
+- The affected CI, workflow-scope, package-metadata, and self-host audit slice
+  passed 36 tests.
+- The focused two-file collection found 14 tests and the run passed all 14.
+- Ruff passed for the touched Python test; workflow YAML parsed; a metadata
+  assertion confirmed that the installed self-host extra carries the
+  cryptography dependency; `git diff --check` passed.
+- Canonical integrity, routing, handoff, continuity, stream, index, and
+  snapshot closeout gates passed before commit.
+
+The original dirty `fix/public-shim-2.3.1` checkout remained untouched. No
+image, archive, package, entitlement, key, token, database, provider call, or
+publication occurred. Remote PR verification remains the next gate.
+---END-ENTRY-#472---
