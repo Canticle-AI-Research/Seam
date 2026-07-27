@@ -460,8 +460,25 @@ repository.
 
 ## License
 
-The current SEAM repository and all non-public MIRL- and HS/1-related material
-are proprietary. MIRL's specification text, source code, schemas as expressed,
+**Self-hosting SEAM is free.** The SEAM Distributed Runtime, version 2.4.0 or
+later, is published under the Business Source License 1.1
+([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt)). You may run it on your own
+hardware or on infrastructure you rent, for your own or your organization's
+purposes — including internal commercial production use — at no charge, with no
+limit on scale or number of users. Non-commercial research, education, and
+publishing benchmark or evaluation results are permitted too.
+
+The one thing the grant withholds is offering the Distributed Runtime to third
+parties on a hosted or embedded basis as a *competitive offering*: a paid
+product or service that significantly overlaps with a paid version of SEAM.
+Free offerings are never competitive, and neither is internal use across
+affiliates under common control. Each published version converts to MPL 2.0
+four years after it is published.
+
+Everything below concerns material outside the Distributed Runtime.
+
+The rest of the SEAM repository and all non-public MIRL- and HS/1-related
+material are proprietary. MIRL's specification text, source code, schemas as expressed,
 documentation, examples, tests, diagrams, and other original works of
 authorship are copyrighted and reserved. HS/1's specification, container
 expression, visual designs, codecs, surface library, source, documentation,

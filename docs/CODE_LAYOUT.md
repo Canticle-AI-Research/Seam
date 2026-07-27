@@ -32,6 +32,11 @@ not have to infer what works from directory names alone.
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
 - `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
+- `LICENSES/BUSL-1.1.txt` - controlling text and filled parameters for the SEAM
+  Distributed Runtime, published under Business Source License 1.1 by Section 7A
+  of `LICENSE`. Change Date is four years per published version; Change License
+  is MPL 2.0. Membership in the Distributed Runtime is decided by publication
+  plus a conspicuous per-file notice, never by path.
 - `tools/release/` - frozen legacy-public boundary: `public_manifest.py`
   classifies MIRL and HS/1 Reserved Materials and exposes no private synced paths,
   `sync_public_mirror.py` refuses legacy mirror construction, retired

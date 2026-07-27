@@ -31,6 +31,34 @@ controls, confidentiality, reserved trademarks, and any separately applicable
 patent or contract rights alongside copyright. Policy documents must not claim
 that copyright alone creates a monopoly over an abstract memory architecture.
 
+## Distributed Runtime boundary (BUSL-1.1)
+
+Effective 2026-07-27, `LICENSE` v2.1 §7A publishes a defined subset of this
+repository — the Distributed Runtime, version 2.4.0 or later — under the
+Business Source License 1.1. Parameters are in `LICENSES/BUSL-1.1.txt`:
+Change Date four years per version, Change License MPL 2.0.
+
+The boundary is defined by *publication*, not by path. A file version is part
+of the Distributed Runtime only if the Project Owner published it in the
+Distributed Runtime source distribution and it carries a conspicuous BUSL
+notice. Sharing a filename, purpose, interface, or ancestry with a published
+file does not place an unpublished version under BUSL. The published
+distribution's manifest is the authoritative list.
+
+Consequences for the controls below:
+
+- The Distributed Runtime is the *only* material that leaves the private
+  repository under a use grant. MIRL and HS/1 specification text, private
+  benchmarks and holdouts, research, history, and release tooling remain
+  Reserved Materials and stay blocked.
+- `verify_distribution_boundary.py` and `public_manifest.py` still treat
+  `seam_runtime/` as a reserved prefix. They gate the *thin API-only*
+  `seam-runtime` PyPI artifact and must keep doing so. The Distributed Runtime
+  publishes under a separate package name with its own manifest and its own
+  BUSL-aware scanner; it does not reuse the thin-shim allow-list.
+- Publishing a version under BUSL waives nothing in unpublished versions and
+  creates no obligation to publish any future version.
+
 ## Legacy Apache boundary
 
 The public repository at

@@ -3,6 +3,32 @@
 The private SEAM repository and all non-public MIRL- and HS/1-related material
 are proprietary. The controlling terms are in [LICENSE](LICENSE).
 
+## The Distributed Runtime is free to self-host
+
+One defined subset is an exception to everything below: the SEAM Distributed
+Runtime, version 2.4.0 or later, is published under the Business Source License
+1.1 ([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt), granted by Section 7A of
+[LICENSE](LICENSE)).
+
+**You do not need a commercial license to run SEAM yourself.** The Additional
+Use Grant permits production use on your own hardware or on infrastructure you
+rent, for your own or your organization's purposes, including internal
+commercial use, with no limit on scale or number of users and no charge. It
+also permits non-commercial research, education, and publishing benchmark or
+evaluation results.
+
+**You do need one** to offer the Distributed Runtime to third parties on a
+hosted or embedded basis as a competitive offering — that is, a paid product or
+service that significantly overlaps with a paid version of SEAM. Free offerings
+are not competitive. Internal organizational use, including across affiliates
+under common control, is never competitive.
+
+Each published version converts to MPL 2.0 four years after it is published.
+Conversion applies per version and never converts unpublished material.
+
+Everything in the rest of this document concerns material *outside* the
+Distributed Runtime.
+
 ## No permission from repository access
 
 Access to this repository does not authorize evaluation, copying,
@@ -21,6 +47,11 @@ container format and visual expression, surface compiler, pixel
 encoding/decoding, hashing, verification, repair, storage, query, SDK and
 integration surfaces, and tests or benchmarks that expose the non-public
 implementation.
+
+## Contact
+
+Licensing enquiries, including commercial licenses for use outside the BUSL-1.1
+Additional Use Grant: **licensing@canticle.cc**.
 
 ## Separate written agreements
 

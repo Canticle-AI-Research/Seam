@@ -364,8 +364,9 @@ came from.
 
 ### P4.2 — Paid support tier
 
-Open source core. Paid tier for: priority support, custom MIRL type definitions, deployment
-consulting, SLA on consolidation engine performance.
+Source-available core under BUSL-1.1 (free to self-host, converts to MPL-2.0
+after four years). Paid tier for: priority support, custom MIRL type
+definitions, deployment consulting, SLA on consolidation engine performance.
 
 ### P4.3 — Hosted consolidation service
 

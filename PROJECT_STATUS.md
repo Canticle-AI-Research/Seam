@@ -1,5 +1,37 @@
 # SEAM Project Status
 
+Current update: 2026-07-27 (HISTORY#471 - RELICENSED the SEAM Distributed
+Runtime under the Business Source License 1.1 and reconciled every live
+licensing claim in the repository. Origin: operator asked how to keep MIRL
+private while allowing free self-hosting. Investigation established that
+containerizing MIRL cannot protect it (containers are not obfuscation, and
+`mirl` is imported by 29 of ~50 runtime modules with no seam to cut along), and
+that a live PyPI check plus sdist extraction proved `seam-runtime` 1.3.1 —
+still the default `pip install` — ships all 57 runtime modules including
+`mirl.py`, `lossless.py`, `pack.py`, `symbols.py`, and `holographic.py` under
+an irrevocable Apache-2.0 grant. The repository also contradicted itself:
+`LICENSE` v2.0 was fully proprietary with no self-host path while the pricing
+docs promised an Apache-2.0 open-source core. Operator chose BUSL-1.1 over
+FSL-1.1 for control: non-production-only default grant, up to four years
+exclusivity, author-tunable carve-out, and an MPL-2.0 landing whose weak
+copyleft keeps a leash after conversion. Operator was told BUSL caps at four
+years and accepted it; the per-version Change Date keeps current code
+proprietary indefinitely while releases continue. Added
+`LICENSES/BUSL-1.1.txt` with filled parameters and an Additional Use Grant that
+expressly protects self-hosting and benchmark publication. Amended `LICENSE` to
+v2.1 by carve-out, not rewrite, so the MIRL/HS-1 proprietary boundary is
+untouched; Distributed Runtime membership requires publication AND a
+conspicuous per-file notice, never a matching path. Twelve further docs
+reconciled. Full suite green with zero skips after bringing the missing
+`seam-pgvector` container up against its surviving volume; all licensing and
+boundary gates pass. OPEN: boundary rework before any BUSL publish
+(`public_manifest.py` and `verify_distribution_boundary.py` still classify all
+of `seam_runtime/` as reserved and will block the runtime), per-file BUSL
+notices pending the published manifest, the `licensing@canticle.cc` Zoho alias
+must be created before publish, and legal review is advisable given the
+existing 1.3.1 Apache grant. Operator confirmed returning the `seam-runtime`
+name to the real runtime at 2.4.0 and retiring the thin shim.)
+
 Current update: 2026-07-24 (HISTORY#470 - RELEASED the separately authored Apache-2.0 `seam-client` 0.1.0 SDK on PyPI after merging the licensing boundary PR #163, opaque private API PR #164, and public SDK PR #1. Public workflow run 30107050434 passed exact-version verification, wheel/sdist build, `twine check`, the artifact allow-list, protected-environment deployment, PyPI Trusted Publishing/OIDC upload, and digital attestations without a stored token. Live PyPI metadata reports only the public `seam-client` wheel/sdist and Apache-2.0; a clean isolated network install imported all four SDK entry points. Private `seam-runtime` 2.3.0 remains proprietary and blocked from PyPI; hosted endpoint access remains separately provisioned.)
 
 Current update: 2026-07-24 (HISTORY#469 - BUILT the split public agent SDK

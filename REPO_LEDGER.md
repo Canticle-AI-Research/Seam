@@ -51,6 +51,18 @@ and `HISTORY_INDEX.md`.
   specification, container expression, visual designs, codecs, surface
   library, source, docs, tests, and related implementation material are
   separately named copyrighted Reserved Materials under the same terms.
+- The SEAM Distributed Runtime, version 2.4.0 or later, is published under the
+  Business Source License 1.1 as of 2026-07-27 (`LICENSE` v2.1 §7A, parameters
+  in `LICENSES/BUSL-1.1.txt`). Change Date is four years per published version;
+  Change License is MPL 2.0. The Additional Use Grant permits free self-hosting
+  at any scale, including internal commercial production use, plus
+  non-commercial research, education, and publication of benchmark results; it
+  withholds offering the runtime to third parties on a hosted or embedded basis
+  as a paid competitive offering. Membership in the Distributed Runtime is
+  decided by publication plus a conspicuous per-file BUSL notice, never by path
+  — a shared filename, purpose, interface, or ancestry grants nothing.
+  Publishing one version waives nothing in unpublished versions and creates no
+  obligation to publish any future version.
 - `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that

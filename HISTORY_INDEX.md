@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 470
-total_tokens: ~213457
-latest_id: 470
+total_entries: 471
+total_tokens: ~215239
+latest_id: 471
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 471 | 2026-07-27 | changed | 31c63e4c912cfe74 | licensing,busl,distribution,docs | none |
 | 470 | 2026-07-24 | done | 31703e92e798eed8 | agent,ci,pyproject,verify,+ | 469 |
 | 469 | 2026-07-24 | done | 3b2e4a9a76588edd | agent,surface,pyproject,security,+ | 468 |
 | 468 | 2026-07-24 | done | e8590966f3bf6bb1 | ci,security,pyproject,verify,+ | 467 |
@@ -512,6 +513,7 @@ compact: true
 - bugfix: count=34 latest=#464, #460, #447, #444, #442
 - build: count=2 latest=#413, #408
 - bundle: count=5 latest=#262, #245, #238, #015, #008
+- busl: count=1 latest=#471
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - candidate: count=1 latest=#456
@@ -566,9 +568,10 @@ compact: true
 - diagnostic: count=2 latest=#365, #362
 - diff: count=4 latest=#153, #093, #092, #037
 - disk-space: count=1 latest=#363
+- distribution: count=1 latest=#471
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=51 latest=#469, #467, #461, #437, #418
+- docs: count=52 latest=#471, #469, #467, #461, #437
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -625,6 +628,7 @@ compact: true
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
+- licensing: count=1 latest=#471
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - live-verification: count=1 latest=#368
@@ -786,8 +790,8 @@ compact: true
 
 ## status rollup
 
-- roots: 76
-- changed: 14
+- roots: 77
+- changed: 15
 - done: 429
 - in-progress: 6
 - planned: 21
