@@ -11928,3 +11928,46 @@ The original dirty `fix/public-shim-2.3.1` checkout remained untouched. No
 image, archive, package, entitlement, key, token, database, provider call, or
 publication occurred. Remote PR verification remains the next gate.
 ---END-ENTRY-#472---
+
+---BEGIN-ENTRY-#473---
+id: 473
+date: 2026-07-27T20:12:57Z
+agent: codex
+status: done
+topics: ci, bugfix, test, verify, history
+commits: pending
+refs: tests/audit/test_selfhost_edition.py,PR#169,run#30300943888
+supersedes: 472
+tokens: 307
+---
+Fixed PR #169's remaining advisory `test-and-benchmark` failure without
+changing runtime behavior or publishing any artifact.
+
+ROOT CAUSE:
+
+- GitHub Actions run 30300943888 installed the self-host dependency group and
+  executed the full non-external suite, reaching 100 percent with 1,828
+  passing tests before failing one new self-host assertion.
+- `test_build_command_is_local_only_and_uses_public_key` assumed the repository
+  checkout directory would end in `Seam-selfhost`. GitHub Actions correctly
+  checks the branch out under its standard `Seam/Seam` path, so the assertion
+  tested a local worktree name rather than the build command's repository-root
+  contract.
+
+FIX:
+
+- The assertion now resolves the build-context path and compares it exactly to
+  the repository root derived from the test file. This preserves the intended
+  check while remaining independent of worktree and CI checkout names.
+
+VERIFICATION:
+
+- The repaired regression plus the GitHub PR-gate audit passed 7 tests.
+- Ruff passed for the touched test and `git diff --check` passed.
+- Canonical integrity, routing, handoff, continuity, stream, index, and
+  snapshot closeout gates passed before commit.
+
+The original dirty `fix/public-shim-2.3.1` checkout remained untouched. No
+image, archive, package, entitlement, key, token, database, provider call, or
+publication occurred. Remote PR verification remains the next gate.
+---END-ENTRY-#473---

@@ -193,10 +193,10 @@ def test_build_command_is_local_only_and_uses_public_key(tmp_path: Path) -> None
     assert "--load" in command
     assert "--push" not in command
     assert command[command.index("--platform") + 1] == "linux/amd64"
-    assert command[-1].endswith("Seam-selfhost")
+    project_root = Path(__file__).resolve().parents[2]
+    assert Path(command[-1]).resolve() == project_root
     assert any(item.startswith("SEAM_ENTITLEMENT_PUBLIC_KEY_B64=") for item in command)
 
-    project_root = Path(__file__).parents[2]
     dockerfile = (project_root / "selfhost" / "Dockerfile").read_text(encoding="utf-8")
     compose = (project_root / "selfhost" / "compose.yaml").read_text(encoding="utf-8")
     dockerignore = (project_root / ".dockerignore").read_text(encoding="utf-8")
