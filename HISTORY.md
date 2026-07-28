@@ -12539,137 +12539,78 @@ decision flagged in that SOP.
 
 ---BEGIN-ENTRY-#481---
 id: 481
-date: 2026-07-28T16:10:48Z
-agent: codex
-status: done
-topics: bundle, pyproject, security, verify, test, handoff, docker
-commits: 02fe888
-refs: node_pkg/pyproject.toml,node_pkg/README.md,tools/release/build_node_wheel.py,tools/release/verify_node_wheel.py,tests/audit/test_node_wheel.py,docs/SELF_HOST_SECURITY.md,docs/handoffs/2026-07-28-seam-node-wheel.md
-supersedes: 479
-tokens: 1061
----
-BUILT the additional BUSL `seam-node` 2.4.0 wheel channel and proved it from
-native compilation through the real opaque API without publishing anything.
-
-The mandatory feasibility spike ran first. Nuitka 4.1.3 module mode compiled
-the whole `seam_runtime` package into one extension; an otherwise empty probe
-directory received only that `.so`, and imports of `seam_runtime`,
-`seam_runtime.mirl`, `seam_runtime.selfhost`, and `seam_runtime.runtime`
-succeeded. This authorized the wheel pipeline rather than selecting an
-unapproved fallback.
-
-`node_pkg/` now defines the distinct `seam-node` distribution at the BUSL
-2.4.0 floor with a node-specific README, only runtime dependencies, and a
-`seam-node` console entry point. The root `seam-runtime` project remains
-private and retains `Private :: Do Not Upload`.
-
-`tools.release.build_node_wheel` builds in digest-pinned Docker images, stages
-an explicit allow-list of runtime source, compiles only CPython 3.12, carries
-the standalone image's 18 load-bearing `--nofollow-import-to` exclusions,
-force-includes `public_api`, and retains the `conversation`,
-`event_count_context`, `tokenization`, and `retrieval_orchestrator` lazy-import
-families needed by remember/recall. `auditwheel --only-plat` emits exactly
-`manylinux_2_28_x86_64`; `twine check`, the node gate, and a clean-container
-runtime proof must pass before the artifact is copied to the requested empty
-output directory. The builder has no upload mode and emits no sdist.
-
-The real wheel measured 3,486,260 bytes with one 9,690,160-byte compiled
-extension and SHA-256
-`915d90d7cc00e11f33996e7ee494b861ceaa778a98795ea1ab74c66174313eca`.
-It contains no `seam_runtime` `.py`, `.pyc`, or `.pyo`, carries the BUSL-1.1
-text and metadata, and passes a wheel-specific content ratchet pinned to the
-measured 413 reserved-identifier occurrences: MIRL 133, MIRLRecord 120,
-IRBatch 63, TraceGraph 11, compile_nl 10, holographic 10, surface_adapter 5,
-HS/1 15, SEAM-RC 13, SEAM-LX 4, knowledge_graph 17, reasoning_graph 12. This is
-four below the image baseline; no image or wheel budget was raised. The gate
-scans contents rather than paths, exempts only the governing license text, and
-rejects nested `.data/purelib/seam_runtime` source as well as direct source,
-missing/incorrect BUSL state, absent compiled code, secret-shaped content, and
-budget increases.
-
-The clean pinned Python 3.12 container installed only the wheel and its
-declared dependencies, with no repository checkout on the path. Health
-returned 200 and `edition=compiled-self-host`; an unauthenticated write
-returned 401; remember returned 200; recall returned the stored memory; context
-returned prompt-ready text. Serialized responses contained zero `raw:`,
-`clm:`, or `mirl` markers, and server logs contained zero
-`ModuleNotFoundError`.
-
-Verification on the implementation head: focused release/security slice
-35/35; touched Ruff, compileall, real-wheel gate, collection, and diff checks
-pass. The strict full `tests/` suite collected 1,475 and completed with 1,473
-passed, two established xfails, zero skips, and zero failures using the
-already-running live pgvector service. An earlier full attempt had 23
-authentication failures because the documented default password did not match
-that operator container; retrieving its configured test credential without
-printing or persisting it made the 30-test live slice and the full rerun green.
-CodeRabbit CLI 0.7.1 was authenticated but its free-plan review was
-rate-limited for 47 minutes; no paid overage was enabled. Local boundary review
-found and fixed the nested wheel-data source bypass before the final suite.
-
-The branch was reconciled onto `origin/main` at
-`a21eded3b9d5a528b210ba8d347037db5ff14378`, preserving the G3 historical-path
-and rank-fusion work recorded in HISTORY#478 and HISTORY#479. Final
-post-reconciliation verification and PR checks run on the resulting merge
-head.
-
-OPEN PRODUCT DECISION: the wheel preserves the vendor-signed Ed25519
-entitlement requirement. That conflicts with the intended free self-host tier.
-Making entitlement optional requires operator direction and is not smuggled
-into this packaging branch; retain the signed path for a future paid/supported
-tier if a free path is added.
-
-Nothing was uploaded to PyPI, a container registry, GitHub Releases, or a
-package workflow. No provider or paid-model call occurred.
----END-ENTRY-#481---
-
----BEGIN-ENTRY-#482---
-id: 482
-date: 2026-07-28T16:19:06Z
-agent: codex
+date: 2026-07-28T16:32:58Z
+agent: claude
 status: changed
-topics: bundle, security, verify, test, handoff, history, continuity
-commits: 02fe888
-refs: tools/release/verify_node_wheel.py,tests/audit/test_node_wheel.py,docs/handoffs/2026-07-28-seam-node-wheel.md,PROJECT_STATUS.md
-supersedes: 481
-tokens: 541
+topics: roadmap, selfhost, packaging, mcp
+commits: pending
+refs: ROADMAP.md
+supersedes: 480
+tokens: 976
 ---
-Corrected and finalized the `seam-node` wheel chain after reconciling the branch
-onto the current `origin/main`.
+Recorded the self-host capability surface as a tracked roadmap item instead of
+leaving it an undocumented side effect of a leak-reduction decision.
 
-HISTORY#481 records the implementation but was appended while a concurrent
-main closeout had just allocated HISTORY#480. Its `supersedes: 479` and the
-temporary handoff/status references to HISTORY#480 therefore did not express
-the final linear precedence. This append-only correction supersedes
-HISTORY#481; the wheel handoff and project status now point to HISTORY#482.
-HISTORY#480 remains the authoritative post-G3 compiled-image ratchet entry.
+HISTORY#477 narrowed the Nuitka build with 18 `--nofollow-import-to` exclusions,
+cutting reserved-identifier exposure 525 -> 417 and the binary 81.4 MB -> 76.5 MB.
+That was correct for protecting MIRL and HS/1, but it also removed every
+agent-facing surface, and nothing in the repository recorded that as a decision
+with consequences. As shipped, a self-hoster gets four `/v1` routes and nothing
+else: no CLI, no MCP, no dashboard, no importable API. For a runtime whose main
+integration path is MCP, that is a materially thinner product than "SEAM,
+self-hosted", and the gap was only visible by reading a build flag.
 
-The merged G3 source triggered the wheel gate exactly once:
-`knowledge_graph` measured 18 against the pre-G3 budget of 17. The new string
-is the same attributable `seam_runtime.knowledge_graph` module path audited in
-HISTORY#480, introduced because the retrieval orchestrator imports that
-module. The node budget therefore moves only `knowledge_graph` 17 -> 18 and
-total 413 -> 414; every other marker remains unchanged. The rule remains a
-ratchet and no unexplained budget widening occurred.
+Added `ROADMAP.md` Track N2, "Self-host capability surface", after Track N:
+- States the governing trade explicitly: every module added back raises the
+  compiled surface and therefore the identifier count, so each step is measured
+  against the ratchet and justified in HISTORY with the actual strings
+  introduced, per the discipline set at HISTORY#480. Never raise a budget to make
+  a build pass.
+- Phase 1, MCP, is in flight as an amendment to PR #174. Restores `mcp`,
+  `mcp_protocol`, `doctor`, and `pgvector_bootstrap` and exposes the existing
+  `seam-mcp` entry point. Measured cost is four modules on top of the 41 the
+  self-host already compiles. Verified this session that all four import only
+  stdlib and already-compiled internal modules, so no new runtime dependency is
+  required. This is the step that makes the wheel a distinct product rather than
+  a repackaged container, because MCP stdio suits a pip-installed console command
+  and is awkward through `docker run`.
+- Phase 2, CLI, is flagged as the largest expected identifier cost of the
+  remaining set: CLI help text is long-lived string data, and the unnarrowed
+  build's design-description leaks such as `Compile source text to MIRL and write
+  a SEAM-HS/1 surface` came from exactly that class of module.
+- Phase 3, dashboard and TUI, is flagged as the largest surface for the least
+  protection benefit.
+- Phase 4, skills and self-improvement, is explicitly a product decision that
+  interacts with what the paid hosted tier offers exclusively, not a packaging
+  one.
+- Phase 5 records that the three benchmark modules stay out permanently: they are
+  evaluation infrastructure with no self-host use and they name reserved
+  evaluation methodology.
+- Carries forward the entitlement conflict as blocking: `selfhost.py` refuses to
+  start without a vendor-signed Ed25519 entitlement, which is incompatible with a
+  free self-host and must be resolved before any public ship. If it becomes
+  optional, the verification path is kept intact for a future paid or supported
+  tier rather than deleted.
 
-The final post-G3 wheel is
-`seam_node-2.4.0-cp312-cp312-manylinux_2_28_x86_64.whl`, 3,531,719 bytes, with
-one 9,813,104-byte compiled extension and SHA-256
-`6eba58c8417229e8160eaeebd7b3ce8d17148cbac0908c3fd54896cd3a21bc2f`.
-It passes `twine check`, the node source/license/secret/content gate, and the
-clean-container runtime proof. Health returned 200; unauthenticated write
-returned 401; authenticated remember, recall, and context returned 200;
-serialized responses contained no `raw:`, `clm:`, or `mirl` marker; logs
-contained no `ModuleNotFoundError`.
+Also reviewed Codex's PR #174 (draft, seam-node wheel) against the two failure
+modes flagged when the SOP was handed off. Both are clear: all four lazily
+imported modules (`conversation`, `event_count_context`, `tokenization`,
+`retrieval_orchestrator`) are retained rather than excluded, and `public_api` is
+force-included, so the wheel will not build clean and then raise
+`ModuleNotFoundError` on the first remember or recall. Codex proved it by
+exercising remember and recall in a clean container rather than inferring from a
+successful build, and independently found and fixed a nested
+`.data/purelib/seam_runtime` path that would have smuggled Python source past the
+source gate. The wheel carries its own measured budget (413) rather than reusing
+the image's 418, and preserves the entitlement rather than silently making it
+optional. MCP remains excluded there pending the amendment above.
 
-Post-reconciliation verification is green: the focused
-node/distribution/self-host audit slice passed 35 tests; touched-file Ruff and
-compileall pass; the strict full `tests/` suite against the live pgvector
-service collected 1,485 and completed with 1,483 passed, two established
-xfails, zero skips, and zero failures.
+Verification: `ROADMAP.md` only, no code touched, so the full suite was not
+re-run; it passed earlier this session at HISTORY#480 with zero skips.
+`tools.streams.roadmap_parser` reparsed 62 items, `rebuild_index --stream roadmap`
+and `rebuild_cross_index` refreshed the derived views (542 events), and
+`verify_streams` reports OK.
 
-The mandatory vendor-signed Ed25519 entitlement remains unchanged and still
-conflicts with the intended free self-host tier. That is an explicit product
-decision outside this packaging branch. Nothing was uploaded to PyPI, a
-container registry, GitHub Releases, or a package workflow.
----END-ENTRY-#482---
+UNRESOLVED: Track N2 phases 2-5 are unscoped beyond direction. The entitlement
+decision still blocks the free self-host. Nothing published.
+---END-ENTRY-#481---
