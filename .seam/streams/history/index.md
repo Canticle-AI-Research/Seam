@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 480
-total_tokens: ~222731
-latest_id: 480
+total_entries: 481
+total_tokens: ~223707
+latest_id: 481
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 481 | 2026-07-28 | changed | 89070f001754941e | roadmap,selfhost,packaging,mcp | 480 |
 | 480 | 2026-07-28 | changed | 14d762d781d17918 | selfhost,security,verify,graph,+ | 479 |
 | 479 | 2026-07-28 | done | 450b261eddc981f1 | graph,retrieval,rank,provenance,+ | 478 |
 | 478 | 2026-07-28 | done | e836d773f07f3dff | graph,retrieval,provenance,history,+ | 477 |
@@ -653,7 +654,7 @@ compact: true
 - macos: count=4 latest=#354, #353, #352, #337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
-- mcp: count=20 latest=#460, #457, #350, #348, #347
+- mcp: count=21 latest=#481, #460, #457, #350, #348
 - measurement: count=2 latest=#459, #369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
@@ -679,7 +680,7 @@ compact: true
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=11 latest=#460, #450, #448, #446, #445
-- packaging: count=4 latest=#296, #293, #287, #284
+- packaging: count=5 latest=#481, #296, #293, #287, #284
 - paid: count=2 latest=#412, #365
 - paid-run: count=5 latest=#434, #429, #427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
@@ -735,7 +736,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=3 latest=#466, #336, #182
 - review: count=1 latest=#388
-- roadmap: count=59 latest=#454, #418, #415, #414, #407
+- roadmap: count=60 latest=#481, #454, #418, #415, #414
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -749,7 +750,7 @@ compact: true
 - security: count=59 latest=#480, #477, #471, #469, #468
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
-- selfhost: count=2 latest=#480, #477
+- selfhost: count=3 latest=#481, #480, #477
 - server: count=5 latest=#457, #300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
@@ -802,7 +803,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 19
+- changed: 20
 - done: 434
 - in-progress: 6
 - planned: 21
