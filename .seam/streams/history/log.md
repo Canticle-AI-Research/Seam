@@ -11995,3 +11995,128 @@ applied. Operator has confirmed the split shape: a node distribution under BUSL
 and a client distribution under Apache-2.0, using the two already-owned PyPI
 names.
 ---END-ENTRY-#472---
+
+---BEGIN-ENTRY-#473---
+id: 473
+date: 2026-07-28T03:13:45Z
+agent: claude
+status: changed
+topics: release, licensing, distribution-boundary, ci
+commits: pending
+refs: public_pkg/pyproject.toml,public_pkg/README.md,public_pkg/seam.py,public_pkg/seam_runtime/__init__.py,tools/release/build_public.py,tools/release/verify_distribution_boundary.py,.github/workflows/package-release.yml,tests/audit/test_public_runtime_shim.py,tests/audit/test_distribution_boundary.py,tests/audit/test_github_package_metadata.py
+supersedes: 472
+tokens: 1715
+---
+Rebuilt the public `seam-runtime` distribution as a fail-closed, API-only
+compatibility package and made it actually buildable and publishable, which
+clears the shippability half of the blocker carried in HISTORY#471 and #472.
+
+The previous public shim claimed to be thin but was not. `public_pkg/seam_runtime/__init__.py`
+carried a `try: __import__("seam_runtime.mirl")` / `runtime` / `sdk` block whose
+only purpose was to light up the private local runtime when it happened to be
+importable, and the comment in the file said outright that `__import__` was used
+to dodge the reserved-material content scanner. That is a distribution boundary
+defeated on purpose by the file it was meant to constrain. It also declared its
+own `SeamError` / `ConnectionError` classes that were not the `seam_client`
+types they shadowed, so `except seam_runtime.ConnectionError` could not catch a
+real client connection failure.
+
+Changes to `public_pkg/seam_runtime/__init__.py`:
+- Deleted the dynamic private-runtime import block entirely. The package now
+  imports its whole surface from `seam_client` at module top level, so the
+  re-exported exception and result types are identical objects to the client's
+  (`seam_runtime.ConnectionError is seam_client.ConnectionError`).
+- `has_full_runtime()` is now an unconditional `False` and `has_client()` an
+  unconditional `True`; both were previously computed from whether a private
+  import had succeeded.
+- Set `__path__ = []` and installed a `_SubmoduleBlocker` meta-path finder that
+  raises `ModuleNotFoundError` for any `seam_runtime.*` submodule. This is the
+  fail-closed part: if a legacy or manual install leaves a private module on
+  disk under this package, it is unreachable through the public name rather than
+  silently importable.
+
+Changes to `public_pkg/seam.py`:
+- `cmd_status` and `cmd_health` printed `h.version`, which the `/v1` health
+  response does not carry; they now print `h.api_version`.
+
+Changes to `tools/release/verify_distribution_boundary.py`:
+- Replaced the 29-entry hardcoded list of private import strings with a
+  `_PRIVATE_MODULE_REFERENCE` regex on `seam_runtime.<module>` plus explicit
+  `__import__(` / `import_module(` dynamic-import markers. The old list matched
+  import *syntax* only, which is exactly why the `__import__("seam_runtime.mirl")`
+  call in the shipped shim passed it.
+- Added a rule that a public artifact whose METADATA says `Name: seam-runtime`
+  may not contain any `.py` file outside `PUBLIC_CLIENT_SAFE_PATHS`, so an
+  unexpected module is caught even if its contents look clean.
+
+Changes to `tools/release/build_public.py`:
+- The build no longer templates `pyproject.toml` from a string constant inside
+  the script; it copies a real, reviewable `public_pkg/pyproject.toml`.
+- It copies an explicit four-entry `PUBLIC_FILES` allow-list instead of
+  `iterdir()` over `public_pkg/`, so a new file dropped into that directory is
+  not automatically shipped.
+- It builds in a `TemporaryDirectory` rather than `build/public_release`, takes
+  `--outdir`, refuses a non-empty output directory instead of writing into it,
+  and no longer copies the repo root `README.md` (which is the private product
+  README) into the public package.
+- Added a `twine check` of the built artifacts as part of the build.
+
+New `public_pkg/pyproject.toml` and `public_pkg/README.md`:
+- Metadata is now honest about what the package is: description "API-only
+  compatibility client for the SEAM agent-memory service", Development Status
+  Alpha rather than Production/Stable, a single `seam-client>=0.1.0,<0.2`
+  dependency (the old inline template also pulled `rich` and `tiktoken`, which
+  the shim does not use, and offered a `server` extra installing FastAPI and
+  uvicorn for a server it cannot run), and `requires-python >=3.10`.
+- The README states plainly that the package does not contain or start the local
+  runtime and that every command needs a separately provisioned `/v1` endpoint,
+  and points new integrations at `seam-client` directly.
+
+Changes to `.github/workflows/package-release.yml`:
+- The version gate reads `public_pkg/pyproject.toml` for the `pypi` target and
+  the private `pyproject.toml` otherwise; it previously validated the private
+  version and then published the public artifact.
+- The pypi leg builds and verifies out of `public-dist/` instead of `dist/`, so
+  the boundary check can no longer pass by inspecting stale private artifacts
+  left in `dist/` from an earlier local build.
+- The public smoke test asserted `hasattr(seam_runtime, 'SeamClient') or True`,
+  which is `True` unconditionally and tested nothing. It now asserts the
+  re-exported types are the `seam_client` objects and that `has_full_runtime()`
+  is `False`.
+- Pinned `packages-dir: dist/` on the publish step and split the artifact upload
+  per target.
+
+New `tests/audit/test_public_runtime_shim.py` (8 tests) covers the re-export
+identity, both CLI health paths, the metadata contract, the `PUBLIC_FILES`
+allow-list, and that `build_public` refuses a non-empty outdir without deleting
+the operator's file. The stale-submodule test runs in a subprocess with `-I`
+against a real on-disk `seam_runtime/mirl.py` and asserts it is not importable.
+`tests/audit/test_distribution_boundary.py` gains 4 tests, two of which
+(`test_public_pypi_rejects_dynamic_private_runtime_import` and
+`test_public_pypi_rejects_private_module_string_without_import_syntax`) fail
+against the old verifier and are the regression pins for the bypass.
+
+Verification: full suite green with zero skips and only the 2 pre-existing
+xfails, after bringing up the `seam-pgvector` container and exporting
+`PGVECTOR_TEST_DSN` (dbname=seam user=seam host=localhost port=55432) for the 4
+tests that had been skipping without it. Beyond the suite, the pipeline was
+exercised for real, not just unit-tested: `python tools/release/build_public.py
+--outdir <tmp>` produced `seam_runtime-2.3.1-py3-none-any.whl` and the matching
+sdist, `twine check` PASSED on both, and
+`python -m tools.release.verify_distribution_boundary --target pypi` returned
+PASS on both artifacts. The public distribution is now buildable and boundary-
+approved, which was not true at HISTORY#472.
+
+UNRESOLVED, narrowed from HISTORY#472: this entry fixes the public client
+distribution only. The BUSL node distribution is still not shippable and nothing
+here changes that. `public_manifest.py` still lists `seam_runtime/` in
+`MIRL_RESERVED_DIR_PREFIXES` with only the two `PUBLIC_CLIENT_SAFE_PATHS`
+carved out, so a node artifact containing real runtime modules is still rejected
+for the pypi target by design; a BUSL-aware manifest and scanner are still
+needed and must not reuse the thin-shim allow-list. The private `pyproject.toml`
+still carries the proprietary license expression and the `Private :: Do Not
+Upload` classifier at 2.3.1 and declares no BUSL or author metadata, per-file
+BUSL notices are still unapplied, and `LICENSES/BUSL-1.1.txt` still points at a
+placeholder `COMMERCIAL_LICENSE.md` with no real licensing contact address.
+Nothing in this entry has been published; PyPI upload remains operator-gated.
+---END-ENTRY-#473---

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 472
-total_tokens: ~216338
-latest_id: 472
+total_entries: 473
+total_tokens: ~218053
+latest_id: 473
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 473 | 2026-07-28 | changed | c1a6a185448a93ab | release,licensing,distribution-boundary,ci | 472 |
 | 472 | 2026-07-28 | changed | 115027a5e85ca96d | pricing,docs,licensing | none |
 | 471 | 2026-07-27 | changed | 31c63e4c912cfe74 | licensing,busl,distribution,docs | none |
 | 470 | 2026-07-24 | done | 31703e92e798eed8 | agent,ci,pyproject,verify,+ | 469 |
@@ -523,7 +524,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=30 latest=#470, #468, #467, #450, #447
+- ci: count=31 latest=#473, #470, #468, #467, #450
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -570,6 +571,7 @@ compact: true
 - diff: count=4 latest=#153, #093, #092, #037
 - disk-space: count=1 latest=#363
 - distribution: count=1 latest=#471
+- distribution-boundary: count=1 latest=#473
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
 - docs: count=53 latest=#472, #471, #469, #467, #461
@@ -629,7 +631,7 @@ compact: true
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
-- licensing: count=2 latest=#472, #471
+- licensing: count=3 latest=#473, #472, #471
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - live-verification: count=1 latest=#368
@@ -716,7 +718,7 @@ compact: true
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
 - registry: count=5 latest=#409, #350, #348, #347, #178
-- release: count=3 latest=#356, #355, #350
+- release: count=4 latest=#473, #356, #355, #350
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - resolution: count=5 latest=#459, #458, #457, #456, #455
@@ -792,7 +794,7 @@ compact: true
 ## status rollup
 
 - roots: 78
-- changed: 16
+- changed: 17
 - done: 429
 - in-progress: 6
 - planned: 21
