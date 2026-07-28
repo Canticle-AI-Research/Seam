@@ -38,7 +38,7 @@ def _clean_files() -> dict[str, bytes]:
             (
                 b"Metadata-Version: 2.4",
                 b"Name: seam-self-host",
-                b"Version: 1.0.0",
+                b"Version: 1.1.0",
                 b"License-Expression: BUSL-1.1",
             )
         ),
@@ -50,7 +50,7 @@ def test_selfhost_metadata_is_separate_busl_package() -> None:
         (REPO / "selfhost_pkg" / "pyproject.toml").read_text(encoding="utf-8")
     )["project"]
     assert project["name"] == "seam-self-host"
-    assert project["version"] == "1.0.0"
+    assert project["version"] == "1.1.0"
     assert project["license"] == "BUSL-1.1"
     assert project["license-files"] == ["LICENSES/BUSL-1.1.txt"]
     assert project["requires-python"] == "==3.12.*"
@@ -105,7 +105,7 @@ def test_selfhost_gate_accepts_clean_compiled_busl_wheel(tmp_path: Path) -> None
         "seam_runtime/mirl.py",
         "seam_runtime/mirl.pyc",
         "seam_runtime/mirl.pyo",
-        "seam_self_host-1.0.0.data/purelib/seam_runtime/mirl.py",
+        "seam_self_host-1.1.0.data/purelib/seam_runtime/mirl.py",
         "seam_runtime.py",
     ),
 )
@@ -123,7 +123,7 @@ def test_selfhost_gate_requires_busl_text_and_metadata(tmp_path: Path) -> None:
     files = _clean_files()
     del files["seam_self_host-1.0.0.dist-info/licenses/LICENSES/BUSL-1.1.txt"]
     files["seam_self_host-1.0.0.dist-info/METADATA"] = b"\n".join(
-        (b"Name: seam-self-host", b"Version: 1.0.0", b"License-Expression: MIT")
+        (b"Name: seam-self-host", b"Version: 1.1.0", b"License-Expression: MIT")
     )
     wheel = _wheel(tmp_path / "missing-busl.whl", files)
     errors = verify_selfhost_wheel(wheel, budget={})

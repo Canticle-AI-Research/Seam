@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seam-self-host"
-version = "1.0.0"
+version = "1.1.0"
 description = "Compiled self-hosted SEAM agent-memory node"
 readme = "README.md"
 license = "BUSL-1.1"
@@ -24,6 +24,7 @@ dependencies = [
     "uvicorn[standard]>=0.23,<1.0",
     "python-multipart>=0.0.6,<1.0",
     "cryptography>=45,<50",
+    "psycopg[binary]>=3.1,<4",
 ]
 
 [project.urls]

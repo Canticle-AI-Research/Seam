@@ -141,7 +141,7 @@ import tomllib
 from pathlib import Path
 
 project = tomllib.loads(Path("/src/selfhost_pkg/pyproject.toml").read_text(encoding="utf-8"))["project"]
-dist_info = Path("/wheel-root/seam_self_host-1.0.0.dist-info")
+dist_info = Path("/wheel-root/seam_self_host-1.1.0.dist-info")
 dist_info.mkdir(parents=True)
 metadata = email.message.Message()
 metadata["Metadata-Version"] = "2.4"

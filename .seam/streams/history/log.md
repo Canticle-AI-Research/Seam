@@ -12939,3 +12939,83 @@ UNRESOLVED: the compiled Docker image is still unpushed and needs SBOM,
 provenance, and digest signing before any registry release. The hosted `/v1`
 endpoint is still undeployed, which is the remaining half of the paid tier.
 ---END-ENTRY-#485---
+
+---BEGIN-ENTRY-#486---
+id: 486
+date: 2026-07-28T23:51:04Z
+agent: claude
+status: changed
+topics: selfhost, pgvector, embeddings, docs, packaging, release, verify
+commits: pending
+refs: seam_runtime/selfhost.py,selfhost_pkg/pyproject.toml,selfhost_pkg/README.md,tools/release/build_selfhost_wheel.py,tools/release/verify_selfhost_wheel.py,tests/audit/test_selfhost_edition.py
+supersedes: 485
+tokens: 1017
+---
+SHIPPED `seam-self-host` 1.1.0: pgvector support baked into the wheel, a
+startup-validated configuration, and a complete environment-variable reference
+in the README that PyPI serves.
+
+Postgres now works instead of failing. `PgVectorAdapter` was already compiled
+into the wheel, but `psycopg` was not a dependency, so a node with
+`SEAM_PGVECTOR_DSN` set built clean, started clean, and then returned 500 on the
+first write with `psycopg is required for PgVectorAdapter`. Found by driving the
+PUBLISHED 1.0.0 artifact end to end rather than trusting the build proof, which
+passes because the build container has no DSN set. Added
+`psycopg[binary]>=3.1,<4` to the distribution. The ratchet did not move: psycopg
+is a pip dependency, not compiled SEAM code, so exposure stays at 414 of 414
+with every marker at budget.
+
+New `_validate_vector_backend` and `_configure_embedding_provider` run before the
+app is constructed, so a misconfigured node fails at startup with an actionable
+message instead of per-request 500s. Both log what they resolved, giving the
+operator a three-line startup summary of entitlement, embeddings, and vector
+backend.
+
+The embedding default was changed and then changed back, deliberately. It was
+briefly set to `openai` on the reasoning that recall quality is the product.
+Operator decision reversed it: SEAM is local-first, so the built-in embedder
+stays the default and a fresh `pip install` runs with no third-party account, no
+key, and no per-request cost. Choosing an external API is opt-in and is now
+refused at startup when its key is absent. Note there is no provider literally
+named `seam`; the built-in one registers as `hash`/`local`/`deterministic` and
+resolves to `HashEmbeddingModel`.
+
+Both changes are scoped to the self-host entrypoint, never the library default.
+`derived_fact_context` requires `SEAM_EMBEDDING_PROVIDER` in
+{hash, local, deterministic} and requires `SEAM_PGVECTOR_DSN` unset, so a
+library-wide flip would have broken the grounded-clm/1 benchmark contract from
+HISTORY#435. The benchmark path is untouched.
+
+`selfhost_pkg/README.md` gained a full configuration reference, extracted from
+the compiled module set rather than written from memory: retrieval quality
+(profile presets `compact` 100/8000 and `broad` 300/60000, top-k, context
+budget), embeddings, retrieval ranking, context/answer policies, storage,
+extraction with the Ollama family, server, and entitlement. A coverage check
+confirms 64 of 78 names documented individually with the remaining
+`SEAM_JSPACE_*` family named as a group, so nothing is silently omitted. A
+closing section lists variables present in the binary but unreachable from this
+edition, and states explicitly that the three `SEAM_API_ALLOW_*` names cannot
+weaken the `/v1` bearer-token requirement because this edition never starts the
+REST server that reads them. That paragraph exists because those strings are
+discoverable in the binary and would otherwise read as a security hole.
+
+Also fixed the build's runtime proof, which the startup validation would have
+broken: it starts the server with no key, so the temporary `openai` default made
+it fail. The proof now exercises the real shipped default rather than an
+override.
+
+Verification: wheel
+`seam_self_host-1.1.0-cp312-cp312-manylinux_2_28_x86_64.whl`, 3,583,540 bytes,
+sha256 `e2a79b31c28832cbabcb0fbc2d4fda4d...`. Gate PASS, ratchet 414/414, no
+`seam_runtime` `.py`, and the README confirmed present in the shipped METADATA.
+Clean-container proof: `/v1` health 200, unauthenticated 401, remember/recall/
+context 200, no `raw:`/`clm:`/`mirl`, `MCP initialize -> 2025-06-18`,
+`tools/list -> tools=3` scanning 0 reserved identifiers, and the unentitled BUSL
+line. Full suite green with zero skips and the two established `compile_nl`
+xfails. Five new tests cover the built-in default, opt-in with and without a key,
+and both pgvector branches.
+
+UNRESOLVED: the compiled Docker image is still unpushed and needs SBOM,
+provenance, and digest signing. The hosted `/v1` endpoint is still undeployed.
+Neither is blocked by anything in this entry.
+---END-ENTRY-#486---

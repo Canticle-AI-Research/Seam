@@ -132,11 +132,65 @@ def create_selfhost_app_from_env() -> Any:
         default_file=Path("/run/secrets/api_token"),
     )
     db_path = Path(os.environ.get("SEAM_SERVER_DB", str(DEFAULT_DB_PATH)))
+    _configure_embedding_provider()
+    _validate_vector_backend()
     return create_selfhost_app(
         SeamRuntime(db_path),
         entitlement,
         api_token=api_token,
     )
+
+
+def _configure_embedding_provider() -> None:
+    """Keep SEAM's own embedder as the default, and fail fast on a keyless API.
+
+    SEAM is local-first: the built-in embedder needs no network, no third-party
+    account, and no per-request cost, so a self-hoster who installs the wheel gets
+    a node that runs on its own. Sending every memory to an external embedding API
+    is an opt-in, not something a free self-host should do by default.
+
+    An operator who does opt in is checked here rather than on the first
+    ``remember``, because a 500 per request is a much worse way to learn a key is
+    missing.
+    """
+    provider = os.environ.setdefault("SEAM_EMBEDDING_PROVIDER", "hash")
+    if provider.strip().lower() not in {"openai", "openai-compatible"}:
+        print(f"[seam-selfhost] embeddings: {provider} (built-in)", flush=True)
+        return
+    api_key_env = os.environ.get("SEAM_EMBEDDING_API_KEY_ENV", "OPENAI_API_KEY")
+    if not str(os.environ.get(api_key_env) or "").strip():
+        raise RuntimeError(
+            f"SEAM_EMBEDDING_PROVIDER is 'openai' but {api_key_env} is empty. "
+            f"Set {api_key_env}, or set SEAM_EMBEDDING_PROVIDER=hash to run "
+            "without an embedding API."
+        )
+    print(
+        "[seam-selfhost] embeddings: external API "
+        f"({os.environ.get('SEAM_EMBEDDING_MODEL', 'text-embedding-3-small')})",
+        flush=True,
+    )
+
+
+def _validate_vector_backend() -> None:
+    """Prove the configured vector backend is usable before serving traffic.
+
+    ``SEAM_PGVECTOR_DSN`` selects the pgvector adapter at query time, so a missing
+    driver used to surface as a 500 on the first write rather than as a startup
+    failure. The wheel now ships ``psycopg``; this check keeps the failure at
+    startup if a deployment somehow lacks it.
+    """
+    dsn = str(os.environ.get("SEAM_PGVECTOR_DSN") or "").strip()
+    if not dsn:
+        print("[seam-selfhost] vectors: sqlite", flush=True)
+        return
+    try:
+        import psycopg  # noqa: F401
+    except ImportError as exc:
+        raise RuntimeError(
+            "SEAM_PGVECTOR_DSN is set but psycopg is not installed; "
+            "install seam-self-host[pgvector] or unset SEAM_PGVECTOR_DSN"
+        ) from exc
+    print("[seam-selfhost] vectors: pgvector", flush=True)
 
 
 def _load_optional_entitlement(
