@@ -115,15 +115,11 @@ NOFOLLOW_MODULES = (
     "seam_runtime.benchmark_integrity",
     "seam_runtime.cli",
     "seam_runtime.dashboard",
-    "seam_runtime.doctor",
     "seam_runtime.external_memory_benchmarks",
     "seam_runtime.graph_source_selector",
     "seam_runtime.improvement",
     "seam_runtime.lx1",
-    "seam_runtime.mcp",
-    "seam_runtime.mcp_protocol",
     "seam_runtime.multi_scope_pack",
-    "seam_runtime.pgvector_bootstrap",
     "seam_runtime.second_hop_context",
     "seam_runtime.self_improve",
     "seam_runtime.skills",
@@ -167,7 +163,9 @@ readme = Path("/src/node_pkg/README.md").read_text(encoding="utf-8")
     encoding="utf-8",
 )
 (dist_info / "entry_points.txt").write_text(
-    "[console_scripts]\nseam-node = seam_runtime.selfhost:main\n",
+    "[console_scripts]\n"
+    "seam-node = seam_runtime.selfhost:main\n"
+    "seam-mcp = seam_runtime.mcp_protocol:main\n",
     encoding="utf-8",
 )
 license_path = dist_info / "licenses" / "LICENSES" / "BUSL-1.1.txt"
@@ -183,7 +181,6 @@ shutil.copy2(extensions[0], Path("/wheel-root") / extensions[0].name)
 RUNTIME_PROOF = r'''
 from __future__ import annotations
 
-import base64
 import json
 import os
 import shutil
@@ -192,16 +189,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from seam_runtime.selfhost_entitlement import (
-    ENTITLEMENT_PRODUCT,
-    ENTITLEMENT_SCHEMA,
-    canonical_entitlement_payload,
-)
 
 TOKEN = "node-wheel-proof-token-000000000000"
 
@@ -221,48 +209,21 @@ def request(method, path, payload=None, authenticated=True):
 
 with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
     root = Path(temporary)
-    private_key = Ed25519PrivateKey.generate()
-    public_path = root / "entitlement-public-key.pem"
-    public_path.write_bytes(
-        private_key.public_key().public_bytes(
-            serialization.Encoding.PEM,
-            serialization.PublicFormat.SubjectPublicKeyInfo,
-        )
-    )
-    now = datetime.now(timezone.utc)
-    payload = {
-        "schema": ENTITLEMENT_SCHEMA,
-        "product": ENTITLEMENT_PRODUCT,
-        "entitlement_id": "ent_node_wheel_proof",
-        "customer_id": "node-wheel-proof",
-        "issued_at": (now - timedelta(minutes=1)).isoformat().replace("+00:00", "Z"),
-        "not_before": (now - timedelta(minutes=1)).isoformat().replace("+00:00", "Z"),
-        "expires_at": (now + timedelta(days=1)).isoformat().replace("+00:00", "Z"),
-        "features": ["opaque-v1"],
-    }
-    signature = private_key.sign(canonical_entitlement_payload(payload))
-    entitlement_path = root / "entitlement.json"
-    entitlement_path.write_text(
-        json.dumps(
-            {
-                "payload": payload,
-                "signature": base64.urlsafe_b64encode(signature).rstrip(b"=").decode("ascii"),
-            }
-        ),
-        encoding="utf-8",
-    )
     env = {
         **os.environ,
-        "SEAM_SELFHOST_ENTITLEMENT_PATH": str(entitlement_path),
-        "SEAM_SELFHOST_PUBLIC_KEY_PATH": str(public_path),
         "SEAM_API_TOKEN": TOKEN,
         "SEAM_SERVER_DB": str(root / "seam.db"),
         "SEAM_SELFHOST_HOST": "127.0.0.1",
         "SEAM_SELFHOST_PORT": "8765",
     }
+    env.pop("SEAM_SELFHOST_ENTITLEMENT_PATH", None)
+    env.pop("SEAM_SELFHOST_PUBLIC_KEY_PATH", None)
     executable = shutil.which("seam-node")
     if executable is None:
         raise SystemExit("seam-node console entry point was not installed")
+    mcp_executable = shutil.which("seam-mcp")
+    if mcp_executable is None:
+        raise SystemExit("seam-mcp console entry point was not installed")
     server = subprocess.Popen(
         [executable],
         env=env,
@@ -339,6 +300,67 @@ with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
         print(f"POST /v1/memories/recall -> {recalled[0]} memories={len(recalled[1]['memories'])}")
         print(f"POST /v1/context -> {context[0]} chars={len(context[1]['context'])}")
         print("response marker scan -> raw:=0 clm:=0 mirl=0")
+
+        mcp_requests = (
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "initialize",
+                "params": {"protocolVersion": "2025-06-18"},
+            },
+            {
+                "jsonrpc": "2.0",
+                "id": 2,
+                "method": "tools/list",
+                "params": {},
+            },
+        )
+        mcp = subprocess.run(
+            [mcp_executable, "--db", str(root / "mcp.db")],
+            input="\n".join(json.dumps(item) for item in mcp_requests) + "\n",
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        if mcp.returncode != 0:
+            raise AssertionError(
+                f"seam-mcp failed with exit {mcp.returncode}:\n{mcp.stderr}"
+            )
+        if "ModuleNotFoundError" in mcp.stderr:
+            raise AssertionError(
+                f"seam-mcp log contains ModuleNotFoundError:\n{mcp.stderr}"
+            )
+        mcp_responses = {
+            response["id"]: response
+            for response in (
+                json.loads(line) for line in mcp.stdout.splitlines() if line.strip()
+            )
+        }
+        initialized = mcp_responses[1]["result"]
+        tools = mcp_responses[2]["result"]["tools"]
+        tool_names = {tool["name"] for tool in tools}
+        required_tools = {
+            "seam_memory_search",
+            "seam_ingest",
+            "seam_context",
+            "seam_retrieve",
+        }
+        if not required_tools <= tool_names:
+            raise AssertionError(
+                f"MCP tools/list omitted required tools: {required_tools - tool_names}"
+            )
+        print(
+            "MCP initialize -> "
+            f"protocol={initialized['protocolVersion']} "
+            f"server={initialized['serverInfo']['name']}"
+        )
+        print(
+            "MCP tools/list -> "
+            f"tools={len(tools)} required={len(required_tools)}"
+        )
+        print("MCP log ModuleNotFoundError scan -> 0")
     finally:
         server.terminate()
         try:
@@ -348,6 +370,14 @@ with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
             output, _ = server.communicate()
         if "ModuleNotFoundError" in output:
             raise AssertionError(f"server log contains ModuleNotFoundError:\n{output}")
+        entitlement_line = (
+            "no entitlement mounted; running unentitled under BUSL-1.1"
+        )
+        if entitlement_line not in output:
+            raise AssertionError(
+                f"server log omitted unentitled identification line:\n{output}"
+            )
+        print(f"server entitlement log -> {entitlement_line}")
         print("server log ModuleNotFoundError scan -> 0")
 '''
 

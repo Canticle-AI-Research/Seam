@@ -33,6 +33,7 @@ Issues = "https://github.com/BlackhatShiftey/Seam/issues"
 
 [project.scripts]
 seam-node = "seam_runtime.selfhost:main"
+seam-mcp = "seam_runtime.mcp_protocol:main"
 
 [tool.setuptools]
 packages = []

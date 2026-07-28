@@ -1,8 +1,8 @@
 # seam-node
 
 `seam-node` is the compiled Linux/x86-64 self-hosted SEAM agent-memory node.
-It installs the same opaque `/v1` service exposed by the compiled container
-edition while letting an operator use normal Python package tooling.
+It installs the opaque `/v1` service plus the local MCP stdio surface used by
+Claude, Cursor, Gemini, and other MCP-capable agents.
 
 The wheel contains native extension modules and does not ship the
 `seam_runtime` Python source. Native compilation raises the cost of casual
@@ -14,12 +14,10 @@ This first wheel supports CPython 3.12 on `manylinux_2_28_x86_64`.
 
 ## Run
 
-The current node requires a vendor-signed Ed25519 entitlement, an API token of
-at least 32 characters, and a writable database path:
+The HTTP node requires an API token of at least 32 characters and a writable
+database path:
 
 ```bash
-export SEAM_SELFHOST_ENTITLEMENT_PATH=/approved/entitlement.json
-export SEAM_SELFHOST_PUBLIC_KEY_PATH=/approved/entitlement-public-key.pem
 export SEAM_API_TOKEN_FILE=/run/secrets/seam-api-token
 export SEAM_SERVER_DB=/var/lib/seam/seam.db
 seam-node
@@ -28,6 +26,21 @@ seam-node
 The server listens on `0.0.0.0:8765` by default. Keep it on a trusted network
 or place an authenticated TLS reverse proxy in front of it.
 
-The entitlement requirement conflicts with the intended free self-host tier
-and remains an explicit product decision. This wheel preserves the current
-runtime behavior rather than silently weakening that control.
+An entitlement is optional and gates no capability. When no entitlement is
+mounted, the node logs that it is running unentitled under BUSL-1.1. Supported
+deployments may set `SEAM_SELFHOST_ENTITLEMENT_PATH` and
+`SEAM_SELFHOST_PUBLIC_KEY_PATH`; a mounted entitlement is verified and a
+forged or malformed one fails closed.
+
+## MCP
+
+Connect an MCP client to the wheel's stdio command:
+
+```bash
+seam-mcp --db /var/lib/seam/seam.db
+```
+
+MCP talks directly to the local database and exposes SEAM's agent-memory tool
+surface rather than the opaque HTTP response contract. Run it only for a
+trusted local client and protect the database with operating-system
+permissions.

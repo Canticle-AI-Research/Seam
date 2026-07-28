@@ -53,7 +53,10 @@ def test_node_metadata_is_separate_busl_package() -> None:
     assert project["license"] == "BUSL-1.1"
     assert project["license-files"] == ["LICENSES/BUSL-1.1.txt"]
     assert project["requires-python"] == "==3.12.*"
-    assert project["scripts"] == {"seam-node": "seam_runtime.selfhost:main"}
+    assert project["scripts"] == {
+        "seam-node": "seam_runtime.selfhost:main",
+        "seam-mcp": "seam_runtime.mcp_protocol:main",
+    }
     assert "Private :: Do Not Upload" not in project.get("classifiers", [])
     private_project = tomllib.loads(
         (REPO / "pyproject.toml").read_text(encoding="utf-8")
@@ -68,12 +71,20 @@ def test_node_build_uses_explicit_sources_and_load_bearing_exclusions() -> None:
     assert Path("seam_runtime/event_count_context.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/tokenization.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/retrieval_orchestrator/__init__.py") in RUNTIME_SOURCE_FILES
-    assert len(NOFOLLOW_MODULES) == 18
+    assert Path("seam_runtime/mcp.py") in RUNTIME_SOURCE_FILES
+    assert Path("seam_runtime/mcp_protocol.py") in RUNTIME_SOURCE_FILES
+    assert Path("seam_runtime/doctor.py") in RUNTIME_SOURCE_FILES
+    assert Path("seam_runtime/pgvector_bootstrap.py") in RUNTIME_SOURCE_FILES
+    assert len(NOFOLLOW_MODULES) == 14
     assert "seam_runtime.public_api" not in NOFOLLOW_MODULES
     assert "seam_runtime.conversation" not in NOFOLLOW_MODULES
     assert "seam_runtime.event_count_context" not in NOFOLLOW_MODULES
     assert "seam_runtime.tokenization" not in NOFOLLOW_MODULES
     assert "seam_runtime.retrieval_orchestrator" not in NOFOLLOW_MODULES
+    assert "seam_runtime.mcp" not in NOFOLLOW_MODULES
+    assert "seam_runtime.mcp_protocol" not in NOFOLLOW_MODULES
+    assert "seam_runtime.doctor" not in NOFOLLOW_MODULES
+    assert "seam_runtime.pgvector_bootstrap" not in NOFOLLOW_MODULES
     assert set(RUNTIME_SOURCE_FILES) == {
         path.relative_to(REPO)
         for path in (REPO / "seam_runtime").rglob("*.py")
