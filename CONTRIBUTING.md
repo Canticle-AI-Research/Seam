@@ -6,6 +6,15 @@ limited to people expressly authorized by the project owner. Read
 [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) before working with repository
 material.
 
+One subset is published: the SEAM Distributed Runtime ships under the Business
+Source License 1.1 ([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt), granted by
+Section 7A of [LICENSE](LICENSE)). A file version belongs to the Distributed
+Runtime only if it has been published in that distribution *and* carries a
+conspicuous BUSL notice — a matching filename, purpose, or ancestry is not
+enough. Do not add a BUSL notice to a file that is not going out in the
+published distribution; the notice is part of what makes the grant, so
+stamping it early gives away rights the project owner has not decided to give.
+
 ## Authorized scope
 
 Repository access permits an authorized contributor to use and modify the

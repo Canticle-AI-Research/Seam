@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-07-27
+Last updated: 2026-07-24
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -51,6 +51,18 @@ and `HISTORY_INDEX.md`.
   specification, container expression, visual designs, codecs, surface
   library, source, docs, tests, and related implementation material are
   separately named copyrighted Reserved Materials under the same terms.
+- The SEAM Distributed Runtime, version 2.4.0 or later, is published under the
+  Business Source License 1.1 as of 2026-07-27 (`LICENSE` v2.1 §7A, parameters
+  in `LICENSES/BUSL-1.1.txt`). Change Date is four years per published version;
+  Change License is MPL 2.0. The Additional Use Grant permits free self-hosting
+  at any scale, including internal commercial production use, plus
+  non-commercial research, education, and publication of benchmark results; it
+  withholds offering the runtime to third parties on a hosted or embedded basis
+  as a paid competitive offering. Membership in the Distributed Runtime is
+  decided by publication plus a conspicuous per-file BUSL notice, never by path
+  — a shared filename, purpose, interface, or ancestry grants nothing.
+  Publishing one version waives nothing in unpublished versions and creates no
+  obligation to publish any future version.
 - `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that
@@ -75,18 +87,6 @@ and `HISTORY_INDEX.md`.
   existing bearer-token guard. Public namespaces are mapped under an
   SDK-only prefix with optional hashed session partitions, and responses use
   opaque receipts/IDs plus user-facing text rather than private record shapes.
-- The proprietary compiled self-host edition is a controlled Linux/amd64
-  distribution of the private engine behind that exact opaque `/v1` boundary.
-  Its build tool is local-only and has no push mode; release requires explicit
-  operator approval. The image contains a compiled runtime and an entitlement
-  public key, never the signing private key, customer entitlement, API token,
-  or database. A signed entitlement must be time-bounded. Standard compilation,
-  a distroless/read-only/non-root container, encrypted storage, and registry
-  controls reduce accidental leakage and casual inspection but do not protect
-  code or unlocked data from a malicious customer host administrator.
-  Host-resistant confidentiality requires a separately qualified confidential
-  VM/container tier with attestation and remote key release; ordinary OCI layer
-  encryption must not be marketed as equivalent.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - `seam-runtime` 2.3.0 is a private distribution and must retain the

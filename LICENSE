@@ -1,5 +1,5 @@
 SEAM PRIVATE REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE
-Version 2.0 — Effective July 24, 2026
+Version 2.1 — Effective July 27, 2026
 
 Copyright © 2026 Nicholas Thomas (BlackhatShiftey). All rights reserved.
 
@@ -9,6 +9,16 @@ This license governs the private SEAM repository and all Reserved Materials
 made available from it on or after the Effective Date, except for third-party
 materials or a specific file or version that the Project Owner has expressly
 licensed under different written terms.
+
+SCOPE NOTE — SEPARATELY LICENSED DISTRIBUTED RUNTIME. As of Version 2.1, the
+Project Owner publishes a defined subset of this repository, the Distributed
+Runtime, under the Business Source License 1.1. Section 7A states that grant
+and `LICENSES/BUSL-1.1.txt` contains its controlling text. Self-hosting the
+Distributed Runtime, including for internal commercial production use, is
+permitted by that grant at no charge. Everything else in this repository —
+including the MIRL and HS/1 specifications, private benchmarks and holdouts,
+research, history, and release tooling — remains Reserved Materials governed
+by the proprietary terms below.
 
 1. DEFINITIONS
 
@@ -64,6 +74,15 @@ https://github.com/BlackhatShiftey/Seam_Runtime while those versions carried
 the Apache License, Version 2.0. The public repository's commit history
 identifies those versions.
 
+"Distributed Runtime" means only those file versions that the Project Owner
+publishes as the SEAM Distributed Runtime source distribution, version 2.4.0
+or later, and that carry a conspicuous Business Source License 1.1 notice. The
+published distribution's manifest identifies those versions. Material in the
+Private Repository that the Project Owner has not published in that
+distribution is not part of the Distributed Runtime, and does not become part
+of it because it shares a filename, purpose, interface, or ancestry with a
+published file.
+
 2. COPYRIGHT AND OWNERSHIP
 
 The MIRL specifications, source code, documentation, examples, tests, diagrams,
@@ -81,11 +100,12 @@ contract, confidentiality, and trade-secret rights that may apply.
 
 3. NO PUBLIC LICENSE GRANT
 
-No right is granted to use, copy, reproduce, modify, adapt, translate,
-distribute, publish, display, perform, sublicense, sell, host, disclose, or
-create derivative works from the Reserved Materials, MIRL Reserved Materials,
-or HS/1 Reserved Materials. All rights not expressly granted in a separate
-written agreement are reserved.
+Except for the Distributed Runtime grant in Section 7A and the Legacy Apache
+Materials in Section 7, no right is granted to use, copy, reproduce, modify,
+adapt, translate, distribute, publish, display, perform, sublicense, sell,
+host, disclose, or create derivative works from the Reserved Materials, MIRL
+Reserved Materials, or HS/1 Reserved Materials. All rights not expressly
+granted in this license or a separate written agreement are reserved.
 
 4. LIMITED AUTHORIZED-CONTRIBUTOR PERMISSION
 
@@ -152,6 +172,35 @@ or other Reserved Material becomes Apache-licensed merely because it has the
 same filename, purpose, interface, ancestry, or relationship to a Legacy
 Apache Material. Only an express written license grant by the Project Owner
 can publish a new version under Apache-2.0 or another license.
+
+7A. DISTRIBUTED RUNTIME — BUSINESS SOURCE LICENSE 1.1
+
+The Project Owner licenses the Distributed Runtime under the Business Source
+License 1.1. The controlling text, including the Licensor, Licensed Work,
+Additional Use Grant, Change Date, and Change License parameters, is at
+`LICENSES/BUSL-1.1.txt`. That text governs all use of the Distributed Runtime
+and prevails over Sections 3, 5, and 6 for that material only.
+
+Under that grant, and subject to its Additional Use Grant, You may run the
+Distributed Runtime yourself, on your own hardware or on infrastructure you
+rent, for your own or your organization's purposes, including internal
+commercial production use, at no charge and with no limit on scale or number
+of users. You may also use it for non-commercial research and education and
+may publish benchmark or evaluation results. What the grant withholds is
+offering the Distributed Runtime to third parties on a hosted or embedded
+basis as a competitive offering, as that term is defined in the Additional Use
+Grant.
+
+Each published version of the Distributed Runtime converts to the Change
+License, MPL 2.0, four years after that version is published. Conversion
+applies separately to each version and does not convert any Reserved Material.
+
+This section grants no rights in Reserved Materials, MIRL Reserved Materials,
+or HS/1 Reserved Materials that the Project Owner has not published in the
+Distributed Runtime, and no trademark rights of any kind. Publication of a
+version under this section is not a waiver of the Project Owner's rights in
+any unpublished version, and does not oblige the Project Owner to publish any
+future version.
 
 8. THIRD-PARTY MATERIALS
 
