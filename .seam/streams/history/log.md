@@ -12536,3 +12536,81 @@ needs build-time symbol mangling or Nuitka's commercial tier. Nothing published.
 PyPI wheel work to Codex; the mandatory entitlement remains an open product
 decision flagged in that SOP.
 ---END-ENTRY-#480---
+
+---BEGIN-ENTRY-#481---
+id: 481
+date: 2026-07-28T16:32:58Z
+agent: claude
+status: changed
+topics: roadmap, selfhost, packaging, mcp
+commits: pending
+refs: ROADMAP.md
+supersedes: 480
+tokens: 976
+---
+Recorded the self-host capability surface as a tracked roadmap item instead of
+leaving it an undocumented side effect of a leak-reduction decision.
+
+HISTORY#477 narrowed the Nuitka build with 18 `--nofollow-import-to` exclusions,
+cutting reserved-identifier exposure 525 -> 417 and the binary 81.4 MB -> 76.5 MB.
+That was correct for protecting MIRL and HS/1, but it also removed every
+agent-facing surface, and nothing in the repository recorded that as a decision
+with consequences. As shipped, a self-hoster gets four `/v1` routes and nothing
+else: no CLI, no MCP, no dashboard, no importable API. For a runtime whose main
+integration path is MCP, that is a materially thinner product than "SEAM,
+self-hosted", and the gap was only visible by reading a build flag.
+
+Added `ROADMAP.md` Track N2, "Self-host capability surface", after Track N:
+- States the governing trade explicitly: every module added back raises the
+  compiled surface and therefore the identifier count, so each step is measured
+  against the ratchet and justified in HISTORY with the actual strings
+  introduced, per the discipline set at HISTORY#480. Never raise a budget to make
+  a build pass.
+- Phase 1, MCP, is in flight as an amendment to PR #174. Restores `mcp`,
+  `mcp_protocol`, `doctor`, and `pgvector_bootstrap` and exposes the existing
+  `seam-mcp` entry point. Measured cost is four modules on top of the 41 the
+  self-host already compiles. Verified this session that all four import only
+  stdlib and already-compiled internal modules, so no new runtime dependency is
+  required. This is the step that makes the wheel a distinct product rather than
+  a repackaged container, because MCP stdio suits a pip-installed console command
+  and is awkward through `docker run`.
+- Phase 2, CLI, is flagged as the largest expected identifier cost of the
+  remaining set: CLI help text is long-lived string data, and the unnarrowed
+  build's design-description leaks such as `Compile source text to MIRL and write
+  a SEAM-HS/1 surface` came from exactly that class of module.
+- Phase 3, dashboard and TUI, is flagged as the largest surface for the least
+  protection benefit.
+- Phase 4, skills and self-improvement, is explicitly a product decision that
+  interacts with what the paid hosted tier offers exclusively, not a packaging
+  one.
+- Phase 5 records that the three benchmark modules stay out permanently: they are
+  evaluation infrastructure with no self-host use and they name reserved
+  evaluation methodology.
+- Carries forward the entitlement conflict as blocking: `selfhost.py` refuses to
+  start without a vendor-signed Ed25519 entitlement, which is incompatible with a
+  free self-host and must be resolved before any public ship. If it becomes
+  optional, the verification path is kept intact for a future paid or supported
+  tier rather than deleted.
+
+Also reviewed Codex's PR #174 (draft, seam-node wheel) against the two failure
+modes flagged when the SOP was handed off. Both are clear: all four lazily
+imported modules (`conversation`, `event_count_context`, `tokenization`,
+`retrieval_orchestrator`) are retained rather than excluded, and `public_api` is
+force-included, so the wheel will not build clean and then raise
+`ModuleNotFoundError` on the first remember or recall. Codex proved it by
+exercising remember and recall in a clean container rather than inferring from a
+successful build, and independently found and fixed a nested
+`.data/purelib/seam_runtime` path that would have smuggled Python source past the
+source gate. The wheel carries its own measured budget (413) rather than reusing
+the image's 418, and preserves the entitlement rather than silently making it
+optional. MCP remains excluded there pending the amendment above.
+
+Verification: `ROADMAP.md` only, no code touched, so the full suite was not
+re-run; it passed earlier this session at HISTORY#480 with zero skips.
+`tools.streams.roadmap_parser` reparsed 62 items, `rebuild_index --stream roadmap`
+and `rebuild_cross_index` refreshed the derived views (542 events), and
+`verify_streams` reports OK.
+
+UNRESOLVED: Track N2 phases 2-5 are unscoped beyond direction. The entitlement
+decision still blocks the free self-host. Nothing published.
+---END-ENTRY-#481---

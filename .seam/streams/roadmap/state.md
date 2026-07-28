@@ -78,3 +78,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:H1` — since 2026-05-15 via history:170 — topics: protocol, history, plan, roadmap
 - `roadmap:track:I` — since 2026-05-17 via history:189 — topics: benchmark, retrieval, comparator
 - `roadmap:track:N` — since 2026-07-24 via history:470 — topics: packaging, release, distribution
+
+## open (1)
+
+- `roadmap:track:N2` — since 2026-07-28 via history:480 — topics: packaging, selfhost, distribution, mcp, cli
