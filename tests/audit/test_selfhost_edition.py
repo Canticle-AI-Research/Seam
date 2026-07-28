@@ -15,6 +15,8 @@ from fastapi.testclient import TestClient
 
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.selfhost import (
+    _entitlement_state_error,
+    _load_optional_entitlement,
     _read_required_secret,
     create_selfhost_app,
 )
@@ -165,7 +167,9 @@ def test_selfhost_exposes_only_opaque_v1_routes(tmp_path: Path) -> None:
             api_token="c" * 32,
         )
     )
-    assert expired_client.get("/v1/health").status_code == 503
+    # A lapsed entitlement no longer withdraws service. BUSL-1.1 grants
+    # self-hosting without limit, so support status cannot revoke a licensed right.
+    assert expired_client.get("/v1/health").status_code == 200
 
 
 def test_selfhost_requires_strong_token_and_supports_secret_file(tmp_path: Path) -> None:
@@ -422,3 +426,70 @@ def test_selfhost_build_stamps_the_project_version(tmp_path: Path) -> None:
     assert 'org.opencontainers.image.licenses="BUSL-1.1"' in dockerfile
     assert 'org.opencontainers.image.version="${SEAM_VERSION}"' in dockerfile
     assert "/licenses/BUSL-1.1.txt" in dockerfile
+
+
+def test_selfhost_runs_unentitled_under_busl(tmp_path: Path) -> None:
+    """No entitlement is the free self-host path, not an error, and it is not a
+    reduced surface: BUSL-1.1 grants self-hosting without limit on scale or users."""
+    runtime = SeamRuntime(tmp_path / "free.db")
+    client = TestClient(create_selfhost_app(runtime, None, api_token="a" * 32))
+
+    assert {route.path for route in client.app.routes} == {
+        "/v1/health",
+        "/v1/memories",
+        "/v1/memories/recall",
+        "/v1/context",
+    }
+    assert client.get("/v1/health").json() == {
+        "status": "ok",
+        "api_version": "v1",
+        "edition": "compiled-self-host",
+    }
+    assert client.post("/v1/memories", json={"text": "x"}).status_code == 401
+
+    token = {"Authorization": f"Bearer {'a' * 32}"}
+    assert client.post(
+        "/v1/memories",
+        json={"text": "The launch page is cobalt."},
+        headers=token,
+    ).status_code == 200
+    recalled = client.post("/v1/memories/recall", json={"query": "launch page"}, headers=token)
+    assert recalled.status_code == 200
+    assert recalled.json()["memories"]
+
+
+def test_absent_entitlement_loads_as_none(tmp_path: Path) -> None:
+    _, public_path = _entitlement_files(tmp_path)
+    assert _load_optional_entitlement(tmp_path / "absent.json", public_path) is None
+
+
+def test_mounted_entitlement_fails_closed_on_tampering(tmp_path: Path) -> None:
+    """Mounting a file is deliberate, so a forged one is a tamper signal rather than
+    a silent downgrade to the free path."""
+    entitlement_path, public_path = _entitlement_files(tmp_path)
+    envelope = json.loads(entitlement_path.read_text(encoding="utf-8"))
+    envelope["payload"]["customer_id"] = "someone-else"
+    entitlement_path.write_text(json.dumps(envelope), encoding="utf-8")
+
+    with pytest.raises(EntitlementError):
+        _load_optional_entitlement(entitlement_path, public_path)
+
+
+def test_lapsed_entitlement_is_kept_and_distinguishable_from_forgery(tmp_path: Path) -> None:
+    """A genuine but expired entitlement is returned so it can be reported as
+    inactive. Rejecting it would make a lapsed customer indistinguishable from an
+    attacker, and would revoke a right BUSL already grants."""
+    entitlement_path, public_path = _entitlement_files(
+        tmp_path,
+        issued_at="2020-01-01T00:00:00Z",
+        not_before="2020-01-01T00:00:00Z",
+        expires_at="2020-06-01T00:00:00Z",
+    )
+    loaded = _load_optional_entitlement(entitlement_path, public_path)
+    assert loaded is not None
+    assert loaded.customer_id == "customer-test"
+    assert _entitlement_state_error(loaded) == "expired"
+
+    # The signature checks still apply with the window disabled.
+    with pytest.raises(EntitlementError):
+        verify_entitlement(entitlement_path, public_path, enforce_validity_window=True, now=NOW)

@@ -12614,3 +12614,96 @@ and `rebuild_cross_index` refreshed the derived views (542 events), and
 UNRESOLVED: Track N2 phases 2-5 are unscoped beyond direction. The entitlement
 decision still blocks the free self-host. Nothing published.
 ---END-ENTRY-#481---
+
+---BEGIN-ENTRY-#482---
+id: 482
+date: 2026-07-28T17:43:24Z
+agent: claude
+status: changed
+topics: selfhost, licensing, busl, entitlement, security, docker
+commits: c6e69d9
+refs: seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/compose.yaml,docs/SELF_HOST_SECURITY.md,tests/audit/test_selfhost_edition.py
+supersedes: 481
+tokens: 1150
+---
+Made the self-host entitlement OPTIONAL, which unblocks the free self-host tier.
+Operator decision: the entitlement identifies a supported deployment and gates no
+capability.
+
+Before this, `create_selfhost_app_from_env` called `verify_entitlement`
+unconditionally, so a node without a vendor-signed Ed25519 file raised at startup
+and never served. Every request and `/v1/health` additionally returned 503 once
+the entitlement's window lapsed. That made the compiled self-host a per-customer
+commercial product requiring the operator to hand-sign a key for every user,
+which is incompatible with the free self-host tier and, more importantly,
+contradicted the licence the artifact ships under: BUSL-1.1's Additional Use
+Grant permits self-hosting "without limitation on scale, number of users, or
+commercial context".
+
+The entitlement was never a MIRL protection. Anyone holding the image holds the
+binary and can patch a runtime condition out; `docs/SELF_HOST_SECURITY.md`
+already said offline entitlements are tamper-evident licence controls, not DRM
+against a hostile owner. MIRL is protected by compilation, which raises cost, and
+by BUSL, which prohibits competing hosted offerings.
+
+Changes to `seam_runtime/selfhost.py`:
+- `create_selfhost_app` takes `entitlement: VerifiedEntitlement | None = None`.
+  The `REQUIRED_FEATURE` check now applies only when one is supplied.
+- Removed both 503 gates, in `guard` and in `/v1/health`. A lapsed entitlement no
+  longer withdraws service, because support status cannot revoke a right the
+  licence grants.
+- `/v1/health` gained a comment recording that it is deliberately unauthenticated
+  and must therefore not disclose who runs the node. Customer identity is logged
+  at startup for the operator, never served.
+- New `_load_optional_entitlement`: absence returns None and is the free path;
+  presence is a deliberate act, so a mounted file that fails verification fails
+  CLOSED; a cryptographically sound but lapsed entitlement is returned and
+  reported inactive.
+
+Change to `seam_runtime/selfhost_entitlement.py`: `verify_entitlement` gained
+`enforce_validity_window: bool = True`. This existed because the function raised
+the same `EntitlementError` for a forged signature and an expired date. Catching
+that broadly to fall back to free mode would have turned a FORGED entitlement
+into a silent free node with no tamper signal. Signature, schema, and product
+checks always apply; only the temporal window is separable, so a lapsed customer
+is now distinguishable from an attacker.
+
+Found by running the artifact, not by testing it: the three identification lines
+never reached the log. `selfhost/Dockerfile` sets `PYTHONUNBUFFERED=1` in the
+BUILD stage only, so the compiled binary's stdout is block-buffered in the final
+distroless stage; uvicorn's lines appear because its logging goes to stderr. The
+badge, which is the entire feature, was silently dead through a green build and a
+green suite. Fixed with explicit `flush=True` at each call site rather than adding
+image env, so it holds regardless of how the image is configured.
+
+`selfhost/compose.yaml` previously bind-mounted `entitlement.json`
+unconditionally, which fails for a user who has none; it now carries a comment
+that the bind may be deleted to run unentitled.
+`docs/SELF_HOST_SECURITY.md` updated: the entitlement bullet now states it is
+optional and describes the fail-closed/lapsed split, the provisioning list marks
+`entitlement.json` as supported-deployments-only, and the threat-model row that
+described the entitlement as an access control for "unauthorized but non-admin
+use" now correctly attributes that to the bearer API token.
+
+Verification, in real containers rather than inference:
+- Unentitled, nothing mounted but an API token:
+  `[seam-selfhost] no entitlement mounted; running unentitled under BUSL-1.1`;
+  health 200, remember accepted (`rcpt_8c5caf11`), recall returned the memory at
+  score 0.536667, context built, unauthenticated POST 401, zero errors.
+- Entitled, with a signed entitlement and its public key mounted:
+  `[seam-selfhost] entitled deployment acme-corp (ent_badge_001), expires
+  2027-07-27T00:00:00+00:00`, and `/v1/health` did not disclose the customer.
+- `verify_selfhost_artifact` PASS on the rebuilt archive; the ratchet did not move.
+- Full suite green, zero skips, 2 pre-existing `compile_nl` xfails. Five new tests
+  cover keyless operation end to end, absent-file loading, fail-closed tampering,
+  and the lapsed path including that the signature check still rejects a forgery
+  with the window disabled. The pre-existing expired-entitlement test flipped from
+  asserting 503 to asserting 200, deliberately.
+
+Test signing keys were generated locally, shredded, and never committed.
+
+UNRESOLVED: nothing published. `docs/SOP_SEAM_NODE_WHEEL.md` and ROADMAP Track N2
+(HISTORY#481) still describe the MCP amendment to PR #174 as pending, and the
+wheel there still preserves the mandatory entitlement, so it needs this change
+carried across before it merges.
+---END-ENTRY-#482---

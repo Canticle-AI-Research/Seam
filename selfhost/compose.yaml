@@ -15,6 +15,9 @@ services:
       - api_token
     volumes:
       - seam-data:/var/lib/seam
+      # Optional. Self-hosting is granted by BUSL-1.1 with no entitlement at all;
+      # delete this bind to run unentitled. A mounted entitlement identifies a
+      # supported deployment and unlocks nothing.
       - type: bind
         source: ${SEAM_SELFHOST_ENTITLEMENT_FILE:-./entitlement.json}
         target: /run/seam/entitlement.json
