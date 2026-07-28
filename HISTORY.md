@@ -12309,3 +12309,117 @@ BUSL notices are still unapplied, and `LICENSES/BUSL-1.1.txt` still points at a
 placeholder `COMMERCIAL_LICENSE.md` with no real licensing contact address.
 Nothing in this entry has been published; PyPI upload remains operator-gated.
 ---END-ENTRY-#476---
+
+---BEGIN-ENTRY-#477---
+id: 477
+date: 2026-07-28T05:52:28Z
+agent: claude
+status: changed
+topics: selfhost, licensing, busl, security, verify, docker
+commits: pending
+refs: selfhost/Dockerfile,pyproject.toml,tools/release/build_selfhost.py,tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.py,tests/audit/test_github_package_metadata.py
+supersedes: 476
+tokens: 1664
+---
+MEASURED what the compiled self-host actually hides, found it hides less than
+assumed, cut the exposure 20% without regressing the runtime, and replaced a
+gate that could never pass with a ratchet pinned to the measured number.
+
+The starting question was whether the compiled image protects MIRL and HS/1.
+Nothing in the repository answered it. `verify_selfhost_artifact.py` matched
+`MIRL_V1`, `SEAM_SPEC`, and `HOLOGRAPHIC_SURFACE` against `FORBIDDEN_PATH_PARTS`
+using the member PATH only, never file contents, so the compiled binary was
+never inspected for the identifiers it was supposed to be hiding.
+
+A real image was built locally (`build_selfhost.py`, throwaway Ed25519 key, no
+registry involved) and scanned. The 81,436,112-byte binary carried 156,937
+printable strings and 525 occurrences of reserved identifiers, including
+`compile_nl.<locals>.add_claim`, `seam_runtime/reasoning_graph.py`, the verbatim
+schema `create table if not exists knowledge_graph_meta (`, and the design
+sentence `Write MIRL/RC/LX bytes into a lossless PNG surface`. The existing
+verifier returned PASS on that image. Nuitka hides source bodies; it does not
+hide module names, qualified function names, class names, or string literals,
+exactly as `docs/SELF_HOST_SECURITY.md` already warned. `knowledge_graph` (25)
+and `reasoning_graph` (13) leaked too, and that graph work is the only material
+never published under Apache-2.0.
+
+Reducing it: an import trace from `seam_runtime.selfhost` showed 41 reachable
+modules and 23 unreachable. `selfhost/Dockerfile` now passes
+`--nofollow-import-to` for 18 of them (`cli`, `dashboard`, `mcp`, `mcp_protocol`,
+`ui`, `skills`, `doctor`, `improvement`, `self_improve`, benchmark modules, and
+others the `/v1` surface never touches) and force-includes
+`seam_runtime.public_api`, which `selfhost.py` imports lazily inside its route
+handlers and which the trace therefore reported as unreachable.
+
+An AST scan for lazy imports of excluded modules from compiled ones caught a real
+regression before it shipped: `retrieval.py:179,184,189,194` imports
+`conversation` and `:199` imports `event_count_context` inside functions,
+`mirl.py:342` imports `tokenization`, and `sdk.py:13,262` imports
+`retrieval_orchestrator`. Excluding those four would have raised
+`ModuleNotFoundError` on the first remember or recall, at request time, with a
+clean build. They were re-included, leaving 18 exclusions.
+
+Regression proof is a real container, not an inference. The image was run with a
+signed entitlement mounted (`SEAM_SELFHOST_PUBLIC_KEY_PATH` allows a test key
+without rebuilding) and all four routes exercised: `/v1/health` returned
+`edition=compiled-self-host`; `/v1/memories` accepted and returned a receipt;
+`/v1/memories/recall` returned the stored memory at score 0.347594;
+`/v1/context` built context; an unauthenticated POST returned 401; container logs
+showed no errors and no `ModuleNotFoundError`. Both lazy-import paths executed.
+Responses contained no `raw:`, `clm:`, or MIRL internals, so the opaque boundary
+holds.
+
+Result: 525 -> 417 occurrences (20%) and 81,436,112 -> 76,516,816 bytes, with the
+runtime verified working.
+
+Zero was rejected as a target rather than missed. `MIRL`, `MIRLRecord`, and
+`IRBatch` name the code that does the work; excluding those modules removes the
+product. A gate that can never pass gets switched off, so
+`verify_selfhost_artifact.py` now carries `RESERVED_CONTENT_BUDGET`, a per-marker
+cap set to the measured 417, and fails on any INCREASE. `verify_archive` takes an
+optional `budget` so tests can pin behavior without depending on production
+numbers. License texts are exempt via `CONTENT_SCAN_EXEMPT_PREFIXES` because
+naming MIRL and HS/1 is precisely what a license governing them must do.
+
+Licensing was made true of the artifact rather than only of the documents.
+`pyproject.toml` moves to 2.4.0, which is the floor the BUSL grant names
+("version 2.4.0 or later"), and its expression becomes
+`LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0` with
+`LICENSES/BUSL-1.1.txt` added to `license-files`. Before this, a grep for BUSL
+across every `.py`, `.toml`, `Dockerfile`, and workflow returned nothing: the
+relicense existed only in prose. The image label moves from
+`LicenseRef-SEAM-Proprietary AND Apache-2.0` to `BUSL-1.1`, gains
+`org.opencontainers.image.version` stamped from a new `SEAM_VERSION` build arg
+that `build_selfhost.py` reads out of `pyproject.toml`, and now copies
+`LICENSES/BUSL-1.1.txt` into `/licenses`. `licenses/BUSL-1.1.txt` is a
+`REQUIRED_PATH`, so an image claiming BUSL without carrying its text fails.
+`Private :: Do Not Upload` was deliberately NOT removed: it is required by
+`verify_distribution_boundary.py:105` for the private-github target and rejected
+at `:145` for pypi, so removing it would break the private release gate.
+
+Nothing was deleted. All 22 originally-considered modules remain in the
+repository; `--nofollow-import-to` affects only what is compiled into the image.
+
+Verification: full suite green, zero skips, 2 pre-existing `compile_nl` xfails,
+with the seam-pgvector container up and `PGVECTOR_TEST_DSN` set. Six new tests in
+`tests/audit/test_selfhost_edition.py` cover the ratchet in both directions
+(above budget fails and names the counts, at budget passes), the license-text
+exemption, the required BUSL text, version stamping, and pin the budget to the
+measured 417. `test_github_package_metadata.py` was updated to assert the new
+expression rather than the old one. `verify_selfhost_artifact` returns PASS on
+the real v3 archive.
+
+UNRESOLVED: the residual 417 occurrences cannot be reduced by exclusion. Removing
+them needs build-time symbol/string mangling or Nuitka's commercial tier, which
+the build log reports as `commercial grade 'not installed'`. Nothing has been
+published: no registry, no PyPI upload, no hosted endpoint. `build_selfhost.py`
+still has no push mode by design. The self-host still requires a vendor-signed
+entitlement to start, which is incompatible with the operator's stated free
+self-host tier and remains an open product decision. PyPI `seam-runtime` 1.3.0
+and 1.3.1 are still live under Apache-2.0 and still contain `mirl.py`,
+`holographic.py`, and `surface_adapters.py`; the operator intends to delete those
+releases, which stops future downloads but cannot revoke the grant. Package
+naming for the BUSL node is undecided; `seam-node`, `seam-engine`, `seam-core`,
+`seam-selfhost`, `seam-memory`, and `seam-server` were all confirmed available on
+PyPI.
+---END-ENTRY-#477---

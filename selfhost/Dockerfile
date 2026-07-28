@@ -38,6 +38,25 @@ RUN test -n "${SEAM_ENTITLEMENT_PUBLIC_KEY_B64}" \
       --python-flag=isolated \
       --python-flag=no_docstrings \
       --include-package=seam_runtime \
+      --include-module=seam_runtime.public_api \
+      --nofollow-import-to=seam_runtime.benchmark_baseline_policy \
+      --nofollow-import-to=seam_runtime.benchmark_integrity \
+      --nofollow-import-to=seam_runtime.cli \
+      --nofollow-import-to=seam_runtime.dashboard \
+      --nofollow-import-to=seam_runtime.doctor \
+      --nofollow-import-to=seam_runtime.external_memory_benchmarks \
+      --nofollow-import-to=seam_runtime.graph_source_selector \
+      --nofollow-import-to=seam_runtime.improvement \
+      --nofollow-import-to=seam_runtime.lx1 \
+      --nofollow-import-to=seam_runtime.mcp \
+      --nofollow-import-to=seam_runtime.mcp_protocol \
+      --nofollow-import-to=seam_runtime.multi_scope_pack \
+      --nofollow-import-to=seam_runtime.pgvector_bootstrap \
+      --nofollow-import-to=seam_runtime.second_hop_context \
+      --nofollow-import-to=seam_runtime.self_improve \
+      --nofollow-import-to=seam_runtime.skills \
+      --nofollow-import-to=seam_runtime.temporal_instance_context \
+      --nofollow-import-to=seam_runtime.ui \
       --output-dir=/out \
       --output-filename=seam-selfhost \
       selfhost/entrypoint.py \
@@ -51,9 +70,12 @@ RUN cp --dereference \
 
 FROM ${RUNTIME_IMAGE}
 
-LABEL org.opencontainers.image.title="SEAM Proprietary Compiled Self-Host" \
-      org.opencontainers.image.description="Opaque /v1-only proprietary SEAM MIRL engine" \
-      org.opencontainers.image.licenses="LicenseRef-SEAM-Proprietary AND Apache-2.0" \
+ARG SEAM_VERSION
+
+LABEL org.opencontainers.image.title="SEAM Compiled Self-Host" \
+      org.opencontainers.image.description="Opaque /v1-only SEAM engine" \
+      org.opencontainers.image.licenses="BUSL-1.1" \
+      org.opencontainers.image.version="${SEAM_VERSION}" \
       com.seam.edition="compiled-self-host" \
       com.seam.public-api="v1"
 
@@ -63,6 +85,7 @@ COPY --from=build --chown=65532:65532 /out/entitlement-public-key.pem /opt/seam/
 COPY --from=build --chown=65532:65532 /src/LICENSE /licenses/SEAM-LICENSE
 COPY --from=build --chown=65532:65532 /src/NOTICE /licenses/SEAM-NOTICE
 COPY --from=build --chown=65532:65532 /src/LICENSES/Apache-2.0.txt /licenses/Apache-2.0.txt
+COPY --from=build --chown=65532:65532 /src/LICENSES/BUSL-1.1.txt /licenses/BUSL-1.1.txt
 
 USER 65532:65532
 EXPOSE 8765

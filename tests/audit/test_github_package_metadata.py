@@ -15,11 +15,17 @@ def test_pyproject_points_at_private_runtime_repo() -> None:
     assert pyproject["project"]["name"] == "seam-runtime"
     assert pyproject["project"]["urls"]["Repository"] == "https://github.com/BlackhatShiftey/Seam"
     assert pyproject["project"]["urls"]["Issues"] == "https://github.com/BlackhatShiftey/Seam/issues"
-    assert pyproject["project"]["license"] == "LicenseRef-SEAM-Proprietary AND Apache-2.0"
+    # 2.4.0+ is the SEAM Distributed Runtime under BUSL-1.1 per NOTICE and LICENSE
+    # section 7A, so the expression must name BUSL. LicenseRef-SEAM-Proprietary still
+    # covers reserved MIRL/HS-1 expression, and Apache-2.0 is retained only for
+    # unchanged Legacy Apache Materials already published at 1.3.x.
+    assert pyproject["project"]["version"] == "2.4.0"
+    assert pyproject["project"]["license"] == "LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0"
     assert pyproject["project"]["license-files"] == [
         "LICENSE",
         "NOTICE",
         "COMMERCIAL_LICENSE.md",
+        "LICENSES/BUSL-1.1.txt",
         "LICENSES/Apache-2.0.txt",
     ]
     assert "Private :: Do Not Upload" in pyproject["project"]["classifiers"]

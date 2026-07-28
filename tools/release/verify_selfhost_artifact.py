@@ -40,7 +40,44 @@ REQUIRED_PATHS = {
     "opt/seam/app/libz.so.1",
     "opt/seam/entitlement-public-key.pem",
     "licenses/SEAM-LICENSE",
+    "licenses/BUSL-1.1.txt",
 }
+
+# Reserved identifiers that survive compilation into the shipped payload.
+#
+# Native compilation removes source bodies but preserves module names, qualified
+# function names, class names, and literal strings. A measured build leaked
+# `compile_nl.<locals>.add_claim`, `seam_runtime/reasoning_graph.py`, and
+# `create table if not exists knowledge_graph_meta (` verbatim. Path-only checks
+# cannot see any of that, so the payload is scanned by content.
+#
+# This is a RATCHET, not a zero-tolerance gate. Zero is unreachable while the
+# engine itself is compiled in: `MIRL`, `MIRLRecord`, and `IRBatch` name the code
+# doing the work, and excluding those modules would remove the product. A gate
+# that can never pass would simply be switched off, so instead the measured
+# exposure is pinned and any INCREASE fails. Lower these numbers as symbol
+# mangling lands; never raise them to make a build pass.
+#
+# Baseline measured 2026-07-28 against seam-selfhost built from this Dockerfile
+# (76,516,816-byte binary, 417 total occurrences). The unnarrowed build that
+# preceded it measured 525, so the module exclusions bought a 20% reduction.
+RESERVED_CONTENT_BUDGET: dict[bytes, int] = {
+    b"MIRL": 134,
+    b"MIRLRecord": 120,
+    b"IRBatch": 63,
+    b"TraceGraph": 11,
+    b"compile_nl": 10,
+    b"holographic": 11,
+    b"surface_adapter": 6,
+    b"HS/1": 15,
+    b"SEAM-RC": 13,
+    b"SEAM-LX": 4,
+    b"knowledge_graph": 17,
+    b"reasoning_graph": 13,
+}
+
+# The license texts legitimately name MIRL and HS/1; that is their purpose.
+CONTENT_SCAN_EXEMPT_PREFIXES: tuple[str, ...] = ("licenses/",)
 
 
 @dataclass(frozen=True)
@@ -49,9 +86,21 @@ class ImageArchive:
     layers: tuple[bytes, ...]
 
 
-def verify_archive(path: Path) -> tuple[str, ...]:
+def verify_archive(
+    path: Path,
+    *,
+    budget: dict[bytes, int] | None = None,
+) -> tuple[str, ...]:
+    """Verify a self-host image archive.
+
+    ``budget`` caps how many times each reserved identifier may appear across the
+    non-license payload. It defaults to the measured production baseline; tests
+    pass a tighter one.
+    """
+    budget = RESERVED_CONTENT_BUDGET if budget is None else budget
     image = _read_image_archive(path)
     errors: list[str] = []
+    observed: dict[bytes, int] = {}
     members: dict[str, bytes] = {}
     for layer_bytes in image.layers:
         with tarfile.open(fileobj=io.BytesIO(layer_bytes), mode="r:*") as layer:
@@ -79,6 +128,19 @@ def verify_archive(path: Path) -> tuple[str, ...]:
             if pattern.search(content):
                 errors.append(f"secret-shaped content is present: {name}")
                 break
+        if not name.startswith(CONTENT_SCAN_EXEMPT_PREFIXES):
+            for marker in budget:
+                occurrences = content.count(marker)
+                if occurrences:
+                    observed[marker] = observed.get(marker, 0) + occurrences
+
+    for marker, allowed in sorted(budget.items()):
+        seen = observed.get(marker, 0)
+        if seen > allowed:
+            errors.append(
+                f"reserved identifier exposure increased: {marker.decode()} "
+                f"appears {seen} times, budget {allowed}"
+            )
 
     config = image.config.get("config", {})
     if not isinstance(config, dict):
