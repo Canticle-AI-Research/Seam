@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-24-seam-client-0-1-0-live
+latest: 2026-07-27-proprietary-compiled-selfhost-v1
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-24-seam-client-0-1-0-live` | [2026-07-24-seam-client-0-1-0-live.md](2026-07-24-seam-client-0-1-0-live.md) | `2026-07-24-public-agent-sdk-boundary` | `HISTORY#470` | `current` |
+| `2026-07-27-proprietary-compiled-selfhost-v1` | [2026-07-27-proprietary-compiled-selfhost-v1.md](2026-07-27-proprietary-compiled-selfhost-v1.md) | `2026-07-24-seam-client-0-1-0-live` | `HISTORY#471` | `current` |
+| `2026-07-24-seam-client-0-1-0-live` | [2026-07-24-seam-client-0-1-0-live.md](2026-07-24-seam-client-0-1-0-live.md) | `2026-07-24-public-agent-sdk-boundary` | `HISTORY#470` | `superseded` |
 | `2026-07-24-public-agent-sdk-boundary` | [2026-07-24-public-agent-sdk-boundary.md](2026-07-24-public-agent-sdk-boundary.md) | `2026-07-24-mirl-hs1-proprietary-boundary` | `HISTORY#469` | `superseded` |
 | `2026-07-24-mirl-hs1-proprietary-boundary` | [2026-07-24-mirl-hs1-proprietary-boundary.md](2026-07-24-mirl-hs1-proprietary-boundary.md) | `2026-07-23-reasoning-verification-r3` | `HISTORY#468` | `superseded` |
 | `2026-07-23-reasoning-verification-r3` | [2026-07-23-reasoning-verification-r3.md](2026-07-23-reasoning-verification-r3.md) | `2026-07-22-reasoned-retrieval-g3a` | `HISTORY#466` | `superseded` |

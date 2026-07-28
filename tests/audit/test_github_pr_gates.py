@@ -14,7 +14,7 @@ FAST_CI_JOBS = {
 def test_ci_workflow_requires_locomo_bil2_and_chroma_smokes() -> None:
     workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
 
-    assert 'python -m pip install -e ".[server,sbert,rerank]"' in workflow
+    assert 'python -m pip install -e ".[server,sbert,rerank,selfhost]"' in workflow
     assert "python -m tools.history.verify_continuity --no-snapshot" in workflow
     assert "python -m tools.history.verify_handoffs" in workflow
     assert "locomo-quickstart-bil2:" in workflow

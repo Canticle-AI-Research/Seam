@@ -1,5 +1,26 @@
 # SEAM Project Status
 
+Current update: 2026-07-27 (HISTORY#471 - BUILT the first proprietary compiled
+self-host MIRL edition for Linux/amd64 without disturbing the dirty
+`fix/public-shim-2.3.1` checkout or publishing an artifact. The local-only
+Nuitka/BuildKit path emits a 60,202,804-byte distroless image with only the
+opaque four-route `/v1` contract, an offline Ed25519 entitlement that must have
+a bounded expiry, bearer-token data access, uid 65532, a read-only root,
+loopback-only Compose publication, no capabilities, and no-new-privileges.
+The exported archive passed source/secret/runtime/platform scanning, all 16
+unique ELF dependencies resolved, and the stripped executable contained no
+defined symbols or embedded SEAM/MIRL specification filenames; module
+filenames and generic build-path metadata remain discoverable and are not
+misrepresented as protected. Real `seam-client` 0.1.0 remember/recall/context
+calls and persistence across restart passed. The strict non-external audit
+suite passed all 1,313 selected tests with 23 external tests deselected, and
+the post-platform-gate focused slice passed 13 tests. A malicious customer
+host administrator remains outside this standard edition's protection claim;
+host-resistant confidentiality is a separate attested confidential-computing
+tier. NEXT: operator/legal review, then an explicitly approved private-registry
+release with SBOM, provenance, digest signing, and per-customer access. No
+image push, package publication, provider call, or paid model call occurred.)
+
 Current update: 2026-07-24 (HISTORY#470 - RELEASED the separately authored Apache-2.0 `seam-client` 0.1.0 SDK on PyPI after merging the licensing boundary PR #163, opaque private API PR #164, and public SDK PR #1. Public workflow run 30107050434 passed exact-version verification, wheel/sdist build, `twine check`, the artifact allow-list, protected-environment deployment, PyPI Trusted Publishing/OIDC upload, and digital attestations without a stored token. Live PyPI metadata reports only the public `seam-client` wheel/sdist and Apache-2.0; a clean isolated network install imported all four SDK entry points. Private `seam-runtime` 2.3.0 remains proprietary and blocked from PyPI; hosted endpoint access remains separately provisioned.)
 
 Current update: 2026-07-24 (HISTORY#469 - BUILT the split public agent SDK

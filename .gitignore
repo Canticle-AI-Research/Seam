@@ -41,6 +41,12 @@ id_ecdsa
 id_ecdsa.*
 .ssh/
 
+# Provisioned self-host inputs and local image archives
+selfhost/entitlement.json
+selfhost/api-token.txt
+selfhost/*.tar
+selfhost/*.oci
+
 # Operator-local agent config (Codex/Claude/etc.) — never tracked
 seam_runtime/config.toml
 

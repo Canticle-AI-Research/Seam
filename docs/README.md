@@ -4,6 +4,9 @@ This folder is the active operator and engineering documentation surface.
 
 ## Active Docs
 
+- `SELF_HOST_SECURITY.md` - proprietary compiled self-host threat model,
+  entitlement boundary, hardened container operation, artifact inspection,
+  and confidential-computing upgrade path.
 - `SEAM_OPERATOR_GUIDE.md` - operator manual for day-to-day commands, doctor checks, benchmark posture, and failure triage (Windows, macOS, Linux).
 - `MACOS.md` - macOS install paths, directory layout, Docker/pgvector, MCP, and troubleshooting.
 - `setup.md` - copy/paste setup, dashboard chat model configuration, and supported platform commands.

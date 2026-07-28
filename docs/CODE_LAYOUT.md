@@ -17,6 +17,10 @@ not have to infer what works from directory names alone.
   exporting MIRL, HS/1, PACK, storage, graph, or ranking structures. The
   Apache-2.0 client implementation lives separately in
   `BlackhatShiftey/Seam_Runtime/sdk`.
+- `seam_runtime/selfhost.py` + `seam_runtime/selfhost_entitlement.py` - private
+  compiled-edition entrypoint and offline Ed25519 entitlement gate. The app
+  registers only the opaque `/v1` routes and never exposes operator/runtime
+  internals.
 - `seam_runtime/workspace.py` - append-only structured workspace run/event schema, allowlisted telemetry sanitization, SSE framing/replay, and deterministic graph-activation projection. It explicitly excludes credentials, hidden chain-of-thought, and raw activation tensors.
 - `seam_runtime/jspace.py` - optional J-lens capability boundary: unavailable/structured-only default, verified local Hugging Face Qwen adapter, and authenticated pinned remote worker. No model, lens, analyzer, download, or network dependency is enabled by default.
 - `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and the strict multi-family propose-and-approve ratchet wired into the existing H2 proposal, decision, and applied-flag substrate.
@@ -44,6 +48,10 @@ not have to infer what works from directory names alone.
   metadata check, boundary scan, smoke install, and private GitHub Release
   workflow, with a tokenless OIDC PyPI job reserved for a future separately
   reviewed public artifact.
+- `selfhost/` + `tools/release/build_selfhost.py` +
+  `tools/release/verify_selfhost_artifact.py` - local-only compiled image
+  definition, hardened Compose profile, no-push builder, and real Docker/OCI
+  archive source/secret scanner. See `docs/SELF_HOST_SECURITY.md`.
 - `tools/*.py` - active benchmark/projection helper scripts.
 - `scripts/` - active operator scripts and guarded runners.
 - `installers/` - active installation entrypoints and installer docs.
