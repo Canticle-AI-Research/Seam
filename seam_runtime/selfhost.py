@@ -27,15 +27,21 @@ DEFAULT_DB_PATH = Path("/var/lib/seam/seam.db")
 
 def create_selfhost_app(
     runtime: SeamRuntime,
-    entitlement: VerifiedEntitlement,
+    entitlement: VerifiedEntitlement | None = None,
     *,
     api_token: str,
     shutdown_state: ShutdownState | None = None,
 ) -> Any:
-    """Create the self-host surface containing only the opaque public ``/v1`` API."""
+    """Create the self-host surface containing only the opaque public ``/v1`` API.
+
+    ``entitlement`` is optional. Self-hosting is granted by BUSL-1.1 without limit
+    on scale or users, so an unentitled node runs the full ``/v1`` surface. A
+    mounted entitlement identifies a supported deployment; it does not unlock
+    capability and its expiry does not withdraw a right the license already grants.
+    """
     if not api_token:
         raise RuntimeError("self-host API token is required")
-    if REQUIRED_FEATURE not in entitlement.features:
+    if entitlement is not None and REQUIRED_FEATURE not in entitlement.features:
         raise RuntimeError(f"self-host entitlement lacks required feature {REQUIRED_FEATURE}")
 
     try:
@@ -66,8 +72,6 @@ def create_selfhost_app(
         request: Request,
         authorization: str | None = Header(default=None),
     ) -> None:
-        if _entitlement_state_error(entitlement) is not None:
-            raise HTTPException(status_code=503, detail="Entitlement inactive")
         if not limiter.check(_client_key(request, authorization)):
             raise HTTPException(status_code=429, detail="Rate limit exceeded")
         expected = f"Bearer {api_token}"
@@ -76,8 +80,7 @@ def create_selfhost_app(
 
     @app.get("/v1/health")
     def health() -> dict[str, object]:
-        if _entitlement_state_error(entitlement) is not None:
-            raise HTTPException(status_code=503, detail="Entitlement inactive")
+        # Deliberately unauthenticated, so it must not disclose who runs this node.
         return {
             "status": "ok",
             "api_version": "v1",
@@ -122,7 +125,7 @@ def create_selfhost_app_from_env() -> Any:
     public_key_path = Path(
         os.environ.get("SEAM_SELFHOST_PUBLIC_KEY_PATH", str(DEFAULT_PUBLIC_KEY_PATH))
     )
-    entitlement = verify_entitlement(entitlement_path, public_key_path)
+    entitlement = _load_optional_entitlement(entitlement_path, public_key_path)
     api_token = _read_required_secret(
         env_name="SEAM_API_TOKEN",
         file_env_name="SEAM_API_TOKEN_FILE",
@@ -134,6 +137,48 @@ def create_selfhost_app_from_env() -> Any:
         entitlement,
         api_token=api_token,
     )
+
+
+def _load_optional_entitlement(
+    entitlement_path: Path,
+    public_key_path: Path,
+) -> VerifiedEntitlement | None:
+    """Return a verified entitlement, or ``None`` when none is mounted.
+
+    Absence is the free self-host path and is not an error. Presence is a
+    deliberate act, so a mounted file that fails verification fails CLOSED: a bad
+    signature, a foreign product, or a malformed payload is a tamper signal, not a
+    downgrade to free. A cryptographically sound but lapsed entitlement is kept and
+    reported as inactive rather than rejected, because it gates no capability and
+    BUSL-1.1 grants self-hosting regardless of support status.
+    """
+    if not entitlement_path.exists():
+        # flush explicitly: the runtime stage sets no PYTHONUNBUFFERED, so stdout is
+        # block-buffered in the compiled binary and this line would never surface.
+        print(
+            "[seam-selfhost] no entitlement mounted; running unentitled under BUSL-1.1",
+            flush=True,
+        )
+        return None
+    entitlement = verify_entitlement(
+        entitlement_path,
+        public_key_path,
+        enforce_validity_window=False,
+    )
+    state = _entitlement_state_error(entitlement)
+    if state is None:
+        print(
+            f"[seam-selfhost] entitled deployment {entitlement.customer_id} "
+            f"({entitlement.entitlement_id}), expires {entitlement.expires_at.isoformat()}",
+            flush=True,
+        )
+    else:
+        print(
+            f"[seam-selfhost] entitlement {entitlement.entitlement_id} is {state}; "
+            "continuing unentitled under BUSL-1.1",
+            flush=True,
+        )
+    return entitlement
 
 
 def main() -> None:

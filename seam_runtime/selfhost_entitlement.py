@@ -45,8 +45,16 @@ def verify_entitlement(
     public_key_path: str | Path,
     *,
     now: datetime | None = None,
+    enforce_validity_window: bool = True,
 ) -> VerifiedEntitlement:
-    """Verify an offline Ed25519 entitlement and return bounded public claims."""
+    """Verify an offline Ed25519 entitlement and return bounded public claims.
+
+    ``enforce_validity_window`` separates cryptographic validity from temporal
+    validity. Signature, schema, and product checks always apply. Callers that
+    treat an entitlement as an identity badge rather than a licence gate pass
+    ``False`` so a lapsed but genuine entitlement is returned and can be reported
+    as inactive, instead of being indistinguishable from a forged one.
+    """
     try:
         envelope = json.loads(Path(entitlement_path).read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
@@ -104,10 +112,11 @@ def verify_entitlement(
     if current.tzinfo is None:
         raise EntitlementError("verification time must be timezone-aware")
     current = current.astimezone(timezone.utc)
-    if current < not_before:
-        raise EntitlementError("entitlement is not active yet")
-    if current >= expires_at:
-        raise EntitlementError("entitlement has expired")
+    if enforce_validity_window:
+        if current < not_before:
+            raise EntitlementError("entitlement is not active yet")
+        if current >= expires_at:
+            raise EntitlementError("entitlement has expired")
 
     return VerifiedEntitlement(
         entitlement_id=entitlement_id,

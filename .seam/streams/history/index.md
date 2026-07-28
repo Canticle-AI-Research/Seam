@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 481
-total_tokens: ~223707
-latest_id: 481
+total_entries: 482
+total_tokens: ~224857
+latest_id: 482
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 482 | 2026-07-28 | changed | e8f54f77e0a25ed2 | selfhost,licensing,busl,entitlement,+ | 481 |
 | 481 | 2026-07-28 | changed | 89070f001754941e | roadmap,selfhost,packaging,mcp | 480 |
 | 480 | 2026-07-28 | changed | 14d762d781d17918 | selfhost,security,verify,graph,+ | 479 |
 | 479 | 2026-07-28 | done | 450b261eddc981f1 | graph,retrieval,rank,provenance,+ | 478 |
@@ -523,7 +524,7 @@ compact: true
 - bugfix: count=36 latest=#473, #472, #464, #460, #447
 - build: count=2 latest=#413, #408
 - bundle: count=6 latest=#471, #262, #245, #238, #015
-- busl: count=2 latest=#477, #474
+- busl: count=3 latest=#482, #477, #474
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - candidate: count=1 latest=#456
@@ -581,13 +582,14 @@ compact: true
 - distribution: count=1 latest=#474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=6 latest=#480, #477, #471, #149, #085
+- docker: count=7 latest=#482, #480, #477, #471, #149
 - docs: count=53 latest=#475, #474, #469, #467, #461
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
 - engineering: count=1 latest=#331
 - enrichment: count=1 latest=#317
+- entitlement: count=1 latest=#482
 - entity-aggregation: count=2 latest=#358, #323
 - epistemic: count=1 latest=#325
 - evidence: count=2 latest=#375, #316
@@ -639,7 +641,7 @@ compact: true
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
-- licensing: count=4 latest=#477, #476, #475, #474
+- licensing: count=5 latest=#482, #477, #476, #475, #474
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - live-verification: count=1 latest=#368
@@ -747,10 +749,10 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=59 latest=#480, #477, #471, #469, #468
+- security: count=60 latest=#482, #480, #477, #471, #469
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
-- selfhost: count=3 latest=#481, #480, #477
+- selfhost: count=4 latest=#482, #481, #480, #477
 - server: count=5 latest=#457, #300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
@@ -803,7 +805,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 20
+- changed: 21
 - done: 434
 - in-progress: 6
 - planned: 21

@@ -21,9 +21,15 @@ leakage:
 - Only `/v1/health`, `/v1/memories`, `/v1/memories/recall`, and `/v1/context`
   are registered. OpenAPI/docs, dashboard, stats, graph, storage, reasoning,
   benchmark, MIRL, PACK, HS/1, and operator routes are absent.
-- An offline Ed25519 entitlement is verified before the server starts. The
-  image contains only the public verification key. The customer mounts the
-  signed entitlement and API-token secret read-only.
+- An offline Ed25519 entitlement is **optional**. Self-hosting is granted by
+  BUSL-1.1 without limit on scale or number of users, so an unentitled node runs
+  the full `/v1` surface; the entitlement identifies a supported deployment and
+  unlocks no capability. When one is mounted it is verified before the server
+  starts and fails closed on a bad signature, a foreign product, or a malformed
+  payload, because mounting a file is a deliberate act and a forged one is a
+  tamper signal. A genuine but lapsed entitlement is reported inactive and the
+  node keeps serving: support status cannot revoke a right the licence grants.
+  The image contains only the public verification key.
 - `verify_selfhost_artifact` inspects the real Docker/OCI archive and fails on
   source-like files, private specifications/docs/tests, shells/package
   managers/interpreters, secret-shaped bytes, root execution, or an unexpected
@@ -74,7 +80,7 @@ optional.
 | Accidental public registry or package leak | Private registry access, no PyPI path, signed digest, artifact scanner | Rotate registry grants and treat leaked image as an incident |
 | Casual source browsing | No Python source/docs/tests in the final image; native compilation; distroless runtime | Keep builder cache and CI logs private |
 | Stolen powered-off disk or backup | Customer-managed encrypted data volume | LUKS2/dm-crypt or a cloud encrypted volume with separately controlled keys |
-| Unauthorized but non-admin use | Signed, bounded, expiring offline entitlement and bearer API token | Per-customer image/digest and read-only registry credentials |
+| Unauthorized but non-admin use | Bearer API token; entitlement is identification, not an access gate | Per-customer image/digest and read-only registry credentials |
 | Malicious host administrator | **Not protected** | Confidential VM/container, measured boot, attestation, and remote key release |
 | Physical/runtime side channels or compromised CPU firmware | Outside this edition's claim | Vendor/platform patching and a separately qualified confidential tier |
 
@@ -173,7 +179,8 @@ directory. Publication remains a separate operator action.
 
 Provision these files in an operator-controlled directory:
 
-- `entitlement.json`: vendor-signed entitlement;
+- `entitlement.json`: vendor-signed entitlement, only for supported deployments;
+  omit it, and delete the matching bind in `compose.yaml`, to run unentitled;
 - `api-token.txt`: at least 32 random characters, mode `0600`; and
 - `operator.env`: copied from `operator.env.example`, with the approved image
   digest or local tag.
