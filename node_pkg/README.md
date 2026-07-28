@@ -40,7 +40,7 @@ Connect an MCP client to the wheel's stdio command:
 seam-mcp --db /var/lib/seam/seam.db
 ```
 
-MCP talks directly to the local database and exposes SEAM's agent-memory tool
-surface rather than the opaque HTTP response contract. Run it only for a
-trusted local client and protect the database with operating-system
-permissions.
+The MCP server exposes the same three operations as the HTTP surface —
+`seam_remember`, `seam_recall`, and `seam_context` — talking directly to the
+local database instead of over the network. Run it only for a trusted local
+client and protect the database with operating-system permissions.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tomllib
 import zipfile
 from pathlib import Path
@@ -55,7 +56,7 @@ def test_node_metadata_is_separate_busl_package() -> None:
     assert project["requires-python"] == "==3.12.*"
     assert project["scripts"] == {
         "seam-node": "seam_runtime.selfhost:main",
-        "seam-mcp": "seam_runtime.mcp_protocol:main",
+        "seam-mcp": "seam_runtime.selfhost_mcp:main",
     }
     assert "Private :: Do Not Upload" not in project.get("classifiers", [])
     private_project = tomllib.loads(
@@ -71,20 +72,19 @@ def test_node_build_uses_explicit_sources_and_load_bearing_exclusions() -> None:
     assert Path("seam_runtime/event_count_context.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/tokenization.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/retrieval_orchestrator/__init__.py") in RUNTIME_SOURCE_FILES
-    assert Path("seam_runtime/mcp.py") in RUNTIME_SOURCE_FILES
-    assert Path("seam_runtime/mcp_protocol.py") in RUNTIME_SOURCE_FILES
-    assert Path("seam_runtime/doctor.py") in RUNTIME_SOURCE_FILES
-    assert Path("seam_runtime/pgvector_bootstrap.py") in RUNTIME_SOURCE_FILES
-    assert len(NOFOLLOW_MODULES) == 14
+    assert Path("seam_runtime/selfhost_mcp.py") in RUNTIME_SOURCE_FILES
+    assert len(NOFOLLOW_MODULES) == 18
     assert "seam_runtime.public_api" not in NOFOLLOW_MODULES
     assert "seam_runtime.conversation" not in NOFOLLOW_MODULES
     assert "seam_runtime.event_count_context" not in NOFOLLOW_MODULES
     assert "seam_runtime.tokenization" not in NOFOLLOW_MODULES
     assert "seam_runtime.retrieval_orchestrator" not in NOFOLLOW_MODULES
-    assert "seam_runtime.mcp" not in NOFOLLOW_MODULES
-    assert "seam_runtime.mcp_protocol" not in NOFOLLOW_MODULES
-    assert "seam_runtime.doctor" not in NOFOLLOW_MODULES
-    assert "seam_runtime.pgvector_bootstrap" not in NOFOLLOW_MODULES
+    assert "seam_runtime.selfhost_mcp" not in NOFOLLOW_MODULES
+    # The internal tool registry describes the architecture in its tool
+    # metadata and is served verbatim by tools/list, so the wheel ships the
+    # opaque surface instead. See test_selfhost_mcp_surface_is_opaque.
+    assert "seam_runtime.mcp" in NOFOLLOW_MODULES
+    assert "seam_runtime.mcp_protocol" in NOFOLLOW_MODULES
     assert set(RUNTIME_SOURCE_FILES) == {
         path.relative_to(REPO)
         for path in (REPO / "seam_runtime").rglob("*.py")
@@ -157,3 +157,37 @@ def test_node_build_refuses_nonempty_output_without_deleting_it(
     with pytest.raises(ValueError, match="output directory must be empty"):
         build_node_wheel(output)
     assert sentinel.read_text(encoding="utf-8") == "preserve me"
+
+
+def test_selfhost_mcp_surface_is_opaque() -> None:
+    """The wheel's MCP surface must not describe the runtime's internals.
+
+    Tool metadata is served verbatim to every connected client by
+    ``tools/list``, so a description naming a reserved identifier discloses the
+    architecture to anyone who connects. This is the regression that shipped
+    the internal registry would reintroduce.
+    """
+    from seam_runtime.selfhost_mcp import TOOL_METADATA, _dispatch_mcp_method
+
+    assert set(TOOL_METADATA) == {"seam_remember", "seam_recall", "seam_context"}
+
+    listing = json.dumps(_dispatch_mcp_method(None, "tools/list", {}))
+    for marker in NODE_RESERVED_CONTENT_BUDGET:
+        assert marker.decode("ascii") not in listing, (
+            f"MCP tools/list disclosed reserved identifier {marker!r}"
+        )
+
+    initialize = _dispatch_mcp_method(None, "initialize", {})
+    assert "MIRL" not in json.dumps(initialize)
+
+
+def test_selfhost_mcp_reaches_no_operation_beyond_the_public_api() -> None:
+    """Every MCP tool must map onto an audited ``public_api`` operation."""
+    import inspect
+
+    from seam_runtime import public_api, selfhost_mcp
+
+    source = inspect.getsource(selfhost_mcp._call_tool)
+    assert "from .public_api import" in source
+    for operation in ("remember", "recall", "context"):
+        assert hasattr(public_api, operation)

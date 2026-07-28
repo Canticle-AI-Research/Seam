@@ -86,6 +86,7 @@ RUNTIME_SOURCE_FILES = (
     Path("seam_runtime/second_hop_context.py"),
     Path("seam_runtime/self_improve.py"),
     Path("seam_runtime/selfhost.py"),
+    Path("seam_runtime/selfhost_mcp.py"),
     Path("seam_runtime/selfhost_entitlement.py"),
     Path("seam_runtime/sentence_grounded_facts.py"),
     Path("seam_runtime/server.py"),
@@ -115,11 +116,15 @@ NOFOLLOW_MODULES = (
     "seam_runtime.benchmark_integrity",
     "seam_runtime.cli",
     "seam_runtime.dashboard",
+    "seam_runtime.doctor",
     "seam_runtime.external_memory_benchmarks",
     "seam_runtime.graph_source_selector",
     "seam_runtime.improvement",
     "seam_runtime.lx1",
+    "seam_runtime.mcp",
+    "seam_runtime.mcp_protocol",
     "seam_runtime.multi_scope_pack",
+    "seam_runtime.pgvector_bootstrap",
     "seam_runtime.second_hop_context",
     "seam_runtime.self_improve",
     "seam_runtime.skills",
@@ -165,7 +170,7 @@ readme = Path("/src/node_pkg/README.md").read_text(encoding="utf-8")
 (dist_info / "entry_points.txt").write_text(
     "[console_scripts]\n"
     "seam-node = seam_runtime.selfhost:main\n"
-    "seam-mcp = seam_runtime.mcp_protocol:main\n",
+    "seam-mcp = seam_runtime.selfhost_mcp:main\n",
     encoding="utf-8",
 )
 license_path = dist_info / "licenses" / "LICENSES" / "BUSL-1.1.txt"
@@ -342,15 +347,34 @@ with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
         tools = mcp_responses[2]["result"]["tools"]
         tool_names = {tool["name"] for tool in tools}
         required_tools = {
-            "seam_memory_search",
-            "seam_ingest",
+            "seam_remember",
+            "seam_recall",
             "seam_context",
-            "seam_retrieve",
         }
-        if not required_tools <= tool_names:
+        if tool_names != required_tools:
             raise AssertionError(
-                f"MCP tools/list omitted required tools: {required_tools - tool_names}"
+                f"MCP tools/list is not the opaque surface: {tool_names}"
             )
+        listing = json.dumps(tools)
+        leaked = [
+            marker
+            for marker in (
+                "MIRL",
+                "IRBatch",
+                "TraceGraph",
+                "compile_nl",
+                "holographic",
+                "surface_adapter",
+                "HS/1",
+                "SEAM-RC",
+                "SEAM-LX",
+                "knowledge_graph",
+                "reasoning_graph",
+            )
+            if marker in listing
+        ]
+        if leaked:
+            raise AssertionError(f"MCP tools/list disclosed reserved identifiers: {leaked}")
         print(
             "MCP initialize -> "
             f"protocol={initialized['protocolVersion']} "
@@ -358,7 +382,7 @@ with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
         )
         print(
             "MCP tools/list -> "
-            f"tools={len(tools)} required={len(required_tools)}"
+            f"tools={len(tools)} opaque=yes reserved-identifier-scan=0"
         )
         print("MCP log ModuleNotFoundError scan -> 0")
     finally:
