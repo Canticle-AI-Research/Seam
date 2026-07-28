@@ -12423,3 +12423,62 @@ naming for the BUSL node is undecided; `seam-node`, `seam-engine`, `seam-core`,
 `seam-selfhost`, `seam-memory`, and `seam-server` were all confirmed available on
 PyPI.
 ---END-ENTRY-#477---
+
+---BEGIN-ENTRY-#478---
+id: 478
+date: 2026-07-28T14:55:22Z
+agent: codex
+status: done
+topics: graph, retrieval, provenance, history, handoff, verify, test, storage
+commits: pending
+refs: seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orchestrator/types.py,seam_runtime/retrieval_orchestrator/planner.py,seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,tests/audit/test_reasoning_retrieval.py,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-23-g3-paths-historical-view.md
+supersedes: 477
+tokens: 186
+---
+Built the bounded G3 exact-path and historical-view retrieval slice. Hop-positive graph hits now expose deterministic shortest edge paths plus only episodes visible in the selected current, history, or point-in-time view. graph_at and graph_include_history flow through planner, orchestrator, and ReasoningSession.retrieve, reuse knowledge-graph node/edge/episode visibility predicates, and persist on the append-only reasoning retrieval decision through an additive migration. No ranking, fusion, PACK, canonical-truth, or provider behavior changed. Verification: focused graph/reasoning slice 93 passed; pytest tests/ -m not external passed 1411 with 23 external deselected and two established xfails, zero failures/skips; Ruff, compileall, and diff check passed. No provider, paid-model, install, or download action. G3 remains partial: entity/value/agent/symbol vectors, calibrated fusion, and corpus-scale qualification remain.
+---END-ENTRY-#478---
+
+---BEGIN-ENTRY-#479---
+id: 479
+date: 2026-07-28T14:55:30Z
+agent: codex
+status: done
+topics: graph, retrieval, rank, provenance, test, verify, handoff, benchmark
+commits: pending
+refs: seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orchestrator/merger.py,seam_runtime/retrieval_orchestrator/orchestrator.py,seam_runtime/retrieval_orchestrator/types.py,seam_runtime/reasoning_graph.py,tools/graph_retrieval_qualification.py,tests/audit/test_reasoning_retrieval.py,tests/audit/test_graph_retrieval_qualification.py,docs/REASONING_GRAPH.md,docs/KNOWLEDGE_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-23-g3-rank-fusion-scale-qualification.md
+supersedes: 478
+tokens: 460
+---
+Built the next bounded G3 ranking and qualification slice without provider,
+paid-model, install, or download actions.
+
+Cross-leg fusion is now the fixed versioned `reciprocal-rank-fusion/2`
+contract. Each leg deduplicates a record by best raw score, ranks within its own
+score domain by raw score then record ID, contributes `1 / (60 + rank)`, and
+sums those comparable contributions. Raw SQL/vector/graph magnitudes remain in
+the live leg trace. New R2 decisions persist the policy fingerprint and exact
+rank-derived contributions; validation rejects non-policy values and recomputes
+the fused score and order. Deterministic duplicate handling, reason ordering,
+and graph-path selection keep traces stable.
+
+Added `tools.graph_retrieval_qualification`, a provider-free temporary-SQLite
+fixture covering structured filter, lexical 1-hop, lexical 3-hop, historical
+3-hop, and semantic-seeded mixed retrieval. The 2,048-node/2,047-edge,
+4,096-record run with five measured repeats passed expected evidence and path,
+namespace/scope isolation, deterministic ranking, cross-leg evidence, and the
+250 ms p95 gate. Observed p95s ranged from 7.714 to 43.262 ms. This is bounded
+synthetic mechanism/latency evidence, not a real-corpus quality claim.
+
+Verification: 108 focused tests passed. The authoritative
+`.venv/bin/python -m pytest -q tests/ -m "not external"` run collected 1,420
+tests and completed with 1,418 passed plus the two established xfails, zero
+failures or unexplained skips. The 189-test
+`test_seam_all/test_seam.py` compatibility suite passed. Touched-file Ruff,
+compileall, diff, public-manifest, and candidate secret/private-session-URL
+checks pass. CodeRabbit CLI 0.7.0 accepted the scoped staged diff twice but
+returned only status events and no findings summary, so external review is
+unavailable rather than clean.
+
+G3 remains partial. Semantic vectors for entity/value/agent/symbol graph nodes
+and real-corpus quality qualification remain; G4-G7 and R3-R6 remain open.
+---END-ENTRY-#479---
