@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 473
-total_tokens: ~215243
-latest_id: 473
+total_entries: 476
+total_tokens: ~219839
+latest_id: 476
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 476 | 2026-07-28 | changed | d2c2881a736e88e1 | release,licensing,distribution-boundary,ci | 475 |
+| 475 | 2026-07-28 | changed | f30d38570cfb5458 | pricing,docs,licensing | 474 |
+| 474 | 2026-07-28 | changed | 82fb3cc34910268b | licensing,busl,distribution,docs | 473 |
 | 473 | 2026-07-27 | done | 2366f295524836a9 | ci,bugfix,test,verify,+ | 472 |
 | 472 | 2026-07-27 | done | 94271e652af094a3 | ci,bugfix,test,verify,+ | 471 |
 | 471 | 2026-07-27 | done | d5f50357d276103c | docker,mirl,security,bundle,+ | 470 |
@@ -515,6 +518,7 @@ compact: true
 - bugfix: count=36 latest=#473, #472, #464, #460, #447
 - build: count=2 latest=#413, #408
 - bundle: count=6 latest=#471, #262, #245, #238, #015
+- busl: count=1 latest=#474
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - candidate: count=1 latest=#456
@@ -523,7 +527,7 @@ compact: true
 - chat: count=16 latest=#342, #286, #137, #074, #073
 - chat-endpoint: count=1 latest=#300
 - chroma: count=5 latest=#296, #295, #293, #017, #001
-- ci: count=32 latest=#473, #472, #470, #468, #467
+- ci: count=33 latest=#476, #473, #472, #470, #468
 - classification: count=11 latest=#177, #176, #171, #170, #169
 - cleanup: count=2 latest=#394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -569,9 +573,11 @@ compact: true
 - diagnostic: count=2 latest=#365, #362
 - diff: count=4 latest=#153, #093, #092, #037
 - disk-space: count=1 latest=#363
+- distribution: count=1 latest=#474
+- distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=4 latest=#471, #149, #085, #084
-- docs: count=51 latest=#469, #467, #461, #437, #418
+- docs: count=53 latest=#475, #474, #469, #467, #461
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -628,6 +634,7 @@ compact: true
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
+- licensing: count=3 latest=#476, #475, #474
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - live-verification: count=1 latest=#368
@@ -681,7 +688,7 @@ compact: true
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
 - preflight: count=1 latest=#438
-- pricing: count=1 latest=#368
+- pricing: count=2 latest=#475, #368
 - private-storage: count=1 latest=#367
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
@@ -714,7 +721,7 @@ compact: true
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
 - registry: count=5 latest=#409, #350, #348, #347, #178
-- release: count=3 latest=#356, #355, #350
+- release: count=4 latest=#476, #356, #355, #350
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - resolution: count=5 latest=#459, #458, #457, #456, #455
@@ -790,7 +797,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 14
+- changed: 17
 - done: 432
 - in-progress: 6
 - planned: 21
