@@ -12876,3 +12876,66 @@ holds no PyPI credentials. That is an operator browser action, after which a
 release workflow still needs writing. The compiled Docker image is likewise
 unpushed, and the hosted `/v1` endpoint is still undeployed.
 ---END-ENTRY-#484---
+
+---BEGIN-ENTRY-#485---
+id: 485
+date: 2026-07-28T23:20:55Z
+agent: claude
+status: done
+topics: selfhost, release, pypi, packaging, busl, verify
+commits: 5be1f84
+refs: .github/workflows/selfhost-release.yml,selfhost_pkg/pyproject.toml
+supersedes: 484
+tokens: 752
+---
+PUBLISHED `seam-self-host` 1.0.0 to PyPI. Both halves of the product are now
+installable: the free BUSL compiled self-host and the Apache-2.0 API client.
+
+`.github/workflows/selfhost-release.yml` (PR #178) is the release path. It
+verifies the requested version, distribution name, and BUSL-1.1 license against
+`selfhost_pkg/pyproject.toml` before building, builds with the same digest-pinned
+Docker/Nuitka pipeline used locally on the self-hosted box, RE-RUNS the boundary
+gate on the emitted artifact, asserts exactly one wheel and no sdist, then
+publishes from a hosted runner via Trusted Publishing. There is no upload path
+that bypasses the gate.
+
+Run 30407166882 failed its first attempt at the PyPI handshake with
+`invalid-publisher`. The operator's pending publisher named the repository
+`BlackhatShiftey/seam`; GitHub's OIDC claim carries the canonical
+`BlackhatShiftey/Seam`, and the match is case-sensitive. Everything else was
+correct, including an unset environment, which matches any. After the operator
+recreated the publisher with the correct casing, a `--failed` re-run reused the
+already-built and already-gated wheel and published without recompiling.
+
+Live and verified from PyPI rather than from the build: `seam-self-host` 1.0.0,
+BUSL-1.1, one file
+`seam_self_host-1.0.0-cp312-cp312-manylinux_2_28_x86_64.whl`. A clean isolated
+venv install placed exactly one artifact in site-packages,
+`seam_runtime.cpython-312-x86_64-linux-gnu.so`, with zero `.py` and zero other
+`.so`. Both console scripts installed. The opaque MCP surface reports exactly
+`seam_remember`, `seam_recall`, `seam_context`. The binary starts, prints
+`no entitlement mounted; running unentitled under BUSL-1.1`, and correctly
+refuses to serve without an API token.
+
+One verification trap worth recording, hit twice this session. `seam_runtime`
+imported from the installed wheel reports `__file__` as a `.py` path and raises
+tracebacks citing `.py` line numbers. Those are Nuitka's retained source-path
+metadata, not files: `find` reports zero `.py` under site-packages. This is the
+already-audited behavior from HISTORY#471, where module filenames and generic
+build-path metadata are explicitly NOT claimed as protected. Do not read a `.py`
+in a traceback as evidence that source shipped; check the filesystem. The
+related trap is running the check from the repository root, where the local
+`seam_runtime/` package shadows the installed wheel entirely.
+
+`seam-client` 2.0.0 was published earlier in the same session (HISTORY#484) and
+remains live.
+
+Verification: no repository source changed in this entry beyond the record
+itself, so the suite was not re-run; it passed at HISTORY#484 with 1,491 tests,
+zero failures and zero skips. PyPI metadata and a clean-venv install were
+checked directly.
+
+UNRESOLVED: the compiled Docker image is still unpushed and needs SBOM,
+provenance, and digest signing before any registry release. The hosted `/v1`
+endpoint is still undeployed, which is the remaining half of the paid tier.
+---END-ENTRY-#485---

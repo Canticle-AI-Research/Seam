@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 484
-total_tokens: ~227176
-latest_id: 484
+total_entries: 485
+total_tokens: ~227928
+latest_id: 485
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 485 | 2026-07-28 | done | f42d25684afed9e9 | selfhost,release,pypi,packaging,+ | 484 |
 | 484 | 2026-07-28 | changed | 8cef3b6fa25dc7d0 | selfhost,packaging,release,pypi,+ | 483 |
 | 483 | 2026-07-28 | done | 9b4376674862c1c0 | selfhost,mcp,security,packaging,+ | 482 |
 | 482 | 2026-07-28 | changed | e8f54f77e0a25ed2 | selfhost,licensing,busl,entitlement,+ | 481 |
@@ -526,7 +527,7 @@ compact: true
 - bugfix: count=36 latest=#473, #472, #464, #460, #447
 - build: count=2 latest=#413, #408
 - bundle: count=7 latest=#483, #471, #262, #245, #238
-- busl: count=3 latest=#482, #477, #474
+- busl: count=4 latest=#485, #482, #477, #474
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
 - candidate: count=1 latest=#456
@@ -684,7 +685,7 @@ compact: true
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=11 latest=#460, #450, #448, #446, #445
-- packaging: count=7 latest=#484, #483, #481, #296, #293
+- packaging: count=8 latest=#485, #484, #483, #481, #296
 - paid: count=2 latest=#412, #365
 - paid-run: count=5 latest=#434, #429, #427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
@@ -711,7 +712,7 @@ compact: true
 - prov: count=1 latest=#316
 - provenance: count=14 latest=#479, #478, #466, #461, #454
 - publish: count=1 latest=#410
-- pypi: count=2 latest=#484, #350
+- pypi: count=3 latest=#485, #484, #350
 - pyproject: count=11 latest=#470, #469, #468, #467, #347
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
@@ -730,7 +731,7 @@ compact: true
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
 - registry: count=5 latest=#409, #350, #348, #347, #178
-- release: count=5 latest=#484, #476, #356, #355, #350
+- release: count=6 latest=#485, #484, #476, #356, #355
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - resolution: count=5 latest=#459, #458, #457, #456, #455
@@ -754,7 +755,7 @@ compact: true
 - security: count=61 latest=#483, #482, #480, #477, #471
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
-- selfhost: count=6 latest=#484, #483, #482, #481, #480
+- selfhost: count=7 latest=#485, #484, #483, #482, #481
 - server: count=5 latest=#457, #300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
@@ -793,7 +794,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=316 latest=#484, #483, #480, #479, #478
+- verify: count=317 latest=#485, #484, #483, #480, #479
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -808,6 +809,6 @@ compact: true
 
 - roots: 76
 - changed: 22
-- done: 435
+- done: 436
 - in-progress: 6
 - planned: 21
