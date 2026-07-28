@@ -25,7 +25,10 @@ SECRET_PATTERNS = (
 )
 
 # Baseline measured 2026-07-28 against the real cp312-manylinux_2_28_x86_64
-# seam-node 2.4.0 wheel (9,690,160-byte extension; 413 total occurrences).
+# seam-node 2.4.0 wheel after G3 reconciliation (414 total occurrences).
+# HISTORY#480 measured the one added ``seam_runtime.knowledge_graph`` module
+# path introduced by the retrieval orchestrator; the node wheel carries the
+# same compiled source and therefore inherits that single attributable count.
 # This is a ratchet, not a zero-tolerance gate: native compilation retains
 # identifiers needed by the engine. Lower counts when protection improves;
 # never raise them merely to make a build pass.
@@ -40,7 +43,7 @@ NODE_RESERVED_CONTENT_BUDGET: dict[bytes, int] = {
     b"HS/1": 15,
     b"SEAM-RC": 13,
     b"SEAM-LX": 4,
-    b"knowledge_graph": 17,
+    b"knowledge_graph": 18,
     b"reasoning_graph": 12,
 }
 

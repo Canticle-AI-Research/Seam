@@ -19,6 +19,8 @@ def build_plan(
     namespace: str | None = None,
     graph_hops: int = 1,
     semantic_graph_seeding: bool = False,
+    graph_at: str | None = None,
+    graph_include_history: bool = False,
 ) -> RetrievalPlan:
     mode = mode.lower().strip() or "hybrid"
     if mode not in RETRIEVAL_MODES:
@@ -33,6 +35,10 @@ def build_plan(
         raise ValueError("graph_hops must be between 0 and 3")
     if not isinstance(semantic_graph_seeding, bool):
         raise TypeError("semantic_graph_seeding must be a boolean")
+    if graph_at is not None and (not isinstance(graph_at, str) or not graph_at.strip()):
+        raise ValueError("graph_at must be a non-empty timestamp string when provided")
+    if not isinstance(graph_include_history, bool):
+        raise TypeError("graph_include_history must be a boolean")
     filters = _extract_filters(query, scope=scope, namespace=namespace)
     normalized_query = _strip_filters(query)
     intent = _classify_intent(filters, normalized_query, mode)
@@ -59,6 +65,8 @@ def build_plan(
         mode=mode,
         graph_hops=graph_hops,
         semantic_graph_seeding=semantic_graph_seeding,
+        graph_at=graph_at,
+        graph_include_history=graph_include_history,
     )
 
 

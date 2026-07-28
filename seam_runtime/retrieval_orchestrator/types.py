@@ -89,6 +89,8 @@ class RetrievalPlan:
     mode: str = "hybrid"
     graph_hops: int = 1
     semantic_graph_seeding: bool = False
+    graph_at: str | None = None
+    graph_include_history: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -98,8 +100,37 @@ class RetrievalPlan:
             "mode": self.mode,
             "graph_hops": self.graph_hops,
             "semantic_graph_seeding": self.semantic_graph_seeding,
+            "graph_at": self.graph_at,
+            "graph_include_history": self.graph_include_history,
             "filters": self.filters.to_dict(),
             "legs": [leg.to_dict() for leg in self.legs],
+        }
+
+
+@dataclass(frozen=True)
+class GraphPathHop:
+    """One traversed edge on the deterministic shortest path from a graph seed.
+
+    The endpoints preserve the edge's canonical direction, which can differ
+    from traversal direction. ``episode_ids`` names only episodes visible in
+    the plan's graph-time view.
+    """
+
+    edge_id: str
+    predicate: str
+    src_id: str
+    dst_id: str
+    source_record_id: str | None
+    episode_ids: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "edge_id": self.edge_id,
+            "predicate": self.predicate,
+            "src_id": self.src_id,
+            "dst_id": self.dst_id,
+            "source_record_id": self.source_record_id,
+            "episode_ids": list(self.episode_ids),
         }
 
 
@@ -109,6 +140,7 @@ class LegHit:
     record: MIRLRecord
     score: float
     reasons: list[str] = field(default_factory=list)
+    path: tuple[GraphPathHop, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -116,6 +148,7 @@ class LegHit:
             "record": self.record.to_dict(),
             "score": round(self.score, 6),
             "reasons": list(self.reasons),
+            "path": [hop.to_dict() for hop in self.path],
         }
 
 
@@ -124,14 +157,18 @@ class RetrievalCandidate:
     record: MIRLRecord
     score: float
     sources: dict[str, float] = field(default_factory=dict)
+    source_ranks: dict[str, int] = field(default_factory=dict)
     reasons: list[str] = field(default_factory=list)
+    graph_path: tuple[GraphPathHop, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "record": self.record.to_dict(),
             "score": round(self.score, 6),
             "sources": {key: round(value, 6) for key, value in self.sources.items()},
+            "source_ranks": dict(sorted(self.source_ranks.items())),
             "reasons": list(self.reasons),
+            "graph_path": [hop.to_dict() for hop in self.graph_path],
         }
 
 

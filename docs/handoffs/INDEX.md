@@ -17,7 +17,9 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-28-seam-node-wheel` | [2026-07-28-seam-node-wheel.md](2026-07-28-seam-node-wheel.md) | `2026-07-27-proprietary-compiled-selfhost-v1` | `HISTORY#478` | `current` |
+| `2026-07-28-seam-node-wheel` | [2026-07-28-seam-node-wheel.md](2026-07-28-seam-node-wheel.md) | `2026-07-23-g3-rank-fusion-scale-qualification` | `HISTORY#482` | `current` |
+| `2026-07-23-g3-rank-fusion-scale-qualification` | [2026-07-23-g3-rank-fusion-scale-qualification.md](2026-07-23-g3-rank-fusion-scale-qualification.md) | `2026-07-23-g3-paths-historical-view` | `HISTORY#479` | `superseded` |
+| `2026-07-23-g3-paths-historical-view` | [2026-07-23-g3-paths-historical-view.md](2026-07-23-g3-paths-historical-view.md) | `2026-07-27-proprietary-compiled-selfhost-v1` | `HISTORY#478` | `superseded` |
 | `2026-07-27-proprietary-compiled-selfhost-v1` | [2026-07-27-proprietary-compiled-selfhost-v1.md](2026-07-27-proprietary-compiled-selfhost-v1.md) | `2026-07-24-seam-client-0-1-0-live` | `HISTORY#471` | `superseded` |
 | `2026-07-24-seam-client-0-1-0-live` | [2026-07-24-seam-client-0-1-0-live.md](2026-07-24-seam-client-0-1-0-live.md) | `2026-07-24-public-agent-sdk-boundary` | `HISTORY#470` | `superseded` |
 | `2026-07-24-public-agent-sdk-boundary` | [2026-07-24-public-agent-sdk-boundary.md](2026-07-24-public-agent-sdk-boundary.md) | `2026-07-24-mirl-hs1-proprietary-boundary` | `HISTORY#469` | `superseded` |

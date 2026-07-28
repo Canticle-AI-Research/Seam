@@ -236,6 +236,8 @@ class ReasoningSession:
         mode: str = "mix",
         graph_hops: int = 1,
         semantic_graph_seeding: bool = True,
+        graph_at: str | None = None,
+        graph_include_history: bool = False,
         semantic_backend: str = "seam",
     ) -> ReasonedRetrieval:
         """Run and atomically record a bounded retrieval decision."""
@@ -257,6 +259,10 @@ class ReasoningSession:
             raise ValueError("graph_hops must be between 0 and 3")
         if not isinstance(semantic_graph_seeding, bool):
             raise TypeError("semantic_graph_seeding must be a boolean")
+        if graph_at is not None and (not isinstance(graph_at, str) or not graph_at.strip()):
+            raise ValueError("graph_at must be a non-empty timestamp string when provided")
+        if not isinstance(graph_include_history, bool):
+            raise TypeError("graph_include_history must be a boolean")
         if semantic_backend not in {"seam", "chroma"}:
             raise ValueError("semantic_backend must be 'seam' or 'chroma'")
         from .retrieval_orchestrator import RetrievalOrchestrator
@@ -272,6 +278,8 @@ class ReasoningSession:
             mode=mode,
             graph_hops=graph_hops,
             semantic_graph_seeding=semantic_graph_seeding,
+            graph_at=graph_at,
+            graph_include_history=graph_include_history,
             candidate_trace_limit=128,
         )
         selected_count = len(result.selected)
@@ -302,6 +310,8 @@ class ReasoningSession:
             budget=budget,
             graph_hops=result.plan.graph_hops,
             semantic_graph_seeding=result.plan.semantic_graph_seeding,
+            graph_at=result.plan.graph_at,
+            graph_include_history=result.plan.graph_include_history,
             semantic_backend=semantic_backend,
             semantic_adapter=(
                 "chroma-embedded"

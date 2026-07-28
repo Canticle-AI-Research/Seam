@@ -131,9 +131,9 @@ def test_node_gate_scans_contents_and_exempts_license(tmp_path: Path) -> None:
 
 def test_node_reserved_budget_matches_measured_baseline() -> None:
     assert NODE_RESERVED_CONTENT_BUDGET[b"MIRL"] == 133
-    assert NODE_RESERVED_CONTENT_BUDGET[b"knowledge_graph"] == 17
+    assert NODE_RESERVED_CONTENT_BUDGET[b"knowledge_graph"] == 18
     assert NODE_RESERVED_CONTENT_BUDGET[b"reasoning_graph"] == 12
-    assert sum(NODE_RESERVED_CONTENT_BUDGET.values()) == 413
+    assert sum(NODE_RESERVED_CONTENT_BUDGET.values()) == 414
 
 
 def test_node_build_refuses_nonempty_output_without_deleting_it(

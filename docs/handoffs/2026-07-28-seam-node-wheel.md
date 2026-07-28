@@ -1,14 +1,14 @@
 ---
 handoff_id: 2026-07-28-seam-node-wheel
-supersedes: 2026-07-27-proprietary-compiled-selfhost-v1
+supersedes: 2026-07-23-g3-rank-fusion-scale-qualification
 handoff_status: current
-history: HISTORY#478
+history: HISTORY#482
 ---
 
 # Handoff: compiled `seam-node` wheel
 
 **Date:** 2026-07-28
-**Base:** `origin/main` at `05ff4963739471ffd6a37511e2f131031018b1f7`
+**Base:** `origin/main` at `a21eded3b9d5a528b210ba8d347037db5ff14378`
 **Branch:** `feat/seam-node-wheel`
 **Artifact:** local only; nothing published
 
@@ -44,15 +44,17 @@ empty `/probe` directory received only `seam_runtime*.so`; imports of
 
 ## Real artifact evidence
 
-- Wheel size: 3,486,260 bytes.
-- Extension size: 9,690,160 bytes.
+- Wheel size: 3,531,719 bytes.
+- Extension size: 9,813,104 bytes.
 - SHA-256:
-  `915d90d7cc00e11f33996e7ee494b861ceaa778a98795ea1ab74c66174313eca`.
-- Reserved identifiers: 413 total (`MIRL` 133, `MIRLRecord` 120, `IRBatch` 63,
+  `6eba58c8417229e8160eaeebd7b3ce8d17148cbac0908c3fd54896cd3a21bc2f`.
+- Reserved identifiers: 414 total (`MIRL` 133, `MIRLRecord` 120, `IRBatch` 63,
   `TraceGraph` 11, `compile_nl` 10, `holographic` 10, `surface_adapter` 5,
-  `HS/1` 15, `SEAM-RC` 13, `SEAM-LX` 4, `knowledge_graph` 17,
+  `HS/1` 15, `SEAM-RC` 13, `SEAM-LX` 4, `knowledge_graph` 18,
   `reasoning_graph` 12). This is the pinned wheel ratchet and is four below
-  the compiled image baseline; no image budget was raised.
+  the post-G3 compiled image baseline. The single increase from the pre-G3
+  wheel is the attributable `seam_runtime.knowledge_graph` module path already
+  measured for the image in HISTORY#480.
 
 ## Clean-container runtime proof
 
@@ -68,6 +70,17 @@ POST /v1/context -> 200 chars=34
 response marker scan -> raw:=0 clm:=0 mirl=0
 server log ModuleNotFoundError scan -> 0
 ```
+
+## Verification
+
+- Focused node/distribution/self-host audit slice: 35 passed.
+- Strict full `tests/` suite against live pgvector: 1,485 collected, 1,483
+  passed, two established xfails, zero skips, and zero failures.
+- Touched-file Ruff, compileall, real-wheel gate, canonical history closeout,
+  handoff, continuity, routing, integrity, and stream gates pass.
+- CodeRabbit CLI was authenticated but free-plan rate-limited. Local boundary
+  review found and fixed the nested `.data/purelib/seam_runtime` source bypass
+  before the final suite.
 
 ## Open product decision
 

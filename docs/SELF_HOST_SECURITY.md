@@ -56,7 +56,7 @@ four-route surface as the image, with these differences:
   account, network, and data-volume controls;
 - `tools.release.verify_node_wheel` scans real wheel contents, requires the
   BUSL-1.1 text and metadata, rejects runtime source and secret-shaped content,
-  and caps reserved-identifier exposure at the measured 413-occurrence
+  and caps reserved-identifier exposure at the measured 414-occurrence
   baseline; and
 - the build installs the wheel into a clean pinned Python container and proves
   health, authentication, remember, recall, context, response opacity, and the
