@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 471
-total_tokens: ~215239
-latest_id: 471
+total_entries: 472
+total_tokens: ~216338
+latest_id: 472
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 472 | 2026-07-28 | changed | 115027a5e85ca96d | pricing,docs,licensing | none |
 | 471 | 2026-07-27 | changed | 31c63e4c912cfe74 | licensing,busl,distribution,docs | none |
 | 470 | 2026-07-24 | done | 31703e92e798eed8 | agent,ci,pyproject,verify,+ | 469 |
 | 469 | 2026-07-24 | done | 3b2e4a9a76588edd | agent,surface,pyproject,security,+ | 468 |
@@ -571,7 +572,7 @@ compact: true
 - distribution: count=1 latest=#471
 - dns-rebinding: count=1 latest=#300
 - docker: count=3 latest=#149, #085, #084
-- docs: count=52 latest=#471, #469, #467, #461, #437
+- docs: count=53 latest=#472, #471, #469, #467, #461
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - enforcement: count=1 latest=#294
@@ -628,7 +629,7 @@ compact: true
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
-- licensing: count=1 latest=#471
+- licensing: count=2 latest=#472, #471
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - live-verification: count=1 latest=#368
@@ -682,7 +683,7 @@ compact: true
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
 - preflight: count=1 latest=#438
-- pricing: count=1 latest=#368
+- pricing: count=2 latest=#472, #368
 - private-storage: count=1 latest=#367
 - process: count=1 latest=#304
 - productize: count=1 latest=#320
@@ -790,8 +791,8 @@ compact: true
 
 ## status rollup
 
-- roots: 77
-- changed: 15
+- roots: 78
+- changed: 16
 - done: 429
 - in-progress: 6
 - planned: 21

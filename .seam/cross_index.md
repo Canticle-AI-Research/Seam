@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 532
+total_events: 533
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-01T19:23:53Z | history:277:cb90f2da | session-event | done | audit, benchmark, retrieval, locomo, docs, verify, histor... | docs/audits/2026-05-31-cat4-single-hop-attribution.md,.gitignore,PROJECT_STAT... |
 | 2026-06-01T22:59:38Z | history:278:8ddb1b38 | session-event | done | retrieval, benchmark, locomo, audit, docs, verify, histor... | benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py... |
 | 2026-06-02T03:23:37Z | history:279:d613fd79 | session-event | done | retrieval, benchmark, locomo, audit, docs, verify, histor... | docs/audits/2026-06-01-paid-locomo-slice-validation.md,PROJECT_STATUS.md,HIST... |
 | 2026-06-02T13:32:10Z | history:280:a329f272 | session-event | done | test, pgvector, bugfix, protocol, branch, audit, verify, ... | tests/conftest.py,tests/audit/test_pgvector_real_adapter.py,PROJECT_STATUS.md... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-24T12:53:45Z | history:469:3b2e4a9a | session-event | done | agent, surface, pyproject, security, test, handoff, docs | seam_runtime/public_api.py,seam_runtime/server.py,tests/audit/test_public_sdk... |
 | 2026-07-24T15:52:53Z | history:470:31703e92 | session-event | done | agent, ci, pyproject, verify, handoff, status | docs/PUBLIC_SDK_API.md,docs/handoffs/2026-07-24-seam-client-0-1-0-live.md,REA... |
 | 2026-07-27T22:56:00Z | history:471:31c63e4c | session-event | changed | licensing, busl, distribution, docs | LICENSE,LICENSES/BUSL-1.1.txt,NOTICE,COMMERCIAL_LICENSE.md,README.md,CONTRIBU... |
+| 2026-07-28T02:29:11Z | history:472:115027a5 | session-event | changed | pricing, docs, licensing | docs/pricing-tiers.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0332.cross.md | 2026-04-15T00:00:00Z..2026-05-31T23:56:01Z | 332 | (multi) | (multi) |
+| 0001-0333.cross.md | 2026-04-15T00:00:00Z..2026-06-01T19:23:53Z | 333 | (multi) | (multi) |

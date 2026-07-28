@@ -11910,3 +11910,88 @@ UNRESOLVED, carried forward:
 - Operator confirmation still open on returning the `seam-runtime` name to the
   runtime, which reverses an earlier "both, under separate names" choice.
 ---END-ENTRY-#471---
+
+---BEGIN-ENTRY-#472---
+id: 472
+date: 2026-07-28T02:29:11Z
+agent: claude
+status: changed
+topics: pricing, docs, licensing
+commits: pending
+refs: docs/pricing-tiers.md
+supersedes: none
+tokens: 1099
+---
+FIXED the one bankruptcy hole in the pricing drafts and made "unlimited" mean
+exactly one thing across both documents.
+
+The Max tier contradicted itself. `docs/pricing-tiers.md` described Max as "The
+Unlimited tier (no write meter)" in the tier ladder and as "Unlimited" / "no
+meter" in the managed-usage matrix, while its own write-pricing table and
+`docs/pricing-terms.md` both set Max at 100,000 included managed writes per
+month. An uncapped write meter on a $40/mo tier is unbounded COGS exposure from
+a single always-on agent, and it directly broke the document's own stated
+sizing rule that capping is what makes the model bankruptcy-proof by
+construction.
+
+Operator decision: unlimited applies to the self-host path only.
+
+Changes to `docs/pricing-tiers.md`:
+- Tier ladder "For" cell for Max: "The Unlimited tier (no write meter)" ->
+  "Heaviest managed use".
+- Managed-usage matrix: Max managed writes "Unlimited*" -> "credit pool";
+  included monthly write credits filled in with real published numbers across
+  every tier (1,000 taste / 5,000 / 25,000 / 100,000 / 25,000 per seat /
+  committed) instead of the previous mix of prose placeholders and "no meter".
+- Rewrote the "What unlimited honestly means here" section around an explicit
+  rule: unlimited describes the self-host path and the read side, and is never
+  used for anything the project pays to compute; if we front the compute it
+  carries a published number, with no exception for the top tier. Added
+  unlimited self-hosting as the lead item, noting it is a BUSL-1.1 right rather
+  than a plan feature and therefore not revocable by a subscription change.
+- Encrypted hosted backup: replaced "Unlimited*" for Max/Team/Enterprise with
+  published ceilings (5 GB / 50 GB / 500 GB / 500 GB per seat pooled /
+  committed), since that storage is a real cost to the project.
+- Replaced the orphaned fair-use footnote with an explanation that backup caps
+  are published numbers rather than unlimited-with-fine-print, and that
+  self-hosted storage on the user's own disk is unaffected.
+- Qualified "Unlimited storage, forever" to "Unlimited storage on your own node,
+  forever", pointing at the separate published hosted-backup ceiling.
+
+Max is now consistent at 100,000 across the tier ladder, the write-pricing
+table, the managed-usage matrix, and `docs/pricing-terms.md`. A grep for
+"unlimited" on any axis the project pays for returns nothing.
+
+Also recorded in this session's review of the drafts, not yet acted on:
+- Every allotment and margin derives from an explicitly unmeasured $0.0002/write
+  cost basis, while Founder Layer 1 commits 100 accounts to Pro-level writes
+  free for life. That is the only irreversible commitment in the model and it is
+  currently sequenced before the measurement that would validate it. Measure
+  compile COGS before opening founders.
+- The paid ladder (Solo/Pro/Max) sells convenience infrastructure that does not
+  exist: seam login, encrypted backup, cross-device sync, remote control plane,
+  and lever-pack delivery are all unbuilt, and no hosted service is deployed.
+- Two managed-usage pricing mechanisms coexist: a "~12% on pass-through provider
+  costs" handling fee in `pricing-terms.md` section 6 and a flat "$1 per 1,000
+  writes" in `pricing-tiers.md`. The flat per-KB rate should win; the
+  provider-agnostic-unit argument depends on it.
+- No hosted-data retention window after cancellation is stated anywhere.
+- Solo at $5 carries roughly 9% card-processing overhead before COGS.
+
+Verification: documentation-only change, no code touched, so the full suite was
+not re-run. It passed earlier this session at HISTORY#471 with zero skips after
+the seam-pgvector container was brought up, and nothing in this entry can affect
+it. Consistency was verified by grep across both pricing documents.
+
+UNRESOLVED, unchanged from HISTORY#471: the BUSL runtime is not shippable.
+`public_manifest.py` still lists `seam_runtime/` in MIRL_RESERVED_DIR_PREFIXES
+and `verify_distribution_boundary.py` still rejects, for the pypi target, any
+Python module outside PUBLIC_CLIENT_SAFE_PATHS, so the node artifact cannot be
+built or published. `build_public.py` copies only the four thin-shim files. Both
+`pyproject.toml` (proprietary expression plus a Private :: Do Not Upload
+classifier) and `public_pkg/pyproject.toml` (Apache-2.0) are pinned at 2.3.1 and
+neither declares BUSL or any author metadata. Per-file BUSL notices are not
+applied. Operator has confirmed the split shape: a node distribution under BUSL
+and a client distribution under Apache-2.0, using the two already-owned PyPI
+names.
+---END-ENTRY-#472---

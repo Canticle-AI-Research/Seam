@@ -27,20 +27,29 @@ The AI companies advertise "unlimited," then throttle you with hidden rate limit
 and silently downgrade the model. We can do better, because of one structural
 fact: **on the self-host path, you bring the compute.**
 
-- **Unlimited stored memories** — it's your disk (self-host) or cheap text
-  storage (hosted). MIRL records are tiny; this cap never realistically binds.
-- **Unlimited retrieval / queries** — it's your CPU on self-host. We literally
-  cannot meter your own machine.
+**The rule: "unlimited" describes the self-host path and the read side. It is
+never used for anything we pay to compute.** If we front the compute, it has a
+published number. No exceptions, including on the top tier.
+
+Genuinely unlimited, on every tier including Community:
+
+- **Unlimited self-hosting** — run the node on your own hardware or rented
+  infrastructure, at any scale, any number of users, including internal
+  commercial production use. This is a right granted by BUSL-1.1, not a plan
+  feature, so no subscription change can revoke it.
+- **Unlimited stored memories** — it's your disk. MIRL records are tiny.
+- **Unlimited retrieval / queries** — it's your CPU. We literally cannot meter
+  your own machine, and we never meter a read on the hosted path either.
 - **Unlimited devices synced** — sync bandwidth is negligible.
 - **Unlimited inference via bring-your-own-key** — your key, your tokens, no cap,
-  at *every* tier including Free.
+  at *every* tier including Community.
 
 The only things with real per-use cost to us are the operations where **we front
 the compute**: managed ingest (we run the embedding + MIRL compile) and managed
 answer-generation (we run an LLM at query time). Those are the only two things we
-meter — see "Usage & metering" below. Everything else — recall, search, storage,
-and the entire self-host / BYO-key path — is genuinely unlimited, because it runs
-on your compute or costs us effectively nothing.
+meter, they carry a published monthly number on every tier, and **no tier gets an
+uncapped write meter** — that cap is what makes the model bankruptcy-proof by
+construction. See "Usage & metering" below.
 
 ## Usage & metering — "You pay to remember. Recall is free. Forever."
 
@@ -111,8 +120,10 @@ honest multiple of real cost. Then no subscriber can ever cost more than they pa
 - **Unlimited / free by construction (all tiers, including Community):**
   - **Unlimited recall / search / retrieval** — reads are cheap and, on
     self-host, your compute. We never meter a read.
-  - **Unlimited storage, forever** — MIRL records are text; we don't charge rent
-    and we never expire your memories (unlike Hindsight's 30-day decay).
+  - **Unlimited storage on your own node, forever** — it's your disk. We don't
+    charge rent and we never expire your memories (unlike Hindsight's 30-day
+    decay). Hosted *backup* is a separate, published per-tier ceiling (5 GB /
+    50 GB / 500 GB) because that storage is ours to pay for.
   - **The entire self-host + BYO-key path** — genuinely uncapped, because you
     bring the compute. This is how SEAM is honestly one of the only "unlimited"
     memory products on the market.
@@ -145,7 +156,7 @@ cheaper and without the greed.
 | | **Community** | **Solo** | **Pro** | **Max** | **Team** | **Enterprise** |
 |---|---|---|---|---|---|---|
 | **Price** | $0 | ~$5/mo | ~$15/mo | ~$40/mo | ~$20/seat/mo | Custom |
-| **For** | Self-hosters | Effortless solo self-host | Power user | **The Unlimited tier** (no write meter) | Shared memory | Compliance & scale |
+| **For** | Self-hosters | Effortless solo self-host | Power user | Heaviest managed use | Shared memory | Compliance & scale |
 | **License** | BUSL-1.1 (self-host free) | + hosted conveniences | | | | + commercial terms |
 
 Yearly = 2 months free. Community is not a trial and not a lite build — it is the
@@ -223,14 +234,16 @@ Legend: ✓ = included · — = not included · numbers = that tier's allowance.
 | Feature | Community | Solo | Pro | Max | Team | Enterprise |
 |---|---|---|---|---|---|---|
 | `seam login` — one-command wiring | — | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Encrypted hosted backup (E2E; we hold ciphertext) | — | 5 GB | 50 GB | **Unlimited\*** | Unlimited\* | Unlimited\* |
+| Encrypted hosted backup (E2E; we hold ciphertext) | — | 5 GB | 50 GB | 500 GB | 500 GB / seat (pooled) | Committed |
 | Cross-device sync (unlimited devices) | — | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Remote control plane (reach your dashboard anywhere) | — | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Auto-managed lever-pack delivery + 1-click rollback | — | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Priority support (front of line) | — | — | ✓ | ✓ | ✓ | ✓ |
 
-\* Fair-use. MIRL records are text — even heavy users rarely exceed tens of MB,
-so this cap is generous by construction, not a trap.
+Backup caps are published numbers, not "unlimited with fair-use fine print."
+MIRL records are text — even heavy users rarely exceed tens of MB — so these
+ceilings are generous by construction and almost never bind. Self-hosted storage
+on your own disk remains genuinely unlimited and is not affected by any of this.
 
 ### Managed usage — the only metered thing (real COGS)
 
@@ -241,8 +254,8 @@ SEAM Credits (1 credit = 1 KB managed ingest). See "Usage & metering" above.
 |---|---|---|---|---|---|---|
 | BYO-key (always unlimited) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | **Unlimited recall / storage** (never metered, any tier) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Managed **writes** (ingest compute) | BYO-key | credit pool | credit pool | **Unlimited\*** | pooled | committed |
-| Included monthly write credits | — | — | pool | **no meter** | pooled | committed |
+| Managed **writes** (ingest compute) | 1,000 taste | credit pool | credit pool | credit pool | pooled | committed |
+| Included monthly write credits | — | 5,000 | 25,000 | 100,000 | 25,000 / seat | committed |
 | Buy-more credits — prepaid wallet (rollover) | — | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Postpaid metered billing | — | — | — | — | opt-in | ✓ |
 | Transparent cost + labeled ~12% fee | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
