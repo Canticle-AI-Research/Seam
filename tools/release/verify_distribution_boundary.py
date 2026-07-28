@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import tarfile
 import zipfile
@@ -14,38 +15,10 @@ from tools.release.public_manifest import (
     is_reserved_material_path,
 )
 
-# Imports that indicate a file contains MIRL/HS/1 reserved material.
-# The thin public client files must NOT import from these.
-_MIRL_HS1_IMPORT_MARKERS: tuple[bytes, ...] = (
-    b"from .mirl import",
-    b"from .runtime import",
-    b"from .sdk import",
-    b"from .holographic import",
-    b"from .lossless import",
-    b"from .pack import",
-    b"from .storage import",
-    b"from .vector import",
-    b"from .graph",
-    b"from .retrieval import",
-    b"from .reconcile import",
-    b"from .surface_adapters import",
-    b"from .knowledge_graph import",
-    b"from .reasoning_graph import",
-    b"from seam_runtime.mirl",
-    b"from seam_runtime.runtime",
-    b"from seam_runtime.holographic",
-    b"from seam_runtime.lossless",
-    b"from seam_runtime.pack",
-    b"from seam_runtime.storage",
-    b"from seam_runtime.sdk",
-    b"from seam_runtime.retrieval",
-    b"from seam_runtime.vector",
-    b"from seam_runtime.cli",
-    b"from seam_runtime.dashboard",
-    b"from seam_runtime.server",
-    b"from seam_runtime.surface_adapters",
-    b"from seam_runtime.knowledge_graph",
-    b"from seam_runtime.reasoning_graph",
+_PRIVATE_MODULE_REFERENCE = re.compile(rb"\bseam_runtime\.[A-Za-z_]")
+_DYNAMIC_IMPORT_MARKERS: tuple[bytes, ...] = (
+    b"__import__(",
+    b"import_module(",
 )
 
 
@@ -53,8 +26,9 @@ def _is_thin_client_file(entry_path: str, content: bytes) -> bool:
     """Return True if a path in PUBLIC_CLIENT_SAFE_PATHS has safe content."""
     if entry_path not in PUBLIC_CLIENT_SAFE_PATHS:
         return False
-    # Check that the file does NOT import any MIRL/HS/1 internals.
-    return not any(marker in content for marker in _MIRL_HS1_IMPORT_MARKERS)
+    if _PRIVATE_MODULE_REFERENCE.search(content):
+        return False
+    return not any(marker in content for marker in _DYNAMIC_IMPORT_MARKERS)
 
 PRIVATE_LICENSE_MARKER = b"SEAM PRIVATE REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE"
 PRIVATE_CLASSIFIER = b"Classifier: Private :: Do Not Upload"
@@ -136,6 +110,23 @@ def verify_archive(path: Path, *, target: str) -> tuple[str, ...]:
 
     if target != "pypi":
         raise ValueError(f"unsupported target: {target}")
+
+    is_runtime_compatibility = b"Name: seam-runtime" in metadata
+    unexpected_python = (
+        sorted(
+            {
+                entry.path
+                for entry in entries
+                if entry.path.endswith(".py") and entry.path not in PUBLIC_CLIENT_SAFE_PATHS
+            }
+        )
+        if is_runtime_compatibility
+        else []
+    )
+    if unexpected_python:
+        preview = ", ".join(unexpected_python[:8])
+        suffix = "" if len(unexpected_python) <= 8 else f", and {len(unexpected_python) - 8} more"
+        errors.append(f"public distribution contains unexpected Python modules: {preview}{suffix}")
 
     reserved = sorted(
         {
