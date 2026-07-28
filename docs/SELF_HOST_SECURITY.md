@@ -2,7 +2,7 @@
 
 The compiled self-host editions run the private SEAM MIRL engine on
 customer-controlled Linux/amd64 infrastructure while exposing only the opaque
-public `/v1` contract. The Docker image and `seam-node` wheel are controlled
+public `/v1` contract. The Docker image and `seam-self-host` wheel are controlled
 distribution formats, not cryptographic black boxes. Linux/arm64 is not
 qualified by this first edition.
 
@@ -48,7 +48,7 @@ names as discoverable by a customer with the image.
 
 ## Wheel channel
 
-`seam-node` 2.4.0 is the additional CPython 3.12
+`seam-self-host` 1.0.0 is the additional CPython 3.12
 `manylinux_2_28_x86_64` channel. It carries the same compiled engine and
 four-route surface as the image, with these differences:
 
@@ -60,7 +60,7 @@ four-route surface as the image, with these differences:
   root, capability drop, loopback-only Compose mapping, or container
   no-new-privileges policy; the host operator must enforce equivalent process,
   account, network, and data-volume controls;
-- `tools.release.verify_node_wheel` scans real wheel contents, requires the
+- `tools.release.verify_selfhost_wheel` scans real wheel contents, requires the
   BUSL-1.1 text and metadata, rejects runtime source and secret-shaped content,
   and caps reserved-identifier exposure at the measured 414-occurrence
   baseline; and
@@ -168,8 +168,8 @@ python -m tools.release.verify_selfhost_artifact \
 Build the wheel into a new or empty output directory:
 
 ```bash
-python -m tools.release.build_node_wheel \
-  --outdir /approved/artifacts/seam-node
+python -m tools.release.build_selfhost_wheel \
+  --outdir /approved/artifacts/seam-self-host
 ```
 
 The command performs no upload and refuses to overwrite or clear a non-empty

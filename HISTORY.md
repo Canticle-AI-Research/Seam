@@ -12802,3 +12802,77 @@ cost of the remaining set. The three shipping gates named this session, pushing
 the compiled image with SBOM and signing, uploading `seam-node`, and deploying
 the hosted `/v1`, all remain operator decisions.
 ---END-ENTRY-#483---
+
+---BEGIN-ENTRY-#484---
+id: 484
+date: 2026-07-28T22:42:05Z
+agent: claude
+status: changed
+topics: selfhost, packaging, release, pypi, naming, test, verify
+commits: pending
+refs: selfhost_pkg/pyproject.toml,tools/release/build_selfhost_wheel.py,tools/release/verify_selfhost_wheel.py,tests/audit/test_selfhost_wheel.py,docs/SOP_SEAM_SELF_HOST_WHEEL.md,REPO_LEDGER.md
+supersedes: 483
+tokens: 1047
+---
+RENAMED the compiled self-host distribution to `seam-self-host` 1.0.0 and
+versioned the public SDK as `seam-client` 2.0.0, then PUBLISHED the SDK to PyPI.
+Operator naming decision; both artifacts are otherwise unchanged in behavior.
+
+`seam-node` 2.4.0 becomes `seam-self-host` 1.0.0. The name was confirmed
+available on PyPI before the rename, and because the distribution name is new
+the version resets to a 1.0.0 line rather than continuing 2.4.x. Renamed with
+`git mv` so history follows the files: `node_pkg/` -> `selfhost_pkg/`,
+`tools/release/build_node_wheel.py` -> `build_selfhost_wheel.py`,
+`verify_node_wheel.py` -> `verify_selfhost_wheel.py`,
+`tests/audit/test_node_wheel.py` -> `test_selfhost_wheel.py`, and
+`docs/SOP_SEAM_NODE_WHEEL.md` -> `docs/SOP_SEAM_SELF_HOST_WHEEL.md`. Internal
+identifiers followed: `NODE_FILES` -> `SELFHOST_FILES`,
+`NODE_RESERVED_CONTENT_BUDGET` -> `SELFHOST_RESERVED_CONTENT_BUDGET`,
+`NODE_VERSION` -> `SELFHOST_VERSION`. The console entry point is now
+`seam-self-host`; `seam-mcp` is unchanged. A half-rename that left the tooling
+saying "node" while the product said "self-host" was the drift worth avoiding.
+
+`HISTORY.md`, `.seam/`, and `docs/handoffs/2026-07-28-seam-node-wheel.md` still
+say `seam-node`. That is deliberate: they are append-only records of what was
+true when written, and the handoff registry references that filename. The rename
+is recorded here rather than backfilled into the timeline.
+
+Fixed a real robustness defect found by the rename, not introduced by it. The
+source allow-list test asserted equality against
+`(REPO / "seam_runtime").rglob("*.py")`, so any untracked working state under
+`seam_runtime/` failed it. The primary worktree carries `seam_runtime/.ua/`,
+live R3 graph working state that must not be cleaned, and the test failed there
+while passing in the wheel worktree. It now skips dot-directories, which are
+never runtime source the wheel would ship.
+
+Rebuilt and re-proved the artifact under the new name rather than assuming a
+rename is inert:
+`seam_self_host-1.0.0-cp312-cp312-manylinux_2_28_x86_64.whl`, 3,575,299 bytes.
+`auditwheel` and `twine check` PASSED, the self-host boundary gate PASSED, and
+the clean-container proof reported `/v1` health 200, unauthenticated write 401,
+remember 200, recall 200 with one memory, context 200, no `raw:`/`clm:`/`mirl`
+markers, `MCP initialize -> protocol=2025-06-18 server=seam`,
+`tools/list -> tools=3` with the reserved-identifier scan at 0, no
+`ModuleNotFoundError`, and `no entitlement mounted; running unentitled under
+BUSL-1.1`. The 414-occurrence baseline is carried forward unchanged.
+
+`seam-client` moves 0.2.0 -> 2.0.0 in the separate public `Seam_Runtime` repo.
+PyPI carried only 0.1.0; the 0.2.0 agent-lifecycle line was never published, so
+2.0.0 is the first release to ship `prepare_turn`/`complete_turn`. PR #3 merged
+green and workflow run 30405367527 published both artifacts through PyPI Trusted
+Publishing with digital attestations and no stored token. Verified live: PyPI
+reports 2.0.0, and a clean isolated-venv `pip install seam-client==2.0.0`
+imported the package and confirmed all four lifecycle hooks.
+
+Verification: full suite 1,491 tests, zero failures, zero skips, two established
+`compile_nl` xfails, run against live pgvector. The focused self-host wheel slice
+passes 14 tests.
+
+UNRESOLVED: `seam-self-host` 1.0.0 is NOT published and cannot be from here. PyPI
+requires a pending publisher configured in the pypi.org web UI before the first
+upload of a new project name; the name has never existed there, no publish
+workflow covers it (the builder deliberately has no upload mode), and this host
+holds no PyPI credentials. That is an operator browser action, after which a
+release workflow still needs writing. The compiled Docker image is likewise
+unpushed, and the hosted `/v1` endpoint is still undeployed.
+---END-ENTRY-#484---

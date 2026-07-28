@@ -45,11 +45,11 @@ not have to infer what works from directory names alone.
   `verify_distribution_boundary.py` scans built wheel/sdist contents and fails
   closed when the private MIRL/HS/1 package is aimed at PyPI. The pre-push hook
   refuses every update to the legacy `seam-runtime` remote.
-- `node_pkg/` + `tools/release/build_node_wheel.py` - separate BUSL
-  `seam-node` package metadata and pinned Docker build for the compiled CPython
+- `selfhost_pkg/` + `tools/release/build_selfhost_wheel.py` - separate BUSL
+  `seam-self-host` package metadata and pinned Docker build for the compiled CPython
   3.12 `manylinux_2_28_x86_64` wheel. The build stages only an explicit runtime
   source allow-list, emits no Python source or sdist, and must pass
-  `verify_node_wheel` plus the clean-container four-route proof before copying
+  `verify_selfhost_wheel` plus the clean-container four-route proof before copying
   the wheel to the requested output directory.
 - `.github/workflows/package-release.yml` - manual private-package build,
   metadata check, boundary scan, smoke install, and private GitHub Release

@@ -1,4 +1,4 @@
-"""Fail closed when a seam-node wheel violates the compiled BUSL boundary."""
+"""Fail closed when a seam-self-host wheel violates the compiled BUSL boundary."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from pathlib import Path, PurePosixPath
 SOURCE_SUFFIXES = (".py", ".pyc", ".pyo")
 BUSL_LICENSE_PATH = "licenses/LICENSES/BUSL-1.1.txt"
 BUSL_LICENSE_MARKER = b"Business Source License 1.1"
-NODE_NAME = b"Name: seam-node"
-NODE_VERSION = b"Version: 2.4.0"
+NODE_NAME = b"Name: seam-self-host"
+SELFHOST_VERSION = b"Version: 1.0.0"
 BUSL_EXPRESSION = b"License-Expression: BUSL-1.1"
 SECRET_PATTERNS = (
     re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -25,14 +25,15 @@ SECRET_PATTERNS = (
 )
 
 # Baseline measured 2026-07-28 against the real cp312-manylinux_2_28_x86_64
-# seam-node 2.4.0 wheel after G3 reconciliation (414 total occurrences).
+# seam-self-host 1.0.0 wheel; unchanged 414-occurrence baseline carried
+# forward from the seam-node 2.4.0 measurement at HISTORY#483.
 # HISTORY#480 measured the one added ``seam_runtime.knowledge_graph`` module
 # path introduced by the retrieval orchestrator; the node wheel carries the
 # same compiled source and therefore inherits that single attributable count.
 # This is a ratchet, not a zero-tolerance gate: native compilation retains
 # identifiers needed by the engine. Lower counts when protection improves;
 # never raise them merely to make a build pass.
-NODE_RESERVED_CONTENT_BUDGET: dict[bytes, int] = {
+SELFHOST_RESERVED_CONTENT_BUDGET: dict[bytes, int] = {
     b"MIRL": 133,
     b"MIRLRecord": 120,
     b"IRBatch": 63,
@@ -66,7 +67,7 @@ def measure_reserved_content(
     markers: tuple[bytes, ...] | None = None,
 ) -> dict[bytes, int]:
     """Count reserved identifiers in wheel file contents, excluding licenses."""
-    selected = tuple(NODE_RESERVED_CONTENT_BUDGET) if markers is None else markers
+    selected = tuple(SELFHOST_RESERVED_CONTENT_BUDGET) if markers is None else markers
     observed = dict.fromkeys(selected, 0)
     with zipfile.ZipFile(path) as archive:
         for info in archive.infolist():
@@ -78,13 +79,13 @@ def measure_reserved_content(
     return observed
 
 
-def verify_node_wheel(
+def verify_selfhost_wheel(
     path: Path,
     *,
     budget: dict[bytes, int] | None = None,
 ) -> tuple[str, ...]:
-    """Return every node-wheel boundary violation."""
-    selected_budget = NODE_RESERVED_CONTENT_BUDGET if budget is None else budget
+    """Return every selfhost-wheel boundary violation."""
+    selected_budget = SELFHOST_RESERVED_CONTENT_BUDGET if budget is None else budget
     errors: list[str] = []
     try:
         with zipfile.ZipFile(path) as archive:
@@ -131,9 +132,9 @@ def verify_node_wheel(
     else:
         metadata = metadata_entries[0]
     if NODE_NAME not in metadata:
-        errors.append("wheel metadata name is not seam-node")
-    if NODE_VERSION not in metadata:
-        errors.append("wheel metadata version is not 2.4.0")
+        errors.append("wheel metadata name is not seam-self-host")
+    if SELFHOST_VERSION not in metadata:
+        errors.append("wheel metadata version is not 1.0.0")
     if BUSL_EXPRESSION not in metadata:
         errors.append("wheel metadata does not declare BUSL-1.1")
 
@@ -161,13 +162,13 @@ def main(argv: list[str] | None = None) -> int:
 
     failed = False
     for wheel in args.wheels:
-        errors = verify_node_wheel(wheel)
+        errors = verify_selfhost_wheel(wheel)
         if errors:
             failed = True
             for error in errors:
-                print(f"[node-wheel] FAIL {wheel}: {error}", file=sys.stderr)
+                print(f"[selfhost-wheel] FAIL {wheel}: {error}", file=sys.stderr)
         else:
-            print(f"[node-wheel] PASS {wheel}")
+            print(f"[selfhost-wheel] PASS {wheel}")
     return 1 if failed else 0
 
 
