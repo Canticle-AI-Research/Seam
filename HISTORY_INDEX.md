@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 477
-total_tokens: ~221503
-latest_id: 477
+total_entries: 478
+total_tokens: ~222493
+latest_id: 478
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 478 | 2026-07-28 | done | f2176f08a7801aa4 | bundle,pyproject,security,verify,+ | 477 |
 | 477 | 2026-07-28 | changed | cd1540bab6b6fa28 | selfhost,licensing,busl,security,+ | 476 |
 | 476 | 2026-07-28 | changed | d2c2881a736e88e1 | release,licensing,distribution-boundary,ci | 475 |
 | 475 | 2026-07-28 | changed | f30d38570cfb5458 | pricing,docs,licensing | 474 |
@@ -518,7 +519,7 @@ compact: true
 - bug: count=1 latest=#303
 - bugfix: count=36 latest=#473, #472, #464, #460, #447
 - build: count=2 latest=#413, #408
-- bundle: count=6 latest=#471, #262, #245, #238, #015
+- bundle: count=7 latest=#478, #471, #262, #245, #238
 - busl: count=2 latest=#477, #474
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
@@ -577,7 +578,7 @@ compact: true
 - distribution: count=1 latest=#474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=5 latest=#477, #471, #149, #085, #084
+- docker: count=6 latest=#478, #477, #471, #149, #085
 - docs: count=53 latest=#475, #474, #469, #467, #461
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
@@ -611,7 +612,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=53 latest=#471, #470, #469, #468, #467
+- handoff: count=54 latest=#478, #471, #470, #469, #468
 - harden: count=1 latest=#182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -704,7 +705,7 @@ compact: true
 - provenance: count=12 latest=#466, #461, #454, #448, #439
 - publish: count=1 latest=#410
 - pypi: count=1 latest=#350
-- pyproject: count=11 latest=#470, #469, #468, #467, #347
+- pyproject: count=12 latest=#478, #470, #469, #468, #467
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -743,7 +744,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=58 latest=#477, #471, #469, #468, #467
+- security: count=59 latest=#478, #477, #471, #469, #468
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=1 latest=#477
@@ -771,7 +772,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=69 latest=#473, #472, #469, #466, #465
+- test: count=70 latest=#478, #473, #472, #469, #466
 - tests: count=31 latest=#458, #457, #456, #455, #454
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -785,7 +786,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=311 latest=#477, #473, #472, #471, #470
+- verify: count=312 latest=#478, #477, #473, #472, #471
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -800,6 +801,6 @@ compact: true
 
 - roots: 76
 - changed: 18
-- done: 432
+- done: 433
 - in-progress: 6
 - planned: 21

@@ -1,9 +1,10 @@
-# Proprietary compiled self-host edition
+# Compiled self-host editions
 
-The compiled self-host edition runs the private SEAM MIRL engine on
+The compiled self-host editions run the private SEAM MIRL engine on
 customer-controlled Linux/amd64 infrastructure while exposing only the opaque
-public `/v1` contract. It is a controlled distribution format, not a
-cryptographic black box. Linux/arm64 is not qualified by this first edition.
+public `/v1` contract. The Docker image and `seam-node` wheel are controlled
+distribution formats, not cryptographic black boxes. Linux/arm64 is not
+qualified by this first edition.
 
 ## Honest protection boundary
 
@@ -38,6 +39,33 @@ Native compilation is also not source erasure. Compiled artifacts can retain
 module filenames, type names, error strings, and other constants even when the
 defined symbol table is stripped and no source files are present. Treat those
 names as discoverable by a customer with the image.
+
+## Wheel channel
+
+`seam-node` 2.4.0 is the additional CPython 3.12
+`manylinux_2_28_x86_64` channel. It carries the same compiled engine and
+four-route surface as the image, with these differences:
+
+- the wheel contains one native `seam_runtime` extension and no
+  `seam_runtime` `.py`, `.pyc`, or `.pyo`;
+- installation supplies the declared FastAPI, Uvicorn, cryptography, Rich, and
+  tiktoken runtime dependencies through normal Python packaging;
+- it does not provide the image's distroless filesystem, forced uid, read-only
+  root, capability drop, loopback-only Compose mapping, or container
+  no-new-privileges policy; the host operator must enforce equivalent process,
+  account, network, and data-volume controls;
+- `tools.release.verify_node_wheel` scans real wheel contents, requires the
+  BUSL-1.1 text and metadata, rejects runtime source and secret-shaped content,
+  and caps reserved-identifier exposure at the measured 413-occurrence
+  baseline; and
+- the build installs the wheel into a clean pinned Python container and proves
+  health, authentication, remember, recall, context, response opacity, and the
+  absence of `ModuleNotFoundError` before returning the artifact.
+
+The current wheel preserves the vendor-signed entitlement requirement. That
+requirement conflicts with the intended free self-host product and remains an
+operator product decision; the wheel build does not silently make entitlement
+optional.
 
 ## Threat model
 
@@ -130,6 +158,16 @@ docker save seam-selfhost:local -o /approved/artifacts/seam-selfhost.tar
 python -m tools.release.verify_selfhost_artifact \
   /approved/artifacts/seam-selfhost.tar
 ```
+
+Build the wheel into a new or empty output directory:
+
+```bash
+python -m tools.release.build_node_wheel \
+  --outdir /approved/artifacts/seam-node
+```
+
+The command performs no upload and refuses to overwrite or clear a non-empty
+directory. Publication remains a separate operator action.
 
 ## Customer one-command operation
 

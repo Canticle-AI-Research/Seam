@@ -1,5 +1,23 @@
 # SEAM Project Status
 
+Current update: 2026-07-28 (HISTORY#478 - BUILT the additional BUSL
+`seam-node` 2.4.0 wheel channel without publishing it. A mandatory Nuitka
+module-mode spike first proved that a source-free extension package can import
+`seam_runtime`, `mirl`, `selfhost`, and `runtime`. The digest-pinned Docker
+pipeline now produces one CPython 3.12 `manylinux_2_28_x86_64` wheel, refuses a
+non-empty output directory, stages an explicit source allow-list, preserves
+the image's 18 load-bearing exclusions and required lazy imports, and runs
+`auditwheel`, `twine`, the node boundary gate, and a clean-container runtime
+proof before returning the artifact. The real 3,486,260-byte wheel contains a
+9,690,160-byte compiled extension, BUSL metadata/text, no `seam_runtime`
+`.py`/`.pyc`/`.pyo`, and passes the measured 413-occurrence reserved-identifier
+ratchet. Health, unauthenticated 401, remember, recall, and context passed;
+responses contained no `raw:`, `clm:`, or `mirl`, and logs contained no
+`ModuleNotFoundError`. The signed-entitlement requirement remains unchanged
+and conflicts with the intended free tier; that is an explicit pending product
+decision. No PyPI upload, registry push, workflow dispatch, provider call, or
+paid model call occurred.)
+
 Current update: 2026-07-27 (HISTORY#471 - BUILT the first proprietary compiled
 self-host MIRL edition for Linux/amd64 without disturbing the dirty
 `fix/public-shim-2.3.1` checkout or publishing an artifact. The local-only

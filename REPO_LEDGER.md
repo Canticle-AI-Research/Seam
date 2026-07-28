@@ -99,6 +99,17 @@ and `HISTORY_INDEX.md`.
   the distinct `seam-client` name and the public repository's
   `sdk-publish.yml` OIDC workflow; it never publishes the private
   `seam-runtime` artifact.
+- The BUSL self-host wheel is a third, separate distribution named
+  `seam-node`, starting at 2.4.0. Its package definition lives under
+  `node_pkg/`; it must contain compiled `seam_runtime` extension code and the
+  BUSL-1.1 text, but no `seam_runtime` `.py`, `.pyc`, or `.pyo`. The
+  cp312/manylinux_2_28_x86_64 builder is Docker-pinned, copies an explicit
+  source allow-list, carries the same 18 load-bearing exclusions as the
+  compiled image, runs `auditwheel`, `twine`, the node-specific content
+  ratchet, and a clean-container four-route proof. It has no upload mode.
+  This does not relax the private `seam-runtime` PyPI prohibition or the
+  Apache-only `seam-client` boundary. The wheel remains unpublished until an
+  operator separately approves and performs publication.
 - Apache-2.0 `seam-client` 0.1.0 is live at
   `https://pypi.org/project/seam-client/`. It was published from reviewed
   public `Seam_Runtime/main` by workflow run 30107050434 through the protected

@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 538
+total_events: 539
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-02T16:12:06Z | history:283:d46e609b | session-event | done | bugfix, windows, storage, locking, ci, verify, history, s... | tests/audit/test_pool_concurrency.py,PROJECT_STATUS.md,HISTORY.md,HISTORY_IND... |
 | 2026-06-02T16:46:11Z | history:284:782b83c2 | session-event | done | refactor, structure, retrieval, roadmap, packaging, verif... | seam_runtime/retrieval_orchestrator/,seam_runtime/cli.py,seam_runtime/mcp.py,... |
 | 2026-06-02T18:22:53Z | history:285:c8699092 | session-event | done | dashboard, webui, server, cli, structure, verify, history... | seam_runtime/webui/,webui/,seam_runtime/server.py,seam_runtime/cli.py,seam_ru... |
 | 2026-06-04T04:41:57Z | history:286:d89b0879 | session-event | done | dashboard, webui, server, chat, memory, bugfix, verify, h... | seam_runtime/server.py,seam_runtime/webui/dashboard.html,seam_runtime/webui/s... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-28T04:15:54Z | history:475:f30d3857 | session-event | changed | pricing, docs, licensing | docs/pricing-tiers.md |
 | 2026-07-28T04:16:06Z | history:476:d2c2881a | session-event | changed | release, licensing, distribution-boundary, ci | public_pkg/pyproject.toml,public_pkg/README.md,public_pkg/seam.py,public_pkg/... |
 | 2026-07-28T05:52:28Z | history:477:cd1540ba | session-event | changed | selfhost, licensing, busl, security, verify, docker | selfhost/Dockerfile,pyproject.toml,tools/release/build_selfhost.py,tools/rele... |
+| 2026-07-28T15:52:24Z | history:478:f2176f08 | session-event | done | bundle, pyproject, security, verify, test, handoff, docker | node_pkg/pyproject.toml,node_pkg/README.md,tools/release/build_node_wheel.py,... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0338.cross.md | 2026-04-15T00:00:00Z..2026-06-02T15:59:58Z | 338 | (multi) | (multi) |
+| 0001-0339.cross.md | 2026-04-15T00:00:00Z..2026-06-02T16:12:06Z | 339 | (multi) | (multi) |
