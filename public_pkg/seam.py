@@ -47,7 +47,7 @@ def cmd_status() -> int:
     print("SEAM CLI v2.3.1")
     print(f"  Server:   {base_url or '(not set)'}")
     print(f"  Auth:     {'token set' if api_token else '(none — set SEAM_API_TOKEN)'}")
-    print(f"  API ver:  v1")
+    print("  API ver:  v1")
     print()
 
     if not base_url:
@@ -59,7 +59,7 @@ def cmd_status() -> int:
         client = _get_client()
         h = client.health()
         print(f"  Health:   {h.status}")
-        print(f"  Version:  {h.version}")
+        print(f"  API ver:  {h.api_version}")
         return 0
     except Exception as exc:
         print(f"  Health:   unreachable — {exc}")
@@ -72,7 +72,7 @@ def cmd_health() -> int:
         client = _get_client()
         h = client.health()
         print(f"status:  {h.status}")
-        print(f"version: {h.version}")
+        print(f"api_version: {h.api_version}")
         return 0
     except Exception as exc:
         print(f"Health check failed: {exc}", file=sys.stderr)
@@ -140,7 +140,7 @@ environment:
 
 example:
     export SEAM_SERVER_URL=https://seam.example.com
-    export SEAM_API_TOKEN=sk-...
+    export SEAM_API_TOKEN=<api-token>
     seam status
     seam remember "The user prefers dark mode"
     seam recall "UI preferences"

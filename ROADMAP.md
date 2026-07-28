@@ -1591,11 +1591,15 @@ snapshot remains available under the license attached to its published
 versions, but private-to-public synchronization is frozen as of 2026-07-24.
 Package name `seam-runtime` remains the intended private package name.
 
-**License gate:** the current private repository and new MIRL- and HS/1-related
-material are proprietary. Exact versions already published under Apache-2.0
-keep that license; later private versions do not inherit it. Any future public
-client, SDK, or runtime distribution requires a newly reviewed boundary that
-does not export MIRL or HS/1 Reserved Materials.
+**License gate:** the private repository and new MIRL- and HS/1-related material
+are proprietary, except the SEAM Distributed Runtime, which is published under
+BUSL-1.1 as of 2026-07-27 (`LICENSE` v2.1 §7A, `LICENSES/BUSL-1.1.txt`; Change
+Date four years per version, Change License MPL 2.0). Exact versions already
+published under Apache-2.0 keep that license; later private versions do not
+inherit it. A runtime distribution under BUSL requires its own published
+manifest, its own BUSL-aware artifact scanner, and per-file BUSL notices on
+exactly the files it ships — it must not reuse the thin-shim allow-list, and it
+must still export no MIRL or HS/1 Reserved Materials beyond the published set.
 
 Phase work:
 

@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 534
+total_events: 537
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-02T03:23:37Z | history:279:d613fd79 | session-event | done | retrieval, benchmark, locomo, audit, docs, verify, histor... | docs/audits/2026-06-01-paid-locomo-slice-validation.md,PROJECT_STATUS.md,HIST... |
-| 2026-06-02T13:32:10Z | history:280:a329f272 | session-event | done | test, pgvector, bugfix, protocol, branch, audit, verify, ... | tests/conftest.py,tests/audit/test_pgvector_real_adapter.py,PROJECT_STATUS.md... |
-| 2026-06-02T15:11:26Z | history:281:cecfeea7 | session-event | done | benchmark, bugfix, integrity, locomo, retrieval, ci, veri... | benchmarks/external/common/runner.py,PROJECT_STATUS.md,HISTORY.md,HISTORY_IND... |
 | 2026-06-02T15:59:58Z | history:282:72dedfd2 | session-event | done | bugfix, windows, storage, benchmark, locomo, ci, verify, ... | seam_runtime/runtime.py,seam_runtime/benchmarks.py,benchmarks/external/mem0_h... |
 | 2026-06-02T16:12:06Z | history:283:d46e609b | session-event | done | bugfix, windows, storage, locking, ci, verify, history, s... | tests/audit/test_pool_concurrency.py,PROJECT_STATUS.md,HISTORY.md,HISTORY_IND... |
 | 2026-06-02T16:46:11Z | history:284:782b83c2 | session-event | done | refactor, structure, retrieval, roadmap, packaging, verif... | seam_runtime/retrieval_orchestrator/,seam_runtime/cli.py,seam_runtime/mcp.py,... |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-27T17:21:39Z | history:471:d5f50357 | session-event | done | docker, mirl, security, bundle, agent, verify, handoff | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/Docker... |
 | 2026-07-27T20:02:02Z | history:472:94271e65 | session-event | done | ci, bugfix, test, verify, history | .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,PR#169 |
 | 2026-07-27T20:12:57Z | history:473:2366f295 | session-event | done | ci, bugfix, test, verify, history | tests/audit/test_selfhost_edition.py,PR#169,run#30300943888 |
+| 2026-07-28T04:15:42Z | history:474:82fb3cc3 | session-event | changed | licensing, busl, distribution, docs | LICENSE,LICENSES/BUSL-1.1.txt,NOTICE,COMMERCIAL_LICENSE.md,README.md,CONTRIBU... |
+| 2026-07-28T04:15:54Z | history:475:f30d3857 | session-event | changed | pricing, docs, licensing | docs/pricing-tiers.md |
+| 2026-07-28T04:16:06Z | history:476:d2c2881a | session-event | changed | release, licensing, distribution-boundary, ci | public_pkg/pyproject.toml,public_pkg/README.md,public_pkg/seam.py,public_pkg/... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0334.cross.md | 2026-04-15T00:00:00Z..2026-06-01T22:59:38Z | 334 | (multi) | (multi) |
+| 0001-0337.cross.md | 2026-04-15T00:00:00Z..2026-06-02T15:11:26Z | 337 | (multi) | (multi) |

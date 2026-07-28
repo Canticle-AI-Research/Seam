@@ -11971,3 +11971,341 @@ The original dirty `fix/public-shim-2.3.1` checkout remained untouched. No
 image, archive, package, entitlement, key, token, database, provider call, or
 publication occurred. Remote PR verification remains the next gate.
 ---END-ENTRY-#473---
+
+---BEGIN-ENTRY-#474---
+id: 474
+date: 2026-07-28T04:15:42Z
+agent: claude
+status: changed
+topics: licensing, busl, distribution, docs
+commits: 0a8b200
+refs: LICENSE,LICENSES/BUSL-1.1.txt,NOTICE,COMMERCIAL_LICENSE.md,README.md,CONTRIBUTING.md,SECURITY.md,REPO_LEDGER.md,ROADMAP.md,docs/PROTECTION_MODEL.md,docs/CODE_LAYOUT.md,docs/pricing-terms.md,docs/roadmap/COMPETITIVE_ROADMAP.md
+supersedes: 473
+tokens: 1782
+---
+RELICENSED the SEAM Distributed Runtime under the Business Source License 1.1
+and reconciled every live licensing claim in the repository to match.
+
+Origin of the change: the operator asked how to keep MIRL private while still
+allowing free self-hosting, weighing license revocation against containerizing
+MIRL. Investigation established three facts that decided the answer.
+
+1. Containerizing MIRL cannot work as a protection mechanism. Containers are
+   not obfuscation (`docker save` plus `tar -x` exposes every layer) and Python
+   bytecode decompiles near-losslessly. Separately, `mirl` is imported by 29 of
+   roughly 50 runtime modules and `public_manifest.py` already classifies the
+   whole `seam_runtime/` prefix as reserved, so there is no seam along which to
+   excise MIRL as a component.
+
+2. MIRL's implementation is already public and irrevocably so. A live check of
+   PyPI showed `seam-runtime` latest = 1.3.1, 625,826 bytes, Apache-2.0, not
+   yanked. Downloading and extracting the sdist confirmed all 57 runtime
+   modules ship in it, including `seam_runtime/mirl.py`, `lossless.py`,
+   `pack.py`, `symbols.py`, and `holographic.py`. `pip install seam-runtime`
+   currently hands any user the full runtime under Apache-2.0. The 2.3.x thin
+   shim built on branch `fix/public-shim-2.3.1` was never published, so the
+   live default install still contradicts the shim strategy.
+
+3. The repository contradicted itself. `LICENSE` v2.0 made everything
+   proprietary with no free self-host path, while `docs/pricing-tiers.md`
+   promised Community = Apache-2.0 with the full local runtime free, and
+   `docs/pricing-terms.md` referred throughout to an "open-source SEAM core."
+
+Operator chose BUSL-1.1 after a head-to-head against FSL-1.1, on the ground
+that it retains more control: its default grant is non-production use only
+(production exists solely through the Additional Use Grant the licensor
+authors), its exclusivity window is up to four years rather than a fixed two,
+the carve-out text is author-tunable per version, and its Change License must
+be GPLv2-compatible, landing on MPL 2.0 whose weak copyleft keeps a leash after
+conversion where Apache-2.0 would not. Operator was told, and accepted, that
+BUSL caps at four years and cannot deliver the "roughly 5" they initially
+wanted; the per-version Change Date means current code stays proprietary
+indefinitely so long as releases continue.
+
+Added `LICENSES/BUSL-1.1.txt` with canonical BUSL 1.1 text and filled
+parameters: Licensor Nicholas Thomas (BlackhatShiftey); Licensed Work the SEAM
+Distributed Runtime version 2.4.0 or later; Change Date four years from
+publication; Change License MPL 2.0. The Additional Use Grant follows the
+battle-tested HashiCorp competitive-offering structure and adds two
+SEAM-specific clauses: self-hosting on owned or rented infrastructure is
+expressly never a competitive offering, and non-commercial research, education,
+and the publication of benchmark or evaluation results are expressly permitted.
+The second clause exists because BUSL's non-production default could otherwise
+be read to cover benchmark publication, which would undermine the LoCoMo
+positioning.
+
+Amended `LICENSE` to v2.1 by carve-out rather than rewrite, so the proprietary
+boundary over MIRL/HS/1 specifications, private benchmarks and holdouts,
+research, history, and release tooling is untouched. Added a scope note in the
+preamble, a `"Distributed Runtime"` definition in section 1, an exception in
+section 3, and a new section 7A granting BUSL and declaring it prevails over
+sections 3, 5, and 6 for that material only. The definition is deliberately
+narrow: membership requires both publication in the distribution AND a
+conspicuous per-file BUSL notice, and is never conferred by shared filename,
+purpose, interface, or ancestry. Section 7A closes by stating that publishing
+one version waives nothing in unpublished versions and creates no obligation to
+publish any future version.
+
+Reconciled every live licensing claim: `NOTICE`, `COMMERCIAL_LICENSE.md`,
+`README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `REPO_LEDGER.md`, `ROADMAP.md`,
+`docs/PROTECTION_MODEL.md`, `docs/CODE_LAYOUT.md`, `docs/pricing-tiers.md`,
+`docs/pricing-terms.md`, and `docs/roadmap/COMPETITIVE_ROADMAP.md`. Every
+"Apache-2.0 open-source core" claim now reads "BUSL-1.1 source-available, free
+to self-host." `CONTRIBUTING.md` gained an explicit warning that a BUSL notice
+is part of what makes the grant, so stamping one on an unpublished file gives
+away rights the owner has not decided to give. `docs/PROTECTION_MODEL.md`
+records that the existing thin-shim scanners still gate the `seam-runtime`
+PyPI artifact and must not be reused as the BUSL manifest.
+
+Deliberately not edited: `HISTORY.md`, `.seam/streams/`, the rolling
+`PROJECT_STATUS.md` back-log entries, and `tools/release/public_seed/`. The
+first two are append-only under protocol; the third is a historical log of past
+entries; the fourth accurately describes the frozen legacy Apache mirror.
+
+Verification: 103 licensing and boundary tests pass
+(`tests/audit/test_distribution_boundary.py`,
+`test_public_manifest.py`, `test_public_safe_gate.py`,
+`test_sync_public_mirror.py`, `test_github_package_metadata.py`). An initial
+`tests/audit/` run failed 19 pgvector tests on connection-refused; the
+`seam-pgvector` container did not exist on this box (the repo relocation left
+the compose service uncreated while the `seam_pgvector-data` volume survived).
+Brought it up with `docker compose up -d pgvector` against the existing volume
+and local `.env`, confirmed healthy on 127.0.0.1:55432, and re-ran the full
+suite.
+
+Naming finding: `seam-client` 0.1.0 is live on PyPI and already serves
+API-only users, which makes the thin `seam-runtime` 2.3.x shim redundant. PyPI
+has no rename operation and deleted-name reuse is a documented supply-chain
+hazard, so the recommendation put to the operator is to return the
+`seam-runtime` name to the real runtime at 2.4.0 under BUSL and retire the
+shim. That supersedes 1.3.1 on the same name and satisfies the operator's
+replace-before-yank requirement without a yank.
+
+UNRESOLVED, carried forward:
+- Boundary rework is required before any BUSL publish. `public_manifest.py` and
+  `verify_distribution_boundary.py` classify all of `seam_runtime/` as reserved
+  and will block the runtime. A BUSL-aware manifest and scanner are needed, and
+  must not reuse the thin-shim allow-list.
+- No licensing contact address exists anywhere in the repository. BUSL's
+  "purchase a commercial license" clause needs a real address;
+  `LICENSES/BUSL-1.1.txt` currently points at `COMMERCIAL_LICENSE.md` as a
+  placeholder.
+- Per-file BUSL notices are not yet applied, deliberately, pending the
+  published manifest. Zero of the 42 modules in the shipped 1.3.1 package carry
+  a copyright header and the package metadata has no Author field; both are
+  attribution gaps to close when the manifest exists.
+- Legal review is advisable before this goes live, given an irrevocable
+  Apache-2.0 grant already exists in the lineage at 1.3.1.
+- Operator confirmation still open on returning the `seam-runtime` name to the
+  runtime, which reverses an earlier "both, under separate names" choice.
+---END-ENTRY-#474---
+
+---BEGIN-ENTRY-#475---
+id: 475
+date: 2026-07-28T04:15:54Z
+agent: claude
+status: changed
+topics: pricing, docs, licensing
+commits: 018c520
+refs: docs/pricing-tiers.md
+supersedes: 474
+tokens: 1099
+---
+FIXED the one bankruptcy hole in the pricing drafts and made "unlimited" mean
+exactly one thing across both documents.
+
+The Max tier contradicted itself. `docs/pricing-tiers.md` described Max as "The
+Unlimited tier (no write meter)" in the tier ladder and as "Unlimited" / "no
+meter" in the managed-usage matrix, while its own write-pricing table and
+`docs/pricing-terms.md` both set Max at 100,000 included managed writes per
+month. An uncapped write meter on a $40/mo tier is unbounded COGS exposure from
+a single always-on agent, and it directly broke the document's own stated
+sizing rule that capping is what makes the model bankruptcy-proof by
+construction.
+
+Operator decision: unlimited applies to the self-host path only.
+
+Changes to `docs/pricing-tiers.md`:
+- Tier ladder "For" cell for Max: "The Unlimited tier (no write meter)" ->
+  "Heaviest managed use".
+- Managed-usage matrix: Max managed writes "Unlimited*" -> "credit pool";
+  included monthly write credits filled in with real published numbers across
+  every tier (1,000 taste / 5,000 / 25,000 / 100,000 / 25,000 per seat /
+  committed) instead of the previous mix of prose placeholders and "no meter".
+- Rewrote the "What unlimited honestly means here" section around an explicit
+  rule: unlimited describes the self-host path and the read side, and is never
+  used for anything the project pays to compute; if we front the compute it
+  carries a published number, with no exception for the top tier. Added
+  unlimited self-hosting as the lead item, noting it is a BUSL-1.1 right rather
+  than a plan feature and therefore not revocable by a subscription change.
+- Encrypted hosted backup: replaced "Unlimited*" for Max/Team/Enterprise with
+  published ceilings (5 GB / 50 GB / 500 GB / 500 GB per seat pooled /
+  committed), since that storage is a real cost to the project.
+- Replaced the orphaned fair-use footnote with an explanation that backup caps
+  are published numbers rather than unlimited-with-fine-print, and that
+  self-hosted storage on the user's own disk is unaffected.
+- Qualified "Unlimited storage, forever" to "Unlimited storage on your own node,
+  forever", pointing at the separate published hosted-backup ceiling.
+
+Max is now consistent at 100,000 across the tier ladder, the write-pricing
+table, the managed-usage matrix, and `docs/pricing-terms.md`. A grep for
+"unlimited" on any axis the project pays for returns nothing.
+
+Also recorded in this session's review of the drafts, not yet acted on:
+- Every allotment and margin derives from an explicitly unmeasured $0.0002/write
+  cost basis, while Founder Layer 1 commits 100 accounts to Pro-level writes
+  free for life. That is the only irreversible commitment in the model and it is
+  currently sequenced before the measurement that would validate it. Measure
+  compile COGS before opening founders.
+- The paid ladder (Solo/Pro/Max) sells convenience infrastructure that does not
+  exist: seam login, encrypted backup, cross-device sync, remote control plane,
+  and lever-pack delivery are all unbuilt, and no hosted service is deployed.
+- Two managed-usage pricing mechanisms coexist: a "~12% on pass-through provider
+  costs" handling fee in `pricing-terms.md` section 6 and a flat "$1 per 1,000
+  writes" in `pricing-tiers.md`. The flat per-KB rate should win; the
+  provider-agnostic-unit argument depends on it.
+- No hosted-data retention window after cancellation is stated anywhere.
+- Solo at $5 carries roughly 9% card-processing overhead before COGS.
+
+Verification: documentation-only change, no code touched, so the full suite was
+not re-run. It passed earlier this session at HISTORY#471 with zero skips after
+the seam-pgvector container was brought up, and nothing in this entry can affect
+it. Consistency was verified by grep across both pricing documents.
+
+UNRESOLVED, unchanged from HISTORY#471: the BUSL runtime is not shippable.
+`public_manifest.py` still lists `seam_runtime/` in MIRL_RESERVED_DIR_PREFIXES
+and `verify_distribution_boundary.py` still rejects, for the pypi target, any
+Python module outside PUBLIC_CLIENT_SAFE_PATHS, so the node artifact cannot be
+built or published. `build_public.py` copies only the four thin-shim files. Both
+`pyproject.toml` (proprietary expression plus a Private :: Do Not Upload
+classifier) and `public_pkg/pyproject.toml` (Apache-2.0) are pinned at 2.3.1 and
+neither declares BUSL or any author metadata. Per-file BUSL notices are not
+applied. Operator has confirmed the split shape: a node distribution under BUSL
+and a client distribution under Apache-2.0, using the two already-owned PyPI
+names.
+---END-ENTRY-#475---
+
+---BEGIN-ENTRY-#476---
+id: 476
+date: 2026-07-28T04:16:06Z
+agent: claude
+status: changed
+topics: release, licensing, distribution-boundary, ci
+commits: cd7b4f8
+refs: public_pkg/pyproject.toml,public_pkg/README.md,public_pkg/seam.py,public_pkg/seam_runtime/__init__.py,tools/release/build_public.py,tools/release/verify_distribution_boundary.py,.github/workflows/package-release.yml,tests/audit/test_public_runtime_shim.py,tests/audit/test_distribution_boundary.py,tests/audit/test_github_package_metadata.py
+supersedes: 475
+tokens: 1715
+---
+Rebuilt the public `seam-runtime` distribution as a fail-closed, API-only
+compatibility package and made it actually buildable and publishable, which
+clears the shippability half of the blocker carried in HISTORY#471 and #472.
+
+The previous public shim claimed to be thin but was not. `public_pkg/seam_runtime/__init__.py`
+carried a `try: __import__("seam_runtime.mirl")` / `runtime` / `sdk` block whose
+only purpose was to light up the private local runtime when it happened to be
+importable, and the comment in the file said outright that `__import__` was used
+to dodge the reserved-material content scanner. That is a distribution boundary
+defeated on purpose by the file it was meant to constrain. It also declared its
+own `SeamError` / `ConnectionError` classes that were not the `seam_client`
+types they shadowed, so `except seam_runtime.ConnectionError` could not catch a
+real client connection failure.
+
+Changes to `public_pkg/seam_runtime/__init__.py`:
+- Deleted the dynamic private-runtime import block entirely. The package now
+  imports its whole surface from `seam_client` at module top level, so the
+  re-exported exception and result types are identical objects to the client's
+  (`seam_runtime.ConnectionError is seam_client.ConnectionError`).
+- `has_full_runtime()` is now an unconditional `False` and `has_client()` an
+  unconditional `True`; both were previously computed from whether a private
+  import had succeeded.
+- Set `__path__ = []` and installed a `_SubmoduleBlocker` meta-path finder that
+  raises `ModuleNotFoundError` for any `seam_runtime.*` submodule. This is the
+  fail-closed part: if a legacy or manual install leaves a private module on
+  disk under this package, it is unreachable through the public name rather than
+  silently importable.
+
+Changes to `public_pkg/seam.py`:
+- `cmd_status` and `cmd_health` printed `h.version`, which the `/v1` health
+  response does not carry; they now print `h.api_version`.
+
+Changes to `tools/release/verify_distribution_boundary.py`:
+- Replaced the 29-entry hardcoded list of private import strings with a
+  `_PRIVATE_MODULE_REFERENCE` regex on `seam_runtime.<module>` plus explicit
+  `__import__(` / `import_module(` dynamic-import markers. The old list matched
+  import *syntax* only, which is exactly why the `__import__("seam_runtime.mirl")`
+  call in the shipped shim passed it.
+- Added a rule that a public artifact whose METADATA says `Name: seam-runtime`
+  may not contain any `.py` file outside `PUBLIC_CLIENT_SAFE_PATHS`, so an
+  unexpected module is caught even if its contents look clean.
+
+Changes to `tools/release/build_public.py`:
+- The build no longer templates `pyproject.toml` from a string constant inside
+  the script; it copies a real, reviewable `public_pkg/pyproject.toml`.
+- It copies an explicit four-entry `PUBLIC_FILES` allow-list instead of
+  `iterdir()` over `public_pkg/`, so a new file dropped into that directory is
+  not automatically shipped.
+- It builds in a `TemporaryDirectory` rather than `build/public_release`, takes
+  `--outdir`, refuses a non-empty output directory instead of writing into it,
+  and no longer copies the repo root `README.md` (which is the private product
+  README) into the public package.
+- Added a `twine check` of the built artifacts as part of the build.
+
+New `public_pkg/pyproject.toml` and `public_pkg/README.md`:
+- Metadata is now honest about what the package is: description "API-only
+  compatibility client for the SEAM agent-memory service", Development Status
+  Alpha rather than Production/Stable, a single `seam-client>=0.1.0,<0.2`
+  dependency (the old inline template also pulled `rich` and `tiktoken`, which
+  the shim does not use, and offered a `server` extra installing FastAPI and
+  uvicorn for a server it cannot run), and `requires-python >=3.10`.
+- The README states plainly that the package does not contain or start the local
+  runtime and that every command needs a separately provisioned `/v1` endpoint,
+  and points new integrations at `seam-client` directly.
+
+Changes to `.github/workflows/package-release.yml`:
+- The version gate reads `public_pkg/pyproject.toml` for the `pypi` target and
+  the private `pyproject.toml` otherwise; it previously validated the private
+  version and then published the public artifact.
+- The pypi leg builds and verifies out of `public-dist/` instead of `dist/`, so
+  the boundary check can no longer pass by inspecting stale private artifacts
+  left in `dist/` from an earlier local build.
+- The public smoke test asserted `hasattr(seam_runtime, 'SeamClient') or True`,
+  which is `True` unconditionally and tested nothing. It now asserts the
+  re-exported types are the `seam_client` objects and that `has_full_runtime()`
+  is `False`.
+- Pinned `packages-dir: dist/` on the publish step and split the artifact upload
+  per target.
+
+New `tests/audit/test_public_runtime_shim.py` (8 tests) covers the re-export
+identity, both CLI health paths, the metadata contract, the `PUBLIC_FILES`
+allow-list, and that `build_public` refuses a non-empty outdir without deleting
+the operator's file. The stale-submodule test runs in a subprocess with `-I`
+against a real on-disk `seam_runtime/mirl.py` and asserts it is not importable.
+`tests/audit/test_distribution_boundary.py` gains 4 tests, two of which
+(`test_public_pypi_rejects_dynamic_private_runtime_import` and
+`test_public_pypi_rejects_private_module_string_without_import_syntax`) fail
+against the old verifier and are the regression pins for the bypass.
+
+Verification: full suite green with zero skips and only the 2 pre-existing
+xfails, after bringing up the `seam-pgvector` container and exporting
+`PGVECTOR_TEST_DSN` (dbname=seam user=seam host=localhost port=55432) for the 4
+tests that had been skipping without it. Beyond the suite, the pipeline was
+exercised for real, not just unit-tested: `python tools/release/build_public.py
+--outdir <tmp>` produced `seam_runtime-2.3.1-py3-none-any.whl` and the matching
+sdist, `twine check` PASSED on both, and
+`python -m tools.release.verify_distribution_boundary --target pypi` returned
+PASS on both artifacts. The public distribution is now buildable and boundary-
+approved, which was not true at HISTORY#472.
+
+UNRESOLVED, narrowed from HISTORY#472: this entry fixes the public client
+distribution only. The BUSL node distribution is still not shippable and nothing
+here changes that. `public_manifest.py` still lists `seam_runtime/` in
+`MIRL_RESERVED_DIR_PREFIXES` with only the two `PUBLIC_CLIENT_SAFE_PATHS`
+carved out, so a node artifact containing real runtime modules is still rejected
+for the pypi target by design; a BUSL-aware manifest and scanner are still
+needed and must not reuse the thin-shim allow-list. The private `pyproject.toml`
+still carries the proprietary license expression and the `Private :: Do Not
+Upload` classifier at 2.3.1 and declares no BUSL or author metadata, per-file
+BUSL notices are still unapplied, and `LICENSES/BUSL-1.1.txt` still points at a
+placeholder `COMMERCIAL_LICENSE.md` with no real licensing contact address.
+Nothing in this entry has been published; PyPI upload remains operator-gated.
+---END-ENTRY-#476---

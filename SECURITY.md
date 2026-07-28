@@ -33,3 +33,5 @@ Do not include secrets, customer data, private transcripts, credential material,
 Security reports may cover runtime behavior, installers, API authentication, benchmark bundle verification, provenance handling, private data exposure, dependency risk, or unsafe agent workflows.
 
 Commercial use, hosted service use, SaaS use, embedded use, redistribution, and customer deployment remain governed by `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md`.
+
+Self-hosting the SEAM Distributed Runtime is free under the Business Source License 1.1 (`LICENSES/BUSL-1.1.txt`), including for internal commercial production use at any scale. Security research on it, and publication of the results, is permitted.
