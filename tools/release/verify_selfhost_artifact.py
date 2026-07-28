@@ -61,6 +61,13 @@ REQUIRED_PATHS = {
 # Baseline measured 2026-07-28 against seam-selfhost built from this Dockerfile
 # (76,516,816-byte binary, 417 total occurrences). The unnarrowed build that
 # preceded it measured 525, so the module exclusions bought a 20% reduction.
+#
+# 2026-07-28, knowledge_graph 17 -> 18 (total 418): G3 (HISTORY#478-479) added
+# seam_runtime/retrieval_orchestrator/, which imports knowledge_graph. Diffing the
+# binaries showed exactly one new string, the module path
+# `seam_runtime.knowledge_graph`, and no other marker moved. That is a module
+# reference from real new code, not additional design detail, so the ratchet was
+# raised by one with this reason rather than silently widened.
 RESERVED_CONTENT_BUDGET: dict[bytes, int] = {
     b"MIRL": 134,
     b"MIRLRecord": 120,
@@ -72,7 +79,7 @@ RESERVED_CONTENT_BUDGET: dict[bytes, int] = {
     b"HS/1": 15,
     b"SEAM-RC": 13,
     b"SEAM-LX": 4,
-    b"knowledge_graph": 17,
+    b"knowledge_graph": 18,
     b"reasoning_graph": 13,
 }
 

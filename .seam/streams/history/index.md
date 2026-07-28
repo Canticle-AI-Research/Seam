@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 479
-total_tokens: ~222149
-latest_id: 479
+total_entries: 480
+total_tokens: ~222731
+latest_id: 480
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 480 | 2026-07-28 | changed | 14d762d781d17918 | selfhost,security,verify,graph,+ | 479 |
 | 479 | 2026-07-28 | done | 450b261eddc981f1 | graph,retrieval,rank,provenance,+ | 478 |
 | 478 | 2026-07-28 | done | e836d773f07f3dff | graph,retrieval,provenance,history,+ | 477 |
 | 477 | 2026-07-28 | changed | cd1540bab6b6fa28 | selfhost,licensing,busl,security,+ | 476 |
@@ -579,7 +580,7 @@ compact: true
 - distribution: count=1 latest=#474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=5 latest=#477, #471, #149, #085, #084
+- docker: count=6 latest=#480, #477, #471, #149, #085
 - docs: count=53 latest=#475, #474, #469, #467, #461
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
@@ -609,7 +610,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=25 latest=#479, #478, #466, #462, #461
+- graph: count=26 latest=#480, #479, #478, #466, #462
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -745,10 +746,10 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=58 latest=#477, #471, #469, #468, #467
+- security: count=59 latest=#480, #477, #471, #469, #468
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
-- selfhost: count=1 latest=#477
+- selfhost: count=2 latest=#480, #477
 - server: count=5 latest=#457, #300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
@@ -787,7 +788,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=313 latest=#479, #478, #477, #473, #472
+- verify: count=314 latest=#480, #479, #478, #477, #473
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -801,7 +802,7 @@ compact: true
 ## status rollup
 
 - roots: 76
-- changed: 18
+- changed: 19
 - done: 434
 - in-progress: 6
 - planned: 21

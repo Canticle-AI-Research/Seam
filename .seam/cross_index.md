@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 540
+total_events: 541
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-02T18:22:53Z | history:285:c8699092 | session-event | done | dashboard, webui, server, cli, structure, verify, history... | seam_runtime/webui/,webui/,seam_runtime/server.py,seam_runtime/cli.py,seam_ru... |
 | 2026-06-04T04:41:57Z | history:286:d89b0879 | session-event | done | dashboard, webui, server, chat, memory, bugfix, verify, h... | seam_runtime/server.py,seam_runtime/webui/dashboard.html,seam_runtime/webui/s... |
 | 2026-06-05T05:13:34Z | history:287:2d859afb | session-event | done | doctor, streams, cli, bugfix, packaging, test, verify, hi... | seam_runtime/doctor.py,test_seam_all/test_cli_import_isolation.py,HISTORY.md,... |
 | 2026-06-06T14:22:16Z | history:288:76706d50 | session-event | done | security, audit, retrieval, holographic, lossless, server... | seam_runtime/dashboard.py,seam_runtime/holographic.py,seam_runtime/lossless.p... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-28T05:52:28Z | history:477:cd1540ba | session-event | changed | selfhost, licensing, busl, security, verify, docker | selfhost/Dockerfile,pyproject.toml,tools/release/build_selfhost.py,tools/rele... |
 | 2026-07-28T14:55:22Z | history:478:e836d773 | session-event | done | graph, retrieval, provenance, history, handoff, verify, t... | seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orches... |
 | 2026-07-28T14:55:30Z | history:479:450b261e | session-event | done | graph, retrieval, rank, provenance, test, verify, handoff... | seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orchestrator/merger.p... |
+| 2026-07-28T15:26:55Z | history:480:14d762d7 | session-event | changed | selfhost, security, verify, graph, docker | tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.p... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0340.cross.md | 2026-04-15T00:00:00Z..2026-06-02T16:46:11Z | 340 | (multi) | (multi) |
+| 0001-0341.cross.md | 2026-04-15T00:00:00Z..2026-06-02T18:22:53Z | 341 | (multi) | (multi) |
