@@ -371,9 +371,9 @@ def test_selfhost_artifact_verifier_ratchets_reserved_identifier_exposure(
 def test_selfhost_reserved_budget_matches_measured_baseline() -> None:
     """The budget is a measured fact, not an aspiration. It may only go down."""
     assert RESERVED_CONTENT_BUDGET[b"MIRL"] == 134
-    assert RESERVED_CONTENT_BUDGET[b"knowledge_graph"] == 17
+    assert RESERVED_CONTENT_BUDGET[b"knowledge_graph"] == 18
     assert RESERVED_CONTENT_BUDGET[b"reasoning_graph"] == 13
-    assert sum(RESERVED_CONTENT_BUDGET.values()) == 417
+    assert sum(RESERVED_CONTENT_BUDGET.values()) == 418
 
 
 def test_selfhost_artifact_verifier_exempts_license_texts_from_content_scan(

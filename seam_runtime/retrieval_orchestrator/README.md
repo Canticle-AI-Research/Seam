@@ -1,6 +1,6 @@
-﻿# Retrieval Orchestrator (Experimental)
+﻿# Retrieval Orchestrator
 
-This package is the experimental retrieval-planning layer for SEAM's machine-first memory runtime.
+This is SEAM's active retrieval-planning layer for machine-first memory.
 
 Purpose:
 
@@ -8,15 +8,17 @@ Purpose:
 - build a retrieval plan before search runs
 - execute canonical SQLite retrieval plus derived semantic retrieval
 - normalize results into a consistent SEAM candidate shape
-- merge, rerank, and optionally trace the run for glassbox inspection
+- rank-normalize, fuse, and optionally trace the run for glassbox inspection
 
 Architecture stance:
 
 - SQLite remains the canonical source of truth
 - vector indexes, including Chroma, are derived retrieval layers
 - retrieval output should stay traceable back to canonical records and exact payloads
-- this package is still isolated from `seam_runtime` while we decide its long-term home
-- deeper machine-projection integration should only happen after the benchmark engine proves retrieval quality holds up
+- the public Python SDK is the stable integration boundary; CLI, REST, MCP, and
+  framework adapters should stay thin over it
+- graph retrieval remains a projection over canonical RAW/MIRL, never a second
+  truth store
 
 Current implementation:
 
@@ -24,18 +26,23 @@ Current implementation:
 - `adapters.py` runs a structured SQLite leg and a semantic vector leg against the live SEAM runtime
 - the SQLite leg pushes field filters, lexical gating, and ranking into SQL instead of relying on a weak in-memory pass
 - `adapters.py` also includes an optional `ChromaSemanticAdapter` for a Chroma-backed semantic leg
-- `merger.py` normalizes and reranks merged candidates
-- `orchestrator.py` exposes `RetrievalOrchestrator.plan()` and `RetrievalOrchestrator.search()`
+- `merger.py` applies versioned reciprocal-rank fusion across incompatible raw
+  leg-score domains
+- `orchestrator.py` exposes `RetrievalOrchestrator.plan()`,
+  `RetrievalOrchestrator.search()`, and the bounded decision trace used by R2
 - `orchestrator.py` also exposes persistent index syncing plus `rag()` context retrieval that can feed `pack`, `prompt`, `evidence`, `summary`, or exact `records` views
 
 Compatibility:
 
-- the canonical package path is `experimental.retrieval_orchestrator`
+- the canonical package path is `seam_runtime.retrieval_orchestrator`
 - the legacy class names `HybridOrchestrator`, `HybridSearchResult`, and `HybridCandidate` remain as aliases
 
-Suggested next architecture steps:
+Current qualification boundary:
 
-1. Decide whether retrieval orchestration folds into `seam_runtime` or remains an experimental package.
-2. Evaluate natural, machine, and hybrid retrieval projections with the benchmark engine before changing defaults.
-3. Add richer trace spans and latency accounting for retrieval debugging.
-4. Keep aligning operator terminology around retrieval, context views, and machine-first persistence.
+1. `reciprocal-rank-fusion/2` is fixed and fingerprinted in new R2 decisions.
+2. Graph paths, visible episode backtraces, graph time views, and per-leg/total
+   latency are explicit.
+3. `python -m tools.graph_retrieval_qualification` runs the provider-free
+   corpus/query-shape fixture.
+4. Entity/value/agent/symbol vectors and real-corpus quality qualification
+   remain before G3 can be called complete.

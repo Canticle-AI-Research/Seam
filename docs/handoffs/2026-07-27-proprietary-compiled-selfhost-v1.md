@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-27-proprietary-compiled-selfhost-v1
 supersedes: 2026-07-24-seam-client-0-1-0-live
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#471
 ---
 

@@ -127,8 +127,11 @@ and `HISTORY_INDEX.md`.
   semantics, agent/source provenance, confidence/status, and temporal validity;
   every `SQLiteStore.persist_ir` write maintains the projection atomically and
   existing databases receive a versioned backfill. RAW/MIRL remain the truth,
-  graph retrieval and the dashboard consume the same projection, and inactive
-  claims remain available only through explicit history views. See
+  graph retrieval and the dashboard consume the same projection. Graph hits
+  reached by traversal expose deterministic edge/episode backtraces and may
+  select the same current, full-history, or point-in-time validity view as the
+  dashboard; inactive claims remain available only through those explicit
+  history views. See
   `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
 - Graph identity lookup is a scoped, rebuildable projection, not inference from
   assertion/source labels. `knowledge_node_terms` indexes canonical entity
@@ -165,8 +168,8 @@ and `HISTORY_INDEX.md`.
   use fixed typed columns plus a bounded content-free candidate ledger (record
   IDs, boundary/content fingerprints, scores, and reason codes), enforce the
   insertion-time run/namespace/scope boundary in SQLite, detect later evidence
-  drift, and pin planner/fusion plus semantic-adapter/model identities; raw
-  record/provider payloads are forbidden. The
+  drift, and pin planner/fusion, semantic-adapter/model identities, and the
+  selected graph time view; raw record/provider payloads are forbidden. The
   local Python SDK is the stable integration boundary; CLI, REST, MCP, and
   framework adapters should wrap that contract rather than depend on SQLite
   tables. SDK semantic graph seeding is an explicit opt-in over the legacy
@@ -178,6 +181,16 @@ and `HISTORY_INDEX.md`.
   may atomically support a verified outcome; failed and superseded attempts
   remain visible, and no verification path promotes itself into MIRL.
   See `docs/REASONING_GRAPH.md`.
+- Cross-leg retrieval fusion uses the fixed, versioned
+  `reciprocal-rank-fusion/2` contract. Each SQL, vector, graph, or Chroma leg
+  deduplicates records by best raw score, ranks within its own score domain by
+  raw score then record ID, contributes `1 / (60 + rank)`, and sums those
+  comparable values. Raw leg magnitudes remain in the live trace; new R2
+  decisions persist the policy fingerprint and legal rank-derived
+  contributions. The provider-free qualification gate covers structured,
+  bounded-hop, historical, and semantic-seeded mixed shapes on a synthetic
+  2,048-node graph, but does not replace real-corpus quality qualification.
+  See `docs/REASONING_GRAPH.md` and HISTORY#467.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
   activation persistence. A genuine J-lens requires activation-capable local

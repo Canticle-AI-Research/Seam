@@ -220,13 +220,21 @@ fact/episode MIRL hits and traverse the current graph for 0-3 hops. A semantic
 seed receives graph credit only when an actual current edge connects it. The SDK
 opts into that behavior for `ReasoningSession.retrieve`; existing orchestrator
 callers retain the default-off semantic-seeding behavior. Ranking is
-deterministic and its current sum/max-per-leg overlap policy is fingerprinted in
-each R2 decision. This is not the full G3 claim: entity-class vectors,
-calibrated cross-leg scoring, historical paths, exact path/episode return, and
-scale qualification remain. Native vector top-K now prefilters namespace and
-scope; existing pgvector indexes from before the scope column require an
-explicit resync because canonical SQLite cannot backfill the external table.
-Boundary-only resync updates metadata without calling the embedding model again.
+deterministic. The versioned `reciprocal-rank-fusion/2` policy ranks within
+each leg, maps rank to `1 / (60 + rank)`, sums those comparable contributions,
+and fingerprints the contract in each new R2 decision; raw leg scores remain
+visible in the live trace instead of being compared across incompatible score
+domains. Exact historical paths and episode backtraces are returned for
+hop-positive graph hits. A provider-free 2,048-node/2,047-edge fixture now
+gates filter, 1-hop, 3-hop, historical, and semantic-seeded mixed query shapes
+for expected evidence, exact path length, boundary isolation, deterministic
+ranking, cross-leg evidence, and latency. This is still not the full G3 claim:
+semantic vectors for entity/value/agent/symbol nodes and real-corpus quality
+qualification remain. Native vector top-K now prefilters namespace and scope;
+existing pgvector indexes from before the scope column require an explicit
+resync because canonical SQLite cannot backfill the external table.
+Boundary-only resync updates metadata without calling the embedding model
+again.
 
 The default-off graph-to-source-RAW lane seeds only from
 `knowledge_node_terms`. Its agreement score is a deterministic maximum

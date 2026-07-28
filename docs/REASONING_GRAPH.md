@@ -47,8 +47,14 @@ selected MIRL record IDs are copied onto the accepted decision node as exact
 evidence references.
 
 The durable candidate ledger is deliberately compact and content-free: record
-ID, namespace/scope and content fingerprint, rank, fused score, per-leg scores,
-controlled reason codes, and disposition. The row also pins the semantic
+ID, namespace/scope and content fingerprint, rank, fused score, per-leg
+rank-normalized contributions, controlled reason codes, and disposition. Raw
+leg scores stay in the live leg trace; they are not summed across incompatible
+SQL, vector, and graph score domains. The fixed
+`reciprocal-rank-fusion/2` policy deduplicates each record within a leg by its
+best raw score, ranks that leg by raw score then record ID, assigns
+`1 / (60 + rank)`, and sums contributions across legs. The policy contract and
+fingerprint are stored with every new decision. The row also pins the semantic
 adapter and embedding model identity/dimension. It never copies MIRL payloads,
 provider responses, or hidden reasoning. The public query itself remains a
 typed `question` summary and its normalized form is recorded as part of the
