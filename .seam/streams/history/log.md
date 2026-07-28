@@ -12707,3 +12707,98 @@ UNRESOLVED: nothing published. `docs/SOP_SEAM_NODE_WHEEL.md` and ROADMAP Track N
 wheel there still preserves the mandatory entitlement, so it needs this change
 carried across before it merges.
 ---END-ENTRY-#482---
+
+---BEGIN-ENTRY-#483---
+id: 483
+date: 2026-07-28T22:11:37Z
+agent: claude
+status: done
+topics: selfhost, mcp, security, packaging, bundle, verify, test, docker
+commits: 6242a34,823da60,6edc049
+refs: seam_runtime/selfhost_mcp.py,tools/release/build_node_wheel.py,tests/audit/test_node_wheel.py,node_pkg/pyproject.toml,node_pkg/README.md
+supersedes: 482
+tokens: 1272
+---
+BUILT the self-host wheel's MCP surface as an opaque contract, closing Track N2
+phase 1 at zero additional reserved-identifier exposure, and reconciled this
+branch with the optional entitlement from HISTORY#482.
+
+This entry supersedes an uncommitted codex entry that also claimed id 482. That
+entry described the base wheel build (commits 02fe888, faae5fa) and was written
+while HISTORY#482 was being committed on `feat/optional-entitlement` for the
+optional entitlement. Only one 482 can exist, main's is authoritative, and the
+wheel work is renumbered here rather than edited into the timeline. Codex had
+also left an incomplete merge in the worktree (MERGE_HEAD 08be31b); it was
+committed as authored before any new work, and the full pre-existing diff is
+preserved outside the repo rather than discarded.
+
+Codex's phase 1 amendment restored `mcp`, `mcp_protocol`, `doctor`, and
+`pgvector_bootstrap` and exposed `seam-mcp` from `mcp_protocol:main`. The code
+was correct and its runtime proof was real, but it was never built. Building it
+here failed the node gate on six markers at once: HS/1 15 -> 22, knowledge_graph
+18 -> 22, MIRL 133 -> 137, SEAM-RC 13 -> 15, compile_nl 10 -> 11, holographic
+10 -> 11. Nineteen occurrences, and every one of them attributable to tool
+descriptions in `mcp.py`:
+
+- `seam_memory_get`: "Return full MIRL records for selected ids."
+- `seam_surface_query`: "Query embedded MIRL or SEAM-RC/1 directly inside a
+  registered HS/1 surface"
+- `seam_surface_context`: "Extract a prompt-ready context pack directly from a
+  registered HS/1 surface PNG ... without restoring the source document."
+- `seam_knowledge_graph`: "Search and traverse SEAM's self-building temporal
+  knowledge graph."
+
+That is worse than a static string in a binary. Tool metadata IS the MCP
+contract: `tools/list` returns it verbatim to every client that connects, so
+the internal registry would have served the architecture to any agent that
+pointed at a self-hosted node. Raising the budget would have laundered a
+disclosure through a number, which is precisely what HISTORY#480 and Track N2
+forbid. The budget was not touched.
+
+`/v1` had already solved this problem once, by giving the self-host its own
+opaque HTTP contract instead of exposing the internal API. MCP never got the
+same treatment. New `seam_runtime/selfhost_mcp.py` is that counterpart:
+`seam_remember`, `seam_recall`, and `seam_context`, dispatching through the same
+audited `public_api` operations `/v1` uses, with descriptions written in product
+language. No operation is reachable over MCP that is not already reachable over
+HTTP, so this adds a transport and not an attack surface. `mcp` and
+`mcp_protocol` return to the exclusion list, which is 18 again;
+`selfhost_mcp` joins the explicit source allow-list.
+
+Two deliberate departures, both recorded rather than hidden. There is no
+`search` operation in `public_api` because `recall` is the search, so the
+surface is three tools and not the four first sketched. And roughly 120 lines of
+JSON-RPC framing, including the bounded-readline cap, are duplicated from
+`mcp_protocol.py` rather than shared. The alternative was making the internal
+server import-compatible with an excluded registry, which is how a wheel builds
+green and then dies on first call; `selfhost.py` set the separate-surface
+precedent for HTTP. The cost is real: protocol fixes now need applying twice.
+
+Measured result: 414 of 414 occurrences, every marker exactly at its existing
+budget, none raised and none exceeded. The MCP capability was added at zero
+additional exposure. Wheel `seam_node-2.4.0-cp312-cp312-manylinux_2_28_x86_64.whl`,
+3,575,210 bytes, sha256
+38e4b929bf95da90c618eea208c93c9075806326f6247bbcfc7d09565d7155e7.
+
+Verification, in the clean pinned container rather than by inference:
+`MCP initialize -> protocol=2025-06-18 server=seam`; `tools/list -> tools=3`
+with the reserved-identifier scan of the live listing at 0; no
+`ModuleNotFoundError` in the MCP log; `/v1` health 200, unauthenticated write
+401, remember 200, recall 200 with one memory, context 200; no `raw:`, `clm:`,
+or `mirl` marker in any response; and `no entitlement mounted; running
+unentitled under BUSL-1.1`, which confirms HISTORY#482's free path survives into
+the wheel. Node gate PASS.
+
+The leak is now guarded at three layers: two new unit tests (one scanning
+`tools/list` and `initialize` against the same budget dict the wheel gate uses,
+so the two cannot drift; one asserting every tool maps onto an audited
+`public_api` operation), a build-time scan of the live listing, and the binary
+ratchet.
+
+UNRESOLVED: nothing published. No image push, no PyPI upload, no registry, no
+provider or paid model call. Track N2 phases 2-5 remain unscoped beyond
+direction, and phase 2 (CLI) is still flagged as the largest expected identifier
+cost of the remaining set. The three shipping gates named this session, pushing
+the compiled image with SBOM and signing, uploading `seam-node`, and deploying
+the hosted `/v1`, all remain operator decisions.
+---END-ENTRY-#483---

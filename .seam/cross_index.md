@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 544
+total_events: 545
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-08T07:30:36Z | history:289:bbf7ccaa | session-event | done | retrieval, self-improvement, h2, loop, benchmark, test, v... | seam_runtime/retrieval.py,seam_runtime/runtime.py,seam_runtime/storage.py,too... |
 | 2026-06-08T08:57:59Z | history:290:3f3c4870 | session-event | done | retrieval, self-improvement, h2, loop, benchmark, locomo,... | seam_runtime/self_improve.py,seam_runtime/retrieval.py,seam_runtime/runtime.p... |
 | 2026-06-08T11:10:38Z | history:291:4d966326 | session-event | done | retrieval, self-improvement, h2, loop, proposer, ratchet,... | seam_runtime/self_improve.py,tools/h2/improvement_loop.py,tests/audit/test_im... |
 | 2026-06-09T00:30:25Z | history:292:6a03a252 | session-event | done | retrieval, self-improvement, h2, loop, benchmark, locomo,... | benchmarks/external/locomo/recall_scorer.py,seam_runtime/self_improve.py,test... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-28T15:26:55Z | history:480:14d762d7 | session-event | changed | selfhost, security, verify, graph, docker | tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.p... |
 | 2026-07-28T16:32:58Z | history:481:89070f00 | session-event | changed | roadmap, selfhost, packaging, mcp | ROADMAP.md |
 | 2026-07-28T17:43:24Z | history:482:e8f54f77 | session-event | changed | selfhost, licensing, busl, entitlement, security, docker | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/compos... |
+| 2026-07-28T22:11:37Z | history:483:9b437667 | session-event | done | selfhost, mcp, security, packaging, bundle, verify, test,... | seam_runtime/selfhost_mcp.py,tools/release/build_node_wheel.py,tests/audit/te... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0344.cross.md | 2026-04-15T00:00:00Z..2026-06-06T14:22:16Z | 344 | (multi) | (multi) |
+| 0001-0345.cross.md | 2026-04-15T00:00:00Z..2026-06-08T07:30:36Z | 345 | (multi) | (multi) |

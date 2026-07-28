@@ -1,5 +1,28 @@
 # SEAM Project Status
 
+Current update: 2026-07-28 (HISTORY#483 - BUILT the additional BUSL
+`seam-node` 2.4.0 wheel channel with an opaque MCP surface, without publishing
+it. The digest-pinned Docker pipeline produces one CPython 3.12
+`manylinux_2_28_x86_64` wheel, refuses a non-empty output directory, stages an
+explicit source allow-list, preserves 18 load-bearing exclusions and the
+required lazy imports, and runs `auditwheel`, `twine`, the node boundary gate,
+and a clean-container runtime proof before returning the artifact. Restoring
+the INTERNAL MCP registry was measured and REJECTED: its tool descriptions
+raised reserved-identifier exposure by 19 occurrences across six markers, and
+because `tools/list` serves that metadata verbatim, it would have disclosed the
+architecture to every connecting client. New `seam_runtime/selfhost_mcp.py` is
+the MCP counterpart to the opaque `/v1` surface: `seam_remember`, `seam_recall`,
+and `seam_context` dispatching through the same audited `public_api`
+operations, reaching nothing HTTP does not already reach. The real
+3,575,210-byte wheel (sha256 38e4b929bf95da90c...) contains no `seam_runtime`
+`.py`/`.pyc`/`.pyo` and measures 414 of 414 reserved-identifier occurrences,
+every marker exactly at budget with none raised. Health, unauthenticated 401,
+remember, recall, context, MCP `initialize`, and a 3-tool `tools/list` with a
+zero reserved-identifier scan all passed in a clean container, and the node
+runs unentitled under BUSL-1.1 per HISTORY#482. Full suite 1,491 tests, zero
+failures, zero skips, two established `compile_nl` xfails. No PyPI upload,
+registry push, workflow dispatch, provider call, or paid model call occurred.)
+
 Current update: 2026-07-27 (HISTORY#471 - BUILT the first proprietary compiled
 self-host MIRL edition for Linux/amd64 without disturbing the dirty
 `fix/public-shim-2.3.1` checkout or publishing an artifact. The local-only

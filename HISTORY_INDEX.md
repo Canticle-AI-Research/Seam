@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 482
-total_tokens: ~224857
-latest_id: 482
+total_entries: 483
+total_tokens: ~226129
+latest_id: 483
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 483 | 2026-07-28 | done | 9b4376674862c1c0 | selfhost,mcp,security,packaging,+ | 482 |
 | 482 | 2026-07-28 | changed | e8f54f77e0a25ed2 | selfhost,licensing,busl,entitlement,+ | 481 |
 | 481 | 2026-07-28 | changed | 89070f001754941e | roadmap,selfhost,packaging,mcp | 480 |
 | 480 | 2026-07-28 | changed | 14d762d781d17918 | selfhost,security,verify,graph,+ | 479 |
@@ -523,7 +524,7 @@ compact: true
 - bug: count=1 latest=#303
 - bugfix: count=36 latest=#473, #472, #464, #460, #447
 - build: count=2 latest=#413, #408
-- bundle: count=6 latest=#471, #262, #245, #238, #015
+- bundle: count=7 latest=#483, #471, #262, #245, #238
 - busl: count=3 latest=#482, #477, #474
 - cache: count=1 latest=#364
 - calibration: count=1 latest=#325
@@ -582,7 +583,7 @@ compact: true
 - distribution: count=1 latest=#474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=7 latest=#482, #480, #477, #471, #149
+- docker: count=8 latest=#483, #482, #480, #477, #471
 - docs: count=53 latest=#475, #474, #469, #467, #461
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
@@ -656,7 +657,7 @@ compact: true
 - macos: count=4 latest=#354, #353, #352, #337
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
-- mcp: count=21 latest=#481, #460, #457, #350, #348
+- mcp: count=22 latest=#483, #481, #460, #457, #350
 - measurement: count=2 latest=#459, #369
 - mem0: count=12 latest=#410, #395, #394, #393, #384
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
@@ -682,7 +683,7 @@ compact: true
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=11 latest=#460, #450, #448, #446, #445
-- packaging: count=5 latest=#481, #296, #293, #287, #284
+- packaging: count=6 latest=#483, #481, #296, #293, #287
 - paid: count=2 latest=#412, #365
 - paid-run: count=5 latest=#434, #429, #427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
@@ -749,10 +750,10 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=60 latest=#482, #480, #477, #471, #469
+- security: count=61 latest=#483, #482, #480, #477, #471
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
-- selfhost: count=4 latest=#482, #481, #480, #477
+- selfhost: count=5 latest=#483, #482, #481, #480, #477
 - server: count=5 latest=#457, #300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
@@ -777,7 +778,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=71 latest=#479, #478, #473, #472, #469
+- test: count=72 latest=#483, #479, #478, #473, #472
 - tests: count=31 latest=#458, #457, #456, #455, #454
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
@@ -791,7 +792,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=32 latest=#465, #464, #463, #462, #458
 - vector-adapters: count=1 latest=#359
-- verify: count=314 latest=#480, #479, #478, #477, #473
+- verify: count=315 latest=#483, #480, #479, #478, #477
 - vulnerability: count=1 latest=#296
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
@@ -806,6 +807,6 @@ compact: true
 
 - roots: 76
 - changed: 21
-- done: 434
+- done: 435
 - in-progress: 6
 - planned: 21
