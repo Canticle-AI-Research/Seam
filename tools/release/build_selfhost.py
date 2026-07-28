@@ -13,6 +13,14 @@ REPO = Path(__file__).resolve().parents[2]
 DOCKERFILE = REPO / "selfhost" / "Dockerfile"
 
 
+def project_version() -> str:
+    """Read the version the image is built from so it can be stamped as a label."""
+    import tomllib
+
+    data = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))
+    return str(data["project"]["version"])
+
+
 def validate_public_key(path: Path) -> bytes:
     try:
         from cryptography.hazmat.primitives import serialization
@@ -29,7 +37,7 @@ def validate_public_key(path: Path) -> bytes:
     return content
 
 
-def build_command(*, tag: str, public_key: bytes, progress: str) -> list[str]:
+def build_command(*, tag: str, public_key: bytes, progress: str, version: str | None = None) -> list[str]:
     return [
         "docker",
         "buildx",
@@ -43,6 +51,8 @@ def build_command(*, tag: str, public_key: bytes, progress: str) -> list[str]:
         tag,
         "--build-arg",
         f"SEAM_ENTITLEMENT_PUBLIC_KEY_B64={base64.b64encode(public_key).decode('ascii')}",
+        "--build-arg",
+        f"SEAM_VERSION={version or project_version()}",
         "--file",
         str(DOCKERFILE),
         str(REPO),

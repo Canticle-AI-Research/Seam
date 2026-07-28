@@ -25,9 +25,9 @@ from seam_runtime.selfhost_entitlement import (
     canonical_entitlement_payload,
     verify_entitlement,
 )
-from tools.release.build_selfhost import build_command, validate_public_key
+from tools.release.build_selfhost import build_command, project_version, validate_public_key
 from tools.release.issue_selfhost_entitlement import main as issue_entitlement
-from tools.release.verify_selfhost_artifact import verify_archive
+from tools.release.verify_selfhost_artifact import RESERVED_CONTENT_BUDGET, verify_archive
 
 NOW = datetime(2026, 7, 27, 12, 0, tzinfo=timezone.utc)
 
@@ -300,6 +300,9 @@ def test_selfhost_artifact_verifier_accepts_compiled_minimal_image(
             "opt/seam/app/libz.so.1": b"\x7fELF runtime dependency",
             "opt/seam/entitlement-public-key.pem": b"PUBLIC KEY",
             "licenses/SEAM-LICENSE": b"proprietary terms",
+            # The license texts legitimately name MIRL and HS/1 and are exempt
+            # from the reserved-identifier content scan.
+            "licenses/BUSL-1.1.txt": b"Business Source License 1.1 covering MIRL and HS/1",
         },
     )
     assert verify_archive(archive) == ()
@@ -316,6 +319,7 @@ def test_selfhost_artifact_verifier_rejects_source_shell_and_secrets(
             "opt/seam/app/libz.so.1": b"\x7fELF runtime dependency",
             "opt/seam/entitlement-public-key.pem": b"PUBLIC KEY",
             "licenses/SEAM-LICENSE": b"proprietary terms",
+            "licenses/BUSL-1.1.txt": b"Business Source License 1.1",
             "opt/seam/seam_runtime/mirl.py": b"print('private source')",
             "bin/sh": b"shell",
             "run/key.txt": b"-----BEGIN " + b"PRIVATE KEY-----",
@@ -327,3 +331,94 @@ def test_selfhost_artifact_verifier_rejects_source_shell_and_secrets(
     assert any("mutable runtime tool" in error for error in errors)
     assert any("secret-shaped content" in error for error in errors)
     assert any("uid 65532" in error for error in errors)
+
+
+def test_selfhost_artifact_verifier_ratchets_reserved_identifier_exposure(
+    tmp_path: Path,
+) -> None:
+    """A measured Nuitka build leaks module names, qualified helper names, and SQL
+    schemas verbatim; path-only checks passed that image. Zero is unreachable while
+    the engine is compiled in, so the gate pins measured exposure and fails on any
+    increase."""
+    payload = (
+        b"\x7fELF compiled"
+        b"compile_nl.<locals>.add_claim"
+        b"seam_runtime/reasoning_graph.py"
+        b"create table if not exists knowledge_graph_meta ("
+        b"Write MIRL/RC/LX bytes into a lossless PNG surface"
+    )
+    files = {
+        "opt/seam/app/seam-selfhost": payload,
+        "opt/seam/app/libgcc_s.so.1": b"\x7fELF runtime dependency",
+        "opt/seam/app/libz.so.1": b"\x7fELF runtime dependency",
+        "opt/seam/entitlement-public-key.pem": b"PUBLIC KEY",
+        "licenses/SEAM-LICENSE": b"proprietary terms",
+        "licenses/BUSL-1.1.txt": b"Business Source License 1.1",
+    }
+    archive = _docker_archive(tmp_path / "leaky-image.tar", files)
+
+    # Exposure above budget fails and names the offending identifier and counts.
+    errors = verify_archive(archive, budget={b"compile_nl": 0, b"knowledge_graph": 0})
+    increased = [error for error in errors if "exposure increased" in error]
+    assert increased, errors
+    assert any("compile_nl appears 1 times, budget 0" in error for error in increased)
+    assert any("knowledge_graph appears 1 times, budget 0" in error for error in increased)
+
+    # Exposure at budget passes, so the ratchet does not block a steady build.
+    assert verify_archive(archive, budget={b"compile_nl": 1, b"knowledge_graph": 1}) == ()
+
+
+def test_selfhost_reserved_budget_matches_measured_baseline() -> None:
+    """The budget is a measured fact, not an aspiration. It may only go down."""
+    assert RESERVED_CONTENT_BUDGET[b"MIRL"] == 134
+    assert RESERVED_CONTENT_BUDGET[b"knowledge_graph"] == 17
+    assert RESERVED_CONTENT_BUDGET[b"reasoning_graph"] == 13
+    assert sum(RESERVED_CONTENT_BUDGET.values()) == 417
+
+
+def test_selfhost_artifact_verifier_exempts_license_texts_from_content_scan(
+    tmp_path: Path,
+) -> None:
+    """BUSL and the SEAM license name MIRL and HS/1 by design; naming the
+    reserved material in the license that governs it is not a leak."""
+    archive = _docker_archive(
+        tmp_path / "licensed-image.tar",
+        {
+            "opt/seam/app/seam-selfhost": b"\x7fELF compiled",
+            "opt/seam/app/libgcc_s.so.1": b"\x7fELF runtime dependency",
+            "opt/seam/app/libz.so.1": b"\x7fELF runtime dependency",
+            "opt/seam/entitlement-public-key.pem": b"PUBLIC KEY",
+            "licenses/SEAM-LICENSE": b"MIRL and HS/1 reserved materials license",
+            "licenses/BUSL-1.1.txt": b"BUSL-1.1 Licensed Work: SEAM MIRL and HS/1",
+        },
+    )
+    assert verify_archive(archive) == ()
+
+
+def test_selfhost_artifact_verifier_requires_busl_license_text(tmp_path: Path) -> None:
+    """The image must carry the license that governs it, not merely claim it."""
+    archive = _docker_archive(
+        tmp_path / "no-busl.tar",
+        {
+            "opt/seam/app/seam-selfhost": b"\x7fELF compiled",
+            "opt/seam/app/libgcc_s.so.1": b"\x7fELF runtime dependency",
+            "opt/seam/app/libz.so.1": b"\x7fELF runtime dependency",
+            "opt/seam/entitlement-public-key.pem": b"PUBLIC KEY",
+            "licenses/SEAM-LICENSE": b"proprietary terms",
+        },
+    )
+    errors = verify_archive(archive)
+    assert any("licenses/BUSL-1.1.txt" in error for error in errors)
+
+
+def test_selfhost_build_stamps_the_project_version(tmp_path: Path) -> None:
+    _, public_path = _entitlement_files(tmp_path)
+    key = validate_public_key(public_path)
+    command = build_command(tag="seam-selfhost:test", public_key=key, progress="plain")
+    assert f"SEAM_VERSION={project_version()}" in command
+    assert project_version() == "2.4.0"
+
+    dockerfile = (Path(__file__).resolve().parents[2] / "selfhost" / "Dockerfile").read_text()
+    assert 'org.opencontainers.image.licenses="BUSL-1.1"' in dockerfile
+    assert 'org.opencontainers.image.version="${SEAM_VERSION}"' in dockerfile
+    assert "/licenses/BUSL-1.1.txt" in dockerfile
