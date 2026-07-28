@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 543
+total_events: 544
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-06T14:22:16Z | history:288:76706d50 | session-event | done | security, audit, retrieval, holographic, lossless, server... | seam_runtime/dashboard.py,seam_runtime/holographic.py,seam_runtime/lossless.p... |
 | 2026-06-08T07:30:36Z | history:289:bbf7ccaa | session-event | done | retrieval, self-improvement, h2, loop, benchmark, test, v... | seam_runtime/retrieval.py,seam_runtime/runtime.py,seam_runtime/storage.py,too... |
 | 2026-06-08T08:57:59Z | history:290:3f3c4870 | session-event | done | retrieval, self-improvement, h2, loop, benchmark, locomo,... | seam_runtime/self_improve.py,seam_runtime/retrieval.py,seam_runtime/runtime.p... |
 | 2026-06-08T11:10:38Z | history:291:4d966326 | session-event | done | retrieval, self-improvement, h2, loop, proposer, ratchet,... | seam_runtime/self_improve.py,tools/h2/improvement_loop.py,tests/audit/test_im... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-28T14:55:30Z | history:479:450b261e | session-event | done | graph, retrieval, rank, provenance, test, verify, handoff... | seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orchestrator/merger.p... |
 | 2026-07-28T15:26:55Z | history:480:14d762d7 | session-event | changed | selfhost, security, verify, graph, docker | tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.p... |
 | 2026-07-28T16:32:58Z | history:481:89070f00 | session-event | changed | roadmap, selfhost, packaging, mcp | ROADMAP.md |
+| 2026-07-28T17:43:24Z | history:482:e8f54f77 | session-event | changed | selfhost, licensing, busl, entitlement, security, docker | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/compos... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0343.cross.md | 2026-04-15T00:00:00Z..2026-06-05T05:13:34Z | 343 | (multi) | (multi) |
+| 0001-0344.cross.md | 2026-04-15T00:00:00Z..2026-06-06T14:22:16Z | 344 | (multi) | (multi) |
