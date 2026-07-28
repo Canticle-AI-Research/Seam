@@ -1,5 +1,23 @@
 # SEAM Project Status
 
+Current update: 2026-07-28 (HISTORY#484 - RENAMED the compiled self-host
+distribution to `seam-self-host` 1.0.0 and PUBLISHED `seam-client` 2.0.0 to
+PyPI. The self-host package, build tooling, tests, and SOP were renamed with
+`git mv` (`selfhost_pkg/`, `build_selfhost_wheel.py`,
+`verify_selfhost_wheel.py`, `test_selfhost_wheel.py`), the console entry point
+is now `seam-self-host`, and `seam-mcp` is unchanged. Append-only records keep
+the old name deliberately. The artifact was rebuilt and re-proved rather than
+assumed inert: `seam_self_host-1.0.0-cp312-cp312-manylinux_2_28_x86_64.whl`,
+3,575,299 bytes, gate PASS at the unchanged 414-occurrence baseline, with `/v1`,
+a 3-tool opaque MCP surface scanning 0 reserved identifiers, and the unentitled
+BUSL path all proved in a clean container. `seam-client` 2.0.0 is LIVE on PyPI
+via Trusted Publishing with attestations and no stored token, verified by clean
+isolated install. Full suite 1,491 tests, zero failures, zero skips, two
+established `compile_nl` xfails. `seam-self-host` remains UNPUBLISHED: PyPI
+needs a pending publisher created in its web UI before a new project name's
+first upload, and no release workflow covers the wheel yet. The compiled image
+is unpushed and the hosted `/v1` endpoint undeployed.)
+
 Current update: 2026-07-28 (HISTORY#483 - BUILT the additional BUSL
 `seam-node` 2.4.0 wheel channel with an opaque MCP surface, without publishing
 it. The digest-pinned Docker pipeline produces one CPython 3.12

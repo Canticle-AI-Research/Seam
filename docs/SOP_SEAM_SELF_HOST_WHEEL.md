@@ -1,10 +1,10 @@
-# SOP: ship the compiled self-host as a PyPI wheel (`seam-node`)
+# SOP: ship the compiled self-host as a PyPI wheel (`seam-self-host`)
 
 Owner: Codex. Written by Claude, 2026-07-28. Status: not started.
 
 ## Objective
 
-Make the BUSL self-host installable with `pip install seam-node` instead of only
+Make the BUSL self-host installable with `pip install seam-self-host` instead of only
 `docker pull`. The wheel must ship the SEAM engine as compiled `.so` extension
 modules with **no `.py` source for `seam_runtime`**, because hiding the MIRL and
 HS/1 layers is the entire reason the compiled distribution exists.
@@ -14,7 +14,7 @@ Two packages end up on PyPI, both protecting MIRL:
 | Role | Package | License | Contains MIRL |
 | --- | --- | --- | --- |
 | Paid hosted API client | `seam-client` | Apache-2.0 | No, HTTP only. Already live at 0.1.0. |
-| Free self-host | `seam-node` | BUSL-1.1 | Yes, compiled to `.so`. No source. |
+| Free self-host | `seam-self-host` | BUSL-1.1 | Yes, compiled to `.so`. No source. |
 
 The Docker image stays. It is built from the same source and remains the
 zero-dependency option; the wheel is an additional channel, not a replacement.
@@ -40,8 +40,8 @@ zero-dependency option; the wheel is an additional channel, not a replacement.
 2. **Do not remove `Private :: Do Not Upload` from the root `pyproject.toml`.**
    `verify_distribution_boundary.py:105` requires it for the `private-github`
    target and `:145` rejects it for `pypi`. Removing it breaks the private
-   release gate. `seam-node` gets its **own** `pyproject.toml` in a new
-   `node_pkg/` directory, exactly like `public_pkg/`.
+   release gate. `seam-self-host` gets its **own** `pyproject.toml` in a new
+   `selfhost_pkg/` directory, exactly like `public_pkg/`.
 3. **Never raise `RESERVED_CONTENT_BUDGET` to make a build pass.** It is a
    ratchet pinned to measured reality. If the wheel legitimately exposes more or
    fewer identifiers than the image, give the wheel its **own** budget measured
@@ -86,11 +86,11 @@ Report the outcome before proceeding.
   (b) shipping the existing standalone binary inside a wheel with a thin launcher.
   Do not pick one without operator input.
 
-## Step 2 — `node_pkg/` package definition
+## Step 2 — `selfhost_pkg/` package definition
 
-Create `node_pkg/pyproject.toml` modeled on `public_pkg/pyproject.toml`:
+Create `selfhost_pkg/pyproject.toml` modeled on `public_pkg/pyproject.toml`:
 
-- `name = "seam-node"` (confirmed available on PyPI 2026-07-28, along with
+- `name = "seam-self-host"` (confirmed available on PyPI 2026-07-28, along with
   `seam-engine`, `seam-core`, `seam-selfhost`, `seam-memory`, `seam-server`).
 - `version = "2.4.0"` — the BUSL grant names "version 2.4.0 or later" as the
   Licensed Work, so anything below that floor is not covered by the license.
@@ -100,12 +100,12 @@ Create `node_pkg/pyproject.toml` modeled on `public_pkg/pyproject.toml`:
   `cryptography`. No dev, benchmark, or dashboard extras.
 - A console entry point that starts the self-host server.
 - Do **not** copy the repo-root `README.md` into the package; it is the private
-  product README. Write a short `node_pkg/README.md` that states plainly what the
+  product README. Write a short `selfhost_pkg/README.md` that states plainly what the
   package is, that it contains no source, and how to run it.
 
 ## Step 3 — wheel build pipeline
 
-Add `tools/release/build_node_wheel.py`, modeled on `build_public.py`:
+Add `tools/release/build_selfhost_wheel.py`, modeled on `build_public.py`:
 
 - Build inside Docker so the toolchain and glibc are pinned and reproducible.
   Reuse the pinned base image digests from `selfhost/Dockerfile`.
@@ -129,7 +129,7 @@ Add `tools/release/build_node_wheel.py`, modeled on `build_public.py`:
 ## Step 4 — the gate
 
 Extend `tools/release/verify_distribution_boundary.py` with a `node` target, or
-add `tools/release/verify_node_wheel.py` if the logic does not fit cleanly. It
+add `tools/release/verify_selfhost_wheel.py` if the logic does not fit cleanly. It
 must fail on:
 
 - any `seam_runtime` `.py`/`.pyc`/`.pyo` in the wheel;
@@ -170,8 +170,8 @@ it.
 ## Deliverables
 
 1. Spike result, reported before any pipeline work.
-2. `node_pkg/pyproject.toml` and `node_pkg/README.md`.
-3. `tools/release/build_node_wheel.py`.
+2. `selfhost_pkg/pyproject.toml` and `selfhost_pkg/README.md`.
+3. `tools/release/build_selfhost_wheel.py`.
 4. The wheel gate, with tests covering both directions (a clean wheel passes, a
    wheel with source or missing BUSL fails).
 5. Runtime proof from step 5, pasted as real command output.

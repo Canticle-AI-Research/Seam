@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and runtime-prove the compiled seam-node cp312 manylinux wheel."""
+"""Build and runtime-prove the compiled seam-self-host cp312 manylinux wheel."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-NODE_SRC = REPO / "node_pkg"
+NODE_SRC = REPO / "selfhost_pkg"
 DEFAULT_DIST = REPO / "dist"
 
 MANYLINUX_IMAGE = (
@@ -24,7 +24,7 @@ PYTHON_IMAGE = (
 )
 NUITKA_VERSION = "4.1.3"
 
-NODE_FILES = (
+SELFHOST_FILES = (
     Path("README.md"),
     Path("pyproject.toml"),
 )
@@ -140,8 +140,8 @@ import shutil
 import tomllib
 from pathlib import Path
 
-project = tomllib.loads(Path("/src/node_pkg/pyproject.toml").read_text(encoding="utf-8"))["project"]
-dist_info = Path("/wheel-root/seam_node-2.4.0.dist-info")
+project = tomllib.loads(Path("/src/selfhost_pkg/pyproject.toml").read_text(encoding="utf-8"))["project"]
+dist_info = Path("/wheel-root/seam_self_host-1.0.0.dist-info")
 dist_info.mkdir(parents=True)
 metadata = email.message.Message()
 metadata["Metadata-Version"] = "2.4"
@@ -158,24 +158,24 @@ for dependency in project["dependencies"]:
 for label, url in project["urls"].items():
     metadata["Project-URL"] = f"{label}, {url}"
 metadata["License-File"] = "LICENSES/BUSL-1.1.txt"
-readme = Path("/src/node_pkg/README.md").read_text(encoding="utf-8")
+readme = Path("/src/selfhost_pkg/README.md").read_text(encoding="utf-8")
 (dist_info / "METADATA").write_text(metadata.as_string() + "\n" + readme, encoding="utf-8")
 (dist_info / "WHEEL").write_text(
     "Wheel-Version: 1.0\n"
-    "Generator: seam-node-wheel\n"
+    "Generator: seam-self-host-wheel\n"
     "Root-Is-Purelib: false\n"
     "Tag: cp312-cp312-linux_x86_64\n",
     encoding="utf-8",
 )
 (dist_info / "entry_points.txt").write_text(
     "[console_scripts]\n"
-    "seam-node = seam_runtime.selfhost:main\n"
+    "seam-self-host = seam_runtime.selfhost:main\n"
     "seam-mcp = seam_runtime.selfhost_mcp:main\n",
     encoding="utf-8",
 )
 license_path = dist_info / "licenses" / "LICENSES" / "BUSL-1.1.txt"
 license_path.parent.mkdir(parents=True)
-shutil.copy2("/src/node_pkg/LICENSES/BUSL-1.1.txt", license_path)
+shutil.copy2("/src/selfhost_pkg/LICENSES/BUSL-1.1.txt", license_path)
 
 extensions = list(Path("/compiled").glob("seam_runtime*.so"))
 if len(extensions) != 1:
@@ -196,7 +196,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-TOKEN = "node-wheel-proof-token-000000000000"
+TOKEN = "selfhost-wheel-proof-token-000000000000"
 
 def request(method, path, payload=None, authenticated=True):
     body = None if payload is None else json.dumps(payload).encode()
@@ -212,7 +212,7 @@ def request(method, path, payload=None, authenticated=True):
     with urllib.request.urlopen(req, timeout=5) as response:
         return response.status, json.loads(response.read())
 
-with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
+with tempfile.TemporaryDirectory(prefix="seam-self-host-proof-") as temporary:
     root = Path(temporary)
     env = {
         **os.environ,
@@ -223,9 +223,9 @@ with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
     }
     env.pop("SEAM_SELFHOST_ENTITLEMENT_PATH", None)
     env.pop("SEAM_SELFHOST_PUBLIC_KEY_PATH", None)
-    executable = shutil.which("seam-node")
+    executable = shutil.which("seam-self-host")
     if executable is None:
-        raise SystemExit("seam-node console entry point was not installed")
+        raise SystemExit("seam-self-host console entry point was not installed")
     mcp_executable = shutil.which("seam-mcp")
     if mcp_executable is None:
         raise SystemExit("seam-mcp console entry point was not installed")
@@ -240,13 +240,13 @@ with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
         deadline = time.monotonic() + 20
         while True:
             if server.poll() is not None:
-                raise RuntimeError("seam-node exited before becoming healthy")
+                raise RuntimeError("seam-self-host exited before becoming healthy")
             try:
                 health = request("GET", "/v1/health")
                 break
             except (OSError, urllib.error.URLError):
                 if time.monotonic() >= deadline:
-                    raise RuntimeError("seam-node did not become healthy")
+                    raise RuntimeError("seam-self-host did not become healthy")
                 time.sleep(0.2)
 
         try:
@@ -298,7 +298,7 @@ with tempfile.TemporaryDirectory(prefix="seam-node-proof-") as temporary:
             raise AssertionError(f"recall did not return the remembered item: {recalled}")
         if context[0] != 200 or not context[1]["context"]:
             raise AssertionError(f"context did not return prompt-ready text: {context}")
-        print("NODE WHEEL RUNTIME PROOF")
+        print("SELF-HOST WHEEL RUNTIME PROOF")
         print(f"GET /v1/health -> {health[0]} {json.dumps(health[1], sort_keys=True)}")
         print(f"POST /v1/memories unauthenticated -> {unauthorized}")
         print(f"POST /v1/memories -> {remembered[0]} accepted={remembered[1]['accepted']}")
@@ -420,7 +420,7 @@ ENV PATH=/opt/python/cp312-cp312/bin:$PATH \\
     PYTHONUNBUFFERED=1 \\
     PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /src
-COPY node_pkg/ ./node_pkg/
+COPY selfhost_pkg/ ./selfhost_pkg/
 COPY seam_runtime/ ./seam_runtime/
 COPY assemble_wheel.py /assemble_wheel.py
 RUN python -m pip install --no-cache-dir \\
@@ -483,25 +483,25 @@ def _run(command: list[str], *, cwd: Path) -> None:
         )
 
 
-def build_node_wheel(outdir: Path) -> tuple[Path, ...]:
+def build_selfhost_wheel(outdir: Path) -> tuple[Path, ...]:
     """Build one verified cp312 manylinux wheel into an initially empty directory."""
     outdir = outdir.resolve()
     outdir.mkdir(parents=True, exist_ok=True)
     if any(outdir.iterdir()):
         raise ValueError(f"output directory must be empty: {outdir}")
 
-    with tempfile.TemporaryDirectory(prefix="seam-node-build-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="seam-self-host-build-") as temporary:
         root = Path(temporary)
         context = root / "context"
         result = root / "result"
         context.mkdir()
         result.mkdir()
 
-        for relative in NODE_FILES:
-            _copy_file(NODE_SRC / relative, context / "node_pkg" / relative)
+        for relative in SELFHOST_FILES:
+            _copy_file(NODE_SRC / relative, context / "selfhost_pkg" / relative)
         _copy_file(
             REPO / "LICENSES" / "BUSL-1.1.txt",
-            context / "node_pkg" / "LICENSES" / "BUSL-1.1.txt",
+            context / "selfhost_pkg" / "LICENSES" / "BUSL-1.1.txt",
         )
         for relative in RUNTIME_SOURCE_FILES:
             _copy_file(REPO / relative, context / relative)
@@ -513,7 +513,7 @@ def build_node_wheel(outdir: Path) -> tuple[Path, ...]:
         )
         (context / "Dockerfile").write_text(_dockerfile(), encoding="utf-8")
 
-        print("[node-wheel] building locally; no upload or registry push is performed")
+        print("[selfhost-wheel] building locally; no upload or registry push is performed")
         _run(
             [
                 "docker",
@@ -545,7 +545,7 @@ def build_node_wheel(outdir: Path) -> tuple[Path, ...]:
             [
                 sys.executable,
                 "-m",
-                "tools.release.verify_node_wheel",
+                "tools.release.verify_selfhost_wheel",
                 str(wheel),
             ],
             cwd=REPO,
@@ -560,7 +560,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--outdir", type=Path, default=DEFAULT_DIST)
     args = parser.parse_args(argv)
     try:
-        artifacts = build_node_wheel(args.outdir)
+        artifacts = build_selfhost_wheel(args.outdir)
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"node wheel build failed: {exc}", file=sys.stderr)
         return 1

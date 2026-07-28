@@ -100,8 +100,8 @@ and `HISTORY_INDEX.md`.
   `sdk-publish.yml` OIDC workflow; it never publishes the private
   `seam-runtime` artifact.
 - The BUSL self-host wheel is a third, separate distribution named
-  `seam-node`, starting at 2.4.0. Its package definition lives under
-  `node_pkg/`; it must contain compiled `seam_runtime` extension code and the
+  `seam-self-host`, starting at 1.0.0. Its package definition lives under
+  `selfhost_pkg/`; it must contain compiled `seam_runtime` extension code and the
   BUSL-1.1 text, but no `seam_runtime` `.py`, `.pyc`, or `.pyo`. The
   cp312/manylinux_2_28_x86_64 builder is Docker-pinned, copies an explicit
   source allow-list, carries the same 18 load-bearing exclusions as the

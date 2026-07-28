@@ -1,6 +1,6 @@
-# seam-node
+# seam-self-host
 
-`seam-node` is the compiled Linux/x86-64 self-hosted SEAM agent-memory node.
+`seam-self-host` is the compiled Linux/x86-64 self-hosted SEAM agent-memory node.
 It installs the opaque `/v1` service plus the local MCP stdio surface used by
 Claude, Cursor, Gemini, and other MCP-capable agents.
 
@@ -20,7 +20,7 @@ database path:
 ```bash
 export SEAM_API_TOKEN_FILE=/run/secrets/seam-api-token
 export SEAM_SERVER_DB=/var/lib/seam/seam.db
-seam-node
+seam-self-host
 ```
 
 The server listens on `0.0.0.0:8765` by default. Keep it on a trusted network
