@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import io
 import json
+import os
 import tarfile
 from dataclasses import replace
 from datetime import datetime, timezone
@@ -493,3 +494,70 @@ def test_lapsed_entitlement_is_kept_and_distinguishable_from_forgery(tmp_path: P
     # The signature checks still apply with the window disabled.
     with pytest.raises(EntitlementError):
         verify_entitlement(entitlement_path, public_path, enforce_validity_window=True, now=NOW)
+
+
+def test_selfhost_defaults_to_the_builtin_embedder(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Local-first: a fresh install must run without a third-party account."""
+    from seam_runtime.selfhost import _configure_embedding_provider
+
+    monkeypatch.delenv("SEAM_EMBEDDING_PROVIDER", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    _configure_embedding_provider()
+    assert os.environ["SEAM_EMBEDDING_PROVIDER"] == "hash"
+
+
+def test_selfhost_fails_fast_when_an_opted_in_api_key_is_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Opting into an external API without a key must fail at startup."""
+    from seam_runtime.selfhost import _configure_embedding_provider
+
+    monkeypatch.setenv("SEAM_EMBEDDING_PROVIDER", "openai")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    with pytest.raises(RuntimeError, match="OPENAI_API_KEY is empty"):
+        _configure_embedding_provider()
+
+
+def test_selfhost_accepts_an_opted_in_api_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The external-API path stays available for operators who want it."""
+    from seam_runtime.selfhost import _configure_embedding_provider
+
+    monkeypatch.setenv("SEAM_EMBEDDING_PROVIDER", "openai")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test-key")
+    _configure_embedding_provider()
+    assert os.environ["SEAM_EMBEDDING_PROVIDER"] == "openai"
+
+
+def test_selfhost_accepts_a_pgvector_dsn(monkeypatch: pytest.MonkeyPatch) -> None:
+    """psycopg ships with the wheel, so a DSN is a supported configuration."""
+    from seam_runtime.selfhost import _validate_vector_backend
+
+    monkeypatch.setenv(
+        "SEAM_PGVECTOR_DSN", "postgresql://seam@127.0.0.1:5432/seam"
+    )
+    _validate_vector_backend()
+
+
+def test_selfhost_rejects_a_pgvector_dsn_without_the_driver(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Without psycopg this used to be a 500 on first write; it is now a startup error."""
+    import builtins
+
+    from seam_runtime.selfhost import _validate_vector_backend
+
+    real_import = builtins.__import__
+
+    def _no_psycopg(name: str, *args: object, **kwargs: object) -> object:
+        if name == "psycopg":
+            raise ImportError("no psycopg")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setenv("SEAM_PGVECTOR_DSN", "postgresql://seam@127.0.0.1:5432/seam")
+    monkeypatch.setattr(builtins, "__import__", _no_psycopg)
+    with pytest.raises(RuntimeError, match="psycopg is not installed"):
+        _validate_vector_backend()

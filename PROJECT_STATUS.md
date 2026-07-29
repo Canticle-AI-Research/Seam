@@ -1,5 +1,21 @@
 # SEAM Project Status
 
+Current update: 2026-07-28 (HISTORY#486 - SHIPPED `seam-self-host` 1.1.0 with
+pgvector baked in, startup-validated configuration, and a complete environment
+variable reference in the PyPI README. `psycopg` is now a distribution
+dependency, so `SEAM_PGVECTOR_DSN` works instead of returning 500 on first
+write; the ratchet is unmoved at 414/414 because psycopg is a pip dependency,
+not compiled SEAM code. The embedding default stays SEAM's own built-in
+embedder, an operator decision keeping the free self-host local-first with no
+third-party account; an external API is opt-in and refused at startup without
+its key. Both changes are scoped to the self-host entrypoint, never the library
+default, because `derived_fact_context` requires hash/local embeddings and an
+unset DSN for the grounded-clm/1 contract. README documents 64 of 78 variables
+individually with the `SEAM_JSPACE_*` family named as a group, plus an explicit
+note that the `SEAM_API_ALLOW_*` names cannot weaken the `/v1` bearer-token
+requirement. Wheel 3,583,540 bytes, gate PASS, no `seam_runtime` source, full
+suite green with zero skips.)
+
 Current update: 2026-07-28 (HISTORY#484 - RENAMED the compiled self-host
 distribution to `seam-self-host` 1.0.0 and PUBLISHED `seam-client` 2.0.0 to
 PyPI. The self-host package, build tooling, tests, and SOP were renamed with

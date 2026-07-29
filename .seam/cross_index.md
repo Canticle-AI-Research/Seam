@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 546
+total_events: 548
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-08T11:10:38Z | history:291:4d966326 | session-event | done | retrieval, self-improvement, h2, loop, proposer, ratchet,... | seam_runtime/self_improve.py,tools/h2/improvement_loop.py,tests/audit/test_im... |
-| 2026-06-09T00:30:25Z | history:292:6a03a252 | session-event | done | retrieval, self-improvement, h2, loop, benchmark, locomo,... | benchmarks/external/locomo/recall_scorer.py,seam_runtime/self_improve.py,test... |
 | 2026-06-09T01:01:07Z | history:293:ce085961 | session-event | done | cli, self-improvement, h2, loop, packaging, chroma, depen... | seam_runtime/cli.py,pyproject.toml,.github/workflows/ci.yml,tests/audit/test_... |
 | 2026-06-09T13:53:04Z | history:294:9c04649a | session-event | done | test, ci, protocol, skip, pgvector, enforcement, verify, ... | tests/conftest.py,tests/audit/test_pgvector_pk_composite.py,tests/audit/test_... |
 | 2026-06-09T14:09:49Z | history:295:cb32e58d | session-event | done | ci, test, bugfix, chroma, dependencies, pgvector, verify,... | .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,HISTORY.md,HISTO... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-28T17:43:24Z | history:482:e8f54f77 | session-event | changed | selfhost, licensing, busl, entitlement, security, docker | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/compos... |
 | 2026-07-28T22:11:37Z | history:483:9b437667 | session-event | done | selfhost, mcp, security, packaging, bundle, verify, test,... | seam_runtime/selfhost_mcp.py,tools/release/build_node_wheel.py,tests/audit/te... |
 | 2026-07-28T22:42:05Z | history:484:8cef3b6f | session-event | changed | selfhost, packaging, release, pypi, naming, test, verify | selfhost_pkg/pyproject.toml,tools/release/build_selfhost_wheel.py,tools/relea... |
+| 2026-07-28T23:20:55Z | history:485:f42d2568 | session-event | done | selfhost, release, pypi, packaging, busl, verify | .github/workflows/selfhost-release.yml,selfhost_pkg/pyproject.toml |
+| 2026-07-28T23:51:04Z | history:486:55291525 | session-event | changed | selfhost, pgvector, embeddings, docs, packaging, release,... | seam_runtime/selfhost.py,selfhost_pkg/pyproject.toml,selfhost_pkg/README.md,t... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0346.cross.md | 2026-04-15T00:00:00Z..2026-06-08T08:57:59Z | 346 | (multi) | (multi) |
+| 0001-0348.cross.md | 2026-04-15T00:00:00Z..2026-06-09T00:30:25Z | 348 | (multi) | (multi) |

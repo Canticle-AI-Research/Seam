@@ -12,7 +12,7 @@ SOURCE_SUFFIXES = (".py", ".pyc", ".pyo")
 BUSL_LICENSE_PATH = "licenses/LICENSES/BUSL-1.1.txt"
 BUSL_LICENSE_MARKER = b"Business Source License 1.1"
 NODE_NAME = b"Name: seam-self-host"
-SELFHOST_VERSION = b"Version: 1.0.0"
+SELFHOST_VERSION = b"Version: 1.1.0"
 BUSL_EXPRESSION = b"License-Expression: BUSL-1.1"
 SECRET_PATTERNS = (
     re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -134,7 +134,7 @@ def verify_selfhost_wheel(
     if NODE_NAME not in metadata:
         errors.append("wheel metadata name is not seam-self-host")
     if SELFHOST_VERSION not in metadata:
-        errors.append("wheel metadata version is not 1.0.0")
+        errors.append("wheel metadata version is not 1.1.0")
     if BUSL_EXPRESSION not in metadata:
         errors.append("wheel metadata does not declare BUSL-1.1")
 
