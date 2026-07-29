@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from .context_assembly import ContextCandidate, ContextPack
+from .lifecycle import BatchIngestItem
 from .reasoning_graph import ReasoningRetrievalCandidate
 from .retrieval_policy import mirl_record_fingerprint
 from .runtime import SeamRuntime
@@ -583,6 +585,99 @@ class SeamSDK:
             scope=scope,
             stable_key=stable_key,
             limit=limit,
+        )
+
+    def context(
+        self,
+        *,
+        task: str,
+        namespace: str,
+        scope: str,
+        as_of: str,
+        token_budget: int,
+        fact_reserve_tokens: int = 0,
+        max_candidates: int = 10_000,
+        candidates: list[ContextCandidate] | None = None,
+    ) -> ContextPack:
+        """Build a G5 context PACK through the stable SDK boundary."""
+
+        return self.runtime.assemble_context(
+            task=task,
+            namespace=namespace,
+            scope=scope,
+            as_of=as_of,
+            token_budget=token_budget,
+            fact_reserve_tokens=fact_reserve_tokens,
+            max_candidates=max_candidates,
+            candidates=candidates,
+        )
+
+    def plan_delete(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        record_ids: list[str],
+        idempotency_key: str,
+        actor: str,
+    ) -> dict[str, object]:
+        return self.runtime.plan_scoped_delete(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope=scope,
+            record_ids=record_ids,
+            idempotency_key=idempotency_key,
+            actor=actor,
+        )
+
+    def apply_delete(
+        self, *, tenant_id: str, operation_id: str, actor: str
+    ) -> dict[str, object]:
+        return self.runtime.apply_scoped_delete(
+            tenant_id=tenant_id, operation_id=operation_id, actor=actor
+        )
+
+    def batch_ingest(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        items: list[BatchIngestItem],
+        idempotency_key: str,
+        actor: str,
+        interrupt_after_items: int | None = None,
+    ) -> dict[str, object]:
+        return self.runtime.batch_ingest(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope=scope,
+            items=items,
+            idempotency_key=idempotency_key,
+            actor=actor,
+            interrupt_after_items=interrupt_after_items,
+        )
+
+    def resume_operation(
+        self, operation_id: str, *, tenant_id: str, actor: str
+    ) -> dict[str, object]:
+        return self.runtime.resume_lifecycle_operation(
+            operation_id, tenant_id=tenant_id, actor=actor
+        )
+
+    def lifecycle_operation(
+        self, operation_id: str, *, tenant_id: str
+    ) -> dict[str, object]:
+        return self.runtime.store.lifecycle_operation(
+            tenant_id=tenant_id, operation_id=operation_id
+        )
+
+    def recoverable_operations(
+        self, *, tenant_id: str, limit: int = 100
+    ) -> list[dict[str, object]]:
+        return self.runtime.store.recoverable_lifecycle_operations(
+            tenant_id=tenant_id, limit=limit
         )
 
     def review_promotion(

@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from seam_runtime.knowledge_graph import (
+    CURRENT_EXCLUDED_STATUSES,
     _edge_time_clauses,
     _episode_filter_clauses,
     _node_time_clauses,
@@ -551,7 +552,12 @@ class ChromaSemanticAdapter:
         return self.sync_batch(batch)
 
     def sync_batch(self, batch: IRBatch) -> int:
-        records = [record for record in batch.records if record.kind in INDEXABLE_KINDS]
+        records = [
+            record
+            for record in batch.records
+            if record.kind in INDEXABLE_KINDS
+            and record.status.value not in CURRENT_EXCLUDED_STATUSES
+        ]
         if not records:
             return 0
         collection = self._collection()
@@ -566,6 +572,12 @@ class ChromaSemanticAdapter:
             ],
         )
         return len(records)
+
+    def delete_records(self, record_ids: list[str]) -> None:
+        ids = sorted({str(record_id).strip() for record_id in record_ids})
+        if not ids or any(not record_id for record_id in ids):
+            raise ValueError("record_ids must contain non-empty references")
+        self._collection().delete(ids=ids)
 
     def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
@@ -686,6 +698,11 @@ def _build_structured_sql(
     kind_placeholders = ",".join("?" for _ in allowed_kinds)
     where_clauses = [f"r.kind in ({kind_placeholders})"]
     where_params: list[object] = list(allowed_kinds)
+    if not plan.graph_include_history:
+        excluded = sorted(CURRENT_EXCLUDED_STATUSES)
+        status_placeholders = ",".join("?" for _ in excluded)
+        where_clauses.append(f"r.status not in ({status_placeholders})")
+        where_params.extend(excluded)
 
     if plan.filters.ids:
         placeholders = ",".join("?" for _ in plan.filters.ids)

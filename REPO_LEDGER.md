@@ -178,6 +178,24 @@ and `HISTORY_INDEX.md`.
   snapshot so stale derived text cannot remain current. Every rendered sentence
   carries exact supporting MIRL record and active episode IDs, and only current
   `supported` or `verified` same-namespace/scope facts may contribute text.
+- G5 context assembly is a disposable `context-assembly/1` PACK over current
+  canonical facts/entities/episodes and G4 products. Every item retains exact
+  record and episode backtraces; derived items also retain their product ID.
+  Task/trust/time ordering, whole-item truncation, exact token accounting, and
+  the grounded-fact reservation are deterministic. Context never becomes a
+  second truth store.
+- G6 lifecycle is append-only audit around canonical MIRL, not hard deletion of
+  truth. A scoped delete validates every target against one namespace/scope,
+  requires exact tenant authorization, marks canonical rows `deleted_soft`,
+  retains prior content for audit, and removes only disposable graph/vector/
+  projection rows. Cross-store vector cleanup uses a committed
+  `cleanup_pending` outbox: external failure remains recoverable and caller-owned
+  transactions fail closed before external mutation. Current retrieval filters
+  lifecycle-excluded records before graph seeding, and G5 revalidates every G4
+  support before packing. Batch ingest is idempotency-keyed, records item
+  progress, and resumes after interruption without duplicating canonical rows.
+  Raw batch text is digest-bound in a tenant-authorized transient table and
+  purged on completion; it is never copied into append-only lifecycle JSON.
 - Assertion trust is evidence-gated and fail-closed. Claim/relation/event/state
   records enter `/chat` and `/chat/stream` asserted memory only when current and
   `supported` or `verified` inside the requested namespace and scope. Model or
@@ -227,6 +245,14 @@ and `HISTORY_INDEX.md`.
   present and appends an immutable reversal plus a MIRL `supersedes` relation;
   it never deletes or rewrites the assertion, reasoning outcome, reviews, or
   evidence.
+  R6/G7 qualification uses frozen, versioned adapter and manifest contracts.
+  Native and event-only results remain separate from matched Mem0/Zep lanes.
+  External lanes may carry only `NOT_RUN`/`BLOCKED`, exact paid commands, zero
+  provider calls, and null scores until explicit operator approval and required
+  credentials exist. Provider-free results cannot be republished as competitor
+  results. Native/event-only comparisons use identical context and result
+  budgets; the current corrected provider-free result is parity, not an
+  incremental graph-value claim.
   See `docs/REASONING_GRAPH.md`.
 - Cross-leg retrieval fusion uses the fixed, versioned
   `reciprocal-rank-fusion/2` contract. Each SQL, record-vector, graph-node,

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-29-g4-r5-graph-products-reviewed-promotion
 supersedes: 2026-07-29-g3-r4-self-improving-graphs
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#495
 ---
 

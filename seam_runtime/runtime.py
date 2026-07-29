@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from collections.abc import Callable
 from pathlib import Path
 
 from .agent_memory import (
@@ -15,8 +16,10 @@ from .agent_memory import (
     stable_document_id,
 )
 from .benchmarks import diff_benchmark_runs, evaluate_benchmark_gate, run_benchmark_suite, verify_benchmark_bundle
+from .context_assembly import ContextCandidate, ContextPack, assemble_context
 from .dsl import compile_dsl
 from .evals import run_retrieval_benchmark
+from .lifecycle import BatchIngestItem
 from .mirl import (
     Artifact,
     IRBatch,
@@ -73,6 +76,9 @@ class SeamRuntime:
             self.vector_adapter = PgVectorAdapter(resolved_dsn, self.embedding_model, table_name=resolved_table)
         else:
             self.vector_adapter = SQLiteVectorAdapter(self.store.path, self.embedding_model)
+        self._derived_delete_hooks: list[
+            Callable[[list[str]], None]
+        ] = []
         # Retrieval flags are resolved once per runtime (defaults < persisted
         # applied-state < env) and cached so scoring stays stable for the life
         # of the process; an `improvement apply` mid-run does not change results
@@ -100,6 +106,28 @@ class SeamRuntime:
         vector_check = getattr(self.vector_adapter, "check_ready", None)
         if callable(vector_check):
             vector_check()
+
+    def register_derived_delete_hook(
+        self, hook: Callable[[list[str]], None]
+    ) -> None:
+        """Register one configured derived index for lifecycle cleanup."""
+
+        if not callable(hook):
+            raise TypeError("derived delete hook must be callable")
+        if hook not in self._derived_delete_hooks:
+            self._derived_delete_hooks.append(hook)
+
+    def _delete_derived_records(self, record_ids: tuple[str, ...]) -> None:
+        ids = list(record_ids)
+        if not isinstance(self.vector_adapter, SQLiteVectorAdapter):
+            vector_delete = getattr(self.vector_adapter, "delete_records", None)
+            if not callable(vector_delete):
+                raise RuntimeError(
+                    "configured vector adapter cannot delete derived records"
+                )
+            vector_delete(ids)
+        for hook in tuple(self._derived_delete_hooks):
+            hook(ids)
 
     def __enter__(self) -> "SeamRuntime":
         return self
@@ -346,6 +374,169 @@ class SeamRuntime:
             scope=scope,
             stable_key=stable_key,
             limit=limit,
+        )
+
+    def assemble_context(
+        self,
+        *,
+        task: str,
+        namespace: str,
+        scope: str,
+        as_of: str,
+        token_budget: int,
+        fact_reserve_tokens: int = 0,
+        max_candidates: int = 10_000,
+        candidates: list[ContextCandidate] | None = None,
+    ) -> ContextPack:
+        """Assemble a deterministic, exact-backtrace G5 context PACK."""
+
+        resolved = (
+            candidates
+            if candidates is not None
+            else self.store.context_candidates(
+                namespace=namespace,
+                scope=scope,
+                max_candidates=max_candidates,
+            )
+        )
+        return assemble_context(
+            resolved,
+            task=task,
+            namespace=namespace,
+            scope=scope,
+            as_of=as_of,
+            token_budget=token_budget,
+            fact_reserve_tokens=fact_reserve_tokens,
+        )
+
+    def plan_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        record_ids: list[str],
+        idempotency_key: str,
+        actor: str,
+    ) -> dict[str, object]:
+        return self.store.plan_scoped_delete(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope=scope,
+            record_ids=record_ids,
+            idempotency_key=idempotency_key,
+            actor=actor,
+        )
+
+    def apply_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        operation_id: str,
+        actor: str,
+        interrupt_after_intent: bool = False,
+    ) -> dict[str, object]:
+        return self.store.apply_scoped_delete(
+            tenant_id=tenant_id,
+            operation_id=operation_id,
+            actor=actor,
+            interrupt_after_intent=interrupt_after_intent,
+            delete_derived_records=self._delete_derived_records,
+        )
+
+    def batch_ingest(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        items: list[BatchIngestItem],
+        idempotency_key: str,
+        actor: str,
+        interrupt_after_items: int | None = None,
+    ) -> dict[str, object]:
+        operation = self.store.plan_batch_ingest(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope=scope,
+            items=items,
+            idempotency_key=idempotency_key,
+            actor=actor,
+        )
+        return self._apply_batch_ingest(
+            str(operation["operation_id"]),
+            tenant_id=tenant_id,
+            actor=actor,
+            interrupt_after_items=interrupt_after_items,
+        )
+
+    def resume_lifecycle_operation(
+        self, operation_id: str, *, tenant_id: str, actor: str
+    ) -> dict[str, object]:
+        operation = self.store.lifecycle_operation(
+            tenant_id=tenant_id, operation_id=operation_id
+        )
+        if operation["kind"] == "scoped_delete":
+            return self.apply_scoped_delete(
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+            )
+        if operation["kind"] == "batch_ingest":
+            return self._apply_batch_ingest(
+                operation_id, tenant_id=tenant_id, actor=actor
+            )
+        raise ValueError("unknown lifecycle operation kind")
+
+    def _apply_batch_ingest(
+        self,
+        operation_id: str,
+        *,
+        tenant_id: str,
+        actor: str,
+        interrupt_after_items: int | None = None,
+    ) -> dict[str, object]:
+        operation = self.store.begin_batch_ingest(
+            tenant_id=tenant_id, operation_id=operation_id, actor=actor
+        )
+        if operation["state"] == "applied":
+            return operation
+        completed = set(
+            self.store.completed_batch_indexes(
+                tenant_id=tenant_id, operation_id=operation_id
+            )
+        )
+        applied_this_call = 0
+        items = self.store.lifecycle_batch_items(
+            tenant_id=tenant_id, operation_id=operation_id
+        )
+        for index, item in enumerate(items):
+            if index in completed:
+                continue
+            report = self.ingest_text(
+                item.text,
+                source_ref=item.source_ref,
+                ns=str(operation["namespace"]),
+                scope=str(operation["scope"]),
+                agent_id=actor,
+            )
+            self.store.record_batch_item(
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                item_index=index,
+                stored_ids=report.stored_ids,
+                actor=actor,
+            )
+            applied_this_call += 1
+            if (
+                interrupt_after_items is not None
+                and applied_this_call >= interrupt_after_items
+            ):
+                return self.store.lifecycle_operation(
+                    tenant_id=tenant_id, operation_id=operation_id
+                )
+        return self.store.complete_batch_ingest(
+            tenant_id=tenant_id, operation_id=operation_id, actor=actor
         )
 
     def apply_reasoning_promotion(

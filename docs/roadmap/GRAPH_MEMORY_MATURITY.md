@@ -93,7 +93,24 @@ Already present:
 - G4 append-only, rebuildable entity/community summaries and multi-episode
   observations. Latest reads are boundary-scoped and every derived sentence
   retains exact supporting record and episode IDs; only current supported or
-  verified facts may contribute text.
+  verified facts may contribute text;
+- G5 `context-assembly/1` PACKs facts, entities, episodes, G4 summaries, and
+  observations by task, trust, time, and exact token budget. Every rendered
+  item retains record/episode/product backtraces, grounded facts receive an
+  explicit non-displacement reservation, and order/truncation are deterministic;
+- G6 `lifecycle/2` provides append-only operation/event audit, boundary-scoped
+  soft deletion, idempotent batch-ingest plans, interrupted-operation resume,
+  concurrent planning, exact tenant authorization, and stable Store/Runtime/SDK
+  APIs. Canonical MIRL remains present for audit while current retrieval,
+  stale G4/G5 support, and configured SQLite/pgvector/Chroma projections exclude
+  or remove deleted records;
+- G7/R6 provider-free qualification freezes separate native, event-only,
+  matched-Mem0, and matched-Zep lanes. The real three-tenant native micro-suite
+  completed with matched context/result budgets: native and event-only both
+  scored usefulness `1.0`, with zero graph-incremental evidence hits, concurrent
+  completion, one recovered interrupted read, and zero provider calls. This is
+  a valid parity result, not an incremental-value or competitive publication
+  claim.
 
 Remaining structural gaps:
 
@@ -106,10 +123,11 @@ Remaining structural gaps:
   and Chroma; legacy rows fail closed until an explicit full reindex upgrades
   them. Boundary-only pgvector repair updates namespace/scope metadata only for
   rows already on the current render contract and never embeds;
-- no first-class context block composes facts, entities, episodes, summaries,
-  and observations under one trust/token budget;
-- lifecycle, deletion, batch ingest, recovery, and load qualification are not
-  yet complete as one graph product.
+- matched Mem0 and Zep competitive scoring remains deliberately unrun. The
+  frozen manifests retain null scoreboards and exact `--allow-paid` commands;
+  Mem0 requires provider-backed extraction plus the shared answerer/judge, and
+  Zep additionally requires live-service credentials. No comparative claim may
+  be borrowed from the provider-free native lane.
 
 ## Build sequence
 
@@ -124,7 +142,9 @@ Remaining structural gaps:
 | G7 Qualification | Native SEAM and matched Mem0/Zep benchmark lanes plus scale and ablation suites | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims |
 
 The parallel reasoning-graph sequence is defined in
-`docs/REASONING_GRAPH.md`. R1-R5 are implemented; R6 remains open. Reasoning
+`docs/REASONING_GRAPH.md`. R1-R6 are implemented through the provider-free
+qualification boundary; matched provider-backed scoreboards remain unrun.
+Reasoning
 outcomes are never benchmarked or advertised as knowledge unless a later
 reviewed-promotion contract explicitly admits them into MIRL.
 

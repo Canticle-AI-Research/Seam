@@ -5,11 +5,13 @@ import json
 import logging
 import os
 import sqlite3
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from .context_assembly import ContextCandidate
 from .graph_products import (
     GraphProductFact,
     init_graph_products,
@@ -71,6 +73,20 @@ from .knowledge_graph import (
 )
 from .knowledge_graph import (
     supersede_source as supersede_knowledge_source,
+)
+from .lifecycle import (
+    BatchIngestItem,
+    apply_scoped_delete,
+    batch_ingest_items,
+    begin_batch_ingest,
+    complete_batch_ingest,
+    completed_batch_indexes,
+    get_lifecycle_operation,
+    init_lifecycle,
+    plan_batch_ingest,
+    plan_scoped_delete,
+    record_batch_item,
+    recoverable_operations,
 )
 from .mirl import (
     SYMBOL_FOR_KIND,
@@ -505,6 +521,7 @@ class SQLiteStore:
             self._cleanup_orphan_edges(connection)
             init_knowledge_graph(connection)
             init_graph_products(connection)
+            init_lifecycle(connection)
             init_workspace_schema(connection)
             init_reasoning_graph(connection)
             init_reasoning_promotion(connection)
@@ -1284,6 +1301,378 @@ class SQLiteStore:
                 scope=scope,
                 stable_key=stable_key,
                 limit=limit,
+            )
+
+    def context_candidates(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        max_candidates: int = 10_000,
+    ) -> list[ContextCandidate]:
+        """Resolve current canonical and G4 rows into bounded G5 inputs.
+
+        The returned values remain disposable projections. Every item retains
+        exact canonical MIRL record and graph-episode references; the
+        storage-agnostic assembler rechecks boundaries, trust, time, and
+        provenance before rendering.
+        """
+
+        if not isinstance(namespace, str) or not namespace.strip():
+            raise ValueError("namespace must be a non-empty string")
+        if not isinstance(scope, str) or not scope.strip():
+            raise ValueError("scope must be a non-empty string")
+        if max_candidates < 1 or max_candidates > 100_000:
+            raise ValueError("max_candidates must be between 1 and 100000")
+        ns = namespace.strip()
+        selected_scope = scope.strip()
+        excluded = (
+            Status.CONTRADICTED.value,
+            Status.SUPERSEDED.value,
+            Status.DEPRECATED.value,
+            Status.DELETED_SOFT.value,
+        )
+        placeholders = ",".join("?" for _ in excluded)
+
+        with self._pool.checkout() as connection:
+            candidates: list[ContextCandidate] = []
+            facts = self._current_graph_product_facts(
+                connection,
+                namespace=ns,
+                scope=selected_scope,
+                max_facts=max_candidates,
+            )
+            fact_rows: dict[str, sqlite3.Row] = {}
+            if facts:
+                ids = sorted({fact.record_id for fact in facts})
+                id_placeholders = ",".join("?" for _ in ids)
+                fact_rows = {
+                    str(row["id"]): row
+                    for row in connection.execute(
+                        "select id, t0, created_at, updated_at from ir_records "
+                        f"where id in ({id_placeholders})",
+                        ids,
+                    ).fetchall()
+                }
+            for fact in facts:
+                row = fact_rows.get(fact.record_id)
+                if row is None:
+                    continue
+                occurred_at = _context_timestamp(
+                    row["t0"], row["updated_at"], row["created_at"]
+                )
+                if occurred_at is None:
+                    continue
+                candidates.append(
+                    ContextCandidate(
+                        candidate_id=f"fact:{fact.record_id}",
+                        kind="fact",
+                        text=(
+                            f"{fact.subject_label} "
+                            f"{fact.predicate.replace('_', ' ')} "
+                            f"{fact.object_label}."
+                        ),
+                        namespace=ns,
+                        scope=selected_scope,
+                        trust_state=fact.trust_state,
+                        record_ids=(fact.record_id,),
+                        episode_ids=fact.episode_ids,
+                        occurred_at=occurred_at,
+                        entity_ids=tuple(
+                            item
+                            for item in (fact.subject_id, fact.object_id)
+                            if item
+                        ),
+                    )
+                )
+
+            entity_rows = connection.execute(
+                "select n.id, n.label, n.source_record_id, n.valid_from, "
+                "n.created_at, group_concat(distinct ep.id) as episode_ids "
+                "from knowledge_nodes n "
+                "join knowledge_node_episodes ne on ne.node_id = n.id "
+                "join knowledge_episodes ep on ep.id = ne.episode_id "
+                "where n.ns = ? and n.scope = ? "
+                "and n.kind in ('entity', 'value', 'agent') "
+                f"and n.status not in ({placeholders}) "
+                "and ep.ns = ? and ep.scope = ? and ep.status = 'active' "
+                "and n.source_record_id is not null "
+                "group by n.id, n.label, n.source_record_id, n.valid_from, n.created_at "
+                "order by n.id limit ?",
+                (
+                    ns,
+                    selected_scope,
+                    *excluded,
+                    ns,
+                    selected_scope,
+                    max_candidates + 1,
+                ),
+            ).fetchall()
+            for row in entity_rows:
+                occurred_at = _context_timestamp(
+                    row["valid_from"], row["created_at"]
+                )
+                episode_ids = tuple(
+                    sorted(
+                        item
+                        for item in str(row["episode_ids"] or "").split(",")
+                        if item
+                    )
+                )
+                if not episode_ids or occurred_at is None:
+                    continue
+                candidates.append(
+                    ContextCandidate(
+                        candidate_id=f"entity:{row['id']}",
+                        kind="entity",
+                        text=str(row["label"]),
+                        namespace=ns,
+                        scope=selected_scope,
+                        trust_state="supported",
+                        record_ids=(str(row["source_record_id"]),),
+                        episode_ids=episode_ids,
+                        occurred_at=occurred_at,
+                        entity_ids=(str(row["id"]),),
+                    )
+                )
+
+            episode_rows = connection.execute(
+                "select ep.id, ep.source_record_id, ep.valid_at, ep.recorded_at, "
+                "raw.content from knowledge_episodes ep "
+                "join raw_docs raw on raw.id = ep.source_record_id "
+                "where ep.ns = ? and ep.scope = ? and ep.status = 'active' "
+                "order by ep.id limit ?",
+                (ns, selected_scope, max_candidates + 1),
+            ).fetchall()
+            for row in episode_rows:
+                occurred_at = _context_timestamp(
+                    row["valid_at"], row["recorded_at"]
+                )
+                if occurred_at is None:
+                    continue
+                candidates.append(
+                    ContextCandidate(
+                        candidate_id=str(row["id"]),
+                        kind="episode",
+                        text=str(row["content"]),
+                        namespace=ns,
+                        scope=selected_scope,
+                        trust_state="supported",
+                        record_ids=(str(row["source_record_id"]),),
+                        episode_ids=(str(row["id"]),),
+                        occurred_at=occurred_at,
+                    )
+                )
+
+            products = read_graph_product_rows(
+                connection,
+                namespace=ns,
+                scope=selected_scope,
+                limit=min(max_candidates, 1_000),
+            )
+            for product in products:
+                occurred_at = _context_timestamp(product["created_at"])
+                if occurred_at is None:
+                    continue
+                product_id = str(product["product_id"])
+                kind = str(product["kind"])
+                subject_id = product.get("subject_id")
+                for sentence in product["sentences"]:  # type: ignore[union-attr]
+                    sentence_row = sentence  # type: ignore[assignment]
+                    candidates.append(
+                        ContextCandidate(
+                            candidate_id=str(sentence_row["sentence_id"]),
+                            kind=kind,
+                            text=str(sentence_row["text"]),
+                            namespace=ns,
+                            scope=selected_scope,
+                            trust_state="supported",
+                            record_ids=tuple(
+                                str(item)
+                                for item in sentence_row[
+                                    "supporting_record_ids"
+                                ]
+                            ),
+                            episode_ids=tuple(
+                                str(item)
+                                for item in sentence_row[
+                                    "supporting_episode_ids"
+                                ]
+                            ),
+                            occurred_at=occurred_at,
+                            entity_ids=(
+                                (str(subject_id),)
+                                if subject_id is not None
+                                else ()
+                            ),
+                            product_id=product_id,
+                        )
+                    )
+
+        with self._pool.checkout() as connection:
+            current_record_ids = _current_context_record_ids(
+                connection,
+                {
+                    record_id
+                    for candidate in candidates
+                    for record_id in candidate.record_ids
+                },
+            )
+        candidates = [
+            candidate
+            for candidate in candidates
+            if set(candidate.record_ids) <= current_record_ids
+        ]
+        if len(candidates) > max_candidates:
+            raise ValueError(
+                f"context candidate projection exceeds max_candidates={max_candidates}"
+            )
+        return sorted(candidates, key=lambda item: item.candidate_id)
+
+    @retry_db_operation()
+    def plan_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        record_ids: Iterable[str],
+        idempotency_key: str,
+        actor: str,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return plan_scoped_delete(
+                connection,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                record_ids=record_ids,
+                idempotency_key=idempotency_key,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def apply_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        operation_id: str,
+        actor: str,
+        interrupt_after_intent: bool = False,
+        delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return apply_scoped_delete(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+                interrupt_after_intent=interrupt_after_intent,
+                delete_derived_records=delete_derived_records,
+            )
+
+    @retry_db_operation()
+    def plan_batch_ingest(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        items: Sequence[BatchIngestItem],
+        idempotency_key: str,
+        actor: str,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return plan_batch_ingest(
+                connection,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                items=items,
+                idempotency_key=idempotency_key,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def begin_batch_ingest(
+        self, *, tenant_id: str, operation_id: str, actor: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return begin_batch_ingest(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def record_batch_item(
+        self,
+        *,
+        tenant_id: str,
+        operation_id: str,
+        item_index: int,
+        stored_ids: Iterable[str],
+        actor: str,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return record_batch_item(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                item_index=item_index,
+                stored_ids=stored_ids,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def complete_batch_ingest(
+        self, *, tenant_id: str, operation_id: str, actor: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return complete_batch_ingest(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+            )
+
+    def completed_batch_indexes(
+        self, *, tenant_id: str, operation_id: str
+    ) -> tuple[int, ...]:
+        with self._pool.checkout() as connection:
+            return completed_batch_indexes(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def lifecycle_batch_items(
+        self, *, tenant_id: str, operation_id: str
+    ) -> tuple[BatchIngestItem, ...]:
+        with self._pool.checkout() as connection:
+            return batch_ingest_items(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def lifecycle_operation(
+        self, *, tenant_id: str, operation_id: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_lifecycle_operation(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def recoverable_lifecycle_operations(
+        self, *, tenant_id: str, limit: int = 100
+    ) -> list[dict[str, object]]:
+        with self._pool.checkout() as connection:
+            return recoverable_operations(
+                connection, tenant_id=tenant_id, limit=limit
             )
 
     def identity_merges(
@@ -3012,6 +3401,54 @@ def _document_status_row(row: sqlite3.Row) -> dict[str, object]:
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
+
+
+def _context_timestamp(*values: object) -> str | None:
+    """Return the first parseable timestamp as explicit UTC-aware ISO-8601."""
+
+    for value in values:
+        if value in (None, ""):
+            continue
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.isoformat()
+    return None
+
+
+def _current_context_record_ids(
+    connection: sqlite3.Connection, record_ids: set[str]
+) -> set[str]:
+    """Return only canonical supports that remain eligible for current context."""
+
+    current: set[str] = set()
+    excluded = tuple(
+        status.value
+        for status in (
+            Status.CONTRADICTED,
+            Status.SUPERSEDED,
+            Status.DEPRECATED,
+            Status.DELETED_SOFT,
+        )
+    )
+    ordered = sorted(record_ids)
+    for start in range(0, len(ordered), 500):
+        chunk = ordered[start : start + 500]
+        if not chunk:
+            continue
+        placeholders = ",".join("?" for _ in chunk)
+        status_placeholders = ",".join("?" for _ in excluded)
+        rows = connection.execute(
+            "select id from ir_records "
+            f"where id in ({placeholders}) "
+            f"and status not in ({status_placeholders})",
+            [*chunk, *excluded],
+        ).fetchall()
+        current.update(str(row["id"]) for row in rows)
+    return current
 
 
 def _normalize_entity_label(label: str) -> str:
