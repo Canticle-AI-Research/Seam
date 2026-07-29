@@ -13238,3 +13238,54 @@ private `seam-runtime` 2.4.0 to its GitHub Release channel and
 record the release. Then resume G3 graph-node vectors and R4
 provenance-gated reasoning reuse.
 ---END-ENTRY-#489---
+
+---BEGIN-ENTRY-#490---
+id: 490
+date: 2026-07-29T03:31:27Z
+agent: codex
+status: done
+topics: bundle, ci, graph, handoff, pgvector, retrieval, security, status, test, verify
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-29-stable-packages-live.md,.github/workflows/package-release.yml,.github/workflows/selfhost-release.yml
+supersedes: 489
+tokens: 760
+---
+RELEASED and independently live-verified both stable package channels, closing
+the package diversion before G3 and R4 resume.
+
+Protected PR #180 merged the unchanged qualified head
+`7f1ae712e3cbc5869ffa1038da0755b8fcd2c7f7` into `main` at
+`01f35817810f1490c88e9f832d92c8f1aab3944d` only after every relevant check
+passed, including all required jobs, the full test-and-benchmark job, and
+CodeRabbit. Private package workflow run `30419432598` passed its exact-version,
+build, `twine`, private-boundary, installed API, artifact-transfer, and release
+jobs. GitHub release `v2.4.0` targets the merge SHA. Its downloaded
+`seam_runtime-2.4.0-py3-none-any.whl` is 818,620 bytes with SHA-256
+`cb71fc3e15d103ef63e5c15d9325c2b24645b61d6b42548dcfda4b64fe2f3d21`;
+the downloaded sdist is 790,485 bytes with SHA-256
+`c47fb91433db0b01a579679bc8cf2850e51f33e20d89f71bce601416bab6988f`.
+Both re-pass `twine` and the private distribution boundary. Fresh wheel and
+sdist environments pass dependency checks and installed API calls through
+released `seam-client==2.0.0`; the wheel passes both SQLite and the configured
+live pgvector service, and its exact private/BUSL/Apache license expression is
+present.
+
+Self-host workflow run `30419432631` passed the compiled build/runtime proof,
+repeated artifact gate, single-wheel assertion, transfer, and PyPI Trusted
+Publishing. PyPI now reports non-yanked `seam-self-host` 1.1.2: one
+CPython-3.12 manylinux x86-64 wheel, 3,623,685 bytes, SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+That hash exactly matches the qualified candidate. A fresh network download
+re-passes `twine` and the compiled source/privacy gate with the unchanged
+414/414 ratchet. A fresh installation passes dependency/BUSL metadata checks,
+SQLite and live-pgvector health/remember/recall/context, and both console
+entry points. No-argument MCP initializes and lists tools using its XDG
+fallback with a 0600 database. Fresh PyPI upgrades from 1.0.0 and 1.1.0 both
+reach 1.1.2, pass dependency checks, and start the installed service command.
+
+DigitalOcean remains untouched; hosted subscriber deployment is a later
+infrastructure step, separate from package stability. NEXT: resume G3 at the
+versioned derived graph-node vector projection with explicit reindex and
+real-corpus/backend-scale qualification, and start R4 independently as
+freshness/trust/provenance-gated reasoning retrieval and reuse.
+---END-ENTRY-#490---

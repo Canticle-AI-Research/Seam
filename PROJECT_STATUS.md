@@ -1,5 +1,21 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#490 - RELEASED and independently
+live-verified both package channels after protected PR #180 merged at
+`01f35817810f1490c88e9f832d92c8f1aab3944d`. Private hosted
+`seam-runtime` 2.4.0 is live at GitHub release `v2.4.0`; its downloaded
+wheel/sdist SHA-256 values are
+`cb71fc3e15d103ef63e5c15d9325c2b24645b61d6b42548dcfda4b64fe2f3d21` /
+`c47fb91433db0b01a579679bc8cf2850e51f33e20d89f71bce601416bab6988f`.
+Compiled `seam-self-host` 1.1.2 is live on PyPI with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+Fresh released-artifact installs passed exact metadata and boundary gates,
+dependency checks, SQLite and live-pgvector health/remember/recall/context
+through `seam-client==2.0.0`, self-host no-argument MCP/XDG storage, and
+upgrades from PyPI 1.0.0 and 1.1.0. DigitalOcean remains untouched. NEXT:
+resume G3 with the versioned derived graph-node vector projection and start R4
+as independently provenance-gated reasoning retrieval/reuse.)
+
 Current update: 2026-07-29 (HISTORY#489 - MARKED the final package-stability
 candidate ready for protected PR CI. The post-fix CodeRabbit pass found no new
 runtime defect: its only code request would chmod or reject every

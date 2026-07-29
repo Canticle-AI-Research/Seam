@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-07-24
+Last updated: 2026-07-29
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -101,19 +101,25 @@ and `HISTORY_INDEX.md`.
   remains legacy Apache-2.0 `seam-runtime` 1.3.1. New public publication uses
   the distinct `seam-client` name and the public repository's
   `sdk-publish.yml` OIDC workflow; it never publishes the private
-  `seam-runtime` artifact.
+  `seam-runtime` artifact. Private 2.4.0 is live as GitHub release `v2.4.0`,
+  pinned to protected-main merge `01f35817810f1490c88e9f832d92c8f1aab3944d`;
+  downloaded wheel and sdist artifacts passed the private boundary, clean
+  installation, SQLite, and live-pgvector API proofs.
 - The BUSL self-host wheel is a third, separate distribution named
-  `seam-self-host`, starting at 1.0.0; 1.1.0 is the current published baseline
-  and 1.1.2 is the qualified stability successor. Its package definition lives under
-  `selfhost_pkg/`; it must contain compiled `seam_runtime` extension code and the
-  BUSL-1.1 text, but no `seam_runtime` `.py`, `.pyc`, or `.pyo`. The
+  `seam-self-host`, starting at 1.0.0; 1.1.2 is the current published stability
+  baseline and 1.1.0 is its supported upgrade predecessor. Its package
+  definition lives under `selfhost_pkg/`; it must contain compiled
+  `seam_runtime` extension code and the BUSL-1.1 text, but no `seam_runtime`
+  `.py`, `.pyc`, or `.pyo`. The
   cp312/manylinux_2_28_x86_64 builder is Docker-pinned, copies an explicit
   source allow-list, carries the same 18 load-bearing exclusions as the
   compiled image, runs `auditwheel`, `twine`, the node-specific content
   ratchet, and a clean-container four-route proof. It has no upload mode.
   This does not relax the private `seam-runtime` PyPI prohibition or the
   Apache-only `seam-client` boundary. Publication is performed only by the
-  protected self-host release workflow after artifact qualification.
+  protected self-host release workflow after artifact qualification. PyPI
+  1.1.2 and its clean network install, SQLite/live-pgvector API, no-argument
+  MCP, and 1.0.0/1.1.0 upgrade paths are live-verified.
 - Apache-2.0 `seam-client` 2.0.0 is live at
   `https://pypi.org/project/seam-client/`. It was published from reviewed
   public `Seam_Runtime/main` through the protected `pypi` environment and PyPI

@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-29-package-stability-release-candidate
+latest: 2026-07-29-stable-packages-live
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-29-package-stability-release-candidate` | [2026-07-29-package-stability-release-candidate.md](2026-07-29-package-stability-release-candidate.md) | `2026-07-28-seam-node-wheel` | `HISTORY#489` | `current` |
+| `2026-07-29-stable-packages-live` | [2026-07-29-stable-packages-live.md](2026-07-29-stable-packages-live.md) | `2026-07-29-package-stability-release-candidate` | `HISTORY#490` | `current` |
+| `2026-07-29-package-stability-release-candidate` | [2026-07-29-package-stability-release-candidate.md](2026-07-29-package-stability-release-candidate.md) | `2026-07-28-seam-node-wheel` | `HISTORY#489` | `superseded` |
 | `2026-07-28-seam-node-wheel` | [2026-07-28-seam-node-wheel.md](2026-07-28-seam-node-wheel.md) | `2026-07-23-g3-rank-fusion-scale-qualification` | `HISTORY#482` | `superseded` |
 | `2026-07-23-g3-rank-fusion-scale-qualification` | [2026-07-23-g3-rank-fusion-scale-qualification.md](2026-07-23-g3-rank-fusion-scale-qualification.md) | `2026-07-23-g3-paths-historical-view` | `HISTORY#479` | `superseded` |
 | `2026-07-23-g3-paths-historical-view` | [2026-07-23-g3-paths-historical-view.md](2026-07-23-g3-paths-historical-view.md) | `2026-07-27-proprietary-compiled-selfhost-v1` | `HISTORY#478` | `superseded` |
