@@ -12,7 +12,7 @@ PRIVATE_METADATA = b"\n".join(
     (
         b"Name: seam-runtime",
         b"Classifier: Private :: Do Not Upload",
-        b"License-Expression: LicenseRef-SEAM-Proprietary AND Apache-2.0",
+        b"License-Expression: LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0",
     )
 )
 
@@ -56,6 +56,23 @@ def test_private_release_requires_private_metadata(tmp_path: Path) -> None:
     )
     errors = verify_archive(archive, target="private-github")
     assert any("Private :: Do Not Upload" in error for error in errors)
+    assert any("proprietary license expression" in error for error in errors)
+
+
+def test_private_release_rejects_a_longer_license_expression(tmp_path: Path) -> None:
+    archive = _wheel(
+        tmp_path / "wrong-license-expression.whl",
+        {
+            "seam_runtime/mirl.py": b"reserved",
+            "seam_runtime-1.0.dist-info/licenses/LICENSE": PRIVATE_LICENSE,
+            "seam_runtime-1.0.dist-info/METADATA": (
+                PRIVATE_METADATA + b" OR MIT"
+            ),
+        },
+    )
+
+    errors = verify_archive(archive, target="private-github")
+
     assert any("proprietary license expression" in error for error in errors)
 
 

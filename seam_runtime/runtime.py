@@ -71,7 +71,7 @@ class SeamRuntime:
         elif resolved_dsn:
             self.vector_adapter = PgVectorAdapter(resolved_dsn, self.embedding_model, table_name=resolved_table)
         else:
-            self.vector_adapter = SQLiteVectorAdapter(str(store_path), self.embedding_model)
+            self.vector_adapter = SQLiteVectorAdapter(self.store.path, self.embedding_model)
         # Retrieval flags are resolved once per runtime (defaults < persisted
         # applied-state < env) and cached so scoring stays stable for the life
         # of the process; an `improvement apply` mid-run does not change results
@@ -92,6 +92,13 @@ class SeamRuntime:
         close = getattr(store, "close", None)
         if callable(close):
             close()
+
+    def check_ready(self) -> None:
+        """Raise when either persistence layer cannot serve a trivial read."""
+        self.store.check_ready()
+        vector_check = getattr(self.vector_adapter, "check_ready", None)
+        if callable(vector_check):
+            vector_check()
 
     def __enter__(self) -> "SeamRuntime":
         return self

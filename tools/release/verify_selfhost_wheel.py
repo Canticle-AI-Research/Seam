@@ -12,7 +12,7 @@ SOURCE_SUFFIXES = (".py", ".pyc", ".pyo")
 BUSL_LICENSE_PATH = "licenses/LICENSES/BUSL-1.1.txt"
 BUSL_LICENSE_MARKER = b"Business Source License 1.1"
 NODE_NAME = b"Name: seam-self-host"
-SELFHOST_VERSION = b"Version: 1.1.0"
+SELFHOST_VERSION = b"Version: 1.1.2"
 BUSL_EXPRESSION = b"License-Expression: BUSL-1.1"
 SECRET_PATTERNS = (
     re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -59,6 +59,10 @@ def _is_runtime_source(path: str) -> bool:
     if not name.endswith(SOURCE_SUFFIXES):
         return False
     return "seam_runtime" in normalized.parts or name.startswith("seam_runtime.")
+
+
+def _has_metadata_line(metadata: bytes, expected: bytes) -> bool:
+    return expected in metadata.splitlines()
 
 
 def measure_reserved_content(
@@ -131,11 +135,11 @@ def verify_selfhost_wheel(
         metadata = b""
     else:
         metadata = metadata_entries[0]
-    if NODE_NAME not in metadata:
+    if not _has_metadata_line(metadata, NODE_NAME):
         errors.append("wheel metadata name is not seam-self-host")
-    if SELFHOST_VERSION not in metadata:
-        errors.append("wheel metadata version is not 1.1.0")
-    if BUSL_EXPRESSION not in metadata:
+    if not _has_metadata_line(metadata, SELFHOST_VERSION):
+        errors.append("wheel metadata version is not 1.1.2")
+    if not _has_metadata_line(metadata, BUSL_EXPRESSION):
         errors.append("wheel metadata does not declare BUSL-1.1")
 
     for name, content in sorted(files.items()):

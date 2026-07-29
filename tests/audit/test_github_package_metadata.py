@@ -135,6 +135,8 @@ def test_release_workflow_is_versioned_gated_and_oidc_only() -> None:
     assert 'Path("public_pkg/pyproject.toml")' in workflow
     assert "environment: private-package-release" in workflow
     assert "tools.release.verify_distribution_boundary" in workflow
+    assert '"${wheel}[server,pgvector]" "seam-client==2.0.0"' in workflow
+    assert "tools/release/prove_hosted_api.py" in workflow
     assert "environment: pypi" in workflow
     assert "id-token: write" in workflow
     assert "pypa/gh-action-pypi-publish@release/v1" in workflow

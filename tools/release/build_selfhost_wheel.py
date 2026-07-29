@@ -141,7 +141,7 @@ import tomllib
 from pathlib import Path
 
 project = tomllib.loads(Path("/src/selfhost_pkg/pyproject.toml").read_text(encoding="utf-8"))["project"]
-dist_info = Path("/wheel-root/seam_self_host-1.1.0.dist-info")
+dist_info = Path("/wheel-root") / f"seam_self_host-{project['version']}.dist-info"
 dist_info.mkdir(parents=True)
 metadata = email.message.Message()
 metadata["Metadata-Version"] = "2.4"
@@ -189,6 +189,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import stat
 import subprocess
 import tempfile
 import time
@@ -210,17 +211,38 @@ def request(method, path, payload=None, authenticated=True):
         method=method,
     )
     with urllib.request.urlopen(req, timeout=5) as response:
-        return response.status, json.loads(response.read())
+        content = response.read()
+        return response.status, (json.loads(content) if content else None)
+
+def expected_error(method, path, payload, status, authenticated=True):
+    try:
+        request(method, path, payload, authenticated=authenticated)
+    except urllib.error.HTTPError as error:
+        content = error.read()
+        parsed = json.loads(content) if content else None
+        if error.code != status:
+            raise AssertionError(
+                f"{method} {path} returned {error.code}, expected {status}: {parsed}"
+            )
+        return error.code, parsed, error.headers
+    raise AssertionError(f"{method} {path} unexpectedly succeeded")
 
 with tempfile.TemporaryDirectory(prefix="seam-self-host-proof-") as temporary:
     root = Path(temporary)
+    database = root / "state" / "seam.db"
     env = {
         **os.environ,
         "SEAM_API_TOKEN": TOKEN,
-        "SEAM_SERVER_DB": str(root / "seam.db"),
-        "SEAM_SELFHOST_HOST": "127.0.0.1",
-        "SEAM_SELFHOST_PORT": "8765",
+        "SEAM_SELFHOST_RATE_LIMIT_PER_MINUTE": "1000",
     }
+    for name in (
+        "SEAM_SERVER_DB",
+        "SEAM_DB_PATH",
+        "SEAM_SELFHOST_HOST",
+        "SEAM_SELFHOST_PORT",
+        "SEAM_PGVECTOR_DSN",
+    ):
+        env.pop(name, None)
     env.pop("SEAM_SELFHOST_ENTITLEMENT_PATH", None)
     env.pop("SEAM_SELFHOST_PUBLIC_KEY_PATH", None)
     executable = shutil.which("seam-self-host")
@@ -230,7 +252,15 @@ with tempfile.TemporaryDirectory(prefix="seam-self-host-proof-") as temporary:
     if mcp_executable is None:
         raise SystemExit("seam-mcp console entry point was not installed")
     server = subprocess.Popen(
-        [executable],
+        [
+            executable,
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8765",
+            "--db",
+            str(database),
+        ],
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -249,12 +279,41 @@ with tempfile.TemporaryDirectory(prefix="seam-self-host-proof-") as temporary:
                     raise RuntimeError("seam-self-host did not become healthy")
                 time.sleep(0.2)
 
-        try:
-            request("POST", "/v1/memories", {"text": "unauthorized"}, authenticated=False)
-        except urllib.error.HTTPError as exc:
-            unauthorized = exc.code
-        else:
-            raise AssertionError("unauthenticated memory write unexpectedly succeeded")
+        health_head = request("HEAD", "/v1/health")
+        if health_head != (200, None):
+            raise AssertionError(f"HEAD health failed: {health_head}")
+
+        unauthorized, _, _ = expected_error(
+            "POST",
+            "/v1/memories",
+            {"text": "unauthorized"},
+            401,
+            authenticated=False,
+        )
+        invalid_text = expected_error(
+            "POST",
+            "/v1/memories",
+            {"text": {"not": "a string"}},
+            400,
+        )
+        invalid_query = expected_error(
+            "POST",
+            "/v1/memories/recall",
+            {"query": ["not", "a", "string"]},
+            400,
+        )
+        invalid_session = expected_error(
+            "POST",
+            "/v1/context",
+            {"query": "anything", "session_id": 42},
+            400,
+        )
+        if invalid_text[1] != {"detail": "text must be a string"}:
+            raise AssertionError(f"unexpected text validation: {invalid_text}")
+        if invalid_query[1] != {"detail": "query must be a string"}:
+            raise AssertionError(f"unexpected query validation: {invalid_query}")
+        if invalid_session[1] != {"detail": "session_id must be a string"}:
+            raise AssertionError(f"unexpected session validation: {invalid_session}")
 
         remembered = request(
             "POST",
@@ -300,7 +359,9 @@ with tempfile.TemporaryDirectory(prefix="seam-self-host-proof-") as temporary:
             raise AssertionError(f"context did not return prompt-ready text: {context}")
         print("SELF-HOST WHEEL RUNTIME PROOF")
         print(f"GET /v1/health -> {health[0]} {json.dumps(health[1], sort_keys=True)}")
+        print(f"HEAD /v1/health -> {health_head[0]} empty-body=yes")
         print(f"POST /v1/memories unauthenticated -> {unauthorized}")
+        print("non-string text/query/session_id -> 400")
         print(f"POST /v1/memories -> {remembered[0]} accepted={remembered[1]['accepted']}")
         print(f"POST /v1/memories/recall -> {recalled[0]} memories={len(recalled[1]['memories'])}")
         print(f"POST /v1/context -> {context[0]} chars={len(context[1]['context'])}")
@@ -321,9 +382,9 @@ with tempfile.TemporaryDirectory(prefix="seam-self-host-proof-") as temporary:
             },
         )
         mcp = subprocess.run(
-            [mcp_executable, "--db", str(root / "mcp.db")],
+            [mcp_executable],
             input="\n".join(json.dumps(item) for item in mcp_requests) + "\n",
-            env=env,
+            env={**env, "SEAM_DB_PATH": str(root / "mcp.db")},
             capture_output=True,
             text=True,
             timeout=20,
@@ -403,6 +464,15 @@ with tempfile.TemporaryDirectory(prefix="seam-self-host-proof-") as temporary:
             )
         print(f"server entitlement log -> {entitlement_line}")
         print("server log ModuleNotFoundError scan -> 0")
+        if not database.is_file():
+            raise AssertionError("CLI --db did not create the requested database")
+        if os.name != "nt":
+            if stat.S_IMODE(database.stat().st_mode) != 0o600:
+                raise AssertionError("database mode is not 0600")
+            if stat.S_IMODE(database.parent.stat().st_mode) != 0o700:
+                raise AssertionError("database parent mode is not 0700")
+        print("CLI --host/--port/--db -> applied")
+        print("database permissions -> 0600 file / 0700 parent")
 '''
 
 

@@ -150,6 +150,30 @@ class RateLimiter:
             self.hits.pop(key, None)
 
 
+@dataclass
+class ReadinessCache:
+    runtime: SeamRuntime
+    ttl_seconds: float = 5.0
+    _checked_at: float = field(default=-1.0, repr=False)
+    _ready: bool = field(default=False, repr=False)
+    _lock: Any = field(default_factory=threading.Lock, repr=False, compare=False)
+
+    def check(self) -> bool:
+        """Return cached readiness without exposing failure details to callers."""
+        now = time.monotonic()
+        with self._lock:
+            if self._checked_at >= 0 and now - self._checked_at < self.ttl_seconds:
+                return self._ready
+            try:
+                self.runtime.check_ready()
+            except Exception:
+                self._ready = False
+            else:
+                self._ready = True
+            self._checked_at = now
+            return self._ready
+
+
 def _rate_limit_from_env() -> int:
     raw = os.environ.get("SEAM_API_RATE_LIMIT_PER_MINUTE") or os.environ.get("SEAM_API_RATE_LIMIT") or "0"
     try:
@@ -535,7 +559,10 @@ def create_app(
     if runtime is None:
         db_path = os.environ.get("SEAM_SERVER_DB") or default_runtime_db_path()
         runtime = SeamRuntime(db_path)
+    from starlette.responses import JSONResponse
+
     limiter = RateLimiter(_rate_limit_from_env(), max_keys=_rate_limit_max_keys_from_env())
+    readiness = ReadinessCache(runtime)
     token = os.environ.get("SEAM_API_TOKEN")
     state = shutdown_state or ShutdownState()
     resolved_jlens_worker = jlens_worker or jlens_worker_from_env()
@@ -558,7 +585,11 @@ def create_app(
     def guard(request: Request, authorization: str | None = Header(default=None)) -> None:
         if not limiter.check(_client_key(request, authorization)):
             LOGGER.warning("Rate limit exceeded for client %s", request.client.host if request.client else "unknown")
-            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+            raise HTTPException(
+                status_code=429,
+                detail="Rate limit exceeded",
+                headers={"Retry-After": "60"},
+            )
         if token:
             expected = f"Bearer {token}"
             if not authorization or not hmac.compare_digest(authorization, expected):
@@ -567,16 +598,40 @@ def create_app(
 
     def rate_limit_only(request: Request, authorization: str | None = Header(default=None)) -> None:
         if not limiter.check(_client_key(request, authorization)):
-            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+            raise HTTPException(
+                status_code=429,
+                detail="Rate limit exceeded",
+                headers={"Retry-After": "60"},
+            )
 
-    @app.get("/health", dependencies=[Depends(rate_limit_only)])
-    def health() -> dict[str, object]:
+    @app.exception_handler(Exception)
+    async def unhandled_request_error(_request: Request, exc: Exception) -> Any:
+        LOGGER.error("Request failed: %s", type(exc).__name__)
+        return JSONResponse({"detail": "Internal server error"}, status_code=500)
+
+    @app.api_route(
+        "/health",
+        methods=["GET", "HEAD"],
+        dependencies=[Depends(rate_limit_only)],
+    )
+    def health() -> Any:
+        if not readiness.check():
+            return JSONResponse({"status": "degraded"}, status_code=503)
         return {"status": "ok"}
 
-    @app.get("/v1/health", dependencies=[Depends(rate_limit_only)])
-    def public_health() -> dict[str, object]:
+    @app.api_route(
+        "/v1/health",
+        methods=["GET", "HEAD"],
+        dependencies=[Depends(rate_limit_only)],
+    )
+    def public_health() -> Any:
         from .public_api import PUBLIC_API_VERSION
 
+        if not readiness.check():
+            return JSONResponse(
+                {"status": "degraded", "api_version": PUBLIC_API_VERSION},
+                status_code=503,
+            )
         return {"status": "ok", "api_version": PUBLIC_API_VERSION}
 
     @app.post("/v1/memories", dependencies=[Depends(guard)])

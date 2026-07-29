@@ -13019,3 +13019,222 @@ UNRESOLVED: the compiled Docker image is still unpushed and needs SBOM,
 provenance, and digest signing. The hosted `/v1` endpoint is still undeployed.
 Neither is blocked by anything in this entry.
 ---END-ENTRY-#486---
+
+---BEGIN-ENTRY-#487---
+id: 487
+date: 2026-07-29T02:15:43Z
+agent: codex
+status: done
+topics: bugfix, bundle, ci, docs, graph, handoff, mcp, pgvector, retrieval, security, status, storage, surface, test, verify
+commits: pending
+refs: .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,docs/PUBLIC_SDK_API.md,docs/SELF_HOST_SECURITY.md,docs/handoffs/2026-07-29-package-stability-release-candidate.md,seam_runtime/public_api.py,seam_runtime/runtime.py,seam_runtime/selfhost.py,seam_runtime/selfhost_mcp.py,seam_runtime/server.py,seam_runtime/storage.py,seam_runtime/vector_adapters.py,selfhost_pkg/README.md,selfhost_pkg/pyproject.toml,tests/audit/test_hosted_api_stability.py,tests/audit/test_selfhost_stability.py,tools/release/build_selfhost_wheel.py,tools/release/prove_hosted_api.py,tools/release/verify_distribution_boundary.py,tools/release/verify_selfhost_wheel.py
+supersedes: 486
+tokens: 1075
+---
+QUALIFIED the stable package pair required before returning to graph and
+reasoning work: compiled `seam-self-host` 1.1.2 for customer-operated nodes and
+private `seam-runtime` 2.4.0 as the hosted `/v1` server package for the future
+subscriber service. The API-only `public_pkg/` shim is not that hosted server,
+and DigitalOcean remains deliberately untouched.
+
+This supersedes HISTORY#486's startup-validation claim. Published self-host
+1.1.0 installed the pgvector driver but did not connect and probe the selected
+backend before serving. The repaired entrypoint makes the connection with
+bounded retries, checks live storage behind cached GET/HEAD readiness, validates
+embedding provider and retrieval profile selection, and exits with a one-line
+redacted diagnostic before serving when configuration is invalid. It also
+honors CLI-over-environment precedence for host, port, and database, treats
+blank environment paths as absent, and gives no-argument MCP an XDG fallback.
+
+The shared public `/v1` boundary now rejects non-string text, query, and
+partition identifiers rather than coercing arbitrary objects. Rate-limit
+responses carry `Retry-After`; unexpected exceptions return generic JSON 500
+responses; readiness returns 503 without internal detail when storage is
+degraded. SQLite path handling is normalized across the store and vector
+adapter, with new POSIX parent directories at 0700 and database files at 0600.
+
+Release gates were strengthened with exact metadata-line matching and the real
+private BUSL/proprietary/Apache license expression. The private release workflow
+installs the built wheel with its authoritative server/pgvector extras plus
+released `seam-client==2.0.0`, then drives HEAD health and real
+remember/recall/context calls from outside the checkout. The self-host builder
+now proves CLI flags, invalid-input rejection, HEAD readiness, MCP, opaque
+errors, and filesystem permissions in its clean container. Documentation names
+the actual limits, proxy/rate behavior, hash-recall baseline, CLI options, and
+MCP path precedence.
+
+Final private artifacts pass `twine check` and the private-GitHub boundary:
+`seam_runtime-2.4.0-py3-none-any.whl` is 818,623 bytes with SHA-256
+`844e77edf872e664f68d83013bf1b61faadf20395e569efc5036da5da925780f`;
+`seam_runtime-2.4.0.tar.gz` is 790,680 bytes with SHA-256
+`28055d80cee2723a2fac3c9f5c242bc9773f3ca8fd86f66f8b914aa632f7b327`.
+A clean virtual environment installed the exact wheel with server and pgvector
+extras and passed dependency checks plus the public-client proof with SQLite
+and live pgvector.
+
+Final self-host artifact
+`seam_self_host-1.1.2-cp312-cp312-manylinux_2_28_x86_64.whl` is 3,624,744
+bytes with SHA-256
+`dbf89a68f26af7bae09c9d93fc17b5275238f7de9e39d13d527564314d4a6ac1`.
+It passes `twine check`, exact wheel verification, the source/privacy scanner,
+and the clean-container runtime proof. Its only SEAM payload is the compiled
+extension, and every reserved marker remains exactly at the pre-existing
+414/414 budget with no allowance raised. Fresh SQLite and live-pgvector
+installs passed through `seam-client==2.0.0`; no-argument MCP created 0700/0600
+XDG state; six startup failure modes stayed one-line and traceback-free. Real
+PyPI upgrades from both 1.0.0 and 1.1.0 replaced the old payload cleanly and
+passed the installed API proof.
+
+The canonical full suite exited 0 against live pgvector with zero skips and the
+two established xfails. The touched audit slice collects together; touched-file
+Ruff and diff checks pass after final formatting. Three CodeRabbit passes found
+and drove fixes for exact metadata matching, normalized storage paths,
+environment precedence, health throttling, and proof-process handling; the
+post-documentation retry was temporarily rate-limited and must be retried
+before push.
+
+No package, image, registry artifact, provider call, paid-model call, hosted
+endpoint, or DigitalOcean resource was published or changed by this entry.
+NEXT: push the qualified candidate through PR checks, merge it, publish private
+`seam-runtime` 2.4.0 to its GitHub Release channel and `seam-self-host` 1.1.2
+to PyPI, clean-install-verify both live releases, and record those facts. Then
+resume G3 with versioned entity/value/agent/symbol graph-node vectors and
+real-corpus qualification, and start R4 with freshness, trust, task/run, and
+exact-provenance gates on reasoning retrieval and reuse.
+---END-ENTRY-#487---
+
+---BEGIN-ENTRY-#488---
+id: 488
+date: 2026-07-29T02:58:28Z
+agent: codex
+status: changed
+topics: bugfix, bundle, graph, handoff, pgvector, retrieval, security, status, storage, surface, test, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidate.md,seam_runtime/public_api.py,seam_runtime/vector_adapters.py,tests/audit/test_public_sdk_api_boundary.py,tests/audit/test_selfhost_stability.py
+supersedes: 487
+tokens: 930
+---
+HARDENED the qualified self-host 1.1.2 and private hosted API 2.4.0 candidates
+after the terminal CodeRabbit pass over all 34 candidate paths returned seven
+findings.
+
+Three code findings were valid and are fixed. `_validate_optional_dimension`
+again treats a blank or whitespace-only optional v1 `session_id` as absent,
+preserving the established versioned public contract while still rejecting
+non-string values. `validate_agent_id` now emits the documented
+128-character-bound error before the generic identifier-shape error.
+`PgVectorAdapter.check_ready` now runs `ensure_schema`, proving or establishing
+the vector extension, configured table, migrations, indexes, and required
+database permissions rather than accepting any PostgreSQL endpoint that can
+answer `select 1`.
+
+The SQLite-sidecar finding was tested rather than assumed. Under an explicitly
+permissive process umask and an existing 0755 operator-selected parent,
+`SQLiteStore` hardens the main database to 0600 before enabling WAL; SQLite
+therefore creates both `-wal` and `-shm` at 0600. The new regression pins all
+three modes. No chmod of an existing parent was added because that directory is
+operator-controlled and may be intentionally shared; newly created parents
+remain 0700.
+
+The remaining three findings concern canonical history mechanics and do not
+identify defects. `commits: pending` is necessary because closeout appends and
+verifies the history entry before the commit containing that entry exists; an
+entry cannot contain its own not-yet-created immutable commit ID. HISTORY#487
+already uses only the controlled topic vocabulary and explicitly includes both
+`graph` and `handoff`; HISTORY_INDEX is generated from that canonical entry and
+was not hand-edited. This superseding entry records the completed review and
+the disposition instead of rewriting append-only HISTORY#487.
+
+Post-review artifacts were rebuilt because vector readiness changes shipped
+code. Private `seam_runtime-2.4.0-py3-none-any.whl` is 818,620 bytes with
+SHA-256
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2`;
+`seam_runtime-2.4.0.tar.gz` is 790,653 bytes with SHA-256
+`91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`.
+Both pass `twine check` and the private-GitHub distribution boundary. A new
+clean environment installed the exact wheel with server/pgvector extras and
+released `seam-client==2.0.0`; dependency checks and SQLite plus live-pgvector
+health/remember/recall/context proofs pass.
+
+Post-review
+`seam_self_host-1.1.2-cp312-cp312-manylinux_2_28_x86_64.whl` is 3,623,685
+bytes with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+Its clean-container proof, exact metadata/source/privacy gate, and every
+reserved-marker budget pass; total exposure remains 414/414 with no allowance
+raised. A clean install passed SQLite and live pgvector through
+`seam-client==2.0.0`, plus no-argument MCP/XDG permissions and six one-line
+startup failure modes. Real upgrades from published 1.0.0 and 1.1.0 replaced
+the legacy payload and passed the installed API proof.
+
+Direct review-fix tests passed 29/29; the expanded package/audit slice passed
+92/92; touched-file Ruff and diff checks pass; a live source-tree pgvector
+schema-readiness probe passes. The earlier canonical full suite remains green
+with zero skips and the two established xfails; it must be rerun after this
+final code delta before push.
+
+No package, image, provider call, paid-model call, endpoint, or DigitalOcean
+resource was published or changed. NEXT: obtain a post-fix clean CodeRabbit
+pass, rerun the canonical full suite and closeout gates, push through the
+protected PR, publish and live-verify both package channels, then resume G3
+graph-node vectors and R4 provenance-gated reasoning reuse.
+---END-ENTRY-#488---
+
+---BEGIN-ENTRY-#489---
+id: 489
+date: 2026-07-29T03:09:09Z
+agent: codex
+status: done
+topics: bugfix, bundle, ci, graph, handoff, pgvector, retrieval, security, status, storage, streams, test, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidate.md,seam_runtime/public_api.py,seam_runtime/vector_adapters.py,tests/audit/test_public_sdk_api_boundary.py,tests/audit/test_selfhost_stability.py
+supersedes: 488
+tokens: 690
+---
+MARKED the final self-host 1.1.2 and private hosted API 2.4.0 stability
+candidate ready for protected PR CI after the post-fix review and full-suite
+rerun.
+
+The post-fix CodeRabbit pass returned three findings and no new runtime defect.
+Its storage request would chmod to 0700 or reject every pre-existing database
+parent. That is intentionally rejected: `SQLiteStore("seam.db")` commonly
+targets an existing home, repository, or otherwise shared operator-controlled
+directory, and silently tightening that directory would change permissions for
+unrelated contents. The security contract is content confidentiality: the main
+database is hardened to 0600 before SQLite enables WAL, and the new
+permissive-umask regression proves its WAL and SHM sidecars are also 0600.
+Newly created dedicated parents remain 0700.
+
+The other findings target `.seam/cross_index_archive` rows with date-only
+roadmap events and bounded display metadata. Those rows are derived from
+canonical streams and predate this package work; cross-index hot/archive views
+are intentionally bounded, must never be hand-edited, and regenerate through
+the stream tools. `verify_streams` passes on the generated result. Changing
+generator semantics belongs to a separately scoped protocol task, not a
+package-stability patch.
+
+The exact post-review source passed the canonical complete test command against
+live pgvector with exit 0, zero skips, and only the two established xfails.
+The 92-test package/audit slice, direct 29-test review-fix slice, live pgvector
+schema-readiness probe, touched-file Ruff, compileall, YAML parsing, diff check,
+staged secret scan, and canonical integrity/routing/handoff/continuity/stream
+gates pass.
+
+Final artifact evidence is unchanged from HISTORY#488. Private 2.4.0
+wheel/sdist SHA-256 values are
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2`
+and `91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`.
+Compiled self-host 1.1.2 is 3,623,685 bytes with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`
+and holds the unchanged 414/414 reserved-content ratchet. Clean SQLite and
+live-pgvector installed proofs pass for both package channels; self-host
+upgrades from published 1.0.0 and 1.1.0 pass.
+
+No package, image, provider call, paid-model call, endpoint, or DigitalOcean
+resource was published or changed. NEXT: commit and push this exact candidate,
+keep every relevant PR check green, merge through protected main, publish
+private `seam-runtime` 2.4.0 to its GitHub Release channel and
+`seam-self-host` 1.1.2 to PyPI, clean-install-verify both live artifacts, and
+record the release. Then resume G3 graph-node vectors and R4
+provenance-gated reasoning reuse.
+---END-ENTRY-#489---

@@ -82,12 +82,42 @@ from .workspace import (
 )
 
 
+def _prepare_private_database(path: Path) -> None:
+    """Create a database path without leaving memory content world-readable."""
+    resolved = path.expanduser().resolve()
+    parent = resolved.parent
+    parent_existed = parent.exists()
+    parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if not parent_existed and os.name != "nt":
+        parent.chmod(0o700)
+
+    if resolved.exists():
+        if not resolved.is_file():
+            raise OSError("database path must name a regular file")
+        if os.name != "nt":
+            resolved.chmod(0o600)
+        return
+
+    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+    try:
+        descriptor = os.open(resolved, flags, 0o600)
+    except FileExistsError:
+        if not resolved.is_file():
+            raise OSError("database path must name a regular file") from None
+    else:
+        os.close(descriptor)
+    if os.name != "nt":
+        resolved.chmod(0o600)
+
+
 class SQLiteStore:
     def __init__(self, path: str | Path = "seam.db", pool_size: int | None = None) -> None:
         self.path = str(path)
         self._mem_anchor: sqlite3.Connection | None = None
         if self.path != ":memory:":
-            Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
+            resolved = Path(self.path).expanduser().resolve()
+            self.path = str(resolved)
+            _prepare_private_database(resolved)
         else:
             # Keep one anchor connection alive so that the shared in-memory
             # database persists across per-operation connections.
@@ -104,6 +134,11 @@ class SQLiteStore:
             pool_size=resolved_pool_size,
             idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
         )
+
+    def check_ready(self) -> None:
+        """Raise when the canonical store cannot serve a trivial read."""
+        with self._pool.checkout() as connection:
+            connection.execute("select 1").fetchone()
 
     def _connect(self) -> sqlite3.Connection:
         if self.path == ":memory:":
