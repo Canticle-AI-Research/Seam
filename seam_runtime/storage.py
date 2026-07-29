@@ -41,6 +41,9 @@ from .knowledge_graph import (
     reusable_node_vectors as reusable_graph_node_vectors,
 )
 from .knowledge_graph import (
+    search_node_vectors as search_graph_node_vectors,
+)
+from .knowledge_graph import (
     store_node_vectors as store_graph_node_vectors,
 )
 from .knowledge_graph import (
@@ -928,6 +931,7 @@ class SQLiteStore:
         include_history: bool = False,
         limit: int = 300,
         hops: int = 2,
+        semantic_seed_ids: list[str] | None = None,
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return query_knowledge_graph(
@@ -942,6 +946,29 @@ class SQLiteStore:
                 include_history=include_history,
                 limit=limit,
                 hops=hops,
+                semantic_seed_ids=semantic_seed_ids,
+            )
+
+    def search_node_vectors(
+        self,
+        query_vector: list[float],
+        model_name: str,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        limit: int = 20,
+        min_score: float = 0.0,
+    ) -> list[tuple[str, float]]:
+        """Rank graph nodes by cosine against a precomputed query vector."""
+        with self._pool.checkout() as connection:
+            return search_graph_node_vectors(
+                connection,
+                query_vector,
+                model_name,
+                ns=ns,
+                scope=scope,
+                limit=limit,
+                min_score=min_score,
             )
 
     def knowledge_node(

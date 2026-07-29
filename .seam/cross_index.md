@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 553
+total_events: 554
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-09T22:42:26Z | history:298:70e871a8 | session-event | done | security, codeql, redos, clear-text-logging, workflow-per... | .github/workflows/external-memory-benchmarks.yml,seam_runtime/dsl.py,seam_run... |
 | 2026-06-10T01:39:24Z | history:299:f461b4ea | session-event | done | security, codeql, clear-text-logging, dashboard, correcti... | seam_runtime/dashboard.py,HISTORY.md,HISTORY_INDEX.md |
 | 2026-06-10T05:12:03Z | history:300:071ef6f0 | session-event | done | security, ssrf, dns-rebinding, chat-endpoint, server, all... | seam_runtime/server.py,tests/audit/test_audit_2026_06_05.py,HISTORY.md,HISTOR... |
 | 2026-06-11T09:14:32Z | history:301:f168a4a1 | session-event | done | maintenance, security, codeql, dependabot, dependencies, ... | .github/dependabot.yml,webui/package.json,HISTORY.md,HISTORY_INDEX.md,PROJECT... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-29T03:09:09Z | history:489:d0314671 | session-event | done | bugfix, bundle, ci, graph, handoff, pgvector, retrieval, ... | PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidat... |
 | 2026-07-29T03:31:27Z | history:490:387b5f03 | session-event | done | bundle, ci, graph, handoff, pgvector, retrieval, security... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-29-stable-packages-liv... |
 | 2026-07-29T04:50:58Z | history:491:e00dcf50 | session-event | changed | graph, g3, node-vectors, retrieval, mcp | docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/REASONING_GRAPH.md |
+| 2026-07-29T05:39:28Z | history:492:d051142c | session-event | changed | graph, g3, node-vectors, semantic-seeding, retrieval | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0353.cross.md | 2026-04-15T00:00:00Z..2026-06-09T21:06:59Z | 353 | (multi) | (multi) |
+| 0001-0354.cross.md | 2026-04-15T00:00:00Z..2026-06-09T22:42:26Z | 354 | (multi) | (multi) |

@@ -195,6 +195,128 @@ def test_identical_node_text_reuses_a_stored_vector(tmp_path: Path) -> None:
     assert runtime.store.reusable_node_vectors(name, ["0" * 64]) == {}
 
 
+def test_search_ranks_by_similarity_with_a_deterministic_tiebreak(tmp_path: Path) -> None:
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Devon is allergic to shellfish and keeps an EpiPen in his desk."})
+    remember(runtime, {"text": "The CI pipeline takes 14 minutes on average."})
+    name = _model_name(runtime)
+
+    vector = runtime.embedding_model.embed("continuous integration build duration")
+    first = runtime.store.search_node_vectors(vector, name, limit=10)
+    second = runtime.store.search_node_vectors(vector, name, limit=10)
+    assert first == second
+    assert first == sorted(first, key=lambda item: (-item[1], item[0]))
+
+
+def test_search_respects_the_namespace_boundary_before_top_k(tmp_path: Path) -> None:
+    """Filtering after top-K would let a cutoff leak across a tenant boundary."""
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Devon is allergic to shellfish."})
+    name = _model_name(runtime)
+
+    vector = runtime.embedding_model.embed("allergy")
+    assert runtime.store.search_node_vectors(vector, name, ns="no-such-namespace") == []
+    assert runtime.store.search_node_vectors(vector, name, scope="no-such-scope") == []
+
+
+def test_search_excludes_legacy_render_versions(tmp_path: Path) -> None:
+    """Scores from a superseded contract are not comparable with current ones."""
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Marcus blocks his mornings for deep work."})
+    name = _model_name(runtime)
+    # The default embedder is lexical, so the probe must share tokens with the
+    # node text or it scores zero and the precondition never holds.
+    vector = runtime.embedding_model.embed("Marcus deep work mornings")
+    assert runtime.store.search_node_vectors(vector, name, limit=10)
+
+    connection = sqlite3.connect(runtime.store.path)
+    try:
+        connection.execute(
+            "update knowledge_node_vectors set render_version = ? where model_name = ?",
+            ("graph-node-vector-text/0", name),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+    assert runtime.store.search_node_vectors(vector, name, limit=10) == []
+
+
+def test_min_score_floor_filters_weak_matches(tmp_path: Path) -> None:
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Rosa's dog Biscuit needs medication twice daily."})
+    name = _model_name(runtime)
+
+    vector = runtime.embedding_model.embed("veterinary medication schedule")
+    assert runtime.store.search_node_vectors(vector, name, limit=10, min_score=0.99) == []
+
+
+def test_semantic_seeding_is_off_by_default(monkeypatch, tmp_path: Path) -> None:
+    """On a weak embedder every node scores alike, so a permissive default would
+    inject noise seeds and cost precision. The lever ships off until measured."""
+    monkeypatch.delenv("SEAM_GRAPH_SEMANTIC_SEEDS", raising=False)
+    monkeypatch.delenv("SEAM_GRAPH_SEMANTIC_MIN_SCORE", raising=False)
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Devon is allergic to shellfish and keeps an EpiPen in his desk."})
+
+    query = "who cannot eat prawns or crab"
+    lexical = runtime.store.knowledge_graph(query=query, limit=50)
+    default = runtime.knowledge_graph(query=query, limit=50)
+    assert len(default.get("nodes") or []) == len(lexical.get("nodes") or [])
+
+
+def test_semantic_seeding_reaches_nodes_lexical_seeding_cannot(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Lexical seeding structurally cannot reach a node sharing no query tokens."""
+    monkeypatch.setenv("SEAM_GRAPH_SEMANTIC_SEEDS", "20")
+    monkeypatch.delenv("SEAM_GRAPH_SEMANTIC_MIN_SCORE", raising=False)
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Devon is allergic to shellfish and keeps an EpiPen in his desk."})
+
+    query = "who cannot eat prawns or crab"
+    assert not (runtime.store.knowledge_graph(query=query, limit=50).get("nodes") or [])
+    assert runtime.knowledge_graph(query=query, limit=50).get("nodes")
+
+
+def test_semantic_seeds_respect_the_namespace_boundary(monkeypatch, tmp_path: Path) -> None:
+    """A semantic seed must clear the same boundary filters as a lexical one."""
+    monkeypatch.setenv("SEAM_GRAPH_SEMANTIC_SEEDS", "20")
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Devon is allergic to shellfish."})
+
+    result = runtime.knowledge_graph(
+        query="who cannot eat prawns", namespace="no-such-namespace", limit=50
+    )
+    assert not (result.get("nodes") or [])
+
+
+def test_a_malformed_seeding_knob_falls_back_instead_of_failing(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """A bad env value must not take a graph query down."""
+    monkeypatch.setenv("SEAM_GRAPH_SEMANTIC_SEEDS", "not-a-number")
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "The CI pipeline takes 14 minutes on average."})
+
+    result = runtime.knowledge_graph(query="build duration", limit=50)
+    assert isinstance(result.get("nodes"), list)
+
+
+def test_seeding_failure_degrades_to_lexical(monkeypatch, tmp_path: Path) -> None:
+    """A semantic seed is an additional way in, never a precondition."""
+    monkeypatch.setenv("SEAM_GRAPH_SEMANTIC_SEEDS", "20")
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "The CI pipeline takes 14 minutes on average."})
+
+    def _explode(_text: str) -> list[float]:
+        raise RuntimeError("embedding provider unavailable")
+
+    monkeypatch.setattr(runtime.embedding_model, "embed", _explode)
+    lexical = runtime.store.knowledge_graph(query="pipeline", limit=50)
+    degraded = runtime.knowledge_graph(query="pipeline", limit=50)
+    assert len(degraded.get("nodes") or []) == len(lexical.get("nodes") or [])
+
+
 def test_store_node_vectors_drops_rows_for_deleted_nodes(tmp_path: Path) -> None:
     runtime = _runtime(tmp_path)
     remember(runtime, {"text": "Callum broke his wrist skiing in Vail."})

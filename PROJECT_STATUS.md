@@ -1,5 +1,27 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#492 - BUILT G3 slice 2, semantic node
+seeding for knowledge-graph queries, shipped DEFAULT-OFF pending measurement.
+`query_graph` previously seeded only by lexical token/`like` match, so a node
+whose label shared no tokens with the query could never be seeded and the graph
+could never traverse from it. `search_node_vectors` now ranks nodes by cosine
+with ns/scope and render_version filtered in SQL before scoring, and
+`SeamRuntime.knowledge_graph` supplies ranked seed ids while keeping the graph
+layer provider-free. Gated behind `SEAM_GRAPH_SEMANTIC_SEEDS` (default 0) and
+`SEAM_GRAPH_SEMANTIC_MIN_SCORE`, because on the lexical default embedder the
+wrong node outranked the right one at noise-level scores, and a permissive floor
+would make every node a seed. Verified: default off matches the lexical path
+exactly, seeds on turns a 0-node query into 13 reachable nodes, a 0.9 floor
+filters back to 0, a malformed knob falls back without failing, and a seeding
+failure degrades to lexical-only. Full suite 1,547 tests, exit 0, zero failures,
+zero skips, two established `compile_nl` xfails. NOT DONE: no retrieval quality
+change is claimed; the lever is off and unmeasured, the free deterministic recall
+A/B has NOT been run, and the semantic leg is not yet fused into
+`reciprocal-rank-fusion/2`. NEXT: run the free recall A/B with seeds on vs off on
+BOTH the lexical default and a real semantic embedder, since the lexical default
+cannot show the lever's ceiling; then cross-leg fusion and real-corpus
+qualification before proposing any paid run. R4 remains open and unstarted.)
+
 Current update: 2026-07-29 (HISTORY#491 - BUILT G3 slice 1, the versioned
 derived graph-node vector projection. Graph nodes previously carried lexical
 terms but no semantic vectors; entity/value/agent/symbol nodes now project

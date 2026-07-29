@@ -227,6 +227,70 @@ class SeamRuntime:
         self.project_node_vectors()
         return persist_report
 
+    @staticmethod
+    def _semantic_seed_env(name: str, *, default: float) -> float:
+        """Read a numeric seeding knob, treating an unusable value as unset.
+
+        A malformed knob must not take a graph query down; falling back to the
+        default keeps retrieval available and leaves the misconfiguration visible
+        in the returned seed count.
+        """
+        raw = str(os.environ.get(name) or "").strip()
+        if not raw:
+            return default
+        try:
+            return float(raw)
+        except ValueError:
+            LOGGER.warning("%s is not numeric (%r); using %s", name, raw, default)
+            return default
+
+    def knowledge_graph(
+        self,
+        *,
+        query: str | None = None,
+        semantic_seeds: int | None = None,
+        min_seed_score: float | None = None,
+        **kwargs: object,
+    ) -> dict[str, object]:
+        """Query the knowledge graph with lexical *and* semantic node seeding.
+
+        Lexical seeding structurally cannot reach a node whose label shares no
+        tokens with the query, which is the paraphrase failure expressed in graph
+        form. Embedding the query here — rather than inside ``knowledge_graph`` —
+        keeps the graph layer provider-free and deterministic under test.
+
+        DEFAULT OFF, pending measurement. On a weak embedder every node scores
+        near-identically, so a permissive floor turns semantic seeding into noise
+        injection that can cost precision instead of buying recall. Enable with
+        ``SEAM_GRAPH_SEMANTIC_SEEDS`` (count) and tune ``SEAM_GRAPH_SEMANTIC_MIN_SCORE``
+        so an A/B measures the lever rather than the default.
+
+        Seeding failures degrade to lexical-only rather than failing the query: a
+        semantic seed is an additional way in, never a precondition.
+        """
+        if semantic_seeds is None:
+            semantic_seeds = int(self._semantic_seed_env("SEAM_GRAPH_SEMANTIC_SEEDS", default=0.0))
+        if min_seed_score is None:
+            min_seed_score = self._semantic_seed_env("SEAM_GRAPH_SEMANTIC_MIN_SCORE", default=0.0)
+        seed_ids: list[str] = []
+        text = (query or "").strip()
+        if text and semantic_seeds > 0:
+            model = self.embedding_model
+            model_name = getattr(model, "name", "") or model.__class__.__name__
+            try:
+                ranked = self.store.search_node_vectors(
+                    model.embed(text),
+                    model_name,
+                    ns=kwargs.get("namespace"),  # type: ignore[arg-type]
+                    scope=kwargs.get("scope"),  # type: ignore[arg-type]
+                    limit=semantic_seeds,
+                    min_score=min_seed_score,
+                )
+                seed_ids = [node_id for node_id, _ in ranked]
+            except Exception:
+                LOGGER.exception("Semantic node seeding failed; falling back to lexical seeds")
+        return self.store.knowledge_graph(query=query, semantic_seed_ids=seed_ids, **kwargs)
+
     def project_node_vectors(self, *, limit: int | None = None) -> dict[str, object]:
         """Embed graph nodes whose derived vector is missing, stale, or legacy.
 

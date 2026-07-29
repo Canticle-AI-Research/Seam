@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 491
-total_tokens: ~233375
-latest_id: 491
+total_entries: 492
+total_tokens: ~234301
+latest_id: 492
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 492 | 2026-07-29 | changed | d051142c4985be45 | graph,g3,node-vectors,semantic-seeding,+ | 491 |
 | 491 | 2026-07-29 | changed | e00dcf506023388f | graph,g3,node-vectors,retrieval,+ | none |
 | 490 | 2026-07-29 | done | 387b5f03f4631ec1 | bundle,ci,graph,handoff,+ | 489 |
 | 489 | 2026-07-29 | done | d0314671b4212c02 | bugfix,bundle,ci,graph,+ | 488 |
@@ -614,7 +615,7 @@ compact: true
 - flags: count=1 latest=#320
 - flaky: count=1 latest=#361
 - floor: count=1 latest=#308
-- g3: count=1 latest=#491
+- g3: count=2 latest=#492, #491
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
@@ -624,7 +625,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=31 latest=#491, #490, #489, #488, #487
+- graph: count=32 latest=#492, #491, #490, #489, #488
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -684,7 +685,7 @@ compact: true
 - naming: count=5 latest=#484, #033, #024, #009, #002
 - negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
-- node-vectors: count=1 latest=#491
+- node-vectors: count=2 latest=#492, #491
 - non-displacing-pack: count=2 latest=#453, #452
 - numpy: count=2 latest=#364, #363
 - ollama: count=2 latest=#323, #313
@@ -746,7 +747,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=119 latest=#491, #490, #489, #488, #487
+- retrieval: count=120 latest=#492, #491, #490, #489, #488
 - retrievalflags: count=1 latest=#328
 - retry: count=3 latest=#466, #336, #182
 - review: count=1 latest=#388
@@ -765,6 +766,7 @@ compact: true
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
+- semantic-seeding: count=1 latest=#492
 - server: count=5 latest=#457, #300, #288, #286, #285
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
@@ -817,7 +819,7 @@ compact: true
 ## status rollup
 
 - roots: 77
-- changed: 25
+- changed: 26
 - done: 439
 - in-progress: 6
 - planned: 21

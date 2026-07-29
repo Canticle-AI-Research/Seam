@@ -626,6 +626,71 @@ def pending_node_vectors(
     return pending
 
 
+def _cosine(left: list[float], right: list[float]) -> float:
+    """Cosine similarity, computed locally to keep this module provider-free."""
+    if not left or not right or len(left) != len(right):
+        return 0.0
+    dot = 0.0
+    left_norm = 0.0
+    right_norm = 0.0
+    for a, b in zip(left, right):
+        dot += a * b
+        left_norm += a * a
+        right_norm += b * b
+    if left_norm <= 0.0 or right_norm <= 0.0:
+        return 0.0
+    return dot / ((left_norm**0.5) * (right_norm**0.5))
+
+
+def search_node_vectors(
+    connection: sqlite3.Connection,
+    query_vector: list[float],
+    model_name: str,
+    *,
+    ns: str | None = None,
+    scope: str | None = None,
+    limit: int = 20,
+    min_score: float = 0.0,
+) -> list[tuple[str, float]]:
+    """Rank graph nodes by cosine against an already-computed query vector.
+
+    Provider-free by construction: the caller supplies the vector, so the graph
+    layer never reaches for an embedding provider and stays deterministic under
+    test. Namespace and scope are filtered in SQL *before* scoring, matching the
+    record path, so a tenant boundary is never crossed by a top-K cutoff. Rows on
+    a superseded render contract are excluded rather than mixed in, because their
+    scores are not comparable with current ones.
+    """
+    if not query_vector:
+        return []
+    clauses = ["model_name = ?", "render_version = ?"]
+    parameters: list[object] = [model_name, GRAPH_NODE_VECTOR_TEXT_VERSION]
+    if ns:
+        clauses.append("ns = ?")
+        parameters.append(ns)
+    if scope:
+        clauses.append("scope = ?")
+        parameters.append(scope)
+    rows = connection.execute(
+        f"select node_id, vector_json from knowledge_node_vectors where {' and '.join(clauses)}",
+        parameters,
+    ).fetchall()
+
+    scored: list[tuple[str, float]] = []
+    for row in rows:
+        try:
+            vector = list(json.loads(row[1]))
+        except (TypeError, ValueError):
+            continue
+        score = _cosine(query_vector, vector)
+        if score <= min_score:
+            continue
+        scored.append((str(row[0]), score))
+    # Sort by score, then node id, so equal scores rank identically on every run.
+    scored.sort(key=lambda item: (-item[1], item[0]))
+    return scored[: max(1, int(limit))]
+
+
 def reusable_node_vectors(
     connection: sqlite3.Connection,
     model_name: str,
@@ -837,6 +902,7 @@ def query_graph(
     include_history: bool = False,
     limit: int = 300,
     hops: int = 2,
+    semantic_seed_ids: Iterable[str] | None = None,
 ) -> dict[str, object]:
     limit = max(1, min(int(limit), 1000))
     hops = max(0, min(int(hops), 5))
@@ -897,6 +963,45 @@ def query_graph(
             [*params, seed_limit],
         ).fetchall()
     selected = {str(row["id"]) for row in seed_rows}
+
+    # Semantic seeds let a query reach a node whose label shares no tokens with
+    # it, which lexical seeding structurally cannot do. They are validated against
+    # the same boundary, kind, and time filters as lexical seeds and bypass only
+    # the lexical clause; a seed still earns graph credit downstream only if an
+    # in-boundary edge actually connects it.
+    ranked_semantic_ids = [str(value) for value in dict.fromkeys(semantic_seed_ids or ()) if value]
+    if ranked_semantic_ids and canonical_seeds_enabled:
+        boundary_where = ["1=1"]
+        boundary_params: list[object] = []
+        if namespace:
+            boundary_where.append("n.ns = ?")
+            boundary_params.append(namespace)
+        if scope:
+            boundary_where.append("n.scope = ?")
+            boundary_params.append(scope)
+        if canonical_kind_values:
+            boundary_where.append(
+                f"lower(n.kind) in ({','.join('?' for _ in canonical_kind_values)})"
+            )
+            boundary_params.extend(canonical_kind_values)
+        boundary_where.extend(
+            _node_time_clauses(boundary_params, at=at, include_history=include_history)
+        )
+        placeholders = ",".join("?" for _ in ranked_semantic_ids)
+        admissible = {
+            str(row["id"])
+            for row in connection.execute(
+                f"select n.id from knowledge_nodes n where n.id in ({placeholders}) "
+                f"and {' and '.join(boundary_where)}",
+                [*ranked_semantic_ids, *boundary_params],
+            ).fetchall()
+        }
+        # Preserve similarity order so the closest admissible node seeds first.
+        for node_id in ranked_semantic_ids:
+            if len(selected) >= limit:
+                break
+            if node_id in admissible:
+                selected.add(node_id)
 
     episode_seed_rows: list[sqlite3.Row] = []
     if episode_seeds_enabled and (query or (root_id and root_id.startswith("episode:"))):
