@@ -13289,3 +13289,87 @@ versioned derived graph-node vector projection with explicit reindex and
 real-corpus/backend-scale qualification, and start R4 independently as
 freshness/trust/provenance-gated reasoning retrieval and reuse.
 ---END-ENTRY-#490---
+
+---BEGIN-ENTRY-#491---
+id: 491
+date: 2026-07-29T04:50:58Z
+agent: claude
+status: changed
+topics: graph, g3, node-vectors, retrieval, mcp
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/REASONING_GRAPH.md
+supersedes: none
+tokens: 975
+---
+BUILT the first slice of the G3 versioned derived graph-node vector projection,
+closing the documented gap that graph nodes carry lexical terms but no semantic
+vectors (docs/roadmap/GRAPH_MEMORY_MATURITY.md line 79).
+
+New render contract `graph-node-vector-text/1`, versioned separately from
+`mirl-vector-text/2` because a node is an identity distilled from many records
+and its contract must evolve independently of any single record's.
+
+Files changed:
+- `seam_runtime/knowledge_graph.py`: added `GRAPH_NODE_VECTOR_TEXT_VERSION`,
+  `VECTORIZABLE_NODE_KINDS` (entity/value/agent/symbol), `_NODE_RENDER_SKIP_KEYS`,
+  `knowledge_node_vectors` table plus a `(ns, scope)` boundary index, and the
+  functions `render_node_text`, `node_vector_source_hash`, `pending_node_vectors`,
+  `reusable_node_vectors`, `store_node_vectors`, `node_vector_status`.
+- `seam_runtime/storage.py`: imported the four graph helpers under
+  `*_graph_node_vector*` aliases and exposed `pending_node_vectors`,
+  `reusable_node_vectors`, `store_node_vectors`, `node_vector_status` as pooled
+  store methods so runtime never touches a private connection.
+- `seam_runtime/runtime.py`: added `SeamRuntime.project_node_vectors` and called
+  it at the end of `persist_ir`.
+- `seam_runtime/mcp.py`: `seam_knowledge_node` now raises
+  `unknown knowledge node '<id>'` instead of leaking a bare `KeyError` repr.
+- `tests/audit/test_graph_node_vectors.py`: new, 12 tests.
+
+Design facts worth preserving:
+- Node vector projection deliberately does NOT roll back a good ingest. A node
+  vector is derived, so an embedding failure leaves nodes pending and the next
+  ingest or an explicit reindex recovers them. This is the opposite of record
+  vector behavior and is intentional: a transient embedding error must not become
+  data loss.
+- Legacy rows fail closed. A row whose `render_version` differs from the current
+  constant is reported pending and never served, matching the record contract,
+  because mixing render contracts inside one index makes similarity scores
+  incomparable in a way no downstream ranking can detect.
+- `source_hash` binds render version + model name + source text and deliberately
+  excludes ns/scope, so identical node text under a different boundary is the same
+  point in vector space.
+
+FAILURE FOUND AND FIXED DURING THIS ENTRY: the first implementation embedded
+projection bookkeeping (`epistemic_basis`, `record_kind`) while skipping `attrs`
+because it is a Mapping, producing render text like `entity Devon explicit ENT`.
+Those tokens are identical across every node of a kind and dilute the label that
+discriminates. `render_node_text` now descends into `attrs`, skips bookkeeping
+keys explicitly, and de-duplicates case-insensitively, yielding `entity Devon`.
+
+SECOND FAILURE FOUND AND FIXED: the full suite caught a real regression at
+`tests/audit/test_reasoning_retrieval.py::test_boundary_only_vector_move_does_not_reembed`
+(5 embed calls against an allowed 3). Moving a record to a new namespace creates
+new node rows, which were embedded fresh, violating the existing boundary-only
+contract that a metadata move never re-embeds. Fixed by adding
+`reusable_node_vectors`, which looks up an existing vector by content hash before
+embedding. The failing test was NOT modified.
+
+VERIFICATION: full `pytest tests/` run under the T7 offline-model env and a live
+local pgvector DSN: 1,538 tests collected, exit code 0, zero failures, zero skips,
+two established `compile_nl` xfails. Node-vector behavior verified end to end
+against a real ingest: coverage 1.0, second projection embeds 0, and a new memory
+extends coverage without an explicit reindex.
+
+`node_vector_status` returns provider-free deterministic coverage counts
+(vectorizable_nodes, current_vectors, legacy_vectors, pending_nodes, coverage) so
+the self-improvement loop has a free non-gameable signal to ratchet against.
+
+NOT DONE: node vectors are stored but not yet fused into retrieval, so no
+retrieval quality change is claimed by this entry. Real-corpus quality
+qualification and the explicit reindex entry point also remain open.
+
+NEXT: G3 slice 2, fuse node vectors into graph retrieval with rank-normalized
+cross-leg scoring and measure a free deterministic recall A/B before any paid run;
+then real-corpus qualification; then R4 as freshness/trust/provenance-gated
+reasoning retrieval and reuse.
+---END-ENTRY-#491---

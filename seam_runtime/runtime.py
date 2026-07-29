@@ -224,7 +224,48 @@ class SeamRuntime:
                     f"manual recovery may be required for record ids: {touched_preview}"
                 ) from rollback_exc
             raise RuntimeError("Vector indexing failed; rolled back SQLite record write") from exc
+        self.project_node_vectors()
         return persist_report
+
+    def project_node_vectors(self, *, limit: int | None = None) -> dict[str, object]:
+        """Embed graph nodes whose derived vector is missing, stale, or legacy.
+
+        This runs after record indexing rather than inside it because a node
+        vector is a *derived* projection: losing one costs a later recompute, not
+        correctness. So a failure here deliberately does NOT roll back a good
+        ingest. The affected nodes simply stay pending and are picked up by the
+        next ingest or an explicit reindex, which makes the projection
+        self-healing instead of turning a transient embedding error into data loss.
+        """
+        model = self.embedding_model
+        model_name = getattr(model, "name", "") or model.__class__.__name__
+        try:
+            pending = self.store.pending_node_vectors(model_name, limit=limit)
+            if not pending:
+                return {"model_name": model_name, "embedded": 0, "failed": 0}
+            # The same node text under a different ns/scope is the same point in
+            # vector space, so a boundary-only move must reuse the stored vector
+            # rather than pay to embed it again.
+            reusable = self.store.reusable_node_vectors(
+                model_name, [str(entry["source_hash"]) for entry in pending]
+            )
+            embedded: list[dict[str, object]] = []
+            failed = 0
+            for entry in pending:
+                vector = reusable.get(str(entry["source_hash"]))
+                if vector is None:
+                    try:
+                        vector = model.embed(str(entry["source_text"]))
+                    except Exception:
+                        # One unembeddable node must not strand the rest of the batch.
+                        failed += 1
+                        continue
+                embedded.append({**entry, "vector": vector})
+            written = self.store.store_node_vectors(model_name, embedded)
+        except Exception:
+            LOGGER.exception("Graph node vector projection failed; nodes remain pending")
+            return {"model_name": model_name, "embedded": 0, "failed": 0, "error": True}
+        return {"model_name": model_name, "embedded": written, "failed": failed}
 
     def _retrieval_flags_cached(self):
         """Resolve effective retrieval flags once and cache for this runtime.

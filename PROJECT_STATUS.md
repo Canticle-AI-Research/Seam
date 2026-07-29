@@ -1,5 +1,24 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#491 - BUILT G3 slice 1, the versioned
+derived graph-node vector projection. Graph nodes previously carried lexical
+terms but no semantic vectors; entity/value/agent/symbol nodes now project
+under the new `graph-node-vector-text/1` render contract into a
+`knowledge_node_vectors` table, embedded automatically at the end of
+`persist_ir`. Legacy render versions fail closed, `source_hash` excludes
+ns/scope so a boundary-only move reuses the stored vector instead of
+re-embedding, and a derived-projection failure leaves nodes pending rather than
+rolling back a good ingest. `node_vector_status` exposes provider-free coverage
+counts as a free non-gameable signal for the improvement loop. Full suite: 1,538
+tests, exit 0, zero failures, zero skips, two established `compile_nl` xfails.
+Packaging work is deliberately set aside; the split is inert and reversible, and
+the full unprotected runtime remains the canonical development target. NOT DONE:
+node vectors are stored but not yet fused into retrieval, so no retrieval
+quality change is claimed. NEXT: G3 slice 2, fuse node vectors into graph
+retrieval with rank-normalized cross-leg scoring and a free deterministic recall
+A/B before any paid run; then real-corpus qualification; then R4 as
+freshness/trust/provenance-gated reasoning retrieval and reuse.)
+
 Current update: 2026-07-29 (HISTORY#490 - RELEASED and independently
 live-verified both package channels after protected PR #180 merged at
 `01f35817810f1490c88e9f832d92c8f1aab3944d`. Private hosted

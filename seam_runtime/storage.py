@@ -32,6 +32,18 @@ from .knowledge_graph import (
     node_detail as knowledge_node_detail,
 )
 from .knowledge_graph import (
+    node_vector_status as graph_node_vector_status,
+)
+from .knowledge_graph import (
+    pending_node_vectors as pending_graph_node_vectors,
+)
+from .knowledge_graph import (
+    reusable_node_vectors as reusable_graph_node_vectors,
+)
+from .knowledge_graph import (
+    store_node_vectors as store_graph_node_vectors,
+)
+from .knowledge_graph import (
     project_records as project_knowledge_records,
 )
 from .knowledge_graph import (
@@ -946,6 +958,45 @@ class SQLiteStore:
                 include_history=include_history,
                 at=at,
             )
+
+    def pending_node_vectors(
+        self,
+        model_name: str,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        limit: int | None = None,
+    ) -> list[dict[str, object]]:
+        """Return graph nodes whose derived vector is missing, stale, or legacy."""
+        with self._pool.checkout() as connection:
+            return pending_graph_node_vectors(
+                connection, model_name, ns=ns, scope=scope, limit=limit
+            )
+
+    def reusable_node_vectors(
+        self,
+        model_name: str,
+        source_hashes: Iterable[str],
+    ) -> dict[str, list[float]]:
+        """Return existing vectors for these content hashes, ignoring ns/scope."""
+        with self._pool.checkout() as connection:
+            return reusable_graph_node_vectors(connection, model_name, source_hashes)
+
+    def store_node_vectors(
+        self,
+        model_name: str,
+        entries: Iterable[Mapping[str, object]],
+    ) -> int:
+        """Persist derived graph-node vectors for one embedding model."""
+        with self._pool.checkout() as connection:
+            written = store_graph_node_vectors(connection, model_name, entries)
+            connection.commit()
+            return written
+
+    def node_vector_status(self, model_name: str) -> dict[str, object]:
+        """Report node-vector coverage as a provider-free improvement signal."""
+        with self._pool.checkout() as connection:
+            return graph_node_vector_status(connection, model_name)
 
     def identity_merges(
         self,
