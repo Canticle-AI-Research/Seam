@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-29-stable-packages-live
 supersedes: 2026-07-29-package-stability-release-candidate
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#490
 ---
 

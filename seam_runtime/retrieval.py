@@ -114,6 +114,11 @@ class RetrievalFlags:
     # repeated descriptions cannot masquerade as separate countable rows. Both
     # remain default-off and never mutate durable MIRL or generate the answer.
     count_context_policy: str = "off"
+    # Versioned knowledge-graph seeding policy. Zero seeds is the locked
+    # lexical-only baseline. These fields use the existing proposal/apply/revert
+    # substrate so every runtime surface observes one approved graph policy.
+    graph_semantic_seeds: int = 0
+    graph_semantic_min_score: float = 0.0
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -167,9 +172,16 @@ def coerce_flag_value(key: str, value: object) -> object | None:
     if expected is float:
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             return None
-        return float(value)
+        resolved = float(value)
+        if key == "graph_semantic_min_score" and not -1.0 <= resolved <= 1.0:
+            return None
+        return resolved
     if expected is int:
-        return value if isinstance(value, int) and not isinstance(value, bool) else None
+        if not isinstance(value, int) or isinstance(value, bool):
+            return None
+        if key == "graph_semantic_seeds" and not 0 <= value <= 128:
+            return None
+        return value
     if expected is str:
         if not isinstance(value, str):
             return None
@@ -290,11 +302,27 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_COUNT_CONTEXT_POLICY"].strip()
         if coerce_flag_value("count_context_policy", raw) is not None:
             out["count_context_policy"] = raw
+    if _present("SEAM_GRAPH_SEMANTIC_SEEDS"):
+        raw = env["SEAM_GRAPH_SEMANTIC_SEEDS"].strip()
+        if raw.lstrip("-").isdigit():
+            value = int(raw)
+            if coerce_flag_value("graph_semantic_seeds", value) is not None:
+                out["graph_semantic_seeds"] = value
+    if _present("SEAM_GRAPH_SEMANTIC_MIN_SCORE"):
+        raw = env["SEAM_GRAPH_SEMANTIC_MIN_SCORE"].strip()
+        try:
+            value = float(raw)
+        except ValueError:
+            pass
+        else:
+            if coerce_flag_value("graph_semantic_min_score", value) is not None:
+                out["graph_semantic_min_score"] = value
     return out
 
 
 def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalFlags:
     env = os.environ if env is None else env
+    graph_overrides = _retrieval_env_overrides(env)
 
     def _on(name: str) -> bool:
         return env.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
@@ -325,6 +353,10 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         answer_contract=_policy("SEAM_ANSWER_CONTRACT", "answer_contract", "off"),
         count_context_policy=_policy(
             "SEAM_COUNT_CONTEXT_POLICY", "count_context_policy", "off"
+        ),
+        graph_semantic_seeds=int(graph_overrides.get("graph_semantic_seeds", 0)),
+        graph_semantic_min_score=float(
+            graph_overrides.get("graph_semantic_min_score", 0.0)
         ),
     )
 

@@ -57,9 +57,16 @@ Already present:
 - R3 append-only verification checks with result fingerprints, scoped evidence,
   immutable linear retries, compact reads, and atomic verified outcomes that
   retain exact supporting verification IDs;
-- G3a provider-free semantic fact/episode MIRL seeds feeding 0-3-hop
+- R4 append-only structural reasoning recipes distilled only from verified
+  accepted outcomes, with task/operation retrieval, freshness and provenance
+  gates, explicit reuse, and verified success/failure feedback that changes
+  future trust and ranking without storing conclusions or hidden reasoning;
+- G3 provider-free semantic fact/episode MIRL seeds plus versioned semantic
+  vectors for entity, value, agent, and symbol graph nodes feeding 0-3-hop
   graph traversal, deterministic lexical/vector/graph fusion, and explicit
-  decision/latency traces. A semantic seed receives graph credit only after an
+  decision/latency traces. The `graph_node` leg is explicit in
+  `reciprocal-rank-fusion/2`, so node-vector evidence is not hidden inside graph
+  traversal. A semantic seed receives graph credit only after an
   in-boundary edge actually connects it. Each hop >=1 hit now carries its exact
   deterministic shortest edge path plus only the path episodes visible in the
   selected current, historical, or `at` time view; hop-0 seeds remain path-free.
@@ -69,21 +76,29 @@ Already present:
   The provider-free G3 qualification fixture covers 2,048 nodes and 2,047 edges
   across structured, 1-hop, 3-hop, historical, and semantic-seeded mixed query
   shapes, checking exact evidence/path, boundary isolation, deterministic
-  ranking, cross-leg evidence, and a fixed latency budget. This is still a
-  bounded partial G3 slice, not the complete G3 contract.
+  ranking, cross-leg evidence, and a fixed latency budget. A pinned LoCoMo
+  real-corpus gate additionally checks full node-vector coverage, disjoint
+  development/holdout motif recall, and explicit fusion traces. On
+  `BAAI/bge-small-en-v1.5`, the bounded selector chose 4 semantic node seeds:
+  development recall moved from 0.7436 to 0.9231 and disjoint holdout from
+  0.7222 to 0.8889; 8, 16, and 32 were rejected for motif regression;
+- the knowledge graph's graph-probe scorer is wired through the durable H2
+  proposal, strict ratchet, operator approval, applied retrieval flags, and
+  revert path. Approved policies alter later CLI, SDK, MCP, REST, and internal
+  graph retrieval behavior. Both graph planes therefore improve from measured
+  outcomes while retaining explicit approval/trust boundaries.
 
 Remaining structural gaps:
 
 - G2 still needs broader fuzzy/coreference evidence beyond the reversible
   identity-ledger foundation;
-- G3 still lacks semantic vectors for entity/value/agent/symbol nodes and
-  real-corpus quality qualification. Its rank-normalized cross-leg policy,
-  synthetic corpus query-shape fixture, and latency gate are now fixed and
-  versioned. Native SQLite and pgvector searches prefilter namespace and scope
-  before top-K. Vector text is deterministic and versioned across SQLite,
-  pgvector, and Chroma; legacy rows fail closed until an explicit full reindex
-  upgrades them. Boundary-only pgvector repair updates namespace/scope metadata
-  only for rows already on the current render contract and never embeds;
+- G3's rank-normalized cross-leg policy, synthetic corpus query-shape fixture,
+  real-corpus selector/holdout gate, and latency gate are fixed and versioned.
+  Native SQLite and pgvector searches prefilter namespace and scope before
+  top-K. Vector text is deterministic and versioned across SQLite, pgvector,
+  and Chroma; legacy rows fail closed until an explicit full reindex upgrades
+  them. Boundary-only pgvector repair updates namespace/scope metadata only for
+  rows already on the current render contract and never embeds;
 - entities have no durable evolving summaries; graph-wide communities and
   evidence-backed observations are absent;
 - no first-class context block composes facts, entities, episodes, summaries,
@@ -104,7 +119,7 @@ Remaining structural gaps:
 | G7 Qualification | Native SEAM and matched Mem0/Zep benchmark lanes plus scale and ablation suites | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims |
 
 The parallel reasoning-graph sequence is defined in
-`docs/REASONING_GRAPH.md`. R1-R3 are implemented; R4-R6 remain open. Reasoning
+`docs/REASONING_GRAPH.md`. R1-R4 are implemented; R5-R6 remain open. Reasoning
 outcomes are never benchmarked or advertised as knowledge unless a later
 reviewed-promotion contract explicitly admits them into MIRL.
 

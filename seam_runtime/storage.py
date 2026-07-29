@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import sqlite3
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
@@ -38,15 +39,6 @@ from .knowledge_graph import (
     pending_node_vectors as pending_graph_node_vectors,
 )
 from .knowledge_graph import (
-    reusable_node_vectors as reusable_graph_node_vectors,
-)
-from .knowledge_graph import (
-    search_node_vectors as search_graph_node_vectors,
-)
-from .knowledge_graph import (
-    store_node_vectors as store_graph_node_vectors,
-)
-from .knowledge_graph import (
     project_records as project_knowledge_records,
 )
 from .knowledge_graph import (
@@ -54,6 +46,15 @@ from .knowledge_graph import (
 )
 from .knowledge_graph import (
     remove_records as remove_knowledge_records,
+)
+from .knowledge_graph import (
+    reusable_node_vectors as reusable_graph_node_vectors,
+)
+from .knowledge_graph import (
+    search_node_vectors as search_graph_node_vectors,
+)
+from .knowledge_graph import (
+    store_node_vectors as store_graph_node_vectors,
 )
 from .knowledge_graph import (
     supersede_source as supersede_knowledge_source,
@@ -82,6 +83,14 @@ from .reasoning_graph import (
     get_reasoning_node as get_reasoning_node_row,
 )
 from .reasoning_graph import get_reasoning_retrieval as get_reasoning_retrieval_row
+from .reasoning_patterns import (
+    distill_reasoning_pattern,
+    get_reasoning_pattern,
+    record_reasoning_pattern_result,
+    record_successful_pattern_uses,
+    search_reasoning_patterns,
+    use_reasoning_pattern,
+)
 from .retry import retry_db_operation
 from .workspace import (
     append_workspace_event as append_workspace_event_row,
@@ -95,6 +104,8 @@ from .workspace import (
     workspace_event_from_row,
     workspace_run_from_row,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _prepare_private_database(path: Path) -> None:
@@ -154,6 +165,27 @@ class SQLiteStore:
         """Raise when the canonical store cannot serve a trivial read."""
         with self._pool.checkout() as connection:
             connection.execute("select 1").fetchone()
+
+    def generate_graph_probes(
+        self,
+        *,
+        namespace: str | None = None,
+        scope: str | None = None,
+        sample: int | None = 100,
+        seed: int = 1234,
+    ):
+        """Generate deterministic graph probes without exposing the pool."""
+
+        from .self_improve import generate_graph_probes
+
+        with self._pool.checkout() as connection:
+            return generate_graph_probes(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                sample=sample,
+                seed=seed,
+            )
 
     def _connect(self) -> sqlite3.Connection:
         if self.path == ":memory:":
@@ -1635,6 +1667,70 @@ class SQLiteStore:
         with self._pool.checkout() as connection:
             return reasoning_graph(connection, run_id)
 
+    def reasoning_patterns(
+        self,
+        *,
+        objective: str,
+        ns: str,
+        scope: str,
+        operation: str | None = None,
+        limit: int = 5,
+        max_age_days: int = 90,
+        min_trust: float = 0.5,
+        now: str | None = None,
+    ) -> list[dict[str, object]]:
+        """Retrieve reusable verified reasoning structures (R4)."""
+
+        with self._pool.checkout() as connection:
+            return search_reasoning_patterns(
+                connection,
+                objective=objective,
+                ns=ns,
+                scope=scope,
+                operation=operation,
+                limit=limit,
+                max_age_days=max_age_days,
+                min_trust=min_trust,
+                now=now,
+            )
+
+    def reasoning_pattern(self, pattern_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_pattern(connection, pattern_id)
+
+    @retry_db_operation()
+    def use_reasoning_pattern(
+        self, *, pattern_id: str, run_id: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            result = use_reasoning_pattern(
+                connection, pattern_id=pattern_id, run_id=run_id
+            )
+            connection.commit()
+        return result
+
+    @retry_db_operation()
+    def record_reasoning_pattern_feedback(
+        self,
+        *,
+        use_id: str,
+        expected_run_id: str,
+        succeeded: bool,
+        outcome_node_id: str | None = None,
+        reason: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            result = record_reasoning_pattern_result(
+                connection,
+                use_id=use_id,
+                expected_run_id=expected_run_id,
+                succeeded=succeeded,
+                outcome_node_id=outcome_node_id,
+                reason=reason,
+            )
+            connection.commit()
+        return result
+
     @retry_db_operation()
     def record_reasoning_retrieval(
         self,
@@ -1793,12 +1889,13 @@ class SQLiteStore:
         supporting_node_ids: Iterable[str] = (),
         agent_id: str | None = None,
     ) -> dict[str, object]:
+        resolved_verification_ids = tuple(verification_ids)
         with self._pool.checkout() as connection:
             outcome = finalize_verified_reasoning_outcome(
                 connection,
                 run_id=run_id,
                 summary=summary,
-                verification_ids=verification_ids,
+                verification_ids=resolved_verification_ids,
                 confidence=confidence,
                 knowledge_refs=knowledge_refs,
                 evidence_record_ids=evidence_record_ids,
@@ -1806,6 +1903,30 @@ class SQLiteStore:
                 agent_id=agent_id,
             )
             connection.commit()
+            # Pattern learning is derived state. A failure here must never roll
+            # back or invalidate a verified outcome; it remains recoverable from
+            # the append-only source run on a later pass.
+            try:
+                pattern = distill_reasoning_pattern(
+                    connection,
+                    run_id=run_id,
+                    outcome_node_id=str(outcome["node_id"]),
+                    verification_ids=resolved_verification_ids,
+                )
+                feedback = record_successful_pattern_uses(
+                    connection,
+                    run_id=run_id,
+                    outcome_node_id=str(outcome["node_id"]),
+                )
+                connection.commit()
+                outcome["learned_pattern_id"] = pattern["pattern_id"]
+                outcome["pattern_feedback_count"] = len(feedback)
+            except Exception:
+                connection.rollback()
+                LOGGER.exception(
+                    "Reasoning pattern learning failed; verified outcome remains committed"
+                )
+                outcome["pattern_learning_pending"] = True
         return outcome
 
     @retry_db_operation()

@@ -268,10 +268,11 @@ class SeamRuntime:
         Seeding failures degrade to lexical-only rather than failing the query: a
         semantic seed is an additional way in, never a precondition.
         """
+        flags = self._retrieval_flags_cached()
         if semantic_seeds is None:
-            semantic_seeds = int(self._semantic_seed_env("SEAM_GRAPH_SEMANTIC_SEEDS", default=0.0))
+            semantic_seeds = int(flags.graph_semantic_seeds)
         if min_seed_score is None:
-            min_seed_score = self._semantic_seed_env("SEAM_GRAPH_SEMANTIC_MIN_SCORE", default=0.0)
+            min_seed_score = float(flags.graph_semantic_min_score)
         seed_ids: list[str] = []
         text = (query or "").strip()
         if text and semantic_seeds > 0:

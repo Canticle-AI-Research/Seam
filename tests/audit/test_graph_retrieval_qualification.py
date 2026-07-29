@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import pytest
 
+from seam_runtime.retrieval import RetrievalFlags
 from seam_runtime.retrieval_policy import FUSION_POLICY
+from seam_runtime.runtime import SeamRuntime
 from tools.graph_retrieval_qualification import (
     QUALIFICATION_SCHEMA,
+    qualify_runtime,
     run_qualification,
 )
 
@@ -54,3 +57,22 @@ def test_graph_retrieval_qualification_rejects_invalid_bounds(
     defaults.update(kwargs)
     with pytest.raises(ValueError, match=message):
         run_qualification(**defaults)
+
+
+def test_graph_qualification_restores_runtime_flags_on_failure(tmp_path) -> None:
+    runtime = SeamRuntime(tmp_path / "qualification-state.db")
+    original = RetrievalFlags(
+        graph_semantic_seeds=8,
+        graph_semantic_min_score=0.25,
+    )
+    runtime._retrieval_flags = original
+
+    with pytest.raises(ValueError, match="node_count"):
+        qualify_runtime(
+            runtime,
+            node_count=7,
+            repeats=1,
+            max_latency_ms=1000.0,
+        )
+
+    assert runtime._retrieval_flags is original

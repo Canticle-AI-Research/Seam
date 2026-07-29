@@ -12,6 +12,7 @@ from seam_runtime.runtime import SeamRuntime
 
 from .adapters import (
     ChromaSemanticAdapter,
+    GraphNodeSemanticAdapter,
     SeamVectorSearchAdapter,
     SemanticAdapter,
     SQLAdapter,
@@ -42,6 +43,9 @@ class RetrievalOrchestrator:
         self.semantic_backend = semantic_backend
         self.sql_adapter = sql_adapter or SQLiteIRAdapter(runtime.store)
         self.graph_adapter = SQLiteGraphAdapter(runtime.store)
+        self.graph_node_adapter = GraphNodeSemanticAdapter(
+            runtime.store, runtime.embedding_model
+        )
         if semantic_adapter is not None:
             self.semantic_adapter = semantic_adapter
         elif semantic_backend == "chroma":
@@ -164,6 +168,21 @@ class RetrievalOrchestrator:
             elif leg.name == "vector":
                 leg_hits["vector"] = self.semantic_adapter.search(plan, limit=leg.limit)
             elif leg.name == "graph":
+                graph_node_seed_ids: list[str] = []
+                if plan.semantic_graph_seeding:
+                    graph_node_started = perf_counter()
+                    flags = self.runtime._retrieval_flags_cached()
+                    graph_node_seed_ids, graph_node_hits = (
+                        self.graph_node_adapter.search(
+                            plan,
+                            limit=max(0, int(flags.graph_semantic_seeds)),
+                            min_score=float(flags.graph_semantic_min_score),
+                        )
+                    )
+                    leg_hits["graph_node"] = graph_node_hits
+                    leg_latency_ms["graph_node"] = (
+                        perf_counter() - graph_node_started
+                    ) * 1000.0
                 semantic_seed_ids = (
                     [hit.record.id for hit in leg_hits.get("vector", [])]
                     if plan.semantic_graph_seeding
@@ -173,6 +192,7 @@ class RetrievalOrchestrator:
                     plan,
                     limit=leg.limit,
                     seed_record_ids=semantic_seed_ids,
+                    seed_node_ids=graph_node_seed_ids,
                 )
             leg_latency_ms[leg.name] = (perf_counter() - leg_started) * 1000.0
 

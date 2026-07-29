@@ -14,7 +14,7 @@ import json
 import math
 import statistics
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from time import perf_counter
 
@@ -26,7 +26,7 @@ from seam_runtime.retrieval_policy import (
 )
 from seam_runtime.runtime import SeamRuntime
 
-QUALIFICATION_SCHEMA = "graph-retrieval-qualification/1"
+QUALIFICATION_SCHEMA = "graph-retrieval-qualification/2"
 QUALIFICATION_NAMESPACE = "g3-qualification"
 QUALIFICATION_SCOPE = "thread"
 
@@ -168,6 +168,32 @@ def qualify_runtime(
     repeats: int,
     max_latency_ms: float,
 ) -> dict[str, object]:
+    """Run fixed shapes without leaking candidate flags into the caller."""
+
+    previous_flags = runtime._retrieval_flags
+    runtime._retrieval_flags = replace(
+        runtime._retrieval_flags_cached(),
+        graph_semantic_seeds=32,
+        graph_semantic_min_score=0.0,
+    )
+    try:
+        return _qualify_runtime_with_current_flags(
+            runtime,
+            node_count=node_count,
+            repeats=repeats,
+            max_latency_ms=max_latency_ms,
+        )
+    finally:
+        runtime._retrieval_flags = previous_flags
+
+
+def _qualify_runtime_with_current_flags(
+    runtime: SeamRuntime,
+    *,
+    node_count: int,
+    repeats: int,
+    max_latency_ms: float,
+) -> dict[str, object]:
     """Run the fixed qualification shapes against an already seeded runtime."""
 
     if node_count < 8:
@@ -235,6 +261,13 @@ def qualify_runtime(
             shape.mode != "mix"
             or any(len(candidate.sources) >= 2 for candidate in last_result.ranked)
         )
+        graph_node_fusion_ok = (
+            not shape.semantic_graph_seeding
+            or any(
+                "graph_node" in candidate.sources
+                for candidate in last_result.ranked
+            )
+        )
         p95_ms = _nearest_rank_percentile(latencies, 0.95)
         checks = {
             "expected_evidence": expected is not None,
@@ -242,6 +275,7 @@ def qualify_runtime(
             "boundary_isolation": boundary_ok,
             "deterministic_ranking": deterministic,
             "cross_leg_evidence": multi_source_ok,
+            "graph_node_fusion": graph_node_fusion_ok,
             "latency_budget": p95_ms <= max_latency_ms,
         }
         shape_reports.append(

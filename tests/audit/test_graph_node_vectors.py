@@ -13,7 +13,14 @@ from seam_runtime.knowledge_graph import (
     store_node_vectors,
 )
 from seam_runtime.public_api import remember
+from seam_runtime.retrieval_orchestrator import RetrievalOrchestrator
+from seam_runtime.retrieval_orchestrator.adapters import (
+    GraphNodeSemanticAdapter,
+)
+from seam_runtime.retrieval_orchestrator.planner import build_plan
+from seam_runtime.retrieval_policy import rank_normalized_contribution
 from seam_runtime.runtime import SeamRuntime
+from seam_runtime.sdk import SeamSDK
 
 
 def _runtime(tmp_path: Path) -> SeamRuntime:
@@ -248,6 +255,79 @@ def test_min_score_floor_filters_weak_matches(tmp_path: Path) -> None:
 
     vector = runtime.embedding_model.embed("veterinary medication schedule")
     assert runtime.store.search_node_vectors(vector, name, limit=10, min_score=0.99) == []
+
+
+def test_graph_node_vectors_are_an_explicit_rank_normalized_fusion_leg(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """G3 node semantics must be auditable in fusion, not an invisible seed."""
+
+    monkeypatch.setenv("SEAM_GRAPH_SEMANTIC_SEEDS", "20")
+    monkeypatch.setenv("SEAM_GRAPH_SEMANTIC_MIN_SCORE", "0")
+    runtime = _runtime(tmp_path)
+    remember(
+        runtime,
+        {
+            "text": (
+                "Devon is allergic to shellfish and keeps an EpiPen in his desk."
+            )
+        },
+    )
+
+    decision = RetrievalOrchestrator(runtime).decide(
+        "Devon shellfish allergy",
+        budget=10,
+        mode="mix",
+        graph_hops=1,
+        semantic_graph_seeding=True,
+    )
+    assert decision.leg_hits["graph_node"]
+    candidates = [
+        candidate
+        for candidate in decision.ranked
+        if "graph_node" in candidate.sources
+    ]
+    assert candidates
+    for candidate in candidates:
+        rank = candidate.source_ranks["graph_node"]
+        assert candidate.sources["graph_node"] == rank_normalized_contribution(rank)
+        assert any(
+            reason.startswith("graph_node:graph_node_semantic=")
+            for reason in candidate.reasons
+        )
+
+    session = SeamSDK(runtime=runtime).start_reasoning(
+        "Find allergy evidence."
+    )
+    recorded = session.retrieve(
+        "Devon shellfish allergy",
+        budget=10,
+        mode="mix",
+        graph_hops=1,
+        semantic_graph_seeding=True,
+    )
+    detail = session.retrieval(str(recorded.reasoning["retrieval_id"]))
+    assert detail["latency_ms"]["graph_node"] is not None
+
+
+def test_graph_node_seeds_require_an_admissible_backing_record(
+    monkeypatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("SEAM_GRAPH_SEMANTIC_SEEDS", "20")
+    runtime = _runtime(tmp_path)
+    remember(runtime, {"text": "Devon is allergic to shellfish."})
+    plan = build_plan(
+        "kind:EVT Devon shellfish allergy",
+        mode="mix",
+        semantic_graph_seeding=True,
+    )
+
+    seed_ids, hits = GraphNodeSemanticAdapter(
+        runtime.store, runtime.embedding_model
+    ).search(plan, limit=20)
+
+    assert seed_ids == []
+    assert hits == []
 
 
 def test_semantic_seeding_is_off_by_default(monkeypatch, tmp_path: Path) -> None:

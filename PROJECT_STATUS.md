@@ -1,5 +1,28 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#494 - COMPLETED the requested G3 and R4
+milestones as genuine evidence-driven improvement loops. G3 now exposes
+versioned entity/value/agent/symbol node vectors as an explicit `graph_node`
+source in `reciprocal-rank-fusion/2`, retains exact scoped MIRL backing records
+and separate latency, and refuses traversal seeds whose backing record fails an
+active filter. Graph-aware probes alone can propose bounded semantic seed/score
+policy; strict development/category/integrity/trust/temporal/provenance/disjoint
+holdout gates, explicit H2 approval, applied runtime state, later observation,
+and revert form the closed loop. Pinned LoCoMo with cached
+`BAAI/bge-small-en-v1.5` selected 4 seeds: development recall
+0.7436 -> 0.9231 and holdout 0.7222 -> 0.8889; 8/16/32 were rejected for motif
+regression. R4 now distills verified accepted runs into content-free structural
+`reasoning-pattern/1` recipes, retrieves them only through same-boundary,
+task/operation, freshness, trust, current-verification, knowledge, and exact
+MIRL-fingerprint gates, and updates future ranking from explicit use plus
+verified success/failure. It stores no conclusions, raw tool/provider output, or
+hidden chain-of-thought and never promotes itself into MIRL. Full strict suite:
+1,565 collected, exit 0, zero skips, two established `compile_nl` xfails.
+Synthetic G3 and pinned real-corpus qualifications passed; changed-file Ruff,
+compileall, diff, and continuity checks passed. Branch
+`feat/self-improving-graphs`; protected PR/CI closeout is next. G4-G7 and R5-R6
+remain later stages, not part of this completion claim.)
+
 Current update: 2026-07-29 (HISTORY#492 - BUILT G3 slice 2, semantic node
 seeding for knowledge-graph queries, shipped DEFAULT-OFF pending measurement.
 `query_graph` previously seeded only by lexical token/`like` match, so a node
