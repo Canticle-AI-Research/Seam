@@ -8,9 +8,9 @@ from pathlib import Path
 import pytest
 
 from tools.release.build_selfhost_wheel import (
-    SELFHOST_FILES,
     NOFOLLOW_MODULES,
     RUNTIME_SOURCE_FILES,
+    SELFHOST_FILES,
     build_selfhost_wheel,
 )
 from tools.release.verify_selfhost_wheel import (
@@ -31,14 +31,14 @@ def _wheel(path: Path, files: dict[str, bytes]) -> Path:
 def _clean_files() -> dict[str, bytes]:
     return {
         "seam_runtime.cpython-312-x86_64-linux-gnu.so": b"\x7fELF compiled",
-        "seam_self_host-1.0.0.dist-info/licenses/LICENSES/BUSL-1.1.txt": (
+        "seam_self_host-1.1.2.dist-info/licenses/LICENSES/BUSL-1.1.txt": (
             b"Business Source License 1.1"
         ),
-        "seam_self_host-1.0.0.dist-info/METADATA": b"\n".join(
+        "seam_self_host-1.1.2.dist-info/METADATA": b"\n".join(
             (
                 b"Metadata-Version: 2.4",
                 b"Name: seam-self-host",
-                b"Version: 1.1.0",
+                b"Version: 1.1.2",
                 b"License-Expression: BUSL-1.1",
             )
         ),
@@ -50,7 +50,7 @@ def test_selfhost_metadata_is_separate_busl_package() -> None:
         (REPO / "selfhost_pkg" / "pyproject.toml").read_text(encoding="utf-8")
     )["project"]
     assert project["name"] == "seam-self-host"
-    assert project["version"] == "1.1.0"
+    assert project["version"] == "1.1.2"
     assert project["license"] == "BUSL-1.1"
     assert project["license-files"] == ["LICENSES/BUSL-1.1.txt"]
     assert project["requires-python"] == "==3.12.*"
@@ -99,13 +99,31 @@ def test_selfhost_gate_accepts_clean_compiled_busl_wheel(tmp_path: Path) -> None
     assert verify_selfhost_wheel(wheel, budget={}) == ()
 
 
+def test_selfhost_gate_rejects_a_similar_but_different_version(
+    tmp_path: Path,
+) -> None:
+    files = _clean_files()
+    metadata_path = "seam_self_host-1.1.2.dist-info/METADATA"
+    files[metadata_path] = files[metadata_path].replace(
+        b"Version: 1.1.2",
+        b"Version: 1.1.20",
+    )
+
+    errors = verify_selfhost_wheel(
+        _wheel(tmp_path / "wrong-version.whl", files),
+        budget={},
+    )
+
+    assert any("version is not 1.1.2" in error for error in errors)
+
+
 @pytest.mark.parametrize(
     "source_path",
     (
         "seam_runtime/mirl.py",
         "seam_runtime/mirl.pyc",
         "seam_runtime/mirl.pyo",
-        "seam_self_host-1.1.0.data/purelib/seam_runtime/mirl.py",
+        "seam_self_host-1.1.2.data/purelib/seam_runtime/mirl.py",
         "seam_runtime.py",
     ),
 )
@@ -121,9 +139,9 @@ def test_selfhost_gate_rejects_runtime_source(
 
 def test_selfhost_gate_requires_busl_text_and_metadata(tmp_path: Path) -> None:
     files = _clean_files()
-    del files["seam_self_host-1.0.0.dist-info/licenses/LICENSES/BUSL-1.1.txt"]
-    files["seam_self_host-1.0.0.dist-info/METADATA"] = b"\n".join(
-        (b"Name: seam-self-host", b"Version: 1.1.0", b"License-Expression: MIT")
+    del files["seam_self_host-1.1.2.dist-info/licenses/LICENSES/BUSL-1.1.txt"]
+    files["seam_self_host-1.1.2.dist-info/METADATA"] = b"\n".join(
+        (b"Name: seam-self-host", b"Version: 1.1.2", b"License-Expression: MIT")
     )
     wheel = _wheel(tmp_path / "missing-busl.whl", files)
     errors = verify_selfhost_wheel(wheel, budget={})
@@ -135,7 +153,7 @@ def test_selfhost_gate_scans_contents_and_exempts_license(tmp_path: Path) -> Non
     files = _clean_files()
     files["seam_runtime.cpython-312-x86_64-linux-gnu.so"] += b"MIRL"
     files[
-        "seam_self_host-1.0.0.dist-info/licenses/LICENSES/BUSL-1.1.txt"
+        "seam_self_host-1.1.2.dist-info/licenses/LICENSES/BUSL-1.1.txt"
     ] += b" MIRL MIRL"
     wheel = _wheel(tmp_path / "ratchet.whl", files)
     errors = verify_selfhost_wheel(wheel, budget={b"MIRL": 0})

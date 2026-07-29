@@ -38,7 +38,9 @@ class PublicMemoryQuery:
 
 
 def validate_memory_text(value: object) -> str:
-    text = str(value or "").strip()
+    if value is not None and not isinstance(value, str):
+        raise PublicAPIInputError("text must be a string")
+    text = (value or "").strip()
     if not text:
         raise PublicAPIInputError("text is required")
     if len(text) > MAX_MEMORY_TEXT_CHARS:
@@ -51,9 +53,13 @@ def validate_memory_text(value: object) -> str:
 def validate_agent_id(value: object) -> str | None:
     if value is None:
         return None
-    agent_id = str(value).strip()
+    if not isinstance(value, str):
+        raise PublicAPIInputError("agent_id must be a string")
+    agent_id = value.strip()
     if not agent_id:
         return None
+    if len(agent_id) > 128:
+        raise PublicAPIInputError("agent_id must be at most 128 characters")
     if not _DIMENSION_RE.fullmatch(agent_id):
         raise PublicAPIInputError(
             "agent_id must use letters, numbers, dots, underscores, or hyphens"
@@ -62,7 +68,10 @@ def validate_agent_id(value: object) -> str | None:
 
 
 def parse_memory_query(payload: dict[str, object]) -> PublicMemoryQuery:
-    query = str(payload.get("query") or "").strip()
+    raw_query = payload.get("query")
+    if raw_query is not None and not isinstance(raw_query, str):
+        raise PublicAPIInputError("query must be a string")
+    query = (raw_query or "").strip()
     if not query:
         raise PublicAPIInputError("query is required")
     if len(query) > MAX_QUERY_CHARS:
@@ -198,9 +207,18 @@ def context(
 
 
 def _validate_dimension(value: object, name: str, default: str) -> str:
-    resolved = default if value is None else str(value).strip()
+    if value is None:
+        resolved = default
+    elif not isinstance(value, str):
+        raise PublicAPIInputError(f"{name} must be a string")
+    else:
+        resolved = value.strip()
     if not resolved:
         raise PublicAPIInputError(f"{name} must be non-empty")
+    if len(resolved) > 128:
+        raise PublicAPIInputError(f"{name} must be at most 128 characters")
+    if not resolved[0].isalnum() or not resolved[0].isascii():
+        raise PublicAPIInputError(f"{name} must start with a letter or number")
     if not _DIMENSION_RE.fullmatch(resolved):
         raise PublicAPIInputError(
             f"{name} must use letters, numbers, dots, underscores, or hyphens"
@@ -211,14 +229,21 @@ def _validate_dimension(value: object, name: str, default: str) -> str:
 def _validate_optional_dimension(value: object, name: str) -> str | None:
     if value is None:
         return None
-    resolved = str(value).strip()
+    if not isinstance(value, str):
+        raise PublicAPIInputError(f"{name} must be a string")
+    resolved = value.strip()
     if not resolved:
         return None
     return _validate_dimension(resolved, name, resolved)
 
 
 def _validate_scope(value: object) -> str:
-    resolved = DEFAULT_SCOPE if value is None else str(value).strip()
+    if value is None:
+        resolved = DEFAULT_SCOPE
+    elif not isinstance(value, str):
+        raise PublicAPIInputError("scope must be a string")
+    else:
+        resolved = value.strip()
     if resolved not in VALID_SCOPES:
         allowed = ", ".join(sorted(VALID_SCOPES))
         raise PublicAPIInputError(f"scope must be one of: {allowed}")

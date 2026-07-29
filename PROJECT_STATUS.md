@@ -1,5 +1,71 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#489 - MARKED the final package-stability
+candidate ready for protected PR CI. The post-fix CodeRabbit pass found no new
+runtime defect: its only code request would chmod or reject every
+operator-selected existing database parent, which would break normal
+`seam.db` use while adding no content protection beyond the proven 0600
+database/WAL/SHM modes. Its other two findings target intentionally bounded,
+derived cross-index display rows inherited from canonical roadmap/history
+streams; `verify_streams` passes and the archive was not hand-edited. The exact
+post-review source then passed the canonical full suite against live pgvector
+with zero skips and only the two established xfails, plus Ruff, diff, secret,
+artifact, installed-client, legacy-upgrade, and continuity gates. Final artifact
+identities remain private 2.4.0 wheel/sdist SHA-256
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2` /
+`91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`
+and compiled self-host 1.1.2 SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+No package was published and DigitalOcean remains untouched. NEXT: push,
+merge after every relevant check is green, publish and live-verify both
+packages, then resume G3 and R4.)
+
+Current update: 2026-07-29 (HISTORY#488 - HARDENED the qualified package
+candidates after a terminal seven-finding CodeRabbit pass. Three code findings
+were valid and fixed: blank optional v1 session IDs again preserve the
+versioned compatibility behavior of meaning "absent"; oversized `agent_id`
+values receive the documented 128-character error; and pgvector readiness now
+establishes the actual extension, table, indexes, and required permissions
+instead of proving only `select 1`. A permissive-umask regression proves SQLite
+WAL/SHM sidecars inherit the main database's 0600 mode; no unsafe chmod of an
+operator-selected existing parent was added. The remaining history findings
+were false positives: the canonical closeout necessarily records
+`commits: pending` before its own commit exists, and HISTORY#487 already uses
+only controlled topics including `graph` and `handoff`. Post-review artifacts
+were rebuilt and re-proved. Private 2.4.0 wheel/sdist SHA-256 values are
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2`
+and `91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`;
+compiled self-host 1.1.2 is 3,623,685 bytes with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`
+and the unchanged 414/414 ratchet. Clean SQLite/live-pgvector installs and both
+legacy upgrades pass on those exact artifacts. Nothing was published and
+DigitalOcean remains untouched. NEXT: obtain the post-fix clean review, push
+through protected PR checks, publish and live-verify both packages, then resume
+G3 graph-node vectors and R4 provenance-gated reasoning reuse.)
+
+Current update: 2026-07-29 (HISTORY#487 - QUALIFIED the two stable package
+candidates needed before returning to graph work: compiled `seam-self-host`
+1.1.2 for customer-operated nodes, and private `seam-runtime` 2.4.0 as the
+hosted `/v1` server package for future subscribers. This supersedes
+HISTORY#486's startup claim: published self-host 1.1.0 included the pgvector
+driver but did not prove connectivity before serving, and it still exposed
+several late request-time failures. Both candidates now fail fast on invalid
+provider/profile/vector configuration, back readiness with live storage,
+return bounded opaque errors, reject non-string public inputs, honor explicit
+CLI and database-path precedence, support no-argument MCP through XDG storage,
+and create SQLite state with private POSIX permissions. The final 1.1.2 wheel
+is 3,624,744 bytes with SHA-256
+`dbf89a68f26af7bae09c9d93fc17b5275238f7de9e39d13d527564314d4a6ac1`;
+it contains only the compiled runtime payload and holds the unchanged 414/414
+reserved-content ratchet. Final installed-artifact proofs passed for both
+packages with SQLite and live pgvector through released `seam-client` 2.0.0;
+real upgrades from PyPI self-host 1.0.0 and 1.1.0 replaced the legacy payload
+cleanly. The canonical full suite exited green with zero skips and the two
+established xfails. No package was published and no DigitalOcean resource was
+changed by this entry. NEXT: merge the qualified candidate, publish and
+clean-install-verify both packages, then resume G3 at graph-node vector
+projection and R4 at provenance-gated reasoning reuse.)
+
 Current update: 2026-07-28 (HISTORY#486 - SHIPPED `seam-self-host` 1.1.0 with
 pgvector baked in, startup-validated configuration, and a complete environment
 variable reference in the PyPI README. `psycopg` is now a distribution

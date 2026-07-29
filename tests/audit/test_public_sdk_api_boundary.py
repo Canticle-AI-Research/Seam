@@ -150,6 +150,80 @@ def test_public_sdk_rejects_invalid_dimensions_and_bounds(monkeypatch, tmp_path)
     assert invalid_context.status_code == 400
 
 
+def test_public_sdk_rejects_non_string_text_query_and_session_id(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    client = _client(monkeypatch, tmp_path)
+
+    text = client.post("/v1/memories", json={"text": 42})
+    query = client.post("/v1/memories/recall", json={"query": ["remember"]})
+    session_id = client.post(
+        "/v1/context",
+        json={"query": "remember", "session_id": {"value": "session-1"}},
+    )
+    namespace = client.post(
+        "/v1/memories",
+        json={"text": "remember", "namespace": 42},
+    )
+    scope = client.post(
+        "/v1/memories/recall",
+        json={"query": "remember", "scope": ["thread"]},
+    )
+    agent_id = client.post(
+        "/v1/memories",
+        json={"text": "remember", "agent_id": {"value": "agent-1"}},
+    )
+
+    assert text.status_code == 400
+    assert text.json() == {"detail": "text must be a string"}
+    assert query.status_code == 400
+    assert query.json() == {"detail": "query must be a string"}
+    assert session_id.status_code == 400
+    assert session_id.json() == {"detail": "session_id must be a string"}
+    assert namespace.status_code == 400
+    assert namespace.json() == {"detail": "namespace must be a string"}
+    assert scope.status_code == 400
+    assert scope.json() == {"detail": "scope must be a string"}
+    assert agent_id.status_code == 400
+    assert agent_id.json() == {"detail": "agent_id must be a string"}
+
+
+def test_public_sdk_dimension_errors_are_specific(monkeypatch, tmp_path) -> None:
+    client = _client(monkeypatch, tmp_path)
+
+    blank_optional = client.post(
+        "/v1/memories",
+        json={"text": "remember this", "session_id": "   "},
+    )
+    too_long = client.post(
+        "/v1/memories",
+        json={"text": "remember this", "namespace": "a" * 129},
+    )
+    too_long_agent = client.post(
+        "/v1/memories",
+        json={"text": "remember this", "agent_id": "a" * 129},
+    )
+    invalid_start = client.post(
+        "/v1/memories",
+        json={"text": "remember this", "namespace": ".private"},
+    )
+
+    assert blank_optional.status_code == 200
+    assert too_long.status_code == 400
+    assert too_long.json() == {
+        "detail": "namespace must be at most 128 characters"
+    }
+    assert too_long_agent.status_code == 400
+    assert too_long_agent.json() == {
+        "detail": "agent_id must be at most 128 characters"
+    }
+    assert invalid_start.status_code == 400
+    assert invalid_start.json() == {
+        "detail": "namespace must start with a letter or number"
+    }
+
+
 def test_public_sdk_respects_bearer_auth(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("SEAM_API_TOKEN", "unit-test-token")
     monkeypatch.setenv("SEAM_API_RATE_LIMIT", "10000")

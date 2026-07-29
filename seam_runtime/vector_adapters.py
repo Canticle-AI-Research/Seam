@@ -106,6 +106,10 @@ class PgVectorAdapter:
             raise RuntimeError("psycopg is required for PgVectorAdapter") from exc
         return psycopg.connect(self.dsn)
 
+    def check_ready(self) -> None:
+        """Raise unless the vector extension, schema, and required access work."""
+        self.ensure_schema()
+
     def ensure_schema(self) -> None:
         _validate_table_name(self.table_name)
         with self._connect() as connection:

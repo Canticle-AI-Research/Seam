@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seam-self-host"
-version = "1.1.0"
+version = "1.1.2"
 description = "Compiled self-hosted SEAM agent-memory node"
 readme = "README.md"
 license = "BUSL-1.1"

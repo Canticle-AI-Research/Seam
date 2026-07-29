@@ -32,7 +32,9 @@ def _is_thin_client_file(entry_path: str, content: bytes) -> bool:
 
 PRIVATE_LICENSE_MARKER = b"SEAM PRIVATE REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE"
 PRIVATE_CLASSIFIER = b"Classifier: Private :: Do Not Upload"
-PROPRIETARY_LICENSE_EXPRESSION = b"License-Expression: LicenseRef-SEAM-Proprietary AND Apache-2.0"
+PROPRIETARY_LICENSE_EXPRESSION = (
+    b"License-Expression: LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0"
+)
 
 
 @dataclass(frozen=True)
@@ -95,6 +97,7 @@ def verify_archive(path: Path, *, target: str) -> tuple[str, ...]:
     errors: list[str] = []
     license_entries = [entry for entry in entries if _is_license_path(entry.path)]
     metadata = b"\n".join(entry.content for entry in entries if _is_metadata_path(entry.path))
+    metadata_lines = metadata.splitlines()
 
     if not license_entries:
         errors.append("distribution has no license file")
@@ -102,9 +105,9 @@ def verify_archive(path: Path, *, target: str) -> tuple[str, ...]:
     if target == "private-github":
         if not any(PRIVATE_LICENSE_MARKER in entry.content for entry in license_entries):
             errors.append("private distribution is missing the controlling proprietary license")
-        if PRIVATE_CLASSIFIER not in metadata:
+        if PRIVATE_CLASSIFIER not in metadata_lines:
             errors.append("private distribution metadata lacks 'Private :: Do Not Upload'")
-        if PROPRIETARY_LICENSE_EXPRESSION not in metadata:
+        if PROPRIETARY_LICENSE_EXPRESSION not in metadata_lines:
             errors.append("private distribution metadata lacks the proprietary license expression")
         return tuple(errors)
 

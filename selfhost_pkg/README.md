@@ -26,6 +26,18 @@ seam-self-host
 The server listens on `0.0.0.0:8765` by default. Keep it on a trusted network
 or place an authenticated TLS reverse proxy in front of it.
 
+Command-line flags are available for the three deployment settings most often
+changed by a service manager. Flags override environment defaults:
+
+```bash
+seam-self-host --host 127.0.0.1 --port 8830 --db /srv/seam/state.db
+```
+
+`GET` and `HEAD` on `/v1/health` are unauthenticated. The endpoint performs a
+cached storage-readiness check: healthy nodes return `200`; a node whose
+configured store cannot answer a trivial read returns `503` without disclosing
+the backend or connection error.
+
 ## Configuration
 
 Everything below is optional. Defaults are chosen so a fresh install works
@@ -54,6 +66,23 @@ per-request cost, which is why a fresh install just runs. It is lexical, so
 paraphrased recall ("how often does the key rotate" against "key rotates every
 90 days") is weaker than a semantic model. Switching is the main quality upgrade
 after the retrieval profile.
+
+Treat the built-in option as a keyword-search baseline, not a semantic
+embedding model. In a deterministic characterization with 100 memories and 41
+queries, its measured recall was:
+
+| Query class | Recall@1 | Recall@5 | Recall@10 |
+| --- | ---: | ---: | ---: |
+| Word overlap | 0.889 | 1.000 | 1.000 |
+| Paraphrase | 0.200 | 0.600 | 0.700 |
+| Numeric | 0.700 | 1.000 | 1.000 |
+| Disambiguation | 0.917 | 0.917 | 1.000 |
+| All queries | 0.683 | 0.878 | 0.927 |
+
+On the same fixed queries, recall@1 fell from 0.786 at 20 memories to 0.500 at
+100. Use `openai`, `openai-compatible`, or a qualified local semantic model for
+paraphrase-heavy or larger corpora. The offline default is preserved so a new
+installation never silently requires an account or network call.
 
 | Variable | Default | What it does |
 | --- | --- | --- |
@@ -102,7 +131,7 @@ context returned to your model, not just its ranking.
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `SEAM_SERVER_DB` | `/var/lib/seam/seam.db` | SQLite database path. Must be writable. |
+| `SEAM_SERVER_DB` / `SEAM_DB_PATH` | `/var/lib/seam/seam.db` | SQLite database path. `SEAM_SERVER_DB` wins when both are set. Must be writable. New database files and parent directories are created with private permissions on POSIX systems. |
 | `SEAM_PGVECTOR_DSN` | unset | Use a pgvector-enabled Postgres instead of SQLite, e.g. `postgresql://user@host:5432/seam`. Supply the password out of band via `PGPASSWORD` or a `.pgpass` file rather than inlining it. The driver ships with the wheel and the DSN is validated at startup. |
 | `SEAM_PGVECTOR_TABLE` | `seam_vector_index` | Table name for the vector index when using Postgres. |
 | `SEAM_DB_POOL_SIZE` | `5` | Pooled connections. |
@@ -135,13 +164,37 @@ useful.
 | `SEAM_API_TOKEN` / `SEAM_API_TOKEN_FILE` | required | Bearer token for every route except `/v1/health`. Minimum 32 characters. Prefer the file form so the secret stays out of the process environment. |
 | `SEAM_SELFHOST_HOST` | `0.0.0.0` | Bind address. Set `127.0.0.1` when a reverse proxy fronts it. |
 | `SEAM_SELFHOST_PORT` | `8765` | Bind port. |
-| `SEAM_SELFHOST_RATE_LIMIT_PER_MINUTE` | `120` | Per-client request cap. |
-| `SEAM_API_RATE_LIMIT_PER_MINUTE` / `SEAM_API_RATE_LIMIT` | `0` (off) | Older aliases honoured by shared middleware. Prefer `SEAM_SELFHOST_RATE_LIMIT_PER_MINUTE`, which is the one this edition applies. |
+| `SEAM_SELFHOST_RATE_LIMIT_PER_MINUTE` | `120` | Process-local request cap. Must be from 1 through 65,535; this edition does not support disabling it. |
 | `SEAM_API_RATE_LIMIT_MAX_KEYS` | `10000` | Distinct clients tracked by the limiter. |
 | `SEAM_API_MAX_BODY_BYTES` | `5000000` | Largest accepted request body, in bytes. |
 | `SEAM_SHUTDOWN_TIMEOUT` | `30` | Seconds to drain in-flight requests on shutdown. |
 | `SEAM_MCP_MAX_LINE_BYTES` | `5000000` | Largest accepted MCP request line. |
 | `SEAM_AGENT` | unset | Default agent identifier attached to stored memories when a request omits one. |
+
+Successful and failed guarded requests both consume the rate-limit bucket.
+Authenticated requests are keyed by a one-way digest of the authorization
+header, so every client using the node's one valid token shares a bucket.
+Requests without that header are keyed by the direct socket peer. Forwarding
+headers are deliberately ignored; behind a reverse proxy, unauthenticated
+requests therefore share the proxy's bucket. A `429` response includes
+`Retry-After: 60`. Use the proxy's own trusted-client rate limiter for
+per-user enforcement, and do not treat this in-process limiter as a
+multi-node quota system.
+
+### Request limits
+
+| Field or request | Maximum |
+| --- | ---: |
+| Memory `text` | 100,000 characters |
+| Recall/context `query` | 4,096 characters |
+| `namespace`, `session_id`, or `agent_id` | 128 characters |
+| Recall `limit` | 50 memories |
+| Context `max_chars` | 65,536 characters |
+| HTTP request body | 5,000,000 bytes by default |
+| MCP request line | 5,000,000 bytes by default |
+
+Text, query, and partition fields must be JSON strings; objects, arrays,
+numbers, and booleans are rejected rather than converted into Python text.
 
 ### Entitlement
 
@@ -161,7 +214,8 @@ listed so the set is complete rather than mysterious:
 `SEAM_API_CORS_ORIGINS`, `SEAM_API_TREE_ROOT`, `SEAM_API_TREE_MAX_DEPTH`,
 `SEAM_API_TREE_MAX_ENTRIES`, `SEAM_API_ALLOW_BENCHMARK_HOLDOUT`,
 `SEAM_API_CONFIRM_HOLDOUT`, `SEAM_CHAT_ALLOWED_HOSTS`, `SEAM_WEBUI_DIR`,
-`SEAM_DB_PATH`, `SEAM_INSTALLER_USER_PATH`, `SEAM_SURFACE_DIR`,
+`SEAM_API_RATE_LIMIT_PER_MINUTE`, `SEAM_API_RATE_LIMIT`,
+`SEAM_INSTALLER_USER_PATH`, `SEAM_SURFACE_DIR`,
 `SEAM_SURFACE_MAX_PAYLOAD_BYTES`, `SEAM_DERIVED_FACTS_POLICY`,
 `SEAM_SENTENCE_FACT_MODEL`, `SEAM_SENTENCE_FACT_NUM_PREDICT`,
 `SEAM_API_ALLOW_REMOTE_NO_TOKEN`, `SEAM_API_ALLOW_INSECURE_REMOTE`,
@@ -199,6 +253,12 @@ Connect an MCP client to the wheel's stdio command:
 ```bash
 seam-mcp --db /var/lib/seam/seam.db
 ```
+
+Outside a writable container layout, `seam-mcp` needs no arguments: it defaults
+to `${XDG_DATA_HOME:-~/.local/share}/seam/seam.db`. An explicit `--db` wins
+over the environment. Without the flag, `SEAM_SERVER_DB` wins over
+`SEAM_DB_PATH`; the user-data default applies only when neither contains a
+path.
 
 The MCP server exposes the same three operations as the HTTP surface —
 `seam_remember`, `seam_recall`, and `seam_context` — talking directly to the

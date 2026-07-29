@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import argparse
 import hmac
+import logging
 import os
+import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -13,6 +17,7 @@ from .selfhost_entitlement import REQUIRED_FEATURE, VerifiedEntitlement, verify_
 from .server import (
     BodySizeLimitMiddleware,
     RateLimiter,
+    ReadinessCache,
     ShutdownMiddleware,
     ShutdownState,
     _client_key,
@@ -23,6 +28,7 @@ from .server import (
 DEFAULT_PUBLIC_KEY_PATH = Path("/opt/seam/entitlement-public-key.pem")
 DEFAULT_ENTITLEMENT_PATH = Path("/run/seam/entitlement.json")
 DEFAULT_DB_PATH = Path("/var/lib/seam/seam.db")
+LOGGER = logging.getLogger(__name__)
 
 
 def create_selfhost_app(
@@ -50,9 +56,12 @@ def create_selfhost_app(
         raise RuntimeError("SEAM self-host server dependencies are not installed") from exc
 
     globals()["Request"] = Request
+    from starlette.responses import JSONResponse
+
     state = shutdown_state or ShutdownState()
     limit = _positive_int_env("SEAM_SELFHOST_RATE_LIMIT_PER_MINUTE", default=120)
     limiter = RateLimiter(limit, max_keys=_rate_limit_max_keys_from_env())
+    readiness = ReadinessCache(runtime)
     app = FastAPI(
         title="SEAM Self-Host API",
         version="v1",
@@ -73,19 +82,50 @@ def create_selfhost_app(
         authorization: str | None = Header(default=None),
     ) -> None:
         if not limiter.check(_client_key(request, authorization)):
-            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+            raise HTTPException(
+                status_code=429,
+                detail="Rate limit exceeded",
+                headers={"Retry-After": "60"},
+            )
         expected = f"Bearer {api_token}"
         if not authorization or not hmac.compare_digest(authorization, expected):
             raise HTTPException(status_code=401, detail="Missing or invalid bearer token")
 
-    @app.get("/v1/health")
-    def health() -> dict[str, object]:
+    def rate_limit_only(
+        request: Request,
+        authorization: str | None = Header(default=None),
+    ) -> None:
+        if not limiter.check(_client_key(request, authorization)):
+            raise HTTPException(
+                status_code=429,
+                detail="Rate limit exceeded",
+                headers={"Retry-After": "60"},
+            )
+
+    @app.exception_handler(Exception)
+    async def unhandled_request_error(_request: Request, exc: Exception) -> Any:
+        if _debug_enabled():
+            LOGGER.exception("Request failed")
+        else:
+            LOGGER.error("Request failed: %s", type(exc).__name__)
+        return JSONResponse({"detail": "Internal server error"}, status_code=500)
+
+    @app.api_route(
+        "/v1/health",
+        methods=["GET", "HEAD"],
+        dependencies=[Depends(rate_limit_only)],
+    )
+    def health() -> Any:
         # Deliberately unauthenticated, so it must not disclose who runs this node.
-        return {
+        payload = {
             "status": "ok",
             "api_version": "v1",
             "edition": "compiled-self-host",
         }
+        if not readiness.check():
+            payload["status"] = "degraded"
+            return JSONResponse(payload, status_code=503)
+        return payload
 
     @app.post("/v1/memories", dependencies=[Depends(guard)])
     def remember_memory(payload: dict[str, object]) -> dict[str, object]:
@@ -117,7 +157,7 @@ def create_selfhost_app(
     return app
 
 
-def create_selfhost_app_from_env() -> Any:
+def create_selfhost_app_from_env(db_path: str | Path | None = None) -> Any:
     """Load the fixed public key, mounted entitlement, token secret, and database."""
     entitlement_path = Path(
         os.environ.get("SEAM_SELFHOST_ENTITLEMENT_PATH", str(DEFAULT_ENTITLEMENT_PATH))
@@ -131,11 +171,12 @@ def create_selfhost_app_from_env() -> Any:
         file_env_name="SEAM_API_TOKEN_FILE",
         default_file=Path("/run/secrets/api_token"),
     )
-    db_path = Path(os.environ.get("SEAM_SERVER_DB", str(DEFAULT_DB_PATH)))
+    resolved_db_path = Path(db_path) if db_path is not None else _default_db_path()
     _configure_embedding_provider()
+    _validate_retrieval_profile()
     _validate_vector_backend()
     return create_selfhost_app(
-        SeamRuntime(db_path),
+        SeamRuntime(resolved_db_path),
         entitlement,
         api_token=api_token,
     )
@@ -153,9 +194,30 @@ def _configure_embedding_provider() -> None:
     ``remember``, because a 500 per request is a much worse way to learn a key is
     missing.
     """
-    provider = os.environ.setdefault("SEAM_EMBEDDING_PROVIDER", "hash")
-    if provider.strip().lower() not in {"openai", "openai-compatible"}:
+    provider = str(os.environ.get("SEAM_EMBEDDING_PROVIDER") or "hash").strip().lower()
+    supported = {
+        "deterministic",
+        "hash",
+        "local",
+        "openai",
+        "openai-compatible",
+        "sbert",
+        "sentence-transformers",
+        "st",
+    }
+    if provider not in supported:
+        allowed = ", ".join(
+            ("hash", "openai", "openai-compatible", "sentence-transformers")
+        )
+        raise RuntimeError(
+            f"SEAM_EMBEDDING_PROVIDER is not supported; choose one of: {allowed}"
+        )
+    os.environ["SEAM_EMBEDDING_PROVIDER"] = provider
+    if provider in {"hash", "local", "deterministic"}:
         print(f"[seam-selfhost] embeddings: {provider} (built-in)", flush=True)
+        return
+    if provider in {"sentence-transformers", "st", "sbert"}:
+        print(f"[seam-selfhost] embeddings: {provider} (local model)", flush=True)
         return
     api_key_env = os.environ.get("SEAM_EMBEDDING_API_KEY_ENV", "OPENAI_API_KEY")
     if not str(os.environ.get(api_key_env) or "").strip():
@@ -171,7 +233,24 @@ def _configure_embedding_provider() -> None:
     )
 
 
-def _validate_vector_backend() -> None:
+def _validate_retrieval_profile() -> None:
+    raw_profile = str(os.environ.get("SEAM_RETRIEVAL_PROFILE") or "").strip()
+    if not raw_profile:
+        return
+    from .retrieval import RETRIEVAL_PROFILES, resolve_retrieval_profile
+
+    if resolve_retrieval_profile(raw_profile) is None:
+        allowed = ", ".join(sorted(RETRIEVAL_PROFILES))
+        raise RuntimeError(
+            f"SEAM_RETRIEVAL_PROFILE is not recognized; choose one of: {allowed}"
+        )
+
+
+def _validate_vector_backend(
+    *,
+    attempts: int = 3,
+    retry_delay_seconds: float = 2.0,
+) -> None:
     """Prove the configured vector backend is usable before serving traffic.
 
     ``SEAM_PGVECTOR_DSN`` selects the pgvector adapter at query time, so a missing
@@ -184,13 +263,29 @@ def _validate_vector_backend() -> None:
         print("[seam-selfhost] vectors: sqlite", flush=True)
         return
     try:
-        import psycopg  # noqa: F401
+        import psycopg
     except ImportError as exc:
         raise RuntimeError(
             "SEAM_PGVECTOR_DSN is set but psycopg is not installed; "
             "install seam-self-host[pgvector] or unset SEAM_PGVECTOR_DSN"
         ) from exc
-    print("[seam-selfhost] vectors: pgvector", flush=True)
+    last_error: Exception | None = None
+    for attempt in range(max(1, attempts)):
+        try:
+            with psycopg.connect(dsn, connect_timeout=5) as connection:
+                connection.execute("select 1")
+        except Exception as exc:
+            last_error = exc
+            if attempt + 1 < max(1, attempts):
+                time.sleep(max(0.0, retry_delay_seconds))
+            continue
+        print("[seam-selfhost] vectors: pgvector", flush=True)
+        return
+    error_name = type(last_error).__name__ if last_error is not None else "connection error"
+    raise RuntimeError(
+        "SEAM_PGVECTOR_DSN is invalid or unreachable "
+        f"({error_name}); verify the value and database availability"
+    ) from last_error
 
 
 def _load_optional_entitlement(
@@ -235,16 +330,56 @@ def _load_optional_entitlement(
     return entitlement
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     """Run one API worker; horizontal scaling must use one writer per database."""
+    try:
+        _run_selfhost(argv)
+    except (OSError, RuntimeError, ValueError) as exc:
+        if _debug_enabled():
+            raise
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+
+
+def _run_selfhost(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Run the SEAM self-host memory service")
+    parser.add_argument(
+        "--host",
+        default=None,
+        help="Bind address (default: SEAM_SELFHOST_HOST or 0.0.0.0)",
+    )
+    parser.add_argument(
+        "--port",
+        type=_port_argument,
+        default=None,
+        help="Bind port (default: SEAM_SELFHOST_PORT or 8765)",
+    )
+    parser.add_argument(
+        "--db",
+        default=None,
+        help="Database path (default: SEAM_SERVER_DB, SEAM_DB_PATH, or /var/lib/seam/seam.db)",
+    )
+    args = parser.parse_args(argv)
+    host = args.host or os.environ.get("SEAM_SELFHOST_HOST", "0.0.0.0")
+    port = (
+        args.port
+        if args.port is not None
+        else _positive_int_env("SEAM_SELFHOST_PORT", default=8765)
+    )
+    if args.db is None:
+        db_path = str(_default_db_path())
+    else:
+        db_path = str(args.db).strip()
+        if not db_path:
+            raise ValueError("--db path must be non-empty")
+
     try:
         import uvicorn
     except ImportError as exc:  # pragma: no cover - build image always includes uvicorn
         raise RuntimeError("Uvicorn is required for the self-host edition") from exc
-    host = os.environ.get("SEAM_SELFHOST_HOST", "0.0.0.0")
-    port = _positive_int_env("SEAM_SELFHOST_PORT", default=8765)
+    os.environ["SEAM_SERVER_DB"] = db_path
     uvicorn.run(
-        create_selfhost_app_from_env(),
+        create_selfhost_app_from_env(db_path),
         host=host,
         port=port,
         workers=1,
@@ -259,12 +394,15 @@ def _read_required_secret(
     file_env_name: str,
     default_file: Path,
 ) -> str:
+    direct_is_set = env_name in os.environ
     direct = os.environ.get(env_name)
     file_path = Path(os.environ.get(file_env_name, str(default_file)))
-    if direct and file_path.exists():
+    if direct_is_set and not str(direct or "").strip():
+        raise RuntimeError(f"{env_name} is set but empty")
+    if direct_is_set and file_path.exists():
         raise RuntimeError(f"set only one of {env_name} or {file_env_name}")
-    if direct:
-        value = direct.strip()
+    if direct_is_set:
+        value = str(direct).strip()
     else:
         try:
             value = file_path.read_text(encoding="utf-8").strip()
@@ -283,6 +421,33 @@ def _positive_int_env(name: str, *, default: int) -> int:
     if value <= 0 or value > 65535:
         raise RuntimeError(f"{name} must be between 1 and 65535")
     return value
+
+
+def _port_argument(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("port must be an integer") from exc
+    if not 1 <= parsed <= 65535:
+        raise argparse.ArgumentTypeError("port must be between 1 and 65535")
+    return parsed
+
+
+def _default_db_path() -> Path:
+    for name in ("SEAM_SERVER_DB", "SEAM_DB_PATH"):
+        configured = os.environ.get(name)
+        if configured is not None and configured.strip():
+            return Path(configured.strip())
+    return DEFAULT_DB_PATH
+
+
+def _debug_enabled() -> bool:
+    return os.environ.get("SEAM_DEBUG", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
 
 
 def _entitlement_state_error(entitlement: VerifiedEntitlement) -> str | None:

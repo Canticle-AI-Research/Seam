@@ -89,7 +89,10 @@ and `HISTORY_INDEX.md`.
   opaque receipts/IDs plus user-facing text rather than private record shapes.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
-- `seam-runtime` 2.3.0 is a private distribution and must retain the
+- `seam-runtime` 2.4.0 is the private hosted-service distribution: it is the
+  server package used to operate the authenticated `/v1` API for future
+  subscribers, not the public API-only compatibility shim under `public_pkg/`.
+  It must retain the
   `Private :: Do Not Upload` classifier. `.github/workflows/package-release.yml`
   defaults to a private GitHub Release and scans both wheel and sdist before
   release. Its PyPI Trusted Publishing job uses GitHub OIDC without a stored
@@ -100,7 +103,8 @@ and `HISTORY_INDEX.md`.
   `sdk-publish.yml` OIDC workflow; it never publishes the private
   `seam-runtime` artifact.
 - The BUSL self-host wheel is a third, separate distribution named
-  `seam-self-host`, starting at 1.0.0. Its package definition lives under
+  `seam-self-host`, starting at 1.0.0; 1.1.0 is the current published baseline
+  and 1.1.2 is the qualified stability successor. Its package definition lives under
   `selfhost_pkg/`; it must contain compiled `seam_runtime` extension code and the
   BUSL-1.1 text, but no `seam_runtime` `.py`, `.pyc`, or `.pyo`. The
   cp312/manylinux_2_28_x86_64 builder is Docker-pinned, copies an explicit
@@ -108,14 +112,14 @@ and `HISTORY_INDEX.md`.
   compiled image, runs `auditwheel`, `twine`, the node-specific content
   ratchet, and a clean-container four-route proof. It has no upload mode.
   This does not relax the private `seam-runtime` PyPI prohibition or the
-  Apache-only `seam-client` boundary. The wheel remains unpublished until an
-  operator separately approves and performs publication.
-- Apache-2.0 `seam-client` 0.1.0 is live at
+  Apache-only `seam-client` boundary. Publication is performed only by the
+  protected self-host release workflow after artifact qualification.
+- Apache-2.0 `seam-client` 2.0.0 is live at
   `https://pypi.org/project/seam-client/`. It was published from reviewed
-  public `Seam_Runtime/main` by workflow run 30107050434 through the protected
-  `pypi` environment and PyPI Trusted Publishing/OIDC. Live metadata and a
-  clean isolated install were verified. No stored PyPI token was used, and
-  this release does not change the private `seam-runtime` PyPI prohibition.
+  public `Seam_Runtime/main` through the protected `pypi` environment and PyPI
+  Trusted Publishing/OIDC. Live metadata and clean isolated installs were
+  verified. No stored PyPI token is used, and this release does not change the
+  private `seam-runtime` PyPI prohibition.
 - The private GitHub repository has `private-package-release` and `pypi`
   environments restricted to protected branches. The current account plan did
   not accept a wait-timer protection rule, so do not describe either

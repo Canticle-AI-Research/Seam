@@ -48,7 +48,7 @@ names as discoverable by a customer with the image.
 
 ## Wheel channel
 
-`seam-self-host` 1.0.0 is the additional CPython 3.12
+`seam-self-host` 1.1.2 is the additional CPython 3.12
 `manylinux_2_28_x86_64` channel. It carries the same compiled engine and
 four-route surface as the image, with these differences:
 
@@ -68,10 +68,10 @@ four-route surface as the image, with these differences:
   health, authentication, remember, recall, context, response opacity, and the
   absence of `ModuleNotFoundError` before returning the artifact.
 
-The current wheel preserves the vendor-signed entitlement requirement. That
-requirement conflicts with the intended free self-host product and remains an
-operator product decision; the wheel build does not silently make entitlement
-optional.
+An entitlement is optional and gates no capability. If an operator mounts one,
+the wheel verifies it and fails closed when the file is malformed, forged, or
+for a different product; a genuine but lapsed entitlement does not withdraw
+service.
 
 ## Threat model
 

@@ -4,10 +4,12 @@ import base64
 import io
 import json
 import os
+import sys
 import tarfile
 from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from cryptography.hazmat.primitives import serialization
@@ -533,13 +535,38 @@ def test_selfhost_accepts_an_opted_in_api_key(
 
 
 def test_selfhost_accepts_a_pgvector_dsn(monkeypatch: pytest.MonkeyPatch) -> None:
-    """psycopg ships with the wheel, so a DSN is a supported configuration."""
+    """A DSN is accepted only after psycopg proves the database is reachable."""
     from seam_runtime.selfhost import _validate_vector_backend
 
-    monkeypatch.setenv(
-        "SEAM_PGVECTOR_DSN", "postgresql://seam@127.0.0.1:5432/seam"
+    dsn = "postgresql://seam@127.0.0.1:5432/seam"
+    executed: list[str] = []
+    connect_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+    class _Connection:
+        def __enter__(self) -> "_Connection":
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def execute(self, statement: str) -> None:
+            executed.append(statement)
+
+    def _connect(*args: object, **kwargs: object) -> _Connection:
+        connect_calls.append((args, kwargs))
+        return _Connection()
+
+    monkeypatch.setenv("SEAM_PGVECTOR_DSN", dsn)
+    monkeypatch.setitem(
+        sys.modules,
+        "psycopg",
+        SimpleNamespace(connect=_connect),
     )
-    _validate_vector_backend()
+
+    _validate_vector_backend(attempts=1, retry_delay_seconds=0)
+
+    assert connect_calls == [((dsn,), {"connect_timeout": 5})]
+    assert executed == ["select 1"]
 
 
 def test_selfhost_rejects_a_pgvector_dsn_without_the_driver(

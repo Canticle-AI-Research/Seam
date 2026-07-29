@@ -43,7 +43,10 @@ authorized local server may retain the existing loopback development behavior.
 Authorization: Bearer <SEAM_API_TOKEN>
 ```
 
-`GET /v1/health` is rate-limited but does not require authentication.
+`GET /v1/health` and `HEAD /v1/health` are rate-limited but do not require
+authentication. Both expose storage-backed readiness, cached for five seconds.
+GET returns `status: ok` with `200` or `status: degraded` with `503`, without
+connection details. HEAD returns the corresponding status code without a body.
 
 ## Partitions
 
@@ -106,3 +109,9 @@ agent prompt.
 
 The `v1` response shape is additive-only. Breaking changes require a new URL
 version. Private implementation changes do not change the public contract.
+
+The service rejects non-string `text`, `query`, and partition values instead
+of coercing JSON objects, arrays, numbers, or booleans. Current limits are
+100,000 characters for memory text, 4,096 for a query, 128 for namespace,
+session, and agent identifiers, 50 recalled memories, and 65,536 characters
+for assembled context. A `429` response includes `Retry-After: 60`.

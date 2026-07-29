@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-28-seam-node-wheel
 supersedes: 2026-07-23-g3-rank-fusion-scale-qualification
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#482
 ---
 

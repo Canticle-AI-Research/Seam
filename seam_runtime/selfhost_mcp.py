@@ -344,14 +344,54 @@ def _write_jsonrpc(output_stream: TextIO, payload: dict[str, object]) -> None:
 
 
 def _default_db_path() -> str:
-    return os.environ.get("SEAM_SERVER_DB", str(DEFAULT_DB_PATH))
+    for name in ("SEAM_SERVER_DB", "SEAM_DB_PATH"):
+        configured = os.environ.get(name)
+        if configured is not None and configured.strip():
+            return configured.strip()
+    parent = DEFAULT_DB_PATH.parent
+    if parent.is_dir() and os.access(parent, os.W_OK | os.X_OK):
+        return str(DEFAULT_DB_PATH)
+    data_home = os.environ.get("XDG_DATA_HOME")
+    root = Path(data_home).expanduser() if data_home else Path.home() / ".local" / "share"
+    return str(root / "seam" / "seam.db")
 
 
 def main(argv: list[str] | None = None) -> None:
+    try:
+        _run_mcp(argv)
+    except (OSError, RuntimeError, ValueError) as exc:
+        if _debug_enabled():
+            raise
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+
+
+def _run_mcp(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Run the SEAM memory MCP stdio server")
     parser.add_argument("--db", default=_default_db_path(), help="Database path")
     args = parser.parse_args(argv)
-    run_selfhost_mcp_server(SeamRuntime(Path(args.db)))
+    db_path = str(args.db).strip()
+    if not db_path:
+        raise ValueError("--db path must be non-empty")
+    try:
+        runtime = SeamRuntime(Path(db_path))
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise RuntimeError(
+            f"--db path is unavailable ({type(exc).__name__})"
+        ) from exc
+    try:
+        run_selfhost_mcp_server(runtime)
+    finally:
+        runtime.close()
+
+
+def _debug_enabled() -> bool:
+    return os.environ.get("SEAM_DEBUG", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
 
 
 if __name__ == "__main__":  # pragma: no cover
