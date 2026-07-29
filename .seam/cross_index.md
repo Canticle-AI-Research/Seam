@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 556
+total_events: 557
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-11T09:14:32Z | history:301:f168a4a1 | session-event | done | maintenance, security, codeql, dependabot, dependencies, ... | .github/dependabot.yml,webui/package.json,HISTORY.md,HISTORY_INDEX.md,PROJECT... |
 | 2026-06-11T10:00:24Z | history:302:9ceec2f6 | session-event | done | self-improvement, benchmark, locomo, judge, paid-validati... | benchmarks/external/locomo/judged_scorer.py,tools/h2/paid_validation.py,seam_... |
 | 2026-06-13T03:32:40Z | history:303:89226734 | session-event | done | mirl, compiler, nl, fidelity, contract, ingest, bug, harn... | benchmarks/fidelity/__init__.py,benchmarks/fidelity/contract.py,benchmarks/fi... |
 | 2026-06-13T04:32:49Z | history:304:6a29f16d | session-event | done | protocol, agents, repo-ledger, spec, governing-contract, ... | AGENTS.md,REPO_LEDGER.md,SEAM_SPEC_V0.1.md,docs/MIRL_V1.md,HISTORY.md,HISTORY... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-29T05:39:28Z | history:492:d051142c | session-event | changed | graph, g3, node-vectors, semantic-seeding, retrieval | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-29T06:21:50Z | history:493:3a2ced3b | session-event | changed | extraction, derived-facts, benchmarks, ollama | docs/kb/seam-internals/derived-facts-grounded-clm.md |
 | 2026-07-29T08:07:06Z | history:494:638f4a69 | session-event | done | graph, retrieval, rank, provenance, verify, benchmark, me... | seam_runtime/reasoning_patterns.py, seam_runtime/reasoning_graph.py, seam_run... |
+| 2026-07-29T09:34:17Z | history:495:6171d8cd | session-event | done | graph, reasoning, provenance, storage, mirl, audit, verif... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0356.cross.md | 2026-04-15T00:00:00Z..2026-06-10T05:12:03Z | 356 | (multi) | (multi) |
+| 0001-0357.cross.md | 2026-04-15T00:00:00Z..2026-06-11T09:14:32Z | 357 | (multi) | (multi) |

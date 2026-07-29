@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-29-g3-r4-self-improving-graphs
+latest: 2026-07-29-g4-r5-graph-products-reviewed-promotion
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-29-g3-r4-self-improving-graphs` | [2026-07-29-g3-r4-self-improving-graphs.md](2026-07-29-g3-r4-self-improving-graphs.md) | `2026-07-29-stable-packages-live` | `HISTORY#494` | `current` |
+| `2026-07-29-g4-r5-graph-products-reviewed-promotion` | [2026-07-29-g4-r5-graph-products-reviewed-promotion.md](2026-07-29-g4-r5-graph-products-reviewed-promotion.md) | `2026-07-29-g3-r4-self-improving-graphs` | `HISTORY#495` | `current` |
+| `2026-07-29-g3-r4-self-improving-graphs` | [2026-07-29-g3-r4-self-improving-graphs.md](2026-07-29-g3-r4-self-improving-graphs.md) | `2026-07-29-stable-packages-live` | `HISTORY#494` | `superseded` |
 | `2026-07-29-stable-packages-live` | [2026-07-29-stable-packages-live.md](2026-07-29-stable-packages-live.md) | `2026-07-29-package-stability-release-candidate` | `HISTORY#490` | `superseded` |
 | `2026-07-29-package-stability-release-candidate` | [2026-07-29-package-stability-release-candidate.md](2026-07-29-package-stability-release-candidate.md) | `2026-07-28-seam-node-wheel` | `HISTORY#489` | `superseded` |
 | `2026-07-28-seam-node-wheel` | [2026-07-28-seam-node-wheel.md](2026-07-28-seam-node-wheel.md) | `2026-07-23-g3-rank-fusion-scale-qualification` | `HISTORY#482` | `superseded` |

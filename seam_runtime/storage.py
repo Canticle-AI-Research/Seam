@@ -10,6 +10,19 @@ from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
 
+from .graph_products import (
+    GraphProductFact,
+    init_graph_products,
+)
+from .graph_products import (
+    graph_product_history as graph_product_history_rows,
+)
+from .graph_products import (
+    read_graph_products as read_graph_product_rows,
+)
+from .graph_products import (
+    rebuild_graph_products as rebuild_graph_product_rows,
+)
 from .identity_resolution import (
     accept_merge as accept_identity_merge_op,
 )
@@ -59,7 +72,17 @@ from .knowledge_graph import (
 from .knowledge_graph import (
     supersede_source as supersede_knowledge_source,
 )
-from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
+from .mirl import (
+    SYMBOL_FOR_KIND,
+    IRBatch,
+    MIRLRecord,
+    Pack,
+    PersistReport,
+    RecordKind,
+    Status,
+    TraceGraph,
+    utc_now,
+)
 from .pool import ConnectionPool
 from .reasoning_graph import (
     ReasoningRetrievalCandidate,
@@ -90,6 +113,28 @@ from .reasoning_patterns import (
     record_successful_pattern_uses,
     search_reasoning_patterns,
     use_reasoning_pattern,
+)
+from .reasoning_promotion import (
+    get_reasoning_promotion as get_reasoning_promotion_row,
+)
+from .reasoning_promotion import (
+    init_reasoning_promotion,
+    record_reasoning_promotion_application,
+)
+from .reasoning_promotion import (
+    list_reasoning_promotions as list_reasoning_promotion_rows,
+)
+from .reasoning_promotion import (
+    propose_reasoning_promotion as propose_reasoning_promotion_row,
+)
+from .reasoning_promotion import (
+    reasoning_promotion_eligibility as reasoning_promotion_eligibility_row,
+)
+from .reasoning_promotion import (
+    reverse_reasoning_promotion as reverse_reasoning_promotion_row,
+)
+from .reasoning_promotion import (
+    review_reasoning_promotion as review_reasoning_promotion_row,
 )
 from .retry import retry_db_operation
 from .workspace import (
@@ -459,8 +504,10 @@ class SQLiteStore:
             connection.execute("pragma foreign_keys = on")
             self._cleanup_orphan_edges(connection)
             init_knowledge_graph(connection)
+            init_graph_products(connection)
             init_workspace_schema(connection)
             init_reasoning_graph(connection)
+            init_reasoning_promotion(connection)
             connection.commit()
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
@@ -712,42 +759,68 @@ class SQLiteStore:
             if dst in id_map:
                 record.attrs["dst"] = id_map[dst]
 
+    def _persist_ir_on_connection(
+        self, connection: sqlite3.Connection, batch: IRBatch
+    ) -> list[str]:
+        """Persist canonical MIRL and its graph projection in one transaction."""
+
+        id_map, skip_ids = self._reconcile_entities(connection, batch)
+        stored_ids: list[str] = []
+        for record in batch.records:
+            if record.id in skip_ids:
+                continue
+            self._remap_entity_refs(record, id_map)
+            stored_ids.append(record.id)
+            # Capture old CLM subject before overwriting.
+            old_clm_subject: str | None = None
+            if record.kind == RecordKind.CLM:
+                old_row = connection.execute(
+                    "select payload_json from ir_records where id = ?",
+                    (record.id,),
+                ).fetchone()
+                if old_row is not None:
+                    old_attrs = json.loads(old_row[0]).get("attrs", {})
+                    old_clm_subject = old_attrs.get("subject")
+            payload = json.dumps(
+                record.to_dict(), sort_keys=True, separators=(",", ":")
+            )
+            connection.execute(
+                """
+                insert or replace into ir_records
+                (id, kind, ns, scope, status, conf, t0, t1, created_at, updated_at, payload_json)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record.id,
+                    record.kind.value,
+                    record.ns,
+                    record.scope,
+                    record.status.value,
+                    record.conf,
+                    record.t0,
+                    record.t1,
+                    record.created_at,
+                    record.updated_at,
+                    payload,
+                ),
+            )
+            self._persist_specialized(connection, record)
+            self._persist_edges(
+                connection, record, old_clm_subject=old_clm_subject
+            )
+        # The knowledge graph is a deterministic projection of the same
+        # canonical MIRL write. It is built automatically for every ingest
+        # surface and committed atomically with the records it represents.
+        projected = [
+            record for record in batch.records if record.id not in skip_ids
+        ]
+        project_knowledge_records(connection, projected)
+        return stored_ids
+
     @retry_db_operation()
     def persist_ir(self, batch: IRBatch) -> PersistReport:
         with self._pool.checkout() as connection:
-            id_map, skip_ids = self._reconcile_entities(connection, batch)
-            stored_ids: list[str] = []
-            for record in batch.records:
-                if record.id in skip_ids:
-                    continue
-                self._remap_entity_refs(record, id_map)
-                stored_ids.append(record.id)
-                # Capture old CLM subject before overwriting.
-                old_clm_subject: str | None = None
-                if record.kind == RecordKind.CLM:
-                    old_row = connection.execute(
-                        "select payload_json from ir_records where id = ?",
-                        (record.id,),
-                    ).fetchone()
-                    if old_row is not None:
-                        old_attrs = json.loads(old_row[0]).get("attrs", {})
-                        old_clm_subject = old_attrs.get("subject")
-                payload = json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":"))
-                connection.execute(
-                    """
-                    insert or replace into ir_records
-                    (id, kind, ns, scope, status, conf, t0, t1, created_at, updated_at, payload_json)
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (record.id, record.kind.value, record.ns, record.scope, record.status.value, record.conf, record.t0, record.t1, record.created_at, record.updated_at, payload),
-                )
-                self._persist_specialized(connection, record)
-                self._persist_edges(connection, record, old_clm_subject=old_clm_subject)
-            # The knowledge graph is a deterministic projection of the same
-            # canonical MIRL write. It is built automatically for every ingest
-            # surface and committed atomically with the records it represents.
-            projected = [record for record in batch.records if record.id not in skip_ids]
-            project_knowledge_records(connection, projected)
+            stored_ids = self._persist_ir_on_connection(connection, batch)
             connection.commit()
         return PersistReport(stored_ids=stored_ids, store_path=self.path)
 
@@ -1056,6 +1129,162 @@ class SQLiteStore:
         """Report node-vector coverage as a provider-free improvement signal."""
         with self._pool.checkout() as connection:
             return graph_node_vector_status(connection, model_name)
+
+    @staticmethod
+    def _current_graph_product_facts(
+        connection: sqlite3.Connection,
+        *,
+        namespace: str,
+        scope: str,
+        max_facts: int,
+    ) -> list[GraphProductFact]:
+        """Resolve current, asserted graph edges into the bounded G4 core input."""
+
+        if max_facts < 1:
+            raise ValueError("max_facts must be positive")
+        excluded = (
+            Status.CONTRADICTED.value,
+            Status.SUPERSEDED.value,
+            Status.DEPRECATED.value,
+            Status.DELETED_SOFT.value,
+        )
+        placeholders = ",".join("?" for _ in excluded)
+        rows = connection.execute(
+            "select e.id, e.src_id, src.label as src_label, e.dst_id, "
+            "dst.label as dst_label, e.predicate, e.source_record_id "
+            "from knowledge_edges e "
+            "join knowledge_nodes src on src.id = e.src_id "
+            "join knowledge_nodes dst on dst.id = e.dst_id "
+            "where e.ns = ? and e.scope = ? "
+            "and e.edge_kind in ('semantic', 'causal', 'temporal') "
+            f"and e.status not in ({placeholders}) and e.expired_at is null "
+            f"and src.status not in ({placeholders}) "
+            f"and dst.status not in ({placeholders}) "
+            "order by e.id limit ?",
+            (
+                namespace,
+                scope,
+                *excluded,
+                *excluded,
+                *excluded,
+                max_facts + 1,
+            ),
+        ).fetchall()
+        if len(rows) > max_facts:
+            raise ValueError(
+                f"graph product rebuild exceeds max_facts={max_facts}"
+            )
+
+        from .knowledge_graph import assertable_record_ids
+
+        allowed = assertable_record_ids(
+            connection,
+            (str(row["source_record_id"]) for row in rows),
+            namespace=namespace,
+            scope=scope,
+        )
+        facts: list[GraphProductFact] = []
+        for row in rows:
+            record_id = str(row["source_record_id"])
+            if record_id not in allowed:
+                continue
+            episodes = connection.execute(
+                "select distinct ep.id from knowledge_edge_episodes ee "
+                "join knowledge_episodes ep on ep.id = ee.episode_id "
+                "where ee.edge_id = ? and ep.ns = ? and ep.scope = ? "
+                "and ep.status = 'active' order by ep.id",
+                (str(row["id"]), namespace, scope),
+            ).fetchall()
+            episode_ids = tuple(str(episode["id"]) for episode in episodes)
+            if not episode_ids:
+                continue
+            facts.append(
+                GraphProductFact(
+                    ns=namespace,
+                    scope=scope,
+                    record_id=record_id,
+                    episode_ids=episode_ids,
+                    subject_id=str(row["src_id"]),
+                    subject_label=str(row["src_label"]),
+                    predicate=str(row["predicate"]),
+                    object_id=str(row["dst_id"]),
+                    object_label=str(row["dst_label"]),
+                    trust_state="supported",
+                    current=True,
+                )
+            )
+        return facts
+
+    @retry_db_operation()
+    def rebuild_graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        max_facts: int = 10_000,
+        min_observation_episodes: int = 2,
+        max_sentences_per_product: int = 64,
+    ) -> dict[str, object]:
+        """Rebuild G4 products from the current trust-gated graph projection."""
+
+        with self._pool.checkout() as connection:
+            facts = self._current_graph_product_facts(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                max_facts=max_facts,
+            )
+            result = rebuild_graph_product_rows(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                facts=facts,
+                max_facts=max_facts,
+                min_observation_episodes=min_observation_episodes,
+                max_sentences_per_product=max_sentences_per_product,
+            )
+            connection.commit()
+            return result
+
+    def graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        kinds: list[str] | None = None,
+        subject_id: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read the latest complete G4 product snapshot for one boundary."""
+
+        with self._pool.checkout() as connection:
+            return read_graph_product_rows(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                kinds=kinds,
+                subject_id=subject_id,
+                limit=limit,
+            )
+
+    def graph_product_history(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        stable_key: str,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read immutable versions of one boundary-scoped G4 product."""
+
+        with self._pool.checkout() as connection:
+            return graph_product_history_rows(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                stable_key=stable_key,
+                limit=limit,
+            )
 
     def identity_merges(
         self,
@@ -1730,6 +1959,253 @@ class SQLiteStore:
             )
             connection.commit()
         return result
+
+    @retry_db_operation()
+    def propose_reasoning_promotion(
+        self,
+        *,
+        run_id: str,
+        outcome_node_id: str,
+        assertion_record_id: str,
+        assertion_subject: str,
+        assertion_predicate: str,
+        assertion_object: object,
+        proposed_by: str,
+        assertion_status: str = "inferred",
+        assertion_confidence: float = 1.0,
+        assertion_t0: str | None = None,
+        assertion_t1: str | None = None,
+    ) -> dict[str, object]:
+        """Append an R5 proposal; this never promotes itself into MIRL."""
+
+        with self._pool.checkout() as connection:
+            result = propose_reasoning_promotion_row(
+                connection,
+                run_id=run_id,
+                outcome_node_id=outcome_node_id,
+                assertion_record_id=assertion_record_id,
+                assertion_subject=assertion_subject,
+                assertion_predicate=assertion_predicate,
+                assertion_object=assertion_object,
+                assertion_status=assertion_status,
+                assertion_confidence=assertion_confidence,
+                assertion_t0=assertion_t0,
+                assertion_t1=assertion_t1,
+                proposed_by=proposed_by,
+            )
+            connection.commit()
+            return result
+
+    @retry_db_operation()
+    def review_reasoning_promotion(
+        self,
+        *,
+        proposal_id: str,
+        review_kind: str,
+        decision: str,
+        reviewer_id: str,
+        rationale: str,
+    ) -> dict[str, object]:
+        """Append a separate human or policy decision to an R5 proposal."""
+
+        with self._pool.checkout() as connection:
+            result = review_reasoning_promotion_row(
+                connection,
+                proposal_id=proposal_id,
+                review_kind=review_kind,
+                decision=decision,
+                reviewer_id=reviewer_id,
+                rationale=rationale,
+            )
+            connection.commit()
+            return result
+
+    def reasoning_promotion_eligibility(
+        self, proposal_id: str
+    ) -> dict[str, object]:
+        """Recheck approval and exact provenance without mutating truth."""
+
+        with self._pool.checkout() as connection:
+            return reasoning_promotion_eligibility_row(connection, proposal_id)
+
+    def reasoning_promotion(self, proposal_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_promotion_row(connection, proposal_id)
+
+    def reasoning_promotions(
+        self, *, ns: str, scope: str, limit: int = 50
+    ) -> list[dict[str, object]]:
+        with self._pool.checkout() as connection:
+            return list_reasoning_promotion_rows(
+                connection, ns=ns, scope=scope, limit=limit
+            )
+
+    @retry_db_operation()
+    def apply_reasoning_promotion(
+        self, *, proposal_id: str, applied_by: str
+    ) -> dict[str, object]:
+        """Atomically revalidate, persist, and audit one approved R5 assertion."""
+
+        from .verify import verify_ir
+
+        with self._pool.checkout() as connection:
+            connection.execute("begin immediate")
+            eligibility = reasoning_promotion_eligibility_row(
+                connection, proposal_id
+            )
+            if not eligibility["eligible"]:
+                raise ValueError(
+                    "reasoning promotion is not eligible: "
+                    f"{eligibility['reason']}"
+                )
+            payload = eligibility.get("approved_assertion")
+            if not isinstance(payload, dict):
+                raise ValueError(
+                    "eligible promotion did not return an approved assertion"
+                )
+            record = MIRLRecord.from_dict(payload)
+            batch = IRBatch([record])
+            verification_records = self._promotion_reference_records(
+                connection, record
+            )
+            report = verify_ir(IRBatch([*verification_records, record]))
+            if not report.valid:
+                raise ValueError(
+                    "approved promotion assertion is not valid MIRL: "
+                    + json.dumps(report.to_dict(), sort_keys=True)
+                )
+            stored_ids = self._persist_ir_on_connection(connection, batch)
+            if stored_ids != [record.id]:
+                raise ValueError(
+                    "approved promotion did not persist its exact assertion id"
+                )
+            application = record_reasoning_promotion_application(
+                connection,
+                proposal_id=proposal_id,
+                assertion_record_id=record.id,
+                applied_by=applied_by,
+            )
+            connection.commit()
+        return {
+            "proposal_id": proposal_id,
+            "application": application,
+            "record": record.to_dict(),
+            "stored_ids": stored_ids,
+        }
+
+    @retry_db_operation()
+    def reverse_reasoning_promotion(
+        self, *, proposal_id: str, reversed_by: str, reason: str
+    ) -> dict[str, object]:
+        """Append an R5 reversal plus an additive MIRL supersession relation."""
+
+        from .verify import verify_ir
+
+        with self._pool.checkout() as connection:
+            connection.execute("begin immediate")
+            promotion = get_reasoning_promotion_row(connection, proposal_id)
+            reversal = reverse_reasoning_promotion_row(
+                connection,
+                proposal_id=proposal_id,
+                reversed_by=reversed_by,
+                reason=reason,
+            )
+            assertion_id = str(reversal["assertion_record_id"])
+            relation_id = (
+                "rel:reasoning-promotion-reversal:"
+                + hashlib.sha256(proposal_id.encode("utf-8")).hexdigest()[:20]
+            )
+            evidence_fingerprints = promotion.get(
+                "evidence_fingerprints", {}
+            )
+            evidence_ids = (
+                sorted(str(item) for item in evidence_fingerprints)
+                if isinstance(evidence_fingerprints, dict)
+                else []
+            )
+            record = MIRLRecord(
+                id=relation_id,
+                kind=RecordKind.REL,
+                ns=str(promotion["ns"]),
+                scope=str(promotion["scope"]),
+                status=Status.ASSERTED,
+                conf=1.0,
+                prov=[],
+                evidence=self._promotion_evidence_ids(
+                    connection, evidence_ids
+                ),
+                ext={
+                    "reasoning_promotion_proposal_id": proposal_id,
+                    "reasoning_promotion_reversal_id": str(
+                        reversal["reversal_id"]
+                    ),
+                    "reasoning_promotion_audit_refs": [
+                        f"reasoning-promotion:{proposal_id}",
+                        "reasoning-promotion-reversal:"
+                        f"{reversal['reversal_id']}",
+                    ],
+                    "supersedes": [assertion_id],
+                },
+                attrs={
+                    "src": relation_id,
+                    "predicate": "supersedes",
+                    "dst": assertion_id,
+                    "reason": str(reversal["reason"]),
+                },
+            )
+            verification_records = self._promotion_reference_records(
+                connection, record
+            )
+            report = verify_ir(IRBatch([*verification_records, record]))
+            if not report.valid:
+                raise ValueError(
+                    "promotion reversal relation is not valid MIRL: "
+                    + json.dumps(report.to_dict(), sort_keys=True)
+                )
+            self._persist_ir_on_connection(connection, IRBatch([record]))
+            connection.commit()
+            return {
+                **reversal,
+                "superseding_record": record.to_dict(),
+            }
+
+    @staticmethod
+    def _promotion_evidence_ids(
+        connection: sqlite3.Connection, record_ids: list[str]
+    ) -> list[str]:
+        """Keep canonical MIRL evidence limited to existing RAW/SPAN records."""
+
+        evidence_ids: list[str] = []
+        for record_id in sorted(set(record_ids)):
+            row = connection.execute(
+                "select kind from ir_records where id = ?", (record_id,)
+            ).fetchone()
+            if row is not None and str(row["kind"]) in {
+                RecordKind.RAW.value,
+                RecordKind.SPAN.value,
+            }:
+                evidence_ids.append(record_id)
+        return evidence_ids
+
+    @staticmethod
+    def _promotion_reference_records(
+        connection: sqlite3.Connection, record: MIRLRecord
+    ) -> list[MIRLRecord]:
+        """Load exact stored MIRL references for in-transaction verification."""
+
+        reference_ids = sorted(set([*record.prov, *record.evidence]))
+        records: list[MIRLRecord] = []
+        for record_id in reference_ids:
+            row = connection.execute(
+                "select payload_json from ir_records where id = ?",
+                (record_id,),
+            ).fetchone()
+            if row is None:
+                raise ValueError(
+                    f"promotion MIRL reference is missing: {record_id}"
+                )
+            records.append(MIRLRecord.from_dict(json.loads(str(row[0]))))
+        return records
 
     @retry_db_operation()
     def record_reasoning_retrieval(

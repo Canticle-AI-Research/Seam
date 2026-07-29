@@ -61,6 +61,9 @@ Already present:
   accepted outcomes, with task/operation retrieval, freshness and provenance
   gates, explicit reuse, and verified success/failure feedback that changes
   future trust and ranking without storing conclusions or hidden reasoning;
+- R5 append-only promotion proposals from verified accepted outcomes, separate
+  human/policy reviews, exact-provenance rechecks, explicit application into
+  canonical MIRL, application fingerprints, and additive audited reversal;
 - G3 provider-free semantic fact/episode MIRL seeds plus versioned semantic
   vectors for entity, value, agent, and symbol graph nodes feeding 0-3-hop
   graph traversal, deterministic lexical/vector/graph fusion, and explicit
@@ -87,6 +90,10 @@ Already present:
   revert path. Approved policies alter later CLI, SDK, MCP, REST, and internal
   graph retrieval behavior. Both graph planes therefore improve from measured
   outcomes while retaining explicit approval/trust boundaries.
+- G4 append-only, rebuildable entity/community summaries and multi-episode
+  observations. Latest reads are boundary-scoped and every derived sentence
+  retains exact supporting record and episode IDs; only current supported or
+  verified facts may contribute text.
 
 Remaining structural gaps:
 
@@ -99,8 +106,6 @@ Remaining structural gaps:
   and Chroma; legacy rows fail closed until an explicit full reindex upgrades
   them. Boundary-only pgvector repair updates namespace/scope metadata only for
   rows already on the current render contract and never embeds;
-- entities have no durable evolving summaries; graph-wide communities and
-  evidence-backed observations are absent;
 - no first-class context block composes facts, entities, episodes, summaries,
   and observations under one trust/token budget;
 - lifecycle, deletion, batch ingest, recovery, and load qualification are not
@@ -119,7 +124,7 @@ Remaining structural gaps:
 | G7 Qualification | Native SEAM and matched Mem0/Zep benchmark lanes plus scale and ablation suites | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims |
 
 The parallel reasoning-graph sequence is defined in
-`docs/REASONING_GRAPH.md`. R1-R4 are implemented; R5-R6 remain open. Reasoning
+`docs/REASONING_GRAPH.md`. R1-R5 are implemented; R6 remains open. Reasoning
 outcomes are never benchmarked or advertised as knowledge unless a later
 reviewed-promotion contract explicitly admits them into MIRL.
 

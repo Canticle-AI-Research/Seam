@@ -170,6 +170,14 @@ and `HISTORY_INDEX.md`.
   facets are never invented. Graph provenance edges aggregate contributors by
   episode/node pair so the API has stable unique edge IDs without losing the
   contributing record list. See HISTORY#403.
+- G4 graph products are an append-only, rebuildable projection over the current
+  trust-gated knowledge graph, never a second truth store. Entity summaries,
+  connected-community summaries, and multi-episode observations are versioned
+  by stable key. Identical source fingerprints reuse the prior complete
+  snapshot; changed or empty eligible inputs append a new immutable boundary
+  snapshot so stale derived text cannot remain current. Every rendered sentence
+  carries exact supporting MIRL record and active episode IDs, and only current
+  `supported` or `verified` same-namespace/scope facts may contribute text.
 - Assertion trust is evidence-gated and fail-closed. Claim/relation/event/state
   records enter `/chat` and `/chat/stream` asserted memory only when current and
   `supported` or `verified` inside the requested namespace and scope. Model or
@@ -209,6 +217,16 @@ and `HISTORY_INDEX.md`.
   explicit failure weakens it. Recipes never copy summaries, conclusions, raw
   tool output, provider payloads, or hidden reasoning, and never promote
   themselves into MIRL.
+  R5 is the only explicit reviewed bridge from one verified accepted outcome
+  into a proposed canonical claim. Proposals bind current verification IDs,
+  knowledge references, and exact MIRL evidence fingerprints to a bounded CLM
+  payload. A separate human or policy review may approve or reject, but only a
+  later explicit Store/SDK application rechecks eligibility and atomically
+  persists both the exact assertion and its application fingerprint. Nothing
+  auto-applies. Reversal requires the exact assertion fingerprint still to be
+  present and appends an immutable reversal plus a MIRL `supersedes` relation;
+  it never deletes or rewrites the assertion, reasoning outcome, reviews, or
+  evidence.
   See `docs/REASONING_GRAPH.md`.
 - Cross-leg retrieval fusion uses the fixed, versioned
   `reciprocal-rank-fusion/2` contract. Each SQL, record-vector, graph-node,

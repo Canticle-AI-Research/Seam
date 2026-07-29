@@ -124,6 +124,22 @@ provenance removes it from consideration, and incompatible tenant/task patterns
 are never returned. It is not autonomous truth promotion and it does not claim
 that an unverified conclusion is knowledge.
 
+## R5 reviewed-promotion contract
+
+R5 is an explicit append-only bridge from one verified accepted outcome to one
+proposed MIRL claim. A proposal binds the run/outcome, current verification IDs,
+knowledge references, exact MIRL evidence fingerprints, and a bounded CLM
+payload. A separate human or policy review may approve or reject it; review
+never inserts canonical truth. Application is a distinct SDK/Store call that
+rechecks eligibility inside the same transaction that persists the exact CLM
+and records its application fingerprint. Nothing auto-applies.
+
+An applied proposal may be reversed only while its exact assertion fingerprint
+is still present. Reversal appends both the immutable reversal audit and a new
+MIRL `supersedes` relation; it never deletes or rewrites the promoted assertion,
+reasoning outcome, reviews, or evidence. Cross-boundary, stale, changed,
+unverified, already-applied, or already-reversed proposals fail closed.
+
 ## Python SDK
 
 The initial SDK is local and provider-free:
@@ -196,7 +212,7 @@ and framework-specific packages can grow as adapters over this boundary.
 | R5 Reviewed promotion | Explicit proposal/review path from selected outcomes to new MIRL assertions | Human or policy approval, exact evidence, reversible audit, no automatic promotion |
 | R6 Qualification | Cross-agent SDK adapters, concurrency/recovery, latency and usefulness evaluations | Stable versioned contract, tenant isolation, crash recovery, measured value over event-only traces |
 
-R1-R4 are implemented. R5-R6 remain open; an R2 retrieval decision is an
+R1-R5 are implemented. R6 remains open; an R2 retrieval decision is an
 auditable record of what the current policy selected, not proof that the policy
 is optimal or that the selected records are true. An R3 passed check is
 similarly scoped verification evidence, not automatic canonical truth.
