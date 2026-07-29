@@ -263,11 +263,16 @@ def dispatch_tool(runtime: SeamRuntime, request: dict[str, object]) -> dict[str,
         return {"type": "result", "tool": name, "result": result}
     if name == "seam_knowledge_node":
         node_id = _required_text(arguments.get("node_id"), field="node_id", tool=name)
-        result = runtime.store.knowledge_node(
-            node_id,
-            include_history=bool(arguments.get("include_history", True)),
-            at=str(arguments.get("at") or "") or None,
-        )
+        try:
+            result = runtime.store.knowledge_node(
+                node_id,
+                include_history=bool(arguments.get("include_history", True)),
+                at=str(arguments.get("at") or "") or None,
+            )
+        except KeyError as exc:
+            # A missing node otherwise surfaces as the bare repr of the lookup key,
+            # which tells a calling agent nothing about what went wrong.
+            raise ValueError(f"unknown knowledge node '{node_id}'") from exc
         return {"type": "result", "tool": name, "result": result}
     if name == "seam_identity_merges":
         node_id = str(arguments.get("node_id") or "").strip() or None

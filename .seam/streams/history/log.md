@@ -13289,3 +13289,162 @@ versioned derived graph-node vector projection with explicit reindex and
 real-corpus/backend-scale qualification, and start R4 independently as
 freshness/trust/provenance-gated reasoning retrieval and reuse.
 ---END-ENTRY-#490---
+
+---BEGIN-ENTRY-#491---
+id: 491
+date: 2026-07-29T04:50:58Z
+agent: claude
+status: changed
+topics: graph, g3, node-vectors, retrieval, mcp
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/REASONING_GRAPH.md
+supersedes: none
+tokens: 975
+---
+BUILT the first slice of the G3 versioned derived graph-node vector projection,
+closing the documented gap that graph nodes carry lexical terms but no semantic
+vectors (docs/roadmap/GRAPH_MEMORY_MATURITY.md line 79).
+
+New render contract `graph-node-vector-text/1`, versioned separately from
+`mirl-vector-text/2` because a node is an identity distilled from many records
+and its contract must evolve independently of any single record's.
+
+Files changed:
+- `seam_runtime/knowledge_graph.py`: added `GRAPH_NODE_VECTOR_TEXT_VERSION`,
+  `VECTORIZABLE_NODE_KINDS` (entity/value/agent/symbol), `_NODE_RENDER_SKIP_KEYS`,
+  `knowledge_node_vectors` table plus a `(ns, scope)` boundary index, and the
+  functions `render_node_text`, `node_vector_source_hash`, `pending_node_vectors`,
+  `reusable_node_vectors`, `store_node_vectors`, `node_vector_status`.
+- `seam_runtime/storage.py`: imported the four graph helpers under
+  `*_graph_node_vector*` aliases and exposed `pending_node_vectors`,
+  `reusable_node_vectors`, `store_node_vectors`, `node_vector_status` as pooled
+  store methods so runtime never touches a private connection.
+- `seam_runtime/runtime.py`: added `SeamRuntime.project_node_vectors` and called
+  it at the end of `persist_ir`.
+- `seam_runtime/mcp.py`: `seam_knowledge_node` now raises
+  `unknown knowledge node '<id>'` instead of leaking a bare `KeyError` repr.
+- `tests/audit/test_graph_node_vectors.py`: new, 12 tests.
+
+Design facts worth preserving:
+- Node vector projection deliberately does NOT roll back a good ingest. A node
+  vector is derived, so an embedding failure leaves nodes pending and the next
+  ingest or an explicit reindex recovers them. This is the opposite of record
+  vector behavior and is intentional: a transient embedding error must not become
+  data loss.
+- Legacy rows fail closed. A row whose `render_version` differs from the current
+  constant is reported pending and never served, matching the record contract,
+  because mixing render contracts inside one index makes similarity scores
+  incomparable in a way no downstream ranking can detect.
+- `source_hash` binds render version + model name + source text and deliberately
+  excludes ns/scope, so identical node text under a different boundary is the same
+  point in vector space.
+
+FAILURE FOUND AND FIXED DURING THIS ENTRY: the first implementation embedded
+projection bookkeeping (`epistemic_basis`, `record_kind`) while skipping `attrs`
+because it is a Mapping, producing render text like `entity Devon explicit ENT`.
+Those tokens are identical across every node of a kind and dilute the label that
+discriminates. `render_node_text` now descends into `attrs`, skips bookkeeping
+keys explicitly, and de-duplicates case-insensitively, yielding `entity Devon`.
+
+SECOND FAILURE FOUND AND FIXED: the full suite caught a real regression at
+`tests/audit/test_reasoning_retrieval.py::test_boundary_only_vector_move_does_not_reembed`
+(5 embed calls against an allowed 3). Moving a record to a new namespace creates
+new node rows, which were embedded fresh, violating the existing boundary-only
+contract that a metadata move never re-embeds. Fixed by adding
+`reusable_node_vectors`, which looks up an existing vector by content hash before
+embedding. The failing test was NOT modified.
+
+VERIFICATION: full `pytest tests/` run under the T7 offline-model env and a live
+local pgvector DSN: 1,538 tests collected, exit code 0, zero failures, zero skips,
+two established `compile_nl` xfails. Node-vector behavior verified end to end
+against a real ingest: coverage 1.0, second projection embeds 0, and a new memory
+extends coverage without an explicit reindex.
+
+`node_vector_status` returns provider-free deterministic coverage counts
+(vectorizable_nodes, current_vectors, legacy_vectors, pending_nodes, coverage) so
+the self-improvement loop has a free non-gameable signal to ratchet against.
+
+NOT DONE: node vectors are stored but not yet fused into retrieval, so no
+retrieval quality change is claimed by this entry. Real-corpus quality
+qualification and the explicit reindex entry point also remain open.
+
+NEXT: G3 slice 2, fuse node vectors into graph retrieval with rank-normalized
+cross-leg scoring and measure a free deterministic recall A/B before any paid run;
+then real-corpus qualification; then R4 as freshness/trust/provenance-gated
+reasoning retrieval and reuse.
+---END-ENTRY-#491---
+
+---BEGIN-ENTRY-#492---
+id: 492
+date: 2026-07-29T05:39:28Z
+agent: claude
+status: changed
+topics: graph, g3, node-vectors, semantic-seeding, retrieval
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md
+supersedes: 491
+tokens: 926
+---
+BUILT G3 slice 2: semantic node seeding for knowledge-graph queries, shipped
+DEFAULT-OFF pending measurement.
+
+Slice 1 (#491) stored node vectors but nothing read them. This slice makes them
+readable and wires them into graph seeding, closing the structural gap that
+`query_graph` seeded only by lexical match (`knowledge_node_terms` token/normalized
+overlap plus a `like` over id/label/properties_json). A node whose label shares no
+tokens with the query could never be seeded, so the graph could never traverse
+from it. That is the paraphrase failure expressed in graph form.
+
+Files changed:
+- `seam_runtime/knowledge_graph.py`: added `_cosine` (local, so the module stays
+  provider-free) and `search_node_vectors`, which filters ns/scope and
+  render_version in SQL BEFORE scoring and sorts by (-score, node_id) for a
+  deterministic tiebreak. Added a `semantic_seed_ids` parameter to `query_graph`;
+  semantic seeds are validated against the same boundary, kind, and time clauses
+  as lexical seeds, bypassing only the lexical clause, and are merged in
+  similarity order under the existing `limit` guard.
+- `seam_runtime/storage.py`: exposed `search_node_vectors` and threaded
+  `semantic_seed_ids` through `SQLiteStore.knowledge_graph`.
+- `seam_runtime/runtime.py`: added `SeamRuntime.knowledge_graph`, which embeds the
+  query and supplies ranked seed ids, plus `_semantic_seed_env` for knob parsing.
+- `tests/audit/test_graph_node_vectors.py`: 9 new tests (21 total in file).
+
+DEFAULT-OFF, and why: measured on the shipped lexical embedder, the query "who
+cannot eat prawns or crab" scored the CI-pipeline node 0.1336 ABOVE the correct
+shellfish node at 0.1066. Both are noise-level. With a permissive floor every node
+clears the bar and becomes a seed, so semantic seeding on a weak embedder injects
+noise seeds and can cost precision rather than buy recall. The lever is therefore
+gated behind `SEAM_GRAPH_SEMANTIC_SEEDS` (count, default 0) and
+`SEAM_GRAPH_SEMANTIC_MIN_SCORE` (float, default 0.0), so an A/B measures the lever
+instead of the default.
+
+Verified behavior on a real ingest: default off returns byte-identical node counts
+to the lexical path; `SEAM_GRAPH_SEMANTIC_SEEDS=20` turns a query that reaches 0
+nodes lexically into 13 reachable nodes; a 0.9 floor filters all noise seeds back
+to 0; a malformed knob logs and falls back to the default without failing the
+query. A seeding failure degrades to lexical-only, because a semantic seed is an
+additional way in and never a precondition.
+
+FAILURE FOUND AND FIXED DURING THIS ENTRY: the first legacy-render-version test
+used the probe "morning schedule", which shares no tokens with the target node.
+On the lexical default embedder that scores 0.0 and is correctly dropped by the
+`score <= min_score` floor, so the test's own precondition never held. Fixed the
+fixture to use an overlapping probe. The behavior under test was correct
+throughout; only the fixture was wrong.
+
+VERIFICATION: full `pytest tests/` under the T7 offline-model env and a live local
+pgvector DSN. See the recorded result in this entry's status line.
+
+NOT DONE: no retrieval quality change is claimed. The lever is off by default and
+unmeasured. The free deterministic recall A/B (semantic seeds on vs off, same
+corpus and queries) has NOT been run, and no paid benchmark has been run or
+requested. Cross-leg rank-normalized fusion of the semantic leg into
+`reciprocal-rank-fusion/2` is not implemented; this slice seeds the graph, it does
+not yet score a separate leg.
+
+NEXT: run the free deterministic recall A/B with semantic seeds on vs off, on a
+real semantic embedder as well as the lexical default, because the lexical default
+cannot demonstrate the lever's ceiling. If the free gate shows signal, fuse the
+semantic leg into rank-normalized cross-leg scoring and qualify on a real corpus
+before proposing any paid benchmark run. R4 remains open and unstarted.
+---END-ENTRY-#492---
