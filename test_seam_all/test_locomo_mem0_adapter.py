@@ -165,7 +165,9 @@ def test_build_adapter_passes_explicit_mem0_search_limit(monkeypatch) -> None:
 
     monkeypatch.setattr(mem0_module, "Mem0LocomoAdapter", _FakeMem0)
 
-    adapter = locomo_run.build_adapter("mem0", mem0_search_limit=64)
+    adapter = locomo_run.build_adapter(
+        "mem0", mem0_search_limit=64, allow_paid=True
+    )
 
     assert adapter.name == "mem0"
     assert captured["search_limit"] == 64

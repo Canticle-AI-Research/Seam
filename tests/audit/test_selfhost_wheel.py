@@ -68,9 +68,12 @@ def test_selfhost_metadata_is_separate_busl_package() -> None:
 def test_selfhost_build_uses_explicit_sources_and_load_bearing_exclusions() -> None:
     assert SELFHOST_FILES == (Path("README.md"), Path("pyproject.toml"))
     assert Path("seam_runtime/graph_products.py") in RUNTIME_SOURCE_FILES
+    assert Path("seam_runtime/context_assembly.py") in RUNTIME_SOURCE_FILES
+    assert Path("seam_runtime/lifecycle.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/public_api.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/reasoning_patterns.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/reasoning_promotion.py") in RUNTIME_SOURCE_FILES
+    assert Path("seam_runtime/qualification.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/conversation.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/event_count_context.py") in RUNTIME_SOURCE_FILES
     assert Path("seam_runtime/tokenization.py") in RUNTIME_SOURCE_FILES

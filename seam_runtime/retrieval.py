@@ -9,7 +9,16 @@ from datetime import datetime
 from typing import Iterable, Mapping, Protocol
 
 from .bm25 import BM25Index
-from .mirl import IRBatch, MIRLRecord, RecordKind, SearchCandidate, SearchResult, cosine_similarity, iter_textual_fields
+from .mirl import (
+    IRBatch,
+    MIRLRecord,
+    RecordKind,
+    SearchCandidate,
+    SearchResult,
+    Status,
+    cosine_similarity,
+    iter_textual_fields,
+)
 from .symbols import build_symbol_maps
 from .temporal import parse_iso, temporal_distance_score
 
@@ -400,6 +409,12 @@ def load_retrieval_flags(
 
 
 _WEIGHTS = (("lexical", 0.4), ("semantic", 0.35), ("graph", 0.15), ("temporal", 0.10))
+_CURRENT_EXCLUDED_STATUSES = {
+    Status.CONTRADICTED,
+    Status.SUPERSEDED,
+    Status.DEPRECATED,
+    Status.DELETED_SOFT,
+}
 
 
 def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: int = 5, vector_scores: dict[str, float] | None = None, namespace: str | None = None, include_raw: bool = False, bm25_index: BM25Index | None = None, temporal_window: tuple[datetime, datetime] | None = None, temporal_reference: datetime | None = None, flags: RetrievalFlags | None = None) -> SearchResult:
@@ -409,7 +424,12 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
     tokens = _tokens(expanded_query)
     query_vector = Counter(tokens)
     batch_by_id = batch.by_id()
-    records = [record for record in batch.records if scope is None or record.scope == scope]
+    records = [
+        record
+        for record in batch.records
+        if (scope is None or record.scope == scope)
+        and record.status not in _CURRENT_EXCLUDED_STATUSES
+    ]
     graph = _graph(records)
     ent_labels = {r.id: str(r.attrs.get("label", "")) for r in records if r.kind == RecordKind.ENT}
     vector_scores = vector_scores or {}

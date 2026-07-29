@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from time import perf_counter
+from typing import Callable
 
+from seam_runtime.knowledge_graph import CURRENT_EXCLUDED_STATUSES
 from seam_runtime.pack import pack_records
 from seam_runtime.retrieval_policy import (
     FUSION_POLICY,
@@ -57,6 +59,10 @@ class RetrievalOrchestrator:
             )
         else:
             self.semantic_adapter = SeamVectorSearchAdapter(runtime.store, runtime.vector_adapter)
+        if isinstance(self.semantic_adapter, ChromaSemanticAdapter):
+            runtime.register_derived_delete_hook(
+                self.semantic_adapter.delete_records
+            )
 
     def plan(
         self,
@@ -164,9 +170,19 @@ class RetrievalOrchestrator:
         for leg in plan.legs:
             leg_started = perf_counter()
             if leg.name == "sql":
-                leg_hits["sql"] = self.sql_adapter.search(plan, limit=leg.limit)
+                leg_hits["sql"] = _search_current_page(
+                    lambda limit: self.sql_adapter.search(plan, limit=limit),
+                    limit=leg.limit,
+                    include_history=plan.graph_include_history,
+                )
             elif leg.name == "vector":
-                leg_hits["vector"] = self.semantic_adapter.search(plan, limit=leg.limit)
+                leg_hits["vector"] = _search_current_page(
+                    lambda limit: self.semantic_adapter.search(
+                        plan, limit=limit
+                    ),
+                    limit=leg.limit,
+                    include_history=plan.graph_include_history,
+                )
             elif leg.name == "graph":
                 graph_node_seed_ids: list[str] = []
                 if plan.semantic_graph_seeding:
@@ -179,20 +195,45 @@ class RetrievalOrchestrator:
                             min_score=float(flags.graph_semantic_min_score),
                         )
                     )
+                    if not plan.graph_include_history:
+                        graph_node_hits = [
+                            hit
+                            for hit in graph_node_hits
+                            if hit.record.status.value
+                            not in CURRENT_EXCLUDED_STATUSES
+                        ]
+                        visible_node_ids = {
+                            hit.record.id for hit in graph_node_hits
+                        }
+                        graph_node_seed_ids = [
+                            node_id
+                            for node_id in graph_node_seed_ids
+                            if node_id in visible_node_ids
+                        ]
                     leg_hits["graph_node"] = graph_node_hits
                     leg_latency_ms["graph_node"] = (
                         perf_counter() - graph_node_started
                     ) * 1000.0
                 semantic_seed_ids = (
-                    [hit.record.id for hit in leg_hits.get("vector", [])]
+                    [
+                        hit.record.id
+                        for hit in leg_hits.get("vector", [])
+                        if plan.graph_include_history
+                        or hit.record.status.value
+                        not in CURRENT_EXCLUDED_STATUSES
+                    ]
                     if plan.semantic_graph_seeding
                     else []
                 )
-                leg_hits["graph"] = self.graph_adapter.search(
-                    plan,
+                leg_hits["graph"] = _search_current_page(
+                    lambda limit: self.graph_adapter.search(
+                        plan,
+                        limit=limit,
+                        seed_record_ids=semantic_seed_ids,
+                        seed_node_ids=graph_node_seed_ids,
+                    ),
                     limit=leg.limit,
-                    seed_record_ids=semantic_seed_ids,
-                    seed_node_ids=graph_node_seed_ids,
+                    include_history=plan.graph_include_history,
                 )
             leg_latency_ms[leg.name] = (perf_counter() - leg_started) * 1000.0
 
@@ -319,6 +360,33 @@ class RetrievalOrchestrator:
             pack=pack.to_dict(),
             trace=trace,
         )
+
+def _search_current_page(
+    search: Callable[[int], list],
+    *,
+    limit: int,
+    include_history: bool,
+    max_scan: int = 100_000,
+) -> list:
+    """Fill a current-state page without letting tombstones consume top-K."""
+
+    requested = max(1, limit)
+    while True:
+        hits = search(requested)
+        if include_history:
+            return hits[:limit]
+        current = [
+            hit
+            for hit in hits
+            if hit.record.status.value not in CURRENT_EXCLUDED_STATUSES
+        ]
+        if (
+            len(current) >= limit
+            or len(hits) < requested
+            or requested >= max_scan
+        ):
+            return current[:limit]
+        requested = min(requested * 2, max_scan)
 
 
 HybridOrchestrator = RetrievalOrchestrator

@@ -992,6 +992,8 @@ def run_cli(argv: list[str] | None = None) -> None:
                     raise SystemExit("locomo requires --dataset-path for explicit benchmark runs")
                 if args.adapter:
                     cmd.extend(["--adapter", args.adapter])
+                if args.allow_paid:
+                    cmd.append("--allow-paid")
                 if args.limit is not None:
                     cmd.extend(["--limit", str(args.limit)])
                 if args.workers is not None:
@@ -1087,6 +1089,8 @@ def run_cli(argv: list[str] | None = None) -> None:
                     cmd.extend(["--judge", args.judge])
                 if args.judge_model:
                     cmd.extend(["--judge-model", args.judge_model])
+                if args.allow_paid:
+                    cmd.append("--allow-paid")
                 if args.workers is not None:
                     cmd.extend(["--workers", str(args.workers)])
                 result = subprocess.run(cmd, check=False)

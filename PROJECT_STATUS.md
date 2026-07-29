@@ -1,5 +1,27 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#496 - COMPLETED G5 deterministic context
+assembly, G6 lifecycle/scale, R6 cross-agent qualification, and G7 through the
+provider-free/paid boundary. G5 packs canonical facts, entities, episodes, and
+G4 products with exact backtraces, fail-closed trust/time/boundary gates,
+deterministic token accounting, and grounded-fact non-displacement. G6 adds
+append-only lifecycle audit, exact tenant-scoped soft deletion, stale-support
+exclusion, recoverable external-vector cleanup, idempotent batch ingest,
+digest-bound transient resume payloads, checkpoints, reopen recovery, and
+concurrent planning across Store/Runtime/SDK.
+R6/G7 freeze
+native, event-only, matched Mem0, and matched Zep lanes; provider-backed lanes
+remain null-score `NOT_RUN`/`BLOCKED` plans behind explicit `--allow-paid`.
+The corrected matched-budget three-tenant micro-suite recorded native and
+event-only usefulness parity at 1.0, zero graph-incremental evidence hits,
+three concurrent completions, one recovered interruption, zero failures, and
+zero provider calls. This completes the provider-free qualification run but
+does not demonstrate incremental graph value. Strict live-pgvector full suite:
+2,061 collected, 2,059 passed, two
+established `compile_nl` xfailed, zero skipped, zero failed. Matched paid runs
+were not authorized or executed. Branch `feat/g5-g7-r6-qualification`;
+protected PR/CI closeout is next.)
+
 Current update: 2026-07-29 (HISTORY#495 - COMPLETED the G4 graph-products and
 R5 reviewed-promotion milestones without publishing or changing remote state.
 G4 adds an append-only, rebuildable derived plane for entity summaries,

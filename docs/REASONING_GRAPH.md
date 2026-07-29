@@ -201,6 +201,29 @@ framework adapters can use one stable programmatic boundary instead of
 depending on database tables, CLI output, or HTTP route details. CLI, REST, MCP,
 and framework-specific packages can grow as adapters over this boundary.
 
+## R6 qualification contract
+
+R6 defines `seam-qualification-adapter/1`, a stable cross-agent request and
+response envelope that fixes agent identity, operation, tenant, namespace,
+scope, manifest fingerprint, attempt, exact returned record IDs, and
+adapter-reported nonnegative integer `latency_us`. Adapters that measure from a
+nanosecond clock use floor division by 1,000; comparisons and fingerprints use
+that exact microsecond integer without later unit conversion or rerounding.
+Concurrent execution sorts responses before fingerprinting, bounds retry,
+records recovered and failed counts, and rejects any response that does not
+exactly echo its request boundary.
+
+`seam-graph-reasoning-manifest/1` freezes the dataset, native and matched
+contracts, cases, and four separate lanes: native SEAM, event-only, matched
+Mem0, and matched Zep. Provider-free scoring measures usefulness, latency,
+recovery, and exact graph-incremental evidence over event-only traces under
+identical context and result budgets. The current provider-free run is an
+honest parity result and therefore does not establish incremental graph value.
+External lanes remain `NOT_RUN` or `BLOCKED`, contain zero calls and no scores, require
+an explicit executable `--allow-paid` command, and reject embedded credential
+options. The in-repo native micro-suite is structural evidence only and cannot
+authorize a competitive publication claim.
+
 ## Maturity path
 
 | Stage | Deliverable | Acceptance boundary |
@@ -210,9 +233,11 @@ and framework-specific packages can grow as adapters over this boundary.
 | R3 Verification loops | Tests, tool outcomes, contradictions, retries, and supersession | Failed paths remain visible; final outcomes identify the checks that support them |
 | R4 Reasoning retrieval | Search and reuse prior reasoning patterns with verified success/failure feedback without treating outcomes as facts | Task/run scoping, freshness, trust, and provenance gates; structural recipes only; no conclusion laundering |
 | R5 Reviewed promotion | Explicit proposal/review path from selected outcomes to new MIRL assertions | Human or policy approval, exact evidence, reversible audit, no automatic promotion |
-| R6 Qualification | Cross-agent SDK adapters, concurrency/recovery, latency and usefulness evaluations | Stable versioned contract, tenant isolation, crash recovery, measured value over event-only traces |
+| R6 Qualification | Cross-agent SDK adapters, concurrency/recovery, latency and usefulness evaluations | Stable versioned contract, tenant isolation, crash recovery, and an honestly reported matched-budget comparison against event-only traces |
 
-R1-R5 are implemented. R6 remains open; an R2 retrieval decision is an
+R1-R6 are implemented through the provider-free qualification boundary.
+Matched Mem0/Zep answerer-and-judge execution remains deliberately unrun at the
+explicit paid/credential gate. An R2 retrieval decision is an
 auditable record of what the current policy selected, not proof that the policy
 is optimal or that the selected records are true. An R3 passed check is
 similarly scoped verification evidence, not automatic canonical truth.

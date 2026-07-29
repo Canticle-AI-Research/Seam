@@ -13694,3 +13694,113 @@ NEXT: commit the coherent candidate, push
 every required protected check and review passes. G5-G7 and R6 remain separate
 future milestones.
 ---END-ENTRY-#495---
+
+---BEGIN-ENTRY-#496---
+id: 496
+date: 2026-07-29T10:37:47Z
+agent: codex
+status: done
+topics: graph, retrieval, pack, storage, persist, retry, benchmark, audit, verify, tests, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-29-g5-g7-r6-provider-free-qualification.md,seam_runtime/context_assembly.py,seam_runtime/lifecycle.py,seam_runtime/qualification.py,benchmarks/graph_reasoning_qualification.py
+supersedes: 495
+tokens: 934
+---
+COMPLETED G5 deterministic context assembly, G6 lifecycle/scale, R6 cross-agent
+qualification, and G7 through the provider-free boundary requested by the
+operator. Matched provider-paid execution was intentionally not authorized.
+
+G5 adds storage-agnostic `context-assembly/1` and Store/Runtime/SDK integration.
+Facts, canonical entities, active episodes, entity/community summaries, and
+multi-episode observations are packed under one task, trust, time, namespace,
+scope, and exact token budget. Every selected item retains record and episode
+backtraces; derived sentences retain their product ID. Unknown trust, stale
+time, malformed provenance, cross-boundary input, and conflicting duplicate IDs
+fail closed. Whole-item truncation and ordering are deterministic, and a
+dedicated grounded-fact reservation prevents G4 products from consuming the
+reserved primary-evidence capacity.
+
+G6 adds append-only `lifecycle/2` operation and event ledgers. Exact scoped
+delete plans require exact tenant authorization and validate every record before
+marking canonical MIRL `deleted_soft`; content remains auditable while
+disposable knowledge-graph, vector, and projection rows are removed. Cross-store
+cleanup uses a committed `cleanup_pending` outbox, so external failure is
+recoverable and caller-owned transactions refuse external mutation. Legacy and
+orchestrated retrieval exclude lifecycle-inactive records before graph seeding,
+adaptive page filling prevents tombstones from consuming live top-K, and G5
+revalidates every G4 support before packing. Idempotency-keyed batch ingest
+stores exact item progress, resumes after an interrupted/reopened run, and
+returns the same operation after completion. Concurrent same-key planning
+produces one operation. Store, Runtime, and SDK expose authorized
+plan/apply/read/recover boundaries. Batch text is never copied into the
+append-only audit payload: it is held only in a tenant-authorized transient
+resume table, bound to the audit by digest, and purged when the batch applies.
+
+R6 adds versioned cross-agent envelopes that pin agent, operation, tenant,
+namespace, scope, manifest, attempt, exact record IDs, and integer latency.
+Concurrent execution has bounded retry, deterministic response ordering, exact
+boundary echo validation, and explicit recovered/failed counts. G7 freezes
+native SEAM, event-only, matched Mem0, and matched Zep into separate lanes.
+External lanes may contain only `NOT_RUN` or `BLOCKED`, zero provider calls,
+null scores, blockers, and exact commands retaining `--allow-paid`; embedded
+credential options and borrowed score claims fail closed.
+
+The real provider-free native micro-suite ran three isolated tenant namespaces
+through ingest, G4 rebuild, G5 assembly, event-only retrieval, concurrent reads,
+and one interrupted-read recovery. After review exposed a budget confound, the
+corrected run gave both lanes the same 2,000-token context budget and two-record
+result cap: native and event-only usefulness were both 1.0, with zero
+graph-incremental evidence IDs. Three concurrent requests completed, one
+recovered, none failed, and provider call count was zero. This is a valid parity
+result and does not establish incremental graph value or authorize competitive
+publication. Direct LoCoMo comparator, decomposer, answerer, and real-judge
+execution now fails closed without `--allow-paid`; dry-run and stub-only paths
+remain free.
+
+VERIFICATION:
+
+- The 12-module affected retrieval, graph, lifecycle, self-host, pgvector, paid-
+  gate, and qualification slice collected 106/106 and passed 106/106 after
+  review fixes.
+- `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN" PYTHONPATH=. .venv/bin/pytest`
+  against the already-configured live service exited 0 after 512.61 seconds:
+  2,061 collected, 2,059 passed, two established `compile_nl` xfailed, three
+  subtests passed, zero skipped, zero failed.
+- The provider-free native qualification command completed with zero provider
+  calls and retained null matched scoreboards.
+- Changed-file Ruff, compileall, `git diff --check`, candidate secret/private-
+  session scans, and the scoped LoCoMo paid-gate regression passed.
+- CodeRabbit's adversarial uncommitted review findings were verified and fixed:
+  stub cross-judge classification, quickstart paid-flag propagation, UTC context
+  timestamps, lifecycle write retry wrapping and transaction bootstrap, terminal
+  batch-progress refusal, tenant/namespace ownership, unique event identity,
+  recoverable-operation ordering, recall-preserving inactive-hit overfetch,
+  pre-expansion deleted graph seeds, and explicit qualification-lane validation.
+  A later independent split-mind audit found and verified fixes for cross-tenant
+  lifecycle access, distinct-key collisions, stale G4/G5 support, external-vector
+  cleanup atomicity/recovery, deep tombstone crowding, foreign-ID scoring,
+  decomposer paid-gate coverage, and the native/event-only budget confound. The
+  final exact-staged CodeRabbit pass then drove transient batch-text separation,
+  read-only-only adapter retry, linearized context packing, bounded candidate
+  SQL, terminal batch refusal, and rank-preserving result truncation. Its
+  exhaustive-history-ref and PROJECT_STATUS-supersedes requests were rejected as
+  incompatible with the repository's concise refs and append-only status format.
+  The post-fix exact-staged CodeRabbit pass reviewed all 41 changed files and
+  returned zero findings.
+
+UNCHANGED BOUNDARIES: RAW/MIRL remains canonical truth; reasoning remains
+non-canonical except through explicit R5 review/application; public
+`seam-client` and opaque `/v1` remain separate. No provider call, paid benchmark,
+package publication, deployment, or DigitalOcean mutation occurred. Unrelated
+untracked `.ua/`, `dist/`, report images, and `seam_runtime/.ua/` were preserved.
+
+PAID STOP: Mem0 needs provider-backed extraction plus the shared answerer/judge.
+Zep additionally needs live-service credentials and completed asynchronous
+graph processing. Their frozen commands are in the current handoff; do not run
+them without explicit spend approval.
+
+NEXT: commit and push `feat/g5-g7-r6-qualification`, open a protected PR, resolve
+review/CI, and merge only when every relevant check is green. After explicit
+paid approval, execute the two matched lanes without combining their scoreboards
+with the provider-free native result.
+---END-ENTRY-#496---

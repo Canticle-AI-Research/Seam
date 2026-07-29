@@ -41,6 +41,19 @@ from seam_runtime.conversation import (
 )
 
 
+def _paid_adapter_configuration(
+    *,
+    adapter: str,
+    answerer: str | None,
+    decomposer: str | None,
+) -> bool:
+    return (
+        adapter in {"mem0", "zep"}
+        or answerer not in {None, "none"}
+        or decomposer not in {None, "none"}
+    )
+
+
 def build_adapter(
     name: str,
     answerer: str | None = None,
@@ -48,6 +61,7 @@ def build_adapter(
     decomposer: str | None = None,
     decomposer_model: str | None = None,
     decomposer_max_subq: int = 3,
+    allow_paid: bool = False,
     abstain_threshold: float = 0.0,
     rerank: str | None = None,
     keep_db: bool = False,
@@ -65,13 +79,26 @@ def build_adapter(
     answer_contract: str = ANSWER_CONTRACT_OFF,
 ):
     """Lazy-import factory so SEAM-only runs don't require Mem0/Zep installed."""
+    resolved_decomposer = (
+        None if decomposer is None or decomposer == "none" else decomposer
+    )
+    if _paid_adapter_configuration(
+        adapter=name,
+        answerer=answerer,
+        decomposer=resolved_decomposer,
+    ) and not allow_paid:
+        raise ValueError(
+            "provider-backed comparator, answerer, or decomposer requires "
+            "allow_paid=True; "
+            "no paid calls were made"
+        )
     if name == "seam":
         from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 
         return SeamLocomoAdapter(
             db_path=db_path,
             answerer=answerer, answerer_model=answerer_model,
-            decomposer=decomposer, decomposer_model=decomposer_model,
+            decomposer=resolved_decomposer, decomposer_model=decomposer_model,
             decomposer_max_subq=decomposer_max_subq,
             abstain_threshold=abstain_threshold,
             rerank=rerank,
@@ -285,6 +312,14 @@ def main() -> None:
         help="Number of independent case workers for full runs",
     )
     parser.add_argument(
+        "--allow-paid",
+        action="store_true",
+        help=(
+            "Acknowledge provider-backed comparator, answerer, or judge "
+            "execution; without this flag paid-capable runs fail closed"
+        ),
+    )
+    parser.add_argument(
         "--answerer",
         choices=["none", "openai", "claude", "deepseek"],
         default="none",
@@ -434,6 +469,20 @@ def main() -> None:
     args = parser.parse_args()
 
     dataset_path = args.dataset_path or args.dataset
+    paid_capable = (
+        _paid_adapter_configuration(
+            adapter=args.adapter,
+            answerer=args.answerer,
+            decomposer=args.decomposer,
+        )
+        or args.judge in {"claude", "openai"}
+        or args.judge_cross in {"claude", "openai"}
+    )
+    if paid_capable and not args.dry_run and not args.allow_paid:
+        parser.error(
+            "provider-backed comparator/answerer/judge execution requires "
+            "--allow-paid; no paid calls were made"
+        )
 
     if not args.quickstart and not dataset_path:
         parser.error("Either --quickstart or --dataset-path is required.")
@@ -508,6 +557,7 @@ def main() -> None:
                 args.adapter, answerer=answerer, answerer_model=args.answerer_model,
                 decomposer=decomposer, decomposer_model=args.decomposer_model,
                 decomposer_max_subq=args.decomposer_max_subq,
+                allow_paid=args.allow_paid,
                 abstain_threshold=args.abstain_threshold,
                 rerank=rerank,
                 keep_db=args.keep_db,
@@ -543,6 +593,7 @@ def main() -> None:
             args.adapter, answerer=answerer, answerer_model=args.answerer_model,
             decomposer=decomposer, decomposer_model=args.decomposer_model,
             decomposer_max_subq=args.decomposer_max_subq,
+            allow_paid=args.allow_paid,
             abstain_threshold=args.abstain_threshold,
             rerank=rerank,
             keep_db=args.keep_db,
