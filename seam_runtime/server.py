@@ -722,7 +722,7 @@ def create_app(
         hops: int = Query(default=2, ge=0, le=5),
     ) -> dict[str, object]:
         parsed_kinds = None if kinds is None else [kind.strip() for kind in kinds.split(",") if kind.strip()]
-        return runtime.store.knowledge_graph(
+        return runtime.knowledge_graph(
             query=query,
             root_id=root_id,
             namespace=namespace,
@@ -1268,7 +1268,7 @@ def create_app(
                 graph_error = ""
                 if seed_ids:
                     try:
-                        graph = runtime.store.knowledge_graph(
+                        graph = runtime.knowledge_graph(
                             root_id=seed_ids[0],
                             namespace=ns,
                             scope=scope,

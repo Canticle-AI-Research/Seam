@@ -13521,3 +13521,99 @@ per-turn fact yield, grounding precision, and how many evidence-absent misses
 gain a SEAM-FACT/1 that surfaces the gold. Paid microgate only after that gate
 passes.
 ---END-ENTRY-#493---
+
+---BEGIN-ENTRY-#494---
+id: 494
+date: 2026-07-29T08:07:06Z
+agent: codex
+status: done
+topics: graph, retrieval, rank, provenance, verify, benchmark, memory, agent, test, handoff
+commits: pending
+refs: seam_runtime/reasoning_patterns.py, seam_runtime/reasoning_graph.py, seam_runtime/retrieval_orchestrator/adapters.py, seam_runtime/retrieval_orchestrator/orchestrator.py, seam_runtime/self_improve.py, tools/h2/improvement_loop.py, tools/graph_real_corpus_qualification.py, docs/REASONING_GRAPH.md, docs/roadmap/GRAPH_MEMORY_MATURITY.md, docs/handoffs/2026-07-29-g3-r4-self-improving-graphs.md
+supersedes: 492
+tokens: 1860
+---
+COMPLETED the requested G3 hybrid knowledge-graph search and R4 reasoning
+retrieval milestones as two real, bounded self-improvement loops.
+
+G3 now exposes the versioned entity/value/agent/symbol node-vector projection
+as a distinct `graph_node` leg in `reciprocal-rank-fusion/2`. Node hits resolve
+to exact in-boundary MIRL source records, keep their own append-only R2 latency,
+respect the selected current/history/point-in-time graph view, and may seed
+traversal only when the backing record passes every active retrieval filter.
+The separate leg makes node-vector contribution auditable instead of hiding it
+inside traversal.
+
+The knowledge loop is closed through the existing H2 governance substrate.
+Only graph-aware scorers expose bounded graph semantic-seed and score-floor
+candidate levers. Candidate selection measures fixed development probes with
+per-motif no-regression, then requires strict aggregate, category, integrity,
+trust, temporal, provenance, and disjoint holdout evidence. Passing proposals
+remain pending until explicit operator approval; `auto_approve` cannot bypass
+the gate. Applied retrieval flags now feed `SeamRuntime.knowledge_graph`, so an
+approved policy changes subsequent SDK, CLI, MCP, REST, and internal graph
+queries. Existing apply-state and revert behavior complete the
+measure/propose/approve/apply/observe/revert chain. The repository default stays
+off: qualification evidence does not silently promote policy.
+
+The pinned real-corpus gate validates the LoCoMo manifest SHA-256, builds graph
+motif probes from selected real sessions, uses deterministic stratified
+development/holdout splits, and checks full versioned node-vector coverage plus
+explicit fusion traces. With cached `BAAI/bge-small-en-v1.5`, the bounded
+selector chose 4 graph semantic seeds. Development aggregate recall moved from
+0.7435897436 to 0.9230769231 (+0.1794871795); disjoint holdout moved from
+0.7222222222 to 0.8888888889 (+0.1666666667). Candidates with 8, 16, and 32
+seeds were excluded because at least one holdout/development motif regressed.
+Node-vector coverage and `graph_node` trace rate were both 1.0 with zero
+provider calls. The 2,048-node/2,047-edge synthetic qualification also passed
+all five fixed query shapes; worst sampled p95 was 76.64 ms against the
+5,000 ms bound.
+
+R4 adds an append-only `reasoning-pattern/1` plane. Finalizing a verified
+accepted outcome attempts a non-fatal distillation of public structure only:
+node kinds, controlled operations, edge relations, and verification check
+kinds. Summaries, conclusions, raw tool output, provider payloads, and hidden
+chain-of-thought are never copied. Pattern retrieval is same namespace/scope
+only and gates on task/operation compatibility, freshness, observed trust, a
+still-accepted source outcome, current passed non-superseded verifications,
+current knowledge references, and exact MIRL evidence fingerprints. Use is
+explicit. A later verified accepted outcome records successful reuse;
+rejection records failure. Those immutable result rows strengthen or weaken
+future trust/ranking. Feedback is run-owned, cross-run feedback is rejected,
+stale provenance fails closed, and no pattern or conclusion promotes itself
+into MIRL.
+
+Distribution and safety repairs found during review are part of the completed
+slice: the compiled self-host source allow-list includes
+`reasoning_patterns.py`; `graph_node` latency migrates and round-trips; graph
+qualification restores temporary runtime flags even on failure; CLI graph
+cycles refuse mixed non-graph scorers and missing required holdout motifs; and
+the public SDK routes knowledge queries through applied runtime policy.
+
+VERIFICATION:
+
+- `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN" .venv/bin/python -m pytest tests/ -q`
+  completed at 100%, exit 0: 1,565 tests collected, zero skips, two established
+  `compile_nl` xfails.
+- All staged Python files passed Ruff; affected modules passed compileall;
+  `git diff --check` and targeted collect-only/import checks passed.
+- Synthetic and pinned LoCoMo/BGE G3 qualification commands both exited 0 with
+  the measurements above.
+- Three completed CodeRabbit review cycles returned 16 findings. Valid findings
+  were fixed and regression-tested. A fourth post-fix cycle was blocked by the
+  free-plan 40-minute rate limit, so no claim of a final clean remote review is
+  made.
+- Repository-wide Ruff is not claimed: it descends into preserved unrelated
+  untracked `.ua` trash files and also reports two untouched pgvector-test
+  import blocks. Changed-file Ruff is clean.
+
+UNCHANGED BOUNDARIES: RAW/MIRL remains canonical truth; no paid benchmark or
+provider call ran; no retrieval policy was silently approved or applied; public
+`seam-client` and opaque `/v1` boundaries remain separate; unrelated untracked
+`.ua`, `dist`, and report-image files were left untouched.
+
+NEXT: push `feat/self-improving-graphs`, open a draft PR, and merge only after
+the protected required checks pass. G4-G7 knowledge products/scale and R5-R6
+reviewed promotion/qualification remain separate future stages; they are not
+included in this G3/R4 completion claim.
+---END-ENTRY-#494---

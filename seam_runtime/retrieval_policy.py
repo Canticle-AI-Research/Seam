@@ -36,6 +36,7 @@ RETRIEVAL_REASON_CODES = frozenset(
         "graph_neighbors",
         "graph_hop",
         "semantic_seed",
+        "graph_node_semantic",
         "chroma_score",
     }
 )

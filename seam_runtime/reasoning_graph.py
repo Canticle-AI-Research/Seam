@@ -64,7 +64,9 @@ _SUPPORTING_RELATIONS = frozenset({"uses", "supports", "derives", "tests", "answ
 RETRIEVAL_POLICY = FUSION_POLICY
 RETRIEVAL_MODES = frozenset({"vector", "graph", "hybrid", "mix"})
 RETRIEVAL_INTENTS = frozenset({"structured", "semantic", "hybrid", "graph", "mix"})
-RETRIEVAL_SOURCES = frozenset({"sql", "vector", "graph", "chroma"})
+RETRIEVAL_SOURCES = frozenset(
+    {"sql", "vector", "graph", "graph_node", "chroma"}
+)
 MAX_RETRIEVAL_CANDIDATES = 128
 REASONING_CHECK_KINDS = frozenset({"test", "tool", "review", "challenge"})
 REASONING_VERDICTS = frozenset({"passed", "failed", "error", "contradicted"})
@@ -129,6 +131,10 @@ def _migrate_reasoning_retrieval_schema(connection: sqlite3.Connection) -> None:
             "semantic_adapter = coalesce(semantic_adapter, 'unknown'), "
             "embedding_model = coalesce(embedding_model, 'unknown'), "
             "embedding_dimension = coalesce(embedding_dimension, 0)"
+        )
+    if retrieval_columns and "graph_node_latency_ms" not in retrieval_columns:
+        connection.execute(
+            "alter table reasoning_retrieval add column graph_node_latency_ms real"
         )
 
     snapshot_columns = {"record_ns", "record_scope", "record_sha256"}
@@ -277,6 +283,7 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
             candidates_truncated integer not null check (candidates_truncated in (0, 1)),
             sql_latency_ms real,
             vector_latency_ms real,
+            graph_node_latency_ms real,
             graph_latency_ms real,
             total_latency_ms real not null,
             created_at text not null,
@@ -579,6 +586,12 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
     _migrate_reasoning_retrieval_time_view(connection)
     _validate_reasoning_retrieval_schema(connection)
     _validate_reasoning_verification_schema(connection)
+    # R4 is a derived, append-only pattern plane over verified public
+    # justifications. Keep its schema initialization beside the reasoning
+    # graph so every existing store upgrades without a separate migration step.
+    from .reasoning_patterns import init_reasoning_patterns
+
+    init_reasoning_patterns(connection)
 
 
 def _migrate_reasoning_retrieval_time_view(connection: sqlite3.Connection) -> None:
@@ -637,6 +650,7 @@ def _validate_reasoning_retrieval_schema(connection: sqlite3.Connection) -> None
         "candidates_truncated",
         "sql_latency_ms",
         "vector_latency_ms",
+        "graph_node_latency_ms",
         "graph_latency_ms",
         "total_latency_ms",
         "created_at",
@@ -1434,10 +1448,11 @@ def record_reasoning_retrieval(
              embedding_revision,
              total_candidates, recorded_candidates,
              selected_count, candidates_truncated, sql_latency_ms,
-             vector_latency_ms, graph_latency_ms, total_latency_ms, created_at,
+             vector_latency_ms, graph_node_latency_ms, graph_latency_ms,
+             total_latency_ms, created_at,
              graph_at, graph_include_history,
              schema_version)
-        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
         """,
         (
             retrieval_id,
@@ -1477,6 +1492,7 @@ def record_reasoning_retrieval(
             int(bool(candidates_truncated)),
             latencies["sql"],
             latencies["vector"] if latencies["vector"] is not None else latencies["chroma"],
+            latencies["graph_node"],
             latencies["graph"],
             resolved_total_latency,
             resolved_created_at,
@@ -2014,6 +2030,7 @@ def _retrieval_from_row(
         "latency_ms": {
             "sql": row["sql_latency_ms"],
             "vector": row["vector_latency_ms"],
+            "graph_node": row["graph_node_latency_ms"],
             "graph": row["graph_latency_ms"],
             "total": row["total_latency_ms"],
         },

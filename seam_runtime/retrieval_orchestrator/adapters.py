@@ -133,6 +133,82 @@ class SeamVectorSearchAdapter:
         return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
+class GraphNodeSemanticAdapter:
+    """Expose derived graph-node vectors as an explicit RRF leg and seed set."""
+
+    def __init__(
+        self, store: SQLiteStore, embedding_model: EmbeddingModel
+    ) -> None:
+        self.store = store
+        self.embedding_model = embedding_model
+
+    def search(
+        self,
+        plan: RetrievalPlan,
+        limit: int,
+        *,
+        min_score: float = 0.0,
+    ) -> tuple[list[str], list[LegHit]]:
+        query_text = plan.normalized_query or plan.query
+        if not query_text.strip() or limit <= 0:
+            return [], []
+        model_name = (
+            getattr(self.embedding_model, "name", "")
+            or self.embedding_model.__class__.__name__
+        )
+        ranked = self.store.search_node_vectors(
+            self.embedding_model.embed(query_text),
+            model_name,
+            ns=plan.filters.namespace,
+            scope=plan.filters.scope,
+            limit=limit,
+            min_score=min_score,
+        )
+        visible = _visible_graph_node_ids(
+            self.store, [node_id for node_id, _score in ranked], plan
+        )
+        ranked = [
+            (node_id, score)
+            for node_id, score in ranked
+            if node_id in visible
+        ]
+        if not ranked:
+            return [], []
+        with closing(self.store._connect()) as connection:
+            placeholders = ",".join("?" for _ in ranked)
+            rows = connection.execute(
+                "select id, source_record_id from knowledge_nodes "
+                f"where id in ({placeholders})",
+                [node_id for node_id, _score in ranked],
+            ).fetchall()
+        source_by_node = {
+            str(row["id"]): str(row["source_record_id"] or row["id"])
+            for row in rows
+        }
+        batch = self.store.load_ir(
+            ids=sorted(set(source_by_node.values())),
+            ns=plan.filters.namespace,
+            scope=plan.filters.scope,
+        )
+        records = batch.by_id()
+        hits: list[LegHit] = []
+        accepted_node_ids: list[str] = []
+        for node_id, score in ranked:
+            record = records.get(source_by_node.get(node_id, ""))
+            if record is None or not plan.filters.matches(record):
+                continue
+            accepted_node_ids.append(node_id)
+            hits.append(
+                LegHit(
+                    leg="graph_node",
+                    record=record,
+                    score=score,
+                    reasons=[f"graph_node_semantic={score:.4f}"],
+                )
+            )
+        return accepted_node_ids, hits
+
+
 class SQLiteGraphAdapter:
     def __init__(self, store: SQLiteStore) -> None:
         self.store = store
@@ -143,10 +219,16 @@ class SQLiteGraphAdapter:
         limit: int,
         *,
         seed_record_ids: list[str] | tuple[str, ...] = (),
+        seed_node_ids: list[str] | tuple[str, ...] = (),
     ) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
         tokens = _unique_tokens(_tokens(query_text))
-        if not tokens and not plan.filters.active() and not seed_record_ids:
+        if (
+            not tokens
+            and not plan.filters.active()
+            and not seed_record_ids
+            and not seed_node_ids
+        ):
             return []
         seed_limit = max(50, min(250, limit * 20))
         seed_sql, seed_params = _build_structured_sql(
@@ -175,6 +257,13 @@ class SQLiteGraphAdapter:
             for record in semantic_batch.records
             if plan.filters.matches(record)
         }
+        semantic_seed_ids.update(
+            _visible_graph_node_ids(
+                self.store,
+                sorted(set(seed_node_ids))[:300],
+                plan,
+            )
+        )
         visible_seed_ids = _visible_graph_node_ids(
             self.store,
             {record.id for record in matching_records} | semantic_seed_ids,

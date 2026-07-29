@@ -96,6 +96,34 @@ superseded, forked, or cross-run check rolls back the entire finalization.
 This is verification provenance, not proof that an outcome is canonical truth,
 and it never promotes the outcome into MIRL.
 
+## R4 reasoning-retrieval and improvement contract
+
+R4 turns verified public reasoning structure into a reusable improvement loop.
+Finalization attempts to distill each verified accepted outcome into one
+append-only `reasoning-pattern/1` recipe containing only step kinds, controlled
+operations, edge relations, and verification-check kinds. Pattern learning is a
+derived, non-fatal step: a distillation failure is reported as pending without
+invalidating the already-verified outcome. A successful recipe deliberately
+excludes step summaries, conclusions, raw tool output, provider payloads, and
+hidden chain-of-thought. It maps how a successful run reasoned without
+laundering that run's answer into a fact.
+
+Pattern retrieval is fail-closed. A recipe is eligible only in the same
+namespace and scope, within the requested freshness horizon, above the requested
+observed-success threshold, and while its source outcome, current passed
+verifications, knowledge references, and exact MIRL evidence fingerprints remain
+current. Ranking combines task-term similarity, controlled-operation match,
+freshness, and observed reuse results. A caller explicitly records pattern use.
+A later verified accepted outcome records success automatically; an explicit
+rejection records failure. Those append-only results change future trust and
+ranking without mutating or deleting the original pattern.
+
+This is genuine bounded self-improvement: verified success produces a reusable
+strategy, later verified reuse strengthens it, failure weakens it, stale
+provenance removes it from consideration, and incompatible tenant/task patterns
+are never returned. It is not autonomous truth promotion and it does not claim
+that an unverified conclusion is knowledge.
+
 ## Python SDK
 
 The initial SDK is local and provider-free:
@@ -110,6 +138,9 @@ with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
         scope="project",
         agent_id="planner",
     )
+    # Compatible verified recipes are recommended but not counted as used.
+    if run.recommended_patterns:
+        use = run.use_pattern(run.recommended_patterns[0]["pattern_id"])
     premise = run.add_node(
         "premise",
         "The current schema has a verified rollback path.",
@@ -138,6 +169,8 @@ with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
         "Use the reversible migration.",
         verification_ids=[check["verification_id"]],
     )
+    # Finalization learns this run's structural recipe and, when `use` exists,
+    # records verified successful reuse of the prior recipe.
     graph = run.graph()
 ```
 
@@ -159,11 +192,11 @@ and framework-specific packages can grow as adapters over this boundary.
 | R1 Durable run graph | Typed append-only nodes, edges, state history, evidence references, Python SDK | Isolation, immutability, explicit support, no hidden traces, no automatic MIRL promotion |
 | R2 Retrieval decisions | First-class query plans, candidate comparisons, and selected/rejected traces | Every selection identifies candidates, policy/model identity, evidence fingerprints, and rejected alternatives |
 | R3 Verification loops | Tests, tool outcomes, contradictions, retries, and supersession | Failed paths remain visible; final outcomes identify the checks that support them |
-| R4 Reasoning retrieval | Search and reuse prior reasoning patterns without treating outcomes as facts | Task/run scoping, freshness, trust, and provenance gates; no conclusion laundering |
+| R4 Reasoning retrieval | Search and reuse prior reasoning patterns with verified success/failure feedback without treating outcomes as facts | Task/run scoping, freshness, trust, and provenance gates; structural recipes only; no conclusion laundering |
 | R5 Reviewed promotion | Explicit proposal/review path from selected outcomes to new MIRL assertions | Human or policy approval, exact evidence, reversible audit, no automatic promotion |
 | R6 Qualification | Cross-agent SDK adapters, concurrency/recovery, latency and usefulness evaluations | Stable versioned contract, tenant isolation, crash recovery, measured value over event-only traces |
 
-R1-R3 are implemented. R4-R6 remain open; an R2 retrieval decision is an
+R1-R4 are implemented. R5-R6 remain open; an R2 retrieval decision is an
 auditable record of what the current policy selected, not proof that the policy
 is optimal or that the selected records are true. An R3 passed check is
 similarly scoped verification evidence, not automatic canonical truth.

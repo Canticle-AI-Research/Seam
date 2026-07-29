@@ -81,3 +81,18 @@ def test_improve_cycle_rejects_out_of_range_category_floor(tmp_path, capsys):
     )
     report = json.loads(capsys.readouterr().out)
     assert report == {"error": "--cat1-floor must be within [0, 1]"}
+
+
+def test_graph_cycle_rejects_mixed_non_graph_scorers(tmp_path, capsys):
+    run_cli(
+        [
+            "--db",
+            str(tmp_path / "s.db"),
+            "improve",
+            "cycle",
+            "--graph-probe-sample",
+            "10",
+        ]
+    )
+    report = json.loads(capsys.readouterr().out)
+    assert "--probe-sample 0" in report["error"]

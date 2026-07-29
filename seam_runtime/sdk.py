@@ -40,6 +40,7 @@ _REASON_CODE_MAP = {
     "graph_neighbors": "graph_neighbors",
     "graph_hop": "graph_hop",
     "semantic_seed": "semantic_seed",
+    "graph_node_semantic": "graph_node_semantic",
     "chroma": "chroma_score",
 }
 
@@ -60,13 +61,30 @@ def _reason_codes(reasons: Iterable[str]) -> tuple[str, ...]:
 class ReasoningSession:
     """Run-scoped SDK handle for SEAM's public reasoning graph."""
 
-    def __init__(self, runtime: SeamRuntime, run_id: str) -> None:
+    def __init__(
+        self,
+        runtime: SeamRuntime,
+        run_id: str,
+        *,
+        objective: str | None = None,
+        recommend_patterns: bool = True,
+    ) -> None:
         self._runtime = runtime
         run = runtime.store.get_workspace_run(run_id, include_events=False)["run"]
         self.run_id = run_id
         self.ns = str(run["ns"])
         self.scope = str(run["scope"])
         self.agent_id = run.get("agent_id")
+        self.recommended_patterns: tuple[dict[str, object], ...] = ()
+        if objective and recommend_patterns:
+            self.recommended_patterns = tuple(
+                runtime.store.reasoning_patterns(
+                    objective=objective,
+                    ns=self.ns,
+                    scope=self.scope,
+                    limit=5,
+                )
+            )
 
     def add_node(
         self,
@@ -227,6 +245,46 @@ class ReasoningSession:
 
     def graph(self) -> dict[str, object]:
         return self._runtime.store.reasoning_graph(self.run_id)
+
+    def patterns(
+        self,
+        objective: str,
+        *,
+        operation: str | None = None,
+        limit: int = 5,
+        max_age_days: int = 90,
+        min_trust: float = 0.5,
+    ) -> list[dict[str, object]]:
+        """Return current, compatible, verified structural reasoning recipes."""
+
+        return self._runtime.store.reasoning_patterns(
+            objective=objective,
+            ns=self.ns,
+            scope=self.scope,
+            operation=operation,
+            limit=limit,
+            max_age_days=max_age_days,
+            min_trust=min_trust,
+        )
+
+    def use_pattern(self, pattern_id: str) -> dict[str, object]:
+        """Record that this run is applying a reusable reasoning recipe."""
+
+        return self._runtime.store.use_reasoning_pattern(
+            pattern_id=pattern_id, run_id=self.run_id
+        )
+
+    def reject_pattern(
+        self, use_id: str, *, reason: str
+    ) -> dict[str, object]:
+        """Record negative feedback so future pattern ranking can improve."""
+
+        return self._runtime.store.record_reasoning_pattern_feedback(
+            use_id=use_id,
+            expected_run_id=self.run_id,
+            succeeded=False,
+            reason=reason,
+        )
 
     def retrieve(
         self,
@@ -397,6 +455,7 @@ class SeamSDK:
         agent_id: str | None = None,
         model: str | None = None,
         provider: str | None = None,
+        recommend_patterns: bool = True,
     ) -> ReasoningSession:
         run, _objective = self.runtime.store.create_reasoning_run(
             objective=objective,
@@ -406,7 +465,12 @@ class SeamSDK:
             model=model,
             provider=provider,
         )
-        return ReasoningSession(self.runtime, str(run["run_id"]))
+        return ReasoningSession(
+            self.runtime,
+            str(run["run_id"]),
+            objective=objective,
+            recommend_patterns=recommend_patterns,
+        )
 
     def reasoning(self, run_id: str) -> ReasoningSession:
         return ReasoningSession(self.runtime, run_id)
@@ -419,4 +483,4 @@ class SeamSDK:
     def knowledge(self, **query: Any) -> dict[str, object]:
         """Query the canonical knowledge plane without exposing storage details."""
 
-        return self.runtime.store.knowledge_graph(**query)
+        return self.runtime.knowledge_graph(**query)

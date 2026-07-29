@@ -419,6 +419,15 @@ def build_parser() -> argparse.ArgumentParser:
     improve_cycle_parser.add_argument("--auto-approve", action="store_true", help="Deprecated compatibility flag; strict-ratchet proposals always require separate operator approval")
     improve_cycle_parser.add_argument("--probe-sample", type=int, default=50, help="Self-probe sample size from the local corpus (default 50; 0 disables the self-probe scorer)")
     improve_cycle_parser.add_argument("--probe-budget", type=int, default=20, help="Fixed eval budget for the self-probe scorer (default 20)")
+    improve_cycle_parser.add_argument(
+        "--graph-probe-sample",
+        type=int,
+        default=0,
+        help=(
+            "Knowledge-graph motif probes per dev/holdout split (default 0). "
+            "Use with --probe-sample 0 so only graph-observing scorers may tune graph policy."
+        ),
+    )
     improve_cycle_parser.add_argument("--locomo-dataset", default=None, help="Optional free LoCoMo context_recall scorer from this dataset path (source checkout only)")
     improve_cycle_parser.add_argument("--locomo-scopes", type=int, default=5, help="Number of LoCoMo conversations pooled into the dev gate (default 5; multi-conversation so proposals generalize)")
     improve_cycle_parser.add_argument("--locomo-split", choices=["dev", "holdout", "all"], default="dev", help="Which split to score (default dev; the loop must NOT tune on holdout)")
@@ -1298,7 +1307,7 @@ def run_cli(argv: list[str] | None = None) -> None:
             return
     if args.command in {"knowledge", "graph"}:
         if args.knowledge_command in {"search", "show"}:
-            payload = runtime.store.knowledge_graph(
+            payload = runtime.knowledge_graph(
                 query=args.query or None,
                 root_id=args.root_id,
                 agent_id=args.agent_id,
@@ -1356,7 +1365,13 @@ def run_cli(argv: list[str] | None = None) -> None:
         if run_cycle is None:
             print(json.dumps({"error": "seam improve cycle requires a source checkout (tools/ is not shipped in the wheel)"}, indent=2))
             return
-        from .self_improve import SelfProbeScorer, generate_probes
+        from .self_improve import (
+            REQUIRED_GRAPH_HOLDOUT_MOTIFS,
+            GraphProbeScorer,
+            SelfProbeScorer,
+            generate_probes,
+            split_graph_probes,
+        )
 
         for option, floor in (
             ("--cat1-floor", args.cat1_floor),
@@ -1371,6 +1386,36 @@ def run_cli(argv: list[str] | None = None) -> None:
                 )
                 return
         scorers = []
+        if args.graph_probe_sample > 0 and (
+            args.probe_sample > 0 or args.locomo_dataset
+        ):
+            print(
+                json.dumps(
+                    {
+                        "error": (
+                            "--graph-probe-sample requires --probe-sample 0 "
+                            "and no --locomo-dataset so only graph-aware "
+                            "scorers tune graph policy"
+                        )
+                    },
+                    indent=2,
+                )
+            )
+            return
+        if 0 < args.graph_probe_sample < len(REQUIRED_GRAPH_HOLDOUT_MOTIFS):
+            print(
+                json.dumps(
+                    {
+                        "error": (
+                            "--graph-probe-sample must be at least "
+                            f"{len(REQUIRED_GRAPH_HOLDOUT_MOTIFS)} to cover "
+                            "the required holdout motifs"
+                        )
+                    },
+                    indent=2,
+                )
+            )
+            return
         if args.adjudication_overlay and (
             not args.locomo_dataset or args.locomo_answerer != "ollama"
         ):
@@ -1389,6 +1434,32 @@ def run_cli(argv: list[str] | None = None) -> None:
         if args.probe_sample > 0:
             probes = generate_probes(runtime, sample=args.probe_sample)
             scorers.append(SelfProbeScorer(probes, budget=args.probe_budget))
+        if args.graph_probe_sample > 0:
+            graph_probes = runtime.store.generate_graph_probes(
+                sample=None, seed=1234
+            )
+            graph_dev, graph_holdout = split_graph_probes(
+                graph_probes,
+                sample_per_split=args.graph_probe_sample,
+                seed=1234,
+            )
+            graph_scorer = GraphProbeScorer(graph_dev, graph_holdout)
+            missing = graph_scorer.missing_holdout_motifs()
+            if missing:
+                print(
+                    json.dumps(
+                        {
+                            "error": (
+                                "graph policy cycle cannot build the required "
+                                "holdout gates; missing motifs: "
+                                + ", ".join(missing)
+                            )
+                        },
+                        indent=2,
+                    )
+                )
+                return
+            scorers.append(graph_scorer)
         adapter = None
         if args.locomo_dataset:
             import tempfile
@@ -1443,7 +1514,7 @@ def run_cli(argv: list[str] | None = None) -> None:
                 )
             scorers.append(locomo_scorer)
         if not scorers:
-            print(json.dumps({"error": "no scorers: set --probe-sample > 0 or pass --locomo-dataset"}, indent=2))
+            print(json.dumps({"error": "no scorers: set --probe-sample > 0, --graph-probe-sample > 0, or pass --locomo-dataset"}, indent=2))
             return
         try:
             category_floors = (

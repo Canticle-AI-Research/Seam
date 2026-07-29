@@ -9,6 +9,7 @@ not have to infer what works from directory names alone.
 - `seam_runtime/retrieval_orchestrator/` - multi-leg retrieval orchestrator (planner, adapters, merger) powering `seam retrieve`, the MCP tool, dashboard retrieval, and the benchmark suite. Promoted from `experimental/` in HISTORY#284.
 - `seam_runtime/knowledge_graph.py` - canonical MIRL-to-graph projector, conservative 5W1H+Then lens, evidence-derived trust profiles/assertion gate, versioned existing-database backfill, temporal/source supersession, graph query, node-page, and statistics logic. `SQLiteStore.persist_ir` maintains it automatically (HISTORY#403).
 - `seam_runtime/reasoning_graph.py` - append-only public reasoning nodes, edges, state transitions, and bounded R2 retrieval-decision ledgers anchored to workspace runs, with scoped knowledge/MIRL evidence references and no automatic canonical promotion.
+- `seam_runtime/reasoning_patterns.py` - R4 structural reasoning recipes distilled from verified accepted outcomes, same-boundary/freshness/provenance-gated retrieval, explicit use records, and verified success/failure feedback.
 - `seam_runtime/retrieval_policy.py` - versioned provider-free retrieval planner/fusion identities, controlled reason-code vocabulary, ordered content-free candidate-set fingerprints, and canonical MIRL evidence fingerprints shared by runtime and reasoning persistence.
 - `seam_runtime/sdk.py` - stable local Python SDK over SEAM runtime, knowledge queries, run-scoped reasoning sessions, and atomic reasoned retrieval; CLI, REST, MCP, and framework packages can remain adapters rather than storage clients.
 - `seam_runtime/public_api.py` - private implementation of the opaque public
@@ -19,7 +20,8 @@ not have to infer what works from directory names alone.
   `BlackhatShiftey/Seam_Runtime/sdk`.
 - `seam_runtime/workspace.py` - append-only structured workspace run/event schema, allowlisted telemetry sanitization, SSE framing/replay, and deterministic graph-activation projection. It explicitly excludes credentials, hidden chain-of-thought, and raw activation tensors.
 - `seam_runtime/jspace.py` - optional J-lens capability boundary: unavailable/structured-only default, verified local Hugging Face Qwen adapter, and authenticated pinned remote worker. No model, lens, analyzer, download, or network dependency is enabled by default.
-- `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and the strict multi-family propose-and-approve ratchet wired into the existing H2 proposal, decision, and applied-flag substrate.
+- `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and bounded graph-policy candidates wired through the strict multi-family propose, operator-approve, applied-flag, and revert substrate.
+- `tools/graph_retrieval_qualification.py` + `tools/graph_real_corpus_qualification.py` - synthetic scale/query-shape and pinned LoCoMo development/holdout qualification for G3 node-vector fusion and safe policy selection.
 - `seam_runtime/webui/` - the SEAM browser dashboard served by the REST API: `dashboard.html` (the IDE-style operator UI), `seam-api.js`, `tweaks-panel.jsx`, branding, and icons. `seam serve` and `seam webui` serve these at `/` on the same origin as the API; packaged with the wheel. This is the functional dashboard (HISTORY#285).
 - `seam.py` - console entrypoint module for `seam` and `seam-benchmark`.
 - `test_seam_all/test_seam.py` - primary regression suite. Local `test_seam_*.db`

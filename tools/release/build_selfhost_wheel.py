@@ -71,6 +71,7 @@ RUNTIME_SOURCE_FILES = (
     Path("seam_runtime/pool.py"),
     Path("seam_runtime/public_api.py"),
     Path("seam_runtime/reasoning_graph.py"),
+    Path("seam_runtime/reasoning_patterns.py"),
     Path("seam_runtime/reconcile.py"),
     Path("seam_runtime/retrieval.py"),
     Path("seam_runtime/retrieval_orchestrator/__init__.py"),

@@ -80,6 +80,58 @@ class GraphProbe:
     rationale: str = ""
 
 
+REQUIRED_GRAPH_HOLDOUT_MOTIFS = frozenset(
+    {"unsupported", "temporal", "provenance"}
+)
+
+
+def split_graph_probes(
+    probes: Sequence[GraphProbe],
+    *,
+    sample_per_split: int,
+    seed: int = 1234,
+) -> tuple[list[GraphProbe], list[GraphProbe]]:
+    """Build deterministic, disjoint, motif-stratified dev/holdout splits."""
+
+    if sample_per_split < 1:
+        raise ValueError("graph probe sample_per_split must be positive")
+    by_motif: dict[str, list[GraphProbe]] = defaultdict(list)
+    for probe in probes:
+        by_motif[probe.motif].append(probe)
+
+    development: list[GraphProbe] = []
+    holdout: list[GraphProbe] = []
+    for motif, motif_probes in sorted(by_motif.items()):
+        ordered = sorted(
+            motif_probes,
+            key=lambda probe: hashlib.sha256(
+                f"{seed}:{probe.case_id}".encode("utf-8")
+            ).hexdigest(),
+        )
+        holdout_count = max(1, len(ordered) // 5)
+        holdout.extend(ordered[:holdout_count])
+        development.extend(ordered[holdout_count:])
+
+    def stratified_sample(
+        candidates: Sequence[GraphProbe],
+    ) -> list[GraphProbe]:
+        buckets: dict[str, list[GraphProbe]] = defaultdict(list)
+        for candidate in candidates:
+            buckets[candidate.motif].append(candidate)
+        sampled: list[GraphProbe] = []
+        while len(sampled) < sample_per_split:
+            added = False
+            for motif in sorted(buckets):
+                if buckets[motif] and len(sampled) < sample_per_split:
+                    sampled.append(buckets[motif].pop(0))
+                    added = True
+            if not added:
+                break
+        return sampled
+
+    return stratified_sample(development), stratified_sample(holdout)
+
+
 @dataclass(frozen=True)
 class ScoreReport:
     """Outcome of a :class:`Scorer` run.
@@ -471,6 +523,168 @@ class SelfProbeScorer:
         )
 
 
+@dataclass
+class GraphProbeScorer:
+    """Score knowledge-graph policy changes on dev and disjoint holdout motifs.
+
+    This is the missing bridge between ``generate_graph_probes`` and H2's real
+    proposal/apply/revert state. Only this scorer opts into graph-policy
+    candidates, preventing ordinary record-retrieval metrics from tuning knobs
+    they do not actually observe.
+    """
+
+    probes: Sequence[GraphProbe]
+    holdout_probes: Sequence[GraphProbe]
+    namespace: str | None = None
+    scope: str | None = None
+    limit: int = 100
+    hops: int = 3
+    name: str = "graph_probe"
+    graph_policy_safe: bool = True
+
+    def missing_holdout_motifs(self) -> tuple[str, ...]:
+        present = {probe.motif for probe in self.holdout_probes}
+        return tuple(sorted(REQUIRED_GRAPH_HOLDOUT_MOTIFS - present))
+
+    def _score(
+        self,
+        runtime: "SeamRuntime",
+        probes: Sequence[GraphProbe],
+        flags: RetrievalFlags,
+        *,
+        name: str,
+    ) -> ScoreReport:
+        per_case: dict[str, float] = {}
+        by_motif: dict[str, list[float]] = defaultdict(list)
+        for probe in probes:
+            if not probe.expected_node_ids:
+                raise ValueError(
+                    "graph probe expected_node_ids must not be empty: "
+                    f"{probe.case_id}"
+                )
+            result = runtime.knowledge_graph(
+                query=probe.query,
+                namespace=self.namespace,
+                scope=self.scope,
+                limit=self.limit,
+                hops=self.hops,
+                semantic_seeds=flags.graph_semantic_seeds,
+                min_seed_score=flags.graph_semantic_min_score,
+            )
+            nodes = {
+                str(node.get("id")): node
+                for node in result.get("nodes", [])
+                if isinstance(node, Mapping)
+            }
+            expected = tuple(dict.fromkeys(probe.expected_node_ids))
+            recall = sum(node_id in nodes for node_id in expected) / len(
+                expected
+            )
+            if probe.expected_action == "abstain_or_qualify":
+                trust_safe = all(
+                    not bool(nodes[node_id].get("assertable"))
+                    for node_id in expected
+                    if node_id in nodes
+                )
+                recall = recall if trust_safe else 0.0
+            per_case[probe.case_id] = recall
+            by_motif[probe.motif].append(recall)
+        n = len(per_case)
+        return ScoreReport(
+            scorer=name,
+            aggregate=sum(per_case.values()) / n if n else 0.0,
+            n=n,
+            per_category={
+                motif: sum(values) / len(values)
+                for motif, values in sorted(by_motif.items())
+            },
+            per_case=per_case,
+        )
+
+    def score(
+        self, runtime: "SeamRuntime", flags: RetrievalFlags | None = None
+    ) -> ScoreReport:
+        return self._score(
+            runtime,
+            self.probes,
+            flags or RetrievalFlags(),
+            name=self.name,
+        )
+
+    def ratchet_gates(
+        self,
+        runtime: "SeamRuntime",
+        baseline: RetrievalFlags,
+        candidate: RetrievalFlags,
+        *,
+        regress_tol: float,
+    ) -> list["RatchetGateEvidence"]:
+        """Build the non-evaluation gates from a disjoint fixed holdout split."""
+
+        missing_motifs = self.missing_holdout_motifs()
+        if missing_motifs:
+            raise ValueError(
+                "graph holdout split is unusable; missing required motifs: "
+                + ", ".join(missing_motifs)
+            )
+        baseline_report = self._score(
+            runtime, self.holdout_probes, baseline, name=f"{self.name}_holdout"
+        )
+        candidate_report = self._score(
+            runtime, self.holdout_probes, candidate, name=f"{self.name}_holdout"
+        )
+        refs = tuple(probe.case_id for probe in self.holdout_probes)
+        integrity_ok = bool(self.holdout_probes) and all(
+            probe.expected_node_ids and len(set(probe.expected_node_ids)) == len(probe.expected_node_ids)
+            for probe in self.holdout_probes
+        )
+
+        def category_gate(family: str, motif: str) -> RatchetGateEvidence:
+            matching = tuple(
+                probe.case_id for probe in self.holdout_probes if probe.motif == motif
+            )
+            base = baseline_report.per_category.get(motif)
+            value = candidate_report.per_category.get(motif)
+            return RatchetGateEvidence(
+                name=f"{family}:{motif}",
+                family=family,
+                passed=bool(matching)
+                and base is not None
+                and value is not None
+                and value >= base - regress_tol,
+                baseline=base,
+                candidate=value,
+                threshold=None if base is None else base - regress_tol,
+                details=f"{motif} holdout behavior must not regress",
+                refs=matching or (f"missing-holdout-motif:{motif}",),
+            )
+
+        return [
+            RatchetGateEvidence(
+                name="integrity:graph-probe-shape",
+                family="integrity",
+                passed=integrity_ok,
+                details="holdout probes require non-empty unique expected node ids",
+                refs=refs or ("missing:graph-holdout",),
+            ),
+            category_gate("trust", "unsupported"),
+            category_gate("temporal", "temporal"),
+            category_gate("provenance", "provenance"),
+            RatchetGateEvidence(
+                name="holdout:graph-recall",
+                family="holdout",
+                passed=bool(self.holdout_probes)
+                and candidate_report.aggregate
+                >= baseline_report.aggregate - regress_tol,
+                baseline=baseline_report.aggregate,
+                candidate=candidate_report.aggregate,
+                threshold=baseline_report.aggregate - regress_tol,
+                details="disjoint graph holdout aggregate must not regress",
+                refs=refs or ("missing:graph-holdout",),
+            ),
+        ]
+
+
 # --- proposer core: generate candidate levers + evaluate against free scorers ---
 
 # Default decision thresholds. ``noise_margin`` is the measured self-probe noise
@@ -688,6 +902,7 @@ def candidate_levers(
     weight_step: float = 0.10,
     profile_levers: bool = False,
     answer_policy_levers: bool = False,
+    graph_policy_levers: bool = False,
 ) -> list[Candidate]:
     """Bounded candidate set: the boolean/enum levers (when not already set on
     the baseline) plus single-channel weight perturbations (+/- ``weight_step``).
@@ -776,6 +991,32 @@ def candidate_levers(
                     flags=replace(baseline, **{field_name: value}),
                 )
             )
+    if graph_policy_levers:
+        for seed_count in (4, 8, 16, 32):
+            if baseline.graph_semantic_seeds == seed_count:
+                continue
+            candidates.append(
+                Candidate(
+                    label=f"graph_semantic_seeds={seed_count}",
+                    change={"graph_semantic_seeds": seed_count},
+                    flags=replace(
+                        baseline, graph_semantic_seeds=seed_count
+                    ),
+                )
+            )
+        if baseline.graph_semantic_seeds > 0:
+            for floor in (0.1, 0.25, 0.5, 0.75):
+                if math.isclose(baseline.graph_semantic_min_score, floor):
+                    continue
+                candidates.append(
+                    Candidate(
+                        label=f"graph_semantic_min_score={floor}",
+                        change={"graph_semantic_min_score": floor},
+                        flags=replace(
+                            baseline, graph_semantic_min_score=floor
+                        ),
+                    )
+                )
     return candidates
 
 

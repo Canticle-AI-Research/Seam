@@ -248,7 +248,7 @@ def dispatch_tool(runtime: SeamRuntime, request: dict[str, object]) -> dict[str,
         return {"type": "result", "tool": name, "result": runtime.ingest_text(text, source_ref=source_ref, agent_id=agent_id, persist=True).to_dict()}
     if name == "seam_knowledge_graph":
         kinds = str(arguments.get("kinds") or "")
-        result = runtime.store.knowledge_graph(
+        result = runtime.knowledge_graph(
             query=str(arguments.get("query") or "") or None,
             root_id=str(arguments.get("root_id") or "") or None,
             agent_id=str(arguments.get("agent_id") or "") or None,

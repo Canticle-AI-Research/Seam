@@ -96,11 +96,15 @@ def run_improvement_cycle(
     answer_policy_levers = bool(scorers) and all(
         getattr(s, "answer_policy_safe", False) for s in scorers
     )
+    graph_policy_levers = bool(scorers) and all(
+        getattr(s, "graph_policy_safe", False) for s in scorers
+    )
     candidates = candidate_levers(
         baseline,
         weight_step=weight_step,
         profile_levers=profile_levers,
         answer_policy_levers=answer_policy_levers,
+        graph_policy_levers=graph_policy_levers,
     )
     evaluations = evaluate_candidates(
         runtime, scorers, candidates, baseline,
@@ -129,6 +133,7 @@ def run_improvement_cycle(
         "n_candidates": len(candidates),
         "profile_levers": profile_levers,
         "answer_policy_levers": answer_policy_levers,
+        "graph_policy_levers": graph_policy_levers,
         "category_floors": dict(sorted(floors.items())),
         "proposed": None,
         "applied": False,
@@ -139,12 +144,12 @@ def run_improvement_cycle(
         report["reason"] = "no candidate improved beyond noise without regression"
         return report
 
-    proposal_kind = (
-        "answer_policy"
-        if {"conversation_adapter", "inference_policy"}
-        & best.candidate.change.keys()
-        else "ranking_weight"
-    )
+    if {"graph_semantic_seeds", "graph_semantic_min_score"} & best.candidate.change.keys():
+        proposal_kind = "graph_policy"
+    elif {"conversation_adapter", "inference_policy"} & best.candidate.change.keys():
+        proposal_kind = "answer_policy"
+    else:
+        proposal_kind = "ranking_weight"
     derived_gates: list[RatchetGateEvidence] = []
     for scorer_name, delta in sorted(best.deltas.items()):
         baseline_value = base_reports[scorer_name].aggregate
@@ -173,7 +178,21 @@ def run_improvement_cycle(
         details="every measured category must remain within regression tolerance",
         refs=tuple(category_refs) or ("evaluation:no-category-breakdown",),
     ))
-    ratchet = strict_ratchet_decision([*derived_gates, *ratchet_gates])
+    scorer_gates: list[RatchetGateEvidence] = []
+    for scorer in scorers:
+        gate_builder = getattr(scorer, "ratchet_gates", None)
+        if callable(gate_builder):
+            scorer_gates.extend(
+                gate_builder(
+                    runtime,
+                    baseline,
+                    best.candidate.flags,
+                    regress_tol=regress_tol,
+                )
+            )
+    ratchet = strict_ratchet_decision(
+        [*derived_gates, *scorer_gates, *ratchet_gates]
+    )
     proposed_change = {
         "flags": best.candidate.change,
         "ratchet": ratchet.to_dict(),
