@@ -20,6 +20,7 @@ from .evals import run_retrieval_benchmark
 from .mirl import (
     Artifact,
     IRBatch,
+    MIRLRecord,
     Pack,
     PersistReport,
     ReconcileReport,
@@ -291,6 +292,108 @@ class SeamRuntime:
             except Exception:
                 LOGGER.exception("Semantic node seeding failed; falling back to lexical seeds")
         return self.store.knowledge_graph(query=query, semantic_seed_ids=seed_ids, **kwargs)
+
+    def rebuild_graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        max_facts: int = 10_000,
+        min_observation_episodes: int = 2,
+        max_sentences_per_product: int = 64,
+    ) -> dict[str, object]:
+        """Derive a new G4 snapshot from current, trust-gated graph facts."""
+
+        return self.store.rebuild_graph_products(
+            namespace=namespace,
+            scope=scope,
+            max_facts=max_facts,
+            min_observation_episodes=min_observation_episodes,
+            max_sentences_per_product=max_sentences_per_product,
+        )
+
+    def graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        kinds: list[str] | None = None,
+        subject_id: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read the latest complete G4 snapshot for one tenant boundary."""
+
+        return self.store.graph_products(
+            namespace=namespace,
+            scope=scope,
+            kinds=kinds,
+            subject_id=subject_id,
+            limit=limit,
+        )
+
+    def graph_product_history(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        stable_key: str,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read immutable content versions for one derived graph product."""
+
+        return self.store.graph_product_history(
+            namespace=namespace,
+            scope=scope,
+            stable_key=stable_key,
+            limit=limit,
+        )
+
+    def apply_reasoning_promotion(
+        self, *, proposal_id: str, applied_by: str
+    ) -> dict[str, object]:
+        """Explicitly persist one reviewed R5 assertion; never auto-applied."""
+
+        result = self.store.apply_reasoning_promotion(
+            proposal_id=proposal_id, applied_by=applied_by
+        )
+        record = MIRLRecord.from_dict(result["record"])  # type: ignore[arg-type]
+        try:
+            self.vector_adapter.index_records([record])
+            vector_indexed = True
+        except Exception:
+            # Canonical MIRL + application audit committed atomically before
+            # this derived external index. Do not erase reviewed truth merely
+            # because a rebuildable vector backend is temporarily unavailable.
+            LOGGER.exception(
+                "Applied reasoning promotion but vector indexing is pending"
+            )
+            vector_indexed = False
+        self.project_node_vectors()
+        return {**result, "vector_indexed": vector_indexed}
+
+    def reverse_reasoning_promotion(
+        self, *, proposal_id: str, reversed_by: str, reason: str
+    ) -> dict[str, object]:
+        """Audit reversal and append a canonical supersession relation."""
+
+        result = self.store.reverse_reasoning_promotion(
+            proposal_id=proposal_id,
+            reversed_by=reversed_by,
+            reason=reason,
+        )
+        record = MIRLRecord.from_dict(  # type: ignore[arg-type]
+            result["superseding_record"]
+        )
+        try:
+            self.vector_adapter.index_records([record])
+            vector_indexed = True
+        except Exception:
+            LOGGER.exception(
+                "Reversed reasoning promotion but vector indexing is pending"
+            )
+            vector_indexed = False
+        self.project_node_vectors()
+        return {**result, "vector_indexed": vector_indexed}
 
     def project_node_vectors(self, *, limit: int | None = None) -> dict[str, object]:
         """Embed graph nodes whose derived vector is missing, stale, or legacy.

@@ -1,3 +1,4 @@
+from .graph_products import GraphProductFact
 from .mirl import (
     Artifact,
     IRBatch,
@@ -16,6 +17,7 @@ from .sdk import ReasonedRetrieval, ReasoningSession, SeamSDK
 
 __all__ = [
     "Artifact",
+    "GraphProductFact",
     "IRBatch",
     "MIRLRecord",
     "Pack",

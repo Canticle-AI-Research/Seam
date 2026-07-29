@@ -237,6 +237,51 @@ class ReasoningSession:
             agent_id=self.agent_id if isinstance(self.agent_id, str) else None,
         )
 
+    def propose_promotion(
+        self,
+        outcome_node_id: str,
+        *,
+        assertion_record_id: str,
+        assertion_subject: str,
+        assertion_predicate: str,
+        assertion_object: object,
+        assertion_status: str = "inferred",
+        assertion_confidence: float = 1.0,
+        assertion_t0: str | None = None,
+        assertion_t1: str | None = None,
+        proposed_by: str | None = None,
+    ) -> dict[str, object]:
+        """Propose, but never approve or apply, a verified outcome as MIRL."""
+
+        return self._runtime.store.propose_reasoning_promotion(
+            run_id=self.run_id,
+            outcome_node_id=outcome_node_id,
+            assertion_record_id=assertion_record_id,
+            assertion_subject=assertion_subject,
+            assertion_predicate=assertion_predicate,
+            assertion_object=assertion_object,
+            assertion_status=assertion_status,
+            assertion_confidence=assertion_confidence,
+            assertion_t0=assertion_t0,
+            assertion_t1=assertion_t1,
+            proposed_by=proposed_by
+            or (
+                self.agent_id
+                if isinstance(self.agent_id, str)
+                else "reasoning-session"
+            ),
+        )
+
+    def promotion(self, proposal_id: str) -> dict[str, object]:
+        """Read one promotion owned by this reasoning run."""
+
+        proposal = self._runtime.store.reasoning_promotion(proposal_id)
+        if proposal["run_id"] != self.run_id:
+            raise ValueError(
+                "reasoning promotion does not belong to this session"
+            )
+        return proposal
+
     def node(self, node_id: str) -> dict[str, object]:
         node = self._runtime.store.reasoning_node(node_id)
         if node["run_id"] != self.run_id:
@@ -484,3 +529,112 @@ class SeamSDK:
         """Query the canonical knowledge plane without exposing storage details."""
 
         return self.runtime.knowledge_graph(**query)
+
+    def rebuild_graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        max_facts: int = 10_000,
+        min_observation_episodes: int = 2,
+        max_sentences_per_product: int = 64,
+    ) -> dict[str, object]:
+        """Refresh evidence-backed G4 summaries and observations."""
+
+        return self.runtime.rebuild_graph_products(
+            namespace=namespace,
+            scope=scope,
+            max_facts=max_facts,
+            min_observation_episodes=min_observation_episodes,
+            max_sentences_per_product=max_sentences_per_product,
+        )
+
+    def graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        kinds: list[str] | None = None,
+        subject_id: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read the latest complete G4 product snapshot."""
+
+        return self.runtime.graph_products(
+            namespace=namespace,
+            scope=scope,
+            kinds=kinds,
+            subject_id=subject_id,
+            limit=limit,
+        )
+
+    def graph_product_history(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        stable_key: str,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read immutable versions of one derived product."""
+
+        return self.runtime.graph_product_history(
+            namespace=namespace,
+            scope=scope,
+            stable_key=stable_key,
+            limit=limit,
+        )
+
+    def review_promotion(
+        self,
+        *,
+        proposal_id: str,
+        review_kind: str,
+        decision: str,
+        reviewer_id: str,
+        rationale: str,
+    ) -> dict[str, object]:
+        """Append a separate human or policy review; never auto-apply."""
+
+        return self.runtime.store.review_reasoning_promotion(
+            proposal_id=proposal_id,
+            review_kind=review_kind,
+            decision=decision,
+            reviewer_id=reviewer_id,
+            rationale=rationale,
+        )
+
+    def promotion_eligibility(
+        self, proposal_id: str
+    ) -> dict[str, object]:
+        return self.runtime.store.reasoning_promotion_eligibility(proposal_id)
+
+    def apply_promotion(
+        self, *, proposal_id: str, applied_by: str
+    ) -> dict[str, object]:
+        """Explicitly persist an approved proposal as canonical MIRL."""
+
+        return self.runtime.apply_reasoning_promotion(
+            proposal_id=proposal_id, applied_by=applied_by
+        )
+
+    def reverse_promotion(
+        self, *, proposal_id: str, reversed_by: str, reason: str
+    ) -> dict[str, object]:
+        """Append a reversal and a MIRL supersession relation."""
+
+        return self.runtime.reverse_reasoning_promotion(
+            proposal_id=proposal_id,
+            reversed_by=reversed_by,
+            reason=reason,
+        )
+
+    def promotion(self, proposal_id: str) -> dict[str, object]:
+        return self.runtime.store.reasoning_promotion(proposal_id)
+
+    def promotions(
+        self, *, ns: str, scope: str, limit: int = 50
+    ) -> list[dict[str, object]]:
+        return self.runtime.store.reasoning_promotions(
+            ns=ns, scope=scope, limit=limit
+        )

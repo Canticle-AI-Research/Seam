@@ -13617,3 +13617,80 @@ the protected required checks pass. G4-G7 knowledge products/scale and R5-R6
 reviewed promotion/qualification remain separate future stages; they are not
 included in this G3/R4 completion claim.
 ---END-ENTRY-#494---
+
+---BEGIN-ENTRY-#495---
+id: 495
+date: 2026-07-29T09:34:17Z
+agent: codex
+status: done
+topics: graph, reasoning, provenance, storage, mirl, audit, verify, test, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-29-g4-r5-graph-products-reviewed-promotion.md,seam_runtime/graph_products.py,seam_runtime/reasoning_promotion.py,seam_runtime/storage.py,seam_runtime/runtime.py,seam_runtime/sdk.py
+supersedes: 494
+tokens: 832
+---
+COMPLETED the G4 graph-products and R5 reviewed-promotion milestones as two
+bounded, evidence-first additions over the completed G3/R4 foundations.
+
+G4 adds the append-only `graph-products/1` derived plane. Explicit rebuilds
+produce versioned entity summaries, connected-community summaries, and
+multi-episode observations from current trust-gated knowledge-graph facts.
+Only same-namespace/scope facts admitted by the existing assertion gate may
+contribute text. Every sentence retains exact supporting MIRL record and active
+episode IDs. Untrusted, inactive, missing-provenance, and cross-boundary inputs
+fail closed. Identical source fingerprints reuse the prior complete build;
+changed or empty eligible inputs append a new immutable snapshot, and earlier
+versions remain readable. Store, runtime, and the local Python SDK expose
+bounded rebuild, latest-read, and history operations. The products remain
+derived and rebuildable; they are not canonical truth and do not claim G5
+context assembly.
+
+R5 adds an append-only reviewed bridge from one verified accepted reasoning
+outcome to one proposed MIRL CLM. A proposal binds its same-run outcome,
+current passed verification IDs, current scoped knowledge references, exact
+MIRL evidence fingerprints, and one bounded assertion payload. Human and
+policy reviews are separate immutable records and approval alone never inserts
+truth. A distinct Store/SDK application rechecks review state and every
+provenance binding inside the same transaction that persists the exact reviewed
+CLM and records its application fingerprint. Nothing auto-applies. Reversal
+requires the exact applied assertion fingerprint still to exist, then appends
+both immutable reversal audit and a canonical MIRL `supersedes` relation. It
+never deletes or rewrites the assertion, reasoning outcome, reviews, or
+evidence. Cross-boundary, stale, changed, unverified, already-applied, and
+already-reversed proposals fail closed; raw logs, provider payloads, commands,
+free-form maps, and hidden reasoning are absent from the proposal surface.
+
+The compiled self-host explicit source allow-list and its audit ratchet include
+both new runtime modules. Public `seam-client` and opaque `/v1` boundaries are
+unchanged.
+
+VERIFICATION:
+
+- Required collect-only over the three new audit modules plus the self-host
+  audit collected 27/27.
+- Direct G4/R5, self-host, reasoning-graph, and reasoning-pattern execution
+  passed 39/39. Expanded affected execution including reasoning retrieval and
+  the knowledge graph passed 98/98. Both runs had zero skips, xfails, failures,
+  or errors.
+- File-backed G4/R5 smokes passed rebuild, stale-fact removal, exact sentence
+  provenance, separate review, explicit application, additive reversal, and
+  database reopen.
+- `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN" .venv/bin/python -m pytest tests/ -q`
+  against the configured live service exited 0 after 270.01 seconds: 1,577
+  collected, 1,575 passed, two established `compile_nl` xfails, zero skipped,
+  and zero failed.
+- Every changed Python file passed Ruff and compileall; `git diff --check`
+  passed. Bounded candidate scans found no provider session URL, API key,
+  private key, or credential-bearing DSN.
+- Canonical history/index/stream/cross-index rebuild, snapshot, integrity,
+  routing, handoff, continuity, and stream verification completed successfully.
+
+UNCHANGED BOUNDARIES: no package, provider call, paid benchmark, deployment,
+commit, push, PR, or remote state change occurred. Unrelated untracked `.ua/`,
+`dist/`, report images, and `seam_runtime/.ua/` were preserved untouched.
+
+NEXT: commit the coherent candidate, push
+`feat/g4-r5-graph-products-promotion`, open a draft PR, and merge only after
+every required protected check and review passes. G5-G7 and R6 remain separate
+future milestones.
+---END-ENTRY-#495---

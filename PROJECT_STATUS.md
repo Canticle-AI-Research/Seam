@@ -1,5 +1,28 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#495 - COMPLETED the G4 graph-products and
+R5 reviewed-promotion milestones without publishing or changing remote state.
+G4 adds an append-only, rebuildable derived plane for entity summaries,
+connected-community summaries, and multi-episode observations. Only current,
+assertable same-boundary graph facts contribute text; every sentence retains
+exact supporting MIRL record and active episode IDs; identical rebuilds reuse
+the prior snapshot while changed or emptied inputs append a new immutable
+version. R5 adds append-only proposals from verified accepted outcomes,
+separate human/policy reviews, exact verification/knowledge/MIRL-fingerprint
+rechecks, and an explicit application transaction that persists the reviewed
+CLM and its audit fingerprint atomically. Nothing auto-applies. Reversal
+requires the exact applied assertion still to exist and appends both immutable
+reversal audit and a MIRL `supersedes` relation without deleting prior truth or
+reasoning evidence. Required collect-only passed 27/27; focused affected
+execution passed 39/39 and expanded affected execution passed 98/98 with no
+skips, xfails, failures, or errors. The strict live-pgvector full suite
+collected 1,577: 1,575 passed, two established `compile_nl` xfailed, zero
+skipped, zero failed, exit 0 in 270.01 seconds. Changed-file Ruff, compileall,
+`git diff --check`, candidate secret/provider-session scans, and canonical
+integrity/routing/handoff/continuity/stream gates passed. Branch
+`feat/g4-r5-graph-products-promotion` remains uncommitted and unpushed.
+G5-G7 context/lifecycle/qualification and R6 qualification remain open.)
+
 Current update: 2026-07-29 (HISTORY#494 - COMPLETED the requested G3 and R4
 milestones as genuine evidence-driven improvement loops. G3 now exposes
 versioned entity/value/agent/symbol node vectors as an explicit `graph_node`
