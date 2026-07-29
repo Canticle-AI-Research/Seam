@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 551
+total_events: 552
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-09T20:30:51Z | history:296:e269f04f | session-event | done | security, chroma, dependencies, vulnerability, packaging,... | requirements.txt,pyproject.toml,tests/audit/test_chroma_optional.py,REPO_LEDG... |
 | 2026-06-09T21:06:59Z | history:297:eda068d9 | session-event | done | retrieval, self-improvement, h2, loop, locomo, dev-gate, ... | benchmarks/external/locomo/recall_scorer.py,seam_runtime/cli.py,tests/audit/t... |
 | 2026-06-09T22:42:26Z | history:298:70e871a8 | session-event | done | security, codeql, redos, clear-text-logging, workflow-per... | .github/workflows/external-memory-benchmarks.yml,seam_runtime/dsl.py,seam_run... |
 | 2026-06-10T01:39:24Z | history:299:f461b4ea | session-event | done | security, codeql, clear-text-logging, dashboard, correcti... | seam_runtime/dashboard.py,HISTORY.md,HISTORY_INDEX.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-29T02:15:43Z | history:487:1d877009 | session-event | done | bugfix, bundle, ci, docs, graph, handoff, mcp, pgvector, ... | .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,docs/P... |
 | 2026-07-29T02:58:28Z | history:488:18f55355 | session-event | changed | bugfix, bundle, graph, handoff, pgvector, retrieval, secu... | PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidat... |
 | 2026-07-29T03:09:09Z | history:489:d0314671 | session-event | done | bugfix, bundle, ci, graph, handoff, pgvector, retrieval, ... | PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidat... |
+| 2026-07-29T03:31:27Z | history:490:387b5f03 | session-event | done | bundle, ci, graph, handoff, pgvector, retrieval, security... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-29-stable-packages-liv... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0351.cross.md | 2026-04-15T00:00:00Z..2026-06-09T14:09:49Z | 351 | (multi) | (multi) |
+| 0001-0352.cross.md | 2026-04-15T00:00:00Z..2026-06-09T20:30:51Z | 352 | (multi) | (multi) |

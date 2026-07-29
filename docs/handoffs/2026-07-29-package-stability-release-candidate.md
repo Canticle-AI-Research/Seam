@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-29-package-stability-release-candidate
 supersedes: 2026-07-28-seam-node-wheel
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#489
 ---
 
