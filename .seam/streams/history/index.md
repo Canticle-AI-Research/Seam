@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 492
-total_tokens: ~234301
-latest_id: 492
+total_entries: 493
+total_tokens: ~235257
+latest_id: 493
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 493 | 2026-07-29 | changed | 3a2ced3b870899d0 | extraction,derived-facts,benchmarks,ollama | none |
 | 492 | 2026-07-29 | changed | d051142c4985be45 | graph,g3,node-vectors,semantic-seeding,+ | 491 |
 | 491 | 2026-07-29 | changed | e00dcf506023388f | graph,g3,node-vectors,retrieval,+ | none |
 | 490 | 2026-07-29 | done | 387b5f03f4631ec1 | bundle,ci,graph,handoff,+ | 489 |
@@ -526,6 +527,7 @@ compact: true
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=189 latest=#479, #454, #452, #450, #448
+- benchmarks: count=1 latest=#493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -582,7 +584,7 @@ compact: true
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
-- derived-facts: count=3 latest=#452, #438, #436
+- derived-facts: count=4 latest=#493, #452, #438, #436
 - design-task: count=1 latest=#363
 - determinism: count=1 latest=#323
 - dev-gate: count=1 latest=#297
@@ -606,6 +608,7 @@ compact: true
 - evidence: count=2 latest=#375, #316
 - exact-answer: count=3 latest=#412, #409, #408
 - experiment: count=1 latest=#273
+- extraction: count=1 latest=#493
 - extractor: count=1 latest=#313
 - extras: count=1 latest=#022
 - fairness: count=1 latest=#333
@@ -688,7 +691,7 @@ compact: true
 - node-vectors: count=2 latest=#492, #491
 - non-displacing-pack: count=2 latest=#453, #452
 - numpy: count=2 latest=#364, #363
-- ollama: count=2 latest=#323, #313
+- ollama: count=3 latest=#493, #323, #313
 - open-domain: count=1 latest=#413
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
@@ -818,8 +821,8 @@ compact: true
 
 ## status rollup
 
-- roots: 77
-- changed: 26
+- roots: 78
+- changed: 27
 - done: 439
 - in-progress: 6
 - planned: 21

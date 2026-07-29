@@ -49,11 +49,35 @@ and the facade `seam_mem0_server.py`. Tests:
 
 ## Next gate (all FREE first — do not skip to paid)
 
-1. **Extractor speed is the blocker.** Only `qwen2.5:14b` is installed
-   (`ollama list`) at ~138 s/turn → a full 10-conversation preflight (~5,900
-   turns) is impractical. Install/select a **faster local extractor** (operator
-   decision). Candidates to weigh: a smaller qwen/llama instruct, or a
-   constrained-decoding setup.
+1. **Extractor speed: RE-MEASURED 2026-07-29, no longer clearly the blocker.**
+   The ~138 s/turn figure was taken when `qwen2.5:14b` was the only installed
+   model. Measured on four short synthetic turns (median s/turn, avg items/turn):
+
+   | model | s/turn | yield | 5,900 turns |
+   |---|---|---|---|
+   | `qwen2.5:3b` | 2.4 | 2.2 | 3.9h |
+   | `qwen2.5-7b-1m` | 3.0 | 3.2 | 4.9h |
+   | `gemma2:9b` | 7.4 | 2.2 | 12.1h |
+   | `gemma4:cloud` | 7.7 | **3.8** | 12.6h |
+   | `qwen2.5:14b` | 17.6 | 3.0 | 28.9h |
+
+   **CAVEAT — do not treat these as final.** The probe used four short synthetic
+   sentences, not real LoCoMo turns, which are longer and multi-speaker.
+   Extraction cost scales with input length, so these are a FLOOR. The 8x gap
+   between measured 14b (17.6s) and the recorded 138s is too large to be model
+   choice alone; re-measure on sampled real corpus turns before planning a run.
+
+   `gemma4:cloud` has the highest yield and is the only model tested that
+   separates 5W1H facets correctly (`when: "last spring"` rather than burying it
+   in the object). `qwen2.5-7b-1m` is the speed/yield compromise.
+
+   **Parse bug fixed (same session):** `gemma4:cloud` measured 0.0 items/turn
+   because it wraps its JSON in a ```json fence, which made `json.loads` raise
+   and the non-strict path return an empty Extraction. Ollama's `format` schema
+   constrains JSON *shape*, not fencing. `_decode_model_json` in
+   `seam_runtime/nl_extract.py` now unwraps a fence before parsing; this is
+   presentation-level only and grants no trust, since every span still passes
+   `ground_extraction`. Any fencing model was previously yielding zero silently.
 2. **Build the free coverage/precision preflight runner** (does not exist yet;
    only `preflight_event_count_context.py` does). It should report, over the
    stored #429 miss set with zero provider calls beyond local extraction:

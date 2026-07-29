@@ -13448,3 +13448,76 @@ cannot demonstrate the lever's ceiling. If the free gate shows signal, fuse the
 semantic leg into rank-normalized cross-leg scoring and qualify on a real corpus
 before proposing any paid benchmark run. R4 remains open and unstarted.
 ---END-ENTRY-#492---
+
+---BEGIN-ENTRY-#493---
+id: 493
+date: 2026-07-29T06:21:50Z
+agent: claude
+status: changed
+topics: extraction, derived-facts, benchmarks, ollama
+commits: pending
+refs: docs/kb/seam-internals/derived-facts-grounded-clm.md
+supersedes: none
+tokens: 956
+---
+FIXED a silent extractor parse failure that made any fencing model yield zero
+facts, and RE-MEASURED the extractor-speed blocker recorded in the derived-facts
+KB.
+
+THE BUG: `OllamaExtractor._generate` did `json.loads(payload["response"])`
+directly. Ollama's `format` schema constrains the JSON *shape*, not whether a
+model wraps its reply in a ```json markdown fence. `gemma4:cloud` fences, so
+`json.loads` raised, the non-strict path in `extract` swallowed it, and the
+caller received an empty `Extraction`. Measured effect: `gemma4:cloud` scored
+**0.0 items/turn** — indistinguishable from a model that cannot extract, when in
+fact it had the best output in the set.
+
+Files changed:
+- `seam_runtime/nl_extract.py`: added `_JSON_FENCE` and `_decode_model_json`,
+  and routed `_generate` through it. Unwrapping is presentation-level and grants
+  NO trust: every span still passes `ground_extraction`, so a fenced reply is
+  held to exactly the same never-fabricate contract as a bare one. Non-JSON and
+  fenced-non-JSON both still raise rather than becoming a salvage path.
+- `tests/fidelity/test_nl_extract.py`: 5 new tests covering bare JSON, labelled
+  fence, unlabelled fence, rejection of non-JSON, and proof that a fenced reply
+  with fabricated spans is still filtered by the grounding gate.
+- `docs/kb/seam-internals/derived-facts-grounded-clm.md`: replaced the stale
+  "extractor speed is the blocker" item with the re-measurement below.
+
+RE-MEASUREMENT: the KB recorded `qwen2.5:14b` at ~138 s/turn as the blocker to
+the free coverage preflight, taken when it was the only installed model. Four
+models are now installed plus cloud access. Median s/turn and average items/turn
+over four short synthetic turns:
+
+  qwen2.5:3b        2.4s  yield 2.2   ~3.9h / 5,900 turns
+  qwen2.5-7b-1m     3.0s  yield 3.2   ~4.9h
+  gemma2:9b         7.4s  yield 2.2   ~12.1h
+  gemma4:cloud      7.7s  yield 3.8   ~12.6h   (0.0 before this fix)
+  qwen2.5:14b      17.6s  yield 3.0   ~28.9h
+
+`gemma4:cloud` has the highest yield and is the only model tested that separates
+5W1H facets correctly (`when: "last spring"` instead of burying it inside the
+object). `qwen2.5-7b-1m` is the speed/yield compromise.
+
+EXPLICIT CAVEAT RECORDED IN THE KB: these numbers are a FLOOR, not an estimate.
+The probe used four short synthetic sentences, not real LoCoMo turns, which are
+longer and multi-speaker; extraction cost scales with input length. The 8x gap
+between measured 14b (17.6s) and the recorded 138s is too large to be explained
+by model choice alone, so the blocker is NOT declared cleared. Re-measure on
+sampled real corpus turns before planning any preflight run.
+
+VERIFICATION: full `pytest tests/` under the T7 offline-model env and a live
+local pgvector DSN, exit 0, zero failures, zero skips, two established
+`compile_nl` xfails.
+
+NOT DONE: no preflight, no coverage/precision run, and no paid run were executed
+or requested. The free coverage/precision preflight runner named as gate item 2
+in the KB still does not exist. No benchmark number changed and none is claimed.
+
+NEXT: re-measure extraction cost on turns sampled from the real LoCoMo corpus to
+decide whether the preflight is an overnight run; then build the free
+coverage/precision preflight runner over the stored #429 miss set, reporting
+per-turn fact yield, grounding precision, and how many evidence-absent misses
+gain a SEAM-FACT/1 that surfaces the gold. Paid microgate only after that gate
+passes.
+---END-ENTRY-#493---

@@ -667,7 +667,7 @@ class OllamaExtractor:
         )
         with urllib.request.urlopen(request, timeout=self.timeout) as response:  # noqa: S310 (local loopback only)
             payload = json.loads(response.read())
-        return json.loads(payload["response"])
+        return _decode_model_json(payload["response"])
 
     def extract(self, text: str) -> Extraction:
         try:
@@ -684,6 +684,32 @@ class OllamaExtractor:
                 ) from exc
             return Extraction()
         return ground_extraction(raw, text)
+
+
+_JSON_FENCE = re.compile(r"^\s*```(?:json)?\s*(?P<body>.*?)\s*```\s*$", re.DOTALL | re.IGNORECASE)
+
+
+def _decode_model_json(response: str) -> dict:
+    """Decode a model's JSON reply, tolerating a markdown code fence.
+
+    Ollama's ``format`` schema constrains the JSON *shape*, not whether a model
+    wraps it in ```json. Some models comply literally and some fence anyway;
+    Gemma 4 fences, which made ``json.loads`` raise and silently yield an empty
+    Extraction — a formatting difference read as zero extractable facts.
+
+    Unwrapping a fence is presentation-level only. It grants no trust: every
+    span still passes the grounding gate in ``ground_extraction``, so a fenced
+    reply is held to exactly the same never-fabricate contract as a bare one.
+    """
+    text = response if isinstance(response, str) else ""
+    try:
+        return json.loads(text)
+    except (TypeError, ValueError):
+        pass
+    match = _JSON_FENCE.match(text)
+    if match is None:
+        raise ValueError("model response was neither JSON nor a fenced JSON block")
+    return json.loads(match.group("body"))
 
 
 def ground_extraction(raw: dict, text: str) -> Extraction:
