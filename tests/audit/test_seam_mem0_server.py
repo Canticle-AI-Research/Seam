@@ -298,6 +298,36 @@ def test_graph_context_fill_does_not_search_at_capacity():
     assert server._apply_graph_context_policy("user", "query", primary, 1) is primary
 
 
+def test_graph_raw_search_enables_semantic_graph_seeding(monkeypatch):
+    captured = {}
+    runtime = SimpleNamespace()
+
+    class FakeOrchestrator:
+        def __init__(self, received_runtime):
+            captured["runtime"] = received_runtime
+
+        def search(self, query, **kwargs):
+            captured.update(query=query, **kwargs)
+            return SimpleNamespace(candidates=[])
+
+    monkeypatch.setattr(
+        "benchmarks.external.mem0_harness.seam_mem0_server.RetrievalOrchestrator",
+        FakeOrchestrator,
+    )
+    server = SeamMem0Server.__new__(SeamMem0Server)
+    server._adapter = SimpleNamespace(_runtime=lambda user_id: runtime)
+
+    assert server._search_graph_raw("user", "semantic query", 7) == []
+    assert captured == {
+        "runtime": runtime,
+        "query": "semantic query",
+        "scope": "thread",
+        "budget": 7,
+        "mode": "graph",
+        "semantic_graph_seeding": True,
+    }
+
+
 def test_graph_source_raw_off_preserves_primary_object():
     server = SeamMem0Server.__new__(SeamMem0Server)
     server._graph_source_raw_policy = "off"

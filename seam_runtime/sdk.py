@@ -497,13 +497,27 @@ class SeamSDK:
         self,
         objective: str,
         *,
-        ns: str = "local.reasoning",
+        ns: str = "local.default",
         scope: str = "thread",
         agent_id: str | None = None,
         model: str | None = None,
         provider: str | None = None,
         recommend_patterns: bool = True,
     ) -> ReasoningSession:
+        """Open a reasoning run. ``ns`` also scopes this run's retrieval.
+
+        The default is ``local.default`` because that is where ``ingest``
+        writes (``mirl.py:66``) and because ``ReasoningSession.retrieve``
+        passes ``namespace=self.ns`` straight through to the orchestrator.
+        The previous default of ``local.reasoning`` meant the obvious
+        sequence -- ``sdk.ingest(...)`` then ``start_reasoning(...).retrieve(...)``
+        -- filtered to a namespace holding no records and returned zero
+        candidates with no error, on the only surface where
+        ``record_reasoning_retrieval`` fires. Pass ``ns`` explicitly to keep
+        reasoning runs in their own namespace, accepting that retrieval is
+        then scoped there too.
+        """
+
         run, _objective = self.runtime.store.create_reasoning_run(
             objective=objective,
             ns=ns,
