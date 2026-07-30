@@ -1,5 +1,12 @@
 # Compiled self-host editions
 
+> **HISTORICAL — SUPERSEDED.** The retrofitted distribution split this
+> document describes was retired: SEAM is now a single full package with
+> readable MIRL/HS-1 source, used privately to operate the hosted service.
+> This file is retained deliberately as design input for the public edition,
+> which will be built separately from the ground up with separation as an
+> architectural property rather than a gate bolted on afterward.
+
 The compiled self-host editions run the private SEAM MIRL engine on
 customer-controlled Linux/amd64 infrastructure while exposing only the opaque
 public `/v1` contract. The Docker image and `seam-self-host` wheel are controlled

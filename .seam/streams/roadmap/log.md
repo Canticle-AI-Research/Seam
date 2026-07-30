@@ -1017,7 +1017,7 @@ from: (initial)
 to: planned
 caused-by: history:319
 supersedes: none
-refs: ROADMAP.md:1705
+refs: ROADMAP.md:1707
 topics: query, sql, retrieval, benchmark, bird
 tokens: 43
 ---
@@ -1035,7 +1035,7 @@ from: (initial)
 to: planned
 caused-by: history:407
 supersedes: none
-refs: ROADMAP.md:1769
+refs: ROADMAP.md:1771
 topics: agent, openclaw, namespaces, profiles, console
 tokens: 42
 ---
@@ -1053,7 +1053,7 @@ from: (initial)
 to: planned
 caused-by: history:407
 supersedes: none
-refs: ROADMAP.md:1829
+refs: ROADMAP.md:1831
 topics: android, mobile, small-models, memory-loop
 tokens: 43
 ---
@@ -1071,7 +1071,7 @@ from: (initial)
 to: in-progress
 caused-by: history:454
 supersedes: none
-refs: ROADMAP.md:1866
+refs: ROADMAP.md:1868
 topics: graph, memory, retrieval, benchmark, comparator, provenance
 tokens: 42
 ---

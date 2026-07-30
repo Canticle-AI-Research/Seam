@@ -14045,3 +14045,98 @@ This correction does not change HISTORY#499's substantive measurements,
 retraction, implementation or test claims, verification boundary, or unresolved
 next step. No runtime behavior changed and no provider call was made.
 ---END-ENTRY-#500---
+
+---BEGIN-ENTRY-#501---
+id: 501
+date: 2026-07-30T13:19:48Z
+agent: claude
+status: changed
+topics: packaging, consolidation, distribution, licensing, workflows
+commits: pending
+refs: REPO_LEDGER.md,docs/CODE_LAYOUT.md,ROADMAP.md
+supersedes: none
+tokens: 1270
+---
+RETIRED the retrofitted distribution split and returned SEAM to a SINGLE full
+package with readable MIRL and HS/1 source, per operator decision.
+
+OPERATOR DECISION RECORDED: the full runtime is PRIVATE and is used to operate
+the hosted service on operator-controlled infrastructure. It is not distributed.
+A public edition will be built separately, from the ground up, with separation as
+an architectural property rather than a boundary retrofitted onto a codebase that
+was not designed for it. Licensing and ownership are UNCHANGED by this entry.
+
+REMOVED (40 files, 91 tests):
+- `public_pkg/` (API-only shim), `selfhost_pkg/` (compiled BUSL packaging),
+  `selfhost/` (Dockerfile + entrypoints).
+- `seam_runtime/selfhost.py`, `selfhost_mcp.py`, `selfhost_entitlement.py` —
+  verified leaves; nothing in the runtime imported them.
+- `tools/release/`: build_public, build_selfhost, build_selfhost_wheel,
+  sync_public_mirror, verify_distribution_boundary, verify_selfhost_artifact,
+  verify_selfhost_wheel, issue_selfhost_entitlement, prove_hosted_api,
+  public_seed/.
+- `.github/workflows/selfhost-release.yml`.
+- Boundary audit suite: test_selfhost_wheel, test_selfhost_edition,
+  test_selfhost_stability, test_distribution_boundary, test_public_sdk_api_boundary,
+  test_hosted_api_stability, test_github_package_metadata, plus the three tests
+  orphaned by the tooling removal (test_public_manifest, test_public_runtime_shim,
+  test_sync_public_mirror).
+
+DELIBERATELY RETAINED, and why:
+- `tools/release/verify_public_safe.py` + `public_manifest.py`. I removed these
+  in the first pass and RESTORED them on inspection: `verify_public_safe` is a
+  secret and reserved-material PUSH GATE, not split machinery. It exists because
+  a `seam.db` snapshot leaked into another repository's history (HISTORY#344).
+  `public_manifest.py` supplies its path classification, so the gate cannot run
+  without it. Deleting a gate that exists because a real leak happened would have
+  been a regression unrelated to this consolidation.
+- `LICENSE`, `NOTICE`, `COMMERCIAL_LICENSE.md`, `LICENSES/`, and the root
+  `pyproject.toml` license expression are UNTOUCHED. Proprietary terms are
+  correct for a runtime nobody outside receives.
+- `Private :: Do Not Upload` classifier: retained as the tripwire against an
+  accidental PyPI upload of a full-MIRL runtime.
+- `LICENSES/BUSL-1.1.txt` retained unused. It is already fully parameterized
+  (Licensor, Licensed Work 2.4.0+, self-hosting permitted at any scale, competing
+  hosted resale withheld, four-year Change Date to MPL 2.0) and is the intended
+  license for the future public edition.
+- `docs/PROTECTION_MODEL.md` and `docs/SELF_HOST_SECURITY.md` kept with a
+  HISTORICAL/SUPERSEDED banner rather than deleted. They are design input for the
+  ground-up public edition.
+
+REPAIRED: `.github/workflows/package-release.yml` still drove the deleted public
+path. Reduced to a single private target — removed the `pypi` choice, the
+`build_public` step, the `verify_distribution_boundary` scan, the public
+smoke-test, the public artifact upload, the `prove_hosted_api` call, and the
+entire `pypi-publish` job. A full-MIRL runtime now has NO PyPI path at all,
+which is stronger than the previous fail-closed scan. YAML re-parsed clean.
+
+DOCS UPDATED to match reality: `docs/CODE_LAYOUT.md` (tools/release section and a
+new SINGLE PACKAGE entry), `REPO_LEDGER.md` (single-package policy, split
+retired, retained secret gate, corrected package-release description; also
+repaired a dangling fragment my own first edit left behind), `ROADMAP.md` (the
+"open decision blocking the free tier" about the Ed25519 entitlement is now
+obsolete because `selfhost.py` no longer exists).
+
+PUBLISHED ARTIFACTS ARE UNAFFECTED and stay live: `seam-self-host` 1.1.2 and
+`seam-client` 2.0.0 on PyPI, and yanked legacy `seam-runtime` 1.3.1 (deliberately
+retained as a rollback point). Removing in-tree tooling does not unpublish them;
+it means no further releases of them are produced from this repository.
+
+VERIFICATION: full `pytest tests/` under the T7 offline-model env and a live local
+pgvector DSN, exit 0, zero failures, zero skips, two established `compile_nl`
+xfails. Test count 1,626 -> 1,494 (the removed boundary suite). Full runtime
+imports clean at 65 modules including `mirl`, `knowledge_graph`,
+`reasoning_graph`, and `holographic`. Verified no remaining import or workflow
+reference to any removed module.
+
+NOT DONE: the two retrieval paths are NOT yet collapsed. `public_api` -> `/v1`
+uses legacy `search_ir` while `RetrievalOrchestrator` carries the G3-G7 graph
+work, and `benchmarks/external/locomo/adapters/seam.py` uses `search_ir` with
+ZERO orchestrator references — so graph levers cannot currently move the LoCoMo
+numbers. That is the substantive breakage; this entry is packaging only.
+
+NEXT: collapse the two retrieval paths. Port the capabilities `search_ir` has and
+the orchestrator lacks (temporal_window, temporal_reference, include_raw, flags,
+lens), then run a free both-paths A/B on the same harness BEFORE migrating any
+call site, because the collapse direction should be measured rather than assumed.
+---END-ENTRY-#501---
