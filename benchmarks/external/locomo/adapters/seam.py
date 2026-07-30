@@ -39,6 +39,7 @@ class SemanticRecoveryPolicy:
     context_char_budget: int = 2000
     search_top_k: int = 20
     rerank_top_k: int = 20
+    retrieval_mode: str = "legacy-weighted"
 
     def to_dict(self) -> dict[str, int | str]:
         return {
@@ -46,6 +47,7 @@ class SemanticRecoveryPolicy:
             "context_char_budget": self.context_char_budget,
             "search_top_k": self.search_top_k,
             "rerank_top_k": self.rerank_top_k,
+            "retrieval_mode": self.retrieval_mode,
         }
 
 
@@ -81,8 +83,10 @@ class SeamLocomoAdapter:
         search_top_k: int = 100,
         rerank_top_k: int = 20,
         semantic_recovery_mode: str = "baseline",
+        retrieval_mode: str = "legacy-weighted",
         rerank_model: str = "cross-encoder/ms-marco-MiniLM-L6-v2",
         keep_db: bool = False,
+        record_retrieval_trace: bool = False,
         record_retrieval_events: bool | None = None,
         run_id: str | None = None,
         entity_aggregation: bool = False,
@@ -102,6 +106,8 @@ class SeamLocomoAdapter:
             raise ValueError(f"unknown temporal policy {temporal_policy!r}")
         if answer_contract not in ANSWER_CONTRACTS:
             raise ValueError(f"unknown answer contract {answer_contract!r}")
+        if retrieval_mode not in {"legacy-weighted", "hybrid", "mix"}:
+            raise ValueError(f"unknown retrieval mode {retrieval_mode!r}")
         # TODO: default db_path should be tmp_path, not a gitignored project dir
         self._db_root = Path(db_path) if db_path is not None else Path("test_seam/locomo")
         from seam_runtime.derived_fact_context import configure_derived_facts
@@ -117,6 +123,7 @@ class SeamLocomoAdapter:
             context_char_budget=budget,
             search_top_k=search_top_k,
             rerank_top_k=rerank_top_k,
+            retrieval_mode=retrieval_mode,
         )
         self.budget = self.semantic_recovery_policy.context_char_budget
         self.include_evidence_closure = include_evidence_closure
@@ -133,6 +140,8 @@ class SeamLocomoAdapter:
         self._rerank = rerank if rerank != "none" else None
         self._search_top_k = self.semantic_recovery_policy.search_top_k
         self._rerank_top_k = self.semantic_recovery_policy.rerank_top_k
+        self._retrieval_mode = self.semantic_recovery_policy.retrieval_mode
+        self._record_trace = record_retrieval_trace
         self._rerank_model = rerank_model
         self._keep_db = keep_db
         self._scope_anchor_by_id = {}
@@ -299,14 +308,22 @@ class SeamLocomoAdapter:
         primary_result = None
         for q in questions:
             t0 = _time.monotonic()
-            result = rt.search_ir(
-                q,
-                scope="thread",
-                budget=self._search_top_k,
-                include_raw=True,
-                temporal_window=temporal_window,
-                temporal_reference=temporal_reference,
-                ns=search_ns,
+            search_kwargs = {
+                "scope": "thread",
+                "budget": self._search_top_k,
+                "include_raw": True,
+                "temporal_window": temporal_window,
+                "temporal_reference": temporal_reference,
+                "ns": search_ns,
+                # Traced only for the question actually asked, never for
+                # decomposed sub-queries, so the retained artifact stays bounded
+                # and attributes the case's own retrieval.
+                "include_trace": self._record_trace and q == question,
+            }
+            result = (
+                rt.search_ir(q, **search_kwargs)
+                if self._retrieval_mode == "legacy-weighted"
+                else rt.retrieve(q, mode=self._retrieval_mode, **search_kwargs)
             )
             retrieval_latency_ms += (_time.monotonic() - t0) * 1000.0
             if q == question:
@@ -327,6 +344,12 @@ class SeamLocomoAdapter:
                 if record_id not in seen_merged:
                     seen_merged.add(record_id)
                     merged.append(record_id)
+
+        # Gated on the adapter's own flag, not just on the result: the artifact
+        # is emitted only when this run explicitly asked to trace.
+        primary_trace = (
+            getattr(primary_result, "trace", None) if self._record_trace else None
+        )
 
         if not merged:
             diag = self._retrieval_diagnostics(
@@ -352,6 +375,7 @@ class SeamLocomoAdapter:
                 retrieved_context="",
                 retrieval_latency_ms=retrieval_latency_ms,
                 answerer_diagnostics=diag,
+                retrieval_trace=primary_trace,
             )
 
         if self.include_evidence_closure:
@@ -430,6 +454,7 @@ class SeamLocomoAdapter:
             retrieval_latency_ms=retrieval_latency_ms,
             answer_latency_ms=answer_latency_ms,
             answerer_diagnostics=diag,
+            retrieval_trace=primary_trace,
         )
 
     def _retrieval_diagnostics(

@@ -97,6 +97,7 @@ def test_locomo_adapter_reports_retrieval_policy_diagnostics(monkeypatch, tmp_pa
             "context_char_budget": 8000,
             "search_top_k": 100,
             "rerank_top_k": 40,
+            "retrieval_mode": "legacy-weighted",
         },
         "retrieval": {
             "candidate_count": 0,

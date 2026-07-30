@@ -1,0 +1,72 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "jspace.py",
+      "language": "python",
+      "sizeLines": 539,
+      "fileCategory": "code"
+    },
+    {
+      "path": "knowledge_graph.py",
+      "language": "python",
+      "sizeLines": 2112,
+      "fileCategory": "code"
+    },
+    {
+      "path": "pool.py",
+      "language": "python",
+      "sizeLines": 169,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retry.py",
+      "language": "python",
+      "sizeLines": 175,
+      "fileCategory": "code"
+    },
+    {
+      "path": "server.py",
+      "language": "python",
+      "sizeLines": 1480,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage.py",
+      "language": "python",
+      "sizeLines": 1966,
+      "fileCategory": "code"
+    },
+    {
+      "path": "workspace.py",
+      "language": "python",
+      "sizeLines": 618,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "jspace.py": [],
+    "knowledge_graph.py": [
+      "mirl.py"
+    ],
+    "pool.py": [],
+    "retry.py": [],
+    "server.py": [
+      "installer.py",
+      "jspace.py",
+      "mirl.py",
+      "runtime.py",
+      "workspace.py"
+    ],
+    "storage.py": [
+      "knowledge_graph.py",
+      "mirl.py",
+      "pool.py",
+      "retry.py",
+      "workspace.py"
+    ],
+    "workspace.py": [
+      "mirl.py"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "fixedSectionOk": true,
+  "nodesRecovered": 1,
+  "edgesRestored": 2,
+  "crossBatchEdgesAdded": 0,
+  "typesRemapped": 0,
+  "complexityRemapped": 0,
+  "notes": [
+    "Recovered function:event_count_context.py:is_count_question node and its calls/contains edges.",
+    "Added missing cross-batch imports edges using the provided import map."
+  ]
+}

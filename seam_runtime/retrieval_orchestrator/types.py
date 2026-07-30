@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -91,6 +92,11 @@ class RetrievalPlan:
     semantic_graph_seeding: bool = False
     graph_at: str | None = None
     graph_include_history: bool = False
+    lens: str = "general"
+    include_raw: bool = False
+    temporal_window: tuple[datetime, datetime] | None = None
+    temporal_reference: datetime | None = None
+    ranking_policy: str = "reciprocal-rank-fusion/2"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -102,6 +108,19 @@ class RetrievalPlan:
             "semantic_graph_seeding": self.semantic_graph_seeding,
             "graph_at": self.graph_at,
             "graph_include_history": self.graph_include_history,
+            "lens": self.lens,
+            "include_raw": self.include_raw,
+            "temporal_window": (
+                [value.isoformat() for value in self.temporal_window]
+                if self.temporal_window is not None
+                else None
+            ),
+            "temporal_reference": (
+                self.temporal_reference.isoformat()
+                if self.temporal_reference is not None
+                else None
+            ),
+            "ranking_policy": self.ranking_policy,
             "filters": self.filters.to_dict(),
             "legs": [leg.to_dict() for leg in self.legs],
         }

@@ -1,0 +1,1399 @@
+{
+  "nodes": [
+    {
+      "id": "file:__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "__init__.py",
+      "summary": "Initializer for the SEAM runtime package, exposing standard library exports.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "initialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:agent_memory.py",
+      "type": "file",
+      "name": "agent_memory.py",
+      "filePath": "agent_memory.py",
+      "summary": "Handles ingest operations and timeline mappings for active agent memory collections.",
+      "tags": [
+        "memory",
+        "ingest",
+        "agent-memory",
+        "timeline"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:agent_memory.py:IngestReport",
+      "type": "class",
+      "name": "IngestReport",
+      "filePath": "agent_memory.py",
+      "lineRange": [
+        13,
+        18
+      ],
+      "summary": "Simple data model wrapping document ingestion summaries and stored records.",
+      "tags": [
+        "model",
+        "ingest-report",
+        "data-structure"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:agent_memory.py:compact_memory_index",
+      "type": "function",
+      "name": "compact_memory_index",
+      "filePath": "agent_memory.py",
+      "lineRange": [
+        44,
+        57
+      ],
+      "summary": "Compacts active memory indexes by pruning low-score records.",
+      "tags": [
+        "memory-compaction",
+        "indexing",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:agent_memory.py:neighbor_timeline",
+      "type": "function",
+      "name": "neighbor_timeline",
+      "filePath": "agent_memory.py",
+      "lineRange": [
+        64,
+        83
+      ],
+      "summary": "Builds a chronological timeline of records sharing temporal or content context.",
+      "tags": [
+        "timeline",
+        "retrieval",
+        "graph-neighbor"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:agent_memory.py:render_memory_index",
+      "type": "function",
+      "name": "render_memory_index",
+      "filePath": "agent_memory.py",
+      "lineRange": [
+        86,
+        99
+      ],
+      "summary": "Pretty-prints the status and entry sizes of the memory index.",
+      "tags": [
+        "view",
+        "formatting",
+        "diagnostics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:agent_memory.py:_record_summary",
+      "type": "function",
+      "name": "_record_summary",
+      "filePath": "agent_memory.py",
+      "lineRange": [
+        118,
+        128
+      ],
+      "summary": "Creates a brief string overview of a memory record's contents.",
+      "tags": [
+        "formatting",
+        "record-summary",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:bm25.py",
+      "type": "file",
+      "name": "bm25.py",
+      "filePath": "bm25.py",
+      "summary": "Implements a lightweight BM25 lexical index to support term-frequency-based text search and relevance ranking.",
+      "tags": [
+        "search",
+        "indexing",
+        "bm25",
+        "lexical-search",
+        "nlp"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:bm25.py:BM25Index",
+      "type": "class",
+      "name": "BM25Index",
+      "filePath": "bm25.py",
+      "lineRange": [
+        14,
+        67
+      ],
+      "summary": "In-memory lexical search index calculating BM25 relevance scores.",
+      "tags": [
+        "indexing",
+        "search-index",
+        "bm25"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:mirl.py",
+      "type": "file",
+      "name": "mirl.py",
+      "filePath": "mirl.py",
+      "summary": "Defines core data structures and models for the SEAM Machine-Intermediate Retrieval Language (MIRL), including records, batches, packs, verification reports, and candidate representations.",
+      "tags": [
+        "mirl",
+        "data-model",
+        "retrieval-structures",
+        "schema-definition"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:mirl.py:MIRLRecord",
+      "type": "class",
+      "name": "MIRLRecord",
+      "filePath": "mirl.py",
+      "lineRange": [
+        63,
+        145
+      ],
+      "summary": "Core model representing a single compiled Machine-Intermediate Retrieval Language entry.",
+      "tags": [
+        "model",
+        "mirl-record",
+        "data-structure"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:mirl.py:IRBatch",
+      "type": "class",
+      "name": "IRBatch",
+      "filePath": "mirl.py",
+      "lineRange": [
+        149,
+        171
+      ],
+      "summary": "Container and helper methods for handling a collection of MIRL records.",
+      "tags": [
+        "model",
+        "batch",
+        "data-structure"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:mirl.py:Pack",
+      "type": "class",
+      "name": "Pack",
+      "filePath": "mirl.py",
+      "lineRange": [
+        218,
+        277
+      ],
+      "summary": "Data model representing compressed MIRL records packed within a token budget.",
+      "tags": [
+        "model",
+        "packed-records",
+        "data-structure"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:mirl.py:VerifyReport",
+      "type": "class",
+      "name": "VerifyReport",
+      "filePath": "mirl.py",
+      "lineRange": [
+        183,
+        205
+      ],
+      "summary": "Report wrapping constraint violations and issues detected during MIRL record validation.",
+      "tags": [
+        "model",
+        "verify-report",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:mirl.py:cosine_similarity",
+      "type": "function",
+      "name": "cosine_similarity",
+      "filePath": "mirl.py",
+      "lineRange": [
+        346,
+        361
+      ],
+      "summary": "Calculates the cosine similarity between two numeric vector arrays.",
+      "tags": [
+        "math",
+        "similarity",
+        "cosine"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:mirl.py:iter_textual_fields",
+      "type": "function",
+      "name": "iter_textual_fields",
+      "filePath": "mirl.py",
+      "lineRange": [
+        364,
+        375
+      ],
+      "summary": "Yields key-value pairs representing search-eligible textual properties of a record.",
+      "tags": [
+        "utility",
+        "generator",
+        "textual-fields"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:nl.py",
+      "type": "file",
+      "name": "nl.py",
+      "filePath": "nl.py",
+      "summary": "Provides Natural Language (NL) processing tools to compile raw text conversation logs into structured MIRL records, utilizing semantic extractors, claim validation, and symbol suggestion algorithms.",
+      "tags": [
+        "natural-language-processing",
+        "compilation",
+        "nlp",
+        "information-extraction",
+        "symbol-suggestion"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:nl.py:compile_nl",
+      "type": "function",
+      "name": "compile_nl",
+      "filePath": "nl.py",
+      "lineRange": [
+        72,
+        525
+      ],
+      "summary": "Compiles raw natural language conversation logs into a batch of structured MIRL claims.",
+      "tags": [
+        "compiler",
+        "nlp",
+        "compilation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:nl.py:_candidate_claim_is_lossless",
+      "type": "function",
+      "name": "_candidate_claim_is_lossless",
+      "filePath": "nl.py",
+      "lineRange": [
+        597,
+        664
+      ],
+      "summary": "Verifies that an extracted claim can be losslessly mapped back to the source proposition.",
+      "tags": [
+        "validation",
+        "lossless-check",
+        "nlp"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:nl.py:suggest_symbols",
+      "type": "function",
+      "name": "suggest_symbols",
+      "filePath": "nl.py",
+      "lineRange": [
+        761,
+        774
+      ],
+      "summary": "Suggests compact symbols representing common noun phrases inside a record batch.",
+      "tags": [
+        "utility",
+        "symbol-suggestion",
+        "nlp"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:pack.py",
+      "type": "file",
+      "name": "pack.py",
+      "filePath": "pack.py",
+      "summary": "Provides utilities for packing database records into compressed formats (Packs) within token budgets, including token cost scoring, list field retention, and alias mining.",
+      "tags": [
+        "packing",
+        "compression",
+        "token-budget",
+        "optimization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:pack.py:pack_records",
+      "type": "function",
+      "name": "pack_records",
+      "filePath": "pack.py",
+      "lineRange": [
+        30,
+        114
+      ],
+      "summary": "Compresses and packs MIRL records into a structured Pack within a token budget.",
+      "tags": [
+        "compression",
+        "packing",
+        "token-budget"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:pack.py:score_pack",
+      "type": "function",
+      "name": "score_pack",
+      "filePath": "pack.py",
+      "lineRange": [
+        132,
+        177
+      ],
+      "summary": "Estimates and scores the token cost of a packed record configuration.",
+      "tags": [
+        "scoring",
+        "token-savings",
+        "packing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:pack.py:_mine_id_aliases",
+      "type": "function",
+      "name": "_mine_id_aliases",
+      "filePath": "pack.py",
+      "lineRange": [
+        247,
+        284
+      ],
+      "summary": "Scans records to find frequently used identifiers that can be alias-compressed.",
+      "tags": [
+        "utility",
+        "compression",
+        "aliases"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:reconcile.py",
+      "type": "file",
+      "name": "reconcile.py",
+      "filePath": "reconcile.py",
+      "summary": "Provides reconciliation logic for MIRL batches, grouping claims by subject and predicate to merge duplicate entries or resolve inconsistencies.",
+      "tags": [
+        "reconciliation",
+        "deduplication",
+        "data-cleaning",
+        "conflict-resolution"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:reconcile.py:reconcile_ir",
+      "type": "function",
+      "name": "reconcile_ir",
+      "filePath": "reconcile.py",
+      "lineRange": [
+        8,
+        43
+      ],
+      "summary": "Processes a batch of MIRL records to reconcile and deduplicate duplicate assertions.",
+      "tags": [
+        "reconciliation",
+        "conflict-resolution",
+        "cleaner"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:retrieval.py",
+      "type": "file",
+      "name": "retrieval.py",
+      "filePath": "retrieval.py",
+      "summary": "Implements multi-modal search and ranking over MIRL batches, fusing lexical (BM25), semantic (vector), graph, and temporal scores based on RetrievalFlags.",
+      "tags": [
+        "retrieval",
+        "search-engine",
+        "query-fusion",
+        "ranking",
+        "retrieval-flags"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:retrieval.py:RetrievalFlags",
+      "type": "class",
+      "name": "RetrievalFlags",
+      "filePath": "retrieval.py",
+      "lineRange": [
+        18,
+        137
+      ],
+      "summary": "Configuration flags and weights guiding search routing and score fusion.",
+      "tags": [
+        "model",
+        "search-flags",
+        "data-structure"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:retrieval.py:search_batch",
+      "type": "function",
+      "name": "search_batch",
+      "filePath": "retrieval.py",
+      "lineRange": [
+        373,
+        427
+      ],
+      "summary": "Executes multi-modal query fusion search over a local record batch.",
+      "tags": [
+        "search",
+        "query-fusion",
+        "ranking"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:retrieval.py:load_retrieval_flags",
+      "type": "function",
+      "name": "load_retrieval_flags",
+      "filePath": "retrieval.py",
+      "lineRange": [
+        336,
+        367
+      ],
+      "summary": "Loads and coerces retrieval flags from database settings and environment overrides.",
+      "tags": [
+        "setup",
+        "flags-loading",
+        "retrieval"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:runtime.py",
+      "type": "file",
+      "name": "runtime.py",
+      "filePath": "runtime.py",
+      "summary": "Defines `SeamRuntime`, the main orchestration runtime and developer API for SEAM. Integrates SQLite storage, vector stores, compilers, search engines, and benchmark suites into a unified runtime.",
+      "tags": [
+        "runtime",
+        "orchestration",
+        "developer-api",
+        "facade-pattern"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:runtime.py:SeamRuntime",
+      "type": "class",
+      "name": "SeamRuntime",
+      "filePath": "runtime.py",
+      "lineRange": [
+        45,
+        501
+      ],
+      "summary": "Central facade class managing the SEAM context, storage backends, compilers, and indexes.",
+      "tags": [
+        "orchestrator",
+        "facade",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:self_improve.py",
+      "type": "file",
+      "name": "self_improve.py",
+      "filePath": "self_improve.py",
+      "summary": "Implements self-improvement feedback loops, generating lexical and graph search queries (probes) to evaluate search performance, test candidates, and optimize system parameters.",
+      "tags": [
+        "self-improvement",
+        "evaluation",
+        "probe-generation",
+        "optimization",
+        "parameter-tuning"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:self_improve.py:SelfProbeScorer",
+      "type": "class",
+      "name": "SelfProbeScorer",
+      "filePath": "self_improve.py",
+      "lineRange": [
+        446,
+        471
+      ],
+      "summary": "Scorer class generating scores for candidate profiles using evaluation probes.",
+      "tags": [
+        "evaluator",
+        "scorer",
+        "self-improvement"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:self_improve.py:generate_graph_probes",
+      "type": "function",
+      "name": "generate_graph_probes",
+      "filePath": "self_improve.py",
+      "lineRange": [
+        253,
+        442
+      ],
+      "summary": "Generates structured graph path query evaluation cases (motif probes) from database statistics.",
+      "tags": [
+        "evaluation",
+        "probe-generation",
+        "graph-search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:self_improve.py:evaluate_candidates",
+      "type": "function",
+      "name": "evaluate_candidates",
+      "filePath": "self_improve.py",
+      "lineRange": [
+        782,
+        890
+      ],
+      "summary": "Evaluates candidate improvement profiles, scoring them against baselines to verify progress.",
+      "tags": [
+        "evaluation",
+        "optimization",
+        "self-improvement"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:symbols.py",
+      "type": "file",
+      "name": "symbols.py",
+      "filePath": "symbols.py",
+      "summary": "Provides utilities for mining, proposing, and resolving domain-specific abbreviations and symbols from MIRL records to shrink document payloads.",
+      "tags": [
+        "symbols",
+        "abbreviation",
+        "data-compression",
+        "vocabulary"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:symbols.py:propose_symbols",
+      "type": "function",
+      "name": "propose_symbols",
+      "filePath": "symbols.py",
+      "lineRange": [
+        47,
+        89
+      ],
+      "summary": "Mines the database to suggest potential abbreviations based on word frequency.",
+      "tags": [
+        "utility",
+        "vocabulary",
+        "compression"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:symbols.py:abbreviate",
+      "type": "function",
+      "name": "abbreviate",
+      "filePath": "symbols.py",
+      "lineRange": [
+        92,
+        119
+      ],
+      "summary": "Generates a compressed code symbol based on string characteristics and families.",
+      "tags": [
+        "utility",
+        "compression",
+        "symbols"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:temporal.py",
+      "type": "file",
+      "name": "temporal.py",
+      "filePath": "temporal.py",
+      "summary": "Provides utilities for detecting and parsing relative temporal expressions in queries, enabling temporal distance-based decay scoring.",
+      "tags": [
+        "temporal",
+        "date-parsing",
+        "nlp",
+        "relevance-scoring"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:temporal.py:parse_temporal_reference",
+      "type": "function",
+      "name": "parse_temporal_reference",
+      "filePath": "temporal.py",
+      "lineRange": [
+        69,
+        97
+      ],
+      "summary": "Parses date anchors and relative expressions (e.g. yesterday, 3 days ago) in a query.",
+      "tags": [
+        "utility",
+        "temporal-parsing",
+        "nlp"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:transpile.py",
+      "type": "file",
+      "name": "transpile.py",
+      "filePath": "transpile.py",
+      "summary": "Provides transpile helper to convert MIRL records back into executable Python source code representations.",
+      "tags": [
+        "transpilation",
+        "code-generation",
+        "mirl-compiler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:transpile.py:transpile_python",
+      "type": "function",
+      "name": "transpile_python",
+      "filePath": "transpile.py",
+      "lineRange": [
+        8,
+        21
+      ],
+      "summary": "Transpiles a list of MIRL records into Python class declarations.",
+      "tags": [
+        "utility",
+        "transpilation",
+        "python-codegen"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:verify.py",
+      "type": "file",
+      "name": "verify.py",
+      "filePath": "verify.py",
+      "summary": "Implements semantic validation checks for MIRL records and batches, verifying identifiers, namespaces, constraints, and dependencies.",
+      "tags": [
+        "validation",
+        "verification",
+        "mirl-compiler",
+        "error-checking"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:verify.py:verify_ir",
+      "type": "function",
+      "name": "verify_ir",
+      "filePath": "verify.py",
+      "lineRange": [
+        10,
+        62
+      ],
+      "summary": "Validates all records in a batch, compiling constraints and issues.",
+      "tags": [
+        "validation",
+        "verification",
+        "mirl-compiler"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:verify.py:_verify_kind_specific",
+      "type": "function",
+      "name": "_verify_kind_specific",
+      "filePath": "verify.py",
+      "lineRange": [
+        65,
+        118
+      ],
+      "summary": "Applies spec validation rules based on record categories.",
+      "tags": [
+        "validation",
+        "kind-check",
+        "mirl-compiler"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:agent_memory.py",
+      "target": "class:agent_memory.py:IngestReport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "function:agent_memory.py:compact_memory_index",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "function:agent_memory.py:neighbor_timeline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "function:agent_memory.py:render_memory_index",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "function:agent_memory.py:_record_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "class:agent_memory.py:IngestReport",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "function:agent_memory.py:compact_memory_index",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "function:agent_memory.py:neighbor_timeline",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:bm25.py",
+      "target": "class:bm25.py:BM25Index",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:bm25.py",
+      "target": "class:bm25.py:BM25Index",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:MIRLRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:IRBatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:Pack",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:VerifyReport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "function:mirl.py:cosine_similarity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "function:mirl.py:iter_textual_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:MIRLRecord",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:IRBatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:Pack",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:mirl.py",
+      "target": "class:mirl.py:VerifyReport",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl.py",
+      "target": "function:nl.py:compile_nl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl.py",
+      "target": "function:nl.py:_candidate_claim_is_lossless",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl.py",
+      "target": "function:nl.py:suggest_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl.py",
+      "target": "function:nl.py:compile_nl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:pack.py",
+      "target": "function:pack.py:pack_records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:pack.py",
+      "target": "function:pack.py:score_pack",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:pack.py",
+      "target": "function:pack.py:_mine_id_aliases",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:pack.py",
+      "target": "function:pack.py:pack_records",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:pack.py",
+      "target": "function:pack.py:score_pack",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:reconcile.py",
+      "target": "function:reconcile.py:reconcile_ir",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:reconcile.py",
+      "target": "function:reconcile.py:reconcile_ir",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "class:retrieval.py:RetrievalFlags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "function:retrieval.py:search_batch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "function:retrieval.py:load_retrieval_flags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "class:retrieval.py:RetrievalFlags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "function:retrieval.py:search_batch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "class:runtime.py:SeamRuntime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "class:runtime.py:SeamRuntime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "class:self_improve.py:SelfProbeScorer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "function:self_improve.py:generate_graph_probes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "function:self_improve.py:evaluate_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "class:self_improve.py:SelfProbeScorer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "function:self_improve.py:generate_graph_probes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "function:self_improve.py:evaluate_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:symbols.py",
+      "target": "function:symbols.py:propose_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:symbols.py",
+      "target": "function:symbols.py:abbreviate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:symbols.py",
+      "target": "function:symbols.py:propose_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:temporal.py",
+      "target": "function:temporal.py:parse_temporal_reference",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:temporal.py",
+      "target": "function:temporal.py:parse_temporal_reference",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:transpile.py",
+      "target": "function:transpile.py:transpile_python",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:transpile.py",
+      "target": "function:transpile.py:transpile_python",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:verify.py",
+      "target": "function:verify.py:verify_ir",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:verify.py",
+      "target": "function:verify.py:_verify_kind_specific",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:verify.py",
+      "target": "function:verify.py:verify_ir",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:__init__.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:__init__.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:nl.py",
+      "target": "file:derived_fact_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:nl.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:pack.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:pack.py",
+      "target": "file:symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:reconcile.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:bm25.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:temporal.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:agent_memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:benchmarks.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:dsl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:evals.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:nl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:pack.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:reconcile.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:retrieval.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:transpile.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:vector_adapters.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:verify.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "file:retrieval.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:symbols.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:transpile.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:verify.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "class:runtime.py:SeamRuntime",
+      "target": "function:nl.py:compile_nl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:runtime.py:SeamRuntime",
+      "target": "function:verify.py:verify_ir",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:runtime.py:SeamRuntime",
+      "target": "function:reconcile.py:reconcile_ir",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:runtime.py:SeamRuntime",
+      "target": "function:symbols.py:propose_symbols",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:runtime.py:SeamRuntime",
+      "target": "function:transpile.py:transpile_python",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:runtime.py:SeamRuntime",
+      "target": "function:retrieval.py:search_batch",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:runtime.py:SeamRuntime",
+      "target": "function:pack.py:pack_records",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

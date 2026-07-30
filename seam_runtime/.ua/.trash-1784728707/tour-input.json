@@ -1,0 +1,1649 @@
+{
+  "nodes": [
+    {
+      "id": "file:benchmark_baseline_policy.py",
+      "type": "file",
+      "name": "benchmark_baseline_policy.py",
+      "filePath": "benchmark_baseline_policy.py",
+      "summary": "Provides baseline selection policy logic for benchmark runs, determining if a candidate run is reachable and resolves appropriate baselines using Git.",
+      "tags": [
+        "benchmark",
+        "version-control",
+        "git",
+        "baseline-policy",
+        "validation"
+      ]
+    },
+    {
+      "id": "file:benchmark_integrity.py",
+      "type": "file",
+      "name": "benchmark_integrity.py",
+      "filePath": "benchmark_integrity.py",
+      "summary": "Provides utilities for signing, sealing, and verifying the integrity of benchmark result bundles using canonicalization and hashing.",
+      "tags": [
+        "benchmark",
+        "integrity",
+        "cryptography",
+        "verification",
+        "security"
+      ]
+    },
+    {
+      "id": "file:cli.py",
+      "type": "file",
+      "name": "cli.py",
+      "filePath": "cli.py",
+      "summary": "Command Line Interface (CLI) entry point for the SEAM runtime. Defines parsing rules, handles subcommand routing, and launches the interactive agent shell.",
+      "tags": [
+        "cli",
+        "entry-point",
+        "argument-parsing",
+        "shell",
+        "orchestration"
+      ]
+    },
+    {
+      "id": "file:context_views.py",
+      "type": "file",
+      "name": "context_views.py",
+      "filePath": "context_views.py",
+      "summary": "Provides layout and formatting utilities for rendering application state contexts, evidence trails, prompt outputs, and summaries in a readable form.",
+      "tags": [
+        "view",
+        "formatting",
+        "context-rendering",
+        "cli-output",
+        "visualization"
+      ]
+    },
+    {
+      "id": "file:dashboard.py",
+      "type": "file",
+      "name": "dashboard.py",
+      "filePath": "dashboard.py",
+      "summary": "Implements a Textual-based terminal dashboard and CLI monitor for inspecting SEAM runtime database stats, executing interactive shell commands, and querying databases.",
+      "tags": [
+        "dashboard",
+        "tui",
+        "textual",
+        "cli-monitor",
+        "visualization"
+      ]
+    },
+    {
+      "id": "file:doctor.py",
+      "type": "file",
+      "name": "doctor.py",
+      "filePath": "doctor.py",
+      "summary": "Diagnostics script verifying system dependencies and settings (pgvector status, stream imports, commit gate status, active git stashes) to output a health status report.",
+      "tags": [
+        "diagnostics",
+        "health-check",
+        "system-validation",
+        "doctor"
+      ]
+    },
+    {
+      "id": "file:external_memory_benchmarks.py",
+      "type": "file",
+      "name": "external_memory_benchmarks.py",
+      "filePath": "external_memory_benchmarks.py",
+      "summary": "Provides tools to load, validate, plan, and run benchmarks for external memory adapters, orchestrating external processes and reporting results.",
+      "tags": [
+        "benchmark",
+        "external-process",
+        "orchestration",
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "file:holographic.py",
+      "type": "file",
+      "name": "holographic.py",
+      "filePath": "holographic.py",
+      "summary": "Provides 'Holographic Storage' features where text datasets and database stashes are serialized and embedded directly inside PNG image pixels using customized deflate and filtering algorithms.",
+      "tags": [
+        "serialization",
+        "holographic-storage",
+        "steganography",
+        "png-encoding",
+        "data-packing"
+      ]
+    },
+    {
+      "id": "file:installer.py",
+      "type": "file",
+      "name": "installer.py",
+      "filePath": "installer.py",
+      "summary": "Handles layout detection, virtual environment bootstrapping, dependency installation, platform-specific shim generation, and system path modifications to install and run the SEAM environment.",
+      "tags": [
+        "installer",
+        "setup",
+        "environment-bootstrap",
+        "platform-shims",
+        "dev-environment"
+      ]
+    },
+    {
+      "id": "file:lossless.py",
+      "type": "file",
+      "name": "lossless.py",
+      "filePath": "lossless.py",
+      "summary": "Provides high-performance utility functions for compressing text data into space-efficient formats (lossless machine text, readable search indices) to optimize context window token usage.",
+      "tags": [
+        "compression",
+        "token-optimization",
+        "search-index",
+        "text-processing"
+      ]
+    },
+    {
+      "id": "file:lx1.py",
+      "type": "file",
+      "name": "lx1.py",
+      "filePath": "lx1.py",
+      "summary": "Provides customized token encoding and decoding logic (under the LX1 compact protocol) for MIRL records to maximize context token efficiency.",
+      "tags": [
+        "serialization",
+        "token-compression",
+        "encoding",
+        "decoding",
+        "lx1-protocol"
+      ]
+    },
+    {
+      "id": "file:mcp.py",
+      "type": "file",
+      "name": "mcp.py",
+      "filePath": "mcp.py",
+      "summary": "Provides the Model Context Protocol (MCP) tool dispatch layer for SEAM, enabling external AI assistants to invoke SEAM operations (e.g., query, ingest, doctor) over stdio.",
+      "tags": [
+        "mcp",
+        "protocol-bridge",
+        "stdio-communication",
+        "tool-routing"
+      ]
+    },
+    {
+      "id": "file:mcp_protocol.py",
+      "type": "file",
+      "name": "mcp_protocol.py",
+      "filePath": "mcp_protocol.py",
+      "summary": "Provides standard low-level JSON-RPC 2.0 protocol handling, schema parsing, and network transport framing for running the stdio Model Context Protocol (MCP) server.",
+      "tags": [
+        "json-rpc",
+        "network-protocol",
+        "mcp-server",
+        "serialization"
+      ]
+    },
+    {
+      "id": "file:pgvector_bootstrap.py",
+      "type": "file",
+      "name": "pgvector_bootstrap.py",
+      "filePath": "pgvector_bootstrap.py",
+      "summary": "Bootstraps the local pgvector Docker container, verifying database availability, credentials, and creating the `vector` extension if needed.",
+      "tags": [
+        "bootstrap",
+        "pgvector",
+        "docker-compose",
+        "database-setup",
+        "vector-extension"
+      ]
+    },
+    {
+      "id": "file:ui/__init__.py",
+      "type": "file",
+      "name": "ui/__init__.py",
+      "filePath": "ui/__init__.py",
+      "summary": "Package initializer for the terminal user interface modules.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "tui"
+      ]
+    },
+    {
+      "id": "file:__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "__init__.py",
+      "summary": "Initializer for the SEAM runtime package, exposing standard library exports.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "initialization"
+      ]
+    },
+    {
+      "id": "file:agent_memory.py",
+      "type": "file",
+      "name": "agent_memory.py",
+      "filePath": "agent_memory.py",
+      "summary": "Handles ingest operations and timeline mappings for active agent memory collections.",
+      "tags": [
+        "memory",
+        "ingest",
+        "agent-memory",
+        "timeline"
+      ]
+    },
+    {
+      "id": "file:bm25.py",
+      "type": "file",
+      "name": "bm25.py",
+      "filePath": "bm25.py",
+      "summary": "Implements a lightweight BM25 lexical index to support term-frequency-based text search and relevance ranking.",
+      "tags": [
+        "search",
+        "indexing",
+        "bm25",
+        "lexical-search",
+        "nlp"
+      ]
+    },
+    {
+      "id": "file:mirl.py",
+      "type": "file",
+      "name": "mirl.py",
+      "filePath": "mirl.py",
+      "summary": "Defines core data structures and models for the SEAM Machine-Intermediate Retrieval Language (MIRL), including records, batches, packs, verification reports, and candidate representations.",
+      "tags": [
+        "mirl",
+        "data-model",
+        "retrieval-structures",
+        "schema-definition"
+      ]
+    },
+    {
+      "id": "file:nl.py",
+      "type": "file",
+      "name": "nl.py",
+      "filePath": "nl.py",
+      "summary": "Provides Natural Language (NL) processing tools to compile raw text conversation logs into structured MIRL records, utilizing semantic extractors, claim validation, and symbol suggestion algorithms.",
+      "tags": [
+        "natural-language-processing",
+        "compilation",
+        "nlp",
+        "information-extraction",
+        "symbol-suggestion"
+      ]
+    },
+    {
+      "id": "file:pack.py",
+      "type": "file",
+      "name": "pack.py",
+      "filePath": "pack.py",
+      "summary": "Provides utilities for packing database records into compressed formats (Packs) within token budgets, including token cost scoring, list field retention, and alias mining.",
+      "tags": [
+        "packing",
+        "compression",
+        "token-budget",
+        "optimization"
+      ]
+    },
+    {
+      "id": "file:reconcile.py",
+      "type": "file",
+      "name": "reconcile.py",
+      "filePath": "reconcile.py",
+      "summary": "Provides reconciliation logic for MIRL batches, grouping claims by subject and predicate to merge duplicate entries or resolve inconsistencies.",
+      "tags": [
+        "reconciliation",
+        "deduplication",
+        "data-cleaning",
+        "conflict-resolution"
+      ]
+    },
+    {
+      "id": "file:retrieval.py",
+      "type": "file",
+      "name": "retrieval.py",
+      "filePath": "retrieval.py",
+      "summary": "Implements multi-modal search and ranking over MIRL batches, fusing lexical (BM25), semantic (vector), graph, and temporal scores based on RetrievalFlags.",
+      "tags": [
+        "retrieval",
+        "search-engine",
+        "query-fusion",
+        "ranking",
+        "retrieval-flags"
+      ]
+    },
+    {
+      "id": "file:runtime.py",
+      "type": "file",
+      "name": "runtime.py",
+      "filePath": "runtime.py",
+      "summary": "Defines `SeamRuntime`, the main orchestration runtime and developer API for SEAM. Integrates SQLite storage, vector stores, compilers, search engines, and benchmark suites into a unified runtime.",
+      "tags": [
+        "runtime",
+        "orchestration",
+        "developer-api",
+        "facade-pattern"
+      ]
+    },
+    {
+      "id": "file:self_improve.py",
+      "type": "file",
+      "name": "self_improve.py",
+      "filePath": "self_improve.py",
+      "summary": "Implements self-improvement feedback loops, generating lexical and graph search queries (probes) to evaluate search performance, test candidates, and optimize system parameters.",
+      "tags": [
+        "self-improvement",
+        "evaluation",
+        "probe-generation",
+        "optimization",
+        "parameter-tuning"
+      ]
+    },
+    {
+      "id": "file:symbols.py",
+      "type": "file",
+      "name": "symbols.py",
+      "filePath": "symbols.py",
+      "summary": "Provides utilities for mining, proposing, and resolving domain-specific abbreviations and symbols from MIRL records to shrink document payloads.",
+      "tags": [
+        "symbols",
+        "abbreviation",
+        "data-compression",
+        "vocabulary"
+      ]
+    },
+    {
+      "id": "file:temporal.py",
+      "type": "file",
+      "name": "temporal.py",
+      "filePath": "temporal.py",
+      "summary": "Provides utilities for detecting and parsing relative temporal expressions in queries, enabling temporal distance-based decay scoring.",
+      "tags": [
+        "temporal",
+        "date-parsing",
+        "nlp",
+        "relevance-scoring"
+      ]
+    },
+    {
+      "id": "file:transpile.py",
+      "type": "file",
+      "name": "transpile.py",
+      "filePath": "transpile.py",
+      "summary": "Provides transpile helper to convert MIRL records back into executable Python source code representations.",
+      "tags": [
+        "transpilation",
+        "code-generation",
+        "mirl-compiler"
+      ]
+    },
+    {
+      "id": "file:verify.py",
+      "type": "file",
+      "name": "verify.py",
+      "filePath": "verify.py",
+      "summary": "Implements semantic validation checks for MIRL records and batches, verifying identifiers, namespaces, constraints, and dependencies.",
+      "tags": [
+        "validation",
+        "verification",
+        "mirl-compiler",
+        "error-checking"
+      ]
+    },
+    {
+      "id": "file:benchmarks.py",
+      "type": "file",
+      "name": "benchmarks.py",
+      "filePath": "benchmarks.py",
+      "summary": "Provides the core benchmark execution suite for evaluating Seam runtime performance across lossless, readable, surface, retrieval, and embedding families.",
+      "tags": [
+        "test",
+        "utility",
+        "benchmarks",
+        "performance"
+      ]
+    },
+    {
+      "id": "file:dsl.py",
+      "type": "file",
+      "name": "dsl.py",
+      "filePath": "dsl.py",
+      "summary": "Compiler and parser for the Seam Domain Specific Language (DSL), transforming textual entity and block definitions into MIRLRecord models.",
+      "tags": [
+        "compiler",
+        "dsl",
+        "parser",
+        "serialization"
+      ]
+    },
+    {
+      "id": "file:evals.py",
+      "type": "file",
+      "name": "evals.py",
+      "filePath": "evals.py",
+      "summary": "Evaluation module for executing retrieval benchmarks and assessing metrics like token budget, latency, and compression ratios.",
+      "tags": [
+        "test",
+        "validation",
+        "retrieval",
+        "metrics"
+      ]
+    },
+    {
+      "id": "file:models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "models.py",
+      "summary": "Defines interfaces and adapters for SentenceTransformer and OpenAI-compatible embedding models used within the vector store.",
+      "tags": [
+        "data-model",
+        "service",
+        "embeddings",
+        "ai-client"
+      ]
+    },
+    {
+      "id": "file:retrieval_orchestrator/adapters.py",
+      "type": "file",
+      "name": "adapters.py",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "summary": "Adapters for interfacing the retrieval orchestrator with SQL database, Chroma semantic index, and graph databases.",
+      "tags": [
+        "middleware",
+        "service",
+        "database",
+        "retrieval"
+      ]
+    },
+    {
+      "id": "file:surface_adapters.py",
+      "type": "file",
+      "name": "surface_adapters.py",
+      "filePath": "surface_adapters.py",
+      "summary": "Manages copying and repairing file-based artifacts like screenshots using SHA-256 hash checks and directory synchronization.",
+      "tags": [
+        "utility",
+        "file-system",
+        "validation",
+        "sync"
+      ]
+    },
+    {
+      "id": "file:vector.py",
+      "type": "file",
+      "name": "vector.py",
+      "filePath": "vector.py",
+      "summary": "Implements SQLite-based local vector storage with cosine similarity search and stale/orphan record tracking.",
+      "tags": [
+        "database",
+        "vector-store",
+        "sqlite",
+        "search"
+      ]
+    },
+    {
+      "id": "file:vector_adapters.py",
+      "type": "file",
+      "name": "vector_adapters.py",
+      "filePath": "vector_adapters.py",
+      "summary": "Database adapters wrapping vector search functionality for SQLite and PostgreSQL pgvector backends.",
+      "tags": [
+        "middleware",
+        "database",
+        "vector-store",
+        "postgres"
+      ]
+    },
+    {
+      "id": "file:jspace.py",
+      "type": "file",
+      "name": "jspace.py",
+      "filePath": "jspace.py",
+      "summary": "Provides local and remote LLM concepts extractor implementations (JLensWorkers) using Qwen models or API endpoints.",
+      "tags": [
+        "ai-client",
+        "utility",
+        "concept-extraction"
+      ]
+    },
+    {
+      "id": "file:knowledge_graph.py",
+      "type": "file",
+      "name": "knowledge_graph.py",
+      "filePath": "knowledge_graph.py",
+      "summary": "Low-level knowledge graph engine managing nodes, edges, synthetic relationships, and epistemic/provenance tracking in SQLite.",
+      "tags": [
+        "database",
+        "graph-db",
+        "provenance",
+        "sqlite"
+      ]
+    },
+    {
+      "id": "file:pool.py",
+      "type": "file",
+      "name": "pool.py",
+      "filePath": "pool.py",
+      "summary": "Thread-safe database connection pool for SQLite, managing connection reuse, verification, timeouts, and rollbacks.",
+      "tags": [
+        "utility",
+        "database",
+        "concurrency",
+        "sqlite"
+      ]
+    },
+    {
+      "id": "file:retry.py",
+      "type": "file",
+      "name": "retry.py",
+      "filePath": "retry.py",
+      "summary": "Decorators and utilities for asynchronous and synchronous retry operations with exponential backoff and transient error classification.",
+      "tags": [
+        "utility",
+        "resilience",
+        "async",
+        "error-handling"
+      ]
+    },
+    {
+      "id": "file:server.py",
+      "type": "file",
+      "name": "server.py",
+      "filePath": "server.py",
+      "summary": "Main FastAPI server exposing the runtime REST APIs, WebUI endpoints, rate limiting, and safe shutdown lifecycle hooks.",
+      "tags": [
+        "entry-point",
+        "api-handler",
+        "server",
+        "fastapi"
+      ]
+    },
+    {
+      "id": "file:storage.py",
+      "type": "file",
+      "name": "storage.py",
+      "filePath": "storage.py",
+      "summary": "Core SQLite storage layer managing schemas, transaction states, document synchronization, and machine artifact caching.",
+      "tags": [
+        "database",
+        "sqlite",
+        "service"
+      ]
+    },
+    {
+      "id": "file:workspace.py",
+      "type": "file",
+      "name": "workspace.py",
+      "filePath": "workspace.py",
+      "summary": "Manages run executions, event streams, payload sanitization, and decay-based graph activation spreads.",
+      "tags": [
+        "middleware",
+        "data-pipeline",
+        "security",
+        "provenance"
+      ]
+    },
+    {
+      "id": "file:retrieval_orchestrator/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "retrieval_orchestrator/__init__.py",
+      "summary": "Entry point for the retrieval orchestrator package, providing package imports and exports.",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "type-definition"
+      ]
+    },
+    {
+      "id": "file:retrieval_orchestrator/merger.py",
+      "type": "file",
+      "name": "merger.py",
+      "filePath": "retrieval_orchestrator/merger.py",
+      "summary": "Provides merging logic for retrieval candidate hits, combining scores, reasons, and sources from multiple retrieval legs.",
+      "tags": [
+        "utility",
+        "retrieval",
+        "data-processing"
+      ]
+    },
+    {
+      "id": "file:retrieval_orchestrator/orchestrator.py",
+      "type": "file",
+      "name": "orchestrator.py",
+      "filePath": "retrieval_orchestrator/orchestrator.py",
+      "summary": "Coordinates multi-leg query planning, execution across SQLite/Chroma/Seam adapters, and RAG candidate processing.",
+      "tags": [
+        "service",
+        "orchestrator",
+        "query-processing"
+      ]
+    },
+    {
+      "id": "file:retrieval_orchestrator/planner.py",
+      "type": "file",
+      "name": "planner.py",
+      "filePath": "retrieval_orchestrator/planner.py",
+      "summary": "Generates query plans and extracts search filters, parsing intent to build multi-leg search strategies.",
+      "tags": [
+        "utility",
+        "query-planning",
+        "search"
+      ]
+    },
+    {
+      "id": "file:retrieval_orchestrator/types.py",
+      "type": "file",
+      "name": "types.py",
+      "filePath": "retrieval_orchestrator/types.py",
+      "summary": "Defines dataclasses and enums representing retrieval plans, filters, search hits, candidates, and results.",
+      "tags": [
+        "type-definition",
+        "data-model",
+        "schema"
+      ]
+    },
+    {
+      "id": "file:derived_fact_context.py",
+      "type": "file",
+      "name": "derived_fact_context.py",
+      "filePath": "derived_fact_context.py",
+      "summary": "Manages configuration, caching, validation, and splicing of derived facts using various grounded semantic extraction policies with SQLite cache backing.",
+      "tags": [
+        "data-model",
+        "service",
+        "validation",
+        "serialization"
+      ]
+    },
+    {
+      "id": "file:multi_speaker_facts.py",
+      "type": "file",
+      "name": "multi_speaker_facts.py",
+      "filePath": "multi_speaker_facts.py",
+      "summary": "Implements broadened multi-speaker grounded fact extraction for research, allowing third-person facts while enforcing single-sentence lexical and pronoun boundaries.",
+      "tags": [
+        "utility",
+        "validation",
+        "nlp"
+      ]
+    },
+    {
+      "id": "file:nl_extract.py",
+      "type": "file",
+      "name": "nl_extract.py",
+      "filePath": "nl_extract.py",
+      "summary": "Provides rich semantic extraction using Ollama to produce subject-relation-object triples and entities, with strict verification checks to ensure all extracted parts map verbatim to the source text.",
+      "tags": [
+        "utility",
+        "validation",
+        "nlp"
+      ]
+    },
+    {
+      "id": "file:sentence_grounded_facts.py",
+      "type": "file",
+      "name": "sentence_grounded_facts.py",
+      "filePath": "sentence_grounded_facts.py",
+      "summary": "Implements strict single-speaker first-person local fact extraction, verifying that claims preserve negations, numbers, and speaker canonicalization.",
+      "tags": [
+        "utility",
+        "validation",
+        "nlp"
+      ]
+    },
+    {
+      "id": "file:ui/animations.py",
+      "type": "file",
+      "name": "animations.py",
+      "filePath": "ui/animations.py",
+      "summary": "Drives visual updates for the dashboard, including a char-by-char streaming MIRL record viewer (MachineStream) and a multi-stage compilation progress bar suite (CompressionPipeline).",
+      "tags": [
+        "component",
+        "utility",
+        "dashboard"
+      ]
+    },
+    {
+      "id": "file:ui/bars.py",
+      "type": "file",
+      "name": "bars.py",
+      "filePath": "ui/bars.py",
+      "summary": "Provides customizable progress bar and status indicator renderers (solid, segmented, indeterminate, stalled, error) that output Rich-colored ANSI terminal representations.",
+      "tags": [
+        "utility",
+        "component",
+        "dashboard"
+      ]
+    },
+    {
+      "id": "file:ui/logo.py",
+      "type": "file",
+      "name": "logo.py",
+      "filePath": "ui/logo.py",
+      "summary": "Renders the SEAM dashboard header, utilizing box-drawing Unicode characters or half-block pixel-art representations for high-fidelity terminal displays.",
+      "tags": [
+        "component",
+        "utility",
+        "dashboard"
+      ]
+    },
+    {
+      "id": "file:ui/theme.py",
+      "type": "file",
+      "name": "theme.py",
+      "filePath": "ui/theme.py",
+      "summary": "Centralized color palette definition and semantic alias mapping for styling all terminal elements in the SEAM runtime interface.",
+      "tags": [
+        "configuration",
+        "theme",
+        "dashboard"
+      ]
+    },
+    {
+      "id": "file:skills/__init__.py",
+      "type": "file",
+      "name": "skills/__init__.py",
+      "filePath": "skills/__init__.py",
+      "summary": "Package initialization file for the skills module, serving as a barrel to re-export skill factory primitives and Skill IR definitions.",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "type-definition"
+      ]
+    },
+    {
+      "id": "file:skills/factory.py",
+      "type": "file",
+      "name": "skills/factory.py",
+      "filePath": "skills/factory.py",
+      "summary": "Implements the adaptive skill factory primitives, including agent identification based on environment variables/files, and creation of skill proposals from observations.",
+      "tags": [
+        "factory",
+        "validation",
+        "data-model",
+        "utility"
+      ]
+    },
+    {
+      "id": "file:skills/skill_ir.py",
+      "type": "file",
+      "name": "skills/skill_ir.py",
+      "filePath": "skills/skill_ir.py",
+      "summary": "Defines the SkillIR data model which represents the canonical intermediate representation of a skill, alongside validation and serialization helpers.",
+      "tags": [
+        "data-model",
+        "serialization",
+        "validation"
+      ]
+    },
+    {
+      "id": "file:conversation.py",
+      "type": "file",
+      "name": "conversation.py",
+      "filePath": "conversation.py",
+      "summary": "Implements versioned conversation adapters to classify query intent and project retrieved evidence turns into structured, query-specific views.",
+      "tags": [
+        "context-adaptation",
+        "intent-classification",
+        "nlp"
+      ]
+    },
+    {
+      "id": "file:event_count_context.py",
+      "type": "file",
+      "name": "event_count_context.py",
+      "filePath": "event_count_context.py",
+      "summary": "Provides logical components to construct deterministic context projections for event count questions.",
+      "tags": [
+        "nlp",
+        "event-counting",
+        "context-projection"
+      ]
+    },
+    {
+      "id": "file:improvement.py",
+      "type": "file",
+      "name": "improvement.py",
+      "filePath": "improvement.py",
+      "summary": "Handles proposal validation gates, particularly verifying if proposed changes violate holdout dataset boundaries.",
+      "tags": [
+        "validation",
+        "safety-gate",
+        "deployment-safety"
+      ]
+    },
+    {
+      "id": "file:multi_scope_pack.py",
+      "type": "file",
+      "name": "multi_scope_pack.py",
+      "filePath": "multi_scope_pack.py",
+      "summary": "Provides utilities to pack context across multiple retrieval scopes (grounded facts, data profiles, raw episodes) within character quotas.",
+      "tags": [
+        "context-packing",
+        "quota-management",
+        "serialization"
+      ]
+    },
+    {
+      "id": "document:retrieval_orchestrator/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "retrieval_orchestrator/README.md",
+      "summary": "Overview documentation describing the experimental retrieval orchestration layer, hybrid search strategy, and modular components.",
+      "tags": [
+        "documentation",
+        "retrieval",
+        "hybrid-search",
+        "architecture-plan"
+      ]
+    },
+    {
+      "id": "file:second_hop_context.py",
+      "type": "file",
+      "name": "second_hop_context.py",
+      "filePath": "second_hop_context.py",
+      "summary": "Implements two-hop context retrieval by mining bridge terms from primary search results to run targeted secondary queries.",
+      "tags": [
+        "multi-hop-retrieval",
+        "query-expansion",
+        "search-splicing",
+        "nlp"
+      ]
+    },
+    {
+      "id": "file:temporal_instance_context.py",
+      "type": "file",
+      "name": "temporal_instance_context.py",
+      "filePath": "temporal_instance_context.py",
+      "summary": "Structures retrieved memories into date-ordered projections, extracting and highlighting relative temporal markers.",
+      "tags": [
+        "temporal-grounding",
+        "nlp",
+        "context-projection"
+      ]
+    },
+    {
+      "id": "file:tokenization.py",
+      "type": "file",
+      "name": "tokenization.py",
+      "filePath": "tokenization.py",
+      "summary": "Provides helper functions for token counting using tiktoken (cl100k_base) or a character-based fallback.",
+      "tags": [
+        "tokenization",
+        "utility",
+        "text-processing"
+      ]
+    },
+    {
+      "id": "file:webui/dashboard.html",
+      "type": "file",
+      "name": "dashboard.html",
+      "filePath": "webui/dashboard.html",
+      "summary": "Main HTML dashboard interface providing a graphical control panel to inspect and configure the SEAM runtime.",
+      "tags": [
+        "webui",
+        "dashboard",
+        "frontend",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:webui/seam-api.js",
+      "type": "file",
+      "name": "seam-api.js",
+      "filePath": "webui/seam-api.js",
+      "summary": "Implements the SeamAPI client layer exposed to window, wrapping REST API calls for runtime statistics, search, and benchmarks.",
+      "tags": [
+        "webui",
+        "api-client",
+        "rest",
+        "utility"
+      ]
+    },
+    {
+      "id": "file:webui/tweaks-panel.jsx",
+      "type": "file",
+      "name": "tweaks-panel.jsx",
+      "filePath": "webui/tweaks-panel.jsx",
+      "summary": "Floating UI panel component that displays editable developer tweaks and coordinates state with parent iframes.",
+      "tags": [
+        "webui",
+        "component",
+        "react",
+        "configuration-panel"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:cli.py",
+      "target": "file:agent_memory.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:benchmark_baseline_policy.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:benchmark_integrity.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:benchmarks.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:context_views.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:dashboard.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:doctor.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:external_memory_benchmarks.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:holographic.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:installer.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:lossless.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:lx1.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:surface_adapters.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:context_views.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:installer.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:lossless.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:models.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:ui/__init__.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "file:installer.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "file:lossless.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:lossless.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:pack.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:retrieval.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:lx1.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "file:doctor.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "file:holographic.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:installer.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:mcp.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:pgvector_bootstrap.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:__init__.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:__init__.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:agent_memory.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:nl.py",
+      "target": "file:derived_fact_context.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:nl.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:pack.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:pack.py",
+      "target": "file:symbols.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:reconcile.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:bm25.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:symbols.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval.py",
+      "target": "file:temporal.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:agent_memory.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:benchmarks.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:dsl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:evals.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:models.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:nl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:pack.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:reconcile.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:retrieval.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:storage.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:symbols.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:transpile.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:vector_adapters.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:runtime.py",
+      "target": "file:verify.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:self_improve.py",
+      "target": "file:retrieval.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:symbols.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:transpile.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:verify.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:context_views.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:dsl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:evals.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:holographic.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:lossless.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:models.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:storage.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:surface_adapters.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:vector.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:dsl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:lossless.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:models.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:pack.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:retrieval.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:vector.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:models.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:storage.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:vector.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:vector_adapters.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:vector.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:vector.py",
+      "target": "file:models.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "file:models.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "file:vector.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:installer.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:jspace.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:workspace.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:knowledge_graph.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:pool.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:retry.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:workspace.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/__init__.py",
+      "target": "file:retrieval_orchestrator/adapters.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/__init__.py",
+      "target": "file:retrieval_orchestrator/orchestrator.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/__init__.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/merger.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:pack.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/adapters.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/merger.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/planner.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:runtime.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:mirl.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:multi_speaker_facts.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:nl_extract.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:sentence_grounded_facts.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "file:sentence_grounded_facts.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "file:nl_extract.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "file:ui/bars.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "file:ui/theme.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "file:ui/theme.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "file:ui/theme.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:skills/__init__.py",
+      "target": "file:skills/factory.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:skills/__init__.py",
+      "target": "file:skills/skill_ir.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:webui/dashboard.html",
+      "target": "file:webui/seam-api.js",
+      "type": "depends_on"
+    },
+    {
+      "source": "file:webui/dashboard.html",
+      "target": "file:webui/tweaks-panel.jsx",
+      "type": "depends_on"
+    },
+    {
+      "source": "document:retrieval_orchestrator/README.md",
+      "target": "file:second_hop_context.py",
+      "type": "related"
+    },
+    {
+      "source": "document:retrieval_orchestrator/README.md",
+      "target": "file:temporal_instance_context.py",
+      "type": "related"
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:api",
+      "name": "API Layer",
+      "description": "Provides FastAPI HTTP servers, Model Context Protocol (MCP) bridges, JSON-RPC protocol implementations, and CLI wrappers to expose runtime features to external interfaces."
+    },
+    {
+      "id": "layer:runtime",
+      "name": "Runtime Orchestration Layer",
+      "description": "Coordinates core SeamRuntime subsystems, handles sandbox workspaces, manages memory ingestion pipelines, and drives self-improvement evaluation feedback loops."
+    },
+    {
+      "id": "layer:natural-language",
+      "name": "Natural Language & Compiler Layer",
+      "description": "Compiles logs into structured MIRL records, compiles DSL constructs, executes semantic/grounded fact extraction (first-person or multi-speaker), and projects contextual evidence."
+    },
+    {
+      "id": "layer:retrieval",
+      "name": "Retrieval Layer",
+      "description": "Implements hybrid multi-modal search and ranking, query planning and merging across vector/lexical/graph adapters, and parses relative temporal query criteria."
+    },
+    {
+      "id": "layer:data",
+      "name": "Data & Storage Layer",
+      "description": "Provides low-level SQLite storage, vector stores, knowledge graphs, connection pool management, and optimizes prompt payloads using LX1 encoding and symbols compression."
+    },
+    {
+      "id": "layer:ui",
+      "name": "User Interface Layer",
+      "description": "Exposes terminal TUI dashboards and progressive web-based console panels to inspect Seam database statistics, configurations, and logs in real-time."
+    },
+    {
+      "id": "layer:skills",
+      "name": "Skills Framework Layer",
+      "description": "Defines intermediate representations, factories, and validation rules to propose and orchestrate agent-specific skills."
+    },
+    {
+      "id": "layer:infrastructure",
+      "name": "Infrastructure & Platform Layer",
+      "description": "Provides installers, pgvector container bootstrapping logic, resilience retry decorators, diagnostic doctor scripts, and synchronizes file-based artifact stores."
+    },
+    {
+      "id": "layer:test",
+      "name": "Benchmarks & Evaluation Layer",
+      "description": "Evaluates search and compression performance with automated test suites, Git baseline policy routing, integrity signers, and external memory benchmarks."
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation Layer",
+      "description": "Contains technical plans, design patterns, and architecture documentation describing hybrid retrieval strategy and module boundaries."
+    }
+  ]
+}

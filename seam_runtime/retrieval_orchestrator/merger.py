@@ -59,6 +59,30 @@ def merge_hits(grouped_hits: list[list[LegHit]], limit: int) -> list[RetrievalCa
     return rank_hits(grouped_hits)[:limit]
 
 
+def rank_legacy_weighted_hits(hits: list[LegHit]) -> list[RetrievalCandidate]:
+    """Keep the old weighted scorer's ordered scores as a versioned control.
+
+    The input comes from ``LegacyWeightedAdapter``, which already applies the
+    historical stable score ordering.  Do not run this control through RRF:
+    doing so would change the very baseline used to attribute graph effects.
+    """
+
+    ranked: list[RetrievalCandidate] = []
+    for rank, hit in enumerate(hits, start=1):
+        if not math.isfinite(float(hit.score)) or abs(float(hit.score)) > 1_000_000:
+            raise ValueError("retrieval leg scores must be finite and bounded")
+        ranked.append(
+            RetrievalCandidate(
+                record=hit.record,
+                score=hit.score,
+                sources={"legacy_weighted": hit.score},
+                source_ranks={"legacy_weighted": rank},
+                reasons=sorted(set(hit.reasons)),
+            )
+        )
+    return ranked
+
+
 def _path_key(hit: LegHit) -> tuple[tuple[object, ...], ...]:
     return tuple(
         (

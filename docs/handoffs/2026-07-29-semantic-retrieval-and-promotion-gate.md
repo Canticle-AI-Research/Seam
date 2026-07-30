@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-29-semantic-retrieval-and-promotion-gate
 supersedes: 2026-07-29-wandr-provider-free-replay-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#498
 ---
 

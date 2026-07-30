@@ -1,0 +1,93 @@
+[
+  {
+    "order": 1,
+    "title": "CLI Entry Point",
+    "description": "The command-line interface handles subcommand routing, user arguments parsing, and system bootstrapping. It directs developer workflows like checking database health, compiling memory logs, or running benchmarks.",
+    "nodeIds": ["file:cli.py"],
+    "languageLesson": "Python's `argparse` module is used to structure the CLI commands. This enables clean separation of subcommands, routing them to specific methods within the runtime orchestration layer."
+  },
+  {
+    "order": 2,
+    "title": "MIRL Core Schema",
+    "description": "The Machine-Intermediate Retrieval Language (MIRL) defines the core data model. It represents semantic memory structures, including record formats, batches, and verification models used across the runtime. This acts as the universal domain-model contract across the entire codebase.",
+    "nodeIds": ["file:mirl.py", "file:dsl.py"],
+    "languageLesson": "Pydantic models are used to enforce runtime data schema validation. The custom Domain Specific Language (DSL) parser compiles textual declarations into validated MIRL structures."
+  },
+  {
+    "order": 3,
+    "title": "Runtime Orchestration",
+    "description": "The `SeamRuntime` acts as the central facade for the entire project, building on the MIRL schemas defined in Step 2. It integrates core subsystems like SQLite database storage, semantic vector indexing, compilers, search engines, and evaluation suites.",
+    "nodeIds": ["file:runtime.py"],
+    "languageLesson": "The Facade design pattern exposes a simple interface to manage complex, multi-layered operations (such as data ingestion, indexing, and retrieval) without exposing subsystem details."
+  },
+  {
+    "order": 4,
+    "title": "SQLite Storage & Graph Engine",
+    "description": "Building on the memory runtime from Step 3, the storage layer manages SQLite transaction life cycles, connection pooling, and workspace sandboxes. It powers the low-level knowledge graph engine to manage synthetic relationships and track data provenance.",
+    "nodeIds": ["file:storage.py", "file:knowledge_graph.py", "file:pool.py"],
+    "languageLesson": "Python context managers (`with` statements) ensure safe database connection checkout and checkin, avoiding memory leaks and resource blockages in concurrent environments."
+  },
+  {
+    "order": 5,
+    "title": "Multi-Modal Retrieval Engine",
+    "description": "To retrieve memories stored in Step 4, SEAM combines multiple search models to rank retrieved facts. The retrieval engine coordinates lexical search (BM25), vector distance, graph activation weights, and relative temporal decay scoring.",
+    "nodeIds": ["file:retrieval.py", "file:bm25.py", "file:temporal.py"],
+    "languageLesson": "Python generators and list comprehensions optimize score fusion and sorting pipelines, maintaining low retrieval latencies even when scanning large record batches."
+  },
+  {
+    "order": 6,
+    "title": "Semantic Vector Adapters",
+    "description": "The semantic search leg of Step 5 converts query inputs to vector embeddings. The vector store implements local cosine similarity in SQLite alongside adapters for PostgreSQL pgvector and ChromaDB backends.",
+    "nodeIds": ["file:vector.py", "file:vector_adapters.py", "file:models.py"],
+    "languageLesson": "Vector adapters decouple the retrieval pipeline from the database engine. Cosine similarity is implemented using standard numpy arrays to minimize external library overhead."
+  },
+  {
+    "order": 7,
+    "title": "NL Compilation & Grounding",
+    "description": "Before they can be queried via Step 5, raw dialogue transcripts must be compiled into structured facts. The natural language layer extracts subject-relation-object triples using Ollama, caching findings and enforcing strict single or multi-speaker boundaries.",
+    "nodeIds": ["file:nl.py", "file:derived_fact_context.py", "file:nl_extract.py", "file:sentence_grounded_facts.py"],
+    "languageLesson": "Decoupling semantic validation (negation checks, pronoun canonicalization) into standalone processors lets the system run multiple extraction policies independently."
+  },
+  {
+    "order": 8,
+    "title": "Token Budget Compression",
+    "description": "To optimize prompts generated for the LLM during retrieval in Step 5, the system packages database records into space-efficient formats. Compression utilizes token budgeting, list field pruning, symbol abbreviation, and the compact LX1 protocol.",
+    "nodeIds": ["file:pack.py", "file:lossless.py", "file:lx1.py", "file:symbols.py"],
+    "languageLesson": "Custom serialization layers (like LX1) use specialized string encoding rather than standard JSON formats, reducing character counts in prompt payloads."
+  },
+  {
+    "order": 9,
+    "title": "Model Context Protocol Bridge",
+    "description": "External AI assistants invoke the memory runtime capabilities from Step 3 using the Model Context Protocol. The protocol bridge handles standard JSON-RPC 2.0 network framing and tools routing over stdio.",
+    "nodeIds": ["file:mcp.py", "file:mcp_protocol.py"],
+    "languageLesson": "Python's `asyncio` is used to manage stdio read/write streams asynchronously. This allows high-throughput JSON-RPC request multiplexing without locking the main agent loop."
+  },
+  {
+    "order": 10,
+    "title": "Terminal TUI Dashboard",
+    "description": "For human operators monitoring the runtime from Step 3, the terminal dashboard implements an interactive user interface. It displays database statistics, views live memory events, and executes queries with custom Rich-colored progression bars.",
+    "nodeIds": ["file:dashboard.py", "file:ui/animations.py", "file:ui/theme.py", "file:ui/bars.py"],
+    "languageLesson": "The Textual framework relies on an event-driven terminal design. Custom progress bars are written using ANSI escape codes and styled semantic palettes to render rich terminal layouts."
+  },
+  {
+    "order": 11,
+    "title": "Progressive Web Interface",
+    "description": "In addition to the terminal UI from Step 10, SEAM exposes a progressive web console. The HTML page interacts with the backend using the SeamAPI client library, letting developers control variables using a React tweaks panel.",
+    "nodeIds": ["file:webui/dashboard.html", "file:webui/seam-api.js", "file:webui/tweaks-panel.jsx"],
+    "languageLesson": "Vite-ready React components coordinate state dynamically with parent iframe environments using HTML5 standard postMessage operations."
+  },
+  {
+    "order": 12,
+    "title": "Evals & System Diagnostics",
+    "description": "To ensure that runtime retrieval from Step 5 does not degrade over time, the system provides diagnostic health checks, virtual env configuration verification, and evaluation suites to measure latency and token consumption.",
+    "nodeIds": ["file:benchmarks.py", "file:evals.py", "file:doctor.py", "file:installer.py"],
+    "languageLesson": "Platform-specific setup scripts automate virtual environment bootstrapping, dependency checks (e.g. pgvector availability), and symlink installations."
+  },
+  {
+    "order": 13,
+    "title": "Hybrid Retrieval Documentation",
+    "description": "Building on the retrieval patterns from Step 5, this step covers the experimental hybrid retrieval orchestrator documentation and adapters. The README explains multi-leg query strategies, and the orchestrator plans queries across SQLite and Chroma stores.",
+    "nodeIds": ["document:retrieval_orchestrator/README.md", "file:retrieval_orchestrator/orchestrator.py"],
+    "languageLesson": "Technical documentation in Markdown describes architectural layers, query flows, and performance criteria, ensuring developer onboarding and extensibility remain smooth."
+  }
+]

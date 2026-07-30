@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime
 
 from .types import QueryFilters, QueryIntent, RetrievalLeg, RetrievalPlan
 
@@ -8,6 +9,7 @@ FILTER_PATTERN = re.compile(r"\b(?P<key>id|kind|ns|scope|predicate|subject|objec
 
 
 RETRIEVAL_MODES = {"vector", "graph", "hybrid", "mix"}
+RANKING_POLICIES = {"legacy-weighted/1", "reciprocal-rank-fusion/2"}
 
 
 def build_plan(
@@ -21,6 +23,11 @@ def build_plan(
     semantic_graph_seeding: bool = False,
     graph_at: str | None = None,
     graph_include_history: bool = False,
+    lens: str = "general",
+    include_raw: bool = False,
+    temporal_window: tuple[datetime, datetime] | None = None,
+    temporal_reference: datetime | None = None,
+    ranking_policy: str = "reciprocal-rank-fusion/2",
 ) -> RetrievalPlan:
     mode = mode.lower().strip() or "hybrid"
     if mode not in RETRIEVAL_MODES:
@@ -39,22 +46,70 @@ def build_plan(
         raise ValueError("graph_at must be a non-empty timestamp string when provided")
     if not isinstance(graph_include_history, bool):
         raise TypeError("graph_include_history must be a boolean")
+    if not isinstance(lens, str) or not lens.strip():
+        raise ValueError("retrieval lens must be a non-empty string")
+    if not isinstance(include_raw, bool):
+        raise TypeError("include_raw must be a boolean")
+    if ranking_policy not in RANKING_POLICIES:
+        raise ValueError(f"Unsupported retrieval ranking policy: {ranking_policy}")
+    if temporal_window is not None:
+        if (
+            not isinstance(temporal_window, tuple)
+            or len(temporal_window) != 2
+            or not all(isinstance(value, datetime) for value in temporal_window)
+        ):
+            raise TypeError("temporal_window must be a pair of datetimes")
+        if (temporal_window[0].tzinfo is None) != (
+            temporal_window[1].tzinfo is None
+        ):
+            raise ValueError(
+                "temporal_window endpoints must both be naive or timezone-aware"
+            )
+        if temporal_window[0] > temporal_window[1]:
+            raise ValueError("temporal_window start must not follow its end")
+    if temporal_reference is not None and not isinstance(
+        temporal_reference, datetime
+    ):
+        raise TypeError("temporal_reference must be a datetime")
     filters = _extract_filters(query, scope=scope, namespace=namespace)
     normalized_query = _strip_filters(query)
     intent = _classify_intent(filters, normalized_query, mode)
     leg_limit = max(budget * 2, 5) if mode in {"hybrid", "mix"} else max(budget, 5)
     legs: list[RetrievalLeg] = []
 
+    if ranking_policy == "legacy-weighted/1":
+        legs.append(
+            RetrievalLeg(
+                name="legacy_weighted",
+                # The original path bounded both its returned candidates and
+                # vector top-K from this same requested depth.  Keep that
+                # exact relationship while it serves as the behavioral
+                # control for the graph ablation.
+                limit=budget,
+                rationale=(
+                    "Preserve the versioned RAW/BM25/vector weighted baseline "
+                    "inside the canonical retrieval engine"
+                ),
+            )
+        )
     # An explicit mode="vector" means semantic-only: never inject the sql leg,
     # even when a pure-filter query classifies as STRUCTURED. Previously a
     # filtered query under mode="vector" set intent=STRUCTURED and silently ran
     # the structural/lexical sql leg, contradicting the caller's chosen mode.
-    if mode in {"hybrid", "mix"} or (intent == QueryIntent.STRUCTURED and mode != "vector"):
+    elif mode in {"hybrid", "mix"} or (intent == QueryIntent.STRUCTURED and mode != "vector"):
         legs.append(RetrievalLeg(name="sql", limit=leg_limit, rationale="Apply explicit field filters and lexical matching"))
     if mode in {"vector", "hybrid", "mix"}:
         legs.append(RetrievalLeg(name="vector", limit=leg_limit, rationale="Use embedding similarity for semantic recall"))
     if mode in {"graph", "mix"}:
         legs.append(RetrievalLeg(name="graph", limit=leg_limit, rationale="Expand through MIRL entity/relation/provenance edges"))
+    if temporal_window is not None or temporal_reference is not None:
+        legs.append(
+            RetrievalLeg(
+                name="temporal",
+                limit=leg_limit,
+                rationale="Rank timestamped MIRL records against the explicit temporal query context",
+            )
+        )
 
     return RetrievalPlan(
         query=query,
@@ -67,6 +122,11 @@ def build_plan(
         semantic_graph_seeding=semantic_graph_seeding,
         graph_at=graph_at,
         graph_include_history=graph_include_history,
+        lens=lens.strip(),
+        include_raw=include_raw,
+        temporal_window=temporal_window,
+        temporal_reference=temporal_reference,
+        ranking_policy=ranking_policy,
     )
 
 

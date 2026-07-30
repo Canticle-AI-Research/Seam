@@ -1,0 +1,2410 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 4,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 4,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "ui/animations.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 482,
+      "nonEmptyLines": 409,
+      "functions": [
+        {
+          "name": "_frag",
+          "startLine": 45,
+          "endLine": 46,
+          "params": [
+            "color",
+            "text"
+          ]
+        },
+        {
+          "name": "_fragments_to_markup",
+          "startLine": 116,
+          "endLine": 117,
+          "params": [
+            "frags"
+          ]
+        },
+        {
+          "name": "_fragments_visible_text",
+          "startLine": 120,
+          "endLine": 121,
+          "params": [
+            "frags"
+          ]
+        },
+        {
+          "name": "_dim_markup",
+          "startLine": 227,
+          "endLine": 230,
+          "params": [
+            "frags",
+            "dim_color"
+          ]
+        },
+        {
+          "name": "_preview_stream",
+          "startLine": 418,
+          "endLine": 428,
+          "params": []
+        },
+        {
+          "name": "_preview_pipeline",
+          "startLine": 431,
+          "endLine": 444,
+          "params": []
+        },
+        {
+          "name": "_preview_engine",
+          "startLine": 447,
+          "endLine": 459,
+          "params": []
+        },
+        {
+          "name": "_main",
+          "startLine": 462,
+          "endLine": 478,
+          "params": [
+            "argv"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "_Fragment",
+          "startLine": 40,
+          "endLine": 42,
+          "methods": [],
+          "properties": [
+            "color",
+            "text"
+          ]
+        },
+        {
+          "name": "_StreamLine",
+          "startLine": 127,
+          "endLine": 137,
+          "methods": [],
+          "properties": [
+            "frags",
+            "revealed",
+            "born_at"
+          ]
+        },
+        {
+          "name": "MachineStream",
+          "startLine": 140,
+          "endLine": 224,
+          "methods": [
+            "__init__",
+            "tick",
+            "_start_new_line",
+            "render",
+            "_render_partial",
+            "_render_completed"
+          ],
+          "properties": []
+        },
+        {
+          "name": "_StageState",
+          "startLine": 236,
+          "endLine": 247,
+          "methods": [
+            "step",
+            "done"
+          ],
+          "properties": [
+            "name",
+            "progress",
+            "rate",
+            "label"
+          ]
+        },
+        {
+          "name": "CompressionPipeline",
+          "startLine": 250,
+          "endLine": 360,
+          "methods": [
+            "__init__",
+            "trigger",
+            "tick",
+            "render",
+            "has_completed_frame",
+            "_header",
+            "_stage_row",
+            "_summary_row"
+          ],
+          "properties": []
+        },
+        {
+          "name": "AnimationEngine",
+          "startLine": 365,
+          "endLine": 413,
+          "methods": [
+            "__init__",
+            "trigger_compress",
+            "active",
+            "has_completed_frame",
+            "tick_and_render"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "_Fragment",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "_frag",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "_fragments_to_markup",
+          "line": 116,
+          "isDefault": false
+        },
+        {
+          "name": "_fragments_visible_text",
+          "line": 120,
+          "isDefault": false
+        },
+        {
+          "name": "_StreamLine",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "MachineStream",
+          "line": 140,
+          "isDefault": false
+        },
+        {
+          "name": "_dim_markup",
+          "line": 227,
+          "isDefault": false
+        },
+        {
+          "name": "_StageState",
+          "line": 235,
+          "isDefault": false
+        },
+        {
+          "name": "CompressionPipeline",
+          "line": 250,
+          "isDefault": false
+        },
+        {
+          "name": "AnimationEngine",
+          "line": 365,
+          "isDefault": false
+        },
+        {
+          "name": "_preview_stream",
+          "line": 418,
+          "isDefault": false
+        },
+        {
+          "name": "_preview_pipeline",
+          "line": 431,
+          "isDefault": false
+        },
+        {
+          "name": "_preview_engine",
+          "line": 447,
+          "isDefault": false
+        },
+        {
+          "name": "_main",
+          "line": 462,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_frag",
+          "callee": "_Fragment",
+          "lineNumber": 46
+        },
+        {
+          "caller": "_fragments_to_markup",
+          "callee": "\"\".join",
+          "lineNumber": 117
+        },
+        {
+          "caller": "_fragments_to_markup",
+          "callee": "theme.fg",
+          "lineNumber": 117
+        },
+        {
+          "caller": "_fragments_visible_text",
+          "callee": "\"\".join",
+          "lineNumber": 121
+        },
+        {
+          "caller": "__init__",
+          "callee": "random.Random",
+          "lineNumber": 153
+        },
+        {
+          "caller": "__init__",
+          "callee": "deque",
+          "lineNumber": 154
+        },
+        {
+          "caller": "__init__",
+          "callee": "self._start_new_line",
+          "lineNumber": 155
+        },
+        {
+          "caller": "__init__",
+          "callee": "time.monotonic",
+          "lineNumber": 155
+        },
+        {
+          "caller": "tick",
+          "callee": "time.monotonic",
+          "lineNumber": 161
+        },
+        {
+          "caller": "tick",
+          "callee": "self._start_new_line",
+          "lineNumber": 163
+        },
+        {
+          "caller": "tick",
+          "callee": "_fragments_visible_text",
+          "lineNumber": 166
+        },
+        {
+          "caller": "tick",
+          "callee": "len",
+          "lineNumber": 167
+        },
+        {
+          "caller": "tick",
+          "callee": "min",
+          "lineNumber": 168
+        },
+        {
+          "caller": "tick",
+          "callee": "len",
+          "lineNumber": 168
+        },
+        {
+          "caller": "tick",
+          "callee": "len",
+          "lineNumber": 169
+        },
+        {
+          "caller": "tick",
+          "callee": "self._start_new_line",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_start_new_line",
+          "callee": "self.rng.choice",
+          "lineNumber": 175
+        },
+        {
+          "caller": "_start_new_line",
+          "callee": "len",
+          "lineNumber": 177
+        },
+        {
+          "caller": "_start_new_line",
+          "callee": "self.lines.popleft",
+          "lineNumber": 178
+        },
+        {
+          "caller": "_start_new_line",
+          "callee": "self.lines.append",
+          "lineNumber": 179
+        },
+        {
+          "caller": "_start_new_line",
+          "callee": "_StreamLine",
+          "lineNumber": 179
+        },
+        {
+          "caller": "render",
+          "callee": "time.monotonic",
+          "lineNumber": 185
+        },
+        {
+          "caller": "render",
+          "callee": "len",
+          "lineNumber": 187
+        },
+        {
+          "caller": "render",
+          "callee": "enumerate",
+          "lineNumber": 188
+        },
+        {
+          "caller": "render",
+          "callee": "_fragments_visible_text",
+          "lineNumber": 189
+        },
+        {
+          "caller": "render",
+          "callee": "len",
+          "lineNumber": 190
+        },
+        {
+          "caller": "render",
+          "callee": "theme.fg",
+          "lineNumber": 193
+        },
+        {
+          "caller": "render",
+          "callee": "out.append",
+          "lineNumber": 194
+        },
+        {
+          "caller": "render",
+          "callee": "self._render_partial",
+          "lineNumber": 194
+        },
+        {
+          "caller": "render",
+          "callee": "out.append",
+          "lineNumber": 199
+        },
+        {
+          "caller": "render",
+          "callee": "self._render_completed",
+          "lineNumber": 199
+        },
+        {
+          "caller": "_render_partial",
+          "callee": "len",
+          "lineNumber": 208
+        },
+        {
+          "caller": "_render_partial",
+          "callee": "chunks.append",
+          "lineNumber": 209
+        },
+        {
+          "caller": "_render_partial",
+          "callee": "theme.fg",
+          "lineNumber": 209
+        },
+        {
+          "caller": "_render_partial",
+          "callee": "len",
+          "lineNumber": 210
+        },
+        {
+          "caller": "_render_partial",
+          "callee": "chunks.append",
+          "lineNumber": 212
+        },
+        {
+          "caller": "_render_partial",
+          "callee": "theme.fg",
+          "lineNumber": 212
+        },
+        {
+          "caller": "_render_partial",
+          "callee": "\"\".join",
+          "lineNumber": 214
+        },
+        {
+          "caller": "_render_completed",
+          "callee": "_fragments_to_markup",
+          "lineNumber": 221
+        },
+        {
+          "caller": "_render_completed",
+          "callee": "_dim_markup",
+          "lineNumber": 223
+        },
+        {
+          "caller": "_render_completed",
+          "callee": "_dim_markup",
+          "lineNumber": 224
+        },
+        {
+          "caller": "_dim_markup",
+          "callee": "\"\".join",
+          "lineNumber": 230
+        },
+        {
+          "caller": "_dim_markup",
+          "callee": "theme.fg",
+          "lineNumber": 230
+        },
+        {
+          "caller": "step",
+          "callee": "min",
+          "lineNumber": 243
+        },
+        {
+          "caller": "trigger",
+          "callee": "_StageState",
+          "lineNumber": 290
+        },
+        {
+          "caller": "trigger",
+          "callee": "_StageState",
+          "lineNumber": 291
+        },
+        {
+          "caller": "trigger",
+          "callee": "_StageState",
+          "lineNumber": 292
+        },
+        {
+          "caller": "tick",
+          "callee": "time.monotonic",
+          "lineNumber": 300
+        },
+        {
+          "caller": "tick",
+          "callee": "stage.step",
+          "lineNumber": 304
+        },
+        {
+          "caller": "render",
+          "callee": "self._header",
+          "lineNumber": 318
+        },
+        {
+          "caller": "render",
+          "callee": "self._stage_row",
+          "lineNumber": 319
+        },
+        {
+          "caller": "render",
+          "callee": "enumerate",
+          "lineNumber": 319
+        },
+        {
+          "caller": "render",
+          "callee": "self._summary_row",
+          "lineNumber": 320
+        },
+        {
+          "caller": "has_completed_frame",
+          "callee": "bool",
+          "lineNumber": 324
+        },
+        {
+          "caller": "has_completed_frame",
+          "callee": "all",
+          "lineNumber": 324
+        },
+        {
+          "caller": "_header",
+          "callee": "theme.fg",
+          "lineNumber": 327
+        },
+        {
+          "caller": "_header",
+          "callee": "theme.fg",
+          "lineNumber": 328
+        },
+        {
+          "caller": "_header",
+          "callee": "theme.fg",
+          "lineNumber": 328
+        },
+        {
+          "caller": "_header",
+          "callee": "\" → \".join",
+          "lineNumber": 329
+        },
+        {
+          "caller": "_stage_row",
+          "callee": "theme.fg",
+          "lineNumber": 338
+        },
+        {
+          "caller": "_stage_row",
+          "callee": "bars.solid",
+          "lineNumber": 340
+        },
+        {
+          "caller": "_stage_row",
+          "callee": "bars.solid",
+          "lineNumber": 342
+        },
+        {
+          "caller": "_stage_row",
+          "callee": "bars.solid",
+          "lineNumber": 344
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "max",
+          "lineNumber": 351
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "theme.fg",
+          "lineNumber": 353
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "theme.fg",
+          "lineNumber": 354
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "str",
+          "lineNumber": 354
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "theme.fg",
+          "lineNumber": 355
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "theme.fg",
+          "lineNumber": 356
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "str",
+          "lineNumber": 356
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "theme.fg",
+          "lineNumber": 357
+        },
+        {
+          "caller": "_summary_row",
+          "callee": "theme.fg",
+          "lineNumber": 358
+        },
+        {
+          "caller": "__init__",
+          "callee": "MachineStream",
+          "lineNumber": 378
+        },
+        {
+          "caller": "__init__",
+          "callee": "CompressionPipeline",
+          "lineNumber": 379
+        },
+        {
+          "caller": "trigger_compress",
+          "callee": "self.pipeline.trigger",
+          "lineNumber": 386
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "time.monotonic",
+          "lineNumber": 398
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "self.pipeline.render",
+          "lineNumber": 401
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "theme.fg",
+          "lineNumber": 401
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "list",
+          "lineNumber": 402
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "self.stream.tick",
+          "lineNumber": 403
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "self.pipeline.tick",
+          "lineNumber": 405
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "self.pipeline.render",
+          "lineNumber": 408
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "self.stream.render",
+          "lineNumber": 409
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "theme.fg",
+          "lineNumber": 410
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "self.pipeline.render",
+          "lineNumber": 412
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "theme.fg",
+          "lineNumber": 412
+        },
+        {
+          "caller": "tick_and_render",
+          "callee": "list",
+          "lineNumber": 413
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "Console",
+          "lineNumber": 420
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "console.print",
+          "lineNumber": 421
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "random.Random",
+          "lineNumber": 422
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "MachineStream",
+          "lineNumber": 423
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "range",
+          "lineNumber": 424
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "stream.tick",
+          "lineNumber": 425
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "console.rule",
+          "lineNumber": 426
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "stream.render",
+          "lineNumber": 427
+        },
+        {
+          "caller": "_preview_stream",
+          "callee": "console.print",
+          "lineNumber": 428
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "Console",
+          "lineNumber": 433
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "console.print",
+          "lineNumber": 434
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "CompressionPipeline",
+          "lineNumber": 435
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "pipe.trigger",
+          "lineNumber": 436
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "range",
+          "lineNumber": 437
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "pipe.tick",
+          "lineNumber": 438
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "console.print",
+          "lineNumber": 440
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "console.rule",
+          "lineNumber": 442
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "pipe.render",
+          "lineNumber": 443
+        },
+        {
+          "caller": "_preview_pipeline",
+          "callee": "console.print",
+          "lineNumber": 444
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "Console",
+          "lineNumber": 449
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "console.print",
+          "lineNumber": 450
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "AnimationEngine",
+          "lineNumber": 451
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "range",
+          "lineNumber": 452
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "engine.tick_and_render",
+          "lineNumber": 453
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "engine.trigger_compress",
+          "lineNumber": 454
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "range",
+          "lineNumber": 455
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "engine.tick_and_render",
+          "lineNumber": 456
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "console.rule",
+          "lineNumber": 457
+        },
+        {
+          "caller": "_preview_engine",
+          "callee": "console.print",
+          "lineNumber": 459
+        },
+        {
+          "caller": "_main",
+          "callee": "argparse.ArgumentParser",
+          "lineNumber": 463
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.add_argument",
+          "lineNumber": 464
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.add_argument",
+          "lineNumber": 465
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.add_argument",
+          "lineNumber": 466
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.parse_args",
+          "lineNumber": 467
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview_stream",
+          "lineNumber": 469
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview_pipeline",
+          "lineNumber": 471
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview_engine",
+          "lineNumber": 473
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview_stream",
+          "lineNumber": 475
+        },
+        {
+          "caller": "_main",
+          "callee": "print",
+          "lineNumber": 476
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview_pipeline",
+          "lineNumber": 477
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 14,
+        "functionCount": 8,
+        "classCount": 6
+      }
+    },
+    {
+      "path": "ui/bars.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 243,
+      "nonEmptyLines": 191,
+      "functions": [
+        {
+          "name": "_clamp",
+          "startLine": 60,
+          "endLine": 61,
+          "params": [
+            "x",
+            "lo",
+            "hi"
+          ]
+        },
+        {
+          "name": "_wrap_brackets",
+          "startLine": 64,
+          "endLine": 65,
+          "params": [
+            "body",
+            "style"
+          ]
+        },
+        {
+          "name": "_label",
+          "startLine": 68,
+          "endLine": 69,
+          "params": [
+            "text",
+            "style"
+          ]
+        },
+        {
+          "name": "solid",
+          "startLine": 74,
+          "endLine": 89,
+          "params": [
+            "ratio",
+            "width",
+            "style",
+            "show_pct"
+          ]
+        },
+        {
+          "name": "segmented",
+          "startLine": 92,
+          "endLine": 113,
+          "params": [
+            "steps_done",
+            "steps_total",
+            "style",
+            "cell_width",
+            "separator"
+          ]
+        },
+        {
+          "name": "indeterminate",
+          "startLine": 116,
+          "endLine": 146,
+          "params": [
+            "phase",
+            "width",
+            "window",
+            "style"
+          ]
+        },
+        {
+          "name": "stalled",
+          "startLine": 149,
+          "endLine": 157,
+          "params": [
+            "width",
+            "style",
+            "note"
+          ]
+        },
+        {
+          "name": "error",
+          "startLine": 160,
+          "endLine": 173,
+          "params": [
+            "ratio",
+            "width",
+            "style",
+            "note"
+          ]
+        },
+        {
+          "name": "render",
+          "startLine": 178,
+          "endLine": 197,
+          "params": [
+            "kind",
+            "ratio",
+            "steps_done",
+            "steps_total",
+            "phase",
+            "width",
+            "note",
+            "style"
+          ]
+        },
+        {
+          "name": "_preview",
+          "startLine": 202,
+          "endLine": 232,
+          "params": []
+        },
+        {
+          "name": "_main",
+          "startLine": 235,
+          "endLine": 239,
+          "params": [
+            "argv"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "BarStyle",
+          "startLine": 45,
+          "endLine": 49,
+          "methods": [],
+          "properties": [
+            "fill",
+            "track",
+            "bracket",
+            "label"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "BarStyle",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "_clamp",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "_wrap_brackets",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "_label",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "solid",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "segmented",
+          "line": 92,
+          "isDefault": false
+        },
+        {
+          "name": "indeterminate",
+          "line": 116,
+          "isDefault": false
+        },
+        {
+          "name": "stalled",
+          "line": 149,
+          "isDefault": false
+        },
+        {
+          "name": "error",
+          "line": 160,
+          "isDefault": false
+        },
+        {
+          "name": "render",
+          "line": 178,
+          "isDefault": false
+        },
+        {
+          "name": "_preview",
+          "line": 202,
+          "isDefault": false
+        },
+        {
+          "name": "_main",
+          "line": 235,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_clamp",
+          "callee": "max",
+          "lineNumber": 61
+        },
+        {
+          "caller": "_clamp",
+          "callee": "min",
+          "lineNumber": 61
+        },
+        {
+          "caller": "_wrap_brackets",
+          "callee": "theme.fg",
+          "lineNumber": 65
+        },
+        {
+          "caller": "_wrap_brackets",
+          "callee": "theme.fg",
+          "lineNumber": 65
+        },
+        {
+          "caller": "_label",
+          "callee": "theme.fg",
+          "lineNumber": 69
+        },
+        {
+          "caller": "solid",
+          "callee": "_clamp",
+          "lineNumber": 78
+        },
+        {
+          "caller": "solid",
+          "callee": "int",
+          "lineNumber": 79
+        },
+        {
+          "caller": "solid",
+          "callee": "round",
+          "lineNumber": 79
+        },
+        {
+          "caller": "solid",
+          "callee": "theme.fg",
+          "lineNumber": 83
+        },
+        {
+          "caller": "solid",
+          "callee": "theme.fg",
+          "lineNumber": 84
+        },
+        {
+          "caller": "solid",
+          "callee": "_wrap_brackets",
+          "lineNumber": 86
+        },
+        {
+          "caller": "solid",
+          "callee": "_label",
+          "lineNumber": 88
+        },
+        {
+          "caller": "segmented",
+          "callee": "max",
+          "lineNumber": 102
+        },
+        {
+          "caller": "segmented",
+          "callee": "max",
+          "lineNumber": 103
+        },
+        {
+          "caller": "segmented",
+          "callee": "min",
+          "lineNumber": 103
+        },
+        {
+          "caller": "segmented",
+          "callee": "theme.fg",
+          "lineNumber": 104
+        },
+        {
+          "caller": "segmented",
+          "callee": "range",
+          "lineNumber": 106
+        },
+        {
+          "caller": "segmented",
+          "callee": "cells.append",
+          "lineNumber": 108
+        },
+        {
+          "caller": "segmented",
+          "callee": "theme.fg",
+          "lineNumber": 108
+        },
+        {
+          "caller": "segmented",
+          "callee": "cells.append",
+          "lineNumber": 110
+        },
+        {
+          "caller": "segmented",
+          "callee": "theme.fg",
+          "lineNumber": 110
+        },
+        {
+          "caller": "segmented",
+          "callee": "sep.join",
+          "lineNumber": 111
+        },
+        {
+          "caller": "segmented",
+          "callee": "_wrap_brackets",
+          "lineNumber": 112
+        },
+        {
+          "caller": "segmented",
+          "callee": "_label",
+          "lineNumber": 113
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "max",
+          "lineNumber": 129
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "range",
+          "lineNumber": 134
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "abs",
+          "lineNumber": 135
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "glyphs.append",
+          "lineNumber": 137
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "theme.fg",
+          "lineNumber": 137
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "glyphs.append",
+          "lineNumber": 139
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "theme.fg",
+          "lineNumber": 139
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "glyphs.append",
+          "lineNumber": 141
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "theme.fg",
+          "lineNumber": 141
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "glyphs.append",
+          "lineNumber": 143
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "theme.fg",
+          "lineNumber": 143
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "\"\".join",
+          "lineNumber": 144
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "_wrap_brackets",
+          "lineNumber": 145
+        },
+        {
+          "caller": "indeterminate",
+          "callee": "_label",
+          "lineNumber": 146
+        },
+        {
+          "caller": "stalled",
+          "callee": "theme.fg",
+          "lineNumber": 153
+        },
+        {
+          "caller": "stalled",
+          "callee": "max",
+          "lineNumber": 153
+        },
+        {
+          "caller": "stalled",
+          "callee": "theme.fg",
+          "lineNumber": 154
+        },
+        {
+          "caller": "stalled",
+          "callee": "_wrap_brackets",
+          "lineNumber": 156
+        },
+        {
+          "caller": "stalled",
+          "callee": "_label",
+          "lineNumber": 157
+        },
+        {
+          "caller": "error",
+          "callee": "_clamp",
+          "lineNumber": 165
+        },
+        {
+          "caller": "error",
+          "callee": "int",
+          "lineNumber": 166
+        },
+        {
+          "caller": "error",
+          "callee": "round",
+          "lineNumber": 166
+        },
+        {
+          "caller": "error",
+          "callee": "theme.fg",
+          "lineNumber": 169
+        },
+        {
+          "caller": "error",
+          "callee": "theme.fg",
+          "lineNumber": 170
+        },
+        {
+          "caller": "error",
+          "callee": "_wrap_brackets",
+          "lineNumber": 172
+        },
+        {
+          "caller": "error",
+          "callee": "_label",
+          "lineNumber": 173
+        },
+        {
+          "caller": "render",
+          "callee": "solid",
+          "lineNumber": 188
+        },
+        {
+          "caller": "render",
+          "callee": "segmented",
+          "lineNumber": 190
+        },
+        {
+          "caller": "render",
+          "callee": "indeterminate",
+          "lineNumber": 192
+        },
+        {
+          "caller": "render",
+          "callee": "stalled",
+          "lineNumber": 194
+        },
+        {
+          "caller": "render",
+          "callee": "error",
+          "lineNumber": 196
+        },
+        {
+          "caller": "render",
+          "callee": "ValueError",
+          "lineNumber": 197
+        },
+        {
+          "caller": "_preview",
+          "callee": "Console",
+          "lineNumber": 205
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 206
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 208
+        },
+        {
+          "caller": "_preview",
+          "callee": "solid",
+          "lineNumber": 208
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 209
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 211
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 212
+        },
+        {
+          "caller": "_preview",
+          "callee": "solid",
+          "lineNumber": 212
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 213
+        },
+        {
+          "caller": "_preview",
+          "callee": "solid",
+          "lineNumber": 213
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 214
+        },
+        {
+          "caller": "_preview",
+          "callee": "solid",
+          "lineNumber": 214
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 215
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 217
+        },
+        {
+          "caller": "_preview",
+          "callee": "range",
+          "lineNumber": 218
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 219
+        },
+        {
+          "caller": "_preview",
+          "callee": "segmented",
+          "lineNumber": 219
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 220
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 222
+        },
+        {
+          "caller": "_preview",
+          "callee": "range",
+          "lineNumber": 223
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 224
+        },
+        {
+          "caller": "_preview",
+          "callee": "indeterminate",
+          "lineNumber": 224
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 225
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 227
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 228
+        },
+        {
+          "caller": "_preview",
+          "callee": "stalled",
+          "lineNumber": 228
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 229
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 231
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 232
+        },
+        {
+          "caller": "_preview",
+          "callee": "error",
+          "lineNumber": 232
+        },
+        {
+          "caller": "_main",
+          "callee": "argparse.ArgumentParser",
+          "lineNumber": 236
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.parse_args",
+          "lineNumber": 237
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview",
+          "lineNumber": 238
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 12,
+        "functionCount": 11,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "ui/logo.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 408,
+      "nonEmptyLines": 334,
+      "functions": [
+        {
+          "name": "_pad_to_even",
+          "startLine": 106,
+          "endLine": 110,
+          "params": [
+            "grid"
+          ]
+        },
+        {
+          "name": "_lit",
+          "startLine": 113,
+          "endLine": 114,
+          "params": [
+            "ch"
+          ]
+        },
+        {
+          "name": "_half_char",
+          "startLine": 117,
+          "endLine": 124,
+          "params": [
+            "top",
+            "bot"
+          ]
+        },
+        {
+          "name": "render_glyph",
+          "startLine": 147,
+          "endLine": 170,
+          "params": [
+            "grid",
+            "style"
+          ]
+        },
+        {
+          "name": "render_row_concat",
+          "startLine": 173,
+          "endLine": 195,
+          "params": [
+            "glyph_rows",
+            "gap",
+            "gap_bg"
+          ]
+        },
+        {
+          "name": "_visual_width_blank",
+          "startLine": 198,
+          "endLine": 209,
+          "params": [
+            "rows"
+          ]
+        },
+        {
+          "name": "render_wordmark",
+          "startLine": 212,
+          "endLine": 226,
+          "params": [
+            "word",
+            "style",
+            "gap"
+          ]
+        },
+        {
+          "name": "render_mark",
+          "startLine": 229,
+          "endLine": 230,
+          "params": [
+            "style"
+          ]
+        },
+        {
+          "name": "render_header",
+          "startLine": 280,
+          "endLine": 301,
+          "params": [
+            "fields",
+            "mark_style",
+            "wordmark_style"
+          ]
+        },
+        {
+          "name": "_pad_rows",
+          "startLine": 304,
+          "endLine": 314,
+          "params": [
+            "rows",
+            "target_height",
+            "bg"
+          ]
+        },
+        {
+          "name": "_build_info_strip",
+          "startLine": 317,
+          "endLine": 347,
+          "params": [
+            "fields"
+          ]
+        },
+        {
+          "name": "header_markup",
+          "startLine": 350,
+          "endLine": 353,
+          "params": [
+            "fields"
+          ]
+        },
+        {
+          "name": "_preview",
+          "startLine": 358,
+          "endLine": 388,
+          "params": [
+            "which"
+          ]
+        },
+        {
+          "name": "_main",
+          "startLine": 391,
+          "endLine": 404,
+          "params": [
+            "argv"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "GlyphStyle",
+          "startLine": 128,
+          "endLine": 139,
+          "methods": [],
+          "properties": [
+            "lit",
+            "background",
+            "shadow"
+          ]
+        },
+        {
+          "name": "HeaderFields",
+          "startLine": 263,
+          "endLine": 277,
+          "methods": [],
+          "properties": [
+            "version",
+            "tagline",
+            "launch_dir",
+            "shell_cwd",
+            "model",
+            "chat_status",
+            "mode",
+            "glow"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_pad_to_even",
+          "line": 106,
+          "isDefault": false
+        },
+        {
+          "name": "_lit",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "_half_char",
+          "line": 117,
+          "isDefault": false
+        },
+        {
+          "name": "GlyphStyle",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "render_glyph",
+          "line": 147,
+          "isDefault": false
+        },
+        {
+          "name": "render_row_concat",
+          "line": 173,
+          "isDefault": false
+        },
+        {
+          "name": "_visual_width_blank",
+          "line": 198,
+          "isDefault": false
+        },
+        {
+          "name": "render_wordmark",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "render_mark",
+          "line": 229,
+          "isDefault": false
+        },
+        {
+          "name": "HeaderFields",
+          "line": 262,
+          "isDefault": false
+        },
+        {
+          "name": "render_header",
+          "line": 280,
+          "isDefault": false
+        },
+        {
+          "name": "_pad_rows",
+          "line": 304,
+          "isDefault": false
+        },
+        {
+          "name": "_build_info_strip",
+          "line": 317,
+          "isDefault": false
+        },
+        {
+          "name": "header_markup",
+          "line": 350,
+          "isDefault": false
+        },
+        {
+          "name": "_preview",
+          "line": 358,
+          "isDefault": false
+        },
+        {
+          "name": "_main",
+          "line": 391,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_pad_to_even",
+          "callee": "list",
+          "lineNumber": 107
+        },
+        {
+          "caller": "_pad_to_even",
+          "callee": "len",
+          "lineNumber": 108
+        },
+        {
+          "caller": "_pad_to_even",
+          "callee": "rows.append",
+          "lineNumber": 109
+        },
+        {
+          "caller": "_pad_to_even",
+          "callee": "len",
+          "lineNumber": 109
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "_pad_to_even",
+          "lineNumber": 154
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "len",
+          "lineNumber": 155
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "range",
+          "lineNumber": 157
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "len",
+          "lineNumber": 157
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "len",
+          "lineNumber": 159
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "range",
+          "lineNumber": 161
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "_lit",
+          "lineNumber": 162
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "_lit",
+          "lineNumber": 163
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "_half_char",
+          "lineNumber": 164
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "cells.append",
+          "lineNumber": 166
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "theme.fg_bg",
+          "lineNumber": 166
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "cells.append",
+          "lineNumber": 168
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "theme.fg_bg",
+          "lineNumber": 168
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "out.append",
+          "lineNumber": 169
+        },
+        {
+          "caller": "render_glyph",
+          "callee": "\"\".join",
+          "lineNumber": 169
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "list",
+          "lineNumber": 181
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "max",
+          "lineNumber": 184
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "len",
+          "lineNumber": 184
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "id",
+          "lineNumber": 186
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "_visual_width_blank",
+          "lineNumber": 186
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "len",
+          "lineNumber": 188
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "g.append",
+          "lineNumber": 189
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "theme.fg_bg",
+          "lineNumber": 189
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "id",
+          "lineNumber": 189
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "theme.fg_bg",
+          "lineNumber": 190
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "range",
+          "lineNumber": 192
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "joined.append",
+          "lineNumber": 194
+        },
+        {
+          "caller": "render_row_concat",
+          "callee": "gap_cell.join",
+          "lineNumber": 194
+        },
+        {
+          "caller": "_visual_width_blank",
+          "callee": "first.count",
+          "lineNumber": 209
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "word.upper",
+          "lineNumber": 217
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "tuple",
+          "lineNumber": 219
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "range",
+          "lineNumber": 219
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "glyphs.append",
+          "lineNumber": 220
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "render_glyph",
+          "lineNumber": 220
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "WORDMARK_LETTERS.get",
+          "lineNumber": 222
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "glyphs.append",
+          "lineNumber": 225
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "render_glyph",
+          "lineNumber": 225
+        },
+        {
+          "caller": "render_wordmark",
+          "callee": "render_row_concat",
+          "lineNumber": 226
+        },
+        {
+          "caller": "render_mark",
+          "callee": "render_glyph",
+          "lineNumber": 230
+        },
+        {
+          "caller": "render_header",
+          "callee": "_build_info_strip",
+          "lineNumber": 291
+        },
+        {
+          "caller": "render_header",
+          "callee": "len",
+          "lineNumber": 292
+        },
+        {
+          "caller": "render_header",
+          "callee": "range",
+          "lineNumber": 295
+        },
+        {
+          "caller": "render_header",
+          "callee": "theme.fg",
+          "lineNumber": 297
+        },
+        {
+          "caller": "render_header",
+          "callee": "theme.fg",
+          "lineNumber": 298
+        },
+        {
+          "caller": "render_header",
+          "callee": "len",
+          "lineNumber": 298
+        },
+        {
+          "caller": "render_header",
+          "callee": "len",
+          "lineNumber": 299
+        },
+        {
+          "caller": "render_header",
+          "callee": "composed.append",
+          "lineNumber": 300
+        },
+        {
+          "caller": "_pad_rows",
+          "callee": "len",
+          "lineNumber": 305
+        },
+        {
+          "caller": "_pad_rows",
+          "callee": "list",
+          "lineNumber": 307
+        },
+        {
+          "caller": "_pad_rows",
+          "callee": "theme.fg_bg",
+          "lineNumber": 311
+        },
+        {
+          "caller": "_pad_rows",
+          "callee": "len",
+          "lineNumber": 312
+        },
+        {
+          "caller": "_pad_rows",
+          "callee": "padded.append",
+          "lineNumber": 313
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 324
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 325
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 326
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 329
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 335
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 335
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 338
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 338
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 341
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 341
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 342
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 342
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 343
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 344
+        },
+        {
+          "caller": "_build_info_strip",
+          "callee": "theme.fg",
+          "lineNumber": 344
+        },
+        {
+          "caller": "header_markup",
+          "callee": "\"\\n\".join",
+          "lineNumber": 353
+        },
+        {
+          "caller": "header_markup",
+          "callee": "render_header",
+          "lineNumber": 353
+        },
+        {
+          "caller": "_preview",
+          "callee": "Console",
+          "lineNumber": 361
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 364
+        },
+        {
+          "caller": "_preview",
+          "callee": "render_mark",
+          "lineNumber": 365
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 366
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 367
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 370
+        },
+        {
+          "caller": "_preview",
+          "callee": "render_wordmark",
+          "lineNumber": 371
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 372
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 373
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 376
+        },
+        {
+          "caller": "_preview",
+          "callee": "HeaderFields",
+          "lineNumber": 377
+        },
+        {
+          "caller": "_preview",
+          "callee": "render_header",
+          "lineNumber": 387
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 388
+        },
+        {
+          "caller": "_main",
+          "callee": "argparse.ArgumentParser",
+          "lineNumber": 392
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.add_argument",
+          "lineNumber": 393
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.add_argument",
+          "lineNumber": 394
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.add_argument",
+          "lineNumber": 395
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.add_argument",
+          "lineNumber": 396
+        },
+        {
+          "caller": "_main",
+          "callee": "parser.parse_args",
+          "lineNumber": 397
+        },
+        {
+          "caller": "_main",
+          "callee": "any",
+          "lineNumber": 398
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview",
+          "lineNumber": 399
+        },
+        {
+          "caller": "_main",
+          "callee": "getattr",
+          "lineNumber": 402
+        },
+        {
+          "caller": "_main",
+          "callee": "_preview",
+          "lineNumber": 403
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 16,
+        "functionCount": 14,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "ui/theme.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 191,
+      "nonEmptyLines": 148,
+      "functions": [
+        {
+          "name": "fg",
+          "startLine": 120,
+          "endLine": 122,
+          "params": [
+            "color",
+            "text"
+          ]
+        },
+        {
+          "name": "fg_bg",
+          "startLine": 125,
+          "endLine": 127,
+          "params": [
+            "fgc",
+            "bgc",
+            "text"
+          ]
+        },
+        {
+          "name": "as_css_vars",
+          "startLine": 150,
+          "endLine": 152,
+          "params": []
+        },
+        {
+          "name": "_preview",
+          "startLine": 157,
+          "endLine": 187,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "CssVars",
+          "startLine": 133,
+          "endLine": 147,
+          "methods": [],
+          "properties": [
+            "bg",
+            "bg_panel",
+            "frame",
+            "frame_dim",
+            "signal",
+            "accent",
+            "status_ok"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fg",
+          "line": 120,
+          "isDefault": false
+        },
+        {
+          "name": "fg_bg",
+          "line": 125,
+          "isDefault": false
+        },
+        {
+          "name": "CssVars",
+          "line": 132,
+          "isDefault": false
+        },
+        {
+          "name": "as_css_vars",
+          "line": 150,
+          "isDefault": false
+        },
+        {
+          "name": "_preview",
+          "line": 157,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "as_css_vars",
+          "callee": "CssVars",
+          "lineNumber": 151
+        },
+        {
+          "caller": "as_css_vars",
+          "callee": "getattr",
+          "lineNumber": 152
+        },
+        {
+          "caller": "_preview",
+          "callee": "Console",
+          "lineNumber": 161
+        },
+        {
+          "caller": "_preview",
+          "callee": "Table",
+          "lineNumber": 162
+        },
+        {
+          "caller": "_preview",
+          "callee": "table.add_column",
+          "lineNumber": 163
+        },
+        {
+          "caller": "_preview",
+          "callee": "table.add_column",
+          "lineNumber": 164
+        },
+        {
+          "caller": "_preview",
+          "callee": "table.add_column",
+          "lineNumber": 165
+        },
+        {
+          "caller": "_preview",
+          "callee": "IR_TAG_COLORS.items",
+          "lineNumber": 180
+        },
+        {
+          "caller": "_preview",
+          "callee": "table.add_row",
+          "lineNumber": 183
+        },
+        {
+          "caller": "_preview",
+          "callee": "table.add_row",
+          "lineNumber": 186
+        },
+        {
+          "caller": "_preview",
+          "callee": "console.print",
+          "lineNumber": 187
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 4,
+        "classCount": 1
+      }
+    }
+  ]
+}

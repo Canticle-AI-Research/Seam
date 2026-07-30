@@ -1,0 +1,31 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "skills/__init__.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "skills/factory.py",
+      "language": "python",
+      "sizeLines": 180,
+      "fileCategory": "code"
+    },
+    {
+      "path": "skills/skill_ir.py",
+      "language": "python",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "skills/__init__.py": [
+      "skills/factory.py",
+      "skills/skill_ir.py"
+    ],
+    "skills/factory.py": [],
+    "skills/skill_ir.py": []
+  }
+}

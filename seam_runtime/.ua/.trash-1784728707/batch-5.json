@@ -1,0 +1,551 @@
+{
+  "nodes": [
+    {
+      "id": "file:retrieval_orchestrator/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "retrieval_orchestrator/__init__.py",
+      "summary": "Entry point for the retrieval orchestrator package, providing package imports and exports.",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:retrieval_orchestrator/merger.py",
+      "type": "file",
+      "name": "merger.py",
+      "filePath": "retrieval_orchestrator/merger.py",
+      "summary": "Provides merging logic for retrieval candidate hits, combining scores, reasons, and sources from multiple retrieval legs.",
+      "tags": [
+        "utility",
+        "retrieval",
+        "data-processing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:retrieval_orchestrator/merger.py:merge_hits",
+      "type": "function",
+      "name": "merge_hits",
+      "filePath": "retrieval_orchestrator/merger.py",
+      "lineRange": [
+        6,
+        22
+      ],
+      "summary": "Merges retrieval hits from multiple sources, combining their scores, reasons, and deduplicating them.",
+      "tags": [
+        "utility",
+        "retrieval",
+        "deduplication"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:retrieval_orchestrator/orchestrator.py",
+      "type": "file",
+      "name": "orchestrator.py",
+      "filePath": "retrieval_orchestrator/orchestrator.py",
+      "summary": "Coordinates multi-leg query planning, execution across SQLite/Chroma/Seam adapters, and RAG candidate processing.",
+      "tags": [
+        "service",
+        "orchestrator",
+        "query-processing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "type": "class",
+      "name": "RetrievalOrchestrator",
+      "filePath": "retrieval_orchestrator/orchestrator.py",
+      "lineRange": [
+        19,
+        122
+      ],
+      "summary": "Orchestrates the multi-leg retrieval process, coordinating adapters, merging hits, and packing final records.",
+      "tags": [
+        "service",
+        "orchestrator",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:retrieval_orchestrator/planner.py",
+      "type": "file",
+      "name": "planner.py",
+      "filePath": "retrieval_orchestrator/planner.py",
+      "summary": "Generates query plans and extracts search filters, parsing intent to build multi-leg search strategies.",
+      "tags": [
+        "utility",
+        "query-planning",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:retrieval_orchestrator/planner.py:build_plan",
+      "type": "function",
+      "name": "build_plan",
+      "filePath": "retrieval_orchestrator/planner.py",
+      "lineRange": [
+        13,
+        41
+      ],
+      "summary": "Parses search query and compiles structured RetrievalPlan with distinct retrieval legs.",
+      "tags": [
+        "utility",
+        "query-planning",
+        "compilation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:retrieval_orchestrator/planner.py:_extract_filters",
+      "type": "function",
+      "name": "_extract_filters",
+      "filePath": "retrieval_orchestrator/planner.py",
+      "lineRange": [
+        44,
+        63
+      ],
+      "summary": "Extracts filters (e.g. IDs, kinds) from queries using regex patterns.",
+      "tags": [
+        "utility",
+        "filter-extraction",
+        "regex"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:retrieval_orchestrator/planner.py:_classify_intent",
+      "type": "function",
+      "name": "_classify_intent",
+      "filePath": "retrieval_orchestrator/planner.py",
+      "lineRange": [
+        71,
+        82
+      ],
+      "summary": "Classifies user search intent into categories like list-based or keyword search.",
+      "tags": [
+        "utility",
+        "intent-classification"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:retrieval_orchestrator/types.py",
+      "type": "file",
+      "name": "types.py",
+      "filePath": "retrieval_orchestrator/types.py",
+      "summary": "Defines dataclasses and enums representing retrieval plans, filters, search hits, candidates, and results.",
+      "tags": [
+        "type-definition",
+        "data-model",
+        "schema"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:retrieval_orchestrator/types.py:QueryFilters",
+      "type": "class",
+      "name": "QueryFilters",
+      "filePath": "retrieval_orchestrator/types.py",
+      "lineRange": [
+        19,
+        69
+      ],
+      "summary": "Data model representing query filters, with validation matches check and dictionary serialization.",
+      "tags": [
+        "type-definition",
+        "filters",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:retrieval_orchestrator/types.py:RetrievalPlan",
+      "type": "class",
+      "name": "RetrievalPlan",
+      "filePath": "retrieval_orchestrator/types.py",
+      "lineRange": [
+        83,
+        99
+      ],
+      "summary": "Data model representing a query plan, including enums, filters, and individual leg limits.",
+      "tags": [
+        "type-definition",
+        "query-planning"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:retrieval_orchestrator/types.py:RetrievalCandidate",
+      "type": "class",
+      "name": "RetrievalCandidate",
+      "filePath": "retrieval_orchestrator/types.py",
+      "lineRange": [
+        119,
+        131
+      ],
+      "summary": "Data model representing a retrieval candidate with merged scores and reasons.",
+      "tags": [
+        "type-definition",
+        "search-candidate"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:retrieval_orchestrator/types.py:RetrievalSearchResult",
+      "type": "class",
+      "name": "RetrievalSearchResult",
+      "filePath": "retrieval_orchestrator/types.py",
+      "lineRange": [
+        135,
+        149
+      ],
+      "summary": "Data model representing final search results with sorted candidates and traces.",
+      "tags": [
+        "type-definition",
+        "search-results"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:retrieval_orchestrator/types.py:RAGResult",
+      "type": "class",
+      "name": "RAGResult",
+      "filePath": "retrieval_orchestrator/types.py",
+      "lineRange": [
+        153,
+        171
+      ],
+      "summary": "Data model representing the result of a RAG query, containing packed records and candidates.",
+      "tags": [
+        "type-definition",
+        "rag-results"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:retrieval_orchestrator/__init__.py",
+      "target": "file:retrieval_orchestrator/adapters.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/__init__.py",
+      "target": "file:retrieval_orchestrator/orchestrator.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/__init__.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/merger.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:pack.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/adapters.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/merger.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/planner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/merger.py",
+      "target": "function:retrieval_orchestrator/merger.py:merge_hits",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "function:retrieval_orchestrator/planner.py:build_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "function:retrieval_orchestrator/planner.py:_extract_filters",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "function:retrieval_orchestrator/planner.py:_classify_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:QueryFilters",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalPlan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalCandidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalSearchResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RAGResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/merger.py",
+      "target": "function:retrieval_orchestrator/merger.py:merge_hits",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/orchestrator.py",
+      "target": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "function:retrieval_orchestrator/planner.py:build_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "function:retrieval_orchestrator/planner.py:_extract_filters",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/planner.py",
+      "target": "function:retrieval_orchestrator/planner.py:_classify_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:QueryFilters",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalPlan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalCandidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalSearchResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/types.py",
+      "target": "class:retrieval_orchestrator/types.py:RAGResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:retrieval_orchestrator/merger.py:merge_hits",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalCandidate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "function:retrieval_orchestrator/planner.py:build_plan",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "function:retrieval_orchestrator/merger.py:merge_hits",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalSearchResult",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "class:retrieval_orchestrator/types.py:RAGResult",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "class:retrieval_orchestrator/adapters.py:SQLiteIRAdapter",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "class:retrieval_orchestrator/adapters.py:SQLiteGraphAdapter",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "class:retrieval_orchestrator/adapters.py:ChromaSemanticAdapter",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:retrieval_orchestrator/orchestrator.py:RetrievalOrchestrator",
+      "target": "class:retrieval_orchestrator/adapters.py:SeamVectorSearchAdapter",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:retrieval_orchestrator/planner.py:build_plan",
+      "target": "function:retrieval_orchestrator/planner.py:_extract_filters",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:retrieval_orchestrator/planner.py:build_plan",
+      "target": "function:retrieval_orchestrator/planner.py:_classify_intent",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:retrieval_orchestrator/planner.py:build_plan",
+      "target": "class:retrieval_orchestrator/types.py:RetrievalPlan",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:retrieval_orchestrator/planner.py:_extract_filters",
+      "target": "class:retrieval_orchestrator/types.py:QueryFilters",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

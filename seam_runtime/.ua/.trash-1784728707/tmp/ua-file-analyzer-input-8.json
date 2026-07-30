@@ -1,0 +1,84 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "conversation.py",
+      "language": "python",
+      "sizeLines": 417,
+      "fileCategory": "code"
+    },
+    {
+      "path": "event_count_context.py",
+      "language": "python",
+      "sizeLines": 1000,
+      "fileCategory": "code"
+    },
+    {
+      "path": "improvement.py",
+      "language": "python",
+      "sizeLines": 146,
+      "fileCategory": "code"
+    },
+    {
+      "path": "multi_scope_pack.py",
+      "language": "python",
+      "sizeLines": 247,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/README.md",
+      "language": "markdown",
+      "sizeLines": 41,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "second_hop_context.py",
+      "language": "python",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "temporal_instance_context.py",
+      "language": "python",
+      "sizeLines": 155,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tokenization.py",
+      "language": "python",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webui/dashboard.html",
+      "language": "html",
+      "sizeLines": 7167,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "webui/seam-api.js",
+      "language": "javascript",
+      "sizeLines": 477,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webui/tweaks-panel.jsx",
+      "language": "javascript",
+      "sizeLines": 426,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "conversation.py": [],
+    "event_count_context.py": [],
+    "improvement.py": [],
+    "multi_scope_pack.py": [],
+    "retrieval_orchestrator/README.md": [],
+    "second_hop_context.py": [],
+    "temporal_instance_context.py": [],
+    "tokenization.py": [],
+    "webui/dashboard.html": [],
+    "webui/seam-api.js": [],
+    "webui/tweaks-panel.jsx": []
+  }
+}

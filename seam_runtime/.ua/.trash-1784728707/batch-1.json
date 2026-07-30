@@ -1,0 +1,1722 @@
+{
+  "nodes": [
+    {
+      "id": "file:benchmark_baseline_policy.py",
+      "type": "file",
+      "name": "benchmark_baseline_policy.py",
+      "filePath": "benchmark_baseline_policy.py",
+      "summary": "Provides baseline selection policy logic for benchmark runs, determining if a candidate run is reachable and resolves appropriate baselines using Git.",
+      "tags": [
+        "benchmark",
+        "version-control",
+        "git",
+        "baseline-policy",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmark_baseline_policy.py:resolve_baseline",
+      "type": "function",
+      "name": "resolve_baseline",
+      "filePath": "benchmark_baseline_policy.py",
+      "lineRange": [
+        17,
+        62
+      ],
+      "summary": "Resolves the appropriate baseline run for comparison given a candidate benchmark run.",
+      "tags": [
+        "utility",
+        "baseline-resolution",
+        "benchmark"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:benchmark_integrity.py",
+      "type": "file",
+      "name": "benchmark_integrity.py",
+      "filePath": "benchmark_integrity.py",
+      "summary": "Provides utilities for signing, sealing, and verifying the integrity of benchmark result bundles using canonicalization and hashing.",
+      "tags": [
+        "benchmark",
+        "integrity",
+        "cryptography",
+        "verification",
+        "security"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:benchmark_integrity.py:build_input_manifest",
+      "type": "function",
+      "name": "build_input_manifest",
+      "filePath": "benchmark_integrity.py",
+      "lineRange": [
+        65,
+        117
+      ],
+      "summary": "Builds a structured input manifest mapping source files to their current cryptographic hashes.",
+      "tags": [
+        "utility",
+        "manifest",
+        "cryptography"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmark_integrity.py:seal_benchmark_bundle",
+      "type": "function",
+      "name": "seal_benchmark_bundle",
+      "filePath": "benchmark_integrity.py",
+      "lineRange": [
+        149,
+        189
+      ],
+      "summary": "Signs and seals a benchmark result bundle, producing a secure publication-ready artifact.",
+      "tags": [
+        "security",
+        "sealing",
+        "cryptography"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmark_integrity.py:verify_benchmark_bundle",
+      "type": "function",
+      "name": "verify_benchmark_bundle",
+      "filePath": "benchmark_integrity.py",
+      "lineRange": [
+        192,
+        298
+      ],
+      "summary": "Verifies the cryptographic signatures and file hashes of a sealed benchmark bundle.",
+      "tags": [
+        "security",
+        "signature-verification",
+        "cryptography"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:benchmark_integrity.py:validate_publication_readiness",
+      "type": "function",
+      "name": "validate_publication_readiness",
+      "filePath": "benchmark_integrity.py",
+      "lineRange": [
+        301,
+        440
+      ],
+      "summary": "Runs comprehensive validation checks to ensure a benchmark result is ready for public release.",
+      "tags": [
+        "verification",
+        "integrity",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:benchmark_integrity.py:inspect_benchmark_integrity",
+      "type": "function",
+      "name": "inspect_benchmark_integrity",
+      "filePath": "benchmark_integrity.py",
+      "lineRange": [
+        443,
+        462
+      ],
+      "summary": "Inspects the signature block and metadata of a benchmark result payload.",
+      "tags": [
+        "diagnostics",
+        "metadata-inspection",
+        "integrity"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:cli.py",
+      "type": "file",
+      "name": "cli.py",
+      "filePath": "cli.py",
+      "summary": "Command Line Interface (CLI) entry point for the SEAM runtime. Defines parsing rules, handles subcommand routing, and launches the interactive agent shell.",
+      "tags": [
+        "cli",
+        "entry-point",
+        "argument-parsing",
+        "shell",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:cli.py:build_parser",
+      "type": "function",
+      "name": "build_parser",
+      "filePath": "cli.py",
+      "lineRange": [
+        155,
+        660
+      ],
+      "summary": "Builds and configures the argparse Command Line parser for all SEAM tools and subcommands.",
+      "tags": [
+        "cli",
+        "argument-parsing",
+        "setup"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:cli.py:run_cli",
+      "type": "function",
+      "name": "run_cli",
+      "filePath": "cli.py",
+      "lineRange": [
+        663,
+        1666
+      ],
+      "summary": "Parses Command Line arguments and dispatches control to the appropriate subcommands or run actions.",
+      "tags": [
+        "cli",
+        "dispatch",
+        "entry-point"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:cli.py:_run_agent_shell",
+      "type": "function",
+      "name": "_run_agent_shell",
+      "filePath": "cli.py",
+      "lineRange": [
+        1673,
+        1712
+      ],
+      "summary": "Launches the interactive read-eval-print shell (REPL) for executing agent queries and memory inspections.",
+      "tags": [
+        "shell",
+        "interactive",
+        "repl"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:cli.py:_handle_shell_command",
+      "type": "function",
+      "name": "_handle_shell_command",
+      "filePath": "cli.py",
+      "lineRange": [
+        1715,
+        1782
+      ],
+      "summary": "Parses and processes interactive user inputs from the agent shell REPL.",
+      "tags": [
+        "shell",
+        "parser",
+        "interactive"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:context_views.py",
+      "type": "file",
+      "name": "context_views.py",
+      "filePath": "context_views.py",
+      "summary": "Provides layout and formatting utilities for rendering application state contexts, evidence trails, prompt outputs, and summaries in a readable form.",
+      "tags": [
+        "view",
+        "formatting",
+        "context-rendering",
+        "cli-output",
+        "visualization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:context_views.py:render_context_pretty",
+      "type": "function",
+      "name": "render_context_pretty",
+      "filePath": "context_views.py",
+      "lineRange": [
+        17,
+        89
+      ],
+      "summary": "Pretty-prints the retrieval context, formatting evidence rows and tokens for console display.",
+      "tags": [
+        "view",
+        "pretty-print",
+        "formatting"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:context_views.py:_build_evidence_rows",
+      "type": "function",
+      "name": "_build_evidence_rows",
+      "filePath": "context_views.py",
+      "lineRange": [
+        119,
+        145
+      ],
+      "summary": "Builds and formats evidence records for display within pretty-printed outputs.",
+      "tags": [
+        "utility",
+        "formatting",
+        "evidence"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:context_views.py:_record_signal",
+      "type": "function",
+      "name": "_record_signal",
+      "filePath": "context_views.py",
+      "lineRange": [
+        165,
+        182
+      ],
+      "summary": "Extracts relevance features (signals) from a single MIRL record.",
+      "tags": [
+        "utility",
+        "feature-extraction",
+        "signal"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dashboard.py",
+      "type": "file",
+      "name": "dashboard.py",
+      "filePath": "dashboard.py",
+      "summary": "Implements a Textual-based terminal dashboard and CLI monitor for inspecting SEAM runtime database stats, executing interactive shell commands, and querying databases.",
+      "tags": [
+        "dashboard",
+        "tui",
+        "textual",
+        "cli-monitor",
+        "visualization"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:dashboard.py:DashboardApp",
+      "type": "class",
+      "name": "DashboardApp",
+      "filePath": "dashboard.py",
+      "lineRange": [
+        2353,
+        3077
+      ],
+      "summary": "Central Textual TUI Application containing layouts, tables, and controllers for CLI visualization.",
+      "tags": [
+        "tui",
+        "dashboard-app",
+        "textual"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:dashboard.py:SeamChatClient",
+      "type": "class",
+      "name": "SeamChatClient",
+      "filePath": "dashboard.py",
+      "lineRange": [
+        255,
+        309
+      ],
+      "summary": "Client connector for querying OpenAI-compatible endpoints or local Qwen instances inside the dashboard chat panel.",
+      "tags": [
+        "client",
+        "chat-client",
+        "openai-compatible"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dashboard.py:run_dashboard",
+      "type": "function",
+      "name": "run_dashboard",
+      "filePath": "dashboard.py",
+      "lineRange": [
+        3080,
+        3118
+      ],
+      "summary": "Initializes and starts the Textual DashboardApp loop.",
+      "tags": [
+        "entry-point",
+        "initialization",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:doctor.py",
+      "type": "file",
+      "name": "doctor.py",
+      "filePath": "doctor.py",
+      "summary": "Diagnostics script verifying system dependencies and settings (pgvector status, stream imports, commit gate status, active git stashes) to output a health status report.",
+      "tags": [
+        "diagnostics",
+        "health-check",
+        "system-validation",
+        "doctor"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:doctor.py:check_commit_gate",
+      "type": "function",
+      "name": "check_commit_gate",
+      "filePath": "doctor.py",
+      "lineRange": [
+        65,
+        94
+      ],
+      "summary": "Checks the status of repository commit gates to verify stability.",
+      "tags": [
+        "validation",
+        "git-check",
+        "doctor"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:doctor.py:check_stashes",
+      "type": "function",
+      "name": "check_stashes",
+      "filePath": "doctor.py",
+      "lineRange": [
+        97,
+        122
+      ],
+      "summary": "Retrieves and validates git stashes that might affect local configuration.",
+      "tags": [
+        "validation",
+        "git-check",
+        "doctor"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:doctor.py:build_doctor_report",
+      "type": "function",
+      "name": "build_doctor_report",
+      "filePath": "doctor.py",
+      "lineRange": [
+        125,
+        166
+      ],
+      "summary": "Runs all diagnostics checks and builds a unified report dictionary.",
+      "tags": [
+        "diagnostics",
+        "reporting",
+        "doctor"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:external_memory_benchmarks.py",
+      "type": "file",
+      "name": "external_memory_benchmarks.py",
+      "filePath": "external_memory_benchmarks.py",
+      "summary": "Provides tools to load, validate, plan, and run benchmarks for external memory adapters, orchestrating external processes and reporting results.",
+      "tags": [
+        "benchmark",
+        "external-process",
+        "orchestration",
+        "diagnostics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:external_memory_benchmarks.py:ExternalBenchmark",
+      "type": "class",
+      "name": "ExternalBenchmark",
+      "filePath": "external_memory_benchmarks.py",
+      "lineRange": [
+        17,
+        22
+      ],
+      "summary": "Data model representing an external benchmark suite configuration.",
+      "tags": [
+        "model",
+        "benchmark-model",
+        "data-structure"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:external_memory_benchmarks.py:run_external_memory_benchmarks",
+      "type": "function",
+      "name": "run_external_memory_benchmarks",
+      "filePath": "external_memory_benchmarks.py",
+      "lineRange": [
+        84,
+        141
+      ],
+      "summary": "Runs external processes configured in the registry, gathering outputs and checking exit codes.",
+      "tags": [
+        "orchestration",
+        "subprocess",
+        "benchmark"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:holographic.py",
+      "type": "file",
+      "name": "holographic.py",
+      "filePath": "holographic.py",
+      "summary": "Provides 'Holographic Storage' features where text datasets and database stashes are serialized and embedded directly inside PNG image pixels using customized deflate and filtering algorithms.",
+      "tags": [
+        "serialization",
+        "holographic-storage",
+        "steganography",
+        "png-encoding",
+        "data-packing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:holographic.py:HolographicReader",
+      "type": "class",
+      "name": "HolographicReader",
+      "filePath": "holographic.py",
+      "lineRange": [
+        147,
+        161
+      ],
+      "summary": "Reader class encapsulating PNG file reads, verification, and decoding.",
+      "tags": [
+        "reader",
+        "holographic-reader",
+        "png-decoding"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:holographic.py:encode_surface",
+      "type": "function",
+      "name": "encode_surface",
+      "filePath": "holographic.py",
+      "lineRange": [
+        164,
+        212
+      ],
+      "summary": "Encodes a byte payload into PNG pixels and saves it to disk.",
+      "tags": [
+        "serialization",
+        "png-encoding",
+        "steganography"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:holographic.py:decode_surface",
+      "type": "function",
+      "name": "decode_surface",
+      "filePath": "holographic.py",
+      "lineRange": [
+        215,
+        242
+      ],
+      "summary": "Reads a holographic PNG file and extracts its embedded payload.",
+      "tags": [
+        "deserialization",
+        "png-decoding",
+        "steganography"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:installer.py",
+      "type": "file",
+      "name": "installer.py",
+      "filePath": "installer.py",
+      "summary": "Handles layout detection, virtual environment bootstrapping, dependency installation, platform-specific shim generation, and system path modifications to install and run the SEAM environment.",
+      "tags": [
+        "installer",
+        "setup",
+        "environment-bootstrap",
+        "platform-shims",
+        "dev-environment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:installer.py:detect_layout",
+      "type": "function",
+      "name": "detect_layout",
+      "filePath": "installer.py",
+      "lineRange": [
+        39,
+        77
+      ],
+      "summary": "Detects the layout of the current directory relative to git roots and persistent directories.",
+      "tags": [
+        "utility",
+        "layout-detection",
+        "setup"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:installer.py:install_repo",
+      "type": "function",
+      "name": "install_repo",
+      "filePath": "installer.py",
+      "lineRange": [
+        111,
+        125
+      ],
+      "summary": "Installs the repository and package dependencies using pip.",
+      "tags": [
+        "setup",
+        "installation",
+        "package-install"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:installer.py:run_repo_dev_checks",
+      "type": "function",
+      "name": "run_repo_dev_checks",
+      "filePath": "installer.py",
+      "lineRange": [
+        159,
+        195
+      ],
+      "summary": "Runs linting, diagnostics, and test checks inside the virtualenv to verify stability.",
+      "tags": [
+        "diagnostics",
+        "dev-checks",
+        "setup"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:installer.py:write_shims",
+      "type": "function",
+      "name": "write_shims",
+      "filePath": "installer.py",
+      "lineRange": [
+        238,
+        279
+      ],
+      "summary": "Generates and writes platform-specific execution shims for POSIX and Windows shell environments.",
+      "tags": [
+        "setup",
+        "shims",
+        "scripts"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:lossless.py",
+      "type": "file",
+      "name": "lossless.py",
+      "filePath": "lossless.py",
+      "summary": "Provides high-performance utility functions for compressing text data into space-efficient formats (lossless machine text, readable search indices) to optimize context window token usage.",
+      "tags": [
+        "compression",
+        "token-optimization",
+        "search-index",
+        "text-processing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:lossless.py:compress_text_readable",
+      "type": "function",
+      "name": "compress_text_readable",
+      "filePath": "lossless.py",
+      "lineRange": [
+        263,
+        334
+      ],
+      "summary": "Compresses text into readable format, keeping structural keywords and stripping filler words.",
+      "tags": [
+        "utility",
+        "compression",
+        "text-processing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:lossless.py:decompress_text_readable",
+      "type": "function",
+      "name": "decompress_text_readable",
+      "filePath": "lossless.py",
+      "lineRange": [
+        337,
+        353
+      ],
+      "summary": "Restores compressed readable text by filling gaps using structured dictionaries.",
+      "tags": [
+        "utility",
+        "decompression",
+        "text-processing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:lossless.py:query_readable_compressed",
+      "type": "function",
+      "name": "query_readable_compressed",
+      "filePath": "lossless.py",
+      "lineRange": [
+        368,
+        418
+      ],
+      "summary": "Runs lexical search directly over readable-compressed text structures.",
+      "tags": [
+        "utility",
+        "search",
+        "readable-compression"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:lossless.py:benchmark_text_lossless",
+      "type": "function",
+      "name": "benchmark_text_lossless",
+      "filePath": "lossless.py",
+      "lineRange": [
+        421,
+        444
+      ],
+      "summary": "Benchmarks lossless compression variants to find the highest token savings.",
+      "tags": [
+        "benchmark",
+        "compression",
+        "token-savings"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:lossless.py:_run_lossless_search",
+      "type": "function",
+      "name": "_run_lossless_search",
+      "filePath": "lossless.py",
+      "lineRange": [
+        559,
+        657
+      ],
+      "summary": "Executes search operations over lossless archives to find optimal compressions.",
+      "tags": [
+        "utility",
+        "search",
+        "lossless-compression"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:lossless.py:parse_readable_machine_text",
+      "type": "function",
+      "name": "parse_readable_machine_text",
+      "filePath": "lossless.py",
+      "lineRange": [
+        510,
+        544
+      ],
+      "summary": "Parses compacted readable machine output back into structured components.",
+      "tags": [
+        "utility",
+        "parser",
+        "readable-compression"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:lx1.py",
+      "type": "file",
+      "name": "lx1.py",
+      "filePath": "lx1.py",
+      "summary": "Provides customized token encoding and decoding logic (under the LX1 compact protocol) for MIRL records to maximize context token efficiency.",
+      "tags": [
+        "serialization",
+        "token-compression",
+        "encoding",
+        "decoding",
+        "lx1-protocol"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:lx1.py:encode_record",
+      "type": "function",
+      "name": "encode_record",
+      "filePath": "lx1.py",
+      "lineRange": [
+        110,
+        138
+      ],
+      "summary": "Encodes a MIRLRecord object into a single compact LX1 formatted text line.",
+      "tags": [
+        "serialization",
+        "lx1-protocol",
+        "encoding"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:lx1.py:decode_record",
+      "type": "function",
+      "name": "decode_record",
+      "filePath": "lx1.py",
+      "lineRange": [
+        141,
+        200
+      ],
+      "summary": "Decodes an LX1 formatted text line back into a MIRLRecord.",
+      "tags": [
+        "deserialization",
+        "lx1-protocol",
+        "decoding"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:lx1.py:_split_tokens",
+      "type": "function",
+      "name": "_split_tokens",
+      "filePath": "lx1.py",
+      "lineRange": [
+        258,
+        311
+      ],
+      "summary": "Splits a serialized line using the LX1 parser rules to extract tokens.",
+      "tags": [
+        "parser",
+        "lx1-protocol",
+        "token-splitting"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:mcp.py",
+      "type": "file",
+      "name": "mcp.py",
+      "filePath": "mcp.py",
+      "summary": "Provides the Model Context Protocol (MCP) tool dispatch layer for SEAM, enabling external AI assistants to invoke SEAM operations (e.g., query, ingest, doctor) over stdio.",
+      "tags": [
+        "mcp",
+        "protocol-bridge",
+        "stdio-communication",
+        "tool-routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:mcp.py:dispatch_tool",
+      "type": "function",
+      "name": "dispatch_tool",
+      "filePath": "mcp.py",
+      "lineRange": [
+        220,
+        396
+      ],
+      "summary": "Main dispatch method routing JSON-RPC tool calls to SEAM runtime methods.",
+      "tags": [
+        "mcp",
+        "routing",
+        "tool-execution"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:mcp_protocol.py",
+      "type": "file",
+      "name": "mcp_protocol.py",
+      "filePath": "mcp_protocol.py",
+      "summary": "Provides standard low-level JSON-RPC 2.0 protocol handling, schema parsing, and network transport framing for running the stdio Model Context Protocol (MCP) server.",
+      "tags": [
+        "json-rpc",
+        "network-protocol",
+        "mcp-server",
+        "serialization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:mcp_protocol.py:JsonRpcError",
+      "type": "class",
+      "name": "JsonRpcError",
+      "filePath": "mcp_protocol.py",
+      "lineRange": [
+        15,
+        39
+      ],
+      "summary": "Error class encapsulating JSON-RPC codes and error messages.",
+      "tags": [
+        "mcp",
+        "error",
+        "json-rpc"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:mcp_protocol.py:run_mcp_server",
+      "type": "function",
+      "name": "run_mcp_server",
+      "filePath": "mcp_protocol.py",
+      "lineRange": [
+        84,
+        115
+      ],
+      "summary": "Runs the main stdio listener loop, reading JSON-RPC lines and dispatching messages.",
+      "tags": [
+        "stdio-bridge",
+        "mcp-server",
+        "json-rpc"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:mcp_protocol.py:_dispatch_mcp_method",
+      "type": "function",
+      "name": "_dispatch_mcp_method",
+      "filePath": "mcp_protocol.py",
+      "lineRange": [
+        153,
+        186
+      ],
+      "summary": "Dispatches standard protocol requests (initialize, tools/list, tools/call) and returns payloads.",
+      "tags": [
+        "mcp",
+        "routing",
+        "json-rpc"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:pgvector_bootstrap.py",
+      "type": "file",
+      "name": "pgvector_bootstrap.py",
+      "filePath": "pgvector_bootstrap.py",
+      "summary": "Bootstraps the local pgvector Docker container, verifying database availability, credentials, and creating the `vector` extension if needed.",
+      "tags": [
+        "bootstrap",
+        "pgvector",
+        "docker-compose",
+        "database-setup",
+        "vector-extension"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:pgvector_bootstrap.py:ensure_pgvector",
+      "type": "function",
+      "name": "ensure_pgvector",
+      "filePath": "pgvector_bootstrap.py",
+      "lineRange": [
+        77,
+        120
+      ],
+      "summary": "Ensures the pgvector container is running, wait-healthy, and extension is installed.",
+      "tags": [
+        "setup",
+        "docker-compose",
+        "pgvector"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:ui/__init__.py",
+      "type": "file",
+      "name": "ui/__init__.py",
+      "filePath": "ui/__init__.py",
+      "summary": "Package initializer for the terminal user interface modules.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "tui"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:benchmark_baseline_policy.py",
+      "target": "function:benchmark_baseline_policy.py:resolve_baseline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmark_baseline_policy.py",
+      "target": "function:benchmark_baseline_policy.py:resolve_baseline",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:build_input_manifest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:seal_benchmark_bundle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:verify_benchmark_bundle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:validate_publication_readiness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:inspect_benchmark_integrity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:build_input_manifest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:seal_benchmark_bundle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:verify_benchmark_bundle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:validate_publication_readiness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmark_integrity.py",
+      "target": "function:benchmark_integrity.py:inspect_benchmark_integrity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:cli.py",
+      "target": "function:cli.py:build_parser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:cli.py",
+      "target": "function:cli.py:run_cli",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:cli.py",
+      "target": "function:cli.py:_run_agent_shell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:cli.py",
+      "target": "function:cli.py:_handle_shell_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:cli.py",
+      "target": "function:cli.py:build_parser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:cli.py",
+      "target": "function:cli.py:run_cli",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:context_views.py",
+      "target": "function:context_views.py:render_context_pretty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:context_views.py",
+      "target": "function:context_views.py:_build_evidence_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:context_views.py",
+      "target": "function:context_views.py:_record_signal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:context_views.py",
+      "target": "function:context_views.py:render_context_pretty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "class:dashboard.py:DashboardApp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "class:dashboard.py:SeamChatClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "function:dashboard.py:run_dashboard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "class:dashboard.py:DashboardApp",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "class:dashboard.py:SeamChatClient",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "function:dashboard.py:run_dashboard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "function:doctor.py:check_commit_gate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "function:doctor.py:check_stashes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "function:doctor.py:build_doctor_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "function:doctor.py:build_doctor_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:external_memory_benchmarks.py",
+      "target": "class:external_memory_benchmarks.py:ExternalBenchmark",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:external_memory_benchmarks.py",
+      "target": "function:external_memory_benchmarks.py:run_external_memory_benchmarks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:external_memory_benchmarks.py",
+      "target": "class:external_memory_benchmarks.py:ExternalBenchmark",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:external_memory_benchmarks.py",
+      "target": "function:external_memory_benchmarks.py:run_external_memory_benchmarks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "class:holographic.py:HolographicReader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "function:holographic.py:encode_surface",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "function:holographic.py:decode_surface",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "class:holographic.py:HolographicReader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "function:holographic.py:encode_surface",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "function:holographic.py:decode_surface",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:installer.py",
+      "target": "function:installer.py:detect_layout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:installer.py",
+      "target": "function:installer.py:install_repo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:installer.py",
+      "target": "function:installer.py:run_repo_dev_checks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:installer.py",
+      "target": "function:installer.py:write_shims",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:installer.py",
+      "target": "function:installer.py:detect_layout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:installer.py",
+      "target": "function:installer.py:install_repo",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:compress_text_readable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:decompress_text_readable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:query_readable_compressed",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:benchmark_text_lossless",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:_run_lossless_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:parse_readable_machine_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:compress_text_readable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:lossless.py",
+      "target": "function:lossless.py:decompress_text_readable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:lx1.py",
+      "target": "function:lx1.py:encode_record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lx1.py",
+      "target": "function:lx1.py:decode_record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lx1.py",
+      "target": "function:lx1.py:_split_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lx1.py",
+      "target": "function:lx1.py:encode_record",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:lx1.py",
+      "target": "function:lx1.py:decode_record",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "function:mcp.py:dispatch_tool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "function:mcp.py:dispatch_tool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "class:mcp_protocol.py:JsonRpcError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "function:mcp_protocol.py:run_mcp_server",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "function:mcp_protocol.py:_dispatch_mcp_method",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "class:mcp_protocol.py:JsonRpcError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "function:mcp_protocol.py:run_mcp_server",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:pgvector_bootstrap.py",
+      "target": "function:pgvector_bootstrap.py:ensure_pgvector",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:pgvector_bootstrap.py",
+      "target": "function:pgvector_bootstrap.py:ensure_pgvector",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:agent_memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:benchmark_baseline_policy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:benchmark_integrity.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:benchmarks.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:context_views.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:dashboard.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:doctor.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:external_memory_benchmarks.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:holographic.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:installer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:lossless.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:lx1.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:cli.py",
+      "target": "file:surface_adapters.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:context_views.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:installer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:lossless.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dashboard.py",
+      "target": "file:ui/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "file:installer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "file:lossless.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:doctor.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:lossless.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:pack.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:holographic.py",
+      "target": "file:retrieval.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:lx1.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "file:doctor.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "file:holographic.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:mcp.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:installer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:mcp.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:pgvector_bootstrap.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:mcp_protocol.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:cli.py:run_cli",
+      "target": "function:doctor.py:build_doctor_report",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:cli.py:run_cli",
+      "target": "function:dashboard.py:run_dashboard",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:dashboard.py:run_dashboard",
+      "target": "class:dashboard.py:DashboardApp",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:mcp.py:dispatch_tool",
+      "target": "function:doctor.py:build_doctor_report",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:mcp_protocol.py:_dispatch_mcp_method",
+      "target": "function:mcp.py:dispatch_tool",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

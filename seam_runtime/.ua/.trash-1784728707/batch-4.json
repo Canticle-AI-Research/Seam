@@ -1,0 +1,1379 @@
+{
+  "nodes": [
+    {
+      "id": "file:jspace.py",
+      "type": "file",
+      "name": "jspace.py",
+      "filePath": "jspace.py",
+      "summary": "Provides local and remote LLM concepts extractor implementations (JLensWorkers) using Qwen models or API endpoints.",
+      "tags": [
+        "ai-client",
+        "utility",
+        "concept-extraction"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:knowledge_graph.py",
+      "type": "file",
+      "name": "knowledge_graph.py",
+      "filePath": "knowledge_graph.py",
+      "summary": "Low-level knowledge graph engine managing nodes, edges, synthetic relationships, and epistemic/provenance tracking in SQLite.",
+      "tags": [
+        "database",
+        "graph-db",
+        "provenance",
+        "sqlite"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:pool.py",
+      "type": "file",
+      "name": "pool.py",
+      "filePath": "pool.py",
+      "summary": "Thread-safe database connection pool for SQLite, managing connection reuse, verification, timeouts, and rollbacks.",
+      "tags": [
+        "utility",
+        "database",
+        "concurrency",
+        "sqlite"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:retry.py",
+      "type": "file",
+      "name": "retry.py",
+      "filePath": "retry.py",
+      "summary": "Decorators and utilities for asynchronous and synchronous retry operations with exponential backoff and transient error classification.",
+      "tags": [
+        "utility",
+        "resilience",
+        "async",
+        "error-handling"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server.py",
+      "type": "file",
+      "name": "server.py",
+      "filePath": "server.py",
+      "summary": "Main FastAPI server exposing the runtime REST APIs, WebUI endpoints, rate limiting, and safe shutdown lifecycle hooks.",
+      "tags": [
+        "entry-point",
+        "api-handler",
+        "server",
+        "fastapi"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:storage.py",
+      "type": "file",
+      "name": "storage.py",
+      "filePath": "storage.py",
+      "summary": "Core SQLite storage layer managing schemas, transaction states, document synchronization, and machine artifact caching.",
+      "tags": [
+        "database",
+        "sqlite",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:workspace.py",
+      "type": "file",
+      "name": "workspace.py",
+      "filePath": "workspace.py",
+      "summary": "Manages run executions, event streams, payload sanitization, and decay-based graph activation spreads.",
+      "tags": [
+        "middleware",
+        "data-pipeline",
+        "security",
+        "provenance"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:jspace.py:LocalQwenJLensWorker",
+      "type": "class",
+      "name": "LocalQwenJLensWorker",
+      "filePath": "jspace.py",
+      "lineRange": [
+        134,
+        297
+      ],
+      "summary": "Extracts structured concepts and factual statements from text locally using Qwen-based transformers model.",
+      "tags": [
+        "service",
+        "concept-extraction",
+        "ai-client"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:jspace.py:RemoteJLensWorker",
+      "type": "class",
+      "name": "RemoteJLensWorker",
+      "filePath": "jspace.py",
+      "lineRange": [
+        374,
+        484
+      ],
+      "summary": "Concept extraction worker using a remote HTTP server endpoint to execute Qwen analyses.",
+      "tags": [
+        "service",
+        "concept-extraction",
+        "api-client"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:jspace.py:jlens_worker_from_env",
+      "type": "function",
+      "name": "jlens_worker_from_env",
+      "filePath": "jspace.py",
+      "lineRange": [
+        487,
+        526
+      ],
+      "summary": "Instantiates the JLensWorker class based on settings in environment variables.",
+      "tags": [
+        "factory",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:jspace.py:_normalize_concepts",
+      "type": "function",
+      "name": "_normalize_concepts",
+      "filePath": "jspace.py",
+      "lineRange": [
+        62,
+        101
+      ],
+      "summary": "Sanitizes and normalizes extracted concepts into standard types and weights.",
+      "tags": [
+        "validation",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:jspace.py:_validate_remote_endpoint",
+      "type": "function",
+      "name": "_validate_remote_endpoint",
+      "filePath": "jspace.py",
+      "lineRange": [
+        300,
+        336
+      ],
+      "summary": "Ensures that remote worker API endpoints conform to allowed host and IP whitelist security checks.",
+      "tags": [
+        "security",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:jspace.py:_remote_transport",
+      "type": "function",
+      "name": "_remote_transport",
+      "filePath": "jspace.py",
+      "lineRange": [
+        339,
+        371
+      ],
+      "summary": "Sends POST requests to the remote worker API endpoint with connection timeout and size bounds.",
+      "tags": [
+        "network",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:knowledge_graph.py:init_knowledge_graph",
+      "type": "function",
+      "name": "init_knowledge_graph",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        128,
+        261
+      ],
+      "summary": "Initializes the database schema for the low-level SQLite knowledge graph tables.",
+      "tags": [
+        "database",
+        "setup"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:knowledge_graph.py:project_records",
+      "type": "function",
+      "name": "project_records",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        264,
+        298
+      ],
+      "summary": "Extracts and projects knowledge nodes and relations from new MIRLRecords into the database.",
+      "tags": [
+        "database",
+        "indexing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:knowledge_graph.py:remove_records",
+      "type": "function",
+      "name": "remove_records",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        301,
+        348
+      ],
+      "summary": "Deletes projected nodes and edges associated with a set of record IDs.",
+      "tags": [
+        "database",
+        "cleanup"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:knowledge_graph.py:supersede_source",
+      "type": "function",
+      "name": "supersede_source",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        351,
+        377
+      ],
+      "summary": "Marks relations derived from older documents as superseded by newer inputs.",
+      "tags": [
+        "database",
+        "provenance"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:knowledge_graph.py:query_graph",
+      "type": "function",
+      "name": "query_graph",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        380,
+        626
+      ],
+      "summary": "Queries the knowledge graph around a root node up to a maximum depth, applying temporal filters.",
+      "tags": [
+        "database",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:knowledge_graph.py:node_detail",
+      "type": "function",
+      "name": "node_detail",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        629,
+        755
+      ],
+      "summary": "Retrieves detailed facets, properties, and relationships for a specific node in the graph.",
+      "tags": [
+        "database",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:knowledge_graph.py:assertable_record_ids",
+      "type": "function",
+      "name": "assertable_record_ids",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        758,
+        821
+      ],
+      "summary": "Filters a list of record IDs to determine which ones are active and assertable at a given time.",
+      "tags": [
+        "database",
+        "provenance"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:knowledge_graph.py:_project_record",
+      "type": "function",
+      "name": "_project_record",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        828,
+        1032
+      ],
+      "summary": "Private helper detailing SQL operations to insert nodes, episodes, and edges for a record.",
+      "tags": [
+        "database",
+        "indexing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:knowledge_graph.py:_upsert_node",
+      "type": "function",
+      "name": "_upsert_node",
+      "filePath": "knowledge_graph.py",
+      "lineRange": [
+        1139,
+        1187
+      ],
+      "summary": "Inserts or updates a node and merges its properties inside a database transaction.",
+      "tags": [
+        "database",
+        "indexing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:pool.py:ConnectionPool",
+      "type": "class",
+      "name": "ConnectionPool",
+      "filePath": "pool.py",
+      "lineRange": [
+        20,
+        169
+      ],
+      "summary": "Pool manager validating, holding, and distributing sqlite connection instances for concurrent readers.",
+      "tags": [
+        "database",
+        "concurrency"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:retry.py:retry",
+      "type": "function",
+      "name": "retry",
+      "filePath": "retry.py",
+      "lineRange": [
+        33,
+        117
+      ],
+      "summary": "A decorator retrying async/sync operations on specified exceptions with exponential backoff delay.",
+      "tags": [
+        "utility",
+        "resilience"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:retry.py:retry_db_operation",
+      "type": "function",
+      "name": "retry_db_operation",
+      "filePath": "retry.py",
+      "lineRange": [
+        135,
+        155
+      ],
+      "summary": "Specialized retry decorator targeting transient database failures like SQLite lock wait issues.",
+      "tags": [
+        "database",
+        "resilience"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:retry.py:retry_network_operation",
+      "type": "function",
+      "name": "retry_network_operation",
+      "filePath": "retry.py",
+      "lineRange": [
+        158,
+        175
+      ],
+      "summary": "Specialized retry decorator targeting network-related transient exceptions with defaults.",
+      "tags": [
+        "network",
+        "resilience"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:server.py:ShutdownState",
+      "type": "class",
+      "name": "ShutdownState",
+      "filePath": "server.py",
+      "lineRange": [
+        27,
+        60
+      ],
+      "summary": "Tracks and coordinates in-flight request counts during application graceful shutdown.",
+      "tags": [
+        "service",
+        "concurrency"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:server.py:RateLimiter",
+      "type": "class",
+      "name": "RateLimiter",
+      "filePath": "server.py",
+      "lineRange": [
+        123,
+        150
+      ],
+      "summary": "Tracks API client request rate history and blocks requests exceeding limits.",
+      "tags": [
+        "middleware",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:server.py:BodySizeLimitMiddleware",
+      "type": "class",
+      "name": "BodySizeLimitMiddleware",
+      "filePath": "server.py",
+      "lineRange": [
+        197,
+        229
+      ],
+      "summary": "ASGI middleware enforcing maximum request body limits to prevent Denial of Service attacks.",
+      "tags": [
+        "middleware",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server.py:create_app",
+      "type": "function",
+      "name": "create_app",
+      "filePath": "server.py",
+      "lineRange": [
+        524,
+        1308
+      ],
+      "summary": "Configures and builds the FastAPI application instance with routes, exception handlers, and middlewares.",
+      "tags": [
+        "entry-point",
+        "server"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:server.py:run_server",
+      "type": "function",
+      "name": "run_server",
+      "filePath": "server.py",
+      "lineRange": [
+        1311,
+        1341
+      ],
+      "summary": "Starts the uvicorn HTTP server binding to the configured host and port.",
+      "tags": [
+        "entry-point",
+        "server"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server.py:_mount_webui",
+      "type": "function",
+      "name": "_mount_webui",
+      "filePath": "server.py",
+      "lineRange": [
+        254,
+        275
+      ],
+      "summary": "Static directory router mounting frontend assets if they are built and available.",
+      "tags": [
+        "server",
+        "routes"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server.py:_persist_chat_turn",
+      "type": "function",
+      "name": "_persist_chat_turn",
+      "filePath": "server.py",
+      "lineRange": [
+        443,
+        485
+      ],
+      "summary": "Saves a single chat message and reply turn as structured MIRL records in storage.",
+      "tags": [
+        "database",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server.py:_asserted_memory_context",
+      "type": "function",
+      "name": "_asserted_memory_context",
+      "filePath": "server.py",
+      "lineRange": [
+        488,
+        521
+      ],
+      "summary": "Aggregates active facts from retrieval candidates to build the context injected into prompts.",
+      "tags": [
+        "utility",
+        "prompt-engineering"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server.py:_walk_tree",
+      "type": "function",
+      "name": "_walk_tree",
+      "filePath": "server.py",
+      "lineRange": [
+        1405,
+        1461
+      ],
+      "summary": "Recursively traverses directories to list files and subfolders within depth limits.",
+      "tags": [
+        "utility",
+        "file-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:storage.py:SQLiteStore",
+      "type": "class",
+      "name": "SQLiteStore",
+      "filePath": "storage.py",
+      "lineRange": [
+        47,
+        1827
+      ],
+      "summary": "SQLite store implementation representing the primary database storage client for seam runtime.",
+      "tags": [
+        "database",
+        "sqlite",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:workspace.py:init_workspace_schema",
+      "type": "function",
+      "name": "init_workspace_schema",
+      "filePath": "workspace.py",
+      "lineRange": [
+        357,
+        405
+      ],
+      "summary": "Initializes SQLite table definitions representing workspace run records and event logs.",
+      "tags": [
+        "database",
+        "setup"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:workspace.py:create_workspace_run",
+      "type": "function",
+      "name": "create_workspace_run",
+      "filePath": "workspace.py",
+      "lineRange": [
+        408,
+        454
+      ],
+      "summary": "Records metadata for a new workspace execution run in the database.",
+      "tags": [
+        "database",
+        "provenance"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:workspace.py:append_workspace_event",
+      "type": "function",
+      "name": "append_workspace_event",
+      "filePath": "workspace.py",
+      "lineRange": [
+        457,
+        517
+      ],
+      "summary": "Appends a new execution event to a run event stream after sanitizing the payload details.",
+      "tags": [
+        "database",
+        "provenance"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:workspace.py:spread_graph_activation",
+      "type": "function",
+      "name": "spread_graph_activation",
+      "filePath": "workspace.py",
+      "lineRange": [
+        567,
+        618
+      ],
+      "summary": "Computes decaying activation values across the graph starting from seed nodes.",
+      "tags": [
+        "utility",
+        "graph-algorithms"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:workspace.py:_sanitize_schema_value",
+      "type": "function",
+      "name": "_sanitize_schema_value",
+      "filePath": "workspace.py",
+      "lineRange": [
+        212,
+        275
+      ],
+      "summary": "Recursively checks and redacts nested payload dict/list attributes matching sensitive patterns.",
+      "tags": [
+        "security",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:workspace.py:sanitize_workspace_payload",
+      "type": "function",
+      "name": "sanitize_workspace_payload",
+      "filePath": "workspace.py",
+      "lineRange": [
+        278,
+        294
+      ],
+      "summary": "Helper method sanitizing specific fields based on event type.",
+      "tags": [
+        "security",
+        "validation"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:jspace.py",
+      "target": "class:jspace.py:LocalQwenJLensWorker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "class:jspace.py:RemoteJLensWorker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:jlens_worker_from_env",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:_normalize_concepts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:_validate_remote_endpoint",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:_remote_transport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:init_knowledge_graph",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:project_records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:remove_records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:supersede_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:query_graph",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:node_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:assertable_record_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:_project_record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:_upsert_node",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:pool.py",
+      "target": "class:pool.py:ConnectionPool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retry.py",
+      "target": "function:retry.py:retry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retry.py",
+      "target": "function:retry.py:retry_db_operation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retry.py",
+      "target": "function:retry.py:retry_network_operation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "class:server.py:ShutdownState",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "class:server.py:RateLimiter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "class:server.py:BodySizeLimitMiddleware",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:create_app",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:run_server",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_mount_webui",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_persist_chat_turn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_asserted_memory_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_walk_tree",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:storage.py",
+      "target": "class:storage.py:SQLiteStore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:init_workspace_schema",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:create_workspace_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:append_workspace_event",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:spread_graph_activation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:_sanitize_schema_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:sanitize_workspace_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "class:jspace.py:LocalQwenJLensWorker",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "class:jspace.py:RemoteJLensWorker",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:jlens_worker_from_env",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:_normalize_concepts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:_validate_remote_endpoint",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:jspace.py",
+      "target": "function:jspace.py:_remote_transport",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:init_knowledge_graph",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:project_records",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:remove_records",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:supersede_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:query_graph",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:node_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:assertable_record_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:_project_record",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "function:knowledge_graph.py:_upsert_node",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:pool.py",
+      "target": "class:pool.py:ConnectionPool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retry.py",
+      "target": "function:retry.py:retry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retry.py",
+      "target": "function:retry.py:retry_db_operation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retry.py",
+      "target": "function:retry.py:retry_network_operation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "class:server.py:ShutdownState",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "class:server.py:RateLimiter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "class:server.py:BodySizeLimitMiddleware",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:create_app",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:run_server",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_mount_webui",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_persist_chat_turn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_asserted_memory_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server.py",
+      "target": "function:server.py:_walk_tree",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:storage.py",
+      "target": "class:storage.py:SQLiteStore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:init_workspace_schema",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:create_workspace_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:append_workspace_event",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:spread_graph_activation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:_sanitize_schema_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "function:workspace.py:sanitize_workspace_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:knowledge_graph.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:installer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:jspace.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server.py",
+      "target": "file:workspace.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:knowledge_graph.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:pool.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:retry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:storage.py",
+      "target": "file:workspace.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:workspace.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "class:server.py:BodySizeLimitMiddleware",
+      "target": "class:server.py:ShutdownState",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:server.py:create_app",
+      "target": "class:server.py:ShutdownState",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:server.py:create_app",
+      "target": "class:server.py:RateLimiter",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:server.py:create_app",
+      "target": "class:server.py:BodySizeLimitMiddleware",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:server.py:run_server",
+      "target": "function:server.py:create_app",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "class:pool.py:ConnectionPool",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:knowledge_graph.py:init_knowledge_graph",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:workspace.py:init_workspace_schema",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:workspace.py:create_workspace_run",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:workspace.py:append_workspace_event",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:knowledge_graph.py:query_graph",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:knowledge_graph.py:project_records",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:knowledge_graph.py:remove_records",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:knowledge_graph.py:supersede_source",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:knowledge_graph.py:node_detail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:storage.py:SQLiteStore",
+      "target": "function:knowledge_graph.py:assertable_record_ids",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:server.py:create_app",
+      "target": "class:storage.py:SQLiteStore",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:jspace.py:LocalQwenJLensWorker",
+      "target": "function:jspace.py:_normalize_concepts",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:jspace.py:RemoteJLensWorker",
+      "target": "function:jspace.py:_remote_transport",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:jspace.py:RemoteJLensWorker",
+      "target": "function:jspace.py:_validate_remote_endpoint",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

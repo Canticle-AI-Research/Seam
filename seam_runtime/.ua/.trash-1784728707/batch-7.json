@@ -1,0 +1,661 @@
+{
+  "nodes": [
+    {
+      "id": "file:ui/animations.py",
+      "type": "file",
+      "name": "animations.py",
+      "filePath": "ui/animations.py",
+      "summary": "Drives visual updates for the dashboard, including a char-by-char streaming MIRL record viewer (MachineStream) and a multi-stage compilation progress bar suite (CompressionPipeline).",
+      "tags": [
+        "component",
+        "utility",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:ui/bars.py",
+      "type": "file",
+      "name": "bars.py",
+      "filePath": "ui/bars.py",
+      "summary": "Provides customizable progress bar and status indicator renderers (solid, segmented, indeterminate, stalled, error) that output Rich-colored ANSI terminal representations.",
+      "tags": [
+        "utility",
+        "component",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:ui/logo.py",
+      "type": "file",
+      "name": "logo.py",
+      "filePath": "ui/logo.py",
+      "summary": "Renders the SEAM dashboard header, utilizing box-drawing Unicode characters or half-block pixel-art representations for high-fidelity terminal displays.",
+      "tags": [
+        "component",
+        "utility",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:ui/theme.py",
+      "type": "file",
+      "name": "theme.py",
+      "filePath": "ui/theme.py",
+      "summary": "Centralized color palette definition and semantic alias mapping for styling all terminal elements in the SEAM runtime interface.",
+      "tags": [
+        "configuration",
+        "theme",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui/animations.py:_dim_markup",
+      "type": "function",
+      "name": "_dim_markup",
+      "filePath": "ui/animations.py",
+      "lineRange": [
+        227,
+        230
+      ],
+      "summary": "Dims the colors of a list of text fragments to visually represent aging log messages.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:ui/animations.py:MachineStream",
+      "type": "class",
+      "name": "MachineStream",
+      "filePath": "ui/animations.py",
+      "lineRange": [
+        140,
+        226
+      ],
+      "summary": "Generates a continuous char-by-char log stream of mock MIRL record templates, fading older lines over time.",
+      "tags": [
+        "component",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:ui/animations.py:CompressionPipeline",
+      "type": "class",
+      "name": "CompressionPipeline",
+      "filePath": "ui/animations.py",
+      "lineRange": [
+        250,
+        482
+      ],
+      "summary": "Renders a multi-stage compilation progress bar sequence mapping RAW -> IR -> PACK progress.",
+      "tags": [
+        "component",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui/bars.py:solid",
+      "type": "function",
+      "name": "solid",
+      "filePath": "ui/bars.py",
+      "lineRange": [
+        74,
+        90
+      ],
+      "summary": "Generates a standard progress bar using filled blocks, blank tracks, and a percentage label.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui/bars.py:segmented",
+      "type": "function",
+      "name": "segmented",
+      "filePath": "ui/bars.py",
+      "lineRange": [
+        92,
+        114
+      ],
+      "summary": "Renders a progress indicator split into distinct step blocks separated by vertical lines.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui/bars.py:indeterminate",
+      "type": "function",
+      "name": "indeterminate",
+      "filePath": "ui/bars.py",
+      "lineRange": [
+        116,
+        147
+      ],
+      "summary": "Renders an animated sweeping scanner bar indicating active execution with an unknown ETA.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui/bars.py:render",
+      "type": "function",
+      "name": "render",
+      "filePath": "ui/bars.py",
+      "lineRange": [
+        178,
+        198
+      ],
+      "summary": "Unified entry point to select and render solid, segmented, indeterminate, stalled, or error bars.",
+      "tags": [
+        "utility",
+        "factory"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:ui/bars.py:BarStyle",
+      "type": "class",
+      "name": "BarStyle",
+      "filePath": "ui/bars.py",
+      "lineRange": [
+        44,
+        50
+      ],
+      "summary": "Container mapping progress bar fill, track, bracket, and label elements to color themes.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui/logo.py:render_glyph",
+      "type": "function",
+      "name": "render_glyph",
+      "filePath": "ui/logo.py",
+      "lineRange": [
+        147,
+        170
+      ],
+      "summary": "Renders a binary grid of characters into double-height Unicode half-block characters painted with Rich colors.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui/logo.py:render_wordmark",
+      "type": "function",
+      "name": "render_wordmark",
+      "filePath": "ui/logo.py",
+      "lineRange": [
+        212,
+        227
+      ],
+      "summary": "Renders a text wordmark by lookup in a character logo grid map and joining them side-by-side.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui/logo.py:render_header",
+      "type": "function",
+      "name": "render_header",
+      "filePath": "ui/logo.py",
+      "lineRange": [
+        280,
+        408
+      ],
+      "summary": "Renders the complete top dashboard header including logo art, model name, active keys, and compression status.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:ui/logo.py:GlyphStyle",
+      "type": "class",
+      "name": "GlyphStyle",
+      "filePath": "ui/logo.py",
+      "lineRange": [
+        127,
+        140
+      ],
+      "summary": "Colors applied to a single rendered glyph, representing lit fore, background, and shadow.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui/theme.py:fg",
+      "type": "function",
+      "name": "fg",
+      "filePath": "ui/theme.py",
+      "lineRange": [
+        120,
+        122
+      ],
+      "summary": "Wraps a string in a single Rich foreground color tags representation.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui/theme.py:fg_bg",
+      "type": "function",
+      "name": "fg_bg",
+      "filePath": "ui/theme.py",
+      "lineRange": [
+        125,
+        127
+      ],
+      "summary": "Wraps a string in Rich foreground and background color tags.",
+      "tags": [
+        "utility",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui/theme.py:as_css_vars",
+      "type": "function",
+      "name": "as_css_vars",
+      "filePath": "ui/theme.py",
+      "lineRange": [
+        150,
+        153
+      ],
+      "summary": "Formats the theme colors into a dictionary for CSS interpolation.",
+      "tags": [
+        "utility",
+        "theme"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:ui/theme.py:CssVars",
+      "type": "class",
+      "name": "CssVars",
+      "filePath": "ui/theme.py",
+      "lineRange": [
+        132,
+        148
+      ],
+      "summary": "Dataclass bundling theme colors for CSS generation.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:ui/animations.py",
+      "target": "file:ui/bars.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "file:ui/theme.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "file:ui/theme.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "file:ui/theme.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "function:ui/animations.py:_dim_markup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "class:ui/animations.py:MachineStream",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "class:ui/animations.py:CompressionPipeline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "class:ui/animations.py:MachineStream",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/animations.py",
+      "target": "class:ui/animations.py:CompressionPipeline",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:solid",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:segmented",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:indeterminate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:render",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "class:ui/bars.py:BarStyle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:solid",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:segmented",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:indeterminate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "function:ui/bars.py:render",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/bars.py",
+      "target": "class:ui/bars.py:BarStyle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "function:ui/logo.py:render_glyph",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "function:ui/logo.py:render_wordmark",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "function:ui/logo.py:render_header",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "class:ui/logo.py:GlyphStyle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "function:ui/logo.py:render_glyph",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "function:ui/logo.py:render_wordmark",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "function:ui/logo.py:render_header",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/logo.py",
+      "target": "class:ui/logo.py:GlyphStyle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "function:ui/theme.py:fg",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "function:ui/theme.py:fg_bg",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "function:ui/theme.py:as_css_vars",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "class:ui/theme.py:CssVars",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "function:ui/theme.py:fg",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "function:ui/theme.py:fg_bg",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "function:ui/theme.py:as_css_vars",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:ui/theme.py",
+      "target": "class:ui/theme.py:CssVars",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:ui/animations.py:MachineStream",
+      "target": "function:ui/animations.py:_dim_markup",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:ui/animations.py:MachineStream",
+      "target": "function:ui/theme.py:fg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:ui/animations.py:CompressionPipeline",
+      "target": "function:ui/bars.py:render",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:ui/animations.py:CompressionPipeline",
+      "target": "function:ui/theme.py:fg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/bars.py:solid",
+      "target": "function:ui/theme.py:fg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/bars.py:segmented",
+      "target": "function:ui/theme.py:fg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/bars.py:indeterminate",
+      "target": "function:ui/theme.py:fg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/bars.py:render",
+      "target": "function:ui/bars.py:solid",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/bars.py:render",
+      "target": "function:ui/bars.py:segmented",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/bars.py:render",
+      "target": "function:ui/bars.py:indeterminate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/logo.py:render_glyph",
+      "target": "function:ui/theme.py:fg_bg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/logo.py:render_wordmark",
+      "target": "function:ui/logo.py:render_glyph",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/logo.py:render_header",
+      "target": "function:ui/logo.py:render_wordmark",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/logo.py:render_header",
+      "target": "function:ui/logo.py:render_glyph",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:ui/theme.py:as_css_vars",
+      "target": "class:ui/theme.py:CssVars",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

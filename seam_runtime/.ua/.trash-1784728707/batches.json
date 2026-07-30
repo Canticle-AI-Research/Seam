@@ -1,0 +1,4186 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 71,
+  "totalBatches": 9,
+  "exportsByPath": {
+    "__init__.py": [],
+    "agent_memory.py": [
+      "IngestReport",
+      "source_hash",
+      "stable_document_id",
+      "namespace_ingest_batch",
+      "compact_memory_index",
+      "full_memory_records",
+      "neighbor_timeline",
+      "render_memory_index",
+      "render_memory_records",
+      "read_path_text",
+      "_record_summary",
+      "_document_record_id",
+      "_rewrite_refs"
+    ],
+    "benchmark_baseline_policy.py": [
+      "resolve_baseline",
+      "_is_holdout_run",
+      "_git_root",
+      "_merge_base",
+      "_bundle_git_sha",
+      "_is_reachable"
+    ],
+    "benchmark_integrity.py": [
+      "_is_external_memory_result",
+      "canonical_json",
+      "sha256_canonical",
+      "load_json_payload",
+      "write_json_payload",
+      "result_hash",
+      "stable_result_hash_input",
+      "build_input_manifest",
+      "_signing_key_from_env",
+      "_bundle_signature",
+      "sign_benchmark_bundle",
+      "seal_benchmark_bundle",
+      "verify_benchmark_bundle",
+      "validate_publication_readiness",
+      "inspect_benchmark_integrity"
+    ],
+    "benchmarks.py": [
+      "run_benchmark_suite",
+      "verify_benchmark_bundle",
+      "evaluate_benchmark_gate",
+      "render_benchmark_gate_pretty",
+      "diff_benchmark_runs",
+      "render_benchmark_diff_pretty",
+      "write_holdout_benchmark_bundle",
+      "render_benchmark_pretty",
+      "render_benchmark_verification_pretty",
+      "_run_lossless_family",
+      "_run_readable_family",
+      "_run_surface_family",
+      "_run_retrieval_family",
+      "_run_embedding_family",
+      "_run_long_context_family",
+      "_run_persistence_family",
+      "_run_agent_task_family",
+      "_build_suite_summary",
+      "_aggregate_family_actions",
+      "_load_json_fixture",
+      "_default_lossless_cases",
+      "_default_readable_cases",
+      "_default_surface_cases",
+      "_surface_case_payload",
+      "_surface_query_checks",
+      "_surface_stored_query_and_repair_checks",
+      "_surface_flags",
+      "_surface_actions",
+      "_default_long_context_cases",
+      "_default_agent_task_cases",
+      "_resolve_lossless_text",
+      "_build_long_context_dsl",
+      "_dataset_manifest",
+      "_selected_suites",
+      "_fixture_for_family",
+      "_holdout_fixture_path",
+      "_validate_suite_name",
+      "_stamp_case_hash",
+      "_hash_payload",
+      "_load_benchmark_payload",
+      "_load_gate_policy",
+      "_gate_check",
+      "_flatten_benchmark_cases",
+      "_diff_case",
+      "_metric_delta",
+      "_numeric_metric",
+      "_lower_is_better",
+      "_status_delta",
+      "_status_marker",
+      "_case_ref",
+      "_run_ref",
+      "_lossless_actions",
+      "_quote_span_records",
+      "_compressed_quote_records",
+      "_read_rc1_text_direct",
+      "_benchmark_terms",
+      "_readable_query_checks",
+      "_expected_query_text",
+      "_hit_satisfies_expected",
+      "_readable_flags",
+      "_readable_actions",
+      "_retrieval_flags",
+      "_retrieval_actions",
+      "_embedding_actions",
+      "_long_context_flags",
+      "_long_context_actions",
+      "_agent_task_flags",
+      "_agent_task_actions",
+      "_render_key_metrics",
+      "_ndcg_at_k",
+      "_log2",
+      "_savings_ratio",
+      "_utc_now",
+      "_git_sha",
+      "_average",
+      "_ratio",
+      "_percentile",
+      "_unique_actions",
+      "_cleanup_temp_db"
+    ],
+    "bm25.py": [
+      "_tokens",
+      "BM25Index"
+    ],
+    "cli.py": [
+      "_import_run_improvement_cycle",
+      "_import_run_paid_validation",
+      "_parse_candidate_flags",
+      "_apply_candidate_profile",
+      "build_parser",
+      "run_cli",
+      "_split_ids",
+      "_run_agent_shell",
+      "_handle_shell_command",
+      "_confirm_holdout_run",
+      "_resolve_benchmark_ref",
+      "_read_text_source",
+      "_sha256_file",
+      "_resolve_surface_path",
+      "_store_surface_library_entry",
+      "_repair_surface_library_entry",
+      "_surface_repair_source",
+      "_write_text_output",
+      "_print_text",
+      "_render_lossless_demo_result",
+      "_render_readable_query_pretty",
+      "_render_surface_artifact_pretty",
+      "_render_surface_compile_pretty",
+      "_render_surface_verify_pretty",
+      "_render_surface_query_pretty",
+      "_render_surface_context_pretty",
+      "_render_surface_import_pretty",
+      "_render_surface_library_entry_pretty",
+      "_render_surface_library_list_pretty",
+      "_render_surface_repair_pretty",
+      "_render_ingest_report",
+      "_render_doctor_report",
+      "_add_retrieval_common_args",
+      "_add_rag_sync_args",
+      "_build_retrieval_orchestrator",
+      "_print_retrieval_output",
+      "_render_plan_pretty",
+      "_render_knowledge_graph_pretty",
+      "_render_knowledge_node_pretty",
+      "_render_search_pretty",
+      "_render_compare_pretty",
+      "_render_rag_sync_pretty",
+      "_render_ids",
+      "_render_lx1_benchmark_pretty",
+      "_render_bil_integrity_pretty",
+      "_current_git_sha",
+      "_render_publication_readiness_pretty",
+      "_record_signal"
+    ],
+    "context_views.py": [
+      "build_context_payload",
+      "render_context_pretty",
+      "_build_context_output",
+      "_build_prompt_text",
+      "_build_evidence_rows",
+      "_build_summary",
+      "_record_signal",
+      "_format_sources",
+      "_format_counter"
+    ],
+    "conversation.py": [
+      "ConversationIntent",
+      "classify_conversation_intent",
+      "_evidence_lines",
+      "ConversationView",
+      "adapt_conversation_context",
+      "answer_method_directive"
+    ],
+    "dashboard.py": [
+      "_build_retrieval_orchestrator",
+      "_write_private_text_file",
+      "_validate_shell_command",
+      "_validate_shell_cwd",
+      "_get_shell_timeout",
+      "DashboardMetrics",
+      "DashboardEvent",
+      "CommandPaletteItem",
+      "DashboardParser",
+      "SeamChatClient",
+      "DashboardApp",
+      "run_dashboard",
+      "_ensure_rich",
+      "_ensure_textual",
+      "main"
+    ],
+    "derived_fact_context.py": [
+      "resolve_derived_facts_policy",
+      "is_singular_first_person",
+      "canonical_turn_prefix_end",
+      "segment_propositions",
+      "_extractor_metadata",
+      "DerivedFactsConfig",
+      "DerivedFactsRuntime",
+      "configure_derived_facts",
+      "_refuse_enriched_store_on_off_path",
+      "_fingerprint",
+      "_write_or_validate_manifest",
+      "CachedExtractor",
+      "ScopedCachedExtractor",
+      "_extraction_to_dict",
+      "_extraction_from_dict",
+      "_sentence_facts_to_dict",
+      "_sentence_facts_from_dict",
+      "is_eligible_derived_claim",
+      "grounded_spans_match_source",
+      "sentence_grounded_fact_matches_source",
+      "multi_speaker_fact_matches_source",
+      "DerivedFact",
+      "splice_derived_facts"
+    ],
+    "doctor.py": [
+      "check_pgvector",
+      "_import_streams_verify_all",
+      "check_streams",
+      "check_commit_gate",
+      "check_stashes",
+      "build_doctor_report"
+    ],
+    "dsl.py": [
+      "ParsedBlock",
+      "compile_dsl",
+      "_parse_blocks",
+      "_parse_field",
+      "_is_int_literal",
+      "_is_float_literal",
+      "_parse_scalar",
+      "_block_to_record",
+      "_ensure_list"
+    ],
+    "evals.py": [
+      "RetrievalFixture",
+      "default_retrieval_fixtures",
+      "run_retrieval_benchmark",
+      "_compile_fixture_batch",
+      "_vector_scores",
+      "_rank_vector_only",
+      "_track_report",
+      "_aggregate_track",
+      "_aggregate_pack",
+      "_beats"
+    ],
+    "event_count_context.py": [
+      "CountEvidence",
+      "RankedCountEvidence",
+      "CountContextProjection",
+      "_CountIntent",
+      "_RowFeatures",
+      "is_count_question",
+      "build_count_context_projection",
+      "_group_v2_rows",
+      "_same_v2_event",
+      "_ordered_groups",
+      "_count_intent",
+      "_v2_row_features",
+      "_target_is_negated",
+      "_contains_subsequence",
+      "_normalize_name",
+      "_names_match",
+      "_split_memory",
+      "_evidence_state",
+      "_clause_state",
+      "_relevant_clauses",
+      "_content_terms",
+      "_content_terms_v2",
+      "_stem_v2",
+      "_stem",
+      "_one_line"
+    ],
+    "external_memory_benchmarks.py": [
+      "ExternalBenchmark",
+      "load_memory_benchmark_registry",
+      "validate_memory_benchmark_registry",
+      "benchmark_plan",
+      "run_external_memory_benchmarks",
+      "render_external_memory_plan_pretty",
+      "render_external_memory_report_pretty",
+      "_select_benchmarks",
+      "_case_result"
+    ],
+    "holographic.py": [
+      "SurfaceArtifact",
+      "SurfacePayload",
+      "SurfaceVerification",
+      "SurfaceQueryResult",
+      "HolographicReader",
+      "encode_surface",
+      "decode_surface",
+      "verify_surface",
+      "inspect_surface",
+      "query_surface",
+      "context_surface",
+      "_detect_payload_format",
+      "_looks_like_mirl",
+      "_normalize_surface_mode",
+      "_max_surface_payload_bytes",
+      "_container_to_pixels",
+      "_capacity_bytes",
+      "_parse_container",
+      "_write_png",
+      "_bounded_inflate",
+      "_read_png",
+      "_unfilter_png",
+      "_paeth",
+      "_png_chunk",
+      "_bits_to_bytes",
+      "_is_utf8"
+    ],
+    "improvement.py": [
+      "_import_holdout_case_ids",
+      "ValidationReport",
+      "validate_proposal",
+      "proposal_blocks_promotion"
+    ],
+    "installer.py": [
+      "InstallLayout",
+      "DevInstallResult",
+      "_is_windows_host",
+      "detect_layout",
+      "ensure_virtualenv",
+      "repo_venv_python",
+      "ensure_repo_virtualenv",
+      "install_repo",
+      "install_repo_dev_environment",
+      "latest_history_entry_ids",
+      "run_repo_dev_checks",
+      "ensure_persistence",
+      "render_windows_cmd_shim",
+      "render_posix_shim",
+      "write_shims",
+      "ensure_path_access",
+      "run_doctor",
+      "path_in_environment",
+      "_ensure_windows_user_path",
+      "_powershell_single_quoted",
+      "_ensure_posix_shell_profiles",
+      "current_platform_label",
+      "default_runtime_db_path"
+    ],
+    "jspace.py": [
+      "JLensUnavailable",
+      "JLensWorker",
+      "JLensResult",
+      "_ref_hash",
+      "_bounded_text",
+      "_normalize_concepts",
+      "_sha256_file",
+      "_valid_sha256",
+      "UnavailableJLensWorker",
+      "LocalQwenJLensWorker",
+      "_validate_remote_endpoint",
+      "_remote_transport",
+      "RemoteJLensWorker",
+      "jlens_worker_from_env",
+      "workspace_capabilities"
+    ],
+    "knowledge_graph.py": [
+      "predicate_family",
+      "init_knowledge_graph",
+      "project_records",
+      "remove_records",
+      "supersede_source",
+      "query_graph",
+      "node_detail",
+      "assertable_record_ids",
+      "graph_stats",
+      "_project_record",
+      "_episode_ids",
+      "_upsert_node",
+      "_record_agent",
+      "_record_label",
+      "_epistemic_basis",
+      "_record_facets",
+      "_reference_values",
+      "_node_time_clauses",
+      "_edge_time_clauses",
+      "_episode_filter_clauses",
+      "_graph_episode_rows",
+      "_episode_provenance_edges",
+      "_node_episode_facets",
+      "_episode_is_independent",
+      "_evidence_key",
+      "_node_visible_at",
+      "_time_reached",
+      "_trust_profiles",
+      "_row_epistemic_basis",
+      "_graph_stats",
+      "_node_payload",
+      "_episode_node_payload",
+      "_edge_payload",
+      "_episode_payload",
+      "_page_summary",
+      "_query_payload",
+      "_load_record",
+      "_edge_id",
+      "_value_node_id",
+      "_agent_node_id",
+      "_kind_from_id",
+      "_label_from_id",
+      "_join_label",
+      "_truncate",
+      "_json"
+    ],
+    "lossless.py": [
+      "LosslessArtifact",
+      "LosslessAttempt",
+      "LosslessBenchmarkResult",
+      "ReadableCompressionArtifact",
+      "ReadableQueryHit",
+      "ReadableQueryResult",
+      "estimate_prompt_tokens",
+      "count_prompt_tokens",
+      "compress_text_lossless",
+      "compress_text_readable",
+      "decompress_text_readable",
+      "decompress_text_lossless",
+      "query_readable_compressed",
+      "benchmark_text_lossless",
+      "render_lossless_benchmark_pretty",
+      "parse_lossless_machine_text",
+      "parse_readable_machine_text",
+      "lossless_benchmark_json",
+      "_run_lossless_search",
+      "_artifact_key",
+      "_compress_variant",
+      "_approximate_prompt_tokens",
+      "_resolve_token_counter",
+      "_load_tiktoken_encoding",
+      "_collect_round_flags",
+      "_apply_transform",
+      "_restore_transform",
+      "_build_table_payload",
+      "_split_paragraph_blocks",
+      "_resolved_readable_granularity",
+      "_split_readable_parts",
+      "_split_fixed_readable_chunks",
+      "_readable_terms",
+      "_structural_quote_spans",
+      "_extract_readable_quotes",
+      "_chunk_id_for_span",
+      "_build_readable_term_index",
+      "_quoted_phrases",
+      "_readable_match_score",
+      "_chunk_occurrence_lookup"
+    ],
+    "lx1.py": [
+      "encode",
+      "decode",
+      "encode_record",
+      "decode_record",
+      "token_savings_report",
+      "_encode_val",
+      "_decode_val",
+      "_split_tokens"
+    ],
+    "mcp.py": [
+      "run_stdio_bridge",
+      "dispatch_tool",
+      "_bounded_int",
+      "_required_text",
+      "_coerced_record_ids",
+      "_validated_pack_mode",
+      "_paginated",
+      "_validated_hs_ref",
+      "_resolve_registered_surface_path",
+      "_redact_doctor_report",
+      "_write"
+    ],
+    "mcp_protocol.py": [
+      "JsonRpcError",
+      "_read_capped_lines",
+      "_read_capped_binary_lines",
+      "run_mcp_server",
+      "_handle_jsonrpc_line",
+      "_handle_jsonrpc_message",
+      "_dispatch_mcp_method",
+      "_call_tool",
+      "_mcp_tool_definition",
+      "_mcp_input_schema",
+      "_mcp_property_schema",
+      "_error_response",
+      "_write_jsonrpc",
+      "main"
+    ],
+    "mirl.py": [
+      "utc_now",
+      "RecordKind",
+      "Status",
+      "MIRLRecord",
+      "IRBatch",
+      "VerifyIssue",
+      "VerifyReport",
+      "PersistReport",
+      "Pack",
+      "SearchCandidate",
+      "SearchResult",
+      "TraceGraph",
+      "ReconcileReport",
+      "Artifact",
+      "token_count",
+      "cosine_similarity",
+      "iter_textual_fields"
+    ],
+    "models.py": [
+      "EmbeddingModel",
+      "EmbeddingSettings",
+      "HashEmbeddingModel",
+      "SentenceTransformerModel",
+      "OpenAICompatibleEmbeddingModel",
+      "embedding_settings_from_env",
+      "default_embedding_model",
+      "cosine",
+      "_normalize",
+      "_tokens",
+      "_coerce_positive_int"
+    ],
+    "multi_scope_pack.py": [
+      "ScopeQuotas",
+      "PackItem",
+      "resolve_policy",
+      "_memory",
+      "_record_id",
+      "_render_item",
+      "_render_pack",
+      "_render_non_displacing_fact_pack",
+      "_render_non_displacing_raw_pack",
+      "_valid_raw_row",
+      "_valid_fact_row",
+      "_fact_source",
+      "parse_pack_items",
+      "expand_logical_raw_rows",
+      "parse_raw_pack_items",
+      "expand_logical_raw_pack_rows",
+      "_selected_lane_items",
+      "compose_reserved_multi_scope",
+      "compose_non_displacing_fact_pack",
+      "compose_non_displacing_raw_pack",
+      "select_date_diverse_rows",
+      "pack_scope_counts"
+    ],
+    "multi_speaker_facts.py": [
+      "declarative_evidence",
+      "declarative_sentences",
+      "_cap_tokens",
+      "_groundable_cap_tokens",
+      "_content_sequence",
+      "_modality_tokens",
+      "_binding_sequence",
+      "_is_contiguous_subsequence",
+      "_is_quote_wrapped",
+      "multi_speaker_fact_prompt_fingerprint",
+      "build_multi_speaker_fact_prompt",
+      "validate_multi_speaker_fact_with_reason",
+      "validate_multi_speaker_fact"
+    ],
+    "nl.py": [
+      "compile_nl",
+      "_extract_conversational",
+      "_content_words",
+      "_normalized_label",
+      "_validated_turn_metadata",
+      "_candidate_claim_is_lossless",
+      "_grounded_spans_payload",
+      "_derived_claim_record_id",
+      "_sentence_fact_record_id",
+      "_leading_subject",
+      "_proper_noun_runs",
+      "suggest_symbols"
+    ],
+    "nl_extract.py": [
+      "GroundedSpan",
+      "_contiguous_source_spans",
+      "_contiguous_source_span",
+      "_word_internal_delimiter",
+      "_inside_direct_speech_quotes",
+      "_has_quote_delimiter",
+      "_whitespace_only",
+      "_terminal_suffix_only",
+      "_required_field_is_safe",
+      "grounded_sro_is_coherent",
+      "clause_window",
+      "_coherent_required_spans",
+      "ExtractedEntity",
+      "ExtractedClaim",
+      "Extraction",
+      "Extractor",
+      "_prompt_fingerprint",
+      "OllamaExtractor",
+      "ground_extraction",
+      "extractor_from_env"
+    ],
+    "pack.py": [
+      "pack_records",
+      "_pack_id",
+      "unpack_exact_pack",
+      "pack_record",
+      "score_pack",
+      "_signal_for_record",
+      "_narrative_summary",
+      "_compact_signal",
+      "_context_entries_by_id",
+      "_list_field_retention",
+      "_mine_id_aliases",
+      "_encode_id",
+      "_decode_id",
+      "_records_token_cost"
+    ],
+    "pgvector_bootstrap.py": [
+      "PgVectorBootstrapError",
+      "default_local_env_path",
+      "resolve_pgvector_env_path",
+      "read_dotenv",
+      "build_pgvector_dsn",
+      "ensure_pgvector",
+      "_ensure_docker_ready",
+      "_docker_version_ok",
+      "_start_docker_desktop",
+      "_wait_for_pgvector",
+      "_ensure_vector_extension",
+      "_run",
+      "_conninfo_quote",
+      "_redacted_command",
+      "_log"
+    ],
+    "pool.py": [
+      "ConnectionPool"
+    ],
+    "reconcile.py": [
+      "reconcile_ir"
+    ],
+    "retrieval.py": [
+      "RetrievalFlags",
+      "retrieval_flag_field_types",
+      "coerce_flag_value",
+      "resolve_retrieval_profile",
+      "_retrieval_env_overrides",
+      "retrieval_flags_from_env",
+      "_FlagStateStore",
+      "load_retrieval_flags",
+      "search_batch",
+      "_reasons",
+      "_fuse_weighted",
+      "_fuse_rrf",
+      "raw_search",
+      "_graph",
+      "_tokens",
+      "_lexical_score",
+      "_semantic_score",
+      "_graph_score",
+      "_grounding_entity_ids",
+      "_entity_grounded_score",
+      "_temporal_score",
+      "_expand_query"
+    ],
+    "retrieval_orchestrator/__init__.py": [],
+    "retrieval_orchestrator/adapters.py": [
+      "SQLAdapter",
+      "SemanticAdapter",
+      "SQLiteIRAdapter",
+      "SeamVectorSearchAdapter",
+      "SQLiteGraphAdapter",
+      "ChromaSemanticAdapter",
+      "_structured_reasons",
+      "_matched_filter_count",
+      "_lexical_score",
+      "_tokens",
+      "_unique_tokens",
+      "_build_structured_sql",
+      "_chroma_metadata"
+    ],
+    "retrieval_orchestrator/merger.py": [
+      "merge_hits"
+    ],
+    "retrieval_orchestrator/orchestrator.py": [
+      "RetrievalOrchestrator"
+    ],
+    "retrieval_orchestrator/planner.py": [
+      "build_plan",
+      "_extract_filters",
+      "_strip_filters",
+      "_classify_intent",
+      "_split_csv"
+    ],
+    "retrieval_orchestrator/types.py": [
+      "QueryIntent",
+      "QueryFilters",
+      "RetrievalLeg",
+      "RetrievalPlan",
+      "LegHit",
+      "RetrievalCandidate",
+      "RetrievalSearchResult",
+      "RAGResult"
+    ],
+    "retry.py": [
+      "_compute_delay",
+      "retry",
+      "_is_transient_db_error",
+      "retry_db_operation",
+      "retry_network_operation"
+    ],
+    "runtime.py": [
+      "SeamRuntime"
+    ],
+    "second_hop_context.py": [
+      "BridgePlan",
+      "_content_words",
+      "extract_bridge_terms",
+      "build_bridge_plan",
+      "splice_results"
+    ],
+    "self_improve.py": [
+      "Probe",
+      "GraphProbe",
+      "ScoreReport",
+      "Scorer",
+      "_category_of",
+      "_looks_like_ref",
+      "_record_text",
+      "_salient_index",
+      "_cloze",
+      "generate_probes",
+      "generate_graph_probes",
+      "SelfProbeScorer",
+      "RatchetGateEvidence",
+      "StrictRatchetDecision",
+      "strict_ratchet_decision",
+      "Candidate",
+      "CandidateEvaluation",
+      "score_report_views",
+      "_category_floor",
+      "candidate_levers",
+      "evaluate_candidates",
+      "select_best_improvement"
+    ],
+    "sentence_grounded_facts.py": [
+      "SentenceGroundedFact",
+      "_normalized",
+      "_segment_sentences",
+      "first_person_declarative_evidence",
+      "first_person_declarative_sentences",
+      "sentence_fact_prompt_fingerprint",
+      "build_sentence_fact_prompt",
+      "validate_sentence_grounded_fact",
+      "validate_sentence_grounded_fact_with_reason",
+      "has_exact_evidence_binding",
+      "sentence_fact_is_safe",
+      "OllamaSentenceFactExtractor"
+    ],
+    "server.py": [
+      "ShutdownState",
+      "_shutdown_timeout_from_env",
+      "_cleanup_runtime",
+      "ShutdownMiddleware",
+      "_require_fastapi",
+      "_require_uvicorn",
+      "RateLimiter",
+      "_rate_limit_from_env",
+      "_rate_limit_max_keys_from_env",
+      "_max_body_bytes_from_env",
+      "_cors_origins_from_env",
+      "_client_key",
+      "_RequestBodyTooLarge",
+      "BodySizeLimitMiddleware",
+      "_send_body_too_large",
+      "webui_dir",
+      "_mount_webui",
+      "_seam_chat_system_prompt",
+      "_env_chat_allowed_hosts",
+      "_validate_provider_base_url",
+      "_chat_opener",
+      "_call_chat_provider",
+      "_persist_chat_turn",
+      "_asserted_memory_context",
+      "create_app",
+      "run_server",
+      "_validate_server_safety",
+      "_is_remote_bind",
+      "_env_truthy",
+      "_tree_root",
+      "_tree_max_depth",
+      "_tree_max_entries",
+      "_resolve_tree_path",
+      "_walk_tree",
+      "create_app_from_env",
+      "main"
+    ],
+    "skills/__init__.py": [],
+    "skills/factory.py": [
+      "SkillFactoryError",
+      "AgentIdentity",
+      "SkillObservation",
+      "SkillProposal",
+      "identify_agent",
+      "propose_skill_from_observation",
+      "_slugify",
+      "_required_str",
+      "_optional_str",
+      "_required_bool",
+      "_positive_int",
+      "_str_tuple"
+    ],
+    "skills/skill_ir.py": [
+      "SkillIRError",
+      "SkillIR",
+      "canonical_bytes",
+      "sha256_of_bytes",
+      "_optional_str",
+      "_str_tuple",
+      "_workflow_tuple"
+    ],
+    "storage.py": [
+      "SQLiteStore",
+      "_retrieval_event_row",
+      "_improvement_proposal_row",
+      "_proposal_decision_row",
+      "_document_status_row",
+      "_normalize_entity_label",
+      "_load_record_by_id",
+      "_trace_refs",
+      "_surface_artifact_row",
+      "_file_sha256"
+    ],
+    "surface_adapters.py": [
+      "SurfaceFileCopy",
+      "SurfaceFileRepair",
+      "SurfaceFileAdapter",
+      "_file_sha256"
+    ],
+    "symbols.py": [
+      "SymbolCandidate",
+      "propose_symbols",
+      "abbreviate",
+      "build_symbol_maps",
+      "namespace_chain",
+      "export_symbol_markdown",
+      "_extract_symbol_material",
+      "_infer_family",
+      "_ambiguity",
+      "_generic_word_compact",
+      "_consonant_compact",
+      "_extract_value_material"
+    ],
+    "temporal.py": [
+      "detect_temporal_tokens",
+      "parse_iso",
+      "parse_temporal_reference",
+      "temporal_distance_score",
+      "_parse_count",
+      "_unit_days"
+    ],
+    "temporal_instance_context.py": [
+      "is_temporal_question",
+      "TemporalEvidence",
+      "_DateRow",
+      "TemporalProjection",
+      "build_temporal_context_projection"
+    ],
+    "tokenization.py": [
+      "count_tokens",
+      "count_tokens_with_label",
+      "_load_encoder"
+    ],
+    "transpile.py": [
+      "transpile_python"
+    ],
+    "ui/__init__.py": [],
+    "ui/animations.py": [
+      "_Fragment",
+      "_frag",
+      "_fragments_to_markup",
+      "_fragments_visible_text",
+      "_StreamLine",
+      "MachineStream",
+      "_dim_markup",
+      "_StageState",
+      "CompressionPipeline",
+      "AnimationEngine",
+      "_preview_stream",
+      "_preview_pipeline",
+      "_preview_engine",
+      "_main"
+    ],
+    "ui/bars.py": [
+      "BarStyle",
+      "_clamp",
+      "_wrap_brackets",
+      "_label",
+      "solid",
+      "segmented",
+      "indeterminate",
+      "stalled",
+      "error",
+      "render",
+      "_preview",
+      "_main"
+    ],
+    "ui/logo.py": [
+      "_pad_to_even",
+      "_lit",
+      "_half_char",
+      "GlyphStyle",
+      "render_glyph",
+      "render_row_concat",
+      "_visual_width_blank",
+      "render_wordmark",
+      "render_mark",
+      "HeaderFields",
+      "render_header",
+      "_pad_rows",
+      "_build_info_strip",
+      "header_markup",
+      "_preview",
+      "_main"
+    ],
+    "ui/theme.py": [
+      "fg",
+      "fg_bg",
+      "CssVars",
+      "as_css_vars",
+      "_preview"
+    ],
+    "vector.py": [
+      "_VectorCache",
+      "SQLiteVectorIndex",
+      "_source_hash"
+    ],
+    "vector_adapters.py": [
+      "VectorAdapter",
+      "SQLiteVectorAdapter",
+      "PgVectorAdapter",
+      "_validate_table_name",
+      "_vector_literal",
+      "_hash_text"
+    ],
+    "verify.py": [
+      "verify_ir",
+      "_verify_kind_specific",
+      "_verify_exact_pack",
+      "_missing"
+    ],
+    "webui/seam-api.js": [],
+    "webui/tweaks-panel.jsx": [],
+    "workspace.py": [
+      "_list",
+      "_normalized_key",
+      "_forbidden_key",
+      "_sanitize_schema_value",
+      "sanitize_workspace_payload",
+      "sanitize_workspace_metadata",
+      "WorkspaceRun",
+      "WorkspaceEvent",
+      "init_workspace_schema",
+      "create_workspace_run",
+      "append_workspace_event",
+      "workspace_event_from_row",
+      "workspace_run_from_row",
+      "run_status",
+      "sse_frame",
+      "content_fingerprint",
+      "spread_graph_activation"
+    ]
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "benchmark_baseline_policy.py",
+          "language": "python",
+          "sizeLines": 115,
+          "fileCategory": "code"
+        },
+        {
+          "path": "benchmark_integrity.py",
+          "language": "python",
+          "sizeLines": 462,
+          "fileCategory": "code"
+        },
+        {
+          "path": "cli.py",
+          "language": "python",
+          "sizeLines": 2488,
+          "fileCategory": "code"
+        },
+        {
+          "path": "context_views.py",
+          "language": "python",
+          "sizeLines": 194,
+          "fileCategory": "code"
+        },
+        {
+          "path": "dashboard.py",
+          "language": "python",
+          "sizeLines": 3160,
+          "fileCategory": "code"
+        },
+        {
+          "path": "doctor.py",
+          "language": "python",
+          "sizeLines": 166,
+          "fileCategory": "code"
+        },
+        {
+          "path": "external_memory_benchmarks.py",
+          "language": "python",
+          "sizeLines": 210,
+          "fileCategory": "code"
+        },
+        {
+          "path": "holographic.py",
+          "language": "python",
+          "sizeLines": 565,
+          "fileCategory": "code"
+        },
+        {
+          "path": "installer.py",
+          "language": "python",
+          "sizeLines": 389,
+          "fileCategory": "code"
+        },
+        {
+          "path": "lossless.py",
+          "language": "python",
+          "sizeLines": 974,
+          "fileCategory": "code"
+        },
+        {
+          "path": "lx1.py",
+          "language": "python",
+          "sizeLines": 311,
+          "fileCategory": "code"
+        },
+        {
+          "path": "mcp.py",
+          "language": "python",
+          "sizeLines": 505,
+          "fileCategory": "code"
+        },
+        {
+          "path": "mcp_protocol.py",
+          "language": "python",
+          "sizeLines": 287,
+          "fileCategory": "code"
+        },
+        {
+          "path": "pgvector_bootstrap.py",
+          "language": "python",
+          "sizeLines": 229,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui/__init__.py",
+          "language": "python",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "benchmark_baseline_policy.py": [],
+        "benchmark_integrity.py": [],
+        "cli.py": [
+          "agent_memory.py",
+          "benchmark_baseline_policy.py",
+          "benchmark_integrity.py",
+          "benchmarks.py",
+          "context_views.py",
+          "dashboard.py",
+          "doctor.py",
+          "external_memory_benchmarks.py",
+          "holographic.py",
+          "installer.py",
+          "lossless.py",
+          "lx1.py",
+          "mirl.py",
+          "runtime.py",
+          "surface_adapters.py"
+        ],
+        "context_views.py": [],
+        "dashboard.py": [
+          "context_views.py",
+          "installer.py",
+          "lossless.py",
+          "mirl.py",
+          "models.py",
+          "runtime.py",
+          "ui/__init__.py"
+        ],
+        "doctor.py": [
+          "installer.py",
+          "lossless.py",
+          "runtime.py"
+        ],
+        "external_memory_benchmarks.py": [],
+        "holographic.py": [
+          "lossless.py",
+          "mirl.py",
+          "pack.py",
+          "retrieval.py"
+        ],
+        "installer.py": [],
+        "lossless.py": [],
+        "lx1.py": [
+          "mirl.py"
+        ],
+        "mcp.py": [
+          "doctor.py",
+          "holographic.py",
+          "runtime.py"
+        ],
+        "mcp_protocol.py": [
+          "installer.py",
+          "mcp.py",
+          "pgvector_bootstrap.py",
+          "runtime.py"
+        ],
+        "pgvector_bootstrap.py": [],
+        "ui/__init__.py": []
+      },
+      "neighborMap": {
+        "cli.py": [
+          {
+            "path": "agent_memory.py",
+            "batchIndex": 2,
+            "symbols": [
+              "IngestReport",
+              "source_hash",
+              "stable_document_id",
+              "namespace_ingest_batch",
+              "compact_memory_index",
+              "full_memory_records",
+              "neighbor_timeline",
+              "render_memory_index",
+              "render_memory_records",
+              "read_path_text",
+              "_record_summary",
+              "_document_record_id",
+              "_rewrite_refs"
+            ]
+          },
+          {
+            "path": "benchmarks.py",
+            "batchIndex": 3,
+            "symbols": [
+              "run_benchmark_suite",
+              "verify_benchmark_bundle",
+              "evaluate_benchmark_gate",
+              "render_benchmark_gate_pretty",
+              "diff_benchmark_runs",
+              "render_benchmark_diff_pretty",
+              "write_holdout_benchmark_bundle",
+              "render_benchmark_pretty",
+              "render_benchmark_verification_pretty",
+              "_run_lossless_family",
+              "_run_readable_family",
+              "_run_surface_family",
+              "_run_retrieval_family",
+              "_run_embedding_family",
+              "_run_long_context_family",
+              "_run_persistence_family",
+              "_run_agent_task_family",
+              "_build_suite_summary",
+              "_aggregate_family_actions",
+              "_load_json_fixture",
+              "_default_lossless_cases",
+              "_default_readable_cases",
+              "_default_surface_cases",
+              "_surface_case_payload",
+              "_surface_query_checks",
+              "_surface_stored_query_and_repair_checks",
+              "_surface_flags",
+              "_surface_actions",
+              "_default_long_context_cases",
+              "_default_agent_task_cases",
+              "_resolve_lossless_text",
+              "_build_long_context_dsl",
+              "_dataset_manifest",
+              "_selected_suites",
+              "_fixture_for_family",
+              "_holdout_fixture_path",
+              "_validate_suite_name",
+              "_stamp_case_hash",
+              "_hash_payload",
+              "_load_benchmark_payload",
+              "_load_gate_policy",
+              "_gate_check",
+              "_flatten_benchmark_cases",
+              "_diff_case",
+              "_metric_delta",
+              "_numeric_metric",
+              "_lower_is_better",
+              "_status_delta",
+              "_status_marker",
+              "_case_ref",
+              "_run_ref",
+              "_lossless_actions",
+              "_quote_span_records",
+              "_compressed_quote_records",
+              "_read_rc1_text_direct",
+              "_benchmark_terms",
+              "_readable_query_checks",
+              "_expected_query_text",
+              "_hit_satisfies_expected",
+              "_readable_flags",
+              "_readable_actions",
+              "_retrieval_flags",
+              "_retrieval_actions",
+              "_embedding_actions",
+              "_long_context_flags",
+              "_long_context_actions",
+              "_agent_task_flags",
+              "_agent_task_actions",
+              "_render_key_metrics",
+              "_ndcg_at_k",
+              "_log2",
+              "_savings_ratio",
+              "_utc_now",
+              "_git_sha",
+              "_average",
+              "_ratio",
+              "_percentile",
+              "_unique_actions",
+              "_cleanup_temp_db"
+            ]
+          },
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          },
+          {
+            "path": "surface_adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "SurfaceFileCopy",
+              "SurfaceFileRepair",
+              "SurfaceFileAdapter",
+              "_file_sha256"
+            ]
+          }
+        ],
+        "context_views.py": [
+          {
+            "path": "benchmarks.py",
+            "batchIndex": 3,
+            "symbols": [
+              "run_benchmark_suite",
+              "verify_benchmark_bundle",
+              "evaluate_benchmark_gate",
+              "render_benchmark_gate_pretty",
+              "diff_benchmark_runs",
+              "render_benchmark_diff_pretty",
+              "write_holdout_benchmark_bundle",
+              "render_benchmark_pretty",
+              "render_benchmark_verification_pretty",
+              "_run_lossless_family",
+              "_run_readable_family",
+              "_run_surface_family",
+              "_run_retrieval_family",
+              "_run_embedding_family",
+              "_run_long_context_family",
+              "_run_persistence_family",
+              "_run_agent_task_family",
+              "_build_suite_summary",
+              "_aggregate_family_actions",
+              "_load_json_fixture",
+              "_default_lossless_cases",
+              "_default_readable_cases",
+              "_default_surface_cases",
+              "_surface_case_payload",
+              "_surface_query_checks",
+              "_surface_stored_query_and_repair_checks",
+              "_surface_flags",
+              "_surface_actions",
+              "_default_long_context_cases",
+              "_default_agent_task_cases",
+              "_resolve_lossless_text",
+              "_build_long_context_dsl",
+              "_dataset_manifest",
+              "_selected_suites",
+              "_fixture_for_family",
+              "_holdout_fixture_path",
+              "_validate_suite_name",
+              "_stamp_case_hash",
+              "_hash_payload",
+              "_load_benchmark_payload",
+              "_load_gate_policy",
+              "_gate_check",
+              "_flatten_benchmark_cases",
+              "_diff_case",
+              "_metric_delta",
+              "_numeric_metric",
+              "_lower_is_better",
+              "_status_delta",
+              "_status_marker",
+              "_case_ref",
+              "_run_ref",
+              "_lossless_actions",
+              "_quote_span_records",
+              "_compressed_quote_records",
+              "_read_rc1_text_direct",
+              "_benchmark_terms",
+              "_readable_query_checks",
+              "_expected_query_text",
+              "_hit_satisfies_expected",
+              "_readable_flags",
+              "_readable_actions",
+              "_retrieval_flags",
+              "_retrieval_actions",
+              "_embedding_actions",
+              "_long_context_flags",
+              "_long_context_actions",
+              "_agent_task_flags",
+              "_agent_task_actions",
+              "_render_key_metrics",
+              "_ndcg_at_k",
+              "_log2",
+              "_savings_ratio",
+              "_utc_now",
+              "_git_sha",
+              "_average",
+              "_ratio",
+              "_percentile",
+              "_unique_actions",
+              "_cleanup_temp_db"
+            ]
+          }
+        ],
+        "dashboard.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "models.py",
+            "batchIndex": 3,
+            "symbols": [
+              "EmbeddingModel",
+              "EmbeddingSettings",
+              "HashEmbeddingModel",
+              "SentenceTransformerModel",
+              "OpenAICompatibleEmbeddingModel",
+              "embedding_settings_from_env",
+              "default_embedding_model",
+              "cosine",
+              "_normalize",
+              "_tokens",
+              "_coerce_positive_int"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "doctor.py": [
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "holographic.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "pack.py",
+            "batchIndex": 2,
+            "symbols": [
+              "pack_records",
+              "_pack_id",
+              "unpack_exact_pack",
+              "pack_record",
+              "score_pack",
+              "_signal_for_record",
+              "_narrative_summary",
+              "_compact_signal",
+              "_context_entries_by_id",
+              "_list_field_retention",
+              "_mine_id_aliases",
+              "_encode_id",
+              "_decode_id",
+              "_records_token_cost"
+            ]
+          },
+          {
+            "path": "retrieval.py",
+            "batchIndex": 2,
+            "symbols": [
+              "RetrievalFlags",
+              "retrieval_flag_field_types",
+              "coerce_flag_value",
+              "resolve_retrieval_profile",
+              "_retrieval_env_overrides",
+              "retrieval_flags_from_env",
+              "_FlagStateStore",
+              "load_retrieval_flags",
+              "search_batch",
+              "_reasons",
+              "_fuse_weighted",
+              "_fuse_rrf",
+              "raw_search",
+              "_graph",
+              "_tokens",
+              "_lexical_score",
+              "_semantic_score",
+              "_graph_score",
+              "_grounding_entity_ids",
+              "_entity_grounded_score",
+              "_temporal_score",
+              "_expand_query"
+            ]
+          },
+          {
+            "path": "benchmarks.py",
+            "batchIndex": 3,
+            "symbols": [
+              "run_benchmark_suite",
+              "verify_benchmark_bundle",
+              "evaluate_benchmark_gate",
+              "render_benchmark_gate_pretty",
+              "diff_benchmark_runs",
+              "render_benchmark_diff_pretty",
+              "write_holdout_benchmark_bundle",
+              "render_benchmark_pretty",
+              "render_benchmark_verification_pretty",
+              "_run_lossless_family",
+              "_run_readable_family",
+              "_run_surface_family",
+              "_run_retrieval_family",
+              "_run_embedding_family",
+              "_run_long_context_family",
+              "_run_persistence_family",
+              "_run_agent_task_family",
+              "_build_suite_summary",
+              "_aggregate_family_actions",
+              "_load_json_fixture",
+              "_default_lossless_cases",
+              "_default_readable_cases",
+              "_default_surface_cases",
+              "_surface_case_payload",
+              "_surface_query_checks",
+              "_surface_stored_query_and_repair_checks",
+              "_surface_flags",
+              "_surface_actions",
+              "_default_long_context_cases",
+              "_default_agent_task_cases",
+              "_resolve_lossless_text",
+              "_build_long_context_dsl",
+              "_dataset_manifest",
+              "_selected_suites",
+              "_fixture_for_family",
+              "_holdout_fixture_path",
+              "_validate_suite_name",
+              "_stamp_case_hash",
+              "_hash_payload",
+              "_load_benchmark_payload",
+              "_load_gate_policy",
+              "_gate_check",
+              "_flatten_benchmark_cases",
+              "_diff_case",
+              "_metric_delta",
+              "_numeric_metric",
+              "_lower_is_better",
+              "_status_delta",
+              "_status_marker",
+              "_case_ref",
+              "_run_ref",
+              "_lossless_actions",
+              "_quote_span_records",
+              "_compressed_quote_records",
+              "_read_rc1_text_direct",
+              "_benchmark_terms",
+              "_readable_query_checks",
+              "_expected_query_text",
+              "_hit_satisfies_expected",
+              "_readable_flags",
+              "_readable_actions",
+              "_retrieval_flags",
+              "_retrieval_actions",
+              "_embedding_actions",
+              "_long_context_flags",
+              "_long_context_actions",
+              "_agent_task_flags",
+              "_agent_task_actions",
+              "_render_key_metrics",
+              "_ndcg_at_k",
+              "_log2",
+              "_savings_ratio",
+              "_utc_now",
+              "_git_sha",
+              "_average",
+              "_ratio",
+              "_percentile",
+              "_unique_actions",
+              "_cleanup_temp_db"
+            ]
+          }
+        ],
+        "installer.py": [
+          {
+            "path": "server.py",
+            "batchIndex": 4,
+            "symbols": [
+              "ShutdownState",
+              "_shutdown_timeout_from_env",
+              "_cleanup_runtime",
+              "ShutdownMiddleware",
+              "_require_fastapi",
+              "_require_uvicorn",
+              "RateLimiter",
+              "_rate_limit_from_env",
+              "_rate_limit_max_keys_from_env",
+              "_max_body_bytes_from_env",
+              "_cors_origins_from_env",
+              "_client_key",
+              "_RequestBodyTooLarge",
+              "BodySizeLimitMiddleware",
+              "_send_body_too_large",
+              "webui_dir",
+              "_mount_webui",
+              "_seam_chat_system_prompt",
+              "_env_chat_allowed_hosts",
+              "_validate_provider_base_url",
+              "_chat_opener",
+              "_call_chat_provider",
+              "_persist_chat_turn",
+              "_asserted_memory_context",
+              "create_app",
+              "run_server",
+              "_validate_server_safety",
+              "_is_remote_bind",
+              "_env_truthy",
+              "_tree_root",
+              "_tree_max_depth",
+              "_tree_max_entries",
+              "_resolve_tree_path",
+              "_walk_tree",
+              "create_app_from_env",
+              "main"
+            ]
+          }
+        ],
+        "lossless.py": [
+          {
+            "path": "benchmarks.py",
+            "batchIndex": 3,
+            "symbols": [
+              "run_benchmark_suite",
+              "verify_benchmark_bundle",
+              "evaluate_benchmark_gate",
+              "render_benchmark_gate_pretty",
+              "diff_benchmark_runs",
+              "render_benchmark_diff_pretty",
+              "write_holdout_benchmark_bundle",
+              "render_benchmark_pretty",
+              "render_benchmark_verification_pretty",
+              "_run_lossless_family",
+              "_run_readable_family",
+              "_run_surface_family",
+              "_run_retrieval_family",
+              "_run_embedding_family",
+              "_run_long_context_family",
+              "_run_persistence_family",
+              "_run_agent_task_family",
+              "_build_suite_summary",
+              "_aggregate_family_actions",
+              "_load_json_fixture",
+              "_default_lossless_cases",
+              "_default_readable_cases",
+              "_default_surface_cases",
+              "_surface_case_payload",
+              "_surface_query_checks",
+              "_surface_stored_query_and_repair_checks",
+              "_surface_flags",
+              "_surface_actions",
+              "_default_long_context_cases",
+              "_default_agent_task_cases",
+              "_resolve_lossless_text",
+              "_build_long_context_dsl",
+              "_dataset_manifest",
+              "_selected_suites",
+              "_fixture_for_family",
+              "_holdout_fixture_path",
+              "_validate_suite_name",
+              "_stamp_case_hash",
+              "_hash_payload",
+              "_load_benchmark_payload",
+              "_load_gate_policy",
+              "_gate_check",
+              "_flatten_benchmark_cases",
+              "_diff_case",
+              "_metric_delta",
+              "_numeric_metric",
+              "_lower_is_better",
+              "_status_delta",
+              "_status_marker",
+              "_case_ref",
+              "_run_ref",
+              "_lossless_actions",
+              "_quote_span_records",
+              "_compressed_quote_records",
+              "_read_rc1_text_direct",
+              "_benchmark_terms",
+              "_readable_query_checks",
+              "_expected_query_text",
+              "_hit_satisfies_expected",
+              "_readable_flags",
+              "_readable_actions",
+              "_retrieval_flags",
+              "_retrieval_actions",
+              "_embedding_actions",
+              "_long_context_flags",
+              "_long_context_actions",
+              "_agent_task_flags",
+              "_agent_task_actions",
+              "_render_key_metrics",
+              "_ndcg_at_k",
+              "_log2",
+              "_savings_ratio",
+              "_utc_now",
+              "_git_sha",
+              "_average",
+              "_ratio",
+              "_percentile",
+              "_unique_actions",
+              "_cleanup_temp_db"
+            ]
+          },
+          {
+            "path": "evals.py",
+            "batchIndex": 3,
+            "symbols": [
+              "RetrievalFixture",
+              "default_retrieval_fixtures",
+              "run_retrieval_benchmark",
+              "_compile_fixture_batch",
+              "_vector_scores",
+              "_rank_vector_only",
+              "_track_report",
+              "_aggregate_track",
+              "_aggregate_pack",
+              "_beats"
+            ]
+          }
+        ],
+        "lx1.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          }
+        ],
+        "mcp.py": [
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "mcp_protocol.py": [
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "__init__.py",
+          "language": "python",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        },
+        {
+          "path": "agent_memory.py",
+          "language": "python",
+          "sizeLines": 145,
+          "fileCategory": "code"
+        },
+        {
+          "path": "bm25.py",
+          "language": "python",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": "mirl.py",
+          "language": "python",
+          "sizeLines": 375,
+          "fileCategory": "code"
+        },
+        {
+          "path": "nl.py",
+          "language": "python",
+          "sizeLines": 774,
+          "fileCategory": "code"
+        },
+        {
+          "path": "pack.py",
+          "language": "python",
+          "sizeLines": 300,
+          "fileCategory": "code"
+        },
+        {
+          "path": "reconcile.py",
+          "language": "python",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retrieval.py",
+          "language": "python",
+          "sizeLines": 556,
+          "fileCategory": "code"
+        },
+        {
+          "path": "runtime.py",
+          "language": "python",
+          "sizeLines": 501,
+          "fileCategory": "code"
+        },
+        {
+          "path": "self_improve.py",
+          "language": "python",
+          "sizeLines": 900,
+          "fileCategory": "code"
+        },
+        {
+          "path": "symbols.py",
+          "language": "python",
+          "sizeLines": 249,
+          "fileCategory": "code"
+        },
+        {
+          "path": "temporal.py",
+          "language": "python",
+          "sizeLines": 127,
+          "fileCategory": "code"
+        },
+        {
+          "path": "transpile.py",
+          "language": "python",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "verify.py",
+          "language": "python",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "__init__.py": [
+          "mirl.py",
+          "runtime.py"
+        ],
+        "agent_memory.py": [
+          "mirl.py"
+        ],
+        "bm25.py": [],
+        "mirl.py": [],
+        "nl.py": [
+          "derived_fact_context.py",
+          "mirl.py"
+        ],
+        "pack.py": [
+          "mirl.py",
+          "symbols.py"
+        ],
+        "reconcile.py": [
+          "mirl.py"
+        ],
+        "retrieval.py": [
+          "bm25.py",
+          "mirl.py",
+          "symbols.py",
+          "temporal.py"
+        ],
+        "runtime.py": [
+          "agent_memory.py",
+          "benchmarks.py",
+          "dsl.py",
+          "evals.py",
+          "mirl.py",
+          "models.py",
+          "nl.py",
+          "pack.py",
+          "reconcile.py",
+          "retrieval.py",
+          "storage.py",
+          "symbols.py",
+          "transpile.py",
+          "vector_adapters.py",
+          "verify.py"
+        ],
+        "self_improve.py": [
+          "mirl.py",
+          "retrieval.py"
+        ],
+        "symbols.py": [
+          "mirl.py"
+        ],
+        "temporal.py": [],
+        "transpile.py": [
+          "mirl.py"
+        ],
+        "verify.py": [
+          "mirl.py"
+        ]
+      },
+      "neighborMap": {
+        "agent_memory.py": [
+          {
+            "path": "cli.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_import_run_improvement_cycle",
+              "_import_run_paid_validation",
+              "_parse_candidate_flags",
+              "_apply_candidate_profile",
+              "build_parser",
+              "run_cli",
+              "_split_ids",
+              "_run_agent_shell",
+              "_handle_shell_command",
+              "_confirm_holdout_run",
+              "_resolve_benchmark_ref",
+              "_read_text_source",
+              "_sha256_file",
+              "_resolve_surface_path",
+              "_store_surface_library_entry",
+              "_repair_surface_library_entry",
+              "_surface_repair_source",
+              "_write_text_output",
+              "_print_text",
+              "_render_lossless_demo_result",
+              "_render_readable_query_pretty",
+              "_render_surface_artifact_pretty",
+              "_render_surface_compile_pretty",
+              "_render_surface_verify_pretty",
+              "_render_surface_query_pretty",
+              "_render_surface_context_pretty",
+              "_render_surface_import_pretty",
+              "_render_surface_library_entry_pretty",
+              "_render_surface_library_list_pretty",
+              "_render_surface_repair_pretty",
+              "_render_ingest_report",
+              "_render_doctor_report",
+              "_add_retrieval_common_args",
+              "_add_rag_sync_args",
+              "_build_retrieval_orchestrator",
+              "_print_retrieval_output",
+              "_render_plan_pretty",
+              "_render_knowledge_graph_pretty",
+              "_render_knowledge_node_pretty",
+              "_render_search_pretty",
+              "_render_compare_pretty",
+              "_render_rag_sync_pretty",
+              "_render_ids",
+              "_render_lx1_benchmark_pretty",
+              "_render_bil_integrity_pretty",
+              "_current_git_sha",
+              "_render_publication_readiness_pretty",
+              "_record_signal"
+            ]
+          }
+        ],
+        "mirl.py": [
+          {
+            "path": "cli.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_import_run_improvement_cycle",
+              "_import_run_paid_validation",
+              "_parse_candidate_flags",
+              "_apply_candidate_profile",
+              "build_parser",
+              "run_cli",
+              "_split_ids",
+              "_run_agent_shell",
+              "_handle_shell_command",
+              "_confirm_holdout_run",
+              "_resolve_benchmark_ref",
+              "_read_text_source",
+              "_sha256_file",
+              "_resolve_surface_path",
+              "_store_surface_library_entry",
+              "_repair_surface_library_entry",
+              "_surface_repair_source",
+              "_write_text_output",
+              "_print_text",
+              "_render_lossless_demo_result",
+              "_render_readable_query_pretty",
+              "_render_surface_artifact_pretty",
+              "_render_surface_compile_pretty",
+              "_render_surface_verify_pretty",
+              "_render_surface_query_pretty",
+              "_render_surface_context_pretty",
+              "_render_surface_import_pretty",
+              "_render_surface_library_entry_pretty",
+              "_render_surface_library_list_pretty",
+              "_render_surface_repair_pretty",
+              "_render_ingest_report",
+              "_render_doctor_report",
+              "_add_retrieval_common_args",
+              "_add_rag_sync_args",
+              "_build_retrieval_orchestrator",
+              "_print_retrieval_output",
+              "_render_plan_pretty",
+              "_render_knowledge_graph_pretty",
+              "_render_knowledge_node_pretty",
+              "_render_search_pretty",
+              "_render_compare_pretty",
+              "_render_rag_sync_pretty",
+              "_render_ids",
+              "_render_lx1_benchmark_pretty",
+              "_render_bil_integrity_pretty",
+              "_current_git_sha",
+              "_render_publication_readiness_pretty",
+              "_record_signal"
+            ]
+          },
+          {
+            "path": "dashboard.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_build_retrieval_orchestrator",
+              "_write_private_text_file",
+              "_validate_shell_command",
+              "_validate_shell_cwd",
+              "_get_shell_timeout",
+              "DashboardMetrics",
+              "DashboardEvent",
+              "CommandPaletteItem",
+              "DashboardParser",
+              "SeamChatClient",
+              "DashboardApp",
+              "run_dashboard",
+              "_ensure_rich",
+              "_ensure_textual",
+              "main"
+            ]
+          },
+          {
+            "path": "derived_fact_context.py",
+            "batchIndex": 6,
+            "symbols": [
+              "resolve_derived_facts_policy",
+              "is_singular_first_person",
+              "canonical_turn_prefix_end",
+              "segment_propositions",
+              "_extractor_metadata",
+              "DerivedFactsConfig",
+              "DerivedFactsRuntime",
+              "configure_derived_facts",
+              "_refuse_enriched_store_on_off_path",
+              "_fingerprint",
+              "_write_or_validate_manifest",
+              "CachedExtractor",
+              "ScopedCachedExtractor",
+              "_extraction_to_dict",
+              "_extraction_from_dict",
+              "_sentence_facts_to_dict",
+              "_sentence_facts_from_dict",
+              "is_eligible_derived_claim",
+              "grounded_spans_match_source",
+              "sentence_grounded_fact_matches_source",
+              "multi_speaker_fact_matches_source",
+              "DerivedFact",
+              "splice_derived_facts"
+            ]
+          },
+          {
+            "path": "dsl.py",
+            "batchIndex": 3,
+            "symbols": [
+              "ParsedBlock",
+              "compile_dsl",
+              "_parse_blocks",
+              "_parse_field",
+              "_is_int_literal",
+              "_is_float_literal",
+              "_parse_scalar",
+              "_block_to_record",
+              "_ensure_list"
+            ]
+          },
+          {
+            "path": "holographic.py",
+            "batchIndex": 1,
+            "symbols": [
+              "SurfaceArtifact",
+              "SurfacePayload",
+              "SurfaceVerification",
+              "SurfaceQueryResult",
+              "HolographicReader",
+              "encode_surface",
+              "decode_surface",
+              "verify_surface",
+              "inspect_surface",
+              "query_surface",
+              "context_surface",
+              "_detect_payload_format",
+              "_looks_like_mirl",
+              "_normalize_surface_mode",
+              "_max_surface_payload_bytes",
+              "_container_to_pixels",
+              "_capacity_bytes",
+              "_parse_container",
+              "_write_png",
+              "_bounded_inflate",
+              "_read_png",
+              "_unfilter_png",
+              "_paeth",
+              "_png_chunk",
+              "_bits_to_bytes",
+              "_is_utf8"
+            ]
+          },
+          {
+            "path": "knowledge_graph.py",
+            "batchIndex": 4,
+            "symbols": [
+              "predicate_family",
+              "init_knowledge_graph",
+              "project_records",
+              "remove_records",
+              "supersede_source",
+              "query_graph",
+              "node_detail",
+              "assertable_record_ids",
+              "graph_stats",
+              "_project_record",
+              "_episode_ids",
+              "_upsert_node",
+              "_record_agent",
+              "_record_label",
+              "_epistemic_basis",
+              "_record_facets",
+              "_reference_values",
+              "_node_time_clauses",
+              "_edge_time_clauses",
+              "_episode_filter_clauses",
+              "_graph_episode_rows",
+              "_episode_provenance_edges",
+              "_node_episode_facets",
+              "_episode_is_independent",
+              "_evidence_key",
+              "_node_visible_at",
+              "_time_reached",
+              "_trust_profiles",
+              "_row_epistemic_basis",
+              "_graph_stats",
+              "_node_payload",
+              "_episode_node_payload",
+              "_edge_payload",
+              "_episode_payload",
+              "_page_summary",
+              "_query_payload",
+              "_load_record",
+              "_edge_id",
+              "_value_node_id",
+              "_agent_node_id",
+              "_kind_from_id",
+              "_label_from_id",
+              "_join_label",
+              "_truncate",
+              "_json"
+            ]
+          },
+          {
+            "path": "lx1.py",
+            "batchIndex": 1,
+            "symbols": [
+              "encode",
+              "decode",
+              "encode_record",
+              "decode_record",
+              "token_savings_report",
+              "_encode_val",
+              "_decode_val",
+              "_split_tokens"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "SQLAdapter",
+              "SemanticAdapter",
+              "SQLiteIRAdapter",
+              "SeamVectorSearchAdapter",
+              "SQLiteGraphAdapter",
+              "ChromaSemanticAdapter",
+              "_structured_reasons",
+              "_matched_filter_count",
+              "_lexical_score",
+              "_tokens",
+              "_unique_tokens",
+              "_build_structured_sql",
+              "_chroma_metadata"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/types.py",
+            "batchIndex": 5,
+            "symbols": [
+              "QueryIntent",
+              "QueryFilters",
+              "RetrievalLeg",
+              "RetrievalPlan",
+              "LegHit",
+              "RetrievalCandidate",
+              "RetrievalSearchResult",
+              "RAGResult"
+            ]
+          },
+          {
+            "path": "server.py",
+            "batchIndex": 4,
+            "symbols": [
+              "ShutdownState",
+              "_shutdown_timeout_from_env",
+              "_cleanup_runtime",
+              "ShutdownMiddleware",
+              "_require_fastapi",
+              "_require_uvicorn",
+              "RateLimiter",
+              "_rate_limit_from_env",
+              "_rate_limit_max_keys_from_env",
+              "_max_body_bytes_from_env",
+              "_cors_origins_from_env",
+              "_client_key",
+              "_RequestBodyTooLarge",
+              "BodySizeLimitMiddleware",
+              "_send_body_too_large",
+              "webui_dir",
+              "_mount_webui",
+              "_seam_chat_system_prompt",
+              "_env_chat_allowed_hosts",
+              "_validate_provider_base_url",
+              "_chat_opener",
+              "_call_chat_provider",
+              "_persist_chat_turn",
+              "_asserted_memory_context",
+              "create_app",
+              "run_server",
+              "_validate_server_safety",
+              "_is_remote_bind",
+              "_env_truthy",
+              "_tree_root",
+              "_tree_max_depth",
+              "_tree_max_entries",
+              "_resolve_tree_path",
+              "_walk_tree",
+              "create_app_from_env",
+              "main"
+            ]
+          },
+          {
+            "path": "storage.py",
+            "batchIndex": 4,
+            "symbols": [
+              "SQLiteStore",
+              "_retrieval_event_row",
+              "_improvement_proposal_row",
+              "_proposal_decision_row",
+              "_document_status_row",
+              "_normalize_entity_label",
+              "_load_record_by_id",
+              "_trace_refs",
+              "_surface_artifact_row",
+              "_file_sha256"
+            ]
+          },
+          {
+            "path": "vector.py",
+            "batchIndex": 3,
+            "symbols": [
+              "_VectorCache",
+              "SQLiteVectorIndex",
+              "_source_hash"
+            ]
+          },
+          {
+            "path": "vector_adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "VectorAdapter",
+              "SQLiteVectorAdapter",
+              "PgVectorAdapter",
+              "_validate_table_name",
+              "_vector_literal",
+              "_hash_text"
+            ]
+          },
+          {
+            "path": "workspace.py",
+            "batchIndex": 4,
+            "symbols": [
+              "_list",
+              "_normalized_key",
+              "_forbidden_key",
+              "_sanitize_schema_value",
+              "sanitize_workspace_payload",
+              "sanitize_workspace_metadata",
+              "WorkspaceRun",
+              "WorkspaceEvent",
+              "init_workspace_schema",
+              "create_workspace_run",
+              "append_workspace_event",
+              "workspace_event_from_row",
+              "workspace_run_from_row",
+              "run_status",
+              "sse_frame",
+              "content_fingerprint",
+              "spread_graph_activation"
+            ]
+          }
+        ],
+        "nl.py": [
+          {
+            "path": "derived_fact_context.py",
+            "batchIndex": 6,
+            "symbols": [
+              "resolve_derived_facts_policy",
+              "is_singular_first_person",
+              "canonical_turn_prefix_end",
+              "segment_propositions",
+              "_extractor_metadata",
+              "DerivedFactsConfig",
+              "DerivedFactsRuntime",
+              "configure_derived_facts",
+              "_refuse_enriched_store_on_off_path",
+              "_fingerprint",
+              "_write_or_validate_manifest",
+              "CachedExtractor",
+              "ScopedCachedExtractor",
+              "_extraction_to_dict",
+              "_extraction_from_dict",
+              "_sentence_facts_to_dict",
+              "_sentence_facts_from_dict",
+              "is_eligible_derived_claim",
+              "grounded_spans_match_source",
+              "sentence_grounded_fact_matches_source",
+              "multi_speaker_fact_matches_source",
+              "DerivedFact",
+              "splice_derived_facts"
+            ]
+          }
+        ],
+        "pack.py": [
+          {
+            "path": "evals.py",
+            "batchIndex": 3,
+            "symbols": [
+              "RetrievalFixture",
+              "default_retrieval_fixtures",
+              "run_retrieval_benchmark",
+              "_compile_fixture_batch",
+              "_vector_scores",
+              "_rank_vector_only",
+              "_track_report",
+              "_aggregate_track",
+              "_aggregate_pack",
+              "_beats"
+            ]
+          },
+          {
+            "path": "holographic.py",
+            "batchIndex": 1,
+            "symbols": [
+              "SurfaceArtifact",
+              "SurfacePayload",
+              "SurfaceVerification",
+              "SurfaceQueryResult",
+              "HolographicReader",
+              "encode_surface",
+              "decode_surface",
+              "verify_surface",
+              "inspect_surface",
+              "query_surface",
+              "context_surface",
+              "_detect_payload_format",
+              "_looks_like_mirl",
+              "_normalize_surface_mode",
+              "_max_surface_payload_bytes",
+              "_container_to_pixels",
+              "_capacity_bytes",
+              "_parse_container",
+              "_write_png",
+              "_bounded_inflate",
+              "_read_png",
+              "_unfilter_png",
+              "_paeth",
+              "_png_chunk",
+              "_bits_to_bytes",
+              "_is_utf8"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/orchestrator.py",
+            "batchIndex": 5,
+            "symbols": [
+              "RetrievalOrchestrator"
+            ]
+          }
+        ],
+        "retrieval.py": [
+          {
+            "path": "evals.py",
+            "batchIndex": 3,
+            "symbols": [
+              "RetrievalFixture",
+              "default_retrieval_fixtures",
+              "run_retrieval_benchmark",
+              "_compile_fixture_batch",
+              "_vector_scores",
+              "_rank_vector_only",
+              "_track_report",
+              "_aggregate_track",
+              "_aggregate_pack",
+              "_beats"
+            ]
+          },
+          {
+            "path": "holographic.py",
+            "batchIndex": 1,
+            "symbols": [
+              "SurfaceArtifact",
+              "SurfacePayload",
+              "SurfaceVerification",
+              "SurfaceQueryResult",
+              "HolographicReader",
+              "encode_surface",
+              "decode_surface",
+              "verify_surface",
+              "inspect_surface",
+              "query_surface",
+              "context_surface",
+              "_detect_payload_format",
+              "_looks_like_mirl",
+              "_normalize_surface_mode",
+              "_max_surface_payload_bytes",
+              "_container_to_pixels",
+              "_capacity_bytes",
+              "_parse_container",
+              "_write_png",
+              "_bounded_inflate",
+              "_read_png",
+              "_unfilter_png",
+              "_paeth",
+              "_png_chunk",
+              "_bits_to_bytes",
+              "_is_utf8"
+            ]
+          }
+        ],
+        "runtime.py": [
+          {
+            "path": "benchmarks.py",
+            "batchIndex": 3,
+            "symbols": [
+              "run_benchmark_suite",
+              "verify_benchmark_bundle",
+              "evaluate_benchmark_gate",
+              "render_benchmark_gate_pretty",
+              "diff_benchmark_runs",
+              "render_benchmark_diff_pretty",
+              "write_holdout_benchmark_bundle",
+              "render_benchmark_pretty",
+              "render_benchmark_verification_pretty",
+              "_run_lossless_family",
+              "_run_readable_family",
+              "_run_surface_family",
+              "_run_retrieval_family",
+              "_run_embedding_family",
+              "_run_long_context_family",
+              "_run_persistence_family",
+              "_run_agent_task_family",
+              "_build_suite_summary",
+              "_aggregate_family_actions",
+              "_load_json_fixture",
+              "_default_lossless_cases",
+              "_default_readable_cases",
+              "_default_surface_cases",
+              "_surface_case_payload",
+              "_surface_query_checks",
+              "_surface_stored_query_and_repair_checks",
+              "_surface_flags",
+              "_surface_actions",
+              "_default_long_context_cases",
+              "_default_agent_task_cases",
+              "_resolve_lossless_text",
+              "_build_long_context_dsl",
+              "_dataset_manifest",
+              "_selected_suites",
+              "_fixture_for_family",
+              "_holdout_fixture_path",
+              "_validate_suite_name",
+              "_stamp_case_hash",
+              "_hash_payload",
+              "_load_benchmark_payload",
+              "_load_gate_policy",
+              "_gate_check",
+              "_flatten_benchmark_cases",
+              "_diff_case",
+              "_metric_delta",
+              "_numeric_metric",
+              "_lower_is_better",
+              "_status_delta",
+              "_status_marker",
+              "_case_ref",
+              "_run_ref",
+              "_lossless_actions",
+              "_quote_span_records",
+              "_compressed_quote_records",
+              "_read_rc1_text_direct",
+              "_benchmark_terms",
+              "_readable_query_checks",
+              "_expected_query_text",
+              "_hit_satisfies_expected",
+              "_readable_flags",
+              "_readable_actions",
+              "_retrieval_flags",
+              "_retrieval_actions",
+              "_embedding_actions",
+              "_long_context_flags",
+              "_long_context_actions",
+              "_agent_task_flags",
+              "_agent_task_actions",
+              "_render_key_metrics",
+              "_ndcg_at_k",
+              "_log2",
+              "_savings_ratio",
+              "_utc_now",
+              "_git_sha",
+              "_average",
+              "_ratio",
+              "_percentile",
+              "_unique_actions",
+              "_cleanup_temp_db"
+            ]
+          },
+          {
+            "path": "dsl.py",
+            "batchIndex": 3,
+            "symbols": [
+              "ParsedBlock",
+              "compile_dsl",
+              "_parse_blocks",
+              "_parse_field",
+              "_is_int_literal",
+              "_is_float_literal",
+              "_parse_scalar",
+              "_block_to_record",
+              "_ensure_list"
+            ]
+          },
+          {
+            "path": "evals.py",
+            "batchIndex": 3,
+            "symbols": [
+              "RetrievalFixture",
+              "default_retrieval_fixtures",
+              "run_retrieval_benchmark",
+              "_compile_fixture_batch",
+              "_vector_scores",
+              "_rank_vector_only",
+              "_track_report",
+              "_aggregate_track",
+              "_aggregate_pack",
+              "_beats"
+            ]
+          },
+          {
+            "path": "models.py",
+            "batchIndex": 3,
+            "symbols": [
+              "EmbeddingModel",
+              "EmbeddingSettings",
+              "HashEmbeddingModel",
+              "SentenceTransformerModel",
+              "OpenAICompatibleEmbeddingModel",
+              "embedding_settings_from_env",
+              "default_embedding_model",
+              "cosine",
+              "_normalize",
+              "_tokens",
+              "_coerce_positive_int"
+            ]
+          },
+          {
+            "path": "storage.py",
+            "batchIndex": 4,
+            "symbols": [
+              "SQLiteStore",
+              "_retrieval_event_row",
+              "_improvement_proposal_row",
+              "_proposal_decision_row",
+              "_document_status_row",
+              "_normalize_entity_label",
+              "_load_record_by_id",
+              "_trace_refs",
+              "_surface_artifact_row",
+              "_file_sha256"
+            ]
+          },
+          {
+            "path": "vector_adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "VectorAdapter",
+              "SQLiteVectorAdapter",
+              "PgVectorAdapter",
+              "_validate_table_name",
+              "_vector_literal",
+              "_hash_text"
+            ]
+          },
+          {
+            "path": "cli.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_import_run_improvement_cycle",
+              "_import_run_paid_validation",
+              "_parse_candidate_flags",
+              "_apply_candidate_profile",
+              "build_parser",
+              "run_cli",
+              "_split_ids",
+              "_run_agent_shell",
+              "_handle_shell_command",
+              "_confirm_holdout_run",
+              "_resolve_benchmark_ref",
+              "_read_text_source",
+              "_sha256_file",
+              "_resolve_surface_path",
+              "_store_surface_library_entry",
+              "_repair_surface_library_entry",
+              "_surface_repair_source",
+              "_write_text_output",
+              "_print_text",
+              "_render_lossless_demo_result",
+              "_render_readable_query_pretty",
+              "_render_surface_artifact_pretty",
+              "_render_surface_compile_pretty",
+              "_render_surface_verify_pretty",
+              "_render_surface_query_pretty",
+              "_render_surface_context_pretty",
+              "_render_surface_import_pretty",
+              "_render_surface_library_entry_pretty",
+              "_render_surface_library_list_pretty",
+              "_render_surface_repair_pretty",
+              "_render_ingest_report",
+              "_render_doctor_report",
+              "_add_retrieval_common_args",
+              "_add_rag_sync_args",
+              "_build_retrieval_orchestrator",
+              "_print_retrieval_output",
+              "_render_plan_pretty",
+              "_render_knowledge_graph_pretty",
+              "_render_knowledge_node_pretty",
+              "_render_search_pretty",
+              "_render_compare_pretty",
+              "_render_rag_sync_pretty",
+              "_render_ids",
+              "_render_lx1_benchmark_pretty",
+              "_render_bil_integrity_pretty",
+              "_current_git_sha",
+              "_render_publication_readiness_pretty",
+              "_record_signal"
+            ]
+          },
+          {
+            "path": "dashboard.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_build_retrieval_orchestrator",
+              "_write_private_text_file",
+              "_validate_shell_command",
+              "_validate_shell_cwd",
+              "_get_shell_timeout",
+              "DashboardMetrics",
+              "DashboardEvent",
+              "CommandPaletteItem",
+              "DashboardParser",
+              "SeamChatClient",
+              "DashboardApp",
+              "run_dashboard",
+              "_ensure_rich",
+              "_ensure_textual",
+              "main"
+            ]
+          },
+          {
+            "path": "doctor.py",
+            "batchIndex": 1,
+            "symbols": [
+              "check_pgvector",
+              "_import_streams_verify_all",
+              "check_streams",
+              "check_commit_gate",
+              "check_stashes",
+              "build_doctor_report"
+            ]
+          },
+          {
+            "path": "mcp.py",
+            "batchIndex": 1,
+            "symbols": [
+              "run_stdio_bridge",
+              "dispatch_tool",
+              "_bounded_int",
+              "_required_text",
+              "_coerced_record_ids",
+              "_validated_pack_mode",
+              "_paginated",
+              "_validated_hs_ref",
+              "_resolve_registered_surface_path",
+              "_redact_doctor_report",
+              "_write"
+            ]
+          },
+          {
+            "path": "mcp_protocol.py",
+            "batchIndex": 1,
+            "symbols": [
+              "JsonRpcError",
+              "_read_capped_lines",
+              "_read_capped_binary_lines",
+              "run_mcp_server",
+              "_handle_jsonrpc_line",
+              "_handle_jsonrpc_message",
+              "_dispatch_mcp_method",
+              "_call_tool",
+              "_mcp_tool_definition",
+              "_mcp_input_schema",
+              "_mcp_property_schema",
+              "_error_response",
+              "_write_jsonrpc",
+              "main"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/orchestrator.py",
+            "batchIndex": 5,
+            "symbols": [
+              "RetrievalOrchestrator"
+            ]
+          },
+          {
+            "path": "server.py",
+            "batchIndex": 4,
+            "symbols": [
+              "ShutdownState",
+              "_shutdown_timeout_from_env",
+              "_cleanup_runtime",
+              "ShutdownMiddleware",
+              "_require_fastapi",
+              "_require_uvicorn",
+              "RateLimiter",
+              "_rate_limit_from_env",
+              "_rate_limit_max_keys_from_env",
+              "_max_body_bytes_from_env",
+              "_cors_origins_from_env",
+              "_client_key",
+              "_RequestBodyTooLarge",
+              "BodySizeLimitMiddleware",
+              "_send_body_too_large",
+              "webui_dir",
+              "_mount_webui",
+              "_seam_chat_system_prompt",
+              "_env_chat_allowed_hosts",
+              "_validate_provider_base_url",
+              "_chat_opener",
+              "_call_chat_provider",
+              "_persist_chat_turn",
+              "_asserted_memory_context",
+              "create_app",
+              "run_server",
+              "_validate_server_safety",
+              "_is_remote_bind",
+              "_env_truthy",
+              "_tree_root",
+              "_tree_max_depth",
+              "_tree_max_entries",
+              "_resolve_tree_path",
+              "_walk_tree",
+              "create_app_from_env",
+              "main"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "benchmarks.py",
+          "language": "python",
+          "sizeLines": 2346,
+          "fileCategory": "code"
+        },
+        {
+          "path": "dsl.py",
+          "language": "python",
+          "sizeLines": 189,
+          "fileCategory": "code"
+        },
+        {
+          "path": "evals.py",
+          "language": "python",
+          "sizeLines": 191,
+          "fileCategory": "code"
+        },
+        {
+          "path": "models.py",
+          "language": "python",
+          "sizeLines": 251,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retrieval_orchestrator/adapters.py",
+          "language": "python",
+          "sizeLines": 457,
+          "fileCategory": "code"
+        },
+        {
+          "path": "surface_adapters.py",
+          "language": "python",
+          "sizeLines": 151,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vector.py",
+          "language": "python",
+          "sizeLines": 310,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vector_adapters.py",
+          "language": "python",
+          "sizeLines": 294,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "benchmarks.py": [
+          "context_views.py",
+          "dsl.py",
+          "evals.py",
+          "holographic.py",
+          "lossless.py",
+          "models.py",
+          "storage.py",
+          "surface_adapters.py",
+          "vector.py"
+        ],
+        "dsl.py": [
+          "mirl.py"
+        ],
+        "evals.py": [
+          "dsl.py",
+          "lossless.py",
+          "models.py",
+          "pack.py",
+          "retrieval.py",
+          "vector.py"
+        ],
+        "models.py": [],
+        "retrieval_orchestrator/adapters.py": [
+          "mirl.py",
+          "models.py",
+          "retrieval_orchestrator/types.py",
+          "storage.py",
+          "vector.py",
+          "vector_adapters.py"
+        ],
+        "surface_adapters.py": [],
+        "vector.py": [
+          "mirl.py",
+          "models.py"
+        ],
+        "vector_adapters.py": [
+          "mirl.py",
+          "models.py",
+          "vector.py"
+        ]
+      },
+      "neighborMap": {
+        "benchmarks.py": [
+          {
+            "path": "context_views.py",
+            "batchIndex": 1,
+            "symbols": [
+              "build_context_payload",
+              "render_context_pretty",
+              "_build_context_output",
+              "_build_prompt_text",
+              "_build_evidence_rows",
+              "_build_summary",
+              "_record_signal",
+              "_format_sources",
+              "_format_counter"
+            ]
+          },
+          {
+            "path": "holographic.py",
+            "batchIndex": 1,
+            "symbols": [
+              "SurfaceArtifact",
+              "SurfacePayload",
+              "SurfaceVerification",
+              "SurfaceQueryResult",
+              "HolographicReader",
+              "encode_surface",
+              "decode_surface",
+              "verify_surface",
+              "inspect_surface",
+              "query_surface",
+              "context_surface",
+              "_detect_payload_format",
+              "_looks_like_mirl",
+              "_normalize_surface_mode",
+              "_max_surface_payload_bytes",
+              "_container_to_pixels",
+              "_capacity_bytes",
+              "_parse_container",
+              "_write_png",
+              "_bounded_inflate",
+              "_read_png",
+              "_unfilter_png",
+              "_paeth",
+              "_png_chunk",
+              "_bits_to_bytes",
+              "_is_utf8"
+            ]
+          },
+          {
+            "path": "lossless.py",
+            "batchIndex": 1,
+            "symbols": [
+              "LosslessArtifact",
+              "LosslessAttempt",
+              "LosslessBenchmarkResult",
+              "ReadableCompressionArtifact",
+              "ReadableQueryHit",
+              "ReadableQueryResult",
+              "estimate_prompt_tokens",
+              "count_prompt_tokens",
+              "compress_text_lossless",
+              "compress_text_readable",
+              "decompress_text_readable",
+              "decompress_text_lossless",
+              "query_readable_compressed",
+              "benchmark_text_lossless",
+              "render_lossless_benchmark_pretty",
+              "parse_lossless_machine_text",
+              "parse_readable_machine_text",
+              "lossless_benchmark_json",
+              "_run_lossless_search",
+              "_artifact_key",
+              "_compress_variant",
+              "_approximate_prompt_tokens",
+              "_resolve_token_counter",
+              "_load_tiktoken_encoding",
+              "_collect_round_flags",
+              "_apply_transform",
+              "_restore_transform",
+              "_build_table_payload",
+              "_split_paragraph_blocks",
+              "_resolved_readable_granularity",
+              "_split_readable_parts",
+              "_split_fixed_readable_chunks",
+              "_readable_terms",
+              "_structural_quote_spans",
+              "_extract_readable_quotes",
+              "_chunk_id_for_span",
+              "_build_readable_term_index",
+              "_quoted_phrases",
+              "_readable_match_score",
+              "_chunk_occurrence_lookup"
+            ]
+          },
+          {
+            "path": "storage.py",
+            "batchIndex": 4,
+            "symbols": [
+              "SQLiteStore",
+              "_retrieval_event_row",
+              "_improvement_proposal_row",
+              "_proposal_decision_row",
+              "_document_status_row",
+              "_normalize_entity_label",
+              "_load_record_by_id",
+              "_trace_refs",
+              "_surface_artifact_row",
+              "_file_sha256"
+            ]
+          },
+          {
+            "path": "cli.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_import_run_improvement_cycle",
+              "_import_run_paid_validation",
+              "_parse_candidate_flags",
+              "_apply_candidate_profile",
+              "build_parser",
+              "run_cli",
+              "_split_ids",
+              "_run_agent_shell",
+              "_handle_shell_command",
+              "_confirm_holdout_run",
+              "_resolve_benchmark_ref",
+              "_read_text_source",
+              "_sha256_file",
+              "_resolve_surface_path",
+              "_store_surface_library_entry",
+              "_repair_surface_library_entry",
+              "_surface_repair_source",
+              "_write_text_output",
+              "_print_text",
+              "_render_lossless_demo_result",
+              "_render_readable_query_pretty",
+              "_render_surface_artifact_pretty",
+              "_render_surface_compile_pretty",
+              "_render_surface_verify_pretty",
+              "_render_surface_query_pretty",
+              "_render_surface_context_pretty",
+              "_render_surface_import_pretty",
+              "_render_surface_library_entry_pretty",
+              "_render_surface_library_list_pretty",
+              "_render_surface_repair_pretty",
+              "_render_ingest_report",
+              "_render_doctor_report",
+              "_add_retrieval_common_args",
+              "_add_rag_sync_args",
+              "_build_retrieval_orchestrator",
+              "_print_retrieval_output",
+              "_render_plan_pretty",
+              "_render_knowledge_graph_pretty",
+              "_render_knowledge_node_pretty",
+              "_render_search_pretty",
+              "_render_compare_pretty",
+              "_render_rag_sync_pretty",
+              "_render_ids",
+              "_render_lx1_benchmark_pretty",
+              "_render_bil_integrity_pretty",
+              "_current_git_sha",
+              "_render_publication_readiness_pretty",
+              "_record_signal"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "dsl.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "evals.py": [
+          {
+            "path": "lossless.py",
+            "batchIndex": 1,
+            "symbols": [
+              "LosslessArtifact",
+              "LosslessAttempt",
+              "LosslessBenchmarkResult",
+              "ReadableCompressionArtifact",
+              "ReadableQueryHit",
+              "ReadableQueryResult",
+              "estimate_prompt_tokens",
+              "count_prompt_tokens",
+              "compress_text_lossless",
+              "compress_text_readable",
+              "decompress_text_readable",
+              "decompress_text_lossless",
+              "query_readable_compressed",
+              "benchmark_text_lossless",
+              "render_lossless_benchmark_pretty",
+              "parse_lossless_machine_text",
+              "parse_readable_machine_text",
+              "lossless_benchmark_json",
+              "_run_lossless_search",
+              "_artifact_key",
+              "_compress_variant",
+              "_approximate_prompt_tokens",
+              "_resolve_token_counter",
+              "_load_tiktoken_encoding",
+              "_collect_round_flags",
+              "_apply_transform",
+              "_restore_transform",
+              "_build_table_payload",
+              "_split_paragraph_blocks",
+              "_resolved_readable_granularity",
+              "_split_readable_parts",
+              "_split_fixed_readable_chunks",
+              "_readable_terms",
+              "_structural_quote_spans",
+              "_extract_readable_quotes",
+              "_chunk_id_for_span",
+              "_build_readable_term_index",
+              "_quoted_phrases",
+              "_readable_match_score",
+              "_chunk_occurrence_lookup"
+            ]
+          },
+          {
+            "path": "pack.py",
+            "batchIndex": 2,
+            "symbols": [
+              "pack_records",
+              "_pack_id",
+              "unpack_exact_pack",
+              "pack_record",
+              "score_pack",
+              "_signal_for_record",
+              "_narrative_summary",
+              "_compact_signal",
+              "_context_entries_by_id",
+              "_list_field_retention",
+              "_mine_id_aliases",
+              "_encode_id",
+              "_decode_id",
+              "_records_token_cost"
+            ]
+          },
+          {
+            "path": "retrieval.py",
+            "batchIndex": 2,
+            "symbols": [
+              "RetrievalFlags",
+              "retrieval_flag_field_types",
+              "coerce_flag_value",
+              "resolve_retrieval_profile",
+              "_retrieval_env_overrides",
+              "retrieval_flags_from_env",
+              "_FlagStateStore",
+              "load_retrieval_flags",
+              "search_batch",
+              "_reasons",
+              "_fuse_weighted",
+              "_fuse_rrf",
+              "raw_search",
+              "_graph",
+              "_tokens",
+              "_lexical_score",
+              "_semantic_score",
+              "_graph_score",
+              "_grounding_entity_ids",
+              "_entity_grounded_score",
+              "_temporal_score",
+              "_expand_query"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "models.py": [
+          {
+            "path": "dashboard.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_build_retrieval_orchestrator",
+              "_write_private_text_file",
+              "_validate_shell_command",
+              "_validate_shell_cwd",
+              "_get_shell_timeout",
+              "DashboardMetrics",
+              "DashboardEvent",
+              "CommandPaletteItem",
+              "DashboardParser",
+              "SeamChatClient",
+              "DashboardApp",
+              "run_dashboard",
+              "_ensure_rich",
+              "_ensure_textual",
+              "main"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "retrieval_orchestrator/adapters.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/types.py",
+            "batchIndex": 5,
+            "symbols": [
+              "QueryIntent",
+              "QueryFilters",
+              "RetrievalLeg",
+              "RetrievalPlan",
+              "LegHit",
+              "RetrievalCandidate",
+              "RetrievalSearchResult",
+              "RAGResult"
+            ]
+          },
+          {
+            "path": "storage.py",
+            "batchIndex": 4,
+            "symbols": [
+              "SQLiteStore",
+              "_retrieval_event_row",
+              "_improvement_proposal_row",
+              "_proposal_decision_row",
+              "_document_status_row",
+              "_normalize_entity_label",
+              "_load_record_by_id",
+              "_trace_refs",
+              "_surface_artifact_row",
+              "_file_sha256"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/__init__.py",
+            "batchIndex": 5,
+            "symbols": []
+          },
+          {
+            "path": "retrieval_orchestrator/orchestrator.py",
+            "batchIndex": 5,
+            "symbols": [
+              "RetrievalOrchestrator"
+            ]
+          }
+        ],
+        "surface_adapters.py": [
+          {
+            "path": "cli.py",
+            "batchIndex": 1,
+            "symbols": [
+              "_import_run_improvement_cycle",
+              "_import_run_paid_validation",
+              "_parse_candidate_flags",
+              "_apply_candidate_profile",
+              "build_parser",
+              "run_cli",
+              "_split_ids",
+              "_run_agent_shell",
+              "_handle_shell_command",
+              "_confirm_holdout_run",
+              "_resolve_benchmark_ref",
+              "_read_text_source",
+              "_sha256_file",
+              "_resolve_surface_path",
+              "_store_surface_library_entry",
+              "_repair_surface_library_entry",
+              "_surface_repair_source",
+              "_write_text_output",
+              "_print_text",
+              "_render_lossless_demo_result",
+              "_render_readable_query_pretty",
+              "_render_surface_artifact_pretty",
+              "_render_surface_compile_pretty",
+              "_render_surface_verify_pretty",
+              "_render_surface_query_pretty",
+              "_render_surface_context_pretty",
+              "_render_surface_import_pretty",
+              "_render_surface_library_entry_pretty",
+              "_render_surface_library_list_pretty",
+              "_render_surface_repair_pretty",
+              "_render_ingest_report",
+              "_render_doctor_report",
+              "_add_retrieval_common_args",
+              "_add_rag_sync_args",
+              "_build_retrieval_orchestrator",
+              "_print_retrieval_output",
+              "_render_plan_pretty",
+              "_render_knowledge_graph_pretty",
+              "_render_knowledge_node_pretty",
+              "_render_search_pretty",
+              "_render_compare_pretty",
+              "_render_rag_sync_pretty",
+              "_render_ids",
+              "_render_lx1_benchmark_pretty",
+              "_render_bil_integrity_pretty",
+              "_current_git_sha",
+              "_render_publication_readiness_pretty",
+              "_record_signal"
+            ]
+          }
+        ],
+        "vector.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          }
+        ],
+        "vector_adapters.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "jspace.py",
+          "language": "python",
+          "sizeLines": 539,
+          "fileCategory": "code"
+        },
+        {
+          "path": "knowledge_graph.py",
+          "language": "python",
+          "sizeLines": 2112,
+          "fileCategory": "code"
+        },
+        {
+          "path": "pool.py",
+          "language": "python",
+          "sizeLines": 169,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retry.py",
+          "language": "python",
+          "sizeLines": 175,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server.py",
+          "language": "python",
+          "sizeLines": 1480,
+          "fileCategory": "code"
+        },
+        {
+          "path": "storage.py",
+          "language": "python",
+          "sizeLines": 1966,
+          "fileCategory": "code"
+        },
+        {
+          "path": "workspace.py",
+          "language": "python",
+          "sizeLines": 618,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "jspace.py": [],
+        "knowledge_graph.py": [
+          "mirl.py"
+        ],
+        "pool.py": [],
+        "retry.py": [],
+        "server.py": [
+          "installer.py",
+          "jspace.py",
+          "mirl.py",
+          "runtime.py",
+          "workspace.py"
+        ],
+        "storage.py": [
+          "knowledge_graph.py",
+          "mirl.py",
+          "pool.py",
+          "retry.py",
+          "workspace.py"
+        ],
+        "workspace.py": [
+          "mirl.py"
+        ]
+      },
+      "neighborMap": {
+        "knowledge_graph.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          }
+        ],
+        "server.py": [
+          {
+            "path": "installer.py",
+            "batchIndex": 1,
+            "symbols": [
+              "InstallLayout",
+              "DevInstallResult",
+              "_is_windows_host",
+              "detect_layout",
+              "ensure_virtualenv",
+              "repo_venv_python",
+              "ensure_repo_virtualenv",
+              "install_repo",
+              "install_repo_dev_environment",
+              "latest_history_entry_ids",
+              "run_repo_dev_checks",
+              "ensure_persistence",
+              "render_windows_cmd_shim",
+              "render_posix_shim",
+              "write_shims",
+              "ensure_path_access",
+              "run_doctor",
+              "path_in_environment",
+              "_ensure_windows_user_path",
+              "_powershell_single_quoted",
+              "_ensure_posix_shell_profiles",
+              "current_platform_label",
+              "default_runtime_db_path"
+            ]
+          },
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "storage.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "benchmarks.py",
+            "batchIndex": 3,
+            "symbols": [
+              "run_benchmark_suite",
+              "verify_benchmark_bundle",
+              "evaluate_benchmark_gate",
+              "render_benchmark_gate_pretty",
+              "diff_benchmark_runs",
+              "render_benchmark_diff_pretty",
+              "write_holdout_benchmark_bundle",
+              "render_benchmark_pretty",
+              "render_benchmark_verification_pretty",
+              "_run_lossless_family",
+              "_run_readable_family",
+              "_run_surface_family",
+              "_run_retrieval_family",
+              "_run_embedding_family",
+              "_run_long_context_family",
+              "_run_persistence_family",
+              "_run_agent_task_family",
+              "_build_suite_summary",
+              "_aggregate_family_actions",
+              "_load_json_fixture",
+              "_default_lossless_cases",
+              "_default_readable_cases",
+              "_default_surface_cases",
+              "_surface_case_payload",
+              "_surface_query_checks",
+              "_surface_stored_query_and_repair_checks",
+              "_surface_flags",
+              "_surface_actions",
+              "_default_long_context_cases",
+              "_default_agent_task_cases",
+              "_resolve_lossless_text",
+              "_build_long_context_dsl",
+              "_dataset_manifest",
+              "_selected_suites",
+              "_fixture_for_family",
+              "_holdout_fixture_path",
+              "_validate_suite_name",
+              "_stamp_case_hash",
+              "_hash_payload",
+              "_load_benchmark_payload",
+              "_load_gate_policy",
+              "_gate_check",
+              "_flatten_benchmark_cases",
+              "_diff_case",
+              "_metric_delta",
+              "_numeric_metric",
+              "_lower_is_better",
+              "_status_delta",
+              "_status_marker",
+              "_case_ref",
+              "_run_ref",
+              "_lossless_actions",
+              "_quote_span_records",
+              "_compressed_quote_records",
+              "_read_rc1_text_direct",
+              "_benchmark_terms",
+              "_readable_query_checks",
+              "_expected_query_text",
+              "_hit_satisfies_expected",
+              "_readable_flags",
+              "_readable_actions",
+              "_retrieval_flags",
+              "_retrieval_actions",
+              "_embedding_actions",
+              "_long_context_flags",
+              "_long_context_actions",
+              "_agent_task_flags",
+              "_agent_task_actions",
+              "_render_key_metrics",
+              "_ndcg_at_k",
+              "_log2",
+              "_savings_ratio",
+              "_utc_now",
+              "_git_sha",
+              "_average",
+              "_ratio",
+              "_percentile",
+              "_unique_actions",
+              "_cleanup_temp_db"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "SQLAdapter",
+              "SemanticAdapter",
+              "SQLiteIRAdapter",
+              "SeamVectorSearchAdapter",
+              "SQLiteGraphAdapter",
+              "ChromaSemanticAdapter",
+              "_structured_reasons",
+              "_matched_filter_count",
+              "_lexical_score",
+              "_tokens",
+              "_unique_tokens",
+              "_build_structured_sql",
+              "_chroma_metadata"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "workspace.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "retrieval_orchestrator/__init__.py",
+          "language": "python",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retrieval_orchestrator/merger.py",
+          "language": "python",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retrieval_orchestrator/orchestrator.py",
+          "language": "python",
+          "sizeLines": 125,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retrieval_orchestrator/planner.py",
+          "language": "python",
+          "sizeLines": 86,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retrieval_orchestrator/types.py",
+          "language": "python",
+          "sizeLines": 176,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "retrieval_orchestrator/__init__.py": [
+          "retrieval_orchestrator/adapters.py",
+          "retrieval_orchestrator/orchestrator.py",
+          "retrieval_orchestrator/types.py"
+        ],
+        "retrieval_orchestrator/merger.py": [
+          "retrieval_orchestrator/types.py"
+        ],
+        "retrieval_orchestrator/orchestrator.py": [
+          "pack.py",
+          "retrieval_orchestrator/adapters.py",
+          "retrieval_orchestrator/merger.py",
+          "retrieval_orchestrator/planner.py",
+          "retrieval_orchestrator/types.py",
+          "runtime.py"
+        ],
+        "retrieval_orchestrator/planner.py": [
+          "retrieval_orchestrator/types.py"
+        ],
+        "retrieval_orchestrator/types.py": [
+          "mirl.py"
+        ]
+      },
+      "neighborMap": {
+        "retrieval_orchestrator/__init__.py": [
+          {
+            "path": "retrieval_orchestrator/adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "SQLAdapter",
+              "SemanticAdapter",
+              "SQLiteIRAdapter",
+              "SeamVectorSearchAdapter",
+              "SQLiteGraphAdapter",
+              "ChromaSemanticAdapter",
+              "_structured_reasons",
+              "_matched_filter_count",
+              "_lexical_score",
+              "_tokens",
+              "_unique_tokens",
+              "_build_structured_sql",
+              "_chroma_metadata"
+            ]
+          }
+        ],
+        "retrieval_orchestrator/orchestrator.py": [
+          {
+            "path": "pack.py",
+            "batchIndex": 2,
+            "symbols": [
+              "pack_records",
+              "_pack_id",
+              "unpack_exact_pack",
+              "pack_record",
+              "score_pack",
+              "_signal_for_record",
+              "_narrative_summary",
+              "_compact_signal",
+              "_context_entries_by_id",
+              "_list_field_retention",
+              "_mine_id_aliases",
+              "_encode_id",
+              "_decode_id",
+              "_records_token_cost"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "SQLAdapter",
+              "SemanticAdapter",
+              "SQLiteIRAdapter",
+              "SeamVectorSearchAdapter",
+              "SQLiteGraphAdapter",
+              "ChromaSemanticAdapter",
+              "_structured_reasons",
+              "_matched_filter_count",
+              "_lexical_score",
+              "_tokens",
+              "_unique_tokens",
+              "_build_structured_sql",
+              "_chroma_metadata"
+            ]
+          },
+          {
+            "path": "runtime.py",
+            "batchIndex": 2,
+            "symbols": [
+              "SeamRuntime"
+            ]
+          }
+        ],
+        "retrieval_orchestrator/types.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "retrieval_orchestrator/adapters.py",
+            "batchIndex": 3,
+            "symbols": [
+              "SQLAdapter",
+              "SemanticAdapter",
+              "SQLiteIRAdapter",
+              "SeamVectorSearchAdapter",
+              "SQLiteGraphAdapter",
+              "ChromaSemanticAdapter",
+              "_structured_reasons",
+              "_matched_filter_count",
+              "_lexical_score",
+              "_tokens",
+              "_unique_tokens",
+              "_build_structured_sql",
+              "_chroma_metadata"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": "derived_fact_context.py",
+          "language": "python",
+          "sizeLines": 1375,
+          "fileCategory": "code"
+        },
+        {
+          "path": "multi_speaker_facts.py",
+          "language": "python",
+          "sizeLines": 485,
+          "fileCategory": "code"
+        },
+        {
+          "path": "nl_extract.py",
+          "language": "python",
+          "sizeLines": 760,
+          "fileCategory": "code"
+        },
+        {
+          "path": "sentence_grounded_facts.py",
+          "language": "python",
+          "sizeLines": 329,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "derived_fact_context.py": [
+          "mirl.py",
+          "multi_speaker_facts.py",
+          "nl_extract.py",
+          "sentence_grounded_facts.py"
+        ],
+        "multi_speaker_facts.py": [
+          "sentence_grounded_facts.py"
+        ],
+        "nl_extract.py": [],
+        "sentence_grounded_facts.py": [
+          "nl_extract.py"
+        ]
+      },
+      "neighborMap": {
+        "derived_fact_context.py": [
+          {
+            "path": "mirl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "utc_now",
+              "RecordKind",
+              "Status",
+              "MIRLRecord",
+              "IRBatch",
+              "VerifyIssue",
+              "VerifyReport",
+              "PersistReport",
+              "Pack",
+              "SearchCandidate",
+              "SearchResult",
+              "TraceGraph",
+              "ReconcileReport",
+              "Artifact",
+              "token_count",
+              "cosine_similarity",
+              "iter_textual_fields"
+            ]
+          },
+          {
+            "path": "nl.py",
+            "batchIndex": 2,
+            "symbols": [
+              "compile_nl",
+              "_extract_conversational",
+              "_content_words",
+              "_normalized_label",
+              "_validated_turn_metadata",
+              "_candidate_claim_is_lossless",
+              "_grounded_spans_payload",
+              "_derived_claim_record_id",
+              "_sentence_fact_record_id",
+              "_leading_subject",
+              "_proper_noun_runs",
+              "suggest_symbols"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": "ui/animations.py",
+          "language": "python",
+          "sizeLines": 482,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui/bars.py",
+          "language": "python",
+          "sizeLines": 243,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui/logo.py",
+          "language": "python",
+          "sizeLines": 408,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui/theme.py",
+          "language": "python",
+          "sizeLines": 191,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "ui/animations.py": [
+          "ui/bars.py",
+          "ui/theme.py"
+        ],
+        "ui/bars.py": [
+          "ui/theme.py"
+        ],
+        "ui/logo.py": [
+          "ui/theme.py"
+        ],
+        "ui/theme.py": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": "skills/__init__.py",
+          "language": "python",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        },
+        {
+          "path": "skills/factory.py",
+          "language": "python",
+          "sizeLines": 180,
+          "fileCategory": "code"
+        },
+        {
+          "path": "skills/skill_ir.py",
+          "language": "python",
+          "sizeLines": 104,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "skills/__init__.py": [
+          "skills/factory.py",
+          "skills/skill_ir.py"
+        ],
+        "skills/factory.py": [],
+        "skills/skill_ir.py": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": "conversation.py",
+          "language": "python",
+          "sizeLines": 417,
+          "fileCategory": "code"
+        },
+        {
+          "path": "event_count_context.py",
+          "language": "python",
+          "sizeLines": 1000,
+          "fileCategory": "code"
+        },
+        {
+          "path": "improvement.py",
+          "language": "python",
+          "sizeLines": 146,
+          "fileCategory": "code"
+        },
+        {
+          "path": "multi_scope_pack.py",
+          "language": "python",
+          "sizeLines": 247,
+          "fileCategory": "code"
+        },
+        {
+          "path": "retrieval_orchestrator/README.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "second_hop_context.py",
+          "language": "python",
+          "sizeLines": 183,
+          "fileCategory": "code"
+        },
+        {
+          "path": "temporal_instance_context.py",
+          "language": "python",
+          "sizeLines": 155,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tokenization.py",
+          "language": "python",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "webui/dashboard.html",
+          "language": "html",
+          "sizeLines": 7167,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "webui/seam-api.js",
+          "language": "javascript",
+          "sizeLines": 477,
+          "fileCategory": "code"
+        },
+        {
+          "path": "webui/tweaks-panel.jsx",
+          "language": "javascript",
+          "sizeLines": 426,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "conversation.py": [],
+        "event_count_context.py": [],
+        "improvement.py": [],
+        "multi_scope_pack.py": [],
+        "retrieval_orchestrator/README.md": [],
+        "second_hop_context.py": [],
+        "temporal_instance_context.py": [],
+        "tokenization.py": [],
+        "webui/dashboard.html": [],
+        "webui/seam-api.js": [],
+        "webui/tweaks-panel.jsx": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

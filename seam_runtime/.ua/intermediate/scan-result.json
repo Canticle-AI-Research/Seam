@@ -1,0 +1,682 @@
+{
+  "name": "seam-runtime",
+  "description": "A local memory runtime for AI agents that stores durable MIRL records in SQLite, retrieves compact context, and tracks provenance.",
+  "languages": ["html", "javascript", "markdown", "python"],
+  "frameworks": ["FastAPI", "Uvicorn"],
+  "files": [
+    {
+      "path": "__init__.py",
+      "language": "python",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agent_memory.py",
+      "language": "python",
+      "sizeLines": 145,
+      "fileCategory": "code"
+    },
+    {
+      "path": "benchmark_baseline_policy.py",
+      "language": "python",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "benchmark_integrity.py",
+      "language": "python",
+      "sizeLines": 462,
+      "fileCategory": "code"
+    },
+    {
+      "path": "benchmarks.py",
+      "language": "python",
+      "sizeLines": 2346,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bm25.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "cli.py",
+      "language": "python",
+      "sizeLines": 2488,
+      "fileCategory": "code"
+    },
+    {
+      "path": "context_views.py",
+      "language": "python",
+      "sizeLines": 194,
+      "fileCategory": "code"
+    },
+    {
+      "path": "conversation.py",
+      "language": "python",
+      "sizeLines": 417,
+      "fileCategory": "code"
+    },
+    {
+      "path": "dashboard.py",
+      "language": "python",
+      "sizeLines": 3160,
+      "fileCategory": "code"
+    },
+    {
+      "path": "derived_fact_context.py",
+      "language": "python",
+      "sizeLines": 1375,
+      "fileCategory": "code"
+    },
+    {
+      "path": "doctor.py",
+      "language": "python",
+      "sizeLines": 166,
+      "fileCategory": "code"
+    },
+    {
+      "path": "dsl.py",
+      "language": "python",
+      "sizeLines": 189,
+      "fileCategory": "code"
+    },
+    {
+      "path": "evals.py",
+      "language": "python",
+      "sizeLines": 191,
+      "fileCategory": "code"
+    },
+    {
+      "path": "event_count_context.py",
+      "language": "python",
+      "sizeLines": 1000,
+      "fileCategory": "code"
+    },
+    {
+      "path": "external_memory_benchmarks.py",
+      "language": "python",
+      "sizeLines": 210,
+      "fileCategory": "code"
+    },
+    {
+      "path": "holographic.py",
+      "language": "python",
+      "sizeLines": 565,
+      "fileCategory": "code"
+    },
+    {
+      "path": "improvement.py",
+      "language": "python",
+      "sizeLines": 146,
+      "fileCategory": "code"
+    },
+    {
+      "path": "installer.py",
+      "language": "python",
+      "sizeLines": 389,
+      "fileCategory": "code"
+    },
+    {
+      "path": "jspace.py",
+      "language": "python",
+      "sizeLines": 539,
+      "fileCategory": "code"
+    },
+    {
+      "path": "knowledge_graph.py",
+      "language": "python",
+      "sizeLines": 2112,
+      "fileCategory": "code"
+    },
+    {
+      "path": "lossless.py",
+      "language": "python",
+      "sizeLines": 974,
+      "fileCategory": "code"
+    },
+    {
+      "path": "lx1.py",
+      "language": "python",
+      "sizeLines": 311,
+      "fileCategory": "code"
+    },
+    {
+      "path": "mcp.py",
+      "language": "python",
+      "sizeLines": 505,
+      "fileCategory": "code"
+    },
+    {
+      "path": "mcp_protocol.py",
+      "language": "python",
+      "sizeLines": 287,
+      "fileCategory": "code"
+    },
+    {
+      "path": "mirl.py",
+      "language": "python",
+      "sizeLines": 375,
+      "fileCategory": "code"
+    },
+    {
+      "path": "models.py",
+      "language": "python",
+      "sizeLines": 251,
+      "fileCategory": "code"
+    },
+    {
+      "path": "multi_scope_pack.py",
+      "language": "python",
+      "sizeLines": 247,
+      "fileCategory": "code"
+    },
+    {
+      "path": "multi_speaker_facts.py",
+      "language": "python",
+      "sizeLines": 485,
+      "fileCategory": "code"
+    },
+    {
+      "path": "nl.py",
+      "language": "python",
+      "sizeLines": 774,
+      "fileCategory": "code"
+    },
+    {
+      "path": "nl_extract.py",
+      "language": "python",
+      "sizeLines": 760,
+      "fileCategory": "code"
+    },
+    {
+      "path": "pack.py",
+      "language": "python",
+      "sizeLines": 300,
+      "fileCategory": "code"
+    },
+    {
+      "path": "pgvector_bootstrap.py",
+      "language": "python",
+      "sizeLines": 229,
+      "fileCategory": "code"
+    },
+    {
+      "path": "pool.py",
+      "language": "python",
+      "sizeLines": 169,
+      "fileCategory": "code"
+    },
+    {
+      "path": "reconcile.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval.py",
+      "language": "python",
+      "sizeLines": 556,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/README.md",
+      "language": "markdown",
+      "sizeLines": 41,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "retrieval_orchestrator/__init__.py",
+      "language": "python",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/adapters.py",
+      "language": "python",
+      "sizeLines": 457,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/merger.py",
+      "language": "python",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/orchestrator.py",
+      "language": "python",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/planner.py",
+      "language": "python",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/types.py",
+      "language": "python",
+      "sizeLines": 176,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retry.py",
+      "language": "python",
+      "sizeLines": 175,
+      "fileCategory": "code"
+    },
+    {
+      "path": "runtime.py",
+      "language": "python",
+      "sizeLines": 501,
+      "fileCategory": "code"
+    },
+    {
+      "path": "second_hop_context.py",
+      "language": "python",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "self_improve.py",
+      "language": "python",
+      "sizeLines": 900,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sentence_grounded_facts.py",
+      "language": "python",
+      "sizeLines": 329,
+      "fileCategory": "code"
+    },
+    {
+      "path": "server.py",
+      "language": "python",
+      "sizeLines": 1480,
+      "fileCategory": "code"
+    },
+    {
+      "path": "skills/__init__.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "skills/factory.py",
+      "language": "python",
+      "sizeLines": 180,
+      "fileCategory": "code"
+    },
+    {
+      "path": "skills/skill_ir.py",
+      "language": "python",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "storage.py",
+      "language": "python",
+      "sizeLines": 1966,
+      "fileCategory": "code"
+    },
+    {
+      "path": "surface_adapters.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "symbols.py",
+      "language": "python",
+      "sizeLines": 249,
+      "fileCategory": "code"
+    },
+    {
+      "path": "temporal.py",
+      "language": "python",
+      "sizeLines": 127,
+      "fileCategory": "code"
+    },
+    {
+      "path": "temporal_instance_context.py",
+      "language": "python",
+      "sizeLines": 155,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tokenization.py",
+      "language": "python",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "transpile.py",
+      "language": "python",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/__init__.py",
+      "language": "python",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/animations.py",
+      "language": "python",
+      "sizeLines": 482,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/bars.py",
+      "language": "python",
+      "sizeLines": 243,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/logo.py",
+      "language": "python",
+      "sizeLines": 408,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/theme.py",
+      "language": "python",
+      "sizeLines": 191,
+      "fileCategory": "code"
+    },
+    {
+      "path": "vector.py",
+      "language": "python",
+      "sizeLines": 310,
+      "fileCategory": "code"
+    },
+    {
+      "path": "vector_adapters.py",
+      "language": "python",
+      "sizeLines": 294,
+      "fileCategory": "code"
+    },
+    {
+      "path": "verify.py",
+      "language": "python",
+      "sizeLines": 143,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webui/dashboard.html",
+      "language": "html",
+      "sizeLines": 7167,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "webui/seam-api.js",
+      "language": "javascript",
+      "sizeLines": 477,
+      "fileCategory": "code"
+    },
+    {
+      "path": "webui/tweaks-panel.jsx",
+      "language": "javascript",
+      "sizeLines": 426,
+      "fileCategory": "code"
+    },
+    {
+      "path": "workspace.py",
+      "language": "python",
+      "sizeLines": 618,
+      "fileCategory": "code"
+    }
+  ],
+  "totalFiles": 71,
+  "filteredByIgnore": 0,
+  "estimatedComplexity": "moderate",
+  "importMap": {
+    "__init__.py": [
+      "mirl.py",
+      "runtime.py"
+    ],
+    "agent_memory.py": [
+      "mirl.py"
+    ],
+    "benchmark_baseline_policy.py": [],
+    "benchmark_integrity.py": [],
+    "benchmarks.py": [
+      "context_views.py",
+      "dsl.py",
+      "evals.py",
+      "holographic.py",
+      "lossless.py",
+      "models.py",
+      "storage.py",
+      "surface_adapters.py",
+      "vector.py"
+    ],
+    "bm25.py": [],
+    "cli.py": [
+      "agent_memory.py",
+      "benchmark_baseline_policy.py",
+      "benchmark_integrity.py",
+      "benchmarks.py",
+      "context_views.py",
+      "dashboard.py",
+      "doctor.py",
+      "external_memory_benchmarks.py",
+      "holographic.py",
+      "installer.py",
+      "lossless.py",
+      "lx1.py",
+      "mirl.py",
+      "runtime.py",
+      "surface_adapters.py"
+    ],
+    "context_views.py": [],
+    "conversation.py": [],
+    "dashboard.py": [
+      "context_views.py",
+      "installer.py",
+      "lossless.py",
+      "mirl.py",
+      "models.py",
+      "runtime.py",
+      "ui/__init__.py"
+    ],
+    "derived_fact_context.py": [
+      "mirl.py",
+      "multi_speaker_facts.py",
+      "nl_extract.py",
+      "sentence_grounded_facts.py"
+    ],
+    "doctor.py": [
+      "installer.py",
+      "lossless.py",
+      "runtime.py"
+    ],
+    "dsl.py": [
+      "mirl.py"
+    ],
+    "evals.py": [
+      "dsl.py",
+      "lossless.py",
+      "models.py",
+      "pack.py",
+      "retrieval.py",
+      "vector.py"
+    ],
+    "event_count_context.py": [],
+    "external_memory_benchmarks.py": [],
+    "holographic.py": [
+      "lossless.py",
+      "mirl.py",
+      "pack.py",
+      "retrieval.py"
+    ],
+    "improvement.py": [],
+    "installer.py": [],
+    "jspace.py": [],
+    "knowledge_graph.py": [
+      "mirl.py"
+    ],
+    "lossless.py": [],
+    "lx1.py": [
+      "mirl.py"
+    ],
+    "mcp.py": [
+      "doctor.py",
+      "holographic.py",
+      "runtime.py"
+    ],
+    "mcp_protocol.py": [
+      "installer.py",
+      "mcp.py",
+      "pgvector_bootstrap.py",
+      "runtime.py"
+    ],
+    "mirl.py": [],
+    "models.py": [],
+    "multi_scope_pack.py": [],
+    "multi_speaker_facts.py": [
+      "sentence_grounded_facts.py"
+    ],
+    "nl.py": [
+      "derived_fact_context.py",
+      "mirl.py"
+    ],
+    "nl_extract.py": [],
+    "pack.py": [
+      "mirl.py",
+      "symbols.py"
+    ],
+    "pgvector_bootstrap.py": [],
+    "pool.py": [],
+    "reconcile.py": [
+      "mirl.py"
+    ],
+    "retrieval.py": [
+      "bm25.py",
+      "mirl.py",
+      "symbols.py",
+      "temporal.py"
+    ],
+    "retrieval_orchestrator/README.md": [],
+    "retrieval_orchestrator/__init__.py": [
+      "retrieval_orchestrator/adapters.py",
+      "retrieval_orchestrator/orchestrator.py",
+      "retrieval_orchestrator/types.py"
+    ],
+    "retrieval_orchestrator/adapters.py": [
+      "mirl.py",
+      "models.py",
+      "retrieval_orchestrator/types.py",
+      "storage.py",
+      "vector.py",
+      "vector_adapters.py"
+    ],
+    "retrieval_orchestrator/merger.py": [
+      "retrieval_orchestrator/types.py"
+    ],
+    "retrieval_orchestrator/orchestrator.py": [
+      "pack.py",
+      "retrieval_orchestrator/adapters.py",
+      "retrieval_orchestrator/merger.py",
+      "retrieval_orchestrator/planner.py",
+      "retrieval_orchestrator/types.py",
+      "runtime.py"
+    ],
+    "retrieval_orchestrator/planner.py": [
+      "retrieval_orchestrator/types.py"
+    ],
+    "retrieval_orchestrator/types.py": [
+      "mirl.py"
+    ],
+    "retry.py": [],
+    "runtime.py": [
+      "agent_memory.py",
+      "benchmarks.py",
+      "dsl.py",
+      "evals.py",
+      "mirl.py",
+      "models.py",
+      "nl.py",
+      "pack.py",
+      "reconcile.py",
+      "retrieval.py",
+      "storage.py",
+      "symbols.py",
+      "transpile.py",
+      "vector_adapters.py",
+      "verify.py"
+    ],
+    "second_hop_context.py": [],
+    "self_improve.py": [
+      "mirl.py",
+      "retrieval.py"
+    ],
+    "sentence_grounded_facts.py": [
+      "nl_extract.py"
+    ],
+    "server.py": [
+      "installer.py",
+      "jspace.py",
+      "mirl.py",
+      "runtime.py",
+      "workspace.py"
+    ],
+    "skills/__init__.py": [
+      "skills/factory.py",
+      "skills/skill_ir.py"
+    ],
+    "skills/factory.py": [],
+    "skills/skill_ir.py": [],
+    "storage.py": [
+      "knowledge_graph.py",
+      "mirl.py",
+      "pool.py",
+      "retry.py",
+      "workspace.py"
+    ],
+    "surface_adapters.py": [],
+    "symbols.py": [
+      "mirl.py"
+    ],
+    "temporal.py": [],
+    "temporal_instance_context.py": [],
+    "tokenization.py": [],
+    "transpile.py": [
+      "mirl.py"
+    ],
+    "ui/__init__.py": [],
+    "ui/animations.py": [
+      "ui/bars.py",
+      "ui/theme.py"
+    ],
+    "ui/bars.py": [
+      "ui/theme.py"
+    ],
+    "ui/logo.py": [
+      "ui/theme.py"
+    ],
+    "ui/theme.py": [],
+    "vector.py": [
+      "mirl.py",
+      "models.py"
+    ],
+    "vector_adapters.py": [
+      "mirl.py",
+      "models.py",
+      "vector.py"
+    ],
+    "verify.py": [
+      "mirl.py"
+    ],
+    "webui/dashboard.html": [],
+    "webui/seam-api.js": [],
+    "webui/tweaks-panel.jsx": [],
+    "workspace.py": [
+      "mirl.py"
+    ]
+  }
+}

@@ -1,0 +1,1354 @@
+{
+  "nodes": [
+    {
+      "id": "file:conversation.py",
+      "type": "file",
+      "name": "conversation.py",
+      "filePath": "conversation.py",
+      "summary": "Implements versioned conversation adapters to classify query intent and project retrieved evidence turns into structured, query-specific views.",
+      "tags": ["context-adaptation", "intent-classification", "nlp"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:conversation.py:ConversationIntent",
+      "type": "class",
+      "name": "ConversationIntent",
+      "filePath": "conversation.py",
+      "lineRange": [95, 98],
+      "summary": "Enumeration representing the classified conversation intents: direct, set-completion, and inference.",
+      "tags": ["enum", "data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:conversation.py:ConversationView",
+      "type": "class",
+      "name": "ConversationView",
+      "filePath": "conversation.py",
+      "lineRange": [178, 194],
+      "summary": "A data class representing a structured, provenance-preserving view of the conversation question and evidence.",
+      "tags": ["data-model", "rendering"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:conversation.py:classify_conversation_intent",
+      "type": "function",
+      "name": "classify_conversation_intent",
+      "filePath": "conversation.py",
+      "lineRange": [136, 161],
+      "summary": "Classifies the conversation intent (direct, set-completion, or inference) from the question text using regex patterns.",
+      "tags": ["intent-classification", "nlp"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:conversation.py:_evidence_lines",
+      "type": "function",
+      "name": "_evidence_lines",
+      "filePath": "conversation.py",
+      "lineRange": [164, 174],
+      "summary": "Helper function that filters out empty lines and returns unique evidence lines in order.",
+      "tags": ["utility", "data-cleaning"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:conversation.py:adapt_conversation_context",
+      "type": "function",
+      "name": "adapt_conversation_context",
+      "filePath": "conversation.py",
+      "lineRange": [197, 226],
+      "summary": "Adapts the conversation context based on the active conversation adapter policy, classifying intent and formatting evidence.",
+      "tags": ["context-adaptation", "formatting"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:conversation.py:answer_method_directive",
+      "type": "function",
+      "name": "answer_method_directive",
+      "filePath": "conversation.py",
+      "lineRange": [229, 417],
+      "summary": "Constructs the bounded reasoning instructions/method directives prepended to the answer context to steer model reasoning.",
+      "tags": ["prompt-engineering", "reasoning-directive", "policy-enforcement"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:event_count_context.py",
+      "type": "file",
+      "name": "event_count_context.py",
+      "filePath": "event_count_context.py",
+      "summary": "Provides logical components to construct deterministic context projections for event count questions.",
+      "tags": ["nlp", "event-counting", "context-projection"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:event_count_context.py:CountContextProjection",
+      "type": "class",
+      "name": "CountContextProjection",
+      "filePath": "event_count_context.py",
+      "lineRange": [222, 389],
+      "summary": "Represents a deterministic, versioned SEAM-COUNT view over retrieved memories.",
+      "tags": ["data-model", "rendering", "context-projection"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:event_count_context.py:build_count_context_projection",
+      "type": "function",
+      "name": "build_count_context_projection",
+      "filePath": "event_count_context.py",
+      "lineRange": [418, 509],
+      "summary": "Main entry point to build a ranked count projection if the question is a count request and evidence is present.",
+      "tags": ["context-projection", "factory-function"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:event_count_context.py:_group_v2_rows",
+      "type": "function",
+      "name": "_group_v2_rows",
+      "filePath": "event_count_context.py",
+      "lineRange": [512, 573],
+      "summary": "Groups ranked count evidence rows into distinct semantic events/episodes.",
+      "tags": ["clustering", "grouping", "nlp"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:event_count_context.py:_same_v2_event",
+      "type": "function",
+      "name": "_same_v2_event",
+      "filePath": "event_count_context.py",
+      "lineRange": [576, 622],
+      "summary": "Determines whether a given evidence row refers to the same semantic event as existing grouped members.",
+      "tags": ["similarity-detection", "nlp"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:event_count_context.py:_count_intent",
+      "type": "function",
+      "name": "_count_intent",
+      "filePath": "event_count_context.py",
+      "lineRange": [646, 719],
+      "summary": "Extracts the semantic counting intent (mode, unit, subjects, actions, objects) from a count-based question.",
+      "tags": ["nlp", "intent-detection", "parsing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:event_count_context.py:_v2_row_features",
+      "type": "function",
+      "name": "_v2_row_features",
+      "filePath": "event_count_context.py",
+      "lineRange": [722, 818],
+      "summary": "Computes features for a ranked evidence row to check eligibility, ordinals, support, and anchors.",
+      "tags": ["feature-extraction", "nlp"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:event_count_context.py:_stem_v2",
+      "type": "function",
+      "name": "_stem_v2",
+      "filePath": "event_count_context.py",
+      "lineRange": [942, 982],
+      "summary": "Custom stemmer mapping common event and action words to their base form for semantic comparison.",
+      "tags": ["nlp", "stemming", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:improvement.py",
+      "type": "file",
+      "name": "improvement.py",
+      "filePath": "improvement.py",
+      "summary": "Handles proposal validation gates, particularly verifying if proposed changes violate holdout dataset boundaries.",
+      "tags": ["validation", "safety-gate", "deployment-safety"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:improvement.py:ValidationReport",
+      "type": "class",
+      "name": "ValidationReport",
+      "filePath": "improvement.py",
+      "lineRange": [70, 81],
+      "summary": "Data class representing the outcome of a proposal validation check, carrying violation status and warnings.",
+      "tags": ["data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:improvement.py:validate_proposal",
+      "type": "function",
+      "name": "validate_proposal",
+      "filePath": "improvement.py",
+      "lineRange": [84, 134],
+      "summary": "Validates a proposed runtime change by checking if evidence case IDs overlap with the holdout case pool.",
+      "tags": ["validation", "safety-gate"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:improvement.py:proposal_blocks_promotion",
+      "type": "function",
+      "name": "proposal_blocks_promotion",
+      "filePath": "improvement.py",
+      "lineRange": [137, 146],
+      "summary": "Checks whether a proposal prevents promotion based on its status and holdout violation flag.",
+      "tags": ["gatekeeping", "deployment-safety"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:improvement.py:_import_holdout_case_ids",
+      "type": "function",
+      "name": "_import_holdout_case_ids",
+      "filePath": "improvement.py",
+      "lineRange": [35, 54],
+      "summary": "Dynamically imports holdout case IDs from tools folder, falling back safely if running as an installed library.",
+      "tags": ["utility", "dynamic-import"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:multi_scope_pack.py",
+      "type": "file",
+      "name": "multi_scope_pack.py",
+      "filePath": "multi_scope_pack.py",
+      "summary": "Provides utilities to pack context across multiple retrieval scopes (grounded facts, data profiles, raw episodes) within character quotas.",
+      "tags": ["context-packing", "quota-management", "serialization"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:multi_scope_pack.py:ScopeQuotas",
+      "type": "class",
+      "name": "ScopeQuotas",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [66, 83],
+      "summary": "Represents character or count limits allocated to each type of memory scope within the context pack.",
+      "tags": ["data-model", "quota-management"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:multi_scope_pack.py:PackItem",
+      "type": "class",
+      "name": "PackItem",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [92, 97],
+      "summary": "A data class representing a single parsed, readable context pack item with scope, ID, and memory content.",
+      "tags": ["data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:multi_scope_pack.py:parse_pack_items",
+      "type": "function",
+      "name": "parse_pack_items",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [225, 344],
+      "summary": "Parses multi-scope pack items from database rows, enforcing structural validity and sorting constraints.",
+      "tags": ["parsing", "serialization", "validation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:multi_scope_pack.py:parse_raw_pack_items",
+      "type": "function",
+      "name": "parse_raw_pack_items",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [385, 476],
+      "summary": "Parses raw episode pack items from database rows, supporting baseline and auxiliary episode contexts.",
+      "tags": ["parsing", "serialization", "validation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:multi_scope_pack.py:compose_reserved_multi_scope",
+      "type": "function",
+      "name": "compose_reserved_multi_scope",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [554, 605],
+      "summary": "Composes a reserved multi-scope context pack based on baseline memories and lanes, respecting configured quotas.",
+      "tags": ["context-composition", "quota-enforcement"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:multi_scope_pack.py:compose_non_displacing_fact_pack",
+      "type": "function",
+      "name": "compose_non_displacing_fact_pack",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [608, 761],
+      "summary": "Composes a non-displacing context pack combining baseline facts, auxiliary rows, and newly retrieved fact rows.",
+      "tags": ["context-composition", "memory-consolidation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:multi_scope_pack.py:compose_non_displacing_raw_pack",
+      "type": "function",
+      "name": "compose_non_displacing_raw_pack",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [764, 875],
+      "summary": "Composes a non-displacing context pack specifically optimized for raw episodes, preventing baseline displacements.",
+      "tags": ["context-composition", "memory-consolidation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:multi_scope_pack.py:select_date_diverse_rows",
+      "type": "function",
+      "name": "select_date_diverse_rows",
+      "filePath": "multi_scope_pack.py",
+      "lineRange": [878, 908],
+      "summary": "Selects rows in a way that maximizes date diversity, ensuring even distribution across different days/months.",
+      "tags": ["data-filtering", "diversity-selection"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:retrieval_orchestrator/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "retrieval_orchestrator/README.md",
+      "summary": "Overview documentation describing the experimental retrieval orchestration layer, hybrid search strategy, and modular components.",
+      "tags": ["documentation", "retrieval", "hybrid-search", "architecture-plan"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:second_hop_context.py",
+      "type": "file",
+      "name": "second_hop_context.py",
+      "filePath": "second_hop_context.py",
+      "summary": "Implements two-hop context retrieval by mining bridge terms from primary search results to run targeted secondary queries.",
+      "tags": ["multi-hop-retrieval", "query-expansion", "search-splicing", "nlp"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:second_hop_context.py:BridgePlan",
+      "type": "class",
+      "name": "BridgePlan",
+      "filePath": "second_hop_context.py",
+      "lineRange": [62, 66],
+      "summary": "A data class representing secondary queries to execute and the slots reserved for their results in the final context.",
+      "tags": ["data-model", "retrieval"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:second_hop_context.py:extract_bridge_terms",
+      "type": "function",
+      "name": "extract_bridge_terms",
+      "filePath": "second_hop_context.py",
+      "lineRange": [73, 124],
+      "summary": "Extracts high-salience terms (like quoted phrases or mid-sentence capitalizations) from primary results to serve as secondary query seeds.",
+      "tags": ["nlp", "term-extraction", "feature-engineering"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:second_hop_context.py:build_bridge_plan",
+      "type": "function",
+      "name": "build_bridge_plan",
+      "filePath": "second_hop_context.py",
+      "lineRange": [127, 141],
+      "summary": "Creates a BridgePlan from primary search results and query, according to the active retrieval policy.",
+      "tags": ["retrieval-planning", "factory-function"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:second_hop_context.py:splice_results",
+      "type": "function",
+      "name": "splice_results",
+      "filePath": "second_hop_context.py",
+      "lineRange": [144, 183],
+      "summary": "Splices secondary search results into primary results while maintaining rank bounds and reserving slots for bridge query matches.",
+      "tags": ["search-merging", "ranking"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:temporal_instance_context.py",
+      "type": "file",
+      "name": "temporal_instance_context.py",
+      "filePath": "temporal_instance_context.py",
+      "summary": "Structures retrieved memories into date-ordered projections, extracting and highlighting relative temporal markers.",
+      "tags": ["temporal-grounding", "nlp", "context-projection"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:temporal_instance_context.py:TemporalProjection",
+      "type": "class",
+      "name": "TemporalProjection",
+      "filePath": "temporal_instance_context.py",
+      "lineRange": [83, 117],
+      "summary": "Represents a date-ordered projection of retrieved evidence, formatting sessions, speakers, and temporal markers.",
+      "tags": ["data-model", "rendering", "context-projection"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:temporal_instance_context.py:build_temporal_context_projection",
+      "type": "function",
+      "name": "build_temporal_context_projection",
+      "filePath": "temporal_instance_context.py",
+      "lineRange": [120, 155],
+      "summary": "Extracts session dates and relative temporal markers from evidence turns to construct a date-sorted TemporalProjection.",
+      "tags": ["context-projection", "parsing", "nlp"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:temporal_instance_context.py:is_temporal_question",
+      "type": "function",
+      "name": "is_temporal_question",
+      "filePath": "temporal_instance_context.py",
+      "lineRange": [59, 60],
+      "summary": "Determines whether a given query has temporal properties (e.g. contains words like 'when', 'date', 'last').",
+      "tags": ["nlp", "classification"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tokenization.py",
+      "type": "file",
+      "name": "tokenization.py",
+      "filePath": "tokenization.py",
+      "summary": "Provides helper functions for token counting using tiktoken (cl100k_base) or a character-based fallback.",
+      "tags": ["tokenization", "utility", "text-processing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tokenization.py:count_tokens_with_label",
+      "type": "function",
+      "name": "count_tokens_with_label",
+      "filePath": "tokenization.py",
+      "lineRange": [15, 21],
+      "summary": "Counts tokens in text using the canonical cl100k_base encoder if available, or falls back to char4_approx.",
+      "tags": ["tokenization", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tokenization.py:count_tokens",
+      "type": "function",
+      "name": "count_tokens",
+      "filePath": "tokenization.py",
+      "lineRange": [10, 12],
+      "summary": "Wrapper function that returns the token count for a given text.",
+      "tags": ["tokenization", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tokenization.py:_load_encoder",
+      "type": "function",
+      "name": "_load_encoder",
+      "filePath": "tokenization.py",
+      "lineRange": [24, 33],
+      "summary": "Loads the canonical tiktoken encoder, cached via lru_cache.",
+      "tags": ["utility", "caching"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:webui/dashboard.html",
+      "type": "file",
+      "name": "dashboard.html",
+      "filePath": "webui/dashboard.html",
+      "summary": "Main HTML dashboard interface providing a graphical control panel to inspect and configure the SEAM runtime.",
+      "tags": ["webui", "dashboard", "frontend", "markup"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:webui/seam-api.js",
+      "type": "file",
+      "name": "seam-api.js",
+      "filePath": "webui/seam-api.js",
+      "summary": "Implements the SeamAPI client layer exposed to window, wrapping REST API calls for runtime statistics, search, and benchmarks.",
+      "tags": ["webui", "api-client", "rest", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:webui/seam-api.js:streamChat",
+      "type": "function",
+      "name": "streamChat",
+      "filePath": "webui/seam-api.js",
+      "lineRange": [256, 349],
+      "summary": "Exposes a POST-backed Server-Sent Events (SSE) stream for structured workspace chat telemetry.",
+      "tags": ["sse", "streaming", "chat"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:webui/seam-api.js:knowledgeGraph",
+      "type": "function",
+      "name": "knowledgeGraph",
+      "filePath": "webui/seam-api.js",
+      "lineRange": [192, 213],
+      "summary": "Queries the canonical, self-building SEAM knowledge graph with parameters like query, root_id, and limits.",
+      "tags": ["knowledge-graph", "api-call"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:webui/seam-api.js:context",
+      "type": "function",
+      "name": "context",
+      "filePath": "webui/seam-api.js",
+      "lineRange": [372, 390],
+      "summary": "Requests a context pack from the SEAM server based on search queries, budgets, and lenses.",
+      "tags": ["context-packing", "api-call"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:webui/seam-api.js:chat",
+      "type": "function",
+      "name": "chat",
+      "filePath": "webui/seam-api.js",
+      "lineRange": [392, 419],
+      "summary": "Executes a SEAM-augmented chat request to retrieve memory and invoke the selected LLM model.",
+      "tags": ["chat", "api-call"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:webui/tweaks-panel.jsx",
+      "type": "file",
+      "name": "tweaks-panel.jsx",
+      "filePath": "webui/tweaks-panel.jsx",
+      "summary": "Floating UI panel component that displays editable developer tweaks and coordinates state with parent iframes.",
+      "tags": ["webui", "component", "react", "configuration-panel"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:webui/tweaks-panel.jsx:useTweaks",
+      "type": "function",
+      "name": "useTweaks",
+      "filePath": "webui/tweaks-panel.jsx",
+      "lineRange": [140, 152],
+      "summary": "A React hook that manages tweak state, synchronization, and postMessage communication with the host system.",
+      "tags": ["react-hook", "state-management"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:webui/tweaks-panel.jsx:TweaksPanel",
+      "type": "function",
+      "name": "TweaksPanel",
+      "filePath": "webui/tweaks-panel.jsx",
+      "lineRange": [161, 247],
+      "summary": "The main React component that renders the draggable tweaks panel, handling viewport boundaries and visibility.",
+      "tags": ["react-component", "ui-layout"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:webui/tweaks-panel.jsx:TweakRadio",
+      "type": "function",
+      "name": "TweakRadio",
+      "filePath": "webui/tweaks-panel.jsx",
+      "lineRange": [294, 346],
+      "summary": "Renders a segmented radio button layout with horizontal sliding drag indicator support.",
+      "tags": ["react-component", "ui-control"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:webui/tweaks-panel.jsx:TweakNumber",
+      "type": "function",
+      "name": "TweakNumber",
+      "filePath": "webui/tweaks-panel.jsx",
+      "lineRange": [371, 403],
+      "summary": "Renders a numeric input with drag-to-scrub (horizontal sliding gesture to increment/decrement) functionality.",
+      "tags": ["react-component", "ui-control"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:conversation.py",
+      "target": "class:conversation.py:ConversationIntent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "class:conversation.py:ConversationView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:classify_conversation_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:_evidence_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:adapt_conversation_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:answer_method_directive",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "class:event_count_context.py:CountContextProjection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:build_count_context_projection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_group_v2_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_same_v2_event",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_count_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_v2_row_features",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_stem_v2",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "class:improvement.py:ValidationReport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "function:improvement.py:validate_proposal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "function:improvement.py:proposal_blocks_promotion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "function:improvement.py:_import_holdout_case_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "class:multi_scope_pack.py:ScopeQuotas",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "class:multi_scope_pack.py:PackItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:parse_pack_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:parse_raw_pack_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:compose_reserved_multi_scope",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:compose_non_displacing_fact_pack",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:compose_non_displacing_raw_pack",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:select_date_diverse_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "class:second_hop_context.py:BridgePlan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "function:second_hop_context.py:extract_bridge_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "function:second_hop_context.py:build_bridge_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "function:second_hop_context.py:splice_results",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:temporal_instance_context.py",
+      "target": "class:temporal_instance_context.py:TemporalProjection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:temporal_instance_context.py",
+      "target": "function:temporal_instance_context.py:build_temporal_context_projection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:temporal_instance_context.py",
+      "target": "function:temporal_instance_context.py:is_temporal_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tokenization.py",
+      "target": "function:tokenization.py:count_tokens_with_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tokenization.py",
+      "target": "function:tokenization.py:count_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tokenization.py",
+      "target": "function:tokenization.py:_load_encoder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:streamChat",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:knowledgeGraph",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:chat",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:useTweaks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:TweaksPanel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:TweakRadio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:TweakNumber",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "class:conversation.py:ConversationIntent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "class:conversation.py:ConversationView",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:classify_conversation_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:_evidence_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:adapt_conversation_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "function:conversation.py:answer_method_directive",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "class:event_count_context.py:CountContextProjection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:build_count_context_projection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_group_v2_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_same_v2_event",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_count_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_v2_row_features",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "function:event_count_context.py:_stem_v2",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "class:improvement.py:ValidationReport",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "function:improvement.py:validate_proposal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "function:improvement.py:proposal_blocks_promotion",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "function:improvement.py:_import_holdout_case_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "class:multi_scope_pack.py:ScopeQuotas",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "class:multi_scope_pack.py:PackItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:parse_pack_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:parse_raw_pack_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:compose_reserved_multi_scope",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:compose_non_displacing_fact_pack",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:compose_non_displacing_raw_pack",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "function:multi_scope_pack.py:select_date_diverse_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "class:second_hop_context.py:BridgePlan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "function:second_hop_context.py:extract_bridge_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "function:second_hop_context.py:build_bridge_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "function:second_hop_context.py:splice_results",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:temporal_instance_context.py",
+      "target": "class:temporal_instance_context.py:TemporalProjection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:temporal_instance_context.py",
+      "target": "function:temporal_instance_context.py:build_temporal_context_projection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:temporal_instance_context.py",
+      "target": "function:temporal_instance_context.py:is_temporal_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tokenization.py",
+      "target": "function:tokenization.py:count_tokens_with_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tokenization.py",
+      "target": "function:tokenization.py:count_tokens",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tokenization.py",
+      "target": "function:tokenization.py:_load_encoder",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:streamChat",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:knowledgeGraph",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/seam-api.js",
+      "target": "function:webui/seam-api.js:chat",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:useTweaks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:TweaksPanel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:TweakRadio",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:webui/tweaks-panel.jsx",
+      "target": "function:webui/tweaks-panel.jsx:TweakNumber",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:conversation.py:adapt_conversation_context",
+      "target": "function:conversation.py:classify_conversation_intent",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:conversation.py:adapt_conversation_context",
+      "target": "function:conversation.py:_evidence_lines",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:conversation.py:adapt_conversation_context",
+      "target": "class:conversation.py:ConversationView",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:build_count_context_projection",
+      "target": "function:event_count_context.py:is_count_question",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:build_count_context_projection",
+      "target": "function:event_count_context.py:_group_v2_rows",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:build_count_context_projection",
+      "target": "class:event_count_context.py:CountContextProjection",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:_group_v2_rows",
+      "target": "function:event_count_context.py:_count_intent",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:_group_v2_rows",
+      "target": "function:event_count_context.py:_v2_row_features",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:_group_v2_rows",
+      "target": "function:event_count_context.py:_same_v2_event",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:_count_intent",
+      "target": "function:event_count_context.py:_stem_v2",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:event_count_context.py:_v2_row_features",
+      "target": "function:event_count_context.py:_stem_v2",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:improvement.py:validate_proposal",
+      "target": "function:improvement.py:_import_holdout_case_ids",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:improvement.py:validate_proposal",
+      "target": "class:improvement.py:ValidationReport",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:second_hop_context.py:build_bridge_plan",
+      "target": "function:second_hop_context.py:extract_bridge_terms",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:second_hop_context.py:build_bridge_plan",
+      "target": "class:second_hop_context.py:BridgePlan",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:temporal_instance_context.py:build_temporal_context_projection",
+      "target": "function:temporal_instance_context.py:is_temporal_question",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:temporal_instance_context.py:build_temporal_context_projection",
+      "target": "class:temporal_instance_context.py:TemporalProjection",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tokenization.py:count_tokens",
+      "target": "function:tokenization.py:count_tokens_with_label",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:tokenization.py:count_tokens_with_label",
+      "target": "function:tokenization.py:_load_encoder",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:conversation.py",
+      "target": "file:tests/audit/test_semantic_conversation_adapter.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:event_count_context.py",
+      "target": "file:tests/audit/test_event_count_context.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:improvement.py",
+      "target": "file:tests/audit/test_improvement_loop.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:multi_scope_pack.py",
+      "target": "file:tests/audit/test_multi_scope_pack.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:second_hop_context.py",
+      "target": "file:tests/audit/test_second_hop_context.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:temporal_instance_context.py",
+      "target": "file:tests/audit/test_temporal_instance_context.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "class:conversation.py:ConversationView",
+      "target": "class:conversation.py:ConversationIntent",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:webui/dashboard.html",
+      "target": "file:webui/seam-api.js",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:webui/dashboard.html",
+      "target": "file:webui/tweaks-panel.jsx",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:webui/tweaks-panel.jsx:TweaksPanel",
+      "target": "function:webui/tweaks-panel.jsx:useTweaks",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:retrieval_orchestrator/README.md",
+      "target": "file:second_hop_context.py",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:retrieval_orchestrator/README.md",
+      "target": "file:temporal_instance_context.py",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

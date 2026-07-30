@@ -1,0 +1,851 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 3,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 3,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "skills/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 26,
+      "nonEmptyLines": 23,
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "skills/factory.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 180,
+      "nonEmptyLines": 150,
+      "functions": [
+        {
+          "name": "identify_agent",
+          "startLine": 91,
+          "endLine": 115,
+          "params": [
+            "environ",
+            "files"
+          ]
+        },
+        {
+          "name": "propose_skill_from_observation",
+          "startLine": 118,
+          "endLine": 128,
+          "params": [
+            "observation"
+          ]
+        },
+        {
+          "name": "_slugify",
+          "startLine": 131,
+          "endLine": 141,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "_required_str",
+          "startLine": 144,
+          "endLine": 148,
+          "params": [
+            "data",
+            "key"
+          ]
+        },
+        {
+          "name": "_optional_str",
+          "startLine": 151,
+          "endLine": 156,
+          "params": [
+            "value",
+            "key"
+          ]
+        },
+        {
+          "name": "_required_bool",
+          "startLine": 159,
+          "endLine": 163,
+          "params": [
+            "data",
+            "key"
+          ]
+        },
+        {
+          "name": "_positive_int",
+          "startLine": 166,
+          "endLine": 169,
+          "params": [
+            "value",
+            "key"
+          ]
+        },
+        {
+          "name": "_str_tuple",
+          "startLine": 172,
+          "endLine": 180,
+          "params": [
+            "value",
+            "key"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "SkillFactoryError",
+          "startLine": 10,
+          "endLine": 11,
+          "methods": [],
+          "properties": []
+        },
+        {
+          "name": "AgentIdentity",
+          "startLine": 15,
+          "endLine": 27,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "agent",
+            "confidence",
+            "evidence",
+            "profile"
+          ]
+        },
+        {
+          "name": "SkillObservation",
+          "startLine": 31,
+          "endLine": 66,
+          "methods": [
+            "from_dict",
+            "to_dict"
+          ],
+          "properties": [
+            "observation_id",
+            "agent",
+            "task",
+            "issue",
+            "automatable",
+            "suggested_skill",
+            "evidence",
+            "proposed_rule",
+            "repeat_count",
+            "created_at"
+          ]
+        },
+        {
+          "name": "SkillProposal",
+          "startLine": 70,
+          "endLine": 88,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "proposal_id",
+            "skill",
+            "agent",
+            "source_observations",
+            "rationale",
+            "proposed_rules",
+            "status"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SkillFactoryError",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "AgentIdentity",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "SkillObservation",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "SkillProposal",
+          "line": 69,
+          "isDefault": false
+        },
+        {
+          "name": "identify_agent",
+          "line": 91,
+          "isDefault": false
+        },
+        {
+          "name": "propose_skill_from_observation",
+          "line": 118,
+          "isDefault": false
+        },
+        {
+          "name": "_slugify",
+          "line": 131,
+          "isDefault": false
+        },
+        {
+          "name": "_required_str",
+          "line": 144,
+          "isDefault": false
+        },
+        {
+          "name": "_optional_str",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "_required_bool",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "_positive_int",
+          "line": 166,
+          "isDefault": false
+        },
+        {
+          "name": "_str_tuple",
+          "line": 172,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 25
+        },
+        {
+          "caller": "from_dict",
+          "callee": "isinstance",
+          "lineNumber": 45
+        },
+        {
+          "caller": "from_dict",
+          "callee": "SkillFactoryError",
+          "lineNumber": 46
+        },
+        {
+          "caller": "from_dict",
+          "callee": "SkillFactoryError",
+          "lineNumber": 49
+        },
+        {
+          "caller": "from_dict",
+          "callee": "cls",
+          "lineNumber": 50
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_required_str",
+          "lineNumber": 51
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_required_str",
+          "lineNumber": 52
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_required_str",
+          "lineNumber": 53
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_required_str",
+          "lineNumber": 54
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_required_bool",
+          "lineNumber": 55
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_optional_str",
+          "lineNumber": 56
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 56
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_str_tuple",
+          "lineNumber": 57
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 57
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_optional_str",
+          "lineNumber": 58
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 58
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_positive_int",
+          "lineNumber": 59
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 59
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_optional_str",
+          "lineNumber": 60
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 60
+        },
+        {
+          "caller": "from_dict",
+          "callee": "datetime.now(timezone.utc).isoformat",
+          "lineNumber": 60
+        },
+        {
+          "caller": "from_dict",
+          "callee": "datetime.now",
+          "lineNumber": 60
+        },
+        {
+          "caller": "to_dict",
+          "callee": "asdict",
+          "lineNumber": 64
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 65
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 84
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 86
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "environ.get",
+          "lineNumber": 94
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "environ[\"SEAM_AGENT\"].strip().lower",
+          "lineNumber": 95
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "environ[\"SEAM_AGENT\"].strip",
+          "lineNumber": 95
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "AgentIdentity",
+          "lineNumber": 96
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "environ.get",
+          "lineNumber": 104
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "AgentIdentity",
+          "lineNumber": 105
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "files.get",
+          "lineNumber": 113
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "AgentIdentity",
+          "lineNumber": 114
+        },
+        {
+          "caller": "identify_agent",
+          "callee": "AgentIdentity",
+          "lineNumber": 115
+        },
+        {
+          "caller": "propose_skill_from_observation",
+          "callee": "_slugify",
+          "lineNumber": 119
+        },
+        {
+          "caller": "propose_skill_from_observation",
+          "callee": "SkillProposal",
+          "lineNumber": 121
+        },
+        {
+          "caller": "_slugify",
+          "callee": "value.lower",
+          "lineNumber": 134
+        },
+        {
+          "caller": "_slugify",
+          "callee": "ch.isalnum",
+          "lineNumber": 135
+        },
+        {
+          "caller": "_slugify",
+          "callee": "out.append",
+          "lineNumber": 136
+        },
+        {
+          "caller": "_slugify",
+          "callee": "out.append",
+          "lineNumber": 139
+        },
+        {
+          "caller": "_slugify",
+          "callee": "\"\".join(out).strip",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_slugify",
+          "callee": "\"\".join",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_required_str",
+          "callee": "data.get",
+          "lineNumber": 145
+        },
+        {
+          "caller": "_required_str",
+          "callee": "isinstance",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_required_str",
+          "callee": "value.strip",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_required_str",
+          "callee": "SkillFactoryError",
+          "lineNumber": 147
+        },
+        {
+          "caller": "_optional_str",
+          "callee": "isinstance",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_optional_str",
+          "callee": "SkillFactoryError",
+          "lineNumber": 155
+        },
+        {
+          "caller": "_required_bool",
+          "callee": "data.get",
+          "lineNumber": 160
+        },
+        {
+          "caller": "_required_bool",
+          "callee": "isinstance",
+          "lineNumber": 161
+        },
+        {
+          "caller": "_required_bool",
+          "callee": "SkillFactoryError",
+          "lineNumber": 162
+        },
+        {
+          "caller": "_positive_int",
+          "callee": "isinstance",
+          "lineNumber": 167
+        },
+        {
+          "caller": "_positive_int",
+          "callee": "SkillFactoryError",
+          "lineNumber": 168
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "isinstance",
+          "lineNumber": 175
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "SkillFactoryError",
+          "lineNumber": 176
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "enumerate",
+          "lineNumber": 177
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "isinstance",
+          "lineNumber": 178
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "SkillFactoryError",
+          "lineNumber": 179
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "tuple",
+          "lineNumber": 180
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 12,
+        "functionCount": 8,
+        "classCount": 4
+      }
+    },
+    {
+      "path": "skills/skill_ir.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 104,
+      "nonEmptyLines": 85,
+      "functions": [
+        {
+          "name": "canonical_bytes",
+          "startLine": 67,
+          "endLine": 68,
+          "params": [
+            "ir"
+          ]
+        },
+        {
+          "name": "sha256_of_bytes",
+          "startLine": 71,
+          "endLine": 72,
+          "params": [
+            "data"
+          ]
+        },
+        {
+          "name": "_optional_str",
+          "startLine": 75,
+          "endLine": 80,
+          "params": [
+            "value",
+            "key"
+          ]
+        },
+        {
+          "name": "_str_tuple",
+          "startLine": 83,
+          "endLine": 91,
+          "params": [
+            "value",
+            "key"
+          ]
+        },
+        {
+          "name": "_workflow_tuple",
+          "startLine": 94,
+          "endLine": 104,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "SkillIRError",
+          "startLine": 14,
+          "endLine": 15,
+          "methods": [],
+          "properties": []
+        },
+        {
+          "name": "SkillIR",
+          "startLine": 19,
+          "endLine": 64,
+          "methods": [
+            "from_dict",
+            "to_dict"
+          ],
+          "properties": [
+            "schema_version",
+            "name",
+            "title",
+            "description",
+            "short_description",
+            "purpose",
+            "safety_rules",
+            "workflow",
+            "output_format"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SkillIRError",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "SkillIR",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "canonical_bytes",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "sha256_of_bytes",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "_optional_str",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "_str_tuple",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "_workflow_tuple",
+          "line": 94,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "from_dict",
+          "callee": "isinstance",
+          "lineNumber": 32
+        },
+        {
+          "caller": "from_dict",
+          "callee": "SkillIRError",
+          "lineNumber": 33
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 36
+        },
+        {
+          "caller": "from_dict",
+          "callee": "isinstance",
+          "lineNumber": 37
+        },
+        {
+          "caller": "from_dict",
+          "callee": "value.strip",
+          "lineNumber": 37
+        },
+        {
+          "caller": "from_dict",
+          "callee": "SkillIRError",
+          "lineNumber": 38
+        },
+        {
+          "caller": "from_dict",
+          "callee": "SkillIRError",
+          "lineNumber": 40
+        },
+        {
+          "caller": "from_dict",
+          "callee": "cls",
+          "lineNumber": 41
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_str_tuple",
+          "lineNumber": 48
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 48
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_workflow_tuple",
+          "lineNumber": 49
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 49
+        },
+        {
+          "caller": "from_dict",
+          "callee": "_optional_str",
+          "lineNumber": 50
+        },
+        {
+          "caller": "from_dict",
+          "callee": "data.get",
+          "lineNumber": 50
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 61
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 62
+        },
+        {
+          "caller": "canonical_bytes",
+          "callee": "json.dumps(ir.to_dict(), sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False).encode",
+          "lineNumber": 68
+        },
+        {
+          "caller": "canonical_bytes",
+          "callee": "json.dumps",
+          "lineNumber": 68
+        },
+        {
+          "caller": "canonical_bytes",
+          "callee": "ir.to_dict",
+          "lineNumber": 68
+        },
+        {
+          "caller": "sha256_of_bytes",
+          "callee": "hashlib.sha256(data).hexdigest",
+          "lineNumber": 72
+        },
+        {
+          "caller": "sha256_of_bytes",
+          "callee": "hashlib.sha256",
+          "lineNumber": 72
+        },
+        {
+          "caller": "_optional_str",
+          "callee": "isinstance",
+          "lineNumber": 78
+        },
+        {
+          "caller": "_optional_str",
+          "callee": "SkillIRError",
+          "lineNumber": 79
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "isinstance",
+          "lineNumber": 86
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "SkillIRError",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "enumerate",
+          "lineNumber": 88
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "isinstance",
+          "lineNumber": 89
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "SkillIRError",
+          "lineNumber": 90
+        },
+        {
+          "caller": "_str_tuple",
+          "callee": "tuple",
+          "lineNumber": 91
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "isinstance",
+          "lineNumber": 97
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "SkillIRError",
+          "lineNumber": 98
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "enumerate",
+          "lineNumber": 100
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "isinstance",
+          "lineNumber": 101
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "SkillIRError",
+          "lineNumber": 102
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "out.append",
+          "lineNumber": 103
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "dict",
+          "lineNumber": 103
+        },
+        {
+          "caller": "_workflow_tuple",
+          "callee": "tuple",
+          "lineNumber": 104
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 5,
+        "classCount": 2
+      }
+    }
+  ]
+}

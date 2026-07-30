@@ -439,6 +439,12 @@ def _score_case(
         if answer.answerer_diagnostics is not None:
             case_entry["answerer_diagnostics"] = answer.answerer_diagnostics
 
+    # Retained independently of save_context: the trace is the attribution
+    # artifact for ranking A/Bs, and it is only ever populated when the run
+    # explicitly requested it.
+    if answer.retrieval_trace is not None:
+        case_entry["retrieval_trace"] = answer.retrieval_trace
+
     if judge is not None:
         try:
             verdict = provider_retry(
@@ -578,6 +584,12 @@ def _build_report(
             scores["judge_cross_agreement_rate"] = agree / len(primary_verdicts)
         integrity_hash_excludes.append("judge_cross")
 
+    # A retained trace is excluded from the integrity hash (it carries
+    # wall-clock latency). Declare that exclusion in the report so it is
+    # auditable rather than silent.
+    if any("retrieval_trace" in case for case in case_results):
+        integrity_hash_excludes.append("retrieval_trace")
+
     # Per-category score breakdown when cases carry category metadata
     _add_per_category_scores(scores, case_results)
 
@@ -591,6 +603,10 @@ def _build_report(
         "judge_cross",
         "retrieved_context",
         "answerer_diagnostics",
+        # Excluded deliberately: the trace carries per-leg wall-clock latency,
+        # which varies run to run. Including it would make the integrity hash
+        # non-reproducible for byte-identical retrieval.
+        "retrieval_trace",
     }
     stable_cases = [
         {k: v for k, v in c.items() if k not in integrity_exclude_keys}

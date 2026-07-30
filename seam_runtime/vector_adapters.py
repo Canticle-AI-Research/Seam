@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import inspect
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from .mirl import MIRLRecord
-from .models import EmbeddingModel
+from .models import EmbeddingModel, cosine
 from .vector import (
     INDEXABLE_KINDS,
     LEGACY_VECTOR_TEXT_VERSION,
@@ -91,6 +91,50 @@ class SQLiteVectorAdapter:
 
     def stale_records(self, records: list[MIRLRecord]) -> list[dict[str, object]]:
         return self.index.stale_records(records)
+
+
+@dataclass
+class MemoryVectorAdapter:
+    """Process-local vector projection for ephemeral canonical retrieval.
+
+    HS/1 surface queries must use the normal retrieval engine without importing
+    their payload into a durable database. This adapter keeps the derived vector
+    leg in memory while ``SQLiteStore(':memory:')`` holds canonical MIRL.
+    """
+
+    model: EmbeddingModel
+    name: str = "memory-vector"
+    _rows: dict[str, tuple[MIRLRecord, list[float]]] = field(
+        default_factory=dict, init=False, repr=False
+    )
+
+    def index_records(self, records: list[MIRLRecord]) -> None:
+        for record in records:
+            if record.kind not in INDEXABLE_KINDS:
+                continue
+            text = SQLiteVectorIndex.render_record_text(record)
+            self._rows[record.id] = (record, self.model.embed(text))
+
+    def delete_records(self, record_ids: list[str]) -> None:
+        for record_id in record_ids:
+            self._rows.pop(record_id, None)
+
+    def search(
+        self,
+        query: str,
+        limit: int = 10,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> dict[str, float]:
+        query_vector = self.model.embed(query)
+        ranked = [
+            (record_id, cosine(query_vector, vector))
+            for record_id, (record, vector) in self._rows.items()
+            if (namespace is None or record.ns == namespace)
+            and (scope is None or record.scope == scope)
+        ]
+        ranked.sort(key=lambda item: (-item[1], item[0]))
+        return dict(ranked[: max(0, limit)])
 
 
 @dataclass

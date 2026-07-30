@@ -1,0 +1,143 @@
+[
+  {
+    "id": "layer:api",
+    "name": "API Layer",
+    "description": "Provides FastAPI HTTP servers, Model Context Protocol (MCP) bridges, JSON-RPC protocol implementations, and CLI wrappers to expose runtime features to external interfaces.",
+    "nodeIds": [
+      "file:cli.py",
+      "file:mcp.py",
+      "file:mcp_protocol.py",
+      "file:server.py"
+    ]
+  },
+  {
+    "id": "layer:runtime",
+    "name": "Runtime Orchestration Layer",
+    "description": "Coordinates core SeamRuntime subsystems, handles sandbox workspaces, manages memory ingestion pipelines, and drives self-improvement evaluation feedback loops.",
+    "nodeIds": [
+      "file:__init__.py",
+      "file:runtime.py",
+      "file:workspace.py",
+      "file:agent_memory.py",
+      "file:self_improve.py",
+      "file:retrieval_orchestrator/__init__.py",
+      "file:retrieval_orchestrator/orchestrator.py"
+    ]
+  },
+  {
+    "id": "layer:natural-language",
+    "name": "Natural Language & Compiler Layer",
+    "description": "Compiles logs into structured MIRL records, compiles DSL constructs, executes semantic/grounded fact extraction (first-person or multi-speaker), and projects contextual evidence.",
+    "nodeIds": [
+      "file:dsl.py",
+      "file:transpile.py",
+      "file:verify.py",
+      "file:reconcile.py",
+      "file:nl.py",
+      "file:nl_extract.py",
+      "file:derived_fact_context.py",
+      "file:multi_speaker_facts.py",
+      "file:sentence_grounded_facts.py",
+      "file:conversation.py",
+      "file:event_count_context.py",
+      "file:second_hop_context.py",
+      "file:temporal_instance_context.py"
+    ]
+  },
+  {
+    "id": "layer:retrieval",
+    "name": "Retrieval Layer",
+    "description": "Implements hybrid multi-modal search and ranking, query planning and merging across vector/lexical/graph adapters, and parses relative temporal query criteria.",
+    "nodeIds": [
+      "file:retrieval.py",
+      "file:bm25.py",
+      "file:retrieval_orchestrator/planner.py",
+      "file:retrieval_orchestrator/merger.py",
+      "file:temporal.py"
+    ]
+  },
+  {
+    "id": "layer:data",
+    "name": "Data & Storage Layer",
+    "description": "Provides low-level SQLite storage, vector stores, knowledge graphs, connection pool management, and optimizes prompt payloads using LX1 encoding and symbols compression.",
+    "nodeIds": [
+      "file:storage.py",
+      "file:knowledge_graph.py",
+      "file:vector.py",
+      "file:vector_adapters.py",
+      "file:pool.py",
+      "file:retrieval_orchestrator/adapters.py",
+      "file:retrieval_orchestrator/types.py",
+      "file:mirl.py",
+      "file:models.py",
+      "file:jspace.py",
+      "file:holographic.py",
+      "file:lossless.py",
+      "file:lx1.py",
+      "file:pack.py",
+      "file:multi_scope_pack.py",
+      "file:symbols.py",
+      "file:tokenization.py"
+    ]
+  },
+  {
+    "id": "layer:ui",
+    "name": "User Interface Layer",
+    "description": "Exposes terminal TUI dashboards and progressive web-based console panels to inspect Seam database statistics, configurations, and logs in real-time.",
+    "nodeIds": [
+      "file:context_views.py",
+      "file:dashboard.py",
+      "file:ui/__init__.py",
+      "file:ui/animations.py",
+      "file:ui/bars.py",
+      "file:ui/logo.py",
+      "file:ui/theme.py",
+      "file:webui/dashboard.html",
+      "file:webui/seam-api.js",
+      "file:webui/tweaks-panel.jsx"
+    ]
+  },
+  {
+    "id": "layer:skills",
+    "name": "Skills Framework Layer",
+    "description": "Defines intermediate representations, factories, and validation rules to propose and orchestrate agent-specific skills.",
+    "nodeIds": [
+      "file:skills/__init__.py",
+      "file:skills/factory.py",
+      "file:skills/skill_ir.py"
+    ]
+  },
+  {
+    "id": "layer:infrastructure",
+    "name": "Infrastructure & Platform Layer",
+    "description": "Provides installers, pgvector container bootstrapping logic, resilience retry decorators, diagnostic doctor scripts, and synchronizes file-based artifact stores.",
+    "nodeIds": [
+      "file:pgvector_bootstrap.py",
+      "file:installer.py",
+      "file:doctor.py",
+      "file:surface_adapters.py",
+      "file:retry.py",
+      "file:improvement.py"
+    ]
+  },
+  {
+    "id": "layer:test",
+    "name": "Benchmarks & Evaluation Layer",
+    "description": "Evaluates search and compression performance with automated test suites, Git baseline policy routing, integrity signers, and external memory benchmarks.",
+    "nodeIds": [
+      "file:benchmarks.py",
+      "file:benchmark_baseline_policy.py",
+      "file:benchmark_integrity.py",
+      "file:external_memory_benchmarks.py",
+      "file:evals.py"
+    ]
+  },
+  {
+    "id": "layer:documentation",
+    "name": "Documentation Layer",
+    "description": "Contains technical plans, design patterns, and architecture documentation describing hybrid retrieval strategy and module boundaries.",
+    "nodeIds": [
+      "document:retrieval_orchestrator/README.md"
+    ]
+  }
+]

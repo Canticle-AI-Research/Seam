@@ -1,0 +1,42 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "ui/animations.py",
+      "language": "python",
+      "sizeLines": 482,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/bars.py",
+      "language": "python",
+      "sizeLines": 243,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/logo.py",
+      "language": "python",
+      "sizeLines": 408,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/theme.py",
+      "language": "python",
+      "sizeLines": 191,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "ui/animations.py": [
+      "ui/bars.py",
+      "ui/theme.py"
+    ],
+    "ui/bars.py": [
+      "ui/theme.py"
+    ],
+    "ui/logo.py": [
+      "ui/theme.py"
+    ],
+    "ui/theme.py": []
+  }
+}

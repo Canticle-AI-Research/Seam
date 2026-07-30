@@ -1,0 +1,44 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "derived_fact_context.py",
+      "language": "python",
+      "sizeLines": 1375,
+      "fileCategory": "code"
+    },
+    {
+      "path": "multi_speaker_facts.py",
+      "language": "python",
+      "sizeLines": 485,
+      "fileCategory": "code"
+    },
+    {
+      "path": "nl_extract.py",
+      "language": "python",
+      "sizeLines": 760,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sentence_grounded_facts.py",
+      "language": "python",
+      "sizeLines": 329,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "derived_fact_context.py": [
+      "mirl.py",
+      "multi_speaker_facts.py",
+      "nl_extract.py",
+      "sentence_grounded_facts.py"
+    ],
+    "multi_speaker_facts.py": [
+      "sentence_grounded_facts.py"
+    ],
+    "nl_extract.py": [],
+    "sentence_grounded_facts.py": [
+      "nl_extract.py"
+    ]
+  }
+}

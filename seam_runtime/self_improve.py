@@ -41,9 +41,9 @@ from .retrieval import RETRIEVAL_PROFILES, RetrievalFlags
 if TYPE_CHECKING:  # avoid import cycle / heavy import at module load
     from .runtime import SeamRuntime
 
-# The kinds a probe may target by default = exactly the kinds `search_ir` can
-# return as candidates (see `retrieval.search_batch` candidate_kinds). Probing
-# RAW (not a default search candidate) or PROV/SPAN/ENT (whose only text is an
+# The kinds a probe may target by default are exactly the memory-record kinds
+# exposed by the canonical engine through the `search_ir` compatibility shape.
+# Probing RAW (not included by default) or PROV/SPAN/ENT (whose only text is an
 # id/label, not content) yields structurally-unhittable or degenerate cloze
 # queries that always miss, diluting the signal; the content claim carries the
 # verbatim proposition, so restricting to these loses no content.

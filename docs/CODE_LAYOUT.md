@@ -6,7 +6,12 @@ not have to infer what works from directory names alone.
 ## Active Runtime
 
 - `seam_runtime/` - packaged runtime, dashboard, storage, retrieval, model, and benchmark code.
-- `seam_runtime/retrieval_orchestrator/` - multi-leg retrieval orchestrator (planner, adapters, merger) powering `seam retrieve`, the MCP tool, dashboard retrieval, and the benchmark suite. Promoted from `experimental/` in HISTORY#284.
+- `seam_runtime/retrieval_orchestrator/` - the single canonical multi-leg
+  retrieval engine (planner, SQL/vector/graph/temporal adapters, and fixed
+  rank-normalized merger) powering runtime `retrieve`, compatibility
+  `search_ir`, CLI, MCP, REST, opaque `/v1`, dashboard, SDK, LoCoMo,
+  self-improvement probes, and HS/1 MIRL queries. Promoted from `experimental/`
+  in HISTORY#284 and made the sole live execution path in HISTORY#502.
 - `seam_runtime/knowledge_graph.py` - canonical MIRL-to-graph projector, conservative 5W1H+Then lens, evidence-derived trust profiles/assertion gate, versioned existing-database backfill, temporal/source supersession, graph query, node-page, and statistics logic. `SQLiteStore.persist_ir` maintains it automatically (HISTORY#403).
 - `seam_runtime/graph_products.py` - G4 append-only, rebuildable entity/community summaries and multi-episode observations; every sentence retains exact supporting MIRL record and episode IDs, and latest reads are namespace/scope isolated.
 - `seam_runtime/context_assembly.py` - G5 storage-agnostic deterministic context PACKs over facts, entities, episodes, summaries, and observations, with exact backtraces, trust/time gates, and grounded-fact non-displacement.

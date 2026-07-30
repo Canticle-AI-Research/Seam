@@ -1,0 +1,1388 @@
+{
+  "nodes": [
+    {
+      "id": "file:benchmarks.py",
+      "type": "file",
+      "name": "benchmarks.py",
+      "filePath": "benchmarks.py",
+      "summary": "Provides the core benchmark execution suite for evaluating Seam runtime performance across lossless, readable, surface, retrieval, and embedding families.",
+      "tags": [
+        "test",
+        "utility",
+        "benchmarks",
+        "performance"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:dsl.py",
+      "type": "file",
+      "name": "dsl.py",
+      "filePath": "dsl.py",
+      "summary": "Compiler and parser for the Seam Domain Specific Language (DSL), transforming textual entity and block definitions into MIRLRecord models.",
+      "tags": [
+        "compiler",
+        "dsl",
+        "parser",
+        "serialization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:evals.py",
+      "type": "file",
+      "name": "evals.py",
+      "filePath": "evals.py",
+      "summary": "Evaluation module for executing retrieval benchmarks and assessing metrics like token budget, latency, and compression ratios.",
+      "tags": [
+        "test",
+        "validation",
+        "retrieval",
+        "metrics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "models.py",
+      "summary": "Defines interfaces and adapters for SentenceTransformer and OpenAI-compatible embedding models used within the vector store.",
+      "tags": [
+        "data-model",
+        "service",
+        "embeddings",
+        "ai-client"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:retrieval_orchestrator/adapters.py",
+      "type": "file",
+      "name": "adapters.py",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "summary": "Adapters for interfacing the retrieval orchestrator with SQL database, Chroma semantic index, and graph databases.",
+      "tags": [
+        "middleware",
+        "service",
+        "database",
+        "retrieval"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:surface_adapters.py",
+      "type": "file",
+      "name": "surface_adapters.py",
+      "filePath": "surface_adapters.py",
+      "summary": "Manages copying and repairing file-based artifacts like screenshots using SHA-256 hash checks and directory synchronization.",
+      "tags": [
+        "utility",
+        "file-system",
+        "validation",
+        "sync"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:vector.py",
+      "type": "file",
+      "name": "vector.py",
+      "filePath": "vector.py",
+      "summary": "Implements SQLite-based local vector storage with cosine similarity search and stale/orphan record tracking.",
+      "tags": [
+        "database",
+        "vector-store",
+        "sqlite",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:vector_adapters.py",
+      "type": "file",
+      "name": "vector_adapters.py",
+      "filePath": "vector_adapters.py",
+      "summary": "Database adapters wrapping vector search functionality for SQLite and PostgreSQL pgvector backends.",
+      "tags": [
+        "middleware",
+        "database",
+        "vector-store",
+        "postgres"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:benchmarks.py:run_benchmark_suite",
+      "type": "function",
+      "name": "run_benchmark_suite",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        125,
+        238
+      ],
+      "summary": "Executes all configured benchmark families and aggregates their results into a comprehensive suite report.",
+      "tags": [
+        "entry-point",
+        "benchmarks",
+        "performance"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:benchmarks.py:verify_benchmark_bundle",
+      "type": "function",
+      "name": "verify_benchmark_bundle",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        241,
+        268
+      ],
+      "summary": "Verifies the integrity of a benchmark bundle by checking dataset manifest matches.",
+      "tags": [
+        "validation",
+        "benchmarks"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:benchmarks.py:evaluate_benchmark_gate",
+      "type": "function",
+      "name": "evaluate_benchmark_gate",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        271,
+        343
+      ],
+      "summary": "Evaluates benchmark results against a gate policy to determine if performance changes meet strict regression thresholds.",
+      "tags": [
+        "validation",
+        "regression",
+        "metrics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:diff_benchmark_runs",
+      "type": "function",
+      "name": "diff_benchmark_runs",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        379,
+        440
+      ],
+      "summary": "Computes metrics and status differences between two distinct benchmark execution runs.",
+      "tags": [
+        "utility",
+        "comparison",
+        "metrics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:_run_lossless_family",
+      "type": "function",
+      "name": "_run_lossless_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        537,
+        596
+      ],
+      "summary": "Runs the lossless compression benchmark cases using the runtime tokenizer.",
+      "tags": [
+        "benchmarks",
+        "compression"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:_run_readable_family",
+      "type": "function",
+      "name": "_run_readable_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        599,
+        694
+      ],
+      "summary": "Runs the read-oriented compression and readability benchmark cases.",
+      "tags": [
+        "benchmarks",
+        "readability"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:_run_surface_family",
+      "type": "function",
+      "name": "_run_surface_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        697,
+        836
+      ],
+      "summary": "Runs benchmarks verifying UI surface rendering, screenshot copying, and file repair accuracy.",
+      "tags": [
+        "benchmarks",
+        "ui-surface"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:benchmarks.py:_run_retrieval_family",
+      "type": "function",
+      "name": "_run_retrieval_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        839,
+        899
+      ],
+      "summary": "Runs search and retrieval benchmarks across different database and index adapter configurations.",
+      "tags": [
+        "benchmarks",
+        "retrieval"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:_run_embedding_family",
+      "type": "function",
+      "name": "_run_embedding_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        902,
+        956
+      ],
+      "summary": "Evaluates embedding model alignment and cosine similarity margins for a test set.",
+      "tags": [
+        "benchmarks",
+        "embeddings"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:_run_long_context_family",
+      "type": "function",
+      "name": "_run_long_context_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        958,
+        1048
+      ],
+      "summary": "Benchmarks runtime processing, token usage, and accuracy under large input context scopes.",
+      "tags": [
+        "benchmarks",
+        "context-window"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:_run_persistence_family",
+      "type": "function",
+      "name": "_run_persistence_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        1049,
+        1170
+      ],
+      "summary": "Benchmarks index persistence, sync timings, and data reload stability.",
+      "tags": [
+        "benchmarks",
+        "persistence"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:benchmarks.py:_run_agent_task_family",
+      "type": "function",
+      "name": "_run_agent_task_family",
+      "filePath": "benchmarks.py",
+      "lineRange": [
+        1173,
+        1287
+      ],
+      "summary": "Runs complex multi-step agent task execution benchmarks, verifying memory recall accuracy.",
+      "tags": [
+        "benchmarks",
+        "agent-task"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:dsl.py:compile_dsl",
+      "type": "function",
+      "name": "compile_dsl",
+      "filePath": "dsl.py",
+      "lineRange": [
+        20,
+        47
+      ],
+      "summary": "Parses raw DSL text into MIRLRecord models, initializing timestamps and context bounds.",
+      "tags": [
+        "compiler",
+        "dsl"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dsl.py:_parse_blocks",
+      "type": "function",
+      "name": "_parse_blocks",
+      "filePath": "dsl.py",
+      "lineRange": [
+        50,
+        79
+      ],
+      "summary": "Splits raw DSL text into structured block schemas by detecting entity boundaries and properties.",
+      "tags": [
+        "parser",
+        "dsl"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dsl.py:_block_to_record",
+      "type": "function",
+      "name": "_block_to_record",
+      "filePath": "dsl.py",
+      "lineRange": [
+        125,
+        181
+      ],
+      "summary": "Converts a single parsed DSL block structure into a fully resolved MIRLRecord database model.",
+      "tags": [
+        "serialization",
+        "dsl"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:evals.py:run_retrieval_benchmark",
+      "type": "function",
+      "name": "run_retrieval_benchmark",
+      "filePath": "evals.py",
+      "lineRange": [
+        48,
+        118
+      ],
+      "summary": "Executes a retrieval benchmark suite over given fixtures, evaluating vector and graph retrieval models.",
+      "tags": [
+        "test-suite",
+        "retrieval"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:evals.py:default_retrieval_fixtures",
+      "type": "function",
+      "name": "default_retrieval_fixtures",
+      "filePath": "evals.py",
+      "lineRange": [
+        30,
+        45
+      ],
+      "summary": "Loads default retrieval benchmark fixtures from a json dataset file.",
+      "tags": [
+        "utility",
+        "data-loader"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:evals.py:_vector_scores",
+      "type": "function",
+      "name": "_vector_scores",
+      "filePath": "evals.py",
+      "lineRange": [
+        127,
+        140
+      ],
+      "summary": "Calculates cosine similarity scores between records and query strings using the embedding model.",
+      "tags": [
+        "metrics",
+        "embeddings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:evals.py:_track_report",
+      "type": "function",
+      "name": "_track_report",
+      "filePath": "evals.py",
+      "lineRange": [
+        147,
+        159
+      ],
+      "summary": "Generates a hit accuracy and rank tracking report for a single retrieval evaluation case.",
+      "tags": [
+        "metrics",
+        "reporting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:models.py:SentenceTransformerModel",
+      "type": "class",
+      "name": "SentenceTransformerModel",
+      "filePath": "models.py",
+      "lineRange": [
+        57,
+        109
+      ],
+      "summary": "Adapter class wrapping locally hosted Hugging Face Sentence Transformers models for sentence embeddings.",
+      "tags": [
+        "service",
+        "embeddings",
+        "transformer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:models.py:OpenAICompatibleEmbeddingModel",
+      "type": "class",
+      "name": "OpenAICompatibleEmbeddingModel",
+      "filePath": "models.py",
+      "lineRange": [
+        113,
+        170
+      ],
+      "summary": "Adapter class for calling OpenAI-compatible embedding APIs with customizable parameters.",
+      "tags": [
+        "service",
+        "embeddings",
+        "api-client"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:models.py:embedding_settings_from_env",
+      "type": "function",
+      "name": "embedding_settings_from_env",
+      "filePath": "models.py",
+      "lineRange": [
+        173,
+        187
+      ],
+      "summary": "Retrieves and structures embedding model settings from environment variables.",
+      "tags": [
+        "config",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:models.py:default_embedding_model",
+      "type": "function",
+      "name": "default_embedding_model",
+      "filePath": "models.py",
+      "lineRange": [
+        190,
+        204
+      ],
+      "summary": "Instantiates the default embedding model configured via environment variables.",
+      "tags": [
+        "factory",
+        "embeddings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:models.py:cosine",
+      "type": "function",
+      "name": "cosine",
+      "filePath": "models.py",
+      "lineRange": [
+        207,
+        231
+      ],
+      "summary": "Helper function calculating cosine similarity between two numeric vectors.",
+      "tags": [
+        "utility",
+        "math"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:retrieval_orchestrator/adapters.py:SQLiteIRAdapter",
+      "type": "class",
+      "name": "SQLiteIRAdapter",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "lineRange": [
+        30,
+        50
+      ],
+      "summary": "Interprets queries and executes search on the local SQLite IR database.",
+      "tags": [
+        "middleware",
+        "sqlite",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:retrieval_orchestrator/adapters.py:SeamVectorSearchAdapter",
+      "type": "class",
+      "name": "SeamVectorSearchAdapter",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "lineRange": [
+        53,
+        75
+      ],
+      "summary": "Interprets queries and routes search calls to the local vector search engine.",
+      "tags": [
+        "middleware",
+        "vector-store",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:retrieval_orchestrator/adapters.py:SQLiteGraphAdapter",
+      "type": "class",
+      "name": "SQLiteGraphAdapter",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "lineRange": [
+        78,
+        167
+      ],
+      "summary": "Resolves query intent using path traversals on the local SQLite graph relation database.",
+      "tags": [
+        "middleware",
+        "graph-db",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:retrieval_orchestrator/adapters.py:ChromaSemanticAdapter",
+      "type": "class",
+      "name": "ChromaSemanticAdapter",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "lineRange": [
+        171,
+        244
+      ],
+      "summary": "Manages ChromaDB document vector indexing and runs semantic similarity searches.",
+      "tags": [
+        "middleware",
+        "chromadb",
+        "embeddings"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:retrieval_orchestrator/adapters.py:_structured_reasons",
+      "type": "function",
+      "name": "_structured_reasons",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "lineRange": [
+        247,
+        271
+      ],
+      "summary": "Extracts matching justifications from a record based on filters in the query plan.",
+      "tags": [
+        "utility",
+        "recommender"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:retrieval_orchestrator/adapters.py:_build_structured_sql",
+      "type": "function",
+      "name": "_build_structured_sql",
+      "filePath": "retrieval_orchestrator/adapters.py",
+      "lineRange": [
+        310,
+        441
+      ],
+      "summary": "Dynamically builds SQLite query strings for structured attribute matching and full-text search.",
+      "tags": [
+        "database",
+        "sql-builder"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:surface_adapters.py:SurfaceFileAdapter",
+      "type": "class",
+      "name": "SurfaceFileAdapter",
+      "filePath": "surface_adapters.py",
+      "lineRange": [
+        48,
+        147
+      ],
+      "summary": "Handles copying screenshots and repairing them if checksums do not match the expected store hash.",
+      "tags": [
+        "service",
+        "file-system",
+        "sync"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:vector.py:SQLiteVectorIndex",
+      "type": "class",
+      "name": "SQLiteVectorIndex",
+      "filePath": "vector.py",
+      "lineRange": [
+        38,
+        306
+      ],
+      "summary": "Low-level database index managing custom SQLite vector search tables and cache layers.",
+      "tags": [
+        "database",
+        "sqlite",
+        "vector-store"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:vector_adapters.py:SQLiteVectorAdapter",
+      "type": "class",
+      "name": "SQLiteVectorAdapter",
+      "filePath": "vector_adapters.py",
+      "lineRange": [
+        23,
+        39
+      ],
+      "summary": "A simple adapter wrapping SQLiteVectorIndex to adhere to the VectorAdapter interface.",
+      "tags": [
+        "middleware",
+        "sqlite"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:vector_adapters.py:PgVectorAdapter",
+      "type": "class",
+      "name": "PgVectorAdapter",
+      "filePath": "vector_adapters.py",
+      "lineRange": [
+        43,
+        273
+      ],
+      "summary": "High-level PostgreSQL adapter implementing pgvector-based indexing, search, and migration.",
+      "tags": [
+        "middleware",
+        "postgres",
+        "pgvector"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:run_benchmark_suite",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:verify_benchmark_bundle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:evaluate_benchmark_gate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:diff_benchmark_runs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_lossless_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_readable_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_surface_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_retrieval_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_embedding_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_long_context_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_persistence_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:_run_agent_task_family",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "function:dsl.py:compile_dsl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "function:dsl.py:_parse_blocks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "function:dsl.py:_block_to_record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:run_retrieval_benchmark",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:default_retrieval_fixtures",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:_vector_scores",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:_track_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SentenceTransformerModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:OpenAICompatibleEmbeddingModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "function:models.py:embedding_settings_from_env",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "function:models.py:default_embedding_model",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:models.py",
+      "target": "function:models.py:cosine",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:SQLiteIRAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:SeamVectorSearchAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:SQLiteGraphAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:ChromaSemanticAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "function:retrieval_orchestrator/adapters.py:_structured_reasons",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "function:retrieval_orchestrator/adapters.py:_build_structured_sql",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:surface_adapters.py",
+      "target": "class:surface_adapters.py:SurfaceFileAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:vector.py",
+      "target": "class:vector.py:SQLiteVectorIndex",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "class:vector_adapters.py:SQLiteVectorAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "class:vector_adapters.py:PgVectorAdapter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:run_benchmark_suite",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:verify_benchmark_bundle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:evaluate_benchmark_gate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "function:benchmarks.py:diff_benchmark_runs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "function:dsl.py:compile_dsl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "function:dsl.py:_parse_blocks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "function:dsl.py:_block_to_record",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:run_retrieval_benchmark",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:default_retrieval_fixtures",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:_vector_scores",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:evals.py",
+      "target": "function:evals.py:_track_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:SentenceTransformerModel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "class:models.py:OpenAICompatibleEmbeddingModel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "function:models.py:embedding_settings_from_env",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "function:models.py:default_embedding_model",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:models.py",
+      "target": "function:models.py:cosine",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:SQLiteIRAdapter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:SeamVectorSearchAdapter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:SQLiteGraphAdapter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "class:retrieval_orchestrator/adapters.py:ChromaSemanticAdapter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "function:retrieval_orchestrator/adapters.py:_structured_reasons",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "function:retrieval_orchestrator/adapters.py:_build_structured_sql",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:surface_adapters.py",
+      "target": "class:surface_adapters.py:SurfaceFileAdapter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:vector.py",
+      "target": "class:vector.py:SQLiteVectorIndex",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "class:vector_adapters.py:SQLiteVectorAdapter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "class:vector_adapters.py:PgVectorAdapter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:context_views.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:dsl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:evals.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:holographic.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:lossless.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:surface_adapters.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:benchmarks.py",
+      "target": "file:vector.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:dsl.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:dsl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:lossless.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:pack.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:retrieval.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:evals.py",
+      "target": "file:vector.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:retrieval_orchestrator/types.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:vector.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:retrieval_orchestrator/adapters.py",
+      "target": "file:vector_adapters.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:vector.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:vector.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "file:models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:vector_adapters.py",
+      "target": "file:vector.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "class:retrieval_orchestrator/adapters.py:ChromaSemanticAdapter",
+      "target": "class:vector.py:SQLiteVectorIndex",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:vector_adapters.py:SQLiteVectorAdapter",
+      "target": "class:vector.py:SQLiteVectorIndex",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:vector_adapters.py:PgVectorAdapter",
+      "target": "class:vector.py:SQLiteVectorIndex",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:evals.py:run_retrieval_benchmark",
+      "target": "class:vector.py:SQLiteVectorIndex",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:evals.py:run_retrieval_benchmark",
+      "target": "function:dsl.py:compile_dsl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_lossless_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_readable_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_surface_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_retrieval_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_embedding_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_long_context_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_persistence_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:_run_agent_task_family",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:run_benchmark_suite",
+      "target": "function:benchmarks.py:verify_benchmark_bundle",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:benchmarks.py:evaluate_benchmark_gate",
+      "target": "function:benchmarks.py:diff_benchmark_runs",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

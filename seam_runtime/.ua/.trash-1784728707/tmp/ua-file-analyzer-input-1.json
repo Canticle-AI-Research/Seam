@@ -1,0 +1,148 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "__init__.py",
+      "language": "python",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": "agent_memory.py",
+      "language": "python",
+      "sizeLines": 145,
+      "fileCategory": "code"
+    },
+    {
+      "path": "bm25.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "mirl.py",
+      "language": "python",
+      "sizeLines": 375,
+      "fileCategory": "code"
+    },
+    {
+      "path": "nl.py",
+      "language": "python",
+      "sizeLines": 774,
+      "fileCategory": "code"
+    },
+    {
+      "path": "pack.py",
+      "language": "python",
+      "sizeLines": 300,
+      "fileCategory": "code"
+    },
+    {
+      "path": "reconcile.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval.py",
+      "language": "python",
+      "sizeLines": 556,
+      "fileCategory": "code"
+    },
+    {
+      "path": "runtime.py",
+      "language": "python",
+      "sizeLines": 501,
+      "fileCategory": "code"
+    },
+    {
+      "path": "self_improve.py",
+      "language": "python",
+      "sizeLines": 900,
+      "fileCategory": "code"
+    },
+    {
+      "path": "symbols.py",
+      "language": "python",
+      "sizeLines": 249,
+      "fileCategory": "code"
+    },
+    {
+      "path": "temporal.py",
+      "language": "python",
+      "sizeLines": 127,
+      "fileCategory": "code"
+    },
+    {
+      "path": "transpile.py",
+      "language": "python",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "verify.py",
+      "language": "python",
+      "sizeLines": 143,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "__init__.py": [
+      "mirl.py",
+      "runtime.py"
+    ],
+    "agent_memory.py": [
+      "mirl.py"
+    ],
+    "bm25.py": [],
+    "mirl.py": [],
+    "nl.py": [
+      "derived_fact_context.py",
+      "mirl.py"
+    ],
+    "pack.py": [
+      "mirl.py",
+      "symbols.py"
+    ],
+    "reconcile.py": [
+      "mirl.py"
+    ],
+    "retrieval.py": [
+      "bm25.py",
+      "mirl.py",
+      "symbols.py",
+      "temporal.py"
+    ],
+    "runtime.py": [
+      "agent_memory.py",
+      "benchmarks.py",
+      "dsl.py",
+      "evals.py",
+      "mirl.py",
+      "models.py",
+      "nl.py",
+      "pack.py",
+      "reconcile.py",
+      "retrieval.py",
+      "storage.py",
+      "symbols.py",
+      "transpile.py",
+      "vector_adapters.py",
+      "verify.py"
+    ],
+    "self_improve.py": [
+      "mirl.py",
+      "retrieval.py"
+    ],
+    "symbols.py": [
+      "mirl.py"
+    ],
+    "temporal.py": [],
+    "transpile.py": [
+      "mirl.py"
+    ],
+    "verify.py": [
+      "mirl.py"
+    ]
+  }
+}

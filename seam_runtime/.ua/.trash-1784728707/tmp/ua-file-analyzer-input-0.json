@@ -1,0 +1,156 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "benchmark_baseline_policy.py",
+      "language": "python",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "benchmark_integrity.py",
+      "language": "python",
+      "sizeLines": 462,
+      "fileCategory": "code"
+    },
+    {
+      "path": "cli.py",
+      "language": "python",
+      "sizeLines": 2488,
+      "fileCategory": "code"
+    },
+    {
+      "path": "context_views.py",
+      "language": "python",
+      "sizeLines": 194,
+      "fileCategory": "code"
+    },
+    {
+      "path": "dashboard.py",
+      "language": "python",
+      "sizeLines": 3160,
+      "fileCategory": "code"
+    },
+    {
+      "path": "doctor.py",
+      "language": "python",
+      "sizeLines": 166,
+      "fileCategory": "code"
+    },
+    {
+      "path": "external_memory_benchmarks.py",
+      "language": "python",
+      "sizeLines": 210,
+      "fileCategory": "code"
+    },
+    {
+      "path": "holographic.py",
+      "language": "python",
+      "sizeLines": 565,
+      "fileCategory": "code"
+    },
+    {
+      "path": "installer.py",
+      "language": "python",
+      "sizeLines": 389,
+      "fileCategory": "code"
+    },
+    {
+      "path": "lossless.py",
+      "language": "python",
+      "sizeLines": 974,
+      "fileCategory": "code"
+    },
+    {
+      "path": "lx1.py",
+      "language": "python",
+      "sizeLines": 311,
+      "fileCategory": "code"
+    },
+    {
+      "path": "mcp.py",
+      "language": "python",
+      "sizeLines": 505,
+      "fileCategory": "code"
+    },
+    {
+      "path": "mcp_protocol.py",
+      "language": "python",
+      "sizeLines": 287,
+      "fileCategory": "code"
+    },
+    {
+      "path": "pgvector_bootstrap.py",
+      "language": "python",
+      "sizeLines": 229,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui/__init__.py",
+      "language": "python",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "benchmark_baseline_policy.py": [],
+    "benchmark_integrity.py": [],
+    "cli.py": [
+      "agent_memory.py",
+      "benchmark_baseline_policy.py",
+      "benchmark_integrity.py",
+      "benchmarks.py",
+      "context_views.py",
+      "dashboard.py",
+      "doctor.py",
+      "external_memory_benchmarks.py",
+      "holographic.py",
+      "installer.py",
+      "lossless.py",
+      "lx1.py",
+      "mirl.py",
+      "runtime.py",
+      "surface_adapters.py"
+    ],
+    "context_views.py": [],
+    "dashboard.py": [
+      "context_views.py",
+      "installer.py",
+      "lossless.py",
+      "mirl.py",
+      "models.py",
+      "runtime.py",
+      "ui/__init__.py"
+    ],
+    "doctor.py": [
+      "installer.py",
+      "lossless.py",
+      "runtime.py"
+    ],
+    "external_memory_benchmarks.py": [],
+    "holographic.py": [
+      "lossless.py",
+      "mirl.py",
+      "pack.py",
+      "retrieval.py"
+    ],
+    "installer.py": [],
+    "lossless.py": [],
+    "lx1.py": [
+      "mirl.py"
+    ],
+    "mcp.py": [
+      "doctor.py",
+      "holographic.py",
+      "runtime.py"
+    ],
+    "mcp_protocol.py": [
+      "installer.py",
+      "mcp.py",
+      "pgvector_bootstrap.py",
+      "runtime.py"
+    ],
+    "pgvector_bootstrap.py": [],
+    "ui/__init__.py": []
+  }
+}

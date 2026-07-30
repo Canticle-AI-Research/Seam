@@ -1,0 +1,978 @@
+{
+  "nodes": [
+    {
+      "id": "file:derived_fact_context.py",
+      "type": "file",
+      "name": "derived_fact_context.py",
+      "filePath": "derived_fact_context.py",
+      "summary": "Manages configuration, caching, validation, and splicing of derived facts using various grounded semantic extraction policies with SQLite cache backing.",
+      "tags": [
+        "data-model",
+        "service",
+        "validation",
+        "serialization"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:multi_speaker_facts.py",
+      "type": "file",
+      "name": "multi_speaker_facts.py",
+      "filePath": "multi_speaker_facts.py",
+      "summary": "Implements broadened multi-speaker grounded fact extraction for research, allowing third-person facts while enforcing single-sentence lexical and pronoun boundaries.",
+      "tags": [
+        "utility",
+        "validation",
+        "nlp"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:nl_extract.py",
+      "type": "file",
+      "name": "nl_extract.py",
+      "filePath": "nl_extract.py",
+      "summary": "Provides rich semantic extraction using Ollama to produce subject-relation-object triples and entities, with strict verification checks to ensure all extracted parts map verbatim to the source text.",
+      "tags": [
+        "utility",
+        "validation",
+        "nlp"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:sentence_grounded_facts.py",
+      "type": "file",
+      "name": "sentence_grounded_facts.py",
+      "filePath": "sentence_grounded_facts.py",
+      "summary": "Implements strict single-speaker first-person local fact extraction, verifying that claims preserve negations, numbers, and speaker canonicalization.",
+      "tags": [
+        "utility",
+        "validation",
+        "nlp"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:derived_fact_context.py:configure_derived_facts",
+      "type": "function",
+      "name": "configure_derived_facts",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        217,
+        320
+      ],
+      "summary": "Configures the derived facts extraction environment based on policies, caching settings, and local Ollama extractor options.",
+      "tags": [
+        "utility",
+        "configuration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:derived_fact_context.py:splice_derived_facts",
+      "type": "function",
+      "name": "splice_derived_facts",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        1265,
+        1345
+      ],
+      "summary": "Filters, grounds, and splices derived fact candidates from a sequence of MIRL records based on the configured policy.",
+      "tags": [
+        "utility",
+        "data-pipeline"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:derived_fact_context.py:segment_propositions",
+      "type": "function",
+      "name": "segment_propositions",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        133,
+        171
+      ],
+      "summary": "Extracts proposition segments and their source bounds from input text using sentence punctuation boundaries.",
+      "tags": [
+        "utility",
+        "text-processing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:derived_fact_context.py:grounded_spans_match_source",
+      "type": "function",
+      "name": "grounded_spans_match_source",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        867,
+        1026
+      ],
+      "summary": "Verifies that all extracted grounded spans match the source text exactly and are properly ordered and gap-free.",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:derived_fact_context.py:DerivedFactsConfig",
+      "type": "class",
+      "name": "DerivedFactsConfig",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        193,
+        210
+      ],
+      "summary": "Represents a validated configuration manifest for derived facts extraction.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:derived_fact_context.py:CachedExtractor",
+      "type": "class",
+      "name": "CachedExtractor",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        398,
+        660
+      ],
+      "summary": "Performs semantic extraction with an immutable configuration and a SQLite content-addressed replay cache.",
+      "tags": [
+        "service",
+        "caching"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:derived_fact_context.py:ScopedCachedExtractor",
+      "type": "class",
+      "name": "ScopedCachedExtractor",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        662,
+        687
+      ],
+      "summary": "Wrapper around CachedExtractor that scopes operations to a specific namespace owner for selective cache purging.",
+      "tags": [
+        "service",
+        "caching"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:derived_fact_context.py:DerivedFact",
+      "type": "class",
+      "name": "DerivedFact",
+      "filePath": "derived_fact_context.py",
+      "lineRange": [
+        1215,
+        1264
+      ],
+      "summary": "Represents a successfully extracted and grounded fact ready to be spliced into runtime memory.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:multi_speaker_facts.py:declarative_evidence",
+      "type": "function",
+      "name": "declarative_evidence",
+      "filePath": "multi_speaker_facts.py",
+      "lineRange": [
+        243,
+        260
+      ],
+      "summary": "Extracts candidate source sentences containing at least one proper noun or first-person pronoun.",
+      "tags": [
+        "utility",
+        "text-processing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:multi_speaker_facts.py:validate_multi_speaker_fact_with_reason",
+      "type": "function",
+      "name": "validate_multi_speaker_fact_with_reason",
+      "filePath": "multi_speaker_facts.py",
+      "lineRange": [
+        344,
+        471
+      ],
+      "summary": "Performs strict name grounding, negation checks, pronoun subject validation, and lexical support verification on a candidate fact.",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:multi_speaker_facts.py:validate_multi_speaker_fact",
+      "type": "function",
+      "name": "validate_multi_speaker_fact",
+      "filePath": "multi_speaker_facts.py",
+      "lineRange": [
+        473,
+        485
+      ],
+      "summary": "High-level validation wrapper returning the validated SentenceGroundedFact if successful, or None.",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:multi_speaker_facts.py:build_multi_speaker_fact_prompt",
+      "type": "function",
+      "name": "build_multi_speaker_fact_prompt",
+      "filePath": "multi_speaker_facts.py",
+      "lineRange": [
+        331,
+        342
+      ],
+      "summary": "Builds the LLM prompt for extracting multi-speaker facts from a given chat turn.",
+      "tags": [
+        "utility",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:nl_extract.py:grounded_sro_is_coherent",
+      "type": "function",
+      "name": "grounded_sro_is_coherent",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        219,
+        276
+      ],
+      "summary": "Checks that the Subject, Relation, and Object spans occur in order and gap-free within a single clause window.",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:nl_extract.py:ground_extraction",
+      "type": "function",
+      "name": "ground_extraction",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        689,
+        752
+      ],
+      "summary": "Converts a raw JSON extraction dictionary into a verified Extraction object by grounding it against the source text.",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:nl_extract.py:clause_window",
+      "type": "function",
+      "name": "clause_window",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        278,
+        302
+      ],
+      "summary": "Resolves the clause window boundary enclosing a given Subject-Relation-Object span to isolate it from compound sentences.",
+      "tags": [
+        "utility",
+        "text-processing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:nl_extract.py:extractor_from_env",
+      "type": "function",
+      "name": "extractor_from_env",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        754,
+        760
+      ],
+      "summary": "Helper to instantiate and return an Extractor instance using environmental configurations.",
+      "tags": [
+        "utility",
+        "factory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:nl_extract.py:GroundedSpan",
+      "type": "class",
+      "name": "GroundedSpan",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        36,
+        49
+      ],
+      "summary": "Represents a contiguous block of text copied verbatim from a source document.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:nl_extract.py:ExtractedClaim",
+      "type": "class",
+      "name": "ExtractedClaim",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        360,
+        400
+      ],
+      "summary": "Holds a single extracted semantic claim along with its optional facets (when/where/how/etc.) and grounding spans.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:nl_extract.py:Extraction",
+      "type": "class",
+      "name": "Extraction",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        402,
+        411
+      ],
+      "summary": "A verified collection of grounded entities and claims extracted from a proposition.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:nl_extract.py:OllamaExtractor",
+      "type": "class",
+      "name": "OllamaExtractor",
+      "filePath": "nl_extract.py",
+      "lineRange": [
+        507,
+        687
+      ],
+      "summary": "Calls a local Ollama server to perform rich semantic extraction and returns verified grounded claims and entities.",
+      "tags": [
+        "service",
+        "api-handler"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sentence_grounded_facts.py:validate_sentence_grounded_fact_with_reason",
+      "type": "function",
+      "name": "validate_sentence_grounded_fact_with_reason",
+      "filePath": "sentence_grounded_facts.py",
+      "lineRange": [
+        177,
+        211
+      ],
+      "summary": "Verifies a sentence-grounded fact against strict validation rules (number preservation, negation preservation, speaker rebasing).",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sentence_grounded_facts.py:first_person_declarative_evidence",
+      "type": "function",
+      "name": "first_person_declarative_evidence",
+      "filePath": "sentence_grounded_facts.py",
+      "lineRange": [
+        122,
+        132
+      ],
+      "summary": "Finds and indexes first-person declarative sentences from source text.",
+      "tags": [
+        "utility",
+        "text-processing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sentence_grounded_facts.py:build_sentence_fact_prompt",
+      "type": "function",
+      "name": "build_sentence_fact_prompt",
+      "filePath": "sentence_grounded_facts.py",
+      "lineRange": [
+        151,
+        162
+      ],
+      "summary": "Builds the Ollama prompt containing rules and eligible sentences to extract single-speaker facts.",
+      "tags": [
+        "utility",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sentence_grounded_facts.py:OllamaSentenceFactExtractor",
+      "type": "class",
+      "name": "OllamaSentenceFactExtractor",
+      "filePath": "sentence_grounded_facts.py",
+      "lineRange": [
+        240,
+        329
+      ],
+      "summary": "Strict local extractor that queries Ollama for sentence-grounded facts and validates the results.",
+      "tags": [
+        "service",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sentence_grounded_facts.py:SentenceGroundedFact",
+      "type": "class",
+      "name": "SentenceGroundedFact",
+      "filePath": "sentence_grounded_facts.py",
+      "lineRange": [
+        75,
+        80
+      ],
+      "summary": "Represents a validated single-speaker fact and its bounding offsets in the evidence sentence.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:mirl.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:multi_speaker_facts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:nl_extract.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "file:sentence_grounded_facts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "file:sentence_grounded_facts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "file:nl_extract.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:configure_derived_facts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:splice_derived_facts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:segment_propositions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:grounded_spans_match_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:DerivedFactsConfig",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:CachedExtractor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:ScopedCachedExtractor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:DerivedFact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:configure_derived_facts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:splice_derived_facts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:segment_propositions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "function:derived_fact_context.py:grounded_spans_match_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:DerivedFactsConfig",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:CachedExtractor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:ScopedCachedExtractor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:derived_fact_context.py",
+      "target": "class:derived_fact_context.py:DerivedFact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:declarative_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:validate_multi_speaker_fact_with_reason",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:validate_multi_speaker_fact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:build_multi_speaker_fact_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:declarative_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:validate_multi_speaker_fact_with_reason",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:validate_multi_speaker_fact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:multi_speaker_facts.py",
+      "target": "function:multi_speaker_facts.py:build_multi_speaker_fact_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:grounded_sro_is_coherent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:ground_extraction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:clause_window",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:extractor_from_env",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:GroundedSpan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:ExtractedClaim",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:Extraction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:OllamaExtractor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:grounded_sro_is_coherent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:ground_extraction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:clause_window",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "function:nl_extract.py:extractor_from_env",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:GroundedSpan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:ExtractedClaim",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:Extraction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:nl_extract.py",
+      "target": "class:nl_extract.py:OllamaExtractor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "function:sentence_grounded_facts.py:validate_sentence_grounded_fact_with_reason",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "function:sentence_grounded_facts.py:first_person_declarative_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "function:sentence_grounded_facts.py:build_sentence_fact_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "class:sentence_grounded_facts.py:OllamaSentenceFactExtractor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "class:sentence_grounded_facts.py:SentenceGroundedFact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "function:sentence_grounded_facts.py:validate_sentence_grounded_fact_with_reason",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "function:sentence_grounded_facts.py:first_person_declarative_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "function:sentence_grounded_facts.py:build_sentence_fact_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "class:sentence_grounded_facts.py:OllamaSentenceFactExtractor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sentence_grounded_facts.py",
+      "target": "class:sentence_grounded_facts.py:SentenceGroundedFact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:derived_fact_context.py:configure_derived_facts",
+      "target": "class:derived_fact_context.py:DerivedFactsConfig",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:derived_fact_context.py:configure_derived_facts",
+      "target": "class:derived_fact_context.py:CachedExtractor",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:derived_fact_context.py:CachedExtractor",
+      "target": "class:derived_fact_context.py:ScopedCachedExtractor",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:derived_fact_context.py:splice_derived_facts",
+      "target": "class:derived_fact_context.py:DerivedFact",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:derived_fact_context.py:splice_derived_facts",
+      "target": "function:derived_fact_context.py:grounded_spans_match_source",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:derived_fact_context.py:CachedExtractor",
+      "target": "class:nl_extract.py:Extraction",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:derived_fact_context.py:CachedExtractor",
+      "target": "class:sentence_grounded_facts.py:SentenceGroundedFact",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:sentence_grounded_facts.py:OllamaSentenceFactExtractor",
+      "target": "class:sentence_grounded_facts.py:SentenceGroundedFact",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:nl_extract.py:OllamaExtractor",
+      "target": "class:nl_extract.py:Extraction",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:multi_speaker_facts.py:validate_multi_speaker_fact_with_reason",
+      "target": "class:sentence_grounded_facts.py:SentenceGroundedFact",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:multi_speaker_facts.py:validate_multi_speaker_fact",
+      "target": "function:multi_speaker_facts.py:validate_multi_speaker_fact_with_reason",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:nl_extract.py:ground_extraction",
+      "target": "function:nl_extract.py:grounded_sro_is_coherent",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:nl_extract.py:ground_extraction",
+      "target": "function:nl_extract.py:clause_window",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:nl_extract.py:ground_extraction",
+      "target": "class:nl_extract.py:Extraction",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:nl_extract.py:OllamaExtractor",
+      "target": "function:nl_extract.py:ground_extraction",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:sentence_grounded_facts.py:OllamaSentenceFactExtractor",
+      "target": "function:sentence_grounded_facts.py:validate_sentence_grounded_fact_with_reason",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:sentence_grounded_facts.py:OllamaSentenceFactExtractor",
+      "target": "function:sentence_grounded_facts.py:build_sentence_fact_prompt",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:derived_fact_context.py:configure_derived_facts",
+      "target": "class:sentence_grounded_facts.py:OllamaSentenceFactExtractor",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:derived_fact_context.py:configure_derived_facts",
+      "target": "class:nl_extract.py:OllamaExtractor",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

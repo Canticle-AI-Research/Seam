@@ -1,0 +1,875 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 5,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 5,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "retrieval_orchestrator/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 33,
+      "nonEmptyLines": 31,
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "retrieval_orchestrator/merger.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 17,
+      "functions": [
+        {
+          "name": "merge_hits",
+          "startLine": 6,
+          "endLine": 22,
+          "params": [
+            "grouped_hits",
+            "limit"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "merge_hits",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "merge_hits",
+          "callee": "merged.get",
+          "lineNumber": 10
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "RetrievalCandidate",
+          "lineNumber": 12
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "max",
+          "lineNumber": 14
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "candidate.sources.get",
+          "lineNumber": 14
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "candidate.reasons.extend",
+          "lineNumber": 15
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "merged.values",
+          "lineNumber": 17
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "max",
+          "lineNumber": 18
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "len",
+          "lineNumber": 18
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "sum",
+          "lineNumber": 19
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "candidate.sources.values",
+          "lineNumber": 19
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "list",
+          "lineNumber": 20
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "dict.fromkeys",
+          "lineNumber": 20
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "sorted",
+          "lineNumber": 22
+        },
+        {
+          "caller": "merge_hits",
+          "callee": "merged.values",
+          "lineNumber": 22
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "retrieval_orchestrator/orchestrator.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 125,
+      "nonEmptyLines": 113,
+      "classes": [
+        {
+          "name": "RetrievalOrchestrator",
+          "startLine": 19,
+          "endLine": 122,
+          "methods": [
+            "__init__",
+            "plan",
+            "search",
+            "sync_persistent_indexes",
+            "rag"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "RetrievalOrchestrator",
+          "line": 19,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "__init__",
+          "callee": "SQLiteIRAdapter",
+          "lineNumber": 31
+        },
+        {
+          "caller": "__init__",
+          "callee": "SQLiteGraphAdapter",
+          "lineNumber": 32
+        },
+        {
+          "caller": "__init__",
+          "callee": "ChromaSemanticAdapter",
+          "lineNumber": 36
+        },
+        {
+          "caller": "__init__",
+          "callee": "SeamVectorSearchAdapter",
+          "lineNumber": 43
+        },
+        {
+          "caller": "plan",
+          "callee": "build_plan",
+          "lineNumber": 46
+        },
+        {
+          "caller": "search",
+          "callee": "self.plan",
+          "lineNumber": 49
+        },
+        {
+          "caller": "search",
+          "callee": "self.sql_adapter.search",
+          "lineNumber": 54
+        },
+        {
+          "caller": "search",
+          "callee": "self.semantic_adapter.search",
+          "lineNumber": 56
+        },
+        {
+          "caller": "search",
+          "callee": "self.graph_adapter.search",
+          "lineNumber": 58
+        },
+        {
+          "caller": "search",
+          "callee": "merge_hits",
+          "lineNumber": 60
+        },
+        {
+          "caller": "search",
+          "callee": "leg_hits.values",
+          "lineNumber": 60
+        },
+        {
+          "caller": "search",
+          "callee": "plan.to_dict",
+          "lineNumber": 64
+        },
+        {
+          "caller": "search",
+          "callee": "hit.to_dict",
+          "lineNumber": 65
+        },
+        {
+          "caller": "search",
+          "callee": "leg_hits.items",
+          "lineNumber": 65
+        },
+        {
+          "caller": "search",
+          "callee": "RetrievalSearchResult",
+          "lineNumber": 67
+        },
+        {
+          "caller": "sync_persistent_indexes",
+          "callee": "self.runtime.store.load_ir",
+          "lineNumber": 81
+        },
+        {
+          "caller": "sync_persistent_indexes",
+          "callee": "self.runtime.vector_adapter.index_records",
+          "lineNumber": 82
+        },
+        {
+          "caller": "sync_persistent_indexes",
+          "callee": "isinstance",
+          "lineNumber": 84
+        },
+        {
+          "caller": "sync_persistent_indexes",
+          "callee": "self.semantic_adapter.sync_batch",
+          "lineNumber": 85
+        },
+        {
+          "caller": "rag",
+          "callee": "self.search",
+          "lineNumber": 104
+        },
+        {
+          "caller": "rag",
+          "callee": "pack_records",
+          "lineNumber": 107
+        },
+        {
+          "caller": "rag",
+          "callee": "search_result.to_dict",
+          "lineNumber": 111
+        },
+        {
+          "caller": "rag",
+          "callee": "RAGResult",
+          "lineNumber": 114
+        },
+        {
+          "caller": "rag",
+          "callee": "candidate.to_dict",
+          "lineNumber": 118
+        },
+        {
+          "caller": "rag",
+          "callee": "record.to_dict",
+          "lineNumber": 119
+        },
+        {
+          "caller": "rag",
+          "callee": "pack.to_dict",
+          "lineNumber": 120
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "retrieval_orchestrator/planner.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 86,
+      "nonEmptyLines": 69,
+      "functions": [
+        {
+          "name": "build_plan",
+          "startLine": 13,
+          "endLine": 41,
+          "params": [
+            "query",
+            "scope",
+            "budget",
+            "mode"
+          ]
+        },
+        {
+          "name": "_extract_filters",
+          "startLine": 44,
+          "endLine": 63,
+          "params": [
+            "query",
+            "scope"
+          ]
+        },
+        {
+          "name": "_strip_filters",
+          "startLine": 66,
+          "endLine": 68,
+          "params": [
+            "query"
+          ]
+        },
+        {
+          "name": "_classify_intent",
+          "startLine": 71,
+          "endLine": 82,
+          "params": [
+            "filters",
+            "normalized_query",
+            "mode"
+          ]
+        },
+        {
+          "name": "_split_csv",
+          "startLine": 85,
+          "endLine": 86,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "build_plan",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "_extract_filters",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "_strip_filters",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "_classify_intent",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "_split_csv",
+          "line": 85,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "build_plan",
+          "callee": "mode.lower().strip",
+          "lineNumber": 14
+        },
+        {
+          "caller": "build_plan",
+          "callee": "mode.lower",
+          "lineNumber": 14
+        },
+        {
+          "caller": "build_plan",
+          "callee": "ValueError",
+          "lineNumber": 16
+        },
+        {
+          "caller": "build_plan",
+          "callee": "_extract_filters",
+          "lineNumber": 17
+        },
+        {
+          "caller": "build_plan",
+          "callee": "_strip_filters",
+          "lineNumber": 18
+        },
+        {
+          "caller": "build_plan",
+          "callee": "_classify_intent",
+          "lineNumber": 19
+        },
+        {
+          "caller": "build_plan",
+          "callee": "max",
+          "lineNumber": 20
+        },
+        {
+          "caller": "build_plan",
+          "callee": "max",
+          "lineNumber": 20
+        },
+        {
+          "caller": "build_plan",
+          "callee": "legs.append",
+          "lineNumber": 28
+        },
+        {
+          "caller": "build_plan",
+          "callee": "RetrievalLeg",
+          "lineNumber": 28
+        },
+        {
+          "caller": "build_plan",
+          "callee": "legs.append",
+          "lineNumber": 30
+        },
+        {
+          "caller": "build_plan",
+          "callee": "RetrievalLeg",
+          "lineNumber": 30
+        },
+        {
+          "caller": "build_plan",
+          "callee": "legs.append",
+          "lineNumber": 32
+        },
+        {
+          "caller": "build_plan",
+          "callee": "RetrievalLeg",
+          "lineNumber": 32
+        },
+        {
+          "caller": "build_plan",
+          "callee": "RetrievalPlan",
+          "lineNumber": 34
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "QueryFilters",
+          "lineNumber": 45
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "FILTER_PATTERN.finditer",
+          "lineNumber": 46
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "match.group",
+          "lineNumber": 47
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "match.group",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "filters.ids.extend",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "_split_csv",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "filters.kinds.extend",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "item.upper",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_extract_filters",
+          "callee": "_split_csv",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_strip_filters",
+          "callee": "FILTER_PATTERN.sub",
+          "lineNumber": 67
+        },
+        {
+          "caller": "_strip_filters",
+          "callee": "\" \".join",
+          "lineNumber": 68
+        },
+        {
+          "caller": "_strip_filters",
+          "callee": "stripped.split",
+          "lineNumber": 68
+        },
+        {
+          "caller": "_classify_intent",
+          "callee": "filters.active",
+          "lineNumber": 76
+        },
+        {
+          "caller": "_classify_intent",
+          "callee": "len",
+          "lineNumber": 77
+        },
+        {
+          "caller": "_classify_intent",
+          "callee": "normalized_query.split",
+          "lineNumber": 77
+        },
+        {
+          "caller": "_split_csv",
+          "callee": "part.strip",
+          "lineNumber": 86
+        },
+        {
+          "caller": "_split_csv",
+          "callee": "value.split",
+          "lineNumber": 86
+        },
+        {
+          "caller": "_split_csv",
+          "callee": "part.strip",
+          "lineNumber": 86
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "retrieval_orchestrator/types.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 176,
+      "nonEmptyLines": 147,
+      "classes": [
+        {
+          "name": "QueryIntent",
+          "startLine": 10,
+          "endLine": 15,
+          "methods": [],
+          "properties": []
+        },
+        {
+          "name": "QueryFilters",
+          "startLine": 19,
+          "endLine": 69,
+          "methods": [
+            "matches",
+            "active",
+            "to_dict"
+          ],
+          "properties": [
+            "ids",
+            "kinds",
+            "namespace",
+            "scope",
+            "predicate",
+            "subject",
+            "object_text"
+          ]
+        },
+        {
+          "name": "RetrievalLeg",
+          "startLine": 73,
+          "endLine": 79,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "name",
+            "limit",
+            "rationale"
+          ]
+        },
+        {
+          "name": "RetrievalPlan",
+          "startLine": 83,
+          "endLine": 99,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "query",
+            "normalized_query",
+            "intent",
+            "filters",
+            "legs",
+            "mode"
+          ]
+        },
+        {
+          "name": "LegHit",
+          "startLine": 103,
+          "endLine": 115,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "leg",
+            "record",
+            "score",
+            "reasons"
+          ]
+        },
+        {
+          "name": "RetrievalCandidate",
+          "startLine": 119,
+          "endLine": 131,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "record",
+            "score",
+            "sources",
+            "reasons"
+          ]
+        },
+        {
+          "name": "RetrievalSearchResult",
+          "startLine": 135,
+          "endLine": 149,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "query",
+            "normalized_query",
+            "intent",
+            "candidates",
+            "trace"
+          ]
+        },
+        {
+          "name": "RAGResult",
+          "startLine": 153,
+          "endLine": 171,
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "query",
+            "backend",
+            "candidate_ids",
+            "candidates",
+            "records",
+            "pack",
+            "trace"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "QueryIntent",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "QueryFilters",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "RetrievalLeg",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "RetrievalPlan",
+          "line": 82,
+          "isDefault": false
+        },
+        {
+          "name": "LegHit",
+          "line": 102,
+          "isDefault": false
+        },
+        {
+          "name": "RetrievalCandidate",
+          "line": 118,
+          "isDefault": false
+        },
+        {
+          "name": "RetrievalSearchResult",
+          "line": 134,
+          "isDefault": false
+        },
+        {
+          "name": "RAGResult",
+          "line": 152,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "matches",
+          "callee": "str(record.attrs.get(\"predicate\", \"\")).lower",
+          "lineNumber": 37
+        },
+        {
+          "caller": "matches",
+          "callee": "str",
+          "lineNumber": 37
+        },
+        {
+          "caller": "matches",
+          "callee": "record.attrs.get",
+          "lineNumber": 37
+        },
+        {
+          "caller": "matches",
+          "callee": "self.predicate.lower",
+          "lineNumber": 37
+        },
+        {
+          "caller": "matches",
+          "callee": "str(record.attrs.get(\"subject\", \"\")).lower",
+          "lineNumber": 39
+        },
+        {
+          "caller": "matches",
+          "callee": "str",
+          "lineNumber": 39
+        },
+        {
+          "caller": "matches",
+          "callee": "record.attrs.get",
+          "lineNumber": 39
+        },
+        {
+          "caller": "matches",
+          "callee": "self.subject.lower",
+          "lineNumber": 39
+        },
+        {
+          "caller": "matches",
+          "callee": "str(record.attrs.get(\"object\", \"\")).lower",
+          "lineNumber": 42
+        },
+        {
+          "caller": "matches",
+          "callee": "str",
+          "lineNumber": 42
+        },
+        {
+          "caller": "matches",
+          "callee": "record.attrs.get",
+          "lineNumber": 42
+        },
+        {
+          "caller": "matches",
+          "callee": "self.object_text.lower",
+          "lineNumber": 43
+        },
+        {
+          "caller": "active",
+          "callee": "any",
+          "lineNumber": 48
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 62
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 63
+        },
+        {
+          "caller": "to_dict",
+          "callee": "self.filters.to_dict",
+          "lineNumber": 97
+        },
+        {
+          "caller": "to_dict",
+          "callee": "leg.to_dict",
+          "lineNumber": 98
+        },
+        {
+          "caller": "to_dict",
+          "callee": "self.record.to_dict",
+          "lineNumber": 112
+        },
+        {
+          "caller": "to_dict",
+          "callee": "round",
+          "lineNumber": 113
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 114
+        },
+        {
+          "caller": "to_dict",
+          "callee": "self.record.to_dict",
+          "lineNumber": 127
+        },
+        {
+          "caller": "to_dict",
+          "callee": "round",
+          "lineNumber": 128
+        },
+        {
+          "caller": "to_dict",
+          "callee": "round",
+          "lineNumber": 129
+        },
+        {
+          "caller": "to_dict",
+          "callee": "self.sources.items",
+          "lineNumber": 129
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 130
+        },
+        {
+          "caller": "to_dict",
+          "callee": "candidate.to_dict",
+          "lineNumber": 147
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 166
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 167
+        },
+        {
+          "caller": "to_dict",
+          "callee": "list",
+          "lineNumber": 168
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 8,
+        "functionCount": 0,
+        "classCount": 8
+      }
+    }
+  ]
+}

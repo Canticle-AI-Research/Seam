@@ -1,0 +1,96 @@
+{
+  "projectRoot": "/home/terrabyte/Documents/Projects/Seam/seam_runtime",
+  "batchFiles": [
+    {
+      "path": "benchmarks.py",
+      "language": "python",
+      "sizeLines": 2346,
+      "fileCategory": "code"
+    },
+    {
+      "path": "dsl.py",
+      "language": "python",
+      "sizeLines": 189,
+      "fileCategory": "code"
+    },
+    {
+      "path": "evals.py",
+      "language": "python",
+      "sizeLines": 191,
+      "fileCategory": "code"
+    },
+    {
+      "path": "models.py",
+      "language": "python",
+      "sizeLines": 251,
+      "fileCategory": "code"
+    },
+    {
+      "path": "retrieval_orchestrator/adapters.py",
+      "language": "python",
+      "sizeLines": 457,
+      "fileCategory": "code"
+    },
+    {
+      "path": "surface_adapters.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "vector.py",
+      "language": "python",
+      "sizeLines": 310,
+      "fileCategory": "code"
+    },
+    {
+      "path": "vector_adapters.py",
+      "language": "python",
+      "sizeLines": 294,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "benchmarks.py": [
+      "context_views.py",
+      "dsl.py",
+      "evals.py",
+      "holographic.py",
+      "lossless.py",
+      "models.py",
+      "storage.py",
+      "surface_adapters.py",
+      "vector.py"
+    ],
+    "dsl.py": [
+      "mirl.py"
+    ],
+    "evals.py": [
+      "dsl.py",
+      "lossless.py",
+      "models.py",
+      "pack.py",
+      "retrieval.py",
+      "vector.py"
+    ],
+    "models.py": [],
+    "retrieval_orchestrator/adapters.py": [
+      "mirl.py",
+      "models.py",
+      "retrieval_orchestrator/types.py",
+      "storage.py",
+      "vector.py",
+      "vector_adapters.py"
+    ],
+    "surface_adapters.py": [],
+    "vector.py": [
+      "mirl.py",
+      "models.py"
+    ],
+    "vector_adapters.py": [
+      "mirl.py",
+      "models.py",
+      "vector.py"
+    ]
+  }
+}

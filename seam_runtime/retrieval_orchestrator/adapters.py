@@ -16,8 +16,11 @@ from seam_runtime.knowledge_graph import (
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, iter_textual_fields
 from seam_runtime.models import EmbeddingModel
 from seam_runtime.storage import SQLiteStore
+from seam_runtime.temporal import parse_iso, temporal_distance_score
 from seam_runtime.vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION, SQLiteVectorIndex
 from seam_runtime.vector_adapters import VectorAdapter, search_vector_adapter
+from seam_runtime.bm25 import BM25Index
+from seam_runtime.retrieval import search_batch
 
 from .types import GraphPathHop, LegHit, RetrievalPlan
 
@@ -80,6 +83,69 @@ class SemanticAdapter(Protocol):
         ...
 
 
+class LegacyWeightedAdapter:
+    """Materialize the former runtime ranking as a named orchestrator policy.
+
+    The old public ``search_ir`` scorer is retained as a component-level helper
+    for representation tests, but live compatibility retrieval reaches it only
+    through this adapter and the orchestrator plan.  Keeping the semantics
+    intact gives the RRF/graph path an auditable, same-runtime control.
+    """
+
+    def __init__(self, store: SQLiteStore, vector_adapter: VectorAdapter) -> None:
+        self.store = store
+        self.vector_adapter = vector_adapter
+
+    def search(self, plan: RetrievalPlan, limit: int, *, flags) -> list[LegHit]:
+        batch = self.store.load_ir(
+            ns=plan.filters.namespace,
+            scope=plan.filters.scope,
+        )
+        vector_scores = search_vector_adapter(
+            self.vector_adapter,
+            plan.query,
+            limit=max(limit * 3, 10),
+            namespace=plan.filters.namespace,
+            scope=plan.filters.scope,
+        )
+        bm25 = None
+        if plan.include_raw or flags.bm25_all_kinds:
+            bm25 = BM25Index()
+            for record in batch.records:
+                if record.kind == RecordKind.RAW:
+                    content = record.attrs.get("content")
+                    text = content if isinstance(content, str) and content else ""
+                elif flags.bm25_all_kinds:
+                    text = " ".join(iter_textual_fields(record))
+                else:
+                    text = ""
+                if text:
+                    bm25.add(record.id, text)
+        namespace = batch.records[0].ns if batch.records else None
+        result = search_batch(
+            batch,
+            query=plan.query,
+            scope=plan.filters.scope,
+            limit=limit,
+            vector_scores=vector_scores,
+            namespace=namespace,
+            include_raw=plan.include_raw,
+            bm25_index=bm25,
+            temporal_window=plan.temporal_window,
+            temporal_reference=plan.temporal_reference,
+            flags=flags,
+        )
+        return [
+            LegHit(
+                leg="legacy_weighted",
+                record=candidate.record,
+                score=candidate.score,
+                reasons=list(candidate.reasons),
+            )
+            for candidate in result.candidates
+        ]
+
+
 class SQLiteIRAdapter:
     def __init__(self, store: SQLiteStore) -> None:
         self.store = store
@@ -126,11 +192,68 @@ class SeamVectorSearchAdapter:
         hits: list[LegHit] = []
         for record_id, raw_score in raw_scores.items():
             record = by_id.get(record_id)
-            if record is None or not plan.filters.matches(record):
+            if (
+                record is None
+                or (record.kind == RecordKind.RAW and not plan.include_raw)
+                or not plan.filters.matches(record)
+            ):
                 continue
             if plan.filters.active():
                 raw_score += 0.05 * _matched_filter_count(record, plan)
             hits.append(LegHit(leg="vector", record=record, score=raw_score, reasons=[f"semantic={raw_score:.2f}"]))
+        return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
+
+
+class SQLiteTemporalAdapter:
+    """Rank canonical records against an explicit temporal query context."""
+
+    def __init__(self, store: SQLiteStore) -> None:
+        self.store = store
+
+    def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
+        if plan.temporal_reference is None and plan.temporal_window is None:
+            return []
+        batch = self.store.load_ir(
+            ids=plan.filters.ids or None,
+            ns=plan.filters.namespace,
+            scope=plan.filters.scope,
+        )
+        allowed_kinds = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}
+        if plan.include_raw:
+            allowed_kinds.add(RecordKind.RAW)
+        hits: list[LegHit] = []
+        for record in batch.records:
+            if (
+                record.kind not in allowed_kinds
+                or (
+                    not plan.graph_include_history
+                    and record.status.value in CURRENT_EXCLUDED_STATUSES
+                )
+                or not plan.filters.matches(record)
+            ):
+                continue
+            timestamp = parse_iso(record.t0)
+            if plan.temporal_reference is not None:
+                score = temporal_distance_score(plan.temporal_reference, timestamp)
+                reason = f"temporal_reference={score:.4f}"
+            else:
+                assert plan.temporal_window is not None
+                score = (
+                    1.0
+                    if timestamp is not None
+                    and plan.temporal_window[0] <= timestamp <= plan.temporal_window[1]
+                    else 0.0
+                )
+                reason = f"temporal_window={score:.4f}"
+            if score > 0:
+                hits.append(
+                    LegHit(
+                        leg="temporal",
+                        record=record,
+                        score=score,
+                        reasons=[reason],
+                    )
+                )
         return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
@@ -196,7 +319,11 @@ class GraphNodeSemanticAdapter:
         accepted_node_ids: list[str] = []
         for node_id, score in ranked:
             record = records.get(source_by_node.get(node_id, ""))
-            if record is None or not plan.filters.matches(record):
+            if (
+                record is None
+                or (record.kind == RecordKind.RAW and not plan.include_raw)
+                or not plan.filters.matches(record)
+            ):
                 continue
             accepted_node_ids.append(node_id)
             hits.append(
@@ -472,7 +599,12 @@ class SQLiteGraphAdapter:
         # and the final score-tie order by canonical record id.
         for record_id in sorted(reached_ids):
             record = by_id.get(record_id)
-            if record is None or record.kind not in GRAPH_RETURN_KINDS or not plan.filters.matches(record):
+            if (
+                record is None
+                or record.kind not in GRAPH_RETURN_KINDS
+                or (record.kind == RecordKind.RAW and not plan.include_raw)
+                or not plan.filters.matches(record)
+            ):
                 continue
             if (
                 record_id in semantic_seed_ids
@@ -612,7 +744,11 @@ class ChromaSemanticAdapter:
         hits: list[LegHit] = []
         for index, record_id in enumerate(ids):
             record = by_id.get(record_id)
-            if record is None or not plan.filters.matches(record):
+            if (
+                record is None
+                or (record.kind == RecordKind.RAW and not plan.include_raw)
+                or not plan.filters.matches(record)
+            ):
                 continue
             distance = float(distances[index]) if index < len(distances) else 1.0
             score = max(0.0, 1.0 - distance)
@@ -693,8 +829,12 @@ def _build_structured_sql(
     include_graph_kinds: bool = False,
 ) -> tuple[str, list[object]]:
     allowed_kinds = ["CLM", "EVT", "REL", "STA"]
+    if plan.include_raw:
+        allowed_kinds.append("RAW")
     if include_graph_kinds:
-        allowed_kinds.extend(("ENT", "RAW"))
+        allowed_kinds.append("ENT")
+        if "RAW" not in allowed_kinds:
+            allowed_kinds.append("RAW")
     kind_placeholders = ",".join("?" for _ in allowed_kinds)
     where_clauses = [f"r.kind in ({kind_placeholders})"]
     where_params: list[object] = list(allowed_kinds)
@@ -776,7 +916,19 @@ def _build_structured_sql(
     gating_clause = ""
     gating_params: list[object] = []
     if query_tokens:
-        gating_clause = "and (lexical_hits > 0 or structured_score >= 1.0)"
+        # Two explicit boundary filters (normally namespace + scope) are
+        # sufficient to retain non-lexical tail records.  The historical
+        # ``search_ir`` contract ranked that bounded tail through its temporal
+        # channel; keeping it here preserves closure/fact composition without
+        # admitting unrelated namespaces or scopes. Graph seed selection stays
+        # lexical so zero-hop/hop bounds cannot be bypassed by boundary-only
+        # matches.
+        structured_gate = (
+            0.8 if plan.include_raw and not include_graph_kinds else 1.0
+        )
+        gating_clause = (
+            f"and (lexical_hits > 0 or structured_score >= {structured_gate})"
+        )
 
     query = f"""
 with record_rows as (
