@@ -13804,3 +13804,244 @@ review/CI, and merge only when every relevant check is green. After explicit
 paid approval, execute the two matched lanes without combining their scoreboards
 with the provider-free native result.
 ---END-ENTRY-#496---
+
+---BEGIN-ENTRY-#497---
+id: 497
+date: 2026-07-29T15:08:37Z
+agent: codex
+status: done
+topics: handoff, status, graph, reasoning, benchmark, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-g5-g7-r6-provider-free-qualification.md,docs/handoffs/2026-07-29-wandr-provider-free-replay-next.md,PR#185,PR#186
+supersedes: 496
+tokens: 478
+---
+CLOSED the completed graph round into a canonical tracked successor after
+verifying live `main` and `origin/main` at the squash merge of PR #186. PR #185
+merged G4/R5 at `6225937`; PR #186 merged G5-G7/R6 at `6d2c15b`.
+
+The successor records the exact completed boundary. Knowledge stages G1-G7 and
+reasoning stages R1-R6 are structurally implemented through provider-free
+qualification. The knowledge graph remains a projection of canonical RAW/MIRL.
+The reasoning graph stores controlled public justification structure and
+content-free `reasoning-pattern/1` recipes, not hidden chain-of-thought,
+provider payloads, raw model internals, or conclusions. R5 remains the only
+bridge into MIRL and still requires a separate proposal, review, and explicit
+application.
+
+The G7 claim remains deliberately bounded. The corrected matched-budget native
+and event-only micro-suite scored 1.0 versus 1.0 with zero graph-incremental
+evidence hits and zero provider calls. This proves parity and recovery under
+the frozen provider-free fixture, not incremental graph lift. Matched Mem0/Zep
+scoreboards remain null and paid-gated.
+
+The next implementation route is a non-official zero-network WANDR replay
+adapter over the smoke workload plus one representative hierarchy task. It must
+use a fixed hash-pinned corpus, deterministic IDs, isolated namespaces/scopes,
+matched native/event-only budgets, exact graph-incremental attribution,
+entity/provenance/dedup/PACK/recovery checks, and provider/network/cost counters
+fixed at zero. WANDR's official networked fetch/evaluation path and every paid
+provider lane remain out of scope without new explicit approval.
+
+UNCHANGED BOUNDARIES: no runtime, package, public SDK, opaque `/v1`, provider,
+benchmark execution, deployment, or DigitalOcean state changed. Unrelated
+untracked `.ua/`, `dist/`, report images, and `seam_runtime/.ua/` were
+preserved.
+
+NEXT: merge this handoff-only PR after all protected checks pass, then resume
+from `docs/handoffs/2026-07-29-wandr-provider-free-replay-next.md` and implement
+the provider-free replay adapter without running paid providers.
+---END-ENTRY-#497---
+
+---BEGIN-ENTRY-#498---
+id: 498
+date: 2026-07-29T20:57:28Z
+agent: codex
+status: done
+topics: retrieval, graph, benchmark, reasoning, bugfix, provenance, test, verify, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-semantic-retrieval-and-promotion-gate.md,benchmarks/external/mem0_harness/seam_mem0_server.py,seam_runtime/sdk.py,tests/audit/test_reasoning_retrieval.py,tests/audit/test_seam_mem0_server.py
+supersedes: 497
+tokens: 964
+---
+RECOVERED the interrupted free semantic-retrieval and longitudinal-promotion
+qualification and completed the requested four-part landing without provider
+calls or paid scoring.
+
+FIXED two independently verified retrieval defects. The explicit default-off
+Mem0 facade graph search now passes `semantic_graph_seeding=True`; without that
+argument its `mode="graph"` plan omitted the already-qualified `graph_node`
+semantic leg. `SeamSDK.start_reasoning()` now defaults to `local.default`,
+matching `SeamSDK.ingest()`. The former `local.reasoning` default silently
+filtered the obvious ingest-then-retrieve flow to an empty namespace on the
+only surface that records reasoning-retrieval evidence. Direct regression tests
+pin both behaviors. The facade's graph policies remain default-off, and the
+opaque public `/v1` route remains on legacy `search_ir`.
+
+POSITIVE FREE RETRIEVAL GATE: the local provenance-matched LoCoMo/BGE
+qualification used all ten conversations, 5,882 turns, and 1,977 scored
+questions with provider keys blanked and Hugging Face offline. `mode="graph"`
+moved r@1/5/10/20 from 0.196/0.349/0.427/0.509 with the semantic leg off to
+0.301/0.490/0.568/0.656 with it on: +0.105/+0.141/+0.141/+0.146.
+`mode="mix"` moved 0.317/0.499/0.572/0.682 to
+0.338/0.576/0.667/0.748: +0.021/+0.076/+0.095/+0.065. Every category
+moved positively at full scale. A `hybrid` negative control, which has no graph
+leg, moved by at most one hit out of 1,977. This is a provider-free retrieval
+qualification, not a judged answer-score or competitive claim.
+
+HONEST PROMOTION-CONTENT GATE: a fixed one-conversation, 419-turn corpus split
+196 scored questions into deterministic 98-question TRAIN and HELD cohorts.
+The probe drove observe, verify, propose, review, and apply through the SDK and
+applied 99/99 cross-turn bridge promotions. TRAIN strict deltas at r@1/5/10/20
+were -0.0306/-0.0102/-0.0204/+0.0102; TRAIN provenance-closure deltas were
++0.0102/-0.0102/-0.0102/+0.0102. HELD strict deltas were
+-0.0204/+0.0102/-0.0102/+0.0000; HELD closure deltas were
++0.0000/+0.0102/-0.0102/+0.0000. Every change was only zero to three
+questions. The bridges reached rank one and retained correct provenance, so
+the mechanics work, but their content only concatenated two retrieved claim
+objects rather than inferring a new fact. They substituted for source evidence
+without adding reach. This null result must not be combined with the positive
+semantic-leg result, and it does not demonstrate self-improving retrieval
+quality.
+
+VERIFICATION: the two affected audit files collected and passed 70/70.
+The strict full `tests/` scope with live pgvector collected 1,628 tests:
+1,626 passed, the two established `compile_nl` cases xfailed, and zero skipped
+or failed. Changed-file Ruff, `py_compile`, `git diff --check`, latest-snapshot
+loading, and canonical history closeout gates passed. No provider call, paid
+benchmark, install, download, package publication, deployment, or DigitalOcean
+mutation occurred. Unrelated `.ua/`, `seam_runtime/.ua/`, `dist/`, report PNGs,
+and other worktrees were preserved.
+
+REMAINING BOUNDARY: CLI, MCP, REST, and `/v1` do not yet drive the full
+reasoning observation/proposal/application loop; only the SDK records the
+required reasoning-retrieval evidence. The longitudinal scratch probe is not a
+checked-in reusable benchmark, and concatenated bridges are not genuine
+inferences.
+
+NEXT: land this bounded branch through a protected PR. Then build a checked-in
+zero-provider longitudinal qualification that derives genuinely new assertions
+only from retrieved evidence, scores strict and leak-free provenance closure,
+and scales beyond one conversation. Preserve the zero-network WANDR replay as
+the next independent breadth qualification rather than treating it as
+learning-loop lift.
+---END-ENTRY-#498---
+
+---BEGIN-ENTRY-#499---
+id: 499
+date: 2026-07-30T00:34:40Z
+agent: claude
+status: done
+topics: retrieval, graph, reasoning, promotion, benchmark, sdk, verify
+commits: pending
+refs: seam_runtime/sdk.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_mem0_server.py,tests/audit/test_reasoning_retrieval.py,docs/handoffs/2026-07-29-semantic-retrieval-and-promotion-gate.md
+supersedes: 498
+tokens: 1291
+---
+Qualified the graph-node semantic retrieval leg for free on the real LoCoMo
+corpus, landed two coupled correctness fixes, and closed an honest negative
+gate on reasoning-promotion CONTENT.
+
+FILES CHANGED
+- `benchmarks/external/mem0_harness/seam_mem0_server.py`: `_search_graph_raw`
+  now passes `semantic_graph_seeding=True`.
+- `seam_runtime/sdk.py`: `SeamSDK.start_reasoning` default `ns` changed
+  `local.reasoning` -> `local.default`, plus a docstring recording why.
+- `tests/audit/test_seam_mem0_server.py`,
+  `tests/audit/test_reasoning_retrieval.py`: regression coverage authored by
+  the concurrent codex agent pinning both fixes. Committed together because
+  the tests are meaningless without the code and vice versa.
+
+MEASURED (free, local, zero provider calls, zero spend; bge-small-en-v1.5,
+10 LoCoMo conversations, 5882 turns, n=1977 scored questions per arm)
+
+Lever `semantic_graph_seeding`, recall@k of gold turns by provenance match:
+- `mode=graph`  OFF 0.196/0.349/0.427/0.509 -> ON 0.301/0.490/0.568/0.656
+  (r@1/5/10/20), delta +0.105/+0.141/+0.141/+0.146, all five categories positive.
+- `mode=mix`    OFF 0.317/0.499/0.572/0.682 -> ON 0.338/0.576/0.667/0.748.
+- `mode=hybrid` NEGATIVE CONTROL: legs are [sql, vector] with no graph leg, so
+  the lever must do nothing. Measured -1/+1/+1/0 hits out of 1977. Harness
+  noise floor ~0.0005; real deltas are 150-290x that.
+- Best configuration overall is `mix` + lever ON at every k.
+
+Embedder, same harness, lever held constant: hash -> bge-small-en-v1.5 is
+r@5 0.301 -> 0.510 at n=196. Larger than the lever. bge-small is MIT and
+already present in the local HF cache.
+
+CORRECTION CARRIED IN THIS ENTRY
+An earlier claim in this session -- that the LoCoMo benchmark executes
+`mode="graph"` with the lever off and that the kwarg is worth +0.141 on the
+default benchmark path -- is WRONG and is retracted here. Both call sites of
+`_search_graph_raw` sit behind independently default-off policies:
+`_apply_graph_context_policy` returns early on `GRAPH_CONTEXT_OFF` and the
+multi-scope path returns early on `MULTI_SCOPE_OFF`, both the defaults. In
+default configuration that graph search never runs, so this fix changes
+default benchmark numbers by exactly zero. The +0.141 is real for the graph
+path when a policy enables it. The reachability was not traced before the
+claim was made.
+
+NEGATIVE RESULT: promotion CONTENT buys nothing (yet)
+The reasoning-promotion mechanism is complete and works: 99/99 promotions
+applied cleanly through retrieve -> add_node -> verify -> finalize_verified
+-> propose -> review -> eligibility -> apply, materialising a canonical MIRL
+record plus `project_node_vectors()`, which is what the `graph_node` leg reads
+via `search_node_vectors`. Two promotion-content designs were measured on a
+FIXED corpus (ingest once, never grow, so any delta is the loop and not more
+data), TRAIN/HELD split, promotions built only from retrieved records and
+never from gold:
+- verbatim CLM copy: HELD r@5 -0.0204.
+- cross-turn concatenated bridge, scored under both strict gold-id matching
+  and provenance-closure matching: HELD strict r@5 +0.0102, closure +0.0102.
+At n=98 per cohort one question is 0.0102, so every delta is inside noise.
+Neither design improved retrieval. Strict r@1 fell while closure r@1 held,
+which shows bridge records DO rank at position 1 and DO carry gold evidence --
+they substitute for gold turns rather than adding reach. The mechanism is
+proven; the content is not.
+
+OBSERVED, NOT YET FIXED
+`record_reasoning_retrieval` is called only from `seam_runtime/sdk.py`.
+`mcp.py`, `cli.py`, `server.py` and `public_api.py` contain zero references to
+reasoning retrieval, verification or promotion. Traffic through those surfaces
+benefits from applied promotions but contributes no evidence, so no proposal
+can ever originate from it. Application is deliberately manual
+(`runtime.py:545`, "never auto-applied") and no automated proposer or applier
+exists in `tools/`; the only related tool is `tools/h2/improvement_review.py`.
+
+VERIFICATION
+Full `python -m pytest tests/` with Docker `seam-pgvector` healthy on
+127.0.0.1:55432 and `PGVECTOR_TEST_DSN` exported from local `.env`:
+1628 tests collected, zero failures, zero skips, 2 xfailed. The four
+previously `PGVECTOR_TEST_DSN`-gated pgvector tests executed rather than
+skipping, so the strict-no-skip gate reported no offenders. Suite was re-run
+after the codex test additions landed so the new tests were exercised.
+
+UNRESOLVED NEXT STEP
+The promotion-content gate is inconclusive rather than settled: n=98 per
+cohort cannot distinguish "no effect" from "effect below the noise floor".
+Next is the same experiment at 10 conversations (~1000 questions per cohort,
+10x lower noise floor) and a promotion whose assertion is an actual inference
+rather than a string join, which needs a local model (Ollama is present and
+free). No paid run was made and none is required.
+---END-ENTRY-#499---
+
+---BEGIN-ENTRY-#500---
+id: 500
+date: 2026-07-30T12:36:38Z
+agent: codex
+status: changed
+topics: history, audit, classification, verify
+commits: pending
+refs: AGENTS.md,HISTORY.md,HISTORY_INDEX.md
+supersedes: 499
+tokens: 100
+---
+CORRECTION TO HISTORY#499 METADATA ONLY
+
+HISTORY#499 used the uncontrolled topic labels `promotion` and `sdk`.
+Interpret its topic scope under the approved vocabulary as `reasoning`,
+`graph`, `retrieval`, `benchmark`, `history`, and `audit`.
+
+This correction does not change HISTORY#499's substantive measurements,
+retraction, implementation or test claims, verification boundary, or unresolved
+next step. No runtime behavior changed and no provider call was made.
+---END-ENTRY-#500---

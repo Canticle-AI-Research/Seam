@@ -211,6 +211,23 @@ def test_sdk_records_selected_and_rejected_retrieval_candidates(runtime: SeamRun
     assert {"decomposes", "produces"} <= relations
 
 
+def test_sdk_default_reasoning_namespace_retrieves_default_ingest(
+    runtime: SeamRuntime,
+) -> None:
+    sdk = SeamSDK(runtime=runtime)
+    sdk.ingest(
+        "Ada owns the compiler rollback plan.",
+        source_ref="local://default-reasoning-namespace",
+    )
+
+    session = sdk.start_reasoning("Find the default-ingest evidence.")
+    recorded = session.retrieve("compiler rollback", budget=3, mode="mix")
+
+    assert session.ns == "local.default"
+    assert recorded.reasoning["filters"]["namespace"] == "local.default"
+    assert recorded.reasoning["selected_count"] >= 1
+
+
 def test_empty_retrieval_is_a_finalized_noncanonical_decision(runtime: SeamRuntime) -> None:
     session = SeamSDK(runtime=runtime).start_reasoning(
         "Find evidence if any exists.", ns="empty", scope="thread"
