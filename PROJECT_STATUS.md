@@ -1,5 +1,32 @@
 # SEAM Project Status
 
+Current update: 2026-07-30 (HISTORY#501 - CONSOLIDATED SEAM back to a SINGLE
+full package with readable MIRL and HS/1 source. Operator decision: the full
+runtime is PRIVATE and operates the hosted service on operator-controlled
+infrastructure; it is not distributed. A public edition will be built separately
+from the ground up with separation as an architectural property rather than a
+boundary retrofitted onto a codebase that was not designed for it. Licensing and
+ownership are UNCHANGED — LICENSE, NOTICE, COMMERCIAL_LICENSE.md, and the
+`Private :: Do Not Upload` tripwire all stay as they were; the parameterized
+BUSL-1.1 text is retained unused for the future public edition. Removed 40 files
+and 91 tests: `public_pkg/`, `selfhost_pkg/`, `selfhost/`, the three
+`selfhost*.py` leaves, nine release tools, the self-host release workflow, and
+the boundary audit suite. RETAINED on inspection after removing them in a first
+pass: `verify_public_safe.py` + `public_manifest.py`, which are a secret and
+reserved-material push gate that exists because a `seam.db` snapshot once leaked
+(HISTORY#344), not split machinery. `package-release.yml` reduced to a single
+private target with the entire `pypi-publish` job removed, so a full-MIRL runtime
+now has NO PyPI path at all. Full suite 1,494 tests, exit 0, zero failures, zero
+skips, two established `compile_nl` xfails; runtime imports clean at 65 modules.
+NOT DONE — the substantive breakage remains: `public_api`/`/v1` uses legacy
+`search_ir` while `RetrievalOrchestrator` carries all G3-G7 graph work, and
+`benchmarks/external/locomo/adapters/seam.py` uses `search_ir` with ZERO
+orchestrator references, so graph levers cannot currently move the LoCoMo
+numbers. NEXT: collapse the two retrieval paths — port temporal_window,
+temporal_reference, include_raw, flags, and lens into the orchestrator, then run
+a free both-paths A/B on one harness BEFORE migrating any call site, so the
+collapse direction is measured rather than assumed.)
+
 Current update: 2026-07-29 (HISTORY#498 - RECOVERED the interrupted free
 semantic-retrieval and longitudinal-promotion qualification. The ten-
 conversation, 5,882-turn, 1,977-question LoCoMo/BGE gate measured the

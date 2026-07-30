@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 500
-total_tokens: ~241716
-latest_id: 500
+total_entries: 501
+total_tokens: ~242986
+latest_id: 501
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 501 | 2026-07-30 | changed | de6bd3e63c0c2d80 | packaging,consolidation,distribution,licensing,+ | none |
 | 500 | 2026-07-30 | changed | 377e4029eb6ecbf8 | history,audit,classification,verify | 499 |
 | 499 | 2026-07-30 | done | cac73724e8130f81 | retrieval,graph,reasoning,promotion,+ | 498 |
 | 498 | 2026-07-29 | done | 5b00f63c63b791e0 | retrieval,graph,benchmark,reasoning,+ | 497 |
@@ -570,7 +571,7 @@ compact: true
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
 - confound: count=1 latest=#334
-- consolidation: count=1 latest=#306
+- consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
 - continuity: count=15 latest=#460, #451, #449, #447, #430
@@ -598,7 +599,7 @@ compact: true
 - diagnostic: count=2 latest=#365, #362
 - diff: count=4 latest=#153, #093, #092, #037
 - disk-space: count=1 latest=#363
-- distribution: count=1 latest=#474
+- distribution: count=2 latest=#501, #474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
@@ -663,7 +664,7 @@ compact: true
 - lever: count=3 latest=#433, #431, #413
 - levers: count=2 latest=#408, #405
 - lexical: count=1 latest=#004
-- licensing: count=5 latest=#482, #477, #476, #475, #474
+- licensing: count=6 latest=#501, #482, #477, #476, #475
 - lint: count=1 latest=#357
 - linux: count=6 latest=#177, #173, #136, #135, #021
 - live-verification: count=1 latest=#368
@@ -705,7 +706,7 @@ compact: true
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
-- packaging: count=9 latest=#486, #485, #484, #483, #481
+- packaging: count=10 latest=#501, #486, #485, #484, #483
 - paid: count=2 latest=#412, #365
 - paid-run: count=5 latest=#434, #429, #427, #424, #423
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
@@ -821,6 +822,7 @@ compact: true
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=24 latest=#370, #361, #360, #283, #282
 - workflow-permissions: count=1 latest=#298
+- workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
 - worktree: count=1 latest=#406
 - wsl2: count=1 latest=#021
@@ -829,8 +831,8 @@ compact: true
 
 ## status rollup
 
-- roots: 78
-- changed: 28
+- roots: 79
+- changed: 29
 - done: 445
 - in-progress: 6
 - planned: 21

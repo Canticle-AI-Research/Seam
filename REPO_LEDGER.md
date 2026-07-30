@@ -70,12 +70,14 @@ and `HISTORY_INDEX.md`.
   `0f4b40aab7fda643ce776e597f0b430faa465ca8`. The required Apache text is
   preserved at `LICENSES/Apache-2.0.txt` for unchanged legacy material
   incorporated into later private distributions.
-- The private-to-public mirror is disabled. `public_manifest.py` exposes no
-  synced private paths, `sync_public_mirror.py` fails closed, the public-safety
-  scanner blocks MIRL and HS/1 Reserved Materials, and the pre-push hook refuses the
-  legacy public remote. Any future public client/SDK requires a separate
-  artifact, manifest, dependency boundary, license review, and written owner
-  approval; do not reactivate the old mirror.
+- The private-to-public mirror is gone, not merely disabled: `sync_public_mirror.py`
+  was removed with the rest of the split tooling. `verify_public_safe.py` and its
+  `public_manifest.py` path classifier are RETAINED as a secret and
+  reserved-material push gate — kept because a `seam.db` snapshot once leaked into
+  another repository's history (HISTORY#344), independent of any distribution
+  model. The pre-push hook still refuses the legacy public remote. Any future
+  public client/SDK is a separate ground-up artifact with its own boundary,
+  license review, and written owner approval; do not reconstruct the old mirror.
 - The operator-approved public integration surface is the separately authored
   Apache-2.0 `seam-client` package under `BlackhatShiftey/Seam_Runtime/sdk`.
   It may contain HTTP transport, typed public models, sync/async clients, and
@@ -89,37 +91,40 @@ and `HISTORY_INDEX.md`.
   opaque receipts/IDs plus user-facing text rather than private record shapes.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
-- `seam-runtime` 2.4.0 is the private hosted-service distribution: it is the
-  server package used to operate the authenticated `/v1` API for future
-  subscribers, not the public API-only compatibility shim under `public_pkg/`.
-  It must retain the
-  `Private :: Do Not Upload` classifier. `.github/workflows/package-release.yml`
-  defaults to a private GitHub Release and scans both wheel and sdist before
-  release. Its PyPI Trusted Publishing job uses GitHub OIDC without a stored
-  PyPI token, but the current package must fail that target because it contains
-  MIRL or HS/1 Reserved Materials. The existing PyPI and MCP-registry record
-  remains legacy Apache-2.0 `seam-runtime` 1.3.1. New public publication uses
-  the distinct `seam-client` name and the public repository's
-  `sdk-publish.yml` OIDC workflow; it never publishes the private
-  `seam-runtime` artifact. Private 2.4.0 is live as GitHub release `v2.4.0`,
-  pinned to protected-main merge `01f35817810f1490c88e9f832d92c8f1aab3944d`;
-  downloaded wheel and sdist artifacts passed the private boundary, clean
-  installation, SQLite, and live-pgvector API proofs.
-- The BUSL self-host wheel is a third, separate distribution named
-  `seam-self-host`, starting at 1.0.0; 1.1.2 is the current published stability
-  baseline and 1.1.0 is its supported upgrade predecessor. Its package
-  definition lives under `selfhost_pkg/`; it must contain compiled
-  `seam_runtime` extension code and the BUSL-1.1 text, but no `seam_runtime`
-  `.py`, `.pyc`, or `.pyo`. The
-  cp312/manylinux_2_28_x86_64 builder is Docker-pinned, copies an explicit
-  source allow-list, carries the same 18 load-bearing exclusions as the
-  compiled image, runs `auditwheel`, `twine`, the node-specific content
-  ratchet, and a clean-container four-route proof. It has no upload mode.
-  This does not relax the private `seam-runtime` PyPI prohibition or the
-  Apache-only `seam-client` boundary. Publication is performed only by the
-  protected self-host release workflow after artifact qualification. PyPI
-  1.1.2 and its clean network install, SQLite/live-pgvector API, no-argument
-  MCP, and 1.0.0/1.1.0 upgrade paths are live-verified.
+- SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY
+  package definition in this repository. It is the full private runtime with
+  readable MIRL and HS/1 source, used to operate the hosted service on
+  operator-controlled infrastructure. It is not distributed. It must retain the
+  `Private :: Do Not Upload` classifier as the tripwire against an accidental
+  PyPI upload of a full-MIRL runtime.
+- The retrofitted distribution split is RETIRED. The compiled `seam-self-host`
+  package, the API-only `public_pkg/` shim, `selfhost/`, their build and verify
+  tooling, the self-host release workflow, and the boundary audit suite were all
+  removed. A public edition will be built separately, from the ground up, with
+  separation as an architectural property rather than a boundary retrofitted
+  onto a codebase that was not designed for it. `LICENSES/BUSL-1.1.txt` is
+  already parameterized for that future edition (Licensor, Licensed Work 2.4.0+,
+  self-hosting permitted, competing hosted resale withheld, four-year Change
+  Date to MPL 2.0) and is retained unused until then.
+- Artifacts already published are unaffected and stay live: `seam-self-host`
+  1.1.2 and Apache-2.0 `seam-client` 2.0.0 on PyPI, and legacy Apache-2.0
+  `seam-runtime` 1.3.1 (yanked, deliberately retained as a rollback point).
+  Removing the in-tree tooling does not unpublish them; it means no further
+  releases of them are produced from this repository.
+- `.github/workflows/package-release.yml` is RETAINED and is the only remaining
+  release path: it builds the private `seam-runtime` package, scans wheel and
+  sdist, and defaults to a private GitHub Release. Its PyPI Trusted Publishing
+  job uses GitHub OIDC with no stored token, and the package must continue to
+  fail that target because it contains MIRL and HS/1 Reserved Materials. Private
+  2.4.0 is live as GitHub release `v2.4.0`, pinned to protected-main merge
+  `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist
+  passed clean installation, SQLite, and live-pgvector API proofs.
+- The compiled `seam-self-host` distribution is RETIRED. Published 1.1.2 stays
+  live on PyPI and keeps working; removing the in-tree tooling means no further
+  releases are produced from this repository. Its package definition, Docker
+  builder, content ratchet, and boundary proofs were removed with the rest of
+  the retrofitted split. Do not reconstruct them here — a public edition is a
+  separate ground-up build with separation designed in.
 - Apache-2.0 `seam-client` 2.0.0 is live at
   `https://pypi.org/project/seam-client/`. It was published from reviewed
   public `Seam_Runtime/main` through the protected `pypi` environment and PyPI

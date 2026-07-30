@@ -1692,11 +1692,13 @@ Phase work, in dependency order:
    infrastructure with no self-host use, and they name reserved evaluation
    methodology. Excluded permanently unless a concrete need appears.
 
-**Open decision blocking the free tier.** `seam_runtime/selfhost.py` refuses to
-start without a vendor-signed Ed25519 entitlement. That is incompatible with a
-free self-host and must be resolved before any of this ships publicly. If the
-entitlement becomes optional, keep the verification path intact for a future
-paid or supported tier rather than deleting it.
+**RESOLVED / OBSOLETE.** This decision concerned `seam_runtime/selfhost.py`,
+which has been removed along with the rest of the retrofitted distribution
+split. SEAM is now a single full package with readable MIRL/HS-1 source, used
+privately to operate the hosted service; there is no compiled self-host edition
+and no entitlement gate to resolve. Entitlement, tiering, and any free-vs-paid
+boundary become design inputs for the public edition, which will be built
+separately from the ground up with separation as an architectural property.
 
 ---
 
