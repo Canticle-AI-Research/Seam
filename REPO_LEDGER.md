@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -113,10 +113,9 @@ and `HISTORY_INDEX.md`.
   releases of them are produced from this repository.
 - `.github/workflows/package-release.yml` is RETAINED and is the only remaining
   release path: it builds the private `seam-runtime` package, scans wheel and
-  sdist, and defaults to a private GitHub Release. Its PyPI Trusted Publishing
-  job uses GitHub OIDC with no stored token, and the package must continue to
-  fail that target because it contains MIRL and HS/1 Reserved Materials. Private
-  2.4.0 is live as GitHub release `v2.4.0`, pinned to protected-main merge
+  sdist, smoke-tests the installed commands, and creates a private GitHub
+  Release. It has no PyPI target or publish job. Private 2.4.0 is live as GitHub
+  release `v2.4.0`, pinned to protected-main merge
   `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist
   passed clean installation, SQLite, and live-pgvector API proofs.
 - The compiled `seam-self-host` distribution is RETIRED. Published 1.1.2 stays
@@ -147,6 +146,26 @@ and `HISTORY_INDEX.md`.
   history tooling. Package and release metadata must accurately identify the
   private proprietary distribution.
 - SQLite is canonical source of truth.
+- RETRIEVAL HAS ONE ENGINE as an architectural invariant.
+  `RetrievalOrchestrator` is the canonical SQL/vector/graph/temporal owner for
+  the full runtime, and `SeamRuntime.retrieve()` is its local entry point. The
+  longstanding `search_ir()` method is retained only as a compatibility
+  result-shape adapter and must not become a second live scorer. CLI, MCP,
+  REST, opaque `/v1`, dashboard, SDK, LoCoMo, self-improvement probes, and HS/1
+  MIRL queries must reach that same engine. RAW inclusion, namespace/scope,
+  lens metadata, explicit temporal window/reference, applied graph seeding
+  policy, current-state filtering, and evidence closure must cross the same
+  boundary. This architecture is not authorization to change ranked behavior:
+  the full provider-free gate in HISTORY#503 found the uncommitted fixed-RRF
+  consolidation at 0.755616 context recall versus 0.766420 for the legacy
+  scorer, while warm median latency rose from 156.4 to 207.2 ms. Preserve the
+  legacy RAW/BM25/weighted ranking semantics inside the orchestrator as the
+  versioned behavioral baseline, isolate graph attribution with a same-code
+  hybrid-versus-mix ablation, and require full-corpus non-regression before
+  promotion. Quickstart parity is insufficient. Component-level
+  representation evals may still call the pure `search_batch` scorer as a
+  named comparison track, but it is not a live runtime path. See HISTORY#502
+  and HISTORY#503.
 - SEAM's knowledge graph is a self-building, versioned SQLite projection of
   canonical MIRL, not a manually authored or browser-generated topology.
   `knowledge_nodes`, `knowledge_edges`, and `knowledge_episodes` preserve typed

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from time import perf_counter
 from typing import Callable
 
@@ -15,13 +16,15 @@ from seam_runtime.runtime import SeamRuntime
 from .adapters import (
     ChromaSemanticAdapter,
     GraphNodeSemanticAdapter,
+    LegacyWeightedAdapter,
     SeamVectorSearchAdapter,
     SemanticAdapter,
     SQLAdapter,
     SQLiteGraphAdapter,
     SQLiteIRAdapter,
+    SQLiteTemporalAdapter,
 )
-from .merger import rank_hits
+from .merger import rank_hits, rank_legacy_weighted_hits
 from .planner import build_plan
 from .types import (
     RAGResult,
@@ -45,6 +48,10 @@ class RetrievalOrchestrator:
         self.semantic_backend = semantic_backend
         self.sql_adapter = sql_adapter or SQLiteIRAdapter(runtime.store)
         self.graph_adapter = SQLiteGraphAdapter(runtime.store)
+        self.temporal_adapter = SQLiteTemporalAdapter(runtime.store)
+        self.legacy_weighted_adapter = LegacyWeightedAdapter(
+            runtime.store, runtime.vector_adapter
+        )
         self.graph_node_adapter = GraphNodeSemanticAdapter(
             runtime.store, runtime.embedding_model
         )
@@ -76,17 +83,28 @@ class RetrievalOrchestrator:
         semantic_graph_seeding: bool = False,
         graph_at: str | None = None,
         graph_include_history: bool = False,
+        lens: str = "general",
+        include_raw: bool = False,
+        temporal_window: tuple[datetime, datetime] | None = None,
+        temporal_reference: datetime | None = None,
+        candidate_budget: int | None = None,
+        ranking_policy: str = "reciprocal-rank-fusion/2",
     ) -> RetrievalPlan:
         return build_plan(
             query=query,
             scope=scope,
-            budget=budget,
+            budget=candidate_budget if candidate_budget is not None else budget,
             mode=mode,
             namespace=namespace,
             graph_hops=graph_hops,
             semantic_graph_seeding=semantic_graph_seeding,
             graph_at=graph_at,
             graph_include_history=graph_include_history,
+            lens=lens,
+            include_raw=include_raw,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            ranking_policy=ranking_policy,
         )
 
     def decide(
@@ -102,6 +120,12 @@ class RetrievalOrchestrator:
         graph_at: str | None = None,
         graph_include_history: bool = False,
         candidate_trace_limit: int = 128,
+        lens: str = "general",
+        include_raw: bool = False,
+        temporal_window: tuple[datetime, datetime] | None = None,
+        temporal_reference: datetime | None = None,
+        flags=None,
+        ranking_policy: str = "reciprocal-rank-fusion/2",
     ) -> RetrievalDecisionResult:
         if isinstance(candidate_trace_limit, bool) or not isinstance(
             candidate_trace_limit, int
@@ -111,6 +135,7 @@ class RetrievalOrchestrator:
             raise ValueError("candidate_trace_limit cannot be smaller than budget")
         if candidate_trace_limit > 128:
             raise ValueError("candidate_trace_limit cannot exceed 128")
+        resolved_flags = flags or self.runtime._retrieval_flags_cached()
         plan, leg_hits, leg_latency_ms, total_latency_ms, ranked = self._execute(
             query=query,
             scope=scope,
@@ -121,6 +146,17 @@ class RetrievalOrchestrator:
             semantic_graph_seeding=semantic_graph_seeding,
             graph_at=graph_at,
             graph_include_history=graph_include_history,
+            lens=lens,
+            include_raw=include_raw,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            flags=resolved_flags,
+            ranking_policy=ranking_policy,
+            candidate_budget=(
+                int(resolved_flags.search_top_k)
+                if resolved_flags.search_top_k
+                else budget
+            ),
         )
         retained = ranked[:candidate_trace_limit]
         return RetrievalDecisionResult(
@@ -151,6 +187,13 @@ class RetrievalOrchestrator:
         semantic_graph_seeding: bool,
         graph_at: str | None,
         graph_include_history: bool,
+        lens: str,
+        include_raw: bool,
+        temporal_window: tuple[datetime, datetime] | None,
+        temporal_reference: datetime | None,
+        flags,
+        candidate_budget: int,
+        ranking_policy: str,
     ) -> tuple[RetrievalPlan, dict[str, list], dict[str, float], float, list]:
         plan = self.plan(
             query=query,
@@ -162,6 +205,12 @@ class RetrievalOrchestrator:
             semantic_graph_seeding=semantic_graph_seeding,
             graph_at=graph_at,
             graph_include_history=graph_include_history,
+            lens=lens,
+            include_raw=include_raw,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            candidate_budget=candidate_budget,
+            ranking_policy=ranking_policy,
         )
         leg_hits: dict[str, list] = {}
         leg_latency_ms: dict[str, float] = {}
@@ -169,7 +218,11 @@ class RetrievalOrchestrator:
 
         for leg in plan.legs:
             leg_started = perf_counter()
-            if leg.name == "sql":
+            if leg.name == "legacy_weighted":
+                leg_hits["legacy_weighted"] = self.legacy_weighted_adapter.search(
+                    plan, leg.limit, flags=flags
+                )
+            elif leg.name == "sql":
                 leg_hits["sql"] = _search_current_page(
                     lambda limit: self.sql_adapter.search(plan, limit=limit),
                     limit=leg.limit,
@@ -187,7 +240,6 @@ class RetrievalOrchestrator:
                 graph_node_seed_ids: list[str] = []
                 if plan.semantic_graph_seeding:
                     graph_node_started = perf_counter()
-                    flags = self.runtime._retrieval_flags_cached()
                     graph_node_seed_ids, graph_node_hits = (
                         self.graph_node_adapter.search(
                             plan,
@@ -235,9 +287,17 @@ class RetrievalOrchestrator:
                     limit=leg.limit,
                     include_history=plan.graph_include_history,
                 )
+            elif leg.name == "temporal":
+                leg_hits["temporal"] = self.temporal_adapter.search(
+                    plan, limit=leg.limit
+                )
             leg_latency_ms[leg.name] = (perf_counter() - leg_started) * 1000.0
 
-        ranked = rank_hits([hits for hits in leg_hits.values()])
+        ranked = (
+            rank_legacy_weighted_hits(leg_hits["legacy_weighted"])
+            if plan.ranking_policy == "legacy-weighted/1"
+            else rank_hits([hits for hits in leg_hits.values()])
+        )
         return (
             plan,
             leg_hits,
@@ -259,7 +319,14 @@ class RetrievalOrchestrator:
         semantic_graph_seeding: bool = False,
         graph_at: str | None = None,
         graph_include_history: bool = False,
+        lens: str = "general",
+        include_raw: bool = False,
+        temporal_window: tuple[datetime, datetime] | None = None,
+        temporal_reference: datetime | None = None,
+        flags=None,
+        ranking_policy: str = "reciprocal-rank-fusion/2",
     ) -> RetrievalSearchResult:
+        resolved_flags = flags or self.runtime._retrieval_flags_cached()
         plan, leg_hits, leg_latency_ms, total_latency_ms, ranked = self._execute(
             query=query,
             scope=scope,
@@ -270,6 +337,17 @@ class RetrievalOrchestrator:
             semantic_graph_seeding=semantic_graph_seeding,
             graph_at=graph_at,
             graph_include_history=graph_include_history,
+            lens=lens,
+            include_raw=include_raw,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            flags=resolved_flags,
+            ranking_policy=ranking_policy,
+            candidate_budget=(
+                int(resolved_flags.search_top_k)
+                if resolved_flags.search_top_k
+                else budget
+            ),
         )
         selected = ranked[:budget]
         rejected_trace = ranked[budget : budget + 128]
@@ -283,13 +361,19 @@ class RetrievalOrchestrator:
                     for name, hits in leg_hits.items()
                 },
                 "fusion": {
-                    "policy": FUSION_POLICY,
+                    "policy": plan.ranking_policy,
                     "normalization": {
                         "method": "reciprocal_rank",
                         "rank_constant": FUSION_RANK_CONSTANT,
                         "source_value": "1/(rank_constant+rank)",
-                    },
-                    "tie_breaker": "record_id",
+                    }
+                    if plan.ranking_policy == FUSION_POLICY
+                    else {"method": "legacy_weighted"},
+                    "tie_breaker": (
+                        "record_id"
+                        if plan.ranking_policy == FUSION_POLICY
+                        else "legacy_stable_record_order"
+                    ),
                     "total_candidates": len(ranked),
                     "selected_ids": [
                         candidate.record.id for candidate in selected

@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-29-semantic-retrieval-and-promotion-gate
+latest: 2026-07-30-wandr-zero-network-replay-lane
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,11 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-29-semantic-retrieval-and-promotion-gate` | [2026-07-29-semantic-retrieval-and-promotion-gate.md](2026-07-29-semantic-retrieval-and-promotion-gate.md) | `2026-07-29-wandr-provider-free-replay-next` | `HISTORY#498` | `current` |
+| `2026-07-30-wandr-zero-network-replay-lane` | [2026-07-30-wandr-zero-network-replay-lane.md](2026-07-30-wandr-zero-network-replay-lane.md) | `2026-07-30-retrieval-baseline-ablation-in-progress` | `HISTORY#505` | `current` |
+| `2026-07-30-retrieval-baseline-ablation-in-progress` | [2026-07-30-retrieval-baseline-ablation-in-progress.md](2026-07-30-retrieval-baseline-ablation-in-progress.md) | `2026-07-30-full-retrieval-ab-negative` | `HISTORY#504` | `superseded` |
+| `2026-07-30-full-retrieval-ab-negative` | [2026-07-30-full-retrieval-ab-negative.md](2026-07-30-full-retrieval-ab-negative.md) | `2026-07-30-single-retrieval-engine` | `HISTORY#503` | `superseded` |
+| `2026-07-30-single-retrieval-engine` | [2026-07-30-single-retrieval-engine.md](2026-07-30-single-retrieval-engine.md) | `2026-07-29-semantic-retrieval-and-promotion-gate` | `HISTORY#502` | `superseded` |
+| `2026-07-29-semantic-retrieval-and-promotion-gate` | [2026-07-29-semantic-retrieval-and-promotion-gate.md](2026-07-29-semantic-retrieval-and-promotion-gate.md) | `2026-07-29-wandr-provider-free-replay-next` | `HISTORY#498` | `superseded` |
 | `2026-07-29-wandr-provider-free-replay-next` | [2026-07-29-wandr-provider-free-replay-next.md](2026-07-29-wandr-provider-free-replay-next.md) | `2026-07-29-g5-g7-r6-provider-free-qualification` | `HISTORY#497` | `superseded` |
 | `2026-07-29-g5-g7-r6-provider-free-qualification` | [2026-07-29-g5-g7-r6-provider-free-qualification.md](2026-07-29-g5-g7-r6-provider-free-qualification.md) | `2026-07-29-g4-r5-graph-products-reviewed-promotion` | `HISTORY#496` | `superseded` |
 | `2026-07-29-g4-r5-graph-products-reviewed-promotion` | [2026-07-29-g4-r5-graph-products-reviewed-promotion.md](2026-07-29-g4-r5-graph-products-reviewed-promotion.md) | `2026-07-29-g3-r4-self-improving-graphs` | `HISTORY#495` | `superseded` |

@@ -28,6 +28,10 @@ class AdapterAnswer:
     retrieval_latency_ms: float = 0.0
     answer_latency_ms: float = 0.0
     answerer_diagnostics: dict | None = None  # provider/finish_reason/content_len when answerer ran
+    # Per-leg retrieval trace for the primary question, populated only when the
+    # run explicitly asks for it. Carries leg candidates, fusion selection, and
+    # per-leg latency so a ranking A/B can attribute a recall delta to a leg.
+    retrieval_trace: dict | None = None
 
 
 class MemorySystemAdapter(Protocol):

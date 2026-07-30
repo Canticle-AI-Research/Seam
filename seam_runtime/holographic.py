@@ -13,7 +13,6 @@ from typing import Any
 from .lossless import query_readable_compressed
 from .mirl import IRBatch
 from .pack import pack_records
-from .retrieval import search_batch
 
 SURFACE_MAGIC = "SEAM-HS/1"
 SURFACE_MAGIC_BYTES = b"SEAM-HS/1\n"
@@ -296,7 +295,14 @@ def query_surface(path: Path, query: str, limit: int = 5) -> SurfaceQueryResult:
         )
     if payload.payload_format == "MIRL":
         batch = IRBatch.from_text(payload.text)
-        result = search_batch(batch, query=query, limit=limit).to_dict()
+        with _surface_retrieval_runtime() as runtime:
+            runtime.persist_ir(batch)
+            result = runtime.retrieve(
+                query=query,
+                budget=limit,
+                include_raw=True,
+                mode="mix",
+            ).to_dict()
         hits = [
             {
                 "record_id": candidate["record"]["id"],
@@ -315,7 +321,14 @@ def context_surface(path: Path, query: str, budget: int = 1200) -> dict[str, obj
     payload = decode_surface(path)
     if payload.payload_format == "MIRL":
         batch = IRBatch.from_text(payload.text)
-        result = search_batch(batch, query=query, limit=max(1, min(10, budget // 120)))
+        with _surface_retrieval_runtime() as runtime:
+            runtime.persist_ir(batch)
+            result = runtime.retrieve(
+                query=query,
+                budget=max(1, min(10, budget // 120)),
+                include_raw=True,
+                mode="mix",
+            )
         records = [candidate.record for candidate in result.candidates]
         pack = pack_records(records, lens="holographic", budget=budget, mode="context")
         return {
@@ -340,6 +353,22 @@ def context_surface(path: Path, query: str, budget: int = 1200) -> dict[str, obj
             "token_cost": sum(max(1, len(line) // 4) for line in context_lines),
         },
     }
+
+
+def _surface_retrieval_runtime():
+    """Build a fully in-memory runtime over the canonical retrieval engine."""
+
+    from .models import HashEmbeddingModel
+    from .runtime import SeamRuntime
+    from .vector_adapters import MemoryVectorAdapter
+
+    model = HashEmbeddingModel()
+    return SeamRuntime(
+        ":memory:",
+        embedding_model=model,
+        vector_adapter=MemoryVectorAdapter(model),
+        allow_pgvector_env=False,
+    )
 
 
 def _detect_payload_format(payload: bytes) -> str:

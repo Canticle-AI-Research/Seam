@@ -71,6 +71,8 @@ def build_adapter(
     rerank_top_k: int = 20,
     mem0_search_limit: int | None = None,
     semantic_recovery_mode: str = "baseline",
+    retrieval_mode: str = "legacy-weighted",
+    record_retrieval_trace: bool = False,
     record_retrieval_events: bool | None = None,
     retrieval_event_run_id: str | None = None,
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
@@ -106,6 +108,8 @@ def build_adapter(
             search_top_k=search_top_k,
             rerank_top_k=rerank_top_k,
             semantic_recovery_mode=semantic_recovery_mode,
+            retrieval_mode=retrieval_mode,
+            record_retrieval_trace=record_retrieval_trace,
             keep_db=keep_db,
             record_retrieval_events=record_retrieval_events,
             run_id=retrieval_event_run_id,
@@ -432,6 +436,27 @@ def main() -> None:
         help="(seam adapter) Label for default-off semantic recovery experiments. Baseline preserves existing defaults; other modes are explicit measurement labels.",
     )
     parser.add_argument(
+        "--retrieval-mode",
+        choices=["legacy-weighted", "hybrid", "mix"],
+        default="legacy-weighted",
+        help=(
+            "(seam adapter) Select the named orchestrator retrieval policy. "
+            "Use hybrid versus mix for same-code graph ablations; "
+            "legacy-weighted is the behavioral control."
+        ),
+    )
+    parser.add_argument(
+        "--save-retrieval-trace",
+        action="store_true",
+        help=(
+            "(seam adapter) Retain the per-case, per-leg retrieval trace "
+            "(leg candidates, fusion selection, per-leg latency) in the run "
+            "output. Required to attribute a ranking A/B recall delta to a "
+            "specific leg. Excluded from the integrity hash because it carries "
+            "wall-clock latency."
+        ),
+    )
+    parser.add_argument(
         "--context-budget",
         type=int,
         default=8000,
@@ -567,6 +592,8 @@ def main() -> None:
                 rerank_top_k=args.rerank_top_k,
                 mem0_search_limit=args.mem0_search_limit,
                 semantic_recovery_mode=args.semantic_recovery_mode,
+                retrieval_mode=args.retrieval_mode,
+                record_retrieval_trace=args.save_retrieval_trace,
                 record_retrieval_events=args.record_retrieval_events,
                 retrieval_event_run_id=args.retrieval_event_run_id,
                 conversation_adapter=args.conversation_adapter,
@@ -603,6 +630,8 @@ def main() -> None:
             rerank_top_k=args.rerank_top_k,
             mem0_search_limit=args.mem0_search_limit,
             semantic_recovery_mode=args.semantic_recovery_mode,
+            retrieval_mode=args.retrieval_mode,
+            record_retrieval_trace=args.save_retrieval_trace,
             record_retrieval_events=args.record_retrieval_events,
             retrieval_event_run_id=args.retrieval_event_run_id,
             conversation_adapter=args.conversation_adapter,

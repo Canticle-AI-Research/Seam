@@ -14140,3 +14140,226 @@ the orchestrator lacks (temporal_window, temporal_reference, include_raw, flags,
 lens), then run a free both-paths A/B on the same harness BEFORE migrating any
 call site, because the collapse direction should be measured rather than assumed.
 ---END-ENTRY-#501---
+
+---BEGIN-ENTRY-#502---
+id: 502
+date: 2026-07-30T15:22:13Z
+agent: codex
+status: changed
+topics: retrieval, graph, locomo, surface, vector, tests, verify, handoff
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/handoffs/2026-07-30-single-retrieval-engine.md,seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator
+supersedes: 501
+tokens: 497
+---
+Consolidated SEAM's live retrieval paths after the single-package restoration.
+The full private runtime remains one readable source package including MIRL and
+HS/1, with LICENSE, NOTICE, COMMERCIAL_LICENSE.md, and LICENSES unchanged. The
+future public self-host remains a separate ground-up BUSL build with separation
+designed in; this change did not publish, deploy, relicense, or mutate remote
+state.
+
+RetrievalOrchestrator is now the sole live SQL/vector/graph/graph-node/temporal
+engine. SeamRuntime.retrieve is the canonical runtime entry and search_ir is
+only the longstanding SearchResult/evidence compatibility shape. RAW inclusion,
+lens metadata, namespace/scope boundaries, temporal window/reference,
+current/history filtering, applied graph flags, and evidence closure cross the
+one plan. Existing CLI, MCP, REST, opaque /v1, dashboard, SDK, LoCoMo,
+self-improvement, and server paths converge through search_ir. MIRL-backed HS/1
+queries use the same engine through an ephemeral in-memory vector adapter.
+Legacy search_batch remains only in explicitly named component evaluation
+tracks, not a live runtime surface.
+
+A provider-free free LoCoMo quickstart compared the legacy and canonical paths
+against the exact same retained database with judge and answerer disabled. All
+ten cases and both category aggregates matched: context recall 0.963333 overall,
+0.971429 for category 1, and 0.944444 for category 2. Canonical steady-state
+queries measured about 79-88 ms; the first query paid a visible one-time 5.9 s
+local BGE initialization.
+
+CodeRabbit findings were validated rather than accepted mechanically. Explicit
+zero candidate-budget validation, mixed temporal-awareness validation, and
+historical temporal filtering were fixed and regression-tested. Cross-boundary
+evidence loading, removal of RAW graph seeds, and changing the established
+search_top_k override were rejected because they contradicted current boundary
+or retrieval contracts. Focused consolidation, graph, derived-fact, flag,
+improvement-loop, LoCoMo, and HS/1 tests passed; changed-file Ruff and diff
+checks passed. The strict healthy live-pgvector suite collected 1,500 tests:
+1,498 passed, the two established compile_nl cases xfailed, and zero failed or
+skipped. No paid provider, answerer, or judge ran.
+---END-ENTRY-#502---
+
+---BEGIN-ENTRY-#503---
+id: 503
+date: 2026-07-30T16:33:26Z
+agent: codex
+status: changed
+topics: retrieval, benchmark, locomo, rank, graph, verify, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-30-full-retrieval-ab-negative.md,test_seam/benchmarks/retrieval-unification-full-20260730
+supersedes: 502
+tokens: 673
+---
+Ran the required full provider-free retrieval A/B before promoting the
+single-engine refactor. The standard LoCoMo answerable-question population
+contained 1,542 cases across every category, 10 conversations, and 5,882
+turns. Legacy `search_ir()` ran from a detached worktree at the local
+single-package consolidation commit `7380b7c`; the canonical pass ran the
+uncommitted orchestrator `mix` path. The harness and adapter were identical.
+Legacy ingested once, then its ten checkpointed SQLite-vector conversation
+databases were cloned for the canonical pass; the pre-query sets had identical
+aggregate SHA-256
+`aa6015a6d49442d52621882e08fd2ea6e1a0c06206a2a382d4790d3ee0ebf4ff`.
+Both passes used the same cached offline BGE model, one worker, top-k 100, an
+8,000-character context budget, no pgvector, and no provider, answerer, judge,
+network, or paid call. Every case completed with zero execution errors.
+
+The full gate falsified the earlier ten-case quickstart parity. Legacy context
+recall was 0.766420; canonical was 0.755616, a -0.010804 absolute / -1.41%
+relative change. Paired outcomes were 97 improved, 153 regressed, and 1,292
+unchanged. Category deltas were -0.015387, -0.005743, -0.045046, -0.007316,
+and 0.000000 for categories 1 through 5. Six conversations regressed and four
+improved. Both paths filled 8,000 characters, but mean source-line count fell
+from 45.49 to 39.35 and exact-line Jaccard averaged 0.448. Seventy-four cases
+lost annotated evidence and 54 gained it. Warm retrieval median/p95 increased
+from 156.4/264.1 ms to 207.2/315.7 ms. Total elapsed time is not comparable
+because only the legacy pass ingested.
+
+This broad comparison changes SQL/vector ranking, score-magnitude handling,
+fixed RRF, graph participation, temporal behavior, filtering, and packing
+together. It does not attribute the regression specifically to graph. In the
+representative `conv-26::q55` loss, graph improved the relevant RAW line
+relative to canonical hybrid, but the line remained outside the top 100; the
+evidence supports combined fusion/ranking drift. A same-code
+hybrid-without-graph versus mix-with-graph ablation is required for graph
+attribution.
+
+Superseded the quickstart handoff and its landing recommendation. The branch
+must remain uncommitted and unpushed. Preserve the one-engine architecture,
+port the legacy RAW/BM25/weighted ranking semantics into the orchestrator as a
+versioned behavioral baseline, add per-leg trace evidence, and repeat the full
+1,542-question non-regression gate before promotion. Generated run evidence is
+retained locally under
+`test_seam/benchmarks/retrieval-unification-full-20260730/`; the detached
+legacy worktree was removed.
+---END-ENTRY-#503---
+
+---BEGIN-ENTRY-#504---
+id: 504
+date: 2026-07-30T17:09:40Z
+agent: codex
+status: in-progress
+topics: retrieval, benchmark, locomo, rank, graph, verify, handoff, status
+commits: pending
+refs: seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py,docs/handoffs/2026-07-30-retrieval-baseline-ablation-in-progress.md
+supersedes: 503
+tokens: 209
+---
+Materialized the legacy RAW/BM25/vector weighted behavior as the explicit
+`legacy-weighted/1` control inside RetrievalOrchestrator after HISTORY#503
+blocked the fixed-RRF path. `search_ir()` is now a compatibility shape over
+that canonical plan. The offline LoCoMo runner exposes legacy-weighted, hybrid,
+and mix through the same adapter, enabling the required graph ablation.
+
+Direct regression coverage matched the component scorer's ordered IDs and
+scores. Focused retrieval, temporal, LoCoMo adapter/event, and routing tests
+passed 68/68. A provider-key-cleared 10-question quickstart smoke held context
+recall at 0.963333 in all three arms; this is wiring evidence only. Full
+1,542-question hybrid-versus-mix trace capture and the legacy-weighted
+non-regression gate remain required. No provider, answerer, judge, network, or
+paid call ran. Branch remains uncommitted, unpushed, and blocked from landing.
+---END-ENTRY-#504---
+
+---BEGIN-ENTRY-#505---
+id: 505
+date: 2026-07-30T21:07:58Z
+agent: claude-opus-5
+status: changed
+topics: retrieval, benchmark, wandr, trace, status, locomo, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/status/index.md,docs/handoffs/2026-07-30-wandr-zero-network-replay-lane.md
+supersedes: 504
+tokens: 1232
+---
+Retrieval trace attribution, WANDR zero-network replay lane, status stream decomposition
+
+Repaired the attribution gap that blocked HISTORY#503/#504 and added the
+provider-free WANDR replay lane, with no change to the retrieval-ranking hold.
+
+Retrieval trace plumbing (the #504 blocker):
+- `RetrievalOrchestrator` already built a per-leg trace, but `include_trace`
+  reached no benchmark surface. It now flows
+  `--save-retrieval-trace` -> `build_adapter` -> `SeamLocomoAdapter` ->
+  `SeamRuntime.retrieve()`/`search_ir()`.
+- `search_ir` gained `include_trace`, so the `legacy-weighted/1` control arm is
+  self-identifying in its own artifact.
+- `SearchResult.trace` is omitted from `to_dict()` when absent, so existing
+  exact-dict consumers are unaffected.
+- The trace is traced only for the question actually asked, never decomposed
+  sub-queries, bounding artifact size.
+- VERIFIED INERT: traced and untraced quickstart `mix` runs produced
+  byte-identical integrity hashes (6f27137496ba2b13) and identical context
+  recall 0.963333. Tracing cannot contaminate the A/B it explains.
+- The trace is excluded from the integrity hash because it carries wall-clock
+  latency, and that exclusion is now DECLARED in `integrity_hash_excludes`
+  rather than silent.
+
+Ablation methodology correction:
+- Measured that retrieval MUTATES the SQLite store. Cloning databases after a
+  scored run therefore gives the second arm a different pre-query corpus than
+  the first arm saw. Added `benchmarks.external.locomo.ingest_only` to build a
+  pristine ingest-only snapshot that is cloned once per arm.
+- Snapshot built: 10 scopes, 1,542 cases, 5,882 turns, corpus digest
+  ce61ae06e8ce5fe1ac040bf7b1c4a886bb9a8419d6e4ae39192b16d1d5bc3ace.
+
+WANDR zero-network replay lane (new, `benchmarks/external/wandr/`):
+- Upstream's official path is networked and paid: every task including `smoke`
+  declares network_mode = "public" and expects OPENAI_API_KEY /
+  PERPLEXITY_API_KEY. It was NOT run.
+- Upstream supports replay natively via
+  `persisted(component, key=..., path=debug/<stage>.jsonl)` over fetch, triage,
+  canon, dedup, and judge, but NO cache artifacts exist in the checkout, so a
+  real corpus could not be harvested without a paid run.
+- Corpus is therefore hand-authored and synthetic, hash-pinned in
+  `benchmarks/fixtures/wandr/MANIFEST.json`, all URLs on the reserved .invalid
+  TLD. This also avoids the upstream NOTICE, which excludes third-party
+  materials from its Apache-2.0 grant; no fetched page content is vendored.
+- Endpoints: reset, ingest_row, ingest_task, retrieve, recovered_sources,
+  submit, write_submission, counters, and fetch (always raises).
+- MEASURED: native (mix) 1.0 vs event-only (hybrid) 1.0 source recall, delta
+  0.0, verdict parity; provider calls 0, network calls 0, cost $0.00; batch
+  recovery ok; 2 of 10 duplicate rows collapsed. Both arms sit at a 1.0 CEILING,
+  so this is mechanism evidence only and is NOT graph lift in either direction.
+
+Status surface decomposition:
+- `PROJECT_STATUS.md` had 143 stacked `Current update:` blocks across ~1,037
+  lines (348 KB) and EXCEEDED the standard file-read limit, despite being step 1
+  of the mandatory session-start read order.
+- Decomposed into eight routed streams under `docs/status/` with an index and
+  routing hints; `PROJECT_STATUS.md` is now a 3 KB router.
+- First attempt placed these under `.seam/streams/status/`, which the preflight
+  correctly rejected: that path is an event-log substrate requiring a
+  chronological log.md, and status streams are current-state documents. Moved to
+  `docs/status/`.
+- NOTHING DISCARDED: full prior file preserved verbatim at
+  `docs/status_archive/2026-07-30-project-status-full.md`; all 234 distinct
+  HISTORY# entries it cited verified present in HISTORY.md (zero missing); every
+  non-chronological bullet routed into a stream.
+- Added `tools/status/verify_streams.py` to keep index, streams, router size,
+  and archive/HISTORY citation integrity in agreement.
+
+Also fixed: a stale exact-dict assertion in
+`tests/audit/test_locomo_adapter_evidence_text.py` that broke when
+`retrieval_mode` was added to the LoCoMo policy diagnostics. Four pgvector tests
+were skipping only because PGVECTOR_TEST_DSN was unexported while the
+`seam-pgvector` container was already running; they now execute.
+
+Verification: full suite 1,523 passed, 2 xfailed, 0 skipped, 0 failed, exit 0,
+against live pgvector with zero skips. ruff clean.
+
+NOT DONE / UNRESOLVED: the HISTORY#503 ranking regression is still unattributed.
+The 1,542-question hybrid-vs-mix ablation is RUNNING but not complete, so the
+DO-NOT-LAND hold on `refactor/unify-retrieval-paths` REMAINS in force. The WANDR
+corpus needs distractors, cross-member entity collisions, and multi-source joins
+before its ablation can discriminate.
+---END-ENTRY-#505---

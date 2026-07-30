@@ -2,17 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 563
+total_events: 567
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-13T10:11:44Z | history:308:add55806 | session-event | done | mirl, compiler, nl, fidelity, floor, retrieval, test, ver... | seam_runtime/nl.py,benchmarks/fidelity/golden.py,tests/fidelity/test_spec_met... |
-| 2026-06-13T17:45:05Z | history:309:0994fba1 | session-event | done | security, redos, codeql, mirl, compiler, nl, test, symbol... | seam_runtime/nl.py,test_seam_all/test_seam.py,HISTORY.md,HISTORY_INDEX.md,PRO... |
-| 2026-06-13T17:58:01Z | history:310:9c0ba7e3 | session-event | done | protocol, history, status, verify, continuity, docs | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md |
-| 2026-06-14T05:06:38Z | history:311:cbcce34e | session-event | done | mirl, compiler, nl, unify, conversation, locomo, benchmar... | seam_runtime/nl.py,seam_runtime/runtime.py,tests/audit/test_conversation_turn... |
 | 2026-06-14T06:56:46Z | history:312:d81f92ae | session-event | done | self-improvement, loop, self-probe, retrieval, locomo, be... | seam_runtime/self_improve.py,tests/audit/test_self_probe_scorer.py,HISTORY.md... |
 | 2026-06-14T08:03:31Z | history:313:105bd107 | session-event | done | mirl, compiler, nl, ollama, extractor, fidelity, llm, tes... | seam_runtime/nl_extract.py,seam_runtime/nl.py,tests/fidelity/test_nl_extract.... |
 | 2026-06-14T11:04:31Z | history:314:bcd1c824 | session-event | done | pack, density, compression, context, retrieval, cr, verif... | seam_runtime/pack.py,seam_runtime/context_views.py,test_seam_all/test_seam.py... |
@@ -209,10 +205,14 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-30T00:34:40Z | history:499:cac73724 | session-event | done | retrieval, graph, reasoning, promotion, benchmark, sdk, v... | seam_runtime/sdk.py,benchmarks/external/mem0_harness/seam_mem0_server.py,test... |
 | 2026-07-30T12:36:38Z | history:500:377e4029 | session-event | changed | history, audit, classification, verify | AGENTS.md,HISTORY.md,HISTORY_INDEX.md |
 | 2026-07-30T13:19:48Z | history:501:de6bd3e6 | session-event | changed | packaging, consolidation, distribution, licensing, workflows | REPO_LEDGER.md,docs/CODE_LAYOUT.md,ROADMAP.md |
+| 2026-07-30T15:22:13Z | history:502:e3a0799e | session-event | changed | retrieval, graph, locomo, surface, vector, tests, verify,... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/handoffs/2026-07-30... |
+| 2026-07-30T16:33:26Z | history:503:1b3130cb | session-event | changed | retrieval, benchmark, locomo, rank, graph, verify, handof... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-30-full-retrieval-ab-n... |
+| 2026-07-30T17:09:40Z | history:504:41987004 | session-event | in-progress | retrieval, benchmark, locomo, rank, graph, verify, handof... | seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/extern... |
+| 2026-07-30T21:07:58Z | history:505:5673f963 | session-event | changed | retrieval, benchmark, wandr, trace, status, locomo, verify | PROJECT_STATUS.md,docs/status/index.md,docs/handoffs/2026-07-30-wandr-zero-ne... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0363.cross.md | 2026-04-15T00:00:00Z..2026-06-13T09:23:12Z | 363 | (multi) | (multi) |
+| 0001-0367.cross.md | 2026-04-15T00:00:00Z..2026-06-14T05:06:38Z | 367 | (multi) | (multi) |
