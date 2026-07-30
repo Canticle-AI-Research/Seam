@@ -37,16 +37,18 @@ jobs:
         id: version
         env:
           REQUESTED_VERSION: ${{ inputs.version }}
+          RELEASE_TARGET: ${{ inputs.target }}
         run: |
           python - <<'PY'
           import os
           import tomllib
           from pathlib import Path
 
-          version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          project_file = Path("public_pkg/pyproject.toml") if os.environ["RELEASE_TARGET"] == "pypi" else Path("pyproject.toml")
+          version = tomllib.loads(project_file.read_text(encoding="utf-8"))["project"]["version"]
           requested = os.environ["REQUESTED_VERSION"].strip()
           if version != requested:
-              raise SystemExit(f"pyproject version {version!r} does not match requested version {requested!r}")
+              raise SystemExit(f"{project_file} version {version!r} does not match requested version {requested!r}")
           print(f"version={version}", file=open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"))
           PY
 
@@ -61,32 +63,54 @@ jobs:
         if: inputs.target == 'pypi'
         run: |
           python -m pip install --upgrade build twine
-          python tools/release/build_public.py
+          mkdir -p public-dist
+          python tools/release/build_public.py --outdir public-dist
 
       - name: Enforce private/public distribution boundary
         env:
           RELEASE_TARGET: ${{ inputs.target }}
-        run: python -m tools.release.verify_distribution_boundary --target "$RELEASE_TARGET" dist/*
+        run: |
+          if [ "$RELEASE_TARGET" = "pypi" ]; then
+            python -m tools.release.verify_distribution_boundary --target "$RELEASE_TARGET" public-dist/*
+          else
+            python -m tools.release.verify_distribution_boundary --target "$RELEASE_TARGET" dist/*
+          fi
 
       - name: Smoke-test wheel (private)
         if: inputs.target == 'private-github'
         run: |
-          python -m pip install dist/*.whl
+          repo_root="$PWD"
+          wheel="$(find "$repo_root/dist" -maxdepth 1 -name '*.whl' -print -quit)"
+          python -m pip install "${wheel}[server,pgvector]" "seam-client==2.0.0"
+          cd /tmp
           seam --help
           seam-mcp --help
+          seam-server --help
+          python "$repo_root/tools/release/prove_hosted_api.py"
 
       - name: Smoke-test wheel (public PyPI)
         if: inputs.target == 'pypi'
         run: |
-          python -m pip install dist/*.whl
-          seam status
-          python -c "import seam_runtime; assert not seam_runtime.has_full_runtime(), 'public package must not ship full runtime'; print('OK — thin public package')"
+          python -m pip install public-dist/*.whl
+          cd /tmp
+          seam --help
+          python -c "import seam_client, seam_runtime; assert seam_runtime.SeamClient is seam_client.SeamClient; assert seam_runtime.ConnectionError is seam_client.ConnectionError; assert not seam_runtime.has_full_runtime(); print('OK — API-only compatibility package')"
 
-      - name: Upload reviewed distributions
+      - name: Upload reviewed private distributions
+        if: inputs.target == 'private-github'
         uses: actions/upload-artifact@v4
         with:
           name: python-distributions-${{ steps.version.outputs.version }}
-          path: dist/
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload reviewed public distributions
+        if: inputs.target == 'pypi'
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions-${{ steps.version.outputs.version }}
+          path: public-dist/*
           if-no-files-found: error
           retention-days: 7
 
@@ -132,3 +156,5 @@ jobs:
 
       - name: Publish boundary-approved distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

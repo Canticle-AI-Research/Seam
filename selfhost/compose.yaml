@@ -1,0 +1,37 @@
+services:
+  seam:
+    image: ${SEAM_SELFHOST_IMAGE:-seam-selfhost:local}
+    restart: unless-stopped
+    read_only: true
+    user: "65532:65532"
+    ports:
+      - "127.0.0.1:${SEAM_SELFHOST_PORT:-8765}:8765"
+    environment:
+      SEAM_API_TOKEN_FILE: /run/secrets/api_token
+      SEAM_SELFHOST_ENTITLEMENT_PATH: /run/seam/entitlement.json
+      SEAM_SERVER_DB: /var/lib/seam/seam.db
+      SEAM_SELFHOST_RATE_LIMIT_PER_MINUTE: ${SEAM_SELFHOST_RATE_LIMIT_PER_MINUTE:-120}
+    secrets:
+      - api_token
+    volumes:
+      - seam-data:/var/lib/seam
+      # Optional. Self-hosting is granted by BUSL-1.1 with no entitlement at all;
+      # delete this bind to run unentitled. A mounted entitlement identifies a
+      # supported deployment and unlocks nothing.
+      - type: bind
+        source: ${SEAM_SELFHOST_ENTITLEMENT_FILE:-./entitlement.json}
+        target: /run/seam/entitlement.json
+        read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,uid=65532,gid=65532
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  api_token:
+    file: ${SEAM_SELFHOST_TOKEN_FILE:-./api-token.txt}
+
+volumes:
+  seam-data:

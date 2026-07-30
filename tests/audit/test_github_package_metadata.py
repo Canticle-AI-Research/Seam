@@ -15,11 +15,17 @@ def test_pyproject_points_at_private_runtime_repo() -> None:
     assert pyproject["project"]["name"] == "seam-runtime"
     assert pyproject["project"]["urls"]["Repository"] == "https://github.com/BlackhatShiftey/Seam"
     assert pyproject["project"]["urls"]["Issues"] == "https://github.com/BlackhatShiftey/Seam/issues"
-    assert pyproject["project"]["license"] == "LicenseRef-SEAM-Proprietary AND Apache-2.0"
+    # 2.4.0+ is the SEAM Distributed Runtime under BUSL-1.1 per NOTICE and LICENSE
+    # section 7A, so the expression must name BUSL. LicenseRef-SEAM-Proprietary still
+    # covers reserved MIRL/HS-1 expression, and Apache-2.0 is retained only for
+    # unchanged Legacy Apache Materials already published at 1.3.x.
+    assert pyproject["project"]["version"] == "2.4.0"
+    assert pyproject["project"]["license"] == "LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0"
     assert pyproject["project"]["license-files"] == [
         "LICENSE",
         "NOTICE",
         "COMMERCIAL_LICENSE.md",
+        "LICENSES/BUSL-1.1.txt",
         "LICENSES/Apache-2.0.txt",
     ]
     assert "Private :: Do Not Upload" in pyproject["project"]["classifiers"]
@@ -126,9 +132,14 @@ def test_release_workflow_is_versioned_gated_and_oidc_only() -> None:
 
     assert "workflow_dispatch:" in workflow
     assert "private-github" in workflow
+    assert 'Path("public_pkg/pyproject.toml")' in workflow
     assert "environment: private-package-release" in workflow
     assert "tools.release.verify_distribution_boundary" in workflow
+    assert '"${wheel}[server,pgvector]" "seam-client==2.0.0"' in workflow
+    assert "tools/release/prove_hosted_api.py" in workflow
     assert "environment: pypi" in workflow
     assert "id-token: write" in workflow
     assert "pypa/gh-action-pypi-publish@release/v1" in workflow
+    assert "hasattr(seam_runtime, 'SeamClient') or True" not in workflow
+    assert "seam_runtime.SeamClient is seam_client.SeamClient" in workflow
     assert "PYPI_TOKEN" not in workflow

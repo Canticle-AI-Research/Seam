@@ -2,13 +2,29 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import sqlite3
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from .context_assembly import ContextCandidate
+from .graph_products import (
+    GraphProductFact,
+    init_graph_products,
+)
+from .graph_products import (
+    graph_product_history as graph_product_history_rows,
+)
+from .graph_products import (
+    read_graph_products as read_graph_product_rows,
+)
+from .graph_products import (
+    rebuild_graph_products as rebuild_graph_product_rows,
+)
 from .identity_resolution import (
     accept_merge as accept_identity_merge_op,
 )
@@ -32,6 +48,12 @@ from .knowledge_graph import (
     node_detail as knowledge_node_detail,
 )
 from .knowledge_graph import (
+    node_vector_status as graph_node_vector_status,
+)
+from .knowledge_graph import (
+    pending_node_vectors as pending_graph_node_vectors,
+)
+from .knowledge_graph import (
     project_records as project_knowledge_records,
 )
 from .knowledge_graph import (
@@ -41,9 +63,42 @@ from .knowledge_graph import (
     remove_records as remove_knowledge_records,
 )
 from .knowledge_graph import (
+    reusable_node_vectors as reusable_graph_node_vectors,
+)
+from .knowledge_graph import (
+    search_node_vectors as search_graph_node_vectors,
+)
+from .knowledge_graph import (
+    store_node_vectors as store_graph_node_vectors,
+)
+from .knowledge_graph import (
     supersede_source as supersede_knowledge_source,
 )
-from .mirl import SYMBOL_FOR_KIND, IRBatch, MIRLRecord, Pack, PersistReport, RecordKind, TraceGraph, utc_now
+from .lifecycle import (
+    BatchIngestItem,
+    apply_scoped_delete,
+    batch_ingest_items,
+    begin_batch_ingest,
+    complete_batch_ingest,
+    completed_batch_indexes,
+    get_lifecycle_operation,
+    init_lifecycle,
+    plan_batch_ingest,
+    plan_scoped_delete,
+    record_batch_item,
+    recoverable_operations,
+)
+from .mirl import (
+    SYMBOL_FOR_KIND,
+    IRBatch,
+    MIRLRecord,
+    Pack,
+    PersistReport,
+    RecordKind,
+    Status,
+    TraceGraph,
+    utc_now,
+)
 from .pool import ConnectionPool
 from .reasoning_graph import (
     ReasoningRetrievalCandidate,
@@ -67,6 +122,36 @@ from .reasoning_graph import (
     get_reasoning_node as get_reasoning_node_row,
 )
 from .reasoning_graph import get_reasoning_retrieval as get_reasoning_retrieval_row
+from .reasoning_patterns import (
+    distill_reasoning_pattern,
+    get_reasoning_pattern,
+    record_reasoning_pattern_result,
+    record_successful_pattern_uses,
+    search_reasoning_patterns,
+    use_reasoning_pattern,
+)
+from .reasoning_promotion import (
+    get_reasoning_promotion as get_reasoning_promotion_row,
+)
+from .reasoning_promotion import (
+    init_reasoning_promotion,
+    record_reasoning_promotion_application,
+)
+from .reasoning_promotion import (
+    list_reasoning_promotions as list_reasoning_promotion_rows,
+)
+from .reasoning_promotion import (
+    propose_reasoning_promotion as propose_reasoning_promotion_row,
+)
+from .reasoning_promotion import (
+    reasoning_promotion_eligibility as reasoning_promotion_eligibility_row,
+)
+from .reasoning_promotion import (
+    reverse_reasoning_promotion as reverse_reasoning_promotion_row,
+)
+from .reasoning_promotion import (
+    review_reasoning_promotion as review_reasoning_promotion_row,
+)
 from .retry import retry_db_operation
 from .workspace import (
     append_workspace_event as append_workspace_event_row,
@@ -81,13 +166,45 @@ from .workspace import (
     workspace_run_from_row,
 )
 
+LOGGER = logging.getLogger(__name__)
+
+
+def _prepare_private_database(path: Path) -> None:
+    """Create a database path without leaving memory content world-readable."""
+    resolved = path.expanduser().resolve()
+    parent = resolved.parent
+    parent_existed = parent.exists()
+    parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if not parent_existed and os.name != "nt":
+        parent.chmod(0o700)
+
+    if resolved.exists():
+        if not resolved.is_file():
+            raise OSError("database path must name a regular file")
+        if os.name != "nt":
+            resolved.chmod(0o600)
+        return
+
+    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+    try:
+        descriptor = os.open(resolved, flags, 0o600)
+    except FileExistsError:
+        if not resolved.is_file():
+            raise OSError("database path must name a regular file") from None
+    else:
+        os.close(descriptor)
+    if os.name != "nt":
+        resolved.chmod(0o600)
+
 
 class SQLiteStore:
     def __init__(self, path: str | Path = "seam.db", pool_size: int | None = None) -> None:
         self.path = str(path)
         self._mem_anchor: sqlite3.Connection | None = None
         if self.path != ":memory:":
-            Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
+            resolved = Path(self.path).expanduser().resolve()
+            self.path = str(resolved)
+            _prepare_private_database(resolved)
         else:
             # Keep one anchor connection alive so that the shared in-memory
             # database persists across per-operation connections.
@@ -104,6 +221,32 @@ class SQLiteStore:
             pool_size=resolved_pool_size,
             idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
         )
+
+    def check_ready(self) -> None:
+        """Raise when the canonical store cannot serve a trivial read."""
+        with self._pool.checkout() as connection:
+            connection.execute("select 1").fetchone()
+
+    def generate_graph_probes(
+        self,
+        *,
+        namespace: str | None = None,
+        scope: str | None = None,
+        sample: int | None = 100,
+        seed: int = 1234,
+    ):
+        """Generate deterministic graph probes without exposing the pool."""
+
+        from .self_improve import generate_graph_probes
+
+        with self._pool.checkout() as connection:
+            return generate_graph_probes(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                sample=sample,
+                seed=seed,
+            )
 
     def _connect(self) -> sqlite3.Connection:
         if self.path == ":memory:":
@@ -377,8 +520,11 @@ class SQLiteStore:
             connection.execute("pragma foreign_keys = on")
             self._cleanup_orphan_edges(connection)
             init_knowledge_graph(connection)
+            init_graph_products(connection)
+            init_lifecycle(connection)
             init_workspace_schema(connection)
             init_reasoning_graph(connection)
+            init_reasoning_promotion(connection)
             connection.commit()
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
@@ -630,42 +776,68 @@ class SQLiteStore:
             if dst in id_map:
                 record.attrs["dst"] = id_map[dst]
 
+    def _persist_ir_on_connection(
+        self, connection: sqlite3.Connection, batch: IRBatch
+    ) -> list[str]:
+        """Persist canonical MIRL and its graph projection in one transaction."""
+
+        id_map, skip_ids = self._reconcile_entities(connection, batch)
+        stored_ids: list[str] = []
+        for record in batch.records:
+            if record.id in skip_ids:
+                continue
+            self._remap_entity_refs(record, id_map)
+            stored_ids.append(record.id)
+            # Capture old CLM subject before overwriting.
+            old_clm_subject: str | None = None
+            if record.kind == RecordKind.CLM:
+                old_row = connection.execute(
+                    "select payload_json from ir_records where id = ?",
+                    (record.id,),
+                ).fetchone()
+                if old_row is not None:
+                    old_attrs = json.loads(old_row[0]).get("attrs", {})
+                    old_clm_subject = old_attrs.get("subject")
+            payload = json.dumps(
+                record.to_dict(), sort_keys=True, separators=(",", ":")
+            )
+            connection.execute(
+                """
+                insert or replace into ir_records
+                (id, kind, ns, scope, status, conf, t0, t1, created_at, updated_at, payload_json)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record.id,
+                    record.kind.value,
+                    record.ns,
+                    record.scope,
+                    record.status.value,
+                    record.conf,
+                    record.t0,
+                    record.t1,
+                    record.created_at,
+                    record.updated_at,
+                    payload,
+                ),
+            )
+            self._persist_specialized(connection, record)
+            self._persist_edges(
+                connection, record, old_clm_subject=old_clm_subject
+            )
+        # The knowledge graph is a deterministic projection of the same
+        # canonical MIRL write. It is built automatically for every ingest
+        # surface and committed atomically with the records it represents.
+        projected = [
+            record for record in batch.records if record.id not in skip_ids
+        ]
+        project_knowledge_records(connection, projected)
+        return stored_ids
+
     @retry_db_operation()
     def persist_ir(self, batch: IRBatch) -> PersistReport:
         with self._pool.checkout() as connection:
-            id_map, skip_ids = self._reconcile_entities(connection, batch)
-            stored_ids: list[str] = []
-            for record in batch.records:
-                if record.id in skip_ids:
-                    continue
-                self._remap_entity_refs(record, id_map)
-                stored_ids.append(record.id)
-                # Capture old CLM subject before overwriting.
-                old_clm_subject: str | None = None
-                if record.kind == RecordKind.CLM:
-                    old_row = connection.execute(
-                        "select payload_json from ir_records where id = ?",
-                        (record.id,),
-                    ).fetchone()
-                    if old_row is not None:
-                        old_attrs = json.loads(old_row[0]).get("attrs", {})
-                        old_clm_subject = old_attrs.get("subject")
-                payload = json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":"))
-                connection.execute(
-                    """
-                    insert or replace into ir_records
-                    (id, kind, ns, scope, status, conf, t0, t1, created_at, updated_at, payload_json)
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (record.id, record.kind.value, record.ns, record.scope, record.status.value, record.conf, record.t0, record.t1, record.created_at, record.updated_at, payload),
-                )
-                self._persist_specialized(connection, record)
-                self._persist_edges(connection, record, old_clm_subject=old_clm_subject)
-            # The knowledge graph is a deterministic projection of the same
-            # canonical MIRL write. It is built automatically for every ingest
-            # surface and committed atomically with the records it represents.
-            projected = [record for record in batch.records if record.id not in skip_ids]
-            project_knowledge_records(connection, projected)
+            stored_ids = self._persist_ir_on_connection(connection, batch)
             connection.commit()
         return PersistReport(stored_ids=stored_ids, store_path=self.path)
 
@@ -881,6 +1053,7 @@ class SQLiteStore:
         include_history: bool = False,
         limit: int = 300,
         hops: int = 2,
+        semantic_seed_ids: list[str] | None = None,
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return query_knowledge_graph(
@@ -895,6 +1068,29 @@ class SQLiteStore:
                 include_history=include_history,
                 limit=limit,
                 hops=hops,
+                semantic_seed_ids=semantic_seed_ids,
+            )
+
+    def search_node_vectors(
+        self,
+        query_vector: list[float],
+        model_name: str,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        limit: int = 20,
+        min_score: float = 0.0,
+    ) -> list[tuple[str, float]]:
+        """Rank graph nodes by cosine against a precomputed query vector."""
+        with self._pool.checkout() as connection:
+            return search_graph_node_vectors(
+                connection,
+                query_vector,
+                model_name,
+                ns=ns,
+                scope=scope,
+                limit=limit,
+                min_score=min_score,
             )
 
     def knowledge_node(
@@ -910,6 +1106,573 @@ class SQLiteStore:
                 node_id,
                 include_history=include_history,
                 at=at,
+            )
+
+    def pending_node_vectors(
+        self,
+        model_name: str,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        limit: int | None = None,
+    ) -> list[dict[str, object]]:
+        """Return graph nodes whose derived vector is missing, stale, or legacy."""
+        with self._pool.checkout() as connection:
+            return pending_graph_node_vectors(
+                connection, model_name, ns=ns, scope=scope, limit=limit
+            )
+
+    def reusable_node_vectors(
+        self,
+        model_name: str,
+        source_hashes: Iterable[str],
+    ) -> dict[str, list[float]]:
+        """Return existing vectors for these content hashes, ignoring ns/scope."""
+        with self._pool.checkout() as connection:
+            return reusable_graph_node_vectors(connection, model_name, source_hashes)
+
+    def store_node_vectors(
+        self,
+        model_name: str,
+        entries: Iterable[Mapping[str, object]],
+    ) -> int:
+        """Persist derived graph-node vectors for one embedding model."""
+        with self._pool.checkout() as connection:
+            written = store_graph_node_vectors(connection, model_name, entries)
+            connection.commit()
+            return written
+
+    def node_vector_status(self, model_name: str) -> dict[str, object]:
+        """Report node-vector coverage as a provider-free improvement signal."""
+        with self._pool.checkout() as connection:
+            return graph_node_vector_status(connection, model_name)
+
+    @staticmethod
+    def _current_graph_product_facts(
+        connection: sqlite3.Connection,
+        *,
+        namespace: str,
+        scope: str,
+        max_facts: int,
+    ) -> list[GraphProductFact]:
+        """Resolve current, asserted graph edges into the bounded G4 core input."""
+
+        if max_facts < 1:
+            raise ValueError("max_facts must be positive")
+        excluded = (
+            Status.CONTRADICTED.value,
+            Status.SUPERSEDED.value,
+            Status.DEPRECATED.value,
+            Status.DELETED_SOFT.value,
+        )
+        placeholders = ",".join("?" for _ in excluded)
+        rows = connection.execute(
+            "select e.id, e.src_id, src.label as src_label, e.dst_id, "
+            "dst.label as dst_label, e.predicate, e.source_record_id "
+            "from knowledge_edges e "
+            "join knowledge_nodes src on src.id = e.src_id "
+            "join knowledge_nodes dst on dst.id = e.dst_id "
+            "where e.ns = ? and e.scope = ? "
+            "and e.edge_kind in ('semantic', 'causal', 'temporal') "
+            f"and e.status not in ({placeholders}) and e.expired_at is null "
+            f"and src.status not in ({placeholders}) "
+            f"and dst.status not in ({placeholders}) "
+            "order by e.id limit ?",
+            (
+                namespace,
+                scope,
+                *excluded,
+                *excluded,
+                *excluded,
+                max_facts + 1,
+            ),
+        ).fetchall()
+        if len(rows) > max_facts:
+            raise ValueError(
+                f"graph product rebuild exceeds max_facts={max_facts}"
+            )
+
+        from .knowledge_graph import assertable_record_ids
+
+        allowed = assertable_record_ids(
+            connection,
+            (str(row["source_record_id"]) for row in rows),
+            namespace=namespace,
+            scope=scope,
+        )
+        facts: list[GraphProductFact] = []
+        for row in rows:
+            record_id = str(row["source_record_id"])
+            if record_id not in allowed:
+                continue
+            episodes = connection.execute(
+                "select distinct ep.id from knowledge_edge_episodes ee "
+                "join knowledge_episodes ep on ep.id = ee.episode_id "
+                "where ee.edge_id = ? and ep.ns = ? and ep.scope = ? "
+                "and ep.status = 'active' order by ep.id",
+                (str(row["id"]), namespace, scope),
+            ).fetchall()
+            episode_ids = tuple(str(episode["id"]) for episode in episodes)
+            if not episode_ids:
+                continue
+            facts.append(
+                GraphProductFact(
+                    ns=namespace,
+                    scope=scope,
+                    record_id=record_id,
+                    episode_ids=episode_ids,
+                    subject_id=str(row["src_id"]),
+                    subject_label=str(row["src_label"]),
+                    predicate=str(row["predicate"]),
+                    object_id=str(row["dst_id"]),
+                    object_label=str(row["dst_label"]),
+                    trust_state="supported",
+                    current=True,
+                )
+            )
+        return facts
+
+    @retry_db_operation()
+    def rebuild_graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        max_facts: int = 10_000,
+        min_observation_episodes: int = 2,
+        max_sentences_per_product: int = 64,
+    ) -> dict[str, object]:
+        """Rebuild G4 products from the current trust-gated graph projection."""
+
+        with self._pool.checkout() as connection:
+            facts = self._current_graph_product_facts(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                max_facts=max_facts,
+            )
+            result = rebuild_graph_product_rows(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                facts=facts,
+                max_facts=max_facts,
+                min_observation_episodes=min_observation_episodes,
+                max_sentences_per_product=max_sentences_per_product,
+            )
+            connection.commit()
+            return result
+
+    def graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        kinds: list[str] | None = None,
+        subject_id: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read the latest complete G4 product snapshot for one boundary."""
+
+        with self._pool.checkout() as connection:
+            return read_graph_product_rows(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                kinds=kinds,
+                subject_id=subject_id,
+                limit=limit,
+            )
+
+    def graph_product_history(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        stable_key: str,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read immutable versions of one boundary-scoped G4 product."""
+
+        with self._pool.checkout() as connection:
+            return graph_product_history_rows(
+                connection,
+                namespace=namespace,
+                scope=scope,
+                stable_key=stable_key,
+                limit=limit,
+            )
+
+    def context_candidates(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        max_candidates: int = 10_000,
+    ) -> list[ContextCandidate]:
+        """Resolve current canonical and G4 rows into bounded G5 inputs.
+
+        The returned values remain disposable projections. Every item retains
+        exact canonical MIRL record and graph-episode references; the
+        storage-agnostic assembler rechecks boundaries, trust, time, and
+        provenance before rendering.
+        """
+
+        if not isinstance(namespace, str) or not namespace.strip():
+            raise ValueError("namespace must be a non-empty string")
+        if not isinstance(scope, str) or not scope.strip():
+            raise ValueError("scope must be a non-empty string")
+        if max_candidates < 1 or max_candidates > 100_000:
+            raise ValueError("max_candidates must be between 1 and 100000")
+        ns = namespace.strip()
+        selected_scope = scope.strip()
+        excluded = (
+            Status.CONTRADICTED.value,
+            Status.SUPERSEDED.value,
+            Status.DEPRECATED.value,
+            Status.DELETED_SOFT.value,
+        )
+        placeholders = ",".join("?" for _ in excluded)
+
+        with self._pool.checkout() as connection:
+            candidates: list[ContextCandidate] = []
+            facts = self._current_graph_product_facts(
+                connection,
+                namespace=ns,
+                scope=selected_scope,
+                max_facts=max_candidates,
+            )
+            fact_rows: dict[str, sqlite3.Row] = {}
+            if facts:
+                ids = sorted({fact.record_id for fact in facts})
+                id_placeholders = ",".join("?" for _ in ids)
+                fact_rows = {
+                    str(row["id"]): row
+                    for row in connection.execute(
+                        "select id, t0, created_at, updated_at from ir_records "
+                        f"where id in ({id_placeholders})",
+                        ids,
+                    ).fetchall()
+                }
+            for fact in facts:
+                row = fact_rows.get(fact.record_id)
+                if row is None:
+                    continue
+                occurred_at = _context_timestamp(
+                    row["t0"], row["updated_at"], row["created_at"]
+                )
+                if occurred_at is None:
+                    continue
+                candidates.append(
+                    ContextCandidate(
+                        candidate_id=f"fact:{fact.record_id}",
+                        kind="fact",
+                        text=(
+                            f"{fact.subject_label} "
+                            f"{fact.predicate.replace('_', ' ')} "
+                            f"{fact.object_label}."
+                        ),
+                        namespace=ns,
+                        scope=selected_scope,
+                        trust_state=fact.trust_state,
+                        record_ids=(fact.record_id,),
+                        episode_ids=fact.episode_ids,
+                        occurred_at=occurred_at,
+                        entity_ids=tuple(
+                            item
+                            for item in (fact.subject_id, fact.object_id)
+                            if item
+                        ),
+                    )
+                )
+
+            entity_rows = connection.execute(
+                "select n.id, n.label, n.source_record_id, n.valid_from, "
+                "n.created_at, group_concat(distinct ep.id) as episode_ids "
+                "from knowledge_nodes n "
+                "join knowledge_node_episodes ne on ne.node_id = n.id "
+                "join knowledge_episodes ep on ep.id = ne.episode_id "
+                "where n.ns = ? and n.scope = ? "
+                "and n.kind in ('entity', 'value', 'agent') "
+                f"and n.status not in ({placeholders}) "
+                "and ep.ns = ? and ep.scope = ? and ep.status = 'active' "
+                "and n.source_record_id is not null "
+                "group by n.id, n.label, n.source_record_id, n.valid_from, n.created_at "
+                "order by n.id limit ?",
+                (
+                    ns,
+                    selected_scope,
+                    *excluded,
+                    ns,
+                    selected_scope,
+                    max_candidates + 1,
+                ),
+            ).fetchall()
+            for row in entity_rows:
+                occurred_at = _context_timestamp(
+                    row["valid_from"], row["created_at"]
+                )
+                episode_ids = tuple(
+                    sorted(
+                        item
+                        for item in str(row["episode_ids"] or "").split(",")
+                        if item
+                    )
+                )
+                if not episode_ids or occurred_at is None:
+                    continue
+                candidates.append(
+                    ContextCandidate(
+                        candidate_id=f"entity:{row['id']}",
+                        kind="entity",
+                        text=str(row["label"]),
+                        namespace=ns,
+                        scope=selected_scope,
+                        trust_state="supported",
+                        record_ids=(str(row["source_record_id"]),),
+                        episode_ids=episode_ids,
+                        occurred_at=occurred_at,
+                        entity_ids=(str(row["id"]),),
+                    )
+                )
+
+            episode_rows = connection.execute(
+                "select ep.id, ep.source_record_id, ep.valid_at, ep.recorded_at, "
+                "raw.content from knowledge_episodes ep "
+                "join raw_docs raw on raw.id = ep.source_record_id "
+                "where ep.ns = ? and ep.scope = ? and ep.status = 'active' "
+                "order by ep.id limit ?",
+                (ns, selected_scope, max_candidates + 1),
+            ).fetchall()
+            for row in episode_rows:
+                occurred_at = _context_timestamp(
+                    row["valid_at"], row["recorded_at"]
+                )
+                if occurred_at is None:
+                    continue
+                candidates.append(
+                    ContextCandidate(
+                        candidate_id=str(row["id"]),
+                        kind="episode",
+                        text=str(row["content"]),
+                        namespace=ns,
+                        scope=selected_scope,
+                        trust_state="supported",
+                        record_ids=(str(row["source_record_id"]),),
+                        episode_ids=(str(row["id"]),),
+                        occurred_at=occurred_at,
+                    )
+                )
+
+            products = read_graph_product_rows(
+                connection,
+                namespace=ns,
+                scope=selected_scope,
+                limit=min(max_candidates, 1_000),
+            )
+            for product in products:
+                occurred_at = _context_timestamp(product["created_at"])
+                if occurred_at is None:
+                    continue
+                product_id = str(product["product_id"])
+                kind = str(product["kind"])
+                subject_id = product.get("subject_id")
+                for sentence in product["sentences"]:  # type: ignore[union-attr]
+                    sentence_row = sentence  # type: ignore[assignment]
+                    candidates.append(
+                        ContextCandidate(
+                            candidate_id=str(sentence_row["sentence_id"]),
+                            kind=kind,
+                            text=str(sentence_row["text"]),
+                            namespace=ns,
+                            scope=selected_scope,
+                            trust_state="supported",
+                            record_ids=tuple(
+                                str(item)
+                                for item in sentence_row[
+                                    "supporting_record_ids"
+                                ]
+                            ),
+                            episode_ids=tuple(
+                                str(item)
+                                for item in sentence_row[
+                                    "supporting_episode_ids"
+                                ]
+                            ),
+                            occurred_at=occurred_at,
+                            entity_ids=(
+                                (str(subject_id),)
+                                if subject_id is not None
+                                else ()
+                            ),
+                            product_id=product_id,
+                        )
+                    )
+
+        with self._pool.checkout() as connection:
+            current_record_ids = _current_context_record_ids(
+                connection,
+                {
+                    record_id
+                    for candidate in candidates
+                    for record_id in candidate.record_ids
+                },
+            )
+        candidates = [
+            candidate
+            for candidate in candidates
+            if set(candidate.record_ids) <= current_record_ids
+        ]
+        if len(candidates) > max_candidates:
+            raise ValueError(
+                f"context candidate projection exceeds max_candidates={max_candidates}"
+            )
+        return sorted(candidates, key=lambda item: item.candidate_id)
+
+    @retry_db_operation()
+    def plan_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        record_ids: Iterable[str],
+        idempotency_key: str,
+        actor: str,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return plan_scoped_delete(
+                connection,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                record_ids=record_ids,
+                idempotency_key=idempotency_key,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def apply_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        operation_id: str,
+        actor: str,
+        interrupt_after_intent: bool = False,
+        delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return apply_scoped_delete(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+                interrupt_after_intent=interrupt_after_intent,
+                delete_derived_records=delete_derived_records,
+            )
+
+    @retry_db_operation()
+    def plan_batch_ingest(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        items: Sequence[BatchIngestItem],
+        idempotency_key: str,
+        actor: str,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return plan_batch_ingest(
+                connection,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                items=items,
+                idempotency_key=idempotency_key,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def begin_batch_ingest(
+        self, *, tenant_id: str, operation_id: str, actor: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return begin_batch_ingest(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def record_batch_item(
+        self,
+        *,
+        tenant_id: str,
+        operation_id: str,
+        item_index: int,
+        stored_ids: Iterable[str],
+        actor: str,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return record_batch_item(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                item_index=item_index,
+                stored_ids=stored_ids,
+                actor=actor,
+            )
+
+    @retry_db_operation()
+    def complete_batch_ingest(
+        self, *, tenant_id: str, operation_id: str, actor: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return complete_batch_ingest(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+            )
+
+    def completed_batch_indexes(
+        self, *, tenant_id: str, operation_id: str
+    ) -> tuple[int, ...]:
+        with self._pool.checkout() as connection:
+            return completed_batch_indexes(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def lifecycle_batch_items(
+        self, *, tenant_id: str, operation_id: str
+    ) -> tuple[BatchIngestItem, ...]:
+        with self._pool.checkout() as connection:
+            return batch_ingest_items(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def lifecycle_operation(
+        self, *, tenant_id: str, operation_id: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_lifecycle_operation(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def recoverable_lifecycle_operations(
+        self, *, tenant_id: str, limit: int = 100
+    ) -> list[dict[str, object]]:
+        with self._pool.checkout() as connection:
+            return recoverable_operations(
+                connection, tenant_id=tenant_id, limit=limit
             )
 
     def identity_merges(
@@ -1522,6 +2285,317 @@ class SQLiteStore:
         with self._pool.checkout() as connection:
             return reasoning_graph(connection, run_id)
 
+    def reasoning_patterns(
+        self,
+        *,
+        objective: str,
+        ns: str,
+        scope: str,
+        operation: str | None = None,
+        limit: int = 5,
+        max_age_days: int = 90,
+        min_trust: float = 0.5,
+        now: str | None = None,
+    ) -> list[dict[str, object]]:
+        """Retrieve reusable verified reasoning structures (R4)."""
+
+        with self._pool.checkout() as connection:
+            return search_reasoning_patterns(
+                connection,
+                objective=objective,
+                ns=ns,
+                scope=scope,
+                operation=operation,
+                limit=limit,
+                max_age_days=max_age_days,
+                min_trust=min_trust,
+                now=now,
+            )
+
+    def reasoning_pattern(self, pattern_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_pattern(connection, pattern_id)
+
+    @retry_db_operation()
+    def use_reasoning_pattern(
+        self, *, pattern_id: str, run_id: str
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            result = use_reasoning_pattern(
+                connection, pattern_id=pattern_id, run_id=run_id
+            )
+            connection.commit()
+        return result
+
+    @retry_db_operation()
+    def record_reasoning_pattern_feedback(
+        self,
+        *,
+        use_id: str,
+        expected_run_id: str,
+        succeeded: bool,
+        outcome_node_id: str | None = None,
+        reason: str | None = None,
+    ) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            result = record_reasoning_pattern_result(
+                connection,
+                use_id=use_id,
+                expected_run_id=expected_run_id,
+                succeeded=succeeded,
+                outcome_node_id=outcome_node_id,
+                reason=reason,
+            )
+            connection.commit()
+        return result
+
+    @retry_db_operation()
+    def propose_reasoning_promotion(
+        self,
+        *,
+        run_id: str,
+        outcome_node_id: str,
+        assertion_record_id: str,
+        assertion_subject: str,
+        assertion_predicate: str,
+        assertion_object: object,
+        proposed_by: str,
+        assertion_status: str = "inferred",
+        assertion_confidence: float = 1.0,
+        assertion_t0: str | None = None,
+        assertion_t1: str | None = None,
+    ) -> dict[str, object]:
+        """Append an R5 proposal; this never promotes itself into MIRL."""
+
+        with self._pool.checkout() as connection:
+            result = propose_reasoning_promotion_row(
+                connection,
+                run_id=run_id,
+                outcome_node_id=outcome_node_id,
+                assertion_record_id=assertion_record_id,
+                assertion_subject=assertion_subject,
+                assertion_predicate=assertion_predicate,
+                assertion_object=assertion_object,
+                assertion_status=assertion_status,
+                assertion_confidence=assertion_confidence,
+                assertion_t0=assertion_t0,
+                assertion_t1=assertion_t1,
+                proposed_by=proposed_by,
+            )
+            connection.commit()
+            return result
+
+    @retry_db_operation()
+    def review_reasoning_promotion(
+        self,
+        *,
+        proposal_id: str,
+        review_kind: str,
+        decision: str,
+        reviewer_id: str,
+        rationale: str,
+    ) -> dict[str, object]:
+        """Append a separate human or policy decision to an R5 proposal."""
+
+        with self._pool.checkout() as connection:
+            result = review_reasoning_promotion_row(
+                connection,
+                proposal_id=proposal_id,
+                review_kind=review_kind,
+                decision=decision,
+                reviewer_id=reviewer_id,
+                rationale=rationale,
+            )
+            connection.commit()
+            return result
+
+    def reasoning_promotion_eligibility(
+        self, proposal_id: str
+    ) -> dict[str, object]:
+        """Recheck approval and exact provenance without mutating truth."""
+
+        with self._pool.checkout() as connection:
+            return reasoning_promotion_eligibility_row(connection, proposal_id)
+
+    def reasoning_promotion(self, proposal_id: str) -> dict[str, object]:
+        with self._pool.checkout() as connection:
+            return get_reasoning_promotion_row(connection, proposal_id)
+
+    def reasoning_promotions(
+        self, *, ns: str, scope: str, limit: int = 50
+    ) -> list[dict[str, object]]:
+        with self._pool.checkout() as connection:
+            return list_reasoning_promotion_rows(
+                connection, ns=ns, scope=scope, limit=limit
+            )
+
+    @retry_db_operation()
+    def apply_reasoning_promotion(
+        self, *, proposal_id: str, applied_by: str
+    ) -> dict[str, object]:
+        """Atomically revalidate, persist, and audit one approved R5 assertion."""
+
+        from .verify import verify_ir
+
+        with self._pool.checkout() as connection:
+            connection.execute("begin immediate")
+            eligibility = reasoning_promotion_eligibility_row(
+                connection, proposal_id
+            )
+            if not eligibility["eligible"]:
+                raise ValueError(
+                    "reasoning promotion is not eligible: "
+                    f"{eligibility['reason']}"
+                )
+            payload = eligibility.get("approved_assertion")
+            if not isinstance(payload, dict):
+                raise ValueError(
+                    "eligible promotion did not return an approved assertion"
+                )
+            record = MIRLRecord.from_dict(payload)
+            batch = IRBatch([record])
+            verification_records = self._promotion_reference_records(
+                connection, record
+            )
+            report = verify_ir(IRBatch([*verification_records, record]))
+            if not report.valid:
+                raise ValueError(
+                    "approved promotion assertion is not valid MIRL: "
+                    + json.dumps(report.to_dict(), sort_keys=True)
+                )
+            stored_ids = self._persist_ir_on_connection(connection, batch)
+            if stored_ids != [record.id]:
+                raise ValueError(
+                    "approved promotion did not persist its exact assertion id"
+                )
+            application = record_reasoning_promotion_application(
+                connection,
+                proposal_id=proposal_id,
+                assertion_record_id=record.id,
+                applied_by=applied_by,
+            )
+            connection.commit()
+        return {
+            "proposal_id": proposal_id,
+            "application": application,
+            "record": record.to_dict(),
+            "stored_ids": stored_ids,
+        }
+
+    @retry_db_operation()
+    def reverse_reasoning_promotion(
+        self, *, proposal_id: str, reversed_by: str, reason: str
+    ) -> dict[str, object]:
+        """Append an R5 reversal plus an additive MIRL supersession relation."""
+
+        from .verify import verify_ir
+
+        with self._pool.checkout() as connection:
+            connection.execute("begin immediate")
+            promotion = get_reasoning_promotion_row(connection, proposal_id)
+            reversal = reverse_reasoning_promotion_row(
+                connection,
+                proposal_id=proposal_id,
+                reversed_by=reversed_by,
+                reason=reason,
+            )
+            assertion_id = str(reversal["assertion_record_id"])
+            relation_id = (
+                "rel:reasoning-promotion-reversal:"
+                + hashlib.sha256(proposal_id.encode("utf-8")).hexdigest()[:20]
+            )
+            evidence_fingerprints = promotion.get(
+                "evidence_fingerprints", {}
+            )
+            evidence_ids = (
+                sorted(str(item) for item in evidence_fingerprints)
+                if isinstance(evidence_fingerprints, dict)
+                else []
+            )
+            record = MIRLRecord(
+                id=relation_id,
+                kind=RecordKind.REL,
+                ns=str(promotion["ns"]),
+                scope=str(promotion["scope"]),
+                status=Status.ASSERTED,
+                conf=1.0,
+                prov=[],
+                evidence=self._promotion_evidence_ids(
+                    connection, evidence_ids
+                ),
+                ext={
+                    "reasoning_promotion_proposal_id": proposal_id,
+                    "reasoning_promotion_reversal_id": str(
+                        reversal["reversal_id"]
+                    ),
+                    "reasoning_promotion_audit_refs": [
+                        f"reasoning-promotion:{proposal_id}",
+                        "reasoning-promotion-reversal:"
+                        f"{reversal['reversal_id']}",
+                    ],
+                    "supersedes": [assertion_id],
+                },
+                attrs={
+                    "src": relation_id,
+                    "predicate": "supersedes",
+                    "dst": assertion_id,
+                    "reason": str(reversal["reason"]),
+                },
+            )
+            verification_records = self._promotion_reference_records(
+                connection, record
+            )
+            report = verify_ir(IRBatch([*verification_records, record]))
+            if not report.valid:
+                raise ValueError(
+                    "promotion reversal relation is not valid MIRL: "
+                    + json.dumps(report.to_dict(), sort_keys=True)
+                )
+            self._persist_ir_on_connection(connection, IRBatch([record]))
+            connection.commit()
+            return {
+                **reversal,
+                "superseding_record": record.to_dict(),
+            }
+
+    @staticmethod
+    def _promotion_evidence_ids(
+        connection: sqlite3.Connection, record_ids: list[str]
+    ) -> list[str]:
+        """Keep canonical MIRL evidence limited to existing RAW/SPAN records."""
+
+        evidence_ids: list[str] = []
+        for record_id in sorted(set(record_ids)):
+            row = connection.execute(
+                "select kind from ir_records where id = ?", (record_id,)
+            ).fetchone()
+            if row is not None and str(row["kind"]) in {
+                RecordKind.RAW.value,
+                RecordKind.SPAN.value,
+            }:
+                evidence_ids.append(record_id)
+        return evidence_ids
+
+    @staticmethod
+    def _promotion_reference_records(
+        connection: sqlite3.Connection, record: MIRLRecord
+    ) -> list[MIRLRecord]:
+        """Load exact stored MIRL references for in-transaction verification."""
+
+        reference_ids = sorted(set([*record.prov, *record.evidence]))
+        records: list[MIRLRecord] = []
+        for record_id in reference_ids:
+            row = connection.execute(
+                "select payload_json from ir_records where id = ?",
+                (record_id,),
+            ).fetchone()
+            if row is None:
+                raise ValueError(
+                    f"promotion MIRL reference is missing: {record_id}"
+                )
+            records.append(MIRLRecord.from_dict(json.loads(str(row[0]))))
+        return records
+
     @retry_db_operation()
     def record_reasoning_retrieval(
         self,
@@ -1552,6 +2626,8 @@ class SQLiteStore:
         leg_latency_ms: dict[str, float],
         total_latency_ms: float,
         policy: str,
+        graph_at: str | None = None,
+        graph_include_history: bool = False,
         agent_id: str | None = None,
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
@@ -1583,6 +2659,8 @@ class SQLiteStore:
                 leg_latency_ms=leg_latency_ms,
                 total_latency_ms=total_latency_ms,
                 policy=policy,
+                graph_at=graph_at,
+                graph_include_history=graph_include_history,
                 agent_id=agent_id,
             )
             connection.commit()
@@ -1676,12 +2754,13 @@ class SQLiteStore:
         supporting_node_ids: Iterable[str] = (),
         agent_id: str | None = None,
     ) -> dict[str, object]:
+        resolved_verification_ids = tuple(verification_ids)
         with self._pool.checkout() as connection:
             outcome = finalize_verified_reasoning_outcome(
                 connection,
                 run_id=run_id,
                 summary=summary,
-                verification_ids=verification_ids,
+                verification_ids=resolved_verification_ids,
                 confidence=confidence,
                 knowledge_refs=knowledge_refs,
                 evidence_record_ids=evidence_record_ids,
@@ -1689,6 +2768,30 @@ class SQLiteStore:
                 agent_id=agent_id,
             )
             connection.commit()
+            # Pattern learning is derived state. A failure here must never roll
+            # back or invalidate a verified outcome; it remains recoverable from
+            # the append-only source run on a later pass.
+            try:
+                pattern = distill_reasoning_pattern(
+                    connection,
+                    run_id=run_id,
+                    outcome_node_id=str(outcome["node_id"]),
+                    verification_ids=resolved_verification_ids,
+                )
+                feedback = record_successful_pattern_uses(
+                    connection,
+                    run_id=run_id,
+                    outcome_node_id=str(outcome["node_id"]),
+                )
+                connection.commit()
+                outcome["learned_pattern_id"] = pattern["pattern_id"]
+                outcome["pattern_feedback_count"] = len(feedback)
+            except Exception:
+                connection.rollback()
+                LOGGER.exception(
+                    "Reasoning pattern learning failed; verified outcome remains committed"
+                )
+                outcome["pattern_learning_pending"] = True
         return outcome
 
     @retry_db_operation()
@@ -2298,6 +3401,54 @@ def _document_status_row(row: sqlite3.Row) -> dict[str, object]:
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
+
+
+def _context_timestamp(*values: object) -> str | None:
+    """Return the first parseable timestamp as explicit UTC-aware ISO-8601."""
+
+    for value in values:
+        if value in (None, ""):
+            continue
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.isoformat()
+    return None
+
+
+def _current_context_record_ids(
+    connection: sqlite3.Connection, record_ids: set[str]
+) -> set[str]:
+    """Return only canonical supports that remain eligible for current context."""
+
+    current: set[str] = set()
+    excluded = tuple(
+        status.value
+        for status in (
+            Status.CONTRADICTED,
+            Status.SUPERSEDED,
+            Status.DEPRECATED,
+            Status.DELETED_SOFT,
+        )
+    )
+    ordered = sorted(record_ids)
+    for start in range(0, len(ordered), 500):
+        chunk = ordered[start : start + 500]
+        if not chunk:
+            continue
+        placeholders = ",".join("?" for _ in chunk)
+        status_placeholders = ",".join("?" for _ in excluded)
+        rows = connection.execute(
+            "select id from ir_records "
+            f"where id in ({placeholders}) "
+            f"and status not in ({status_placeholders})",
+            [*chunk, *excluded],
+        ).fetchall()
+        current.update(str(row["id"]) for row in rows)
+    return current
 
 
 def _normalize_entity_label(label: str) -> str:

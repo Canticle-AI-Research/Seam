@@ -11782,3 +11782,2266 @@ blocked by the PyPI archive-content gate. MIRL, HS/1, PACK, private storage,
 graph/provenance, ranking, and benchmark internals were not published. Hosted
 endpoint access remains separately provisioned.
 ---END-ENTRY-#470---
+
+---BEGIN-ENTRY-#471---
+id: 471
+date: 2026-07-27T17:21:39Z
+agent: codex
+status: done
+topics: docker, mirl, security, bundle, agent, verify, handoff
+commits: pending
+refs: seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/Dockerfile,selfhost/compose.yaml,tools/release/build_selfhost.py,tools/release/issue_selfhost_entitlement.py,tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.py,docs/SELF_HOST_SECURITY.md,docs/handoffs/2026-07-27-proprietary-compiled-selfhost-v1.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 470
+tokens: 1105
+---
+Built and verified the first proprietary compiled self-host MIRL edition for
+Linux/amd64 without disturbing existing work or publishing an artifact.
+
+RECONCILIATION:
+
+- Documents `origin/main` at
+  `0006698ead19b024da903b66be33285b2669daeb` was the canonical base.
+- The original Documents checkout remains dirty on
+  `fix/public-shim-2.3.1`; none of its shim/package changes were edited,
+  staged, or incorporated.
+- The T7 checkout was fetched and found stale: local `main` was 169 commits
+  behind the same `origin/main`, while `feat/dashboard-functional` was one
+  commit behind its tracking branch. It was not used as an implementation
+  base.
+- Implementation was isolated in a clean worktree on
+  `feat/proprietary-selfhost-v1`.
+
+STANDARD EDITION:
+
+- Added an exact four-route self-host app over the existing opaque public API.
+  It exposes health, remember, recall, and context only; it does not register
+  docs/OpenAPI, dashboard, stats, graph, storage, benchmark, operator, MIRL,
+  PACK, or HS/1 routes.
+- Added strict Ed25519 offline entitlements with an image-baked public key,
+  exact schema/product/feature checks, bounded identifiers and validity
+  window, mandatory expiry, exclusive issuer output, and ongoing expiry
+  enforcement. Stateful calls require a bearer token from a secret file.
+- Added a pinned Nuitka 4.1.3 and BuildKit Linux/amd64 build into a pinned
+  distroless base. The final profile is non-root uid 65532, read-only,
+  loopback-only, capability-free, no-new-privileges, and persists only its
+  mounted SQLite data volume.
+- Added a local-only no-push build tool, hardened Compose/operator template,
+  threat model and confidential-tier boundary, and a Docker/OCI archive
+  scanner for source/private-doc paths, secrets, runtime tools, platform and
+  config drift, and required runtime libraries.
+
+REAL ARTIFACT VERIFICATION:
+
+- Final local image ID:
+  `sha256:e1cce54cdde63046c54320fc2b7c043afb850df26e08008ec5d141bef6cef6a2`;
+  size: 60,202,804 bytes.
+- Exported archive SHA-256:
+  `2130245186f12089cd5ec65baacc4845f1a4ec6ba2b6560380c21e5da98c1dc0`;
+  `verify_selfhost_artifact` passed.
+- Real boot testing found missing `libz.so.1` and then `libgcc_s.so.1` in the
+  first minimal-base attempts. Both are now explicit required image paths.
+  The final flattened filesystem resolved all 16 unique ELF dependencies.
+- The final executable had zero defined symbol lines and no embedded
+  `SEAM_SPEC_V0.1` or `MIRL_V1.md` filename. One `mirl.py`, one `selfhost.py`,
+  and six generic `/src/` strings remain; the threat model explicitly treats
+  module names and constants as customer-discoverable.
+- Installed public `seam-client` 0.1.0 passed health, remember, recall, and
+  context against the real container. Non-public routes returned 404,
+  unauthenticated stateful writes returned 401, and recalled state persisted
+  across restart. Container inspection confirmed loopback-only mapping, uid
+  65532, read-only root, all capabilities dropped, and no-new-privileges.
+
+TESTS AND BOUNDARY:
+
+- `pytest tests/audit -m "not external"` collected and passed all 1,313
+  selected tests with 23 external tests deselected and zero skips/failures.
+- The focused self-host/public/distribution/package slice passed 30 tests.
+  After adding the explicit Linux/amd64 platform gate, its final focused slice
+  passed 13 tests. Touched-file Ruff, collect-only, artifact verification,
+  secret/session-URL filename scan, and `git diff --check` passed. The only
+  secret-pattern filename hit was the intentional synthetic private-key
+  fixture in `test_selfhost_edition.py`.
+- No private image, package, key, entitlement, API token, database, or other
+  proprietary artifact was pushed or published. No provider or paid-model
+  call occurred.
+
+PROTECTION CLAIM:
+
+The standard edition raises casual reverse-engineering cost and reduces
+accidental source, secret, registry, and at-rest leakage. It does not protect
+the executable, process memory, system calls, entitlement enforcement, or
+unlocked data from a malicious administrator controlling the customer host.
+A host-resistant tier requires separately qualified confidential compute,
+attestation, and remote key release; ordinary OCI encryption is not equivalent.
+
+NEXT: obtain operator and legal/commercial approval before any distribution.
+Only then build from the reviewed commit, generate SBOM/provenance, repeat the
+archive and SDK gates, sign the immutable digest, and grant per-customer
+private-registry access. Qualify Linux/arm64 separately. Design the
+confidential-computing tier as a distinct product/security claim.
+---END-ENTRY-#471---
+
+---BEGIN-ENTRY-#472---
+id: 472
+date: 2026-07-27T20:02:02Z
+agent: codex
+status: done
+topics: ci, bugfix, test, verify, history
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,PR#169
+supersedes: 471
+tokens: 374
+---
+Fixed PR #169's advisory `test-and-benchmark` collection failure without
+touching runtime behavior or publishing any artifact.
+
+ROOT CAUSE:
+
+- GitHub Actions run 30289205681 reached the full non-external test command
+  after the required smoke jobs passed, then collection stopped because
+  `tests/audit/test_selfhost_edition.py` imports `cryptography` while the job
+  installed only the server, SBERT, and rerank extras.
+- The self-host feature already declares `cryptography>=45,<50` in the
+  `selfhost` optional dependency group, so the workflow was missing the
+  feature extra rather than a package declaration.
+
+FIX:
+
+- The advisory CI package-install step now installs
+  `.[server,sbert,rerank,selfhost]`, reusing the existing self-host dependency
+  contract instead of duplicating a cryptography version pin in workflow YAML.
+- The GitHub PR-gate audit now requires the self-host extra in that install
+  command so the dependency cannot silently regress.
+
+VERIFICATION:
+
+- The affected CI, workflow-scope, package-metadata, and self-host audit slice
+  passed 36 tests.
+- The focused two-file collection found 14 tests and the run passed all 14.
+- Ruff passed for the touched Python test; workflow YAML parsed; a metadata
+  assertion confirmed that the installed self-host extra carries the
+  cryptography dependency; `git diff --check` passed.
+- Canonical integrity, routing, handoff, continuity, stream, index, and
+  snapshot closeout gates passed before commit.
+
+The original dirty `fix/public-shim-2.3.1` checkout remained untouched. No
+image, archive, package, entitlement, key, token, database, provider call, or
+publication occurred. Remote PR verification remains the next gate.
+---END-ENTRY-#472---
+
+---BEGIN-ENTRY-#473---
+id: 473
+date: 2026-07-27T20:12:57Z
+agent: codex
+status: done
+topics: ci, bugfix, test, verify, history
+commits: pending
+refs: tests/audit/test_selfhost_edition.py,PR#169,run#30300943888
+supersedes: 472
+tokens: 307
+---
+Fixed PR #169's remaining advisory `test-and-benchmark` failure without
+changing runtime behavior or publishing any artifact.
+
+ROOT CAUSE:
+
+- GitHub Actions run 30300943888 installed the self-host dependency group and
+  executed the full non-external suite, reaching 100 percent with 1,828
+  passing tests before failing one new self-host assertion.
+- `test_build_command_is_local_only_and_uses_public_key` assumed the repository
+  checkout directory would end in `Seam-selfhost`. GitHub Actions correctly
+  checks the branch out under its standard `Seam/Seam` path, so the assertion
+  tested a local worktree name rather than the build command's repository-root
+  contract.
+
+FIX:
+
+- The assertion now resolves the build-context path and compares it exactly to
+  the repository root derived from the test file. This preserves the intended
+  check while remaining independent of worktree and CI checkout names.
+
+VERIFICATION:
+
+- The repaired regression plus the GitHub PR-gate audit passed 7 tests.
+- Ruff passed for the touched test and `git diff --check` passed.
+- Canonical integrity, routing, handoff, continuity, stream, index, and
+  snapshot closeout gates passed before commit.
+
+The original dirty `fix/public-shim-2.3.1` checkout remained untouched. No
+image, archive, package, entitlement, key, token, database, provider call, or
+publication occurred. Remote PR verification remains the next gate.
+---END-ENTRY-#473---
+
+---BEGIN-ENTRY-#474---
+id: 474
+date: 2026-07-28T04:15:42Z
+agent: claude
+status: changed
+topics: licensing, busl, distribution, docs
+commits: 0a8b200
+refs: LICENSE,LICENSES/BUSL-1.1.txt,NOTICE,COMMERCIAL_LICENSE.md,README.md,CONTRIBUTING.md,SECURITY.md,REPO_LEDGER.md,ROADMAP.md,docs/PROTECTION_MODEL.md,docs/CODE_LAYOUT.md,docs/pricing-terms.md,docs/roadmap/COMPETITIVE_ROADMAP.md
+supersedes: 473
+tokens: 1782
+---
+RELICENSED the SEAM Distributed Runtime under the Business Source License 1.1
+and reconciled every live licensing claim in the repository to match.
+
+Origin of the change: the operator asked how to keep MIRL private while still
+allowing free self-hosting, weighing license revocation against containerizing
+MIRL. Investigation established three facts that decided the answer.
+
+1. Containerizing MIRL cannot work as a protection mechanism. Containers are
+   not obfuscation (`docker save` plus `tar -x` exposes every layer) and Python
+   bytecode decompiles near-losslessly. Separately, `mirl` is imported by 29 of
+   roughly 50 runtime modules and `public_manifest.py` already classifies the
+   whole `seam_runtime/` prefix as reserved, so there is no seam along which to
+   excise MIRL as a component.
+
+2. MIRL's implementation is already public and irrevocably so. A live check of
+   PyPI showed `seam-runtime` latest = 1.3.1, 625,826 bytes, Apache-2.0, not
+   yanked. Downloading and extracting the sdist confirmed all 57 runtime
+   modules ship in it, including `seam_runtime/mirl.py`, `lossless.py`,
+   `pack.py`, `symbols.py`, and `holographic.py`. `pip install seam-runtime`
+   currently hands any user the full runtime under Apache-2.0. The 2.3.x thin
+   shim built on branch `fix/public-shim-2.3.1` was never published, so the
+   live default install still contradicts the shim strategy.
+
+3. The repository contradicted itself. `LICENSE` v2.0 made everything
+   proprietary with no free self-host path, while `docs/pricing-tiers.md`
+   promised Community = Apache-2.0 with the full local runtime free, and
+   `docs/pricing-terms.md` referred throughout to an "open-source SEAM core."
+
+Operator chose BUSL-1.1 after a head-to-head against FSL-1.1, on the ground
+that it retains more control: its default grant is non-production use only
+(production exists solely through the Additional Use Grant the licensor
+authors), its exclusivity window is up to four years rather than a fixed two,
+the carve-out text is author-tunable per version, and its Change License must
+be GPLv2-compatible, landing on MPL 2.0 whose weak copyleft keeps a leash after
+conversion where Apache-2.0 would not. Operator was told, and accepted, that
+BUSL caps at four years and cannot deliver the "roughly 5" they initially
+wanted; the per-version Change Date means current code stays proprietary
+indefinitely so long as releases continue.
+
+Added `LICENSES/BUSL-1.1.txt` with canonical BUSL 1.1 text and filled
+parameters: Licensor Nicholas Thomas (BlackhatShiftey); Licensed Work the SEAM
+Distributed Runtime version 2.4.0 or later; Change Date four years from
+publication; Change License MPL 2.0. The Additional Use Grant follows the
+battle-tested HashiCorp competitive-offering structure and adds two
+SEAM-specific clauses: self-hosting on owned or rented infrastructure is
+expressly never a competitive offering, and non-commercial research, education,
+and the publication of benchmark or evaluation results are expressly permitted.
+The second clause exists because BUSL's non-production default could otherwise
+be read to cover benchmark publication, which would undermine the LoCoMo
+positioning.
+
+Amended `LICENSE` to v2.1 by carve-out rather than rewrite, so the proprietary
+boundary over MIRL/HS/1 specifications, private benchmarks and holdouts,
+research, history, and release tooling is untouched. Added a scope note in the
+preamble, a `"Distributed Runtime"` definition in section 1, an exception in
+section 3, and a new section 7A granting BUSL and declaring it prevails over
+sections 3, 5, and 6 for that material only. The definition is deliberately
+narrow: membership requires both publication in the distribution AND a
+conspicuous per-file BUSL notice, and is never conferred by shared filename,
+purpose, interface, or ancestry. Section 7A closes by stating that publishing
+one version waives nothing in unpublished versions and creates no obligation to
+publish any future version.
+
+Reconciled every live licensing claim: `NOTICE`, `COMMERCIAL_LICENSE.md`,
+`README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `REPO_LEDGER.md`, `ROADMAP.md`,
+`docs/PROTECTION_MODEL.md`, `docs/CODE_LAYOUT.md`, `docs/pricing-tiers.md`,
+`docs/pricing-terms.md`, and `docs/roadmap/COMPETITIVE_ROADMAP.md`. Every
+"Apache-2.0 open-source core" claim now reads "BUSL-1.1 source-available, free
+to self-host." `CONTRIBUTING.md` gained an explicit warning that a BUSL notice
+is part of what makes the grant, so stamping one on an unpublished file gives
+away rights the owner has not decided to give. `docs/PROTECTION_MODEL.md`
+records that the existing thin-shim scanners still gate the `seam-runtime`
+PyPI artifact and must not be reused as the BUSL manifest.
+
+Deliberately not edited: `HISTORY.md`, `.seam/streams/`, the rolling
+`PROJECT_STATUS.md` back-log entries, and `tools/release/public_seed/`. The
+first two are append-only under protocol; the third is a historical log of past
+entries; the fourth accurately describes the frozen legacy Apache mirror.
+
+Verification: 103 licensing and boundary tests pass
+(`tests/audit/test_distribution_boundary.py`,
+`test_public_manifest.py`, `test_public_safe_gate.py`,
+`test_sync_public_mirror.py`, `test_github_package_metadata.py`). An initial
+`tests/audit/` run failed 19 pgvector tests on connection-refused; the
+`seam-pgvector` container did not exist on this box (the repo relocation left
+the compose service uncreated while the `seam_pgvector-data` volume survived).
+Brought it up with `docker compose up -d pgvector` against the existing volume
+and local `.env`, confirmed healthy on 127.0.0.1:55432, and re-ran the full
+suite.
+
+Naming finding: `seam-client` 0.1.0 is live on PyPI and already serves
+API-only users, which makes the thin `seam-runtime` 2.3.x shim redundant. PyPI
+has no rename operation and deleted-name reuse is a documented supply-chain
+hazard, so the recommendation put to the operator is to return the
+`seam-runtime` name to the real runtime at 2.4.0 under BUSL and retire the
+shim. That supersedes 1.3.1 on the same name and satisfies the operator's
+replace-before-yank requirement without a yank.
+
+UNRESOLVED, carried forward:
+- Boundary rework is required before any BUSL publish. `public_manifest.py` and
+  `verify_distribution_boundary.py` classify all of `seam_runtime/` as reserved
+  and will block the runtime. A BUSL-aware manifest and scanner are needed, and
+  must not reuse the thin-shim allow-list.
+- No licensing contact address exists anywhere in the repository. BUSL's
+  "purchase a commercial license" clause needs a real address;
+  `LICENSES/BUSL-1.1.txt` currently points at `COMMERCIAL_LICENSE.md` as a
+  placeholder.
+- Per-file BUSL notices are not yet applied, deliberately, pending the
+  published manifest. Zero of the 42 modules in the shipped 1.3.1 package carry
+  a copyright header and the package metadata has no Author field; both are
+  attribution gaps to close when the manifest exists.
+- Legal review is advisable before this goes live, given an irrevocable
+  Apache-2.0 grant already exists in the lineage at 1.3.1.
+- Operator confirmation still open on returning the `seam-runtime` name to the
+  runtime, which reverses an earlier "both, under separate names" choice.
+---END-ENTRY-#474---
+
+---BEGIN-ENTRY-#475---
+id: 475
+date: 2026-07-28T04:15:54Z
+agent: claude
+status: changed
+topics: pricing, docs, licensing
+commits: 018c520
+refs: docs/pricing-tiers.md
+supersedes: 474
+tokens: 1099
+---
+FIXED the one bankruptcy hole in the pricing drafts and made "unlimited" mean
+exactly one thing across both documents.
+
+The Max tier contradicted itself. `docs/pricing-tiers.md` described Max as "The
+Unlimited tier (no write meter)" in the tier ladder and as "Unlimited" / "no
+meter" in the managed-usage matrix, while its own write-pricing table and
+`docs/pricing-terms.md` both set Max at 100,000 included managed writes per
+month. An uncapped write meter on a $40/mo tier is unbounded COGS exposure from
+a single always-on agent, and it directly broke the document's own stated
+sizing rule that capping is what makes the model bankruptcy-proof by
+construction.
+
+Operator decision: unlimited applies to the self-host path only.
+
+Changes to `docs/pricing-tiers.md`:
+- Tier ladder "For" cell for Max: "The Unlimited tier (no write meter)" ->
+  "Heaviest managed use".
+- Managed-usage matrix: Max managed writes "Unlimited*" -> "credit pool";
+  included monthly write credits filled in with real published numbers across
+  every tier (1,000 taste / 5,000 / 25,000 / 100,000 / 25,000 per seat /
+  committed) instead of the previous mix of prose placeholders and "no meter".
+- Rewrote the "What unlimited honestly means here" section around an explicit
+  rule: unlimited describes the self-host path and the read side, and is never
+  used for anything the project pays to compute; if we front the compute it
+  carries a published number, with no exception for the top tier. Added
+  unlimited self-hosting as the lead item, noting it is a BUSL-1.1 right rather
+  than a plan feature and therefore not revocable by a subscription change.
+- Encrypted hosted backup: replaced "Unlimited*" for Max/Team/Enterprise with
+  published ceilings (5 GB / 50 GB / 500 GB / 500 GB per seat pooled /
+  committed), since that storage is a real cost to the project.
+- Replaced the orphaned fair-use footnote with an explanation that backup caps
+  are published numbers rather than unlimited-with-fine-print, and that
+  self-hosted storage on the user's own disk is unaffected.
+- Qualified "Unlimited storage, forever" to "Unlimited storage on your own node,
+  forever", pointing at the separate published hosted-backup ceiling.
+
+Max is now consistent at 100,000 across the tier ladder, the write-pricing
+table, the managed-usage matrix, and `docs/pricing-terms.md`. A grep for
+"unlimited" on any axis the project pays for returns nothing.
+
+Also recorded in this session's review of the drafts, not yet acted on:
+- Every allotment and margin derives from an explicitly unmeasured $0.0002/write
+  cost basis, while Founder Layer 1 commits 100 accounts to Pro-level writes
+  free for life. That is the only irreversible commitment in the model and it is
+  currently sequenced before the measurement that would validate it. Measure
+  compile COGS before opening founders.
+- The paid ladder (Solo/Pro/Max) sells convenience infrastructure that does not
+  exist: seam login, encrypted backup, cross-device sync, remote control plane,
+  and lever-pack delivery are all unbuilt, and no hosted service is deployed.
+- Two managed-usage pricing mechanisms coexist: a "~12% on pass-through provider
+  costs" handling fee in `pricing-terms.md` section 6 and a flat "$1 per 1,000
+  writes" in `pricing-tiers.md`. The flat per-KB rate should win; the
+  provider-agnostic-unit argument depends on it.
+- No hosted-data retention window after cancellation is stated anywhere.
+- Solo at $5 carries roughly 9% card-processing overhead before COGS.
+
+Verification: documentation-only change, no code touched, so the full suite was
+not re-run. It passed earlier this session at HISTORY#471 with zero skips after
+the seam-pgvector container was brought up, and nothing in this entry can affect
+it. Consistency was verified by grep across both pricing documents.
+
+UNRESOLVED, unchanged from HISTORY#471: the BUSL runtime is not shippable.
+`public_manifest.py` still lists `seam_runtime/` in MIRL_RESERVED_DIR_PREFIXES
+and `verify_distribution_boundary.py` still rejects, for the pypi target, any
+Python module outside PUBLIC_CLIENT_SAFE_PATHS, so the node artifact cannot be
+built or published. `build_public.py` copies only the four thin-shim files. Both
+`pyproject.toml` (proprietary expression plus a Private :: Do Not Upload
+classifier) and `public_pkg/pyproject.toml` (Apache-2.0) are pinned at 2.3.1 and
+neither declares BUSL or any author metadata. Per-file BUSL notices are not
+applied. Operator has confirmed the split shape: a node distribution under BUSL
+and a client distribution under Apache-2.0, using the two already-owned PyPI
+names.
+---END-ENTRY-#475---
+
+---BEGIN-ENTRY-#476---
+id: 476
+date: 2026-07-28T04:16:06Z
+agent: claude
+status: changed
+topics: release, licensing, distribution-boundary, ci
+commits: cd7b4f8
+refs: public_pkg/pyproject.toml,public_pkg/README.md,public_pkg/seam.py,public_pkg/seam_runtime/__init__.py,tools/release/build_public.py,tools/release/verify_distribution_boundary.py,.github/workflows/package-release.yml,tests/audit/test_public_runtime_shim.py,tests/audit/test_distribution_boundary.py,tests/audit/test_github_package_metadata.py
+supersedes: 475
+tokens: 1715
+---
+Rebuilt the public `seam-runtime` distribution as a fail-closed, API-only
+compatibility package and made it actually buildable and publishable, which
+clears the shippability half of the blocker carried in HISTORY#471 and #472.
+
+The previous public shim claimed to be thin but was not. `public_pkg/seam_runtime/__init__.py`
+carried a `try: __import__("seam_runtime.mirl")` / `runtime` / `sdk` block whose
+only purpose was to light up the private local runtime when it happened to be
+importable, and the comment in the file said outright that `__import__` was used
+to dodge the reserved-material content scanner. That is a distribution boundary
+defeated on purpose by the file it was meant to constrain. It also declared its
+own `SeamError` / `ConnectionError` classes that were not the `seam_client`
+types they shadowed, so `except seam_runtime.ConnectionError` could not catch a
+real client connection failure.
+
+Changes to `public_pkg/seam_runtime/__init__.py`:
+- Deleted the dynamic private-runtime import block entirely. The package now
+  imports its whole surface from `seam_client` at module top level, so the
+  re-exported exception and result types are identical objects to the client's
+  (`seam_runtime.ConnectionError is seam_client.ConnectionError`).
+- `has_full_runtime()` is now an unconditional `False` and `has_client()` an
+  unconditional `True`; both were previously computed from whether a private
+  import had succeeded.
+- Set `__path__ = []` and installed a `_SubmoduleBlocker` meta-path finder that
+  raises `ModuleNotFoundError` for any `seam_runtime.*` submodule. This is the
+  fail-closed part: if a legacy or manual install leaves a private module on
+  disk under this package, it is unreachable through the public name rather than
+  silently importable.
+
+Changes to `public_pkg/seam.py`:
+- `cmd_status` and `cmd_health` printed `h.version`, which the `/v1` health
+  response does not carry; they now print `h.api_version`.
+
+Changes to `tools/release/verify_distribution_boundary.py`:
+- Replaced the 29-entry hardcoded list of private import strings with a
+  `_PRIVATE_MODULE_REFERENCE` regex on `seam_runtime.<module>` plus explicit
+  `__import__(` / `import_module(` dynamic-import markers. The old list matched
+  import *syntax* only, which is exactly why the `__import__("seam_runtime.mirl")`
+  call in the shipped shim passed it.
+- Added a rule that a public artifact whose METADATA says `Name: seam-runtime`
+  may not contain any `.py` file outside `PUBLIC_CLIENT_SAFE_PATHS`, so an
+  unexpected module is caught even if its contents look clean.
+
+Changes to `tools/release/build_public.py`:
+- The build no longer templates `pyproject.toml` from a string constant inside
+  the script; it copies a real, reviewable `public_pkg/pyproject.toml`.
+- It copies an explicit four-entry `PUBLIC_FILES` allow-list instead of
+  `iterdir()` over `public_pkg/`, so a new file dropped into that directory is
+  not automatically shipped.
+- It builds in a `TemporaryDirectory` rather than `build/public_release`, takes
+  `--outdir`, refuses a non-empty output directory instead of writing into it,
+  and no longer copies the repo root `README.md` (which is the private product
+  README) into the public package.
+- Added a `twine check` of the built artifacts as part of the build.
+
+New `public_pkg/pyproject.toml` and `public_pkg/README.md`:
+- Metadata is now honest about what the package is: description "API-only
+  compatibility client for the SEAM agent-memory service", Development Status
+  Alpha rather than Production/Stable, a single `seam-client>=0.1.0,<0.2`
+  dependency (the old inline template also pulled `rich` and `tiktoken`, which
+  the shim does not use, and offered a `server` extra installing FastAPI and
+  uvicorn for a server it cannot run), and `requires-python >=3.10`.
+- The README states plainly that the package does not contain or start the local
+  runtime and that every command needs a separately provisioned `/v1` endpoint,
+  and points new integrations at `seam-client` directly.
+
+Changes to `.github/workflows/package-release.yml`:
+- The version gate reads `public_pkg/pyproject.toml` for the `pypi` target and
+  the private `pyproject.toml` otherwise; it previously validated the private
+  version and then published the public artifact.
+- The pypi leg builds and verifies out of `public-dist/` instead of `dist/`, so
+  the boundary check can no longer pass by inspecting stale private artifacts
+  left in `dist/` from an earlier local build.
+- The public smoke test asserted `hasattr(seam_runtime, 'SeamClient') or True`,
+  which is `True` unconditionally and tested nothing. It now asserts the
+  re-exported types are the `seam_client` objects and that `has_full_runtime()`
+  is `False`.
+- Pinned `packages-dir: dist/` on the publish step and split the artifact upload
+  per target.
+
+New `tests/audit/test_public_runtime_shim.py` (8 tests) covers the re-export
+identity, both CLI health paths, the metadata contract, the `PUBLIC_FILES`
+allow-list, and that `build_public` refuses a non-empty outdir without deleting
+the operator's file. The stale-submodule test runs in a subprocess with `-I`
+against a real on-disk `seam_runtime/mirl.py` and asserts it is not importable.
+`tests/audit/test_distribution_boundary.py` gains 4 tests, two of which
+(`test_public_pypi_rejects_dynamic_private_runtime_import` and
+`test_public_pypi_rejects_private_module_string_without_import_syntax`) fail
+against the old verifier and are the regression pins for the bypass.
+
+Verification: full suite green with zero skips and only the 2 pre-existing
+xfails, after bringing up the `seam-pgvector` container and exporting
+`PGVECTOR_TEST_DSN` (dbname=seam user=seam host=localhost port=55432) for the 4
+tests that had been skipping without it. Beyond the suite, the pipeline was
+exercised for real, not just unit-tested: `python tools/release/build_public.py
+--outdir <tmp>` produced `seam_runtime-2.3.1-py3-none-any.whl` and the matching
+sdist, `twine check` PASSED on both, and
+`python -m tools.release.verify_distribution_boundary --target pypi` returned
+PASS on both artifacts. The public distribution is now buildable and boundary-
+approved, which was not true at HISTORY#472.
+
+UNRESOLVED, narrowed from HISTORY#472: this entry fixes the public client
+distribution only. The BUSL node distribution is still not shippable and nothing
+here changes that. `public_manifest.py` still lists `seam_runtime/` in
+`MIRL_RESERVED_DIR_PREFIXES` with only the two `PUBLIC_CLIENT_SAFE_PATHS`
+carved out, so a node artifact containing real runtime modules is still rejected
+for the pypi target by design; a BUSL-aware manifest and scanner are still
+needed and must not reuse the thin-shim allow-list. The private `pyproject.toml`
+still carries the proprietary license expression and the `Private :: Do Not
+Upload` classifier at 2.3.1 and declares no BUSL or author metadata, per-file
+BUSL notices are still unapplied, and `LICENSES/BUSL-1.1.txt` still points at a
+placeholder `COMMERCIAL_LICENSE.md` with no real licensing contact address.
+Nothing in this entry has been published; PyPI upload remains operator-gated.
+---END-ENTRY-#476---
+
+---BEGIN-ENTRY-#477---
+id: 477
+date: 2026-07-28T05:52:28Z
+agent: claude
+status: changed
+topics: selfhost, licensing, busl, security, verify, docker
+commits: pending
+refs: selfhost/Dockerfile,pyproject.toml,tools/release/build_selfhost.py,tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.py,tests/audit/test_github_package_metadata.py
+supersedes: 476
+tokens: 1664
+---
+MEASURED what the compiled self-host actually hides, found it hides less than
+assumed, cut the exposure 20% without regressing the runtime, and replaced a
+gate that could never pass with a ratchet pinned to the measured number.
+
+The starting question was whether the compiled image protects MIRL and HS/1.
+Nothing in the repository answered it. `verify_selfhost_artifact.py` matched
+`MIRL_V1`, `SEAM_SPEC`, and `HOLOGRAPHIC_SURFACE` against `FORBIDDEN_PATH_PARTS`
+using the member PATH only, never file contents, so the compiled binary was
+never inspected for the identifiers it was supposed to be hiding.
+
+A real image was built locally (`build_selfhost.py`, throwaway Ed25519 key, no
+registry involved) and scanned. The 81,436,112-byte binary carried 156,937
+printable strings and 525 occurrences of reserved identifiers, including
+`compile_nl.<locals>.add_claim`, `seam_runtime/reasoning_graph.py`, the verbatim
+schema `create table if not exists knowledge_graph_meta (`, and the design
+sentence `Write MIRL/RC/LX bytes into a lossless PNG surface`. The existing
+verifier returned PASS on that image. Nuitka hides source bodies; it does not
+hide module names, qualified function names, class names, or string literals,
+exactly as `docs/SELF_HOST_SECURITY.md` already warned. `knowledge_graph` (25)
+and `reasoning_graph` (13) leaked too, and that graph work is the only material
+never published under Apache-2.0.
+
+Reducing it: an import trace from `seam_runtime.selfhost` showed 41 reachable
+modules and 23 unreachable. `selfhost/Dockerfile` now passes
+`--nofollow-import-to` for 18 of them (`cli`, `dashboard`, `mcp`, `mcp_protocol`,
+`ui`, `skills`, `doctor`, `improvement`, `self_improve`, benchmark modules, and
+others the `/v1` surface never touches) and force-includes
+`seam_runtime.public_api`, which `selfhost.py` imports lazily inside its route
+handlers and which the trace therefore reported as unreachable.
+
+An AST scan for lazy imports of excluded modules from compiled ones caught a real
+regression before it shipped: `retrieval.py:179,184,189,194` imports
+`conversation` and `:199` imports `event_count_context` inside functions,
+`mirl.py:342` imports `tokenization`, and `sdk.py:13,262` imports
+`retrieval_orchestrator`. Excluding those four would have raised
+`ModuleNotFoundError` on the first remember or recall, at request time, with a
+clean build. They were re-included, leaving 18 exclusions.
+
+Regression proof is a real container, not an inference. The image was run with a
+signed entitlement mounted (`SEAM_SELFHOST_PUBLIC_KEY_PATH` allows a test key
+without rebuilding) and all four routes exercised: `/v1/health` returned
+`edition=compiled-self-host`; `/v1/memories` accepted and returned a receipt;
+`/v1/memories/recall` returned the stored memory at score 0.347594;
+`/v1/context` built context; an unauthenticated POST returned 401; container logs
+showed no errors and no `ModuleNotFoundError`. Both lazy-import paths executed.
+Responses contained no `raw:`, `clm:`, or MIRL internals, so the opaque boundary
+holds.
+
+Result: 525 -> 417 occurrences (20%) and 81,436,112 -> 76,516,816 bytes, with the
+runtime verified working.
+
+Zero was rejected as a target rather than missed. `MIRL`, `MIRLRecord`, and
+`IRBatch` name the code that does the work; excluding those modules removes the
+product. A gate that can never pass gets switched off, so
+`verify_selfhost_artifact.py` now carries `RESERVED_CONTENT_BUDGET`, a per-marker
+cap set to the measured 417, and fails on any INCREASE. `verify_archive` takes an
+optional `budget` so tests can pin behavior without depending on production
+numbers. License texts are exempt via `CONTENT_SCAN_EXEMPT_PREFIXES` because
+naming MIRL and HS/1 is precisely what a license governing them must do.
+
+Licensing was made true of the artifact rather than only of the documents.
+`pyproject.toml` moves to 2.4.0, which is the floor the BUSL grant names
+("version 2.4.0 or later"), and its expression becomes
+`LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0` with
+`LICENSES/BUSL-1.1.txt` added to `license-files`. Before this, a grep for BUSL
+across every `.py`, `.toml`, `Dockerfile`, and workflow returned nothing: the
+relicense existed only in prose. The image label moves from
+`LicenseRef-SEAM-Proprietary AND Apache-2.0` to `BUSL-1.1`, gains
+`org.opencontainers.image.version` stamped from a new `SEAM_VERSION` build arg
+that `build_selfhost.py` reads out of `pyproject.toml`, and now copies
+`LICENSES/BUSL-1.1.txt` into `/licenses`. `licenses/BUSL-1.1.txt` is a
+`REQUIRED_PATH`, so an image claiming BUSL without carrying its text fails.
+`Private :: Do Not Upload` was deliberately NOT removed: it is required by
+`verify_distribution_boundary.py:105` for the private-github target and rejected
+at `:145` for pypi, so removing it would break the private release gate.
+
+Nothing was deleted. All 22 originally-considered modules remain in the
+repository; `--nofollow-import-to` affects only what is compiled into the image.
+
+Verification: full suite green, zero skips, 2 pre-existing `compile_nl` xfails,
+with the seam-pgvector container up and `PGVECTOR_TEST_DSN` set. Six new tests in
+`tests/audit/test_selfhost_edition.py` cover the ratchet in both directions
+(above budget fails and names the counts, at budget passes), the license-text
+exemption, the required BUSL text, version stamping, and pin the budget to the
+measured 417. `test_github_package_metadata.py` was updated to assert the new
+expression rather than the old one. `verify_selfhost_artifact` returns PASS on
+the real v3 archive.
+
+UNRESOLVED: the residual 417 occurrences cannot be reduced by exclusion. Removing
+them needs build-time symbol/string mangling or Nuitka's commercial tier, which
+the build log reports as `commercial grade 'not installed'`. Nothing has been
+published: no registry, no PyPI upload, no hosted endpoint. `build_selfhost.py`
+still has no push mode by design. The self-host still requires a vendor-signed
+entitlement to start, which is incompatible with the operator's stated free
+self-host tier and remains an open product decision. PyPI `seam-runtime` 1.3.0
+and 1.3.1 are still live under Apache-2.0 and still contain `mirl.py`,
+`holographic.py`, and `surface_adapters.py`; the operator intends to delete those
+releases, which stops future downloads but cannot revoke the grant. Package
+naming for the BUSL node is undecided; `seam-node`, `seam-engine`, `seam-core`,
+`seam-selfhost`, `seam-memory`, and `seam-server` were all confirmed available on
+PyPI.
+---END-ENTRY-#477---
+
+---BEGIN-ENTRY-#478---
+id: 478
+date: 2026-07-28T14:55:22Z
+agent: codex
+status: done
+topics: graph, retrieval, provenance, history, handoff, verify, test, storage
+commits: pending
+refs: seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orchestrator/types.py,seam_runtime/retrieval_orchestrator/planner.py,seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,tests/audit/test_reasoning_retrieval.py,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-23-g3-paths-historical-view.md
+supersedes: 477
+tokens: 186
+---
+Built the bounded G3 exact-path and historical-view retrieval slice. Hop-positive graph hits now expose deterministic shortest edge paths plus only episodes visible in the selected current, history, or point-in-time view. graph_at and graph_include_history flow through planner, orchestrator, and ReasoningSession.retrieve, reuse knowledge-graph node/edge/episode visibility predicates, and persist on the append-only reasoning retrieval decision through an additive migration. No ranking, fusion, PACK, canonical-truth, or provider behavior changed. Verification: focused graph/reasoning slice 93 passed; pytest tests/ -m not external passed 1411 with 23 external deselected and two established xfails, zero failures/skips; Ruff, compileall, and diff check passed. No provider, paid-model, install, or download action. G3 remains partial: entity/value/agent/symbol vectors, calibrated fusion, and corpus-scale qualification remain.
+---END-ENTRY-#478---
+
+---BEGIN-ENTRY-#479---
+id: 479
+date: 2026-07-28T14:55:30Z
+agent: codex
+status: done
+topics: graph, retrieval, rank, provenance, test, verify, handoff, benchmark
+commits: pending
+refs: seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orchestrator/merger.py,seam_runtime/retrieval_orchestrator/orchestrator.py,seam_runtime/retrieval_orchestrator/types.py,seam_runtime/reasoning_graph.py,tools/graph_retrieval_qualification.py,tests/audit/test_reasoning_retrieval.py,tests/audit/test_graph_retrieval_qualification.py,docs/REASONING_GRAPH.md,docs/KNOWLEDGE_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-23-g3-rank-fusion-scale-qualification.md
+supersedes: 478
+tokens: 460
+---
+Built the next bounded G3 ranking and qualification slice without provider,
+paid-model, install, or download actions.
+
+Cross-leg fusion is now the fixed versioned `reciprocal-rank-fusion/2`
+contract. Each leg deduplicates a record by best raw score, ranks within its own
+score domain by raw score then record ID, contributes `1 / (60 + rank)`, and
+sums those comparable contributions. Raw SQL/vector/graph magnitudes remain in
+the live leg trace. New R2 decisions persist the policy fingerprint and exact
+rank-derived contributions; validation rejects non-policy values and recomputes
+the fused score and order. Deterministic duplicate handling, reason ordering,
+and graph-path selection keep traces stable.
+
+Added `tools.graph_retrieval_qualification`, a provider-free temporary-SQLite
+fixture covering structured filter, lexical 1-hop, lexical 3-hop, historical
+3-hop, and semantic-seeded mixed retrieval. The 2,048-node/2,047-edge,
+4,096-record run with five measured repeats passed expected evidence and path,
+namespace/scope isolation, deterministic ranking, cross-leg evidence, and the
+250 ms p95 gate. Observed p95s ranged from 7.714 to 43.262 ms. This is bounded
+synthetic mechanism/latency evidence, not a real-corpus quality claim.
+
+Verification: 108 focused tests passed. The authoritative
+`.venv/bin/python -m pytest -q tests/ -m "not external"` run collected 1,420
+tests and completed with 1,418 passed plus the two established xfails, zero
+failures or unexplained skips. The 189-test
+`test_seam_all/test_seam.py` compatibility suite passed. Touched-file Ruff,
+compileall, diff, public-manifest, and candidate secret/private-session-URL
+checks pass. CodeRabbit CLI 0.7.0 accepted the scoped staged diff twice but
+returned only status events and no findings summary, so external review is
+unavailable rather than clean.
+
+G3 remains partial. Semantic vectors for entity/value/agent/symbol graph nodes
+and real-corpus quality qualification remain; G4-G7 and R3-R6 remain open.
+---END-ENTRY-#479---
+
+---BEGIN-ENTRY-#480---
+id: 480
+date: 2026-07-28T15:26:55Z
+agent: claude
+status: changed
+topics: selfhost, security, verify, graph, docker
+commits: pending
+refs: tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.py,docs/SOP_SEAM_NODE_WHEEL.md
+supersedes: 479
+tokens: 582
+---
+Re-measured the compiled self-host after merging G3 and raised one ratchet
+number by one, with the cause identified rather than assumed.
+
+HISTORY#477 pinned reserved-identifier exposure at 417 occurrences across the
+non-license payload. G3 (HISTORY#478-479) adds `seam_runtime/retrieval_orchestrator/`
+and changes `seam_runtime/reasoning_graph.py`, both of which compile into the
+image, so the budget needed re-measuring rather than assuming.
+
+Rebuilt the image from the merged tree and ran the gate. It FAILED, correctly and
+on its first real test one day after being written:
+
+    reserved identifier exposure increased: knowledge_graph appears 18 times, budget 17
+
+Every other marker was unchanged: MIRL 134, MIRLRecord 120, IRBatch 63,
+TraceGraph 11, compile_nl 10, holographic 11, surface_adapter 6, HS/1 15,
+SEAM-RC 13, SEAM-LX 4, reasoning_graph 13. Binary 76,516,816 -> 76,627,408 bytes.
+
+Rather than widen the number to make the build pass, the two binaries were
+diffed at the string level. The G3 build introduces exactly one new
+`knowledge_graph`-bearing string, `seam_runtime.knowledge_graph`, and removes
+none. That is a module path emitted because `retrieval_orchestrator` imports
+`knowledge_graph` — a reference from real new code, not additional design detail,
+and the name already appeared 17 times.
+
+`knowledge_graph` therefore moves 17 -> 18 (total 418) with the measurement, the
+cause, and the reasoning recorded in the constant's comment so a later reader can
+audit the decision instead of finding an unexplained number. The rule stands
+unchanged: lower these as mangling lands, never raise them to make a build pass.
+This was raised because new functionality legitimately added one module
+reference, which is a different act from papering over a leak.
+
+Verification: `verify_selfhost_artifact` returns PASS on the rebuilt archive.
+Full suite green, zero skips, 2 pre-existing `compile_nl` xfails, with
+seam-pgvector up and PGVECTOR_TEST_DSN set. The budget-pinning test moves to 18
+and 418 so the constant cannot drift silently.
+
+UNRESOLVED, unchanged: the residual 418 cannot be reduced by module exclusion and
+needs build-time symbol mangling or Nuitka's commercial tier. Nothing published.
+`docs/SOP_SEAM_NODE_WHEEL.md` was written this session to hand the `seam-node`
+PyPI wheel work to Codex; the mandatory entitlement remains an open product
+decision flagged in that SOP.
+---END-ENTRY-#480---
+
+---BEGIN-ENTRY-#481---
+id: 481
+date: 2026-07-28T16:32:58Z
+agent: claude
+status: changed
+topics: roadmap, selfhost, packaging, mcp
+commits: pending
+refs: ROADMAP.md
+supersedes: 480
+tokens: 976
+---
+Recorded the self-host capability surface as a tracked roadmap item instead of
+leaving it an undocumented side effect of a leak-reduction decision.
+
+HISTORY#477 narrowed the Nuitka build with 18 `--nofollow-import-to` exclusions,
+cutting reserved-identifier exposure 525 -> 417 and the binary 81.4 MB -> 76.5 MB.
+That was correct for protecting MIRL and HS/1, but it also removed every
+agent-facing surface, and nothing in the repository recorded that as a decision
+with consequences. As shipped, a self-hoster gets four `/v1` routes and nothing
+else: no CLI, no MCP, no dashboard, no importable API. For a runtime whose main
+integration path is MCP, that is a materially thinner product than "SEAM,
+self-hosted", and the gap was only visible by reading a build flag.
+
+Added `ROADMAP.md` Track N2, "Self-host capability surface", after Track N:
+- States the governing trade explicitly: every module added back raises the
+  compiled surface and therefore the identifier count, so each step is measured
+  against the ratchet and justified in HISTORY with the actual strings
+  introduced, per the discipline set at HISTORY#480. Never raise a budget to make
+  a build pass.
+- Phase 1, MCP, is in flight as an amendment to PR #174. Restores `mcp`,
+  `mcp_protocol`, `doctor`, and `pgvector_bootstrap` and exposes the existing
+  `seam-mcp` entry point. Measured cost is four modules on top of the 41 the
+  self-host already compiles. Verified this session that all four import only
+  stdlib and already-compiled internal modules, so no new runtime dependency is
+  required. This is the step that makes the wheel a distinct product rather than
+  a repackaged container, because MCP stdio suits a pip-installed console command
+  and is awkward through `docker run`.
+- Phase 2, CLI, is flagged as the largest expected identifier cost of the
+  remaining set: CLI help text is long-lived string data, and the unnarrowed
+  build's design-description leaks such as `Compile source text to MIRL and write
+  a SEAM-HS/1 surface` came from exactly that class of module.
+- Phase 3, dashboard and TUI, is flagged as the largest surface for the least
+  protection benefit.
+- Phase 4, skills and self-improvement, is explicitly a product decision that
+  interacts with what the paid hosted tier offers exclusively, not a packaging
+  one.
+- Phase 5 records that the three benchmark modules stay out permanently: they are
+  evaluation infrastructure with no self-host use and they name reserved
+  evaluation methodology.
+- Carries forward the entitlement conflict as blocking: `selfhost.py` refuses to
+  start without a vendor-signed Ed25519 entitlement, which is incompatible with a
+  free self-host and must be resolved before any public ship. If it becomes
+  optional, the verification path is kept intact for a future paid or supported
+  tier rather than deleted.
+
+Also reviewed Codex's PR #174 (draft, seam-node wheel) against the two failure
+modes flagged when the SOP was handed off. Both are clear: all four lazily
+imported modules (`conversation`, `event_count_context`, `tokenization`,
+`retrieval_orchestrator`) are retained rather than excluded, and `public_api` is
+force-included, so the wheel will not build clean and then raise
+`ModuleNotFoundError` on the first remember or recall. Codex proved it by
+exercising remember and recall in a clean container rather than inferring from a
+successful build, and independently found and fixed a nested
+`.data/purelib/seam_runtime` path that would have smuggled Python source past the
+source gate. The wheel carries its own measured budget (413) rather than reusing
+the image's 418, and preserves the entitlement rather than silently making it
+optional. MCP remains excluded there pending the amendment above.
+
+Verification: `ROADMAP.md` only, no code touched, so the full suite was not
+re-run; it passed earlier this session at HISTORY#480 with zero skips.
+`tools.streams.roadmap_parser` reparsed 62 items, `rebuild_index --stream roadmap`
+and `rebuild_cross_index` refreshed the derived views (542 events), and
+`verify_streams` reports OK.
+
+UNRESOLVED: Track N2 phases 2-5 are unscoped beyond direction. The entitlement
+decision still blocks the free self-host. Nothing published.
+---END-ENTRY-#481---
+
+---BEGIN-ENTRY-#482---
+id: 482
+date: 2026-07-28T17:43:24Z
+agent: claude
+status: changed
+topics: selfhost, licensing, busl, entitlement, security, docker
+commits: c6e69d9
+refs: seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/compose.yaml,docs/SELF_HOST_SECURITY.md,tests/audit/test_selfhost_edition.py
+supersedes: 481
+tokens: 1150
+---
+Made the self-host entitlement OPTIONAL, which unblocks the free self-host tier.
+Operator decision: the entitlement identifies a supported deployment and gates no
+capability.
+
+Before this, `create_selfhost_app_from_env` called `verify_entitlement`
+unconditionally, so a node without a vendor-signed Ed25519 file raised at startup
+and never served. Every request and `/v1/health` additionally returned 503 once
+the entitlement's window lapsed. That made the compiled self-host a per-customer
+commercial product requiring the operator to hand-sign a key for every user,
+which is incompatible with the free self-host tier and, more importantly,
+contradicted the licence the artifact ships under: BUSL-1.1's Additional Use
+Grant permits self-hosting "without limitation on scale, number of users, or
+commercial context".
+
+The entitlement was never a MIRL protection. Anyone holding the image holds the
+binary and can patch a runtime condition out; `docs/SELF_HOST_SECURITY.md`
+already said offline entitlements are tamper-evident licence controls, not DRM
+against a hostile owner. MIRL is protected by compilation, which raises cost, and
+by BUSL, which prohibits competing hosted offerings.
+
+Changes to `seam_runtime/selfhost.py`:
+- `create_selfhost_app` takes `entitlement: VerifiedEntitlement | None = None`.
+  The `REQUIRED_FEATURE` check now applies only when one is supplied.
+- Removed both 503 gates, in `guard` and in `/v1/health`. A lapsed entitlement no
+  longer withdraws service, because support status cannot revoke a right the
+  licence grants.
+- `/v1/health` gained a comment recording that it is deliberately unauthenticated
+  and must therefore not disclose who runs the node. Customer identity is logged
+  at startup for the operator, never served.
+- New `_load_optional_entitlement`: absence returns None and is the free path;
+  presence is a deliberate act, so a mounted file that fails verification fails
+  CLOSED; a cryptographically sound but lapsed entitlement is returned and
+  reported inactive.
+
+Change to `seam_runtime/selfhost_entitlement.py`: `verify_entitlement` gained
+`enforce_validity_window: bool = True`. This existed because the function raised
+the same `EntitlementError` for a forged signature and an expired date. Catching
+that broadly to fall back to free mode would have turned a FORGED entitlement
+into a silent free node with no tamper signal. Signature, schema, and product
+checks always apply; only the temporal window is separable, so a lapsed customer
+is now distinguishable from an attacker.
+
+Found by running the artifact, not by testing it: the three identification lines
+never reached the log. `selfhost/Dockerfile` sets `PYTHONUNBUFFERED=1` in the
+BUILD stage only, so the compiled binary's stdout is block-buffered in the final
+distroless stage; uvicorn's lines appear because its logging goes to stderr. The
+badge, which is the entire feature, was silently dead through a green build and a
+green suite. Fixed with explicit `flush=True` at each call site rather than adding
+image env, so it holds regardless of how the image is configured.
+
+`selfhost/compose.yaml` previously bind-mounted `entitlement.json`
+unconditionally, which fails for a user who has none; it now carries a comment
+that the bind may be deleted to run unentitled.
+`docs/SELF_HOST_SECURITY.md` updated: the entitlement bullet now states it is
+optional and describes the fail-closed/lapsed split, the provisioning list marks
+`entitlement.json` as supported-deployments-only, and the threat-model row that
+described the entitlement as an access control for "unauthorized but non-admin
+use" now correctly attributes that to the bearer API token.
+
+Verification, in real containers rather than inference:
+- Unentitled, nothing mounted but an API token:
+  `[seam-selfhost] no entitlement mounted; running unentitled under BUSL-1.1`;
+  health 200, remember accepted (`rcpt_8c5caf11`), recall returned the memory at
+  score 0.536667, context built, unauthenticated POST 401, zero errors.
+- Entitled, with a signed entitlement and its public key mounted:
+  `[seam-selfhost] entitled deployment acme-corp (ent_badge_001), expires
+  2027-07-27T00:00:00+00:00`, and `/v1/health` did not disclose the customer.
+- `verify_selfhost_artifact` PASS on the rebuilt archive; the ratchet did not move.
+- Full suite green, zero skips, 2 pre-existing `compile_nl` xfails. Five new tests
+  cover keyless operation end to end, absent-file loading, fail-closed tampering,
+  and the lapsed path including that the signature check still rejects a forgery
+  with the window disabled. The pre-existing expired-entitlement test flipped from
+  asserting 503 to asserting 200, deliberately.
+
+Test signing keys were generated locally, shredded, and never committed.
+
+UNRESOLVED: nothing published. `docs/SOP_SEAM_NODE_WHEEL.md` and ROADMAP Track N2
+(HISTORY#481) still describe the MCP amendment to PR #174 as pending, and the
+wheel there still preserves the mandatory entitlement, so it needs this change
+carried across before it merges.
+---END-ENTRY-#482---
+
+---BEGIN-ENTRY-#483---
+id: 483
+date: 2026-07-28T22:11:37Z
+agent: claude
+status: done
+topics: selfhost, mcp, security, packaging, bundle, verify, test, docker
+commits: 6242a34,823da60,6edc049
+refs: seam_runtime/selfhost_mcp.py,tools/release/build_node_wheel.py,tests/audit/test_node_wheel.py,node_pkg/pyproject.toml,node_pkg/README.md
+supersedes: 482
+tokens: 1272
+---
+BUILT the self-host wheel's MCP surface as an opaque contract, closing Track N2
+phase 1 at zero additional reserved-identifier exposure, and reconciled this
+branch with the optional entitlement from HISTORY#482.
+
+This entry supersedes an uncommitted codex entry that also claimed id 482. That
+entry described the base wheel build (commits 02fe888, faae5fa) and was written
+while HISTORY#482 was being committed on `feat/optional-entitlement` for the
+optional entitlement. Only one 482 can exist, main's is authoritative, and the
+wheel work is renumbered here rather than edited into the timeline. Codex had
+also left an incomplete merge in the worktree (MERGE_HEAD 08be31b); it was
+committed as authored before any new work, and the full pre-existing diff is
+preserved outside the repo rather than discarded.
+
+Codex's phase 1 amendment restored `mcp`, `mcp_protocol`, `doctor`, and
+`pgvector_bootstrap` and exposed `seam-mcp` from `mcp_protocol:main`. The code
+was correct and its runtime proof was real, but it was never built. Building it
+here failed the node gate on six markers at once: HS/1 15 -> 22, knowledge_graph
+18 -> 22, MIRL 133 -> 137, SEAM-RC 13 -> 15, compile_nl 10 -> 11, holographic
+10 -> 11. Nineteen occurrences, and every one of them attributable to tool
+descriptions in `mcp.py`:
+
+- `seam_memory_get`: "Return full MIRL records for selected ids."
+- `seam_surface_query`: "Query embedded MIRL or SEAM-RC/1 directly inside a
+  registered HS/1 surface"
+- `seam_surface_context`: "Extract a prompt-ready context pack directly from a
+  registered HS/1 surface PNG ... without restoring the source document."
+- `seam_knowledge_graph`: "Search and traverse SEAM's self-building temporal
+  knowledge graph."
+
+That is worse than a static string in a binary. Tool metadata IS the MCP
+contract: `tools/list` returns it verbatim to every client that connects, so
+the internal registry would have served the architecture to any agent that
+pointed at a self-hosted node. Raising the budget would have laundered a
+disclosure through a number, which is precisely what HISTORY#480 and Track N2
+forbid. The budget was not touched.
+
+`/v1` had already solved this problem once, by giving the self-host its own
+opaque HTTP contract instead of exposing the internal API. MCP never got the
+same treatment. New `seam_runtime/selfhost_mcp.py` is that counterpart:
+`seam_remember`, `seam_recall`, and `seam_context`, dispatching through the same
+audited `public_api` operations `/v1` uses, with descriptions written in product
+language. No operation is reachable over MCP that is not already reachable over
+HTTP, so this adds a transport and not an attack surface. `mcp` and
+`mcp_protocol` return to the exclusion list, which is 18 again;
+`selfhost_mcp` joins the explicit source allow-list.
+
+Two deliberate departures, both recorded rather than hidden. There is no
+`search` operation in `public_api` because `recall` is the search, so the
+surface is three tools and not the four first sketched. And roughly 120 lines of
+JSON-RPC framing, including the bounded-readline cap, are duplicated from
+`mcp_protocol.py` rather than shared. The alternative was making the internal
+server import-compatible with an excluded registry, which is how a wheel builds
+green and then dies on first call; `selfhost.py` set the separate-surface
+precedent for HTTP. The cost is real: protocol fixes now need applying twice.
+
+Measured result: 414 of 414 occurrences, every marker exactly at its existing
+budget, none raised and none exceeded. The MCP capability was added at zero
+additional exposure. Wheel `seam_node-2.4.0-cp312-cp312-manylinux_2_28_x86_64.whl`,
+3,575,210 bytes, sha256
+38e4b929bf95da90c618eea208c93c9075806326f6247bbcfc7d09565d7155e7.
+
+Verification, in the clean pinned container rather than by inference:
+`MCP initialize -> protocol=2025-06-18 server=seam`; `tools/list -> tools=3`
+with the reserved-identifier scan of the live listing at 0; no
+`ModuleNotFoundError` in the MCP log; `/v1` health 200, unauthenticated write
+401, remember 200, recall 200 with one memory, context 200; no `raw:`, `clm:`,
+or `mirl` marker in any response; and `no entitlement mounted; running
+unentitled under BUSL-1.1`, which confirms HISTORY#482's free path survives into
+the wheel. Node gate PASS.
+
+The leak is now guarded at three layers: two new unit tests (one scanning
+`tools/list` and `initialize` against the same budget dict the wheel gate uses,
+so the two cannot drift; one asserting every tool maps onto an audited
+`public_api` operation), a build-time scan of the live listing, and the binary
+ratchet.
+
+UNRESOLVED: nothing published. No image push, no PyPI upload, no registry, no
+provider or paid model call. Track N2 phases 2-5 remain unscoped beyond
+direction, and phase 2 (CLI) is still flagged as the largest expected identifier
+cost of the remaining set. The three shipping gates named this session, pushing
+the compiled image with SBOM and signing, uploading `seam-node`, and deploying
+the hosted `/v1`, all remain operator decisions.
+---END-ENTRY-#483---
+
+---BEGIN-ENTRY-#484---
+id: 484
+date: 2026-07-28T22:42:05Z
+agent: claude
+status: changed
+topics: selfhost, packaging, release, pypi, naming, test, verify
+commits: pending
+refs: selfhost_pkg/pyproject.toml,tools/release/build_selfhost_wheel.py,tools/release/verify_selfhost_wheel.py,tests/audit/test_selfhost_wheel.py,docs/SOP_SEAM_SELF_HOST_WHEEL.md,REPO_LEDGER.md
+supersedes: 483
+tokens: 1047
+---
+RENAMED the compiled self-host distribution to `seam-self-host` 1.0.0 and
+versioned the public SDK as `seam-client` 2.0.0, then PUBLISHED the SDK to PyPI.
+Operator naming decision; both artifacts are otherwise unchanged in behavior.
+
+`seam-node` 2.4.0 becomes `seam-self-host` 1.0.0. The name was confirmed
+available on PyPI before the rename, and because the distribution name is new
+the version resets to a 1.0.0 line rather than continuing 2.4.x. Renamed with
+`git mv` so history follows the files: `node_pkg/` -> `selfhost_pkg/`,
+`tools/release/build_node_wheel.py` -> `build_selfhost_wheel.py`,
+`verify_node_wheel.py` -> `verify_selfhost_wheel.py`,
+`tests/audit/test_node_wheel.py` -> `test_selfhost_wheel.py`, and
+`docs/SOP_SEAM_NODE_WHEEL.md` -> `docs/SOP_SEAM_SELF_HOST_WHEEL.md`. Internal
+identifiers followed: `NODE_FILES` -> `SELFHOST_FILES`,
+`NODE_RESERVED_CONTENT_BUDGET` -> `SELFHOST_RESERVED_CONTENT_BUDGET`,
+`NODE_VERSION` -> `SELFHOST_VERSION`. The console entry point is now
+`seam-self-host`; `seam-mcp` is unchanged. A half-rename that left the tooling
+saying "node" while the product said "self-host" was the drift worth avoiding.
+
+`HISTORY.md`, `.seam/`, and `docs/handoffs/2026-07-28-seam-node-wheel.md` still
+say `seam-node`. That is deliberate: they are append-only records of what was
+true when written, and the handoff registry references that filename. The rename
+is recorded here rather than backfilled into the timeline.
+
+Fixed a real robustness defect found by the rename, not introduced by it. The
+source allow-list test asserted equality against
+`(REPO / "seam_runtime").rglob("*.py")`, so any untracked working state under
+`seam_runtime/` failed it. The primary worktree carries `seam_runtime/.ua/`,
+live R3 graph working state that must not be cleaned, and the test failed there
+while passing in the wheel worktree. It now skips dot-directories, which are
+never runtime source the wheel would ship.
+
+Rebuilt and re-proved the artifact under the new name rather than assuming a
+rename is inert:
+`seam_self_host-1.0.0-cp312-cp312-manylinux_2_28_x86_64.whl`, 3,575,299 bytes.
+`auditwheel` and `twine check` PASSED, the self-host boundary gate PASSED, and
+the clean-container proof reported `/v1` health 200, unauthenticated write 401,
+remember 200, recall 200 with one memory, context 200, no `raw:`/`clm:`/`mirl`
+markers, `MCP initialize -> protocol=2025-06-18 server=seam`,
+`tools/list -> tools=3` with the reserved-identifier scan at 0, no
+`ModuleNotFoundError`, and `no entitlement mounted; running unentitled under
+BUSL-1.1`. The 414-occurrence baseline is carried forward unchanged.
+
+`seam-client` moves 0.2.0 -> 2.0.0 in the separate public `Seam_Runtime` repo.
+PyPI carried only 0.1.0; the 0.2.0 agent-lifecycle line was never published, so
+2.0.0 is the first release to ship `prepare_turn`/`complete_turn`. PR #3 merged
+green and workflow run 30405367527 published both artifacts through PyPI Trusted
+Publishing with digital attestations and no stored token. Verified live: PyPI
+reports 2.0.0, and a clean isolated-venv `pip install seam-client==2.0.0`
+imported the package and confirmed all four lifecycle hooks.
+
+Verification: full suite 1,491 tests, zero failures, zero skips, two established
+`compile_nl` xfails, run against live pgvector. The focused self-host wheel slice
+passes 14 tests.
+
+UNRESOLVED: `seam-self-host` 1.0.0 is NOT published and cannot be from here. PyPI
+requires a pending publisher configured in the pypi.org web UI before the first
+upload of a new project name; the name has never existed there, no publish
+workflow covers it (the builder deliberately has no upload mode), and this host
+holds no PyPI credentials. That is an operator browser action, after which a
+release workflow still needs writing. The compiled Docker image is likewise
+unpushed, and the hosted `/v1` endpoint is still undeployed.
+---END-ENTRY-#484---
+
+---BEGIN-ENTRY-#485---
+id: 485
+date: 2026-07-28T23:20:55Z
+agent: claude
+status: done
+topics: selfhost, release, pypi, packaging, busl, verify
+commits: 5be1f84
+refs: .github/workflows/selfhost-release.yml,selfhost_pkg/pyproject.toml
+supersedes: 484
+tokens: 752
+---
+PUBLISHED `seam-self-host` 1.0.0 to PyPI. Both halves of the product are now
+installable: the free BUSL compiled self-host and the Apache-2.0 API client.
+
+`.github/workflows/selfhost-release.yml` (PR #178) is the release path. It
+verifies the requested version, distribution name, and BUSL-1.1 license against
+`selfhost_pkg/pyproject.toml` before building, builds with the same digest-pinned
+Docker/Nuitka pipeline used locally on the self-hosted box, RE-RUNS the boundary
+gate on the emitted artifact, asserts exactly one wheel and no sdist, then
+publishes from a hosted runner via Trusted Publishing. There is no upload path
+that bypasses the gate.
+
+Run 30407166882 failed its first attempt at the PyPI handshake with
+`invalid-publisher`. The operator's pending publisher named the repository
+`BlackhatShiftey/seam`; GitHub's OIDC claim carries the canonical
+`BlackhatShiftey/Seam`, and the match is case-sensitive. Everything else was
+correct, including an unset environment, which matches any. After the operator
+recreated the publisher with the correct casing, a `--failed` re-run reused the
+already-built and already-gated wheel and published without recompiling.
+
+Live and verified from PyPI rather than from the build: `seam-self-host` 1.0.0,
+BUSL-1.1, one file
+`seam_self_host-1.0.0-cp312-cp312-manylinux_2_28_x86_64.whl`. A clean isolated
+venv install placed exactly one artifact in site-packages,
+`seam_runtime.cpython-312-x86_64-linux-gnu.so`, with zero `.py` and zero other
+`.so`. Both console scripts installed. The opaque MCP surface reports exactly
+`seam_remember`, `seam_recall`, `seam_context`. The binary starts, prints
+`no entitlement mounted; running unentitled under BUSL-1.1`, and correctly
+refuses to serve without an API token.
+
+One verification trap worth recording, hit twice this session. `seam_runtime`
+imported from the installed wheel reports `__file__` as a `.py` path and raises
+tracebacks citing `.py` line numbers. Those are Nuitka's retained source-path
+metadata, not files: `find` reports zero `.py` under site-packages. This is the
+already-audited behavior from HISTORY#471, where module filenames and generic
+build-path metadata are explicitly NOT claimed as protected. Do not read a `.py`
+in a traceback as evidence that source shipped; check the filesystem. The
+related trap is running the check from the repository root, where the local
+`seam_runtime/` package shadows the installed wheel entirely.
+
+`seam-client` 2.0.0 was published earlier in the same session (HISTORY#484) and
+remains live.
+
+Verification: no repository source changed in this entry beyond the record
+itself, so the suite was not re-run; it passed at HISTORY#484 with 1,491 tests,
+zero failures and zero skips. PyPI metadata and a clean-venv install were
+checked directly.
+
+UNRESOLVED: the compiled Docker image is still unpushed and needs SBOM,
+provenance, and digest signing before any registry release. The hosted `/v1`
+endpoint is still undeployed, which is the remaining half of the paid tier.
+---END-ENTRY-#485---
+
+---BEGIN-ENTRY-#486---
+id: 486
+date: 2026-07-28T23:51:04Z
+agent: claude
+status: changed
+topics: selfhost, pgvector, embeddings, docs, packaging, release, verify
+commits: pending
+refs: seam_runtime/selfhost.py,selfhost_pkg/pyproject.toml,selfhost_pkg/README.md,tools/release/build_selfhost_wheel.py,tools/release/verify_selfhost_wheel.py,tests/audit/test_selfhost_edition.py
+supersedes: 485
+tokens: 1017
+---
+SHIPPED `seam-self-host` 1.1.0: pgvector support baked into the wheel, a
+startup-validated configuration, and a complete environment-variable reference
+in the README that PyPI serves.
+
+Postgres now works instead of failing. `PgVectorAdapter` was already compiled
+into the wheel, but `psycopg` was not a dependency, so a node with
+`SEAM_PGVECTOR_DSN` set built clean, started clean, and then returned 500 on the
+first write with `psycopg is required for PgVectorAdapter`. Found by driving the
+PUBLISHED 1.0.0 artifact end to end rather than trusting the build proof, which
+passes because the build container has no DSN set. Added
+`psycopg[binary]>=3.1,<4` to the distribution. The ratchet did not move: psycopg
+is a pip dependency, not compiled SEAM code, so exposure stays at 414 of 414
+with every marker at budget.
+
+New `_validate_vector_backend` and `_configure_embedding_provider` run before the
+app is constructed, so a misconfigured node fails at startup with an actionable
+message instead of per-request 500s. Both log what they resolved, giving the
+operator a three-line startup summary of entitlement, embeddings, and vector
+backend.
+
+The embedding default was changed and then changed back, deliberately. It was
+briefly set to `openai` on the reasoning that recall quality is the product.
+Operator decision reversed it: SEAM is local-first, so the built-in embedder
+stays the default and a fresh `pip install` runs with no third-party account, no
+key, and no per-request cost. Choosing an external API is opt-in and is now
+refused at startup when its key is absent. Note there is no provider literally
+named `seam`; the built-in one registers as `hash`/`local`/`deterministic` and
+resolves to `HashEmbeddingModel`.
+
+Both changes are scoped to the self-host entrypoint, never the library default.
+`derived_fact_context` requires `SEAM_EMBEDDING_PROVIDER` in
+{hash, local, deterministic} and requires `SEAM_PGVECTOR_DSN` unset, so a
+library-wide flip would have broken the grounded-clm/1 benchmark contract from
+HISTORY#435. The benchmark path is untouched.
+
+`selfhost_pkg/README.md` gained a full configuration reference, extracted from
+the compiled module set rather than written from memory: retrieval quality
+(profile presets `compact` 100/8000 and `broad` 300/60000, top-k, context
+budget), embeddings, retrieval ranking, context/answer policies, storage,
+extraction with the Ollama family, server, and entitlement. A coverage check
+confirms 64 of 78 names documented individually with the remaining
+`SEAM_JSPACE_*` family named as a group, so nothing is silently omitted. A
+closing section lists variables present in the binary but unreachable from this
+edition, and states explicitly that the three `SEAM_API_ALLOW_*` names cannot
+weaken the `/v1` bearer-token requirement because this edition never starts the
+REST server that reads them. That paragraph exists because those strings are
+discoverable in the binary and would otherwise read as a security hole.
+
+Also fixed the build's runtime proof, which the startup validation would have
+broken: it starts the server with no key, so the temporary `openai` default made
+it fail. The proof now exercises the real shipped default rather than an
+override.
+
+Verification: wheel
+`seam_self_host-1.1.0-cp312-cp312-manylinux_2_28_x86_64.whl`, 3,583,540 bytes,
+sha256 `e2a79b31c28832cbabcb0fbc2d4fda4d...`. Gate PASS, ratchet 414/414, no
+`seam_runtime` `.py`, and the README confirmed present in the shipped METADATA.
+Clean-container proof: `/v1` health 200, unauthenticated 401, remember/recall/
+context 200, no `raw:`/`clm:`/`mirl`, `MCP initialize -> 2025-06-18`,
+`tools/list -> tools=3` scanning 0 reserved identifiers, and the unentitled BUSL
+line. Full suite green with zero skips and the two established `compile_nl`
+xfails. Five new tests cover the built-in default, opt-in with and without a key,
+and both pgvector branches.
+
+UNRESOLVED: the compiled Docker image is still unpushed and needs SBOM,
+provenance, and digest signing. The hosted `/v1` endpoint is still undeployed.
+Neither is blocked by anything in this entry.
+---END-ENTRY-#486---
+
+---BEGIN-ENTRY-#487---
+id: 487
+date: 2026-07-29T02:15:43Z
+agent: codex
+status: done
+topics: bugfix, bundle, ci, docs, graph, handoff, mcp, pgvector, retrieval, security, status, storage, surface, test, verify
+commits: pending
+refs: .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,docs/PUBLIC_SDK_API.md,docs/SELF_HOST_SECURITY.md,docs/handoffs/2026-07-29-package-stability-release-candidate.md,seam_runtime/public_api.py,seam_runtime/runtime.py,seam_runtime/selfhost.py,seam_runtime/selfhost_mcp.py,seam_runtime/server.py,seam_runtime/storage.py,seam_runtime/vector_adapters.py,selfhost_pkg/README.md,selfhost_pkg/pyproject.toml,tests/audit/test_hosted_api_stability.py,tests/audit/test_selfhost_stability.py,tools/release/build_selfhost_wheel.py,tools/release/prove_hosted_api.py,tools/release/verify_distribution_boundary.py,tools/release/verify_selfhost_wheel.py
+supersedes: 486
+tokens: 1075
+---
+QUALIFIED the stable package pair required before returning to graph and
+reasoning work: compiled `seam-self-host` 1.1.2 for customer-operated nodes and
+private `seam-runtime` 2.4.0 as the hosted `/v1` server package for the future
+subscriber service. The API-only `public_pkg/` shim is not that hosted server,
+and DigitalOcean remains deliberately untouched.
+
+This supersedes HISTORY#486's startup-validation claim. Published self-host
+1.1.0 installed the pgvector driver but did not connect and probe the selected
+backend before serving. The repaired entrypoint makes the connection with
+bounded retries, checks live storage behind cached GET/HEAD readiness, validates
+embedding provider and retrieval profile selection, and exits with a one-line
+redacted diagnostic before serving when configuration is invalid. It also
+honors CLI-over-environment precedence for host, port, and database, treats
+blank environment paths as absent, and gives no-argument MCP an XDG fallback.
+
+The shared public `/v1` boundary now rejects non-string text, query, and
+partition identifiers rather than coercing arbitrary objects. Rate-limit
+responses carry `Retry-After`; unexpected exceptions return generic JSON 500
+responses; readiness returns 503 without internal detail when storage is
+degraded. SQLite path handling is normalized across the store and vector
+adapter, with new POSIX parent directories at 0700 and database files at 0600.
+
+Release gates were strengthened with exact metadata-line matching and the real
+private BUSL/proprietary/Apache license expression. The private release workflow
+installs the built wheel with its authoritative server/pgvector extras plus
+released `seam-client==2.0.0`, then drives HEAD health and real
+remember/recall/context calls from outside the checkout. The self-host builder
+now proves CLI flags, invalid-input rejection, HEAD readiness, MCP, opaque
+errors, and filesystem permissions in its clean container. Documentation names
+the actual limits, proxy/rate behavior, hash-recall baseline, CLI options, and
+MCP path precedence.
+
+Final private artifacts pass `twine check` and the private-GitHub boundary:
+`seam_runtime-2.4.0-py3-none-any.whl` is 818,623 bytes with SHA-256
+`844e77edf872e664f68d83013bf1b61faadf20395e569efc5036da5da925780f`;
+`seam_runtime-2.4.0.tar.gz` is 790,680 bytes with SHA-256
+`28055d80cee2723a2fac3c9f5c242bc9773f3ca8fd86f66f8b914aa632f7b327`.
+A clean virtual environment installed the exact wheel with server and pgvector
+extras and passed dependency checks plus the public-client proof with SQLite
+and live pgvector.
+
+Final self-host artifact
+`seam_self_host-1.1.2-cp312-cp312-manylinux_2_28_x86_64.whl` is 3,624,744
+bytes with SHA-256
+`dbf89a68f26af7bae09c9d93fc17b5275238f7de9e39d13d527564314d4a6ac1`.
+It passes `twine check`, exact wheel verification, the source/privacy scanner,
+and the clean-container runtime proof. Its only SEAM payload is the compiled
+extension, and every reserved marker remains exactly at the pre-existing
+414/414 budget with no allowance raised. Fresh SQLite and live-pgvector
+installs passed through `seam-client==2.0.0`; no-argument MCP created 0700/0600
+XDG state; six startup failure modes stayed one-line and traceback-free. Real
+PyPI upgrades from both 1.0.0 and 1.1.0 replaced the old payload cleanly and
+passed the installed API proof.
+
+The canonical full suite exited 0 against live pgvector with zero skips and the
+two established xfails. The touched audit slice collects together; touched-file
+Ruff and diff checks pass after final formatting. Three CodeRabbit passes found
+and drove fixes for exact metadata matching, normalized storage paths,
+environment precedence, health throttling, and proof-process handling; the
+post-documentation retry was temporarily rate-limited and must be retried
+before push.
+
+No package, image, registry artifact, provider call, paid-model call, hosted
+endpoint, or DigitalOcean resource was published or changed by this entry.
+NEXT: push the qualified candidate through PR checks, merge it, publish private
+`seam-runtime` 2.4.0 to its GitHub Release channel and `seam-self-host` 1.1.2
+to PyPI, clean-install-verify both live releases, and record those facts. Then
+resume G3 with versioned entity/value/agent/symbol graph-node vectors and
+real-corpus qualification, and start R4 with freshness, trust, task/run, and
+exact-provenance gates on reasoning retrieval and reuse.
+---END-ENTRY-#487---
+
+---BEGIN-ENTRY-#488---
+id: 488
+date: 2026-07-29T02:58:28Z
+agent: codex
+status: changed
+topics: bugfix, bundle, graph, handoff, pgvector, retrieval, security, status, storage, surface, test, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidate.md,seam_runtime/public_api.py,seam_runtime/vector_adapters.py,tests/audit/test_public_sdk_api_boundary.py,tests/audit/test_selfhost_stability.py
+supersedes: 487
+tokens: 930
+---
+HARDENED the qualified self-host 1.1.2 and private hosted API 2.4.0 candidates
+after the terminal CodeRabbit pass over all 34 candidate paths returned seven
+findings.
+
+Three code findings were valid and are fixed. `_validate_optional_dimension`
+again treats a blank or whitespace-only optional v1 `session_id` as absent,
+preserving the established versioned public contract while still rejecting
+non-string values. `validate_agent_id` now emits the documented
+128-character-bound error before the generic identifier-shape error.
+`PgVectorAdapter.check_ready` now runs `ensure_schema`, proving or establishing
+the vector extension, configured table, migrations, indexes, and required
+database permissions rather than accepting any PostgreSQL endpoint that can
+answer `select 1`.
+
+The SQLite-sidecar finding was tested rather than assumed. Under an explicitly
+permissive process umask and an existing 0755 operator-selected parent,
+`SQLiteStore` hardens the main database to 0600 before enabling WAL; SQLite
+therefore creates both `-wal` and `-shm` at 0600. The new regression pins all
+three modes. No chmod of an existing parent was added because that directory is
+operator-controlled and may be intentionally shared; newly created parents
+remain 0700.
+
+The remaining three findings concern canonical history mechanics and do not
+identify defects. `commits: pending` is necessary because closeout appends and
+verifies the history entry before the commit containing that entry exists; an
+entry cannot contain its own not-yet-created immutable commit ID. HISTORY#487
+already uses only the controlled topic vocabulary and explicitly includes both
+`graph` and `handoff`; HISTORY_INDEX is generated from that canonical entry and
+was not hand-edited. This superseding entry records the completed review and
+the disposition instead of rewriting append-only HISTORY#487.
+
+Post-review artifacts were rebuilt because vector readiness changes shipped
+code. Private `seam_runtime-2.4.0-py3-none-any.whl` is 818,620 bytes with
+SHA-256
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2`;
+`seam_runtime-2.4.0.tar.gz` is 790,653 bytes with SHA-256
+`91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`.
+Both pass `twine check` and the private-GitHub distribution boundary. A new
+clean environment installed the exact wheel with server/pgvector extras and
+released `seam-client==2.0.0`; dependency checks and SQLite plus live-pgvector
+health/remember/recall/context proofs pass.
+
+Post-review
+`seam_self_host-1.1.2-cp312-cp312-manylinux_2_28_x86_64.whl` is 3,623,685
+bytes with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+Its clean-container proof, exact metadata/source/privacy gate, and every
+reserved-marker budget pass; total exposure remains 414/414 with no allowance
+raised. A clean install passed SQLite and live pgvector through
+`seam-client==2.0.0`, plus no-argument MCP/XDG permissions and six one-line
+startup failure modes. Real upgrades from published 1.0.0 and 1.1.0 replaced
+the legacy payload and passed the installed API proof.
+
+Direct review-fix tests passed 29/29; the expanded package/audit slice passed
+92/92; touched-file Ruff and diff checks pass; a live source-tree pgvector
+schema-readiness probe passes. The earlier canonical full suite remains green
+with zero skips and the two established xfails; it must be rerun after this
+final code delta before push.
+
+No package, image, provider call, paid-model call, endpoint, or DigitalOcean
+resource was published or changed. NEXT: obtain a post-fix clean CodeRabbit
+pass, rerun the canonical full suite and closeout gates, push through the
+protected PR, publish and live-verify both package channels, then resume G3
+graph-node vectors and R4 provenance-gated reasoning reuse.
+---END-ENTRY-#488---
+
+---BEGIN-ENTRY-#489---
+id: 489
+date: 2026-07-29T03:09:09Z
+agent: codex
+status: done
+topics: bugfix, bundle, ci, graph, handoff, pgvector, retrieval, security, status, storage, streams, test, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidate.md,seam_runtime/public_api.py,seam_runtime/vector_adapters.py,tests/audit/test_public_sdk_api_boundary.py,tests/audit/test_selfhost_stability.py
+supersedes: 488
+tokens: 690
+---
+MARKED the final self-host 1.1.2 and private hosted API 2.4.0 stability
+candidate ready for protected PR CI after the post-fix review and full-suite
+rerun.
+
+The post-fix CodeRabbit pass returned three findings and no new runtime defect.
+Its storage request would chmod to 0700 or reject every pre-existing database
+parent. That is intentionally rejected: `SQLiteStore("seam.db")` commonly
+targets an existing home, repository, or otherwise shared operator-controlled
+directory, and silently tightening that directory would change permissions for
+unrelated contents. The security contract is content confidentiality: the main
+database is hardened to 0600 before SQLite enables WAL, and the new
+permissive-umask regression proves its WAL and SHM sidecars are also 0600.
+Newly created dedicated parents remain 0700.
+
+The other findings target `.seam/cross_index_archive` rows with date-only
+roadmap events and bounded display metadata. Those rows are derived from
+canonical streams and predate this package work; cross-index hot/archive views
+are intentionally bounded, must never be hand-edited, and regenerate through
+the stream tools. `verify_streams` passes on the generated result. Changing
+generator semantics belongs to a separately scoped protocol task, not a
+package-stability patch.
+
+The exact post-review source passed the canonical complete test command against
+live pgvector with exit 0, zero skips, and only the two established xfails.
+The 92-test package/audit slice, direct 29-test review-fix slice, live pgvector
+schema-readiness probe, touched-file Ruff, compileall, YAML parsing, diff check,
+staged secret scan, and canonical integrity/routing/handoff/continuity/stream
+gates pass.
+
+Final artifact evidence is unchanged from HISTORY#488. Private 2.4.0
+wheel/sdist SHA-256 values are
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2`
+and `91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`.
+Compiled self-host 1.1.2 is 3,623,685 bytes with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`
+and holds the unchanged 414/414 reserved-content ratchet. Clean SQLite and
+live-pgvector installed proofs pass for both package channels; self-host
+upgrades from published 1.0.0 and 1.1.0 pass.
+
+No package, image, provider call, paid-model call, endpoint, or DigitalOcean
+resource was published or changed. NEXT: commit and push this exact candidate,
+keep every relevant PR check green, merge through protected main, publish
+private `seam-runtime` 2.4.0 to its GitHub Release channel and
+`seam-self-host` 1.1.2 to PyPI, clean-install-verify both live artifacts, and
+record the release. Then resume G3 graph-node vectors and R4
+provenance-gated reasoning reuse.
+---END-ENTRY-#489---
+
+---BEGIN-ENTRY-#490---
+id: 490
+date: 2026-07-29T03:31:27Z
+agent: codex
+status: done
+topics: bundle, ci, graph, handoff, pgvector, retrieval, security, status, test, verify
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-29-stable-packages-live.md,.github/workflows/package-release.yml,.github/workflows/selfhost-release.yml
+supersedes: 489
+tokens: 760
+---
+RELEASED and independently live-verified both stable package channels, closing
+the package diversion before G3 and R4 resume.
+
+Protected PR #180 merged the unchanged qualified head
+`7f1ae712e3cbc5869ffa1038da0755b8fcd2c7f7` into `main` at
+`01f35817810f1490c88e9f832d92c8f1aab3944d` only after every relevant check
+passed, including all required jobs, the full test-and-benchmark job, and
+CodeRabbit. Private package workflow run `30419432598` passed its exact-version,
+build, `twine`, private-boundary, installed API, artifact-transfer, and release
+jobs. GitHub release `v2.4.0` targets the merge SHA. Its downloaded
+`seam_runtime-2.4.0-py3-none-any.whl` is 818,620 bytes with SHA-256
+`cb71fc3e15d103ef63e5c15d9325c2b24645b61d6b42548dcfda4b64fe2f3d21`;
+the downloaded sdist is 790,485 bytes with SHA-256
+`c47fb91433db0b01a579679bc8cf2850e51f33e20d89f71bce601416bab6988f`.
+Both re-pass `twine` and the private distribution boundary. Fresh wheel and
+sdist environments pass dependency checks and installed API calls through
+released `seam-client==2.0.0`; the wheel passes both SQLite and the configured
+live pgvector service, and its exact private/BUSL/Apache license expression is
+present.
+
+Self-host workflow run `30419432631` passed the compiled build/runtime proof,
+repeated artifact gate, single-wheel assertion, transfer, and PyPI Trusted
+Publishing. PyPI now reports non-yanked `seam-self-host` 1.1.2: one
+CPython-3.12 manylinux x86-64 wheel, 3,623,685 bytes, SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+That hash exactly matches the qualified candidate. A fresh network download
+re-passes `twine` and the compiled source/privacy gate with the unchanged
+414/414 ratchet. A fresh installation passes dependency/BUSL metadata checks,
+SQLite and live-pgvector health/remember/recall/context, and both console
+entry points. No-argument MCP initializes and lists tools using its XDG
+fallback with a 0600 database. Fresh PyPI upgrades from 1.0.0 and 1.1.0 both
+reach 1.1.2, pass dependency checks, and start the installed service command.
+
+DigitalOcean remains untouched; hosted subscriber deployment is a later
+infrastructure step, separate from package stability. NEXT: resume G3 at the
+versioned derived graph-node vector projection with explicit reindex and
+real-corpus/backend-scale qualification, and start R4 independently as
+freshness/trust/provenance-gated reasoning retrieval and reuse.
+---END-ENTRY-#490---
+
+---BEGIN-ENTRY-#491---
+id: 491
+date: 2026-07-29T04:50:58Z
+agent: claude
+status: changed
+topics: graph, g3, node-vectors, retrieval, mcp
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/REASONING_GRAPH.md
+supersedes: none
+tokens: 975
+---
+BUILT the first slice of the G3 versioned derived graph-node vector projection,
+closing the documented gap that graph nodes carry lexical terms but no semantic
+vectors (docs/roadmap/GRAPH_MEMORY_MATURITY.md line 79).
+
+New render contract `graph-node-vector-text/1`, versioned separately from
+`mirl-vector-text/2` because a node is an identity distilled from many records
+and its contract must evolve independently of any single record's.
+
+Files changed:
+- `seam_runtime/knowledge_graph.py`: added `GRAPH_NODE_VECTOR_TEXT_VERSION`,
+  `VECTORIZABLE_NODE_KINDS` (entity/value/agent/symbol), `_NODE_RENDER_SKIP_KEYS`,
+  `knowledge_node_vectors` table plus a `(ns, scope)` boundary index, and the
+  functions `render_node_text`, `node_vector_source_hash`, `pending_node_vectors`,
+  `reusable_node_vectors`, `store_node_vectors`, `node_vector_status`.
+- `seam_runtime/storage.py`: imported the four graph helpers under
+  `*_graph_node_vector*` aliases and exposed `pending_node_vectors`,
+  `reusable_node_vectors`, `store_node_vectors`, `node_vector_status` as pooled
+  store methods so runtime never touches a private connection.
+- `seam_runtime/runtime.py`: added `SeamRuntime.project_node_vectors` and called
+  it at the end of `persist_ir`.
+- `seam_runtime/mcp.py`: `seam_knowledge_node` now raises
+  `unknown knowledge node '<id>'` instead of leaking a bare `KeyError` repr.
+- `tests/audit/test_graph_node_vectors.py`: new, 12 tests.
+
+Design facts worth preserving:
+- Node vector projection deliberately does NOT roll back a good ingest. A node
+  vector is derived, so an embedding failure leaves nodes pending and the next
+  ingest or an explicit reindex recovers them. This is the opposite of record
+  vector behavior and is intentional: a transient embedding error must not become
+  data loss.
+- Legacy rows fail closed. A row whose `render_version` differs from the current
+  constant is reported pending and never served, matching the record contract,
+  because mixing render contracts inside one index makes similarity scores
+  incomparable in a way no downstream ranking can detect.
+- `source_hash` binds render version + model name + source text and deliberately
+  excludes ns/scope, so identical node text under a different boundary is the same
+  point in vector space.
+
+FAILURE FOUND AND FIXED DURING THIS ENTRY: the first implementation embedded
+projection bookkeeping (`epistemic_basis`, `record_kind`) while skipping `attrs`
+because it is a Mapping, producing render text like `entity Devon explicit ENT`.
+Those tokens are identical across every node of a kind and dilute the label that
+discriminates. `render_node_text` now descends into `attrs`, skips bookkeeping
+keys explicitly, and de-duplicates case-insensitively, yielding `entity Devon`.
+
+SECOND FAILURE FOUND AND FIXED: the full suite caught a real regression at
+`tests/audit/test_reasoning_retrieval.py::test_boundary_only_vector_move_does_not_reembed`
+(5 embed calls against an allowed 3). Moving a record to a new namespace creates
+new node rows, which were embedded fresh, violating the existing boundary-only
+contract that a metadata move never re-embeds. Fixed by adding
+`reusable_node_vectors`, which looks up an existing vector by content hash before
+embedding. The failing test was NOT modified.
+
+VERIFICATION: full `pytest tests/` run under the T7 offline-model env and a live
+local pgvector DSN: 1,538 tests collected, exit code 0, zero failures, zero skips,
+two established `compile_nl` xfails. Node-vector behavior verified end to end
+against a real ingest: coverage 1.0, second projection embeds 0, and a new memory
+extends coverage without an explicit reindex.
+
+`node_vector_status` returns provider-free deterministic coverage counts
+(vectorizable_nodes, current_vectors, legacy_vectors, pending_nodes, coverage) so
+the self-improvement loop has a free non-gameable signal to ratchet against.
+
+NOT DONE: node vectors are stored but not yet fused into retrieval, so no
+retrieval quality change is claimed by this entry. Real-corpus quality
+qualification and the explicit reindex entry point also remain open.
+
+NEXT: G3 slice 2, fuse node vectors into graph retrieval with rank-normalized
+cross-leg scoring and measure a free deterministic recall A/B before any paid run;
+then real-corpus qualification; then R4 as freshness/trust/provenance-gated
+reasoning retrieval and reuse.
+---END-ENTRY-#491---
+
+---BEGIN-ENTRY-#492---
+id: 492
+date: 2026-07-29T05:39:28Z
+agent: claude
+status: changed
+topics: graph, g3, node-vectors, semantic-seeding, retrieval
+commits: pending
+refs: docs/roadmap/GRAPH_MEMORY_MATURITY.md
+supersedes: 491
+tokens: 926
+---
+BUILT G3 slice 2: semantic node seeding for knowledge-graph queries, shipped
+DEFAULT-OFF pending measurement.
+
+Slice 1 (#491) stored node vectors but nothing read them. This slice makes them
+readable and wires them into graph seeding, closing the structural gap that
+`query_graph` seeded only by lexical match (`knowledge_node_terms` token/normalized
+overlap plus a `like` over id/label/properties_json). A node whose label shares no
+tokens with the query could never be seeded, so the graph could never traverse
+from it. That is the paraphrase failure expressed in graph form.
+
+Files changed:
+- `seam_runtime/knowledge_graph.py`: added `_cosine` (local, so the module stays
+  provider-free) and `search_node_vectors`, which filters ns/scope and
+  render_version in SQL BEFORE scoring and sorts by (-score, node_id) for a
+  deterministic tiebreak. Added a `semantic_seed_ids` parameter to `query_graph`;
+  semantic seeds are validated against the same boundary, kind, and time clauses
+  as lexical seeds, bypassing only the lexical clause, and are merged in
+  similarity order under the existing `limit` guard.
+- `seam_runtime/storage.py`: exposed `search_node_vectors` and threaded
+  `semantic_seed_ids` through `SQLiteStore.knowledge_graph`.
+- `seam_runtime/runtime.py`: added `SeamRuntime.knowledge_graph`, which embeds the
+  query and supplies ranked seed ids, plus `_semantic_seed_env` for knob parsing.
+- `tests/audit/test_graph_node_vectors.py`: 9 new tests (21 total in file).
+
+DEFAULT-OFF, and why: measured on the shipped lexical embedder, the query "who
+cannot eat prawns or crab" scored the CI-pipeline node 0.1336 ABOVE the correct
+shellfish node at 0.1066. Both are noise-level. With a permissive floor every node
+clears the bar and becomes a seed, so semantic seeding on a weak embedder injects
+noise seeds and can cost precision rather than buy recall. The lever is therefore
+gated behind `SEAM_GRAPH_SEMANTIC_SEEDS` (count, default 0) and
+`SEAM_GRAPH_SEMANTIC_MIN_SCORE` (float, default 0.0), so an A/B measures the lever
+instead of the default.
+
+Verified behavior on a real ingest: default off returns byte-identical node counts
+to the lexical path; `SEAM_GRAPH_SEMANTIC_SEEDS=20` turns a query that reaches 0
+nodes lexically into 13 reachable nodes; a 0.9 floor filters all noise seeds back
+to 0; a malformed knob logs and falls back to the default without failing the
+query. A seeding failure degrades to lexical-only, because a semantic seed is an
+additional way in and never a precondition.
+
+FAILURE FOUND AND FIXED DURING THIS ENTRY: the first legacy-render-version test
+used the probe "morning schedule", which shares no tokens with the target node.
+On the lexical default embedder that scores 0.0 and is correctly dropped by the
+`score <= min_score` floor, so the test's own precondition never held. Fixed the
+fixture to use an overlapping probe. The behavior under test was correct
+throughout; only the fixture was wrong.
+
+VERIFICATION: full `pytest tests/` under the T7 offline-model env and a live local
+pgvector DSN. See the recorded result in this entry's status line.
+
+NOT DONE: no retrieval quality change is claimed. The lever is off by default and
+unmeasured. The free deterministic recall A/B (semantic seeds on vs off, same
+corpus and queries) has NOT been run, and no paid benchmark has been run or
+requested. Cross-leg rank-normalized fusion of the semantic leg into
+`reciprocal-rank-fusion/2` is not implemented; this slice seeds the graph, it does
+not yet score a separate leg.
+
+NEXT: run the free deterministic recall A/B with semantic seeds on vs off, on a
+real semantic embedder as well as the lexical default, because the lexical default
+cannot demonstrate the lever's ceiling. If the free gate shows signal, fuse the
+semantic leg into rank-normalized cross-leg scoring and qualify on a real corpus
+before proposing any paid benchmark run. R4 remains open and unstarted.
+---END-ENTRY-#492---
+
+---BEGIN-ENTRY-#493---
+id: 493
+date: 2026-07-29T06:21:50Z
+agent: claude
+status: changed
+topics: extraction, derived-facts, benchmarks, ollama
+commits: pending
+refs: docs/kb/seam-internals/derived-facts-grounded-clm.md
+supersedes: none
+tokens: 956
+---
+FIXED a silent extractor parse failure that made any fencing model yield zero
+facts, and RE-MEASURED the extractor-speed blocker recorded in the derived-facts
+KB.
+
+THE BUG: `OllamaExtractor._generate` did `json.loads(payload["response"])`
+directly. Ollama's `format` schema constrains the JSON *shape*, not whether a
+model wraps its reply in a ```json markdown fence. `gemma4:cloud` fences, so
+`json.loads` raised, the non-strict path in `extract` swallowed it, and the
+caller received an empty `Extraction`. Measured effect: `gemma4:cloud` scored
+**0.0 items/turn** — indistinguishable from a model that cannot extract, when in
+fact it had the best output in the set.
+
+Files changed:
+- `seam_runtime/nl_extract.py`: added `_JSON_FENCE` and `_decode_model_json`,
+  and routed `_generate` through it. Unwrapping is presentation-level and grants
+  NO trust: every span still passes `ground_extraction`, so a fenced reply is
+  held to exactly the same never-fabricate contract as a bare one. Non-JSON and
+  fenced-non-JSON both still raise rather than becoming a salvage path.
+- `tests/fidelity/test_nl_extract.py`: 5 new tests covering bare JSON, labelled
+  fence, unlabelled fence, rejection of non-JSON, and proof that a fenced reply
+  with fabricated spans is still filtered by the grounding gate.
+- `docs/kb/seam-internals/derived-facts-grounded-clm.md`: replaced the stale
+  "extractor speed is the blocker" item with the re-measurement below.
+
+RE-MEASUREMENT: the KB recorded `qwen2.5:14b` at ~138 s/turn as the blocker to
+the free coverage preflight, taken when it was the only installed model. Four
+models are now installed plus cloud access. Median s/turn and average items/turn
+over four short synthetic turns:
+
+  qwen2.5:3b        2.4s  yield 2.2   ~3.9h / 5,900 turns
+  qwen2.5-7b-1m     3.0s  yield 3.2   ~4.9h
+  gemma2:9b         7.4s  yield 2.2   ~12.1h
+  gemma4:cloud      7.7s  yield 3.8   ~12.6h   (0.0 before this fix)
+  qwen2.5:14b      17.6s  yield 3.0   ~28.9h
+
+`gemma4:cloud` has the highest yield and is the only model tested that separates
+5W1H facets correctly (`when: "last spring"` instead of burying it inside the
+object). `qwen2.5-7b-1m` is the speed/yield compromise.
+
+EXPLICIT CAVEAT RECORDED IN THE KB: these numbers are a FLOOR, not an estimate.
+The probe used four short synthetic sentences, not real LoCoMo turns, which are
+longer and multi-speaker; extraction cost scales with input length. The 8x gap
+between measured 14b (17.6s) and the recorded 138s is too large to be explained
+by model choice alone, so the blocker is NOT declared cleared. Re-measure on
+sampled real corpus turns before planning any preflight run.
+
+VERIFICATION: full `pytest tests/` under the T7 offline-model env and a live
+local pgvector DSN, exit 0, zero failures, zero skips, two established
+`compile_nl` xfails.
+
+NOT DONE: no preflight, no coverage/precision run, and no paid run were executed
+or requested. The free coverage/precision preflight runner named as gate item 2
+in the KB still does not exist. No benchmark number changed and none is claimed.
+
+NEXT: re-measure extraction cost on turns sampled from the real LoCoMo corpus to
+decide whether the preflight is an overnight run; then build the free
+coverage/precision preflight runner over the stored #429 miss set, reporting
+per-turn fact yield, grounding precision, and how many evidence-absent misses
+gain a SEAM-FACT/1 that surfaces the gold. Paid microgate only after that gate
+passes.
+---END-ENTRY-#493---
+
+---BEGIN-ENTRY-#494---
+id: 494
+date: 2026-07-29T08:07:06Z
+agent: codex
+status: done
+topics: graph, retrieval, rank, provenance, verify, benchmark, memory, agent, test, handoff
+commits: pending
+refs: seam_runtime/reasoning_patterns.py, seam_runtime/reasoning_graph.py, seam_runtime/retrieval_orchestrator/adapters.py, seam_runtime/retrieval_orchestrator/orchestrator.py, seam_runtime/self_improve.py, tools/h2/improvement_loop.py, tools/graph_real_corpus_qualification.py, docs/REASONING_GRAPH.md, docs/roadmap/GRAPH_MEMORY_MATURITY.md, docs/handoffs/2026-07-29-g3-r4-self-improving-graphs.md
+supersedes: 492
+tokens: 1860
+---
+COMPLETED the requested G3 hybrid knowledge-graph search and R4 reasoning
+retrieval milestones as two real, bounded self-improvement loops.
+
+G3 now exposes the versioned entity/value/agent/symbol node-vector projection
+as a distinct `graph_node` leg in `reciprocal-rank-fusion/2`. Node hits resolve
+to exact in-boundary MIRL source records, keep their own append-only R2 latency,
+respect the selected current/history/point-in-time graph view, and may seed
+traversal only when the backing record passes every active retrieval filter.
+The separate leg makes node-vector contribution auditable instead of hiding it
+inside traversal.
+
+The knowledge loop is closed through the existing H2 governance substrate.
+Only graph-aware scorers expose bounded graph semantic-seed and score-floor
+candidate levers. Candidate selection measures fixed development probes with
+per-motif no-regression, then requires strict aggregate, category, integrity,
+trust, temporal, provenance, and disjoint holdout evidence. Passing proposals
+remain pending until explicit operator approval; `auto_approve` cannot bypass
+the gate. Applied retrieval flags now feed `SeamRuntime.knowledge_graph`, so an
+approved policy changes subsequent SDK, CLI, MCP, REST, and internal graph
+queries. Existing apply-state and revert behavior complete the
+measure/propose/approve/apply/observe/revert chain. The repository default stays
+off: qualification evidence does not silently promote policy.
+
+The pinned real-corpus gate validates the LoCoMo manifest SHA-256, builds graph
+motif probes from selected real sessions, uses deterministic stratified
+development/holdout splits, and checks full versioned node-vector coverage plus
+explicit fusion traces. With cached `BAAI/bge-small-en-v1.5`, the bounded
+selector chose 4 graph semantic seeds. Development aggregate recall moved from
+0.7435897436 to 0.9230769231 (+0.1794871795); disjoint holdout moved from
+0.7222222222 to 0.8888888889 (+0.1666666667). Candidates with 8, 16, and 32
+seeds were excluded because at least one holdout/development motif regressed.
+Node-vector coverage and `graph_node` trace rate were both 1.0 with zero
+provider calls. The 2,048-node/2,047-edge synthetic qualification also passed
+all five fixed query shapes; worst sampled p95 was 76.64 ms against the
+5,000 ms bound.
+
+R4 adds an append-only `reasoning-pattern/1` plane. Finalizing a verified
+accepted outcome attempts a non-fatal distillation of public structure only:
+node kinds, controlled operations, edge relations, and verification check
+kinds. Summaries, conclusions, raw tool output, provider payloads, and hidden
+chain-of-thought are never copied. Pattern retrieval is same namespace/scope
+only and gates on task/operation compatibility, freshness, observed trust, a
+still-accepted source outcome, current passed non-superseded verifications,
+current knowledge references, and exact MIRL evidence fingerprints. Use is
+explicit. A later verified accepted outcome records successful reuse;
+rejection records failure. Those immutable result rows strengthen or weaken
+future trust/ranking. Feedback is run-owned, cross-run feedback is rejected,
+stale provenance fails closed, and no pattern or conclusion promotes itself
+into MIRL.
+
+Distribution and safety repairs found during review are part of the completed
+slice: the compiled self-host source allow-list includes
+`reasoning_patterns.py`; `graph_node` latency migrates and round-trips; graph
+qualification restores temporary runtime flags even on failure; CLI graph
+cycles refuse mixed non-graph scorers and missing required holdout motifs; and
+the public SDK routes knowledge queries through applied runtime policy.
+
+VERIFICATION:
+
+- `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN" .venv/bin/python -m pytest tests/ -q`
+  completed at 100%, exit 0: 1,565 tests collected, zero skips, two established
+  `compile_nl` xfails.
+- All staged Python files passed Ruff; affected modules passed compileall;
+  `git diff --check` and targeted collect-only/import checks passed.
+- Synthetic and pinned LoCoMo/BGE G3 qualification commands both exited 0 with
+  the measurements above.
+- Three completed CodeRabbit review cycles returned 16 findings. Valid findings
+  were fixed and regression-tested. A fourth post-fix cycle was blocked by the
+  free-plan 40-minute rate limit, so no claim of a final clean remote review is
+  made.
+- Repository-wide Ruff is not claimed: it descends into preserved unrelated
+  untracked `.ua` trash files and also reports two untouched pgvector-test
+  import blocks. Changed-file Ruff is clean.
+
+UNCHANGED BOUNDARIES: RAW/MIRL remains canonical truth; no paid benchmark or
+provider call ran; no retrieval policy was silently approved or applied; public
+`seam-client` and opaque `/v1` boundaries remain separate; unrelated untracked
+`.ua`, `dist`, and report-image files were left untouched.
+
+NEXT: push `feat/self-improving-graphs`, open a draft PR, and merge only after
+the protected required checks pass. G4-G7 knowledge products/scale and R5-R6
+reviewed promotion/qualification remain separate future stages; they are not
+included in this G3/R4 completion claim.
+---END-ENTRY-#494---
+
+---BEGIN-ENTRY-#495---
+id: 495
+date: 2026-07-29T09:34:17Z
+agent: codex
+status: done
+topics: graph, reasoning, provenance, storage, mirl, audit, verify, test, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-29-g4-r5-graph-products-reviewed-promotion.md,seam_runtime/graph_products.py,seam_runtime/reasoning_promotion.py,seam_runtime/storage.py,seam_runtime/runtime.py,seam_runtime/sdk.py
+supersedes: 494
+tokens: 832
+---
+COMPLETED the G4 graph-products and R5 reviewed-promotion milestones as two
+bounded, evidence-first additions over the completed G3/R4 foundations.
+
+G4 adds the append-only `graph-products/1` derived plane. Explicit rebuilds
+produce versioned entity summaries, connected-community summaries, and
+multi-episode observations from current trust-gated knowledge-graph facts.
+Only same-namespace/scope facts admitted by the existing assertion gate may
+contribute text. Every sentence retains exact supporting MIRL record and active
+episode IDs. Untrusted, inactive, missing-provenance, and cross-boundary inputs
+fail closed. Identical source fingerprints reuse the prior complete build;
+changed or empty eligible inputs append a new immutable snapshot, and earlier
+versions remain readable. Store, runtime, and the local Python SDK expose
+bounded rebuild, latest-read, and history operations. The products remain
+derived and rebuildable; they are not canonical truth and do not claim G5
+context assembly.
+
+R5 adds an append-only reviewed bridge from one verified accepted reasoning
+outcome to one proposed MIRL CLM. A proposal binds its same-run outcome,
+current passed verification IDs, current scoped knowledge references, exact
+MIRL evidence fingerprints, and one bounded assertion payload. Human and
+policy reviews are separate immutable records and approval alone never inserts
+truth. A distinct Store/SDK application rechecks review state and every
+provenance binding inside the same transaction that persists the exact reviewed
+CLM and records its application fingerprint. Nothing auto-applies. Reversal
+requires the exact applied assertion fingerprint still to exist, then appends
+both immutable reversal audit and a canonical MIRL `supersedes` relation. It
+never deletes or rewrites the assertion, reasoning outcome, reviews, or
+evidence. Cross-boundary, stale, changed, unverified, already-applied, and
+already-reversed proposals fail closed; raw logs, provider payloads, commands,
+free-form maps, and hidden reasoning are absent from the proposal surface.
+
+The compiled self-host explicit source allow-list and its audit ratchet include
+both new runtime modules. Public `seam-client` and opaque `/v1` boundaries are
+unchanged.
+
+VERIFICATION:
+
+- Required collect-only over the three new audit modules plus the self-host
+  audit collected 27/27.
+- Direct G4/R5, self-host, reasoning-graph, and reasoning-pattern execution
+  passed 39/39. Expanded affected execution including reasoning retrieval and
+  the knowledge graph passed 98/98. Both runs had zero skips, xfails, failures,
+  or errors.
+- File-backed G4/R5 smokes passed rebuild, stale-fact removal, exact sentence
+  provenance, separate review, explicit application, additive reversal, and
+  database reopen.
+- `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN" .venv/bin/python -m pytest tests/ -q`
+  against the configured live service exited 0 after 270.01 seconds: 1,577
+  collected, 1,575 passed, two established `compile_nl` xfails, zero skipped,
+  and zero failed.
+- Every changed Python file passed Ruff and compileall; `git diff --check`
+  passed. Bounded candidate scans found no provider session URL, API key,
+  private key, or credential-bearing DSN.
+- Canonical history/index/stream/cross-index rebuild, snapshot, integrity,
+  routing, handoff, continuity, and stream verification completed successfully.
+
+UNCHANGED BOUNDARIES: no package, provider call, paid benchmark, deployment,
+commit, push, PR, or remote state change occurred. Unrelated untracked `.ua/`,
+`dist/`, report images, and `seam_runtime/.ua/` were preserved untouched.
+
+NEXT: commit the coherent candidate, push
+`feat/g4-r5-graph-products-promotion`, open a draft PR, and merge only after
+every required protected check and review passes. G5-G7 and R6 remain separate
+future milestones.
+---END-ENTRY-#495---
+
+---BEGIN-ENTRY-#496---
+id: 496
+date: 2026-07-29T10:37:47Z
+agent: codex
+status: done
+topics: graph, retrieval, pack, storage, persist, retry, benchmark, audit, verify, tests, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2026-07-29-g5-g7-r6-provider-free-qualification.md,seam_runtime/context_assembly.py,seam_runtime/lifecycle.py,seam_runtime/qualification.py,benchmarks/graph_reasoning_qualification.py
+supersedes: 495
+tokens: 934
+---
+COMPLETED G5 deterministic context assembly, G6 lifecycle/scale, R6 cross-agent
+qualification, and G7 through the provider-free boundary requested by the
+operator. Matched provider-paid execution was intentionally not authorized.
+
+G5 adds storage-agnostic `context-assembly/1` and Store/Runtime/SDK integration.
+Facts, canonical entities, active episodes, entity/community summaries, and
+multi-episode observations are packed under one task, trust, time, namespace,
+scope, and exact token budget. Every selected item retains record and episode
+backtraces; derived sentences retain their product ID. Unknown trust, stale
+time, malformed provenance, cross-boundary input, and conflicting duplicate IDs
+fail closed. Whole-item truncation and ordering are deterministic, and a
+dedicated grounded-fact reservation prevents G4 products from consuming the
+reserved primary-evidence capacity.
+
+G6 adds append-only `lifecycle/2` operation and event ledgers. Exact scoped
+delete plans require exact tenant authorization and validate every record before
+marking canonical MIRL `deleted_soft`; content remains auditable while
+disposable knowledge-graph, vector, and projection rows are removed. Cross-store
+cleanup uses a committed `cleanup_pending` outbox, so external failure is
+recoverable and caller-owned transactions refuse external mutation. Legacy and
+orchestrated retrieval exclude lifecycle-inactive records before graph seeding,
+adaptive page filling prevents tombstones from consuming live top-K, and G5
+revalidates every G4 support before packing. Idempotency-keyed batch ingest
+stores exact item progress, resumes after an interrupted/reopened run, and
+returns the same operation after completion. Concurrent same-key planning
+produces one operation. Store, Runtime, and SDK expose authorized
+plan/apply/read/recover boundaries. Batch text is never copied into the
+append-only audit payload: it is held only in a tenant-authorized transient
+resume table, bound to the audit by digest, and purged when the batch applies.
+
+R6 adds versioned cross-agent envelopes that pin agent, operation, tenant,
+namespace, scope, manifest, attempt, exact record IDs, and integer latency.
+Concurrent execution has bounded retry, deterministic response ordering, exact
+boundary echo validation, and explicit recovered/failed counts. G7 freezes
+native SEAM, event-only, matched Mem0, and matched Zep into separate lanes.
+External lanes may contain only `NOT_RUN` or `BLOCKED`, zero provider calls,
+null scores, blockers, and exact commands retaining `--allow-paid`; embedded
+credential options and borrowed score claims fail closed.
+
+The real provider-free native micro-suite ran three isolated tenant namespaces
+through ingest, G4 rebuild, G5 assembly, event-only retrieval, concurrent reads,
+and one interrupted-read recovery. After review exposed a budget confound, the
+corrected run gave both lanes the same 2,000-token context budget and two-record
+result cap: native and event-only usefulness were both 1.0, with zero
+graph-incremental evidence IDs. Three concurrent requests completed, one
+recovered, none failed, and provider call count was zero. This is a valid parity
+result and does not establish incremental graph value or authorize competitive
+publication. Direct LoCoMo comparator, decomposer, answerer, and real-judge
+execution now fails closed without `--allow-paid`; dry-run and stub-only paths
+remain free.
+
+VERIFICATION:
+
+- The 12-module affected retrieval, graph, lifecycle, self-host, pgvector, paid-
+  gate, and qualification slice collected 106/106 and passed 106/106 after
+  review fixes.
+- `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN" PYTHONPATH=. .venv/bin/pytest`
+  against the already-configured live service exited 0 after 512.61 seconds:
+  2,061 collected, 2,059 passed, two established `compile_nl` xfailed, three
+  subtests passed, zero skipped, zero failed.
+- The provider-free native qualification command completed with zero provider
+  calls and retained null matched scoreboards.
+- Changed-file Ruff, compileall, `git diff --check`, candidate secret/private-
+  session scans, and the scoped LoCoMo paid-gate regression passed.
+- CodeRabbit's adversarial uncommitted review findings were verified and fixed:
+  stub cross-judge classification, quickstart paid-flag propagation, UTC context
+  timestamps, lifecycle write retry wrapping and transaction bootstrap, terminal
+  batch-progress refusal, tenant/namespace ownership, unique event identity,
+  recoverable-operation ordering, recall-preserving inactive-hit overfetch,
+  pre-expansion deleted graph seeds, and explicit qualification-lane validation.
+  A later independent split-mind audit found and verified fixes for cross-tenant
+  lifecycle access, distinct-key collisions, stale G4/G5 support, external-vector
+  cleanup atomicity/recovery, deep tombstone crowding, foreign-ID scoring,
+  decomposer paid-gate coverage, and the native/event-only budget confound. The
+  final exact-staged CodeRabbit pass then drove transient batch-text separation,
+  read-only-only adapter retry, linearized context packing, bounded candidate
+  SQL, terminal batch refusal, and rank-preserving result truncation. Its
+  exhaustive-history-ref and PROJECT_STATUS-supersedes requests were rejected as
+  incompatible with the repository's concise refs and append-only status format.
+  The post-fix exact-staged CodeRabbit pass reviewed all 41 changed files and
+  returned zero findings.
+
+UNCHANGED BOUNDARIES: RAW/MIRL remains canonical truth; reasoning remains
+non-canonical except through explicit R5 review/application; public
+`seam-client` and opaque `/v1` remain separate. No provider call, paid benchmark,
+package publication, deployment, or DigitalOcean mutation occurred. Unrelated
+untracked `.ua/`, `dist/`, report images, and `seam_runtime/.ua/` were preserved.
+
+PAID STOP: Mem0 needs provider-backed extraction plus the shared answerer/judge.
+Zep additionally needs live-service credentials and completed asynchronous
+graph processing. Their frozen commands are in the current handoff; do not run
+them without explicit spend approval.
+
+NEXT: commit and push `feat/g5-g7-r6-qualification`, open a protected PR, resolve
+review/CI, and merge only when every relevant check is green. After explicit
+paid approval, execute the two matched lanes without combining their scoreboards
+with the provider-free native result.
+---END-ENTRY-#496---
+
+---BEGIN-ENTRY-#497---
+id: 497
+date: 2026-07-29T15:08:37Z
+agent: codex
+status: done
+topics: handoff, status, graph, reasoning, benchmark, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-g5-g7-r6-provider-free-qualification.md,docs/handoffs/2026-07-29-wandr-provider-free-replay-next.md,PR#185,PR#186
+supersedes: 496
+tokens: 478
+---
+CLOSED the completed graph round into a canonical tracked successor after
+verifying live `main` and `origin/main` at the squash merge of PR #186. PR #185
+merged G4/R5 at `6225937`; PR #186 merged G5-G7/R6 at `6d2c15b`.
+
+The successor records the exact completed boundary. Knowledge stages G1-G7 and
+reasoning stages R1-R6 are structurally implemented through provider-free
+qualification. The knowledge graph remains a projection of canonical RAW/MIRL.
+The reasoning graph stores controlled public justification structure and
+content-free `reasoning-pattern/1` recipes, not hidden chain-of-thought,
+provider payloads, raw model internals, or conclusions. R5 remains the only
+bridge into MIRL and still requires a separate proposal, review, and explicit
+application.
+
+The G7 claim remains deliberately bounded. The corrected matched-budget native
+and event-only micro-suite scored 1.0 versus 1.0 with zero graph-incremental
+evidence hits and zero provider calls. This proves parity and recovery under
+the frozen provider-free fixture, not incremental graph lift. Matched Mem0/Zep
+scoreboards remain null and paid-gated.
+
+The next implementation route is a non-official zero-network WANDR replay
+adapter over the smoke workload plus one representative hierarchy task. It must
+use a fixed hash-pinned corpus, deterministic IDs, isolated namespaces/scopes,
+matched native/event-only budgets, exact graph-incremental attribution,
+entity/provenance/dedup/PACK/recovery checks, and provider/network/cost counters
+fixed at zero. WANDR's official networked fetch/evaluation path and every paid
+provider lane remain out of scope without new explicit approval.
+
+UNCHANGED BOUNDARIES: no runtime, package, public SDK, opaque `/v1`, provider,
+benchmark execution, deployment, or DigitalOcean state changed. Unrelated
+untracked `.ua/`, `dist/`, report images, and `seam_runtime/.ua/` were
+preserved.
+
+NEXT: merge this handoff-only PR after all protected checks pass, then resume
+from `docs/handoffs/2026-07-29-wandr-provider-free-replay-next.md` and implement
+the provider-free replay adapter without running paid providers.
+---END-ENTRY-#497---
+
+---BEGIN-ENTRY-#498---
+id: 498
+date: 2026-07-29T20:57:28Z
+agent: codex
+status: done
+topics: retrieval, graph, benchmark, reasoning, bugfix, provenance, test, verify, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-semantic-retrieval-and-promotion-gate.md,benchmarks/external/mem0_harness/seam_mem0_server.py,seam_runtime/sdk.py,tests/audit/test_reasoning_retrieval.py,tests/audit/test_seam_mem0_server.py
+supersedes: 497
+tokens: 964
+---
+RECOVERED the interrupted free semantic-retrieval and longitudinal-promotion
+qualification and completed the requested four-part landing without provider
+calls or paid scoring.
+
+FIXED two independently verified retrieval defects. The explicit default-off
+Mem0 facade graph search now passes `semantic_graph_seeding=True`; without that
+argument its `mode="graph"` plan omitted the already-qualified `graph_node`
+semantic leg. `SeamSDK.start_reasoning()` now defaults to `local.default`,
+matching `SeamSDK.ingest()`. The former `local.reasoning` default silently
+filtered the obvious ingest-then-retrieve flow to an empty namespace on the
+only surface that records reasoning-retrieval evidence. Direct regression tests
+pin both behaviors. The facade's graph policies remain default-off, and the
+opaque public `/v1` route remains on legacy `search_ir`.
+
+POSITIVE FREE RETRIEVAL GATE: the local provenance-matched LoCoMo/BGE
+qualification used all ten conversations, 5,882 turns, and 1,977 scored
+questions with provider keys blanked and Hugging Face offline. `mode="graph"`
+moved r@1/5/10/20 from 0.196/0.349/0.427/0.509 with the semantic leg off to
+0.301/0.490/0.568/0.656 with it on: +0.105/+0.141/+0.141/+0.146.
+`mode="mix"` moved 0.317/0.499/0.572/0.682 to
+0.338/0.576/0.667/0.748: +0.021/+0.076/+0.095/+0.065. Every category
+moved positively at full scale. A `hybrid` negative control, which has no graph
+leg, moved by at most one hit out of 1,977. This is a provider-free retrieval
+qualification, not a judged answer-score or competitive claim.
+
+HONEST PROMOTION-CONTENT GATE: a fixed one-conversation, 419-turn corpus split
+196 scored questions into deterministic 98-question TRAIN and HELD cohorts.
+The probe drove observe, verify, propose, review, and apply through the SDK and
+applied 99/99 cross-turn bridge promotions. TRAIN strict deltas at r@1/5/10/20
+were -0.0306/-0.0102/-0.0204/+0.0102; TRAIN provenance-closure deltas were
++0.0102/-0.0102/-0.0102/+0.0102. HELD strict deltas were
+-0.0204/+0.0102/-0.0102/+0.0000; HELD closure deltas were
++0.0000/+0.0102/-0.0102/+0.0000. Every change was only zero to three
+questions. The bridges reached rank one and retained correct provenance, so
+the mechanics work, but their content only concatenated two retrieved claim
+objects rather than inferring a new fact. They substituted for source evidence
+without adding reach. This null result must not be combined with the positive
+semantic-leg result, and it does not demonstrate self-improving retrieval
+quality.
+
+VERIFICATION: the two affected audit files collected and passed 70/70.
+The strict full `tests/` scope with live pgvector collected 1,628 tests:
+1,626 passed, the two established `compile_nl` cases xfailed, and zero skipped
+or failed. Changed-file Ruff, `py_compile`, `git diff --check`, latest-snapshot
+loading, and canonical history closeout gates passed. No provider call, paid
+benchmark, install, download, package publication, deployment, or DigitalOcean
+mutation occurred. Unrelated `.ua/`, `seam_runtime/.ua/`, `dist/`, report PNGs,
+and other worktrees were preserved.
+
+REMAINING BOUNDARY: CLI, MCP, REST, and `/v1` do not yet drive the full
+reasoning observation/proposal/application loop; only the SDK records the
+required reasoning-retrieval evidence. The longitudinal scratch probe is not a
+checked-in reusable benchmark, and concatenated bridges are not genuine
+inferences.
+
+NEXT: land this bounded branch through a protected PR. Then build a checked-in
+zero-provider longitudinal qualification that derives genuinely new assertions
+only from retrieved evidence, scores strict and leak-free provenance closure,
+and scales beyond one conversation. Preserve the zero-network WANDR replay as
+the next independent breadth qualification rather than treating it as
+learning-loop lift.
+---END-ENTRY-#498---
+
+---BEGIN-ENTRY-#499---
+id: 499
+date: 2026-07-30T00:34:40Z
+agent: claude
+status: done
+topics: retrieval, graph, reasoning, promotion, benchmark, sdk, verify
+commits: pending
+refs: seam_runtime/sdk.py,benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_mem0_server.py,tests/audit/test_reasoning_retrieval.py,docs/handoffs/2026-07-29-semantic-retrieval-and-promotion-gate.md
+supersedes: 498
+tokens: 1291
+---
+Qualified the graph-node semantic retrieval leg for free on the real LoCoMo
+corpus, landed two coupled correctness fixes, and closed an honest negative
+gate on reasoning-promotion CONTENT.
+
+FILES CHANGED
+- `benchmarks/external/mem0_harness/seam_mem0_server.py`: `_search_graph_raw`
+  now passes `semantic_graph_seeding=True`.
+- `seam_runtime/sdk.py`: `SeamSDK.start_reasoning` default `ns` changed
+  `local.reasoning` -> `local.default`, plus a docstring recording why.
+- `tests/audit/test_seam_mem0_server.py`,
+  `tests/audit/test_reasoning_retrieval.py`: regression coverage authored by
+  the concurrent codex agent pinning both fixes. Committed together because
+  the tests are meaningless without the code and vice versa.
+
+MEASURED (free, local, zero provider calls, zero spend; bge-small-en-v1.5,
+10 LoCoMo conversations, 5882 turns, n=1977 scored questions per arm)
+
+Lever `semantic_graph_seeding`, recall@k of gold turns by provenance match:
+- `mode=graph`  OFF 0.196/0.349/0.427/0.509 -> ON 0.301/0.490/0.568/0.656
+  (r@1/5/10/20), delta +0.105/+0.141/+0.141/+0.146, all five categories positive.
+- `mode=mix`    OFF 0.317/0.499/0.572/0.682 -> ON 0.338/0.576/0.667/0.748.
+- `mode=hybrid` NEGATIVE CONTROL: legs are [sql, vector] with no graph leg, so
+  the lever must do nothing. Measured -1/+1/+1/0 hits out of 1977. Harness
+  noise floor ~0.0005; real deltas are 150-290x that.
+- Best configuration overall is `mix` + lever ON at every k.
+
+Embedder, same harness, lever held constant: hash -> bge-small-en-v1.5 is
+r@5 0.301 -> 0.510 at n=196. Larger than the lever. bge-small is MIT and
+already present in the local HF cache.
+
+CORRECTION CARRIED IN THIS ENTRY
+An earlier claim in this session -- that the LoCoMo benchmark executes
+`mode="graph"` with the lever off and that the kwarg is worth +0.141 on the
+default benchmark path -- is WRONG and is retracted here. Both call sites of
+`_search_graph_raw` sit behind independently default-off policies:
+`_apply_graph_context_policy` returns early on `GRAPH_CONTEXT_OFF` and the
+multi-scope path returns early on `MULTI_SCOPE_OFF`, both the defaults. In
+default configuration that graph search never runs, so this fix changes
+default benchmark numbers by exactly zero. The +0.141 is real for the graph
+path when a policy enables it. The reachability was not traced before the
+claim was made.
+
+NEGATIVE RESULT: promotion CONTENT buys nothing (yet)
+The reasoning-promotion mechanism is complete and works: 99/99 promotions
+applied cleanly through retrieve -> add_node -> verify -> finalize_verified
+-> propose -> review -> eligibility -> apply, materialising a canonical MIRL
+record plus `project_node_vectors()`, which is what the `graph_node` leg reads
+via `search_node_vectors`. Two promotion-content designs were measured on a
+FIXED corpus (ingest once, never grow, so any delta is the loop and not more
+data), TRAIN/HELD split, promotions built only from retrieved records and
+never from gold:
+- verbatim CLM copy: HELD r@5 -0.0204.
+- cross-turn concatenated bridge, scored under both strict gold-id matching
+  and provenance-closure matching: HELD strict r@5 +0.0102, closure +0.0102.
+At n=98 per cohort one question is 0.0102, so every delta is inside noise.
+Neither design improved retrieval. Strict r@1 fell while closure r@1 held,
+which shows bridge records DO rank at position 1 and DO carry gold evidence --
+they substitute for gold turns rather than adding reach. The mechanism is
+proven; the content is not.
+
+OBSERVED, NOT YET FIXED
+`record_reasoning_retrieval` is called only from `seam_runtime/sdk.py`.
+`mcp.py`, `cli.py`, `server.py` and `public_api.py` contain zero references to
+reasoning retrieval, verification or promotion. Traffic through those surfaces
+benefits from applied promotions but contributes no evidence, so no proposal
+can ever originate from it. Application is deliberately manual
+(`runtime.py:545`, "never auto-applied") and no automated proposer or applier
+exists in `tools/`; the only related tool is `tools/h2/improvement_review.py`.
+
+VERIFICATION
+Full `python -m pytest tests/` with Docker `seam-pgvector` healthy on
+127.0.0.1:55432 and `PGVECTOR_TEST_DSN` exported from local `.env`:
+1628 tests collected, zero failures, zero skips, 2 xfailed. The four
+previously `PGVECTOR_TEST_DSN`-gated pgvector tests executed rather than
+skipping, so the strict-no-skip gate reported no offenders. Suite was re-run
+after the codex test additions landed so the new tests were exercised.
+
+UNRESOLVED NEXT STEP
+The promotion-content gate is inconclusive rather than settled: n=98 per
+cohort cannot distinguish "no effect" from "effect below the noise floor".
+Next is the same experiment at 10 conversations (~1000 questions per cohort,
+10x lower noise floor) and a promotion whose assertion is an actual inference
+rather than a string join, which needs a local model (Ollama is present and
+free). No paid run was made and none is required.
+---END-ENTRY-#499---
+
+---BEGIN-ENTRY-#500---
+id: 500
+date: 2026-07-30T12:36:38Z
+agent: codex
+status: changed
+topics: history, audit, classification, verify
+commits: pending
+refs: AGENTS.md,HISTORY.md,HISTORY_INDEX.md
+supersedes: 499
+tokens: 100
+---
+CORRECTION TO HISTORY#499 METADATA ONLY
+
+HISTORY#499 used the uncontrolled topic labels `promotion` and `sdk`.
+Interpret its topic scope under the approved vocabulary as `reasoning`,
+`graph`, `retrieval`, `benchmark`, `history`, and `audit`.
+
+This correction does not change HISTORY#499's substantive measurements,
+retraction, implementation or test claims, verification boundary, or unresolved
+next step. No runtime behavior changed and no provider call was made.
+---END-ENTRY-#500---

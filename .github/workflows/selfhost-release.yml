@@ -1,0 +1,100 @@
+name: Self-host wheel release
+
+# Publishes the compiled BUSL-1.1 `seam-self-host` wheel to PyPI.
+#
+# The wheel is built by the same digest-pinned Docker/Nuitka pipeline used
+# locally, so CI publishes exactly what the boundary gate proved: no
+# `seam_runtime` Python source, BUSL metadata, and the reserved-identifier
+# ratchet held. There is no upload path that bypasses that gate.
+#
+# Runs on the self-hosted box because the build needs Docker and BuildKit.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact seam-self-host version already set in selfhost_pkg/pyproject.toml
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: [self-hosted, seam-box]
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify requested version
+        id: version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          python3 - <<'PY'
+          import os, tomllib
+          from pathlib import Path
+
+          project = tomllib.loads(
+              Path("selfhost_pkg/pyproject.toml").read_text(encoding="utf-8")
+          )["project"]
+          actual = project["version"]
+          requested = os.environ["REQUESTED_VERSION"]
+          if actual != requested:
+              raise SystemExit(
+                  f"requested version {requested!r} does not match {actual!r}"
+              )
+          if project["name"] != "seam-self-host":
+              raise SystemExit(f"unexpected distribution name {project['name']!r}")
+          if project["license"] != "BUSL-1.1":
+              raise SystemExit(f"unexpected license {project['license']!r}")
+          Path(os.environ["GITHUB_OUTPUT"]).open("a").write(f"version={actual}\n")
+          print(f"publishing seam-self-host {actual}")
+          PY
+
+      - name: Build and prove the wheel
+        run: |
+          rm -rf "${RUNNER_TEMP}/selfhost-dist"
+          mkdir -p "${RUNNER_TEMP}/selfhost-dist"
+          python3 -m tools.release.build_selfhost_wheel \
+            --outdir "${RUNNER_TEMP}/selfhost-dist"
+
+      - name: Re-run the boundary gate on the emitted artifact
+        run: |
+          python3 -m tools.release.verify_selfhost_wheel \
+            "${RUNNER_TEMP}"/selfhost-dist/*.whl
+
+      - name: Confirm exactly one wheel and no sdist
+        run: |
+          count=$(find "${RUNNER_TEMP}/selfhost-dist" -maxdepth 1 -name '*.whl' | wc -l)
+          test "$count" -eq 1
+          test -z "$(find "${RUNNER_TEMP}/selfhost-dist" -maxdepth 1 -name '*.tar.gz')"
+          ls -l "${RUNNER_TEMP}/selfhost-dist"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seam-self-host-${{ steps.version.outputs.version }}
+          path: ${{ runner.temp }}/selfhost-dist/*.whl
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/seam-self-host/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download the gated wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: seam-self-host-${{ needs.build.outputs.version }}
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

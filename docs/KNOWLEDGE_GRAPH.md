@@ -196,8 +196,13 @@ rendered relationships without discarding provenance.
 The free H2 cycle can generate deterministic probes from the live graph across
 seven motif families: 5W1H+Then completeness, multi-hop paths, causal/temporal
 chains, trust/evidence state, provenance, and related graph structure. Candidate
-retrieval policies still run through the real H2 scoring/proposal store and
-apply-state path; this is not a disconnected demo loop.
+retrieval policies include bounded semantic graph-node seed counts and score
+floors. They run through the real H2 scoring/proposal store, disjoint holdout
+gates, operator approval, applied-state, and revert path; this is not a
+disconnected demo loop. `SeamRuntime.knowledge_graph` consumes the applied
+state, so an approved policy changes subsequent SDK, CLI, MCP, REST, and
+internal graph searches. Environment overrides remain explicit operator-owned
+precedence.
 
 Promotion is fail-closed. Aggregate, category, integrity, trust, temporal,
 provenance, and holdout gate families are all required, with nonblank evidence
@@ -215,18 +220,33 @@ shown in the dashboard, including typed predicates and current-state filtering.
 Graph hits still resolve back to MIRL records for ranking, packing, and complete
 RAW/provenance backtraces.
 
-The G3a slice can explicitly seed the graph leg from in-boundary semantic
-fact/episode MIRL hits and traverse the current graph for 0-3 hops. A semantic
+G3 can explicitly seed graph traversal from both in-boundary semantic
+fact/episode MIRL hits and versioned graph-node vectors for entities, values,
+agents, and symbols. Graph-node hits enter `reciprocal-rank-fusion/2` as the
+explicit `graph_node` leg and retain exact MIRL source-record resolution, rather
+than acting as invisible traversal hints. A semantic
 seed receives graph credit only when an actual current edge connects it. The SDK
 opts into that behavior for `ReasoningSession.retrieve`; existing orchestrator
 callers retain the default-off semantic-seeding behavior. Ranking is
-deterministic and its current sum/max-per-leg overlap policy is fingerprinted in
-each R2 decision. This is not the full G3 claim: entity-class vectors,
-calibrated cross-leg scoring, historical paths, exact path/episode return, and
-scale qualification remain. Native vector top-K now prefilters namespace and
-scope; existing pgvector indexes from before the scope column require an
-explicit resync because canonical SQLite cannot backfill the external table.
-Boundary-only resync updates metadata without calling the embedding model again.
+deterministic. The versioned `reciprocal-rank-fusion/2` policy ranks within
+each leg, maps rank to `1 / (60 + rank)`, sums those comparable contributions,
+and fingerprints the contract in each new R2 decision; raw leg scores remain
+visible in the live trace instead of being compared across incompatible score
+domains. Exact historical paths and episode backtraces are returned for
+hop-positive graph hits. A provider-free 2,048-node/2,047-edge fixture now
+gates filter, 1-hop, 3-hop, historical, and semantic-seeded mixed query shapes
+for expected evidence, exact path length, boundary isolation, deterministic
+ranking, cross-leg evidence, and latency. A second provider-free gate verifies
+the pinned LoCoMo corpus hash, complete versioned node-vector coverage, explicit
+`graph_node` fusion traces, bounded candidate selection, and disjoint
+development/holdout motif recall. With cached
+`BAAI/bge-small-en-v1.5`, 4 seeds improved development recall by 0.1795 and
+holdout by 0.1667; larger 8/16/32 candidates were refused when a motif
+regressed. Native vector top-K prefilters namespace and scope; existing
+pgvector indexes from before the scope column require an explicit resync
+because canonical SQLite cannot backfill the external table.
+Boundary-only resync updates metadata without calling the embedding model
+again.
 
 The default-off graph-to-source-RAW lane seeds only from
 `knowledge_node_terms`. Its agreement score is a deterministic maximum

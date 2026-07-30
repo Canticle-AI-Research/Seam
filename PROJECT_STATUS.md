@@ -1,5 +1,311 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#498 - RECOVERED the interrupted free
+semantic-retrieval and longitudinal-promotion qualification. The ten-
+conversation, 5,882-turn, 1,977-question LoCoMo/BGE gate measured the
+`graph_node` leg at graph-mode r@5 0.349 -> 0.490 (+0.141) and mix-mode r@5
+0.499 -> 0.576 (+0.076), with every category positive and a no-graph negative
+control moving by at most one hit. The explicit default-off Mem0 facade graph
+search now enables that measured leg, and `SeamSDK.start_reasoning()` now
+defaults to the same `local.default` namespace as `ingest()`. A separate
+one-conversation longitudinal gate applied 99/99 cross-turn bridge promotions
+but moved only zero to three questions under strict and provenance-closure
+scoring; the records were retrievable and correctly provenanced but merely
+concatenated existing claims, so no learning-loop quality gain is claimed.
+Strict verification: 70/70 focused; full live-pgvector `tests/` scope 1,626
+passed, two established xfailed, zero skipped/failed. Public `/v1` remains on
+legacy `search_ir`, shipped-surface observation/apply remains unproductized,
+and no provider or paid benchmark ran. NEXT: land the bounded fixes through a
+protected PR, then build a checked-in zero-provider longitudinal gate around
+genuinely derived assertions; WANDR remains a separate breadth qualification.)
+
+Current update: 2026-07-29 (HISTORY#497 - CLOSED the G1-G7/R1-R6
+provider-free graph round after protected PR #185 merged G4/R5 at `6225937`
+and protected PR #186 merged G5-G7/R6 at `6d2c15b`. Both graph planes are
+structurally implemented through the provider-free qualification boundary.
+The reasoning graph stores reusable public structure, not hidden
+chain-of-thought or conclusions, and R5 still requires separate review plus
+explicit application before anything becomes MIRL knowledge. The corrected G7
+native/event-only ablation remains an honest parity result: usefulness 1.0
+versus 1.0, zero graph-incremental evidence hits, and zero provider calls. It
+does not demonstrate incremental graph lift. NEXT: build a non-official,
+zero-network WANDR replay adapter over smoke plus one representative hierarchy
+task with a fixed corpus, deterministic IDs, isolated boundaries, matched
+native/event-only budgets, exact graph attribution, recovery checks, and
+provider/network/cost counters fixed at zero. Do not run WANDR's official
+networked/paid path or any matched paid provider lane without new explicit
+approval. Branch `agent/wandr-replay-handoff`; protected handoff PR closeout is
+next.)
+
+Current update: 2026-07-29 (HISTORY#496 - COMPLETED G5 deterministic context
+assembly, G6 lifecycle/scale, R6 cross-agent qualification, and G7 through the
+provider-free/paid boundary. G5 packs canonical facts, entities, episodes, and
+G4 products with exact backtraces, fail-closed trust/time/boundary gates,
+deterministic token accounting, and grounded-fact non-displacement. G6 adds
+append-only lifecycle audit, exact tenant-scoped soft deletion, stale-support
+exclusion, recoverable external-vector cleanup, idempotent batch ingest,
+digest-bound transient resume payloads, checkpoints, reopen recovery, and
+concurrent planning across Store/Runtime/SDK.
+R6/G7 freeze
+native, event-only, matched Mem0, and matched Zep lanes; provider-backed lanes
+remain null-score `NOT_RUN`/`BLOCKED` plans behind explicit `--allow-paid`.
+The corrected matched-budget three-tenant micro-suite recorded native and
+event-only usefulness parity at 1.0, zero graph-incremental evidence hits,
+three concurrent completions, one recovered interruption, zero failures, and
+zero provider calls. This completes the provider-free qualification run but
+does not demonstrate incremental graph value. Strict live-pgvector full suite:
+2,061 collected, 2,059 passed, two
+established `compile_nl` xfailed, zero skipped, zero failed. Matched paid runs
+were not authorized or executed. Branch `feat/g5-g7-r6-qualification`;
+protected PR/CI closeout is next.)
+
+Current update: 2026-07-29 (HISTORY#495 - COMPLETED the G4 graph-products and
+R5 reviewed-promotion milestones without publishing or changing remote state.
+G4 adds an append-only, rebuildable derived plane for entity summaries,
+connected-community summaries, and multi-episode observations. Only current,
+assertable same-boundary graph facts contribute text; every sentence retains
+exact supporting MIRL record and active episode IDs; identical rebuilds reuse
+the prior snapshot while changed or emptied inputs append a new immutable
+version. R5 adds append-only proposals from verified accepted outcomes,
+separate human/policy reviews, exact verification/knowledge/MIRL-fingerprint
+rechecks, and an explicit application transaction that persists the reviewed
+CLM and its audit fingerprint atomically. Nothing auto-applies. Reversal
+requires the exact applied assertion still to exist and appends both immutable
+reversal audit and a MIRL `supersedes` relation without deleting prior truth or
+reasoning evidence. Required collect-only passed 27/27; focused affected
+execution passed 39/39 and expanded affected execution passed 98/98 with no
+skips, xfails, failures, or errors. The strict live-pgvector full suite
+collected 1,577: 1,575 passed, two established `compile_nl` xfailed, zero
+skipped, zero failed, exit 0 in 270.01 seconds. Changed-file Ruff, compileall,
+`git diff --check`, candidate secret/provider-session scans, and canonical
+integrity/routing/handoff/continuity/stream gates passed. Branch
+`feat/g4-r5-graph-products-promotion` remains uncommitted and unpushed.
+G5-G7 context/lifecycle/qualification and R6 qualification remain open.)
+
+Current update: 2026-07-29 (HISTORY#494 - COMPLETED the requested G3 and R4
+milestones as genuine evidence-driven improvement loops. G3 now exposes
+versioned entity/value/agent/symbol node vectors as an explicit `graph_node`
+source in `reciprocal-rank-fusion/2`, retains exact scoped MIRL backing records
+and separate latency, and refuses traversal seeds whose backing record fails an
+active filter. Graph-aware probes alone can propose bounded semantic seed/score
+policy; strict development/category/integrity/trust/temporal/provenance/disjoint
+holdout gates, explicit H2 approval, applied runtime state, later observation,
+and revert form the closed loop. Pinned LoCoMo with cached
+`BAAI/bge-small-en-v1.5` selected 4 seeds: development recall
+0.7436 -> 0.9231 and holdout 0.7222 -> 0.8889; 8/16/32 were rejected for motif
+regression. R4 now distills verified accepted runs into content-free structural
+`reasoning-pattern/1` recipes, retrieves them only through same-boundary,
+task/operation, freshness, trust, current-verification, knowledge, and exact
+MIRL-fingerprint gates, and updates future ranking from explicit use plus
+verified success/failure. It stores no conclusions, raw tool/provider output, or
+hidden chain-of-thought and never promotes itself into MIRL. Full strict suite:
+1,565 collected, exit 0, zero skips, two established `compile_nl` xfails.
+Synthetic G3 and pinned real-corpus qualifications passed; changed-file Ruff,
+compileall, diff, and continuity checks passed. Branch
+`feat/self-improving-graphs`; protected PR/CI closeout is next. G4-G7 and R5-R6
+remain later stages, not part of this completion claim.)
+
+Current update: 2026-07-29 (HISTORY#492 - BUILT G3 slice 2, semantic node
+seeding for knowledge-graph queries, shipped DEFAULT-OFF pending measurement.
+`query_graph` previously seeded only by lexical token/`like` match, so a node
+whose label shared no tokens with the query could never be seeded and the graph
+could never traverse from it. `search_node_vectors` now ranks nodes by cosine
+with ns/scope and render_version filtered in SQL before scoring, and
+`SeamRuntime.knowledge_graph` supplies ranked seed ids while keeping the graph
+layer provider-free. Gated behind `SEAM_GRAPH_SEMANTIC_SEEDS` (default 0) and
+`SEAM_GRAPH_SEMANTIC_MIN_SCORE`, because on the lexical default embedder the
+wrong node outranked the right one at noise-level scores, and a permissive floor
+would make every node a seed. Verified: default off matches the lexical path
+exactly, seeds on turns a 0-node query into 13 reachable nodes, a 0.9 floor
+filters back to 0, a malformed knob falls back without failing, and a seeding
+failure degrades to lexical-only. Full suite 1,547 tests, exit 0, zero failures,
+zero skips, two established `compile_nl` xfails. NOT DONE: no retrieval quality
+change is claimed; the lever is off and unmeasured, the free deterministic recall
+A/B has NOT been run, and the semantic leg is not yet fused into
+`reciprocal-rank-fusion/2`. NEXT: run the free recall A/B with seeds on vs off on
+BOTH the lexical default and a real semantic embedder, since the lexical default
+cannot show the lever's ceiling; then cross-leg fusion and real-corpus
+qualification before proposing any paid run. R4 remains open and unstarted.)
+
+Current update: 2026-07-29 (HISTORY#491 - BUILT G3 slice 1, the versioned
+derived graph-node vector projection. Graph nodes previously carried lexical
+terms but no semantic vectors; entity/value/agent/symbol nodes now project
+under the new `graph-node-vector-text/1` render contract into a
+`knowledge_node_vectors` table, embedded automatically at the end of
+`persist_ir`. Legacy render versions fail closed, `source_hash` excludes
+ns/scope so a boundary-only move reuses the stored vector instead of
+re-embedding, and a derived-projection failure leaves nodes pending rather than
+rolling back a good ingest. `node_vector_status` exposes provider-free coverage
+counts as a free non-gameable signal for the improvement loop. Full suite: 1,538
+tests, exit 0, zero failures, zero skips, two established `compile_nl` xfails.
+Packaging work is deliberately set aside; the split is inert and reversible, and
+the full unprotected runtime remains the canonical development target. NOT DONE:
+node vectors are stored but not yet fused into retrieval, so no retrieval
+quality change is claimed. NEXT: G3 slice 2, fuse node vectors into graph
+retrieval with rank-normalized cross-leg scoring and a free deterministic recall
+A/B before any paid run; then real-corpus qualification; then R4 as
+freshness/trust/provenance-gated reasoning retrieval and reuse.)
+
+Current update: 2026-07-29 (HISTORY#490 - RELEASED and independently
+live-verified both package channels after protected PR #180 merged at
+`01f35817810f1490c88e9f832d92c8f1aab3944d`. Private hosted
+`seam-runtime` 2.4.0 is live at GitHub release `v2.4.0`; its downloaded
+wheel/sdist SHA-256 values are
+`cb71fc3e15d103ef63e5c15d9325c2b24645b61d6b42548dcfda4b64fe2f3d21` /
+`c47fb91433db0b01a579679bc8cf2850e51f33e20d89f71bce601416bab6988f`.
+Compiled `seam-self-host` 1.1.2 is live on PyPI with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+Fresh released-artifact installs passed exact metadata and boundary gates,
+dependency checks, SQLite and live-pgvector health/remember/recall/context
+through `seam-client==2.0.0`, self-host no-argument MCP/XDG storage, and
+upgrades from PyPI 1.0.0 and 1.1.0. DigitalOcean remains untouched. NEXT:
+resume G3 with the versioned derived graph-node vector projection and start R4
+as independently provenance-gated reasoning retrieval/reuse.)
+
+Current update: 2026-07-29 (HISTORY#489 - MARKED the final package-stability
+candidate ready for protected PR CI. The post-fix CodeRabbit pass found no new
+runtime defect: its only code request would chmod or reject every
+operator-selected existing database parent, which would break normal
+`seam.db` use while adding no content protection beyond the proven 0600
+database/WAL/SHM modes. Its other two findings target intentionally bounded,
+derived cross-index display rows inherited from canonical roadmap/history
+streams; `verify_streams` passes and the archive was not hand-edited. The exact
+post-review source then passed the canonical full suite against live pgvector
+with zero skips and only the two established xfails, plus Ruff, diff, secret,
+artifact, installed-client, legacy-upgrade, and continuity gates. Final artifact
+identities remain private 2.4.0 wheel/sdist SHA-256
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2` /
+`91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`
+and compiled self-host 1.1.2 SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`.
+No package was published and DigitalOcean remains untouched. NEXT: push,
+merge after every relevant check is green, publish and live-verify both
+packages, then resume G3 and R4.)
+
+Current update: 2026-07-29 (HISTORY#488 - HARDENED the qualified package
+candidates after a terminal seven-finding CodeRabbit pass. Three code findings
+were valid and fixed: blank optional v1 session IDs again preserve the
+versioned compatibility behavior of meaning "absent"; oversized `agent_id`
+values receive the documented 128-character error; and pgvector readiness now
+establishes the actual extension, table, indexes, and required permissions
+instead of proving only `select 1`. A permissive-umask regression proves SQLite
+WAL/SHM sidecars inherit the main database's 0600 mode; no unsafe chmod of an
+operator-selected existing parent was added. The remaining history findings
+were false positives: the canonical closeout necessarily records
+`commits: pending` before its own commit exists, and HISTORY#487 already uses
+only controlled topics including `graph` and `handoff`. Post-review artifacts
+were rebuilt and re-proved. Private 2.4.0 wheel/sdist SHA-256 values are
+`366467f560c857ac2ad2b896f5ba786fa850d1a873e404aa651af0138ecf01f2`
+and `91848cf869588e5b15198e35cbb5f7ef167b4c24ed1739547ce92d107371fe29`;
+compiled self-host 1.1.2 is 3,623,685 bytes with SHA-256
+`36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362`
+and the unchanged 414/414 ratchet. Clean SQLite/live-pgvector installs and both
+legacy upgrades pass on those exact artifacts. Nothing was published and
+DigitalOcean remains untouched. NEXT: obtain the post-fix clean review, push
+through protected PR checks, publish and live-verify both packages, then resume
+G3 graph-node vectors and R4 provenance-gated reasoning reuse.)
+
+Current update: 2026-07-29 (HISTORY#487 - QUALIFIED the two stable package
+candidates needed before returning to graph work: compiled `seam-self-host`
+1.1.2 for customer-operated nodes, and private `seam-runtime` 2.4.0 as the
+hosted `/v1` server package for future subscribers. This supersedes
+HISTORY#486's startup claim: published self-host 1.1.0 included the pgvector
+driver but did not prove connectivity before serving, and it still exposed
+several late request-time failures. Both candidates now fail fast on invalid
+provider/profile/vector configuration, back readiness with live storage,
+return bounded opaque errors, reject non-string public inputs, honor explicit
+CLI and database-path precedence, support no-argument MCP through XDG storage,
+and create SQLite state with private POSIX permissions. The final 1.1.2 wheel
+is 3,624,744 bytes with SHA-256
+`dbf89a68f26af7bae09c9d93fc17b5275238f7de9e39d13d527564314d4a6ac1`;
+it contains only the compiled runtime payload and holds the unchanged 414/414
+reserved-content ratchet. Final installed-artifact proofs passed for both
+packages with SQLite and live pgvector through released `seam-client` 2.0.0;
+real upgrades from PyPI self-host 1.0.0 and 1.1.0 replaced the legacy payload
+cleanly. The canonical full suite exited green with zero skips and the two
+established xfails. No package was published and no DigitalOcean resource was
+changed by this entry. NEXT: merge the qualified candidate, publish and
+clean-install-verify both packages, then resume G3 at graph-node vector
+projection and R4 at provenance-gated reasoning reuse.)
+
+Current update: 2026-07-28 (HISTORY#486 - SHIPPED `seam-self-host` 1.1.0 with
+pgvector baked in, startup-validated configuration, and a complete environment
+variable reference in the PyPI README. `psycopg` is now a distribution
+dependency, so `SEAM_PGVECTOR_DSN` works instead of returning 500 on first
+write; the ratchet is unmoved at 414/414 because psycopg is a pip dependency,
+not compiled SEAM code. The embedding default stays SEAM's own built-in
+embedder, an operator decision keeping the free self-host local-first with no
+third-party account; an external API is opt-in and refused at startup without
+its key. Both changes are scoped to the self-host entrypoint, never the library
+default, because `derived_fact_context` requires hash/local embeddings and an
+unset DSN for the grounded-clm/1 contract. README documents 64 of 78 variables
+individually with the `SEAM_JSPACE_*` family named as a group, plus an explicit
+note that the `SEAM_API_ALLOW_*` names cannot weaken the `/v1` bearer-token
+requirement. Wheel 3,583,540 bytes, gate PASS, no `seam_runtime` source, full
+suite green with zero skips.)
+
+Current update: 2026-07-28 (HISTORY#484 - RENAMED the compiled self-host
+distribution to `seam-self-host` 1.0.0 and PUBLISHED `seam-client` 2.0.0 to
+PyPI. The self-host package, build tooling, tests, and SOP were renamed with
+`git mv` (`selfhost_pkg/`, `build_selfhost_wheel.py`,
+`verify_selfhost_wheel.py`, `test_selfhost_wheel.py`), the console entry point
+is now `seam-self-host`, and `seam-mcp` is unchanged. Append-only records keep
+the old name deliberately. The artifact was rebuilt and re-proved rather than
+assumed inert: `seam_self_host-1.0.0-cp312-cp312-manylinux_2_28_x86_64.whl`,
+3,575,299 bytes, gate PASS at the unchanged 414-occurrence baseline, with `/v1`,
+a 3-tool opaque MCP surface scanning 0 reserved identifiers, and the unentitled
+BUSL path all proved in a clean container. `seam-client` 2.0.0 is LIVE on PyPI
+via Trusted Publishing with attestations and no stored token, verified by clean
+isolated install. Full suite 1,491 tests, zero failures, zero skips, two
+established `compile_nl` xfails. `seam-self-host` remains UNPUBLISHED: PyPI
+needs a pending publisher created in its web UI before a new project name's
+first upload, and no release workflow covers the wheel yet. The compiled image
+is unpushed and the hosted `/v1` endpoint undeployed.)
+
+Current update: 2026-07-28 (HISTORY#483 - BUILT the additional BUSL
+`seam-node` 2.4.0 wheel channel with an opaque MCP surface, without publishing
+it. The digest-pinned Docker pipeline produces one CPython 3.12
+`manylinux_2_28_x86_64` wheel, refuses a non-empty output directory, stages an
+explicit source allow-list, preserves 18 load-bearing exclusions and the
+required lazy imports, and runs `auditwheel`, `twine`, the node boundary gate,
+and a clean-container runtime proof before returning the artifact. Restoring
+the INTERNAL MCP registry was measured and REJECTED: its tool descriptions
+raised reserved-identifier exposure by 19 occurrences across six markers, and
+because `tools/list` serves that metadata verbatim, it would have disclosed the
+architecture to every connecting client. New `seam_runtime/selfhost_mcp.py` is
+the MCP counterpart to the opaque `/v1` surface: `seam_remember`, `seam_recall`,
+and `seam_context` dispatching through the same audited `public_api`
+operations, reaching nothing HTTP does not already reach. The real
+3,575,210-byte wheel (sha256 38e4b929bf95da90c...) contains no `seam_runtime`
+`.py`/`.pyc`/`.pyo` and measures 414 of 414 reserved-identifier occurrences,
+every marker exactly at budget with none raised. Health, unauthenticated 401,
+remember, recall, context, MCP `initialize`, and a 3-tool `tools/list` with a
+zero reserved-identifier scan all passed in a clean container, and the node
+runs unentitled under BUSL-1.1 per HISTORY#482. Full suite 1,491 tests, zero
+failures, zero skips, two established `compile_nl` xfails. No PyPI upload,
+registry push, workflow dispatch, provider call, or paid model call occurred.)
+
+Current update: 2026-07-27 (HISTORY#471 - BUILT the first proprietary compiled
+self-host MIRL edition for Linux/amd64 without disturbing the dirty
+`fix/public-shim-2.3.1` checkout or publishing an artifact. The local-only
+Nuitka/BuildKit path emits a 60,202,804-byte distroless image with only the
+opaque four-route `/v1` contract, an offline Ed25519 entitlement that must have
+a bounded expiry, bearer-token data access, uid 65532, a read-only root,
+loopback-only Compose publication, no capabilities, and no-new-privileges.
+The exported archive passed source/secret/runtime/platform scanning, all 16
+unique ELF dependencies resolved, and the stripped executable contained no
+defined symbols or embedded SEAM/MIRL specification filenames; module
+filenames and generic build-path metadata remain discoverable and are not
+misrepresented as protected. Real `seam-client` 0.1.0 remember/recall/context
+calls and persistence across restart passed. The strict non-external audit
+suite passed all 1,313 selected tests with 23 external tests deselected, and
+the post-platform-gate focused slice passed 13 tests. A malicious customer
+host administrator remains outside this standard edition's protection claim;
+host-resistant confidentiality is a separate attested confidential-computing
+tier. NEXT: operator/legal review, then an explicitly approved private-registry
+release with SBOM, provenance, digest signing, and per-customer access. No
+image push, package publication, provider call, or paid model call occurred.)
+
 Current update: 2026-07-24 (HISTORY#470 - RELEASED the separately authored Apache-2.0 `seam-client` 0.1.0 SDK on PyPI after merging the licensing boundary PR #163, opaque private API PR #164, and public SDK PR #1. Public workflow run 30107050434 passed exact-version verification, wheel/sdist build, `twine check`, the artifact allow-list, protected-environment deployment, PyPI Trusted Publishing/OIDC upload, and digital attestations without a stored token. Live PyPI metadata reports only the public `seam-client` wheel/sdist and Apache-2.0; a clean isolated network install imported all four SDK entry points. Private `seam-runtime` 2.3.0 remains proprietary and blocked from PyPI; hosted endpoint access remains separately provisioned.)
 
 Current update: 2026-07-24 (HISTORY#469 - BUILT the split public agent SDK
@@ -681,7 +987,8 @@ SEAM is operating as a local machine-first memory runtime with:
 ## Current Resume Point
 
 - `main` is the source-of-truth branch. After pulling, verify local `HEAD` equals `origin/main` before starting new work.
-- Latest continuity event is `HISTORY#451`, the verification-scope correction to substantive HISTORY#450; resume through `docs/handoffs/INDEX.md` → `docs/handoffs/2026-07-21-non-displacing-pack-aux-raw-gate.md`. The N=3 artifact-only gate proves a complete non-displacing PACK can gain one miss and one sentinel reference with zero losses, but both gains are auxiliary RAW episodes and direct derived-fact lift is zero. **Next:** build a RAW-only primary retrieval lane isolated from derived/graph ranking, add a separate query-conditioned source-RAW auxiliary lane (graph `source_record_id` bridges plus multi-node/path agreement), then feed at most three novel RAW episodes into a lane-neutral non-displacing PACK. Reproduce the 130-case ratchet and predeclare a fresh provider-free held-out scope before promotion. No live fact policy, cloud ingest, paid judge, or score claim is authorized by this result. HISTORY#447's intra-run fast-before-advisory ordering is verified on the merged workflows; global single-runner contention and the advisory quickstart timing guard remain separate CI concerns.
+- Latest continuity event is `HISTORY#476`. **Both public editions now exist and the two-edition split is real.** (1) The **compiled self-host** landed on `main` via PR #169 (`4e877f7`): `selfhost/Dockerfile` Nuitka-compiles the runtime and *fails the build* if any `.py`/`.pyc`/`.pyo` survives, so no MIRL source ships in the image; execution is gated by an Ed25519-signed entitlement (`seam_runtime/selfhost_entitlement.py`) verified against a public key baked into the image; runs non-root as uid 65532. Licensed BUSL-1.1, whose grant names the Licensed Work as the SEAM Distributed Runtime **version 2.4.0 or later**. (2) The **API-only client** is `seam-runtime` 2.3.1 — ships zero MIRL, requires `SEAM_API_TOKEN`, and can no longer load MIRL even when the files sit on the same disk (the prior shim's `__import__("seam_runtime.mirl")` bypass is removed; empty `__path__` + meta-path blocker + a boundary scanner that catches dynamic imports and private-module strings). **Next:** version the node to 2.4.0 to match the BUSL grant (`pyproject.toml` is still 2.3.1 with `license = "LicenseRef-SEAM-Proprietary AND Apache-2.0"` and a `Private :: Do Not Upload` classifier, and declares no author metadata), and give the node distribution a BUSL-aware manifest/scanner — `public_manifest.py` still reserves all of `seam_runtime/` with only the two thin-shim paths carved out, so a node artifact is still rejected for the pypi target by design. Per-file BUSL notices remain unapplied. Nothing is published; PyPI upload stays operator-gated. Note the licensing contact **does** now exist (`licensing@canticle.cc` in `LICENSES/BUSL-1.1.txt` and `COMMERCIAL_LICENSE.md`); HISTORY#471/#472's claim that none exists is stale.
+- Prior continuity event is `HISTORY#451`, the verification-scope correction to substantive HISTORY#450; resume through `docs/handoffs/INDEX.md` → `docs/handoffs/2026-07-21-non-displacing-pack-aux-raw-gate.md`. The N=3 artifact-only gate proves a complete non-displacing PACK can gain one miss and one sentinel reference with zero losses, but both gains are auxiliary RAW episodes and direct derived-fact lift is zero. **Next:** build a RAW-only primary retrieval lane isolated from derived/graph ranking, add a separate query-conditioned source-RAW auxiliary lane (graph `source_record_id` bridges plus multi-node/path agreement), then feed at most three novel RAW episodes into a lane-neutral non-displacing PACK. Reproduce the 130-case ratchet and predeclare a fresh provider-free held-out scope before promotion. No live fact policy, cloud ingest, paid judge, or score claim is authorized by this result. HISTORY#447's intra-run fast-before-advisory ordering is verified on the merged workflows; global single-runner contention and the advisory quickstart timing guard remain separate CI concerns.
 - Prior continuity handoff is `HISTORY#373` — **PR 2 hardened with reproducibility + spend provenance and a fail-closed `--max-cost-usd` guard, then merged as PR #136.** `tools/h2/rejudge_record.py` stamps dry-run and paid outputs with code/input/provider provenance, records actual per-case and aggregate usage/cost, requires `--max-cost-usd` with `--confirm-paid`, and refuses/aborts calls fail-closed against the approved projection. The verified private dry-run estimate remains **$0.007422** for 82 cases. HISTORY#374 fixes the only actionable review finding posted after the merge.
 - Prior continuity handoff is `HISTORY#372` — **PR 2 of the cat1/cat3→0.80 program: judge correctness + a replay harness, built and dry-run validated, NO paid spend yet.** `judge.py` gains `JUDGE_PROMPT_V2` (fixes alias/abbreviation and subset-phrase under-scoring, stops penalizing non-contradicting extra detail, separates groundedness from the verdict); `judge/1` stays byte-identical default. A real regression (9 pre-existing tests broken by the new `prompt_version` attribute on `object.__new__`-bypassed judge instances) was caught and fixed via `getattr` defaulting.
 - Prior continuity handoff is `HISTORY#371` — **PR 1 of the cat1/cat3→0.80 program: measurement integrity only.** A conservative, version-pinned evidence classifier (`scoring.evidence_status`, `run_record.classify_failure_conservative`, `evidence/1`) now records alongside the untouched v1 `context_recall`/`failure_class`; it stops mislabeling correct "unknown" refusals as answerer failures (drops date/number/yes-no generic tokens; isolates cat3 open-domain; requires multi-token gold to co-occur in one turn so scattered words → uncertain). No answer/score behavior change, zero paid spend. Replaying the real 82-case baseline yields ZERO clean `answerer_miss` (v1 had 33): 35 correct + 14 open-domain + 3 retrieval-miss + 30 uncertain, with the only 5 strong `present` cases all answered correctly — the "answerer-bound" story rested substantially on classifier false confidence. Merged as PR #135.

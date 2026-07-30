@@ -21,6 +21,9 @@ class VectorAdapter(Protocol):
     def index_records(self, records: list[MIRLRecord]) -> None:
         ...
 
+    def delete_records(self, record_ids: list[str]) -> None:
+        ...
+
     def search(
         self,
         query: str,
@@ -72,6 +75,9 @@ class SQLiteVectorAdapter:
     def index_records(self, records: list[MIRLRecord]) -> None:
         self.index.index_records(records)
 
+    def delete_records(self, record_ids: list[str]) -> None:
+        self.index.delete_records(record_ids)
+
     def search(
         self,
         query: str,
@@ -105,6 +111,10 @@ class PgVectorAdapter:
         except ImportError as exc:
             raise RuntimeError("psycopg is required for PgVectorAdapter") from exc
         return psycopg.connect(self.dsn)
+
+    def check_ready(self) -> None:
+        """Raise unless the vector extension, schema, and required access work."""
+        self.ensure_schema()
 
     def ensure_schema(self) -> None:
         _validate_table_name(self.table_name)
@@ -327,6 +337,22 @@ class PgVectorAdapter:
                             record.updated_at,
                         ),
                     )
+            connection.commit()
+
+    def delete_records(self, record_ids: list[str]) -> None:
+        """Remove every embedding copy for the deleted canonical records."""
+
+        _validate_table_name(self.table_name)
+        ids = tuple(sorted({str(record_id).strip() for record_id in record_ids}))
+        if not ids or any(not record_id for record_id in ids):
+            raise ValueError("record_ids must contain non-empty references")
+        self.ensure_schema()
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f"delete from {self.table_name} where record_id = any(%s)",
+                    (list(ids),),
+                )
             connection.commit()
 
     def search(

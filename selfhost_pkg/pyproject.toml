@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seam-self-host"
+version = "1.1.2"
+description = "Compiled self-hosted SEAM agent-memory node"
+readme = "README.md"
+license = "BUSL-1.1"
+license-files = ["LICENSES/BUSL-1.1.txt"]
+requires-python = "==3.12.*"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["ai", "agents", "memory", "self-hosted"]
+dependencies = [
+    "rich>=14.2,<16",
+    "tiktoken>=0.8.0,<1.0",
+    "fastapi>=0.100,<1.0",
+    "uvicorn[standard]>=0.23,<1.0",
+    "python-multipart>=0.0.6,<1.0",
+    "cryptography>=45,<50",
+    "psycopg[binary]>=3.1,<4",
+]
+
+[project.urls]
+Homepage = "https://github.com/BlackhatShiftey/Seam"
+Documentation = "https://github.com/BlackhatShiftey/Seam/blob/main/docs/SELF_HOST_SECURITY.md"
+Issues = "https://github.com/BlackhatShiftey/Seam/issues"
+
+[project.scripts]
+seam-self-host = "seam_runtime.selfhost:main"
+seam-mcp = "seam_runtime.selfhost_mcp:main"
+
+[tool.setuptools]
+packages = []

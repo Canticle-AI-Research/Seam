@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from collections.abc import Callable
 from pathlib import Path
 
 from .agent_memory import (
@@ -15,11 +16,14 @@ from .agent_memory import (
     stable_document_id,
 )
 from .benchmarks import diff_benchmark_runs, evaluate_benchmark_gate, run_benchmark_suite, verify_benchmark_bundle
+from .context_assembly import ContextCandidate, ContextPack, assemble_context
 from .dsl import compile_dsl
 from .evals import run_retrieval_benchmark
+from .lifecycle import BatchIngestItem
 from .mirl import (
     Artifact,
     IRBatch,
+    MIRLRecord,
     Pack,
     PersistReport,
     ReconcileReport,
@@ -71,7 +75,10 @@ class SeamRuntime:
         elif resolved_dsn:
             self.vector_adapter = PgVectorAdapter(resolved_dsn, self.embedding_model, table_name=resolved_table)
         else:
-            self.vector_adapter = SQLiteVectorAdapter(str(store_path), self.embedding_model)
+            self.vector_adapter = SQLiteVectorAdapter(self.store.path, self.embedding_model)
+        self._derived_delete_hooks: list[
+            Callable[[list[str]], None]
+        ] = []
         # Retrieval flags are resolved once per runtime (defaults < persisted
         # applied-state < env) and cached so scoring stays stable for the life
         # of the process; an `improvement apply` mid-run does not change results
@@ -92,6 +99,35 @@ class SeamRuntime:
         close = getattr(store, "close", None)
         if callable(close):
             close()
+
+    def check_ready(self) -> None:
+        """Raise when either persistence layer cannot serve a trivial read."""
+        self.store.check_ready()
+        vector_check = getattr(self.vector_adapter, "check_ready", None)
+        if callable(vector_check):
+            vector_check()
+
+    def register_derived_delete_hook(
+        self, hook: Callable[[list[str]], None]
+    ) -> None:
+        """Register one configured derived index for lifecycle cleanup."""
+
+        if not callable(hook):
+            raise TypeError("derived delete hook must be callable")
+        if hook not in self._derived_delete_hooks:
+            self._derived_delete_hooks.append(hook)
+
+    def _delete_derived_records(self, record_ids: tuple[str, ...]) -> None:
+        ids = list(record_ids)
+        if not isinstance(self.vector_adapter, SQLiteVectorAdapter):
+            vector_delete = getattr(self.vector_adapter, "delete_records", None)
+            if not callable(vector_delete):
+                raise RuntimeError(
+                    "configured vector adapter cannot delete derived records"
+                )
+            vector_delete(ids)
+        for hook in tuple(self._derived_delete_hooks):
+            hook(ids)
 
     def __enter__(self) -> "SeamRuntime":
         return self
@@ -217,7 +253,378 @@ class SeamRuntime:
                     f"manual recovery may be required for record ids: {touched_preview}"
                 ) from rollback_exc
             raise RuntimeError("Vector indexing failed; rolled back SQLite record write") from exc
+        self.project_node_vectors()
         return persist_report
+
+    @staticmethod
+    def _semantic_seed_env(name: str, *, default: float) -> float:
+        """Read a numeric seeding knob, treating an unusable value as unset.
+
+        A malformed knob must not take a graph query down; falling back to the
+        default keeps retrieval available and leaves the misconfiguration visible
+        in the returned seed count.
+        """
+        raw = str(os.environ.get(name) or "").strip()
+        if not raw:
+            return default
+        try:
+            return float(raw)
+        except ValueError:
+            LOGGER.warning("%s is not numeric (%r); using %s", name, raw, default)
+            return default
+
+    def knowledge_graph(
+        self,
+        *,
+        query: str | None = None,
+        semantic_seeds: int | None = None,
+        min_seed_score: float | None = None,
+        **kwargs: object,
+    ) -> dict[str, object]:
+        """Query the knowledge graph with lexical *and* semantic node seeding.
+
+        Lexical seeding structurally cannot reach a node whose label shares no
+        tokens with the query, which is the paraphrase failure expressed in graph
+        form. Embedding the query here — rather than inside ``knowledge_graph`` —
+        keeps the graph layer provider-free and deterministic under test.
+
+        DEFAULT OFF, pending measurement. On a weak embedder every node scores
+        near-identically, so a permissive floor turns semantic seeding into noise
+        injection that can cost precision instead of buying recall. Enable with
+        ``SEAM_GRAPH_SEMANTIC_SEEDS`` (count) and tune ``SEAM_GRAPH_SEMANTIC_MIN_SCORE``
+        so an A/B measures the lever rather than the default.
+
+        Seeding failures degrade to lexical-only rather than failing the query: a
+        semantic seed is an additional way in, never a precondition.
+        """
+        flags = self._retrieval_flags_cached()
+        if semantic_seeds is None:
+            semantic_seeds = int(flags.graph_semantic_seeds)
+        if min_seed_score is None:
+            min_seed_score = float(flags.graph_semantic_min_score)
+        seed_ids: list[str] = []
+        text = (query or "").strip()
+        if text and semantic_seeds > 0:
+            model = self.embedding_model
+            model_name = getattr(model, "name", "") or model.__class__.__name__
+            try:
+                ranked = self.store.search_node_vectors(
+                    model.embed(text),
+                    model_name,
+                    ns=kwargs.get("namespace"),  # type: ignore[arg-type]
+                    scope=kwargs.get("scope"),  # type: ignore[arg-type]
+                    limit=semantic_seeds,
+                    min_score=min_seed_score,
+                )
+                seed_ids = [node_id for node_id, _ in ranked]
+            except Exception:
+                LOGGER.exception("Semantic node seeding failed; falling back to lexical seeds")
+        return self.store.knowledge_graph(query=query, semantic_seed_ids=seed_ids, **kwargs)
+
+    def rebuild_graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        max_facts: int = 10_000,
+        min_observation_episodes: int = 2,
+        max_sentences_per_product: int = 64,
+    ) -> dict[str, object]:
+        """Derive a new G4 snapshot from current, trust-gated graph facts."""
+
+        return self.store.rebuild_graph_products(
+            namespace=namespace,
+            scope=scope,
+            max_facts=max_facts,
+            min_observation_episodes=min_observation_episodes,
+            max_sentences_per_product=max_sentences_per_product,
+        )
+
+    def graph_products(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        kinds: list[str] | None = None,
+        subject_id: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read the latest complete G4 snapshot for one tenant boundary."""
+
+        return self.store.graph_products(
+            namespace=namespace,
+            scope=scope,
+            kinds=kinds,
+            subject_id=subject_id,
+            limit=limit,
+        )
+
+    def graph_product_history(
+        self,
+        *,
+        namespace: str,
+        scope: str,
+        stable_key: str,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Read immutable content versions for one derived graph product."""
+
+        return self.store.graph_product_history(
+            namespace=namespace,
+            scope=scope,
+            stable_key=stable_key,
+            limit=limit,
+        )
+
+    def assemble_context(
+        self,
+        *,
+        task: str,
+        namespace: str,
+        scope: str,
+        as_of: str,
+        token_budget: int,
+        fact_reserve_tokens: int = 0,
+        max_candidates: int = 10_000,
+        candidates: list[ContextCandidate] | None = None,
+    ) -> ContextPack:
+        """Assemble a deterministic, exact-backtrace G5 context PACK."""
+
+        resolved = (
+            candidates
+            if candidates is not None
+            else self.store.context_candidates(
+                namespace=namespace,
+                scope=scope,
+                max_candidates=max_candidates,
+            )
+        )
+        return assemble_context(
+            resolved,
+            task=task,
+            namespace=namespace,
+            scope=scope,
+            as_of=as_of,
+            token_budget=token_budget,
+            fact_reserve_tokens=fact_reserve_tokens,
+        )
+
+    def plan_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        record_ids: list[str],
+        idempotency_key: str,
+        actor: str,
+    ) -> dict[str, object]:
+        return self.store.plan_scoped_delete(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope=scope,
+            record_ids=record_ids,
+            idempotency_key=idempotency_key,
+            actor=actor,
+        )
+
+    def apply_scoped_delete(
+        self,
+        *,
+        tenant_id: str,
+        operation_id: str,
+        actor: str,
+        interrupt_after_intent: bool = False,
+    ) -> dict[str, object]:
+        return self.store.apply_scoped_delete(
+            tenant_id=tenant_id,
+            operation_id=operation_id,
+            actor=actor,
+            interrupt_after_intent=interrupt_after_intent,
+            delete_derived_records=self._delete_derived_records,
+        )
+
+    def batch_ingest(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        items: list[BatchIngestItem],
+        idempotency_key: str,
+        actor: str,
+        interrupt_after_items: int | None = None,
+    ) -> dict[str, object]:
+        operation = self.store.plan_batch_ingest(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope=scope,
+            items=items,
+            idempotency_key=idempotency_key,
+            actor=actor,
+        )
+        return self._apply_batch_ingest(
+            str(operation["operation_id"]),
+            tenant_id=tenant_id,
+            actor=actor,
+            interrupt_after_items=interrupt_after_items,
+        )
+
+    def resume_lifecycle_operation(
+        self, operation_id: str, *, tenant_id: str, actor: str
+    ) -> dict[str, object]:
+        operation = self.store.lifecycle_operation(
+            tenant_id=tenant_id, operation_id=operation_id
+        )
+        if operation["kind"] == "scoped_delete":
+            return self.apply_scoped_delete(
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+            )
+        if operation["kind"] == "batch_ingest":
+            return self._apply_batch_ingest(
+                operation_id, tenant_id=tenant_id, actor=actor
+            )
+        raise ValueError("unknown lifecycle operation kind")
+
+    def _apply_batch_ingest(
+        self,
+        operation_id: str,
+        *,
+        tenant_id: str,
+        actor: str,
+        interrupt_after_items: int | None = None,
+    ) -> dict[str, object]:
+        operation = self.store.begin_batch_ingest(
+            tenant_id=tenant_id, operation_id=operation_id, actor=actor
+        )
+        if operation["state"] == "applied":
+            return operation
+        completed = set(
+            self.store.completed_batch_indexes(
+                tenant_id=tenant_id, operation_id=operation_id
+            )
+        )
+        applied_this_call = 0
+        items = self.store.lifecycle_batch_items(
+            tenant_id=tenant_id, operation_id=operation_id
+        )
+        for index, item in enumerate(items):
+            if index in completed:
+                continue
+            report = self.ingest_text(
+                item.text,
+                source_ref=item.source_ref,
+                ns=str(operation["namespace"]),
+                scope=str(operation["scope"]),
+                agent_id=actor,
+            )
+            self.store.record_batch_item(
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                item_index=index,
+                stored_ids=report.stored_ids,
+                actor=actor,
+            )
+            applied_this_call += 1
+            if (
+                interrupt_after_items is not None
+                and applied_this_call >= interrupt_after_items
+            ):
+                return self.store.lifecycle_operation(
+                    tenant_id=tenant_id, operation_id=operation_id
+                )
+        return self.store.complete_batch_ingest(
+            tenant_id=tenant_id, operation_id=operation_id, actor=actor
+        )
+
+    def apply_reasoning_promotion(
+        self, *, proposal_id: str, applied_by: str
+    ) -> dict[str, object]:
+        """Explicitly persist one reviewed R5 assertion; never auto-applied."""
+
+        result = self.store.apply_reasoning_promotion(
+            proposal_id=proposal_id, applied_by=applied_by
+        )
+        record = MIRLRecord.from_dict(result["record"])  # type: ignore[arg-type]
+        try:
+            self.vector_adapter.index_records([record])
+            vector_indexed = True
+        except Exception:
+            # Canonical MIRL + application audit committed atomically before
+            # this derived external index. Do not erase reviewed truth merely
+            # because a rebuildable vector backend is temporarily unavailable.
+            LOGGER.exception(
+                "Applied reasoning promotion but vector indexing is pending"
+            )
+            vector_indexed = False
+        self.project_node_vectors()
+        return {**result, "vector_indexed": vector_indexed}
+
+    def reverse_reasoning_promotion(
+        self, *, proposal_id: str, reversed_by: str, reason: str
+    ) -> dict[str, object]:
+        """Audit reversal and append a canonical supersession relation."""
+
+        result = self.store.reverse_reasoning_promotion(
+            proposal_id=proposal_id,
+            reversed_by=reversed_by,
+            reason=reason,
+        )
+        record = MIRLRecord.from_dict(  # type: ignore[arg-type]
+            result["superseding_record"]
+        )
+        try:
+            self.vector_adapter.index_records([record])
+            vector_indexed = True
+        except Exception:
+            LOGGER.exception(
+                "Reversed reasoning promotion but vector indexing is pending"
+            )
+            vector_indexed = False
+        self.project_node_vectors()
+        return {**result, "vector_indexed": vector_indexed}
+
+    def project_node_vectors(self, *, limit: int | None = None) -> dict[str, object]:
+        """Embed graph nodes whose derived vector is missing, stale, or legacy.
+
+        This runs after record indexing rather than inside it because a node
+        vector is a *derived* projection: losing one costs a later recompute, not
+        correctness. So a failure here deliberately does NOT roll back a good
+        ingest. The affected nodes simply stay pending and are picked up by the
+        next ingest or an explicit reindex, which makes the projection
+        self-healing instead of turning a transient embedding error into data loss.
+        """
+        model = self.embedding_model
+        model_name = getattr(model, "name", "") or model.__class__.__name__
+        try:
+            pending = self.store.pending_node_vectors(model_name, limit=limit)
+            if not pending:
+                return {"model_name": model_name, "embedded": 0, "failed": 0}
+            # The same node text under a different ns/scope is the same point in
+            # vector space, so a boundary-only move must reuse the stored vector
+            # rather than pay to embed it again.
+            reusable = self.store.reusable_node_vectors(
+                model_name, [str(entry["source_hash"]) for entry in pending]
+            )
+            embedded: list[dict[str, object]] = []
+            failed = 0
+            for entry in pending:
+                vector = reusable.get(str(entry["source_hash"]))
+                if vector is None:
+                    try:
+                        vector = model.embed(str(entry["source_text"]))
+                    except Exception:
+                        # One unembeddable node must not strand the rest of the batch.
+                        failed += 1
+                        continue
+                embedded.append({**entry, "vector": vector})
+            written = self.store.store_node_vectors(model_name, embedded)
+        except Exception:
+            LOGGER.exception("Graph node vector projection failed; nodes remain pending")
+            return {"model_name": model_name, "embedded": 0, "failed": 0, "error": True}
+        return {"model_name": model_name, "embedded": written, "failed": failed}
 
     def _retrieval_flags_cached(self):
         """Resolve effective retrieval flags once and cache for this runtime.

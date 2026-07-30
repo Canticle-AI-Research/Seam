@@ -8,7 +8,13 @@ not have to infer what works from directory names alone.
 - `seam_runtime/` - packaged runtime, dashboard, storage, retrieval, model, and benchmark code.
 - `seam_runtime/retrieval_orchestrator/` - multi-leg retrieval orchestrator (planner, adapters, merger) powering `seam retrieve`, the MCP tool, dashboard retrieval, and the benchmark suite. Promoted from `experimental/` in HISTORY#284.
 - `seam_runtime/knowledge_graph.py` - canonical MIRL-to-graph projector, conservative 5W1H+Then lens, evidence-derived trust profiles/assertion gate, versioned existing-database backfill, temporal/source supersession, graph query, node-page, and statistics logic. `SQLiteStore.persist_ir` maintains it automatically (HISTORY#403).
+- `seam_runtime/graph_products.py` - G4 append-only, rebuildable entity/community summaries and multi-episode observations; every sentence retains exact supporting MIRL record and episode IDs, and latest reads are namespace/scope isolated.
+- `seam_runtime/context_assembly.py` - G5 storage-agnostic deterministic context PACKs over facts, entities, episodes, summaries, and observations, with exact backtraces, trust/time gates, and grounded-fact non-displacement.
+- `seam_runtime/lifecycle.py` - G6 append-only lifecycle operation/event ledger, scoped soft deletion, idempotent batch-ingest progress, and crash-recovery primitives.
+- `seam_runtime/qualification.py` - R6/G7 versioned cross-agent envelopes, frozen native/event-only/paid-comparator manifests, concurrent recovery evidence, and fail-closed usefulness/latency/attribution scoring.
 - `seam_runtime/reasoning_graph.py` - append-only public reasoning nodes, edges, state transitions, and bounded R2 retrieval-decision ledgers anchored to workspace runs, with scoped knowledge/MIRL evidence references and no automatic canonical promotion.
+- `seam_runtime/reasoning_patterns.py` - R4 structural reasoning recipes distilled from verified accepted outcomes, same-boundary/freshness/provenance-gated retrieval, explicit use records, and verified success/failure feedback.
+- `seam_runtime/reasoning_promotion.py` - R5 append-only proposals, separate human/policy reviews, exact-provenance eligibility, application fingerprints, and reversible audit; Store performs the only explicit approved-assertion MIRL transaction and never auto-applies.
 - `seam_runtime/retrieval_policy.py` - versioned provider-free retrieval planner/fusion identities, controlled reason-code vocabulary, ordered content-free candidate-set fingerprints, and canonical MIRL evidence fingerprints shared by runtime and reasoning persistence.
 - `seam_runtime/sdk.py` - stable local Python SDK over SEAM runtime, knowledge queries, run-scoped reasoning sessions, and atomic reasoned retrieval; CLI, REST, MCP, and framework packages can remain adapters rather than storage clients.
 - `seam_runtime/public_api.py` - private implementation of the opaque public
@@ -19,7 +25,9 @@ not have to infer what works from directory names alone.
   `BlackhatShiftey/Seam_Runtime/sdk`.
 - `seam_runtime/workspace.py` - append-only structured workspace run/event schema, allowlisted telemetry sanitization, SSE framing/replay, and deterministic graph-activation projection. It explicitly excludes credentials, hidden chain-of-thought, and raw activation tensors.
 - `seam_runtime/jspace.py` - optional J-lens capability boundary: unavailable/structured-only default, verified local Hugging Face Qwen adapter, and authenticated pinned remote worker. No model, lens, analyzer, download, or network dependency is enabled by default.
-- `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and the strict multi-family propose-and-approve ratchet wired into the existing H2 proposal, decision, and applied-flag substrate.
+- `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and bounded graph-policy candidates wired through the strict multi-family propose, operator-approve, applied-flag, and revert substrate.
+- `tools/graph_retrieval_qualification.py` + `tools/graph_real_corpus_qualification.py` - synthetic scale/query-shape and pinned LoCoMo development/holdout qualification for G3 node-vector fusion and safe policy selection.
+- `benchmarks/graph_reasoning_qualification.py` - provider-free real-runtime G7/R6 native-versus-event-only ablation, concurrent recovery probe, exact graph attribution, and matched Mem0/Zep paid-boundary plans.
 - `seam_runtime/webui/` - the SEAM browser dashboard served by the REST API: `dashboard.html` (the IDE-style operator UI), `seam-api.js`, `tweaks-panel.jsx`, branding, and icons. `seam serve` and `seam webui` serve these at `/` on the same origin as the API; packaged with the wheel. This is the functional dashboard (HISTORY#285).
 - `seam.py` - console entrypoint module for `seam` and `seam-benchmark`.
 - `test_seam_all/test_seam.py` - primary regression suite. Local `test_seam_*.db`
@@ -32,6 +40,11 @@ not have to infer what works from directory names alone.
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
 - `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
+- `LICENSES/BUSL-1.1.txt` - controlling text and filled parameters for the SEAM
+  Distributed Runtime, published under Business Source License 1.1 by Section 7A
+  of `LICENSE`. Change Date is four years per published version; Change License
+  is MPL 2.0. Membership in the Distributed Runtime is decided by publication
+  plus a conspicuous per-file notice, never by path.
 - `tools/release/` - frozen legacy-public boundary: `public_manifest.py`
   classifies MIRL and HS/1 Reserved Materials and exposes no private synced paths,
   `sync_public_mirror.py` refuses legacy mirror construction, retired
@@ -40,6 +53,12 @@ not have to infer what works from directory names alone.
   `verify_distribution_boundary.py` scans built wheel/sdist contents and fails
   closed when the private MIRL/HS/1 package is aimed at PyPI. The pre-push hook
   refuses every update to the legacy `seam-runtime` remote.
+- `selfhost_pkg/` + `tools/release/build_selfhost_wheel.py` - separate BUSL
+  `seam-self-host` package metadata and pinned Docker build for the compiled CPython
+  3.12 `manylinux_2_28_x86_64` wheel. The build stages only an explicit runtime
+  source allow-list, emits no Python source or sdist, and must pass
+  `verify_selfhost_wheel` plus the clean-container four-route proof before copying
+  the wheel to the requested output directory.
 - `.github/workflows/package-release.yml` - manual private-package build,
   metadata check, boundary scan, smoke install, and private GitHub Release
   workflow, with a tokenless OIDC PyPI job reserved for a future separately

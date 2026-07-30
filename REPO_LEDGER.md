@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-07-24
+Last updated: 2026-07-29
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -51,6 +51,18 @@ and `HISTORY_INDEX.md`.
   specification, container expression, visual designs, codecs, surface
   library, source, docs, tests, and related implementation material are
   separately named copyrighted Reserved Materials under the same terms.
+- The SEAM Distributed Runtime, version 2.4.0 or later, is published under the
+  Business Source License 1.1 as of 2026-07-27 (`LICENSE` v2.1 §7A, parameters
+  in `LICENSES/BUSL-1.1.txt`). Change Date is four years per published version;
+  Change License is MPL 2.0. The Additional Use Grant permits free self-hosting
+  at any scale, including internal commercial production use, plus
+  non-commercial research, education, and publication of benchmark results; it
+  withholds offering the runtime to third parties on a hosted or embedded basis
+  as a paid competitive offering. Membership in the Distributed Runtime is
+  decided by publication plus a conspicuous per-file BUSL notice, never by path
+  — a shared filename, purpose, interface, or ancestry grants nothing.
+  Publishing one version waives nothing in unpublished versions and creates no
+  obligation to publish any future version.
 - `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that
@@ -77,7 +89,10 @@ and `HISTORY_INDEX.md`.
   opaque receipts/IDs plus user-facing text rather than private record shapes.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
-- `seam-runtime` 2.3.0 is a private distribution and must retain the
+- `seam-runtime` 2.4.0 is the private hosted-service distribution: it is the
+  server package used to operate the authenticated `/v1` API for future
+  subscribers, not the public API-only compatibility shim under `public_pkg/`.
+  It must retain the
   `Private :: Do Not Upload` classifier. `.github/workflows/package-release.yml`
   defaults to a private GitHub Release and scans both wheel and sdist before
   release. Its PyPI Trusted Publishing job uses GitHub OIDC without a stored
@@ -86,13 +101,31 @@ and `HISTORY_INDEX.md`.
   remains legacy Apache-2.0 `seam-runtime` 1.3.1. New public publication uses
   the distinct `seam-client` name and the public repository's
   `sdk-publish.yml` OIDC workflow; it never publishes the private
-  `seam-runtime` artifact.
-- Apache-2.0 `seam-client` 0.1.0 is live at
+  `seam-runtime` artifact. Private 2.4.0 is live as GitHub release `v2.4.0`,
+  pinned to protected-main merge `01f35817810f1490c88e9f832d92c8f1aab3944d`;
+  downloaded wheel and sdist artifacts passed the private boundary, clean
+  installation, SQLite, and live-pgvector API proofs.
+- The BUSL self-host wheel is a third, separate distribution named
+  `seam-self-host`, starting at 1.0.0; 1.1.2 is the current published stability
+  baseline and 1.1.0 is its supported upgrade predecessor. Its package
+  definition lives under `selfhost_pkg/`; it must contain compiled
+  `seam_runtime` extension code and the BUSL-1.1 text, but no `seam_runtime`
+  `.py`, `.pyc`, or `.pyo`. The
+  cp312/manylinux_2_28_x86_64 builder is Docker-pinned, copies an explicit
+  source allow-list, carries the same 18 load-bearing exclusions as the
+  compiled image, runs `auditwheel`, `twine`, the node-specific content
+  ratchet, and a clean-container four-route proof. It has no upload mode.
+  This does not relax the private `seam-runtime` PyPI prohibition or the
+  Apache-only `seam-client` boundary. Publication is performed only by the
+  protected self-host release workflow after artifact qualification. PyPI
+  1.1.2 and its clean network install, SQLite/live-pgvector API, no-argument
+  MCP, and 1.0.0/1.1.0 upgrade paths are live-verified.
+- Apache-2.0 `seam-client` 2.0.0 is live at
   `https://pypi.org/project/seam-client/`. It was published from reviewed
-  public `Seam_Runtime/main` by workflow run 30107050434 through the protected
-  `pypi` environment and PyPI Trusted Publishing/OIDC. Live metadata and a
-  clean isolated install were verified. No stored PyPI token was used, and
-  this release does not change the private `seam-runtime` PyPI prohibition.
+  public `Seam_Runtime/main` through the protected `pypi` environment and PyPI
+  Trusted Publishing/OIDC. Live metadata and clean isolated installs were
+  verified. No stored PyPI token is used, and this release does not change the
+  private `seam-runtime` PyPI prohibition.
 - The private GitHub repository has `private-package-release` and `pypi`
   environments restricted to protected branches. The current account plan did
   not accept a wait-timer protection rule, so do not describe either
@@ -115,8 +148,11 @@ and `HISTORY_INDEX.md`.
   semantics, agent/source provenance, confidence/status, and temporal validity;
   every `SQLiteStore.persist_ir` write maintains the projection atomically and
   existing databases receive a versioned backfill. RAW/MIRL remain the truth,
-  graph retrieval and the dashboard consume the same projection, and inactive
-  claims remain available only through explicit history views. See
+  graph retrieval and the dashboard consume the same projection. Graph hits
+  reached by traversal expose deterministic edge/episode backtraces and may
+  select the same current, full-history, or point-in-time validity view as the
+  dashboard; inactive claims remain available only through those explicit
+  history views. See
   `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
 - Graph identity lookup is a scoped, rebuildable projection, not inference from
   assertion/source labels. `knowledge_node_terms` indexes canonical entity
@@ -134,6 +170,32 @@ and `HISTORY_INDEX.md`.
   facets are never invented. Graph provenance edges aggregate contributors by
   episode/node pair so the API has stable unique edge IDs without losing the
   contributing record list. See HISTORY#403.
+- G4 graph products are an append-only, rebuildable projection over the current
+  trust-gated knowledge graph, never a second truth store. Entity summaries,
+  connected-community summaries, and multi-episode observations are versioned
+  by stable key. Identical source fingerprints reuse the prior complete
+  snapshot; changed or empty eligible inputs append a new immutable boundary
+  snapshot so stale derived text cannot remain current. Every rendered sentence
+  carries exact supporting MIRL record and active episode IDs, and only current
+  `supported` or `verified` same-namespace/scope facts may contribute text.
+- G5 context assembly is a disposable `context-assembly/1` PACK over current
+  canonical facts/entities/episodes and G4 products. Every item retains exact
+  record and episode backtraces; derived items also retain their product ID.
+  Task/trust/time ordering, whole-item truncation, exact token accounting, and
+  the grounded-fact reservation are deterministic. Context never becomes a
+  second truth store.
+- G6 lifecycle is append-only audit around canonical MIRL, not hard deletion of
+  truth. A scoped delete validates every target against one namespace/scope,
+  requires exact tenant authorization, marks canonical rows `deleted_soft`,
+  retains prior content for audit, and removes only disposable graph/vector/
+  projection rows. Cross-store vector cleanup uses a committed
+  `cleanup_pending` outbox: external failure remains recoverable and caller-owned
+  transactions fail closed before external mutation. Current retrieval filters
+  lifecycle-excluded records before graph seeding, and G5 revalidates every G4
+  support before packing. Batch ingest is idempotency-keyed, records item
+  progress, and resumes after interruption without duplicating canonical rows.
+  Raw batch text is digest-bound in a tenant-authorized transient table and
+  purged on completion; it is never copied into append-only lifecycle JSON.
 - Assertion trust is evidence-gated and fail-closed. Claim/relation/event/state
   records enter `/chat` and `/chat/stream` asserted memory only when current and
   `supported` or `verified` inside the requested namespace and scope. Model or
@@ -153,8 +215,8 @@ and `HISTORY_INDEX.md`.
   use fixed typed columns plus a bounded content-free candidate ledger (record
   IDs, boundary/content fingerprints, scores, and reason codes), enforce the
   insertion-time run/namespace/scope boundary in SQLite, detect later evidence
-  drift, and pin planner/fusion plus semantic-adapter/model identities; raw
-  record/provider payloads are forbidden. The
+  drift, and pin planner/fusion, semantic-adapter/model identities, and the
+  selected graph time view; raw record/provider payloads are forbidden. The
   local Python SDK is the stable integration boundary; CLI, REST, MCP, and
   framework adapters should wrap that contract rather than depend on SQLite
   tables. SDK semantic graph seeding is an explicit opt-in over the legacy
@@ -165,7 +227,44 @@ and `HISTORY_INDEX.md`.
   Retries form one immutable linear chain. Only current same-run passed checks
   may atomically support a verified outcome; failed and superseded attempts
   remain visible, and no verification path promotes itself into MIRL.
+  R4 distills every verified accepted outcome into an append-only structural
+  recipe containing only public node kinds, controlled operations, edge
+  relations, and check kinds. Same-boundary task/operation retrieval requires
+  fresh current verification, knowledge, and exact MIRL-fingerprint provenance.
+  Explicit reuse followed by a verified outcome strengthens future ranking;
+  explicit failure weakens it. Recipes never copy summaries, conclusions, raw
+  tool output, provider payloads, or hidden reasoning, and never promote
+  themselves into MIRL.
+  R5 is the only explicit reviewed bridge from one verified accepted outcome
+  into a proposed canonical claim. Proposals bind current verification IDs,
+  knowledge references, and exact MIRL evidence fingerprints to a bounded CLM
+  payload. A separate human or policy review may approve or reject, but only a
+  later explicit Store/SDK application rechecks eligibility and atomically
+  persists both the exact assertion and its application fingerprint. Nothing
+  auto-applies. Reversal requires the exact assertion fingerprint still to be
+  present and appends an immutable reversal plus a MIRL `supersedes` relation;
+  it never deletes or rewrites the assertion, reasoning outcome, reviews, or
+  evidence.
+  R6/G7 qualification uses frozen, versioned adapter and manifest contracts.
+  Native and event-only results remain separate from matched Mem0/Zep lanes.
+  External lanes may carry only `NOT_RUN`/`BLOCKED`, exact paid commands, zero
+  provider calls, and null scores until explicit operator approval and required
+  credentials exist. Provider-free results cannot be republished as competitor
+  results. Native/event-only comparisons use identical context and result
+  budgets; the current corrected provider-free result is parity, not an
+  incremental graph-value claim.
   See `docs/REASONING_GRAPH.md`.
+- Cross-leg retrieval fusion uses the fixed, versioned
+  `reciprocal-rank-fusion/2` contract. Each SQL, record-vector, graph-node,
+  traversal-graph, or Chroma leg deduplicates records by best raw score, ranks
+  within its own score domain by raw score then record ID, contributes
+  `1 / (60 + rank)`, and sums those comparable values. Raw leg magnitudes
+  remain in the live trace; new R2 decisions persist the policy fingerprint and
+  legal rank-derived contributions. Qualification covers structured,
+  bounded-hop, historical, and semantic-seeded mixed shapes on a synthetic
+  2,048-node graph plus a pinned LoCoMo development/holdout selector gate using
+  complete versioned graph-node vectors and explicit `graph_node` traces.
+  See `docs/REASONING_GRAPH.md` and HISTORY#467.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
   activation persistence. A genuine J-lens requires activation-capable local
@@ -179,7 +278,11 @@ and `HISTORY_INDEX.md`.
   must all pass with evidence. Any failure or missing/malformed gate records an
   append-only rejection; a full pass remains pending until explicit approval,
   and `auto_approve` cannot bypass that boundary. The apply path admits only an
-  approved, non-violating proposal with a passing stored ratchet.
+  approved, non-violating proposal with a passing stored ratchet. Only
+  graph-aware scorers may propose the bounded graph semantic-seed/score-floor
+  levers. Once approved and applied, those flags change later knowledge-graph
+  behavior across SDK, CLI, MCP, REST, and internal runtime surfaces; the
+  existing revert path restores the prior policy.
 - Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam[chroma]`, `seam[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
 - Native SQLite and pgvector vector searches carry both namespace and scope into
   pre-top-K filtering; post-filtering remains a fail-closed defense. SQLite

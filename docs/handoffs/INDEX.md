@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-24-seam-client-0-1-0-live
+latest: 2026-07-29-semantic-retrieval-and-promotion-gate
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,18 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-24-seam-client-0-1-0-live` | [2026-07-24-seam-client-0-1-0-live.md](2026-07-24-seam-client-0-1-0-live.md) | `2026-07-24-public-agent-sdk-boundary` | `HISTORY#470` | `current` |
+| `2026-07-29-semantic-retrieval-and-promotion-gate` | [2026-07-29-semantic-retrieval-and-promotion-gate.md](2026-07-29-semantic-retrieval-and-promotion-gate.md) | `2026-07-29-wandr-provider-free-replay-next` | `HISTORY#498` | `current` |
+| `2026-07-29-wandr-provider-free-replay-next` | [2026-07-29-wandr-provider-free-replay-next.md](2026-07-29-wandr-provider-free-replay-next.md) | `2026-07-29-g5-g7-r6-provider-free-qualification` | `HISTORY#497` | `superseded` |
+| `2026-07-29-g5-g7-r6-provider-free-qualification` | [2026-07-29-g5-g7-r6-provider-free-qualification.md](2026-07-29-g5-g7-r6-provider-free-qualification.md) | `2026-07-29-g4-r5-graph-products-reviewed-promotion` | `HISTORY#496` | `superseded` |
+| `2026-07-29-g4-r5-graph-products-reviewed-promotion` | [2026-07-29-g4-r5-graph-products-reviewed-promotion.md](2026-07-29-g4-r5-graph-products-reviewed-promotion.md) | `2026-07-29-g3-r4-self-improving-graphs` | `HISTORY#495` | `superseded` |
+| `2026-07-29-g3-r4-self-improving-graphs` | [2026-07-29-g3-r4-self-improving-graphs.md](2026-07-29-g3-r4-self-improving-graphs.md) | `2026-07-29-stable-packages-live` | `HISTORY#494` | `superseded` |
+| `2026-07-29-stable-packages-live` | [2026-07-29-stable-packages-live.md](2026-07-29-stable-packages-live.md) | `2026-07-29-package-stability-release-candidate` | `HISTORY#490` | `superseded` |
+| `2026-07-29-package-stability-release-candidate` | [2026-07-29-package-stability-release-candidate.md](2026-07-29-package-stability-release-candidate.md) | `2026-07-28-seam-node-wheel` | `HISTORY#489` | `superseded` |
+| `2026-07-28-seam-node-wheel` | [2026-07-28-seam-node-wheel.md](2026-07-28-seam-node-wheel.md) | `2026-07-23-g3-rank-fusion-scale-qualification` | `HISTORY#482` | `superseded` |
+| `2026-07-23-g3-rank-fusion-scale-qualification` | [2026-07-23-g3-rank-fusion-scale-qualification.md](2026-07-23-g3-rank-fusion-scale-qualification.md) | `2026-07-23-g3-paths-historical-view` | `HISTORY#479` | `superseded` |
+| `2026-07-23-g3-paths-historical-view` | [2026-07-23-g3-paths-historical-view.md](2026-07-23-g3-paths-historical-view.md) | `2026-07-27-proprietary-compiled-selfhost-v1` | `HISTORY#478` | `superseded` |
+| `2026-07-27-proprietary-compiled-selfhost-v1` | [2026-07-27-proprietary-compiled-selfhost-v1.md](2026-07-27-proprietary-compiled-selfhost-v1.md) | `2026-07-24-seam-client-0-1-0-live` | `HISTORY#471` | `superseded` |
+| `2026-07-24-seam-client-0-1-0-live` | [2026-07-24-seam-client-0-1-0-live.md](2026-07-24-seam-client-0-1-0-live.md) | `2026-07-24-public-agent-sdk-boundary` | `HISTORY#470` | `superseded` |
 | `2026-07-24-public-agent-sdk-boundary` | [2026-07-24-public-agent-sdk-boundary.md](2026-07-24-public-agent-sdk-boundary.md) | `2026-07-24-mirl-hs1-proprietary-boundary` | `HISTORY#469` | `superseded` |
 | `2026-07-24-mirl-hs1-proprietary-boundary` | [2026-07-24-mirl-hs1-proprietary-boundary.md](2026-07-24-mirl-hs1-proprietary-boundary.md) | `2026-07-23-reasoning-verification-r3` | `HISTORY#468` | `superseded` |
 | `2026-07-23-reasoning-verification-r3` | [2026-07-23-reasoning-verification-r3.md](2026-07-23-reasoning-verification-r3.md) | `2026-07-22-reasoned-retrieval-g3a` | `HISTORY#466` | `superseded` |

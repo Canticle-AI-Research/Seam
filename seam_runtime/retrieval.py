@@ -9,7 +9,16 @@ from datetime import datetime
 from typing import Iterable, Mapping, Protocol
 
 from .bm25 import BM25Index
-from .mirl import IRBatch, MIRLRecord, RecordKind, SearchCandidate, SearchResult, cosine_similarity, iter_textual_fields
+from .mirl import (
+    IRBatch,
+    MIRLRecord,
+    RecordKind,
+    SearchCandidate,
+    SearchResult,
+    Status,
+    cosine_similarity,
+    iter_textual_fields,
+)
 from .symbols import build_symbol_maps
 from .temporal import parse_iso, temporal_distance_score
 
@@ -114,6 +123,11 @@ class RetrievalFlags:
     # repeated descriptions cannot masquerade as separate countable rows. Both
     # remain default-off and never mutate durable MIRL or generate the answer.
     count_context_policy: str = "off"
+    # Versioned knowledge-graph seeding policy. Zero seeds is the locked
+    # lexical-only baseline. These fields use the existing proposal/apply/revert
+    # substrate so every runtime surface observes one approved graph policy.
+    graph_semantic_seeds: int = 0
+    graph_semantic_min_score: float = 0.0
     # Weighted-fusion channel weights. These default to the locked pre-audit
     # tuple (lexical .40 / semantic .35 / graph .15 / temporal .10), so an
     # un-tuned store reproduces the baseline exactly. Unlike the boolean levers
@@ -167,9 +181,16 @@ def coerce_flag_value(key: str, value: object) -> object | None:
     if expected is float:
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             return None
-        return float(value)
+        resolved = float(value)
+        if key == "graph_semantic_min_score" and not -1.0 <= resolved <= 1.0:
+            return None
+        return resolved
     if expected is int:
-        return value if isinstance(value, int) and not isinstance(value, bool) else None
+        if not isinstance(value, int) or isinstance(value, bool):
+            return None
+        if key == "graph_semantic_seeds" and not 0 <= value <= 128:
+            return None
+        return value
     if expected is str:
         if not isinstance(value, str):
             return None
@@ -290,11 +311,27 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         raw = env["SEAM_COUNT_CONTEXT_POLICY"].strip()
         if coerce_flag_value("count_context_policy", raw) is not None:
             out["count_context_policy"] = raw
+    if _present("SEAM_GRAPH_SEMANTIC_SEEDS"):
+        raw = env["SEAM_GRAPH_SEMANTIC_SEEDS"].strip()
+        if raw.lstrip("-").isdigit():
+            value = int(raw)
+            if coerce_flag_value("graph_semantic_seeds", value) is not None:
+                out["graph_semantic_seeds"] = value
+    if _present("SEAM_GRAPH_SEMANTIC_MIN_SCORE"):
+        raw = env["SEAM_GRAPH_SEMANTIC_MIN_SCORE"].strip()
+        try:
+            value = float(raw)
+        except ValueError:
+            pass
+        else:
+            if coerce_flag_value("graph_semantic_min_score", value) is not None:
+                out["graph_semantic_min_score"] = value
     return out
 
 
 def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalFlags:
     env = os.environ if env is None else env
+    graph_overrides = _retrieval_env_overrides(env)
 
     def _on(name: str) -> bool:
         return env.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
@@ -325,6 +362,10 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         answer_contract=_policy("SEAM_ANSWER_CONTRACT", "answer_contract", "off"),
         count_context_policy=_policy(
             "SEAM_COUNT_CONTEXT_POLICY", "count_context_policy", "off"
+        ),
+        graph_semantic_seeds=int(graph_overrides.get("graph_semantic_seeds", 0)),
+        graph_semantic_min_score=float(
+            graph_overrides.get("graph_semantic_min_score", 0.0)
         ),
     )
 
@@ -368,6 +409,12 @@ def load_retrieval_flags(
 
 
 _WEIGHTS = (("lexical", 0.4), ("semantic", 0.35), ("graph", 0.15), ("temporal", 0.10))
+_CURRENT_EXCLUDED_STATUSES = {
+    Status.CONTRADICTED,
+    Status.SUPERSEDED,
+    Status.DEPRECATED,
+    Status.DELETED_SOFT,
+}
 
 
 def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: int = 5, vector_scores: dict[str, float] | None = None, namespace: str | None = None, include_raw: bool = False, bm25_index: BM25Index | None = None, temporal_window: tuple[datetime, datetime] | None = None, temporal_reference: datetime | None = None, flags: RetrievalFlags | None = None) -> SearchResult:
@@ -377,7 +424,12 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
     tokens = _tokens(expanded_query)
     query_vector = Counter(tokens)
     batch_by_id = batch.by_id()
-    records = [record for record in batch.records if scope is None or record.scope == scope]
+    records = [
+        record
+        for record in batch.records
+        if (scope is None or record.scope == scope)
+        and record.status not in _CURRENT_EXCLUDED_STATUSES
+    ]
     graph = _graph(records)
     ent_labels = {r.id: str(r.attrs.get("label", "")) for r in records if r.kind == RecordKind.ENT}
     vector_scores = vector_scores or {}

@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seam-runtime"
+version = "2.3.1"
+description = "API-only compatibility client for the SEAM agent-memory service"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["ai", "agents", "memory"]
+dependencies = [
+    "seam-client>=0.1.0,<0.2",
+]
+
+[project.urls]
+Homepage = "https://pypi.org/project/seam-client/"
+Repository = "https://github.com/BlackhatShiftey/Seam_Runtime/tree/main/sdk"
+Issues = "https://github.com/BlackhatShiftey/Seam_Runtime/issues"
+
+[project.scripts]
+seam = "seam:main"
+
+[tool.setuptools]
+py-modules = ["seam"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["seam_runtime"]
+
+[tool.setuptools.package-data]
+seam_runtime = []

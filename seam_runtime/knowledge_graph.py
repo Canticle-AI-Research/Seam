@@ -12,6 +12,32 @@ from typing import Iterable, Mapping
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
 
 PROJECTION_VERSION = "knowledge-graph/5"
+# Graph nodes carry their own derived semantic projection, versioned separately
+# from `mirl-vector-text/*` because a node is not a record: it is an identity
+# distilled from many records, so its render contract evolves independently.
+# A stored row whose render_version differs from this constant is treated as
+# stale and is never served, exactly like a legacy record vector. Bump this only
+# with an explicit reindex, never to make existing rows pass.
+GRAPH_NODE_VECTOR_TEXT_VERSION = "graph-node-vector-text/1"
+# Node kinds worth embedding. Episodes and edges are addressed through the nodes
+# they connect, so projecting them here would duplicate signal rather than add it.
+VECTORIZABLE_NODE_KINDS = frozenset({"entity", "value", "agent", "symbol"})
+# Projection bookkeeping that is identical across nodes of the same kind. Embedding
+# it would add tokens every node shares, diluting the label that actually
+# discriminates one node from another.
+_NODE_RENDER_SKIP_KEYS = frozenset(
+    {
+        "agent_id",
+        "confidence",
+        "entity_type",
+        "epistemic_basis",
+        "ext",
+        "facets",
+        "record_kind",
+        "status",
+        "synthetic",
+    }
+)
 CURRENT_EXCLUDED_STATUSES = {
     Status.CONTRADICTED.value,
     Status.SUPERSEDED.value,
@@ -305,6 +331,21 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
             source_record_id text not null,
             primary key (node_id, normalized_term, token, term_kind, source_record_id)
         );
+        create table if not exists knowledge_node_vectors (
+            node_id text not null,
+            model_name text not null,
+            dimension integer not null,
+            source_text text not null,
+            source_hash text not null,
+            render_version text not null,
+            ns text not null,
+            scope text not null,
+            vector_json text not null,
+            updated_at text not null,
+            primary key (node_id, model_name)
+        );
+        create index if not exists knowledge_node_vectors_boundary
+            on knowledge_node_vectors (ns, scope);
         create table if not exists knowledge_graph_meta (
             key text primary key,
             value text not null
@@ -453,6 +494,310 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
     )
 
 
+def render_node_text(
+    kind: str,
+    label: str,
+    properties: Mapping[str, object] | None = None,
+) -> str:
+    """Return the deterministic semantic text for one graph node.
+
+    Determinism is the entire contract. The same node must render byte-identically
+    on every machine and every run, or a freshly computed hash disagrees with the
+    stored one and staleness detection degrades into permanent re-embedding.
+    Property keys are therefore sorted rather than taken in insertion order, and
+    non-scalar values are skipped instead of serialized, because container
+    repr is not stable across Python versions.
+    """
+    parts: list[str] = []
+    seen: set[str] = set()
+
+    def add(value: object) -> None:
+        text = str(value).strip()
+        if not text:
+            return
+        # Repetition adds no signal to an embedding, and node properties routinely
+        # restate the label (``attrs.label``) or the kind (``attrs.entity_type``).
+        fingerprint = text.casefold()
+        if fingerprint in seen:
+            return
+        seen.add(fingerprint)
+        parts.append(text)
+
+    add(kind)
+    add(label)
+    attributes = dict(properties or {})
+    # Semantic content lives under ``attrs``; the surrounding keys are projection
+    # bookkeeping. Descend deliberately rather than flattening, so a future
+    # bookkeeping key cannot leak into the embedded text by default.
+    nested = attributes.get("attrs")
+    sources: list[Mapping[str, object]] = [attributes]
+    if isinstance(nested, Mapping):
+        sources.append(nested)
+    for source in sources:
+        for key in sorted(source):
+            if key in _NODE_RENDER_SKIP_KEYS:
+                continue
+            value = source[key]
+            # bool is an int subclass; neither carries semantic text worth embedding.
+            if value is None or isinstance(value, bool):
+                continue
+            if isinstance(value, (str, int, float)):
+                add(value)
+    return " ".join(parts)
+
+
+def node_vector_source_hash(source_text: str, model_name: str) -> str:
+    """Bind a stored vector to its text, its model, and its render contract.
+
+    All three participate so that changing any one of them marks the row stale.
+    A model swap with unchanged text must not silently reuse the old embedding.
+    """
+    digest = hashlib.sha256()
+    for component in (GRAPH_NODE_VECTOR_TEXT_VERSION, model_name, source_text):
+        digest.update(component.encode("utf-8"))
+        digest.update(b"\x00")
+    return digest.hexdigest()
+
+
+def pending_node_vectors(
+    connection: sqlite3.Connection,
+    model_name: str,
+    *,
+    ns: str | None = None,
+    scope: str | None = None,
+    limit: int | None = None,
+) -> list[dict[str, object]]:
+    """Return vectorizable nodes whose stored projection is missing or stale.
+
+    A row is pending when it has no vector, when its text changed, or when it was
+    written under an older render contract. That last case fails closed: a legacy
+    row is reported as pending and is never served as if it were current, because
+    silently mixing render contracts inside one index makes similarity scores
+    incomparable in a way no downstream ranking can detect.
+    """
+    parameters: list[object] = [model_name]
+    clauses = [f"n.kind in ({','.join('?' for _ in sorted(VECTORIZABLE_NODE_KINDS))})"]
+    parameters.extend(sorted(VECTORIZABLE_NODE_KINDS))
+    clauses.append("n.status != ?")
+    parameters.append(Status.DELETED_SOFT.value)
+    if ns is not None:
+        clauses.append("n.ns = ?")
+        parameters.append(ns)
+    if scope is not None:
+        clauses.append("n.scope = ?")
+        parameters.append(scope)
+    rows = connection.execute(
+        "select n.id, n.kind, n.label, n.ns, n.scope, n.properties_json, "
+        "v.source_hash, v.render_version "
+        "from knowledge_nodes n "
+        "left join knowledge_node_vectors v "
+        "on v.node_id = n.id and v.model_name = ? "
+        f"where {' and '.join(clauses)} "
+        "order by n.id",
+        parameters,
+    ).fetchall()
+
+    pending: list[dict[str, object]] = []
+    for row in rows:
+        node_id, kind, label, node_ns, node_scope, properties_json = row[0], row[1], row[2], row[3], row[4], row[5]
+        stored_hash, stored_version = row[6], row[7]
+        try:
+            properties = json.loads(properties_json) if properties_json else {}
+        except (TypeError, ValueError):
+            properties = {}
+        source_text = render_node_text(kind, label, properties)
+        if not source_text:
+            continue
+        expected_hash = node_vector_source_hash(source_text, model_name)
+        if stored_version == GRAPH_NODE_VECTOR_TEXT_VERSION and stored_hash == expected_hash:
+            continue
+        pending.append(
+            {
+                "node_id": node_id,
+                "ns": node_ns,
+                "scope": node_scope,
+                "source_text": source_text,
+                "source_hash": expected_hash,
+                "reason": "missing" if stored_version is None else "stale",
+            }
+        )
+        if limit is not None and len(pending) >= limit:
+            break
+    return pending
+
+
+def _cosine(left: list[float], right: list[float]) -> float:
+    """Cosine similarity, computed locally to keep this module provider-free."""
+    if not left or not right or len(left) != len(right):
+        return 0.0
+    dot = 0.0
+    left_norm = 0.0
+    right_norm = 0.0
+    for a, b in zip(left, right):
+        dot += a * b
+        left_norm += a * a
+        right_norm += b * b
+    if left_norm <= 0.0 or right_norm <= 0.0:
+        return 0.0
+    return dot / ((left_norm**0.5) * (right_norm**0.5))
+
+
+def search_node_vectors(
+    connection: sqlite3.Connection,
+    query_vector: list[float],
+    model_name: str,
+    *,
+    ns: str | None = None,
+    scope: str | None = None,
+    limit: int = 20,
+    min_score: float = 0.0,
+) -> list[tuple[str, float]]:
+    """Rank graph nodes by cosine against an already-computed query vector.
+
+    Provider-free by construction: the caller supplies the vector, so the graph
+    layer never reaches for an embedding provider and stays deterministic under
+    test. Namespace and scope are filtered in SQL *before* scoring, matching the
+    record path, so a tenant boundary is never crossed by a top-K cutoff. Rows on
+    a superseded render contract are excluded rather than mixed in, because their
+    scores are not comparable with current ones.
+    """
+    if not query_vector:
+        return []
+    clauses = ["model_name = ?", "render_version = ?"]
+    parameters: list[object] = [model_name, GRAPH_NODE_VECTOR_TEXT_VERSION]
+    if ns:
+        clauses.append("ns = ?")
+        parameters.append(ns)
+    if scope:
+        clauses.append("scope = ?")
+        parameters.append(scope)
+    rows = connection.execute(
+        f"select node_id, vector_json from knowledge_node_vectors where {' and '.join(clauses)}",
+        parameters,
+    ).fetchall()
+
+    scored: list[tuple[str, float]] = []
+    for row in rows:
+        try:
+            vector = list(json.loads(row[1]))
+        except (TypeError, ValueError):
+            continue
+        score = _cosine(query_vector, vector)
+        if score <= min_score:
+            continue
+        scored.append((str(row[0]), score))
+    # Sort by score, then node id, so equal scores rank identically on every run.
+    scored.sort(key=lambda item: (-item[1], item[0]))
+    return scored[: max(1, int(limit))]
+
+
+def reusable_node_vectors(
+    connection: sqlite3.Connection,
+    model_name: str,
+    source_hashes: Iterable[str],
+) -> dict[str, list[float]]:
+    """Return already-computed vectors for these content hashes.
+
+    ``source_hash`` binds text, model, and render contract but deliberately not
+    ``ns``/``scope``, so the same node text appearing under a different boundary
+    is the same point in vector space. Reusing it keeps a boundary-only move a
+    metadata update instead of a re-embed, which matters because embedding is the
+    one step that can cost a provider call.
+    """
+    wanted = [value for value in dict.fromkeys(source_hashes) if value]
+    if not wanted:
+        return {}
+    found: dict[str, list[float]] = {}
+    chunk_size = 400
+    for start in range(0, len(wanted), chunk_size):
+        chunk = wanted[start : start + chunk_size]
+        rows = connection.execute(
+            "select source_hash, vector_json from knowledge_node_vectors "
+            f"where model_name = ? and render_version = ? and source_hash in ({','.join('?' for _ in chunk)})",
+            [model_name, GRAPH_NODE_VECTOR_TEXT_VERSION, *chunk],
+        ).fetchall()
+        for row in rows:
+            if row[0] in found:
+                continue
+            try:
+                found[row[0]] = list(json.loads(row[1]))
+            except (TypeError, ValueError):
+                continue
+    return found
+
+
+def store_node_vectors(
+    connection: sqlite3.Connection,
+    model_name: str,
+    entries: Iterable[Mapping[str, object]],
+) -> int:
+    """Persist derived node vectors, replacing any prior projection per model."""
+    written = 0
+    timestamp = utc_now()
+    for entry in entries:
+        vector = list(entry.get("vector") or ())
+        if not vector:
+            continue
+        connection.execute(
+            "insert or replace into knowledge_node_vectors "
+            "(node_id, model_name, dimension, source_text, source_hash, render_version, "
+            "ns, scope, vector_json, updated_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                str(entry["node_id"]),
+                model_name,
+                len(vector),
+                str(entry.get("source_text") or ""),
+                str(entry.get("source_hash") or ""),
+                GRAPH_NODE_VECTOR_TEXT_VERSION,
+                str(entry.get("ns") or ""),
+                str(entry.get("scope") or ""),
+                json.dumps(vector, separators=(",", ":")),
+                timestamp,
+            ),
+        )
+        written += 1
+    connection.execute(
+        "delete from knowledge_node_vectors "
+        "where node_id not in (select id from knowledge_nodes)"
+    )
+    return written
+
+
+def node_vector_status(
+    connection: sqlite3.Connection,
+    model_name: str,
+) -> dict[str, object]:
+    """Report node-vector coverage so the improvement loop has a free signal.
+
+    Coverage is deterministic and needs no provider call, which is what makes it
+    usable as a non-gameable probe: the loop can watch it move without paying for
+    a judged benchmark run.
+    """
+    total = connection.execute(
+        f"select count(*) from knowledge_nodes where kind in "
+        f"({','.join('?' for _ in sorted(VECTORIZABLE_NODE_KINDS))}) and status != ?",
+        [*sorted(VECTORIZABLE_NODE_KINDS), Status.DELETED_SOFT.value],
+    ).fetchone()[0]
+    current = connection.execute(
+        "select count(*) from knowledge_node_vectors where model_name = ? and render_version = ?",
+        (model_name, GRAPH_NODE_VECTOR_TEXT_VERSION),
+    ).fetchone()[0]
+    legacy = connection.execute(
+        "select count(*) from knowledge_node_vectors where model_name = ? and render_version != ?",
+        (model_name, GRAPH_NODE_VECTOR_TEXT_VERSION),
+    ).fetchone()[0]
+    pending = len(pending_node_vectors(connection, model_name))
+    return {
+        "render_version": GRAPH_NODE_VECTOR_TEXT_VERSION,
+        "model_name": model_name,
+        "vectorizable_nodes": int(total),
+        "current_vectors": int(current),
+        "legacy_vectors": int(legacy),
+        "pending_nodes": int(pending),
+        "coverage": (float(current) / float(total)) if total else 0.0,
+    }
+
+
 def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) -> None:
     ids = list(dict.fromkeys(record_ids))
     if not ids:
@@ -557,6 +902,7 @@ def query_graph(
     include_history: bool = False,
     limit: int = 300,
     hops: int = 2,
+    semantic_seed_ids: Iterable[str] | None = None,
 ) -> dict[str, object]:
     limit = max(1, min(int(limit), 1000))
     hops = max(0, min(int(hops), 5))
@@ -617,6 +963,45 @@ def query_graph(
             [*params, seed_limit],
         ).fetchall()
     selected = {str(row["id"]) for row in seed_rows}
+
+    # Semantic seeds let a query reach a node whose label shares no tokens with
+    # it, which lexical seeding structurally cannot do. They are validated against
+    # the same boundary, kind, and time filters as lexical seeds and bypass only
+    # the lexical clause; a seed still earns graph credit downstream only if an
+    # in-boundary edge actually connects it.
+    ranked_semantic_ids = [str(value) for value in dict.fromkeys(semantic_seed_ids or ()) if value]
+    if ranked_semantic_ids and canonical_seeds_enabled:
+        boundary_where = ["1=1"]
+        boundary_params: list[object] = []
+        if namespace:
+            boundary_where.append("n.ns = ?")
+            boundary_params.append(namespace)
+        if scope:
+            boundary_where.append("n.scope = ?")
+            boundary_params.append(scope)
+        if canonical_kind_values:
+            boundary_where.append(
+                f"lower(n.kind) in ({','.join('?' for _ in canonical_kind_values)})"
+            )
+            boundary_params.extend(canonical_kind_values)
+        boundary_where.extend(
+            _node_time_clauses(boundary_params, at=at, include_history=include_history)
+        )
+        placeholders = ",".join("?" for _ in ranked_semantic_ids)
+        admissible = {
+            str(row["id"])
+            for row in connection.execute(
+                f"select n.id from knowledge_nodes n where n.id in ({placeholders}) "
+                f"and {' and '.join(boundary_where)}",
+                [*ranked_semantic_ids, *boundary_params],
+            ).fetchall()
+        }
+        # Preserve similarity order so the closest admissible node seeds first.
+        for node_id in ranked_semantic_ids:
+            if len(selected) >= limit:
+                break
+            if node_id in admissible:
+                selected.add(node_id)
 
     episode_seed_rows: list[sqlite3.Row] = []
     if episode_seeds_enabled and (query or (root_id and root_id.startswith("episode:"))):

@@ -47,8 +47,14 @@ selected MIRL record IDs are copied onto the accepted decision node as exact
 evidence references.
 
 The durable candidate ledger is deliberately compact and content-free: record
-ID, namespace/scope and content fingerprint, rank, fused score, per-leg scores,
-controlled reason codes, and disposition. The row also pins the semantic
+ID, namespace/scope and content fingerprint, rank, fused score, per-leg
+rank-normalized contributions, controlled reason codes, and disposition. Raw
+leg scores stay in the live leg trace; they are not summed across incompatible
+SQL, vector, and graph score domains. The fixed
+`reciprocal-rank-fusion/2` policy deduplicates each record within a leg by its
+best raw score, ranks that leg by raw score then record ID, assigns
+`1 / (60 + rank)`, and sums contributions across legs. The policy contract and
+fingerprint are stored with every new decision. The row also pins the semantic
 adapter and embedding model identity/dimension. It never copies MIRL payloads,
 provider responses, or hidden reasoning. The public query itself remains a
 typed `question` summary and its normalized form is recorded as part of the
@@ -90,6 +96,50 @@ superseded, forked, or cross-run check rolls back the entire finalization.
 This is verification provenance, not proof that an outcome is canonical truth,
 and it never promotes the outcome into MIRL.
 
+## R4 reasoning-retrieval and improvement contract
+
+R4 turns verified public reasoning structure into a reusable improvement loop.
+Finalization attempts to distill each verified accepted outcome into one
+append-only `reasoning-pattern/1` recipe containing only step kinds, controlled
+operations, edge relations, and verification-check kinds. Pattern learning is a
+derived, non-fatal step: a distillation failure is reported as pending without
+invalidating the already-verified outcome. A successful recipe deliberately
+excludes step summaries, conclusions, raw tool output, provider payloads, and
+hidden chain-of-thought. It maps how a successful run reasoned without
+laundering that run's answer into a fact.
+
+Pattern retrieval is fail-closed. A recipe is eligible only in the same
+namespace and scope, within the requested freshness horizon, above the requested
+observed-success threshold, and while its source outcome, current passed
+verifications, knowledge references, and exact MIRL evidence fingerprints remain
+current. Ranking combines task-term similarity, controlled-operation match,
+freshness, and observed reuse results. A caller explicitly records pattern use.
+A later verified accepted outcome records success automatically; an explicit
+rejection records failure. Those append-only results change future trust and
+ranking without mutating or deleting the original pattern.
+
+This is genuine bounded self-improvement: verified success produces a reusable
+strategy, later verified reuse strengthens it, failure weakens it, stale
+provenance removes it from consideration, and incompatible tenant/task patterns
+are never returned. It is not autonomous truth promotion and it does not claim
+that an unverified conclusion is knowledge.
+
+## R5 reviewed-promotion contract
+
+R5 is an explicit append-only bridge from one verified accepted outcome to one
+proposed MIRL claim. A proposal binds the run/outcome, current verification IDs,
+knowledge references, exact MIRL evidence fingerprints, and a bounded CLM
+payload. A separate human or policy review may approve or reject it; review
+never inserts canonical truth. Application is a distinct SDK/Store call that
+rechecks eligibility inside the same transaction that persists the exact CLM
+and records its application fingerprint. Nothing auto-applies.
+
+An applied proposal may be reversed only while its exact assertion fingerprint
+is still present. Reversal appends both the immutable reversal audit and a new
+MIRL `supersedes` relation; it never deletes or rewrites the promoted assertion,
+reasoning outcome, reviews, or evidence. Cross-boundary, stale, changed,
+unverified, already-applied, or already-reversed proposals fail closed.
+
 ## Python SDK
 
 The initial SDK is local and provider-free:
@@ -104,6 +154,9 @@ with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
         scope="project",
         agent_id="planner",
     )
+    # Compatible verified recipes are recommended but not counted as used.
+    if run.recommended_patterns:
+        use = run.use_pattern(run.recommended_patterns[0]["pattern_id"])
     premise = run.add_node(
         "premise",
         "The current schema has a verified rollback path.",
@@ -132,6 +185,8 @@ with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
         "Use the reversible migration.",
         verification_ids=[check["verification_id"]],
     )
+    # Finalization learns this run's structural recipe and, when `use` exists,
+    # records verified successful reuse of the prior recipe.
     graph = run.graph()
 ```
 
@@ -146,6 +201,29 @@ framework adapters can use one stable programmatic boundary instead of
 depending on database tables, CLI output, or HTTP route details. CLI, REST, MCP,
 and framework-specific packages can grow as adapters over this boundary.
 
+## R6 qualification contract
+
+R6 defines `seam-qualification-adapter/1`, a stable cross-agent request and
+response envelope that fixes agent identity, operation, tenant, namespace,
+scope, manifest fingerprint, attempt, exact returned record IDs, and
+adapter-reported nonnegative integer `latency_us`. Adapters that measure from a
+nanosecond clock use floor division by 1,000; comparisons and fingerprints use
+that exact microsecond integer without later unit conversion or rerounding.
+Concurrent execution sorts responses before fingerprinting, bounds retry,
+records recovered and failed counts, and rejects any response that does not
+exactly echo its request boundary.
+
+`seam-graph-reasoning-manifest/1` freezes the dataset, native and matched
+contracts, cases, and four separate lanes: native SEAM, event-only, matched
+Mem0, and matched Zep. Provider-free scoring measures usefulness, latency,
+recovery, and exact graph-incremental evidence over event-only traces under
+identical context and result budgets. The current provider-free run is an
+honest parity result and therefore does not establish incremental graph value.
+External lanes remain `NOT_RUN` or `BLOCKED`, contain zero calls and no scores, require
+an explicit executable `--allow-paid` command, and reject embedded credential
+options. The in-repo native micro-suite is structural evidence only and cannot
+authorize a competitive publication claim.
+
 ## Maturity path
 
 | Stage | Deliverable | Acceptance boundary |
@@ -153,11 +231,13 @@ and framework-specific packages can grow as adapters over this boundary.
 | R1 Durable run graph | Typed append-only nodes, edges, state history, evidence references, Python SDK | Isolation, immutability, explicit support, no hidden traces, no automatic MIRL promotion |
 | R2 Retrieval decisions | First-class query plans, candidate comparisons, and selected/rejected traces | Every selection identifies candidates, policy/model identity, evidence fingerprints, and rejected alternatives |
 | R3 Verification loops | Tests, tool outcomes, contradictions, retries, and supersession | Failed paths remain visible; final outcomes identify the checks that support them |
-| R4 Reasoning retrieval | Search and reuse prior reasoning patterns without treating outcomes as facts | Task/run scoping, freshness, trust, and provenance gates; no conclusion laundering |
+| R4 Reasoning retrieval | Search and reuse prior reasoning patterns with verified success/failure feedback without treating outcomes as facts | Task/run scoping, freshness, trust, and provenance gates; structural recipes only; no conclusion laundering |
 | R5 Reviewed promotion | Explicit proposal/review path from selected outcomes to new MIRL assertions | Human or policy approval, exact evidence, reversible audit, no automatic promotion |
-| R6 Qualification | Cross-agent SDK adapters, concurrency/recovery, latency and usefulness evaluations | Stable versioned contract, tenant isolation, crash recovery, measured value over event-only traces |
+| R6 Qualification | Cross-agent SDK adapters, concurrency/recovery, latency and usefulness evaluations | Stable versioned contract, tenant isolation, crash recovery, and an honestly reported matched-budget comparison against event-only traces |
 
-R1-R3 are implemented. R4-R6 remain open; an R2 retrieval decision is an
+R1-R6 are implemented through the provider-free qualification boundary.
+Matched Mem0/Zep answerer-and-judge execution remains deliberately unrun at the
+explicit paid/credential gate. An R2 retrieval decision is an
 auditable record of what the current policy selected, not proof that the policy
 is optimal or that the selected records are true. An R3 passed check is
 similarly scoped verification evidence, not automatic canonical truth.

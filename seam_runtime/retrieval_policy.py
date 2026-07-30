@@ -6,9 +6,14 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 RETRIEVAL_PLANNER = "retrieval-planner/1"
-FUSION_POLICY = "sum-max-per-leg-overlap/1"
+FUSION_RANK_CONSTANT = 60
+FUSION_MAX_LEG_RANK = 1_000_000
+FUSION_POLICY = "reciprocal-rank-fusion/2"
 FUSION_POLICY_CONTRACT = (
-    "sum(max-score-per-leg)+0.15*(distinct-legs-1);"
+    "dedupe-per-leg=max(raw-score);"
+    "rank-per-leg=sort(-raw-score,record-id);"
+    "source-contribution=1/(60+rank);"
+    "fused-score=sum(source-contributions);"
     "sort(-fused-score,record-id)"
 )
 FUSION_POLICY_FINGERPRINT = hashlib.sha256(
@@ -31,9 +36,48 @@ RETRIEVAL_REASON_CODES = frozenset(
         "graph_neighbors",
         "graph_hop",
         "semantic_seed",
+        "graph_node_semantic",
         "chroma_score",
     }
 )
+
+
+def rank_normalized_contribution(rank: int) -> float:
+    """Return the fixed reciprocal-rank contribution for one retrieval leg."""
+
+    if isinstance(rank, bool) or not isinstance(rank, int):
+        raise TypeError("retrieval leg rank must be an integer")
+    if not 1 <= rank <= FUSION_MAX_LEG_RANK:
+        raise ValueError(
+            f"retrieval leg rank must be between 1 and {FUSION_MAX_LEG_RANK}"
+        )
+    return 1.0 / (FUSION_RANK_CONSTANT + rank)
+
+
+def contribution_rank(score: float) -> int:
+    """Recover and validate the exact leg rank encoded by a contribution."""
+
+    if isinstance(score, bool) or not isinstance(score, (int, float)):
+        raise TypeError("retrieval source contribution must be numeric")
+    resolved = float(score)
+    if not 0.0 < resolved <= rank_normalized_contribution(1):
+        raise ValueError("retrieval source contribution is outside the pinned policy")
+    rank = round((1.0 / resolved) - FUSION_RANK_CONSTANT)
+    if not 1 <= rank <= FUSION_MAX_LEG_RANK or not _close(
+        resolved, rank_normalized_contribution(rank)
+    ):
+        raise ValueError("retrieval source contribution is outside the pinned policy")
+    return rank
+
+
+def fusion_score(source_contributions: Mapping[str, float]) -> float:
+    """Recompute the pinned policy score from normalized per-leg contributions."""
+
+    return sum(float(score) for score in source_contributions.values())
+
+
+def _close(left: float, right: float) -> bool:
+    return abs(left - right) <= max(1e-15, 1e-12 * max(abs(left), abs(right)))
 
 
 def candidate_set_fingerprint(

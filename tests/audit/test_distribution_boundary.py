@@ -12,7 +12,7 @@ PRIVATE_METADATA = b"\n".join(
     (
         b"Name: seam-runtime",
         b"Classifier: Private :: Do Not Upload",
-        b"License-Expression: LicenseRef-SEAM-Proprietary AND Apache-2.0",
+        b"License-Expression: LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0",
     )
 )
 
@@ -56,6 +56,23 @@ def test_private_release_requires_private_metadata(tmp_path: Path) -> None:
     )
     errors = verify_archive(archive, target="private-github")
     assert any("Private :: Do Not Upload" in error for error in errors)
+    assert any("proprietary license expression" in error for error in errors)
+
+
+def test_private_release_rejects_a_longer_license_expression(tmp_path: Path) -> None:
+    archive = _wheel(
+        tmp_path / "wrong-license-expression.whl",
+        {
+            "seam_runtime/mirl.py": b"reserved",
+            "seam_runtime-1.0.dist-info/licenses/LICENSE": PRIVATE_LICENSE,
+            "seam_runtime-1.0.dist-info/METADATA": (
+                PRIVATE_METADATA + b" OR MIT"
+            ),
+        },
+    )
+
+    errors = verify_archive(archive, target="private-github")
+
     assert any("proprietary license expression" in error for error in errors)
 
 
@@ -110,3 +127,59 @@ def test_public_pypi_accepts_separate_clean_client_artifact(tmp_path: Path) -> N
         },
     )
     assert verify_archive(archive, target="pypi") == ()
+
+
+def test_public_pypi_accepts_fail_closed_runtime_compatibility_shim(tmp_path: Path) -> None:
+    archive = _wheel(
+        tmp_path / "seam_runtime-2.3.1-py3-none-any.whl",
+        {
+            "seam.py": b"from seam_client import SeamClient",
+            "seam_runtime/__init__.py": b"from seam_client import SeamClient",
+            "seam_runtime-2.3.1.dist-info/licenses/LICENSE": b"Apache License",
+            "seam_runtime-2.3.1.dist-info/METADATA": b"Name: seam-runtime",
+        },
+    )
+    assert verify_archive(archive, target="pypi") == ()
+
+
+def test_public_pypi_rejects_dynamic_private_runtime_import(tmp_path: Path) -> None:
+    archive = _wheel(
+        tmp_path / "seam_runtime-2.3.1-py3-none-any.whl",
+        {
+            "seam.py": b"from seam_client import SeamClient",
+            "seam_runtime/__init__.py": b'_mirl = __import__("seam_runtime.mirl")',
+            "seam_runtime-2.3.1.dist-info/licenses/LICENSE": b"Apache License",
+            "seam_runtime-2.3.1.dist-info/METADATA": b"Name: seam-runtime",
+        },
+    )
+    errors = verify_archive(archive, target="pypi")
+    assert any("MIRL or HS/1 Reserved Materials" in error for error in errors)
+
+
+def test_public_pypi_rejects_private_module_string_without_import_syntax(tmp_path: Path) -> None:
+    archive = _wheel(
+        tmp_path / "seam_runtime-2.3.1-py3-none-any.whl",
+        {
+            "seam.py": b"from seam_client import SeamClient",
+            "seam_runtime/__init__.py": b'PRIVATE_MODULE = "seam_runtime.runtime"',
+            "seam_runtime-2.3.1.dist-info/licenses/LICENSE": b"Apache License",
+            "seam_runtime-2.3.1.dist-info/METADATA": b"Name: seam-runtime",
+        },
+    )
+    errors = verify_archive(archive, target="pypi")
+    assert any("MIRL or HS/1 Reserved Materials" in error for error in errors)
+
+
+def test_public_pypi_rejects_unexpected_python_module(tmp_path: Path) -> None:
+    archive = _wheel(
+        tmp_path / "seam_runtime-2.3.1-py3-none-any.whl",
+        {
+            "seam.py": b"from seam_client import SeamClient",
+            "seam_runtime/__init__.py": b"from seam_client import SeamClient",
+            "seam_runtime/helpers.py": b"VALUE = 1",
+            "seam_runtime-2.3.1.dist-info/licenses/LICENSE": b"Apache License",
+            "seam_runtime-2.3.1.dist-info/METADATA": b"Name: seam-runtime",
+        },
+    )
+    errors = verify_archive(archive, target="pypi")
+    assert any("unexpected Python modules" in error for error in errors)

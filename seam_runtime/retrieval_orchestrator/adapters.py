@@ -7,15 +7,67 @@ from contextlib import closing
 from dataclasses import dataclass
 from typing import Protocol
 
+from seam_runtime.knowledge_graph import (
+    CURRENT_EXCLUDED_STATUSES,
+    _edge_time_clauses,
+    _episode_filter_clauses,
+    _node_time_clauses,
+)
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, iter_textual_fields
 from seam_runtime.models import EmbeddingModel
 from seam_runtime.storage import SQLiteStore
 from seam_runtime.vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION, SQLiteVectorIndex
 from seam_runtime.vector_adapters import VectorAdapter, search_vector_adapter
 
-from .types import LegHit, RetrievalPlan
+from .types import GraphPathHop, LegHit, RetrievalPlan
 
 GRAPH_RETURN_KINDS = {RecordKind.ENT, *INDEXABLE_KINDS}
+
+
+def _visible_graph_node_ids(
+    store: SQLiteStore,
+    record_ids: set[str] | list[str] | tuple[str, ...],
+    plan: RetrievalPlan,
+) -> set[str]:
+    """Return bounded candidate ids visible in the plan's graph-time view.
+
+    G3 uses the same node-validity clauses as the knowledge-graph surface
+    rather than reinterpreting expiry or supersession for retrieval. Inputs are
+    always candidates produced from a bounded seed or edge query; chunks only
+    avoid SQLite's parameter limit.
+    """
+
+    ordered_ids = sorted(set(record_ids))
+    if not ordered_ids:
+        return set()
+    visible: set[str] = set()
+    with closing(store._connect()) as connection:
+        for start in range(0, len(ordered_ids), 500):
+            chunk = ordered_ids[start : start + 500]
+            placeholders = ",".join("?" for _ in chunk)
+            where = [f"n.id in ({placeholders})"]
+            params: list[object] = [*chunk]
+            if plan.filters.scope:
+                where.append("n.scope = ?")
+                params.append(plan.filters.scope)
+            if plan.filters.namespace:
+                where.append("n.ns = ?")
+                params.append(plan.filters.namespace)
+            time_params: list[object] = []
+            where.extend(
+                _node_time_clauses(
+                    time_params,
+                    at=plan.graph_at,
+                    include_history=plan.graph_include_history,
+                )
+            )
+            rows = connection.execute(
+                "select n.id from knowledge_nodes n "
+                f"where {' and '.join(where)} order by n.id",
+                [*params, *time_params],
+            ).fetchall()
+            visible.update(str(row["id"]) for row in rows)
+    return visible
 
 
 class SQLAdapter(Protocol):
@@ -82,6 +134,82 @@ class SeamVectorSearchAdapter:
         return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
+class GraphNodeSemanticAdapter:
+    """Expose derived graph-node vectors as an explicit RRF leg and seed set."""
+
+    def __init__(
+        self, store: SQLiteStore, embedding_model: EmbeddingModel
+    ) -> None:
+        self.store = store
+        self.embedding_model = embedding_model
+
+    def search(
+        self,
+        plan: RetrievalPlan,
+        limit: int,
+        *,
+        min_score: float = 0.0,
+    ) -> tuple[list[str], list[LegHit]]:
+        query_text = plan.normalized_query or plan.query
+        if not query_text.strip() or limit <= 0:
+            return [], []
+        model_name = (
+            getattr(self.embedding_model, "name", "")
+            or self.embedding_model.__class__.__name__
+        )
+        ranked = self.store.search_node_vectors(
+            self.embedding_model.embed(query_text),
+            model_name,
+            ns=plan.filters.namespace,
+            scope=plan.filters.scope,
+            limit=limit,
+            min_score=min_score,
+        )
+        visible = _visible_graph_node_ids(
+            self.store, [node_id for node_id, _score in ranked], plan
+        )
+        ranked = [
+            (node_id, score)
+            for node_id, score in ranked
+            if node_id in visible
+        ]
+        if not ranked:
+            return [], []
+        with closing(self.store._connect()) as connection:
+            placeholders = ",".join("?" for _ in ranked)
+            rows = connection.execute(
+                "select id, source_record_id from knowledge_nodes "
+                f"where id in ({placeholders})",
+                [node_id for node_id, _score in ranked],
+            ).fetchall()
+        source_by_node = {
+            str(row["id"]): str(row["source_record_id"] or row["id"])
+            for row in rows
+        }
+        batch = self.store.load_ir(
+            ids=sorted(set(source_by_node.values())),
+            ns=plan.filters.namespace,
+            scope=plan.filters.scope,
+        )
+        records = batch.by_id()
+        hits: list[LegHit] = []
+        accepted_node_ids: list[str] = []
+        for node_id, score in ranked:
+            record = records.get(source_by_node.get(node_id, ""))
+            if record is None or not plan.filters.matches(record):
+                continue
+            accepted_node_ids.append(node_id)
+            hits.append(
+                LegHit(
+                    leg="graph_node",
+                    record=record,
+                    score=score,
+                    reasons=[f"graph_node_semantic={score:.4f}"],
+                )
+            )
+        return accepted_node_ids, hits
+
+
 class SQLiteGraphAdapter:
     def __init__(self, store: SQLiteStore) -> None:
         self.store = store
@@ -92,10 +220,16 @@ class SQLiteGraphAdapter:
         limit: int,
         *,
         seed_record_ids: list[str] | tuple[str, ...] = (),
+        seed_node_ids: list[str] | tuple[str, ...] = (),
     ) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
         tokens = _unique_tokens(_tokens(query_text))
-        if not tokens and not plan.filters.active() and not seed_record_ids:
+        if (
+            not tokens
+            and not plan.filters.active()
+            and not seed_record_ids
+            and not seed_node_ids
+        ):
             return []
         seed_limit = max(50, min(250, limit * 20))
         seed_sql, seed_params = _build_structured_sql(
@@ -124,6 +258,22 @@ class SQLiteGraphAdapter:
             for record in semantic_batch.records
             if plan.filters.matches(record)
         }
+        semantic_seed_ids.update(
+            _visible_graph_node_ids(
+                self.store,
+                sorted(set(seed_node_ids))[:300],
+                plan,
+            )
+        )
+        visible_seed_ids = _visible_graph_node_ids(
+            self.store,
+            {record.id for record in matching_records} | semantic_seed_ids,
+            plan,
+        )
+        matching_records = [
+            record for record in matching_records if record.id in visible_seed_ids
+        ]
+        semantic_seed_ids &= visible_seed_ids
         if not matching_records and not semantic_seed_ids:
             return []
         if tokens:
@@ -140,22 +290,31 @@ class SQLiteGraphAdapter:
         # The graph leg reads the same self-building temporal graph exposed by
         # the dashboard. Unlike the retired ir_edges projection, these rows
         # carry semantic predicates, provenance, validity, and source records.
-        edge_where = [
-            "expired_at is null",
-            "status not in ('contradicted','superseded','deprecated','deleted_soft')",
-        ]
+        edge_where: list[str] = []
         edge_params: list[object] = []
         if plan.filters.scope:
-            edge_where.append("scope = ?")
+            edge_where.append("e.scope = ?")
             edge_params.append(plan.filters.scope)
         if plan.filters.namespace:
-            edge_where.append("ns = ?")
+            edge_where.append("e.ns = ?")
             edge_params.append(plan.filters.namespace)
+        edge_time_params: list[object] = []
+        edge_where.extend(
+            _edge_time_clauses(
+                edge_time_params,
+                at=plan.graph_at,
+                include_history=plan.graph_include_history,
+            )
+        )
+        edge_params.extend(edge_time_params)
         node_budget = max(
             len(initial_seed_ids), min(512, max(64, limit * 32))
         )
         edge_budget = min(4096, max(256, node_budget * 8))
         hop_by_id = {record_id: 0 for record_id in initial_seed_ids}
+        # The parent edge that first discovered a node keeps returned paths
+        # exact and deterministic. Hop-0 seeds intentionally remain path-free.
+        parent_edge: dict[str, tuple[str, str, str, str, str, str]] = {}
         reached_ids = set(initial_seed_ids)
         frontier = set(initial_seed_ids)
         for hop in range(1, plan.graph_hops + 1):
@@ -166,40 +325,86 @@ class SQLiteGraphAdapter:
             hop_where = [*edge_where]
             hop_params = [*edge_params]
             hop_where.append(
-                f"(src_id in ({placeholders}) or dst_id in ({placeholders}) "
-                f"or source_record_id in ({placeholders}))"
+                f"(e.src_id in ({placeholders}) or e.dst_id in ({placeholders}) "
+                f"or e.source_record_id in ({placeholders}))"
             )
             hop_params.extend(
                 [*ordered_frontier, *ordered_frontier, *ordered_frontier, edge_budget]
             )
             edge_sql = (
-                "select id, src_id, predicate as edge_type, dst_id, source_record_id "
-                "from knowledge_edges "
-                f"where {' and '.join(hop_where)} order by id limit ?"
+                "select e.id, e.src_id, e.predicate as edge_type, e.dst_id, e.source_record_id "
+                "from knowledge_edges e "
+                f"where {' and '.join(hop_where)} order by e.id limit ?"
             )
             with closing(self.store._connect()) as connection:
                 rows = connection.execute(edge_sql, hop_params).fetchall()
+            edge_node_ids = {
+                node_id
+                for row in rows
+                for node_id in (
+                    str(row["src_id"]),
+                    str(row["dst_id"]),
+                    str(row["source_record_id"] or ""),
+                )
+                if node_id
+            }
+            visible_edge_node_ids = _visible_graph_node_ids(
+                self.store, edge_node_ids, plan
+            )
             discovered: set[str] = set()
+            discovery_candidates: dict[
+                str, list[tuple[str, str, str, str, str, str]]
+            ] = {}
+
+            def propose(
+                child: str,
+                parent: str,
+                edge_id: str,
+                predicate: str,
+                src: str,
+                dst: str,
+                source: str,
+            ) -> None:
+                discovery_candidates.setdefault(child, []).append(
+                    (parent, edge_id, predicate, src, dst, source)
+                )
+
             for row in rows:
+                edge_id = str(row["id"])
                 src = str(row["src_id"])
                 dst = str(row["dst_id"])
+                predicate = str(row["edge_type"] or "")
                 source = str(row["source_record_id"] or "")
-                graph.setdefault(src, set()).add(dst)
-                graph.setdefault(dst, set()).add(src)
-                if source:
-                    graph.setdefault(source, set()).update((src, dst))
-                    graph.setdefault(src, set()).add(source)
-                    graph.setdefault(dst, set()).add(source)
-                if src in frontier:
+                if src in visible_edge_node_ids and dst in visible_edge_node_ids:
+                    graph.setdefault(src, set()).add(dst)
+                    graph.setdefault(dst, set()).add(src)
+                if source in visible_edge_node_ids:
+                    if src in visible_edge_node_ids:
+                        graph.setdefault(source, set()).add(src)
+                        graph.setdefault(src, set()).add(source)
+                    if dst in visible_edge_node_ids:
+                        graph.setdefault(source, set()).add(dst)
+                        graph.setdefault(dst, set()).add(source)
+                if src in frontier and dst in visible_edge_node_ids:
                     discovered.add(dst)
-                if dst in frontier:
+                    propose(dst, src, edge_id, predicate, src, dst, source)
+                if dst in frontier and src in visible_edge_node_ids:
                     discovered.add(src)
+                    propose(src, dst, edge_id, predicate, src, dst, source)
                 if source in frontier:
-                    discovered.update((src, dst))
+                    if src in visible_edge_node_ids:
+                        discovered.add(src)
+                        propose(src, source, edge_id, predicate, src, dst, source)
+                    if dst in visible_edge_node_ids:
+                        discovered.add(dst)
+                        propose(dst, source, edge_id, predicate, src, dst, source)
             available = node_budget - len(reached_ids)
             next_frontier = set(sorted(discovered - reached_ids)[:available])
             for record_id in next_frontier:
                 hop_by_id[record_id] = hop
+                candidates = discovery_candidates.get(record_id)
+                if candidates:
+                    parent_edge[record_id] = min(candidates)
             reached_ids.update(next_frontier)
             frontier = next_frontier
 
@@ -209,6 +414,56 @@ class SQLiteGraphAdapter:
             scope=plan.filters.scope,
         )
         by_id = reached_batch.by_id()
+
+        def reconstruct_path(
+            record_id: str,
+        ) -> tuple[tuple[str, str, str, str, str], ...]:
+            steps: list[tuple[str, str, str, str, str]] = []
+            current = record_id
+            for _ in range(plan.graph_hops):
+                edge = parent_edge.get(current)
+                if edge is None:
+                    break
+                parent_id, edge_id, predicate, src_id, dst_id, source_record_id = edge
+                steps.append((edge_id, predicate, src_id, dst_id, source_record_id))
+                current = parent_id
+            steps.reverse()
+            return tuple(steps)
+
+        paths_by_record = {
+            record_id: reconstruct_path(record_id)
+            for record_id in reached_ids
+            if hop_by_id.get(record_id, 0) > 0
+        }
+        edge_ids = sorted(
+            {edge_id for path in paths_by_record.values() for edge_id, *_ in path}
+        )
+        episodes_by_edge: dict[str, tuple[str, ...]] = {}
+        if edge_ids:
+            placeholders = ",".join("?" for _ in edge_ids)
+            episode_where, episode_params = _episode_filter_clauses(
+                namespace=plan.filters.namespace,
+                scope=plan.filters.scope,
+                agent_id=None,
+                at=plan.graph_at,
+                include_history=plan.graph_include_history,
+            )
+            with closing(self.store._connect()) as connection:
+                episode_rows = connection.execute(
+                    "select kee.edge_id as edge_id, ep.id as episode_id "
+                    "from knowledge_edge_episodes kee "
+                    "join knowledge_episodes ep on ep.id = kee.episode_id "
+                    f"where kee.edge_id in ({placeholders}) and {' and '.join(episode_where)} "
+                    "order by kee.edge_id, ep.id",
+                    [*edge_ids, *episode_params],
+                ).fetchall()
+            grouped: dict[str, list[str]] = {}
+            for row in episode_rows:
+                grouped.setdefault(str(row["edge_id"]), []).append(str(row["episode_id"]))
+            episodes_by_edge = {
+                edge_id: tuple(episode_ids)
+                for edge_id, episode_ids in grouped.items()
+            }
         hits: list[LegHit] = []
         # ``seed_ids`` is a set because the graph expansion deduplicates lexical
         # seeds and neighbors.  Iterating it directly made equal-score graph
@@ -234,6 +489,19 @@ class SQLiteGraphAdapter:
             score = lexical + neighbor_bonus + seed_bonus + semantic_seed_bonus
             if score <= 0:
                 score = neighbor_bonus
+            path = tuple(
+                GraphPathHop(
+                    edge_id=edge_id,
+                    predicate=predicate,
+                    src_id=src_id,
+                    dst_id=dst_id,
+                    source_record_id=source_record_id or None,
+                    episode_ids=episodes_by_edge.get(edge_id, ()),
+                )
+                for edge_id, predicate, src_id, dst_id, source_record_id in paths_by_record.get(
+                    record_id, ()
+                )
+            )
             hits.append(
                 LegHit(
                     leg="graph",
@@ -245,6 +513,7 @@ class SQLiteGraphAdapter:
                         f"lexical={lexical:.2f}",
                         *( ["semantic_seed=true"] if record_id in semantic_seed_ids else [] ),
                     ],
+                    path=path,
                 )
             )
         return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
@@ -283,7 +552,12 @@ class ChromaSemanticAdapter:
         return self.sync_batch(batch)
 
     def sync_batch(self, batch: IRBatch) -> int:
-        records = [record for record in batch.records if record.kind in INDEXABLE_KINDS]
+        records = [
+            record
+            for record in batch.records
+            if record.kind in INDEXABLE_KINDS
+            and record.status.value not in CURRENT_EXCLUDED_STATUSES
+        ]
         if not records:
             return 0
         collection = self._collection()
@@ -298,6 +572,12 @@ class ChromaSemanticAdapter:
             ],
         )
         return len(records)
+
+    def delete_records(self, record_ids: list[str]) -> None:
+        ids = sorted({str(record_id).strip() for record_id in record_ids})
+        if not ids or any(not record_id for record_id in ids):
+            raise ValueError("record_ids must contain non-empty references")
+        self._collection().delete(ids=ids)
 
     def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
@@ -418,6 +698,11 @@ def _build_structured_sql(
     kind_placeholders = ",".join("?" for _ in allowed_kinds)
     where_clauses = [f"r.kind in ({kind_placeholders})"]
     where_params: list[object] = list(allowed_kinds)
+    if not plan.graph_include_history:
+        excluded = sorted(CURRENT_EXCLUDED_STATUSES)
+        status_placeholders = ",".join("?" for _ in excluded)
+        where_clauses.append(f"r.status not in ({status_placeholders})")
+        where_params.extend(excluded)
 
     if plan.filters.ids:
         placeholders = ",".join("?" for _ in plan.filters.ids)

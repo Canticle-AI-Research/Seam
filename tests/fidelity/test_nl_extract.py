@@ -19,6 +19,7 @@ from seam_runtime.nl_extract import (
     ExtractedEntity,
     Extraction,
     GroundedSpan,
+    _decode_model_json,
     extractor_from_env,
     ground_extraction,
 )
@@ -759,3 +760,48 @@ def test_v2_policy_plumbing_and_rendering():
     fact = _derived_facts(relaxed)[0]
     # a v2 fact renders as "subject predicate object" for embedding, same as v1
     assert SQLiteVectorIndex.render_record_text(fact) == "John love surfing"
+
+
+def test_decode_model_json_accepts_a_bare_object():
+    decoded = _decode_model_json('{"entities": [], "claims": []}')
+    assert decoded == {"entities": [], "claims": []}
+
+
+def test_decode_model_json_unwraps_a_markdown_fence():
+    """Ollama's ``format`` schema constrains JSON shape, not fencing.
+
+    Gemma 4 returns a fenced block. Before this, ``json.loads`` raised and the
+    non-strict path returned an empty Extraction, so a formatting difference read
+    as zero extractable facts (measured: 0.0 items/turn, then 3.8 after the fix).
+    """
+    fenced = '```json\n{"entities": [{"name": "Maria", "type": "person"}], "claims": []}\n```'
+    assert _decode_model_json(fenced) == {
+        "entities": [{"name": "Maria", "type": "person"}],
+        "claims": [],
+    }
+
+
+def test_decode_model_json_unwraps_an_unlabelled_fence():
+    assert _decode_model_json('```\n{"claims": []}\n```') == {"claims": []}
+
+
+def test_decode_model_json_rejects_non_json():
+    """Unwrapping is presentation-level and must not become a salvage path."""
+    with pytest.raises(ValueError):
+        _decode_model_json("I could not find any claims in that sentence.")
+    with pytest.raises(ValueError):
+        _decode_model_json("```json\nnot json at all\n```")
+
+
+def test_fenced_output_still_passes_the_grounding_gate():
+    """Unwrapping grants no trust: fabricated spans are dropped exactly as before."""
+    text = "Maria got a cat named Bailey."
+    raw = _decode_model_json(
+        '```json\n{"entities": [{"name": "Bailey", "type": "pet"},'
+        ' {"name": "Reginald", "type": "person"}],'
+        ' "claims": [{"subject": "Maria", "relation": "got", "object": "a cat named Bailey"},'
+        ' {"subject": "Maria", "relation": "sold", "object": "a boat"}]}\n```'
+    )
+    extraction = ground_extraction(raw, text)
+    assert [entity.name for entity in extraction.entities] == ["Bailey"]
+    assert [claim.obj for claim in extraction.claims] == ["a cat named Bailey"]

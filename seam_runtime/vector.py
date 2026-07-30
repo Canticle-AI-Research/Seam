@@ -189,6 +189,27 @@ class SQLiteVectorIndex:
         # stale-detection round-trip.
         self._cache.clear()
 
+    def delete_records(self, record_ids: Iterable[str]) -> None:
+        """Delete rebuildable vector rows and invalidate all cached slices."""
+
+        ids = tuple(sorted({str(record_id).strip() for record_id in record_ids}))
+        if not ids or any(not record_id for record_id in ids):
+            raise ValueError("record_ids must contain non-empty references")
+        self.ensure_schema()
+        with closing(self._connect()) as connection:
+            for start in range(0, len(ids), 500):
+                chunk = ids[start : start + 500]
+                placeholders = ",".join("?" for _ in chunk)
+                connection.execute(
+                    f"delete from vector_index where record_id in ({placeholders})",
+                    chunk,
+                )
+            connection.commit()
+        # A local write may invalidate any cached matrix; the per-search
+        # fingerprint check would catch it anyway, but clearing here avoids one
+        # stale-detection round-trip.
+        self._cache.clear()
+
     def search(
         self,
         query: str,
