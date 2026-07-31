@@ -685,6 +685,49 @@ def main() -> None:
             file=sys.stderr,
         )
 
+    _fail_on_infrastructure_error(report)
+
+
+def _fail_on_infrastructure_error(report: dict) -> None:
+    """Exit non-zero when EVERY case errored.
+
+    A run whose cases all fail still produces a complete, well-formed report
+    scored 0.0 - which reads as a RESULT rather than a failure. On 2026-07-31 a
+    stale ``HF_HUB_CACHE`` pointing at a dead mount left the embedder unloadable
+    and scored 0.0 on all 200 cases; nothing in the output said "infrastructure",
+    so it looked like a catastrophic quality regression instead of a
+    misconfigured shell. The report is still written (it is the diagnostic), but
+    the exit code now says the run is not a measurement.
+    """
+    cases = report.get("cases") or []
+    if not cases:
+        return
+    errored = [case for case in cases if case.get("error")]
+    if len(errored) != len(cases):
+        return
+
+    first = errored[0].get("error") or {}
+    kinds = sorted({str((c.get("error") or {}).get("type", "?")) for c in errored})
+    message = str(first.get("message", "")).splitlines()
+    lines = [
+        "",
+        f"FAILED: all {len(cases)} case(s) errored. This is an INFRASTRUCTURE "
+        "failure, not a benchmark result - the 0.0 scores are meaningless.",
+        f"  error type(s): {', '.join(kinds)}",
+        f"  stage:         {first.get('stage', '?')}",
+        f"  message:       {(message[0] if message else '')[:200]}",
+    ]
+    if "huggingface" in str(first.get("message", "")).lower():
+        lines += [
+            "  The embedder could not load. If HF_HUB_CACHE is set, it must point",
+            "  at a real POPULATED cache; otherwise unset it and rely on the",
+            "  default ~/.cache/huggingface with HF_HUB_OFFLINE=1. Pointing it at",
+            "  a path that does not exist makes huggingface_hub create an empty",
+            "  directory there and fail every case.",
+        ]
+    print("\n".join(lines), file=sys.stderr)
+    raise SystemExit(1)
+
 
 def _is_ephemeral_path(path: str) -> bool:
     # Check both the resolved path (catches this OS's real temp dir) and the raw

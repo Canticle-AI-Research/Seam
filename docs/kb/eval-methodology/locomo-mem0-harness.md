@@ -15,9 +15,17 @@ Operational reference for the incumbent-relative scoreboard. Pair with
   `[Speaker YYYY-MM-DD] text`. Honors `RetrievalFlags` + env policies.
 - **Dataset:** `~/seam_benchmarks/track_m/locomo/locomo10.json` (10 conversations;
   cat1 282 / cat2 321 / cat3 96 / cat4 841 / cat5 446).
-- **Mandatory env:** `HF_HUB_CACHE=/media/terrabyte/T7/hf-cache HF_HUB_OFFLINE=1
-  TRANSFORMERS_OFFLINE=1 SEAM_BENCH_RECORD_DIR=/media/terrabyte/T7/Proprietary/DATA`.
-  Omitting it fails real-facade runs on a BGE load / stale-HF-token error.
+- **Mandatory env:** `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+  SEAM_BENCH_RECORD_DIR=/mnt/t7/Proprietary/DATA`. Omitting the offline flags
+  fails real-facade runs on a BGE load / stale-HF-token error.
+- **Do NOT set `HF_HUB_CACHE`.** The default `~/.cache/huggingface` holds
+  `BAAI/bge-small-en-v1.5` and loads offline (verified). The old
+  `/media/terrabyte/T7/...` paths are DEAD: T7 now mounts at `/mnt/t7`, so
+  `/media/terrabyte/T7` is an empty directory on the INTERNAL disk. Pointing
+  `HF_HUB_CACHE` there makes huggingface_hub silently create it, find nothing,
+  reach for the network, and fail every case with `OSError: couldn't connect to
+  huggingface.co ... couldn't find them in the cached files` — a 200-case run
+  scored 0.0 on all 200 that way on 2026-07-31.
 
 ## The two-phase run pattern
 

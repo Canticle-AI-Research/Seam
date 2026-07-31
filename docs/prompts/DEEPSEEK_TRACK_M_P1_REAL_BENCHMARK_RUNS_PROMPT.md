@@ -6,7 +6,7 @@ Paste this prompt into DeepSeek after Track M P0 has landed on `main`.
 
 You are DeepSeek working in the SEAM repo at:
 
-`/media/terrabyte/T7/Proprietary/Projects-All/Seam`
+`/home/terrabyte/Documents/Projects/Seam`
 
 Execute:
 
