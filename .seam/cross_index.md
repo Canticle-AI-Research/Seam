@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 567
+total_events: 568
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-14T06:56:46Z | history:312:d81f92ae | session-event | done | self-improvement, loop, self-probe, retrieval, locomo, be... | seam_runtime/self_improve.py,tests/audit/test_self_probe_scorer.py,HISTORY.md... |
 | 2026-06-14T08:03:31Z | history:313:105bd107 | session-event | done | mirl, compiler, nl, ollama, extractor, fidelity, llm, tes... | seam_runtime/nl_extract.py,seam_runtime/nl.py,tests/fidelity/test_nl_extract.... |
 | 2026-06-14T11:04:31Z | history:314:bcd1c824 | session-event | done | pack, density, compression, context, retrieval, cr, verif... | seam_runtime/pack.py,seam_runtime/context_views.py,test_seam_all/test_seam.py... |
 | 2026-06-14T12:27:24Z | history:315:1824fb06 | session-event | done | pack, density, compression, context, retrieval, cr, verif... | seam_runtime/pack.py,test_seam_all/test_seam.py,HISTORY.md,HISTORY_INDEX.md,P... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-30T16:33:26Z | history:503:1b3130cb | session-event | changed | retrieval, benchmark, locomo, rank, graph, verify, handof... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-30-full-retrieval-ab-n... |
 | 2026-07-30T17:09:40Z | history:504:41987004 | session-event | in-progress | retrieval, benchmark, locomo, rank, graph, verify, handof... | seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/extern... |
 | 2026-07-30T21:07:58Z | history:505:5673f963 | session-event | changed | retrieval, benchmark, wandr, trace, status, locomo, verify | PROJECT_STATUS.md,docs/status/index.md,docs/handoffs/2026-07-30-wandr-zero-ne... |
+| 2026-07-31T19:32:14Z | history:506:cfcf42ff | session-event | done | tests, sqlite, test-artifacts, cleanup, windows, verify | none |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0367.cross.md | 2026-04-15T00:00:00Z..2026-06-14T05:06:38Z | 367 | (multi) | (multi) |
+| 0001-0368.cross.md | 2026-04-15T00:00:00Z..2026-06-14T06:56:46Z | 368 | (multi) | (multi) |
