@@ -4,10 +4,11 @@
 
 _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
-## Status: QUALIFIED through the no-REL gate
+## Status: QUALIFIED through the sparse-REL fail-closed gate
 
 This qualification covers fail-closed behavior when semantic relations are
-absent; the extraction substrate itself remains unqualified.
+absent or below the admission floor; the extraction substrate itself remains
+unqualified.
 
 One canonical engine. `RetrievalOrchestrator` owns SQL, vector, graph,
 graph-node, and explicit temporal retrieval. `SeamRuntime.retrieve()` is the
@@ -83,9 +84,16 @@ confound.
   operator-reported 7 relations over 30 turns remains suggestive but is not a
   qualified artifact: it is below the sample floor and has no pinned
   corpus/config/label bundle in the repository.
-- No extractor or model run is implied by the analyzer. Run it against an
-  isolated extracted clone only when that model boundary is explicitly
-  authorized.
+- The explicitly authorized pinned local `qwen2.5-7b-1m` run then produced 27
+  persisted/admitted/exact-backtrace relations across 24 of the same 419 turns
+  (5.73%). It passed source identity, one-config admission, exact backtrace,
+  graph schema, boundary, self-loop, and hub checks; max degree was 6 against
+  the bound of 8, with 36 incremental cross-turn two-hop paths. It still failed
+  both the 30-edge and 10%-turn floors, so `status=insufficient_evidence`,
+  `passed=false`, and `scorer_eligible=false`. Its deterministic 27-relation
+  review template is external and unlabeled; precision is not claimed.
+- No extractor or model run is implied by the read-only analyzer. Any further
+  extraction experiment remains a separately authorized model boundary.
 - Build or adopt a query-aware edge/path scorer only after that substrate
   passes and exposes predicate diversity plus incremental cross-turn two-hop
   paths, then require a same-snapshot category-1 holdout gain over `hybrid`.

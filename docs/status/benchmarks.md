@@ -83,6 +83,18 @@ failed with zero persisted/admitted/backtraced relations and
 `scorer_eligible=false`; its missing legacy graph-projection schema is reported
 as a named rejection rather than an analyzer crash.
 
+After explicit operator authorization, one isolated local extraction ran over
+the same pinned `conv-26` denominator with `qwen2.5-7b-1m:latest`, exact model
+digest `31ef7dc41e362c780fad4b23d2c5c7d781ebe672984e6fe3ce3e49977315ee89`,
+and one `grounded-rel/1` configuration. Dataset and observed RAW identity both
+matched their independent pins. The result contained 27 persisted/admitted/
+exact-backtrace relations across 24 of 419 turns (5.73%), so it failed the
+30-relation and 10%-turn floors with `status=insufficient_evidence` and
+`scorer_eligible=false`. Hub degree passed at 6 against a bound of 8, and 36
+incremental cross-turn two-hop paths demonstrate some usable topology, but do
+not override the substrate floor. The 27-item external review template remains
+unlabeled; sampled precision is therefore unknown, not passed or failed.
+
 ## Recorded audits
 
 - `docs/audits/2026-05-31-cat4-single-hop-attribution.md`

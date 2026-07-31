@@ -290,6 +290,16 @@ template, then rerun the same command with the template passed to `--labels`.
 `passed` qualifies the extraction substrate; `scorer_eligible` is the stricter
 authorization for adaptive depth and relation/triplet scoring.
 
+The first pinned local qualification run (2026-07-31) used one
+`grounded-rel/1` configuration over all 419 `conv-26` turns. It produced 27
+persisted/admitted/exact-backtrace relations on 24 turns (5.73%). Identity,
+admission, backtrace, hub degree, and cross-turn two-hop checks passed, but the
+30-relation and 10%-turn floors did not. The result is
+`status=insufficient_evidence`, `passed=false`, and `scorer_eligible=false`;
+its unlabeled 27-item review template does not establish semantic precision.
+This is evidence of sparse semantic topology, not authorization to build a
+scorer.
+
 G3 can explicitly seed graph traversal from both in-boundary semantic
 fact/episode MIRL hits and versioned graph-node vectors for entities, values,
 agents, and symbols. Graph-node hits enter `reciprocal-rank-fusion/2` as the

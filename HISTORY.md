@@ -14563,3 +14563,89 @@ PR #189. After explicit operator clearance, build one isolated corpus under a
 pinned extractor configuration and require both `passed=true` and
 `scorer_eligible=true` before implementing or benchmarking a scorer.
 ---END-ENTRY-#507---
+
+---BEGIN-ENTRY-#508---
+id: 508
+date: 2026-07-31T15:30:12Z
+agent: codex
+status: changed
+topics: benchmark, retrieval, graph, nl, mirl, provenance, audit, verify, handoff, status, tests, models, locomo, security
+commits: pending
+refs: PROJECT_STATUS.md,docs/KNOWLEDGE_GRAPH.md,docs/status/benchmarks.md,docs/status/retrieval.md,docs/handoffs/2026-07-31-local-relation-extraction-insufficient.md,seam_runtime/nl.py,tools/relation_extraction_ingest.py,tests/fidelity/test_nl_extract.py,tests/audit/test_relation_extraction_ingest.py
+supersedes: 507
+tokens: 1129
+---
+Pinned local relation extraction and sparse-substrate decision
+
+AUTHORIZED AND RAN one isolated local extraction qualification:
+- Pinned `benchmarks/external/locomo/data/locomo10.json` at SHA-256
+  `79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4`,
+  scope `conv-26`, 419 turns, and independently reconstructed RAW identity
+  `493528a19823613e26414d7f7f9f99e069d3d445bddc2af9bcb68925c36a8ebb`.
+- Used only local Ollama `qwen2.5-7b-1m:latest` with installed digest
+  `31ef7dc41e362c780fad4b23d2c5c7d781ebe672984e6fe3ce3e49977315ee89`,
+  strict loopback, deterministic generation settings, and one
+  `grounded-rel/1` extractor configuration. Cloud-backed Ollama tags are
+  rejected before work. The run made 1,208 unique model generations and 122
+  same-configuration/content cache hits across 1,330 proposition requests.
+- Persisted 27 REL; all 27 were canonically admitted and exact-backtraced to
+  the same RAW through span, provenance, and projected edge-episode paths.
+  They cover 24/419 turns (5.7279%), with 27 unique entity pairs and 27 unique
+  predicates.
+- Topology is real but sparse: 40 entities, max undirected distinct-neighbor
+  degree 6 against bound 8, 37 simple two-hop paths, and 36 incremental
+  cross-turn two-hop paths reaching 18 entities.
+- The unchanged automatic gate failed both relation volume (27 < 30) and turn
+  coverage (5.73% < 10%). Final result is
+  `status=insufficient_evidence`, `passed=false`, and
+  `scorer_eligible=false`. The deterministic 27-item external review template
+  remains unlabeled; semantic precision is unknown and was not inferred from
+  structural validity.
+
+BUILT the minimal explicit relation-qualification bridge and runner:
+- `compile_nl` validates a caller-supplied canonical speaker/timestamp envelope
+  even when derived-fact serving is disabled. Exact explicit lossless
+  first-person claims rebase to the turn speaker; unproved or inferred
+  first-person claims and global `I` entities fail closed. Existing
+  derived-fact policy behavior remains unchanged.
+- `tools.relation_extraction_ingest` pins dataset/scope/model digest, rejects
+  cloud tags and non-loopback origins, requires a fresh SQLite output,
+  preserves canonical LoCoMo formatting/source refs, independently proves RAW
+  identity, caches by exact extractor configuration plus content, immediately
+  runs the provider-free qualifier, and atomically writes the content-free
+  receipt plus separate content-bearing review template.
+- Dataset/model/config drift, duplicate canonical source refs, nonfinite
+  timeouts, output/cache/artifact sidecar collisions, malformed extractor
+  metadata, and stored RAW mismatch fail closed. Programmatic injected test
+  extractors are explicitly reported as unattested and cannot claim zero cloud
+  calls; only the pinned CLI default receives the local-Ollama attestation.
+
+EVIDENCE:
+- External directory: `/mnt/data/seam-rel-qual-conv26.xpluzp/`.
+- Corpus DB SHA-256:
+  `c9a81abdc08a1f0441c31b81b1c830b6292ac569a0512139fbdd8fd45d46def7`.
+- Content-free receipt SHA-256:
+  `784f1ddf0c9a5cac732a8e0a519dda6cd6c085dbbbf02698140ffd649ede9774`.
+- External review-template SHA-256:
+  `b69723e462c9e21298b850f788991f9b7fc403ed2edf657c1750b25c5fea7e15`.
+- A standalone read-only qualifier reproduced every count, digest, check,
+  topology field, and the required nonzero exit.
+
+VERIFICATION:
+- Combined embedding-preflight, vector-integrity, compiler, relation-runner,
+  and qualifier slice collected and passed 130/130 with zero skips.
+- Changed Python files pass Ruff and `py_compile`; `git diff --check` passes.
+- CodeRabbit's one test-isolation and four runner-hardening findings were
+  repaired and regression-tested. Its final retry was rate-limited; an
+  independent read-only agent review found no remaining blocker and confirmed
+  the completed artifact matches the final canonical source identities and
+  database digest.
+
+DECISION: do not build eGoT adaptive depth, TREK relation/triplet scoring, or
+path confidence on this corpus. Land the bounded guard, qualifier, relation
+bridge, and runner through PR #189. Keep traversal fail-closed below semantic
+edge admission. Any extraction-yield improvement is a new explicitly
+authorized pinned experiment; a scorer remains blocked until both
+`passed=true` and `scorer_eligible=true`, followed by an attributable
+category-1 holdout gain over `hybrid`.
+---END-ENTRY-#508---

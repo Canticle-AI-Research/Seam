@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-31-embedding-preflight-relation-gate
 supersedes: 2026-07-30-semantic-graph-admission-qualified
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#507
 ---
 

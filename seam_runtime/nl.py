@@ -173,19 +173,35 @@ def compile_nl(
     speaker_match = _SPEAKER_RE.match(raw_text)
     if speaker_match:
         speaker_subject = entity_id(speaker_match.group(1), "person")
+    # An explicitly supplied extractor may be used by the isolated relation
+    # qualification lane without enabling the derived-facts serving policy.
+    # Validate the same canonical turn envelope in both cases so first-person
+    # subjects can be grounded to the named speaker before any REL is emitted.
+    # Environment-selected extraction remains unable to manufacture speaker
+    # metadata because callers must supply both fields explicitly.
+    explicit_turn_metadata_requested = extractor is not None and (
+        speaker is not None or source_timestamp is not None
+    )
     turn_metadata = (
         _validated_turn_metadata(
             raw_text,
             speaker=speaker,
             source_timestamp=source_timestamp,
         )
-        if extractor is not None and derived_fact_policy
+        if extractor is not None
+        and speaker is not None
+        and source_timestamp is not None
         else None
     )
     explicit_speaker = turn_metadata[0] if turn_metadata is not None else None
     source_prefix_end = turn_metadata[1] if turn_metadata is not None else None
     rich_extractor = extractor
-    if derived_fact_policy and turn_metadata is None:
+    if explicit_turn_metadata_requested and turn_metadata is None:
+        # The caller asked for speaker-aware extraction but the source did not
+        # carry the exact canonical envelope. Keep only the faithful floor;
+        # otherwise a global ``I`` entity could leak into relation topology.
+        rich_extractor = None
+    elif derived_fact_policy and turn_metadata is None:
         # A candidate-policy CLM without a canonical speaker envelope cannot
         # be safely attributed or served. Do not even index it: rich CLMs
         # participate in retrieval before the presentation gate.
@@ -440,6 +456,9 @@ def compile_nl(
             if not derived_fact_policy:
                 for entity in extraction.entities:
                     if (
+                        explicit_speaker
+                        and is_singular_first_person(entity.name)
+                    ) or (
                         _normalized_label(entity.name) in rebased_subjects
                     ):
                         continue
@@ -455,6 +474,16 @@ def compile_nl(
             extracted_entity_word_sets = [_content_words(e.name) for e in extraction.entities]
             for claim in extraction.claims:
                 rebased = id(claim) in rebased_claim_ids
+                if (
+                    explicit_speaker
+                    and is_singular_first_person(claim.subject)
+                    and not rebased
+                ):
+                    # A first-person model claim is safe only after the exact
+                    # lossless gate has proved it can be rebound to this turn's
+                    # canonical speaker. Never persist a conversation-global
+                    # ``I`` entity when that proof fails.
+                    continue
                 if derived_fact_policy and not rebased:
                     continue
                 resolved_subject_label = (

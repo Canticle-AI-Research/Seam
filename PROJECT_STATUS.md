@@ -9,17 +9,16 @@
 
 ## Current headline
 
-**2026-07-31 — HISTORY#507 (embedding integrity and extraction gate built;
-extraction paused).** Every scored LoCoMo run and ingest-only snapshot now
-fails before workers, checkpoints, or cases unless the exact pinned offline BGE
-model executes successfully; warm databases must also have complete usable
-current-model vectors with no same-boundary orphans. A provider-free
-entity-to-entity `REL` qualifier now enforces pinned turn identity, canonical
-admission, exact triple RAW backtraces, one extractor configuration, bounded
-hub degree, deterministic human precision review, and cross-turn two-hop
-scorer eligibility. The tracked 419-turn snapshot replays as zero `REL` and
-fails; the reported 7/30 result remains insufficient and unpinned. No extractor,
-Ollama, eGoT depth gate, or TREK scorer was run or added. See
+**2026-07-31 — HISTORY#508 (pinned local relation extraction completed;
+substrate insufficient).** The embedding-integrity preflight and provider-free
+relation gate remain enforced. One explicitly authorized, isolated local
+`qwen2.5-7b-1m` extraction covered the pinned 419-turn `conv-26` corpus and
+produced 27 canonically admitted, exact-backtrace `REL` edges across 24 turns
+(5.73%). Admission, source identity, one-config integrity, hub degree, and
+cross-turn two-hop checks pass, but the corpus misses both the 30-edge and
+10%-turn floors; `passed=false` and `scorer_eligible=false`. Precision remains
+unclaimed because the automatic evidence floor failed before human review. No
+eGoT depth gate or TREK relation/triplet scorer was built. See
 `docs/status/benchmarks.md` and `docs/status/retrieval.md`.
 
 ## Status streams

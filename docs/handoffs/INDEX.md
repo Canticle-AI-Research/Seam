@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-07-31-embedding-preflight-relation-gate
+latest: 2026-07-31-local-relation-extraction-insufficient
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-07-31-embedding-preflight-relation-gate` | [2026-07-31-embedding-preflight-relation-gate.md](2026-07-31-embedding-preflight-relation-gate.md) | `2026-07-30-semantic-graph-admission-qualified` | `HISTORY#507` | `current` |
+| `2026-07-31-local-relation-extraction-insufficient` | [2026-07-31-local-relation-extraction-insufficient.md](2026-07-31-local-relation-extraction-insufficient.md) | `2026-07-31-embedding-preflight-relation-gate` | `HISTORY#508` | `current` |
+| `2026-07-31-embedding-preflight-relation-gate` | [2026-07-31-embedding-preflight-relation-gate.md](2026-07-31-embedding-preflight-relation-gate.md) | `2026-07-30-semantic-graph-admission-qualified` | `HISTORY#507` | `superseded` |
 | `2026-07-30-semantic-graph-admission-qualified` | [2026-07-30-semantic-graph-admission-qualified.md](2026-07-30-semantic-graph-admission-qualified.md) | `2026-07-30-wandr-zero-network-replay-lane` | `HISTORY#506` | `superseded` |
 | `2026-07-30-wandr-zero-network-replay-lane` | [2026-07-30-wandr-zero-network-replay-lane.md](2026-07-30-wandr-zero-network-replay-lane.md) | `2026-07-30-retrieval-baseline-ablation-in-progress` | `HISTORY#505` | `superseded` |
 | `2026-07-30-retrieval-baseline-ablation-in-progress` | [2026-07-30-retrieval-baseline-ablation-in-progress.md](2026-07-30-retrieval-baseline-ablation-in-progress.md) | `2026-07-30-full-retrieval-ab-negative` | `HISTORY#504` | `superseded` |
