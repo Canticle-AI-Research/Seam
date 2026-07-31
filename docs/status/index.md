@@ -10,7 +10,7 @@ streams: 8
 
 | stream | file | covers |
 |---|---|---|
-| `retrieval` | [retrieval.md](retrieval.md) | Retrieval engine, ranking policies, and the open ablation gate |
+| `retrieval` | [retrieval.md](retrieval.md) | Retrieval engine, ranking policies, semantic-edge admission, and the qualified provider-free gate |
 | `benchmarks` | [benchmarks.md](benchmarks.md) | LoCoMo, WANDR, BEAM, harness, integrity levels, and recorded audits |
 | `surfaces` | [surfaces.md](surfaces.md) | CLI, shell, TUI dashboard, webui, REST, MCP, SDK, installers |
 | `compression-visual` | [compression-visual.md](compression-visual.md) | MIRL/RC, SEAM-LX/1, and SEAM-HS/1 holographic surfaces |

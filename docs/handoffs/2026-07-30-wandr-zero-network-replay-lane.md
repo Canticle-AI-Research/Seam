@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-07-30-wandr-zero-network-replay-lane
 supersedes: 2026-07-30-retrieval-baseline-ablation-in-progress
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#505
 ---
 

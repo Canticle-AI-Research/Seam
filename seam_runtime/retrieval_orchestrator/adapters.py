@@ -7,6 +7,7 @@ from contextlib import closing
 from dataclasses import dataclass
 from typing import Protocol
 
+from seam_runtime.bm25 import BM25Index
 from seam_runtime.knowledge_graph import (
     CURRENT_EXCLUDED_STATUSES,
     _edge_time_clauses,
@@ -15,16 +16,24 @@ from seam_runtime.knowledge_graph import (
 )
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, iter_textual_fields
 from seam_runtime.models import EmbeddingModel
+from seam_runtime.retrieval import search_batch
 from seam_runtime.storage import SQLiteStore
 from seam_runtime.temporal import parse_iso, temporal_distance_score
 from seam_runtime.vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION, SQLiteVectorIndex
 from seam_runtime.vector_adapters import VectorAdapter, search_vector_adapter
-from seam_runtime.bm25 import BM25Index
-from seam_runtime.retrieval import search_batch
 
 from .types import GraphPathHop, LegHit, RetrievalPlan
 
 GRAPH_RETURN_KINDS = {RecordKind.ENT, *INDEXABLE_KINDS}
+_GRAPH_SEED_CAP = 300
+_GRAPH_SEMANTIC_SEED_RESERVE = 50
+# Keep every one-shot ``IN (...)`` IR load below SQLite's legacy 999-variable
+# floor, including namespace/scope parameters. Traversal admits endpoint/source
+# pairs into this shared budget so a returned REL can never outlive its path.
+_GRAPH_RETURN_LOAD_CAP = 500
+# Queries below bind a chunk twice. Four hundred IDs leave deterministic
+# headroom for all graph boundary and temporal parameters under the same floor.
+_GRAPH_REPEATED_ID_CHUNK = 400
 
 
 def _visible_graph_node_ids(
@@ -337,9 +346,293 @@ class GraphNodeSemanticAdapter:
         return accepted_node_ids, hits
 
 
+_CANONICAL_RELATION_EDGE_FROM = (
+    "from knowledge_edges e "
+    "join ir_records rel on rel.id = e.source_record_id "
+    "join knowledge_nodes src_node on src_node.id = e.src_id "
+    "join knowledge_nodes dst_node on dst_node.id = e.dst_id "
+    "join ir_records src_record on src_record.id = src_node.id "
+    "join ir_records dst_record on dst_record.id = dst_node.id "
+)
+
+_CANONICAL_RELATION_EDGE_CLAUSES = (
+    "rel.kind = 'REL'",
+    "src_record.kind = 'ENT'",
+    "dst_record.kind = 'ENT'",
+    "src_node.kind = 'entity'",
+    "dst_node.kind = 'entity'",
+    "src_node.synthetic = 0",
+    "dst_node.synthetic = 0",
+    "src_node.source_record_id = src_record.id",
+    "dst_node.source_record_id = dst_record.id",
+    "rel.ns = e.ns",
+    "rel.scope = e.scope",
+    "src_node.ns = e.ns",
+    "src_node.scope = e.scope",
+    "dst_node.ns = e.ns",
+    "dst_node.scope = e.scope",
+    "src_record.ns = e.ns",
+    "src_record.scope = e.scope",
+    "dst_record.ns = e.ns",
+    "dst_record.scope = e.scope",
+    (
+        "case when json_valid(e.properties_json) "
+        "then json_extract(e.properties_json, '$.relation_id') end = rel.id"
+    ),
+    (
+        "case when json_valid(rel.payload_json) "
+        "then json_extract(rel.payload_json, '$.attrs.src') end = e.src_id"
+    ),
+    (
+        "case when json_valid(rel.payload_json) "
+        "then json_extract(rel.payload_json, '$.attrs.dst') end = e.dst_id"
+    ),
+    (
+        "case when json_valid(rel.payload_json) "
+        "then json_extract(rel.payload_json, '$.attrs.predicate') end = e.predicate"
+    ),
+)
+
+
+def _canonical_relation_edge_where(
+    plan: RetrievalPlan,
+) -> tuple[list[str], list[object]]:
+    """Build the fail-closed admission predicate for traversable graph edges."""
+
+    where = list(_CANONICAL_RELATION_EDGE_CLAUSES)
+    params: list[object] = []
+    if plan.filters.scope:
+        where.append("e.scope = ?")
+        params.append(plan.filters.scope)
+    if plan.filters.namespace:
+        where.append("e.ns = ?")
+        params.append(plan.filters.namespace)
+    time_params: list[object] = []
+    where.extend(
+        _edge_time_clauses(
+            time_params,
+            at=plan.graph_at,
+            include_history=plan.graph_include_history,
+        )
+    )
+    params.extend(time_params)
+    for alias in ("src_node", "dst_node"):
+        node_time_params: list[object] = []
+        node_time_clauses = _node_time_clauses(
+            node_time_params,
+            at=plan.graph_at,
+            include_history=plan.graph_include_history,
+        )
+        where.extend(
+            clause.replace("n.", f"{alias}.")
+            for clause in node_time_clauses
+        )
+        params.extend(node_time_params)
+    return where, params
+
+
 class SQLiteGraphAdapter:
     def __init__(self, store: SQLiteStore) -> None:
         self.store = store
+
+    def has_admissible_relation_edges(self, plan: RetrievalPlan) -> bool:
+        """Return whether the selected boundary contains a canonical REL edge."""
+
+        where, params = _canonical_relation_edge_where(plan)
+        with closing(self.store._connect()) as connection:
+            row = connection.execute(
+                "select 1 "
+                + _CANONICAL_RELATION_EDGE_FROM
+                + f"where {' and '.join(where)} limit 1",
+                params,
+            ).fetchone()
+        return row is not None
+
+    def _ground_seed_entity_ids(
+        self,
+        plan: RetrievalPlan,
+        record_ids: set[str] | list[str] | tuple[str, ...],
+        *,
+        limit: int,
+        prefer_direct: bool = False,
+    ) -> set[str]:
+        """Ground bounded record seeds to canonical entity endpoints.
+
+        REL/CLM grounding edges may map seed records to their explicit entity
+        endpoints. ``prefer_direct`` lets lexical query grounding stop at an
+        exact canonical entity match; semantic candidates instead union direct
+        and record-grounded entities. Structural edges stop here: only
+        canonical REL-backed entity-to-entity edges can admit the grounded
+        nodes or expand them.
+        """
+
+        ordered_ids = sorted(set(record_ids))[:300]
+        if not ordered_ids or limit <= 0:
+            return set()
+        placeholders = ",".join("?" for _ in ordered_ids)
+        boundary: list[str] = []
+        boundary_params: list[object] = []
+        if plan.filters.scope:
+            boundary.append("n.scope = ?")
+            boundary_params.append(plan.filters.scope)
+        if plan.filters.namespace:
+            boundary.append("n.ns = ?")
+            boundary_params.append(plan.filters.namespace)
+        direct_where = [
+            f"n.id in ({placeholders})",
+            "n.kind = 'entity'",
+            "n.synthetic = 0",
+            "n.source_record_id = n.id",
+            "ent.kind = 'ENT'",
+            "ent.ns = n.ns",
+            "ent.scope = n.scope",
+            *boundary,
+        ]
+        with closing(self.store._connect()) as connection:
+            direct_rows = connection.execute(
+                "select n.id from knowledge_nodes n "
+                "join ir_records ent on ent.id = n.id "
+                f"where {' and '.join(direct_where)} order by n.id limit ?",
+                [*ordered_ids, *boundary_params, limit],
+            ).fetchall()
+        grounded = {str(row["id"]) for row in direct_rows}
+
+        if not grounded or not prefer_direct:
+            relation_where, relation_params = _canonical_relation_edge_where(plan)
+            relation_where.append(f"rel.id in ({placeholders})")
+            with closing(self.store._connect()) as connection:
+                relation_rows = connection.execute(
+                    "select distinct rel.id "
+                    + _CANONICAL_RELATION_EDGE_FROM
+                    + f"where {' and '.join(relation_where)} order by rel.id",
+                    [*relation_params, *ordered_ids],
+                ).fetchall()
+            eligible_relation_ids = sorted(
+                str(row["id"]) for row in relation_rows
+            )
+            grounding_alternatives = [
+                (
+                    "(seed.kind = 'CLM' and "
+                    "case when json_valid(seed.payload_json) then "
+                    "json_extract(seed.payload_json, '$.attrs.subject') end = e.dst_id "
+                    "and e.predicate = 'about')"
+                ),
+                (
+                    "(seed.kind = 'CLM' and "
+                    "case when json_valid(seed.payload_json) then "
+                    "json_extract(seed.payload_json, '$.attrs.object') end = e.dst_id "
+                    "and e.predicate = 'object')"
+                ),
+            ]
+            grounding_relation_params: list[object] = []
+            if eligible_relation_ids:
+                relation_placeholders = ",".join(
+                    "?" for _ in eligible_relation_ids
+                )
+                grounding_alternatives.extend(
+                    [
+                        (
+                            "(seed.kind = 'REL' and "
+                            f"seed.id in ({relation_placeholders}) and "
+                            "case when json_valid(seed.payload_json) then "
+                            "json_extract(seed.payload_json, '$.attrs.src') end = e.dst_id "
+                            "and e.predicate = 'subject')"
+                        ),
+                        (
+                            "(seed.kind = 'REL' and "
+                            f"seed.id in ({relation_placeholders}) and "
+                            "case when json_valid(seed.payload_json) then "
+                            "json_extract(seed.payload_json, '$.attrs.dst') end = e.dst_id "
+                            "and e.predicate = 'object')"
+                        ),
+                    ]
+                )
+                grounding_relation_params.extend(eligible_relation_ids)
+                grounding_relation_params.extend(eligible_relation_ids)
+            grounding_where = [
+                f"e.src_id in ({placeholders})",
+                "e.source_record_id = e.src_id",
+                "e.edge_kind = 'grounding'",
+                "n.kind = 'entity'",
+                "n.synthetic = 0",
+                "n.source_record_id = n.id",
+                "ent.kind = 'ENT'",
+                "ent.ns = n.ns",
+                "ent.scope = n.scope",
+                "seed.ns = e.ns",
+                "seed.scope = e.scope",
+                "n.ns = e.ns",
+                "n.scope = e.scope",
+                "(" + " or ".join(grounding_alternatives) + ")",
+            ]
+            if plan.filters.scope:
+                grounding_where.append("e.scope = ?")
+            if plan.filters.namespace:
+                grounding_where.append("e.ns = ?")
+            grounding_time_params: list[object] = []
+            grounding_where.extend(
+                _edge_time_clauses(
+                    grounding_time_params,
+                    at=plan.graph_at,
+                    include_history=plan.graph_include_history,
+                )
+            )
+            grounding_params: list[object] = [
+                *ordered_ids,
+                *grounding_relation_params,
+            ]
+            if plan.filters.scope:
+                grounding_params.append(plan.filters.scope)
+            if plan.filters.namespace:
+                grounding_params.append(plan.filters.namespace)
+            grounding_params.extend(grounding_time_params)
+            with closing(self.store._connect()) as connection:
+                grounding_rows = connection.execute(
+                    "select distinct n.id from knowledge_edges e "
+                    "join ir_records seed on seed.id = e.src_id "
+                    "join knowledge_nodes n on n.id = e.dst_id "
+                    "join ir_records ent on ent.id = n.id "
+                    f"where {' and '.join(grounding_where)} "
+                    "order by n.id limit ?",
+                    [*grounding_params, limit],
+                ).fetchall()
+            grounded.update(str(row["id"]) for row in grounding_rows)
+
+        if not grounded:
+            return set()
+        admitted_where, admitted_params = _canonical_relation_edge_where(plan)
+        grounded_ids = sorted(grounded)
+        admitted_node_ids: set[str] = set()
+        with closing(self.store._connect()) as connection:
+            for start in range(
+                0, len(grounded_ids), _GRAPH_REPEATED_ID_CHUNK
+            ):
+                chunk = grounded_ids[
+                    start : start + _GRAPH_REPEATED_ID_CHUNK
+                ]
+                placeholders = ",".join("?" for _ in chunk)
+                admitted_sql = (
+                    "with admitted as ("
+                    "select e.src_id, e.dst_id "
+                    + _CANONICAL_RELATION_EDGE_FROM
+                    + f"where {' and '.join(admitted_where)}"
+                    ") "
+                    "select node_id from ("
+                    "select src_id as node_id from admitted "
+                    f"where src_id in ({placeholders}) "
+                    "union "
+                    "select dst_id as node_id from admitted "
+                    f"where dst_id in ({placeholders})"
+                    ") order by node_id limit ?"
+                )
+                admitted_rows = connection.execute(
+                    admitted_sql,
+                    [*admitted_params, *chunk, *chunk, limit],
+                ).fetchall()
+                admitted_node_ids.update(
+                    str(row["node_id"]) for row in admitted_rows
+                )
+        return set(sorted(admitted_node_ids)[:limit])
 
     def search(
         self,
@@ -348,6 +641,7 @@ class SQLiteGraphAdapter:
         *,
         seed_record_ids: list[str] | tuple[str, ...] = (),
         seed_node_ids: list[str] | tuple[str, ...] = (),
+        admitted_edges_exist: bool | None = None,
     ) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
         tokens = _unique_tokens(_tokens(query_text))
@@ -357,6 +651,10 @@ class SQLiteGraphAdapter:
             and not seed_record_ids
             and not seed_node_ids
         ):
+            return []
+        if admitted_edges_exist is None:
+            admitted_edges_exist = self.has_admissible_relation_edges(plan)
+        if not admitted_edges_exist:
             return []
         seed_limit = max(50, min(250, limit * 20))
         seed_sql, seed_params = _build_structured_sql(
@@ -370,7 +668,7 @@ class SQLiteGraphAdapter:
         matching_records = [
             MIRLRecord.from_dict(json.loads(row["payload_json"])) for row in seed_rows
         ]
-        bounded_semantic_ids = sorted(set(seed_record_ids))[:300]
+        bounded_semantic_ids = sorted(set(seed_record_ids))[:_GRAPH_SEED_CAP]
         semantic_batch = (
             self.store.load_ir(
                 ids=bounded_semantic_ids,
@@ -380,62 +678,57 @@ class SQLiteGraphAdapter:
             if bounded_semantic_ids
             else IRBatch([])
         )
-        semantic_seed_ids = {
+        semantic_seed_record_ids = {
             record.id
             for record in semantic_batch.records
             if plan.filters.matches(record)
         }
-        semantic_seed_ids.update(
-            _visible_graph_node_ids(
-                self.store,
-                sorted(set(seed_node_ids))[:300],
-                plan,
-            )
-        )
-        visible_seed_ids = _visible_graph_node_ids(
-            self.store,
-            {record.id for record in matching_records} | semantic_seed_ids,
-            plan,
-        )
-        matching_records = [
-            record for record in matching_records if record.id in visible_seed_ids
-        ]
-        semantic_seed_ids &= visible_seed_ids
-        if not matching_records and not semantic_seed_ids:
-            return []
         if tokens:
             matching_records.sort(key=lambda record: (-_lexical_score(record, tokens), record.id))
+            matching_records = [
+                record
+                for record in matching_records
+                if _lexical_score(record, tokens) > 0
+            ]
         else:
             matching_records.sort(key=lambda record: record.id)
-        lexical_seed_ids = {record.id for record in matching_records[:seed_limit]}
+        semantic_seed_inputs = semantic_seed_record_ids | set(seed_node_ids)
+        semantic_seed_reserve = (
+            _GRAPH_SEMANTIC_SEED_RESERVE if semantic_seed_inputs else 0
+        )
+        lexical_seed_capacity = _GRAPH_SEED_CAP - semantic_seed_reserve
+        lexical_seed_ids = self._ground_seed_entity_ids(
+            plan,
+            {record.id for record in matching_records[:seed_limit]},
+            limit=min(seed_limit, lexical_seed_capacity),
+            prefer_direct=True,
+        )
+        lexical_seed_ids = set(
+            sorted(lexical_seed_ids)[:lexical_seed_capacity]
+        )
+        semantic_seed_capacity = _GRAPH_SEED_CAP - len(lexical_seed_ids)
+        semantic_seed_ids = self._ground_seed_entity_ids(
+            plan,
+            semantic_seed_inputs,
+            limit=semantic_seed_capacity if semantic_seed_inputs else 0,
+        )
         semantic_seed_ids = set(
-            sorted(semantic_seed_ids)[: max(0, 300 - len(lexical_seed_ids))]
+            sorted(semantic_seed_ids)[:semantic_seed_capacity]
         )
         initial_seed_ids = lexical_seed_ids | semantic_seed_ids
+        initial_seed_ids &= _visible_graph_node_ids(
+            self.store, initial_seed_ids, plan
+        )
+        lexical_seed_ids &= initial_seed_ids
+        semantic_seed_ids &= initial_seed_ids
+        if not initial_seed_ids:
+            return []
 
         graph: dict[str, set[str]] = {}
-        # The graph leg reads the same self-building temporal graph exposed by
-        # the dashboard. Unlike the retired ir_edges projection, these rows
-        # carry semantic predicates, provenance, validity, and source records.
-        edge_where: list[str] = []
-        edge_params: list[object] = []
-        if plan.filters.scope:
-            edge_where.append("e.scope = ?")
-            edge_params.append(plan.filters.scope)
-        if plan.filters.namespace:
-            edge_where.append("e.ns = ?")
-            edge_params.append(plan.filters.namespace)
-        edge_time_params: list[object] = []
-        edge_where.extend(
-            _edge_time_clauses(
-                edge_time_params,
-                at=plan.graph_at,
-                include_history=plan.graph_include_history,
-            )
-        )
-        edge_params.extend(edge_time_params)
+        edge_where, edge_params = _canonical_relation_edge_where(plan)
         node_budget = max(
-            len(initial_seed_ids), min(512, max(64, limit * 32))
+            len(initial_seed_ids),
+            min(_GRAPH_RETURN_LOAD_CAP, max(64, limit * 32)),
         )
         edge_budget = min(4096, max(256, node_budget * 8))
         hop_by_id = {record_id: 0 for record_id in initial_seed_ids}
@@ -443,35 +736,67 @@ class SQLiteGraphAdapter:
         # exact and deterministic. Hop-0 seeds intentionally remain path-free.
         parent_edge: dict[str, tuple[str, str, str, str, str, str]] = {}
         reached_ids = set(initial_seed_ids)
+        attributed_source_ids: set[str] = set()
+        deferred_source_candidates: dict[
+            str,
+            list[
+                tuple[
+                    int,
+                    tuple[str, str, str, str, str, str],
+                ]
+            ],
+        ] = {}
         frontier = set(initial_seed_ids)
         for hop in range(1, plan.graph_hops + 1):
-            if not frontier or len(reached_ids) >= node_budget:
+            if not frontier:
                 break
             ordered_frontier = sorted(frontier)
-            placeholders = ",".join("?" for _ in ordered_frontier)
-            hop_where = [*edge_where]
-            hop_params = [*edge_params]
-            hop_where.append(
-                f"(e.src_id in ({placeholders}) or e.dst_id in ({placeholders}) "
-                f"or e.source_record_id in ({placeholders}))"
-            )
-            hop_params.extend(
-                [*ordered_frontier, *ordered_frontier, *ordered_frontier, edge_budget]
-            )
-            edge_sql = (
-                "select e.id, e.src_id, e.predicate as edge_type, e.dst_id, e.source_record_id "
-                "from knowledge_edges e "
-                f"where {' and '.join(hop_where)} order by e.id limit ?"
-            )
+            rows_by_id: dict[str, object] = {}
             with closing(self.store._connect()) as connection:
-                rows = connection.execute(edge_sql, hop_params).fetchall()
+                for start in range(
+                    0,
+                    len(ordered_frontier),
+                    _GRAPH_REPEATED_ID_CHUNK,
+                ):
+                    chunk = ordered_frontier[
+                        start : start + _GRAPH_REPEATED_ID_CHUNK
+                    ]
+                    placeholders = ",".join("?" for _ in chunk)
+                    hop_where = [*edge_where]
+                    hop_where.append(
+                        f"(e.src_id in ({placeholders}) "
+                        f"or e.dst_id in ({placeholders}))"
+                    )
+                    edge_sql = (
+                        "select e.id, e.src_id, "
+                        "e.predicate as edge_type, e.dst_id, "
+                        "e.source_record_id "
+                        + _CANONICAL_RELATION_EDGE_FROM
+                        + f"where {' and '.join(hop_where)} "
+                        "order by e.id limit ?"
+                    )
+                    chunk_rows = connection.execute(
+                        edge_sql,
+                        [
+                            *edge_params,
+                            *chunk,
+                            *chunk,
+                            edge_budget,
+                        ],
+                    ).fetchall()
+                    rows_by_id.update(
+                        (str(row["id"]), row) for row in chunk_rows
+                    )
+            rows = [
+                rows_by_id[edge_id]
+                for edge_id in sorted(rows_by_id)[:edge_budget]
+            ]
             edge_node_ids = {
                 node_id
                 for row in rows
                 for node_id in (
                     str(row["src_id"]),
                     str(row["dst_id"]),
-                    str(row["source_record_id"] or ""),
                 )
                 if node_id
             }
@@ -481,6 +806,15 @@ class SQLiteGraphAdapter:
             discovered: set[str] = set()
             discovery_candidates: dict[
                 str, list[tuple[str, str, str, str, str, str]]
+            ] = {}
+            source_candidates: dict[
+                str,
+                list[
+                    tuple[
+                        str,
+                        tuple[str, str, str, str, str, str],
+                    ]
+                ],
             ] = {}
 
             def propose(
@@ -505,38 +839,114 @@ class SQLiteGraphAdapter:
                 if src in visible_edge_node_ids and dst in visible_edge_node_ids:
                     graph.setdefault(src, set()).add(dst)
                     graph.setdefault(dst, set()).add(src)
-                if source in visible_edge_node_ids:
-                    if src in visible_edge_node_ids:
-                        graph.setdefault(source, set()).add(src)
-                        graph.setdefault(src, set()).add(source)
-                    if dst in visible_edge_node_ids:
-                        graph.setdefault(source, set()).add(dst)
-                        graph.setdefault(dst, set()).add(source)
                 if src in frontier and dst in visible_edge_node_ids:
                     discovered.add(dst)
                     propose(dst, src, edge_id, predicate, src, dst, source)
+                    source_candidates.setdefault(source, []).append(
+                        (
+                            dst,
+                            (src, edge_id, predicate, src, dst, source),
+                        )
+                    )
                 if dst in frontier and src in visible_edge_node_ids:
                     discovered.add(src)
                     propose(src, dst, edge_id, predicate, src, dst, source)
-                if source in frontier:
-                    if src in visible_edge_node_ids:
-                        discovered.add(src)
-                        propose(src, source, edge_id, predicate, src, dst, source)
-                    if dst in visible_edge_node_ids:
-                        discovered.add(dst)
-                        propose(dst, source, edge_id, predicate, src, dst, source)
-            available = node_budget - len(reached_ids)
-            next_frontier = set(sorted(discovered - reached_ids)[:available])
-            for record_id in next_frontier:
-                hop_by_id[record_id] = hop
+                    source_candidates.setdefault(source, []).append(
+                        (
+                            src,
+                            (dst, edge_id, predicate, src, dst, source),
+                        )
+                    )
+            available = max(0, node_budget - len(reached_ids))
+            next_frontier: set[str] = set()
+            for record_id in sorted(discovered - reached_ids):
+                if len(next_frontier) >= available:
+                    break
                 candidates = discovery_candidates.get(record_id)
-                if candidates:
-                    parent_edge[record_id] = min(candidates)
+                if not candidates:
+                    continue
+                selected_edge = min(candidates)
+                source_record_id = selected_edge[-1]
+                source_is_new = (
+                    bool(source_record_id)
+                    and source_record_id not in attributed_source_ids
+                )
+                required_slots = 1 + int(source_is_new)
+                used_slots = (
+                    len(reached_ids)
+                    + len(next_frontier)
+                    + len(attributed_source_ids)
+                )
+                if used_slots + required_slots > _GRAPH_RETURN_LOAD_CAP:
+                    continue
+                next_frontier.add(record_id)
+                hop_by_id[record_id] = hop
+                parent_edge[record_id] = selected_edge
+                if source_is_new:
+                    attributed_source_ids.add(source_record_id)
+                    hop_by_id[source_record_id] = hop
+                    parent_edge[source_record_id] = selected_edge
+
+            accepted_endpoint_ids = reached_ids | next_frontier
+            for source_record_id, candidates in source_candidates.items():
+                if not source_record_id:
+                    continue
+                for child_id, candidate in candidates:
+                    _parent, _edge_id, _predicate, src, dst, _source = (
+                        candidate
+                    )
+                    if (
+                        child_id in accepted_endpoint_ids
+                        and src in accepted_endpoint_ids
+                        and dst in accepted_endpoint_ids
+                    ):
+                        deferred_source_candidates.setdefault(
+                            source_record_id, []
+                        ).append((hop, candidate))
             reached_ids.update(next_frontier)
             frontier = next_frontier
 
+        supplemental_source_order = sorted(
+            deferred_source_candidates,
+            key=lambda source_record_id: (
+                source_record_id not in semantic_seed_record_ids,
+                min(
+                    item[0]
+                    for item in deferred_source_candidates[
+                        source_record_id
+                    ]
+                ),
+                source_record_id,
+            ),
+        )
+        for source_record_id in supplemental_source_order:
+            if source_record_id in attributed_source_ids:
+                continue
+            if (
+                len(reached_ids) + len(attributed_source_ids)
+                >= _GRAPH_RETURN_LOAD_CAP
+            ):
+                break
+            eligible = [
+                item
+                for item in deferred_source_candidates[source_record_id]
+                if item[1][3] in reached_ids
+                and item[1][4] in reached_ids
+            ]
+            if not eligible:
+                continue
+            source_hop, selected_edge = min(eligible)
+            attributed_source_ids.add(source_record_id)
+            hop_by_id[source_record_id] = source_hop
+            parent_edge[source_record_id] = selected_edge
+
+        return_ids = reached_ids | attributed_source_ids
+        if len(return_ids) > _GRAPH_RETURN_LOAD_CAP:
+            raise RuntimeError(
+                "graph return load exceeded its bounded SQLite parameter budget"
+            )
         reached_batch = self.store.load_ir(
-            ids=sorted(reached_ids),
+            ids=sorted(return_ids),
             ns=plan.filters.namespace,
             scope=plan.filters.scope,
         )
@@ -559,7 +969,7 @@ class SQLiteGraphAdapter:
 
         paths_by_record = {
             record_id: reconstruct_path(record_id)
-            for record_id in reached_ids
+            for record_id in return_ids
             if hop_by_id.get(record_id, 0) > 0
         }
         edge_ids = sorted(
@@ -597,7 +1007,7 @@ class SQLiteGraphAdapter:
         # hits depend on the process hash seed, which in turn made reserved-tail
         # benchmark composition non-reproducible.  Stabilize both construction
         # and the final score-tie order by canonical record id.
-        for record_id in sorted(reached_ids):
+        for record_id in sorted(return_ids):
             record = by_id.get(record_id)
             if (
                 record is None
@@ -606,19 +1016,22 @@ class SQLiteGraphAdapter:
                 or not plan.filters.matches(record)
             ):
                 continue
-            if (
-                record_id in semantic_seed_ids
-                and record_id not in lexical_seed_ids
-                and not graph.get(record_id)
-            ):
-                # A semantic result is not graph evidence by itself. It gains a
-                # graph source only after an actual in-boundary edge connects it.
-                continue
             lexical = _lexical_score(record, tokens)
             neighbor_bonus = min(0.6, len(graph.get(record_id, set())) * 0.1)
             seed_bonus = 0.5 if record_id in lexical_seed_ids else 0.0
-            semantic_seed_bonus = 0.25 if record_id in semantic_seed_ids else 0.0
-            score = lexical + neighbor_bonus + seed_bonus + semantic_seed_bonus
+            is_semantic_seed = record_id in semantic_seed_ids or (
+                record_id in attributed_source_ids
+                and record_id in semantic_seed_record_ids
+            )
+            semantic_seed_bonus = 0.25 if is_semantic_seed else 0.0
+            source_bonus = 0.1 if record_id in attributed_source_ids else 0.0
+            score = (
+                lexical
+                + neighbor_bonus
+                + seed_bonus
+                + semantic_seed_bonus
+                + source_bonus
+            )
             if score <= 0:
                 score = neighbor_bonus
             path = tuple(
@@ -643,7 +1056,7 @@ class SQLiteGraphAdapter:
                         f"graph_neighbors={len(graph.get(record_id, set()))}",
                         f"graph_hop={hop_by_id.get(record_id, 0)}",
                         f"lexical={lexical:.2f}",
-                        *( ["semantic_seed=true"] if record_id in semantic_seed_ids else [] ),
+                        *(["semantic_seed=true"] if is_semantic_seed else []),
                     ],
                     path=path,
                 )

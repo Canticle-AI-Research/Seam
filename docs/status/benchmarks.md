@@ -27,6 +27,26 @@ direction. Upstream's official path is networked and paid and must not be run.
 Corpus must be hardened (distractors, cross-member entity collisions, multi-source
 joins) before the ablation can discriminate.
 
+The two hash-pinned synthetic replay JSONL files are tracked despite the
+repository-wide `*.jsonl` ignore rule. A clean worktree must pass all 17 WANDR
+audit tests without borrowing ignored files from another checkout.
+
+## LoCoMo retrieval admission gate (qualified 2026-07-30)
+
+Provider-free, all 1,542 answerable questions, independent clones of the pinned
+ingest-only snapshot:
+
+- `legacy-weighted`: `0.7664201903042236` context recall;
+- `hybrid`: `0.7761776456987288`;
+- `mix`: `0.7761776456987288`;
+- exact `hybrid`/`mix` case and context parity, with traversal skipped
+  1,542/1,542 times because the corpus has no admissible canonical `REL` edge;
+- cached offline BGE only; zero provider, answerer, judge, decomposer, reranker,
+  pgvector, TCP, or UDP activity.
+
+This qualifies the one-engine aggregate retrieval floor and the semantic-edge
+admission behavior. It is not evidence of graph-incremental value.
+
 ## Recorded audits
 
 - `docs/audits/2026-05-31-cat4-single-hop-attribution.md`

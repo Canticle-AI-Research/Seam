@@ -96,15 +96,20 @@ def _synthetic_records(node_count: int) -> list[MIRLRecord]:
                     },
                 )
             )
-    # A same-label distractor in another scope proves every query shape keeps
-    # its namespace/scope boundary before ranking and traversal.
+    # A same-query distractor in another scope proves every query shape keeps
+    # its namespace/scope boundary before ranking and traversal. Its full label
+    # must remain distinct because entity coreference is intentionally
+    # namespace-wide rather than scope-local.
     records.append(
         MIRLRecord(
             id="ent:g3-cross-scope-distractor",
             kind=RecordKind.ENT,
             ns=QUALIFICATION_NAMESPACE,
             scope="project",
-            attrs={"label": _anchor(0), "entity_type": "concept"},
+            attrs={
+                "label": f"{_anchor(0)} cross scope distractor",
+                "entity_type": "concept",
+            },
         )
     )
     return records

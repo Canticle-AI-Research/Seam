@@ -14363,3 +14363,100 @@ DO-NOT-LAND hold on `refactor/unify-retrieval-paths` REMAINS in force. The WANDR
 corpus needs distractors, cross-member entity collisions, and multi-source joins
 before its ablation can discriminate.
 ---END-ENTRY-#505---
+
+---BEGIN-ENTRY-#506---
+id: 506
+date: 2026-07-31T05:50:39Z
+agent: codex
+status: changed
+topics: retrieval, graph, benchmark, locomo, rank, provenance, security, audit, verify, handoff, status, tests
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/KNOWLEDGE_GRAPH.md,docs/status/retrieval.md,docs/status/benchmarks.md,docs/handoffs/2026-07-30-semantic-graph-admission-qualified.md,seam_runtime/retrieval_orchestrator,tests/audit
+supersedes: 505
+tokens: 1198
+---
+Canonical semantic-edge admission, content-free traces, and full LoCoMo qualification
+
+Diagnosed the graph-leg duplication at the data-model boundary. The pinned
+LoCoMo projection contains record-structure edges but no admissible canonical
+entity-to-entity MIRL REL. Traversing claim/evidence/provenance structure
+therefore rediscovered the seed record's own closure instead of performing
+semantic multi-hop retrieval.
+
+REPAIRED graph admission:
+- Traversal adjacency now admits only an entity-to-entity knowledge edge backed
+  by the exact canonical `ir_records.kind='REL'` record. Relation ID, source,
+  destination, predicate, namespace, and scope must match, and both endpoints
+  must be canonical non-synthetic ENT records.
+- Structural claim/value/evidence/excerpt/source/provenance edges may ground
+  seeds or recover evidence but never expand the frontier.
+- A boundary with no admitted REL fails closed with an empty graph leg and the
+  content-free receipt `no_semantic_relation_edges`. The independent graph-node
+  vector leg remains available.
+- Seed selection, repeated-ID SQLite queries, fanout, source attribution, and
+  return loads are bounded and chunked below SQLite's conservative variable
+  floor. Endpoint and REL-source admission share one atomic budget. An
+  unconditional runtime guard enforces the final load cap even under optimized
+  Python.
+- Adversarial regressions cover forged predicates, destinations and relation
+  IDs; synthetic endpoints; temporal predicate families; >999-edge fanout;
+  orphan sources; exact RAW closure; and graph-node independence.
+
+HARDENED exported retrieval evidence:
+- `seam-retrieval-search-trace/1` is a bounded allowlist containing plan shape,
+  opaque record IDs, numeric scores, counts, candidate fingerprints, and
+  latency.
+- Query text, normalized query, record payloads/attributes, rationales, graph
+  paths, filter values, temporal values, and lens text are excluded.
+- The full 1,542-case recursive privacy audit found zero forbidden fields,
+  sentinel values, secrets, or private-session material.
+
+FULL PROVIDER-FREE LOCOMO GATE:
+- Every arm started from an independent clone of one pristine ingest-only
+  snapshot: 10 scopes, 5,882 turns, 1,542 answerable questions, aggregate
+  source digest
+  `ce61ae06e8ce5fe1ac040bf7b1c4a886bb9a8419d6e4ae39192b16d1d5bc3ace`.
+- Cached offline BGE, one worker, top-k 100, 8,000-character context budget,
+  no pgvector, provider, answerer, judge, decomposer, reranker, TCP, UDP, or
+  paid call.
+- `legacy-weighted` reproduced the versioned floor exactly at
+  `0.7664201903042236`; all 1,542 cases, contexts, selected candidates, leg
+  ranks/scores, and all 10 post-run databases matched the first control.
+- `hybrid` and `mix` both scored `0.7761776456987288` and matched exactly on
+  every case, context, selected ID/score/source, SQL candidate, and vector
+  candidate. Traversal skipped 1,542/1,542 cases with zero traversal hits,
+  paths, graph-node hits, or selected graph sources.
+- The unified RRF path clears the aggregate legacy floor by
+  `+0.0097574553945052` and target multi-hop category 1 by
+  `+0.0082669006244296`. Category 3 remains `-0.0367749383113159` below the
+  legacy control and is an explicit residual risk.
+- The skipped graph leg measured 1.51 ms median / 1.74 ms p95. Planning
+  `legacy-weighted/1` as only its self-contained control leg preserved exact
+  output and reduced full-run wall time from 5:48.47 to 4:44.72.
+
+DECISION: do not build an edge scorer while REL coverage is zero. That would
+only optimize record-structure closure. eGoT/TREK-style adaptive depth and
+query-aware relation/path scoring become eligible only after the operator
+clears the local-extraction pause and an isolated re-ingest demonstrates real
+REL coverage, endpoint coreference, predicate diversity, and multi-hop path
+yield. No extractor or Ollama endpoint was inspected, contacted, stopped, or
+modified in this work.
+
+REPRODUCIBILITY:
+- Restored the two hash-pinned WANDR replay JSONL fixtures as tracked files
+  despite the repository-wide ignore rule; 17/17 WANDR audit tests pass.
+- Strict audit: 1,401 passed, 0 failed, 0 skipped, 0 xfailed, 23 external
+  deselected, 1,424 total collected. Changed-file Ruff, py_compile,
+  `git diff --check`, and candidate secret/session scans passed.
+- Final CodeRabbit review found one valid optimized-runtime cap issue, repaired
+  it, and reran clean with zero findings. The focused reasoning-retrieval suite
+  plus Ruff and py_compile passed after the repair.
+- Retained benchmark evidence is external to the worktree under
+  `/media/terrabyte/T71/seam-benchmarks/semantic-graph-admission-20260730/`.
+
+NEXT: land this bounded repair through the protected PR workflow. Leave
+semantic extraction and Ollama paused. After explicit operator clearance,
+qualify one isolated extracted clone; only then implement adaptive depth plus
+query-aware triple/path scoring and require an attributable category-1 holdout
+gain over hybrid.
+---END-ENTRY-#506---

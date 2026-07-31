@@ -220,6 +220,16 @@ shown in the dashboard, including typed predicates and current-state filtering.
 Graph hits still resolve back to MIRL records for ranking, packing, and complete
 RAW/provenance backtraces.
 
+Traversal is stricter than projection. An edge can enter adjacency only when it
+is the exact entity-to-entity projection of a canonical MIRL `REL`: its relation
+ID, source entity, destination entity, predicate, namespace, and scope must all
+match, and both endpoints must be canonical non-synthetic `ENT` records.
+Structural edges that attach claims, values, evidence, excerpts, sources, and
+provenance remain useful for seed grounding and evidence backtraces but never
+enter the traversal frontier. When no admissible `REL` exists, traversal returns
+an empty leg with `graph_skipped_reason=no_semantic_relation_edges`; explicit
+graph-node semantic retrieval remains independent of that skip.
+
 G3 can explicitly seed graph traversal from both in-boundary semantic
 fact/episode MIRL hits and versioned graph-node vectors for entities, values,
 agents, and symbols. Graph-node hits enter `reciprocal-rank-fusion/2` as the

@@ -9,18 +9,22 @@
 
 ## Current headline
 
-**2026-07-30 — HISTORY#504 (IN PROGRESS).** Branch
-`refactor/unify-retrieval-paths` is local-only and the one-engine RRF ranking is
-**not promotable**. HISTORY#503's full 1,542-question provider-free A/B measured
-a −0.010804 context-recall regression that it could not attribute to any single
-leg. Per-leg trace instrumentation now exists; the attribution ablation is the
-gate. See `docs/status/retrieval.md`.
+**2026-07-30 — HISTORY#506 (QUALIFIED; closes HISTORY#504's retrieval hold;
+extraction paused).** The full
+1,542-question provider-free gate now measures `legacy-weighted` at `0.766420`
+context recall and same-code `hybrid`/`mix` at `0.776178`, with exact
+hybrid-versus-mix parity. The current LoCoMo snapshot contains no admissible
+canonical entity-to-entity `REL` edges, so traversal skipped all 1,542 `mix`
+queries instead of expanding record-structure edges. Search traces are now a
+bounded content-free allowlist. No edge scorer was added: semantic extraction
+and re-ingest remain operator-paused, and scoring is gated on measured `REL`
+coverage. See `docs/status/retrieval.md`.
 
 ## Status streams
 
 | stream | covers |
 |---|---|
-| [`retrieval`](docs/status/retrieval.md) | ranking policies, legs, fusion, the open ablation gate |
+| [`retrieval`](docs/status/retrieval.md) | ranking policies, semantic-edge admission, and the qualified provider-free gate |
 | [`benchmarks`](docs/status/benchmarks.md) | LoCoMo, WANDR, BEAM, integrity levels, recorded audits |
 | [`surfaces`](docs/status/surfaces.md) | CLI, shell, TUI, webui, REST, MCP, SDK, installers |
 | [`compression-visual`](docs/status/compression-visual.md) | MIRL/RC, SEAM-LX/1, SEAM-HS/1 surfaces |

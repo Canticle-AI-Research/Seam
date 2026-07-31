@@ -614,6 +614,14 @@ def test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges(run
     )
     with runtime.store._pool.checkout() as connection:
         connection.execute("delete from ir_edges")
+        projected_edge_count = connection.execute(
+            "select count(*) from knowledge_edges"
+        ).fetchone()[0]
+        relation_backed_edge_count = connection.execute(
+            "select count(*) from knowledge_edges e "
+            "join ir_records r on r.id = e.source_record_id "
+            "where r.kind = 'REL'"
+        ).fetchone()[0]
         connection.commit()
 
     plan = RetrievalPlan(
@@ -625,18 +633,42 @@ def test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges(run
         mode="graph",
     )
     hits = SQLiteGraphAdapter(runtime.store).search(plan, limit=10)
-    assert hits
-    assert any("graph_neighbors=" in reason and not reason.endswith("=0") for hit in hits for reason in hit.reasons)
+    assert projected_edge_count > 0
+    assert relation_backed_edge_count == 0
+    assert hits == []
 
 
 def test_graph_retrieval_score_ties_are_ordered_by_record_id(runtime: SeamRuntime) -> None:
-    for index in range(8):
-        runtime.persist_ir(
-            runtime.compile_nl(
-                f"Priya manages project {index}.",
-                source_ref=f"local://graph-order/{index}",
-            )
+    records = [
+        MIRLRecord(
+            id="ent:priya",
+            kind=RecordKind.ENT,
+            attrs={"label": "Priya", "entity_type": "person"},
         )
+    ]
+    for index in range(8):
+        records.extend(
+            [
+                MIRLRecord(
+                    id=f"ent:project-{index}",
+                    kind=RecordKind.ENT,
+                    attrs={
+                        "label": f"Project {index}",
+                        "entity_type": "project",
+                    },
+                ),
+                MIRLRecord(
+                    id=f"rel:priya-project-{index}",
+                    kind=RecordKind.REL,
+                    attrs={
+                        "src": "ent:priya",
+                        "predicate": "manages",
+                        "dst": f"ent:project-{index}",
+                    },
+                ),
+            ]
+        )
+    runtime.persist_ir(IRBatch(records))
 
     plan = RetrievalPlan(
         query="Priya",
@@ -647,8 +679,20 @@ def test_graph_retrieval_score_ties_are_ordered_by_record_id(runtime: SeamRuntim
         mode="graph",
     )
     hits = SQLiteGraphAdapter(runtime.store).search(plan, limit=100)
+    assert len(hits) == 17
     ordering = [(-hit.score, hit.record.id) for hit in hits]
     assert ordering == sorted(ordering)
+    project_scores = {
+        hit.score
+        for hit in hits
+        if hit.record.id.startswith("ent:project-")
+    }
+    assert len(project_scores) == 1
+    first_page = SQLiteGraphAdapter(runtime.store).search(plan, limit=5)
+    second_page = SQLiteGraphAdapter(runtime.store).search(plan, limit=5)
+    expected_page_ids = [hit.record.id for hit in hits[:5]]
+    assert [hit.record.id for hit in first_page] == expected_page_ids
+    assert [hit.record.id for hit in second_page] == expected_page_ids
 
 
 def test_knowledge_graph_api_exposes_filters_and_graph_backed_pages(runtime: SeamRuntime) -> None:

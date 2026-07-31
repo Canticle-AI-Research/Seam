@@ -25,6 +25,7 @@ from seam_runtime.holographic import (
     _read_png,
 )
 from seam_runtime.lossless import compress_text_readable, decompress_text_readable
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.retrieval_orchestrator import RetrievalOrchestrator
 from seam_runtime.retrieval_orchestrator.planner import build_plan
 from seam_runtime.runtime import SeamRuntime
@@ -253,11 +254,69 @@ class TestChatBaseUrlSsrf:
 # --------------------------------------------------------------------------- #
 # AUD-02 / AUD-03 — graph adapter namespace + scoped-edge isolation
 # --------------------------------------------------------------------------- #
+def _seed_relation_fixture(
+    runtime: SeamRuntime,
+    *,
+    namespace: str,
+    scope: str,
+    prefix: str,
+) -> None:
+    ledger_id = f"ent:{prefix}-ledger"
+    policy_id = f"ent:{prefix}-policy"
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id=ledger_id,
+                    kind=RecordKind.ENT,
+                    ns=namespace,
+                    scope=scope,
+                    attrs={
+                        "label": f"{prefix} payment ledger",
+                        "entity_type": "concept",
+                    },
+                ),
+                MIRLRecord(
+                    id=policy_id,
+                    kind=RecordKind.ENT,
+                    ns=namespace,
+                    scope=scope,
+                    attrs={
+                        "label": f"{prefix} payment policy",
+                        "entity_type": "concept",
+                    },
+                ),
+                MIRLRecord(
+                    id=f"rel:{prefix}-ledger-policy",
+                    kind=RecordKind.REL,
+                    ns=namespace,
+                    scope=scope,
+                    attrs={
+                        "src": ledger_id,
+                        "predicate": "governs",
+                        "dst": policy_id,
+                    },
+                ),
+            ]
+        )
+    )
+
+
 class TestGraphAdapterIsolation:
     def test_graph_leg_returns_only_in_scope_records(self, tmp_path):
         rt = SeamRuntime(str(tmp_path / "graph.db"))
-        rt.persist_ir(rt.compile_nl("Alice manages the alpha payment ledger.", ns="alpha", scope="project"))
-        rt.persist_ir(rt.compile_nl("Carol runs the beta payment ledger.", ns="beta", scope="thread"))
+        _seed_relation_fixture(
+            rt,
+            namespace="alpha",
+            scope="project",
+            prefix="alpha",
+        )
+        _seed_relation_fixture(
+            rt,
+            namespace="beta",
+            scope="thread",
+            prefix="beta",
+        )
         orch = RetrievalOrchestrator(rt)
         plan = orch.plan("payment ledger", scope="project", mode="graph")
         hits = orch.graph_adapter.search(plan, limit=10)
@@ -267,10 +326,21 @@ class TestGraphAdapterIsolation:
 
     def test_graph_leg_respects_namespace_filter(self, tmp_path):
         rt = SeamRuntime(str(tmp_path / "graph_ns.db"))
-        rt.persist_ir(rt.compile_nl("Alice manages the alpha payment ledger.", ns="alpha", scope="project"))
-        rt.persist_ir(rt.compile_nl("Bob runs the beta payment ledger.", ns="beta", scope="project"))
+        _seed_relation_fixture(
+            rt,
+            namespace="alpha",
+            scope="project",
+            prefix="alpha",
+        )
+        _seed_relation_fixture(
+            rt,
+            namespace="beta",
+            scope="project",
+            prefix="beta",
+        )
         orch = RetrievalOrchestrator(rt)
         plan = orch.plan("ns:alpha payment ledger", scope="project", mode="graph")
         hits = orch.graph_adapter.search(plan, limit=10)
+        assert hits  # the canonical REL fixture is found
         for hit in hits:
             assert hit.record.ns == "alpha"

@@ -155,17 +155,17 @@ and `HISTORY_INDEX.md`.
   MIRL queries must reach that same engine. RAW inclusion, namespace/scope,
   lens metadata, explicit temporal window/reference, applied graph seeding
   policy, current-state filtering, and evidence closure must cross the same
-  boundary. This architecture is not authorization to change ranked behavior:
-  the full provider-free gate in HISTORY#503 found the uncommitted fixed-RRF
-  consolidation at 0.755616 context recall versus 0.766420 for the legacy
-  scorer, while warm median latency rose from 156.4 to 207.2 ms. Preserve the
-  legacy RAW/BM25/weighted ranking semantics inside the orchestrator as the
-  versioned behavioral baseline, isolate graph attribution with a same-code
-  hybrid-versus-mix ablation, and require full-corpus non-regression before
-  promotion. Quickstart parity is insufficient. Component-level
+  boundary. This architecture is not authorization to change ranked behavior.
+  The repaired full provider-free gate in HISTORY#506 measured the versioned
+  legacy control at 0.766420 context recall and same-code hybrid/mix at
+  0.776178 over all 1,542 questions. Hybrid and mix were exactly equal because
+  the pinned corpus contains no admissible canonical REL edge. Preserve the
+  legacy RAW/BM25/weighted scorer as one self-contained control leg and require
+  full-corpus non-regression before promotion. Quickstart parity is
+  insufficient. Component-level
   representation evals may still call the pure `search_batch` scorer as a
   named comparison track, but it is not a live runtime path. See HISTORY#502
-  and HISTORY#503.
+  through HISTORY#506.
 - SEAM's knowledge graph is a self-building, versioned SQLite projection of
   canonical MIRL, not a manually authored or browser-generated topology.
   `knowledge_nodes`, `knowledge_edges`, and `knowledge_episodes` preserve typed
@@ -176,8 +176,13 @@ and `HISTORY_INDEX.md`.
   reached by traversal expose deterministic edge/episode backtraces and may
   select the same current, full-history, or point-in-time validity view as the
   dashboard; inactive claims remain available only through those explicit
-  history views. See
-  `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
+  history views. Retrieval adjacency admits only projected entity-to-entity
+  edges backed by the exact canonical MIRL `REL`, with matching predicate,
+  endpoint, namespace, and scope. Structural claim/evidence/provenance edges
+  may ground seeds or backtrace evidence but never expand the frontier. A
+  boundary with no admitted `REL` fails closed with an explicit content-free
+  skip receipt; the independent graph-node vector leg remains available. See
+  `docs/KNOWLEDGE_GRAPH.md`, HISTORY#402, and HISTORY#506.
 - Graph identity lookup is a scoped, rebuildable projection, not inference from
   assertion/source labels. `knowledge_node_terms` indexes canonical entity
   names, explicit aliases, symbols, agents, and short concept literals with
@@ -289,6 +294,11 @@ and `HISTORY_INDEX.md`.
   2,048-node graph plus a pinned LoCoMo development/holdout selector gate using
   complete versioned graph-node vectors and explicit `graph_node` traces.
   See `docs/REASONING_GRAPH.md` and HISTORY#467.
+- Exported retrieval traces use the bounded
+  `seam-retrieval-search-trace/1` allowlist. They may carry plan shape, opaque
+  record IDs, numeric scores, counts, candidate-set fingerprints, and latency;
+  they must not carry query text, record payloads or attributes, rationales,
+  graph paths, filter values, temporal values, or lens text. See HISTORY#506.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
   activation persistence. A genuine J-lens requires activation-capable local
