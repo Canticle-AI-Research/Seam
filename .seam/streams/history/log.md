@@ -14623,3 +14623,100 @@ NOT DONE / NEXT:
 3. The DO-NOT-LAND hold on `refactor/unify-retrieval-paths` REMAINS in force
    until (2) is measured.
 ---END-ENTRY-#508---
+
+---BEGIN-ENTRY-#509---
+id: 509
+date: 2026-07-31T23:29:44Z
+agent: claude
+status: done
+topics: retrieval, graph, fusion, locomo, benchmarks, ablation, verify
+commits: pending
+refs: none
+supersedes: 503
+tokens: 1371
+---
+MATCHED four-arm ablation. HISTORY#503's premise is FALSIFIED: on a properly
+matched run the canonical engine BEATS legacy-weighted by +0.009628, not loses
+by -0.010804. The entire regression was the graph leg. One new concern appears
+that #503 could not see: cat3.
+
+METHOD (satisfies the #505 confound rule):
+- Built a fresh pristine ingest-only snapshot:
+  `benchmarks.external.locomo.ingest_only --db-path test_seam/locomo_pristine_20260731`.
+  10 scopes, 1,542 cases, 5,882 turns, corpus digest
+  390e57d42cec752ee46de4e722c54ef07f063b0ceb8a73b7224e0077f6774cef.
+  NOTE: #505's snapshot digested to ce61ae06...; identical scope/case/turn counts,
+  different content. Arm A (below) reproduces #505's hybrid score to within
+  0.00013 and arm D reproduces #503's legacy score EXACTLY, so the digest
+  difference is immaterial to scoring.
+- Each arm got its own `cp -r` of that snapshot and ran with `--keep-db`, so no
+  arm inherited another's mutations. Retrieval mutates the store (#505).
+- All arms: 1,542 questions, provider-free (`--judge none --answerer none`),
+  0 errors, $0.00, no network.
+
+RESULTS (context recall):
+| arm | config | overall |
+| A | hybrid (sql+vector)              | 0.776048 |
+| B | mix (sql+vector+graph)           | 0.776048 |
+| C | mix + SEAM_RETRIEVAL_LEG_WEIGHTS=graph=0.0 | 0.776048 |
+| D | legacy-weighted                  | 0.766420 |
+
+A == B == C to six decimals in EVERY category. With the working tree's
+structural-predicate exclusion active the graph leg contributes exactly nothing
+on LoCoMo, so `mix` and `hybrid` are the same query plan. This confirms the
+corpus carries no admissible semantic relation edges at all - the graph leg was
+100% echo, not merely 87.43% echo, once structural traversal is removed.
+
+MATCHED PROMOTION COMPARISON (D vs A):
+| category | legacy | canonical | delta |
+| overall  | 0.766420 | 0.776048 | +0.009628 |
+| cat1 n=282 | 0.633842 | 0.642109 | +0.008267 |
+| cat2 n=321 | 0.746167 | 0.741101 | -0.005066 |
+| cat3 n=96  | 0.412697 | 0.375922 | -0.036775 |
+| cat4 n=841 | 0.860806 | 0.880630 | +0.019823 |
+| cat5 n=2   | 0.000000 | 0.500000 | +0.500000 (n=2, ignore) |
+
+Arm D reproduces the #503 legacy figure 0.766420 EXACTLY, which is what makes
+this comparison trustworthy rather than another cross-run guess.
+
+WHAT #503 ACTUALLY MEASURED: it compared legacy against a canonical engine whose
+graph leg was flooding 200 candidates per case at 87.43% duplication (#508). That
+handicap cost -0.023854. Removing it does not "improve" canonical so much as stop
+penalising it. #503's -0.010804 was therefore never a ranking-policy result.
+
+NEW CONCERN - cat3: canonical loses -0.036775 on cat3 (n=96), the open-domain
+category that is an explicit product goal. It wins overall and on the two largest
+categories (cat1 n=282, cat4 n=841). The overall +0.009628 is real but it is NOT
+uniform, and the loss lands on the category that has historically been the
+hardest to move. This is a promotion DECISION, not an automatic pass.
+
+CORRECTION - arm C proves nothing: it was designed to test `fusion_leg_weights`
+independently, but arm B already makes the graph leg abstain, so there were no
+graph candidates left for a weight to act on. C is a no-op stacked on a no-op.
+`fusion_leg_weights` / `weighted-reciprocal-rank-fusion/1` remains UNTESTED on a
+corpus where the graph leg is live. It ships an env var
+(SEAM_RETRIEVAL_LEG_WEIGHTS) and a policy fingerprint and must not be presented
+as a validated lever until isolated.
+
+STILL BROKEN - the 3 failing tests. The uncommitted graph adapter change abstains
+whenever no edge rows were traversed, which discards legitimate SEED hits:
+- `graph_hops=0` makes the hop loop `range(1,1)`, so it never executes,
+  `semantic_edges_seen` stays False, and the adapter returns [] instead of seeds.
+- Fixtures using genuinely semantic predicates (`connects`, `references`) that
+  yield no traversal also abstain.
+The design intent is correct and now measured; the abstention SCOPE is wrong. Fix
+is to abstain only when a traversal was attempted and found no admissible edge,
+not whenever no edge rows were seen.
+
+NOT DONE / NEXT:
+1. Operator decision required: is +0.009628 overall acceptable at -0.036775 on
+   cat3? The DO-NOT-LAND hold in docs/status/retrieval.md rests on #503's
+   overall-regression premise, which is now falsified; the hold's stated grounds
+   no longer hold, but cat3 is a new and narrower question.
+2. Fix the abstention scope so the 3 tests pass without reintroducing the flood.
+3. Isolate `fusion_leg_weights` or do not ship it as a supported lever.
+4. LoCoMo CANNOT answer whether graph retrieval is valuable in general - it has
+   no semantic relation edges. It can only show that STRUCTURAL-edge graph
+   retrieval is worthless. PR #189's semantic edge admission is what would make
+   the general question askable, and it needs a corpus that emits REL records.
+---END-ENTRY-#509---
