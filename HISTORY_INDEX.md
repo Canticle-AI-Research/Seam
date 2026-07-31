@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 506
-total_tokens: ~246638
-latest_id: 506
+total_entries: 507
+total_tokens: ~247866
+latest_id: 507
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 507 | 2026-07-31 | done | 7d3ad3521d856c71 | benchmarks,locomo,operations,huggingface,+ | none |
 | 506 | 2026-07-31 | done | cfcf42ffbae230b2 | tests,sqlite,test-artifacts,cleanup,+ | none |
 | 505 | 2026-07-30 | changed | 5673f963b700fa0d | retrieval,benchmark,wandr,trace,+ | 504 |
 | 504 | 2026-07-30 | in-progress | 419870043d7d473d | retrieval,benchmark,locomo,rank,+ | 503 |
@@ -540,7 +541,7 @@ compact: true
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=197 latest=#505, #504, #503, #499, #498
-- benchmarks: count=1 latest=#493
+- benchmarks: count=2 latest=#507, #493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -608,7 +609,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=55 latest=#487, #486, #475, #474, #469
+- docs: count=56 latest=#507, #487, #486, #475, #474
 - doctor: count=10 latest=#324, #287, #170, #169, #140
 - dsl: count=1 latest=#298
 - embeddings: count=1 latest=#486
@@ -652,6 +653,7 @@ compact: true
 - history: count=280 latest=#500, #478, #473, #472, #460
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
+- huggingface: count=1 latest=#507
 - hygiene: count=2 latest=#406, #324
 - identity: count=5 latest=#459, #458, #457, #456, #455
 - improve: count=1 latest=#302
@@ -676,7 +678,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=3 latest=#461, #283, #182
-- locomo: count=86 latest=#505, #504, #503, #502, #450
+- locomo: count=87 latest=#507, #505, #504, #503, #502
 - longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -708,6 +710,7 @@ compact: true
 - open-domain: count=1 latest=#413
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
+- operations: count=1 latest=#507
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
@@ -824,7 +827,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=33 latest=#502, #465, #464, #463, #462
 - vector-adapters: count=1 latest=#359
-- verify: count=334 latest=#506, #505, #504, #503, #502
+- verify: count=335 latest=#507, #506, #505, #504, #503
 - vulnerability: count=1 latest=#296
 - wandr: count=1 latest=#505
 - webui: count=9 latest=#404, #403, #402, #342, #340
@@ -839,8 +842,8 @@ compact: true
 
 ## status rollup
 
-- roots: 80
+- roots: 81
 - changed: 32
-- done: 446
+- done: 447
 - in-progress: 7
 - planned: 21
