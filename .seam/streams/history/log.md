@@ -14533,3 +14533,93 @@ in seam_runtime/retrieval*.py that remain in the working tree; they pass at
 clean HEAD and were not touched here. Also open: PR #189
 (fix/semantic-graph-admission), which touches the same graph leg.
 ---END-ENTRY-#507---
+
+---BEGIN-ENTRY-#508---
+id: 508
+date: 2026-07-31T22:48:26Z
+agent: claude
+status: done
+topics: retrieval, graph, fusion, locomo, benchmarks, verify
+commits: pending
+refs: none
+supersedes: 505
+tokens: 1296
+---
+ATTRIBUTED the retrieval regression to the graph leg. Measurement only - no
+source change in this entry. This closes the attribution question that
+HISTORY#503 opened and #504/#505 could not answer.
+
+METHOD: streamed the two retained 1,542-case traced runs from 2026-07-30 and
+recomputed the per-leg statistics directly from `retrieval_trace.legs` and
+`retrieval_trace.fusion.selected_ids`.
+- `20260730_160639_seam_1542cases_judge-none.json` (730 MB) = arm `hybrid`,
+  plans [sql, vector].
+- `20260730_161157_seam_1542cases_judge-none.json` (1.1 GB) = arm `mix`,
+  plans [sql, vector, graph].
+Both arms: canonical engine, ranking policy `reciprocal-rank-fusion/2`, same
+corpus, same session, 200 candidates per leg. Leg-combination counter confirms
+all 1,542 cases in the mix arm planned exactly [graph, sql, vector] - `graph_node`
+appears in ZERO plans, so every number here excludes that leg.
+
+THE ARMS DIFFER BY EXACTLY ONE VARIABLE - the graph leg. This is what #503's A/B
+could not offer: that comparison moved ranking, fusion, graph, temporal,
+filtering and packing together and therefore proved a regression while
+attributing it to nothing.
+
+MEASURED (mix vs hybrid, context recall):
+| category | hybrid (no graph) | mix (+graph) | delta |
+| overall  | 0.776178 | 0.752324 | -0.023854 |
+| cat1 n=282 | 0.642109 | 0.606195 | -0.035913 |
+| cat2 n=321 | 0.741724 | 0.744765 | +0.003041 |
+| cat3 n=96  | 0.375922 | 0.379426 | +0.003504 |
+| cat4 n=841 | 0.880630 | 0.848563 | -0.032067 |
+| cat5 n=2   | 0.500000 | 0.000000 | -0.500000 (n=2, ignore) |
+Exact overall delta: -0.023854020868236736.
+
+The graph leg costs real recall on the two largest categories (cat1 -0.0359,
+cat4 -0.0321, together n=1,123) and returns noise-level gains on cat2/cat3.
+
+MECHANISM (per-leg trace statistics over all 1,542 cases):
+- graph hits total: 308,400 (200 per case).
+- also returned by sql or vector: 269,637 = 87.43% DUPLICATE.
+- unique to graph: 38,763 = 12.57%, mean 25.14 records per case.
+- of those graph-unique records, only 44 were ever chosen by fusion = 0.1135%.
+Plain RRF sums one unweighted 1/(60+rank) vote per leg, which is sound only for
+INDEPENDENT retrievers. A leg that is 87% echo does not corroborate, it
+double-counts: a record ranked ~20th in all three legs (3/80 = 0.0375) outranks a
+record ranked 1st in vector alone (1/61 = 0.0164). So leg count outranks
+relevance, and the graph leg's genuine contribution is almost never selected.
+
+VALIDATES THE UNCOMMITTED WORK: the weighted-RRF changes sitting in
+seam_runtime/retrieval_policy.py, merger.py, orchestrator.py, adapters.py and
+retrieval.py cite exactly these four figures (87.43%, ~25 unique of 200, 0.114%
+selected, -0.023854). All four reproduce from the retained traces - 87.43%
+exact, 25.14 mean, 0.1135% vs 0.114%, and -0.023854020868 vs -0.023854. The
+rationale for damping the graph leg is MEASURED, not speculative.
+
+CORRECTION: earlier in this session those figures were characterised as
+unreproducible and "unbacked" because they appear nowhere in HISTORY#505 and
+match no artifact score. That characterisation was WRONG. The measurements were
+sound; only their PROVENANCE was missing - they were computed in-session from
+traces and never written into the record. This entry supplies that record. The
+0.114% specifically is a fraction OF THE GRAPH-UNIQUE RECORDS (44/38,763), not
+of all selections (which is 0.0285%); reading it as the latter is what produced
+the false mismatch.
+
+NOT DONE / NEXT:
+1. The 3 failing tests
+   (test_audit_2026_06_05.py::TestGraphAdapterIsolation::test_graph_leg_returns_only_in_scope_records,
+   test_knowledge_graph.py::test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges,
+   test_reasoning_retrieval.py::test_graph_hops_are_real_and_bounded) fail because
+   the graph leg now returns an EMPTY set - the damping overshot into
+   elimination. That is a dosage bug, not a design error; the work should be
+   fixed, not reverted.
+2. NOT ASSERTED: the hybrid arm (0.776178) sits ABOVE the legacy-weighted figure
+   in docs/status/retrieval.md (0.766420), which would mean the canonical engine
+   BEATS legacy once the graph leg is damped and would clear the DO-NOT-LAND
+   hold. Those are different runs and this entry does NOT claim it. One matched
+   legacy-vs-canonical run with the graph weight applied is required before any
+   promotion decision.
+3. The DO-NOT-LAND hold on `refactor/unify-retrieval-paths` REMAINS in force
+   until (2) is measured.
+---END-ENTRY-#508---
