@@ -520,6 +520,12 @@ class SeamMem0Server:
             scope="thread",
             budget=limit,
             mode="graph",
+            # The graph-node semantic leg is gated on this argument; without
+            # it, facade policies that explicitly invoke this default-off graph
+            # search never run the measured graph_node leg. A free, local,
+            # provenance-matched LoCoMo/BGE A/B at n=1,977 measured r@5
+            # 0.349 -> 0.490 (+0.141), with every category positive.
+            semantic_graph_seeding=True,
         )
         out: list[dict] = []
         seen_content: set[str] = set()

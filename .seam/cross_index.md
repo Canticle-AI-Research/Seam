@@ -2,17 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 558
+total_events: 562
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-13T03:32:40Z | history:303:89226734 | session-event | done | mirl, compiler, nl, fidelity, contract, ingest, bug, harn... | benchmarks/fidelity/__init__.py,benchmarks/fidelity/contract.py,benchmarks/fi... |
-| 2026-06-13T04:32:49Z | history:304:6a29f16d | session-event | done | protocol, agents, repo-ledger, spec, governing-contract, ... | AGENTS.md,REPO_LEDGER.md,SEAM_SPEC_V0.1.md,docs/MIRL_V1.md,HISTORY.md,HISTORY... |
-| 2026-06-13T04:54:03Z | history:305:852d5e86 | session-event | done | mirl, compiler, fidelity, spec, metrics, reconciliation, ... | benchmarks/fidelity/spec_metrics.py,benchmarks/fidelity/golden.py,benchmarks/... |
-| 2026-06-13T08:31:06Z | history:306:119fc10b | session-event | done | handoff, consolidation, branches, session-end, mirl, comp... | docs/handoffs/2026-06-13-mirl-compiler-fidelity-handoff.md,HISTORY.md,HISTORY... |
 | 2026-06-13T09:23:12Z | history:307:627093bb | session-event | done | mirl, compiler, fidelity, spec, metrics, qr, retrieval, t... | benchmarks/fidelity/spec_metrics.py,benchmarks/fidelity/golden.py,tests/fidel... |
 | 2026-06-13T10:11:44Z | history:308:add55806 | session-event | done | mirl, compiler, nl, fidelity, floor, retrieval, test, ver... | seam_runtime/nl.py,benchmarks/fidelity/golden.py,tests/fidelity/test_spec_met... |
 | 2026-06-13T17:45:05Z | history:309:0994fba1 | session-event | done | security, redos, codeql, mirl, compiler, nl, test, symbol... | seam_runtime/nl.py,test_seam_all/test_seam.py,HISTORY.md,HISTORY_INDEX.md,PRO... |
@@ -209,10 +205,14 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-07-29T08:07:06Z | history:494:638f4a69 | session-event | done | graph, retrieval, rank, provenance, verify, benchmark, me... | seam_runtime/reasoning_patterns.py, seam_runtime/reasoning_graph.py, seam_run... |
 | 2026-07-29T09:34:17Z | history:495:6171d8cd | session-event | done | graph, reasoning, provenance, storage, mirl, audit, verif... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,... |
 | 2026-07-29T10:37:47Z | history:496:69f0bf33 | session-event | done | graph, retrieval, pack, storage, persist, retry, benchmar... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,... |
+| 2026-07-29T15:08:37Z | history:497:c921e841 | session-event | done | handoff, status, graph, reasoning, benchmark, verify | PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-g5-g7-r6-pr... |
+| 2026-07-29T20:57:28Z | history:498:5b00f63c | session-event | done | retrieval, graph, benchmark, reasoning, bugfix, provenanc... | PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-semantic-re... |
+| 2026-07-30T00:34:40Z | history:499:cac73724 | session-event | done | retrieval, graph, reasoning, promotion, benchmark, sdk, v... | seam_runtime/sdk.py,benchmarks/external/mem0_harness/seam_mem0_server.py,test... |
+| 2026-07-30T12:36:38Z | history:500:377e4029 | session-event | changed | history, audit, classification, verify | AGENTS.md,HISTORY.md,HISTORY_INDEX.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0358.cross.md | 2026-04-15T00:00:00Z..2026-06-11T10:00:24Z | 358 | (multi) | (multi) |
+| 0001-0362.cross.md | 2026-04-15T00:00:00Z..2026-06-13T08:31:06Z | 362 | (multi) | (multi) |

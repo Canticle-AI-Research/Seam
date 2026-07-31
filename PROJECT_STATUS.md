@@ -1,5 +1,42 @@
 # SEAM Project Status
 
+Current update: 2026-07-29 (HISTORY#498 - RECOVERED the interrupted free
+semantic-retrieval and longitudinal-promotion qualification. The ten-
+conversation, 5,882-turn, 1,977-question LoCoMo/BGE gate measured the
+`graph_node` leg at graph-mode r@5 0.349 -> 0.490 (+0.141) and mix-mode r@5
+0.499 -> 0.576 (+0.076), with every category positive and a no-graph negative
+control moving by at most one hit. The explicit default-off Mem0 facade graph
+search now enables that measured leg, and `SeamSDK.start_reasoning()` now
+defaults to the same `local.default` namespace as `ingest()`. A separate
+one-conversation longitudinal gate applied 99/99 cross-turn bridge promotions
+but moved only zero to three questions under strict and provenance-closure
+scoring; the records were retrievable and correctly provenanced but merely
+concatenated existing claims, so no learning-loop quality gain is claimed.
+Strict verification: 70/70 focused; full live-pgvector `tests/` scope 1,626
+passed, two established xfailed, zero skipped/failed. Public `/v1` remains on
+legacy `search_ir`, shipped-surface observation/apply remains unproductized,
+and no provider or paid benchmark ran. NEXT: land the bounded fixes through a
+protected PR, then build a checked-in zero-provider longitudinal gate around
+genuinely derived assertions; WANDR remains a separate breadth qualification.)
+
+Current update: 2026-07-29 (HISTORY#497 - CLOSED the G1-G7/R1-R6
+provider-free graph round after protected PR #185 merged G4/R5 at `6225937`
+and protected PR #186 merged G5-G7/R6 at `6d2c15b`. Both graph planes are
+structurally implemented through the provider-free qualification boundary.
+The reasoning graph stores reusable public structure, not hidden
+chain-of-thought or conclusions, and R5 still requires separate review plus
+explicit application before anything becomes MIRL knowledge. The corrected G7
+native/event-only ablation remains an honest parity result: usefulness 1.0
+versus 1.0, zero graph-incremental evidence hits, and zero provider calls. It
+does not demonstrate incremental graph lift. NEXT: build a non-official,
+zero-network WANDR replay adapter over smoke plus one representative hierarchy
+task with a fixed corpus, deterministic IDs, isolated boundaries, matched
+native/event-only budgets, exact graph attribution, recovery checks, and
+provider/network/cost counters fixed at zero. Do not run WANDR's official
+networked/paid path or any matched paid provider lane without new explicit
+approval. Branch `agent/wandr-replay-handoff`; protected handoff PR closeout is
+next.)
+
 Current update: 2026-07-29 (HISTORY#496 - COMPLETED G5 deterministic context
 assembly, G6 lifecycle/scale, R6 cross-agent qualification, and G7 through the
 provider-free/paid boundary. G5 packs canonical facts, entities, episodes, and
