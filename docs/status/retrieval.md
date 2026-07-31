@@ -6,6 +6,9 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Status: QUALIFIED through the no-REL gate
 
+This qualification covers fail-closed behavior when semantic relations are
+absent; the extraction substrate itself remains unqualified.
+
 One canonical engine. `RetrievalOrchestrator` owns SQL, vector, graph,
 graph-node, and explicit temporal retrieval. `SeamRuntime.retrieve()` is the
 canonical entry; `search_ir()` is a compatibility result/evidence adapter over
@@ -64,11 +67,25 @@ an independent clone of one pristine ingest-only snapshot
 (`benchmarks.external.locomo.ingest_only`). Cloning after a scored run is a
 confound.
 
-## Next gate
+## Extraction-substrate gate
 
 - Keep traversal fail-closed while canonical `REL` coverage is zero.
-- When the operator clears the local-extraction pause, re-ingest an isolated
-  clone and measure relation/entity coverage, endpoint coreference, predicate
-  diversity, and multi-hop path yield before changing defaults.
+- The provider-free relation qualifier now defines the required evidence:
+  pinned RAW-turn denominator, at least 30 admitted relations across at least
+  10 percent of turns, 100 percent canonical admission and exact RAW
+  backtrace, bounded distinct-neighbor hub degree, and a deterministic
+  human-reviewed precision sample clearing both 0.90 point precision and a
+  0.80 Wilson lower bound.
+- A 2026-07-31 read-only qualifier replay matched the tracked snapshot's pinned
+  419-turn RAW identity and returned zero persisted/admitted/backtraced `REL`,
+  `status=failed`, and `scorer_eligible=false`. Its older missing graph
+  projection schema is a named rejection, not an analyzer crash. The
+  operator-reported 7 relations over 30 turns remains suggestive but is not a
+  qualified artifact: it is below the sample floor and has no pinned
+  corpus/config/label bundle in the repository.
+- No extractor or model run is implied by the analyzer. Run it against an
+  isolated extracted clone only when that model boundary is explicitly
+  authorized.
 - Build or adopt a query-aware edge/path scorer only after that substrate
-  exists, then require a same-snapshot category-1 holdout gain over `hybrid`.
+  passes and exposes predicate diversity plus incremental cross-turn two-hop
+  paths, then require a same-snapshot category-1 holdout gain over `hybrid`.

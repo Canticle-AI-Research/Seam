@@ -32,6 +32,10 @@ not have to infer what works from directory names alone.
 - `seam_runtime/jspace.py` - optional J-lens capability boundary: unavailable/structured-only default, verified local Hugging Face Qwen adapter, and authenticated pinned remote worker. No model, lens, analyzer, download, or network dependency is enabled by default.
 - `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and bounded graph-policy candidates wired through the strict multi-family propose, operator-approve, applied-flag, and revert substrate.
 - `tools/graph_retrieval_qualification.py` + `tools/graph_real_corpus_qualification.py` - synthetic scale/query-shape and pinned LoCoMo development/holdout qualification for G3 node-vector fusion and safe policy selection.
+- `tools/relation_extraction_qualification.py` - read-only, provider-free
+  qualification of extractor-produced entity-to-entity `REL` coverage,
+  canonical admission, exact RAW backtraces, hub degree, sampled human
+  precision, and incremental cross-turn two-hop scorer eligibility.
 - `benchmarks/graph_reasoning_qualification.py` - provider-free real-runtime G7/R6 native-versus-event-only ablation, concurrent recovery probe, exact graph attribution, and matched Mem0/Zep paid-boundary plans.
 - `seam_runtime/webui/` - the SEAM browser dashboard served by the REST API: `dashboard.html` (the IDE-style operator UI), `seam-api.js`, `tweaks-panel.jsx`, branding, and icons. `seam serve` and `seam webui` serve these at `/` on the same origin as the API; packaged with the wheel. This is the functional dashboard (HISTORY#285).
 - `seam.py` - console entrypoint module for `seam` and `seam-benchmark`.

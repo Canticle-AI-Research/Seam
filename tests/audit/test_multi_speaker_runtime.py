@@ -220,6 +220,8 @@ def test_facade_serves_multi_speaker_fact_after_exact_source(
         name=str(DERIVED_FACTS_EMBEDDING_CONFIG["name"]),
         dimension=int(DERIVED_FACTS_EMBEDDING_CONFIG["dimension"]),
     )
+    embedding.model_name = DERIVED_FACTS_EMBEDDING_CONFIG["model"]
+    embedding.revision = DERIVED_FACTS_EMBEDDING_CONFIG["revision"]
     embedding.local_files_only = True
     monkeypatch.setattr(
         seam_adapter,

@@ -9,16 +9,18 @@
 
 ## Current headline
 
-**2026-07-30 — HISTORY#506 (QUALIFIED; closes HISTORY#504's retrieval hold;
-extraction paused).** The full
-1,542-question provider-free gate now measures `legacy-weighted` at `0.766420`
-context recall and same-code `hybrid`/`mix` at `0.776178`, with exact
-hybrid-versus-mix parity. The current LoCoMo snapshot contains no admissible
-canonical entity-to-entity `REL` edges, so traversal skipped all 1,542 `mix`
-queries instead of expanding record-structure edges. Search traces are now a
-bounded content-free allowlist. No edge scorer was added: semantic extraction
-and re-ingest remain operator-paused, and scoring is gated on measured `REL`
-coverage. See `docs/status/retrieval.md`.
+**2026-07-31 — HISTORY#507 (embedding integrity and extraction gate built;
+extraction paused).** Every scored LoCoMo run and ingest-only snapshot now
+fails before workers, checkpoints, or cases unless the exact pinned offline BGE
+model executes successfully; warm databases must also have complete usable
+current-model vectors with no same-boundary orphans. A provider-free
+entity-to-entity `REL` qualifier now enforces pinned turn identity, canonical
+admission, exact triple RAW backtraces, one extractor configuration, bounded
+hub degree, deterministic human precision review, and cross-turn two-hop
+scorer eligibility. The tracked 419-turn snapshot replays as zero `REL` and
+fails; the reported 7/30 result remains insufficient and unpinned. No extractor,
+Ollama, eGoT depth gate, or TREK scorer was run or added. See
+`docs/status/benchmarks.md` and `docs/status/retrieval.md`.
 
 ## Status streams
 

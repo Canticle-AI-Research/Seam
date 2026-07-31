@@ -14,6 +14,7 @@ When --dataset-path is passed, loads from the given path.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
@@ -233,6 +234,39 @@ def _validate_locomo_categories(cases) -> list[str]:
 
 def _locomo_scope_id(case) -> str:
     return case.case_id.split("::", 1)[0]
+
+
+def _attach_embedding_preflight_integrity(
+    report: dict,
+    receipt: dict[str, object],
+) -> None:
+    """Bind the exact preflight receipt without redefining report integrity."""
+    from benchmarks.external.locomo.adapters.seam import (
+        canonical_json_sha256,
+        embedding_preflight_receipt_sha256,
+    )
+
+    report_integrity_hash = report.get("integrity_hash")
+    if not isinstance(report_integrity_hash, str) or not report_integrity_hash:
+        raise RuntimeError(
+            "LoCoMo result is missing the existing report integrity hash; "
+            "cannot bind the embedding preflight receipt"
+        )
+    receipt_sha256 = embedding_preflight_receipt_sha256(receipt)
+    binding = {
+        "schema": "seam-locomo-run-contract/1",
+        "report_integrity_hash": report_integrity_hash,
+        "embedding_preflight": receipt,
+        "embedding_preflight_sha256": receipt_sha256,
+    }
+    report["embedding_preflight"] = receipt
+    report["embedding_preflight_sha256"] = receipt_sha256
+    report["run_contract"] = {
+        "schema": binding["schema"],
+        "report_integrity_hash": report_integrity_hash,
+        "embedding_preflight_sha256": receipt_sha256,
+        "integrity_sha256": canonical_json_sha256(binding),
+    }
 
 
 def main() -> None:
@@ -553,72 +587,14 @@ def main() -> None:
     answerer = None if args.answerer == "none" else args.answerer
     decomposer = None if args.decomposer == "none" else args.decomposer
     rerank = None if args.rerank == "none" else args.rerank
-    judge_cross = build_judge(args.judge_cross, model=args.judge_cross_model) if args.judge_cross != "none" else None
 
-    # Durable result destination resolved BEFORE the run so partial checkpoints
-    # and the final bundle share one stable name. A long run that crashes leaves
-    # a recoverable <stem>.partial.json on persistent disk (never /tmp).
-    archive_dir = _resolve_archive_dir()
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    run_stem = _run_stem(args, len(cases))
-    partial_path = archive_dir / f"{run_stem}.partial.json"
-
-    def _checkpoint(case_results: list[dict], completed: int, total: int) -> None:
-        # A flush failure must never crash the run it is protecting.
-        try:
-            payload = json.dumps(
-                {"status": "PARTIAL", "completed": completed, "total": total, "case_results": case_results},
-                indent=2, default=str,
-            )
-            _atomic_write(partial_path, payload)
-            print(f"[checkpoint] {completed}/{total} cases flushed to {partial_path}", file=sys.stderr)
-        except Exception as exc:
-            print(f"WARNING: checkpoint flush failed at {completed}/{total}: {exc!r}", file=sys.stderr)
-
-    # Run benchmark
-    if args.workers > 1:
-        report = run_benchmark_grouped_parallel(
-            adapter_factory=lambda: build_adapter(
-                args.adapter, answerer=answerer, answerer_model=args.answerer_model,
-                decomposer=decomposer, decomposer_model=args.decomposer_model,
-                decomposer_max_subq=args.decomposer_max_subq,
-                allow_paid=args.allow_paid,
-                abstain_threshold=args.abstain_threshold,
-                rerank=rerank,
-                keep_db=args.keep_db,
-                db_path=args.db_path,
-                context_budget=args.context_budget,
-                search_top_k=args.search_top_k,
-                rerank_top_k=args.rerank_top_k,
-                mem0_search_limit=args.mem0_search_limit,
-                semantic_recovery_mode=args.semantic_recovery_mode,
-                retrieval_mode=args.retrieval_mode,
-                record_retrieval_trace=args.save_retrieval_trace,
-                record_retrieval_events=args.record_retrieval_events,
-                retrieval_event_run_id=args.retrieval_event_run_id,
-                conversation_adapter=args.conversation_adapter,
-                inference_policy=args.inference_policy,
-                temporal_policy=args.temporal_policy,
-                answer_contract=args.answer_contract,
-            ),
-            adapter_name=args.adapter,
-            cases=cases,
-            scope_id=_locomo_scope_id,
-            dataset_source=source,
-            judge_factory=(
-                lambda: build_judge(args.judge, model=args.judge_model)
-                if args.judge is not None else None
-            ),
-            judge_cross=judge_cross,
-            judge_batch=args.judge_batch,
-            workers=args.workers,
-            save_context=args.save_context,
-            checkpoint=_checkpoint,
-        )
-    else:
-        adapter = build_adapter(
-            args.adapter, answerer=answerer, answerer_model=args.answerer_model,
-            decomposer=decomposer, decomposer_model=args.decomposer_model,
+    def _build_adapter_for_run():
+        return build_adapter(
+            args.adapter,
+            answerer=answerer,
+            answerer_model=args.answerer_model,
+            decomposer=decomposer,
+            decomposer_model=args.decomposer_model,
             decomposer_max_subq=args.decomposer_max_subq,
             allow_paid=args.allow_paid,
             abstain_threshold=args.abstain_threshold,
@@ -639,18 +615,124 @@ def main() -> None:
             temporal_policy=args.temporal_policy,
             answer_contract=args.answer_contract,
         )
-        judge = build_judge(args.judge, model=args.judge_model)
-        report = run_benchmark_grouped(
-            adapter=adapter,
+
+    embedding_preflight = None
+    embedding_preflight_sha256 = None
+    preflight_adapter = None
+    if args.adapter == "seam" and cases:
+        preflight_adapter = _build_adapter_for_run()
+        try:
+            embedding_preflight = preflight_adapter.preflight(
+                dict.fromkeys(_locomo_scope_id(case) for case in cases)
+            )
+            from benchmarks.external.locomo.adapters.seam import (
+                embedding_preflight_receipt_sha256,
+            )
+
+            embedding_preflight_sha256 = (
+                embedding_preflight_receipt_sha256(embedding_preflight)
+            )
+        except Exception:
+            with contextlib.suppress(Exception):
+                preflight_adapter.close()
+            raise
+        if args.workers > 1:
+            preflight_adapter.close()
+            preflight_adapter = None
+
+    judge_cross = (
+        build_judge(args.judge_cross, model=args.judge_cross_model)
+        if args.judge_cross != "none"
+        else None
+    )
+
+    # Durable result destination resolved BEFORE the run so partial checkpoints
+    # and the final bundle share one stable name. A long run that crashes leaves
+    # a recoverable <stem>.partial.json on persistent disk (never /tmp).
+    archive_dir = _resolve_archive_dir()
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    run_stem = _run_stem(args, len(cases))
+    partial_path = archive_dir / f"{run_stem}.partial.json"
+
+    def _checkpoint(case_results: list[dict], completed: int, total: int) -> None:
+        # A flush failure must never crash the run it is protecting.
+        try:
+            checkpoint_payload = {
+                "status": "PARTIAL",
+                "completed": completed,
+                "total": total,
+                "case_results": case_results,
+            }
+            if embedding_preflight is not None:
+                checkpoint_payload["embedding_preflight"] = embedding_preflight
+                checkpoint_payload["embedding_preflight_sha256"] = (
+                    embedding_preflight_sha256
+                )
+            payload = json.dumps(
+                checkpoint_payload,
+                indent=2, default=str,
+            )
+            _atomic_write(partial_path, payload)
+            print(f"[checkpoint] {completed}/{total} cases flushed to {partial_path}", file=sys.stderr)
+        except Exception as exc:
+            print(f"WARNING: checkpoint flush failed at {completed}/{total}: {exc!r}", file=sys.stderr)
+
+    # Run benchmark
+    if args.workers > 1:
+        report = run_benchmark_grouped_parallel(
+            adapter_factory=_build_adapter_for_run,
+            adapter_name=args.adapter,
             cases=cases,
             scope_id=_locomo_scope_id,
             dataset_source=source,
-            judge=judge,
+            judge_factory=(
+                lambda: build_judge(args.judge, model=args.judge_model)
+                if args.judge is not None else None
+            ),
             judge_cross=judge_cross,
             judge_batch=args.judge_batch,
+            workers=args.workers,
             save_context=args.save_context,
             checkpoint=_checkpoint,
         )
+    else:
+        adapter = preflight_adapter or _build_adapter_for_run()
+        try:
+            judge = build_judge(args.judge, model=args.judge_model)
+            report = run_benchmark_grouped(
+                adapter=adapter,
+                cases=cases,
+                scope_id=_locomo_scope_id,
+                dataset_source=source,
+                judge=judge,
+                judge_cross=judge_cross,
+                judge_batch=args.judge_batch,
+                save_context=args.save_context,
+                checkpoint=_checkpoint,
+            )
+        finally:
+            close = getattr(adapter, "close", None)
+            if callable(close):
+                close()
+
+    embedding_preflight_binding_error = None
+    if embedding_preflight is not None:
+        try:
+            _attach_embedding_preflight_integrity(report, embedding_preflight)
+        except Exception as exc:
+            # A completed run is still valuable diagnostic evidence. Preserve
+            # and archive it, but mark the missing integrity binding and exit
+            # non-zero after durability handling below.
+            report["embedding_preflight"] = embedding_preflight
+            report["embedding_preflight_sha256"] = (
+                embedding_preflight_sha256
+            )
+            embedding_preflight_binding_error = (
+                f"{type(exc).__name__}: {exc}"
+            )
+            report["embedding_preflight_binding_error"] = (
+                embedding_preflight_binding_error
+            )
 
     # Output
     report_json = json.dumps(report, indent=2, default=str)
@@ -683,6 +765,12 @@ def main() -> None:
             f"WARNING: could not archive durable result copy: {exc!r}. "
             f"Last checkpoint retained at {kept}.",
             file=sys.stderr,
+        )
+
+    if embedding_preflight_binding_error is not None:
+        raise SystemExit(
+            "LoCoMo result was preserved, but embedding preflight integrity "
+            "binding failed"
         )
 
 

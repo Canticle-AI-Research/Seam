@@ -183,6 +183,19 @@ and `HISTORY_INDEX.md`.
   boundary with no admitted `REL` fails closed with an explicit content-free
   skip receipt; the independent graph-node vector leg remains available. See
   `docs/KNOWLEDGE_GRAPH.md`, HISTORY#402, and HISTORY#506.
+- A semantic edge/path scorer is downstream of an extraction-substrate gate,
+  never a substitute for one. An isolated extracted corpus must expose at
+  least 30 canonically admitted `REL` edges across at least 10 percent of its
+  pinned RAW-turn denominator under exactly one pinned extractor
+  configuration, admit and exactly backtrace every persisted relation, stay
+  within the predeclared distinct-neighbor hub bound, and clear a deterministic
+  human-reviewed relation sample at 0.90 point precision with a 0.80 Wilson
+  lower bound. The provider-free summary carries only counts, opaque IDs, and
+  corpus/config/sample/label digests; its separate review template is
+  content-bearing and stays outside published artifacts. Adaptive depth and
+  relation/triplet scoring remain ineligible until the qualified corpus also
+  demonstrates predicate diversity and incremental cross-turn two-hop paths.
+  See `docs/KNOWLEDGE_GRAPH.md`.
 - Graph identity lookup is a scoped, rebuildable projection, not inference from
   assertion/source labels. `knowledge_node_terms` indexes canonical entity
   names, explicit aliases, symbols, agents, and short concept literals with
@@ -552,5 +565,5 @@ The LoCoMo dataset was once lost because it lived only on the near-full root vol
 - The canonical LoCoMo dataset is committed in-repo at `benchmarks/external/locomo/data/locomo10.json` (so it lives on T7 and offsite via the private GitHub repo), never only on the root volume.
 - `benchmarks/external/locomo/data/locomo10.manifest.json` pins the source URL, SHA256, byte size, and sample/QA/category counts. Treat the SHA256 as the integrity authority — LoCoMo releases reuse `sample_id` labels across different content, so verify by hash, not by label.
 - `python -m tools.benchmarks.restore_locomo` restores and SHA-verifies the dataset from, in priority order: the in-repo copy → the T7 durable copy (`.dataset_store/locomo/`) → the canonical network source. Use `--verify` before any run, `--ensure` to repair all standard locations, `--to <path>` for a specific target.
-- The no-paid LoCoMo path (`--answerer none --judge none`) runs self-contained on the local `SQLiteVectorAdapter` with local `BAAI/bge-small-en-v1.5` embeddings; it does NOT require the Docker pgvector service. SQLite-vector and pgvector are score-equivalent for this workload (verified: both reproduce `context_recall_mean=0.528308`).
-- `--keep-db` reuses per-scope SQLite DBs by `sample_id`; never reuse DBs ingested from a different dataset release on the same `--db-path`, or retrieval silently reads the wrong conversation. Use a fresh `--db-path` when the dataset version changes.
+- The no-paid LoCoMo path (`--answerer none --judge none`) runs self-contained on the local `SQLiteVectorAdapter` with the exact cached, local-files-only `BAAI/bge-small-en-v1.5` revision declared by the benchmark embedding contract; it does NOT require the Docker pgvector service. Before checkpoint creation, worker launch, or case scoring, the parent process must execute one real embedding and verify model identity, revision, dimension, normalization contract, finite/nonzero output, and offline mode. A constructor or model-name check is not a preflight because sentence-transformers loads lazily.
+- `--keep-db` reuses per-scope SQLite DBs by `sample_id`; before reuse, every indexable canonical record must have a current-render, finite, nonzero, correctly dimensioned vector payload for that exact pinned model, with no same-boundary current-model orphan rows. A model mismatch, corrupt payload, orphan, or incomplete vector index is a hard preflight failure, not an empty semantic leg. Never reuse DBs ingested from a different dataset release on the same `--db-path`; use a fresh path when either the dataset or embedding contract changes.

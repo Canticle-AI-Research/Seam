@@ -230,6 +230,66 @@ enter the traversal frontier. When no admissible `REL` exists, traversal returns
 an empty leg with `graph_skipped_reason=no_semantic_relation_edges`; explicit
 graph-node semantic retrieval remains independent of that skip.
 
+## Relation extraction qualification
+
+The existence of graph tables does not establish a semantic traversal
+substrate. Before any adaptive-depth or query-aware relation/path scorer is
+built, an isolated extracted corpus must pass the provider-free
+`relation-extraction-qualification/1` gate over a pinned SQLite snapshot.
+
+The gate uses the same canonical admission joins as runtime traversal and
+reports a strict funnel: pinned RAW turns, persisted `REL` records, admitted
+REL-backed entity edges, admitted relations with complete RAW backtraces,
+relation-bearing turns, unique entity pairs and predicates, hub degree, and
+incremental two-hop reachability. Every admitted relation must make three
+independent paths converge on the same source RAW record:
+`REL -> SPAN -> RAW`, `REL -> PROV -> RAW`, and
+`knowledge edge -> edge episode -> source RAW`. Stored field-level subject,
+predicate, and object spans must reproduce the exact RAW slices. Direct-write
+`mirl://` episodes, dangling references, self-loops, cross-boundary endpoints,
+and projected edges that do not exactly match their canonical `REL` fail the
+extraction gate.
+
+Structural validity is not semantic precision. The qualifier therefore emits
+a separate deterministic predicate- and hub-stratified review template. All
+relations are reviewed below 50; otherwise at least 50 are reviewed. The
+analyzer makes no provider or model calls, and its publishable report contains
+only counts, opaque IDs, and digests. It consumes the hash-pinned,
+content-bearing label file and requires both point precision at or above 0.90
+and a 95 percent Wilson lower bound at or above 0.80. The review template
+contains source evidence and is not a publishable benchmark summary.
+
+The predeclared substrate floor is:
+
+- at least 30 admitted relations;
+- admitted relations on at least 10 percent of the pinned RAW-turn
+  denominator;
+- exact admission and backtrace for 100 percent of persisted relations;
+- no self-loop or cross-namespace/scope relation;
+- maximum undirected distinct-neighbor degree no greater than
+  `max(8, ceil(0.05 * unique_relation_edges))`.
+
+Counts below the floor are insufficient evidence, not a weak pass. A zero-REL
+corpus is a failure. Scorer eligibility additionally requires predicate
+diversity and incremental two-hop paths whose two edges backtrace to distinct
+RAW turns; a same-turn motif does not demonstrate the cross-turn coreference
+needed for multi-hop retrieval.
+
+Run the read-only analyzer only after independently pinning the corpus RAW
+identity:
+
+```bash
+python -m tools.relation_extraction_qualification corpus.db \
+  --expected-turns <count> \
+  --expected-raw-digest <sha256> \
+  --review-template <external-review-path>.json
+```
+
+Complete the five boolean judgments per sampled relation in the external
+template, then rerun the same command with the template passed to `--labels`.
+`passed` qualifies the extraction substrate; `scorer_eligible` is the stricter
+authorization for adaptive depth and relation/triplet scoring.
+
 G3 can explicitly seed graph traversal from both in-boundary semantic
 fact/episode MIRL hits and versioned graph-node vectors for entities, values,
 agents, and symbols. Graph-node hits enter `reciprocal-rank-fusion/2` as the

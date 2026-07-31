@@ -47,6 +47,42 @@ ingest-only snapshot:
 This qualifies the one-engine aggregate retrieval floor and the semantic-edge
 admission behavior. It is not evidence of graph-incremental value.
 
+## Embedding integrity preflight
+
+Every scored SEAM LoCoMo run and ingest-only snapshot must execute a real
+embedding in the parent process before checkpoint creation, case scoring, or
+worker launch. The receipt pins the exact cached local BGE model and revision,
+384-dimensional finite/nonzero output, normalization contract, and
+local-files-only mode. Lazy model construction is not sufficient because cache
+or import failure would otherwise be converted into ordinary zero-score scope
+results.
+
+Every partial checkpoint carries the full content-free receipt and its
+canonical digest. A completed run binds that digest to the existing benchmark
+integrity hash under `seam-locomo-run-contract/1`; ingest-only snapshots bind
+the same receipt to their corpus digest. The required CI job provisions the
+exact pinned revision, then switches Hugging Face and Transformers offline
+before running the smoke.
+
+With `--keep-db`, the same preflight also rejects any reused nonempty scope
+whose indexable MIRL records lack complete current-render vector coverage for
+the pinned model and dimension, contain malformed/nonfinite/zero/wrong-length
+payloads, or carry same-boundary current-model orphan rows. A stale, corrupt,
+or differently embedded database must be re-ingested; it cannot silently run
+with an empty vector leg.
+
+The 2026-07-31 offline one-case quickstart executed the real pinned model,
+scored and archived normally, and reproduced its run-contract hash exactly.
+
+The relation-extraction qualification lane is separate and provider-free. It
+analyzes an already-built SQLite corpus, emits a content-free gate report plus
+an explicitly content-bearing human-review template, and cannot invoke an
+extractor, embedding provider, answerer, judge, or scorer. A read-only replay
+of the tracked legacy snapshot matched its pinned 419-turn RAW identity and
+failed with zero persisted/admitted/backtraced relations and
+`scorer_eligible=false`; its missing legacy graph-projection schema is reported
+as a named rejection rather than an analyzer crash.
+
 ## Recorded audits
 
 - `docs/audits/2026-05-31-cat4-single-hop-attribution.md`

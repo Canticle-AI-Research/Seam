@@ -14460,3 +14460,106 @@ qualify one isolated extracted clone; only then implement adaptive depth plus
 query-aware triple/path scoring and require an attributable category-1 holdout
 gain over hybrid.
 ---END-ENTRY-#506---
+
+---BEGIN-ENTRY-#507---
+id: 507
+date: 2026-07-31T08:34:30Z
+agent: codex
+status: changed
+topics: benchmark, retrieval, graph, vector, nl, mirl, provenance, audit, verify, handoff, status, tests, ci, security
+commits: pending
+refs: .github/workflows/ci.yml,PROJECT_STATUS.md,REPO_LEDGER.md,benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py,tools/relation_extraction_qualification.py,seam_runtime/nl.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py,docs/KNOWLEDGE_GRAPH.md,docs/status/benchmarks.md,docs/status/retrieval.md,docs/handoffs/2026-07-31-embedding-preflight-relation-gate.md,tests/audit
+supersedes: 506
+tokens: 1227
+---
+Embedding-model preflight and semantic-relation qualification gate
+
+HARDENED benchmark embedding integrity:
+- Every scored SEAM LoCoMo run and ingest-only snapshot now executes one real
+  embedding in the parent before worker launch, checkpoint creation, ingestion,
+  or case scoring. The fail-closed contract pins
+  `BAAI/bge-small-en-v1.5` revision
+  `5c38ec7c405ec4b44b94cc5a9bb96e735b38267a`, the versioned model identity,
+  384 dimensions, normalization contract, local-files-only mode, and finite
+  nonzero output. Lazy constructor/import/cache failures can no longer be
+  converted into normal-looking zero-score cases.
+- Partial checkpoints carry the full content-free receipt plus its canonical
+  digest. Final runs bind that receipt to the existing report integrity hash
+  under `seam-locomo-run-contract/1`; ingest-only snapshots bind it to their
+  corpus digest. A completed run with a binding failure is preserved and
+  archived but exits nonzero.
+- `--keep-db` now proves complete usable coverage for the exact model and
+  current render contract. Missing, stale, malformed, non-numeric,
+  wrong-length, nonfinite, all-zero, or same-boundary orphan current-model
+  vectors are hard failures. SQLite and pgvector use the same stored-payload
+  validation and filtered orphan contract.
+- Required CI keys the Hugging Face cache by the exact lowercase revision,
+  provisions that snapshot explicitly, then runs the quickstart with Hugging
+  Face and Transformers offline.
+
+BUILT a provider-free relation-extraction qualification lane:
+- Extracted REL now carries its exact sibling claim ID, field-level grounded
+  subject/relation/object spans, extractor metadata and fingerprints, and
+  explicit first-person subject resolution when present.
+- `tools.relation_extraction_qualification` is read-only and requires an
+  independently pinned RAW-turn count and identity digest. It reuses the
+  runtime's exact canonical REL admission clauses without restricting valid
+  temporal predicate families.
+- The gate separates persisted REL, admitted REL-backed entity edges, and
+  exact-backtrace relations. Every passing relation must converge on one RAW
+  through REL-to-SPAN/raw_spans, REL-to-PROV, and graph-edge-to-episode paths;
+  raw_docs, offsets, content hash, namespace, scope, endpoints, predicate,
+  sibling claim, and extractor configuration must agree.
+- Admission additionally requires one extractor configuration, at least 30
+  admitted relations across at least 10 percent of pinned RAW turns, full
+  admission/backtrace, no self/cross-boundary edges, and the predeclared
+  undirected distinct-neighbor hub bound. Degree p95/p99, parallel
+  multiplicity, incremental two-hop pairs, and cross-turn two-hop paths are
+  reported.
+- Structural validity is not called precision. The analyzer emits a separate
+  deterministic predicate/hub-stratified evidence-bearing review template and
+  hash-binds completed labels. Passing requires 0.90 point precision and a
+  0.80 Wilson lower bound. `scorer_eligible` is stricter than `passed` and also
+  requires predicate diversity plus incremental cross-turn two-hop yield.
+- Legacy databases without graph projection tables fail with a named
+  content-free schema rejection instead of crashing; REL-bearing legacy stores
+  still fail closed.
+
+MEASURED:
+- A real offline preflight loaded the exact pinned model in 5.1 seconds and
+  returned the expected 384 finite/nonzero dimensions with no network or model
+  provider call.
+- A real one-case offline LoCoMo smoke completed in 7.0 seconds, archived
+  normally, and reproduced its run-contract digest exactly. Evidence is
+  outside the repository under
+  `/mnt/data/seam-embedding-preflight-smoke.0dWa8Z/`.
+- A read-only replay of the tracked legacy corpus matched its expected and
+  observed 419-turn RAW identity, found 0 persisted/admitted/exact-backtrace
+  REL, and returned `status=failed` and `scorer_eligible=false`. Its
+  content-free report is retained at
+  `/mnt/data/legacy-419-relation-qualification.json`.
+- The operator-reported 7 REL over 30 gemma turns remains suggestive but
+  unqualified: it is below the volume floor and no pinned corpus/config/sample/
+  label artifact exists in the tracked repository.
+
+VERIFICATION:
+- The corrected strict provider-free audit passed 1,449/1,449 with zero
+  failures or skips; 23 external tests were intentionally deselected, 1,472
+  total collected. The first attempt incorrectly routed pytest temporaries to
+  `/mnt/data` and produced three expected shell-CWD policy failures; rerunning
+  the identical suite with its standard `/tmp` contract passed.
+- Focused embedding, vector, qualifier, LoCoMo, multi-speaker, and MIRL
+  extraction tests passed. Changed-file Ruff, py_compile, diff checks, and
+  candidate secret/private-session scans passed.
+- CodeRabbit's valid overflow, result-durability, CI, documentation,
+  exact-claim, and cleanup-path findings were repaired and regression-tested.
+  Its second review had only the cleanup-path finding; a third confirmation
+  review was rate-limited after that one-line fix.
+
+DECISION: no eGoT adaptive-depth gate or TREK relation/triplet scorer was built.
+No extractor, Ollama endpoint, or Ollama process was inspected, contacted,
+stopped, or modified. Land the bounded integrity/qualification work through
+PR #189. After explicit operator clearance, build one isolated corpus under a
+pinned extractor configuration and require both `passed=true` and
+`scorer_eligible=true` before implementing or benchmarking a scorer.
+---END-ENTRY-#507---

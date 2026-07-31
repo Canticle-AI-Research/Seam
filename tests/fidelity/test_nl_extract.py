@@ -535,6 +535,15 @@ def test_compile_nl_falls_back_to_floor_when_extractor_returns_empty():
 class _EntityRelationExtractor:
     """Both subject and object of the one claim are extractor-flagged entities."""
 
+    config_fingerprint = "entity-relation-fixture/1"
+
+    def config_metadata(self) -> dict[str, object]:
+        return {
+            "type": "provider-free-fixture",
+            "model": "none",
+            "prompt_version": "fixture/1",
+        }
+
     def extract(self, text: str) -> Extraction:
         if "mentored" in text:
             return Extraction(
@@ -549,7 +558,22 @@ def test_entity_to_entity_claim_emits_a_rel_edge():
     ents = {r.attrs["label"]: r.id for r in batch.records if r.kind == RecordKind.ENT}
     rels = [r for r in batch.records if r.kind == RecordKind.REL]
     assert len(rels) == 1
-    assert rels[0].attrs == {"src": ents["Akira"], "predicate": "mentored", "dst": ents["Priya"]}
+    assert rels[0].attrs["src"] == ents["Akira"]
+    assert rels[0].attrs["predicate"] == "mentored"
+    assert rels[0].attrs["dst"] == ents["Priya"]
+    claim = batch.by_id()[rels[0].attrs["claim_id"]]
+    assert claim.kind == RecordKind.CLM
+    assert claim.attrs["subject"] == ents["Akira"]
+    assert claim.attrs["predicate"] == "mentored"
+    assert claim.attrs["object"] == "Priya"
+    assert rels[0].evidence == claim.evidence
+    assert rels[0].prov == claim.prov
+    assert rels[0].ext["grounded_spans"] == claim.ext["grounded_spans"]
+    assert rels[0].ext["extractor"] == _EntityRelationExtractor().config_metadata()
+    assert (
+        rels[0].ext["extractor_config_fingerprint"]
+        == _EntityRelationExtractor.config_fingerprint
+    )
 
 
 def test_descriptive_object_does_not_emit_a_rel_edge():
