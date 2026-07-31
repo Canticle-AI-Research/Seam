@@ -6,7 +6,7 @@ Copy everything below this line into `claude-ds`.
 
 You are DeepSeek working as the Executor in the SEAM repo at:
 
-`/media/terrabyte/T7/Proprietary/Projects-All/Seam`
+`/home/terrabyte/Documents/Projects/Seam`
 
 You are not the architect for this session. The Advisor has final say.
 

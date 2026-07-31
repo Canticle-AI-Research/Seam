@@ -41,8 +41,11 @@ bge-cosine over the 200 baseline-retrieved memories: a LOOSE reachability proxy
 (those 200 were picked by the baseline's own embedder, not bge), reported for
 context, not as a top-200 guarantee.
 
-Env (facade parity): HF_HUB_CACHE=/media/terrabyte/T7/hf-cache HF_HUB_OFFLINE=1
-TRANSFORMERS_OFFLINE=1. Extractor: a local Ollama model that FITS the GPU fully.
+Env (facade parity): HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1. Do NOT set
+HF_HUB_CACHE -- the default ~/.cache/huggingface holds bge-small-en-v1.5 and
+loads offline; the old /media/terrabyte/T7 path is dead (T7 mounts at /mnt/t7)
+and pointing HF at it silently creates an empty cache that fails every case.
+Extractor: a local Ollama model that FITS the GPU fully.
 On the 8 GB RTX 2070, qwen2.5:14b spills 69% to CPU (>300 s/turn); the imported
 qwen2.5-7b-1m (Q4, 4.7 GB, 100% GPU) runs ~6 s/turn -- use ``--model
 qwen2.5-7b-1m:latest`` and raise ``SEAM_OLLAMA_TIMEOUT_S`` above the 300 s default

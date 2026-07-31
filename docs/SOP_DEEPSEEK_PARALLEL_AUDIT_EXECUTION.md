@@ -343,7 +343,7 @@ The MR must include:
 Copy this prompt to DeepSeek:
 
 ```text
-You are DeepSeek working in the SEAM repo at /media/terrabyte/T7/Proprietary/Projects-All/Seam.
+You are DeepSeek working in the SEAM repo at /home/terrabyte/Documents/Projects/Seam.
 
 Follow docs/SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md exactly. Use your own parallel agents/workers; Codex will not use agents. Start from current main, create a branch named deepseek/audit-debug-benchmark-pass, and assign disjoint worker lanes:
 
@@ -388,7 +388,7 @@ DeepSeek must fill this in at the end of its work:
 ```text
 Codex, review DeepSeek's SEAM audit/debug branch.
 
-Repo: /media/terrabyte/T7/Proprietary/Projects-All/Seam
+Repo: /home/terrabyte/Documents/Projects/Seam
 Base branch: main
 Work branch: <branch>
 HEAD commit: <sha>
