@@ -14363,3 +14363,85 @@ DO-NOT-LAND hold on `refactor/unify-retrieval-paths` REMAINS in force. The WANDR
 corpus needs distractors, cross-member entity collisions, and multi-source joins
 before its ablation can discriminate.
 ---END-ENTRY-#505---
+
+---BEGIN-ENTRY-#506---
+id: 506
+date: 2026-07-31T19:32:14Z
+agent: claude
+status: done
+topics: tests, sqlite, test-artifacts, cleanup, windows, verify
+commits: 753672c
+refs: none
+supersedes: none
+tokens: 1041
+---
+Fixed TWO independent SQLite artifact leaks in the test suites and added the
+guard that stops them expiring a third time.
+
+Leak A - `SeamTests` -> `test_seam/test_seam_*.db*`: 7,051 orphaned -wal/-shm
+pairs (858 MB) plus 3 empty .db files, accumulated 2026-07-21..07-29. Every WAL
+was orphaned (0 of 7,051 had a parent .db); contents were CREATE TABLE/INDEX DDL
+only, no rows.
+
+Leak B - `PgVectorAdapterTests` -> the REPO ROOT `test_pgvector_*.db*`: 118 files
+(5.5 MB), spanning 2026-07-09..07-31, plus 154 more already sitting in
+test_seam/pgvector/. All 274 had zero parent .db.
+
+ROOT CAUSE (both): 93 `SeamRuntime(...)` constructions in
+test_seam_all/test_seam.py and ZERO `.close()` calls. SQLite drops the -wal/-shm
+pair only on a CLEAN close, so deleting the database with a handle still open
+strands them. Linux unlinks open files without complaint, so it never surfaced;
+the Windows leg (.github/workflows/ci-windows.yml, workflow_dispatch, runs
+test_seam_all/) would strand via the pre-existing `except PermissionError: pass`.
+Both piles were invisible to `git status` because .gitignore blanket-ignores
+*.db-wal and *.db-shm.
+
+WHY THE PRIOR FIXES EXPIRED: #282 closed transient runtimes across the suite but
+never reached test_seam_all/test_seam.py. #322 relocated the debris that had
+collected at the repo root into test_seam/<area>/ but did NOT change the code
+writing there, so it regrew immediately. Neither left a check behind.
+
+Files changed:
+- test_seam_all/test_seam.py: new `_RuntimeArtifactCleanup` mixin
+  (make_runtime / _close_open_runtimes / _remove_db_artifacts); 93 construction
+  sites renamed `SeamRuntime(` -> `self.make_runtime(`; SeamTests,
+  PgVectorAdapterTests and LX1NotationTests adopt it; PgVectorAdapterTests now
+  writes to test_seam/pgvector/ instead of the repo root, which is what #322
+  codified but never enforced in code.
+- test_seam_all/test_artifact_hygiene.py: NEW guard, 3 tests - one per leaky
+  fixture (driving the real setUp/tearDown and writing data so SQLite actually
+  materialises the sidecars) plus a whole-tree accumulated-junk check.
+
+VERIFICATION (red-green, proven both directions):
+- Guard FAILED on the 118 pre-existing root orphans, naming them.
+- Guard PASSED on a cleaned tree.
+- Running the UNFIXED PgVectorAdapterTests (7 tests) created 2 new orphans and
+  the guard FAILED again - it catches the live mechanism, not just old debris.
+- After the fix, 169 tests across the three previously-leaking suites left 0
+  artifacts in all three locations.
+- FALSIFICATION: stripping the close in-process and unlinking only the parent
+  .db stranded exactly 2 sidecars, proving the guard is not passing vacuously.
+- Full suite: 1,959 passed, 3 failed, 2 xfailed (1,964 collected), against live
+  pgvector with HF forced offline. 0 stray artifacts at repo root,
+  test_seam/ and test_seam/pgvector/. ruff clean.
+- 881 MB reclaimed on the internal disk; 274 orphan files deleted.
+
+Two defects found and fixed in the guard while building it: a call to a
+non-existent `compile_and_persist()` (the file's idiom is
+`persist_ir(compile_nl(...))`), and importing the TestCase classes by name,
+which made pytest re-collect the whole SeamTests suite inside the guard module
+(156 collected instead of 3) - it now imports the module and reaches fixtures by
+attribute.
+
+Tooling note: pytest.ini already sets `-q`; passing `-q` again on the command
+line suppresses the passed/failed summary line entirely.
+
+NOT DONE / UNRELATED: the 3 failing tests
+(test_audit_2026_06_05.py::TestGraphAdapterIsolation::test_graph_leg_returns_only_in_scope_records,
+test_knowledge_graph.py::test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges,
+test_reasoning_retrieval.py::test_graph_hops_are_real_and_bounded) are NOT from
+this work. They come from uncommitted weighted-RRF changes in
+seam_runtime/retrieval*.py sitting in the working tree; all three PASS at clean
+HEAD 13d1684, verified in an isolated worktree. Untouched here and left for a
+separate slice.
+---END-ENTRY-#506---

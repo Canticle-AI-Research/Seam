@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 505
-total_tokens: ~245597
-latest_id: 505
+total_entries: 506
+total_tokens: ~246638
+latest_id: 506
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 506 | 2026-07-31 | done | cfcf42ffbae230b2 | tests,sqlite,test-artifacts,cleanup,+ | none |
 | 505 | 2026-07-30 | changed | 5673f963b700fa0d | retrieval,benchmark,wandr,trace,+ | 504 |
 | 504 | 2026-07-30 | in-progress | 419870043d7d473d | retrieval,benchmark,locomo,rank,+ | 503 |
 | 503 | 2026-07-30 | changed | 1b3130cbdbc8d5f6 | retrieval,benchmark,locomo,rank,+ | 502 |
@@ -559,7 +560,7 @@ compact: true
 - chroma: count=5 latest=#296, #295, #293, #017, #001
 - ci: count=36 latest=#490, #489, #487, #476, #473
 - classification: count=12 latest=#500, #177, #176, #171, #170
-- cleanup: count=2 latest=#394, #326
+- cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
 - cli: count=6 latest=#457, #411, #302, #293, #287
 - closeout: count=1 latest=#409
@@ -793,7 +794,7 @@ compact: true
 - spec: count=3 latest=#307, #305, #304
 - sql: count=1 latest=#319
 - sql2: count=1 latest=#318
-- sqlite: count=1 latest=#364
+- sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
 - status: count=166 latest=#505, #504, #503, #498, #497
@@ -808,7 +809,8 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - test: count=80 latest=#498, #495, #494, #490, #489
-- tests: count=33 latest=#502, #496, #458, #457, #456
+- test-artifacts: count=1 latest=#506
+- tests: count=34 latest=#506, #502, #496, #458, #457
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=5 latest=#459, #438, #428, #357, #324
@@ -822,11 +824,11 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=33 latest=#502, #465, #464, #463, #462
 - vector-adapters: count=1 latest=#359
-- verify: count=333 latest=#505, #504, #503, #502, #500
+- verify: count=334 latest=#506, #505, #504, #503, #502
 - vulnerability: count=1 latest=#296
 - wandr: count=1 latest=#505
 - webui: count=9 latest=#404, #403, #402, #342, #340
-- windows: count=24 latest=#370, #361, #360, #283, #282
+- windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
@@ -837,8 +839,8 @@ compact: true
 
 ## status rollup
 
-- roots: 79
+- roots: 80
 - changed: 32
-- done: 445
+- done: 446
 - in-progress: 7
 - planned: 21
