@@ -14445,3 +14445,91 @@ seam_runtime/retrieval*.py sitting in the working tree; all three PASS at clean
 HEAD 13d1684, verified in an isolated worktree. Untouched here and left for a
 separate slice.
 ---END-ENTRY-#506---
+
+---BEGIN-ENTRY-#507---
+id: 507
+date: 2026-07-31T22:28:32Z
+agent: claude
+status: done
+topics: benchmarks, locomo, operations, huggingface, docs, verify
+commits: 7bc64a0
+refs: none
+supersedes: none
+tokens: 1228
+---
+Removed the repo's dependence on a dead operator-machine path, and fixed the
+runner defect that let a failed run masquerade as a 0.0 benchmark result.
+
+WHAT HAPPENED (2026-07-31, before this entry): a 200-case provider-free LoCoMo
+run scored 0.0 on all 200 cases. Every case carried
+`OSError: We couldn't connect to 'https://huggingface.co' ... couldn't find them
+in the cached files` at stage `answer`. It was NOT a quality regression and NOT
+a corrupted cache.
+
+ROOT CAUSE: the Samsung T7 mounts at `/mnt/t7` (fstab UUID=9EE4-62E6), but repo
+docs still instructed `HF_HUB_CACHE=/media/terrabyte/T7/hf-cache`. That mount
+point no longer exists, so huggingface_hub SILENTLY CREATED it as a plain
+directory on the internal disk, found no model, reached for the network, and
+failed every case. It then re-downloaded 129 MB onto the internal disk, which
+had hit ENOSPC at 01:08 that morning (`rsyslogd: No space left on device`). The
+default `~/.cache/huggingface` was never touched - its `BAAI/bge-small-en-v1.5`
+blobs are all dated 2026-07-19 and load offline. The cache was BYPASSED, not
+deleted.
+
+SECOND DEFECT (the one that cost the time): a run where every case errors still
+produced a complete, well-formed report scored 0.0 and exited 0. Nothing in the
+output identified it as infrastructure, so it read as a catastrophic quality
+result rather than a misconfigured shell.
+
+Files changed:
+- benchmarks/external/locomo/run.py: new `_fail_on_infrastructure_error()`.
+  When 100% of cases error, the report is still written (it IS the diagnostic)
+  but the process exits 1 and prints the shared error type, stage, and first
+  message, plus HF-specific guidance when the message mentions huggingface.
+  Generic: any future infra failure that kills every case (dead DB, missing
+  dataset, OOM) now fails loudly instead of publishing zeros.
+- docs/kb/eval-methodology/locomo-mem0-harness.md: "Mandatory env" no longer
+  sets HF_HUB_CACHE; SEAM_BENCH_RECORD_DIR repointed to /mnt/t7/Proprietary/DATA;
+  documents the silent-empty-cache failure mode explicitly.
+- benchmarks/external/mem0_harness/README.md: dropped the HF_HUB_CACHE line.
+- benchmarks/external/mem0_harness/preflight_derived_facts.py: same, with reason.
+- docs/SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md + 7 docs/prompts/DEEPSEEK_*.md:
+  repo root repointed from the old /media/terrabyte/T7/Proprietary/Projects-All/Seam
+  to /home/terrabyte/Documents/Projects/Seam. Zero stale refs remain in live docs.
+
+NOT EDITED, deliberately: 11 files under docs/handoffs/ cite the old T7 paths.
+Those are dated historical session records (2026-07-09..07-22); rewriting them
+would falsify the record, same principle that forbids editing old HISTORY
+entries. The newest handoff (2026-07-30) cites no T7 path.
+
+VERIFICATION (3-case provider-free runs, free, no judge/answerer):
+- Correct env (HF_HUB_CACHE unset): context_recall 0.3333, 0/3 errors, exit 0.
+- Stale env (HF_HUB_CACHE at the dead path): 3/3 errors, exit 1, diagnostic
+  printed naming OSError + stage `answer` + the huggingface guidance.
+- Contrast with the pre-fix failure: 200/200 errors, recall 0.0, exit 0.
+- The 0.3333 figure is 3-case sample noise, NOT a quality signal; the measured
+  claim here is 0 errors vs 200, and exit 1 vs exit 0.
+- ruff clean on both changed Python files.
+
+CORRECTION recorded: write-protecting the dead directory did NOT by itself make
+stale paths fail loudly - a stale export still produced a clean-looking 0.0
+artifact. Only the `_fail_on_infrastructure_error` guard delivers that. The
+earlier claim in-session was wrong and is superseded by the measured exit codes
+above.
+
+ENVIRONMENT (not repo state, recorded for context only): the 129 MB shadow cache
+at /media/terrabyte/T7 was deleted and the directory write-locked with a
+DO-NOT-USE.txt; a write there is verified to fail. Full removal needs
+`sudo rmdir /media/terrabyte/T7` since /media/terrabyte is root-owned.
+
+NOT DONE / NEXT: the retrieval attribution gate is untouched and remains the
+blocker. HISTORY#503's -0.010804 regression is still unattributed and
+`refactor/unify-retrieval-paths` remains under the DO-NOT-LAND hold in
+docs/status/retrieval.md. The 3 failing graph tests
+(test_graph_leg_returns_only_in_scope_records,
+test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges,
+test_graph_hops_are_real_and_bounded) come from uncommitted weighted-RRF changes
+in seam_runtime/retrieval*.py that remain in the working tree; they pass at
+clean HEAD and were not touched here. Also open: PR #189
+(fix/semantic-graph-admission), which touches the same graph leg.
+---END-ENTRY-#507---
