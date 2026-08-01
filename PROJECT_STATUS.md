@@ -9,12 +9,19 @@
 
 ## Current headline
 
-**2026-07-30 — HISTORY#504 (IN PROGRESS).** Branch
-`refactor/unify-retrieval-paths` is local-only and the one-engine RRF ranking is
-**not promotable**. HISTORY#503's full 1,542-question provider-free A/B measured
-a −0.010804 context-recall regression that it could not attribute to any single
-leg. Per-leg trace instrumentation now exists; the attribution ablation is the
-gate. See `docs/status/retrieval.md`.
+**2026-07-31 — HISTORY#510.** Branch `refactor/unify-retrieval-paths` is
+**green** (1,975 passed, 0 failed) and HISTORY#503's regression premise is
+**falsified**: on a matched four-arm ablation the canonical engine *beats*
+legacy-weighted by **+0.009628**, where legacy reproduced 0.766420 exactly
+(#509). The entire regression was the graph leg — 87.43% duplicate candidates,
+contributing exactly nothing on LoCoMo. Graph retrieval now returns the
+**verified provenance chain** back to source bytes (#510): 1.0000 completeness
+on CLM and RAW.
+
+Open on this branch: **cat3 −0.036775** vs legacy (promotion decision),
+**ENT provenance 0.0000** (entities never declare their source span), and
+`fusion_leg_weights` **unvalidated** on a live graph leg. See
+`docs/status/retrieval.md`.
 
 ## Status streams
 
