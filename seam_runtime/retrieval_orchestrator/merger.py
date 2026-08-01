@@ -3,15 +3,24 @@ from __future__ import annotations
 import math
 
 from seam_runtime.retrieval_policy import (
-    fusion_score,
     rank_normalized_contribution,
+    weighted_fusion_score,
 )
 
 from .types import LegHit, RetrievalCandidate
 
 
-def rank_hits(grouped_hits: list[list[LegHit]]) -> list[RetrievalCandidate]:
-    """Fuse heterogeneous leg scores through fixed reciprocal-rank normalization."""
+def rank_hits(
+    grouped_hits: list[list[LegHit]],
+    leg_weights: dict[str, float] | None = None,
+) -> list[RetrievalCandidate]:
+    """Fuse heterogeneous leg scores through fixed reciprocal-rank normalization.
+
+    ``leg_weights`` scales each leg's contribution. Omitted or all-1.0 weights
+    reproduce ``reciprocal-rank-fusion/2`` exactly. Weights exist because plain
+    RRF treats leg count as corroboration, which is only valid for independent
+    legs; see ``FUSION_POLICY_WEIGHTED`` for the measured motivation.
+    """
 
     hits_by_leg: dict[str, dict[str, LegHit]] = {}
     reasons_by_leg_record: dict[tuple[str, str], list[str]] = {}
@@ -49,14 +58,18 @@ def rank_hits(grouped_hits: list[list[LegHit]]) -> list[RetrievalCandidate]:
                 candidate.graph_path = hit.path
 
     for candidate in merged.values():
-        candidate.score = fusion_score(candidate.sources)
+        candidate.score = weighted_fusion_score(candidate.sources, leg_weights)
         candidate.reasons = sorted(set(candidate.reasons))
 
     return sorted(merged.values(), key=lambda item: (-item.score, item.record.id))
 
 
-def merge_hits(grouped_hits: list[list[LegHit]], limit: int) -> list[RetrievalCandidate]:
-    return rank_hits(grouped_hits)[:limit]
+def merge_hits(
+    grouped_hits: list[list[LegHit]],
+    limit: int,
+    leg_weights: dict[str, float] | None = None,
+) -> list[RetrievalCandidate]:
+    return rank_hits(grouped_hits, leg_weights)[:limit]
 
 
 def rank_legacy_weighted_hits(hits: list[LegHit]) -> list[RetrievalCandidate]:

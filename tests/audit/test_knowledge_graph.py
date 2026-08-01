@@ -612,6 +612,38 @@ def test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges(run
             agent_id="gemini",
         )
     )
+    # Traversal admits SEMANTIC edges only, so this fixture must carry a real
+    # relation. Compile emits provenance/structure edges (content, subject,
+    # about, who), and following those is what produced the 200-candidate flood
+    # and 87.43% SQL/vector duplication measured in HISTORY#509. This test is
+    # about reading canonical `knowledge_edges` instead of legacy `ir_edges`,
+    # which an admissible relation proves just as well - and without asserting
+    # the behaviour that regression removed.
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id="ent:priya-lead",
+                    kind=RecordKind.ENT,
+                    attrs={"label": "Priya", "entity_type": "person"},
+                ),
+                MIRLRecord(
+                    id="ent:orion-program",
+                    kind=RecordKind.ENT,
+                    attrs={"label": "Orion", "entity_type": "program"},
+                ),
+                MIRLRecord(
+                    id="rel:priya-leads-orion",
+                    kind=RecordKind.REL,
+                    attrs={
+                        "src": "ent:priya-lead",
+                        "predicate": "leads",
+                        "dst": "ent:orion-program",
+                    },
+                ),
+            ]
+        )
+    )
     with runtime.store._pool.checkout() as connection:
         connection.execute("delete from ir_edges")
         connection.commit()

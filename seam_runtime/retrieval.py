@@ -68,6 +68,20 @@ class RetrievalFlags:
     # alongside this flag. OFF reproduces the exact prior (inert) graph score,
     # so a store without those upstream changes measures byte-identical.
     entity_grounded_scoring: bool = False
+    # Per-leg weights for orchestrator reciprocal-rank fusion. Empty (the
+    # default) is byte-identical to unweighted `reciprocal-rank-fusion/2`.
+    #
+    # Plain RRF sums one unweighted vote per leg, which is sound only when the
+    # legs are INDEPENDENT retrievers. HISTORY#505 measured that on LoCoMo they
+    # are not: the graph leg duplicated 87.43% of what SQL and vector already
+    # returned and supplied ~25 unique records out of 200, of which only 0.114%
+    # were ever selected. Its vote is therefore an echo, and the echo cost
+    # -0.023854 context recall against a graph-free arm. A weight below 1.0
+    # damps that amplification; 0.0 removes a leg from ranking while leaving it
+    # in the trace, which is what makes an honest leg ablation possible.
+    #
+    # Env: SEAM_RETRIEVAL_LEG_WEIGHTS="graph=0.3,vector=1.0"
+    fusion_leg_weights: tuple[tuple[str, float], ...] = ()
     # Retrieval DEPTH override (candidate count requested from search). None =
     # use the call-site `budget`. A measured win (HISTORY#320): the benchmark
     # default of 20 was STARVING recall - deeper retrieval lifts paid judge_score
@@ -249,6 +263,33 @@ def resolve_retrieval_profile(name: str | None) -> tuple[int, int] | None:
     return RETRIEVAL_PROFILES.get(name.strip().lower())
 
 
+def _parse_leg_weights(raw: str) -> tuple[tuple[str, float], ...]:
+    """Parse "graph=0.3,vector=1.0" into sorted (leg, weight) pairs.
+
+    Malformed input yields () rather than a partial map: half-applying weights
+    would change ranking in a way the operator never asked for.
+    """
+    raw = (raw or "").strip()
+    if not raw:
+        return ()
+    parsed: list[tuple[str, float]] = []
+    for part in raw.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        leg, sep, value = part.partition("=")
+        if not sep:
+            return ()
+        try:
+            weight = float(value.strip())
+        except ValueError:
+            return ()
+        if not 0.0 <= weight <= 1_000.0:
+            return ()
+        parsed.append((leg.strip(), weight))
+    return tuple(sorted(parsed))
+
+
 def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
     """Return only the flag fields whose env var is *explicitly* set.
 
@@ -283,6 +324,10 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         out["scoped_vectors"] = _truthy("SEAM_RETRIEVAL_SCOPED_VECTORS")
     if _present("SEAM_RETRIEVAL_ENTITY_GROUNDED"):
         out["entity_grounded_scoring"] = _truthy("SEAM_RETRIEVAL_ENTITY_GROUNDED")
+    if _present("SEAM_RETRIEVAL_LEG_WEIGHTS"):
+        out["fusion_leg_weights"] = _parse_leg_weights(
+            env["SEAM_RETRIEVAL_LEG_WEIGHTS"]
+        )
     if _present("SEAM_RETRIEVAL_TOP_K"):
         raw = env["SEAM_RETRIEVAL_TOP_K"].strip()
         if raw.isdigit() and int(raw) > 0:
@@ -340,6 +385,7 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         raw = env.get(name, "").strip()
         return int(raw) if raw.isdigit() and int(raw) > 0 else None
 
+
     def _policy(name: str, key: str, default: str) -> str:
         raw = env.get(name, "").strip()
         return raw if coerce_flag_value(key, raw) is not None else default
@@ -353,6 +399,7 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         fusion="rrf" if _on("SEAM_RETRIEVAL_RRF") else "weighted",
         scoped_vectors=_on("SEAM_RETRIEVAL_SCOPED_VECTORS"),
         entity_grounded_scoring=_on("SEAM_RETRIEVAL_ENTITY_GROUNDED"),
+        fusion_leg_weights=_parse_leg_weights(env.get("SEAM_RETRIEVAL_LEG_WEIGHTS", "")),
         # explicit knob var wins over the profile preset
         search_top_k=_pos_int("SEAM_RETRIEVAL_TOP_K") or p_top_k,
         context_budget=_pos_int("SEAM_RETRIEVAL_CONTEXT_BUDGET") or p_budget,

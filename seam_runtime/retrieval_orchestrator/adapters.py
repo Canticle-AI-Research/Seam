@@ -337,6 +337,31 @@ class GraphNodeSemanticAdapter:
         return accepted_node_ids, hits
 
 
+# Predicates that encode how a MIRL record was assembled rather than what the
+# world contains. They are the provenance/structure plane: agent attribution,
+# compile lineage, evidence and excerpt links, and the who/what/object/about
+# facet projections of a single claim. Traversing them returns a record's own
+# closure, which is by construction what the SQL and vector legs already found.
+STRUCTURAL_PREDICATES: tuple[str, ...] = (
+    "contributed",
+    "compile_nl",
+    "provenance",
+    "about",
+    "who",
+    "what",
+    "object",
+    "content",
+    "evidence",
+    "excerpt_of",
+    "subject",
+)
+
+# Emitted on the leg result when no admissible semantic edge exists, so an
+# empty graph leg is auditable as "this corpus has no relations" rather than
+# being mistaken for a retrieval failure.
+GRAPH_SKIP_NO_SEMANTIC_EDGES = "no_semantic_relation_edges"
+
+
 class SQLiteGraphAdapter:
     def __init__(self, store: SQLiteStore) -> None:
         self.store = store
@@ -417,8 +442,25 @@ class SQLiteGraphAdapter:
         # The graph leg reads the same self-building temporal graph exposed by
         # the dashboard. Unlike the retired ir_edges projection, these rows
         # carry semantic predicates, provenance, validity, and source records.
+        #
+        # Traversal is restricted to SEMANTIC edges. The structural predicates
+        # below describe how a record was assembled (its agent, provenance,
+        # evidence, excerpt, and attribute facets), not what the world contains.
+        # Following them is not knowledge retrieval, and it is actively harmful:
+        # traversal treats edges as undirected, and the shared
+        # `agent:system.nl` node carries degree 2,951 in a 5,552-node
+        # conversation graph, so one `contributed` edge bridges any claim to
+        # every other claim. Measured on conv-26, two hops reached 2,735 nodes
+        # (all 1,330 claims) with that hub versus 422 without it -- the direct
+        # cause of the 200-candidate flood and the 87.43% overlap with the SQL
+        # and vector legs. Structural edges are still used for evidence
+        # backtrace AFTER a semantic path is selected; they just cannot be
+        # traversed as if they were facts.
         edge_where: list[str] = []
-        edge_params: list[object] = []
+        structural = ",".join("?" for _ in STRUCTURAL_PREDICATES)
+        edge_where.append(f"e.predicate not in ({structural})")
+        edge_params_structural = list(STRUCTURAL_PREDICATES)
+        edge_params: list[object] = list(edge_params_structural)
         if plan.filters.scope:
             edge_where.append("e.scope = ?")
             edge_params.append(plan.filters.scope)
@@ -444,6 +486,8 @@ class SQLiteGraphAdapter:
         parent_edge: dict[str, tuple[str, str, str, str, str, str]] = {}
         reached_ids = set(initial_seed_ids)
         frontier = set(initial_seed_ids)
+        # Vitality: did ANY admissible semantic edge exist for this query?
+        semantic_edges_seen = False
         for hop in range(1, plan.graph_hops + 1):
             if not frontier or len(reached_ids) >= node_budget:
                 break
@@ -465,6 +509,8 @@ class SQLiteGraphAdapter:
             )
             with closing(self.store._connect()) as connection:
                 rows = connection.execute(edge_sql, hop_params).fetchall()
+            if rows:
+                semantic_edges_seen = True
             edge_node_ids = {
                 node_id
                 for row in rows
@@ -648,6 +694,24 @@ class SQLiteGraphAdapter:
                     path=path,
                 )
             )
+        if not semantic_edges_seen and plan.mode != "graph":
+            # No semantic relation was reachable. Returning the seed set here
+            # would just re-emit SQL/vector hits under a graph label, so the
+            # leg abstains and records WHY. On a provenance-only corpus this
+            # makes `mix` behave as `hybrid` without disabling graph
+            # retrieval for corpora that do carry relations.
+            #
+            # The abstention is scoped to MULTI-LEG plans, because that echo
+            # argument only holds when the SQL and vector legs are also running.
+            # In single-leg `mode="graph"` there is nothing to duplicate - the
+            # caller asked for graph retrieval specifically, and the seed set IS
+            # the result. Abstaining there discarded legitimate hits and broke
+            # the adapter's own contract: with `graph_hops=0` the hop loop is
+            # `range(1, 1)`, so it never executes, no edge rows are ever seen,
+            # and a seeds-only request returned nothing at all.
+            self.last_skip_reason = GRAPH_SKIP_NO_SEMANTIC_EDGES
+            return []
+        self.last_skip_reason = None
         return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
