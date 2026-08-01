@@ -15176,3 +15176,57 @@ The full-suite job now binds the same writable cache paths and offline flags fro
 
 Local verification passed again: 36 focused audit tests, Ruff, `git diff --check`, PyYAML structure checks, and the canonical integrity, routing, handoff, continuity, and stream gates. This entry supersedes only the invalid environment-placement detail in HISTORY#518; its observed CI failure diagnosis and cross-job cache dependency remain current. No provider or paid benchmark, release, direct-main push, or artifact/worktree cleanup ran. Exact-head GitHub CI rerun remains pending.
 ---END-ENTRY-#519---
+
+---BEGIN-ENTRY-#520---
+id: 520
+date: 2026-08-01T17:00:04Z
+agent: codex-gpt-5
+status: done
+topics: audit, bugfix, retrieval, storage, security, server, mcp, pyproject, verify, test, history, streams
+commits: pending
+refs: docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s1-locally-qualified.md,seam_runtime/storage.py,seam_runtime/retrieval.py,seam_runtime/server.py,seam_runtime/knowledge_graph.py,seam_runtime/mcp_protocol.py,tools/security/secret_scan.py,tools/ci/verify_dependency_contract.py
+supersedes: 519
+tokens: 540
+---
+Track S S1 immediate fail-closed guardrails are locally qualified.
+
+RUNTIME: SQLite load order is explicit and retrieval/fusion ties resolve by
+record ID through the final budget boundary. Retrieval flags reject non-positive
+`rrf_k` before fusion. Real Uvicorn factory launches derive host/workers from
+the same CLI/environment inputs and run the same remote-bind and process-local
+rate-limit validation as normal startup. Ordinary graph initialization now
+reads the projection marker before graph DDL or cleanup and refuses missing,
+stale, or newer projections without mutation; explicit migrations/reprojection
+remain S2/S3 work.
+
+SECURITY/OPERATIONS: `tools.security.secret_scan` is now the single pattern and
+scan implementation used by repository hygiene, continuity, public-safe checks,
+and pre-push. Commit-range scans inspect every new blob, including content added
+and deleted before the pushed tip. Oversized text fails closed except for the
+exact manifest-pinned LoCoMo dataset. The private MCP handshake derives its
+version from installed package metadata with an explicit unknown fallback;
+legacy `server.json` compatibility metadata is unchanged.
+
+DEPENDENCIES: `pyproject.toml` now declares one checked dependency contract for
+the runtime source, requirements mirror, convenience-extra union, exclusions,
+and retired extras. Direct requirements are aligned, `selfhost` is removed from
+active CI extras, and `tools.ci.verify_dependency_contract` guards drift. S10
+still owns frozen release lock/hash and artifact evidence.
+
+EVIDENCE: the complete non-external repository scope selected 2,094 tests:
+2,092 passed, two expected xfails, 23 external deselected, and zero failures,
+errors, or skips. The live pgvector external lane passed 23/23 with zero skips.
+The focused projection/migration/identity slice passed 48/48. Changed-Python
+Ruff, compileall, dependency verification, the canonical working-tree
+secret/session scan, and `git diff --check` passed. Three bounded CodeRabbit
+passes produced actionable findings that were corrected; the final rerun was
+rate-limited by the free plan and no paid review was enabled.
+
+BOUNDARY/NEXT: no paid provider, answerer, judge, retrieval-score benchmark, or
+release ran. S2 is next: one transactional, recoverable schema/projection
+migration spine with maintained historical fixtures, per-step rollback,
+integrity/foreign-key checks, byte-unchanged refusal of unknown/newer stores,
+and demonstrated backup recovery. The canonical checkout's unrelated dirty
+work remains untouched; this work is isolated on
+`fix/track-s-s1-guardrails`.
+---END-ENTRY-#520---

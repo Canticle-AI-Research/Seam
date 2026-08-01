@@ -117,3 +117,15 @@ def test_mcp_stdio_handshake():
                 proc.wait(timeout=5)
             except Exception:
                 pass
+
+
+def test_runtime_version_falls_back_when_package_metadata_is_absent(monkeypatch):
+    from importlib.metadata import PackageNotFoundError
+
+    import seam_runtime.mcp_protocol as protocol
+
+    def missing(_distribution: str) -> str:
+        raise PackageNotFoundError
+
+    monkeypatch.setattr(protocol, "version", missing)
+    assert protocol._runtime_package_version() == "unknown"

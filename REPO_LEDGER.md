@@ -170,8 +170,11 @@ and `HISTORY_INDEX.md`.
   canonical MIRL, not a manually authored or browser-generated topology.
   `knowledge_nodes`, `knowledge_edges`, and `knowledge_episodes` preserve typed
   semantics, agent/source provenance, confidence/status, and temporal validity;
-  every `SQLiteStore.persist_ir` write maintains the projection atomically and
-  existing databases receive a versioned backfill. RAW/MIRL remain the truth,
+  every `SQLiteStore.persist_ir` write maintains the projection atomically.
+  Ordinary store open refuses missing, stale, or newer projection markers
+  before graph DDL or reprojection; historical upgrades belong to an explicit,
+  transactional migration workflow rather than implicit open-time backfill.
+  RAW/MIRL remain the truth,
   graph retrieval and the dashboard consume the same projection. Graph hits
   reached by traversal expose deterministic edge/episode backtraces and may
   select the same current, full-history, or point-in-time validity view as the
@@ -288,6 +291,9 @@ and `HISTORY_INDEX.md`.
   bounded-hop, historical, and semantic-seeded mixed shapes on a synthetic
   2,048-node graph plus a pinned LoCoMo development/holdout selector gate using
   complete versioned graph-node vectors and explicit `graph_node` traces.
+  `rrf_k` must be a positive integer before fusion, and every equal-score or
+  equal-fusion boundary resolves by stable record ID so SQLite row rewrites do
+  not change budgeted output.
   See `docs/REASONING_GRAPH.md` and HISTORY#467.
 - J-lens capability claims are honest and opt-in. The default is structured
   workspace only, with no bundled weights, network access, downloads, or raw
@@ -355,6 +361,15 @@ and `HISTORY_INDEX.md`.
   --check`, and a non-printing secret/session URL scan. Paid answerer, judge,
   decomposer, or full LoCoMo runs remain operator-gated and must not be added
   to default PR CI.
+- `tools.security.secret_scan` is the canonical repository credential and
+  private-session scanner. CI scans the working tree; the private-origin
+  pre-push hook scans every blob introduced by each pushed range, including
+  added-then-deleted content. Oversized text fails closed unless an exact
+  manifest-pinned repository dataset hash authorizes that one path.
+- `pyproject.toml` `[tool.seam.dependency-contract]` is the checked authority
+  for runtime dependency source, installer mirror, convenience-extra members,
+  exclusions, and retired extras. `tools.ci.verify_dependency_contract` guards
+  CI/install drift; release lock and artifact hash proof remains an S10 gate.
 - The self-improvement loop's paid judged validation tier
   (`benchmarks/external/locomo/judged_scorer.py` + `tools/h2/paid_validation.py`)
   is reachable ONLY via `seam improve validate --confirm-paid`. Without

@@ -129,18 +129,23 @@ state without restarting.
 
 ## Optional Extras
 
-Base install includes required runtime packages from `requirements.txt`,
-including `rich`, `chromadb`, and `tiktoken`.
+Base install mirrors the bounded core dependencies in `pyproject.toml` through
+`requirements.txt`: `rich` and `tiktoken`. The dependency-source contract is
+checked by `python -m tools.ci.verify_dependency_contract`.
 
 | Extra | Package installed | When you need it |
 |---|---|---|
-| `dash` | `textual>=0.50` | Textual dashboard |
-| `server` | `fastapi`, `uvicorn` | REST API |
+| `dash` | `textual>=0.50`, `httpx` | Textual dashboard |
+| `server` | `fastapi`, `uvicorn`, `python-multipart` | REST API |
 | `pgvector` | `psycopg[binary]>=3.0` | PostgreSQL PgVector backend |
 | `sbert` | `sentence-transformers>=2.0` | Local neural embeddings |
+| `chroma` | `chromadb>=1.0,<2.0` | Explicit opt-in embedded Chroma only; excluded from `all-extras` |
 | `agent` | none yet | Reserved MCP-style agent bridge wrapper extra |
 | `rerank` | `sentence-transformers>=2.0` | Optional reranker experiments |
-| `all-extras` | all of the above | Full local setup |
+| `bench-judge` | `anthropic`, `openai` | Explicit external judge integrations; running paid validation still requires confirmation |
+| `bench-mem0` | `mem0ai`, pre-1.0 `chromadb` | Matched Mem0 benchmark lane |
+| `bench-zep` | `zep-cloud` | Matched Zep benchmark lane |
+| `all-extras` | supported non-Chroma runtime and benchmark extras | Full local setup without the explicit-risk Chroma extra |
 
 Install an extra into the managed runtime:
 

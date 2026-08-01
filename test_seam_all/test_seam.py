@@ -1077,6 +1077,12 @@ print("ok")
         responses = [json.loads(line) for line in output.getvalue().splitlines()]
         self.assertEqual([response["id"] for response in responses], [1, 2, 3, 4, 5])
         self.assertEqual(responses[0]["result"]["protocolVersion"], "2025-06-18")
+        from seam_runtime.mcp_protocol import _runtime_package_version
+
+        self.assertEqual(
+            responses[0]["result"]["serverInfo"]["version"],
+            _runtime_package_version(),
+        )
         self.assertEqual(responses[0]["result"]["capabilities"]["tools"]["listChanged"], False)
 
         tools = responses[1]["result"]["tools"]

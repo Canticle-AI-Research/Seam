@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 582
+total_events: 583
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-18T05:27:21Z | history:326:cd345e8f | session-event | done | webui, dashboard, cleanup, structure, docs, dependabot, a... | docs/CODE_LAYOUT.md,.github/dependabot.yml,archive/webui-vite-source/ARCHIVED... |
 | 2026-06-19T00:46:44Z | history:327:52811e9b | session-event | done | judge, benchmark, locomo, openai, reasoning, bugfix, gpt5... | benchmarks/external/common/judge.py,tests/audit/test_openai_judge_gpt5.py,HIS... |
 | 2026-06-19T02:47:17Z | history:328:f5702bd8 | session-event | done | retrieval, profile, retrievalflags, core, locomo, cat1, a... | seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_... |
 | 2026-06-19T08:20:53Z | history:329:475ed601 | session-event | done | docs, test, benchmark, status, history | docs/progress_tables/README.md,docs/progress_tables/test_runs.csv,docs/progre... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-01T14:03:59Z | history:517:533dac16 | session-event | changed | ci, bugfix, huggingface, benchmark, verify, history, streams | .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR... |
 | 2026-08-01T14:23:53Z | history:518:838eb489 | session-event | changed | ci, bugfix, huggingface, benchmark, verify, history, streams | .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR... |
 | 2026-08-01T14:27:13Z | history:519:b61e9310 | session-event | changed | ci, bugfix, huggingface, benchmark, verify, history, streams | .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR... |
+| 2026-08-01T17:00:04Z | history:520:2f7705d1 | session-event | done | audit, bugfix, retrieval, storage, security, server, mcp,... | docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0382.cross.md | 2026-04-15T00:00:00Z..2026-06-18T01:26:35Z | 382 | (multi) | (multi) |
+| 0001-0383.cross.md | 2026-04-15T00:00:00Z..2026-06-18T05:27:21Z | 383 | (multi) | (multi) |

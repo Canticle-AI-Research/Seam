@@ -1,2 +1,2 @@
 rich>=14.2,<16
-tiktoken>=0.8.0
+tiktoken>=0.8.0,<1.0

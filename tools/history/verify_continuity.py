@@ -3,8 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -20,31 +18,7 @@ from tools.history.load_snapshot import find_latest, load_and_verify
 from tools.history.recorded_fact_audit import audit_recorded_facts
 from tools.history.verify_integrity import verify as verify_integrity
 from tools.history.verify_routing import verify_routing
-
-SESSION_OR_SECRET_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    (
-        "provider_session_url",
-        re.compile(
-            r"https?://[^\s\)\]\}>\"']*(?:claude\.ai|chatgpt\.com|chat\.openai\.com|cursor\.com|/share/|session(?:=|/)|thread(?:=|/))[^\s\)\]\}>\"']*",
-            re.IGNORECASE,
-        ),
-    ),
-    (
-        "api_key",
-        re.compile(
-            r"\b(?:sk-or-v1-|sk-ant-|sk-)[A-Za-z0-9_-]{16,}\b"
-            r"|\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{20,}\b"
-            r"|github_pat_[A-Za-z0-9_]{20,}"
-            r"|\bAIza[0-9A-Za-z_-]{20,}\b"
-            r"|\bAKIA[0-9A-Z]{16}\b"
-        ),
-    ),
-    ("private_key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
-    (
-        "dsn_password",
-        re.compile(r"(?i)\b(?:postgres|postgresql|mysql|mongodb|redis)://[^\s:@/]+:[^\s:@/]{3,}@"),
-    ),
-)
+from tools.security.secret_scan import scan_worktree
 
 
 def _index_latest_id(index_path: Path) -> int | None:
@@ -78,42 +52,8 @@ def _check_supersedes(entries: list[Entry]) -> list[str]:
     return errors
 
 
-def _git_files(repo_root: Path) -> list[Path]:
-    try:
-        res = subprocess.run(
-            ["git", "-C", str(repo_root), "ls-files", "--cached", "--others", "--exclude-standard"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-    except (OSError, subprocess.SubprocessError):
-        return []
-    if res.returncode != 0:
-        return []
-    return [repo_root / line for line in res.stdout.splitlines() if line.strip()]
-
-
 def _scan_session_links_and_secrets(repo_root: Path) -> list[str]:
-    errors: list[str] = []
-    for path in _git_files(repo_root):
-        if not path.is_file():
-            continue
-        try:
-            sample = path.read_bytes()[:4096]
-        except OSError:
-            continue
-        if b"\0" in sample:
-            continue
-        try:
-            text = path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
-            text = path.read_text(encoding="utf-8", errors="replace")
-        rel = path.relative_to(repo_root)
-        for line_no, line in enumerate(text.splitlines(), 1):
-            for name, pattern in SESSION_OR_SECRET_PATTERNS:
-                if pattern.search(line):
-                    errors.append(f"{rel}:{line_no}: {name}")
-    return errors
+    return [finding.format() for finding in scan_worktree(repo_root)]
 
 
 def verify_continuity(

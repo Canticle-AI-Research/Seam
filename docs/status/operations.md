@@ -26,21 +26,21 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - `scripts/store_benchmark.ps1` archives benchmark runs with sequence+time folders,
   run index, and publication metadata/hashes.
 
-## Verified Track S gaps
+## Track S operating state
 
-- Real Uvicorn `--factory` startup does not yet share every normal server-safety
-  guard (S1).
-- Secret-scanner copies and commit-range push coverage can drift; the central
-  scanner must cover provider key/session URL fixtures and added-then-deleted
-  content (S1).
-- `server.json`'s legacy 1.3.1/URL is intentional compatibility, but the private
-  MCP handshake's 1.3.1 report is stale (S1).
-- Dependency declarations and lock/source expectations drift across active
-  install and CI paths (S1/S10).
-- S0's strict non-external suite, live pgvector external suite, focused campaign
-  suites, candidate security audit, and canonical history gates are locally
-  green. The live external lane used pgvector 0.8.5 while the Compose contract
-  declares 0.8.6; protected CI owns exact-image parity.
+- S1 routes real Uvicorn `--factory` startup through the same bind and worker
+  safety validation as normal launch.
+- `tools.security.secret_scan` owns the canonical secret/session patterns.
+  Repository hygiene scans the working tree, while pre-push scans every new
+  commit-range blob, including content added and deleted before the pushed tip.
+- `pyproject.toml` owns the checked runtime dependency, installer mirror,
+  convenience-extra, exclusion, and retired-extra contract. Frozen release
+  lock/hash evidence remains S10 work.
+- S1's strict non-external suite and live pgvector external suite are locally
+  green. The live external lane used pgvector 0.8.5 while Compose declares
+  0.8.6; protected CI owns exact-image parity.
+- S2 must add the transactional migration spine before any durable layout
+  change or guarded reprojection work begins.
 - Clean artifact/privacy proof remains mandatory on the frozen candidate, and
   every S10 gate must be rerun after S1-S9 even while the full suite is advisory
   in branch protection.
