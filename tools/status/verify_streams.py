@@ -27,6 +27,16 @@ HISTORY = REPO / "HISTORY.md"
 # The old file was 348 KB. Anything approaching that is the drift returning.
 STATUS_MAX_BYTES = 32_768
 
+_MARKDOWN_LINK = re.compile(
+    r"(?<!!)\[[^\]]+\]\(\s*<?([^>\s)]+)>?(?:\s+[^)]*)?\)"
+)
+
+
+def _markdown_link_targets(text: str) -> set[str]:
+    """Return inline Markdown link destinations, excluding images."""
+
+    return {match.group(1) for match in _MARKDOWN_LINK.finditer(text)}
+
 
 def check() -> list[str]:
     problems: list[str] = []
@@ -48,6 +58,7 @@ def check() -> list[str]:
         return problems
 
     status_text = STATUS.read_text()
+    status_links = _markdown_link_targets(status_text)
     size = len(status_text.encode("utf-8"))
     if size > STATUS_MAX_BYTES:
         problems.append(
@@ -56,7 +67,7 @@ def check() -> list[str]:
         )
 
     for name in sorted(on_disk):
-        if f"{name}.md" not in status_text:
+        if f"docs/status/{name}.md" not in status_links:
             problems.append(f"PROJECT_STATUS.md does not link stream '{name}'")
 
     for path in sorted(STREAM_DIR.glob("*.md")):
@@ -66,6 +77,9 @@ def check() -> list[str]:
                 f"{path.name} has {stacked} stacked 'Current update:' block(s); "
                 "streams supersede in place and never stack"
             )
+
+    if not HISTORY.exists():
+        problems.append("HISTORY.md missing")
 
     if not ARCHIVE.exists():
         problems.append(f"status archive missing: {ARCHIVE}")

@@ -108,7 +108,7 @@ def test_qualifier_requires_review_then_passes_complete_precise_labels(
     tmp_path: Path,
 ) -> None:
     database = tmp_path / "qualified.db"
-    _seed_corpus(database, turns=30, relations=30)
+    _seed_corpus(database, turns=50, relations=50)
 
     unlabeled = _qualify(database)
 
@@ -116,24 +116,24 @@ def test_qualifier_requires_review_then_passes_complete_precise_labels(
     assert unlabeled.report["provider_calls"] == 0
     assert unlabeled.report["status"] == "needs_review"
     assert unlabeled.report["funnel"] == {
-        "turns_expected": 30,
-        "turns_observed": 30,
-        "relations_persisted": 30,
-        "relations_admitted": 30,
-        "relations_exact_backtrace": 30,
-        "turns_covered": 30,
+        "turns_expected": 50,
+        "turns_observed": 50,
+        "relations_persisted": 50,
+        "relations_admitted": 50,
+        "relations_exact_backtrace": 50,
+        "turns_covered": 50,
         "turn_coverage": 1.0,
-        "unique_entity_pairs": 30,
+        "unique_entity_pairs": 50,
         "unique_predicates": 1,
     }
-    assert unlabeled.report["graph"]["incremental_two_hop_pairs"] == 29
+    assert unlabeled.report["graph"]["incremental_two_hop_pairs"] == 49
     assert (
         unlabeled.report["graph"]["cross_turn_incremental_two_hop_paths"]
-        == 29
+        == 49
     )
     assert unlabeled.report["graph"]["max_hub_degree"] == 2
     assert unlabeled.report["graph"]["max_parallel_edge_multiplicity"] == 1
-    assert len(unlabeled.review_template["relations"]) == 30
+    assert len(unlabeled.review_template["relations"]) == 50
     assert "evidence" not in json.dumps(unlabeled.report)
     assert "Node" not in json.dumps(unlabeled.report)
 
@@ -144,6 +144,7 @@ def test_qualifier_requires_review_then_passes_complete_precise_labels(
     assert qualified.report["status"] == "passed"
     assert qualified.report["passed"] is True
     assert qualified.report["checks"]["labels_complete"] is True
+    assert qualified.report["checks"]["sample_size"] is True
     assert qualified.report["checks"]["single_extractor_config"] is True
     assert qualified.report["sample"]["point_precision"] == 1.0
     assert qualified.report["sample"]["wilson_lower_95"] >= 0.80
@@ -154,6 +155,30 @@ def test_qualifier_requires_review_then_passes_complete_precise_labels(
         "predicate_diversity": False,
         "cross_turn_incremental_paths": True,
     }
+
+
+def test_perfect_labels_below_minimum_sample_remain_insufficient(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "below-minimum-sample.db"
+    _seed_corpus(database, turns=30, relations=30)
+
+    unlabeled = _qualify(database)
+    assert unlabeled.report["status"] == "insufficient_evidence"
+    assert unlabeled.report["checks"]["relation_volume"] is True
+    assert unlabeled.report["checks"]["sample_size"] is False
+
+    labels = tmp_path / "below-minimum-sample-labels.json"
+    _complete_review(unlabeled.review_template, labels)
+    reviewed = _qualify(database, labels_path=labels)
+
+    assert reviewed.report["sample"]["required"] == 30
+    assert reviewed.report["sample"]["point_precision"] == 1.0
+    assert reviewed.report["checks"]["labels_complete"] is True
+    assert reviewed.report["checks"]["sample_size"] is False
+    assert reviewed.report["status"] == "insufficient_evidence"
+    assert reviewed.report["passed"] is False
+    assert reviewed.report["scorer_eligible"] is False
 
 
 def test_seven_relations_over_thirty_turns_is_insufficient_evidence(

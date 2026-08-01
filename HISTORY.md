@@ -14930,3 +14930,105 @@ post-commit gate and is deliberately not claimed by this pre-commit history
 entry. No push, PR/GitHub mutation, release, or destructive cleanup was
 performed.
 ---END-ENTRY-#512---
+
+---BEGIN-ENTRY-#513---
+id: 513
+date: 2026-08-01T11:52:41Z
+agent: codex-gpt-5
+status: done
+topics: audit, bugfix, benchmark, retrieval, provenance, verify, test, roadmap, continuity, security
+commits: pending
+refs: docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s0-locally-qualified.md,seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/external/wandr,benchmarks/external/locomo/ingest_only.py,tools/relation_extraction_qualification.py,REPO_LEDGER.md
+supersedes: 512
+tokens: 860
+---
+Track S S0 canonical-baseline qualification and bounded review hardening.
+
+S0 QUALIFIED LOCALLY: the clean replacement branch now satisfies its source,
+path, semantic-admission, full-suite, bounded-review, security, and continuity
+gates. The comparison against `origin/refactor/unify-retrieval-paths` accounts
+for all 61 tree differences: 59 tracked `.ua` artifacts are intentionally
+excluded, and the remaining two paths are protected-main's current package-lock
+and pgvector Compose contracts. The candidate contains zero `.ua`, distribution,
+report-image, database, model, cache, or private-session artifacts. This closes
+only S0; it does not claim that any F1-F22 production defect is repaired.
+
+HARDENED: WANDR now pins hash embeddings, denies environment extraction,
+canonicalizes source identity through one URL contract, resets each lane before
+ingest, cleans SQLite sidecars, validates row shapes, records provenance only
+after successful ingest, and counts attempted network access before failing.
+LoCoMo ingest-only rejects non-pristine roots before adapter/model work and the
+embedding receipt derives `local_files_only=True` from both contract and loaded
+model. Relation qualification requires 50 reviewed labels and relation ingest
+returns a stable reason for missing/inaccessible datasets.
+
+RUNTIME CONTRACTS: temporal inputs reject mixed timezone awareness and aware
+values normalize to UTC-naive before stored-time comparison; memory-vector
+search excludes non-positive cosine results like persistent backends; explicit
+falsey retrieval flags remain explicit; empty/duplicate leg weights fail
+validation; extractor metadata must be strict JSON; RAW provenance distinguishes
+missing content from missing identity; and holographic MIRL queries remain on
+the strict canonical persist/retrieve path. Status-stream verification, fixture
+cleanup, provenance assertions, and the retired self-host/public-sync policy
+text were corrected and pinned. Roadmap Track N2 is now done/superseded because
+the compiled self-host surface it described was removed, not left as runnable
+historical tooling.
+
+EXACT TEST EVIDENCE: the frozen repository-wide non-external run collected
+2,095 tests: 2,070 passed, 2 expected xfails, 23 external deselected, and zero
+failures, errors, or skips in 555.99 seconds. Its before/after 747-file manifest
+was identical at
+`d7b717c247eb8a386671c5d1c4530b967fca8f7866dcfb470f3fcd0d9f1d2936`.
+The live pgvector lane passed 23/23 with zero skips; the loopback service was
+0.8.5 while Compose declares 0.8.6, so exact-image parity remains CI-owned.
+The post-review focused aggregate passed 210/210, relation-ingest passed 15/15,
+changed-Python Ruff passed, and `git diff --check` was clean.
+
+REVIEW: CodeRabbit's first pass reported 50 findings. After narrow remediation,
+the second pass had four: three were fixed or disproved, while the valid F22
+dependency-source drift remains routed to S1/S10 because no approved hash-locked
+source exists. The final pass reported one major and no criticals; it was
+disproved by the actual legacy planner -> adapter -> `search_batch` chain, which
+filters to the identical compatibility kinds before limiting. Its three focused
+parity tests passed. Candidate scans over current files, newly reachable blobs,
+and commit messages found zero denied paths, secrets, provider-session links,
+binary deltas, or whitespace defects.
+
+BOUNDARY/NEXT: no provider, paid, or network benchmark and no release ran. The
+final frozen-commit wheel/sdist, privacy, and opaque-boundary proof remains a
+pre-push publication gate. Protected-main CI/merge remains external evidence.
+S1 is next at F2/F6/F18/F19/F20/F22. PR #189 must not merge first and may be
+closed as superseded only after this replacement lands and semantic coverage is
+confirmed. No worktree or artifact cleanup is authorized.
+---END-ENTRY-#513---
+
+---BEGIN-ENTRY-#514---
+id: 514
+date: 2026-08-01T11:56:23Z
+agent: codex-gpt-5
+status: done
+topics: history, streams, roadmap, bugfix, verify, test, continuity
+commits: pending
+refs: tools/history/closeout.py,tests/audit/test_history_closeout.py,.seam/streams/roadmap/index.md
+supersedes: 513
+tokens: 229
+---
+Repaired the one-shot closeout path exposed while finalizing HISTORY#513.
+
+The roadmap parser rewrote `.seam/streams/roadmap/log.md` after a ROADMAP
+status change, but `tools.history.closeout` proceeded directly to the global
+cross-index without rebuilding the roadmap stream's own index. The final
+`verify_streams` gate therefore failed closed on a content-hash mismatch even
+though the authored roadmap and regenerated log were valid.
+
+`closeout` now runs `tools.streams.rebuild_index --stream roadmap` immediately
+after refreshing the roadmap log/state and before rebuilding the cross-index.
+The resume-path regression test pins the exact orchestration order. Focused
+closeout plus stream tests passed 25/25, Ruff passed both changed Python files,
+and `--resume-entry 513` then completed without appending a duplicate: integrity,
+routing, handoffs, continuity, and streams all passed.
+
+This changes only derived-state closeout orchestration. It does not alter SEAM
+runtime behavior, Track S stage status, benchmark evidence, or the no-provider/
+no-release boundary recorded in HISTORY#513.
+---END-ENTRY-#514---

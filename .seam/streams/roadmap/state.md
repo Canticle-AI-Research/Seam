@@ -60,7 +60,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:H3` — since 2026-05-15 via history:165 — topics: protocol, retrieval, search
 - `roadmap:track:H4` — since 2026-05-15 via history:165 — topics: protocol, retrieval, search, vector
 
-## done (17)
+## done (18)
 
 - `roadmap:track:A0` — since 2026-04-21 via history:063 — topics: dashboard, tui, textual
 - `roadmap:track:A1` — since 2026-04-25 via history:068 — topics: dashboard, animation, mirl
@@ -79,7 +79,4 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:H1` — since 2026-05-15 via history:170 — topics: protocol, history, plan, roadmap
 - `roadmap:track:I` — since 2026-05-17 via history:189 — topics: benchmark, retrieval, comparator
 - `roadmap:track:N` — since 2026-07-24 via history:470 — topics: packaging, release, distribution
-
-## open (1)
-
-- `roadmap:track:N2` — since 2026-07-28 via history:480 — topics: packaging, selfhost, distribution, mcp, cli
+- `roadmap:track:N2` — since 2026-08-01 via history:513 — topics: packaging, selfhost, distribution, mcp, cli

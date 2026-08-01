@@ -37,10 +37,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   MCP handshake's 1.3.1 report is stale (S1).
 - Dependency declarations and lock/source expectations drift across active
   install and CI paths (S1/S10).
-- The strict non-external suite, live pgvector external suite, focused campaign
-  suites, clean artifact/privacy proof, and canonical history gates all remain
-  mandatory S10 evidence even while the full suite is advisory in branch
-  protection.
+- S0's strict non-external suite, live pgvector external suite, focused campaign
+  suites, candidate security audit, and canonical history gates are locally
+  green. The live external lane used pgvector 0.8.5 while the Compose contract
+  declares 0.8.6; protected CI owns exact-image parity.
+- Clean artifact/privacy proof remains mandatory on the frozen candidate, and
+  every S10 gate must be rerun after S1-S9 even while the full suite is advisory
+  in branch protection.
 
 ## Session-end verification
 

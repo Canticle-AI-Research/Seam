@@ -273,10 +273,12 @@ def test_retrieval_returns_the_chain_only_when_asked(runtime: SeamRuntime) -> No
     on = orchestrator.search(
         "billing", scope="thread", budget=5, include_provenance=True
     )
+    assert on.candidates, "provenance-enabled retrieval must return the fixture"
     assert all(candidate.provenance is not None for candidate in on.candidates)
     resolved = [c for c in on.candidates if c.record.id == "clm:1"]
-    if resolved:
-        assert resolved[0].provenance.complete is True
+    assert len(resolved) == 1
+    assert resolved[0].provenance is not None
+    assert resolved[0].provenance.complete is True
 
 
 def test_resolving_provenance_does_not_change_ranking(runtime: SeamRuntime) -> None:

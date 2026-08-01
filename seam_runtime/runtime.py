@@ -224,6 +224,13 @@ class SeamRuntime:
         return IRBatch(sorted(ir_batch.records, key=lambda record: record.id))
 
     def persist_ir(self, ir_batch: IRBatch) -> PersistReport:
+        """Validate and persist MIRL, then refresh vector and node projections.
+
+        This is a strict write path: invalid MIRL raises before storage, and
+        every successful call indexes indexable records and projects graph-node
+        vectors. Read-only callers must not use it as a permissive parser.
+        """
+
         report = self.verify_ir(ir_batch)
         if not report.valid:
             raise ValueError(json.dumps(report.to_dict(), indent=2))

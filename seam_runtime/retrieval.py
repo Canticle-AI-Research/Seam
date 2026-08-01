@@ -273,6 +273,7 @@ def _parse_leg_weights(raw: str) -> tuple[tuple[str, float], ...]:
     if not raw:
         return ()
     parsed: list[tuple[str, float]] = []
+    seen: set[str] = set()
     for part in raw.split(","):
         part = part.strip()
         if not part:
@@ -280,13 +281,17 @@ def _parse_leg_weights(raw: str) -> tuple[tuple[str, float], ...]:
         leg, sep, value = part.partition("=")
         if not sep:
             return ()
+        leg = leg.strip()
+        if not leg or leg in seen:
+            return ()
         try:
             weight = float(value.strip())
         except ValueError:
             return ()
         if not 0.0 <= weight <= 1_000.0:
             return ()
-        parsed.append((leg.strip(), weight))
+        seen.add(leg)
+        parsed.append((leg, weight))
     return tuple(sorted(parsed))
 
 

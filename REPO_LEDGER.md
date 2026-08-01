@@ -438,12 +438,12 @@ and `HISTORY_INDEX.md`.
   as current policy): `tools/git-hooks/pre-push` unconditionally refuses any
   update to the `seam-runtime`/`Seam_Runtime` remote. The safety scanner
   explicitly blocks MIRL and HS/1 Reserved Materials and every private-by-default path,
-  `public_manifest.py` exposes no synced private paths, and
-  `sync_public_mirror.py` exits with the frozen-boundary error in every mode.
+  and `public_manifest.py` exposes no synced private paths. The former
+  `sync_public_mirror.py` utility has been removed with the split-distribution
+  tooling; do not recreate or substitute a private-to-public sync path.
   Pushes to private `origin` are unaffected. Do not bypass the freeze.
-- The former curated-sync implementation and `public_seed/` content are
-  retained only as historical tooling evidence. They are not an active release
-  mechanism. A future public client/SDK must use a separate repository,
+- The former curated-sync implementation and `public_seed/` content are removed,
+  not an active release mechanism. A future public client/SDK must use a separate repository,
   dependency boundary, manifest, license, and review; it must not reuse or
   reactivate the whole-runtime mirror.
 - Recorded-fact discrepancy audit is part of `verify_continuity`. Checkable facts written into active docs or the latest history entry must include enough scope to verify them later. The initial typed checks cover scoped pytest count claims, ambiguous hard-coded test totals, current handoff pointers, latest history refs that point at missing files, and same-scope test-count precedence drops (for example a later `150 passed` claim after an earlier same-scope `180 passed`). Future fact types should be added as extractors under `tools/history/recorded_fact_audit.py` so continuity catches disappearing data instead of relying on manual review.

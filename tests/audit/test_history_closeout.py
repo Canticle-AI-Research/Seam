@@ -67,7 +67,11 @@ def test_resume_rebuilds_without_appending_duplicate(
     assert "append HISTORY entry" not in labels
     assert labels[:2] == ["rebuild HISTORY_INDEX", "mirror history streams"]
     if roadmap_changed:
-        assert labels[2:4] == ["refresh roadmap stream + state", "rebuild cross-index"]
+        assert labels[2:5] == [
+            "refresh roadmap stream + state",
+            "rebuild roadmap stream index",
+            "rebuild cross-index",
+        ]
     else:
         assert labels[2] == "rebuild cross-index"
     assert labels[-5:] == [label for label, _ in closeout.PREFLIGHT_GATES]

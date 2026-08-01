@@ -553,6 +553,22 @@ class _EntityRelationExtractor:
         return Extraction()
 
 
+class _UnserializableMetadataExtractor(_EntityRelationExtractor):
+    def config_metadata(self) -> dict[str, object]:
+        return {"unsupported": {"unordered"}}
+
+
+def test_extractor_metadata_must_be_json_serializable():
+    with pytest.raises(
+        ValueError,
+        match="config_metadata must be JSON-serializable",
+    ):
+        compile_nl(
+            "Akira mentored Priya.",
+            extractor=_UnserializableMetadataExtractor(),
+        )
+
+
 class _FirstPersonEntityRelationExtractor:
     """Grounded relation fixture for the explicit qualification lane."""
 

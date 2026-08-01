@@ -140,7 +140,9 @@ class RetrievalOrchestrator:
             raise ValueError("candidate_trace_limit cannot be smaller than budget")
         if candidate_trace_limit > 128:
             raise ValueError("candidate_trace_limit cannot exceed 128")
-        resolved_flags = flags or self.runtime._retrieval_flags_cached()
+        resolved_flags = (
+            flags if flags is not None else self.runtime._retrieval_flags_cached()
+        )
         leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
         (
             plan,
@@ -366,7 +368,9 @@ class RetrievalOrchestrator:
         ranking_policy: str = "reciprocal-rank-fusion/2",
         include_provenance: bool = False,
     ) -> RetrievalSearchResult:
-        resolved_flags = flags or self.runtime._retrieval_flags_cached()
+        resolved_flags = (
+            flags if flags is not None else self.runtime._retrieval_flags_cached()
+        )
         leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
         candidate_budget = (
             int(resolved_flags.search_top_k)

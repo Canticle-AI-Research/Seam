@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-01-track-s-production-core-campaign
 supersedes: 2026-07-30-wandr-zero-network-replay-lane
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#511
 ---
 

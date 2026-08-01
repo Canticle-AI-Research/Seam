@@ -144,10 +144,11 @@ class MemoryVectorAdapter:
     ) -> dict[str, float]:
         query_vector = self.model.embed(query)
         ranked = [
-            (record_id, cosine(query_vector, vector))
+            (record_id, score)
             for record_id, (record, vector) in self._rows.items()
             if (namespace is None or record.ns == namespace)
             and (scope is None or record.scope == scope)
+            and (score := cosine(query_vector, vector)) > 0
         ]
         ranked.sort(key=lambda item: (-item[1], item[0]))
         return dict(ranked[: max(0, limit)])

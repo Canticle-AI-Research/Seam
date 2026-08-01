@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from benchmarks.external.wandr.types import KeySpec, WandrRow, WandrTask
+from benchmarks.external.wandr.urls import canonical_url
 
 FIXTURE_ROOT = Path(__file__).resolve().parents[2] / "fixtures" / "wandr"
 MANIFEST_NAME = "MANIFEST.json"
@@ -30,7 +31,7 @@ def _load_manifest(root: Path) -> dict[str, Any]:
     manifest_path = root / MANIFEST_NAME
     if not manifest_path.exists():
         raise FileNotFoundError(f"replay corpus manifest missing: {manifest_path}")
-    return json.loads(manifest_path.read_text())
+    return json.loads(manifest_path.read_text(encoding="utf-8"))
 
 
 def available_tasks(root: Path | None = None) -> tuple[str, ...]:
@@ -68,7 +69,7 @@ def load_task(name: str, root: Path | None = None, verify: bool = True) -> Wandr
 
     rows: list[WandrRow] = []
     for line_no, line in enumerate(
-        corpus_path.read_text().splitlines(), start=1
+        corpus_path.read_text(encoding="utf-8").splitlines(), start=1
     ):
         line = line.strip()
         if not line or line.startswith("#"):
@@ -107,7 +108,11 @@ def validate_hierarchy(task: WandrTask) -> list[str]:
     if len(task.key_hierarchy) > 1:
         url_spec = task.key_hierarchy[1]
         for member in members:
-            urls = {row.url for row in task.rows if row.member_key == member}
+            urls = {
+                canonical_url(row.url)
+                for row in task.rows
+                if row.member_key == member
+            }
             if len(urls) < url_spec.required:
                 problems.append(
                     f"{member}: {len(urls)} {url_spec.name}(s) < required "

@@ -46,6 +46,18 @@ class WandrRow:
     excerpts: tuple[str, ...]
     answer: dict[str, Any] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.item, dict) or not self.item:
+            raise ValueError("row 'item' must be a non-empty object")
+        if not isinstance(self.url, str) or not self.url:
+            raise ValueError("row 'url' must be a non-empty string")
+        if (
+            not isinstance(self.excerpts, tuple)
+            or not self.excerpts
+            or not all(isinstance(excerpt, str) and excerpt for excerpt in self.excerpts)
+        ):
+            raise ValueError("row 'excerpts' must be a tuple of non-empty strings")
+
     @property
     def member_key(self) -> str:
         """The hierarchy member this row supports (e.g. the topic)."""
@@ -76,11 +88,13 @@ class WandrRow:
         url = payload.get("url")
         if not isinstance(url, str) or not url:
             raise ValueError("row 'url' must be a non-empty string")
-        excerpts = payload.get("excerpts") or []
-        if not isinstance(excerpts, list) or not all(
+        excerpts = payload.get("excerpts")
+        if not isinstance(excerpts, list) or not excerpts or not all(
             isinstance(e, str) and e for e in excerpts
         ):
-            raise ValueError("row 'excerpts' must be a list of non-empty strings")
+            raise ValueError(
+                "row 'excerpts' must be a non-empty list of non-empty strings"
+            )
         return cls(
             task=task,
             item={str(k): str(v) for k, v in item.items()},

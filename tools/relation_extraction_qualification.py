@@ -931,6 +931,7 @@ def qualify_relation_extraction(
         "raw_digest": observed_raw_digest == expected_raw_digest,
         "nonzero_relations": persisted > 0,
         "relation_volume": persisted >= MIN_RELATIONS,
+        "sample_size": len(sample) >= MIN_SAMPLE_SIZE,
         "turn_coverage": turn_coverage >= MIN_TURN_COVERAGE,
         "full_admission": persisted > 0 and admitted == persisted,
         "exact_backtrace": persisted > 0 and exact == persisted,
@@ -964,7 +965,11 @@ def qualify_relation_extraction(
     )
     if hard_failure:
         status = "failed"
-    elif not checks["relation_volume"] or not checks["turn_coverage"]:
+    elif (
+        not checks["relation_volume"]
+        or not checks["sample_size"]
+        or not checks["turn_coverage"]
+    ):
         status = "insufficient_evidence"
     elif not checks["labels_complete"]:
         status = "needs_review"

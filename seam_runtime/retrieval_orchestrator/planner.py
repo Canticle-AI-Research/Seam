@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .types import QueryFilters, QueryIntent, RetrievalLeg, RetrievalPlan
 
@@ -10,6 +10,18 @@ FILTER_PATTERN = re.compile(r"\b(?P<key>id|kind|ns|scope|predicate|subject|objec
 
 RETRIEVAL_MODES = {"vector", "graph", "hybrid", "mix"}
 RANKING_POLICIES = {"legacy-weighted/1", "reciprocal-rank-fusion/2"}
+
+
+def _is_timezone_aware(value: datetime) -> bool:
+    return value.utcoffset() is not None
+
+
+def _utc_naive(value: datetime) -> datetime:
+    """Normalize an aware query timestamp to the store's UTC-naive contract."""
+
+    if not _is_timezone_aware(value):
+        return value
+    return value.astimezone(timezone.utc).replace(tzinfo=None)
 
 
 def build_plan(
@@ -59,8 +71,8 @@ def build_plan(
             or not all(isinstance(value, datetime) for value in temporal_window)
         ):
             raise TypeError("temporal_window must be a pair of datetimes")
-        if (temporal_window[0].tzinfo is None) != (
-            temporal_window[1].tzinfo is None
+        if _is_timezone_aware(temporal_window[0]) != _is_timezone_aware(
+            temporal_window[1]
         ):
             raise ValueError(
                 "temporal_window endpoints must both be naive or timezone-aware"
@@ -71,6 +83,18 @@ def build_plan(
         temporal_reference, datetime
     ):
         raise TypeError("temporal_reference must be a datetime")
+    if temporal_reference is not None and temporal_window is not None:
+        if _is_timezone_aware(temporal_reference) != _is_timezone_aware(
+            temporal_window[0]
+        ):
+            raise ValueError(
+                "temporal_reference and temporal_window must agree on "
+                "timezone awareness"
+            )
+    if temporal_window is not None:
+        temporal_window = tuple(_utc_naive(value) for value in temporal_window)
+    if temporal_reference is not None:
+        temporal_reference = _utc_naive(temporal_reference)
     filters = _extract_filters(query, scope=scope, namespace=namespace)
     normalized_query = _strip_filters(query)
     intent = _classify_intent(filters, normalized_query, mode)

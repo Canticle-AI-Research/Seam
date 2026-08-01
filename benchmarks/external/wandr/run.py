@@ -31,12 +31,11 @@ from benchmarks.external.wandr.corpus import (
     validate_hierarchy,
 )
 from benchmarks.external.wandr.types import WandrTask, stable_id
+from benchmarks.external.wandr.urls import canonical_url
 
 
 def _expected_sources(task: WandrTask) -> dict[str, set[str]]:
     """Canonical source ids that *should* be recoverable per member."""
-    from benchmarks.external.wandr.adapters.seam import canonical_url
-
     expected: dict[str, set[str]] = {}
     for row in task.rows:
         expected.setdefault(row.member_key, set()).add(
@@ -50,6 +49,7 @@ def run_lane(task: WandrTask, lane: str, db_root: Path) -> dict[str, Any]:
     adapter = SeamWandrAdapter(db_root / lane, lane=lane)
     try:
         scope = task.name
+        adapter.reset(scope)
         ingest = adapter.ingest_task(scope, task)
         expected = _expected_sources(task)
 

@@ -9,24 +9,24 @@
 
 ## Current headline
 
-**2026-08-01 — HISTORY#511.** Track S, the Production-Core Integrity
-Campaign, is active. Its one canonical plan at
-`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md` records the verified F1-F22
-verdicts, dependency-ordered stages S0-S10, and exact exit gates. It coordinates
-Track R, H2, E2, and K14 without superseding them.
+**2026-08-01 — HISTORY#513.** Track S, the Production-Core Integrity
+Campaign, is active and its S0 canonical-baseline stage is locally qualified.
+The strict non-external suite, the live-pgvector external lane, focused campaign
+tests, bounded review, candidate path/security audit, and canonical closeout
+gates are green on the replacement branch. The exact evidence and remaining
+image-parity caveat are recorded in the current handoff.
 
-The clean semantic baseline is commit `86a81e2` (exactly 27 paths). Its exact
-12-module semantic/offline-integrity slice passed **269/269**; changed-Python-
-path Ruff, `git diff --check`, the 27-path allowlist/exclusion audit, and the
-same candidate-path secret/session scan were clean. This was not a full-suite
-run. The baseline retains fail-closed canonical REL admission and keeps the
-27/419 research relation lane scorer-ineligible.
+S1 is now the next dependency boundary. F22 dependency-source drift remains an
+explicit S1/S10 item; no improvised lock or hash source was added. No other
+F1-F22 production defect is claimed fixed by S0 or by its review-hardening
+changes. The current retrieval evidence is still +0.009628 overall versus
+legacy with cat3 −0.036775, ENT provenance 0.0000, and live-leg fusion weights
+unvalidated; see `docs/status/retrieval.md`.
 
-No F1-F22 production defect is claimed fixed by this continuity slice. S0 and
-all later stages remain evidence-gated by the campaign plan. The current
-retrieval evidence is still +0.009628 overall versus legacy with cat3
-−0.036775, ENT provenance 0.0000, and live-leg fusion weights unvalidated; see
-`docs/status/retrieval.md`.
+The canonical plan remains
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`. Track S coordinates Track R, H2,
+E2, and K14 without superseding them. No provider-paid benchmark or release was
+run as part of S0.
 
 ## Status streams
 

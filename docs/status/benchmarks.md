@@ -22,10 +22,20 @@ Non-official, zero-network. `benchmarks/external/wandr/` with hash-pinned synthe
 corpus. Provider/network/cost counters asserted at zero; runner exits non-zero if
 any is non-zero. Native (`mix`) vs event-only (`hybrid`) ablation currently reports
 **parity at a 1.0 ceiling** — mechanism evidence only, not graph lift in either
-direction. Upstream's official path is networked and paid and must not be run.
+direction. The S0 hardening pass now pins hash embeddings, disables environment
+extractors, canonicalizes source identity through one URL contract, resets every
+lane before ingest, rejects incomplete replay rows and noncanonical stored
+references, and fails closed on any attempted network fetch. Upstream's official
+path is networked and paid and must not be run.
 
 Corpus must be hardened (distractors, cross-member entity collisions, multi-source
 joins) before the ablation can discriminate.
+
+The local relation-extraction qualification lane remains research-only and
+scorer-ineligible. A precision verdict now requires at least 50 sampled labels;
+smaller perfect-looking samples return `insufficient_evidence`. This changes the
+admission evidence contract, not the measured 27/419 coverage or graph-lift
+status.
 
 ## Recorded audits
 

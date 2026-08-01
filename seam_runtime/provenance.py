@@ -36,6 +36,7 @@ DEFECT_SPAN_NOT_SPAN = "referenced_record_is_not_a_span"
 DEFECT_RAW_ID_ABSENT = "span_carries_no_raw_id"
 DEFECT_RAW_MISSING = "raw_record_missing"
 DEFECT_RAW_NOT_RAW = "referenced_record_is_not_raw"
+DEFECT_RAW_CONTENT_MISSING = "raw_carries_no_string_content"
 DEFECT_OFFSETS_INVALID = "span_offsets_outside_raw_content"
 
 PROVENANCE_CONTRACT = "provenance-chain/1"
@@ -150,7 +151,7 @@ def _raw_self_chain(record: MIRLRecord) -> ProvenanceChain:
                 end=len(text) if text is not None else None,
                 text=text,
                 verified=text is not None,
-                defect=None if text is not None else DEFECT_RAW_ID_ABSENT,
+                defect=None if text is not None else DEFECT_RAW_CONTENT_MISSING,
             ),
         ),
     )
@@ -176,9 +177,16 @@ def _resolve_link(span_id: str, lookup: _RecordLookup) -> ProvenanceLink:
     content = raw.attrs.get("content")
     start = span.attrs.get("start")
     end = span.attrs.get("end")
+    if not isinstance(content, str):
+        return ProvenanceLink(
+            span_id=span_id,
+            raw_id=raw_id,
+            start=start if isinstance(start, int) and not isinstance(start, bool) else None,
+            end=end if isinstance(end, int) and not isinstance(end, bool) else None,
+            defect=DEFECT_RAW_CONTENT_MISSING,
+        )
     if (
-        not isinstance(content, str)
-        or not isinstance(start, int)
+        not isinstance(start, int)
         or not isinstance(end, int)
         or isinstance(start, bool)
         or isinstance(end, bool)

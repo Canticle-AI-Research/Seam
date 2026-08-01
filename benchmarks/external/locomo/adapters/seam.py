@@ -1102,20 +1102,32 @@ def _validate_runtime_embedding_contract(model) -> None:
 def embedding_model_preflight() -> dict[str, object]:
     """Force-load and validate the exact offline LoCoMo embedding model."""
     contract = _embedding_contract()
+    contract_local_files_only = contract.get("local_files_only")
+    if contract_local_files_only is not True:
+        raise RuntimeError(
+            "LoCoMo embedding preflight rejected contract: local_files_only "
+            f"must be True, got {contract_local_files_only!r}"
+        )
+
     model = _default_sentence_transformer_model()
+    verified_local_files_only = getattr(model, "local_files_only", None)
 
     identity_mismatches = []
     for attribute, expected in (
         ("model_name", contract["model"]),
         ("revision", contract["revision"]),
         ("name", contract["name"]),
-        ("local_files_only", contract["local_files_only"]),
     ):
         actual = getattr(model, attribute, None)
         if actual != expected:
             identity_mismatches.append(
                 f"{attribute} expected {expected!r}, got {actual!r}"
             )
+    if verified_local_files_only is not True:
+        identity_mismatches.append(
+            "local_files_only expected True, "
+            f"got {verified_local_files_only!r}"
+        )
     if identity_mismatches:
         raise RuntimeError(
             "LoCoMo embedding preflight rejected model identity: "
@@ -1167,7 +1179,7 @@ def embedding_model_preflight() -> dict[str, object]:
         "name": contract["name"],
         "dimension": expected_dimension,
         "normalization": contract["normalization"],
-        "local_files_only": True,
+        "local_files_only": verified_local_files_only,
         "probe": {
             "performed": True,
             "dimension": len(vector),

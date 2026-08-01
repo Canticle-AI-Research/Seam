@@ -42,11 +42,29 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--search-top-k", type=int, default=100)
     args = parser.parse_args(argv)
 
+    root = Path(args.db_path).expanduser().resolve()
+    existing_sqlite_files = sorted(
+        path
+        for pattern in ("*.db", "*.db-wal", "*.db-shm")
+        for path in root.rglob(pattern)
+        if path.is_file()
+    )
+    if existing_sqlite_files:
+        relative_paths = ", ".join(
+            path.relative_to(root).as_posix() for path in existing_sqlite_files
+        )
+        raise RuntimeError(
+            "LoCoMo ingest-only target root already contains SQLite corpus "
+            "files or sidecars; "
+            "refusing to build the adapter or run embedding preflight: "
+            f"{relative_paths}"
+        )
+
     cases = load_locomo_cases(Path(args.dataset_path))
     adapter = build_adapter(
         "seam",
         keep_db=False,
-        db_path=args.db_path,
+        db_path=str(root),
         context_budget=args.context_budget,
         search_top_k=args.search_top_k,
     )
@@ -67,7 +85,6 @@ def main(argv: list[str] | None = None) -> int:
         if callable(close):
             close()
 
-    root = Path(args.db_path)
     digest = corpus_digest(root)
     from benchmarks.external.locomo.adapters.seam import (
         canonical_json_sha256,

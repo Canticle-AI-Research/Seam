@@ -147,6 +147,38 @@ def test_embedding_preflight_rejects_identity_drift(
     assert model.embed_calls == 0
 
 
+def test_embedding_preflight_rejects_non_boolean_local_only_claim(monkeypatch):
+    from benchmarks.external.locomo.adapters.seam import embedding_model_preflight
+
+    model = _ExactFakeModel()
+    model.local_files_only = 1
+    _install_exact_fake(monkeypatch, model)
+
+    with pytest.raises(RuntimeError, match="local_files_only expected True"):
+        embedding_model_preflight()
+    assert model.embed_calls == 0
+
+
+def test_embedding_preflight_rejects_nonlocal_contract_without_false_receipt(
+    monkeypatch,
+):
+    from benchmarks.external.locomo.adapters import seam as seam_adapter
+
+    contract = _contract()
+    contract["local_files_only"] = False
+    model = _ExactFakeModel()
+    model.local_files_only = False
+    _install_exact_fake(monkeypatch, model)
+    monkeypatch.setattr(seam_adapter, "_embedding_contract", lambda: contract)
+
+    with pytest.raises(
+        RuntimeError,
+        match="contract: local_files_only must be True, got False",
+    ):
+        seam_adapter.embedding_model_preflight()
+    assert model.embed_calls == 0
+
+
 def test_embedding_preflight_rejects_declared_dimension_drift(monkeypatch):
     from benchmarks.external.locomo.adapters.seam import embedding_model_preflight
 
@@ -571,6 +603,7 @@ def test_ingest_only_preflights_before_ingest_and_records_receipt(
     from benchmarks.external.locomo import ingest_only
 
     events: list[str] = []
+    adapter_db_paths: list[str] = []
     receipt = {"schema": "test-preflight/1"}
     case = BenchmarkCase(
         case_id="scope-1::q0",
@@ -587,6 +620,8 @@ def test_ingest_only_preflights_before_ingest_and_records_receipt(
 
         def reset(self, _scope):
             events.append("reset")
+            resolved_root.mkdir(parents=True, exist_ok=True)
+            (resolved_root / "scope-1.db").write_bytes(b"pristine corpus")
 
         def ingest_turn(self, _scope, _turn):
             events.append("ingest")
@@ -595,9 +630,15 @@ def test_ingest_only_preflights_before_ingest_and_records_receipt(
             events.append("close")
 
     monkeypatch.setattr(ingest_only, "load_locomo_cases", lambda _path: [case])
-    monkeypatch.setattr(
-        ingest_only, "build_adapter", lambda *_args, **_kwargs: FakeAdapter()
-    )
+    monkeypatch.chdir(tmp_path)
+    requested_root = Path("relative-db-root")
+    resolved_root = requested_root.resolve()
+
+    def fake_build_adapter(*_args, **kwargs):
+        adapter_db_paths.append(kwargs["db_path"])
+        return FakeAdapter()
+
+    monkeypatch.setattr(ingest_only, "build_adapter", fake_build_adapter)
 
     assert (
         ingest_only.main(
@@ -605,13 +646,14 @@ def test_ingest_only_preflights_before_ingest_and_records_receipt(
                 "--dataset-path",
                 str(tmp_path / "unused.json"),
                 "--db-path",
-                str(tmp_path / "db"),
+                str(requested_root),
             ]
         )
         == 0
     )
 
     assert events.index("preflight") < events.index("reset")
+    assert adapter_db_paths == [str(resolved_root)]
     output = capsys.readouterr().out
     report = json.loads(output[output.index("{") :])
     from benchmarks.external.locomo.adapters.seam import (
@@ -620,6 +662,8 @@ def test_ingest_only_preflights_before_ingest_and_records_receipt(
     )
 
     receipt_sha256 = embedding_preflight_receipt_sha256(receipt)
+    assert report["db_path"] == str(resolved_root)
+    assert report["corpus_digest"] == ingest_only.corpus_digest(resolved_root)
     assert report["embedding_preflight"] == receipt
     assert report["embedding_preflight_sha256"] == receipt_sha256
     corpus_binding = {
@@ -634,6 +678,47 @@ def test_ingest_only_preflights_before_ingest_and_records_receipt(
         "embedding_preflight_sha256": receipt_sha256,
         "integrity_sha256": canonical_json_sha256(corpus_binding),
     }
+
+
+@pytest.mark.parametrize("sqlite_filename", ["scope.db", "scope.db-wal", "scope.db-shm"])
+def test_ingest_only_rejects_existing_sqlite_file_before_adapter_or_preflight(
+    monkeypatch, tmp_path, sqlite_filename: str
+):
+    from benchmarks.external.locomo import ingest_only
+
+    target_root = tmp_path / "existing-corpus"
+    existing_sqlite_file = target_root / "nested" / sqlite_filename
+    existing_sqlite_file.parent.mkdir(parents=True)
+    existing_sqlite_file.write_bytes(b"existing corpus")
+    events: list[str] = []
+
+    def fake_load(_path):
+        events.append("load")
+        return []
+
+    def fake_build(*_args, **_kwargs):
+        events.append("build")
+        pytest.fail("adapter must not be built for an occupied target root")
+
+    monkeypatch.setattr(ingest_only, "load_locomo_cases", fake_load)
+    monkeypatch.setattr(ingest_only, "build_adapter", fake_build)
+
+    with pytest.raises(
+        RuntimeError,
+        match="already contains SQLite corpus files or sidecars",
+    ) as exc_info:
+        ingest_only.main(
+            [
+                "--dataset-path",
+                str(tmp_path / "unused.json"),
+                "--db-path",
+                str(target_root),
+            ]
+        )
+
+    assert events == []
+    assert f"nested/{sqlite_filename}" in str(exc_info.value)
+    assert existing_sqlite_file.read_bytes() == b"existing corpus"
 
 
 def test_required_quickstart_ci_provisions_exact_revision_then_runs_offline():

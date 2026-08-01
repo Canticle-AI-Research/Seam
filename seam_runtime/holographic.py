@@ -284,6 +284,13 @@ def inspect_surface(path: Path) -> dict[str, object]:
 
 
 def query_surface(path: Path, query: str, limit: int = 5) -> SurfaceQueryResult:
+    """Query a surface; MIRL payloads must satisfy the canonical IR contract.
+
+    Decoding proves byte integrity, not semantic validity. MIRL surfaces are
+    therefore admitted through ``persist_ir`` and fail closed on invalid or
+    incomplete records instead of falling back to the retired direct scorer.
+    """
+
     payload = decode_surface(path)
     if payload.payload_format == "SEAM-RC/1":
         result = query_readable_compressed(payload.text, query=query, limit=limit).to_dict()

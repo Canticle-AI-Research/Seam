@@ -53,12 +53,19 @@ def _artifacts() -> set[Path]:
 
 
 def _run_fixture_lifecycle(case: unittest.TestCase, body) -> None:
-    """setUp -> body(case) -> tearDown, exactly as unittest would drive it."""
-    case.setUp()
+    """Drive setUp/body/tearDown and registered cleanups like unittest."""
     try:
-        body(case)
+        case.setUp()
+    except BaseException:
+        case.doCleanups()
+        raise
+    try:
+        try:
+            body(case)
+        finally:
+            case.tearDown()
     finally:
-        case.tearDown()
+        case.doCleanups()
 
 
 class ArtifactHygieneTests(unittest.TestCase):
@@ -88,6 +95,48 @@ class ArtifactHygieneTests(unittest.TestCase):
         self._assert_no_new_artifacts(
             _suite.SeamTests("test_exact_pack_round_trips"), body
         )
+
+    def test_fixture_lifecycle_runs_cleanups_on_success_and_failure(self) -> None:
+        events: list[str] = []
+
+        class SuccessfulCase(unittest.TestCase):
+            def setUp(self) -> None:
+                self.addCleanup(events.append, "success-cleanup")
+
+            def tearDown(self) -> None:
+                events.append("success-teardown")
+
+        _run_fixture_lifecycle(
+            SuccessfulCase(), lambda case: events.append("success-body")
+        )
+        self.assertEqual(
+            events,
+            ["success-body", "success-teardown", "success-cleanup"],
+        )
+
+        events.clear()
+
+        class FailingSetupCase(unittest.TestCase):
+            def setUp(self) -> None:
+                self.addCleanup(events.append, "setup-failure-cleanup")
+                raise RuntimeError("setUp failed")
+
+        with self.assertRaisesRegex(RuntimeError, "setUp failed"):
+            _run_fixture_lifecycle(FailingSetupCase(), lambda case: None)
+        self.assertEqual(events, ["setup-failure-cleanup"])
+
+        events.clear()
+
+        class FailingTearDownCase(unittest.TestCase):
+            def setUp(self) -> None:
+                self.addCleanup(events.append, "teardown-failure-cleanup")
+
+            def tearDown(self) -> None:
+                raise RuntimeError("tearDown failed")
+
+        with self.assertRaisesRegex(RuntimeError, "tearDown failed"):
+            _run_fixture_lifecycle(FailingTearDownCase(), lambda case: None)
+        self.assertEqual(events, ["teardown-failure-cleanup"])
 
     def test_pgvector_tests_fixture_strands_nothing(self) -> None:
         def body(case) -> None:

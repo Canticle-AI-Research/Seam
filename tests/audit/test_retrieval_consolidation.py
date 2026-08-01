@@ -16,7 +16,7 @@ from benchmarks.external.locomo.run import build_adapter
 from seam_runtime.bm25 import BM25Index
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, SearchResult, Status
 from seam_runtime.models import HashEmbeddingModel
-from seam_runtime.retrieval import search_batch
+from seam_runtime.retrieval import RetrievalFlags, search_batch
 from seam_runtime.retrieval_orchestrator.adapters import SQLiteTemporalAdapter
 from seam_runtime.retrieval_orchestrator.planner import build_plan
 from seam_runtime.runtime import SeamRuntime
@@ -283,6 +283,103 @@ def test_canonical_planner_rejects_mixed_temporal_awareness(tmp_path) -> None:
                     datetime(2024, 5, 31, tzinfo=UTC),
                 ),
             )
+    finally:
+        runtime.close()
+
+
+def test_canonical_planner_rejects_reference_window_awareness_mismatch(
+    tmp_path,
+) -> None:
+    runtime = _runtime(tmp_path)
+    try:
+        with pytest.raises(
+            ValueError,
+            match="temporal_reference and temporal_window must agree",
+        ):
+            runtime.retrieve(
+                "Alice event",
+                budget=2,
+                temporal_reference=datetime(2024, 4, 15, tzinfo=UTC),
+                temporal_window=(
+                    datetime(2024, 3, 1),
+                    datetime(2024, 5, 31),
+                ),
+            )
+    finally:
+        runtime.close()
+
+
+def test_aware_temporal_inputs_normalize_to_store_contract(tmp_path) -> None:
+    runtime = _runtime(tmp_path)
+    try:
+        runtime.persist_ir(
+            IRBatch(
+                [
+                    _record(
+                        "clm:near",
+                        RecordKind.CLM,
+                        "Alice mentioned the event.",
+                        t0="2024-04-15",
+                    )
+                ]
+            )
+        )
+
+        window_result = runtime.retrieve(
+            "Alice event",
+            ns="work",
+            scope="thread",
+            budget=1,
+            temporal_window=(
+                datetime(2024, 3, 1, tzinfo=UTC),
+                datetime(2024, 5, 31, tzinfo=UTC),
+            ),
+        )
+        reference_result = runtime.retrieve(
+            "Alice event",
+            ns="work",
+            scope="thread",
+            budget=1,
+            temporal_reference=datetime(2024, 4, 15, tzinfo=UTC),
+        )
+        plan = build_plan(
+            "Alice event",
+            temporal_reference=datetime(2024, 4, 15, tzinfo=UTC),
+            temporal_window=(
+                datetime(2024, 3, 1, tzinfo=UTC),
+                datetime(2024, 5, 31, tzinfo=UTC),
+            ),
+        )
+
+        assert window_result.candidates[0].record.id == "clm:near"
+        assert reference_result.candidates[0].record.id == "clm:near"
+        assert plan.temporal_reference is not None
+        assert plan.temporal_reference.tzinfo is None
+        assert plan.temporal_window is not None
+        assert all(value.tzinfo is None for value in plan.temporal_window)
+    finally:
+        runtime.close()
+
+
+def test_explicit_falsey_flags_never_fall_back_to_cached_flags(
+    tmp_path, monkeypatch
+) -> None:
+    class FalseyFlags(RetrievalFlags):
+        def __bool__(self) -> bool:
+            return False
+
+    runtime = _runtime(tmp_path)
+    try:
+        monkeypatch.setattr(
+            runtime,
+            "_retrieval_flags_cached",
+            lambda: (_ for _ in ()).throw(AssertionError("unexpected fallback")),
+        )
+        orchestrator = runtime._retrieval_orchestrator_cached()
+        flags = FalseyFlags()
+
+        assert orchestrator.search("empty", budget=1, flags=flags).candidates == []
+        assert orchestrator.decide("empty", budget=1, flags=flags).selected == []
     finally:
         runtime.close()
 

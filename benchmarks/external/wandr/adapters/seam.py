@@ -21,10 +21,8 @@ to a second scorer.
 from __future__ import annotations
 
 import json
-import shutil
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit, urlunsplit
 
 from benchmarks.external.wandr.types import (
     ReplayCounters,
@@ -32,37 +30,9 @@ from benchmarks.external.wandr.types import (
     WandrTask,
     stable_id,
 )
+from benchmarks.external.wandr.urls import canonical_url
 
 LANES = ("native", "event-only")
-
-# Stripped during URL canonicalization: they identify a referrer, not a document.
-_TRACKING_PREFIXES = ("utm_", "ref", "fbclid", "gclid", "mc_cid", "mc_eid")
-
-
-def canonical_url(url: str) -> str:
-    """Canonicalize a source URL so the same page is one entity.
-
-    WANDR's identifier discipline is explicit: same entity -> same string.
-    Tracking parameters and trailing-slash variants are the same document, so
-    they must not inflate the source count.
-    """
-    parts = urlsplit(url.strip())
-    scheme = parts.scheme.lower()
-    netloc = parts.netloc.lower()
-    if netloc.startswith("www."):
-        netloc = netloc[4:]
-    kept = [
-        pair
-        for pair in parts.query.split("&")
-        if pair
-        and not any(
-            pair.split("=", 1)[0].lower().startswith(prefix)
-            for prefix in _TRACKING_PREFIXES
-        )
-    ]
-    path = parts.path.rstrip("/") or "/"
-    return urlunsplit((scheme, netloc, path, "&".join(sorted(kept)), ""))
-
 
 class ZeroNetworkViolation(RuntimeError):
     """Raised if the replay lane attempts a live fetch or provider call."""
@@ -105,11 +75,13 @@ class SeamWandrAdapter:
 
     def _runtime(self, scope_id: str):
         if scope_id not in self._runtimes:
+            from seam_runtime.models import HashEmbeddingModel
             from seam_runtime.runtime import SeamRuntime
 
             self._db_root.mkdir(parents=True, exist_ok=True)
             self._runtimes[scope_id] = SeamRuntime(
                 self._db_root / f"{scope_id}.db",
+                embedding_model=HashEmbeddingModel(),
                 allow_pgvector_env=False,
             )
         return self._runtimes[scope_id]
@@ -119,6 +91,7 @@ class SeamWandrAdapter:
 
     def fetch(self, url: str) -> None:
         """Never valid in this lane."""
+        self._counters.network_calls += 1
         raise ZeroNetworkViolation(
             f"replay lane attempted a live fetch of {url!r}; "
             "the WANDR replay corpus is pinned and offline"
@@ -130,9 +103,8 @@ class SeamWandrAdapter:
         if callable(close):
             close()
         db_path = self._db_root / f"{scope_id}.db"
-        if db_path.exists():
-            db_path.unlink()
-        shutil.rmtree(db_path.with_suffix(".db-wal"), ignore_errors=True)
+        for path in (db_path, Path(f"{db_path}-wal"), Path(f"{db_path}-shm")):
+            path.unlink(missing_ok=True)
         self._provenance.pop(scope_id, None)
 
     # -- ingest ---------------------------------------------------------
@@ -151,7 +123,6 @@ class SeamWandrAdapter:
         seen = self._provenance.setdefault(scope_id, {}).setdefault(member, [])
         if source_id in seen:
             return source_id
-        seen.append(source_id)
 
         runtime = self._runtime(scope_id)
         text = self._render(row, canonical)
@@ -161,7 +132,9 @@ class SeamWandrAdapter:
             ns=self.namespace(scope_id),
             scope="thread",
             persist=True,
+            allow_env_extractor=False,
         )
+        seen.append(source_id)
         return source_id
 
     def _render(self, row: WandrRow, canonical: str) -> str:
@@ -222,7 +195,10 @@ class SeamWandrAdapter:
             ref = (candidate.record.attrs or {}).get("source_ref") or ""
             if not ref:
                 continue
-            source_id = stable_id("source", task_name, canonical_url(str(ref)))
+            stored_ref = str(ref)
+            if stored_ref != canonical_url(stored_ref):
+                continue
+            source_id = stable_id("source", task_name, stored_ref)
             if source_id not in found:
                 found.append(source_id)
         return found

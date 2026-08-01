@@ -15,7 +15,8 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   `docs/ledgers/`.
 - Active/inactive separation: `docs/CODE_LAYOUT.md` maps live vs archived paths;
   `.rgignore` gates code search.
-- Streams live under `.seam/streams/<name>/`.
+- Context, history, and roadmap streams live under `.seam/streams/<name>/`;
+  routed status streams live under `docs/status/`.
 
 ## Status streams (added 2026-07-30)
 

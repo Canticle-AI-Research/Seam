@@ -2,6 +2,7 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
+**Latest evidence:** S0 locally qualified via `HISTORY#513`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
 
@@ -11,12 +12,13 @@ program with exact exit gates. It coordinates existing work in Track R
 (knowledge/reasoning graphs), H2 (improvement evidence), E2 (tenancy), and K14
 (contradiction inspection); it does not supersede any of them.
 
-The campaign begins from semantic baseline commit `86a81e2`. That commit
+The campaign began from semantic baseline commit `86a81e2`. That commit
 integrates fail-closed canonical REL/ENT graph admission, offline embedding
 coverage checks, and an explicitly research-only relation-extraction lane. Its
-12-module focused scope passed 269/269 tests. This is baseline evidence, not a
-claim that any F1-F22 production defect is fixed. S0 remains open until every
-S0 exit gate below is satisfied, including the broader existing-suite gate.
+12-module focused scope passed 269/269 tests. The replacement branch then
+satisfied S0's broader suite, review, path, security, and continuity gates; see
+`HISTORY#513` and the current handoff. This is baseline qualification, not a
+claim that any F1-F22 production defect is fixed. S1 is the next dependency.
 
 ## Governing invariants
 
@@ -97,6 +99,9 @@ S0 through S9 ---------------------------> S10
 - S10 is the release gate over the completed evidence of S0-S9.
 
 ## S0 - Canonical baseline
+
+**Status:** locally qualified on 2026-08-01 via `HISTORY#513`; protected-main
+merge evidence remains a repository/PR event, not an additional S0 defect fix.
 
 **Purpose:** establish one clean replacement baseline, preserve the reviewed
 semantic integration, and exclude source-branch contamination before defect

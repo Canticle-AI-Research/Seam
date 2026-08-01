@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from benchmarks.external.common.runner import _build_report, _score_case
 from benchmarks.external.common.types import AdapterAnswer, BenchmarkCase
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, SearchResult
@@ -38,6 +40,26 @@ CORPUS = [
     "Melanie's cat Pepper knocked over the pottery vase.",
     "Caroline sold three bowls at the spring craft fair.",
 ]
+
+
+@pytest.fixture
+def runtime_factory():
+    """Create transient runtimes and close every one even after assertion failure."""
+
+    from seam_runtime.runtime import SeamRuntime
+
+    runtimes = []
+
+    def create(path):
+        runtime = SeamRuntime(path, allow_pgvector_env=False)
+        runtimes.append(runtime)
+        return runtime
+
+    try:
+        yield create
+    finally:
+        for runtime in reversed(runtimes):
+            runtime.close()
 
 _FORBIDDEN_TRACE_KEYS = frozenset(
     {
@@ -140,15 +162,13 @@ def _trace_privacy_violations(
     return violations
 
 
-def test_trace_does_not_change_selection_or_order(tmp_path):
+def test_trace_does_not_change_selection_or_order(tmp_path, runtime_factory):
     """include_trace must be inert on ranking.
 
     This is the property the ablation depends on: a traced arm and an untraced
     arm must produce identical ranked output for the same corpus and query.
     """
-    from seam_runtime.runtime import SeamRuntime
-
-    rt = SeamRuntime(tmp_path / "trace.db", allow_pgvector_env=False)
+    rt = runtime_factory(tmp_path / "trace.db")
     _ingest(rt, CORPUS)
 
     query = "What is Melanie's cat called?"
@@ -170,10 +190,8 @@ def test_trace_does_not_change_selection_or_order(tmp_path):
     ]
 
 
-def test_trace_does_not_change_internal_graph_paths(tmp_path):
-    from seam_runtime.runtime import SeamRuntime
-
-    rt = SeamRuntime(tmp_path / "trace-graph-path.db", allow_pgvector_env=False)
+def test_trace_does_not_change_internal_graph_paths(tmp_path, runtime_factory):
+    rt = runtime_factory(tmp_path / "trace-graph-path.db")
     rt.persist_ir(
         IRBatch(
             [
@@ -223,10 +241,10 @@ def test_trace_does_not_change_internal_graph_paths(tmp_path):
     ]
 
 
-def test_exported_search_trace_is_recursively_content_free(tmp_path):
-    from seam_runtime.runtime import SeamRuntime
-
-    rt = SeamRuntime(tmp_path / "trace-privacy.db", allow_pgvector_env=False)
+def test_exported_search_trace_is_recursively_content_free(
+    tmp_path, runtime_factory
+):
+    rt = runtime_factory(tmp_path / "trace-privacy.db")
     private_corpus = [
         *CORPUS,
         "TRACE_SECRET_SENTINEL belongs only in a canonical record.",
@@ -277,11 +295,9 @@ def test_exported_search_trace_is_recursively_content_free(tmp_path):
         )
 
 
-def test_trace_carries_per_leg_attribution(tmp_path):
+def test_trace_carries_per_leg_attribution(tmp_path, runtime_factory):
     """The trace must name the ranking policy and carry per-leg detail."""
-    from seam_runtime.runtime import SeamRuntime
-
-    rt = SeamRuntime(tmp_path / "trace.db", allow_pgvector_env=False)
+    rt = runtime_factory(tmp_path / "trace.db")
     _ingest(rt, CORPUS)
 
     result = rt.retrieve(
@@ -303,11 +319,9 @@ def test_trace_carries_per_leg_attribution(tmp_path):
 
 
 def test_structural_only_mix_matches_hybrid_and_reports_content_free_graph_skip(
-    tmp_path,
+    tmp_path, runtime_factory
 ):
-    from seam_runtime.runtime import SeamRuntime
-
-    rt = SeamRuntime(tmp_path / "structural-only.db", allow_pgvector_env=False)
+    rt = runtime_factory(tmp_path / "structural-only.db")
     _ingest(rt, CORPUS)
     query = "What is Melanie's cat called?"
 
@@ -341,11 +355,9 @@ def test_structural_only_mix_matches_hybrid_and_reports_content_free_graph_skip(
     assert all(text not in skip_receipt for text in CORPUS)
 
 
-def test_search_ir_trace_reports_legacy_weighted_policy(tmp_path):
+def test_search_ir_trace_reports_legacy_weighted_policy(tmp_path, runtime_factory):
     """The control arm must be self-identifying in its own artifact."""
-    from seam_runtime.runtime import SeamRuntime
-
-    rt = SeamRuntime(tmp_path / "trace.db", allow_pgvector_env=False)
+    rt = runtime_factory(tmp_path / "trace.db")
     _ingest(rt, CORPUS)
 
     result = rt.search_ir("pottery class", budget=5, include_trace=True)

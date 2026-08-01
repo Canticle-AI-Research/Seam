@@ -193,6 +193,18 @@ def test_existing_output_is_refused_before_extractor_validation(
     assert extractor.calls == 0
 
 
+def test_missing_dataset_uses_stable_fail_closed_error(tmp_path: Path) -> None:
+    missing = tmp_path / "missing-locomo.json"
+    config = _config(tmp_path, missing, "0" * 64)
+    extractor = _FakeGroundedExtractor()
+
+    with pytest.raises(RelationIngestError, match="dataset_not_file"):
+        build_relation_qualification_corpus(config, extractor=extractor)
+
+    assert extractor.validations == 0
+    assert extractor.calls == 0
+
+
 def test_dataset_digest_and_scope_mismatch_fail_before_extraction(
     tmp_path: Path,
 ) -> None:

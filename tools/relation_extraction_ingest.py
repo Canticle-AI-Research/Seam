@@ -156,7 +156,10 @@ def _validate_loopback_origin(host: str) -> str:
 
 
 def _resolved_paths(config: RelationIngestConfig) -> tuple[Path, Path, Path]:
-    dataset = config.dataset_path.expanduser().resolve(strict=True)
+    try:
+        dataset = config.dataset_path.expanduser().resolve(strict=True)
+    except OSError as exc:
+        raise RelationIngestError("dataset_not_file") from exc
     output = config.output_db.expanduser().resolve(strict=False)
     cache = config.cache_path.expanduser().resolve(strict=False)
     if not dataset.is_file():

@@ -755,11 +755,16 @@ def _grounded_spans_payload(
 
 
 def _metadata_fingerprint(metadata: dict[str, object]) -> str:
-    encoded = json.dumps(
-        metadata,
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("utf-8")
+    try:
+        encoded = json.dumps(
+            metadata,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "extractor config_metadata must be JSON-serializable"
+        ) from exc
     return hashlib.sha256(encoded).hexdigest()
 
 

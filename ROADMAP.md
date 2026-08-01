@@ -1633,72 +1633,27 @@ Phase work:
 
 <!-- seam:item
 id: roadmap:track:N2
-status: open
-status-since: 2026-07-28
-status-by: history:480
-supersedes: none
+status: done
+status-since: 2026-08-01
+status-by: history:513
+supersedes: history:480
 topics: packaging, selfhost, distribution, mcp, cli
 priority: 3
 phase: 1
 -->
 
-**Status:** Open. The compiled self-host currently ships a deliberately narrow
-capability surface, and that narrowness was a leak-reduction decision, not a
-product decision. This track records what was excluded and drives the remaining
-modules back in, one measured step at a time.
+**Status:** Done / superseded. This track described restoring modules to the
+compiled self-host edition. That edition, its entitlement gate, and the
+retrofitted split-distribution tooling have since been removed. SEAM is one full
+private package with readable MIRL/HS-1 source; there is no compiled self-host
+surface to expand.
 
-**Why this exists.** HISTORY#477 narrowed the Nuitka build with 18
-`--nofollow-import-to` exclusions, cutting reserved-identifier exposure from 525
-to 417 occurrences and the binary from 81.4 MB to 76.5 MB. That was correct for
-protecting MIRL and HS/1, but it also removed every agent-facing surface. As
-shipped, a self-hoster gets four `/v1` routes and nothing else: no CLI, no MCP,
-no dashboard, no importable API. For a runtime whose main integration path is
-MCP, that is a thinner product than "SEAM, self-hosted."
-
-**The governing trade.** Every module added back increases the compiled surface
-and therefore the reserved-identifier count. Each step must be measured against
-the ratchet (`RESERVED_CONTENT_BUDGET` for the image,
-`NODE_RESERVED_CONTENT_BUDGET` for the wheel) and justified in HISTORY with the
-actual strings introduced — the discipline set at HISTORY#480, where
-`knowledge_graph` 17 -> 18 was accepted only after diffing the binaries and
-confirming the single new string was a module path rather than design detail.
-Never raise a budget to make a build pass.
-
-Phase work, in dependency order:
-
-1. **MCP (in flight, PR #174 amendment).** Restore `mcp`, `mcp_protocol`,
-   `doctor`, and `pgvector_bootstrap` to the wheel build and expose the existing
-   `seam-mcp = "seam_runtime.mcp_protocol:main"` entry point. Measured cost is
-   four modules on top of the 41 the self-host already compiles, all stdlib and
-   internal imports, no new runtime dependencies. This is the step that makes the
-   wheel a distinct product rather than a repackaged container: MCP stdio is
-   natural for a pip-installed console command and awkward through `docker run`.
-   Prove it with a real `initialize` handshake, not a health check.
-2. **CLI.** Restore `cli` so `seam` works against a local self-hosted node.
-   Largest expected identifier cost of the remaining set, because CLI help text
-   is long-lived string data — the unnarrowed build's design-description leaks
-   (`Compile source text to MIRL and write a SEAM-HS/1 surface`) came from
-   exactly this class of module. Measure before committing; consider stripping or
-   genericizing help strings that describe reserved design.
-3. **Dashboard and TUI.** Restore `dashboard` and `ui`. Weigh against value: a
-   self-hoster reaching the node over HTTP may not need the bundled UI, and this
-   is the largest surface for the least protection benefit.
-4. **Skills and self-improvement.** Restore `skills`, `improvement`, and
-   `self_improve` only if the self-host is meant to run the improvement loop
-   locally. This is a product decision, not a packaging one, and it interacts
-   with what the paid hosted tier is supposed to offer exclusively.
-5. **Benchmark modules stay out.** `benchmark_baseline_policy`,
-   `benchmark_integrity`, and `external_memory_benchmarks` are evaluation
-   infrastructure with no self-host use, and they name reserved evaluation
-   methodology. Excluded permanently unless a concrete need appears.
-
-**RESOLVED / OBSOLETE.** This decision concerned `seam_runtime/selfhost.py`,
-which has been removed along with the rest of the retrofitted distribution
-split. SEAM is now a single full package with readable MIRL/HS-1 source, used
-privately to operate the hosted service; there is no compiled self-host edition
-and no entitlement gate to resolve. Entitlement, tiering, and any free-vs-paid
-boundary become design inputs for the public edition, which will be built
-separately from the ground up with separation as an architectural property.
+The historical measurements in HISTORY#477/#480 remain valid for the retired
+artifact, but they are not current implementation instructions. Any future
+public edition must be designed separately from the ground up, with its own
+repository, dependency boundary, license, manifest, and verification contract.
+Do not restore the removed self-host modules or entitlement path into this
+private package.
 
 ---
 
