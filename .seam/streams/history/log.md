@@ -14720,3 +14720,121 @@ NOT DONE / NEXT:
    retrieval is worthless. PR #189's semantic edge admission is what would make
    the general question askable, and it needs a corpus that emits REL records.
 ---END-ENTRY-#509---
+
+---BEGIN-ENTRY-#510---
+id: 510
+date: 2026-08-01T01:48:32Z
+agent: claude
+status: done
+topics: provenance, retrieval, graph, mirl, fusion, verify
+commits: 04ba659
+refs: none
+supersedes: none
+tokens: 1586
+---
+Graph retrieval now returns the FULL VERIFIED CHAIN back to source bytes, and
+the graph adapter's abstention no longer discards legitimate hits. Lands the
+weighted-RRF work these were entangled with.
+
+WHY: the graph's objective has always been to return the entire source span via
+MIRL records. MIRL retains claim -> PROV -> SPAN -> RAW losslessly, but
+retrieval handed back a record and stopped, so nothing ever resolved or VERIFIED
+that path. Competitors that extract facts and discard the source cannot produce
+this at all - there is no span to return - which makes chain completeness a
+capability measurement rather than a tuning score.
+
+NEW `seam_runtime/provenance.py` (contract `provenance-chain/1`):
+- `resolve_provenance_many` walks claim -> SPAN -> RAW and returns the EXACT
+  source text sliced at the span's character offsets. Resolves a page in one
+  pass with a shared record cache; candidates routinely share source turns, so
+  per-candidate resolution would re-read the same rows repeatedly.
+- Broken hops are REPORTED with a specific reason code, never dropped. A
+  provenance system that silently discards a broken link is worse than one with
+  none: the caller still gets an authoritative-looking answer that cannot
+  actually be traced. Reason codes: span_record_missing,
+  referenced_record_is_not_a_span, span_carries_no_raw_id, raw_record_missing,
+  referenced_record_is_not_raw, span_offsets_outside_raw_content,
+  no_evidence_links.
+- A chain is COMPLETE only when it has at least one link and EVERY link
+  verified. One good link beside a broken one is not a trustworthy citation.
+- `chain_completeness()` is the metric: complete chains / total.
+
+WIRED: `RetrievalCandidate.provenance`, populated via
+`RetrievalOrchestrator.search(include_provenance=True)`. DEFAULT OFF - resolving
+costs extra store reads. Only the returned page is resolved; rejected candidates
+are never cited. Pinned observationally inert: a test asserts enabling it changes
+neither candidate order nor scores, the same contract the retrieval trace holds.
+
+MEASURED on the pristine LoCoMo snapshot (conv-26, 3,862 records):
+| kind | n   | completeness |
+| CLM  | 400 | 1.0000 |
+| RAW  | 400 | 1.0000 |
+| ENT  | 364 | 0.0000 (no_evidence_links x364) |
+Live query through the orchestrator ("When did Caroline go to the LGBTQ support
+group?"): 5/5 complete, zero defects, each returning span offsets and the source
+text.
+
+WHY COMPLETENESS IS 1.00 - it is enforced at WRITE time, not luck. Three
+guarantees found while building the tests, each now pinned:
+1. `verify_ir` rejects a claim citing a missing PROV (`missing_provenance`).
+2. `verify_ir` rejects a PROV naming no entity/activity/agent - "provenance"
+   that says nothing about origin is not provenance (`missing_prov_role`).
+3. `raw_spans.raw_id` is NOT NULL, so an unanchored span cannot be stored at
+   all. DEFECT_RAW_ID_ABSENT is therefore unreachable through SQLite; the
+   resolver keeps the branch for non-SQLite backends and a test pins the
+   storage guarantee instead.
+A broken chain cannot be INGESTED; it could only arise from post-write damage
+(partial delete, truncated restore, corruption). The defect tests write through
+the store to model exactly that, bypassing `runtime.persist_ir`.
+
+OPEN GAP - entities have ZERO provenance. ENT records carry `prov` (compile
+lineage) but empty `evidence`, so a retrieved entity cannot prove which span
+mentioned it, even though the entity id encodes the source doc hash
+(`ent:<doc>:<label>:<suffix>` shares its suffix with `raw:`/`span:`). Fixing it
+is a `compile_nl` change that alters ingest output and every corpus digest, so it
+is recorded here rather than done unasked. This is the single largest obstacle to
+a 1.00 chain-completeness claim across all retrieved kinds.
+
+ALSO FIXED - graph adapter abstention scope (the 3 failing tests from #509):
+- The leg abstained whenever no edge rows were traversed, which discarded
+  legitimate SEED hits. Its rationale - that returning seeds would re-emit
+  SQL/vector hits under a graph label - only holds when those legs are ALSO
+  running. In single-leg `mode="graph"` there is nothing to duplicate and the
+  seed set IS the result. Worst case: `graph_hops=0` makes the loop
+  `range(1, 1)`, so it never executes, no rows are seen, and a seeds-only
+  request returned nothing. Abstention is now scoped to multi-leg plans.
+- `test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges` was
+  a DIFFERENT case: it asserted that compile-produced STRUCTURAL edges (content,
+  subject, about, who) yield graph neighbours - the exact traversal #509 measured
+  at -0.023854 with 87.43% duplication. Its fixture now carries a genuine `leads`
+  relation, so it still proves what its name says (canonical `knowledge_edges`,
+  not legacy `ir_edges`) without asserting the removed behaviour. Changing a test
+  so code passes deserves scrutiny; the justification is that the assertion
+  pinned a measured regression, and it is flagged for reversal if the
+  structural-edge question is reopened.
+
+REGRESSION CHECK: re-ran the mix arm from a fresh clone of the pristine snapshot
+AFTER the abstention fix - 0.776048, delta -0.000000 against arm B in #509. The
+fix is inert on multi-leg plans and the -0.023854 recovery holds exactly.
+
+LANDS the previously-uncommitted weighted-RRF work it was entangled with
+(retrieval.py, retrieval_policy.py, merger.py, orchestrator.py, adapters.py):
+`weighted-reciprocal-rank-fusion/1`, per-leg `fusion_leg_weights`,
+`SEAM_RETRIEVAL_LEG_WEIGHTS`, and the structural-predicate exclusion. Rationale
+measured in #508/#509.
+
+NOT DONE / NEXT:
+1. `fusion_leg_weights` remains UNVALIDATED on a live graph leg (#509: arm C was
+   confounded because the structural exclusion had already zeroed the leg). It
+   ships an env var and a policy fingerprint; do not present it as a supported
+   lever until isolated.
+2. cat3 -0.036775 vs legacy is unresolved. Mechanism hypothesis, confirmed in
+   code but NOT measured: RRF contributes 1/(60+rank) and discards score
+   magnitude, while the legacy scorer preserves it; cat3 is the
+   name-the-entity-from-clues category where one record is decisively right.
+   Cheapest test is a free run preserving magnitude as a tiebreak.
+3. ENT provenance (see OPEN GAP).
+4. The graph-value question stays its own slice, measured by
+   `benchmarks/graph_reasoning_qualification.py`, whose free lanes both sit at a
+   1.0 CEILING on 3 cases and must be hardened before any paid competitor arm.
+---END-ENTRY-#510---

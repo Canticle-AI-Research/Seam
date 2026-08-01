@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 509
-total_tokens: ~250533
-latest_id: 509
+total_entries: 510
+total_tokens: ~252119
+latest_id: 510
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 510 | 2026-08-01 | done | ff1c7a29c36a2645 | provenance,retrieval,graph,mirl,+ | none |
 | 509 | 2026-07-31 | done | 0389549cc917c213 | retrieval,graph,fusion,locomo,+ | 503 |
 | 508 | 2026-07-31 | done | cac65cb01b9aa49f | retrieval,graph,fusion,locomo,+ | 505 |
 | 507 | 2026-07-31 | done | 7d3ad3521d856c71 | benchmarks,locomo,operations,huggingface,+ | none |
@@ -634,7 +635,7 @@ compact: true
 - flags: count=1 latest=#320
 - flaky: count=1 latest=#361
 - floor: count=1 latest=#308
-- fusion: count=2 latest=#509, #508
+- fusion: count=3 latest=#510, #509, #508
 - g3: count=2 latest=#492, #491
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
@@ -645,7 +646,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=43 latest=#509, #508, #504, #503, #502
+- graph: count=44 latest=#510, #509, #508, #504, #503
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -696,7 +697,7 @@ compact: true
 - memory: count=27 latest=#494, #466, #465, #463, #462
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
-- mirl: count=34 latest=#495, #471, #467, #435, #313
+- mirl: count=35 latest=#510, #495, #471, #467, #435
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
 - models: count=3 latest=#450, #403, #182
@@ -742,7 +743,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=107 latest=#461, #459, #441, #440, #381
 - prov: count=1 latest=#316
-- provenance: count=17 latest=#498, #495, #494, #479, #478
+- provenance: count=18 latest=#510, #498, #495, #494, #479
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
 - pyproject: count=11 latest=#470, #469, #468, #467, #347
@@ -769,7 +770,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=130 latest=#509, #508, #505, #504, #503
+- retrieval: count=131 latest=#510, #509, #508, #505, #504
 - retrievalflags: count=1 latest=#328
 - retry: count=4 latest=#496, #466, #336, #182
 - review: count=1 latest=#388
@@ -830,7 +831,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=33 latest=#502, #465, #464, #463, #462
 - vector-adapters: count=1 latest=#359
-- verify: count=337 latest=#509, #508, #507, #506, #505
+- verify: count=338 latest=#510, #509, #508, #507, #506
 - vulnerability: count=1 latest=#296
 - wandr: count=1 latest=#505
 - webui: count=9 latest=#404, #403, #402, #342, #340
@@ -845,8 +846,8 @@ compact: true
 
 ## status rollup
 
-- roots: 81
+- roots: 82
 - changed: 32
-- done: 449
+- done: 450
 - in-progress: 7
 - planned: 21
