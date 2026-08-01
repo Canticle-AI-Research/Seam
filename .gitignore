@@ -18,6 +18,7 @@ exports/
 conversations/
 *.conversation
 *.jsonl
+!benchmarks/fixtures/wandr/*.replay.jsonl
 
 # Secrets and credentials - NEVER commit these
 .env

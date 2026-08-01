@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 574
+total_events: 575
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-15T01:01:25Z | history:318:986aa846 | session-event | done | retrieval, multihop, locomo, benchmark, scope, query, sql... | docs/audits/2026-06-15-cat1-cat3-multihop-scope.md,docs/roadmap/SEAM_QUERY_EN... |
 | 2026-06-15T01:17:23Z | history:319:4081a094 | session-event | done | roadmap, query, sql, bird, benchmark, retrieval, multihop... | ROADMAP.md,HISTORY.md,HISTORY_INDEX.md,PROJECT_STATUS.md |
 | 2026-06-15T03:39:08Z | history:320:25494450 | session-event | done | retrieval, budget, topk, locomo, benchmark, judge, recall... | seam_runtime/retrieval.py,seam_runtime/runtime.py,benchmarks/external/locomo/... |
 | 2026-06-15T04:42:47Z | history:321:8f340dc0 | session-event | done | retrieval, answerer, reasoning, locomo, benchmark, judge,... | benchmarks/external/locomo/adapters/seam.py,HISTORY.md,HISTORY_INDEX.md,PROJE... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-01T00:00:00Z | roadmap:063:f2a34420 | status-change | bootstrap | audit, storage, retrieval, security, graph, provenance, b... | ROADMAP.md:1954 |
 | 2026-08-01T01:48:32Z | history:510:ff1c7a29 | session-event | done | provenance, retrieval, graph, mirl, fusion, verify | none |
 | 2026-08-01T09:22:35Z | history:511:71bf65cc | session-event | in-progress | audit, roadmap, plan, status, retrieval, storage, securit... | docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,ROADMAP.md,PROJECT_STATUS.md,docs/... |
+| 2026-08-01T10:47:10Z | history:512:6eafc7b3 | session-event | done | fixture, test, wandr, bugfix, verify, continuity | .gitignore,benchmarks/fixtures/wandr/smoke.replay.jsonl,benchmarks/fixtures/w... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0374.cross.md | 2026-04-15T00:00:00Z..2026-06-15T00:00:00Z | 374 | (multi) | (multi) |
+| 0001-0375.cross.md | 2026-04-15T00:00:00Z..2026-06-15T01:01:25Z | 375 | (multi) | (multi) |

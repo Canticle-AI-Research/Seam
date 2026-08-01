@@ -14885,3 +14885,48 @@ bounded-review gates, has current evidence. S1-S10 remain unimplemented.
 Publication, push/PR mutation, provider spend, and destructive cleanup were not
 authorized or performed.
 ---END-ENTRY-#511---
+
+---BEGIN-ENTRY-#512---
+id: 512
+date: 2026-08-01T10:47:10Z
+agent: codex-gpt-5
+status: done
+topics: fixture, test, wandr, bugfix, verify, continuity
+commits: pending
+refs: .gitignore,benchmarks/fixtures/wandr/smoke.replay.jsonl,benchmarks/fixtures/wandr/hierarchy.replay.jsonl,benchmarks/fixtures/wandr/MANIFEST.json,tests/audit/test_wandr_replay_adapter.py
+supersedes: 511
+tokens: 503
+---
+WANDR replay fixture repair for the Track S strict-suite baseline.
+
+RESTORED: the committed WANDR manifest, adapter, and tests referenced two
+hash-pinned replay inputs that were absent from this branch because the generic
+`*.jsonl` ignore rule hid them. Restored the exact synthetic fixture bytes from
+commit d52f22a and added the path-scoped
+`!benchmarks/fixtures/wandr/*.replay.jsonl` tracking exception. No runtime,
+retrieval, scoring, corpus, or network behavior changed.
+
+BYTE PROOF: `smoke.replay.jsonl` is 6 lines / 3,012 bytes with SHA256
+be6b620c77be696c9b2c8807a0926f14acd6c054ed59ca83b7f88d41d2e0578d;
+`hierarchy.replay.jsonl` is 10 lines / 4,038 bytes with SHA256
+af451fd5feabeb2974a21ed1e8a19ecb5aa2e69cd65fba1da21950b3dbe5c054.
+Both values exactly match `benchmarks/fixtures/wandr/MANIFEST.json`, and
+`git show d52f22a:<fixture> | cmp - <fixture>` passed for both files. Every URL
+uses the reserved `.invalid` TLD and the content remains hand-authored and
+synthetic.
+
+FAILURE CLOSED: the inherited strict non-external S0 gate at candidate HEAD
+2e410da had exactly 7 failed, 2,024 passed, 23 deselected, 2 xfailed, and 3
+subtests passed; every failure was a missing-fixture error in
+`tests/audit/test_wandr_replay_adapter.py`. After restoration, the complete
+focused file passed 17/17 under strict no-skip, offline Hugging Face, and
+provider-key-unset controls. No provider, network, paid benchmark, pgvector, or
+artifact-build lane ran.
+
+BOUNDARY: this closes only the WANDR fixture defect blocking the Track S S0
+baseline. It does not claim the broader Production-Core Integrity Campaign is
+complete. The exact full strict non-external suite remains the required
+post-commit gate and is deliberately not claimed by this pre-commit history
+entry. No push, PR/GitHub mutation, release, or destructive cleanup was
+performed.
+---END-ENTRY-#512---

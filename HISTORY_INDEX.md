@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 511
-total_tokens: ~252661
-latest_id: 511
+total_entries: 512
+total_tokens: ~253164
+latest_id: 512
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 512 | 2026-08-01 | done | 6eafc7b302c94074 | fixture,test,wandr,bugfix,+ | 511 |
 | 511 | 2026-08-01 | in-progress | 71bf65cc3ef60148 | audit,roadmap,plan,status,+ | 510 |
 | 510 | 2026-08-01 | done | ff1c7a29c36a2645 | provenance,retrieval,graph,mirl,+ | none |
 | 509 | 2026-07-31 | done | 0389549cc917c213 | retrieval,graph,fusion,locomo,+ | 503 |
@@ -551,7 +552,7 @@ compact: true
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=40 latest=#498, #489, #488, #487, #473
+- bugfix: count=41 latest=#512, #498, #489, #488, #487
 - build: count=2 latest=#413, #408
 - bundle: count=11 latest=#490, #489, #488, #487, #483
 - busl: count=4 latest=#485, #482, #477, #474
@@ -584,7 +585,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=16 latest=#511, #460, #451, #449, #447
+- continuity: count=17 latest=#512, #511, #460, #451, #449
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -632,7 +633,7 @@ compact: true
 - fairness: count=1 latest=#333
 - fidelity: count=7 latest=#313, #311, #308, #307, #306
 - fix: count=1 latest=#411
-- fixture: count=6 latest=#265, #187, #145, #092, #039
+- fixture: count=7 latest=#512, #265, #187, #145, #092
 - flags: count=1 latest=#320
 - flaky: count=1 latest=#361
 - floor: count=1 latest=#308
@@ -816,7 +817,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=80 latest=#498, #495, #494, #490, #489
+- test: count=81 latest=#512, #498, #495, #494, #490
 - test-artifacts: count=1 latest=#506
 - tests: count=34 latest=#506, #502, #496, #458, #457
 - textual: count=17 latest=#108, #106, #063, #062, #061
@@ -832,9 +833,9 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=33 latest=#502, #465, #464, #463, #462
 - vector-adapters: count=1 latest=#359
-- verify: count=338 latest=#510, #509, #508, #507, #506
+- verify: count=339 latest=#512, #510, #509, #508, #507
 - vulnerability: count=1 latest=#296
-- wandr: count=1 latest=#505
+- wandr: count=2 latest=#512, #505
 - webui: count=9 latest=#404, #403, #402, #342, #340
 - windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
@@ -849,6 +850,6 @@ compact: true
 
 - roots: 82
 - changed: 32
-- done: 450
+- done: 451
 - in-progress: 8
 - planned: 21
