@@ -15136,3 +15136,43 @@ The workflow now gives the cache action, online provisioning step, and offline s
 
 Local verification passed: 35 focused audit tests, Ruff on the regression test, `git diff --check`, PyYAML workflow parsing, installed `huggingface_hub` interpretation of the explicit online/offline values, and the canonical integrity, routing, handoff, continuity, and stream gates. This correction makes no runtime-package change, triggers no paid/provider benchmark, publishes no release, and leaves the exact GitHub CI rerun pending on the pushed commit.
 ---END-ENTRY-#517---
+
+---BEGIN-ENTRY-#518---
+id: 518
+date: 2026-08-01T14:23:53Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 517
+tokens: 335
+---
+## Downstream full-suite cache handoff
+
+PR #190 run `30703194720` proved the writable-cache correction in the required LoCoMo lane: exact pinned-model provisioning, offline quickstart, BIL-2 sealing, verification, and artifact upload all passed. The downstream advisory `test-and-benchmark` job then failed during pytest with 44 failures and 6 errors because job isolation was incomplete: it neither restored the cache created by the successful LoCoMo job nor overrode the runner's inherited offline/cache environment. The repeated root was `LocalEntryNotFoundError` for the exact pinned BGE revision, cascading through vector-indexing rollback and LoCoMo CLI fixtures; 1,994 tests still passed before the step failed.
+
+The LoCoMo job now exports its validated embedding revision. Because the full suite already depends on that job, it restores the exact same cache key into `${{ runner.temp }}/seam-huggingface` with `actions/cache/restore@v4` and fails immediately on a cache miss. Job-level Hugging Face and Transformers variables bind every test, subprocess, and benchmark step to that writable cache with offline execution enabled. This turns the model handoff into an explicit dependency instead of relying on mutable self-hosted-runner state.
+
+Local verification passed: 36 focused audit tests, Ruff, `git diff --check`, PyYAML parsing plus structural assertions for the cross-job output/cache contract, and the canonical integrity, routing, handoff, continuity, and stream gates. No provider or paid benchmark, release, direct-main push, or artifact/worktree cleanup ran. Exact-head GitHub CI rerun remains pending.
+---END-ENTRY-#518---
+
+---BEGIN-ENTRY-#519---
+id: 519
+date: 2026-08-01T14:27:13Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 518
+tokens: 309
+---
+## Valid step-scoped cache environment handoff
+
+Pre-push independent review found that HISTORY#518's first implementation placed `${{ runner.temp }}` in `jobs.test-and-benchmark.env`, where the GitHub Actions context-availability contract does not allow the `runner` context. That candidate was never staged or pushed. The cache output/restore dependency was sound, but the job-level expression would have failed workflow validation before tests ran.
+
+The full-suite job now binds the same writable cache paths and offline flags from the runner-provided `$RUNNER_TEMP` shell variable into `$GITHUB_ENV` in an early step. Every later install, test subprocess, benchmark, and verification step inherits those values. The exact revision-key restore continues to use `${{ runner.temp }}` only in the cache action's step-level `with` block, where the context is valid, and still fails closed on a cache miss. The regression now rejects `runner.temp` in the job header and asserts all seven `$GITHUB_ENV` bindings plus the output/key handoff.
+
+Local verification passed again: 36 focused audit tests, Ruff, `git diff --check`, PyYAML structure checks, and the canonical integrity, routing, handoff, continuity, and stream gates. This entry supersedes only the invalid environment-placement detail in HISTORY#518; its observed CI failure diagnosis and cross-job cache dependency remain current. No provider or paid benchmark, release, direct-main push, or artifact/worktree cleanup ran. Exact-head GitHub CI rerun remains pending.
+---END-ENTRY-#519---

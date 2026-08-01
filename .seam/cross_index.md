@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 580
+total_events: 582
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-17T22:49:30Z | history:324:e8d2acce | session-event | done | doctor, stash, git, hygiene, tooling, protocol, history | seam_runtime/doctor.py,seam_runtime/cli.py,tests/audit/test_doctor_stashes.py... |
-| 2026-06-18T01:26:35Z | history:325:13dd6b94 | session-event | done | calibration, abstention, benchmark, locomo, scorer, epist... | benchmarks/external/locomo/calibration_scorer.py,benchmarks/external/common/d... |
 | 2026-06-18T05:27:21Z | history:326:cd345e8f | session-event | done | webui, dashboard, cleanup, structure, docs, dependabot, a... | docs/CODE_LAYOUT.md,.github/dependabot.yml,archive/webui-vite-source/ARCHIVED... |
 | 2026-06-19T00:46:44Z | history:327:52811e9b | session-event | done | judge, benchmark, locomo, openai, reasoning, bugfix, gpt5... | benchmarks/external/common/judge.py,tests/audit/test_openai_judge_gpt5.py,HIS... |
 | 2026-06-19T02:47:17Z | history:328:f5702bd8 | session-event | done | retrieval, profile, retrievalflags, core, locomo, cat1, a... | seam_runtime/retrieval.py,seam_runtime/runtime.py,tests/audit/test_retrieval_... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-01T12:29:04Z | history:515:6060ff3a | session-event | done | security, audit, bugfix, bundle, verify, test, history, s... | seam_runtime/ui/logo.py,test_seam_all/test_artifact_hygiene.py,tools/relation... |
 | 2026-08-01T13:51:35Z | history:516:6579b20f | session-event | changed | ci, bugfix, security, huggingface, benchmark, verify, his... | .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR... |
 | 2026-08-01T14:03:59Z | history:517:533dac16 | session-event | changed | ci, bugfix, huggingface, benchmark, verify, history, streams | .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR... |
+| 2026-08-01T14:23:53Z | history:518:838eb489 | session-event | changed | ci, bugfix, huggingface, benchmark, verify, history, streams | .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR... |
+| 2026-08-01T14:27:13Z | history:519:b61e9310 | session-event | changed | ci, bugfix, huggingface, benchmark, verify, history, streams | .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0380.cross.md | 2026-04-15T00:00:00Z..2026-06-15T14:29:51Z | 380 | (multi) | (multi) |
+| 0001-0382.cross.md | 2026-04-15T00:00:00Z..2026-06-18T01:26:35Z | 382 | (multi) | (multi) |

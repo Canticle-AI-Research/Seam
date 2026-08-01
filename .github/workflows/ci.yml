@@ -40,6 +40,24 @@ jobs:
       - name: Check diff hygiene
         run: git diff --check
 
+      - name: Bind writable offline model cache
+        shell: bash
+        run: |
+          echo "HF_HOME=${RUNNER_TEMP}/seam-huggingface" >> "${GITHUB_ENV}"
+          echo "HF_HUB_CACHE=${RUNNER_TEMP}/seam-huggingface/hub" >> "${GITHUB_ENV}"
+          echo "HUGGINGFACE_HUB_CACHE=${RUNNER_TEMP}/seam-huggingface/hub" >> "${GITHUB_ENV}"
+          echo "HF_HUB_DISABLE_TELEMETRY=1" >> "${GITHUB_ENV}"
+          echo "HF_HUB_OFFLINE=1" >> "${GITHUB_ENV}"
+          echo "TRANSFORMERS_CACHE=${RUNNER_TEMP}/seam-huggingface/transformers" >> "${GITHUB_ENV}"
+          echo "TRANSFORMERS_OFFLINE=1" >> "${GITHUB_ENV}"
+
+      - name: Restore pinned LoCoMo embedding snapshot
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/seam-huggingface
+          key: hf-bge-small-en-v1.5-${{ needs.locomo-quickstart-bil2.outputs.embedding-revision }}-${{ runner.os }}
+          fail-on-cache-miss: true
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -211,6 +229,8 @@ jobs:
 
   locomo-quickstart-bil2:
     runs-on: [self-hosted, seam-box]
+    outputs:
+      embedding-revision: ${{ steps.locomo-embedding.outputs.revision }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

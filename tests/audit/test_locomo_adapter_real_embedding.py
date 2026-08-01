@@ -756,3 +756,45 @@ def test_required_quickstart_ci_provisions_exact_revision_then_runs_offline():
     assert 'TRANSFORMERS_OFFLINE: "0"' in provision_step
     assert 'HF_HUB_OFFLINE: "1"' in smoke_step
     assert 'TRANSFORMERS_OFFLINE: "1"' in smoke_step
+
+
+def test_full_ci_suite_restores_pinned_embedding_cache_offline():
+    workflow = (
+        Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml"
+    ).read_text(encoding="utf-8")
+    full_suite_job = workflow.split("  test-and-benchmark:", 1)[1].split(
+        "  pgvector-integration:", 1
+    )[0]
+    quickstart_job = workflow.split("  locomo-quickstart-bil2:", 1)[1]
+    restore_step = full_suite_job.split(
+        "      - name: Restore pinned LoCoMo embedding snapshot", 1
+    )[1].split("      - name: Set up Python", 1)[0]
+    bind_step = full_suite_job.split(
+        "      - name: Bind writable offline model cache", 1
+    )[1].split("      - name: Restore pinned LoCoMo embedding snapshot", 1)[0]
+    job_header = full_suite_job.split("    steps:", 1)[0]
+
+    assert (
+        "embedding-revision: "
+        "${{ steps.locomo-embedding.outputs.revision }}" in quickstart_job
+    )
+    assert "uses: actions/cache/restore@v4" in restore_step
+    assert "path: ${{ runner.temp }}/seam-huggingface" in restore_step
+    assert (
+        "needs.locomo-quickstart-bil2.outputs.embedding-revision" in restore_step
+    )
+    assert "fail-on-cache-miss: true" in restore_step
+    assert "${{ runner.temp }}" not in job_header
+    assert 'echo "HF_HOME=${RUNNER_TEMP}/seam-huggingface"' in bind_step
+    assert 'echo "HF_HUB_CACHE=${RUNNER_TEMP}/seam-huggingface/hub"' in bind_step
+    assert (
+        'echo "HUGGINGFACE_HUB_CACHE=${RUNNER_TEMP}/seam-huggingface/hub"'
+        in bind_step
+    )
+    assert (
+        'echo "TRANSFORMERS_CACHE=${RUNNER_TEMP}/seam-huggingface/transformers"'
+        in bind_step
+    )
+    assert 'echo "HF_HUB_OFFLINE=1"' in bind_step
+    assert 'echo "TRANSFORMERS_OFFLINE=1"' in bind_step
+    assert bind_step.count('>> "${GITHUB_ENV}"') == 7
