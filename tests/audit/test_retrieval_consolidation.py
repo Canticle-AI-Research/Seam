@@ -12,15 +12,15 @@ from datetime import UTC, datetime
 
 import pytest
 
+from benchmarks.external.locomo.run import build_adapter
+from seam_runtime.bm25 import BM25Index
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, SearchResult, Status
 from seam_runtime.models import HashEmbeddingModel
-from seam_runtime.bm25 import BM25Index
 from seam_runtime.retrieval import search_batch
 from seam_runtime.retrieval_orchestrator.adapters import SQLiteTemporalAdapter
 from seam_runtime.retrieval_orchestrator.planner import build_plan
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.vector_adapters import SQLiteVectorAdapter, search_vector_adapter
-from benchmarks.external.locomo.run import build_adapter
 
 
 def _runtime(tmp_path) -> SeamRuntime:
@@ -101,6 +101,10 @@ def test_search_ir_is_a_compatibility_shape_over_canonical_retrieval(tmp_path) -
         ]
         assert canonical.trace is not None
         assert canonical.trace["plan"]["ranking_policy"] == "legacy-weighted/1"
+        assert canonical.trace["plan"]["legs"] == [
+            {"name": "legacy_weighted", "limit": 10}
+        ]
+        assert set(canonical.trace["legs"]) == {"legacy_weighted"}
         assert canonical.trace["fusion"]["normalization"] == {
             "method": "legacy_weighted"
         }
@@ -215,7 +219,7 @@ def test_canonical_retrieval_honors_raw_and_lens_options(tmp_path) -> None:
         assert [item.record.id for item in with_raw.candidates] == ["raw:only"]
         assert with_raw.trace is not None
         assert with_raw.trace["plan"]["include_raw"] is True
-        assert with_raw.trace["plan"]["lens"] == "recall.user"
+        assert "lens" not in with_raw.trace["plan"]
     finally:
         runtime.close()
 
@@ -258,10 +262,8 @@ def test_canonical_retrieval_fuses_explicit_temporal_context(tmp_path) -> None:
         assert "temporal" in result.candidates[0].sources
         assert "temporal" not in result.candidates[1].sources
         assert result.trace is not None
-        assert result.trace["plan"]["temporal_window"] == [
-            "2024-03-01T00:00:00",
-            "2024-05-31T00:00:00",
-        ]
+        assert result.trace["plan"]["temporal_window_applied"] is True
+        assert "temporal_window" not in result.trace["plan"]
     finally:
         runtime.close()
 

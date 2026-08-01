@@ -12,6 +12,7 @@ from .vector import (
     LEGACY_VECTOR_TEXT_VERSION,
     VECTOR_TEXT_VERSION,
     SQLiteVectorIndex,
+    stored_vector_issue,
 )
 
 
@@ -91,6 +92,21 @@ class SQLiteVectorAdapter:
 
     def stale_records(self, records: list[MIRLRecord]) -> list[dict[str, object]]:
         return self.index.stale_records(records)
+
+    def orphan_records(
+        self,
+        valid_record_ids: set[str] | None = None,
+        *,
+        model_name: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> list[dict[str, object]]:
+        return self.index.orphan_records(
+            valid_record_ids,
+            model_name=model_name,
+            namespace=namespace,
+            scope=scope,
+        )
 
 
 @dataclass
@@ -454,7 +470,7 @@ class PgVectorAdapter:
                     source_hash = _hash_text(source_text)
                     cursor.execute(
                         f"select source_hash, dimension, render_version, "
-                        f"namespace, scope from {self.table_name} "
+                        f"namespace, scope, embedding::text from {self.table_name} "
                         "where record_id = %s and model_name = %s",
                         (record.id, self.model.name),
                     )
@@ -476,6 +492,15 @@ class PgVectorAdapter:
                         stale.append({"record_id": record.id, "reason": "namespace_changed"})
                     elif row[4] != (record.scope or ""):
                         stale.append({"record_id": record.id, "reason": "scope_changed"})
+                    else:
+                        vector_issue = stored_vector_issue(
+                            row[5],
+                            expected_dimension=int(self.model.dimension),
+                        )
+                        if vector_issue is not None:
+                            stale.append(
+                                {"record_id": record.id, "reason": vector_issue}
+                            )
         return stale
 
     def sync_boundaries(self, records: list[MIRLRecord]) -> dict[str, object]:
@@ -546,16 +571,39 @@ class PgVectorAdapter:
             "skipped_content_changed": skipped_content,
         }
 
-    def orphan_records(self, valid_record_ids: set[str] | None = None) -> list[dict[str, object]]:
+    def orphan_records(
+        self,
+        valid_record_ids: set[str] | None = None,
+        *,
+        model_name: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> list[dict[str, object]]:
         """Return vector rows whose record_id is not in valid_record_ids.
 
         When valid_record_ids is None, returns all vector rows as potentially orphaned
-        (caller must supply canonical IDs from SQLite).
+        (caller must supply canonical IDs from SQLite). Optional filters keep a
+        shared pgvector table bounded to one model and benchmark boundary.
         """
+        _validate_table_name(self.table_name)
         self.ensure_schema()
+        where: list[str] = []
+        params: list[object] = []
+        if model_name is not None:
+            where.append("model_name = %s")
+            params.append(model_name)
+        if namespace is not None:
+            where.append("namespace = %s")
+            params.append(namespace)
+        if scope is not None:
+            where.append("scope = %s")
+            params.append(scope)
+        sql = f"select record_id, model_name from {self.table_name}"
+        if where:
+            sql += " where " + " and ".join(where)
         with self._connect() as connection:
             with connection.cursor() as cursor:
-                cursor.execute(f"select record_id, model_name from {self.table_name}")
+                cursor.execute(sql, params)
                 rows = cursor.fetchall()
         if valid_record_ids is None:
             return [{"record_id": r[0], "model_name": r[1], "reason": "orphan (no canonical set provided)"} for r in rows]

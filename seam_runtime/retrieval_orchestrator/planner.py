@@ -92,24 +92,48 @@ def build_plan(
                 ),
             )
         )
-    # An explicit mode="vector" means semantic-only: never inject the sql leg,
-    # even when a pure-filter query classifies as STRUCTURED. Previously a
-    # filtered query under mode="vector" set intent=STRUCTURED and silently ran
-    # the structural/lexical sql leg, contradicting the caller's chosen mode.
-    elif mode in {"hybrid", "mix"} or (intent == QueryIntent.STRUCTURED and mode != "vector"):
-        legs.append(RetrievalLeg(name="sql", limit=leg_limit, rationale="Apply explicit field filters and lexical matching"))
-    if mode in {"vector", "hybrid", "mix"}:
-        legs.append(RetrievalLeg(name="vector", limit=leg_limit, rationale="Use embedding similarity for semantic recall"))
-    if mode in {"graph", "mix"}:
-        legs.append(RetrievalLeg(name="graph", limit=leg_limit, rationale="Expand through MIRL entity/relation/provenance edges"))
-    if temporal_window is not None or temporal_reference is not None:
-        legs.append(
-            RetrievalLeg(
-                name="temporal",
-                limit=leg_limit,
-                rationale="Rank timestamped MIRL records against the explicit temporal query context",
+    else:
+        # An explicit mode="vector" means semantic-only: never inject the sql
+        # leg, even when a pure-filter query classifies as STRUCTURED.
+        if mode in {"hybrid", "mix"} or (
+            intent == QueryIntent.STRUCTURED and mode != "vector"
+        ):
+            legs.append(
+                RetrievalLeg(
+                    name="sql",
+                    limit=leg_limit,
+                    rationale="Apply explicit field filters and lexical matching",
+                )
             )
-        )
+        if mode in {"vector", "hybrid", "mix"}:
+            legs.append(
+                RetrievalLeg(
+                    name="vector",
+                    limit=leg_limit,
+                    rationale="Use embedding similarity for semantic recall",
+                )
+            )
+        if mode in {"graph", "mix"}:
+            legs.append(
+                RetrievalLeg(
+                    name="graph",
+                    limit=leg_limit,
+                    rationale=(
+                        "Expand through MIRL entity/relation/provenance edges"
+                    ),
+                )
+            )
+        if temporal_window is not None or temporal_reference is not None:
+            legs.append(
+                RetrievalLeg(
+                    name="temporal",
+                    limit=leg_limit,
+                    rationale=(
+                        "Rank timestamped MIRL records against the explicit "
+                        "temporal query context"
+                    ),
+                )
+            )
 
     return RetrievalPlan(
         query=query,

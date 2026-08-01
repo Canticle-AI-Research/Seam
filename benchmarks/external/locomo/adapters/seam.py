@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import time as _time
 import uuid
+from collections.abc import Iterable
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -202,6 +204,115 @@ class SeamLocomoAdapter:
             if callable(close):
                 close()
         self._runtime_by_scope.clear()
+
+    def preflight(self, scope_ids: Iterable[str] = ()) -> dict[str, object]:
+        """Fail fast unless the benchmark's embedding contract is operational.
+
+        ``--keep-db`` is safe only when every reused nonempty scope has complete
+        vectors for this exact model. Without this check a model change makes the
+        semantic leg silently empty because vector lookup filters by model name.
+        """
+        receipt = embedding_model_preflight()
+        reused_scopes_checked = 0
+        indexable_records_checked = 0
+
+        if self._keep_db:
+            from seam_runtime.vector import INDEXABLE_KINDS
+
+            for scope_id in dict.fromkeys(str(scope) for scope in scope_ids):
+                if not self._db_path(scope_id).exists():
+                    continue
+                try:
+                    runtime = self._runtime(scope_id)
+                    batch = runtime.store.load_ir(ns=f"locomo:{scope_id}")
+                except Exception as exc:
+                    raise RuntimeError(
+                        "LoCoMo embedding preflight could not inspect a reused "
+                        f"database scope: {type(exc).__name__}: {exc}"
+                    ) from exc
+                if not batch.records:
+                    continue
+
+                inspector = getattr(runtime.vector_adapter, "stale_records", None)
+                if not callable(inspector):
+                    raise RuntimeError(
+                        "LoCoMo embedding preflight cannot prove vector coverage "
+                        "for a reused database: the vector adapter has no "
+                        "stale_records inspector"
+                    )
+                try:
+                    stale = list(inspector(batch.records))
+                except Exception as exc:
+                    raise RuntimeError(
+                        "LoCoMo embedding preflight could not validate vectors "
+                        f"for a reused database: {type(exc).__name__}: {exc}"
+                    ) from exc
+                if stale:
+                    reason_counts: dict[str, int] = {}
+                    for item in stale:
+                        reason = str(item.get("reason") or "unknown")
+                        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+                    reasons = ", ".join(
+                        f"{reason}={count}"
+                        for reason, count in sorted(reason_counts.items())
+                    )
+                    raise RuntimeError(
+                        "LoCoMo embedding preflight rejected a reused database: "
+                        f"{len(stale)} indexable records lack exact current-model "
+                        f"vector coverage ({reasons}). Re-ingest into a fresh "
+                        "--db-path."
+                    )
+
+                orphan_inspector = getattr(
+                    runtime.vector_adapter, "orphan_records", None
+                )
+                if not callable(orphan_inspector):
+                    raise RuntimeError(
+                        "LoCoMo embedding preflight cannot prove vector ownership "
+                        "for a reused database: the vector adapter has no "
+                        "orphan_records inspector"
+                    )
+                indexable_records = [
+                    record
+                    for record in batch.records
+                    if record.kind in INDEXABLE_KINDS
+                ]
+                try:
+                    orphans = list(
+                        orphan_inspector(
+                            {record.id for record in indexable_records},
+                            model_name=runtime.embedding_model.name,
+                            namespace=f"locomo:{scope_id}",
+                            scope="thread",
+                        )
+                    )
+                except Exception as exc:
+                    raise RuntimeError(
+                        "LoCoMo embedding preflight could not validate vector "
+                        f"ownership for a reused database: {type(exc).__name__}: "
+                        f"{exc}"
+                    ) from exc
+                if orphans:
+                    raise RuntimeError(
+                        "LoCoMo embedding preflight rejected a reused database: "
+                        f"{len(orphans)} current-model vector rows have no "
+                        "indexable canonical record. Re-ingest into a fresh "
+                        "--db-path."
+                    )
+
+                reused_scopes_checked += 1
+                indexable_records_checked += len(indexable_records)
+
+        return {
+            **receipt,
+            "keep_db": {
+                "enabled": self._keep_db,
+                "reused_scopes_checked": reused_scopes_checked,
+                "indexable_records_checked": indexable_records_checked,
+                "stale_records": 0,
+                "orphan_records": 0,
+            },
+        }
 
     def __enter__(self) -> "SeamLocomoAdapter":
         return self
@@ -899,69 +1010,171 @@ def _open_runtime(
     force_derived_facts_embedding: bool = False,
 ):
     """Open (or reopen) a SeamRuntime for a per-scope SQLite database."""
-    from seam_runtime.models import SentenceTransformerModel, embedding_settings_from_env
     from seam_runtime.runtime import SeamRuntime  # lazy
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
     if force_derived_facts_embedding:
-        from seam_runtime.derived_fact_context import (
-            DERIVED_FACTS_EMBEDDING_CONFIG,
-            DERIVED_FACTS_EMBEDDING_MODEL,
-            DERIVED_FACTS_EMBEDDING_REVISION,
-        )
-
         global _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL
         if _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL is None:
             _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL = (
-                SentenceTransformerModel(
-                    model_name=DERIVED_FACTS_EMBEDDING_MODEL,
-                    revision=DERIVED_FACTS_EMBEDDING_REVISION,
-                    local_files_only=True,
-                )
+                _default_sentence_transformer_model()
             )
         model = _DERIVED_FACTS_SENTENCE_TRANSFORMER_MODEL
-        if (
-            model.name != DERIVED_FACTS_EMBEDDING_CONFIG["name"]
-            or model.dimension
-            != DERIVED_FACTS_EMBEDDING_CONFIG["dimension"]
-            or not model.local_files_only
-        ):
-            raise RuntimeError(
-                "derived-facts embedding contract does not match the "
-                "configured local model"
-            )
-        return SeamRuntime(
-            str(db_path),
-            embedding_model=model,
-            allow_pgvector_env=False,
-        )
+    else:
+        model = _default_sentence_transformer_model()
 
-    settings = embedding_settings_from_env()
-    if settings.provider in {"hash", "local", "deterministic"}:
-        global _DEFAULT_SENTENCE_TRANSFORMER_MODEL
-        try:
-            if _DEFAULT_SENTENCE_TRANSFORMER_MODEL is None:
-                _DEFAULT_SENTENCE_TRANSFORMER_MODEL = SentenceTransformerModel(model_name="BAAI/bge-small-en-v1.5")
-            model = _DEFAULT_SENTENCE_TRANSFORMER_MODEL
-        except Exception as exc:
-            raise RuntimeError(
-                "LoCoMo benchmark requires a real embedding model. "
-                "Install with `pip install sentence-transformers`, "
-                "or set SEAM_EMBEDDING_PROVIDER=openai with a valid "
-                "SEAM_EMBEDDING_API_KEY_ENV. "
-                f"Default-model load failed: {exc}"
-            ) from exc
-        return SeamRuntime(
-            str(db_path),
-            embedding_model=model,
-            allow_pgvector_env=allow_pgvector_env,
-        )
-
+    _validate_runtime_embedding_contract(model)
     return SeamRuntime(
         str(db_path),
-        allow_pgvector_env=allow_pgvector_env,
+        embedding_model=model,
+        allow_pgvector_env=(
+            False if force_derived_facts_embedding else allow_pgvector_env
+        ),
     )
+
+
+def _embedding_contract() -> dict[str, object]:
+    from seam_runtime.derived_fact_context import DERIVED_FACTS_EMBEDDING_CONFIG
+
+    return dict(DERIVED_FACTS_EMBEDDING_CONFIG)
+
+
+def canonical_json_sha256(payload: object) -> str:
+    """Hash a JSON-compatible integrity payload deterministically."""
+    return hashlib.sha256(
+        json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def embedding_preflight_receipt_sha256(receipt: dict[str, object]) -> str:
+    """Bind the complete content-free preflight receipt."""
+    return canonical_json_sha256(receipt)
+
+
+def _default_sentence_transformer_model():
+    """Return the process-wide exact local model used by LoCoMo."""
+    from seam_runtime.derived_fact_context import (
+        DERIVED_FACTS_EMBEDDING_MODEL,
+        DERIVED_FACTS_EMBEDDING_REVISION,
+    )
+    from seam_runtime.models import SentenceTransformerModel
+
+    global _DEFAULT_SENTENCE_TRANSFORMER_MODEL
+    try:
+        if _DEFAULT_SENTENCE_TRANSFORMER_MODEL is None:
+            _DEFAULT_SENTENCE_TRANSFORMER_MODEL = SentenceTransformerModel(
+                model_name=DERIVED_FACTS_EMBEDDING_MODEL,
+                revision=DERIVED_FACTS_EMBEDDING_REVISION,
+                local_files_only=True,
+            )
+    except Exception as exc:
+        raise RuntimeError(
+            "LoCoMo embedding preflight could not construct the pinned local "
+            "sentence-transformer. Install `sentence-transformers` and cache "
+            f"{DERIVED_FACTS_EMBEDDING_MODEL} at revision "
+            f"{DERIVED_FACTS_EMBEDDING_REVISION} locally. "
+            f"Construction failed: {type(exc).__name__}: {exc}"
+        ) from exc
+    return _DEFAULT_SENTENCE_TRANSFORMER_MODEL
+
+
+def _validate_runtime_embedding_contract(model) -> None:
+    """Cheap identity guard used whenever a scope runtime is opened."""
+    contract = _embedding_contract()
+    if (
+        getattr(model, "model_name", None) != contract["model"]
+        or getattr(model, "revision", None) != contract["revision"]
+        or getattr(model, "name", None) != contract["name"]
+        or getattr(model, "dimension", None) != contract["dimension"]
+        or getattr(model, "local_files_only", None) is not True
+    ):
+        raise RuntimeError(
+            "LoCoMo embedding contract does not match the configured pinned "
+            "local model"
+        )
+
+
+def embedding_model_preflight() -> dict[str, object]:
+    """Force-load and validate the exact offline LoCoMo embedding model."""
+    contract = _embedding_contract()
+    model = _default_sentence_transformer_model()
+
+    identity_mismatches = []
+    for attribute, expected in (
+        ("model_name", contract["model"]),
+        ("revision", contract["revision"]),
+        ("name", contract["name"]),
+        ("local_files_only", contract["local_files_only"]),
+    ):
+        actual = getattr(model, attribute, None)
+        if actual != expected:
+            identity_mismatches.append(
+                f"{attribute} expected {expected!r}, got {actual!r}"
+            )
+    if identity_mismatches:
+        raise RuntimeError(
+            "LoCoMo embedding preflight rejected model identity: "
+            + "; ".join(identity_mismatches)
+        )
+
+    try:
+        raw_vector = model.embed("SEAM LoCoMo embedding integrity preflight")
+    except Exception as exc:
+        raise RuntimeError(
+            "LoCoMo embedding preflight could not load or execute the pinned "
+            "local sentence-transformer. No benchmark cases were scored. "
+            f"Embedding failed: {type(exc).__name__}: {exc}"
+        ) from exc
+    try:
+        vector = [float(value) for value in raw_vector]
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(
+            "LoCoMo embedding preflight returned a non-numeric vector"
+        ) from exc
+
+    expected_dimension = int(contract["dimension"])
+    actual_dimension = getattr(model, "dimension", None)
+    if actual_dimension != expected_dimension:
+        raise RuntimeError(
+            "LoCoMo embedding preflight rejected model dimension: "
+            f"expected {expected_dimension}, got {actual_dimension!r}"
+        )
+    if len(vector) != expected_dimension:
+        raise RuntimeError(
+            "LoCoMo embedding preflight rejected vector length: "
+            f"expected {expected_dimension}, got {len(vector)}"
+        )
+    if not all(math.isfinite(value) for value in vector):
+        raise RuntimeError(
+            "LoCoMo embedding preflight rejected a non-finite vector"
+        )
+    if not any(value != 0.0 for value in vector):
+        raise RuntimeError(
+            "LoCoMo embedding preflight rejected an all-zero vector"
+        )
+
+    return {
+        "schema": "seam-locomo-embedding-preflight/1",
+        "contract_sha256": canonical_json_sha256(contract),
+        "provider": contract["provider"],
+        "model": contract["model"],
+        "revision": contract["revision"],
+        "name": contract["name"],
+        "dimension": expected_dimension,
+        "normalization": contract["normalization"],
+        "local_files_only": True,
+        "probe": {
+            "performed": True,
+            "dimension": len(vector),
+            "finite": True,
+            "nonzero": True,
+        },
+    }
 
 
 def _remove_db_files(db_path: Path) -> None:

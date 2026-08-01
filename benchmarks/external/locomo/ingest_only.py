@@ -53,7 +53,9 @@ def main(argv: list[str] | None = None) -> int:
 
     groups = _group_cases(cases, _locomo_scope_id)
     turns = 0
+    embedding_preflight = None
     try:
+        embedding_preflight = adapter.preflight(groups)
         for scope, group in groups.items():
             adapter.reset(scope)
             for turn in group[0].conversation:
@@ -66,12 +68,35 @@ def main(argv: list[str] | None = None) -> int:
             close()
 
     root = Path(args.db_path)
+    digest = corpus_digest(root)
+    from benchmarks.external.locomo.adapters.seam import (
+        canonical_json_sha256,
+        embedding_preflight_receipt_sha256,
+    )
+
+    embedding_preflight_sha256 = embedding_preflight_receipt_sha256(
+        embedding_preflight
+    )
+    corpus_binding = {
+        "schema": "seam-locomo-corpus-contract/1",
+        "corpus_digest": digest,
+        "embedding_preflight": embedding_preflight,
+        "embedding_preflight_sha256": embedding_preflight_sha256,
+    }
     report = {
         "scopes": len(groups),
         "cases": len(cases),
         "turns": turns,
         "db_path": str(root),
-        "corpus_digest": corpus_digest(root),
+        "corpus_digest": digest,
+        "embedding_preflight": embedding_preflight,
+        "embedding_preflight_sha256": embedding_preflight_sha256,
+        "corpus_contract": {
+            "schema": corpus_binding["schema"],
+            "corpus_digest": digest,
+            "embedding_preflight_sha256": embedding_preflight_sha256,
+            "integrity_sha256": canonical_json_sha256(corpus_binding),
+        },
     }
     print(json.dumps(report, indent=2))
     return 0

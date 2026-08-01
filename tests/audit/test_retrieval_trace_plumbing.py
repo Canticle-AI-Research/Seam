@@ -15,9 +15,11 @@ would contaminate the very A/B it exists to explain.
 
 from __future__ import annotations
 
+import json
+
 from benchmarks.external.common.runner import _build_report, _score_case
 from benchmarks.external.common.types import AdapterAnswer, BenchmarkCase
-from seam_runtime.mirl import SearchResult
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, SearchResult
 
 
 def _ingest(rt, texts: list[str]) -> None:
@@ -36,6 +38,106 @@ CORPUS = [
     "Melanie's cat Pepper knocked over the pottery vase.",
     "Caroline sold three bowls at the spring craft fair.",
 ]
+
+_FORBIDDEN_TRACE_KEYS = frozenset(
+    {
+        "answer",
+        "api_key",
+        "attrs",
+        "authorization",
+        "body",
+        "completion",
+        "content",
+        "context",
+        "cookie",
+        "credential",
+        "credentials",
+        "filter",
+        "filters",
+        "generated_answer",
+        "gold",
+        "gold_answer",
+        "graph_at",
+        "graph_path",
+        "ids",
+        "kinds",
+        "lens",
+        "message",
+        "namespace",
+        "normalized_query",
+        "object",
+        "object_text",
+        "password",
+        "path",
+        "payload",
+        "predicate",
+        "prompt",
+        "query",
+        "raw_text",
+        "rationale",
+        "reason",
+        "reasons",
+        "record",
+        "records",
+        "refresh_token",
+        "retrieved_context",
+        "secret",
+        "secrets",
+        "session",
+        "source_ref",
+        "scope",
+        "subject",
+        "text",
+        "token",
+    }
+)
+_SECRET_TRACE_KEY_FRAGMENTS = (
+    "api_key",
+    "authorization",
+    "credential",
+    "password",
+    "secret",
+    "token",
+)
+
+
+def _trace_privacy_violations(
+    value,
+    *,
+    sentinels: tuple[str, ...],
+    path: str = "$",
+) -> list[str]:
+    """Return structural violation paths without echoing content-bearing values."""
+
+    violations: list[str] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = f"{path}.{key}"
+            normalized_key = str(key).casefold().replace("-", "_")
+            if normalized_key in _FORBIDDEN_TRACE_KEYS or any(
+                fragment in normalized_key
+                for fragment in _SECRET_TRACE_KEY_FRAGMENTS
+            ):
+                violations.append(f"forbidden-key:{child_path}")
+            violations.extend(
+                _trace_privacy_violations(
+                    child,
+                    sentinels=sentinels,
+                    path=child_path,
+                )
+            )
+    elif isinstance(value, (list, tuple)):
+        for index, child in enumerate(value):
+            violations.extend(
+                _trace_privacy_violations(
+                    child,
+                    sentinels=sentinels,
+                    path=f"{path}[{index}]",
+                )
+            )
+    elif isinstance(value, str) and any(sentinel in value for sentinel in sentinels):
+        violations.append(f"sentinel-value:{path}")
+    return violations
 
 
 def test_trace_does_not_change_selection_or_order(tmp_path):
@@ -63,6 +165,116 @@ def test_trace_does_not_change_selection_or_order(tmp_path):
     assert [round(c.score, 9) for c in traced.candidates] == [
         round(c.score, 9) for c in untraced.candidates
     ]
+    assert [candidate.to_dict() for candidate in traced.candidates] == [
+        candidate.to_dict() for candidate in untraced.candidates
+    ]
+
+
+def test_trace_does_not_change_internal_graph_paths(tmp_path):
+    from seam_runtime.runtime import SeamRuntime
+
+    rt = SeamRuntime(tmp_path / "trace-graph-path.db", allow_pgvector_env=False)
+    rt.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id="ent:alpha",
+                    kind=RecordKind.ENT,
+                    ns="work",
+                    scope="thread",
+                    attrs={"label": "Alpha", "entity_type": "concept"},
+                ),
+                MIRLRecord(
+                    id="ent:beta",
+                    kind=RecordKind.ENT,
+                    ns="work",
+                    scope="thread",
+                    attrs={"label": "Beta", "entity_type": "concept"},
+                ),
+                MIRLRecord(
+                    id="rel:alpha-beta",
+                    kind=RecordKind.REL,
+                    ns="work",
+                    scope="thread",
+                    attrs={
+                        "src": "ent:alpha",
+                        "predicate": "connects",
+                        "dst": "ent:beta",
+                    },
+                ),
+            ]
+        )
+    )
+
+    kwargs = {
+        "query": "Alpha",
+        "ns": "work",
+        "scope": "thread",
+        "budget": 10,
+        "mode": "graph",
+        "graph_hops": 1,
+    }
+    untraced = rt.retrieve(**kwargs)
+    traced = rt.retrieve(**kwargs, include_trace=True)
+
+    assert any(candidate.graph_path for candidate in untraced.candidates)
+    assert [candidate.to_dict() for candidate in traced.candidates] == [
+        candidate.to_dict() for candidate in untraced.candidates
+    ]
+
+
+def test_exported_search_trace_is_recursively_content_free(tmp_path):
+    from seam_runtime.runtime import SeamRuntime
+
+    rt = SeamRuntime(tmp_path / "trace-privacy.db", allow_pgvector_env=False)
+    private_corpus = [
+        *CORPUS,
+        "TRACE_SECRET_SENTINEL belongs only in a canonical record.",
+    ]
+    _ingest(rt, private_corpus)
+    query = "TRACE_QUERY_SENTINEL TRACE_SECRET_SENTINEL Melanie cat"
+
+    for mode in ("vector", "graph", "hybrid", "mix"):
+        trace = rt.retrieve(
+            query,
+            budget=5,
+            include_raw=True,
+            include_trace=True,
+            mode=mode,
+        ).trace
+
+        assert trace is not None
+        assert trace["schema"] == "seam-retrieval-search-trace/1"
+        assert trace["plan"]["mode"] == mode
+        assert trace["plan"]["budget"] == 5
+        assert trace["plan"]["candidate_budget"] == 5
+        assert trace["plan"]["include_raw"] is True
+        assert trace["plan"]["semantic_graph_seeding"] is False
+        assert len(trace["fusion"]["candidate_set_sha256"]) == 64
+        assert set(trace["leg_counts"]) == set(trace["legs"])
+        for leg_name, hits in trace["legs"].items():
+            assert all(set(hit) == {"rank", "record_id", "score"} for hit in hits)
+            assert [hit["rank"] for hit in hits] == list(
+                range(1, len(hits) + 1)
+            )
+            assert all(
+                isinstance(hit["score"], (int, float))
+                and not isinstance(hit["score"], bool)
+                for hit in hits
+            )
+            assert trace["leg_counts"][leg_name]["retained"] == len(hits)
+
+        violations = _trace_privacy_violations(
+            trace,
+            sentinels=(
+                "TRACE_QUERY_SENTINEL",
+                "TRACE_SECRET_SENTINEL",
+                *private_corpus,
+            ),
+        )
+        assert not violations, (
+            f"trace privacy violations at paths only: {violations}"
+        )
 
 
 def test_trace_carries_per_leg_attribution(tmp_path):
@@ -88,6 +300,45 @@ def test_trace_carries_per_leg_attribution(tmp_path):
     assert trace["fusion"]["policy"] == "reciprocal-rank-fusion/2"
     assert "selected_ids" in trace["fusion"]
     assert "legs" in trace["latency_ms"]
+
+
+def test_structural_only_mix_matches_hybrid_and_reports_content_free_graph_skip(
+    tmp_path,
+):
+    from seam_runtime.runtime import SeamRuntime
+
+    rt = SeamRuntime(tmp_path / "structural-only.db", allow_pgvector_env=False)
+    _ingest(rt, CORPUS)
+    query = "What is Melanie's cat called?"
+
+    hybrid = rt.retrieve(
+        query,
+        budget=10,
+        include_raw=True,
+        include_trace=True,
+        mode="hybrid",
+    )
+    mix = rt.retrieve(
+        query,
+        budget=10,
+        include_raw=True,
+        include_trace=True,
+        mode="mix",
+    )
+
+    assert [candidate.to_dict() for candidate in mix.candidates] == [
+        candidate.to_dict() for candidate in hybrid.candidates
+    ]
+    assert mix.trace["legs"]["graph"] == []
+    assert mix.trace["graph_skipped_reason"] == "no_semantic_relation_edges"
+    assert "graph_skipped_reason" not in hybrid.trace
+
+    skip_receipt = json.dumps(
+        {"graph_skipped_reason": mix.trace["graph_skipped_reason"]},
+        sort_keys=True,
+    )
+    assert query not in skip_receipt
+    assert all(text not in skip_receipt for text in CORPUS)
 
 
 def test_search_ir_trace_reports_legacy_weighted_policy(tmp_path):

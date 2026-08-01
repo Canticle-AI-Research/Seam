@@ -535,6 +535,15 @@ def test_compile_nl_falls_back_to_floor_when_extractor_returns_empty():
 class _EntityRelationExtractor:
     """Both subject and object of the one claim are extractor-flagged entities."""
 
+    config_fingerprint = "entity-relation-fixture/1"
+
+    def config_metadata(self) -> dict[str, object]:
+        return {
+            "type": "provider-free-fixture",
+            "model": "none",
+            "prompt_version": "fixture/1",
+        }
+
     def extract(self, text: str) -> Extraction:
         if "mentored" in text:
             return Extraction(
@@ -544,12 +553,167 @@ class _EntityRelationExtractor:
         return Extraction()
 
 
+class _FirstPersonEntityRelationExtractor:
+    """Grounded relation fixture for the explicit qualification lane."""
+
+    config_fingerprint = "first-person-entity-relation-fixture/1"
+
+    def config_metadata(self) -> dict[str, object]:
+        return {
+            "type": "provider-free-fixture",
+            "model": "none",
+            "relation_policy": "grounded-rel/1",
+        }
+
+    def extract(self, text: str) -> Extraction:
+        return ground_extraction(
+            {
+                "entities": [
+                    {"name": "I", "type": "person"},
+                    {"name": "Priya", "type": "person"},
+                ],
+                "claims": [
+                    {
+                        "subject": "I",
+                        "relation": "mentored",
+                        "object": "Priya",
+                        "epistemic_basis": "explicit",
+                    }
+                ],
+            },
+            text,
+        )
+
+
+class _UnsafeFirstPersonEntityRelationExtractor:
+    """Returns grounded first person whose inferred basis blocks rebasing."""
+
+    config_fingerprint = "unsafe-first-person-entity-relation-fixture/1"
+
+    def config_metadata(self) -> dict[str, object]:
+        return {
+            "type": "provider-free-fixture",
+            "model": "none",
+            "relation_policy": "grounded-rel/1",
+        }
+
+    def extract(self, text: str) -> Extraction:
+        return ground_extraction(
+            {
+                "entities": [
+                    {"name": "I", "type": "person"},
+                    {"name": "Priya", "type": "person"},
+                ],
+                "claims": [
+                    {
+                        "subject": "I",
+                        "relation": "mentored",
+                        "object": "Priya",
+                        "epistemic_basis": "inferred",
+                    }
+                ],
+            },
+            text,
+        )
+
+
 def test_entity_to_entity_claim_emits_a_rel_edge():
     batch = compile_nl("Akira mentored Priya at the community center.", extractor=_EntityRelationExtractor())
     ents = {r.attrs["label"]: r.id for r in batch.records if r.kind == RecordKind.ENT}
     rels = [r for r in batch.records if r.kind == RecordKind.REL]
     assert len(rels) == 1
-    assert rels[0].attrs == {"src": ents["Akira"], "predicate": "mentored", "dst": ents["Priya"]}
+    assert rels[0].attrs["src"] == ents["Akira"]
+    assert rels[0].attrs["predicate"] == "mentored"
+    assert rels[0].attrs["dst"] == ents["Priya"]
+    claim = batch.by_id()[rels[0].attrs["claim_id"]]
+    assert claim.kind == RecordKind.CLM
+    assert claim.attrs["subject"] == ents["Akira"]
+    assert claim.attrs["predicate"] == "mentored"
+    assert claim.attrs["object"] == "Priya"
+    assert rels[0].evidence == claim.evidence
+    assert rels[0].prov == claim.prov
+    assert rels[0].ext["grounded_spans"] == claim.ext["grounded_spans"]
+    assert rels[0].ext["extractor"] == _EntityRelationExtractor().config_metadata()
+    assert (
+        rels[0].ext["extractor_config_fingerprint"]
+        == _EntityRelationExtractor.config_fingerprint
+    )
+
+
+def test_explicit_relation_lane_rebases_first_person_to_turn_speaker():
+    text = "[John 2023-05-01] I mentored Priya."
+    batch = compile_nl(
+        text,
+        extractor=_FirstPersonEntityRelationExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=None,
+        allow_env_extractor=False,
+    )
+
+    by_id = batch.by_id()
+    rels = [record for record in batch.records if record.kind == RecordKind.REL]
+    assert len(rels) == 1
+    relation = rels[0]
+    subject = by_id[relation.attrs["src"]]
+    obj = by_id[relation.attrs["dst"]]
+    claim = by_id[relation.attrs["claim_id"]]
+    raw = next(record for record in batch.records if record.kind == RecordKind.RAW)
+
+    assert subject.attrs == {"entity_type": "person", "label": "John"}
+    assert obj.attrs["label"] == "Priya"
+    assert relation.attrs["predicate"] == "mentored"
+    assert claim.attrs["subject"] == subject.id
+    assert relation.ext["subject_resolution"] == {
+        "method": "first_person_to_turn_speaker",
+        "surface": "I",
+        "speaker": "John",
+    }
+    assert relation.ext["extractor_config_fingerprint"] == (
+        _FirstPersonEntityRelationExtractor.config_fingerprint
+    )
+    assert raw.ext["source_metadata"] == {
+        "format": "locomo-turn/1",
+        "speaker": "John",
+        "timestamp": "2023-05-01",
+        "prefix_end": text.index("I"),
+    }
+
+
+def test_explicit_relation_lane_rejects_invalid_turn_envelope():
+    text = "John: I mentored Priya."
+    batch = compile_nl(
+        text,
+        extractor=_FirstPersonEntityRelationExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=None,
+        allow_env_extractor=False,
+    )
+
+    assert [record for record in batch.records if record.kind == RecordKind.REL] == []
+
+
+def test_explicit_relation_lane_rejects_unproved_first_person_claim():
+    batch = compile_nl(
+        "[John 2023-05-01] I mentored Priya.",
+        extractor=_UnsafeFirstPersonEntityRelationExtractor(),
+        speaker="John",
+        source_timestamp="2023-05-01",
+        derived_fact_policy=None,
+        allow_env_extractor=False,
+    )
+
+    assert [record for record in batch.records if record.kind == RecordKind.REL] == []
+    assert not any(
+        record.kind == RecordKind.CLM
+        and record.attrs.get("predicate") == "mentored"
+        for record in batch.records
+    )
+    assert not any(
+        record.kind == RecordKind.ENT and record.attrs.get("label") == "I"
+        for record in batch.records
+    )
 
 
 def test_descriptive_object_does_not_emit_a_rel_edge():

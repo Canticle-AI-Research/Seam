@@ -35,6 +35,9 @@ from .types import (
     RetrievalSearchResult,
 )
 
+SEARCH_TRACE_SCHEMA = "seam-retrieval-search-trace/1"
+_SEARCH_TRACE_ITEM_LIMIT = 128
+
 
 class RetrievalOrchestrator:
     def __init__(
@@ -139,7 +142,14 @@ class RetrievalOrchestrator:
             raise ValueError("candidate_trace_limit cannot exceed 128")
         resolved_flags = flags or self.runtime._retrieval_flags_cached()
         leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
-        plan, leg_hits, leg_latency_ms, total_latency_ms, ranked = self._execute(
+        (
+            plan,
+            leg_hits,
+            leg_latency_ms,
+            total_latency_ms,
+            ranked,
+            _graph_skipped_reason,
+        ) = self._execute(
             query=query,
             scope=scope,
             budget=budget,
@@ -203,7 +213,14 @@ class RetrievalOrchestrator:
         flags,
         candidate_budget: int,
         ranking_policy: str,
-    ) -> tuple[RetrievalPlan, dict[str, list], dict[str, float], float, list]:
+    ) -> tuple[
+        RetrievalPlan,
+        dict[str, list],
+        dict[str, float],
+        float,
+        list,
+        str | None,
+    ]:
         plan = self.plan(
             query=query,
             scope=scope,
@@ -223,6 +240,7 @@ class RetrievalOrchestrator:
         )
         leg_hits: dict[str, list] = {}
         leg_latency_ms: dict[str, float] = {}
+        graph_skipped_reason: str | None = None
         started = perf_counter()
 
         for leg in plan.legs:
@@ -246,6 +264,9 @@ class RetrievalOrchestrator:
                     include_history=plan.graph_include_history,
                 )
             elif leg.name == "graph":
+                admitted_edges_exist = (
+                    self.graph_adapter.has_admissible_relation_edges(plan)
+                )
                 graph_node_seed_ids: list[str] = []
                 if plan.semantic_graph_seeding:
                     graph_node_started = perf_counter()
@@ -275,27 +296,32 @@ class RetrievalOrchestrator:
                     leg_latency_ms["graph_node"] = (
                         perf_counter() - graph_node_started
                     ) * 1000.0
-                semantic_seed_ids = (
-                    [
-                        hit.record.id
-                        for hit in leg_hits.get("vector", [])
-                        if plan.graph_include_history
-                        or hit.record.status.value
-                        not in CURRENT_EXCLUDED_STATUSES
-                    ]
-                    if plan.semantic_graph_seeding
-                    else []
-                )
-                leg_hits["graph"] = _search_current_page(
-                    lambda limit: self.graph_adapter.search(
-                        plan,
-                        limit=limit,
-                        seed_record_ids=semantic_seed_ids,
-                        seed_node_ids=graph_node_seed_ids,
-                    ),
-                    limit=leg.limit,
-                    include_history=plan.graph_include_history,
-                )
+                if not admitted_edges_exist:
+                    leg_hits["graph"] = []
+                    graph_skipped_reason = "no_semantic_relation_edges"
+                else:
+                    semantic_seed_ids = (
+                        [
+                            hit.record.id
+                            for hit in leg_hits.get("vector", [])
+                            if plan.graph_include_history
+                            or hit.record.status.value
+                            not in CURRENT_EXCLUDED_STATUSES
+                        ]
+                        if plan.semantic_graph_seeding
+                        else []
+                    )
+                    leg_hits["graph"] = _search_current_page(
+                        lambda limit: self.graph_adapter.search(
+                            plan,
+                            limit=limit,
+                            seed_record_ids=semantic_seed_ids,
+                            seed_node_ids=graph_node_seed_ids,
+                            admitted_edges_exist=True,
+                        ),
+                        limit=leg.limit,
+                        include_history=plan.graph_include_history,
+                    )
             elif leg.name == "temporal":
                 leg_hits["temporal"] = self.temporal_adapter.search(
                     plan, limit=leg.limit
@@ -316,6 +342,7 @@ class RetrievalOrchestrator:
             leg_latency_ms,
             (perf_counter() - started) * 1000.0,
             ranked,
+            graph_skipped_reason,
         )
 
     def search(
@@ -341,7 +368,19 @@ class RetrievalOrchestrator:
     ) -> RetrievalSearchResult:
         resolved_flags = flags or self.runtime._retrieval_flags_cached()
         leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
-        plan, leg_hits, leg_latency_ms, total_latency_ms, ranked = self._execute(
+        candidate_budget = (
+            int(resolved_flags.search_top_k)
+            if resolved_flags.search_top_k
+            else budget
+        )
+        (
+            plan,
+            leg_hits,
+            leg_latency_ms,
+            total_latency_ms,
+            ranked,
+            graph_skipped_reason,
+        ) = self._execute(
             query=query,
             scope=scope,
             budget=budget,
@@ -357,14 +396,9 @@ class RetrievalOrchestrator:
             temporal_reference=temporal_reference,
             flags=resolved_flags,
             ranking_policy=ranking_policy,
-            candidate_budget=(
-                int(resolved_flags.search_top_k)
-                if resolved_flags.search_top_k
-                else budget
-            ),
+            candidate_budget=candidate_budget,
         )
         selected = ranked[:budget]
-        rejected_trace = ranked[budget : budget + 128]
 
         if include_provenance and selected:
             # Resolve the selected page in ONE pass: candidates routinely share
@@ -380,49 +414,18 @@ class RetrievalOrchestrator:
 
         trace = None
         if include_trace:
-            trace = {
-                "plan": plan.to_dict(),
-                "legs": {
-                    name: [hit.to_dict() for hit in hits]
-                    for name, hits in leg_hits.items()
-                },
-                "fusion": {
-                    # A weighted run must NOT claim the unweighted policy id:
-                    # the trace is the provenance record an ablation is read
-                    # from, so mislabeling it would silently misattribute the
-                    # result. Weights are disclosed alongside.
-                    "policy": (
-                        FUSION_POLICY_WEIGHTED
-                        if leg_weights and plan.ranking_policy == FUSION_POLICY
-                        else plan.ranking_policy
-                    ),
-                    "leg_weights": dict(sorted(leg_weights.items())) or None,
-                    "normalization": {
-                        "method": "reciprocal_rank",
-                        "rank_constant": FUSION_RANK_CONSTANT,
-                        "source_value": "1/(rank_constant+rank)",
-                    }
-                    if plan.ranking_policy == FUSION_POLICY
-                    else {"method": "legacy_weighted"},
-                    "tie_breaker": (
-                        "record_id"
-                        if plan.ranking_policy == FUSION_POLICY
-                        else "legacy_stable_record_order"
-                    ),
-                    "total_candidates": len(ranked),
-                    "selected_ids": [
-                        candidate.record.id for candidate in selected
-                    ],
-                    "rejected_ids": [
-                        candidate.record.id for candidate in rejected_trace
-                    ],
-                    "candidates_truncated": len(ranked) > budget + len(rejected_trace),
-                },
-                "latency_ms": {
-                    "legs": dict(leg_latency_ms),
-                    "total": total_latency_ms,
-                },
-            }
+            trace = _serialize_search_trace(
+                plan=plan,
+                budget=budget,
+                candidate_budget=candidate_budget,
+                leg_hits=leg_hits,
+                leg_latency_ms=leg_latency_ms,
+                total_latency_ms=total_latency_ms,
+                ranked=ranked,
+                selected=selected,
+                graph_skipped_reason=graph_skipped_reason,
+                leg_weights=leg_weights,
+            )
         return RetrievalSearchResult(
             query=query,
             normalized_query=plan.normalized_query,
@@ -479,6 +482,113 @@ class RetrievalOrchestrator:
             pack=pack.to_dict(),
             trace=trace,
         )
+
+
+def _serialize_search_trace(
+    *,
+    plan: RetrievalPlan,
+    budget: int,
+    candidate_budget: int,
+    leg_hits: dict[str, list],
+    leg_latency_ms: dict[str, float],
+    total_latency_ms: float,
+    ranked: list,
+    selected: list,
+    graph_skipped_reason: str | None,
+    leg_weights: dict[str, float],
+) -> dict[str, object]:
+    """Export a bounded allowlist trace without serializing retrieval content."""
+
+    rejected = ranked[budget : budget + _SEARCH_TRACE_ITEM_LIMIT]
+    retained_leg_hits = {
+        name: [
+            {
+                "rank": rank,
+                "record_id": hit.record.id,
+                "score": round(float(hit.score), 6),
+            }
+            for rank, hit in enumerate(
+                hits[:_SEARCH_TRACE_ITEM_LIMIT],
+                start=1,
+            )
+        ]
+        for name, hits in leg_hits.items()
+    }
+    trace: dict[str, object] = {
+        "schema": SEARCH_TRACE_SCHEMA,
+        "plan": {
+            "mode": plan.mode,
+            "intent": plan.intent.value,
+            "budget": budget,
+            "candidate_budget": candidate_budget,
+            "ranking_policy": plan.ranking_policy,
+            "graph_hops": plan.graph_hops,
+            "semantic_graph_seeding": plan.semantic_graph_seeding,
+            "graph_at_applied": plan.graph_at is not None,
+            "graph_include_history": plan.graph_include_history,
+            "include_raw": plan.include_raw,
+            "temporal_window_applied": plan.temporal_window is not None,
+            "temporal_reference_applied": plan.temporal_reference is not None,
+            "filters_applied": plan.filters.active(),
+            "legs": [
+                {
+                    "name": leg.name,
+                    "limit": leg.limit,
+                }
+                for leg in plan.legs
+            ],
+        },
+        "legs": retained_leg_hits,
+        "leg_counts": {
+            name: {
+                "total": len(hits),
+                "retained": len(retained_leg_hits[name]),
+                "truncated": len(hits) > _SEARCH_TRACE_ITEM_LIMIT,
+            }
+            for name, hits in leg_hits.items()
+        },
+        "fusion": {
+            # Preserve the current weighted-RRF provenance contract while
+            # keeping the exported trace content-free.
+            "policy": (
+                FUSION_POLICY_WEIGHTED
+                if leg_weights and plan.ranking_policy == FUSION_POLICY
+                else plan.ranking_policy
+            ),
+            "leg_weights": dict(sorted(leg_weights.items())) or None,
+            "normalization": {
+                "method": "reciprocal_rank",
+                "rank_constant": FUSION_RANK_CONSTANT,
+                "source_value": "1/(rank_constant+rank)",
+            }
+            if plan.ranking_policy == FUSION_POLICY
+            else {"method": "legacy_weighted"},
+            "tie_breaker": (
+                "record_id"
+                if plan.ranking_policy == FUSION_POLICY
+                else "legacy_stable_record_order"
+            ),
+            "candidate_set_sha256": candidate_set_fingerprint(
+                (candidate.record.id, candidate.score, candidate.sources)
+                for candidate in ranked
+            ),
+            "total_candidates": len(ranked),
+            "selected_ids": [candidate.record.id for candidate in selected],
+            "rejected_ids": [candidate.record.id for candidate in rejected],
+            "candidates_truncated": len(ranked) > budget + len(rejected),
+        },
+        "latency_ms": {
+            "legs": {
+                name: round(float(value), 6)
+                for name, value in leg_latency_ms.items()
+            },
+            "total": round(float(total_latency_ms), 6),
+        },
+    }
+    if graph_skipped_reason is not None:
+        trace["graph_skipped_reason"] = graph_skipped_reason
+    return trace
+
 
 def _search_current_page(
     search: Callable[[int], list],
