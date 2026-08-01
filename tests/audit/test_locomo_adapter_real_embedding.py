@@ -726,6 +726,9 @@ def test_required_quickstart_ci_provisions_exact_revision_then_runs_offline():
         Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml"
     ).read_text(encoding="utf-8")
     quickstart_job = workflow.split("  locomo-quickstart-bil2:", 1)[1]
+    cache_step = quickstart_job.split(
+        "      - name: Cache Hugging Face models", 1
+    )[1].split("      - name: Install package", 1)[0]
     provision_step = quickstart_job.split(
         "      - name: Provision exact pinned LoCoMo embedding snapshot", 1
     )[1].split("      - name: Run LoCoMo quickstart smoke", 1)[0]
@@ -736,6 +739,19 @@ def test_required_quickstart_ci_provisions_exact_revision_then_runs_offline():
     assert "DERIVED_FACTS_EMBEDDING_REVISION" in quickstart_job
     assert "snapshot_download(" in quickstart_job
     assert "steps.locomo-embedding.outputs.revision" in quickstart_job
+    assert "path: ${{ runner.temp }}/seam-huggingface" in cache_step
+    for step in (provision_step, smoke_step):
+        assert "HF_HOME: ${{ runner.temp }}/seam-huggingface" in step
+        assert "HF_HUB_CACHE: ${{ runner.temp }}/seam-huggingface/hub" in step
+        assert (
+            "HUGGINGFACE_HUB_CACHE: ${{ runner.temp }}/seam-huggingface/hub"
+            in step
+        )
+        assert (
+            "TRANSFORMERS_CACHE: "
+            "${{ runner.temp }}/seam-huggingface/transformers"
+            in step
+        )
     assert 'HF_HUB_OFFLINE: "0"' in provision_step
     assert 'TRANSFORMERS_OFFLINE: "0"' in provision_step
     assert 'HF_HUB_OFFLINE: "1"' in smoke_step

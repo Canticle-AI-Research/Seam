@@ -15116,3 +15116,23 @@ miss recovery remain protected-CI evidence. No provider, paid benchmark,
 release, direct-main push, or destructive cleanup ran. PR #190 exact-head CI
 and squash merge remain pending.
 ---END-ENTRY-#516---
+
+---BEGIN-ENTRY-#517---
+id: 517
+date: 2026-08-01T14:03:59Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 516
+tokens: 301
+---
+## Writable LoCoMo model cache correction
+
+The first PR #190 CI amendment worked as intended: the exact pinned LoCoMo embedding provisioning step ran online despite inherited offline-mode variables. The rerun then exposed a separate self-hosted-runner leak: `HF_HUB_CACHE` still pointed at `/media/terrabyte/T7/hf-cache`, which the workflow could not write, so the required `locomo-quickstart-bil2` job failed before the offline smoke.
+
+The workflow now gives the cache action, online provisioning step, and offline smoke step one job-local writable root under `${{ runner.temp }}/seam-huggingface`. It explicitly binds `HF_HOME`, both Hugging Face hub cache variables, and the Transformers cache path at each model-using step while preserving online provisioning (`HF_HUB_OFFLINE=0`, `TRANSFORMERS_OFFLINE=0`) followed by offline execution (`=1`). The audit regression asserts the cache-path and mode contract so inherited workstation paths cannot silently re-enter this required check.
+
+Local verification passed: 35 focused audit tests, Ruff on the regression test, `git diff --check`, PyYAML workflow parsing, installed `huggingface_hub` interpretation of the explicit online/offline values, and the canonical integrity, routing, handoff, continuity, and stream gates. This correction makes no runtime-package change, triggers no paid/provider benchmark, publishes no release, and leaves the exact GitHub CI rerun pending on the pushed commit.
+---END-ENTRY-#517---
