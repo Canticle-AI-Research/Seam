@@ -15032,3 +15032,42 @@ This changes only derived-state closeout orchestration. It does not alter SEAM
 runtime behavior, Track S stage status, benchmark evidence, or the no-provider/
 no-release boundary recorded in HISTORY#513.
 ---END-ENTRY-#514---
+
+---BEGIN-ENTRY-#515---
+id: 515
+date: 2026-08-01T12:29:04Z
+agent: codex-gpt-5
+status: done
+topics: security, audit, bugfix, bundle, verify, test, history, streams
+commits: pending
+refs: seam_runtime/ui/logo.py,test_seam_all/test_artifact_hygiene.py,tools/relation_extraction_qualification.py,tests/audit/test_relation_extraction_qualification.py,tests/audit/test_history_closeout.py
+supersedes: 514
+tokens: 307
+---
+Pre-push artifact and bounded-review amendment for Track S S0.
+
+The exact wheel/sdist gate at commit 73d9104 passed offline build, Twine,
+payload parity, entry-point, asset, license, deny-path, credential, and private
+session scans, but correctly failed the privacy boundary because a visual-only
+UI preview still embedded an absolute local user-profile path. Replaced that
+preview data with a generic repository-relative example and added an artifact
+hygiene regression that scans every shipped Python source path for Windows
+user-profile literals. No runtime path discovery or user-facing behavior
+depends on the preview values.
+
+Also closed the two valid minor findings from the exact-commit bounded review:
+relation qualification now preserves both the per-relation missing-projection
+count and a distinct missing-schema database count, and the closeout regression
+pins the exact roadmap stream-index rebuild command as well as its order.
+
+The focused amendment slice passed 22/22. Ruff over all five changed Python
+files and `git diff --check` passed. The first focused invocation failed only
+because this isolated worktree has no local `.venv`; rerunning through the
+canonical checkout virtual environment passed and no code was changed in
+response to that environment-only miss.
+
+BOUNDARY/NEXT: the amended exact commit still requires the frozen repository
+suite, candidate scan, and fresh wheel/sdist privacy and opaque-boundary gate
+before push. No provider, paid or network benchmark, release, push, or cleanup
+ran in this amendment.
+---END-ENTRY-#515---

@@ -353,9 +353,74 @@ def test_legacy_zero_rel_database_without_graph_schema_fails_cleanly(
     assert artifacts.report["funnel"]["relations_exact_backtrace"] == 0
     assert artifacts.report["checks"]["graph_projection_schema"] is False
     assert artifacts.report["rejections"] == {
-        "missing_graph_projection_schema": 1
+        "missing_graph_projection_schema_databases": 1
     }
     assert "private legacy turn" not in json.dumps(artifacts.report)
+
+
+def test_missing_graph_schema_preserves_relation_and_database_counts(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "legacy-relations.db"
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            "create table ir_records "
+            "(id text primary key, payload_json text not null)"
+        )
+        records = [
+            MIRLRecord(
+                id=f"raw:legacy-{index}",
+                kind=RecordKind.RAW,
+                ns="legacy-audit",
+                scope="thread",
+                attrs={
+                    "source_ref": f"legacy://turn/{index}",
+                    "content": f"legacy turn {index}",
+                },
+            )
+            for index in range(2)
+        ]
+        records.extend(
+            MIRLRecord(
+                id=f"rel:legacy-{index}",
+                kind=RecordKind.REL,
+                ns="legacy-audit",
+                scope="thread",
+                attrs={
+                    "src": f"ent:source-{index}",
+                    "predicate": "relates",
+                    "dst": f"ent:target-{index}",
+                },
+            )
+            for index in range(3)
+        )
+        for record in records:
+            connection.execute(
+                "insert into ir_records (id, payload_json) values (?, ?)",
+                (
+                    record.id,
+                    json.dumps(
+                        record.to_dict(),
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                ),
+            )
+
+    identity = raw_turn_identity([database])
+    artifacts = qualify_relation_extraction(
+        [database],
+        expected_turns=2,
+        expected_raw_digest=str(identity["digest"]),
+    )
+
+    assert artifacts.report["status"] == "failed"
+    assert artifacts.report["funnel"]["relations_persisted"] == 3
+    assert artifacts.report["identity"]["missing_schema_database_count"] == 1
+    assert artifacts.report["rejections"] == {
+        "missing_graph_projection_schema": 3,
+        "missing_graph_projection_schema_databases": 1,
+    }
 
 
 def test_mixed_extractor_configs_fail_closed(tmp_path: Path) -> None:

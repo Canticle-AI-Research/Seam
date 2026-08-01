@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 577
+total_events: 578
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-15T04:42:47Z | history:321:8f340dc0 | session-event | done | retrieval, answerer, reasoning, locomo, benchmark, judge,... | benchmarks/external/locomo/adapters/seam.py,HISTORY.md,HISTORY_INDEX.md,PROJE... |
 | 2026-06-15T12:01:01Z | history:322:e08eb1a6 | session-event | done | test, pgvector, protocol, docs, history | AGENTS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,tests/docs/README.md,tests/docs/... |
 | 2026-06-15T14:29:51Z | history:323:427968af | session-event | done | retrieval, locomo, cat1, coreference, entity-aggregation,... | benchmarks/external/locomo/adapters/seam.py,tests/audit/test_locomo_entity_ag... |
 | 2026-06-17T22:49:30Z | history:324:e8d2acce | session-event | done | doctor, stash, git, hygiene, tooling, protocol, history | seam_runtime/doctor.py,seam_runtime/cli.py,tests/audit/test_doctor_stashes.py... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-01T10:47:10Z | history:512:6eafc7b3 | session-event | done | fixture, test, wandr, bugfix, verify, continuity | .gitignore,benchmarks/fixtures/wandr/smoke.replay.jsonl,benchmarks/fixtures/w... |
 | 2026-08-01T11:52:41Z | history:513:44291c44 | session-event | done | audit, bugfix, benchmark, retrieval, provenance, verify, ... | docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s... |
 | 2026-08-01T11:56:23Z | history:514:a963e0c4 | session-event | done | history, streams, roadmap, bugfix, verify, test, continuity | tools/history/closeout.py,tests/audit/test_history_closeout.py,.seam/streams/... |
+| 2026-08-01T12:29:04Z | history:515:6060ff3a | session-event | done | security, audit, bugfix, bundle, verify, test, history, s... | seam_runtime/ui/logo.py,test_seam_all/test_artifact_hygiene.py,tools/relation... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0377.cross.md | 2026-04-15T00:00:00Z..2026-06-15T03:39:08Z | 377 | (multi) | (multi) |
+| 0001-0378.cross.md | 2026-04-15T00:00:00Z..2026-06-15T04:42:47Z | 378 | (multi) | (multi) |

@@ -72,6 +72,10 @@ def test_resume_rebuilds_without_appending_duplicate(
             "rebuild roadmap stream index",
             "rebuild cross-index",
         ]
+        assert calls[3] == (
+            "rebuild roadmap stream index",
+            ("tools.streams.rebuild_index", "--stream", "roadmap"),
+        )
     else:
         assert labels[2] == "rebuild cross-index"
     assert labels[-5:] == [label for label, _ in closeout.PREFLIGHT_GATES]

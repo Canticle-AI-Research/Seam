@@ -921,7 +921,7 @@ def qualify_relation_extraction(
         for violation in observation.violations:
             violation_counts[violation] += 1
     if missing_schema_database_count:
-        violation_counts["missing_graph_projection_schema"] = (
+        violation_counts["missing_graph_projection_schema_databases"] = (
             missing_schema_database_count
         )
 

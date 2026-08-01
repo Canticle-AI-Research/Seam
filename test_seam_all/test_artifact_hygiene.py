@@ -21,6 +21,7 @@ re-implementing the cleanup, so they fail if a future edit drops the close.
 
 from __future__ import annotations
 
+import re
 import unittest
 from pathlib import Path
 
@@ -165,6 +166,20 @@ class ArtifactHygieneTests(unittest.TestCase):
             "hidden from `git status` by the blanket *.db-wal / *.db-shm ignore "
             "rules, so they accumulate silently. Delete them and fix whatever "
             f"fixture stranded them. First 10: {stray[:10]}",
+        )
+
+    def test_shipped_python_carries_no_windows_user_profile_path(self) -> None:
+        pattern = re.compile(r"[A-Za-z]:\\Users\\[^\\\s]+\\", re.IGNORECASE)
+        shipped_python = [REPO_ROOT / "seam.py", *sorted((REPO_ROOT / "seam_runtime").rglob("*.py"))]
+        leaked = [
+            path.relative_to(REPO_ROOT).as_posix()
+            for path in shipped_python
+            if pattern.search(path.read_text(encoding="utf-8"))
+        ]
+        self.assertEqual(
+            leaked,
+            [],
+            "shipped Python contains an absolute Windows user-profile path",
         )
 
 
