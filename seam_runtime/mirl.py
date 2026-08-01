@@ -297,9 +297,22 @@ class SearchCandidate:
 class SearchResult:
     query: str
     candidates: list[SearchCandidate]
+    # Per-leg retrieval trace, populated only when the caller asks for it via
+    # `search_ir(include_trace=True)`. Observational only: it never influences
+    # candidate selection or ordering, so a traced run stays byte-identical to
+    # an untraced one for ranking-attribution A/Bs.
+    trace: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {"query": self.query, "candidates": [candidate.to_dict() for candidate in self.candidates]}
+        payload: dict[str, Any] = {
+            "query": self.query,
+            "candidates": [candidate.to_dict() for candidate in self.candidates],
+        }
+        # Omitted entirely when absent so existing exact-dict consumers are
+        # unaffected by the trace field.
+        if self.trace is not None:
+            payload["trace"] = self.trace
+        return payload
 
 
 @dataclass

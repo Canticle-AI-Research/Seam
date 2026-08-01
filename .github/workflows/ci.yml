@@ -40,6 +40,24 @@ jobs:
       - name: Check diff hygiene
         run: git diff --check
 
+      - name: Bind writable offline model cache
+        shell: bash
+        run: |
+          echo "HF_HOME=${RUNNER_TEMP}/seam-huggingface" >> "${GITHUB_ENV}"
+          echo "HF_HUB_CACHE=${RUNNER_TEMP}/seam-huggingface/hub" >> "${GITHUB_ENV}"
+          echo "HUGGINGFACE_HUB_CACHE=${RUNNER_TEMP}/seam-huggingface/hub" >> "${GITHUB_ENV}"
+          echo "HF_HUB_DISABLE_TELEMETRY=1" >> "${GITHUB_ENV}"
+          echo "HF_HUB_OFFLINE=1" >> "${GITHUB_ENV}"
+          echo "TRANSFORMERS_CACHE=${RUNNER_TEMP}/seam-huggingface/transformers" >> "${GITHUB_ENV}"
+          echo "TRANSFORMERS_OFFLINE=1" >> "${GITHUB_ENV}"
+
+      - name: Restore pinned LoCoMo embedding snapshot
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/seam-huggingface
+          key: hf-bge-small-en-v1.5-${{ needs.locomo-quickstart-bil2.outputs.embedding-revision }}-${{ runner.os }}
+          fail-on-cache-miss: true
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -211,6 +229,8 @@ jobs:
 
   locomo-quickstart-bil2:
     runs-on: [self-hosted, seam-box]
+    outputs:
+      embedding-revision: ${{ steps.locomo-embedding.outputs.revision }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -220,16 +240,88 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Resolve pinned LoCoMo embedding cache identity
+        id: locomo-embedding
+        shell: bash
+        run: |
+          python - <<'PY'
+          import ast
+          import os
+          from pathlib import Path
+
+          source = Path("seam_runtime/derived_fact_context.py").read_text(
+              encoding="utf-8"
+          )
+          revision = None
+          for node in ast.parse(source).body:
+              if not isinstance(node, ast.Assign):
+                  continue
+              if any(
+                  isinstance(target, ast.Name)
+                  and target.id == "DERIVED_FACTS_EMBEDDING_REVISION"
+                  for target in node.targets
+              ):
+                  revision = ast.literal_eval(node.value)
+                  break
+          if (
+              not isinstance(revision, str)
+              or len(revision) != 40
+              or any(
+                  character not in "0123456789abcdef"
+                  for character in revision
+              )
+          ):
+              raise SystemExit("invalid pinned LoCoMo embedding revision")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"revision={revision}\n")
+          PY
+
       - name: Cache Hugging Face models
         uses: actions/cache@v4
         with:
-          path: ~/.cache/huggingface
-          key: hf-bge-small-en-v1.5-${{ runner.os }}
+          path: ${{ runner.temp }}/seam-huggingface
+          key: hf-bge-small-en-v1.5-${{ steps.locomo-embedding.outputs.revision }}-${{ runner.os }}
 
       - name: Install package
         run: python -m pip install -e ".[server,sbert]"
 
+      - name: Provision exact pinned LoCoMo embedding snapshot
+        env:
+          HF_HOME: ${{ runner.temp }}/seam-huggingface
+          HF_HUB_CACHE: ${{ runner.temp }}/seam-huggingface/hub
+          HUGGINGFACE_HUB_CACHE: ${{ runner.temp }}/seam-huggingface/hub
+          HF_HUB_DISABLE_TELEMETRY: "1"
+          HF_HUB_OFFLINE: "0"
+          TRANSFORMERS_CACHE: ${{ runner.temp }}/seam-huggingface/transformers
+          TRANSFORMERS_OFFLINE: "0"
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          from huggingface_hub import snapshot_download
+          from seam_runtime.derived_fact_context import (
+              DERIVED_FACTS_EMBEDDING_MODEL,
+              DERIVED_FACTS_EMBEDDING_REVISION,
+          )
+
+          snapshot = snapshot_download(
+              repo_id=DERIVED_FACTS_EMBEDDING_MODEL,
+              revision=DERIVED_FACTS_EMBEDDING_REVISION,
+          )
+          if Path(snapshot).name != DERIVED_FACTS_EMBEDDING_REVISION:
+              raise SystemExit(
+                  "Hugging Face cache did not resolve the exact pinned revision"
+              )
+          PY
+
       - name: Run LoCoMo quickstart smoke
+        env:
+          HF_HOME: ${{ runner.temp }}/seam-huggingface
+          HF_HUB_CACHE: ${{ runner.temp }}/seam-huggingface/hub
+          HUGGINGFACE_HUB_CACHE: ${{ runner.temp }}/seam-huggingface/hub
+          HF_HUB_OFFLINE: "1"
+          TRANSFORMERS_CACHE: ${{ runner.temp }}/seam-huggingface/transformers
+          TRANSFORMERS_OFFLINE: "1"
         run: python -m seam bench external --quickstart locomo --adapter seam --judge stub --output locomo.quickstart.json
 
       - name: Seal LoCoMo quickstart as BIL-2

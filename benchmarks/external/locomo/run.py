@@ -14,6 +14,7 @@ When --dataset-path is passed, loads from the given path.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
@@ -71,6 +72,8 @@ def build_adapter(
     rerank_top_k: int = 20,
     mem0_search_limit: int | None = None,
     semantic_recovery_mode: str = "baseline",
+    retrieval_mode: str = "legacy-weighted",
+    record_retrieval_trace: bool = False,
     record_retrieval_events: bool | None = None,
     retrieval_event_run_id: str | None = None,
     conversation_adapter: str = CONVERSATION_ADAPTER_OFF,
@@ -106,6 +109,8 @@ def build_adapter(
             search_top_k=search_top_k,
             rerank_top_k=rerank_top_k,
             semantic_recovery_mode=semantic_recovery_mode,
+            retrieval_mode=retrieval_mode,
+            record_retrieval_trace=record_retrieval_trace,
             keep_db=keep_db,
             record_retrieval_events=record_retrieval_events,
             run_id=retrieval_event_run_id,
@@ -229,6 +234,39 @@ def _validate_locomo_categories(cases) -> list[str]:
 
 def _locomo_scope_id(case) -> str:
     return case.case_id.split("::", 1)[0]
+
+
+def _attach_embedding_preflight_integrity(
+    report: dict,
+    receipt: dict[str, object],
+) -> None:
+    """Bind the exact preflight receipt without redefining report integrity."""
+    from benchmarks.external.locomo.adapters.seam import (
+        canonical_json_sha256,
+        embedding_preflight_receipt_sha256,
+    )
+
+    report_integrity_hash = report.get("integrity_hash")
+    if not isinstance(report_integrity_hash, str) or not report_integrity_hash:
+        raise RuntimeError(
+            "LoCoMo result is missing the existing report integrity hash; "
+            "cannot bind the embedding preflight receipt"
+        )
+    receipt_sha256 = embedding_preflight_receipt_sha256(receipt)
+    binding = {
+        "schema": "seam-locomo-run-contract/1",
+        "report_integrity_hash": report_integrity_hash,
+        "embedding_preflight": receipt,
+        "embedding_preflight_sha256": receipt_sha256,
+    }
+    report["embedding_preflight"] = receipt
+    report["embedding_preflight_sha256"] = receipt_sha256
+    report["run_contract"] = {
+        "schema": binding["schema"],
+        "report_integrity_hash": report_integrity_hash,
+        "embedding_preflight_sha256": receipt_sha256,
+        "integrity_sha256": canonical_json_sha256(binding),
+    }
 
 
 def main() -> None:
@@ -432,6 +470,27 @@ def main() -> None:
         help="(seam adapter) Label for default-off semantic recovery experiments. Baseline preserves existing defaults; other modes are explicit measurement labels.",
     )
     parser.add_argument(
+        "--retrieval-mode",
+        choices=["legacy-weighted", "hybrid", "mix"],
+        default="legacy-weighted",
+        help=(
+            "(seam adapter) Select the named orchestrator retrieval policy. "
+            "Use hybrid versus mix for same-code graph ablations; "
+            "legacy-weighted is the behavioral control."
+        ),
+    )
+    parser.add_argument(
+        "--save-retrieval-trace",
+        action="store_true",
+        help=(
+            "(seam adapter) Retain the per-case, per-leg retrieval trace "
+            "(leg candidates, fusion selection, per-leg latency) in the run "
+            "output. Required to attribute a ranking A/B recall delta to a "
+            "specific leg. Excluded from the integrity hash because it carries "
+            "wall-clock latency."
+        ),
+    )
+    parser.add_argument(
         "--context-budget",
         type=int,
         default=8000,
@@ -528,7 +587,64 @@ def main() -> None:
     answerer = None if args.answerer == "none" else args.answerer
     decomposer = None if args.decomposer == "none" else args.decomposer
     rerank = None if args.rerank == "none" else args.rerank
-    judge_cross = build_judge(args.judge_cross, model=args.judge_cross_model) if args.judge_cross != "none" else None
+
+    def _build_adapter_for_run():
+        return build_adapter(
+            args.adapter,
+            answerer=answerer,
+            answerer_model=args.answerer_model,
+            decomposer=decomposer,
+            decomposer_model=args.decomposer_model,
+            decomposer_max_subq=args.decomposer_max_subq,
+            allow_paid=args.allow_paid,
+            abstain_threshold=args.abstain_threshold,
+            rerank=rerank,
+            keep_db=args.keep_db,
+            db_path=args.db_path,
+            context_budget=args.context_budget,
+            search_top_k=args.search_top_k,
+            rerank_top_k=args.rerank_top_k,
+            mem0_search_limit=args.mem0_search_limit,
+            semantic_recovery_mode=args.semantic_recovery_mode,
+            retrieval_mode=args.retrieval_mode,
+            record_retrieval_trace=args.save_retrieval_trace,
+            record_retrieval_events=args.record_retrieval_events,
+            retrieval_event_run_id=args.retrieval_event_run_id,
+            conversation_adapter=args.conversation_adapter,
+            inference_policy=args.inference_policy,
+            temporal_policy=args.temporal_policy,
+            answer_contract=args.answer_contract,
+        )
+
+    embedding_preflight = None
+    embedding_preflight_sha256 = None
+    preflight_adapter = None
+    if args.adapter == "seam" and cases:
+        preflight_adapter = _build_adapter_for_run()
+        try:
+            embedding_preflight = preflight_adapter.preflight(
+                dict.fromkeys(_locomo_scope_id(case) for case in cases)
+            )
+            from benchmarks.external.locomo.adapters.seam import (
+                embedding_preflight_receipt_sha256,
+            )
+
+            embedding_preflight_sha256 = (
+                embedding_preflight_receipt_sha256(embedding_preflight)
+            )
+        except Exception:
+            with contextlib.suppress(Exception):
+                preflight_adapter.close()
+            raise
+        if args.workers > 1:
+            preflight_adapter.close()
+            preflight_adapter = None
+
+    judge_cross = (
+        build_judge(args.judge_cross, model=args.judge_cross_model)
+        if args.judge_cross != "none"
+        else None
+    )
 
     # Durable result destination resolved BEFORE the run so partial checkpoints
     # and the final bundle share one stable name. A long run that crashes leaves
@@ -541,8 +657,19 @@ def main() -> None:
     def _checkpoint(case_results: list[dict], completed: int, total: int) -> None:
         # A flush failure must never crash the run it is protecting.
         try:
+            checkpoint_payload = {
+                "status": "PARTIAL",
+                "completed": completed,
+                "total": total,
+                "case_results": case_results,
+            }
+            if embedding_preflight is not None:
+                checkpoint_payload["embedding_preflight"] = embedding_preflight
+                checkpoint_payload["embedding_preflight_sha256"] = (
+                    embedding_preflight_sha256
+                )
             payload = json.dumps(
-                {"status": "PARTIAL", "completed": completed, "total": total, "case_results": case_results},
+                checkpoint_payload,
                 indent=2, default=str,
             )
             _atomic_write(partial_path, payload)
@@ -553,27 +680,7 @@ def main() -> None:
     # Run benchmark
     if args.workers > 1:
         report = run_benchmark_grouped_parallel(
-            adapter_factory=lambda: build_adapter(
-                args.adapter, answerer=answerer, answerer_model=args.answerer_model,
-                decomposer=decomposer, decomposer_model=args.decomposer_model,
-                decomposer_max_subq=args.decomposer_max_subq,
-                allow_paid=args.allow_paid,
-                abstain_threshold=args.abstain_threshold,
-                rerank=rerank,
-                keep_db=args.keep_db,
-                db_path=args.db_path,
-                context_budget=args.context_budget,
-                search_top_k=args.search_top_k,
-                rerank_top_k=args.rerank_top_k,
-                mem0_search_limit=args.mem0_search_limit,
-                semantic_recovery_mode=args.semantic_recovery_mode,
-                record_retrieval_events=args.record_retrieval_events,
-                retrieval_event_run_id=args.retrieval_event_run_id,
-                conversation_adapter=args.conversation_adapter,
-                inference_policy=args.inference_policy,
-                temporal_policy=args.temporal_policy,
-                answer_contract=args.answer_contract,
-            ),
+            adapter_factory=_build_adapter_for_run,
             adapter_name=args.adapter,
             cases=cases,
             scope_id=_locomo_scope_id,
@@ -589,39 +696,43 @@ def main() -> None:
             checkpoint=_checkpoint,
         )
     else:
-        adapter = build_adapter(
-            args.adapter, answerer=answerer, answerer_model=args.answerer_model,
-            decomposer=decomposer, decomposer_model=args.decomposer_model,
-            decomposer_max_subq=args.decomposer_max_subq,
-            allow_paid=args.allow_paid,
-            abstain_threshold=args.abstain_threshold,
-            rerank=rerank,
-            keep_db=args.keep_db,
-            db_path=args.db_path,
-            context_budget=args.context_budget,
-            search_top_k=args.search_top_k,
-            rerank_top_k=args.rerank_top_k,
-            mem0_search_limit=args.mem0_search_limit,
-            semantic_recovery_mode=args.semantic_recovery_mode,
-            record_retrieval_events=args.record_retrieval_events,
-            retrieval_event_run_id=args.retrieval_event_run_id,
-            conversation_adapter=args.conversation_adapter,
-            inference_policy=args.inference_policy,
-            temporal_policy=args.temporal_policy,
-            answer_contract=args.answer_contract,
-        )
-        judge = build_judge(args.judge, model=args.judge_model)
-        report = run_benchmark_grouped(
-            adapter=adapter,
-            cases=cases,
-            scope_id=_locomo_scope_id,
-            dataset_source=source,
-            judge=judge,
-            judge_cross=judge_cross,
-            judge_batch=args.judge_batch,
-            save_context=args.save_context,
-            checkpoint=_checkpoint,
-        )
+        adapter = preflight_adapter or _build_adapter_for_run()
+        try:
+            judge = build_judge(args.judge, model=args.judge_model)
+            report = run_benchmark_grouped(
+                adapter=adapter,
+                cases=cases,
+                scope_id=_locomo_scope_id,
+                dataset_source=source,
+                judge=judge,
+                judge_cross=judge_cross,
+                judge_batch=args.judge_batch,
+                save_context=args.save_context,
+                checkpoint=_checkpoint,
+            )
+        finally:
+            close = getattr(adapter, "close", None)
+            if callable(close):
+                close()
+
+    embedding_preflight_binding_error = None
+    if embedding_preflight is not None:
+        try:
+            _attach_embedding_preflight_integrity(report, embedding_preflight)
+        except Exception as exc:
+            # A completed run is still valuable diagnostic evidence. Preserve
+            # and archive it, but mark the missing integrity binding and exit
+            # non-zero after durability handling below.
+            report["embedding_preflight"] = embedding_preflight
+            report["embedding_preflight_sha256"] = (
+                embedding_preflight_sha256
+            )
+            embedding_preflight_binding_error = (
+                f"{type(exc).__name__}: {exc}"
+            )
+            report["embedding_preflight_binding_error"] = (
+                embedding_preflight_binding_error
+            )
 
     # Output
     report_json = json.dumps(report, indent=2, default=str)
@@ -655,6 +766,55 @@ def main() -> None:
             f"Last checkpoint retained at {kept}.",
             file=sys.stderr,
         )
+
+    if embedding_preflight_binding_error is not None:
+        raise SystemExit(
+            "LoCoMo result was preserved, but embedding preflight integrity "
+            "binding failed"
+        )
+
+    _fail_on_infrastructure_error(report)
+
+
+def _fail_on_infrastructure_error(report: dict) -> None:
+    """Exit non-zero when EVERY case errored.
+
+    A run whose cases all fail still produces a complete, well-formed report
+    scored 0.0 - which reads as a RESULT rather than a failure. On 2026-07-31 a
+    stale ``HF_HUB_CACHE`` pointing at a dead mount left the embedder unloadable
+    and scored 0.0 on all 200 cases; nothing in the output said "infrastructure",
+    so it looked like a catastrophic quality regression instead of a
+    misconfigured shell. The report is still written (it is the diagnostic), but
+    the exit code now says the run is not a measurement.
+    """
+    cases = report.get("cases") or []
+    if not cases:
+        return
+    errored = [case for case in cases if case.get("error")]
+    if len(errored) != len(cases):
+        return
+
+    first = errored[0].get("error") or {}
+    kinds = sorted({str((c.get("error") or {}).get("type", "?")) for c in errored})
+    message = str(first.get("message", "")).splitlines()
+    lines = [
+        "",
+        f"FAILED: all {len(cases)} case(s) errored. This is an INFRASTRUCTURE "
+        "failure, not a benchmark result - the 0.0 scores are meaningless.",
+        f"  error type(s): {', '.join(kinds)}",
+        f"  stage:         {first.get('stage', '?')}",
+        f"  message:       {(message[0] if message else '')[:200]}",
+    ]
+    if "huggingface" in str(first.get("message", "")).lower():
+        lines += [
+            "  The embedder could not load. If HF_HUB_CACHE is set, it must point",
+            "  at a real POPULATED cache; otherwise unset it and rely on the",
+            "  default ~/.cache/huggingface with HF_HUB_OFFLINE=1. Pointing it at",
+            "  a path that does not exist makes huggingface_hub create an empty",
+            "  directory there and fail every case.",
+        ]
+    print("\n".join(lines), file=sys.stderr)
+    raise SystemExit(1)
 
 
 def _is_ephemeral_path(path: str) -> bool:

@@ -6,7 +6,12 @@ not have to infer what works from directory names alone.
 ## Active Runtime
 
 - `seam_runtime/` - packaged runtime, dashboard, storage, retrieval, model, and benchmark code.
-- `seam_runtime/retrieval_orchestrator/` - multi-leg retrieval orchestrator (planner, adapters, merger) powering `seam retrieve`, the MCP tool, dashboard retrieval, and the benchmark suite. Promoted from `experimental/` in HISTORY#284.
+- `seam_runtime/retrieval_orchestrator/` - the single canonical multi-leg
+  retrieval engine (planner, SQL/vector/graph/temporal adapters, and fixed
+  rank-normalized merger) powering runtime `retrieve`, compatibility
+  `search_ir`, CLI, MCP, REST, opaque `/v1`, dashboard, SDK, LoCoMo,
+  self-improvement probes, and HS/1 MIRL queries. Promoted from `experimental/`
+  in HISTORY#284 and made the sole live execution path in HISTORY#502.
 - `seam_runtime/knowledge_graph.py` - canonical MIRL-to-graph projector, conservative 5W1H+Then lens, evidence-derived trust profiles/assertion gate, versioned existing-database backfill, temporal/source supersession, graph query, node-page, and statistics logic. `SQLiteStore.persist_ir` maintains it automatically (HISTORY#403).
 - `seam_runtime/graph_products.py` - G4 append-only, rebuildable entity/community summaries and multi-episode observations; every sentence retains exact supporting MIRL record and episode IDs, and latest reads are namespace/scope isolated.
 - `seam_runtime/context_assembly.py` - G5 storage-agnostic deterministic context PACKs over facts, entities, episodes, summaries, and observations, with exact backtraces, trust/time gates, and grounded-fact non-displacement.
@@ -45,20 +50,21 @@ not have to infer what works from directory names alone.
   of `LICENSE`. Change Date is four years per published version; Change License
   is MPL 2.0. Membership in the Distributed Runtime is decided by publication
   plus a conspicuous per-file notice, never by path.
-- `tools/release/` - frozen legacy-public boundary: `public_manifest.py`
-  classifies MIRL and HS/1 Reserved Materials and exposes no private synced paths,
-  `sync_public_mirror.py` refuses legacy mirror construction, retired
-  `public_seed/` files document the former public-owned bookkeeping seed, and
-  `verify_public_safe.py` blocks reserved/private paths.
-  `verify_distribution_boundary.py` scans built wheel/sdist contents and fails
-  closed when the private MIRL/HS/1 package is aimed at PyPI. The pre-push hook
-  refuses every update to the legacy `seam-runtime` remote.
-- `selfhost_pkg/` + `tools/release/build_selfhost_wheel.py` - separate BUSL
-  `seam-self-host` package metadata and pinned Docker build for the compiled CPython
-  3.12 `manylinux_2_28_x86_64` wheel. The build stages only an explicit runtime
-  source allow-list, emits no Python source or sdist, and must pass
-  `verify_selfhost_wheel` plus the clean-container four-route proof before copying
-  the wheel to the requested output directory.
+- `tools/release/` - secret and reserved-material push gate only.
+  `verify_public_safe.py` inspects every object newly reachable by a push and
+  blocks secret-shaped content and private paths; `public_manifest.py` supplies
+  the path classification it depends on. This gate exists because a `seam.db`
+  snapshot once leaked into another repository's history (HISTORY#344) and is
+  retained for that reason alone, independent of any distribution split.
+- SINGLE PACKAGE. `seam-runtime` (root `pyproject.toml`) is the only package
+  definition: the full private runtime with readable MIRL and HS/1 source, used
+  to operate the hosted service. The separate compiled `seam-self-host`
+  distribution, the API-only `public_pkg/` shim, their build/verify tooling, and
+  the boundary audit suite were removed after the retrofitted split proved to be
+  the wrong shape. A public edition will be built separately, from the ground up,
+  with separation as an architectural property rather than a gate bolted on
+  afterward. `Private :: Do Not Upload` is retained as the tripwire against an
+  accidental PyPI upload of a full-MIRL runtime.
 - `.github/workflows/package-release.yml` - manual private-package build,
   metadata check, boundary scan, smoke install, and private GitHub Release
   workflow, with a tokenless OIDC PyPI job reserved for a future separately

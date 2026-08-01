@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 from collections import Counter
@@ -172,19 +173,35 @@ def compile_nl(
     speaker_match = _SPEAKER_RE.match(raw_text)
     if speaker_match:
         speaker_subject = entity_id(speaker_match.group(1), "person")
+    # An explicitly supplied extractor may be used by the isolated relation
+    # qualification lane without enabling the derived-facts serving policy.
+    # Validate the same canonical turn envelope in both cases so first-person
+    # subjects can be grounded to the named speaker before any REL is emitted.
+    # Environment-selected extraction remains unable to manufacture speaker
+    # metadata because callers must supply both fields explicitly.
+    explicit_turn_metadata_requested = extractor is not None and (
+        speaker is not None or source_timestamp is not None
+    )
     turn_metadata = (
         _validated_turn_metadata(
             raw_text,
             speaker=speaker,
             source_timestamp=source_timestamp,
         )
-        if extractor is not None and derived_fact_policy
+        if extractor is not None
+        and speaker is not None
+        and source_timestamp is not None
         else None
     )
     explicit_speaker = turn_metadata[0] if turn_metadata is not None else None
     source_prefix_end = turn_metadata[1] if turn_metadata is not None else None
     rich_extractor = extractor
-    if derived_fact_policy and turn_metadata is None:
+    if explicit_turn_metadata_requested and turn_metadata is None:
+        # The caller asked for speaker-aware extraction but the source did not
+        # carry the exact canonical envelope. Keep only the faithful floor;
+        # otherwise a global ``I`` entity could leak into relation topology.
+        rich_extractor = None
+    elif derived_fact_policy and turn_metadata is None:
         # A candidate-policy CLM without a canonical speaker envelope cannot
         # be safely attributed or served. Do not even index it: rich CLMs
         # participate in retrieval before the presentation gate.
@@ -239,12 +256,27 @@ def compile_nl(
         if record_id is None:
             claim_index += 1
 
-    def add_relation(src: str, predicate: str, dst: str, span_id: str, confidence: float = 0.85) -> None:
+    def add_relation(
+        src: str,
+        predicate: str,
+        dst: str,
+        span_id: str,
+        *,
+        claim_id: str,
+        ext_fields: dict[str, object],
+        confidence: float = 0.85,
+    ) -> None:
         nonlocal rel_index
         records.append(
             MIRLRecord(id=f"rel:{source_hash}:{rel_index}", kind=RecordKind.REL, ns=ns, scope=scope,
                        conf=confidence, prov=[prov_id], evidence=[span_id],
-                       attrs={"src": src, "predicate": predicate, "dst": dst})
+                       ext=dict(ext_fields),
+                       attrs={
+                           "src": src,
+                           "predicate": predicate,
+                           "dst": dst,
+                           "claim_id": claim_id,
+                       })
         )
         rel_index += 1
 
@@ -424,6 +456,9 @@ def compile_nl(
             if not derived_fact_policy:
                 for entity in extraction.entities:
                     if (
+                        explicit_speaker
+                        and is_singular_first_person(entity.name)
+                    ) or (
                         _normalized_label(entity.name) in rebased_subjects
                     ):
                         continue
@@ -439,6 +474,16 @@ def compile_nl(
             extracted_entity_word_sets = [_content_words(e.name) for e in extraction.entities]
             for claim in extraction.claims:
                 rebased = id(claim) in rebased_claim_ids
+                if (
+                    explicit_speaker
+                    and is_singular_first_person(claim.subject)
+                    and not rebased
+                ):
+                    # A first-person model claim is safe only after the exact
+                    # lossless gate has proved it can be rebound to this turn's
+                    # canonical speaker. Never persist a conversation-global
+                    # ``I`` entity when that proof fails.
+                    continue
                 if derived_fact_policy and not rebased:
                     continue
                 resolved_subject_label = (
@@ -471,6 +516,9 @@ def compile_nl(
                 ext_fields: dict[str, object] = {
                     "grounded_spans": grounded_spans,
                 }
+                relation_ext_fields: dict[str, object] = {
+                    "grounded_spans": [dict(span) for span in grounded_spans],
+                }
                 if derived_fact_policy:
                     ext_fields["derived_fact_policy"] = derived_fact_policy
                 extractor_metadata = getattr(
@@ -482,6 +530,10 @@ def compile_nl(
                     config = extractor_metadata()
                     if isinstance(config, dict):
                         ext_fields["extractor"] = config
+                        relation_ext_fields["extractor"] = dict(config)
+                        relation_ext_fields["extractor_metadata_fingerprint"] = (
+                            _metadata_fingerprint(config)
+                        )
                 config_fingerprint = getattr(
                     rich_extractor,
                     "config_fingerprint",
@@ -491,8 +543,22 @@ def compile_nl(
                     ext_fields["derived_fact_config_fingerprint"] = (
                         config_fingerprint
                     )
+                    relation_ext_fields["extractor_config_fingerprint"] = (
+                        config_fingerprint
+                    )
+                elif relation_ext_fields.get("extractor_metadata_fingerprint"):
+                    relation_ext_fields["extractor_config_fingerprint"] = (
+                        relation_ext_fields["extractor_metadata_fingerprint"]
+                    )
                 if resolution is not None:
                     ext_fields["subject_resolution"] = resolution
+                    relation_ext_fields["subject_resolution"] = dict(resolution)
+                claim_record_id = _derived_claim_record_id(
+                    source_hash,
+                    span_id,
+                    claim,
+                    resolved_subject_label,
+                )
                 add_claim(
                     claim.relation,
                     claim.obj,
@@ -503,12 +569,7 @@ def compile_nl(
                     epistemic_basis=claim.epistemic_basis,
                     extraction_method="grounded_local_model",
                     subject_label=resolved_subject_label,
-                    record_id=_derived_claim_record_id(
-                        source_hash,
-                        span_id,
-                        claim,
-                        resolved_subject_label,
-                    ),
+                    record_id=claim_record_id,
                     ext_fields=ext_fields,
                 )
                 # Cross-turn entity coreference (storage.persist_ir) only has
@@ -523,7 +584,14 @@ def compile_nl(
                         for words in extracted_entity_word_sets
                     )
                 ):
-                    add_relation(claim_subject, claim.relation, object_ent_id, span_id)
+                    add_relation(
+                        claim_subject,
+                        claim.relation,
+                        object_ent_id,
+                        span_id,
+                        claim_id=claim_record_id,
+                        ext_fields=relation_ext_fields,
+                    )
         elif regex_enrich:
             # Legacy regex enrichment (default OFF; see SEAM_NL_REGEX_ENRICH above).
             _extract_conversational(proposition, subject, span_id, add_claim, speaker_match)
@@ -684,6 +752,20 @@ def _grounded_spans_payload(
         }
         for span in getattr(claim, "source_spans", ())
     ]
+
+
+def _metadata_fingerprint(metadata: dict[str, object]) -> str:
+    try:
+        encoded = json.dumps(
+            metadata,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "extractor config_metadata must be JSON-serializable"
+        ) from exc
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _derived_claim_record_id(

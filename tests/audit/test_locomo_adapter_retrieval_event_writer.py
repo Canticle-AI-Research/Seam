@@ -196,6 +196,7 @@ def test_empty_candidates_still_writes_event(monkeypatch, tmp_path):
         "context_char_budget": 2000,
         "search_top_k": 20,
         "rerank_top_k": 20,
+        "retrieval_mode": "legacy-weighted",
     }
 
 
@@ -262,6 +263,7 @@ def test_build_adapter_forwards_semantic_recovery_policy(tmp_path):
         "context_char_budget": 8000,
         "search_top_k": 100,
         "rerank_top_k": 40,
+        "retrieval_mode": "legacy-weighted",
     }
 
 
@@ -331,4 +333,5 @@ def test_cli_forwards_semantic_recovery_policy(monkeypatch, tmp_path):
         "context_char_budget": 8000,
         "search_top_k": 100,
         "rerank_top_k": 40,
+        "retrieval_mode": "legacy-weighted",
     }

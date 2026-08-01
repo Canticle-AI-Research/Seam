@@ -14045,3 +14045,1134 @@ This correction does not change HISTORY#499's substantive measurements,
 retraction, implementation or test claims, verification boundary, or unresolved
 next step. No runtime behavior changed and no provider call was made.
 ---END-ENTRY-#500---
+
+---BEGIN-ENTRY-#501---
+id: 501
+date: 2026-07-30T13:19:48Z
+agent: claude
+status: changed
+topics: packaging, consolidation, distribution, licensing, workflows
+commits: pending
+refs: REPO_LEDGER.md,docs/CODE_LAYOUT.md,ROADMAP.md
+supersedes: none
+tokens: 1270
+---
+RETIRED the retrofitted distribution split and returned SEAM to a SINGLE full
+package with readable MIRL and HS/1 source, per operator decision.
+
+OPERATOR DECISION RECORDED: the full runtime is PRIVATE and is used to operate
+the hosted service on operator-controlled infrastructure. It is not distributed.
+A public edition will be built separately, from the ground up, with separation as
+an architectural property rather than a boundary retrofitted onto a codebase that
+was not designed for it. Licensing and ownership are UNCHANGED by this entry.
+
+REMOVED (40 files, 91 tests):
+- `public_pkg/` (API-only shim), `selfhost_pkg/` (compiled BUSL packaging),
+  `selfhost/` (Dockerfile + entrypoints).
+- `seam_runtime/selfhost.py`, `selfhost_mcp.py`, `selfhost_entitlement.py` —
+  verified leaves; nothing in the runtime imported them.
+- `tools/release/`: build_public, build_selfhost, build_selfhost_wheel,
+  sync_public_mirror, verify_distribution_boundary, verify_selfhost_artifact,
+  verify_selfhost_wheel, issue_selfhost_entitlement, prove_hosted_api,
+  public_seed/.
+- `.github/workflows/selfhost-release.yml`.
+- Boundary audit suite: test_selfhost_wheel, test_selfhost_edition,
+  test_selfhost_stability, test_distribution_boundary, test_public_sdk_api_boundary,
+  test_hosted_api_stability, test_github_package_metadata, plus the three tests
+  orphaned by the tooling removal (test_public_manifest, test_public_runtime_shim,
+  test_sync_public_mirror).
+
+DELIBERATELY RETAINED, and why:
+- `tools/release/verify_public_safe.py` + `public_manifest.py`. I removed these
+  in the first pass and RESTORED them on inspection: `verify_public_safe` is a
+  secret and reserved-material PUSH GATE, not split machinery. It exists because
+  a `seam.db` snapshot leaked into another repository's history (HISTORY#344).
+  `public_manifest.py` supplies its path classification, so the gate cannot run
+  without it. Deleting a gate that exists because a real leak happened would have
+  been a regression unrelated to this consolidation.
+- `LICENSE`, `NOTICE`, `COMMERCIAL_LICENSE.md`, `LICENSES/`, and the root
+  `pyproject.toml` license expression are UNTOUCHED. Proprietary terms are
+  correct for a runtime nobody outside receives.
+- `Private :: Do Not Upload` classifier: retained as the tripwire against an
+  accidental PyPI upload of a full-MIRL runtime.
+- `LICENSES/BUSL-1.1.txt` retained unused. It is already fully parameterized
+  (Licensor, Licensed Work 2.4.0+, self-hosting permitted at any scale, competing
+  hosted resale withheld, four-year Change Date to MPL 2.0) and is the intended
+  license for the future public edition.
+- `docs/PROTECTION_MODEL.md` and `docs/SELF_HOST_SECURITY.md` kept with a
+  HISTORICAL/SUPERSEDED banner rather than deleted. They are design input for the
+  ground-up public edition.
+
+REPAIRED: `.github/workflows/package-release.yml` still drove the deleted public
+path. Reduced to a single private target — removed the `pypi` choice, the
+`build_public` step, the `verify_distribution_boundary` scan, the public
+smoke-test, the public artifact upload, the `prove_hosted_api` call, and the
+entire `pypi-publish` job. A full-MIRL runtime now has NO PyPI path at all,
+which is stronger than the previous fail-closed scan. YAML re-parsed clean.
+
+DOCS UPDATED to match reality: `docs/CODE_LAYOUT.md` (tools/release section and a
+new SINGLE PACKAGE entry), `REPO_LEDGER.md` (single-package policy, split
+retired, retained secret gate, corrected package-release description; also
+repaired a dangling fragment my own first edit left behind), `ROADMAP.md` (the
+"open decision blocking the free tier" about the Ed25519 entitlement is now
+obsolete because `selfhost.py` no longer exists).
+
+PUBLISHED ARTIFACTS ARE UNAFFECTED and stay live: `seam-self-host` 1.1.2 and
+`seam-client` 2.0.0 on PyPI, and yanked legacy `seam-runtime` 1.3.1 (deliberately
+retained as a rollback point). Removing in-tree tooling does not unpublish them;
+it means no further releases of them are produced from this repository.
+
+VERIFICATION: full `pytest tests/` under the T7 offline-model env and a live local
+pgvector DSN, exit 0, zero failures, zero skips, two established `compile_nl`
+xfails. Test count 1,626 -> 1,494 (the removed boundary suite). Full runtime
+imports clean at 65 modules including `mirl`, `knowledge_graph`,
+`reasoning_graph`, and `holographic`. Verified no remaining import or workflow
+reference to any removed module.
+
+NOT DONE: the two retrieval paths are NOT yet collapsed. `public_api` -> `/v1`
+uses legacy `search_ir` while `RetrievalOrchestrator` carries the G3-G7 graph
+work, and `benchmarks/external/locomo/adapters/seam.py` uses `search_ir` with
+ZERO orchestrator references — so graph levers cannot currently move the LoCoMo
+numbers. That is the substantive breakage; this entry is packaging only.
+
+NEXT: collapse the two retrieval paths. Port the capabilities `search_ir` has and
+the orchestrator lacks (temporal_window, temporal_reference, include_raw, flags,
+lens), then run a free both-paths A/B on the same harness BEFORE migrating any
+call site, because the collapse direction should be measured rather than assumed.
+---END-ENTRY-#501---
+
+---BEGIN-ENTRY-#502---
+id: 502
+date: 2026-07-30T15:22:13Z
+agent: codex
+status: changed
+topics: retrieval, graph, locomo, surface, vector, tests, verify, handoff
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/handoffs/2026-07-30-single-retrieval-engine.md,seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator
+supersedes: 501
+tokens: 497
+---
+Consolidated SEAM's live retrieval paths after the single-package restoration.
+The full private runtime remains one readable source package including MIRL and
+HS/1, with LICENSE, NOTICE, COMMERCIAL_LICENSE.md, and LICENSES unchanged. The
+future public self-host remains a separate ground-up BUSL build with separation
+designed in; this change did not publish, deploy, relicense, or mutate remote
+state.
+
+RetrievalOrchestrator is now the sole live SQL/vector/graph/graph-node/temporal
+engine. SeamRuntime.retrieve is the canonical runtime entry and search_ir is
+only the longstanding SearchResult/evidence compatibility shape. RAW inclusion,
+lens metadata, namespace/scope boundaries, temporal window/reference,
+current/history filtering, applied graph flags, and evidence closure cross the
+one plan. Existing CLI, MCP, REST, opaque /v1, dashboard, SDK, LoCoMo,
+self-improvement, and server paths converge through search_ir. MIRL-backed HS/1
+queries use the same engine through an ephemeral in-memory vector adapter.
+Legacy search_batch remains only in explicitly named component evaluation
+tracks, not a live runtime surface.
+
+A provider-free free LoCoMo quickstart compared the legacy and canonical paths
+against the exact same retained database with judge and answerer disabled. All
+ten cases and both category aggregates matched: context recall 0.963333 overall,
+0.971429 for category 1, and 0.944444 for category 2. Canonical steady-state
+queries measured about 79-88 ms; the first query paid a visible one-time 5.9 s
+local BGE initialization.
+
+CodeRabbit findings were validated rather than accepted mechanically. Explicit
+zero candidate-budget validation, mixed temporal-awareness validation, and
+historical temporal filtering were fixed and regression-tested. Cross-boundary
+evidence loading, removal of RAW graph seeds, and changing the established
+search_top_k override were rejected because they contradicted current boundary
+or retrieval contracts. Focused consolidation, graph, derived-fact, flag,
+improvement-loop, LoCoMo, and HS/1 tests passed; changed-file Ruff and diff
+checks passed. The strict healthy live-pgvector suite collected 1,500 tests:
+1,498 passed, the two established compile_nl cases xfailed, and zero failed or
+skipped. No paid provider, answerer, or judge ran.
+---END-ENTRY-#502---
+
+---BEGIN-ENTRY-#503---
+id: 503
+date: 2026-07-30T16:33:26Z
+agent: codex
+status: changed
+topics: retrieval, benchmark, locomo, rank, graph, verify, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-30-full-retrieval-ab-negative.md,test_seam/benchmarks/retrieval-unification-full-20260730
+supersedes: 502
+tokens: 673
+---
+Ran the required full provider-free retrieval A/B before promoting the
+single-engine refactor. The standard LoCoMo answerable-question population
+contained 1,542 cases across every category, 10 conversations, and 5,882
+turns. Legacy `search_ir()` ran from a detached worktree at the local
+single-package consolidation commit `7380b7c`; the canonical pass ran the
+uncommitted orchestrator `mix` path. The harness and adapter were identical.
+Legacy ingested once, then its ten checkpointed SQLite-vector conversation
+databases were cloned for the canonical pass; the pre-query sets had identical
+aggregate SHA-256
+`aa6015a6d49442d52621882e08fd2ea6e1a0c06206a2a382d4790d3ee0ebf4ff`.
+Both passes used the same cached offline BGE model, one worker, top-k 100, an
+8,000-character context budget, no pgvector, and no provider, answerer, judge,
+network, or paid call. Every case completed with zero execution errors.
+
+The full gate falsified the earlier ten-case quickstart parity. Legacy context
+recall was 0.766420; canonical was 0.755616, a -0.010804 absolute / -1.41%
+relative change. Paired outcomes were 97 improved, 153 regressed, and 1,292
+unchanged. Category deltas were -0.015387, -0.005743, -0.045046, -0.007316,
+and 0.000000 for categories 1 through 5. Six conversations regressed and four
+improved. Both paths filled 8,000 characters, but mean source-line count fell
+from 45.49 to 39.35 and exact-line Jaccard averaged 0.448. Seventy-four cases
+lost annotated evidence and 54 gained it. Warm retrieval median/p95 increased
+from 156.4/264.1 ms to 207.2/315.7 ms. Total elapsed time is not comparable
+because only the legacy pass ingested.
+
+This broad comparison changes SQL/vector ranking, score-magnitude handling,
+fixed RRF, graph participation, temporal behavior, filtering, and packing
+together. It does not attribute the regression specifically to graph. In the
+representative `conv-26::q55` loss, graph improved the relevant RAW line
+relative to canonical hybrid, but the line remained outside the top 100; the
+evidence supports combined fusion/ranking drift. A same-code
+hybrid-without-graph versus mix-with-graph ablation is required for graph
+attribution.
+
+Superseded the quickstart handoff and its landing recommendation. The branch
+must remain uncommitted and unpushed. Preserve the one-engine architecture,
+port the legacy RAW/BM25/weighted ranking semantics into the orchestrator as a
+versioned behavioral baseline, add per-leg trace evidence, and repeat the full
+1,542-question non-regression gate before promotion. Generated run evidence is
+retained locally under
+`test_seam/benchmarks/retrieval-unification-full-20260730/`; the detached
+legacy worktree was removed.
+---END-ENTRY-#503---
+
+---BEGIN-ENTRY-#504---
+id: 504
+date: 2026-07-30T17:09:40Z
+agent: codex
+status: in-progress
+topics: retrieval, benchmark, locomo, rank, graph, verify, handoff, status
+commits: pending
+refs: seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/external/locomo/adapters/seam.py,benchmarks/external/locomo/run.py,docs/handoffs/2026-07-30-retrieval-baseline-ablation-in-progress.md
+supersedes: 503
+tokens: 209
+---
+Materialized the legacy RAW/BM25/vector weighted behavior as the explicit
+`legacy-weighted/1` control inside RetrievalOrchestrator after HISTORY#503
+blocked the fixed-RRF path. `search_ir()` is now a compatibility shape over
+that canonical plan. The offline LoCoMo runner exposes legacy-weighted, hybrid,
+and mix through the same adapter, enabling the required graph ablation.
+
+Direct regression coverage matched the component scorer's ordered IDs and
+scores. Focused retrieval, temporal, LoCoMo adapter/event, and routing tests
+passed 68/68. A provider-key-cleared 10-question quickstart smoke held context
+recall at 0.963333 in all three arms; this is wiring evidence only. Full
+1,542-question hybrid-versus-mix trace capture and the legacy-weighted
+non-regression gate remain required. No provider, answerer, judge, network, or
+paid call ran. Branch remains uncommitted, unpushed, and blocked from landing.
+---END-ENTRY-#504---
+
+---BEGIN-ENTRY-#505---
+id: 505
+date: 2026-07-30T21:07:58Z
+agent: claude-opus-5
+status: changed
+topics: retrieval, benchmark, wandr, trace, status, locomo, verify
+commits: pending
+refs: PROJECT_STATUS.md,docs/status/index.md,docs/handoffs/2026-07-30-wandr-zero-network-replay-lane.md
+supersedes: 504
+tokens: 1232
+---
+Retrieval trace attribution, WANDR zero-network replay lane, status stream decomposition
+
+Repaired the attribution gap that blocked HISTORY#503/#504 and added the
+provider-free WANDR replay lane, with no change to the retrieval-ranking hold.
+
+Retrieval trace plumbing (the #504 blocker):
+- `RetrievalOrchestrator` already built a per-leg trace, but `include_trace`
+  reached no benchmark surface. It now flows
+  `--save-retrieval-trace` -> `build_adapter` -> `SeamLocomoAdapter` ->
+  `SeamRuntime.retrieve()`/`search_ir()`.
+- `search_ir` gained `include_trace`, so the `legacy-weighted/1` control arm is
+  self-identifying in its own artifact.
+- `SearchResult.trace` is omitted from `to_dict()` when absent, so existing
+  exact-dict consumers are unaffected.
+- The trace is traced only for the question actually asked, never decomposed
+  sub-queries, bounding artifact size.
+- VERIFIED INERT: traced and untraced quickstart `mix` runs produced
+  byte-identical integrity hashes (6f27137496ba2b13) and identical context
+  recall 0.963333. Tracing cannot contaminate the A/B it explains.
+- The trace is excluded from the integrity hash because it carries wall-clock
+  latency, and that exclusion is now DECLARED in `integrity_hash_excludes`
+  rather than silent.
+
+Ablation methodology correction:
+- Measured that retrieval MUTATES the SQLite store. Cloning databases after a
+  scored run therefore gives the second arm a different pre-query corpus than
+  the first arm saw. Added `benchmarks.external.locomo.ingest_only` to build a
+  pristine ingest-only snapshot that is cloned once per arm.
+- Snapshot built: 10 scopes, 1,542 cases, 5,882 turns, corpus digest
+  ce61ae06e8ce5fe1ac040bf7b1c4a886bb9a8419d6e4ae39192b16d1d5bc3ace.
+
+WANDR zero-network replay lane (new, `benchmarks/external/wandr/`):
+- Upstream's official path is networked and paid: every task including `smoke`
+  declares network_mode = "public" and expects OPENAI_API_KEY /
+  PERPLEXITY_API_KEY. It was NOT run.
+- Upstream supports replay natively via
+  `persisted(component, key=..., path=debug/<stage>.jsonl)` over fetch, triage,
+  canon, dedup, and judge, but NO cache artifacts exist in the checkout, so a
+  real corpus could not be harvested without a paid run.
+- Corpus is therefore hand-authored and synthetic, hash-pinned in
+  `benchmarks/fixtures/wandr/MANIFEST.json`, all URLs on the reserved .invalid
+  TLD. This also avoids the upstream NOTICE, which excludes third-party
+  materials from its Apache-2.0 grant; no fetched page content is vendored.
+- Endpoints: reset, ingest_row, ingest_task, retrieve, recovered_sources,
+  submit, write_submission, counters, and fetch (always raises).
+- MEASURED: native (mix) 1.0 vs event-only (hybrid) 1.0 source recall, delta
+  0.0, verdict parity; provider calls 0, network calls 0, cost $0.00; batch
+  recovery ok; 2 of 10 duplicate rows collapsed. Both arms sit at a 1.0 CEILING,
+  so this is mechanism evidence only and is NOT graph lift in either direction.
+
+Status surface decomposition:
+- `PROJECT_STATUS.md` had 143 stacked `Current update:` blocks across ~1,037
+  lines (348 KB) and EXCEEDED the standard file-read limit, despite being step 1
+  of the mandatory session-start read order.
+- Decomposed into eight routed streams under `docs/status/` with an index and
+  routing hints; `PROJECT_STATUS.md` is now a 3 KB router.
+- First attempt placed these under `.seam/streams/status/`, which the preflight
+  correctly rejected: that path is an event-log substrate requiring a
+  chronological log.md, and status streams are current-state documents. Moved to
+  `docs/status/`.
+- NOTHING DISCARDED: full prior file preserved verbatim at
+  `docs/status_archive/2026-07-30-project-status-full.md`; all 234 distinct
+  HISTORY# entries it cited verified present in HISTORY.md (zero missing); every
+  non-chronological bullet routed into a stream.
+- Added `tools/status/verify_streams.py` to keep index, streams, router size,
+  and archive/HISTORY citation integrity in agreement.
+
+Also fixed: a stale exact-dict assertion in
+`tests/audit/test_locomo_adapter_evidence_text.py` that broke when
+`retrieval_mode` was added to the LoCoMo policy diagnostics. Four pgvector tests
+were skipping only because PGVECTOR_TEST_DSN was unexported while the
+`seam-pgvector` container was already running; they now execute.
+
+Verification: full suite 1,523 passed, 2 xfailed, 0 skipped, 0 failed, exit 0,
+against live pgvector with zero skips. ruff clean.
+
+NOT DONE / UNRESOLVED: the HISTORY#503 ranking regression is still unattributed.
+The 1,542-question hybrid-vs-mix ablation is RUNNING but not complete, so the
+DO-NOT-LAND hold on `refactor/unify-retrieval-paths` REMAINS in force. The WANDR
+corpus needs distractors, cross-member entity collisions, and multi-source joins
+before its ablation can discriminate.
+---END-ENTRY-#505---
+
+---BEGIN-ENTRY-#506---
+id: 506
+date: 2026-07-31T19:32:14Z
+agent: claude
+status: done
+topics: tests, sqlite, test-artifacts, cleanup, windows, verify
+commits: 753672c
+refs: none
+supersedes: none
+tokens: 1041
+---
+Fixed TWO independent SQLite artifact leaks in the test suites and added the
+guard that stops them expiring a third time.
+
+Leak A - `SeamTests` -> `test_seam/test_seam_*.db*`: 7,051 orphaned -wal/-shm
+pairs (858 MB) plus 3 empty .db files, accumulated 2026-07-21..07-29. Every WAL
+was orphaned (0 of 7,051 had a parent .db); contents were CREATE TABLE/INDEX DDL
+only, no rows.
+
+Leak B - `PgVectorAdapterTests` -> the REPO ROOT `test_pgvector_*.db*`: 118 files
+(5.5 MB), spanning 2026-07-09..07-31, plus 154 more already sitting in
+test_seam/pgvector/. All 274 had zero parent .db.
+
+ROOT CAUSE (both): 93 `SeamRuntime(...)` constructions in
+test_seam_all/test_seam.py and ZERO `.close()` calls. SQLite drops the -wal/-shm
+pair only on a CLEAN close, so deleting the database with a handle still open
+strands them. Linux unlinks open files without complaint, so it never surfaced;
+the Windows leg (.github/workflows/ci-windows.yml, workflow_dispatch, runs
+test_seam_all/) would strand via the pre-existing `except PermissionError: pass`.
+Both piles were invisible to `git status` because .gitignore blanket-ignores
+*.db-wal and *.db-shm.
+
+WHY THE PRIOR FIXES EXPIRED: #282 closed transient runtimes across the suite but
+never reached test_seam_all/test_seam.py. #322 relocated the debris that had
+collected at the repo root into test_seam/<area>/ but did NOT change the code
+writing there, so it regrew immediately. Neither left a check behind.
+
+Files changed:
+- test_seam_all/test_seam.py: new `_RuntimeArtifactCleanup` mixin
+  (make_runtime / _close_open_runtimes / _remove_db_artifacts); 93 construction
+  sites renamed `SeamRuntime(` -> `self.make_runtime(`; SeamTests,
+  PgVectorAdapterTests and LX1NotationTests adopt it; PgVectorAdapterTests now
+  writes to test_seam/pgvector/ instead of the repo root, which is what #322
+  codified but never enforced in code.
+- test_seam_all/test_artifact_hygiene.py: NEW guard, 3 tests - one per leaky
+  fixture (driving the real setUp/tearDown and writing data so SQLite actually
+  materialises the sidecars) plus a whole-tree accumulated-junk check.
+
+VERIFICATION (red-green, proven both directions):
+- Guard FAILED on the 118 pre-existing root orphans, naming them.
+- Guard PASSED on a cleaned tree.
+- Running the UNFIXED PgVectorAdapterTests (7 tests) created 2 new orphans and
+  the guard FAILED again - it catches the live mechanism, not just old debris.
+- After the fix, 169 tests across the three previously-leaking suites left 0
+  artifacts in all three locations.
+- FALSIFICATION: stripping the close in-process and unlinking only the parent
+  .db stranded exactly 2 sidecars, proving the guard is not passing vacuously.
+- Full suite: 1,959 passed, 3 failed, 2 xfailed (1,964 collected), against live
+  pgvector with HF forced offline. 0 stray artifacts at repo root,
+  test_seam/ and test_seam/pgvector/. ruff clean.
+- 881 MB reclaimed on the internal disk; 274 orphan files deleted.
+
+Two defects found and fixed in the guard while building it: a call to a
+non-existent `compile_and_persist()` (the file's idiom is
+`persist_ir(compile_nl(...))`), and importing the TestCase classes by name,
+which made pytest re-collect the whole SeamTests suite inside the guard module
+(156 collected instead of 3) - it now imports the module and reaches fixtures by
+attribute.
+
+Tooling note: pytest.ini already sets `-q`; passing `-q` again on the command
+line suppresses the passed/failed summary line entirely.
+
+NOT DONE / UNRELATED: the 3 failing tests
+(test_audit_2026_06_05.py::TestGraphAdapterIsolation::test_graph_leg_returns_only_in_scope_records,
+test_knowledge_graph.py::test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges,
+test_reasoning_retrieval.py::test_graph_hops_are_real_and_bounded) are NOT from
+this work. They come from uncommitted weighted-RRF changes in
+seam_runtime/retrieval*.py sitting in the working tree; all three PASS at clean
+HEAD 13d1684, verified in an isolated worktree. Untouched here and left for a
+separate slice.
+---END-ENTRY-#506---
+
+---BEGIN-ENTRY-#507---
+id: 507
+date: 2026-07-31T22:28:32Z
+agent: claude
+status: done
+topics: benchmarks, locomo, operations, huggingface, docs, verify
+commits: 7bc64a0
+refs: none
+supersedes: none
+tokens: 1228
+---
+Removed the repo's dependence on a dead operator-machine path, and fixed the
+runner defect that let a failed run masquerade as a 0.0 benchmark result.
+
+WHAT HAPPENED (2026-07-31, before this entry): a 200-case provider-free LoCoMo
+run scored 0.0 on all 200 cases. Every case carried
+`OSError: We couldn't connect to 'https://huggingface.co' ... couldn't find them
+in the cached files` at stage `answer`. It was NOT a quality regression and NOT
+a corrupted cache.
+
+ROOT CAUSE: the Samsung T7 mounts at `/mnt/t7` (fstab UUID=9EE4-62E6), but repo
+docs still instructed `HF_HUB_CACHE=/media/terrabyte/T7/hf-cache`. That mount
+point no longer exists, so huggingface_hub SILENTLY CREATED it as a plain
+directory on the internal disk, found no model, reached for the network, and
+failed every case. It then re-downloaded 129 MB onto the internal disk, which
+had hit ENOSPC at 01:08 that morning (`rsyslogd: No space left on device`). The
+default `~/.cache/huggingface` was never touched - its `BAAI/bge-small-en-v1.5`
+blobs are all dated 2026-07-19 and load offline. The cache was BYPASSED, not
+deleted.
+
+SECOND DEFECT (the one that cost the time): a run where every case errors still
+produced a complete, well-formed report scored 0.0 and exited 0. Nothing in the
+output identified it as infrastructure, so it read as a catastrophic quality
+result rather than a misconfigured shell.
+
+Files changed:
+- benchmarks/external/locomo/run.py: new `_fail_on_infrastructure_error()`.
+  When 100% of cases error, the report is still written (it IS the diagnostic)
+  but the process exits 1 and prints the shared error type, stage, and first
+  message, plus HF-specific guidance when the message mentions huggingface.
+  Generic: any future infra failure that kills every case (dead DB, missing
+  dataset, OOM) now fails loudly instead of publishing zeros.
+- docs/kb/eval-methodology/locomo-mem0-harness.md: "Mandatory env" no longer
+  sets HF_HUB_CACHE; SEAM_BENCH_RECORD_DIR repointed to /mnt/t7/Proprietary/DATA;
+  documents the silent-empty-cache failure mode explicitly.
+- benchmarks/external/mem0_harness/README.md: dropped the HF_HUB_CACHE line.
+- benchmarks/external/mem0_harness/preflight_derived_facts.py: same, with reason.
+- docs/SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md + 7 docs/prompts/DEEPSEEK_*.md:
+  repo root repointed from the old /media/terrabyte/T7/Proprietary/Projects-All/Seam
+  to /home/terrabyte/Documents/Projects/Seam. Zero stale refs remain in live docs.
+
+NOT EDITED, deliberately: 11 files under docs/handoffs/ cite the old T7 paths.
+Those are dated historical session records (2026-07-09..07-22); rewriting them
+would falsify the record, same principle that forbids editing old HISTORY
+entries. The newest handoff (2026-07-30) cites no T7 path.
+
+VERIFICATION (3-case provider-free runs, free, no judge/answerer):
+- Correct env (HF_HUB_CACHE unset): context_recall 0.3333, 0/3 errors, exit 0.
+- Stale env (HF_HUB_CACHE at the dead path): 3/3 errors, exit 1, diagnostic
+  printed naming OSError + stage `answer` + the huggingface guidance.
+- Contrast with the pre-fix failure: 200/200 errors, recall 0.0, exit 0.
+- The 0.3333 figure is 3-case sample noise, NOT a quality signal; the measured
+  claim here is 0 errors vs 200, and exit 1 vs exit 0.
+- ruff clean on both changed Python files.
+
+CORRECTION recorded: write-protecting the dead directory did NOT by itself make
+stale paths fail loudly - a stale export still produced a clean-looking 0.0
+artifact. Only the `_fail_on_infrastructure_error` guard delivers that. The
+earlier claim in-session was wrong and is superseded by the measured exit codes
+above.
+
+ENVIRONMENT (not repo state, recorded for context only): the 129 MB shadow cache
+at /media/terrabyte/T7 was deleted and the directory write-locked with a
+DO-NOT-USE.txt; a write there is verified to fail. Full removal needs
+`sudo rmdir /media/terrabyte/T7` since /media/terrabyte is root-owned.
+
+NOT DONE / NEXT: the retrieval attribution gate is untouched and remains the
+blocker. HISTORY#503's -0.010804 regression is still unattributed and
+`refactor/unify-retrieval-paths` remains under the DO-NOT-LAND hold in
+docs/status/retrieval.md. The 3 failing graph tests
+(test_graph_leg_returns_only_in_scope_records,
+test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges,
+test_graph_hops_are_real_and_bounded) come from uncommitted weighted-RRF changes
+in seam_runtime/retrieval*.py that remain in the working tree; they pass at
+clean HEAD and were not touched here. Also open: PR #189
+(fix/semantic-graph-admission), which touches the same graph leg.
+---END-ENTRY-#507---
+
+---BEGIN-ENTRY-#508---
+id: 508
+date: 2026-07-31T22:48:26Z
+agent: claude
+status: done
+topics: retrieval, graph, fusion, locomo, benchmarks, verify
+commits: pending
+refs: none
+supersedes: 505
+tokens: 1296
+---
+ATTRIBUTED the retrieval regression to the graph leg. Measurement only - no
+source change in this entry. This closes the attribution question that
+HISTORY#503 opened and #504/#505 could not answer.
+
+METHOD: streamed the two retained 1,542-case traced runs from 2026-07-30 and
+recomputed the per-leg statistics directly from `retrieval_trace.legs` and
+`retrieval_trace.fusion.selected_ids`.
+- `20260730_160639_seam_1542cases_judge-none.json` (730 MB) = arm `hybrid`,
+  plans [sql, vector].
+- `20260730_161157_seam_1542cases_judge-none.json` (1.1 GB) = arm `mix`,
+  plans [sql, vector, graph].
+Both arms: canonical engine, ranking policy `reciprocal-rank-fusion/2`, same
+corpus, same session, 200 candidates per leg. Leg-combination counter confirms
+all 1,542 cases in the mix arm planned exactly [graph, sql, vector] - `graph_node`
+appears in ZERO plans, so every number here excludes that leg.
+
+THE ARMS DIFFER BY EXACTLY ONE VARIABLE - the graph leg. This is what #503's A/B
+could not offer: that comparison moved ranking, fusion, graph, temporal,
+filtering and packing together and therefore proved a regression while
+attributing it to nothing.
+
+MEASURED (mix vs hybrid, context recall):
+| category | hybrid (no graph) | mix (+graph) | delta |
+| overall  | 0.776178 | 0.752324 | -0.023854 |
+| cat1 n=282 | 0.642109 | 0.606195 | -0.035913 |
+| cat2 n=321 | 0.741724 | 0.744765 | +0.003041 |
+| cat3 n=96  | 0.375922 | 0.379426 | +0.003504 |
+| cat4 n=841 | 0.880630 | 0.848563 | -0.032067 |
+| cat5 n=2   | 0.500000 | 0.000000 | -0.500000 (n=2, ignore) |
+Exact overall delta: -0.023854020868236736.
+
+The graph leg costs real recall on the two largest categories (cat1 -0.0359,
+cat4 -0.0321, together n=1,123) and returns noise-level gains on cat2/cat3.
+
+MECHANISM (per-leg trace statistics over all 1,542 cases):
+- graph hits total: 308,400 (200 per case).
+- also returned by sql or vector: 269,637 = 87.43% DUPLICATE.
+- unique to graph: 38,763 = 12.57%, mean 25.14 records per case.
+- of those graph-unique records, only 44 were ever chosen by fusion = 0.1135%.
+Plain RRF sums one unweighted 1/(60+rank) vote per leg, which is sound only for
+INDEPENDENT retrievers. A leg that is 87% echo does not corroborate, it
+double-counts: a record ranked ~20th in all three legs (3/80 = 0.0375) outranks a
+record ranked 1st in vector alone (1/61 = 0.0164). So leg count outranks
+relevance, and the graph leg's genuine contribution is almost never selected.
+
+VALIDATES THE UNCOMMITTED WORK: the weighted-RRF changes sitting in
+seam_runtime/retrieval_policy.py, merger.py, orchestrator.py, adapters.py and
+retrieval.py cite exactly these four figures (87.43%, ~25 unique of 200, 0.114%
+selected, -0.023854). All four reproduce from the retained traces - 87.43%
+exact, 25.14 mean, 0.1135% vs 0.114%, and -0.023854020868 vs -0.023854. The
+rationale for damping the graph leg is MEASURED, not speculative.
+
+CORRECTION: earlier in this session those figures were characterised as
+unreproducible and "unbacked" because they appear nowhere in HISTORY#505 and
+match no artifact score. That characterisation was WRONG. The measurements were
+sound; only their PROVENANCE was missing - they were computed in-session from
+traces and never written into the record. This entry supplies that record. The
+0.114% specifically is a fraction OF THE GRAPH-UNIQUE RECORDS (44/38,763), not
+of all selections (which is 0.0285%); reading it as the latter is what produced
+the false mismatch.
+
+NOT DONE / NEXT:
+1. The 3 failing tests
+   (test_audit_2026_06_05.py::TestGraphAdapterIsolation::test_graph_leg_returns_only_in_scope_records,
+   test_knowledge_graph.py::test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges,
+   test_reasoning_retrieval.py::test_graph_hops_are_real_and_bounded) fail because
+   the graph leg now returns an EMPTY set - the damping overshot into
+   elimination. That is a dosage bug, not a design error; the work should be
+   fixed, not reverted.
+2. NOT ASSERTED: the hybrid arm (0.776178) sits ABOVE the legacy-weighted figure
+   in docs/status/retrieval.md (0.766420), which would mean the canonical engine
+   BEATS legacy once the graph leg is damped and would clear the DO-NOT-LAND
+   hold. Those are different runs and this entry does NOT claim it. One matched
+   legacy-vs-canonical run with the graph weight applied is required before any
+   promotion decision.
+3. The DO-NOT-LAND hold on `refactor/unify-retrieval-paths` REMAINS in force
+   until (2) is measured.
+---END-ENTRY-#508---
+
+---BEGIN-ENTRY-#509---
+id: 509
+date: 2026-07-31T23:29:44Z
+agent: claude
+status: done
+topics: retrieval, graph, fusion, locomo, benchmarks, ablation, verify
+commits: pending
+refs: none
+supersedes: 503
+tokens: 1371
+---
+MATCHED four-arm ablation. HISTORY#503's premise is FALSIFIED: on a properly
+matched run the canonical engine BEATS legacy-weighted by +0.009628, not loses
+by -0.010804. The entire regression was the graph leg. One new concern appears
+that #503 could not see: cat3.
+
+METHOD (satisfies the #505 confound rule):
+- Built a fresh pristine ingest-only snapshot:
+  `benchmarks.external.locomo.ingest_only --db-path test_seam/locomo_pristine_20260731`.
+  10 scopes, 1,542 cases, 5,882 turns, corpus digest
+  390e57d42cec752ee46de4e722c54ef07f063b0ceb8a73b7224e0077f6774cef.
+  NOTE: #505's snapshot digested to ce61ae06...; identical scope/case/turn counts,
+  different content. Arm A (below) reproduces #505's hybrid score to within
+  0.00013 and arm D reproduces #503's legacy score EXACTLY, so the digest
+  difference is immaterial to scoring.
+- Each arm got its own `cp -r` of that snapshot and ran with `--keep-db`, so no
+  arm inherited another's mutations. Retrieval mutates the store (#505).
+- All arms: 1,542 questions, provider-free (`--judge none --answerer none`),
+  0 errors, $0.00, no network.
+
+RESULTS (context recall):
+| arm | config | overall |
+| A | hybrid (sql+vector)              | 0.776048 |
+| B | mix (sql+vector+graph)           | 0.776048 |
+| C | mix + SEAM_RETRIEVAL_LEG_WEIGHTS=graph=0.0 | 0.776048 |
+| D | legacy-weighted                  | 0.766420 |
+
+A == B == C to six decimals in EVERY category. With the working tree's
+structural-predicate exclusion active the graph leg contributes exactly nothing
+on LoCoMo, so `mix` and `hybrid` are the same query plan. This confirms the
+corpus carries no admissible semantic relation edges at all - the graph leg was
+100% echo, not merely 87.43% echo, once structural traversal is removed.
+
+MATCHED PROMOTION COMPARISON (D vs A):
+| category | legacy | canonical | delta |
+| overall  | 0.766420 | 0.776048 | +0.009628 |
+| cat1 n=282 | 0.633842 | 0.642109 | +0.008267 |
+| cat2 n=321 | 0.746167 | 0.741101 | -0.005066 |
+| cat3 n=96  | 0.412697 | 0.375922 | -0.036775 |
+| cat4 n=841 | 0.860806 | 0.880630 | +0.019823 |
+| cat5 n=2   | 0.000000 | 0.500000 | +0.500000 (n=2, ignore) |
+
+Arm D reproduces the #503 legacy figure 0.766420 EXACTLY, which is what makes
+this comparison trustworthy rather than another cross-run guess.
+
+WHAT #503 ACTUALLY MEASURED: it compared legacy against a canonical engine whose
+graph leg was flooding 200 candidates per case at 87.43% duplication (#508). That
+handicap cost -0.023854. Removing it does not "improve" canonical so much as stop
+penalising it. #503's -0.010804 was therefore never a ranking-policy result.
+
+NEW CONCERN - cat3: canonical loses -0.036775 on cat3 (n=96), the open-domain
+category that is an explicit product goal. It wins overall and on the two largest
+categories (cat1 n=282, cat4 n=841). The overall +0.009628 is real but it is NOT
+uniform, and the loss lands on the category that has historically been the
+hardest to move. This is a promotion DECISION, not an automatic pass.
+
+CORRECTION - arm C proves nothing: it was designed to test `fusion_leg_weights`
+independently, but arm B already makes the graph leg abstain, so there were no
+graph candidates left for a weight to act on. C is a no-op stacked on a no-op.
+`fusion_leg_weights` / `weighted-reciprocal-rank-fusion/1` remains UNTESTED on a
+corpus where the graph leg is live. It ships an env var
+(SEAM_RETRIEVAL_LEG_WEIGHTS) and a policy fingerprint and must not be presented
+as a validated lever until isolated.
+
+STILL BROKEN - the 3 failing tests. The uncommitted graph adapter change abstains
+whenever no edge rows were traversed, which discards legitimate SEED hits:
+- `graph_hops=0` makes the hop loop `range(1,1)`, so it never executes,
+  `semantic_edges_seen` stays False, and the adapter returns [] instead of seeds.
+- Fixtures using genuinely semantic predicates (`connects`, `references`) that
+  yield no traversal also abstain.
+The design intent is correct and now measured; the abstention SCOPE is wrong. Fix
+is to abstain only when a traversal was attempted and found no admissible edge,
+not whenever no edge rows were seen.
+
+NOT DONE / NEXT:
+1. Operator decision required: is +0.009628 overall acceptable at -0.036775 on
+   cat3? The DO-NOT-LAND hold in docs/status/retrieval.md rests on #503's
+   overall-regression premise, which is now falsified; the hold's stated grounds
+   no longer hold, but cat3 is a new and narrower question.
+2. Fix the abstention scope so the 3 tests pass without reintroducing the flood.
+3. Isolate `fusion_leg_weights` or do not ship it as a supported lever.
+4. LoCoMo CANNOT answer whether graph retrieval is valuable in general - it has
+   no semantic relation edges. It can only show that STRUCTURAL-edge graph
+   retrieval is worthless. PR #189's semantic edge admission is what would make
+   the general question askable, and it needs a corpus that emits REL records.
+---END-ENTRY-#509---
+
+---BEGIN-ENTRY-#510---
+id: 510
+date: 2026-08-01T01:48:32Z
+agent: claude
+status: done
+topics: provenance, retrieval, graph, mirl, fusion, verify
+commits: 04ba659
+refs: none
+supersedes: none
+tokens: 1586
+---
+Graph retrieval now returns the FULL VERIFIED CHAIN back to source bytes, and
+the graph adapter's abstention no longer discards legitimate hits. Lands the
+weighted-RRF work these were entangled with.
+
+WHY: the graph's objective has always been to return the entire source span via
+MIRL records. MIRL retains claim -> PROV -> SPAN -> RAW losslessly, but
+retrieval handed back a record and stopped, so nothing ever resolved or VERIFIED
+that path. Competitors that extract facts and discard the source cannot produce
+this at all - there is no span to return - which makes chain completeness a
+capability measurement rather than a tuning score.
+
+NEW `seam_runtime/provenance.py` (contract `provenance-chain/1`):
+- `resolve_provenance_many` walks claim -> SPAN -> RAW and returns the EXACT
+  source text sliced at the span's character offsets. Resolves a page in one
+  pass with a shared record cache; candidates routinely share source turns, so
+  per-candidate resolution would re-read the same rows repeatedly.
+- Broken hops are REPORTED with a specific reason code, never dropped. A
+  provenance system that silently discards a broken link is worse than one with
+  none: the caller still gets an authoritative-looking answer that cannot
+  actually be traced. Reason codes: span_record_missing,
+  referenced_record_is_not_a_span, span_carries_no_raw_id, raw_record_missing,
+  referenced_record_is_not_raw, span_offsets_outside_raw_content,
+  no_evidence_links.
+- A chain is COMPLETE only when it has at least one link and EVERY link
+  verified. One good link beside a broken one is not a trustworthy citation.
+- `chain_completeness()` is the metric: complete chains / total.
+
+WIRED: `RetrievalCandidate.provenance`, populated via
+`RetrievalOrchestrator.search(include_provenance=True)`. DEFAULT OFF - resolving
+costs extra store reads. Only the returned page is resolved; rejected candidates
+are never cited. Pinned observationally inert: a test asserts enabling it changes
+neither candidate order nor scores, the same contract the retrieval trace holds.
+
+MEASURED on the pristine LoCoMo snapshot (conv-26, 3,862 records):
+| kind | n   | completeness |
+| CLM  | 400 | 1.0000 |
+| RAW  | 400 | 1.0000 |
+| ENT  | 364 | 0.0000 (no_evidence_links x364) |
+Live query through the orchestrator ("When did Caroline go to the LGBTQ support
+group?"): 5/5 complete, zero defects, each returning span offsets and the source
+text.
+
+WHY COMPLETENESS IS 1.00 - it is enforced at WRITE time, not luck. Three
+guarantees found while building the tests, each now pinned:
+1. `verify_ir` rejects a claim citing a missing PROV (`missing_provenance`).
+2. `verify_ir` rejects a PROV naming no entity/activity/agent - "provenance"
+   that says nothing about origin is not provenance (`missing_prov_role`).
+3. `raw_spans.raw_id` is NOT NULL, so an unanchored span cannot be stored at
+   all. DEFECT_RAW_ID_ABSENT is therefore unreachable through SQLite; the
+   resolver keeps the branch for non-SQLite backends and a test pins the
+   storage guarantee instead.
+A broken chain cannot be INGESTED; it could only arise from post-write damage
+(partial delete, truncated restore, corruption). The defect tests write through
+the store to model exactly that, bypassing `runtime.persist_ir`.
+
+OPEN GAP - entities have ZERO provenance. ENT records carry `prov` (compile
+lineage) but empty `evidence`, so a retrieved entity cannot prove which span
+mentioned it, even though the entity id encodes the source doc hash
+(`ent:<doc>:<label>:<suffix>` shares its suffix with `raw:`/`span:`). Fixing it
+is a `compile_nl` change that alters ingest output and every corpus digest, so it
+is recorded here rather than done unasked. This is the single largest obstacle to
+a 1.00 chain-completeness claim across all retrieved kinds.
+
+ALSO FIXED - graph adapter abstention scope (the 3 failing tests from #509):
+- The leg abstained whenever no edge rows were traversed, which discarded
+  legitimate SEED hits. Its rationale - that returning seeds would re-emit
+  SQL/vector hits under a graph label - only holds when those legs are ALSO
+  running. In single-leg `mode="graph"` there is nothing to duplicate and the
+  seed set IS the result. Worst case: `graph_hops=0` makes the loop
+  `range(1, 1)`, so it never executes, no rows are seen, and a seeds-only
+  request returned nothing. Abstention is now scoped to multi-leg plans.
+- `test_graph_retrieval_reads_canonical_knowledge_edges_not_legacy_ir_edges` was
+  a DIFFERENT case: it asserted that compile-produced STRUCTURAL edges (content,
+  subject, about, who) yield graph neighbours - the exact traversal #509 measured
+  at -0.023854 with 87.43% duplication. Its fixture now carries a genuine `leads`
+  relation, so it still proves what its name says (canonical `knowledge_edges`,
+  not legacy `ir_edges`) without asserting the removed behaviour. Changing a test
+  so code passes deserves scrutiny; the justification is that the assertion
+  pinned a measured regression, and it is flagged for reversal if the
+  structural-edge question is reopened.
+
+REGRESSION CHECK: re-ran the mix arm from a fresh clone of the pristine snapshot
+AFTER the abstention fix - 0.776048, delta -0.000000 against arm B in #509. The
+fix is inert on multi-leg plans and the -0.023854 recovery holds exactly.
+
+LANDS the previously-uncommitted weighted-RRF work it was entangled with
+(retrieval.py, retrieval_policy.py, merger.py, orchestrator.py, adapters.py):
+`weighted-reciprocal-rank-fusion/1`, per-leg `fusion_leg_weights`,
+`SEAM_RETRIEVAL_LEG_WEIGHTS`, and the structural-predicate exclusion. Rationale
+measured in #508/#509.
+
+NOT DONE / NEXT:
+1. `fusion_leg_weights` remains UNVALIDATED on a live graph leg (#509: arm C was
+   confounded because the structural exclusion had already zeroed the leg). It
+   ships an env var and a policy fingerprint; do not present it as a supported
+   lever until isolated.
+2. cat3 -0.036775 vs legacy is unresolved. Mechanism hypothesis, confirmed in
+   code but NOT measured: RRF contributes 1/(60+rank) and discards score
+   magnitude, while the legacy scorer preserves it; cat3 is the
+   name-the-entity-from-clues category where one record is decisively right.
+   Cheapest test is a free run preserving magnitude as a tiebreak.
+3. ENT provenance (see OPEN GAP).
+4. The graph-value question stays its own slice, measured by
+   `benchmarks/graph_reasoning_qualification.py`, whose free lanes both sit at a
+   1.0 CEILING on 3 cases and must be hardened before any paid competitor arm.
+---END-ENTRY-#510---
+
+---BEGIN-ENTRY-#511---
+id: 511
+date: 2026-08-01T09:22:35Z
+agent: codex-gpt-5
+status: in-progress
+topics: audit, roadmap, plan, status, retrieval, storage, security, graph, benchmark, continuity
+commits: pending
+refs: docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,ROADMAP.md,PROJECT_STATUS.md,docs/status/retrieval.md,docs/status/surfaces.md,docs/status/operations.md,docs/handoffs/2026-08-01-track-s-production-core-campaign.md
+supersedes: 510
+tokens: 542
+---
+Activated Track S, the Production-Core Integrity Campaign, and established one
+canonical execution record for the verified F1-F22 memory-guarantee findings.
+This entry supersedes HISTORY#510 as current operating state; it does not erase
+the #509/#510 measurement and provenance results, and Track S coordinates rather
+than supersedes Track R, H2, E2, or K14.
+
+WHY: three independent audit passes converged on durable-state, retrieval,
+tenancy, and semantic-substrate gaps that the previous green headline did not
+capture. The campaign routes those findings through dependency-ordered S0-S10
+stages with exact fail-closed exit gates. The single authoritative verdict
+matrix and stage plan is docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md; ROADMAP.md
+registers roadmap:track:S at priority 0 / phase 1.
+
+BASELINE: commit 86a81e2 is the clean semantic integration baseline. Its exact
+27-path candidate set contains 26 Python paths plus .github/workflows/ci.yml and
+retains fail-closed canonical REL admission, offline embedding coverage checks,
+and the research-only relation lane. The exact 12-module focused slice collected
+269 tests and passed 269/269. Ruff over the 26 Python paths, git diff --check,
+the 27-path allowlist/exclusion audit, and a candidate-path secret/session scan
+were clean. This was not a full-suite run and no provider, network, or paid
+benchmark ran.
+
+CONTINUITY: PROJECT_STATUS.md now routes to Track S; retrieval, surfaces, and
+operations streams state the verified open boundaries; the new current handoff
+supersedes the WANDR replay handoff. Canonical closeout rebuilds the history and
+roadmap streams, cross-index, and snapshot chain, then runs integrity, routing,
+handoff, continuity, and stream verification. Stable architecture policy was
+not changed, so REPO_LEDGER.md was deliberately left untouched.
+
+NOT DONE: no F1-F22 production defect is claimed fixed by this activation slice.
+S0 remains open until every clause, including the broader existing-suite and
+bounded-review gates, has current evidence. S1-S10 remain unimplemented.
+Publication, push/PR mutation, provider spend, and destructive cleanup were not
+authorized or performed.
+---END-ENTRY-#511---
+
+---BEGIN-ENTRY-#512---
+id: 512
+date: 2026-08-01T10:47:10Z
+agent: codex-gpt-5
+status: done
+topics: fixture, test, wandr, bugfix, verify, continuity
+commits: pending
+refs: .gitignore,benchmarks/fixtures/wandr/smoke.replay.jsonl,benchmarks/fixtures/wandr/hierarchy.replay.jsonl,benchmarks/fixtures/wandr/MANIFEST.json,tests/audit/test_wandr_replay_adapter.py
+supersedes: 511
+tokens: 503
+---
+WANDR replay fixture repair for the Track S strict-suite baseline.
+
+RESTORED: the committed WANDR manifest, adapter, and tests referenced two
+hash-pinned replay inputs that were absent from this branch because the generic
+`*.jsonl` ignore rule hid them. Restored the exact synthetic fixture bytes from
+commit d52f22a and added the path-scoped
+`!benchmarks/fixtures/wandr/*.replay.jsonl` tracking exception. No runtime,
+retrieval, scoring, corpus, or network behavior changed.
+
+BYTE PROOF: `smoke.replay.jsonl` is 6 lines / 3,012 bytes with SHA256
+be6b620c77be696c9b2c8807a0926f14acd6c054ed59ca83b7f88d41d2e0578d;
+`hierarchy.replay.jsonl` is 10 lines / 4,038 bytes with SHA256
+af451fd5feabeb2974a21ed1e8a19ecb5aa2e69cd65fba1da21950b3dbe5c054.
+Both values exactly match `benchmarks/fixtures/wandr/MANIFEST.json`, and
+`git show d52f22a:<fixture> | cmp - <fixture>` passed for both files. Every URL
+uses the reserved `.invalid` TLD and the content remains hand-authored and
+synthetic.
+
+FAILURE CLOSED: the inherited strict non-external S0 gate at candidate HEAD
+2e410da had exactly 7 failed, 2,024 passed, 23 deselected, 2 xfailed, and 3
+subtests passed; every failure was a missing-fixture error in
+`tests/audit/test_wandr_replay_adapter.py`. After restoration, the complete
+focused file passed 17/17 under strict no-skip, offline Hugging Face, and
+provider-key-unset controls. No provider, network, paid benchmark, pgvector, or
+artifact-build lane ran.
+
+BOUNDARY: this closes only the WANDR fixture defect blocking the Track S S0
+baseline. It does not claim the broader Production-Core Integrity Campaign is
+complete. The exact full strict non-external suite remains the required
+post-commit gate and is deliberately not claimed by this pre-commit history
+entry. No push, PR/GitHub mutation, release, or destructive cleanup was
+performed.
+---END-ENTRY-#512---
+
+---BEGIN-ENTRY-#513---
+id: 513
+date: 2026-08-01T11:52:41Z
+agent: codex-gpt-5
+status: done
+topics: audit, bugfix, benchmark, retrieval, provenance, verify, test, roadmap, continuity, security
+commits: pending
+refs: docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s0-locally-qualified.md,seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/external/wandr,benchmarks/external/locomo/ingest_only.py,tools/relation_extraction_qualification.py,REPO_LEDGER.md
+supersedes: 512
+tokens: 860
+---
+Track S S0 canonical-baseline qualification and bounded review hardening.
+
+S0 QUALIFIED LOCALLY: the clean replacement branch now satisfies its source,
+path, semantic-admission, full-suite, bounded-review, security, and continuity
+gates. The comparison against `origin/refactor/unify-retrieval-paths` accounts
+for all 61 tree differences: 59 tracked `.ua` artifacts are intentionally
+excluded, and the remaining two paths are protected-main's current package-lock
+and pgvector Compose contracts. The candidate contains zero `.ua`, distribution,
+report-image, database, model, cache, or private-session artifacts. This closes
+only S0; it does not claim that any F1-F22 production defect is repaired.
+
+HARDENED: WANDR now pins hash embeddings, denies environment extraction,
+canonicalizes source identity through one URL contract, resets each lane before
+ingest, cleans SQLite sidecars, validates row shapes, records provenance only
+after successful ingest, and counts attempted network access before failing.
+LoCoMo ingest-only rejects non-pristine roots before adapter/model work and the
+embedding receipt derives `local_files_only=True` from both contract and loaded
+model. Relation qualification requires 50 reviewed labels and relation ingest
+returns a stable reason for missing/inaccessible datasets.
+
+RUNTIME CONTRACTS: temporal inputs reject mixed timezone awareness and aware
+values normalize to UTC-naive before stored-time comparison; memory-vector
+search excludes non-positive cosine results like persistent backends; explicit
+falsey retrieval flags remain explicit; empty/duplicate leg weights fail
+validation; extractor metadata must be strict JSON; RAW provenance distinguishes
+missing content from missing identity; and holographic MIRL queries remain on
+the strict canonical persist/retrieve path. Status-stream verification, fixture
+cleanup, provenance assertions, and the retired self-host/public-sync policy
+text were corrected and pinned. Roadmap Track N2 is now done/superseded because
+the compiled self-host surface it described was removed, not left as runnable
+historical tooling.
+
+EXACT TEST EVIDENCE: the frozen repository-wide non-external run collected
+2,095 tests: 2,070 passed, 2 expected xfails, 23 external deselected, and zero
+failures, errors, or skips in 555.99 seconds. Its before/after 747-file manifest
+was identical at
+`d7b717c247eb8a386671c5d1c4530b967fca8f7866dcfb470f3fcd0d9f1d2936`.
+The live pgvector lane passed 23/23 with zero skips; the loopback service was
+0.8.5 while Compose declares 0.8.6, so exact-image parity remains CI-owned.
+The post-review focused aggregate passed 210/210, relation-ingest passed 15/15,
+changed-Python Ruff passed, and `git diff --check` was clean.
+
+REVIEW: CodeRabbit's first pass reported 50 findings. After narrow remediation,
+the second pass had four: three were fixed or disproved, while the valid F22
+dependency-source drift remains routed to S1/S10 because no approved hash-locked
+source exists. The final pass reported one major and no criticals; it was
+disproved by the actual legacy planner -> adapter -> `search_batch` chain, which
+filters to the identical compatibility kinds before limiting. Its three focused
+parity tests passed. Candidate scans over current files, newly reachable blobs,
+and commit messages found zero denied paths, secrets, provider-session links,
+binary deltas, or whitespace defects.
+
+BOUNDARY/NEXT: no provider, paid, or network benchmark and no release ran. The
+final frozen-commit wheel/sdist, privacy, and opaque-boundary proof remains a
+pre-push publication gate. Protected-main CI/merge remains external evidence.
+S1 is next at F2/F6/F18/F19/F20/F22. PR #189 must not merge first and may be
+closed as superseded only after this replacement lands and semantic coverage is
+confirmed. No worktree or artifact cleanup is authorized.
+---END-ENTRY-#513---
+
+---BEGIN-ENTRY-#514---
+id: 514
+date: 2026-08-01T11:56:23Z
+agent: codex-gpt-5
+status: done
+topics: history, streams, roadmap, bugfix, verify, test, continuity
+commits: pending
+refs: tools/history/closeout.py,tests/audit/test_history_closeout.py,.seam/streams/roadmap/index.md
+supersedes: 513
+tokens: 229
+---
+Repaired the one-shot closeout path exposed while finalizing HISTORY#513.
+
+The roadmap parser rewrote `.seam/streams/roadmap/log.md` after a ROADMAP
+status change, but `tools.history.closeout` proceeded directly to the global
+cross-index without rebuilding the roadmap stream's own index. The final
+`verify_streams` gate therefore failed closed on a content-hash mismatch even
+though the authored roadmap and regenerated log were valid.
+
+`closeout` now runs `tools.streams.rebuild_index --stream roadmap` immediately
+after refreshing the roadmap log/state and before rebuilding the cross-index.
+The resume-path regression test pins the exact orchestration order. Focused
+closeout plus stream tests passed 25/25, Ruff passed both changed Python files,
+and `--resume-entry 513` then completed without appending a duplicate: integrity,
+routing, handoffs, continuity, and streams all passed.
+
+This changes only derived-state closeout orchestration. It does not alter SEAM
+runtime behavior, Track S stage status, benchmark evidence, or the no-provider/
+no-release boundary recorded in HISTORY#513.
+---END-ENTRY-#514---
+
+---BEGIN-ENTRY-#515---
+id: 515
+date: 2026-08-01T12:29:04Z
+agent: codex-gpt-5
+status: done
+topics: security, audit, bugfix, bundle, verify, test, history, streams
+commits: pending
+refs: seam_runtime/ui/logo.py,test_seam_all/test_artifact_hygiene.py,tools/relation_extraction_qualification.py,tests/audit/test_relation_extraction_qualification.py,tests/audit/test_history_closeout.py
+supersedes: 514
+tokens: 307
+---
+Pre-push artifact and bounded-review amendment for Track S S0.
+
+The exact wheel/sdist gate at commit 73d9104 passed offline build, Twine,
+payload parity, entry-point, asset, license, deny-path, credential, and private
+session scans, but correctly failed the privacy boundary because a visual-only
+UI preview still embedded an absolute local user-profile path. Replaced that
+preview data with a generic repository-relative example and added an artifact
+hygiene regression that scans every shipped Python source path for Windows
+user-profile literals. No runtime path discovery or user-facing behavior
+depends on the preview values.
+
+Also closed the two valid minor findings from the exact-commit bounded review:
+relation qualification now preserves both the per-relation missing-projection
+count and a distinct missing-schema database count, and the closeout regression
+pins the exact roadmap stream-index rebuild command as well as its order.
+
+The focused amendment slice passed 22/22. Ruff over all five changed Python
+files and `git diff --check` passed. The first focused invocation failed only
+because this isolated worktree has no local `.venv`; rerunning through the
+canonical checkout virtual environment passed and no code was changed in
+response to that environment-only miss.
+
+BOUNDARY/NEXT: the amended exact commit still requires the frozen repository
+suite, candidate scan, and fresh wheel/sdist privacy and opaque-boundary gate
+before push. No provider, paid or network benchmark, release, push, or cleanup
+ran in this amendment.
+---END-ENTRY-#515---
+
+---BEGIN-ENTRY-#516---
+id: 516
+date: 2026-08-01T13:51:35Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, security, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 515
+tokens: 451
+---
+Protected publication recovery and required LoCoMo CI cache repair for Track S
+S0.
+
+PUBLICATION BOUNDARY: the live `BlackhatShiftey/Seam` origin was discovered in
+public visibility even though the stable repository policy defines it as the
+private proprietary development repository. Publication stopped before any
+campaign branch was pushed. The operator explicitly authorized continuing from
+that blocker; the repository API changed that exact target to private, and both
+the GitHub connector and CLI independently reported private visibility before
+`fix/memory-guarantees-campaign` was pushed. Ready PR #190 was then opened at
+exact head ead34651895afa53b75cd60c71fbc7c9b33e1b9f. No private candidate
+branch was created while the origin was public.
+
+CI FAILURE/CAUSE: required `locomo-quickstart-bil2` failed on PR #190 run
+30702426675 after the exact revision cache key missed. The self-hosted runner
+had inherited Hugging Face offline mode into the step whose explicit job is to
+provision that pinned public model snapshot, so `snapshot_download` failed with
+`OfflineModeIsEnabled` and then `LocalEntryNotFoundError`. Pgvector,
+registry-plan, and CodeRabbit were already green when this was diagnosed.
+
+FIX: the provisioning step now explicitly sets `HF_HUB_OFFLINE=0` and
+`TRANSFORMERS_OFFLINE=0`; the later LoCoMo smoke remains explicitly offline
+with both values set to 1. The regression test isolates both workflow steps so
+an unscoped string check cannot mask future environment leakage.
+
+LOCAL EVIDENCE: the complete LoCoMo real-embedding adapter file passed 29/29,
+Ruff and `git diff --check` passed, and the installed Hugging Face client
+confirmed that `HF_HUB_OFFLINE=0` resolves to online provisioning behavior.
+`actionlint` was unavailable locally, so workflow parsing and the exact cache-
+miss recovery remain protected-CI evidence. No provider, paid benchmark,
+release, direct-main push, or destructive cleanup ran. PR #190 exact-head CI
+and squash merge remain pending.
+---END-ENTRY-#516---
+
+---BEGIN-ENTRY-#517---
+id: 517
+date: 2026-08-01T14:03:59Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 516
+tokens: 301
+---
+## Writable LoCoMo model cache correction
+
+The first PR #190 CI amendment worked as intended: the exact pinned LoCoMo embedding provisioning step ran online despite inherited offline-mode variables. The rerun then exposed a separate self-hosted-runner leak: `HF_HUB_CACHE` still pointed at `/media/terrabyte/T7/hf-cache`, which the workflow could not write, so the required `locomo-quickstart-bil2` job failed before the offline smoke.
+
+The workflow now gives the cache action, online provisioning step, and offline smoke step one job-local writable root under `${{ runner.temp }}/seam-huggingface`. It explicitly binds `HF_HOME`, both Hugging Face hub cache variables, and the Transformers cache path at each model-using step while preserving online provisioning (`HF_HUB_OFFLINE=0`, `TRANSFORMERS_OFFLINE=0`) followed by offline execution (`=1`). The audit regression asserts the cache-path and mode contract so inherited workstation paths cannot silently re-enter this required check.
+
+Local verification passed: 35 focused audit tests, Ruff on the regression test, `git diff --check`, PyYAML workflow parsing, installed `huggingface_hub` interpretation of the explicit online/offline values, and the canonical integrity, routing, handoff, continuity, and stream gates. This correction makes no runtime-package change, triggers no paid/provider benchmark, publishes no release, and leaves the exact GitHub CI rerun pending on the pushed commit.
+---END-ENTRY-#517---
+
+---BEGIN-ENTRY-#518---
+id: 518
+date: 2026-08-01T14:23:53Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 517
+tokens: 335
+---
+## Downstream full-suite cache handoff
+
+PR #190 run `30703194720` proved the writable-cache correction in the required LoCoMo lane: exact pinned-model provisioning, offline quickstart, BIL-2 sealing, verification, and artifact upload all passed. The downstream advisory `test-and-benchmark` job then failed during pytest with 44 failures and 6 errors because job isolation was incomplete: it neither restored the cache created by the successful LoCoMo job nor overrode the runner's inherited offline/cache environment. The repeated root was `LocalEntryNotFoundError` for the exact pinned BGE revision, cascading through vector-indexing rollback and LoCoMo CLI fixtures; 1,994 tests still passed before the step failed.
+
+The LoCoMo job now exports its validated embedding revision. Because the full suite already depends on that job, it restores the exact same cache key into `${{ runner.temp }}/seam-huggingface` with `actions/cache/restore@v4` and fails immediately on a cache miss. Job-level Hugging Face and Transformers variables bind every test, subprocess, and benchmark step to that writable cache with offline execution enabled. This turns the model handoff into an explicit dependency instead of relying on mutable self-hosted-runner state.
+
+Local verification passed: 36 focused audit tests, Ruff, `git diff --check`, PyYAML parsing plus structural assertions for the cross-job output/cache contract, and the canonical integrity, routing, handoff, continuity, and stream gates. No provider or paid benchmark, release, direct-main push, or artifact/worktree cleanup ran. Exact-head GitHub CI rerun remains pending.
+---END-ENTRY-#518---
+
+---BEGIN-ENTRY-#519---
+id: 519
+date: 2026-08-01T14:27:13Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 518
+tokens: 309
+---
+## Valid step-scoped cache environment handoff
+
+Pre-push independent review found that HISTORY#518's first implementation placed `${{ runner.temp }}` in `jobs.test-and-benchmark.env`, where the GitHub Actions context-availability contract does not allow the `runner` context. That candidate was never staged or pushed. The cache output/restore dependency was sound, but the job-level expression would have failed workflow validation before tests ran.
+
+The full-suite job now binds the same writable cache paths and offline flags from the runner-provided `$RUNNER_TEMP` shell variable into `$GITHUB_ENV` in an early step. Every later install, test subprocess, benchmark, and verification step inherits those values. The exact revision-key restore continues to use `${{ runner.temp }}` only in the cache action's step-level `with` block, where the context is valid, and still fails closed on a cache miss. The regression now rejects `runner.temp` in the job header and asserts all seven `$GITHUB_ENV` bindings plus the output/key handoff.
+
+Local verification passed again: 36 focused audit tests, Ruff, `git diff --check`, PyYAML structure checks, and the canonical integrity, routing, handoff, continuity, and stream gates. This entry supersedes only the invalid environment-placement detail in HISTORY#518; its observed CI failure diagnosis and cross-job cache dependency remain current. No provider or paid benchmark, release, direct-main push, or artifact/worktree cleanup ran. Exact-head GitHub CI rerun remains pending.
+---END-ENTRY-#519---

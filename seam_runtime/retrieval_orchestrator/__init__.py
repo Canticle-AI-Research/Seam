@@ -1,4 +1,4 @@
-from .adapters import ChromaSemanticAdapter, SeamVectorSearchAdapter, SQLiteGraphAdapter, SQLiteIRAdapter
+from .adapters import ChromaSemanticAdapter, LegacyWeightedAdapter, SeamVectorSearchAdapter, SQLiteGraphAdapter, SQLiteIRAdapter
 from .orchestrator import RetrievalOrchestrator
 from .types import (
     GraphPathHop,
@@ -18,6 +18,7 @@ HybridSearchResult = RetrievalSearchResult
 
 __all__ = [
     "ChromaSemanticAdapter",
+    "LegacyWeightedAdapter",
     "GraphPathHop",
     "HybridOrchestrator",
     "QueryFilters",

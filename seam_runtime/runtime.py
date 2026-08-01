@@ -28,6 +28,7 @@ from .mirl import (
     PersistReport,
     ReconcileReport,
     RecordKind,
+    SearchCandidate,
     SearchResult,
     TraceGraph,
     VerifyReport,
@@ -36,7 +37,6 @@ from .models import EmbeddingModel, default_embedding_model
 from .nl import compile_nl
 from .pack import pack_record, pack_records
 from .reconcile import reconcile_ir
-from .retrieval import search_batch
 from .storage import SQLiteStore
 from .symbols import export_symbol_markdown, propose_symbols
 from .transpile import transpile_python
@@ -45,7 +45,6 @@ from .vector_adapters import (
     PgVectorAdapter,
     SQLiteVectorAdapter,
     VectorAdapter,
-    search_vector_adapter,
 )
 from .verify import verify_ir
 
@@ -85,6 +84,7 @@ class SeamRuntime:
         # under a live runtime, which keeps a benchmark run reproducible. A new
         # runtime (the benchmark path opens one per run) picks up applied state.
         self._retrieval_flags = None
+        self._retrieval_orchestrator = None
 
     def close(self) -> None:
         """Close the underlying SQLite store connection pool.
@@ -224,6 +224,13 @@ class SeamRuntime:
         return IRBatch(sorted(ir_batch.records, key=lambda record: record.id))
 
     def persist_ir(self, ir_batch: IRBatch) -> PersistReport:
+        """Validate and persist MIRL, then refresh vector and node projections.
+
+        This is a strict write path: invalid MIRL raises before storage, and
+        every successful call indexes indexable records and projects graph-node
+        vectors. Read-only callers must not use it as a permissive parser.
+        """
+
         report = self.verify_ir(ir_batch)
         if not report.valid:
             raise ValueError(json.dumps(report.to_dict(), indent=2))
@@ -641,46 +648,144 @@ class SeamRuntime:
             self._retrieval_flags = flags
         return flags
 
-    def search_ir(self, query: str, lens: str = "general", scope: str | None = None, budget: int = 5, include_raw: bool = False, temporal_window = None, temporal_reference = None, ns: str | None = None, flags = None) -> SearchResult:
-        from .bm25 import BM25Index
-        from .mirl import iter_textual_fields
+    def _retrieval_orchestrator_cached(self):
+        """Return the one canonical retrieval engine for this runtime."""
 
-        # An explicit ``flags`` overrides the per-runtime cache: the self-improvement
-        # proposer passes a candidate RetrievalFlags to ablate one lever deterministically
-        # without mutating env or the cached runtime state.
-        flags = flags if flags is not None else self._retrieval_flags_cached()
-        # Retrieval-depth override (HISTORY#320): flags.search_top_k (env
-        # SEAM_RETRIEVAL_TOP_K) raises the candidate count past the call-site
-        # `budget` when set. The benchmark default of 20 was starving recall;
-        # deeper retrieval is a measured paid-judge win (0.40->0.52). None = use
-        # the caller's `budget` unchanged.
-        budget = flags.search_top_k if getattr(flags, "search_top_k", None) else budget
-        # Substream isolation: confine both the candidate load and vector top-K
-        # to the requested namespace/scope boundary. Omitted filters reproduce
-        # the prior global behavior exactly.
-        batch = self.store.load_ir(ns=ns, scope=scope)
-        vector_scores = search_vector_adapter(
-            self.vector_adapter,
-            query,
-            limit=max(budget * 3, 10),
-            namespace=ns,
+        orchestrator = self._retrieval_orchestrator
+        if orchestrator is None:
+            from .retrieval_orchestrator import RetrievalOrchestrator
+
+            orchestrator = RetrievalOrchestrator(self)
+            self._retrieval_orchestrator = orchestrator
+        return orchestrator
+
+    def retrieve(
+        self,
+        query: str,
+        lens: str = "general",
+        scope: str | None = None,
+        budget: int = 5,
+        include_raw: bool = False,
+        temporal_window=None,
+        temporal_reference=None,
+        ns: str | None = None,
+        flags=None,
+        *,
+        mode: str = "mix",
+        graph_hops: int = 1,
+        semantic_graph_seeding: bool | None = None,
+        graph_at: str | None = None,
+        graph_include_history: bool = False,
+        include_trace: bool = False,
+        ranking_policy: str = "reciprocal-rank-fusion/2",
+    ):
+        """Search through SEAM's canonical SQL/vector/graph retrieval engine."""
+
+        resolved_flags = flags if flags is not None else self._retrieval_flags_cached()
+        if semantic_graph_seeding is None:
+            semantic_graph_seeding = bool(resolved_flags.graph_semantic_seeds)
+        return self._retrieval_orchestrator_cached().search(
+            query=query,
             scope=scope,
+            budget=budget,
+            include_trace=include_trace,
+            mode=mode,
+            namespace=ns,
+            graph_hops=graph_hops,
+            semantic_graph_seeding=semantic_graph_seeding,
+            graph_at=graph_at,
+            graph_include_history=graph_include_history,
+            lens=lens,
+            include_raw=include_raw,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            flags=resolved_flags,
+            ranking_policy=ranking_policy,
         )
-        namespace = batch.records[0].ns if batch.records else None
-        bm25 = None
-        if include_raw or flags.bm25_all_kinds:
-            bm25 = BM25Index()
-            for record in batch.records:
-                if record.kind == RecordKind.RAW:
-                    content = record.attrs.get("content")
-                    text = content if isinstance(content, str) and content else ""
-                elif flags.bm25_all_kinds:
-                    text = " ".join(iter_textual_fields(record))
-                else:
-                    text = ""
-                if text:
-                    bm25.add(record.id, text)
-        return search_batch(batch, query=query, scope=scope, limit=max(1, budget), vector_scores=vector_scores, namespace=namespace, include_raw=include_raw, bm25_index=bm25, temporal_window=temporal_window, temporal_reference=temporal_reference, flags=flags)
+
+    def search_ir(
+        self,
+        query: str,
+        lens: str = "general",
+        scope: str | None = None,
+        budget: int = 5,
+        include_raw: bool = False,
+        temporal_window=None,
+        temporal_reference=None,
+        ns: str | None = None,
+        flags=None,
+        include_trace: bool = False,
+    ) -> SearchResult:
+        """Compatibility result shape over the canonical retrieval engine.
+
+        ``search_ir`` remains as the longstanding local API, but it no longer
+        executes a second scoring pipeline. Every runtime surface now receives
+        candidates from ``RetrievalOrchestrator`` through ``retrieve``.
+        """
+
+        resolved_flags = flags if flags is not None else self._retrieval_flags_cached()
+        result_budget = (
+            int(resolved_flags.search_top_k)
+            if resolved_flags.search_top_k
+            else budget
+        )
+        compatibility_kinds = {
+            RecordKind.CLM,
+            RecordKind.STA,
+            RecordKind.EVT,
+            RecordKind.REL,
+        }
+        if include_raw:
+            compatibility_kinds.add(RecordKind.RAW)
+        result = self.retrieve(
+            query=query,
+            lens=lens,
+            scope=scope,
+            budget=max(1, result_budget),
+            include_raw=include_raw,
+            temporal_window=temporal_window,
+            temporal_reference=temporal_reference,
+            ns=ns,
+            flags=resolved_flags,
+            mode="mix",
+            ranking_policy="legacy-weighted/1",
+            include_trace=include_trace,
+        )
+        compatible_ranked = [
+            candidate
+            for candidate in result.candidates
+            if candidate.record.kind in compatibility_kinds
+        ][: max(1, result_budget)]
+        evidence_ids = sorted(
+            {
+                evidence_id
+                for candidate in compatible_ranked
+                for evidence_id in candidate.record.evidence
+            }
+        )
+        evidence_by_id = (
+            self.store.load_ir(ids=evidence_ids, ns=ns, scope=scope).by_id()
+            if evidence_ids
+            else {}
+        )
+        candidates = [
+            SearchCandidate(
+                record=candidate.record,
+                score=candidate.score,
+                reasons=list(candidate.reasons),
+                evidence=[
+                    evidence_by_id[evidence_id]
+                    for evidence_id in candidate.record.evidence
+                    if evidence_id in evidence_by_id
+                ],
+            )
+            for candidate in compatible_ranked
+        ]
+        return SearchResult(
+            query=result.normalized_query or query,
+            candidates=candidates,
+            trace=result.trace,
+        )
 
     def ingest_conversation_turn(
         self,

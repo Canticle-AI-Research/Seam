@@ -97,6 +97,7 @@ def test_locomo_adapter_reports_retrieval_policy_diagnostics(monkeypatch, tmp_pa
             "context_char_budget": 8000,
             "search_top_k": 100,
             "rerank_top_k": 40,
+            "retrieval_mode": "legacy-weighted",
         },
         "retrieval": {
             "candidate_count": 0,
@@ -143,18 +144,17 @@ def test_open_runtime_reuses_default_embedding_model(monkeypatch, tmp_path):
 
     created = []
 
-    class FakeSettings:
-        provider = "local"
-
     class FakeModel:
-        name = "fake"
-        dimension = 3
-
-        def __init__(self, model_name):
+        def __init__(self, model_name, revision=None, local_files_only=False):
             created.append(model_name)
+            self.model_name = model_name
+            self.revision = revision
+            self.local_files_only = local_files_only
+            self.name = f"st:{model_name}@{revision}"
+            self.dimension = 384
 
         def embed(self, text):
-            return [1.0, 0.0, 0.0]
+            return [1.0] + [0.0] * 383
 
     class FakeRuntime:
         def __init__(
@@ -168,7 +168,6 @@ def test_open_runtime_reuses_default_embedding_model(monkeypatch, tmp_path):
             self.allow_pgvector_env = allow_pgvector_env
 
     monkeypatch.setattr(seam_adapter, "_DEFAULT_SENTENCE_TRANSFORMER_MODEL", None, raising=False)
-    monkeypatch.setattr("seam_runtime.models.embedding_settings_from_env", lambda: FakeSettings())
     monkeypatch.setattr("seam_runtime.models.SentenceTransformerModel", FakeModel)
     monkeypatch.setattr("seam_runtime.runtime.SeamRuntime", FakeRuntime)
 

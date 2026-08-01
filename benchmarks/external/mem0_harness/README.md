@@ -152,7 +152,6 @@ RAW, mean closure +0.1138, exact binding 0.9956, and local fact/evidence cosine
 Run or resume that provider-free gate:
 
 ```bash
-HF_HUB_CACHE=/media/terrabyte/T7/hf-cache \
 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 SEAM_OLLAMA_TIMEOUT_S=600 \
 python -m benchmarks.external.mem0_harness.preflight_sentence_grounded_facts \
   /path/to/matched-cat13-final.json \

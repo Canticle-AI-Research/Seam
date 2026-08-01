@@ -1017,7 +1017,7 @@ from: (initial)
 to: planned
 caused-by: history:319
 supersedes: none
-refs: ROADMAP.md:1705
+refs: ROADMAP.md:1662
 topics: query, sql, retrieval, benchmark, bird
 tokens: 43
 ---
@@ -1035,7 +1035,7 @@ from: (initial)
 to: planned
 caused-by: history:407
 supersedes: none
-refs: ROADMAP.md:1769
+refs: ROADMAP.md:1726
 topics: agent, openclaw, namespaces, profiles, console
 tokens: 42
 ---
@@ -1053,7 +1053,7 @@ from: (initial)
 to: planned
 caused-by: history:407
 supersedes: none
-refs: ROADMAP.md:1829
+refs: ROADMAP.md:1786
 topics: android, mobile, small-models, memory-loop
 tokens: 43
 ---
@@ -1071,7 +1071,7 @@ from: (initial)
 to: in-progress
 caused-by: history:454
 supersedes: none
-refs: ROADMAP.md:1866
+refs: ROADMAP.md:1823
 topics: graph, memory, retrieval, benchmark, comparator, provenance
 tokens: 42
 ---
@@ -1098,18 +1098,36 @@ Bootstrap status capture for roadmap:track:N: status=done, status-since=2026-07-
 
 ---BEGIN-ROADMAP-EVENT-#062---
 id: roadmap:062
-date: 2026-07-28T00:00:00Z
+date: 2026-08-01T00:00:00Z
 agent: bootstrap
 kind: status-change
 item: roadmap:track:N2
 event: bootstrap
 from: (initial)
-to: open
-caused-by: history:480
+to: done
+caused-by: history:513
 supersedes: none
 refs: ROADMAP.md:1634
 topics: packaging, selfhost, distribution, mcp, cli
+tokens: 42
+---
+Bootstrap status capture for roadmap:track:N2: status=done, status-since=2026-08-01, caused-by=history:513. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#062---
+
+---BEGIN-ROADMAP-EVENT-#063---
+id: roadmap:063
+date: 2026-08-01T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:S
+event: bootstrap
+from: (initial)
+to: in-progress
+caused-by: history:511
+supersedes: none
+refs: ROADMAP.md:1909
+topics: audit, storage, retrieval, security, graph, provenance, benchmark, verify
 tokens: 41
 ---
-Bootstrap status capture for roadmap:track:N2: status=open, status-since=2026-07-28, caused-by=history:480. Sourced from ROADMAP.md seam:item marker.
----END-ROADMAP-EVENT-#062---
+Bootstrap status capture for roadmap:track:S: status=in-progress, status-since=2026-08-01, caused-by=history:511. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#063---

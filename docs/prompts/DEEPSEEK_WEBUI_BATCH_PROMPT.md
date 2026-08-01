@@ -11,7 +11,7 @@ the deep-audit prompt.
 ---
 
 You are executing a fixed remediation batch on the SEAM repository at
-`/media/terrabyte/T7/Proprietary/Projects-All/Seam`. Claude authored a
+`/home/terrabyte/Documents/Projects/Seam`. Claude authored a
 detailed SOP and verified the starting state against the source. You
 execute every item in the SOP in order, in one session; Claude reviews
 the entire diff at the end.
@@ -241,7 +241,7 @@ After reading all nine authoritative inputs, emit a short readiness block
 
 ```
 ===== DEEPSEEK READY =====
-seam_repo_root: /media/terrabyte/T7/Proprietary/Projects-All/Seam
+seam_repo_root: /home/terrabyte/Documents/Projects/Seam
 git_branch: <output of `git branch --show-current`>
 git_dirty_files_count: <output of `git status --short | wc -l`>
 canonical_sop_present: <yes/no>  (check docs/SOP_WEBUI_BATCH_HARDENING_DEEPSEEK.md)

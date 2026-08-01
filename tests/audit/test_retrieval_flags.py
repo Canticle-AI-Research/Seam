@@ -8,7 +8,12 @@ independent of any LoCoMo benchmark outcome.
 
 from seam_runtime.bm25 import BM25Index
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
-from seam_runtime.retrieval import RetrievalFlags, retrieval_flags_from_env, search_batch
+from seam_runtime.retrieval import (
+    RetrievalFlags,
+    _parse_leg_weights,
+    retrieval_flags_from_env,
+    search_batch,
+)
 
 
 def _semantic_reason(candidate) -> float:
@@ -79,6 +84,15 @@ def test_search_top_k_env_parsing():
     assert retrieval_flags_from_env({}).search_top_k is None
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_TOP_K": "0"}).search_top_k is None
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_TOP_K": "abc"}).search_top_k is None
+
+
+def test_leg_weight_parser_rejects_empty_and_duplicate_leg_names():
+    assert _parse_leg_weights("=0.5") == ()
+    assert _parse_leg_weights("graph=0.5,graph=1.0") == ()
+    assert _parse_leg_weights("graph=0.5,vector=1.0") == (
+        ("graph", 0.5),
+        ("vector", 1.0),
+    )
 
 
 def test_search_top_k_overrides_call_site_budget(tmp_path):

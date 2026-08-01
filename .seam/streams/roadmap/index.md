@@ -1,21 +1,22 @@
 # Roadmap Index
 
-total_events: 62
-latest_id: 62
+total_events: 63
+latest_id: 63
 source: streams/roadmap/log.md
 schema: seam-stream-index/v1
-content_hash: ede9ed9ee48b79df9c2cc2cf735b19f63f9db910da738fb37db593fb45985b40
+content_hash: e91d15cc55a5015f65f746ecaf17adfd8c1c05e2a639a90c0ed37a3335527b4e
 
 ## entries (newest first)
 
 | id | date | kind | item | event | hash | supersedes | topics |
 |---|---|---|---|---|---|---|---|
-| 062 | 2026-07-28T00:00:00Z | status-change | roadmap:track:N2 | bootstrap | f3f25c18f75ed1bc | none | packaging, selfhost, distribution, mc... |
+| 063 | 2026-08-01T00:00:00Z | status-change | roadmap:track:S | bootstrap | c23e87bfb908ffed | none | audit, storage, retrieval, security, ... |
+| 062 | 2026-08-01T00:00:00Z | status-change | roadmap:track:N2 | bootstrap | d5499fc478eb6887 | none | packaging, selfhost, distribution, mc... |
 | 061 | 2026-07-24T00:00:00Z | status-change | roadmap:track:N | bootstrap | f52ecd5e6ac764ae | none | packaging, release, distribution |
-| 060 | 2026-07-22T00:00:00Z | status-change | roadmap:track:R | bootstrap | 54aea4672193cfbf | none | graph, memory, retrieval, benchmark, ... |
-| 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | d18afce00f7a4279 | none | android, mobile, small-models, memory... |
-| 058 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | 1a288cbb3d0d5d95 | none | agent, openclaw, namespaces, profiles... |
-| 057 | 2026-06-15T00:00:00Z | status-change | roadmap:track:O | bootstrap | 765824c1e9f0f89f | none | query, sql, retrieval, benchmark, bird |
+| 060 | 2026-07-22T00:00:00Z | status-change | roadmap:track:R | bootstrap | 2a5a9591b1162822 | none | graph, memory, retrieval, benchmark, ... |
+| 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | d7fe472bcb9bc0db | none | android, mobile, small-models, memory... |
+| 058 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | d10da061d139f1d0 | none | agent, openclaw, namespaces, profiles... |
+| 057 | 2026-06-15T00:00:00Z | status-change | roadmap:track:O | bootstrap | e0ab5148eca96107 | none | query, sql, retrieval, benchmark, bird |
 | 056 | 2026-05-31T00:00:00Z | status-change | roadmap:track:G5 | bootstrap | 659e2ea60107e32c | none | surface, search, verify, integrity |
 | 055 | 2026-05-25T00:00:00Z | status-change | roadmap:track:H2 | bootstrap | 2bde78b68bbe2d5f | none | protocol, history, plan |
 | 054 | 2026-05-25T00:00:00Z | status-change | roadmap:track:F:backlog:experience-stream-empty | bootstrap | 4b2f3d540cf06dfc | none | experience, protocol |

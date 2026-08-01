@@ -7,7 +7,7 @@ Paste this prompt verbatim into the DeepSeek session. The canonical SOP is
 
 You are DeepSeek working in the SEAM repo at:
 
-`/media/terrabyte/T7/Proprietary/Projects-All/Seam`
+`/home/terrabyte/Documents/Projects/Seam`
 
 Execute `docs/SOP_TRACK_M_P0_DEEPSEEK.md` exactly. This is the Track M P0
 standard-benchmark completion pass for PR #31.
@@ -163,7 +163,7 @@ open_questions:
 
 codex_review_prompt:
 Codex, review DeepSeek's Track M P0 branch.
-Repo: /media/terrabyte/T7/Proprietary/Projects-All/Seam
+Repo: /home/terrabyte/Documents/Projects/Seam
 Base: main
 Branch: deepseek/track-m-p0-standard-benchmarks
 HEAD: <sha>

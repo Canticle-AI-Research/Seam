@@ -1,0 +1,35 @@
+{
+  "_comment": "Hash-pinned, hand-authored WANDR replay corpus. Synthetic content only: no fetched page text is vendored, and every URL uses the reserved .invalid TLD so a live fetch cannot succeed. Workload shape follows WANDR (Perplexity AI, Apache-2.0); no upstream data is redistributed.",
+  "tasks": {
+    "smoke": {
+      "file": "smoke.replay.jsonl",
+      "sha256": "be6b620c77be696c9b2c8807a0926f14acd6c054ed59ca83b7f88d41d2e0578d",
+      "key_hierarchy": [
+        {
+          "name": "topic",
+          "required": 3
+        },
+        {
+          "name": "url",
+          "required": 2
+        }
+      ],
+      "upstream_shape": "wandr/smoke"
+    },
+    "hierarchy": {
+      "file": "hierarchy.replay.jsonl",
+      "sha256": "af451fd5feabeb2974a21ed1e8a19ecb5aa2e69cd65fba1da21950b3dbe5c054",
+      "key_hierarchy": [
+        {
+          "name": "operator",
+          "required": 3
+        },
+        {
+          "name": "url",
+          "required": 2
+        }
+      ],
+      "upstream_shape": "wandr/<hierarchical task>, e.g. africa-agribusiness-operators"
+    }
+  }
+}

@@ -6,7 +6,7 @@ will paste DeepSeek's structured reports back to Claude for verification.
 ---
 
 You are executing a fixed remediation cycle on the SEAM repository at
-`/media/terrabyte/T7/Proprietary/Projects-All/Seam`. Claude authored a
+`/home/terrabyte/Documents/Projects/Seam`. Claude authored a
 detailed SOP and verified every claim against the source. You execute one
 item at a time; Claude reviews each handback before you proceed.
 
@@ -212,7 +212,7 @@ After reading the eight authoritative inputs, emit a short readiness block
 
 ```
 ===== DEEPSEEK READY =====
-seam_repo_root: /media/terrabyte/T7/Proprietary/Projects-All/Seam
+seam_repo_root: /home/terrabyte/Documents/Projects/Seam
 git_branch: <output of `git branch --show-current`>
 git_dirty_files_count: <output of `git status --short | wc -l`>
 canonical_sop_present: <yes/no>  (check docs/SOP_DEEP_AUDIT_DEEPSEEK_EXECUTION.md)

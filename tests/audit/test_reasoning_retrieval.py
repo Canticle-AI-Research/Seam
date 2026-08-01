@@ -58,45 +58,45 @@ def _seed_text(runtime: SeamRuntime, text: str, source: str, *, ns: str = "work"
     )
 
 
+def _entity(record_id: str, label: str) -> MIRLRecord:
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.ENT,
+        ns="work",
+        scope="thread",
+        attrs={"label": label, "entity_type": "concept"},
+    )
+
+
+def _relation(
+    record_id: str,
+    src_id: str,
+    dst_id: str,
+    *,
+    predicate: str = "connects",
+    evidence: list[str] | None = None,
+    agent_id: str | None = None,
+) -> MIRLRecord:
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.REL,
+        ns="work",
+        scope="thread",
+        evidence=evidence or [],
+        ext={"agent_id": agent_id} if agent_id else {},
+        attrs={"src": src_id, "predicate": predicate, "dst": dst_id},
+    )
+
+
 def _seed_chain(runtime: SeamRuntime) -> None:
     runtime.persist_ir(
         IRBatch(
             [
-                MIRLRecord(
-                    id="ent:alpha",
-                    kind=RecordKind.ENT,
-                    ns="work",
-                    scope="thread",
-                    attrs={"label": "Alpha", "entity_type": "concept"},
-                ),
-                MIRLRecord(
-                    id="ent:beta",
-                    kind=RecordKind.ENT,
-                    ns="work",
-                    scope="thread",
-                    attrs={"label": "Beta", "entity_type": "concept"},
-                ),
-                MIRLRecord(
-                    id="ent:gamma",
-                    kind=RecordKind.ENT,
-                    ns="work",
-                    scope="thread",
-                    attrs={"label": "Gamma", "entity_type": "concept"},
-                ),
-                MIRLRecord(
-                    id="rel:alpha-beta",
-                    kind=RecordKind.REL,
-                    ns="work",
-                    scope="thread",
-                    attrs={"src": "ent:alpha", "predicate": "connects", "dst": "ent:beta"},
-                ),
-                MIRLRecord(
-                    id="rel:beta-gamma",
-                    kind=RecordKind.REL,
-                    ns="work",
-                    scope="thread",
-                    attrs={"src": "ent:beta", "predicate": "connects", "dst": "ent:gamma"},
-                ),
+                _entity("ent:alpha", "Alpha"),
+                _entity("ent:beta", "Beta"),
+                _entity("ent:gamma", "Gamma"),
+                _relation("rel:alpha-beta", "ent:alpha", "ent:beta"),
+                _relation("rel:beta-gamma", "ent:beta", "ent:gamma"),
             ]
         )
     )
@@ -108,46 +108,89 @@ def _seed_chain_with_episodes(runtime: SeamRuntime) -> None:
     runtime.persist_ir(
         IRBatch(
             [
-                MIRLRecord(
-                    id="ent:alpha",
-                    kind=RecordKind.ENT,
-                    ns="work",
-                    scope="thread",
-                    attrs={"label": "Alpha", "entity_type": "concept"},
+                _entity("ent:alpha", "Alpha"),
+                _entity("ent:beta", "Beta"),
+                _entity("ent:gamma", "Gamma"),
+                _relation(
+                    "rel:alpha-beta",
+                    "ent:alpha",
+                    "ent:beta",
+                    agent_id="tester",
                 ),
-                MIRLRecord(
-                    id="ent:beta",
-                    kind=RecordKind.ENT,
-                    ns="work",
-                    scope="thread",
-                    attrs={"label": "Beta", "entity_type": "concept"},
-                ),
-                MIRLRecord(
-                    id="ent:gamma",
-                    kind=RecordKind.ENT,
-                    ns="work",
-                    scope="thread",
-                    attrs={"label": "Gamma", "entity_type": "concept"},
-                ),
-                MIRLRecord(
-                    id="rel:alpha-beta",
-                    kind=RecordKind.REL,
-                    ns="work",
-                    scope="thread",
-                    attrs={"src": "ent:alpha", "predicate": "connects", "dst": "ent:beta"},
-                    ext={"agent_id": "tester"},
-                ),
-                MIRLRecord(
-                    id="rel:beta-gamma",
-                    kind=RecordKind.REL,
-                    ns="work",
-                    scope="thread",
-                    attrs={"src": "ent:beta", "predicate": "connects", "dst": "ent:gamma"},
-                    ext={"agent_id": "tester"},
+                _relation(
+                    "rel:beta-gamma",
+                    "ent:beta",
+                    "ent:gamma",
+                    agent_id="tester",
                 ),
             ]
         )
     )
+
+
+def _seed_relation_with_raw(
+    runtime: SeamRuntime,
+    *,
+    raw_content: str,
+) -> tuple[str, str]:
+    raw_id = "raw:alpha-beta"
+    relation_id = "rel:alpha-beta"
+    runtime.persist_ir(
+        IRBatch(
+            [
+                MIRLRecord(
+                    id=raw_id,
+                    kind=RecordKind.RAW,
+                    ns="work",
+                    scope="thread",
+                    attrs={
+                        "content": raw_content,
+                        "source_ref": "local://alpha-beta",
+                        "media_type": "text/plain",
+                    },
+                ),
+                _entity("ent:alpha", "Alpha"),
+                _entity("ent:beta", "Beta"),
+                _relation(
+                    relation_id,
+                    "ent:alpha",
+                    "ent:beta",
+                    evidence=[raw_id],
+                ),
+            ]
+        )
+    )
+    return raw_id, relation_id
+
+
+def _seed_relation_fanout(
+    runtime: SeamRuntime,
+    *,
+    count: int,
+) -> dict[str, str]:
+    root_id = "ent:fanout-root"
+    child_by_relation = {
+        f"rel:fanout-{index:04d}": f"ent:fanout-{index:04d}"
+        for index in range(count)
+    }
+    runtime.persist_ir(
+        IRBatch(
+            [
+                _entity(root_id, "UniqueFanoutRoot"),
+                *[
+                    _entity(child_id, f"Branch {index:04d}")
+                    for index, child_id in enumerate(
+                        child_by_relation.values()
+                    )
+                ],
+                *[
+                    _relation(relation_id, root_id, child_id)
+                    for relation_id, child_id in child_by_relation.items()
+                ],
+            ]
+        )
+    )
+    return child_by_relation
 
 
 def _direct_write_episode_id(record_id: str) -> str:
@@ -481,6 +524,265 @@ def test_graph_hits_report_exact_paths_and_episode_traces(runtime: SeamRuntime) 
     assert gamma_path[-1].episode_ids == (_direct_write_episode_id("rel:beta-gamma"),)
 
 
+def test_graph_large_frontier_honors_legacy_sqlite_variable_limit(
+    runtime: SeamRuntime,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _seed_relation_fanout(runtime, count=511)
+    original_connect = runtime.store._connect
+
+    def legacy_limited_connect() -> sqlite3.Connection:
+        connection = original_connect()
+        connection.setlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 999)
+        return connection
+
+    monkeypatch.setattr(runtime.store, "_connect", legacy_limited_connect)
+    plan = build_plan(
+        "UniqueFanoutRoot",
+        scope="thread",
+        namespace="work",
+        budget=20,
+        mode="graph",
+        graph_hops=2,
+    )
+
+    hits = SQLiteGraphAdapter(runtime.store).search(plan, limit=20)
+
+    assert "ent:fanout-root" in {hit.record.id for hit in hits}
+
+
+def test_graph_source_attribution_is_bounded_and_has_no_orphan_endpoint(
+    runtime: SeamRuntime,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    child_by_relation = _seed_relation_fanout(runtime, count=600)
+    original_load_ir = runtime.store.load_ir
+    loaded_id_sets: list[tuple[str, ...]] = []
+
+    def observed_load_ir(*, ids=None, ns=None, scope=None, limit=None, offset=0):
+        if ids is not None:
+            loaded_id_sets.append(tuple(ids))
+        return original_load_ir(
+            ids=ids,
+            ns=ns,
+            scope=scope,
+            limit=limit,
+            offset=offset,
+        )
+
+    monkeypatch.setattr(runtime.store, "load_ir", observed_load_ir)
+    plan = build_plan(
+        "UniqueFanoutRoot",
+        scope="thread",
+        namespace="work",
+        budget=1_000,
+        mode="graph",
+        graph_hops=1,
+    )
+
+    SQLiteGraphAdapter(runtime.store).search(plan, limit=1_000)
+
+    assert loaded_id_sets
+    return_ids = set(max(loaded_id_sets, key=len))
+    attributed_relation_ids = return_ids & set(child_by_relation)
+    assert attributed_relation_ids
+    assert len(return_ids) <= 500
+    assert all(
+        child_by_relation[relation_id] in return_ids
+        for relation_id in attributed_relation_ids
+    )
+
+
+@pytest.mark.parametrize("mode", ["graph", "mix"])
+def test_graph_relation_source_enters_exact_raw_context_closure(
+    runtime: SeamRuntime,
+    mode: str,
+) -> None:
+    from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
+
+    raw_content = "Alpha connects Beta in the exact source episode."
+    raw_id, relation_id = _seed_relation_with_raw(
+        runtime,
+        raw_content=raw_content,
+    )
+    relation_record = runtime.store.load_ir(ids=[relation_id]).records[0]
+    semantic_adapter = (
+        _SemanticRelation(relation_record) if mode == "mix" else _EmptySQL()
+    )
+    orchestrator = RetrievalOrchestrator(
+        runtime,
+        sql_adapter=_EmptySQL(),
+        semantic_adapter=semantic_adapter,
+    )
+    result = orchestrator.search(
+        "unmatched semantic query" if mode == "mix" else "Alpha",
+        scope="thread",
+        namespace="work",
+        budget=1 if mode == "mix" else 10,
+        mode=mode,
+        graph_hops=1,
+        semantic_graph_seeding=mode == "mix",
+        include_raw=True,
+    )
+    by_id = {candidate.record.id: candidate for candidate in result.candidates}
+
+    relation = by_id[relation_id]
+    assert "graph" in relation.sources
+    if mode == "mix":
+        assert [candidate.record.id for candidate in result.candidates] == [
+            relation_id
+        ]
+        assert set(relation.sources) == {"graph", "vector"}
+    assert len(relation.graph_path) == 1
+    hop = relation.graph_path[0]
+    assert hop.source_record_id == relation.record.id
+    assert len(hop.episode_ids) == 1
+    with runtime.store._pool.checkout() as connection:
+        episode_source = connection.execute(
+            "select source_record_id from knowledge_episodes where id = ?",
+            (hop.episode_ids[0],),
+        ).fetchone()[0]
+    assert episode_source == raw_id
+
+    # Exercise the actual benchmark closure/context path. The entity records
+    # intentionally have no evidence, so RAW can enter only through the
+    # non-frontier REL source hit attributed by the canonical graph edge.
+    adapter = object.__new__(SeamLocomoAdapter)
+    adapter.budget = 8_000
+    closure_ids = adapter._collect_closure_ids(result)
+    assert relation_id in closure_ids
+    assert raw_id in closure_ids
+    assert adapter._build_evidence_context_from_ids(runtime, closure_ids) == raw_content
+
+
+@pytest.mark.parametrize(
+    ("corruption_sql", "params"),
+    [
+        (
+            "update knowledge_edges set predicate = ? "
+            "where source_record_id = 'rel:alpha-beta' and src_id = 'ent:alpha'",
+            ("forged_predicate",),
+        ),
+        (
+            "update knowledge_edges set dst_id = ? "
+            "where source_record_id = 'rel:alpha-beta' and src_id = 'ent:alpha'",
+            ("ent:gamma",),
+        ),
+        (
+            "update knowledge_edges set properties_json = ? "
+            "where source_record_id = 'rel:alpha-beta' and src_id = 'ent:alpha'",
+            ('{"relation_id":"rel:forged"}',),
+        ),
+        (
+            "update knowledge_nodes set synthetic = 1 where id = ?",
+            ("ent:alpha",),
+        ),
+    ],
+)
+def test_graph_rejects_noncanonical_or_mismatched_relation_edges(
+    runtime: SeamRuntime,
+    corruption_sql: str,
+    params: tuple[str, ...],
+) -> None:
+    _seed_chain(runtime)
+    with runtime.store._pool.checkout() as connection:
+        connection.execute(corruption_sql, params)
+        connection.commit()
+
+    plan = build_plan(
+        "Alpha",
+        scope="thread",
+        namespace="work",
+        budget=20,
+        mode="graph",
+        graph_hops=1,
+    )
+
+    assert SQLiteGraphAdapter(runtime.store).search(plan, limit=20) == []
+
+
+def test_claim_edge_stays_nontraversable_when_unrelated_relation_exists(
+    runtime: SeamRuntime,
+) -> None:
+    runtime.persist_ir(
+        IRBatch(
+            [
+                *[
+                    _entity(f"ent:{label.lower()}", label)
+                    for label in ("Alpha", "Beta", "Gamma", "Delta")
+                ],
+                MIRLRecord(
+                    id="clm:alpha-beta",
+                    kind=RecordKind.CLM,
+                    ns="work",
+                    scope="thread",
+                    attrs={
+                        "subject": "ent:alpha",
+                        "predicate": "connects",
+                        "object": "ent:beta",
+                    },
+                ),
+                _relation("rel:gamma-delta", "ent:gamma", "ent:delta"),
+            ]
+        )
+    )
+    plan = build_plan(
+        "Alpha",
+        scope="thread",
+        namespace="work",
+        budget=20,
+        mode="graph",
+        graph_hops=2,
+    )
+
+    assert SQLiteGraphAdapter(runtime.store).has_admissible_relation_edges(plan)
+    assert SQLiteGraphAdapter(runtime.store).search(plan, limit=20) == []
+
+
+def test_relation_predicate_family_is_admitted_without_semantic_edge_kind(
+    runtime: SeamRuntime,
+) -> None:
+    runtime.persist_ir(
+        IRBatch(
+            [
+                _entity("ent:alpha", "Alpha"),
+                _entity("ent:beta", "Beta"),
+                _relation(
+                    "rel:alpha-before-beta",
+                    "ent:alpha",
+                    "ent:beta",
+                    predicate="before",
+                ),
+            ]
+        )
+    )
+    with runtime.store._pool.checkout() as connection:
+        projected_kind = connection.execute(
+            "select edge_kind from knowledge_edges "
+            "where source_record_id = 'rel:alpha-before-beta' "
+            "and src_id = 'ent:alpha' and dst_id = 'ent:beta'",
+        ).fetchone()[0]
+    assert projected_kind == "temporal"
+
+    plan = build_plan(
+        "Alpha",
+        scope="thread",
+        namespace="work",
+        budget=20,
+        mode="graph",
+        graph_hops=1,
+    )
+    hits = {
+        hit.record.id: hit
+        for hit in SQLiteGraphAdapter(runtime.store).search(plan, limit=20)
+    }
+    assert hits["ent:beta"].path[0].predicate == "before"
+    assert (
+        hits["rel:alpha-before-beta"].path[0].source_record_id
+        == "rel:alpha-before-beta"
+    )
+
+
 def test_graph_paths_are_deterministic_and_stay_on_the_graph_leg(runtime: SeamRuntime) -> None:
     _seed_chain(runtime)
     adapter = SQLiteGraphAdapter(runtime.store)
@@ -645,6 +947,85 @@ def test_semantic_fact_hits_seed_bounded_graph_traversal(runtime: SeamRuntime) -
         reason == "graph:semantic_seed=true"
         for reason in by_id["rel:alpha-beta"].reasons
     )
+
+
+def test_mixed_direct_and_relation_semantic_seeds_are_all_grounded(
+    runtime: SeamRuntime,
+) -> None:
+    _seed_chain(runtime)
+    records = runtime.store.load_ir(
+        ids=["ent:alpha", "rel:beta-gamma"]
+    ).by_id()
+    orchestrator = RetrievalOrchestrator(
+        runtime,
+        sql_adapter=_EmptySQL(),
+        semantic_adapter=_StaticLeg(
+            "vector",
+            [records["ent:alpha"], records["rel:beta-gamma"]],
+        ),
+    )
+    result = orchestrator.decide(
+        "unmatched semantic query",
+        scope="thread",
+        namespace="work",
+        budget=10,
+        mode="mix",
+        graph_hops=1,
+        semantic_graph_seeding=True,
+    )
+    by_id = {candidate.record.id: candidate for candidate in result.ranked}
+
+    assert {"ent:alpha", "ent:beta", "ent:gamma"} <= set(by_id)
+    assert any(
+        reason == "graph:semantic_seed=true"
+        for reason in by_id["ent:gamma"].reasons
+    )
+    assert any(
+        reason == "graph:semantic_seed=true"
+        for reason in by_id["rel:beta-gamma"].reasons
+    )
+
+
+def test_semantic_grounding_keeps_reserve_when_lexical_seed_set_is_full(
+    runtime: SeamRuntime,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _seed_chain(runtime)
+    adapter = SQLiteGraphAdapter(runtime.store)
+    grounding_calls: list[tuple[bool, int]] = []
+
+    def ground_seed_ids(
+        plan,
+        record_ids,
+        *,
+        limit: int,
+        prefer_direct: bool = False,
+    ) -> set[str]:
+        grounding_calls.append((prefer_direct, limit))
+        if prefer_direct:
+            # Simulate a full/overproduced lexical result. The caller must cap
+            # it before calculating the independently reserved semantic share.
+            return {f"ent:lexical-{index:03d}" for index in range(300)}
+        return {"ent:alpha"} if limit > 0 else set()
+
+    monkeypatch.setattr(adapter, "_ground_seed_entity_ids", ground_seed_ids)
+    plan = build_plan(
+        "unmatched query",
+        scope="thread",
+        namespace="work",
+        budget=20,
+        mode="graph",
+        graph_hops=1,
+        semantic_graph_seeding=True,
+    )
+    hits = adapter.search(
+        plan,
+        limit=20,
+        seed_record_ids=["rel:alpha-beta"],
+    )
+
+    assert grounding_calls == [(True, 250), (False, 50)]
+    assert "ent:beta" in {hit.record.id for hit in hits}
 
 
 def test_isolated_semantic_seed_does_not_gain_graph_credit(

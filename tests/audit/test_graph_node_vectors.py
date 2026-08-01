@@ -274,7 +274,8 @@ def test_graph_node_vectors_are_an_explicit_rank_normalized_fusion_leg(
         },
     )
 
-    decision = RetrievalOrchestrator(runtime).decide(
+    orchestrator = RetrievalOrchestrator(runtime)
+    decision = orchestrator.decide(
         "Devon shellfish allergy",
         budget=10,
         mode="mix",
@@ -282,6 +283,8 @@ def test_graph_node_vectors_are_an_explicit_rank_normalized_fusion_leg(
         semantic_graph_seeding=True,
     )
     assert decision.leg_hits["graph_node"]
+    assert decision.leg_hits["graph"] == []
+    assert decision.leg_latency_ms["graph_node"] >= 0.0
     candidates = [
         candidate
         for candidate in decision.ranked
@@ -295,6 +298,19 @@ def test_graph_node_vectors_are_an_explicit_rank_normalized_fusion_leg(
             reason.startswith("graph_node:graph_node_semantic=")
             for reason in candidate.reasons
         )
+
+    traced = orchestrator.search(
+        "Devon shellfish allergy",
+        budget=10,
+        mode="mix",
+        graph_hops=1,
+        semantic_graph_seeding=True,
+        include_trace=True,
+    )
+    assert traced.trace["legs"]["graph_node"]
+    assert traced.trace["legs"]["graph"] == []
+    assert traced.trace["latency_ms"]["legs"]["graph_node"] >= 0.0
+    assert traced.trace["graph_skipped_reason"] == "no_semantic_relation_edges"
 
     session = SeamSDK(runtime=runtime).start_reasoning(
         "Find allergy evidence."

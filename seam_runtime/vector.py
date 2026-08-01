@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import heapq
 import json
+import math
 import sqlite3
 from contextlib import closing
 from dataclasses import dataclass
@@ -396,7 +397,8 @@ class SQLiteVectorIndex:
                 source_hash = _source_hash(source_text)
                 row = connection.execute(
                     """
-                    select source_hash, render_version, dimension, namespace, scope
+                    select source_hash, render_version, dimension, namespace, scope,
+                           vector_json
                     from vector_index
                     where record_id = ? and model_name = ?
                     """,
@@ -419,20 +421,63 @@ class SQLiteVectorIndex:
                     stale.append({"record_id": record.id, "reason": "namespace_changed"})
                 elif row["scope"] != (record.scope or ""):
                     stale.append({"record_id": record.id, "reason": "scope_changed"})
+                else:
+                    vector_issue = stored_vector_issue(
+                        row["vector_json"],
+                        expected_dimension=int(self.model.dimension),
+                    )
+                    if vector_issue is not None:
+                        stale.append(
+                            {"record_id": record.id, "reason": vector_issue}
+                        )
         return stale
 
-    def orphan_records(self) -> list[dict[str, object]]:
-        """Return vector rows whose record_id is missing from ir_records."""
+    def orphan_records(
+        self,
+        valid_record_ids: set[str] | None = None,
+        *,
+        model_name: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> list[dict[str, object]]:
+        """Return filtered vector rows without a matching canonical record.
+
+        ``valid_record_ids`` supports callers whose canonical set is already
+        bounded in memory. When omitted, the local ``ir_records`` table remains
+        authoritative. Optional filters let shared indexes audit one exact
+        model and boundary without treating other benchmark scopes as orphans.
+        """
         self.ensure_schema()
         with closing(self._connect()) as connection:
-            rows = connection.execute(
-                """
-                select v.record_id, v.model_name
-                from vector_index v
-                where not exists (select 1 from ir_records r where r.id = v.record_id)
-                """
-            ).fetchall()
-        return [{"record_id": row["record_id"], "model_name": row["model_name"], "reason": "orphan"} for row in rows]
+            where: list[str] = []
+            params: list[object] = []
+            if valid_record_ids is None:
+                where.append(
+                    "not exists (select 1 from ir_records r "
+                    "where r.id = v.record_id)"
+                )
+            if model_name is not None:
+                where.append("v.model_name = ?")
+                params.append(model_name)
+            if namespace is not None:
+                where.append("v.namespace = ?")
+                params.append(namespace)
+            if scope is not None:
+                where.append("v.scope = ?")
+                params.append(scope)
+            sql = "select v.record_id, v.model_name from vector_index v"
+            if where:
+                sql += " where " + " and ".join(where)
+            rows = connection.execute(sql, params).fetchall()
+        return [
+            {
+                "record_id": row["record_id"],
+                "model_name": row["model_name"],
+                "reason": "orphan",
+            }
+            for row in rows
+            if valid_record_ids is None or row["record_id"] not in valid_record_ids
+        ]
 
     def vector_count(self) -> int:
         """Return total number of vector rows."""
@@ -490,3 +535,37 @@ def _iter_text_values(value: object) -> Iterable[str]:
 
 def _source_hash(source_text: str) -> str:
     return hashlib.sha256(source_text.encode("utf-8")).hexdigest()
+
+
+def stored_vector_issue(
+    payload: object,
+    *,
+    expected_dimension: int,
+) -> str | None:
+    """Return a stable fail-closed reason for an unusable stored vector."""
+
+    if isinstance(payload, str):
+        try:
+            vector = json.loads(payload)
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return "vector_malformed"
+    else:
+        vector = payload
+    if not isinstance(vector, list):
+        return "vector_not_list"
+
+    numeric: list[float] = []
+    for value in vector:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return "vector_non_numeric"
+        try:
+            numeric.append(float(value))
+        except OverflowError:
+            return "vector_nonfinite"
+    if len(numeric) != expected_dimension:
+        return "vector_length_changed"
+    if not all(math.isfinite(value) for value in numeric):
+        return "vector_nonfinite"
+    if not any(value != 0.0 for value in numeric):
+        return "vector_all_zero"
+    return None

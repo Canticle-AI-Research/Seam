@@ -182,6 +182,10 @@ def main(argv: list[str] | None = None) -> int:
         _run("mirror history streams", ("tools.streams.history_adapter",))
         if _roadmap_changed():
             _run("refresh roadmap stream + state", ("tools.streams.roadmap_parser",))
+            _run(
+                "rebuild roadmap stream index",
+                ("tools.streams.rebuild_index", "--stream", "roadmap"),
+            )
         _run("rebuild cross-index", ("tools.streams.rebuild_cross_index",))
         _run(
             "write snapshot",

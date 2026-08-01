@@ -99,9 +99,53 @@ def _claim_refs(text: str) -> tuple[str, str, str]:
     return claim.id, claim.prov[0], claim.evidence[0]
 
 
-class SeamTests(unittest.TestCase):
+class _RuntimeArtifactCleanup:
+    """Close every runtime a test opened, then delete its database AND sidecars.
+
+    HISTORY#282 established this rule for transient runtimes elsewhere in the
+    suite: SQLite drops the ``-wal``/``-shm`` pair only on a CLEAN close, so
+    deleting the database while a handle is still open strands them permanently.
+    Linux unlinks open files happily, which is why the leak stayed invisible here
+    while 7,051 orphaned pairs (858 MB) piled up under ``test_seam/`` and 118 more
+    (5.5 MB) at the repo root. ``.gitignore`` blanket-ignores ``*.db-wal`` and
+    ``*.db-shm``, so ``git status`` never showed them either.
+
+    Tests call ``make_runtime`` rather than constructing ``SeamRuntime`` directly,
+    so the close cannot be forgotten at any one of the 93 construction sites.
+    ``test_seam_all/test_artifact_hygiene.py`` fails if it ever is again.
+    """
+
+    def make_runtime(self, *args, **kwargs):
+        """A ``SeamRuntime`` registered for close during ``tearDown``."""
+        runtime = SeamRuntime(*args, **kwargs)
+        self._open_runtimes.append(runtime)
+        return runtime
+
+    def _close_open_runtimes(self) -> None:
+        while self._open_runtimes:
+            close = getattr(self._open_runtimes.pop(), "close", None)
+            if callable(close):
+                close()
+
+    def _remove_db_artifacts(self, db_path: Path) -> None:
+        """Delete the database and both sidecars. Belt and braces: the close above
+        should already have removed the sidecars, so anything left here means a
+        handle escaped tracking."""
+        for path in (
+            db_path,
+            db_path.with_name(f"{db_path.name}-wal"),
+            db_path.with_name(f"{db_path.name}-shm"),
+        ):
+            try:
+                path.unlink(missing_ok=True)
+            except PermissionError:
+                pass
+
+
+class SeamTests(_RuntimeArtifactCleanup, unittest.TestCase):
     def setUp(self) -> None:
         TEST_ARTIFACT_DIR.mkdir(exist_ok=True)
+        self._open_runtimes: list = []
         self.db_path = TEST_ARTIFACT_DIR / f"test_seam_{uuid4().hex}.db"
         # Default isolation: assume SQLite vector backend unless a test opts in.
         # Operator may export SEAM_PGVECTOR_DSN; that's for adapter-specific tests
@@ -109,11 +153,8 @@ class SeamTests(unittest.TestCase):
         self._pgvector_dsn_backup = os.environ.pop("SEAM_PGVECTOR_DSN", None)
 
     def tearDown(self) -> None:
-        try:
-            if self.db_path.exists():
-                self.db_path.unlink()
-        except PermissionError:
-            pass
+        self._close_open_runtimes()
+        self._remove_db_artifacts(self.db_path)
         if self._pgvector_dsn_backup is not None:
             os.environ["SEAM_PGVECTOR_DSN"] = self._pgvector_dsn_backup
 
@@ -171,7 +212,7 @@ class SeamTests(unittest.TestCase):
         self.assertNotIn("id", pack.payload["entries"][0])
 
     def test_context_pack_resolves_subject_to_label(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_nl("Priya owns the billing service.")
         pack = pack_ir(batch, budget=1_000_000)
         clm = next(e for e in pack.payload["entries"] if e.get("kind") == "CLM")
@@ -200,7 +241,7 @@ class SeamTests(unittest.TestCase):
             os.environ.pop("SEAM_NL_REGEX_ENRICH", None)
 
     def test_context_pack_is_content_only(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_nl("Priya owns the billing service.")
         pack = pack_ir(batch, budget=1_000_000)
         kinds = {entry["kind"] for entry in pack.payload["entries"]}
@@ -210,7 +251,7 @@ class SeamTests(unittest.TestCase):
         self.assertTrue(any(entry["kind"] == "CLM" for entry in pack.payload["entries"]))
 
     def test_context_pack_factors_prov_evidence_ids_reversibly(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         # One document -> all claims share one prov/span hash, so the long hash
         # segment repeats across prov+evidence and the id-alias table fires.
         batch = runtime.compile_nl(
@@ -251,7 +292,7 @@ claim c1:
             "It should translate back into natural language without losing meaning."
         )
         claim_id, prov_id, span_id = _claim_refs(text)
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl(text))
         result = runtime.search_ir("translator natural language", budget=3)
         self.assertTrue(result.candidates)
@@ -266,7 +307,7 @@ claim c1:
             "It should translate back into natural language without losing meaning."
         )
         claim_id, prov_id, span_id = _claim_refs(text)
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl(text))
         with patch.object(runtime.store, "load_ir", side_effect=AssertionError("trace must not load the full DB")):
             trace = runtime.trace(claim_id)
@@ -275,7 +316,7 @@ claim c1:
         self.assertIn(span_id, node_ids)
 
     def test_store_load_ir_supports_stable_pagination(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = IRBatch(
             [
                 MIRLRecord(id="rec:003", kind=RecordKind.ENT, attrs={"label": "three"}),
@@ -310,7 +351,7 @@ claim c1:
             def search(self, query: str, limit: int = 10) -> dict[str, float]:
                 return {}
 
-        runtime = SeamRuntime(self.db_path, vector_adapter=FailingVectorAdapter())
+        runtime = self.make_runtime(self.db_path, vector_adapter=FailingVectorAdapter())
         batch = runtime.compile_nl("SEAM should not commit canonical records when required indexing fails.")
         record_ids = [record.id for record in batch.records]
         with self.assertRaisesRegex(RuntimeError, "Vector indexing failed"):
@@ -327,7 +368,7 @@ claim c1:
             def search(self, query: str, limit: int = 10) -> dict[str, float]:
                 return {}
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         original = runtime.compile_nl("SEAM keeps indexed records consistent when overwrites fail.")
         runtime.persist_ir(original)
         original_by_id = {record.id: record.to_dict() for record in original.records}
@@ -352,7 +393,7 @@ claim c1:
             def search(self, query: str, limit: int = 10) -> dict[str, float]:
                 return {}
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         text = "SEAM keeps enough context for manual rollback recovery."
         original = runtime.compile_nl(text)
         runtime.persist_ir(original)
@@ -382,7 +423,7 @@ claim c1:
     def test_rest_api_compile_search_context_stats_and_auth(self) -> None:
         from seam_runtime.server import create_app
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         with patch.dict(os.environ, {"SEAM_API_TOKEN": "test-token"}, clear=False):
             client = TestClient(create_app(runtime))
 
@@ -415,7 +456,7 @@ claim c1:
     def test_rest_api_allows_local_webui_cors_preflight(self) -> None:
         from seam_runtime.server import create_app
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         with patch.dict(os.environ, {"SEAM_API_TOKEN": "test-token"}, clear=False):
             client = TestClient(create_app(runtime))
 
@@ -436,7 +477,7 @@ claim c1:
     def test_rest_api_rate_limits_health_and_protected_endpoints(self) -> None:
         from seam_runtime.server import create_app
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         with patch.dict(os.environ, {"SEAM_API_TOKEN": "test-token", "SEAM_API_RATE_LIMIT_PER_MINUTE": "1"}, clear=False):
             client = TestClient(create_app(runtime))
 
@@ -483,7 +524,7 @@ claim c1:
     def test_rest_api_rejects_oversized_post_body_before_handler(self) -> None:
         from seam_runtime.server import create_app
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         with patch.dict(
             os.environ,
             {"SEAM_API_TOKEN": "test-token", "SEAM_API_MAX_BODY_BYTES": "16"},
@@ -568,7 +609,7 @@ claim c1:
                 self.assertEqual(index.search("query", limit=1), {"rec:1": 1.0})
 
     def test_vector_index_reindex_and_search(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_nl("We need a translator back into natural language for memory workflows.")
         claim_id = next(r.id for r in batch.records if r.kind == RecordKind.CLM)
         runtime.store.persist_ir(batch)
@@ -587,7 +628,7 @@ claim c1:
         self.assertIn(claim_id, top_ids)
 
     def test_ingest_persists_document_status_and_memory_search_get(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         report = runtime.ingest_text(
             "SEAM gives agents persistent local memory with graph and vector retrieval.",
             source_ref="unit://competitive-plan",
@@ -607,7 +648,7 @@ claim c1:
         self.assertIn("context", full)
 
     def test_retrieval_modes_include_vector_graph_hybrid_mix(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("SEAM stores graph edges and vector embeddings for agent memory retrieval."))
         orchestrator = RetrievalOrchestrator(runtime)
         for mode in ("vector", "graph", "hybrid", "mix"):
@@ -618,7 +659,7 @@ claim c1:
         self.assertEqual(mix_legs, ["sql", "vector", "graph"])
 
     def test_mcp_bridge_dispatches_memory_tools(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         ingest = dispatch_tool(
             runtime,
             {
@@ -662,7 +703,7 @@ print("ok")
         self.assertEqual(result.stdout.strip(), "ok")
 
     def test_mcp_bridge_exposes_stats_documents_context_and_doctor_tools(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         dispatch_tool(
             runtime,
             {
@@ -710,7 +751,7 @@ print("ok")
             dispatch_tool(runtime, {"tool": "seam_context", "arguments": {"query": "doctor", "pack_budget": "big"}})
 
     def test_mcp_bridge_surface_list_show_and_benchmark_latest_handle_empty_state(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
 
         empty_surfaces = dispatch_tool(runtime, {"tool": "seam_surface_list", "arguments": {"limit": 5}})
         self.assertEqual(empty_surfaces["result"]["surfaces"], [])
@@ -749,7 +790,7 @@ print("ok")
     def test_mcp_bridge_ready_line_announces_tool_metadata_with_annotations(self) -> None:
         from seam_runtime.mcp import run_stdio_bridge
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         output = StringIO()
         run_stdio_bridge(runtime, input_stream=StringIO(""), output_stream=output)
 
@@ -790,7 +831,7 @@ print("ok")
             surface_id = json.loads(encode_stream.getvalue())["library"]["surface_id"]
             self.assertTrue(surface_id.startswith("hs:"))
 
-            runtime = SeamRuntime(self.db_path)
+            runtime = self.make_runtime(self.db_path)
 
             query = dispatch_tool(
                 runtime,
@@ -882,7 +923,7 @@ print("ok")
                 ])
             surface_id = json.loads(encode_stream.getvalue())["library"]["surface_id"]
 
-            runtime = SeamRuntime(self.db_path)
+            runtime = self.make_runtime(self.db_path)
 
             verify = dispatch_tool(
                 runtime,
@@ -915,7 +956,7 @@ print("ok")
                 artifact_dir.rmdir()
 
     def test_mcp_bridge_index_status_reports_staleness(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.ingest_text("SEAM index status: first document for vector staleness check.", source_ref="unit://mcp-index-status", persist=True)
 
         status = dispatch_tool(runtime, {"tool": "seam_index_status", "arguments": {}})
@@ -932,7 +973,7 @@ print("ok")
         self.assertEqual(with_boundary["type"], "result")
 
     def test_mcp_bridge_retrieve_supports_all_four_modes_and_rejects_invalid(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.ingest_text(
             "Retrieval testing: vector-only semantic search returns results. "
             "Graph traversal follows entity relationships. Hybrid combines vector and SQL. "
@@ -971,7 +1012,7 @@ print("ok")
     def test_mcp_bridge_ready_line_announces_19_tools_with_no_metadata_warnings(self) -> None:
         from seam_runtime.mcp import run_stdio_bridge
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         from seam_runtime.mcp import TOOL_DESCRIPTIONS, TOOL_METADATA
         keys_desc = set(TOOL_DESCRIPTIONS)
         keys_meta = set(TOOL_METADATA)
@@ -998,7 +1039,7 @@ print("ok")
     def test_mcp_protocol_server_handles_initialize_list_and_call(self) -> None:
         from seam_runtime.mcp_protocol import run_mcp_server
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         requests = [
             {
                 "jsonrpc": "2.0",
@@ -1110,7 +1151,7 @@ print("ok")
 
 
     def test_symbol_promotion_and_pack_compaction(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         # The symbol loop (SEAM spec §23) mines repeated tokens from structured IR.
         # ("memory" recurs across the claim objects -> the core symbol "mem".)
         # The compile_nl FLOOR emits natural-language objects, not the structured
@@ -1144,7 +1185,7 @@ claim c2:
         self.assertIn("mem", pack.payload["symbols"])
 
     def test_symbol_export_and_query_expansion(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_dsl(
             """
 entity project "SEAM" as p1
@@ -1325,7 +1366,7 @@ claim c1:
                                  "should exhaust all 3 attempts then raise")
 
     def test_retrieval_benchmark_uses_gold_fixtures(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         benchmark = runtime.run_retrieval_benchmark()
         self.assertGreaterEqual(benchmark["summary"]["fixture_count"], 3)
         self.assertIn("hybrid", benchmark["summary"]["tracks"])
@@ -1408,7 +1449,7 @@ claim c1:
         self.assertEqual(report.actions[0]["type"], "duplicates")
 
     def test_retrieval_orchestrator_builds_mixed_plan(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         orchestrator = RetrievalOrchestrator(runtime)
         plan = orchestrator.plan("kind:CLM translator natural language", scope="thread", budget=3)
         self.assertEqual(plan.intent, QueryIntent.HYBRID)
@@ -1417,7 +1458,7 @@ claim c1:
         self.assertEqual(plan.normalized_query, "translator natural language")
 
     def test_retrieval_orchestrator_merges_sql_and_vector_legs(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_nl("We need a translator back into natural language for memory workflows.")
         runtime.persist_ir(batch)
         claim_id = next(r.id for r in batch.records if r.kind == RecordKind.CLM)
@@ -1432,7 +1473,7 @@ claim c1:
         self.assertIn("vector", result.trace["legs"])
 
     def test_sql_leg_excludes_irrelevant_kind_only_matches(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_dsl(
             """
 entity project "SEAM" as p1
@@ -1454,7 +1495,7 @@ claim c2:
         self.assertNotIn("c2", hit_ids)
 
     def test_sql_leg_returns_exact_structured_match_without_query_terms(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_dsl(
             """
 entity project "SEAM" as p1
@@ -1477,7 +1518,7 @@ claim c2:
         self.assertIn("matched=predicate", hits[0].reasons)
 
     def test_cli_plan_outputs_mixed_intent(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("We need a translator back into natural language for memory workflows."))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -1488,7 +1529,7 @@ claim c2:
         self.assertIn('"name": "vector"', payload)
 
     def test_cli_compare_outputs_basic_and_retrieval(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("We need a translator back into natural language for memory workflows."))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -1500,7 +1541,7 @@ claim c2:
     def test_cli_retrieve_pretty_output(self) -> None:
         seed = "We need a translator back into natural language for memory workflows."
         claim_id = _claim_ids(seed)[0]
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl(seed))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -1511,7 +1552,7 @@ claim c2:
         self.assertIn(claim_id, payload)
 
     def test_chroma_semantic_adapter_searches_via_fake_client(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_nl("We need a translator back into natural language for memory workflows.")
         runtime.persist_ir(batch)
         claim_id = next(r.id for r in batch.records if r.kind == RecordKind.CLM)
@@ -1524,7 +1565,7 @@ claim c2:
         self.assertEqual(hits[0].leg, "chroma")
 
     def test_retrieval_orchestrator_syncs_persistent_indexes(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_nl("We need a translator back into natural language for memory workflows.")
         runtime.persist_ir(batch)
         orchestrator = RetrievalOrchestrator(
@@ -1539,7 +1580,7 @@ claim c2:
         self.assertIn(claim_id, report["sqlite_indexed"])
 
     def test_context_pipeline_returns_context_pack(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         batch = runtime.compile_nl("We need a translator back into natural language for memory workflows.")
         runtime.persist_ir(batch)
         claim_id = next(r.id for r in batch.records if r.kind == RecordKind.CLM)
@@ -1553,7 +1594,7 @@ claim c2:
         self.assertIsNotNone(rag.trace)
 
     def test_cli_rag_search_json_contains_pack(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("We need a translator back into natural language for memory workflows."))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -1566,7 +1607,7 @@ claim c2:
     def test_cli_context_prompt_view_outputs_prompt_ready_text(self) -> None:
         seed = "We need a translator back into natural language for memory workflows."
         claim_id = _claim_ids(seed)[0]
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl(seed))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -1576,7 +1617,7 @@ claim c2:
         self.assertIn(f"[1] {claim_id} [CLM]", payload)
 
     def test_cli_context_evidence_view_json_contains_citations(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("We need a translator back into natural language for memory workflows."))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -1590,7 +1631,7 @@ claim c2:
     def test_cli_context_records_view_outputs_exact_record_payloads(self) -> None:
         seed = "We need a translator back into natural language for memory workflows."
         claim_id = _claim_ids(seed)[0]
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl(seed))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -1600,7 +1641,7 @@ claim c2:
         self.assertIn('"kind": "CLM"', payload)
 
     def test_cli_context_summary_view_reports_highlights(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("We need a translator back into natural language for memory workflows."))
         stream = StringIO()
         with redirect_stdout(stream):
@@ -2120,7 +2161,7 @@ claim c1:
                     path.unlink()
 
     def test_runtime_benchmark_suite_persists_and_verifies_bundle(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         bundle_path = Path(f"benchmark_bundle_{uuid4().hex}.json")
         try:
             report = runtime.run_benchmark_suite(suite="all", persist=True, bundle_path=bundle_path)
@@ -2149,7 +2190,7 @@ claim c1:
             for path in temp_root.glob(pattern):
                 path.unlink(missing_ok=True)
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         report = runtime.run_benchmark_suite(suite="long_context")
         self.assertEqual(report["summary"]["status"], "PASS")
         report = runtime.run_benchmark_suite(suite="agent_tasks")
@@ -2161,7 +2202,7 @@ claim c1:
         self.assertEqual(leftovers, [])
 
     def test_runtime_readable_benchmark_compares_rc1_to_source(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         report = runtime.run_benchmark_suite(suite="readable", tokenizer="char4_approx")
         self.assertEqual(report["summary"]["status"], "PASS")
         family = report["families"]["readable"]
@@ -2208,7 +2249,7 @@ claim c1:
         self.assertEqual(payload["families"]["readable"]["summary"]["direct_query_exactness_rate"], 1.0)
 
     def test_runtime_surface_benchmark_gates_exact_visual_payloads(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         report = runtime.run_benchmark_suite(suite="surface")
         self.assertEqual(report["summary"]["status"], "PASS")
         family = report["families"]["surface"]
@@ -2245,7 +2286,7 @@ claim c1:
         self.assertEqual(payload["families"]["surface"]["summary"]["repair_query_exactness_rate"], 1.0)
 
     def test_benchmark_diff_compares_case_deltas(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         before = runtime.run_benchmark_suite(suite="lossless", tokenizer="char4_approx")
         after = json.loads(json.dumps(before))
         case = after["families"]["lossless"]["cases"][0]
@@ -2263,7 +2304,7 @@ claim c1:
         self.assertEqual(savings_delta["indicator"], "green")
 
     def test_benchmark_gate_passes_custom_lossless_policy(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         report = runtime.run_benchmark_suite(suite="lossless", tokenizer="char4_approx")
         policy = {
             "version": benchmark_module.BENCHMARK_GATE_VERSION,
@@ -2294,7 +2335,7 @@ claim c1:
         self.assertEqual(check_statuses, {"PASS"})
 
     def test_benchmark_gate_flags_threshold_failure(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         report = runtime.run_benchmark_suite(suite="lossless", tokenizer="char4_approx")
         policy = {
             "version": benchmark_module.BENCHMARK_GATE_VERSION,
@@ -2311,7 +2352,7 @@ claim c1:
         self.assertIn("worst_case_savings", failed_metrics)
 
     def test_cli_benchmark_diff_json_accepts_bundle_paths(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         first_path = Path(f"benchmark_diff_a_{uuid4().hex}.json")
         second_path = Path(f"benchmark_diff_b_{uuid4().hex}.json")
         try:
@@ -2335,7 +2376,7 @@ claim c1:
                     path.unlink()
 
     def test_cli_benchmark_gate_exits_nonzero_on_baseline_regression(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         baseline_path = Path(f"benchmark_gate_a_{uuid4().hex}.json")
         candidate_path = Path(f"benchmark_gate_b_{uuid4().hex}.json")
         policy_path = Path(f"benchmark_gate_policy_{uuid4().hex}.json")
@@ -2424,7 +2465,7 @@ claim c1:
                 self.assertTrue(list(run_root.glob("*.json")))
 
     def test_runtime_benchmark_verifier_flags_tampered_bundle(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         bundle_path = Path(f"benchmark_bundle_{uuid4().hex}.json")
         tampered_path = Path(f"benchmark_bundle_tampered_{uuid4().hex}.json")
         try:
@@ -2444,7 +2485,7 @@ claim c1:
                     target.unlink()
 
     def test_storage_machine_artifact_and_projection_roundtrip(self) -> None:
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         artifact = compress_text_lossless("SEAM preserves exact context while compressing token usage for lossless recovery.\n" * 10)
         artifact_id = runtime.store.write_machine_artifact(
             source_type="test.machine",
@@ -2513,7 +2554,7 @@ claim c1:
                     "--index",
                 ]
             )
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         records = runtime.store.load_ir().records
         self.assertTrue(records)
 
@@ -2593,7 +2634,7 @@ claim c1:
     def test_dashboard_snapshot_renders_runtime_metrics(self) -> None:
         if Console is None:
             self.skipTest("rich is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("We need a translator back into natural language for memory workflows."))
         stream = StringIO()
         console = Console(file=stream, force_terminal=False, color_system=None, width=140)
@@ -2606,7 +2647,7 @@ claim c1:
     def test_dashboard_script_handles_success_and_error(self) -> None:
         if Console is None:
             self.skipTest("rich is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         stream = StringIO()
         console = Console(file=stream, force_terminal=False, color_system=None, width=140)
         run_dashboard(
@@ -2642,7 +2683,7 @@ claim c1:
     def test_dashboard_benchmark_tab_renders_benchmark_surface(self) -> None:
         if Console is None:
             self.skipTest("rich is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         source_path = Path(f"lossless_dashboard_{uuid4().hex}.txt")
         try:
             source_path.write_text(
@@ -2670,7 +2711,7 @@ claim c1:
     def test_dashboard_reload_refreshes_scripted_runtime_view(self) -> None:
         if Console is None:
             self.skipTest("rich is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl("SEAM reload should refresh dashboard runtime charts."))
         stream = StringIO()
         console = Console(file=stream, force_terminal=False, color_system=None, width=160)
@@ -2683,7 +2724,7 @@ claim c1:
     def test_textual_dashboard_mounts_core_panels(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2717,7 +2758,7 @@ claim c1:
             "SEAM_CHAT_BASE_URL": os.environ.get("SEAM_CHAT_BASE_URL"),
             "SEAM_CHAT_MODEL": os.environ.get("SEAM_CHAT_MODEL"),
         }
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2750,7 +2791,7 @@ claim c1:
             self.skipTest("textual is not installed")
         from textual.widgets import TabbedContent
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2777,7 +2818,7 @@ claim c1:
         saved_openrouter = os.environ.get("OPENROUTER_API_KEY")
         saved_chat_key = os.environ.get("SEAM_CHAT_API_KEY")
         saved_chat_base = os.environ.get("SEAM_CHAT_BASE_URL")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2825,7 +2866,7 @@ claim c1:
             self.skipTest("textual is not installed")
         from textual.widgets import TabbedContent
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2846,7 +2887,7 @@ claim c1:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2875,7 +2916,7 @@ claim c1:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
 
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2904,7 +2945,7 @@ claim c1:
     def test_textual_dashboard_command_palette_filters_prefix_menus(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2943,7 +2984,7 @@ claim c1:
     def test_textual_dashboard_command_palette_accepts_selection(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2976,7 +3017,7 @@ claim c1:
     def test_textual_dashboard_reload_refreshes_panels_after_runtime_change(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -2999,7 +3040,7 @@ claim c1:
     def test_textual_dashboard_explorer_lists_namespaces(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(
             runtime.compile_nl(
                 "Explorer namespace lazy loading should reveal persisted memory records.",
@@ -3032,7 +3073,7 @@ claim c1:
             self.skipTest("textual is not installed")
         seed = "We need a translator back into natural language for memory workflows."
         claim_id = _claim_ids(seed)[0]
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         runtime.persist_ir(runtime.compile_nl(seed))
         app = TextualDashboardApp(runtime)
 
@@ -3050,7 +3091,7 @@ claim c1:
     def test_textual_dashboard_chat_panel_sits_above_input(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3067,7 +3108,7 @@ claim c1:
     def test_textual_dashboard_panels_autofollow_latest_output(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3086,7 +3127,7 @@ claim c1:
     def test_textual_dashboard_focused_panel_supports_keyboard_scrolling(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3117,7 +3158,7 @@ claim c1:
     def test_textual_dashboard_focus_zoom_toggles_focused_panel(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3138,7 +3179,7 @@ claim c1:
     def test_textual_dashboard_routes_compile_output(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3155,7 +3196,7 @@ claim c1:
     def test_textual_dashboard_hybrid_mode_routes_bare_commands(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3171,7 +3212,7 @@ claim c1:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
         from textual.widgets import TabbedContent
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         source_path = Path(f"lossless_textual_{uuid4().hex}.txt")
         source_path.write_text(("SEAM preserves exact context while compressing token usage. " * 10).strip(), encoding="utf-8")
         app = TextualDashboardApp(runtime)
@@ -3205,7 +3246,7 @@ claim c1:
     def test_textual_dashboard_shortcuts_switch_modes(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3229,7 +3270,7 @@ claim c1:
     def test_textual_dashboard_shortcuts_switch_chat_model(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3270,7 +3311,7 @@ claim c1:
     def test_textual_dashboard_bang_runs_shell_commands(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3288,7 +3329,7 @@ claim c1:
     def test_textual_dashboard_blocks_shell_subprocess_by_default(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3305,7 +3346,7 @@ claim c1:
     def test_textual_dashboard_double_question_forces_chat_outside_agent_mode(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3324,7 +3365,7 @@ claim c1:
     def test_textual_dashboard_shortcuts_export_chat_transcript(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
         export_path = Path(f"chat_export_{uuid4().hex}.jsonl")
 
@@ -3350,7 +3391,7 @@ claim c1:
     def test_textual_dashboard_command_history_includes_status_badges_and_timing(self) -> None:
         if find_spec("textual") is None:
             self.skipTest("textual is not installed")
-        runtime = SeamRuntime(self.db_path)
+        runtime = self.make_runtime(self.db_path)
         app = TextualDashboardApp(runtime)
 
         async def _check() -> None:
@@ -3378,7 +3419,7 @@ claim c1:
                 'Recipe: Lemon Rice\nYield: 2 bowls\nNote: "Toast the rice before adding broth."\n',
                 encoding="utf-8",
             )
-            runtime = SeamRuntime(self.db_path)
+            runtime = self.make_runtime(self.db_path)
             app = TextualDashboardApp(runtime)
 
             async def _check() -> None:
@@ -3787,18 +3828,23 @@ class InstallerLinuxTests(unittest.TestCase):
             self.assertIn([str(python_bin), "-m", "tools.streams.verify_streams"], calls)
 
 
-class PgVectorAdapterTests(unittest.TestCase):
+class PgVectorAdapterTests(_RuntimeArtifactCleanup, unittest.TestCase):
+    # HISTORY#322 codified "generated outputs -> test_seam/<area>/" and relocated
+    # the sidecars that had already collected at the repo ROOT - but it never
+    # changed this path, so they started collecting there again immediately (118
+    # files by 2026-07-31). Write where the rule says, not next to the source.
+    ARTIFACT_DIR = TEST_ARTIFACT_DIR / "pgvector"
+
     def setUp(self) -> None:
-        self.db_path = Path(f"test_pgvector_{uuid4().hex}.db")
+        self.ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+        self._open_runtimes: list = []
+        self.db_path = self.ARTIFACT_DIR / f"test_pgvector_{uuid4().hex}.db"
         self.model = HashEmbeddingModel()
         self.adapter = FakePgVectorAdapter(self.model)
 
     def tearDown(self) -> None:
-        try:
-            if self.db_path.exists():
-                self.db_path.unlink()
-        except PermissionError:
-            pass
+        self._close_open_runtimes()
+        self._remove_db_artifacts(self.db_path)
 
     def _make_batch(self):
         return compile_dsl(
@@ -3847,14 +3893,14 @@ claim c2:
         self.assertTrue(any("create index" in s and "seam_vector_index" in s for s in sql_lower))
 
     def test_runtime_uses_pgvector_adapter_when_dsn_provided(self) -> None:
-        runtime = SeamRuntime(self.db_path, pgvector_dsn="postgresql://fake/db")
+        runtime = self.make_runtime(self.db_path, pgvector_dsn="postgresql://fake/db")
         self.assertIsInstance(runtime.vector_adapter, PgVectorAdapter)
 
     def test_runtime_picks_up_pgvector_dsn_from_env(self) -> None:
         old = os.environ.pop("SEAM_PGVECTOR_DSN", None)
         try:
             os.environ["SEAM_PGVECTOR_DSN"] = "postgresql://fake/db"
-            runtime = SeamRuntime(self.db_path)
+            runtime = self.make_runtime(self.db_path)
             self.assertIsInstance(runtime.vector_adapter, PgVectorAdapter)
         finally:
             if old is None:
@@ -3863,7 +3909,7 @@ claim c2:
                 os.environ["SEAM_PGVECTOR_DSN"] = old
 
     def test_runtime_persist_search_roundtrip_with_pgvector(self) -> None:
-        runtime = SeamRuntime(self.db_path, vector_adapter=self.adapter)
+        runtime = self.make_runtime(self.db_path, vector_adapter=self.adapter)
         batch = runtime.compile_dsl(
             """
 entity project "SEAM" as proj
@@ -4058,8 +4104,17 @@ class FakeChromaClient:
         return self.collection
 
 
-class LX1NotationTests(unittest.TestCase):
+class LX1NotationTests(_RuntimeArtifactCleanup, unittest.TestCase):
     """LX/1 compact AI-readable notation — encode/decode and token savings."""
+
+    def setUp(self) -> None:
+        self._open_runtimes: list = []
+
+    def tearDown(self) -> None:
+        # These runtimes are ":memory:", so they strand no files - but an unclosed
+        # SQLite handle is a leak regardless, and on Windows it blocks tempdir
+        # teardown with WinError 32 (HISTORY#282).
+        self._close_open_runtimes()
 
     def _make_ent(self) -> "MIRLRecord":
         from seam_runtime.mirl import MIRLRecord, RecordKind
@@ -4206,7 +4261,7 @@ class LX1NotationTests(unittest.TestCase):
 
     def test_compile_nl_lx1_roundtrip(self) -> None:
         from seam_runtime.lx1 import decode, encode, token_savings_report
-        runtime = SeamRuntime(":memory:")
+        runtime = self.make_runtime(":memory:")
         batch = runtime.compile_nl(
             "I want to build a durable memory runtime for AI that works without losing information."
         )
@@ -4221,7 +4276,7 @@ class LX1NotationTests(unittest.TestCase):
 
     def test_lx1_encode_cli_command(self) -> None:
         import tempfile
-        runtime = SeamRuntime(":memory:")
+        runtime = self.make_runtime(":memory:")
         batch = runtime.compile_nl("SEAM stores knowledge efficiently.")
         with tempfile.NamedTemporaryFile(mode="w", suffix=".mirl", delete=False) as f:
             f.write(batch.to_text())
@@ -4238,7 +4293,7 @@ class LX1NotationTests(unittest.TestCase):
 
     def test_lx1_benchmark_cli_command(self) -> None:
         import tempfile
-        runtime = SeamRuntime(":memory:")
+        runtime = self.make_runtime(":memory:")
         batch = runtime.compile_nl("SEAM stores knowledge efficiently.")
         with tempfile.NamedTemporaryFile(mode="w", suffix=".mirl", delete=False) as f:
             f.write(batch.to_text())

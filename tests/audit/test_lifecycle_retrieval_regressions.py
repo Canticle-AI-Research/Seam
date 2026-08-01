@@ -324,7 +324,7 @@ def test_current_retrieval_overfetches_before_status_filtering(
         "clm:current"
     ]
     assert [
-        item["record"]["id"] for item in result.trace["legs"]["sql"]
+        item["record_id"] for item in result.trace["legs"]["sql"]
     ] == ["clm:current"]
 
 

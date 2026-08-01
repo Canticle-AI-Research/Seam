@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
 from seam_runtime.mirl import MIRLRecord
+from seam_runtime.provenance import ProvenanceChain
 
 
 class QueryIntent(str, Enum):
@@ -91,6 +93,11 @@ class RetrievalPlan:
     semantic_graph_seeding: bool = False
     graph_at: str | None = None
     graph_include_history: bool = False
+    lens: str = "general"
+    include_raw: bool = False
+    temporal_window: tuple[datetime, datetime] | None = None
+    temporal_reference: datetime | None = None
+    ranking_policy: str = "reciprocal-rank-fusion/2"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -102,6 +109,19 @@ class RetrievalPlan:
             "semantic_graph_seeding": self.semantic_graph_seeding,
             "graph_at": self.graph_at,
             "graph_include_history": self.graph_include_history,
+            "lens": self.lens,
+            "include_raw": self.include_raw,
+            "temporal_window": (
+                [value.isoformat() for value in self.temporal_window]
+                if self.temporal_window is not None
+                else None
+            ),
+            "temporal_reference": (
+                self.temporal_reference.isoformat()
+                if self.temporal_reference is not None
+                else None
+            ),
+            "ranking_policy": self.ranking_policy,
             "filters": self.filters.to_dict(),
             "legs": [leg.to_dict() for leg in self.legs],
         }
@@ -160,6 +180,11 @@ class RetrievalCandidate:
     source_ranks: dict[str, int] = field(default_factory=dict)
     reasons: list[str] = field(default_factory=list)
     graph_path: tuple[GraphPathHop, ...] = ()
+    # The verified route back to source bytes, populated only when the caller
+    # asks (``include_provenance``); resolving it costs extra store reads.
+    # ``graph_path`` says HOW retrieval reached this record; ``provenance`` says
+    # WHERE the record came from. Together they are the full verified chain.
+    provenance: ProvenanceChain | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -169,6 +194,9 @@ class RetrievalCandidate:
             "source_ranks": dict(sorted(self.source_ranks.items())),
             "reasons": list(self.reasons),
             "graph_path": [hop.to_dict() for hop in self.graph_path],
+            "provenance": (
+                self.provenance.to_dict() if self.provenance is not None else None
+            ),
         }
 
 
