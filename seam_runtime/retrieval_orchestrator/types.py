@@ -6,6 +6,7 @@ from enum import Enum
 from typing import Any
 
 from seam_runtime.mirl import MIRLRecord
+from seam_runtime.provenance import ProvenanceChain
 
 
 class QueryIntent(str, Enum):
@@ -179,6 +180,11 @@ class RetrievalCandidate:
     source_ranks: dict[str, int] = field(default_factory=dict)
     reasons: list[str] = field(default_factory=list)
     graph_path: tuple[GraphPathHop, ...] = ()
+    # The verified route back to source bytes, populated only when the caller
+    # asks (``include_provenance``); resolving it costs extra store reads.
+    # ``graph_path`` says HOW retrieval reached this record; ``provenance`` says
+    # WHERE the record came from. Together they are the full verified chain.
+    provenance: ProvenanceChain | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -188,6 +194,9 @@ class RetrievalCandidate:
             "source_ranks": dict(sorted(self.source_ranks.items())),
             "reasons": list(self.reasons),
             "graph_path": [hop.to_dict() for hop in self.graph_path],
+            "provenance": (
+                self.provenance.to_dict() if self.provenance is not None else None
+            ),
         }
 
 

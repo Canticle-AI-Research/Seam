@@ -6,8 +6,10 @@ from typing import Callable
 
 from seam_runtime.knowledge_graph import CURRENT_EXCLUDED_STATUSES
 from seam_runtime.pack import pack_records
+from seam_runtime.provenance import resolve_provenance_many
 from seam_runtime.retrieval_policy import (
     FUSION_POLICY,
+    FUSION_POLICY_WEIGHTED,
     FUSION_RANK_CONSTANT,
     candidate_set_fingerprint,
 )
@@ -136,6 +138,7 @@ class RetrievalOrchestrator:
         if candidate_trace_limit > 128:
             raise ValueError("candidate_trace_limit cannot exceed 128")
         resolved_flags = flags or self.runtime._retrieval_flags_cached()
+        leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
         plan, leg_hits, leg_latency_ms, total_latency_ms, ranked = self._execute(
             query=query,
             scope=scope,
@@ -163,7 +166,13 @@ class RetrievalOrchestrator:
             plan=plan,
             selected=retained[:budget],
             rejected=retained[budget:],
-            policy=FUSION_POLICY,
+            # Same provenance rule as the search trace: a weighted run must not
+            # report the unweighted policy id.
+            policy=(
+                FUSION_POLICY_WEIGHTED
+                if leg_weights and ranking_policy == FUSION_POLICY
+                else ranking_policy
+            ),
             candidate_set_sha256=candidate_set_fingerprint(
                 (candidate.record.id, candidate.score, candidate.sources)
                 for candidate in ranked
@@ -293,10 +302,13 @@ class RetrievalOrchestrator:
                 )
             leg_latency_ms[leg.name] = (perf_counter() - leg_started) * 1000.0
 
+        # Empty weights reproduce unweighted `reciprocal-rank-fusion/2` exactly,
+        # so this is inert unless an operator sets them.
+        leg_weights = dict(getattr(flags, "fusion_leg_weights", ()) or ())
         ranked = (
             rank_legacy_weighted_hits(leg_hits["legacy_weighted"])
             if plan.ranking_policy == "legacy-weighted/1"
-            else rank_hits([hits for hits in leg_hits.values()])
+            else rank_hits([hits for hits in leg_hits.values()], leg_weights)
         )
         return (
             plan,
@@ -325,8 +337,10 @@ class RetrievalOrchestrator:
         temporal_reference: datetime | None = None,
         flags=None,
         ranking_policy: str = "reciprocal-rank-fusion/2",
+        include_provenance: bool = False,
     ) -> RetrievalSearchResult:
         resolved_flags = flags or self.runtime._retrieval_flags_cached()
+        leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
         plan, leg_hits, leg_latency_ms, total_latency_ms, ranked = self._execute(
             query=query,
             scope=scope,
@@ -352,6 +366,18 @@ class RetrievalOrchestrator:
         selected = ranked[:budget]
         rejected_trace = ranked[budget : budget + 128]
 
+        if include_provenance and selected:
+            # Resolve the selected page in ONE pass: candidates routinely share
+            # source turns, so per-candidate resolution would re-read the same
+            # SPAN and RAW rows repeatedly. Only the returned page is resolved -
+            # rejected candidates are never cited, so proving their origin is
+            # wasted store reads.
+            chains = resolve_provenance_many(
+                self.runtime.store, [candidate.record for candidate in selected]
+            )
+            for candidate in selected:
+                candidate.provenance = chains.get(candidate.record.id)
+
         trace = None
         if include_trace:
             trace = {
@@ -361,7 +387,16 @@ class RetrievalOrchestrator:
                     for name, hits in leg_hits.items()
                 },
                 "fusion": {
-                    "policy": plan.ranking_policy,
+                    # A weighted run must NOT claim the unweighted policy id:
+                    # the trace is the provenance record an ablation is read
+                    # from, so mislabeling it would silently misattribute the
+                    # result. Weights are disclosed alongside.
+                    "policy": (
+                        FUSION_POLICY_WEIGHTED
+                        if leg_weights and plan.ranking_policy == FUSION_POLICY
+                        else plan.ranking_policy
+                    ),
+                    "leg_weights": dict(sorted(leg_weights.items())) or None,
                     "normalization": {
                         "method": "reciprocal_rank",
                         "rank_constant": FUSION_RANK_CONSTANT,
