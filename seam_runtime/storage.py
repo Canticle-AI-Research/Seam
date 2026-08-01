@@ -1007,11 +1007,17 @@ class SQLiteStore:
         if scope:
             query += " and scope = ?"
             params.append(scope)
+        # SQLite does not guarantee row order without an explicit ORDER BY.
+        # ``insert or replace`` can move an otherwise unrelated row to a new
+        # rowid, so an unlimited load must be just as deterministic as a
+        # paginated load. Requested-ID callers are restored to their explicit
+        # input order below after this canonical database order is applied.
+        query += " order by id"
         if limit is not None:
-            query += " order by id limit ? offset ?"
+            query += " limit ? offset ?"
             params.extend([limit, offset])
         elif offset:
-            query += " order by id limit -1 offset ?"
+            query += " limit -1 offset ?"
             params.append(offset)
         with self._pool.checkout() as connection:
             rows = connection.execute(query, params).fetchall()

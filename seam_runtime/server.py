@@ -10,6 +10,7 @@ import sys
 import threading
 import time
 import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -1452,10 +1453,15 @@ def run_server(
     reload: bool = False,
     workers: int = 1,
 ) -> None:
+    _validate_server_safety(host=host, workers=workers)
     _require_fastapi()
     uvicorn = _require_uvicorn()
-    _validate_server_safety(host=host, workers=workers)
     os.environ["SEAM_SERVER_DB"] = str(db or default_runtime_db_path())
+    # The Uvicorn factory executes in worker/reload child processes. Carry the
+    # already-validated bind contract into those processes so the factory can
+    # enforce it again instead of trusting only the parent launcher.
+    os.environ["SEAM_SERVER_HOST"] = host
+    os.environ["SEAM_SERVER_WORKERS"] = str(workers)
 
     # Setup signal handlers for graceful shutdown
     def signal_handler(signum: int, frame: Any) -> None:
@@ -1479,6 +1485,8 @@ def run_server(
 
 
 def _validate_server_safety(host: str, workers: int) -> None:
+    if isinstance(workers, bool) or not isinstance(workers, int) or workers <= 0:
+        raise RuntimeError("SEAM server worker count must be a positive integer")
     if _rate_limit_from_env() > 0 and workers > 1 and not _env_truthy("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT"):
         raise RuntimeError(
             "SEAM API rate limiting is process-local; use one worker or set "
@@ -1504,6 +1512,54 @@ def _is_remote_bind(host: str) -> bool:
 
 def _env_truthy(name: str) -> bool:
     return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _factory_server_settings(
+    argv: list[str] | None = None,
+    env: Mapping[str, str] | None = None,
+) -> tuple[str, int]:
+    """Resolve the real bind settings visible to a Uvicorn app factory.
+
+    ``uvicorn module:factory --factory`` bypasses :func:`run_server`, so the
+    factory must not assume the normal launcher performed the safety check.
+    Uvicorn does not pass its Config object to a zero-argument factory, but its
+    CLI arguments and supported environment settings remain visible in the
+    worker process. The SEAM launcher also pins explicit settings in the worker
+    environment above. Unknown or malformed worker counts fail closed.
+    """
+
+    argv = list(sys.argv[1:] if argv is None else argv)
+    env = os.environ if env is None else env
+    host = (
+        env.get("SEAM_SERVER_HOST")
+        or env.get("UVICORN_HOST")
+        or "127.0.0.1"
+    )
+    workers_raw = (
+        env.get("SEAM_SERVER_WORKERS")
+        or env.get("UVICORN_WORKERS")
+        or env.get("WEB_CONCURRENCY")
+        or "1"
+    )
+
+    def cli_value(option: str) -> str | None:
+        for index, item in enumerate(argv):
+            if item == option and index + 1 < len(argv):
+                return argv[index + 1]
+            prefix = f"{option}="
+            if item.startswith(prefix):
+                return item[len(prefix):]
+        return None
+
+    host = cli_value("--host") or host
+    workers_raw = cli_value("--workers") or workers_raw
+    try:
+        workers = int(workers_raw)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("SEAM server worker count must be a positive integer") from exc
+    if workers <= 0:
+        raise RuntimeError("SEAM server worker count must be a positive integer")
+    return str(host), workers
 
 
 # -- tree endpoint helpers ---------------------------------------------------
@@ -1599,6 +1655,8 @@ def _walk_tree(
 
 
 def create_app_from_env() -> Any:
+    host, workers = _factory_server_settings()
+    _validate_server_safety(host=host, workers=workers)
     return create_app(SeamRuntime(os.environ.get("SEAM_SERVER_DB") or default_runtime_db_path()))
 
 

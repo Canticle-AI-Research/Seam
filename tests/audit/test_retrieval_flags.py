@@ -6,6 +6,8 @@ flag-parsing contract and the behavioural change each lever introduces,
 independent of any LoCoMo benchmark outcome.
 """
 
+import pytest
+
 from seam_runtime.bm25 import BM25Index
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.retrieval import (
@@ -49,6 +51,25 @@ def test_flag_defaults_all_off():
     assert flags.search_top_k is None
     assert flags.conversation_adapter == "off"
     assert flags.inference_policy == "context-only"
+
+
+@pytest.mark.parametrize("value", [0, -1])
+def test_non_positive_rrf_k_fails_at_flag_construction(value):
+    with pytest.raises(ValueError, match="rrf_k must be positive"):
+        RetrievalFlags(rrf_k=value)
+
+
+def test_invalid_persisted_and_environment_rrf_k_fail_closed():
+    from seam_runtime.retrieval import load_retrieval_flags
+
+    class State:
+        def iter_retrieval_flag_state(self):
+            return [{"flag_key": "rrf_k", "flag_value": 0}]
+
+    assert load_retrieval_flags(State(), {}).rrf_k == 60
+    assert load_retrieval_flags(None, {"SEAM_RETRIEVAL_RRF_K": "0"}).rrf_k == 60
+    assert load_retrieval_flags(None, {"SEAM_RETRIEVAL_RRF_K": "-5"}).rrf_k == 60
+    assert load_retrieval_flags(None, {"SEAM_RETRIEVAL_RRF_K": "--5"}).rrf_k == 60
 
 
 def test_flag_env_parsing_truthy_variants():

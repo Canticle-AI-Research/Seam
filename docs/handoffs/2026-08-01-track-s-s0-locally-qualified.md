@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-01-track-s-s0-locally-qualified
 supersedes: 2026-08-01-track-s-production-core-campaign
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#513
 ---
 

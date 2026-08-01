@@ -44,6 +44,40 @@ def test_locomo_evidence_context_preserves_ranked_order_with_sqlite_store(tmp_pa
     assert context.index("first ranked") < context.index("second ranked")
 
 
+def test_unlimited_load_and_tied_budget_one_survive_unrelated_rewrite(tmp_path):
+    path = tmp_path / "stable-ties.db"
+    store = SQLiteStore(path)
+    store.persist_ir(
+        IRBatch(
+            [
+                _raw("raw:z", "same tied phrase"),
+                _raw("raw:a", "same tied phrase"),
+                _raw("raw:m", "unrelated payload"),
+            ]
+        )
+    )
+
+    def observe(current: SQLiteStore) -> tuple[list[str], list[str]]:
+        loaded = current.load_ir().records
+        from seam_runtime.retrieval import search_batch
+
+        ranked = search_batch(
+            IRBatch(loaded),
+            query="same tied phrase",
+            include_raw=True,
+            limit=1,
+        )
+        return [record.id for record in loaded], [item.record.id for item in ranked.candidates]
+
+    before = observe(store)
+    store.persist_ir(IRBatch([_raw("raw:m", "rewritten unrelated payload")]))
+    store.close()
+    with SQLiteStore(path) as reopened:
+        after = observe(reopened)
+
+    assert before == after == (["raw:a", "raw:m", "raw:z"], ["raw:a"])
+
+
 def _raw(record_id: str, content: str) -> MIRLRecord:
     return MIRLRecord(
         id=record_id,

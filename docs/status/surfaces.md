@@ -20,7 +20,9 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   hosted tenancy and opaque remote deletion remain Track S S6 work.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 16 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
-  can auto-start pgvector.
+  can auto-start pgvector. The private handshake reports the installed runtime
+  package version; `server.json` retains its intentional legacy compatibility
+  value.
 - RAG surface: `seam ingest <path> --persist`, `seam memory search|get`,
   `seam retrieve --mode mix`.
 - Linux installer modes: global (`~/.local/share/seam`) and `--dev` repo-local.

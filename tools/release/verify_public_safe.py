@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from tools.release.public_manifest import is_allowed_on_public_mirror, is_reserved_material_path
+from tools.security.secret_scan import SECRET_PATTERNS
 
 ZERO_SHA = "0" * 40
 
@@ -45,18 +46,7 @@ DENY_PATH_PATTERNS: tuple[re.Pattern[str], ...] = (
 
 # High-confidence secret shapes. Any hit blocks the push.
 BLOCK_CONTENT_PATTERNS: tuple[re.Pattern[str], ...] = (
-    re.compile(r"AKIA[0-9A-Z]{16}"),
-    re.compile(r"gh[pousr]_[A-Za-z0-9]{36,}"),
-    re.compile(r"sk-ant-[A-Za-z0-9\-]{20,}"),
-    re.compile(r"sk-[A-Za-z0-9]{20,}"),
-    re.compile(r"-----BEGIN (RSA |EC |OPENSSH |DSA |)PRIVATE KEY-----"),
-    # 4+ char password requirement mirrors tools/history/verify_continuity.py's
-    # dsn_password pattern so placeholder DSNs (e.g. "postgres://user:pw@host")
-    # used as UI/doc examples don't trip this at push time when they already
-    # pass the repo's own commit-time secret scanner.
-    re.compile(r"postgres(?:ql)?://[^:/\s]+:[^@/\s]{4,}@"),
-    re.compile(r"claude\.ai/(chat|share)/[a-zA-Z0-9-]+"),
-    re.compile(r"console\.anthropic\.com/[^\s\"')]*session[^\s\"')]*"),
+    *(pattern for _kind, pattern in SECRET_PATTERNS),
 )
 
 # Lower-confidence generic patterns. Reported but non-blocking.

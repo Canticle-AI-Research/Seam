@@ -155,6 +155,10 @@ _GRAPH_TERM_TOKEN_RE = re.compile(r"[^\W]+(?:[:-][^\W]+)*", re.UNICODE)
 _INDEXABLE_CONCEPT_KINDS = frozenset({"entity", "value", "agent", "symbol"})
 
 
+class KnowledgeGraphProjectionVersionError(RuntimeError):
+    """Raised before mutating an unsupported knowledge-graph projection."""
+
+
 def normalize_graph_term(value: object) -> str:
     """Return the stable, Unicode-aware identity/search form for a graph term."""
 
@@ -256,7 +260,54 @@ def _index_node_term(
 
 
 def init_knowledge_graph(connection: sqlite3.Connection) -> None:
-    """Create and, once per schema version, backfill the live graph projection."""
+    """Create the current graph projection or refuse an unsupported version.
+
+    Automatic drop-and-rebuild made opening a database destructive whenever a
+    version marker was stale, missing, or newer than this runtime. Migrations
+    and reprojection require explicit guarded workflows; ordinary open is
+    deliberately read-before-write and fails closed on every mismatch.
+    """
+
+    existing_tables = {
+        str(row[0])
+        for row in connection.execute(
+            "select name from sqlite_master where type = 'table'"
+        ).fetchall()
+    }
+    if "knowledge_graph_meta" in existing_tables:
+        row = connection.execute(
+            "select value from knowledge_graph_meta where key = 'projection_version'"
+        ).fetchone()
+        stored_version = str(row[0]) if row is not None else "missing"
+        if stored_version != PROJECTION_VERSION:
+            raise KnowledgeGraphProjectionVersionError(
+                "Unsupported knowledge graph projection version "
+                f"{stored_version!r}; expected {PROJECTION_VERSION!r}. "
+                "Refusing automatic reprojection."
+            )
+    else:
+        projection_tables = {
+            "identity_merge_evidence",
+            "identity_merges",
+            "knowledge_edge_episodes",
+            "knowledge_edges",
+            "knowledge_episodes",
+            "knowledge_node_episodes",
+            "knowledge_node_terms",
+            "knowledge_node_vectors",
+            "knowledge_nodes",
+        }
+        ir_count = (
+            int(connection.execute("select count(*) from ir_records").fetchone()[0])
+            if "ir_records" in existing_tables
+            else 0
+        )
+        if existing_tables & projection_tables or ir_count:
+            raise KnowledgeGraphProjectionVersionError(
+                "Knowledge graph projection version is missing on a non-empty store; "
+                "refusing automatic reprojection."
+            )
+
     connection.executescript(
         """
         create table if not exists knowledge_nodes (
@@ -396,57 +447,8 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
     episode_columns = {row[1] for row in connection.execute("pragma table_info(knowledge_episodes)").fetchall()}
     if "expired_at" not in episode_columns:
         connection.execute("alter table knowledge_episodes add column expired_at text")
-    row = connection.execute(
-        "select value from knowledge_graph_meta where key = 'projection_version'"
-    ).fetchone()
-    if row is not None and row[0] == PROJECTION_VERSION:
+    if "knowledge_graph_meta" in existing_tables:
         return
-
-    connection.execute("delete from knowledge_edge_episodes")
-    connection.execute("delete from knowledge_node_episodes")
-    connection.execute("delete from knowledge_node_terms")
-    connection.execute("delete from knowledge_edges")
-    connection.execute("delete from knowledge_episodes")
-    connection.execute("delete from knowledge_nodes")
-    cursor = connection.execute(
-        "select id, kind, ns, scope, status, conf, t0, t1, created_at, updated_at, payload_json "
-        "from ir_records order by id"
-    )
-    while True:
-        rows = cursor.fetchmany(500)
-        if not rows:
-            break
-        records = []
-        for row in rows:
-            try:
-                data = json.loads(row["payload_json"])
-                data.setdefault("id", row["id"])
-                data.setdefault("kind", row["kind"])
-                data.setdefault("ns", row["ns"])
-                data.setdefault("scope", row["scope"])
-                data.setdefault("conf", row["conf"])
-                data.setdefault("t0", row["t0"])
-                data.setdefault("t1", row["t1"])
-                data.setdefault("created_at", row["created_at"])
-                data.setdefault("updated_at", row["updated_at"])
-                status = str(data.get("status") or row["status"])
-                if status not in {item.value for item in Status}:
-                    status = Status.ASSERTED.value
-                data["status"] = status
-                records.append(MIRLRecord.from_dict(data))
-            except (json.JSONDecodeError, KeyError, TypeError, ValueError):
-                # A malformed legacy payload must not prevent the canonical
-                # store from opening. It remains in ir_records for audit and
-                # can be repaired independently of this derived projection.
-                continue
-        project_records(connection, records)
-    # The identity merge ledger is durable decision state that survives the
-    # projection drop+rebuild above. Re-validate accepted merges against the
-    # freshly rebuilt node set so a merge whose node vanished becomes an
-    # auditable conflict rather than a silent dangling reference.
-    from .identity_resolution import apply_identity_merges
-
-    apply_identity_merges(connection)
     connection.execute(
         "insert or replace into knowledge_graph_meta (key, value) values ('projection_version', ?)",
         (PROJECTION_VERSION,),

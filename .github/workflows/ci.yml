@@ -64,7 +64,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install package
-        run: python -m pip install -e ".[server,sbert,rerank,selfhost]"
+        run: python -m pip install -e ".[server,sbert,rerank]"
 
       - name: Install test dependencies
         # httpx is required by starlette.testclient (the server tests use TestClient);
@@ -197,18 +197,11 @@ jobs:
       - name: Verify SEAM handoff registry
         run: python -m tools.history.verify_handoffs
 
+      - name: Verify dependency source contract
+        run: python -m tools.ci.verify_dependency_contract
+
       - name: Secret/session URL scan
-        shell: bash
-        run: |
-          if rg --pcre2 -l "(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|claude\\.ai/(chat|share)/|chatgpt\\.com/(share|c)/)" . \
-              --glob '!test_seam/**' \
-              --glob '!build/**' \
-              --glob '!.venv/**' \
-              --glob '!docs/archive/**' \
-              --glob '!archive/**' > /tmp/seam_secret_scan_matches; then
-            echo "Secret-shaped value or private session URL found in $(wc -l < /tmp/seam_secret_scan_matches) file(s)."
-            exit 1
-          fi
+        run: python -m tools.security.secret_scan --working-tree
 
   chroma-real-smoke:
     runs-on: [self-hosted, seam-box]

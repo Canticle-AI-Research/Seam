@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import traceback
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Iterator, TextIO
 
@@ -15,6 +16,15 @@ from .runtime import SeamRuntime
 
 SUPPORTED_PROTOCOL_VERSIONS = ("2025-06-18", "2025-03-26", "2024-11-05")
 DEFAULT_PROTOCOL_VERSION = SUPPORTED_PROTOCOL_VERSIONS[0]
+
+
+def _runtime_package_version() -> str:
+    """Return the installed private runtime version used by this handshake."""
+
+    try:
+        return version("seam-runtime")
+    except PackageNotFoundError:  # pragma: no cover - source-only misuse
+        return "unknown"
 
 JSONRPC_PARSE_ERROR = -32700
 JSONRPC_INVALID_REQUEST = -32600
@@ -162,7 +172,7 @@ def _dispatch_mcp_method(runtime: SeamRuntime, method: str, params: object) -> d
             "serverInfo": {
                 "name": "seam",
                 "title": "SEAM Memory Runtime",
-                "version": "1.3.1",
+                "version": _runtime_package_version(),
             },
             "instructions": (
                 "Use SEAM tools for persistent local memory, prompt-ready context, "

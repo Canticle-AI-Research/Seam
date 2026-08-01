@@ -1,10 +1,25 @@
 """Tests for server bind safety: remote unauthenticated bind refusal."""
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 
-from seam_runtime.server import _is_remote_bind, _validate_server_safety
+from seam_runtime.server import (
+    _factory_server_settings,
+    _is_remote_bind,
+    _validate_server_safety,
+)
 
 
 class TestRemoteBindSafety:
+    @pytest.mark.parametrize("workers", [0, -1, True])
+    def test_non_positive_or_boolean_worker_count_is_rejected(self, workers, monkeypatch):
+        monkeypatch.delenv("SEAM_API_RATE_LIMIT_PER_MINUTE", raising=False)
+        with pytest.raises(RuntimeError, match="positive integer"):
+            _validate_server_safety(host="127.0.0.1", workers=workers)
+
     def test_localhost_bind_allowed_without_token(self, monkeypatch):
         monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
         monkeypatch.delenv("SEAM_API_ALLOW_REMOTE_NO_TOKEN", raising=False)
@@ -47,3 +62,62 @@ class TestRemoteBindSafety:
     def test_is_remote_bind_true_for_public(self):
         assert _is_remote_bind("0.0.0.0")
         assert _is_remote_bind("192.168.1.1")
+
+
+def test_factory_settings_resolve_uvicorn_cli_over_environment():
+    host, workers = _factory_server_settings(
+        ["seam_runtime.server:create_app_from_env", "--factory", "--host=0.0.0.0", "--workers", "3"],
+        {"UVICORN_HOST": "127.0.0.1", "UVICORN_WORKERS": "1"},
+    )
+    assert (host, workers) == ("0.0.0.0", 3)
+
+
+def test_run_server_rejects_bad_worker_count_before_optional_imports(monkeypatch):
+    import seam_runtime.server as server
+
+    def optional_import_reached():
+        raise AssertionError("optional server import should not be reached")
+
+    monkeypatch.setattr(server, "_require_fastapi", optional_import_reached)
+    with pytest.raises(RuntimeError, match="positive integer"):
+        server.run_server(workers=0)
+
+
+def test_real_uvicorn_factory_refuses_unsafe_remote_launch(tmp_path):
+    repo_root = Path(__file__).resolve().parents[2]
+    env = os.environ.copy()
+    for name in (
+        "SEAM_API_TOKEN",
+        "SEAM_API_ALLOW_REMOTE_NO_TOKEN",
+        "SEAM_API_ALLOW_INSECURE_REMOTE",
+        "SEAM_SERVER_HOST",
+        "SEAM_SERVER_WORKERS",
+        "UVICORN_HOST",
+        "UVICORN_WORKERS",
+        "WEB_CONCURRENCY",
+    ):
+        env.pop(name, None)
+    env["SEAM_SERVER_DB"] = str(tmp_path / "factory.db")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "seam_runtime.server:create_app_from_env",
+            "--factory",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "0",
+        ],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=15,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "without an authentication token" in (result.stdout + result.stderr)

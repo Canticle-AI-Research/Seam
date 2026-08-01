@@ -31,7 +31,10 @@ from seam_runtime.identity_resolution import (
     resolve_canonical,
     split_merge,
 )
-from seam_runtime.knowledge_graph import init_knowledge_graph
+from seam_runtime.knowledge_graph import (
+    KnowledgeGraphProjectionVersionError,
+    init_knowledge_graph,
+)
 from seam_runtime.mcp import TOOL_METADATA, dispatch_tool
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.runtime import SeamRuntime
@@ -279,7 +282,7 @@ def test_alias_absorbed_twice_is_conflict(runtime: SeamRuntime) -> None:
         )
 
 
-def test_accepted_merge_survives_reprojection(runtime: SeamRuntime) -> None:
+def test_missing_projection_version_refuses_implicit_reprojection(runtime: SeamRuntime) -> None:
     _seed_entities(runtime)
     with runtime.store._pool.checkout() as connection:
         merge_id = propose_merge(
@@ -292,21 +295,38 @@ def test_accepted_merge_survives_reprojection(runtime: SeamRuntime) -> None:
         accept_merge(connection, merge_id)
         connection.commit()
 
-        # Force a full projection drop+rebuild.
         connection.execute(
             "delete from knowledge_graph_meta where key = 'projection_version'"
         )
         connection.commit()
-        init_knowledge_graph(connection)
-        connection.commit()
-
-        # Nodes were rebuilt from MIRL, so the merge stays accepted and resolving.
-        surviving = {m["id"]: m for m in list_merges(connection)}
-        assert surviving[merge_id]["status"] == STATUS_ACCEPTED
-        assert (
-            resolve_canonical(connection, "ent:ibm-corp", ns="people", scope="project")
-            == "ent:ibm"
+        tables = (
+            "knowledge_nodes",
+            "knowledge_edges",
+            "knowledge_episodes",
+            "knowledge_node_episodes",
+            "knowledge_edge_episodes",
+            "knowledge_node_terms",
+            "knowledge_node_vectors",
+            "identity_merges",
+            "identity_merge_evidence",
+            "knowledge_graph_meta",
         )
+
+        def snapshot() -> dict[str, list[tuple[object, ...]]]:
+            return {
+                table: [
+                    tuple(row)
+                    for row in connection.execute(
+                        f'select * from "{table}" order by rowid'
+                    ).fetchall()
+                ]
+                for table in tables
+            }
+
+        before = snapshot()
+        with pytest.raises(KnowledgeGraphProjectionVersionError, match="'missing'"):
+            init_knowledge_graph(connection)
+        assert snapshot() == before
 
 
 def test_apply_flags_conflict_when_node_vanishes(runtime: SeamRuntime) -> None:

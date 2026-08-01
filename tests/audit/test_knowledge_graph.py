@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import json
+import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from seam_runtime.graph_source_selector import select_graph_source_raw
+from seam_runtime.knowledge_graph import KnowledgeGraphProjectionVersionError
 from seam_runtime.mcp import TOOL_METADATA, dispatch_tool
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.retrieval_orchestrator.adapters import SQLiteGraphAdapter
@@ -23,6 +26,17 @@ def runtime(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         yield instance
     finally:
         instance.close()
+
+
+def test_graph_schema_initializes_on_a_genuinely_fresh_connection() -> None:
+    from seam_runtime.knowledge_graph import PROJECTION_VERSION, init_knowledge_graph
+
+    with sqlite3.connect(":memory:") as connection:
+        init_knowledge_graph(connection)
+        stored = connection.execute(
+            "select value from knowledge_graph_meta where key = 'projection_version'"
+        ).fetchone()[0]
+    assert stored == PROJECTION_VERSION
 
 
 def test_every_persist_automatically_builds_agent_attributed_graph(runtime: SeamRuntime) -> None:
@@ -190,9 +204,11 @@ def test_compiled_entities_are_episode_grounded_and_select_exact_raw(runtime: Se
     assert {path.path_kind for path in selected[0].paths} == {"edge", "mention"}
 
 
-def test_projection_v5_backfills_identity_terms_from_canonical_mirl(
+@pytest.mark.parametrize("stored_version", ["knowledge-graph/4", "knowledge-graph/999"])
+def test_unsupported_projection_versions_fail_closed_without_graph_mutation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    stored_version: str,
 ) -> None:
     monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
     db_path = tmp_path / "graph-v4.db"
@@ -214,30 +230,43 @@ def test_projection_v5_backfills_identity_terms_from_canonical_mirl(
             )
         )
         with first.store._pool.checkout() as connection:
-            connection.execute("delete from knowledge_node_terms")
             connection.execute(
-                "update knowledge_graph_meta set value = 'knowledge-graph/4' "
-                "where key = 'projection_version'"
+                "update knowledge_graph_meta set value = ? where key = 'projection_version'",
+                (stored_version,),
             )
             connection.commit()
     finally:
         first.close()
 
-    second = SeamRuntime(db_path)
+    tables = (
+        "knowledge_nodes",
+        "knowledge_edges",
+        "knowledge_episodes",
+        "knowledge_node_episodes",
+        "knowledge_edge_episodes",
+        "knowledge_node_terms",
+        "knowledge_node_vectors",
+        "identity_merges",
+        "identity_merge_evidence",
+        "knowledge_graph_meta",
+    )
+
+    def snapshot() -> dict[str, list[tuple[object, ...]]]:
+        with closing(sqlite3.connect(db_path)) as connection:
+            return {
+                table: connection.execute(f'select * from "{table}" order by rowid').fetchall()
+                for table in tables
+            }
+
+    before = snapshot()
+    candidate = None
     try:
-        with second.store._pool.checkout() as connection:
-            rows = connection.execute(
-                "select distinct normalized_term from knowledge_node_terms "
-                "where node_id = ? order by normalized_term",
-                ("ent:orion",),
-            ).fetchall()
-            version = connection.execute(
-                "select value from knowledge_graph_meta where key = 'projection_version'"
-            ).fetchone()[0]
-        assert [str(row[0]) for row in rows] == ["orion", "project orion"]
-        assert version == "knowledge-graph/5"
+        with pytest.raises(KnowledgeGraphProjectionVersionError, match="Refusing automatic reprojection"):
+            candidate = SeamRuntime(db_path)
     finally:
-        second.close()
+        if candidate is not None:
+            candidate.close()
+    assert snapshot() == before
 
 
 def test_query_graph_projects_episodes_as_connected_provenance_nodes(runtime: SeamRuntime) -> None:

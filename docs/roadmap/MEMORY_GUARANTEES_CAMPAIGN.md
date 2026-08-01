@@ -2,7 +2,7 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S0 locally qualified via `HISTORY#513`
+**Latest evidence:** S1 locally qualified via `HISTORY#520`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
 
@@ -17,8 +17,10 @@ integrates fail-closed canonical REL/ENT graph admission, offline embedding
 coverage checks, and an explicitly research-only relation-extraction lane. Its
 12-module focused scope passed 269/269 tests. The replacement branch then
 satisfied S0's broader suite, review, path, security, and continuity gates; see
-`HISTORY#513` and the current handoff. This is baseline qualification, not a
-claim that any F1-F22 production defect is fixed. S1 is the next dependency.
+`HISTORY#513` and the current handoff. S1 then closed the immediate
+deterministic-order, retrieval-validation, server-factory,
+projection-version, scanner, MCP-version, and dependency-contract guardrails.
+S2 is the next dependency boundary.
 
 ## Governing invariants
 
@@ -55,11 +57,11 @@ These are audit verdicts, not severity labels and not completion claims.
 | Finding | Verdict | Verified production boundary | Owning stage(s) |
 | --- | --- | --- | --- |
 | F1 | **CONFIRMED** | Destructive projection rebuild can lose graph-only supersession state. Previously quoted empirical counts are not rerun or republished by this plan. | S3 |
-| F2 | **CONFIRMED** | Unlimited record loading has no deterministic `ORDER BY`, and the legacy scorer breaks ties by score alone. | S1 |
+| F2 | **CONFIRMED** | S1 adds deterministic record loading and record-ID tie breaks through the final retrieval boundary, including budget 1. | S1 |
 | F3 | **QUALIFIED** | Planner work is wasted on the legacy path and `search_ir()` hardcodes legacy behavior. The earlier “only two callers” count is stale. Promotion remains gated by cat3 and the full S9 result. | S8, S9 |
 | F4 | **CONFIRMED** | Caller namespace sits behind one bearer token, not a principal identity. This is critical for a shared hosted topology and topology-dependent otherwise. | S6 |
 | F5 | **QUALIFIED** | Default ingest remains relation-free. An explicit compiler/research lane can emit REL, but the measured 27/419 coverage is insufficient and scorer-ineligible. | S7, S9 |
-| F6 | **CONFIRMED** | The Uvicorn factory path bypasses server-safety guards applied by the normal launch path. | S1 |
+| F6 | **CONFIRMED** | S1 routes real Uvicorn factory startup through the same bind/worker safety contract as normal launch. | S1 |
 | F7 | **CONFIRMED** | Canonical database commit precedes derived vector indexing; current compensation is not process-durable. | S5 |
 | F8 | **CONFIRMED** | Weighted fusion implemented on the retrieval branch is rejected by reasoned-retrieval policy persistence, while unknown leg names are accepted. | S8 |
 | F9 | **QUALIFIED** | Retrieval observation has live event, identity, and semantic gaps. Zero-row counts are corpus observations, not universal runtime guarantees. | S8 |
@@ -71,11 +73,11 @@ These are audit verdicts, not severity labels and not completion claims.
 | F15 | **QUALIFIED** | Entity extraction/provenance remains heuristic and weak. Within-namespace normalized-label canonicalization exists; cross-tenant separation is intentional and must remain. | S7 |
 | F16 | **CONFIRMED** | The live branch-protection ruleset requires three short gates but not the full `test-and-benchmark` suite. | S10 |
 | F17 | **CONFIRMED** | There is no central schema/migration version governing all durable projections. | S2 |
-| F18 | **CONFIRMED** | Non-positive `rrf_k` can reach a division-by-zero crash instead of failing validation. | S1 |
-| F19 | **CONFIRMED** | Secret-scanner copies can drift, and push coverage does not fully cover added-then-deleted commit-range content. | S1 |
-| F20 | **PARTLY STALE** | `server.json`'s legacy 1.3.1/URL is intentional compatibility documented by README. The private MCP handshake still reports a real stale 1.3.1 version. | S1 |
+| F18 | **CONFIRMED** | S1 rejects non-positive `rrf_k` at flag construction, coercion, and environment loading before fusion. | S1 |
+| F19 | **CONFIRMED** | S1 centralizes secret patterns and scans every new commit-range blob, including added-then-deleted content. | S1 |
+| F20 | **PARTLY STALE** | `server.json` retains its intentional legacy compatibility value; S1 makes the private MCP handshake report installed package metadata. | S1 |
 | F21 | **CONFIRMED** | The reconstruction source branches carried 59 tracked `.ua` files. The clean replacement baseline intentionally omits them. | S0 |
-| F22 | **CONFIRMED** | Dependency declarations and lock/source expectations drift across active installation and CI paths. | S1, S10 |
+| F22 | **CONFIRMED** | S1 establishes and checks one dependency source/mirror/extra policy; S10 still owns frozen release-artifact and lock/hash evidence. | S1, S10 |
 
 ## Dependency order
 
@@ -123,6 +125,9 @@ repair begins.
 - Review remains bounded to the intentional replacement and semantic baseline.
 
 ## S1 - Immediate fail-closed guardrails
+
+**Status:** locally qualified on 2026-08-01 via `HISTORY#520`; protected-main
+CI and merge remain the publication boundary.
 
 **Purpose:** remove crash, nondeterminism, unsafe factory, scanner, version, and
 dependency hazards before introducing migrations.

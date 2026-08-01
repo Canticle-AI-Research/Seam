@@ -4,6 +4,8 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+from seam_runtime.knowledge_graph import PROJECTION_VERSION
+
 
 def _orphan_count(conn: sqlite3.Connection) -> int:
     return conn.execute(
@@ -38,6 +40,10 @@ def test_orphan_cleanup_on_init(tmp_path: Path) -> None:
             edge_type text not null,
             dst_id text not null
         );
+        create table knowledge_graph_meta (
+            key text primary key,
+            value text not null
+        );
         insert into ir_records (id, kind, ns, scope, status, conf, created_at, updated_at, payload_json)
         values ('clm:rec_a', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01', '{}');
         insert into ir_records (id, kind, ns, scope, status, conf, created_at, updated_at, payload_json)
@@ -50,12 +56,17 @@ def test_orphan_cleanup_on_init(tmp_path: Path) -> None:
         insert into ir_edges (src_id, edge_type, dst_id) values ('ent:turn:abc', 'date', 'clm:rec_a');
         """
     )
+    conn.execute(
+        "insert into knowledge_graph_meta (key, value) values (?, ?)",
+        ("projection_version", PROJECTION_VERSION),
+    )
     conn.commit()
     conn.close()
 
     # Opening the store triggers _cleanup_orphan_edges
     from seam_runtime.storage import SQLiteStore
-    SQLiteStore(db_path)
+
+    SQLiteStore(db_path).close()
 
     conn2 = sqlite3.connect(db_path)
     orphan = _orphan_count(conn2)

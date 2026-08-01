@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-01-track-s-s0-locally-qualified
+latest: 2026-08-01-track-s-s1-locally-qualified
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-01-track-s-s0-locally-qualified` | [2026-08-01-track-s-s0-locally-qualified.md](2026-08-01-track-s-s0-locally-qualified.md) | `2026-08-01-track-s-production-core-campaign` | `HISTORY#513` | `current` |
+| `2026-08-01-track-s-s1-locally-qualified` | [2026-08-01-track-s-s1-locally-qualified.md](2026-08-01-track-s-s1-locally-qualified.md) | `2026-08-01-track-s-s0-locally-qualified` | `HISTORY#520` | `current` |
+| `2026-08-01-track-s-s0-locally-qualified` | [2026-08-01-track-s-s0-locally-qualified.md](2026-08-01-track-s-s0-locally-qualified.md) | `2026-08-01-track-s-production-core-campaign` | `HISTORY#513` | `superseded` |
 | `2026-08-01-track-s-production-core-campaign` | [2026-08-01-track-s-production-core-campaign.md](2026-08-01-track-s-production-core-campaign.md) | `2026-07-30-wandr-zero-network-replay-lane` | `HISTORY#511` | `superseded` |
 | `2026-07-30-wandr-zero-network-replay-lane` | [2026-07-30-wandr-zero-network-replay-lane.md](2026-07-30-wandr-zero-network-replay-lane.md) | `2026-07-30-retrieval-baseline-ablation-in-progress` | `HISTORY#505` | `superseded` |
 | `2026-07-30-retrieval-baseline-ablation-in-progress` | [2026-07-30-retrieval-baseline-ablation-in-progress.md](2026-07-30-retrieval-baseline-ablation-in-progress.md) | `2026-07-30-full-retrieval-ab-negative` | `HISTORY#504` | `superseded` |

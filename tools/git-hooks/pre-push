@@ -22,7 +22,26 @@ case "$REMOTE_NAME $REMOTE_URL" in
     echo "[SEAM pre-push] Build any future public client as a separately reviewed artifact." >&2
     exit 1
     ;;
-  *)
-    exit 0
-    ;;
+  *) ;;
 esac
+
+if ! REPO_ROOT=$(git rev-parse --show-toplevel); then
+  echo "[SEAM pre-push] BLOCKED: cannot resolve repository root." >&2
+  exit 1
+fi
+PYTHON_BIN=${SEAM_HOOK_PYTHON:-python3}
+ZERO_SHA=0000000000000000000000000000000000000000
+
+while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+  if [ -z "${LOCAL_SHA:-}" ] || [ "$LOCAL_SHA" = "$ZERO_SHA" ]; then
+    continue
+  fi
+  SCAN_BASE=$REMOTE_SHA
+  SCAN_BASE=${SCAN_BASE:-$ZERO_SHA}
+  "$PYTHON_BIN" -m tools.security.secret_scan \
+    --repo-root "$REPO_ROOT" \
+    --remote "$REMOTE_NAME" \
+    --range "$SCAN_BASE" "$LOCAL_SHA" || exit 1
+done
+
+exit 0

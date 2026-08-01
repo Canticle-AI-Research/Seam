@@ -155,6 +155,12 @@ class RetrievalFlags:
     w_graph: float = 0.15
     w_temporal: float = 0.10
 
+    def __post_init__(self) -> None:
+        if isinstance(self.rrf_k, bool) or not isinstance(self.rrf_k, int):
+            raise TypeError("rrf_k must be an integer")
+        if self.rrf_k <= 0:
+            raise ValueError("rrf_k must be positive")
+
     def weight_pairs(self) -> tuple[tuple[str, float], ...]:
         """Channel weights in the canonical order used by weighted fusion."""
         return (
@@ -201,6 +207,8 @@ def coerce_flag_value(key: str, value: object) -> object | None:
         return resolved
     if expected is int:
         if not isinstance(value, int) or isinstance(value, bool):
+            return None
+        if key == "rrf_k" and value <= 0:
             return None
         if key == "graph_semantic_seeds" and not 0 <= value <= 128:
             return None
@@ -323,8 +331,10 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         out["fusion"] = "rrf" if _truthy("SEAM_RETRIEVAL_RRF") else "weighted"
     if _present("SEAM_RETRIEVAL_RRF_K"):
         raw = env["SEAM_RETRIEVAL_RRF_K"].strip()
-        if raw.lstrip("-").isdigit():
-            out["rrf_k"] = int(raw)
+        if raw.isdigit() or (raw.startswith("-") and raw[1:].isdigit()):
+            value = int(raw)
+            if coerce_flag_value("rrf_k", value) is not None:
+                out["rrf_k"] = value
     if _present("SEAM_RETRIEVAL_SCOPED_VECTORS"):
         out["scoped_vectors"] = _truthy("SEAM_RETRIEVAL_SCOPED_VECTORS")
     if _present("SEAM_RETRIEVAL_ENTITY_GROUNDED"):
@@ -528,7 +538,10 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
     else:
         candidates = _fuse_weighted(scored, batch_by_id, flags.weight_pairs())
 
-    return SearchResult(query=expanded_query, candidates=sorted(candidates, key=lambda item: item.score, reverse=True)[:limit])
+    return SearchResult(
+        query=expanded_query,
+        candidates=sorted(candidates, key=lambda item: (-item.score, item.record.id))[:limit],
+    )
 
 
 def _reasons(channels: dict[str, float]) -> list[str]:
@@ -553,8 +566,7 @@ def _fuse_rrf(scored: list[tuple[MIRLRecord, dict[str, float]]], batch_by_id: di
     for name, _ in _WEIGHTS:
         ranked = sorted(
             ((channels[name], record) for record, channels in scored if channels[name] > 0),
-            key=lambda pair: pair[0],
-            reverse=True,
+            key=lambda pair: (-pair[0], pair[1].id),
         )
         for rank, (_score, record) in enumerate(ranked):
             rrf[record.id] += 1.0 / (k + rank)
