@@ -15071,3 +15071,48 @@ suite, candidate scan, and fresh wheel/sdist privacy and opaque-boundary gate
 before push. No provider, paid or network benchmark, release, push, or cleanup
 ran in this amendment.
 ---END-ENTRY-#515---
+
+---BEGIN-ENTRY-#516---
+id: 516
+date: 2026-08-01T13:51:35Z
+agent: codex-gpt-5
+status: changed
+topics: ci, bugfix, security, huggingface, benchmark, verify, history, streams
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_locomo_adapter_real_embedding.py,PR#190
+supersedes: 515
+tokens: 451
+---
+Protected publication recovery and required LoCoMo CI cache repair for Track S
+S0.
+
+PUBLICATION BOUNDARY: the live `BlackhatShiftey/Seam` origin was discovered in
+public visibility even though the stable repository policy defines it as the
+private proprietary development repository. Publication stopped before any
+campaign branch was pushed. The operator explicitly authorized continuing from
+that blocker; the repository API changed that exact target to private, and both
+the GitHub connector and CLI independently reported private visibility before
+`fix/memory-guarantees-campaign` was pushed. Ready PR #190 was then opened at
+exact head ead34651895afa53b75cd60c71fbc7c9b33e1b9f. No private candidate
+branch was created while the origin was public.
+
+CI FAILURE/CAUSE: required `locomo-quickstart-bil2` failed on PR #190 run
+30702426675 after the exact revision cache key missed. The self-hosted runner
+had inherited Hugging Face offline mode into the step whose explicit job is to
+provision that pinned public model snapshot, so `snapshot_download` failed with
+`OfflineModeIsEnabled` and then `LocalEntryNotFoundError`. Pgvector,
+registry-plan, and CodeRabbit were already green when this was diagnosed.
+
+FIX: the provisioning step now explicitly sets `HF_HUB_OFFLINE=0` and
+`TRANSFORMERS_OFFLINE=0`; the later LoCoMo smoke remains explicitly offline
+with both values set to 1. The regression test isolates both workflow steps so
+an unscoped string check cannot mask future environment leakage.
+
+LOCAL EVIDENCE: the complete LoCoMo real-embedding adapter file passed 29/29,
+Ruff and `git diff --check` passed, and the installed Hugging Face client
+confirmed that `HF_HUB_OFFLINE=0` resolves to online provisioning behavior.
+`actionlint` was unavailable locally, so workflow parsing and the exact cache-
+miss recovery remain protected-CI evidence. No provider, paid benchmark,
+release, direct-main push, or destructive cleanup ran. PR #190 exact-head CI
+and squash merge remain pending.
+---END-ENTRY-#516---

@@ -726,9 +726,17 @@ def test_required_quickstart_ci_provisions_exact_revision_then_runs_offline():
         Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml"
     ).read_text(encoding="utf-8")
     quickstart_job = workflow.split("  locomo-quickstart-bil2:", 1)[1]
+    provision_step = quickstart_job.split(
+        "      - name: Provision exact pinned LoCoMo embedding snapshot", 1
+    )[1].split("      - name: Run LoCoMo quickstart smoke", 1)[0]
+    smoke_step = quickstart_job.split(
+        "      - name: Run LoCoMo quickstart smoke", 1
+    )[1].split("      - name: Seal LoCoMo quickstart as BIL-2", 1)[0]
 
     assert "DERIVED_FACTS_EMBEDDING_REVISION" in quickstart_job
     assert "snapshot_download(" in quickstart_job
     assert "steps.locomo-embedding.outputs.revision" in quickstart_job
-    assert 'HF_HUB_OFFLINE: "1"' in quickstart_job
-    assert 'TRANSFORMERS_OFFLINE: "1"' in quickstart_job
+    assert 'HF_HUB_OFFLINE: "0"' in provision_step
+    assert 'TRANSFORMERS_OFFLINE: "0"' in provision_step
+    assert 'HF_HUB_OFFLINE: "1"' in smoke_step
+    assert 'TRANSFORMERS_OFFLINE: "1"' in smoke_step
