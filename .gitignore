@@ -54,6 +54,7 @@ seam_runtime/config.toml
 # Local agent/tooling state
 .claude/
 .lingma/
+.ua/
 .pytest_cache/
 build/
 archive/code/generated-build*/
@@ -76,6 +77,8 @@ seam_runtime/_handoff_20260419/
 # Local artifact dumps
 Webui-final-dash/
 diag_out/
+/dist/
+/report-*.png
 # Browser/tooling caches (Playwright MCP screenshots+logs, Wrangler cache)
 .playwright-mcp/
 .wrangler/

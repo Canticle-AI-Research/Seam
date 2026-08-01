@@ -15230,3 +15230,46 @@ and demonstrated backup recovery. The canonical checkout's unrelated dirty
 work remains untouched; this work is isolated on
 `fix/track-s-s1-guardrails`.
 ---END-ENTRY-#520---
+
+---BEGIN-ENTRY-#521---
+id: 521
+date: 2026-08-01T17:59:57Z
+agent: codex
+status: done
+topics: audit, bugfix, retrieval, rank, test, storage, linux, verify
+commits: pending
+refs: .gitignore,tests/audit/test_fusion_leg_weights.py
+supersedes: 510
+tokens: 397
+---
+Reconciled and finished the dirty canonical checkout after PR #190 superseded
+the stale retrieval branch and excluded its 59 accidentally tracked generated
+`.ua` files. The former branch remains recoverable; no user artifact was
+deleted.
+
+Repository hygiene now ignores local `.ua/` analysis state, root `dist/`
+release artifacts, and root `report-*.png` screenshots. The existing files stay
+on disk but no longer make the checkout dirty.
+
+Added 19 regression cases for the weighted reciprocal-rank-fusion work landed
+with HISTORY#510. They pin exact unweighted/all-unit inertness, zero-weight leg
+removal, the graph-carried displacement mechanism, the remaining multi-leg RRF
+amplification limit, validation and environment parsing, end-to-end candidate
+parity, and auditable weighted-policy/leg-weight trace propagation. A bounded
+CodeRabbit review found two test-strength gaps; both were fixed, and the rerun
+reported zero findings.
+
+The wider audit initially failed 35 cases through one shared infrastructure
+cause: the operator shell still exported the retired Hugging Face cache mount.
+The managed shell binding now points at the existing `/mnt/t7/hf-cache`; the
+pinned BGE model loads there with `HF_HUB_OFFLINE=1`. This is an operator-machine
+configuration correction, not a repository file or model-data deletion.
+
+Verification: 67 focused retrieval/fusion/trace tests passed; all 1,553
+provider-free non-external audit tests passed; 22 cache/fusion confirmation
+tests passed against the corrected T7 cache; Ruff, diff checks, the canonical
+working-tree secret/session scan, and a final two-file CodeRabbit review passed.
+PR #191 was independently confirmed mergeable with every required and advisory
+check green, then squash-merged to protected main as `ebbf2f3` before this
+closeout so the append-only sequence remains linear.
+---END-ENTRY-#521---
