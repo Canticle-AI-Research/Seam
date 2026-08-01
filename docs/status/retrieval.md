@@ -4,19 +4,24 @@
 
 _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
-## Status: green, promotion decision open
+## Status: baseline measured, Track S promotion gates open
 
-One canonical engine. `RetrievalOrchestrator` owns SQL, vector, graph,
-graph-node, and explicit temporal retrieval. `SeamRuntime.retrieve()` is the
-canonical entry; `search_ir()` is a compatibility result/evidence adapter over
-the same plan, not a second scorer.
+One canonical engine remains the architectural invariant.
+`RetrievalOrchestrator` owns SQL, vector, graph, graph-node, and explicit
+temporal retrieval. `SeamRuntime.retrieve()` is the canonical entry;
+`search_ir()` is a compatibility result/evidence adapter over that engine, but
+its legacy-policy hardcoding and the planner work executed around that path are
+verified Track S S8 gaps.
 
-Ranking policies are named and selectable: `legacy-weighted/1` (pre-refactor
-RAW/BM25/vector weighted scorer, kept as behavioral control),
-`reciprocal-rank-fusion/2`, and `weighted-reciprocal-rank-fusion/1` (per-leg
-weights; all-1.0 reproduces `/2` bit for bit).
+The planner currently accepts `legacy-weighted/1` (the pre-refactor RAW/BM25/
+vector behavioral control) and `reciprocal-rank-fusion/2`. Non-empty
+`fusion_leg_weights` apply weighted contributions and report
+`weighted-reciprocal-rank-fusion/1`, but policy persistence does not yet accept
+that identifier and unknown leg names are not rejected. Weighted fusion is
+therefore an implemented, unpromoted path rather than a coherent supported
+policy; S8 owns its exact replay and validation contract.
 
-## The #503 hold is lifted (HISTORY#509)
+## The #503 overall-regression premise is lifted; promotion remains open
 
 HISTORY#503 reported canonical regressing −0.010804 and put the branch under a
 DO-NOT-LAND hold. A matched four-arm ablation — every arm from its own clone of
@@ -30,12 +35,16 @@ one pristine ingest-only snapshot — **falsified that premise**:
 | D | legacy-weighted | 0.766420 |
 
 Arm D reproduces #503's legacy figure **exactly**, which is what makes the
-comparison trustworthy. Canonical therefore **beats** legacy by **+0.009628**.
+comparison trustworthy. Canonical therefore **beats** legacy by **+0.009628**
+overall on that run, while the category gate below remains open.
 
 #503 was comparing legacy against a canonical engine handicapped by a graph leg
 that cost −0.023854 and contributed nothing. A==B==C to six decimals in every
-category: with structural-edge traversal removed, LoCoMo has **zero admissible
-semantic relation edges**, so `mix` and `hybrid` are the same query plan.
+category: with structural-edge traversal removed, that default-ingest LoCoMo
+snapshot had **zero admissible semantic relation edges**, so `mix` and `hybrid`
+were the same query plan. This is a corpus observation, not a universal graph
+claim. The explicit research compiler can emit REL records, but its measured
+27/419 coverage remains insufficient and scorer-ineligible.
 
 ## Provenance chain (HISTORY#510)
 
@@ -67,8 +76,16 @@ claim citing a missing PROV and a PROV naming no entity/activity/agent, and
 3. **`fusion_leg_weights` is UNVALIDATED** on a live graph leg — #509's arm C was
    confounded because the structural exclusion had already zeroed the leg. It
    ships an env var (`SEAM_RETRIEVAL_LEG_WEIGHTS`) and a policy fingerprint; do
-   not present it as a supported lever until isolated.
-4. Keep validated levers in core `RetrievalFlags` so every surface benefits.
+   not present it as a supported lever until S8 proves absent/all-1/zero/non-unit
+   replay, exact `/2` equivalence for all-1, and fail-closed leg names.
+4. **Surface/event identity is not yet qualified end to end.** S8 requires every
+   shipped surface to match direct `retrieve()` IDs/order and exactly one
+   tenant-scoped event per successful enabled retrieval without answer changes
+   on telemetry failure.
+5. **Promotion remains S9-gated.** The provider-free 1,542-case result must stay
+   at or above `0.7664201903042236` with category non-regression. A qualifying
+   semantic graph corpus and fresh attributable graph-only lift are separate
+   requirements; otherwise graph/scorer behavior stays default-off.
 
 ## Methodology note
 

@@ -9,18 +9,23 @@
 
 ## Current headline
 
-**2026-07-31 — HISTORY#510.** Branch `refactor/unify-retrieval-paths` is
-**green** (1,975 passed, 0 failed) and HISTORY#503's regression premise is
-**falsified**: on a matched four-arm ablation the canonical engine *beats*
-legacy-weighted by **+0.009628**, where legacy reproduced 0.766420 exactly
-(#509). The entire regression was the graph leg — 87.43% duplicate candidates,
-contributing exactly nothing on LoCoMo. Graph retrieval now returns the
-**verified provenance chain** back to source bytes (#510): 1.0000 completeness
-on CLM and RAW.
+**2026-08-01 — HISTORY#511.** Track S, the Production-Core Integrity
+Campaign, is active. Its one canonical plan at
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md` records the verified F1-F22
+verdicts, dependency-ordered stages S0-S10, and exact exit gates. It coordinates
+Track R, H2, E2, and K14 without superseding them.
 
-Open on this branch: **cat3 −0.036775** vs legacy (promotion decision),
-**ENT provenance 0.0000** (entities never declare their source span), and
-`fusion_leg_weights` **unvalidated** on a live graph leg. See
+The clean semantic baseline is commit `86a81e2` (exactly 27 paths). Its exact
+12-module semantic/offline-integrity slice passed **269/269**; changed-Python-
+path Ruff, `git diff --check`, the 27-path allowlist/exclusion audit, and the
+same candidate-path secret/session scan were clean. This was not a full-suite
+run. The baseline retains fail-closed canonical REL admission and keeps the
+27/419 research relation lane scorer-ineligible.
+
+No F1-F22 production defect is claimed fixed by this continuity slice. S0 and
+all later stages remain evidence-gated by the campaign plan. The current
+retrieval evidence is still +0.009628 overall versus legacy with cat3
+−0.036775, ENT provenance 0.0000, and live-leg fusion weights unvalidated; see
 `docs/status/retrieval.md`.
 
 ## Status streams

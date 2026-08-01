@@ -1,6 +1,6 @@
 # SEAM Improvement Roadmap & SOP Blueprint
 
-**Last updated:** 2026-05-08
+**Last updated:** 2026-08-01
 **Status:** Active planning document. This is the living roadmap for SEAM development beyond the stable v1 core.
 
 ## 2026-05-01 Functional Visual Memory Target
@@ -1949,6 +1949,32 @@ performance until the direct comparator and scale gates exist and pass.
 
 ---
 
+## Track S — Production-Core Integrity Campaign
+
+<!-- seam:item
+id: roadmap:track:S
+status: in-progress
+status-since: 2026-08-01
+status-by: history:511
+supersedes: none
+topics: audit, storage, retrieval, security, graph, provenance, benchmark, verify
+priority: 0
+phase: 1
+-->
+
+**Status:** In progress. Track S turns the verified F1-F22 production-memory
+findings into one dependency-ordered hardening campaign. Its canonical verdict
+matrix, S0-S10 stage graph, and exact exit gates live in
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`.
+
+Track S coordinates existing Track R graph work, H2 improvement evidence, E2
+tenancy, and K14 contradiction inspection; it does not supersede those tracks.
+The current semantic baseline is an input to S0, not evidence that any F1-F22
+defect is fixed. Promotion remains provider-free and requires the full 1,542-
+case non-regression gate plus the stage-specific integrity evidence.
+
+---
+
 ## Recommended Course — Priority Order
 
 Use this section for current priority. Older planned entries `HISTORY#028`-
@@ -1958,6 +1984,12 @@ by later done entries and status notes.
 Current sequence:
 
 ```
+Now - Track S production-core integrity campaign
+- Execute S0-S10 in dependency order from `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`
+- Do not claim any F1-F22 repair until its owning stage's exact exit gate passes
+- Keep Track R, H2, E2, and K14 active as coordinated inputs rather than superseded work
+- Keep provider-paid execution, publication, and destructive cleanup separately authorized
+
 Done - functional visual memory + foundational polish
 - G1: Document-to-machine-language compiler (implemented; see HISTORY#145)
 - G2: Stored surface library (implemented; merged 2026-05-06)

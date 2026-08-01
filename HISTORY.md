@@ -14838,3 +14838,50 @@ NOT DONE / NEXT:
    `benchmarks/graph_reasoning_qualification.py`, whose free lanes both sit at a
    1.0 CEILING on 3 cases and must be hardened before any paid competitor arm.
 ---END-ENTRY-#510---
+
+---BEGIN-ENTRY-#511---
+id: 511
+date: 2026-08-01T09:22:35Z
+agent: codex-gpt-5
+status: in-progress
+topics: audit, roadmap, plan, status, retrieval, storage, security, graph, benchmark, continuity
+commits: pending
+refs: docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,ROADMAP.md,PROJECT_STATUS.md,docs/status/retrieval.md,docs/status/surfaces.md,docs/status/operations.md,docs/handoffs/2026-08-01-track-s-production-core-campaign.md
+supersedes: 510
+tokens: 542
+---
+Activated Track S, the Production-Core Integrity Campaign, and established one
+canonical execution record for the verified F1-F22 memory-guarantee findings.
+This entry supersedes HISTORY#510 as current operating state; it does not erase
+the #509/#510 measurement and provenance results, and Track S coordinates rather
+than supersedes Track R, H2, E2, or K14.
+
+WHY: three independent audit passes converged on durable-state, retrieval,
+tenancy, and semantic-substrate gaps that the previous green headline did not
+capture. The campaign routes those findings through dependency-ordered S0-S10
+stages with exact fail-closed exit gates. The single authoritative verdict
+matrix and stage plan is docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md; ROADMAP.md
+registers roadmap:track:S at priority 0 / phase 1.
+
+BASELINE: commit 86a81e2 is the clean semantic integration baseline. Its exact
+27-path candidate set contains 26 Python paths plus .github/workflows/ci.yml and
+retains fail-closed canonical REL admission, offline embedding coverage checks,
+and the research-only relation lane. The exact 12-module focused slice collected
+269 tests and passed 269/269. Ruff over the 26 Python paths, git diff --check,
+the 27-path allowlist/exclusion audit, and a candidate-path secret/session scan
+were clean. This was not a full-suite run and no provider, network, or paid
+benchmark ran.
+
+CONTINUITY: PROJECT_STATUS.md now routes to Track S; retrieval, surfaces, and
+operations streams state the verified open boundaries; the new current handoff
+supersedes the WANDR replay handoff. Canonical closeout rebuilds the history and
+roadmap streams, cross-index, and snapshot chain, then runs integrity, routing,
+handoff, continuity, and stream verification. Stable architecture policy was
+not changed, so REPO_LEDGER.md was deliberately left untouched.
+
+NOT DONE: no F1-F22 production defect is claimed fixed by this activation slice.
+S0 remains open until every clause, including the broader existing-suite and
+bounded-review gates, has current evidence. S1-S10 remain unimplemented.
+Publication, push/PR mutation, provider spend, and destructive cleanup were not
+authorized or performed.
+---END-ENTRY-#511---

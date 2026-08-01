@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 510
-total_tokens: ~252119
-latest_id: 510
+total_entries: 511
+total_tokens: ~252661
+latest_id: 511
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 511 | 2026-08-01 | in-progress | 71bf65cc3ef60148 | audit,roadmap,plan,status,+ | 510 |
 | 510 | 2026-08-01 | done | ff1c7a29c36a2645 | provenance,retrieval,graph,mirl,+ | none |
 | 509 | 2026-07-31 | done | 0389549cc917c213 | retrieval,graph,fusion,locomo,+ | 503 |
 | 508 | 2026-07-31 | done | cac65cb01b9aa49f | retrieval,graph,fusion,locomo,+ | 505 |
@@ -540,10 +541,10 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=3 latest=#466, #461, #182
-- audit: count=97 latest=#500, #496, #495, #451, #450
+- audit: count=98 latest=#511, #500, #496, #495, #451
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
-- benchmark: count=197 latest=#505, #504, #503, #499, #498
+- benchmark: count=198 latest=#511, #505, #504, #503, #499
 - benchmarks: count=4 latest=#509, #508, #507, #493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
@@ -583,7 +584,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=15 latest=#460, #451, #449, #447, #430
+- continuity: count=16 latest=#511, #460, #451, #449, #447
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -646,7 +647,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=44 latest=#510, #509, #508, #504, #503
+- graph: count=45 latest=#511, #510, #509, #508, #504
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -726,7 +727,7 @@ compact: true
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=32 latest=#496, #435, #404, #403, #402
 - pgvector: count=34 latest=#490, #489, #488, #487, #486
-- plan: count=21 latest=#437, #436, #432, #422, #420
+- plan: count=22 latest=#511, #437, #436, #432, #422
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - pr: count=2 latest=#359, #301
@@ -770,11 +771,11 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=131 latest=#510, #509, #508, #505, #504
+- retrieval: count=132 latest=#511, #510, #509, #508, #505
 - retrievalflags: count=1 latest=#328
 - retry: count=4 latest=#496, #466, #336, #182
 - review: count=1 latest=#388
-- roadmap: count=60 latest=#481, #454, #418, #415, #414
+- roadmap: count=61 latest=#511, #481, #454, #418, #415
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -786,7 +787,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=1 latest=#499
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=65 latest=#490, #489, #488, #487, #483
+- security: count=66 latest=#511, #490, #489, #488, #487
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -804,8 +805,8 @@ compact: true
 - sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=166 latest=#505, #504, #503, #498, #497
-- storage: count=15 latest=#496, #495, #489, #488, #487
+- status: count=167 latest=#511, #505, #504, #503, #498
+- storage: count=16 latest=#511, #496, #495, #489, #488
 - streams: count=10 latest=#489, #287, #276, #216, #210
 - structure: count=3 latest=#326, #285, #284
 - surface: count=10 latest=#502, #488, #487, #469, #467
@@ -849,5 +850,5 @@ compact: true
 - roots: 82
 - changed: 32
 - done: 450
-- in-progress: 7
+- in-progress: 8
 - planned: 21

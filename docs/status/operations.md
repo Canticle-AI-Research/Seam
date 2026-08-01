@@ -12,6 +12,10 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   `~/.local/bin/docker-up`; auto-stops after 30 min idle.
 - Self-hosted CI runner `seam-terrabyte` (systemd user service, docker wake hook)
   runs all Seam Linux CI. pgvector CI port 55433. Windows leg is manual-only.
+- The protected-main required checks are `repo-hygiene`, `chroma-real-smoke`,
+  and `locomo-quickstart-bil2`. The long `test-and-benchmark` suite runs after
+  the short jobs but is advisory under the current live ruleset; Track S S10
+  owns the proof required before making it a required merge check.
 - Full-suite zero-skip local run requires the container up and `PGVECTOR_TEST_DSN`
   exported. CI runs `-m "not external"` plus a separate `-m external` job.
 - No silent skips: any skip outside the curated allowlist fails the session.
@@ -21,6 +25,22 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - `scripts/windows/launch_dashboard.bat` (wraps `launch_dashboard.ps1`).
 - `scripts/store_benchmark.ps1` archives benchmark runs with sequence+time folders,
   run index, and publication metadata/hashes.
+
+## Verified Track S gaps
+
+- Real Uvicorn `--factory` startup does not yet share every normal server-safety
+  guard (S1).
+- Secret-scanner copies and commit-range push coverage can drift; the central
+  scanner must cover provider key/session URL fixtures and added-then-deleted
+  content (S1).
+- `server.json`'s legacy 1.3.1/URL is intentional compatibility, but the private
+  MCP handshake's 1.3.1 report is stale (S1).
+- Dependency declarations and lock/source expectations drift across active
+  install and CI paths (S1/S10).
+- The strict non-external suite, live pgvector external suite, focused campaign
+  suites, clean artifact/privacy proof, and canonical history gates all remain
+  mandatory S10 evidence even while the full suite is advisory in branch
+  protection.
 
 ## Session-end verification
 
