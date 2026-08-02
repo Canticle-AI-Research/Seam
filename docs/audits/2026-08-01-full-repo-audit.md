@@ -1,11 +1,16 @@
 # SEAM Full-Repository Audit — 2026-08-01
 
 **Scope:** whole repository, read-only. **Branch:** `feat/track-s-s2-migration-spine`.
-**Base:** `origin/main@94375e8`. **History:** HISTORY#524.
+**Base:** `origin/main@94375e8`. **History:** HISTORY#525.
 **Method:** `/deep-audit` skill (see "Repeating this audit" below).
 **Cost boundary:** no provider-paid benchmark, retrieval measurement, publish, or
 deploy was run. No repository state was changed during the audit itself; the
 remediation recorded at the end was a separate, subsequent step.
+
+**Follow-up (2026-08-02):** `OPEN` below records audit-time state. Findings
+2-5 have a local, unmerged repair candidate recorded in HISTORY#526 and draft
+PR #193; findings 7-10 and 12 remain open. The original reproducers and verdict
+are preserved rather than rewritten after the fact.
 
 ## Verdict
 

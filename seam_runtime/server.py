@@ -312,26 +312,33 @@ def _seam_chat_system_prompt(context_text: str) -> str:
     return base + "\n\n(No relevant SEAM memory was retrieved for this message.)"
 
 
-# Hostnames the /chat endpoint may reach outbound. This is the primary SSRF
-# defense: a caller can only target a *trusted* provider (whose DNS the attacker
-# does not control) or loopback, which closes DNS-rebinding by construction -
-# there is no attacker-chosen hostname left to rebind. Operators extend it for
-# custom/self-hosted providers via SEAM_CHAT_ALLOWED_HOSTS (comma-separated),
-# an operator-set knob, never a caller-set one. Sourced from the dashboard's
-# built-in provider catalog (seam_runtime/webui/dashboard.html).
-_BUILTIN_CHAT_HOSTS = frozenset({
-    "api.openai.com",
-    "api.anthropic.com",
-    "generativelanguage.googleapis.com",
-    "api.groq.com",
-    "api.mistral.ai",
-    "api.perplexity.ai",
-    "api.deepseek.com",
-    "api.together.xyz",
-    "api.cohere.com",
-    "api-inference.huggingface.co",
-    "openrouter.ai",
-})
+# Built-in chat provider metadata. Keeping each host beside its one accepted
+# process-environment credential prevents request bodies from turning
+# ``os.environ`` into an arbitrary lookup surface. The host allowlist is
+# derived from this mapping so provider and credential policy cannot drift.
+# Operators can still permit custom/self-hosted hosts with
+# SEAM_CHAT_ALLOWED_HOSTS, but those hosts must receive an explicit dashboard
+# key; request-selected environment lookup is reserved for these built-ins.
+_BUILTIN_CHAT_PROVIDER_ENV_KEYS: Mapping[str, str] = {
+    "api.openai.com": "OPENAI_API_KEY",
+    "api.anthropic.com": "ANTHROPIC_API_KEY",
+    "generativelanguage.googleapis.com": "GEMINI_API_KEY",
+    "api.groq.com": "GROQ_API_KEY",
+    "api.mistral.ai": "MISTRAL_API_KEY",
+    "api.perplexity.ai": "PERPLEXITY_API_KEY",
+    "api.deepseek.com": "DEEPSEEK_API_KEY",
+    "api.together.xyz": "TOGETHER_API_KEY",
+    "api.cohere.com": "COHERE_API_KEY",
+    "api-inference.huggingface.co": "HF_API_TOKEN",
+    "openrouter.ai": "OPENROUTER_API_KEY",
+}
+_BUILTIN_CHAT_HOSTS = frozenset(_BUILTIN_CHAT_PROVIDER_ENV_KEYS)
+
+
+def _default_chat_base_url(provider: str) -> str:
+    if provider.strip().lower() == "anthropic":
+        return "https://api.anthropic.com/v1"
+    return "https://api.openai.com/v1"
 
 
 def _env_chat_allowed_hosts() -> frozenset[str]:
@@ -340,7 +347,7 @@ def _env_chat_allowed_hosts() -> frozenset[str]:
     return frozenset(h.strip().lower() for h in raw.split(",") if h.strip())
 
 
-def _validate_provider_base_url(base_url: str) -> None:
+def _validate_provider_base_url(base_url: str) -> bool:
     """Reject SSRF-prone provider base URLs before any outbound request.
 
     The ``/chat`` endpoint forwards ``base_url`` to an outbound HTTP call, so an
@@ -358,8 +365,13 @@ def _validate_provider_base_url(base_url: str) -> None:
        address 169.254.169.254), reserved, multicast, or unspecified range.
 
     Loopback is deliberately allowed for local providers such as Ollama
-    (127.0.0.1); the endpoint is already auth-gated and loopback-bound by
-    default. An empty base_url falls through to the trusted provider defaults.
+    (127.0.0.1). Environment-backed credential resolution is independently
+    disabled for loopback targets. An empty base_url falls through to the
+    trusted provider defaults.
+
+    Returns ``True`` only when every resolved target address is loopback. The
+    caller uses that validated result for local-provider key handling, avoiding
+    fragile string matching against the raw URL.
     """
     import ipaddress
     import socket
@@ -368,7 +380,7 @@ def _validate_provider_base_url(base_url: str) -> None:
     from fastapi import HTTPException
 
     if not base_url:
-        return
+        return False
     parsed = urlparse(base_url)
     if parsed.scheme not in ("http", "https"):
         raise HTTPException(status_code=400, detail=f"base_url scheme must be http or https, got {parsed.scheme!r}")
@@ -400,6 +412,59 @@ def _validate_provider_base_url(base_url: str) -> None:
             continue
         if ip.is_private or ip.is_link_local or ip.is_reserved or ip.is_multicast or ip.is_unspecified:
             raise HTTPException(status_code=400, detail=f"base_url resolves to a disallowed address: {ip}")
+    return is_loopback_host
+
+
+def _resolve_chat_api_key(
+    *,
+    provider: str,
+    base_url: str,
+    env_key: str,
+    explicit_api_key: str,
+    is_loopback: bool,
+) -> str:
+    """Resolve a chat credential without exposing arbitrary process state.
+
+    An explicit key is caller-owned dashboard input and takes precedence. A
+    request may otherwise select only the one known environment key bound to a
+    built-in provider host. Loopback targets never consult ``os.environ`` and
+    use the established local-provider placeholder instead.
+    """
+    from urllib.parse import urlparse
+
+    from fastapi import HTTPException
+
+    api_key = explicit_api_key.strip()
+    if api_key:
+        return api_key
+    if is_loopback:
+        return "local"
+
+    requested_env_key = env_key.strip()
+    effective_base_url = base_url or _default_chat_base_url(provider)
+    host = (urlparse(effective_base_url).hostname or "").lower()
+    allowed_env_key = _BUILTIN_CHAT_PROVIDER_ENV_KEYS.get(host)
+    if requested_env_key:
+        if allowed_env_key is None or requested_env_key != allowed_env_key:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "env_key resolution is allowed only for the matching "
+                    "built-in chat provider; provide api_key explicitly for "
+                    "custom providers"
+                ),
+            )
+        api_key = (os.environ.get(allowed_env_key) or "").strip()
+        if api_key:
+            return api_key
+
+    label = allowed_env_key if requested_env_key and allowed_env_key else (
+        f"{provider} API key" if provider else "the provider API key"
+    )
+    raise HTTPException(
+        status_code=400,
+        detail=f"No API key found. Set {label} in your environment or in Settings → API Keys.",
+    )
 
 
 def _chat_opener():
@@ -438,10 +503,10 @@ def _call_chat_provider(
     import urllib.request
 
     opener = _chat_opener()
-    base = (base_url or "").rstrip("/")
+    base = (base_url or _default_chat_base_url(provider)).rstrip("/")
     is_anthropic = (provider or "").lower() == "anthropic" or "anthropic" in base
     if is_anthropic:
-        url = (base or "https://api.anthropic.com/v1") + "/messages"
+        url = base + "/messages"
         system = "\n\n".join(m["content"] for m in messages if m["role"] == "system")
         conv = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in ("user", "assistant")]
         body: dict[str, Any] = {"model": model, "max_tokens": max_tokens, "messages": conv}
@@ -453,7 +518,7 @@ def _call_chat_provider(
             data = _json.loads(resp.read().decode("utf-8"))
         parts = data.get("content") or []
         return "".join(p.get("text", "") for p in parts if p.get("type") == "text") or "(empty response)"
-    url = (base or "https://api.openai.com/v1") + "/chat/completions"
+    url = base + "/chat/completions"
     body = {"model": model, "messages": messages, "max_tokens": max_tokens}
     headers = {"content-type": "application/json", "authorization": "Bearer " + api_key}
     req = urllib.request.Request(url, data=_json.dumps(body).encode("utf-8"), headers=headers, method="POST")
@@ -1049,23 +1114,15 @@ def create_app(
             raise HTTPException(status_code=400, detail="model is required")
         provider = str(payload.get("provider") or "")
         base_url = str(payload.get("base_url") or "")
-        _validate_provider_base_url(base_url)  # SSRF guard before any outbound call
+        is_loopback = _validate_provider_base_url(base_url)  # SSRF guard before any outbound call
         env_key = str(payload.get("env_key") or "")
-        # Key resolution order: explicit key from the dashboard Settings, then the
-        # server process environment (e.g. OPENAI_API_KEY), then "local" for a
-        # localhost provider like Ollama that ignores the key.
-        api_key = str(payload.get("api_key") or "").strip()
-        if not api_key and env_key:
-            api_key = (os.environ.get(env_key) or "").strip()
-        is_local = any(h in base_url for h in ("localhost", "127.0.0.1", "0.0.0.0"))
-        if not api_key and not is_local:
-            label = env_key or f"{provider} API key" if provider else "the provider API key"
-            raise HTTPException(
-                status_code=400,
-                detail=f"No API key found. Set {label} in your environment or in Settings → API Keys.",
-            )
-        if not api_key:
-            api_key = "local"  # Ollama / local OpenAI-compatible servers ignore the key
+        api_key = _resolve_chat_api_key(
+            provider=provider,
+            base_url=base_url,
+            env_key=env_key,
+            explicit_api_key=str(payload.get("api_key") or ""),
+            is_loopback=is_loopback,
+        )
         use_memory = bool(payload.get("use_memory", True))
         raw_ns = payload.get("ns")
         raw_scope = payload.get("scope")
@@ -1159,20 +1216,15 @@ def create_app(
             raise HTTPException(status_code=400, detail="model is required")
         provider = str(payload.get("provider") or "")
         base_url = str(payload.get("base_url") or "")
-        _validate_provider_base_url(base_url)
+        is_loopback = _validate_provider_base_url(base_url)
         env_key = str(payload.get("env_key") or "")
-        api_key = str(payload.get("api_key") or "").strip()
-        if not api_key and env_key:
-            api_key = (os.environ.get(env_key) or "").strip()
-        is_local = any(host in base_url for host in ("localhost", "127.0.0.1", "0.0.0.0"))
-        if not api_key and not is_local:
-            label = env_key or (f"{provider} API key" if provider else "the provider API key")
-            raise HTTPException(
-                status_code=400,
-                detail=f"No API key found. Set {label} in your environment or in Settings → API Keys.",
-            )
-        if not api_key:
-            api_key = "local"
+        api_key = _resolve_chat_api_key(
+            provider=provider,
+            base_url=base_url,
+            env_key=env_key,
+            explicit_api_key=str(payload.get("api_key") or ""),
+            is_loopback=is_loopback,
+        )
 
         raw_ns = payload.get("ns")
         raw_scope = payload.get("scope")

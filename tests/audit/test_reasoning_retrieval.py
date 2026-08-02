@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 import pytest
@@ -1322,7 +1323,7 @@ def test_r1_database_reopens_with_additive_r2_schema(
     run_id = session.run_id
     first.close()
 
-    with sqlite3.connect(path) as connection:
+    with closing(sqlite3.connect(path)) as connection, connection:
         connection.execute("drop trigger reasoning_retrieval_finalize_guard")
         connection.execute("drop table reasoning_retrieval_candidate")
         connection.execute("drop table reasoning_retrieval")

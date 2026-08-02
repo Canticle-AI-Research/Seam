@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 import sqlite3
 import unicodedata
@@ -11,6 +12,8 @@ from typing import Iterable, Mapping
 
 from .migrations import KnowledgeGraphProjectionVersionError, execute_script
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
+
+LOGGER = logging.getLogger(__name__)
 
 PROJECTION_VERSION = "knowledge-graph/5"
 # Graph nodes carry their own derived semantic projection, versioned separately
@@ -2263,8 +2266,12 @@ def _time_reached(value: object, horizon: str) -> bool:
         return datetime.fromisoformat(str(value).replace("Z", "+00:00")) <= datetime.fromisoformat(
             horizon.replace("Z", "+00:00")
         )
-    except ValueError:
-        return str(value) <= horizon
+    except (TypeError, ValueError):
+        LOGGER.warning(
+            "Invalid or incomparable timestamp in knowledge trust gate; "
+            "treating the validity interval as expired"
+        )
+        return True
 
 
 def _trust_profiles(

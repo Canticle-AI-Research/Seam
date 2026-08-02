@@ -48,6 +48,22 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   Unknown/newer stores refuse byte-unchanged, and retained private backups have
   completed a real delete/restore/re-upgrade recovery. Current stores with
   missing registered tables fail closed rather than silently recreating them.
+  Projection version changes now require exact registered callables with
+  version-specific source/target table contracts. One exclusive migration owner
+  revalidates the live plan under lock, takes the backup from that same
+  connection, and retains writer exclusion across separately committed,
+  resumable steps. Marker CAS, per-step integrity/foreign-key checks, rollback
+  injection, backup restore, and populated-store table-add preservation are
+  proved. Unregistered add/remove/change states still refuse before backup or
+  mutation.
+- The post-S2 audit's persistence, chat-credential, and trust-time findings are
+  repaired on the local draft-PR candidate, not protected `main`: canonical
+  entity reconciliation locks before its read; built-in chat environment keys
+  are host-bound and unavailable to loopback; malformed trust timestamps fail
+  toward stale with content-free diagnostics. Automatic first-launch
+  `SEAM_API_TOKEN` provisioning remains a separate authentication/UX policy
+  decision; tokenless mode is trusted-local-only. Audit findings 7-10 and 12
+  remain open.
 - S3 guarded reprojection and S4 typed-reference integrity are now unblocked;
   stale existing graph projections remain refused until S3 qualifies them.
 - Clean artifact/privacy proof remains mandatory on the frozen candidate, and

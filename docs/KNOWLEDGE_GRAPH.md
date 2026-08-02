@@ -71,8 +71,10 @@ exploration retains them with their trust labels. Both `/chat` and
 4. SQLite commits the MIRL record and graph projection atomically.
 5. Re-ingesting the same `source_ref` expires the old episode for current-view
    queries while preserving it for history and knowledge-horizon inspection.
-6. Opening an existing database performs a one-time versioned backfill, so old
-   SEAM knowledge appears without manual migration.
+6. Supported historical backfill runs only through the explicit central
+   migration registry. Opening a current database validates without mutation;
+   stale, newer, or unregistered graph states refuse until an exact transition
+   is registered and qualified.
 
 The identity index is part of that rebuildable projection. Alias rows never
 rewrite canonical MIRL or silently merge entities; reversible entity merges and

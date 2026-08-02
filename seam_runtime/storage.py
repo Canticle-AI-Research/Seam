@@ -870,6 +870,11 @@ class SQLiteStore:
     ) -> list[str]:
         """Persist canonical MIRL and its graph projection in one transaction."""
 
+        # Entity reconciliation is read-before-write. Acquire the SQLite write
+        # lock before that read so pooled writers cannot choose distinct
+        # canonical ids from the same stale snapshot.
+        if not connection.in_transaction:
+            connection.execute("begin immediate")
         id_map, skip_ids = self._reconcile_entities(connection, batch)
         stored_ids: list[str] = []
         for record in batch.records:

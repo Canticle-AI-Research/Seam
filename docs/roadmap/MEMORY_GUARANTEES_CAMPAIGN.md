@@ -2,11 +2,12 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S2 locally qualified via `HISTORY#522`, with the final
-review boundary clarified by `HISTORY#523` and the S1 doctor dependency-policy
-correction qualified by `HISTORY#524`
+**Latest evidence:** S2 locally requalified via `HISTORY#526` after adding the
+forward projection-transition and exclusive-owner gates; the S1 doctor
+dependency-policy correction remains qualified by `HISTORY#524`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
+**Publication boundary:** draft PR #193; the recovery candidate is not merged
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
 It converts the verified F1-F22 findings below into one dependency-ordered
@@ -23,9 +24,12 @@ satisfied S0's broader suite, review, path, security, and continuity gates; see
 deterministic-order, retrieval-validation, server-factory,
 projection-version, scanner, MCP-version, and dependency-contract guardrails.
 `HISTORY#524` closes the discovered `seam doctor` contradiction so an absent
-opt-in-only Chroma install is informational rather than a core failure. S2 is
-locally qualified. S3 and S4 are now unblocked; S5 may begin from the same
-qualified migration substrate.
+opt-in-only Chroma install is informational rather than a core failure. The
+post-S2 audit in `HISTORY#525` exposed a missing forward projection path;
+`HISTORY#526` locally requalifies S2 with registered projection transitions,
+locked backup ordering, and durable per-step resume. S3 and S4 are now
+unblocked locally; S5 may begin from the same candidate substrate after the
+protected publication boundary is satisfied.
 
 ## Governing invariants
 
@@ -77,7 +81,7 @@ These are audit verdicts, not severity labels and not completion claims.
 | F14 | **CONFIRMED** | Retrieval adapters open fresh connections, and pgvector performs schema ensure work during search. | S5 |
 | F15 | **QUALIFIED** | Entity extraction/provenance remains heuristic and weak. Within-namespace normalized-label canonicalization exists; cross-tenant separation is intentional and must remain. | S7 |
 | F16 | **CONFIRMED** | The live branch-protection ruleset requires three short gates but not the full `test-and-benchmark` suite. | S10 |
-| F17 | **CONFIRMED** | There is no central schema/migration version governing all durable projections. | S2 |
+| F17 | **CONFIRMED** | At activation there was no central schema/migration version governing all durable projections. S2 added the central registry, and HISTORY#526 adds the locally qualified forward transition path; protected-main publication remains pending. | S2 |
 | F18 | **CONFIRMED** | S1 rejects non-positive `rrf_k` at flag construction, coercion, and environment loading before fusion. | S1 |
 | F19 | **CONFIRMED** | S1 centralizes secret patterns and scans every new commit-range blob, including added-then-deleted content. | S1 |
 | F20 | **PARTLY STALE** | `server.json` retains its intentional legacy compatibility value; S1 makes the private MCP handshake report installed package metadata. | S1 |
@@ -157,8 +161,8 @@ dependency hazards before introducing migrations.
 
 ## S2 - Migration spine
 
-**Status:** locally qualified on 2026-08-01 via `HISTORY#522`; `HISTORY#523`
-clarifies the final review boundary. Protected-main CI and merge remain the
+**Status:** locally requalified on 2026-08-02 via `HISTORY#526` after the
+post-S2 forward-migration audit finding. Protected-main CI and merge remain the
 publication boundary.
 
 **Purpose:** add one central, transactional, recoverable schema/projection
@@ -173,8 +177,22 @@ version spine before any durable layout changes.
 - Failure injected after every migration step rolls the whole step back.
 - SQLite `integrity_check` and `foreign_key_check` pass after each supported
   upgrade path.
+- A registered projection-version bump upgrades a populated store through an
+  explicit transactional callable without losing canonical or projection data;
+  an unregistered add, remove, or version change still refuses byte-unchanged.
+- Locked revalidation and the same-owner backup precede mutation; competing
+  writers remain blocked across every separately committed step in DELETE and
+  WAL modes, while an earlier completed step survives a later failure and
+  remains resumable.
 - An unknown/newer database remains byte-unchanged after refusal.
 - Recovery from the pre-migration backup is demonstrated, not assumed.
+
+The audit repairs in `HISTORY#526` are intentionally narrow. Locking entity
+reconciliation closes one concurrent identity-fragmentation path but does not
+complete S7 extraction, provenance, or reconciliation. Host-bound chat
+credential lookup closes arbitrary environment forwarding but does not provide
+S6 principal tenancy or automatic token provisioning. Audit findings 7-10 and
+12 remain open.
 
 ## S3 - Durable supersession and guarded reprojection
 
