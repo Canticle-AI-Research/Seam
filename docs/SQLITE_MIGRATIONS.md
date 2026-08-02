@@ -11,6 +11,15 @@ ordered spine step.
 - Step 1: `initialize-versioned-core`
 - Step 2: `register-durable-projections`
 
+Registered Track S S4 projection transitions are:
+
+- `core-storage/1` -> `core-storage/2` (`typed-ir-edge-endpoints`), which
+  rebuilds derived `ir_edges` with independently typed source and destination
+  endpoints;
+- `knowledge-graph/5` -> `knowledge-graph/6`
+  (`typed-knowledge-references`), which reprojects canonical MIRL through the
+  closed reference contract and removes disconnected colon-heuristic nodes.
+
 `seam_schema_migrations` records the contiguous step history and a stable
 identity checksum. `seam_projection_versions` records the expected versions of
 canonical MIRL, core storage, the knowledge graph and node vectors, graph
@@ -89,6 +98,9 @@ cleanup from canonical MIRL status, and reapplies source supersession from
 `document_status.deleted_at`. It does not copy stale episode or edge lifecycle
 rows through the rebuild. Explicit identity-merge decisions remain in their
 separate durable judgement ledger and are revalidated against rebuilt nodes.
+The S4 `knowledge-graph/5` -> `/6` typed-reference transition follows that S3
+boundary exactly; stores at `/4` advance through both registered steps rather
+than skipping the guarded supersession rebuild.
 
 ## Recovery
 

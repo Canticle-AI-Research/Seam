@@ -52,7 +52,7 @@ def test_orphan_cleanup_on_init(tmp_path: Path) -> None:
         insert into ir_edges (src_id, edge_type, dst_id) values ('clm:rec_a', 'ref', 'clm:rec_b');
         -- orphan edge: src is a record ID that doesn't exist
         insert into ir_edges (src_id, edge_type, dst_id) values ('clm:rec_c', 'ref', 'clm:rec_b');
-        -- virtual-entity edge: src is ent:turn:xxx (not a record ID) — should survive
+        -- legacy endpoint typing is absent, so unknown endpoints fail closed
         insert into ir_edges (src_id, edge_type, dst_id) values ('ent:turn:abc', 'date', 'clm:rec_a');
         """
     )
@@ -78,10 +78,10 @@ def test_orphan_cleanup_on_init(tmp_path: Path) -> None:
     ).fetchone()[0]
     assert legit == 1, "legit edge should survive"
 
-    # Virtual-entity edge survives (not touched by cleanup)
+    # An untyped legacy endpoint is not silently guessed to be virtual.
     virt = conn2.execute(
         "select count(*) from ir_edges where src_id = 'ent:turn:abc'"
     ).fetchone()[0]
-    assert virt == 1, "virtual-entity edge should survive"
+    assert virt == 0, "untyped legacy endpoint should fail closed"
 
     conn2.close()

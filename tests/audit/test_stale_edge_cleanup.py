@@ -6,6 +6,7 @@ so the existing delete-on-src_id=record.id alone is insufficient.
 """
 
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
+from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 from seam_runtime.storage import SQLiteStore
 
 
@@ -20,6 +21,7 @@ def test_clm_stale_edge_cleanup_on_overwrite():
         kind=RecordKind.CLM,
         ns="test",
         scope="test",
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:x", "ent:a"]},
         attrs={"subject": "ent:x", "predicate": "related_to", "object": "ent:a"},
         prov=["raw:1"],
         evidence=["span:1"],
@@ -38,6 +40,7 @@ def test_clm_stale_edge_cleanup_on_overwrite():
         kind=RecordKind.CLM,
         ns="test",
         scope="test",
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:x", "ent:b"]},
         attrs={"subject": "ent:x", "predicate": "related_to", "object": "ent:b"},
         prov=["raw:2"],
         evidence=["span:2"],
@@ -67,6 +70,7 @@ def test_clm_stale_edge_cleanup_subject_change():
         kind=RecordKind.CLM,
         ns="test",
         scope="test",
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:old", "target:1"]},
         attrs={"subject": "ent:old", "predicate": "relates_to", "object": "target:1"},
         prov=["raw:1"],
     )
@@ -80,6 +84,7 @@ def test_clm_stale_edge_cleanup_subject_change():
         kind=RecordKind.CLM,
         ns="test",
         scope="test",
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:new", "target:2"]},
         attrs={"subject": "ent:new", "predicate": "relates_to", "object": "target:2"},
         prov=["raw:2"],
     )

@@ -9,7 +9,10 @@ import pytest
 from fastapi.testclient import TestClient
 
 from seam_runtime.graph_source_selector import select_graph_source_raw
-from seam_runtime.knowledge_graph import KnowledgeGraphProjectionVersionError
+from seam_runtime.knowledge_graph import (
+    PROJECTION_VERSION,
+    KnowledgeGraphProjectionVersionError,
+)
 from seam_runtime.mcp import TOOL_METADATA, dispatch_tool
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.retrieval_orchestrator.adapters import SQLiteGraphAdapter
@@ -29,7 +32,7 @@ def runtime(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 
 def test_graph_schema_initializes_on_a_genuinely_fresh_connection() -> None:
-    from seam_runtime.knowledge_graph import PROJECTION_VERSION, init_knowledge_graph
+    from seam_runtime.knowledge_graph import init_knowledge_graph
 
     with sqlite3.connect(":memory:") as connection:
         init_knowledge_graph(connection)
@@ -120,7 +123,7 @@ def test_projection_builds_scoped_canonical_and_alias_term_index(runtime: SeamRu
     assert [node["id"] for node in graph["nodes"]] == ["ent:ada-lovelace"]
     assert graph["stats"]["term_count"] == 3
     assert graph["stats"]["alias_count"] == 2
-    assert graph["stats"]["projection_version"] == "knowledge-graph/5"
+    assert graph["stats"]["projection_version"] == PROJECTION_VERSION
 
 
 def test_sentence_like_claim_values_do_not_enter_concept_term_index(runtime: SeamRuntime) -> None:

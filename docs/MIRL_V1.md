@@ -130,6 +130,23 @@ tooling touch.
 - `ext`
 - `attrs`
 
+## Typed Reference Contract
+
+Reference identity comes from the MIRL field contract and canonical record
+membership, never punctuation or an ID-looking prefix. Required reference
+fields (`prov`, `evidence`, `SPAN.raw_id`, `CLM.subject`, `REL.src`/`dst`,
+`EVT.actor`, `STA.target`, `PACK.refs`, `FLOW.src`/`dst`, and `PROV.entity`)
+remain record references so missing or wrong-kind endpoints fail integrity
+checks. Optional object and facet values become references only when the exact
+ID exists in the same batch or the canonical store; otherwise they remain
+literal value nodes. Timestamps, URLs, and arbitrary colon-bearing prose are
+therefore literals unless they exactly name an existing record.
+
+Graph-only virtual identities must be declared explicitly by the source record
+in `ext["seam.virtual_refs"]` as a list of exact IDs. Prefixes do not confer
+virtual status. The SQLite edge projection persists the MIRL kind (or
+`virtual`) independently for both endpoints and validates both on reopen.
+
 ## Status Enum
 
 - `asserted`

@@ -16,10 +16,17 @@ from .migrations import (
     execute_script,
 )
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
+from .reference_contracts import (
+    EndpointType,
+    ReferenceMode,
+    reference_candidate_ids,
+    resolve_reference,
+    stored_reference_kinds,
+)
 
 LOGGER = logging.getLogger(__name__)
 
-PROJECTION_VERSION = "knowledge-graph/5"
+PROJECTION_VERSION = "knowledge-graph/6"
 # Graph nodes carry their own derived semantic projection, versioned separately
 # from `mirl-vector-text/*` because a node is not a record: it is an identity
 # distilled from many records, so its render contract evolves independently.
@@ -283,12 +290,19 @@ def init_knowledge_graph(
         ).fetchall()
     }
     backfill_from_canonical = False
+    upgrade_typed_references = False
     if "knowledge_graph_meta" in existing_tables:
         row = connection.execute(
             "select value from knowledge_graph_meta where key = 'projection_version'"
         ).fetchone()
         stored_version = str(row[0]) if row is not None else "missing"
-        if stored_version != PROJECTION_VERSION:
+        if (
+            allow_migration
+            and stored_version == "knowledge-graph/5"
+            and PROJECTION_VERSION == "knowledge-graph/6"
+        ):
+            upgrade_typed_references = True
+        elif stored_version != PROJECTION_VERSION:
             raise KnowledgeGraphProjectionVersionError(
                 "Unsupported knowledge graph projection version "
                 f"{stored_version!r}; expected {PROJECTION_VERSION!r}. "
@@ -470,6 +484,19 @@ def init_knowledge_graph(
     episode_columns = {row[1] for row in connection.execute("pragma table_info(knowledge_episodes)").fetchall()}
     if "expired_at" not in episode_columns:
         connection.execute("alter table knowledge_episodes add column expired_at text")
+    if upgrade_typed_references:
+        records = _load_canonical_projection_records(connection)
+        project_records(connection, records)
+        updated = connection.execute(
+            "update knowledge_graph_meta set value = ? "
+            "where key = 'projection_version' and value = 'knowledge-graph/5'",
+            (PROJECTION_VERSION,),
+        )
+        if updated.rowcount != 1:
+            raise KnowledgeGraphProjectionVersionError(
+                "Knowledge graph typed-reference migration could not advance its marker"
+            )
+        return
     if "knowledge_graph_meta" in existing_tables:
         return
     if backfill_from_canonical:
@@ -576,6 +603,17 @@ def rebuild_knowledge_graph_from_canonical(connection: sqlite3.Connection) -> No
         connection.execute(f'drop table if exists "{table}"')
 
     init_knowledge_graph(connection, allow_migration=True)
+    # This callable owns the exact KG/4 -> /5 boundary even when newer code
+    # registers later transitions. Publish its component marker explicitly so
+    # a failed downstream step leaves a truthful, resumable KG/5 checkpoint.
+    updated = connection.execute(
+        "update knowledge_graph_meta set value = 'knowledge-graph/5' "
+        "where key = 'projection_version'"
+    )
+    if updated.rowcount != 1:
+        raise KnowledgeGraphProjectionVersionError(
+            "Guarded knowledge-graph rebuild could not publish its KG/5 marker"
+        )
 
 
 def _restore_canonical_lifecycle_exclusions(connection: sqlite3.Connection) -> None:
@@ -638,6 +676,51 @@ def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> 
         )
 
 
+def _load_canonical_projection_records(
+    connection: sqlite3.Connection,
+) -> list[MIRLRecord]:
+    records: list[MIRLRecord] = []
+    rows = connection.execute(
+        "select id, kind, ns, scope, status, conf, t0, t1, created_at, "
+        "updated_at, payload_json from ir_records order by id"
+    ).fetchall()
+    for (
+        record_id,
+        kind,
+        namespace,
+        scope,
+        stored_status,
+        confidence,
+        valid_from,
+        valid_to,
+        created_at,
+        updated_at,
+        payload_json,
+    ) in rows:
+        try:
+            data = json.loads(payload_json)
+            data.setdefault("id", record_id)
+            data.setdefault("kind", kind)
+            data.setdefault("ns", namespace)
+            data.setdefault("scope", scope)
+            data.setdefault("conf", confidence)
+            data.setdefault("t0", valid_from)
+            data.setdefault("t1", valid_to)
+            data.setdefault("created_at", created_at)
+            data.setdefault("updated_at", updated_at)
+            status = str(data.get("status") or stored_status)
+            if status not in {item.value for item in Status}:
+                status = Status.ASSERTED.value
+            data["status"] = status
+            records.append(MIRLRecord.from_dict(data))
+        except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+            raise KnowledgeGraphProjectionVersionError(
+                "Knowledge graph typed-reference migration found invalid "
+                f"canonical MIRL payload for {record_id!r}"
+            ) from exc
+    return records
+
+
 def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord]) -> None:
     """Project MIRL records into the self-maintaining semantic graph.
 
@@ -649,6 +732,16 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
     if not records:
         return
     batch_by_id = {record.id: record for record in records}
+    candidate_ids = {
+        candidate_id
+        for record in records
+        for candidate_id in _knowledge_reference_candidate_ids(record)
+        if candidate_id not in batch_by_id
+    }
+    known_record_kinds = stored_reference_kinds(connection, candidate_ids)
+    known_record_kinds.update(
+        {record_id: target.kind for record_id, target in batch_by_id.items()}
+    )
     for record in records:
         old_edges = connection.execute(
             "select id from knowledge_edges where source_record_id = ?", (record.id,)
@@ -664,7 +757,7 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
         connection.execute("delete from knowledge_node_terms where source_record_id = ?", (record.id,))
 
     for record in records:
-        _project_record(connection, record, batch_by_id)
+        _project_record(connection, record, batch_by_id, known_record_kinds)
 
     # Synthetic values/references are disposable projections. Remove any that
     # became disconnected after a source record was updated.
@@ -677,6 +770,24 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
     connection.execute(
         "delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)"
     )
+
+
+def _knowledge_reference_candidate_ids(record: MIRLRecord) -> frozenset[str]:
+    """Return the bounded canonical candidates inspected by graph projection."""
+
+    candidates = set(reference_candidate_ids(record))
+    candidates.update(
+        str(value).strip()
+        for value in _record_facets(record).values()
+        if isinstance(value, str) and value.strip()
+    )
+    for predicate in EPISTEMIC_PREDICATES:
+        candidates.update(
+            _reference_values(
+                record.ext.get(predicate) or record.attrs.get(predicate)
+            )
+        )
+    return frozenset(candidates)
 
 
 def render_node_text(
@@ -1598,6 +1709,7 @@ def _project_record(
     connection: sqlite3.Connection,
     record: MIRLRecord,
     batch_by_id: dict[str, MIRLRecord],
+    known_record_kinds: Mapping[str, RecordKind],
 ) -> None:
     agent_id = _record_agent(connection, record, batch_by_id)
     label = _record_label(record, batch_by_id)
@@ -1639,21 +1751,38 @@ def _project_record(
             (record.id, episode_id, record.id),
         )
 
-    def reference(value: object, *, literal: bool = False) -> str | None:
+    def reference(
+        value: object,
+        *,
+        mode: ReferenceMode = ReferenceMode.LITERAL,
+    ) -> str | None:
         if value is None:
             return None
         text = str(value).strip()
         if not text:
             return None
-        if literal or ":" not in text:
+        resolved = resolve_reference(
+            record,
+            value,
+            known_record_kinds=known_record_kinds,
+            mode=mode,
+        )
+        if resolved is None:
             node_id = _value_node_id(record.ns, record.scope, text)
             kind = "value"
             node_label = text
         else:
-            node_id = text
-            target = batch_by_id.get(text) or _load_record(connection, text)
-            kind = _KIND_NAMES[target.kind] if target is not None else _kind_from_id(text)
-            node_label = _record_label(target, batch_by_id) if target is not None else _label_from_id(text)
+            node_id = resolved.id
+            target = batch_by_id.get(node_id) or _load_record(connection, node_id)
+            if target is not None:
+                kind = _KIND_NAMES[target.kind]
+                node_label = _record_label(target, batch_by_id)
+            elif resolved.endpoint_type is EndpointType.VIRTUAL:
+                kind = "entity"
+                node_label = _label_from_id(node_id)
+            else:
+                kind = "unresolved_reference"
+                node_label = node_id
         _upsert_node(
             connection,
             node_id=node_id,
@@ -1764,55 +1893,77 @@ def _project_record(
         edge(agent_node, "contributed", record.id, "provenance")
 
     for provenance in record.prov:
-        edge(record.id, "provenance", reference(provenance), "provenance")
+        edge(
+            record.id,
+            "provenance",
+            reference(provenance, mode=ReferenceMode.REQUIRED),
+            "provenance",
+        )
     for evidence in record.evidence:
-        edge(record.id, "evidence", reference(evidence), "provenance")
+        edge(
+            record.id,
+            "evidence",
+            reference(evidence, mode=ReferenceMode.REQUIRED),
+            "provenance",
+        )
 
     attrs = record.attrs
     if record.kind == RecordKind.CLM:
-        subject = reference(attrs.get("subject"))
+        subject = reference(attrs.get("subject"), mode=ReferenceMode.REQUIRED)
         obj_value = attrs.get("object")
-        obj = reference(obj_value, literal=not (isinstance(obj_value, str) and ":" in obj_value))
+        obj = reference(obj_value, mode=ReferenceMode.OPTIONAL)
         predicate = str(attrs.get("predicate") or "asserts")
         edge(record.id, "about", subject, "grounding")
         edge(record.id, "object", obj, "grounding")
         edge(subject, predicate, obj, "semantic", claim_id=record.id, facets=facets)
     elif record.kind == RecordKind.REL:
-        src = reference(attrs.get("src"))
-        dst = reference(attrs.get("dst"))
+        src = reference(attrs.get("src"), mode=ReferenceMode.REQUIRED)
+        dst = reference(attrs.get("dst"), mode=ReferenceMode.REQUIRED)
         predicate = str(attrs.get("predicate") or "related_to")
         edge(record.id, "subject", src, "grounding")
         edge(record.id, "object", dst, "grounding")
         edge(src, predicate, dst, "semantic", relation_id=record.id, facets=facets)
     elif record.kind == RecordKind.EVT:
-        actor = reference(attrs.get("actor") or attrs.get("subject"))
-        obj = reference(attrs.get("object"), literal=not isinstance(attrs.get("object"), str))
+        actor = reference(
+            attrs.get("actor") or attrs.get("subject"),
+            mode=ReferenceMode.REQUIRED,
+        )
+        obj = reference(attrs.get("object"), mode=ReferenceMode.OPTIONAL)
         edge(actor, "participated_in", record.id, "semantic")
         edge(record.id, "object", obj, "semantic")
     elif record.kind == RecordKind.STA:
-        target = reference(attrs.get("target") or attrs.get("subject"))
+        target = reference(
+            attrs.get("target") or attrs.get("subject"),
+            mode=ReferenceMode.REQUIRED,
+        )
         edge(target, "has_state", record.id, "semantic")
     elif record.kind == RecordKind.SPAN:
-        edge(record.id, "excerpt_of", reference(attrs.get("raw_id")), "provenance")
+        edge(
+            record.id,
+            "excerpt_of",
+            reference(attrs.get("raw_id"), mode=ReferenceMode.REQUIRED),
+            "provenance",
+        )
     elif record.kind == RecordKind.PROV:
-        entity = reference(attrs.get("entity"))
+        entity = reference(attrs.get("entity"), mode=ReferenceMode.REQUIRED)
         edge(_agent_node_id(agent_id) if agent_id else record.id, str(attrs.get("activity") or "produced"), entity, "provenance")
     elif record.kind == RecordKind.FLOW:
-        edge(reference(attrs.get("src")), str(attrs.get("predicate") or "flows_to"), reference(attrs.get("dst")), "semantic")
+        edge(
+            reference(attrs.get("src"), mode=ReferenceMode.REQUIRED),
+            str(attrs.get("predicate") or "flows_to"),
+            reference(attrs.get("dst"), mode=ReferenceMode.REQUIRED),
+            "semantic",
+        )
 
     # 5W1H+Then is a derived, rebuildable lens over canonical MIRL. Keep the
     # original open predicate above and add only grounded facet links here.
     for facet, value in facets.items():
         if facet not in _FACET_PREDICATES:
             continue
-        is_reference = isinstance(value, str) and (
-            value in batch_by_id
-            or value.split(":", 1)[0].lower() in _PREFIX_KINDS
-        )
         edge(
             record.id,
             facet,
-            reference(value, literal=not is_reference),
+            reference(value, mode=ReferenceMode.OPTIONAL),
             "facet",
             canonical_predicate=_FACET_PREDICATES[facet],
         )
@@ -1821,7 +1972,12 @@ def _project_record(
     # fields. They become typed graph relations but never replace old records.
     for predicate in (*sorted(EPISTEMIC_PREDICATES), "supersedes"):
         for target in _reference_values(record.ext.get(predicate) or attrs.get(predicate)):
-            edge(record.id, predicate, reference(target), predicate_family(predicate))
+            edge(
+                record.id,
+                predicate,
+                reference(target, mode=ReferenceMode.REQUIRED),
+                predicate_family(predicate),
+            )
 
 
 def _episode_ids(

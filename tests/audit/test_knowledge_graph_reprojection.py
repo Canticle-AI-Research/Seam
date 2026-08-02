@@ -20,6 +20,7 @@ from seam_runtime.runtime import SeamRuntime
 from seam_runtime.storage import SQLiteStore
 
 REBUILD_STEP = "rebuild-knowledge-graph-4-to-5-from-canonical"
+TYPED_REFERENCE_STEP = "typed-knowledge-references"
 RELEVANT_TABLES = (
     "document_status",
     "ir_records",
@@ -212,7 +213,10 @@ def test_guarded_reprojection_is_history_equivalent_and_has_zero_resurrections(
 
     runtime = SeamRuntime(path)
     try:
-        assert runtime.store.migration_result.applied_steps == (REBUILD_STEP,)
+        assert runtime.store.migration_result.applied_steps == (
+            REBUILD_STEP,
+            TYPED_REFERENCE_STEP,
+        )
         after_views = {
             "current": _stable_graph_view(
                 runtime.store.knowledge_graph(
@@ -359,6 +363,48 @@ def test_failed_reprojection_rolls_back_every_relevant_table_hash(
         )
 
     assert _table_hashes(path) == before
+
+
+def test_typed_reference_failure_preserves_resumable_kg5_checkpoint(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+    path = tmp_path / "s3-s4-resume.sqlite3"
+    _build_reprojection_fixture(path)
+    _downgrade_graph_marker(path)
+
+    def fail_after_typed_reprojection(step, _connection) -> None:
+        if step.name == TYPED_REFERENCE_STEP:
+            raise RuntimeError("injected S4 typed-reference failure")
+
+    with pytest.raises(MigrationError, match="rolled back"):
+        SQLiteStore(
+            path,
+            _migration_failure_injector=fail_after_typed_reprojection,
+            _migration_backup_dir=tmp_path / "backups",
+        )
+
+    with closing(sqlite3.connect(path)) as connection:
+        assert connection.execute(
+            "select projection_version from seam_projection_versions "
+            "where projection_name = 'knowledge_graph'"
+        ).fetchone()[0] == "knowledge-graph/5"
+        assert connection.execute(
+            "select value from knowledge_graph_meta "
+            "where key = 'projection_version'"
+        ).fetchone()[0] == "knowledge-graph/5"
+
+    resumed = SQLiteStore(path)
+    try:
+        assert resumed.migration_result.applied_steps == (TYPED_REFERENCE_STEP,)
+        with resumed._pool.checkout() as connection:
+            assert connection.execute(
+                "select value from knowledge_graph_meta "
+                "where key = 'projection_version'"
+            ).fetchone()[0] == "knowledge-graph/6"
+    finally:
+        resumed.close()
 
 
 def test_newer_reprojection_request_refuses_before_any_table_hash_changes(

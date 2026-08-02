@@ -168,6 +168,11 @@ from .reasoning_promotion import (
 from .reasoning_promotion import (
     review_reasoning_promotion as review_reasoning_promotion_row,
 )
+from .reference_contracts import (
+    reference_candidate_ids,
+    stored_reference_kinds,
+    typed_ir_edges,
+)
 from .retry import retry_db_operation
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
 from .workspace import (
@@ -188,7 +193,7 @@ LOGGER = logging.getLogger(__name__)
 
 STORE_PROJECTION_VERSIONS = {
     "canonical_mirl": SCHEMA_VERSION,
-    "core_storage": "core-storage/1",
+    "core_storage": "core-storage/2",
     "graph_products": f"graph-products-schema/{GRAPH_PRODUCT_SCHEMA_VERSION}",
     "knowledge_graph": PROJECTION_VERSION,
     "knowledge_graph_vectors": GRAPH_NODE_VECTOR_TEXT_VERSION,
@@ -391,8 +396,10 @@ class SQLiteStore:
                 create table if not exists ir_edges (
                     id integer primary key autoincrement,
                     src_id text not null,
+                    src_ref_type text not null default 'record' check (src_ref_type in ('record', 'virtual', 'RAW', 'SPAN', 'ENT', 'CLM', 'EVT', 'REL', 'STA', 'SYM', 'PACK', 'FLOW', 'PROV', 'META')),
                     edge_type text not null,
-                    dst_id text not null
+                    dst_id text not null,
+                    dst_ref_type text not null default 'record' check (dst_ref_type in ('record', 'virtual', 'RAW', 'SPAN', 'ENT', 'CLM', 'EVT', 'REL', 'STA', 'SYM', 'PACK', 'FLOW', 'PROV', 'META'))
                 );
                 create table if not exists symbol_table (
                     id text primary key,
@@ -608,6 +615,7 @@ class SQLiteStore:
                 "select r.scope from ir_records r where r.id = vector_index.record_id"
                 "), '')"
             )
+        self._ensure_typed_edge_columns(connection)
         self._cleanup_orphan_edges(connection)
         init_knowledge_graph(connection, allow_migration=True)
         init_graph_products(connection)
@@ -616,29 +624,48 @@ class SQLiteStore:
         init_reasoning_graph(connection)
         init_reasoning_promotion(connection)
 
-    def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
-        """Remove edges whose src or dst references a record that no longer exists.
+    @staticmethod
+    def _ensure_typed_edge_columns(connection: sqlite3.Connection) -> None:
+        """Upgrade an unversioned legacy ``ir_edges`` table in place.
 
-        ir_edges has no FK constraints because it uses virtual entity IDs
-        (e.g. ``ent:turn:xxx``, ``ent:user:xxx``, ``prov``, ``evidence`` edges).
-        We run a best-effort orphan sweep at open time: any edge where EITHER
-        endpoint looks like a record ID (starts with a known prefix) but is
-        missing from ir_records is removed. Virtual entity IDs are preserved.
+        Versioned core-storage/1 databases use the registered projection
+        migration.  This narrow path exists for pre-registry stores processed
+        by the central v0 -> v2 bootstrap.
         """
-        record_prefixes = ("clm:", "rel:", "sym:", "raw:", "sta:", "evt:")
-        prefix_clause = " or ".join(
-            f"src_id like '{p}%'" for p in record_prefixes
+
+        columns = {
+            str(row[1]) for row in connection.execute("pragma table_info(ir_edges)")
+        }
+        typed_columns = {"src_ref_type", "dst_ref_type"}
+        present = columns & typed_columns
+        if present == typed_columns:
+            return
+        if present:
+            raise RuntimeError("ir_edges endpoint typing is only partially installed")
+        connection.execute(
+            "alter table ir_edges add column src_ref_type text not null "
+            "default 'record' check (src_ref_type in ('record', 'virtual', "
+            "'RAW', 'SPAN', 'ENT', 'CLM', 'EVT', 'REL', 'STA', 'SYM', "
+            "'PACK', 'FLOW', 'PROV', 'META'))"
         )
         connection.execute(
-            f"delete from ir_edges "
-            f"where ({prefix_clause}) and src_id not in (select id from ir_records)"
+            "alter table ir_edges add column dst_ref_type text not null "
+            "default 'record' check (dst_ref_type in ('record', 'virtual', "
+            "'RAW', 'SPAN', 'ENT', 'CLM', 'EVT', 'REL', 'STA', 'SYM', "
+            "'PACK', 'FLOW', 'PROV', 'META'))"
         )
-        prefix_clause_dst = " or ".join(
-            f"dst_id like '{p}%'" for p in record_prefixes
-        )
+
+    def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
+        """Remove missing canonical endpoints using persisted endpoint types."""
+
         connection.execute(
-            f"delete from ir_edges "
-            f"where ({prefix_clause_dst}) and dst_id not in (select id from ir_records)"
+            "delete from ir_edges where "
+            "(src_ref_type != 'virtual' and not exists "
+            " (select 1 from ir_records where id = ir_edges.src_id and "
+            "  (ir_edges.src_ref_type = 'record' or kind = ir_edges.src_ref_type))) or "
+            "(dst_ref_type != 'virtual' and not exists "
+            " (select 1 from ir_records where id = ir_edges.dst_id and "
+            "  (ir_edges.dst_ref_type = 'record' or kind = ir_edges.dst_ref_type)))"
         )
 
     def get_stats(self) -> dict[str, object]:
@@ -876,11 +903,21 @@ class SQLiteStore:
         if not connection.in_transaction:
             connection.execute("begin immediate")
         id_map, skip_ids = self._reconcile_entities(connection, batch)
-        stored_ids: list[str] = []
-        for record in batch.records:
-            if record.id in skip_ids:
-                continue
+        projected = [record for record in batch.records if record.id not in skip_ids]
+        for record in projected:
             self._remap_entity_refs(record, id_map)
+        batch_kinds = {record.id: record.kind for record in projected}
+        candidate_ids = {
+            candidate_id
+            for record in projected
+            for candidate_id in reference_candidate_ids(record)
+            if candidate_id not in batch_kinds
+        }
+        known_record_kinds = stored_reference_kinds(connection, candidate_ids)
+        known_record_kinds.update(batch_kinds)
+        stored_ids: list[str] = []
+        edge_records: list[tuple[MIRLRecord, str | None]] = []
+        for record in projected:
             stored_ids.append(record.id)
             # Capture old CLM subject before overwriting.
             old_clm_subject: str | None = None
@@ -916,15 +953,30 @@ class SQLiteStore:
                 ),
             )
             self._persist_specialized(connection, record)
+            edge_records.append((record, old_clm_subject))
+
+        # Clear the complete batch first, then emit its edges.  Interleaving
+        # clear/write made results depend on record order when a canonical ENT
+        # appeared after a CLM/REL that referenced it.
+        for record, old_clm_subject in edge_records:
             self._persist_edges(
-                connection, record, old_clm_subject=old_clm_subject
+                connection,
+                record,
+                known_record_kinds=known_record_kinds,
+                old_clm_subject=old_clm_subject,
+                emit=False,
+            )
+        for record, old_clm_subject in edge_records:
+            self._persist_edges(
+                connection,
+                record,
+                known_record_kinds=known_record_kinds,
+                old_clm_subject=old_clm_subject,
+                clear=False,
             )
         # The knowledge graph is a deterministic projection of the same
         # canonical MIRL write. It is built automatically for every ingest
         # surface and committed atomically with the records it represents.
-        projected = [
-            record for record in batch.records if record.id not in skip_ids
-        ]
         project_knowledge_records(connection, projected)
         return stored_ids
 
@@ -1046,37 +1098,42 @@ class SQLiteStore:
         self,
         connection: sqlite3.Connection,
         record: MIRLRecord,
+        *,
+        known_record_kinds: dict[str, RecordKind],
         old_clm_subject: str | None = None,
+        clear: bool = True,
+        emit: bool = True,
     ) -> None:
         # Remove existing edges for this record so that re-persists with
         # changed edge sets do not leave stale edges behind (H2 integrity fix).
-        connection.execute("delete from ir_edges where src_id = ?", (record.id,))
+        if clear:
+            connection.execute("delete from ir_edges where src_id = ?", (record.id,))
         # Also remove edges keyed by the CLM subject when it differs from record.id.
-        if record.kind == RecordKind.CLM:
+        if clear and record.kind == RecordKind.CLM:
             subject = record.attrs.get("subject")
             if subject is not None:
                 connection.execute("delete from ir_edges where src_id = ?", (str(subject),))
             # Clean up edges from the old subject if it changed.
             if old_clm_subject is not None and old_clm_subject != subject:
                 connection.execute("delete from ir_edges where src_id = ?", (str(old_clm_subject),))
-        attrs = record.attrs
-        edges: list[tuple[str, str, str]] = []
-        if record.kind == RecordKind.REL:
-            src = attrs.get("src")
-            dst = attrs.get("dst")
-            if src is not None and dst is not None:
-                edges.append((str(src), str(attrs.get("predicate")), str(dst)))
-        elif record.kind == RecordKind.CLM:
-            subject = attrs.get("subject")
-            obj = attrs.get("object")
-            if subject is not None and isinstance(obj, str) and ":" in obj:
-                edges.append((str(subject), str(attrs.get("predicate")), obj))
-        for prov in record.prov:
-            edges.append((record.id, "prov", prov))
-        for evidence in record.evidence:
-            edges.append((record.id, "evidence", evidence))
-        for src_id, edge_type, dst_id in edges:
-            connection.execute("insert or ignore into ir_edges (src_id, edge_type, dst_id) values (?, ?, ?)", (src_id, edge_type, dst_id))
+        if not emit:
+            return
+        for edge in typed_ir_edges(record, known_record_kinds=known_record_kinds):
+            connection.execute(
+                "insert into ir_edges "
+                "(src_id, src_ref_type, edge_type, dst_id, dst_ref_type) "
+                "values (?, ?, ?, ?, ?) "
+                "on conflict (src_id, edge_type, dst_id) do update set "
+                "src_ref_type = excluded.src_ref_type, "
+                "dst_ref_type = excluded.dst_ref_type",
+                (
+                    edge.src.id,
+                    edge.src.endpoint_type.value,
+                    edge.edge_type,
+                    edge.dst.id,
+                    edge.dst.endpoint_type.value,
+                ),
+            )
 
     def load_ir(
         self,

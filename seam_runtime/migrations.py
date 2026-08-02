@@ -10,6 +10,7 @@ change.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 import shutil
@@ -22,6 +23,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Final
 from uuid import uuid4
+
+from .mirl import MIRLRecord, RecordKind
+from .reference_contracts import typed_ir_edges
 
 CURRENT_SCHEMA_VERSION: Final = 2
 MIGRATION_TABLE: Final = "seam_schema_migrations"
@@ -352,10 +356,127 @@ def _rebuild_knowledge_graph_4_to_5(
     rebuild_knowledge_graph_from_canonical(connection)
 
 
+def _upgrade_core_storage_typed_edges(
+    connection: ProjectionMigrationConnection,
+) -> None:
+    """Rebuild derived IR edges with explicit endpoint types."""
+
+    columns = {
+        str(row[1]) for row in connection.execute("pragma table_info(ir_edges)")
+    }
+    typed_columns = {"src_ref_type", "dst_ref_type"}
+    present = columns & typed_columns
+    if present:
+        raise MigrationError(
+            "core-storage/1 typed-edge columns are partially or unexpectedly present"
+        )
+    connection.execute(
+        "alter table ir_edges add column src_ref_type text not null "
+        "default 'record' check (src_ref_type in ('record', 'virtual', "
+        "'RAW', 'SPAN', 'ENT', 'CLM', 'EVT', 'REL', 'STA', 'SYM', "
+        "'PACK', 'FLOW', 'PROV', 'META'))"
+    )
+    connection.execute(
+        "alter table ir_edges add column dst_ref_type text not null "
+        "default 'record' check (dst_ref_type in ('record', 'virtual', "
+        "'RAW', 'SPAN', 'ENT', 'CLM', 'EVT', 'REL', 'STA', 'SYM', "
+        "'PACK', 'FLOW', 'PROV', 'META'))"
+    )
+
+    record_rows = connection.execute(
+        "select id, payload_json from ir_records order by id"
+    ).fetchall()
+    known_record_kinds: dict[str, RecordKind] = {}
+    records: list[MIRLRecord] = []
+    for record_id, payload_json in record_rows:
+        try:
+            payload = json.loads(str(payload_json))
+            record = MIRLRecord.from_dict(payload)
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise MigrationError(
+                f"core-storage typed-edge rebuild found invalid MIRL payload for {record_id!r}"
+            ) from exc
+        if record.id != str(record_id):
+            raise MigrationError(
+                f"core-storage typed-edge rebuild found mismatched MIRL id for {record_id!r}"
+            )
+        records.append(record)
+        known_record_kinds[record.id] = record.kind
+
+    connection.execute("delete from ir_edges")
+    edge_rows: list[tuple[str, str, str, str, str]] = []
+    for record in records:
+        for edge in typed_ir_edges(record, known_record_kinds=known_record_kinds):
+            edge_rows.append(
+                (
+                    edge.src.id,
+                    edge.src.endpoint_type.value,
+                    edge.edge_type,
+                    edge.dst.id,
+                    edge.dst.endpoint_type.value,
+                )
+            )
+    connection.executemany(
+        "insert into ir_edges "
+        "(src_id, src_ref_type, edge_type, dst_id, dst_ref_type) "
+        "values (?, ?, ?, ?, ?) "
+        "on conflict (src_id, edge_type, dst_id) do update set "
+        "src_ref_type = excluded.src_ref_type, "
+        "dst_ref_type = excluded.dst_ref_type",
+        edge_rows,
+    )
+
+
+def _upgrade_knowledge_graph_typed_references(
+    connection: ProjectionMigrationConnection,
+) -> None:
+    """Reproject canonical MIRL with the closed S4 reference contract."""
+
+    from .knowledge_graph import project_records
+
+    records: list[MIRLRecord] = []
+    for record_id, payload_json in connection.execute(
+        "select id, payload_json from ir_records order by id"
+    ):
+        try:
+            payload = json.loads(str(payload_json))
+            record = MIRLRecord.from_dict(payload)
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise MigrationError(
+                f"knowledge-graph typed-reference rebuild found invalid MIRL payload for {record_id!r}"
+            ) from exc
+        if record.id != str(record_id):
+            raise MigrationError(
+                f"knowledge-graph typed-reference rebuild found mismatched MIRL id for {record_id!r}"
+            )
+        records.append(record)
+
+    # The graph projector removes and re-emits only rows sourced by these
+    # canonical records. Durable identity-merge evidence is not dropped.
+    project_records(connection, records)  # type: ignore[arg-type]
+    updated = connection.execute(
+        "update knowledge_graph_meta set value = 'knowledge-graph/6' "
+        "where key = 'projection_version' and value = 'knowledge-graph/5'"
+    )
+    if updated.rowcount != 1:
+        raise MigrationError(
+            "knowledge-graph typed-reference rebuild could not advance its component marker"
+        )
+
+
 # Projection changes are registered statically alongside the code that knows
 # how to perform them. Each transition is exact; arbitrary version ordering is
 # intentionally unsupported.
 PROJECTION_MIGRATIONS: Final[tuple[ProjectionMigration, ...]] = (
+    ProjectionMigration(
+        projection_name="core_storage",
+        from_version="core-storage/1",
+        to_version="core-storage/2",
+        name="typed-ir-edge-endpoints",
+        source_required_tables=_REQUIRED_PROJECTION_TABLES["core_storage"],
+        target_required_tables=_REQUIRED_PROJECTION_TABLES["core_storage"],
+        upgrade=_upgrade_core_storage_typed_edges,
+    ),
     ProjectionMigration(
         projection_name="knowledge_graph",
         from_version="knowledge-graph/4",
@@ -364,6 +485,15 @@ PROJECTION_MIGRATIONS: Final[tuple[ProjectionMigration, ...]] = (
         source_required_tables=_KNOWLEDGE_GRAPH_V4_TABLES,
         target_required_tables=_REQUIRED_PROJECTION_TABLES["knowledge_graph"],
         upgrade=_rebuild_knowledge_graph_4_to_5,
+    ),
+    ProjectionMigration(
+        projection_name="knowledge_graph",
+        from_version="knowledge-graph/5",
+        to_version="knowledge-graph/6",
+        name="typed-knowledge-references",
+        source_required_tables=_REQUIRED_PROJECTION_TABLES["knowledge_graph"],
+        target_required_tables=_REQUIRED_PROJECTION_TABLES["knowledge_graph"],
+        upgrade=_upgrade_knowledge_graph_typed_references,
     ),
 )
 
@@ -640,6 +770,7 @@ def _validate_knowledge_graph_marker(
     expected_projection_versions: Mapping[str, str],
     *,
     require_present: bool,
+    accepted_versions: frozenset[str] = frozenset(),
 ) -> None:
     expected = expected_projection_versions.get("knowledge_graph")
     if expected is None:
@@ -653,7 +784,7 @@ def _validate_knowledge_graph_marker(
         return
     row = connection.execute("select value from knowledge_graph_meta where key = 'projection_version'").fetchone()
     stored = str(row[0]) if row is not None else "missing"
-    if stored != expected:
+    if stored != expected and stored not in accepted_versions:
         raise KnowledgeGraphProjectionVersionError(
             "Unsupported knowledge graph projection version "
             f"{stored!r}; expected {expected!r}. "
@@ -675,11 +806,27 @@ def _inspect_connection(
             raise UnsupportedDatabaseVersionError(
                 "Database has no recognized SEAM schema; refusing to modify database"
             )
+        expected_knowledge_graph = expected_projection_versions.get(
+            "knowledge_graph"
+        )
+        accepted_legacy_markers: set[str] = set()
+        frontier = {expected_knowledge_graph} if expected_knowledge_graph else set()
+        while frontier:
+            target = frontier.pop()
+            for migration in projection_migrations:
+                if (
+                    migration.projection_name == "knowledge_graph"
+                    and migration.to_version == target
+                    and migration.from_version not in accepted_legacy_markers
+                ):
+                    accepted_legacy_markers.add(migration.from_version)
+                    frontier.add(migration.from_version)
         _validate_knowledge_graph_marker(
             connection,
             tables,
             expected_projection_versions,
             require_present=False,
+            accepted_versions=frozenset(accepted_legacy_markers),
         )
         return 0, None, ()
     version = _validate_migration_rows(connection)
