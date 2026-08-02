@@ -1582,7 +1582,7 @@ phase: 1
 
 **Status:** Done for the current release boundary. Private release plumbing
 and fail-closed gates are implemented; the opaque `/v1` API is merged; and the
-separately authored Apache-2.0 `seam-client` 0.1.0 SDK is live on PyPI.
+separately authored Apache-2.0 `seam-client` 2.0.0 SDK is live on PyPI.
 Hosted availability remains a separate product activation decision.
 
 **Distribution target:** private authenticated distribution from
@@ -1605,16 +1605,16 @@ Phase work:
 
 1. Complete remaining project metadata (authors and long-description content
    type); package URLs, keywords, package discovery, private license metadata,
-   and version 2.3.0 are set.
+   and version 2.4.0 are set.
 2. The manual Package release workflow builds wheel+sdist, runs `twine check`,
-   enforces the distribution boundary, smoke-installs the wheel, and retains
-   reviewed artifacts.
-3. Private-distribution release workflow: the `private-github` target is the
-   default, requires the `private-package-release` environment, attaches
-   artifacts to a private GitHub Release, and keeps
-   `Private :: Do Not Upload`. The `private-package-release` and `pypi`
-   environments are configured for protected branches; the account plan did
-   not accept a wait-timer rule.
+   smoke-installs the wheel (with `seam-client==2.0.0`), and retains reviewed
+   artifacts for 7 days.
+3. Private-distribution release workflow: the `private-github-release` job
+   requires the `private-package-release` environment, attaches artifacts to a
+   GitHub Release in this private repo, and keeps `Private :: Do Not Upload`.
+   There is **no `pypi` environment and no publish job** — the workflow has no
+   target selector and no `id-token` permission, so publishing to an index is
+   not reachable from it. The account plan did not accept a wait-timer rule.
 4. Do not publish the current private package or resume the legacy mirror.
    `seam-client` is a separate Apache-2.0 artifact under the frozen public
    repository's `sdk/` build root. Its sync/async clients and agent hooks call

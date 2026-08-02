@@ -15,10 +15,12 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - Dashboard installers: `seam-dash` shim (Windows `.cmd` + POSIX).
 - Browser dashboard served by the REST server: `seam serve` / `seam webui`. The
   static `dashboard.html` IDE shell is the shipped working UI.
-- REST API: bearer-token access gate, bounded request bodies, env-configurable,
-  optional `server` extra. The token is not yet a principal identity; shared
-  hosted tenancy and opaque remote deletion remain Track S S6 work.
-- MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 16 bounded documented tools over
+- REST API: bearer-token guard when `SEAM_API_TOKEN` is configured, bounded
+  request bodies, env-configurable, optional `server` extra. An unset token is
+  trusted-loopback development only; automatic token provisioning and
+  principal identity are not yet implemented. Shared hosted tenancy and opaque
+  remote deletion remain Track S S6 work.
+- MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime
   package version; `server.json` retains its intentional legacy compatibility

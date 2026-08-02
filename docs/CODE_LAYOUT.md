@@ -6,13 +6,20 @@ not have to infer what works from directory names alone.
 ## Active Runtime
 
 - `seam_runtime/` - packaged runtime, dashboard, storage, retrieval, model, and benchmark code.
+- `seam_runtime/storage.py` - canonical SQLite persistence owner. New and
+  historical stores enter through the central migration spine before the
+  connection pool opens; current stores are validated rather than mutated.
+- `seam_runtime/migrations.py` - ordered transactional schema/projection
+  registries, read-only then exclusive-owner preflight, same-owner retained
+  backups, separately committed integrity/foreign-key-gated steps, and explicit
+  atomic recovery.
 - `seam_runtime/retrieval_orchestrator/` - the single canonical multi-leg
   retrieval engine (planner, SQL/vector/graph/temporal adapters, and fixed
   rank-normalized merger) powering runtime `retrieve`, compatibility
   `search_ir`, CLI, MCP, REST, opaque `/v1`, dashboard, SDK, LoCoMo,
   self-improvement probes, and HS/1 MIRL queries. Promoted from `experimental/`
   in HISTORY#284 and made the sole live execution path in HISTORY#502.
-- `seam_runtime/knowledge_graph.py` - canonical MIRL-to-graph projector, conservative 5W1H+Then lens, evidence-derived trust profiles/assertion gate, versioned existing-database backfill, temporal/source supersession, graph query, node-page, and statistics logic. `SQLiteStore.persist_ir` maintains it automatically (HISTORY#403).
+- `seam_runtime/knowledge_graph.py` - canonical MIRL-to-graph projector, conservative 5W1H+Then lens, evidence-derived trust profiles/assertion gate, explicit migration-registry backfill, temporal/source supersession, graph query, node-page, and statistics logic. `SQLiteStore.persist_ir` maintains it automatically (HISTORY#403).
 - `seam_runtime/graph_products.py` - G4 append-only, rebuildable entity/community summaries and multi-episode observations; every sentence retains exact supporting MIRL record and episode IDs, and latest reads are namespace/scope isolated.
 - `seam_runtime/context_assembly.py` - G5 storage-agnostic deterministic context PACKs over facts, entities, episodes, summaries, and observations, with exact backtraces, trust/time gates, and grounded-fact non-displacement.
 - `seam_runtime/lifecycle.py` - G6 append-only lifecycle operation/event ledger, scoped soft deletion, idempotent batch-ingest progress, and crash-recovery primitives.
@@ -44,6 +51,11 @@ not have to infer what works from directory names alone.
 
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
 - `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
+- `docs/audits/INDEX.md` - canonical registry of recorded audits, newest first.
+  Whole-repo audits are a repeatable series produced by the `/deep-audit` skill
+  and are meant to be diffed against each other; read the latest before
+  concluding that a known defect is new. Audits cite repo files only and never
+  carry credentials or session URLs.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
 - `LICENSES/BUSL-1.1.txt` - controlling text and filled parameters for the SEAM
   Distributed Runtime, published under Business Source License 1.1 by Section 7A
@@ -65,10 +77,14 @@ not have to infer what works from directory names alone.
   with separation as an architectural property rather than a gate bolted on
   afterward. `Private :: Do Not Upload` is retained as the tripwire against an
   accidental PyPI upload of a full-MIRL runtime.
-- `.github/workflows/package-release.yml` - manual private-package build,
-  metadata check, boundary scan, smoke install, and private GitHub Release
-  workflow, with a tokenless OIDC PyPI job reserved for a future separately
-  reviewed public artifact.
+- `.github/workflows/package-release.yml` - `workflow_dispatch`-only private
+  release: a `build` job (version-matches-pyproject check, wheel+sdist,
+  `twine check`, wheel smoke install, 7-day artifact) and a
+  `private-github-release` job gated on the `private-package-release`
+  environment that creates a GitHub Release in this private repo. It has **no
+  PyPI job, no publish target selector, and no `id-token` permission**, so it
+  cannot publish to an index. `Private :: Do Not Upload` (above) is the
+  independent tripwire.
 - `tools/*.py` - active benchmark/projection helper scripts.
 - `scripts/` - active operator scripts and guarded runners.
 - `installers/` - active installation entrypoints and installer docs.

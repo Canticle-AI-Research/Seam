@@ -145,7 +145,7 @@ macOS / Linux bash:
 docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
 ```
 
-Image: `pgvector/pgvector:0.8.3-pg18-trixie` | Container: `seam-pgvector` | Port: `55432`
+Image: `pgvector/pgvector:0.8.6-pg18-trixie` | Container: `seam-pgvector` | Port: `55432`
 
 If the container exists but is stopped:
 

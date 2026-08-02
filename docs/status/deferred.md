@@ -7,7 +7,8 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 Items here are deliberately parked. They are recorded so they are not rediscovered
 as surprises, not because they are active.
 
-- ~113 remaining `assertTrue` -> specific-assertion replacements in `test_seam.py`
+- 133 remaining `assertTrue` -> specific-assertion replacements in
+  `test_seam_all/test_seam.py` (counted 2026-08-01; the number has grown, not shrunk)
   (backlog card `roadmap:track:F:asserttrue-scrub`).
 - 10 low-priority backlog items catalogued under Track F (Phase 7).
 - Track H Context Streams Protocol: Phase 1 = H1 substrate, Phase 2 = H2

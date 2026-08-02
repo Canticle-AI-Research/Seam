@@ -1,9 +1,12 @@
 """Tests for the SEAM-augmented /chat endpoint validation and key resolution.
 
-These cover the free, no-network paths only: request validation and the
-no-API-key guard. Actual provider calls (which cost money / need a running local
-model) are not exercised here.
+These cover free paths only. The loopback credential-boundary regression uses
+a synthetic local HTTP listener; no paid or remote provider is contacted.
 """
+import http.server
+import json
+import threading
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -47,8 +50,14 @@ class TestChatEndpoint:
         assert "OPENAI_API_KEY" in resp.json()["detail"]
 
     def test_chat_browser_key_overrides_env_absence(self, monkeypatch):
-        # With an explicit (bogus) key the key-guard passes, so the request reaches
-        # the provider call and fails there (502), not at validation (400).
+        captured: dict[str, str] = {}
+
+        def fake_provider(**kwargs):
+            captured["api_key"] = kwargs["api_key"]
+            return "explicit key accepted"
+
+        monkeypatch.setattr(srv, "_validate_provider_base_url", lambda base_url: False)
+        monkeypatch.setattr(srv, "_call_chat_provider", fake_provider)
         resp = self._client().post("/chat", json={
             "message": "hi",
             "model": "gpt-4o-mini",
@@ -57,8 +66,131 @@ class TestChatEndpoint:
             "env_key": "OPENAI_API_KEY",
             "api_key": "invalid-test-key-not-real",
             "use_memory": False,
+            "persist_chat": False,
         })
-        assert resp.status_code == 502
+        assert resp.status_code == 200
+        assert captured["api_key"] == "invalid-test-key-not-real"
+
+    def test_chat_remote_builtin_resolves_only_its_bound_env_key(self, monkeypatch):
+        captured: dict[str, str] = {}
+
+        def fake_provider(**kwargs):
+            captured["api_key"] = kwargs["api_key"]
+            return "environment key accepted"
+
+        monkeypatch.setenv("OPENAI_API_KEY", "synthetic-provider-key")
+        monkeypatch.setattr(srv, "_validate_provider_base_url", lambda base_url: False)
+        monkeypatch.setattr(srv, "_call_chat_provider", fake_provider)
+
+        resp = self._client().post("/chat", json={
+            "message": "hi",
+            "model": "gpt-4o-mini",
+            "provider": "OpenAI",
+            "base_url": "https://api.openai.com/v1",
+            "env_key": "OPENAI_API_KEY",
+            "use_memory": False,
+            "persist_chat": False,
+        })
+
+        assert resp.status_code == 200
+        assert captured["api_key"] == "synthetic-provider-key"
+
+    def test_chat_empty_base_url_uses_provider_specific_default(self, monkeypatch):
+        captured: dict[str, str] = {}
+
+        def fake_provider(**kwargs):
+            captured["api_key"] = kwargs["api_key"]
+            captured["base_url"] = kwargs["base_url"]
+            return "environment key accepted"
+
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "synthetic-anthropic-key")
+        monkeypatch.setattr(srv, "_call_chat_provider", fake_provider)
+
+        resp = self._client().post("/chat", json={
+            "message": "hi",
+            "model": "claude-test-model",
+            "provider": "Anthropic",
+            "base_url": "",
+            "env_key": "ANTHROPIC_API_KEY",
+            "use_memory": False,
+            "persist_chat": False,
+        })
+
+        assert resp.status_code == 200
+        assert captured == {
+            "api_key": "synthetic-anthropic-key",
+            "base_url": "",
+        }
+
+    @pytest.mark.parametrize("endpoint", ["/chat", "/chat/stream"])
+    @pytest.mark.parametrize("env_key", ["SEAM_TEST_UNRELATED_VALUE", "ANTHROPIC_API_KEY"])
+    def test_chat_rejects_unbound_env_key_before_provider_call(
+        self, monkeypatch, endpoint, env_key
+    ):
+        monkeypatch.setenv(env_key, "synthetic-unrelated-value")
+        monkeypatch.setattr(srv, "_validate_provider_base_url", lambda base_url: False)
+        monkeypatch.setattr(
+            srv,
+            "_call_chat_provider",
+            lambda **kwargs: pytest.fail("provider must not be called"),
+        )
+
+        resp = self._client().post(endpoint, json={
+            "message": "hi",
+            "model": "gpt-4o-mini",
+            "provider": "OpenAI",
+            "base_url": "https://api.openai.com/v1",
+            "env_key": env_key,
+            "use_memory": False,
+            "persist_chat": False,
+        })
+
+        assert resp.status_code == 400
+        assert "matching built-in chat provider" in resp.json()["detail"]
+
+    def test_chat_loopback_never_forwards_request_selected_env_value(self, monkeypatch):
+        canary_value = "synthetic-loopback-canary-value"
+        monkeypatch.setenv("SEAM_TEST_LOOPBACK_CANARY", canary_value)
+        received_authorization: list[str] = []
+
+        class _LocalProvider(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):  # noqa: N802 - stdlib hook name
+                received_authorization.append(self.headers.get("Authorization", ""))
+                content_length = int(self.headers.get("Content-Length", "0"))
+                self.rfile.read(content_length)
+                body = json.dumps({
+                    "choices": [{"message": {"content": "synthetic local reply"}}]
+                }).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        provider = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _LocalProvider)
+        thread = threading.Thread(target=provider.serve_forever, daemon=True)
+        thread.start()
+        try:
+            resp = self._client().post("/chat", json={
+                "message": "hi",
+                "model": "local-model",
+                "provider": "local",
+                "base_url": f"http://127.0.0.1:{provider.server_address[1]}/v1",
+                "env_key": "SEAM_TEST_LOOPBACK_CANARY",
+                "use_memory": False,
+                "persist_chat": False,
+            })
+        finally:
+            provider.shutdown()
+            provider.server_close()
+            thread.join(timeout=5)
+
+        assert resp.status_code == 200
+        assert received_authorization == ["Bearer local"]
+        assert canary_value not in received_authorization[0]
 
     def test_system_prompt_includes_context_and_instruction(self):
         prompt = _seam_chat_system_prompt("[clm:1] Alice prefers dark mode")

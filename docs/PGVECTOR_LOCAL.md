@@ -12,7 +12,7 @@ credentials (never committed to git):
 docker compose --env-file <path-to-private-env> up -d seam-pgvector
 ```
 
-Current image: `pgvector/pgvector:0.8.3-pg18-trixie`
+Current image: `pgvector/pgvector:0.8.6-pg18-trixie`
 Container name: `seam-pgvector`
 Port: `55432` (mapped from container's 5432)
 

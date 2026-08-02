@@ -15273,3 +15273,329 @@ PR #191 was independently confirmed mergeable with every required and advisory
 check green, then squash-merged to protected main as `ebbf2f3` before this
 closeout so the append-only sequence remains linear.
 ---END-ENTRY-#521---
+
+---BEGIN-ENTRY-#522---
+id: 522
+date: 2026-08-01T21:10:17Z
+agent: codex-gpt-5
+status: done
+topics: storage, persist, atomicity, integrity, retry, test, verify, history, handoff, streams
+commits: pending
+refs: seam_runtime/migrations.py,seam_runtime/storage.py,tests/audit/test_sqlite_migration_spine.py,tests/fixtures/sqlite_history,docs/SQLITE_MIGRATIONS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s2-locally-qualified.md
+supersedes: 521
+tokens: 498
+---
+Track S S2 is locally qualified. Added the central schema-version-2 SQLite
+migration spine in `seam_runtime/migrations.py` and routed every file-backed
+and in-memory `SQLiteStore` open through it before projection use. Two ordered
+steps now register canonical storage and all durable projection versions,
+validate required physical tables, run `PRAGMA integrity_check` and
+`PRAGMA foreign_key_check` before each commit, and preserve transaction
+boundaries across trigger-bearing SQL scripts. Read-only preflight refuses
+unknown databases, newer central or projection versions, and incompatible
+component markers before a writable handle opens.
+
+Retained private pre-migration backups and explicit atomic restore are now
+operator-visible contracts. Historical fixtures derived from released v1.2.0
+and v2.4.0 layouts prove truth-preserving upgrades; an empty store and a
+partially migrated v1 store also reach v2. Failure injection at both migration
+steps proves rollback of the active step and resumability of previously
+committed work. Unknown/newer refusal is byte-identical. Recovery proof deletes
+canonical truth from an upgraded working database, restores the retained
+legacy backup, verifies it, reopens it through the spine, and confirms graph
+truth survives the re-upgrade. Existing stale KG4/newer projections remain
+fail-closed for S3 rather than being silently rebuilt.
+
+Provider-free verification used the local `/mnt/t7/hf-cache` in offline mode.
+The strict non-external audit scope collected and passed 1,570 tests. The full
+non-external repository scope collected 2,130 tests: 2,128 passed and the two
+established cases xfailed, with no skips or failures. Focused migration,
+projection, lifecycle, workspace, knowledge-graph, and reasoning compatibility
+tests also passed. Ruff, Python compilation, diff hygiene, and the working-tree
+secret/session scan passed. Final full-scope CodeRabbit review reported zero
+findings after tuple-row compatibility and transactional hardening were
+addressed. The local pgvector service was healthy, but `PGVECTOR_TEST_DSN` was
+not exported, so the external lane was not rerun. No paid-provider benchmark,
+artifact publish, deploy, or release was performed.
+
+S3 durable supersession and guarded reprojection is the next canonical move;
+S4 typed-reference integrity may proceed in parallel. Protected-main CI and
+merge remain the publication boundary.
+---END-ENTRY-#522---
+
+---BEGIN-ENTRY-#523---
+id: 523
+date: 2026-08-01T21:12:16Z
+agent: codex-gpt-5
+status: changed
+topics: audit, docs, verify, history, handoff, streams
+commits: pending
+refs: PROJECT_STATUS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s2-locally-qualified.md
+supersedes: 522
+tokens: 147
+---
+Clarification to HISTORY#522's review evidence: the final full S2 code review
+before the last narrow historical-fixture contract and canonical handoff edits
+reported zero findings after its tuple-row compatibility and transactional
+hardening findings were fixed. The subsequent whole-tree staged rerun reached
+CodeRabbit but was refused by the free-plan rate limit with a 28-minute wait;
+usage-based paid review was not enabled. This does not change S2's test,
+migration, recovery, integrity, byte-refusal, or local-qualification evidence.
+Ruff, Python compilation, diff hygiene, the content-free secret/session scan,
+and the canonical closeout gates remain green. Protected-main CI and merge
+remain the publication boundary.
+---END-ENTRY-#523---
+
+---BEGIN-ENTRY-#524---
+id: 524
+date: 2026-08-01T22:59:30Z
+agent: codex-gpt-5
+status: done
+topics: bugfix, doctor, chroma, security, pyproject, test, verify, history, handoff, streams
+commits: pending
+refs: seam_runtime/doctor.py,tests/audit/test_chroma_optional.py,test_seam_all/test_seam.py,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s1-doctor-policy-corrected.md
+supersedes: 523
+tokens: 461
+---
+A post-qualification S1 audit reproduced a live dependency-policy contradiction:
+with only `chromadb` absent, `seam doctor` reported FAIL and named Chroma as the
+sole missing required dependency. That violated the canonical
+`[tool.seam.dependency-contract]` runtime source, the core Rich+tiktoken install,
+the excluded-convenience-package rule, and the durable opt-in-only Chroma
+decision. The previous CLI tests duplicated the same incorrect required list,
+so they could not detect the mismatch.
+
+`seam_runtime.doctor.REQUIRED_DEPENDENCIES` is now exactly `rich` and
+`tiktoken`. Chroma remains in the dependency availability inventory but is
+informational; absence cannot fail a policy-compliant core install. Dependency
+probing also treats import-system refusal as absence rather than crashing the
+report. No optional adapter was added to a default path.
+
+The Chroma optionality audit now independently resolves the runtime source from
+`pyproject.toml` instead of copying doctor's list. A hermetic subprocess inserts
+an import blocker for `chromadb` and every `chromadb.*` module before importing
+SEAM, runs the real doctor report, and proves PASS with required dependencies
+`rich` and `tiktoken`, Chroma unavailable, and no missing required dependency.
+The pretty and JSON CLI tests likewise force Chroma absent and assert against
+the canonical project dependency source.
+
+Evidence: the same probe changed from FAIL before the fix to PASS after it;
+14 focused doctor, Chroma-policy, dependency-contract, and stash tests passed;
+all 1,572 selected strict non-external audit tests passed with 23 external tests
+explicitly deselected; the canonical dependency verifier, Ruff, Python
+compilation, diff hygiene, and content-free secret/session scan passed. An
+independent review identified the need for the import-blocking subprocess; that
+gap was fixed, and final three-file CodeRabbit review reported zero findings.
+
+The complete repository suite and pgvector external lane were not rerun for
+this narrow correction. No paid provider, benchmark, artifact build, publish,
+deploy, or release ran. S2 remains locally qualified and S3 durable
+supersession/guarded reprojection remains the exact next move.
+---END-ENTRY-#524---
+
+---BEGIN-ENTRY-#525---
+id: 525
+date: 2026-08-02T00:03:13Z
+agent: claude
+status: done
+topics: audit, ci, docs, security, test, verify, history
+commits: pending
+refs: docs/audits/2026-08-01-full-repo-audit.md,docs/audits/INDEX.md,.github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,tests/conftest.py,seam_runtime/retrieval_orchestrator/__init__.py,README.md,docs/CODE_LAYOUT.md,ROADMAP.md
+supersedes: 523
+tokens: 1418
+---
+Recorded a whole-repository read-only audit and closed the GitHub/CI integrity
+and release-documentation findings it produced.
+
+## Audit record
+
+`docs/audits/2026-08-01-full-repo-audit.md` is the tracked record: 13 confirmed
+findings with file:line evidence, a full verification checklist including clean
+results and explicit non-verifications, structural observations, and five
+corrections to prior belief. `docs/audits/INDEX.md` is a new registry
+(`seam-audit-registry/v1`, `latest: 2026-08-01-full-repo-audit`) covering all 22
+audits in `docs/audits/`, distinguishing whole-repo audits from narrow
+diagnostics so the series can be diffed across runs. Both are linked from
+`docs/CODE_LAYOUT.md` (Active Tooling) and `docs/README.md` so a session-start
+read reaches them. Audits cite repo files only; the registry states the rule
+that no credential, DSN password, session URL, or copy-pasteable exploit
+payload may enter an audit record.
+
+## CI integrity fixed
+
+`-m "not external"` deselects rather than skips, so strict no-skip could not
+observe it, and the `pgvector-integration` job named three files explicitly.
+Measured: 23 external tests exist, 10 ran in CI, **13 ran in no lane at all**
+(`test_pgvector_render_contract.py` 5, `test_pgvector_boundary_resync.py` 8).
+The guard meant to prevent this, `test_ci_enforces_no_silent_skips`, claimed in
+its docstring to cover "every external test" while asserting two filenames, so
+the workflow drifted from `pytest tests/ -m external` without failing it.
+
+`ci.yml` now runs all five external files. The guard now derives the required
+set from the test tree and fails if the job omits any; verified by injecting a
+removal into the workflow and observing the failure, then restoring. The file
+was also made CWD-independent (`REPO_ROOT` from `__file__`).
+
+`repo-hygiene`, a required merge check, now runs `ruff check seam_runtime/
+tools/ seam.py`. The repo configured ruff in `pyproject.toml` but no lane ran
+it, so an I001 sat on main; that error is fixed in
+`seam_runtime/retrieval_orchestrator/__init__.py` with re-exports verified
+intact. Added `test_repo_hygiene_runs_the_configured_linter`.
+
+`SEAM_STRICT_NO_SKIP=0` previously produced exit 0 with no output, making a
+disabled enforcement indistinguishable from a clean run. `tests/conftest.py`
+now prints a banner naming every unenforced skip; the exit status is unchanged.
+
+The CI pgvector service image moved `0.8.2-pg18-trixie` -> `0.8.6-pg18-trixie`
+to match `docker-compose.yaml`, which was a real code-vs-code gap.
+
+## Release documentation corrected
+
+`README.md`, `docs/CODE_LAYOUT.md`, and `ROADMAP.md` described a tokenless OIDC
+PyPI Trusted Publishing job, a `private-github` target selector, a boundary-scan
+step, and `private-package-release` plus `pypi` environments.
+`.github/workflows/package-release.yml` has two jobs (`build`,
+`private-github-release`), one environment, one input, `permissions: contents:
+read`, and no `id-token`. All three now describe the real workflow and state
+plainly that no PyPI path exists. `docs/status/packaging-licensing.md` and
+`REPO_LEDGER.md` were already correct and were left unchanged.
+
+Also corrected: `ROADMAP.md` version 2.3.0 -> 2.4.0 and `seam-client` 0.1.0 ->
+2.0.0 (workflow pins `seam-client==2.0.0`); `docs/status/surfaces.md` 16 -> 19
+MCP tools (`TOOL_METADATA` has 19); `docs/status/deferred.md` 113 -> 133
+`assertTrue` with the correct path `test_seam_all/test_seam.py`; pgvector tag in
+`docs/PGVECTOR_LOCAL.md`, `docs/MACOS.md`, `docs/SEAM_OPERATOR_GUIDE.md`.
+`docs/SOP_SEAM_SELF_HOST_WHEEL.md` gained a SUPERSEDED banner naming the six
+deleted modules it instructs the reader to use. `docs/README.md` no longer lists
+`SELF_HOST_SECURITY.md` under Active Docs; both superseded documents are now in
+an explicit "Superseded, retained in place" section rather than moved, because
+each is deliberately retained as design input for the future public edition.
+
+## Verification
+
+Full repository scope with the live pgvector external lane: **2154 passed, 2
+xfailed, no skips, no failures** in 263s. The five external files run exactly as
+CI now invokes them: 30/30 pass with both DSNs set. `ruff check` clean. CI guard
+and scope suites 12 passed. All five workflow YAML files parse. 47 relative
+markdown links across the changed docs resolve, 0 broken. `doc-drift` reports
+only two remaining pgvector-tag hits, both inside
+`docs/status_archive/2026-07-30-project-status-full.md`, which is an archived
+historical snapshot and is correctly left unedited.
+
+## Open, not addressed here
+
+The audit's four highest-severity findings remain open and are recorded with
+reproducers in the audit document: concurrent `persist_ir` defeating entity
+coreference (reproduced 3/3: 8 concurrent ingests yield 8 distinct ENT records
+where sequential yields 1); the unauthenticated `/chat` `env_key` read that
+forwards any environment variable to a caller-chosen loopback address (verified
+with a canary); the projection registry being a detector with no forward
+migration path across any of its 13 version constants; and `_time_reached`
+falling back to lexicographic comparison inside the trust gate. Three dirty
+worktrees remain and no worktree was removed. The live branch-protection ruleset
+still requires only `repo-hygiene`, `chroma-real-smoke`, and
+`locomo-quickstart-bil2`; promoting `test-and-benchmark` to required is an
+operator decision and was not made here.
+
+No provider-paid benchmark, retrieval measurement, artifact build, publish,
+deploy, or release was run.
+---END-ENTRY-#525---
+
+---BEGIN-ENTRY-#526---
+id: 526
+date: 2026-08-02T07:35:40Z
+agent: codex-gpt-5
+status: done
+topics: bugfix, security, storage, persist, atomicity, locking, registry, integrity, trust, chat, audit, verify, handoff, history, streams
+commits: 6869f74
+refs: seam_runtime/storage.py,seam_runtime/server.py,seam_runtime/migrations.py,seam_runtime/knowledge_graph.py,tests/audit/test_persist_ir_concurrency.py,tests/audit/test_chat_endpoint.py,tests/audit/test_sqlite_migration_spine.py,tests/audit/test_knowledge_graph_time_gate.py,docs/SQLITE_MIGRATIONS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-02-track-s-audit-recovery-locally-repaired.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 525
+tokens: 1109
+---
+Recovered the S2/audit branch after an accidental agent push, repaired the four
+highest-severity open reproducers from HISTORY#525, and locally requalified the
+migration spine under a positive forward-upgrade gate. This entry supersedes
+the latest audit chronology in HISTORY#525 and preserves the sibling S1 doctor
+correction in HISTORY#524 without rewriting either earlier record.
+
+## Accidental-push reconciliation
+
+Protected `main` remained `94375e8`. The live ruleset had been changed to make
+the advisory full suite required; it was restored to the canonical required
+contexts `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2`.
+Repository visibility remained private. The generated HTML rendering of the
+audit was removed from the candidate, recovery commit `6869f74` was rebased
+directly onto `b53b1f7`, and accidental commit `65aaa35` is not an ancestor of
+the rewritten recovery branch. No Pages publication, release, or deploy was
+created.
+
+## Four reproduced defects repaired
+
+1. `SQLiteStore._persist_ir_on_connection` now acquires `BEGIN IMMEDIATE`
+   before entity reconciliation unless its caller already owns a transaction.
+   Eight concurrent writes produce one canonical ENT and eight claims whose
+   subjects all remap to that identity.
+2. `/chat` and `/chat/stream` share one resolver that binds each built-in host
+   to exactly one environment key. Custom hosts require explicit caller-owned
+   credentials; validated loopback targets never consult process environment.
+   Provider-specific empty-base defaults remain compatible.
+3. Projection versions now advance through exact registered callables with
+   source/target table contracts. One exclusive migration owner closes the
+   read-only preflight, revalidates central history, the projection plan,
+   source tables, the knowledge-graph marker, integrity, and foreign keys under
+   lock, commits the bootstrap while retaining writer exclusion, then creates a
+   validated, file- and directory-fsynced, atomically published same-owner
+   backup. Central and projection steps commit separately under that retained
+   lock, so later failure preserves earlier resume points. Narrow callback and
+   failure-hook facades plus the SQLite authorizer deny supported transaction,
+   authorizer, savepoint, journal, and locking escapes; marker CAS and common
+   post-step gates remain fail-closed. Backup-copy and durability failures do
+   not masquerade as valid recovery, and transaction outcome messages no longer
+   claim rollback after committed or ambiguous state.
+4. The trust time gate logs a content-free warning and returns expired/stale
+   when timestamps are malformed or timezone-incomparable. It no longer falls
+   back to arbitrary lexicographic ordering.
+
+## Verification and review
+
+The exact reviewed tree selected 2,172 strict non-external tests: 2,170 passed,
+the two established strict cases xfailed, and there were zero skips or
+failures. The exact five-file live pgvector CI invocation passed 30/30 against a
+disposable `0.8.6-pg18-trixie` service, which was removed afterward. The four
+repair files passed 65/65; the migration spine contributed 43/43 cases covering
+populated table-add, restore/re-upgrade, DELETE/WAL writer contention, locked
+TOCTOU refusal, backup publication/durability failure, transaction escapes,
+per-step resume, and honest rollback/commit reporting. An adjacent storage,
+graph, server, workspace, and reasoning slice passed 112/112.
+
+Ruff, Python compilation, diff hygiene, and the canonical content-free
+secret/session scan passed. Two independent migration reviews first found and
+then verified closure of backup/write races, version-blind table validation,
+raw callback transaction control, failed-backup publication, directory fsync,
+failure-hook commit escape, and misleading rollback reporting. CodeRabbit's
+valid portability and test-strength findings were fixed; its final suggestion
+was inapplicable because `pyproject.toml` already requires Python >=3.11.
+
+One early full-run invocation used the virtualenv `pytest` executable directly
+and produced import-collection errors because the repository root was not on
+that entry point's path; the canonical `.venv/bin/python -m pytest` invocation
+was used for every recorded result. A later full pass exposed one test fixture
+that committed but did not close its SQLite context manager; explicit
+commit-then-close fixed the fixture, and the complete exact-tree rerun passed.
+An intermediate broad run was intentionally interrupted when review found a
+new transaction-hook reproducer; no partial run is counted as evidence.
+
+## Boundaries and next step
+
+`SEAM_API_TOKEN` remains optional for trusted-loopback development. Automatic
+first-launch token provisioning and principal tenancy remain separate S6 work;
+this repair closes arbitrary environment forwarding, not the whole hosted-auth
+program. Audit findings 7-10 and 12 remain open. Six worktrees were observed;
+unrelated worktrees and their changes were left untouched. No provider-paid
+benchmark, retrieval-score measurement, artifact publish, merge, deploy, or
+release ran.
+
+The rewritten head belongs on draft PR #193. Fresh exact-head required and
+advisory CI remains the protected publication boundary. After merge, S3 durable
+supersession and guarded reprojection is next; S4 may proceed in parallel.
+---END-ENTRY-#526---

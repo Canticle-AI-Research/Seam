@@ -437,20 +437,27 @@ artifacts must remain useful to an agent without hiding provenance.
 
 ## Package Releases
 
-The manual **Package release** GitHub Actions workflow builds, checks, and
-smoke-tests versioned wheel and source-distribution artifacts. Its safe default
-is `private-github`, which creates a release in the private
-`BlackhatShiftey/Seam` repository after the `private-package-release`
-environment allows it. Both release environments are restricted to protected
-branches; the current GitHub plan does not provide a configured wait timer or
-reviewer-approval rule.
+The manual **Package release** GitHub Actions workflow
+([`.github/workflows/package-release.yml`](.github/workflows/package-release.yml))
+is `workflow_dispatch`-only and takes one input: the exact `version` already set
+in `pyproject.toml`. It has two jobs:
 
-The workflow also contains a tokenless PyPI Trusted Publishing job for a future
-separately reviewed public client artifact. The current full `seam-runtime`
-package is deliberately marked `Private :: Do Not Upload`, and the distribution
-boundary gate rejects it for the `pypi` target because it contains MIRL and HS/1
-Reserved Materials. Do not remove or bypass that gate to publish the private
-runtime.
+- **`build`** — verifies the requested version matches `pyproject.toml` and
+  fails otherwise, builds the wheel and sdist, runs `twine check`, smoke-tests
+  the wheel by installing it with the `[server,pgvector]` extras alongside
+  `seam-client==2.0.0` and running `seam`, `seam-mcp`, and `seam-server`
+  `--help`, then uploads the distributions as a 7-day artifact.
+- **`private-github-release`** — gated on the `private-package-release`
+  environment, downloads that artifact and runs `gh release create` against
+  **this private repository only**.
+
+**There is no PyPI path.** The workflow has no publish job, no target selector,
+and no `id-token` permission, so it cannot publish to an index even by mistake.
+The package is additionally marked `Private :: Do Not Upload` in
+`pyproject.toml` as a tripwire against an accidental upload, and
+`tools/release/verify_public_safe.py` blocks secret-shaped content and private
+paths on push. Publishing anything public requires a separately built and
+reviewed artifact — not this workflow and not this package.
 
 The existing `seam-runtime` 1.3.1 release on PyPI and `server.json` describe the
 legacy Apache-2.0 artifact. They remain pinned to that legacy public release.

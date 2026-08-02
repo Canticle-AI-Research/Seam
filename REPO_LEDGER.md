@@ -146,6 +146,30 @@ and `HISTORY_INDEX.md`.
   history tooling. Package and release metadata must accurately identify the
   private proprietary distribution.
 - SQLite is canonical source of truth.
+- Canonical SQLite and every initialized durable projection are governed by
+  the central `seam_runtime.migrations` spine at schema version 2. Read-only
+  preflight refuses unknown/newer schema identities, projection registries, or
+  knowledge-graph markers before writable open. Supported upgrades run ordered
+  transactional steps with `integrity_check` and `foreign_key_check`, retain a
+  private pre-migration backup, and expose explicit atomic restore. Current
+  stores never rerun idempotent DDL on ordinary open; missing registered tables
+  are corruption, while pre-spine historical stores migrate explicitly. A
+  projection version changes only through an exact, statically registered
+  `from_version` -> `to_version` callable with explicit source/target table
+  contracts, planned deterministically before writable open. One migration-
+  owner connection selects and asserts SQLite exclusive locking before its
+  first database access, reruns authoritative preflight under `BEGIN
+  EXCLUSIVE`, and retains writer exclusion across the same-owner backup and
+  every separately committed step. Each callable then runs under `BEGIN
+  IMMEDIATE` through a narrow facade that cannot control its transaction or
+  locking mode; compare-and-swap advances only its owned marker, and required-
+  table, component-marker, integrity, and foreign-key gates pass before commit.
+  A failed later step rolls back without losing earlier durable resume points.
+  Missing, extra, cyclic, or unregistered projection states refuse before
+  backup or mutation. A stale existing graph projection such as
+  `knowledge-graph/4` remains refused until S3 supplies and qualifies its non-
+  destructive guarded reprojection callable. See `docs/SQLITE_MIGRATIONS.md`,
+  HISTORY#522, and HISTORY#526.
 - RETRIEVAL HAS ONE ENGINE as an architectural invariant.
   `RetrievalOrchestrator` is the canonical SQL/vector/graph/temporal owner for
   the full runtime, and `SeamRuntime.retrieve()` is its local entry point. The
@@ -171,6 +195,12 @@ and `HISTORY_INDEX.md`.
   `knowledge_nodes`, `knowledge_edges`, and `knowledge_episodes` preserve typed
   semantics, agent/source provenance, confidence/status, and temporal validity;
   every `SQLiteStore.persist_ir` write maintains the projection atomically.
+  Entity reconciliation is read-before-write, so the shared persistence helper
+  acquires `BEGIN IMMEDIATE` before reading canonical identities unless its
+  caller already owns a transaction; concurrent ingests cannot mint divergent
+  canonical entities from the same stale snapshot. Malformed or timezone-
+  incomparable validity timestamps warn without logging their contents and
+  fail toward expired/stale, never lexicographic established knowledge.
   Ordinary store open refuses missing, stale, or newer projection markers
   before graph DDL or reprojection; historical upgrades belong to an explicit,
   transactional migration workflow rather than implicit open-time backfill.
@@ -369,7 +399,10 @@ and `HISTORY_INDEX.md`.
 - `pyproject.toml` `[tool.seam.dependency-contract]` is the checked authority
   for runtime dependency source, installer mirror, convenience-extra members,
   exclusions, and retired extras. `tools.ci.verify_dependency_contract` guards
-  CI/install drift; release lock and artifact hash proof remains an S10 gate.
+  CI/install drift. `seam doctor` must require only the imports corresponding
+  to that core runtime source; optional and excluded adapters such as Chroma may
+  be reported as available or absent but must not fail a policy-compliant core
+  install. Release lock and artifact hash proof remains an S10 gate.
 - The self-improvement loop's paid judged validation tier
   (`benchmarks/external/locomo/judged_scorer.py` + `tools/h2/paid_validation.py`)
   is reachable ONLY via `seam improve validate --confirm-paid`. Without
@@ -528,6 +561,14 @@ and `HISTORY_INDEX.md`.
 - Authenticated REST servers refuse non-loopback binds such as `0.0.0.0` unless the operator intentionally sets `SEAM_API_ALLOW_INSECURE_REMOTE=1` or places the API behind a TLS terminator. Bearer-token deployments should prefer loopback plus TLS reverse proxy for remote access.
 - The built-in rate limiter is process-local. If `SEAM_API_RATE_LIMIT_PER_MINUTE` is enabled, `seam serve --workers` greater than 1 is refused unless `SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT=1` is set after an external shared limiter is in front. `SEAM_API_RATE_LIMIT_MAX_KEYS` bounds tracked client keys.
 - The `/chat` endpoint's outbound provider call is SSRF-guarded by a host allowlist: the caller-supplied `base_url` host must be a built-in provider (`_BUILTIN_CHAT_HOSTS`) or loopback (local Ollama); arbitrary hosts are rejected. Operators permit additional custom/self-hosted providers via `SEAM_CHAT_ALLOWED_HOSTS` (comma-separated) — an operator-set knob, never caller-set. The allowlist closes DNS-rebinding by construction; a resolved-IP range check (private/link-local/reserved/multicast/unspecified rejected, loopback exempt) is kept as defense-in-depth, and the outbound opener refuses 3xx redirects so a validated host cannot bounce to an internal address.
+- Process-environment chat credentials are bound one-to-one to their built-in
+  provider hosts. A request cannot select another variable name, custom hosts
+  require an explicit caller-owned key, and validated loopback targets never
+  consult `os.environ`. Both `/chat` and `/chat/stream` use the same resolver.
+  `SEAM_API_TOKEN` remains optional only for explicitly trusted local
+  development; automatic first-launch token provisioning is a separate
+  authentication/UX policy boundary and is not implied by the credential-
+  forwarding fix.
 
 ## Benchmark Publication Policy
 

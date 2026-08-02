@@ -9,25 +9,50 @@
 
 ## Current headline
 
-**2026-08-01 — HISTORY#520.** Track S, the Production-Core Integrity
-Campaign, is active and its S1 immediate fail-closed guardrails are locally
-qualified. Deterministic SQLite/retrieval ordering, positive `rrf_k`
-validation, real Uvicorn factory safety, non-destructive projection-version
-refusal, one commit-range-aware secret scanner, installed-package MCP version
-reporting, and one checked dependency contract are implemented on the S1
-branch. The repository-wide non-external scope passed 2,092 tests with two
-expected xfails and the live pgvector lane passed 23/23.
+**2026-08-02 — HISTORY#526, draft PR #193.** The four highest-severity open
+reproducers from the whole-repository audit in HISTORY#525 are repaired on the
+local recovery candidate, not yet on protected `main`:
 
-S2, the central transactional migration spine, is now the next dependency
-boundary. F22's release lock/hash proof remains owned by S10. The current
-retrieval evidence is still +0.009628 overall versus
-legacy with cat3 −0.036775, ENT provenance 0.0000, and live-leg fusion weights
-unvalidated; see `docs/status/retrieval.md`.
+- `persist_ir` acquires its write lock before entity reconciliation, and eight
+  concurrent ingests now preserve one canonical entity;
+- `/chat` and `/chat/stream` bind environment credentials one-to-one to known
+  provider hosts and never consult process environment for loopback targets;
+- projection version changes have exact registered forward callables with
+  version-specific source/target table contracts; and
+- malformed or timezone-incomparable trust timestamps warn content-free and
+  fail toward expired/stale instead of lexicographic established knowledge.
 
-The canonical plan remains
-`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`. Track S coordinates Track R, H2,
-E2, and K14 without superseding them. No provider-paid benchmark or release was
-run as part of S1.
+S2 is locally requalified under the missing positive migration gate. One
+exclusive SQLite migration owner rechecks the live schema and exact plan under
+lock, creates and durably publishes the same-owner backup, blocks competing
+writers across separately committed steps, and preserves earlier resume points
+when a later step fails. Projection callbacks and failure hooks cannot control
+the spine-owned transaction or downgrade its lock through supported APIs.
+Unknown, newer, missing, extra, cyclic, and unregistered states still refuse
+before backup or mutation.
+
+The accidental generated HTML audit commit is not an ancestor of the recovery
+candidate, and the HTML file is absent. The live branch-protection ruleset was
+restored to exactly `repo-hygiene`, `chroma-real-smoke`, and
+`locomo-quickstart-bil2`; `test-and-benchmark` remains advisory. Protected
+`main` remains `94375e8` until PR #193 is reviewed and merged.
+
+Exact-tree provider-free verification selected **2,172 tests: 2,170 passed and
+the two established strict cases xfailed, with no skips or failures**. The live
+five-file pgvector lane passed **30/30**. The focused migration suite passed
+43/43, Ruff, Python compilation, diff hygiene, and the canonical secret/session
+scan passed, and independent adversarial review ended with no blockers. The
+local CodeRabbit rerun's only remaining suggestion was already satisfied by
+`requires-python = ">=3.11"`.
+
+This is not full hosted hardening. `SEAM_API_TOKEN` remains optional for
+trusted-loopback development; automatic token provisioning and principal
+tenancy remain S6. Audit findings 7-10 and 12 remain open, including graph
+ordering/SQL bounds, `/v1` coverage, retrieval connection pooling, and worktree
+hygiene. No paid provider, retrieval-score benchmark, artifact publish, deploy,
+or release ran. After protected publication, S3 durable supersession and
+guarded reprojection is the next canonical boundary; S4 may proceed in
+parallel.
 
 ## Status streams
 

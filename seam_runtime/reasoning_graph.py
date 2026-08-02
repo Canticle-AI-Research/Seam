@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from itertools import islice
 from uuid import uuid4
 
+from .migrations import execute_script
 from .mirl import utc_now
 from .retrieval_policy import (
     FUSION_POLICY,
@@ -188,7 +189,8 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
     """
 
     _migrate_reasoning_retrieval_schema(connection)
-    connection.executescript(
+    execute_script(
+        connection,
         """
         create table if not exists reasoning_node (
             node_id text primary key,

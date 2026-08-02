@@ -114,7 +114,7 @@ jobs:
     runs-on: [self-hosted, seam-box]
     services:
       pgvector:
-        image: pgvector/pgvector:0.8.2-pg18-trixie
+        image: pgvector/pgvector:0.8.6-pg18-trixie
         env:
           POSTGRES_DB: seam_ci
           POSTGRES_USER: seam_ci
@@ -147,11 +147,18 @@ jobs:
         # deps this job does not install. PGVECTOR_TEST_DSN gates pk_composite +
         # substream; SEAM_PGVECTOR_DSN gates real_adapter. Strict no-skip
         # (tests/conftest.py, default on) fails the job if any of these skip.
+        #
+        # This list must name EVERY file carrying `pytest.mark.external`. It
+        # previously named only three, so 13 of 23 external tests ran in no lane
+        # at all; `-m "not external"` deselects rather than skips, so strict
+        # no-skip could not see the gap. `test_ci_enforces_no_silent_skips`
+        # now derives the required set from the test tree and fails if this
+        # command omits any of them.
         env:
           PGPASSWORD: seam_ci_password
           SEAM_PGVECTOR_DSN: postgresql://seam_ci@localhost:55433/seam_ci
           PGVECTOR_TEST_DSN: "host=localhost port=55433 dbname=seam_ci user=seam_ci password=seam_ci_password"
-        run: python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py -q
+        run: python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py tests/audit/test_pgvector_render_contract.py tests/audit/test_pgvector_boundary_resync.py -q
 
   package-smoke:
     runs-on: [self-hosted, seam-box]
@@ -193,6 +200,16 @@ jobs:
 
       - name: Check diff hygiene
         run: git diff --check
+
+      - name: Install lint dependencies
+        run: python -m pip install ruff
+
+      - name: Lint (correctness + import order)
+        # `[tool.ruff.lint]` in pyproject.toml selects E4/E7/E9/F/I only --
+        # correctness and import ordering, deliberately not style. The repo
+        # configured ruff but no lane ran it, so an I001 sat on main
+        # undetected. This is a required check, so keep the rule set narrow.
+        run: ruff check seam_runtime/ tools/ seam.py
 
       - name: Verify SEAM handoff registry
         run: python -m tools.history.verify_handoffs
