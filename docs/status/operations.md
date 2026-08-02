@@ -36,11 +36,20 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - `pyproject.toml` owns the checked runtime dependency, installer mirror,
   convenience-extra, exclusion, and retired-extra contract. Frozen release
   lock/hash evidence remains S10 work.
+- `seam doctor` requires only the canonical core imports `rich` and `tiktoken`.
+  Chroma, pgvector, and sentence-transformers remain informational optional
+  availability checks; an absent Chroma installation cannot fail doctor.
 - S1's strict non-external suite and live pgvector external suite are locally
   green. The live external lane used pgvector 0.8.5 while Compose declares
   0.8.6; protected CI owns exact-image parity.
-- S2 must add the transactional migration spine before any durable layout
-  change or guarded reprojection work begins.
+- S2's schema-version-2 migration spine is locally qualified. Empty, v1.2.0,
+  v2.4.0, and supported intermediate-v1 paths upgrade through two transactional
+  steps; each step is rollback-injected and integrity/foreign-key checked.
+  Unknown/newer stores refuse byte-unchanged, and retained private backups have
+  completed a real delete/restore/re-upgrade recovery. Current stores with
+  missing registered tables fail closed rather than silently recreating them.
+- S3 guarded reprojection and S4 typed-reference integrity are now unblocked;
+  stale existing graph projections remain refused until S3 qualifies them.
 - Clean artifact/privacy proof remains mandatory on the frozen candidate, and
   every S10 gate must be rerun after S1-S9 even while the full suite is advisory
   in branch protection.

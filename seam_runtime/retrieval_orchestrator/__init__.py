@@ -1,4 +1,10 @@
-from .adapters import ChromaSemanticAdapter, LegacyWeightedAdapter, SeamVectorSearchAdapter, SQLiteGraphAdapter, SQLiteIRAdapter
+from .adapters import (
+    ChromaSemanticAdapter,
+    LegacyWeightedAdapter,
+    SeamVectorSearchAdapter,
+    SQLiteGraphAdapter,
+    SQLiteIRAdapter,
+)
 from .orchestrator import RetrievalOrchestrator
 from .types import (
     GraphPathHop,

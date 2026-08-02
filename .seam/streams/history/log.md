@@ -15273,3 +15273,230 @@ PR #191 was independently confirmed mergeable with every required and advisory
 check green, then squash-merged to protected main as `ebbf2f3` before this
 closeout so the append-only sequence remains linear.
 ---END-ENTRY-#521---
+
+---BEGIN-ENTRY-#522---
+id: 522
+date: 2026-08-01T21:10:17Z
+agent: codex-gpt-5
+status: done
+topics: storage, persist, atomicity, integrity, retry, test, verify, history, handoff, streams
+commits: pending
+refs: seam_runtime/migrations.py,seam_runtime/storage.py,tests/audit/test_sqlite_migration_spine.py,tests/fixtures/sqlite_history,docs/SQLITE_MIGRATIONS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s2-locally-qualified.md
+supersedes: 521
+tokens: 498
+---
+Track S S2 is locally qualified. Added the central schema-version-2 SQLite
+migration spine in `seam_runtime/migrations.py` and routed every file-backed
+and in-memory `SQLiteStore` open through it before projection use. Two ordered
+steps now register canonical storage and all durable projection versions,
+validate required physical tables, run `PRAGMA integrity_check` and
+`PRAGMA foreign_key_check` before each commit, and preserve transaction
+boundaries across trigger-bearing SQL scripts. Read-only preflight refuses
+unknown databases, newer central or projection versions, and incompatible
+component markers before a writable handle opens.
+
+Retained private pre-migration backups and explicit atomic restore are now
+operator-visible contracts. Historical fixtures derived from released v1.2.0
+and v2.4.0 layouts prove truth-preserving upgrades; an empty store and a
+partially migrated v1 store also reach v2. Failure injection at both migration
+steps proves rollback of the active step and resumability of previously
+committed work. Unknown/newer refusal is byte-identical. Recovery proof deletes
+canonical truth from an upgraded working database, restores the retained
+legacy backup, verifies it, reopens it through the spine, and confirms graph
+truth survives the re-upgrade. Existing stale KG4/newer projections remain
+fail-closed for S3 rather than being silently rebuilt.
+
+Provider-free verification used the local `/mnt/t7/hf-cache` in offline mode.
+The strict non-external audit scope collected and passed 1,570 tests. The full
+non-external repository scope collected 2,130 tests: 2,128 passed and the two
+established cases xfailed, with no skips or failures. Focused migration,
+projection, lifecycle, workspace, knowledge-graph, and reasoning compatibility
+tests also passed. Ruff, Python compilation, diff hygiene, and the working-tree
+secret/session scan passed. Final full-scope CodeRabbit review reported zero
+findings after tuple-row compatibility and transactional hardening were
+addressed. The local pgvector service was healthy, but `PGVECTOR_TEST_DSN` was
+not exported, so the external lane was not rerun. No paid-provider benchmark,
+artifact publish, deploy, or release was performed.
+
+S3 durable supersession and guarded reprojection is the next canonical move;
+S4 typed-reference integrity may proceed in parallel. Protected-main CI and
+merge remain the publication boundary.
+---END-ENTRY-#522---
+
+---BEGIN-ENTRY-#523---
+id: 523
+date: 2026-08-01T21:12:16Z
+agent: codex-gpt-5
+status: changed
+topics: audit, docs, verify, history, handoff, streams
+commits: pending
+refs: PROJECT_STATUS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s2-locally-qualified.md
+supersedes: 522
+tokens: 147
+---
+Clarification to HISTORY#522's review evidence: the final full S2 code review
+before the last narrow historical-fixture contract and canonical handoff edits
+reported zero findings after its tuple-row compatibility and transactional
+hardening findings were fixed. The subsequent whole-tree staged rerun reached
+CodeRabbit but was refused by the free-plan rate limit with a 28-minute wait;
+usage-based paid review was not enabled. This does not change S2's test,
+migration, recovery, integrity, byte-refusal, or local-qualification evidence.
+Ruff, Python compilation, diff hygiene, the content-free secret/session scan,
+and the canonical closeout gates remain green. Protected-main CI and merge
+remain the publication boundary.
+---END-ENTRY-#523---
+
+---BEGIN-ENTRY-#524---
+id: 524
+date: 2026-08-01T22:59:30Z
+agent: codex-gpt-5
+status: done
+topics: bugfix, doctor, chroma, security, pyproject, test, verify, history, handoff, streams
+commits: pending
+refs: seam_runtime/doctor.py,tests/audit/test_chroma_optional.py,test_seam_all/test_seam.py,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s1-doctor-policy-corrected.md
+supersedes: 523
+tokens: 461
+---
+A post-qualification S1 audit reproduced a live dependency-policy contradiction:
+with only `chromadb` absent, `seam doctor` reported FAIL and named Chroma as the
+sole missing required dependency. That violated the canonical
+`[tool.seam.dependency-contract]` runtime source, the core Rich+tiktoken install,
+the excluded-convenience-package rule, and the durable opt-in-only Chroma
+decision. The previous CLI tests duplicated the same incorrect required list,
+so they could not detect the mismatch.
+
+`seam_runtime.doctor.REQUIRED_DEPENDENCIES` is now exactly `rich` and
+`tiktoken`. Chroma remains in the dependency availability inventory but is
+informational; absence cannot fail a policy-compliant core install. Dependency
+probing also treats import-system refusal as absence rather than crashing the
+report. No optional adapter was added to a default path.
+
+The Chroma optionality audit now independently resolves the runtime source from
+`pyproject.toml` instead of copying doctor's list. A hermetic subprocess inserts
+an import blocker for `chromadb` and every `chromadb.*` module before importing
+SEAM, runs the real doctor report, and proves PASS with required dependencies
+`rich` and `tiktoken`, Chroma unavailable, and no missing required dependency.
+The pretty and JSON CLI tests likewise force Chroma absent and assert against
+the canonical project dependency source.
+
+Evidence: the same probe changed from FAIL before the fix to PASS after it;
+14 focused doctor, Chroma-policy, dependency-contract, and stash tests passed;
+all 1,572 selected strict non-external audit tests passed with 23 external tests
+explicitly deselected; the canonical dependency verifier, Ruff, Python
+compilation, diff hygiene, and content-free secret/session scan passed. An
+independent review identified the need for the import-blocking subprocess; that
+gap was fixed, and final three-file CodeRabbit review reported zero findings.
+
+The complete repository suite and pgvector external lane were not rerun for
+this narrow correction. No paid provider, benchmark, artifact build, publish,
+deploy, or release ran. S2 remains locally qualified and S3 durable
+supersession/guarded reprojection remains the exact next move.
+---END-ENTRY-#524---
+
+---BEGIN-ENTRY-#525---
+id: 525
+date: 2026-08-02T00:03:13Z
+agent: claude
+status: done
+topics: audit, ci, docs, security, test, verify, history
+commits: pending
+refs: docs/audits/2026-08-01-full-repo-audit.md,docs/audits/INDEX.md,.github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,tests/conftest.py,seam_runtime/retrieval_orchestrator/__init__.py,README.md,docs/CODE_LAYOUT.md,ROADMAP.md
+supersedes: 523
+tokens: 1418
+---
+Recorded a whole-repository read-only audit and closed the GitHub/CI integrity
+and release-documentation findings it produced.
+
+## Audit record
+
+`docs/audits/2026-08-01-full-repo-audit.md` is the tracked record: 13 confirmed
+findings with file:line evidence, a full verification checklist including clean
+results and explicit non-verifications, structural observations, and five
+corrections to prior belief. `docs/audits/INDEX.md` is a new registry
+(`seam-audit-registry/v1`, `latest: 2026-08-01-full-repo-audit`) covering all 22
+audits in `docs/audits/`, distinguishing whole-repo audits from narrow
+diagnostics so the series can be diffed across runs. Both are linked from
+`docs/CODE_LAYOUT.md` (Active Tooling) and `docs/README.md` so a session-start
+read reaches them. Audits cite repo files only; the registry states the rule
+that no credential, DSN password, session URL, or copy-pasteable exploit
+payload may enter an audit record.
+
+## CI integrity fixed
+
+`-m "not external"` deselects rather than skips, so strict no-skip could not
+observe it, and the `pgvector-integration` job named three files explicitly.
+Measured: 23 external tests exist, 10 ran in CI, **13 ran in no lane at all**
+(`test_pgvector_render_contract.py` 5, `test_pgvector_boundary_resync.py` 8).
+The guard meant to prevent this, `test_ci_enforces_no_silent_skips`, claimed in
+its docstring to cover "every external test" while asserting two filenames, so
+the workflow drifted from `pytest tests/ -m external` without failing it.
+
+`ci.yml` now runs all five external files. The guard now derives the required
+set from the test tree and fails if the job omits any; verified by injecting a
+removal into the workflow and observing the failure, then restoring. The file
+was also made CWD-independent (`REPO_ROOT` from `__file__`).
+
+`repo-hygiene`, a required merge check, now runs `ruff check seam_runtime/
+tools/ seam.py`. The repo configured ruff in `pyproject.toml` but no lane ran
+it, so an I001 sat on main; that error is fixed in
+`seam_runtime/retrieval_orchestrator/__init__.py` with re-exports verified
+intact. Added `test_repo_hygiene_runs_the_configured_linter`.
+
+`SEAM_STRICT_NO_SKIP=0` previously produced exit 0 with no output, making a
+disabled enforcement indistinguishable from a clean run. `tests/conftest.py`
+now prints a banner naming every unenforced skip; the exit status is unchanged.
+
+The CI pgvector service image moved `0.8.2-pg18-trixie` -> `0.8.6-pg18-trixie`
+to match `docker-compose.yaml`, which was a real code-vs-code gap.
+
+## Release documentation corrected
+
+`README.md`, `docs/CODE_LAYOUT.md`, and `ROADMAP.md` described a tokenless OIDC
+PyPI Trusted Publishing job, a `private-github` target selector, a boundary-scan
+step, and `private-package-release` plus `pypi` environments.
+`.github/workflows/package-release.yml` has two jobs (`build`,
+`private-github-release`), one environment, one input, `permissions: contents:
+read`, and no `id-token`. All three now describe the real workflow and state
+plainly that no PyPI path exists. `docs/status/packaging-licensing.md` and
+`REPO_LEDGER.md` were already correct and were left unchanged.
+
+Also corrected: `ROADMAP.md` version 2.3.0 -> 2.4.0 and `seam-client` 0.1.0 ->
+2.0.0 (workflow pins `seam-client==2.0.0`); `docs/status/surfaces.md` 16 -> 19
+MCP tools (`TOOL_METADATA` has 19); `docs/status/deferred.md` 113 -> 133
+`assertTrue` with the correct path `test_seam_all/test_seam.py`; pgvector tag in
+`docs/PGVECTOR_LOCAL.md`, `docs/MACOS.md`, `docs/SEAM_OPERATOR_GUIDE.md`.
+`docs/SOP_SEAM_SELF_HOST_WHEEL.md` gained a SUPERSEDED banner naming the six
+deleted modules it instructs the reader to use. `docs/README.md` no longer lists
+`SELF_HOST_SECURITY.md` under Active Docs; both superseded documents are now in
+an explicit "Superseded, retained in place" section rather than moved, because
+each is deliberately retained as design input for the future public edition.
+
+## Verification
+
+Full repository scope with the live pgvector external lane: **2154 passed, 2
+xfailed, no skips, no failures** in 263s. The five external files run exactly as
+CI now invokes them: 30/30 pass with both DSNs set. `ruff check` clean. CI guard
+and scope suites 12 passed. All five workflow YAML files parse. 47 relative
+markdown links across the changed docs resolve, 0 broken. `doc-drift` reports
+only two remaining pgvector-tag hits, both inside
+`docs/status_archive/2026-07-30-project-status-full.md`, which is an archived
+historical snapshot and is correctly left unedited.
+
+## Open, not addressed here
+
+The audit's four highest-severity findings remain open and are recorded with
+reproducers in the audit document: concurrent `persist_ir` defeating entity
+coreference (reproduced 3/3: 8 concurrent ingests yield 8 distinct ENT records
+where sequential yields 1); the unauthenticated `/chat` `env_key` read that
+forwards any environment variable to a caller-chosen loopback address (verified
+with a canary); the projection registry being a detector with no forward
+migration path across any of its 13 version constants; and `_time_reached`
+falling back to lexicographic comparison inside the trust gate. Three dirty
+worktrees remain and no worktree was removed. The live branch-protection ruleset
+still requires only `repo-hygiene`, `chroma-real-smoke`, and
+`locomo-quickstart-bil2`; promoting `test-and-benchmark` to required is an
+operator decision and was not made here.
+
+No provider-paid benchmark, retrieval measurement, artifact build, publish,
+deploy, or release was run.
+---END-ENTRY-#525---

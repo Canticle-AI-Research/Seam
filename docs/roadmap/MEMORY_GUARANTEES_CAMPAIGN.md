@@ -2,7 +2,9 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S1 locally qualified via `HISTORY#520`
+**Latest evidence:** S2 locally qualified via `HISTORY#522`, with the final
+review boundary clarified by `HISTORY#523` and the S1 doctor dependency-policy
+correction qualified by `HISTORY#524`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
 
@@ -20,7 +22,10 @@ satisfied S0's broader suite, review, path, security, and continuity gates; see
 `HISTORY#513` and the current handoff. S1 then closed the immediate
 deterministic-order, retrieval-validation, server-factory,
 projection-version, scanner, MCP-version, and dependency-contract guardrails.
-S2 is the next dependency boundary.
+`HISTORY#524` closes the discovered `seam doctor` contradiction so an absent
+opt-in-only Chroma install is informational rather than a core failure. S2 is
+locally qualified. S3 and S4 are now unblocked; S5 may begin from the same
+qualified migration substrate.
 
 ## Governing invariants
 
@@ -126,8 +131,9 @@ repair begins.
 
 ## S1 - Immediate fail-closed guardrails
 
-**Status:** locally qualified on 2026-08-01 via `HISTORY#520`; protected-main
-CI and merge remain the publication boundary.
+**Status:** locally qualified on 2026-08-01 via `HISTORY#520`; doctor dependency
+policy corrected via `HISTORY#524`. Protected-main CI and merge remain the
+publication boundary.
 
 **Purpose:** remove crash, nondeterminism, unsafe factory, scanner, version, and
 dependency hazards before introducing migrations.
@@ -150,6 +156,10 @@ dependency hazards before introducing migrations.
 - Dependency-source drift has a single checked contract suitable for S10.
 
 ## S2 - Migration spine
+
+**Status:** locally qualified on 2026-08-01 via `HISTORY#522`; `HISTORY#523`
+clarifies the final review boundary. Protected-main CI and merge remain the
+publication boundary.
 
 **Purpose:** add one central, transactional, recoverable schema/projection
 version spine before any durable layout changes.

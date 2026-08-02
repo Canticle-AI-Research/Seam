@@ -9,17 +9,49 @@
 
 ## Current headline
 
-**2026-08-01 — HISTORY#520.** Track S, the Production-Core Integrity
-Campaign, is active and its S1 immediate fail-closed guardrails are locally
-qualified. Deterministic SQLite/retrieval ordering, positive `rrf_k`
-validation, real Uvicorn factory safety, non-destructive projection-version
-refusal, one commit-range-aware secret scanner, installed-package MCP version
-reporting, and one checked dependency contract are implemented on the S1
-branch. The repository-wide non-external scope passed 2,092 tests with two
-expected xfails and the live pgvector lane passed 23/23.
+**2026-08-01 — HISTORY#524.** A whole-repository read-only audit is recorded at
+`docs/audits/2026-08-01-full-repo-audit.md` and registered in the new
+`docs/audits/INDEX.md`; read the latest audit before concluding a defect is new.
+It closed three CI/documentation findings and left four higher-severity ones
+**open, with reproducers**: concurrent `persist_ir` defeats entity coreference
+(8 concurrent ingests yield 8 distinct ENT records where sequential yields 1);
+unauthenticated `/chat` forwards any environment variable to a caller-chosen
+loopback address; the projection registry detects but cannot migrate across any
+of its 13 version constants; and `_time_reached` falls back to lexicographic
+comparison inside the trust gate. Fixed in the same session: 13 of 23 external
+tests ran in no CI lane and the guard that should have caught it now derives its
+required set from the test tree; `repo-hygiene` now runs the configured linter;
+`SEAM_STRICT_NO_SKIP=0` is no longer silent; and the release documentation now
+matches the real workflow, which has no PyPI path. Full repository scope with
+the live pgvector external lane: **2,154 passed, 2 xfailed, no skips, no
+failures**. The live ruleset still requires only `repo-hygiene`,
+`chroma-real-smoke`, and `locomo-quickstart-bil2`.
 
-S2, the central transactional migration spine, is now the next dependency
-boundary. F22's release lock/hash proof remains owned by S10. The current
+**HISTORY#523.** Track S, the Production-Core Integrity
+Campaign, is active and S2's central migration spine is locally qualified.
+Schema version 2 now governs canonical SQLite plus every initialized durable
+projection through two ordered transactional steps, read-only fail-closed
+preflight, retained private pre-migration backups, per-step integrity/foreign-
+key gates, and explicit atomic restore. Released v1.2.0 and v2.4.0 historical
+fixtures, empty stores, both injected rollback boundaries, partial v1 resume,
+unknown/newer byte-unchanged refusal, and real backup recovery are proven.
+The repository-wide non-external scope collected 2,130 tests: 2,128 passed and
+the two established cases xfailed. A full S2 code review reported zero findings
+before the final narrow fixture-contract and handoff edits; the final whole-tree
+rerun was blocked by the free-plan rate limit, and paid review was not enabled.
+The live pgvector service was healthy, but its credential-bearing test DSN was
+not exported to this process, so S2 did not rerun that external lane.
+
+The S1 dependency guardrail now also governs `seam doctor`: only the canonical
+core imports `rich` and `tiktoken` are required, while `chromadb` remains an
+informational optional-adapter check. A real subprocess blocks every Chroma
+import before SEAM loads and proves doctor still passes. The combined strict
+non-external audit scope passed all 1,572 selected tests, and the final
+three-file CodeRabbit review reported zero findings.
+
+S3's durable supersession and guarded reprojection is the next canonical
+boundary; S4 may proceed in parallel. F22's release lock/hash proof remains
+owned by S10. The current
 retrieval evidence is still +0.009628 overall versus
 legacy with cat3 −0.036775, ENT provenance 0.0000, and live-leg fusion weights
 unvalidated; see `docs/status/retrieval.md`.
@@ -27,7 +59,7 @@ unvalidated; see `docs/status/retrieval.md`.
 The canonical plan remains
 `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`. Track S coordinates Track R, H2,
 E2, and K14 without superseding them. No provider-paid benchmark or release was
-run as part of S1.
+run as part of S2 or the S1 doctor correction.
 
 ## Status streams
 

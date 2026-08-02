@@ -6,6 +6,12 @@ not have to infer what works from directory names alone.
 ## Active Runtime
 
 - `seam_runtime/` - packaged runtime, dashboard, storage, retrieval, model, and benchmark code.
+- `seam_runtime/storage.py` - canonical SQLite persistence owner. New and
+  historical stores enter through the central migration spine before the
+  connection pool opens; current stores are validated rather than mutated.
+- `seam_runtime/migrations.py` - ordered transactional schema/projection
+  migrations, read-only version preflight, per-step SQLite integrity and
+  foreign-key gates, retained private backups, and explicit atomic recovery.
 - `seam_runtime/retrieval_orchestrator/` - the single canonical multi-leg
   retrieval engine (planner, SQL/vector/graph/temporal adapters, and fixed
   rank-normalized merger) powering runtime `retrieve`, compatibility
@@ -44,6 +50,11 @@ not have to infer what works from directory names alone.
 
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
 - `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
+- `docs/audits/INDEX.md` - canonical registry of recorded audits, newest first.
+  Whole-repo audits are a repeatable series produced by the `/deep-audit` skill
+  and are meant to be diffed against each other; read the latest before
+  concluding that a known defect is new. Audits cite repo files only and never
+  carry credentials or session URLs.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
 - `LICENSES/BUSL-1.1.txt` - controlling text and filled parameters for the SEAM
   Distributed Runtime, published under Business Source License 1.1 by Section 7A
@@ -65,10 +76,14 @@ not have to infer what works from directory names alone.
   with separation as an architectural property rather than a gate bolted on
   afterward. `Private :: Do Not Upload` is retained as the tripwire against an
   accidental PyPI upload of a full-MIRL runtime.
-- `.github/workflows/package-release.yml` - manual private-package build,
-  metadata check, boundary scan, smoke install, and private GitHub Release
-  workflow, with a tokenless OIDC PyPI job reserved for a future separately
-  reviewed public artifact.
+- `.github/workflows/package-release.yml` - `workflow_dispatch`-only private
+  release: a `build` job (version-matches-pyproject check, wheel+sdist,
+  `twine check`, wheel smoke install, 7-day artifact) and a
+  `private-github-release` job gated on the `private-package-release`
+  environment that creates a GitHub Release in this private repo. It has **no
+  PyPI job, no publish target selector, and no `id-token` permission**, so it
+  cannot publish to an index. `Private :: Do Not Upload` (above) is the
+  independent tripwire.
 - `tools/*.py` - active benchmark/projection helper scripts.
 - `scripts/` - active operator scripts and guarded runners.
 - `installers/` - active installation entrypoints and installer docs.

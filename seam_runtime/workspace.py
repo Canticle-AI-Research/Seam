@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Iterable
 from uuid import uuid4
 
+from .migrations import execute_script
 from .mirl import utc_now
 
 WORKSPACE_SCHEMA_VERSION = 1
@@ -355,7 +356,8 @@ class WorkspaceEvent:
 
 
 def init_workspace_schema(connection: sqlite3.Connection) -> None:
-    connection.executescript(
+    execute_script(
+        connection,
         """
         create table if not exists workspace_run (
             run_id text primary key,

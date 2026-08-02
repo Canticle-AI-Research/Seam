@@ -146,6 +146,17 @@ and `HISTORY_INDEX.md`.
   history tooling. Package and release metadata must accurately identify the
   private proprietary distribution.
 - SQLite is canonical source of truth.
+- Canonical SQLite and every initialized durable projection are governed by
+  the central `seam_runtime.migrations` spine at schema version 2. Read-only
+  preflight refuses unknown/newer schema identities, projection registries, or
+  knowledge-graph markers before writable open. Supported upgrades run ordered
+  transactional steps with `integrity_check` and `foreign_key_check`, retain a
+  private pre-migration backup, and expose explicit atomic restore. Current
+  stores never rerun idempotent DDL on ordinary open; missing registered tables
+  are corruption, while pre-spine historical stores migrate explicitly. A
+  stale existing graph projection such as `knowledge-graph/4` remains refused
+  until S3 proves non-destructive guarded reprojection. See
+  `docs/SQLITE_MIGRATIONS.md` and HISTORY#522.
 - RETRIEVAL HAS ONE ENGINE as an architectural invariant.
   `RetrievalOrchestrator` is the canonical SQL/vector/graph/temporal owner for
   the full runtime, and `SeamRuntime.retrieve()` is its local entry point. The
@@ -369,7 +380,10 @@ and `HISTORY_INDEX.md`.
 - `pyproject.toml` `[tool.seam.dependency-contract]` is the checked authority
   for runtime dependency source, installer mirror, convenience-extra members,
   exclusions, and retired extras. `tools.ci.verify_dependency_contract` guards
-  CI/install drift; release lock and artifact hash proof remains an S10 gate.
+  CI/install drift. `seam doctor` must require only the imports corresponding
+  to that core runtime source; optional and excluded adapters such as Chroma may
+  be reported as available or absent but must not fail a policy-compliant core
+  install. Release lock and artifact hash proof remains an S10 gate.
 - The self-improvement loop's paid judged validation tier
   (`benchmarks/external/locomo/judged_scorer.py` + `tools/h2/paid_validation.py`)
   is reachable ONLY via `seam improve validate --confirm-paid`. Without

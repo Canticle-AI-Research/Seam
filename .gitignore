@@ -7,6 +7,7 @@ __pycache__/
 *.db-wal
 *.db-shm
 *.db-journal
+*.seam-backups/
 test_seam/
 .seam_chroma/
 exports/

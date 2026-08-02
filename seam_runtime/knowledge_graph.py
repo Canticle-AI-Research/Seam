@@ -9,6 +9,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from typing import Iterable, Mapping
 
+from .migrations import KnowledgeGraphProjectionVersionError, execute_script
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
 
 PROJECTION_VERSION = "knowledge-graph/5"
@@ -155,10 +156,6 @@ _GRAPH_TERM_TOKEN_RE = re.compile(r"[^\W]+(?:[:-][^\W]+)*", re.UNICODE)
 _INDEXABLE_CONCEPT_KINDS = frozenset({"entity", "value", "agent", "symbol"})
 
 
-class KnowledgeGraphProjectionVersionError(RuntimeError):
-    """Raised before mutating an unsupported knowledge-graph projection."""
-
-
 def normalize_graph_term(value: object) -> str:
     """Return the stable, Unicode-aware identity/search form for a graph term."""
 
@@ -259,7 +256,11 @@ def _index_node_term(
         )
 
 
-def init_knowledge_graph(connection: sqlite3.Connection) -> None:
+def init_knowledge_graph(
+    connection: sqlite3.Connection,
+    *,
+    allow_migration: bool = False,
+) -> None:
     """Create the current graph projection or refuse an unsupported version.
 
     Automatic drop-and-rebuild made opening a database destructive whenever a
@@ -274,6 +275,7 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
             "select name from sqlite_master where type = 'table'"
         ).fetchall()
     }
+    backfill_from_canonical = False
     if "knowledge_graph_meta" in existing_tables:
         row = connection.execute(
             "select value from knowledge_graph_meta where key = 'projection_version'"
@@ -302,13 +304,20 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
             if "ir_records" in existing_tables
             else 0
         )
-        if existing_tables & projection_tables or ir_count:
+        if existing_tables & projection_tables:
             raise KnowledgeGraphProjectionVersionError(
                 "Knowledge graph projection version is missing on a non-empty store; "
                 "refusing automatic reprojection."
             )
+        if ir_count and not allow_migration:
+            raise KnowledgeGraphProjectionVersionError(
+                "Knowledge graph projection version is missing on a non-empty store; "
+                "refusing automatic reprojection."
+            )
+        backfill_from_canonical = bool(ir_count)
 
-    connection.executescript(
+    execute_script(
+        connection,
         """
         create table if not exists knowledge_nodes (
             id text primary key,
@@ -449,6 +458,51 @@ def init_knowledge_graph(connection: sqlite3.Connection) -> None:
         connection.execute("alter table knowledge_episodes add column expired_at text")
     if "knowledge_graph_meta" in existing_tables:
         return
+    if backfill_from_canonical:
+        cursor = connection.execute(
+            "select id, kind, ns, scope, status, conf, t0, t1, created_at, "
+            "updated_at, payload_json from ir_records order by id"
+        )
+        while True:
+            rows = cursor.fetchmany(500)
+            if not rows:
+                break
+            records: list[MIRLRecord] = []
+            for (
+                record_id,
+                kind,
+                namespace,
+                scope,
+                stored_status,
+                confidence,
+                valid_from,
+                valid_to,
+                created_at,
+                updated_at,
+                payload_json,
+            ) in rows:
+                try:
+                    data = json.loads(payload_json)
+                    data.setdefault("id", record_id)
+                    data.setdefault("kind", kind)
+                    data.setdefault("ns", namespace)
+                    data.setdefault("scope", scope)
+                    data.setdefault("conf", confidence)
+                    data.setdefault("t0", valid_from)
+                    data.setdefault("t1", valid_to)
+                    data.setdefault("created_at", created_at)
+                    data.setdefault("updated_at", updated_at)
+                    status = str(data.get("status") or stored_status)
+                    if status not in {item.value for item in Status}:
+                        status = Status.ASSERTED.value
+                    data["status"] = status
+                    records.append(MIRLRecord.from_dict(data))
+                except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+                    # Canonical rows remain durable even if one legacy payload
+                    # cannot be projected. The derived graph can be repaired
+                    # independently without losing source truth.
+                    continue
+            project_records(connection, records)
     connection.execute(
         "insert or replace into knowledge_graph_meta (key, value) values ('projection_version', ?)",
         (PROJECTION_VERSION,),

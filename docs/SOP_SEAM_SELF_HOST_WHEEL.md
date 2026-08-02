@@ -1,6 +1,25 @@
 # SOP: ship the compiled self-host as a PyPI wheel (`seam-self-host`)
 
-Owner: Codex. Written by Claude, 2026-07-28. Status: not started.
+> **HISTORICAL — SUPERSEDED. Do not execute this SOP.**
+>
+> The compiled `seam-self-host` distribution and the retrofitted public/private
+> split were removed; `seam-runtime` (root `pyproject.toml`) is now the only
+> package definition. See `docs/CODE_LAYOUT.md` ("SINGLE PACKAGE") and
+> `REPO_LEDGER.md`.
+>
+> Every module this SOP tells you to read or create has been deleted:
+> `selfhost/Dockerfile`, `tools/release/build_selfhost.py`,
+> `tools/release/verify_selfhost_artifact.py`,
+> `tools/release/verify_distribution_boundary.py`,
+> `tools/release/build_public.py`, `tools/release/build_selfhost_wheel.py`.
+> `tools/release/` retains only `public_manifest.py` and
+> `verify_public_safe.py`. A public edition will be built separately, from the
+> ground up, with separation as an architectural property rather than a gate
+> bolted on afterward.
+>
+> Retained for the reasoning it records, not for execution.
+
+Owner: Codex. Written by Claude, 2026-07-28. Status: superseded 2026-08-01.
 
 ## Objective
 
@@ -13,7 +32,7 @@ Two packages end up on PyPI, both protecting MIRL:
 
 | Role | Package | License | Contains MIRL |
 | --- | --- | --- | --- |
-| Paid hosted API client | `seam-client` | Apache-2.0 | No, HTTP only. Already live at 0.1.0. |
+| Paid hosted API client | `seam-client` | Apache-2.0 | No, HTTP only. Live at 2.0.0. |
 | Free self-host | `seam-self-host` | BUSL-1.1 | Yes, compiled to `.so`. No source. |
 
 The Docker image stays. It is built from the same source and remains the

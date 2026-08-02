@@ -11,6 +11,20 @@ from .installer import default_runtime_db_path
 from .lossless import benchmark_text_lossless
 from .runtime import SeamRuntime
 
+# This is the runtime import surface corresponding to pyproject.toml's
+# ``project.dependencies``. Optional adapters remain visible in the report but
+# must never make a policy-compliant core install fail doctor. The audit suite
+# independently resolves the canonical dependency-contract runtime source and
+# rejects drift between that source and this packaged-runtime list.
+REQUIRED_DEPENDENCIES: tuple[str, ...] = ("rich", "tiktoken")
+
+
+def _dependency_available(name: str) -> bool:
+    try:
+        return find_spec(name) is not None
+    except (ImportError, AttributeError, ValueError):
+        return False
+
 
 def check_pgvector(dsn: str | None) -> dict[str, object]:
     if not dsn:
@@ -132,13 +146,13 @@ def build_doctor_report() -> dict[str, object]:
     )
     pgvector_dsn = os.environ.get("SEAM_PGVECTOR_DSN")
     dependencies = {
-        "rich": find_spec("rich") is not None,
-        "chromadb": find_spec("chromadb") is not None,
-        "tiktoken": find_spec("tiktoken") is not None,
-        "psycopg": find_spec("psycopg") is not None,
-        "sentence_transformers": find_spec("sentence_transformers") is not None,
+        "rich": _dependency_available("rich"),
+        "chromadb": _dependency_available("chromadb"),
+        "tiktoken": _dependency_available("tiktoken"),
+        "psycopg": _dependency_available("psycopg"),
+        "sentence_transformers": _dependency_available("sentence_transformers"),
     }
-    required_dependencies = ["rich", "chromadb", "tiktoken"]
+    required_dependencies = list(REQUIRED_DEPENDENCIES)
     missing_required = [name for name in required_dependencies if not dependencies.get(name)]
     deps_ok = not missing_required
     status = "PASS" if smoke_ok and lossless_result.roundtrip_match and deps_ok else "FAIL"

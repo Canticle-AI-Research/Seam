@@ -1,10 +1,12 @@
 import asyncio
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
 import time
+import tomllib
 import unittest
 from contextlib import redirect_stdout
 from importlib.util import find_spec
@@ -83,6 +85,26 @@ except ImportError:  # pragma: no cover - optional server extra
 
 
 TEST_ARTIFACT_DIR = Path("test_seam")
+
+
+def _canonical_runtime_dependency_names() -> list[str]:
+    repo_root = Path(__file__).resolve().parents[1]
+    document = tomllib.loads((repo_root / "pyproject.toml").read_text(encoding="utf-8"))
+    runtime_source = document["tool"]["seam"]["dependency-contract"]["runtime-source"]
+    value: object = document
+    for key in runtime_source.split("."):
+        if not isinstance(value, dict):
+            raise AssertionError(f"dependency contract path {runtime_source!r} is not a table path")
+        value = value[key]
+    if not isinstance(value, list):
+        raise AssertionError(f"dependency contract path {runtime_source!r} is not a list")
+    names: list[str] = []
+    for requirement in value:
+        match = re.match(r"\s*([A-Za-z0-9_.-]+)", str(requirement))
+        if match is None:
+            raise AssertionError(f"invalid core dependency requirement: {requirement!r}")
+        names.append(match.group(1).lower().replace("-", "_"))
+    return names
 
 
 def _claim_ids(text: str) -> list[str]:
@@ -2566,16 +2588,20 @@ claim c1:
 
     def test_cli_doctor_reports_pass(self) -> None:
         stream = StringIO()
-        with redirect_stdout(stream):
+        with (
+            patch(
+                "seam_runtime.doctor.find_spec",
+                side_effect=lambda name: None if name == "chromadb" else find_spec(name),
+            ),
+            redirect_stdout(stream),
+        ):
             run_cli(["doctor"])
         payload = stream.getvalue()
-        required = ["rich", "chromadb", "tiktoken"]
-        missing = [name for name in required if find_spec(name) is None]
-        expected = "PASS" if not missing else "FAIL"
-        self.assertIn(f"SEAM doctor: {expected}", payload)
+        self.assertEqual(_canonical_runtime_dependency_names(), ["rich", "tiktoken"])
+        self.assertIn("SEAM doctor: PASS", payload)
         self.assertIn("Compile smoke: PASS", payload)
         self.assertIn("PgVector:", payload)
-        self.assertIn("Required deps:", payload)
+        self.assertIn("Required deps: OK", payload)
 
     def test_cli_doctor_reports_pgvector_not_configured_when_dsn_absent(self) -> None:
         old = os.environ.pop("SEAM_PGVECTOR_DSN", None)
@@ -2590,18 +2616,24 @@ claim c1:
 
     def test_cli_doctor_json_reports_dependency_status(self) -> None:
         stream = StringIO()
-        with redirect_stdout(stream):
+        with (
+            patch(
+                "seam_runtime.doctor.find_spec",
+                side_effect=lambda name: None if name == "chromadb" else find_spec(name),
+            ),
+            redirect_stdout(stream),
+        ):
             run_cli(["doctor", "--format", "json"])
         payload = json.loads(stream.getvalue())
-        required = ["rich", "chromadb", "tiktoken"]
-        missing = [name for name in required if find_spec(name) is None]
-        expected = "PASS" if not missing else "FAIL"
-        self.assertEqual(payload["status"], expected)
+        required = _canonical_runtime_dependency_names()
+        self.assertEqual(required, ["rich", "tiktoken"])
+        self.assertEqual(payload["status"], "PASS")
         self.assertIn("dependencies", payload)
         self.assertIn("required_dependencies", payload)
         self.assertIn("missing_required_dependencies", payload)
         self.assertEqual(sorted(payload["required_dependencies"]), sorted(required))
-        self.assertEqual(sorted(payload["missing_required_dependencies"]), sorted(missing))
+        self.assertEqual(payload["missing_required_dependencies"], [])
+        self.assertFalse(payload["dependencies"]["chromadb"])
         self.assertIn("psycopg", payload["dependencies"])
         self.assertIn("sentence_transformers", payload["dependencies"])
         self.assertIn("pgvector", payload)

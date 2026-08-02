@@ -15,6 +15,7 @@ from collections.abc import Iterable
 from itertools import islice
 from uuid import uuid4
 
+from .migrations import execute_script
 from .mirl import SCHEMA_VERSION, utc_now
 
 REASONING_PROMOTION_SCHEMA_VERSION = 1
@@ -31,7 +32,8 @@ _INACTIVE_KNOWLEDGE_STATUSES = frozenset(
 def init_reasoning_promotion(connection: sqlite3.Connection) -> None:
     """Create the isolated R5 reviewed-promotion ledger."""
 
-    connection.executescript(
+    execute_script(
+        connection,
         """
         create table if not exists reasoning_promotion_proposal (
             proposal_id text primary key,

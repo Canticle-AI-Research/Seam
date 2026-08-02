@@ -7,6 +7,7 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Iterable, Sequence
 
+from .migrations import execute_script
 from .mirl import utc_now
 
 GRAPH_PRODUCT_SCHEMA_VERSION = 1
@@ -60,7 +61,8 @@ class _Product:
 def init_graph_products(connection: sqlite3.Connection) -> None:
     """Create the append-only, rebuildable G4 derived-product plane."""
 
-    connection.executescript(
+    execute_script(
+        connection,
         """
         create table if not exists graph_product_build (
             build_seq integer primary key autoincrement,

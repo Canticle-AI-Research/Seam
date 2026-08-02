@@ -6,13 +6,13 @@ import logging
 import os
 import sqlite3
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
 from .context_assembly import ContextCandidate
 from .graph_products import (
+    GRAPH_PRODUCT_SCHEMA_VERSION,
     GraphProductFact,
     init_graph_products,
 )
@@ -41,6 +41,8 @@ from .identity_resolution import (
     split_merge as split_identity_merge_op,
 )
 from .knowledge_graph import (
+    GRAPH_NODE_VECTOR_TEXT_VERSION,
+    PROJECTION_VERSION,
     graph_stats,
     init_knowledge_graph,
 )
@@ -75,6 +77,7 @@ from .knowledge_graph import (
     supersede_source as supersede_knowledge_source,
 )
 from .lifecycle import (
+    LIFECYCLE_SCHEMA_VERSION,
     BatchIngestItem,
     apply_scoped_delete,
     batch_ingest_items,
@@ -88,7 +91,15 @@ from .lifecycle import (
     record_batch_item,
     recoverable_operations,
 )
+from .migrations import (
+    CURRENT_SCHEMA_VERSION,
+    FailureInjector,
+    execute_script,
+    migrate_database,
+    migrate_memory_database,
+)
 from .mirl import (
+    SCHEMA_VERSION,
     SYMBOL_FOR_KIND,
     IRBatch,
     MIRLRecord,
@@ -101,6 +112,9 @@ from .mirl import (
 )
 from .pool import ConnectionPool
 from .reasoning_graph import (
+    REASONING_RETRIEVAL_SCHEMA_VERSION,
+    REASONING_SCHEMA_VERSION,
+    REASONING_VERIFICATION_SCHEMA_VERSION,
     ReasoningRetrievalCandidate,
     finalize_verified_reasoning_outcome,
     get_reasoning_verification,
@@ -123,6 +137,7 @@ from .reasoning_graph import (
 )
 from .reasoning_graph import get_reasoning_retrieval as get_reasoning_retrieval_row
 from .reasoning_patterns import (
+    REASONING_PATTERN_SCHEMA_VERSION,
     distill_reasoning_pattern,
     get_reasoning_pattern,
     record_reasoning_pattern_result,
@@ -131,11 +146,12 @@ from .reasoning_patterns import (
     use_reasoning_pattern,
 )
 from .reasoning_promotion import (
-    get_reasoning_promotion as get_reasoning_promotion_row,
-)
-from .reasoning_promotion import (
+    REASONING_PROMOTION_SCHEMA_VERSION,
     init_reasoning_promotion,
     record_reasoning_promotion_application,
+)
+from .reasoning_promotion import (
+    get_reasoning_promotion as get_reasoning_promotion_row,
 )
 from .reasoning_promotion import (
     list_reasoning_promotions as list_reasoning_promotion_rows,
@@ -153,20 +169,38 @@ from .reasoning_promotion import (
     review_reasoning_promotion as review_reasoning_promotion_row,
 )
 from .retry import retry_db_operation
+from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
+from .workspace import (
+    WORKSPACE_SCHEMA_VERSION,
+    init_workspace_schema,
+    run_status,
+    workspace_event_from_row,
+    workspace_run_from_row,
+)
 from .workspace import (
     append_workspace_event as append_workspace_event_row,
 )
 from .workspace import (
     create_workspace_run as create_workspace_run_row,
 )
-from .workspace import (
-    init_workspace_schema,
-    run_status,
-    workspace_event_from_row,
-    workspace_run_from_row,
-)
 
 LOGGER = logging.getLogger(__name__)
+
+STORE_PROJECTION_VERSIONS = {
+    "canonical_mirl": SCHEMA_VERSION,
+    "core_storage": "core-storage/1",
+    "graph_products": f"graph-products-schema/{GRAPH_PRODUCT_SCHEMA_VERSION}",
+    "knowledge_graph": PROJECTION_VERSION,
+    "knowledge_graph_vectors": GRAPH_NODE_VECTOR_TEXT_VERSION,
+    "lifecycle": f"lifecycle-schema/{LIFECYCLE_SCHEMA_VERSION}",
+    "reasoning_graph": f"reasoning-schema/{REASONING_SCHEMA_VERSION}",
+    "reasoning_patterns": f"reasoning-pattern-schema/{REASONING_PATTERN_SCHEMA_VERSION}",
+    "reasoning_promotion": f"reasoning-promotion-schema/{REASONING_PROMOTION_SCHEMA_VERSION}",
+    "reasoning_retrieval": f"reasoning-retrieval-schema/{REASONING_RETRIEVAL_SCHEMA_VERSION}",
+    "reasoning_verification": f"reasoning-verification-schema/{REASONING_VERIFICATION_SCHEMA_VERSION}",
+    "sqlite_vector": VECTOR_TEXT_VERSION,
+    "workspace": f"workspace-schema/{WORKSPACE_SCHEMA_VERSION}",
+}
 
 
 def _prepare_private_database(path: Path) -> None:
@@ -198,13 +232,27 @@ def _prepare_private_database(path: Path) -> None:
 
 
 class SQLiteStore:
-    def __init__(self, path: str | Path = "seam.db", pool_size: int | None = None) -> None:
+    def __init__(
+        self,
+        path: str | Path = "seam.db",
+        pool_size: int | None = None,
+        *,
+        _migration_failure_injector: FailureInjector | None = None,
+        _migration_backup_dir: str | Path | None = None,
+    ) -> None:
         self.path = str(path)
         self._mem_anchor: sqlite3.Connection | None = None
         if self.path != ":memory:":
             resolved = Path(self.path).expanduser().resolve()
             self.path = str(resolved)
             _prepare_private_database(resolved)
+            self.migration_result = migrate_database(
+                resolved,
+                initialize_schema=self._initialize_current_schema,
+                expected_projection_versions=STORE_PROJECTION_VERSIONS,
+                failure_injector=_migration_failure_injector,
+                backup_dir=_migration_backup_dir,
+            )
         else:
             # Keep one anchor connection alive so that the shared in-memory
             # database persists across per-operation connections.
@@ -214,7 +262,12 @@ class SQLiteStore:
                 timeout=5.0,
                 check_same_thread=False,
             )
-        self._init_schema()
+            self._mem_anchor.row_factory = sqlite3.Row
+            self.migration_result = migrate_memory_database(
+                self._mem_anchor,
+                initialize_schema=self._initialize_current_schema,
+                expected_projection_versions=STORE_PROJECTION_VERSIONS,
+            )
         resolved_pool_size = pool_size if pool_size is not None else int(os.environ.get("SEAM_DB_POOL_SIZE", "5"))
         self._pool = ConnectionPool(
             connect_factory=self._connect,
@@ -283,9 +336,13 @@ class SQLiteStore:
     def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
 
-    def _init_schema(self) -> None:
-        with closing(self._connect()) as connection:
-            connection.executescript(
+    @property
+    def schema_version(self) -> int:
+        return CURRENT_SCHEMA_VERSION
+
+    def _initialize_current_schema(self, connection: sqlite3.Connection) -> None:
+        execute_script(
+            connection,
                 """
                 create table if not exists raw_docs (
                     id text primary key,
@@ -365,6 +422,7 @@ class SQLiteStore:
                     dimension integer not null,
                     source_text text not null,
                     source_hash text not null default '',
+                    render_version text not null default 'mirl-vector-text/2',
                     namespace text not null default '',
                     scope text not null default '',
                     vector_json text not null,
@@ -516,16 +574,47 @@ class SQLiteStore:
                 create index if not exists idx_proposal_decision_proposal on proposal_decision (proposal_id);
                 create index if not exists idx_proposal_decision_ts on proposal_decision (ts);
                 """
+        )
+        connection.execute("pragma foreign_keys = on")
+        vector_columns = {
+            str(row["name"])
+            for row in connection.execute("pragma table_info(vector_index)").fetchall()
+        }
+        if "source_hash" not in vector_columns:
+            connection.execute(
+                "alter table vector_index add column "
+                "source_hash text not null default ''"
             )
-            connection.execute("pragma foreign_keys = on")
-            self._cleanup_orphan_edges(connection)
-            init_knowledge_graph(connection)
-            init_graph_products(connection)
-            init_lifecycle(connection)
-            init_workspace_schema(connection)
-            init_reasoning_graph(connection)
-            init_reasoning_promotion(connection)
-            connection.commit()
+        if "render_version" not in vector_columns:
+            connection.execute(
+                "alter table vector_index add column render_version text "
+                f"not null default '{LEGACY_VECTOR_TEXT_VERSION}'"
+            )
+        if "namespace" not in vector_columns:
+            connection.execute(
+                "alter table vector_index add column namespace text not null default ''"
+            )
+            connection.execute(
+                "update vector_index set namespace = coalesce(("
+                "select r.ns from ir_records r where r.id = vector_index.record_id"
+                "), '')"
+            )
+        if "scope" not in vector_columns:
+            connection.execute(
+                "alter table vector_index add column scope text not null default ''"
+            )
+            connection.execute(
+                "update vector_index set scope = coalesce(("
+                "select r.scope from ir_records r where r.id = vector_index.record_id"
+                "), '')"
+            )
+        self._cleanup_orphan_edges(connection)
+        init_knowledge_graph(connection, allow_migration=True)
+        init_graph_products(connection)
+        init_lifecycle(connection)
+        init_workspace_schema(connection)
+        init_reasoning_graph(connection)
+        init_reasoning_promotion(connection)
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
         """Remove edges whose src or dst references a record that no longer exists.

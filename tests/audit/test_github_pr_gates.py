@@ -2,6 +2,11 @@ from pathlib import Path
 
 import yaml
 
+_MARKER = "pytest" ".mark.external"  # split so this file never matches itself
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+CI_WORKFLOW = REPO_ROOT / ".github/workflows/ci.yml"
+
 FAST_CI_JOBS = {
     "repo-hygiene",
     "chroma-real-smoke",
@@ -11,8 +16,26 @@ FAST_CI_JOBS = {
 }
 
 
+def _external_test_files() -> set[str]:
+    """Every test file carrying the external marker, as repo-relative paths.
+
+    Derived from the tree rather than hardcoded: a new external test must be
+    added to the pgvector job or `test_ci_enforces_no_silent_skips` fails.
+    This file is excluded -- it names the marker in its own assertions.
+    """
+    this_file = Path(__file__).resolve()
+    found: set[str] = set()
+    for directory in ("tests", "test_seam_all"):
+        for path in (REPO_ROOT / directory).rglob("test_*.py"):
+            if path.resolve() == this_file:
+                continue
+            if _MARKER in path.read_text(encoding="utf-8"):
+                found.add(path.relative_to(REPO_ROOT).as_posix())
+    return found
+
+
 def test_ci_workflow_requires_locomo_bil2_and_chroma_smokes() -> None:
-    workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+    workflow = CI_WORKFLOW.read_text(encoding="utf-8")
 
     assert 'python -m pip install -e ".[server,sbert,rerank]"' in workflow
     assert "python -m tools.ci.verify_dependency_contract" in workflow
@@ -29,20 +52,50 @@ def test_ci_workflow_requires_locomo_bil2_and_chroma_smokes() -> None:
 
 def test_ci_enforces_no_silent_skips() -> None:
     """The CI must never let a test silently skip: the main job deselects the
-    real-service (external) tests, and a dedicated job runs every external test
-    against the live pgvector service with PGVECTOR_TEST_DSN set."""
-    workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
-    assert '-m "not external"' in workflow            # main job deselects, not skips
-    assert "PGVECTOR_TEST_DSN" in workflow              # pgvector job sets the gate's DSN
-    # the pgvector job runs the real-service test files (so they cannot silently skip)
-    assert "test_pgvector_pk_composite.py" in workflow
-    assert "test_substream_isolation.py" in workflow
+    real-service (external) tests, and a dedicated job runs EVERY external test
+    against the live pgvector service with PGVECTOR_TEST_DSN set.
+
+    The required file set is computed from the test tree, not hardcoded. The
+    previous version asserted two filenames while claiming to cover "every
+    external test", so when the pgvector job drifted to an explicit 3-file list
+    it stayed green while 13 of 23 external tests ran in no lane at all.
+    `-m "not external"` deselects rather than skips, so strict no-skip cannot
+    catch this; only an explicit invariant can.
+    """
+    raw = CI_WORKFLOW.read_text(encoding="utf-8")
+    assert '-m "not external"' in raw  # main job deselects, not skips
+
+    workflow = yaml.safe_load(raw)
+    pgvector_steps = workflow["jobs"]["pgvector-integration"]["steps"]
+    commands = " ".join(step.get("run", "") for step in pgvector_steps)
+    env_blocks = " ".join(
+        " ".join(f"{k}={v}" for k, v in (step.get("env") or {}).items())
+        for step in pgvector_steps
+    )
+    assert "PGVECTOR_TEST_DSN" in env_blocks  # pgvector job sets the gate's DSN
+
+    required = _external_test_files()
+    assert required, "no external-marked test files found; the discovery glob is wrong"
+    missing = sorted(path for path in required if path not in commands)
+    assert not missing, (
+        "these files carry pytest.mark.external but the pgvector-integration job "
+        f"does not run them, so their tests execute in no CI lane: {missing}"
+    )
+
+
+def test_repo_hygiene_runs_the_configured_linter() -> None:
+    """pyproject configures ruff; a required check must actually run it."""
+    workflow = yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    commands = " ".join(
+        step.get("run", "") for step in workflow["jobs"]["repo-hygiene"]["steps"]
+    )
+    assert "ruff check" in commands
 
 
 def test_advisory_suite_waits_for_fast_ci_jobs() -> None:
     """The sole self-hosted runner must finish merge gates before the long suite."""
     workflow = yaml.safe_load(
-        Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+        CI_WORKFLOW.read_text(encoding="utf-8")
     )
 
     needs = workflow["jobs"]["test-and-benchmark"]["needs"]
@@ -53,7 +106,7 @@ def test_advisory_suite_waits_for_fast_ci_jobs() -> None:
 
 def test_advisory_suite_reports_slowest_tests() -> None:
     workflow = yaml.safe_load(
-        Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+        CI_WORKFLOW.read_text(encoding="utf-8")
     )
     runs = [
         step.get("run", "")
@@ -67,13 +120,13 @@ def test_advisory_suite_reports_slowest_tests() -> None:
 
 def test_strict_no_skip_hook_present() -> None:
     """The conftest enforces strict no-skip (default on, opt out with =0)."""
-    conftest = Path("tests/conftest.py").read_text(encoding="utf-8")
+    conftest = Path(REPO_ROOT / "tests/conftest.py").read_text(encoding="utf-8")
     assert "SEAM_STRICT_NO_SKIP" in conftest
     assert "pytest_sessionfinish" in conftest
 
 
 def test_pull_request_template_keeps_repo_management_checklist_visible() -> None:
-    template = Path(".github/pull_request_template.md").read_text(encoding="utf-8")
+    template = Path(REPO_ROOT / ".github/pull_request_template.md").read_text(encoding="utf-8")
 
     assert "No paid benchmark/API calls" in template
     assert "BIL-2 quickstart" in template

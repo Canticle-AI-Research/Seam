@@ -4,9 +4,6 @@ This folder is the active operator and engineering documentation surface.
 
 ## Active Docs
 
-- `SELF_HOST_SECURITY.md` - proprietary compiled self-host threat model,
-  entitlement boundary, hardened container operation, artifact inspection,
-  and confidential-computing upgrade path.
 - `SEAM_OPERATOR_GUIDE.md` - operator manual for day-to-day commands, doctor checks, benchmark posture, and failure triage (Windows, macOS, Linux).
 - `MACOS.md` - macOS install paths, directory layout, Docker/pgvector, MCP, and troubleshooting.
 - `setup.md` - copy/paste setup, dashboard chat model configuration, and supported platform commands.
@@ -27,6 +24,25 @@ This folder is the active operator and engineering documentation surface.
 - `SOP_HOLOGRAPHIC_SURFACE.md` - operator workflow for encoding, verifying, querying, and importing surfaces.
 - `RETRIEVAL_EVAL_V1.md` - current retrieval evaluation reference.
 - `SYMBOL_NURSERY.md` - current symbol staging notes.
+
+## Audits
+
+- `audits/INDEX.md` - registry of recorded audits, newest first. Whole-repo
+  audits are a repeatable series; the latest one records current open findings
+  with file:line evidence and the verification checklist behind each. Read it
+  before concluding a defect is new.
+
+## Superseded, retained in place
+
+These are **not** current instructions. Each carries a SUPERSEDED banner and
+names deleted modules; they are kept where they are, rather than under
+`archive/`, because they are deliberate design input for the future public
+edition. Do not execute their steps.
+
+- `SELF_HOST_SECURITY.md` - compiled self-host threat model and entitlement
+  boundary from the retired distribution split.
+- `SOP_SEAM_SELF_HOST_WHEEL.md` - SOP for a `seam-self-host` PyPI wheel that
+  was never built; the split it depends on was retired.
 
 ## Archive
 

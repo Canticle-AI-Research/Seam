@@ -1326,6 +1326,11 @@ def test_r1_database_reopens_with_additive_r2_schema(
         connection.execute("drop trigger reasoning_retrieval_finalize_guard")
         connection.execute("drop table reasoning_retrieval_candidate")
         connection.execute("drop table reasoning_retrieval")
+        # This fixture represents an R1 database from before the central schema
+        # spine. A current version-2 store missing registered projection tables
+        # is corruption and must fail closed rather than silently recreate them.
+        connection.execute("drop table seam_projection_versions")
+        connection.execute("drop table seam_schema_migrations")
 
     second = SeamRuntime(path, allow_pgvector_env=False)
     try:

@@ -201,7 +201,7 @@ export SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$POSTGRES_U
 seam doctor
 ```
 
-Image: `pgvector/pgvector:0.8.3-pg18-trixie` · Container: `seam-pgvector` · Port: `55432`
+Image: `pgvector/pgvector:0.8.6-pg18-trixie` · Container: `seam-pgvector` · Port: `55432`
 
 Stop when done:
 

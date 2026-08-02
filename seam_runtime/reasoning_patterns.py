@@ -8,6 +8,7 @@ import sqlite3
 from datetime import datetime, timezone
 from uuid import uuid4
 
+from .migrations import execute_script
 from .mirl import utc_now
 
 REASONING_PATTERN_SCHEMA_VERSION = 1
@@ -46,7 +47,8 @@ def init_reasoning_patterns(connection: sqlite3.Connection) -> None:
     chain-of-thought.
     """
 
-    connection.executescript(
+    execute_script(
+        connection,
         """
         create table if not exists reasoning_pattern (
             pattern_id text primary key,

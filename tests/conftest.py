@@ -71,6 +71,22 @@ def pytest_runtest_logreport(report):
 
 def pytest_sessionfinish(session, exitstatus):
     if not _strict_no_skip_enabled():
+        # Disabling enforcement must never be silent: an unannounced opt-out
+        # looks identical to a clean run, so a CI lane (or an agent) that
+        # inherits SEAM_STRICT_NO_SKIP=0 would report green while tests were
+        # quietly not running.
+        unexplained = [(nid, r) for nid, r in _observed_skips if not _skip_is_allowed(r)]
+        if unexplained:
+            reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+            if reporter is not None:
+                reporter.write_sep(
+                    "=",
+                    f"STRICT NO-SKIP DISABLED (SEAM_STRICT_NO_SKIP=0): "
+                    f"{len(unexplained)} unexplained skip(s) NOT enforced",
+                    yellow=True,
+                )
+                for nodeid, reason in unexplained:
+                    reporter.write_line(f"  SKIPPED {nodeid}: {reason}")
         return
     offenders = [(nid, r) for nid, r in _observed_skips if not _skip_is_allowed(r)]
     if not offenders:
