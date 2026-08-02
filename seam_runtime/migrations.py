@@ -432,7 +432,7 @@ def _upgrade_knowledge_graph_typed_references(
 ) -> None:
     """Reproject canonical MIRL with the closed S4 reference contract."""
 
-    from .knowledge_graph import project_records
+    from .knowledge_graph import project_records, restore_canonical_graph_state
 
     records: list[MIRLRecord] = []
     for record_id, payload_json in connection.execute(
@@ -454,6 +454,7 @@ def _upgrade_knowledge_graph_typed_references(
     # The graph projector removes and re-emits only rows sourced by these
     # canonical records. Durable identity-merge evidence is not dropped.
     project_records(connection, records)  # type: ignore[arg-type]
+    restore_canonical_graph_state(connection)  # type: ignore[arg-type]
     updated = connection.execute(
         "update knowledge_graph_meta set value = 'knowledge-graph/6' "
         "where key = 'projection_version' and value = 'knowledge-graph/5'"

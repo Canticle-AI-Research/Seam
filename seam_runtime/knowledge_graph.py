@@ -274,6 +274,7 @@ def init_knowledge_graph(
     connection: sqlite3.Connection,
     *,
     allow_migration: bool = False,
+    target_projection_version: str = PROJECTION_VERSION,
 ) -> None:
     """Create the current graph projection or refuse an unsupported version.
 
@@ -299,13 +300,13 @@ def init_knowledge_graph(
         if (
             allow_migration
             and stored_version == "knowledge-graph/5"
-            and PROJECTION_VERSION == "knowledge-graph/6"
+            and target_projection_version == "knowledge-graph/6"
         ):
             upgrade_typed_references = True
-        elif stored_version != PROJECTION_VERSION:
+        elif stored_version != target_projection_version:
             raise KnowledgeGraphProjectionVersionError(
                 "Unsupported knowledge graph projection version "
-                f"{stored_version!r}; expected {PROJECTION_VERSION!r}. "
+                f"{stored_version!r}; expected {target_projection_version!r}. "
                 "Refusing automatic reprojection."
             )
     else:
@@ -486,11 +487,11 @@ def init_knowledge_graph(
         connection.execute("alter table knowledge_episodes add column expired_at text")
     if upgrade_typed_references:
         records = _load_canonical_projection_records(connection)
-        project_records(connection, records)
+        project_records(connection, records, reference_contract_version=6)
         updated = connection.execute(
             "update knowledge_graph_meta set value = ? "
             "where key = 'projection_version' and value = 'knowledge-graph/5'",
-            (PROJECTION_VERSION,),
+            (target_projection_version,),
         )
         if updated.rowcount != 1:
             raise KnowledgeGraphProjectionVersionError(
@@ -543,18 +544,17 @@ def init_knowledge_graph(
                     # cannot be projected. The derived graph can be repaired
                     # independently without losing source truth.
                     continue
-            project_records(connection, records)
-        _restore_canonical_lifecycle_exclusions(connection)
-        _restore_canonical_document_supersession(connection)
-        # Identity decisions are a durable judgement ledger, not derived
-        # topology. The rebuild deliberately leaves those tables in place and
-        # revalidates accepted decisions against the newly projected nodes.
-        from .identity_resolution import apply_identity_merges
-
-        apply_identity_merges(connection)
+            project_records(
+                connection,
+                records,
+                reference_contract_version=(
+                    5 if target_projection_version == "knowledge-graph/5" else 6
+                ),
+            )
+        restore_canonical_graph_state(connection)
     connection.execute(
         "insert or replace into knowledge_graph_meta (key, value) values ('projection_version', ?)",
-        (PROJECTION_VERSION,),
+        (target_projection_version,),
     )
 
 
@@ -602,18 +602,11 @@ def rebuild_knowledge_graph_from_canonical(connection: sqlite3.Connection) -> No
     ):
         connection.execute(f'drop table if exists "{table}"')
 
-    init_knowledge_graph(connection, allow_migration=True)
-    # This callable owns the exact KG/4 -> /5 boundary even when newer code
-    # registers later transitions. Publish its component marker explicitly so
-    # a failed downstream step leaves a truthful, resumable KG/5 checkpoint.
-    updated = connection.execute(
-        "update knowledge_graph_meta set value = 'knowledge-graph/5' "
-        "where key = 'projection_version'"
+    init_knowledge_graph(
+        connection,
+        allow_migration=True,
+        target_projection_version="knowledge-graph/5",
     )
-    if updated.rowcount != 1:
-        raise KnowledgeGraphProjectionVersionError(
-            "Guarded knowledge-graph rebuild could not publish its KG/5 marker"
-        )
 
 
 def _restore_canonical_lifecycle_exclusions(connection: sqlite3.Connection) -> None:
@@ -676,6 +669,19 @@ def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> 
         )
 
 
+def restore_canonical_graph_state(connection: sqlite3.Connection) -> None:
+    """Replay canonical exclusions and durable identity judgements."""
+
+    _restore_canonical_lifecycle_exclusions(connection)
+    _restore_canonical_document_supersession(connection)
+    # Identity decisions are a durable judgement ledger, not derived topology.
+    # Revalidate them after every full reprojection rather than copying derived
+    # node state forward.
+    from .identity_resolution import apply_identity_merges
+
+    apply_identity_merges(connection)
+
+
 def _load_canonical_projection_records(
     connection: sqlite3.Connection,
 ) -> list[MIRLRecord]:
@@ -721,7 +727,12 @@ def _load_canonical_projection_records(
     return records
 
 
-def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord]) -> None:
+def project_records(
+    connection: sqlite3.Connection,
+    records: Iterable[MIRLRecord],
+    *,
+    reference_contract_version: int = 6,
+) -> None:
     """Project MIRL records into the self-maintaining semantic graph.
 
     Projection is deterministic and idempotent. Re-persisting a record first
@@ -757,7 +768,13 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
         connection.execute("delete from knowledge_node_terms where source_record_id = ?", (record.id,))
 
     for record in records:
-        _project_record(connection, record, batch_by_id, known_record_kinds)
+        _project_record(
+            connection,
+            record,
+            batch_by_id,
+            known_record_kinds,
+            reference_contract_version=reference_contract_version,
+        )
 
     # Synthetic values/references are disposable projections. Remove any that
     # became disconnected after a source record was updated.
@@ -1710,6 +1727,8 @@ def _project_record(
     record: MIRLRecord,
     batch_by_id: dict[str, MIRLRecord],
     known_record_kinds: Mapping[str, RecordKind],
+    *,
+    reference_contract_version: int,
 ) -> None:
     agent_id = _record_agent(connection, record, batch_by_id)
     label = _record_label(record, batch_by_id)
@@ -1755,19 +1774,35 @@ def _project_record(
         value: object,
         *,
         mode: ReferenceMode = ReferenceMode.LITERAL,
+        legacy_literal: bool = False,
     ) -> str | None:
         if value is None:
             return None
         text = str(value).strip()
         if not text:
             return None
-        resolved = resolve_reference(
-            record,
-            value,
-            known_record_kinds=known_record_kinds,
-            mode=mode,
-        )
-        if resolved is None:
+        resolved = None
+        if reference_contract_version >= 6:
+            resolved = resolve_reference(
+                record,
+                value,
+                known_record_kinds=known_record_kinds,
+                mode=mode,
+            )
+        if reference_contract_version < 6 and not legacy_literal and ":" in text:
+            node_id = text
+            target = batch_by_id.get(node_id) or _load_record(connection, node_id)
+            kind = (
+                _KIND_NAMES[target.kind]
+                if target is not None
+                else _kind_from_id(text)
+            )
+            node_label = (
+                _record_label(target, batch_by_id)
+                if target is not None
+                else _label_from_id(text)
+            )
+        elif resolved is None:
             node_id = _value_node_id(record.ns, record.scope, text)
             kind = "value"
             node_label = text
@@ -1960,10 +1995,18 @@ def _project_record(
     for facet, value in facets.items():
         if facet not in _FACET_PREDICATES:
             continue
+        legacy_is_reference = isinstance(value, str) and (
+            value in batch_by_id
+            or value.split(":", 1)[0].lower() in _PREFIX_KINDS
+        )
         edge(
             record.id,
             facet,
-            reference(value, mode=ReferenceMode.OPTIONAL),
+            reference(
+                value,
+                mode=ReferenceMode.OPTIONAL,
+                legacy_literal=not legacy_is_reference,
+            ),
             "facet",
             canonical_predicate=_FACET_PREDICATES[facet],
         )

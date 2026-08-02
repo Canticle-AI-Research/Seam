@@ -8,7 +8,10 @@ from pathlib import Path
 
 import pytest
 
-from seam_runtime.knowledge_graph import rebuild_knowledge_graph_from_canonical
+from seam_runtime.knowledge_graph import (
+    query_graph,
+    rebuild_knowledge_graph_from_canonical,
+)
 from seam_runtime.migrations import (
     DatabaseIntegrityError,
     KnowledgeGraphProjectionVersionError,
@@ -79,6 +82,34 @@ def _stable_graph_view(payload: dict[str, object]) -> dict[str, object]:
     """Exclude only the response-generation clock from view equivalence."""
 
     return {key: value for key, value in payload.items() if key != "generated_at"}
+
+
+def _fixture_views(
+    connection: sqlite3.Connection,
+    fixture: dict[str, object],
+) -> dict[str, object]:
+    return {
+        "current": _stable_graph_view(
+            query_graph(connection, namespace="tenant-a", scope="thread", limit=1000)
+        ),
+        "history": _stable_graph_view(
+            query_graph(
+                connection,
+                namespace="tenant-a",
+                scope="thread",
+                include_history=True,
+                limit=1000,
+            )
+        ),
+        "at": _stable_graph_view(
+            query_graph(
+                connection,
+                root_id=str(fixture["old_episode_id"]),
+                at=str(fixture["views"]["at"]["query"]["at"]),
+                limit=1000,
+            )
+        ),
+    }
 
 
 def _build_reprojection_fixture(path: Path) -> dict[str, object]:
@@ -210,36 +241,44 @@ def test_guarded_reprojection_is_history_equivalent_and_has_zero_resurrections(
     path = tmp_path / "s3-equivalence.sqlite3"
     fixture = _build_reprojection_fixture(path)
     _downgrade_graph_marker(path)
+    # The stacked S4 branch normally creates KG/6 topology. Rebuild once with
+    # the versioned KG/5 projector so the synthetic KG/4 fixture represents
+    # the legacy reference semantics S3 is required to preserve exactly.
+    with closing(sqlite3.connect(path)) as connection:
+        connection.row_factory = sqlite3.Row
+        rebuild_knowledge_graph_from_canonical(connection)
+        connection.commit()
+        fixture["views"] = _fixture_views(connection, fixture)
+    _downgrade_graph_marker(path)
+
+    def stop_after_s3(step, _connection) -> None:
+        if step.name == TYPED_REFERENCE_STEP:
+            raise RuntimeError("inspect exact S3 checkpoint before S4")
+
+    with pytest.raises(MigrationError, match="rolled back"):
+        SQLiteStore(
+            path,
+            _migration_failure_injector=stop_after_s3,
+            _migration_backup_dir=tmp_path / "checkpoint-backups",
+        )
+
+    with closing(sqlite3.connect(path)) as connection:
+        connection.row_factory = sqlite3.Row
+        assert connection.execute(
+            "select projection_version from seam_projection_versions "
+            "where projection_name = 'knowledge_graph'"
+        ).fetchone()[0] == "knowledge-graph/5"
+        assert connection.execute(
+            "select value from knowledge_graph_meta "
+            "where key = 'projection_version'"
+        ).fetchone()[0] == "knowledge-graph/5"
+        assert _fixture_views(connection, fixture) == fixture["views"]
 
     runtime = SeamRuntime(path)
     try:
         assert runtime.store.migration_result.applied_steps == (
-            REBUILD_STEP,
             TYPED_REFERENCE_STEP,
         )
-        after_views = {
-            "current": _stable_graph_view(
-                runtime.store.knowledge_graph(
-                    namespace="tenant-a", scope="thread", limit=1000
-                )
-            ),
-            "history": _stable_graph_view(
-                runtime.store.knowledge_graph(
-                    namespace="tenant-a",
-                    scope="thread",
-                    include_history=True,
-                    limit=1000,
-                )
-            ),
-            "at": _stable_graph_view(
-                runtime.store.knowledge_graph(
-                    root_id=str(fixture["old_episode_id"]),
-                    at=str(fixture["views"]["at"]["query"]["at"]),
-                    limit=1000,
-                )
-            ),
-        }
-        assert after_views == fixture["views"]
 
         with runtime.store._pool.checkout() as connection:
             episodes = connection.execute(
