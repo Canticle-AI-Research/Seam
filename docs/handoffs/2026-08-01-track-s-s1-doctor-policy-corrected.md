@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-01-track-s-s1-doctor-policy-corrected
 supersedes: 2026-08-01-track-s-s2-locally-qualified
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#524
 ---
 

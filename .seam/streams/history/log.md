@@ -15500,3 +15500,102 @@ operator decision and was not made here.
 No provider-paid benchmark, retrieval measurement, artifact build, publish,
 deploy, or release was run.
 ---END-ENTRY-#525---
+
+---BEGIN-ENTRY-#526---
+id: 526
+date: 2026-08-02T07:35:40Z
+agent: codex-gpt-5
+status: done
+topics: bugfix, security, storage, persist, atomicity, locking, registry, integrity, trust, chat, audit, verify, handoff, history, streams
+commits: 6869f74
+refs: seam_runtime/storage.py,seam_runtime/server.py,seam_runtime/migrations.py,seam_runtime/knowledge_graph.py,tests/audit/test_persist_ir_concurrency.py,tests/audit/test_chat_endpoint.py,tests/audit/test_sqlite_migration_spine.py,tests/audit/test_knowledge_graph_time_gate.py,docs/SQLITE_MIGRATIONS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-02-track-s-audit-recovery-locally-repaired.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 525
+tokens: 1109
+---
+Recovered the S2/audit branch after an accidental agent push, repaired the four
+highest-severity open reproducers from HISTORY#525, and locally requalified the
+migration spine under a positive forward-upgrade gate. This entry supersedes
+the latest audit chronology in HISTORY#525 and preserves the sibling S1 doctor
+correction in HISTORY#524 without rewriting either earlier record.
+
+## Accidental-push reconciliation
+
+Protected `main` remained `94375e8`. The live ruleset had been changed to make
+the advisory full suite required; it was restored to the canonical required
+contexts `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2`.
+Repository visibility remained private. The generated HTML rendering of the
+audit was removed from the candidate, recovery commit `6869f74` was rebased
+directly onto `b53b1f7`, and accidental commit `65aaa35` is not an ancestor of
+the rewritten recovery branch. No Pages publication, release, or deploy was
+created.
+
+## Four reproduced defects repaired
+
+1. `SQLiteStore._persist_ir_on_connection` now acquires `BEGIN IMMEDIATE`
+   before entity reconciliation unless its caller already owns a transaction.
+   Eight concurrent writes produce one canonical ENT and eight claims whose
+   subjects all remap to that identity.
+2. `/chat` and `/chat/stream` share one resolver that binds each built-in host
+   to exactly one environment key. Custom hosts require explicit caller-owned
+   credentials; validated loopback targets never consult process environment.
+   Provider-specific empty-base defaults remain compatible.
+3. Projection versions now advance through exact registered callables with
+   source/target table contracts. One exclusive migration owner closes the
+   read-only preflight, revalidates central history, the projection plan,
+   source tables, the knowledge-graph marker, integrity, and foreign keys under
+   lock, commits the bootstrap while retaining writer exclusion, then creates a
+   validated, file- and directory-fsynced, atomically published same-owner
+   backup. Central and projection steps commit separately under that retained
+   lock, so later failure preserves earlier resume points. Narrow callback and
+   failure-hook facades plus the SQLite authorizer deny supported transaction,
+   authorizer, savepoint, journal, and locking escapes; marker CAS and common
+   post-step gates remain fail-closed. Backup-copy and durability failures do
+   not masquerade as valid recovery, and transaction outcome messages no longer
+   claim rollback after committed or ambiguous state.
+4. The trust time gate logs a content-free warning and returns expired/stale
+   when timestamps are malformed or timezone-incomparable. It no longer falls
+   back to arbitrary lexicographic ordering.
+
+## Verification and review
+
+The exact reviewed tree selected 2,172 strict non-external tests: 2,170 passed,
+the two established strict cases xfailed, and there were zero skips or
+failures. The exact five-file live pgvector CI invocation passed 30/30 against a
+disposable `0.8.6-pg18-trixie` service, which was removed afterward. The four
+repair files passed 65/65; the migration spine contributed 43/43 cases covering
+populated table-add, restore/re-upgrade, DELETE/WAL writer contention, locked
+TOCTOU refusal, backup publication/durability failure, transaction escapes,
+per-step resume, and honest rollback/commit reporting. An adjacent storage,
+graph, server, workspace, and reasoning slice passed 112/112.
+
+Ruff, Python compilation, diff hygiene, and the canonical content-free
+secret/session scan passed. Two independent migration reviews first found and
+then verified closure of backup/write races, version-blind table validation,
+raw callback transaction control, failed-backup publication, directory fsync,
+failure-hook commit escape, and misleading rollback reporting. CodeRabbit's
+valid portability and test-strength findings were fixed; its final suggestion
+was inapplicable because `pyproject.toml` already requires Python >=3.11.
+
+One early full-run invocation used the virtualenv `pytest` executable directly
+and produced import-collection errors because the repository root was not on
+that entry point's path; the canonical `.venv/bin/python -m pytest` invocation
+was used for every recorded result. A later full pass exposed one test fixture
+that committed but did not close its SQLite context manager; explicit
+commit-then-close fixed the fixture, and the complete exact-tree rerun passed.
+An intermediate broad run was intentionally interrupted when review found a
+new transaction-hook reproducer; no partial run is counted as evidence.
+
+## Boundaries and next step
+
+`SEAM_API_TOKEN` remains optional for trusted-loopback development. Automatic
+first-launch token provisioning and principal tenancy remain separate S6 work;
+this repair closes arbitrary environment forwarding, not the whole hosted-auth
+program. Audit findings 7-10 and 12 remain open. Six worktrees were observed;
+unrelated worktrees and their changes were left untouched. No provider-paid
+benchmark, retrieval-score measurement, artifact publish, merge, deploy, or
+release ran.
+
+The rewritten head belongs on draft PR #193. Fresh exact-head required and
+advisory CI remains the protected publication boundary. After merge, S3 durable
+supersession and guarded reprojection is next; S4 may proceed in parallel.
+---END-ENTRY-#526---

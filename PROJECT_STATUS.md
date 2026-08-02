@@ -9,57 +9,50 @@
 
 ## Current headline
 
-**2026-08-01 — HISTORY#524.** A whole-repository read-only audit is recorded at
-`docs/audits/2026-08-01-full-repo-audit.md` and registered in the new
-`docs/audits/INDEX.md`; read the latest audit before concluding a defect is new.
-It closed three CI/documentation findings and left four higher-severity ones
-**open, with reproducers**: concurrent `persist_ir` defeats entity coreference
-(8 concurrent ingests yield 8 distinct ENT records where sequential yields 1);
-unauthenticated `/chat` forwards any environment variable to a caller-chosen
-loopback address; the projection registry detects but cannot migrate across any
-of its 13 version constants; and `_time_reached` falls back to lexicographic
-comparison inside the trust gate. Fixed in the same session: 13 of 23 external
-tests ran in no CI lane and the guard that should have caught it now derives its
-required set from the test tree; `repo-hygiene` now runs the configured linter;
-`SEAM_STRICT_NO_SKIP=0` is no longer silent; and the release documentation now
-matches the real workflow, which has no PyPI path. Full repository scope with
-the live pgvector external lane: **2,154 passed, 2 xfailed, no skips, no
-failures**. The live ruleset still requires only `repo-hygiene`,
-`chroma-real-smoke`, and `locomo-quickstart-bil2`.
+**2026-08-02 — HISTORY#526, draft PR #193.** The four highest-severity open
+reproducers from the whole-repository audit in HISTORY#525 are repaired on the
+local recovery candidate, not yet on protected `main`:
 
-**HISTORY#523.** Track S, the Production-Core Integrity
-Campaign, is active and S2's central migration spine is locally qualified.
-Schema version 2 now governs canonical SQLite plus every initialized durable
-projection through two ordered transactional steps, read-only fail-closed
-preflight, retained private pre-migration backups, per-step integrity/foreign-
-key gates, and explicit atomic restore. Released v1.2.0 and v2.4.0 historical
-fixtures, empty stores, both injected rollback boundaries, partial v1 resume,
-unknown/newer byte-unchanged refusal, and real backup recovery are proven.
-The repository-wide non-external scope collected 2,130 tests: 2,128 passed and
-the two established cases xfailed. A full S2 code review reported zero findings
-before the final narrow fixture-contract and handoff edits; the final whole-tree
-rerun was blocked by the free-plan rate limit, and paid review was not enabled.
-The live pgvector service was healthy, but its credential-bearing test DSN was
-not exported to this process, so S2 did not rerun that external lane.
+- `persist_ir` acquires its write lock before entity reconciliation, and eight
+  concurrent ingests now preserve one canonical entity;
+- `/chat` and `/chat/stream` bind environment credentials one-to-one to known
+  provider hosts and never consult process environment for loopback targets;
+- projection version changes have exact registered forward callables with
+  version-specific source/target table contracts; and
+- malformed or timezone-incomparable trust timestamps warn content-free and
+  fail toward expired/stale instead of lexicographic established knowledge.
 
-The S1 dependency guardrail now also governs `seam doctor`: only the canonical
-core imports `rich` and `tiktoken` are required, while `chromadb` remains an
-informational optional-adapter check. A real subprocess blocks every Chroma
-import before SEAM loads and proves doctor still passes. The combined strict
-non-external audit scope passed all 1,572 selected tests, and the final
-three-file CodeRabbit review reported zero findings.
+S2 is locally requalified under the missing positive migration gate. One
+exclusive SQLite migration owner rechecks the live schema and exact plan under
+lock, creates and durably publishes the same-owner backup, blocks competing
+writers across separately committed steps, and preserves earlier resume points
+when a later step fails. Projection callbacks and failure hooks cannot control
+the spine-owned transaction or downgrade its lock through supported APIs.
+Unknown, newer, missing, extra, cyclic, and unregistered states still refuse
+before backup or mutation.
 
-S3's durable supersession and guarded reprojection is the next canonical
-boundary; S4 may proceed in parallel. F22's release lock/hash proof remains
-owned by S10. The current
-retrieval evidence is still +0.009628 overall versus
-legacy with cat3 −0.036775, ENT provenance 0.0000, and live-leg fusion weights
-unvalidated; see `docs/status/retrieval.md`.
+The accidental generated HTML audit commit is not an ancestor of the recovery
+candidate, and the HTML file is absent. The live branch-protection ruleset was
+restored to exactly `repo-hygiene`, `chroma-real-smoke`, and
+`locomo-quickstart-bil2`; `test-and-benchmark` remains advisory. Protected
+`main` remains `94375e8` until PR #193 is reviewed and merged.
 
-The canonical plan remains
-`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`. Track S coordinates Track R, H2,
-E2, and K14 without superseding them. No provider-paid benchmark or release was
-run as part of S2 or the S1 doctor correction.
+Exact-tree provider-free verification selected **2,172 tests: 2,170 passed and
+the two established strict cases xfailed, with no skips or failures**. The live
+five-file pgvector lane passed **30/30**. The focused migration suite passed
+43/43, Ruff, Python compilation, diff hygiene, and the canonical secret/session
+scan passed, and independent adversarial review ended with no blockers. The
+local CodeRabbit rerun's only remaining suggestion was already satisfied by
+`requires-python = ">=3.11"`.
+
+This is not full hosted hardening. `SEAM_API_TOKEN` remains optional for
+trusted-loopback development; automatic token provisioning and principal
+tenancy remain S6. Audit findings 7-10 and 12 remain open, including graph
+ordering/SQL bounds, `/v1` coverage, retrieval connection pooling, and worktree
+hygiene. No paid provider, retrieval-score benchmark, artifact publish, deploy,
+or release ran. After protected publication, S3 durable supersession and
+guarded reprojection is the next canonical boundary; S4 may proceed in
+parallel.
 
 ## Status streams
 
