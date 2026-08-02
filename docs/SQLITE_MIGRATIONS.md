@@ -82,9 +82,13 @@ and are never deleted automatically.
 The maintained historical fixtures are documented under
 `tests/fixtures/sqlite_history/`. A pre-graph store can build its first graph
 from canonical MIRL inside the explicit migration transaction because it has no
-graph-only state to lose. A stale existing graph projection such as
-`knowledge-graph/4` remains refused: non-destructive reprojection and temporal
-equivalence are Track S S3, not an implicit S2 open-time behavior.
+graph-only state to lose. `knowledge-graph/4` now has one exact registered
+transition to `knowledge-graph/5`. The callable atomically discards only
+derived topology, rebuilds from canonical `ir_records`, reapplies soft-delete
+cleanup from canonical MIRL status, and reapplies source supersession from
+`document_status.deleted_at`. It does not copy stale episode or edge lifecycle
+rows through the rebuild. Explicit identity-merge decisions remain in their
+separate durable judgement ledger and are revalidated against rebuilt nodes.
 
 ## Recovery
 
@@ -125,6 +129,11 @@ commits made after that backup was captured.
   directory durability are verified before migration begins;
 - failure after a later step preserves the earlier committed resume point;
 - restoring the pre-projection backup and reopening repeats the upgrade safely;
+- the KG/4-to-KG/5 rebuild has zero superseded-to-live flips, preserves current,
+  point-in-time, and full-history graph semantics, and retains a shared edge
+  while another active episode supports it;
+- injected rebuild failure restores every relevant table hash, while an
+  unsupported newer projection request refuses with the same hashes;
 - unknown/newer central and projection versions are refused byte-unchanged;
 - missing, extra, and changed unregistered projection states remain
   byte-unchanged and create no backup;

@@ -204,7 +204,7 @@ def test_compiled_entities_are_episode_grounded_and_select_exact_raw(runtime: Se
     assert {path.path_kind for path in selected[0].paths} == {"edge", "mention"}
 
 
-@pytest.mark.parametrize("stored_version", ["knowledge-graph/4", "knowledge-graph/999"])
+@pytest.mark.parametrize("stored_version", ["knowledge-graph/999"])
 def test_unsupported_projection_versions_fail_closed_without_graph_mutation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

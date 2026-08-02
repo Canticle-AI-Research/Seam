@@ -22,9 +22,12 @@ The projection distinguishes semantic knowledge from its evidence:
   record provenance. Assertion labels, episode text, and sentence-like literal
   values are excluded so source prose cannot masquerade as extra concepts.
 
-MIRL and RAW remain the canonical truth. `knowledge_nodes`, `knowledge_edges`,
-and `knowledge_episodes` are durable indexed projections that can be rebuilt
-from `ir_records`. PACK and dashboard views remain disposable presentations.
+MIRL and RAW remain the canonical semantic truth. Canonical MIRL lifecycle
+status owns soft-delete exclusion, and canonical `document_status.deleted_at`
+owns same-source document supersession. `knowledge_nodes`, `knowledge_edges`,
+and `knowledge_episodes` are durable indexed projections rebuilt from those
+sources; stale graph lifecycle rows are never copied forward. PACK and
+dashboard views remain disposable presentations.
 
 ## 5W1H+Then ontology
 
@@ -75,6 +78,10 @@ exploration retains them with their trust labels. Both `/chat` and
    migration registry. Opening a current database validates without mutation;
    stale, newer, or unregistered graph states refuse until an exact transition
    is registered and qualified.
+7. The registered KG/4-to-KG/5 transition replaces topology atomically under
+   the migration spine, then replays canonical soft-delete and document
+   supersession state. Current, point-in-time, and full-history semantics must
+   match the pre-rebuild projection apart from the response-generation clock.
 
 The identity index is part of that rebuildable projection. Alias rows never
 rewrite canonical MIRL or silently merge entities; reversible entity merges and
