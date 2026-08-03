@@ -15735,3 +15735,68 @@ reproducibility breach is the unsnapshotted multi-leg read described below.
 No paid provider call, retrieval-score benchmark, artifact build, publish,
 deploy, merge, or release ran.
 ---END-ENTRY-#527---
+
+---BEGIN-ENTRY-#528---
+id: 528
+date: 2026-08-03T04:36:20Z
+agent: claude
+status: done
+topics: handoff, docs, protocol, continuity, status, verify
+commits: docs/handoff-2026-08-03-audit-repairs-merged
+refs: docs/handoffs/2026-08-03-audit-repairs-merged.md,docs/handoffs/INDEX.md
+supersedes: 527
+tokens: 729
+---
+Register the tracked handoff for the merged audit-repair state and retire the
+stale one.
+
+## Why
+
+The `latest` handoff (`2026-08-02-track-s-audit-recovery-locally-repaired`) is
+the canonical session-start route per AGENTS.md, and it still described PR #193
+as an unmerged draft with protected `main` at `94375e8`. That stopped being
+true at 2026-08-02T11:55:12Z. HISTORY#527 corrected `PROJECT_STATUS.md` but not
+the handoff registry, so the read chain still pointed a new session at a state
+that had ended. This entry closes that gap; it is the same class of defect the
+HISTORY#527 audit recorded as its first finding.
+
+## Changed
+
+- Added `docs/handoffs/2026-08-03-audit-repairs-merged.md` recording: `main` at
+  `67d9c7c`; PRs #193 and #196 merged; draft PRs #194 (S3) and #195 (S4) open
+  and green against the **old** `repo-hygiene` gate.
+- `docs/handoffs/INDEX.md`: advanced `latest`, added the new row, marked
+  `2026-08-02-track-s-audit-recovery-locally-repaired` superseded.
+
+## Carried into the handoff so it is not rediscovered
+
+- #194 and #195 need a rebase onto `67d9c7c` and a fresh run. HISTORY#527 made
+  the required `repo-hygiene` check stricter — `ruff check .` in place of a
+  three-path scope that left `tests/` unlinted, plus `verify_integrity`,
+  `verify_continuity`, `verify_routing`, and `verify_streams` promoted out of
+  the advisory lane. Their existing green predates all of that.
+- `test-and-benchmark` is now green on four consecutive PRs (#193, #194, #195,
+  #196), which appears to satisfy S10's condition for promoting it to a
+  required check. That is a ruleset change, not a code change.
+- S5's exit gate is insufficient as written: routing the 11 `store._connect()`
+  sites through the pool satisfies "opens no new physical SQLite connections"
+  while leaving the read-snapshot tear intact, because `_connect` leaves
+  `isolation_level` at the sqlite3 default and one connection is opened inside
+  the hop loop. The gate needs a snapshot-consistency clause.
+- S3's exit gate is 4/4 refusal-shaped with no clause requiring a rebuild to
+  succeed — the asymmetry that produced the missing forward-migration path in
+  S2, with PR #194 open against it.
+- `dashboard.py` (3,160 lines, zero dedicated test file), benchmark seal/BIL
+  integrity, and MIRL losslessness round-tripping remain unaudited across two
+  consecutive whole-repository audits.
+
+## Verified
+
+- `python -m tools.history.verify_handoffs` passes: one live head, linear
+  supersession chain, no unindexed document.
+- Full closeout chain green (integrity, routing, handoffs, continuity,
+  streams).
+
+Documentation and registry only. No runtime code, test, workflow, provider
+call, benchmark, publish, deploy, or release changed.
+---END-ENTRY-#528---

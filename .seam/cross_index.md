@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 590
+total_events: 591
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-26T22:11:10Z | history:334:4a535172 | session-event | done | benchmark, locomo, mem0, judge, retrieval, profile, confo... | benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py |
 | 2026-06-26T23:08:35Z | history:335:7b74fc23 | session-event | done | benchmark, locomo, mem0, adapter, bugfix, test, history | benchmarks/external/locomo/adapters/mem0.py,test_seam_all/test_locomo_mem0_ad... |
 | 2026-06-27T00:00:00Z | history:336:3a688abd | session-event | done | benchmark, locomo, mem0, retry, judge, bugfix, test, history | benchmarks/external/common/provider_retry.py,benchmarks/external/common/answe... |
 | 2026-06-27T00:00:00Z | history:337:1071f2ca | session-event | done | installer, macos, docs, test, history | installers/install_seam_macos.sh,seam_runtime/installer.py,installers/install... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-02T00:03:13Z | history:525:2ccd78dc | session-event | done | audit, ci, docs, security, test, verify, history | docs/audits/2026-08-01-full-repo-audit.md,docs/audits/INDEX.md,.github/workfl... |
 | 2026-08-02T07:35:40Z | history:526:2da969f0 | session-event | done | bugfix, security, storage, persist, atomicity, locking, r... | seam_runtime/storage.py,seam_runtime/server.py,seam_runtime/migrations.py,sea... |
 | 2026-08-03T02:45:03Z | history:527:cad44901 | session-event | done | audit, security, harden, bugfix, graph, retrieval, ci, do... | seam_runtime/server.py,seam_runtime/knowledge_graph.py,seam_runtime/retrieval... |
+| 2026-08-03T04:36:20Z | history:528:0055347b | session-event | done | handoff, docs, protocol, continuity, status, verify | docs/handoffs/2026-08-03-audit-repairs-merged.md,docs/handoffs/INDEX.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0390.cross.md | 2026-04-15T00:00:00Z..2026-06-26T08:22:49Z | 390 | (multi) | (multi) |
+| 0001-0391.cross.md | 2026-04-15T00:00:00Z..2026-06-26T22:11:10Z | 391 | (multi) | (multi) |
