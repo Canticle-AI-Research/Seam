@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-03-track-s-s4-requalified
 supersedes: 2026-08-03-track-s-s3-requalified
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#530
 ---
 

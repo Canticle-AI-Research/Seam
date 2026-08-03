@@ -16007,3 +16007,102 @@ to replace PR #195's stale head, mark it ready, obtain a fresh exact-head
 review, and merge only after every required and advisory check is green on that
 head. Then remove the S4 worktree and begin S5 from the merged substrate.
 ---END-ENTRY-#530---
+
+---BEGIN-ENTRY-#531---
+id: 531
+date: 2026-08-03T22:53:54Z
+agent: claude-opus-5
+status: done
+topics: history, handoff, streams, protocol, git-hooks, tests, bugfix, status, roadmap, integrity
+commits: fix/history-worktree-lock-and-s4-registration
+refs: tools/history/new_entry.py,tools/history/test_history_tools.py,docs/handoffs/2026-08-03-track-s-s4-merged-s5-next.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/status/operations.md
+supersedes: 530
+tokens: 1166
+---
+Registered the merged Track S S4 state, retired the stale handoff head, opened
+S5, and repaired the history advisory-lock path that misbehaves inside a git
+worktree.
+
+## Why
+
+Two things went stale the moment PR #195 merged.
+
+First, the registry head
+`docs/handoffs/2026-08-03-track-s-s4-requalified.md` still instructed the next
+session to force-push #195 and mark it ready — work that is now done. A live
+handoff that describes completed work as the next move is the exact failure
+`HISTORY#528` was written to repair, and leaving it in place would have had the
+next agent redo a merge.
+
+Second, `tools/history/new_entry.py` resolved its advisory lock by testing
+`is_dir()` on `<repo>/.git`. In a linked worktree that path is a *file*
+containing `gitdir: <path>`, not a directory, so the check fell through to
+`HISTORY_INDEX.md.lock` beside the index — untracked, inside the working tree,
+and picked up by `git add -A`. This is not hypothetical: it happened during the
+`HISTORY#530` closeout in the `agent/track-s-s4-prep` worktree, and the file had
+to be removed from the index by hand before committing. Multi-agent sessions in
+this repo run from worktrees routinely, so the broken branch was the common
+path, not the rare one.
+
+## Changed
+
+- `tools/history/new_entry.py`: extracted `history_lock_path()`, which parses a
+  worktree's `gitdir:` pointer (absolute or relative) and places the lock in the
+  worktree's real git directory. The ordinary-clone path is unchanged. The
+  in-tree fallback survives only for a non-git checkout, where no git directory
+  exists to hide it in.
+- `tools/history/test_history_tools.py`: five tests covering the clone case, the
+  worktree case, a relative `gitdir:` pointer, the no-git fallback, and an
+  end-to-end `new_entry.main()` run from a simulated worktree asserting that no
+  `HISTORY_INDEX.md.lock` is left in the working tree.
+- `docs/handoffs/2026-08-03-track-s-s4-merged-s5-next.md`: new registry head. It
+  records S4 published at `main@ea4e46e`, states why S5 is the only unblocked
+  stage, enumerates which S5 exit-gate clauses remain open, and carries forward
+  the `HISTORY#528` pooling-versus-snapshot trap so it is designed around rather
+  than rediscovered.
+- `docs/handoffs/INDEX.md` advanced `latest` and added the new row;
+  `2026-08-03-track-s-s4-requalified` marked `superseded`.
+- `PROJECT_STATUS.md`, `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`, and
+  `docs/status/operations.md` updated: S4 published, S5 marked next and
+  unstarted with an explicit note that S4's same-process serialization is a
+  substrate and not S5 evidence.
+
+## Verified
+
+- The repaired lock path was falsified against the old logic before the fix was
+  accepted: with `.git` as a worktree pointer file, the old expression resolves
+  to `HISTORY_INDEX.md.lock` inside the working tree; the new one resolves to
+  `<gitdir>/seam-history.lock` outside it.
+- `tools/history/` and `tools/streams/`: **68 passed**.
+- Full provider-free suite (`test_seam_all/ tools/history/test_history_tools.py
+  tools/streams/ tests/ -m "not external"`): **2,405 passed, 23 deselected,
+  2 xfailed, 3 subtests passed, zero skips, zero failures**.
+- Repo-wide `ruff check .`, `git diff --check`, and the full gate chain
+  (integrity, routing, handoffs, continuity, streams) pass.
+
+## Publication facts
+
+PR #195 merged S4 at `main@ea4e46e` after all eight required and advisory checks
+passed on the exact head `95a07ab`: `repo-hygiene`, `chroma-real-smoke`,
+`locomo-quickstart-bil2`, `package-smoke`, `pgvector-integration`,
+`registry-plan`, `test-and-benchmark`, and CodeRabbit. The branch was
+squash-merged and deleted; zero PRs are open.
+
+## Honest boundaries
+
+- S5 is unstarted. This entry adds no outbox, pooling, divergence-repair, or
+  snapshot-consistency behavior and measures no S5 clause.
+- The `agent/track-s-s4-prep` worktree is clean and fully merged but still
+  present, as are several older worktrees. AGENTS.md requires finishing them;
+  removal is deliberately left for explicit operator confirmation rather than
+  done unilaterally.
+- No paid provider call, competitive benchmark, retrieval-score claim, artifact
+  publish, deploy, or release ran. This does not claim SEAM has beaten Mem0,
+  Zep, or Cognee, reached 100% canonical memory, or eliminated model
+  hallucinations.
+
+## Next move
+
+Begin S5 on `main@ea4e46e`, designing the durable outbox and the pooled,
+single-snapshot read path together rather than in sequence.
+---END-ENTRY-#531---

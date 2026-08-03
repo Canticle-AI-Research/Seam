@@ -194,6 +194,66 @@ class TestRebuildIndexIdempotent(TempRepoBase):
         self.assertIn("total_entries: 0", text)
 
 
+class TestHistoryLockPath(TempRepoBase):
+    """The advisory lock must never land inside a working tree.
+
+    A linked git worktree has `.git` as a FILE holding `gitdir: <path>`, not a
+    directory. The original `is_dir()`-only check fell through to a
+    `HISTORY_INDEX.md.lock` beside the index, where `git add -A` picked it up.
+    """
+
+    def test_lock_lives_in_git_dir_for_an_ordinary_clone(self):
+        git_dir = self.root / ".git"
+        git_dir.mkdir()
+        with self.patch_paths():
+            self.assertEqual(
+                new_entry_module.history_lock_path(),
+                git_dir / "seam-history.lock",
+            )
+
+    def test_lock_lives_in_the_real_git_dir_for_a_worktree(self):
+        real_git_dir = self.root / "main-clone" / ".git" / "worktrees" / "wt"
+        real_git_dir.mkdir(parents=True)
+        (self.root / ".git").write_text(f"gitdir: {real_git_dir}\n", encoding="utf-8")
+        with self.patch_paths():
+            resolved = new_entry_module.history_lock_path()
+        self.assertEqual(resolved, real_git_dir / "seam-history.lock")
+        self.assertNotEqual(resolved.parent, self.root)
+
+    def test_lock_resolves_a_relative_worktree_gitdir_pointer(self):
+        real_git_dir = self.root / "elsewhere" / "worktrees" / "wt"
+        real_git_dir.mkdir(parents=True)
+        (self.root / ".git").write_text(
+            "gitdir: elsewhere/worktrees/wt\n", encoding="utf-8"
+        )
+        with self.patch_paths():
+            resolved = new_entry_module.history_lock_path()
+        self.assertEqual(resolved, real_git_dir.resolve() / "seam-history.lock")
+
+    def test_lock_falls_back_beside_the_index_without_any_git_dir(self):
+        with self.patch_paths():
+            self.assertEqual(
+                new_entry_module.history_lock_path(),
+                self.index.with_name(f"{self.index.name}.lock"),
+            )
+
+    def test_new_entry_in_a_worktree_leaves_no_lock_file_in_the_tree(self):
+        real_git_dir = self.root / "main-clone" / ".git" / "worktrees" / "wt"
+        real_git_dir.mkdir(parents=True)
+        (self.root / ".git").write_text(f"gitdir: {real_git_dir}\n", encoding="utf-8")
+        self.write_entries([sample_entry(1)])
+        with self.patch_paths():
+            rebuild(self.history, self.index)
+            new_entry_module.main([
+                "--agent", "test",
+                "--status", "done",
+                "--topics", "meta",
+                "--body", "Entry written from a linked worktree",
+            ])
+        self.assertFalse((self.root / "HISTORY_INDEX.md.lock").exists())
+        self.assertTrue((real_git_dir / "seam-history.lock").exists())
+
+
 class TestNewEntryLock(TempRepoBase):
     def test_new_entry_releases_process_lock_when_file_lock_fails(self):
         self.write_entries([sample_entry(1)])

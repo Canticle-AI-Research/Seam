@@ -19,6 +19,7 @@ import datetime as _dt
 import os
 import sys
 import threading
+from pathlib import Path
 
 from tools.history.history_lib import (
     HISTORY_PATH,
@@ -34,14 +35,45 @@ from tools.history.rebuild_index import rebuild
 _PROCESS_LOCK = threading.Lock()
 
 
+def history_lock_path() -> Path:
+    """Resolve the advisory lock path, keeping it out of the working tree.
+
+    ``<repo>/.git`` is a directory in an ordinary clone but a *file* in a linked
+    worktree, where it contains ``gitdir: <path>``. Testing ``is_dir()`` alone
+    therefore fell through to ``HISTORY_INDEX.md.lock`` beside the index -- an
+    untracked file inside the working tree that ``git add -A`` sweeps straight
+    into the commit. Multi-agent sessions in this repo run from worktrees
+    routinely, so that fallback was the common path, not the rare one.
+
+    The per-worktree git directory is the right home: it matches HISTORY.md
+    being per-worktree, and it is never part of any working tree.
+    """
+    git_path = INDEX_PATH.parent / ".git"
+    if git_path.is_dir():
+        return git_path / "seam-history.lock"
+    if git_path.is_file():
+        try:
+            pointer = git_path.read_text(encoding="utf-8").strip()
+        except OSError:
+            pointer = ""
+        if pointer.startswith("gitdir:"):
+            git_dir = Path(pointer.split(":", 1)[1].strip())
+            if not git_dir.is_absolute():
+                git_dir = (INDEX_PATH.parent / git_dir).resolve()
+            if git_dir.is_dir():
+                return git_dir / "seam-history.lock"
+    # Last resort for a non-git checkout. Still inside the tree, but there is
+    # no git directory to hide it in.
+    return INDEX_PATH.with_name(f"{INDEX_PATH.name}.lock")
+
+
 def _acquire_history_lock():
     """Acquire an exclusive advisory lock for HISTORY.md/HISTORY_INDEX.md updates.
 
     Returns a (lock_fd, release_fn) pair. Callers must invoke release_fn in a
     ``finally`` block.
     """
-    git_dir = INDEX_PATH.parent / ".git"
-    lock_path = git_dir / "seam-history.lock" if git_dir.is_dir() else INDEX_PATH.with_name(f"{INDEX_PATH.name}.lock")
+    lock_path = history_lock_path()
     fd = -1
     try:
         fd = os.open(str(lock_path), os.O_RDWR | os.O_CREAT)
