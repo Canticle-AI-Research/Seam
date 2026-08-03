@@ -839,6 +839,75 @@ def test_dashboard_graph_is_live_only_and_has_no_synthetic_edge_builder() -> Non
     assert api.index("if (terminalCount !== 1)") < api.index("if (handlers.onDone) handlers.onDone()")
 
 
+def _seed_tied_confidence_star(
+    connection: sqlite3.Connection, leaf_ids: list[str], *, ns: str, scope: str
+) -> None:
+    """One hub with N leaves, every edge identical in (confidence, updated_at).
+
+    ``confidence`` defaults to 0 in production data, so ties are the common
+    case rather than an exotic one.
+    """
+    stamp = "2026-01-01T00:00:00+00:00"
+
+    def _node(node_id: str) -> None:
+        connection.execute(
+            "insert into knowledge_nodes (id, kind, label, ns, scope, status, confidence, "
+            "created_at, updated_at, synthetic, properties_json) "
+            "values (?,?,?,?,?,?,?,?,?,?,?)",
+            (node_id, "entity", node_id, ns, scope, "active", 0.5, stamp, stamp, 0, "{}"),
+        )
+
+    _node("hub")
+    for leaf in leaf_ids:
+        _node(leaf)
+        connection.execute(
+            "insert into knowledge_edges (id, src_id, dst_id, predicate, edge_kind, ns, scope, "
+            "status, confidence, created_at, updated_at, source_record_id, properties_json) "
+            "values (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                f"e-{leaf}", "hub", leaf, "relates_to", "semantic", ns, scope,
+                "active", 0.5, stamp, stamp, f"clm:{leaf}", "{}",
+            ),
+        )
+    connection.commit()
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_graph_traversal_node_set_is_independent_of_physical_edge_order(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reverse: bool
+) -> None:
+    """Regression: the hop query ordered only by (confidence desc, updated_at desc).
+
+    Rows are consumed in returned order and the loop stops at ``limit``, so an
+    arbitrary order among ties selected *which nodes exist in the answer*, not
+    merely their order. That set feeds the self-improvement graph probe scorer
+    (``self_improve.generate_graph_probes`` -> recall), so proposals could be
+    accepted or rejected on physical insert order. A terminal ``e.id`` tiebreak
+    makes the traversal a function of the data alone.
+    """
+    monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+    leaves = [f"leaf{i:03d}" for i in range(40)]
+    instance = SeamRuntime(tmp_path / f"tiebreak_{int(reverse)}.db")
+    try:
+        with instance.store._pool.checkout() as connection:
+            _seed_tied_confidence_star(
+                connection,
+                list(reversed(leaves)) if reverse else leaves,
+                ns="tie",
+                scope="project",
+            )
+        graph = instance.knowledge_graph(
+            root_id="hub", namespace="tie", scope="project", limit=6, hops=1
+        )
+    finally:
+        instance.close()
+
+    returned = sorted(str(node["id"]) for node in graph["nodes"])
+    # Insertion order is the only difference between the two parametrisations,
+    # so both must admit the same nodes: the lowest edge ids by the tiebreak.
+    assert returned == ["hub", "leaf000", "leaf001", "leaf002", "leaf003", "leaf004"]
+
+
 def test_knowledge_properties_are_valid_json(runtime: SeamRuntime) -> None:
     runtime.persist_ir(runtime.compile_nl("SEAM connects claims to sources."))
     with runtime.store._pool.checkout() as connection:

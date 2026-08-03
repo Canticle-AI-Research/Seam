@@ -192,6 +192,72 @@ class TestChatEndpoint:
         assert received_authorization == ["Bearer local"]
         assert canary_value not in received_authorization[0]
 
+    def test_chat_never_echoes_a_loopback_response_body(self, monkeypatch):
+        """Regression: a loopback base_url is allowed unconditionally so local
+        providers (Ollama) work, which means the target may be ANY service bound
+        to 127.0.0.1. Echoing that service's response body into the 502 detail
+        turned the allowance into a read primitive over every local service."""
+        secret_body = "INTERNAL-ONLY-SECRET admin_token=must-never-be-echoed"
+
+        class _InternalService(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):  # noqa: N802 - stdlib hook name
+                content_length = int(self.headers.get("Content-Length", "0"))
+                self.rfile.read(content_length)
+                body = secret_body.encode("utf-8")
+                self.send_response(403)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        service = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _InternalService)
+        thread = threading.Thread(target=service.serve_forever, daemon=True)
+        thread.start()
+        try:
+            resp = self._client().post("/chat", json={
+                "message": "hi",
+                "model": "local-model",
+                "provider": "local",
+                "base_url": f"http://127.0.0.1:{service.server_address[1]}/v1",
+                "use_memory": False,
+                "persist_chat": False,
+            })
+        finally:
+            service.shutdown()
+            service.server_close()
+            thread.join(timeout=5)
+
+        assert resp.status_code == 502
+        detail = str(resp.json()["detail"])
+        assert "403" in detail, "the status code is still useful to the operator"
+        assert "INTERNAL-ONLY-SECRET" not in detail
+        assert "admin_token" not in detail
+        assert secret_body not in resp.text
+
+    def test_chat_loopback_connection_failure_reveals_no_response_content(self):
+        """The non-HTTPError branch must not echo raw exception text for loopback
+        targets either; the exception type alone keeps 'Ollama is not running'
+        diagnosable without describing what is (or is not) listening."""
+        # Port 9 (discard) is reserved and refuses TCP connections.
+        resp = self._client().post("/chat", json={
+            "message": "hi",
+            "model": "local-model",
+            "provider": "local",
+            "base_url": "http://127.0.0.1:9/v1",
+            "use_memory": False,
+            "persist_chat": False,
+        })
+
+        assert resp.status_code == 502
+        detail = str(resp.json()["detail"])
+        assert detail.startswith("provider call failed: ")
+        # A bare exception class name, not a rendered errno/address string.
+        assert "127.0.0.1" not in detail
+        assert ":9" not in detail
+
     def test_system_prompt_includes_context_and_instruction(self):
         prompt = _seam_chat_system_prompt("[clm:1] Alice prefers dark mode")
         assert "SEAM" in prompt

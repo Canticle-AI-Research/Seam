@@ -89,6 +89,13 @@ claim citing a missing PROV and a PROV naming no entity/activity/agent, and
 
 ## Methodology note
 
-Retrieval **mutates** the SQLite store, so A/B arms must each start from a clone
-of one pristine ingest-only snapshot (`benchmarks.external.locomo.ingest_only`),
-run with `--keep-db`. Cloning after a scored run is a confound.
+Retrieval **mutates** the SQLite store **when retrieval-event writing is
+enabled**, as it is on the benchmark path. Under default flags it does not: a
+`retrieve()` leaves the database and WAL byte-identical (re-verified
+2026-08-02 — ingest, close, hash, reopen, retrieve, close, re-hash). The read
+path is pure by default; the benchmark path is not.
+
+The cloning rule therefore stands unchanged for measurement: A/B arms must each
+start from a clone of one pristine ingest-only snapshot
+(`benchmarks.external.locomo.ingest_only`), run with `--keep-db`. Cloning after
+a scored run is a confound.

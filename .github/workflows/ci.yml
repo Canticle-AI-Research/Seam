@@ -206,13 +206,31 @@ jobs:
 
       - name: Lint (correctness + import order)
         # `[tool.ruff.lint]` in pyproject.toml selects E4/E7/E9/F/I only --
-        # correctness and import ordering, deliberately not style. The repo
-        # configured ruff but no lane ran it, so an I001 sat on main
-        # undetected. This is a required check, so keep the rule set narrow.
-        run: ruff check seam_runtime/ tools/ seam.py
+        # correctness and import ordering, deliberately not style. The rule set
+        # stays narrow because this is a required check; the SCOPE is the whole
+        # repo (`extend-exclude` already drops archive/ and build/). Scoping it
+        # to seam_runtime/tools/seam.py left tests/ -- roughly half the Python
+        # in this repo -- unlinted, and two I001 errors sat there undetected.
+        run: ruff check .
 
       - name: Verify SEAM handoff registry
         run: python -m tools.history.verify_handoffs
+
+      # The remaining continuity gates used to run only in the advisory
+      # `test-and-benchmark` job, so the machinery the whole status surface
+      # rests on was the part that was optional. They are sub-second; a
+      # required check is where they belong.
+      - name: Verify SEAM history integrity
+        run: python -m tools.history.verify_integrity
+
+      - name: Verify SEAM temporal continuity
+        run: python -m tools.history.verify_continuity --no-snapshot
+
+      - name: Verify SEAM classification routing
+        run: python -m tools.history.verify_routing
+
+      - name: Verify SEAM streams
+        run: python -m tools.streams.verify_streams
 
       - name: Verify dependency source contract
         run: python -m tools.ci.verify_dependency_contract

@@ -437,7 +437,8 @@ and `HISTORY_INDEX.md`.
   global user command shims and persistent runtime state; `install_seam_linux.sh --dev`
   creates/reuses the repo-local Python `.venv`, handles the external-drive
   `lib64` venv fallback, installs Python dev dependencies, runs SEAM protocol
-  verification, and deliberately leaves `experimental/webui/` untouched.
+  verification. (It once also skipped `experimental/webui/`; that tree was
+  removed in HISTORY#285 and the exclusion no longer refers to anything.)
 - Cross-file duplication is disallowed; use pointer cards (`see HISTORY#NNN`).
 - Tracked testing documentation belongs under `tests/docs/`. Disposable local
   test outputs belong under ignored `test_seam/<area>/` subdirectories
@@ -525,7 +526,8 @@ and `HISTORY_INDEX.md`.
 
 - Active runtime code lives in `seam_runtime/` and `seam.py`.
 - Active operator/dev tooling lives in `tools/`, `scripts/`, and `installers/`.
-- `experimental/` is active prototype code: less stable than runtime code, but still importable and testable.
+- There is no `experimental/` tree. It was removed in HISTORY#285; nothing in
+  this repo is experimental. See `docs/CODE_LAYOUT.md`.
 - Inactive or retired code lives under `archive/code/` and must not be imported, packaged, or used as current behavior.
 - Generated build copies live in ignored paths (`build/` or `archive/code/generated-build*/`) and should not guide implementation decisions.
 - The current code map is `docs/CODE_LAYOUT.md`.

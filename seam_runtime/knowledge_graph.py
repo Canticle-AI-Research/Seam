@@ -1116,7 +1116,11 @@ def query_graph(
         rows = connection.execute(
             "select e.* from knowledge_edges e "
             f"where {' and '.join(edge_where)} "
-            "order by e.confidence desc, e.updated_at desc limit ?",
+            # The terminal e.id tiebreak is load-bearing: rows are consumed in
+            # returned order and the loop stops at `limit`, so an arbitrary order
+            # among ties changes which nodes are in the answer, not just their
+            # order. confidence defaults to 0, so ties are the common case.
+            "order by e.confidence desc, e.updated_at desc, e.id limit ?",
             [*edge_params, max(limit * 8, 200)],
         ).fetchall()
         next_frontier: set[str] = set()

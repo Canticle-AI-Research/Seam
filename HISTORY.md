@@ -15599,3 +15599,139 @@ The rewritten head belongs on draft PR #193. Fresh exact-head required and
 advisory CI remains the protected publication boundary. After merge, S3 durable
 supersession and guarded reprojection is next; S4 may proceed in parallel.
 ---END-ENTRY-#526---
+
+---BEGIN-ENTRY-#527---
+id: 527
+date: 2026-08-03T02:45:03Z
+agent: claude
+status: done
+topics: audit, security, harden, bugfix, graph, retrieval, ci, docs, git-hooks, verify
+commits: fix/audit-2026-08-02-critical
+refs: seam_runtime/server.py,seam_runtime/knowledge_graph.py,seam_runtime/retrieval.py,.github/workflows/ci.yml,tests/audit/test_chat_endpoint.py,tests/audit/test_server_bind_safety.py,tests/audit/test_knowledge_graph.py,PROJECT_STATUS.md,REPO_LEDGER.md,docs/status/retrieval.md
+supersedes: 526
+tokens: 1957
+---
+Second whole-repository audit against the merged S2 tree, plus repair of the
+one CRITICAL and two HIGH findings it surfaced. The audit ran read-only; this
+entry records the subsequent repair branch `fix/audit-2026-08-02-critical`.
+
+## Audit scope correction
+
+The audit began on `feat/track-s-s2-migration-spine@9aa45e8`. Mid-session a
+concurrent agent checked out `main` and fast-forwarded it to `6b7c22d` (PR #193
+merged 2026-08-02T11:55:12Z). `git diff 9aa45e8 6b7c22d` is empty, so every
+finding applies unchanged to merged `main`. Recorded because
+`PROJECT_STATUS.md` and the current handoff both still described PR #193 as an
+unmerged draft with `main` at `94375e8`.
+
+## Repaired
+
+- CRITICAL `seam_runtime/server.py` `/chat`: the `HTTPError` handler echoed the
+  target's response body (`exc.read()[:400]`) into its 502 detail, and the
+  general handler echoed `str(exc)`. `_validate_provider_base_url` allows any
+  loopback host and port unconditionally so local Ollama works, so the two
+  combined into a read primitive over every service bound to 127.0.0.1, plus a
+  port-scan oracle. Loopback failures now report the HTTP status code or the
+  exception class name only. Non-loopback provider errors are unchanged.
+  `/chat/stream` was already correct (it emits `type(exc).__name__` only).
+- HIGH `seam_runtime/server.py`: FastAPI's generated `/docs`, `/redoc`, and
+  `/openapi.json` are registered without dependencies, so they bypassed both
+  the bearer guard and the rate limiter and disclosed the full path inventory
+  anonymously while `SEAM_API_TOKEN` was set. They are now disabled whenever a
+  token is configured; unauthenticated loopback development keeps them.
+- HIGH `seam_runtime/knowledge_graph.py`: the hop query ordered only by
+  `(confidence desc, updated_at desc)`. Rows are consumed in returned order and
+  the loop stops at `limit`, so ties selected which nodes were in the answer.
+  Demonstrated: with 40 tied-confidence edges, reversing physical insert order
+  returned a disjoint edge set (`e-leaf039..034` vs `e-leaf000..005`); with the
+  terminal `e.id` tiebreak both orders return the same set. The affected set
+  feeds `self_improve.generate_graph_probes` recall, so improvement proposals
+  could be accepted or rejected on physical insert order.
+- MEDIUM `seam_runtime/retrieval.py`: malformed `SEAM_RETRIEVAL_LEG_WEIGHTS`
+  returned `()` with no log, silently disabling an entire ablation while the
+  trace still reported a self-consistent policy. Same for
+  `SEAM_GRAPH_SEMANTIC_SEEDS` and `SEAM_GRAPH_SEMANTIC_MIN_SCORE`. All now log
+  a warning naming the rejected value and the reason.
+- MEDIUM `.github/workflows/ci.yml`: the required `repo-hygiene` gate linted
+  only `seam_runtime/`, `tools/`, and `seam.py`, leaving `tests/` unlinted with
+  two live I001 errors; it now runs `ruff check .`. It also ran only
+  `verify_handoffs`; `verify_integrity`, `verify_continuity`,
+  `verify_routing`, and `verify_streams` ran solely in the advisory
+  `test-and-benchmark` lane and are now required.
+- Local `.git/hooks/pre-commit` was a stale copy (`CANONICAL_SHA fa624e4d…` vs
+  source `e3b918ee…`) missing the `verify_handoffs` gate, left over from
+  copy-mode install on the old exFAT volume. Reinstalled as a symlink; the
+  previous file was backed up, not deleted. No test exercised the installed
+  hook — all of them invoke `tools/git-hooks/pre-commit` — so the drift was
+  undetectable by the suite.
+
+## Correction to HISTORY#525
+
+The prior audit stated that the missing graph tiebreak propagates into
+`candidate_set_sha256` and makes the reproducibility fingerprint
+unreproducible. That is **wrong**. `retrieval_orchestrator/adapters.py` imports
+only `CURRENT_EXCLUDED_STATUSES`, `_edge_time_clauses`,
+`_episode_filter_clauses`, and `_node_time_clauses` from `knowledge_graph`,
+never `query_graph`, and its own traversal at `adapters.py:776` is already
+`order by e.id limit ?`. The fingerprint path was never affected. The real
+reproducibility breach is the unsnapshotted multi-leg read described below.
+
+## Verified
+
+- Full provider-free suite: **2,180 passed, 2 xfailed, 23 external deselected,
+  zero skips, zero failures** (259s). Baseline before the repair was 2,170
+  passed; the 10 new tests are the regressions below.
+- New regression coverage: `/chat` loopback body echo and connection-failure
+  content (2), generated docs routes present/absent by token (6), graph
+  traversal node set independent of physical edge order (2).
+- `ruff check .` clean repo-wide. `compileall seam_runtime/` clean.
+- `test_sqlite_migration_spine.py` 43/43. All five continuity verifiers and
+  every AGENTS.md-documented offline command exit 0; the stream generators are
+  idempotent (clean tree after running them).
+- Independent re-verification of HISTORY#526: eight concurrent `ingest_text`
+  calls produce one canonical ENT, identical to the sequential control.
+- Independent falsification of the `docs/status/retrieval.md` mutation claim:
+  under default flags `retrieve()` leaves the database and WAL byte-identical.
+  The doc now scopes the claim to retrieval-event writing and keeps the
+  benchmark cloning rule.
+
+## Open, deliberately not attempted here
+
+- `/v1` has no tenancy binding: `public_api.remember/recall/context` take no
+  caller identity, so one bearer token reads and writes every namespace. S6
+  must state whether tenancy terminates in a proxy or in-process; that decision
+  is recorded nowhere. `/v1` also has zero HTTP-level tests.
+- Retrieval legs share no read snapshot. Eleven `store._connect()` sites in
+  `adapters.py` bypass the pool and `_connect` leaves `isolation_level` at the
+  sqlite3 default, so each leg is its own read transaction and one is opened
+  inside the hop loop. A concurrent ingest can produce a path through a node
+  the visibility check then drops, so `candidate_set_sha256` can attest a
+  candidate set that existed in no committed database state. Pooling alone does
+  not close this; S5's gate needs a snapshot-consistency clause.
+- Unbounded SQL variable expansion in `knowledge_graph.py` (`:1106`, `:1143`,
+  `:1161`, `_graph_episode_rows` `:2074-2090`) where the orchestrator chunks at
+  400. Breaks on the 999-variable SQLite default.
+- No ledger of shipped projection versions; `PROJECTION_MIGRATIONS` is empty
+  and nothing forces a version bump to ship with a registered migration.
+- S3's exit gate is 4/4 refusal-shaped with no clause requiring a rebuild to
+  succeed — the asymmetry that produced the missing forward-migration path in
+  S2. PR #194 is open against it. Classified across the campaign: S5 2/6
+  positive, S6 1/4, S7 3/5, S8 4/6; the prior audit's blanket "S3-S10 are all
+  refusal" was too broad.
+- S9's gate cites `0.7664201903042236`; that precision appears zero times in
+  `HISTORY.md` (tracked evidence is `0.766420`) and exists only in an untracked
+  local directory.
+- `seam_runtime/evals.py` calls `raw_search`/`search_batch` directly, bypassing
+  the orchestrator. It backs the `retrieval` family in the CI-gated
+  `seam benchmark run all` bundle and three projection tools. LoCoMo and the
+  competitive numbers are unaffected — they route through `search_ir` into the
+  orchestrator.
+- Never audited across two consecutive audits: `dashboard.py` (3,160 lines,
+  zero dedicated tests), benchmark seal/BIL integrity, MIRL losslessness
+  round-tripping.
+- Worktree hygiene: 6 worktrees, 2 dirty; 3 branches merged into `origin/main`
+  and not deleted.
+
+No paid provider call, retrieval-score benchmark, artifact build, publish,
+deploy, merge, or release ran.
+---END-ENTRY-#527---

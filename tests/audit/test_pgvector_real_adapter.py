@@ -169,8 +169,8 @@ def test_hnsw_index_coexists_across_dimensions_sharing_one_table():
     used across runs with different embedding configs (e.g. a hash-embedding
     dev fallback vs. a real sentence-transformer model).
     """
-    from seam_runtime.vector_adapters import PgVectorAdapter
     from seam_runtime.models import HashEmbeddingModel
+    from seam_runtime.vector_adapters import PgVectorAdapter
 
     dsn = os.environ["SEAM_PGVECTOR_DSN"]
     table = f"seam_vector_index_test_{uuid.uuid4().hex[:12]}"
@@ -200,8 +200,8 @@ def test_search_respects_ef_search_override():
     runs, with the configured value (session GUCs can't be verified via a
     separate connection since they don't outlive the connection that set
     them, so this spies on the same connection search() uses)."""
-    from seam_runtime.vector_adapters import PgVectorAdapter
     from seam_runtime.models import HashEmbeddingModel
+    from seam_runtime.vector_adapters import PgVectorAdapter
 
     dsn = os.environ["SEAM_PGVECTOR_DSN"]
     table = f"seam_vector_index_test_{uuid.uuid4().hex[:12]}"
