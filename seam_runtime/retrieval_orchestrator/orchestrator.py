@@ -444,17 +444,29 @@ class RetrievalOrchestrator:
         scope: str | None = None,
         namespace: str | None = None,
     ) -> dict[str, object]:
-        batch = self.runtime.store.load_ir(ids=record_ids, ns=namespace, scope=scope)
-        self.runtime.vector_adapter.index_records(batch.records)
-        chroma_indexed = 0
-        if isinstance(self.semantic_adapter, ChromaSemanticAdapter):
-            chroma_indexed = self.semantic_adapter.sync_batch(batch)
-        return {
-            "record_ids": [record.id for record in batch.records],
-            "sqlite_indexed": [record.id for record in batch.records if record.kind.value in {"CLM", "STA", "EVT", "REL"}],
-            "chroma_indexed": chroma_indexed,
-            "backend": self.semantic_backend,
-        }
+        # Keep the canonical read and every configured persistent projection in
+        # the same same-process critical section as Runtime persistence. A sync
+        # must never publish rows from a transient write that is later restored.
+        with self.runtime._persist_projection_lock:
+            batch = self.runtime.store.load_ir(
+                ids=record_ids,
+                ns=namespace,
+                scope=scope,
+            )
+            self.runtime.vector_adapter.index_records(batch.records)
+            chroma_indexed = 0
+            if isinstance(self.semantic_adapter, ChromaSemanticAdapter):
+                chroma_indexed = self.semantic_adapter.sync_batch(batch)
+            return {
+                "record_ids": [record.id for record in batch.records],
+                "sqlite_indexed": [
+                    record.id
+                    for record in batch.records
+                    if record.kind.value in {"CLM", "STA", "EVT", "REL"}
+                ],
+                "chroma_indexed": chroma_indexed,
+                "backend": self.semantic_backend,
+            }
 
     def rag(
         self,

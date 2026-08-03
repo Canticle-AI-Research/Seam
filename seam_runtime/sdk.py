@@ -370,13 +370,39 @@ class ReasoningSession:
             raise TypeError("graph_include_history must be a boolean")
         if semantic_backend not in {"seam", "chroma"}:
             raise ValueError("semantic_backend must be 'seam' or 'chroma'")
+        with self._runtime._persist_projection_lock:
+            return self._retrieve_and_record_locked(
+                query=resolved_query,
+                budget=budget,
+                mode=mode,
+                graph_hops=graph_hops,
+                semantic_graph_seeding=semantic_graph_seeding,
+                graph_at=graph_at,
+                graph_include_history=graph_include_history,
+                semantic_backend=semantic_backend,
+            )
+
+    def _retrieve_and_record_locked(
+        self,
+        *,
+        query: str,
+        budget: int,
+        mode: str,
+        graph_hops: int,
+        semantic_graph_seeding: bool,
+        graph_at: str | None,
+        graph_include_history: bool,
+        semantic_backend: str,
+    ) -> ReasonedRetrieval:
+        """Read one canonical snapshot and durably audit it under one lock."""
+
         from .retrieval_orchestrator import RetrievalOrchestrator
 
         orchestrator = RetrievalOrchestrator(
             self._runtime, semantic_backend=semantic_backend
         )
         result = orchestrator.decide(
-            query=resolved_query,
+            query=query,
             scope=self.scope,
             namespace=self.ns,
             budget=budget,
@@ -402,7 +428,7 @@ class ReasoningSession:
         )
         reasoning = self._runtime.store.record_reasoning_retrieval(
             run_id=self.run_id,
-            query=resolved_query,
+            query=query,
             normalized_query=result.plan.normalized_query,
             filter_ids=result.plan.filters.ids,
             filter_kinds=result.plan.filters.kinds,

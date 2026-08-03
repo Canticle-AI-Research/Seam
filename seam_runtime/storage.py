@@ -29,6 +29,9 @@ from .identity_resolution import (
     accept_merge as accept_identity_merge_op,
 )
 from .identity_resolution import (
+    apply_identity_merges,
+)
+from .identity_resolution import (
     generate_merge_candidates as generate_identity_merge_candidates_op,
 )
 from .identity_resolution import (
@@ -45,6 +48,7 @@ from .knowledge_graph import (
     PROJECTION_VERSION,
     graph_stats,
     init_knowledge_graph,
+    remove_orphan_node_vectors,
 )
 from .knowledge_graph import (
     node_detail as knowledge_node_detail,
@@ -94,9 +98,12 @@ from .lifecycle import (
 from .migrations import (
     CURRENT_SCHEMA_VERSION,
     FailureInjector,
+    MigrationError,
     execute_script,
+    initialize_ir_edge_sources_schema,
     migrate_database,
     migrate_memory_database,
+    validate_canonical_reference_payloads,
 )
 from .mirl import (
     SCHEMA_VERSION,
@@ -169,9 +176,13 @@ from .reasoning_promotion import (
     review_reasoning_promotion as review_reasoning_promotion_row,
 )
 from .reference_contracts import (
+    CanonicalReferenceIntegrityError,
     reference_candidate_ids,
+    remap_record_references,
     stored_reference_kinds,
     typed_ir_edges,
+    validate_record_reference_contract,
+    validate_typed_ir_edges,
 )
 from .retry import retry_db_operation
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
@@ -206,6 +217,21 @@ STORE_PROJECTION_VERSIONS = {
     "sqlite_vector": VECTOR_TEXT_VERSION,
     "workspace": f"workspace-schema/{WORKSPACE_SCHEMA_VERSION}",
 }
+
+_REFERENCE_REPROJECTION_BATCH_SIZE = 500
+_REFERENCE_REPROJECTION_QUEUE = "seam_pending_reference_reprojection"
+_VECTOR_INDEX_COLUMNS = (
+    "record_id",
+    "model_name",
+    "dimension",
+    "source_text",
+    "source_hash",
+    "render_version",
+    "namespace",
+    "scope",
+    "vector_json",
+    "updated_at",
+)
 
 
 def _prepare_private_database(path: Path) -> None:
@@ -582,6 +608,7 @@ class SQLiteStore:
                 create index if not exists idx_proposal_decision_ts on proposal_decision (ts);
                 """
         )
+        initialize_ir_edge_sources_schema(connection)
         connection.execute("pragma foreign_keys = on")
         vector_columns = {
             str(row["name"])
@@ -656,7 +683,7 @@ class SQLiteStore:
         )
 
     def _cleanup_orphan_edges(self, connection: sqlite3.Connection) -> None:
-        """Remove missing canonical endpoints using persisted endpoint types."""
+        """Remove invalid endpoints and edge triples without canonical owners."""
 
         connection.execute(
             "delete from ir_edges where "
@@ -666,6 +693,17 @@ class SQLiteStore:
             "(dst_ref_type != 'virtual' and not exists "
             " (select 1 from ir_records where id = ir_edges.dst_id and "
             "  (ir_edges.dst_ref_type = 'record' or kind = ir_edges.dst_ref_type)))"
+        )
+        connection.execute(
+            "delete from ir_edge_sources where source_record_id not in "
+            "(select id from ir_records)"
+        )
+        connection.execute(
+            "delete from ir_edges where not exists ("
+            "select 1 from ir_edge_sources sources "
+            "where sources.src_id = ir_edges.src_id "
+            "and sources.edge_type = ir_edges.edge_type "
+            "and sources.dst_id = ir_edges.dst_id)"
         )
 
     def get_stats(self) -> dict[str, object]:
@@ -876,36 +914,70 @@ class SQLiteStore:
                     canonical_by_norm.setdefault(norm, record.id)
         return id_map, skip_ids
 
-    @staticmethod
-    def _remap_entity_refs(record: MIRLRecord, id_map: dict[str, str]) -> None:
-        if not id_map:
-            return
-        if record.kind == RecordKind.CLM:
-            subject = record.attrs.get("subject")
-            if subject in id_map:
-                record.attrs["subject"] = id_map[subject]
-        elif record.kind == RecordKind.REL:
-            src = record.attrs.get("src")
-            if src in id_map:
-                record.attrs["src"] = id_map[src]
-            dst = record.attrs.get("dst")
-            if dst in id_map:
-                record.attrs["dst"] = id_map[dst]
-
     def _persist_ir_on_connection(
-        self, connection: sqlite3.Connection, batch: IRBatch
+        self,
+        connection: sqlite3.Connection,
+        batch: IRBatch,
+        *,
+        reconcile_entities: bool = True,
+        preserve_node_vectors: bool = False,
     ) -> list[str]:
         """Persist canonical MIRL and its graph projection in one transaction."""
+
+        record_ids = [record.id for record in batch.records]
+        if any(
+            not isinstance(record_id, str) or not record_id.strip()
+            for record_id in record_ids
+        ):
+            raise ValueError("canonical record id must be a nonblank string")
+        if len(record_ids) != len(set(record_ids)):
+            raise ValueError("IR batch contains duplicate record identifiers")
+        virtual_references_by_id = {
+            record.id: validate_record_reference_contract(record)
+            for record in batch.records
+        }
 
         # Entity reconciliation is read-before-write. Acquire the SQLite write
         # lock before that read so pooled writers cannot choose distinct
         # canonical ids from the same stale snapshot.
         if not connection.in_transaction:
             connection.execute("begin immediate")
-        id_map, skip_ids = self._reconcile_entities(connection, batch)
+        incoming_kinds = {record.id: record.kind for record in batch.records}
+        stored_incoming_kinds = stored_reference_kinds(connection, incoming_kinds)
+        if any(
+            stored_kind is not incoming_kinds[record_id]
+            for record_id, stored_kind in stored_incoming_kinds.items()
+        ):
+            # This check deliberately precedes entity reconciliation. A same-id
+            # ENT that would otherwise be skipped as a duplicate label must not
+            # hide an attempted kind change of the canonical row already stored
+            # under that identifier.
+            raise CanonicalReferenceIntegrityError(
+                "canonical record kind cannot change during persistence"
+            )
+        previous_provenance_targets = self._stored_provenance_targets(
+            connection,
+            (
+                record.id
+                for record in batch.records
+                if record.kind is RecordKind.PROV
+            ),
+        )
+        id_map, skip_ids = (
+            self._reconcile_entities(connection, batch)
+            if reconcile_entities
+            else ({}, set())
+        )
         projected = [record for record in batch.records if record.id not in skip_ids]
         for record in projected:
-            self._remap_entity_refs(record, id_map)
+            remap_record_references(record, id_map)
+        projected_virtual_references = {
+            record.id: frozenset(
+                id_map.get(reference_id, reference_id)
+                for reference_id in virtual_references_by_id[record.id]
+            )
+            for record in projected
+        }
         batch_kinds = {record.id: record.kind for record in projected}
         candidate_ids = {
             candidate_id
@@ -915,20 +987,21 @@ class SQLiteStore:
         }
         known_record_kinds = stored_reference_kinds(connection, candidate_ids)
         known_record_kinds.update(batch_kinds)
+        for record in projected:
+            validate_typed_ir_edges(
+                typed_ir_edges(
+                    record,
+                    known_record_kinds=known_record_kinds,
+                    validated_virtual_references=(
+                        projected_virtual_references[record.id]
+                    ),
+                ),
+                known_record_kinds=known_record_kinds,
+            )
         stored_ids: list[str] = []
-        edge_records: list[tuple[MIRLRecord, str | None]] = []
+        edge_records: list[MIRLRecord] = []
         for record in projected:
             stored_ids.append(record.id)
-            # Capture old CLM subject before overwriting.
-            old_clm_subject: str | None = None
-            if record.kind == RecordKind.CLM:
-                old_row = connection.execute(
-                    "select payload_json from ir_records where id = ?",
-                    (record.id,),
-                ).fetchone()
-                if old_row is not None:
-                    old_attrs = json.loads(old_row[0]).get("attrs", {})
-                    old_clm_subject = old_attrs.get("subject")
             payload = json.dumps(
                 record.to_dict(), sort_keys=True, separators=(",", ":")
             )
@@ -953,37 +1026,118 @@ class SQLiteStore:
                 ),
             )
             self._persist_specialized(connection, record)
-            edge_records.append((record, old_clm_subject))
+            edge_records.append(record)
 
-        # Clear the complete batch first, then emit its edges.  Interleaving
-        # clear/write made results depend on record order when a canonical ENT
-        # appeared after a CLM/REL that referenced it.
-        for record, old_clm_subject in edge_records:
-            self._persist_edges(
+        late_provenance_targets: set[str] = set()
+        new_target_ids = set(batch_kinds) - set(stored_incoming_kinds)
+        reprojection_target_ids = new_target_ids | {
+            record.id
+            for record in projected
+            if record.kind is RecordKind.PROV
+        }
+        if reprojection_target_ids:
+            self._reset_reference_reprojection_queue(connection)
+            try:
+                self._queue_reference_dependents(
+                    connection,
+                    target_record_ids=reprojection_target_ids,
+                    excluded_source_ids=set(batch_kinds),
+                )
+                # A mixed batch may contain one owner of a shared virtual edge
+                # while another owner remains outside the batch. Clear every
+                # queued contributor before the incoming batch emits canonical
+                # endpoint types so neither batch order nor batch size matters.
+                self._clear_queued_reference_edge_sources(connection)
+                self._project_persisted_record_batch(
+                    connection,
+                    edge_records,
+                    known_record_kinds=known_record_kinds,
+                    virtual_references_by_id=projected_virtual_references,
+                    preserve_node_vectors=preserve_node_vectors,
+                    cleanup_orphan_edges=False,
+                )
+                late_provenance_targets = (
+                    self._reproject_queued_reference_dependents(
+                        connection,
+                        preserve_node_vectors=preserve_node_vectors,
+                    )
+                )
+            finally:
+                self._drop_reference_reprojection_queue(connection)
+        else:
+            self._project_persisted_record_batch(
                 connection,
-                record,
+                edge_records,
                 known_record_kinds=known_record_kinds,
-                old_clm_subject=old_clm_subject,
-                emit=False,
+                virtual_references_by_id=projected_virtual_references,
+                preserve_node_vectors=preserve_node_vectors,
             )
-        for record, old_clm_subject in edge_records:
-            self._persist_edges(
-                connection,
-                record,
-                known_record_kinds=known_record_kinds,
-                old_clm_subject=old_clm_subject,
-                clear=False,
-            )
-        # The knowledge graph is a deterministic projection of the same
-        # canonical MIRL write. It is built automatically for every ingest
-        # surface and committed atomically with the records it represents.
-        project_knowledge_records(connection, projected)
+        provenance_targets = previous_provenance_targets | {
+            str(record.attrs["entity"])
+            for record in projected
+            if record.kind is RecordKind.PROV
+            and isinstance(record.attrs.get("entity"), str)
+            and str(record.attrs["entity"]).strip()
+        } | late_provenance_targets
+        self._reproject_canonical_records(
+            connection,
+            provenance_targets,
+            required_kind=RecordKind.RAW,
+            preserve_node_vectors=preserve_node_vectors,
+        )
         return stored_ids
 
+    def _project_persisted_record_batch(
+        self,
+        connection: sqlite3.Connection,
+        records: Sequence[MIRLRecord],
+        *,
+        known_record_kinds: dict[str, RecordKind],
+        virtual_references_by_id: dict[str, frozenset[str]],
+        preserve_node_vectors: bool,
+        cleanup_orphan_edges: bool = True,
+    ) -> None:
+        """Project one already-written canonical batch without order effects."""
+
+        for record in records:
+            self._persist_edges(
+                connection,
+                record,
+                known_record_kinds=known_record_kinds,
+                validated_virtual_references=virtual_references_by_id[record.id],
+                emit=False,
+            )
+        for record in records:
+            self._persist_edges(
+                connection,
+                record,
+                known_record_kinds=known_record_kinds,
+                validated_virtual_references=virtual_references_by_id[record.id],
+                clear=False,
+            )
+        if cleanup_orphan_edges:
+            self._delete_unowned_ir_edges(connection)
+        project_knowledge_records(
+            connection,
+            records,
+            _validated_virtual_references=virtual_references_by_id,
+        )
+        if not preserve_node_vectors:
+            remove_orphan_node_vectors(connection)
+
     @retry_db_operation()
-    def persist_ir(self, batch: IRBatch) -> PersistReport:
+    def persist_ir(
+        self,
+        batch: IRBatch,
+        *,
+        _preserve_node_vectors: bool = False,
+    ) -> PersistReport:
         with self._pool.checkout() as connection:
-            stored_ids = self._persist_ir_on_connection(connection, batch)
+            stored_ids = self._persist_ir_on_connection(
+                connection,
+                batch,
+                preserve_node_vectors=_preserve_node_vectors,
+            )
             connection.commit()
         return PersistReport(stored_ids=stored_ids, store_path=self.path)
 
@@ -1089,10 +1243,323 @@ class SQLiteStore:
                 (record.id, attrs.get("mode"), attrs.get("lens", "general"), json.dumps(attrs.get("refs", [])), json.dumps(attrs.get("payload", {}), sort_keys=True, separators=(",", ":")), record.created_at),
             )
         elif record.kind == RecordKind.PROV:
+            agent = None
+            for value in (
+                record.ext.get("agent_id"),
+                record.ext.get("agent"),
+                attrs.get("agent"),
+            ):
+                if isinstance(value, str) and value.strip():
+                    agent = value.strip()
+                    break
             connection.execute(
                 "insert or replace into prov_log (id, entity, activity, agent, payload_json) values (?, ?, ?, ?, ?)",
-                (record.id, attrs.get("entity"), attrs.get("activity"), attrs.get("agent"), json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":"))),
+                (record.id, attrs.get("entity"), attrs.get("activity"), agent, json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":"))),
             )
+
+    @staticmethod
+    def _stored_provenance_targets(
+        connection: sqlite3.Connection,
+        record_ids: Iterable[str],
+    ) -> set[str]:
+        """Return canonical entities attributed by the selected PROV rows."""
+
+        ordered_ids = sorted({str(record_id) for record_id in record_ids})
+        targets: set[str] = set()
+        for offset in range(
+            0,
+            len(ordered_ids),
+            _REFERENCE_REPROJECTION_BATCH_SIZE,
+        ):
+            chunk = ordered_ids[
+                offset : offset + _REFERENCE_REPROJECTION_BATCH_SIZE
+            ]
+            placeholders = ",".join("?" for _ in chunk)
+            rows = connection.execute(
+                "select payload_json from ir_records where kind = ? and id in "
+                f"({placeholders}) order by id",
+                [RecordKind.PROV.value, *chunk],
+            ).fetchall()
+            for row in rows:
+                try:
+                    record = MIRLRecord.from_dict(json.loads(row[0]))
+                except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                    raise CanonicalReferenceIntegrityError(
+                        "canonical provenance payload cannot be reprojected"
+                    ) from exc
+                entity = record.attrs.get("entity")
+                if isinstance(entity, str) and entity.strip():
+                    targets.add(entity)
+        return targets
+
+    def _reproject_records(
+        self,
+        connection: sqlite3.Connection,
+        records: Sequence[MIRLRecord],
+        *,
+        preserve_node_vectors: bool = False,
+        clear_edge_sources: bool = True,
+        cleanup_orphan_edges: bool = True,
+    ) -> None:
+        """Rebuild core edges and KG rows for one bounded canonical slice."""
+
+        if not records:
+            return
+        virtual_references_by_id = {
+            record.id: validate_record_reference_contract(record)
+            for record in records
+        }
+        candidate_ids = {
+            candidate_id
+            for record in records
+            for candidate_id in reference_candidate_ids(record)
+        }
+        known_record_kinds = stored_reference_kinds(connection, candidate_ids)
+        known_record_kinds.update({record.id: record.kind for record in records})
+        for record in records:
+            validate_typed_ir_edges(
+                typed_ir_edges(
+                    record,
+                    known_record_kinds=known_record_kinds,
+                    validated_virtual_references=(
+                        virtual_references_by_id[record.id]
+                    ),
+                ),
+                known_record_kinds=known_record_kinds,
+            )
+        if clear_edge_sources:
+            for record in records:
+                self._persist_edges(
+                    connection,
+                    record,
+                    known_record_kinds=known_record_kinds,
+                    validated_virtual_references=(
+                        virtual_references_by_id[record.id]
+                    ),
+                    emit=False,
+                )
+        for record in records:
+            self._persist_edges(
+                connection,
+                record,
+                known_record_kinds=known_record_kinds,
+                validated_virtual_references=(
+                    virtual_references_by_id[record.id]
+                ),
+                clear=False,
+            )
+        if cleanup_orphan_edges:
+            self._delete_unowned_ir_edges(connection)
+        if not preserve_node_vectors:
+            placeholders = ",".join("?" for _ in records)
+            connection.execute(
+                "delete from knowledge_node_vectors where node_id in "
+                f"({placeholders})",
+                [record.id for record in records],
+            )
+        project_knowledge_records(
+            connection,
+            records,
+            _validated_virtual_references=virtual_references_by_id,
+        )
+        if not preserve_node_vectors:
+            remove_orphan_node_vectors(connection)
+
+    def _reproject_canonical_records(
+        self,
+        connection: sqlite3.Connection,
+        record_ids: Iterable[str],
+        *,
+        required_kind: RecordKind | None = None,
+        preserve_node_vectors: bool = False,
+    ) -> None:
+        """Load and reproject selected canonical rows in bounded slices."""
+
+        ordered_ids = sorted({str(record_id) for record_id in record_ids})
+        for offset in range(
+            0,
+            len(ordered_ids),
+            _REFERENCE_REPROJECTION_BATCH_SIZE,
+        ):
+            chunk = ordered_ids[
+                offset : offset + _REFERENCE_REPROJECTION_BATCH_SIZE
+            ]
+            placeholders = ",".join("?" for _ in chunk)
+            kind_clause = " and kind = ?" if required_kind is not None else ""
+            parameters: list[object] = [*chunk]
+            if required_kind is not None:
+                parameters.append(required_kind.value)
+            rows = connection.execute(
+                "select payload_json from ir_records where id in "
+                f"({placeholders}){kind_clause} order by id",
+                parameters,
+            ).fetchall()
+            records: list[MIRLRecord] = []
+            for row in rows:
+                try:
+                    records.append(MIRLRecord.from_dict(json.loads(row[0])))
+                except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                    raise CanonicalReferenceIntegrityError(
+                        "canonical payload cannot be reprojected"
+                    ) from exc
+            self._reproject_records(
+                connection,
+                records,
+                preserve_node_vectors=preserve_node_vectors,
+            )
+
+    @staticmethod
+    def _reset_reference_reprojection_queue(
+        connection: sqlite3.Connection,
+    ) -> None:
+        connection.execute(
+            f'drop table if exists temp."{_REFERENCE_REPROJECTION_QUEUE}"'
+        )
+        connection.execute(
+            f'create temp table "{_REFERENCE_REPROJECTION_QUEUE}" '
+            "(record_id text primary key) without rowid"
+        )
+
+    @staticmethod
+    def _queue_reference_reprojection_ids(
+        connection: sqlite3.Connection,
+        record_ids: Iterable[str],
+    ) -> None:
+        rows = [(str(record_id),) for record_id in record_ids]
+        if rows:
+            connection.executemany(
+                f'insert or ignore into "{_REFERENCE_REPROJECTION_QUEUE}" '
+                "(record_id) values (?)",
+                rows,
+            )
+
+    def _queue_reference_dependents(
+        self,
+        connection: sqlite3.Connection,
+        target_record_ids: set[str],
+        *,
+        excluded_source_ids: set[str] | None = None,
+    ) -> None:
+        """Queue canonical rows whose closed references mention target IDs."""
+
+        excluded_sources = excluded_source_ids or set()
+        target_tokens = tuple(
+            json.dumps(record_id, ensure_ascii=True)
+            for record_id in sorted(target_record_ids)
+        )
+        cursor = connection.execute(
+            "select id, payload_json from ir_records order by id"
+        )
+        while True:
+            rows = cursor.fetchmany(_REFERENCE_REPROJECTION_BATCH_SIZE)
+            if not rows:
+                break
+            affected_ids: list[str] = []
+            for row in rows:
+                record_id = str(row[0])
+                if record_id in excluded_sources:
+                    continue
+                payload_json = str(row[1])
+                # Decode only rows that can contain one of the exact JSON
+                # string tokens. This keeps a late-target projection bounded
+                # to candidate payloads and preserves the existing guarantee
+                # that unrelated malformed legacy rows do not break a write.
+                if not any(token in payload_json for token in target_tokens):
+                    continue
+                try:
+                    record = MIRLRecord.from_dict(json.loads(payload_json))
+                except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                    raise CanonicalReferenceIntegrityError(
+                        "canonical payload cannot be reprojected"
+                    ) from exc
+                if reference_candidate_ids(record) & target_record_ids:
+                    affected_ids.append(record_id)
+            self._queue_reference_reprojection_ids(
+                connection,
+                affected_ids,
+            )
+
+    def _reproject_queued_reference_dependents(
+        self,
+        connection: sqlite3.Connection,
+        *,
+        preserve_node_vectors: bool = False,
+    ) -> set[str]:
+        provenance_targets: set[str] = set()
+        # Reference endpoint typing is shared by every owner of a semantic
+        # triple. Clear the complete queue before emitting any bounded slice;
+        # otherwise a >batch-size virtual -> canonical promotion can encounter
+        # stale owners in a later slice and fail halfway through reprojection.
+        self._clear_queued_reference_edge_sources(connection)
+
+        last_id = ""
+        while True:
+            rows = connection.execute(
+                "select records.id, records.payload_json from ir_records records "
+                f'join "{_REFERENCE_REPROJECTION_QUEUE}" queued '
+                "on queued.record_id = records.id where records.id > ? "
+                "order by records.id limit ?",
+                (last_id, _REFERENCE_REPROJECTION_BATCH_SIZE),
+            ).fetchall()
+            if not rows:
+                break
+            records: list[MIRLRecord] = []
+            for row in rows:
+                try:
+                    records.append(MIRLRecord.from_dict(json.loads(row[1])))
+                except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                    raise CanonicalReferenceIntegrityError(
+                        "canonical payload cannot be reprojected"
+                    ) from exc
+            provenance_targets.update(
+                str(record.attrs["entity"])
+                for record in records
+                if record.kind is RecordKind.PROV
+                and isinstance(record.attrs.get("entity"), str)
+                and str(record.attrs["entity"]).strip()
+            )
+            self._reproject_records(
+                connection,
+                records,
+                preserve_node_vectors=preserve_node_vectors,
+                clear_edge_sources=False,
+                cleanup_orphan_edges=False,
+            )
+            last_id = str(rows[-1][0])
+        self._delete_unowned_ir_edges(connection)
+        return provenance_targets
+
+    @staticmethod
+    def _clear_queued_reference_edge_sources(
+        connection: sqlite3.Connection,
+    ) -> None:
+        """Clear a temp-queued contributor set in bounded identifier slices."""
+
+        last_id = ""
+        while True:
+            rows = connection.execute(
+                f'select record_id from "{_REFERENCE_REPROJECTION_QUEUE}" '
+                "where record_id > ? order by record_id limit ?",
+                (last_id, _REFERENCE_REPROJECTION_BATCH_SIZE),
+            ).fetchall()
+            if not rows:
+                break
+            record_ids = [str(row[0]) for row in rows]
+            placeholders = ",".join("?" for _ in record_ids)
+            connection.execute(
+                "delete from ir_edge_sources where source_record_id in "
+                f"({placeholders})",
+                record_ids,
+            )
+            last_id = record_ids[-1]
+
+    @staticmethod
+    def _drop_reference_reprojection_queue(
+        connection: sqlite3.Connection,
+    ) -> None:
+        connection.execute(
+            f'drop table if exists temp."{_REFERENCE_REPROJECTION_QUEUE}"'
+        )
 
     def _persist_edges(
         self,
@@ -1100,40 +1567,81 @@ class SQLiteStore:
         record: MIRLRecord,
         *,
         known_record_kinds: dict[str, RecordKind],
-        old_clm_subject: str | None = None,
+        validated_virtual_references: frozenset[str],
         clear: bool = True,
         emit: bool = True,
     ) -> None:
-        # Remove existing edges for this record so that re-persists with
-        # changed edge sets do not leave stale edges behind (H2 integrity fix).
+        # Ownership is independent of the projected source endpoint. Clearing
+        # one canonical record must not erase a triple another record supports.
         if clear:
-            connection.execute("delete from ir_edges where src_id = ?", (record.id,))
-        # Also remove edges keyed by the CLM subject when it differs from record.id.
-        if clear and record.kind == RecordKind.CLM:
-            subject = record.attrs.get("subject")
-            if subject is not None:
-                connection.execute("delete from ir_edges where src_id = ?", (str(subject),))
-            # Clean up edges from the old subject if it changed.
-            if old_clm_subject is not None and old_clm_subject != subject:
-                connection.execute("delete from ir_edges where src_id = ?", (str(old_clm_subject),))
+            connection.execute(
+                "delete from ir_edge_sources where source_record_id = ?",
+                (record.id,),
+            )
         if not emit:
             return
-        for edge in typed_ir_edges(record, known_record_kinds=known_record_kinds):
-            connection.execute(
-                "insert into ir_edges "
-                "(src_id, src_ref_type, edge_type, dst_id, dst_ref_type) "
-                "values (?, ?, ?, ?, ?) "
-                "on conflict (src_id, edge_type, dst_id) do update set "
-                "src_ref_type = excluded.src_ref_type, "
-                "dst_ref_type = excluded.dst_ref_type",
-                (
-                    edge.src.id,
-                    edge.src.endpoint_type.value,
-                    edge.edge_type,
-                    edge.dst.id,
-                    edge.dst.endpoint_type.value,
-                ),
+        for edge in typed_ir_edges(
+            record,
+            known_record_kinds=known_record_kinds,
+            validated_virtual_references=validated_virtual_references,
+        ):
+            edge_key = (edge.src.id, edge.edge_type, edge.dst.id)
+            expected_types = (
+                edge.src.endpoint_type.value,
+                edge.dst.endpoint_type.value,
             )
+            stored_types = connection.execute(
+                "select src_ref_type, dst_ref_type from ir_edges "
+                "where src_id = ? and edge_type = ? and dst_id = ?",
+                edge_key,
+            ).fetchone()
+            if stored_types is None:
+                connection.execute(
+                    "insert into ir_edges "
+                    "(src_id, src_ref_type, edge_type, dst_id, dst_ref_type) "
+                    "values (?, ?, ?, ?, ?)",
+                    (
+                        edge.src.id,
+                        *expected_types[:1],
+                        edge.edge_type,
+                        edge.dst.id,
+                        *expected_types[1:],
+                    ),
+                )
+            elif tuple(stored_types) != expected_types:
+                contributor = connection.execute(
+                    "select 1 from ir_edge_sources where src_id = ? "
+                    "and edge_type = ? and dst_id = ? limit 1",
+                    edge_key,
+                ).fetchone()
+                if contributor is not None:
+                    raise RuntimeError(
+                        "IR edge contributors disagree on endpoint types"
+                    )
+                # Reuse the semantic edge row when its complete owner set is
+                # being reprojected. This preserves stable edge identity across
+                # virtual/canonical transitions and compensating rollbacks.
+                connection.execute(
+                    "update ir_edges set src_ref_type = ?, dst_ref_type = ? "
+                    "where src_id = ? and edge_type = ? and dst_id = ?",
+                    (*expected_types, *edge_key),
+                )
+            connection.execute(
+                "insert or ignore into ir_edge_sources "
+                "(source_record_id, src_id, edge_type, dst_id) "
+                "values (?, ?, ?, ?)",
+                (record.id, edge.src.id, edge.edge_type, edge.dst.id),
+            )
+
+    @staticmethod
+    def _delete_unowned_ir_edges(connection: sqlite3.Connection) -> None:
+        connection.execute(
+            "delete from ir_edges where not exists ("
+            "select 1 from ir_edge_sources sources "
+            "where sources.src_id = ir_edges.src_id "
+            "and sources.edge_type = ir_edges.edge_type "
+            "and sources.dst_id = ir_edges.dst_id)"
+        )
 
     def load_ir(
         self,
@@ -1178,24 +1686,277 @@ class SQLiteStore:
             records = [by_id[record_id] for record_id in ids if record_id in by_id]
         return IRBatch(records)
 
+    @staticmethod
+    def _vector_rows_on_connection(
+        connection: sqlite3.Connection,
+        record_ids: Iterable[str],
+    ) -> tuple[tuple[object, ...], ...]:
+        ordered_ids = sorted({str(record_id) for record_id in record_ids})
+        rows: list[tuple[object, ...]] = []
+        columns = ", ".join(_VECTOR_INDEX_COLUMNS)
+        for offset in range(
+            0,
+            len(ordered_ids),
+            _REFERENCE_REPROJECTION_BATCH_SIZE,
+        ):
+            chunk = ordered_ids[
+                offset : offset + _REFERENCE_REPROJECTION_BATCH_SIZE
+            ]
+            placeholders = ",".join("?" for _ in chunk)
+            rows.extend(
+                tuple(row)
+                for row in connection.execute(
+                    f"select {columns} from vector_index where record_id in "
+                    f"({placeholders}) order by record_id, model_name",
+                    chunk,
+                ).fetchall()
+            )
+        return tuple(rows)
+
+    @retry_db_operation()
+    def snapshot_vector_rows(
+        self,
+        record_ids: Iterable[str],
+    ) -> tuple[tuple[object, ...], ...]:
+        """Capture exact local vector rows for a pending runtime write."""
+
+        with self._pool.checkout() as connection:
+            return self._vector_rows_on_connection(connection, record_ids)
+
+    @retry_db_operation()
+    def cleanup_orphan_node_vectors(self) -> None:
+        """Reap graph-vector rows only after a runtime projection succeeds."""
+
+        with self._pool.checkout() as connection:
+            remove_orphan_node_vectors(connection)
+            connection.commit()
+
+    @classmethod
+    def _restore_vector_rows(
+        cls,
+        connection: sqlite3.Connection,
+        record_ids: Sequence[str],
+        previous_rows: Sequence[tuple[object, ...]],
+    ) -> None:
+        """Restore the local vector slice without rewriting unchanged rows."""
+
+        touched = set(record_ids)
+        expected: dict[tuple[object, object], tuple[object, ...]] = {}
+        for row in previous_rows:
+            if len(row) != len(_VECTOR_INDEX_COLUMNS) or str(row[0]) not in touched:
+                raise ValueError("invalid vector rollback snapshot")
+            key = (row[0], row[1])
+            if key in expected:
+                raise ValueError("invalid vector rollback snapshot")
+            expected[key] = tuple(row)
+        current_rows = cls._vector_rows_on_connection(connection, touched)
+        current = {(row[0], row[1]): row for row in current_rows}
+        removed_keys = sorted(set(current) - set(expected))
+        if removed_keys:
+            connection.executemany(
+                "delete from vector_index where record_id = ? and model_name = ?",
+                removed_keys,
+            )
+        changed_rows = [
+            row
+            for key, row in sorted(expected.items())
+            if current.get(key) != row
+        ]
+        if changed_rows:
+            placeholders = ", ".join("?" for _ in _VECTOR_INDEX_COLUMNS)
+            updates = ", ".join(
+                f"{column} = excluded.{column}"
+                for column in _VECTOR_INDEX_COLUMNS[2:]
+            )
+            connection.executemany(
+                "insert into vector_index ("
+                + ", ".join(_VECTOR_INDEX_COLUMNS)
+                + f") values ({placeholders}) "
+                "on conflict(record_id, model_name) do update set "
+                + updates,
+                changed_rows,
+            )
+
     @retry_db_operation()
     def delete_ir(self, ids: list[str], include_vectors: bool = True) -> None:
         if not ids:
             return
-        placeholders = ",".join("?" for _ in ids)
+        delete_ids = sorted(set(ids))
         with self._pool.checkout() as connection:
-            remove_knowledge_records(connection, ids)
-            connection.execute(f"delete from raw_docs where id in ({placeholders})", ids)
-            connection.execute(f"delete from raw_spans where id in ({placeholders})", ids)
-            connection.execute(f"delete from symbol_table where id in ({placeholders})", ids)
-            connection.execute(f"delete from pack_store where id in ({placeholders})", ids)
-            connection.execute(f"delete from prov_log where id in ({placeholders})", ids)
-            connection.execute(f"delete from ir_edges where src_id in ({placeholders}) or dst_id in ({placeholders})", ids + ids)
-            connection.execute(f"delete from projection_index where record_id in ({placeholders})", ids)
-            if include_vectors:
-                connection.execute(f"delete from vector_index where record_id in ({placeholders})", ids)
-            connection.execute(f"delete from ir_records where id in ({placeholders})", ids)
-            connection.commit()
+            try:
+                if not connection.in_transaction:
+                    connection.execute("begin immediate")
+                self._delete_ir_on_connection(
+                    connection,
+                    delete_ids,
+                    include_vectors=include_vectors,
+                )
+                connection.commit()
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
+
+    def _delete_ir_on_connection(
+        self,
+        connection: sqlite3.Connection,
+        delete_ids: Sequence[str],
+        *,
+        include_vectors: bool,
+        preserve_node_vectors: bool = False,
+    ) -> None:
+        """Delete canonical rows and rebuild affected projections atomically."""
+
+        ordered_delete_ids = sorted(set(delete_ids))
+        if not ordered_delete_ids:
+            return
+        existing_delete_ids = set(
+            stored_reference_kinds(connection, ordered_delete_ids)
+        )
+        try:
+            validate_canonical_reference_payloads(
+                connection,
+                excluded_record_ids=ordered_delete_ids,
+            )
+        except (
+            CanonicalReferenceIntegrityError,
+            MigrationError,
+            TypeError,
+            ValueError,
+        ):
+            raise CanonicalReferenceIntegrityError(
+                "delete would violate required canonical reference closure"
+            ) from None
+
+        self._reset_reference_reprojection_queue(connection)
+        try:
+            self._queue_reference_dependents(
+                connection,
+                target_record_ids=existing_delete_ids,
+                excluded_source_ids=existing_delete_ids,
+            )
+            self._queue_reference_reprojection_ids(
+                connection,
+                self._stored_provenance_targets(
+                    connection,
+                    existing_delete_ids,
+                ),
+            )
+
+            for offset in range(
+                0,
+                len(ordered_delete_ids),
+                _REFERENCE_REPROJECTION_BATCH_SIZE,
+            ):
+                chunk = ordered_delete_ids[
+                    offset : offset + _REFERENCE_REPROJECTION_BATCH_SIZE
+                ]
+                placeholders = ",".join("?" for _ in chunk)
+                remove_knowledge_records(
+                    connection,
+                    chunk,
+                    revalidate_identity_merges=False,
+                )
+                if not preserve_node_vectors:
+                    connection.execute(
+                        "delete from knowledge_node_vectors where node_id in "
+                        f"({placeholders})",
+                        chunk,
+                    )
+                connection.execute(
+                    "delete from ir_edge_sources where source_record_id in "
+                    f"({placeholders})",
+                    chunk,
+                )
+                for table in (
+                    "raw_docs",
+                    "raw_spans",
+                    "symbol_table",
+                    "pack_store",
+                    "prov_log",
+                ):
+                    connection.execute(
+                        f'delete from "{table}" where id in ({placeholders})',
+                        chunk,
+                    )
+                connection.execute(
+                    "delete from projection_index where record_id in "
+                    f"({placeholders})",
+                    chunk,
+                )
+                if include_vectors:
+                    connection.execute(
+                        "delete from vector_index where record_id in "
+                        f"({placeholders})",
+                        chunk,
+                    )
+                connection.execute(
+                    f"delete from ir_records where id in ({placeholders})",
+                    chunk,
+                )
+            self._reproject_queued_reference_dependents(
+                connection,
+                preserve_node_vectors=preserve_node_vectors,
+            )
+            if not preserve_node_vectors:
+                remove_orphan_node_vectors(connection)
+            # Revalidate only after optional survivors have been reprojected and
+            # final orphan cleanup has established the actual node set.
+            apply_identity_merges(connection)
+        finally:
+            self._drop_reference_reprojection_queue(connection)
+
+    @retry_db_operation()
+    def restore_ir_after_failed_projection(
+        self,
+        previous: IRBatch,
+        touched_ids: Sequence[str],
+        *,
+        previous_vector_rows: Sequence[tuple[object, ...]] = (),
+    ) -> None:
+        """Restore one failed runtime write without a delete-then-reinsert gap.
+
+        Existing records are overwritten with their prior canonical payloads
+        before records introduced by the failed batch are removed. Both phases,
+        including core/KG reprojection and optional-reference cleanup, share one
+        SQLite write transaction.
+        """
+
+        ordered_touched_ids = sorted(set(touched_ids))
+        previous_ids = {record.id for record in previous.records}
+        introduced_ids = [
+            record_id
+            for record_id in ordered_touched_ids
+            if record_id not in previous_ids
+        ]
+        with self._pool.checkout() as connection:
+            try:
+                if not connection.in_transaction:
+                    connection.execute("begin immediate")
+                if previous.records:
+                    self._persist_ir_on_connection(
+                    connection,
+                    previous,
+                    reconcile_entities=False,
+                    preserve_node_vectors=True,
+                )
+                if introduced_ids:
+                    self._delete_ir_on_connection(
+                        connection,
+                        introduced_ids,
+                        include_vectors=True,
+                        preserve_node_vectors=True,
+                    )
+                self._restore_vector_rows(
+                    connection,
+                    ordered_touched_ids,
+                    previous_vector_rows,
+                )
+                connection.commit()
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
 
     def knowledge_graph(
         self,

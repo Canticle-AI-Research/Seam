@@ -68,6 +68,7 @@ class SQLiteVectorAdapter:
     path: str
     model: EmbeddingModel
     name: str = "sqlite-vector"
+    index_records_atomic: bool = field(default=True, init=False, repr=False)
 
     def __post_init__(self) -> None:
         self.index = SQLiteVectorIndex(self.path, self.model)
@@ -120,6 +121,7 @@ class MemoryVectorAdapter:
 
     model: EmbeddingModel
     name: str = "memory-vector"
+    index_records_atomic: bool = field(default=False, init=False, repr=False)
     _rows: dict[str, tuple[MIRLRecord, list[float]]] = field(
         default_factory=dict, init=False, repr=False
     )
@@ -161,6 +163,10 @@ class PgVectorAdapter:
     table_name: str = "seam_vector_index"
     name: str = "pgvector"
     ef_search: int = 40
+    # One connection transaction covers every record in index_records. Runtime
+    # compensation must not call record-wide delete_records here: a shared
+    # table may contain rows for other embedding models.
+    index_records_atomic: bool = field(default=True, init=False, repr=False)
 
     def __post_init__(self) -> None:
         _validate_table_name(self.table_name)

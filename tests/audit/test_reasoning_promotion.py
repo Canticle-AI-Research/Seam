@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import inspect
 import sqlite3
+import threading
 from pathlib import Path
 
 import pytest
 
 from seam_runtime import IRBatch, MIRLRecord, RecordKind, SeamSDK
+from seam_runtime.models import HashEmbeddingModel
 from seam_runtime.reasoning_promotion import (
     get_reasoning_promotion,
     init_reasoning_promotion,
@@ -19,6 +21,29 @@ from seam_runtime.reasoning_promotion import (
     reverse_reasoning_promotion,
     review_reasoning_promotion,
 )
+from seam_runtime.runtime import SeamRuntime
+from seam_runtime.vector_adapters import MemoryVectorAdapter
+
+
+class _BlockingPromotionAdapter(MemoryVectorAdapter):
+    def __init__(self, model: HashEmbeddingModel) -> None:
+        super().__init__(model)
+        self.entered = threading.Event()
+        self.release = threading.Event()
+        self.blocked_once = False
+
+    def index_records(self, records: list[MIRLRecord]) -> None:
+        should_block = any(
+            record.id == "clm:reviewed-migration"
+            and record.attrs.get("object") == "reversible"
+            for record in records
+        )
+        if should_block and not self.blocked_once:
+            self.blocked_once = True
+            self.entered.set()
+            if not self.release.wait(timeout=5):
+                raise RuntimeError("timed out waiting to release promotion index")
+        super().index_records(records)
 
 
 def _verified_outcome(seam: SeamSDK):
@@ -29,7 +54,14 @@ def _verified_outcome(seam: SeamSDK):
         scope="thread",
         attrs={"content": "The migration rollback was verified."},
     )
-    seam.runtime.persist_ir(IRBatch([evidence]))
+    migration_project = MIRLRecord(
+        id="project:migration",
+        kind=RecordKind.ENT,
+        ns="acme",
+        scope="thread",
+        attrs={"label": "Migration project", "entity_type": "project"},
+    )
+    seam.runtime.persist_ir(IRBatch([evidence, migration_project]))
     run = seam.start_reasoning(
         "Choose the migration path.",
         ns="acme",
@@ -225,6 +257,86 @@ def test_approval_and_eligibility_fail_closed_on_stale_provenance(
         assert eligibility["approved_assertion"] is None
     finally:
         seam2.close()
+
+
+def test_runtime_promotion_cannot_publish_stale_vector_after_later_write(
+    promotion_db: SeamSDK,
+) -> None:
+    seam = promotion_db
+    model = HashEmbeddingModel()
+    adapter = _BlockingPromotionAdapter(model)
+    seam.runtime.embedding_model = model
+    seam.runtime.vector_adapter = adapter
+    *_parts, proposal = _propose(seam)
+    proposal_id = str(proposal["proposal_id"])
+    with seam.runtime.store._pool.checkout() as connection:
+        review_reasoning_promotion(
+            connection,
+            proposal_id=proposal_id,
+            review_kind="human",
+            decision="approved",
+            reviewer_id="operator",
+            rationale="Approved after exact evidence review.",
+        )
+        approved = reasoning_promotion_eligibility(connection, proposal_id)
+        connection.commit()
+
+    replacement = MIRLRecord.from_dict(approved["approved_assertion"])
+    replacement.attrs["object"] = "writer-b"
+    runtime_b = SeamRuntime(
+        seam.runtime.store.path,
+        embedding_model=model,
+        vector_adapter=adapter,
+        allow_pgvector_env=False,
+    )
+    outcomes: dict[str, object] = {}
+    writer_done = threading.Event()
+
+    def run_promotion() -> None:
+        try:
+            outcomes["promotion_report"] = seam.runtime.apply_reasoning_promotion(
+                proposal_id=proposal_id,
+                applied_by="operator",
+            )
+        except Exception as exc:  # noqa: BLE001 - capture the thread outcome
+            outcomes["promotion_error"] = exc
+
+    def run_writer() -> None:
+        try:
+            outcomes["writer_report"] = runtime_b.persist_ir(
+                IRBatch([replacement])
+            )
+        except Exception as exc:  # noqa: BLE001 - capture the thread outcome
+            outcomes["writer_error"] = exc
+        finally:
+            writer_done.set()
+
+    try:
+        promoter = threading.Thread(target=run_promotion)
+        promoter.start()
+        assert adapter.entered.wait(timeout=5)
+
+        writer = threading.Thread(target=run_writer)
+        writer.start()
+        assert not writer_done.wait(timeout=0.1)
+
+        adapter.release.set()
+        promoter.join(timeout=5)
+        writer.join(timeout=5)
+        assert not promoter.is_alive()
+        assert not writer.is_alive()
+        assert "promotion_error" not in outcomes
+        assert "writer_error" not in outcomes
+
+        canonical = seam.runtime.store.load_ir(
+            ids=[replacement.id]
+        ).records[0]
+        projected = adapter._rows[replacement.id][0]
+        assert canonical.attrs["object"] == "writer-b"
+        assert projected.attrs["object"] == "writer-b"
+    finally:
+        adapter.release.set()
+        runtime_b.close()
 
 
 def test_reversal_is_append_only_and_permanently_disables_proposal(

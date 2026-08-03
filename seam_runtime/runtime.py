@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import threading
 from collections.abc import Callable
 from pathlib import Path
 
@@ -50,6 +51,30 @@ from .verify import verify_ir
 
 LOGGER = logging.getLogger(__name__)
 
+_RUNTIME_PERSIST_LOCKS_GUARD = threading.Lock()
+_RUNTIME_PERSIST_LOCKS: dict[str, threading.RLock] = {}
+
+
+def _runtime_persist_lock(
+    store_path: str | Path,
+    *,
+    memory_identity: int,
+) -> threading.RLock:
+    """Share one write+projection critical section per local canonical store."""
+
+    raw_path = str(store_path)
+    key = (
+        f":memory:{memory_identity}"
+        if raw_path == ":memory:"
+        else str(Path(raw_path).expanduser().resolve())
+    )
+    with _RUNTIME_PERSIST_LOCKS_GUARD:
+        lock = _RUNTIME_PERSIST_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _RUNTIME_PERSIST_LOCKS[key] = lock
+        return lock
+
 
 class SeamRuntime:
     def __init__(
@@ -62,6 +87,10 @@ class SeamRuntime:
         allow_pgvector_env: bool = True,
     ) -> None:
         self.store = SQLiteStore(store_path)
+        self._persist_projection_lock = _runtime_persist_lock(
+            self.store.path,
+            memory_identity=id(self.store),
+        )
         self.embedding_model = embedding_model or default_embedding_model()
         resolved_dsn = pgvector_dsn or (
             os.environ.get("SEAM_PGVECTOR_DSN")
@@ -218,12 +247,56 @@ class SeamRuntime:
         return IngestReport(document=document, stored_ids=stored_ids)
 
     def verify_ir(self, ir_batch: IRBatch) -> VerifyReport:
-        return verify_ir(ir_batch)
+        batch_ids = {record.id for record in ir_batch.records}
+        candidate_ids = sorted(
+            {
+                reference_id
+                for record in ir_batch.records
+                for reference_id in (
+                    *record.prov,
+                    *record.evidence,
+                    *(
+                        record.attrs.get("refs", [])
+                        if record.kind is RecordKind.PACK
+                        and record.attrs.get("mode") == "exact"
+                        and isinstance(record.attrs.get("refs"), list)
+                        else []
+                    ),
+                )
+                if isinstance(reference_id, str) and reference_id not in batch_ids
+            }
+        )
+        known_record_kinds: dict[str, RecordKind] = {}
+        known_records: dict[str, MIRLRecord] = {}
+        for offset in range(0, len(candidate_ids), 500):
+            chunk = candidate_ids[offset : offset + 500]
+            loaded = self.store.load_ir(ids=chunk).records
+            known_records.update({record.id: record for record in loaded})
+            known_record_kinds.update(
+                {record.id: record.kind for record in loaded}
+            )
+        return verify_ir(
+            ir_batch,
+            known_record_kinds=known_record_kinds,
+            known_records=known_records,
+        )
 
     def normalize_ir(self, ir_batch: IRBatch) -> IRBatch:
         return IRBatch(sorted(ir_batch.records, key=lambda record: record.id))
 
     def persist_ir(self, ir_batch: IRBatch) -> PersistReport:
+        """Persist one write and its vector compensation as one runtime section.
+
+        SQLite protects each canonical transaction, while a configured vector
+        adapter may commit after it. Serializing the complete write/index/
+        compensate sequence per local store prevents a failed writer from
+        restoring over a later successful writer in the same process.
+        """
+
+        with self._persist_projection_lock:
+            return self._persist_ir_locked(ir_batch)
+
+    def _persist_ir_locked(self, ir_batch: IRBatch) -> PersistReport:
         """Validate and persist MIRL, then refresh vector and node projections.
 
         This is a strict write path: invalid MIRL raises before storage, and
@@ -237,31 +310,102 @@ class SeamRuntime:
         normalized = self.normalize_ir(ir_batch)
         touched_ids = [record.id for record in normalized.records]
         previous = self.store.load_ir(ids=touched_ids) if touched_ids else IRBatch([])
-        persist_report = self.store.persist_ir(normalized)
+        previous_vector_rows = self.store.snapshot_vector_rows(touched_ids)
+        persist_report = self.store.persist_ir(
+            normalized,
+            _preserve_node_vectors=True,
+        )
+        persisted = self.store.load_ir(ids=persist_report.stored_ids)
+        vector_error_type: str | None = None
+        canonical_restore_error_type: str | None = None
+        adapter_restore_error_type: str | None = None
         try:
-            self.vector_adapter.index_records(normalized.records)
+            # Index the canonical payloads that actually committed. Entity
+            # reconciliation may omit an incoming duplicate and remap the
+            # references on surviving records, so the caller's batch is not a
+            # reliable description of the durable projection boundary.
+            self.vector_adapter.index_records(persisted.records)
         except Exception as exc:
+            vector_error_type = type(exc).__name__
             try:
-                self.store.delete_ir(touched_ids, include_vectors=True)
-                if previous.records:
-                    self.store.persist_ir(previous)
-                    self.vector_adapter.index_records(previous.records)
-            except Exception as rollback_exc:
-                touched_preview = ", ".join(touched_ids[:20])
-                if len(touched_ids) > 20:
-                    touched_preview += f", ... ({len(touched_ids)} total)"
-                LOGGER.exception(
-                    "Vector indexing failed and SQLite rollback failed for record ids: %s",
-                    touched_preview,
+                self.store.restore_ir_after_failed_projection(
+                    previous,
+                    touched_ids,
+                    previous_vector_rows=previous_vector_rows,
                 )
-                rollback_exc.add_note(f"Original vector indexing error: {exc!r}")
-                raise RuntimeError(
-                    "Vector indexing failed and SQLite rollback failed; "
-                    f"manual recovery may be required for record ids: {touched_preview}"
-                ) from rollback_exc
-            raise RuntimeError("Vector indexing failed; rolled back SQLite record write") from exc
+            except Exception as rollback_exc:
+                canonical_restore_error_type = type(rollback_exc).__name__
+            if (
+                canonical_restore_error_type is None
+                and not bool(
+                    getattr(self.vector_adapter, "index_records_atomic", False)
+                )
+            ):
+                try:
+                    self._restore_external_vector_projection(previous, touched_ids)
+                except Exception as rollback_exc:
+                    adapter_restore_error_type = type(rollback_exc).__name__
+        if canonical_restore_error_type is not None:
+            LOGGER.error(
+                "Vector indexing failed and canonical restore failed "
+                "(record_count=%d, vector_error_type=%s, "
+                "restore_error_type=%s)",
+                len(touched_ids),
+                vector_error_type,
+                canonical_restore_error_type,
+            )
+            raise RuntimeError(
+                "Vector indexing failed and canonical restore failed; "
+                "manual recovery may be required"
+            )
+        if adapter_restore_error_type is not None:
+            LOGGER.error(
+                "Vector indexing failed and external vector restore failed "
+                "(record_count=%d, vector_error_type=%s, "
+                "restore_error_type=%s)",
+                len(touched_ids),
+                vector_error_type,
+                adapter_restore_error_type,
+            )
+            raise RuntimeError(
+                "Vector indexing failed and external vector restore failed; "
+                "manual recovery may be required"
+            )
+        if vector_error_type is not None:
+            LOGGER.warning(
+                "Vector indexing failed; canonical and vector writes restored "
+                "(record_count=%d, vector_error_type=%s)",
+                len(touched_ids),
+                vector_error_type,
+            )
+            raise RuntimeError(
+                "Vector indexing failed; canonical and vector writes were restored"
+            )
         self.project_node_vectors()
         return persist_report
+
+    def _restore_external_vector_projection(
+        self,
+        previous: IRBatch,
+        touched_ids: list[str],
+    ) -> None:
+        """Compensate a partially applied non-SQLite vector write.
+
+        External adapters do not share SQLite's transaction. Their common
+        protocol does, however, provide delete plus canonical reindex. Clear
+        the complete touched slice first, then rebuild only the records that
+        existed before the failed write. If either operation fails, the caller
+        reports an explicit manual-recovery boundary without exposing IDs.
+        S5's durable outbox remains the crash-recovery solution across process
+        loss; this closes same-process partial adapter mutation.
+        """
+
+        ordered_ids = sorted(set(touched_ids))
+        if not ordered_ids:
+            return
+        self.vector_adapter.delete_records(ordered_ids)
+        if previous.records:
+            self.vector_adapter.index_records(previous.records)
 
     @staticmethod
     def _semantic_seed_env(name: str, *, default: float) -> float:
@@ -339,13 +483,14 @@ class SeamRuntime:
     ) -> dict[str, object]:
         """Derive a new G4 snapshot from current, trust-gated graph facts."""
 
-        return self.store.rebuild_graph_products(
-            namespace=namespace,
-            scope=scope,
-            max_facts=max_facts,
-            min_observation_episodes=min_observation_episodes,
-            max_sentences_per_product=max_sentences_per_product,
-        )
+        with self._persist_projection_lock:
+            return self.store.rebuild_graph_products(
+                namespace=namespace,
+                scope=scope,
+                max_facts=max_facts,
+                min_observation_episodes=min_observation_episodes,
+                max_sentences_per_product=max_sentences_per_product,
+            )
 
     def graph_products(
         self,
@@ -443,13 +588,14 @@ class SeamRuntime:
         actor: str,
         interrupt_after_intent: bool = False,
     ) -> dict[str, object]:
-        return self.store.apply_scoped_delete(
-            tenant_id=tenant_id,
-            operation_id=operation_id,
-            actor=actor,
-            interrupt_after_intent=interrupt_after_intent,
-            delete_derived_records=self._delete_derived_records,
-        )
+        with self._persist_projection_lock:
+            return self.store.apply_scoped_delete(
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+                actor=actor,
+                interrupt_after_intent=interrupt_after_intent,
+                delete_derived_records=self._delete_derived_records,
+            )
 
     def batch_ingest(
         self,
@@ -551,49 +697,57 @@ class SeamRuntime:
     ) -> dict[str, object]:
         """Explicitly persist one reviewed R5 assertion; never auto-applied."""
 
-        result = self.store.apply_reasoning_promotion(
-            proposal_id=proposal_id, applied_by=applied_by
-        )
-        record = MIRLRecord.from_dict(result["record"])  # type: ignore[arg-type]
-        try:
-            self.vector_adapter.index_records([record])
-            vector_indexed = True
-        except Exception:
-            # Canonical MIRL + application audit committed atomically before
-            # this derived external index. Do not erase reviewed truth merely
-            # because a rebuildable vector backend is temporarily unavailable.
-            LOGGER.exception(
-                "Applied reasoning promotion but vector indexing is pending"
+        with self._persist_projection_lock:
+            result = self.store.apply_reasoning_promotion(
+                proposal_id=proposal_id, applied_by=applied_by
             )
-            vector_indexed = False
-        self.project_node_vectors()
-        return {**result, "vector_indexed": vector_indexed}
+            record = MIRLRecord.from_dict(result["record"])  # type: ignore[arg-type]
+            try:
+                self.vector_adapter.index_records([record])
+                vector_indexed = True
+            except Exception:
+                # Canonical MIRL + application audit committed atomically before
+                # this derived external index. Do not erase reviewed truth merely
+                # because a rebuildable vector backend is temporarily unavailable.
+                LOGGER.exception(
+                    "Applied reasoning promotion but vector indexing is pending"
+                )
+                vector_indexed = False
+            self.project_node_vectors()
+            return {**result, "vector_indexed": vector_indexed}
 
     def reverse_reasoning_promotion(
         self, *, proposal_id: str, reversed_by: str, reason: str
     ) -> dict[str, object]:
         """Audit reversal and append a canonical supersession relation."""
 
-        result = self.store.reverse_reasoning_promotion(
-            proposal_id=proposal_id,
-            reversed_by=reversed_by,
-            reason=reason,
-        )
-        record = MIRLRecord.from_dict(  # type: ignore[arg-type]
-            result["superseding_record"]
-        )
-        try:
-            self.vector_adapter.index_records([record])
-            vector_indexed = True
-        except Exception:
-            LOGGER.exception(
-                "Reversed reasoning promotion but vector indexing is pending"
+        with self._persist_projection_lock:
+            result = self.store.reverse_reasoning_promotion(
+                proposal_id=proposal_id,
+                reversed_by=reversed_by,
+                reason=reason,
             )
-            vector_indexed = False
-        self.project_node_vectors()
-        return {**result, "vector_indexed": vector_indexed}
+            record = MIRLRecord.from_dict(  # type: ignore[arg-type]
+                result["superseding_record"]
+            )
+            try:
+                self.vector_adapter.index_records([record])
+                vector_indexed = True
+            except Exception:
+                LOGGER.exception(
+                    "Reversed reasoning promotion but vector indexing is pending"
+                )
+                vector_indexed = False
+            self.project_node_vectors()
+            return {**result, "vector_indexed": vector_indexed}
 
     def project_node_vectors(self, *, limit: int | None = None) -> dict[str, object]:
+        with self._persist_projection_lock:
+            return self._project_node_vectors_locked(limit=limit)
+
+    def _project_node_vectors_locked(
+        self, *, limit: int | None = None
+    ) -> dict[str, object]:
         """Embed graph nodes whose derived vector is missing, stale, or legacy.
 
         This runs after record indexing rather than inside it because a node
@@ -608,13 +762,17 @@ class SeamRuntime:
         try:
             pending = self.store.pending_node_vectors(model_name, limit=limit)
             if not pending:
+                self.store.cleanup_orphan_node_vectors()
                 return {"model_name": model_name, "embedded": 0, "failed": 0}
             # The same node text under a different ns/scope is the same point in
             # vector space, so a boundary-only move must reuse the stored vector
-            # rather than pay to embed it again.
+            # rather than pay to embed it again. Read reusable hashes before
+            # orphan cleanup because a boundary move can replace a synthetic
+            # node id while preserving its exact semantic text.
             reusable = self.store.reusable_node_vectors(
                 model_name, [str(entry["source_hash"]) for entry in pending]
             )
+            self.store.cleanup_orphan_node_vectors()
             embedded: list[dict[str, object]] = []
             failed = 0
             for entry in pending:
@@ -899,6 +1057,35 @@ class SeamRuntime:
         mode: str = "context",
         persist: bool = False,
     ) -> Pack:
+        if persist:
+            with self._persist_projection_lock:
+                return self._pack_ir_locked(
+                    record_ids=record_ids,
+                    lens=lens,
+                    budget=budget,
+                    profile=profile,
+                    mode=mode,
+                    persist=True,
+                )
+        return self._pack_ir_locked(
+            record_ids=record_ids,
+            lens=lens,
+            budget=budget,
+            profile=profile,
+            mode=mode,
+            persist=False,
+        )
+
+    def _pack_ir_locked(
+        self,
+        *,
+        record_ids: list[str] | None,
+        lens: str,
+        budget: int | None,
+        profile: str,
+        mode: str,
+        persist: bool,
+    ) -> Pack:
         # Honor the answerer-aware retrieval profile's context_budget when the
         # caller does not pass an explicit budget (None). No profile set ->
         # context_budget is None -> falls back to the prior 512 default, so
@@ -915,7 +1102,7 @@ class SeamRuntime:
             if not report.valid:
                 raise ValueError(json.dumps(report.to_dict(), indent=2))
         if persist:
-            self.store.persist_ir(IRBatch([pack_mirl]))
+            self.persist_ir(IRBatch([pack_mirl]))
         return pack
 
     def decompile_ir(self, record_ids: list[str], mode: str = "expanded") -> str:
@@ -935,11 +1122,16 @@ class SeamRuntime:
         return self.store.trace(obj_id)
 
     def reconcile_ir(self, record_ids: list[str] | None = None) -> ReconcileReport:
-        batch = self.store.load_ir(ids=record_ids) if record_ids else self.store.load_ir()
-        report = reconcile_ir(batch)
-        if report.added_records:
-            self.store.persist_ir(IRBatch(report.added_records))
-        return report
+        with self._persist_projection_lock:
+            batch = (
+                self.store.load_ir(ids=record_ids)
+                if record_ids
+                else self.store.load_ir()
+            )
+            report = reconcile_ir(batch)
+            if report.added_records:
+                self.persist_ir(IRBatch(report.added_records))
+            return report
 
     def transpile_ir(self, record_ids: list[str], target: str = "python") -> Artifact:
         batch = self.store.load_ir(ids=record_ids)
@@ -952,11 +1144,16 @@ class SeamRuntime:
         return IRBatch(propose_symbols(batch))
 
     def promote_symbols(self, record_ids: list[str] | None = None, min_frequency: int = 2) -> PersistReport:
-        batch = self.store.load_ir(ids=record_ids) if record_ids else self.store.load_ir()
-        symbols = IRBatch(propose_symbols(batch, min_frequency=min_frequency))
-        if not symbols.records:
-            return PersistReport(stored_ids=[], store_path=self.store.path)
-        return self.persist_ir(symbols)
+        with self._persist_projection_lock:
+            batch = (
+                self.store.load_ir(ids=record_ids)
+                if record_ids
+                else self.store.load_ir()
+            )
+            symbols = IRBatch(propose_symbols(batch, min_frequency=min_frequency))
+            if not symbols.records:
+                return PersistReport(stored_ids=[], store_path=self.store.path)
+            return self.persist_ir(symbols)
 
     def export_symbols(self, namespace: str | None = None, output_path: str | Path | None = None) -> str:
         batch = self.store.load_ir(ns=namespace)
@@ -1017,7 +1214,30 @@ class SeamRuntime:
         scope: str | None = None,
         boundary_only: bool = False,
     ) -> dict[str, object]:
-        batch = self.store.load_ir(ids=record_ids, ns=ns, scope=scope) if (record_ids or ns or scope) else self.store.load_ir()
+        # Loading canonical rows and publishing their derived vectors are one
+        # projection critical section. Otherwise a manual reindex can observe a
+        # transient write that is subsequently compensated and republish it.
+        with self._persist_projection_lock:
+            return self._reindex_vectors_locked(
+                record_ids,
+                ns=ns,
+                scope=scope,
+                boundary_only=boundary_only,
+            )
+
+    def _reindex_vectors_locked(
+        self,
+        record_ids: list[str] | None = None,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        boundary_only: bool = False,
+    ) -> dict[str, object]:
+        batch = (
+            self.store.load_ir(ids=record_ids, ns=ns, scope=scope)
+            if (record_ids or ns or scope)
+            else self.store.load_ir()
+        )
         syncer = None
         if boundary_only:
             syncer = getattr(self.vector_adapter, "sync_boundaries", None)

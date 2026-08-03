@@ -162,7 +162,7 @@ def compile_nl(
                 kind=RecordKind.ENT,
                 ns=ns,
                 scope=scope,
-                prov=(prov_id,),
+                prov=[prov_id],
                 attrs={"entity_type": entity_type, "label": label},
             )
         )

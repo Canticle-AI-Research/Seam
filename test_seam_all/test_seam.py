@@ -405,7 +405,7 @@ claim c1:
         self.assertEqual({record.id: record.to_dict() for record in restored.records}, original_by_id)
         self.assertGreater(runtime.store.get_stats()["vector_entries"], 0)
 
-    def test_runtime_persist_reports_ids_when_sqlite_rollback_fails(self) -> None:
+    def test_runtime_persist_flags_manual_recovery_without_ids_when_restore_fails(self) -> None:
         class FailingVectorAdapter:
             name = "failing-vector"
 
@@ -423,23 +423,25 @@ claim c1:
         # content-derived), so the rollback path must restore the PREVIOUS records
         # — and it is that restore we make fail, to reach "manual recovery".
         replacement = runtime.compile_nl(text)
-        original_persist_ir = runtime.store.persist_ir
-        calls = 0
 
-        def flaky_persist(batch):
-            nonlocal calls
-            calls += 1
-            if calls == 2:
-                raise RuntimeError("restore unavailable")
-            return original_persist_ir(batch)
+        def failing_restore(
+            _previous,
+            _touched_ids,
+            *,
+            previous_vector_rows,
+        ):
+            del previous_vector_rows
+            raise RuntimeError("restore unavailable")
 
         runtime.vector_adapter = FailingVectorAdapter()
-        runtime.store.persist_ir = flaky_persist  # type: ignore[method-assign]
+        runtime.store.restore_ir_after_failed_projection = failing_restore  # type: ignore[method-assign]
 
         with self.assertRaisesRegex(RuntimeError, "manual recovery may be required") as ctx:
             runtime.persist_ir(replacement)
+        # The manual-recovery boundary is deliberately content-free: canonical
+        # ids must never reach the exception text.
         for record in replacement.records[:2]:
-            self.assertIn(record.id, str(ctx.exception))
+            self.assertNotIn(record.id, str(ctx.exception))
 
     @unittest.skipIf(TestClient is None, "fastapi server extra is not installed")
     def test_rest_api_compile_search_context_stats_and_auth(self) -> None:

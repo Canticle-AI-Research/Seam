@@ -45,9 +45,11 @@ def test_orphan_cleanup_on_init(tmp_path: Path) -> None:
             value text not null
         );
         insert into ir_records (id, kind, ns, scope, status, conf, created_at, updated_at, payload_json)
-        values ('clm:rec_a', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01', '{}');
+        values ('clm:rec_a', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01',
+        '{"id":"clm:rec_a","kind":"CLM","attrs":{"subject":"clm:rec_a","predicate":"ref","object":"clm:rec_b"}}');
         insert into ir_records (id, kind, ns, scope, status, conf, created_at, updated_at, payload_json)
-        values ('clm:rec_b', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01', '{}');
+        values ('clm:rec_b', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01',
+        '{"id":"clm:rec_b","kind":"CLM","attrs":{"subject":"clm:rec_b"}}');
         -- legit edge between two existing records
         insert into ir_edges (src_id, edge_type, dst_id) values ('clm:rec_a', 'ref', 'clm:rec_b');
         -- orphan edge: src is a record ID that doesn't exist

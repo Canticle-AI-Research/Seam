@@ -14,6 +14,7 @@ from seam_runtime.reasoning_graph import (
     ReasoningRetrievalCandidate,
     _retrieval_candidate_rows,
 )
+from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 from seam_runtime.retrieval_orchestrator import RetrievalOrchestrator
 from seam_runtime.retrieval_orchestrator.adapters import (
     ChromaSemanticAdapter,
@@ -67,6 +68,10 @@ def _entity(record_id: str, label: str) -> MIRLRecord:
         scope="thread",
         attrs={"label": label, "entity_type": "concept"},
     )
+
+
+def _virtual_references(*record_ids: str) -> dict[str, list[str]]:
+    return {VIRTUAL_REFS_EXTENSION: list(record_ids)}
 
 
 def _relation(
@@ -1153,6 +1158,7 @@ def test_vector_reindexes_an_unchanged_record_when_namespace_moves(
         kind=RecordKind.CLM,
         ns="alpha",
         scope="thread",
+        ext=_virtual_references("compiler"),
         attrs={"subject": "compiler", "predicate": "has", "object": "rollback"},
     )
     runtime.persist_ir(IRBatch([record]))
@@ -1197,6 +1203,7 @@ def test_boundary_only_vector_move_does_not_reembed(
             kind=RecordKind.CLM,
             ns="alpha",
             scope="thread",
+            ext=_virtual_references("same"),
             attrs={"subject": "same", "predicate": "is", "object": "content"},
         )
         active_runtime.persist_ir(IRBatch([record]))
@@ -1217,6 +1224,7 @@ def test_native_vector_top_k_prefilters_scope(runtime: SeamRuntime) -> None:
             kind=RecordKind.CLM,
             ns="shared",
             scope="project",
+            ext=_virtual_references("same"),
             attrs={"subject": "same", "predicate": "is", "object": "evidence"},
         )
         for index in range(20)
@@ -1226,6 +1234,7 @@ def test_native_vector_top_k_prefilters_scope(runtime: SeamRuntime) -> None:
         kind=RecordKind.CLM,
         ns="shared",
         scope="thread",
+        ext=_virtual_references("same"),
         attrs={"subject": "same", "predicate": "is", "object": "evidence"},
     )
     runtime.persist_ir(IRBatch([*records, target]))
@@ -1250,6 +1259,7 @@ def test_sqlite_scope_column_upgrade_backfills_from_canonical_ir(
         kind=RecordKind.CLM,
         ns="shared",
         scope="thread",
+        ext=_virtual_references("scope"),
         attrs={"subject": "scope", "predicate": "is", "object": "preserved"},
     )
     first.persist_ir(IRBatch([record]))
@@ -1374,6 +1384,7 @@ def test_candidate_snapshot_reports_post_decision_boundary_drift(
         kind=RecordKind.CLM,
         ns="alpha",
         scope="thread",
+        ext=_virtual_references("compiler"),
         attrs={"subject": "compiler", "predicate": "has", "object": "evidence"},
     )
     runtime.persist_ir(IRBatch([record]))
@@ -1398,6 +1409,7 @@ def test_candidate_hash_rejects_search_to_record_race(runtime: SeamRuntime) -> N
         kind=RecordKind.CLM,
         ns="work",
         scope="thread",
+        ext=_virtual_references("old", "new"),
         attrs={"subject": "old", "predicate": "is", "object": "evidence"},
     )
     runtime.store.persist_ir(IRBatch([record]))
@@ -1457,6 +1469,7 @@ def test_candidate_rows_recompute_pinned_fusion_score(runtime: SeamRuntime) -> N
         kind=RecordKind.CLM,
         ns="work",
         scope="thread",
+        ext=_virtual_references("fusion"),
         attrs={"subject": "fusion", "predicate": "is", "object": "audited"},
     )
     runtime.store.persist_ir(IRBatch([record]))
@@ -1491,6 +1504,7 @@ def test_sdk_records_a_truncated_real_orchestrator_pool(
             kind=RecordKind.CLM,
             ns="work",
             scope="thread",
+            ext=_virtual_references(f"candidate {index}"),
             attrs={"subject": f"candidate {index}", "predicate": "is", "object": "ranked"},
         )
         for index in range(256)
@@ -1562,6 +1576,7 @@ def test_sql_leg_breaks_cutoff_ties_by_record_id(runtime: SeamRuntime) -> None:
             kind=RecordKind.CLM,
             ns="work",
             scope="thread",
+            ext=_virtual_references("same"),
             attrs={"subject": "same", "predicate": "is", "object": "evidence"},
             created_at=timestamp,
             updated_at=timestamp,

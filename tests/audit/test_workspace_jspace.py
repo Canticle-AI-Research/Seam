@@ -254,7 +254,11 @@ def test_answer_context_gate_filters_unverified_and_refuted_records_on_both_chat
         kind=RecordKind.CLM,
         ns="team.alpha",
         scope="project",
-        attrs={"subject": "deployment", "predicate": "is", "object": "UNVERIFIED MONDAY"},
+        attrs={
+            "subject": "ent:deployment",
+            "predicate": "is",
+            "object": "UNVERIFIED MONDAY",
+        },
     )
     refuted = MIRLRecord(
         id="clm:refuted",
@@ -262,9 +266,16 @@ def test_answer_context_gate_filters_unverified_and_refuted_records_on_both_chat
         ns="team.alpha",
         scope="project",
         status=Status.CONTRADICTED,
-        attrs={"subject": "deployment", "predicate": "is", "object": "REFUTED TUESDAY"},
+        attrs={"subject": "ent:deployment", "predicate": "is", "object": "REFUTED TUESDAY"},
     )
-    runtime.persist_ir(IRBatch([safe, unverified, refuted]))
+    deployment = MIRLRecord(
+        id="ent:deployment",
+        kind=RecordKind.ENT,
+        ns="team.alpha",
+        scope="project",
+        attrs={"label": "Deployment", "entity_type": "concept"},
+    )
+    runtime.persist_ir(IRBatch([safe, deployment, unverified, refuted]))
     candidates = [
         SearchCandidate(record=safe, score=0.9),
         SearchCandidate(record=unverified, score=0.8),

@@ -64,12 +64,21 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   `SEAM_API_TOKEN` provisioning remains a separate authentication/UX policy
   decision; tokenless mode is trusted-local-only. Audit findings 7-10 and 12
   remain open.
-- S3 is requalified on current-main ancestry on rebuilt draft PR #194. Its exact
-  KG/4-to-KG/5 transition successfully rebuilds disposable topology from
-  canonical MIRL/lifecycle/document status, preserves the identity judgement
-  ledger, and refuses damaged/newer inputs before publishing partial topology.
-  S4 typed-reference integrity remains stacked on the old S3 head and must be
-  rebuilt after S3 merges.
+- S3 is published through PR #194 at `main@9bd40cb`. Its exact KG/4-to-KG/5
+  transition rebuilds disposable topology from canonical
+  MIRL/lifecycle/document status, preserves the identity judgement ledger, and
+  refuses damaged/newer inputs before publishing partial topology.
+- S4 is requalified on that merged S3 ancestry as the rebuilt PR #195
+  candidate. Closed typed-reference contracts replace colon inference; both
+  edge endpoint types and source-record contributors are durable; exact
+  `core-storage/1 -> /2` plus KG/5-to-KG/6 steps preserve S3's truthful resume
+  point. Canonical inputs are processed in bounded batches, invalid identifiers
+  produce digest-only diagnostics, current stores reject dangling canonical
+  payloads and edge contributors, and 300-triple type checks replace per-edge
+  migration queries. Reserved virtual metadata is unconditional, and hard
+  deletes fail atomically if a surviving required reference would remain.
+  Removed phantom nodes cannot leave searchable orphan vectors. Fresh exact-
+  head review and CI remain the publication boundary.
 - S5 now requires one committed SQLite read snapshot across every retrieval leg
   and visibility check; connection pooling alone does not close the observed
   mixed-state fingerprint defect.

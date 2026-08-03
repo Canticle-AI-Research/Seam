@@ -16,6 +16,7 @@ from benchmarks.external.locomo.run import build_adapter
 from seam_runtime.bm25 import BM25Index
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, SearchResult, Status
 from seam_runtime.models import HashEmbeddingModel
+from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 from seam_runtime.retrieval import RetrievalFlags, search_batch
 from seam_runtime.retrieval_orchestrator.adapters import SQLiteTemporalAdapter
 from seam_runtime.retrieval_orchestrator.planner import build_plan
@@ -54,6 +55,11 @@ def _record(
         scope="thread",
         t0=t0,
         evidence=list(evidence or []),
+        ext=(
+            {}
+            if kind is RecordKind.RAW
+            else {VIRTUAL_REFS_EXTENSION: ["ent:test"]}
+        ),
         attrs=attrs,
     )
 

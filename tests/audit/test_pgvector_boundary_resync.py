@@ -18,6 +18,7 @@ import pytest
 
 from seam_runtime.dsl import compile_dsl
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
+from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 
 # ── External tests (real pgvector) ──────────────────────────────────────
 
@@ -252,6 +253,7 @@ def test_runtime_reindex_boundary_only_hermetic(tmp_path: Path):
             kind=RecordKind.CLM,
             ns="beta",
             scope="project",
+            ext={VIRTUAL_REFS_EXTENSION: ["test"]},
             attrs={"subject": "test", "predicate": "has", "object": "boundary"},
         )
         excluded = MIRLRecord(
@@ -259,6 +261,7 @@ def test_runtime_reindex_boundary_only_hermetic(tmp_path: Path):
             kind=RecordKind.CLM,
             ns="alpha",
             scope="thread",
+            ext={VIRTUAL_REFS_EXTENSION: ["other"]},
             attrs={"subject": "other", "predicate": "has", "object": "boundary"},
         )
         rt.store.persist_ir(IRBatch([selected, excluded]))
@@ -312,6 +315,7 @@ def test_runtime_reindex_boundary_only_unsupported_adapter_fails_closed(
             kind=RecordKind.CLM,
             ns="beta",
             scope="project",
+            ext={VIRTUAL_REFS_EXTENSION: ["test"]},
             attrs={"subject": "test", "predicate": "has", "object": "boundary"},
         )
         rt.store.persist_ir(IRBatch([record]))
@@ -353,6 +357,7 @@ def test_runtime_reindex_namespace_scope_filter_hermetic(tmp_path: Path, monkeyp
             kind=RecordKind.CLM,
             ns="alpha",
             scope="thread",
+            ext={VIRTUAL_REFS_EXTENSION: ["a"]},
             attrs={"subject": "a", "predicate": "is", "object": "x"},
         )
         r2 = MIRLRecord(
@@ -360,6 +365,7 @@ def test_runtime_reindex_namespace_scope_filter_hermetic(tmp_path: Path, monkeyp
             kind=RecordKind.CLM,
             ns="beta",
             scope="thread",
+            ext={VIRTUAL_REFS_EXTENSION: ["b"]},
             attrs={"subject": "b", "predicate": "is", "object": "y"},
         )
         rt.persist_ir(IRBatch([r1, r2]))

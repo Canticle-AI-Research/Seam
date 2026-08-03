@@ -133,19 +133,40 @@ tooling touch.
 ## Typed Reference Contract
 
 Reference identity comes from the MIRL field contract and canonical record
-membership, never punctuation or an ID-looking prefix. Required reference
-fields (`prov`, `evidence`, `SPAN.raw_id`, `CLM.subject`, `REL.src`/`dst`,
-`EVT.actor`, `STA.target`, `PACK.refs`, `FLOW.src`/`dst`, and `PROV.entity`)
-remain record references so missing or wrong-kind endpoints fail integrity
-checks. Optional object and facet values become references only when the exact
-ID exists in the same batch or the canonical store; otherwise they remain
-literal value nodes. Timestamps, URLs, and arbitrary colon-bearing prose are
-therefore literals unless they exactly name an existing record.
+membership, never punctuation or an ID-looking prefix. `prov`, `evidence`, and
+`PACK.refs` are exact lists of nonblank reference IDs; `SPAN.raw_id`,
+`CLM.subject`, `REL.src`/`dst`, `EVT.actor`, `STA.target`, and `PROV.entity` are
+exact nonblank scalar reference IDs. Missing values, wrong containers, invalid
+members, leading/trailing whitespace, missing endpoints, and wrong-kind
+endpoints fail integrity checks. `FLOW.src` and `FLOW.dst` are a conditional
+pair: an operation-only FLOW may omit both, but supplying either requires both
+as exact scalar references. Reconciliation pointers (`supports`, `contradicts`, `corrects`,
+`supersedes`, `refutes`, `corroborates`, `derived_from`, and `unverified_by`)
+accept an exact scalar or exact list and are required references when present
+in `attrs` or `ext`. Raw JSON decoding preserves these shape rules instead of
+coercing malformed containers into valid-looking records. Optional object and
+the explicit `who`/`what`/`when`/`where`/`why`/`how`/`then` facet values become
+references only when the exact ID exists in the same batch or the canonical
+store; otherwise they remain literal value nodes. An explicit facet value
+outranks a generated subject/actor fallback. Timestamps, URLs, and arbitrary
+colon-bearing prose are therefore literals unless they exactly name an
+existing record.
 
 Graph-only virtual identities must be declared explicitly by the source record
-in `ext["seam.virtual_refs"]` as a list of exact IDs. Prefixes do not confer
-virtual status. The SQLite edge projection persists the MIRL kind (or
-`virtual`) independently for both endpoints and validates both on reopen.
+in `ext["seam.virtual_refs"]` as a list of exact IDs. The reserved declaration
+is validated for every record even when all endpoints are canonical or the
+record projects no edges; malformed declarations fail content-free. Prefixes
+do not confer virtual status. The SQLite edge projection persists the MIRL kind
+(or `virtual`) independently for both endpoints and validates both canonical
+payloads and projected edges on reopen. A hard delete is refused atomically if
+it would leave a surviving required reference; callers may delete the target
+and every dependent source in one transaction. A surviving optional reference
+is reprojected as a literal value or, when explicitly declared, a virtual
+identity, and stale canonical graph/vector state is removed. The
+normalized `ir_edge_sources` ledger records every canonical MIRL record that
+supports a projected triple: rewriting or deleting one record removes only its
+contribution, and an identical triple remains while another canonical record
+still supports it.
 
 ## Status Enum
 

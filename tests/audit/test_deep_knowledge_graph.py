@@ -12,6 +12,7 @@ from seam_runtime.knowledge_graph import (
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.nl import compile_nl
 from seam_runtime.nl_extract import ExtractedClaim, ExtractedEntity, Extraction, ground_extraction
+from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.self_improve import (
     GraphProbe,
@@ -61,6 +62,22 @@ def _claim_id(batch: IRBatch, predicate: str = "content") -> str:
         record.id
         for record in batch.records
         if record.kind == RecordKind.CLM and record.attrs.get("predicate") == predicate
+    )
+
+
+def _entity(
+    record_id: str,
+    label: str,
+    *,
+    ns: str = "local.default",
+    scope: str = "project",
+) -> MIRLRecord:
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.ENT,
+        ns=ns,
+        scope=scope,
+        attrs={"label": label, "entity_type": "thing"},
     )
 
 
@@ -128,7 +145,7 @@ def test_model_output_is_unverified_but_independent_raw_evidence_is_supported(ru
         ext={"agent_id": "planner"},
         attrs={"subject": "ent:planner", "predicate": "predicts", "object": "Orion shipped"},
     )
-    runtime.persist_ir(IRBatch([model_claim]))
+    runtime.persist_ir(IRBatch([_entity("ent:planner", "Planner"), model_claim]))
     model_raw_batch = runtime.compile_nl(
         "A model says another unsupported thing.",
         source_ref="agent://planner/model-output",
@@ -191,7 +208,7 @@ def test_assistant_chat_output_cannot_self_corroborate_on_a_later_turn(runtime: 
             kind=RecordKind.REL,
             ns="team.alpha",
             scope="thread",
-                prov=(second_prov_record.id,),
+                prov=[second_prov_record.id],
             ext={"agent_id": "assistant-model"},
             attrs={"src": second_claim, "predicate": "corroborates", "dst": first_claim},
         )
@@ -238,7 +255,17 @@ def test_cross_tenant_epistemic_evidence_cannot_upgrade_claim(
         attrs={"subject": "ent:orion", "predicate": "state", "object": "shipped"},
     )
     runtime.persist_ir(foreign)
-    runtime.persist_ir(IRBatch([target]))
+    runtime.persist_ir(
+        IRBatch([
+            _entity(
+                "ent:orion",
+                "Orion",
+                ns="team.alpha",
+                scope="project",
+            ),
+            target,
+        ])
+    )
     # The edge is deliberately stamped alpha/project while its source node and
     # source episode differ by namespace or scope. Trust evaluation must
     # constrain every part of the path, rather than accepting the edge's
@@ -249,7 +276,7 @@ def test_cross_tenant_epistemic_evidence_cannot_upgrade_claim(
             kind=RecordKind.REL,
             ns="team.alpha",
             scope="project",
-                prov=(foreign_prov_record.id,),
+                prov=[foreign_prov_record.id],
             attrs={"src": foreign_claim, "predicate": "supports", "dst": target.id},
         )
     ]))
@@ -290,23 +317,39 @@ def test_epistemic_edges_support_contest_refute_and_supersede(runtime: SeamRunti
             "unevidenced-edge-target",
         )
     ]
-    runtime.persist_ir(IRBatch(targets))
+    unsupported_dispute = MIRLRecord(
+        id="clm:unsupported-dispute",
+        kind=RecordKind.CLM,
+        ext={"agent_id": "planner"},
+        attrs={
+            "subject": "ent:release",
+            "predicate": "disputes",
+            "object": "unsupported",
+        },
+    )
+    runtime.persist_ir(
+        IRBatch([
+            _entity("ent:release", "Release"),
+            unsupported_dispute,
+            *targets,
+        ])
+    )
     runtime.persist_ir(IRBatch([source_raw_record, source_prov_record,
         MIRLRecord(
             id="rel:support",
             kind=RecordKind.REL,
-            prov=(source_prov_record.id,),
+            prov=[source_prov_record.id],
             attrs={"src": source_id, "predicate": "supports", "dst": targets[0].id},
         ),
         MIRLRecord(
             id="rel:contradict",
             kind=RecordKind.REL,
-            attrs={"src": "clm:unsupported-dispute", "predicate": "contradicts", "dst": targets[1].id},
+            attrs={"src": unsupported_dispute.id, "predicate": "contradicts", "dst": targets[1].id},
         ),
         MIRLRecord(
             id="rel:refute",
             kind=RecordKind.REL,
-            prov=(source_prov_record.id,),
+            prov=[source_prov_record.id],
             attrs={"src": source_id, "predicate": "refutes", "dst": targets[2].id},
         ),
         MIRLRecord(
@@ -353,7 +396,7 @@ def test_hypothetical_stale_and_superseded_claims_are_not_assertable(runtime: Se
             attrs={"subject": "ent:x", "predicate": "old", "object": "value"},
         ),
     ]
-    runtime.persist_ir(IRBatch(claims))
+    runtime.persist_ir(IRBatch([_entity("ent:x", "X"), *claims]))
     with runtime.store._pool.checkout() as connection:
         assert assertable_record_ids(connection, [claim.id for claim in claims]) == set()
     history = runtime.store.knowledge_graph(include_history=True, limit=200, hops=0)
@@ -375,14 +418,29 @@ def test_graph_probe_generation_covers_safety_and_reasoning_motifs(runtime: Seam
     unsupported = MIRLRecord(
         id="clm:unsupported-probe",
         kind=RecordKind.CLM,
-        ext={"agent_id": "model"},
+        ext={"agent_id": "model", VIRTUAL_REFS_EXTENSION: ["ent:a"]},
         attrs={"subject": "ent:a", "predicate": "claims", "object": "unverified"},
     )
     runtime.persist_ir(IRBatch([
         unsupported,
-        MIRLRecord(id="rel:a-b", kind=RecordKind.REL, attrs={"src": "ent:a", "predicate": "uses", "dst": "ent:b"}),
-        MIRLRecord(id="rel:b-c", kind=RecordKind.REL, attrs={"src": "ent:b", "predicate": "precedes", "dst": "ent:c"}),
-        MIRLRecord(id="rel:cause", kind=RecordKind.REL, attrs={"src": "ent:c", "predicate": "caused_by", "dst": "ent:d"}),
+        MIRLRecord(
+            id="rel:a-b",
+            kind=RecordKind.REL,
+            ext={VIRTUAL_REFS_EXTENSION: ["ent:a", "ent:b"]},
+            attrs={"src": "ent:a", "predicate": "uses", "dst": "ent:b"},
+        ),
+        MIRLRecord(
+            id="rel:b-c",
+            kind=RecordKind.REL,
+            ext={VIRTUAL_REFS_EXTENSION: ["ent:b", "ent:c"]},
+            attrs={"src": "ent:b", "predicate": "precedes", "dst": "ent:c"},
+        ),
+        MIRLRecord(
+            id="rel:cause",
+            kind=RecordKind.REL,
+            ext={VIRTUAL_REFS_EXTENSION: ["ent:c", "ent:d"]},
+            attrs={"src": "ent:c", "predicate": "caused_by", "dst": "ent:d"},
+        ),
         MIRLRecord(id="rel:dispute", kind=RecordKind.REL, attrs={"src": unsupported.id, "predicate": "contradicts", "dst": _claim_id(rich)}),
     ]))
     with runtime.store._pool.checkout() as connection:

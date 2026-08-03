@@ -17,7 +17,8 @@ def test_orphan_edge_cleanup_non_clm_prefix():
     covers all prefixes."""
     store = SQLiteStore(":memory:")
 
-    # Insert a REL record.
+    source = _entity("ent:turn:1")
+    target = _entity("ent:claim:1")
     rel = MIRLRecord(
         id="rel:1",
         kind=RecordKind.REL,
@@ -25,18 +26,18 @@ def test_orphan_edge_cleanup_non_clm_prefix():
         scope="test",
         status=Status.ASSERTED,
         conf=1.0,
-        attrs={"src": "ent:turn:1", "predicate": "references", "dst": "clm:1"},
+        attrs={"src": source.id, "predicate": "references", "dst": target.id},
     )
-    store.persist_ir(IRBatch([rel]))
+    store.persist_ir(IRBatch([source, target, rel]))
 
     # Verify edge exists.
     edges = _dump_edges(store)
-    assert ("ent:turn:1", "references", "clm:1") in edges
+    assert (source.id, "references", target.id) in edges
 
-    # Delete the record directly via SQL (simulating a record removal
+    # Delete one endpoint directly via SQL (simulating a record removal
     # that bypasses the normal delete_ir path).
     with closing(store._connect()) as conn:
-        conn.execute("delete from ir_records where id = ?", ("rel:1",))
+        conn.execute("delete from ir_records where id = ?", (source.id,))
         conn.commit()
 
     # `:memory:` connections aren't shared across SQLiteStore instances, so
@@ -47,7 +48,7 @@ def test_orphan_edge_cleanup_non_clm_prefix():
         conn.commit()
 
     edges_after = _dump_edges(store)
-    assert ("ent:turn:1", "references", "clm:1") not in edges_after, (
+    assert (source.id, "references", target.id) not in edges_after, (
         f"Orphan edge survived cleanup: {edges_after}"
     )
 
@@ -64,12 +65,28 @@ def test_orphan_edge_cleanup_prov_edge():
         status=Status.ASSERTED,
         conf=1.0,
         attrs={"subject": "ent:user:1", "predicate": "likes", "object": "ent:thing:1"},
-        prov=["raw:1"],
+        prov=["prov:1"],
     )
-    store.persist_ir(IRBatch([rec]))
+    provenance = MIRLRecord(
+        id="prov:1",
+        kind=RecordKind.PROV,
+        ns="test",
+        scope="test",
+        attrs={"entity": "ent:user:1", "activity": "observed"},
+    )
+    store.persist_ir(
+        IRBatch(
+            [
+                _entity("ent:user:1"),
+                _entity("ent:thing:1"),
+                provenance,
+                rec,
+            ]
+        )
+    )
 
     edges = _dump_edges(store)
-    assert ("clm:1", "prov", "raw:1") in edges
+    assert ("clm:1", "prov", "prov:1") in edges
 
     # Delete the record.
     with closing(store._connect()) as conn:
@@ -81,7 +98,7 @@ def test_orphan_edge_cleanup_prov_edge():
         conn.commit()
 
     edges_after = _dump_edges(store)
-    assert ("clm:1", "prov", "raw:1") not in edges_after
+    assert ("clm:1", "prov", "prov:1") not in edges_after
 
 
 def test_orphan_edge_cleanup_evidence_edge():
@@ -98,7 +115,19 @@ def test_orphan_edge_cleanup_evidence_edge():
         attrs={"subject": "ent:user:2", "predicate": "knows", "object": "ent:fact:1"},
         evidence=["span:42"],
     )
-    store.persist_ir(IRBatch([rec]))
+    raw = _raw("raw:evidence-42")
+    span = _span("span:42", raw)
+    store.persist_ir(
+        IRBatch(
+            [
+                _entity("ent:user:2"),
+                _entity("ent:fact:1"),
+                raw,
+                span,
+                rec,
+            ]
+        )
+    )
 
     edges = _dump_edges(store)
     assert ("clm:2", "evidence", "span:42") in edges
@@ -196,6 +225,42 @@ def test_valid_edges_survive_cleanup():
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _entity(record_id: str) -> MIRLRecord:
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.ENT,
+        ns="test",
+        scope="test",
+        attrs={"label": record_id, "entity_type": "fixture"},
+    )
+
+
+def _raw(record_id: str) -> MIRLRecord:
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.RAW,
+        ns="test",
+        scope="test",
+        attrs={"content": f"source for {record_id}"},
+    )
+
+
+def _span(record_id: str, raw: MIRLRecord) -> MIRLRecord:
+    content = str(raw.attrs["content"])
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.SPAN,
+        ns="test",
+        scope="test",
+        attrs={
+            "raw_id": raw.id,
+            "start": 0,
+            "end": len(content),
+            "text": content,
+        },
+    )
 
 def _dump_edges(store: SQLiteStore) -> set[tuple[str, str, str]]:
     """Return all (src_id, edge_type, dst_id) triples currently in ir_edges."""

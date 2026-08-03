@@ -23,10 +23,12 @@ def test_clm_stale_edge_cleanup_on_overwrite():
         scope="test",
         ext={VIRTUAL_REFS_EXTENSION: ["ent:x", "ent:a"]},
         attrs={"subject": "ent:x", "predicate": "related_to", "object": "ent:a"},
-        prov=["raw:1"],
+        prov=["prov:1"],
         evidence=["span:1"],
     )
-    store.persist_ir(IRBatch([clm_v1]))
+    raw_v1, span_v1 = _raw_and_span("raw:1", "span:1")
+    prov_v1 = _prov("prov:1", raw_v1.id)
+    store.persist_ir(IRBatch([raw_v1, span_v1, prov_v1, clm_v1]))
 
     # Verify edge exists: src=ent:x, type=related_to, dst=ent:a
     edges_v1 = _dump_edges(store)
@@ -42,10 +44,12 @@ def test_clm_stale_edge_cleanup_on_overwrite():
         scope="test",
         ext={VIRTUAL_REFS_EXTENSION: ["ent:x", "ent:b"]},
         attrs={"subject": "ent:x", "predicate": "related_to", "object": "ent:b"},
-        prov=["raw:2"],
+        prov=["prov:2"],
         evidence=["span:2"],
     )
-    store.persist_ir(IRBatch([clm_v2]))
+    raw_v2, span_v2 = _raw_and_span("raw:2", "span:2")
+    prov_v2 = _prov("prov:2", raw_v2.id)
+    store.persist_ir(IRBatch([raw_v2, span_v2, prov_v2, clm_v2]))
 
     edges_v2 = _dump_edges(store)
 
@@ -72,9 +76,11 @@ def test_clm_stale_edge_cleanup_subject_change():
         scope="test",
         ext={VIRTUAL_REFS_EXTENSION: ["ent:old", "target:1"]},
         attrs={"subject": "ent:old", "predicate": "relates_to", "object": "target:1"},
-        prov=["raw:1"],
+        prov=["prov:1"],
     )
-    store.persist_ir(IRBatch([clm_v1]))
+    raw_v1 = _raw("raw:1")
+    prov_v1 = _prov("prov:1", raw_v1.id)
+    store.persist_ir(IRBatch([raw_v1, prov_v1, clm_v1]))
 
     edges_v1 = _dump_edges(store)
     assert ("ent:old", "relates_to", "target:1") in edges_v1
@@ -86,9 +92,11 @@ def test_clm_stale_edge_cleanup_subject_change():
         scope="test",
         ext={VIRTUAL_REFS_EXTENSION: ["ent:new", "target:2"]},
         attrs={"subject": "ent:new", "predicate": "relates_to", "object": "target:2"},
-        prov=["raw:2"],
+        prov=["prov:2"],
     )
-    store.persist_ir(IRBatch([clm_v2]))
+    raw_v2 = _raw("raw:2")
+    prov_v2 = _prov("prov:2", raw_v2.id)
+    store.persist_ir(IRBatch([raw_v2, prov_v2, clm_v2]))
 
     edges_v2 = _dump_edges(store)
 
@@ -103,10 +111,10 @@ def test_clm_stale_edge_cleanup_subject_change():
     )
 
     # prov edge (keyed by record.id=clm:1) must also be refreshed.
-    assert ("clm:1", "prov", "raw:2") in edges_v2, (
-        "Expected prov edge (clm:1, prov, raw:2) not found"
+    assert ("clm:1", "prov", "prov:2") in edges_v2, (
+        "Expected prov edge (clm:1, prov, prov:2) not found"
     )
-    assert ("clm:1", "prov", "raw:1") not in edges_v2, (
+    assert ("clm:1", "prov", "prov:1") not in edges_v2, (
         "Stale prov edge from v1 should be gone"
     )
 
@@ -114,6 +122,43 @@ def test_clm_stale_edge_cleanup_subject_change():
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _raw(record_id: str) -> MIRLRecord:
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.RAW,
+        ns="test",
+        scope="test",
+        attrs={"content": f"source for {record_id}"},
+    )
+
+
+def _prov(record_id: str, entity_id: str) -> MIRLRecord:
+    return MIRLRecord(
+        id=record_id,
+        kind=RecordKind.PROV,
+        ns="test",
+        scope="test",
+        attrs={"entity": entity_id, "activity": "observed"},
+    )
+
+
+def _raw_and_span(raw_id: str, span_id: str) -> tuple[MIRLRecord, MIRLRecord]:
+    raw = _raw(raw_id)
+    span = MIRLRecord(
+        id=span_id,
+        kind=RecordKind.SPAN,
+        ns="test",
+        scope="test",
+        attrs={
+            "raw_id": raw.id,
+            "start": 0,
+            "end": len(str(raw.attrs["content"])),
+            "text": raw.attrs["content"],
+        },
+    )
+    return raw, span
 
 def _dump_edges(store: SQLiteStore) -> set[tuple[str, str, str]]:
     """Return all (src_id, edge_type, dst_id) triples currently in ir_edges."""

@@ -2,13 +2,12 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S3 requalified on current protected-main ancestry via
-`HISTORY#529`; S2 and the two audit-repair follow-ups are merged through
-`main@fa72c0c`
+**Latest evidence:** S4 requalified on the merged S3 ancestry via
+`HISTORY#530`; S3 is published through PR #194 at `main@9bd40cb`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** rebuilt S3 draft PR #194; S4 draft PR #195 must be
-restacked only after S3 merges
+**Publication boundary:** rebuilt S4 PR #195 must replace its stale head and
+pass fresh exact-head review plus required and advisory CI
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
 It converts the verified F1-F22 findings below into one dependency-ordered
@@ -31,8 +30,9 @@ post-S2 audit in `HISTORY#525` exposed a missing forward projection path;
 backup ordering, and durable per-step resume; PR #193 published it to protected
 `main`. `HISTORY#527` and `HISTORY#528` record the merged second-audit repairs
 and corrected handoff. `HISTORY#529` requalifies S3's exact KG/4-to-KG/5
-transition on that current ancestry. S4 remains an older stacked candidate
-until S3 publishes and S4 is rebuilt from the resulting `main`.
+transition on that current ancestry; PR #194 publishes it at `main@9bd40cb`.
+`HISTORY#530` requalifies S4's closed typed-reference contract and exact
+core-storage/1-to-/2 plus KG/5-to-/6 transitions on that merged S3 base.
 
 ## Governing invariants
 
@@ -199,8 +199,8 @@ S6 principal tenancy or automatic token provisioning. Audit findings 7-10 and
 
 ## S3 - Durable supersession and guarded reprojection
 
-**Status:** requalified on current protected-main ancestry via `HISTORY#529`;
-draft PR #194 and fresh exact-head CI remain the publication boundary.
+**Status:** published through PR #194 at `main@9bd40cb`; local qualification is
+recorded by `HISTORY#529` and exact-head required plus advisory CI passed.
 
 **Purpose:** make temporal supersession canonical and ensure graph rebuilds are
 non-destructive, atomic, and history-equivalent.
@@ -231,6 +231,10 @@ state refuses without publishing partial topology.
 
 ## S4 - Typed references and orphan integrity
 
+**Status:** requalified on merged S3 ancestry via `HISTORY#530`; rebuilt PR
+#195, fresh exact-head review, and required plus advisory CI remain the
+publication boundary.
+
 **Purpose:** replace string heuristics with typed MIRL/edge reference contracts
 and complete orphan validation.
 
@@ -244,8 +248,44 @@ and complete orphan validation.
 - Every MIRL kind and both endpoints of every supported edge/reference contract
   participate in orphan checks.
 - Deliberate virtual entities are preserved.
+- All supported reconciliation pointers and explicit facet positions share the
+  same remap, candidate, typed-edge, and graph-projection contract.
+- Reserved virtual-reference metadata is validated even when a record has no
+  missing endpoint, and malformed metadata is never durable.
+- Hard delete cannot leave a surviving required canonical reference; refusal is
+  atomic, while deleting every dependent source in the same operation succeeds.
 - Reopening and rerunning integrity work is idempotent.
 - Whole-message compilation creates zero phantom IDs from colon heuristics.
+- A populated `core-storage/1` plus `knowledge-graph/5` store successfully
+  applies exactly the `/1 -> /2` and `/5 -> /6` transitions, advances durable
+  and component markers together, removes colon-phantom topology and orphan
+  vectors, and preserves canonical typed edges.
+- Every projected IR edge retains source-record ownership. Rewriting one CLM or
+  REL replaces only its own contributions, and a shared edge remains while any
+  independent canonical record still supports it.
+- Already-current stores fail closed when a canonical payload loses a required
+  endpoint or a contributor loses either its canonical source record or its
+  derived edge, without modifying database bytes or creating a migration
+  backup.
+- Canonical migration input is consumed in bounded batches; invalid or
+  mismatched private record identifiers roll the step back and surface only a
+  digest, never the raw identifier.
+- Edge-type conflict validation is set-based and stays below SQLite's legacy
+  variable limit; contradictory endpoint types within or across canonical
+  batches roll the whole step back.
+- When the downstream typed-reference step fails after S3, `/5` remains the
+  truthful durable checkpoint and reopen resumes only `/5 -> /6` while
+  preserving zero-resurrection semantics.
+
+The qualified implementation persists explicit edge endpoint types and
+source-record contributors, validates all closed reference candidates,
+preserves declared virtual references, and uses candidate-only chunked lookups,
+bounded canonical batches, and 300-triple conflict checks rather than
+whole-corpus or per-edge scans.
+Fallback RAW-agent attribution is globally ordered and independent of batch
+boundaries; ordinary boundary-only writes retain content-hash vector reuse,
+while migrations remove orphan graph vectors only after full reprojection and
+canonical-state restoration.
 
 ## S5 - Vector outbox and connection pooling
 
