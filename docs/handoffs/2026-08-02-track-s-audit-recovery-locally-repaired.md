@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-02-track-s-audit-recovery-locally-repaired
 supersedes: 2026-08-01-track-s-s1-doctor-policy-corrected
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#526
 ---
 
