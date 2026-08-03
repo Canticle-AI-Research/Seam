@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import re
 from collections import Counter, defaultdict
@@ -21,6 +22,8 @@ from .mirl import (
 )
 from .symbols import build_symbol_maps
 from .temporal import parse_iso, temporal_distance_score
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -271,11 +274,28 @@ def resolve_retrieval_profile(name: str | None) -> tuple[int, int] | None:
     return RETRIEVAL_PROFILES.get(name.strip().lower())
 
 
+def _reject_leg_weights(reason: str) -> tuple[()]:
+    """Discard a malformed leg-weight spec, but say so.
+
+    Returning () silently was its own hazard: a trailing comma or a typo
+    disabled an entire ablation while the retrieval trace still reported a
+    self-consistent policy, so an operator could record a leg-ablation result
+    for a run in which no ablation happened.
+    """
+    LOGGER.warning(
+        "Ignoring SEAM_RETRIEVAL_LEG_WEIGHTS: %s. No leg weighting is applied; "
+        "retrieval runs with the default fusion policy.",
+        reason,
+    )
+    return ()
+
+
 def _parse_leg_weights(raw: str) -> tuple[tuple[str, float], ...]:
     """Parse "graph=0.3,vector=1.0" into sorted (leg, weight) pairs.
 
     Malformed input yields () rather than a partial map: half-applying weights
-    would change ranking in a way the operator never asked for.
+    would change ranking in a way the operator never asked for. The rejection
+    is logged so it cannot be mistaken for "no weights were configured".
     """
     raw = (raw or "").strip()
     if not raw:
@@ -288,16 +308,18 @@ def _parse_leg_weights(raw: str) -> tuple[tuple[str, float], ...]:
             continue
         leg, sep, value = part.partition("=")
         if not sep:
-            return ()
+            return _reject_leg_weights(f"component {part!r} has no '=' separator")
         leg = leg.strip()
-        if not leg or leg in seen:
-            return ()
+        if not leg:
+            return _reject_leg_weights(f"component {part!r} has an empty leg name")
+        if leg in seen:
+            return _reject_leg_weights(f"leg {leg!r} is specified more than once")
         try:
             weight = float(value.strip())
         except ValueError:
-            return ()
+            return _reject_leg_weights(f"leg {leg!r} has a non-numeric weight {value.strip()!r}")
         if not 0.0 <= weight <= 1_000.0:
-            return ()
+            return _reject_leg_weights(f"leg {leg!r} weight {weight} is outside [0, 1000]")
         seen.add(leg)
         parsed.append((leg, weight))
     return tuple(sorted(parsed))
@@ -377,15 +399,37 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
             value = int(raw)
             if coerce_flag_value("graph_semantic_seeds", value) is not None:
                 out["graph_semantic_seeds"] = value
+            else:
+                LOGGER.warning(
+                    "Ignoring SEAM_GRAPH_SEMANTIC_SEEDS=%r: rejected by flag validation. "
+                    "Semantic graph seeding keeps its default.",
+                    raw,
+                )
+        else:
+            LOGGER.warning(
+                "Ignoring SEAM_GRAPH_SEMANTIC_SEEDS=%r: not an integer. "
+                "Semantic graph seeding keeps its default.",
+                raw,
+            )
     if _present("SEAM_GRAPH_SEMANTIC_MIN_SCORE"):
         raw = env["SEAM_GRAPH_SEMANTIC_MIN_SCORE"].strip()
         try:
             value = float(raw)
         except ValueError:
-            pass
+            LOGGER.warning(
+                "Ignoring SEAM_GRAPH_SEMANTIC_MIN_SCORE=%r: not a number. "
+                "The semantic score threshold keeps its default.",
+                raw,
+            )
         else:
             if coerce_flag_value("graph_semantic_min_score", value) is not None:
                 out["graph_semantic_min_score"] = value
+            else:
+                LOGGER.warning(
+                    "Ignoring SEAM_GRAPH_SEMANTIC_MIN_SCORE=%r: rejected by flag validation. "
+                    "The semantic score threshold keeps its default.",
+                    raw,
+                )
     return out
 
 

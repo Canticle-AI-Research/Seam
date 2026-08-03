@@ -121,3 +121,40 @@ def test_real_uvicorn_factory_refuses_unsafe_remote_launch(tmp_path):
 
     assert result.returncode != 0
     assert "without an authentication token" in (result.stdout + result.stderr)
+
+
+class TestGeneratedDocsRoutesFollowTheAuthDecision:
+    """FastAPI registers /docs, /redoc and /openapi.json without dependencies, so
+    they bypass both the bearer guard and the rate limiter. When an operator sets
+    SEAM_API_TOKEN they have asked for an authenticated surface; anonymous path
+    inventory disclosure (and an unmetered per-request schema rebuild)
+    contradicts that."""
+
+    @staticmethod
+    def _client(monkeypatch, token):
+        from fastapi.testclient import TestClient
+
+        from seam_runtime.server import create_app_from_env
+
+        monkeypatch.delenv("SEAM_API_RATE_LIMIT_PER_MINUTE", raising=False)
+        if token is None:
+            monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+        else:
+            monkeypatch.setenv("SEAM_API_TOKEN", token)
+        return TestClient(create_app_from_env())
+
+    @pytest.mark.parametrize("path", ["/openapi.json", "/docs", "/redoc"])
+    def test_docs_routes_are_absent_when_a_token_is_configured(self, path, monkeypatch, tmp_path):
+        monkeypatch.setenv("SEAM_DB_PATH", str(tmp_path / "docs_gate.db"))
+        client = self._client(monkeypatch, "test-token-value")
+
+        assert client.get(path).status_code == 404
+
+    @pytest.mark.parametrize("path", ["/openapi.json", "/docs", "/redoc"])
+    def test_docs_routes_remain_for_unauthenticated_loopback_development(
+        self, path, monkeypatch, tmp_path
+    ):
+        monkeypatch.setenv("SEAM_DB_PATH", str(tmp_path / "docs_open.db"))
+        client = self._client(monkeypatch, None)
+
+        assert client.get(path).status_code == 200

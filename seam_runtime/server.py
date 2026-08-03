@@ -633,7 +633,19 @@ def create_app(
     state = shutdown_state or ShutdownState()
     resolved_jlens_worker = jlens_worker or jlens_worker_from_env()
 
-    app = FastAPI(title="SEAM Runtime API", version="0.1")
+    # FastAPI's generated docs routes are registered without dependencies, so they
+    # bypass both the bearer guard and the rate limiter. When an operator has set
+    # SEAM_API_TOKEN they have asked for an authenticated surface, and anonymous
+    # schema/path disclosure (plus an unmetered per-request schema rebuild)
+    # contradicts that. Unauthenticated loopback development keeps the docs.
+    _docs_enabled = not token
+    app = FastAPI(
+        title="SEAM Runtime API",
+        version="0.1",
+        docs_url="/docs" if _docs_enabled else None,
+        redoc_url="/redoc" if _docs_enabled else None,
+        openapi_url="/openapi.json" if _docs_enabled else None,
+    )
     app.add_middleware(ShutdownMiddleware, state=state)
     app.add_middleware(BodySizeLimitMiddleware, max_body_bytes=_max_body_bytes_from_env())
     cors_origins = _cors_origins_from_env()
@@ -1172,12 +1184,24 @@ def create_app(
                 provider=provider, base_url=base_url, api_key=api_key, model=model, messages=messages,
             )
         except urllib.error.HTTPError as exc:
+            # A loopback base_url is allowed unconditionally so local providers
+            # (Ollama) work, which means the target can be ANY service bound to
+            # 127.0.0.1. Echoing its response body back to the caller would turn
+            # that allowance into a read primitive over every local service, so
+            # loopback failures report the status code only. This matches what
+            # /chat/stream already does (it never echoes provider content).
+            if is_loopback:
+                raise HTTPException(status_code=502, detail=f"provider error {exc.code}")
             try:
                 detail = exc.read().decode("utf-8")[:400]
             except Exception:
                 detail = str(exc)
             raise HTTPException(status_code=502, detail=f"provider error {exc.code}: {detail}")
         except Exception as exc:  # noqa: BLE001 - surface provider/network failures to the UI
+            if is_loopback:
+                raise HTTPException(
+                    status_code=502, detail=f"provider call failed: {type(exc).__name__}"
+                )
             raise HTTPException(status_code=502, detail=f"provider call failed: {exc}")
         result: dict[str, object] = {"reply": reply, "memory_used": memory_used, "model": model}
         if bool(payload.get("persist_chat", True)):
