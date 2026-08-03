@@ -9,12 +9,19 @@
 
 ## Current headline
 
-**2026-08-03 — HISTORY#530, rebuilt Track S S4 candidate** (supersedes the
-2026-08-03 HISTORY#529 headline). Protected `main` is `9bd40cb`: S3 merged
-through PR #194 after every required and advisory exact-head check passed. S4
-has been selectively rebuilt from that exact ancestry; PR #195 is retargeted to
-`main`, but its old head and old green checks remain superseded until this
-candidate replaces them and fresh review plus CI pass.
+**2026-08-03 — HISTORY#531, Track S S4 published; S5 is the next stage**
+(supersedes the 2026-08-03 HISTORY#530 headline). Protected `main` is
+`ea4e46e`: S3 merged through PR #194 and S4 through PR #195, each after all
+eight required and advisory checks passed on the exact head. Zero PRs are open.
+
+S5 — vector outbox and connection pooling — is now the only unblocked stage,
+and S6 through S10 all sit behind it. Its exit gate was tightened by
+`HISTORY#529` to require that every SQLite-backed leg and visibility check in
+one retrieval request read from a single committed snapshot; routing the
+`store._connect()` sites through a pool satisfies the pooling clause while
+leaving that read-snapshot tear intact, so the two must be designed together.
+S4 shipped same-process write/index/compensate serialization, which is a
+starting substrate, not S5 evidence.
 
 S4 replaces colon/prefix inference with closed typed-reference contracts.
 Timestamps, URLs, and arbitrary colon-bearing values remain literals unless a
@@ -23,7 +30,7 @@ virtual identities remain deliberate. Exact `core-storage/1 -> /2` and
 `knowledge-graph/5 -> /6` migrations persist both endpoint types, validate both
 sides of every edge, retain the truthful S3 `/5` resume point, and replay
 lifecycle, document-supersession, and identity-judgement truth after
-reprojection.
+reprojection. It is published at `main@ea4e46e`.
 
 S3 remains the published foundation. Its known-good `knowledge-graph/4` store
 applies exactly one registered `/4 -> /5` transition, rebuilds disposable

@@ -68,8 +68,8 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   transition rebuilds disposable topology from canonical
   MIRL/lifecycle/document status, preserves the identity judgement ledger, and
   refuses damaged/newer inputs before publishing partial topology.
-- S4 is requalified on that merged S3 ancestry as the rebuilt PR #195
-  candidate. Closed typed-reference contracts replace colon inference; both
+- S4 is published through PR #195 at `main@ea4e46e`. Closed typed-reference
+  contracts replace colon inference; both
   edge endpoint types and source-record contributors are durable; exact
   `core-storage/1 -> /2` plus KG/5-to-KG/6 steps preserve S3's truthful resume
   point. Canonical inputs are processed in bounded batches, invalid identifiers
@@ -77,11 +77,16 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   payloads and edge contributors, and 300-triple type checks replace per-edge
   migration queries. Reserved virtual metadata is unconditional, and hard
   deletes fail atomically if a surviving required reference would remain.
-  Removed phantom nodes cannot leave searchable orphan vectors. Fresh exact-
-  head review and CI remain the publication boundary.
-- S5 now requires one committed SQLite read snapshot across every retrieval leg
-  and visibility check; connection pooling alone does not close the observed
-  mixed-state fingerprint defect.
+  Removed phantom nodes cannot leave searchable orphan vectors.
+- S5 is the next stage and is unstarted. It requires one committed SQLite read
+  snapshot across every retrieval leg and visibility check; connection pooling
+  alone does not close the observed mixed-state fingerprint defect. S4's
+  same-process write/index/compensate serialization is a substrate for that
+  work, not evidence for it.
+- The history advisory lock now resolves through a linked worktree's
+  `gitdir:` pointer, so `python -m tools.history.new_entry` no longer leaves an
+  untracked `HISTORY_INDEX.md.lock` inside a worktree's working tree where
+  `git add -A` would commit it.
 - Clean artifact/privacy proof remains mandatory on the frozen candidate, and
   every S10 gate must be rerun after S1-S9 even while the full suite is advisory
   in branch protection.

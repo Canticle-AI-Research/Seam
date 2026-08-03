@@ -2,12 +2,12 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S4 requalified on the merged S3 ancestry via
-`HISTORY#530`; S3 is published through PR #194 at `main@9bd40cb`
+**Latest evidence:** S4 is published through PR #195 at `main@ea4e46e`,
+recorded by `HISTORY#530` and registered by `HISTORY#531`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** rebuilt S4 PR #195 must replace its stale head and
-pass fresh exact-head review plus required and advisory CI
+**Publication boundary:** S0-S4 are merged; S5 is the next stage and must be
+built on `main@ea4e46e` rather than stacked on an unmerged base
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
 It converts the verified F1-F22 findings below into one dependency-ordered
@@ -231,9 +231,9 @@ state refuses without publishing partial topology.
 
 ## S4 - Typed references and orphan integrity
 
-**Status:** requalified on merged S3 ancestry via `HISTORY#530`; rebuilt PR
-#195, fresh exact-head review, and required plus advisory CI remain the
-publication boundary.
+**Status:** published through PR #195 at `main@ea4e46e`; local qualification is
+recorded by `HISTORY#530` and all eight required plus advisory exact-head
+checks passed.
 
 **Purpose:** replace string heuristics with typed MIRL/edge reference contracts
 and complete orphan validation.
@@ -288,6 +288,11 @@ while migrations remove orphan graph vectors only after full reprojection and
 canonical-state restoration.
 
 ## S5 - Vector outbox and connection pooling
+
+**Status:** next and unstarted; the only stage unblocked by merged work, and
+S6-S10 all depend on it directly or transitively. S4's same-process
+write/index/compensate serialization is a starting substrate and satisfies none
+of the clauses below.
 
 **Purpose:** make derived-index updates process-durable and eliminate search-time
 connection/schema churn without changing answers.
