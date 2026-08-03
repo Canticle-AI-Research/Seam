@@ -15800,3 +15800,76 @@ HISTORY#527 audit recorded as its first finding.
 Documentation and registry only. No runtime code, test, workflow, provider
 call, benchmark, publish, deploy, or release changed.
 ---END-ENTRY-#528---
+
+---BEGIN-ENTRY-#529---
+id: 529
+date: 2026-08-03T05:21:41Z
+agent: codex-gpt-5
+status: done
+topics: storage, persist, graph, provenance, integrity, atomicity, audit, verify, handoff, history, streams
+commits: agent/track-s-s3-reconcile
+refs: seam_runtime/knowledge_graph.py,seam_runtime/migrations.py,tests/audit/test_knowledge_graph_reprojection.py,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-03-track-s-s3-requalified.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 528
+tokens: 701
+---
+Rebuilt and requalified Track S S3 durable supersession on the current
+protected-main ancestry (`fa72c0c`) without replaying the stale S3 closeout.
+
+## Why
+
+Draft PR #194 was authored before the S2 follow-up audit repairs and before
+the canonical handoff correction. Its old green checks therefore did not
+qualify the actual merge candidate. HISTORY#528 also identified a missing
+positive-success clause in the S3 campaign gate: refusal tests alone could not
+prove that a supported projection migration succeeds.
+
+## Changed
+
+- Registered and exercised the exact `knowledge-graph/4 -> /5` projection
+  transition. The migration rebuilds disposable topology from canonical MIRL,
+  lifecycle, and document-supersession truth while preserving independently
+  supported edges, current/history/point-in-time semantics, rollback, and
+  source-database hashes.
+- Added the positive known-good migration gate: one transition applies,
+  current and durable markers advance together, all expected semantics remain
+  equivalent, and excluded records have zero resurrection.
+- Added a durable identity ledger and fail-closed checks for unregistered,
+  ambiguous, unsupported, and hash-mismatched projection history.
+- Closed the independent-review finding for malformed canonical document
+  identifiers. Reprojection now raises `DatabaseIntegrityError`, rolls the
+  whole transaction back, logs only a SHA-256 digest, and never emits the raw
+  identifier. Tests cover both a private label and a malformed `doc:` value.
+- Preserved the merged deterministic graph-query order from HISTORY#527:
+  `confidence DESC, updated_at DESC, id`.
+- Tightened the S5 campaign contract: every retrieval leg and its visibility
+  checks must share one committed SQLite read snapshot; routing through a pool
+  alone is not sufficient.
+- Replaced the stale handoff head with
+  `docs/handoffs/2026-08-03-track-s-s3-requalified.md` and updated the current
+  status, campaign, migration, and knowledge-graph documentation.
+
+## Verified
+
+- Focused migration, graph, and reprojection slice: **83 passed**.
+- Full provider-free audit suite (`tests/audit`, excluding the explicitly
+  external service lane): **1,630 passed, 23 external deselected, zero skips,
+  zero failures**. The two warnings are the existing FastAPI duplicate
+  operation-id warnings.
+- Repo-wide `ruff check .`, `compileall seam_runtime`, `git diff --check`, and
+  the content-free secret/session scan pass.
+- CodeRabbit review against `origin/main` first found the malformed-document
+  fail-open and the missing status-lineage pointer. Both were repaired; the
+  final exact-diff rerun reports **zero findings**.
+
+## Publication boundary and next move
+
+This entry qualifies the local S3 candidate only. PR #194 must be rewritten to
+this exact head and pass fresh required plus advisory CI before merge. Only
+after S3 merges should PR #195 be rebuilt from the resulting `main`, assigned
+a fresh linear history entry, re-reviewed, and requalified.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, merge, or release ran. This does not claim that SEAM has beaten
+Mem0, Zep, or Cognee, reached 100% canonical memory, or eliminated model
+hallucinations.
+---END-ENTRY-#529---

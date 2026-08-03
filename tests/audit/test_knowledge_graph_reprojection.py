@@ -306,6 +306,37 @@ def test_reprojection_derives_supersession_from_document_status_not_stale_graph(
         runtime.close()
 
 
+@pytest.mark.parametrize(
+    "invalid_document_id",
+    ["private-document-label", "doc:not-a-canonical-suffix"],
+)
+def test_reprojection_refuses_invalid_document_status_identifier_without_mutation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    invalid_document_id: str,
+) -> None:
+    monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+    path = tmp_path / "s3-invalid-document-status.sqlite3"
+    _build_reprojection_fixture(path)
+    _downgrade_graph_marker(path)
+    with closing(sqlite3.connect(path)) as connection:
+        connection.execute(
+            "update document_status set document_id = ? where deleted_at is not null",
+            (invalid_document_id,),
+        )
+        connection.commit()
+    before = _table_hashes(path)
+    caplog.set_level("WARNING", logger="seam_runtime.knowledge_graph")
+
+    with pytest.raises(DatabaseIntegrityError, match="invalid document identifier"):
+        SQLiteStore(path)
+
+    assert _table_hashes(path) == before
+    assert invalid_document_id not in caplog.text
+    assert hashlib.sha256(invalid_document_id.encode("utf-8")).hexdigest() in caplog.text
+
+
 def test_failed_reprojection_rolls_back_every_relevant_table_hash(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

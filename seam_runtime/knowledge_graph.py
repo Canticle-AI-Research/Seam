@@ -10,7 +10,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from typing import Iterable, Mapping
 
-from .migrations import KnowledgeGraphProjectionVersionError, execute_script
+from .migrations import (
+    DatabaseIntegrityError,
+    KnowledgeGraphProjectionVersionError,
+    execute_script,
+)
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
 
 LOGGER = logging.getLogger(__name__)
@@ -598,11 +602,18 @@ def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> 
     ).fetchall()
     for document_id, source_ref, deleted_at in rows:
         document_id = str(document_id)
-        if not document_id.startswith("doc:"):
-            continue
-        suffix = document_id.split(":", 1)[1]
+        suffix = document_id.split(":", 1)[1] if document_id.startswith("doc:") else ""
         if re.fullmatch(r"[0-9a-f]{16}", suffix) is None:
-            continue
+            identifier_sha256 = hashlib.sha256(document_id.encode("utf-8")).hexdigest()
+            LOGGER.warning(
+                "Guarded knowledge-graph rebuild refused an invalid document_status "
+                "identifier (identifier_sha256=%s)",
+                identifier_sha256,
+            )
+            raise DatabaseIntegrityError(
+                "document_status contains an invalid document identifier; "
+                "guarded knowledge-graph rebuild refused"
+            )
         raw_prefix = f"raw:{suffix}:%"
         connection.execute(
             "update knowledge_episodes set status = 'superseded', "

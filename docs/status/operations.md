@@ -57,15 +57,22 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   proved. Unregistered add/remove/change states still refuse before backup or
   mutation.
 - The post-S2 audit's persistence, chat-credential, and trust-time findings are
-  repaired on the local draft-PR candidate, not protected `main`: canonical
+  merged on protected `main`: canonical
   entity reconciliation locks before its read; built-in chat environment keys
   are host-bound and unavailable to loopback; malformed trust timestamps fail
   toward stale with content-free diagnostics. Automatic first-launch
   `SEAM_API_TOKEN` provisioning remains a separate authentication/UX policy
   decision; tokenless mode is trusted-local-only. Audit findings 7-10 and 12
   remain open.
-- S3 guarded reprojection and S4 typed-reference integrity are now unblocked;
-  stale existing graph projections remain refused until S3 qualifies them.
+- S3 is requalified on current-main ancestry on rebuilt draft PR #194. Its exact
+  KG/4-to-KG/5 transition successfully rebuilds disposable topology from
+  canonical MIRL/lifecycle/document status, preserves the identity judgement
+  ledger, and refuses damaged/newer inputs before publishing partial topology.
+  S4 typed-reference integrity remains stacked on the old S3 head and must be
+  rebuilt after S3 merges.
+- S5 now requires one committed SQLite read snapshot across every retrieval leg
+  and visibility check; connection pooling alone does not close the observed
+  mixed-state fingerprint defect.
 - Clean artifact/privacy proof remains mandatory on the frozen candidate, and
   every S10 gate must be rerun after S1-S9 even while the full suite is advisory
   in branch protection.
