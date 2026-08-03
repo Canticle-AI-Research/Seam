@@ -12,6 +12,9 @@ pin two things:
 
 from __future__ import annotations
 
+import json
+import sqlite3
+
 import pytest
 
 from seam_runtime import SeamRuntime
@@ -51,6 +54,13 @@ def _chain_batch(
     """A claim bound to span:1 -> raw:1, with each hop independently breakable."""
     records = [
         MIRLRecord(
+            id="ent:priya",
+            kind=RecordKind.ENT,
+            ns="work",
+            scope="thread",
+            attrs={"label": "Priya", "entity_type": "person"},
+        ),
+        MIRLRecord(
             id="clm:1",
             kind=RecordKind.CLM,
             ns="work",
@@ -64,10 +74,9 @@ def _chain_batch(
             kind=RecordKind.PROV,
             ns="work",
             scope="thread",
-            # verify_ir requires a PROV to name entity, activity or agent - a
-            # provenance record that says nothing about who or what produced the
-            # data is not provenance.
-            attrs={"activity": "handwritten-test-fixture"},
+            # This PROV describes the RAW source used by the evidence span.
+            # Activity alone is metadata, not a canonical provenance link.
+            attrs={"entity": "raw:1", "activity": "handwritten-test-fixture"},
         ),
     ]
     if include_span:
@@ -92,16 +101,28 @@ def _chain_batch(
     return IRBatch(records)
 
 
-def _persist_damaged(runtime: SeamRuntime, batch: IRBatch) -> None:
-    """Write a batch the runtime would REFUSE, bypassing verify_ir.
+def _rewrite_canonical_payload(runtime: SeamRuntime, record: MIRLRecord) -> None:
+    """Simulate post-write damage below the public persistence boundary."""
 
-    ``runtime.persist_ir`` enforces referential integrity, so a broken chain can
-    never be ingested normally - that is why completeness is structurally 1.00.
-    These cases model damage that appears AFTER a valid write (a partial delete,
-    a truncated restore, storage corruption), which the resolver must survive
-    and report rather than crash on or paper over.
-    """
-    runtime.store.persist_ir(runtime.normalize_ir(batch))
+    payload = json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":"))
+    with sqlite3.connect(runtime.store.path) as connection:
+        cursor = connection.execute(
+            "update ir_records set payload_json = ? where id = ?",
+            (payload, record.id),
+        )
+        assert cursor.rowcount == 1
+
+
+def _delete_canonical_payload(runtime: SeamRuntime, record_id: str) -> None:
+    """Model a truncated restore while leaving the owning record untouched."""
+
+    with sqlite3.connect(runtime.store.path) as connection:
+        connection.execute("pragma foreign_keys = off")
+        cursor = connection.execute(
+            "delete from ir_records where id = ?",
+            (record_id,),
+        )
+        assert cursor.rowcount == 1
 
 
 def _claim(runtime: SeamRuntime) -> MIRLRecord:
@@ -171,7 +192,15 @@ def test_record_without_evidence_reports_the_gap(runtime: SeamRuntime) -> None:
 def test_broken_hops_are_reported_not_dropped(
     runtime: SeamRuntime, batch_kwargs: dict, expected_defect: str
 ) -> None:
-    _persist_damaged(runtime, _chain_batch(**batch_kwargs))
+    runtime.persist_ir(_chain_batch())
+    damaged = _chain_batch(**batch_kwargs)
+    damaged_by_id = {record.id: record for record in damaged.records}
+    if "span:1" not in damaged_by_id:
+        _delete_canonical_payload(runtime, "span:1")
+    elif "raw:1" not in damaged_by_id:
+        _delete_canonical_payload(runtime, "raw:1")
+    else:
+        _rewrite_canonical_payload(runtime, damaged_by_id["span:1"])
     chain = resolve_provenance(runtime.store, _claim(runtime))
 
     assert chain.complete is False
@@ -185,56 +214,66 @@ def test_broken_hops_are_reported_not_dropped(
 
 
 def test_span_without_raw_id_cannot_be_stored_at_all(runtime: SeamRuntime) -> None:
-    """The schema itself forbids an unanchored span.
+    """The public write path forbids an unanchored span before storage.
 
-    ``raw_spans.raw_id`` is NOT NULL, so DEFECT_RAW_ID_ABSENT is unreachable
-    through SQLite - a span with no source is rejected at write time rather than
-    discovered at read time. The resolver still handles the case defensively for
-    non-SQLite backends; this test pins the storage guarantee that makes it moot
-    here, because that guarantee is a load-bearing reason completeness is 1.00.
+    ``verify_ir`` rejects the missing canonical hop before the SQLite transaction
+    starts. The resolver still handles the defect defensively for corrupted or
+    non-SQLite backends, but public persistence must fail closed with no partial
+    canonical rows.
     """
-    import sqlite3
-
-    with pytest.raises(sqlite3.IntegrityError, match="raw_spans.raw_id"):
-        _persist_damaged(runtime, _chain_batch(span_raw_id=None))
+    with pytest.raises(ValueError, match="missing_span_field"):
+        runtime.persist_ir(_chain_batch(span_raw_id=None))
+    assert runtime.store.load_ir().records == []
 
 
 def test_referenced_record_of_wrong_kind_is_rejected(runtime: SeamRuntime) -> None:
-    # A claim whose "evidence" points at another claim is not provenance.
-    _persist_damaged(
-        runtime,
-        IRBatch(
-            [
-                MIRLRecord(
-                    id="clm:1",
-                    kind=RecordKind.CLM,
-                    ns="work",
-                    scope="thread",
-                    attrs={"predicate": "content"},
-                    evidence=["clm:decoy"],
-                ),
-                MIRLRecord(
-                    id="clm:decoy",
-                    kind=RecordKind.CLM,
-                    ns="work",
-                    scope="thread",
-                    attrs={"predicate": "content"},
-                ),
-            ]
-        )
+    # Persist a valid chain, then model corruption that redirects evidence to a
+    # canonical record of the wrong kind.
+    runtime.persist_ir(_chain_batch())
+    decoy = MIRLRecord(
+        id="clm:decoy",
+        kind=RecordKind.CLM,
+        ns="work",
+        scope="thread",
+        attrs={
+            "subject": "ent:priya",
+            "predicate": "claims",
+            "object": "decoy",
+        },
     )
+    runtime.persist_ir(IRBatch([decoy]))
+    claim = _claim(runtime)
+    claim.evidence = [decoy.id]
+    _rewrite_canonical_payload(runtime, claim)
     chain = resolve_provenance(runtime.store, _claim(runtime))
 
     assert chain.complete is False
     assert chain.links[0].defect == DEFECT_SPAN_NOT_SPAN
 
 
+def test_runtime_update_resolves_stored_provenance_and_evidence(
+    runtime: SeamRuntime,
+) -> None:
+    runtime.persist_ir(_chain_batch())
+    claim = _claim(runtime)
+    changed = MIRLRecord.from_dict(claim.to_dict())
+    changed.attrs["object"] = "updated with stored provenance"
+
+    report = runtime.persist_ir(IRBatch([changed]))
+
+    assert report.stored_ids == [changed.id]
+    stored = runtime.store.load_ir(ids=[changed.id]).records[0]
+    assert stored.attrs["object"] == "updated with stored provenance"
+    assert stored.prov == claim.prov
+    assert stored.evidence == claim.evidence
+
+
 def test_partial_chain_does_not_count_as_complete(runtime: SeamRuntime) -> None:
     """One good link plus one broken link is NOT a trustworthy citation."""
-    batch = _chain_batch()
-    claim = batch.records[0]
+    runtime.persist_ir(_chain_batch())
+    claim = _claim(runtime)
     claim.evidence = ["span:1", "span:missing"]
-    _persist_damaged(runtime, batch)
+    _rewrite_canonical_payload(runtime, claim)
     chain = resolve_provenance(runtime.store, _claim(runtime))
 
     assert [link.verified for link in chain.links] == [True, False]

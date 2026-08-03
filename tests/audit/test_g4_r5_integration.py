@@ -32,6 +32,13 @@ def _evidenced_claims(seam: SeamSDK) -> tuple[MIRLRecord, MIRLRecord]:
         evidence=[raw_one.id, raw_two.id],
         attrs={"label": "Ada", "entity_type": "person"},
     )
+    storage_project = MIRLRecord(
+        id="project:storage",
+        kind=RecordKind.ENT,
+        ns="acme",
+        scope="thread",
+        attrs={"label": "Storage project", "entity_type": "project"},
+    )
     claims = (
         MIRLRecord(
             id="clm:g4-r5:sqlite",
@@ -58,7 +65,9 @@ def _evidenced_claims(seam: SeamSDK) -> tuple[MIRLRecord, MIRLRecord]:
             },
         ),
     )
-    seam.runtime.persist_ir(IRBatch([raw_one, raw_two, entity, *claims]))
+    seam.runtime.persist_ir(
+        IRBatch([raw_one, raw_two, entity, storage_project, *claims])
+    )
     return claims
 
 

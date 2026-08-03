@@ -1,19 +1,34 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 
 from .mirl import PACK_MODES, VALID_SCOPES, IRBatch, MIRLRecord, RecordKind, Status, VerifyReport
 
 NS_PATTERN = re.compile(r"^[A-Za-z0-9_.:-]+$")
 
 
-def verify_ir(batch: IRBatch) -> VerifyReport:
+def verify_ir(
+    batch: IRBatch,
+    *,
+    known_record_kinds: Mapping[str, RecordKind] | None = None,
+    known_records: Mapping[str, MIRLRecord] | None = None,
+) -> VerifyReport:
     report = VerifyReport()
     records = batch.by_id()
+    stored_kinds = known_record_kinds or {}
+    stored_records = known_records or {}
     seen_ids: set[str] = set()
     symbol_map: dict[tuple[str, str], str] = {}
 
     for record in batch.records:
+        valid_record_id = isinstance(record.id, str) and bool(record.id.strip())
+        if not valid_record_id:
+            report.add(
+                "error",
+                "invalid_record_id",
+                "Record id must be a nonblank string",
+            )
         if record.id in seen_ids:
             report.add("error", "duplicate_id", "Record id must be unique", record.id)
         seen_ids.add(record.id)
@@ -30,15 +45,25 @@ def verify_ir(batch: IRBatch) -> VerifyReport:
         _verify_kind_specific(record, report)
 
         for prov_id in record.prov:
-            if prov_id not in records:
+            target_kind = (
+                records[prov_id].kind
+                if prov_id in records
+                else stored_kinds.get(prov_id)
+            )
+            if target_kind is None:
                 report.add("error", "missing_provenance", f"Missing provenance record {prov_id}", record.id)
-            elif records[prov_id].kind != RecordKind.PROV:
+            elif target_kind != RecordKind.PROV:
                 report.add("error", "invalid_provenance", f"{prov_id} is not a PROV record", record.id)
 
         for evidence_id in record.evidence:
-            if evidence_id not in records:
+            target_kind = (
+                records[evidence_id].kind
+                if evidence_id in records
+                else stored_kinds.get(evidence_id)
+            )
+            if target_kind is None:
                 report.add("error", "missing_evidence", f"Missing evidence record {evidence_id}", record.id)
-            elif records[evidence_id].kind not in {RecordKind.SPAN, RecordKind.RAW}:
+            elif target_kind not in {RecordKind.SPAN, RecordKind.RAW}:
                 report.add("error", "invalid_evidence", f"{evidence_id} must be SPAN or RAW", record.id)
 
         if record.kind == RecordKind.SYM:
@@ -57,7 +82,7 @@ def verify_ir(batch: IRBatch) -> VerifyReport:
 
     for record in batch.records:
         if record.kind == RecordKind.PACK and record.attrs.get("mode") == "exact":
-            _verify_exact_pack(record, records, report)
+            _verify_exact_pack(record, records, stored_records, report)
 
     return report
 
@@ -108,8 +133,13 @@ def _verify_kind_specific(record: MIRLRecord, report: VerifyReport) -> None:
         if _missing(attrs, "op"):
             report.add("error", "missing_flow_op", "FLOW record requires op", record.id)
     elif record.kind == RecordKind.PROV:
-        if not any(key in attrs for key in ("entity", "activity", "agent")):
-            report.add("error", "missing_prov_role", "PROV record requires entity, activity, or agent", record.id)
+        if _missing(attrs, "entity"):
+            report.add(
+                "error",
+                "missing_prov_entity",
+                "PROV record requires entity",
+                record.id,
+            )
     elif record.kind == RecordKind.META:
         if _missing(attrs, "schema"):
             report.add("error", "missing_meta_schema", "META record requires schema", record.id)
@@ -118,14 +148,19 @@ def _verify_kind_specific(record: MIRLRecord, report: VerifyReport) -> None:
         report.add("error", "invalid_status", f"Invalid status {record.status.value}", record.id)
 
 
-def _verify_exact_pack(record: MIRLRecord, records: dict[str, MIRLRecord], report: VerifyReport) -> None:
+def _verify_exact_pack(
+    record: MIRLRecord,
+    records: Mapping[str, MIRLRecord],
+    known_records: Mapping[str, MIRLRecord],
+    report: VerifyReport,
+) -> None:
     refs = record.attrs.get("refs", [])
     payload_records = record.attrs.get("payload", {}).get("records", [])
     if len(refs) != len(payload_records):
         report.add("error", "exact_pack_mismatch", "Exact pack refs and payload record counts differ", record.id)
         return
     for expected_id, encoded_record in zip(refs, payload_records, strict=False):
-        original = records.get(expected_id)
+        original = records.get(expected_id) or known_records.get(expected_id)
         if original is None:
             report.add("error", "exact_pack_missing_ref", f"Exact pack missing referenced record {expected_id}", record.id)
             continue

@@ -108,8 +108,25 @@ class MIRLRecord:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "MIRLRecord":
+        record_id = data["id"]
+        if not isinstance(record_id, str):
+            raise TypeError("MIRL id must be a string")
+        if not record_id.strip():
+            raise ValueError("MIRL id must be nonblank")
+        prov = data.get("prov", [])
+        evidence = data.get("evidence", [])
+        ext = data.get("ext", {})
+        attrs = data.get("attrs", {})
+        if not isinstance(prov, list):
+            raise TypeError("MIRL prov must be a list")
+        if not isinstance(evidence, list):
+            raise TypeError("MIRL evidence must be a list")
+        if not isinstance(ext, dict):
+            raise TypeError("MIRL ext must be an object")
+        if not isinstance(attrs, dict):
+            raise TypeError("MIRL attrs must be an object")
         return cls(
-            id=data["id"],
+            id=record_id,
             kind=RecordKind(data["kind"]),
             ns=data.get("ns", "local.default"),
             scope=data.get("scope", "project"),
@@ -120,10 +137,10 @@ class MIRLRecord:
             status=Status(data.get("status", Status.ASSERTED.value)),
             t0=data.get("t0"),
             t1=data.get("t1"),
-            prov=list(data.get("prov", [])),
-            evidence=list(data.get("evidence", [])),
-            ext=dict(data.get("ext", {})),
-            attrs=dict(data.get("attrs", {})),
+            prov=list(prov),
+            evidence=list(evidence),
+            ext=dict(ext),
+            attrs=dict(attrs),
         )
 
     @classmethod

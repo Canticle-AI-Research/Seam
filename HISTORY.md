@@ -15873,3 +15873,137 @@ publish, deploy, merge, or release ran. This does not claim that SEAM has beaten
 Mem0, Zep, or Cognee, reached 100% canonical memory, or eliminated model
 hallucinations.
 ---END-ENTRY-#529---
+
+---BEGIN-ENTRY-#530---
+id: 530
+date: 2026-08-03T22:05:58Z
+agent: claude-opus-5
+status: done
+topics: storage, persist, mirl, graph, integrity, atomicity, provenance, vector, verify, tests, bugfix, handoff, history, streams, audit
+commits: agent/track-s-s4-prep
+refs: seam_runtime/reference_contracts.py,seam_runtime/knowledge_graph.py,seam_runtime/migrations.py,seam_runtime/storage.py,seam_runtime/runtime.py,seam_runtime/verify.py,seam_runtime/vector_adapters.py,tests/audit/test_typed_reference_integrity.py,tests/audit/test_reference_delete_integrity.py,tests/audit/test_runtime_persist_atomic_restore.py,tests/audit/test_pre_spine_projection_bootstrap.py,test_seam_all/test_seam.py,docs/MIRL_V1.md,docs/handoffs/2026-08-03-track-s-s4-requalified.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 529
+tokens: 1690
+---
+Recovered, verified, and closed out the Track S S4 typed-reference candidate
+that the previous session left uncommitted on the merged S3 ancestry
+(`main@9bd40cb`).
+
+## Why
+
+The authoring session (`codex-gpt-5`) stopped mid-closeout. It left the entire
+S4 candidate dirty in the `agent/track-s-s4-prep` worktree — 33 modified files
+plus 4 new files, last write at 04:56 local — with no `status: in-progress`
+breadcrumb. That is precisely the failure mode the AGENTS.md "Cut-off Recovery"
+rule exists to prevent, and this entry records it as a protocol miss rather
+than repairing it silently.
+
+The tree was self-inconsistent at pickup: `PROJECT_STATUS.md`,
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`, `docs/handoffs/INDEX.md`, and the
+new `docs/handoffs/2026-08-03-track-s-s4-requalified.md` all cited `HISTORY#530`
+as their qualifying evidence while `HISTORY.md` still ended at `#529`.
+`verify_handoffs` failed closed on exactly that gap
+(`handoff 2026-08-03-track-s-s4-requalified references missing HISTORY#530`);
+every other repo-hygiene gate already passed.
+
+## Changed
+
+Carried in from the cut-off session and committed unmodified:
+
+- Closed typed-reference contracts in `seam_runtime/reference_contracts.py`
+  replace punctuation and prefix heuristics. `prov`, `evidence`, and
+  `PACK.refs` are exact lists; `SPAN.raw_id`, `CLM.subject`, `REL.src`/`dst`,
+  `EVT.actor`, `STA.target`, and `PROV.entity` are exact scalars; `FLOW.src`
+  and `FLOW.dst` are a conditional pair; the eight reconciliation pointers and
+  seven explicit facet positions share one descriptor. Timestamps, URLs, and
+  colon-bearing prose stay literals unless a field contract plus exact
+  canonical membership resolve them.
+- `seam_runtime/verify.py` accepts `known_record_kinds`/`known_records` so
+  reference targets already in the canonical store validate by kind instead of
+  being reported missing; `SeamRuntime.verify_ir` loads those in 500-ID chunks.
+- Exact `core-storage/1 -> /2` and `knowledge-graph/5 -> /6` transitions in
+  `seam_runtime/migrations.py` and `seam_runtime/knowledge_graph.py`, with a
+  normalized `ir_edge_sources` contributor ledger: rewriting one canonical
+  record removes only its own support, and a shared triple survives while any
+  canonical supporter remains. S3's truthful `/5` resume point is preserved and
+  invalid identifiers appear in diagnostics only as SHA-256.
+- Write-path atomicity repair: a per-canonical-store `_persist_projection_lock`
+  in `seam_runtime/runtime.py` serializes the write/index/compensate sequence,
+  and `seam_runtime/storage.py` gains `snapshot_vector_rows` plus
+  `restore_ir_after_failed_projection` so a failed writer cannot restore over a
+  later successful writer in the same process. `retrieval_orchestrator` sync and
+  `ReasoningSession` retrieval take the same section.
+  `vector_adapters.index_records_atomic` records which adapters commit
+  record-wide, so compensation never deletes another embedding model's rows
+  from a shared pgvector table.
+- Hard delete refuses atomically when a surviving record still requires its
+  target; deleting a target and every dependent source in one operation
+  succeeds. Malformed `ext["seam.virtual_refs"]` is validated for every record,
+  including records that project no edges, and never becomes durable.
+- `docs/MIRL_V1.md` typed-reference contract, `docs/SQLITE_MIGRATIONS.md`,
+  `docs/status/operations.md`, `REPO_LEDGER.md`, `PROJECT_STATUS.md`, and the
+  campaign document updated to the above; new tests
+  `tests/audit/test_reference_delete_integrity.py`,
+  `tests/audit/test_runtime_persist_atomic_restore.py`, and
+  `tests/audit/test_pre_spine_projection_bootstrap.py`.
+
+Repaired in this session:
+
+- The authoring session verified `tests/audit` but never ran `test_seam_all/`,
+  and left one failure there.
+  `test_runtime_persist_reports_ids_when_sqlite_rollback_fails` patched
+  `store.persist_ir` to raise on its second call and asserted that canonical
+  record ids appear in the manual-recovery `RuntimeError`. Both halves are now
+  wrong: the restore path is `store.restore_ir_after_failed_projection`, so the
+  stub was never reached and instead raised
+  `TypeError: flaky_persist() got an unexpected keyword argument
+  '_preserve_node_vectors'`; and the new boundary is deliberately content-free.
+  The test now patches the real restore entry point, asserts `assertNotIn` for
+  the ids, and is renamed
+  `test_runtime_persist_flags_manual_recovery_without_ids_when_restore_fails`.
+  No runtime code was changed to satisfy it.
+- Corrected the stale recorded fact in the new handoff. It claimed
+  `1,738/1,738` non-external audit tests; that count predates the authoring
+  session's own final test additions and does not reproduce. It now cites the
+  exact command and the measured numbers below.
+
+Beyond that repair this session added no runtime behavior. It committed the
+candidate, wrote this entry, and rebuilt the derived history state.
+
+## Verified
+
+- Full provider-free suite on the exact committed tree
+  (`test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/
+  -m "not external"`): **2,400 passed, 23 deselected, 2 xfailed, 3 subtests
+  passed, zero skips, zero failures** in 283.66s. `tests/audit` alone collects
+  1,842 non-external cases. The two warnings are the pre-existing FastAPI
+  duplicate operation-id warnings.
+- Live pgvector external lane, run against the local `seam-pgvector` container
+  rather than deselected — the exact five-file command CI uses:
+  **30 passed in 3.55s**, zero skips.
+- Repo-wide `ruff check .`, `git diff --check`, `verify_integrity`,
+  `verify_routing`, `verify_streams`, `verify_continuity --no-snapshot`,
+  `verify_dependency_contract`, and the content-free secret/session scan pass.
+  `verify_handoffs` fails before this entry exists and passes after it.
+
+## Honest boundaries
+
+- The included write-path atomicity repair is a correctness fix inside S4's
+  blast radius. It does **not** satisfy the S5 exit gate: no crash-convergence,
+  duplicate-replay, cross-backend divergence-repair, 40-thread pool, or
+  pgvector no-DDL evidence was produced here. S5 remains unstarted.
+- The candidate is committed locally only. PR #195's remote head is still the
+  stale pre-S3 `ca04222` and is conflicted against `main`; nothing was pushed,
+  marked ready, reviewed, or merged in this session.
+- No paid provider call, competitive benchmark, retrieval-score claim, artifact
+  publish, deploy, or release ran. This does not claim SEAM has beaten Mem0,
+  Zep, or Cognee, reached 100% canonical memory, or eliminated model
+  hallucinations.
+
+## Next move
+
+Force-with-lease `agent/track-s-s4-prep` onto `feat/track-s-s4-typed-references`
+to replace PR #195's stale head, mark it ready, obtain a fresh exact-head
+review, and merge only after every required and advisory check is green on that
+head. Then remove the S4 worktree and begin S5 from the merged substrate.
+---END-ENTRY-#530---

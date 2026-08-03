@@ -11,6 +11,30 @@ ordered spine step.
 - Step 1: `initialize-versioned-core`
 - Step 2: `register-durable-projections`
 
+Registered Track S S4 projection transitions are:
+
+- `core-storage/1` -> `core-storage/2` (`typed-ir-edge-endpoints`), which
+  rebuilds derived `ir_edges` with independently typed source and destination
+  endpoints plus normalized canonical contributor ownership in
+  `ir_edge_sources`;
+- `knowledge-graph/5` -> `knowledge-graph/6`
+  (`typed-knowledge-references`), which reprojects canonical MIRL through the
+  closed reference contract and removes disconnected colon-heuristic nodes and
+  their orphan vectors.
+
+Both S4 rebuilds read canonical `ir_records` in deterministic 500-row batches
+inside the migration owner's transaction. Reference-kind lookups and edge
+writes are bounded to each batch; no transition materializes the entire
+canonical corpus or all projected edges in memory. Rebuilt edge types are
+checked in deterministic 300-triple queries using at most 900 SQLite variables,
+not one query per edge. Invalid or mismatched canonical rows roll the step back
+and report only a SHA-256 digest of the record identifier. The final
+core-storage gate verifies endpoint columns, contributor primary/foreign keys,
+that every projected triple has at least one canonical owner, that every
+contributor still names both a canonical source record and a derived edge, and
+that every canonical payload's required references and reserved virtual-
+reference declaration remain closed.
+
 `seam_schema_migrations` records the contiguous step history and a stable
 identity checksum. `seam_projection_versions` records the expected versions of
 canonical MIRL, core storage, the knowledge graph and node vectors, graph
@@ -29,7 +53,10 @@ projection-name order, then transition order. The registry is static so every
 supported path is reviewable in source; SEAM never infers ordering from opaque
 version strings.
 
-Ordinary reopen validates both registries and the projection-owned tables. It
+Ordinary reopen validates both registries, the projection-owned tables, and
+canonical reference payloads in deterministic bounded batches. A missing
+required payload endpoint, wrong kind, malformed virtual-reference declaration,
+or edge/contributor mismatch fails read-only before backup or mutation. Reopen
 does not rerun idempotent DDL against a current database.
 
 ## Upgrade behavior
@@ -89,6 +116,9 @@ cleanup from canonical MIRL status, and reapplies source supersession from
 `document_status.deleted_at`. It does not copy stale episode or edge lifecycle
 rows through the rebuild. Explicit identity-merge decisions remain in their
 separate durable judgement ledger and are revalidated against rebuilt nodes.
+The S4 `knowledge-graph/5` -> `/6` typed-reference transition follows that S3
+boundary exactly; stores at `/4` advance through both registered steps rather
+than skipping the guarded supersession rebuild.
 
 ## Recovery
 

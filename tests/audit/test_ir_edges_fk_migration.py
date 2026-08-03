@@ -45,14 +45,16 @@ def test_orphan_cleanup_on_init(tmp_path: Path) -> None:
             value text not null
         );
         insert into ir_records (id, kind, ns, scope, status, conf, created_at, updated_at, payload_json)
-        values ('clm:rec_a', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01', '{}');
+        values ('clm:rec_a', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01',
+        '{"id":"clm:rec_a","kind":"CLM","attrs":{"subject":"clm:rec_a","predicate":"ref","object":"clm:rec_b"}}');
         insert into ir_records (id, kind, ns, scope, status, conf, created_at, updated_at, payload_json)
-        values ('clm:rec_b', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01', '{}');
+        values ('clm:rec_b', 'CLM', 'test', 'thread', 'active', 0.9, '2024-01-01', '2024-01-01',
+        '{"id":"clm:rec_b","kind":"CLM","attrs":{"subject":"clm:rec_b"}}');
         -- legit edge between two existing records
         insert into ir_edges (src_id, edge_type, dst_id) values ('clm:rec_a', 'ref', 'clm:rec_b');
         -- orphan edge: src is a record ID that doesn't exist
         insert into ir_edges (src_id, edge_type, dst_id) values ('clm:rec_c', 'ref', 'clm:rec_b');
-        -- virtual-entity edge: src is ent:turn:xxx (not a record ID) — should survive
+        -- legacy endpoint typing is absent, so unknown endpoints fail closed
         insert into ir_edges (src_id, edge_type, dst_id) values ('ent:turn:abc', 'date', 'clm:rec_a');
         """
     )
@@ -78,10 +80,10 @@ def test_orphan_cleanup_on_init(tmp_path: Path) -> None:
     ).fetchone()[0]
     assert legit == 1, "legit edge should survive"
 
-    # Virtual-entity edge survives (not touched by cleanup)
+    # An untyped legacy endpoint is not silently guessed to be virtual.
     virt = conn2.execute(
         "select count(*) from ir_edges where src_id = 'ent:turn:abc'"
     ).fetchone()[0]
-    assert virt == 1, "virtual-entity edge should survive"
+    assert virt == 0, "untyped legacy endpoint should fail closed"
 
     conn2.close()

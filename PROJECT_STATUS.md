@@ -9,20 +9,28 @@
 
 ## Current headline
 
-**2026-08-03 — HISTORY#529, rebuilt Track S S3 candidate** (supersedes the
-2026-08-02 HISTORY#527 headline). Protected `main`
-is `fa72c0c`: S2, the second-audit runtime repairs, and the corrected current
-handoff are merged. Draft PR #194 has been rebuilt from that exact ancestry;
-its old green checks are superseded and fresh exact-head CI remains the
-publication boundary. Draft PR #195 is still stacked on the old S3 head and
-must be rebuilt only after S3 merges.
+**2026-08-03 — HISTORY#530, rebuilt Track S S4 candidate** (supersedes the
+2026-08-03 HISTORY#529 headline). Protected `main` is `9bd40cb`: S3 merged
+through PR #194 after every required and advisory exact-head check passed. S4
+has been selectively rebuilt from that exact ancestry; PR #195 is retargeted to
+`main`, but its old head and old green checks remain superseded until this
+candidate replaces them and fresh review plus CI pass.
 
-S3 now has both refusal and positive-success evidence. A known-good
-`knowledge-graph/4` store applies exactly one registered `/4 -> /5` transition,
-rebuilds disposable topology from canonical MIRL/lifecycle/document truth,
-advances both markers, preserves current/history/point-in-time semantics and
-independently supported edges, and resurrects zero excluded records. Invalid
-canonical document identifiers fail closed with digest-only diagnostics.
+S4 replaces colon/prefix inference with closed typed-reference contracts.
+Timestamps, URLs, and arbitrary colon-bearing values remain literals unless a
+schema field and exact canonical membership make them references; explicit
+virtual identities remain deliberate. Exact `core-storage/1 -> /2` and
+`knowledge-graph/5 -> /6` migrations persist both endpoint types, validate both
+sides of every edge, retain the truthful S3 `/5` resume point, and replay
+lifecycle, document-supersession, and identity-judgement truth after
+reprojection.
+
+S3 remains the published foundation. Its known-good `knowledge-graph/4` store
+applies exactly one registered `/4 -> /5` transition, rebuilds disposable
+topology from canonical MIRL/lifecycle/document truth, preserves
+current/history/point-in-time semantics and independently supported edges, and
+resurrects zero excluded records. Invalid canonical document identifiers fail
+closed with digest-only diagnostics.
 
 A second whole-repository audit against the merged tree found one CRITICAL and
 two HIGH issues the first audit missed, now merged through PR #196:
@@ -81,12 +89,32 @@ HTML file is absent. The live branch-protection ruleset requires
 `test-and-benchmark` remains advisory. Prior #194/#195 green runs used the old
 workflow and do not qualify the rebuilt heads.
 
-The rebuilt S3 candidate passed **83/83** focused graph/migration tests and all
-**1,630** selected non-external audit tests; 23 external cases are explicitly
-reserved for the live pgvector CI lane. Ruff, Python compilation, diff hygiene,
-and the canonical secret/session scan pass. CodeRabbit's one valid finding was
-closed more strictly than suggested: malformed canonical document identifiers
-now roll back the rebuild instead of being silently skipped or logged raw.
+The frozen rebuilt S4 candidate passed **332/332** focused S4 audit tests. The
+expanded focused run also passed **118/120** legacy fidelity cases, with the
+other two remaining established xfails, and the complete provider-free audit
+passed **1,806/1,806** selected non-external cases; 23 external cases are
+explicitly reserved for the live pgvector CI lane. Ruff, Python compilation,
+and diff hygiene pass; the candidate secret/session scan is rerun only after
+the evidence freeze. Repeated semantic, batching, and exact-diff reviews closed
+the publication blockers they found:
+unbounded migration materialization, raw canonical IDs in diagnostics, orphan
+graph vectors, missing source ownership, batch-dependent RAW attribution,
+lost boundary-only vector reuse, repeated identity-ledger scans, incomplete
+current-store contributor validation, per-edge conflict queries, duplicate
+batch IDs, incomplete entity-reference remapping, unresolved required/generic
+endpoints, canonical PROV fallback gaps, hard deletes that could leave dangling
+payload references, divergent reconciliation/facet contracts, and bypassable
+virtual-reference metadata validation. The final repair pass also closes
+malformed required/list shapes at both object and raw-JSON boundaries,
+registry-less KG/4 bootstrap and hybrid-registry ambiguity, stale optional-
+reference graph projections after delete, stale ordinary-write PROV
+attribution, explicit-facet precedence, reconciliation-based kind-change
+bypass, and non-atomic runtime recovery after vector failure. Current-store
+reopen validates canonical payload closure in bounded batches; required-target
+deletion refuses atomically, while surviving optional references are
+reprojected as literals or explicitly declared virtual identities. One
+independent frozen-diff review plus exact-head CodeRabbit and CI remain required
+before publication.
 
 This is not full hosted hardening. `SEAM_API_TOKEN` remains optional for
 trusted-loopback development; automatic token provisioning and principal
@@ -116,19 +144,22 @@ tenancy remain S6.
   `:1143`, `:1161`, `_graph_episode_rows` `:2074-2090`), where the orchestrator
   chunks at 400. Latent on SQLite ≥ 3.32; breaks on the 999-variable default
   (Debian 10, Ubuntu 18.04, RHEL/CentOS 7-8, Amazon Linux 2).
-- **No ledger of shipped projection versions.** `PROJECTION_MIGRATIONS` is
-  empty and nothing forces a version bump to ship with a registered migration,
-  so bumping any of the 13 constants renders existing stores unopenable.
-- **S3's former positive-gate asymmetry is closed on the rebuilt candidate.**
-  PR #194 still requires fresh exact-head CI and review before merge.
-- Worktree hygiene: 6 worktrees, 2 dirty; 3 merged branches undeleted.
+- **Projection transitions now exist but are not statically completeness-
+  checked.** Protected `main` carries KG/4-to-/5; this candidate adds exact
+  core-storage/1-to-/2 and KG/5-to-/6 transitions. S10 still needs a release
+  gate proving every shipped projection-version bump has one registered path.
+- **S3 and S4's former positive-gate asymmetry is closed.** S3 is merged; S4's
+  successful populated-store transitions and bounded failure/resume path are
+  covered locally, with exact-head review and CI still pending.
+- Pre-existing unrelated worktree/branch hygiene remains outside this PR and
+  is preserved rather than silently combined.
 - Never audited, across two consecutive audits: `dashboard.py` (3,160 lines,
   zero dedicated tests), benchmark seal/BIL integrity, MIRL losslessness
   round-tripping.
 
-No paid provider, retrieval-score benchmark, artifact publish, deploy, or
-release ran. S3 is locally requalified on rebuilt draft PR #194; S4 typed
-references remains the next stacked publication after S3 merges.
+No paid provider, competitive retrieval-score benchmark, artifact publish,
+deploy, or release ran. S3 is merged; rebuilt S4 PR #195 is the next ordered
+publication boundary.
 
 ## Status streams
 

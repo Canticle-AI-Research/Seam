@@ -166,10 +166,33 @@ and `HISTORY_INDEX.md`.
   table, component-marker, integrity, and foreign-key gates pass before commit.
   A failed later step rolls back without losing earlier durable resume points.
   Missing, extra, cyclic, or unregistered projection states refuse before
-  backup or mutation. A stale existing graph projection such as
-  `knowledge-graph/4` remains refused until S3 supplies and qualifies its non-
-  destructive guarded reprojection callable. See `docs/SQLITE_MIGRATIONS.md`,
-  HISTORY#522, and HISTORY#526.
+  backup or mutation. The registered graph chain is exactly
+  `knowledge-graph/4 -> /5 -> /6`: S3 rebuilds disposable topology from
+  canonical MIRL and durable lifecycle/supersession truth while preserving the
+  identity judgement ledger; S4 then applies closed typed-reference contracts
+  and restores those same canonical exclusions and judgements. A failed
+  downstream step leaves the durable `/5` checkpoint truthful and resumable.
+  Core storage advances exactly `core-storage/1 -> /2` to persist typed IR-edge
+  endpoints. Both S4 rebuilds consume canonical records in bounded batches;
+  edge-type checks use at most 900 SQLite variables rather than one query per
+  edge. A registry-less central-v0 store at exact `core-storage/1` plus KG/4 is
+  the only supported pre-spine projection bootstrap: it runs the registered
+  `/4 -> /5 -> /6` graph chain inside the central bootstrap transaction. A
+  projection registry without the central migration registry is an ambiguous
+  hybrid and refuses read-only. Current stores fail closed if a contributor
+  loses its canonical source or edge, a canonical payload loses a required
+  endpoint, or a required/list position has the wrong container or member
+  shape. Reserved virtual-reference metadata is validated unconditionally.
+  Hard deletes refuse atomically when a surviving canonical record still
+  requires the target; optional survivors are reprojected as literal or
+  explicitly virtual instead of retaining stale canonical topology. Ordinary
+  writes and deletes refresh RAW/episode PROV attribution deterministically,
+  and explicit facet values outrank generated fallbacks. A runtime vector-
+  projection failure restores canonical, graph, and vector state together with
+  content-free diagnostics. Rebuilds remove derived orphan vectors and keep
+  identifier diagnostics content-free.
+  See `docs/SQLITE_MIGRATIONS.md`, HISTORY#522, HISTORY#526, HISTORY#529, and
+  HISTORY#530.
 - RETRIEVAL HAS ONE ENGINE as an architectural invariant.
   `RetrievalOrchestrator` is the canonical SQL/vector/graph/temporal owner for
   the full runtime, and `SeamRuntime.retrieve()` is its local entry point. The

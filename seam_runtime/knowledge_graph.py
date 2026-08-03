@@ -8,7 +8,7 @@ import sqlite3
 import unicodedata
 from collections import Counter
 from datetime import datetime, timezone
-from typing import Iterable, Mapping
+from typing import Iterable, Iterator, Mapping
 
 from .migrations import (
     DatabaseIntegrityError,
@@ -16,10 +16,22 @@ from .migrations import (
     execute_script,
 )
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
+from .reference_contracts import (
+    FACET_REFERENCE_FIELDS,
+    RECONCILIATION_REFERENCE_FIELDS,
+    EndpointType,
+    ReferenceMode,
+    reference_candidate_ids,
+    resolve_reference,
+    stored_reference_kinds,
+    validate_record_reference_contract,
+)
 
 LOGGER = logging.getLogger(__name__)
 
-PROJECTION_VERSION = "knowledge-graph/5"
+PROJECTION_VERSION = "knowledge-graph/6"
+_CANONICAL_PROJECTION_BATCH_SIZE = 500
+_CANONICAL_PROV_AGENT_TABLE = "seam_canonical_prov_agents"
 # Graph nodes carry their own derived semantic projection, versioned separately
 # from `mirl-vector-text/*` because a node is not a record: it is an identity
 # distilled from many records, so its render contract evolves independently.
@@ -65,40 +77,41 @@ TRUST_STATES = (
     "superseded",
 )
 
-EPISTEMIC_PREDICATES = frozenset({
-    "supports",
-    "contradicts",
-    "refutes",
-    "corroborates",
-    "derived_from",
-    "unverified_by",
-})
-CAUSAL_PREDICATES = frozenset({
-    "caused_by",
-    "causes",
-    "motivated_by",
-    "because",
-    "reason",
-    "resulted_in",
-    "leads_to",
-})
-TEMPORAL_PREDICATES = frozenset({
-    "precedes",
-    "follows",
-    "before",
-    "after",
-    "then",
-    "occurred_at",
-    "valid_during",
-    "supersedes",
-})
-PROVENANCE_PREDICATES = frozenset({
-    "provenance",
-    "evidence",
-    "excerpt_of",
-    "contributed",
-    "produced",
-})
+EPISTEMIC_PREDICATES = frozenset(RECONCILIATION_REFERENCE_FIELDS) - {
+    "supersedes"
+}
+CAUSAL_PREDICATES = frozenset(
+    {
+        "caused_by",
+        "causes",
+        "motivated_by",
+        "because",
+        "reason",
+        "resulted_in",
+        "leads_to",
+    }
+)
+TEMPORAL_PREDICATES = frozenset(
+    {
+        "precedes",
+        "follows",
+        "before",
+        "after",
+        "then",
+        "occurred_at",
+        "valid_during",
+        "supersedes",
+    }
+)
+PROVENANCE_PREDICATES = frozenset(
+    {
+        "provenance",
+        "evidence",
+        "excerpt_of",
+        "contributed",
+        "produced",
+    }
+)
 
 _FACET_PREDICATES = {
     "who": "performed_by",
@@ -109,6 +122,7 @@ _FACET_PREDICATES = {
     "how": "via",
     "then": "resulted_in",
 }
+assert set(_FACET_PREDICATES) == set(FACET_REFERENCE_FIELDS)
 
 
 def predicate_family(predicate: object, default: str = "semantic") -> str:
@@ -123,9 +137,10 @@ def predicate_family(predicate: object, default: str = "semantic") -> str:
         return "temporal"
     if value in PROVENANCE_PREDICATES:
         return "provenance"
-    if value in {"who", "what", "when", "where", "why", "how", "then"}:
+    if value in FACET_REFERENCE_FIELDS:
         return "facet"
     return default
+
 
 _KIND_NAMES = {
     RecordKind.RAW: "source",
@@ -224,12 +239,7 @@ def _safe_reference_term(kind: str, label: str) -> bool:
     # short literal can be a real concept; sentence-like values are evidence
     # text and must stay out of the identity index.
     tokens = tokenize_graph_term(label)
-    return (
-        bool(tokens)
-        and len(tokens) <= 4
-        and len(label) <= 80
-        and not re.search(r"[!?;\n]|\.(?:\s|$)", label)
-    )
+    return bool(tokens) and len(tokens) <= 4 and len(label) <= 80 and not re.search(r"[!?;\n]|\.(?:\s|$)", label)
 
 
 def _index_node_term(
@@ -267,6 +277,7 @@ def init_knowledge_graph(
     connection: sqlite3.Connection,
     *,
     allow_migration: bool = False,
+    target_projection_version: str = PROJECTION_VERSION,
 ) -> None:
     """Create the current graph projection or refuse an unsupported version.
 
@@ -277,21 +288,23 @@ def init_knowledge_graph(
     """
 
     existing_tables = {
-        str(row[0])
-        for row in connection.execute(
-            "select name from sqlite_master where type = 'table'"
-        ).fetchall()
+        str(row[0]) for row in connection.execute("select name from sqlite_master where type = 'table'").fetchall()
     }
     backfill_from_canonical = False
+    upgrade_typed_references = False
     if "knowledge_graph_meta" in existing_tables:
-        row = connection.execute(
-            "select value from knowledge_graph_meta where key = 'projection_version'"
-        ).fetchone()
+        row = connection.execute("select value from knowledge_graph_meta where key = 'projection_version'").fetchone()
         stored_version = str(row[0]) if row is not None else "missing"
-        if stored_version != PROJECTION_VERSION:
+        if (
+            allow_migration
+            and stored_version == "knowledge-graph/5"
+            and target_projection_version == "knowledge-graph/6"
+        ):
+            upgrade_typed_references = True
+        elif stored_version != target_projection_version:
             raise KnowledgeGraphProjectionVersionError(
                 "Unsupported knowledge graph projection version "
-                f"{stored_version!r}; expected {PROJECTION_VERSION!r}. "
+                f"{stored_version!r}; expected {target_projection_version!r}. "
                 "Refusing automatic reprojection."
             )
     else:
@@ -315,8 +328,7 @@ def init_knowledge_graph(
         )
         if existing_tables & projection_tables:
             raise KnowledgeGraphProjectionVersionError(
-                "Knowledge graph projection version is missing on a non-empty store; "
-                "refusing automatic reprojection."
+                "Knowledge graph projection version is missing on a non-empty store; refusing automatic reprojection."
             )
         if existing_tables & durable_judgement_tables and not allow_migration:
             raise KnowledgeGraphProjectionVersionError(
@@ -325,8 +337,7 @@ def init_knowledge_graph(
             )
         if ir_count and not allow_migration:
             raise KnowledgeGraphProjectionVersionError(
-                "Knowledge graph projection version is missing on a non-empty store; "
-                "refusing automatic reprojection."
+                "Knowledge graph projection version is missing on a non-empty store; refusing automatic reprojection."
             )
         backfill_from_canonical = bool(ir_count)
 
@@ -465,69 +476,91 @@ def init_knowledge_graph(
         create index if not exists idx_knowledge_node_terms_source on knowledge_node_terms (source_record_id);
         create index if not exists idx_identity_merges_alias on identity_merges (alias_node_id, ns, scope, status);
         create index if not exists idx_identity_merges_canonical on identity_merges (canonical_node_id, ns, scope, status);
-        """
+        """,
     )
     episode_columns = {row[1] for row in connection.execute("pragma table_info(knowledge_episodes)").fetchall()}
     if "expired_at" not in episode_columns:
         connection.execute("alter table knowledge_episodes add column expired_at text")
+    if upgrade_typed_references:
+        project_canonical_records_in_batches(
+            connection,
+            reference_contract_version=6,
+        )
+        restore_canonical_graph_state(connection)
+        remove_orphan_node_vectors(connection)
+        updated = connection.execute(
+            "update knowledge_graph_meta set value = ? "
+            "where key = 'projection_version' and value = 'knowledge-graph/5'",
+            (target_projection_version,),
+        )
+        if updated.rowcount != 1:
+            raise KnowledgeGraphProjectionVersionError(
+                "Knowledge graph typed-reference migration could not advance its marker"
+            )
+        return
     if "knowledge_graph_meta" in existing_tables:
         return
     if backfill_from_canonical:
-        cursor = connection.execute(
-            "select id, kind, ns, scope, status, conf, t0, t1, created_at, "
-            "updated_at, payload_json from ir_records order by id"
-        )
-        while True:
-            rows = cursor.fetchmany(500)
-            if not rows:
-                break
-            records: list[MIRLRecord] = []
-            for (
-                record_id,
-                kind,
-                namespace,
-                scope,
-                stored_status,
-                confidence,
-                valid_from,
-                valid_to,
-                created_at,
-                updated_at,
-                payload_json,
-            ) in rows:
-                try:
-                    data = json.loads(payload_json)
-                    data.setdefault("id", record_id)
-                    data.setdefault("kind", kind)
-                    data.setdefault("ns", namespace)
-                    data.setdefault("scope", scope)
-                    data.setdefault("conf", confidence)
-                    data.setdefault("t0", valid_from)
-                    data.setdefault("t1", valid_to)
-                    data.setdefault("created_at", created_at)
-                    data.setdefault("updated_at", updated_at)
-                    status = str(data.get("status") or stored_status)
-                    if status not in {item.value for item in Status}:
-                        status = Status.ASSERTED.value
-                    data["status"] = status
-                    records.append(MIRLRecord.from_dict(data))
-                except (json.JSONDecodeError, KeyError, TypeError, ValueError):
-                    # Canonical rows remain durable even if one legacy payload
-                    # cannot be projected. The derived graph can be repaired
-                    # independently without losing source truth.
-                    continue
-            project_records(connection, records)
-        _restore_canonical_lifecycle_exclusions(connection)
-        _restore_canonical_document_supersession(connection)
-        # Identity decisions are a durable judgement ledger, not derived
-        # topology. The rebuild deliberately leaves those tables in place and
-        # revalidates accepted decisions against the newly projected nodes.
-        from .identity_resolution import apply_identity_merges
-
-        apply_identity_merges(connection)
+        try:
+            _prepare_canonical_prov_agent_lookup(
+                connection,
+                batch_size=_CANONICAL_PROJECTION_BATCH_SIZE,
+            )
+            cursor = connection.execute(
+                "select id, kind, ns, scope, status, conf, t0, t1, created_at, "
+                "updated_at, payload_json from ir_records order by id"
+            )
+            while True:
+                rows = cursor.fetchmany(_CANONICAL_PROJECTION_BATCH_SIZE)
+                if not rows:
+                    break
+                records: list[MIRLRecord] = []
+                for (
+                    record_id,
+                    kind,
+                    namespace,
+                    scope,
+                    stored_status,
+                    confidence,
+                    valid_from,
+                    valid_to,
+                    created_at,
+                    updated_at,
+                    payload_json,
+                ) in rows:
+                    try:
+                        data = json.loads(payload_json)
+                        data.setdefault("id", record_id)
+                        data.setdefault("kind", kind)
+                        data.setdefault("ns", namespace)
+                        data.setdefault("scope", scope)
+                        data.setdefault("conf", confidence)
+                        data.setdefault("t0", valid_from)
+                        data.setdefault("t1", valid_to)
+                        data.setdefault("created_at", created_at)
+                        data.setdefault("updated_at", updated_at)
+                        status = str(data.get("status") or stored_status)
+                        if status not in {item.value for item in Status}:
+                            status = Status.ASSERTED.value
+                        data["status"] = status
+                        records.append(MIRLRecord.from_dict(data))
+                    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+                        # Canonical rows remain durable even if one legacy payload
+                        # cannot be projected. The derived graph can be repaired
+                        # independently without losing source truth.
+                        continue
+                project_records(
+                    connection,
+                    records,
+                    reference_contract_version=(5 if target_projection_version == "knowledge-graph/5" else 6),
+                    _canonical_prov_attribution=True,
+                )
+            restore_canonical_graph_state(connection)
+        finally:
+            _drop_canonical_prov_agent_lookup(connection)
     connection.execute(
         "insert or replace into knowledge_graph_meta (key, value) values ('projection_version', ?)",
-        (PROJECTION_VERSION,),
+        (target_projection_version,),
     )
 
 
@@ -543,21 +576,17 @@ def rebuild_knowledge_graph_from_canonical(connection: sqlite3.Connection) -> No
     """
 
     marker_table = connection.execute(
-        "select 1 from sqlite_master "
-        "where type = 'table' and name = 'knowledge_graph_meta'"
+        "select 1 from sqlite_master where type = 'table' and name = 'knowledge_graph_meta'"
     ).fetchone()
     marker = (
-        connection.execute(
-            "select value from knowledge_graph_meta where key = 'projection_version'"
-        ).fetchone()
+        connection.execute("select value from knowledge_graph_meta where key = 'projection_version'").fetchone()
         if marker_table is not None
         else None
     )
     stored_version = str(marker[0]) if marker is not None else "missing"
     if stored_version != "knowledge-graph/4":
         raise KnowledgeGraphProjectionVersionError(
-            "Guarded knowledge-graph rebuild requires 'knowledge-graph/4'; "
-            f"found {stored_version!r}"
+            f"Guarded knowledge-graph rebuild requires 'knowledge-graph/4'; found {stored_version!r}"
         )
 
     # Every dropped row below is disposable topology. SQLite transactional DDL
@@ -575,70 +604,266 @@ def rebuild_knowledge_graph_from_canonical(connection: sqlite3.Connection) -> No
     ):
         connection.execute(f'drop table if exists "{table}"')
 
-    init_knowledge_graph(connection, allow_migration=True)
+    init_knowledge_graph(
+        connection,
+        allow_migration=True,
+        target_projection_version="knowledge-graph/5",
+    )
 
 
 def _restore_canonical_lifecycle_exclusions(connection: sqlite3.Connection) -> None:
     """Replay graph cleanup from canonical MIRL lifecycle status."""
 
-    rows = connection.execute(
+    cursor = connection.execute(
         "select id from ir_records where status = ? order by id",
         (Status.DELETED_SOFT.value,),
-    ).fetchall()
-    if rows:
-        remove_records(connection, (str(row[0]) for row in rows))
+    )
+    while True:
+        rows = cursor.fetchmany(_CANONICAL_PROJECTION_BATCH_SIZE)
+        if not rows:
+            break
+        remove_records(
+            connection,
+            (str(row[0]) for row in rows),
+            revalidate_identity_merges=False,
+        )
 
 
 def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> None:
     """Replay source replacement from canonical ``document_status`` rows."""
 
-    if connection.execute(
-        "select 1 from sqlite_master where type = 'table' and name = 'document_status'"
-    ).fetchone() is None:
+    if (
+        connection.execute("select 1 from sqlite_master where type = 'table' and name = 'document_status'").fetchone()
+        is None
+    ):
         return
-    rows = connection.execute(
+    cursor = connection.execute(
         "select document_id, source_ref, deleted_at from document_status "
         "where deleted_at is not null order by deleted_at, document_id"
-    ).fetchall()
-    for document_id, source_ref, deleted_at in rows:
-        document_id = str(document_id)
-        suffix = document_id.split(":", 1)[1] if document_id.startswith("doc:") else ""
-        if re.fullmatch(r"[0-9a-f]{16}", suffix) is None:
-            identifier_sha256 = hashlib.sha256(document_id.encode("utf-8")).hexdigest()
-            LOGGER.warning(
-                "Guarded knowledge-graph rebuild refused an invalid document_status "
-                "identifier (identifier_sha256=%s)",
-                identifier_sha256,
+    )
+    while True:
+        rows = cursor.fetchmany(_CANONICAL_PROJECTION_BATCH_SIZE)
+        if not rows:
+            break
+        for document_id, source_ref, deleted_at in rows:
+            document_id = str(document_id)
+            suffix = document_id.split(":", 1)[1] if document_id.startswith("doc:") else ""
+            if re.fullmatch(r"[0-9a-f]{16}", suffix) is None:
+                identifier_sha256 = hashlib.sha256(document_id.encode("utf-8")).hexdigest()
+                LOGGER.warning(
+                    "Guarded knowledge-graph rebuild refused an invalid document_status "
+                    "identifier (identifier_sha256=%s)",
+                    identifier_sha256,
+                )
+                raise DatabaseIntegrityError(
+                    "document_status contains an invalid document identifier; guarded knowledge-graph rebuild refused"
+                )
+            raw_prefix = f"raw:{suffix}:%"
+            connection.execute(
+                "update knowledge_episodes set status = 'superseded', "
+                "expired_at = coalesce(expired_at, ?) "
+                "where source_ref = ? and source_record_id like ?",
+                (str(deleted_at), str(source_ref), raw_prefix),
             )
-            raise DatabaseIntegrityError(
-                "document_status contains an invalid document identifier; "
-                "guarded knowledge-graph rebuild refused"
+            connection.execute(
+                "update knowledge_edges set expired_at = coalesce(expired_at, ?), "
+                "status = 'superseded', updated_at = ? where id in ("
+                "  select ke.edge_id from knowledge_edge_episodes ke "
+                "  join knowledge_episodes ep on ep.id = ke.episode_id "
+                "  where ep.source_ref = ? and ep.source_record_id like ? "
+                "    and ep.status = 'superseded'"
+                ") and not exists ("
+                "  select 1 from knowledge_edge_episodes active_ke "
+                "  join knowledge_episodes active_ep on active_ep.id = active_ke.episode_id "
+                "  where active_ke.edge_id = knowledge_edges.id "
+                "    and active_ep.status = 'active'"
+                ")",
+                (str(deleted_at), str(deleted_at), str(source_ref), raw_prefix),
             )
-        raw_prefix = f"raw:{suffix}:%"
-        connection.execute(
-            "update knowledge_episodes set status = 'superseded', "
-            "expired_at = coalesce(expired_at, ?) "
-            "where source_ref = ? and source_record_id like ?",
-            (str(deleted_at), str(source_ref), raw_prefix),
-        )
-        connection.execute(
-            "update knowledge_edges set expired_at = coalesce(expired_at, ?), "
-            "status = 'superseded', updated_at = ? where id in ("
-            "  select ke.edge_id from knowledge_edge_episodes ke "
-            "  join knowledge_episodes ep on ep.id = ke.episode_id "
-            "  where ep.source_ref = ? and ep.source_record_id like ? "
-            "    and ep.status = 'superseded'"
-            ") and not exists ("
-            "  select 1 from knowledge_edge_episodes active_ke "
-            "  join knowledge_episodes active_ep on active_ep.id = active_ke.episode_id "
-            "  where active_ke.edge_id = knowledge_edges.id "
-            "    and active_ep.status = 'active'"
-            ")",
-            (str(deleted_at), str(deleted_at), str(source_ref), raw_prefix),
-        )
 
 
-def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord]) -> None:
+def restore_canonical_graph_state(connection: sqlite3.Connection) -> None:
+    """Replay canonical exclusions and durable identity judgements."""
+
+    _restore_canonical_lifecycle_exclusions(connection)
+    _restore_canonical_document_supersession(connection)
+    # Identity decisions are a durable judgement ledger, not derived topology.
+    # Revalidate them after every full reprojection rather than copying derived
+    # node state forward.
+    from .identity_resolution import apply_identity_merges
+
+    apply_identity_merges(connection)
+
+
+def _canonical_projection_error(
+    record_id: object,
+    *,
+    mismatch: bool,
+) -> KnowledgeGraphProjectionVersionError:
+    digest = hashlib.sha256(str(record_id).encode("utf-8")).hexdigest()
+    problem = "mismatched canonical MIRL identifier" if mismatch else "invalid canonical MIRL payload"
+    LOGGER.warning(
+        "Knowledge-graph typed-reference rebuild found %s %s (record_id_sha256=%s)",
+        "an" if problem.startswith("invalid") else "a",
+        problem,
+        digest,
+    )
+    article = "an" if problem.startswith("invalid") else "a"
+    return KnowledgeGraphProjectionVersionError(f"Knowledge-graph typed-reference rebuild found {article} {problem}")
+
+
+def _canonical_projection_record(row: tuple[object, ...]) -> MIRLRecord:
+    (
+        record_id,
+        kind,
+        namespace,
+        scope,
+        stored_status,
+        confidence,
+        valid_from,
+        valid_to,
+        created_at,
+        updated_at,
+        payload_json,
+    ) = row
+    try:
+        data = json.loads(str(payload_json))
+        if not isinstance(data, dict):
+            raise TypeError("canonical MIRL payload must be an object")
+        data.setdefault("id", record_id)
+        data.setdefault("kind", kind)
+        data.setdefault("ns", namespace)
+        data.setdefault("scope", scope)
+        data.setdefault("conf", confidence)
+        data.setdefault("t0", valid_from)
+        data.setdefault("t1", valid_to)
+        data.setdefault("created_at", created_at)
+        data.setdefault("updated_at", updated_at)
+        status = str(data.get("status") or stored_status)
+        if status not in {item.value for item in Status}:
+            status = Status.ASSERTED.value
+        data["status"] = status
+        record = MIRLRecord.from_dict(data)
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+        raise _canonical_projection_error(
+            record_id,
+            mismatch=False,
+        ) from None
+    if record.id != str(record_id) or record.kind.value != str(kind):
+        raise _canonical_projection_error(
+            record_id,
+            mismatch=True,
+        )
+    return record
+
+
+def _prepare_canonical_prov_agent_lookup(
+    connection: sqlite3.Connection,
+    *,
+    batch_size: int,
+) -> None:
+    """Build an indexed, bounded canonical PROV attribution lookup.
+
+    ``prov_log`` is a specialized projection and can be missing, empty, or
+    stale in supported pre-spine stores. Canonical rebuilds therefore derive
+    RAW attribution from durable PROV rows, ordered by canonical id, without
+    materializing either the PROV corpus or the RAW corpus in Python.
+    """
+
+    connection.execute(f"drop table if exists temp.{_CANONICAL_PROV_AGENT_TABLE}")
+    connection.execute(
+        f"create temp table {_CANONICAL_PROV_AGENT_TABLE} ("
+        "entity text primary key, prov_id text not null, agent text not null"
+        ") without rowid"
+    )
+    cursor = connection.execute(
+        "select id, kind, ns, scope, status, conf, t0, t1, created_at, "
+        "updated_at, payload_json from ir_records where kind = ? order by id",
+        (RecordKind.PROV.value,),
+    )
+    while True:
+        rows = cursor.fetchmany(batch_size)
+        if not rows:
+            return
+        attribution_rows: list[tuple[str, str, str]] = []
+        for row in rows:
+            record = _canonical_projection_record(tuple(row))
+            entity = record.attrs.get("entity")
+            agent = _explicit_record_agent(record)
+            if not isinstance(entity, str) or not entity.strip() or agent is None:
+                continue
+            attribution_rows.append((entity.strip(), record.id, agent))
+        if attribution_rows:
+            connection.executemany(
+                f"insert or ignore into {_CANONICAL_PROV_AGENT_TABLE} (entity, prov_id, agent) values (?, ?, ?)",
+                attribution_rows,
+            )
+
+
+def _drop_canonical_prov_agent_lookup(connection: sqlite3.Connection) -> None:
+    connection.execute(f"drop table if exists temp.{_CANONICAL_PROV_AGENT_TABLE}")
+
+
+def iter_canonical_projection_batches(
+    connection: sqlite3.Connection,
+    *,
+    batch_size: int = _CANONICAL_PROJECTION_BATCH_SIZE,
+) -> Iterator[list[MIRLRecord]]:
+    """Yield deterministic canonical graph inputs without corpus materialization."""
+
+    if batch_size <= 0:
+        raise ValueError("canonical projection batch size must be positive")
+    cursor = connection.execute(
+        "select id, kind, ns, scope, status, conf, t0, t1, created_at, "
+        "updated_at, payload_json from ir_records order by id"
+    )
+    while True:
+        rows = cursor.fetchmany(batch_size)
+        if not rows:
+            return
+        records: list[MIRLRecord] = []
+        for row in rows:
+            records.append(_canonical_projection_record(tuple(row)))
+        yield records
+
+
+def project_canonical_records_in_batches(
+    connection: sqlite3.Connection,
+    *,
+    reference_contract_version: int = 6,
+    batch_size: int = _CANONICAL_PROJECTION_BATCH_SIZE,
+) -> None:
+    """Project every canonical row through bounded, cross-batch-safe slices."""
+
+    if batch_size <= 0:
+        raise ValueError("canonical projection batch size must be positive")
+    try:
+        _prepare_canonical_prov_agent_lookup(
+            connection,
+            batch_size=batch_size,
+        )
+        for records in iter_canonical_projection_batches(
+            connection,
+            batch_size=batch_size,
+        ):
+            project_records(
+                connection,
+                records,
+                reference_contract_version=reference_contract_version,
+                _canonical_prov_attribution=True,
+            )
+    finally:
+        _drop_canonical_prov_agent_lookup(connection)
+
+
+def project_records(
+    connection: sqlite3.Connection,
+    records: Iterable[MIRLRecord],
+    *,
+    reference_contract_version: int = 6,
+    _canonical_prov_attribution: bool = False,
+    _validated_virtual_references: Mapping[str, frozenset[str]] | None = None,
+) -> None:
     """Project MIRL records into the self-maintaining semantic graph.
 
     Projection is deterministic and idempotent. Re-persisting a record first
@@ -648,23 +873,49 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
     records = list(records)
     if not records:
         return
+    record_ids = [record.id for record in records]
+    if len(record_ids) != len(set(record_ids)):
+        raise ValueError("knowledge graph projection batches require unique record identifiers")
+    virtual_references_by_id = (
+        {
+            record.id: validate_record_reference_contract(record)
+            for record in records
+        }
+        if _validated_virtual_references is None
+        else {
+            record.id: _validated_virtual_references[record.id]
+            for record in records
+        }
+    )
     batch_by_id = {record.id: record for record in records}
+    candidate_ids = {
+        candidate_id
+        for record in records
+        for candidate_id in _knowledge_reference_candidate_ids(record)
+        if candidate_id not in batch_by_id
+    }
+    known_record_kinds = stored_reference_kinds(connection, candidate_ids)
+    known_record_kinds.update({record_id: target.kind for record_id, target in batch_by_id.items()})
     for record in records:
-        old_edges = connection.execute(
-            "select id from knowledge_edges where source_record_id = ?", (record.id,)
-        ).fetchall()
-        if old_edges:
-            placeholders = ",".join("?" for _ in old_edges)
-            connection.execute(
-                f"delete from knowledge_edge_episodes where edge_id in ({placeholders})",
-                [row[0] for row in old_edges],
-            )
+        connection.execute(
+            "delete from knowledge_edge_episodes where edge_id in ("
+            "select id from knowledge_edges where source_record_id = ?)",
+            (record.id,),
+        )
         connection.execute("delete from knowledge_edges where source_record_id = ?", (record.id,))
         connection.execute("delete from knowledge_node_episodes where source_record_id = ?", (record.id,))
         connection.execute("delete from knowledge_node_terms where source_record_id = ?", (record.id,))
 
     for record in records:
-        _project_record(connection, record, batch_by_id)
+        _project_record(
+            connection,
+            record,
+            batch_by_id,
+            known_record_kinds,
+            virtual_references=virtual_references_by_id[record.id],
+            reference_contract_version=reference_contract_version,
+            canonical_prov_attribution=_canonical_prov_attribution,
+        )
 
     # Synthetic values/references are disposable projections. Remove any that
     # became disconnected after a source record was updated.
@@ -674,9 +925,23 @@ def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord
         "and id not in (select dst_id from knowledge_edges) "
         "and id not in (select node_id from knowledge_node_episodes)"
     )
-    connection.execute(
-        "delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)"
+    connection.execute("delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)")
+
+
+def remove_orphan_node_vectors(connection: sqlite3.Connection) -> None:
+    """Remove vector rows whose disposable graph node no longer exists."""
+
+    connection.execute("delete from knowledge_node_vectors where node_id not in (select id from knowledge_nodes)")
+
+
+def _knowledge_reference_candidate_ids(record: MIRLRecord) -> frozenset[str]:
+    """Return the bounded canonical candidates inspected by graph projection."""
+
+    candidates = set(reference_candidate_ids(record))
+    candidates.update(
+        str(value).strip() for value in _record_facets(record).values() if isinstance(value, str) and value.strip()
     )
+    return frozenset(candidates)
 
 
 def render_node_text(
@@ -773,7 +1038,7 @@ def pending_node_vectors(
         parameters.append(scope)
     rows = connection.execute(
         "select n.id, n.kind, n.label, n.ns, n.scope, n.properties_json, "
-        "v.source_hash, v.render_version "
+        "v.source_hash, v.render_version, v.ns, v.scope "
         "from knowledge_nodes n "
         "left join knowledge_node_vectors v "
         "on v.node_id = n.id and v.model_name = ? "
@@ -786,6 +1051,7 @@ def pending_node_vectors(
     for row in rows:
         node_id, kind, label, node_ns, node_scope, properties_json = row[0], row[1], row[2], row[3], row[4], row[5]
         stored_hash, stored_version = row[6], row[7]
+        stored_ns, stored_scope = row[8], row[9]
         try:
             properties = json.loads(properties_json) if properties_json else {}
         except (TypeError, ValueError):
@@ -794,7 +1060,12 @@ def pending_node_vectors(
         if not source_text:
             continue
         expected_hash = node_vector_source_hash(source_text, model_name)
-        if stored_version == GRAPH_NODE_VECTOR_TEXT_VERSION and stored_hash == expected_hash:
+        if (
+            stored_version == GRAPH_NODE_VECTOR_TEXT_VERSION
+            and stored_hash == expected_hash
+            and str(stored_ns or "") == str(node_ns or "")
+            and str(stored_scope or "") == str(node_scope or "")
+        ):
             continue
         pending.append(
             {
@@ -848,16 +1119,27 @@ def search_node_vectors(
     """
     if not query_vector:
         return []
-    clauses = ["model_name = ?", "render_version = ?"]
-    parameters: list[object] = [model_name, GRAPH_NODE_VECTOR_TEXT_VERSION]
+    clauses = [
+        "v.model_name = ?",
+        "v.render_version = ?",
+        "n.status != ?",
+    ]
+    parameters: list[object] = [
+        model_name,
+        GRAPH_NODE_VECTOR_TEXT_VERSION,
+        Status.DELETED_SOFT.value,
+    ]
     if ns:
-        clauses.append("ns = ?")
+        clauses.append("n.ns = ?")
         parameters.append(ns)
     if scope:
-        clauses.append("scope = ?")
+        clauses.append("n.scope = ?")
         parameters.append(scope)
     rows = connection.execute(
-        f"select node_id, vector_json from knowledge_node_vectors where {' and '.join(clauses)}",
+        "select v.node_id, v.vector_json, v.source_hash, n.kind, n.label, "
+        "n.properties_json from knowledge_node_vectors v "
+        "join knowledge_nodes n on n.id = v.node_id "
+        f"where {' and '.join(clauses)}",
         parameters,
     ).fetchall()
 
@@ -865,7 +1147,11 @@ def search_node_vectors(
     for row in rows:
         try:
             vector = list(json.loads(row[1]))
+            properties = json.loads(row[5]) if row[5] else {}
         except (TypeError, ValueError):
+            continue
+        source_text = render_node_text(str(row[3]), str(row[4]), properties)
+        if str(row[2]) != node_vector_source_hash(source_text, model_name):
             continue
         score = _cosine(query_vector, vector)
         if score <= min_score:
@@ -941,10 +1227,7 @@ def store_node_vectors(
             ),
         )
         written += 1
-    connection.execute(
-        "delete from knowledge_node_vectors "
-        "where node_id not in (select id from knowledge_nodes)"
-    )
+    connection.execute("delete from knowledge_node_vectors where node_id not in (select id from knowledge_nodes)")
     return written
 
 
@@ -983,7 +1266,12 @@ def node_vector_status(
     }
 
 
-def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) -> None:
+def remove_records(
+    connection: sqlite3.Connection,
+    record_ids: Iterable[str],
+    *,
+    revalidate_identity_merges: bool = True,
+) -> None:
     ids = list(dict.fromkeys(record_ids))
     if not ids:
         return
@@ -995,47 +1283,31 @@ def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) ->
             ids,
         ).fetchall()
     }
-    edge_rows = connection.execute(
-        f"select id from knowledge_edges where source_record_id in ({placeholders})", ids
-    ).fetchall()
-    if edge_rows:
-        edge_ids = [row[0] for row in edge_rows]
-        edge_placeholders = ",".join("?" for _ in edge_ids)
-        connection.execute(
-            f"delete from knowledge_edge_episodes where edge_id in ({edge_placeholders})", edge_ids
-        )
     connection.execute(
-        f"delete from knowledge_edges where source_record_id in ({placeholders})", ids
+        "delete from knowledge_edge_episodes where edge_id in ("
+        f"select id from knowledge_edges where source_record_id in ({placeholders}))",
+        ids,
     )
-    connection.execute(
-        f"delete from knowledge_node_episodes where source_record_id in ({placeholders})", ids
-    )
-    connection.execute(
-        f"delete from knowledge_node_terms where source_record_id in ({placeholders})", ids
-    )
-    connection.execute(
-        f"delete from knowledge_episodes where source_record_id in ({placeholders})", ids
-    )
+    connection.execute(f"delete from knowledge_edges where source_record_id in ({placeholders})", ids)
+    connection.execute(f"delete from knowledge_node_episodes where source_record_id in ({placeholders})", ids)
+    connection.execute(f"delete from knowledge_node_terms where source_record_id in ({placeholders})", ids)
+    connection.execute(f"delete from knowledge_episodes where source_record_id in ({placeholders})", ids)
     connection.execute(
         f"delete from knowledge_nodes where source_record_id in ({placeholders}) "
         "and id not in (select src_id from knowledge_edges) "
         "and id not in (select dst_id from knowledge_edges)",
         ids,
     )
-    connection.execute(
-        "delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)"
-    )
+    connection.execute("delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)")
     retained = connection.execute(
-        f"select id, source_record_id from knowledge_nodes "
-        f"where source_record_id in ({placeholders})",
+        f"select id, source_record_id from knowledge_nodes where source_record_id in ({placeholders})",
         ids,
     ).fetchall()
     for row in retained:
         node_id = str(row["id"])
         removed_source_id = str(row["source_record_id"])
         remaining_confidence = connection.execute(
-            "select max(confidence) from knowledge_edges "
-            "where src_id = ? or dst_id = ?",
+            "select max(confidence) from knowledge_edges where src_id = ? or dst_id = ?",
             (node_id, node_id),
         ).fetchone()[0]
         removed_at = removal_times.get(removed_source_id) or utc_now()
@@ -1053,12 +1325,14 @@ def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) ->
                 node_id,
             ),
         )
-    # Deletion is where nodes actually disappear; re-validate the durable merge
-    # ledger so any merge that lost a referenced node becomes an auditable
-    # conflict instead of a dangling reference.
-    from .identity_resolution import apply_identity_merges
+    if revalidate_identity_merges:
+        # Deletion is where nodes actually disappear; re-validate the durable
+        # merge ledger so a merge that lost a referenced node becomes an
+        # auditable conflict instead of a dangling reference. Full canonical
+        # restoration disables this per batch and performs one final pass.
+        from .identity_resolution import apply_identity_merges
 
-    apply_identity_merges(connection)
+        apply_identity_merges(connection)
 
 
 def supersede_source(
@@ -1137,9 +1411,7 @@ def query_graph(
             term_params.extend(query_tokens)
         where.append(
             "(lower(n.id || ' ' || n.label || ' ' || n.properties_json) like ? "
-            "or exists (select 1 from knowledge_node_terms t where t.node_id = n.id and ("
-            + term_match
-            + ")))"
+            "or exists (select 1 from knowledge_node_terms t where t.node_id = n.id and (" + term_match + ")))"
         )
         params.extend([f"%{query.lower()}%", *term_params])
     if agent_id:
@@ -1181,19 +1453,14 @@ def query_graph(
             boundary_where.append("n.scope = ?")
             boundary_params.append(scope)
         if canonical_kind_values:
-            boundary_where.append(
-                f"lower(n.kind) in ({','.join('?' for _ in canonical_kind_values)})"
-            )
+            boundary_where.append(f"lower(n.kind) in ({','.join('?' for _ in canonical_kind_values)})")
             boundary_params.extend(canonical_kind_values)
-        boundary_where.extend(
-            _node_time_clauses(boundary_params, at=at, include_history=include_history)
-        )
+        boundary_where.extend(_node_time_clauses(boundary_params, at=at, include_history=include_history))
         placeholders = ",".join("?" for _ in ranked_semantic_ids)
         admissible = {
             str(row["id"])
             for row in connection.execute(
-                f"select n.id from knowledge_nodes n where n.id in ({placeholders}) "
-                f"and {' and '.join(boundary_where)}",
+                f"select n.id from knowledge_nodes n where n.id in ({placeholders}) and {' and '.join(boundary_where)}",
                 [*ranked_semantic_ids, *boundary_params],
             ).fetchall()
         }
@@ -1280,7 +1547,9 @@ def query_graph(
             "edges": [],
             "stats": _graph_stats(connection, include_history=include_history),
             "facets": {"kinds": {}, "agents": {}, "sources": {}, "trust_states": {}},
-            "query": _query_payload(query, root_id, namespace, scope, agent_id, kind_values, at, include_history, limit, hops),
+            "query": _query_payload(
+                query, root_id, namespace, scope, agent_id, kind_values, at, include_history, limit, hops
+            ),
             "generated_at": utc_now(),
         }
 
@@ -1318,8 +1587,7 @@ def query_graph(
             edge_params.append(scope)
         edge_where.extend(_edge_time_clauses(edge_params, at=at, include_history=include_history))
         for row in connection.execute(
-            "select e.* from knowledge_edges e "
-            f"where {' and '.join(edge_where)} order by e.confidence desc, e.id",
+            f"select e.* from knowledge_edges e where {' and '.join(edge_where)} order by e.confidence desc, e.id",
             edge_params,
         ).fetchall():
             edge_by_id[str(row["id"])] = row
@@ -1384,13 +1652,19 @@ def query_graph(
             "kinds": dict(sorted(Counter(str(node["kind"]) for node in nodes).items())),
             "agents": dict(sorted(Counter(agent for node in nodes for agent in node["agents"]).items())),
             "sources": dict(sorted(Counter(source for node in nodes for source in node["sources"]).items())),
-            "trust_states": dict(sorted(Counter(
-                str(node["trust_state"])
-                for node in nodes
-                if node.get("trust_state") not in {None, "not_applicable", "evidence"}
-            ).items())),
+            "trust_states": dict(
+                sorted(
+                    Counter(
+                        str(node["trust_state"])
+                        for node in nodes
+                        if node.get("trust_state") not in {None, "not_applicable", "evidence"}
+                    ).items()
+                )
+            ),
         },
-        "query": _query_payload(query, root_id, namespace, scope, agent_id, kind_values, at, include_history, limit, hops),
+        "query": _query_payload(
+            query, root_id, namespace, scope, agent_id, kind_values, at, include_history, limit, hops
+        ),
         "generated_at": utc_now(),
     }
 
@@ -1414,8 +1688,7 @@ def node_detail(
         episode_where.append("ep.id = ?")
         episode_params.append(node_id)
         episode = connection.execute(
-            "select ep.* from knowledge_episodes ep "
-            f"where {' and '.join(episode_where)}",
+            f"select ep.* from knowledge_episodes ep where {' and '.join(episode_where)}",
             episode_params,
         ).fetchone()
         if episode is None:
@@ -1472,16 +1745,16 @@ def node_detail(
         limit=120,
         hops=1,
     )
-    record_row = connection.execute(
-        "select payload_json from ir_records where id = ?", (node_id,)
-    ).fetchone()
+    record_row = connection.execute("select payload_json from ir_records where id = ?", (node_id,)).fetchone()
     episode_where = ["ne.node_id = ?"]
     episode_params: list[object] = [node_id]
     if at:
-        episode_where.extend([
-            "ep.recorded_at <= ?",
-            "(ep.expired_at is null or ep.expired_at > ?)",
-        ])
+        episode_where.extend(
+            [
+                "ep.recorded_at <= ?",
+                "(ep.expired_at is null or ep.expired_at > ?)",
+            ]
+        )
         episode_params.extend([at, at])
     elif not include_history:
         episode_where.append("ep.status = 'active'")
@@ -1513,9 +1786,7 @@ def node_detail(
             "title": str(row["label"]),
             "summary": _page_summary(row, outgoing, incoming),
             "facts": [
-                edge
-                for edge in outgoing
-                if edge["edge_kind"] == "semantic" or edge["predicate"] == "contributed"
+                edge for edge in outgoing if edge["edge_kind"] == "semantic" or edge["predicate"] == "contributed"
             ],
             "backlinks": incoming,
             "sources": sorted({str(episode["source_ref"]) for episode in episodes if episode["source_ref"]}),
@@ -1579,10 +1850,7 @@ def assertable_record_ids(
         kind = str(row["kind"])
         if kind not in ASSERTION_KINDS:
             profile = profiles[record_id]
-            if not (
-                profile["model_output_evidence_count"]
-                and not profile["independent_evidence_count"]
-            ):
+            if not (profile["model_output_evidence_count"] and not profile["independent_evidence_count"]):
                 allowed.add(record_id)
             continue
         if profiles[record_id]["trust_state"] in ASSERTABLE_TRUST_STATES:
@@ -1598,8 +1866,18 @@ def _project_record(
     connection: sqlite3.Connection,
     record: MIRLRecord,
     batch_by_id: dict[str, MIRLRecord],
+    known_record_kinds: Mapping[str, RecordKind],
+    *,
+    virtual_references: frozenset[str],
+    reference_contract_version: int,
+    canonical_prov_attribution: bool,
 ) -> None:
-    agent_id = _record_agent(connection, record, batch_by_id)
+    agent_id = _record_agent(
+        connection,
+        record,
+        batch_by_id,
+        canonical_prov_attribution=canonical_prov_attribution,
+    )
     label = _record_label(record, batch_by_id)
     facets = _record_facets(record)
     epistemic_basis = _epistemic_basis(record)
@@ -1632,28 +1910,60 @@ def _project_record(
             record=record,
         )
 
-    episode_ids = _episode_ids(connection, record, batch_by_id, agent_id)
+    episode_ids = _episode_ids(
+        connection,
+        record,
+        batch_by_id,
+        agent_id,
+        canonical_prov_attribution=canonical_prov_attribution,
+    )
     for episode_id in episode_ids:
         connection.execute(
             "insert or ignore into knowledge_node_episodes (node_id, episode_id, source_record_id) values (?, ?, ?)",
             (record.id, episode_id, record.id),
         )
 
-    def reference(value: object, *, literal: bool = False) -> str | None:
+    def reference(
+        value: object,
+        *,
+        mode: ReferenceMode = ReferenceMode.LITERAL,
+        legacy_literal: bool = False,
+    ) -> str | None:
         if value is None:
             return None
         text = str(value).strip()
         if not text:
             return None
-        if literal or ":" not in text:
+        resolved = None
+        if reference_contract_version >= 6:
+            resolved = resolve_reference(
+                record,
+                value,
+                known_record_kinds=known_record_kinds,
+                mode=mode,
+                validated_virtual_references=virtual_references,
+            )
+        if reference_contract_version < 6 and not legacy_literal and ":" in text:
+            node_id = text
+            target = batch_by_id.get(node_id) or _load_record(connection, node_id)
+            kind = _KIND_NAMES[target.kind] if target is not None else _kind_from_id(text)
+            node_label = _record_label(target, batch_by_id) if target is not None else _label_from_id(text)
+        elif resolved is None:
             node_id = _value_node_id(record.ns, record.scope, text)
             kind = "value"
             node_label = text
         else:
-            node_id = text
-            target = batch_by_id.get(text) or _load_record(connection, text)
-            kind = _KIND_NAMES[target.kind] if target is not None else _kind_from_id(text)
-            node_label = _record_label(target, batch_by_id) if target is not None else _label_from_id(text)
+            node_id = resolved.id
+            target = batch_by_id.get(node_id) or _load_record(connection, node_id)
+            if target is not None:
+                kind = _KIND_NAMES[target.kind]
+                node_label = _record_label(target, batch_by_id)
+            elif resolved.endpoint_type is EndpointType.VIRTUAL:
+                kind = "entity"
+                node_label = _label_from_id(node_id)
+            else:
+                kind = "unresolved_reference"
+                node_label = node_id
         _upsert_node(
             connection,
             node_id=node_id,
@@ -1764,64 +2074,103 @@ def _project_record(
         edge(agent_node, "contributed", record.id, "provenance")
 
     for provenance in record.prov:
-        edge(record.id, "provenance", reference(provenance), "provenance")
+        edge(
+            record.id,
+            "provenance",
+            reference(provenance, mode=ReferenceMode.REQUIRED),
+            "provenance",
+        )
     for evidence in record.evidence:
-        edge(record.id, "evidence", reference(evidence), "provenance")
+        edge(
+            record.id,
+            "evidence",
+            reference(evidence, mode=ReferenceMode.REQUIRED),
+            "provenance",
+        )
 
     attrs = record.attrs
     if record.kind == RecordKind.CLM:
-        subject = reference(attrs.get("subject"))
+        subject = reference(attrs.get("subject"), mode=ReferenceMode.REQUIRED)
         obj_value = attrs.get("object")
-        obj = reference(obj_value, literal=not (isinstance(obj_value, str) and ":" in obj_value))
+        obj = reference(obj_value, mode=ReferenceMode.OPTIONAL)
         predicate = str(attrs.get("predicate") or "asserts")
         edge(record.id, "about", subject, "grounding")
         edge(record.id, "object", obj, "grounding")
         edge(subject, predicate, obj, "semantic", claim_id=record.id, facets=facets)
     elif record.kind == RecordKind.REL:
-        src = reference(attrs.get("src"))
-        dst = reference(attrs.get("dst"))
+        src = reference(attrs.get("src"), mode=ReferenceMode.REQUIRED)
+        dst = reference(attrs.get("dst"), mode=ReferenceMode.REQUIRED)
         predicate = str(attrs.get("predicate") or "related_to")
         edge(record.id, "subject", src, "grounding")
         edge(record.id, "object", dst, "grounding")
         edge(src, predicate, dst, "semantic", relation_id=record.id, facets=facets)
     elif record.kind == RecordKind.EVT:
-        actor = reference(attrs.get("actor") or attrs.get("subject"))
-        obj = reference(attrs.get("object"), literal=not isinstance(attrs.get("object"), str))
+        actor = reference(
+            attrs.get("actor") or attrs.get("subject"),
+            mode=ReferenceMode.REQUIRED,
+        )
+        obj = reference(attrs.get("object"), mode=ReferenceMode.OPTIONAL)
         edge(actor, "participated_in", record.id, "semantic")
         edge(record.id, "object", obj, "semantic")
     elif record.kind == RecordKind.STA:
-        target = reference(attrs.get("target") or attrs.get("subject"))
+        target = reference(
+            attrs.get("target") or attrs.get("subject"),
+            mode=ReferenceMode.REQUIRED,
+        )
         edge(target, "has_state", record.id, "semantic")
     elif record.kind == RecordKind.SPAN:
-        edge(record.id, "excerpt_of", reference(attrs.get("raw_id")), "provenance")
+        edge(
+            record.id,
+            "excerpt_of",
+            reference(attrs.get("raw_id"), mode=ReferenceMode.REQUIRED),
+            "provenance",
+        )
     elif record.kind == RecordKind.PROV:
-        entity = reference(attrs.get("entity"))
-        edge(_agent_node_id(agent_id) if agent_id else record.id, str(attrs.get("activity") or "produced"), entity, "provenance")
+        entity = reference(attrs.get("entity"), mode=ReferenceMode.REQUIRED)
+        edge(
+            _agent_node_id(agent_id) if agent_id else record.id,
+            str(attrs.get("activity") or "produced"),
+            entity,
+            "provenance",
+        )
     elif record.kind == RecordKind.FLOW:
-        edge(reference(attrs.get("src")), str(attrs.get("predicate") or "flows_to"), reference(attrs.get("dst")), "semantic")
+        edge(
+            reference(attrs.get("src"), mode=ReferenceMode.REQUIRED),
+            str(attrs.get("predicate") or "flows_to"),
+            reference(attrs.get("dst"), mode=ReferenceMode.REQUIRED),
+            "semantic",
+        )
 
     # 5W1H+Then is a derived, rebuildable lens over canonical MIRL. Keep the
     # original open predicate above and add only grounded facet links here.
     for facet, value in facets.items():
         if facet not in _FACET_PREDICATES:
             continue
-        is_reference = isinstance(value, str) and (
-            value in batch_by_id
-            or value.split(":", 1)[0].lower() in _PREFIX_KINDS
+        legacy_is_reference = isinstance(value, str) and (
+            value in batch_by_id or value.split(":", 1)[0].lower() in _PREFIX_KINDS
         )
         edge(
             record.id,
             facet,
-            reference(value, literal=not is_reference),
+            reference(
+                value,
+                mode=ReferenceMode.OPTIONAL,
+                legacy_literal=not legacy_is_reference,
+            ),
             "facet",
             canonical_predicate=_FACET_PREDICATES[facet],
         )
 
     # Explicit reconciliation pointers may be supplied as MIRL extension
     # fields. They become typed graph relations but never replace old records.
-    for predicate in (*sorted(EPISTEMIC_PREDICATES), "supersedes"):
+    for predicate in RECONCILIATION_REFERENCE_FIELDS:
         for target in _reference_values(record.ext.get(predicate) or attrs.get(predicate)):
-            edge(record.id, predicate, reference(target), predicate_family(predicate))
+            edge(
+                record.id,
+                predicate,
+                reference(target, mode=ReferenceMode.REQUIRED),
+                predicate_family(predicate),
+            )
 
 
 def _episode_ids(
@@ -1829,6 +2178,8 @@ def _episode_ids(
     record: MIRLRecord,
     batch_by_id: dict[str, MIRLRecord],
     agent_id: str | None,
+    *,
+    canonical_prov_attribution: bool,
 ) -> list[str]:
     raw_ids: set[str] = set()
     if record.kind == RecordKind.RAW:
@@ -1853,7 +2204,15 @@ def _episode_ids(
         raw = batch_by_id.get(raw_id) or _load_record(connection, raw_id)
         if raw is None:
             continue
-        raw_agent = _record_agent(connection, raw, batch_by_id) or agent_id
+        raw_agent = (
+            _record_agent(
+                connection,
+                raw,
+                batch_by_id,
+                canonical_prov_attribution=canonical_prov_attribution,
+            )
+            or agent_id
+        )
         content = str(raw.attrs.get("content") or "")
         episode_id = f"episode:{hashlib.sha256(raw.id.encode('utf-8')).hexdigest()[:20]}"
         connection.execute(
@@ -1877,23 +2236,30 @@ def _episode_ids(
                 raw.t0,
                 raw.created_at,
                 None,
-                _json({
-                    "media_type": raw.attrs.get("media_type"),
-                    "byte_count": len(content.encode("utf-8")),
-                    "source_type": raw.attrs.get("source_type") or raw.ext.get("source_type"),
-                    "model_output": bool(raw.attrs.get("model_output") or raw.ext.get("model_output")),
-                }),
+                _json(
+                    {
+                        "media_type": raw.attrs.get("media_type"),
+                        "byte_count": len(content.encode("utf-8")),
+                        "source_type": raw.attrs.get("source_type") or raw.ext.get("source_type"),
+                        "model_output": bool(raw.attrs.get("model_output") or raw.ext.get("model_output")),
+                    }
+                ),
             ),
         )
         episode_ids.append(episode_id)
-    if not episode_ids and agent_id and record.kind in {
-        RecordKind.CLM,
-        RecordKind.EVT,
-        RecordKind.REL,
-        RecordKind.STA,
-        RecordKind.FLOW,
-        RecordKind.META,
-    }:
+    if (
+        not episode_ids
+        and agent_id
+        and record.kind
+        in {
+            RecordKind.CLM,
+            RecordKind.EVT,
+            RecordKind.REL,
+            RecordKind.STA,
+            RecordKind.FLOW,
+            RecordKind.META,
+        }
+    ):
         # Structured agent writes may arrive without a RAW wrapper. The MIRL
         # record is then itself the immutable source episode, so its agent and
         # provenance remain visible rather than becoming an unattributed edge.
@@ -1989,7 +2355,46 @@ def _record_agent(
     connection: sqlite3.Connection,
     record: MIRLRecord,
     batch_by_id: dict[str, MIRLRecord],
+    *,
+    canonical_prov_attribution: bool,
 ) -> str | None:
+    explicit_agent = _explicit_record_agent(record)
+    if explicit_agent is not None:
+        return explicit_agent
+    if record.kind == RecordKind.RAW:
+        source_ref = str(record.attrs.get("source_ref") or "")
+        if source_ref.startswith("agent://"):
+            candidate = source_ref.removeprefix("agent://").split("/", 1)[0].strip()
+            if candidate and candidate != "input":
+                return candidate
+        if canonical_prov_attribution:
+            # During initialization/reprojection the temporary lookup is
+            # derived solely from canonical PROV payloads. It is authoritative
+            # over a missing, empty, or stale specialized ``prov_log``.
+            provenance_row = connection.execute(
+                f"select agent from {_CANONICAL_PROV_AGENT_TABLE} where entity = ?",
+                (record.id,),
+            ).fetchone()
+        else:
+            # Ordinary persistence writes PROV rows into ``prov_log`` before
+            # graph projection. Resolve globally there so attribution cannot
+            # change when the input iterable changes order.
+            provenance_row = connection.execute(
+                "select agent from prov_log where entity = ? and agent is not null order by id limit 1",
+                (record.id,),
+            ).fetchone()
+        if provenance_row is not None and str(provenance_row[0]).strip():
+            return str(provenance_row[0]).strip()
+    for prov_id in record.prov:
+        prov = batch_by_id.get(prov_id) or _load_record(connection, prov_id)
+        if prov is not None:
+            value = _explicit_record_agent(prov)
+            if value is not None:
+                return value
+    return None
+
+
+def _explicit_record_agent(record: MIRLRecord) -> str | None:
     for value in (
         record.ext.get("agent_id"),
         record.ext.get("agent"),
@@ -1997,32 +2402,6 @@ def _record_agent(
     ):
         if isinstance(value, str) and value.strip():
             return value.strip()
-    if record.kind == RecordKind.RAW:
-        source_ref = str(record.attrs.get("source_ref") or "")
-        if source_ref.startswith("agent://"):
-            candidate = source_ref.removeprefix("agent://").split("/", 1)[0].strip()
-            if candidate and candidate != "input":
-                return candidate
-        for candidate_record in batch_by_id.values():
-            if candidate_record.kind != RecordKind.PROV:
-                continue
-            if candidate_record.attrs.get("entity") != record.id:
-                continue
-            value = candidate_record.attrs.get("agent") or candidate_record.ext.get("agent_id")
-            if isinstance(value, str) and value.strip():
-                return value.strip()
-        provenance_row = connection.execute(
-            "select agent from prov_log where entity = ? and agent is not null order by id limit 1",
-            (record.id,),
-        ).fetchone()
-        if provenance_row is not None and str(provenance_row[0]).strip():
-            return str(provenance_row[0]).strip()
-    for prov_id in record.prov:
-        prov = batch_by_id.get(prov_id) or _load_record(connection, prov_id)
-        if prov is not None:
-            value = prov.attrs.get("agent") or prov.ext.get("agent_id")
-            if isinstance(value, str) and value.strip():
-                return value.strip()
     return None
 
 
@@ -2035,9 +2414,15 @@ def _record_label(record: MIRLRecord, batch_by_id: dict[str, MIRLRecord]) -> str
     if record.kind == RecordKind.REL:
         return _join_label(attrs.get("src"), attrs.get("predicate"), attrs.get("dst"))
     if record.kind == RecordKind.EVT:
-        return _join_label(attrs.get("actor") or attrs.get("subject"), attrs.get("action") or attrs.get("predicate"), attrs.get("object"))
+        return _join_label(
+            attrs.get("actor") or attrs.get("subject"),
+            attrs.get("action") or attrs.get("predicate"),
+            attrs.get("object"),
+        )
     if record.kind == RecordKind.STA:
-        return _join_label(attrs.get("target") or attrs.get("subject"), "state", attrs.get("fields") or attrs.get("object"))
+        return _join_label(
+            attrs.get("target") or attrs.get("subject"), "state", attrs.get("fields") or attrs.get("object")
+        )
     if record.kind == RecordKind.RAW:
         return str(attrs.get("source_ref") or _truncate(str(attrs.get("content") or ""), 80) or record.id)
     if record.kind == RecordKind.SPAN:
@@ -2082,12 +2467,24 @@ def _record_facets(record: MIRLRecord) -> dict[str, object]:
 
     predicate = str(attrs.get("predicate") or attrs.get("action") or "").strip().lower()
     family = predicate_family(predicate)
-    subject = attrs.get("subject") or attrs.get("actor") or attrs.get("src") or attrs.get("target")
-    obj = attrs.get("object") or attrs.get("dst")
+    if record.kind == RecordKind.EVT:
+        subject = attrs.get("actor") or attrs.get("subject")
+    elif record.kind == RecordKind.REL:
+        subject = attrs.get("src")
+    elif record.kind == RecordKind.STA:
+        subject = attrs.get("target") or attrs.get("subject")
+    else:
+        subject = (
+            attrs.get("subject")
+            or attrs.get("actor")
+            or attrs.get("src")
+            or attrs.get("target")
+        )
+    obj = attrs.get("dst") if record.kind == RecordKind.REL else attrs.get("object")
     if subject not in (None, ""):
         # Prefer the canonical entity/reference id to an extractor's surface
         # spelling so the facet connects to the real person/agent node.
-        facets["who"] = subject
+        facets.setdefault("who", subject)
     if obj not in (None, ""):
         facets.setdefault("what", obj)
     when = attrs.get("when") or attrs.get("timestamp") or attrs.get("ts") or record.t0
@@ -2135,14 +2532,16 @@ def _node_time_clauses(params: list[object], *, at: str | None, include_history:
     clauses: list[str] = []
     if at:
         placeholders = ",".join("?" for _ in CURRENT_EXCLUDED_STATUSES)
-        clauses.extend([
-            "coalesce(n.valid_from, n.created_at) <= ?",
-            "(n.valid_to is null or n.valid_to > ?)",
-            f"(n.status not in ({placeholders}) or n.updated_at > ?)",
-            "(not exists (select 1 from knowledge_node_episodes ne where ne.node_id = n.id) "
-            "or exists (select 1 from knowledge_node_episodes ne join knowledge_episodes ep on ep.id = ne.episode_id "
-            "where ne.node_id = n.id and ep.recorded_at <= ? and (ep.expired_at is null or ep.expired_at > ?)))",
-        ])
+        clauses.extend(
+            [
+                "coalesce(n.valid_from, n.created_at) <= ?",
+                "(n.valid_to is null or n.valid_to > ?)",
+                f"(n.status not in ({placeholders}) or n.updated_at > ?)",
+                "(not exists (select 1 from knowledge_node_episodes ne where ne.node_id = n.id) "
+                "or exists (select 1 from knowledge_node_episodes ne join knowledge_episodes ep on ep.id = ne.episode_id "
+                "where ne.node_id = n.id and ep.recorded_at <= ? and (ep.expired_at is null or ep.expired_at > ?)))",
+            ]
+        )
         params.extend([at, at, *sorted(CURRENT_EXCLUDED_STATUSES), at, at, at])
     elif not include_history:
         placeholders = ",".join("?" for _ in CURRENT_EXCLUDED_STATUSES)
@@ -2159,11 +2558,13 @@ def _node_time_clauses(params: list[object], *, at: str | None, include_history:
 def _edge_time_clauses(params: list[object], *, at: str | None, include_history: bool) -> list[str]:
     clauses: list[str] = []
     if at:
-        clauses.extend([
-            "coalesce(e.valid_from, e.created_at) <= ?",
-            "(e.valid_to is null or e.valid_to > ?)",
-            "(e.expired_at is null or e.expired_at > ?)",
-        ])
+        clauses.extend(
+            [
+                "coalesce(e.valid_from, e.created_at) <= ?",
+                "(e.valid_to is null or e.valid_to > ?)",
+                "(e.expired_at is null or e.expired_at > ?)",
+            ]
+        )
         params.extend([at, at, at])
     elif not include_history:
         placeholders = ",".join("?" for _ in CURRENT_EXCLUDED_STATUSES)
@@ -2197,10 +2598,12 @@ def _episode_filter_clauses(
         clauses.append("ep.agent_id = ?")
         params.append(agent_id)
     if at:
-        clauses.extend([
-            "ep.recorded_at <= ?",
-            "(ep.expired_at is null or ep.expired_at > ?)",
-        ])
+        clauses.extend(
+            [
+                "ep.recorded_at <= ?",
+                "(ep.expired_at is null or ep.expired_at > ?)",
+            ]
+        )
         params.extend([at, at])
     elif not include_history:
         clauses.append("ep.status = 'active'")
@@ -2292,32 +2695,34 @@ def _episode_provenance_edges(
         independent = _episode_is_independent(episode)
         predicate = "supports" if independent else "unverified_by"
         material = "\x1f".join((episode_id, predicate, node_id))
-        edges.append({
-            "id": f"kgep:{hashlib.sha256(material.encode('utf-8')).hexdigest()[:24]}",
-            "source": episode_id,
-            "target": node_id,
-            "predicate": predicate,
-            "edge_kind": "provenance" if independent else "epistemic",
-            "semantic_family": "provenance" if independent else "epistemic",
-            "epistemic_basis": "explicit",
-            "namespace": str(episode["ns"]),
-            "scope": str(episode["scope"]),
-            "status": str(episode["status"]),
-            "confidence": 1.0,
-            "valid_from": episode["valid_at"] or episode["recorded_at"],
-            "valid_to": episode["expired_at"],
-            "created_at": str(episode["recorded_at"]),
-            "updated_at": str(episode["expired_at"] or episode["recorded_at"]),
-            "expired_at": episode["expired_at"],
-            "agent_id": episode["agent_id"],
-            "source_record_id": str(episode["source_record_id"]),
-            "properties": {
-                "projection": "episode_provenance",
-                "episode_source_record_id": str(episode["source_record_id"]),
-                "contributing_record_ids": sorted(contributor_ids),
-                "independent_evidence": independent,
-            },
-        })
+        edges.append(
+            {
+                "id": f"kgep:{hashlib.sha256(material.encode('utf-8')).hexdigest()[:24]}",
+                "source": episode_id,
+                "target": node_id,
+                "predicate": predicate,
+                "edge_kind": "provenance" if independent else "epistemic",
+                "semantic_family": "provenance" if independent else "epistemic",
+                "epistemic_basis": "explicit",
+                "namespace": str(episode["ns"]),
+                "scope": str(episode["scope"]),
+                "status": str(episode["status"]),
+                "confidence": 1.0,
+                "valid_from": episode["valid_at"] or episode["recorded_at"],
+                "valid_to": episode["expired_at"],
+                "created_at": str(episode["recorded_at"]),
+                "updated_at": str(episode["expired_at"] or episode["recorded_at"]),
+                "expired_at": episode["expired_at"],
+                "agent_id": episode["agent_id"],
+                "source_record_id": str(episode["source_record_id"]),
+                "properties": {
+                    "projection": "episode_provenance",
+                    "episode_source_record_id": str(episode["source_record_id"]),
+                    "contributing_record_ids": sorted(contributor_ids),
+                    "independent_evidence": independent,
+                },
+            }
+        )
     return edges
 
 
@@ -2346,10 +2751,12 @@ def _node_episode_facets(
         where.append("ep.agent_id = ?")
         params.append(agent_id)
     if at:
-        where.extend([
-            "ep.recorded_at <= ?",
-            "(ep.expired_at is null or ep.expired_at > ?)",
-        ])
+        where.extend(
+            [
+                "ep.recorded_at <= ?",
+                "(ep.expired_at is null or ep.expired_at > ?)",
+            ]
+        )
         params.extend([at, at])
     elif not include_history:
         where.append("ep.status = 'active'")
@@ -2420,8 +2827,7 @@ def _time_reached(value: object, horizon: str) -> bool:
         )
     except (TypeError, ValueError):
         LOGGER.warning(
-            "Invalid or incomparable timestamp in knowledge trust gate; "
-            "treating the validity interval as expired"
+            "Invalid or incomparable timestamp in knowledge trust gate; treating the validity interval as expired"
         )
         return True
 
@@ -2459,8 +2865,7 @@ def _trust_profiles(
     edge_params.extend(sorted(EPISTEMIC_PREDICATES | {"supersedes"}))
     edge_where.extend(_edge_time_clauses(edge_params, at=at, include_history=include_history))
     candidate_edges = connection.execute(
-        "select e.* from knowledge_edges e "
-        f"where {' and '.join(edge_where)} order by e.id",
+        f"select e.* from knowledge_edges e where {' and '.join(edge_where)} order by e.id",
         edge_params,
     ).fetchall()
 
@@ -2566,23 +2971,23 @@ def _trust_profiles(
         basis = _row_epistemic_basis(row)
         node_edges = incoming.get(node_id, [])
         supported_by = [
-            edge for edge in node_edges
+            edge
+            for edge in node_edges
             if str(edge["predicate"]).lower() in {"supports", "corroborates"}
             and independent.get(str(edge["src_id"]))
             and independent_edge_evidence.get(str(edge["id"]))
         ]
         verified_refutations = [
-            edge for edge in node_edges
+            edge
+            for edge in node_edges
             if str(edge["predicate"]).lower() == "refutes"
             and independent.get(str(edge["src_id"]))
             and independent_edge_evidence.get(str(edge["id"]))
         ]
-        disputes = [
-            edge for edge in node_edges
-            if str(edge["predicate"]).lower() in {"contradicts", "refutes"}
-        ]
+        disputes = [edge for edge in node_edges if str(edge["predicate"]).lower() in {"contradicts", "refutes"}]
         verified_supersessions = [
-            edge for edge in node_edges
+            edge
+            for edge in node_edges
             if str(edge["predicate"]).lower() == "supersedes"
             and independent.get(str(edge["src_id"]))
             and independent_edge_evidence.get(str(edge["id"]))
@@ -2660,12 +3065,8 @@ def _graph_stats(connection: sqlite3.Connection, *, include_history: bool) -> di
         )
         edge_where = f"status not in ({placeholders}) and expired_at is null"
         params = excluded
-    node_count = connection.execute(
-        f"select count(*) from knowledge_nodes where {node_where}", params
-    ).fetchone()[0]
-    edge_count = connection.execute(
-        f"select count(*) from knowledge_edges where {edge_where}", params
-    ).fetchone()[0]
+    node_count = connection.execute(f"select count(*) from knowledge_nodes where {node_where}", params).fetchone()[0]
+    edge_count = connection.execute(f"select count(*) from knowledge_edges where {edge_where}", params).fetchone()[0]
     episode_status = "" if include_history else " and status = 'active'"
     agent_count = connection.execute(
         "select count(distinct agent_id) from knowledge_episodes where agent_id is not null" + episode_status
@@ -2674,9 +3075,9 @@ def _graph_stats(connection: sqlite3.Connection, *, include_history: bool) -> di
         "select count(distinct source_ref) from knowledge_episodes "
         "where source_ref is not null and source_ref != ''" + episode_status
     ).fetchone()[0]
-    episode_count = connection.execute(
-        "select count(*) from knowledge_episodes where 1=1" + episode_status
-    ).fetchone()[0]
+    episode_count = connection.execute("select count(*) from knowledge_episodes where 1=1" + episode_status).fetchone()[
+        0
+    ]
     term_count = connection.execute(
         "select count(*) from (select distinct node_id, normalized_term, term_kind, source_record_id "
         "from knowledge_node_terms)"
@@ -2780,7 +3181,8 @@ def _episode_node_payload(row: sqlite3.Row) -> dict[str, object]:
             "independent_evidence_count": int(independent),
             "model_output_evidence_count": int(not independent),
             "reasons": [
-                "independent source episode" if independent
+                "independent source episode"
+                if independent
                 else "model or agent output is provenance, not independent evidence"
             ],
         },
@@ -2845,7 +3247,9 @@ def _page_summary(row: sqlite3.Row, outgoing: list[dict[str, object]], incoming:
     if facts:
         predicates = ", ".join(dict.fromkeys(str(edge["predicate"]) for edge in facts[:5]))
         return f"{row['label']} has {len(facts)} current outgoing facts ({predicates}) and {len(incoming)} backlinks."
-    return f"{row['label']} has {len(outgoing)} outgoing links and {len(incoming)} backlinks in the SEAM knowledge graph."
+    return (
+        f"{row['label']} has {len(outgoing)} outgoing links and {len(incoming)} backlinks in the SEAM knowledge graph."
+    )
 
 
 def _query_payload(

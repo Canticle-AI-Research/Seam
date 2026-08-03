@@ -9,9 +9,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from seam_runtime.graph_source_selector import select_graph_source_raw
-from seam_runtime.knowledge_graph import KnowledgeGraphProjectionVersionError
+from seam_runtime.knowledge_graph import (
+    PROJECTION_VERSION,
+    KnowledgeGraphProjectionVersionError,
+)
 from seam_runtime.mcp import TOOL_METADATA, dispatch_tool
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
+from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 from seam_runtime.retrieval_orchestrator.adapters import SQLiteGraphAdapter
 from seam_runtime.retrieval_orchestrator.types import QueryFilters, QueryIntent, RetrievalPlan
 from seam_runtime.runtime import SeamRuntime
@@ -29,7 +33,7 @@ def runtime(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 
 def test_graph_schema_initializes_on_a_genuinely_fresh_connection() -> None:
-    from seam_runtime.knowledge_graph import PROJECTION_VERSION, init_knowledge_graph
+    from seam_runtime.knowledge_graph import init_knowledge_graph
 
     with sqlite3.connect(":memory:") as connection:
         init_knowledge_graph(connection)
@@ -120,7 +124,7 @@ def test_projection_builds_scoped_canonical_and_alias_term_index(runtime: SeamRu
     assert [node["id"] for node in graph["nodes"]] == ["ent:ada-lovelace"]
     assert graph["stats"]["term_count"] == 3
     assert graph["stats"]["alias_count"] == 2
-    assert graph["stats"]["projection_version"] == "knowledge-graph/5"
+    assert graph["stats"]["projection_version"] == PROJECTION_VERSION
 
 
 def test_sentence_like_claim_values_do_not_enter_concept_term_index(runtime: SeamRuntime) -> None:
@@ -144,6 +148,11 @@ def test_short_literals_with_embedded_periods_remain_indexable(runtime: SeamRunt
     runtime.persist_ir(
         IRBatch(
             [
+                MIRLRecord(
+                    id="ent:service",
+                    kind=RecordKind.ENT,
+                    attrs={"label": "Service", "entity_type": "service"},
+                ),
                 MIRLRecord(
                     id="clm:domain",
                     kind=RecordKind.CLM,
@@ -393,13 +402,25 @@ def test_episode_projection_respects_lifecycle_and_query_filters(runtime: SeamRu
 
 
 def test_reprojecting_record_removes_stale_semantic_edges(runtime: SeamRuntime) -> None:
+    entities = [
+        MIRLRecord(
+            id=record_id,
+            kind=RecordKind.ENT,
+            attrs={"label": label, "entity_type": "thing"},
+        )
+        for record_id, label in (
+            ("ent:alice", "Alice"),
+            ("ent:alpha", "Alpha"),
+            ("ent:beta", "Beta"),
+        )
+    ]
     original = MIRLRecord(
         id="rel:ownership",
         kind=RecordKind.REL,
         attrs={"src": "ent:alice", "predicate": "owns", "dst": "ent:alpha"},
         ext={"agent_id": "claude"},
     )
-    runtime.persist_ir(IRBatch([original]))
+    runtime.persist_ir(IRBatch([*entities, original]))
     replacement = MIRLRecord.from_dict(original.to_dict())
     replacement.attrs["dst"] = "ent:beta"
     runtime.persist_ir(IRBatch([replacement]))
@@ -414,6 +435,304 @@ def test_reprojecting_record_removes_stale_semantic_edges(runtime: SeamRuntime) 
     detail = runtime.store.knowledge_node("ent:alice")
     assert detail["page"]["agents"] == ["claude"]
     assert detail["page"]["sources"] == ["mirl://rel:ownership"]
+
+
+@pytest.mark.parametrize(
+    ("kind", "attrs"),
+    [
+        (
+            RecordKind.CLM,
+            {
+                "subject": "ent:facet-fallback",
+                "predicate": "mentions",
+                "object": "literal object",
+            },
+        ),
+        (
+            RecordKind.REL,
+            {
+                "src": "ent:facet-fallback",
+                "predicate": "relates_to",
+                "dst": "ent:facet-relation-target",
+            },
+        ),
+        (
+            RecordKind.EVT,
+            {
+                "actor": "ent:facet-fallback",
+                "action": "reviewed",
+                "object": "literal event object",
+            },
+        ),
+        (
+            RecordKind.STA,
+            {
+                "target": "ent:facet-fallback",
+                "fields": {"phase": "ready"},
+            },
+        ),
+    ],
+)
+def test_explicit_who_facet_precedes_kind_specific_fallback(
+    runtime: SeamRuntime,
+    kind: RecordKind,
+    attrs: dict[str, object],
+) -> None:
+    fallback = MIRLRecord(
+        id="ent:facet-fallback",
+        kind=RecordKind.ENT,
+        attrs={"label": "Fallback", "entity_type": "person"},
+    )
+    explicit = MIRLRecord(
+        id="ent:facet-explicit",
+        kind=RecordKind.ENT,
+        attrs={"label": "Explicit", "entity_type": "person"},
+    )
+    relation_target = MIRLRecord(
+        id="ent:facet-relation-target",
+        kind=RecordKind.ENT,
+        attrs={"label": "Relation target", "entity_type": "thing"},
+    )
+    record = MIRLRecord(
+        id=f"{kind.value.lower()}:explicit-who-facet",
+        kind=kind,
+        attrs={**attrs, "facets": {"who": explicit.id}},
+    )
+    runtime.persist_ir(IRBatch([fallback, explicit, relation_target, record]))
+
+    with runtime.store._pool.checkout() as connection:
+        who_edges = connection.execute(
+            "select dst_id from knowledge_edges where source_record_id = ? "
+            "and edge_kind = 'facet' and predicate = 'who' order by dst_id",
+            (record.id,),
+        ).fetchall()
+        properties = json.loads(
+            connection.execute(
+                "select properties_json from knowledge_nodes where id = ?",
+                (record.id,),
+            ).fetchone()[0]
+        )
+
+    assert [str(row[0]) for row in who_edges] == [explicit.id]
+    assert properties["facets"]["who"] == explicit.id
+
+
+def test_relation_who_fallback_uses_src_not_unrelated_subject_alias(
+    runtime: SeamRuntime,
+) -> None:
+    source = MIRLRecord(
+        id="ent:relation-facet-source",
+        kind=RecordKind.ENT,
+        attrs={"label": "Source", "entity_type": "person"},
+    )
+    target = MIRLRecord(
+        id="ent:relation-facet-target",
+        kind=RecordKind.ENT,
+        attrs={"label": "Target", "entity_type": "thing"},
+    )
+    unrelated = MIRLRecord(
+        id="ent:relation-facet-unrelated",
+        kind=RecordKind.ENT,
+        attrs={"label": "Unrelated", "entity_type": "person"},
+    )
+    relation = MIRLRecord(
+        id="rel:relation-facet-alias",
+        kind=RecordKind.REL,
+        attrs={
+            "src": source.id,
+            "subject": unrelated.id,
+            "predicate": "references",
+            "dst": target.id,
+        },
+    )
+    runtime.persist_ir(IRBatch([source, target, unrelated, relation]))
+
+    with runtime.store._pool.checkout() as connection:
+        who = connection.execute(
+            "select dst_id from knowledge_edges where source_record_id = ? "
+            "and edge_kind = 'facet' and predicate = 'who'",
+            (relation.id,),
+        ).fetchone()[0]
+        properties = json.loads(
+            connection.execute(
+                "select properties_json from knowledge_nodes where id = ?",
+                (relation.id,),
+            ).fetchone()[0]
+        )
+
+    assert who == source.id
+    assert properties["facets"]["who"] == source.id
+
+
+def test_live_provenance_ext_agent_matches_canonical_rebuild_attribution(
+    runtime: SeamRuntime,
+) -> None:
+    raw = MIRLRecord(
+        id="raw:ext-agent-attribution",
+        kind=RecordKind.RAW,
+        attrs={"content": "Agent-attributed source", "source_ref": "local://raw"},
+    )
+    provenance = MIRLRecord(
+        id="prov:ext-agent-attribution",
+        kind=RecordKind.PROV,
+        ext={"agent_id": "alpha"},
+        attrs={"entity": raw.id, "activity": "observed"},
+    )
+    runtime.persist_ir(IRBatch([raw]))
+    runtime.persist_ir(IRBatch([provenance]))
+
+    with runtime.store._pool.checkout() as connection:
+        node_agent = connection.execute(
+            "select agent_id from knowledge_nodes where id = ?",
+            (raw.id,),
+        ).fetchone()[0]
+        episode_agents = {
+            str(row[0])
+            for row in connection.execute(
+                "select distinct agent_id from knowledge_episodes "
+                "where source_record_id = ? and agent_id is not null",
+                (raw.id,),
+            ).fetchall()
+        }
+        specialized_agent = connection.execute(
+            "select agent from prov_log where id = ?",
+            (provenance.id,),
+        ).fetchone()[0]
+
+    assert node_agent == "alpha"
+    assert episode_agents == {"alpha"}
+    assert specialized_agent == "alpha"
+
+
+@pytest.mark.parametrize("agent_location", ["ext_agent_id", "ext_agent", "attrs_agent"])
+def test_referenced_provenance_agent_alias_cascades_on_update_and_reopen(
+    tmp_path: Path,
+    agent_location: str,
+) -> None:
+    path = tmp_path / f"referenced-prov-{agent_location}.db"
+    subject = MIRLRecord(
+        id=f"ent:referenced-prov-{agent_location}",
+        kind=RecordKind.ENT,
+        attrs={"label": "Referenced provenance", "entity_type": "thing"},
+    )
+    provenance_id = f"prov:referenced-{agent_location}"
+    claim = MIRLRecord(
+        id=f"clm:referenced-prov-{agent_location}",
+        kind=RecordKind.CLM,
+        prov=[provenance_id],
+        attrs={
+            "subject": subject.id,
+            "predicate": "has attribution",
+            "object": agent_location,
+        },
+    )
+    provenance_attrs: dict[str, object] = {
+        "entity": claim.id,
+        "activity": "observed",
+    }
+    provenance_ext: dict[str, object] = {}
+    if agent_location == "ext_agent_id":
+        provenance_ext["agent_id"] = "alpha"
+    elif agent_location == "ext_agent":
+        provenance_ext["agent"] = "alpha"
+    else:
+        provenance_attrs["agent"] = "alpha"
+    provenance = MIRLRecord(
+        id=provenance_id,
+        kind=RecordKind.PROV,
+        ext=provenance_ext,
+        attrs=provenance_attrs,
+    )
+
+    runtime = SeamRuntime(path, allow_pgvector_env=False)
+    try:
+        runtime.persist_ir(IRBatch([subject, claim, provenance]))
+        with runtime.store._pool.checkout() as connection:
+            assert connection.execute(
+                "select agent_id from knowledge_nodes where id = ?",
+                (claim.id,),
+            ).fetchone()[0] == "alpha"
+
+        changed = MIRLRecord.from_dict(provenance.to_dict())
+        if agent_location == "ext_agent_id":
+            changed.ext["agent_id"] = "beta"
+        elif agent_location == "ext_agent":
+            changed.ext["agent"] = "beta"
+        else:
+            changed.attrs["agent"] = "beta"
+        runtime.persist_ir(IRBatch([changed]))
+        with runtime.store._pool.checkout() as connection:
+            assert connection.execute(
+                "select agent_id from knowledge_nodes where id = ?",
+                (claim.id,),
+            ).fetchone()[0] == "beta"
+            assert connection.execute(
+                "select agent from prov_log where id = ?",
+                (provenance.id,),
+            ).fetchone()[0] == "beta"
+    finally:
+        runtime.close()
+
+    reopened = SeamRuntime(path, allow_pgvector_env=False)
+    try:
+        with reopened.store._pool.checkout() as connection:
+            assert connection.execute(
+                "select agent_id from knowledge_nodes where id = ?",
+                (claim.id,),
+            ).fetchone()[0] == "beta"
+    finally:
+        reopened.close()
+
+
+def test_optional_rewrite_reaps_literal_node_vector_after_success(
+    runtime: SeamRuntime,
+) -> None:
+    source = MIRLRecord(
+        id="ent:literal-vector-source",
+        kind=RecordKind.ENT,
+        attrs={"label": "Literal vector source", "entity_type": "thing"},
+    )
+    target = MIRLRecord(
+        id="ent:literal-vector-target",
+        kind=RecordKind.ENT,
+        attrs={"label": "Literal vector target", "entity_type": "thing"},
+    )
+    claim = MIRLRecord(
+        id="clm:literal-vector-owner",
+        kind=RecordKind.CLM,
+        attrs={
+            "subject": source.id,
+            "predicate": "mentions",
+            "object": "literal before canonical rewrite",
+        },
+    )
+    runtime.persist_ir(IRBatch([source, target, claim]))
+    with runtime.store._pool.checkout() as connection:
+        literal_id = str(
+            connection.execute(
+                "select dst_id from knowledge_edges where source_record_id = ? "
+                "and predicate = 'object'",
+                (claim.id,),
+            ).fetchone()[0]
+        )
+        assert connection.execute(
+            "select 1 from knowledge_node_vectors where node_id = ?",
+            (literal_id,),
+        ).fetchone() is not None
+
+    changed = MIRLRecord.from_dict(claim.to_dict())
+    changed.attrs["object"] = target.id
+    runtime.persist_ir(IRBatch([changed]))
+
+    with runtime.store._pool.checkout() as connection:
+        assert connection.execute(
+            "select 1 from knowledge_nodes where id = ?",
+            (literal_id,),
+        ).fetchone() is None
+        assert connection.execute(
+            "select 1 from knowledge_node_vectors where node_id = ?",
+            (literal_id,),
+        ).fetchone() is None
 
 
 def test_trace_preserves_persisted_direction_when_following_an_incoming_edge(runtime: SeamRuntime) -> None:
@@ -501,7 +820,14 @@ def test_canonical_reprojection_refreshes_node_values(runtime: SeamRuntime) -> N
     assert detail["node"]["properties"]["attrs"]["category"] == "canonical"
 
 
-def test_deleted_canonical_node_is_scrubbed_when_other_facts_still_reference_it(runtime: SeamRuntime) -> None:
+def test_deleting_canonical_node_with_dependent_fact_cleans_graph(
+    runtime: SeamRuntime,
+) -> None:
+    consumer = MIRLRecord(
+        id="ent:consumer",
+        kind=RecordKind.ENT,
+        attrs={"label": "Consumer", "entity_type": "service"},
+    )
     relation = MIRLRecord(
         id="rel:uses-target",
         kind=RecordKind.REL,
@@ -512,18 +838,21 @@ def test_deleted_canonical_node_is_scrubbed_when_other_facts_still_reference_it(
         kind=RecordKind.ENT,
         attrs={"label": "Sensitive canonical label", "entity_type": "service", "private": "remove me"},
     )
-    runtime.persist_ir(IRBatch([relation, target]))
-    runtime.store.delete_ir([target.id])
+    runtime.persist_ir(IRBatch([consumer, relation, target]))
+    runtime.store.delete_ir([relation.id, target.id])
 
     with runtime.store._pool.checkout() as connection:
         row = connection.execute(
-            "select label, source_record_id, synthetic, properties_json from knowledge_nodes where id = ?",
+            "select 1 from knowledge_nodes where id = ?",
             (target.id,),
         ).fetchone()
-    assert row["label"] == "target"
-    assert row["source_record_id"] is None
-    assert row["synthetic"] == 1
-    assert json.loads(row["properties_json"]) == {"reference": target.id}
+        edge_count = connection.execute(
+            "select count(*) from knowledge_edges "
+            "where src_id = ? or dst_id = ? or source_record_id = ?",
+            (target.id, target.id, relation.id),
+        ).fetchone()[0]
+    assert row is None
+    assert edge_count == 0
 
 
 def test_synthetic_identities_are_scope_and_agent_collision_safe(runtime: SeamRuntime) -> None:
@@ -533,7 +862,10 @@ def test_synthetic_identities_are_scope_and_agent_collision_safe(runtime: SeamRu
             kind=RecordKind.CLM,
             ns="shared",
             scope="thread",
-            ext={"agent_id": "agent/a"},
+            ext={
+                "agent_id": "agent/a",
+                VIRTUAL_REFS_EXTENSION: ["ent:one"],
+            },
             attrs={"subject": "ent:one", "predicate": "uses", "object": "same literal"},
         ),
         MIRLRecord(
@@ -541,7 +873,10 @@ def test_synthetic_identities_are_scope_and_agent_collision_safe(runtime: SeamRu
             kind=RecordKind.CLM,
             ns="shared",
             scope="project",
-            ext={"agent_id": "agent-a"},
+            ext={
+                "agent_id": "agent-a",
+                VIRTUAL_REFS_EXTENSION: ["ent:two"],
+            },
             attrs={"subject": "ent:two", "predicate": "uses", "object": "same literal"},
         ),
     ]
@@ -563,12 +898,18 @@ def test_graph_filters_internal_edges_by_namespace(runtime: SeamRuntime) -> None
             id="rel:namespace-a",
             kind=RecordKind.REL,
             ns="namespace.a",
+            ext={
+                VIRTUAL_REFS_EXTENSION: ["ent:shared-src", "ent:shared-dst"]
+            },
             attrs={"src": "ent:shared-src", "predicate": "allowed", "dst": "ent:shared-dst"},
         ),
         MIRLRecord(
             id="rel:namespace-b",
             kind=RecordKind.REL,
             ns="namespace.b",
+            ext={
+                VIRTUAL_REFS_EXTENSION: ["ent:shared-src", "ent:shared-dst"]
+            },
             attrs={"src": "ent:shared-src", "predicate": "must_not_leak", "dst": "ent:shared-dst"},
         ),
     ]))
@@ -614,12 +955,17 @@ def test_point_in_time_node_visibility_and_current_detail_not_found(runtime: Sea
 
 
 def test_malformed_legacy_reference_does_not_break_projection(runtime: SeamRuntime) -> None:
+    source = MIRLRecord(
+        id="ent:source",
+        kind=RecordKind.ENT,
+        attrs={"label": "Source", "entity_type": "concept"},
+    )
     target = MIRLRecord(
         id="ent:legacy",
         kind=RecordKind.ENT,
         attrs={"label": "Legacy", "entity_type": "concept"},
     )
-    runtime.persist_ir(IRBatch([target]))
+    runtime.persist_ir(IRBatch([source, target]))
     with runtime.store._pool.checkout() as connection:
         connection.execute("update ir_records set payload_json = '{' where id = ?", (target.id,))
         connection.commit()
