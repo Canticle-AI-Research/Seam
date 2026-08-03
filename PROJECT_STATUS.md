@@ -9,13 +9,23 @@
 
 ## Current headline
 
-**2026-08-02 — HISTORY#527, branch `fix/audit-2026-08-02-critical`.** PR #193
-**merged** at `6b7c22d`; protected `main` now carries the S2 spine and the
-HISTORY#525 audit remediation. Draft PRs **#194 (S3)** and **#195 (S4)** are
-open and fully green, including advisory `test-and-benchmark`.
+**2026-08-03 — HISTORY#529, rebuilt Track S S3 candidate** (supersedes the
+2026-08-02 HISTORY#527 headline). Protected `main`
+is `fa72c0c`: S2, the second-audit runtime repairs, and the corrected current
+handoff are merged. Draft PR #194 has been rebuilt from that exact ancestry;
+its old green checks are superseded and fresh exact-head CI remains the
+publication boundary. Draft PR #195 is still stacked on the old S3 head and
+must be rebuilt only after S3 merges.
+
+S3 now has both refusal and positive-success evidence. A known-good
+`knowledge-graph/4` store applies exactly one registered `/4 -> /5` transition,
+rebuilds disposable topology from canonical MIRL/lifecycle/document truth,
+advances both markers, preserves current/history/point-in-time semantics and
+independently supported edges, and resurrects zero excluded records. Invalid
+canonical document identifiers fail closed with digest-only diagnostics.
 
 A second whole-repository audit against the merged tree found one CRITICAL and
-two HIGH issues the first audit missed, now repaired on this branch:
+two HIGH issues the first audit missed, now merged through PR #196:
 
 - `/chat` echoed the target's HTTP response body into its 502 detail. Because a
   loopback `base_url` is allowed unconditionally so local Ollama works, that
@@ -36,7 +46,7 @@ The prior audit's claim that this tiebreak affected `candidate_set_sha256` was
 **wrong** and is corrected: the orchestrator has its own already-tiebroken
 traversal (`adapters.py:776`) and never calls `query_graph`.
 
-Also on this branch: the required `repo-hygiene` gate now runs `ruff check .`
+Also merged through PR #196: the required `repo-hygiene` gate now runs `ruff check .`
 (it linted only `seam_runtime/`, `tools/`, and `seam.py`, leaving `tests/`
 unlinted with two live errors) and now runs `verify_integrity`,
 `verify_continuity`, `verify_routing`, and `verify_streams`, which previously
@@ -66,18 +76,17 @@ Unknown, newer, missing, extra, cyclic, and unregistered states still refuse
 before backup or mutation.
 
 The accidental generated HTML audit commit is not an ancestor of `main`, and the
-HTML file is absent. The live branch-protection ruleset is exactly
-`repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` (re-queried
-2026-08-02); `test-and-benchmark` remains advisory, though it is currently green
-on both #194 and #195.
+HTML file is absent. The live branch-protection ruleset requires
+`repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2`;
+`test-and-benchmark` remains advisory. Prior #194/#195 green runs used the old
+workflow and do not qualify the rebuilt heads.
 
-Exact-tree provider-free verification selected **2,172 tests: 2,170 passed and
-the two established strict cases xfailed, with no skips or failures**. The live
-five-file pgvector lane passed **30/30**. The focused migration suite passed
-43/43, Ruff, Python compilation, diff hygiene, and the canonical secret/session
-scan passed, and independent adversarial review ended with no blockers. The
-local CodeRabbit rerun's only remaining suggestion was already satisfied by
-`requires-python = ">=3.11"`.
+The rebuilt S3 candidate passed **83/83** focused graph/migration tests and all
+**1,630** selected non-external audit tests; 23 external cases are explicitly
+reserved for the live pgvector CI lane. Ruff, Python compilation, diff hygiene,
+and the canonical secret/session scan pass. CodeRabbit's one valid finding was
+closed more strictly than suggested: malformed canonical document identifiers
+now roll back the rebuild instead of being silently skipped or logged raw.
 
 This is not full hosted hardening. `SEAM_API_TOKEN` remains optional for
 trusted-loopback development; automatic token provisioning and principal
@@ -110,17 +119,16 @@ tenancy remain S6.
 - **No ledger of shipped projection versions.** `PROJECTION_MIGRATIONS` is
   empty and nothing forces a version bump to ship with a registered migration,
   so bumping any of the 13 constants renders existing stores unopenable.
-- **S3's exit gate is 4/4 refusal-shaped** with no clause requiring a rebuild to
-  succeed — the same asymmetry that produced the missing forward-migration path
-  in S2. PR #194 is open against it.
+- **S3's former positive-gate asymmetry is closed on the rebuilt candidate.**
+  PR #194 still requires fresh exact-head CI and review before merge.
 - Worktree hygiene: 6 worktrees, 2 dirty; 3 merged branches undeleted.
 - Never audited, across two consecutive audits: `dashboard.py` (3,160 lines,
   zero dedicated tests), benchmark seal/BIL integrity, MIRL losslessness
   round-tripping.
 
 No paid provider, retrieval-score benchmark, artifact publish, deploy, or
-release ran. S3 durable supersession and S4 typed references are in flight as
-draft PRs #194 and #195.
+release ran. S3 is locally requalified on rebuilt draft PR #194; S4 typed
+references remains the next stacked publication after S3 merges.
 
 ## Status streams
 

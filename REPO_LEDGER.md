@@ -179,7 +179,10 @@ and `HISTORY_INDEX.md`.
   MIRL queries must reach that same engine. RAW inclusion, namespace/scope,
   lens metadata, explicit temporal window/reference, applied graph seeding
   policy, current-state filtering, and evidence closure must cross the same
-  boundary. This architecture is not authorization to change ranked behavior:
+  boundary. All SQLite-backed legs and visibility checks for one retrieval
+  request must observe one committed read snapshot; routing connections through
+  a pool without that snapshot contract is insufficient. This architecture is
+  not authorization to change ranked behavior:
   the full provider-free gate in HISTORY#503 found the uncommitted fixed-RRF
   consolidation at 0.755616 context recall versus 0.766420 for the legacy
   scorer, while warm median latency rose from 156.4 to 207.2 ms. Preserve the
@@ -204,13 +207,18 @@ and `HISTORY_INDEX.md`.
   Ordinary store open refuses missing, stale, or newer projection markers
   before graph DDL or reprojection; historical upgrades belong to an explicit,
   transactional migration workflow rather than implicit open-time backfill.
-  RAW/MIRL remain the truth,
+  The exact `knowledge-graph/4` -> `/5` transition atomically rebuilds only
+  disposable topology from canonical MIRL, MIRL lifecycle status, and durable
+  `document_status` supersession. It preserves and revalidates the separate
+  identity-merge judgement ledger, refuses invalid canonical document
+  identifiers without logging their contents, and leaves relevant table hashes
+  unchanged on failed or unsupported rebuilds. RAW/MIRL remain the truth,
   graph retrieval and the dashboard consume the same projection. Graph hits
   reached by traversal expose deterministic edge/episode backtraces and may
   select the same current, full-history, or point-in-time validity view as the
   dashboard; inactive claims remain available only through those explicit
   history views. See
-  `docs/KNOWLEDGE_GRAPH.md` and HISTORY#402.
+  `docs/KNOWLEDGE_GRAPH.md`, HISTORY#402, and HISTORY#529.
 - Graph identity lookup is a scoped, rebuildable projection, not inference from
   assertion/source labels. `knowledge_node_terms` indexes canonical entity
   names, explicit aliases, symbols, agents, and short concept literals with

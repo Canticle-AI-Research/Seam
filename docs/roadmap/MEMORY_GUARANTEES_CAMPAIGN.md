@@ -2,12 +2,13 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S2 locally requalified via `HISTORY#526` after adding the
-forward projection-transition and exclusive-owner gates; the S1 doctor
-dependency-policy correction remains qualified by `HISTORY#524`
+**Latest evidence:** S3 requalified on current protected-main ancestry via
+`HISTORY#529`; S2 and the two audit-repair follow-ups are merged through
+`main@fa72c0c`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** draft PR #193; the recovery candidate is not merged
+**Publication boundary:** rebuilt S3 draft PR #194; S4 draft PR #195 must be
+restacked only after S3 merges
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
 It converts the verified F1-F22 findings below into one dependency-ordered
@@ -26,10 +27,12 @@ projection-version, scanner, MCP-version, and dependency-contract guardrails.
 `HISTORY#524` closes the discovered `seam doctor` contradiction so an absent
 opt-in-only Chroma install is informational rather than a core failure. The
 post-S2 audit in `HISTORY#525` exposed a missing forward projection path;
-`HISTORY#526` locally requalifies S2 with registered projection transitions,
-locked backup ordering, and durable per-step resume. S3 and S4 are now
-unblocked locally; S5 may begin from the same candidate substrate after the
-protected publication boundary is satisfied.
+`HISTORY#526` requalified S2 with registered projection transitions, locked
+backup ordering, and durable per-step resume; PR #193 published it to protected
+`main`. `HISTORY#527` and `HISTORY#528` record the merged second-audit repairs
+and corrected handoff. `HISTORY#529` requalifies S3's exact KG/4-to-KG/5
+transition on that current ancestry. S4 remains an older stacked candidate
+until S3 publishes and S4 is rebuilt from the resulting `main`.
 
 ## Governing invariants
 
@@ -196,6 +199,9 @@ S6 principal tenancy or automatic token provisioning. Audit findings 7-10 and
 
 ## S3 - Durable supersession and guarded reprojection
 
+**Status:** requalified on current protected-main ancestry via `HISTORY#529`;
+draft PR #194 and fresh exact-head CI remain the publication boundary.
+
 **Purpose:** make temporal supersession canonical and ensure graph rebuilds are
 non-destructive, atomic, and history-equivalent.
 
@@ -204,12 +210,24 @@ non-destructive, atomic, and history-equivalent.
 
 **Exit gate (all required):**
 
+- A known-good KG/4 store applies exactly one registered `/4 -> /5`
+  transition, advances both projection markers to `/5`, preserves current,
+  full-history, and point-in-time views, resurrects zero excluded records, and
+  retains independently supported live edges.
 - The resurrection reproducer reports zero superseded-to-live flips.
 - Lifecycle exclusions and both `graph_at` and full-history views are identical
   before and after an explicit rebuild.
 - A shared edge remains active when another live episode still supports it.
 - A failed rebuild or a rebuild request against a newer schema leaves all
   relevant table hashes unchanged.
+- An invalid canonical `document_status` identifier refuses the rebuild,
+  preserves all relevant table hashes, and logs only its digest.
+
+The qualified transition derives topology from canonical MIRL, lifecycle
+status, and durable `document_status` supersession. It preserves and revalidates
+the separate identity-merge judgement ledger; missing judgement tables, an
+invalid document identifier, a missing graph marker, or an unsupported source
+state refuses without publishing partial topology.
 
 ## S4 - Typed references and orphan integrity
 
@@ -245,6 +263,9 @@ connection/schema churn without changing answers.
 - SQLite-vector, pgvector, and Chroma divergence is detected and repaired.
 - Warm `mix` retrieval opens no new physical SQLite connections; a 40-thread
   stress run remains within the configured pool.
+- Every SQLite-backed leg and visibility check in one retrieval request reads
+  from one committed snapshot; a concurrent ingest cannot produce a candidate
+  set or fingerprint assembled from mutually inconsistent database states.
 - Pgvector search performs no DDL or schema ensure operation.
 - Ranking, IDs, order, and provenance remain unchanged.
 

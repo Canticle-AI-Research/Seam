@@ -10,7 +10,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from typing import Iterable, Mapping
 
-from .migrations import KnowledgeGraphProjectionVersionError, execute_script
+from .migrations import (
+    DatabaseIntegrityError,
+    KnowledgeGraphProjectionVersionError,
+    execute_script,
+)
 from .mirl import MIRLRecord, RecordKind, Status, utc_now
 
 LOGGER = logging.getLogger(__name__)
@@ -291,9 +295,11 @@ def init_knowledge_graph(
                 "Refusing automatic reprojection."
             )
     else:
-        projection_tables = {
+        durable_judgement_tables = {
             "identity_merge_evidence",
             "identity_merges",
+        }
+        projection_tables = {
             "knowledge_edge_episodes",
             "knowledge_edges",
             "knowledge_episodes",
@@ -311,6 +317,11 @@ def init_knowledge_graph(
             raise KnowledgeGraphProjectionVersionError(
                 "Knowledge graph projection version is missing on a non-empty store; "
                 "refusing automatic reprojection."
+            )
+        if existing_tables & durable_judgement_tables and not allow_migration:
+            raise KnowledgeGraphProjectionVersionError(
+                "Knowledge graph projection version is missing beside its durable "
+                "identity ledger; refusing automatic reprojection."
             )
         if ir_count and not allow_migration:
             raise KnowledgeGraphProjectionVersionError(
@@ -506,10 +517,125 @@ def init_knowledge_graph(
                     # independently without losing source truth.
                     continue
             project_records(connection, records)
+        _restore_canonical_lifecycle_exclusions(connection)
+        _restore_canonical_document_supersession(connection)
+        # Identity decisions are a durable judgement ledger, not derived
+        # topology. The rebuild deliberately leaves those tables in place and
+        # revalidates accepted decisions against the newly projected nodes.
+        from .identity_resolution import apply_identity_merges
+
+        apply_identity_merges(connection)
     connection.execute(
         "insert or replace into knowledge_graph_meta (key, value) values ('projection_version', ?)",
         (PROJECTION_VERSION,),
     )
+
+
+def rebuild_knowledge_graph_from_canonical(connection: sqlite3.Connection) -> None:
+    """Atomically replace KG/4 topology from canonical durable truth.
+
+    The migration owner supplies the transaction and exclusive lock. This
+    callable never copies episode or edge lifecycle fields out of the stale
+    graph: MIRL rows, canonical lifecycle status, and ``document_status`` are
+    the only rebuild inputs. Identity merge decisions are intentionally kept
+    because they are an explicit durable judgement ledger rather than derived
+    graph topology.
+    """
+
+    marker_table = connection.execute(
+        "select 1 from sqlite_master "
+        "where type = 'table' and name = 'knowledge_graph_meta'"
+    ).fetchone()
+    marker = (
+        connection.execute(
+            "select value from knowledge_graph_meta where key = 'projection_version'"
+        ).fetchone()
+        if marker_table is not None
+        else None
+    )
+    stored_version = str(marker[0]) if marker is not None else "missing"
+    if stored_version != "knowledge-graph/4":
+        raise KnowledgeGraphProjectionVersionError(
+            "Guarded knowledge-graph rebuild requires 'knowledge-graph/4'; "
+            f"found {stored_version!r}"
+        )
+
+    # Every dropped row below is disposable topology. SQLite transactional DDL
+    # makes the replacement atomic: any projection, validation, or injected
+    # failure restores these tables and their rows on rollback.
+    for table in (
+        "knowledge_edge_episodes",
+        "knowledge_node_episodes",
+        "knowledge_node_terms",
+        "knowledge_node_vectors",
+        "knowledge_edges",
+        "knowledge_episodes",
+        "knowledge_nodes",
+        "knowledge_graph_meta",
+    ):
+        connection.execute(f'drop table if exists "{table}"')
+
+    init_knowledge_graph(connection, allow_migration=True)
+
+
+def _restore_canonical_lifecycle_exclusions(connection: sqlite3.Connection) -> None:
+    """Replay graph cleanup from canonical MIRL lifecycle status."""
+
+    rows = connection.execute(
+        "select id from ir_records where status = ? order by id",
+        (Status.DELETED_SOFT.value,),
+    ).fetchall()
+    if rows:
+        remove_records(connection, (str(row[0]) for row in rows))
+
+
+def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> None:
+    """Replay source replacement from canonical ``document_status`` rows."""
+
+    if connection.execute(
+        "select 1 from sqlite_master where type = 'table' and name = 'document_status'"
+    ).fetchone() is None:
+        return
+    rows = connection.execute(
+        "select document_id, source_ref, deleted_at from document_status "
+        "where deleted_at is not null order by deleted_at, document_id"
+    ).fetchall()
+    for document_id, source_ref, deleted_at in rows:
+        document_id = str(document_id)
+        suffix = document_id.split(":", 1)[1] if document_id.startswith("doc:") else ""
+        if re.fullmatch(r"[0-9a-f]{16}", suffix) is None:
+            identifier_sha256 = hashlib.sha256(document_id.encode("utf-8")).hexdigest()
+            LOGGER.warning(
+                "Guarded knowledge-graph rebuild refused an invalid document_status "
+                "identifier (identifier_sha256=%s)",
+                identifier_sha256,
+            )
+            raise DatabaseIntegrityError(
+                "document_status contains an invalid document identifier; "
+                "guarded knowledge-graph rebuild refused"
+            )
+        raw_prefix = f"raw:{suffix}:%"
+        connection.execute(
+            "update knowledge_episodes set status = 'superseded', "
+            "expired_at = coalesce(expired_at, ?) "
+            "where source_ref = ? and source_record_id like ?",
+            (str(deleted_at), str(source_ref), raw_prefix),
+        )
+        connection.execute(
+            "update knowledge_edges set expired_at = coalesce(expired_at, ?), "
+            "status = 'superseded', updated_at = ? where id in ("
+            "  select ke.edge_id from knowledge_edge_episodes ke "
+            "  join knowledge_episodes ep on ep.id = ke.episode_id "
+            "  where ep.source_ref = ? and ep.source_record_id like ? "
+            "    and ep.status = 'superseded'"
+            ") and not exists ("
+            "  select 1 from knowledge_edge_episodes active_ke "
+            "  join knowledge_episodes active_ep on active_ep.id = active_ke.episode_id "
+            "  where active_ke.edge_id = knowledge_edges.id "
+            "    and active_ep.status = 'active'"
+            ")",
+            (str(deleted_at), str(deleted_at), str(source_ref), raw_prefix),
+        )
 
 
 def project_records(connection: sqlite3.Connection, records: Iterable[MIRLRecord]) -> None:
@@ -862,6 +988,13 @@ def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) ->
     if not ids:
         return
     placeholders = ",".join("?" for _ in ids)
+    removal_times = {
+        str(row[0]): str(row[1])
+        for row in connection.execute(
+            f"select id, updated_at from ir_records where id in ({placeholders})",
+            ids,
+        ).fetchall()
+    }
     edge_rows = connection.execute(
         f"select id from knowledge_edges where source_record_id in ({placeholders})", ids
     ).fetchall()
@@ -893,20 +1026,29 @@ def remove_records(connection: sqlite3.Connection, record_ids: Iterable[str]) ->
         "delete from knowledge_node_terms where node_id not in (select id from knowledge_nodes)"
     )
     retained = connection.execute(
-        f"select id from knowledge_nodes where source_record_id in ({placeholders})",
+        f"select id, source_record_id from knowledge_nodes "
+        f"where source_record_id in ({placeholders})",
         ids,
     ).fetchall()
     for row in retained:
         node_id = str(row["id"])
+        removed_source_id = str(row["source_record_id"])
+        remaining_confidence = connection.execute(
+            "select max(confidence) from knowledge_edges "
+            "where src_id = ? or dst_id = ?",
+            (node_id, node_id),
+        ).fetchone()[0]
+        removed_at = removal_times.get(removed_source_id) or utc_now()
         connection.execute(
-            "update knowledge_nodes set kind = ?, label = ?, status = ?, confidence = 0, "
+            "update knowledge_nodes set kind = ?, label = ?, status = ?, confidence = ?, "
             "valid_from = null, valid_to = null, updated_at = ?, agent_id = null, "
             "source_record_id = null, synthetic = 1, properties_json = ? where id = ?",
             (
                 _kind_from_id(node_id),
                 _label_from_id(node_id),
                 Status.ASSERTED.value,
-                utc_now(),
+                float(remaining_confidence or 0.0),
+                removed_at,
                 _json({"reference": node_id}),
                 node_id,
             ),
@@ -1811,8 +1953,14 @@ def _upsert_node(
         "confidence = case when excluded.synthetic = 0 then excluded.confidence else max(knowledge_nodes.confidence, excluded.confidence) end, "
         "valid_from = case when excluded.synthetic = 0 then excluded.valid_from else knowledge_nodes.valid_from end, "
         "valid_to = case when excluded.synthetic = 0 then excluded.valid_to else knowledge_nodes.valid_to end, "
-        "created_at = case when excluded.synthetic = 0 then excluded.created_at else knowledge_nodes.created_at end, "
-        "updated_at = case when excluded.synthetic = 0 then excluded.updated_at else max(knowledge_nodes.updated_at, excluded.updated_at) end, "
+        "created_at = case "
+        "when excluded.synthetic = 0 then excluded.created_at "
+        "when knowledge_nodes.synthetic = 0 then knowledge_nodes.created_at "
+        "else min(knowledge_nodes.created_at, excluded.created_at) end, "
+        "updated_at = case "
+        "when excluded.synthetic = 0 then excluded.updated_at "
+        "when knowledge_nodes.synthetic = 0 then knowledge_nodes.updated_at "
+        "else max(knowledge_nodes.updated_at, excluded.updated_at) end, "
         "agent_id = case when excluded.synthetic = 0 then excluded.agent_id else knowledge_nodes.agent_id end, "
         "source_record_id = case when excluded.synthetic = 0 then excluded.source_record_id else knowledge_nodes.source_record_id end, "
         "synthetic = min(knowledge_nodes.synthetic, excluded.synthetic), "

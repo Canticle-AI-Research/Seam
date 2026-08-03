@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-03-audit-repairs-merged
+latest: 2026-08-03-track-s-s3-requalified
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-03-audit-repairs-merged` | [2026-08-03-audit-repairs-merged.md](2026-08-03-audit-repairs-merged.md) | `2026-08-02-track-s-audit-recovery-locally-repaired` | `HISTORY#528` | `current` |
+| `2026-08-03-track-s-s3-requalified` | [2026-08-03-track-s-s3-requalified.md](2026-08-03-track-s-s3-requalified.md) | `2026-08-03-audit-repairs-merged` | `HISTORY#529` | `current` |
+| `2026-08-03-audit-repairs-merged` | [2026-08-03-audit-repairs-merged.md](2026-08-03-audit-repairs-merged.md) | `2026-08-02-track-s-audit-recovery-locally-repaired` | `HISTORY#528` | `superseded` |
 | `2026-08-02-track-s-audit-recovery-locally-repaired` | [2026-08-02-track-s-audit-recovery-locally-repaired.md](2026-08-02-track-s-audit-recovery-locally-repaired.md) | `2026-08-01-track-s-s1-doctor-policy-corrected` | `HISTORY#526` | `superseded` |
 | `2026-08-01-track-s-s1-doctor-policy-corrected` | [2026-08-01-track-s-s1-doctor-policy-corrected.md](2026-08-01-track-s-s1-doctor-policy-corrected.md) | `2026-08-01-track-s-s2-locally-qualified` | `HISTORY#524` | `superseded` |
 | `2026-08-01-track-s-s2-locally-qualified` | [2026-08-01-track-s-s2-locally-qualified.md](2026-08-01-track-s-s2-locally-qualified.md) | `2026-08-01-track-s-s1-locally-qualified` | `HISTORY#523` | `superseded` |

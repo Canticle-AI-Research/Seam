@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-03-audit-repairs-merged
 supersedes: 2026-08-02-track-s-audit-recovery-locally-repaired
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#528
 ---
 

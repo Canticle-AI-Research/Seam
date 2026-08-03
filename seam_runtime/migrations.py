@@ -328,10 +328,44 @@ _STEPS: Final = (
 )
 _STEP_BY_TARGET: Final = {step.to_version: step for step in _STEPS}
 
+_KNOWLEDGE_GRAPH_V4_TABLES: Final = frozenset(
+    {
+        "knowledge_graph_meta",
+        "knowledge_nodes",
+        "knowledge_edges",
+        "knowledge_episodes",
+        "knowledge_node_episodes",
+        "knowledge_edge_episodes",
+        "identity_merges",
+        "identity_merge_evidence",
+    }
+)
+
+
+def _rebuild_knowledge_graph_4_to_5(
+    connection: ProjectionMigrationConnection,
+) -> None:
+    # Lazy import avoids a module cycle: knowledge_graph imports the migration
+    # exception and transactional script helper during ordinary initialization.
+    from .knowledge_graph import rebuild_knowledge_graph_from_canonical
+
+    rebuild_knowledge_graph_from_canonical(connection)
+
+
 # Projection changes are registered statically alongside the code that knows
-# how to perform them.  Each transition is exact; arbitrary version ordering is
-# intentionally unsupported.  Future projection bumps add entries here.
-PROJECTION_MIGRATIONS: Final[tuple[ProjectionMigration, ...]] = ()
+# how to perform them. Each transition is exact; arbitrary version ordering is
+# intentionally unsupported.
+PROJECTION_MIGRATIONS: Final[tuple[ProjectionMigration, ...]] = (
+    ProjectionMigration(
+        projection_name="knowledge_graph",
+        from_version="knowledge-graph/4",
+        to_version="knowledge-graph/5",
+        name="rebuild-knowledge-graph-4-to-5-from-canonical",
+        source_required_tables=_KNOWLEDGE_GRAPH_V4_TABLES,
+        target_required_tables=_REQUIRED_PROJECTION_TABLES["knowledge_graph"],
+        upgrade=_rebuild_knowledge_graph_4_to_5,
+    ),
+)
 
 FailureInjector = Callable[
     [MigrationStep | ProjectionMigration, ProjectionMigrationConnection],
