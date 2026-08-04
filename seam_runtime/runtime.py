@@ -41,7 +41,7 @@ from .reconcile import reconcile_ir
 from .storage import SQLiteStore
 from .symbols import export_symbol_markdown, propose_symbols
 from .transpile import transpile_python
-from .vector import VECTOR_TEXT_VERSION
+from .vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION
 from .vector_adapters import (
     PgVectorAdapter,
     SQLiteVectorAdapter,
@@ -1382,3 +1382,134 @@ class SeamRuntime:
             "vector_text_version": VECTOR_TEXT_VERSION,
             "stale_before": stale,
         }
+
+    def verify_vector_divergence(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        vector_adapter: object | None = None,
+    ) -> dict[str, object]:
+        """Report how a vector backend disagrees with canonical truth.
+
+        Divergence has exactly three shapes, and repair differs for each, so
+        they are reported separately rather than as one count:
+
+        ``missing``
+            canonical records the backend has no vector for -- the shape a
+            crash between commit and indexing produces.
+        ``stale``
+            vectors whose source text, render version, dimension, or boundary
+            no longer matches the canonical record.
+        ``orphan``
+            vectors with no live canonical record behind them, which stay
+            searchable and can surface deleted content.
+
+        ``vector_adapter`` inspects a backend other than the configured one,
+        which is how a deployment running SQLite-vector alongside Chroma
+        audits both.
+        """
+
+        adapter = vector_adapter if vector_adapter is not None else self.vector_adapter
+        batch = self.store.load_ir(ns=ns, scope=scope)
+        selector = getattr(adapter, "indexable_records", None)
+        expected = (
+            selector(batch.records)
+            if callable(selector)
+            else [record for record in batch.records if record.kind in INDEXABLE_KINDS]
+        )
+
+        stale: list[dict[str, object]] = []
+        missing: list[dict[str, object]] = []
+        inspector = getattr(adapter, "stale_records", None)
+        supports_stale = callable(inspector)
+        if supports_stale:
+            for issue in inspector(expected):
+                if issue.get("reason") == "missing":
+                    missing.append(issue)
+                else:
+                    stale.append(issue)
+
+        orphans: list[dict[str, object]] = []
+        orphan_inspector = getattr(adapter, "orphan_records", None)
+        supports_orphan = callable(orphan_inspector)
+        if supports_orphan:
+            orphans = list(
+                orphan_inspector(
+                    {record.id for record in expected} if (ns or scope) else None,
+                    namespace=ns,
+                    scope=scope,
+                )
+            )
+
+        return {
+            "adapter": getattr(adapter, "name", type(adapter).__name__),
+            "model": self.embedding_model.name,
+            "vector_text_version": VECTOR_TEXT_VERSION,
+            "expected_record_count": len(expected),
+            "missing": missing,
+            "stale": stale,
+            "orphan": orphans,
+            "diverged": bool(missing or stale or orphans),
+            # An adapter that cannot answer one of these is reported as such
+            # rather than silently contributing an empty list, so "no
+            # divergence" never means "never looked".
+            "checks": {
+                "missing": supports_stale,
+                "stale": supports_stale,
+                "orphan": supports_orphan,
+            },
+        }
+
+    def repair_vector_divergence(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        vector_adapter: object | None = None,
+    ) -> dict[str, object]:
+        """Detect divergence, repair every shape of it, and re-verify.
+
+        Missing and stale records are re-indexed; orphans are deleted. The
+        re-verification is part of the contract: a repair that reports success
+        without re-measuring is how divergence silently persists.
+        """
+
+        with self._persist_projection_lock:
+            adapter = (
+                vector_adapter if vector_adapter is not None else self.vector_adapter
+            )
+            before = self.verify_vector_divergence(
+                ns=ns, scope=scope, vector_adapter=adapter
+            )
+
+            reindexed_ids = sorted(
+                {str(issue["record_id"]) for issue in before["missing"]}
+                | {str(issue["record_id"]) for issue in before["stale"]}
+            )
+            if reindexed_ids:
+                batch = self.store.load_ir(ids=reindexed_ids)
+                indexer = getattr(adapter, "index_records", None)
+                if callable(indexer):
+                    indexer(batch.records)
+                else:
+                    # The Chroma leg adapter syncs rather than indexes.
+                    adapter.sync_batch(batch)
+
+            orphan_ids = sorted(
+                {str(issue["record_id"]) for issue in before["orphan"]}
+            )
+            if orphan_ids:
+                adapter.delete_records(orphan_ids)
+
+            after = self.verify_vector_divergence(
+                ns=ns, scope=scope, vector_adapter=adapter
+            )
+            return {
+                "adapter": before["adapter"],
+                "reindexed_ids": reindexed_ids,
+                "deleted_orphan_ids": orphan_ids,
+                "before": before,
+                "after": after,
+                "repaired": not after["diverged"],
+            }
