@@ -78,8 +78,7 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   migration queries. Reserved virtual metadata is unconditional, and hard
   deletes fail atomically if a surviving required reference would remain.
   Removed phantom nodes cannot leave searchable orphan vectors.
-- S5 is locally qualified on `agent/track-s-s5-outbox-pooling`; exact-head CI
-  and review remain required before publication. One committed read snapshot,
+- S5 is published through PR #199 at `main@19b3a76`. One committed read snapshot,
   bound per request and keyed by database identity, now covers every
   SQLite-backed leg and visibility check -- including the SQLite vector index,
   which is opened on `store.path` and so was reading a second state even after
@@ -94,6 +93,14 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   DDL was also why warm retrieval kept opening connections despite the pool.
   Divergence (missing/stale/orphan) is detected and repaired on all three
   backends, with Chroma gaining the inspection methods it lacked.
+- S6 (principal tenancy and opaque deletion) is the next stage and is unstarted.
+  It must state explicitly whether tenancy terminates in a proxy ahead of `/v1`
+  or in-process; that decision is written down nowhere, and `/v1` still has no
+  tenancy binding and zero HTTP-level tests.
+- The live pgvector lane is exercised locally by exporting `PGVECTOR_TEST_DSN`
+  from the running `seam-pgvector` container (`SEAM_PGVECTOR_DSN`, port 55432).
+  Without it, 4 external cases skip; with it the full suite is 2028 passed, 0
+  skipped, 2 xfailed.
 - The history advisory lock now resolves through a linked worktree's
   `gitdir:` pointer, so `python -m tools.history.new_entry` no longer leaves an
   untracked `HISTORY_INDEX.md.lock` inside a worktree's working tree where

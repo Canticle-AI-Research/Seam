@@ -9,11 +9,18 @@
 
 ## Current headline
 
-**2026-08-03 — HISTORY#532, Track S S5 locally qualified on
-`agent/track-s-s5-outbox-pooling`** (supersedes the 2026-08-03 HISTORY#531
-headline). Protected `main` is `50f4ead`; zero PRs are open. Every S5 exit-gate
-clause now has local evidence. Exact-head CI and review remain required before
-publication, so this is a qualification, not a publication.
+**2026-08-03 — HISTORY#533, Track S S5 published; S6 is the next stage**
+(supersedes the 2026-08-03 HISTORY#532 headline). Protected `main` is
+`19b3a76`: S5 merged through PR #199 after all eight required and advisory
+checks passed on the exact head — `repo-hygiene`, `chroma-real-smoke`,
+`locomo-quickstart-bil2`, `package-smoke`, `pgvector-integration`,
+`registry-plan`, `test-and-benchmark`, and CodeRabbit, which left zero review
+comments. Zero PRs are open. Every S5 exit-gate clause has evidence.
+
+S6 — principal tenancy and opaque deletion — is now the only unblocked stage.
+It must state explicitly whether tenancy terminates in a proxy ahead of `/v1`
+or in-process; that decision is currently written down nowhere, and `/v1` still
+has no tenancy binding and zero HTTP-level tests.
 
 S5 was designed as one change rather than two, because `HISTORY#528` recorded
 that pooling alone satisfies the connection clause while leaving the
@@ -54,8 +61,10 @@ dropping those records from the semantic leg so a torn read looked identical.
 The fixture now varies only record ids, and the test was re-verified to fail
 with the snapshot disabled.
 
-Full suite: **2024 passed, 4 skipped** (the live-pgvector lane), **2 xfailed**;
-ruff clean.
+Full suite with the live pgvector lane enabled: **2028 passed, 0 skipped, 2
+xfailed**; ruff clean. The 23 external cases ran against the live pgvector
+service rather than being skipped. The 2 xfails are the pre-existing
+`compile_nl` compiler-rewrite targets and are unrelated to S5.
 
 S4 replaces colon/prefix inference with closed typed-reference contracts.
 Timestamps, URLs, and arbitrary colon-bearing values remain literals unless a
@@ -172,12 +181,12 @@ tenancy remain S6.
   down nowhere. `/v1` also has zero HTTP-level tests (2 references in the whole
   test tree; no test exercises `POST /v1/memories`, `/v1/memories/recall`, or
   `/v1/context`).
-- ~~**Retrieval legs share no read snapshot.**~~ Closed locally by S5 on
-  `agent/track-s-s5-outbox-pooling`: the eleven `store._connect()` sites now use
-  the pool, and the pool itself routes to a per-request committed snapshot that
-  the same-file SQLite vector index joins. Verified to discriminate — with the
+- ~~**Retrieval legs share no read snapshot.**~~ **Closed and published** by
+  S5 at `main@19b3a76`: the eleven `store._connect()` sites now use the pool,
+  and the pool itself routes to a per-request committed snapshot that the
+  same-file SQLite vector index joins. Verified to discriminate — with the
   snapshot disabled, a mid-request commit enters the candidate set and
-  `candidate_set_sha256` changes. Not yet published.
+  `candidate_set_sha256` changes.
 - **Unbounded SQL variable expansion** in `knowledge_graph.py` (`:1106`,
   `:1143`, `:1161`, `_graph_episode_rows` `:2074-2090`), where the orchestrator
   chunks at 400. Latent on SQLite ≥ 3.32; breaks on the 999-variable default

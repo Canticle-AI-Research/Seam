@@ -6,7 +6,7 @@
 recorded by `HISTORY#530` and registered by `HISTORY#531`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** S0-S4 are merged; S5 is the next stage and must be
+**Publication boundary:** S0-S5 are merged; S6 is the next stage and must be
 built on `main@ea4e46e` rather than stacked on an unmerged base
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
@@ -289,9 +289,9 @@ canonical-state restoration.
 
 ## S5 - Vector outbox and connection pooling
 
-**Status:** locally qualified on `agent/track-s-s5-outbox-pooling`; every clause
-below has evidence. Exact-head CI and review remain required before publication.
-S6-S10 all depend on this stage directly or transitively.
+**Status:** published through PR #199 at `main@19b3a76`, after all eight
+required and advisory checks passed on the exact head. Every clause below has
+evidence. S6-S10 all depend on this stage directly or transitively.
 
 **Purpose:** make derived-index updates process-durable and eliminate search-time
 connection/schema churn without changing answers.

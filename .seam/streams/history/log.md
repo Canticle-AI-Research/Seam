@@ -16231,3 +16231,98 @@ retrieval-score claim, artifact publish, deploy, or release ran. S6 unblocks onl
 after S5 is published, and must state explicitly whether tenancy terminates in a
 proxy ahead of `/v1` or in-process -- a decision currently written down nowhere.
 ---END-ENTRY-#532---
+
+---BEGIN-ENTRY-#533---
+id: 533
+date: 2026-08-04T03:28:40Z
+agent: claude
+status: done
+topics: track-s, operations, retrieval, storage, vector, publication
+commits: 19b3a76
+refs: PROJECT_STATUS.md,docs/status/operations.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-03-track-s-s5-merged-s6-next.md,docs/handoffs/INDEX.md
+supersedes: 532
+tokens: 1006
+---
+Track S S5 (vector outbox and connection pooling) is published through PR #199
+at protected `main@19b3a76`. All eight required and advisory checks passed on
+the exact head -- `repo-hygiene`, `chroma-real-smoke`, `locomo-quickstart-bil2`,
+`package-smoke`, `pgvector-integration`, `registry-plan`, `test-and-benchmark`,
+and CodeRabbit, which left zero review comments. The branch was squash-merged
+and deleted, and the remote ref pruned. Zero PRs are open.
+
+This entry registers the publication of the work #532 qualified locally, and
+opens S6.
+
+WHAT IS NOW TRUE ON MAIN
+
+- Every SQLite-backed retrieval leg and visibility check in one request reads
+  from a single committed snapshot, held on one pooled connection and keyed by
+  database identity so the same-file SQLite vector index joins it rather than
+  reading its own state.
+- Derived vector indexing is process-durable: the intent commits in the same
+  transaction as the canonical rows and replays idempotently on reopen.
+- Neither pgvector search nor SQLite vector search performs schema work.
+- Vector divergence (missing/stale/orphan) is detected and repaired on
+  SQLite-vector, pgvector, and Chroma.
+
+TEST-LANE CORRECTION
+
+The #532 entry recorded the suite as "2024 passed, 4 skipped, 2 xfailed" and
+described the 4 skips as a CI-only lane. That was accepted too easily. The
+live pgvector service was already running locally on port 55432; the 4 cases
+skipped only because they read `PGVECTOR_TEST_DSN` while the environment
+provides `SEAM_PGVECTOR_DSN`. Exporting one from the other runs the lane:
+
+    export PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN"
+
+All 23 external cases pass against the live service, and the full suite becomes
+2028 passed, 0 SKIPPED, 2 xfailed. This matters specifically for S5, whose
+pgvector clause changed real adapter behaviour; asserting it only against a
+recording double while a real service sat available was weaker evidence than
+was available for free.
+
+The 2 xfails are `tests/fidelity/test_compile_fidelity.py`
+`single_fact_ownership-entity_extraction` and
+`two_independent_facts-entity_extraction`: pre-existing, documented targets for
+the MIRL compiler rewrite, unrelated to Track S. They are expected failures,
+not failures.
+
+FILES CHANGED
+
+Modified: PROJECT_STATUS.md (headline advanced to publication; the retrieval
+read-snapshot open item marked closed and published; suite figures corrected),
+docs/status/operations.md (S5 published; S6 opened; the local pgvector lane
+procedure recorded), docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md (publication
+boundary S0-S5; S5 status published), docs/handoffs/INDEX.md,
+docs/handoffs/2026-08-03-track-s-s5-locally-qualified.md (retired).
+
+Added: docs/handoffs/2026-08-03-track-s-s5-merged-s6-next.md.
+
+VERIFICATION PERFORMED
+
+Full suite with the live pgvector lane enabled: 2028 passed, 0 skipped, 2
+xfailed. `ruff check .` clean. On merged main, verify_integrity and
+verify_continuity pass; the full closeout chain including verify_routing,
+verify_handoffs, and verify_streams passes with this entry.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+S6 (principal tenancy and opaque deletion) is unstarted and is the only
+unblocked stage. Before any code, S6 must state explicitly whether tenancy
+terminates in a proxy ahead of `/v1` or in-process -- that decision is written
+down nowhere and every later clause depends on it. `/v1` still has no tenancy
+binding: `public_api.remember/recall/context` take no caller identity, so one
+bearer token reads and writes every namespace, and `/v1` has zero HTTP-level
+tests.
+
+Also still open, none of them Track S: `dashboard.py` (3,160 lines, no dedicated
+test file), benchmark seal/BIL integrity, and MIRL losslessness round-tripping
+remain unaudited across two whole-repository audits; unbounded SQL variable
+expansion in `knowledge_graph.py` breaks on the 999-variable default;
+`test-and-benchmark` has now been green on six consecutive PRs, exceeding S10's
+condition for promoting it to a required check, which remains an unmade
+branch-protection ruleset change.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#533---
