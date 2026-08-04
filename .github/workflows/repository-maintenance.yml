@@ -27,9 +27,12 @@ jobs:
       - name: Build maintenance report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -m tools.ci.github_maintenance_report --output github-maintenance-report.md --json-output github-maintenance-report.json
+        run: python -m tools.ci.github_maintenance_report --output github-maintenance-report.md --json-output github-maintenance-report.json --strict
 
+      # Uploaded even when the gate fails -- the report is how you find out
+      # which branch or worktree tripped it.
       - name: Upload maintenance report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: github-maintenance-report

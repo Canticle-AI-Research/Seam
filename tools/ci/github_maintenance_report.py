@@ -28,10 +28,52 @@ SENSITIVE_TEXT_PATTERNS = (
 )
 
 
+def collect_worktrees() -> list[dict[str, Any]]:
+    """Every linked worktree and how many uncommitted files it holds.
+
+    A dirty worktree is invisible to branch and PR listings -- it carries work
+    that exists in no commit, no branch, and no PR -- which is why AGENTS.md
+    forbids leaving one and why it has to be reported here rather than inferred
+    from refs.
+    """
+    completed = subprocess.run(
+        ["git", "worktree", "list", "--porcelain"],
+        capture_output=True, text=True, check=False,
+    )
+    if completed.returncode != 0:
+        return []
+
+    worktrees: list[dict[str, Any]] = []
+    first = True
+    path = branch = None
+    for line in completed.stdout.splitlines() + [""]:
+        if line.startswith("worktree "):
+            path = line.split(" ", 1)[1].strip()
+            branch = None
+        elif line.startswith("branch "):
+            branch = line.split(" ", 1)[1].strip().replace("refs/heads/", "")
+        elif not line.strip() and path:
+            status = subprocess.run(
+                ["git", "-C", path, "status", "--porcelain"],
+                capture_output=True, text=True, check=False,
+            )
+            dirty = [ln for ln in status.stdout.splitlines() if ln.strip()]
+            worktrees.append({
+                "path": _safe_text(path),
+                "branch": _safe_text(branch or "(detached)"),
+                "dirty_file_count": len(dirty),
+                "is_primary": first,
+            })
+            first = False
+            path = branch = None
+    return worktrees
+
+
 def build_report(
     *,
     prs: list[dict[str, Any]],
     branches: list[dict[str, Any]],
+    worktrees: list[dict[str, Any]] | None = None,
     now: datetime | None = None,
     stale_days: int = 7,
 ) -> dict[str, Any]:
@@ -59,7 +101,15 @@ def build_report(
                 }
             )
 
-    status = "ACTION_REQUIRED" if stale_prs or stale_branches else "PASS"
+    # A *linked* worktree holding uncommitted files is a violation regardless of
+    # age: unlike a stale branch, nothing else in the repository records its
+    # content. The primary worktree is excluded because uncommitted work there is
+    # ordinary in-progress editing -- a gate that fires on that gets switched off.
+    dirty_worktrees = [
+        w for w in (worktrees or [])
+        if w.get("dirty_file_count", 0) > 0 and not w.get("is_primary")
+    ]
+    status = "ACTION_REQUIRED" if stale_prs or stale_branches or dirty_worktrees else "PASS"
     return {
         "version": "SEAM-GITHUB-MAINTENANCE/1",
         "generated_at": _format_time(now),
@@ -69,10 +119,14 @@ def build_report(
             "open_pr_count": len(open_prs),
             "stale_pr_count": len(stale_prs),
             "stale_branch_without_pr_count": len(stale_branches),
+            "worktree_count": len(worktrees or []),
+            "dirty_worktree_count": len(dirty_worktrees),
         },
         "open_prs": open_prs,
         "stale_prs": stale_prs,
         "stale_branches_without_pr": stale_branches,
+        "worktrees": list(worktrees or []),
+        "dirty_worktrees": dirty_worktrees,
     }
 
 
@@ -90,6 +144,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"- Open PRs: {summary.get('open_pr_count', 0)}",
         f"- Stale PRs: {summary.get('stale_pr_count', 0)}",
         f"- Stale branches without PR: {summary.get('stale_branch_without_pr_count', 0)}",
+        f"- Worktrees: {summary.get('worktree_count', 0)}"
+        f" ({summary.get('dirty_worktree_count', 0)} dirty)",
         "",
         "## Open PRs",
         "",
@@ -187,6 +243,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--stale-days", type=int, default=7)
     parser.add_argument("--output", default="github-maintenance-report.md")
     parser.add_argument("--json-output", default="github-maintenance-report.json")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit non-zero when the report status is ACTION_REQUIRED",
+    )
     args = parser.parse_args(argv)
 
     token = resolve_github_token()
@@ -197,11 +258,17 @@ def main(argv: list[str] | None = None) -> int:
     report = build_report(
         prs=fetch_open_prs(args.repo, token),
         branches=list_remote_branches(),
+        worktrees=collect_worktrees(),
         stale_days=args.stale_days,
     )
     Path(args.output).write_text(render_markdown(report), encoding="utf-8")
     Path(args.json_output).write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
     print(render_markdown(report))
+    # Without --strict this stays a report. With it, the report becomes a gate:
+    # a verdict nothing acts on is what let a dirty worktree survive 13 days.
+    if args.strict and report.get("status") == "ACTION_REQUIRED":
+        print("\nrepository maintenance FAILED: status is ACTION_REQUIRED")
+        return 1
     return 0
 
 

@@ -1,0 +1,53 @@
+"""The maintenance report must be a gate, not a bulletin.
+
+HISTORY#525 recorded dirty worktrees as an open finding; it stayed open because
+`repository-maintenance.yml` computed a verdict and then uploaded it as an
+artifact nobody was gated on. A linked worktree carrying uncommitted work then
+survived 13 days. These tests pin the enforcement so it cannot regress to
+reporting.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+
+from tools.ci.github_maintenance_report import build_report
+
+WORKFLOW = Path(__file__).resolve().parents[2] / ".github/workflows/repository-maintenance.yml"
+
+
+def _worktree(path, dirty, primary=False):
+    return {"path": path, "branch": "b", "dirty_file_count": dirty, "is_primary": primary}
+
+
+class TestWorktreeVerdict:
+    def test_dirty_linked_worktree_requires_action(self):
+        report = build_report(prs=[], branches=[], worktrees=[_worktree("/w", 12)])
+        assert report["status"] == "ACTION_REQUIRED"
+        assert report["summary"]["dirty_worktree_count"] == 1
+
+    def test_dirty_primary_worktree_is_not_a_violation(self):
+        """Ordinary in-progress editing. A gate that fires here gets disabled."""
+        report = build_report(prs=[], branches=[], worktrees=[_worktree("/main", 9, primary=True)])
+        assert report["status"] == "PASS"
+
+    def test_clean_worktrees_pass(self):
+        report = build_report(prs=[], branches=[], worktrees=[_worktree("/w", 0)])
+        assert report["status"] == "PASS"
+
+    def test_worktrees_are_optional_for_callers(self):
+        assert build_report(prs=[], branches=[])["status"] == "PASS"
+
+
+class TestWorkflowIsGated:
+    def test_report_runs_with_strict(self):
+        assert "--strict" in WORKFLOW.read_text(encoding="utf-8"), (
+            "repository-maintenance must run the report with --strict, or the "
+            "verdict is advisory again"
+        )
+
+    def test_report_is_uploaded_even_when_the_gate_fails(self):
+        text = WORKFLOW.read_text(encoding="utf-8")
+        assert "if: always()" in text, (
+            "the artifact must upload on failure, otherwise a tripped gate gives "
+            "no way to see what tripped it"
+        )
