@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 532
-total_tokens: ~268284
-latest_id: 532
+total_entries: 533
+total_tokens: ~269290
+latest_id: 533
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 533 | 2026-08-04 | done | ec47c306659aee16 | track-s,operations,retrieval,storage,+ | 532 |
 | 532 | 2026-08-04 | changed | 665c9106feb088db | track-s,retrieval,storage,vector,+ | 531 |
 | 531 | 2026-08-03 | done | 8d46796b113fb4c5 | history,handoff,streams,protocol,+ | 530 |
 | 530 | 2026-08-03 | done | cbfcfc5ff7d375c2 | storage,persist,mirl,graph,+ | 529 |
@@ -737,7 +738,7 @@ compact: true
 - open-domain: count=1 latest=#413
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
-- operations: count=2 latest=#532, #507
+- operations: count=3 latest=#533, #532, #507
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
@@ -767,6 +768,7 @@ compact: true
 - protocol: count=109 latest=#531, #528, #461, #459, #441
 - prov: count=1 latest=#316
 - provenance: count=21 latest=#530, #529, #513, #510, #498
+- publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
 - pyproject: count=13 latest=#524, #520, #470, #469, #468
@@ -793,7 +795,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=137 latest=#532, #527, #521, #520, #513
+- retrieval: count=138 latest=#533, #532, #527, #521, #520
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=1 latest=#388
@@ -828,7 +830,7 @@ compact: true
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
 - status: count=169 latest=#531, #528, #511, #505, #504
-- storage: count=23 latest=#532, #530, #529, #526, #522
+- storage: count=24 latest=#533, #532, #530, #529, #526
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
 - surface: count=10 latest=#502, #488, #487, #469, #467
@@ -848,12 +850,12 @@ compact: true
 - trace: count=1 latest=#505
 - traceability: count=1 latest=#316
 - track-r: count=5 latest=#459, #458, #457, #456, #455
-- track-s: count=1 latest=#532
+- track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
 - tui: count=25 latest=#137, #121, #120, #119, #118
 - unify: count=1 latest=#311
-- vector: count=35 latest=#532, #530, #502, #465, #464
+- vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
 - verify: count=357 latest=#530, #529, #528, #527, #526
 - vulnerability: count=1 latest=#296
@@ -872,6 +874,6 @@ compact: true
 
 - roots: 82
 - changed: 38
-- done: 465
+- done: 466
 - in-progress: 8
 - planned: 21
