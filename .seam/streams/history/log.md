@@ -16326,3 +16326,66 @@ branch-protection ruleset change.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#533---
+
+---BEGIN-ENTRY-#534---
+id: 534
+date: 2026-08-04T23:33:39Z
+agent: claude
+status: done
+topics: ci, hygiene, worktree, protocol, enforcement, verify
+commits: e1f7eeb,567f868
+refs: tools/ci/github_maintenance_report.py,.github/workflows/repository-maintenance.yml,tools/git-hooks/pre-push,tests/audit/test_repo_hygiene_gate.py
+supersedes: 533
+tokens: 764
+---
+REPOSITORY HYGIENE BECOMES A GATE. The repo carries 15 tools that render a
+PASS/FAIL verdict; exactly 6 were wired into the required repo-hygiene check,
+and all 6 are chain verifiers (integrity, continuity, routing, handoffs,
+streams, dependency contract). Every operational-hygiene verdict was ungated.
+That is why HISTORY.md is immaculate and worktrees were not: AGENTS.md:39 is
+prose addressed to agents, and repository-maintenance.yml computed
+ACTION_REQUIRED and uploaded it as an artifact nobody was gated on. HISTORY#525
+recorded dirty worktrees as an open finding; it survived two whole-repo audits,
+and a linked worktree then held 12 uncommitted files on a base 45 commits behind
+main for 13 days.
+
+TWO GATES, SPLIT BY WHAT EACH SIDE CAN OBSERVE. github_maintenance_report.py
+gained worktree collection (it took branches and PRs only, so work existing in
+no commit, branch, or PR was structurally invisible) plus --strict, and
+repository-maintenance.yml now runs it strictly with if: always() on the upload
+so a tripped gate still shows what tripped it. That CI check cannot enforce
+worktrees: a GitHub Actions checkout has exactly one clean worktree, so
+dirty_worktree_count is always 0 there. Worktree enforcement therefore lives in
+tools/git-hooks/pre-push, which refuses a push while any LINKED worktree holds
+uncommitted files. CI keeps the stale remote branch and PR checks, which it can
+see and a local hook should not be querying.
+
+TWO DELIBERATE EXEMPTIONS, BOTH TEST-PINNED. The primary worktree is exempt
+because uncommitted work there is ordinary editing and a hook that refuses it
+gets bypassed rather than obeyed; the first version of the CI check flagged the
+primary tree and was caught in testing. SEAM_ALLOW_DIRTY_WORKTREES=1 is a named
+escape hatch because an un-overridable hook gets deleted.
+
+VERIFIED. tests/audit/test_repo_hygiene_gate.py, 9 tests: dirty-linked fails,
+dirty-primary passes, clean passes, worktrees stays optional for existing
+callers, workflow uses --strict, artifact uploads on failure, and the hook
+checks worktrees, exempts the primary, and names its override. End-to-end
+against a real linked worktree: primary ignored, linked dirty caught, exit 1.
+Hook exercised in all three states (clean allowed, dirty refused, override
+honoured). 70 existing tests touching build_report pass; ruff clean.
+
+CLEANUP PERFORMED THIS SESSION. Worktrees 4 -> 1, local branches 14 -> 8, remote
+branches 11 -> 6, DELETE-verdict branches 11 -> 0, all per tools.git
+scan_stale_branches. Every removal is recoverable: SHAs recorded and the
+abandoned worktree's 1,033-line diff plus 3 untracked files preserved outside
+both repositories. The abandoned WIP was verified superseded first -- main
+carries the same R3 work as record_reasoning_verification rather than the
+draft's record_reasoning_check, and both of its untracked files already exist on
+main.
+
+NOT CLOSED. The same ungated-verdict pattern remains live in two places this
+does not touch: test-and-benchmark is advisory and can be reported as skipped
+while the three required checks stay green, and the benchmark regression gate
+has never compared a baseline because resolve_baseline returns None under a
+shallow checkout and None is treated as pass.
+---END-ENTRY-#534---
