@@ -44,4 +44,41 @@ while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     --range "$SCAN_BASE" "$LOCAL_SHA" || exit 1
 done
 
+# Linked-worktree hygiene. This check lives here, not in CI, because CI cannot
+# see it: a GitHub Actions checkout has exactly one clean worktree, so a
+# CI-side worktree gate reports PASS forever. A linked worktree holding
+# uncommitted work is invisible to every ref-based view -- no commit, no
+# branch, no PR -- which is how one survived 13 days holding 12 files
+# (HISTORY#525, AGENTS.md:39, HISTORY#223).
+#
+# The primary worktree is deliberately exempt: uncommitted work there is
+# ordinary in-progress editing, and a hook that refuses that gets bypassed.
+DIRTY_WORKTREES=""
+PRIMARY_WT=$(git rev-parse --path-format=absolute --show-toplevel 2>/dev/null || echo "$REPO_ROOT")
+while read -r WT_PATH; do
+  [ -n "$WT_PATH" ] || continue
+  [ "$WT_PATH" = "$PRIMARY_WT" ] && continue
+  [ -d "$WT_PATH" ] || continue
+  WT_DIRTY=$(git -C "$WT_PATH" status --porcelain 2>/dev/null | grep -c . || true)
+  if [ "${WT_DIRTY:-0}" -gt 0 ]; then
+    DIRTY_WORKTREES="${DIRTY_WORKTREES}  ${WT_PATH} (${WT_DIRTY} uncommitted file(s))
+"
+  fi
+done <<EOF
+$(git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
+EOF
+
+if [ -n "$DIRTY_WORKTREES" ]; then
+  echo "[SEAM pre-push] BLOCKED: linked worktree(s) hold uncommitted work:" >&2
+  printf '%s' "$DIRTY_WORKTREES" >&2
+  echo "[SEAM pre-push] That work exists in no commit, branch, or PR. Commit it," >&2
+  echo "[SEAM pre-push] or 'git worktree remove --force <path>' to discard it." >&2
+  echo "[SEAM pre-push] AGENTS.md:39 -- see HISTORY#223 for the regression this caused." >&2
+  echo "[SEAM pre-push] Override for one push: SEAM_ALLOW_DIRTY_WORKTREES=1" >&2
+  if [ "${SEAM_ALLOW_DIRTY_WORKTREES:-0}" != "1" ]; then
+    exit 1
+  fi
+  echo "[SEAM pre-push] SEAM_ALLOW_DIRTY_WORKTREES=1 set -- continuing." >&2
+fi
+
 exit 0
