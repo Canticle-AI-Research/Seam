@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 594
+total_events: 595
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-27T00:00:00Z | history:338:5ed0d240 | session-event | done | benchmark, locomo, mem0, retrieval, test, docs, history | benchmarks/external/locomo/adapters/mem0.py,benchmarks/external/locomo/run.py... |
 | 2026-06-27T15:16:28Z | history:339:7ca998d1 | session-event | done | pyproject, readme, ci, test, docs, history | pyproject.toml,README.md,MANIFEST.in,.github/workflows/ci.yml,tests/audit/tes... |
 | 2026-06-27T17:52:01Z | history:340:2681bb08 | session-event | done | readme, docs, prompt, memory, operator, webui, test, history | README.md,docs/README.md,docs/errors.md,tests/audit/test_github_package_metad... |
 | 2026-06-27T18:03:10Z | history:341:1c9841e7 | session-event | done | readme, docs, test, history | README.md,tests/audit/test_github_package_metadata.py |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-03T05:21:41Z | history:529:0d3883bb | session-event | done | storage, persist, graph, provenance, integrity, atomicity... | seam_runtime/knowledge_graph.py,seam_runtime/migrations.py,tests/audit/test_k... |
 | 2026-08-03T22:05:58Z | history:530:cbfcfc5f | session-event | done | storage, persist, mirl, graph, integrity, atomicity, prov... | seam_runtime/reference_contracts.py,seam_runtime/knowledge_graph.py,seam_runt... |
 | 2026-08-03T22:53:54Z | history:531:8d46796b | session-event | done | history, handoff, streams, protocol, git-hooks, tests, bu... | tools/history/new_entry.py,tools/history/test_history_tools.py,docs/handoffs/... |
+| 2026-08-04T01:00:04Z | history:532:665c9106 | session-event | changed | track-s, retrieval, storage, vector, durability, operations | seam_runtime/read_snapshot.py,seam_runtime/vector_outbox.py,seam_runtime/pool... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0394.cross.md | 2026-04-15T00:00:00Z..2026-06-27T00:00:00Z | 394 | (multi) | (multi) |
+| 0001-0395.cross.md | 2026-04-15T00:00:00Z..2026-06-27T00:00:00Z | 395 | (multi) | (multi) |

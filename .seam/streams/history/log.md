@@ -16106,3 +16106,128 @@ squash-merged and deleted; zero PRs are open.
 Begin S5 on `main@ea4e46e`, designing the durable outbox and the pooled,
 single-snapshot read path together rather than in sequence.
 ---END-ENTRY-#531---
+
+---BEGIN-ENTRY-#532---
+id: 532
+date: 2026-08-04T01:00:04Z
+agent: claude
+status: changed
+topics: track-s, retrieval, storage, vector, durability, operations
+commits: 0b17445,ae14656,edf3348,6461122,0520a88
+refs: seam_runtime/read_snapshot.py,seam_runtime/vector_outbox.py,seam_runtime/pool.py,seam_runtime/storage.py,seam_runtime/runtime.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orchestrator/orchestrator.py,docs/handoffs/2026-08-03-track-s-s5-locally-qualified.md
+supersedes: 531
+tokens: 1515
+---
+Track S S5 (vector outbox and connection pooling) is locally qualified on
+`agent/track-s-s5-outbox-pooling`, based on protected `main@50f4ead`. Every
+exit-gate clause has evidence. Nothing is published: no PR is open, and
+exact-head CI, CodeRabbit, and an independent diff review remain required.
+
+WHAT LANDED
+
+1. One committed read snapshot per retrieval request. `seam_runtime/read_snapshot.py`
+   binds one deferred read transaction to the calling context, keyed by database
+   identity. `SnapshotAwarePool` (seam_runtime/pool.py) routes every checkout to
+   the bound snapshot, so joining is the default rather than something any of the
+   ~100 read helpers in storage.py can omit. The eleven `store._connect()` sites
+   in `retrieval_orchestrator/adapters.py` now use the pool. The orchestrator
+   holds the snapshot across `_execute` and provenance resolution.
+
+   Keying on the database rather than the store is what pulls in the SQLite
+   vector index: it is constructed on `store.path` (runtime.py:106), so the
+   semantic leg was a second connection reading its own committed state. Pooling
+   only the eleven canonical sites would have passed a connection-count test and
+   left that reader torn.
+
+   The snapshot carries a SQLite authorizer denying mutations for its duration.
+   The snapshot ends in `rollback`, so without the guard a stray write inside a
+   request would join the read transaction and be discarded silently -- a
+   data-loss mode worse than the tear being closed.
+
+2. Durable vector outbox (finding F7). `seam_runtime/vector_outbox.py` records
+   index intents; `SQLiteStore.persist_ir(_enqueue_vector_outbox=True)` writes
+   them on the same connection and in the same transaction as the canonical
+   rows. `SeamRuntime` acknowledges only after indexing durably succeeds, and
+   `replay_vector_outbox()` runs on reopen. Replay assumes the backend was NOT
+   updated, because after a crash that is unknowable; re-indexing is a
+   content-hash no-op, so duplicate replay is harmless by construction rather
+   than by bookkeeping. Replay never raises: an unreachable backend must not
+   make the runtime unconstructible, and intents stay pending for the next
+   attempt. Deletes are not queued -- scoped deletion already carries durable
+   `cleanup_pending` lifecycle state, and a second mechanism would create two
+   sources of truth for one transition.
+
+3. No schema work on the read path (finding F14). `PgVectorAdapter.search` ran
+   create-extension, create-table, four information_schema probes with
+   conditional ALTERs, two create-index statements, a primary-key migration, and
+   an HNSW build on EVERY query. It now ensures nothing; SQLSTATE 42P01 reads as
+   an empty result, and every other failure still raises. `ensure_schema` is
+   done once per adapter (`force=True` re-runs it). Startup still establishes the
+   schema through `runtime.check_ready()`, which `server.py` already calls.
+
+4. Divergence detection and repair on all three backends.
+   `verify_vector_divergence` reports missing, stale, and orphan separately
+   because each has a different repair, and reports which checks an adapter
+   could answer so "no divergence" is never indistinguishable from "never
+   looked". `repair_vector_divergence` re-indexes, deletes orphans, and
+   re-verifies. `ChromaSemanticAdapter` had no inspection methods at all and
+   gained `stale_records`, `orphan_records`, and `indexable_records`.
+
+FINDINGS SURFACED WHILE BUILDING
+
+- `SQLiteVectorIndex.ensure_schema` ran its full create/alter script on a fresh
+  connection for EVERY search -- the same defect as F14 on the SQLite side. This,
+  not the adapter call sites, was why warm retrieval kept opening one connection
+  per query despite the pool. Found by measurement, not by reading.
+
+- A failed persist whose restore succeeds must retire its outbox intents. Four
+  existing `test_runtime_persist_atomic_restore.py` cases assert that a failed
+  vector index leaves the database logically identical; pending intents violated
+  that S4-qualified invariant. Intents are now retired when the restore
+  completes and kept only when it does not, which is also the fail-safe
+  direction.
+
+- The first version of the fingerprint test was not evidence: it passed against
+  a deliberately broken implementation. It varied record text per record, and
+  under the 64-dimension signed hash embedding the distinguishing word collided
+  destructively with the query term, scoring those records at or below zero and
+  dropping them from the semantic leg -- so a torn read produced no visible
+  difference. The fixture now varies only record ids. Generalising the lesson,
+  EVERY S5 test was re-run against a deliberately disabled snapshot, and the
+  ones that did not discriminate were rewritten until they did.
+
+FILES CHANGED
+
+Added: seam_runtime/read_snapshot.py, seam_runtime/vector_outbox.py,
+tests/audit/test_read_snapshot_consistency.py,
+tests/audit/test_vector_outbox_durability.py,
+tests/audit/test_vector_divergence_repair.py,
+tests/audit/test_pgvector_search_no_ddl.py,
+tests/audit/test_retrieval_fingerprint_consistency.py,
+docs/handoffs/2026-08-03-track-s-s5-locally-qualified.md
+
+Modified: seam_runtime/pool.py, seam_runtime/storage.py, seam_runtime/runtime.py,
+seam_runtime/mirl.py, seam_runtime/vector.py, seam_runtime/vector_adapters.py,
+seam_runtime/retrieval_orchestrator/adapters.py,
+seam_runtime/retrieval_orchestrator/orchestrator.py, PROJECT_STATUS.md,
+docs/status/operations.md, docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,
+docs/handoffs/2026-08-03-track-s-s4-merged-s5-next.md (retired)
+
+VERIFICATION PERFORMED
+
+Full suite `pytest tests/`: 2024 passed, 4 skipped, 2 xfailed. The 4 skips are
+the live-pgvector lane (PGVECTOR_TEST_DSN unset), reserved for CI. `ruff check .`
+clean. Falsification: with the read snapshot disabled,
+`test_retrieval_fingerprint_consistency.py` fails on both the candidate-set and
+the `candidate_set_sha256` assertions, and
+`test_read_snapshot_consistency.py` fails on the vector-index join and the warm
+connection count.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+Publication. Open the S5 PR against `main@50f4ead` and require all eight checks
+plus CodeRabbit on the exact head. No paid provider call, competitive benchmark,
+retrieval-score claim, artifact publish, deploy, or release ran. S6 unblocks only
+after S5 is published, and must state explicitly whether tenancy terminates in a
+proxy ahead of `/v1` or in-process -- a decision currently written down nowhere.
+---END-ENTRY-#532---

@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from contextlib import closing
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -53,7 +52,7 @@ def _visible_graph_node_ids(
     if not ordered_ids:
         return set()
     visible: set[str] = set()
-    with closing(store._connect()) as connection:
+    with store._pool.checkout() as connection:
         for start in range(0, len(ordered_ids), 500):
             chunk = ordered_ids[start : start + 500]
             placeholders = ",".join("?" for _ in chunk)
@@ -163,7 +162,7 @@ class SQLiteIRAdapter:
         query_text = plan.normalized_query or plan.query
         query_tokens = _unique_tokens(_tokens(query_text))
         query_sql, params = _build_structured_sql(plan, query_tokens, limit)
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             rows = connection.execute(query_sql, params).fetchall()
         hits: list[LegHit] = []
         for row in rows:
@@ -307,7 +306,7 @@ class GraphNodeSemanticAdapter:
         ]
         if not ranked:
             return [], []
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             placeholders = ",".join("?" for _ in ranked)
             rows = connection.execute(
                 "select id, source_record_id from knowledge_nodes "
@@ -439,7 +438,7 @@ class SQLiteGraphAdapter:
         """Return whether the selected boundary contains a canonical REL edge."""
 
         where, params = _canonical_relation_edge_where(plan)
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             row = connection.execute(
                 "select 1 "
                 + _CANONICAL_RELATION_EDGE_FROM
@@ -488,7 +487,7 @@ class SQLiteGraphAdapter:
             "ent.scope = n.scope",
             *boundary,
         ]
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             direct_rows = connection.execute(
                 "select n.id from knowledge_nodes n "
                 "join ir_records ent on ent.id = n.id "
@@ -500,7 +499,7 @@ class SQLiteGraphAdapter:
         if not grounded or not prefer_direct:
             relation_where, relation_params = _canonical_relation_edge_where(plan)
             relation_where.append(f"rel.id in ({placeholders})")
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 relation_rows = connection.execute(
                     "select distinct rel.id "
                     + _CANONICAL_RELATION_EDGE_FROM
@@ -586,7 +585,7 @@ class SQLiteGraphAdapter:
             if plan.filters.namespace:
                 grounding_params.append(plan.filters.namespace)
             grounding_params.extend(grounding_time_params)
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 grounding_rows = connection.execute(
                     "select distinct n.id from knowledge_edges e "
                     "join ir_records seed on seed.id = e.src_id "
@@ -603,7 +602,7 @@ class SQLiteGraphAdapter:
         admitted_where, admitted_params = _canonical_relation_edge_where(plan)
         grounded_ids = sorted(grounded)
         admitted_node_ids: set[str] = set()
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             for start in range(
                 0, len(grounded_ids), _GRAPH_REPEATED_ID_CHUNK
             ):
@@ -663,7 +662,7 @@ class SQLiteGraphAdapter:
             seed_limit,
             include_graph_kinds=True,
         )
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             seed_rows = connection.execute(seed_sql, seed_params).fetchall()
         matching_records = [
             MIRLRecord.from_dict(json.loads(row["payload_json"])) for row in seed_rows
@@ -752,7 +751,7 @@ class SQLiteGraphAdapter:
                 break
             ordered_frontier = sorted(frontier)
             rows_by_id: dict[str, object] = {}
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 for start in range(
                     0,
                     len(ordered_frontier),
@@ -985,7 +984,7 @@ class SQLiteGraphAdapter:
                 at=plan.graph_at,
                 include_history=plan.graph_include_history,
             )
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 episode_rows = connection.execute(
                     "select kee.edge_id as edge_id, ep.id as episode_id "
                     "from knowledge_edge_episodes kee "
@@ -1123,6 +1122,86 @@ class ChromaSemanticAdapter:
         if not ids or any(not record_id for record_id in ids):
             raise ValueError("record_ids must contain non-empty references")
         self._collection().delete(ids=ids)
+
+    def indexable_records(self, records: list[MIRLRecord]) -> list[MIRLRecord]:
+        """Return the records this backend is expected to hold.
+
+        Divergence has to be measured against what the adapter would actually
+        sync, otherwise every excluded record reads as permanently missing.
+        """
+
+        return [
+            record
+            for record in records
+            if record.kind in INDEXABLE_KINDS
+            and record.status.value not in CURRENT_EXCLUDED_STATUSES
+        ]
+
+    def stale_records(self, records: list[MIRLRecord]) -> list[dict[str, object]]:
+        """Report records this collection is missing or holds a stale copy of.
+
+        Mirrors the reason vocabulary of the SQLite and pgvector adapters so
+        one divergence report reads the same whichever backend is configured.
+        """
+
+        expected = self.indexable_records(list(records))
+        if not expected:
+            return []
+        collection = self._collection()
+        found = _chroma_metadata_by_id(collection, [record.id for record in expected])
+        stale: list[dict[str, object]] = []
+        for record in expected:
+            metadata = found.get(record.id)
+            if metadata is None:
+                stale.append({"record_id": record.id, "reason": "missing"})
+                continue
+            source_text = SQLiteVectorIndex.render_record_text(record)
+            source_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
+            if metadata.get("vector_text_version") != VECTOR_TEXT_VERSION:
+                stale.append(
+                    {"record_id": record.id, "reason": "render_version_changed"}
+                )
+            elif metadata.get("source_hash") != source_hash:
+                stale.append({"record_id": record.id, "reason": "source_changed"})
+            elif metadata.get("ns") != record.ns:
+                stale.append({"record_id": record.id, "reason": "namespace_changed"})
+            elif metadata.get("scope") != record.scope:
+                stale.append({"record_id": record.id, "reason": "scope_changed"})
+        return stale
+
+    def orphan_records(
+        self,
+        valid_record_ids: set[str] | None = None,
+        *,
+        model_name: str | None = None,
+        namespace: str | None = None,
+        scope: str | None = None,
+    ) -> list[dict[str, object]]:
+        """Report collection entries with no live canonical record behind them.
+
+        ``model_name`` is accepted for protocol parity and ignored: a Chroma
+        collection holds one embedding space, so it has no model column to
+        filter on.
+        """
+
+        del model_name
+        collection = self._collection()
+        entries = _chroma_all_entries(collection)
+        if valid_record_ids is None:
+            valid_record_ids = {
+                record.id
+                for record in self.indexable_records(self.store.load_ir().records)
+            }
+        orphans: list[dict[str, object]] = []
+        for record_id, metadata in sorted(entries.items()):
+            if namespace is not None and metadata.get("ns") != namespace:
+                continue
+            if scope is not None and metadata.get("scope") != scope:
+                continue
+            if record_id in valid_record_ids:
+                continue
+            orphans.append({"record_id": record_id, "reason": "orphan"})
+        return orphans
 
     def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
@@ -1399,6 +1478,37 @@ limit ?
     params.extend(gating_params)
     params.append(limit)
     return query, params
+
+
+def _chroma_metadata_by_id(
+    collection, record_ids: list[str]
+) -> dict[str, dict[str, object]]:
+    """Fetch metadata for ``record_ids``, chunked below the parameter floor."""
+
+    found: dict[str, dict[str, object]] = {}
+    ordered = sorted(set(record_ids))
+    for start in range(0, len(ordered), _GRAPH_REPEATED_ID_CHUNK):
+        chunk = ordered[start : start + _GRAPH_REPEATED_ID_CHUNK]
+        payload = collection.get(ids=chunk, include=["metadatas"]) or {}
+        found.update(_zip_chroma_entries(payload))
+    return found
+
+
+def _chroma_all_entries(collection) -> dict[str, dict[str, object]]:
+    payload = collection.get(include=["metadatas"]) or {}
+    return _zip_chroma_entries(payload)
+
+
+def _zip_chroma_entries(payload: object) -> dict[str, dict[str, object]]:
+    if not isinstance(payload, dict):
+        return {}
+    ids = payload.get("ids") or []
+    metadatas = payload.get("metadatas") or []
+    entries: dict[str, dict[str, object]] = {}
+    for index, record_id in enumerate(ids):
+        metadata = metadatas[index] if index < len(metadatas) else None
+        entries[str(record_id)] = metadata if isinstance(metadata, dict) else {}
+    return entries
 
 
 def _chroma_metadata(record: MIRLRecord, source_text: str) -> dict[str, str]:

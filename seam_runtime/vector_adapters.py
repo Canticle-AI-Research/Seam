@@ -15,6 +15,9 @@ from .vector import (
     stored_vector_issue,
 )
 
+# PostgreSQL SQLSTATE for "undefined_table".
+_UNDEFINED_TABLE_SQLSTATE = "42P01"
+
 
 class VectorAdapter(Protocol):
     name: str
@@ -171,6 +174,7 @@ class PgVectorAdapter:
     def __post_init__(self) -> None:
         _validate_table_name(self.table_name)
         self.ann_index_status: str | None = None
+        self._schema_ready = False
 
     def _connect(self):
         try:
@@ -183,7 +187,19 @@ class PgVectorAdapter:
         """Raise unless the vector extension, schema, and required access work."""
         self.ensure_schema()
 
-    def ensure_schema(self) -> None:
+    def ensure_schema(self, *, force: bool = False) -> None:
+        """Create or migrate the vector table, at most once per adapter.
+
+        This runs an extension create, a table create, four ``information_schema``
+        probes with conditional ALTERs, two index creates, a primary-key
+        migration, and an HNSW index build. Every public method used to invoke
+        it unconditionally, so the cost landed on each call. The schema cannot
+        regress underneath a live adapter, so it is done once and remembered;
+        ``force`` re-runs it for callers that changed the database out of band.
+        """
+
+        if self._schema_ready and not force:
+            return
         _validate_table_name(self.table_name)
         with self._connect() as connection:
             with connection.cursor() as cursor:
@@ -274,6 +290,7 @@ class PgVectorAdapter:
                 if self.ann_index_status != "ok":
                     self._ensure_hnsw_index(cursor)
             connection.commit()
+        self._schema_ready = True
 
     def _ensure_hnsw_index(self, cursor) -> None:
         """Ensure an HNSW index covers this adapter's own embedding dimension,
@@ -429,8 +446,12 @@ class PgVectorAdapter:
         namespace: str | None = None,
         scope: str | None = None,
     ) -> dict[str, float]:
+        # Deliberately no ensure_schema() here. Search is a read; making it
+        # create extensions, tables, and indexes put a full DDL round trip on
+        # every query and let a reader mutate the schema of a shared table.
+        # A table that does not exist yet holds no vectors, so the honest
+        # answer is an empty result, not a side effect.
         _validate_table_name(self.table_name)
-        self.ensure_schema()
         query_vector = self.model.embed(query)
         ns_clause = "and namespace = %s " if namespace is not None else ""
         scope_clause = "and scope = %s " if scope is not None else ""
@@ -445,23 +466,31 @@ class PgVectorAdapter:
         if scope is not None:
             params.append(scope)
         params.extend([_vector_literal(query_vector), limit])
-        with self._connect() as connection:
-            with connection.cursor() as cursor:
-                # hnsw.ef_search is a session GUC, not a bind-parameterizable
-                # value under SET; set_config's 2nd arg IS a regular parameter.
-                cursor.execute("select set_config('hnsw.ef_search', %s, false)", (str(int(self.ef_search)),))
-                cursor.execute(
-                    f"""
-                    select record_id, 1 - (embedding <=> %s::vector) as score
-                    from {self.table_name}
-                    where model_name = %s and dimension = %s
-                      and render_version = %s {ns_clause}{scope_clause}
-                    order by embedding <=> %s::vector
-                    limit %s
-                    """,
-                    params,
-                )
-                rows = cursor.fetchall()
+        try:
+            with self._connect() as connection:
+                with connection.cursor() as cursor:
+                    # hnsw.ef_search is a session GUC, not a bind-parameterizable
+                    # value under SET; set_config's 2nd arg IS a regular parameter.
+                    cursor.execute("select set_config('hnsw.ef_search', %s, false)", (str(int(self.ef_search)),))
+                    cursor.execute(
+                        f"""
+                        select record_id, 1 - (embedding <=> %s::vector) as score
+                        from {self.table_name}
+                        where model_name = %s and dimension = %s
+                          and render_version = %s {ns_clause}{scope_clause}
+                        order by embedding <=> %s::vector
+                        limit %s
+                        """,
+                        params,
+                    )
+                    rows = cursor.fetchall()
+        except Exception as exc:
+            # 42P01 undefined_table: nothing has been indexed against this table
+            # yet. Reported as "no matches" rather than repaired here, so search
+            # stays free of schema effects. Any other failure is real.
+            if getattr(exc, "sqlstate", None) != _UNDEFINED_TABLE_SQLSTATE:
+                raise
+            return {}
         return {record_id: float(score) for record_id, score in rows if score is not None and float(score) > 0}
 
     def stale_records(self, records: list[MIRLRecord]) -> list[dict[str, object]]:

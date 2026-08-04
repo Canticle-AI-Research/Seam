@@ -14,6 +14,8 @@ import time
 from contextlib import contextmanager
 from typing import Callable
 
+from .read_snapshot import active_connection
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -167,3 +169,54 @@ class ConnectionPool:
                 "idle_connections": self._pool.qsize(),
                 "closed": self._closed,
             }
+
+
+class SnapshotAwarePool:
+    """A pool that yields the context's read snapshot when one is held.
+
+    Wrapping the pool rather than editing every call site is deliberate: a
+    single retrieval request reaches the store through dozens of read helpers,
+    and a snapshot that only some of them joined would still answer from
+    mutually inconsistent states -- exactly the defect S5 exists to close.
+    Routing the checkout itself makes joining the snapshot the default and
+    opting out impossible by omission.
+
+    Outside a snapshot every checkout behaves exactly as before.
+    """
+
+    def __init__(self, pool: ConnectionPool, snapshot_key: str) -> None:
+        self._pool = pool
+        self._snapshot_key = snapshot_key
+
+    @property
+    def snapshot_key(self) -> str:
+        return self._snapshot_key
+
+    @property
+    def pool_size(self) -> int:
+        return self._pool.pool_size
+
+    @contextmanager
+    def checkout(self):
+        connection = active_connection(self._snapshot_key)
+        if connection is not None:
+            # Already inside this database's snapshot: reuse it and do not
+            # release it here, because the snapshot owns its lifetime.
+            yield connection
+            return
+        with self._pool.checkout() as connection:
+            yield connection
+
+    def checkout_physical(self):
+        """Check out from the underlying pool, ignoring any bound snapshot.
+
+        The snapshot itself needs this to acquire the connection it will bind.
+        """
+
+        return self._pool.checkout()
+
+    def close(self) -> None:
+        self._pool.close()
+
+    def stats(self) -> dict[str, object]:
+        return self._pool.stats()

@@ -78,11 +78,22 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   migration queries. Reserved virtual metadata is unconditional, and hard
   deletes fail atomically if a surviving required reference would remain.
   Removed phantom nodes cannot leave searchable orphan vectors.
-- S5 is the next stage and is unstarted. It requires one committed SQLite read
-  snapshot across every retrieval leg and visibility check; connection pooling
-  alone does not close the observed mixed-state fingerprint defect. S4's
-  same-process write/index/compensate serialization is a substrate for that
-  work, not evidence for it.
+- S5 is locally qualified on `agent/track-s-s5-outbox-pooling`; exact-head CI
+  and review remain required before publication. One committed read snapshot,
+  bound per request and keyed by database identity, now covers every
+  SQLite-backed leg and visibility check -- including the SQLite vector index,
+  which is opened on `store.path` and so was reading a second state even after
+  the canonical legs were pooled. The snapshot carries an authorizer denying
+  mutations, because a stray write would otherwise join the read transaction
+  and be silently discarded by the closing rollback. A durable `vector_outbox`
+  commits the intent to index in the same transaction as the canonical rows and
+  replays on reopen, closing F7's process-loss window; deletes stay on
+  lifecycle's existing `cleanup_pending` state rather than gaining a second
+  source of truth. `PgVectorAdapter.search` no longer ensures schema (F14), and
+  `SQLiteVectorIndex.ensure_schema` no longer re-runs per search -- that per-query
+  DDL was also why warm retrieval kept opening connections despite the pool.
+  Divergence (missing/stale/orphan) is detected and repaired on all three
+  backends, with Chroma gaining the inspection methods it lacked.
 - The history advisory lock now resolves through a linked worktree's
   `gitdir:` pointer, so `python -m tools.history.new_entry` no longer leaves an
   untracked `HISTORY_INDEX.md.lock` inside a worktree's working tree where

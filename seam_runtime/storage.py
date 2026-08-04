@@ -6,6 +6,7 @@ import logging
 import os
 import sqlite3
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -117,7 +118,13 @@ from .mirl import (
     TraceGraph,
     utc_now,
 )
-from .pool import ConnectionPool
+from .pool import ConnectionPool, SnapshotAwarePool
+from .read_snapshot import (
+    bind_connection,
+    memory_snapshot_key,
+    record_physical_open,
+    snapshot_key_for_path,
+)
 from .reasoning_graph import (
     REASONING_RETRIEVAL_SCHEMA_VERSION,
     REASONING_SCHEMA_VERSION,
@@ -186,6 +193,13 @@ from .reference_contracts import (
 )
 from .retry import retry_db_operation
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
+from .vector_outbox import (
+    acknowledge,
+    enqueue_index_intents,
+    pending_count,
+    pending_entries,
+    record_failure,
+)
 from .workspace import (
     WORKSPACE_SCHEMA_VERSION,
     init_workspace_schema,
@@ -276,6 +290,9 @@ class SQLiteStore:
         if self.path != ":memory:":
             resolved = Path(self.path).expanduser().resolve()
             self.path = str(resolved)
+            # Resolve the snapshot key before anything can open a connection:
+            # ``_connect`` reports every physical open against it.
+            self._snapshot_key = snapshot_key_for_path(self.path)
             _prepare_private_database(resolved)
             self.migration_result = migrate_database(
                 resolved,
@@ -285,6 +302,9 @@ class SQLiteStore:
                 backup_dir=_migration_backup_dir,
             )
         else:
+            # A private in-memory database cannot be shared by path, so it is
+            # keyed on this store and never joins another database's snapshot.
+            self._snapshot_key = memory_snapshot_key(self)
             # Keep one anchor connection alive so that the shared in-memory
             # database persists across per-operation connections.
             self._mem_anchor = sqlite3.connect(
@@ -300,11 +320,31 @@ class SQLiteStore:
                 expected_projection_versions=STORE_PROJECTION_VERSIONS,
             )
         resolved_pool_size = pool_size if pool_size is not None else int(os.environ.get("SEAM_DB_POOL_SIZE", "5"))
-        self._pool = ConnectionPool(
-            connect_factory=self._connect,
-            pool_size=resolved_pool_size,
-            idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
+        # A file database is shared by identity of the file, so any other reader
+        # of the same path -- notably the SQLite vector index, which is opened on
+        # ``store.path`` -- joins this store's read snapshot.
+        self._pool = SnapshotAwarePool(
+            ConnectionPool(
+                connect_factory=self._connect,
+                pool_size=resolved_pool_size,
+                idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
+            ),
+            self._snapshot_key,
         )
+
+    @contextmanager
+    def read_snapshot(self):
+        """Hold one committed read snapshot for the calling context.
+
+        Every read through this store -- and through any other reader keyed to
+        the same database -- observes a single committed state for the duration,
+        so a candidate set and the fingerprint attesting it can never be
+        assembled from states that never coexisted. Writes attempted inside the
+        snapshot raise rather than being silently discarded on release.
+        """
+
+        with bind_connection(self._snapshot_key, self._pool.checkout_physical) as connection:
+            yield connection
 
     def check_ready(self) -> None:
         """Raise when the canonical store cannot serve a trivial read."""
@@ -351,6 +391,7 @@ class SQLiteStore:
             connection.execute("pragma journal_mode=WAL")
         connection.execute("pragma busy_timeout=5000")
         connection.execute("pragma foreign_keys=ON")
+        record_physical_open(self._snapshot_key)
         return connection
 
     def close(self) -> None:
@@ -1131,6 +1172,7 @@ class SQLiteStore:
         batch: IRBatch,
         *,
         _preserve_node_vectors: bool = False,
+        _enqueue_vector_outbox: bool = False,
     ) -> PersistReport:
         with self._pool.checkout() as connection:
             stored_ids = self._persist_ir_on_connection(
@@ -1138,8 +1180,45 @@ class SQLiteStore:
                 batch,
                 preserve_node_vectors=_preserve_node_vectors,
             )
+            outbox_entry_ids: list[int] = []
+            if _enqueue_vector_outbox:
+                # Same connection, same transaction, same commit as the
+                # canonical rows. Enqueuing after the commit would reintroduce
+                # exactly the window this exists to close.
+                outbox_entry_ids = enqueue_index_intents(connection, stored_ids)
             connection.commit()
-        return PersistReport(stored_ids=stored_ids, store_path=self.path)
+        return PersistReport(
+            stored_ids=stored_ids,
+            store_path=self.path,
+            outbox_entry_ids=outbox_entry_ids,
+        )
+
+    @retry_db_operation()
+    def acknowledge_vector_outbox(self, entry_ids: Iterable[int]) -> int:
+        """Retire intents whose vector update is durably applied."""
+
+        with self._pool.checkout() as connection:
+            removed = acknowledge(connection, entry_ids)
+            connection.commit()
+        return removed
+
+    def pending_vector_outbox(self, *, limit: int | None = None) -> list[dict[str, object]]:
+        """Return vector index intents that were never acknowledged."""
+
+        with self._pool.checkout() as connection:
+            return pending_entries(connection, limit=limit)
+
+    def pending_vector_outbox_count(self) -> int:
+        with self._pool.checkout() as connection:
+            return pending_count(connection)
+
+    @retry_db_operation()
+    def record_vector_outbox_failure(
+        self, entry_ids: Iterable[int], *, error_type: str
+    ) -> None:
+        with self._pool.checkout() as connection:
+            record_failure(connection, entry_ids, error_type=error_type)
+            connection.commit()
 
     @retry_db_operation()
     def upsert_document_status(

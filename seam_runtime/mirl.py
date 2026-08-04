@@ -226,6 +226,10 @@ class VerifyReport:
 class PersistReport:
     stored_ids: list[str]
     store_path: str
+    # Vector-outbox intents committed alongside these records. The caller
+    # acknowledges them once the derived index is durably updated; anything
+    # left pending is replayed on reopen.
+    outbox_entry_ids: list[int] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {"stored_ids": self.stored_ids, "store_path": self.store_path}

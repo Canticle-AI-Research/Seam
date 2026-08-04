@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 531
-total_tokens: ~266769
-latest_id: 531
+total_entries: 532
+total_tokens: ~268284
+latest_id: 532
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 532 | 2026-08-04 | changed | 665c9106feb088db | track-s,retrieval,storage,vector,+ | 531 |
 | 531 | 2026-08-03 | done | 8d46796b113fb4c5 | history,handoff,streams,protocol,+ | 530 |
 | 530 | 2026-08-03 | done | cbfcfc5ff7d375c2 | storage,persist,mirl,graph,+ | 529 |
 | 529 | 2026-08-03 | done | 0d3883bb4d4386f0 | storage,persist,graph,provenance,+ | 528 |
@@ -636,6 +637,7 @@ compact: true
 - docs: count=60 latest=#528, #527, #525, #523, #507
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
+- durability: count=1 latest=#532
 - embeddings: count=1 latest=#486
 - enforcement: count=1 latest=#294
 - engineering: count=1 latest=#331
@@ -735,7 +737,7 @@ compact: true
 - open-domain: count=1 latest=#413
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
-- operations: count=1 latest=#507
+- operations: count=2 latest=#532, #507
 - operator: count=3 latest=#353, #340, #179
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
@@ -791,7 +793,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=136 latest=#527, #521, #520, #513, #511
+- retrieval: count=137 latest=#532, #527, #521, #520, #513
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=1 latest=#388
@@ -826,7 +828,7 @@ compact: true
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
 - status: count=169 latest=#531, #528, #511, #505, #504
-- storage: count=22 latest=#530, #529, #526, #522, #521
+- storage: count=23 latest=#532, #530, #529, #526, #522
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
 - surface: count=10 latest=#502, #488, #487, #469, #467
@@ -846,11 +848,12 @@ compact: true
 - trace: count=1 latest=#505
 - traceability: count=1 latest=#316
 - track-r: count=5 latest=#459, #458, #457, #456, #455
+- track-s: count=1 latest=#532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
 - tui: count=25 latest=#137, #121, #120, #119, #118
 - unify: count=1 latest=#311
-- vector: count=34 latest=#530, #502, #465, #464, #463
+- vector: count=35 latest=#532, #530, #502, #465, #464
 - vector-adapters: count=1 latest=#359
 - verify: count=357 latest=#530, #529, #528, #527, #526
 - vulnerability: count=1 latest=#296
@@ -868,7 +871,7 @@ compact: true
 ## status rollup
 
 - roots: 82
-- changed: 37
+- changed: 38
 - done: 465
 - in-progress: 8
 - planned: 21

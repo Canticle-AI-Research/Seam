@@ -41,7 +41,7 @@ from .reconcile import reconcile_ir
 from .storage import SQLiteStore
 from .symbols import export_symbol_markdown, propose_symbols
 from .transpile import transpile_python
-from .vector import VECTOR_TEXT_VERSION
+from .vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION
 from .vector_adapters import (
     PgVectorAdapter,
     SQLiteVectorAdapter,
@@ -114,6 +114,10 @@ class SeamRuntime:
         # runtime (the benchmark path opens one per run) picks up applied state.
         self._retrieval_flags = None
         self._retrieval_orchestrator = None
+        # Converge any derived indexing a previous process committed but never
+        # completed. Normally a single indexed lookup against an empty table:
+        # the steady state is that nothing is owed.
+        self.replay_vector_outbox()
 
     def close(self) -> None:
         """Close the underlying SQLite store connection pool.
@@ -314,6 +318,9 @@ class SeamRuntime:
         persist_report = self.store.persist_ir(
             normalized,
             _preserve_node_vectors=True,
+            # The intent to index commits with the records themselves, so a
+            # crash before indexing leaves durable evidence that it is owed.
+            _enqueue_vector_outbox=True,
         )
         persisted = self.store.load_ir(ids=persist_report.stored_ids)
         vector_error_type: str | None = None
@@ -345,6 +352,20 @@ class SeamRuntime:
                     self._restore_external_vector_projection(previous, touched_ids)
                 except Exception as rollback_exc:
                     adapter_restore_error_type = type(rollback_exc).__name__
+            if (
+                canonical_restore_error_type is None
+                and adapter_restore_error_type is None
+            ):
+                # Restore succeeded, so canonical and derived state are both
+                # back to what they were and nothing is owed. Retiring the
+                # intents here is what keeps a failed write an exact no-op
+                # rather than something that accumulates permanent queue rows.
+                self._acknowledge_vector_outbox(persist_report)
+            else:
+                # Restore did not complete. The intents are the durable record
+                # that this slice may be unindexed, so they stay pending and
+                # replay reconciles them on the next reopen.
+                self._note_vector_outbox_failure(persist_report, vector_error_type)
         if canonical_restore_error_type is not None:
             LOGGER.error(
                 "Vector indexing failed and canonical restore failed "
@@ -381,8 +402,98 @@ class SeamRuntime:
             raise RuntimeError(
                 "Vector indexing failed; canonical and vector writes were restored"
             )
+        # The derived index is durably updated, so the intents are settled.
+        # Acknowledging only here -- never on the failure paths above -- is what
+        # makes an unacknowledged intent mean exactly "this may be unindexed".
+        self._acknowledge_vector_outbox(persist_report)
         self.project_node_vectors()
         return persist_report
+
+    def _acknowledge_vector_outbox(self, persist_report: PersistReport) -> None:
+        entry_ids = list(getattr(persist_report, "outbox_entry_ids", ()) or ())
+        if not entry_ids:
+            return
+        try:
+            self.store.acknowledge_vector_outbox(entry_ids)
+        except Exception:
+            # A failed acknowledgement is safe: the intent stays pending and
+            # replay re-indexes idempotently. Failing the write here would
+            # instead report a successful, durable persist as an error.
+            LOGGER.warning(
+                "Could not acknowledge vector outbox intents (count=%d)",
+                len(entry_ids),
+                exc_info=True,
+            )
+
+    def _note_vector_outbox_failure(
+        self, persist_report: PersistReport, error_type: str
+    ) -> None:
+        entry_ids = list(getattr(persist_report, "outbox_entry_ids", ()) or ())
+        if not entry_ids:
+            return
+        try:
+            self.store.record_vector_outbox_failure(entry_ids, error_type=error_type)
+        except Exception:
+            LOGGER.warning(
+                "Could not record vector outbox failure (count=%d)",
+                len(entry_ids),
+                exc_info=True,
+            )
+
+    def replay_vector_outbox(self, *, batch_size: int = 200) -> dict[str, int]:
+        """Re-apply vector index intents that were never acknowledged.
+
+        Called on reopen so that a process that died between the canonical
+        commit and the derived index converges. Re-indexing is a content-hash
+        no-op when the backend already has the record, so replaying an intent
+        whose work in fact completed costs nothing and changes nothing --
+        which is what makes duplicate replay harmless.
+
+        Returns a count summary; it never raises, because a vector backend that
+        is still unreachable must not make the runtime unconstructible. The
+        intents simply stay pending for the next attempt.
+        """
+
+        summary = {"pending": 0, "reindexed": 0, "acknowledged": 0, "failed": 0}
+        try:
+            entries = self.store.pending_vector_outbox()
+        except Exception:
+            LOGGER.warning("Could not read the vector outbox", exc_info=True)
+            return summary
+        if not entries:
+            return summary
+        summary["pending"] = len(entries)
+
+        for start in range(0, len(entries), max(1, int(batch_size))):
+            chunk = entries[start : start + max(1, int(batch_size))]
+            entry_ids = [int(entry["entry_id"]) for entry in chunk]
+            record_ids = sorted({str(entry["record_id"]) for entry in chunk})
+            try:
+                batch = self.store.load_ir(ids=record_ids)
+                # Records the intent named but canonical no longer holds were
+                # rolled back or deleted after the intent was written. There is
+                # nothing to index, so the intent is settled rather than stuck.
+                if batch.records:
+                    self.vector_adapter.index_records(batch.records)
+                    summary["reindexed"] += len(batch.records)
+                self.store.acknowledge_vector_outbox(entry_ids)
+                summary["acknowledged"] += len(entry_ids)
+            except Exception as exc:
+                summary["failed"] += len(entry_ids)
+                LOGGER.warning(
+                    "Vector outbox replay failed (count=%d, error_type=%s)",
+                    len(entry_ids),
+                    type(exc).__name__,
+                )
+                try:
+                    self.store.record_vector_outbox_failure(
+                        entry_ids, error_type=type(exc).__name__
+                    )
+                except Exception:  # pragma: no cover - bookkeeping only
+                    LOGGER.warning(
+                        "Could not record vector outbox failure", exc_info=True
+                    )
+        return summary
 
     def _restore_external_vector_projection(
         self,
@@ -1271,3 +1382,134 @@ class SeamRuntime:
             "vector_text_version": VECTOR_TEXT_VERSION,
             "stale_before": stale,
         }
+
+    def verify_vector_divergence(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        vector_adapter: object | None = None,
+    ) -> dict[str, object]:
+        """Report how a vector backend disagrees with canonical truth.
+
+        Divergence has exactly three shapes, and repair differs for each, so
+        they are reported separately rather than as one count:
+
+        ``missing``
+            canonical records the backend has no vector for -- the shape a
+            crash between commit and indexing produces.
+        ``stale``
+            vectors whose source text, render version, dimension, or boundary
+            no longer matches the canonical record.
+        ``orphan``
+            vectors with no live canonical record behind them, which stay
+            searchable and can surface deleted content.
+
+        ``vector_adapter`` inspects a backend other than the configured one,
+        which is how a deployment running SQLite-vector alongside Chroma
+        audits both.
+        """
+
+        adapter = vector_adapter if vector_adapter is not None else self.vector_adapter
+        batch = self.store.load_ir(ns=ns, scope=scope)
+        selector = getattr(adapter, "indexable_records", None)
+        expected = (
+            selector(batch.records)
+            if callable(selector)
+            else [record for record in batch.records if record.kind in INDEXABLE_KINDS]
+        )
+
+        stale: list[dict[str, object]] = []
+        missing: list[dict[str, object]] = []
+        inspector = getattr(adapter, "stale_records", None)
+        supports_stale = callable(inspector)
+        if supports_stale:
+            for issue in inspector(expected):
+                if issue.get("reason") == "missing":
+                    missing.append(issue)
+                else:
+                    stale.append(issue)
+
+        orphans: list[dict[str, object]] = []
+        orphan_inspector = getattr(adapter, "orphan_records", None)
+        supports_orphan = callable(orphan_inspector)
+        if supports_orphan:
+            orphans = list(
+                orphan_inspector(
+                    {record.id for record in expected} if (ns or scope) else None,
+                    namespace=ns,
+                    scope=scope,
+                )
+            )
+
+        return {
+            "adapter": getattr(adapter, "name", type(adapter).__name__),
+            "model": self.embedding_model.name,
+            "vector_text_version": VECTOR_TEXT_VERSION,
+            "expected_record_count": len(expected),
+            "missing": missing,
+            "stale": stale,
+            "orphan": orphans,
+            "diverged": bool(missing or stale or orphans),
+            # An adapter that cannot answer one of these is reported as such
+            # rather than silently contributing an empty list, so "no
+            # divergence" never means "never looked".
+            "checks": {
+                "missing": supports_stale,
+                "stale": supports_stale,
+                "orphan": supports_orphan,
+            },
+        }
+
+    def repair_vector_divergence(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        vector_adapter: object | None = None,
+    ) -> dict[str, object]:
+        """Detect divergence, repair every shape of it, and re-verify.
+
+        Missing and stale records are re-indexed; orphans are deleted. The
+        re-verification is part of the contract: a repair that reports success
+        without re-measuring is how divergence silently persists.
+        """
+
+        with self._persist_projection_lock:
+            adapter = (
+                vector_adapter if vector_adapter is not None else self.vector_adapter
+            )
+            before = self.verify_vector_divergence(
+                ns=ns, scope=scope, vector_adapter=adapter
+            )
+
+            reindexed_ids = sorted(
+                {str(issue["record_id"]) for issue in before["missing"]}
+                | {str(issue["record_id"]) for issue in before["stale"]}
+            )
+            if reindexed_ids:
+                batch = self.store.load_ir(ids=reindexed_ids)
+                indexer = getattr(adapter, "index_records", None)
+                if callable(indexer):
+                    indexer(batch.records)
+                else:
+                    # The Chroma leg adapter syncs rather than indexes.
+                    adapter.sync_batch(batch)
+
+            orphan_ids = sorted(
+                {str(issue["record_id"]) for issue in before["orphan"]}
+            )
+            if orphan_ids:
+                adapter.delete_records(orphan_ids)
+
+            after = self.verify_vector_divergence(
+                ns=ns, scope=scope, vector_adapter=adapter
+            )
+            return {
+                "adapter": before["adapter"],
+                "reindexed_ids": reindexed_ids,
+                "deleted_orphan_ids": orphan_ids,
+                "before": before,
+                "after": after,
+                "repaired": not after["diverged"],
+            }
