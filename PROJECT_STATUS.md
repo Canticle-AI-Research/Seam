@@ -9,19 +9,53 @@
 
 ## Current headline
 
-**2026-08-03 — HISTORY#531, Track S S4 published; S5 is the next stage**
-(supersedes the 2026-08-03 HISTORY#530 headline). Protected `main` is
-`ea4e46e`: S3 merged through PR #194 and S4 through PR #195, each after all
-eight required and advisory checks passed on the exact head. Zero PRs are open.
+**2026-08-03 — HISTORY#532, Track S S5 locally qualified on
+`agent/track-s-s5-outbox-pooling`** (supersedes the 2026-08-03 HISTORY#531
+headline). Protected `main` is `50f4ead`; zero PRs are open. Every S5 exit-gate
+clause now has local evidence. Exact-head CI and review remain required before
+publication, so this is a qualification, not a publication.
 
-S5 — vector outbox and connection pooling — is now the only unblocked stage,
-and S6 through S10 all sit behind it. Its exit gate was tightened by
-`HISTORY#529` to require that every SQLite-backed leg and visibility check in
-one retrieval request read from a single committed snapshot; routing the
-`store._connect()` sites through a pool satisfies the pooling clause while
-leaving that read-snapshot tear intact, so the two must be designed together.
-S4 shipped same-process write/index/compensate serialization, which is a
-starting substrate, not S5 evidence.
+S5 was designed as one change rather than two, because `HISTORY#528` recorded
+that pooling alone satisfies the connection clause while leaving the
+read-snapshot tear intact:
+
+- **One committed read snapshot per request.** A context-local binding, keyed
+  by database identity, holds one deferred read transaction on one pooled
+  connection. `SnapshotAwarePool` routes every checkout to it, so joining is
+  the default rather than something any of ~100 read helpers can omit. The key
+  is the *database*, not the store, which is what pulls in the SQLite vector
+  index: it is opened on `store.path`, so the semantic leg was reading a second
+  committed state even after the canonical legs were pooled. The snapshot
+  carries an authorizer denying mutations — without it a stray write would join
+  the read transaction and be silently discarded by the closing rollback, a
+  failure mode worse than the tear being fixed.
+- **A durable vector outbox** (F7) commits the intent to index in the same
+  transaction as the canonical rows, acknowledges only after indexing succeeds,
+  and replays on reopen. Replay assumes the backend was *not* updated, because
+  after a crash that is unknowable; re-indexing is a content-hash no-op, so
+  duplicate replay is harmless by construction. Deletes stay on lifecycle's
+  existing `cleanup_pending` state rather than gaining a second source of truth.
+- **No schema work on the read path** (F14). `PgVectorAdapter.search` ran a
+  create-extension/create-table/probe/ALTER/create-index/HNSW script on every
+  query; it now ensures nothing. `SQLiteVectorIndex.ensure_schema` had the same
+  defect and was also the reason warm retrieval kept opening connections
+  despite the pool.
+- **Divergence detection and repair** across SQLite-vector, pgvector, and
+  Chroma, reported as three separately-repairable shapes (missing, stale,
+  orphan). Chroma had no inspection methods at all and gained them.
+
+Two findings came out of building it. A failed persist whose restore succeeds
+must retire its outbox intents, or it violates S4's qualified invariant that
+such a write is an exact no-op — caught by four existing tests. And the first
+version of the fingerprint test passed against a deliberately broken
+implementation: it varied record text, and under the 64-dimension signed hash
+embedding the distinguishing word collided destructively with the query term,
+dropping those records from the semantic leg so a torn read looked identical.
+The fixture now varies only record ids, and the test was re-verified to fail
+with the snapshot disabled.
+
+Full suite: **2024 passed, 4 skipped** (the live-pgvector lane), **2 xfailed**;
+ruff clean.
 
 S4 replaces colon/prefix inference with closed typed-reference contracts.
 Timestamps, URLs, and arbitrary colon-bearing values remain literals unless a
@@ -138,15 +172,12 @@ tenancy remain S6.
   down nowhere. `/v1` also has zero HTTP-level tests (2 references in the whole
   test tree; no test exercises `POST /v1/memories`, `/v1/memories/recall`, or
   `/v1/context`).
-- **Retrieval legs share no read snapshot.** Eleven `store._connect()` sites in
-  `retrieval_orchestrator/adapters.py` bypass the pool, and `_connect` leaves
-  `isolation_level` at the sqlite3 default, so each leg is its own read
-  transaction and one is opened *inside* the hop loop. A `mix` search
-  concurrent with an ingest can emit a path through a node the visibility check
-  then drops, making `candidate_set_sha256` attest a set that existed in no
-  committed database state. **Pooling alone does not fix this** — S5's gate as
-  written ("opens no new physical SQLite connections") would pass while the
-  tear remains, and needs a snapshot-consistency clause.
+- ~~**Retrieval legs share no read snapshot.**~~ Closed locally by S5 on
+  `agent/track-s-s5-outbox-pooling`: the eleven `store._connect()` sites now use
+  the pool, and the pool itself routes to a per-request committed snapshot that
+  the same-file SQLite vector index joins. Verified to discriminate — with the
+  snapshot disabled, a mid-request commit enters the candidate set and
+  `candidate_set_sha256` changes. Not yet published.
 - **Unbounded SQL variable expansion** in `knowledge_graph.py` (`:1106`,
   `:1143`, `:1161`, `_graph_episode_rows` `:2074-2090`), where the orchestrator
   chunks at 400. Latent on SQLite ≥ 3.32; breaks on the 999-variable default

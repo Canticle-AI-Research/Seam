@@ -289,10 +289,9 @@ canonical-state restoration.
 
 ## S5 - Vector outbox and connection pooling
 
-**Status:** next and unstarted; the only stage unblocked by merged work, and
-S6-S10 all depend on it directly or transitively. S4's same-process
-write/index/compensate serialization is a starting substrate and satisfies none
-of the clauses below.
+**Status:** locally qualified on `agent/track-s-s5-outbox-pooling`; every clause
+below has evidence. Exact-head CI and review remain required before publication.
+S6-S10 all depend on this stage directly or transitively.
 
 **Purpose:** make derived-index updates process-durable and eliminate search-time
 connection/schema churn without changing answers.
@@ -313,6 +312,18 @@ connection/schema churn without changing answers.
   set or fingerprint assembled from mutually inconsistent database states.
 - Pgvector search performs no DDL or schema ensure operation.
 - Ranking, IDs, order, and provenance remain unchanged.
+
+**Local evidence:** `tests/audit/test_read_snapshot_consistency.py` (leg
+sharing, same-file vector-index join, mid-request commit isolation, write
+guard, re-entry, zero warm connection opens, 40-thread stress within the pool,
+unchanged ranking/order/provenance); `test_vector_outbox_durability.py` (each
+crash point converging, duplicate replay, idempotence on the real backend,
+backend-down retry, reopen safety); `test_vector_divergence_repair.py`
+(missing/stale/orphan detected and repaired on SQLite-vector, pgvector, and
+Chroma); `test_pgvector_search_no_ddl.py` (provider-free, recording cursor);
+`test_retrieval_fingerprint_consistency.py` (candidate set and
+`candidate_set_sha256` attest one committed state). The last was verified to
+discriminate: with the snapshot disabled it fails.
 
 ## S6 - Principal tenancy and opaque deletion
 
