@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import nullcontext
 from datetime import datetime
 from time import perf_counter
 from typing import Callable
@@ -37,6 +38,20 @@ from .types import (
 
 SEARCH_TRACE_SCHEMA = "seam-retrieval-search-trace/1"
 _SEARCH_TRACE_ITEM_LIMIT = 128
+
+
+def _store_read_snapshot(store):
+    """Return the store's committed read snapshot, or an inert context.
+
+    Component tests substitute lightweight store doubles that never open a
+    database; those have nothing to hold a snapshot over, so they degrade to a
+    no-op rather than forcing every double to implement the protocol.
+    """
+
+    snapshot = getattr(store, "read_snapshot", None)
+    if snapshot is None:
+        return nullcontext()
+    return snapshot()
 
 
 class RetrievalOrchestrator:
@@ -196,7 +211,20 @@ class RetrievalOrchestrator:
             total_latency_ms=total_latency_ms,
         )
 
-    def _execute(
+    def _execute(self, **kwargs):
+        """Execute one plan against a single committed database state.
+
+        Every leg and visibility check below reads through the store, so
+        holding the snapshot here -- rather than in each adapter -- is what
+        makes the whole request observe one state. Re-entering is a no-op, so
+        callers that already hold a snapshot (``search`` extends it over
+        provenance resolution) keep theirs.
+        """
+
+        with _store_read_snapshot(self.runtime.store):
+            return self._execute_snapshotted(**kwargs)
+
+    def _execute_snapshotted(
         self,
         *,
         query: str,
@@ -377,44 +405,48 @@ class RetrievalOrchestrator:
             if resolved_flags.search_top_k
             else budget
         )
-        (
-            plan,
-            leg_hits,
-            leg_latency_ms,
-            total_latency_ms,
-            ranked,
-            graph_skipped_reason,
-        ) = self._execute(
-            query=query,
-            scope=scope,
-            budget=budget,
-            mode=mode,
-            namespace=namespace,
-            graph_hops=graph_hops,
-            semantic_graph_seeding=semantic_graph_seeding,
-            graph_at=graph_at,
-            graph_include_history=graph_include_history,
-            lens=lens,
-            include_raw=include_raw,
-            temporal_window=temporal_window,
-            temporal_reference=temporal_reference,
-            flags=resolved_flags,
-            ranking_policy=ranking_policy,
-            candidate_budget=candidate_budget,
-        )
-        selected = ranked[:budget]
-
-        if include_provenance and selected:
-            # Resolve the selected page in ONE pass: candidates routinely share
-            # source turns, so per-candidate resolution would re-read the same
-            # SPAN and RAW rows repeatedly. Only the returned page is resolved -
-            # rejected candidates are never cited, so proving their origin is
-            # wasted store reads.
-            chains = resolve_provenance_many(
-                self.runtime.store, [candidate.record for candidate in selected]
+        # Hold one snapshot across retrieval AND provenance resolution. Citing a
+        # candidate against source rows read from a later state would attest a
+        # chain that never existed alongside the answer it justifies.
+        with _store_read_snapshot(self.runtime.store):
+            (
+                plan,
+                leg_hits,
+                leg_latency_ms,
+                total_latency_ms,
+                ranked,
+                graph_skipped_reason,
+            ) = self._execute(
+                query=query,
+                scope=scope,
+                budget=budget,
+                mode=mode,
+                namespace=namespace,
+                graph_hops=graph_hops,
+                semantic_graph_seeding=semantic_graph_seeding,
+                graph_at=graph_at,
+                graph_include_history=graph_include_history,
+                lens=lens,
+                include_raw=include_raw,
+                temporal_window=temporal_window,
+                temporal_reference=temporal_reference,
+                flags=resolved_flags,
+                ranking_policy=ranking_policy,
+                candidate_budget=candidate_budget,
             )
-            for candidate in selected:
-                candidate.provenance = chains.get(candidate.record.id)
+            selected = ranked[:budget]
+
+            if include_provenance and selected:
+                # Resolve the selected page in ONE pass: candidates routinely share
+                # source turns, so per-candidate resolution would re-read the same
+                # SPAN and RAW rows repeatedly. Only the returned page is resolved -
+                # rejected candidates are never cited, so proving their origin is
+                # wasted store reads.
+                chains = resolve_provenance_many(
+                    self.runtime.store, [candidate.record for candidate in selected]
+                )
+                for candidate in selected:
+                    candidate.provenance = chains.get(candidate.record.id)
 
         trace = None
         if include_trace:

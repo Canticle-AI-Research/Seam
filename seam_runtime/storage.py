@@ -6,6 +6,7 @@ import logging
 import os
 import sqlite3
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -117,7 +118,13 @@ from .mirl import (
     TraceGraph,
     utc_now,
 )
-from .pool import ConnectionPool
+from .pool import ConnectionPool, SnapshotAwarePool
+from .read_snapshot import (
+    bind_connection,
+    memory_snapshot_key,
+    record_physical_open,
+    snapshot_key_for_path,
+)
 from .reasoning_graph import (
     REASONING_RETRIEVAL_SCHEMA_VERSION,
     REASONING_SCHEMA_VERSION,
@@ -276,6 +283,9 @@ class SQLiteStore:
         if self.path != ":memory:":
             resolved = Path(self.path).expanduser().resolve()
             self.path = str(resolved)
+            # Resolve the snapshot key before anything can open a connection:
+            # ``_connect`` reports every physical open against it.
+            self._snapshot_key = snapshot_key_for_path(self.path)
             _prepare_private_database(resolved)
             self.migration_result = migrate_database(
                 resolved,
@@ -285,6 +295,9 @@ class SQLiteStore:
                 backup_dir=_migration_backup_dir,
             )
         else:
+            # A private in-memory database cannot be shared by path, so it is
+            # keyed on this store and never joins another database's snapshot.
+            self._snapshot_key = memory_snapshot_key(self)
             # Keep one anchor connection alive so that the shared in-memory
             # database persists across per-operation connections.
             self._mem_anchor = sqlite3.connect(
@@ -300,11 +313,31 @@ class SQLiteStore:
                 expected_projection_versions=STORE_PROJECTION_VERSIONS,
             )
         resolved_pool_size = pool_size if pool_size is not None else int(os.environ.get("SEAM_DB_POOL_SIZE", "5"))
-        self._pool = ConnectionPool(
-            connect_factory=self._connect,
-            pool_size=resolved_pool_size,
-            idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
+        # A file database is shared by identity of the file, so any other reader
+        # of the same path -- notably the SQLite vector index, which is opened on
+        # ``store.path`` -- joins this store's read snapshot.
+        self._pool = SnapshotAwarePool(
+            ConnectionPool(
+                connect_factory=self._connect,
+                pool_size=resolved_pool_size,
+                idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
+            ),
+            self._snapshot_key,
         )
+
+    @contextmanager
+    def read_snapshot(self):
+        """Hold one committed read snapshot for the calling context.
+
+        Every read through this store -- and through any other reader keyed to
+        the same database -- observes a single committed state for the duration,
+        so a candidate set and the fingerprint attesting it can never be
+        assembled from states that never coexisted. Writes attempted inside the
+        snapshot raise rather than being silently discarded on release.
+        """
+
+        with bind_connection(self._snapshot_key, self._pool.checkout_physical) as connection:
+            yield connection
 
     def check_ready(self) -> None:
         """Raise when the canonical store cannot serve a trivial read."""
@@ -351,6 +384,7 @@ class SQLiteStore:
             connection.execute("pragma journal_mode=WAL")
         connection.execute("pragma busy_timeout=5000")
         connection.execute("pragma foreign_keys=ON")
+        record_physical_open(self._snapshot_key)
         return connection
 
     def close(self) -> None:

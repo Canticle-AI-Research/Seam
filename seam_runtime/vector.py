@@ -5,12 +5,13 @@ import heapq
 import json
 import math
 import sqlite3
-from contextlib import closing
+from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from typing import Iterable
 
 from .mirl import MIRLRecord, RecordKind
 from .models import EmbeddingModel, cosine
+from .read_snapshot import active_connection, record_physical_open
 
 try:
     # Optional fast path. numpy is not a core dep (core = rich + tiktoken); it
@@ -59,6 +60,7 @@ class SQLiteVectorIndex:
     def __init__(self, path: str, model: EmbeddingModel) -> None:
         self.path = path
         self.model = model
+        self._schema_ready = False
         # Keyed by (model_name, dimension, namespace, scope). Only used on the numpy
         # fast path; harmless (unread) on the pure-Python fallback.
         self._cache: dict[
@@ -73,9 +75,43 @@ class SQLiteVectorIndex:
         connection.execute("pragma busy_timeout=5000")
         connection.execute("pragma foreign_keys=ON")
         connection.execute("pragma synchronous=NORMAL")
+        if self.path != ":memory:":
+            record_physical_open(self.path)
         return connection
 
-    def ensure_schema(self) -> None:
+    @contextmanager
+    def _read_connection(self):
+        """Yield a read connection, joining the request's snapshot if held.
+
+        The vector index is normally opened on the canonical store's own path,
+        so a search that opened its own connection read a different committed
+        state than the SQL, graph, and temporal legs of the same request. Only
+        read paths route here; schema and write paths keep their own connection
+        because a snapshot forbids writes outright.
+        """
+
+        if self.path != ":memory:":
+            bound = active_connection(self.path)
+            if bound is not None:
+                yield bound
+                return
+        with closing(self._connect()) as connection:
+            yield connection
+
+    def ensure_schema(self, *, force: bool = False) -> None:
+        """Create or migrate the vector table, at most once per index instance.
+
+        Every public method called this unconditionally, so a warm ``search``
+        opened a fresh physical connection and re-ran the whole create/alter
+        script for each query -- schema churn on the read path, and the reason
+        warm retrieval kept opening connections despite the pool. The schema
+        cannot regress underneath a live instance, so the work is done once and
+        remembered. ``force`` re-runs it for callers that changed the file out
+        of band.
+        """
+
+        if self._schema_ready and not force:
+            return
         with closing(self._connect()) as connection:
             connection.execute(
                 """
@@ -124,6 +160,7 @@ class SQLiteVectorIndex:
                         "), '')"
                     )
             connection.commit()
+        self._schema_ready = True
 
     def index_records(self, records: Iterable[MIRLRecord]) -> None:
         self.ensure_schema()
@@ -312,7 +349,7 @@ class SQLiteVectorIndex:
         namespace: str | None,
         scope: str | None,
     ) -> dict[str, float]:
-        with closing(self._connect()) as connection:
+        with self._read_connection() as connection:
             cache = self._load_cache(
                 connection, len(query_vector), namespace, scope
             )
@@ -372,7 +409,7 @@ class SQLiteVectorIndex:
         if scope is not None:
             sql += " and scope = ?"
             params.append(scope)
-        with closing(self._connect()) as connection:
+        with self._read_connection() as connection:
             rows = connection.execute(sql, params)
             for row in rows:
                 score = cosine(query_vector, json.loads(row["vector_json"]))

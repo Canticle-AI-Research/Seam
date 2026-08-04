@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from contextlib import closing
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -53,7 +52,7 @@ def _visible_graph_node_ids(
     if not ordered_ids:
         return set()
     visible: set[str] = set()
-    with closing(store._connect()) as connection:
+    with store._pool.checkout() as connection:
         for start in range(0, len(ordered_ids), 500):
             chunk = ordered_ids[start : start + 500]
             placeholders = ",".join("?" for _ in chunk)
@@ -163,7 +162,7 @@ class SQLiteIRAdapter:
         query_text = plan.normalized_query or plan.query
         query_tokens = _unique_tokens(_tokens(query_text))
         query_sql, params = _build_structured_sql(plan, query_tokens, limit)
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             rows = connection.execute(query_sql, params).fetchall()
         hits: list[LegHit] = []
         for row in rows:
@@ -307,7 +306,7 @@ class GraphNodeSemanticAdapter:
         ]
         if not ranked:
             return [], []
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             placeholders = ",".join("?" for _ in ranked)
             rows = connection.execute(
                 "select id, source_record_id from knowledge_nodes "
@@ -439,7 +438,7 @@ class SQLiteGraphAdapter:
         """Return whether the selected boundary contains a canonical REL edge."""
 
         where, params = _canonical_relation_edge_where(plan)
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             row = connection.execute(
                 "select 1 "
                 + _CANONICAL_RELATION_EDGE_FROM
@@ -488,7 +487,7 @@ class SQLiteGraphAdapter:
             "ent.scope = n.scope",
             *boundary,
         ]
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             direct_rows = connection.execute(
                 "select n.id from knowledge_nodes n "
                 "join ir_records ent on ent.id = n.id "
@@ -500,7 +499,7 @@ class SQLiteGraphAdapter:
         if not grounded or not prefer_direct:
             relation_where, relation_params = _canonical_relation_edge_where(plan)
             relation_where.append(f"rel.id in ({placeholders})")
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 relation_rows = connection.execute(
                     "select distinct rel.id "
                     + _CANONICAL_RELATION_EDGE_FROM
@@ -586,7 +585,7 @@ class SQLiteGraphAdapter:
             if plan.filters.namespace:
                 grounding_params.append(plan.filters.namespace)
             grounding_params.extend(grounding_time_params)
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 grounding_rows = connection.execute(
                     "select distinct n.id from knowledge_edges e "
                     "join ir_records seed on seed.id = e.src_id "
@@ -603,7 +602,7 @@ class SQLiteGraphAdapter:
         admitted_where, admitted_params = _canonical_relation_edge_where(plan)
         grounded_ids = sorted(grounded)
         admitted_node_ids: set[str] = set()
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             for start in range(
                 0, len(grounded_ids), _GRAPH_REPEATED_ID_CHUNK
             ):
@@ -663,7 +662,7 @@ class SQLiteGraphAdapter:
             seed_limit,
             include_graph_kinds=True,
         )
-        with closing(self.store._connect()) as connection:
+        with self.store._pool.checkout() as connection:
             seed_rows = connection.execute(seed_sql, seed_params).fetchall()
         matching_records = [
             MIRLRecord.from_dict(json.loads(row["payload_json"])) for row in seed_rows
@@ -752,7 +751,7 @@ class SQLiteGraphAdapter:
                 break
             ordered_frontier = sorted(frontier)
             rows_by_id: dict[str, object] = {}
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 for start in range(
                     0,
                     len(ordered_frontier),
@@ -985,7 +984,7 @@ class SQLiteGraphAdapter:
                 at=plan.graph_at,
                 include_history=plan.graph_include_history,
             )
-            with closing(self.store._connect()) as connection:
+            with self.store._pool.checkout() as connection:
                 episode_rows = connection.execute(
                     "select kee.edge_id as edge_id, ep.id as episode_id "
                     "from knowledge_edge_episodes kee "
