@@ -193,6 +193,13 @@ from .reference_contracts import (
 )
 from .retry import retry_db_operation
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
+from .vector_outbox import (
+    acknowledge,
+    enqueue_index_intents,
+    pending_count,
+    pending_entries,
+    record_failure,
+)
 from .workspace import (
     WORKSPACE_SCHEMA_VERSION,
     init_workspace_schema,
@@ -1165,6 +1172,7 @@ class SQLiteStore:
         batch: IRBatch,
         *,
         _preserve_node_vectors: bool = False,
+        _enqueue_vector_outbox: bool = False,
     ) -> PersistReport:
         with self._pool.checkout() as connection:
             stored_ids = self._persist_ir_on_connection(
@@ -1172,8 +1180,45 @@ class SQLiteStore:
                 batch,
                 preserve_node_vectors=_preserve_node_vectors,
             )
+            outbox_entry_ids: list[int] = []
+            if _enqueue_vector_outbox:
+                # Same connection, same transaction, same commit as the
+                # canonical rows. Enqueuing after the commit would reintroduce
+                # exactly the window this exists to close.
+                outbox_entry_ids = enqueue_index_intents(connection, stored_ids)
             connection.commit()
-        return PersistReport(stored_ids=stored_ids, store_path=self.path)
+        return PersistReport(
+            stored_ids=stored_ids,
+            store_path=self.path,
+            outbox_entry_ids=outbox_entry_ids,
+        )
+
+    @retry_db_operation()
+    def acknowledge_vector_outbox(self, entry_ids: Iterable[int]) -> int:
+        """Retire intents whose vector update is durably applied."""
+
+        with self._pool.checkout() as connection:
+            removed = acknowledge(connection, entry_ids)
+            connection.commit()
+        return removed
+
+    def pending_vector_outbox(self, *, limit: int | None = None) -> list[dict[str, object]]:
+        """Return vector index intents that were never acknowledged."""
+
+        with self._pool.checkout() as connection:
+            return pending_entries(connection, limit=limit)
+
+    def pending_vector_outbox_count(self) -> int:
+        with self._pool.checkout() as connection:
+            return pending_count(connection)
+
+    @retry_db_operation()
+    def record_vector_outbox_failure(
+        self, entry_ids: Iterable[int], *, error_type: str
+    ) -> None:
+        with self._pool.checkout() as connection:
+            record_failure(connection, entry_ids, error_type=error_type)
+            connection.commit()
 
     @retry_db_operation()
     def upsert_document_status(
