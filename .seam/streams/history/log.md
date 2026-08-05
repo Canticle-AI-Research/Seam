@@ -16495,3 +16495,128 @@ seal/BIL integrity, and MIRL losslessness round-tripping.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#535---
+
+---BEGIN-ENTRY-#536---
+id: 536
+date: 2026-08-05T04:21:46Z
+agent: claude
+status: done
+topics: protocol, verify, ci, audit, history
+commits: pending
+refs: tools/claude/preflight_protocol.sh,tools/git-hooks/pre-commit,tools/history/closeout.py,tests/audit/test_local_gates_match_ci.py,AGENTS.md
+supersedes: none
+tokens: 1426
+---
+Made the local commit gates identical to the required `repo-hygiene` CI check by
+removing `--no-recorded-fact-audit` from all three of them. Until now a green
+local gate was strictly weaker than the check that would run on the PR, which is
+not a missing gate but something worse: it reported "passed" where the truthful
+answer was "not checked", and "passed" is the state an agent acts on.
+
+This is the direct cause of the HISTORY#535 failure. `closeout` printed all five
+verifiers green, the push proceeded, and `repo-hygiene` then rejected the entry
+for a test-count claim with no pytest path scope. With this change that entry is
+refused at `git add`, before the push and before CI.
+
+WHY THE SUPPRESSION WAS SAFE TO REMOVE
+
+It was introduced for a real reason. HISTORY#166 recorded that the
+recorded-fact-precedence checker "produces false positives against the committed
+bodies of HISTORY#111 and HISTORY#145 because its regex over-matches per-family
+or per-section counts inside prose as if they were total-test claims, then flags
+monotonic decreases." A 2026-07-29 session proposed re-enabling the gate and the
+operator declined it, because the justification offered then was speed and the
+change bought none.
+
+That rationale is now stale, and the claim was measured rather than assumed:
+
+- `require_explicit_pytest_line=True` in the precedence path is exactly the fix
+  for the cited over-match. Both named entries now produce zero issues, and
+  `_audit_test_count_precedence` reports 0 across all 535 entries.
+- The last 8 real commit trees were extracted with `git archive` and audited as
+  they actually stood at commit time -- including commits authored by other
+  agents -- and all 8 are clean. Enabling this would have blocked none of them.
+- The commit CI actually rejected, `aca9993`, replays as exactly 1 issue, and it
+  is verbatim the error CI reported. The audit discriminates; it is not inert,
+  which is what would have made the 8 clean results meaningless.
+
+The retirement of the 2026-07-29 guardrail was confirmed by the operator in this
+session, on correctness grounds rather than the speed grounds it was written
+against. If enforcement ever does cost real time, the answer is to fix the
+extractors, not to re-suppress the gate.
+
+THERE WERE THREE GATES, NOT TWO
+
+The first draft of this change fixed only the Claude preflight hook and the
+closeout wrapper. The full suite failed on the pre-existing
+`test_preflight_gates_match_canonical_commit_hook`, which revealed a third gate,
+`tools/git-hooks/pre-commit`, still carrying the flag. The new test added here
+had the same blind spot -- it would have passed while a real gate stayed silent
+-- so it is now parametrized over a `LOCAL_GATE_SCRIPTS` list with a comment
+stating that any new gate belongs in it. The repo's own guard caught this, not
+the new one.
+
+Also deleted: a comment at `preflight_protocol.sh` promising that
+`SEAM_FORCE_FACT_AUDIT=1` or `--audit-facts` would force the audit on. Neither
+identifier exists anywhere in the codebase. A documented lever that does nothing
+is worse than no lever, because it reads as an escape hatch that was tried.
+
+FILES CHANGED
+
+Modified: tools/claude/preflight_protocol.sh (flag removed; dead
+SEAM_FORCE_FACT_AUDIT promise deleted; comment records why it must not return),
+tools/git-hooks/pre-commit (flag removed), tools/history/closeout.py (flag
+removed from PREFLIGHT_GATES; docstring no longer claims a parity it did not
+have), AGENTS.md (Session End: run the gates as written, and never let a local
+gate be weaker than a required CI check).
+
+Added: tests/audit/test_local_gates_match_ci.py.
+
+VERIFICATION PERFORMED
+
+Verified with:
+
+    pytest tests/audit/test_local_gates_match_ci.py
+
+5 tests passed, covering all three gate scripts, the CI workflow in the opposite
+direction so the assertions cannot pass vacuously, a discrimination case proving
+the audit rejects an unscoped claim and accepts a correctly scoped one, and a
+live run of the enabled gate against the current tree.
+
+Discrimination was proven per gate, not in aggregate: re-adding the flag to any
+one of the three scripts fails that script's own case, and reverting passes. The
+scoped-claim fixture derives its expected number from `count_static_tests`
+instead of hardcoding it, because a literal there would rot the moment a test is
+added to that file -- the audit caught that error in the fixture itself during
+development.
+
+Full suite with the live pgvector lane enabled: 2118 passed, 0 skipped, 2
+xfailed. `ruff check .` clean. The 2 xfails are the pre-existing `compile_nl`
+compiler-rewrite targets and are unrelated.
+
+This entry is itself the first artifact gated by the change: it was appended
+through `closeout` with the recorded-fact audit enabled.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+The audit only reaches claims its regexes match. "2118 passed" is invisible to it
+because the patterns require the word "tests" adjacent to the number, so
+full-suite totals are still unchecked; only path-scoped claims are enforced.
+Widening that is a separate change and was not attempted here.
+
+Audit finding 8 from the 2026-08-01 whole-repository audit remains open:
+unbounded SQL variable expansion in `knowledge_graph.py` at `:1502`,
+`:1515-1516`, `:1558-1560`, `:1576-1580`, `:2629`, `:2684`, `:2934`, where
+`:1515-1516` binds the frontier twice. Latent on this host (SQLite 3.45.1),
+broken on the 999-variable default. Finding 12 (worktree hygiene) is also open
+and untouched: `agent-ae5755cfb19e0ae14` holds 12 files of uncommitted R3
+reasoning-graph work and `Seam-node-wheel-reconcile` holds a stray
+`HISTORY_INDEX.md.lock`; both branches carry unmerged commits and disposition is
+an operator decision.
+
+Still unaudited across two whole-repository audits: `dashboard.py`, benchmark
+seal/BIL integrity, and MIRL losslessness round-tripping.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#536---

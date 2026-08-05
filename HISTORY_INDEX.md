@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 535
-total_tokens: ~271225
-latest_id: 535
+total_entries: 536
+total_tokens: ~272651
+latest_id: 536
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 536 | 2026-08-05 | done | 0413b88a7a09d86a | protocol,verify,ci,audit,+ | none |
 | 535 | 2026-08-05 | done | 8e4138265ea7d245 | test,api,security,audit,+ | none |
 | 534 | 2026-08-04 | done | aa584b090b2e6b9b | ci,hygiene,worktree,protocol,+ | 533 |
 | 533 | 2026-08-04 | done | ec47c306659aee16 | track-s,operations,retrieval,storage,+ | 532 |
@@ -566,7 +567,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=7 latest=#530, #529, #526, #522, #466
-- audit: count=109 latest=#535, #530, #529, #527, #526
+- audit: count=110 latest=#536, #535, #530, #529, #527
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=203 latest=#519, #518, #517, #516, #513
@@ -588,7 +589,7 @@ compact: true
 - chat: count=17 latest=#526, #342, #286, #137, #074
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=43 latest=#534, #527, #525, #519, #518
+- ci: count=44 latest=#536, #534, #527, #525, #519
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -681,7 +682,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=295 latest=#531, #530, #529, #526, #525
+- history: count=296 latest=#536, #531, #530, #529, #526
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -768,7 +769,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=110 latest=#534, #531, #528, #461, #459
+- protocol: count=111 latest=#536, #534, #531, #528, #461
 - prov: count=1 latest=#316
 - provenance: count=21 latest=#530, #529, #513, #510, #498
 - publication: count=1 latest=#533
@@ -861,7 +862,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=358 latest=#534, #530, #529, #528, #527
+- verify: count=359 latest=#536, #534, #530, #529, #528
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=9 latest=#404, #403, #402, #342, #340
@@ -876,8 +877,8 @@ compact: true
 
 ## status rollup
 
-- roots: 83
+- roots: 84
 - changed: 38
-- done: 468
+- done: 469
 - in-progress: 8
 - planned: 21

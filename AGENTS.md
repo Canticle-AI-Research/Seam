@@ -36,6 +36,15 @@ If state changed:
 4. Run `python -m tools.history.verify_handoffs`, `python -m tools.history.verify_continuity`, and `python -m tools.streams.verify_streams`.
 5. If `ROADMAP.md` changed: rerun `python -m tools.streams.roadmap_parser` to refresh the roadmap stream + state view; if any stream changed: rerun `python -m tools.streams.rebuild_cross_index` to refresh the derived global timeline.
 
+Run the gates above as written, with no suppression flags, and never let a local
+gate be weaker than a required CI check. A wrapper or hook that skips an audit
+`repo-hygiene` enforces does not report "not yet checked" — it reports "passed",
+which is the state an agent acts on. That is exactly how HISTORY#535 reached CI
+with an unscoped test-count claim while `closeout` printed all gates green.
+`tests/audit/test_local_gates_match_ci.py` now fails if either local gate drifts
+weaker again. Convenience wrappers are allowed to be *slower* than the required
+check, never quieter.
+
 If you created a git worktree during the session: finish it. Either commit, push, and `git worktree remove` it, or remove the worktree even if abandoning the work. Never leave a dirty worktree on a stale base for the next agent to find — that pattern caused real regressions before (see HISTORY#223 worktree triage).
 
 If you created a working branch: push it if the work is real, delete it locally if the work is fully merged. Stale branches accumulate across multi-agent sessions and look like active work to the next agent.

@@ -8,12 +8,13 @@ dependency order so the temporal chain is prepared and verified before `git add`
 which means the pre-commit hook passes on the first try instead of blocking and
 retrying as each missing artifact is discovered.
 
-It changes NO gate behavior: it shells out to the same tested modules and uses
-the SAME flags as tools/git-hooks/pre-commit -- in particular
-`verify_continuity --no-recorded-fact-audit`, so it never fires the recorded-fact
-audit the hook deliberately disables. Pure orchestration; on any step failure it
-exits non-zero. If HISTORY was already appended, re-run with ``--resume-entry``
-so the derived chain is repaired without appending a duplicate entry.
+It changes NO gate behavior: it shells out to the same tested modules with the
+SAME flags as the canonical commit gate AND the required `repo-hygiene` CI check.
+As of HISTORY#536 that includes the recorded-fact audit, so a green closeout is
+no longer weaker than the check that will run on the PR. Pure orchestration; on
+any step failure it exits non-zero. If HISTORY was already appended, re-run with
+``--resume-entry`` so the derived chain is repaired without appending a duplicate
+entry.
 
 It does NOT stage or commit. It prints the suggested `git add` and leaves the
 commit to you (honoring the "wait for push it" rule).
@@ -44,7 +45,7 @@ PREFLIGHT_GATES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("verify_integrity", ("tools.history.verify_integrity",)),
     ("verify_routing", ("tools.history.verify_routing",)),
     ("verify_handoffs", ("tools.history.verify_handoffs",)),
-    ("verify_continuity", ("tools.history.verify_continuity", "--no-recorded-fact-audit")),
+    ("verify_continuity", ("tools.history.verify_continuity",)),
     ("verify_streams", ("tools.streams.verify_streams",)),
 )
 

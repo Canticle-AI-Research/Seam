@@ -53,12 +53,20 @@ run_gate() {
 
 run_gate "verify_integrity" "$PY" -m tools.history.verify_integrity
 run_gate "verify_routing"   "$PY" -m tools.history.verify_routing
-# --no-recorded-fact-audit is intentionally set because:
-#   1. Recorded-fact audit extractors are still in development
-#   2. Some existing docs contain facts that trigger false positives
-#   3. Precedence false-positives need resolution before enabling
-# To force fact auditing: set SEAM_FORCE_FACT_AUDIT=1 or use --audit-facts in commit message.
-run_gate "verify_continuity" "$PY" -m tools.history.verify_continuity --no-recorded-fact-audit
+# The recorded-fact audit runs here. It MUST match the required CI check
+# (repo-hygiene runs `verify_continuity --no-snapshot`, fact audit enabled).
+#
+# It was suppressed from HISTORY#166 until HISTORY#536 because a precedence
+# checker over-matched per-section prose counts as total-test claims and flagged
+# HISTORY#111/#145. `require_explicit_pytest_line=True` in the precedence path
+# fixed that; both cited entries now produce zero issues, the last 8 commit trees
+# replay clean, and the entry CI actually rejected replays as exactly 1 issue.
+#
+# Do not re-add --no-recorded-fact-audit here. A local gate that is weaker than
+# the required check turns a green preflight into a false negative: that is how
+# HISTORY#535 reached CI with an unscoped test-count claim. For an ad-hoc manual
+# run the flag still exists on verify_continuity itself.
+run_gate "verify_continuity" "$PY" -m tools.history.verify_continuity
 run_gate "verify_streams"   "$PY" -m tools.streams.verify_streams
 
 if [ "$FAIL" -ne 0 ]; then
