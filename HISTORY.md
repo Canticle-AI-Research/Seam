@@ -16620,3 +16620,316 @@ seal/BIL integrity, and MIRL losslessness round-tripping.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#536---
+
+---BEGIN-ENTRY-#537---
+id: 537
+date: 2026-08-05T15:26:42Z
+agent: claude
+status: done
+topics: tui, cli, surfaces, dashboard, config, verify
+commits: pending
+refs: seam_runtime/tui/app.py,seam_runtime/tui/settings_screen.py,seam_runtime/config.py,seam_runtime/dashboard.py,tests/audit/test_tui_supersedes_dashboard.py,pyproject.toml,MANIFEST.in,docs/CODE_LAYOUT.md
+supersedes: none
+tokens: 1498
+---
+Made the Canticle-style Textual TUI the live dashboard. Every interactive entry
+point -- `seam dashboard`, `seam-dash`, `seam-tui`, and the operator's `stui`
+wrapper -- now reaches `seam_runtime.tui.app.SeamTUI`. The supersession happens
+in one place, `dashboard.run_dashboard`, which is why the pre-existing
+`~/.local/bin/seam-tui` bash wrapper picks up the new UI without being edited:
+it shells out to `seam dashboard`, so repointing that branch repoints the
+wrapper too. Rich `--snapshot` and `--run` modes are untouched and stay on the
+backend.
+
+`DashboardApp` remains the backend and is handed to the UI already built, so
+the vector-backend selection made in `run_dashboard` survives into the TUI
+rather than being reconstructed from defaults. The new UI is presentation only;
+its 153-command `/` palette is derived at runtime from the backend's own
+argparse parser rather than a parallel hand-maintained list.
+
+TWO DEFECTS FOUND BY LAUNCHING THE REAL BINARY
+
+Both were live while headless `run_test()` mounts passed, and both were caught
+only by running `seam dashboard` in a real terminal under tmux. This is the
+same failure shape HISTORY#533 recorded for the S5 fingerprint test: a green
+in-process harness is not evidence the shipped entry point works.
+
+1. Crash at mount. `SettingRow._widget_id` interpolated a setting name straight
+into a Textual widget id. Textual validates ids in the widget constructor and
+raises `BadIdentifier`, so a single unacceptable name aborted app startup
+rather than degrading one row. Names can come from the hand-edited config file,
+so the id is now folded through `_ID_SAFE`; `_slug` was hardened identically.
+
+2. A credential silently never reached the environment. `~/.config/seam/seam.env`
+is the path the new config layer adopted, but the operator already kept a
+hand-written shell env file there using `export FOO=bar`. `_parse_env_text` did
+not strip `export`, so the key parsed under the name `export DEEPSEEK_API_KEY`
+-- not a legal environment variable name. It was exported under that unusable
+name and the real variable stayed unset, with no error anywhere. `export` is
+now stripped, and `is_env_name` refuses unusable names on the load path
+(`apply_persisted_to_environ` and `custom_settings`), not only in the
+add-a-key UI that was the sole validation point before.
+
+The second defect is the more instructive one: the validation existed, but only
+on the path the operator was not using. The file is hand-editable, which makes
+it an untrusted source of names, and it was being read as if it were trusted.
+
+WHAT WAS DELIBERATELY NOT DONE
+
+The old `TextualDashboardApp` (`dashboard.py:496-2360`) is kept as dead code
+carrying a deprecation docstring, not deleted. Its 28 usages in
+`test_seam_all/test_seam.py` are the only coverage of several dashboard
+behaviours, and its widget ids (`#ide-layout`, `#right-col`,
+`#command-palette`) have no counterpart in the new UI, so deleting the class
+without porting those tests would trade a working UI for a coverage hole.
+Operator chose repoint-only. Removal is deferred until the new TUI has real
+operating time and those tests are ported or retired.
+
+`seam_runtime/config.py`'s pgvector placeholder carried a `user:password@host`
+segment; it now shows `postgresql://user@host:5432/db`, with no password part.
+The repo's own `dsn_password` scan refused the original at `git add`, which is
+the gate from HISTORY#536 doing exactly its job on the first commit after it
+landed. The placeholder was fake, but teaching the scanner to ignore
+credential-shaped DSNs is a worse trade than dropping a password segment from
+an example. This entry states the shape rather than quoting it, because
+quoting the literal tripped the same scan on HISTORY.md itself.
+
+VERIFICATION PERFORMED
+
+Real-TTY launch under tmux, three separate binaries: the repo `.venv` via
+`seam dashboard`, `Agents/.venv-seam/bin/seam`, and the operator's own `stui`
+against the live `seam.db`. Eight tabs mount, panels populate from real MIRL
+records, the `/` palette opens and filters across all five surfaces, and the
+Settings tab renders with secrets masked and env-sourced values badged `env`.
+
+pytest tests/audit/test_tui_supersedes_dashboard.py -- 23 static `def test_*`,
+29 collected because one hostile-name case is a 7-way parametrize; 29 passed.
+
+Discrimination was proven rather than assumed: reverting the two fixes and
+re-running that path fails 9 of the 29; restoring passes 29. A test that has
+never been observed failing is not evidence.
+
+pytest tests/ test_seam_all/ tools/history tools/streams -- 2586 passed,
+2 xfailed, 0 skipped, 3 subtests passed. The 2 xfails are the pre-existing
+`compile_nl` compiler-rewrite targets and are unrelated. `ruff check .` clean.
+
+`Agents/.venv-seam` is an editable install of this repo and is what the
+operator's `seam`/`stui` actually run. Its textual was 0.89.1, below the
+`>=8.0` floor this change declares -- the TUI happened to render there, but by
+luck rather than contract. Upgraded to 8.2.8 with operator approval; `pip
+check` clean, `pip freeze` diff shows only textual moved, and `seam-bridge` and
+`seam-deepagent` were re-smoked in that venv.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+This branch is stacked on `fix/local-gates-match-ci` (PR #203, HISTORY#536) and
+must not merge before it.
+
+`REPO_LEDGER.md` and `PROJECT_STATUS.md` still describe a single dashboard and
+do not yet record the surface split between `seam_runtime/tui/` (UI) and
+`dashboard.py` (backend).
+
+`dashboard.py` remains on the never-audited list carried by two consecutive
+whole-repository audits. This change narrows its role to backend plus one dead
+UI class; it does not audit it.
+
+Five files in the working tree belong to a concurrent agent
+(`docs/kb/memory-systems/mem0.md`, `docs/kb/memory-systems/seam-positioning.md`,
+`docs/roadmap/COMPETITIVE_ROADMAP.md`,
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`,
+`seam_runtime/temporal_instance_context.py`) and were deliberately left
+unstaged rather than swept into this commit.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#537---
+
+---BEGIN-ENTRY-#538---
+id: 538
+date: 2026-08-05T16:01:09Z
+agent: claude
+status: done
+topics: benchmarks, mem0, positioning, roadmap, correction, tenancy
+commits: pending
+refs: docs/kb/memory-systems/mem0.md,docs/kb/memory-systems/seam-positioning.md,docs/roadmap/COMPETITIVE_ROADMAP.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,seam_runtime/temporal_instance_context.py
+supersedes: none
+tokens: 1006
+---
+Committed a correction that had been sitting uncommitted in the working tree
+since 2026-08-04 23:09, and closed one leftover the correction itself missed.
+
+WHAT THE CORRECTION ESTABLISHES
+
+SEAM's competitive documentation recorded Mem0's published LoCoMo scores as
+single-hop ~91.2, multi-hop ~91.3, temporal ~92.0, open-domain ~72.7, and
+concluded from them that "on the mem0 harness, matched conditions, SEAM
+currently tops nothing."
+
+Three of those four numbers are not in Mem0's paper. arXiv:2504.19413 Table 1
+reports single-hop 67.13, multi-hop 51.15, open-domain 72.93, temporal 55.51.
+Only open-domain was approximately right. The paper also states that all
+language-model operations used GPT-4o-mini, which makes SEAM's mini lane the
+correct comparator rather than its gpt-4o lane.
+
+Under the paper's own contract SEAM leads all four: 87.16 vs 67.13 single-hop,
+88.65 vs 51.15 multi-hop, 86.46 vs 72.93 open-domain, 71.96 vs 55.51 temporal.
+The conclusion in the documentation was therefore not merely imprecise, it was
+inverted, and it had been steering lever selection.
+
+The corrected text keeps the qualification rather than quietly dropping it:
+SEAM ran top_k=200 against the paper's 10, so this is budget-matched at roughly
+1.3x tokens, not depth-matched. The gpt-4o run from HISTORY#429 remains an
+internal strict-judge ratchet and is explicitly not an incumbent-relative
+number. Superseded claims are retained inline and marked, not deleted.
+
+THE LEFTOVER THIS ENTRY CLOSES
+
+`docs/roadmap/COMPETITIVE_ROADMAP.md` had its comparison table corrected but
+not the sentence directly beneath it, which still read "SEAM wins on their turf
+(open-domain +13.8 pts) and matches on theirs (multi-hop -2.7 pts)". That -2.7
+is arithmetic on the debunked 91.3: with the paper's 51.15 the same row is
++37.6. A corrected table sitting above prose that still concludes from the
+uncorrected number is worse than either alone, because the page now contradicts
+itself and the prose is what a reader quotes.
+
+Also corrected in the same sweep: `seam_runtime/temporal_instance_context.py`
+opens by citing the 92.0 temporal figure as the deficit motivating the module.
+The module's projection is sound on its own terms and is unchanged; its
+docstring now records that the gap it was built to close did not exist, since
+SEAM's 71.96 was already ahead of the paper's 55.51 by 16.45 points.
+
+S6 TENANCY DECISION, RECORDED
+
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md` gains the S6 termination decision
+that HISTORY#533 and PROJECT_STATUS.md both flag as written down nowhere:
+tenancy terminates in-process with an optional principal. A proxy ahead of
+`/v1` was rejected because the guarantee would then live outside this
+repository and outside its test suite, and any deployment reaching `/v1`
+without the proxy silently restores the cross-tenant hole. A mandatory
+principal was rejected because it breaks the trusted-loopback development flow
+and is a breaking change for existing self-host users.
+
+The entry also records that `seam_runtime/lifecycle.py` already implements the
+delete substrate S6's fourth clause needs, and that
+`public_api._internal_namespace` produces `sdk.{namespace}`, which satisfies
+`_tenant_owns_namespace` for no principal -- an impedance mismatch S6 must
+resolve rather than discover.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+Five further files still carry the debunked figures and were deliberately not
+swept here: `docs/audits/2026-07-20-memory-competitor-ratchet.md`, three
+handoffs under `docs/handoffs/` dated 2026-07-19 and 2026-07-20, and
+`docs/status_archive/2026-07-30-project-status-full.md`. The handoffs and the
+status archive are point-in-time records that should not be rewritten; the
+audit document is a live reference and is the one genuine remaining target.
+
+No paid provider call, competitive benchmark, or new retrieval-score
+measurement ran for this entry. Every figure recorded here is quoted from
+arXiv:2504.19413 Table 1 or from the existing HISTORY#429 measurement.
+---END-ENTRY-#538---
+
+---BEGIN-ENTRY-#539---
+id: 539
+date: 2026-08-05T16:31:24Z
+agent: claude
+status: done
+topics: ci, tests, tui, verify, gates
+commits: pending
+refs: .github/workflows/ci.yml,.github/workflows/ci-windows.yml,tests/audit/test_tui_supersedes_dashboard.py,tests/audit/test_github_pr_gates.py
+supersedes: 537
+tokens: 1103
+---
+Repaired the `test-and-benchmark` failure that HISTORY#537 caused on PR #204,
+and closed the gap that let it reach CI green-looking.
+
+WHAT BROKE
+
+`tests/audit/test_tui_supersedes_dashboard.py`, added in HISTORY#537, imported
+`seam_runtime.tui.settings_screen` at module scope. That module imports
+`textual`, which is the optional `dash` extra and is not installed in the
+test-and-benchmark lane. An import failure at module scope is a COLLECTION
+error, not a skip, and pytest treats one collection error as fatal to the whole
+run: `23 deselected, 1 warning, 1 error`, exit code 2. A single new test file
+therefore prevented every other test in the repository from running.
+
+HISTORY#537 recorded "2586 passed, 2 xfailed, 0 skipped" and that number was
+truthfully measured -- but it was measured in a working tree where `textual`
+was installed, which is the one condition under which the defect is invisible.
+The claim was true and the lane was still broken. A full-suite pass proves the
+suite passes in the environment it ran in, and nothing about any other.
+
+WHY A SKIP WAS NOT THE FIX
+
+The obvious repair -- guard the import and skip -- is refused here by design.
+`tests/conftest.py` enforces strict no-skip, and its allowlist deliberately
+does not contain "textual is not installed". The rule exists because a skip
+silently means "this test never ran".
+
+Applying that rule surfaced a pre-existing condition nobody had recorded: no CI
+lane installed the `dash` extra at all. The 28 `TextualDashboardApp` cases in
+`test_seam_all/test_seam.py` -- the coverage HISTORY#537 cited as the reason
+for keeping the old UI class rather than deleting it -- have been skipping in
+CI, not running. The justification for keeping that class was sound, but the
+coverage it rested on was not being exercised where it was being claimed.
+
+THE FIX, IN TWO PARTS
+
+The lane now installs the extra: `.[server,sbert,rerank,dash]` in `ci.yml` and
+`ci-windows.yml`. `textual` is not optional for a lane that tests the live
+dashboard. This also un-hides the 28 dashboard cases, which now execute in CI
+for the first time.
+
+Independently, every textual-dependent import in the new test module moved
+inside the test that needs it, behind the existing `textual_required` marker.
+This is defence in depth rather than the actual repair: with the extra
+installed nothing skips, but an installation without it now degrades to skips
+instead of aborting the entire suite. The failure mode being removed is not
+"these tests do not run" -- it is "one missing optional package stops every
+test in the repository".
+
+THE FIX BROKE A GATE, WHICH THE SUITE CAUGHT
+
+`tests/audit/test_github_pr_gates.py` pins the CI install line as an exact
+string, so adding `dash` to the workflow failed the very gate that guards the
+workflow. The pin is updated with the reason `dash` is load-bearing recorded
+beside it.
+
+This is worth stating plainly because the near-miss is the lesson: running only
+the tests touched by the change would have shown green, and PR #204 would have
+gone red a second time, on a different test, caused by the fix for the first
+one. The full suite was run instead, and that is the only reason it was caught
+before the push rather than after.
+
+VERIFICATION PERFORMED
+
+The reproduction was made real rather than reasoned about: `textual` was
+uninstalled from the working venv to recreate the exact CI condition. Before
+the fix, collection failed with the same ImportError and the same fatal
+interrupt. After it, collection succeeds and only the textual-dependent cases
+report skipped. `textual` was then reinstalled and the module re-run to confirm
+29 passed with zero skips.
+
+pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/
+tests/ -m "not external" -- the exact command the failing lane runs -- 2569
+passed, 23 deselected, 2 xfailed, 0 skipped, 3 subtests passed. The 23
+deselected are the external cases the pgvector-integration lane owns. The 2
+xfails are the pre-existing `compile_nl` targets.
+
+`ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+The windows leg is manual-only and its `dash` addition is therefore unexercised
+by this entry; it is a parity change made so the two legs do not diverge, not a
+verified one.
+
+Adding `dash` to the lane makes 28 previously-skipped dashboard cases execute
+in CI for the first time. They pass locally, but they have never run on the
+runner, and this entry cannot claim they will. If they prove flaky there, that
+is newly surfaced pre-existing behaviour rather than a regression from this
+change.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#539---

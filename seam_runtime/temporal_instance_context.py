@@ -1,7 +1,11 @@
 """Temporal-instance context projection for the Mem0-harness facade lane.
 
 Motivation (HISTORY#424/#426): SEAM's cat2 temporal score on mem0's unmodified
-harness is 71.96% vs mem0's published 92.0%, and the dominant measured failure
+harness is 71.96%. NOTE (2026-08-04): the 92.0% "mem0 published" figure that
+motivated this module is NOT in Mem0's paper -- its temporal J score is 55.51
+(arXiv:2504.19413 Table 1), so SEAM was already ahead by ~16.45 points. The
+projection below is still sound on its own terms; the deficit it was built to
+close did not exist. The dominant measured failure
 is WRONG-INSTANCE date selection — the harness answerer, given 200 ranked raw
 turns, repeatedly reports the date of a different (often the most recent)
 occurrence of the queried activity instead of the queried instance's date.

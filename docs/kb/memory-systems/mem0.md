@@ -47,17 +47,26 @@ losslessness + provenance + fail-closed-when-uncertain — the auditable version
 ## Benchmark posture (see `../eval-methodology/`)
 
 - mem0 publishes LoCoMo numbers using **their own answerer + judge** (gpt-4o
-  family in the harness defaults; their headline table historically gpt-4o). The
+  family). CORRECTED 2026-08-04: the paper states "All language model operations
+  utilized GPT-4o-mini as the inference engine" -- gpt-4o-MINI, not gpt-4o. The
   judge is **lenient** (partial credit, paraphrase, extra detail, ±14-day dates).
-- Published LoCoMo (their harness, top-200): single-hop ~91.2, multi-hop ~91.3,
-  open-domain ~72.7, temporal ~92.0 (averages across cutoffs; verify current).
+- Published LoCoMo (arXiv:2504.19413 Table 1, LLM-as-a-Judge): single-hop **67.13**, multi-hop
+  **51.15**, open-domain **72.93**, temporal **55.51**. Mem0^g: 65.71 / 47.19 /
+  75.71 / 58.13.
+- **The figures 91.2, 91.3 and 92.0 previously recorded here are NOT in the
+  paper.** Only open-domain ~72.7 was real. Three of the four numbers SEAM
+  measured itself against were never Mem0's.
 - To claim "SEAM beats mem0," hold answerer + judge + dataset + cutoff constant
   and run SEAM through their unmodified harness via the facade
   (`../eval-methodology/locomo-mem0-harness.md`).
 
 ## Current matched standing (HISTORY#429)
 
-Under the matched gpt-4o answerer+judge, SEAM is behind on all four categories
+CORRECTED 2026-08-04 -- the previous claim here was inverted. Under the paper's
+gpt-4o-mini contract SEAM LEADS all four: single-hop 87.16 vs 67.13, multi-hop
+88.65 vs 51.15, open-domain 86.46 vs 72.93, temporal 71.96 vs 55.51. The gpt-4o
+run below is a stricter-judge internal ratchet, not an incumbent-relative number.
+(Superseded text:) Under the matched gpt-4o answerer+judge, SEAM is behind on all four categories
 (cat1 87.94 / cat3 69.79 measured; cat4 87.16 / cat2 71.96 on the mini lane).
 The derived-facts lever is the bet to close cat1/cat3; open-domain (cat3) and
 counts overlap with mem0's own weak spots.

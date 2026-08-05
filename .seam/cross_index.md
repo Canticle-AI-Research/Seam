@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 599
+total_events: 602
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-06-29T06:15:22Z | history:343:125c00fc | session-event | done | benchmark, locomo, mem0, scripts, handoff, test, history | tools/benchmarks/rung_c_paid.py,tests/audit/test_rung_c_paid_runner.py,docs/h... |
-| 2026-07-03T14:36:09Z | history:344:19f81224 | session-event | done | git-hooks, security, verify, test, docs | tools/release/verify_public_safe.py,tools/release/__init__.py,tools/git-hooks... |
-| 2026-07-03T15:15:01Z | history:345:677aea14 | session-event | done | readme, prompt, docs | README.md |
 | 2026-07-03T16:21:14Z | history:346:8e76711d | session-event | done | readme, ledger, roadmap, protocol | LICENSE,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,README.md,REPO_LEDGER.md... |
 | 2026-07-03T23:54:27Z | history:347:029e01d2 | session-event | done | mcp, pyproject, readme, registry | pyproject.toml,README.md,server.json,seam_runtime/mcp_protocol.py |
 | 2026-07-04T00:04:38Z | history:348:a3175bc2 | session-event | done | registry, mcp | server.json |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-04T23:33:39Z | history:534:aa584b09 | session-event | done | ci, hygiene, worktree, protocol, enforcement, verify | tools/ci/github_maintenance_report.py,.github/workflows/repository-maintenanc... |
 | 2026-08-05T00:18:21Z | history:535:8e413826 | session-event | done | test, api, security, audit, tenancy | tests/audit/test_public_api_v1_http.py,docs/audits/2026-08-01-full-repo-audit.md |
 | 2026-08-05T04:21:46Z | history:536:0413b88a | session-event | done | protocol, verify, ci, audit, history | tools/claude/preflight_protocol.sh,tools/git-hooks/pre-commit,tools/history/c... |
+| 2026-08-05T15:26:42Z | history:537:ae51741b | session-event | done | tui, cli, surfaces, dashboard, config, verify | seam_runtime/tui/app.py,seam_runtime/tui/settings_screen.py,seam_runtime/conf... |
+| 2026-08-05T16:01:09Z | history:538:cdcdba92 | session-event | done | benchmarks, mem0, positioning, roadmap, correction, tenancy | docs/kb/memory-systems/mem0.md,docs/kb/memory-systems/seam-positioning.md,doc... |
+| 2026-08-05T16:31:24Z | history:539:b6845b76 | session-event | done | ci, tests, tui, verify, gates | .github/workflows/ci.yml,.github/workflows/ci-windows.yml,tests/audit/test_tu... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0399.cross.md | 2026-04-15T00:00:00Z..2026-06-28T03:58:48Z | 399 | (multi) | (multi) |
+| 0001-0402.cross.md | 2026-04-15T00:00:00Z..2026-07-03T15:15:01Z | 402 | (multi) | (multi) |

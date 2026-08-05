@@ -45,12 +45,16 @@ In Mem0's own harness (lenient binary judge, gpt-4o-mini, top-200):
 
 | System | Cat1 Multi-hop | Cat3 Open-domain | Combined |
 |---|---|---|---|
-| Mem0 | 91.3% | 72.7% | — |
+| Mem0 (arXiv:2504.19413 Table 1) | 51.15% | 72.93% | — |
 | **SEAM** | **88.7%** | **86.5%** | **88.1%** (333/378) |
 
-SEAM wins on their turf (open-domain +13.8 pts) and matches on theirs
-(multi-hop -2.7 pts). No other local-first system has published comparable
-numbers. No vector-only system has SEAM's retrieval architecture.
+SEAM leads both (open-domain +13.6 pts, multi-hop +37.6 pts). The earlier
+reading of this table — "matches on theirs, multi-hop -2.7 pts" — was derived
+from a 91.3% Mem0 multi-hop figure that is not in the paper; see
+`../kb/memory-systems/mem0.md`. Qualification: SEAM ran top_k=200 against the
+paper's 10, so this is budget-matched (~1.3x tokens), not depth-matched. No
+other local-first system has published comparable numbers. No vector-only
+system has SEAM's retrieval architecture.
 
 ### Positioning statement
 

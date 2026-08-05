@@ -1,0 +1,425 @@
+/* SEAM TUI — Canticle style.
+ *
+ * Canticle's visual contract is "Charm / Lipgloss TUI + dense ASCII", so the
+ * terminal UI and the website share one palette rather than merely rhyming:
+ * every colour below is the literal token from Canticle.cc `styles.css`
+ * (Tokyo Night base + Charm pastels). Panels follow `.tui-box` — rounded
+ * border, panel-dark fill, magenta uppercase title — and the prompt is `❯`.
+ *
+ * Kept deliberately: rounded borders everywhere, one saturated accent for
+ * focus, a dim help rail pinned to the bottom.
+ */
+
+/* ── Tokyo Night base ─────────────────────────────────── */
+$bg: #1a1b26;
+$bg-deep: #16161e;
+$bg-panel: #1f2028;
+$bg-sunk: #13131a;
+$surface-alt: #24253a;
+
+/* ── Charm pastels ────────────────────────────────────── */
+$pink: #ff6090;
+$magenta: #e478d0;
+$lavender: #c4a7e7;
+$cyan: #7dcfff;
+$mint: #9ece6a;
+$green: #73daca;
+$yellow: #e0af68;
+$orange: #ff9e64;
+$red: #f7768e;
+$blue: #7aa2f7;
+$ice: #b4f9f8;
+
+/* ── Text + chrome ────────────────────────────────────── */
+$text-main: #c0caf5;
+$text-dim: #565f89;
+$text-muted: #a9b1d6;
+$edge: #3b3d57;
+$edge-hi: #565f89;
+
+Screen {
+    background: $bg;
+    color: $text-main;
+    layers: base overlay;
+}
+
+/* ── Brand rail ───────────────────────────────────────── */
+
+#brand-bar {
+    height: 3;
+    padding: 0 2;
+    background: $bg-deep;
+    border-bottom: solid $edge;
+}
+
+#brand-mark {
+    color: $pink;
+    text-style: bold;
+    width: auto;
+    padding: 1 1 0 0;
+}
+
+#brand-context {
+    color: $text-dim;
+    width: 1fr;
+    padding: 1 0 0 1;
+}
+
+#brand-status {
+    width: auto;
+    padding: 1 0 0 0;
+    color: $green;
+}
+
+/* ── Tabs ─────────────────────────────────────────────── */
+
+TabbedContent {
+    height: 1fr;
+}
+
+TabbedContent Tabs {
+    background: $bg-deep;
+    color: $text-dim;
+}
+
+TabbedContent Tabs Tab {
+    padding: 0 2;
+    color: $text-dim;
+    text-style: bold;
+}
+
+TabbedContent Tabs Tab:hover {
+    color: $cyan;
+}
+
+TabbedContent Tabs Tab.-active {
+    color: $magenta;
+    text-style: bold;
+}
+
+TabbedContent Tabs Underline > .underline--bar {
+    color: $magenta;
+}
+
+TabPane {
+    padding: 1 2;
+    background: $bg;
+}
+
+/* ── Panels (.tui-box) ────────────────────────────────── */
+
+.panel {
+    border: round $edge;
+    background: $bg-panel;
+    padding: 1 2;
+}
+
+.panel:focus-within {
+    border: round $magenta;
+}
+
+.panel-title {
+    color: $magenta;
+    text-style: bold;
+    padding: 0 0 1 0;
+}
+
+DataTable {
+    background: $bg-panel;
+    border: round $edge;
+    height: 1fr;
+}
+
+DataTable:focus {
+    border: round $magenta;
+}
+
+DataTable > .datatable--header {
+    background: $surface-alt;
+    color: $lavender;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: $magenta;
+    color: $bg-deep;
+    text-style: bold;
+}
+
+DataTable > .datatable--hover {
+    background: $surface-alt;
+}
+
+/* ── Command palette (the "/" menu) ───────────────────── */
+
+#palette-wrap {
+    layer: overlay;
+    align: center top;
+    width: 100%;
+    height: 100%;
+    background: $bg-sunk 70%;
+}
+
+#palette {
+    width: 80%;
+    max-width: 96;
+    height: auto;
+    max-height: 24;
+    margin-top: 4;
+    border: round $magenta;
+    background: $bg-panel;
+    padding: 1 2;
+}
+
+#palette-prompt {
+    color: $magenta;
+    text-style: bold;
+    padding: 0 0 1 0;
+}
+
+#palette-input {
+    border: none;
+    background: $bg-panel;
+    padding: 0;
+    color: $text-main;
+}
+
+#palette-input:focus {
+    border: none;
+}
+
+#palette-list {
+    height: auto;
+    max-height: 16;
+    background: $bg-panel;
+    border: none;
+    padding: 1 0 0 0;
+}
+
+#palette-list > .option-list--option {
+    padding: 0 1;
+    color: $text-muted;
+}
+
+#palette-list > .option-list--option-highlighted {
+    background: $magenta;
+    color: $bg-deep;
+    text-style: bold;
+}
+
+#palette-list:focus > .option-list--option-highlighted {
+    background: $magenta;
+    color: $bg-deep;
+    text-style: bold;
+}
+
+#palette-empty {
+    color: $text-dim;
+    padding: 1 0;
+}
+
+/* ── Settings ─────────────────────────────────────────── */
+
+#settings-search {
+    border: round $edge;
+    background: $bg-panel;
+    margin: 0 0 1 0;
+}
+
+#settings-search:focus {
+    border: round $magenta;
+}
+
+.settings-group {
+    color: $magenta;
+    text-style: bold;
+    padding: 1 0 0 0;
+}
+
+.settings-row {
+    height: auto;
+    padding: 0 0 1 0;
+}
+
+.settings-name {
+    width: 38;
+    color: $text-main;
+}
+
+.settings-name-secret {
+    width: 38;
+    color: $yellow;
+}
+
+.settings-input {
+    width: 1fr;
+    border: round $edge;
+    background: $bg-sunk;
+    padding: 0 1;
+    color: $text-main;
+}
+
+.settings-input:focus {
+    border: round $magenta;
+}
+
+.settings-input.-invalid {
+    border: round $red;
+}
+
+.settings-help {
+    color: $text-dim;
+    padding: 0 0 0 40;
+}
+
+.settings-error {
+    color: $red;
+    padding: 0 0 0 40;
+}
+
+.badge-env {
+    color: $mint;
+    width: 9;
+}
+
+.badge-file {
+    color: $cyan;
+    width: 9;
+}
+
+.badge-default {
+    color: $text-dim;
+    width: 9;
+}
+
+.badge-unset {
+    color: $edge;
+    width: 9;
+}
+
+#settings-actions {
+    height: auto;
+    padding: 1 0 0 0;
+}
+
+#settings-status {
+    color: $text-muted;
+    padding: 1 0 0 2;
+    width: 1fr;
+}
+
+/* ── Buttons (terminal command keys, not SaaS pills) ──── */
+
+Button {
+    border: round $edge;
+    background: $bg-panel;
+    color: $text-muted;
+    padding: 0 2;
+    height: 3;
+}
+
+Button:hover {
+    border: round $cyan;
+    color: $cyan;
+}
+
+Button.-primary {
+    border: round $magenta;
+    color: $magenta;
+    text-style: bold;
+}
+
+Button.-danger {
+    border: round $red;
+    color: $red;
+}
+
+/* ── Help rail ────────────────────────────────────────── */
+
+#help-rail {
+    height: 1;
+    padding: 0 2;
+    color: $text-dim;
+    background: $bg-deep;
+}
+
+.key {
+    color: $lavender;
+    text-style: bold;
+}
+
+/* ── Output surfaces ──────────────────────────────────── */
+
+#result-title {
+    color: $magenta;
+    text-style: bold;
+}
+
+RichLog {
+    background: $bg-panel;
+    border: round $edge;
+    padding: 0 1;
+    color: $text-main;
+}
+
+RichLog:focus {
+    border: round $magenta;
+}
+
+Input {
+    border: round $edge;
+    background: $bg-sunk;
+    color: $text-main;
+}
+
+Input:focus {
+    border: round $magenta;
+}
+
+#command-input {
+    border: round $edge;
+    background: $bg-sunk;
+}
+
+#command-input:focus {
+    border: round $pink;
+}
+
+Select {
+    background: $bg-sunk;
+}
+
+Select > SelectCurrent {
+    border: round $edge;
+    background: $bg-sunk;
+    color: $text-main;
+}
+
+Select:focus > SelectCurrent {
+    border: round $magenta;
+}
+
+Switch {
+    background: $bg-sunk;
+    border: round $edge;
+}
+
+Switch > .switch--slider {
+    color: $edge-hi;
+    background: $bg-sunk;
+}
+
+Switch.-on > .switch--slider {
+    color: $mint;
+}
+
+Toast {
+    border: round $magenta;
+    background: $bg-panel;
+}
+
+Tooltip {
+    background: $surface-alt;
+    color: $text-main;
+    border: round $edge;
+}

@@ -5,7 +5,12 @@ to decide what to build and what to *claim*.
 
 ## The honest competitive picture
 
-- **On the mem0 harness, matched conditions, SEAM currently tops nothing**
+- **On the mem0 harness under the paper's contract, SEAM LEADS ALL FOUR**
+  (CORRECTED 2026-08-04). The paper is gpt-4o-mini throughout, so SEAM's mini
+  lane is the comparator: single-hop 87.16 vs 67.13, multi-hop 88.65 vs 51.15,
+  open-domain 86.46 vs 72.93, temporal 71.96 vs 55.51. Qualification: SEAM ran
+  top_k=200 vs the paper's 10 -- ~1.3x in tokens, so budget-matched not
+  depth-matched. The superseded claim read: SEAM tops nothing
   (HISTORY#429: cat1 87.94 vs 91.3, cat3 69.79 vs 72.7; cat4/cat2 behind on the
   mini lane). Any "we beat X" claim must hold under X's own answerer+judge, or
   it is a lenient-judge mirage (`../eval-methodology/benchmark-traps.md#4`).
@@ -37,7 +42,7 @@ to decide what to build and what to *claim*.
 - **Two scoreboards, never averaged** (#415): native judge/1 (strict internal
   ratchet, champion 0.7762) and the mem0-harness lenient judge (incumbent-
   relative). Improve and defend both; quote neither against the other.
-- **cat3 (open-domain) and counts are mem0's weak spots too** (~72.7 open-domain).
+- **cat3 (open-domain) is mem0's weak spot** (72.93 in the paper; SEAM 86.46).
   These are the categories where matched parity is most reachable — prioritize
   levers there over cat2, where Zep's graph sets a high bar (92.0).
 

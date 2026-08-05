@@ -24,7 +24,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install package
-        run: python -m pip install -e ".[server,sbert,rerank]"
+        run: python -m pip install -e ".[server,sbert,rerank,dash]"
 
       - name: Install test dependencies
         run: python -m pip install pytest httpx

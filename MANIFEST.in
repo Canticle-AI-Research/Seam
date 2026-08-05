@@ -2,5 +2,6 @@ include LICENSE NOTICE README.md SECURITY.md CONTRIBUTING.md COMMERCIAL_LICENSE.
 include LICENSES/Apache-2.0.txt
 include pyproject.toml requirements.txt
 recursive-include seam_runtime/webui *
+recursive-include seam_runtime/tui *.tcss
 recursive-include seam_runtime/retrieval_orchestrator *.md
 global-exclude __pycache__ *.py[cod]
