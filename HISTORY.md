@@ -16743,3 +16743,88 @@ unstaged rather than swept into this commit.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#537---
+
+---BEGIN-ENTRY-#538---
+id: 538
+date: 2026-08-05T16:01:09Z
+agent: claude
+status: done
+topics: benchmarks, mem0, positioning, roadmap, correction, tenancy
+commits: pending
+refs: docs/kb/memory-systems/mem0.md,docs/kb/memory-systems/seam-positioning.md,docs/roadmap/COMPETITIVE_ROADMAP.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,seam_runtime/temporal_instance_context.py
+supersedes: none
+tokens: 1006
+---
+Committed a correction that had been sitting uncommitted in the working tree
+since 2026-08-04 23:09, and closed one leftover the correction itself missed.
+
+WHAT THE CORRECTION ESTABLISHES
+
+SEAM's competitive documentation recorded Mem0's published LoCoMo scores as
+single-hop ~91.2, multi-hop ~91.3, temporal ~92.0, open-domain ~72.7, and
+concluded from them that "on the mem0 harness, matched conditions, SEAM
+currently tops nothing."
+
+Three of those four numbers are not in Mem0's paper. arXiv:2504.19413 Table 1
+reports single-hop 67.13, multi-hop 51.15, open-domain 72.93, temporal 55.51.
+Only open-domain was approximately right. The paper also states that all
+language-model operations used GPT-4o-mini, which makes SEAM's mini lane the
+correct comparator rather than its gpt-4o lane.
+
+Under the paper's own contract SEAM leads all four: 87.16 vs 67.13 single-hop,
+88.65 vs 51.15 multi-hop, 86.46 vs 72.93 open-domain, 71.96 vs 55.51 temporal.
+The conclusion in the documentation was therefore not merely imprecise, it was
+inverted, and it had been steering lever selection.
+
+The corrected text keeps the qualification rather than quietly dropping it:
+SEAM ran top_k=200 against the paper's 10, so this is budget-matched at roughly
+1.3x tokens, not depth-matched. The gpt-4o run from HISTORY#429 remains an
+internal strict-judge ratchet and is explicitly not an incumbent-relative
+number. Superseded claims are retained inline and marked, not deleted.
+
+THE LEFTOVER THIS ENTRY CLOSES
+
+`docs/roadmap/COMPETITIVE_ROADMAP.md` had its comparison table corrected but
+not the sentence directly beneath it, which still read "SEAM wins on their turf
+(open-domain +13.8 pts) and matches on theirs (multi-hop -2.7 pts)". That -2.7
+is arithmetic on the debunked 91.3: with the paper's 51.15 the same row is
++37.6. A corrected table sitting above prose that still concludes from the
+uncorrected number is worse than either alone, because the page now contradicts
+itself and the prose is what a reader quotes.
+
+Also corrected in the same sweep: `seam_runtime/temporal_instance_context.py`
+opens by citing the 92.0 temporal figure as the deficit motivating the module.
+The module's projection is sound on its own terms and is unchanged; its
+docstring now records that the gap it was built to close did not exist, since
+SEAM's 71.96 was already ahead of the paper's 55.51 by 16.45 points.
+
+S6 TENANCY DECISION, RECORDED
+
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md` gains the S6 termination decision
+that HISTORY#533 and PROJECT_STATUS.md both flag as written down nowhere:
+tenancy terminates in-process with an optional principal. A proxy ahead of
+`/v1` was rejected because the guarantee would then live outside this
+repository and outside its test suite, and any deployment reaching `/v1`
+without the proxy silently restores the cross-tenant hole. A mandatory
+principal was rejected because it breaks the trusted-loopback development flow
+and is a breaking change for existing self-host users.
+
+The entry also records that `seam_runtime/lifecycle.py` already implements the
+delete substrate S6's fourth clause needs, and that
+`public_api._internal_namespace` produces `sdk.{namespace}`, which satisfies
+`_tenant_owns_namespace` for no principal -- an impedance mismatch S6 must
+resolve rather than discover.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+Five further files still carry the debunked figures and were deliberately not
+swept here: `docs/audits/2026-07-20-memory-competitor-ratchet.md`, three
+handoffs under `docs/handoffs/` dated 2026-07-19 and 2026-07-20, and
+`docs/status_archive/2026-07-30-project-status-full.md`. The handoffs and the
+status archive are point-in-time records that should not be rewritten; the
+audit document is a live reference and is the one genuine remaining target.
+
+No paid provider call, competitive benchmark, or new retrieval-score
+measurement ran for this entry. Every figure recorded here is quoted from
+arXiv:2504.19413 Table 1 or from the existing HISTORY#429 measurement.
+---END-ENTRY-#538---

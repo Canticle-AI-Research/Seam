@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 537
-total_tokens: ~274149
-latest_id: 537
+total_entries: 538
+total_tokens: ~275155
+latest_id: 538
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 538 | 2026-08-05 | done | cdcdba9200432831 | benchmarks,mem0,positioning,roadmap,+ | none |
 | 537 | 2026-08-05 | done | ae51741b1a88e5a5 | tui,cli,surfaces,dashboard,+ | none |
 | 536 | 2026-08-05 | done | 0413b88a7a09d86a | protocol,verify,ci,audit,+ | none |
 | 535 | 2026-08-05 | done | 8e4138265ea7d245 | test,api,security,audit,+ | none |
@@ -572,7 +573,7 @@ compact: true
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=203 latest=#519, #518, #517, #516, #513
-- benchmarks: count=4 latest=#509, #508, #507, #493
+- benchmarks: count=5 latest=#538, #509, #508, #507, #493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
@@ -617,7 +618,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=2 latest=#354, #299
+- correction: count=3 latest=#538, #354, #299
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -722,7 +723,7 @@ compact: true
 - manual: count=1 latest=#331
 - mcp: count=25 latest=#520, #491, #487, #483, #481
 - measurement: count=2 latest=#459, #369
-- mem0: count=12 latest=#410, #395, #394, #393, #384
+- mem0: count=13 latest=#538, #410, #395, #394, #393
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
 - memory: count=27 latest=#494, #466, #465, #463, #462
 - merge: count=5 latest=#405, #388, #383, #359, #301
@@ -759,6 +760,7 @@ compact: true
 - plan: count=22 latest=#511, #437, #436, #432, #422
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
+- positioning: count=1 latest=#538
 - pr: count=2 latest=#359, #301
 - preflight: count=1 latest=#438
 - pricing: count=2 latest=#475, #368
@@ -805,7 +807,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=1 latest=#388
-- roadmap: count=64 latest=#531, #514, #513, #511, #481
+- roadmap: count=65 latest=#538, #531, #514, #513, #511
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -847,7 +849,7 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- tenancy: count=1 latest=#535
+- tenancy: count=2 latest=#538, #535
 - test: count=90 latest=#535, #525, #524, #522, #521
 - test-artifacts: count=1 latest=#506
 - tests: count=36 latest=#531, #530, #506, #502, #496
@@ -880,8 +882,8 @@ compact: true
 
 ## status rollup
 
-- roots: 85
+- roots: 86
 - changed: 38
-- done: 470
+- done: 471
 - in-progress: 8
 - planned: 21

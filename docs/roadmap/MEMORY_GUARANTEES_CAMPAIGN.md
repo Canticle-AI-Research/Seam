@@ -333,6 +333,45 @@ authorization and complete the opaque remote delete/retention contract.
 **Findings:** F4, F13.
 **Dependencies:** S2 and S5.
 
+**Termination decision (operator, 2026-08-05): tenancy terminates IN-PROCESS
+with an optional principal.** Every earlier S6 clause depended on this and it
+was recorded nowhere; it is settled here before any code.
+
+`public_api.remember/recall/context/delete` take a caller principal. When one is
+bound, the internal namespace is derived from it and a `namespace` in the request
+body can only select *within* that principal — it can never name another. When no
+principal is configured, behaviour is byte-identical to today.
+
+Rejected: terminating tenancy in a proxy ahead of `/v1`. The guarantee would live
+outside this repository and therefore outside the test suite, and any deployment
+reaching `/v1` without the proxy — misconfiguration, internal network, a debug
+port-forward — silently restores the full cross-tenant hole. Track S exists to
+make guarantees *verified* rather than assumed, so a boundary its own suite cannot
+exercise fails the campaign's premise.
+
+Rejected: a mandatory principal. It breaks the trusted-loopback development flow
+(`SEAM_API_TOKEN` is optional by design) and is a breaking change for every
+existing self-host user, buying only the removal of a misconfiguration mode that
+the two-principal matrix already covers.
+
+Optionality is what keeps the settled product shape intact: the paid hosted API
+configures principals and gets a real boundary; the free BUSL self-host configures
+none and never encounters the feature.
+
+**Reuse, do not reinvent.** `seam_runtime/lifecycle.py` already implements the
+delete substrate this stage's fourth clause requires: a `tenant_id` column,
+`_tenant_owns_namespace` (`:768`), `plan_scoped_delete`/`apply_scoped_delete`,
+per-tenant idempotency (`unique (tenant_id, idempotency_key)`), an append-only
+event log, `recoverable_operations`, and registered derived-index cleanup.
+`SeamRuntime` exposes all three entry points. S6 binds a principal to that
+existing engine and exposes it on `/v1`; it must not grow a second tenancy or
+deletion concept beside it.
+
+Note the impedance mismatch to resolve: `public_api._internal_namespace` currently
+produces `sdk.{namespace}`, which does not satisfy `_tenant_owns_namespace` for
+any principal. The principal-derived form must, while the response continues to
+echo the caller's own namespace so no tenant prefix leaks (clause 3).
+
 **Exit gate (all required):**
 
 - A two-principal matrix denies cross-tenant read, write, search, context, and
