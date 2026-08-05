@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 534
-total_tokens: ~270054
-latest_id: 534
+total_entries: 535
+total_tokens: ~271225
+latest_id: 535
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 535 | 2026-08-05 | done | 8e4138265ea7d245 | test,api,security,audit,+ | none |
 | 534 | 2026-08-04 | done | aa584b090b2e6b9b | ci,hygiene,worktree,protocol,+ | 533 |
 | 533 | 2026-08-04 | done | ec47c306659aee16 | track-s,operations,retrieval,storage,+ | 532 |
 | 532 | 2026-08-04 | changed | 665c9106feb088db | track-s,retrieval,storage,vector,+ | 531 |
@@ -561,10 +562,11 @@ compact: true
 - animation: count=4 latest=#068, #052, #032, #028
 - answer-contract: count=1 latest=#408
 - answerer: count=8 latest=#381, #368, #367, #365, #333
+- api: count=1 latest=#535
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=7 latest=#530, #529, #526, #522, #466
-- audit: count=108 latest=#530, #529, #527, #526, #525
+- audit: count=109 latest=#535, #530, #529, #527, #526
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=203 latest=#519, #518, #517, #516, #513
@@ -812,7 +814,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=1 latest=#499
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=74 latest=#527, #526, #525, #524, #520
+- security: count=75 latest=#535, #527, #526, #525, #524
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -841,7 +843,8 @@ compact: true
 - tempfile: count=1 latest=#330
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
-- test: count=89 latest=#525, #524, #522, #521, #520
+- tenancy: count=1 latest=#535
+- test: count=90 latest=#535, #525, #524, #522, #521
 - test-artifacts: count=1 latest=#506
 - tests: count=36 latest=#531, #530, #506, #502, #496
 - textual: count=17 latest=#108, #106, #063, #062, #061
@@ -873,8 +876,8 @@ compact: true
 
 ## status rollup
 
-- roots: 82
+- roots: 83
 - changed: 38
-- done: 467
+- done: 468
 - in-progress: 8
 - planned: 21
