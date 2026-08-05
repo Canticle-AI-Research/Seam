@@ -9,9 +9,17 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - Core runtime paths: compile, verify, persist, search, context, benchmark.
 - Interactive CLI shell: `seam shell` / `seam chat`, REPL memory interface with
   slash commands and prompt-ready context output.
-- Textual TUI dashboard: chat panel, command palette (`/`, `!`, `?`), MIRL
-  animation, independently scrollable panes, IDE-style explorer tree, status bar,
-  Settings tab, live Overview health bars. `/reload` rebuilds panels without restart.
+- Textual TUI dashboard, `seam_runtime/tui/` (HISTORY#537): eight tabs, `/`
+  command palette derived at runtime from the backend's own parser across five
+  surfaces, seven worker-backed structured panels, and a registry-driven
+  Settings tab with masked secrets. Blocking work runs on a worker thread, so
+  retrieval and chat no longer freeze the UI. `seam dashboard`, `seam-dash`,
+  and `seam-tui` all reach it through `dashboard.run_dashboard`.
+  `dashboard.DashboardApp` remains the backend and still owns the Rich
+  `--snapshot` and `--run` modes.
+  - The previous in-`dashboard.py` `TextualDashboardApp` UI is superseded and
+    unreachable, kept as deprecated dead code because its 28 test usages are
+    the only coverage of several dashboard behaviours. Removal is deferred.
 - Dashboard installers: `seam-dash` shim (Windows `.cmd` + POSIX).
 - Browser dashboard served by the REST server: `seam serve` / `seam webui`. The
   static `dashboard.html` IDE shell is the shipped working UI.

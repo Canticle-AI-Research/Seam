@@ -16620,3 +16620,126 @@ seal/BIL integrity, and MIRL losslessness round-tripping.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#536---
+
+---BEGIN-ENTRY-#537---
+id: 537
+date: 2026-08-05T15:26:42Z
+agent: claude
+status: done
+topics: tui, cli, surfaces, dashboard, config, verify
+commits: pending
+refs: seam_runtime/tui/app.py,seam_runtime/tui/settings_screen.py,seam_runtime/config.py,seam_runtime/dashboard.py,tests/audit/test_tui_supersedes_dashboard.py,pyproject.toml,MANIFEST.in,docs/CODE_LAYOUT.md
+supersedes: none
+tokens: 1498
+---
+Made the Canticle-style Textual TUI the live dashboard. Every interactive entry
+point -- `seam dashboard`, `seam-dash`, `seam-tui`, and the operator's `stui`
+wrapper -- now reaches `seam_runtime.tui.app.SeamTUI`. The supersession happens
+in one place, `dashboard.run_dashboard`, which is why the pre-existing
+`~/.local/bin/seam-tui` bash wrapper picks up the new UI without being edited:
+it shells out to `seam dashboard`, so repointing that branch repoints the
+wrapper too. Rich `--snapshot` and `--run` modes are untouched and stay on the
+backend.
+
+`DashboardApp` remains the backend and is handed to the UI already built, so
+the vector-backend selection made in `run_dashboard` survives into the TUI
+rather than being reconstructed from defaults. The new UI is presentation only;
+its 153-command `/` palette is derived at runtime from the backend's own
+argparse parser rather than a parallel hand-maintained list.
+
+TWO DEFECTS FOUND BY LAUNCHING THE REAL BINARY
+
+Both were live while headless `run_test()` mounts passed, and both were caught
+only by running `seam dashboard` in a real terminal under tmux. This is the
+same failure shape HISTORY#533 recorded for the S5 fingerprint test: a green
+in-process harness is not evidence the shipped entry point works.
+
+1. Crash at mount. `SettingRow._widget_id` interpolated a setting name straight
+into a Textual widget id. Textual validates ids in the widget constructor and
+raises `BadIdentifier`, so a single unacceptable name aborted app startup
+rather than degrading one row. Names can come from the hand-edited config file,
+so the id is now folded through `_ID_SAFE`; `_slug` was hardened identically.
+
+2. A credential silently never reached the environment. `~/.config/seam/seam.env`
+is the path the new config layer adopted, but the operator already kept a
+hand-written shell env file there using `export FOO=bar`. `_parse_env_text` did
+not strip `export`, so the key parsed under the name `export DEEPSEEK_API_KEY`
+-- not a legal environment variable name. It was exported under that unusable
+name and the real variable stayed unset, with no error anywhere. `export` is
+now stripped, and `is_env_name` refuses unusable names on the load path
+(`apply_persisted_to_environ` and `custom_settings`), not only in the
+add-a-key UI that was the sole validation point before.
+
+The second defect is the more instructive one: the validation existed, but only
+on the path the operator was not using. The file is hand-editable, which makes
+it an untrusted source of names, and it was being read as if it were trusted.
+
+WHAT WAS DELIBERATELY NOT DONE
+
+The old `TextualDashboardApp` (`dashboard.py:496-2360`) is kept as dead code
+carrying a deprecation docstring, not deleted. Its 28 usages in
+`test_seam_all/test_seam.py` are the only coverage of several dashboard
+behaviours, and its widget ids (`#ide-layout`, `#right-col`,
+`#command-palette`) have no counterpart in the new UI, so deleting the class
+without porting those tests would trade a working UI for a coverage hole.
+Operator chose repoint-only. Removal is deferred until the new TUI has real
+operating time and those tests are ported or retired.
+
+`seam_runtime/config.py`'s pgvector placeholder carried a `user:password@host`
+segment; it now shows `postgresql://user@host:5432/db`, with no password part.
+The repo's own `dsn_password` scan refused the original at `git add`, which is
+the gate from HISTORY#536 doing exactly its job on the first commit after it
+landed. The placeholder was fake, but teaching the scanner to ignore
+credential-shaped DSNs is a worse trade than dropping a password segment from
+an example. This entry states the shape rather than quoting it, because
+quoting the literal tripped the same scan on HISTORY.md itself.
+
+VERIFICATION PERFORMED
+
+Real-TTY launch under tmux, three separate binaries: the repo `.venv` via
+`seam dashboard`, `Agents/.venv-seam/bin/seam`, and the operator's own `stui`
+against the live `seam.db`. Eight tabs mount, panels populate from real MIRL
+records, the `/` palette opens and filters across all five surfaces, and the
+Settings tab renders with secrets masked and env-sourced values badged `env`.
+
+pytest tests/audit/test_tui_supersedes_dashboard.py -- 23 static `def test_*`,
+29 collected because one hostile-name case is a 7-way parametrize; 29 passed.
+
+Discrimination was proven rather than assumed: reverting the two fixes and
+re-running that path fails 9 of the 29; restoring passes 29. A test that has
+never been observed failing is not evidence.
+
+pytest tests/ test_seam_all/ tools/history tools/streams -- 2586 passed,
+2 xfailed, 0 skipped, 3 subtests passed. The 2 xfails are the pre-existing
+`compile_nl` compiler-rewrite targets and are unrelated. `ruff check .` clean.
+
+`Agents/.venv-seam` is an editable install of this repo and is what the
+operator's `seam`/`stui` actually run. Its textual was 0.89.1, below the
+`>=8.0` floor this change declares -- the TUI happened to render there, but by
+luck rather than contract. Upgraded to 8.2.8 with operator approval; `pip
+check` clean, `pip freeze` diff shows only textual moved, and `seam-bridge` and
+`seam-deepagent` were re-smoked in that venv.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+This branch is stacked on `fix/local-gates-match-ci` (PR #203, HISTORY#536) and
+must not merge before it.
+
+`REPO_LEDGER.md` and `PROJECT_STATUS.md` still describe a single dashboard and
+do not yet record the surface split between `seam_runtime/tui/` (UI) and
+`dashboard.py` (backend).
+
+`dashboard.py` remains on the never-audited list carried by two consecutive
+whole-repository audits. This change narrows its role to backend plus one dead
+UI class; it does not audit it.
+
+Five files in the working tree belong to a concurrent agent
+(`docs/kb/memory-systems/mem0.md`, `docs/kb/memory-systems/seam-positioning.md`,
+`docs/roadmap/COMPETITIVE_ROADMAP.md`,
+`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`,
+`seam_runtime/temporal_instance_context.py`) and were deliberately left
+unstaged rather than swept into this commit.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#537---

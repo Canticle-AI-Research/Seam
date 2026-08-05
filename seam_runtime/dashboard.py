@@ -47,6 +47,7 @@ except ImportError as exc:  # pragma: no cover - optional dashboard path
     ScrollableContainer = None  # type: ignore[assignment]
     _TEXTUAL_IMPORT_ERROR = exc
 
+from . import config
 from .context_views import CONTEXT_VIEWS, build_context_payload
 from .installer import default_runtime_db_path
 from .lossless import (
@@ -493,6 +494,20 @@ if (
 
 
     class TextualDashboardApp(App[None]):
+        """Deprecated: superseded by `seam_runtime.tui` in HISTORY#537.
+
+        No entry point reaches this class any more -- `seam dashboard`,
+        `seam-dash`, and `seam-tui` all route through `run_dashboard`, which
+        launches `seam_runtime.tui.app.SeamTUI` against the `DashboardApp`
+        backend below. It is kept, not deleted, because its 28 test usages in
+        `test_seam_all/test_seam.py` are the only coverage of several
+        dashboard behaviours; deleting the class without porting them would
+        trade a working UI for a coverage hole. Remove it once the new TUI has
+        real operating time and those tests have been ported or retired.
+
+        Do not add features here. `seam_runtime/tui/` is the live UI.
+        """
+
         CSS = """
         Screen {
             layout: vertical;
@@ -3107,13 +3122,17 @@ def run_dashboard(
         app.render()
         return
     if _TEXTUAL_IMPORT_ERROR is None:
-        textual_app = TextualDashboardApp(
-            runtime,
-            vector_backend=vector_backend,
-            vector_path=vector_path,
-            vector_collection=vector_collection,
-        )
-        textual_app.run()
+        # `seam dashboard`, `seam-dash`, and `seam-tui` all land here, so
+        # repointing this one branch supersedes the old UI on every entry
+        # point at once. `app` (DashboardApp) stays the backend: it already
+        # holds the vector-backend selection above, which is why the TUI is
+        # handed the built backend rather than constructing its own.
+        # Imported lazily -- seam_runtime.tui imports textual at module level,
+        # and dashboard.py must stay importable without it.
+        from .tui.app import run as run_tui
+
+        config.apply_persisted_to_environ()
+        run_tui(app)
         return
     app.run_interactive()
 
@@ -3135,6 +3154,10 @@ def _ensure_textual() -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
+    # Applied before the parser is built, not just before the runtime: the
+    # --db default is `default_runtime_db_path()`, which reads SEAM_DB_PATH at
+    # add_argument time, so a persisted value applied any later is ignored.
+    config.apply_persisted_to_environ()
     parser = argparse.ArgumentParser(description="Launch the SEAM interactive dashboard")
     parser.add_argument("--db", default=default_runtime_db_path(), help="SQLite database path")
     parser.add_argument("--snapshot", action="store_true", help="Render one Rich dashboard frame and exit")

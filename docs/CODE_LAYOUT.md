@@ -41,6 +41,24 @@ not have to infer what works from directory names alone.
 - `tools/graph_retrieval_qualification.py` + `tools/graph_real_corpus_qualification.py` - synthetic scale/query-shape and pinned LoCoMo development/holdout qualification for G3 node-vector fusion and safe policy selection.
 - `benchmarks/graph_reasoning_qualification.py` - provider-free real-runtime G7/R6 native-versus-event-only ablation, concurrent recovery probe, exact graph attribution, and matched Mem0/Zep paid-boundary plans.
 - `seam_runtime/webui/` - the SEAM browser dashboard served by the REST API: `dashboard.html` (the IDE-style operator UI), `seam-api.js`, `tweaks-panel.jsx`, branding, and icons. `seam serve` and `seam webui` serve these at `/` on the same origin as the API; packaged with the wheel. This is the functional dashboard (HISTORY#285).
+- `seam_runtime/tui/` - the live terminal dashboard (`app.py` shell and `/`
+  palette, `commands.py` catalog derived at runtime from the backend's own
+  parser, `panels.py` worker-backed structured views, `settings_screen.py`,
+  `brand.py`, `theme.tcss`). Presentation only: `dashboard.DashboardApp`
+  remains the backend that executes commands. Reached by `seam dashboard`,
+  `seam-dash`, and `seam-tui`, which all route through
+  `dashboard.run_dashboard`. Superseded the in-`dashboard.py`
+  `TextualDashboardApp` UI in HISTORY#537.
+- `seam_runtime/dashboard.py` - `DashboardApp`, the surface-independent
+  dashboard backend (command parser, command implementations, Rich snapshot
+  and script modes, runtime access), plus the retired `TextualDashboardApp`
+  UI class it used to own.
+- `seam_runtime/config.py` - declarative registry of operator-settable
+  environment variables behind the Settings tab, with masked secrets and
+  provider keys. Persists to `~/.config/seam/seam.env` at 0600 and never to
+  the repo `.env`; the process environment always wins over the file, and the
+  file is treated as an untrusted source of names because operators hand-edit
+  it (shell `export FOO=bar` lines included).
 - `seam.py` - console entrypoint module for `seam` and `seam-benchmark`.
 - `test_seam_all/test_seam.py` - primary regression suite. Local `test_seam_*.db`
   artifacts live in ignored `test_seam/` so root stays clean.

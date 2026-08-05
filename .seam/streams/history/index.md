@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 536
-total_tokens: ~272651
-latest_id: 536
+total_entries: 537
+total_tokens: ~274149
+latest_id: 537
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 537 | 2026-08-05 | done | ae51741b1a88e5a5 | tui,cli,surfaces,dashboard,+ | none |
 | 536 | 2026-08-05 | done | 0413b88a7a09d86a | protocol,verify,ci,audit,+ | none |
 | 535 | 2026-08-05 | done | 8e4138265ea7d245 | test,api,security,audit,+ | none |
 | 534 | 2026-08-04 | done | aa584b090b2e6b9b | ci,hygiene,worktree,protocol,+ | 533 |
@@ -593,7 +594,7 @@ compact: true
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
-- cli: count=6 latest=#457, #411, #302, #293, #287
+- cli: count=7 latest=#537, #457, #411, #302, #293
 - closeout: count=1 latest=#409
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
@@ -606,6 +607,7 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
+- config: count=1 latest=#537
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
@@ -622,7 +624,7 @@ compact: true
 - cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
-- dashboard: count=76 latest=#404, #403, #402, #342, #326
+- dashboard: count=77 latest=#537, #404, #403, #402, #342
 - decomposition: count=1 latest=#319
 - deepseek: count=4 latest=#370, #369, #368, #367
 - density: count=3 latest=#316, #315, #314
@@ -838,6 +840,7 @@ compact: true
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
 - surface: count=10 latest=#502, #488, #487, #469, #467
+- surfaces: count=1 latest=#537
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
 - telemetry: count=2 latest=#367, #366
@@ -858,11 +861,11 @@ compact: true
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
-- tui: count=25 latest=#137, #121, #120, #119, #118
+- tui: count=26 latest=#537, #137, #121, #120, #119
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=359 latest=#536, #534, #530, #529, #528
+- verify: count=360 latest=#537, #536, #534, #530, #529
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=9 latest=#404, #403, #402, #342, #340
@@ -877,8 +880,8 @@ compact: true
 
 ## status rollup
 
-- roots: 84
+- roots: 85
 - changed: 38
-- done: 469
+- done: 470
 - in-progress: 8
 - planned: 21
