@@ -16828,3 +16828,108 @@ No paid provider call, competitive benchmark, or new retrieval-score
 measurement ran for this entry. Every figure recorded here is quoted from
 arXiv:2504.19413 Table 1 or from the existing HISTORY#429 measurement.
 ---END-ENTRY-#538---
+
+---BEGIN-ENTRY-#539---
+id: 539
+date: 2026-08-05T16:31:24Z
+agent: claude
+status: done
+topics: ci, tests, tui, verify, gates
+commits: pending
+refs: .github/workflows/ci.yml,.github/workflows/ci-windows.yml,tests/audit/test_tui_supersedes_dashboard.py,tests/audit/test_github_pr_gates.py
+supersedes: 537
+tokens: 1103
+---
+Repaired the `test-and-benchmark` failure that HISTORY#537 caused on PR #204,
+and closed the gap that let it reach CI green-looking.
+
+WHAT BROKE
+
+`tests/audit/test_tui_supersedes_dashboard.py`, added in HISTORY#537, imported
+`seam_runtime.tui.settings_screen` at module scope. That module imports
+`textual`, which is the optional `dash` extra and is not installed in the
+test-and-benchmark lane. An import failure at module scope is a COLLECTION
+error, not a skip, and pytest treats one collection error as fatal to the whole
+run: `23 deselected, 1 warning, 1 error`, exit code 2. A single new test file
+therefore prevented every other test in the repository from running.
+
+HISTORY#537 recorded "2586 passed, 2 xfailed, 0 skipped" and that number was
+truthfully measured -- but it was measured in a working tree where `textual`
+was installed, which is the one condition under which the defect is invisible.
+The claim was true and the lane was still broken. A full-suite pass proves the
+suite passes in the environment it ran in, and nothing about any other.
+
+WHY A SKIP WAS NOT THE FIX
+
+The obvious repair -- guard the import and skip -- is refused here by design.
+`tests/conftest.py` enforces strict no-skip, and its allowlist deliberately
+does not contain "textual is not installed". The rule exists because a skip
+silently means "this test never ran".
+
+Applying that rule surfaced a pre-existing condition nobody had recorded: no CI
+lane installed the `dash` extra at all. The 28 `TextualDashboardApp` cases in
+`test_seam_all/test_seam.py` -- the coverage HISTORY#537 cited as the reason
+for keeping the old UI class rather than deleting it -- have been skipping in
+CI, not running. The justification for keeping that class was sound, but the
+coverage it rested on was not being exercised where it was being claimed.
+
+THE FIX, IN TWO PARTS
+
+The lane now installs the extra: `.[server,sbert,rerank,dash]` in `ci.yml` and
+`ci-windows.yml`. `textual` is not optional for a lane that tests the live
+dashboard. This also un-hides the 28 dashboard cases, which now execute in CI
+for the first time.
+
+Independently, every textual-dependent import in the new test module moved
+inside the test that needs it, behind the existing `textual_required` marker.
+This is defence in depth rather than the actual repair: with the extra
+installed nothing skips, but an installation without it now degrades to skips
+instead of aborting the entire suite. The failure mode being removed is not
+"these tests do not run" -- it is "one missing optional package stops every
+test in the repository".
+
+THE FIX BROKE A GATE, WHICH THE SUITE CAUGHT
+
+`tests/audit/test_github_pr_gates.py` pins the CI install line as an exact
+string, so adding `dash` to the workflow failed the very gate that guards the
+workflow. The pin is updated with the reason `dash` is load-bearing recorded
+beside it.
+
+This is worth stating plainly because the near-miss is the lesson: running only
+the tests touched by the change would have shown green, and PR #204 would have
+gone red a second time, on a different test, caused by the fix for the first
+one. The full suite was run instead, and that is the only reason it was caught
+before the push rather than after.
+
+VERIFICATION PERFORMED
+
+The reproduction was made real rather than reasoned about: `textual` was
+uninstalled from the working venv to recreate the exact CI condition. Before
+the fix, collection failed with the same ImportError and the same fatal
+interrupt. After it, collection succeeds and only the textual-dependent cases
+report skipped. `textual` was then reinstalled and the module re-run to confirm
+29 passed with zero skips.
+
+pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/
+tests/ -m "not external" -- the exact command the failing lane runs -- 2569
+passed, 23 deselected, 2 xfailed, 0 skipped, 3 subtests passed. The 23
+deselected are the external cases the pgvector-integration lane owns. The 2
+xfails are the pre-existing `compile_nl` targets.
+
+`ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+The windows leg is manual-only and its `dash` addition is therefore unexercised
+by this entry; it is a parity change made so the two legs do not diverge, not a
+verified one.
+
+Adding `dash` to the lane makes 28 previously-skipped dashboard cases execute
+in CI for the first time. They pass locally, but they have never run on the
+runner, and this entry cannot claim they will. If they prove flaky there, that
+is newly surfaced pre-existing behaviour rather than a regression from this
+change.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#539---

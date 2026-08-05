@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 538
-total_tokens: ~275155
-latest_id: 538
+total_entries: 539
+total_tokens: ~276258
+latest_id: 539
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 539 | 2026-08-05 | done | b6845b76739bfacf | ci,tests,tui,verify,+ | 537 |
 | 538 | 2026-08-05 | done | cdcdba9200432831 | benchmarks,mem0,positioning,roadmap,+ | none |
 | 537 | 2026-08-05 | done | ae51741b1a88e5a5 | tui,cli,surfaces,dashboard,+ | none |
 | 536 | 2026-08-05 | done | 0413b88a7a09d86a | protocol,verify,ci,audit,+ | none |
@@ -591,7 +592,7 @@ compact: true
 - chat: count=17 latest=#526, #342, #286, #137, #074
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=44 latest=#536, #534, #527, #525, #519
+- ci: count=45 latest=#539, #536, #534, #527, #525
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -668,6 +669,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=3 latest=#510, #509, #508
 - g3: count=2 latest=#492, #491
+- gates: count=1 latest=#539
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
@@ -852,7 +854,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=90 latest=#535, #525, #524, #522, #521
 - test-artifacts: count=1 latest=#506
-- tests: count=36 latest=#531, #530, #506, #502, #496
+- tests: count=37 latest=#539, #531, #530, #506, #502
 - textual: count=17 latest=#108, #106, #063, #062, #061
 - tokenizer: count=1 latest=#216
 - tooling: count=5 latest=#459, #438, #428, #357, #324
@@ -863,11 +865,11 @@ compact: true
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
-- tui: count=26 latest=#537, #137, #121, #120, #119
+- tui: count=27 latest=#539, #537, #137, #121, #120
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=360 latest=#537, #536, #534, #530, #529
+- verify: count=361 latest=#539, #537, #536, #534, #530
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=9 latest=#404, #403, #402, #342, #340
@@ -884,6 +886,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 471
+- done: 472
 - in-progress: 8
 - planned: 21

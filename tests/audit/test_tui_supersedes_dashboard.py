@@ -23,8 +23,14 @@ from pathlib import Path
 import pytest
 
 from seam_runtime import config
-from seam_runtime.tui.settings_screen import SettingRow, _slug
 
+# `textual` is an optional extra (`seam[dash]`), and the test-and-benchmark CI
+# lane does not install it. A module-level import of anything under
+# `seam_runtime.tui` therefore raises at COLLECTION, which pytest treats as an
+# error rather than a skip and which aborts the entire run -- not just this
+# file. Everything textual-dependent is imported inside the test that needs it,
+# behind `textual_required`, so the config and packaging tests below still run
+# on an installation without the extra.
 textual_required = pytest.mark.skipif(
     find_spec("textual") is None, reason="textual is not installed"
 )
@@ -101,12 +107,15 @@ class TestUnusableNamesAreRejected:
         assert env["A_KEY"] == "from_process"
 
 
+@textual_required
 class TestWidgetIdsAreAlwaysLegal:
     """Textual raises `BadIdentifier` at construction, so this is a crash guard."""
 
     LEGAL = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-")
 
     def _id_for(self, name: str) -> str:
+        from seam_runtime.tui.settings_screen import SettingRow
+
         setting = config.Setting(name=name, group="Custom Keys", kind="str")
         return SettingRow(setting)._widget_id
 
@@ -131,12 +140,15 @@ class TestWidgetIdsAreAlwaysLegal:
         assert set(widget_id) <= self.LEGAL, widget_id
 
     def test_group_slug_is_legal(self) -> None:
+        from seam_runtime.tui.settings_screen import _slug
+
         for group in ("Provider Keys", "Retrieval & Ranking", "Custom Keys"):
             assert set(_slug(group)) <= self.LEGAL, group
 
-    @textual_required
     def test_registry_rows_all_construct(self) -> None:
         """Every shipped setting builds a row without raising."""
+        from seam_runtime.tui.settings_screen import SettingRow
+
         for setting in config.SETTINGS:
             widget_id = SettingRow(setting)._widget_id
             assert set(widget_id) <= self.LEGAL, setting.name
@@ -205,6 +217,7 @@ class TestSupersession:
         # selection made in run_dashboard survives into the UI.
         assert isinstance(launched[0], dashboard.DashboardApp)
 
+    @textual_required
     def test_snapshot_mode_does_not_launch_the_tui(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -218,6 +231,7 @@ class TestSupersession:
 
         assert launched == []
 
+    @textual_required
     def test_script_mode_does_not_launch_the_tui(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:

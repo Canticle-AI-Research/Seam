@@ -37,7 +37,11 @@ def _external_test_files() -> set[str]:
 def test_ci_workflow_requires_locomo_bil2_and_chroma_smokes() -> None:
     workflow = CI_WORKFLOW.read_text(encoding="utf-8")
 
-    assert 'python -m pip install -e ".[server,sbert,rerank]"' in workflow
+    # `dash` is load-bearing, not cosmetic: seam_runtime/tui is the live
+    # dashboard, and tests/ enforces strict no-skip, so without the extra the
+    # TUI cases fail the run rather than skip. Its absence is also why the 28
+    # TextualDashboardApp cases in test_seam_all/ went unexercised in CI.
+    assert 'python -m pip install -e ".[server,sbert,rerank,dash]"' in workflow
     assert "python -m tools.ci.verify_dependency_contract" in workflow
     assert "python -m tools.history.verify_continuity --no-snapshot" in workflow
     assert "python -m tools.history.verify_handoffs" in workflow
