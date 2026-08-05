@@ -16389,3 +16389,109 @@ while the three required checks stay green, and the benchmark regression gate
 has never compared a baseline because resolve_baseline returns None under a
 shallow checkout and None is treated as pass.
 ---END-ENTRY-#534---
+
+---BEGIN-ENTRY-#535---
+id: 535
+date: 2026-08-05T00:18:21Z
+agent: claude
+status: done
+topics: test, api, security, audit, tenancy
+commits: pending
+refs: tests/audit/test_public_api_v1_http.py,docs/audits/2026-08-01-full-repo-audit.md
+supersedes: none
+tokens: 1171
+---
+Closed finding 9 of the 2026-08-01 whole-repository audit: the public `/v1`
+surface had zero HTTP-level tests. The single `/v1/` string in the entire test
+tree was a mock provider's `/v1/chat/completions` URL in
+`tests/audit/test_audit_2026_06_05.py:245`, which exercises no SEAM route.
+`/v1/health`, `/v1/memories`, `/v1/memories/recall`, and `/v1/context` were
+served without a single request ever being made against them in test.
+
+This was taken first because S6 is blocked behind it. S6 binds principal
+tenancy to `/v1`, and its opening decision -- proxy ahead of `/v1` or
+in-process -- is currently written down nowhere. Writing the tenancy binding
+before the characterization tests means the tests get authored to match
+whatever was implemented, which is the mechanism by which finding 2 (the
+`persist_ir` entity race) survived: `storage.py` at 3,602 lines had no file
+where a concurrency test would naturally live.
+
+These are characterization tests. They pin current behaviour so S6 changes it
+deliberately. The tenancy class records the boundary as it actually is today:
+isolation derives entirely from the request body (`namespace`, `session_id`)
+and never from the caller. One test states the gap outright -- the same bearer
+token writes `tenant-a` and reads it back merely by naming that namespace --
+with a docstring instructing S6 to replace it with a principal-bound refusal.
+
+PASSING ON FIRST RUN WAS NOT TREATED AS EVIDENCE
+
+Verified with:
+
+    pytest tests/audit/test_public_api_v1_http.py
+
+35 tests passed on the first execution, which pytest expands to 75 collected
+cases through parametrization. HISTORY#533 records the S5 fingerprint test
+passing against a deliberately broken implementation, so this file was made to
+prove it discriminates before being trusted. Four breaks were injected into the
+source, each run, each reverted, with `git status` on `seam_runtime/` confirmed
+empty afterward:
+
+- `_internal_namespace` returning a constant -- 3 partition tests failed.
+- `guard()` skipping the bearer comparison -- 6 auth tests failed.
+- `_public_memories` returning `[]` -- 6 retrieval and tenancy tests failed.
+- `_validate_dimension` accepting any value -- 7 namespace-rejection tests
+  failed.
+
+Retrieval assertions deliberately avoid ranking-sensitive claims, because the
+default hash embedder is unreliable for paraphrase. Presence and absence within
+a namespace is a hard SQL filter and is deterministic; that is what is
+asserted.
+
+FILES CHANGED
+
+Added: tests/audit/test_public_api_v1_http.py (35 test functions, 75 collected
+cases, across public health, remember, recall, context, the bearer-token auth
+boundary, and the current tenancy boundary).
+
+No runtime source was changed. This entry adds coverage of existing behaviour
+and asserts no new guarantee.
+
+VERIFICATION PERFORMED
+
+Full suite with the live pgvector lane enabled via
+`export PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN"`. `ruff check .` clean before
+and after. Discrimination of the new file proven by four injected breaks as
+recorded above, all reverted.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+S6 remains unstarted and is still the only unblocked stage. It must state
+explicitly whether tenancy terminates in a proxy ahead of `/v1` or in-process
+before any code is written. `/v1` still has no tenancy binding -- this entry
+adds tests describing that absence, it does not remove it.
+
+Audit finding 8 remains open: unbounded SQL variable expansion in
+`knowledge_graph.py` at `:1502`, `:1515-1516`, `:1558-1560`, `:1576-1580`,
+`:2629`, `:2684`, and `:2934`, where `:1515-1516` binds the frontier twice.
+`GET /knowledge-graph` permits `limit=1000, hops=5`. Latent on this host
+(SQLite 3.45.1) and broken on the 999-variable default. The chunking idiom
+already exists at `adapters.py:35` and `knowledge_graph.py:1182`.
+
+Audit finding 12 (worktree hygiene) is open and deliberately untouched: the
+`agent-ae5755cfb19e0ae14` worktree holds 12 files of uncommitted R3
+reasoning-graph work, and `Seam-node-wheel-reconcile` holds a stray
+`HISTORY_INDEX.md.lock`. Both branches carry unmerged commits and neither was
+altered here; disposition is an operator decision.
+
+Findings 2, 3, 5, 7, and 10 were re-verified as genuinely closed on current
+main, not merely marked so: `storage.py:985` holds `begin immediate`,
+`server.py:440-448` refuses `env_key` resolution on loopback,
+`knowledge_graph.py:1532` carries the terminal `e.id` tiebreak, and zero
+`store._connect()` sites remain in the retrieval adapters.
+
+Still unaudited across two whole-repository audits: `dashboard.py`, benchmark
+seal/BIL integrity, and MIRL losslessness round-tripping.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#535---
