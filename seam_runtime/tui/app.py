@@ -59,6 +59,10 @@ TABS: tuple[tuple[str, str], ...] = (
     ("settings", "Settings"),
 )
 
+#: Reference-row surface tag shown in the palette. "rest" reads better than
+#: the internal "api" key next to "cli"/"mcp"/"sdk".
+_SURFACE_TAGS: dict[str, str] = {"cli": "cli", "mcp": "mcp", "api": "rest", "sdk": "sdk"}
+
 
 class CommandPalette(ModalScreen[str]):
     """The `/` menu: every backend command, filterable, Charm-styled."""
@@ -100,36 +104,52 @@ class CommandPalette(ModalScreen[str]):
         self.query_one("#palette-input", Input).focus()
 
     def _render_options(self, specs: tuple[CommandSpec, ...]) -> None:
+        """Render two sections: Run (executable dash verbs), then Reference
+        (cli/mcp/api/sdk documentation). Both group by shared task rather
+        than by surface, so a Reference row for the same task across
+        surfaces sits together; each Reference row carries a dim surface tag
+        so the CLI form, the REST route, and the MCP tool are still
+        distinguishable at a glance.
+        """
         option_list = self.query_one("#palette-list", OptionList)
         option_list.clear_options()
         self._visible = specs
 
-        surface = None
-        group = None
-        for spec in specs:
-            if spec.surface != surface:
-                surface = spec.surface
-                group = None
-                label, executable = SURFACES.get(surface, (surface, False))
-                count = sum(1 for s in specs if s.surface == surface)
-                tag = "" if executable else "  ·  reference"
-                option_list.add_option(Option(
-                    f"[b {brand.MAGENTA}]── {label}[/] "
-                    f"[{brand.TEXT_DIM}]{count}{tag}[/]",
-                    disabled=True,
-                ))
-            if spec.group and spec.group != group:
-                group = spec.group
-                option_list.add_option(Option(
-                    f"   [{brand.LAVENDER}]{group}[/]", disabled=True))
+        run_specs = [s for s in specs if s.executable]
+        reference_specs = [s for s in specs if not s.executable]
 
-            alias = f" ({', '.join(spec.aliases)})" if spec.aliases else ""
-            summary = spec.summary or ""
-            colour = brand.PINK if spec.executable else brand.CYAN
-            row = f"   [{colour}]{spec.prefix}{spec.name}[/][{brand.TEXT_DIM}]{alias}[/]"
-            if summary:
-                row += f"  [{brand.TEXT_MUTED}]— {summary}[/]"
-            option_list.add_option(Option(row, id=f"{spec.surface}:{spec.name}"))
+        def add_section(label: str, count: int) -> None:
+            option_list.add_option(Option(
+                f"[b {brand.MAGENTA}]── {label}[/] [{brand.TEXT_DIM}]{count}[/]",
+                disabled=True,
+            ))
+
+        def add_rows(section_specs: list[CommandSpec], *, tagged: bool) -> None:
+            group = None
+            for spec in section_specs:
+                if spec.group and spec.group != group:
+                    group = spec.group
+                    option_list.add_option(Option(
+                        f"   [{brand.LAVENDER}]{group}[/]", disabled=True))
+
+                alias = f" ({', '.join(spec.aliases)})" if spec.aliases else ""
+                summary = spec.summary or ""
+                colour = brand.PINK if spec.executable else brand.CYAN
+                tag = ""
+                if tagged:
+                    surface_tag = _SURFACE_TAGS.get(spec.surface, spec.surface)
+                    tag = f"[{brand.TEXT_DIM}]{surface_tag}[/]  "
+                row = f"   {tag}[{colour}]{spec.prefix}{spec.name}[/][{brand.TEXT_DIM}]{alias}[/]"
+                if summary:
+                    row += f"  [{brand.TEXT_MUTED}]— {summary}[/]"
+                option_list.add_option(Option(row, id=f"{spec.surface}:{spec.name}"))
+
+        if run_specs:
+            add_section("Run", len(run_specs))
+            add_rows(run_specs, tagged=False)
+        if reference_specs:
+            add_section("Reference", len(reference_specs))
+            add_rows(reference_specs, tagged=True)
 
         if specs:
             # Land on the first real entry, not a section header.

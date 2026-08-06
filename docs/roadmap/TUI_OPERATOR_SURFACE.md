@@ -88,10 +88,77 @@ selection copies the record id to the clipboard and traces it below; `y` yanks
 the id under the cursor. The standalone Provenance tab is removed — keeping
 both would duplicate `#prov-query` and fail the mount on duplicate ids.
 
-### S2 — Navigation and palette hardening
+### S2a — Every command carries a description, and the menu is organized
 
-Small, and it unblocks everything after it: with eight richer tabs, mouse-only
-navigation is a hobble.
+Measured: **104 of the 153 catalog commands have no description** — all 66 CLI
+commands, all 27 REST routes, and 11 of 21 SDK methods. Only the dashboard
+verbs (a hand-maintained dict) and the MCP tools (real metadata) are covered.
+
+The descriptions belong **at the source, not in the TUI**. `commands.py`
+derives from each surface's own metadata on purpose; an empty description is
+missing upstream metadata, and filling it upstream fixes `seam --help` and the
+published OpenAPI schema at the same time. `help=` on each `add_parser`,
+`summary=` on each route decorator, a docstring on each SDK method — plus the
+two reader fixes that make them visible (`_walk_parser` reads argparse `help=`
+off the parent action, not just `description`; `_ROUTE_RE` captures the
+decorator's `summary=`).
+
+Grouping moves to **one task vocabulary shared by every surface** — Capture,
+Recall, Context, Provenance, Knowledge graph, Compression, Benchmarks, Improve,
+Serve & surfaces, Lifecycle & admin, Session — derived from the root command,
+path prefix, or method name rather than hand-tabulated. The palette renders in
+two sections: **Run** (the 20 executable dashboard verbs, grouped by task) then
+**Reference** (cli/mcp/api/sdk, grouped by the same tasks, each row tagged with
+its surface), so the CLI form, REST route and MCP tool for one task sit
+together.
+
+A test asserting every catalog entry has a non-empty summary is the gate that
+keeps the next added command from arriving undescribed.
+
+### S2b — Input modes, navigation, palette hardening
+
+Three sigils set the mode, matching what the superseded dashboard did
+(`dashboard.py:1175-1195`) so muscle memory survives:
+
+| sigil | mode | prefixed line | bare sigil |
+|---|---|---|---|
+| `/` | seam (default) | run a dashboard command | open the menu |
+| `!` | shell | run one shell command | latch shell mode |
+| `?` | chat | send one message to the model | latch chat mode |
+
+A prefixed line is one-shot regardless of the current mode; a bare sigil
+latches. Escape in the command input returns to seam mode. The mode is visible
+in three places, because an invisible mode is a trap: the brand-bar status, the
+input placeholder, and the input's border colour.
+
+Both modes reuse machinery that already exists rather than adding engine work.
+Shell: the `cd`/`pwd`-aware subprocess logic currently trapped inside the
+superseded UI class becomes `seam_runtime/tui/shell.py`, a `ShellSession`
+owning `cwd` — unit-testable without a TUI, which the original never was. This
+restores a capability the previous dashboard already shipped; it is a local
+operator tool, not a new network surface. Chat: module-level `SeamChatClient`
+(`dashboard.py:256`) plus `backend.orchestrator.rag(...)` for the context
+prompt, the same pair the old UI used — and the reply renders **with the
+memory ids it injected**, which is the S9 idea landing early because the rag
+result is already in hand.
+
+Carried in the same slice, all three found by probing the shipped binary:
+
+- **The palette keystroke race.** Typing `/stats` at speed opens the palette
+  with an EMPTY filter and the first entry highlighted, because characters
+  typed between the leading `/` and the palette's mount land in
+  `#command-input` and are discarded. Enter then acts on an entry the operator
+  never chose. Today the first entry (`/benchmark`) takes a positional so it
+  only pre-fills the input — luck, not safety. `CommandPalette` already accepts
+  an `initial` filter and nothing passes it.
+- **`tab <view>` does not move the visible tab.** `dashboard.py:2421` parses
+  it and `:2544` sets `controller.active_tab`; the superseded UI read that back
+  at `:1520-1524` and the new one never does, while `app.py`'s docstring claims
+  the command still works.
+- **No keyboard tab navigation.** `ctrl+s` reaches Settings; every other tab is
+  mouse-only. `alt+1`..`alt+8` jump, `ctrl+left`/`ctrl+right` cycle — chosen
+  over bare digits because the command input holds focus and consumes
+  printable keys.
 
 - **Keyboard tab switching.** `alt+1`..`alt+8` jump directly; `ctrl+right` /
   `ctrl+left` cycle. Chosen over bare digits because the command input holds

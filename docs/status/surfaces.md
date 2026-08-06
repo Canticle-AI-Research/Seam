@@ -20,6 +20,12 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     copies its id and traces it below; `y` yanks the id under the cursor. The
     standalone Provenance tab is gone — two `#prov-query` widgets cannot
     coexist.
+  - The `/` menu is organized by task, not by surface (HISTORY#541): a Run
+    section of the 20 executable dashboard verbs, then Reference covering
+    cli/mcp/api/sdk under the same eleven task names with a per-row surface
+    tag. All 153 entries carry a description, enforced by a census test.
+    REST summaries live on the route decorators and therefore in the OpenAPI
+    schema; CLI text is the existing `help=`, now actually read.
   - Target surface and the ordered slices toward it:
     `docs/roadmap/TUI_OPERATOR_SURFACE.md`.
   `dashboard.DashboardApp` remains the backend and still owns the Rich

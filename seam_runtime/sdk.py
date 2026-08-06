@@ -510,6 +510,8 @@ class SeamSDK:
         )
 
     def close(self) -> None:
+        """Close the owned runtime connection (no-op if a runtime was passed in)."""
+
         if self._owns_runtime:
             self.runtime.close()
 
@@ -560,6 +562,8 @@ class SeamSDK:
         )
 
     def reasoning(self, run_id: str) -> ReasoningSession:
+        """Reopen an existing reasoning run by id."""
+
         return ReasoningSession(self.runtime, run_id)
 
     def ingest(self, text: str, **options: Any) -> object:
@@ -662,6 +666,8 @@ class SeamSDK:
         idempotency_key: str,
         actor: str,
     ) -> dict[str, object]:
+        """Plan a scoped delete of record ids, returning the operation to apply."""
+
         return self.runtime.plan_scoped_delete(
             tenant_id=tenant_id,
             namespace=namespace,
@@ -674,6 +680,8 @@ class SeamSDK:
     def apply_delete(
         self, *, tenant_id: str, operation_id: str, actor: str
     ) -> dict[str, object]:
+        """Apply a planned scoped delete, soft-deleting the record ids."""
+
         return self.runtime.apply_scoped_delete(
             tenant_id=tenant_id, operation_id=operation_id, actor=actor
         )
@@ -689,6 +697,8 @@ class SeamSDK:
         actor: str,
         interrupt_after_items: int | None = None,
     ) -> dict[str, object]:
+        """Plan and apply a batch of ingest items as one lifecycle operation."""
+
         return self.runtime.batch_ingest(
             tenant_id=tenant_id,
             namespace=namespace,
@@ -702,6 +712,8 @@ class SeamSDK:
     def resume_operation(
         self, operation_id: str, *, tenant_id: str, actor: str
     ) -> dict[str, object]:
+        """Resume an interrupted lifecycle operation (delete or batch ingest)."""
+
         return self.runtime.resume_lifecycle_operation(
             operation_id, tenant_id=tenant_id, actor=actor
         )
@@ -709,6 +721,8 @@ class SeamSDK:
     def lifecycle_operation(
         self, operation_id: str, *, tenant_id: str
     ) -> dict[str, object]:
+        """Read one lifecycle operation's status and payload."""
+
         return self.runtime.store.lifecycle_operation(
             tenant_id=tenant_id, operation_id=operation_id
         )
@@ -716,6 +730,8 @@ class SeamSDK:
     def recoverable_operations(
         self, *, tenant_id: str, limit: int = 100
     ) -> list[dict[str, object]]:
+        """List lifecycle operations left interrupted and resumable."""
+
         return self.runtime.store.recoverable_lifecycle_operations(
             tenant_id=tenant_id, limit=limit
         )
@@ -742,6 +758,8 @@ class SeamSDK:
     def promotion_eligibility(
         self, proposal_id: str
     ) -> dict[str, object]:
+        """Recheck a promotion proposal's review and provenance state."""
+
         return self.runtime.store.reasoning_promotion_eligibility(proposal_id)
 
     def apply_promotion(
@@ -765,11 +783,15 @@ class SeamSDK:
         )
 
     def promotion(self, proposal_id: str) -> dict[str, object]:
+        """Read one reasoning promotion proposal by id."""
+
         return self.runtime.store.reasoning_promotion(proposal_id)
 
     def promotions(
         self, *, ns: str, scope: str, limit: int = 50
     ) -> list[dict[str, object]]:
+        """List reasoning promotion proposals for a namespace and scope."""
+
         return self.runtime.store.reasoning_promotions(
             ns=ns, scope=scope, limit=limit
         )

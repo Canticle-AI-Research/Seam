@@ -17067,3 +17067,127 @@ MIRL view behind an operator flag.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#540---
+
+---BEGIN-ENTRY-#541---
+id: 541
+date: 2026-08-06T23:29:00Z
+agent: claude
+status: done
+topics: tui, palette, cli, api, sdk, surfaces, verify
+commits: pending
+refs: seam_runtime/server.py,seam_runtime/sdk.py,seam_runtime/tui/commands.py,seam_runtime/tui/app.py,tests/audit/test_command_palette_task_menu.py,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md
+supersedes: 540
+tokens: 1416
+---
+Gave every command in the `/` palette a description and reorganised the menu
+around what an operator is trying to do rather than where the code lives.
+Operator request: "the menu should be organized, and each command must have a
+description that explains what it does".
+
+THE MEASUREMENT, AND THE PREMISE IT CORRECTED
+
+104 of the 153 catalog entries rendered with no description: all 66 CLI
+commands, all 27 REST routes, and 11 of 21 SDK methods. Only the dashboard
+verbs (a hand-maintained dict) and the MCP tools (real metadata) were covered.
+
+The scoping premise was that those 66 CLI descriptions were missing at the
+source and had to be written. That was wrong, and it is the most useful thing
+in this entry. `seam_runtime/cli.py` already carries `help=` on its
+subparsers; nothing was missing. `_walk_parser` read `sub.description`, and
+argparse never populates `description` from `help=` -- that string is kept on
+the parent subparsers action's `_choices_actions` entries. The 66 were a
+READER defect, not absent metadata.
+
+Had the slice been executed as scoped, the result would have been 66 freshly
+invented help strings shadowing 66 correct ones that already existed, shipped
+into `seam --help`. The census was reproduced before writing anything, which is
+the only reason the premise failed cheaply.
+
+WHAT ACTUALLY NEEDED WRITING
+
+27 REST route summaries and 11 SDK docstrings. Each was derived by reading the
+handler body and following the call into `runtime.py`/`storage.py`/
+`lifecycle.py`/`reasoning_promotion.py` -- not inferred from the name. They are
+not palette filler: `summary=` on a FastAPI decorator goes straight into the
+published OpenAPI schema, and the SDK docstrings are what any reader of the
+stable boundary sees.
+
+Two reader fixes make the existing metadata visible: `_subparser_help` reads
+the parent action's `_choices_actions`, guarded so a future argparse without
+that private attribute degrades to the `description` path instead of breaking
+the palette; and `_ROUTE_RE` now optionally captures the decorator's
+`summary=`, still matching routes that have none.
+
+ORGANISATION
+
+One task vocabulary is now shared by all five surfaces -- Capture, Recall,
+Context, Provenance, Knowledge graph, Compression, Benchmarks, Improve,
+Serve & surfaces, Lifecycle & admin, Session -- replacing per-surface grouping
+that mixed sentence-length blurbs, an unnamed bucket, and 21 SDK methods under
+one "SeamSDK" heading. The mapping is four compact rule sets keyed on the root
+CLI command, the MCP tool prefix, the REST path segment, and the SDK method
+name, not a 153-row table, so a command added anywhere still classifies itself.
+
+The palette renders Run (the 20 verbs the TUI can actually execute, grouped by
+task) then Reference (cli/mcp/api/sdk under the same task names, each row
+carrying a dim surface tag). Filtering `knowledge` now returns the CLI command,
+the SDK method and the MCP tool for one task adjacent to each other, which is
+the property the reorganisation was for.
+
+Three group placements are judgement, not facts in the code, and are recorded
+as such rather than presented as derived: `decompile`/`pack` to Context (record
+rendering rather than ranking), `transpile`/`reindex` to Lifecycle & admin (no
+vocabulary word fits better), and the SDK's `start_reasoning`/`reasoning` to
+Provenance while the promotion pipeline goes to Knowledge graph -- splitting
+"how a conclusion was reached" from "writing it into the graph".
+
+VERIFICATION PERFORMED
+
+The census is now a test, not a one-off measurement:
+`tests/audit/test_command_palette_task_menu.py` asserts every catalog entry has
+a non-empty summary and a group inside the vocabulary, so the next command
+added anywhere cannot arrive undescribed.
+
+pytest tests/audit/test_command_palette_task_menu.py -- 13 static `def test_*`;
+13 passed.
+
+Discrimination: with the four source files stashed and the tests kept, the
+module fails at collection on the missing `_subparser_help` import -- all 13
+fail. Restored, 13 pass.
+
+Re-measured independently after the change rather than trusting the builder's
+report: 153 commands, 0 without a description, 0 outside the task vocabulary.
+Largest group is Serve & surfaces at 29; no catch-all bucket is reached by any
+of the 153.
+
+Real-TTY launch under tmux at 200x50: `/` opens on "Run 20" grouped
+Capture/Recall/Provenance/Compression/Session with a description on every row,
+then "Reference 133" under the same task names. Typing `knowledge` filters to
+23 rows carrying `cli`, `sdk` and `mcp` tags together under one heading.
+
+.venv/bin/python -m pytest tests/ test_seam_all/ tools/history tools/streams
+with the live pgvector lane -- 2611 passed, 2 xfailed, 0 skipped, 3 subtests
+passed. That is the 2598 of HISTORY#540 plus this slice's 13 new tests, an
+exact match with nothing displaced. `ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+Two readability defects are visible in the captured frames and are deliberately
+left for S2b, which owns the same render path: SDK rows print their full type
+signature (`sdk.knowledge(**query: 'Any') -> 'dict[str, object]'`), which is
+long enough to wrap the description onto a second line, and MCP descriptions
+are multi-sentence, so they wrap too. The row should show a trimmed call form
+with the full signature reserved for the reference card, and summaries should
+be cut to their first sentence rather than their first line.
+
+`_DASH_SUMMARIES` in `commands.py` remains a hand-maintained dict -- correct
+and complete, but the one surface whose descriptions are still transcribed
+rather than derived. Adding `help=` to `dashboard.py`'s parser would retire it;
+`dashboard.py` is on the never-audited list and was left alone.
+
+S2b -- the `!` shell and `?` chat input modes, the palette keystroke race,
+keyboard tab navigation, and the unwired `tab` command -- is unstarted.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#541---

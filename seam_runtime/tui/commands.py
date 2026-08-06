@@ -32,6 +32,7 @@ __all__ = [
     "filter_catalog",
     "SURFACES",
     "SURFACE_ORDER",
+    "TASK_GROUPS",
 ]
 
 # ---------------------------------------------------------------------------
@@ -49,11 +50,24 @@ SURFACES: dict[str, tuple[str, bool]] = {
 
 SURFACE_ORDER: tuple[str, ...] = ("dash", "cli", "mcp", "api", "sdk")
 
+#: One task vocabulary shared by every surface. The palette groups on this,
+#: not on where a command's code happens to live -- "what does an operator
+#: want to do", not "which module defines it". Order here is display order.
+TASK_GROUPS: tuple[str, ...] = (
+    "Capture", "Recall", "Context", "Provenance", "Knowledge graph",
+    "Compression", "Benchmarks", "Improve", "Serve & surfaces",
+    "Lifecycle & admin", "Session",
+)
+
 #: Sub-grouping for dashboard verbs, which are numerous enough to want it.
+#: Values are task-vocabulary members (former "Ingest"/"Retrieval" renamed to
+#: "Capture"/"Recall" so dash shares the same vocabulary as every other
+#: surface); this dict itself stays hand-maintained per-surface, same as
+#: `_DASH_SUMMARIES` -- only its *values* are now shared language.
 _DASH_GROUPS: dict[str, str] = {
-    "search": "Retrieval", "plan": "Retrieval", "retrieve": "Retrieval",
-    "context": "Retrieval",
-    "compile": "Ingest", "compile-dsl": "Ingest", "index": "Ingest",
+    "search": "Recall", "plan": "Recall", "retrieve": "Recall",
+    "context": "Recall",
+    "compile": "Capture", "compile-dsl": "Capture", "index": "Capture",
     "trace": "Provenance", "stats": "Provenance",
     "benchmark": "Compression", "compress-doc": "Compression",
     "readable-compress": "Compression", "readable-query": "Compression",
@@ -85,17 +99,46 @@ _DASH_SUMMARIES: dict[str, str] = {
     "reload": "Reload runtime state from disk",
 }
 
-#: Short blurbs for CLI groups, so a bare `surface encode` is not a mystery.
-_CLI_GROUP_BLURBS: dict[str, str] = {
-    "surface": "SEAM-HS/1 holographic surface library",
-    "benchmark": "Benchmark runs, gates, and comparisons",
-    "bench": "External benchmark sealing and publication",
-    "knowledge": "Temporal knowledge-graph queries",
-    "memory": "Direct memory record access",
-    "mcp": "Model Context Protocol servers",
-    "improve": "Self-improvement proposal loop",
-    "demo": "Demonstrations",
+#: CLI root command -> shared task. One entry per root, not per subcommand:
+#: every `surface encode`/`surface decode`/... leaf inherits "surface"'s
+#: task, which is what keeps this a ~40-entry rule set instead of a 66-entry
+#: (let alone 153-entry) hand-written table.
+_CLI_TASK_ROOTS: dict[str, str] = {
+    "ingest": "Capture", "compile-nl": "Capture", "compile-dsl": "Capture",
+    "verify": "Capture", "persist": "Capture", "index": "Capture",
+    "promote-symbols": "Capture",
+    "search": "Recall", "plan": "Recall", "retrieve": "Recall",
+    "compare": "Recall", "memory": "Recall",
+    "context": "Context", "pack": "Context", "decompile": "Context",
+    "trace": "Provenance", "stats": "Provenance",
+    "knowledge": "Knowledge graph", "reconcile": "Knowledge graph",
+    "benchmark": "Benchmarks", "bench": "Benchmarks",
+    "improve": "Improve",
+    "surface": "Serve & surfaces", "mcp": "Serve & surfaces",
+    "shell": "Serve & surfaces", "dashboard": "Serve & surfaces",
+    "serve": "Serve & surfaces", "webui": "Serve & surfaces",
+    "doctor": "Lifecycle & admin", "transpile": "Lifecycle & admin",
+    "reindex": "Lifecycle & admin", "export-symbols": "Lifecycle & admin",
+    "demo": "Compression",
 }
+#: Root-name prefixes that share a task without one dict entry per command
+#: (lossless-compress/lossless-decompress/lossless-benchmark, readable-*,
+#: lx1-* are all token-savings notation, i.e. Compression).
+_CLI_TASK_PREFIXES: tuple[tuple[str, str], ...] = (
+    ("lossless-", "Compression"),
+    ("readable-", "Compression"),
+    ("lx1-", "Compression"),
+)
+
+
+def _cli_task_group(root: str) -> str:
+    """Map a top-level CLI command word to its shared task."""
+    if root in _CLI_TASK_ROOTS:
+        return _CLI_TASK_ROOTS[root]
+    for prefix, group in _CLI_TASK_PREFIXES:
+        if root.startswith(prefix):
+            return group
+    return "Lifecycle & admin"
 
 
 @dataclass(frozen=True)
@@ -173,6 +216,25 @@ def _describe(subparser: object) -> tuple[tuple[str, ...], tuple[str, ...], dict
     return tuple(positionals), tuple(options), option_choices
 
 
+def _subparser_help(action: object) -> dict[str, str]:
+    """Return canonical name -> ``add_parser(..., help=...)`` text.
+
+    argparse stores that string on the *parent* subparsers action's
+    ``_choices_actions`` pseudo-action list -- one pseudo-action per canonical
+    name, not per alias -- never on the child parser itself (``sub.description``
+    is a separate, independently-set argparse field). ``_choices_actions`` is
+    a private attribute; a future argparse without it degrades to an empty
+    map here, and the caller falls back to ``sub.description``.
+    """
+    help_map: dict[str, str] = {}
+    for pseudo in getattr(action, "_choices_actions", None) or []:
+        name = getattr(pseudo, "dest", None)
+        text = getattr(pseudo, "help", None)
+        if name and text:
+            help_map[name] = text
+    return help_map
+
+
 def _walk_parser(parser: object, surface: str, prefix: str = "") -> list[CommandSpec]:
     """Recursively flatten an argparse tree into specs.
 
@@ -184,6 +246,7 @@ def _walk_parser(parser: object, surface: str, prefix: str = "") -> list[Command
         return []
 
     choices: dict[str, object] = dict(action.choices)  # type: ignore[attr-defined]
+    help_map = _subparser_help(action)
     by_parser: dict[int, list[str]] = {}
     for name, sub in choices.items():
         by_parser.setdefault(id(sub), []).append(name)
@@ -210,8 +273,8 @@ def _walk_parser(parser: object, surface: str, prefix: str = "") -> list[Command
             summary = _DASH_SUMMARIES.get(canonical, "")
             group = _DASH_GROUPS.get(canonical, "Other")
         else:
-            summary = (getattr(sub, "description", "") or "").strip().split("\n")[0]
-            group = _CLI_GROUP_BLURBS.get(root, "")
+            summary = help_map.get(canonical) or (getattr(sub, "description", "") or "").strip().split("\n")[0]
+            group = _cli_task_group(root)
         specs.append(
             CommandSpec(
                 name=path, surface=surface, aliases=aliases,
@@ -241,6 +304,32 @@ def _cli_specs() -> list[CommandSpec]:
 # Source: MCP tools
 # ---------------------------------------------------------------------------
 
+#: MCP tool name, after the shared ``seam_`` prefix -> shared task, matched
+#: by the longest known prefix (checked in order) so ``surface_*`` tools
+#: share one entry rather than six.
+_MCP_TASK_PREFIXES: tuple[tuple[str, str], ...] = (
+    ("memory_", "Recall"),
+    ("retrieve", "Recall"),
+    ("ingest", "Capture"),
+    ("knowledge_", "Knowledge graph"),
+    ("identity_merges", "Knowledge graph"),
+    ("context", "Context"),
+    ("stats", "Provenance"),
+    ("documents", "Provenance"),
+    ("index_status", "Provenance"),
+    ("doctor", "Lifecycle & admin"),
+    ("surface_", "Serve & surfaces"),
+    ("benchmark_", "Benchmarks"),
+)
+
+
+def _mcp_task_group(name: str) -> str:
+    tail = name.removeprefix("seam_")
+    for prefix, group in _MCP_TASK_PREFIXES:
+        if tail.startswith(prefix):
+            return group
+    return "Lifecycle & admin"
+
 
 def _mcp_specs() -> list[CommandSpec]:
     try:
@@ -256,7 +345,7 @@ def _mcp_specs() -> list[CommandSpec]:
             CommandSpec(
                 name=name, surface="mcp",
                 summary=description.strip().split("\n")[0],
-                group="MCP",
+                group=_mcp_task_group(name),
             )
         )
     return specs
@@ -270,7 +359,45 @@ def _mcp_specs() -> list[CommandSpec]:
 #: runtime, so they are read from the module source rather than by importing
 #: FastAPI and constructing an app. Still derived -- adding a route to
 #: `server.py` adds it here -- without paying an optional dependency.
-_ROUTE_RE = re.compile(r'@app\.(get|post|put|delete|patch)\(\s*"([^"]+)"')
+#:
+#: `summary="..."` is optional and, when present, is always the argument
+#: immediately following the path string (server.py's convention) -- so a
+#: decorator with no summary still matches (the whole group is optional)
+#: instead of dropping the route.
+_ROUTE_RE = re.compile(
+    r'@app\.(get|post|put|delete|patch)\(\s*"([^"]+)"'
+    r'(?:\s*,\s*summary="([^"]*)")?'
+)
+
+#: REST path segment (after the leading slash, before any `{param}`) ->
+#: shared task. `/v1/*` is dispatched one level deeper because the public
+#: `/v1/memories` (write) and `/v1/memories/recall` (read) split across two
+#: different tasks despite sharing a path prefix.
+_API_TASK_SEGMENTS: dict[str, str] = {
+    "stats": "Provenance", "workspace": "Provenance", "trace": "Provenance",
+    "knowledge-graph": "Knowledge graph", "knowledge-node": "Knowledge graph",
+    "identity-merges": "Knowledge graph",
+    "benchmark": "Benchmarks",
+    "compile": "Capture", "compile-dsl": "Capture", "persist": "Capture",
+    "search": "Recall",
+    "context": "Context",
+    "lossless-compress": "Compression",
+    "tree": "Serve & surfaces", "sys-metrics": "Serve & surfaces",
+    "chat": "Serve & surfaces",
+}
+
+
+def _api_task_group(path: str) -> str:
+    segments = [s for s in path.split("/") if s]
+    if not segments:
+        return "Serve & surfaces"  # the bare "/" dashboard index
+    head = segments[0]
+    if head == "v1":
+        sub = segments[1] if len(segments) > 1 else ""
+        if sub == "memories":
+            return "Recall" if segments[2:3] == ["recall"] else "Capture"
+        return _API_TASK_SEGMENTS.get(sub, "Context")
+    return _API_TASK_SEGMENTS.get(head, "Lifecycle & admin")
 
 
 def _api_specs() -> list[CommandSpec]:
@@ -281,7 +408,7 @@ def _api_specs() -> list[CommandSpec]:
         return []
     specs: list[CommandSpec] = []
     seen: set[tuple[str, str]] = set()
-    for verb, path in _ROUTE_RE.findall(source):
+    for verb, path, summary in _ROUTE_RE.findall(source):
         key = (verb, path)
         if key in seen:
             continue
@@ -289,7 +416,8 @@ def _api_specs() -> list[CommandSpec]:
         specs.append(
             CommandSpec(
                 name=f"{verb.upper():6s} {path}", surface="api",
-                group="Public /v1" if path.startswith("/v1") else "Operator",
+                summary=summary,
+                group=_api_task_group(path),
             )
         )
     return specs
@@ -298,6 +426,35 @@ def _api_specs() -> list[CommandSpec]:
 # ---------------------------------------------------------------------------
 # Source: Python SDK
 # ---------------------------------------------------------------------------
+
+#: `SeamSDK` method name -> shared task. Reasoning-run lifecycle (start/reopen
+#: a run) is Provenance -- it records how a conclusion was reached, before any
+#: of it is promoted into the graph; the promotion pipeline itself (propose ->
+#: review -> apply/reverse) writes into the knowledge graph, so it belongs
+#: there instead.
+_SDK_TASK_NAMES: dict[str, str] = {
+    "ingest": "Capture",
+    "knowledge": "Knowledge graph",
+    "rebuild_graph_products": "Knowledge graph",
+    "graph_products": "Knowledge graph",
+    "graph_product_history": "Knowledge graph",
+    "context": "Context",
+    "start_reasoning": "Provenance",
+    "reasoning": "Provenance",
+    "promotion": "Knowledge graph",
+    "promotion_eligibility": "Knowledge graph",
+    "promotions": "Knowledge graph",
+    "apply_promotion": "Knowledge graph",
+    "reverse_promotion": "Knowledge graph",
+    "review_promotion": "Knowledge graph",
+    "plan_delete": "Lifecycle & admin",
+    "apply_delete": "Lifecycle & admin",
+    "batch_ingest": "Lifecycle & admin",
+    "resume_operation": "Lifecycle & admin",
+    "lifecycle_operation": "Lifecycle & admin",
+    "recoverable_operations": "Lifecycle & admin",
+    "close": "Session",
+}
 
 
 def _sdk_specs() -> list[CommandSpec]:
@@ -320,7 +477,8 @@ def _sdk_specs() -> list[CommandSpec]:
         specs.append(
             CommandSpec(
                 name=f"{name}{signature}", surface="sdk",
-                summary=doc, group="SeamSDK",
+                summary=doc,
+                group=_SDK_TASK_NAMES.get(name, "Lifecycle & admin"),
             )
         )
     return specs
@@ -332,7 +490,14 @@ def _sdk_specs() -> list[CommandSpec]:
 
 
 def build_catalog(dashboard_parser: object) -> tuple[CommandSpec, ...]:
-    """Return every command across every surface, ordered for display."""
+    """Return every command across every surface, ordered for display.
+
+    Executable dash verbs (the only things the palette can actually run) sort
+    ahead of every reference-only row, matching the palette's Run/Reference
+    split. Within each of those two sections, commands group by shared task
+    rather than by surface, so the CLI form, the REST route, and the MCP tool
+    for the same task land next to each other; surface is only the tiebreak.
+    """
     specs: list[CommandSpec] = []
     specs.extend(_dashboard_specs(dashboard_parser))
     specs.extend(_cli_specs())
@@ -340,10 +505,13 @@ def build_catalog(dashboard_parser: object) -> tuple[CommandSpec, ...]:
     specs.extend(_api_specs())
     specs.extend(_sdk_specs())
 
-    def sort_key(spec: CommandSpec) -> tuple[int, str, str]:
+    def sort_key(spec: CommandSpec) -> tuple[int, int, int, str]:
+        section_rank = 0 if spec.executable else 1
+        group_rank = (TASK_GROUPS.index(spec.group)
+                      if spec.group in TASK_GROUPS else len(TASK_GROUPS))
         surface_rank = (SURFACE_ORDER.index(spec.surface)
                         if spec.surface in SURFACE_ORDER else len(SURFACE_ORDER))
-        return (surface_rank, spec.group, spec.name)
+        return (section_rank, group_rank, surface_rank, spec.name)
 
     specs.sort(key=sort_key)
     return tuple(specs)
