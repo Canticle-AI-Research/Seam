@@ -9,12 +9,19 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - Core runtime paths: compile, verify, persist, search, context, benchmark.
 - Interactive CLI shell: `seam shell` / `seam chat`, REPL memory interface with
   slash commands and prompt-ready context output.
-- Textual TUI dashboard, `seam_runtime/tui/` (HISTORY#537): eight tabs, `/`
-  command palette derived at runtime from the backend's own parser across five
-  surfaces, seven worker-backed structured panels, and a registry-driven
+- Textual TUI dashboard, `seam_runtime/tui/` (HISTORY#537, #540): seven tabs,
+  `/` command palette derived at runtime from the backend's own parser across
+  five surfaces, worker-backed structured panels, and a registry-driven
   Settings tab with masked secrets. Blocking work runs on a worker thread, so
   retrieval and chat no longer freeze the UI. `seam dashboard`, `seam-dash`,
   and `seam-tui` all reach it through `dashboard.run_dashboard`.
+  - Memory is a page rather than a tab of one table (HISTORY#540): the record
+    table, the provenance trace beneath it, and one shared log. Selecting a row
+    copies its id and traces it below; `y` yanks the id under the cursor. The
+    standalone Provenance tab is gone — two `#prov-query` widgets cannot
+    coexist.
+  - Target surface and the ordered slices toward it:
+    `docs/roadmap/TUI_OPERATOR_SURFACE.md`.
   `dashboard.DashboardApp` remains the backend and still owns the Rich
   `--snapshot` and `--run` modes.
   - The previous in-`dashboard.py` `TextualDashboardApp` UI is superseded and

@@ -292,6 +292,214 @@ class TestBackendContractHoldsForTheNewUi:
             break
 
 
+@textual_required
+class TestMemoryPageIsNowAWorkspace:
+    """The Memory tab became a page -- records table on top, provenance
+    trace directly beneath it, one shared log -- instead of a tab with a
+    sibling Provenance tab. This is the operator's ask verbatim: "the memory
+    tab should act like a table so I can copy IDs and paste them ... put
+    provenance below memory, making it easier to search." See panels.py's
+    `MemoryPanel`/`MemoryRecordsPanel`/`ProvPanel` and app.py's `TABS`.
+    """
+
+    def test_no_prov_tab_or_panel_class(self) -> None:
+        from seam_runtime.tui.app import TABS
+        from seam_runtime.tui.panels import PANEL_CLASSES
+
+        assert "prov" not in dict(TABS)
+        assert "prov" not in PANEL_CLASSES
+
+    def _backend_with_a_record(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        """A real backend over a temp store holding one compiled record.
+
+        `SeamRuntime.__init__` (runtime.py) reads `SEAM_PGVECTOR_DSN`
+        straight out of the process environment and, if set, tries to reach
+        that Postgres for vector indexing -- an operator's own DSN pointed
+        at a database this test knows nothing about must never leak into
+        whether `compile` here succeeds, so it is cleared for the sqlite-
+        backed adapter every time.
+        """
+        from seam_runtime.dashboard import DashboardApp
+        from seam_runtime.runtime import SeamRuntime
+
+        monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+        runtime = SeamRuntime(str(tmp_path / "seam.db"))
+        backend = DashboardApp(runtime)
+        should_exit = backend.execute("compile a note about the memory workspace redesign")
+        assert should_exit is False
+        assert backend.result_title != "Command Error", backend.result_body
+        return backend
+
+    def test_mounted_app_has_exactly_one_of_each_shared_widget(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+
+        backend = self._backend_with_a_record(tmp_path, monkeypatch)
+        app = SeamTUI(backend)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.pause()
+                assert len(app.query("#log-memory")) == 1
+                assert len(app.query("#prov-query")) == 1
+                assert len(app.query("#prov-tree")) == 1
+                assert not app.query("#log-prov")
+
+                # And specifically inside the memory page, not floating
+                # somewhere else in the DOM.
+                panel = app.query_one("#panel-memory")
+                assert panel.query_one("#log-memory") is not None
+                assert panel.query_one("#prov-query") is not None
+                assert panel.query_one("#prov-tree") is not None
+
+        asyncio.run(_check())
+
+    def test_row_selection_copies_id_and_traces_it(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import DataTable, Input
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.panels import MemoryRecordsPanel
+
+        backend = self._backend_with_a_record(tmp_path, monkeypatch)
+        app = SeamTUI(backend)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.pause()
+                records = app.query_one("#memory-records", MemoryRecordsPanel)
+                # `refresh_records` runs on a `@work(thread=True)` worker
+                # (panels.py), so the row may not exist yet on the first
+                # pause -- poll rather than assume one pause is enough.
+                for _ in range(50):
+                    if records._row_ids:
+                        break
+                    await pilot.pause(0.05)
+                assert records._row_ids, "load worker never populated a row"
+                expected_id = records._row_ids[0]
+
+                table = app.query_one("#memory-table", DataTable)
+                table.focus()
+                await pilot.pause()
+                await pilot.press("enter")
+                await pilot.pause(0.2)
+
+                # `App.clipboard` (textual/app.py) is the public read side of
+                # `copy_to_clipboard`'s private `_clipboard` -- real and
+                # observable, not something to monkeypatch.
+                assert app.clipboard == expected_id
+                assert app.query_one("#prov-query", Input).value == expected_id
+
+        asyncio.run(_check())
+
+    def test_yank_copies_id_without_changing_prov_query(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import DataTable, Input
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.panels import MemoryRecordsPanel
+
+        backend = self._backend_with_a_record(tmp_path, monkeypatch)
+        app = SeamTUI(backend)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.pause()
+                records = app.query_one("#memory-records", MemoryRecordsPanel)
+                for _ in range(50):
+                    if records._row_ids:
+                        break
+                    await pilot.pause(0.05)
+                assert records._row_ids
+                expected_id = records._row_ids[0]
+
+                table = app.query_one("#memory-table", DataTable)
+                table.focus()
+                await pilot.pause()
+                await pilot.press("y")
+                await pilot.pause(0.2)
+
+                assert app.clipboard == expected_id
+                # `y` only yanks -- it must not also drive the trace below.
+                assert app.query_one("#prov-query", Input).value == ""
+
+        asyncio.run(_check())
+
+    def test_empty_store_guard_no_ops_without_raising(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import DataTable
+
+        from seam_runtime.dashboard import DashboardApp
+        from seam_runtime.runtime import SeamRuntime
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+        runtime = SeamRuntime(str(tmp_path / "seam.db"))
+        app = SeamTUI(DashboardApp(runtime))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.pause()
+                table = app.query_one("#memory-table", DataTable)
+                table.focus()
+                await pilot.pause()
+
+                # The empty store renders one status row ("no MIRL records
+                # yet ..."); `_row_ids` stays `[]` for it, so both the `y`
+                # and row-selection paths must no-op rather than raise or
+                # copy the status text as if it were an id.
+                await pilot.press("y")
+                await pilot.pause(0.2)
+                assert app.clipboard == ""
+
+                await pilot.press("enter")
+                await pilot.pause(0.2)
+                assert app.clipboard == ""
+
+        asyncio.run(_check())
+
+    def test_memory_panel_reload_reloads_both_children(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.panels import MemoryPanel, MemoryRecordsPanel, ProvPanel
+
+        backend = self._backend_with_a_record(tmp_path, monkeypatch)
+        app = SeamTUI(backend)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.pause()
+                records = app.query_one("#memory-records", MemoryRecordsPanel)
+                prov = app.query_one("#memory-prov", ProvPanel)
+
+                records_calls: list[None] = []
+                prov_calls: list[None] = []
+                monkeypatch.setattr(records, "reload", lambda: records_calls.append(None))
+                monkeypatch.setattr(prov, "reload", lambda: prov_calls.append(None))
+
+                app.query_one("#panel-memory", MemoryPanel).reload()
+
+                assert records_calls == [None]
+                assert prov_calls == [None]
+
+        asyncio.run(_check())
+
+
 def test_persisted_file_is_never_the_repo_env() -> None:
     """Settings must never be written into the repo's own .env."""
     path = config.config_path()

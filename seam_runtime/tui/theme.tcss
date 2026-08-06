@@ -150,6 +150,58 @@ DataTable > .datatable--hover {
     background: $surface-alt;
 }
 
+/* ── Memory page (records + provenance-below + log) ──── */
+/*
+ * `MemoryPanel` (panels.py) stacks three sections in one Vertical: the
+ * records table, the provenance trace, and the tab's RichLog. Each of the
+ * first two is itself a container (`MemoryRecordsPanel`, `ProvPanel`), not
+ * a bare widget, so without explicit heights here they fall back to
+ * `height: auto` and the whole page collapses toward whichever child's
+ * *content* is tallest instead of sharing the tab's real vertical space --
+ * confirmed by capturing real tmux frames (task brief step G) before these
+ * rules existed. `1fr` on both halves plus a `min-height` keeps a usable
+ * number of rows visible at small terminal sizes without letting either
+ * section starve the other; the log is fixed small since it is transcript,
+ * not the thing being searched.
+ */
+
+#memory-records {
+    height: 1fr;
+    min-height: 8;
+}
+
+#memory-prov {
+    height: 1fr;
+    min-height: 7;
+}
+
+/*
+ * Fixed, and deliberately small: this is transcript, not the thing being
+ * searched. The exact numbers are a floor, not taste -- the three sections
+ * plus the brand bar, tab bar, command input and help rail have to fit a
+ * short terminal, and at 110x32 an 8-row log with an 8-row prov floor
+ * pushed the log entirely off-screen, so command output landed somewhere
+ * invisible. These floors keep all three visible down to ~30 rows.
+ */
+#log-memory {
+    height: 6;
+    min-height: 4;
+}
+
+/* `Tree` carries no border by default, unlike `DataTable` above -- without
+ * this the provenance trace reads as loose text floating under the records
+ * table instead of the other half of one system. */
+#prov-tree {
+    border: round $edge;
+    background: $bg-panel;
+    height: 1fr;
+    min-height: 4;
+}
+
+#prov-tree:focus {
+    border: round $magenta;
+}
+
 /* ── Command palette (the "/" menu) ───────────────────── */
 
 #palette-wrap {

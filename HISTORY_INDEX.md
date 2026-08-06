@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 539
-total_tokens: ~276258
-latest_id: 539
+total_entries: 540
+total_tokens: ~277852
+latest_id: 540
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 540 | 2026-08-06 | done | 4a989fbc6d1f2240 | tui,surfaces,dashboard,provenance,+ | 537 |
 | 539 | 2026-08-05 | done | b6845b76739bfacf | ci,tests,tui,verify,+ | 537 |
 | 538 | 2026-08-05 | done | cdcdba9200432831 | benchmarks,mem0,positioning,roadmap,+ | none |
 | 537 | 2026-08-05 | done | ae51741b1a88e5a5 | tui,cli,surfaces,dashboard,+ | none |
@@ -626,7 +627,7 @@ compact: true
 - cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
-- dashboard: count=77 latest=#537, #404, #403, #402, #342
+- dashboard: count=78 latest=#540, #537, #404, #403, #402
 - decomposition: count=1 latest=#319
 - deepseek: count=4 latest=#370, #369, #368, #367
 - density: count=3 latest=#316, #315, #314
@@ -777,7 +778,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=111 latest=#536, #534, #531, #528, #461
 - prov: count=1 latest=#316
-- provenance: count=21 latest=#530, #529, #513, #510, #498
+- provenance: count=22 latest=#540, #530, #529, #513, #510
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -809,7 +810,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=1 latest=#388
-- roadmap: count=65 latest=#538, #531, #514, #513, #511
+- roadmap: count=66 latest=#540, #538, #531, #514, #513
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -844,7 +845,7 @@ compact: true
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
 - surface: count=10 latest=#502, #488, #487, #469, #467
-- surfaces: count=1 latest=#537
+- surfaces: count=2 latest=#540, #537
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
 - telemetry: count=2 latest=#367, #366
@@ -865,11 +866,11 @@ compact: true
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
-- tui: count=27 latest=#539, #537, #137, #121, #120
+- tui: count=28 latest=#540, #539, #537, #137, #121
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=361 latest=#539, #537, #536, #534, #530
+- verify: count=362 latest=#540, #539, #537, #536, #534
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=9 latest=#404, #403, #402, #342, #340
@@ -886,6 +887,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 472
+- done: 473
 - in-progress: 8
 - planned: 21

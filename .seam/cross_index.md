@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 602
+total_events: 603
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-03T16:21:14Z | history:346:8e76711d | session-event | done | readme, ledger, roadmap, protocol | LICENSE,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,README.md,REPO_LEDGER.md... |
 | 2026-07-03T23:54:27Z | history:347:029e01d2 | session-event | done | mcp, pyproject, readme, registry | pyproject.toml,README.md,server.json,seam_runtime/mcp_protocol.py |
 | 2026-07-04T00:04:38Z | history:348:a3175bc2 | session-event | done | registry, mcp | server.json |
 | 2026-07-04T00:16:21Z | history:349:25a779c8 | session-event | changed | protocol, git-hooks, security | PR#115 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-05T15:26:42Z | history:537:ae51741b | session-event | done | tui, cli, surfaces, dashboard, config, verify | seam_runtime/tui/app.py,seam_runtime/tui/settings_screen.py,seam_runtime/conf... |
 | 2026-08-05T16:01:09Z | history:538:cdcdba92 | session-event | done | benchmarks, mem0, positioning, roadmap, correction, tenancy | docs/kb/memory-systems/mem0.md,docs/kb/memory-systems/seam-positioning.md,doc... |
 | 2026-08-05T16:31:24Z | history:539:b6845b76 | session-event | done | ci, tests, tui, verify, gates | .github/workflows/ci.yml,.github/workflows/ci-windows.yml,tests/audit/test_tu... |
+| 2026-08-06T22:44:45Z | history:540:4a989fbc | session-event | done | tui, surfaces, dashboard, provenance, roadmap, verify | seam_runtime/tui/panels.py,seam_runtime/tui/app.py,seam_runtime/tui/theme.tcs... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0402.cross.md | 2026-04-15T00:00:00Z..2026-07-03T15:15:01Z | 402 | (multi) | (multi) |
+| 0001-0403.cross.md | 2026-04-15T00:00:00Z..2026-07-03T16:21:14Z | 403 | (multi) | (multi) |

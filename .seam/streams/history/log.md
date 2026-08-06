@@ -16933,3 +16933,137 @@ change.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#539---
+
+---BEGIN-ENTRY-#540---
+id: 540
+date: 2026-08-06T22:44:45Z
+agent: claude
+status: done
+topics: tui, surfaces, dashboard, provenance, roadmap, verify
+commits: pending
+refs: seam_runtime/tui/panels.py,seam_runtime/tui/app.py,seam_runtime/tui/theme.tcss,tests/audit/test_tui_supersedes_dashboard.py,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md
+supersedes: 537
+tokens: 1594
+---
+Turned the Memory tab into a working page instead of a table with a log under
+it, and wrote down the surface the TUI is being built toward.
+
+WHAT THE OPERATOR ASKED FOR
+
+"The memory tab should act like a table so I can copy IDs and paste them in
+places like the search bar" and "put provenance below memory, making it easier
+to search". Both are one workflow: read a record id off the table, then trace
+it. Previously that meant reading an id off one tab, retyping it on another.
+
+WHAT CHANGED
+
+`MemoryPanel` is now a composite page: `MemoryRecordsPanel` (the old
+`MemoryPanel`, renamed, still owning `#memory-table` and its worker-backed
+load), `ProvPanel` directly beneath it, and exactly one `RichLog`
+(`#log-memory`) for the page. `app.py::_write("memory", ...)` and
+`action_clear_output` target that same id and did not change.
+
+Selecting a row -- Enter or click, both post `DataTable.RowSelected` -- copies
+the record id to the clipboard, writes it into `#prov-query`, and traces it in
+the panel below. `y` yanks the id under the cursor without tracing. Both paths
+also echo the bare id alone on its own line, because `App.copy_to_clipboard`
+emits OSC 52 and the terminal may not honour it; one clean line an operator can
+drag-select is the fallback, not decoration.
+
+Row-to-id mapping goes through a `_row_ids` list maintained beside the table
+rather than by reading text back out of rendered cells. Status rows ("no MIRL
+records yet", "error: ...") clear that list, so neither copy path can mistake a
+status message for an id. With an empty store both keys write a dim "no record
+under the cursor" note and do nothing else.
+
+The standalone Provenance tab is removed (eight tabs to seven). Keeping both it
+and the panel would mount `#prov-query` twice and fail on duplicate ids;
+`ProvPanel` also dropped its own `#log-prov`, which nothing writes to now that
+"prov" is not a tab.
+
+A DEFECT THE BUILDER'S OWN REAL-TTY CHECK MISSED
+
+The implementation was verified at 200x50 and 120x35 and reported all three
+sections visible. At 110x32 the log was pushed entirely off-screen: an 8-row
+fixed log plus an 8-row provenance floor plus the table floor, the brand bar,
+the tab bar, the command input and the help rail exceed 32 rows, so command
+output landed somewhere invisible. The floors are now 6/4 for the log, 7 for
+the provenance section and 4 for the tree, which keeps all three visible down
+to roughly 30 rows. This is the same lesson as HISTORY#537 one level in: it is
+not enough to launch the real binary, it has to be launched at a size that can
+actually fail.
+
+THREE DEFECTS FOUND BY PROBING THE SHIPPED BINARY, NOT FIXED HERE
+
+Recorded as the next slice rather than blended into this one:
+
+1. Typing `/stats` at speed opens the command palette with an EMPTY filter and
+   the first entry highlighted. The characters typed between the leading `/`
+   and the palette's mount land in `#command-input` and are discarded, so Enter
+   acts on an entry the operator never chose. Today the first entry
+   (`/benchmark`) takes a positional so it only pre-fills the input -- that is
+   luck, not safety. `CommandPalette` already accepts an `initial` filter and
+   nothing ever passes it.
+2. The backend's `tab` verb does not move the visible tab. `dashboard.py:2421`
+   parses it and `:2544` sets `controller.active_tab`; the superseded UI read
+   that back at `:1520-1524` and the new one never does. `app.py`'s `TABS`
+   docstring claims the command still works.
+3. There is no keyboard tab navigation at all. `ctrl+s` reaches Settings;
+   every other tab is mouse-only.
+
+THE SURFACE THIS IS BEING BUILT TOWARD
+
+`docs/roadmap/TUI_OPERATOR_SURFACE.md` records the target and the ordered
+slices. The reorganising argument: the first tab set was a map of the runtime's
+modules, and three of its eight tabs (Benchmarks, Compression, Live) are
+engine-development instruments that take no part in daily use, while the two
+highest-value stations of the operator loop do not exist -- what context would
+the agent actually receive, and what should this memory forget or promote.
+
+Target tabs are Memory, Recall, Review, Curate, Health, Engine, Chat, Settings.
+Every panel in the programme reads through an existing `SeamRuntime`/`SeamSDK`
+entry point; the signatures were introspected against the installed package
+rather than recalled. Six contracts bind every panel, each one a defect class
+already paid for: no private retrieval path (Track S S8 has to prove surfaces
+match `SeamRuntime.retrieve()`), worker threads for blocking work, visible
+empty/error rows, two-phase plan-confirm-apply for destructive actions, masked
+secrets until per-field reveal, and real-TTY verification at two terminal
+sizes.
+
+VERIFICATION PERFORMED
+
+pytest tests/audit/test_tui_supersedes_dashboard.py -- 29 static `def test_*`,
+35 collected because two cases are parametrized; 35 passed.
+
+Discrimination was proven, not assumed: with `seam_runtime/tui/` reverted and
+the new tests kept, 5 of them fail; restoring passes all 35. The empty-store
+guard passes either way and is not a discriminator on its own -- it is a
+regression fence, and is recorded as such rather than counted as evidence.
+
+Real-TTY launch under tmux against the operator's live `seam.db`, at 200x50 and
+at 110x32, independent of the builder's own run: the records table, the
+provenance input, the bordered trace tree and the log are all visible at both
+sizes. Selecting `ent:0679426b04e5ed34:seam:...` rendered its full evidence
+chain (PROV -> ENT/CLM -> SPAN -> RAW), filled `#prov-query`, and printed the
+copy confirmation plus the bare id. `y` on the next row copied that row's id.
+
+`ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+Slices S2 through S9 of the roadmap document are unstarted; S2 (navigation and
+palette hardening) is next and carries the three defects above.
+
+`dashboard.py` remains on the never-audited list from two consecutive
+whole-repository audits, and `TextualDashboardApp` remains dead code because
+its 28 usages in `test_seam_all/test_seam.py` are still the only coverage of
+several dashboard behaviours.
+
+One decision is open and blocks nothing before S5: whether the TUI ships to
+self-host users or is operator-only. The Memory table shows MIRL kinds and raw
+canonical ids; if it ships, that needs a product-level presentation with the
+MIRL view behind an operator flag.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#540---

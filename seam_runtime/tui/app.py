@@ -56,7 +56,6 @@ TABS: tuple[tuple[str, str], ...] = (
     ("compression", "Compression"),
     ("chat", "Chat"),
     ("live", "Live"),
-    ("prov", "Provenance"),
     ("settings", "Settings"),
 )
 
@@ -210,7 +209,8 @@ class SeamTUI(App[None]):
 
         yield Input(placeholder="Run a command, or press / for the menu", id="command-input")
         yield Static(
-            "[b]/[/b] commands   [b]^S[/b] settings   [b]^L[/b] clear   [b]^C[/b] quit",
+            "[b]/[/b] commands   [b]^S[/b] settings   [b]y[/b] copy id   "
+            "[b]^L[/b] clear   [b]^C[/b] quit",
             id="help-rail",
         )
 
@@ -233,6 +233,15 @@ class SeamTUI(App[None]):
                 f"{len(self.catalog)} commands · press / for the menu · "
                 f"{len(config.SETTINGS)} settings in the Settings tab"
             ),
+        )
+        # The Memory tab is now a page (table + provenance trace + this log,
+        # panels.py's `MemoryPanel`), and neither the copy-id key nor the
+        # trace-on-select behaviour is otherwise visible without reading the
+        # source, so say it once, dim, right under the splash.
+        self._write(
+            "memory",
+            f"[{brand.TEXT_DIM}]tip: select a record (enter or click) to "
+            f"trace it below · [b]y[/b] copies its id[/]",
         )
         self.query_one("#command-input", Input).focus()
 
