@@ -181,6 +181,109 @@ class TestRunSectionSortsAheadOfReference:
         assert len(run_rows) == 20
 
 
+class TestFirstSentenceCutsOnSentenceNotLine:
+    """Part 5 of S2b: summaries used to cut at the first *line*
+    (`.split("\n")[0]`). MCP descriptions are single physical lines but
+    several sentences, so nothing was ever cut and the row wrapped; CLI/SDK
+    docstrings can word-wrap their first sentence across source lines, so
+    cutting at "\n" truncated mid-sentence. Collapsing whitespace and
+    cutting at the first `.`/`!`/`?` fixes both."""
+
+    def test_single_sentence_with_no_terminal_punctuation_is_unchanged(self) -> None:
+        from seam_runtime.tui.commands import _first_sentence
+
+        assert _first_sentence("Do the foo thing") == "Do the foo thing"
+
+    def test_multi_sentence_text_is_cut_at_the_first_period(self) -> None:
+        from seam_runtime.tui.commands import _first_sentence
+
+        text = "Run a search and return matches. Useful for finding related concepts."
+        assert _first_sentence(text) == "Run a search and return matches."
+
+    def test_a_sentence_word_wrapped_across_source_lines_is_not_cut_mid_sentence(self) -> None:
+        from seam_runtime.tui.commands import _first_sentence
+
+        text = (
+            "Do the foo thing across every namespace and every scope, returning a\n"
+            "dict of results keyed by record id."
+        )
+        assert _first_sentence(text) == (
+            "Do the foo thing across every namespace and every scope, returning a "
+            "dict of results keyed by record id."
+        )
+
+    def test_trailing_sentence_with_no_following_text_is_kept_whole(self) -> None:
+        from seam_runtime.tui.commands import _first_sentence
+
+        assert _first_sentence("Do the thing.") == "Do the thing."
+
+    def test_empty_and_blank_text_yield_empty(self) -> None:
+        from seam_runtime.tui.commands import _first_sentence
+
+        assert _first_sentence("") == ""
+        assert _first_sentence("   \n  ") == ""
+
+
+class TestMcpSummaryIsCutAtFirstSentence:
+    """The MCP path specifically: `TOOL_METADATA` descriptions are already
+    single-line, so the old `.split("\n")[0]` never truncated a
+    multi-sentence one -- it passed through whole and wrapped the row."""
+
+    def test_synthetic_multi_sentence_description_is_cut_to_one_sentence(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from seam_runtime.tui import commands as commands_module
+
+        fake_metadata = {
+            "seam_fake_tool": {
+                "description": (
+                    "Do the thing well. It also does a second thing you "
+                    "should know about."
+                )
+            }
+        }
+        monkeypatch.setattr("seam_runtime.mcp.TOOL_METADATA", fake_metadata, raising=False)
+
+        specs = commands_module._mcp_specs()
+
+        assert len(specs) == 1
+        assert specs[0].summary == "Do the thing well."
+
+
+class TestSdkRowsAreTrimmedButKeepTheFullSignature:
+    """Part 5 of S2b: `sdk.knowledge(**query: 'Any') -> 'dict[str, object]'`
+    was long enough to wrap the row's summary onto a second line. `name`
+    now carries a trimmed call form for the row; `full_signature` keeps the
+    untrimmed form for the reference card (`SeamTUI._show_reference`)."""
+
+    def _knowledge_spec(self, tmp_path: Path):
+        catalog = _catalog(tmp_path)
+        return next(c for c in catalog if c.surface == "sdk" and c.name.startswith("knowledge("))
+
+    def test_row_name_is_a_trimmed_call_form(self, tmp_path: Path) -> None:
+        spec = self._knowledge_spec(tmp_path)
+        assert spec.name == "knowledge(**query)"
+        assert "Any" not in spec.name
+        assert "->" not in spec.name
+        assert "self" not in spec.name
+
+    def test_full_signature_keeps_the_untrimmed_form(self, tmp_path: Path) -> None:
+        spec = self._knowledge_spec(tmp_path)
+        assert spec.full_signature.startswith("knowledge(")
+        assert "query" in spec.full_signature
+
+    def test_full_signature_is_empty_for_every_non_sdk_surface(self, tmp_path: Path) -> None:
+        catalog = _catalog(tmp_path)
+        non_sdk = [c for c in catalog if c.surface != "sdk"]
+        assert non_sdk, "expected non-sdk rows to exist"
+        assert all(c.full_signature == "" for c in non_sdk)
+
+    def test_sdk_summary_is_still_derived_and_sentence_cut(self, tmp_path: Path) -> None:
+        spec = self._knowledge_spec(tmp_path)
+        assert spec.summary
+        assert spec.summary.count(". ") == 0  # a real second sentence would show up as ". "
+
+
 @textual_required
 class TestPaletteRendersTwoSections:
     """End-to-end confirmation that the rendered palette shows Run before
@@ -217,5 +320,148 @@ class TestPaletteRendersTwoSections:
                 # A reference row (after the Reference header) carries a
                 # surface tag; "rest" for the api surface specifically.
                 assert any("rest" in label for label in labels[reference_index:])
+
+        asyncio.run(_check())
+
+    def test_sdk_row_shows_the_trimmed_call_form_not_the_full_signature(
+        self, tmp_path: Path
+    ) -> None:
+        """The rendered row text itself, not just the underlying
+        `CommandSpec.name` -- confirms `_render_options` (app.py) puts the
+        trimmed form on screen."""
+        import asyncio
+
+        from textual.app import App
+        from textual.widgets import OptionList
+
+        from seam_runtime.tui.app import CommandPalette
+
+        catalog = _catalog(tmp_path)
+
+        class _PaletteHarness(App[None]):
+            async def on_mount(self) -> None:
+                await self.push_screen(CommandPalette(catalog, initial="knowledge(**"))
+
+        async def _check() -> None:
+            app = _PaletteHarness()
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                option_list = app.screen.query_one("#palette-list", OptionList)
+                rows = [
+                    str(option_list.get_option_at_index(i)._prompt)
+                    for i in range(option_list.option_count)
+                ]
+                knowledge_rows = [row for row in rows if "sdk.knowledge(" in row]
+                assert knowledge_rows, rows
+                assert all("Any" not in row for row in knowledge_rows)
+                assert all("->" not in row for row in knowledge_rows)
+
+        asyncio.run(_check())
+
+
+@textual_required
+class TestModesGroupIsDiscoverableFromTheMenu:
+    """Part 5 of S2b: `!shell`, `?chat`, `/seam` are listed in the Run
+    section so the modes are discoverable from the menu, not just from
+    documentation."""
+
+    def test_modes_group_and_all_three_rows_render(self, tmp_path: Path) -> None:
+        import asyncio
+
+        from textual.app import App
+        from textual.widgets import OptionList
+
+        from seam_runtime.tui.app import CommandPalette
+
+        catalog = _catalog(tmp_path)
+
+        class _PaletteHarness(App[None]):
+            async def on_mount(self) -> None:
+                await self.push_screen(CommandPalette(catalog))
+
+        async def _check() -> None:
+            app = _PaletteHarness()
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                option_list = app.screen.query_one("#palette-list", OptionList)
+                labels = [
+                    str(option_list.get_option_at_index(i)._prompt)
+                    for i in range(option_list.option_count)
+                ]
+                assert any("Modes" in label for label in labels)
+                assert any("!shell" in label for label in labels)
+                assert any("?chat" in label for label in labels)
+                assert any("/seam" in label for label in labels)
+
+        asyncio.run(_check())
+
+    def test_selecting_a_mode_row_dismisses_with_a_mode_id(self, tmp_path: Path) -> None:
+        import asyncio
+
+        from textual.app import App
+        from textual.widgets import OptionList
+
+        from seam_runtime.tui.app import CommandPalette
+
+        catalog = _catalog(tmp_path)
+        dismissed: list[str] = []
+
+        class _PaletteHarness(App[None]):
+            async def on_mount(self) -> None:
+                self.push_screen(CommandPalette(catalog), dismissed.append)
+
+        async def _check() -> None:
+            app = _PaletteHarness()
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                option_list = app.screen.query_one("#palette-list", OptionList)
+                shell_index = next(
+                    i for i in range(option_list.option_count)
+                    if "!shell" in str(option_list.get_option_at_index(i)._prompt)
+                )
+                option_list.highlighted = shell_index
+                await pilot.pause()
+                await pilot.press("enter")
+                await pilot.pause()
+
+        asyncio.run(_check())
+        assert dismissed == ["mode:shell"]
+
+
+@textual_required
+class TestReferenceCardCarriesTheFullSdkSignature:
+    """`SeamTUI._show_reference`: the row shows a trimmed call form, but
+    selecting an SDK reference entry must still print the untrimmed
+    signature -- nothing is actually lost, it just moved off the row."""
+
+    def test_selecting_an_sdk_entry_prints_the_full_signature(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import RichLog
+
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+        backend = DashboardApp(SeamRuntime(str(tmp_path / "seam.db")))
+        app = SeamTUI(backend)
+        spec = next(
+            c for c in app.catalog if c.surface == "sdk" and c.name.startswith("knowledge(")
+        )
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                app._palette_result(f"sdk:{spec.name}")
+                await pilot.pause()
+                text = "\n".join(
+                    strip.text for strip in app.query_one("#log-memory", RichLog).lines
+                )
+                assert spec.full_signature in text
+                # The row's trimmed form must not be what's mistaken for
+                # completeness -- the annotation text that trimming removed
+                # has to actually show up somewhere.
+                assert "Any" in text or "dict" in text
 
         asyncio.run(_check())

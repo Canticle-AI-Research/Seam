@@ -17191,3 +17191,159 @@ keyboard tab navigation, and the unwired `tab` command -- is unstarted.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#541---
+
+---BEGIN-ENTRY-#542---
+id: 542
+date: 2026-08-07T04:39:51Z
+agent: claude
+status: done
+topics: tui, modes, shell, chat, security, navigation, verify
+commits: pending
+refs: seam_runtime/tui/shell.py,seam_runtime/tui/app.py,seam_runtime/tui/commands.py,seam_runtime/tui/theme.tcss,tests/audit/test_tui_shell_session.py,tests/audit/test_tui_input_modes.py,tests/audit/test_command_palette_task_menu.py,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md
+supersedes: 541
+tokens: 1977
+---
+Gave the TUI input modes -- `/` seam, `!` shell, `?` chat -- and fixed the
+three defects that probing the shipped binary turned up. Operator request:
+"`!` `?` and `/` should all effect the mode of the tui."
+
+MODES
+
+A prefixed line is one-shot regardless of the latched mode, so `!ls` runs a
+shell command in the middle of a chat session. A bare sigil latches; Escape in
+the command input returns to seam. The mode is visible in three places -- a
+dedicated `#brand-mode` widget, the input placeholder, and the input's border
+colour -- because a latched mode the operator cannot see is a trap that turns
+the next thing they type into something they did not intend.
+
+Both modes reuse machinery that already existed. `SeamChatClient`
+(`dashboard.py:256`) is module-level and importable; the context prompt is
+built from `backend.orchestrator.rag(...)` exactly as the superseded UI built
+it (`dashboard.py:1964`). The reply renders with the memory ids the rag result
+injected, which is the part that makes chat worth having inside a memory
+runtime rather than a worse terminal for a chat available elsewhere.
+
+The `cd`/`pwd`-aware shell logic was trapped inside the superseded
+`TextualDashboardApp` -- a class nested inside a factory function, so not
+importable and not testable without a running TUI. It is now
+`seam_runtime/tui/shell.py`: a `ShellSession` owning `cwd`, returning a result
+object for every outcome including a bad directory, a non-zero exit, and a
+timeout. It never raises for ordinary failure, and it imports no textual.
+
+A SECURITY CONTROL WAS SILENTLY REMOVED, AND PUT BACK
+
+The first implementation ran `subprocess.run(shell=True)` with no allowlist, no
+cwd restriction, and no gate, enabled by default. That quietly reversed a
+hardening fix this repository had already made and recorded: after audit
+finding S1 (`docs/audits/2026-05-28-deep-health-audit.md`), HISTORY#272 put
+dashboard shell execution behind `shell=False`, an executable and command
+allowlist, a blocklist, a cwd restricted to /tmp or the project root, a
+timeout, and a master gate `SEAM_DASHBOARD_ALLOW_SHELL=1` that is off by
+default. The audit's own wording: critical the moment the flag is set or an
+agent is wired to that input.
+
+The reversal was documented only in a module docstring arguing for it. It was
+caught in review, before commit, and taken to the operator as a decision rather
+than shipped. The operator chose: keep `shell=True`, restore the gate.
+
+That combination is the deliberate one. `shell=False` plus the allowlist would
+kill pipes, globs, `&&` and `~` expansion, which are most of why `!` is worth
+having over a command runner. The master gate costs one Switch --
+`SEAM_DASHBOARD_ALLOW_SHELL` is already a registered `bool` Setting in
+`config.py`'s Dashboard group, so it was already toggleable from the TUI's own
+Settings tab with no new plumbing. `cd`/`pwd` stay live while the gate is off,
+matching where HISTORY#272 put the gate: inside `_run_shell_subprocess`, not
+around `cd`.
+
+`SEAM_SHELL_TIMEOUT_SECONDS` is honoured too. The first implementation
+hardcoded ten seconds and ignored the variable, which is the second half of the
+same drift: a new module reimplementing an old one without its controls.
+
+A PREMISE IN THE BRIEF WAS WRONG, AND CHECKING IT CHANGED THE DESIGN
+
+The brief asserted that the Settings tab's save path calls
+`config.apply_persisted_to_environ()`, and instructed that the claim be traced
+rather than assumed. It does not. `_save` persists to the settings file only;
+it is the separate Reload action (or the next launch's own startup call) that
+mutates `os.environ`.
+
+Reading the gate fresh on every call rather than caching it at construction is
+what makes that survivable: flip the Switch, Save, Reload, and the next `!`
+works without relaunching the TUI. A construction-time read would have needed a
+whole new `ShellSession`, which in practice means a restart.
+
+The underlying gap belongs to S5 and is recorded there rather than patched
+here: saving a setting reports success while the running process still holds
+the old value until a separate Reload. That is the same defect class S5 already
+owns for `SEAM_DB_PATH` and the embedding provider.
+
+THREE DEFECTS FOUND BY PROBING THE SHIPPED BINARY
+
+1. The palette keystroke race. Typing `/stats` at speed opened the palette with
+   an empty filter and the first entry highlighted, because the characters
+   typed between the `/` and the palette's mount landed in `#command-input` and
+   were discarded -- so Enter acted on an entry the operator never chose. It
+   only ever pre-filled rather than ran because the first entry happens to take
+   a positional, which is luck, not safety. `action_open_palette` now takes the
+   leftover text, clears it, and passes it as the filter `CommandPalette`
+   already accepted and ignored.
+2. `tab <view>` did not move the visible tab while `app.py`'s docstring claimed
+   it did. It is now handled in the TUI against the real tab ids and labels,
+   with an error listing valid names, and the docstring says what is true.
+3. There was no keyboard tab navigation at all. `alt+1`..`alt+N` jump, derived
+   from `len(TABS)` rather than hardcoded, and `ctrl+left`/`ctrl+right` cycle.
+
+Two palette readability fixes from the previous slice's captured frames also
+land here: SDK rows show a trimmed call form with the full signature moved to
+the reference card, and summaries cut at the first sentence rather than the
+first line, so multi-sentence MCP descriptions stop wrapping.
+
+VERIFICATION PERFORMED
+
+pytest tests/audit/test_tui_shell_session.py -- 35 static `def test_*`.
+pytest tests/audit/test_tui_input_modes.py -- 20 static `def test_*`.
+
+The gate's test asserts no process is spawned, by monkeypatching
+`subprocess.run` and asserting it was never called. Asserting only the refusal
+message would pass even if the command had run.
+
+Discrimination: with the source stashed and the tests kept, the shell module's
+tests fail at collection and 18 of 20 mode tests fail; restored, all pass.
+
+Real-TTY launch under tmux at 200x50, both gate states, run independently of
+the builder. Gate off: the indicator reads `shell (disabled:
+SEAM_DASHBOARD_ALLOW_SHELL)`, the placeholder names the variable and the
+Settings tab, and `echo should_not_run` produced the refusal and no output.
+Gate on: `echo piped | wc -c` returned 6, proving the pipe reached a real
+shell, and `cd /tmp` moved the session. Mode indicator tracked seam -> shell ->
+chat, Escape returned to seam, and `/stats` typed at full speed opened the
+palette pre-filtered to `stats`.
+
+Chat was verified with the key unset, so the "not configured" path rendered and
+the tab auto-switched. No live provider call was made from this entry:
+spending on a paid API without asking is not a verification step. The wired
+path is covered by tests with `SeamChatClient.complete` monkeypatched.
+
+.venv/bin/python -m pytest tests/ test_seam_all/ tools/history tools/streams
+with the live pgvector lane -- 2680 passed, 2 xfailed, 0 skipped, 3 subtests
+passed. That is HISTORY#541's 2611 plus this slice's 69 new static tests (35
+shell, 20 modes, and 14 added to the palette file, which went from 13 to 27),
+an exact match with nothing displaced. Run independently of the builder's own
+run, which reported the same number. `ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+`alt+N` cannot work on every terminal, and this is a limitation rather than a
+bug: Textual's ANSI table maps `ESC`+digit to the macOS Option characters, so
+on a terminal using the classic "Alt sends Escape" convention `alt+3` inserts
+`£` into the command input instead of switching tabs. Terminals with the kitty
+keyboard protocol or `modifyOtherKeys` are unaffected. `ctrl+left`/`ctrl+right`
+and `tab <name>` have no such ambiguity, so no navigation path is a dead end.
+Negotiating CSI-u was not attempted.
+
+S3 (namespace/scope rail) onward in `docs/roadmap/TUI_OPERATOR_SURFACE.md` is
+unstarted. The Settings save-versus-reload gap above is routed to S5.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#542---

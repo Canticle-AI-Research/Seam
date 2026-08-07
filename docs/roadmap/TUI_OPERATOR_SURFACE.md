@@ -135,8 +135,20 @@ Both modes reuse machinery that already exists rather than adding engine work.
 Shell: the `cd`/`pwd`-aware subprocess logic currently trapped inside the
 superseded UI class becomes `seam_runtime/tui/shell.py`, a `ShellSession`
 owning `cwd` — unit-testable without a TUI, which the original never was. This
-restores a capability the previous dashboard already shipped; it is a local
-operator tool, not a new network surface. Chat: module-level `SeamChatClient`
+restores a capability the previous dashboard already shipped, but deliberately
+not that dashboard's full HISTORY#272 security posture: subprocess commands
+run with `shell=True` unconditionally once enabled, because pipes, globs,
+`&&` chaining and `~` expansion are most of why `!` is worth having, and
+HISTORY#272's allowlisted `shell=False` rewrite of `dashboard.py`'s
+`_run_shell_subprocess` would kill all of them — so that path is **not**
+restored. What **is** restored from that same entry is its master gate:
+`SEAM_DASHBOARD_ALLOW_SHELL`, off by default, already a registered `bool`
+Setting in the TUI's own Settings tab (`config.py`'s "Dashboard" group), read
+fresh from the environment on every `!` command so flipping the Switch takes
+effect immediately with no relaunch. `cd`/`pwd` spawn no subprocess and are
+unaffected by the gate, matching where HISTORY#272 put it originally (inside
+`_run_shell_subprocess`, not around `cd`). It is a local operator tool once
+enabled, not a new network surface. Chat: module-level `SeamChatClient`
 (`dashboard.py:256`) plus `backend.orchestrator.rag(...)` for the context
 prompt, the same pair the old UI used — and the reply renders **with the
 memory ids it injected**, which is the S9 idea landing early because the rag
@@ -242,13 +254,26 @@ is one flat scroll where every row is three lines tall.
   currently paints 25 masked inputs on first render.
 - **Search switches the right pane to flat results with a group column**,
   rather than filtering inside a giant scroll.
-- **Fix the silent no-op.** `_save` writes the file and calls
-  `apply_persisted_to_environ`, but the live `SeamRuntime` was constructed
-  before that — so `SEAM_DB_PATH`, the embedding provider, and the vector
-  adapter change nothing until relaunch while the UI reports success. Either
-  rebuild the runtime on save or badge those rows "takes effect on restart".
-  Reporting success for a change that did not take effect is the same defect
-  class as HISTORY#537's silently-unset `DEEPSEEK_API_KEY`.
+- **Fix the silent no-op — which is worse than this document first recorded.**
+  An earlier revision of this bullet claimed `_save` calls
+  `apply_persisted_to_environ`. It does not, and that was doc drift against
+  code which never behaved that way (traced in HISTORY#542). `_save` calls
+  `config.save_persisted` and writes the file only; the separate **Reload**
+  action is the sole caller of `apply_persisted_to_environ`. So there are two
+  stacked gaps, not one:
+  - Save reports success while the running process still holds the old value
+    for *every* setting, until Reload is pressed.
+  - Even after Reload, construction-time knobs — `SEAM_DB_PATH`, the embedding
+    provider, the vector adapter — cannot take effect, because the live
+    `SeamRuntime` was already built.
+
+  Making Save apply is not a one-liner: `apply_persisted_to_environ`
+  deliberately refuses to overwrite a name already present in the environment,
+  which is the rule that keeps `SEAM_X=1 seam-dash` behaving like every other
+  CLI. S5 must decide what Save means for a name the process already has, then
+  either rebuild the runtime or badge the affected rows "takes effect on
+  restart". Reporting success for a change that did not take effect is the same
+  defect class as HISTORY#537's silently-unset `DEEPSEEK_API_KEY`.
 
 Exit gate: a construction-time knob either takes effect or says it will not;
 the "Set" group lists exactly the non-default values.

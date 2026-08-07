@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 541
-total_tokens: ~279268
-latest_id: 541
+total_entries: 542
+total_tokens: ~281245
+latest_id: 542
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 542 | 2026-08-07 | done | c9a1de0d344a6b0c | tui,modes,shell,chat,+ | 541 |
 | 541 | 2026-08-06 | done | 591dd697ffb44796 | tui,palette,cli,api,+ | 540 |
 | 540 | 2026-08-06 | done | 4a989fbc6d1f2240 | tui,surfaces,dashboard,provenance,+ | 537 |
 | 539 | 2026-08-05 | done | b6845b76739bfacf | ci,tests,tui,verify,+ | 537 |
@@ -591,7 +592,7 @@ compact: true
 - candidate: count=1 latest=#456
 - cat1: count=8 latest=#369, #365, #362, #358, #328
 - cat3: count=5 latest=#413, #412, #369, #365, #362
-- chat: count=17 latest=#526, #342, #286, #137, #074
+- chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
 - ci: count=45 latest=#539, #536, #534, #527, #525
@@ -736,10 +737,12 @@ compact: true
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
 - models: count=3 latest=#450, #403, #182
+- modes: count=1 latest=#542
 - multi-agent: count=20 latest=#378, #268, #231, #230, #229
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=5 latest=#484, #033, #024, #009, #002
+- navigation: count=1 latest=#542
 - negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - node-vectors: count=2 latest=#492, #491
@@ -824,7 +827,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=75 latest=#535, #527, #526, #525, #524
+- security: count=76 latest=#542, #535, #527, #526, #525
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -832,6 +835,7 @@ compact: true
 - server: count=6 latest=#520, #457, #300, #288, #286
 - session: count=3 latest=#027, #025, #019
 - session-end: count=1 latest=#306
+- shell: count=1 latest=#542
 - skill: count=1 latest=#331
 - skip: count=1 latest=#294
 - skip-policy: count=1 latest=#361
@@ -868,11 +872,11 @@ compact: true
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
-- tui: count=29 latest=#541, #540, #539, #537, #137
+- tui: count=30 latest=#542, #541, #540, #539, #537
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=363 latest=#541, #540, #539, #537, #536
+- verify: count=364 latest=#542, #541, #540, #539, #537
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=9 latest=#404, #403, #402, #342, #340
@@ -889,6 +893,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 474
+- done: 475
 - in-progress: 8
 - planned: 21

@@ -13,9 +13,11 @@ for the duration of every operation.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
+from rich.markup import escape as _escape_markup
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -32,7 +34,8 @@ from textual.widgets import (
 from textual.widgets.option_list import Option
 
 from .. import config
-from . import brand
+from ..context_views import build_context_payload
+from . import brand, shell
 from .commands import (
     SURFACES,
     CommandSpec,
@@ -47,8 +50,12 @@ __all__ = ["SeamTUI", "CommandPalette", "run"]
 
 THEME_PATH = Path(__file__).with_name("theme.tcss")
 
-#: Tab id -> label. Preserved from the previous dashboard so muscle memory and
-#: the `tab` command keep working.
+#: Tab id -> label. `TabbedContent.active` is always `f"tab-{id}"`. The `tab`
+#: command (below, `_run_tab_command`) matches an operator's argument
+#: case-insensitively against both the id and the label here (prefix match
+#: is fine) and switches to it directly -- it does NOT delegate to the
+#: backend's own `tab` verb, whose argparse choices (`runtime`/`benchmark`)
+#: are the previous dashboard's tab names and do not exist on this one.
 TABS: tuple[tuple[str, str], ...] = (
     ("memory", "Memory"),
     ("retrieval", "Retrieval"),
@@ -62,6 +69,35 @@ TABS: tuple[tuple[str, str], ...] = (
 #: Reference-row surface tag shown in the palette. "rest" reads better than
 #: the internal "api" key next to "cli"/"mcp"/"sdk".
 _SURFACE_TAGS: dict[str, str] = {"cli": "cli", "mcp": "mcp", "api": "rest", "sdk": "sdk"}
+
+#: The three modes an operator can latch `#command-input` into (S2b). A
+#: prefixed line (`!ls`, `?hello`, `/stats`) always runs one-shot regardless
+#: of the latched mode; a bare sigil + Enter latches it (except `/`, which
+#: opens the palette -- unchanged from before this slice).
+_MODE_PLACEHOLDERS: dict[str, str] = {
+    "seam": "Run a command, or press / for the menu",
+    "shell": "run a shell command in {cwd}",
+    # Shown instead of the row above when `shell.shell_enabled()` is False,
+    # so the input itself -- not just a message that scrolls away -- keeps
+    # telling the operator why `!` does nothing (Part 5 of the shell gate).
+    # Still carries `{cwd}` (formatted the same way as the row above) so the
+    # session's working directory stays visible even while shell mode is
+    # disabled.
+    "shell-disabled": (
+        f"shell disabled -- set {shell.ALLOW_SHELL_ENV}=1 in the Settings "
+        "tab (cwd: {cwd})"
+    ),
+    "chat": "message the model",
+}
+_MODE_COLORS: dict[str, str] = {
+    "seam": brand.PINK, "shell": brand.ORANGE, "chat": brand.CYAN,
+}
+#: Palette option ids -> (label, summary) for the "Modes" group (Part 5).
+_MODE_MENU_ROWS: tuple[tuple[str, str, str], ...] = (
+    ("mode:shell", "!shell", "Latch shell mode -- bare text runs a shell command"),
+    ("mode:chat", "?chat", "Latch chat mode -- bare text messages the model"),
+    ("mode:seam", "/seam", "Return to seam mode -- bare text runs dashboard commands"),
+)
 
 
 class CommandPalette(ModalScreen[str]):
@@ -100,7 +136,17 @@ class CommandPalette(ModalScreen[str]):
                 yield OptionList(id="palette-list")
 
     def on_mount(self) -> None:
-        self._render_options(self.catalog)
+        # `initial` is text the operator had already typed into
+        # `#command-input` before the palette opened (`action_open_palette`
+        # in the App below): apply it as a live filter, not just cosmetic
+        # text sitting in `#palette-input` (S2b defect #1 -- previously
+        # `initial` filled the input's *display* value in `compose()` above
+        # but nothing ever re-rendered the option list against it, so a
+        # fast `/stats` opened on an unfiltered, unrelated first entry).
+        if self.initial:
+            self._render_options(filter_catalog(self.catalog, self.initial))
+        else:
+            self._render_options(self.catalog)
         self.query_one("#palette-input", Input).focus()
 
     def _render_options(self, specs: tuple[CommandSpec, ...]) -> None:
@@ -144,9 +190,13 @@ class CommandPalette(ModalScreen[str]):
                     row += f"  [{brand.TEXT_MUTED}]— {summary}[/]"
                 option_list.add_option(Option(row, id=f"{spec.surface}:{spec.name}"))
 
-        if run_specs:
-            add_section("Run", len(run_specs))
-            add_rows(run_specs, tagged=False)
+        # The three input-mode sigils (Part 1 of S2b) live in the Run
+        # section next to the dash verbs -- they are just as executable,
+        # just not backend commands -- and stay listed even when a search
+        # filters every dash verb out, so they are always discoverable.
+        add_section("Run", len(run_specs) + len(_MODE_MENU_ROWS))
+        add_rows(run_specs, tagged=False)
+        self._add_modes_group(option_list)
         if reference_specs:
             add_section("Reference", len(reference_specs))
             add_rows(reference_specs, tagged=True)
@@ -157,6 +207,21 @@ class CommandPalette(ModalScreen[str]):
                 if not option_list.get_option_at_index(index).disabled:
                     option_list.highlighted = index
                     break
+
+    def _add_modes_group(self, option_list: OptionList) -> None:
+        """The Run section's "Modes" group: `!shell`, `?chat`, `/seam`.
+
+        Selecting one dismisses the palette with a `mode:<name>` id that
+        `SeamTUI._palette_result` special-cases -- these are not
+        `CommandSpec`s (they are not backend commands the catalog derives
+        from), so they are rendered here directly instead of being folded
+        into `commands.py`'s `build_catalog`, which would also perturb its
+        pinned executable-row count.
+        """
+        option_list.add_option(Option(f"   [{brand.LAVENDER}]Modes[/]", disabled=True))
+        for option_id, label, summary in _MODE_MENU_ROWS:
+            row = f"   [{brand.PINK}]{label}[/]  [{brand.TEXT_MUTED}]— {summary}[/]"
+            option_list.add_option(Option(row, id=option_id))
 
     @on(Input.Changed, "#palette-input")
     def _on_filter(self, event: Input.Changed) -> None:
@@ -187,6 +252,16 @@ class CommandPalette(ModalScreen[str]):
         self.query_one("#palette-list", OptionList).action_cursor_up()
 
 
+#: `alt+1`..`alt+N`, capped at 9 (there is no "alt+10" key) -- derived from
+#: `len(TABS)` rather than hardcoded, because TABS has already changed size
+#: once (S1 removed the standalone Provenance tab) and will again (S9 folds
+#: Benchmarks/Compression into Engine).
+_JUMP_TAB_BINDINGS: tuple[Binding, ...] = tuple(
+    Binding(f"alt+{i}", f"jump_tab({i - 1})", f"Tab {i}", show=False, priority=True)
+    for i in range(1, min(len(TABS), 9) + 1)
+)
+
+
 class SeamTUI(App[None]):
     """SEAM operator dashboard."""
 
@@ -199,12 +274,40 @@ class SeamTUI(App[None]):
         Binding("ctrl+s", "show_settings", "Settings"),
         Binding("ctrl+l", "clear_output", "Clear"),
         Binding("ctrl+c", "quit", "Quit", priority=True),
+        # Escape is not marked priority: CommandPalette (a ModalScreen) is
+        # excluded from the non-priority binding chain while it is open
+        # (Textual truncates at the first modal ancestor), so this never
+        # competes with the palette's own escape-to-close binding.
+        Binding("escape", "seam_mode", "Seam mode", show=False),
+        # `priority=True` on the next two: plain `Input` already binds
+        # ctrl+left/ctrl+right to word-wise cursor movement (textual's
+        # `_input.py`), and `#command-input` holds focus almost always, so a
+        # non-priority binding here would never be reached. Priority
+        # bindings are checked before the focused widget gets the key at
+        # all (`App._check_bindings(priority=True)` in `on_event`).
+        Binding("ctrl+right", "next_tab", "Next tab", show=False, priority=True),
+        Binding("ctrl+left", "previous_tab", "Previous tab", show=False, priority=True),
+        *_JUMP_TAB_BINDINGS,
     ]
 
     def __init__(self, backend: Any) -> None:
         super().__init__()
         self.backend = backend
         self.catalog = build_catalog(backend.command_parser)
+        #: The three S2b input modes; see the module-level `_MODE_PLACEHOLDERS`
+        #: table and `_set_mode` below.
+        self.mode: str = "seam"
+        self.shell_session = shell.ShellSession()
+        #: `SeamChatClient` (`dashboard.py:256`) is module-level and already
+        #: covers "not configured" and request-failure explanations; this is
+        #: the one and only instance the TUI keeps (Part 3 of S2b -- reuse,
+        #: do not write a second client). Imported lazily so importing this
+        #: module never requires `httpx`, which `SeamChatClient.complete`
+        #: only imports when it actually has a key to use.
+        from ..dashboard import SeamChatClient
+
+        self.chat_client = SeamChatClient()
+        self.chat_history: list[dict[str, str]] = []
 
     # -- layout ------------------------------------------------------------
 
@@ -212,6 +315,7 @@ class SeamTUI(App[None]):
         with Horizontal(id="brand-bar"):
             yield Static(brand.brand_mark(), id="brand-mark")
             yield Static(str(self.backend.runtime.store.path), id="brand-context")
+            yield Static("seam", id="brand-mode")
             yield Static("ready", id="brand-status")
 
         with TabbedContent(id="tabs"):
@@ -227,10 +331,10 @@ class SeamTUI(App[None]):
                         # a DataTable/Tree/Input showing structured state.
                         yield PANEL_CLASSES[tab_id](id=f"panel-{tab_id}")
 
-        yield Input(placeholder="Run a command, or press / for the menu", id="command-input")
+        yield Input(placeholder=_MODE_PLACEHOLDERS["seam"], id="command-input")
         yield Static(
-            "[b]/[/b] commands   [b]^S[/b] settings   [b]y[/b] copy id   "
-            "[b]^L[/b] clear   [b]^C[/b] quit",
+            "[b]/[/b] commands   [b]![/b] shell   [b]?[/b] chat   [b]^S[/b] settings   "
+            "[b]y[/b] copy id   [b]^L[/b] clear   [b]^C[/b] quit",
             id="help-rail",
         )
 
@@ -264,6 +368,7 @@ class SeamTUI(App[None]):
             f"trace it below · [b]y[/b] copies its id[/]",
         )
         self.query_one("#command-input", Input).focus()
+        self._set_mode("seam")
 
     # -- helpers -----------------------------------------------------------
 
@@ -283,13 +388,76 @@ class SeamTUI(App[None]):
     def _set_status(self, text: str) -> None:
         self.query_one("#brand-status", Static).update(text)
 
+    def _set_mode(self, mode: str) -> None:
+        """Latch `#command-input` into `mode` and update all three places
+        the mode must be visible (Part 1 of S2b): the brand-bar indicator,
+        the input's placeholder, and its border colour.
+
+        Called both for a genuine latch (bare `!`/`?`/Escape) and, harmlessly
+        idempotently, to refresh the placeholder after a `cd` changes the
+        shell session's `cwd` while shell mode is still latched.
+
+        Shell mode additionally checks `shell.shell_enabled()` on every call
+        (never cached), because an operator who latches into a disabled mode
+        and sees nothing but the ordinary placeholder has no way to tell
+        "this does nothing" from "nothing has happened yet" -- an invisible
+        gate is worse than no gate. When disabled, all three surfaces say so
+        and name `shell.ALLOW_SHELL_ENV`.
+        """
+        self.mode = mode
+        field = self.query_one("#command-input", Input)
+        field.remove_class("-mode-shell", "-mode-shell-disabled", "-mode-chat")
+        shell_disabled = mode == "shell" and not shell.shell_enabled()
+        if mode == "shell":
+            # `-mode-shell` stays on regardless of the gate -- this is still
+            # shell mode, just a disabled instance of it -- and
+            # `-mode-shell-disabled` layers the red border on top (it is
+            # declared after `-mode-shell` in theme.tcss, so it wins).
+            field.add_class("-mode-shell")
+            if shell_disabled:
+                field.add_class("-mode-shell-disabled")
+                field.placeholder = _MODE_PLACEHOLDERS["shell-disabled"].format(
+                    cwd=self.shell_session.cwd
+                )
+            else:
+                field.placeholder = _MODE_PLACEHOLDERS["shell"].format(cwd=self.shell_session.cwd)
+        elif mode == "chat":
+            field.add_class("-mode-chat")
+            field.placeholder = _MODE_PLACEHOLDERS["chat"]
+        else:
+            field.placeholder = _MODE_PLACEHOLDERS["seam"]
+        colour = brand.RED if shell_disabled else _MODE_COLORS.get(mode, brand.TEXT_MUTED)
+        label = f"shell (disabled: {shell.ALLOW_SHELL_ENV})" if shell_disabled else mode
+        self.query_one("#brand-mode", Static).update(f"[{colour}]{label}[/]")
+
+    def _show_chat_tab(self) -> None:
+        """Entering chat mode -- latched or one-shot -- always switches the
+        visible tab, so a reply is never written somewhere the operator is
+        not looking (Part 3 of S2b)."""
+        self.query_one(TabbedContent).active = "tab-chat"
+
     # -- actions -----------------------------------------------------------
 
+    def action_seam_mode(self) -> None:
+        """Escape in the command input returns to seam mode."""
+        self._set_mode("seam")
+
     def action_open_palette(self) -> None:
-        self.push_screen(CommandPalette(self.catalog), self._palette_result)
+        # Whatever the operator had already typed into `#command-input`
+        # (possibly with a leading `/` still attached, possibly not, per
+        # how this is reached -- see `_on_slash` below) becomes the
+        # palette's seed filter rather than being silently discarded
+        # (S2b defect #1).
+        field = self.query_one("#command-input", Input)
+        leftover = field.value[1:] if field.value.startswith("/") else field.value
+        field.value = ""
+        self.push_screen(CommandPalette(self.catalog, initial=leftover), self._palette_result)
 
     def _palette_result(self, selection: str | None) -> None:
         if not selection:
+            return
+        if selection.startswith("mode:"):
+            self._apply_mode_selection(selection.removeprefix("mode:"))
             return
         surface, _, name = selection.partition(":")
         spec = next(
@@ -314,6 +482,33 @@ class SeamTUI(App[None]):
         else:
             self._run_command(spec.name)
 
+    def _apply_mode_selection(self, mode: str) -> None:
+        """Handle a `mode:<name>` id from the palette's "Modes" group."""
+        if mode not in ("seam", "shell", "chat"):
+            return
+        if mode == "shell":
+            self._latch_shell_mode()
+        else:
+            self._set_mode(mode)
+        if mode == "chat":
+            self._show_chat_tab()
+        self.query_one("#command-input", Input).focus()
+
+    def _latch_shell_mode(self) -> None:
+        """Latch into shell mode and, if disabled, say so once immediately.
+
+        The placeholder and `#brand-mode` (both set inside `_set_mode`) stay
+        visible for as long as the mode is latched, but an operator who just
+        typed a bare `!` is looking at the input, not necessarily reading
+        its placeholder text -- printing the one-line instruction into the
+        active tab's log is what makes the refusal impossible to miss the
+        first time, from either latch path (bare `!` or the palette's
+        "Modes" group).
+        """
+        self._set_mode("shell")
+        if not shell.shell_enabled():
+            self._write(self._active_tab_id(), f"[{brand.TEXT_DIM}]{shell.DISABLED_MESSAGE}[/]")
+
     def _show_reference(self, spec: CommandSpec) -> None:
         """Print a reference card for a command the TUI does not execute."""
         label = SURFACES.get(spec.surface, (spec.surface, False))[0]
@@ -324,7 +519,18 @@ class SeamTUI(App[None]):
         ]
         if spec.summary:
             lines.append(f"[{brand.TEXT_MUTED}]{spec.summary}[/]")
-        if spec.positionals or spec.options:
+        if spec.full_signature:
+            # SDK rows: the row itself shows a trimmed call form
+            # (`commands.py`'s `_trimmed_call_form`); the reference card is
+            # where the untrimmed signature -- types and return annotation
+            # included -- actually belongs (Part 5 of S2b). Escaped: a type
+            # annotation like `dict[str, object]` is indistinguishable from
+            # Rich markup syntax to a `RichLog(markup=True)`, and would
+            # otherwise render as "dict" with the rest silently swallowed
+            # as a bogus style tag.
+            signature_text = _escape_markup(f"{spec.prefix}{spec.full_signature}")
+            lines.append(f"[{brand.CYAN}]signature[/]  {signature_text}")
+        elif spec.positionals or spec.options:
             lines.append(f"[{brand.CYAN}]usage[/]  {spec.usage}")
         for flag, values in spec.choices.items():
             lines.append(f"[{brand.LAVENDER}]{flag}[/]  {', '.join(values)}")
@@ -342,38 +548,245 @@ class SeamTUI(App[None]):
         except Exception:
             pass
 
+    def action_jump_tab(self, index: int) -> None:
+        """`alt+1`..`alt+N`: jump directly to the Nth tab."""
+        if 0 <= index < len(TABS):
+            self.query_one(TabbedContent).active = f"tab-{TABS[index][0]}"
+
+    def action_next_tab(self) -> None:
+        self._cycle_tab(1)
+
+    def action_previous_tab(self) -> None:
+        self._cycle_tab(-1)
+
+    def _cycle_tab(self, delta: int) -> None:
+        tabs = self.query_one(TabbedContent)
+        ids = [f"tab-{tab_id}" for tab_id, _ in TABS]
+        try:
+            index = ids.index(tabs.active)
+        except ValueError:
+            index = 0
+        tabs.active = ids[(index + delta) % len(ids)]
+
     @on(Input.Changed, "#command-input")
     def _on_slash(self, event: Input.Changed) -> None:
         """Open the palette when `/` starts a fresh command.
 
-        The `slash` binding alone is not enough: focus normally rests in the
-        command input, which consumes printable keys, so pressing `/` would
-        just type a character. Opening on a leading slash matches how every
-        other `/`-menu behaves.
+        Checks the *live* `event.input.value`, not `event.value` (the value
+        this particular `Changed` message was posted with). At full typing
+        speed, several keystrokes typed right after the leading `/` land in
+        the widget before this handler's first `Changed` message is even
+        dequeued -- `event.value` is a stale snapshot ("/"), while
+        `event.input.value` already holds "/stats". Reading the live value
+        and handing whatever follows the `/` to `action_open_palette` as its
+        seed filter is what stops those characters from being silently
+        discarded (S2b defect #1). Once `action_open_palette` clears the
+        field, later-queued `Changed` messages from the same burst see a
+        value that no longer starts with `/`, so this only fires once.
         """
-        if event.value == "/":
-            event.input.value = ""
+        if event.input.value.startswith("/"):
             self.action_open_palette()
 
     @on(Input.Submitted, "#command-input")
     def _on_command(self, event: Input.Submitted) -> None:
-        command = event.value.strip()
-        if not command:
+        """Dispatch on Enter: a `!`/`?`/`/`-prefixed line always runs
+        one-shot regardless of the latched mode; a bare sigil latches (or,
+        for `/`, opens the menu -- unchanged, and normally already handled
+        by `_on_slash` above before Enter is even reached); unprefixed text
+        runs in whichever mode is currently latched.
+        """
+        raw = event.value.strip()
+        if not raw:
             return
         event.input.value = ""
-        if command.startswith("/"):
-            command = command[1:]
-        self._run_command(command)
+
+        if raw.startswith("!"):
+            rest = raw[1:].strip()
+            if rest:
+                self._run_shell(rest)
+            else:
+                self._latch_shell_mode()
+            return
+        if raw.startswith("?"):
+            rest = raw[1:].strip()
+            if rest:
+                self._run_chat(rest)
+            else:
+                self._set_mode("chat")
+                self._show_chat_tab()
+            return
+        if raw.startswith("/"):
+            # Normally already intercepted by `_on_slash` above while the
+            # `/` was still being typed; kept as a direct fallback (e.g. a
+            # single-shot paste of a whole "/name arg" line).
+            rest = raw[1:].strip()
+            if rest:
+                self._run_command(rest)
+            else:
+                self.action_open_palette()
+            return
+
+        if self.mode == "shell":
+            self._run_shell(raw)
+        elif self.mode == "chat":
+            self._run_chat(raw)
+        else:
+            self._run_command(raw)
 
     def _run_command(self, command: str) -> None:
-        tab_id = self._active_tab_id()
         verb, _, rest = command.partition(" ")
+        if verb.lower() == "tab":
+            self._run_tab_command(rest.strip())
+            return
+
+        tab_id = self._active_tab_id()
         echo = f"\n[b {brand.PINK}]{brand.PROMPT}[/] [b {brand.MAGENTA}]{verb}[/]"
         if rest:
             echo += f" [{brand.TEXT_MUTED}]{rest}[/]"
         self._write(tab_id, echo)
         self._set_status(f"[{brand.YELLOW}]working…[/]")
         self._execute(command, tab_id)
+
+    def _run_tab_command(self, argument: str) -> None:
+        """`tab <name>`, handled here rather than delegated to the backend.
+
+        `DashboardApp`'s own `tab` verb (`dashboard.py:2421`) only accepts
+        `runtime`/`benchmark` -- the previous dashboard's tab names -- so
+        forwarding to `backend.execute("tab ...")` could never move this
+        UI's tabs. Matching is case-insensitive and a prefix match against
+        either the tab id or its label is enough (`mem` reaches Memory).
+        """
+        source_tab = self._active_tab_id()
+        echo = f"\n[b {brand.PINK}]{brand.PROMPT}[/] [b {brand.MAGENTA}]tab[/]"
+        if argument:
+            echo += f" [{brand.TEXT_MUTED}]{argument}[/]"
+        self._write(source_tab, echo)
+
+        valid = ", ".join(f"{tab_id} ({label})" for tab_id, label in TABS)
+        if not argument:
+            self._write(source_tab, f"[{brand.RED}]usage: tab <name>[/]  [{brand.TEXT_DIM}]{valid}[/]")
+            self._set_status(f"[{brand.RED}]error[/]")
+            return
+
+        needle = argument.lower()
+        match = next(
+            (tab_id for tab_id, label in TABS
+             if tab_id.lower().startswith(needle) or label.lower().startswith(needle)),
+            None,
+        )
+        if match is None:
+            self._write(
+                source_tab,
+                f"[{brand.RED}]no tab matches {argument!r}[/]  [{brand.TEXT_DIM}]{valid}[/]",
+            )
+            self._set_status(f"[{brand.RED}]error[/]")
+            return
+
+        self.query_one(TabbedContent).active = f"tab-{match}"
+        self._write(match, f"[{brand.MINT}]switched to {match}[/]")
+        self._set_status(f"[{brand.MINT}]ready[/]")
+
+    # -- shell mode (`!`) ---------------------------------------------------
+
+    def _run_shell(self, command: str) -> None:
+        command = command.strip()
+        tab_id = self._active_tab_id()
+        if not command:
+            self._write(tab_id, f"[{brand.TEXT_DIM}]enter a shell command after ![/]")
+            return
+        echo = f"\n[b {brand.ORANGE}]!{brand.PROMPT}[/] [{brand.TEXT_MUTED}]{command}[/]"
+        self._write(tab_id, echo)
+        self._set_status(f"[{brand.YELLOW}]working…[/]")
+        self._execute_shell(command, tab_id)
+
+    @work(thread=True, exclusive=False)
+    def _execute_shell(self, command: str, tab_id: str) -> None:
+        """`ShellSession.run` never raises (`shell.py`); this is still a
+        worker thread because `subprocess.run` blocks for real time, same as
+        every other backend call (S2b contract #2)."""
+        result = self.shell_session.run(command)
+        self.call_from_thread(self._render_shell_result, tab_id, result)
+
+    def _render_shell_result(self, tab_id: str, result: Any) -> None:
+        lines = [f"cwd: {result.cwd}", f"exit_code: {result.returncode}"]
+        stdout = result.stdout.strip()
+        stderr = result.stderr.strip()
+        if stdout:
+            lines.extend(["", "stdout:", stdout])
+        if stderr:
+            lines.extend(["", "stderr:", stderr])
+        if not stdout and not stderr:
+            lines.extend(["", "(no output)"])
+        self._write(tab_id, "\n".join(lines))
+        if result.returncode == 0:
+            self._set_status(f"[{brand.MINT}]ready[/]")
+        else:
+            self._set_status(f"[{brand.RED}]shell exit {result.returncode}[/]")
+        if self.mode == "shell":
+            # `cd` may have moved the session's `cwd`; refresh the
+            # placeholder so it keeps telling the truth.
+            self._set_mode("shell")
+
+    # -- chat mode (`?`) -----------------------------------------------------
+
+    def _run_chat(self, message: str) -> None:
+        message = message.strip()
+        if not message:
+            self._write("chat", f"[{brand.TEXT_DIM}]enter a message after ?[/]")
+            return
+        self._show_chat_tab()
+        self._write("chat", f"\n[b {brand.CYAN}]?{brand.PROMPT}[/] [{brand.TEXT_MUTED}]{message}[/]")
+        self._set_status(f"[{brand.YELLOW}]working…[/]")
+        self.chat_history.append({"role": "user", "content": message})
+        self._execute_chat(message)
+
+    @work(thread=True, exclusive=False)
+    def _execute_chat(self, message: str) -> None:
+        """Network call on a worker thread (S2b contract #2 / Part 3).
+
+        `SeamChatClient.complete` (`dashboard.py:256`) already returns an
+        explanatory string, never raises, when it is not configured -- see
+        its `configured` guard -- so there is no try/except needed around
+        it here for that path specifically.
+        """
+        context_prompt, memory_ids = self._build_chat_context_prompt(message)
+        # `self.chat_history` is only ever mutated on the App thread (by
+        # `_run_chat` before this worker starts, and by `_render_chat_reply`
+        # after it finishes); reading it here from the worker thread is safe
+        # because nothing else touches it concurrently.
+        reply = self.chat_client.complete(self.chat_history, context_prompt)
+        self.call_from_thread(self._render_chat_reply, reply, memory_ids)
+
+    def _build_chat_context_prompt(self, message: str) -> tuple[str, list[str]]:
+        """Build the context prompt the way the old UI did
+        (`dashboard.py:1964`), and also return the candidate ids the `rag`
+        call injected -- the reply renders those alongside the model's
+        answer (Part 3 of S2b): that list is the whole reason chat earns a
+        place in a memory runtime instead of being a worse terminal for a
+        chat available elsewhere.
+        """
+        try:
+            rag = self.backend.orchestrator.rag(
+                message, budget=5, pack_budget=384, lens="rag", mode="context"
+            ).to_dict()
+            prompt_view = build_context_payload(rag, view="prompt")
+            if isinstance(prompt_view, dict):
+                context_prompt = json.dumps(prompt_view, indent=2)[:4000]
+            else:
+                context_prompt = str(prompt_view)[:4000]
+            memory_ids = [str(item) for item in (rag.get("candidate_ids") or [])]
+            return context_prompt, memory_ids
+        except Exception as exc:
+            return f"(context retrieval failed: {exc})", []
+
+    def _render_chat_reply(self, reply: str, memory_ids: list[str]) -> None:
+        self.chat_history.append({"role": "assistant", "content": reply})
+        self._write("chat", reply)
+        if memory_ids:
+            self._write("chat", f"[{brand.TEXT_DIM}]memory: {', '.join(memory_ids)}[/]")
+        else:
+            self._write("chat", f"[{brand.TEXT_DIM}]memory: (none injected)[/]")
+        self._set_status(f"[{brand.MINT}]ready[/]")
 
     @work(thread=True, exclusive=False)
     def _execute(self, command: str, tab_id: str) -> None:

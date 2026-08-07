@@ -65,6 +65,13 @@ Screen {
     padding: 1 0 0 1;
 }
 
+#brand-mode {
+    width: auto;
+    padding: 1 2 0 0;
+    color: $text-muted;
+    text-style: bold;
+}
+
 #brand-status {
     width: auto;
     padding: 1 0 0 0;
@@ -435,6 +442,43 @@ Input:focus {
 
 #command-input:focus {
     border: round $pink;
+}
+
+/* Input-mode indicator (S2b Part 1) -- the third of the three places the
+ * mode must be visible, alongside `#brand-mode` above and the input's own
+ * placeholder text. Seam mode keeps the default pink-on-focus border above;
+ * shell and chat each get their own colour so the border reads as "which
+ * mode is this" even before the placeholder text is read. `:focus` variants
+ * repeat the colour so it does not get overridden by `#command-input:focus`
+ * above while the field still has focus, which is most of the time.
+ */
+#command-input.-mode-shell {
+    border: round $orange;
+}
+
+#command-input.-mode-shell:focus {
+    border: round $orange;
+}
+
+/* Shell mode latched while `SEAM_DASHBOARD_ALLOW_SHELL` is off (the gate
+ * added alongside this posture, see `shell.py`'s module docstring): a
+ * distinct red border keeps the disabled state visible even before the
+ * operator reads the placeholder text or the `#brand-mode` indicator.
+ */
+#command-input.-mode-shell-disabled {
+    border: round $red;
+}
+
+#command-input.-mode-shell-disabled:focus {
+    border: round $red;
+}
+
+#command-input.-mode-chat {
+    border: round $cyan;
+}
+
+#command-input.-mode-chat:focus {
+    border: round $cyan;
 }
 
 Select {

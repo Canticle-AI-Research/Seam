@@ -26,6 +26,16 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     tag. All 153 entries carry a description, enforced by a census test.
     REST summaries live on the route decorators and therefore in the OpenAPI
     schema; CLI text is the existing `help=`, now actually read.
+  - Three input modes (HISTORY#542): `/` seam commands, `!` shell, `?` chat.
+    A prefixed line is one-shot whatever mode is latched; a bare sigil
+    latches; Escape returns to seam. The mode shows in the brand bar, the
+    placeholder, and the input border. Shell execution stays behind
+    HISTORY#272's `SEAM_DASHBOARD_ALLOW_SHELL` gate, off by default and
+    toggleable from the Settings tab; `cd`/`pwd` work regardless. Chat reuses
+    `SeamChatClient` and renders the memory ids it injected.
+  - Keyboard navigation: `alt+1`..`alt+N`, `ctrl+left`/`ctrl+right`, and
+    `tab <name>`. `alt+N` is unavailable on terminals using the classic
+    "Alt sends Escape" convention; the other two paths always work.
   - Target surface and the ordered slices toward it:
     `docs/roadmap/TUI_OPERATOR_SURFACE.md`.
   `dashboard.DashboardApp` remains the backend and still owns the Rich

@@ -153,6 +153,13 @@ class CommandSpec:
     summary: str = ""
     group: str = ""
     choices: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    #: SDK rows only: the untrimmed `inspect.signature` form (type
+    #: annotations and return type included), e.g.
+    #: ``"knowledge(**query: 'Any') -> 'dict[str, object]'"``. `name` itself
+    #: carries a trimmed call form for the palette row -- this is what the
+    #: reference card shows instead, so detail is never actually lost, just
+    #: moved off the row that had to fit on one line next to its summary.
+    full_signature: str = ""
 
     @property
     def executable(self) -> bool:
@@ -184,6 +191,33 @@ class CommandSpec:
         haystacks = (self.name, *self.aliases, self.summary, self.group,
                      SURFACES.get(self.surface, ("",))[0])
         return any(query in h.lower() for h in haystacks)
+
+
+#: Matches the whitespace that follows a sentence-ending mark, so the text
+#: before it (mark included) is "the first sentence".
+_SENTENCE_END_RE = re.compile(r"(?<=[.!?])\s+")
+
+
+def _first_sentence(text: str) -> str:
+    """Collapse a free-text description to its first sentence.
+
+    Palette rows and reference cards get one line for a summary. Cutting at
+    the first *newline* (the previous behaviour) gets both failure modes at
+    once: a docstring whose first sentence happens to word-wrap onto a
+    second source line is truncated mid-sentence, while an MCP tool
+    description -- always a single physical line, always several sentences
+    -- passes through whole and wraps the row onto a second display line.
+    Collapsing whitespace first and then cutting on `.`/`!`/`?` fixes both,
+    because it no longer depends on how the source text happened to be
+    wrapped.
+    """
+    collapsed = " ".join(text.split())
+    if not collapsed:
+        return ""
+    match = _SENTENCE_END_RE.search(collapsed)
+    if match:
+        return collapsed[: match.start()]
+    return collapsed
 
 
 # ---------------------------------------------------------------------------
@@ -273,7 +307,7 @@ def _walk_parser(parser: object, surface: str, prefix: str = "") -> list[Command
             summary = _DASH_SUMMARIES.get(canonical, "")
             group = _DASH_GROUPS.get(canonical, "Other")
         else:
-            summary = help_map.get(canonical) or (getattr(sub, "description", "") or "").strip().split("\n")[0]
+            summary = _first_sentence(help_map.get(canonical) or getattr(sub, "description", "") or "")
             group = _cli_task_group(root)
         specs.append(
             CommandSpec(
@@ -344,7 +378,7 @@ def _mcp_specs() -> list[CommandSpec]:
         specs.append(
             CommandSpec(
                 name=name, surface="mcp",
-                summary=description.strip().split("\n")[0],
+                summary=_first_sentence(description),
                 group=_mcp_task_group(name),
             )
         )
@@ -457,6 +491,30 @@ _SDK_TASK_NAMES: dict[str, str] = {
 }
 
 
+def _trimmed_call_form(name: str, signature: inspect.Signature) -> str:
+    """Return `name(param, *args, **kwargs)` -- no annotations, no return
+    type, no `self`.
+
+    The untrimmed form (`inspect.signature` printed whole, e.g.
+    ``knowledge(**query: 'Any') -> 'dict[str, object]'``) is long enough
+    that it wraps the summary that follows it onto a second row in the
+    palette. The call shape without types is still enough to tell an
+    operator what to pass; the untrimmed form is not discarded, it moves to
+    `CommandSpec.full_signature` for the reference card instead.
+    """
+    parts: list[str] = []
+    for index, (pname, param) in enumerate(signature.parameters.items()):
+        if index == 0 and pname == "self":
+            continue
+        if param.kind is inspect.Parameter.VAR_KEYWORD:
+            parts.append(f"**{pname}")
+        elif param.kind is inspect.Parameter.VAR_POSITIONAL:
+            parts.append(f"*{pname}")
+        else:
+            parts.append(pname)
+    return f"{name}({', '.join(parts)})"
+
+
 def _sdk_specs() -> list[CommandSpec]:
     try:
         from ..sdk import SeamSDK
@@ -469,16 +527,20 @@ def _sdk_specs() -> list[CommandSpec]:
         attribute = getattr(SeamSDK, name, None)
         if not callable(attribute):
             continue
-        doc = (inspect.getdoc(attribute) or "").strip().split("\n")[0]
+        doc = _first_sentence(inspect.getdoc(attribute) or "")
         try:
-            signature = str(inspect.signature(attribute)).replace("self, ", "").replace("self", "")
+            signature = inspect.signature(attribute)
+            full_form = str(signature).replace("self, ", "").replace("self", "")
+            call_form = _trimmed_call_form(name, signature)
         except (TypeError, ValueError):  # pragma: no cover
-            signature = "()"
+            full_form = "()"
+            call_form = f"{name}()"
         specs.append(
             CommandSpec(
-                name=f"{name}{signature}", surface="sdk",
+                name=call_form, surface="sdk",
                 summary=doc,
                 group=_SDK_TASK_NAMES.get(name, "Lifecycle & admin"),
+                full_signature=f"{name}{full_form}",
             )
         )
     return specs

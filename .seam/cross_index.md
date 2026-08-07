@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 604
+total_events: 605
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-04T00:04:38Z | history:348:a3175bc2 | session-event | done | registry, mcp | server.json |
 | 2026-07-04T00:16:21Z | history:349:25a779c8 | session-event | changed | protocol, git-hooks, security | PR#115 |
 | 2026-07-06T01:01:48Z | history:350:4f4608dd | session-event | done | mcp, registry, pypi, release | pyproject.toml,server.json,README.md,seam_runtime/mcp_protocol.py |
 | 2026-07-06T01:12:39Z | history:351:a07a4103 | session-event | changed | protocol, git-hooks, security | PR#117 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-05T16:31:24Z | history:539:b6845b76 | session-event | done | ci, tests, tui, verify, gates | .github/workflows/ci.yml,.github/workflows/ci-windows.yml,tests/audit/test_tu... |
 | 2026-08-06T22:44:45Z | history:540:4a989fbc | session-event | done | tui, surfaces, dashboard, provenance, roadmap, verify | seam_runtime/tui/panels.py,seam_runtime/tui/app.py,seam_runtime/tui/theme.tcs... |
 | 2026-08-06T23:29:00Z | history:541:591dd697 | session-event | done | tui, palette, cli, api, sdk, surfaces, verify | seam_runtime/server.py,seam_runtime/sdk.py,seam_runtime/tui/commands.py,seam_... |
+| 2026-08-07T04:39:51Z | history:542:c9a1de0d | session-event | done | tui, modes, shell, chat, security, navigation, verify | seam_runtime/tui/shell.py,seam_runtime/tui/app.py,seam_runtime/tui/commands.p... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0404.cross.md | 2026-04-15T00:00:00Z..2026-07-03T23:54:27Z | 404 | (multi) | (multi) |
+| 0001-0405.cross.md | 2026-04-15T00:00:00Z..2026-07-04T00:04:38Z | 405 | (multi) | (multi) |
