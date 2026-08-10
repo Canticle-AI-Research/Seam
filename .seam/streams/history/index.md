@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 543
-total_tokens: ~282150
-latest_id: 543
+total_entries: 546
+total_tokens: ~283248
+latest_id: 546
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 546 | 2026-08-10 | done | e2258ccbec2a54c5 | continuity,history,verify | 545 |
+| 545 | 2026-08-10 | done | 3e10653703ffae22 | continuity,graph,history,surface,+ | 544 |
+| 544 | 2026-08-10 | done | 958270f48f91a19d | animation,dashboard,graph,surface,+ | 543 |
 | 543 | 2026-08-10 | done | e3d23a4c94afee0b | animation,bugfix,memory,security,+ | 542 |
 | 542 | 2026-08-07 | done | c9a1de0d344a6b0c | tui,modes,shell,chat,+ | 541 |
 | 541 | 2026-08-06 | done | 591dd697ffb44796 | tui,palette,cli,api,+ | 540 |
@@ -567,7 +570,7 @@ compact: true
 - allowlist: count=1 latest=#300
 - analysis: count=1 latest=#405
 - android: count=1 latest=#407
-- animation: count=5 latest=#543, #068, #052, #032, #028
+- animation: count=6 latest=#544, #543, #068, #052, #032
 - answer-contract: count=1 latest=#408
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - api: count=2 latest=#541, #535
@@ -618,7 +621,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=20 latest=#528, #514, #513, #512, #511
+- continuity: count=22 latest=#546, #545, #528, #514, #513
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -630,7 +633,7 @@ compact: true
 - cot: count=2 latest=#367, #366
 - cr: count=3 latest=#316, #315, #314
 - cross-platform: count=1 latest=#360
-- dashboard: count=78 latest=#540, #537, #404, #403, #402
+- dashboard: count=79 latest=#544, #540, #537, #404, #403
 - decomposition: count=1 latest=#319
 - deepseek: count=4 latest=#370, #369, #368, #367
 - density: count=3 latest=#316, #315, #314
@@ -683,7 +686,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=48 latest=#530, #529, #527, #511, #510
+- graph: count=50 latest=#545, #544, #530, #529, #527
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -691,7 +694,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=296 latest=#536, #531, #530, #529, #526
+- history: count=298 latest=#546, #545, #536, #531, #530
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -851,7 +854,7 @@ compact: true
 - storage: count=24 latest=#533, #532, #530, #529, #526
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
-- surface: count=11 latest=#543, #502, #488, #487, #469
+- surface: count=13 latest=#545, #544, #543, #502, #488
 - surfaces: count=3 latest=#541, #540, #537
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
@@ -860,7 +863,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=91 latest=#543, #535, #525, #524, #522
+- test: count=92 latest=#544, #543, #535, #525, #524
 - test-artifacts: count=1 latest=#506
 - tests: count=37 latest=#539, #531, #530, #506, #502
 - textual: count=18 latest=#543, #108, #106, #063, #062
@@ -877,10 +880,10 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=365 latest=#543, #542, #541, #540, #539
+- verify: count=368 latest=#546, #545, #544, #543, #542
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
-- webui: count=10 latest=#543, #404, #403, #402, #342
+- webui: count=12 latest=#545, #544, #543, #404, #403
 - windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
@@ -894,6 +897,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 476
+- done: 479
 - in-progress: 8
 - planned: 21

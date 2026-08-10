@@ -103,6 +103,27 @@ Browser dashboard:
 - select any node to open its graph-backed knowledge page with facts,
   backlinks, agents, source episodes, validity, confidence, and canonical MIRL.
 
+### Constellation presentation
+
+The browser graph offers **Topology** and **Constellation** as alternate
+presentations of the same canonical knowledge-graph payload. Topology remains
+available for the conventional network view. Constellation changes layout and
+styling only; it never creates nodes, edges, communities, or retrieval facts.
+
+The selected node is the north star. With no selection, the highest-degree
+visible node supplies a stable reference star until the operator chooses one.
+Reachable nodes occupy deterministic breadth-first rings according to their
+shortest undirected navigation distance from that focus; arrowheads preserve
+each typed edge's recorded direction. Only real API edges draw constellation
+lines. Ring angle, screen distance, and empty space are
+presentation choices and must not be interpreted as similarity, confidence,
+causality, or an otherwise unrecorded relationship.
+
+Constellation uses the canonical `branding/kit/` palette and stays mostly
+static after layout. Focus transitions may provide restrained orientation when
+motion is enabled; reduced-motion mode presents the final layout directly and
+does not depend on animation to communicate selection or graph structure.
+
 CLI:
 
 ```bash

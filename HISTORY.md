@@ -17432,3 +17432,85 @@ explicitly deferred to the operator-present product-surface design session.
 PR #205 must rerun required plus advisory CI and remote review on the new exact
 head before any merge decision.
 ---END-ENTRY-#543---
+
+---BEGIN-ENTRY-#544---
+id: 544
+date: 2026-08-10T19:39:31Z
+agent: codex
+status: done
+topics: animation, dashboard, graph, surface, test, verify, webui
+commits: pending
+refs: seam_runtime/webui/dashboard.html,tests/audit/test_knowledge_graph.py,docs/KNOWLEDGE_GRAPH.md,docs/status/surfaces.md,branding/kit,PR#205
+supersedes: 543
+tokens: 689
+---
+Implemented the operator-authorized WebUI constellation slice that HISTORY#543 explicitly deferred until an operator-present design session.
+
+SURFACE
+
+The shipped browser knowledge graph now offers Topology and Constellation as alternate presentations. Topology remains the initial view and retains its API-degree sizing, metadata, force controls, drag behavior, zoom floor, and animated focus trace. Constellation consumes the same filtered canonical graph payload and does not change the REST endpoint, graph projection, retrieval, persistence, MIRL, or public boundary.
+
+Constellation uses the canticle-seam@1.0.0 palette as a SEAM Observatory instrument. The selected visible node becomes the north star; without a visible selection the stable highest-visible-degree node is the reference star. Deterministic FNV-1a ordering and breadth-first traversal place nodes into shortest undirected navigation-distance rings. Disconnected records occupy explicitly labeled other-systems bands. Only recorded typed API edges render, and arrowheads retain recorded direction. Angle, proximity inside a ring, and empty space are decorative and assert no unrecorded similarity or topology.
+
+The compact Memory preview uses the same deterministic constellation helper and real-edge filter. Full-view controls support keyboard node selection, accessible view-state buttons, pan, zoom, fit, responsive compact and tiny layouts, and reduced motion. Constellation has only a brief one-time star arrival and a bounded active-node pulse. It intentionally does not animate flowing edge paths because current workspace events expose node ids but not exact edge ids; drawing a moving path would overstate the evidence.
+
+REVIEW AND LIVE VERIFICATION
+
+A read-only review found and drove repairs for large-graph fit clipping, hidden-selection HUD state, narrow control overflow, false edge-flow semantics, and accidental Topology degree drift. Live Chrome then rendered 327 canonical nodes and 988 edges with no runtime exceptions. At 800, 620, and 480 pixel browser widths, the graph canvas measured 388, 208, and 68 pixels; every control remained within the graph frame and Constellation held its fitted 0.119 or 0.05 scale instead of jumping to the Topology floor. A final 1280 pixel capture confirmed the Observatory hierarchy, rings, north-star mark, labels, and legend. CodeRabbit reviewed all four changed files with zero findings.
+
+VERIFICATION
+
+The focused WebUI, graph, reprojection, time-gate, deep-graph, and brand-kit slice passed 118 tests. The affected modules collected 118 tests without import or symbol errors. The brand-kit verifier passed all six canonical assets. Ruff passed the changed Python test file and git diff --check passed.
+
+The exact provider-free repository command used HF_HUB_OFFLINE=1, TRANSFORMERS_OFFLINE=1, HF_HUB_CACHE=/mnt/t7/hf-cache and deselected only the external lane: 2706 passed, 23 deselected, 2 expected xfails, 2 known FastAPI operation-id warnings, and 3 subtests in 374.98 seconds. No provider call, benchmark claim, external pgvector run, deploy, release, or merge was performed.
+
+PUBLICATION BOUNDARY
+
+This slice is stacked on the exact PR #205 head because it consumes the brand kit introduced there. PR #205 remains untouched. Publish this work as a separate draft PR against the #205 branch and retarget it to main only after #205 merges.
+---END-ENTRY-#544---
+
+---BEGIN-ENTRY-#545---
+id: 545
+date: 2026-08-10T19:41:07Z
+agent: codex
+status: done
+topics: continuity, graph, history, surface, verify, webui
+commits: pending
+refs: HISTORY#544,seam_runtime/webui/dashboard.html,tests/audit/test_knowledge_graph.py,docs/KNOWLEDGE_GRAPH.md,docs/status/surfaces.md
+supersedes: 544
+tokens: 314
+---
+Continuity correction for HISTORY#544. All product, review, browser, boundary, and publication facts in that entry remain current. This entry supersedes only its ambiguous focused-test wording and provides the authoritative command scopes below.
+
+FOCUSED VERIFICATION SCOPE
+
+Command: .venv/bin/python -m pytest tests/audit/test_webui_auto_ingest.py tests/audit/test_webui_chat_memory_controls.py tests/audit/test_knowledge_graph.py tests/audit/test_knowledge_graph_time_gate.py tests/audit/test_knowledge_graph_reprojection.py tests/audit/test_deep_knowledge_graph.py tests/audit/test_brand_kit.py
+Result: 118 passed in 8.48 seconds.
+
+Collect-only used the same seven paths with --collect-only -q and reported 118 collected. Ruff passed tests/audit/test_knowledge_graph.py. The brand-kit verifier passed all six canonical assets, and git diff --check passed.
+
+REPOSITORY VERIFICATION SCOPE
+
+Command: HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_CACHE=/mnt/t7/hf-cache .venv/bin/python -m pytest tests/ test_seam_all/ tools/history tools/streams -m not-external
+Result: 2706 passed, 23 deselected, 2 expected xfails, 2 known FastAPI operation-id warnings, and 3 subtests in 374.98 seconds.
+
+No provider call, benchmark claim, external pgvector run, deploy, release, merge, or PR #205 mutation was performed.
+---END-ENTRY-#545---
+
+---BEGIN-ENTRY-#546---
+id: 546
+date: 2026-08-10T19:41:20Z
+agent: codex
+status: done
+topics: continuity, history, verify
+commits: pending
+refs: HISTORY#544,HISTORY#545
+supersedes: 545
+tokens: 95
+---
+Corrects the marker spelling in HISTORY#545. The exact repository verification command was:
+
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_CACHE=/mnt/t7/hf-cache .venv/bin/python -m pytest tests/ test_seam_all/ tools/history tools/streams -m "not external"
+
+The focused scopes and every result, product fact, browser observation, boundary, and publication statement in HISTORY#544-545 remain current.
+---END-ENTRY-#546---

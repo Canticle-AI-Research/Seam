@@ -55,7 +55,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     the only coverage of several dashboard behaviours. Removal is deferred.
 - Dashboard installers: `seam-dash` shim (Windows `.cmd` + POSIX).
 - Browser dashboard served by the REST server: `seam serve` / `seam webui`. The
-  static `dashboard.html` IDE shell is the shipped working UI.
+  static `dashboard.html` IDE shell is the shipped working UI. Its knowledge
+  graph keeps **Topology** available and adds **Constellation** as an alternate
+  presentation of the same canonical payload: the selected node is the north
+  star, deterministic breadth-first distance sets the rings, and only real
+  typed API edges draw lines. Screen proximity does not assert similarity or
+  synthesize topology. The view uses `branding/kit/` colors, remains mostly
+  static, and presents the final state directly under reduced motion.
 - REST API: bearer-token guard when `SEAM_API_TOKEN` is configured, bounded
   request bodies, env-configurable, optional `server` extra. An unset token is
   trusted-loopback development only; automatic token provisioning and
