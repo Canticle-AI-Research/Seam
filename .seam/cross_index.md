@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 609
+total_events: 610
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-06T02:10:27Z | history:353:162c9fc2 | session-event | done | docs, macos, operator, readme | docs/SEAM_OPERATOR_GUIDE.md,docs/MACOS.md,docs/README.md,README.md |
 | 2026-07-06T02:20:59Z | history:354:e3857106 | session-event | done | docs, macos, pgvector, correction | docs/MACOS.md,docs/SEAM_OPERATOR_GUIDE.md,docs/PGVECTOR_LOCAL.md |
 | 2026-07-06T03:16:22Z | history:355:3e6365ea | session-event | changed | protocol, security, release, routing | tools/release/public_manifest.py,tools/release/sync_public_mirror.py,tools/re... |
 | 2026-07-06T12:37:09Z | history:356:2b504aaf | session-event | done | protocol, security, release | tools/release/sync_public_mirror.py |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-10T19:39:31Z | history:544:958270f4 | session-event | done | animation, dashboard, graph, surface, test, verify, webui | seam_runtime/webui/dashboard.html,tests/audit/test_knowledge_graph.py,docs/KN... |
 | 2026-08-10T19:41:07Z | history:545:3e106537 | session-event | done | continuity, graph, history, surface, verify, webui | HISTORY#544,seam_runtime/webui/dashboard.html,tests/audit/test_knowledge_grap... |
 | 2026-08-10T19:41:20Z | history:546:e2258ccb | session-event | done | continuity, history, verify | HISTORY#544,HISTORY#545 |
+| 2026-08-10T22:08:49Z | history:547:b6fbe0d6 | session-event | done | graph, retrieval, benchmark, persist, integrity, verify | seam_runtime/improvement_experiments.py,seam_runtime/storage.py,seam_runtime/... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0409.cross.md | 2026-04-15T00:00:00Z..2026-07-06T02:07:42Z | 409 | (multi) | (multi) |
+| 0001-0410.cross.md | 2026-04-15T00:00:00Z..2026-07-06T02:10:27Z | 410 | (multi) | (multi) |

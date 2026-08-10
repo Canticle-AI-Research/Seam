@@ -33,7 +33,7 @@ import re
 import sqlite3
 from collections import defaultdict
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING, Mapping, Protocol, Sequence, runtime_checkable
+from typing import TYPE_CHECKING, Callable, Mapping, Protocol, Sequence, runtime_checkable
 
 from .mirl import MIRLRecord, RecordKind, iter_textual_fields
 from .retrieval import RETRIEVAL_PROFILES, RetrievalFlags
@@ -860,6 +860,8 @@ class CandidateEvaluation:
     reason: str
     floor_progress: float = 0.0
     view_deltas: dict[str, dict[str, float]] = field(default_factory=dict)
+    reports: dict[str, ScoreReport] = field(default_factory=dict)
+    report_views: dict[str, dict[str, ScoreReport]] = field(default_factory=dict)
 
 
 def score_report_views(
@@ -1031,6 +1033,7 @@ def evaluate_candidates(
     category_floors: Mapping[str, float] | None = None,
     baseline_reports: Mapping[str, ScoreReport] | None = None,
     baseline_views: Mapping[str, Mapping[str, ScoreReport]] | None = None,
+    on_evaluated: Callable[[CandidateEvaluation], None] | None = None,
 ) -> list[CandidateEvaluation]:
     """Score every candidate against every scorer relative to ``baseline``.
 
@@ -1060,11 +1063,15 @@ def evaluate_candidates(
         improved = False
         floor_progress = 0.0
         view_deltas: dict[str, dict[str, float]] = {}
+        reports: dict[str, ScoreReport] = {}
+        report_views: dict[str, dict[str, ScoreReport]] = {}
         regressed_reason = ""
         for scorer in scorers:
             report, candidate_views = score_report_views(
                 scorer, runtime, candidate.flags
             )
+            reports[scorer.name] = report
+            report_views[scorer.name] = candidate_views
             base_report = base[scorer.name]
             delta = report.aggregate - base_report.aggregate
             deltas[scorer.name] = delta
@@ -1117,17 +1124,20 @@ def evaluate_candidates(
             reason = f"regresses {regressed_reason}"
         else:
             reason = "no change beyond noise"
-        evaluations.append(
-            CandidateEvaluation(
-                candidate,
-                deltas,
-                category_deltas,
-                is_improvement,
-                reason,
-                floor_progress,
-                view_deltas,
-            )
+        evaluation = CandidateEvaluation(
+            candidate,
+            deltas,
+            category_deltas,
+            is_improvement,
+            reason,
+            floor_progress,
+            view_deltas,
+            reports,
+            report_views,
         )
+        evaluations.append(evaluation)
+        if on_evaluated is not None:
+            on_evaluated(evaluation)
     return evaluations
 
 

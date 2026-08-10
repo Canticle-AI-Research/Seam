@@ -17514,3 +17514,40 @@ HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_CACHE=/mnt/t7/hf-cache .venv/bin/
 
 The focused scopes and every result, product fact, browser observation, boundary, and publication statement in HISTORY#544-545 remain current.
 ---END-ENTRY-#546---
+
+---BEGIN-ENTRY-#547---
+id: 547
+date: 2026-08-10T22:08:49Z
+agent: codex
+status: done
+topics: graph, retrieval, benchmark, persist, integrity, verify
+commits: pending
+refs: seam_runtime/improvement_experiments.py,seam_runtime/storage.py,seam_runtime/migrations.py,tools/h2/improvement_loop.py,docs/IMPROVEMENT_EXPERIMENTS.md,tests/audit/test_improvement_experiment_ledger.py
+supersedes: 494
+tokens: 758
+---
+Built a production-shaped, bounded AutoResearch-style experiment loop on top of the existing H2 governance substrate from HISTORY#494. The loop automatically evaluates the fixed baseline and every bounded candidate, persists successes and failures, creates a proposal only when the existing development and disjoint-holdout ratchets pass, and stops at explicit operator approval. It does not auto-apply or silently rewrite retrieval policy.
+
+PERSISTENCE AND INTEGRITY
+
+Added the `improvement-experiment/1` contract and exact `core-storage/3` migration. Experiment definitions commit the lane, method, evaluator, dataset, baseline, and candidate-space fingerprints. Append-only event rows form a SHA-256 chain and are protected against update/delete by SQLite triggers. Startup validates the exact schema, foreign keys, indexes, triggers, and digest constraints; partial or incompatible pre-existing schemas fail closed. Baseline evaluation, each completed candidate, proposal creation, terminal outcome, and sanitized failure phase/type are recorded without prompts, source text, answers, provider payloads, or hidden reasoning.
+
+WORKING SURFACE
+
+`seam improve cycle --experiment-label <label>` runs the bounded graph retrieval-policy search through the real H2 scorer and proposal store. `seam improve experiments` lists, filters, reads, and verifies durable experiment chains. Scorer names and case IDs are constrained values, candidate space is capped at 128, a lower explicit cap records truncation, and every evaluated candidate is persisted immediately. The proposal records the exact evaluator, dataset, development-case, and policy fingerprints needed to reproduce the decision.
+
+PROOF BOUNDARY
+
+This proves a modification only relative to its declared fixed evaluator, bounded candidate space, development set, disjoint holdout, and no-regression ratchets. It is evidence for that contract, not a universal proof of downstream quality. Permanent application remains the existing separate reviewed approval/apply/revert path. The working implementation is single-node SQLite; production distribution still requires scheduler/worker leasing, heartbeats, idempotent remote claims, artifact storage, canary observation, and rollback automation without weakening the immutable experiment contract.
+
+VERIFICATION
+
+- Focused command scope covering the new ledger, loop, ratchets, graph self-improvement, and CLI passed 56 tests.
+- Migration/reference command scope covering the SQLite spine, pre-spine bootstrap, reasoning retrieval, and typed references passed 245 tests.
+- `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_CACHE=/mnt/t7/hf-cache .venv/bin/python -m pytest tests/ test_seam_all/ tools/history tools/streams -m "not external"` passed 2,726 tests with 23 external tests deselected, 2 established xfails, 2 known duplicate FastAPI operation-id warnings, and 3 subtests.
+- With the existing local `seam-pgvector` service healthy and `PGVECTOR_TEST_DSN` supplied from the operator environment, `.venv/bin/python -m pytest tests/ -m external -q` passed 23 tests.
+- Repository-wide Ruff, compileall over `seam_runtime tools scripts installers`, cached and working-tree diff checks, and the candidate-file secret/session-link scan passed.
+- A complete staged CodeRabbit review reached zero findings before the final compatible-migration recovery hardening. A requested post-hardening rerun was rate-limited; the migration/reference slice and full provider-free suite include that final code.
+
+No provider call, paid benchmark, policy approval/application, deployment, release, merge, WebUI change, or mutation of the main TUI workstream occurred. The latest TUI handoff remains the live repository handoff; this isolated branch adds no competing handoff.
+---END-ENTRY-#547---

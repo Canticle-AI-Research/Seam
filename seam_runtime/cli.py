@@ -417,6 +417,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
     improve_cycle_parser.add_argument("--db", default=argparse.SUPPRESS, help="SQLite database path (may also be given before the subcommand)")
     improve_cycle_parser.add_argument("--auto-approve", action="store_true", help="Deprecated compatibility flag; strict-ratchet proposals always require separate operator approval")
+    improve_cycle_parser.add_argument(
+        "--experiment-label",
+        default=None,
+        help="Optional operator label stored in the immutable experiment definition",
+    )
+    improve_cycle_parser.add_argument(
+        "--max-candidates",
+        type=int,
+        default=None,
+        help=(
+            "Optionally truncate the deterministic candidate sweep "
+            "(1-128; default evaluates the complete bounded space)"
+        ),
+    )
     improve_cycle_parser.add_argument("--probe-sample", type=int, default=50, help="Self-probe sample size from the local corpus (default 50; 0 disables the self-probe scorer)")
     improve_cycle_parser.add_argument("--probe-budget", type=int, default=20, help="Fixed eval budget for the self-probe scorer (default 20)")
     improve_cycle_parser.add_argument(
@@ -453,6 +467,33 @@ def build_parser() -> argparse.ArgumentParser:
             "Optional seam-adjudication/1 JSON applied to the generated-answer "
             "scorer; reports raw and adjudicated views from one scorer execution"
         ),
+    )
+    improve_experiments_parser = improve_subparsers.add_parser(
+        "experiments",
+        help="List or inspect durable H2 experiment definitions and event chains",
+    )
+    improve_experiments_parser.add_argument(
+        "--db",
+        default=argparse.SUPPRESS,
+        help="SQLite database path (may also be given before the subcommand)",
+    )
+    improve_experiments_parser.add_argument(
+        "--id",
+        dest="experiment_id",
+        default=None,
+        help="Show one experiment and its complete event chain",
+    )
+    improve_experiments_parser.add_argument("--lane", default=None)
+    improve_experiments_parser.add_argument(
+        "--status",
+        choices=["running", "completed", "failed"],
+        default=None,
+    )
+    improve_experiments_parser.add_argument("--limit", type=int, default=20)
+    improve_experiments_parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Recompute the selected experiment's definition and event-chain hashes",
     )
     improve_validate_parser = improve_subparsers.add_parser(
         "validate",
@@ -693,6 +734,11 @@ def build_parser() -> argparse.ArgumentParser:
 def run_cli(argv: list[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.command == "improve" and args.improve_command == "experiments":
+        if args.verify and not args.experiment_id:
+            parser.error("--verify requires --id")
+        if args.limit < 1:
+            parser.error("--limit must be at least 1")
     if (
         args.command in {"knowledge", "graph"}
         and args.knowledge_command == "merges"
@@ -1364,6 +1410,24 @@ def run_cli(argv: list[str] | None = None) -> None:
                 }
             print(json.dumps(result, indent=2))
             return
+    if args.command == "improve" and args.improve_command == "experiments":
+        if args.experiment_id:
+            payload = runtime.store.read_improvement_experiment(args.experiment_id)
+            if payload is None:
+                print(json.dumps({"error": f"experiment {args.experiment_id!r} not found"}, indent=2))
+                return
+            if args.verify:
+                payload["verification"] = runtime.store.verify_improvement_experiment(
+                    args.experiment_id
+                )
+        else:
+            payload = runtime.store.iter_improvement_experiments(
+                lane=args.lane,
+                status=args.status,
+                limit=args.limit,
+            )
+        print(json.dumps(payload, indent=2))
+        return
     if args.command == "improve" and args.improve_command == "cycle":
         run_cycle = _import_run_improvement_cycle()
         if run_cycle is None:
@@ -1376,6 +1440,15 @@ def run_cli(argv: list[str] | None = None) -> None:
             generate_probes,
             split_graph_probes,
         )
+
+        if args.max_candidates is not None and not 1 <= args.max_candidates <= 128:
+            print(
+                json.dumps(
+                    {"error": "--max-candidates must be within [1, 128]"},
+                    indent=2,
+                )
+            )
+            return
 
         for option, floor in (
             ("--cat1-floor", args.cat1_floor),
@@ -1532,6 +1605,8 @@ def run_cli(argv: list[str] | None = None) -> None:
                 scorers,
                 auto_approve=args.auto_approve,
                 category_floors=category_floors,
+                experiment_label=args.experiment_label,
+                max_candidates=args.max_candidates,
             )
         finally:
             if adapter is not None:
