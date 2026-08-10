@@ -1,5 +1,7 @@
-SEAM — Mature Terminal Identity
-================================
+SEAM — Historical Terminal Identity (not canonical)
+===================================================
+Superseded by: branding/kit/README.md
+
 Phase: mature (2026-04-20)
 Replaces: conception-phase retro/phosphor palette (assets/retro-preview-*)
 

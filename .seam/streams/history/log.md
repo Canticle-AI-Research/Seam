@@ -17347,3 +17347,88 @@ unstarted. The Settings save-versus-reload gap above is routed to S5.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#542---
+
+---BEGIN-ENTRY-#543---
+id: 543
+date: 2026-08-10T06:39:24Z
+agent: codex
+status: done
+topics: animation, bugfix, memory, security, surface, test, textual, tui, verify, webui
+commits: pending
+refs: .gitattributes,branding/kit,branding/README.md,branding/assets/mature/seam-terminal-logo.txt,branding/retro-direction.md,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md,seam_runtime/config.py,seam_runtime/dashboard.py,seam_runtime/tui/app.py,seam_runtime/tui/brand.py,seam_runtime/tui/panels.py,seam_runtime/tui/shell.py,seam_runtime/tui/theme.tcss,tests/audit/test_brand_kit.py,tests/audit/test_tui_input_modes.py,tests/audit/test_tui_shell_session.py,tests/audit/test_tui_supersedes_dashboard.py,tools/branding/verify_brand_kit.py,PR#205
+supersedes: 542
+tokens: 905
+---
+Finished the operator-requested TUI repair and established a reusable
+Canticle/SEAM identity kit. This supersedes HISTORY#542 where its description
+of typed prefix semantics and Settings reload behavior is no longer current.
+
+TUI INTERACTION REPAIRS
+
+`!` and `?` now latch shell/chat immediately from the command bar, table,
+tree, button, or tab focus. Editable Inputs and the command palette retain
+literal punctuation. A typed sigil necessarily changes mode before following
+keystrokes arrive; a whole `!command` or `?message` inserted atomically still
+runs once without changing an existing mode. Escape returns to seam mode and
+the command bar. The live shell gate remains default-off and visible.
+
+The Settings/runtime boundary now distinguishes values explicitly present in
+the launch environment from values this module promoted out of the persisted
+settings file. True environment overrides still win. File-promoted values
+retain provenance, so a later Save is visible to shell/chat on the next action
+and Reload can update or remove the promoted process value. Chat rebuilds its
+small client from effective settings per request, serializes requests, and
+gives each worker a client/history snapshot instead of racing shared state.
+
+The Memory table no longer changes the clipboard when a row is selected.
+Selection exposes the full id in the editable/pasteable provenance field and
+traces it. Copying is explicit through the adjacent Copy ID button or `y`;
+empty-copy behavior is safe and full untruncated ids are covered.
+
+REUSABLE CANTICLE / SEAM IDENTITY
+
+`branding/kit/` is now the source-controlled `canticle-seam@1.0.0` contract:
+exact color/typography/geometry/motion tokens, separate Canticle company and
+SEAM product SVG lockups, terminal-cell lockups, source provenance pinned to
+Canticle `origin/main@b492659e3ab5751bdaa576529b5a1cbf7a382635`, and a sorted
+content-hash manifest. Historical retro/mature assets remain for auditability
+but are explicitly non-canonical.
+
+The verifier independently pins all six canonical asset digests, validates
+the complete token tree and semantic font-weight mapping, enforces LF for
+hashed text assets, requires exact accessible names and static SVG grammar,
+and fails closed on active/external resources, CSS obfuscation, symlinks,
+non-regular files, and Windows junction/reparse escapes. Thirty adversarial
+tests exercise the contract rather than trusting mutable manifest hashes.
+
+The TUI is the first consumer. Its header uses the bordered prompt/cursor
+square and SEAM product wordmark; launch types `S -> SE -> SEA -> SEAM` at
+120 ms and holds the final frame for exactly 360 ms. The full cursor cycle is
+800 ms. Reduced/off motion keeps the cursor statically visible; off mounts no
+launch layer. The TUI adopts the exact static first-frame palette and these
+motion pieces, not the optional website RGB cycle.
+
+VERIFICATION
+
+The exact final provider-free repository command used the pinned offline cache
+and deselected only the dedicated external lane: 2701 passed, 23 deselected,
+2 expected xfails, 2 known FastAPI operation-id warnings, and 3 subtests.
+`python -m tools.branding.verify_brand_kit` passed for six canonical assets;
+all 30 brand-kit tests passed; changed Python passed Ruff and formatting; and
+`git diff --check` passed. Independent read-only audits finished clean after
+their findings were repaired. CodeRabbit reviewed tracked and untracked
+candidate files; its two minor findings (mono 700 declaration and cwd-relative
+test path) were fixed and the focused checks rerun.
+
+Real tmux launches verified the compact header, Memory ID controls, immediate
+`!` gated-shell activation, and immediate `?` Chat activation at small and
+wide terminal sizes. Chat mode was entered without sending a provider request.
+No paid provider, release, deploy, or external pgvector run was performed.
+
+BOUNDARY / NEXT
+
+No file under `seam_runtime/webui/` changed. Browser/WebUI restyling remains
+explicitly deferred to the operator-present product-surface design session.
+PR #205 must rerun required plus advisory CI and remote review on the new exact
+head before any merge decision.
+---END-ENTRY-#543---

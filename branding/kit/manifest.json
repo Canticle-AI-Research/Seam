@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kit_id": "canticle-seam",
+  "version": "1.0.0",
+  "canonical_tokens": "tokens.json",
+  "provenance": "provenance.json",
+  "assets": [
+    {
+      "id": "canticle.company.svg",
+      "path": "marks/canticle-company-lockup.svg",
+      "media_type": "image/svg+xml",
+      "sha256": "0280de1d17a8652e8a3dcc7afe938ff6f86913d638e835a362eef3c838dfdd5b"
+    },
+    {
+      "id": "canticle.company.terminal",
+      "path": "terminal/canticle-company-lockup.txt",
+      "media_type": "text/plain; charset=utf-8",
+      "sha256": "e34ea4c25f6076c11934581c8d41c4f0a84510759587b824a67e544077a96046"
+    },
+    {
+      "id": "canticle.provenance",
+      "path": "provenance.json",
+      "media_type": "application/json",
+      "sha256": "1d64332a7a741fd5b027619fed1e3e41f5209805421b06a5f40ed9194f59e65a"
+    },
+    {
+      "id": "canticle.tokens",
+      "path": "tokens.json",
+      "media_type": "application/json",
+      "sha256": "49be29295fc382caf005f3a7f6194482c6ca0d98b8076924fe072e0ffef9e7d2"
+    },
+    {
+      "id": "seam.product.svg",
+      "path": "marks/seam-product-lockup.svg",
+      "media_type": "image/svg+xml",
+      "sha256": "f296541cdac964f58aa6b407c04b4aa49fd589458bb71a54d4e75b57725e1b92"
+    },
+    {
+      "id": "seam.product.terminal",
+      "path": "terminal/seam-product-lockup.txt",
+      "media_type": "text/plain; charset=utf-8",
+      "sha256": "549ab8110402a56067d0cedd10c7ecb0a3ce3e770f497afafc01e483965b92a7"
+    }
+  ]
+}

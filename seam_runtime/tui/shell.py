@@ -17,14 +17,15 @@ globs, `&&` chaining and `~` expansion are most of why `!` is worth having
 over a plain allowlisted command runner, and `shell=False` would kill all of
 them. What IS restored from that same HISTORY#272 entry is its master gate:
 `_run_subprocess` below refuses every subprocess command unless
-`SEAM_DASHBOARD_ALLOW_SHELL` is truthy in the process environment -- off by
+`SEAM_DASHBOARD_ALLOW_SHELL` is truthy in effective configuration -- off by
 default, exactly like the dashboard's original gate, and one Switch away in
 the TUI's own Settings tab (`SEAM_DASHBOARD_ALLOW_SHELL` is already a
 registered `bool` Setting in `config.py`'s "Dashboard" group). The gate (and
 `SEAM_SHELL_TIMEOUT_SECONDS`, its twin from `dashboard.py:206`) is read fresh
-from the environment on every call rather than cached at construction, so
-flipping the Switch takes effect on the next `!` without relaunching the
-TUI. `cd`/`pwd` are unaffected by the gate: they spawn no subprocess,
+on every call rather than cached at construction, so flipping and saving the
+Switch takes effect on the next `!` without relaunching the TUI. Explicit
+process environment values still win over the settings file. `cd`/`pwd` are
+unaffected by the gate: they spawn no subprocess,
 matching where HISTORY#272 put the gate originally (inside
 `_run_shell_subprocess`, not around `cd`).
 
@@ -84,21 +85,18 @@ DISABLED_MESSAGE = (
 def shell_enabled() -> bool:
     """Return whether `!`-mode subprocess execution is currently allowed.
 
-    Reads `ALLOW_SHELL_ENV` fresh from `os.environ` on every call instead of
-    once at construction, because the value can change under a running
-    process: saving the Switch in the Settings tab only persists it to the
-    settings file (`settings_screen.py`'s `_save`) -- it is the *Reload*
-    button (`_reload`, or a fresh relaunch's own startup call) that actually
-    calls `config.apply_persisted_to_environ` and mutates `os.environ`. A
-    per-construction read would still need a new `ShellSession` (in
-    practice, relaunching the TUI) after Reload; a per-call read does not.
+    Reads `ALLOW_SHELL_ENV` fresh through `config.effective_value` on every
+    call instead of once at construction. That resolver gives an explicit
+    process value precedence, then reads the persisted Settings value, so a
+    saved Switch affects the next command without a separate Reload step or
+    a new `ShellSession`.
 
     Uses the same truthy vocabulary as every other `bool` Setting
     (`config._TRUTHY`: `1`/`true`/`yes`/`on`, case-insensitively), which
     covers both a hand-edited settings file and the Settings tab's own
     Switch (`SettingRow.raw_value()` persists the literal string `"1"`).
     """
-    raw = os.environ.get(ALLOW_SHELL_ENV, "")
+    raw = config.effective_value(ALLOW_SHELL_ENV)
     return raw.strip().lower() in config._TRUTHY
 
 

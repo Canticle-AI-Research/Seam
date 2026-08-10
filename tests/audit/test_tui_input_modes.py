@@ -39,8 +39,8 @@ def _backend_with_a_record(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 @textual_required
 class TestModeDispatch:
-    """Each prefixed line runs one-shot regardless of the latched mode;
-    each bare sigil latches; Escape returns to seam."""
+    """Typed sigils latch immediately; atomically inserted prefixed lines run
+    once regardless of the latched mode; Escape returns to seam."""
 
     def test_bare_bang_latches_shell_mode(self, tmp_path, monkeypatch) -> None:
         import asyncio
@@ -56,9 +56,10 @@ class TestModeDispatch:
                 await pilot.pause()
                 field = app.query_one("#command-input", Input)
                 field.focus()
-                await pilot.press("!", "enter")
+                await pilot.press("!")
                 await pilot.pause()
                 assert app.mode == "shell"
+                assert field.value == ""
                 assert field.has_class("-mode-shell")
                 assert not field.has_class("-mode-chat")
                 assert str(app.shell_session.cwd) in field.placeholder
@@ -81,12 +82,116 @@ class TestModeDispatch:
                 await pilot.pause()
                 field = app.query_one("#command-input", Input)
                 field.focus()
-                await pilot.press("?", "enter")
+                await pilot.press("?")
                 await pilot.pause()
                 assert app.mode == "chat"
+                assert field.value == ""
                 assert field.has_class("-mode-chat")
                 assert field.placeholder == "message the model"
                 assert app.query_one(TabbedContent).active == "tab-chat"
+
+        asyncio.run(_check())
+
+    def test_typed_bang_latches_before_following_shell_text(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """Immediate activation means a normally typed prefix becomes mode input."""
+        import asyncio
+
+        from textual.widgets import Input
+
+        from seam_runtime.tui.app import SeamTUI
+
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+        calls: list[str] = []
+        monkeypatch.setattr(app, "_run_shell", calls.append)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                app._set_mode("chat")
+                app.query_one("#command-input", Input).focus()
+                await pilot.press("!", "p", "w", "d", "enter")
+                await pilot.pause()
+
+                assert app.mode == "shell"
+                assert calls == ["pwd"]
+
+        asyncio.run(_check())
+
+    def test_typed_question_latches_before_following_chat_text(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """The chat sigil follows the same immediate keyboard contract."""
+        import asyncio
+
+        from textual.widgets import Input
+
+        from seam_runtime.tui.app import SeamTUI
+
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+        calls: list[str] = []
+        monkeypatch.setattr(app, "_run_chat", calls.append)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                app._set_mode("shell")
+                app.query_one("#command-input", Input).focus()
+                await pilot.press("?", "h", "e", "l", "l", "o", "enter")
+                await pilot.pause()
+
+                assert app.mode == "chat"
+                assert calls == ["hello"]
+
+        asyncio.run(_check())
+
+    @pytest.mark.parametrize(("sigil", "expected_mode"), [("!", "shell"), ("?", "chat")])
+    def test_mode_sigils_work_when_the_memory_table_has_focus(
+        self, tmp_path, monkeypatch, sigil, expected_mode
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import DataTable, Input
+
+        from seam_runtime.tui.app import SeamTUI
+
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                table = app.query_one("#memory-table", DataTable)
+                table.focus()
+                await pilot.press(sigil)
+                await pilot.pause()
+
+                assert app.mode == expected_mode
+                assert app.focused is app.query_one("#command-input", Input)
+
+        asyncio.run(_check())
+
+    def test_question_mark_remains_text_inside_the_provenance_input(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import Input
+
+        from seam_runtime.tui.app import SeamTUI
+
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                field = app.query_one("#prov-query", Input)
+                field.focus()
+                await pilot.press("?")
+                await pilot.pause()
+
+                assert field.value == "?"
+                assert app.mode == "seam"
 
         asyncio.run(_check())
 
@@ -117,11 +222,10 @@ class TestModeDispatch:
 
         asyncio.run(_check())
 
-    def test_prefixed_shell_command_runs_one_shot_while_latched_in_chat(
+    def test_pasted_prefixed_shell_command_runs_once_while_latched_in_chat(
         self, tmp_path, monkeypatch
     ) -> None:
-        """`!pwd` must run a shell command even though the app is latched
-        in chat mode -- a prefixed line is one-shot regardless of mode."""
+        """An atomically inserted `!pwd` overrides chat for one command."""
         import asyncio
 
         from textual.widgets import Input
@@ -157,7 +261,7 @@ class TestModeDispatch:
 
         asyncio.run(_check())
 
-    def test_prefixed_dash_command_runs_one_shot_while_latched_in_shell(
+    def test_palette_command_runs_once_while_latched_in_shell(
         self, tmp_path, monkeypatch
     ) -> None:
         """Typing `/index` (a dash verb with no positional arguments) and
@@ -528,6 +632,12 @@ class TestChatNeverCallsTheNetwork:
     """`SeamChatClient.complete` is monkeypatched in every test below -- no
     test in this class may reach `httpx`/a real provider."""
 
+    @pytest.fixture(autouse=True)
+    def _isolated_chat_settings(self, tmp_path, monkeypatch) -> None:
+        from seam_runtime import config
+
+        monkeypatch.setattr(config, "config_path", lambda: tmp_path / "settings.env")
+
     def test_not_configured_message_renders_without_a_key(self, tmp_path, monkeypatch) -> None:
         """With no API key set, `SeamChatClient.complete` (unmodified, real
         implementation) already returns an explanatory string rather than
@@ -557,6 +667,56 @@ class TestChatNeverCallsTheNetwork:
                         break
                     await pilot.pause(0.05)
                 assert "not configured" in _log_text(app, "chat")
+
+        asyncio.run(_check())
+
+    def test_chat_reloads_settings_saved_after_app_construction(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import Input
+
+        from seam_runtime import config
+        from seam_runtime.dashboard import SeamChatClient
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.delenv("SEAM_CHAT_API_KEY", raising=False)
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+        assert not app.chat_client.configured
+
+        observed: list[tuple[bool, str, str]] = []
+
+        def fake_complete(self, messages, context_prompt):  # noqa: ANN001 - test double
+            observed.append((self.configured, self.base_url, self.model))
+            return "settings refresh worked"
+
+        monkeypatch.setattr(SeamChatClient, "complete", fake_complete)
+        config.save_persisted(
+            {
+                "SEAM_CHAT_API_KEY": "test-only-key",
+                "SEAM_CHAT_BASE_URL": "https://chat.example.test/v1",
+                "SEAM_CHAT_MODEL": "test-model",
+            }
+        )
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                field = app.query_one("#command-input", Input)
+                field.focus()
+                field.value = "?hello after save"
+                await pilot.press("enter")
+                for _ in range(50):
+                    if observed:
+                        break
+                    await pilot.pause(0.05)
+
+                assert observed == [
+                    (True, "https://chat.example.test/v1", "test-model")
+                ]
+                assert "settings refresh worked" in _log_text(app, "chat")
 
         asyncio.run(_check())
 
@@ -632,5 +792,46 @@ class TestChatNeverCallsTheNetwork:
                     await pilot.pause(0.05)
                 assert app.chat_history[0] == {"role": "user", "content": "hi"}
                 assert app.chat_history[1] == {"role": "assistant", "content": "ack"}
+
+        asyncio.run(_check())
+
+    def test_chat_serializes_requests_and_snapshots_worker_state(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+        calls: list[tuple[str, object, list[dict[str, str]]]] = []
+        monkeypatch.setattr(
+            app,
+            "_execute_chat",
+            lambda message, client, history: calls.append((message, client, history)),
+        )
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                app._run_chat("first")
+                assert app._chat_busy
+                assert len(calls) == 1
+                assert calls[0][0] == "first"
+                assert calls[0][1] is app.chat_client
+                assert calls[0][2] == [{"role": "user", "content": "first"}]
+                assert calls[0][2] is not app.chat_history
+
+                app._run_chat("second")
+                await pilot.pause()
+                assert len(calls) == 1
+                assert app.chat_history == [{"role": "user", "content": "first"}]
+                assert "already running" in _log_text(app, "chat")
+
+                app._render_chat_reply("first reply", [])
+                assert not app._chat_busy
+                assert app.chat_history[-1] == {
+                    "role": "assistant",
+                    "content": "first reply",
+                }
 
         asyncio.run(_check())

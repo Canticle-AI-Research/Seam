@@ -9,7 +9,10 @@ Three rules shape the design:
 
 1. **Process env always wins.** Persisted values are applied only to names that
    are not already set in the environment, so `SEAM_X=1 seam-dash` keeps
-   behaving the way every other CLI does and CI stays reproducible.
+   behaving the way every other CLI does and CI stays reproducible. Values
+   this module itself promotes from the settings file retain their provenance,
+   so a later Save/Reload can refresh them without mistaking them for shell
+   overrides.
 2. **Secrets never touch the working tree.** Persistence goes to a private
    per-user file (mode 0600) under the XDG config dir, never the repo-root
    `.env`, because a settings page that writes API keys into the checkout is
@@ -48,6 +51,14 @@ __all__ = [
 #: What the OS accepts as an environment variable name. Also the gate on
 #: anything read back out of the persisted file, which operators hand-edit.
 _ENV_NAME_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+# Values copied into the real process environment by
+# `apply_persisted_to_environ`. Tracking their source is what lets
+# `effective_value` distinguish a launch-time shell override (which must keep
+# winning) from our own stale copy of a settings-file value (which may be
+# changed while the TUI is running). Custom mappings passed by tests/callers
+# are deliberately not tracked.
+_PERSISTED_ENV_VALUES: dict[str, tuple[Path, str]] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -404,6 +415,9 @@ SETTINGS: tuple[Setting, ...] = (
             description="Enable the dashboard shell mode. Off by default; enables local command execution."),
     Setting("SEAM_SHELL_TIMEOUT_SECONDS", "Dashboard", "float", minimum=1,
             description="Timeout for dashboard shell commands."),
+    Setting("SEAM_TUI_MOTION", "Dashboard", "enum", default="full",
+            choices=("full", "reduced", "off"),
+            description="TUI motion: full type-on and cursor blink, reduced static lockup, or off."),
     Setting("SEAM_WEBUI_DIR", "Dashboard", "path",
             description="Override directory for the browser dashboard assets."),
 
@@ -536,15 +550,44 @@ def apply_persisted_to_environ(
 
     Names already present in the environment are left untouched, so an explicit
     ``SEAM_X=1 seam-dash`` and CI configuration both keep winning over whatever
-    the Settings screen last saved.
+    the Settings screen last saved. Values previously injected by this function
+    are refreshed (or removed) from the latest file because they are not true
+    process overrides.
     """
     env = os.environ if environ is None else environ
+    values = load_persisted(path)
     applied: list[str] = []
-    for name, value in load_persisted(path).items():
+    if env is os.environ:
+        source_path = (path or config_path()).expanduser().resolve()
+        for name, (tracked_path, tracked_value) in tuple(_PERSISTED_ENV_VALUES.items()):
+            current = os.environ.get(name)
+            if current != tracked_value:
+                # Something outside this module changed or removed the value;
+                # from now on treat any replacement as an explicit override.
+                _PERSISTED_ENV_VALUES.pop(name, None)
+                continue
+            if tracked_path != source_path:
+                os.environ.pop(name, None)
+                _PERSISTED_ENV_VALUES.pop(name, None)
+                continue
+            replacement = values.get(name, "")
+            if not replacement or not is_env_name(name):
+                os.environ.pop(name, None)
+                _PERSISTED_ENV_VALUES.pop(name, None)
+                applied.append(name)
+                continue
+            if replacement != tracked_value:
+                os.environ[name] = replacement
+                _PERSISTED_ENV_VALUES[name] = (source_path, replacement)
+                applied.append(name)
+
+    for name, value in values.items():
         if name in env or value == "" or not is_env_name(name):
             continue
         env[name] = value
         applied.append(name)
+        if env is os.environ:
+            _PERSISTED_ENV_VALUES[name] = (source_path, value)
     return applied
 
 
@@ -556,7 +599,14 @@ def apply_persisted_to_environ(
 def effective_value(name: str, path: Path | None = None) -> str:
     """Return the value the runtime would actually see for ``name``."""
     if name in os.environ:
-        return os.environ[name]
+        source_path = (path or config_path()).expanduser().resolve()
+        tracked = _PERSISTED_ENV_VALUES.get(name)
+        if tracked is None or tracked[0] != source_path or os.environ[name] != tracked[1]:
+            # A real process override always wins. If a tracked value was
+            # changed externally, forget its file provenance permanently.
+            if tracked is not None and os.environ[name] != tracked[1]:
+                _PERSISTED_ENV_VALUES.pop(name, None)
+            return os.environ[name]
     persisted = load_persisted(path).get(name)
     if persisted is not None:
         return persisted
@@ -567,7 +617,12 @@ def effective_value(name: str, path: Path | None = None) -> str:
 def value_source(name: str, path: Path | None = None) -> str:
     """Return where the effective value comes from: env, file, default, or unset."""
     if name in os.environ:
-        return "env"
+        source_path = (path or config_path()).expanduser().resolve()
+        tracked = _PERSISTED_ENV_VALUES.get(name)
+        if tracked is None or tracked[0] != source_path or os.environ[name] != tracked[1]:
+            if tracked is not None and os.environ[name] != tracked[1]:
+                _PERSISTED_ENV_VALUES.pop(name, None)
+            return "env"
     if name in load_persisted(path):
         return "file"
     setting = SETTINGS_BY_NAME.get(name)

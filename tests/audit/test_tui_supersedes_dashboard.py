@@ -106,6 +106,38 @@ class TestUnusableNamesAreRejected:
         assert config.apply_persisted_to_environ(env, path) == []
         assert env["A_KEY"] == "from_process"
 
+    def test_file_promoted_value_refreshes_without_becoming_an_env_override(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        name = "SEAM_TEST_PROMOTED_SETTING"
+        path = _write_env(tmp_path, f"{name}=first\n")
+        monkeypatch.delenv(name, raising=False)
+
+        assert config.apply_persisted_to_environ(path=path) == [name]
+        assert os.environ[name] == "first"
+        assert config.value_source(name, path) == "file"
+
+        path.write_text(f"{name}=second\n", encoding="utf-8")
+        # Consumers that use `effective_value` see a saved value immediately,
+        # before the explicit Reload action synchronizes the process mapping.
+        assert config.effective_value(name, path) == "second"
+        assert config.apply_persisted_to_environ(path=path) == [name]
+        assert os.environ[name] == "second"
+
+    def test_real_process_override_is_never_refreshed_from_file(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        name = "SEAM_TEST_EXPLICIT_SETTING"
+        path = _write_env(tmp_path, f"{name}=from_file\n")
+        monkeypatch.setenv(name, "from_process")
+
+        assert config.apply_persisted_to_environ(path=path) == []
+        path.write_text(f"{name}=changed_file\n", encoding="utf-8")
+        assert config.effective_value(name, path) == "from_process"
+        assert config.value_source(name, path) == "env"
+        assert config.apply_persisted_to_environ(path=path) == []
+        assert os.environ[name] == "from_process"
+
 
 @textual_required
 class TestWidgetIdsAreAlwaysLegal:
@@ -293,6 +325,110 @@ class TestBackendContractHoldsForTheNewUi:
 
 
 @textual_required
+class TestCanticleBrandLaunch:
+    """The reusable product lockup types once, then yields to the workspace."""
+
+    def _backend(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        from seam_runtime.dashboard import DashboardApp
+        from seam_runtime.runtime import SeamRuntime
+
+        monkeypatch.delenv("SEAM_PGVECTOR_DSN", raising=False)
+        return DashboardApp(SeamRuntime(str(tmp_path / "seam.db")))
+
+    def test_full_motion_types_the_exact_seam_frames(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import Static
+
+        from seam_runtime.tui import brand
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.setenv("SEAM_TUI_MOTION", "full")
+        monkeypatch.setattr(brand, "STARTUP_FRAME_SECONDS", 60.0)
+        monkeypatch.setattr(brand, "STARTUP_HOLD_SECONDS", 60.0)
+        app = SeamTUI(self._backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(120, 38)) as pilot:
+                await pilot.pause()
+                assert brand.STARTUP_WORD_FRAMES == ("S", "SE", "SEA", "SEAM")
+                assert app._startup_active
+                assert app._cursor_timer is not None
+                assert app._cursor_timer._interval == brand.CURSOR_TOGGLE_SECONDS
+                if app._startup_timer is not None:
+                    app._startup_timer.stop()
+                    app._startup_timer = None
+                hold_delays: list[float] = []
+                monkeypatch.setattr(
+                    app,
+                    "set_timer",
+                    lambda delay, callback: hold_delays.append(delay),
+                )
+
+                word = app.query_one("#startup-word", Static)
+                assert word.content == brand.product_wordmark(brand.STARTUP_WORD_FRAMES[0])
+                for expected in brand.STARTUP_WORD_FRAMES[1:]:
+                    app._advance_startup_animation()
+                    assert word.content == brand.product_wordmark(expected)
+                assert hold_delays == [brand.STARTUP_HOLD_SECONDS]
+
+                app._finish_startup_animation()
+                assert not app.query_one("#startup-splash").display
+
+        asyncio.run(_check())
+
+    def test_motion_off_mounts_no_launch_layer(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.setenv("SEAM_TUI_MOTION", "off")
+        app = SeamTUI(self._backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(120, 38)) as pilot:
+                await pilot.pause()
+                assert not app.query("#startup-splash")
+                assert not app._startup_active
+                assert app._cursor_timer is None
+                assert app._cursor_on
+                app._blink()
+                assert app._cursor_on
+
+        asyncio.run(_check())
+
+    def test_reduced_motion_shows_only_the_static_final_lockup(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import Static
+
+        from seam_runtime.tui import brand
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.setenv("SEAM_TUI_MOTION", "reduced")
+        monkeypatch.setattr(brand, "STARTUP_HOLD_SECONDS", 60.0)
+        app = SeamTUI(self._backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(120, 38)) as pilot:
+                await pilot.pause()
+                assert "SEAM" in str(app.query_one("#startup-word", Static).content)
+                assert app._startup_timer is None
+                assert app._cursor_timer is None
+                assert app._cursor_on
+                app._blink()
+                assert app._cursor_on
+
+        asyncio.run(_check())
+
+
+@textual_required
 class TestMemoryPageIsNowAWorkspace:
     """The Memory tab became a page -- records table on top, provenance
     trace directly beneath it, one shared log -- instead of a tab with a
@@ -346,6 +482,7 @@ class TestMemoryPageIsNowAWorkspace:
                 assert len(app.query("#log-memory")) == 1
                 assert len(app.query("#prov-query")) == 1
                 assert len(app.query("#prov-tree")) == 1
+                assert len(app.query("#memory-copy-id")) == 1
                 assert not app.query("#log-prov")
 
                 # And specifically inside the memory page, not floating
@@ -357,7 +494,7 @@ class TestMemoryPageIsNowAWorkspace:
 
         asyncio.run(_check())
 
-    def test_row_selection_copies_id_and_traces_it(
+    def test_row_selection_traces_without_changing_clipboard(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         import asyncio
@@ -385,16 +522,55 @@ class TestMemoryPageIsNowAWorkspace:
                 expected_id = records._row_ids[0]
 
                 table = app.query_one("#memory-table", DataTable)
+                app.copy_to_clipboard("keep-this-clipboard-value")
                 table.focus()
                 await pilot.pause()
                 await pilot.press("enter")
                 await pilot.pause(0.2)
 
-                # `App.clipboard` (textual/app.py) is the public read side of
-                # `copy_to_clipboard`'s private `_clipboard` -- real and
-                # observable, not something to monkeypatch.
-                assert app.clipboard == expected_id
+                # Selection drives the trace but is no longer an implicit
+                # clipboard mutation.
+                assert app.clipboard == "keep-this-clipboard-value"
                 assert app.query_one("#prov-query", Input).value == expected_id
+
+        asyncio.run(_check())
+
+    def test_copy_id_button_copies_the_full_visible_id(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import Button, DataTable, Input
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.panels import MemoryRecordsPanel
+
+        backend = self._backend_with_a_record(tmp_path, monkeypatch)
+        app = SeamTUI(backend)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.pause()
+                records = app.query_one("#memory-records", MemoryRecordsPanel)
+                for _ in range(50):
+                    if records._row_ids:
+                        break
+                    await pilot.pause(0.05)
+                assert records._row_ids
+                expected_id = records._row_ids[0]
+
+                table = app.query_one("#memory-table", DataTable)
+                table.focus()
+                await pilot.press("enter")
+                await pilot.pause(0.2)
+                assert app.query_one("#prov-query", Input).value == expected_id
+                assert app.clipboard == ""
+
+                button = app.query_one("#memory-copy-id", Button)
+                button.focus()
+                await pilot.press("enter")
+                await pilot.pause(0.2)
+                assert app.clipboard == expected_id
 
         asyncio.run(_check())
 
@@ -439,7 +615,7 @@ class TestMemoryPageIsNowAWorkspace:
     ) -> None:
         import asyncio
 
-        from textual.widgets import DataTable
+        from textual.widgets import Button, DataTable
 
         from seam_runtime.dashboard import DashboardApp
         from seam_runtime.runtime import SeamRuntime
@@ -453,6 +629,7 @@ class TestMemoryPageIsNowAWorkspace:
             async with app.run_test(size=(200, 60)) as pilot:
                 await pilot.pause()
                 table = app.query_one("#memory-table", DataTable)
+                app.copy_to_clipboard("sentinel")
                 table.focus()
                 await pilot.pause()
 
@@ -462,11 +639,17 @@ class TestMemoryPageIsNowAWorkspace:
                 # copy the status text as if it were an id.
                 await pilot.press("y")
                 await pilot.pause(0.2)
-                assert app.clipboard == ""
+                assert app.clipboard == "sentinel"
 
                 await pilot.press("enter")
                 await pilot.pause(0.2)
-                assert app.clipboard == ""
+                assert app.clipboard == "sentinel"
+
+                button = app.query_one("#memory-copy-id", Button)
+                button.focus()
+                await pilot.press("enter")
+                await pilot.pause(0.2)
+                assert app.clipboard == "sentinel"
 
         asyncio.run(_check())
 

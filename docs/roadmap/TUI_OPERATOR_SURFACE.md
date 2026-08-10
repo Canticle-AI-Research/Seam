@@ -84,9 +84,11 @@ a HISTORY entry. They are ordered by dependency and by how much they unblock.
 ### S1 — Memory workspace (landed, HISTORY#540)
 
 Records table on top, provenance trace directly below, one shared log. Row
-selection copies the record id to the clipboard and traces it below; `y` yanks
-the id under the cursor. The standalone Provenance tab is removed — keeping
-both would duplicate `#prov-query` and fail the mount on duplicate ids.
+selection exposes the full record id in an editable field and traces it without
+changing the clipboard; an adjacent Copy ID button and `y` are the explicit
+copy paths. The same field accepts pasted ids and Enter traces them. The
+standalone Provenance tab is removed — keeping both would duplicate
+`#prov-query` and fail the mount on duplicate ids.
 
 ### S2a — Every command carries a description, and the menu is organized
 
@@ -120,16 +122,21 @@ keeps the next added command from arriving undescribed.
 Three sigils set the mode, matching what the superseded dashboard did
 (`dashboard.py:1175-1195`) so muscle memory survives:
 
-| sigil | mode | prefixed line | bare sigil |
+| sigil | mode | whole-line paste/prefill | typed sigil |
 |---|---|---|---|
-| `/` | seam (default) | run a dashboard command | open the menu |
+| `/` | seam (default) | open/filter the command menu | open the menu |
 | `!` | shell | run one shell command | latch shell mode |
 | `?` | chat | send one message to the model | latch chat mode |
 
-A prefixed line is one-shot regardless of the current mode; a bare sigil
-latches. Escape in the command input returns to seam mode. The mode is visible
-in three places, because an invisible mode is a trap: the brand-bar status, the
-input placeholder, and the input's border colour.
+A whole `!`/`?`-prefixed line pasted or otherwise inserted atomically is
+one-shot regardless of the current mode. A typed `!` or `?` latches immediately, and
+the following keystrokes run in that mode; the application cannot both latch
+on the first keypress and retrospectively treat the completed typed line as a
+one-shot override. Sigils also latch from any non-text widget. Escape returns
+to seam mode and focuses the command bar. Sigils typed into Settings, search,
+or provenance inputs remain editable text. The mode is visible in three places,
+because an invisible mode is a trap: the brand-bar status, the input placeholder,
+and the input's border colour.
 
 Both modes reuse machinery that already exists rather than adding engine work.
 Shell: the `cd`/`pwd`-aware subprocess logic currently trapped inside the
@@ -237,7 +244,8 @@ out of `omitted_candidate_ids` and into the pack.
 
 ### S5 — Settings redesign
 
-The registry-driven bones are right (115 settings, 14 groups, `bool` -> Switch,
+The registry-driven bones are right (116 settings, 14 registry groups including
+Custom Keys, `bool` -> Switch,
 `enum` -> Select, validation borrowed from the owning modules). The presentation
 is one flat scroll where every row is three lines tall.
 
@@ -262,7 +270,10 @@ is one flat scroll where every row is three lines tall.
   action is the sole caller of `apply_persisted_to_environ`. So there are two
   stacked gaps, not one:
   - Save reports success while the running process still holds the old value
-    for *every* setting, until Reload is pressed.
+    for settings read directly from `os.environ`, until Reload is pressed.
+    The shell gate and chat client are bounded exceptions: they re-read
+    `config.effective_value` before their next action, so those saved controls
+    no longer require Reload.
   - Even after Reload, construction-time knobs — `SEAM_DB_PATH`, the embedding
     provider, the vector adapter — cannot take effect, because the live
     `SeamRuntime` was already built.

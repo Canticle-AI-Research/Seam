@@ -18,18 +18,27 @@ from ..ui.logo import GlyphStyle, render_wordmark
 
 __all__ = [
     "BG_DEEP",
+    "BRAND_SQUARE",
     "LADDER",
     "PROMPT",
+    "STARTUP_WORD_FRAMES",
+    "STARTUP_FRAME_SECONDS",
+    "STARTUP_HOLD_SECONDS",
+    "CURSOR_BLINK_SECONDS",
+    "CURSOR_TOGGLE_SECONDS",
     "WORDMARK_STYLE",
     "MARK_STYLE",
     "splash",
     "brand_mark",
+    "terminal_prompt",
+    "product_wordmark",
     "rule",
 ]
 
 # ── Canticle tokens ────────────────────────────────────────────────────────
 BG_DEEP = "#16161e"
 BG_PANEL = "#1f2028"
+BRAND_SQUARE = "#0a0b0a"
 PINK = "#ff6090"
 MAGENTA = "#e478d0"
 LAVENDER = "#c4a7e7"
@@ -49,6 +58,19 @@ LADDER: tuple[str, ...] = (PINK, MAGENTA, LAVENDER, CYAN, MINT)
 
 #: Canticle's prompt glyph.
 PROMPT = "❯"
+
+#: The SEAM product lockup's bounded launch sequence. Timing mirrors the
+#: reusable brand kit's `motion.product_type_on` contract; reduced motion
+#: renders only the final frame and `off` mounts no launch surface.
+STARTUP_WORD_FRAMES: tuple[str, ...] = ("S", "SE", "SEA", "SEAM")
+STARTUP_FRAME_SECONDS = 0.12
+STARTUP_HOLD_SECONDS = 0.36
+
+#: One complete visible -> hidden -> visible cursor cycle. The cell renderer
+#: implements the website's 800 ms CSS animation with two discrete half-cycle
+#: redraws. Reduced/off motion intentionally schedule no cursor redraws.
+CURSOR_BLINK_SECONDS = 0.8
+CURSOR_TOGGLE_SECONDS = CURSOR_BLINK_SECONDS / 2
 
 WORDMARK_STYLE = GlyphStyle(lit=PINK, background=BG_DEEP, shadow=MAGENTA)
 MARK_STYLE = GlyphStyle(lit=CYAN, background=BG_DEEP, shadow=LAVENDER)
@@ -75,14 +97,29 @@ def rule(width: int = 60) -> str:
 CURSOR = "█"
 
 
+def terminal_prompt(cursor_on: bool = True) -> str:
+    """Render the prompt/cursor content for the bordered terminal square.
+
+    Geometry and background live in TCSS because a terminal cell renderer can
+    draw the same rounded box as the website more faithfully than inline Rich
+    markup. This function owns only the canonical glyph and first-frame colors.
+    """
+    caret = f"[{PINK}]{CURSOR}[/]" if cursor_on else " "
+    return f"[b {MINT}]{PROMPT}[/] {caret}"
+
+
+def product_wordmark(text: str = "SEAM") -> str:
+    """Render all or part of the canonical SEAM product wordmark."""
+    return f"[b {PINK}]{text}[/]"
+
+
 def brand_mark(cursor_on: bool = True) -> str:
     """Return the compact brand mark, with Canticle's blinking caret.
 
     The caret is redrawn on a timer rather than styled with `blink`, because
     terminal blink support is inconsistent and frequently disabled outright.
     """
-    caret = f"[{PINK}]{CURSOR}[/]" if cursor_on else " "
-    return f"[{PINK}]{PROMPT}[/] [b {MAGENTA}]SEAM[/] {caret}"
+    return f"{terminal_prompt(cursor_on)} {product_wordmark()}"
 
 
 #: `label:` at the start of a line — the shape most backend output uses.

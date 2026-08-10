@@ -1,5 +1,8 @@
 # SEAM Retro Direction
 
+> Historical concept, not the current identity. The canonical reusable
+> contract is `branding/kit/README.md`; this file remains for design history.
+
 Reference used:
 - `branding/references/cli-aesthetic-design-principles.md`
 

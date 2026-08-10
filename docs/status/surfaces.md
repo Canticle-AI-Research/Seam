@@ -17,9 +17,10 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   and `seam-tui` all reach it through `dashboard.run_dashboard`.
   - Memory is a page rather than a tab of one table (HISTORY#540): the record
     table, the provenance trace beneath it, and one shared log. Selecting a row
-    copies its id and traces it below; `y` yanks the id under the cursor. The
-    standalone Provenance tab is gone — two `#prov-query` widgets cannot
-    coexist.
+    exposes its full id in an editable field and traces it below without
+    changing the clipboard; the adjacent Copy ID button and `y` shortcut are
+    explicit copy paths. The standalone Provenance tab is gone — two
+    `#prov-query` widgets cannot coexist.
   - The `/` menu is organized by task, not by surface (HISTORY#541): a Run
     section of the 20 executable dashboard verbs, then Reference covering
     cli/mcp/api/sdk under the same eleven task names with a per-row surface
@@ -27,12 +28,21 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     REST summaries live on the route decorators and therefore in the OpenAPI
     schema; CLI text is the existing `help=`, now actually read.
   - Three input modes (HISTORY#542): `/` seam commands, `!` shell, `?` chat.
-    A prefixed line is one-shot whatever mode is latched; a bare sigil
-    latches; Escape returns to seam. The mode shows in the brand bar, the
+    A typed sigil latches immediately and following keystrokes use that mode;
+    a whole prefixed line pasted into the field runs once without changing an
+    existing mode. Escape returns to seam and the command bar. The mode shows in the brand bar, the
     placeholder, and the input border. Shell execution stays behind
     HISTORY#272's `SEAM_DASHBOARD_ALLOW_SHELL` gate, off by default and
     toggleable from the Settings tab; `cd`/`pwd` work regardless. Chat reuses
     `SeamChatClient` and renders the memory ids it injected.
+  - Canticle/SEAM identity kit: `branding/kit/` is the canonical reusable
+    token, SVG, terminal-lockup, motion, and provenance contract. The TUI is
+    its first consumer: the Canticle prompt/cursor square and SEAM product
+    wordmark type on at launch, then settle into the header. Motion supports
+    `full`, `reduced`, and `off` through `SEAM_TUI_MOTION`; only `full` blinks
+    the cursor, while reduced/off keep it statically visible. Older retro,
+    blue/ice, and glitch assets remain historical; WebUI adoption is deferred
+    to an operator-present design session.
   - Keyboard navigation: `alt+1`..`alt+N`, `ctrl+left`/`ctrl+right`, and
     `tab <name>`. `alt+N` is unavailable on terminals using the classic
     "Alt sends Escape" convention; the other two paths always work.

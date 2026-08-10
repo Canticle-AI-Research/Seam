@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from rich.markup import escape as _escape_markup
-from textual import on, work
+from textual import events, on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -70,10 +70,10 @@ TABS: tuple[tuple[str, str], ...] = (
 #: the internal "api" key next to "cli"/"mcp"/"sdk".
 _SURFACE_TAGS: dict[str, str] = {"cli": "cli", "mcp": "mcp", "api": "rest", "sdk": "sdk"}
 
-#: The three modes an operator can latch `#command-input` into (S2b). A
-#: prefixed line (`!ls`, `?hello`, `/stats`) always runs one-shot regardless
-#: of the latched mode; a bare sigil + Enter latches it (except `/`, which
-#: opens the palette -- unchanged from before this slice).
+#: The three modes an operator can latch `#command-input` into (S2b). Typing
+#: `!` or `?` latches immediately, so subsequent keystrokes run in that mode;
+#: a whole prefixed line inserted atomically (for example, by paste) remains a
+#: one-shot override. `/` opens the palette and seeds it with following text.
 _MODE_PLACEHOLDERS: dict[str, str] = {
     "seam": "Run a command, or press / for the menu",
     "shell": "run a shell command in {cwd}",
@@ -274,6 +274,25 @@ class SeamTUI(App[None]):
         Binding("ctrl+s", "show_settings", "Settings"),
         Binding("ctrl+l", "clear_output", "Clear"),
         Binding("ctrl+c", "quit", "Quit", priority=True),
+        # From tables, trees, buttons, and tabs these printable sigils move
+        # focus to the global command bar and latch their mode immediately.
+        # `check_action` below disables the bindings while any Input owns
+        # focus, so punctuation remains ordinary editable text in settings,
+        # search, provenance, and the command bar itself.
+        Binding(
+            "exclamation_mark",
+            "focus_mode('shell')",
+            "Shell mode",
+            show=False,
+            priority=True,
+        ),
+        Binding(
+            "question_mark",
+            "focus_mode('chat')",
+            "Chat mode",
+            show=False,
+            priority=True,
+        ),
         # Escape is not marked priority: CommandPalette (a ModalScreen) is
         # excluded from the non-priority binding chain while it is open
         # (Textual truncates at the first modal ancestor), so this never
@@ -299,21 +318,32 @@ class SeamTUI(App[None]):
         self.mode: str = "seam"
         self.shell_session = shell.ShellSession()
         #: `SeamChatClient` (`dashboard.py:256`) is module-level and already
-        #: covers "not configured" and request-failure explanations; this is
-        #: the one and only instance the TUI keeps (Part 3 of S2b -- reuse,
-        #: do not write a second client). Imported lazily so importing this
+        #: covers "not configured" and request-failure explanations. The TUI
+        #: rebuilds this small client before a chat interaction so Settings
+        #: saved after launch take effect; it does not implement a second
+        #: client. Imported lazily so importing this
         #: module never requires `httpx`, which `SeamChatClient.complete`
         #: only imports when it actually has a key to use.
         from ..dashboard import SeamChatClient
 
         self.chat_client = SeamChatClient()
         self.chat_history: list[dict[str, str]] = []
+        self._chat_busy = False
+        self._chat_intro_shown = False
+        motion = config.effective_value("SEAM_TUI_MOTION").strip().lower()
+        self._startup_motion = motion if motion in {"full", "reduced", "off"} else "full"
+        self._startup_active = False
+        self._startup_frame = 0
+        self._startup_timer: Any = None
+        self._cursor_timer: Any = None
 
     # -- layout ------------------------------------------------------------
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="brand-bar"):
-            yield Static(brand.brand_mark(), id="brand-mark")
+            with Horizontal(id="brand-lockup"):
+                yield Static(brand.terminal_prompt(), id="brand-symbol")
+                yield Static(brand.product_wordmark(), id="brand-product")
             yield Static(str(self.backend.runtime.store.path), id="brand-context")
             yield Static("seam", id="brand-mode")
             yield Static("ready", id="brand-status")
@@ -337,26 +367,101 @@ class SeamTUI(App[None]):
             "[b]y[/b] copy id   [b]^L[/b] clear   [b]^C[/b] quit",
             id="help-rail",
         )
+        if self._startup_motion != "off":
+            with Horizontal(id="startup-splash"):
+                yield Static(brand.terminal_prompt(), id="startup-symbol")
+                yield Static(
+                    brand.product_wordmark(brand.STARTUP_WORD_FRAMES[0]),
+                    id="startup-word",
+                )
 
     def _blink(self) -> None:
         """Toggle the brand caret, giving the rail a live terminal feel."""
+        if self._startup_motion != "full":
+            return
         self._cursor_on = not self._cursor_on
         try:
-            self.query_one("#brand-mark", Static).update(
-                brand.brand_mark(self._cursor_on)
+            self.query_one("#brand-symbol", Static).update(
+                brand.terminal_prompt(self._cursor_on)
             )
         except Exception:
             pass
 
+    def _start_startup_animation(self) -> None:
+        """Show the product lockup once, then collapse it into the header."""
+        if self._startup_motion == "off" or not self.query("#startup-splash"):
+            return
+        self._startup_active = True
+        self._startup_frame = 0
+        if self._startup_motion == "reduced":
+            self.query_one("#startup-word", Static).update(
+                brand.product_wordmark(brand.STARTUP_WORD_FRAMES[-1])
+            )
+            self.set_timer(brand.STARTUP_HOLD_SECONDS, self._finish_startup_animation)
+            return
+        self._startup_timer = self.set_interval(
+            brand.STARTUP_FRAME_SECONDS,
+            self._advance_startup_animation,
+        )
+
+    def _advance_startup_animation(self) -> None:
+        """Advance one `S -> SE -> SEA -> SEAM` frame."""
+        # A key press may dismiss the splash while a timer tick is already
+        # queued. The callback can still arrive once after `Timer.stop()`;
+        # treat it as a no-op instead of querying the now-pruned layer.
+        if not self._startup_active:
+            return
+        words = self.query("#startup-word")
+        if not words:
+            # The app may be tearing down while a timer tick is queued.
+            self._startup_active = False
+            if self._startup_timer is not None:
+                self._startup_timer.stop()
+                self._startup_timer = None
+            return
+        self._startup_frame += 1
+        if self._startup_frame < len(brand.STARTUP_WORD_FRAMES):
+            word = brand.STARTUP_WORD_FRAMES[self._startup_frame]
+            words.first().update(brand.product_wordmark(word))
+            if self._startup_frame < len(brand.STARTUP_WORD_FRAMES) - 1:
+                return
+            # The final frame's own display time is exactly the hold contract;
+            # do not leave the interval alive for one extra frame tick.
+        if self._startup_timer is not None:
+            self._startup_timer.stop()
+            self._startup_timer = None
+        self.set_timer(brand.STARTUP_HOLD_SECONDS, self._finish_startup_animation)
+
+    def _finish_startup_animation(self) -> None:
+        """Dismiss the launch layer; safe to call early from a key press."""
+        if not self._startup_active:
+            return
+        self._startup_active = False
+        if self._startup_timer is not None:
+            self._startup_timer.stop()
+            self._startup_timer = None
+        splash = self.query("#startup-splash")
+        if splash:
+            splash.first().display = False
+
+    def on_key(self, event: events.Key) -> None:
+        """Any operator input skips the remaining launch motion."""
+        if self._startup_active:
+            self._finish_startup_animation()
+
     def on_mount(self) -> None:
         self._cursor_on = True
-        self.set_interval(0.55, self._blink)
+        if self._startup_motion == "full":
+            self._cursor_timer = self.set_interval(
+                brand.CURSOR_TOGGLE_SECONDS,
+                self._blink,
+            )
+        self._start_startup_animation()
         self._write(
             "memory",
-            brand.splash(
-                f"{len(self.catalog)} commands · press / for the menu · "
-                f"{len(config.SETTINGS)} settings in the Settings tab"
-            ),
+            f"[b {brand.PINK}]SEAM ready[/]  [{brand.TEXT_DIM}]"
+            f"{len(self.catalog)} commands · press / for the menu · "
+            f"{len(config.SETTINGS)} settings in the Settings tab[/]",
         )
         # The Memory tab is now a page (table + provenance trace + this log,
         # panels.py's `MemoryPanel`), and neither the copy-id key nor the
@@ -365,7 +470,8 @@ class SeamTUI(App[None]):
         self._write(
             "memory",
             f"[{brand.TEXT_DIM}]tip: select a record (enter or click) to "
-            f"trace it below · [b]y[/b] copies its id[/]",
+            f"trace it below · paste an id in the field · [b]Copy ID[/b] or "
+            f"[b]y[/b] copies explicitly[/]",
         )
         self.query_one("#command-input", Input).focus()
         self._set_mode("seam")
@@ -439,13 +545,38 @@ class SeamTUI(App[None]):
     # -- actions -----------------------------------------------------------
 
     def action_seam_mode(self) -> None:
-        """Escape in the command input returns to seam mode."""
+        """Escape returns to seam mode and the global command bar."""
         self._set_mode("seam")
+        self.query_one("#command-input", Input).focus()
+
+    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
+        """Keep global mode sigils out of every editable text field.
+
+        Printable-character bindings are needed so `!` and `?` still work
+        after a table or tree has focus. They must not steal those same
+        characters from Inputs (including Settings fields and `#prov-query`),
+        or from the command palette's modal input.
+        """
+        if action == "focus_mode":
+            if isinstance(self.screen, CommandPalette):
+                return False
+            return not isinstance(self.focused, Input)
+        return super().check_action(action, parameters)
+
+    def action_focus_mode(self, mode: str) -> None:
+        """Focus the command bar and latch shell/chat from non-text widgets."""
+        field = self.query_one("#command-input", Input)
+        field.focus()
+        field.value = ""
+        if mode == "shell":
+            self._latch_shell_mode()
+        elif mode == "chat":
+            self._enter_chat_mode()
 
     def action_open_palette(self) -> None:
         # Whatever the operator had already typed into `#command-input`
         # (possibly with a leading `/` still attached, possibly not, per
-        # how this is reached -- see `_on_slash` below) becomes the
+        # how this is reached -- see `_on_input_prefix` below) becomes the
         # palette's seed filter rather than being silently discarded
         # (S2b defect #1).
         field = self.query_one("#command-input", Input)
@@ -488,10 +619,10 @@ class SeamTUI(App[None]):
             return
         if mode == "shell":
             self._latch_shell_mode()
+        elif mode == "chat":
+            self._enter_chat_mode()
         else:
             self._set_mode(mode)
-        if mode == "chat":
-            self._show_chat_tab()
         self.query_one("#command-input", Input).focus()
 
     def _latch_shell_mode(self) -> None:
@@ -508,6 +639,35 @@ class SeamTUI(App[None]):
         self._set_mode("shell")
         if not shell.shell_enabled():
             self._write(self._active_tab_id(), f"[{brand.TEXT_DIM}]{shell.DISABLED_MESSAGE}[/]")
+
+    def _refresh_chat_client(self) -> None:
+        """Re-read effective Settings before the next chat interaction."""
+        from ..dashboard import SeamChatClient
+
+        self.chat_client = SeamChatClient()
+
+    def _enter_chat_mode(self) -> None:
+        """Latch chat, show its transcript, and surface configuration state."""
+        self._refresh_chat_client()
+        self._set_mode("chat")
+        self._show_chat_tab()
+        if self._chat_intro_shown:
+            return
+        self._chat_intro_shown = True
+        if self.chat_client.configured:
+            self._write(
+                "chat",
+                f"[{brand.MINT}]chat ready[/]  "
+                f"[{brand.TEXT_DIM}]{self.chat_client.model} · "
+                f"{self.chat_client.base_url}[/]",
+            )
+        else:
+            self._write(
+                "chat",
+                f"[{brand.TEXT_MUTED}]Chat is not configured. Set "
+                f"SEAM_CHAT_API_KEY, SEAM_CHAT_BASE_URL, and SEAM_CHAT_MODEL "
+                f"in Settings, then send a message.[/]",
+            )
 
     def _show_reference(self, spec: CommandSpec) -> None:
         """Print a reference card for a command the TUI does not execute."""
@@ -569,8 +729,14 @@ class SeamTUI(App[None]):
         tabs.active = ids[(index + delta) % len(ids)]
 
     @on(Input.Changed, "#command-input")
-    def _on_slash(self, event: Input.Changed) -> None:
-        """Open the palette when `/` starts a fresh command.
+    def _on_input_prefix(self, event: Input.Changed) -> None:
+        """React to a fresh mode sigil without waiting for Enter.
+
+        Exact `!` and `?` values latch and clear the command field, so the very
+        next typed character is ordinary text in that mode. A whole line
+        inserted atomically, such as a pasted `!pwd` or `?hello`, is left
+        intact for `_on_command` to dispatch once. `/` retains its existing
+        prefix/filter behavior below.
 
         Checks the *live* `event.input.value`, not `event.value` (the value
         this particular `Changed` message was posted with). At full typing
@@ -584,16 +750,24 @@ class SeamTUI(App[None]):
         field, later-queued `Changed` messages from the same burst see a
         value that no longer starts with `/`, so this only fires once.
         """
-        if event.input.value.startswith("/"):
+        live_value = event.input.value
+        if live_value == "!":
+            event.input.value = ""
+            self._latch_shell_mode()
+            return
+        if live_value == "?":
+            event.input.value = ""
+            self._enter_chat_mode()
+            return
+        if live_value.startswith("/"):
             self.action_open_palette()
 
     @on(Input.Submitted, "#command-input")
     def _on_command(self, event: Input.Submitted) -> None:
-        """Dispatch on Enter: a `!`/`?`/`/`-prefixed line always runs
-        one-shot regardless of the latched mode; a bare sigil latches (or,
-        for `/`, opens the menu -- unchanged, and normally already handled
-        by `_on_slash` above before Enter is even reached); unprefixed text
-        runs in whichever mode is currently latched.
+        """Dispatch on Enter: an atomically inserted `!`/`?`-prefixed line
+        runs once regardless of the latched mode; typed sigils normally latch
+        earlier in `_on_input_prefix`. `/` opens or dispatches through the
+        command palette. Unprefixed text runs in the currently latched mode.
         """
         raw = event.value.strip()
         if not raw:
@@ -612,11 +786,10 @@ class SeamTUI(App[None]):
             if rest:
                 self._run_chat(rest)
             else:
-                self._set_mode("chat")
-                self._show_chat_tab()
+                self._enter_chat_mode()
             return
         if raw.startswith("/"):
-            # Normally already intercepted by `_on_slash` above while the
+            # Normally already intercepted by `_on_input_prefix` above while the
             # `/` was still being typed; kept as a direct fallback (e.g. a
             # single-shot paste of a whole "/name arg" line).
             rest = raw[1:].strip()
@@ -691,6 +864,11 @@ class SeamTUI(App[None]):
     def _run_shell(self, command: str) -> None:
         command = command.strip()
         tab_id = self._active_tab_id()
+        if tab_id == "settings":
+            # Settings has no output log. Keep the result visible instead of
+            # silently redirecting it to a tab the operator cannot see.
+            tab_id = "memory"
+            self.query_one(TabbedContent).active = "tab-memory"
         if not command:
             self._write(tab_id, f"[{brand.TEXT_DIM}]enter a shell command after ![/]")
             return
@@ -734,14 +912,37 @@ class SeamTUI(App[None]):
         if not message:
             self._write("chat", f"[{brand.TEXT_DIM}]enter a message after ?[/]")
             return
+        if self._chat_busy:
+            self._show_chat_tab()
+            self._write(
+                "chat",
+                f"[{brand.YELLOW}]A chat request is already running; "
+                f"wait for its reply before sending the next message.[/]",
+            )
+            return
+        # Settings may have been saved after app construction. Rebuild the
+        # small, state-free client before every request so the next message
+        # sees the effective key/base/model without a restart.
+        self._refresh_chat_client()
         self._show_chat_tab()
         self._write("chat", f"\n[b {brand.CYAN}]?{brand.PROMPT}[/] [{brand.TEXT_MUTED}]{message}[/]")
         self._set_status(f"[{brand.YELLOW}]working…[/]")
         self.chat_history.append({"role": "user", "content": message})
-        self._execute_chat(message)
+        self._chat_busy = True
+        # A later Settings interaction may replace `self.chat_client`; pass
+        # this request its own client and history snapshot so worker-thread
+        # state cannot change underneath it.
+        client = self.chat_client
+        history = [dict(item) for item in self.chat_history]
+        self._execute_chat(message, client, history)
 
     @work(thread=True, exclusive=False)
-    def _execute_chat(self, message: str) -> None:
+    def _execute_chat(
+        self,
+        message: str,
+        client: Any,
+        history: list[dict[str, str]],
+    ) -> None:
         """Network call on a worker thread (S2b contract #2 / Part 3).
 
         `SeamChatClient.complete` (`dashboard.py:256`) already returns an
@@ -750,11 +951,7 @@ class SeamTUI(App[None]):
         it here for that path specifically.
         """
         context_prompt, memory_ids = self._build_chat_context_prompt(message)
-        # `self.chat_history` is only ever mutated on the App thread (by
-        # `_run_chat` before this worker starts, and by `_render_chat_reply`
-        # after it finishes); reading it here from the worker thread is safe
-        # because nothing else touches it concurrently.
-        reply = self.chat_client.complete(self.chat_history, context_prompt)
+        reply = client.complete(history, context_prompt)
         self.call_from_thread(self._render_chat_reply, reply, memory_ids)
 
     def _build_chat_context_prompt(self, message: str) -> tuple[str, list[str]]:
@@ -781,6 +978,7 @@ class SeamTUI(App[None]):
 
     def _render_chat_reply(self, reply: str, memory_ids: list[str]) -> None:
         self.chat_history.append({"role": "assistant", "content": reply})
+        self._chat_busy = False
         self._write("chat", reply)
         if memory_ids:
             self._write("chat", f"[{brand.TEXT_DIM}]memory: {', '.join(memory_ids)}[/]")

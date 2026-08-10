@@ -221,6 +221,14 @@ class TestShellGate:
     its allowlisted `shell=False` rewrite -- see `shell.py`'s module
     docstring): off by default, `cd`/`pwd` unaffected, re-read per call."""
 
+    @pytest.fixture(autouse=True)
+    def _isolated_settings(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from seam_runtime import config
+
+        monkeypatch.setattr(config, "config_path", lambda: tmp_path / "settings.env")
+
     def test_gate_off_by_default_refuses_and_spawns_nothing(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -289,6 +297,19 @@ class TestShellGate:
         refused_again = session.run("echo flip-me")
         assert refused_again.returncode != 0
         assert shell.ALLOW_SHELL_ENV in refused_again.stderr
+
+    def test_saved_setting_enables_the_next_command_without_reload(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from seam_runtime import config
+
+        monkeypatch.delenv(shell.ALLOW_SHELL_ENV, raising=False)
+        config.save_persisted({shell.ALLOW_SHELL_ENV: "1"})
+
+        assert shell.shell_enabled()
+        result = ShellSession(cwd=tmp_path).run("echo saved-setting-is-live")
+        assert result.returncode == 0
+        assert result.stdout.strip() == "saved-setting-is-live"
 
 
 class TestShellTimeoutEnv:

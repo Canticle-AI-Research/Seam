@@ -34,8 +34,8 @@ from typing import Any
 from textual import on, work
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Vertical
-from textual.widgets import DataTable, Input, RichLog, Tree
+from textual.containers import Horizontal, Vertical
+from textual.widgets import Button, DataTable, Input, RichLog, Tree
 
 from ..mirl import MIRLRecord, SearchCandidate, TraceGraph
 from ..runtime import SeamRuntime
@@ -271,24 +271,25 @@ class MemoryRecordsPanel(_RuntimePanel):
 
     @on(DataTable.RowSelected, "#memory-table")
     def _on_row_selected(self, event: DataTable.RowSelected) -> None:
-        """Enter or a click on the already-selected row: copy the id AND
-        trace it in the provenance panel below.
+        """Enter or a click on the already-selected row: trace its id below.
 
         `DataTable.RowSelected` fires for both keyboard and mouse selection
         (`textual/widgets/_data_table.py` `action_select_cursor` and
-        `_on_click` both post it), so one handler covers both.
+        `_on_click` both post it), so one handler covers both. Selection is
+        deliberately not a clipboard action: the full id remains visible and
+        selectable in `#prov-query`, while `y` and the adjacent Copy ID button
+        are the two explicit copy paths.
         """
         record_id = self._record_id_at(event.cursor_row)
         if record_id is None:
             self._log(f"[{brand.TEXT_DIM}]no record under the cursor[/]")
             return
-        self.app.copy_to_clipboard(record_id)
         try:
             query = self.app.query_one("#prov-query", Input)
         except Exception:
-            # No prov sibling mounted -- copying the id above still worked;
-            # there is simply nothing here to trace it into.
-            self._log(f"[{brand.TEXT_DIM}]copied id ↓[/]\n{record_id}")
+            # No provenance sibling mounted -- there is nowhere to expose or
+            # trace the selected id, but selecting the row must remain safe.
+            self._log(f"[{brand.TEXT_DIM}]selected id (trace unavailable) ↓[/]\n{record_id}")
             return
         query.value = record_id
         # Posting `Submitted` directly -- rather than awaiting the widget's
@@ -296,7 +297,7 @@ class MemoryRecordsPanel(_RuntimePanel):
         # `ProvPanel._on_submit` below already reacts to, without needing
         # this handler to be async.
         query.post_message(Input.Submitted(query, record_id))
-        self._log(f"[{brand.MINT}]copied id, tracing below ↓[/]\n{record_id}")
+        self._log(f"[{brand.MINT}]selected id, tracing below ↓[/]\n{record_id}")
 
 
 # ---------------------------------------------------------------------------
@@ -634,7 +635,13 @@ class ProvPanel(_RuntimePanel):
     """
 
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="object id to trace… (press enter)", id="prov-query")
+        with Horizontal(id="memory-id-controls"):
+            yield Input(
+                placeholder="select a row or paste an object id…",
+                id="prov-query",
+                select_on_focus=True,
+            )
+            yield Button("Copy ID", id="memory-copy-id")
         yield Tree("(enter an id above)", id="prov-tree")
 
     def reload(self) -> None:
@@ -648,6 +655,26 @@ class ProvPanel(_RuntimePanel):
         obj_id = event.value.strip()
         if obj_id:
             self._run_trace(obj_id)
+
+    @on(Button.Pressed, "#memory-copy-id")
+    def _on_copy_id(self) -> None:
+        """Copy the full visible id only after an explicit button press."""
+        obj_id = self.query_one("#prov-query", Input).value.strip()
+        if not obj_id:
+            try:
+                self.app.query_one("#log-memory", RichLog).write(
+                    f"[{brand.TEXT_DIM}]select or paste an id before copying[/]"
+                )
+            except Exception:
+                pass
+            return
+        self.app.copy_to_clipboard(obj_id)
+        try:
+            self.app.query_one("#log-memory", RichLog).write(
+                f"[{brand.TEXT_DIM}]copied id ↓[/]\n{obj_id}"
+            )
+        except Exception:
+            pass
 
     @work(thread=True, exclusive=True)
     def _run_trace(self, obj_id: str) -> None:
