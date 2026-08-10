@@ -17573,3 +17573,43 @@ Before merge, required and advisory exact-head GitHub jobs all passed: `repo-hyg
 
 The remaining product work is unchanged: distributed experiment scheduling/leasing and canary control are future production-scale work; TUI operator-surface slices and the operator-present WebUI redesign remain separate workstreams.
 ---END-ENTRY-#548---
+
+---BEGIN-ENTRY-#549---
+id: 549
+date: 2026-08-10T23:39:47Z
+agent: codex
+status: done
+topics: surface, animation, docs, test, verify
+commits: pending
+refs: .gitattributes,branding/README.md,branding/canticle-cosmic-kit,docs/CODE_LAYOUT.md,docs/status/surfaces.md,tests/audit/test_cosmic_ui_kit.py,tools/branding/verify_cosmic_ui_kit.py
+supersedes: 548
+tokens: 370
+---
+Built `canticle-cosmic-ui@1.0.0` as the reusable, original Canticle UI
+expression layer over the canonical `canticle-seam@1.0.0` identity contract.
+The kit owns playful cosmic-arcade component shape, spacing, effects, motion,
+and framework adapters while the existing identity kit remains authoritative
+for names, palette, lockups, geometry, and provenance.
+
+The versioned kit contains framework-neutral tokens, an exact SHA-256
+manifest, namespaced CSS and a script-free responsive HTML gallery, a Tailwind
+v4 theme adapter, opt-in Textual classes, and presentation-only Lip Gloss v2
+constructors. It copies or forks no Bubble Tea, Bubbles, Lip Gloss, or other
+Charm source. Decorative memory-orbit motifs explicitly do not imply graph
+relations.
+
+Added a fail-closed verifier and audit suite covering the identity dependency,
+logo and token pins, complete regular-file inventory, manifest integrity,
+adapter boundaries, local-only preview resources, accessibility fallbacks,
+unsafe links, and malformed inputs. The Lip Gloss adapter was compiled against
+`charm.land/lipgloss/v2 v2.0.5`; the Textual adapter mounted in a test app.
+Focused brand-kit and cosmic-kit audits passed 50 collected tests. Ruff,
+`gofmt -d`, `git diff --check`, canonical brand verification, secret/session
+scanning, and desktop/mobile visual inspection also passed. CodeRabbit's first
+complete review found four issues; all four were corrected and the resulting
+focused checks passed.
+
+No live TUI, WebUI, retrieval, graph, provider, benchmark, deployment, or
+release behavior changed. Adopting the kit in either running surface remains a
+separate operator-present design and implementation change.
+---END-ENTRY-#549---

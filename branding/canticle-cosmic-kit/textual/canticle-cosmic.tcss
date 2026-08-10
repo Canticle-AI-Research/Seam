@@ -1,0 +1,210 @@
+/* Textual adapter for canticle-cosmic-ui@1.0.0.
+ * Every rule is opt-in. This file intentionally avoids bare widget selectors.
+ */
+
+$cc-void: #16161e;
+$cc-night: #1a1b26;
+$cc-panel: #1f2028;
+$cc-well: #13131a;
+$cc-bubble: #24253a;
+$cc-ink: #c0caf5;
+$cc-muted: #a9b1d6;
+$cc-quiet: #565f89;
+$cc-line: #3b3d57;
+$cc-line-bright: #565f89;
+$cc-plasma: #ff6090;
+$cc-magenta: #e478d0;
+$cc-lavender: #c4a7e7;
+$cc-orbit: #7dcfff;
+$cc-mint: #9ece6a;
+$cc-aqua: #73daca;
+$cc-sun: #e0af68;
+$cc-danger: #f7768e;
+
+.cc-cosmic-screen {
+    background: $cc-void;
+    color: $cc-ink;
+}
+
+.cc-cosmic-brand-rail {
+    height: 3;
+    padding: 0 2;
+    background: $cc-night;
+    border-bottom: heavy $cc-line;
+}
+
+.cc-cosmic-brand-mark {
+    width: 8;
+    min-width: 8;
+    height: 3;
+    border: round $cc-plasma;
+    background: #0a0b0a;
+    color: $cc-mint;
+    content-align: center middle;
+    text-style: bold;
+}
+
+.cc-cosmic-brand-word {
+    width: auto;
+    height: 3;
+    padding: 1 1 0 1;
+    color: $cc-plasma;
+    text-style: bold;
+}
+
+.cc-cosmic-bubble {
+    padding: 1 2;
+    border: round $cc-line-bright;
+    background: $cc-bubble;
+    color: $cc-ink;
+}
+
+.cc-cosmic-bubble-plasma {
+    border: heavy $cc-plasma;
+}
+
+.cc-cosmic-bubble-orbit {
+    border: heavy $cc-orbit;
+}
+
+.cc-cosmic-bubble-mint {
+    border: heavy $cc-mint;
+}
+
+.cc-cosmic-title {
+    color: $cc-plasma;
+    text-style: bold;
+}
+
+.cc-cosmic-copy {
+    color: $cc-muted;
+}
+
+.cc-cosmic-quiet {
+    color: $cc-quiet;
+}
+
+.cc-cosmic-button {
+    min-width: 12;
+    height: 3;
+    padding: 0 1;
+    border: round $cc-line-bright;
+    background: $cc-panel;
+    color: $cc-ink;
+    text-style: bold;
+}
+
+.cc-cosmic-button:hover {
+    border: round $cc-orbit;
+    background: $cc-bubble;
+}
+
+.cc-cosmic-button:focus {
+    border: heavy $cc-orbit;
+    background: $cc-bubble;
+    color: $cc-ink;
+}
+
+.cc-cosmic-button-primary {
+    border: round $cc-plasma;
+    background: $cc-plasma;
+    color: $cc-void;
+}
+
+.cc-cosmic-button-primary:hover,
+.cc-cosmic-button-primary:focus {
+    border: heavy $cc-lavender;
+    background: $cc-magenta;
+    color: $cc-void;
+}
+
+.cc-cosmic-input {
+    border: round $cc-line-bright;
+    background: $cc-well;
+    color: $cc-ink;
+}
+
+.cc-cosmic-input:hover {
+    border: round $cc-orbit;
+}
+
+.cc-cosmic-input:focus {
+    border: heavy $cc-orbit;
+}
+
+.cc-cosmic-table {
+    border: round $cc-line;
+    background: $cc-panel;
+    color: $cc-muted;
+}
+
+.cc-cosmic-table:focus {
+    border: heavy $cc-orbit;
+}
+
+.cc-cosmic-table > .datatable--header {
+    background: $cc-night;
+    color: $cc-lavender;
+    text-style: bold;
+}
+
+.cc-cosmic-table > .datatable--cursor {
+    background: $cc-plasma;
+    color: $cc-void;
+    text-style: bold;
+}
+
+.cc-cosmic-table > .datatable--hover {
+    background: $cc-bubble;
+}
+
+.cc-cosmic-chip {
+    width: auto;
+    height: 1;
+    padding: 0 1;
+    border: round $cc-line-bright;
+    background: $cc-panel;
+    color: $cc-muted;
+}
+
+.cc-cosmic-chip-active {
+    border: round $cc-mint;
+    color: $cc-mint;
+}
+
+.cc-cosmic-chip-info {
+    border: round $cc-orbit;
+    color: $cc-orbit;
+}
+
+.cc-cosmic-chip-warning {
+    border: round $cc-sun;
+    color: $cc-sun;
+}
+
+.cc-cosmic-error {
+    color: $cc-danger;
+    text-style: bold;
+}
+
+.cc-cosmic-command-palette {
+    width: 80%;
+    max-width: 96;
+    height: auto;
+    max-height: 24;
+    padding: 1 2;
+    margin-top: 4;
+    border: heavy $cc-plasma;
+    background: $cc-panel;
+}
+
+.cc-cosmic-command-palette > OptionList {
+    border: none;
+    background: $cc-panel;
+}
+
+.cc-cosmic-command-palette > OptionList > .option-list--option-highlighted {
+    background: $cc-plasma;
+    color: $cc-void;
+    text-style: bold;
+}

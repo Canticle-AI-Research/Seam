@@ -69,6 +69,10 @@ not have to infer what works from directory names alone.
 ## Active Tooling
 
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
+- `branding/kit/` - canonical Canticle/SEAM identity assets and tokens;
+  `branding/canticle-cosmic-kit/` is its versioned UI expression layer with
+  framework adapters and a local component gallery. `tools/branding/` verifies
+  both contracts without changing a running surface.
 - `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
 - `docs/audits/INDEX.md` - canonical registry of recorded audits, newest first.
   Whole-repo audits are a repeatable series produced by the `/deep-audit` skill

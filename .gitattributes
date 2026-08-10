@@ -10,3 +10,4 @@ branding/kit/*.svg text eol=lf
 branding/kit/**/*.svg text eol=lf
 branding/kit/*.txt text eol=lf
 branding/kit/**/*.txt text eol=lf
+branding/canticle-cosmic-kit/** text eol=lf

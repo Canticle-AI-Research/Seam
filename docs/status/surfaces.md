@@ -43,6 +43,12 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     the cursor, while reduced/off keep it statically visible. Older retro,
     blue/ice, and glitch assets remain historical; WebUI adoption is deferred
     to an operator-present design session.
+  - Canticle Cosmic UI kit: `branding/canticle-cosmic-kit/` is the reusable
+    component expression layer over `branding/kit/`. It defines the more
+    playful cosmic-arcade shape, spacing, effects, and accessibility contract,
+    with CSS/HTML, Tailwind v4, opt-in Textual, and Lip Gloss v2 adapters plus
+    a responsive gallery. It changes no live surface by itself; TUI and WebUI
+    adoption remain separate reviewed work.
   - Keyboard navigation: `alt+1`..`alt+N`, `ctrl+left`/`ctrl+right`, and
     `tab <name>`. `alt+N` is unavailable on terminals using the classic
     "Alt sends Escape" convention; the other two paths always work.

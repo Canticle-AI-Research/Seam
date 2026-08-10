@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 611
+total_events: 612
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-06T03:16:22Z | history:355:3e6365ea | session-event | changed | protocol, security, release, routing | tools/release/public_manifest.py,tools/release/sync_public_mirror.py,tools/re... |
 | 2026-07-06T12:37:09Z | history:356:2b504aaf | session-event | done | protocol, security, release | tools/release/sync_public_mirror.py |
 | 2026-07-06T19:38:33Z | history:357:78e26de9 | session-event | done | lint, tooling, docs, tests | pyproject.toml,REPO_LEDGER.md,docs/CODE_LAYOUT.md,seam.py,tools/history/write... |
 | 2026-07-06T23:21:18Z | history:358:2eb9586d | session-event | done | retrieval, coreference, entity-aggregation, locomo, cat1,... | seam_runtime/storage.py,seam_runtime/nl.py,seam_runtime/retrieval.py,tests/au... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-10T19:41:20Z | history:546:e2258ccb | session-event | done | continuity, history, verify | HISTORY#544,HISTORY#545 |
 | 2026-08-10T22:08:49Z | history:547:b6fbe0d6 | session-event | done | graph, retrieval, benchmark, persist, integrity, verify | seam_runtime/improvement_experiments.py,seam_runtime/storage.py,seam_runtime/... |
 | 2026-08-10T22:39:55Z | history:548:07f48d67 | session-event | done | continuity, history, verify, test | .seam/cross_index.md,.seam/cross_index_archive/0001-0411.cross.md,.seam/strea... |
+| 2026-08-10T23:39:47Z | history:549:5716f02a | session-event | done | surface, animation, docs, test, verify | .gitattributes,branding/README.md,branding/canticle-cosmic-kit,docs/CODE_LAYO... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0411.cross.md | 2026-04-15T00:00:00Z..2026-07-06T02:20:59Z | 411 | (multi) | (multi) |
+| 0001-0412.cross.md | 2026-04-15T00:00:00Z..2026-07-06T03:16:22Z | 412 | (multi) | (multi) |
