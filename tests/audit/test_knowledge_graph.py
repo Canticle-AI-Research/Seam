@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from contextlib import closing
 from pathlib import Path
@@ -1183,6 +1184,128 @@ def test_dashboard_graph_is_live_only_and_has_no_synthetic_edge_builder() -> Non
     assert "duplicate terminal event" in api
     assert "terminalCount !== 1" in api
     assert api.index("if (terminalCount !== 1)") < api.index("if (handlers.onDone) handlers.onDone()")
+
+
+def _dashboard_function(source: str, name: str, next_name: str) -> str:
+    """Return one dashboard function so local source contracts stay scoped."""
+    start = f"function {name}"
+    end = f"function {next_name}"
+    assert start in source, f"missing dashboard helper: {name}"
+    assert end in source, f"missing dashboard helper boundary: {next_name}"
+    return source.split(start, 1)[1].split(end, 1)[0]
+
+
+def test_dashboard_constellation_is_an_alternate_view_of_the_canonical_projection() -> None:
+    dashboard = Path("seam_runtime/webui/dashboard.html").read_text(encoding="utf-8")
+    canvas = _dashboard_function(dashboard, "KnowledgeGraphCanvas", "SystemResources")
+
+    assert "const [graphView, setGraphView] = React.useState('topology')" in canvas
+    assert "Topology" in canvas
+    assert "Constellation" in canvas
+    assert 'role="group"' in canvas
+    assert 'aria-label="Graph view"' in canvas
+    assert "aria-pressed={graphView === view.id}" in canvas
+    assert "SEAM Observatory" in canvas
+
+    # Both views consume the same normalized API projection. The alternate
+    # renderer must not build decorative nodes or relationships of its own.
+    assert "(graphNodes || []).map" in canvas
+    assert "const normalizedEdges = (graphEdges || [])" in canvas
+    assert ".filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target)).map" in canvas
+    assert "knowledgeConstellationLayout(nodes, edges, selectedId)" in canvas
+    assert "const renderedNodes = graphView === 'constellation' ? constellation.nodes : simNodes.current" in canvas
+    assert "const renderedEdges = graphView === 'constellation' ? edges : simEdges.current" in canvas
+    assert "{renderedNodes.map(" in canvas
+    assert "{renderedEdges.map(" in canvas
+    assert "provenanceNodes" not in canvas
+    assert "provenanceEdges" not in canvas
+
+
+def test_dashboard_observatory_palette_matches_the_canonical_brand_kit() -> None:
+    dashboard = Path("seam_runtime/webui/dashboard.html").read_text(encoding="utf-8")
+    tokens = json.loads(Path("branding/kit/tokens.json").read_text(encoding="utf-8"))
+    palette = dashboard.split("const observatoryPalette", 1)[1].split(");", 1)[0]
+    expected = {
+        "void": tokens["color"]["base"]["bg_sunk"],
+        "canvas": tokens["color"]["base"]["bg"],
+        "panel": tokens["color"]["base"]["bg_panel"],
+        "surface": tokens["color"]["base"]["surface"],
+        "star": tokens["color"]["text_chrome"]["text"],
+        "muted": tokens["color"]["text_chrome"]["text_muted"],
+        "quiet": tokens["color"]["text_chrome"]["text_dim"],
+        "border": tokens["color"]["text_chrome"]["border"],
+        "pink": tokens["color"]["accent"]["pink"],
+        "magenta": tokens["color"]["accent"]["magenta"],
+        "lavender": tokens["color"]["accent"]["lavender"],
+        "cyan": tokens["color"]["accent"]["cyan"],
+        "mint": tokens["color"]["accent"]["mint"],
+        "green": tokens["color"]["accent"]["green"],
+        "orange": tokens["color"]["accent"]["orange"],
+        "yellow": tokens["color"]["accent"]["yellow"],
+        "red": tokens["color"]["accent"]["red"],
+        "blue": tokens["color"]["accent"]["blue"],
+        "ice": tokens["color"]["accent"]["ice"],
+    }
+    for name, value in expected.items():
+        assert f"{name}: '{value}'" in palette
+
+
+def test_dashboard_constellation_layout_is_deterministic_bfs_rings() -> None:
+    dashboard = Path("seam_runtime/webui/dashboard.html").read_text(encoding="utf-8")
+    layout = _dashboard_function(dashboard, "knowledgeConstellationLayout", "KnowledgeGraphCanvas")
+
+    assert "knowledgeNodeHash" in dashboard
+    assert "depthById" in layout
+    assert "queue" in layout
+    assert ".sort(" in layout
+    assert "Math.cos" in layout
+    assert "Math.sin" in layout
+    assert "Math.random" not in layout
+    assert re.search(r"knowledgeNodeHash\([^)]*\.id\)", layout)
+
+    # The selected node is the navigational north star, not merely a visual
+    # highlight: it is chosen as the BFS root and fixed at the origin.
+    assert "selectedId" in layout
+    assert re.search(r"(?:anchorId|rootId|root)\s*=.*selectedId", layout)
+    assert re.search(
+        r"(?:set\(\s*(?:anchorId|rootId|root)\s*,\s*\{|(?:anchorId|rootId|root)\s*:\s*\{)[^}]*"
+        r"x\s*:\s*0[^}]*y\s*:\s*0",
+        layout,
+        re.DOTALL,
+    )
+
+
+def test_dashboard_compact_graph_uses_the_same_constellation_vocabulary() -> None:
+    dashboard = Path("seam_runtime/webui/dashboard.html").read_text(encoding="utf-8")
+    compact = _dashboard_function(dashboard, "CompactKnowledgeGraph", "MemoryPanel")
+
+    assert "knowledgeConstellationLayout(normalizedNodes, normalizedEdges, '')" in compact
+    assert "sourceEdges = (graph?.edges || []).filter" in compact
+    assert "visibleIds.has(edge.source) && visibleIds.has(edge.target)" in compact
+    assert 'aria-label="Live knowledge graph constellation preview"' in compact
+    assert "Math.random" not in compact
+
+
+def test_dashboard_graph_motion_and_svg_nodes_are_accessible() -> None:
+    dashboard = Path("seam_runtime/webui/dashboard.html").read_text(encoding="utf-8")
+    canvas = _dashboard_function(dashboard, "KnowledgeGraphCanvas", "SystemResources")
+    node_renderer = canvas.split("{/* Nodes */}", 1)[1]
+
+    assert "prefers-reduced-motion: reduce" in canvas
+    assert "if (reducedMotion) return;" in canvas
+    assert "if (ticks >= 6) clearInterval(i)" in canvas
+    assert "graphView === 'topology' && directHot && !reducedMotion" in canvas
+    assert "!reducedMotion &&" in node_renderer
+    assert "tabIndex={0}" in node_renderer
+    assert 'role="button"' in node_renderer
+    assert "aria-label={`" in node_renderer
+    assert "onFocus=" in node_renderer
+    assert "onBlur=" in node_renderer
+    assert "onKeyDown=" in node_renderer
+    assert "event.key !== 'Enter'" in node_renderer
+    assert "event.key !== ' '" in node_renderer
+    assert "event.preventDefault()" in node_renderer
+    assert "onSelectNode(isSelected ? null : n.id)" in node_renderer
 
 
 def _seed_tied_confidence_star(
