@@ -17551,3 +17551,25 @@ VERIFICATION
 
 No provider call, paid benchmark, policy approval/application, deployment, release, merge, WebUI change, or mutation of the main TUI workstream occurred. The latest TUI handoff remains the live repository handoff; this isolated branch adds no competing handoff.
 ---END-ENTRY-#547---
+
+---BEGIN-ENTRY-#548---
+id: 548
+date: 2026-08-10T22:39:55Z
+agent: codex
+status: done
+topics: continuity, history, verify, test
+commits: 8e9a7c1
+refs: .seam/cross_index.md,.seam/cross_index_archive/0001-0411.cross.md,.seam/streams/history/index.md,.seam/streams/history/log.md,HISTORY.md,HISTORY_INDEX.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/IMPROVEMENT_EXPERIMENTS.md,docs/README.md,seam_runtime/cli.py,seam_runtime/improvement_experiments.py,seam_runtime/migrations.py,seam_runtime/self_improve.py,seam_runtime/storage.py,tests/audit/test_improve_cli.py,tests/audit/test_improvement_experiment_ledger.py,tests/audit/test_typed_reference_integrity.py,tools/h2/improvement_loop.py,PR#208,commit:8e9a7c1514171878d24ae0290007fa64ef474697
+supersedes: 547
+tokens: 471
+---
+Supersedes HISTORY#547 with the post-publication state and the complete path scope for the durable bounded improvement-experiment slice. PR #208 merged the exact reviewed head `246e60169db0ed51c98f2e803be2fdeb7da99fa1` into protected `main` as squash commit `8e9a7c1514171878d24ae0290007fa64ef474697`; the remote feature branch was deleted and local main was fast-forwarded cleanly.
+
+The post-merge review input came from the complete `git diff-tree` path set, including both sides of the cross-index archive rename. The refs field names every surviving canonical path from that merge plus the current derived archive path advanced by this closeout; repository continuity correctly forbids a ref to a deleted rename source. This corrects HISTORY#547's narrower feature-oriented refs without rewriting that append-only entry.
+
+A post-merge CodeRabbit review covered the complete 20-path diff from `f60ca953978a908e7983a23a4ec69400d454d747` through `8e9a7c1514171878d24ae0290007fa64ef474697`. It found no runtime defect. Its two findings were this incomplete history path scope and missing explicit CLI boundary coverage. `tests/audit/test_improve_cli.py` now exercises rejected `--max-candidates` values `-1`, `0`, and `129`, plus accepted boundaries `1` and `128`; `.venv/bin/python -m pytest tests/audit/test_improve_cli.py -q` passed all 15 tests.
+
+Before merge, required and advisory exact-head GitHub jobs all passed: `repo-hygiene`, `chroma-real-smoke`, `locomo-quickstart-bil2`, `package-smoke`, `pgvector-integration`, `registry-plan`, and `test-and-benchmark`. The merged tree also passed the local brand-kit verifier, all 30 brand-kit tests, and post-merge handoff, continuity, and stream gates. No runtime behavior, retrieval policy, approval state, TUI, or WebUI changed in this follow-up.
+
+The remaining product work is unchanged: distributed experiment scheduling/leasing and canary control are future production-scale work; TUI operator-surface slices and the operator-present WebUI redesign remain separate workstreams.
+---END-ENTRY-#548---
