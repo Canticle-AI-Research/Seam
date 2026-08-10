@@ -33,8 +33,9 @@ from typing import Any
 
 from textual import on, work
 from textual.app import ComposeResult
-from textual.containers import Vertical
-from textual.widgets import DataTable, Input, RichLog, Tree
+from textual.binding import Binding
+from textual.containers import Horizontal, Vertical
+from textual.widgets import Button, DataTable, Input, RichLog, Tree
 
 from ..mirl import MIRLRecord, SearchCandidate, TraceGraph
 from ..runtime import SeamRuntime
@@ -42,6 +43,7 @@ from . import brand
 
 __all__ = [
     "MemoryPanel",
+    "MemoryRecordsPanel",
     "RetrievalPanel",
     "BenchmarksPanel",
     "CompressionPanel",
@@ -120,14 +122,36 @@ class _RuntimePanel(Vertical):
 # ---------------------------------------------------------------------------
 
 
-class MemoryPanel(_RuntimePanel):
-    """Memory tab: recent MIRL records across every namespace and scope."""
+class MemoryRecordsPanel(_RuntimePanel):
+    """The Memory tab's record table: recent MIRL records across every
+    namespace and scope.
+
+    Renamed from `MemoryPanel` when the operator asked for the table to
+    "act like a table so I can copy IDs" with provenance below it on the
+    same page: this class keeps everything about loading and rendering the
+    table, `MemoryPanel` below is now the thin composite that stacks this,
+    `ProvPanel`, and the tab's one shared log.
+    """
 
     LIMIT = 50
 
+    #: `y` bubbles up from the focused `DataTable` (which has no binding for
+    #: it) to this container, matching Textual's normal action-lookup walk
+    #: up the DOM from the focused widget -- see `action_yank_id` below.
+    BINDINGS = [Binding("y", "yank_id", "Copy id", show=False)]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        # Source of truth for "the id under row N", in the same order
+        # `_render_rows` adds them to the table. `[]` whenever a status/error
+        # row is showing instead of real records, so `y` and row-selection
+        # below can never mistake a status row's text (e.g. "no MIRL
+        # records yet") for an id -- they index into this list, never the
+        # table's rendered text.
+        self._row_ids: list[str] = []
+
     def compose(self) -> ComposeResult:
         yield DataTable(id="memory-table")
-        yield RichLog(id="log-memory", markup=True, wrap=True, highlight=True)
 
     def on_mount(self) -> None:
         table = self.query_one("#memory-table", DataTable)
@@ -191,17 +215,89 @@ class MemoryPanel(_RuntimePanel):
     def _render_rows(self, rows: list[tuple[str, str, str, str, str, str]]) -> None:
         table = self.query_one("#memory-table", DataTable)
         table.clear()
+        self._row_ids = []
         if not rows:
             _status_row(table, "no MIRL records yet — run compile to create some",
                         color=brand.TEXT_DIM, columns=6)
             return
         for record_id, kind, scope, ns, preview, created in rows:
             table.add_row(record_id, kind, scope, ns, preview, created)
+            self._row_ids.append(record_id)
 
     def _render_error(self, message: str) -> None:
         table = self.query_one("#memory-table", DataTable)
         table.clear()
         _status_row(table, f"error: {message}", color=brand.RED, columns=6)
+        self._row_ids = []
+
+    # -- copyable ids --------------------------------------------------
+
+    def _record_id_at(self, row_index: int) -> str | None:
+        """Map a table row index to its record id, or `None` for a status
+        row / an out-of-range cursor (e.g. the empty-store status row, which
+        occupies row 0 while `_row_ids` is `[]`)."""
+        if 0 <= row_index < len(self._row_ids):
+            return self._row_ids[row_index]
+        return None
+
+    def _log(self, text: str) -> None:
+        """Write one line to the page's shared `#log-memory`.
+
+        Reached via `self.app.query_one` rather than a sibling lookup, the
+        same defensive `try/except` style `app.py::_write` already uses --
+        this keeps the records panel usable even if it is ever mounted
+        without a `#log-memory` sibling.
+        """
+        try:
+            self.app.query_one("#log-memory", RichLog).write(text)
+        except Exception:
+            pass
+
+    def action_yank_id(self) -> None:
+        """`y`: copy the id under the table cursor to the clipboard.
+
+        `App.copy_to_clipboard` (textual/app.py) writes an OSC 52 escape
+        sequence the terminal may or may not honour, so the bare id is also
+        echoed alone on its own line below -- a clean line an operator can
+        drag-select is the fallback when OSC 52 is not wired up.
+        """
+        table = self.query_one("#memory-table", DataTable)
+        record_id = self._record_id_at(table.cursor_row)
+        if record_id is None:
+            self._log(f"[{brand.TEXT_DIM}]no record under the cursor[/]")
+            return
+        self.app.copy_to_clipboard(record_id)
+        self._log(f"[{brand.TEXT_DIM}]copied id ↓[/]\n{record_id}")
+
+    @on(DataTable.RowSelected, "#memory-table")
+    def _on_row_selected(self, event: DataTable.RowSelected) -> None:
+        """Enter or a click on the already-selected row: trace its id below.
+
+        `DataTable.RowSelected` fires for both keyboard and mouse selection
+        (`textual/widgets/_data_table.py` `action_select_cursor` and
+        `_on_click` both post it), so one handler covers both. Selection is
+        deliberately not a clipboard action: the full id remains visible and
+        selectable in `#prov-query`, while `y` and the adjacent Copy ID button
+        are the two explicit copy paths.
+        """
+        record_id = self._record_id_at(event.cursor_row)
+        if record_id is None:
+            self._log(f"[{brand.TEXT_DIM}]no record under the cursor[/]")
+            return
+        try:
+            query = self.app.query_one("#prov-query", Input)
+        except Exception:
+            # No provenance sibling mounted -- there is nowhere to expose or
+            # trace the selected id, but selecting the row must remain safe.
+            self._log(f"[{brand.TEXT_DIM}]selected id (trace unavailable) ↓[/]\n{record_id}")
+            return
+        query.value = record_id
+        # Posting `Submitted` directly -- rather than awaiting the widget's
+        # own async `action_submit` -- fires the exact event
+        # `ProvPanel._on_submit` below already reacts to, without needing
+        # this handler to be async.
+        query.post_message(Input.Submitted(query, record_id))
+        self._log(f"[{brand.MINT}]selected id, tracing below ↓[/]\n{record_id}")
 
 
 # ---------------------------------------------------------------------------
@@ -527,12 +623,26 @@ class LivePanel(_RuntimePanel):
 
 
 class ProvPanel(_RuntimePanel):
-    """Provenance tab: trace one object id through its evidence/edge chain."""
+    """Provenance trace panel: one object id through its evidence/edge chain.
+
+    No longer its own tab -- `TABS` in app.py dropped `("prov",
+    "Provenance")` when the operator asked to put provenance below the
+    memory table on one page. `MemoryPanel` below mounts this directly
+    beneath `MemoryRecordsPanel`; selecting a record there sets `#prov-query`
+    and traces it here. No RichLog of its own either: nothing writes to
+    `#log-prov` now that "prov" is not a tab, and the page already has one
+    shared log (`#log-memory`, owned by the composite `MemoryPanel`).
+    """
 
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="object id to trace… (press enter)", id="prov-query")
+        with Horizontal(id="memory-id-controls"):
+            yield Input(
+                placeholder="select a row or paste an object id…",
+                id="prov-query",
+                select_on_focus=True,
+            )
+            yield Button("Copy ID", id="memory-copy-id")
         yield Tree("(enter an id above)", id="prov-tree")
-        yield RichLog(id="log-prov", markup=True, wrap=True, highlight=True)
 
     def reload(self) -> None:
         """Re-trace the last id, if any."""
@@ -545,6 +655,26 @@ class ProvPanel(_RuntimePanel):
         obj_id = event.value.strip()
         if obj_id:
             self._run_trace(obj_id)
+
+    @on(Button.Pressed, "#memory-copy-id")
+    def _on_copy_id(self) -> None:
+        """Copy the full visible id only after an explicit button press."""
+        obj_id = self.query_one("#prov-query", Input).value.strip()
+        if not obj_id:
+            try:
+                self.app.query_one("#log-memory", RichLog).write(
+                    f"[{brand.TEXT_DIM}]select or paste an id before copying[/]"
+                )
+            except Exception:
+                pass
+            return
+        self.app.copy_to_clipboard(obj_id)
+        try:
+            self.app.query_one("#log-memory", RichLog).write(
+                f"[{brand.TEXT_DIM}]copied id ↓[/]\n{obj_id}"
+            )
+        except Exception:
+            pass
 
     @work(thread=True, exclusive=True)
     def _run_trace(self, obj_id: str) -> None:
@@ -597,6 +727,40 @@ class ProvPanel(_RuntimePanel):
 
 
 # ---------------------------------------------------------------------------
+# Memory page (composite: records table + provenance-below + one shared log)
+# ---------------------------------------------------------------------------
+
+
+class MemoryPanel(_RuntimePanel):
+    """Memory tab: the record table, its provenance trace, and the tab's log.
+
+    This is the page the operator asked for -- "the memory tab should act
+    like a table so I can copy IDs ... put provenance below memory, making
+    it easier to search". `MemoryRecordsPanel` sits on top, `ProvPanel`
+    directly beneath it (selecting a record above traces it here, see
+    `MemoryRecordsPanel._on_row_selected`), and exactly one `RichLog`
+    (`#log-memory`) closes the page -- `app.py::_write("memory", ...)` and
+    `action_clear_output` keep targeting that one id unchanged.
+    """
+
+    def compose(self) -> ComposeResult:
+        yield MemoryRecordsPanel(id="memory-records")
+        yield ProvPanel(id="memory-prov")
+        yield RichLog(id="log-memory", markup=True, wrap=True, highlight=True)
+
+    def reload(self) -> None:
+        """Reload both children.
+
+        `app.py::_refresh_panel` calls `reload()` on whatever it finds at
+        `#panel-memory` after any command runs on this tab; both children
+        already answer to a query/id left in their own Input if any, so
+        this just forwards to both rather than duplicating that logic.
+        """
+        self.query_one("#memory-records", MemoryRecordsPanel).reload()
+        self.query_one("#memory-prov", ProvPanel).reload()
+
+
+# ---------------------------------------------------------------------------
 # Assembly
 # ---------------------------------------------------------------------------
 
@@ -609,5 +773,4 @@ PANEL_CLASSES: dict[str, type[Vertical]] = {
     "compression": CompressionPanel,
     "chat": ChatPanel,
     "live": LivePanel,
-    "prov": ProvPanel,
 }

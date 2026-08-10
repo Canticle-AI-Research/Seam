@@ -52,11 +52,27 @@ Screen {
     border-bottom: solid $edge;
 }
 
-#brand-mark {
+#brand-lockup {
+    height: 3;
+    width: auto;
+}
+
+#brand-symbol, #startup-symbol {
+    width: 8;
+    height: 3;
+    min-width: 8;
+    border: round $pink;
+    background: #0a0b0a;
+    content-align: center middle;
+    text-style: bold;
+}
+
+#brand-product {
+    width: 7;
+    height: 3;
+    padding: 1 1 0 1;
     color: $pink;
     text-style: bold;
-    width: auto;
-    padding: 1 1 0 0;
 }
 
 #brand-context {
@@ -65,10 +81,36 @@ Screen {
     padding: 1 0 0 1;
 }
 
+#brand-mode {
+    width: auto;
+    padding: 1 2 0 0;
+    color: $text-muted;
+    text-style: bold;
+}
+
 #brand-status {
     width: auto;
     padding: 1 0 0 0;
     color: $green;
+}
+
+/* ── Launch lockup ────────────────────────────────────── */
+
+#startup-splash {
+    dock: top;
+    layer: overlay;
+    width: 100%;
+    height: 100%;
+    align: center middle;
+    background: $bg-deep;
+}
+
+#startup-word {
+    width: 10;
+    height: 3;
+    padding: 1 0 0 1;
+    color: $pink;
+    text-style: bold;
 }
 
 /* ── Tabs ─────────────────────────────────────────────── */
@@ -148,6 +190,73 @@ DataTable > .datatable--cursor {
 
 DataTable > .datatable--hover {
     background: $surface-alt;
+}
+
+/* ── Memory page (records + provenance-below + log) ──── */
+/*
+ * `MemoryPanel` (panels.py) stacks three sections in one Vertical: the
+ * records table, the provenance trace, and the tab's RichLog. Each of the
+ * first two is itself a container (`MemoryRecordsPanel`, `ProvPanel`), not
+ * a bare widget, so without explicit heights here they fall back to
+ * `height: auto` and the whole page collapses toward whichever child's
+ * *content* is tallest instead of sharing the tab's real vertical space --
+ * confirmed by capturing real tmux frames (task brief step G) before these
+ * rules existed. `1fr` on both halves plus a `min-height` keeps a usable
+ * number of rows visible at small terminal sizes without letting either
+ * section starve the other; the log is fixed small since it is transcript,
+ * not the thing being searched.
+ */
+
+#memory-records {
+    height: 1fr;
+    min-height: 8;
+}
+
+#memory-prov {
+    height: 1fr;
+    min-height: 7;
+}
+
+#memory-id-controls {
+    height: 3;
+}
+
+#prov-query {
+    width: 1fr;
+}
+
+#memory-copy-id {
+    width: 14;
+    min-width: 14;
+    margin-left: 1;
+    padding: 0 1;
+}
+
+/*
+ * Fixed, and deliberately small: this is transcript, not the thing being
+ * searched. The exact numbers are a floor, not taste -- the three sections
+ * plus the brand bar, tab bar, command input and help rail have to fit a
+ * short terminal, and at 110x32 an 8-row log with an 8-row prov floor
+ * pushed the log entirely off-screen, so command output landed somewhere
+ * invisible. These floors keep all three visible down to ~30 rows.
+ */
+#log-memory {
+    height: 6;
+    min-height: 4;
+}
+
+/* `Tree` carries no border by default, unlike `DataTable` above -- without
+ * this the provenance trace reads as loose text floating under the records
+ * table instead of the other half of one system. */
+#prov-tree {
+    border: round $edge;
+    background: $bg-panel;
+    height: 1fr;
+    min-height: 4;
+}
+
+#prov-tree:focus {
+    border: round $magenta;
 }
 
 /* ── Command palette (the "/" menu) ───────────────────── */
@@ -383,6 +492,43 @@ Input:focus {
 
 #command-input:focus {
     border: round $pink;
+}
+
+/* Input-mode indicator (S2b Part 1) -- the third of the three places the
+ * mode must be visible, alongside `#brand-mode` above and the input's own
+ * placeholder text. Seam mode keeps the default pink-on-focus border above;
+ * shell and chat each get their own colour so the border reads as "which
+ * mode is this" even before the placeholder text is read. `:focus` variants
+ * repeat the colour so it does not get overridden by `#command-input:focus`
+ * above while the field still has focus, which is most of the time.
+ */
+#command-input.-mode-shell {
+    border: round $orange;
+}
+
+#command-input.-mode-shell:focus {
+    border: round $orange;
+}
+
+/* Shell mode latched while `SEAM_DASHBOARD_ALLOW_SHELL` is off (the gate
+ * added alongside this posture, see `shell.py`'s module docstring): a
+ * distinct red border keeps the disabled state visible even before the
+ * operator reads the placeholder text or the `#brand-mode` indicator.
+ */
+#command-input.-mode-shell-disabled {
+    border: round $red;
+}
+
+#command-input.-mode-shell-disabled:focus {
+    border: round $red;
+}
+
+#command-input.-mode-chat {
+    border: round $cyan;
+}
+
+#command-input.-mode-chat:focus {
+    border: round $cyan;
 }
 
 Select {

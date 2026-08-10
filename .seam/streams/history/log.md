@@ -16933,3 +16933,502 @@ change.
 No paid provider call, competitive benchmark, retrieval-score claim, artifact
 publish, deploy, or release ran.
 ---END-ENTRY-#539---
+
+---BEGIN-ENTRY-#540---
+id: 540
+date: 2026-08-06T22:44:45Z
+agent: claude
+status: done
+topics: tui, surfaces, dashboard, provenance, roadmap, verify
+commits: pending
+refs: seam_runtime/tui/panels.py,seam_runtime/tui/app.py,seam_runtime/tui/theme.tcss,tests/audit/test_tui_supersedes_dashboard.py,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md
+supersedes: 537
+tokens: 1594
+---
+Turned the Memory tab into a working page instead of a table with a log under
+it, and wrote down the surface the TUI is being built toward.
+
+WHAT THE OPERATOR ASKED FOR
+
+"The memory tab should act like a table so I can copy IDs and paste them in
+places like the search bar" and "put provenance below memory, making it easier
+to search". Both are one workflow: read a record id off the table, then trace
+it. Previously that meant reading an id off one tab, retyping it on another.
+
+WHAT CHANGED
+
+`MemoryPanel` is now a composite page: `MemoryRecordsPanel` (the old
+`MemoryPanel`, renamed, still owning `#memory-table` and its worker-backed
+load), `ProvPanel` directly beneath it, and exactly one `RichLog`
+(`#log-memory`) for the page. `app.py::_write("memory", ...)` and
+`action_clear_output` target that same id and did not change.
+
+Selecting a row -- Enter or click, both post `DataTable.RowSelected` -- copies
+the record id to the clipboard, writes it into `#prov-query`, and traces it in
+the panel below. `y` yanks the id under the cursor without tracing. Both paths
+also echo the bare id alone on its own line, because `App.copy_to_clipboard`
+emits OSC 52 and the terminal may not honour it; one clean line an operator can
+drag-select is the fallback, not decoration.
+
+Row-to-id mapping goes through a `_row_ids` list maintained beside the table
+rather than by reading text back out of rendered cells. Status rows ("no MIRL
+records yet", "error: ...") clear that list, so neither copy path can mistake a
+status message for an id. With an empty store both keys write a dim "no record
+under the cursor" note and do nothing else.
+
+The standalone Provenance tab is removed (eight tabs to seven). Keeping both it
+and the panel would mount `#prov-query` twice and fail on duplicate ids;
+`ProvPanel` also dropped its own `#log-prov`, which nothing writes to now that
+"prov" is not a tab.
+
+A DEFECT THE BUILDER'S OWN REAL-TTY CHECK MISSED
+
+The implementation was verified at 200x50 and 120x35 and reported all three
+sections visible. At 110x32 the log was pushed entirely off-screen: an 8-row
+fixed log plus an 8-row provenance floor plus the table floor, the brand bar,
+the tab bar, the command input and the help rail exceed 32 rows, so command
+output landed somewhere invisible. The floors are now 6/4 for the log, 7 for
+the provenance section and 4 for the tree, which keeps all three visible down
+to roughly 30 rows. This is the same lesson as HISTORY#537 one level in: it is
+not enough to launch the real binary, it has to be launched at a size that can
+actually fail.
+
+THREE DEFECTS FOUND BY PROBING THE SHIPPED BINARY, NOT FIXED HERE
+
+Recorded as the next slice rather than blended into this one:
+
+1. Typing `/stats` at speed opens the command palette with an EMPTY filter and
+   the first entry highlighted. The characters typed between the leading `/`
+   and the palette's mount land in `#command-input` and are discarded, so Enter
+   acts on an entry the operator never chose. Today the first entry
+   (`/benchmark`) takes a positional so it only pre-fills the input -- that is
+   luck, not safety. `CommandPalette` already accepts an `initial` filter and
+   nothing ever passes it.
+2. The backend's `tab` verb does not move the visible tab. `dashboard.py:2421`
+   parses it and `:2544` sets `controller.active_tab`; the superseded UI read
+   that back at `:1520-1524` and the new one never does. `app.py`'s `TABS`
+   docstring claims the command still works.
+3. There is no keyboard tab navigation at all. `ctrl+s` reaches Settings;
+   every other tab is mouse-only.
+
+THE SURFACE THIS IS BEING BUILT TOWARD
+
+`docs/roadmap/TUI_OPERATOR_SURFACE.md` records the target and the ordered
+slices. The reorganising argument: the first tab set was a map of the runtime's
+modules, and three of its eight tabs (Benchmarks, Compression, Live) are
+engine-development instruments that take no part in daily use, while the two
+highest-value stations of the operator loop do not exist -- what context would
+the agent actually receive, and what should this memory forget or promote.
+
+Target tabs are Memory, Recall, Review, Curate, Health, Engine, Chat, Settings.
+Every panel in the programme reads through an existing `SeamRuntime`/`SeamSDK`
+entry point; the signatures were introspected against the installed package
+rather than recalled. Six contracts bind every panel, each one a defect class
+already paid for: no private retrieval path (Track S S8 has to prove surfaces
+match `SeamRuntime.retrieve()`), worker threads for blocking work, visible
+empty/error rows, two-phase plan-confirm-apply for destructive actions, masked
+secrets until per-field reveal, and real-TTY verification at two terminal
+sizes.
+
+VERIFICATION PERFORMED
+
+pytest tests/audit/test_tui_supersedes_dashboard.py -- 29 static `def test_*`,
+35 collected because two cases are parametrized; 35 passed.
+
+Discrimination was proven, not assumed: with `seam_runtime/tui/` reverted and
+the new tests kept, 5 of them fail; restoring passes all 35. The empty-store
+guard passes either way and is not a discriminator on its own -- it is a
+regression fence, and is recorded as such rather than counted as evidence.
+
+Real-TTY launch under tmux against the operator's live `seam.db`, at 200x50 and
+at 110x32, independent of the builder's own run: the records table, the
+provenance input, the bordered trace tree and the log are all visible at both
+sizes. Selecting `ent:0679426b04e5ed34:seam:...` rendered its full evidence
+chain (PROV -> ENT/CLM -> SPAN -> RAW), filled `#prov-query`, and printed the
+copy confirmation plus the bare id. `y` on the next row copied that row's id.
+
+`ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+Slices S2 through S9 of the roadmap document are unstarted; S2 (navigation and
+palette hardening) is next and carries the three defects above.
+
+`dashboard.py` remains on the never-audited list from two consecutive
+whole-repository audits, and `TextualDashboardApp` remains dead code because
+its 28 usages in `test_seam_all/test_seam.py` are still the only coverage of
+several dashboard behaviours.
+
+One decision is open and blocks nothing before S5: whether the TUI ships to
+self-host users or is operator-only. The Memory table shows MIRL kinds and raw
+canonical ids; if it ships, that needs a product-level presentation with the
+MIRL view behind an operator flag.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#540---
+
+---BEGIN-ENTRY-#541---
+id: 541
+date: 2026-08-06T23:29:00Z
+agent: claude
+status: done
+topics: tui, palette, cli, api, sdk, surfaces, verify
+commits: pending
+refs: seam_runtime/server.py,seam_runtime/sdk.py,seam_runtime/tui/commands.py,seam_runtime/tui/app.py,tests/audit/test_command_palette_task_menu.py,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md
+supersedes: 540
+tokens: 1416
+---
+Gave every command in the `/` palette a description and reorganised the menu
+around what an operator is trying to do rather than where the code lives.
+Operator request: "the menu should be organized, and each command must have a
+description that explains what it does".
+
+THE MEASUREMENT, AND THE PREMISE IT CORRECTED
+
+104 of the 153 catalog entries rendered with no description: all 66 CLI
+commands, all 27 REST routes, and 11 of 21 SDK methods. Only the dashboard
+verbs (a hand-maintained dict) and the MCP tools (real metadata) were covered.
+
+The scoping premise was that those 66 CLI descriptions were missing at the
+source and had to be written. That was wrong, and it is the most useful thing
+in this entry. `seam_runtime/cli.py` already carries `help=` on its
+subparsers; nothing was missing. `_walk_parser` read `sub.description`, and
+argparse never populates `description` from `help=` -- that string is kept on
+the parent subparsers action's `_choices_actions` entries. The 66 were a
+READER defect, not absent metadata.
+
+Had the slice been executed as scoped, the result would have been 66 freshly
+invented help strings shadowing 66 correct ones that already existed, shipped
+into `seam --help`. The census was reproduced before writing anything, which is
+the only reason the premise failed cheaply.
+
+WHAT ACTUALLY NEEDED WRITING
+
+27 REST route summaries and 11 SDK docstrings. Each was derived by reading the
+handler body and following the call into `runtime.py`/`storage.py`/
+`lifecycle.py`/`reasoning_promotion.py` -- not inferred from the name. They are
+not palette filler: `summary=` on a FastAPI decorator goes straight into the
+published OpenAPI schema, and the SDK docstrings are what any reader of the
+stable boundary sees.
+
+Two reader fixes make the existing metadata visible: `_subparser_help` reads
+the parent action's `_choices_actions`, guarded so a future argparse without
+that private attribute degrades to the `description` path instead of breaking
+the palette; and `_ROUTE_RE` now optionally captures the decorator's
+`summary=`, still matching routes that have none.
+
+ORGANISATION
+
+One task vocabulary is now shared by all five surfaces -- Capture, Recall,
+Context, Provenance, Knowledge graph, Compression, Benchmarks, Improve,
+Serve & surfaces, Lifecycle & admin, Session -- replacing per-surface grouping
+that mixed sentence-length blurbs, an unnamed bucket, and 21 SDK methods under
+one "SeamSDK" heading. The mapping is four compact rule sets keyed on the root
+CLI command, the MCP tool prefix, the REST path segment, and the SDK method
+name, not a 153-row table, so a command added anywhere still classifies itself.
+
+The palette renders Run (the 20 verbs the TUI can actually execute, grouped by
+task) then Reference (cli/mcp/api/sdk under the same task names, each row
+carrying a dim surface tag). Filtering `knowledge` now returns the CLI command,
+the SDK method and the MCP tool for one task adjacent to each other, which is
+the property the reorganisation was for.
+
+Three group placements are judgement, not facts in the code, and are recorded
+as such rather than presented as derived: `decompile`/`pack` to Context (record
+rendering rather than ranking), `transpile`/`reindex` to Lifecycle & admin (no
+vocabulary word fits better), and the SDK's `start_reasoning`/`reasoning` to
+Provenance while the promotion pipeline goes to Knowledge graph -- splitting
+"how a conclusion was reached" from "writing it into the graph".
+
+VERIFICATION PERFORMED
+
+The census is now a test, not a one-off measurement:
+`tests/audit/test_command_palette_task_menu.py` asserts every catalog entry has
+a non-empty summary and a group inside the vocabulary, so the next command
+added anywhere cannot arrive undescribed.
+
+pytest tests/audit/test_command_palette_task_menu.py -- 13 static `def test_*`;
+13 passed.
+
+Discrimination: with the four source files stashed and the tests kept, the
+module fails at collection on the missing `_subparser_help` import -- all 13
+fail. Restored, 13 pass.
+
+Re-measured independently after the change rather than trusting the builder's
+report: 153 commands, 0 without a description, 0 outside the task vocabulary.
+Largest group is Serve & surfaces at 29; no catch-all bucket is reached by any
+of the 153.
+
+Real-TTY launch under tmux at 200x50: `/` opens on "Run 20" grouped
+Capture/Recall/Provenance/Compression/Session with a description on every row,
+then "Reference 133" under the same task names. Typing `knowledge` filters to
+23 rows carrying `cli`, `sdk` and `mcp` tags together under one heading.
+
+.venv/bin/python -m pytest tests/ test_seam_all/ tools/history tools/streams
+with the live pgvector lane -- 2611 passed, 2 xfailed, 0 skipped, 3 subtests
+passed. That is the 2598 of HISTORY#540 plus this slice's 13 new tests, an
+exact match with nothing displaced. `ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+Two readability defects are visible in the captured frames and are deliberately
+left for S2b, which owns the same render path: SDK rows print their full type
+signature (`sdk.knowledge(**query: 'Any') -> 'dict[str, object]'`), which is
+long enough to wrap the description onto a second line, and MCP descriptions
+are multi-sentence, so they wrap too. The row should show a trimmed call form
+with the full signature reserved for the reference card, and summaries should
+be cut to their first sentence rather than their first line.
+
+`_DASH_SUMMARIES` in `commands.py` remains a hand-maintained dict -- correct
+and complete, but the one surface whose descriptions are still transcribed
+rather than derived. Adding `help=` to `dashboard.py`'s parser would retire it;
+`dashboard.py` is on the never-audited list and was left alone.
+
+S2b -- the `!` shell and `?` chat input modes, the palette keystroke race,
+keyboard tab navigation, and the unwired `tab` command -- is unstarted.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#541---
+
+---BEGIN-ENTRY-#542---
+id: 542
+date: 2026-08-07T04:39:51Z
+agent: claude
+status: done
+topics: tui, modes, shell, chat, security, navigation, verify
+commits: pending
+refs: seam_runtime/tui/shell.py,seam_runtime/tui/app.py,seam_runtime/tui/commands.py,seam_runtime/tui/theme.tcss,tests/audit/test_tui_shell_session.py,tests/audit/test_tui_input_modes.py,tests/audit/test_command_palette_task_menu.py,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md
+supersedes: 541
+tokens: 1977
+---
+Gave the TUI input modes -- `/` seam, `!` shell, `?` chat -- and fixed the
+three defects that probing the shipped binary turned up. Operator request:
+"`!` `?` and `/` should all effect the mode of the tui."
+
+MODES
+
+A prefixed line is one-shot regardless of the latched mode, so `!ls` runs a
+shell command in the middle of a chat session. A bare sigil latches; Escape in
+the command input returns to seam. The mode is visible in three places -- a
+dedicated `#brand-mode` widget, the input placeholder, and the input's border
+colour -- because a latched mode the operator cannot see is a trap that turns
+the next thing they type into something they did not intend.
+
+Both modes reuse machinery that already existed. `SeamChatClient`
+(`dashboard.py:256`) is module-level and importable; the context prompt is
+built from `backend.orchestrator.rag(...)` exactly as the superseded UI built
+it (`dashboard.py:1964`). The reply renders with the memory ids the rag result
+injected, which is the part that makes chat worth having inside a memory
+runtime rather than a worse terminal for a chat available elsewhere.
+
+The `cd`/`pwd`-aware shell logic was trapped inside the superseded
+`TextualDashboardApp` -- a class nested inside a factory function, so not
+importable and not testable without a running TUI. It is now
+`seam_runtime/tui/shell.py`: a `ShellSession` owning `cwd`, returning a result
+object for every outcome including a bad directory, a non-zero exit, and a
+timeout. It never raises for ordinary failure, and it imports no textual.
+
+A SECURITY CONTROL WAS SILENTLY REMOVED, AND PUT BACK
+
+The first implementation ran `subprocess.run(shell=True)` with no allowlist, no
+cwd restriction, and no gate, enabled by default. That quietly reversed a
+hardening fix this repository had already made and recorded: after audit
+finding S1 (`docs/audits/2026-05-28-deep-health-audit.md`), HISTORY#272 put
+dashboard shell execution behind `shell=False`, an executable and command
+allowlist, a blocklist, a cwd restricted to /tmp or the project root, a
+timeout, and a master gate `SEAM_DASHBOARD_ALLOW_SHELL=1` that is off by
+default. The audit's own wording: critical the moment the flag is set or an
+agent is wired to that input.
+
+The reversal was documented only in a module docstring arguing for it. It was
+caught in review, before commit, and taken to the operator as a decision rather
+than shipped. The operator chose: keep `shell=True`, restore the gate.
+
+That combination is the deliberate one. `shell=False` plus the allowlist would
+kill pipes, globs, `&&` and `~` expansion, which are most of why `!` is worth
+having over a command runner. The master gate costs one Switch --
+`SEAM_DASHBOARD_ALLOW_SHELL` is already a registered `bool` Setting in
+`config.py`'s Dashboard group, so it was already toggleable from the TUI's own
+Settings tab with no new plumbing. `cd`/`pwd` stay live while the gate is off,
+matching where HISTORY#272 put the gate: inside `_run_shell_subprocess`, not
+around `cd`.
+
+`SEAM_SHELL_TIMEOUT_SECONDS` is honoured too. The first implementation
+hardcoded ten seconds and ignored the variable, which is the second half of the
+same drift: a new module reimplementing an old one without its controls.
+
+A PREMISE IN THE BRIEF WAS WRONG, AND CHECKING IT CHANGED THE DESIGN
+
+The brief asserted that the Settings tab's save path calls
+`config.apply_persisted_to_environ()`, and instructed that the claim be traced
+rather than assumed. It does not. `_save` persists to the settings file only;
+it is the separate Reload action (or the next launch's own startup call) that
+mutates `os.environ`.
+
+Reading the gate fresh on every call rather than caching it at construction is
+what makes that survivable: flip the Switch, Save, Reload, and the next `!`
+works without relaunching the TUI. A construction-time read would have needed a
+whole new `ShellSession`, which in practice means a restart.
+
+The underlying gap belongs to S5 and is recorded there rather than patched
+here: saving a setting reports success while the running process still holds
+the old value until a separate Reload. That is the same defect class S5 already
+owns for `SEAM_DB_PATH` and the embedding provider.
+
+THREE DEFECTS FOUND BY PROBING THE SHIPPED BINARY
+
+1. The palette keystroke race. Typing `/stats` at speed opened the palette with
+   an empty filter and the first entry highlighted, because the characters
+   typed between the `/` and the palette's mount landed in `#command-input` and
+   were discarded -- so Enter acted on an entry the operator never chose. It
+   only ever pre-filled rather than ran because the first entry happens to take
+   a positional, which is luck, not safety. `action_open_palette` now takes the
+   leftover text, clears it, and passes it as the filter `CommandPalette`
+   already accepted and ignored.
+2. `tab <view>` did not move the visible tab while `app.py`'s docstring claimed
+   it did. It is now handled in the TUI against the real tab ids and labels,
+   with an error listing valid names, and the docstring says what is true.
+3. There was no keyboard tab navigation at all. `alt+1`..`alt+N` jump, derived
+   from `len(TABS)` rather than hardcoded, and `ctrl+left`/`ctrl+right` cycle.
+
+Two palette readability fixes from the previous slice's captured frames also
+land here: SDK rows show a trimmed call form with the full signature moved to
+the reference card, and summaries cut at the first sentence rather than the
+first line, so multi-sentence MCP descriptions stop wrapping.
+
+VERIFICATION PERFORMED
+
+pytest tests/audit/test_tui_shell_session.py -- 35 static `def test_*`.
+pytest tests/audit/test_tui_input_modes.py -- 20 static `def test_*`.
+
+The gate's test asserts no process is spawned, by monkeypatching
+`subprocess.run` and asserting it was never called. Asserting only the refusal
+message would pass even if the command had run.
+
+Discrimination: with the source stashed and the tests kept, the shell module's
+tests fail at collection and 18 of 20 mode tests fail; restored, all pass.
+
+Real-TTY launch under tmux at 200x50, both gate states, run independently of
+the builder. Gate off: the indicator reads `shell (disabled:
+SEAM_DASHBOARD_ALLOW_SHELL)`, the placeholder names the variable and the
+Settings tab, and `echo should_not_run` produced the refusal and no output.
+Gate on: `echo piped | wc -c` returned 6, proving the pipe reached a real
+shell, and `cd /tmp` moved the session. Mode indicator tracked seam -> shell ->
+chat, Escape returned to seam, and `/stats` typed at full speed opened the
+palette pre-filtered to `stats`.
+
+Chat was verified with the key unset, so the "not configured" path rendered and
+the tab auto-switched. No live provider call was made from this entry:
+spending on a paid API without asking is not a verification step. The wired
+path is covered by tests with `SeamChatClient.complete` monkeypatched.
+
+.venv/bin/python -m pytest tests/ test_seam_all/ tools/history tools/streams
+with the live pgvector lane -- 2680 passed, 2 xfailed, 0 skipped, 3 subtests
+passed. That is HISTORY#541's 2611 plus this slice's 69 new static tests (35
+shell, 20 modes, and 14 added to the palette file, which went from 13 to 27),
+an exact match with nothing displaced. Run independently of the builder's own
+run, which reported the same number. `ruff check .` clean.
+
+NOT DONE / UNRESOLVED NEXT STEP
+
+`alt+N` cannot work on every terminal, and this is a limitation rather than a
+bug: Textual's ANSI table maps `ESC`+digit to the macOS Option characters, so
+on a terminal using the classic "Alt sends Escape" convention `alt+3` inserts
+`£` into the command input instead of switching tabs. Terminals with the kitty
+keyboard protocol or `modifyOtherKeys` are unaffected. `ctrl+left`/`ctrl+right`
+and `tab <name>` have no such ambiguity, so no navigation path is a dead end.
+Negotiating CSI-u was not attempted.
+
+S3 (namespace/scope rail) onward in `docs/roadmap/TUI_OPERATOR_SURFACE.md` is
+unstarted. The Settings save-versus-reload gap above is routed to S5.
+
+No paid provider call, competitive benchmark, retrieval-score claim, artifact
+publish, deploy, or release ran.
+---END-ENTRY-#542---
+
+---BEGIN-ENTRY-#543---
+id: 543
+date: 2026-08-10T06:39:24Z
+agent: codex
+status: done
+topics: animation, bugfix, memory, security, surface, test, textual, tui, verify, webui
+commits: pending
+refs: .gitattributes,branding/kit,branding/README.md,branding/assets/mature/seam-terminal-logo.txt,branding/retro-direction.md,docs/roadmap/TUI_OPERATOR_SURFACE.md,docs/status/surfaces.md,seam_runtime/config.py,seam_runtime/dashboard.py,seam_runtime/tui/app.py,seam_runtime/tui/brand.py,seam_runtime/tui/panels.py,seam_runtime/tui/shell.py,seam_runtime/tui/theme.tcss,tests/audit/test_brand_kit.py,tests/audit/test_tui_input_modes.py,tests/audit/test_tui_shell_session.py,tests/audit/test_tui_supersedes_dashboard.py,tools/branding/verify_brand_kit.py,PR#205
+supersedes: 542
+tokens: 905
+---
+Finished the operator-requested TUI repair and established a reusable
+Canticle/SEAM identity kit. This supersedes HISTORY#542 where its description
+of typed prefix semantics and Settings reload behavior is no longer current.
+
+TUI INTERACTION REPAIRS
+
+`!` and `?` now latch shell/chat immediately from the command bar, table,
+tree, button, or tab focus. Editable Inputs and the command palette retain
+literal punctuation. A typed sigil necessarily changes mode before following
+keystrokes arrive; a whole `!command` or `?message` inserted atomically still
+runs once without changing an existing mode. Escape returns to seam mode and
+the command bar. The live shell gate remains default-off and visible.
+
+The Settings/runtime boundary now distinguishes values explicitly present in
+the launch environment from values this module promoted out of the persisted
+settings file. True environment overrides still win. File-promoted values
+retain provenance, so a later Save is visible to shell/chat on the next action
+and Reload can update or remove the promoted process value. Chat rebuilds its
+small client from effective settings per request, serializes requests, and
+gives each worker a client/history snapshot instead of racing shared state.
+
+The Memory table no longer changes the clipboard when a row is selected.
+Selection exposes the full id in the editable/pasteable provenance field and
+traces it. Copying is explicit through the adjacent Copy ID button or `y`;
+empty-copy behavior is safe and full untruncated ids are covered.
+
+REUSABLE CANTICLE / SEAM IDENTITY
+
+`branding/kit/` is now the source-controlled `canticle-seam@1.0.0` contract:
+exact color/typography/geometry/motion tokens, separate Canticle company and
+SEAM product SVG lockups, terminal-cell lockups, source provenance pinned to
+Canticle `origin/main@b492659e3ab5751bdaa576529b5a1cbf7a382635`, and a sorted
+content-hash manifest. Historical retro/mature assets remain for auditability
+but are explicitly non-canonical.
+
+The verifier independently pins all six canonical asset digests, validates
+the complete token tree and semantic font-weight mapping, enforces LF for
+hashed text assets, requires exact accessible names and static SVG grammar,
+and fails closed on active/external resources, CSS obfuscation, symlinks,
+non-regular files, and Windows junction/reparse escapes. Thirty adversarial
+tests exercise the contract rather than trusting mutable manifest hashes.
+
+The TUI is the first consumer. Its header uses the bordered prompt/cursor
+square and SEAM product wordmark; launch types `S -> SE -> SEA -> SEAM` at
+120 ms and holds the final frame for exactly 360 ms. The full cursor cycle is
+800 ms. Reduced/off motion keeps the cursor statically visible; off mounts no
+launch layer. The TUI adopts the exact static first-frame palette and these
+motion pieces, not the optional website RGB cycle.
+
+VERIFICATION
+
+The exact final provider-free repository command used the pinned offline cache
+and deselected only the dedicated external lane: 2701 passed, 23 deselected,
+2 expected xfails, 2 known FastAPI operation-id warnings, and 3 subtests.
+`python -m tools.branding.verify_brand_kit` passed for six canonical assets;
+all 30 brand-kit tests passed; changed Python passed Ruff and formatting; and
+`git diff --check` passed. Independent read-only audits finished clean after
+their findings were repaired. CodeRabbit reviewed tracked and untracked
+candidate files; its two minor findings (mono 700 declaration and cwd-relative
+test path) were fixed and the focused checks rerun.
+
+Real tmux launches verified the compact header, Memory ID controls, immediate
+`!` gated-shell activation, and immediate `?` Chat activation at small and
+wide terminal sizes. Chat mode was entered without sending a provider request.
+No paid provider, release, deploy, or external pgvector run was performed.
+
+BOUNDARY / NEXT
+
+No file under `seam_runtime/webui/` changed. Browser/WebUI restyling remains
+explicitly deferred to the operator-present product-surface design session.
+PR #205 must rerun required plus advisory CI and remote review on the new exact
+head before any merge decision.
+---END-ENTRY-#543---

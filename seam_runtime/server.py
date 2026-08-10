@@ -293,7 +293,7 @@ def _mount_webui(app: Any) -> None:
 
     index = directory / "dashboard.html"
 
-    @app.get("/", include_in_schema=False)
+    @app.get("/", summary="Serve the dashboard's static index page", include_in_schema=False)
     def _webui_index() -> Any:
         return FileResponse(index)
 
@@ -712,7 +712,7 @@ def create_app(
             )
         return {"status": "ok", "api_version": PUBLIC_API_VERSION}
 
-    @app.post("/v1/memories", dependencies=[Depends(guard)])
+    @app.post("/v1/memories", summary="Store a memory via the public API", dependencies=[Depends(guard)])
     def public_remember(payload: dict[str, object]) -> dict[str, object]:
         from .public_api import PublicAPIInputError, remember
 
@@ -721,7 +721,7 @@ def create_app(
         except PublicAPIInputError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @app.post("/v1/memories/recall", dependencies=[Depends(guard)])
+    @app.post("/v1/memories/recall", summary="Recall memories via the public API", dependencies=[Depends(guard)])
     def public_recall(payload: dict[str, object]) -> dict[str, object]:
         from .public_api import PublicAPIInputError, recall
 
@@ -730,7 +730,7 @@ def create_app(
         except PublicAPIInputError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @app.post("/v1/context", dependencies=[Depends(guard)])
+    @app.post("/v1/context", summary="Assemble a context pack via the public API", dependencies=[Depends(guard)])
     def public_context(payload: dict[str, object]) -> dict[str, object]:
         from .public_api import PublicAPIInputError, context
 
@@ -739,17 +739,17 @@ def create_app(
         except PublicAPIInputError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @app.get("/stats", dependencies=[Depends(guard)])
+    @app.get("/stats", summary="Return runtime and store statistics", dependencies=[Depends(guard)])
     def stats() -> dict[str, object]:
         return runtime.store.get_stats()
 
-    @app.get("/workspace/capabilities", dependencies=[Depends(guard)])
+    @app.get("/workspace/capabilities", summary="Report workspace trace capabilities and event types", dependencies=[Depends(guard)])
     def workspace_capability_report() -> dict[str, object]:
         report = workspace_capabilities(resolved_jlens_worker)
         report["event_types"] = sorted(WORKSPACE_EVENT_TYPES)
         return report
 
-    @app.get("/workspace/events", dependencies=[Depends(guard)])
+    @app.get("/workspace/events", summary="List workspace trace events for a chat run", dependencies=[Depends(guard)])
     def workspace_events(
         run_id: str | None = None,
         after: int = Query(default=0, ge=0),
@@ -767,7 +767,7 @@ def create_app(
         next_after = int(events[-1]["event_id"]) if events else after
         return {"events": events, "run_id": run_id, "next_after": next_after}
 
-    @app.get("/workspace/runs", dependencies=[Depends(guard)])
+    @app.get("/workspace/runs", summary="List workspace chat runs", dependencies=[Depends(guard)])
     def workspace_runs(
         namespace: str | None = None,
         scope: str | None = None,
@@ -775,7 +775,7 @@ def create_app(
     ) -> dict[str, object]:
         return {"runs": runtime.store.list_workspace_runs(ns=namespace, scope=scope, limit=limit)}
 
-    @app.get("/workspace/runs/{run_id}", dependencies=[Depends(guard)])
+    @app.get("/workspace/runs/{run_id}", summary="Get one workspace run and its events", dependencies=[Depends(guard)])
     def workspace_run(
         run_id: str,
         after: int = Query(default=0, ge=0),
@@ -786,7 +786,7 @@ def create_app(
         except KeyError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    @app.get("/knowledge-graph", dependencies=[Depends(guard)])
+    @app.get("/knowledge-graph", summary="Search and traverse the knowledge graph", dependencies=[Depends(guard)])
     def knowledge_graph(
         query: str | None = None,
         root_id: str | None = None,
@@ -813,7 +813,7 @@ def create_app(
             hops=hops,
         )
 
-    @app.get("/knowledge-node", dependencies=[Depends(guard)])
+    @app.get("/knowledge-node", summary="Open a graph-backed knowledge page", dependencies=[Depends(guard)])
     def knowledge_node(
         node_id: str,
         include_history: bool = True,
@@ -828,7 +828,7 @@ def create_app(
         except KeyError:
             raise HTTPException(status_code=404, detail=f"knowledge node not found: {node_id}")
 
-    @app.get("/identity-merges", dependencies=[Depends(guard)])
+    @app.get("/identity-merges", summary="List or audit identity-merge ledger entries", dependencies=[Depends(guard)])
     def identity_merges(
         node_id: str | None = None,
         namespace: str | None = None,
@@ -844,7 +844,7 @@ def create_app(
             )
         }
 
-    @app.post("/identity-merges/generate", dependencies=[Depends(guard)])
+    @app.post("/identity-merges/generate", summary="Auto-propose identity-merge candidates", dependencies=[Depends(guard)])
     def identity_merges_generate(
         namespace: str | None = None,
         scope: str | None = None,
@@ -859,7 +859,7 @@ def create_app(
         code = 404 if message.startswith("unknown merge") else 409
         return HTTPException(status_code=code, detail=message)
 
-    @app.post("/identity-merges/{merge_id}/accept", dependencies=[Depends(guard)])
+    @app.post("/identity-merges/{merge_id}/accept", summary="Accept a proposed identity merge", dependencies=[Depends(guard)])
     def identity_merge_accept(merge_id: str) -> dict[str, object]:
         try:
             status = runtime.store.accept_identity_merge(merge_id)
@@ -867,7 +867,7 @@ def create_app(
             raise _merge_action_error(exc)
         return {"merge_id": merge_id, "status": status}
 
-    @app.post("/identity-merges/{merge_id}/split", dependencies=[Depends(guard)])
+    @app.post("/identity-merges/{merge_id}/split", summary="Reversibly undo an identity merge", dependencies=[Depends(guard)])
     def identity_merge_split(
         merge_id: str, reason: str | None = None
     ) -> dict[str, object]:
@@ -877,14 +877,14 @@ def create_app(
             raise _merge_action_error(exc)
         return {"merge_id": merge_id, "status": "split"}
 
-    @app.get("/trace", dependencies=[Depends(guard)])
+    @app.get("/trace", summary="Trace provenance for a persisted object id", dependencies=[Depends(guard)])
     def trace(root_id: str) -> dict[str, object]:
         try:
             return runtime.store.trace(root_id).to_dict()
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
 
-    @app.get("/tree", dependencies=[Depends(guard)])
+    @app.get("/tree", summary="List files under the repo root for the dashboard browser", dependencies=[Depends(guard)])
     def tree(path: str = ".") -> dict[str, object]:
         root = _tree_root()
         try:
@@ -914,7 +914,7 @@ def create_app(
             "max_entries": max_entries,
         }
 
-    @app.post("/benchmark", dependencies=[Depends(guard)])
+    @app.post("/benchmark", summary="Run a glassbox benchmark suite", dependencies=[Depends(guard)])
     def run_benchmark(payload: dict[str, object]) -> dict[str, object]:
         from .benchmarks import BENCHMARK_SUITES, run_benchmark_suite
         suite = str(payload.get("suite", "all"))
@@ -943,7 +943,7 @@ def create_app(
 
     _last_cpu_times = None
 
-    @app.get("/sys-metrics", dependencies=[Depends(guard)])
+    @app.get("/sys-metrics", summary="Report live CPU, memory, and disk metrics", dependencies=[Depends(guard)])
     def sys_metrics() -> dict[str, object]:
         nonlocal _last_cpu_times
 
@@ -1027,7 +1027,7 @@ def create_app(
             "net": _metric_unsupported(),
         }
 
-    @app.post("/compile", dependencies=[Depends(guard)])
+    @app.post("/compile", summary="Compile natural language into MIRL records", dependencies=[Depends(guard)])
     def compile_text(payload: dict[str, object]) -> dict[str, object]:
         text = str(payload.get("text", ""))
         if not text.strip():
@@ -1044,7 +1044,7 @@ def create_app(
             result["persist"] = runtime.persist_ir(batch).to_dict()
         return result
 
-    @app.post("/compile-dsl", dependencies=[Depends(guard)])
+    @app.post("/compile-dsl", summary="Compile SEAM DSL into MIRL records", dependencies=[Depends(guard)])
     def compile_dsl_endpoint(payload: dict[str, object]) -> dict[str, object]:
         dsl = str(payload.get("dsl", ""))
         if not dsl.strip():
@@ -1059,11 +1059,11 @@ def create_app(
             result["persist"] = runtime.persist_ir(batch).to_dict()
         return result
 
-    @app.get("/search", dependencies=[Depends(guard)])
+    @app.get("/search", summary="Search persisted MIRL records", dependencies=[Depends(guard)])
     def search(query: str, scope: str | None = None, budget: int = Query(default=5, ge=1, le=200), lens: str = "general") -> dict[str, object]:
         return runtime.search_ir(query=query, scope=scope, budget=budget, lens=lens).to_dict()
 
-    @app.post("/context", dependencies=[Depends(guard)])
+    @app.post("/context", summary="Search and assemble a context pack for a query", dependencies=[Depends(guard)])
     def context(payload: dict[str, object]) -> dict[str, object]:
         query = str(payload.get("query", ""))
         if not query.strip():
@@ -1085,7 +1085,7 @@ def create_app(
         )
         return {"query": query, "candidates": search_result.to_dict()["candidates"], "pack": pack.to_dict()}
 
-    @app.post("/lossless-compress", dependencies=[Depends(guard)])
+    @app.post("/lossless-compress", summary="Losslessly compress text and report savings", dependencies=[Depends(guard)])
     def lossless_compress(payload: dict[str, object]) -> dict[str, object]:
         from .lossless import benchmark_text_lossless
 
@@ -1101,14 +1101,14 @@ def create_app(
         )
         return result.to_dict(include_machine_text=bool(payload.get("include_machine_text", False)))
 
-    @app.post("/persist", dependencies=[Depends(guard)])
+    @app.post("/persist", summary="Persist MIRL records from JSON", dependencies=[Depends(guard)])
     def persist(payload: dict[str, object]) -> dict[str, object]:
         records = payload.get("records")
         if not isinstance(records, list):
             raise HTTPException(status_code=400, detail="records list is required")
         return runtime.persist_ir(IRBatch.from_json(records)).to_dict()
 
-    @app.post("/chat", dependencies=[Depends(guard)])
+    @app.post("/chat", summary="Retrieve memory context, then call the chat model", dependencies=[Depends(guard)])
     def chat(payload: dict[str, object]) -> dict[str, object]:
         """SEAM-augmented chat: retrieve memory for the message, then call the chosen model.
 
@@ -1221,7 +1221,7 @@ def create_app(
             result["memory_error"] = memory_error
         return result
 
-    @app.post("/chat/stream", dependencies=[Depends(guard)])
+    @app.post("/chat/stream", summary="Stream a chat turn as workspace trace events", dependencies=[Depends(guard)])
     def chat_stream(payload: dict[str, object]):
         """Stream an append-only, structured workspace trace around one chat turn.
 

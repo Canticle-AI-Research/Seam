@@ -255,10 +255,25 @@ class DashboardParser(argparse.ArgumentParser):
 
 class SeamChatClient:
     def __init__(self) -> None:
-        self.base_url = os.environ.get("SEAM_CHAT_BASE_URL", "https://api.openai.com/v1").rstrip("/")
-        self.model = os.environ.get("SEAM_CHAT_MODEL", "gpt-4o-mini")
-        self.api_key = os.environ.get("SEAM_CHAT_API_KEY") or os.environ.get("OPENAI_API_KEY")
-        configured_models = [item.strip() for item in os.environ.get("SEAM_CHAT_MODELS", "").split(",") if item.strip()]
+        # Read effective configuration rather than only the process snapshot.
+        # The Textual Settings panel persists edits immediately; consulting
+        # `config.effective_value` lets a newly saved key/base/model take
+        # effect when the TUI rebuilds this client before its next request,
+        # while explicit process environment values retain precedence.
+        self.base_url = (
+            config.effective_value("SEAM_CHAT_BASE_URL")
+            or "https://api.openai.com/v1"
+        ).rstrip("/")
+        self.model = config.effective_value("SEAM_CHAT_MODEL") or "gpt-4o-mini"
+        self.api_key = (
+            config.effective_value("SEAM_CHAT_API_KEY")
+            or config.effective_value("OPENAI_API_KEY")
+        )
+        configured_models = [
+            item.strip()
+            for item in config.effective_value("SEAM_CHAT_MODELS").split(",")
+            if item.strip()
+        ]
         self.available_models = configured_models or list(DEFAULT_CHAT_MODELS)
         if self.model not in self.available_models:
             self.available_models.insert(0, self.model)
