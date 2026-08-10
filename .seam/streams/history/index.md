@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 547
-total_tokens: ~284006
-latest_id: 547
+total_entries: 548
+total_tokens: ~284477
+latest_id: 548
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 548 | 2026-08-10 | done | 07f48d678322b007 | continuity,history,verify,test | 547 |
 | 547 | 2026-08-10 | done | b6fbe0d63337501a | graph,retrieval,benchmark,persist,+ | 494 |
 | 546 | 2026-08-10 | done | e2258ccbec2a54c5 | continuity,history,verify | 545 |
 | 545 | 2026-08-10 | done | 3e10653703ffae22 | continuity,graph,history,surface,+ | 544 |
@@ -622,7 +623,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=22 latest=#546, #545, #528, #514, #513
+- continuity: count=23 latest=#548, #546, #545, #528, #514
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -695,7 +696,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=298 latest=#546, #545, #536, #531, #530
+- history: count=299 latest=#548, #546, #545, #536, #531
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -864,7 +865,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=92 latest=#544, #543, #535, #525, #524
+- test: count=93 latest=#548, #544, #543, #535, #525
 - test-artifacts: count=1 latest=#506
 - tests: count=37 latest=#539, #531, #530, #506, #502
 - textual: count=18 latest=#543, #108, #106, #063, #062
@@ -881,7 +882,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=369 latest=#547, #546, #545, #544, #543
+- verify: count=370 latest=#548, #547, #546, #545, #544
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -898,6 +899,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 480
+- done: 481
 - in-progress: 8
 - planned: 21

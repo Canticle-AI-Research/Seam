@@ -70,7 +70,10 @@ def test_improve_cycle_parser_exposes_experiment_bounds():
     assert defaults.max_candidates is None
 
 
-def test_improve_cycle_rejects_invalid_candidate_bound(tmp_path, capsys):
+@pytest.mark.parametrize("max_candidates", [-1, 0, 129])
+def test_improve_cycle_rejects_invalid_candidate_bound(
+    tmp_path, capsys, max_candidates
+):
     run_cli(
         [
             "--db",
@@ -78,12 +81,39 @@ def test_improve_cycle_rejects_invalid_candidate_bound(tmp_path, capsys):
             "improve",
             "cycle",
             "--max-candidates",
-            "129",
+            str(max_candidates),
         ]
     )
     assert json.loads(capsys.readouterr().out) == {
         "error": "--max-candidates must be within [1, 128]"
     }
+
+
+@pytest.mark.parametrize("max_candidates", [1, 128])
+def test_improve_cycle_accepts_candidate_boundaries(
+    tmp_path, capsys, max_candidates
+):
+    run_cli(
+        [
+            "--db",
+            str(tmp_path / "s.db"),
+            "improve",
+            "cycle",
+            "--probe-sample",
+            "1",
+            "--probe-budget",
+            "1",
+            "--max-candidates",
+            str(max_candidates),
+        ]
+    )
+    report = json.loads(capsys.readouterr().out)
+    assert "error" not in report, report
+    assert report["experiment_recorded"] is True
+    assert isinstance(report["experiment_id"], str)
+    assert report["n_candidates"] == min(
+        max_candidates, report["candidate_space_count"]
+    )
 
 
 @pytest.mark.parametrize(
