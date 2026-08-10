@@ -44,6 +44,26 @@ from .identity_resolution import (
 from .identity_resolution import (
     split_merge as split_identity_merge_op,
 )
+from .improvement_experiments import (
+    EXPERIMENT_CONTRACT_VERSION,
+    EXPERIMENT_EVENT_KINDS,
+    EXPERIMENT_METHOD,
+    EXPERIMENT_SCHEMA_VERSION,
+    TERMINAL_EXPERIMENT_EVENT_KINDS,
+    experiment_definition_sha256,
+    experiment_event_row,
+    experiment_row,
+    init_improvement_experiment_schema,
+    validate_experiment_id,
+    validate_sha256,
+    validate_structured_payload,
+)
+from .improvement_experiments import (
+    canonical_json as canonical_experiment_json,
+)
+from .improvement_experiments import (
+    event_sha256 as improvement_event_sha256,
+)
 from .knowledge_graph import (
     GRAPH_NODE_VECTOR_TEXT_VERSION,
     PROJECTION_VERSION,
@@ -218,7 +238,7 @@ LOGGER = logging.getLogger(__name__)
 
 STORE_PROJECTION_VERSIONS = {
     "canonical_mirl": SCHEMA_VERSION,
-    "core_storage": "core-storage/2",
+    "core_storage": "core-storage/3",
     "graph_products": f"graph-products-schema/{GRAPH_PRODUCT_SCHEMA_VERSION}",
     "knowledge_graph": PROJECTION_VERSION,
     "knowledge_graph_vectors": GRAPH_NODE_VECTOR_TEXT_VERSION,
@@ -287,6 +307,7 @@ class SQLiteStore:
     ) -> None:
         self.path = str(path)
         self._mem_anchor: sqlite3.Connection | None = None
+        self._verified_improvement_heads: dict[str, tuple[int, str]] = {}
         if self.path != ":memory:":
             resolved = Path(self.path).expanduser().resolve()
             self.path = str(resolved)
@@ -691,6 +712,7 @@ class SQLiteStore:
         init_workspace_schema(connection)
         init_reasoning_graph(connection)
         init_reasoning_promotion(connection)
+        init_improvement_experiment_schema(connection)
 
     @staticmethod
     def _ensure_typed_edge_columns(connection: sqlite3.Connection) -> None:
@@ -4040,6 +4062,364 @@ class SQLiteStore:
         return int(row[0])
 
     # ------------------------------------------------------------------
+    # H2 production experiment ledger
+    # ------------------------------------------------------------------
+
+    @retry_db_operation()
+    def create_improvement_experiment(
+        self,
+        *,
+        lane: str,
+        evaluator_sha256: str,
+        dataset_sha256: str,
+        baseline_sha256: str,
+        definition: Mapping[str, object],
+        experiment_id: str | None = None,
+        method: str = EXPERIMENT_METHOD,
+        created_at: str | None = None,
+    ) -> str:
+        """Create one immutable experiment definition and its first event."""
+
+        if not isinstance(lane, str) or not lane.strip():
+            raise ValueError("experiment lane is required")
+        if not isinstance(method, str) or not method.strip():
+            raise ValueError("experiment method is required")
+        evaluator_sha256 = validate_sha256(
+            evaluator_sha256, field_name="evaluator_sha256"
+        )
+        dataset_sha256 = validate_sha256(
+            dataset_sha256, field_name="dataset_sha256"
+        )
+        baseline_sha256 = validate_sha256(
+            baseline_sha256, field_name="baseline_sha256"
+        )
+        normalized_definition = validate_structured_payload(
+            definition, field_name="experiment definition"
+        )
+        resolved_id = validate_experiment_id(
+            experiment_id or f"improve:{uuid4().hex}"
+        )
+        now = created_at or utc_now()
+        lane = lane.strip()
+        method = method.strip()
+        definition_sha256 = experiment_definition_sha256(
+            experiment_id=resolved_id,
+            created_at=now,
+            contract_version=EXPERIMENT_CONTRACT_VERSION,
+            lane=lane,
+            method=method,
+            evaluator_sha256=evaluator_sha256,
+            dataset_sha256=dataset_sha256,
+            baseline_sha256=baseline_sha256,
+            definition=normalized_definition,
+        )
+        started_payload = {
+            "contract_version": EXPERIMENT_CONTRACT_VERSION,
+            "definition_sha256": definition_sha256,
+            "schema_version": EXPERIMENT_SCHEMA_VERSION,
+        }
+        first_event_sha256 = improvement_event_sha256(
+            experiment_id=resolved_id,
+            sequence=1,
+            ts=now,
+            event_kind="started",
+            payload=started_payload,
+            previous_event_sha256=None,
+        )
+        with self._pool.checkout() as connection:
+            connection.execute("begin immediate")
+            try:
+                connection.execute(
+                    """
+                    insert into improvement_experiment (
+                        experiment_id, created_at, contract_version, lane, method,
+                        evaluator_sha256, dataset_sha256, baseline_sha256,
+                        definition_json, definition_sha256
+                    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        resolved_id,
+                        now,
+                        EXPERIMENT_CONTRACT_VERSION,
+                        lane,
+                        method,
+                        evaluator_sha256,
+                        dataset_sha256,
+                        baseline_sha256,
+                        canonical_experiment_json(normalized_definition),
+                        definition_sha256,
+                    ),
+                )
+                connection.execute(
+                    """
+                    insert into improvement_experiment_event (
+                        experiment_id, sequence, ts, event_kind, payload_json,
+                        previous_event_sha256, event_sha256
+                    ) values (?, 1, ?, 'started', ?, NULL, ?)
+                    """,
+                    (
+                        resolved_id,
+                        now,
+                        canonical_experiment_json(started_payload),
+                        first_event_sha256,
+                    ),
+                )
+                connection.commit()
+            except BaseException:
+                connection.rollback()
+                raise
+        self._verified_improvement_heads[resolved_id] = (1, first_event_sha256)
+        return resolved_id
+
+    @retry_db_operation()
+    def append_improvement_experiment_event(
+        self,
+        *,
+        experiment_id: str,
+        event_kind: str,
+        payload: Mapping[str, object],
+        ts: str | None = None,
+    ) -> int:
+        """Append one transition after validating the chain and state machine."""
+
+        resolved_id = validate_experiment_id(experiment_id)
+        if event_kind not in EXPERIMENT_EVENT_KINDS or event_kind == "started":
+            raise ValueError(f"invalid append-only experiment event {event_kind!r}")
+        normalized_payload = validate_structured_payload(
+            payload, field_name=f"{event_kind} payload"
+        )
+        now = ts or utc_now()
+        with self._pool.checkout() as connection:
+            connection.execute("begin immediate")
+            try:
+                experiment = connection.execute(
+                    "select * from improvement_experiment where experiment_id = ?",
+                    (resolved_id,),
+                ).fetchone()
+                if experiment is None:
+                    raise ValueError(f"experiment {resolved_id!r} does not exist")
+                previous = connection.execute(
+                    """
+                    select * from improvement_experiment_event
+                    where experiment_id = ? order by sequence desc limit 1
+                    """,
+                    (resolved_id,),
+                ).fetchone()
+                if previous is None:
+                    raise ValueError("experiment event chain is invalid: no events")
+                definition_errors = _improvement_experiment_definition_errors(
+                    experiment
+                )
+                if definition_errors:
+                    raise ValueError(
+                        "experiment event chain is invalid: "
+                        + "; ".join(definition_errors)
+                    )
+                previous_sequence = int(previous["sequence"])
+                previous_sha256 = str(previous["event_sha256"])
+                cached_head = self._verified_improvement_heads.get(resolved_id)
+                if cached_head != (previous_sequence, previous_sha256):
+                    rows = connection.execute(
+                        """
+                        select * from improvement_experiment_event
+                        where experiment_id = ? order by sequence asc
+                        """,
+                        (resolved_id,),
+                    ).fetchall()
+                    chain_errors = _improvement_experiment_chain_errors(
+                        experiment, rows
+                    )
+                    if chain_errors:
+                        raise ValueError(
+                            "experiment event chain is invalid: "
+                            + "; ".join(chain_errors)
+                        )
+                    self._verified_improvement_heads[resolved_id] = (
+                        previous_sequence,
+                        previous_sha256,
+                    )
+                else:
+                    tail_errors = _improvement_experiment_event_row_errors(
+                        experiment, previous
+                    )
+                    if tail_errors:
+                        raise ValueError(
+                            "experiment event chain is invalid: "
+                            + "; ".join(tail_errors)
+                        )
+                previous_kind = str(previous["event_kind"])
+                _validate_improvement_experiment_transition(previous_kind, event_kind)
+                sequence = previous_sequence + 1
+                digest = improvement_event_sha256(
+                    experiment_id=resolved_id,
+                    sequence=sequence,
+                    ts=now,
+                    event_kind=event_kind,
+                    payload=normalized_payload,
+                    previous_event_sha256=previous_sha256,
+                )
+                cursor = connection.execute(
+                    """
+                    insert into improvement_experiment_event (
+                        experiment_id, sequence, ts, event_kind, payload_json,
+                        previous_event_sha256, event_sha256
+                    ) values (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        resolved_id,
+                        sequence,
+                        now,
+                        event_kind,
+                        canonical_experiment_json(normalized_payload),
+                        previous_sha256,
+                        digest,
+                    ),
+                )
+                event_id = int(cursor.lastrowid)
+                connection.commit()
+            except BaseException:
+                connection.rollback()
+                raise
+        self._verified_improvement_heads[resolved_id] = (sequence, digest)
+        return event_id
+
+    def read_improvement_experiment(
+        self, experiment_id: str
+    ) -> dict[str, object] | None:
+        """Read one definition and its complete event chain."""
+
+        resolved_id = validate_experiment_id(experiment_id)
+        with self._pool.checkout() as connection:
+            row = connection.execute(
+                "select * from improvement_experiment where experiment_id = ?",
+                (resolved_id,),
+            ).fetchone()
+            if row is None:
+                return None
+            event_rows = connection.execute(
+                """
+                select * from improvement_experiment_event
+                where experiment_id = ? order by sequence asc
+                """,
+                (resolved_id,),
+            ).fetchall()
+        payload = experiment_row(row)
+        events = [experiment_event_row(event) for event in event_rows]
+        payload["events"] = events
+        payload["status"] = _improvement_experiment_status(events)
+        return payload
+
+    def iter_improvement_experiments(
+        self,
+        *,
+        lane: str | None = None,
+        status: str | None = None,
+        limit: int | None = 50,
+    ) -> list[dict[str, object]]:
+        """List immutable experiment definitions newest-first."""
+
+        if limit is not None and (isinstance(limit, bool) or limit < 1):
+            raise ValueError("experiment list limit must be positive")
+        if status not in {None, "running", "completed", "failed"}:
+            raise ValueError("experiment status must be running, completed, or failed")
+        clauses: list[str] = []
+        params: list[object] = []
+        if lane is not None:
+            clauses.append("x.lane = ?")
+            params.append(lane)
+        if status == "running":
+            clauses.append("e.event_kind not in ('completed', 'failed')")
+        elif status is not None:
+            clauses.append("e.event_kind = ?")
+            params.append(status)
+        where = " where " + " and ".join(clauses) if clauses else ""
+        sql = f"""
+            with latest as (
+                select experiment_id, max(sequence) as sequence, count(*) as event_count
+                from improvement_experiment_event
+                group by experiment_id
+            )
+            select x.*, e.event_kind as latest_event_kind,
+                   e.ts as latest_event_ts, latest.event_count
+            from improvement_experiment x
+            join latest on latest.experiment_id = x.experiment_id
+            join improvement_experiment_event e
+              on e.experiment_id = latest.experiment_id
+             and e.sequence = latest.sequence
+            {where}
+            order by x.created_at desc, x.experiment_id desc
+        """
+        if limit is not None:
+            sql += " limit ?"
+            params.append(int(limit))
+        with self._pool.checkout() as connection:
+            rows = connection.execute(sql, tuple(params)).fetchall()
+        experiments: list[dict[str, object]] = []
+        for row in rows:
+            latest_kind = str(row["latest_event_kind"])
+            current_status = (
+                latest_kind
+                if latest_kind in TERMINAL_EXPERIMENT_EVENT_KINDS
+                else "running"
+            )
+            item = experiment_row(row)
+            item.update(
+                {
+                    "status": current_status,
+                    "latest_event_kind": latest_kind,
+                    "latest_event_ts": row["latest_event_ts"],
+                    "event_count": int(row["event_count"]),
+                }
+            )
+            experiments.append(item)
+        return experiments
+
+    def verify_improvement_experiment(
+        self, experiment_id: str
+    ) -> dict[str, object]:
+        """Recompute definition and chained event hashes content-free."""
+
+        resolved_id = validate_experiment_id(experiment_id)
+        with self._pool.checkout() as connection:
+            row = connection.execute(
+                "select * from improvement_experiment where experiment_id = ?",
+                (resolved_id,),
+            ).fetchone()
+            if row is None:
+                return {
+                    "experiment_id": resolved_id,
+                    "valid": False,
+                    "event_count": 0,
+                    "status": "invalid",
+                    "errors": ["experiment does not exist"],
+                }
+            event_rows = connection.execute(
+                """
+                select * from improvement_experiment_event
+                where experiment_id = ? order by sequence asc
+                """,
+                (resolved_id,),
+            ).fetchall()
+        errors = _improvement_experiment_chain_errors(row, event_rows)
+        if not errors and event_rows:
+            tail = event_rows[-1]
+            self._verified_improvement_heads[resolved_id] = (
+                int(tail["sequence"]),
+                str(tail["event_sha256"]),
+            )
+        else:
+            self._verified_improvement_heads.pop(resolved_id, None)
+        return {
+            "experiment_id": resolved_id,
+            "valid": not errors,
+            "event_count": len(event_rows),
+            "status": _improvement_experiment_status(
+                [experiment_event_row(event) for event in event_rows]
+            ),
+            "errors": errors,
+        }
+
+    # ------------------------------------------------------------------
     # H2 slice 5: improvement_proposal + proposal_decision
     # ------------------------------------------------------------------
     # Append-only pair: improvement_proposal rows are written once and never
@@ -4315,6 +4695,226 @@ class SQLiteStore:
                     ),
                 )
             connection.commit()
+
+
+def _validate_improvement_experiment_transition(
+    previous_kind: str, event_kind: str
+) -> None:
+    if previous_kind in TERMINAL_EXPERIMENT_EVENT_KINDS:
+        raise ValueError(
+            f"cannot append {event_kind!r} after terminal event {previous_kind!r}"
+        )
+    if event_kind == "failed":
+        return
+    allowed = {
+        "started": {"baseline_evaluated"},
+        "baseline_evaluated": {"candidate_evaluated", "completed"},
+        "candidate_evaluated": {
+            "candidate_evaluated",
+            "proposal_created",
+            "completed",
+        },
+        "proposal_created": {"completed"},
+    }
+    if event_kind not in allowed.get(previous_kind, set()):
+        raise ValueError(
+            f"invalid experiment transition {previous_kind!r} -> {event_kind!r}"
+        )
+
+
+def _improvement_experiment_definition_errors(
+    experiment: sqlite3.Row,
+) -> list[str]:
+    errors: list[str] = []
+    experiment_id = str(experiment["experiment_id"])
+    try:
+        validate_experiment_id(experiment_id)
+    except ValueError:
+        errors.append("experiment id is invalid")
+    if str(experiment["contract_version"]) != EXPERIMENT_CONTRACT_VERSION:
+        errors.append("unsupported experiment contract version")
+    if not str(experiment["created_at"]).strip():
+        errors.append("experiment creation timestamp is invalid")
+    if not str(experiment["lane"]).strip() or not str(experiment["method"]).strip():
+        errors.append("experiment lane or method is invalid")
+    try:
+        definition = json.loads(experiment["definition_json"])
+        validate_structured_payload(definition, field_name="experiment definition")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        definition = None
+        errors.append("definition payload is invalid")
+    if definition is not None:
+        try:
+            for field_name in (
+                "evaluator_sha256",
+                "dataset_sha256",
+                "baseline_sha256",
+                "definition_sha256",
+            ):
+                validate_sha256(str(experiment[field_name]), field_name=field_name)
+            expected_definition_sha256 = experiment_definition_sha256(
+                experiment_id=experiment_id,
+                created_at=str(experiment["created_at"]),
+                contract_version=str(experiment["contract_version"]),
+                lane=str(experiment["lane"]),
+                method=str(experiment["method"]),
+                evaluator_sha256=str(experiment["evaluator_sha256"]),
+                dataset_sha256=str(experiment["dataset_sha256"]),
+                baseline_sha256=str(experiment["baseline_sha256"]),
+                definition=definition,
+            )
+        except (TypeError, ValueError):
+            errors.append("definition metadata is invalid")
+        else:
+            if expected_definition_sha256 != str(experiment["definition_sha256"]):
+                errors.append("definition hash mismatch")
+    return errors
+
+
+def _improvement_experiment_event_row_errors(
+    experiment: sqlite3.Row,
+    row: sqlite3.Row,
+) -> list[str]:
+    """Validate one event independently for cached-head incremental appends."""
+
+    errors: list[str] = []
+    experiment_id = str(experiment["experiment_id"])
+    sequence = int(row["sequence"])
+    kind = str(row["event_kind"])
+    previous_raw = row["previous_event_sha256"]
+    previous_sha256 = None if previous_raw is None else str(previous_raw)
+    if sequence < 1:
+        errors.append("event sequence is invalid")
+    if kind not in EXPERIMENT_EVENT_KINDS:
+        errors.append(f"event {sequence} has unknown kind {kind!r}")
+    if not str(row["ts"]).strip():
+        errors.append(f"event {sequence} timestamp is invalid")
+    try:
+        validate_sha256(str(row["event_sha256"]), field_name="event_sha256")
+    except ValueError:
+        errors.append(f"event {sequence} hash is invalid")
+    if sequence == 1:
+        if kind != "started":
+            errors.append("first experiment event is not started")
+        if previous_sha256 is not None:
+            errors.append("first experiment event has a previous hash")
+    else:
+        try:
+            validate_sha256(
+                previous_sha256 or "",
+                field_name="previous_event_sha256",
+            )
+        except ValueError:
+            errors.append(f"event {sequence} previous hash is invalid")
+    try:
+        payload = json.loads(row["payload_json"])
+        normalized_payload = validate_structured_payload(
+            payload, field_name=f"event {sequence} payload"
+        )
+    except (TypeError, ValueError, json.JSONDecodeError):
+        normalized_payload = None
+        errors.append(f"event {sequence} payload is invalid")
+    if normalized_payload is not None:
+        if sequence == 1:
+            if normalized_payload.get("contract_version") != str(
+                experiment["contract_version"]
+            ):
+                errors.append("started event contract version mismatch")
+            if normalized_payload.get("definition_sha256") != str(
+                experiment["definition_sha256"]
+            ):
+                errors.append("started event definition hash mismatch")
+            if normalized_payload.get("schema_version") != EXPERIMENT_SCHEMA_VERSION:
+                errors.append("started event schema version mismatch")
+        expected_sha256 = improvement_event_sha256(
+            experiment_id=experiment_id,
+            sequence=sequence,
+            ts=str(row["ts"]),
+            event_kind=kind,
+            payload=normalized_payload,
+            previous_event_sha256=previous_sha256,
+        )
+        if expected_sha256 != str(row["event_sha256"]):
+            errors.append(f"event {sequence} hash mismatch")
+    return errors
+
+
+def _improvement_experiment_chain_errors(
+    experiment: sqlite3.Row,
+    event_rows: Sequence[sqlite3.Row],
+) -> list[str]:
+    errors = _improvement_experiment_definition_errors(experiment)
+    experiment_id = str(experiment["experiment_id"])
+
+    if not event_rows:
+        return [*errors, "experiment has no events"]
+
+    previous_sha256: str | None = None
+    previous_kind: str | None = None
+    for expected_sequence, row in enumerate(event_rows, start=1):
+        sequence = int(row["sequence"])
+        kind = str(row["event_kind"])
+        if sequence != expected_sequence:
+            errors.append(
+                f"event sequence mismatch at {expected_sequence}: stored {sequence}"
+            )
+        if kind not in EXPERIMENT_EVENT_KINDS:
+            errors.append(f"event {sequence} has unknown kind {kind!r}")
+        if expected_sequence == 1 and kind != "started":
+            errors.append("first experiment event is not started")
+        if str(row["previous_event_sha256"] or "") != (previous_sha256 or ""):
+            errors.append(f"event {sequence} previous hash mismatch")
+        try:
+            payload = json.loads(row["payload_json"])
+            normalized_payload = validate_structured_payload(
+                payload, field_name=f"event {sequence} payload"
+            )
+        except (TypeError, ValueError, json.JSONDecodeError):
+            normalized_payload = None
+            errors.append(f"event {sequence} payload is invalid")
+        if normalized_payload is not None:
+            if expected_sequence == 1:
+                if normalized_payload.get("contract_version") != str(
+                    experiment["contract_version"]
+                ):
+                    errors.append("started event contract version mismatch")
+                if normalized_payload.get("definition_sha256") != str(
+                    experiment["definition_sha256"]
+                ):
+                    errors.append("started event definition hash mismatch")
+                if normalized_payload.get("schema_version") != EXPERIMENT_SCHEMA_VERSION:
+                    errors.append("started event schema version mismatch")
+            expected_sha256 = improvement_event_sha256(
+                experiment_id=experiment_id,
+                sequence=sequence,
+                ts=str(row["ts"]),
+                event_kind=kind,
+                payload=normalized_payload,
+                previous_event_sha256=previous_sha256,
+            )
+            if expected_sha256 != str(row["event_sha256"]):
+                errors.append(f"event {sequence} hash mismatch")
+        if previous_kind is not None:
+            try:
+                _validate_improvement_experiment_transition(previous_kind, kind)
+            except ValueError:
+                errors.append(
+                    f"invalid event transition {previous_kind!r} -> {kind!r}"
+                )
+        previous_sha256 = str(row["event_sha256"])
+        previous_kind = kind
+    return errors
+
+
+def _improvement_experiment_status(
+    events: Sequence[Mapping[str, object]],
+) -> str:
+    if not events:
+        return "invalid"
+    latest = str(events[-1].get("event_kind") or "")
+    if latest in TERMINAL_EXPERIMENT_EVENT_KINDS:
+        return latest
+    return "running"
 
 
 def _retrieval_event_row(row: sqlite3.Row) -> dict[str, object]:

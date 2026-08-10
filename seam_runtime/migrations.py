@@ -64,6 +64,8 @@ _KNOWN_LEGACY_TABLES: Final = frozenset(
         "improvement_proposal",
         "proposal_decision",
         "retrieval_flag_state",
+        "improvement_experiment",
+        "improvement_experiment_event",
         "knowledge_graph_meta",
         "knowledge_nodes",
         "knowledge_edges",
@@ -113,6 +115,8 @@ _REQUIRED_PROJECTION_TABLES: Final = {
             "prov_log",
             "projection_index",
             "retrieval_event",
+            "improvement_experiment",
+            "improvement_experiment_event",
         }
     ),
     "graph_products": frozenset({"graph_product_build", "graph_product", "graph_product_sentence"}),
@@ -147,9 +151,11 @@ _REQUIRED_PROJECTION_TABLES: Final = {
     "workspace": frozenset({"workspace_run", "workspace_event"}),
 }
 
-_CORE_STORAGE_V1_TABLES: Final = (
-    _REQUIRED_PROJECTION_TABLES["core_storage"] - {"ir_edge_sources"}
+_CORE_STORAGE_V2_TABLES: Final = (
+    _REQUIRED_PROJECTION_TABLES["core_storage"]
+    - {"improvement_experiment", "improvement_experiment_event"}
 )
+_CORE_STORAGE_V1_TABLES: Final = _CORE_STORAGE_V2_TABLES - {"ir_edge_sources"}
 
 
 class MigrationError(RuntimeError):
@@ -649,7 +655,10 @@ def _initialize_versioned_core(
         bootstrap_projection_plan,
     )
     initialize_schema(connection)
-    if expected_projection_versions.get("core_storage") == "core-storage/2":
+    if expected_projection_versions.get("core_storage") in {
+        "core-storage/2",
+        "core-storage/3",
+    }:
         initialize_ir_edge_sources_schema(connection)
         _rebuild_typed_ir_edges(connection)
     connection.execute(
@@ -743,6 +752,48 @@ def _upgrade_core_storage_typed_edges(
     _rebuild_typed_ir_edges(connection)
 
 
+def _upgrade_core_storage_improvement_experiments(
+    connection: ProjectionMigrationConnection,
+) -> None:
+    """Install the append-only H2 experiment ledger on existing stores."""
+
+    from .improvement_experiments import (
+        improvement_experiment_schema_errors,
+        init_improvement_experiment_schema,
+    )
+
+    unexpected = [
+        table_name
+        for table_name in (
+            "improvement_experiment",
+            "improvement_experiment_event",
+        )
+        if connection.execute(
+            "select 1 from sqlite_master where type = 'table' and name = ?",
+            (table_name,),
+        ).fetchone()
+        is not None
+    ]
+    if unexpected:
+        if set(unexpected) != {
+            "improvement_experiment",
+            "improvement_experiment_event",
+        }:
+            raise MigrationError(
+                "core-storage/2 improvement-experiment tables are partially "
+                "present: " + ", ".join(unexpected)
+            )
+        schema_errors = improvement_experiment_schema_errors(connection)
+        if schema_errors:
+            raise MigrationError(
+                "core-storage/2 improvement-experiment tables are unexpectedly "
+                "present with an incompatible schema: "
+                + ", ".join(schema_errors)
+            )
+        return
+    init_improvement_experiment_schema(connection)
+
+
 def _upgrade_knowledge_graph_typed_references(
     connection: ProjectionMigrationConnection,
 ) -> None:
@@ -779,8 +830,17 @@ PROJECTION_MIGRATIONS: Final[tuple[ProjectionMigration, ...]] = (
         to_version="core-storage/2",
         name="typed-ir-edge-endpoints",
         source_required_tables=_CORE_STORAGE_V1_TABLES,
-        target_required_tables=_REQUIRED_PROJECTION_TABLES["core_storage"],
+        target_required_tables=_CORE_STORAGE_V2_TABLES,
         upgrade=_upgrade_core_storage_typed_edges,
+    ),
+    ProjectionMigration(
+        projection_name="core_storage",
+        from_version="core-storage/2",
+        to_version="core-storage/3",
+        name="append-only-improvement-experiment-ledger",
+        source_required_tables=_CORE_STORAGE_V2_TABLES,
+        target_required_tables=_REQUIRED_PROJECTION_TABLES["core_storage"],
+        upgrade=_upgrade_core_storage_improvement_experiments,
     ),
     ProjectionMigration(
         projection_name="knowledge_graph",
@@ -1118,6 +1178,18 @@ def _validate_required_table_contracts(
         )
     if any("ir_edge_sources" in required for required in required_tables.values()):
         _validate_ir_edge_ownership_schema(connection)
+    if any(
+        "improvement_experiment" in required
+        for required in required_tables.values()
+    ):
+        from .improvement_experiments import improvement_experiment_schema_errors
+
+        schema_errors = improvement_experiment_schema_errors(connection)
+        if schema_errors:
+            raise DatabaseIntegrityError(
+                "core-storage/3 improvement-experiment schema is invalid: "
+                + ", ".join(schema_errors)
+            )
 
 
 def _validate_ir_edge_ownership_schema(connection: sqlite3.Connection) -> None:

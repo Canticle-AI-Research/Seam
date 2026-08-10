@@ -18,6 +18,7 @@ This folder is the active operator and engineering documentation surface.
 - `RAG_ARCHITECTURE.md` - current graph/vector/mix retrieval and agent bridge architecture.
 - `KNOWLEDGE_GRAPH.md` - self-building all-agent knowledge graph, temporal/provenance model, dashboard, CLI, REST, and MCP surfaces.
 - `REASONING_GRAPH.md` - parallel append-only public reasoning graph, its knowledge/evidence boundary, initial Python SDK, and R1-R6 maturity path.
+- `IMPROVEMENT_EXPERIMENTS.md` - H2 bounded experiment contract, durable evidence ledger, operator approval boundary, and production scaling path.
 - `roadmap/GRAPH_MEMORY_MATURITY.md` - graph-first target architecture and the staged G1-G7 path from identity indexing through hybrid retrieval, context assembly, lifecycle, scale, and qualification.
 - `MIRL_V1.md` - current MIRL reference and readable lossless compression contract.
 - `HOLOGRAPHIC_SURFACE.md` - SEAM-HS/1 visual memory surface architecture.

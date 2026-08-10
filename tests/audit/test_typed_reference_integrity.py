@@ -2008,6 +2008,7 @@ def test_core_storage_v1_migration_rebuilds_endpoint_types_idempotently(
     try:
         assert migrated.migration_result.applied_steps == (
             "typed-ir-edge-endpoints",
+            "append-only-improvement-experiment-ledger",
         )
         expected = (source.id, "ENT", "links", target.id, "ENT")
         assert expected in _edge_rows(migrated)
@@ -2471,6 +2472,7 @@ def test_core_rebuild_validates_edge_types_in_bounded_query_chunks(
     try:
         assert migrated.migration_result.applied_steps == (
             "typed-ir-edge-endpoints",
+            "append-only-improvement-experiment-ledger",
         )
         with closing(migrated._connect()) as connection:
             assert connection.execute(
@@ -2747,6 +2749,7 @@ def test_s4_rebuilds_use_deterministic_bounded_canonical_batches(
     try:
         assert migrated.migration_result.applied_steps == (
             "typed-ir-edge-endpoints",
+            "append-only-improvement-experiment-ledger",
             "typed-knowledge-references",
         )
         with closing(migrated._connect()) as connection:

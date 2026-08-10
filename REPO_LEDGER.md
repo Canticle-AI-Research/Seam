@@ -374,6 +374,17 @@ and `HISTORY_INDEX.md`.
   levers. Once approved and applied, those flags change later knowledge-graph
   behavior across SDK, CLI, MCP, REST, and internal runtime surfaces; the
   existing revert path restores the prior policy.
+- Every default H2 cycle must create a durable `improvement-experiment/1`
+  record before baseline scoring. Its immutable definition hash commits to the
+  lane, method, baseline, evaluator, dataset, candidate space, budget, code, and
+  definition metadata; append-only chained events retain the baseline, every
+  completed candidate (including losses), proposal linkage, terminal outcome,
+  and content-free failures. Experiment success is evidence, never application
+  authority: counterfactual candidates cannot mutate applied flags, a passing
+  strict ratchet remains pending, and permanent changes still require explicit
+  operator approval plus apply. The AutoResearch-style fixed-evaluator/bounded-
+  search pattern does not authorize arbitrary downloaded code or unrestricted
+  source modification. See `docs/IMPROVEMENT_EXPERIMENTS.md`.
 - Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam[chroma]`, `seam[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
 - Native SQLite and pgvector vector searches carry both namespace and scope into
   pre-top-K filtering; post-filtering remains a fail-closed defense. SQLite
