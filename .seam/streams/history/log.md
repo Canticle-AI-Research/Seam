@@ -17994,3 +17994,59 @@ restaged selectively, or reinterpreted. Plan step 5 -- merge, worktree removal,
 and branch cleanup -- is left for the operator, per the standing rule that
 merge and deploy are operator-triggered.
 ---END-ENTRY-#556---
+
+---BEGIN-ENTRY-#557---
+id: 557
+date: 2026-08-11T16:50:52Z
+agent: claude
+status: done
+topics: history, correction, verify, wiki, gates
+commits: f9dd0a5
+refs: HISTORY#556,HISTORY#555,tests/audit/test_public_safe_gate.py,tools/git-hooks/pre-push
+supersedes: 556
+tokens: 581
+---
+Supersedes HISTORY#556 only for its verification paragraph. Every substantive
+claim in #556 stands unchanged: the two markdown-it parser defects, their fix
+in `tools/docs/verify_wiki.py`, the test-lane `markdown-it-py` pin, the
+attribution of the slice's design and implementation to codex, and the
+deliberate exclusion of plan step 5.
+
+#556 ended its verification paragraph with "Full `pytest tests/` result
+recorded below" and then recorded no such result. That paragraph was drafted
+while the run was still executing, with the number intended to be filled in
+before commit, and it was not. An append-only record cannot carry a forward
+reference to evidence that was never pasted in; the sentence claimed a
+verification the entry did not contain.
+
+The missing result, measured against the exact committed state `f9dd0a5` after
+the branch was reconciled onto `5edd697`, with `PGVECTOR_TEST_DSN` exported so
+the pgvector legs run rather than skip:
+
+    .venv/bin/python -m pytest tests/
+    2372 passed, 2 xfailed, 0 skipped, 0 failed, in 247.89s
+
+An earlier run of the same command, taken before the branch was reconciled onto
+current main and therefore without that slice's tests present, reported 2368
+passed. Both numbers are recorded rather than the larger one alone, because the
+difference is the reconciliation and not an improvement produced by this work.
+
+Two further facts belonging with the verification record. `tools/git-hooks/pre-push`
+now exits 0 from the main worktree, and `tests/audit/test_public_safe_gate.py`
+reports 47 passed where it previously reported 46 passed and 1 failed: the
+sibling worktree's uncommitted state, diagnosed in HISTORY#555 and misattributed
+in HISTORY#554, was cleared by committing that worktree rather than by
+discarding anything. And the closeout run for #556 exercised the new
+`verify_wiki` gate that this same slice adds to `tools/history/closeout.py`,
+which reported 215 active documentation pages reachable from `docs/README.md`.
+
+Method correction recorded for reuse: do not draft a verification paragraph
+around a result that does not exist yet. Either omit the paragraph until the
+number is in hand, or write the number directly at fill-in time. A forward
+reference reads as evidence while carrying none, and in an append-only record
+the cost of the mistake is a second entry rather than an edit. Logged to the
+correction corpus as `2026-08-11-002`.
+
+Files changed by this entry: HISTORY.md and the derived history artifacts only.
+No source, test, documentation, or configuration file was modified.
+---END-ENTRY-#557---

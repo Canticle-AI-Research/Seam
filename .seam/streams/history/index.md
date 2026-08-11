@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 556
-total_tokens: ~289099
-latest_id: 556
+total_entries: 557
+total_tokens: ~289680
+latest_id: 557
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 557 | 2026-08-11 | done | 40a8ec3b0765f41f | history,correction,verify,wiki,+ | 556 |
 | 556 | 2026-08-11 | done | f5b7c69a037625f1 | docs,wiki,navigation,commonmark,+ | 555 |
 | 555 | 2026-08-11 | done | 55a38b1f7b67f090 | history,correction,gates,worktree,+ | 554 |
 | 554 | 2026-08-11 | done | 968ea4e41162857a | tui,keyboard,textual,defect,+ | 553 |
@@ -637,7 +638,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=4 latest=#555, #538, #354, #299
+- correction: count=5 latest=#557, #555, #538, #354, #299
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -688,7 +689,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=3 latest=#510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=3 latest=#556, #555, #539
+- gates: count=4 latest=#557, #556, #555, #539
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
@@ -706,7 +707,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=302 latest=#555, #553, #552, #548, #546
+- history: count=303 latest=#557, #555, #553, #552, #548
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -894,11 +895,11 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=377 latest=#556, #555, #553, #552, #551
+- verify: count=378 latest=#557, #556, #555, #553, #552
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
-- wiki: count=1 latest=#556
+- wiki: count=2 latest=#557, #556
 - windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
@@ -912,6 +913,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 489
+- done: 490
 - in-progress: 8
 - planned: 21
