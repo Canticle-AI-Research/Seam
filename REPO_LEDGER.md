@@ -524,7 +524,7 @@ and `HISTORY_INDEX.md`.
 - Agents must update this ledger when changing stable repo policy, architecture, active/archive routing, runtime safety rules, durable operator workflows, benchmark publication rules, or cross-agent protocol.
 - Agents must update `PROJECT_STATUS.md` when the current operating state or active focus changes.
 - Model-specific guides such as `CLAUDE.md`, `GEMINI.md`, and `ANTIGRAVITY.md` must route back to `AGENTS.md` and must not create a competing protocol.
-- Cross-agent commit gate: `tools/git-hooks/pre-commit` is the canonical pre-commit hook for this repo. It runs for every `git commit` regardless of who initiated it (Claude, Codex, Gemini, Aider, Cursor, OpenCode, human operator) because git itself enforces `.git/hooks/pre-commit`. The hook scope-blocks `.claude/`, `.opencode/`, `.agents/`, and `opencode.jsonc?` paths from staging, then runs `verify_integrity`, `verify_routing`, `verify_continuity`, and `verify_streams` against the SEAM history + streams protocols; non-zero gate exits non-zero and blocks the commit. Operators install the hook into `.git/hooks/pre-commit` with `bash tools/git-hooks/install.sh`, which symlinks where supported and falls back to a copy with a `CANONICAL_SHA` marker on filesystems that do not support symlinks (exFAT, FAT32, some Windows configurations). `seam doctor` reports the gate state under `commit_gate` and the streams substrate state under `streams`, and tells the operator how to repair drift.
+- Cross-agent commit gate: `tools/git-hooks/pre-commit` is the canonical pre-commit hook for this repo. It runs for every `git commit` regardless of who initiated it (Claude, Codex, Gemini, Aider, Cursor, OpenCode, human operator) because git itself enforces `.git/hooks/pre-commit`. The hook scope-blocks `.claude/`, `.opencode/`, `.agents/`, and `opencode.jsonc?` paths from staging, then runs `verify_integrity`, `verify_routing`, `verify_handoffs`, `verify_continuity`, `verify_streams`, and `verify_wiki` against the SEAM continuity, streams, and documentation protocols; non-zero gate exits non-zero and blocks the commit. Operators install the hook into `.git/hooks/pre-commit` with `bash tools/git-hooks/install.sh`, which symlinks where supported and falls back to a copy with a `CANONICAL_SHA` marker on filesystems that do not support symlinks (exFAT, FAT32, some Windows configurations). `seam doctor` reports the gate state under `commit_gate` and the streams substrate state under `streams`, and tells the operator how to repair drift.
 - Legacy public-mirror freeze (HISTORY#467, superseding HISTORY#344/#355/#356
   as current policy): `tools/git-hooks/pre-push` unconditionally refuses any
   update to the `seam-runtime`/`Seam_Runtime` remote. The safety scanner
@@ -559,7 +559,25 @@ and `HISTORY_INDEX.md`.
 
 ## Documentation Separation Policy
 
-- Active operator and engineering docs live in `docs/` and are indexed by `docs/README.md`.
+- `docs/README.md` is the single canonical SEAM Wiki home. It is a navigation
+  layer over existing authorities, not a second place to maintain volatile
+  product claims, status, benchmark results, or plans.
+- Every active `docs/**/*.md` page must remain reachable from the wiki home.
+  `python -m tools.docs.verify_wiki` uses CommonMark parsing to enforce coverage
+  and safe rendered local links across every reachable page. It also enforces
+  the report-registry contract below. The commit hook exports and checks the
+  exact Git index so an unstaged repair cannot mask invalid staged navigation;
+  the working-tree verifier also runs in closeout, agent preflight, and required
+  CI.
+- `docs/audits/` is the canonical tracked home for dated, human-readable SEAM
+  reports, including visual status reports, focused investigations,
+  architecture assessments, and interpreted benchmark reports. Every new
+  report is date-slug named, registered in `docs/audits/INDEX.md`, and linked to
+  its latest governing HISTORY entry. From the registry's prospective
+  `policy_start`, every new report also declares an evidence manifest: either
+  no raw artifacts or each durable artifact's path and SHA-256. Raw benchmark
+  bundles remain in their configured durable artifact store or ignored run
+  directory; historical reports before that boundary are not rewritten.
 - Inactive docs, old handoffs, superseded setup notes, and historical coding artifacts live under `docs/archive/`.
 - Archived docs are traceability records, not current instructions.
 - When old prose is useful, rewrite the current part into an active doc and point to `HISTORY#NNN`; do not duplicate stale context across active docs.
@@ -577,6 +595,9 @@ and `HISTORY_INDEX.md`.
 ## Lint Policy
 
 - `ruff` is the one general-purpose Python linter (install via `seam[lint]`); config lives in `pyproject.toml`'s `[tool.ruff]`/`[tool.ruff.lint]`. Rule set is deliberately narrow (`E4`, `E7`, `E9`, `F`, `I`) — no `E501`/pure-style rules, no mypy/type-check gate yet.
+- The dev-only `seam[lint]` extra also carries `markdown-it-py`, which gives the
+  required wiki verifier actual CommonMark semantics without adding a runtime
+  dependency to SEAM.
 - `extend-exclude` skips `archive/` and `build/` (retired/generated code, never a gate). `per-file-ignores` carries structural `E402` exemptions for `seam_runtime/dashboard.py` (optional rich/textual import guards) and `installers/install_seam.py` (sys.path-before-import) — both intentional, not accidents.
 - **`ruff check --fix`'s F401 (unused-import) removal is not always safe**: it only sees usage within the same file, so it can silently delete (a) public re-export facades like `seam.py`'s `from seam_runtime.runtime import SeamRuntime` (kept alive only for downstream `from seam import X`, nothing inside the file calls it), and (b) test-monkeypatch attribute targets — `tools/history/test_history_tools.py`'s `_MultiPatch` patches module attributes by string name via `getattr`/`setattr`, not `from module import name`, so a plain grep won't find the usage either. Before trusting any F401 removal (auto or manual), grep for `from <module> import.*NAME` / `<module>.NAME` AND for `getattr(`/`setattr(`/`monkeypatch.setattr(` references to that name across `tests/`, `test_seam_all/`, `tools/`. If either finds a hit, keep the import with `# noqa: F401` and a one-line comment stating which case it is.
 

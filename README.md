@@ -7,6 +7,9 @@ SQLite, retrieves compact context with lexical, graph, temporal, and vector
 signals, tracks provenance, exposes a dashboard/API, and gates benchmark claims
 before they are treated as real progress.
 
+> **Documentation:** Start at the [SEAM Wiki](docs/README.md) for task-first
+> routes into operator guides, architecture, current state, evidence, and plans.
+
 ## Install
 
 Authorized private-repository install:

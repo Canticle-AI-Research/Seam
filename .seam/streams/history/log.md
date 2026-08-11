@@ -17913,3 +17913,84 @@ uncommitted files need their owning agent to commit or discard them before any
 push from this box succeeds without `SEAM_ALLOW_DIRTY_WORKTREES=1`. That is an
 operator or wiki-track decision, not one to make unilaterally.
 ---END-ENTRY-#555---
+
+---BEGIN-ENTRY-#556---
+id: 556
+date: 2026-08-11T16:44:27Z
+agent: claude
+status: done
+topics: docs, wiki, navigation, commonmark, gates, ci, parity, verify
+commits: pending
+refs: HISTORY#553,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation.py,docs/DOCUMENTATION_MAP.md,docs/SOP_INDEX.md,docs/REPORTS_AND_EVIDENCE.md,tests/audit/test_local_gates_match_ci.py,.github/workflows/ci.yml,pyproject.toml
+supersedes: 555
+tokens: 981
+---
+Finished the documentation-wiki navigation slice that codex designed and left
+in progress, at operator instruction. Attribution matters here: the slice's
+design and nearly all of its implementation are codex's -- the wiki verifier,
+the registry enforcement, the navigation index documents, and the local-gate
+parity tests. This entry records completing it, not authoring it.
+
+State inherited: branch `docs/seam-wiki` in the linked worktree, zero commits,
+23 uncommitted files, last written 2026-08-11T06:46Z and idle since. Its own
+plan recorded step 2 of 5 with "the parser replacement in progress", and
+`tests/audit/test_wiki_navigation.py` had 10 failing tests against 42 passing
+elsewhere in the touched files. The tests were written first and the parser did
+not yet satisfy them.
+
+Both root causes were markdown-it defaults that are correct for rendering
+untrusted markdown and exactly wrong for a repository gate:
+
+- `validateLink` suppresses `file:`, `javascript:`, `vbscript:`, and most
+  `data:` destinations by emitting no `link_open` token at all. Nine of the ten
+  failures were this single cause: the verifier could not see the class of link
+  it exists to reject, so a `file:` link in any document was silently accepted
+  rather than reported. This is a fail-open hole in a security-relevant gate,
+  not a cosmetic parser gap.
+- `normalizeLink` percent-encodes the destination before anything downstream
+  sees it, which repairs the malformed input the gate must reject:
+  `http://[invalid` arrived as `http://%5Binvalid`, which `urlsplit` parses
+  without complaint, so "uses malformed link" was unreachable.
+
+Fixed by handing both decisions back to `_resolve_local_target`, where they
+belong: `tools/docs/verify_wiki.py` now overrides `validateLink` to accept
+every destination for reporting and `normalizeLink` to pass destinations
+through verbatim. Verified at the parser level across all twelve shapes the
+tests exercise before changing the module, including that the blockquote and
+list-item unclosed-fence cases correctly yield only the following link and not
+the contained one.
+
+Separately found and closed a real parity hole that this slice's own theme --
+local gates matching CI -- makes in scope. `markdown-it-py` is pinned
+`>=4.0,<5.0` in the `lint` extra and installed at that pin by the
+`repo-hygiene` job, which runs the gate. The `test-and-benchmark` job, which
+runs the tests that exercise the gate, installed no such pin and received the
+package transitively through `rich` -- a base runtime dependency that pins only
+`>=2.2.0` with no upper bound. Both lanes resolve to 4.2.0 today, so nothing is
+broken now; on a future major the test lane would drift onto a version
+`repo-hygiene` refuses, and `tests/audit/test_wiki_navigation.py` imports
+`tools.docs.verify_wiki` at module scope, so under strict no-skip that aborts
+the run rather than skipping. Pinned the test lane to the same range, following
+the precedent the neighbouring `httpx` comment already records for exactly this
+failure shape.
+
+Files changed by this session on top of codex's 23: `tools/docs/verify_wiki.py`
+(the two parser overrides) and `.github/workflows/ci.yml` (the test-lane pin).
+
+Verification: `tests/audit/test_wiki_navigation.py` 31 passed, 0 skipped, from
+10 failed. The three touched test files together 52 passed, 0 skipped.
+`python -m tools.docs.verify_wiki --root .` against the real worktree exits 0
+with 215 active documentation pages reachable from `docs/README.md`, so the
+stricter parser does not newly reject the repository's own documentation.
+`ruff check .` clean. `git diff --check` clean. No untracked files. Full
+`pytest tests/` result recorded below.
+
+Discrimination evidence is inherited rather than manufactured: the 10 tests
+failed against the unmodified parser and pass against the fixed one, which is
+the same falsifying comparison a deliberate revert would produce.
+
+Not done here, and deliberately so: nothing in codex's 23 files was rewritten,
+restaged selectively, or reinterpreted. Plan step 5 -- merge, worktree removal,
+and branch cleanup -- is left for the operator, per the standing rule that
+merge and deploy are operator-triggered.
+---END-ENTRY-#556---

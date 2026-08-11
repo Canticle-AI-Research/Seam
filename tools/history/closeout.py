@@ -38,15 +38,17 @@ from tools.history.history_lib import HISTORY_PATH, parse_entries, read_history_
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# The five gates tools/git-hooks/pre-commit runs, with identical flags and order.
-# Kept in one place so this wrapper cannot claim success before the canonical
-# commit gate would.
+# The six gates tools/git-hooks/pre-commit runs, in identical order. The commit
+# hook adds ``--staged`` to verify_wiki because it owns the Git-index boundary;
+# closeout intentionally verifies the complete working tree before files are
+# staged. Kept in one place so this wrapper cannot omit a canonical gate.
 PREFLIGHT_GATES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("verify_integrity", ("tools.history.verify_integrity",)),
     ("verify_routing", ("tools.history.verify_routing",)),
     ("verify_handoffs", ("tools.history.verify_handoffs",)),
     ("verify_continuity", ("tools.history.verify_continuity",)),
     ("verify_streams", ("tools.streams.verify_streams",)),
+    ("verify_wiki", ("tools.docs.verify_wiki",)),
 )
 
 STAGE_HINT = (
