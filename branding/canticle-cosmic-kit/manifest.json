@@ -14,7 +14,7 @@
       "path": "css/canticle-cosmic.css",
       "media_type": "text/css; charset=utf-8",
       "bytes": 18817,
-      "sha256": "901162f510a1fe328bc38d1770884049abdca1ed006c8a1994e458916dedfef3"
+      "sha256": "2746d0882670382332f0d9de14ddbcf4ffffc10b784e9fdf4f95ee597727a6b2"
     },
     {
       "path": "go/canticlecosmic/theme.go",

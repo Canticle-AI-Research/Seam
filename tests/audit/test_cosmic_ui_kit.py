@@ -7,6 +7,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from tools.branding.verify_cosmic_ui_kit import (
     BASE_KIT_ROOT,
     BASE_TOKENS_SHA256,
@@ -83,6 +85,7 @@ def test_web_css_is_namespaced_and_has_accessibility_fallbacks() -> None:
     assert "@media (prefers-reduced-motion: reduce)" in css
     assert "@media (forced-colors: active)" in css
     assert "--cc-shadow-focus" in css
+    assert re.search(r"\.cc-help\s*\{\s*color:\s*var\(--cc-ink-muted\);", css)
     assert not re.search(r"(?m)^:root\s*,?", css)
     assert '[data-canticle-theme="cosmic"]' not in css
     assert "@import" not in css
@@ -257,15 +260,48 @@ def test_verifier_reports_unsupported_inventory_extension_without_raising(tmp_pa
     assert "unexpected.bin: unsupported kit file extension: unexpected.bin" in errors
 
 
-def test_verifier_refuses_symlinked_kit_file(tmp_path: Path) -> None:
+def test_verifier_refuses_symlinked_kit_file_without_reopening_it(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     copy = _copy_kit(tmp_path)
     target = copy / "tokens.json"
     target.unlink()
     target.symlink_to(BASE_KIT_ROOT / "tokens.json")
+    original_read_text = Path.read_text
+
+    def guarded_read_text(path: Path, *args: object, **kwargs: object) -> str:
+        if path == target:
+            raise AssertionError("verifier reopened a rejected tokens.json symlink")
+        return original_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", guarded_read_text)
 
     errors = verify_kit(copy)
 
     assert "tokens.json: links are forbidden" in errors
+
+
+def test_verifier_does_not_reopen_rejected_adapter_symlink(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    copy = _copy_kit(tmp_path)
+    target = copy / "css" / "canticle-cosmic.css"
+    target.unlink()
+    target.symlink_to(KIT_ROOT / "css" / "canticle-cosmic.css")
+    original_read_text = Path.read_text
+
+    def guarded_read_text(path: Path, *args: object, **kwargs: object) -> str:
+        if path == target:
+            raise AssertionError("verifier reopened a rejected CSS adapter symlink")
+        return original_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", guarded_read_text)
+
+    errors = verify_kit(copy)
+
+    assert "css/canticle-cosmic.css: links are forbidden" in errors
 
 
 def test_reduced_motion_contract_keeps_static_cursor_visible() -> None:

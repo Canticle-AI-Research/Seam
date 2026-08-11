@@ -444,7 +444,7 @@
 }
 
 .cc-help {
-  color: var(--cc-ink-quiet);
+  color: var(--cc-ink-muted);
 }
 
 .cc-error {

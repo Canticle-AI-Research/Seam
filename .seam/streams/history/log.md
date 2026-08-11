@@ -17613,3 +17613,31 @@ No live TUI, WebUI, retrieval, graph, provider, benchmark, deployment, or
 release behavior changed. Adopting the kit in either running surface remains a
 separate operator-present design and implementation change.
 ---END-ENTRY-#549---
+
+---BEGIN-ENTRY-#550---
+id: 550
+date: 2026-08-11T00:00:06Z
+agent: codex
+status: done
+topics: bugfix, security, surface, test, verify
+commits: 47d3df1
+refs: branding/canticle-cosmic-kit/css/canticle-cosmic.css,branding/canticle-cosmic-kit/manifest.json,tests/audit/test_cosmic_ui_kit.py,tools/branding/verify_cosmic_ui_kit.py,PR#210
+supersedes: 549
+tokens: 178
+---
+Addressed the two actionable P2 inline review findings on PR #210 without
+changing the kit's visual direction or any running surface.
+
+Raised reusable web helper text from the quiet token to the higher-contrast
+muted token. Hardened the kit verifier so both the expression kit and its
+canonical identity dependency are inventoried once, after which manifest,
+token, asset, and adapter validation consumes only admitted regular-file
+bytes. Rejected symlinks and non-regular paths are no longer reopened by later
+validation stages.
+
+Added regression coverage for readable helper-token selection and for rejected
+token/adapter symlinks not being reopened. Canonical kit verification, 51
+focused brand/cosmic audit tests, Ruff, and diff hygiene pass. This follow-up
+changes no live TUI, WebUI, graph, retrieval, benchmark, provider, deployment,
+or release behavior.
+---END-ENTRY-#550---

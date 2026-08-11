@@ -25,7 +25,7 @@ BASE_TOKENS_SHA256 = "49be29295fc382caf005f3a7f6194482c6ca0d98b8076924fe072e0ffe
 
 # Independent pin for the versioned manifest. An intentional kit change bumps
 # the version and updates this constant in the same reviewed change.
-MANIFEST_SHA256 = "1209225cb98802e5cbd7080dab1d44bdddd4b9c30ea287023cf41af453e83e42"
+MANIFEST_SHA256 = "e8cb60a7c84a03c077a8f47d3a672026b0340010839b8e82534d58cc2a70f2ea"
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _EXPECTED_FILES = {
@@ -88,14 +88,17 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _read_json(path: Path, errors: list[str]) -> dict[str, Any] | None:
+def _read_json(label: str, data: bytes | None, errors: list[str]) -> dict[str, Any] | None:
+    if data is None:
+        errors.append(f"{label}: required regular file is missing")
+        return None
     try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-        errors.append(f"{path.name}: cannot read valid UTF-8 JSON: {exc}")
+        value = json.loads(data.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        errors.append(f"{label}: cannot decode valid UTF-8 JSON: {exc}")
         return None
     if not isinstance(value, dict):
-        errors.append(f"{path.name}: top level must be an object")
+        errors.append(f"{label}: top level must be an object")
         return None
     return value
 
@@ -180,7 +183,7 @@ def render_manifest(root: Path = KIT_ROOT) -> str:
     return json.dumps(build_manifest(root), indent=2, ensure_ascii=False) + "\n"
 
 
-def _verify_manifest(root: Path, inventory: dict[str, bytes], errors: list[str]) -> None:
+def _verify_manifest(inventory: dict[str, bytes], errors: list[str]) -> None:
     manifest_data = inventory.get("manifest.json")
     if manifest_data is None:
         errors.append("manifest.json: required file is missing")
@@ -264,10 +267,19 @@ def _nested(value: dict[str, Any], *path: str) -> Any:
     return current
 
 
-def _verify_tokens(root: Path, base_root: Path, errors: list[str]) -> None:
-    tokens = _read_json(root / "tokens.json", errors)
-    base_tokens = _read_json(base_root / "tokens.json", errors)
-    base_manifest = _read_json(base_root / "manifest.json", errors)
+def _verify_tokens(
+    inventory: dict[str, bytes],
+    base_inventory: dict[str, bytes],
+    errors: list[str],
+) -> None:
+    tokens = _read_json("tokens.json", inventory.get("tokens.json"), errors)
+    base_tokens_data = base_inventory.get("tokens.json")
+    base_tokens = _read_json("base kit tokens.json", base_tokens_data, errors)
+    base_manifest = _read_json(
+        "base kit manifest.json",
+        base_inventory.get("manifest.json"),
+        errors,
+    )
     if tokens is None or base_tokens is None or base_manifest is None:
         return
     expected_header = {"schema_version": 1, "kit_id": KIT_ID, "version": KIT_VERSION}
@@ -289,10 +301,7 @@ def _verify_tokens(root: Path, base_root: Path, errors: list[str]) -> None:
             errors.append(f"tokens.json.extends.{key}: expected {expected!r}")
     if base_manifest.get("kit_id") != BASE_KIT_ID or base_manifest.get("version") != BASE_KIT_VERSION:
         errors.append("base kit: id or version does not match declared dependency")
-    try:
-        base_tokens_data = (base_root / "tokens.json").read_bytes()
-    except OSError as exc:
-        errors.append(f"base kit tokens: cannot read: {exc}")
+    if base_tokens_data is None:
         return
     if _sha256(base_tokens_data) != BASE_TOKENS_SHA256:
         errors.append("base kit tokens: SHA-256 does not match declared dependency")
@@ -315,10 +324,9 @@ def _verify_tokens(root: Path, base_root: Path, errors: list[str]) -> None:
             row = assets.get(asset_id)
             if row != {"path": declared_path, "sha256": digest}:
                 errors.append(f"tokens.json.extends.assets.{asset_id}: exact base asset pin required")
-            try:
-                actual = (base_root / base_relative).read_bytes()
-            except OSError as exc:
-                errors.append(f"base asset {base_relative}: cannot read: {exc}")
+            actual = base_inventory.get(base_relative)
+            if actual is None:
+                errors.append(f"base asset {base_relative}: required regular file is missing")
                 continue
             if _sha256(actual) != digest:
                 errors.append(f"base asset {base_relative}: SHA-256 mismatch")
@@ -375,7 +383,7 @@ class _PreviewInspector(HTMLParser):
                     self.errors.append(f"preview/index.html: external resource {value!r} is forbidden")
 
 
-def _verify_adapters(root: Path, errors: list[str]) -> None:
+def _verify_adapters(inventory: dict[str, bytes], errors: list[str]) -> None:
     texts: dict[str, str] = {}
     for relative in (
         "css/canticle-cosmic.css",
@@ -385,10 +393,14 @@ def _verify_adapters(root: Path, errors: list[str]) -> None:
         "textual/canticle-cosmic.tcss",
         "go/canticlecosmic/theme.go",
     ):
+        data = inventory.get(relative)
+        if data is None:
+            errors.append(f"{relative}: required regular file is missing")
+            continue
         try:
-            texts[relative] = (root / relative).read_text(encoding="utf-8")
-        except (OSError, UnicodeError) as exc:
-            errors.append(f"{relative}: cannot read UTF-8 text: {exc}")
+            texts[relative] = data.decode("utf-8")
+        except UnicodeError as exc:
+            errors.append(f"{relative}: cannot decode UTF-8 text: {exc}")
     css = texts.get("css/canticle-cosmic.css", "")
     if "@import" in css or re.search(r"url\s*\(", css, re.IGNORECASE):
         errors.append("css/canticle-cosmic.css: imports and URL resources are forbidden")
@@ -449,6 +461,9 @@ def _verify_adapters(root: Path, errors: list[str]) -> None:
 def verify_kit(root: Path = KIT_ROOT, base_root: Path = BASE_KIT_ROOT) -> list[str]:
     errors: list[str] = []
     inventory = _inventory(root, errors)
+    base_errors: list[str] = []
+    base_inventory = _inventory(base_root, base_errors)
+    errors.extend(f"base kit: {error}" for error in base_errors)
     observed_files = set(inventory) - _MANIFEST_EXCLUSIONS
     if observed_files != _EXPECTED_FILES:
         errors.append(
@@ -462,9 +477,9 @@ def verify_kit(root: Path = KIT_ROOT, base_root: Path = BASE_KIT_ROOT) -> list[s
             errors.append(f"{relative}: CR bytes are forbidden; use LF")
         if b"\x00" in data:
             errors.append(f"{relative}: NUL bytes are forbidden")
-    _verify_manifest(root, inventory, errors)
-    _verify_tokens(root, base_root, errors)
-    _verify_adapters(root, errors)
+    _verify_manifest(inventory, errors)
+    _verify_tokens(inventory, base_inventory, errors)
+    _verify_adapters(inventory, errors)
     return errors
 
 
