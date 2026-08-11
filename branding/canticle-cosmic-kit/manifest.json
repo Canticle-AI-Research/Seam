@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "kit_id": "canticle-cosmic-ui",
+  "version": "1.0.0",
+  "extends": "canticle-seam@1.0.0",
+  "files": [
+    {
+      "path": "README.md",
+      "media_type": "text/markdown; charset=utf-8",
+      "bytes": 4482,
+      "sha256": "0b08809ff7e908d12cb641362c30cd6230b0adbc9c7c6cc77c42002d27925506"
+    },
+    {
+      "path": "css/canticle-cosmic.css",
+      "media_type": "text/css; charset=utf-8",
+      "bytes": 18817,
+      "sha256": "2746d0882670382332f0d9de14ddbcf4ffffc10b784e9fdf4f95ee597727a6b2"
+    },
+    {
+      "path": "go/canticlecosmic/theme.go",
+      "media_type": "text/x-go; charset=utf-8",
+      "bytes": 5690,
+      "sha256": "d7499110582df4bb66082538e1e1d29597173cd8ed009ae2e868c86422ed5d03"
+    },
+    {
+      "path": "preview/index.html",
+      "media_type": "text/html; charset=utf-8",
+      "bytes": 15703,
+      "sha256": "0758aaeac6a1854856b80cd6179669fd49415d9b33a5318ce33dd911eaec0ae6"
+    },
+    {
+      "path": "preview/preview.css",
+      "media_type": "text/css; charset=utf-8",
+      "bytes": 4835,
+      "sha256": "a21a9cc35b229520c303f2b86b3e7d0c92f0931cd83d4ebcef56b19518cfabfa"
+    },
+    {
+      "path": "tailwind/theme.css",
+      "media_type": "text/css; charset=utf-8",
+      "bytes": 2414,
+      "sha256": "1c0038f3149bb8719667524c07a4d9aae4d95739ee968260d9c0de401a3d3c07"
+    },
+    {
+      "path": "textual/canticle-cosmic.tcss",
+      "media_type": "text/x-tcss; charset=utf-8",
+      "bytes": 3672,
+      "sha256": "1944c225e3d50bd65c83c5ac1d3992139ddf99e2ba3526d72c54556bd72e71d6"
+    },
+    {
+      "path": "tokens.json",
+      "media_type": "application/json",
+      "bytes": 5103,
+      "sha256": "9bc4789968573598c3868ce21bdc43b37281dc279455c6bc1149fb701a38b5a2"
+    }
+  ]
+}

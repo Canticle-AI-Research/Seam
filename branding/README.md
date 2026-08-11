@@ -18,6 +18,19 @@ python -m tools.branding.verify_brand_kit
 python -m pytest tests/audit/test_brand_kit.py -q
 ```
 
+[`branding/canticle-cosmic-kit/`](canticle-cosmic-kit/README.md) is the
+versioned UI expression layer built on that identity contract. It adds the
+more playful cosmic-arcade component language and reusable CSS/HTML, Tailwind
+v4, Textual, and Lip Gloss v2 adapters. It does not replace or fork the
+canonical logos and palette.
+
+Verify the UI layer separately:
+
+```bash
+python -m tools.branding.verify_cosmic_ui_kit
+python -m pytest tests/audit/test_cosmic_ui_kit.py -q
+```
+
 The Textual TUI is the first consumer. Browser/WebUI adoption is intentionally
 deferred until an operator-present surface design session; the kit does not by
 itself authorize changing those surfaces.

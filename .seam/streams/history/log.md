@@ -17573,3 +17573,71 @@ Before merge, required and advisory exact-head GitHub jobs all passed: `repo-hyg
 
 The remaining product work is unchanged: distributed experiment scheduling/leasing and canary control are future production-scale work; TUI operator-surface slices and the operator-present WebUI redesign remain separate workstreams.
 ---END-ENTRY-#548---
+
+---BEGIN-ENTRY-#549---
+id: 549
+date: 2026-08-10T23:39:47Z
+agent: codex
+status: done
+topics: surface, animation, docs, test, verify
+commits: pending
+refs: .gitattributes,branding/README.md,branding/canticle-cosmic-kit,docs/CODE_LAYOUT.md,docs/status/surfaces.md,tests/audit/test_cosmic_ui_kit.py,tools/branding/verify_cosmic_ui_kit.py
+supersedes: 548
+tokens: 370
+---
+Built `canticle-cosmic-ui@1.0.0` as the reusable, original Canticle UI
+expression layer over the canonical `canticle-seam@1.0.0` identity contract.
+The kit owns playful cosmic-arcade component shape, spacing, effects, motion,
+and framework adapters while the existing identity kit remains authoritative
+for names, palette, lockups, geometry, and provenance.
+
+The versioned kit contains framework-neutral tokens, an exact SHA-256
+manifest, namespaced CSS and a script-free responsive HTML gallery, a Tailwind
+v4 theme adapter, opt-in Textual classes, and presentation-only Lip Gloss v2
+constructors. It copies or forks no Bubble Tea, Bubbles, Lip Gloss, or other
+Charm source. Decorative memory-orbit motifs explicitly do not imply graph
+relations.
+
+Added a fail-closed verifier and audit suite covering the identity dependency,
+logo and token pins, complete regular-file inventory, manifest integrity,
+adapter boundaries, local-only preview resources, accessibility fallbacks,
+unsafe links, and malformed inputs. The Lip Gloss adapter was compiled against
+`charm.land/lipgloss/v2 v2.0.5`; the Textual adapter mounted in a test app.
+Focused brand-kit and cosmic-kit audits passed 50 collected tests. Ruff,
+`gofmt -d`, `git diff --check`, canonical brand verification, secret/session
+scanning, and desktop/mobile visual inspection also passed. CodeRabbit's first
+complete review found four issues; all four were corrected and the resulting
+focused checks passed.
+
+No live TUI, WebUI, retrieval, graph, provider, benchmark, deployment, or
+release behavior changed. Adopting the kit in either running surface remains a
+separate operator-present design and implementation change.
+---END-ENTRY-#549---
+
+---BEGIN-ENTRY-#550---
+id: 550
+date: 2026-08-11T00:00:06Z
+agent: codex
+status: done
+topics: bugfix, security, surface, test, verify
+commits: 47d3df1
+refs: branding/canticle-cosmic-kit/css/canticle-cosmic.css,branding/canticle-cosmic-kit/manifest.json,tests/audit/test_cosmic_ui_kit.py,tools/branding/verify_cosmic_ui_kit.py,PR#210
+supersedes: 549
+tokens: 178
+---
+Addressed the two actionable P2 inline review findings on PR #210 without
+changing the kit's visual direction or any running surface.
+
+Raised reusable web helper text from the quiet token to the higher-contrast
+muted token. Hardened the kit verifier so both the expression kit and its
+canonical identity dependency are inventoried once, after which manifest,
+token, asset, and adapter validation consumes only admitted regular-file
+bytes. Rejected symlinks and non-regular paths are no longer reopened by later
+validation stages.
+
+Added regression coverage for readable helper-token selection and for rejected
+token/adapter symlinks not being reopened. Canonical kit verification, 51
+focused brand/cosmic audit tests, Ruff, and diff hygiene pass. This follow-up
+changes no live TUI, WebUI, graph, retrieval, benchmark, provider, deployment,
+or release behavior.
+---END-ENTRY-#550---
