@@ -17853,3 +17853,63 @@ renames one of the nine keys,
 `test_meta_digit_table_matches_what_textual_actually_parses` fails loudly
 against `XTermParser` instead of the shortcut silently going dead.
 ---END-ENTRY-#554---
+
+---BEGIN-ENTRY-#555---
+id: 555
+date: 2026-08-11T15:45:32Z
+agent: claude
+status: done
+topics: history, correction, gates, worktree, verify
+commits: c4495bf
+refs: HISTORY#554,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py
+supersedes: 554
+tokens: 678
+---
+Supersedes HISTORY#554 only for its account of the one full-suite failure. The
+substantive result is unchanged and still stands: the `alt+N` fix landed in
+`c4495bf`, the full suite reported 2332 passed / 0 skipped / 2 xfailed, and the
+real-TTY tmux verification of both the fix and the `SEAM_TUI_META_DIGITS=off`
+escape hatch was performed as recorded.
+
+HISTORY#554 stated that
+`tests/audit/test_public_safe_gate.py::test_pre_push_hook_allows_private_origin`
+failed because this slice's own edits were uncommitted, and that it would clear
+on commit. That attribution was wrong and the prediction was wrong. The test was
+re-run immediately after `c4495bf` against a clean main worktree and failed
+identically.
+
+The actual cause: `tools/git-hooks/pre-push` iterates *linked* worktrees, not
+the current one. Running it directly names
+`/home/terrabyte/Documents/Projects/Seam-wiki` (branch `docs/seam-wiki`, at
+`f0bc4b0`) holding 23 uncommitted files. That is another agent's in-progress
+documentation-wiki slice -- `docs/DOCUMENTATION_MAP.md`, `docs/SOP_INDEX.md`,
+`tools/docs/verify_wiki.py`, `tests/audit/test_wiki_navigation.py`, and edits to
+`AGENTS.md`, `REPO_LEDGER.md`, `tools/history/closeout.py`,
+`tools/claude/preflight_protocol.sh`, and `.github/workflows/ci.yml`, some
+staged and some not.
+
+The failure is therefore pre-existing, environmental, owned by another track,
+and entirely independent of this slice: the hook inspects worktree cleanliness
+only and never reads repository content. It will fail for any agent running the
+full suite on this box until that worktree is committed or removed. Nothing in
+that worktree was touched, staged, committed, or removed here; it is not this
+slice's to resolve, and discarding it would destroy work that exists in no
+commit, branch, or PR.
+
+Method correction recorded for reuse: the hook's stderr mentions uncommitted
+work and an override variable, which reads as self-explanatory when your own
+tree happens to be dirty. It is not. Run the hook directly and read which path
+it names before attributing the cause -- the proxy signal ("my tree is dirty
+and the hook mentions dirt") pointed at the wrong worktree entirely. Logged to
+the correction corpus as `2026-08-11-001`.
+
+Files changed by this entry: HISTORY.md and the derived history artifacts only.
+No source, test, doc, or configuration file was modified, and no gate behaviour
+was changed. Verification: closeout integrity, routing, handoff, continuity, and
+stream gates.
+
+Unresolved next step, not blocking this slice: the `Seam-wiki` worktree's 23
+uncommitted files need their owning agent to commit or discard them before any
+push from this box succeeds without `SEAM_ALLOW_DIRTY_WORKTREES=1`. That is an
+operator or wiki-track decision, not one to make unilaterally.
+---END-ENTRY-#555---

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 554
-total_tokens: ~287440
-latest_id: 554
+total_entries: 555
+total_tokens: ~288118
+latest_id: 555
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 555 | 2026-08-11 | done | 55a38b1f7b67f090 | history,correction,gates,worktree,+ | 554 |
 | 554 | 2026-08-11 | done | 968ea4e41162857a | tui,keyboard,textual,defect,+ | 553 |
 | 553 | 2026-08-11 | done | 2793e88a839e75f3 | audit,docs,history,continuity,+ | 552 |
 | 552 | 2026-08-11 | done | ed81ddc7348d1bd9 | audit,docs,history,continuity,+ | 551 |
@@ -634,7 +635,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=3 latest=#538, #354, #299
+- correction: count=4 latest=#555, #538, #354, #299
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -685,7 +686,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=3 latest=#510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=1 latest=#539
+- gates: count=2 latest=#555, #539
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
@@ -703,7 +704,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=301 latest=#553, #552, #548, #546, #545
+- history: count=302 latest=#555, #553, #552, #548, #546
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -890,7 +891,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=375 latest=#553, #552, #551, #550, #549
+- verify: count=376 latest=#555, #553, #552, #551, #550
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -898,7 +899,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=2 latest=#534, #406
+- worktree: count=3 latest=#555, #534, #406
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -907,6 +908,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 487
+- done: 488
 - in-progress: 8
 - planned: 21
