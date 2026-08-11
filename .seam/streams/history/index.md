@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 551
-total_tokens: ~285477
-latest_id: 551
+total_entries: 552
+total_tokens: ~285868
+latest_id: 552
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 552 | 2026-08-11 | done | ed81ddc7348d1bd9 | audit,docs,history,continuity,+ | 551 |
 | 551 | 2026-08-11 | done | 820a6b22b9f662b3 | status,roadmap,audit,docs,+ | 533 |
 | 550 | 2026-08-11 | done | 2436f41876b694bb | bugfix,security,surface,test,+ | 549 |
 | 549 | 2026-08-10 | done | 5716f02a5ab52149 | surface,animation,docs,test,+ | 548 |
@@ -582,7 +583,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=7 latest=#530, #529, #526, #522, #466
-- audit: count=111 latest=#551, #536, #535, #530, #529
+- audit: count=112 latest=#552, #551, #536, #535, #530
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=204 latest=#547, #519, #518, #517, #516
@@ -626,7 +627,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=24 latest=#551, #548, #546, #545, #528
+- continuity: count=25 latest=#552, #551, #548, #546, #545
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -655,7 +656,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=62 latest=#551, #549, #528, #527, #525
+- docs: count=63 latest=#552, #551, #549, #528, #527
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -699,7 +700,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=299 latest=#548, #546, #545, #536, #531
+- history: count=300 latest=#552, #548, #546, #545, #536
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -855,7 +856,7 @@ compact: true
 - sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=170 latest=#551, #531, #528, #511, #505
+- status: count=171 latest=#552, #551, #531, #528, #511
 - storage: count=24 latest=#533, #532, #530, #529, #526
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
@@ -885,7 +886,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=373 latest=#551, #550, #549, #548, #547
+- verify: count=374 latest=#552, #551, #550, #549, #548
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -902,6 +903,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 484
+- done: 485
 - in-progress: 8
 - planned: 21

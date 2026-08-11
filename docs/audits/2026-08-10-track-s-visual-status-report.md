@@ -5,6 +5,11 @@ record. **Repository:** `BlackhatShiftey/Seam`. **Observed main:**
 `2f4af74be2fdb553447d3f736afb4e0292906d76`. **Campaign:** S0 through S10,
 eleven stages total; there is no active S11.
 
+**Canonical record:** this report is stored under `docs/audits/` and registered
+newest-first in the [SEAM Audit Registry](INDEX.md). The registry's `latest`
+field identifies the current recorded audit; this report is a scoped status
+reconciliation, not a whole-repository health audit.
+
 ## Executive verdict
 
 Track S is **not finished**. S0-S5 are merged and remain ancestors of current
@@ -261,13 +266,28 @@ Canonical facts remain in their existing documents.
 The structural continuity gates pass, but several current-facing statements
 are semantically stale:
 
-- The campaign header calls S4 the latest evidence and points S6 at the S4 base,
-  while the S5 section correctly records S5 as published.
-- `PROJECT_STATUS.md` and `docs/status/operations.md` still say the S6 tenancy
-  decision is unwritten and `/v1` has zero HTTP tests. PR #201 and the S6
-  campaign section supersede both statements.
-- The current TUI handoff still describes its branches as awaiting merge even
-  though that work has landed.
+- `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md:5-10` calls S4 the latest
+  evidence and directs S6 to start from `main@ea4e46e`, while
+  `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md:290-294` records S5 as published
+  at `main@19b3a76` and as a dependency of every later stage. Following the
+  header literally could start S6 from a stale base that omits S5.
+- `PROJECT_STATUS.md:20-23`, `PROJECT_STATUS.md:175-183`, and
+  `docs/status/operations.md:96-99` say the S6 tenancy decision is unwritten and
+  `/v1` has zero HTTP tests. The in-process optional-principal decision is
+  recorded at `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md:336-338`; HTTP
+  characterization coverage is documented at
+  `tests/audit/test_public_api_v1_http.py:1-12`, including the deliberately
+  insecure one-token cross-namespace case at
+  `tests/audit/test_public_api_v1_http.py:315-344`. Following the stale status
+  could duplicate completed design/test work or misstate coverage. It does not
+  change the fact that S6 principal binding and opaque deletion are unbuilt.
+- `docs/handoffs/2026-08-05-tui-rebuild-canticle.md:19-20` and
+  `docs/handoffs/2026-08-05-tui-rebuild-canticle.md:104-107` still direct the
+  reader to wait for PR #203 and then merge the TUI branch, while
+  `docs/CODE_LAYOUT.md:45-52` records that TUI as the live surface and
+  `docs/status/surfaces.md:12-23` records its later interaction work. Following
+  the stale handoff could restart from an already-merged prerequisite or treat
+  shipped TUI work as an unmerged branch.
 
 These are documentation repairs, not evidence that S6 implementation exists.
 They should be handled as a bounded continuity correction before or alongside
@@ -289,9 +309,18 @@ the S6 implementation branch.
 
 ## Verification and evidence boundary
 
-This report reconciled the clean local checkout, `origin/main`, GitHub PR and
-ruleset state, the authored Track S campaign, roadmap state, handoff chain,
-recent bounded HISTORY entries, active status streams, current public API
-signatures/routes, and characterization tests. No runtime test, provider call,
-benchmark, ingestion, deployment, release, or destructive cleanup was needed
-to establish this status.
+| Check | Exact command or inspection | Outcome |
+| --- | --- | --- |
+| Workspace identity | `git status --short --branch`; `git rev-parse HEAD`; `git rev-parse origin/main` | Initial tree clean on `agent/track-s-visual-report`; report head `27ded0dc98f369111fbb01ebb4ffb5d5e2703f9a`; observed `origin/main` `2f4af74be2fdb553447d3f736afb4e0292906d76`. |
+| Published ancestry | `for c in 778de2c ebbf2f3 6b7c22d 9bd40cb ea4e46e 67d9c7c 19b3a76; do git merge-base --is-ancestor "$c" origin/main; done` | PASS, 7/7 exit zero: S0-S5 plus the intervening repair are ancestors of observed `main`. |
+| GitHub publication | `for pr in 190 191 193 194 195 196 199 201; do gh pr view "$pr" --json number,state,mergedAt,mergeCommit; done` | PASS, 8/8 report `MERGED`; PR #201 is characterization preparation, not S6 implementation. |
+| S6 surface boundary | <code>rg -n "principal&#124;@app\\.(post&#124;delete).*v1&#124;def (remember&#124;recall&#124;context&#124;delete)&#124;cross.namespace&#124;cross_namespace" seam_runtime/public_api.py seam_runtime/server.py tests/audit/test_public_api_v1_http.py</code> | Found `/v1` remember, recall, and context routes plus the characterization test that says S6 must add principal binding; found no principal-bound public API or opaque `/v1` delete route. |
+| Diagram syntax | Mermaid 11.16.0 `mermaid.parse(...)` over every fenced `mermaid` block, driven by `google-chrome --headless=new --disable-gpu --no-sandbox --allow-file-access-from-files --virtual-time-budget=5000 --dump-dom file:///tmp/seam-pr211-mermaid-check.html` | PASS, 4/4 diagrams parsed; the temporary harness was removed. |
+| Documentation integrity | `.venv/bin/python -m tools.history.verify_integrity`; `.venv/bin/python -m tools.history.verify_routing`; `.venv/bin/python -m tools.history.verify_handoffs`; `.venv/bin/python -m tools.history.verify_continuity`; `.venv/bin/python -m tools.streams.verify_streams` | PASS after the superseding correction entry and derived continuity artifacts were generated. |
+| Patch hygiene | `git diff --check`; `.venv/bin/python -m tools.security.secret_scan --working-tree` | PASS; no whitespace errors, secret-shaped values, or private session URLs detected in the candidate changes. |
+
+No runtime pytest slice, external pgvector service, provider call, benchmark,
+ingestion/dogfood run, deployment, package release, or destructive cleanup was
+run. Those checks are outside this documentation-only correction, and this
+report makes no fresh runtime-quality, provider, benchmark, deployment, or
+production-readiness claim from them.

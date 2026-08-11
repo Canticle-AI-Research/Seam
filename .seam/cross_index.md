@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 614
+total_events: 615
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-06T23:21:18Z | history:358:2eb9586d | session-event | done | retrieval, coreference, entity-aggregation, locomo, cat1,... | seam_runtime/storage.py,seam_runtime/nl.py,seam_runtime/retrieval.py,tests/au... |
 | 2026-07-07T18:59:07Z | history:359:951ab6e8 | session-event | done | ci, tests, git-hooks, pr, merge, security, vector-adapter... | tests/audit/test_sync_public_mirror.py,seam_runtime/vector_adapters.py |
 | 2026-07-07T19:33:26Z | history:360:4d15dbbe | session-event | done | ci, tests, windows, installer, git, mirror-sync, cross-pl... | tools/release/sync_public_mirror.py,test_seam_all/test_seam.py,seam_runtime/i... |
 | 2026-07-07T20:31:43Z | history:361:5b9cb577 | session-event | done | ci, tests, windows, ssrf, flaky, skip-policy | tests/audit/test_audit_2026_06_05.py |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-10T23:39:47Z | history:549:5716f02a | session-event | done | surface, animation, docs, test, verify | .gitattributes,branding/README.md,branding/canticle-cosmic-kit,docs/CODE_LAYO... |
 | 2026-08-11T00:00:06Z | history:550:2436f418 | session-event | done | bugfix, security, surface, test, verify | branding/canticle-cosmic-kit/css/canticle-cosmic.css,branding/canticle-cosmic... |
 | 2026-08-11T05:00:08Z | history:551:820a6b22 | session-event | done | status, roadmap, audit, docs, continuity, verify | docs/audits/2026-08-10-track-s-visual-status-report.md,docs/audits/INDEX.md,d... |
+| 2026-08-11T05:47:41Z | history:552:ed81ddc7 | session-event | done | audit, docs, history, continuity, verify, status | HISTORY#551,docs/audits/2026-08-10-track-s-visual-status-report.md,docs/audit... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0414.cross.md | 2026-04-15T00:00:00Z..2026-07-06T19:38:33Z | 414 | (multi) | (multi) |
+| 0001-0415.cross.md | 2026-04-15T00:00:00Z..2026-07-06T23:21:18Z | 415 | (multi) | (multi) |

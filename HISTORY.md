@@ -17686,3 +17686,43 @@ status reconciliation, and bounded source inspection. The canonical closeout
 reruns history integrity, routing, handoff, continuity, and stream gates and
 writes the snapshot for this entry.
 ---END-ENTRY-#551---
+
+---BEGIN-ENTRY-#552---
+id: 552
+date: 2026-08-11T05:47:41Z
+agent: codex
+status: done
+topics: audit, docs, history, continuity, verify, status
+commits: pending
+refs: HISTORY#551,docs/audits/2026-08-10-track-s-visual-status-report.md,docs/audits/INDEX.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,PROJECT_STATUS.md,docs/status/operations.md,docs/handoffs/2026-08-05-tui-rebuild-canticle.md,docs/CODE_LAYOUT.md,docs/status/surfaces.md,tests/audit/test_public_api_v1_http.py
+supersedes: 551
+tokens: 391
+---
+Supersedes HISTORY#551 only for the audit record's citation and verification
+wording. The substantive Track S verdict is unchanged: S0-S5 are merged, S6
+principal tenancy and opaque deletion is the unimplemented restart point, and
+S7-S10 remain open and dependency-blocked.
+
+Corrected the registered Track S visual status report to state its canonical
+`docs/audits/INDEX.md` storage and scope, attach exact file-and-line evidence
+and concrete failure scenarios to each documentation-drift finding, and replace
+the broad verification paragraph with the exact commands, outcomes, and
+unverified boundaries. The correction distinguishes PR #201's `/v1`
+characterization coverage and the recorded in-process optional-principal
+decision from the still-absent S6 runtime guarantee. No stale source document
+was silently rewritten in this slice.
+
+Candidate verification passed: all seven S0-S5/intervening-repair commits were
+ancestors of observed `origin/main@2f4af74`; PRs #190, #191, #193, #194, #195,
+#196, #199, and #201 all reported MERGED; focused route/signature inspection
+found the current `/v1` remember, recall, and context routes and the explicit
+cross-namespace characterization test but no principal-bound public API or
+opaque `/v1` delete route; Mermaid 11.16.0 parsed all four diagrams. History
+integrity, routing, handoff, continuity, and stream verification passed, as did
+`git diff --check` and the canonical working-tree secret/session scan.
+
+No runtime pytest slice, external pgvector service, provider call, benchmark,
+ingestion or dogfood run, deployment, package release, merge, TUI/WebUI/runtime
+edit, or destructive cleanup was performed. This documentation-only correction
+makes no fresh runtime-quality or production-readiness claim.
+---END-ENTRY-#552---
