@@ -40,6 +40,7 @@ from textual.widgets import Button, DataTable, Input, RichLog, Tree
 from ..mirl import MIRLRecord, SearchCandidate, TraceGraph
 from ..runtime import SeamRuntime
 from . import brand
+from .keys import SeamInput
 
 __all__ = [
     "MemoryPanel",
@@ -311,7 +312,7 @@ class RetrievalPanel(_RuntimePanel):
     BUDGET = 10
 
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="Search memory… (press enter)", id="retrieval-query")
+        yield SeamInput(placeholder="Search memory… (press enter)", id="retrieval-query")
         yield DataTable(id="retrieval-table")
         yield RichLog(id="log-retrieval", markup=True, wrap=True, highlight=True)
 
@@ -636,7 +637,7 @@ class ProvPanel(_RuntimePanel):
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="memory-id-controls"):
-            yield Input(
+            yield SeamInput(
                 placeholder="select a row or paste an object id…",
                 id="prov-query",
                 select_on_focus=True,

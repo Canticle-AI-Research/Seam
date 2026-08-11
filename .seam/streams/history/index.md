@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 553
-total_tokens: ~286223
-latest_id: 553
+total_entries: 554
+total_tokens: ~287440
+latest_id: 554
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 554 | 2026-08-11 | done | 968ea4e41162857a | tui,keyboard,textual,defect,+ | 553 |
 | 553 | 2026-08-11 | done | 2793e88a839e75f3 | audit,docs,history,continuity,+ | 552 |
 | 552 | 2026-08-11 | done | ed81ddc7348d1bd9 | audit,docs,history,continuity,+ | 551 |
 | 551 | 2026-08-11 | done | 820a6b22b9f662b3 | status,roadmap,audit,docs,+ | 533 |
@@ -623,7 +624,7 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=1 latest=#537
+- config: count=2 latest=#554, #537
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
@@ -643,6 +644,7 @@ compact: true
 - dashboard: count=79 latest=#544, #540, #537, #404, #403
 - decomposition: count=1 latest=#319
 - deepseek: count=4 latest=#370, #369, #368, #367
+- defect: count=1 latest=#554
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
@@ -657,7 +659,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=64 latest=#553, #552, #551, #549, #528
+- docs: count=65 latest=#554, #553, #552, #551, #549
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -717,6 +719,7 @@ compact: true
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
 - kb: count=1 latest=#437
+- keyboard: count=1 latest=#554
 - knowledge-graph: count=5 latest=#458, #457, #456, #455, #453
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lever: count=3 latest=#433, #431, #413
@@ -872,8 +875,8 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=95 latest=#550, #549, #548, #544, #543
 - test-artifacts: count=1 latest=#506
-- tests: count=37 latest=#539, #531, #530, #506, #502
-- textual: count=18 latest=#543, #108, #106, #063, #062
+- tests: count=38 latest=#554, #539, #531, #530, #506
+- textual: count=19 latest=#554, #543, #108, #106, #063
 - tokenizer: count=1 latest=#216
 - tooling: count=5 latest=#459, #438, #428, #357, #324
 - topk: count=1 latest=#320
@@ -883,7 +886,7 @@ compact: true
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
-- tui: count=31 latest=#543, #542, #541, #540, #539
+- tui: count=32 latest=#554, #543, #542, #541, #540
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
@@ -904,6 +907,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 486
+- done: 487
 - in-progress: 8
 - planned: 21

@@ -27,6 +27,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Input, Label, Select, Static, Switch
 
 from .. import config
+from .keys import SeamInput
 
 __all__ = ["SettingsPanel"]
 
@@ -91,7 +92,7 @@ class SettingRow(Horizontal):
             return
 
         display = _UNCHANGED if (setting.secret and current) else current
-        field = Input(
+        field = SeamInput(
             value=display,
             placeholder=setting.placeholder or setting.default,
             password=bool(setting.secret),
@@ -143,7 +144,7 @@ class SettingsPanel(Vertical):
     """Scrollable, searchable view over the entire settings registry."""
 
     def compose(self) -> ComposeResult:
-        yield Input(
+        yield SeamInput(
             placeholder="Filter settings…  (name, description, or group)",
             id="settings-search",
         )
@@ -171,9 +172,9 @@ class SettingsPanel(Vertical):
     def _compose_add_key(self) -> ComposeResult:
         """Render the form for adding a variable SEAM does not ship."""
         with Horizontal(classes="settings-row", id="add-key-row"):
-            yield Input(placeholder="NEW_PROVIDER_API_KEY", id="add-key-name",
+            yield SeamInput(placeholder="NEW_PROVIDER_API_KEY", id="add-key-name",
                         classes="settings-input")
-            yield Input(placeholder="value", password=True, id="add-key-value",
+            yield SeamInput(placeholder="value", password=True, id="add-key-value",
                         classes="settings-input")
             yield Button("Add", id="add-key-btn")
         yield Static(

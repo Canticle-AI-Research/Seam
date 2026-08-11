@@ -17764,3 +17764,92 @@ canonical closeout regenerates the derived history artifacts and snapshot and
 runs integrity, routing, handoff, continuity, and stream verification; final
 patch hygiene and the working-tree secret/session scan are run separately.
 ---END-ENTRY-#553---
+
+---BEGIN-ENTRY-#554---
+id: 554
+date: 2026-08-11T15:43:16Z
+agent: claude
+status: done
+topics: tui, keyboard, textual, defect, config, docs, tests
+commits: pending
+refs: HISTORY#542,seam_runtime/tui/keys.py,seam_runtime/tui/app.py,seam_runtime/tui/panels.py,seam_runtime/tui/settings_screen.py,seam_runtime/config.py,docs/status/surfaces.md,tests/audit/test_tui_input_modes.py
+supersedes: 553
+tokens: 1217
+---
+Fixed the S2b TUI defect where `alt+1`..`alt+N` typed a stray character into
+the focused field instead of switching tabs on any terminal using the classic
+"Alt sends Escape" convention (xterm and descendants, and `tmux send-keys
+M-3`). Those terminals send `ESC` then the digit; textual's
+`ANSI_SEQUENCES_KEYS` resolves that pair to the macOS Option-digit character,
+so `alt+3` arrived as the ordinary printable key `pound_sign` and the command
+bar received a literal `£`. HISTORY#542 shipped the `alt+N` bindings with this
+limitation recorded in `docs/status/surfaces.md` as unfixable; it is not.
+
+The first attempt was wrong and is recorded here rather than dropped. Binding
+the nine characters with `priority=True` did not work: `Screen._binding_chain`
+(textual 8.2.8, `screen.py:426-437`) deletes every App-level binding whose key
+the focused widget reports via `check_consume_key` that it would consume, and
+it does so before `App._check_bindings(priority=True)` is reached. `Input`
+consumes every printable character, so the binding was removed from the map
+and `check_action` was never called. A `priority=True` binding outranks a
+focused `Input` for `ctrl+right` but cannot for a printable key. The failing
+assertion was tab-memory != tab-benchmarks with the binding correctly present
+in `App._bindings`; declining to consume is the only hook that runs early
+enough.
+
+Files changed: `seam_runtime/tui/keys.py` (new: `META_DIGIT_KEYS`, the
+nine-character transcription of textual's table, and `SeamInput`, an `Input`
+that declines to consume them); `seam_runtime/tui/app.py` (each tab now binds
+both spellings, the fallback dispatching to a separate `jump_tab_meta` action
+so `check_action` can disable it alone; `meta_digits_jump` read at
+construction; both Inputs are `SeamInput`); `seam_runtime/tui/panels.py` and
+`seam_runtime/tui/settings_screen.py` (six remaining Input construction sites
+switched to `SeamInput`, so the jump survives whichever field holds focus);
+`seam_runtime/config.py` (`SEAM_TUI_META_DIGITS`, enum on/off, default on);
+`docs/status/surfaces.md` (the "unavailable" claim replaced with the current
+behaviour and the knob); `tests/audit/test_tui_input_modes.py` (+3 tests).
+
+Stated limitation, not a defect: nothing above textual's parser distinguishes
+`alt+3` on an xterm from a UK keyboard's genuine `shift+3` -- both arrive as
+`pound_sign` carrying `£`. The nine characters therefore cannot be typed into
+any TUI field while the fallback is on. `SEAM_TUI_META_DIGITS=off` returns
+them as literal text and leaves only real `alt+N` jumping. Default is on
+because the failure it repairs is silent and the failure it can cause is
+visible.
+
+Verification: `.venv/bin/python -m pytest tests/audit/test_tui_input_modes.py`
+-- 30 static `def test_*`, all passed, 0 skipped. Full
+`.venv/bin/python -m pytest tests/` with `PGVECTOR_TEST_DSN` exported reported
+2332 passed, 0 skipped, 2 xfailed, and the one environmental failure described
+below. `ruff check` clean on `seam_runtime/tui/` and the test file. Discrimination check performed: with the `check_consume_key`
+override removed, `test_alt_n_jumps_when_the_terminal_sends_escape_then_digit`
+fails and the other two still pass, which is correct -- the drift guard and
+the off-switch do not depend on the fix; the override was restored from a
+copy, not rewritten.
+
+Real-TTY verification, not only pytest: `seam dashboard` under `tmux` at
+200x50 with `TERM=xterm-256color`. `tmux send-keys M-3` switched Memory to
+Benchmarks with the command bar left empty; `M-7` reached Settings and `M-1`
+returned to Memory. Relaunched with `SEAM_TUI_META_DIGITS=off`, the same `M-3`
+left the tab on Memory and typed `£` into the command bar, so the escape hatch
+is exercised rather than merely declared. No provider call, no paid run, no
+network egress.
+
+One full-suite failure was observed and is environmental, not a regression:
+`tests/audit/test_public_safe_gate.py::test_pre_push_hook_allows_private_origin`
+invokes `tools/git-hooks/pre-push`, which refuses a dirty worktree, so it
+fails for as long as this slice's own edits are uncommitted. It is re-run
+after the commit and the result recorded with the commit, not asserted here in
+advance.
+
+Repo state note: `main` advanced from `a926a77` to `f0bc4b0` mid-slice through
+concurrent codex work (HISTORY#543-#553). This slice's edits were verified
+intact against the new HEAD and the full suite was re-run against it rather
+than trusting the earlier pass.
+
+Next step: none blocking. The GitHub handoff issue filed alongside this entry
+carries the textual-internals explanation for other agents. If textual ever
+renames one of the nine keys,
+`test_meta_digit_table_matches_what_textual_actually_parses` fails loudly
+against `XTermParser` instead of the shortcut silently going dead.
+---END-ENTRY-#554---

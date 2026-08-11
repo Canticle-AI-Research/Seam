@@ -418,6 +418,10 @@ SETTINGS: tuple[Setting, ...] = (
     Setting("SEAM_TUI_MOTION", "Dashboard", "enum", default="full",
             choices=("full", "reduced", "off"),
             description="TUI motion: full type-on and cursor blink, reduced static lockup, or off."),
+    Setting("SEAM_TUI_META_DIGITS", "Dashboard", "enum", default="on",
+            choices=("on", "off"),
+            description="Also jump tabs on the characters an 'Alt sends Escape' terminal "
+                        "emits for alt+1..alt+9 (¡™£¢∞§¶•ª). Set off to type them literally."),
     Setting("SEAM_WEBUI_DIR", "Dashboard", "path",
             description="Override directory for the browser dashboard assets."),
 
