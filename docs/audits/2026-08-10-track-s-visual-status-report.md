@@ -117,14 +117,23 @@ Authoritative gate: [S7](../roadmap/MEMORY_GUARANTEES_CAMPAIGN.md#s7---semantic-
 **What it buys:** the same ranked memory result from every shipped surface,
 with one coherent fusion policy and one auditable retrieval event.
 
-**Already present:** `RetrievalOrchestrator` is the architectural owner and
-`SeamRuntime.retrieve()` is the canonical entry point.
+**Already present, but not sufficient for promotion:** `RetrievalOrchestrator`
+is the architectural owner and `SeamRuntime.retrieve()` is the canonical entry
+point. A legacy-policy plan executes only the legacy adapter
+(`tests/audit/test_retrieval_consolidation.py:67-115`). Accepted identity merges
+are reversible and retain their audit evidence
+(`seam_runtime/identity_resolution.py:337-443`,
+`tests/audit/test_identity_resolution.py:125-159,577-649`). Those two S8 clauses
+are implemented and tested; their presence does not satisfy S8's remaining
+dependencies or promote the stage.
 
-**Still missing:** exact legacy-adapter isolation; direct-runtime parity across
-all surfaces; replayable absent/all-one/zero/non-unit leg weights; fail-closed
-unknown leg names; exactly one tenant-scoped event per enabled retrieval; and
-fully reversible, audited identity merges. Current status still records
-legacy hardcoding and a fusion-policy identifier mismatch.
+**Still missing or unqualified:** direct-runtime IDs/order parity across every
+shipped surface; exact replay and persistence for absent/all-one/zero/non-unit
+leg weights; fail-closed unknown leg names; and exactly one tenant-scoped event
+per successful enabled retrieval without telemetry changing the answer. The
+current retrieval status records legacy hardcoding around `search_ir()`, a
+fusion-policy identifier mismatch, unvalidated live-graph weights, and the open
+surface/event qualification boundary (`docs/status/retrieval.md:9-22,76-84`).
 
 **Dogfood boundary:** use the canonical retrieval entry point and traces for
 debugging now, but do not claim perfect surface parity or a promoted weighted
@@ -138,11 +147,20 @@ Authoritative gate: [S8](../roadmap/MEMORY_GUARANTEES_CAMPAIGN.md#s8---one-retri
 works on a complete offline corpus and that any graph contribution is real,
 attributable lift rather than extra machinery.
 
-**Still missing:** pristine per-arm snapshot cloning; full offline embedding
-coverage; the 1,542-case LoCoMo non-regression gate; deterministic retained
-traces; a graph-eligible corpus with enough supported relations and perfect
-provenance completeness; human precision review; and a fresh matched graph-only
-ablation.
+**Already measured, but not promoted:** `HISTORY#509` records one pristine
+ingest-only snapshot, an independent clone for each arm, and four provider-free
+1,542-question runs with zero errors and no network. Canonical scored `0.776048`
+versus legacy `0.766420` overall, but category-level non-regression failed —
+including cat3 at `-0.036775`. The current status preserves that matched result
+and its boundary (`docs/status/retrieval.md:24-47,64-88,98-101`). The cloning
+method and full-corpus run therefore exist; they are measured evidence, not a
+passed S9 promotion gate.
+
+**Still missing or failed:** category-level non-regression; a frozen-candidate
+proof of complete offline embedding coverage and deterministic retained traces;
+a graph-eligible corpus with enough supported relations and perfect provenance
+completeness; human precision review; and a fresh matched graph-only ablation.
+Until those clauses pass together, graph/scorer behavior remains default-off.
 
 **Dogfood boundary:** does not block debugging. It blocks default-on graph or
 scorer promotion and broad quality claims.

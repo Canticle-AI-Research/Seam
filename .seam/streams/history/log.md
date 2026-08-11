@@ -17726,3 +17726,41 @@ ingestion or dogfood run, deployment, package release, merge, TUI/WebUI/runtime
 edit, or destructive cleanup was performed. This documentation-only correction
 makes no fresh runtime-quality or production-readiness claim.
 ---END-ENTRY-#552---
+
+---BEGIN-ENTRY-#553---
+id: 553
+date: 2026-08-11T05:56:03Z
+agent: codex
+status: done
+topics: audit, docs, history, continuity, verify, status, retrieval, graph, benchmark
+commits: pending
+refs: HISTORY#552,HISTORY#509,docs/audits/2026-08-10-track-s-visual-status-report.md,docs/status/retrieval.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,tests/audit/test_retrieval_consolidation.py,seam_runtime/identity_resolution.py,tests/audit/test_identity_resolution.py
+supersedes: 552
+tokens: 355
+---
+Supersedes HISTORY#552 only for the Track S report's S8/S9
+implemented-versus-qualified wording. The substantive campaign verdict remains
+unchanged: S0-S5 are merged, S6 is the unimplemented restart point, and S7-S10
+remain open and dependency-blocked.
+
+Corrected two overbroad "still missing" lists in the registered Track S visual
+status report. S8 now records that legacy-policy plans already execute only the
+legacy adapter and that accepted identity merges already support evidence-
+retaining reversible splits; it separately names the still-open surface parity,
+fusion replay/persistence, unknown-leg refusal, and tenant-scoped event gates.
+S9 now records HISTORY#509's pristine ingest-only snapshot, independent per-arm
+clones, and four zero-error provider-free 1,542-question runs; it separately
+names the failed category non-regression and the still-open frozen-candidate
+embedding/trace, semantic-corpus, provenance, human-review, and graph-only-lift
+gates. Implemented or measured substrate is no longer described as absent, and
+neither stage is represented as promoted or complete.
+
+Evidence was bounded to the canonical report, HISTORY#509, the current retrieval
+status, the legacy retrieval-isolation test, and the reversible identity ledger
+implementation and surface tests. No runtime pytest slice, external service,
+provider call, benchmark execution, ingestion/dogfood run, deployment, release,
+merge, TUI/WebUI/runtime edit, or destructive cleanup was performed. The
+canonical closeout regenerates the derived history artifacts and snapshot and
+runs integrity, routing, handoff, continuity, and stream verification; final
+patch hygiene and the working-tree secret/session scan are run separately.
+---END-ENTRY-#553---
