@@ -39,7 +39,11 @@ def test_preflight_gates_match_canonical_commit_hook() -> None:
                 )
             )
 
-    assert tuple(observed) == closeout.PREFLIGHT_GATES
+    expected = tuple(
+        (label, (*args, "--staged") if label == "verify_wiki" else args)
+        for label, args in closeout.PREFLIGHT_GATES
+    )
+    assert tuple(observed) == expected
 
 
 @pytest.mark.parametrize("value", ["0", "-1"])
@@ -78,7 +82,8 @@ def test_resume_rebuilds_without_appending_duplicate(
         )
     else:
         assert labels[2] == "rebuild cross-index"
-    assert labels[-5:] == [label for label, _ in closeout.PREFLIGHT_GATES]
+    gate_count = len(closeout.PREFLIGHT_GATES)
+    assert labels[-gate_count:] == [label for label, _ in closeout.PREFLIGHT_GATES]
 
 
 def test_failure_after_append_prints_safe_resume_hint(

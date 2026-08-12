@@ -12,10 +12,11 @@ checker over-matched per-section prose counts and flagged HISTORY#111/#145).
 `require_explicit_pytest_line=True` in the precedence path fixed that, and
 HISTORY#536 removed the flag from both local gates.
 
-These tests fail if anyone re-adds it. A local gate that is quieter than the
-gate that will actually block the PR is a false negative generator, which is
-strictly worse than having no local gate at all -- it converts "unverified"
-into "verified", which is the state an agent acts on.
+These tests fail if anyone re-adds it or omits the required wiki-navigation
+check. A local gate that is quieter than the gate that will actually block the
+PR is a false negative generator, which is strictly worse than having no local
+gate at all -- it converts "unverified" into "verified", which is the state an
+agent acts on.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PREFLIGHT_HOOK = REPO_ROOT / "tools" / "claude" / "preflight_protocol.sh"
@@ -31,6 +33,16 @@ COMMIT_HOOK = REPO_ROOT / "tools" / "git-hooks" / "pre-commit"
 CI_YML = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
 SUPPRESSION_FLAG = "--no-recorded-fact-audit"
+WIKI_GATE_MODULE = "tools.docs.verify_wiki"
+WIKI_STAGED_FLAG = "--staged"
+REQUIRED_GATE_MODULES = {
+    "tools.history.verify_handoffs",
+    "tools.history.verify_integrity",
+    "tools.history.verify_continuity",
+    "tools.history.verify_routing",
+    "tools.streams.verify_streams",
+    WIKI_GATE_MODULE,
+}
 
 # There are THREE local gate locations, not two. The first draft of this file
 # checked only the Claude hook and the closeout wrapper, and would have passed
@@ -43,6 +55,17 @@ def _gate_lines(script: Path) -> list[str]:
     """Executable run_gate lines from a gate script, comments excluded."""
     lines = script.read_text(encoding="utf-8").splitlines()
     return [line for line in lines if line.strip().startswith("run_gate")]
+
+
+def _script_gate_modules(script: Path) -> set[str]:
+    """Return Python modules invoked by executable run_gate lines."""
+
+    modules = set()
+    for line in _gate_lines(script):
+        marker = " -m "
+        if marker in line:
+            modules.add(line.split(marker, 1)[1].split()[0])
+    return modules
 
 
 @pytest.mark.parametrize("script", LOCAL_GATE_SCRIPTS, ids=lambda p: p.name)
@@ -83,6 +106,63 @@ def test_ci_still_enforces_the_fact_audit():
             assert SUPPRESSION_FLAG not in line, (
                 f"CI itself now suppresses the fact audit: {line.strip()}"
             )
+
+
+@pytest.mark.parametrize("script", LOCAL_GATE_SCRIPTS, ids=lambda p: p.name)
+def test_local_gate_scripts_enforce_the_required_wiki_check(script):
+    """A local green gate must include the wiki check required by CI."""
+
+    wiki_gates = [line for line in _gate_lines(script) if WIKI_GATE_MODULE in line]
+    assert wiki_gates, f"{script.name} omits required {WIKI_GATE_MODULE}"
+
+
+@pytest.mark.parametrize("script", LOCAL_GATE_SCRIPTS, ids=lambda p: p.name)
+def test_local_gate_scripts_cover_every_required_continuity_module(script):
+    """Prevent a local preflight from quietly omitting a required CI gate."""
+
+    missing = REQUIRED_GATE_MODULES - _script_gate_modules(script)
+    assert not missing, f"{script.name} omits required modules: {sorted(missing)}"
+
+
+def test_closeout_wrapper_enforces_the_required_wiki_check():
+    """Closeout must not claim success before required wiki verification."""
+
+    from tools.history.closeout import PREFLIGHT_GATES
+
+    modules = [args[0] for _label, args in PREFLIGHT_GATES]
+    assert WIKI_GATE_MODULE in modules
+
+
+def test_closeout_wrapper_covers_every_required_continuity_module():
+    """The closeout wrapper must cover the same continuity modules as CI."""
+
+    from tools.history.closeout import PREFLIGHT_GATES
+
+    modules = {args[0] for _label, args in PREFLIGHT_GATES}
+    missing = REQUIRED_GATE_MODULES - modules
+    assert not missing, f"closeout omits required modules: {sorted(missing)}"
+
+
+def test_commit_hook_verifies_the_exact_staged_wiki():
+    """An unstaged repair must not mask invalid documentation in the index."""
+
+    wiki_gates = [
+        line for line in _gate_lines(COMMIT_HOOK) if WIKI_GATE_MODULE in line
+    ]
+    assert wiki_gates
+    assert all(WIKI_STAGED_FLAG in line for line in wiki_gates)
+
+
+def test_ci_enforces_wiki_navigation():
+    """Pin local wiki gates to a live required repo-hygiene command."""
+
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    runs = [
+        step.get("run")
+        for step in workflow["jobs"]["repo-hygiene"]["steps"]
+        if "run" in step
+    ]
+    assert f"python -m {WIKI_GATE_MODULE}" in runs
 
 
 def test_the_fact_audit_actually_rejects_an_unscoped_count_claim(tmp_path):

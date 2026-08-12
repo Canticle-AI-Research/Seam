@@ -69,16 +69,30 @@ not have to infer what works from directory names alone.
 ## Active Tooling
 
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
+- `docs/README.md` - single canonical human-facing SEAM Wiki home; it routes to
+  existing authorities without duplicating their volatile facts.
+- `docs/REPORTS_AND_EVIDENCE.md` - canonical rule for filing human-readable
+  reports and routing raw artifacts, current state, chronology, and archives.
+- `tools/docs/verify_wiki.py` - fail-closed wiki coverage and rendered-link
+  verifier. It uses the dev-only `markdown-it-py` dependency for CommonMark
+  links, handles raw HTML anchors, rejects unsafe local paths and symlinks,
+  validates every reachable page and the prospective report-registry contract,
+  and can export the exact Git index for the commit hook. Working-tree mode
+  runs in closeout, agent preflight, and required CI.
 - `branding/kit/` - canonical Canticle/SEAM identity assets and tokens;
   `branding/canticle-cosmic-kit/` is its versioned UI expression layer with
   framework adapters and a local component gallery. `tools/branding/` verifies
   both contracts without changing a running surface.
 - `docs/handoffs/INDEX.md` - canonical tracked handoff head and supersession chain; dated handoff documents are valid only when registered there.
 - `docs/audits/INDEX.md` - canonical registry of recorded audits, newest first.
-  Whole-repo audits are a repeatable series produced by the `/deep-audit` skill
-  and are meant to be diffed against each other; read the latest before
-  concluding that a known defect is new. Audits cite repo files only and never
-  carry credentials or session URLs.
+  `docs/audits/` is also the tracked home for all dated, human-readable SEAM
+  reports. Whole-repo audits are a repeatable series produced by the
+  `/deep-audit` skill and are meant to be diffed against each other; read the
+  latest before concluding that a known defect is new. The registry's
+  `policy_start` makes HISTORY/evidence-manifest enforcement prospective, so
+  older evidence is preserved rather than silently rewritten. Reports cite
+  repo files or hashed durable artifacts and never carry credentials or session
+  URLs.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
 - `LICENSES/BUSL-1.1.txt` - controlling text and filled parameters for the SEAM
   Distributed Runtime, published under Business Source License 1.1 by Section 7A

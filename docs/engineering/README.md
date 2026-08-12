@@ -8,17 +8,28 @@ It does not replace the governing specification, MIRL contract, repo ledger, his
 
 ## Authority order
 
-When sources disagree, resolve the conflict in this order:
+SEAM has no single total order across unlike claim types. Route a disagreement
+to the authority for the claim being made:
 
-1. `SEAM_SPEC_V0.1.md` and `docs/MIRL_V1.md` for product behavior and representation contracts.
-2. Active code and tests for implemented behavior.
-3. `REPO_LEDGER.md` for stable engineering policy and architectural decisions.
-4. `PROJECT_STATUS.md` for current operating state and active focus.
-5. `HISTORY.md`, read surgically through `HISTORY_INDEX.md` or context-pack tooling, for chronological evidence.
-6. `ROADMAP.md` and derived roadmap state for planned behavior.
-7. Archived documents and code only for historical analysis.
+1. **Required product behavior and representation contracts:**
+   `SEAM_SPEC_V0.1.md` and `docs/MIRL_V1.md`.
+2. **Implemented behavior:** active code, with tests proving only the property
+   and scope they actually exercise.
+3. **Stable repository policy and architectural decisions:** `AGENTS.md` and
+   `REPO_LEDGER.md`.
+4. **Current operating state:** the relevant stream under `docs/status/`.
+   `PROJECT_STATUS.md` is only a thin headline router into those streams.
+5. **Chronology, merge evidence, and supersession:** `HISTORY.md`, read
+   surgically through `HISTORY_INDEX.md`, the cross-index, or context-pack
+   tooling.
+6. **Planned behavior:** `ROADMAP.md` and its derived roadmap state.
+7. **Historical provenance:** archived documents and code, never current
+   operating guidance.
 
-A roadmap statement is not implementation evidence. A historical entry is not proof that the behavior still exists. A test proves only the property and scope it actually exercises.
+When two sources in the same claim class disagree, prefer the narrower,
+newer, explicitly superseding evidence and record the conflict instead of
+silently blending it. A roadmap statement is not implementation evidence. A
+historical entry is not proof that behavior still exists.
 
 ## Evidence labels
 

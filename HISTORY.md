@@ -17913,3 +17913,162 @@ uncommitted files need their owning agent to commit or discard them before any
 push from this box succeeds without `SEAM_ALLOW_DIRTY_WORKTREES=1`. That is an
 operator or wiki-track decision, not one to make unilaterally.
 ---END-ENTRY-#555---
+
+---BEGIN-ENTRY-#556---
+id: 556
+date: 2026-08-11T16:44:27Z
+agent: claude
+status: done
+topics: docs, wiki, navigation, commonmark, gates, ci, parity, verify
+commits: pending
+refs: HISTORY#553,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation.py,docs/DOCUMENTATION_MAP.md,docs/SOP_INDEX.md,docs/REPORTS_AND_EVIDENCE.md,tests/audit/test_local_gates_match_ci.py,.github/workflows/ci.yml,pyproject.toml
+supersedes: 555
+tokens: 981
+---
+Finished the documentation-wiki navigation slice that codex designed and left
+in progress, at operator instruction. Attribution matters here: the slice's
+design and nearly all of its implementation are codex's -- the wiki verifier,
+the registry enforcement, the navigation index documents, and the local-gate
+parity tests. This entry records completing it, not authoring it.
+
+State inherited: branch `docs/seam-wiki` in the linked worktree, zero commits,
+23 uncommitted files, last written 2026-08-11T06:46Z and idle since. Its own
+plan recorded step 2 of 5 with "the parser replacement in progress", and
+`tests/audit/test_wiki_navigation.py` had 10 failing tests against 42 passing
+elsewhere in the touched files. The tests were written first and the parser did
+not yet satisfy them.
+
+Both root causes were markdown-it defaults that are correct for rendering
+untrusted markdown and exactly wrong for a repository gate:
+
+- `validateLink` suppresses `file:`, `javascript:`, `vbscript:`, and most
+  `data:` destinations by emitting no `link_open` token at all. Nine of the ten
+  failures were this single cause: the verifier could not see the class of link
+  it exists to reject, so a `file:` link in any document was silently accepted
+  rather than reported. This is a fail-open hole in a security-relevant gate,
+  not a cosmetic parser gap.
+- `normalizeLink` percent-encodes the destination before anything downstream
+  sees it, which repairs the malformed input the gate must reject:
+  `http://[invalid` arrived as `http://%5Binvalid`, which `urlsplit` parses
+  without complaint, so "uses malformed link" was unreachable.
+
+Fixed by handing both decisions back to `_resolve_local_target`, where they
+belong: `tools/docs/verify_wiki.py` now overrides `validateLink` to accept
+every destination for reporting and `normalizeLink` to pass destinations
+through verbatim. Verified at the parser level across all twelve shapes the
+tests exercise before changing the module, including that the blockquote and
+list-item unclosed-fence cases correctly yield only the following link and not
+the contained one.
+
+Separately found and closed a real parity hole that this slice's own theme --
+local gates matching CI -- makes in scope. `markdown-it-py` is pinned
+`>=4.0,<5.0` in the `lint` extra and installed at that pin by the
+`repo-hygiene` job, which runs the gate. The `test-and-benchmark` job, which
+runs the tests that exercise the gate, installed no such pin and received the
+package transitively through `rich` -- a base runtime dependency that pins only
+`>=2.2.0` with no upper bound. Both lanes resolve to 4.2.0 today, so nothing is
+broken now; on a future major the test lane would drift onto a version
+`repo-hygiene` refuses, and `tests/audit/test_wiki_navigation.py` imports
+`tools.docs.verify_wiki` at module scope, so under strict no-skip that aborts
+the run rather than skipping. Pinned the test lane to the same range, following
+the precedent the neighbouring `httpx` comment already records for exactly this
+failure shape.
+
+Files changed by this session on top of codex's 23: `tools/docs/verify_wiki.py`
+(the two parser overrides) and `.github/workflows/ci.yml` (the test-lane pin).
+
+Verification: `tests/audit/test_wiki_navigation.py` 31 passed, 0 skipped, from
+10 failed. The three touched test files together 52 passed, 0 skipped.
+`python -m tools.docs.verify_wiki --root .` against the real worktree exits 0
+with 215 active documentation pages reachable from `docs/README.md`, so the
+stricter parser does not newly reject the repository's own documentation.
+`ruff check .` clean. `git diff --check` clean. No untracked files. Full
+`pytest tests/` result recorded below.
+
+Discrimination evidence is inherited rather than manufactured: the 10 tests
+failed against the unmodified parser and pass against the fixed one, which is
+the same falsifying comparison a deliberate revert would produce.
+
+Not done here, and deliberately so: nothing in codex's 23 files was rewritten,
+restaged selectively, or reinterpreted. Plan step 5 -- merge, worktree removal,
+and branch cleanup -- is left for the operator, per the standing rule that
+merge and deploy are operator-triggered.
+---END-ENTRY-#556---
+
+---BEGIN-ENTRY-#557---
+id: 557
+date: 2026-08-11T16:50:52Z
+agent: claude
+status: done
+topics: history, correction, verify, wiki, gates
+commits: f9dd0a5
+refs: HISTORY#556,HISTORY#555,tests/audit/test_public_safe_gate.py,tools/git-hooks/pre-push
+supersedes: 556
+tokens: 581
+---
+Supersedes HISTORY#556 only for its verification paragraph. Every substantive
+claim in #556 stands unchanged: the two markdown-it parser defects, their fix
+in `tools/docs/verify_wiki.py`, the test-lane `markdown-it-py` pin, the
+attribution of the slice's design and implementation to codex, and the
+deliberate exclusion of plan step 5.
+
+#556 ended its verification paragraph with "Full `pytest tests/` result
+recorded below" and then recorded no such result. That paragraph was drafted
+while the run was still executing, with the number intended to be filled in
+before commit, and it was not. An append-only record cannot carry a forward
+reference to evidence that was never pasted in; the sentence claimed a
+verification the entry did not contain.
+
+The missing result, measured against the exact committed state `f9dd0a5` after
+the branch was reconciled onto `5edd697`, with `PGVECTOR_TEST_DSN` exported so
+the pgvector legs run rather than skip:
+
+    .venv/bin/python -m pytest tests/
+    2372 passed, 2 xfailed, 0 skipped, 0 failed, in 247.89s
+
+An earlier run of the same command, taken before the branch was reconciled onto
+current main and therefore without that slice's tests present, reported 2368
+passed. Both numbers are recorded rather than the larger one alone, because the
+difference is the reconciliation and not an improvement produced by this work.
+
+Two further facts belonging with the verification record. `tools/git-hooks/pre-push`
+now exits 0 from the main worktree, and `tests/audit/test_public_safe_gate.py`
+reports 47 passed where it previously reported 46 passed and 1 failed: the
+sibling worktree's uncommitted state, diagnosed in HISTORY#555 and misattributed
+in HISTORY#554, was cleared by committing that worktree rather than by
+discarding anything. And the closeout run for #556 exercised the new
+`verify_wiki` gate that this same slice adds to `tools/history/closeout.py`,
+which reported 215 active documentation pages reachable from `docs/README.md`.
+
+Method correction recorded for reuse: do not draft a verification paragraph
+around a result that does not exist yet. Either omit the paragraph until the
+number is in hand, or write the number directly at fill-in time. A forward
+reference reads as evidence while carrying none, and in an append-only record
+the cost of the mistake is a second entry rather than an edit. Logged to the
+correction corpus as `2026-08-11-002`.
+
+Files changed by this entry: HISTORY.md and the derived history artifacts only.
+No source, test, documentation, or configuration file was modified.
+---END-ENTRY-#557---
+
+---BEGIN-ENTRY-#558---
+id: 558
+date: 2026-08-12T23:31:08Z
+agent: codex
+status: changed
+topics: docs, audit, security, history, ci, tests, verify, correction
+commits: pending
+refs: HISTORY#557,PR#214,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation.py,.github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,AGENTS.md,REPO_LEDGER.md
+supersedes: 557
+tokens: 319
+---
+Closed every actionable review gap on the isolated wiki publication before merge.
+
+The required wiki gate now validates same-page and cross-page fragments against rendered GitHub-style headings and explicit HTML anchors, rejects dated documents outside the declared canonical homes, verifies that policy-era audit rows cite HISTORY entries that actually exist, and rejects javascript, vbscript, and data URI schemes in Markdown or raw HTML. Focused verification passed for 61 tests across the wiki, CI-policy, and local-gate suites; Ruff, diff hygiene, and the live 215-page wiki traversal also passed.
+
+The long test-and-benchmark job now checks out full ancestry so the baseline reachability policy executes instead of using the shallow-checkout allowlisted skip. The prior exact PR #213 head completed with 2,755 passed, 1 shallow-checkout skip, 23 external tests deliberately deselected into the separately passing pgvector lane, 2 expected failures, and 45/45 benchmark checks; the next fresh CI head is expected to eliminate that one skip and must prove it before merge.
+
+HISTORY#554-557 are immutable. To reconcile their review-identified routing metadata without rewriting chronology, the AGENTS topic vocabulary now explicitly admits the ten precise tags those merged entries introduced, and REPO_LEDGER records the prospective admit-or-retire rule for merged topic tags.
+
+A separate post-merge TUI review found that Settings Reload refreshed the process environment but not the live meta-digit cache. Its tested fix remains isolated for a follow-up PR after this history boundary lands; it is not smuggled into the wiki diff.
+---END-ENTRY-#558---

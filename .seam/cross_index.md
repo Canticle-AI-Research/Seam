@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 618
+total_events: 621
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-08T03:44:02Z | history:362:f93632fb | session-event | done | handoff, locomo, cat1, cat3, retrieval, performance, prof... | docs/handoffs/2026-07-07-cat1-cat3-scoping-handoff.md |
-| 2026-07-08T04:31:56Z | history:363:00e4e5ea | session-event | done | ci, performance, retrieval, numpy, cosine, disk-space, de... | .github/workflows/ci.yml, seam_runtime/models.py, tests/audit/test_cosine_num... |
-| 2026-07-08T16:08:52Z | history:364:50aeef5f | session-event | done | performance, retrieval, vector, sqlite, cache, numpy, ben... | seam_runtime/vector.py, tests/audit/test_vector_cache_parity.py, test_seam_al... |
 | 2026-07-08T16:36:07Z | history:365:9de60364 | session-event | done | locomo, cat1, cat3, benchmark, paid, diagnostic, generati... | docs/audits/2026-07-08-cat13-generation-side-paid-confirmation.md |
 | 2026-07-08T22:50:21Z | history:366:fe1cd501 | session-event | done | benchmark, telemetry, run-record, cost, reasoning, cot, t... | benchmarks/external/common/run_record.py, benchmarks/external/common/pricing.... |
 | 2026-07-09T00:09:26Z | history:367:2278b41a | session-event | done | benchmark, deepseek, answerer, reasoning, cot, run-record... | benchmarks/external/locomo/adapters/seam.py, benchmarks/external/common/answe... |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-11T05:56:03Z | history:553:2793e88a | session-event | done | audit, docs, history, continuity, verify, status, retriev... | HISTORY#552,HISTORY#509,docs/audits/2026-08-10-track-s-visual-status-report.m... |
 | 2026-08-11T15:43:16Z | history:554:968ea4e4 | session-event | done | tui, keyboard, textual, defect, config, docs, tests | HISTORY#542,seam_runtime/tui/keys.py,seam_runtime/tui/app.py,seam_runtime/tui... |
 | 2026-08-11T15:45:32Z | history:555:55a38b1f | session-event | done | history, correction, gates, worktree, verify | HISTORY#554,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py |
+| 2026-08-11T16:44:27Z | history:556:f5b7c69a | session-event | done | docs, wiki, navigation, commonmark, gates, ci, parity, ve... | HISTORY#553,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation.py,doc... |
+| 2026-08-11T16:50:52Z | history:557:40a8ec3b | session-event | done | history, correction, verify, wiki, gates | HISTORY#556,HISTORY#555,tests/audit/test_public_safe_gate.py,tools/git-hooks/... |
+| 2026-08-12T23:31:08Z | history:558:104d9e3e | session-event | changed | docs, audit, security, history, ci, tests, verify, correc... | HISTORY#557,PR#214,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0418.cross.md | 2026-04-15T00:00:00Z..2026-07-07T20:31:43Z | 418 | (multi) | (multi) |
+| 0001-0421.cross.md | 2026-04-15T00:00:00Z..2026-07-08T16:08:52Z | 421 | (multi) | (multi) |
