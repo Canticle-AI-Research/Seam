@@ -355,12 +355,16 @@ class SeamTUI(App[None]):
         #: process environment alone, decides. Anything other than an explicit
         #: `off` keeps the fallback, because the failure it repairs is silent
         #: and the failure it can cause is visible.
-        meta_digits = config.effective_value("SEAM_TUI_META_DIGITS").strip().lower()
-        self.meta_digits_jump = meta_digits != "off"
+        self.refresh_cached_settings()
         self._startup_active = False
         self._startup_frame = 0
         self._startup_timer: Any = None
         self._cursor_timer: Any = None
+
+    def refresh_cached_settings(self) -> None:
+        """Refresh settings that the live app keeps outside the environment."""
+        meta_digits = config.effective_value("SEAM_TUI_META_DIGITS").strip().lower()
+        self.meta_digits_jump = meta_digits != "off"
 
     # -- layout ------------------------------------------------------------
 

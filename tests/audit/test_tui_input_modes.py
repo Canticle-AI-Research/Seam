@@ -579,6 +579,49 @@ class TestTabNavigation:
 
         asyncio.run(_check())
 
+    def test_meta_digit_jump_switches_off_after_settings_reload(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """Reload must refresh the app-level cache without an app restart."""
+        import asyncio
+
+        from textual import events
+        from textual.widgets import Button, Input, TabbedContent
+
+        from seam_runtime import config
+        from seam_runtime.tui.app import TABS, SeamTUI
+
+        monkeypatch.delenv("SEAM_TUI_META_DIGITS", raising=False)
+        monkeypatch.setattr(config, "config_path", lambda: tmp_path / "settings.env")
+        monkeypatch.setattr(config, "_PERSISTED_ENV_VALUES", {})
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+        assert app.meta_digits_jump is True
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                tabs = app.query_one(TabbedContent)
+                tabs.active = "tab-settings"
+                config.save_persisted({"SEAM_TUI_META_DIGITS": "off"})
+                app.query_one("#settings-reload", Button).press()
+                await pilot.pause()
+
+                assert config.effective_value("SEAM_TUI_META_DIGITS") == "off"
+                assert app.meta_digits_jump is False
+
+                field = app.query_one("#command-input", Input)
+                field.focus()
+                app.post_message(events.Key("pound_sign", "£"))
+                await pilot.pause()
+                assert tabs.active == "tab-settings"
+                assert field.value == "£"
+
+                await pilot.press("alt+3")
+                await pilot.pause()
+                assert tabs.active == f"tab-{TABS[2][0]}"
+
+        asyncio.run(_check())
+
     def test_every_mounted_input_is_a_seam_input(self, tmp_path, monkeypatch) -> None:
         """The jump survives whichever field happens to hold focus.
 
