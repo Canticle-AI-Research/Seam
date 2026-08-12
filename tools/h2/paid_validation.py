@@ -132,10 +132,13 @@ def run_paid_validation(
 
 
 def _write_record(recorder: RunRecord, record_path: str) -> dict:
-    """Write the rich JSON + a training-shaped JSONL beside it; return paths."""
+    """Write rich JSON plus a quarantined audit JSONL; return paths."""
     jsonl_path = record_path[:-5] + ".jsonl" if record_path.endswith(".json") else record_path + ".jsonl"
+    audit_jsonl = recorder.write_audit_jsonl(jsonl_path)
     return {
         "json": recorder.write_json(record_path),
-        "training_jsonl": recorder.write_training_jsonl(jsonl_path),
+        "audit_jsonl": audit_jsonl,
+        # Compatibility alias for consumers predating the quarantine contract.
+        "training_jsonl": audit_jsonl,
         "n_case_rows": len(recorder.cases),
     }

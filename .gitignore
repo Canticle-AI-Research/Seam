@@ -64,6 +64,8 @@ seam_runtime/_handoff_20260419/
 # Derived snapshot payloads (keep directory marker only)
 .seam/snapshots/*.json
 .seam/surfaces/
+# Advisory stream locks are local process state, not durable stream data.
+.seam/streams/*/log.lock
 
 # Local editor and agent config
 .cursor/

@@ -18090,3 +18090,29 @@ Settings Reload already applied persisted values to the process environment, but
 
 The mounted regression reproduced the stale true cache before the fix and now proves that Reload immediately accepts literal pound-sign input while real alt+3 navigation remains active. The full 19-test input-mode module, its 12-test navigation slice, Ruff, diff hygiene, and the working-tree secret/session scan passed. This correction is isolated from the wiki and native-model roadmap work.
 ---END-ENTRY-#559---
+
+---BEGIN-ENTRY-#560---
+id: 560
+date: 2026-08-12T23:53:42Z
+agent: codex
+status: changed
+topics: roadmap, streams, models, agent, provenance, benchmark, judge, docs, verify, status
+commits: 7727874,a490c73,e130393,b1e7351
+refs: HISTORY#559,HISTORY#553,ROADMAP.md,docs/roadmap/APPEND_ONLY_ROADMAP.md,docs/roadmap/SEAM_NATIVE_MODEL.md,docs/roadmap/SEAM_ESP32_EMBODIED_SPATIAL.md,docs/BENCHMARK_RUN_RECORDS.md,tools/streams/roadmap_lifecycle.py,tools/streams/test_streams.py,benchmarks/external/common/run_record.py,tools/h2/paid_validation.py,tests/audit/test_run_record.py,.seam/streams/roadmap_workflow_state.md,PR#207
+supersedes: 559
+tokens: 590
+---
+Prepared the SEAM-native model and embodied-agent program for implementation without starting Track S or any long-running model, dataset, provider, sensing, or deployment work.
+
+Track S reconciliation records S0-S5 as imported completed outcomes. S6 principal tenancy and opaque deletion remains the parked restart point; S7-S10 remain dependency-blocked. The roadmap now uses immutable future-ideas, plans, and executed streams with stable item IDs, exact supersession, cross-stream origins, deterministic indexes, and a disposable current-state view.
+
+Track T puts a provenance-aware data generator before the exact gated ladder of approximately 250K, then 1B, then 4B. Its contracts cover rights, consent, privacy, source/output hashes, transformation lineage, replay, pre-split deduplication, immutable splits, contamination and secret/PII screening, separate pretraining/training views, and reproducible manifests. Benchmark question/gold exports and hidden-reasoning traces are quarantined with machine-readable training_eligible=false. Candidate, teacher, or generator models may not be their sole graders: promotion combines deterministic vetoes with a blinded different-family judge, sealed-set calibration, disagreement recording, and skeptical failure analysis.
+
+Track U fixes one persistent agent with a Galaxy Tab A7 as its attributable visual head, microphone/speaker voice surface, and exactly three ESP32-S3 sensing nodes A/B/C. The A7 transport and ASR/TTS path remain measured spikes rather than invented decisions. Visual, voice, and node observations qualify independently before fusion; SEAM/Linux remains the durable provenance and executive boundary.
+
+Review corrections now make RAW evidence append-only, place SEAM-RC/1 on the exact-source branch beside canonical MIRL derivation, bind every native primitive to authenticated principal/capability context, keep dream records status=hypothetical with separate verification evidence, and define fail-closed quantitative promotion manifests. All seven PR review threads are addressed by the source or this reconciled continuity head.
+
+Verification on the replayed tree passed: 27 lifecycle tests, 9 run-record tests, lifecycle verification, stream verification, the 218-page wiki traversal, targeted Ruff, Python compilation, and diff hygiene. Running those two pytest files in one process initially produced a collection error because the test modules reuse the top-level benchmarks namespace; each canonical isolated module invocation passed and the prior exact PR head already passed the complete CI suite. Fresh exact-head CI remains required before merge. External benchmark registry planning is not execution: 17 optional/required external benchmark integrations remain unconfigured and are not claimed as run.
+
+The first implementation slice is the data-envelope schema, source registry, and independent-grader contracts with small deterministic tests. Track S stays parked at S6. A7 transport, ESP32 flashing/capture, model runs, dataset generation, paid grading, long benchmarks, deployment, and release begin only as explicit measured tasks.
+---END-ENTRY-#560---

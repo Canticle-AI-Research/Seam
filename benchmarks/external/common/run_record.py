@@ -10,8 +10,10 @@ dataset hash, flags, prompts) and totals.
 
 Two outputs:
 - ``write_json``  -> the rich analysis artifact (run metadata + every case).
-- ``write_training_jsonl`` -> one row per (case, arm) in a messages+reasoning
-  shape for the LLM-Logs / local-model training corpus.
+- ``write_audit_jsonl`` -> one quarantined row per (case, arm) in a
+  messages+reasoning analysis shape. Every row is machine-marked
+  ``training_eligible=false``. ``write_training_jsonl`` is a compatibility
+  alias; its historical name does not make the artifact training data.
 
 Nothing here makes a network call or changes scoring; it is pure capture.
 """
@@ -301,10 +303,13 @@ class RunRecord:
             json.dump(self.to_dict(), f, indent=2, sort_keys=False)
         return path
 
-    def write_training_jsonl(self, path: str) -> str:
-        """One row per (case, arm) shaped for the LLM-Logs / local-model corpus:
-        the answerer input as a user message, the model's reasoning + answer as
-        the assistant turn, plus the labels a trainer/filter needs."""
+    def write_audit_jsonl(self, path: str) -> str:
+        """Write quarantined case/arm rows for analysis and later admission.
+
+        The export intentionally retains evaluation questions, gold labels,
+        judge outputs, and any captured reasoning for full-fidelity audit. It
+        is therefore never directly eligible for training.
+        """
         os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
         prompts = self.meta.get("prompts", {})
         with open(path, "w") as f:
@@ -317,10 +322,20 @@ class RunRecord:
                 assistant = c["generated_answer"]
                 if c["reasoning_trace"]:
                     assistant = f"<think>{c['reasoning_trace']}</think>\n{assistant}"
+                exclusion_reasons = [
+                    "benchmark_evaluation_origin",
+                    "contains_gold_answer",
+                    "contains_judge_output",
+                ]
+                if c["reasoning_trace"]:
+                    exclusion_reasons.append("contains_reasoning_trace")
                 f.write(json.dumps({
                     "case_id": c["case_id"],
                     "arm": c["arm"],
                     "category": c["category"],
+                    "artifact_class": "evaluation_audit_export",
+                    "training_eligible": False,
+                    "training_exclusion_reasons": exclusion_reasons,
                     "messages": [
                         {"role": "user", "content": user},
                         {"role": "assistant", "content": assistant},
@@ -335,3 +350,11 @@ class RunRecord:
                     "failure_class_conservative": c.get("failure_class_conservative"),
                 }) + "\n")
         return path
+
+    def write_training_jsonl(self, path: str) -> str:
+        """Compatibility alias for :meth:`write_audit_jsonl`.
+
+        The legacy method name is retained for callers, but every emitted row
+        remains explicitly training-ineligible.
+        """
+        return self.write_audit_jsonl(path)

@@ -1917,16 +1917,224 @@ priority: 0
 phase: 1
 -->
 
-**Status:** In progress. Track S turns the verified F1-F22 production-memory
-findings into one dependency-ordered hardening campaign. Its canonical verdict
-matrix, S0-S10 stage graph, and exact exit gates live in
-`docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`.
+**Status:** In progress, reconciled and parked for the current native-model
+setup session. S0-S5 are merged. S6 was characterized but its implementation
+never started; it is the sole next unblocked stage. S7-S10 remain open behind
+S6. Its canonical verdict matrix, S0-S10 stage graph, and exact exit gates live
+in `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`.
 
 Track S coordinates existing Track R graph work, H2 improvement evidence, E2
 tenancy, and K14 contradiction inspection; it does not supersede those tracks.
 The current semantic baseline is an input to S0, not evidence that any F1-F22
 defect is fixed. Promotion remains provider-free and requires the full 1,542-
 case non-regression gate plus the stage-specific integrity evidence.
+
+---
+
+## Track T — SEAM-Native Models and Provenance-Aware Data
+
+<!-- seam:item
+id: roadmap:track:T
+status: now
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, provenance, benchmark, judge, roadmap
+priority: 0
+phase: 1
+-->
+
+Track T builds the dataset generator first, then advances the exact gated model
+ladder **~250K -> 1B -> 4B**. The architecture, corpus contract, contamination
+boundary, and evaluation gates live in
+`docs/roadmap/SEAM_NATIVE_MODEL.md`. Current lifecycle state lives in the
+append-only `plans` and `executed` streams described by
+`docs/roadmap/APPEND_ONLY_ROADMAP.md`.
+
+<!-- seam:item
+id: roadmap:track:T:data:contract-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, provenance, json, integrity
+priority: 0
+phase: 1
+-->
+<!-- seam:item
+id: roadmap:track:T:data:source-registry-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, provenance, registry, security
+priority: 0
+phase: 1
+-->
+<!-- seam:item
+id: roadmap:track:T:eval:independent-grader-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, judge, benchmark, quality
+priority: 0
+phase: 1
+-->
+<!-- seam:item
+id: roadmap:track:T:data:generator-core-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, provenance, scripts, integrity
+priority: 0
+phase: 2
+-->
+<!-- seam:item
+id: roadmap:track:T:data:pretrain-view-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, provenance, tokenizer
+priority: 0
+phase: 3
+-->
+<!-- seam:item
+id: roadmap:track:T:data:training-view-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, provenance, retrieval, agent
+priority: 0
+phase: 3
+-->
+<!-- seam:item
+id: roadmap:track:T:data:quality-splits-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, provenance, benchmark, security, quality
+priority: 0
+phase: 4
+-->
+<!-- seam:item
+id: roadmap:track:T:model:250k
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, benchmark, agent
+priority: 0
+phase: 5
+-->
+<!-- seam:item
+id: roadmap:track:T:model:1b
+status: deferred
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, benchmark, agent, provenance
+priority: 0
+phase: 6
+-->
+<!-- seam:item
+id: roadmap:track:T:model:4b
+status: deferred
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: models, benchmark, agent, provenance
+priority: 0
+phase: 7
+-->
+
+Dependency order:
+
+```text
+data contract -> source registry -> generator core
+                    |                  |
+independent grader -+          pretrain + training views
+                                           |
+                                   quality / split gate
+                                           |
+                                      ~250K -> 1B -> 4B
+```
+
+The candidate/teacher model cannot be its sole judge. Promotion requires
+deterministic checks plus a blinded grader from a different model family, with
+recorded disagreement and skeptical failure analysis. Benchmark exports and
+raw hidden-reasoning traces default to training-ineligible quarantine.
+
+---
+
+## Track U — Embodied Agent: Tab A7 + Three ESP32-S3 Nodes
+
+<!-- seam:item
+id: roadmap:track:U
+status: now
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: agent, models, provenance, roadmap
+priority: 0
+phase: 1
+-->
+
+Track U builds one persistent agent. The Galaxy Tab A7 is its attributable
+visual head (its eyes) and initial microphone/speaker voice surface; exactly
+three ESP32-S3 nodes provide the distributed environmental/CSI sensing array.
+The Linux host and SEAM remain the durable
+aggregation, provenance, world-model, and executive boundary. See
+`docs/roadmap/SEAM_ESP32_EMBODIED_SPATIAL.md`.
+
+<!-- seam:item
+id: roadmap:track:U:vision:tab-a7-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: agent, provenance, surface, models
+priority: 0
+phase: 1
+-->
+<!-- seam:item
+id: roadmap:track:U:sensing:esp32s3-3node-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: agent, provenance, models, test
+priority: 0
+phase: 1
+-->
+<!-- seam:item
+id: roadmap:track:U:voice:tab-a7-v1
+status: planned
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: agent, provenance, surface, models
+priority: 0
+phase: 1
+-->
+<!-- seam:item
+id: roadmap:track:U:fusion:a7-3node-v1
+status: deferred
+status-since: 2026-08-12
+status-by: none
+supersedes: none
+topics: agent, provenance, graph, models, benchmark
+priority: 0
+phase: 2
+-->
+
+The A7 transport remains a measured implementation choice. Fusion does not
+begin until A7 and three-node observations each have independent identity,
+timestamp, calibration, privacy, and provenance gates.
 
 ---
 
@@ -1939,11 +2147,17 @@ by later done entries and status notes.
 Current sequence:
 
 ```
-Now - Track S production-core integrity campaign
-- Execute S0-S10 in dependency order from `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md`
+Reconciled / parked - Track S production-core integrity campaign
+- S0-S5 are merged; S6 is characterized but unstarted; S7-S10 remain open behind it
+- Resume only at S6 from a clean protected-main branch when Track S work is authorized
 - Do not claim any F1-F22 repair until its owning stage's exact exit gate passes
-- Keep Track R, H2, E2, and K14 active as coordinated inputs rather than superseded work
-- Keep provider-paid execution, publication, and destructive cleanup separately authorized
+
+Now - Track T native-model foundation + Track U embodied-agent foundation
+- Land the append-only future-ideas / plans / executed workflow
+- Define and test the data-envelope and source-admission contracts before generating data
+- Define blinded independent-model grading before model or dataset promotion
+- Qualify the Tab A7 visual transport and each of exactly three ESP32-S3 nodes separately before fusion
+- Defer long model runs, bulk corpus jobs, paid grading, long benchmarks, and prolonged sensor capture to explicit measured runs
 
 Done - functional visual memory + foundational polish
 - G1: Document-to-machine-language compiler (implemented; see HISTORY#145)

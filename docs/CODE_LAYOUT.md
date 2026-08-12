@@ -79,6 +79,12 @@ not have to infer what works from directory names alone.
   validates every reachable page and the prospective report-registry contract,
   and can export the exact Git index for the commit hook. Working-tree mode
   runs in closeout, agent preflight, and required CI.
+- `tools/streams/roadmap_lifecycle.py` - append-only roadmap workflow over the
+  `future-ideas`, `plans`, and `executed` streams. It validates linear
+  supersession and cross-stream origin links, rebuilds per-stream indexes and
+   the global cross-index, and emits the disposable current-state view at
+   `.seam/streams/roadmap_workflow_state.md`. Operator contract:
+   `docs/roadmap/APPEND_ONLY_ROADMAP.md`.
 - `branding/kit/` - canonical Canticle/SEAM identity assets and tokens;
   `branding/canticle-cosmic-kit/` is its versioned UI expression layer with
   framework adapters and a local component gallery. `tools/branding/` verifies

@@ -3,11 +3,14 @@ from __future__ import annotations
 
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 from tools.history.history_lib import HISTORY_PATH, INDEX_PATH
 from tools.streams.history_adapter import sync_history_mirror, verify_history_mirror
 from tools.streams.rebuild_cross_index import ARCHIVE_DIR, collect_all_events, rebuild_cross_index
 from tools.streams.rebuild_index import rebuild_index
+from tools.streams.roadmap_lifecycle import render_state as render_lifecycle_state
+from tools.streams.roadmap_lifecycle import validate_events as validate_lifecycle_events
 from tools.streams.roadmap_parser import (
     ROADMAP_PATH,
     items_to_events,
@@ -64,6 +67,213 @@ class StreamsLibTests(unittest.TestCase):
         )
         self.assertIn("---BEGIN-ENTRY-#001---", block)
         self.assertIn("---END-ENTRY-#001---", block)
+
+
+class RoadmapLifecycleTests(unittest.TestCase):
+    @staticmethod
+    def _event(
+        stream: str,
+        event_id: int,
+        *,
+        item: str,
+        event: str,
+        supersedes: str = "none",
+        origin: str = "none",
+        depends_on: str = "none",
+        outcome: str = "observed outcome",
+        verification: str = "test evidence",
+    ):
+        fields = {
+            "kind": "roadmap-item",
+            "item": item,
+            "event": event,
+            "supersedes": supersedes,
+            "origin": origin,
+            "depends-on": depends_on,
+            "gate": "observable gate",
+            "outcome": outcome,
+            "verification": verification,
+            "refs": "none",
+            "topics": "roadmap, test",
+            "tokens": "3",
+        }
+        block = format_event(
+            kind=stream,
+            id=event_id,
+            date=f"2026-08-12T00:00:0{event_id}Z",
+            agent="test",
+            fields=fields,
+            body="test body",
+        )
+        return parse_events(block.encode("utf-8"), stream)[0]
+
+    def test_valid_promotion_chain_renders_only_executed_head(self) -> None:
+        item = "roadmap:track:T:test"
+        idea = self._event("future-ideas", 1, item=item, event="proposed")
+        plan = self._event(
+            "plans", 1, item=item, event="planned", origin="future-ideas:001"
+        )
+        done = self._event(
+            "executed", 1, item=item, event="completed", origin="plans:001"
+        )
+        events = {"future-ideas": [idea], "plans": [plan], "executed": [done]}
+        self.assertEqual(validate_lifecycle_events(events), [])
+        state = render_lifecycle_state(events)
+        self.assertIn("## Future Ideas (0)", state)
+        self.assertIn("## Plans (0)", state)
+        self.assertIn("## Executed / Finished (1)", state)
+
+    def test_supersession_fork_fails(self) -> None:
+        item = "roadmap:track:T:test"
+        first = self._event("plans", 1, item=item, event="planned")
+        second = self._event(
+            "plans", 2, item=item, event="replanned", supersedes="plans:001"
+        )
+        third = self._event(
+            "plans", 3, item=item, event="replanned", supersedes="plans:001"
+        )
+        errors = validate_lifecycle_events(
+            {"future-ideas": [], "plans": [first, second, third], "executed": []}
+        )
+        self.assertTrue(any("supersession fork" in error for error in errors))
+
+    def test_executed_item_requires_plan_or_imported_origin(self) -> None:
+        done = self._event(
+            "executed",
+            1,
+            item="roadmap:track:T:test",
+            event="completed",
+            origin="none",
+        )
+        errors = validate_lifecycle_events(
+            {"future-ideas": [], "plans": [], "executed": [done]}
+        )
+        self.assertTrue(any("executed origin" in error for error in errors))
+
+    def test_executed_item_requires_real_outcome_and_verification(self) -> None:
+        done = self._event(
+            "executed",
+            1,
+            item="roadmap:track:T:test",
+            event="completed",
+            origin="history:001",
+            outcome="none",
+            verification="none",
+        )
+        errors = validate_lifecycle_events(
+            {"future-ideas": [], "plans": [], "executed": [done]}
+        )
+        self.assertTrue(any("outcome must not" in error for error in errors))
+        self.assertTrue(any("verification must not" in error for error in errors))
+
+    def test_empty_body_fails_before_state_render(self) -> None:
+        idea = self._event(
+            "future-ideas",
+            1,
+            item="roadmap:track:T:test",
+            event="proposed",
+        )
+        idea.body = ""
+        errors = validate_lifecycle_events(
+            {"future-ideas": [idea], "plans": [], "executed": []}
+        )
+        self.assertTrue(any("body must not be empty" in error for error in errors))
+
+    def test_superseded_dependency_does_not_create_false_cycle(self) -> None:
+        item_a = "roadmap:track:T:a"
+        item_b = "roadmap:track:T:b"
+        old_a = self._event(
+            "plans", 1, item=item_a, event="planned", depends_on=item_b
+        )
+        current_a = self._event(
+            "plans",
+            2,
+            item=item_a,
+            event="replanned",
+            supersedes="plans:001",
+        )
+        current_b = self._event(
+            "plans", 3, item=item_b, event="planned", depends_on=item_a
+        )
+        errors = validate_lifecycle_events(
+            {
+                "future-ideas": [],
+                "plans": [old_a, current_a, current_b],
+                "executed": [],
+            }
+        )
+        self.assertFalse(any("dependency cycle" in error for error in errors))
+
+    def test_invalid_imported_origin_is_rejected_before_append(self) -> None:
+        from unittest.mock import patch
+
+        from tools.streams.roadmap_lifecycle import append_roadmap_item
+
+        args = SimpleNamespace(
+            stream="executed",
+            item="roadmap:track:T:invalid-import-test",
+            event="completed",
+            body="Invalid imported completion used only for validation.",
+            agent="test",
+            date="2026-08-12T23:00:00Z",
+            supersedes="none",
+            origin="history:999999",
+            depends_on="none",
+            gate="none",
+            outcome="completed for test",
+            verification="test-only evidence",
+            refs="none",
+            topics="roadmap, test",
+        )
+        with patch("tools.streams.roadmap_lifecycle.append_event") as append_mock:
+            with self.assertRaisesRegex(ValueError, "imported origin does not exist"):
+                append_roadmap_item(args)
+        append_mock.assert_not_called()
+
+    def test_workflow_lock_serializes_threads(self) -> None:
+        import threading
+
+        from tools.streams.roadmap_lifecycle import _workflow_lock
+
+        first_entered = threading.Event()
+        release_first = threading.Event()
+        second_entered = threading.Event()
+
+        def first() -> None:
+            with _workflow_lock():
+                first_entered.set()
+                release_first.wait(timeout=2)
+
+        def second() -> None:
+            first_entered.wait(timeout=2)
+            with _workflow_lock():
+                second_entered.set()
+
+        one = threading.Thread(target=first)
+        two = threading.Thread(target=second)
+        one.start()
+        two.start()
+        self.assertTrue(first_entered.wait(timeout=2))
+        self.assertFalse(second_entered.wait(timeout=0.05))
+        release_first.set()
+        one.join(timeout=2)
+        two.join(timeout=2)
+        self.assertTrue(second_entered.is_set())
+
+    def test_missing_canonical_lifecycle_streams_fail_verification(self) -> None:
+        import tempfile
+        from unittest.mock import patch
+
+        from tools.streams.roadmap_lifecycle import verify_workflow
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            state = root / "roadmap_workflow_state.md"
+            with patch("tools.streams.roadmap_lifecycle.STREAMS_ROOT", root):
+                with patch("tools.streams.streams_lib.STREAMS_ROOT", root):
+                    with patch("tools.streams.roadmap_lifecycle.STATE_PATH", state):
+                        errors = verify_workflow()
+        self.assertTrue(any("log.md missing" in error for error in errors))
 
 
 class HistoryAdapterTests(unittest.TestCase):

@@ -68,7 +68,7 @@ the repo.
 ## Outputs
 
 - **`<path>.json`** — the rich analysis artifact (run + totals + every case).
-- **`<path>.jsonl`** — one row per (case, arm) as `{messages:[user, assistant], reasoning_trace, gold_answer, verdict, context_recall, failure_class}`, shaped for the LLM-Logs / local-model training corpus.
+- **`<path>.jsonl`** — one row per (case, arm) as `{artifact_class, training_eligible, training_exclusion_reasons, messages, reasoning_trace, gold_answer, verdict, context_recall, failure_class}`. This is an evaluation/audit export, not an admitted training corpus. `RunRecord.write_audit_jsonl()` emits `artifact_class="evaluation_audit_export"` and `training_eligible=false`; the legacy `write_training_jsonl()` name is only a compatibility alias to the same quarantined writer. Because rows can contain holdout questions, gold answers, incorrect arms, judge output, and private reasoning traces, they must remain quarantined unless a separate provenance-aware admission process proves rights, privacy, decontamination, and replacement-holdout requirements.
 
 Records land in `benchmarks/runs/records/` (gitignored — bulky, operator-controlled).
 

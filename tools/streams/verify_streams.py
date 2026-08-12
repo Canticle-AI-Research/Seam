@@ -7,6 +7,8 @@ Checks:
   - .seam/cross_index.md exists and matches a fresh rebuild for the listed totals.
   - Each stream's content_hash in index.md matches the computed hash of log.md
     events (backward-compatible: does not fail if content_hash field is absent).
+  - The future-ideas/plans/executed roadmap lifecycle has valid linear
+    supersession, promotion references, and a fresh derived state view.
 
 Exits non-zero on any failure.
 """
@@ -18,6 +20,7 @@ import sys
 
 from tools.streams.history_adapter import verify_history_mirror
 from tools.streams.rebuild_cross_index import collect_all_events
+from tools.streams.roadmap_lifecycle import verify_workflow
 from tools.streams.streams_lib import (
     CROSS_INDEX_PATH,
     STREAMS_ROOT,
@@ -40,6 +43,7 @@ def verify_all() -> list[str]:
         errors.append("history stream missing from .seam/streams/")
 
     errors.extend(verify_history_mirror())
+    errors.extend(verify_workflow())
 
     for kind in kinds:
         data = read_log(kind)

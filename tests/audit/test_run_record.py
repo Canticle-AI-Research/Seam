@@ -148,19 +148,28 @@ def test_end_to_end_capture_through_scorer(tmp_path):
     jpath = recorder.write_json(str(tmp_path / "run.json"))
     doc = json.loads(open(jpath).read())
     assert doc["totals"]["n_case_rows"] == 2 and len(doc["cases"]) == 2
-    tpath = recorder.write_training_jsonl(str(tmp_path / "train.jsonl"))
+    tpath = recorder.write_audit_jsonl(str(tmp_path / "audit.jsonl"))
     rows = [json.loads(line) for line in open(tpath)]
     assert len(rows) == 2
+    assert all(row["artifact_class"] == "evaluation_audit_export" for row in rows)
+    assert all(row["training_eligible"] is False for row in rows)
+    assert all("contains_gold_answer" in row["training_exclusion_reasons"] for row in rows)
     assert rows[0]["messages"][0]["role"] == "user"
     assert rows[0]["messages"][1]["role"] == "assistant"
-    # the <think> trace is preserved in the training assistant turn for c1
+    # Full-fidelity audit preserves the trace but machine-quarantines the row.
     c1row = next(r for r in rows if r["case_id"] == "c1")
     assert "<think>" in c1row["messages"][1]["content"]
+    assert "contains_reasoning_trace" in c1row["training_exclusion_reasons"]
+
+    # The historical API name is a compatibility alias, never an admission.
+    legacy_path = recorder.write_training_jsonl(str(tmp_path / "legacy.jsonl"))
+    legacy_rows = [json.loads(line) for line in open(legacy_path)]
+    assert all(row["training_eligible"] is False for row in legacy_rows)
 
 
 def test_run_paid_validation_writes_record(tmp_path):
     """The paid-validation path (what `seam improve validate` calls) writes the
-    full JSON + training JSONL when given a record_path, capturing both arms."""
+    full JSON + quarantined audit JSONL when given a record_path."""
     from tools.h2.paid_validation import run_paid_validation
 
     cases_by_scope = OrderedDict()
@@ -183,8 +192,10 @@ def test_run_paid_validation_writes_record(tmp_path):
     arms = {c["arm"] for c in doc["cases"]}
     assert arms == {"baseline", "candidate"}  # both arms captured
     assert doc["run"]["scorer"] == scorer.name
-    rows = [json.loads(line) for line in open(report["record"]["training_jsonl"])]
+    assert report["record"]["training_jsonl"] == report["record"]["audit_jsonl"]
+    rows = [json.loads(line) for line in open(report["record"]["audit_jsonl"])]
     assert len(rows) == 2  # 1 case x 2 arms
+    assert all(row["training_eligible"] is False for row in rows)
 
 
 def test_external_mount_guard(tmp_path):

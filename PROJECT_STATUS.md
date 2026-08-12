@@ -9,6 +9,24 @@
 
 ## Current headline
 
+**2026-08-12 — HISTORY#558, native-model and embodied-agent launch plan
+prepared on PR #207; implementation has not started.** Track T now orders a provenance-aware
+dataset generator before the exact ~250K -> 1B -> 4B model ladder. Promotion
+requires deterministic gates plus blinded skeptical grading by a different
+model family; benchmark/gold exports and raw hidden-reasoning traces remain
+training-ineligible by default. Track U fixes the initial embodied system at
+one agent, a Galaxy Tab A7 visual head, and exactly three ESP32-S3 sensing
+nodes; the A7 microphone and speaker provide the initial qualified voice loop.
+Long model/data/benchmark/sensor runs and device flashing remain
+deferred.
+
+Roadmap evolution is append-only across `future-ideas`, `plans`, and
+`executed`; see `.seam/streams/roadmap_workflow_state.md`. Track S was
+reconciled without starting it: S0-S5 are merged, S6 is the unimplemented and
+currently parked restart point, and S7-S10 remain open behind it.
+
+## Prior Track S S5 publication detail
+
 **2026-08-03 — HISTORY#533, Track S S5 published; S6 is the next stage**
 (supersedes the 2026-08-03 HISTORY#532 headline). Protected `main` is
 `19b3a76`: S5 merged through PR #199 after all eight required and advisory

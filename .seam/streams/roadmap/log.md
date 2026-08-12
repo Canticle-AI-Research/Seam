@@ -1131,3 +1131,291 @@ tokens: 41
 ---
 Bootstrap status capture for roadmap:track:S: status=in-progress, status-since=2026-08-01, caused-by=history:511. Sourced from ROADMAP.md seam:item marker.
 ---END-ROADMAP-EVENT-#063---
+
+---BEGIN-ROADMAP-EVENT-#064---
+id: roadmap:064
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T
+event: bootstrap
+from: (initial)
+to: now
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:1936
+topics: models, provenance, benchmark, judge, roadmap
+tokens: 39
+---
+Bootstrap status capture for roadmap:track:T: status=now, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#064---
+
+---BEGIN-ROADMAP-EVENT-#065---
+id: roadmap:065
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:data:contract-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:1954
+topics: models, provenance, json, integrity
+tokens: 45
+---
+Bootstrap status capture for roadmap:track:T:data:contract-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#065---
+
+---BEGIN-ROADMAP-EVENT-#066---
+id: roadmap:066
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:data:source-registry-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:1964
+topics: models, provenance, registry, security
+tokens: 47
+---
+Bootstrap status capture for roadmap:track:T:data:source-registry-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#066---
+
+---BEGIN-ROADMAP-EVENT-#067---
+id: roadmap:067
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:eval:independent-grader-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:1974
+topics: models, judge, benchmark, quality
+tokens: 49
+---
+Bootstrap status capture for roadmap:track:T:eval:independent-grader-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#067---
+
+---BEGIN-ROADMAP-EVENT-#068---
+id: roadmap:068
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:data:generator-core-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:1984
+topics: models, provenance, scripts, integrity
+tokens: 46
+---
+Bootstrap status capture for roadmap:track:T:data:generator-core-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#068---
+
+---BEGIN-ROADMAP-EVENT-#069---
+id: roadmap:069
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:data:pretrain-view-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:1994
+topics: models, provenance, tokenizer
+tokens: 47
+---
+Bootstrap status capture for roadmap:track:T:data:pretrain-view-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#069---
+
+---BEGIN-ROADMAP-EVENT-#070---
+id: roadmap:070
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:data:training-view-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2004
+topics: models, provenance, retrieval, agent
+tokens: 46
+---
+Bootstrap status capture for roadmap:track:T:data:training-view-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#070---
+
+---BEGIN-ROADMAP-EVENT-#071---
+id: roadmap:071
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:data:quality-splits-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2014
+topics: models, provenance, benchmark, security, quality
+tokens: 47
+---
+Bootstrap status capture for roadmap:track:T:data:quality-splits-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#071---
+
+---BEGIN-ROADMAP-EVENT-#072---
+id: roadmap:072
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:model:250k
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2024
+topics: models, benchmark, agent
+tokens: 44
+---
+Bootstrap status capture for roadmap:track:T:model:250k: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#072---
+
+---BEGIN-ROADMAP-EVENT-#073---
+id: roadmap:073
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:model:1b
+event: bootstrap
+from: (initial)
+to: deferred
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2034
+topics: models, benchmark, agent, provenance
+tokens: 44
+---
+Bootstrap status capture for roadmap:track:T:model:1b: status=deferred, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#073---
+
+---BEGIN-ROADMAP-EVENT-#074---
+id: roadmap:074
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:T:model:4b
+event: bootstrap
+from: (initial)
+to: deferred
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2044
+topics: models, benchmark, agent, provenance
+tokens: 44
+---
+Bootstrap status capture for roadmap:track:T:model:4b: status=deferred, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#074---
+
+---BEGIN-ROADMAP-EVENT-#075---
+id: roadmap:075
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:U
+event: bootstrap
+from: (initial)
+to: now
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2076
+topics: agent, models, provenance, roadmap
+tokens: 40
+---
+Bootstrap status capture for roadmap:track:U: status=now, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#075---
+
+---BEGIN-ROADMAP-EVENT-#076---
+id: roadmap:076
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:U:vision:tab-a7-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2094
+topics: agent, provenance, surface, models
+tokens: 49
+---
+Bootstrap status capture for roadmap:track:U:vision:tab-a7-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#076---
+
+---BEGIN-ROADMAP-EVENT-#077---
+id: roadmap:077
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:U:sensing:esp32s3-3node-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2104
+topics: agent, provenance, models, test
+tokens: 53
+---
+Bootstrap status capture for roadmap:track:U:sensing:esp32s3-3node-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#077---
+
+---BEGIN-ROADMAP-EVENT-#078---
+id: roadmap:078
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:U:voice:tab-a7-v1
+event: bootstrap
+from: (initial)
+to: planned
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2114
+topics: agent, provenance, surface, models
+tokens: 49
+---
+Bootstrap status capture for roadmap:track:U:voice:tab-a7-v1: status=planned, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#078---
+
+---BEGIN-ROADMAP-EVENT-#079---
+id: roadmap:079
+date: 2026-08-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:U:fusion:a7-3node-v1
+event: bootstrap
+from: (initial)
+to: deferred
+caused-by: none
+supersedes: none
+refs: ROADMAP.md:2124
+topics: agent, provenance, graph, models, benchmark
+tokens: 50
+---
+Bootstrap status capture for roadmap:track:U:fusion:a7-3node-v1: status=deferred, status-since=2026-08-12, caused-by=none. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#079---

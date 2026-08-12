@@ -1,15 +1,31 @@
 # Roadmap Index
 
-total_events: 63
-latest_id: 63
+total_events: 79
+latest_id: 79
 source: streams/roadmap/log.md
 schema: seam-stream-index/v1
-content_hash: e91d15cc55a5015f65f746ecaf17adfd8c1c05e2a639a90c0ed37a3335527b4e
+content_hash: a7f1adf08ec0554a922bd24ff889eeb503fc7396c17b71c6045e03acdf5ce2a4
 
 ## entries (newest first)
 
 | id | date | kind | item | event | hash | supersedes | topics |
 |---|---|---|---|---|---|---|---|
+| 079 | 2026-08-12T00:00:00Z | status-change | roadmap:track:U:fusion:a7-3node-v1 | bootstrap | 6bc2ae7748919307 | none | agent, provenance, graph, models, ben... |
+| 078 | 2026-08-12T00:00:00Z | status-change | roadmap:track:U:voice:tab-a7-v1 | bootstrap | bf2c03c6fcc4b8e2 | none | agent, provenance, surface, models |
+| 077 | 2026-08-12T00:00:00Z | status-change | roadmap:track:U:sensing:esp32s3-3node-v1 | bootstrap | 5bfd5d2d387856ad | none | agent, provenance, models, test |
+| 076 | 2026-08-12T00:00:00Z | status-change | roadmap:track:U:vision:tab-a7-v1 | bootstrap | 958c2114adfd7de9 | none | agent, provenance, surface, models |
+| 075 | 2026-08-12T00:00:00Z | status-change | roadmap:track:U | bootstrap | 3ba03390d09caf3f | none | agent, models, provenance, roadmap |
+| 074 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:model:4b | bootstrap | 83b99f50b9baecfd | none | models, benchmark, agent, provenance |
+| 073 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:model:1b | bootstrap | 07c6291a290e7ac0 | none | models, benchmark, agent, provenance |
+| 072 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:model:250k | bootstrap | 2c386a3c38046aec | none | models, benchmark, agent |
+| 071 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:data:quality-splits-v1 | bootstrap | f597e2e50da30086 | none | models, provenance, benchmark, securi... |
+| 070 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:data:training-view-v1 | bootstrap | 1c6eece2b564fe6d | none | models, provenance, retrieval, agent |
+| 069 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:data:pretrain-view-v1 | bootstrap | bf1932fc3961494c | none | models, provenance, tokenizer |
+| 068 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:data:generator-core-v1 | bootstrap | 5eb2014fe82ee776 | none | models, provenance, scripts, integrity |
+| 067 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:eval:independent-grader-v1 | bootstrap | 50674e6c046cd841 | none | models, judge, benchmark, quality |
+| 066 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:data:source-registry-v1 | bootstrap | 63af2bd17ead1404 | none | models, provenance, registry, security |
+| 065 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T:data:contract-v1 | bootstrap | 91dd1cac9f898076 | none | models, provenance, json, integrity |
+| 064 | 2026-08-12T00:00:00Z | status-change | roadmap:track:T | bootstrap | 96400b91ea334375 | none | models, provenance, benchmark, judge,... |
 | 063 | 2026-08-01T00:00:00Z | status-change | roadmap:track:S | bootstrap | c23e87bfb908ffed | none | audit, storage, retrieval, security, ... |
 | 062 | 2026-08-01T00:00:00Z | status-change | roadmap:track:N2 | bootstrap | d5499fc478eb6887 | none | packaging, selfhost, distribution, mc... |
 | 061 | 2026-07-24T00:00:00Z | status-change | roadmap:track:N | bootstrap | f52ecd5e6ac764ae | none | packaging, release, distribution |

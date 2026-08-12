@@ -3,11 +3,13 @@
 Source: ROADMAP.md (authored-canonical).
 Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 
-## now (3)
+## now (5)
 
 - `roadmap:track:F:backlog:experience-stream-empty` — since 2026-05-25 via history:243 — topics: experience, protocol
 - `roadmap:track:F:backlog:scoring-weights` — since 2026-05-25 via history:243 — topics: retrieval, benchmark
 - `roadmap:track:H2` — since 2026-05-25 via history:243 — topics: protocol, history, plan
+- `roadmap:track:T` — since 2026-08-12 via none — topics: models, provenance, benchmark, judge, roadmap
+- `roadmap:track:U` — since 2026-08-12 via none — topics: agent, models, provenance, roadmap
 
 ## in-progress (5)
 
@@ -17,7 +19,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:R` — since 2026-07-22 via history:454 — topics: graph, memory, retrieval, benchmark, comparator, provenance
 - `roadmap:track:S` — since 2026-08-01 via history:511 — topics: audit, storage, retrieval, security, graph, provenance, benchmark, verify
 
-## planned (35)
+## planned (46)
 
 - `roadmap:track:A2` — since 2026-04-18 via none — topics: benchmark, dashboard, animation
 - `roadmap:track:A3` — since 2026-04-18 via none — topics: benchmark, dashboard, graph
@@ -54,11 +56,28 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:O` — since 2026-06-15 via history:319 — topics: query, sql, retrieval, benchmark, bird
 - `roadmap:track:P` — since 2026-07-16 via history:407 — topics: agent, openclaw, namespaces, profiles, console
 - `roadmap:track:Q` — since 2026-07-16 via history:407 — topics: android, mobile, small-models, memory-loop
+- `roadmap:track:T:data:contract-v1` — since 2026-08-12 via none — topics: models, provenance, json, integrity
+- `roadmap:track:T:data:generator-core-v1` — since 2026-08-12 via none — topics: models, provenance, scripts, integrity
+- `roadmap:track:T:data:pretrain-view-v1` — since 2026-08-12 via none — topics: models, provenance, tokenizer
+- `roadmap:track:T:data:quality-splits-v1` — since 2026-08-12 via none — topics: models, provenance, benchmark, security, quality
+- `roadmap:track:T:data:source-registry-v1` — since 2026-08-12 via none — topics: models, provenance, registry, security
+- `roadmap:track:T:data:training-view-v1` — since 2026-08-12 via none — topics: models, provenance, retrieval, agent
+- `roadmap:track:T:eval:independent-grader-v1` — since 2026-08-12 via none — topics: models, judge, benchmark, quality
+- `roadmap:track:T:model:250k` — since 2026-08-12 via none — topics: models, benchmark, agent
+- `roadmap:track:U:sensing:esp32s3-3node-v1` — since 2026-08-12 via none — topics: agent, provenance, models, test
+- `roadmap:track:U:vision:tab-a7-v1` — since 2026-08-12 via none — topics: agent, provenance, surface, models
+- `roadmap:track:U:voice:tab-a7-v1` — since 2026-08-12 via none — topics: agent, provenance, surface, models
 
 ## later (2)
 
 - `roadmap:track:H3` — since 2026-05-15 via history:165 — topics: protocol, retrieval, search
 - `roadmap:track:H4` — since 2026-05-15 via history:165 — topics: protocol, retrieval, search, vector
+
+## deferred (3)
+
+- `roadmap:track:T:model:1b` — since 2026-08-12 via none — topics: models, benchmark, agent, provenance
+- `roadmap:track:T:model:4b` — since 2026-08-12 via none — topics: models, benchmark, agent, provenance
+- `roadmap:track:U:fusion:a7-3node-v1` — since 2026-08-12 via none — topics: agent, provenance, graph, models, benchmark
 
 ## done (18)
 

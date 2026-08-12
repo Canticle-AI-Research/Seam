@@ -61,6 +61,9 @@ without promoting a weaker source into a stronger claim:
   security, verification, incidents, calibration, and templates.
 - [Roadmaps](roadmap/README.md) — authored future direction, never current-state
   or implementation proof.
+  The collection includes the [append-only workflow](roadmap/APPEND_ONLY_ROADMAP.md),
+  [native-model program](roadmap/SEAM_NATIVE_MODEL.md), and
+  [A7 plus three-node embodied architecture](roadmap/SEAM_ESP32_EMBODIED_SPATIAL.md).
 - [Prompt library](prompts/README.md) — reusable task packets, never evidence
   that their requested work ran.
 - [Topic ledgers](ledgers/README.md) — stable routed facts; chronology remains in
