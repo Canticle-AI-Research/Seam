@@ -46,9 +46,9 @@ _OBJECT_ONLY_GROUNDED_CLM_POLICIES = {
 @dataclass
 class _VectorCache:
     """Deserialized vectors for one (model, dimension, namespace), reused across
-    queries. ``fingerprint`` = (row count, max updated_at) for the slice; a
-    mismatch on the next search rebuilds, so writes from THIS process or any
-    other (the MCP server and CLI share the DB) invalidate correctly."""
+    queries. ``fingerprint`` contains the number and ordered source metadata for
+    the slice; a mismatch on the next search rebuilds without loading vector
+    JSON."""
 
     fingerprint: tuple[int, str]
     ids: list[str]
@@ -164,6 +164,7 @@ class SQLiteVectorIndex:
 
     def index_records(self, records: Iterable[MIRLRecord]) -> None:
         self.ensure_schema()
+        wrote_index = False
         with closing(self._connect()) as connection:
             for record in records:
                 if record.kind not in INDEXABLE_KINDS:
@@ -199,6 +200,7 @@ class SQLiteVectorIndex:
                                 self.model.name,
                             ),
                         )
+                        wrote_index = True
                     continue
                 vector = self.model.embed(source_text)
                 connection.execute(
@@ -221,11 +223,13 @@ class SQLiteVectorIndex:
                         record.updated_at,
                     ),
                 )
+                wrote_index = True
             connection.commit()
-        # A local write may invalidate any cached matrix; the per-search
-        # fingerprint check would catch it anyway, but clearing here avoids one
-        # stale-detection round-trip.
-        self._cache.clear()
+        if wrote_index:
+            # A local write may invalidate any cached matrix; the per-search
+            # fingerprint check would catch it anyway, but clearing here avoids one
+            # stale-detection round-trip.
+            self._cache.clear()
 
     def delete_records(self, record_ids: Iterable[str]) -> None:
         """Delete rebuildable vector rows and invalidate all cached slices."""
@@ -246,6 +250,11 @@ class SQLiteVectorIndex:
         # A local write may invalidate any cached matrix; the per-search
         # fingerprint check would catch it anyway, but clearing here avoids one
         # stale-detection round-trip.
+        self._cache.clear()
+
+    def invalidate_cache(self) -> None:
+        """Discard matrices after a storage-level vector snapshot restore."""
+
         self._cache.clear()
 
     def search(
@@ -270,13 +279,15 @@ class SQLiteVectorIndex:
         namespace: str | None,
         scope: str | None,
     ) -> tuple[int, str]:
-        """Cheap invalidation key: (row count, max updated_at) for the slice.
+        """Return a stable metadata digest for a cached vector slice.
 
-        An ``insert or replace`` stamps the record's ``updated_at`` (monotonic
-        at ingest), so both new rows (count) and content changes (max ts) move
-        the fingerprint; a stale cache is rebuilt on the next search."""
+        The vector cache represents only ``record_id`` and ``vector_json``.
+        Supported writers recompute a vector when its ``source_hash`` changes,
+        so an ordered digest of record IDs and source hashes detects every
+        content or slice-membership change without deserializing vector JSON.
+        """
         sql = (
-            "select count(*), coalesce(max(updated_at), '') from vector_index "
+            "select record_id, source_hash from vector_index "
             "where model_name = ? and dimension = ? and render_version = ?"
         )
         params: list[object] = [
@@ -290,8 +301,16 @@ class SQLiteVectorIndex:
         if scope is not None:
             sql += " and scope = ?"
             params.append(scope)
-        row = connection.execute(sql, params).fetchone()
-        return (int(row[0]), str(row[1]))
+        sql += " order by record_id"
+        digest = hashlib.sha256()
+        count = 0
+        for row in connection.execute(sql, params):
+            digest.update(str(row["record_id"]).encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(str(row["source_hash"]).encode("utf-8"))
+            digest.update(b"\0")
+            count += 1
+        return (count, digest.hexdigest())
 
     def _load_cache(
         self,

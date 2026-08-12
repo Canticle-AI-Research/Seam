@@ -15,7 +15,7 @@ from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.retrieval_orchestrator import RetrievalOrchestrator
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.sdk import SeamSDK
-from seam_runtime.vector_adapters import MemoryVectorAdapter
+from seam_runtime.vector_adapters import MemoryVectorAdapter, SQLiteVectorAdapter
 
 
 class _ToggleEmbeddingModel:
@@ -107,7 +107,7 @@ def test_vector_failure_atomically_restores_touched_required_target(
 ) -> None:
     path = tmp_path / "runtime-atomic-restore.sqlite3"
     model = _ToggleEmbeddingModel()
-    runtime = SeamRuntime(path, embedding_model=model)
+    runtime = SeamRuntime(path, embedding_model=model, allow_pgvector_env=False)
     source = MIRLRecord(
         id="ent:rollback-source",
         kind=RecordKind.ENT,
@@ -136,6 +136,8 @@ def test_vector_failure_atomically_restores_touched_required_target(
         runtime.persist_ir(
             IRBatch([source, target, surviving_referrer, existing_claim])
         )
+        assert isinstance(runtime.vector_adapter, SQLiteVectorAdapter)
+        runtime.vector_adapter.index._cache[("rollback", 0, None, None)] = object()
         before_hashes = _logical_table_hashes(path)
         before_bytes = path.read_bytes()
 
@@ -175,6 +177,7 @@ def test_vector_failure_atomically_restores_touched_required_target(
             assert private_id not in diagnostics
         assert raised.value.__cause__ is None
         assert raised.value.__context__ is None
+        assert runtime.vector_adapter.index._cache == {}
         assert path.read_bytes() == before_bytes
         assert _logical_table_hashes(path) == before_hashes
         assert runtime.store.load_ir(ids=[introduced_claim.id]).records == []

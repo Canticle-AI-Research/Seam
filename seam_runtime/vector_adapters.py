@@ -83,6 +83,9 @@ class SQLiteVectorAdapter:
     def delete_records(self, record_ids: list[str]) -> None:
         self.index.delete_records(record_ids)
 
+    def invalidate_cache(self) -> None:
+        self.index.invalidate_cache()
+
     def search(
         self,
         query: str,

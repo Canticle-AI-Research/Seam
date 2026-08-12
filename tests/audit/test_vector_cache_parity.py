@@ -18,6 +18,7 @@ from contextlib import closing
 import pytest
 
 import seam_runtime.vector as vmod
+from seam_runtime.mirl import MIRLRecord, RecordKind
 from seam_runtime.models import HashEmbeddingModel
 from seam_runtime.vector import SQLiteVectorIndex
 
@@ -103,8 +104,6 @@ def test_cache_invalidates_on_external_write(tmp_path) -> None:
 
 
 def test_index_records_clears_cache(tmp_path) -> None:
-    from seam_runtime.mirl import MIRLRecord, RecordKind
-
     model = HashEmbeddingModel()
     idx = SQLiteVectorIndex(str(tmp_path / "v.db"), model)
     idx.ensure_schema()
@@ -116,6 +115,33 @@ def test_index_records_clears_cache(tmp_path) -> None:
                    attrs={"content": "gamma gamma gamma delta"}, ns="nsA"),
     ])
     assert idx._cache == {}  # cleared by the write
+
+
+def test_idempotent_index_reuses_warmed_matrix(tmp_path, monkeypatch) -> None:
+    model = HashEmbeddingModel()
+    idx = SQLiteVectorIndex(str(tmp_path / "v.db"), model)
+    record = MIRLRecord(
+        id="raw:stable",
+        kind=RecordKind.RAW,
+        attrs={"content": "alpha beta gamma"},
+        ns="nsA",
+    )
+    idx.index_records([record])
+    idx.search("alpha", limit=5, namespace="nsA")
+
+    loads = 0
+    original_loads = vmod.json.loads
+
+    def count_loads(payload: str):
+        nonlocal loads
+        loads += 1
+        return original_loads(payload)
+
+    monkeypatch.setattr(vmod.json, "loads", count_loads)
+    idx.index_records([record])
+    idx.search("alpha", limit=5, namespace="nsA")
+
+    assert loads == 0
 
 
 def test_empty_namespace_returns_empty(tmp_path) -> None:
