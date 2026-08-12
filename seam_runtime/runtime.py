@@ -342,6 +342,9 @@ class SeamRuntime:
                 )
             except Exception as rollback_exc:
                 canonical_restore_error_type = type(rollback_exc).__name__
+            finally:
+                if isinstance(self.vector_adapter, SQLiteVectorAdapter):
+                    self.vector_adapter.invalidate_cache()
             if (
                 canonical_restore_error_type is None
                 and not bool(

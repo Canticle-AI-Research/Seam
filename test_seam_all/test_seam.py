@@ -599,30 +599,32 @@ claim c1:
                 return [1.0, 0.0]
 
         class StreamingRows:
+            def __init__(self, rows):
+                self.rows = rows
+
             def __iter__(self):
-                return iter(
+                return iter(self.rows)
+
+            def fetchall(self):
+                raise AssertionError("search must stream vector rows")
+
+        class FakeConnection:
+            def execute(self, query, params=()):
+                # Both the source-hash fingerprint and vector scan stream rows;
+                # neither query may materialize the full cursor with fetchall.
+                if "source_hash" in query:
+                    return StreamingRows(
+                        [
+                            {"record_id": "rec:1", "source_hash": "hash-1"},
+                            {"record_id": "rec:2", "source_hash": "hash-2"},
+                        ]
+                    )
+                return StreamingRows(
                     [
                         {"record_id": "rec:1", "vector_json": "[1.0, 0.0]"},
                         {"record_id": "rec:2", "vector_json": "[0.0, 1.0]"},
                     ]
                 )
-
-            def fetchall(self):
-                raise AssertionError("search must stream vector rows")
-
-        class CountRow:
-            # The cache-invalidation fingerprint query (HISTORY#364):
-            # select count(*), coalesce(max(updated_at), '') ...
-            def fetchone(self):
-                return (2, "2026-01-01T00:00:00")
-
-        class FakeConnection:
-            def execute(self, query, params=()):
-                # The row scan must stream (StreamingRows.fetchall raises); the
-                # fingerprint COUNT query is a scalar and reads via fetchone.
-                if "count(" in query:
-                    return CountRow()
-                return StreamingRows()
 
             def close(self):
                 return None

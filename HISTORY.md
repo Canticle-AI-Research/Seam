@@ -17764,3 +17764,39 @@ canonical closeout regenerates the derived history artifacts and snapshot and
 runs integrity, routing, handoff, continuity, and stream verification; final
 patch hygiene and the working-tree secret/session scan are run separately.
 ---END-ENTRY-#553---
+
+---BEGIN-ENTRY-#554---
+id: 554
+date: 2026-08-12T04:52:45Z
+agent: copilot
+status: done
+topics: performance, vector, retrieval, storage, test, history
+commits: pending
+refs: seam_runtime/vector.py,tests/audit/test_vector_index_idempotency.py,tests/audit/test_vector_cache_parity.py,tests/audit/test_retrieval_consolidation.py,HISTORY#364
+supersedes: 364
+tokens: 289
+---
+Preserved warmed SQLite vector matrices through idempotent index replay. SQLiteVectorIndex.index_records now clears its numpy cache only when it inserts/replaces a vector or updates a namespace/scope boundary; a matching source hash, renderer, dimension, namespace, and scope leaves the cache reusable. The cache fingerprint now includes max rowid so supported cross-process INSERT OR REPLACE writes invalidate even when MIRL timestamps collide or move backwards.
+
+Added audit coverage for idempotent cache preservation, content/boundary invalidation, and replacement with an older timestamp. Focused vector and retrieval audit coverage passed: python -m pytest tests/audit/test_vector*.py tests/audit/test_retrieval_consolidation.py -m "not external" (80 passed). ruff check . and git diff --check passed.
+
+The broader python -m pytest tests/audit/ -m "not external" was attempted in the isolated environment after installing its missing test dependencies; it completed 2094 passed, 40 failed, 57 skipped, and 23 deselected. The unresolved failures are outside this vector-cache slice in LoCoMo/rerank benchmark paths and are not claimed as repaired here.
+---END-ENTRY-#554---
+
+---BEGIN-ENTRY-#555---
+id: 555
+date: 2026-08-12T05:02:41Z
+agent: copilot
+status: done
+topics: performance, vector, retrieval, storage, test, history, atomicity
+commits: pending
+refs: seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/runtime.py,tests/audit/test_vector_index_idempotency.py,tests/audit/test_vector_cache_parity.py,tests/audit/test_runtime_persist_atomic_restore.py,HISTORY#554
+supersedes: 554
+tokens: 340
+---
+Supersedes HISTORY#554 with the reviewed cache-coherency design. SQLiteVectorIndex now retains a warmed matrix only when indexing made no vector or boundary mutation. Its cache fingerprint streams an ordered SHA-256 digest of record IDs and source hashes for the requested slice, so supported cross-process replacements and delete/reindex membership changes invalidate without reloading vector JSON. SQLite adapters also clear their process-local matrix cache after the storage layer restores a byte-identical vector snapshot following a failed projection; the rollback remains storage-byte-identical.
+
+Regression coverage now pins no-op matrix reuse, mutation invalidation, older-timestamp replacement detection, delete/reindex detection, byte-identical cached-vs-scan retrieval, zero vector JSON loads after an idempotent replay, and rollback invalidation. python -m pytest tests/audit/test_vector*.py tests/audit/test_retrieval_consolidation.py tests/audit/test_runtime_persist_atomic_restore.py -m "not external" passed 96 tests; pytest --collect-only collected 24 changed-path tests. ruff check . and git diff --check passed.
+
+The broader isolated python -m pytest tests/audit/ -m "not external" outcome recorded in HISTORY#554 remains unresolved outside this slice: 2094 passed, 40 failed, 57 skipped, and 23 deselected in LoCoMo/rerank benchmark paths.
+---END-ENTRY-#555---

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 553
-total_tokens: ~286223
-latest_id: 553
+total_entries: 555
+total_tokens: ~286852
+latest_id: 555
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 555 | 2026-08-12 | done | a7b9d225b4767e0f | performance,vector,retrieval,storage,+ | 554 |
+| 554 | 2026-08-12 | done | b4adb6e64b5c0409 | performance,vector,retrieval,storage,+ | 364 |
 | 553 | 2026-08-11 | done | 2793e88a839e75f3 | audit,docs,history,continuity,+ | 552 |
 | 552 | 2026-08-11 | done | ed81ddc7348d1bd9 | audit,docs,history,continuity,+ | 551 |
 | 551 | 2026-08-11 | done | 820a6b22b9f662b3 | status,roadmap,audit,docs,+ | 533 |
@@ -583,7 +585,7 @@ compact: true
 - api: count=2 latest=#541, #535
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
-- atomicity: count=7 latest=#530, #529, #526, #522, #466
+- atomicity: count=8 latest=#555, #530, #529, #526, #522
 - audit: count=113 latest=#553, #552, #551, #536, #535
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
@@ -701,7 +703,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=301 latest=#553, #552, #548, #546, #545
+- history: count=303 latest=#555, #554, #553, #552, #548
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -773,7 +775,7 @@ compact: true
 - paid-validation: count=6 latest=#392, #390, #385, #384, #383
 - palette: count=1 latest=#541
 - parked: count=1 latest=#412
-- performance: count=4 latest=#447, #364, #363, #362
+- performance: count=6 latest=#555, #554, #447, #364, #363
 - persist: count=37 latest=#547, #530, #529, #526, #522
 - pgvector: count=34 latest=#490, #489, #488, #487, #486
 - plan: count=22 latest=#511, #437, #436, #432, #422
@@ -822,7 +824,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=140 latest=#553, #547, #533, #532, #527
+- retrieval: count=142 latest=#555, #554, #553, #547, #533
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=1 latest=#388
@@ -858,7 +860,7 @@ compact: true
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
 - status: count=172 latest=#553, #552, #551, #531, #528
-- storage: count=24 latest=#533, #532, #530, #529, #526
+- storage: count=26 latest=#555, #554, #533, #532, #530
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
 - surface: count=15 latest=#550, #549, #545, #544, #543
@@ -870,7 +872,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=95 latest=#550, #549, #548, #544, #543
+- test: count=97 latest=#555, #554, #550, #549, #548
 - test-artifacts: count=1 latest=#506
 - tests: count=37 latest=#539, #531, #530, #506, #502
 - textual: count=18 latest=#543, #108, #106, #063, #062
@@ -885,7 +887,7 @@ compact: true
 - trust: count=2 latest=#526, #403
 - tui: count=31 latest=#543, #542, #541, #540, #539
 - unify: count=1 latest=#311
-- vector: count=36 latest=#533, #532, #530, #502, #465
+- vector: count=38 latest=#555, #554, #533, #532, #530
 - vector-adapters: count=1 latest=#359
 - verify: count=375 latest=#553, #552, #551, #550, #549
 - vulnerability: count=1 latest=#296
@@ -904,6 +906,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 486
+- done: 488
 - in-progress: 8
 - planned: 21
