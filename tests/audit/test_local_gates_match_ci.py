@@ -30,6 +30,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PREFLIGHT_HOOK = REPO_ROOT / "tools" / "claude" / "preflight_protocol.sh"
 COMMIT_HOOK = REPO_ROOT / "tools" / "git-hooks" / "pre-commit"
+PUSH_HOOK = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
 CI_YML = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
 SUPPRESSION_FLAG = "--no-recorded-fact-audit"
@@ -49,6 +50,13 @@ REQUIRED_GATE_MODULES = {
 # while tools/git-hooks/pre-commit stayed suppressed -- the full suite caught it.
 # Any new local gate belongs in this list.
 LOCAL_GATE_SCRIPTS = (PREFLIGHT_HOOK, COMMIT_HOOK)
+
+
+@pytest.mark.parametrize("hook", (COMMIT_HOOK, PUSH_HOOK), ids=lambda p: p.name)
+def test_canonical_git_hooks_are_executable(hook):
+    """Git silently ignores a tracked hook whose executable bit was dropped."""
+
+    assert hook.stat().st_mode & 0o111, f"{hook.name} is tracked but not executable"
 
 
 def _gate_lines(script: Path) -> list[str]:

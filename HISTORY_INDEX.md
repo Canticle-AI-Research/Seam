@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 560
-total_tokens: ~290751
-latest_id: 560
+total_entries: 561
+total_tokens: ~290926
+latest_id: 561
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 561 | 2026-08-12 | changed | 661ef07b7dcdef39 | git-hooks,ci,tests,verify,+ | 560 |
 | 560 | 2026-08-12 | changed | 650152b5c51ab345 | roadmap,streams,models,agent,+ | 559 |
 | 559 | 2026-08-12 | done | 901e2567afa2fbb9 | tui,config,bugfix,test,+ | 558 |
 | 558 | 2026-08-12 | changed | 104d9e3e5eee4335 | docs,audit,security,history,+ | 557 |
@@ -601,7 +602,7 @@ compact: true
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=58 latest=#559, #550, #543, #531, #530
+- bugfix: count=59 latest=#561, #559, #550, #543, #531
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -613,7 +614,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=47 latest=#558, #556, #539, #536, #534
+- ci: count=48 latest=#561, #558, #556, #539, #536
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -636,7 +637,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=26 latest=#553, #552, #551, #548, #546
+- continuity: count=27 latest=#561, #553, #552, #551, #548
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -696,7 +697,7 @@ compact: true
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
-- git-hooks: count=6 latest=#531, #527, #359, #351, #349
+- git-hooks: count=7 latest=#561, #531, #527, #359, #351
 - gitignore: count=1 latest=#406
 - gold-noise: count=1 latest=#369
 - gold-standard: count=1 latest=#038
@@ -883,7 +884,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=96 latest=#559, #550, #549, #548, #544
 - test-artifacts: count=1 latest=#506
-- tests: count=39 latest=#558, #554, #539, #531, #530
+- tests: count=40 latest=#561, #558, #554, #539, #531
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - tokenizer: count=1 latest=#216
 - tooling: count=5 latest=#459, #438, #428, #357, #324
@@ -898,7 +899,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=381 latest=#560, #559, #558, #557, #556
+- verify: count=382 latest=#561, #560, #559, #558, #557
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -915,7 +916,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 40
+- changed: 41
 - done: 491
 - in-progress: 8
 - planned: 21

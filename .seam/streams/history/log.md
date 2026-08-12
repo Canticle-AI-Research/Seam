@@ -18116,3 +18116,21 @@ Verification on the replayed tree passed: 27 lifecycle tests, 9 run-record tests
 
 The first implementation slice is the data-envelope schema, source registry, and independent-grader contracts with small deterministic tests. Track S stays parked at S6. A7 transport, ESP32 flashing/capture, model runs, dataset generation, paid grading, long benchmarks, deployment, and release begin only as explicit measured tasks.
 ---END-ENTRY-#560---
+
+---BEGIN-ENTRY-#561---
+id: 561
+date: 2026-08-12T23:55:24Z
+agent: codex
+status: changed
+topics: git-hooks, ci, tests, verify, continuity, bugfix
+commits: ea739d4
+refs: HISTORY#560,HISTORY#558,tools/git-hooks/pre-commit,tools/git-hooks/pre-push,tests/audit/test_local_gates_match_ci.py,PR#207
+supersedes: 560
+tokens: 175
+---
+Corrected a repository-enforcement gap discovered while committing the reconciled native-model roadmap.
+
+The canonical pre-commit script was tracked as mode 100644, so Git warned that the installed symlink target was not executable and skipped the hook. The same continuity, stream, wiki, secret, lint, and focused test gates had already been run directly and passed, so no unverified source result is being promoted. The tracked mode is now executable and the local-gate parity suite requires both canonical pre-commit and pre-push scripts to retain an execute bit, preventing the silent bypass from recurring.
+
+The 16-test local-gate parity suite, targeted Ruff, diff hygiene, and the full closeout chain pass. This entry supersedes HISTORY#560 only for hook-enforcement evidence; the roadmap, data, grader, A7, voice, and three-node program remains unchanged.
+---END-ENTRY-#561---

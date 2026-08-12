@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 668
+total_events: 669
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-17T09:39:49Z | history:410:97eaf38f | session-event | done | benchmark, results, proof, provenance, locomo, mem0, publish | benchmarks/RESULTS.md,benchmarks/BENCHMARK_LOG.md |
 | 2026-07-17T17:48:07Z | history:411:e9c275f8 | session-event | done | benchmark, results, reproduce, fix, cli | benchmarks/RESULTS.md |
 | 2026-07-17T19:11:22Z | history:412:626d3dcc | session-event | done | benchmark, locomo, exact-answer, negative-result, paid, p... | seam_runtime/conversation.py |
 | 2026-07-17T19:32:03Z | history:413:a74254d9 | session-event | done | benchmark, locomo, cat3, open-domain, inference, lever, h... | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-12T23:31:08Z | history:558:104d9e3e | session-event | changed | docs, audit, security, history, ci, tests, verify, correc... | HISTORY#557,PR#214,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation... |
 | 2026-08-12T23:43:12Z | history:559:901e2567 | session-event | done | tui, config, bugfix, test, verify, history | HISTORY#558,HISTORY#555,PR#216,seam_runtime/tui/app.py,seam_runtime/tui/setti... |
 | 2026-08-12T23:53:42Z | history:560:650152b5 | session-event | changed | roadmap, streams, models, agent, provenance, benchmark, j... | HISTORY#559,HISTORY#553,ROADMAP.md,docs/roadmap/APPEND_ONLY_ROADMAP.md,docs/r... |
+| 2026-08-12T23:55:24Z | history:561:661ef07b | session-event | changed | git-hooks, ci, tests, verify, continuity, bugfix | HISTORY#560,HISTORY#558,tools/git-hooks/pre-commit,tools/git-hooks/pre-push,t... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0468.cross.md | 2026-04-15T00:00:00Z..2026-07-17T09:27:04Z | 468 | (multi) | (multi) |
+| 0001-0469.cross.md | 2026-04-15T00:00:00Z..2026-07-17T09:39:49Z | 469 | (multi) | (multi) |
