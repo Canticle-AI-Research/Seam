@@ -1,9 +1,10 @@
 """SQLiteVectorIndex numpy-cache fast path must be a byte-identical no-op.
 
 HISTORY#364: SQLiteVectorIndex.search gained a numpy matrix cache keyed by
-(model, dimension, namespace) with a (count, max updated_at) fingerprint, to
-kill the per-query json.loads that profiling showed was ~88% of the default
-local vector scan (HISTORY#363). numpy is optional, so both paths stay live:
+(model, dimension, namespace). The current ordered record/source-hash
+fingerprint kills the per-query json.loads that profiling showed was ~88% of
+the default local vector scan (HISTORY#363). numpy is optional, so both paths
+stay live:
 the cached path when numpy is importable, the pure-Python per-row scan
 otherwise. This pins the cached path to return byte-identical results (same
 record ids, same order, same scores) to the scan, and pins cache invalidation
