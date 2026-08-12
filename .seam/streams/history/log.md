@@ -18050,3 +18050,25 @@ correction corpus as `2026-08-11-002`.
 Files changed by this entry: HISTORY.md and the derived history artifacts only.
 No source, test, documentation, or configuration file was modified.
 ---END-ENTRY-#557---
+
+---BEGIN-ENTRY-#558---
+id: 558
+date: 2026-08-12T23:31:08Z
+agent: codex
+status: changed
+topics: docs, audit, security, history, ci, tests, verify, correction
+commits: pending
+refs: HISTORY#557,PR#214,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation.py,.github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,AGENTS.md,REPO_LEDGER.md
+supersedes: 557
+tokens: 319
+---
+Closed every actionable review gap on the isolated wiki publication before merge.
+
+The required wiki gate now validates same-page and cross-page fragments against rendered GitHub-style headings and explicit HTML anchors, rejects dated documents outside the declared canonical homes, verifies that policy-era audit rows cite HISTORY entries that actually exist, and rejects javascript, vbscript, and data URI schemes in Markdown or raw HTML. Focused verification passed for 61 tests across the wiki, CI-policy, and local-gate suites; Ruff, diff hygiene, and the live 215-page wiki traversal also passed.
+
+The long test-and-benchmark job now checks out full ancestry so the baseline reachability policy executes instead of using the shallow-checkout allowlisted skip. The prior exact PR #213 head completed with 2,755 passed, 1 shallow-checkout skip, 23 external tests deliberately deselected into the separately passing pgvector lane, 2 expected failures, and 45/45 benchmark checks; the next fresh CI head is expected to eliminate that one skip and must prove it before merge.
+
+HISTORY#554-557 are immutable. To reconcile their review-identified routing metadata without rewriting chronology, the AGENTS topic vocabulary now explicitly admits the ten precise tags those merged entries introduced, and REPO_LEDGER records the prospective admit-or-retire rule for merged topic tags.
+
+A separate post-merge TUI review found that Settings Reload refreshed the process environment but not the live meta-digit cache. Its tested fix remains isolated for a follow-up PR after this history boundary lands; it is not smuggled into the wiki diff.
+---END-ENTRY-#558---

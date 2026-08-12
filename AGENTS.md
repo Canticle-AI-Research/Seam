@@ -195,14 +195,18 @@ Only use tags from this controlled set:
 `classification`
 `codec`
 `command`
+`commonmark`
 `comparator`
 `compile`
 `compiler`
 `compress`
 `concepts`
+`config`
 `continuity`
+`correction`
 `dashboard`
 `demo`
+`defect`
 `diff`
 `docker`
 `docs`
@@ -213,6 +217,7 @@ Only use tags from this controlled set:
 `git-hooks`
 `gold-standard`
 `graph`
+`gates`
 `handoff`
 `harden`
 `history`
@@ -221,6 +226,7 @@ Only use tags from this controlled set:
 `integrity`
 `json`
 `judge`
+`keyboard`
 `ledger`
 `lexical`
 `linux`
@@ -234,10 +240,12 @@ Only use tags from this controlled set:
 `mirl`
 `models`
 `multi-agent`
+`navigation`
 `naming`
 `nl`
 `operator`
 `pack`
+`parity`
 `persist`
 `pgvector`
 `plan`
@@ -276,5 +284,7 @@ Only use tags from this controlled set:
 `vector`
 `verify`
 `webui`
+`wiki`
 `windows`
+`worktree`
 `wsl2`

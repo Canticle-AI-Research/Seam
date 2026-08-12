@@ -71,11 +71,14 @@ _WINDOWS_ABSOLUTE = re.compile(r"^[A-Za-z]:[\\/]")
 _REPORT_NAME = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})-(?P<slug>[a-z0-9][a-z0-9-]*)\.md$"
 )
+_DATED_DOC_NAME = re.compile(r"^\d{4}-\d{2}-\d{2}-.+\.md$")
 _REPORT_LINK = re.compile(r"^\[[^\]]+\]\(([^\s)#?]+\.md)\)$")
-_HISTORY_REF = re.compile(r"\bHISTORY#\d+\b")
+_HISTORY_REF = re.compile(r"\bHISTORY#(?P<id>\d+)\b")
+_HISTORY_ENTRY_ID = re.compile(r"(?m)^id:\s*(?P<id>\d+)\s*$")
 _SHA256 = re.compile(r"(?<![0-9A-Fa-f])[0-9A-Fa-f]{64}(?![0-9A-Fa-f])")
 _CODE_SPAN = re.compile(r"`([^`\r\n]+)`")
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_DANGEROUS_URI_SCHEMES = frozenset({"data", "javascript", "vbscript"})
 
 
 @dataclass(frozen=True)
@@ -103,6 +106,20 @@ def _active_docs(root: Path) -> set[Path]:
         for path in docs.rglob("*.md")
         if not _is_excluded(path, root) and not path.is_symlink()
     }
+
+
+def _misrouted_dated_documents(root: Path) -> list[Path]:
+    docs = root / DOCS_DIR
+    if not docs.is_dir():
+        return []
+    misrouted: list[Path] = []
+    for path in docs.rglob("*.md"):
+        if path.is_symlink() or not path.is_file() or _DATED_DOC_NAME.fullmatch(path.name) is None:
+            continue
+        relative = _relative(path, root)
+        if not any(home in relative.parents for home in DATED_DOC_HOMES):
+            misrouted.append(path)
+    return sorted(misrouted)
 
 
 class _AnchorParser(HTMLParser):
@@ -220,6 +237,7 @@ def _document_anchors(text: str) -> set[str]:
                         slug = f"{base}-{suffix}"
                     used_heading_slugs.add(slug)
                     anchors.add(slug)
+    for token in _walk_tokens(tokens):
         if token.type not in {"html_block", "html_inline"}:
             continue
         parser = _AnchorParser()
@@ -264,7 +282,7 @@ def _has_noncanonical_parent_ascent(decoded_path: str) -> bool:
 
 
 def _resolve_local_target(source: Path, target: str, root: Path) -> tuple[Path | None, str | None]:
-    if not target or target.startswith("#"):
+    if not target:
         return None, None
 
     decoded_target = unquote(target)
@@ -277,13 +295,18 @@ def _resolve_local_target(source: Path, target: str, root: Path) -> tuple[Path |
         parsed = urlsplit(target)
     except ValueError:
         return None, f"{_relative(source, root)} uses malformed link: {target}"
-    if parsed.scheme.lower() == "file":
+    scheme = parsed.scheme.casefold()
+    if scheme == "file":
         return None, f"{_relative(source, root)} uses unsupported filesystem link: {target}"
+    if scheme in _DANGEROUS_URI_SCHEMES:
+        return None, (
+            f"{_relative(source, root)} uses dangerous URI scheme {scheme}: {target}"
+        )
     if parsed.scheme or parsed.netloc or target.startswith("//"):
         return None, None
     decoded = unquote(parsed.path)
     if not decoded:
-        return None, None
+        return (source, None) if parsed.fragment else (None, None)
     if decoded.startswith("/"):
         return None, f"{_relative(source, root)} uses unsupported absolute local link: {target}"
     if _has_noncanonical_parent_ascent(decoded):
@@ -318,6 +341,36 @@ def _resolve_local_target(source: Path, target: str, root: Path) -> tuple[Path |
     except (OSError, ValueError):
         return None, f"{_relative(source, root)} cannot inspect local link: {target}"
     return resolved, None
+
+
+def _missing_fragment(
+    source: Path,
+    target: str,
+    resolved: Path,
+    root: Path,
+    anchors_by_document: dict[Path, set[str]],
+) -> str | None:
+    """Report a local Markdown fragment that has no rendered anchor target."""
+
+    try:
+        fragment = unquote(urlsplit(target).fragment)
+    except ValueError:
+        return None
+    if not fragment or resolved.suffix.casefold() != ".md":
+        return None
+    anchors = anchors_by_document.get(resolved)
+    if anchors is None:
+        try:
+            anchors = _document_anchors(resolved.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError):
+            return None
+        anchors_by_document[resolved] = anchors
+    if fragment in anchors:
+        return None
+    return (
+        f"{_relative(source, root)} link fragment is missing from "
+        f"{_relative(resolved, root)}: #{fragment}"
+    )
 
 
 def _frontmatter(text: str) -> tuple[dict[str, str], str | None]:
@@ -439,6 +492,17 @@ def _verify_evidence_manifest(report: Path, text: str, root: Path) -> list[str]:
     return []
 
 
+def _history_entry_ids(root: Path) -> set[int]:
+    history = root / "HISTORY.md"
+    if history.is_symlink() or not history.is_file():
+        return set()
+    try:
+        text = history.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return set()
+    return {int(match.group("id")) for match in _HISTORY_ENTRY_ID.finditer(text)}
+
+
 def _verify_audit_registry(root: Path) -> list[str]:
     audit_dir = root / AUDITS_DIR
     index = root / AUDIT_INDEX
@@ -464,6 +528,7 @@ def _verify_audit_registry(root: Path) -> list[str]:
 
     rows, row_errors = _audit_rows(index_text)
     errors.extend(row_errors)
+    history_ids = _history_entry_ids(root)
     report_files = sorted(
         path
         for path in audit_dir.iterdir()
@@ -517,10 +582,17 @@ def _verify_audit_registry(root: Path) -> list[str]:
             if report_date < policy_start:
                 continue
             row = rows_by_filename.get(filename)
-            if row is not None and _HISTORY_REF.search(row.history) is None:
-                errors.append(
-                    f"{AUDIT_INDEX} policy-era report must cite a HISTORY entry: {filename}"
-                )
+            if row is not None:
+                history_refs = list(_HISTORY_REF.finditer(row.history))
+                if not history_refs:
+                    errors.append(
+                        f"{AUDIT_INDEX} policy-era report must cite a HISTORY entry: {filename}"
+                    )
+                for match in history_refs:
+                    if int(match.group("id")) not in history_ids:
+                        errors.append(
+                            f"{AUDIT_INDEX} references missing {match.group(0)}: {filename}"
+                        )
             try:
                 report_text = (audit_dir / filename).read_text(encoding="utf-8")
             except (OSError, UnicodeError) as exc:
@@ -540,6 +612,11 @@ def verify(repo_root: Path) -> list[str]:
         return [f"canonical wiki home is missing or unsafe: {HOME}"]
 
     active = _active_docs(root)
+    errors.extend(
+        "dated documentation must live in a canonical dated-document home: "
+        f"{_relative(path, root)}"
+        for path in _misrouted_dated_documents(root)
+    )
     symlink_docs = sorted(
         path
         for path in (root / DOCS_DIR).rglob("*.md")
@@ -551,6 +628,7 @@ def verify(repo_root: Path) -> list[str]:
     )
 
     reachable: set[Path] = set()
+    anchors_by_document: dict[Path, set[str]] = {}
     queue: deque[Path] = deque([home])
     while queue:
         source = queue.popleft()
@@ -562,6 +640,7 @@ def verify(repo_root: Path) -> list[str]:
         except (OSError, UnicodeError) as exc:
             errors.append(f"cannot read {_relative(source, root)}: {type(exc).__name__}")
             continue
+        anchors_by_document[source] = _document_anchors(text)
 
         for target in _link_targets(text):
             resolved, problem = _resolve_local_target(source, target, root)
@@ -570,6 +649,15 @@ def verify(repo_root: Path) -> list[str]:
                 continue
             if resolved is None or resolved.suffix.casefold() != ".md":
                 continue
+            fragment_problem = _missing_fragment(
+                source,
+                target,
+                resolved,
+                root,
+                anchors_by_document,
+            )
+            if fragment_problem is not None:
+                errors.append(fragment_problem)
             try:
                 resolved.relative_to(root / DOCS_DIR)
             except ValueError:

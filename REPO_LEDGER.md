@@ -520,6 +520,10 @@ and `HISTORY_INDEX.md`.
 
 - Every material repo change must produce an append-only `HISTORY.md` entry, rebuilt `HISTORY_INDEX.md`, verified integrity, and one validated snapshot.
 - History entries must preserve the temporal chain: previous state, new state, `supersedes` link when applicable, successes, failures, skipped verification, changed files, and unresolved next steps.
+- HISTORY topic tags use the controlled vocabulary in `AGENTS.md`. Because
+  `HISTORY.md` is immutable, a tag already present in a merged entry is retired
+  or admitted by changing that vocabulary prospectively; agents never rewrite
+  the old entry merely to normalize its routing metadata.
 - Stable repo facts live here in `REPO_LEDGER.md`; detailed session chronology lives in `HISTORY.md`. Do not duplicate long prose across both files.
 - Agents must update this ledger when changing stable repo policy, architecture, active/archive routing, runtime safety rules, durable operator workflows, benchmark publication rules, or cross-agent protocol.
 - Agents must update `PROJECT_STATUS.md` when the current operating state or active focus changes.

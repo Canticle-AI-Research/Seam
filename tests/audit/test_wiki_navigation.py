@@ -32,6 +32,35 @@ def test_missing_navigation_target_fails_closed(tmp_path):
     assert any("link target is missing" in error for error in errors)
 
 
+@pytest.mark.parametrize(
+    ("home_link", "extra_page"),
+    [
+        ("[Missing section](#missing-section)", None),
+        ("[Missing section](page.md#missing-section)", "# Page\n"),
+    ],
+    ids=("same-page", "cross-page"),
+)
+def test_local_link_fragments_must_name_existing_anchors(tmp_path, home_link, extra_page):
+    _write(tmp_path, "docs/README.md", f"# Wiki\n\n{home_link}\n")
+    if extra_page is not None:
+        _write(tmp_path, "docs/page.md", extra_page)
+
+    errors = verify(tmp_path)
+
+    assert any("link fragment is missing" in error for error in errors)
+
+
+def test_local_link_fragments_accept_heading_and_explicit_html_anchors(tmp_path):
+    _write(
+        tmp_path,
+        "docs/README.md",
+        "# Wiki\n\n[Home](#wiki)\n\n[Page](page.md#explicit-anchor)\n",
+    )
+    _write(tmp_path, "docs/page.md", '# Page\n\n<a id="explicit-anchor"></a>\n')
+
+    assert verify(tmp_path) == []
+
+
 def test_unindexed_active_page_is_rejected(tmp_path):
     _write(tmp_path, "docs/README.md", "# Wiki\n")
     _write(tmp_path, "docs/orphan.md", "# Orphan\n")
@@ -184,6 +213,23 @@ def test_archives_are_outside_active_coverage(tmp_path):
     assert verify(tmp_path) == []
 
 
+def test_dated_documents_must_live_in_a_declared_canonical_home(tmp_path):
+    _write(
+        tmp_path,
+        "docs/README.md",
+        "# Wiki\n\n[Misrouted report](2026-08-12-review.md)\n",
+    )
+    _write(tmp_path, "docs/2026-08-12-review.md", "# Review\n")
+
+    errors = verify(tmp_path)
+
+    assert any(
+        "dated documentation must live in a canonical dated-document home" in error
+        and "docs/2026-08-12-review.md" in error
+        for error in errors
+    )
+
+
 def test_navigation_link_cannot_escape_repository(tmp_path):
     repo = tmp_path / "repo"
     _write(repo, "docs/README.md", "# Wiki\n\n[Outside](../../outside.md)\n")
@@ -242,6 +288,23 @@ def test_navigation_rejects_file_uri_targets(tmp_path):
     assert any("uses unsupported filesystem link" in error for error in errors)
 
 
+@pytest.mark.parametrize(
+    "link",
+    [
+        "[Script](javascript:alert(1))",
+        "[Script](vbscript:msgbox(1))",
+        '<a href="data:text/html,unsafe">Inline data</a>',
+    ],
+    ids=("javascript", "vbscript", "raw-html-data"),
+)
+def test_navigation_rejects_dangerous_uri_schemes(tmp_path, link):
+    _write(tmp_path, "docs/README.md", f"# Wiki\n\n{link}\n")
+
+    errors = verify(tmp_path)
+
+    assert any("uses dangerous URI scheme" in error for error in errors)
+
+
 def test_malformed_url_is_reported_without_crashing(tmp_path):
     _write(tmp_path, "docs/README.md", "# Wiki\n\n[Bad](http://[invalid)\n")
 
@@ -286,6 +349,43 @@ def test_every_reachable_page_has_its_local_links_validated(tmp_path):
     errors = verify(tmp_path)
 
     assert any("docs/REPORTS.md link target is missing" in error for error in errors)
+
+
+def test_audit_registry_history_references_must_exist(tmp_path):
+    report = "2026-08-12-review.md"
+    _write(tmp_path, "docs/README.md", "# Wiki\n\n[Audits](audits/INDEX.md)\n")
+    index = _write(
+        tmp_path,
+        "docs/audits/INDEX.md",
+        f"""---
+schema: seam-audit-registry/v1
+latest: 2026-08-12-review
+policy_start: 2026-08-01
+---
+
+# Audits
+
+| Date | Report | Summary | History |
+|---|---|---|---|
+| 2026-08-12 | [Review]({report}) | Review | HISTORY#999999 |
+""",
+    )
+    _write(
+        tmp_path,
+        f"docs/audits/{report}",
+        "# Review\n\n## Evidence manifest\n\nRaw artifacts: none\n",
+    )
+    _write(tmp_path, "HISTORY.md", "id: 001\n")
+
+    errors = verify(tmp_path)
+
+    assert any("references missing HISTORY#999999" in error for error in errors)
+
+    index.write_text(
+        index.read_text(encoding="utf-8").replace("HISTORY#999999", "HISTORY#1"),
+        encoding="utf-8",
+    )
+    assert verify(tmp_path) == []
 
 
 def test_staged_mode_cannot_be_masked_by_a_fixed_working_copy(tmp_path, capsys):

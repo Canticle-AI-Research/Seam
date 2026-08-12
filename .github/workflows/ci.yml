@@ -36,6 +36,11 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          # The baseline reachability test needs origin/main. A depth-one PR
+          # merge checkout cannot prove that ancestry and used to consume the
+          # suite's sole allowlisted skip instead of exercising the policy.
+          fetch-depth: 0
 
       - name: Check diff hygiene
         run: git diff --check

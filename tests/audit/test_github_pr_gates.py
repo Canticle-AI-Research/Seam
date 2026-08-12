@@ -122,6 +122,19 @@ def test_advisory_suite_reports_slowest_tests() -> None:
     )
 
 
+def test_advisory_suite_fetches_baseline_ancestry() -> None:
+    """The full suite must exercise baseline policy instead of skipping it."""
+    workflow = yaml.safe_load(
+        CI_WORKFLOW.read_text(encoding="utf-8")
+    )
+    checkout = next(
+        step
+        for step in workflow["jobs"]["test-and-benchmark"]["steps"]
+        if step.get("uses", "").startswith("actions/checkout@")
+    )
+    assert checkout.get("with", {}).get("fetch-depth") == 0
+
+
 def test_strict_no_skip_hook_present() -> None:
     """The conftest enforces strict no-skip (default on, opt out with =0)."""
     conftest = Path(REPO_ROOT / "tests/conftest.py").read_text(encoding="utf-8")
