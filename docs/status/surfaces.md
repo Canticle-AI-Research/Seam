@@ -50,8 +50,15 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     a responsive gallery. It changes no live surface by itself; TUI and WebUI
     adoption remain separate reviewed work.
   - Keyboard navigation: `alt+1`..`alt+N`, `ctrl+left`/`ctrl+right`, and
-    `tab <name>`. `alt+N` is unavailable on terminals using the classic
-    "Alt sends Escape" convention; the other two paths always work.
+    `tab <name>`. `alt+N` also works on terminals using the classic
+    "Alt sends Escape" convention (xterm and descendants, `tmux send-keys
+    M-3`), which deliver it as the printable character textual resolves
+    `ESC`+digit to — `¡™£¢∞§¶•ª`. Those nine characters are bound alongside
+    the real keycodes, and `tui/keys.py:SeamInput` declines to consume them
+    so the binding survives a focused field. Nothing above textual's parser
+    distinguishes them from a UK keyboard's genuine `shift+3`, so
+    `SEAM_TUI_META_DIGITS=off` gives them back as literal text and leaves
+    only real `alt+N` jumping.
   - Target surface and the ordered slices toward it:
     `docs/roadmap/TUI_OPERATOR_SURFACE.md`.
   `dashboard.DashboardApp` remains the backend and still owns the Rich

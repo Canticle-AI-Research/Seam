@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 553
-total_tokens: ~286223
-latest_id: 553
+total_entries: 555
+total_tokens: ~288118
+latest_id: 555
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 555 | 2026-08-11 | done | 55a38b1f7b67f090 | history,correction,gates,worktree,+ | 554 |
+| 554 | 2026-08-11 | done | 968ea4e41162857a | tui,keyboard,textual,defect,+ | 553 |
 | 553 | 2026-08-11 | done | 2793e88a839e75f3 | audit,docs,history,continuity,+ | 552 |
 | 552 | 2026-08-11 | done | ed81ddc7348d1bd9 | audit,docs,history,continuity,+ | 551 |
 | 551 | 2026-08-11 | done | 820a6b22b9f662b3 | status,roadmap,audit,docs,+ | 533 |
@@ -623,7 +625,7 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=1 latest=#537
+- config: count=2 latest=#554, #537
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
@@ -633,7 +635,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=3 latest=#538, #354, #299
+- correction: count=4 latest=#555, #538, #354, #299
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -643,6 +645,7 @@ compact: true
 - dashboard: count=79 latest=#544, #540, #537, #404, #403
 - decomposition: count=1 latest=#319
 - deepseek: count=4 latest=#370, #369, #368, #367
+- defect: count=1 latest=#554
 - density: count=3 latest=#316, #315, #314
 - dependabot: count=2 latest=#326, #301
 - dependencies: count=4 latest=#301, #296, #295, #293
@@ -657,7 +660,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=64 latest=#553, #552, #551, #549, #528
+- docs: count=65 latest=#554, #553, #552, #551, #549
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -683,7 +686,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=3 latest=#510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=1 latest=#539
+- gates: count=2 latest=#555, #539
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=2 latest=#360, #324
@@ -701,7 +704,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=301 latest=#553, #552, #548, #546, #545
+- history: count=302 latest=#555, #553, #552, #548, #546
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -717,6 +720,7 @@ compact: true
 - isolation: count=2 latest=#275, #274
 - judge: count=13 latest=#398, #377, #376, #375, #374
 - kb: count=1 latest=#437
+- keyboard: count=1 latest=#554
 - knowledge-graph: count=5 latest=#458, #457, #456, #455, #453
 - ledger: count=39 latest=#346, #302, #230, #181, #177
 - lever: count=3 latest=#433, #431, #413
@@ -872,8 +876,8 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=95 latest=#550, #549, #548, #544, #543
 - test-artifacts: count=1 latest=#506
-- tests: count=37 latest=#539, #531, #530, #506, #502
-- textual: count=18 latest=#543, #108, #106, #063, #062
+- tests: count=38 latest=#554, #539, #531, #530, #506
+- textual: count=19 latest=#554, #543, #108, #106, #063
 - tokenizer: count=1 latest=#216
 - tooling: count=5 latest=#459, #438, #428, #357, #324
 - topk: count=1 latest=#320
@@ -883,11 +887,11 @@ compact: true
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
-- tui: count=31 latest=#543, #542, #541, #540, #539
+- tui: count=32 latest=#554, #543, #542, #541, #540
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=375 latest=#553, #552, #551, #550, #549
+- verify: count=376 latest=#555, #553, #552, #551, #550
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -895,7 +899,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=2 latest=#534, #406
+- worktree: count=3 latest=#555, #534, #406
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -904,6 +908,6 @@ compact: true
 
 - roots: 86
 - changed: 38
-- done: 486
+- done: 488
 - in-progress: 8
 - planned: 21

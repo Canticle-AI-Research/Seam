@@ -492,6 +492,127 @@ class TestTabNavigation:
 
         asyncio.run(_check())
 
+    def test_meta_digit_table_matches_what_textual_actually_parses(self) -> None:
+        """`META_DIGIT_KEYS` is a transcription of textual's own ANSI table.
+
+        A textual upgrade that renamed any of these keys would silently
+        un-fix the defect below -- the binding would simply never match --
+        so assert the transcription against the parser rather than trusting
+        the comment. Regenerate the table from this same feed if it fails.
+        """
+        from textual._xterm_parser import XTermParser
+
+        from seam_runtime.tui.keys import META_DIGIT_KEYS
+
+        assert len(META_DIGIT_KEYS) == 9
+        for digit, expected in enumerate(META_DIGIT_KEYS, start=1):
+            # One parser per sequence: the parser is a coroutine that holds
+            # position across feeds.
+            parsed = [event.key for event in XTermParser().feed(f"\x1b{digit}")]
+            assert parsed == [expected], f"alt+{digit} now parses as {parsed}"
+
+    def test_alt_n_jumps_when_the_terminal_sends_escape_then_digit(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """The classic "Alt sends Escape" terminals (xterm and descendants,
+        and `tmux send-keys M-3`) send `ESC 3` for `alt+3`, which textual
+        resolves to the printable `pound_sign`. Before this was bound, the
+        `£` fell through to the focused Input and was typed as text.
+
+        Posts the key event directly rather than using `pilot.press`:
+        `Pilot` resolves a key name without attaching its character, so it
+        cannot reproduce a keystroke that lands in an Input as text, which
+        is precisely the defect under test.
+        """
+        import asyncio
+
+        from textual import events
+        from textual.widgets import Input, TabbedContent
+
+        from seam_runtime.tui.app import TABS, SeamTUI
+
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                field = app.query_one("#command-input", Input)
+                field.focus()
+                await pilot.pause()
+                assert app.query_one(TabbedContent).active == "tab-memory"
+                app.post_message(events.Key("pound_sign", "£"))
+                await pilot.pause()
+                assert app.query_one(TabbedContent).active == f"tab-{TABS[2][0]}"
+                assert field.value == ""
+
+        asyncio.run(_check())
+
+    def test_meta_digit_jump_can_be_switched_off(self, tmp_path, monkeypatch) -> None:
+        """Nothing above textual's parser can tell `alt+3` on an xterm from a
+        UK keyboard's genuine `shift+3`, so an operator who needs to type one
+        of those nine characters can hand the shortcut back. Real `alt+N`
+        keeps working -- that is why the fallback has its own action name.
+        """
+        import asyncio
+
+        from textual import events
+        from textual.widgets import Input, TabbedContent
+
+        from seam_runtime.tui.app import TABS, SeamTUI
+
+        monkeypatch.setenv("SEAM_TUI_META_DIGITS", "off")
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                field = app.query_one("#command-input", Input)
+                field.focus()
+                await pilot.pause()
+                app.post_message(events.Key("pound_sign", "£"))
+                await pilot.pause()
+                assert app.query_one(TabbedContent).active == "tab-memory"
+                assert field.value == "£"
+                await pilot.press("alt+3")
+                await pilot.pause()
+                assert app.query_one(TabbedContent).active == f"tab-{TABS[2][0]}"
+
+        asyncio.run(_check())
+
+    def test_every_mounted_input_is_a_seam_input(self, tmp_path, monkeypatch) -> None:
+        """The jump survives whichever field happens to hold focus.
+
+        A plain `Input` anywhere in the tree is a hole in the fix, and a
+        silent one -- the tab jump would simply stop working while that
+        particular field had focus. Asserted over the live DOM rather than
+        the source so a widget added by a future panel is covered too.
+        """
+        import asyncio
+
+        from textual.widgets import Input, TabbedContent
+
+        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.keys import SeamInput
+
+        app = SeamTUI(_backend(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await pilot.pause()
+                # Visit every tab so lazily-composed panels are mounted.
+                for tab_id, _ in TABS:
+                    app.query_one(TabbedContent).active = f"tab-{tab_id}"
+                    await pilot.pause()
+                plain = [
+                    widget.id or widget.__class__.__name__
+                    for widget in app.query(Input)
+                    if not isinstance(widget, SeamInput)
+                ]
+                assert plain == [], f"plain Input widgets: {plain}"
+                assert app.query(SeamInput), "no inputs mounted -- test is vacuous"
+
+        asyncio.run(_check())
+
     def test_ctrl_right_cycles_forward_even_with_command_input_focused(
         self, tmp_path, monkeypatch
     ) -> None:

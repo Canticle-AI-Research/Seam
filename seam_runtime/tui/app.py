@@ -43,6 +43,7 @@ from .commands import (
     catalog_counts,
     filter_catalog,
 )
+from .keys import META_DIGIT_KEYS, SeamInput
 from .panels import PANEL_CLASSES
 from .settings_screen import SettingsPanel
 
@@ -128,7 +129,7 @@ class CommandPalette(ModalScreen[str]):
                     f"[b {brand.MAGENTA}]{len(self.catalog)} commands[/]   {breakdown}",
                     id="palette-prompt",
                 )
-                yield Input(
+                yield SeamInput(
                     value=self.initial,
                     placeholder="type to filter…",
                     id="palette-input",
@@ -256,9 +257,26 @@ class CommandPalette(ModalScreen[str]):
 #: `len(TABS)` rather than hardcoded, because TABS has already changed size
 #: once (S1 removed the standalone Provenance tab) and will again (S9 folds
 #: Benchmarks/Compression into Engine).
+#:
+#: Each tab gets both spellings: the real `alt+N` keycode, and what an
+#: "Alt sends Escape" terminal actually delivers instead (see `keys.py`).
+#: The fallback half dispatches to a *separate* action name so `check_action`
+#: can switch it off on its own via `SEAM_TUI_META_DIGITS`, without also
+#: disabling real `alt+N`. Both halves are `priority=True` because
+#: `#command-input` holds focus almost always.
 _JUMP_TAB_BINDINGS: tuple[Binding, ...] = tuple(
-    Binding(f"alt+{i}", f"jump_tab({i - 1})", f"Tab {i}", show=False, priority=True)
+    binding
     for i in range(1, min(len(TABS), 9) + 1)
+    for binding in (
+        Binding(f"alt+{i}", f"jump_tab({i - 1})", f"Tab {i}", show=False, priority=True),
+        Binding(
+            META_DIGIT_KEYS[i - 1],
+            f"jump_tab_meta({i - 1})",
+            f"Tab {i}",
+            show=False,
+            priority=True,
+        ),
+    )
 )
 
 
@@ -332,6 +350,13 @@ class SeamTUI(App[None]):
         self._chat_intro_shown = False
         motion = config.effective_value("SEAM_TUI_MOTION").strip().lower()
         self._startup_motion = motion if motion in {"full", "reduced", "off"} else "full"
+        #: Whether `_META_DIGIT_KEYS` still jump tabs; see the binding table.
+        #: Read once at construction so the Settings tab's own value, not the
+        #: process environment alone, decides. Anything other than an explicit
+        #: `off` keeps the fallback, because the failure it repairs is silent
+        #: and the failure it can cause is visible.
+        meta_digits = config.effective_value("SEAM_TUI_META_DIGITS").strip().lower()
+        self.meta_digits_jump = meta_digits != "off"
         self._startup_active = False
         self._startup_frame = 0
         self._startup_timer: Any = None
@@ -361,7 +386,7 @@ class SeamTUI(App[None]):
                         # a DataTable/Tree/Input showing structured state.
                         yield PANEL_CLASSES[tab_id](id=f"panel-{tab_id}")
 
-        yield Input(placeholder=_MODE_PLACEHOLDERS["seam"], id="command-input")
+        yield SeamInput(placeholder=_MODE_PLACEHOLDERS["seam"], id="command-input")
         yield Static(
             "[b]/[/b] commands   [b]![/b] shell   [b]?[/b] chat   [b]^S[/b] settings   "
             "[b]y[/b] copy id   [b]^L[/b] clear   [b]^C[/b] quit",
@@ -561,6 +586,8 @@ class SeamTUI(App[None]):
             if isinstance(self.screen, CommandPalette):
                 return False
             return not isinstance(self.focused, Input)
+        if action == "jump_tab_meta":
+            return self.meta_digits_jump
         return super().check_action(action, parameters)
 
     def action_focus_mode(self, mode: str) -> None:
@@ -712,6 +739,15 @@ class SeamTUI(App[None]):
         """`alt+1`..`alt+N`: jump directly to the Nth tab."""
         if 0 <= index < len(TABS):
             self.query_one(TabbedContent).active = f"tab-{TABS[index][0]}"
+
+    def action_jump_tab_meta(self, index: int) -> None:
+        """The same jump, reached by `alt+N`'s "Alt sends Escape" spelling.
+
+        Deliberately does nothing of its own: the point of `_META_DIGIT_KEYS`
+        is that the two spellings are one shortcut. It exists only to give
+        `check_action` a name it can disable independently.
+        """
+        self.action_jump_tab(index)
 
     def action_next_tab(self) -> None:
         self._cycle_tab(1)
