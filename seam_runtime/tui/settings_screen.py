@@ -287,6 +287,9 @@ class SettingsPanel(Vertical):
     @on(Button.Pressed, "#settings-reload")
     def _reload(self) -> None:
         applied = config.apply_persisted_to_environ()
+        refresh_cached = getattr(self.app, "refresh_cached_settings", None)
+        if callable(refresh_cached):
+            refresh_cached()
         status = self.query_one("#settings-status", Static)
         status.update(
             f"Applied {len(applied)} setting(s) to this process. "

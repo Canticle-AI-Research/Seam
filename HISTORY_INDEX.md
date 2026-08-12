@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 558
-total_tokens: ~289999
-latest_id: 558
+total_entries: 559
+total_tokens: ~290161
+latest_id: 559
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 559 | 2026-08-12 | done | 901e2567afa2fbb9 | tui,config,bugfix,test,+ | 558 |
 | 558 | 2026-08-12 | changed | 104d9e3e5eee4335 | docs,audit,security,history,+ | 557 |
 | 557 | 2026-08-11 | done | 40a8ec3b0765f41f | history,correction,verify,wiki,+ | 556 |
 | 556 | 2026-08-11 | done | f5b7c69a037625f1 | docs,wiki,navigation,commonmark,+ | 555 |
@@ -599,7 +600,7 @@ compact: true
 - branches: count=1 latest=#306
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=57 latest=#550, #543, #531, #530, #527
+- bugfix: count=58 latest=#559, #550, #543, #531, #530
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -629,7 +630,7 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=2 latest=#554, #537
+- config: count=3 latest=#559, #554, #537
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
@@ -708,7 +709,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=304 latest=#558, #557, #555, #553, #552
+- history: count=305 latest=#559, #558, #557, #555, #553
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -879,7 +880,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=95 latest=#550, #549, #548, #544, #543
+- test: count=96 latest=#559, #550, #549, #548, #544
 - test-artifacts: count=1 latest=#506
 - tests: count=39 latest=#558, #554, #539, #531, #530
 - textual: count=19 latest=#554, #543, #108, #106, #063
@@ -892,11 +893,11 @@ compact: true
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
 - trust: count=2 latest=#526, #403
-- tui: count=32 latest=#554, #543, #542, #541, #540
+- tui: count=33 latest=#559, #554, #543, #542, #541
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=379 latest=#558, #557, #556, #555, #553
+- verify: count=380 latest=#559, #558, #557, #556, #555
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -914,6 +915,6 @@ compact: true
 
 - roots: 86
 - changed: 39
-- done: 490
+- done: 491
 - in-progress: 8
 - planned: 21
