@@ -18072,3 +18072,21 @@ HISTORY#554-557 are immutable. To reconcile their review-identified routing meta
 
 A separate post-merge TUI review found that Settings Reload refreshed the process environment but not the live meta-digit cache. Its tested fix remains isolated for a follow-up PR after this history boundary lands; it is not smuggled into the wiki diff.
 ---END-ENTRY-#558---
+
+---BEGIN-ENTRY-#559---
+id: 559
+date: 2026-08-12T23:43:12Z
+agent: codex
+status: done
+topics: tui, config, bugfix, test, verify, history
+commits: 6087bb3
+refs: HISTORY#558,HISTORY#555,PR#216,seam_runtime/tui/app.py,seam_runtime/tui/settings_screen.py,tests/audit/test_tui_input_modes.py
+supersedes: 558
+tokens: 162
+---
+Closed the post-merge TUI review gap from the Alt-sends-Escape fallback.
+
+Settings Reload already applied persisted values to the process environment, but SeamTUI cached the meta-digit fallback only at construction. A live app therefore kept intercepting the terminal glyphs after SEAM_TUI_META_DIGITS was changed to off until restart. SeamTUI now owns a refresh_cached_settings hook and SettingsPanel calls it after applying persisted values.
+
+The mounted regression reproduced the stale true cache before the fix and now proves that Reload immediately accepts literal pound-sign input while real alt+3 navigation remains active. The full 19-test input-mode module, its 12-test navigation slice, Ruff, diff hygiene, and the working-tree secret/session scan passed. This correction is isolated from the wiki and native-model roadmap work.
+---END-ENTRY-#559---
