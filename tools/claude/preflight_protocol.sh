@@ -9,10 +9,10 @@
 # Gates run (matches AGENTS.md Session End + Temporal Continuity Policy):
 #   - python -m tools.history.verify_integrity
 #   - python -m tools.history.verify_routing
-#   - python -m tools.history.verify_continuity (with --no-recorded-fact-audit
-#     until tools/history/test_count_audit.py and recorded_fact_audit.py are
-#     committed and their precedence false-positives are resolved; see
-#     HISTORY#166)
+#   - python -m tools.history.verify_handoffs
+#   - python -m tools.history.verify_continuity
+#   - python -m tools.streams.verify_streams
+#   - python -m tools.docs.verify_wiki
 
 set -u
 
@@ -53,6 +53,7 @@ run_gate() {
 
 run_gate "verify_integrity" "$PY" -m tools.history.verify_integrity
 run_gate "verify_routing"   "$PY" -m tools.history.verify_routing
+run_gate "verify_handoffs"  "$PY" -m tools.history.verify_handoffs
 # The recorded-fact audit runs here. It MUST match the required CI check
 # (repo-hygiene runs `verify_continuity --no-snapshot`, fact audit enabled).
 #
@@ -68,6 +69,7 @@ run_gate "verify_routing"   "$PY" -m tools.history.verify_routing
 # run the flag still exists on verify_continuity itself.
 run_gate "verify_continuity" "$PY" -m tools.history.verify_continuity
 run_gate "verify_streams"   "$PY" -m tools.streams.verify_streams
+run_gate "verify_wiki"      "$PY" -m tools.docs.verify_wiki
 
 if [ "$FAIL" -ne 0 ]; then
   echo "" >&2

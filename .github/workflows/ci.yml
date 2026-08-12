@@ -36,6 +36,11 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          # The baseline reachability test needs origin/main. A depth-one PR
+          # merge checkout cannot prove that ancestry and used to consume the
+          # suite's sole allowlisted skip instead of exercising the policy.
+          fetch-depth: 0
 
       - name: Check diff hygiene
         run: git diff --check
@@ -74,7 +79,16 @@ jobs:
       - name: Install test dependencies
         # httpx is required by starlette.testclient (the server tests use TestClient);
         # it used to arrive transitively via chromadb, which is now an optional extra.
-        run: python -m pip install pytest httpx
+        #
+        # markdown-it-py is pinned here for the same reason, before it bites the
+        # same way: tests/audit/test_wiki_navigation.py imports tools.docs.verify_wiki
+        # at module scope, and under strict no-skip a missing import aborts the whole
+        # run rather than skipping. It currently arrives transitively through rich,
+        # which is a base runtime dependency but pins only `markdown-it-py>=2.2.0`
+        # with no upper bound -- so this lane would silently drift onto a major the
+        # repo-hygiene gate refuses (`lint` pins >=4.0,<5.0). Pinning both lanes to
+        # the same range is the parity this slice is about.
+        run: python -m pip install pytest httpx 'markdown-it-py>=4.0,<5.0'
 
       - name: Linux installer smoke test
         run: sh ./installers/install_seam_linux.sh --dev
@@ -206,8 +220,8 @@ jobs:
       - name: Check diff hygiene
         run: git diff --check
 
-      - name: Install lint dependencies
-        run: python -m pip install ruff
+      - name: Install repository verification dependencies
+        run: python -m pip install 'ruff>=0.6,<1.0' 'markdown-it-py>=4.0,<5.0'
 
       - name: Lint (correctness + import order)
         # `[tool.ruff.lint]` in pyproject.toml selects E4/E7/E9/F/I only --
@@ -236,6 +250,9 @@ jobs:
 
       - name: Verify SEAM streams
         run: python -m tools.streams.verify_streams
+
+      - name: Verify SEAM wiki navigation
+        run: python -m tools.docs.verify_wiki
 
       - name: Verify dependency source contract
         run: python -m tools.ci.verify_dependency_contract

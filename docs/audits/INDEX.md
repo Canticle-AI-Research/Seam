@@ -1,25 +1,34 @@
 ---
 schema: seam-audit-registry/v1
 latest: 2026-08-10-track-s-visual-status-report
+policy_start: 2026-08-11
 ---
 
 # SEAM Audit Registry
 
-Canonical index of recorded audits. This directory is the durable, tracked home
-for audit findings; it is private to this repository and contains no
-credentials, session URLs, or provider keys — audits cite repo files only.
+Canonical index of recorded SEAM reports. This directory is the durable,
+tracked home for dated human-readable reports: whole-repository audits,
+focused investigations, visual status reports, architecture assessments, and
+interpreted benchmark reports. It contains no credentials, session URLs,
+provider keys, or bulky raw artifacts. Reports cite repository evidence or
+durable artifact paths and hashes; see
+[Reports and Evidence](../REPORTS_AND_EVIDENCE.md). The `policy_start` field is
+the prospective enforcement boundary: older reports retain their original
+evidence contract, while reports dated on or after it must satisfy the current
+registry and evidence-manifest rules.
 
 **Newest first.** `scope` distinguishes a whole-repository health audit from a
 narrow diagnostic. Whole-repo audits are the repeatable series and are expected
 to be diffed against each other; the rest are one-off investigations kept for
 the reasoning and measurements they record.
 
-Add a new audit at the top, advance `latest`, and link the HISTORY entry that
-recorded it.
+Add a new report at the top, advance `latest`, and link the latest governing
+HISTORY entry for that report. Use
+`docs/audits/<YYYY-MM-DD>-<short-slug>.md`.
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
-| 2026-08-10 | [Track S visual status report](2026-08-10-track-s-visual-status-report.md) | status reconciliation | `HISTORY#551` |
+| 2026-08-10 | [Track S visual status report](2026-08-10-track-s-visual-status-report.md) | status reconciliation | `HISTORY#553` |
 | 2026-08-01 | [Full-repository audit](2026-08-01-full-repo-audit.md) | **whole-repo** | `HISTORY#525` |
 | 2026-07-22 | [Parallel graph (G3→G4) and reasoning (R3) build](2026-07-22-graph-reasoning-parallel-build-architecture-task.md) | architecture task | — |
 | 2026-07-21 | [Canonical graph fill preflight](2026-07-21-canonical-graph-fill-preflight.md) | graph | — |
@@ -59,6 +68,9 @@ finding before reporting. File the result as
   what could not be verified. An audit without this is an opinion.
 - **Corrections to prior belief**, so a later reader does not re-derive a claim
   that was already falsified.
+- An **Evidence manifest** declaring `Raw artifacts: none` or pairing every raw
+  artifact path with its SHA-256 digest. This is enforced prospectively from
+  the registry's `policy_start`; older reports are not rewritten retroactively.
 - **Never** a credential, DSN with a password, provider session URL, or any
   copy-pasteable exploit payload. Describe a vulnerability precisely enough to
   fix; do not weaponize it. Repository rule, per `AGENTS.md` Security Rules.

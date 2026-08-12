@@ -33,7 +33,7 @@ If state changed:
 1. Append one entry to `HISTORY.md`.
 2. Rebuild `HISTORY_INDEX.md`.
 3. Write one snapshot JSON.
-4. Run `python -m tools.history.verify_handoffs`, `python -m tools.history.verify_continuity`, and `python -m tools.streams.verify_streams`.
+4. Run `python -m tools.history.verify_integrity`, `python -m tools.history.verify_routing`, `python -m tools.history.verify_handoffs`, `python -m tools.history.verify_continuity`, `python -m tools.streams.verify_streams`, and `python -m tools.docs.verify_wiki`.
 5. If `ROADMAP.md` changed: rerun `python -m tools.streams.roadmap_parser` to refresh the roadmap stream + state view; if any stream changed: rerun `python -m tools.streams.rebuild_cross_index` to refresh the derived global timeline.
 
 Run the gates above as written, with no suppression flags, and never let a local
@@ -119,7 +119,8 @@ Bounded reading protocol that keeps session-start cost flat as the repo grows. T
 
 ### Phase 3 — Session End
 
-- Follow the Session End checklist above. Both `verify_continuity` and `verify_streams` must pass.
+- Follow the Session End checklist above. `verify_continuity`, `verify_streams`,
+  and `verify_wiki` must pass.
 - `verify_handoffs` must pass whenever tracked handoff state exists or changes; never leave an unindexed handoff document or more than one live head.
 - If `ROADMAP.md` items changed status, re-run the roadmap parser so the stream and the derived `state.md` stay aligned with the authored prose.
 - The cross-index always regenerates from the streams; never hand-edit it.
@@ -194,14 +195,18 @@ Only use tags from this controlled set:
 `classification`
 `codec`
 `command`
+`commonmark`
 `comparator`
 `compile`
 `compiler`
 `compress`
 `concepts`
+`config`
 `continuity`
+`correction`
 `dashboard`
 `demo`
+`defect`
 `diff`
 `docker`
 `docs`
@@ -212,6 +217,7 @@ Only use tags from this controlled set:
 `git-hooks`
 `gold-standard`
 `graph`
+`gates`
 `handoff`
 `harden`
 `history`
@@ -220,6 +226,7 @@ Only use tags from this controlled set:
 `integrity`
 `json`
 `judge`
+`keyboard`
 `ledger`
 `lexical`
 `linux`
@@ -233,10 +240,12 @@ Only use tags from this controlled set:
 `mirl`
 `models`
 `multi-agent`
+`navigation`
 `naming`
 `nl`
 `operator`
 `pack`
+`parity`
 `persist`
 `pgvector`
 `plan`
@@ -275,5 +284,7 @@ Only use tags from this controlled set:
 `vector`
 `verify`
 `webui`
+`wiki`
 `windows`
+`worktree`
 `wsl2`
