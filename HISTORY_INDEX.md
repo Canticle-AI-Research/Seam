@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 559
-total_tokens: ~290161
-latest_id: 559
+total_entries: 560
+total_tokens: ~290541
+latest_id: 560
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 560 | 2026-08-13 | done | e9ee3b51061ec48f | audit,docs,history,continuity,+ | 559 |
 | 559 | 2026-08-12 | done | 901e2567afa2fbb9 | tui,config,bugfix,test,+ | 558 |
 | 558 | 2026-08-12 | changed | 104d9e3e5eee4335 | docs,audit,security,history,+ | 557 |
 | 557 | 2026-08-11 | done | 40a8ec3b0765f41f | history,correction,verify,wiki,+ | 556 |
@@ -590,7 +591,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=7 latest=#530, #529, #526, #522, #466
-- audit: count=114 latest=#558, #553, #552, #551, #536
+- audit: count=115 latest=#560, #558, #553, #552, #551
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=205 latest=#553, #547, #519, #518, #517
@@ -635,7 +636,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=26 latest=#553, #552, #551, #548, #546
+- continuity: count=27 latest=#560, #553, #552, #551, #548
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -665,7 +666,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=67 latest=#558, #556, #554, #553, #552
+- docs: count=68 latest=#560, #558, #556, #554, #553
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -705,11 +706,11 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=75 latest=#531, #530, #529, #528, #526
+- handoff: count=76 latest=#560, #531, #530, #529, #528
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=305 latest=#559, #558, #557, #555, #553
+- history: count=306 latest=#560, #559, #558, #557, #555
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
@@ -836,7 +837,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=1 latest=#388
-- roadmap: count=67 latest=#551, #540, #538, #531, #514
+- roadmap: count=68 latest=#560, #551, #540, #538, #531
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -867,7 +868,7 @@ compact: true
 - sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=172 latest=#553, #552, #551, #531, #528
+- status: count=173 latest=#560, #553, #552, #551, #531
 - storage: count=24 latest=#533, #532, #530, #529, #526
 - streams: count=24 latest=#531, #530, #529, #526, #524
 - structure: count=3 latest=#326, #285, #284
@@ -884,6 +885,7 @@ compact: true
 - test-artifacts: count=1 latest=#506
 - tests: count=39 latest=#558, #554, #539, #531, #530
 - textual: count=19 latest=#554, #543, #108, #106, #063
+- timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
 - tooling: count=5 latest=#459, #438, #428, #357, #324
 - topk: count=1 latest=#320
@@ -897,7 +899,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=380 latest=#559, #558, #557, #556, #555
+- verify: count=381 latest=#560, #559, #558, #557, #556
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -915,6 +917,6 @@ compact: true
 
 - roots: 86
 - changed: 39
-- done: 491
+- done: 492
 - in-progress: 8
 - planned: 21

@@ -9,18 +9,21 @@
 
 ## Current headline
 
-**2026-08-03 — HISTORY#533, Track S S5 published; S6 is the next stage**
-(supersedes the 2026-08-03 HISTORY#532 headline). Protected `main` is
-`19b3a76`: S5 merged through PR #199 after all eight required and advisory
-checks passed on the exact head — `repo-hygiene`, `chroma-real-smoke`,
-`locomo-quickstart-bil2`, `package-smoke`, `pgvector-integration`,
-`registry-plan`, `test-and-benchmark`, and CodeRabbit, which left zero review
-comments. Zero PRs are open. Every S5 exit-gate clause has evidence.
+**2026-08-12 — whole-repository deep audit filed at
+`docs/audits/2026-08-12-full-repo-audit.md` (HISTORY#560)**, with the
+complete project timeline at
+`docs/audits/2026-08-12-seam-complete-timeline.md`. Protected `main` is
+`f5d304c`. All four critical/high reproducers from the prior audits are
+verified fixed in code; no new criticals. Open: a MEDIUM cluster (chat
+response buffering, REST /persist caller-supplied ids, applied-policy
+divergence across surfaces, process-lifetime flag cache, unbounded SQL IN
+expansion, outbox soft-delete replay) plus documentation drift, repaired in
+this entry. This supersedes the 2026-08-03 HISTORY#533 headline.
 
 S6 — principal tenancy and opaque deletion — is now the only unblocked stage.
-It must state explicitly whether tenancy terminates in a proxy ahead of `/v1`
-or in-process; that decision is currently written down nowhere, and `/v1` still
-has no tenancy binding and zero HTTP-level tests.
+The termination decision is recorded (2026-08-05, HISTORY#538): tenancy
+terminates in-process with an optional principal. `/v1` still has no tenancy
+binding, and carries 35 HTTP-level tests.
 
 S5 was designed as one change rather than two, because `HISTORY#528` recorded
 that pooling alone satisfies the connection clause while leaving the
@@ -61,10 +64,9 @@ dropping those records from the semantic leg so a torn read looked identical.
 The fixture now varies only record ids, and the test was re-verified to fail
 with the snapshot disabled.
 
-Full suite with the live pgvector lane enabled: **2028 passed, 0 skipped, 2
-xfailed**; ruff clean. The 23 external cases ran against the live pgvector
-service rather than being skipped. The 2 xfails are the pre-existing
-`compile_nl` compiler-rewrite targets and are unrelated to S5.
+Full suite at the 2026-08-12 audit (live pgvector lane): **2382 passed,
+0 skipped, 2 xfailed** in 256s; ruff clean. The 2 xfails remain the
+pre-existing `compile_nl` compiler-rewrite targets.
 
 S4 replaces colon/prefix inference with closed typed-reference contracts.
 Timestamps, URLs, and arbitrary colon-bearing values remain literals unless a
@@ -176,21 +178,23 @@ tenancy remain S6.
   caller identity; `namespace` and `session_id` come off the request body, so
   one bearer token reads and writes every namespace. Correct for BUSL
   self-host; for the paid hosted API this is the multi-tenant boundary and it
-  does not exist here. **S6 must state explicitly whether tenancy terminates in
-  a proxy ahead of `/v1` or in-process** — that decision is currently written
-  down nowhere. `/v1` also has zero HTTP-level tests (2 references in the whole
-  test tree; no test exercises `POST /v1/memories`, `/v1/memories/recall`, or
-  `/v1/context`).
+  does not exist here. The S6 termination decision is now recorded: tenancy
+  terminates **in-process with an optional principal**
+  (2026-08-05, HISTORY#538; `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md` S6).
+  `/v1` carries 35 HTTP-level tests in `tests/audit/test_public_api_v1_http.py`
+  (HISTORY#535).
 - ~~**Retrieval legs share no read snapshot.**~~ **Closed and published** by
   S5 at `main@19b3a76`: the eleven `store._connect()` sites now use the pool,
   and the pool itself routes to a per-request committed snapshot that the
   same-file SQLite vector index joins. Verified to discriminate — with the
   snapshot disabled, a mid-request commit enters the candidate set and
   `candidate_set_sha256` changes.
-- **Unbounded SQL variable expansion** in `knowledge_graph.py` (`:1106`,
-  `:1143`, `:1161`, `_graph_episode_rows` `:2074-2090`), where the orchestrator
-  chunks at 400. Latent on SQLite ≥ 3.32; breaks on the 999-variable default
-  (Debian 10, Ubuntu 18.04, RHEL/CentOS 7-8, Amazon Linux 2).
+- **Unbounded SQL variable expansion** remains open at current sites:
+  `knowledge_graph.py` `_graph_episode_rows` (`:2613-2660`, ~40k bind variables
+  worst case) and the retrieval/KG load paths (`adapters.py`, `:1515-1517`,
+  `:1558`, `:1576-1580`). Chunked at 400 in `reusable_node_vectors` only.
+  Latent on SQLite ≥ 3.32; breaks on the 999-variable default (Debian 10,
+  Ubuntu 18.04, RHEL/CentOS 7-8, Amazon Linux 2).
 - **Projection transitions now exist but are not statically completeness-
   checked.** Protected `main` carries KG/4-to-/5; this candidate adds exact
   core-storage/1-to-/2 and KG/5-to-/6 transitions. S10 still needs a release
@@ -200,9 +204,10 @@ tenancy remain S6.
   covered locally, with exact-head review and CI still pending.
 - Pre-existing unrelated worktree/branch hygiene remains outside this PR and
   is preserved rather than silently combined.
-- Never audited, across two consecutive audits: `dashboard.py` (3,160 lines,
-  zero dedicated tests), benchmark seal/BIL integrity, MIRL losslessness
-  round-tripping.
+- Dashboard/TUI chat-client coverage landed in the 2026-08-12 audit (see the
+  chat allowlist finding); `dashboard.py` (3,198 lines) now has dedicated
+  command-palette/shell tests. Still never audited: benchmark seal/BIL
+  integrity, MIRL losslessness round-tripping.
 
 No paid provider, competitive retrieval-score benchmark, artifact publish,
 deploy, or release ran. S3 is merged; rebuilt S4 PR #195 is the next ordered

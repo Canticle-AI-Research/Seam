@@ -62,8 +62,10 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   are host-bound and unavailable to loopback; malformed trust timestamps fail
   toward stale with content-free diagnostics. Automatic first-launch
   `SEAM_API_TOKEN` provisioning remains a separate authentication/UX policy
-  decision; tokenless mode is trusted-local-only. Audit findings 7-10 and 12
-  remain open.
+  decision; tokenless mode is trusted-local-only. Audit findings 7-10 from
+  the 2026-08-01 audit are closed or addressed (graph tiebreaks, /v1 HTTP
+  coverage, pool bypasses; IN-chunking partially); finding 12 (worktree/branch
+  hygiene) remains open.
 - S3 is published through PR #194 at `main@9bd40cb`. Its exact KG/4-to-KG/5
   transition rebuilds disposable topology from canonical
   MIRL/lifecycle/document status, preserves the identity judgement ledger, and
@@ -94,13 +96,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   Divergence (missing/stale/orphan) is detected and repaired on all three
   backends, with Chroma gaining the inspection methods it lacked.
 - S6 (principal tenancy and opaque deletion) is the next stage and is unstarted.
-  It must state explicitly whether tenancy terminates in a proxy ahead of `/v1`
-  or in-process; that decision is written down nowhere, and `/v1` still has no
-  tenancy binding and zero HTTP-level tests.
+  The termination decision is recorded (2026-08-05, HISTORY#538): tenancy
+  terminates in-process with an optional principal. `/v1` still has no tenancy
+  binding, and carries 35 HTTP-level tests.
 - The live pgvector lane is exercised locally by exporting `PGVECTOR_TEST_DSN`
   from the running `seam-pgvector` container (`SEAM_PGVECTOR_DSN`, port 55432).
-  Without it, 4 external cases skip; with it the full suite is 2028 passed, 0
-  skipped, 2 xfailed.
+  Without it, 4 external cases skip; with it the full suite was 2382 passed,
+  0 skipped, 2 xfailed at the 2026-08-12 audit run.
 - The history advisory lock now resolves through a linked worktree's
   `gitdir:` pointer, so `python -m tools.history.new_entry` no longer leaves an
   untracked `HISTORY_INDEX.md.lock` inside a worktree's working tree where

@@ -18090,3 +18090,46 @@ Settings Reload already applied persisted values to the process environment, but
 
 The mounted regression reproduced the stale true cache before the fix and now proves that Reload immediately accepts literal pound-sign input while real alt+3 navigation remains active. The full 19-test input-mode module, its 12-test navigation slice, Ruff, diff hygiene, and the working-tree secret/session scan passed. This correction is isolated from the wiki and native-model roadmap work.
 ---END-ENTRY-#559---
+
+---BEGIN-ENTRY-#560---
+id: 560
+date: 2026-08-13T04:45:00Z
+agent: claude
+status: done
+topics: audit, docs, history, continuity, verify, status, roadmap, handoff, timeline
+commits: pending
+refs: HISTORY#559,HISTORY#538,HISTORY#535,HISTORY#533,docs/audits/2026-08-12-full-repo-audit.md,docs/audits/2026-08-12-seam-complete-timeline.md,docs/audits/INDEX.md,docs/handoffs/2026-08-12-deep-audit.md,docs/handoffs/INDEX.md,docs/handoffs/2026-08-05-tui-rebuild-canticle.md,PROJECT_STATUS.md,docs/status/operations.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md
+supersedes: 559
+tokens: 380
+---
+Filed the 2026-08-12 whole-repository deep audit and the complete project
+timeline under docs/audits/, and repaired the documentation drift the audit
+itself found.
+
+The audit ran six read-only lanes with independent adversarial
+re-verification of every candidate finding: 0 CRITICAL, 1 HIGH (docs-only,
+repaired by this entry), 15 MEDIUM (11 runtime, 4 docs), 33 LOW, 2 refuted.
+All four critical/high reproducers from the prior audits are verified fixed
+in code on main@f5d304c. The timeline covers all 559 prior entries across 7
+eras, verified row-by-row (ids 1..559 exactly once, dates non-decreasing,
+10 HISTORY.md spot-checks).
+
+Full suite with the live pgvector lane (PGVECTOR_TEST_DSN exported):
+`pytest tests/` -> 2382 passed, 2 xfailed, 0 skipped in 256.16s; ruff clean.
+The 2 xfails remain the pre-existing `compile_nl` compiler-rewrite targets.
+
+Documentation drift repaired: PROJECT_STATUS.md headline (audit filed at
+main@f5d304c) and open items (suite counts; /v1 tenancy decision recorded
+in-process with an optional principal, 35 HTTP tests; current IN-expansion
+line cites; never-audited list). docs/status/operations.md findings/S6/suite
+bullets. The campaign doc's latest-evidence and publication boundary (S6
+builds on main@19b3a76). Audit and handoff registries advanced; new handoff
+2026-08-12-deep-audit supersedes 2026-08-05-tui-rebuild-canticle.
+
+Verification: verify_integrity, verify_routing, verify_continuity, and
+verify_handoffs all exit 0 after the snapshot through #560.
+
+Unresolved next step: one PR fixing F-5 (cap /chat provider response reads)
+and F-6 (refuse caller-supplied overwrite on REST /persist); the remaining
+MEDIUM cluster (F-7..F-18) stays queued behind it.
+---END-ENTRY-#560---
