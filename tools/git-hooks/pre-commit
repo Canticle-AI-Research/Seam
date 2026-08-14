@@ -72,6 +72,13 @@ run_gate "verify_handoffs"   "$PY" -m tools.history.verify_handoffs
 run_gate "verify_continuity" "$PY" -m tools.history.verify_continuity
 run_gate "verify_streams"    "$PY" -m tools.streams.verify_streams
 run_gate "verify_wiki"       "$PY" -m tools.docs.verify_wiki --staged
+# Audit reports are agent-written and fail in a specific place: accurate where
+# they measure, wrong where they summarize. HISTORY#560 cited 94 file:line refs
+# with one past EOF, claimed 15 MEDIUM while labelling 17, and misdated 1 of 559
+# timeline rows -- all mechanical, none caught by reading. Scoped to docs changed
+# in this commit: a historical audit describes a past repo state, so its stale
+# citations are not defects. See HISTORY#563.
+run_gate "verify_audit_claims" "$PY" -m tools.docs.verify_audit_claims --changed-since HEAD
 
 if [ "$FAIL" -ne 0 ]; then
   echo "" >&2
