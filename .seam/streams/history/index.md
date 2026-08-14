@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 564
-total_tokens: ~294039
-latest_id: 564
+total_entries: 565
+total_tokens: ~294379
+latest_id: 565
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 565 | 2026-08-14 | done | 754e7f51e5b682b9 | branding,docs,verify,bugfix,+ | 564 |
 | 564 | 2026-08-14 | done | 4e6b4b23b4821fd8 | branding,docs,verify,test,+ | 563 |
 | 563 | 2026-08-14 | done | 4dcc35301541c239 | audit,docs,verify,history,+ | 562 |
 | 562 | 2026-08-14 | done | e2761c1e49344427 | security,provenance,git-hooks,verify,+ | 561 |
@@ -603,10 +604,10 @@ compact: true
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
-- branding: count=1 latest=#564
+- branding: count=2 latest=#565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=59 latest=#562, #559, #550, #543, #531
+- bugfix: count=60 latest=#565, #562, #559, #550, #543
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -671,7 +672,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=70 latest=#564, #563, #560, #558, #556
+- docs: count=71 latest=#565, #564, #563, #560, #558
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -715,7 +716,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=310 latest=#564, #563, #562, #561, #560
+- history: count=311 latest=#565, #564, #563, #562, #561
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
@@ -906,7 +907,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=385 latest=#564, #563, #562, #561, #560
+- verify: count=386 latest=#565, #564, #563, #562, #561
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -924,6 +925,6 @@ compact: true
 
 - roots: 86
 - changed: 39
-- done: 496
+- done: 497
 - in-progress: 8
 - planned: 21

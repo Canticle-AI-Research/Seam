@@ -208,18 +208,37 @@ def render_png(
     source: Path, out: Path, *, width: int = 1024, height: int | None = None,
     transparent: bool = True,
 ) -> Path:
-    """Rasterize an SVG or HTML file to PNG at an exact pixel size."""
+    """Rasterize an SVG or HTML file to PNG at an exact pixel size.
+
+    An SVG carrying intrinsic ``width``/``height`` attributes renders at that
+    size and sits in the corner of a larger viewport, so an SVG source is
+    wrapped in a page that scales it to fill. ``object-fit: contain`` preserves
+    the aspect ratio, which matters for a mark that must not be stretched when
+    the requested box is not square.
+    """
     if not source.exists():
         raise BrandError(f"source not found: {source}")
     out.parent.mkdir(parents=True, exist_ok=True)
-    args = [
-        f"--screenshot={out}",
-        f"--window-size={width},{height or width}",
-    ]
+    h = height or width
+    args = [f"--screenshot={out}", f"--window-size={width},{h}"]
     if transparent:
         args.append("--default-background-color=00000000")
-    args.append(source.resolve().as_uri())
-    _run_chrome(args)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        target = source
+        if source.suffix.lower() == ".svg":
+            wrapper = Path(tmp) / "wrap.html"
+            wrapper.write_text(
+                "<!doctype html><style>html,body{margin:0;padding:0;"
+                f"width:{width}px;height:{h}px;overflow:hidden}}"
+                "img{width:100%;height:100%;object-fit:contain;display:block}</style>"
+                f'<img src="{source.resolve().as_uri()}">',
+                encoding="utf-8",
+            )
+            target = wrapper
+        args.append(target.resolve().as_uri())
+        _run_chrome(args)
+
     if not out.exists():
         raise BrandError(f"chrome reported success but wrote no file at {out}")
     return out

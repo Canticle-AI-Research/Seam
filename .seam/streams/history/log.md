@@ -18434,3 +18434,41 @@ timestamp anchoring, the deep-audit skill's context ceiling, and the four
 defects this repo's own audit-claim gate reports in the HISTORY#560 artifacts
 all remain open.
 ---END-ENTRY-#564---
+
+---BEGIN-ENTRY-#565---
+id: 565
+date: 2026-08-14T20:36:47Z
+agent: claude
+status: done
+topics: branding, docs, verify, bugfix, history
+commits: pending
+refs: HISTORY#564,HISTORY#563,tools/branding/assets.py,branding/kit/tokens.json
+supersedes: 564
+tokens: 340
+---
+Fixed the PNG renderer in the brand toolkit, which could not rasterize an SVG
+at any size other than the one written into the file.
+
+An SVG carrying intrinsic width and height attributes renders at that size and
+sits in the corner of a larger viewport, so requesting a 512 pixel render of a
+64 pixel mark produced a 64 pixel mark on a 512 pixel canvas rather than a
+scaled one. render_png now wraps an SVG source in a page that scales it to
+fill, using object-fit contain so the aspect ratio survives a non-square
+request. HTML sources are unaffected and still render directly.
+
+Found while producing the first assets from this toolkit. Those assets are the
+identity for Ghost and live in the Ghost repository, not here; this entry
+records only the toolkit change, since Ghost owns its own brand surface.
+
+Verification: `pytest tests/` -> 2406 passed, 2 xfailed in 255.65s with the
+live pgvector lane, which includes the eleven branding tests added in
+HISTORY#564. All seven preflight gates exit 0. The corrected renderer was
+exercised on real vector sources at sizes from 16 to 512 pixels, and the
+multi-size ICO path was confirmed to carry every requested size.
+
+Unresolved next step: HISTORY.md rotation remains the outstanding structural
+fix at 565 entries, third-party timestamp anchoring is still absent, the
+deep-audit skill still enforces its read-only contract for its invoking turn
+only and sets no context ceiling on history reads, and the four defects the
+audit-claim gate reports in the HISTORY#560 artifacts are uncorrected.
+---END-ENTRY-#565---
