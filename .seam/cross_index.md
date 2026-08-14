@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 622
+total_events: 624
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-08T22:50:21Z | history:366:fe1cd501 | session-event | done | benchmark, telemetry, run-record, cost, reasoning, cot, t... | benchmarks/external/common/run_record.py, benchmarks/external/common/pricing.... |
-| 2026-07-09T00:09:26Z | history:367:2278b41a | session-event | done | benchmark, deepseek, answerer, reasoning, cot, run-record... | benchmarks/external/locomo/adapters/seam.py, benchmarks/external/common/answe... |
 | 2026-07-09T13:11:14Z | history:368:f6b7058a | session-event | done | deepseek, pricing, answerer, model-selection, correctness... | benchmarks/external/locomo/adapters/seam.py, benchmarks/external/common/prici... |
 | 2026-07-09T22:06:19Z | history:369:466ae477 | session-event | done | locomo, cat1, cat3, deepseek, benchmark, handoff, gold-no... | docs/handoffs/2026-07-09-cat1-cat3-deepseek-fixes-handoff.md |
 | 2026-07-09T22:40:39Z | history:370:fe908a9e | session-event | done | ci, tests, deepseek, benchmark, windows, bugfix | tests/audit/test_run_record.py |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-11T16:50:52Z | history:557:40a8ec3b | session-event | done | history, correction, verify, wiki, gates | HISTORY#556,HISTORY#555,tests/audit/test_public_safe_gate.py,tools/git-hooks/... |
 | 2026-08-12T23:31:08Z | history:558:104d9e3e | session-event | changed | docs, audit, security, history, ci, tests, verify, correc... | HISTORY#557,PR#214,tools/docs/verify_wiki.py,tests/audit/test_wiki_navigation... |
 | 2026-08-12T23:43:12Z | history:559:901e2567 | session-event | done | tui, config, bugfix, test, verify, history | HISTORY#558,HISTORY#555,PR#216,seam_runtime/tui/app.py,seam_runtime/tui/setti... |
+| 2026-08-13T04:45:00Z | history:560:e9ee3b51 | session-event | done | audit, docs, history, continuity, verify, status, roadmap... | HISTORY#559,HISTORY#538,HISTORY#535,HISTORY#533,docs/audits/2026-08-12-full-r... |
+| 2026-08-14T03:47:18Z | history:561:42852c09 | session-event | done | security, provenance, signing, hooks, git, verify, histor... | HISTORY#560,tools/git-hooks/pre-push,.seam/cross_index.md,.seam/streams/histo... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0422.cross.md | 2026-04-15T00:00:00Z..2026-07-08T16:36:07Z | 422 | (multi) | (multi) |
+| 0001-0424.cross.md | 2026-04-15T00:00:00Z..2026-07-09T00:09:26Z | 424 | (multi) | (multi) |

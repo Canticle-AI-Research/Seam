@@ -42,6 +42,42 @@ while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     --repo-root "$REPO_ROOT" \
     --remote "$REMOTE_NAME" \
     --range "$SCAN_BASE" "$LOCAL_SHA" || exit 1
+
+  # Signature gate. HISTORY.md is the operator's provenance and copyright
+  # record for MIRL and Seam components, so the commit chain carrying it must
+  # stay attributable. Signing was already enabled globally, but unsigned
+  # commits kept landing from clients that did not have it (a490c73
+  # 2026-08-12, 7727874 2026-08-10) because nothing refused them.
+  #
+  # Gated at push, not commit: Cline stash checkpoints are unsigned by design
+  # and never leave the machine, so a commit-time gate would fire on work that
+  # is never published and would end up bypassed.
+  #
+  # The 118 pre-existing unsigned commits are deliberately NOT rewritten.
+  # Restamping them today would invalidate 395 authentic signatures and make a
+  # real chain read as fabricated. Only outgoing new commits are gated.
+  if [ "$SCAN_BASE" = "$ZERO_SHA" ]; then
+    PUSH_SHAS=$(git rev-list "$LOCAL_SHA" --not --remotes 2>/dev/null)
+  else
+    PUSH_SHAS=$(git rev-list "$SCAN_BASE..$LOCAL_SHA" 2>/dev/null)
+  fi
+  if [ -n "$PUSH_SHAS" ]; then
+    UNSIGNED=$(printf '%s\n' "$PUSH_SHAS" \
+      | git log --no-walk --stdin --format='%G?|  %h  %an  %s' 2>/dev/null \
+      | sed -n 's/^N|//p')
+    if [ -n "$UNSIGNED" ]; then
+      echo "[SEAM pre-push] BLOCKED: unsigned commit(s) on ${LOCAL_REF}:" >&2
+      printf '%s\n' "$UNSIGNED" >&2
+      echo "[SEAM pre-push] The commit chain is the provenance record for MIRL/Seam." >&2
+      echo "[SEAM pre-push] Enable signing:  git config --global commit.gpgsign true" >&2
+      echo "[SEAM pre-push] Sign these:      git rebase --exec 'git commit --amend --no-edit -S' ${SCAN_BASE}" >&2
+      echo "[SEAM pre-push] Override once:   SEAM_ALLOW_UNSIGNED_PUSH=1 git push ..." >&2
+      if [ "${SEAM_ALLOW_UNSIGNED_PUSH:-0}" != "1" ]; then
+        exit 1
+      fi
+      echo "[SEAM pre-push] SEAM_ALLOW_UNSIGNED_PUSH=1 set -- continuing." >&2
+    fi
+  fi
 done
 
 # Linked-worktree hygiene. This check lives here, not in CI, because CI cannot

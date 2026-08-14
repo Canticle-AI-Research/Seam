@@ -18133,3 +18133,85 @@ Unresolved next step: one PR fixing F-5 (cap /chat provider response reads)
 and F-6 (refuse caller-supplied overwrite on REST /persist); the remaining
 MEDIUM cluster (F-7..F-18) stays queued behind it.
 ---END-ENTRY-#560---
+
+---BEGIN-ENTRY-#561---
+id: 561
+date: 2026-08-14T03:47:18Z
+agent: claude
+status: done
+topics: security, provenance, signing, hooks, git, verify, history, streams
+commits: pending
+refs: HISTORY#560,tools/git-hooks/pre-push,.seam/cross_index.md,.seam/streams/history/log.md,docs/handoffs/2026-08-12-deep-audit.md
+supersedes: 560
+tokens: 953
+---
+Made the commit chain verifiable and gated unsigned commits at push, because
+HISTORY.md is the operator's provenance and copyright record for MIRL and Seam
+components and an unattributable chain cannot serve that purpose.
+
+Signing was already enabled globally (commit.gpgsign true, ssh format), but
+gpg.ssh.allowedSignersFile was never configured, so every signature in the
+repository was unverifiable: git reported "cannot check" or "no signature" for
+all 513 commits and zero verified good. Configuration landed outside the repo
+(no secrets recorded here): an allowed_signers file mapping five author
+identities to the ed25519 signing key, the global allowedSignersFile pointer,
+and GitHub's web-flow and GitHub PGP public keys imported with ownertrust so
+the 204 server-side merge commits verify too. Merge commits are PGP-signed
+while local commits are SSH-signed, so both verifier paths were required.
+
+Result measured across all refs: 393 good and trusted, 2 valid but signed with
+Anthropic's key, 118 unsigned. Before this change the same scan produced zero
+verifiable commits.
+
+tools/git-hooks/pre-push gained a signature gate inside the existing per-ref
+loop, after the secret scan. It enumerates the outgoing commits for the ref
+(git rev-list, falling back to --not --remotes for a new branch), refuses any
+commit whose %G? is N, prints the offending short shas with author and
+subject, and offers SEAM_ALLOW_UNSIGNED_PUSH=1 as a single-push override in
+the same style as the existing dirty-worktree gate. The gate runs at push
+rather than commit deliberately: Cline stash checkpoints are unsigned by
+design and never leave the machine, so a commit-time gate would fire on
+unpublished work and be routed around.
+
+Deliberately not done: the 118 pre-existing unsigned commits were not
+retroactively signed. Doing so requires rewriting all 513 shas, which would
+invalidate the 395 authentic signatures, break commit references, orphan other
+clones, and restamp the entire chain as signed today, which weakens rather
+than strengthens a provenance record.
+
+Also carried forward the derived stream state from HISTORY#560, which that
+entry generated but left uncommitted: .seam/cross_index.md, the history stream
+index and log, and the 0001-0422 to 0001-0423 cross-index archive rotation.
+verify_streams reported OK on that state before it was staged.
+
+Verification: the pre-push gate was exercised directly with simulated stdin in
+three cases before any push -- a signed range passed (exit 0), the known
+unsigned commit a490c73 was blocked with the expected message (exit 1), and
+the same range with SEAM_ALLOW_UNSIGNED_PUSH=1 passed (exit 0); bash -n clean.
+verify_integrity, verify_routing, verify_continuity, and verify_streams all
+exit 0.
+
+Full suite with the live pgvector lane (PGVECTOR_TEST_DSN exported):
+`pytest tests/` -> 2382 passed, 2 xfailed in 257.67s. The 2 xfails remain the
+pre-existing compile_nl compiler-rewrite targets.
+
+An earlier run of the same suite reported 23 failures across
+test_pgvector_boundary_resync, test_pgvector_real_adapter,
+test_pgvector_render_contract, test_pgvector_pk_composite, and
+test_substream_isolation. Every one was psycopg.OperationalError connection
+refused on port 55432: the seam-pgvector container had exited 16 hours
+earlier. Starting the container and re-running that exact set produced 30
+passed in 3.01s, so the lane was environmental and not a regression. Recording
+it because the same idle-out silently converts this lane between pass, fail,
+and skip depending on container state at run time.
+
+Unresolved next step: HISTORY.md is 560 entries and roughly 387k tokens, which
+is what exhausted the auditing agent's context in HISTORY#560; rotating
+entries at or below #440 into an archive file would cut the live file to
+roughly 111k tokens and requires history_lib, verify_integrity,
+verify_continuity, rebuild_index, and build_context_pack to span both files.
+Two further gaps stay open: commit timestamps are still self-asserted and
+unanchored to any third party, and the read-only contract of the deep-audit
+skill is enforced only for its invoking turn, which is how HISTORY#560 came to
+write eleven files during a read-only audit.
+---END-ENTRY-#561---
