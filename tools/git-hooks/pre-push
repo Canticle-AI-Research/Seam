@@ -42,6 +42,67 @@ while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     --repo-root "$REPO_ROOT" \
     --remote "$REMOTE_NAME" \
     --range "$SCAN_BASE" "$LOCAL_SHA" || exit 1
+
+  # Signature gate. HISTORY.md is the operator's provenance and copyright
+  # record for MIRL and Seam components, so the commit chain carrying it must
+  # stay attributable. Signing was already enabled globally, but unsigned
+  # commits kept landing from clients that did not have it (a490c73
+  # 2026-08-12, 7727874 2026-08-10) because nothing refused them.
+  #
+  # Gated at push, not commit: Cline stash checkpoints are unsigned by design
+  # and never leave the machine, so a commit-time gate would fire on work that
+  # is never published and would end up bypassed.
+  #
+  # The 118 pre-existing unsigned commits are deliberately NOT rewritten.
+  # Restamping them today would invalidate 395 authentic signatures and make a
+  # real chain read as fabricated. Only outgoing new commits are gated.
+  # Scope the new-branch exclusion to the remote actually being pushed to.
+  # A bare --remotes also subtracts commits reachable from unrelated remotes
+  # (this repo carries a seam-runtime remote), which would silently exempt an
+  # unsigned commit that has never reached the target.
+  if [ "$SCAN_BASE" = "$ZERO_SHA" ]; then
+    if git config --get "remote.${REMOTE_NAME}.url" >/dev/null 2>&1; then
+      PUSH_SHAS=$(git rev-list "$LOCAL_SHA" --not "--remotes=${REMOTE_NAME}" 2>/dev/null)
+    else
+      PUSH_SHAS=$(git rev-list "$LOCAL_SHA" --not --remotes 2>/dev/null)
+    fi
+  else
+    PUSH_SHAS=$(git rev-list "$SCAN_BASE..$LOCAL_SHA" 2>/dev/null)
+  fi
+  if [ -n "$PUSH_SHAS" ]; then
+    # Allow-list, not deny-list. %G? has seven values and only G (good) and U
+    # (good signature, untrusted key) mean the commit is actually attributable.
+    # Matching on N alone would pass E ("cannot check") -- which is exactly the
+    # state every commit in this repository was in before HISTORY#561 -- as
+    # well as B/X/Y/R (bad, expired, expired key, revoked). A deny-list fails
+    # open here for the same reason it did for the publication gate in
+    # HISTORY#355.
+    REJECTED=$(printf '%s\n' "$PUSH_SHAS" \
+      | git log --no-walk --stdin --format='%G?|  %h  %an  %s' 2>/dev/null \
+      | grep -v '^[GU]|' \
+      | sed 's/^\(.\)|/  [\1]/')
+    if [ -n "$REJECTED" ]; then
+      # A new branch has no usable rebase base (SCAN_BASE is all zeros), so
+      # derive one from the parent of the oldest commit being pushed.
+      REBASE_BASE=$SCAN_BASE
+      if [ "$REBASE_BASE" = "$ZERO_SHA" ]; then
+        OLDEST=$(printf '%s\n' "$PUSH_SHAS" | tail -n 1)
+        REBASE_BASE=$(git rev-parse --verify --quiet "${OLDEST}^" 2>/dev/null || echo "--root")
+      fi
+      echo "[SEAM pre-push] BLOCKED: unverifiable commit(s) on ${LOCAL_REF}:" >&2
+      printf '%s\n' "$REJECTED" >&2
+      echo "[SEAM pre-push] Status codes: N=unsigned E=cannot verify B=bad X/Y=expired R=revoked." >&2
+      echo "[SEAM pre-push] The commit chain is the provenance record for MIRL/Seam." >&2
+      echo "[SEAM pre-push] E usually means gpg.ssh.allowedSignersFile is unset on this machine." >&2
+      echo "[SEAM pre-push] Enable signing:  git config --global commit.gpgsign true" >&2
+      echo "[SEAM pre-push] Sign these:      git rebase --exec 'git commit --amend --no-edit -S' ${REBASE_BASE}" >&2
+      echo "[SEAM pre-push] Override once:   SEAM_ALLOW_UNSIGNED_PUSH=1 git push ..." >&2
+      if [ "${SEAM_ALLOW_UNSIGNED_PUSH:-0}" != "1" ]; then
+        exit 1
+      fi
+      echo "[SEAM pre-push] SEAM_ALLOW_UNSIGNED_PUSH=1 set -- continuing." >&2
+    fi
+  fi
 done
 
 # Linked-worktree hygiene. This check lives here, not in CI, because CI cannot

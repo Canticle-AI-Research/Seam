@@ -2,12 +2,14 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S4 is published through PR #195 at `main@ea4e46e`,
-recorded by `HISTORY#530` and registered by `HISTORY#531`
+**Latest evidence:** S5 is published through PR #199 at `main@19b3a76`,
+qualified by `HISTORY#532` and published by `HISTORY#533`; S4 remains recorded
+by `HISTORY#530` and `HISTORY#531`
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
 **Publication boundary:** S0-S5 are merged; S6 is the next stage and must be
-built on `main@ea4e46e` rather than stacked on an unmerged base
+built on `main@19b3a76` (S5's published head) or a later protected head
+rather than stacked on an unmerged base
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
 It converts the verified F1-F22 findings below into one dependency-ordered

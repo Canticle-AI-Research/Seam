@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-08-10-track-s-visual-status-report
+latest: 2026-08-12-full-repo-audit
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,8 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-08-12 | [Full-repository audit](2026-08-12-full-repo-audit.md) | **whole-repo** | `HISTORY#560` |
+| 2026-08-12 | [Complete project timeline](2026-08-12-seam-complete-timeline.md) | timeline | `HISTORY#560` |
 | 2026-08-10 | [Track S visual status report](2026-08-10-track-s-visual-status-report.md) | status reconciliation | `HISTORY#553` |
 | 2026-08-01 | [Full-repository audit](2026-08-01-full-repo-audit.md) | **whole-repo** | `HISTORY#525` |
 | 2026-07-22 | [Parallel graph (G3→G4) and reasoning (R3) build](2026-07-22-graph-reasoning-parallel-build-architecture-task.md) | architecture task | — |

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-05-tui-rebuild-canticle
 supersedes: 2026-08-03-track-s-s5-merged-s6-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#537
 ---
 

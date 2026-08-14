@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-05-tui-rebuild-canticle
+latest: 2026-08-12-deep-audit
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-05-tui-rebuild-canticle` | [2026-08-05-tui-rebuild-canticle.md](2026-08-05-tui-rebuild-canticle.md) | `2026-08-03-track-s-s5-merged-s6-next` | `HISTORY#537` | `current` |
+| `2026-08-12-deep-audit` | [2026-08-12-deep-audit.md](2026-08-12-deep-audit.md) | `2026-08-05-tui-rebuild-canticle` | `HISTORY#560` | `current` |
+| `2026-08-05-tui-rebuild-canticle` | [2026-08-05-tui-rebuild-canticle.md](2026-08-05-tui-rebuild-canticle.md) | `2026-08-03-track-s-s5-merged-s6-next` | `HISTORY#537` | `superseded` |
 | `2026-08-03-track-s-s5-merged-s6-next` | [2026-08-03-track-s-s5-merged-s6-next.md](2026-08-03-track-s-s5-merged-s6-next.md) | `2026-08-03-track-s-s5-locally-qualified` | `HISTORY#533` | `superseded` |
 | `2026-08-03-track-s-s5-locally-qualified` | [2026-08-03-track-s-s5-locally-qualified.md](2026-08-03-track-s-s5-locally-qualified.md) | `2026-08-03-track-s-s4-merged-s5-next` | `HISTORY#532` | `superseded` |
 | `2026-08-03-track-s-s4-merged-s5-next` | [2026-08-03-track-s-s4-merged-s5-next.md](2026-08-03-track-s-s4-merged-s5-next.md) | `2026-08-03-track-s-s4-requalified` | `HISTORY#531` | `superseded` |
