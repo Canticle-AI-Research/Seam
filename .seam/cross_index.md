@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 626
+total_events: 627
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-09T22:40:39Z | history:370:fe908a9e | session-event | done | ci, tests, deepseek, benchmark, windows, bugfix | tests/audit/test_run_record.py |
 | 2026-07-10T00:58:27Z | history:371:64d25145 | session-event | done | benchmark, locomo, audit, quality, tests | benchmarks/external/common/scoring.py, benchmarks/external/common/run_record.... |
 | 2026-07-10T01:52:55Z | history:372:db3b41ad | session-event | done | benchmark, locomo, judge, tests | benchmarks/external/common/judge.py, tools/h2/rejudge_record.py, tests/audit/... |
 | 2026-07-10T02:13:52Z | history:373:7fc68391 | session-event | done | benchmark, locomo, judge, tests, provenance | tools/h2/rejudge_record.py, tests/audit/test_rejudge_record.py |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-14T03:47:18Z | history:561:42852c09 | session-event | done | security, provenance, signing, hooks, git, verify, histor... | HISTORY#560,tools/git-hooks/pre-push,.seam/cross_index.md,.seam/streams/histo... |
 | 2026-08-14T04:05:15Z | history:562:e2761c1e | session-event | done | security, provenance, git-hooks, verify, history, bugfix,... | HISTORY#561,HISTORY#560,HISTORY#355,PR#217,tools/git-hooks/pre-push,docs/audi... |
 | 2026-08-14T06:13:24Z | history:563:4dcc3530 | session-event | done | audit, docs, verify, history, protocol, test, continuity | HISTORY#562,HISTORY#561,HISTORY#560,tools/docs/verify_audit_claims.py,tests/a... |
+| 2026-08-14T18:57:30Z | history:564:4e6b4b23 | session-event | done | branding, docs, verify, test, history, protocol | HISTORY#563,branding/kit/tokens.json,tools/branding/assets.py,tests/audit/tes... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0426.cross.md | 2026-04-15T00:00:00Z..2026-07-09T22:06:19Z | 426 | (multi) | (multi) |
+| 0001-0427.cross.md | 2026-04-15T00:00:00Z..2026-07-09T22:40:39Z | 427 | (multi) | (multi) |

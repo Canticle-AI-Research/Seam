@@ -18357,3 +18357,80 @@ HISTORY.md rotation and third-party timestamp anchoring remain open from #561
 and #562, and the deep-audit skill still enforces its read-only contract only
 for its invoking turn and sets no context ceiling on history reads.
 ---END-ENTRY-#563---
+
+---BEGIN-ENTRY-#564---
+id: 564
+date: 2026-08-14T18:57:30Z
+agent: claude
+status: done
+topics: branding, docs, verify, test, history, protocol
+commits: pending
+refs: HISTORY#563,branding/kit/tokens.json,tools/branding/assets.py,tests/audit/test_branding_assets.py,tools/branding/verify_brand_kit.py,branding/kit/marks/seam-product-lockup.svg
+supersedes: 563
+tokens: 892
+---
+Gave the repo a working producer for brand assets, so a logo, avatar, favicon,
+ad card, report, or video frame derives its colors, type, and lockup geometry
+from branding/kit/tokens.json rather than from whatever an author remembers.
+The kit already recorded the contract and tools/branding/verify_brand_kit.py
+already gated it; nothing consumed it.
+
+tools/branding/assets.py is the consumer. It resolves the token contract,
+emits it as CSS custom properties, wraps arbitrary markup in a brand ground
+via html_shell so an HTML asset is on-brand by construction, and rasterizes to
+every format the surfaces need. Renderers are all already present on this
+machine, so the pipeline adds no system dependency: headless Chrome for
+SVG/HTML to PNG and HTML to PDF, ffmpeg for a PNG frame sequence to MP4 or
+WebM, Pillow for multi-resolution ICO.
+
+Two defects were found while building it, both of the kind that ship looking
+like success.
+
+The declared brand faces were not installed at all -- Fira Code, JetBrains
+Mono, Outfit, and Press Start 2P all resolved to nothing, so every render
+would have silently fallen back to a generic face. The kit README states font
+binaries are deliberately not bundled, which makes an unnoticed fallback the
+default failure. check_fonts confirms presence by comparing what fontconfig
+resolves to against what was requested, because fc-match always returns some
+family. The four faces were installed to the operator's user font directory
+(environment state, not repo state) and now resolve to themselves. Only the
+first entry in each family stack is treated as required; the remainder are
+fallbacks whose absence is not a defect, which an earlier cut got wrong by
+failing on Cascadia Mono.
+
+The ICO writer was silently truncating. Pillow downscales from the base image,
+so passing the smallest render as base clamped every requested size down to it
+and produced a 337-byte 16x16-only favicon that reported success. Sizes are
+now rendered largest-first with the smaller frames supplied through
+append_images, so each size is drawn from the vector -- which is the point,
+since a 16px frame downscaled from 256px loses the thin strokes entirely.
+
+The color.semantic.* entries hold token paths rather than literals, so
+flattening without resolution would emit CSS such as --semantic-canvas:
+color.base.bg, which renders as nothing. Aliases are resolved after the
+literal groups are flattened, and an unresolvable alias is dropped rather than
+passed through so a typo surfaces as a missing token instead of a live CSS
+value that silently does nothing.
+
+Verification: `pytest tests/audit/test_branding_assets.py` -> 11 passed,
+pinning alias resolution, the dropped-unresolvable case, fallback-tolerant
+font checking, and each renderer against real output rather than exit codes --
+the PNG assertion checks getbbox() is not None so a blank canvas fails, the
+ICO assertion checks every requested size is present, and the PDF assertion
+checks the %PDF- magic. Proven end to end on real inputs: the product lockup
+rendered to a 1200x300 PNG and a six-size ICO, an HTML card rendered at
+1200x630, an HTML report rendered to PDF, and eight frames coloured from the
+rgb_cycle motion token encoded to h264 and confirmed with ffprobe. Ruff clean.
+`pytest tests/` -> 2406 passed, 2 xfailed in 263.36s with the live pgvector
+lane. All seven preflight gates exit 0.
+
+Unresolved next step: no asset has been authored yet -- this is the producer,
+not the assets. The Ghost mascot is the first intended consumer and is not
+drawn. ComfyUI was installed at /mnt/data/ComfyUI against the RTX 2070 for
+texture and concept work only, since diffusion cannot hold exact geometry,
+typography, or character consistency across a set; a partial SDXL checkpoint
+download was stopped and left parked. HISTORY.md rotation, third-party
+timestamp anchoring, the deep-audit skill's context ceiling, and the four
+defects this repo's own audit-claim gate reports in the HISTORY#560 artifacts
+all remain open.
+---END-ENTRY-#564---
