@@ -18215,3 +18215,75 @@ unanchored to any third party, and the read-only contract of the deep-audit
 skill is enforced only for its invoking turn, which is how HISTORY#560 came to
 write eleven files during a read-only audit.
 ---END-ENTRY-#561---
+
+---BEGIN-ENTRY-#562---
+id: 562
+date: 2026-08-14T04:05:15Z
+agent: claude
+status: done
+topics: security, provenance, git-hooks, verify, history, bugfix, streams
+commits: pending
+refs: HISTORY#561,HISTORY#560,HISTORY#355,PR#217,tools/git-hooks/pre-push,docs/audits/2026-08-12-full-repo-audit.md,docs/audits/2026-08-12-seam-complete-timeline.md
+supersedes: 561
+tokens: 859
+---
+Corrected the signature gate landed in HISTORY#561 after automated review of
+PR#217, and corrected two factual errors in #561 itself. #561 is left intact;
+this entry supersedes it rather than editing it.
+
+Three defects in tools/git-hooks/pre-push, all found by review before merge:
+
+The gate matched only %G? = N, a deny-list. It therefore passed E, meaning
+git could not verify the signature at all, along with B, X, Y, and R (bad,
+expired, expired key, revoked). E is precisely the state every commit in this
+repository was in before #561, so the gate would have accepted the exact
+condition it was written to eliminate. This is the same failure mode the
+publication gate hit in HISTORY#355: a deny-list fails open. Replaced with an
+allow-list that accepts only G and U. U is deliberately accepted -- a
+cryptographically valid signature from a key absent from the local
+allowed_signers is still attributable, and rejecting it would make a fresh
+clone unpushable.
+
+The new-branch path used `git rev-list --not --remotes`, which subtracts
+commits reachable from every remote, not the one being pushed to. This repo
+carries a seam-runtime remote holding 305 commits, all of which were being
+exempted from the gate on any new-branch push to origin. Now scoped to
+--remotes=$REMOTE_NAME when the argument names a configured remote.
+
+On a new branch SCAN_BASE is the all-zero sha, so the printed remediation
+command was `git rebase --exec ... 0000000000...`, which fails as an invalid
+upstream. The base is now derived from the parent of the oldest commit being
+pushed, falling back to --root.
+
+Two corrections to #561's recorded facts. It states the cross-index archive
+rotated to 0001-0423; the commit actually contains 0001-0424, because the
+closeout's rebuild_cross_index regenerated the chunk after 0423 was staged.
+And it used the topic tags signing, hooks, and git, none of which is
+established vocabulary -- git-hooks is the registered form with 5 prior uses,
+while signing and hooks had zero before #561 introduced them.
+
+One review claim was itself wrong and is recorded so it is not re-applied: the
+report asserted that an SSH-signed commit in a fresh clone without
+allowedSignersFile reports E. Measured directly, that case reports U, and an
+unset file reports N. E was reproduced only for PGP-signed commits when the
+signing key is absent from the keyring. The finding's conclusion held even
+though its example did not.
+
+Verification: four gate cases exercised directly with simulated stdin before
+any push -- a signed range passed (exit 0); the unsigned commit a490c73 was
+blocked (exit 1); the same range with SEAM_ALLOW_UNSIGNED_PUSH=1 passed (exit
+0); and the PGP-signed merge f5d304c under an empty GNUPGHOME reported E and
+was blocked (exit 1) with the status-code legend printed. The derived rebase
+base resolves to f5d304c, a valid rev, where it was previously all zeros.
+bash -n clean.
+
+Unresolved next step: PR#217 review also reported three factual defects in the
+HISTORY#560 audit artifacts, which are not corrected here -- the audit summary
+says 15 MEDIUM split 11 runtime / 4 docs while the body labels F-2 through
+F-18 as MEDIUM, which is 17; an HTTPX redirect claim that does not hold for
+the supported versions, where redirects are not followed by default; and
+docs/audits/2026-08-12-seam-complete-timeline.md assigning HISTORY#405 to
+2026-07-17 when the entry records 2026-07-16T23:08:58Z, which undercuts that
+document's row-by-row verification claim. HISTORY.md rotation and third-party
+timestamp anchoring both remain open from #561.
+---END-ENTRY-#562---
