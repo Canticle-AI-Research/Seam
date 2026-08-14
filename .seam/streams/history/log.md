@@ -18287,3 +18287,188 @@ docs/audits/2026-08-12-seam-complete-timeline.md assigning HISTORY#405 to
 document's row-by-row verification claim. HISTORY.md rotation and third-party
 timestamp anchoring both remain open from #561.
 ---END-ENTRY-#562---
+
+---BEGIN-ENTRY-#563---
+id: 563
+date: 2026-08-14T06:13:24Z
+agent: claude
+status: done
+topics: audit, docs, verify, history, protocol, test, continuity
+commits: pending
+refs: HISTORY#562,HISTORY#561,HISTORY#560,tools/docs/verify_audit_claims.py,tests/audit/test_verify_audit_claims.py,tools/git-hooks/pre-commit,tools/history/closeout.py,docs/audits/2026-08-12-full-repo-audit.md,docs/audits/2026-08-12-seam-complete-timeline.md
+supersedes: 562
+tokens: 794
+---
+Added a mechanical gate over the self-checkable claims an audit report makes,
+because HISTORY#560 established that agent-written reports are reliable where
+they measure and unreliable where they summarize, and a careful human read does
+not close the gap.
+
+tools/docs/verify_audit_claims.py checks three classes of claim that the
+repository can settle on its own: every `path:line` citation resolves and no
+line number is past end of file; a prose finding-count matches the findings the
+document itself labels; and `| #NNN | date | status |` timeline rows agree with
+HISTORY.md on date, status, and id coverage. It is author-agnostic by
+construction -- it gates the artifact, not who produced it, because the errors
+this session were not confined to one agent.
+
+Measured against #560's two reports it reproduces the three defects already
+known from review and finds a fourth that manual inspection missed: the audit
+cites `test_webui_chat_memory_controls.py:6-14` against a file of 13 lines.
+That reference was silently dropped by the earlier hand check because its
+resolver could not locate the file and treated the miss as a pass -- the same
+fail-open shape corrected in #562. Across all 25 documents in docs/audits the
+sweep covers 257 citations, 51 labelled findings, and 559 timeline rows.
+
+Scoped with --changed-since so the gate fires on documents altered by the
+change under test. A historical audit describes a past repository state, so a
+citation that has since gone stale is not a defect in that document; six such
+references exist in audits from May through July and are correctly not flagged
+in gate mode.
+
+Recorded ceiling: the gate cannot settle open-world facts. The same report
+asserts that httpx follows redirects by default, which is false for the pinned
+0.28.1 where the default is False, and nothing in this repository decides that
+question. Claims about third-party behaviour remain a human problem, and the
+module docstring says so rather than implying coverage it does not have.
+
+Wired into both canonical gate lists: tools/git-hooks/pre-commit and the
+closeout PREFLIGHT_GATES, which is now seven gates in identical order. The
+first attempt wired only the commit hook;
+tests/audit/test_history_closeout.py::test_preflight_gates_match_canonical_commit_hook
+failed and caught the drift before commit, which is the parity regression
+working as designed.
+
+Verification: `pytest tests/audit/test_verify_audit_claims.py` -> 13 passed,
+each pinning a real #560 defect or the per-subsystem false positive the first
+cut produced (dashboard rows such as "1 MED (F-14), 5 LOW" are partial by
+construction and must not be read as whole-document tallies; the tally check
+now reads only the summary preceding the first labelled finding). The gate was
+proven to block by probing it with a deliberately miscounted document, exit 1,
+and to pass a clean document, exit 0. Ruff clean on both new files.
+`pytest tests/` -> 2395 passed, 2 xfailed in 258.31s with the live pgvector
+lane. verify_integrity, verify_routing, verify_handoffs, verify_continuity,
+verify_streams, verify_wiki all exit 0.
+
+Unresolved next step: the four defects this gate reports in the #560 artifacts
+are not corrected here -- the gate was built first deliberately, so the
+correction pass can be verified by re-running it rather than by re-reading.
+HISTORY.md rotation and third-party timestamp anchoring remain open from #561
+and #562, and the deep-audit skill still enforces its read-only contract only
+for its invoking turn and sets no context ceiling on history reads.
+---END-ENTRY-#563---
+
+---BEGIN-ENTRY-#564---
+id: 564
+date: 2026-08-14T18:57:30Z
+agent: claude
+status: done
+topics: branding, docs, verify, test, history, protocol
+commits: pending
+refs: HISTORY#563,branding/kit/tokens.json,tools/branding/assets.py,tests/audit/test_branding_assets.py,tools/branding/verify_brand_kit.py,branding/kit/marks/seam-product-lockup.svg
+supersedes: 563
+tokens: 892
+---
+Gave the repo a working producer for brand assets, so a logo, avatar, favicon,
+ad card, report, or video frame derives its colors, type, and lockup geometry
+from branding/kit/tokens.json rather than from whatever an author remembers.
+The kit already recorded the contract and tools/branding/verify_brand_kit.py
+already gated it; nothing consumed it.
+
+tools/branding/assets.py is the consumer. It resolves the token contract,
+emits it as CSS custom properties, wraps arbitrary markup in a brand ground
+via html_shell so an HTML asset is on-brand by construction, and rasterizes to
+every format the surfaces need. Renderers are all already present on this
+machine, so the pipeline adds no system dependency: headless Chrome for
+SVG/HTML to PNG and HTML to PDF, ffmpeg for a PNG frame sequence to MP4 or
+WebM, Pillow for multi-resolution ICO.
+
+Two defects were found while building it, both of the kind that ship looking
+like success.
+
+The declared brand faces were not installed at all -- Fira Code, JetBrains
+Mono, Outfit, and Press Start 2P all resolved to nothing, so every render
+would have silently fallen back to a generic face. The kit README states font
+binaries are deliberately not bundled, which makes an unnoticed fallback the
+default failure. check_fonts confirms presence by comparing what fontconfig
+resolves to against what was requested, because fc-match always returns some
+family. The four faces were installed to the operator's user font directory
+(environment state, not repo state) and now resolve to themselves. Only the
+first entry in each family stack is treated as required; the remainder are
+fallbacks whose absence is not a defect, which an earlier cut got wrong by
+failing on Cascadia Mono.
+
+The ICO writer was silently truncating. Pillow downscales from the base image,
+so passing the smallest render as base clamped every requested size down to it
+and produced a 337-byte 16x16-only favicon that reported success. Sizes are
+now rendered largest-first with the smaller frames supplied through
+append_images, so each size is drawn from the vector -- which is the point,
+since a 16px frame downscaled from 256px loses the thin strokes entirely.
+
+The color.semantic.* entries hold token paths rather than literals, so
+flattening without resolution would emit CSS such as --semantic-canvas:
+color.base.bg, which renders as nothing. Aliases are resolved after the
+literal groups are flattened, and an unresolvable alias is dropped rather than
+passed through so a typo surfaces as a missing token instead of a live CSS
+value that silently does nothing.
+
+Verification: `pytest tests/audit/test_branding_assets.py` -> 11 passed,
+pinning alias resolution, the dropped-unresolvable case, fallback-tolerant
+font checking, and each renderer against real output rather than exit codes --
+the PNG assertion checks getbbox() is not None so a blank canvas fails, the
+ICO assertion checks every requested size is present, and the PDF assertion
+checks the %PDF- magic. Proven end to end on real inputs: the product lockup
+rendered to a 1200x300 PNG and a six-size ICO, an HTML card rendered at
+1200x630, an HTML report rendered to PDF, and eight frames coloured from the
+rgb_cycle motion token encoded to h264 and confirmed with ffprobe. Ruff clean.
+`pytest tests/` -> 2406 passed, 2 xfailed in 263.36s with the live pgvector
+lane. All seven preflight gates exit 0.
+
+Unresolved next step: no asset has been authored yet -- this is the producer,
+not the assets. The Ghost mascot is the first intended consumer and is not
+drawn. ComfyUI was installed at /mnt/data/ComfyUI against the RTX 2070 for
+texture and concept work only, since diffusion cannot hold exact geometry,
+typography, or character consistency across a set; a partial SDXL checkpoint
+download was stopped and left parked. HISTORY.md rotation, third-party
+timestamp anchoring, the deep-audit skill's context ceiling, and the four
+defects this repo's own audit-claim gate reports in the HISTORY#560 artifacts
+all remain open.
+---END-ENTRY-#564---
+
+---BEGIN-ENTRY-#565---
+id: 565
+date: 2026-08-14T20:36:47Z
+agent: claude
+status: done
+topics: branding, docs, verify, bugfix, history
+commits: pending
+refs: HISTORY#564,HISTORY#563,tools/branding/assets.py,branding/kit/tokens.json
+supersedes: 564
+tokens: 340
+---
+Fixed the PNG renderer in the brand toolkit, which could not rasterize an SVG
+at any size other than the one written into the file.
+
+An SVG carrying intrinsic width and height attributes renders at that size and
+sits in the corner of a larger viewport, so requesting a 512 pixel render of a
+64 pixel mark produced a 64 pixel mark on a 512 pixel canvas rather than a
+scaled one. render_png now wraps an SVG source in a page that scales it to
+fill, using object-fit contain so the aspect ratio survives a non-square
+request. HTML sources are unaffected and still render directly.
+
+Found while producing the first assets from this toolkit. Those assets are the
+identity for Ghost and live in the Ghost repository, not here; this entry
+records only the toolkit change, since Ghost owns its own brand surface.
+
+Verification: `pytest tests/` -> 2406 passed, 2 xfailed in 255.65s with the
+live pgvector lane, which includes the eleven branding tests added in
+HISTORY#564. All seven preflight gates exit 0. The corrected renderer was
+exercised on real vector sources at sizes from 16 to 512 pixels, and the
+multi-size ICO path was confirmed to carry every requested size.
+
+Unresolved next step: HISTORY.md rotation remains the outstanding structural
+fix at 565 entries, third-party timestamp anchoring is still absent, the
+deep-audit skill still enforces its read-only contract for its invoking turn
+only and sets no context ceiling on history reads, and the four defects the
+audit-claim gate reports in the HISTORY#560 artifacts are uncorrected.
+---END-ENTRY-#565---

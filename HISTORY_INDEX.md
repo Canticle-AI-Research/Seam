@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 562
-total_tokens: ~292353
-latest_id: 562
+total_entries: 565
+total_tokens: ~294379
+latest_id: 565
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 565 | 2026-08-14 | done | 754e7f51e5b682b9 | branding,docs,verify,bugfix,+ | 564 |
+| 564 | 2026-08-14 | done | 4e6b4b23b4821fd8 | branding,docs,verify,test,+ | 563 |
+| 563 | 2026-08-14 | done | 4dcc35301541c239 | audit,docs,verify,history,+ | 562 |
 | 562 | 2026-08-14 | done | e2761c1e49344427 | security,provenance,git-hooks,verify,+ | 561 |
 | 561 | 2026-08-14 | done | 42852c09bbdd0c44 | security,provenance,signing,hooks,+ | 560 |
 | 560 | 2026-08-13 | done | e9ee3b51061ec48f | audit,docs,history,continuity,+ | 559 |
@@ -593,7 +596,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=7 latest=#530, #529, #526, #522, #466
-- audit: count=115 latest=#560, #558, #553, #552, #551
+- audit: count=116 latest=#563, #560, #558, #553, #552
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=205 latest=#553, #547, #519, #518, #517
@@ -601,9 +604,10 @@ compact: true
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
 - branches: count=1 latest=#306
+- branding: count=2 latest=#565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=59 latest=#562, #559, #550, #543, #531
+- bugfix: count=60 latest=#565, #562, #559, #550, #543
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -638,7 +642,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=27 latest=#560, #553, #552, #551, #548
+- continuity: count=28 latest=#563, #560, #553, #552, #551
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -668,7 +672,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=68 latest=#560, #558, #556, #554, #553
+- docs: count=71 latest=#565, #564, #563, #560, #558
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -712,7 +716,7 @@ compact: true
 - harden: count=2 latest=#527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=308 latest=#562, #561, #560, #559, #558
+- history: count=311 latest=#565, #564, #563, #562, #561
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
@@ -806,7 +810,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=111 latest=#536, #534, #531, #528, #461
+- protocol: count=113 latest=#564, #563, #536, #534, #531
 - prov: count=1 latest=#316
 - provenance: count=24 latest=#562, #561, #540, #530, #529
 - publication: count=1 latest=#533
@@ -885,7 +889,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=96 latest=#559, #550, #549, #548, #544
+- test: count=98 latest=#564, #563, #559, #550, #549
 - test-artifacts: count=1 latest=#506
 - tests: count=39 latest=#558, #554, #539, #531, #530
 - textual: count=19 latest=#554, #543, #108, #106, #063
@@ -903,7 +907,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=383 latest=#562, #561, #560, #559, #558
+- verify: count=386 latest=#565, #564, #563, #562, #561
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=12 latest=#545, #544, #543, #404, #403
@@ -921,6 +925,6 @@ compact: true
 
 - roots: 86
 - changed: 39
-- done: 494
+- done: 497
 - in-progress: 8
 - planned: 21

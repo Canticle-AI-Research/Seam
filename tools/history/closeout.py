@@ -38,7 +38,7 @@ from tools.history.history_lib import HISTORY_PATH, parse_entries, read_history_
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# The six gates tools/git-hooks/pre-commit runs, in identical order. The commit
+# The seven gates tools/git-hooks/pre-commit runs, in identical order. The commit
 # hook adds ``--staged`` to verify_wiki because it owns the Git-index boundary;
 # closeout intentionally verifies the complete working tree before files are
 # staged. Kept in one place so this wrapper cannot omit a canonical gate.
@@ -49,6 +49,7 @@ PREFLIGHT_GATES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("verify_continuity", ("tools.history.verify_continuity",)),
     ("verify_streams", ("tools.streams.verify_streams",)),
     ("verify_wiki", ("tools.docs.verify_wiki",)),
+    ("verify_audit_claims", ("tools.docs.verify_audit_claims", "--changed-since", "HEAD")),
 )
 
 STAGE_HINT = (
