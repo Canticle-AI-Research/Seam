@@ -18472,3 +18472,66 @@ deep-audit skill still enforces its read-only contract for its invoking turn
 only and sets no context ceiling on history reads, and the four defects the
 audit-claim gate reports in the HISTORY#560 artifacts are uncorrected.
 ---END-ENTRY-#565---
+
+---BEGIN-ENTRY-#566---
+id: 566
+date: 2026-08-15T23:23:49Z
+agent: claude
+status: done
+topics: branding, docs, test, verify
+commits: pending
+refs: HISTORY#565,HISTORY#564,tools/branding/assets.py,tests/audit/test_branding_assets.py
+supersedes: 565
+tokens: 712
+---
+Gave the brand toolkit a document renderer, so a Markdown report becomes a
+brand-correct HTML or PDF artifact instead of only fixed-size assets.
+
+HISTORY#564 built the producer and HISTORY#565 fixed its PNG scaling, but both
+rendered through html_shell, which is asset-shaped: it pins width and height and
+sets overflow:hidden. That is correct for a mark, an ad card, or a video frame,
+and silently truncates a report to its first screen. A 453-line audit rendered
+as one clipped page and reported success.
+
+document_shell flows instead. It has no fixed height, sets
+print-color-adjust: exact so Chrome keeps the dark brand ground when printing
+rather than dropping to black-on-white and losing the identity entirely, and
+keeps tables and code blocks off page breaks so a findings table does not lose
+its header mid-report. Colors come from the color.semantic.* alias layer rather
+than the raw palette, which is what that layer exists for -- a document should
+say "danger", not "red". A test asserts no literal hex survives in the layout
+rules, so a hardcoded color fails rather than quietly bypassing the token
+contract.
+
+render_report parses Markdown with markdown-it-py under the "default" preset.
+The preset choice is load-bearing: "commonmark" has no table support and would
+emit a findings table as a paragraph of pipe characters, and a findings table
+is the report. The dependency is imported lazily inside the function because it
+ships as the optional seam[lint] extra, and a module-scope import of an optional
+extra aborts every run that does not have it, not just its own tests.
+_split_frontmatter lifts the registry frontmatter that audit and status
+documents carry out of the body -- passed to a Markdown renderer it degrades
+into a horizontal rule followed by loose text -- and presents it as a meta
+strip instead.
+
+Files changed: tools/branding/assets.py (added _split_frontmatter,
+document_shell, render_report, and the "report" CLI subcommand) and
+tests/audit/test_branding_assets.py.
+
+Verification: `.venv/bin/python -m pytest tests/audit/test_branding_assets.py`
+-> 19 passed, up from the 11 static def test_ functions recorded in
+HISTORY#564; the 8 added cases pin frontmatter splitting, the flowing shell
+against the clipping one, semantic-token-only colors, table rendering, title
+derivation, PDF output, and unsupported-extension refusal. `.venv/bin/python -m
+pytest tests/` -> 2414 passed, 2 xfailed, 0 skipped in 280.41s with the live
+pgvector lane (PGVECTOR_TEST_DSN exported), which is +8 over the 2406 recorded
+in HISTORY#565 and accounts for exactly the added cases. ruff check . clean.
+Proven on real input rather than a fixture: docs/audits/2026-08-12-full-repo-
+audit.md (453 lines) rendered to a 12-page, 416,620-byte PDF, where the
+fixed-height shell would have produced one clipped page.
+
+Unresolved next step: no surface calls render_report yet -- it is reachable
+only through the CLI subcommand. HISTORY.md rotation at 567 entries,
+third-party timestamp anchoring, and the four defects the audit-claim gate
+reports in the HISTORY#560 artifacts all remain open from #565.
+---END-ENTRY-#566---

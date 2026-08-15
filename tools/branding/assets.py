@@ -27,6 +27,7 @@ Usage:
     python -m tools.branding.assets css --out build/brand.css
     python -m tools.branding.assets png  logo.svg out.png --width 1024
     python -m tools.branding.assets pdf  report.html out.pdf
+    python -m tools.branding.assets report audit.md out.pdf --title "Deep audit"
     python -m tools.branding.assets ico  mark.svg favicon.ico
     python -m tools.branding.assets video frames/ out.mp4 --fps 30
 """
@@ -182,6 +183,156 @@ body {{
 </style></head><body>{body}</body></html>"""
 
 
+def _split_frontmatter(text: str) -> tuple[dict[str, str], str]:
+    """Peel a leading ``---`` YAML block off a Markdown document.
+
+    Audit and status documents in this repo carry registry frontmatter. Passed
+    to a Markdown renderer it degrades into a horizontal rule followed by loose
+    text, so it is lifted out and presented as a meta strip instead.
+    """
+    if not text.startswith("---\n"):
+        return {}, text
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        return {}, text
+    meta: dict[str, str] = {}
+    for line in text[4:end].splitlines():
+        key, sep, value = line.partition(":")
+        if sep and not key.startswith((" ", "\t", "-")):
+            meta[key.strip()] = value.strip()
+    return meta, text[end + 5:]
+
+
+def document_shell(body: str, tokens: Tokens, *, title: str, meta: str = "") -> str:
+    """Wrap long-form markup in the brand ground as a *flowing* document.
+
+    ``html_shell`` is asset-shaped: it pins width and height and hides
+    overflow, which is correct for a card, a mark, or a video frame, and
+    silently truncates a report to its first screen. A document's length is not
+    known in advance, so it must flow.
+
+    Two print details matter because the PDF is the deliverable. Chrome drops
+    background colors when printing unless ``print-color-adjust: exact`` is
+    set, which on a dark brand ground means the page prints as black text on
+    white and loses the identity entirely. And a findings table split across a
+    page boundary loses its header, so rows are kept off break points.
+
+    Colors come from the ``semantic.*`` layer rather than the raw palette --
+    that layer exists so a document says "danger" instead of "red".
+    """
+    meta_block = f'<div class="meta">{meta}</div>' if meta else ""
+    return f"""<!doctype html><html><head><meta charset="utf-8">
+<title>{title}</title><style>
+{tokens_to_css(tokens)}
+* {{ margin:0; padding:0; box-sizing:border-box; }}
+html {{ background: var(--semantic-canvas); }}
+body {{
+  background: var(--semantic-canvas);
+  color: var(--semantic-text_primary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+  padding: 56px 64px 72px;
+  max-width: 1100px;
+  margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}}
+h1,h2,h3,h4 {{ font-family: var(--font-sans); font-weight:600; line-height:1.25; }}
+h1 {{ font-size:2.1rem; color: var(--semantic-brand_live); margin-bottom:.25em;
+     letter-spacing:-.02em; }}
+h2 {{ font-size:1.45rem; color: var(--semantic-brand_prompt); margin:2em 0 .6em;
+     padding-bottom:.3em; border-bottom:1px solid var(--semantic-border); }}
+h3 {{ font-size:1.12rem; color: var(--semantic-text_primary); margin:1.6em 0 .4em; }}
+h4 {{ font-size:1rem; color: var(--semantic-text_secondary); margin:1.2em 0 .3em; }}
+p, ul, ol {{ margin:.7em 0; }}
+ul, ol {{ padding-left:1.4em; }}
+li {{ margin:.25em 0; }}
+a {{ color: var(--semantic-status_info); }}
+strong {{ color: var(--semantic-text_primary); font-weight:650; }}
+hr {{ border:0; border-top:1px solid var(--semantic-border); margin:2em 0; }}
+blockquote {{ border-left:3px solid var(--semantic-border_focus);
+  padding-left:1em; margin:1em 0; color: var(--semantic-text_secondary); }}
+code {{ font-family: var(--font-mono); font-size:.88em;
+  background: var(--semantic-well); color: var(--semantic-brand_prompt);
+  padding:.12em .38em; border-radius:3px; }}
+pre {{ background: var(--semantic-well); border:1px solid var(--semantic-border);
+  border-radius:6px; padding:14px 16px; margin:1em 0; overflow-x:auto;
+  page-break-inside:avoid; }}
+pre code {{ background:none; padding:0; color: var(--semantic-text_primary);
+  font-size:.84em; line-height:1.5; }}
+table {{ border-collapse:collapse; width:100%; margin:1.1em 0; font-size:.9em;
+  page-break-inside:avoid; }}
+th, td {{ border:1px solid var(--semantic-border); padding:7px 10px;
+  text-align:left; vertical-align:top; }}
+th {{ background: var(--semantic-panel); color: var(--semantic-text_primary);
+  font-weight:600; }}
+tr:nth-child(even) td {{ background: var(--semantic-chrome); }}
+.meta {{ font-family: var(--font-mono); font-size:.8rem;
+  color: var(--semantic-text_quiet); border:1px solid var(--semantic-border);
+  border-radius:6px; padding:10px 14px; margin-bottom:2em;
+  background: var(--semantic-chrome); }}
+h1 + .meta {{ margin-top:1em; }}
+@page {{ margin: 14mm; }}
+@media print {{
+  body {{ padding:0; max-width:none; }}
+  h2 {{ page-break-after:avoid; }}
+  h3 {{ page-break-after:avoid; }}
+}}
+</style></head><body>{meta_block}{body}</body></html>"""
+
+
+def render_report(
+    source: Path, out: Path, tokens: Tokens, *, title: str | None = None,
+    landscape: bool = False,
+) -> Path:
+    """Render a Markdown report to brand-correct HTML or PDF.
+
+    The output format follows the extension. Markdown is parsed with
+    markdown-it-py under the ``default`` preset, which is what turns the
+    findings table into a real ``<table>``; the ``commonmark`` preset does not
+    support tables and would emit the pipe rows as a paragraph. The dependency
+    is imported lazily because it ships as an optional extra, and a
+    module-scope import of an optional extra aborts every run that does not
+    have it.
+    """
+    if not source.exists():
+        raise BrandError(f"source not found: {source}")
+    try:
+        from markdown_it import MarkdownIt
+    except ImportError as exc:
+        raise BrandError(
+            "markdown-it-py is required to render a report; install the 'lint' "
+            "extra (pip install -e '.[lint]')"
+        ) from exc
+
+    text = source.read_text(encoding="utf-8")
+    front, body_md = _split_frontmatter(text)
+    html_body = MarkdownIt("default", {"linkify": False}).render(body_md)
+
+    if title is None:
+        heading = next(
+            (ln[2:].strip() for ln in body_md.splitlines() if ln.startswith("# ")),
+            None,
+        )
+        title = heading or front.get("title") or source.stem
+    meta = " &nbsp;·&nbsp; ".join(f"{k}: {v}" for k, v in front.items() if v)
+
+    document = document_shell(html_body, tokens, title=title, meta=meta)
+    out.parent.mkdir(parents=True, exist_ok=True)
+
+    if out.suffix == ".html":
+        out.write_text(document, encoding="utf-8")
+        return out
+    if out.suffix != ".pdf":
+        raise BrandError(f"report output must be .html or .pdf, got {out.suffix!r}")
+    with tempfile.TemporaryDirectory() as tmp:
+        staged = Path(tmp) / "report.html"
+        staged.write_text(document, encoding="utf-8")
+        return render_pdf(staged, out, landscape=landscape)
+
+
 def _chrome() -> str:
     for name in CHROME_CANDIDATES:
         found = shutil.which(name)
@@ -333,6 +484,12 @@ def main(argv: list[str] | None = None) -> int:
     p_pdf.add_argument("out", type=Path)
     p_pdf.add_argument("--landscape", action="store_true")
 
+    p_report = sub.add_parser("report", help="Render a Markdown report to branded HTML/PDF.")
+    p_report.add_argument("source", type=Path)
+    p_report.add_argument("out", type=Path)
+    p_report.add_argument("--title")
+    p_report.add_argument("--landscape", action="store_true")
+
     p_ico = sub.add_parser("ico", help="Multi-resolution favicon.")
     p_ico.add_argument("source", type=Path)
     p_ico.add_argument("out", type=Path)
@@ -374,6 +531,9 @@ def main(argv: list[str] | None = None) -> int:
                              height=args.height, transparent=not args.opaque)
         elif args.cmd == "pdf":
             out = render_pdf(args.source, args.out, landscape=args.landscape)
+        elif args.cmd == "report":
+            out = render_report(args.source, args.out, tokens, title=args.title,
+                                landscape=args.landscape)
         elif args.cmd == "ico":
             out = render_ico(args.source, args.out)
         else:

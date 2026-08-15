@@ -18,12 +18,15 @@ import pytest
 from tools.branding.assets import (
     BrandError,
     _flatten_colors,
+    _split_frontmatter,
     check_fonts,
+    document_shell,
     html_shell,
     load_tokens,
     render_ico,
     render_pdf,
     render_png,
+    render_report,
     tokens_to_css,
 )
 
@@ -111,3 +114,90 @@ def test_render_pdf_writes_a_pdf(tmp_path, tokens):
 def test_missing_source_raises(tmp_path):
     with pytest.raises(BrandError):
         render_png(tmp_path / "nope.svg", tmp_path / "o.png")
+
+
+REPORT_MD = """---
+schema: seam-audit/v1
+date: 2026-08-15
+---
+
+# Deep audit
+
+## Findings
+
+| # | Finding | Sev |
+|---|---|---|
+| 1 | a real defect | HIGH |
+
+Some prose with `inline code`.
+
+```python
+x = 1
+```
+"""
+
+
+def test_frontmatter_is_lifted_out_not_rendered_as_a_rule():
+    meta, body = _split_frontmatter(REPORT_MD)
+    assert meta == {"schema": "seam-audit/v1", "date": "2026-08-15"}
+    assert body.lstrip().startswith("# Deep audit")
+
+
+def test_frontmatter_split_leaves_plain_documents_untouched():
+    meta, body = _split_frontmatter("# Title\n\ntext\n")
+    assert meta == {}
+    assert body == "# Title\n\ntext\n"
+
+
+def test_document_shell_flows_instead_of_clipping(tokens):
+    """html_shell pins height and hides overflow; a report must not."""
+    doc = document_shell("<p>x</p>", tokens, title="T")
+    # Scope to the layout rules: the :root block legitimately carries a
+    # --lockup-square-height design token.
+    body_rules = doc.split("</style>")[0].split(":root {")[1].split("}", 1)[1]
+    assert "overflow:hidden" not in body_rules
+    assert "height:" not in body_rules.replace("line-height", "")
+    assert "print-color-adjust: exact" in body_rules
+    assert doc.count("<title>T</title>") == 1
+
+
+def test_document_shell_uses_semantic_tokens_not_raw_hexes(tokens):
+    doc = document_shell("<p>x</p>", tokens, title="T")
+    style = doc.split("</style>")[0]
+    body_rules = style.split(":root {")[1].split("}", 1)[1]
+    assert "#" not in body_rules, "a hardcoded hex bypasses the token contract"
+    assert "var(--semantic-canvas)" in body_rules
+
+
+def test_render_report_html_renders_tables(tmp_path, tokens):
+    """The commonmark preset drops tables; a findings table is the report."""
+    src = tmp_path / "audit.md"
+    src.write_text(REPORT_MD)
+    out = render_report(src, tmp_path / "audit.html", tokens)
+    html = out.read_text()
+    assert "<table>" in html and "<th>Sev</th>" in html
+    assert "<td>a real defect</td>" in html
+    assert "schema: seam-audit/v1" in html
+    assert "<pre>" in html
+
+
+def test_render_report_titles_from_the_first_heading(tmp_path, tokens):
+    src = tmp_path / "audit.md"
+    src.write_text(REPORT_MD)
+    out = render_report(src, tmp_path / "audit.html", tokens)
+    assert "<title>Deep audit</title>" in out.read_text()
+
+
+def test_render_report_writes_a_pdf(tmp_path, tokens):
+    src = tmp_path / "audit.md"
+    src.write_text(REPORT_MD)
+    out = render_report(src, tmp_path / "audit.pdf", tokens)
+    assert out.read_bytes().startswith(b"%PDF-")
+    assert out.stat().st_size > 1000
+
+
+def test_render_report_rejects_an_unsupported_extension(tmp_path, tokens):
+    src = tmp_path / "audit.md"
+    src.write_text(REPORT_MD)
+    with pytest.raises(BrandError, match="must be .html or .pdf"):
+        render_report(src, tmp_path / "audit.docx", tokens)
