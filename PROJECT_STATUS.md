@@ -202,8 +202,10 @@ tenancy remain S6.
 - **S3 and S4's former positive-gate asymmetry is closed.** S3 is merged; S4's
   successful populated-store transitions and bounded failure/resume path are
   covered locally, with exact-head review and CI still pending.
-- Pre-existing unrelated worktree/branch hygiene remains outside this PR and
-  is preserved rather than silently combined.
+- Pre-existing worktree/branch hygiene is now routed through
+  `docs/status/workspace.md`: active PR aliases, merged cleanup candidates,
+  local-only branches, and ignored artifacts remain separate and are preserved
+  until their exact dispositions are authorized.
 - Dashboard/TUI chat-client coverage landed in the 2026-08-12 audit (see the
   chat allowlist finding); `dashboard.py` (3,198 lines) now has dedicated
   command-palette/shell tests. Still never audited: benchmark seal/BIL
@@ -224,6 +226,7 @@ publication boundary.
 | [`packaging-licensing`](docs/status/packaging-licensing.md) | distribution shape, licensing, public/private boundary |
 | [`protocol-continuity`](docs/status/protocol-continuity.md) | history protocol, streams, routing, context budget |
 | [`operations`](docs/status/operations.md) | pgvector, Docker, CI, guardrails, operator workflows |
+| [`workspace`](docs/status/workspace.md) | worktrees, branch/PR aliases, local artifacts, overlap, and cleanup boundaries |
 | [`deferred`](docs/status/deferred.md) | explicitly parked backlog |
 
 Index and routing hints: [`docs/status/index.md`](docs/status/index.md)
