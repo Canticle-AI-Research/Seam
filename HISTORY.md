@@ -18535,3 +18535,59 @@ only through the CLI subcommand. HISTORY.md rotation at 567 entries,
 third-party timestamp anchoring, and the four defects the audit-claim gate
 reports in the HISTORY#560 artifacts all remain open from #565.
 ---END-ENTRY-#566---
+
+---BEGIN-ENTRY-#567---
+id: 567
+date: 2026-08-17T11:51:21Z
+agent: codex
+status: done
+topics: status, worktree, reconcile, audit, docs, continuity
+commits: pending
+refs: docs/status/workspace.md,PROJECT_STATUS.md,REPO_LEDGER.md,PR#207,PR#213
+supersedes: 566
+tokens: 209
+---
+Created the canonical workspace inventory after reconciling live Git and GitHub state against origin/main@7756240. The inventory collapses differently named worktree, local-branch, remote-branch, and pull-request aliases into logical work items, then separately records all six worktrees, every local and origin branch, ignored artifacts, the primary checkout skill installation, overlap boundaries, and exact next actions. It identifies PR #207 and PR #213 as active but stale conflicting work, the TUI and wiki worktrees as merged, and the wiki checkout as cleanup-blocked by a local handoff plus SQLite and benchmark artifacts. The native-roadmap local branch upstream was corrected to its actual PR head. No worktree, branch, PR, artifact, snapshot, database, or skill directory was deleted or overwritten. Next: publish this inventory, resolve or close PR #207 and PR #213 on current main, decide the merged-worktree artifact dispositions, audit the two local-only WIP branches, and only then start Track S S6 from protected main.
+---END-ENTRY-#567---
+
+---BEGIN-ENTRY-#568---
+id: 568
+date: 2026-08-17T11:53:16Z
+agent: codex
+status: done
+topics: verify, status, worktree, docs, continuity, test
+commits: pending
+refs: HISTORY#567,docs/status/workspace.md,tests/audit/test_wiki_navigation.py,tools/history/test_history_tools.py,tools/streams/test_streams.py
+supersedes: 567
+tokens: 169
+---
+Qualified the workspace inventory and its routing pointers. The focused documentation, status, worktree-policy, history, and streams slice passed 122 tests in 7.77 seconds. verify_integrity, verify_routing, verify_handoffs, verify_continuity, verify_streams, verify_wiki, and verify_audit_claims all passed; the wiki reports 219 reachable active documentation pages. The canonical working-tree secret and private-session scan passed with only its ten declared binary or hash-pinned policy exclusions, and git diff --check passed. No runtime code, benchmark, provider, deployment, release, PR state, branch contents, database, ignored artifact, or cleanup target changed. The remaining publication step is to commit and push the exact inventory paths, open the bounded PR, verify its current-head checks, and remove the temporary inventory worktree after merge.
+---END-ENTRY-#568---
+
+---BEGIN-ENTRY-#569---
+id: 569
+date: 2026-08-17T11:58:12Z
+agent: codex
+status: changed
+topics: status, worktree, reconcile, audit, docs, continuity
+commits: 3327d38
+refs: docs/status/workspace.md,REPO_LEDGER.md,HISTORY#568
+supersedes: 568
+tokens: 194
+---
+Extended the canonical workspace inventory after the signed inventory commit exposed two directly coupled sibling repositories that Git worktree enumeration cannot show. The separate seam-records evidence repository was clean at main@6921381 before the installed SEAM post-commit collector refreshed 174 tracked paths and 14 untracked paths; that generated candidate refresh remains local, uncommitted, and neither discarded nor published. The clean Seam_Runtime checkout is separately recorded at main@0d7ec37 with its public-client role, two SEAM-side fetched remote refs, and the enforced private-to-public pre-push freeze. The inventory now prevents either companion from being mistaken for a duplicate worktree or implementation branch and assigns each its own explicit disposition boundary. No pre-existing worktree, branch, artifact, record output, public-client file, or remote ref was deleted, staged, pushed, or overwritten. Next: publish the inventory PR, then review seam-records independently before resolving PR #207 and PR #213.
+---END-ENTRY-#569---
+
+---BEGIN-ENTRY-#570---
+id: 570
+date: 2026-08-17T12:11:09Z
+agent: codex
+status: changed
+topics: correction, audit, history, status, reconcile, verify
+commits: 7756240,79026c6
+refs: HISTORY#566,HISTORY#568,HISTORY#569,docs/status/workspace.md,PR#220
+supersedes: 569
+tokens: 247
+---
+Corrected and scoped two continuity facts found during exact-head PR #220 review. Base commit 7756240 has subject text ending in HISTORY#567, but its document-renderer work is canonically recorded in HISTORY#566; the subject suffix is erroneous and this append-only correction preserves the immutable commit and history entry rather than reassigning either. HISTORY#568 used the required changed-document command python -m tools.docs.verify_audit_claims --changed-since HEAD, which passed because this branch changed no docs/audits files; its earlier wording did not state that scope. The separate unscoped historical-audit scan is not green: on this reviewed tree it checks 25 audit documents and reports nine pre-existing issues across six older audit files, including two 2026-08-12 audit defects and one timeline date mismatch. PR #220 does not claim to repair those historical documents. Also clarified the inventory publication step as conditional after merge and recorded that configured BlackhatShiftey/Seam redirects to canonical Canticle-AI-Research/Seam, so live organization PR links remain correct. Next: regenerate continuity outputs, requalify the changed-doc gates, push the correction, and resolve the review threads.
+---END-ENTRY-#570---

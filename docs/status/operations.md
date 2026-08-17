@@ -64,8 +64,9 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   `SEAM_API_TOKEN` provisioning remains a separate authentication/UX policy
   decision; tokenless mode is trusted-local-only. Audit findings 7-10 from
   the 2026-08-01 audit are closed or addressed (graph tiebreaks, /v1 HTTP
-  coverage, pool bypasses; IN-chunking partially); finding 12 (worktree/branch
-  hygiene) remains open.
+  coverage, pool bypasses; IN-chunking partially). Finding 12 (worktree/branch
+  hygiene) remains open, with every current checkout, branch alias, PR, and
+  ignored artifact routed through [the workspace inventory](workspace.md).
 - S3 is published through PR #194 at `main@9bd40cb`. Its exact KG/4-to-KG/5
   transition rebuilds disposable topology from canonical
   MIRL/lifecycle/document status, preserves the identity judgement ledger, and

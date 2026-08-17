@@ -44,8 +44,11 @@ and `HISTORY_INDEX.md`.
   ad-hoc properties. This decision exists because the spec was historically
   absent from the mandatory read order, which let implementations drift from the
   design (the overfit `compile_nl` stub being the clearest case).
-- `BlackhatShiftey/Seam` is the proprietary private development repository as
-  of 2026-07-24. MIRL's authored specification, source, schemas as expressed,
+- `Canticle-AI-Research/Seam` is the canonical proprietary private development
+  repository. The locally configured legacy URL `BlackhatShiftey/Seam`
+  currently redirects to that organization repository; treat the two owner
+  strings as one repository identity, not two publication targets. MIRL's
+  authored specification, source, schemas as expressed,
   documentation, examples, tests, diagrams, and related implementation
   material are copyrighted Reserved Materials under `LICENSE`. HS/1's authored
   specification, container expression, visual designs, codecs, surface
@@ -470,6 +473,15 @@ and `HISTORY_INDEX.md`.
   distinguish required checks from advisory matrix failures, and resolve stale
   PRs/branches as merged, closed, active, or concretely blocked instead of
   letting them accumulate.
+- `docs/status/workspace.md` is the canonical current inventory for local
+  worktrees, local/remote branch aliases, open or merged PR ownership, ignored
+  artifacts, directly coupled sibling repositories, and overlap between
+  workstreams. Before creating or reviving a branch/worktree, refresh its
+  commands and match by purpose, PR, and commit so a differently named alias is
+  not reimplemented as new work. The inventory is advisory and grants no
+  deletion authority; ignored files and dirty companion-repository output
+  require their own preserve/delete decision even when the SEAM tracked tree
+  is clean.
 - Benchmark evidence proves SEAM value but never grants trademark rights,
   implies endorsement, or grants access to private hosted, enterprise,
   customer-specific, or unreleased SEAM offerings.

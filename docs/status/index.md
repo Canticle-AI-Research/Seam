@@ -6,7 +6,7 @@ the whole status surface.
 
 schema: v1
 source: PROJECT_STATUS.md
-streams: 8
+streams: 9
 
 | stream | file | covers |
 |---|---|---|
@@ -17,6 +17,7 @@ streams: 8
 | `packaging-licensing` | [packaging-licensing.md](packaging-licensing.md) | Distribution shape, licensing, and the public/private boundary |
 | `protocol-continuity` | [protocol-continuity.md](protocol-continuity.md) | History protocol, streams, routing, and context budget |
 | `operations` | [operations.md](operations.md) | pgvector, Docker, CI, guardrails, and durable operator workflows |
+| `workspace` | [workspace.md](workspace.md) | Worktrees, branch/PR aliases, coupled repositories, local artifacts, overlap, and safe next actions |
 | `deferred` | [deferred.md](deferred.md) | Explicitly deferred backlog — parked, not lost |
 
 ## Routing hints
@@ -30,6 +31,7 @@ streams: 8
 | licensing, PyPI, public/private boundary | `packaging-licensing` |
 | HISTORY, streams, routing, context budget | `protocol-continuity` |
 | pgvector, Docker, CI, guardrails | `operations` |
+| worktrees, branches, PR aliases, companion repositories, local artifacts, duplicate work | `workspace` |
 | parked backlog | `deferred` |
 
 ## Invariants
