@@ -4,8 +4,10 @@
 > active workstreams
 
 _Snapshot authority: live local Git and GitHub state reconciled on 2026-08-17
-against `origin/main@7756240`. This page is current-state routing, not
-chronology. Re-run the refresh commands before acting on it._
+against `origin/main@7756240` and canonical GitHub repository
+`Canticle-AI-Research/Seam`. This is a dated current-state snapshot, not a
+self-updating dashboard or chronology. Re-run the refresh commands before
+acting on it._
 
 ## Use this before creating work
 
@@ -24,8 +26,8 @@ report a worktree as clean while removal would still destroy local data.
 
 | Logical item | Physical identities | State | Unique purpose | Next action |
 | --- | --- | --- | --- | --- |
-| Protected main | primary checkout; local `main`; `origin/main` | HEAD and remote both `7756240`; tracked tree clean | Canonical published source for all new work | Preserve the untracked skill installation; stage only explicit inventory paths |
-| Workspace inventory | `Seam-workspace-inventory`; `docs/workspace-inventory` | Active temporary documentation branch from `7756240` | This canonical anti-duplication map | Publish through a PR, then remove this temporary worktree and branch |
+| Protected main | primary checkout; local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | HEAD and remote both `7756240`; tracked tree clean; configured `BlackhatShiftey/Seam` URL redirects to the canonical organization repository | Canonical published source for all new work | Preserve the untracked skill installation; stage only explicit inventory paths |
+| Workspace inventory publication | `Seam-workspace-inventory`; `docs/workspace-inventory`; PR #220 | Temporary documentation branch from `7756240`; active only until PR #220 merges | Publishes this canonical anti-duplication map | If absent from main, finish PR #220; after merge, remove only this temporary worktree/local branch and treat this row as snapshot history |
 | Durable evidence store | sibling repository `/home/terrabyte/Documents/Projects/seam-records`; `BlackhatShiftey/seam-records` | `main@6921381` matches `origin/main`; SEAM's post-commit collector refreshed 174 tracked paths and 14 untracked paths after the inventory commit | Deliberately separate append-only audits, benchmark/test records, and report mirrors, so the measured system and its evidence do not share one mutable history | Preserve the generated candidate refresh; review and publish or discard it as a separate `seam-records` decision, never absorb it into this PR |
 | Public client repository | sibling checkout `/home/terrabyte/Documents/Projects/Seam_Runtime`; SEAM remote `seam-runtime`; `BlackhatShiftey/Seam_Runtime` | Clean `main@0d7ec37`, exactly aligned with its own `origin/main`; SEAM also retains two fetched remote refs | Separately authored Apache-2.0 `seam-client` boundary; not the private runtime and not a live private-to-public mirror | Keep isolated; SEAM's pre-push hook forbids pushing private-repo commits to this remote |
 | Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 3 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
@@ -47,6 +49,9 @@ Pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207),
 
 - Role: primary protected-main checkout.
 - Branch/head: `main@7756240`, exactly aligned with `origin/main` after fetch.
+- Repository identity: GitHub resolves both the configured legacy owner URL
+  `BlackhatShiftey/Seam` and `Canticle-AI-Research/Seam` to canonical
+  `Canticle-AI-Research/Seam`; PR links therefore use the organization URL.
 - Tracked state: clean.
 - Local-only state: `skills-lock.json` plus 35 untracked skill directories.
   These belong to one GitHub-sourced Matt Pocock skill installation and are
@@ -280,7 +285,9 @@ features and not the same work as `skills/rebuild-agent-layer-and-drift-gate`.
 
 ## Recommended resolution order before Track S S6
 
-1. Publish this inventory so every subsequent branch decision has one route.
+1. If this inventory is not yet on protected main, finish PR #220. Once it is
+   merged, remove only its temporary worktree/local branch; the published page
+   remains the route for subsequent decisions.
 2. Review the generated `seam-records` candidate refresh as a separate
    repository decision; do not make Track S depend on unpublished record
    mirrors.

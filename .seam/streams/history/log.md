@@ -18577,3 +18577,17 @@ tokens: 194
 ---
 Extended the canonical workspace inventory after the signed inventory commit exposed two directly coupled sibling repositories that Git worktree enumeration cannot show. The separate seam-records evidence repository was clean at main@6921381 before the installed SEAM post-commit collector refreshed 174 tracked paths and 14 untracked paths; that generated candidate refresh remains local, uncommitted, and neither discarded nor published. The clean Seam_Runtime checkout is separately recorded at main@0d7ec37 with its public-client role, two SEAM-side fetched remote refs, and the enforced private-to-public pre-push freeze. The inventory now prevents either companion from being mistaken for a duplicate worktree or implementation branch and assigns each its own explicit disposition boundary. No pre-existing worktree, branch, artifact, record output, public-client file, or remote ref was deleted, staged, pushed, or overwritten. Next: publish the inventory PR, then review seam-records independently before resolving PR #207 and PR #213.
 ---END-ENTRY-#569---
+
+---BEGIN-ENTRY-#570---
+id: 570
+date: 2026-08-17T12:11:09Z
+agent: codex
+status: changed
+topics: correction, audit, history, status, reconcile, verify
+commits: 7756240,79026c6
+refs: HISTORY#566,HISTORY#568,HISTORY#569,docs/status/workspace.md,PR#220
+supersedes: 569
+tokens: 247
+---
+Corrected and scoped two continuity facts found during exact-head PR #220 review. Base commit 7756240 has subject text ending in HISTORY#567, but its document-renderer work is canonically recorded in HISTORY#566; the subject suffix is erroneous and this append-only correction preserves the immutable commit and history entry rather than reassigning either. HISTORY#568 used the required changed-document command python -m tools.docs.verify_audit_claims --changed-since HEAD, which passed because this branch changed no docs/audits files; its earlier wording did not state that scope. The separate unscoped historical-audit scan is not green: on this reviewed tree it checks 25 audit documents and reports nine pre-existing issues across six older audit files, including two 2026-08-12 audit defects and one timeline date mismatch. PR #220 does not claim to repair those historical documents. Also clarified the inventory publication step as conditional after merge and recorded that configured BlackhatShiftey/Seam redirects to canonical Canticle-AI-Research/Seam, so live organization PR links remain correct. Next: regenerate continuity outputs, requalify the changed-doc gates, push the correction, and resolve the review threads.
+---END-ENTRY-#570---

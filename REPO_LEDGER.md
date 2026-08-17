@@ -44,8 +44,11 @@ and `HISTORY_INDEX.md`.
   ad-hoc properties. This decision exists because the spec was historically
   absent from the mandatory read order, which let implementations drift from the
   design (the overfit `compile_nl` stub being the clearest case).
-- `BlackhatShiftey/Seam` is the proprietary private development repository as
-  of 2026-07-24. MIRL's authored specification, source, schemas as expressed,
+- `Canticle-AI-Research/Seam` is the canonical proprietary private development
+  repository. The locally configured legacy URL `BlackhatShiftey/Seam`
+  currently redirects to that organization repository; treat the two owner
+  strings as one repository identity, not two publication targets. MIRL's
+  authored specification, source, schemas as expressed,
   documentation, examples, tests, diagrams, and related implementation
   material are copyrighted Reserved Materials under `LICENSE`. HS/1's authored
   specification, container expression, visual designs, codecs, surface
