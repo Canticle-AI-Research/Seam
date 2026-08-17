@@ -26,6 +26,8 @@ report a worktree as clean while removal would still destroy local data.
 | --- | --- | --- | --- | --- |
 | Protected main | primary checkout; local `main`; `origin/main` | HEAD and remote both `7756240`; tracked tree clean | Canonical published source for all new work | Preserve the untracked skill installation; stage only explicit inventory paths |
 | Workspace inventory | `Seam-workspace-inventory`; `docs/workspace-inventory` | Active temporary documentation branch from `7756240` | This canonical anti-duplication map | Publish through a PR, then remove this temporary worktree and branch |
+| Durable evidence store | sibling repository `/home/terrabyte/Documents/Projects/seam-records`; `BlackhatShiftey/seam-records` | `main@6921381` matches `origin/main`; SEAM's post-commit collector refreshed 174 tracked paths and 14 untracked paths after the inventory commit | Deliberately separate append-only audits, benchmark/test records, and report mirrors, so the measured system and its evidence do not share one mutable history | Preserve the generated candidate refresh; review and publish or discard it as a separate `seam-records` decision, never absorb it into this PR |
+| Public client repository | sibling checkout `/home/terrabyte/Documents/Projects/Seam_Runtime`; SEAM remote `seam-runtime`; `BlackhatShiftey/Seam_Runtime` | Clean `main@0d7ec37`, exactly aligned with its own `origin/main`; SEAM also retains two fetched remote refs | Separately authored Apache-2.0 `seam-client` boundary; not the private runtime and not a live private-to-public mirror | Keep isolated; SEAM's pre-push hook forbids pushing private-repo commits to this remote |
 | Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 3 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
 | Native-roadmap pre-reconcile backup | local `archive/native-model-roadmap-pre-reconcile` | Clean branch; 5 commits ahead and 15 behind main; not a second PR | Preserves the earlier unsigned/unreconciled roadmap lineage that PR #207 replaced | Keep only as a recovery source until PR #207 is resolved; never implement from it independently |
 | Vector-cache replay repair | `Seam-pr213-repair`; local `repair/pr213-full-suite`; remote `origin/blackhatshiftey-performance-improvements`; PR #213 | Clean; local and remote head `4d2609e`; 2 commits ahead and 15 behind main; draft PR is conflicting | Preserves warmed SQLite vector matrices across no-op replay, detects supported cross-process changes, clears cache after rollback restore, and fixes the streaming fake | Rebase/rechain on current main, rerun vector plus full/external gates, then publish before S6 changes overlapping vector cleanup |
@@ -111,6 +113,52 @@ Pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207),
 - Disposition: do not remove until the handoff and database artifacts are
   either confirmed disposable or moved to an operator-approved durable path.
 
+## Related repository boundaries
+
+These directories are not linked SEAM worktrees, so `git worktree list` does
+not show them. They are included because SEAM itself is wired to both and
+confusing either with a branch or duplicate runtime would lose an important
+publication boundary.
+
+### `/home/terrabyte/Documents/Projects/seam-records`
+
+- Role: separate durable record repository. Its own README says the separation
+  is intentional: SEAM is the measured system, while this repository preserves
+  chained audits, benchmark runs, test runs, and report mirrors without letting
+  one SEAM commit quietly rewrite both implementation and evidence.
+- Branch/head: `main@6921381`, aligned with
+  `origin/main@6921381` before the collector refresh.
+- Coupling: SEAM's installed post-commit hook runs the records collector after
+  a SEAM commit succeeds. It cannot block the SEAM commit and does not publish
+  the collected output.
+- Current local state: the inventory commit triggered that collector. It left
+  173 modified tracked paths, one tracked deletion, and 14 untracked paths
+  (174 tracked paths total; 8,364 added and 1,021 deleted lines at inspection).
+  Most paths are regenerated `reports/` mirrors, with three new audit records
+  and the cross-index archive rotation also visible. These counts are a
+  snapshot and may change after another SEAM commit.
+- Boundary: this is generated candidate evidence in a different Git history,
+  not part of the workspace-inventory PR. Do not stage, discard, or publish it
+  from SEAM. Review it under the `seam-records` schema and hook policy, then
+  make an explicit separate-repository disposition.
+
+### `/home/terrabyte/Documents/Projects/Seam_Runtime`
+
+- Role: separate public-client checkout, not a SEAM worktree. Its Apache-2.0
+  `seam-client` package communicates only through the opaque public `/v1` API;
+  it must not import or reproduce private MIRL, HS/1, storage, graph, PACK,
+  retrieval, surface, or benchmark internals.
+- Branch/head: clean `main@0d7ec37`, exactly aligned with its own
+  `origin/main`; its three visible commits are the initial public SDK, the
+  0.1.0 publication record, and the later agent-lifecycle change.
+- SEAM-side identities: remote `seam-runtime` retains
+  `seam-runtime/main@0d7ec37` and
+  `seam-runtime/agent/public-agent-sdk@ded6a59` as fetched refs.
+- Boundary: the legacy private-runtime mirror remains frozen. The SEAM
+  pre-push hook refuses every update to a remote identified as
+  `seam-runtime`/`Seam_Runtime`; future public-client work begins and is
+  reviewed in the separate checkout, never by syncing private SEAM paths.
+
 ## Local branch register
 
 The counts below are `branch...origin/main` on 2026-08-17. “Ahead” is not
@@ -149,6 +197,12 @@ its local branch.
 | `origin/copilot/agent-types-on-github` | 0 ahead / 3 behind | Remote pointer already fully contained by main at the PR #216 merge | Remote cleanup candidate; deletion needs exact approval |
 | `origin/copilot/understanding-operations` | 0 ahead / 15 behind | Remote pointer already fully contained by main at the Track S visual-status merge | Remote cleanup candidate; deletion needs exact approval |
 | `origin/handoff/archive` | 3 ahead / 459 behind | Protected historical artifact branch containing early branding previews, handoff files, and an obsolete experimental retrieval tree | Preserve as artifact history; never merge into active source |
+
+The separately configured `seam-runtime` remote is not another private SEAM
+branch namespace. Its two fetched refs belong to the public-client repository:
+`seam-runtime/main@0d7ec37` and
+`seam-runtime/agent/public-agent-sdk@ded6a59`. The pre-push freeze prohibits
+updating either from this repository.
 
 ## Primary-checkout skill bundle
 
@@ -217,21 +271,30 @@ features and not the same work as `skills/rebuild-agent-layer-and-drift-gate`.
 6. Ignored snapshots, databases, benchmark runs, handoffs, and caches are not
    evidence that code is unpublished. They are separate local artifacts with
    their own preserve/delete decision.
+7. `seam-records` is an intentionally separate evidence history populated by
+   a collector. Its generated mirrors are not duplicate authored SEAM docs and
+   must not be copied back into this repository.
+8. `Seam_Runtime` is the isolated public-client source. Its `seam-client`
+   package is not a second private runtime, and SEAM's `seam-runtime` remote is
+   not a publication route for current private code.
 
 ## Recommended resolution order before Track S S6
 
 1. Publish this inventory so every subsequent branch decision has one route.
-2. Resolve PR #207 on current main or explicitly close it while retaining its
+2. Review the generated `seam-records` candidate refresh as a separate
+   repository decision; do not make Track S depend on unpublished record
+   mirrors.
+3. Resolve PR #207 on current main or explicitly close it while retaining its
    archive source. It overlaps the roadmap/status/history surfaces S6 must
    update.
-3. Resolve draft PR #213 on current main or explicitly close it. Its vector
+4. Resolve draft PR #213 on current main or explicitly close it. Its vector
    cache and rollback paths overlap S6's recoverable deletion cleanup.
-4. With exact operator approval, remove the merged TUI worktree/branch. For the
+5. With exact operator approval, remove the merged TUI worktree/branch. For the
    wiki worktree, decide the handoff/database artifact disposition first.
-5. Audit local-only `agent/g3-finish-remaining-gaps` and
+6. Audit local-only `agent/g3-finish-remaining-gaps` and
    `skills/rebuild-agent-layer-and-drift-gate`; classify each as salvage,
    publish, archive, or abandon without copying it into S6 by default.
-6. Start S6 from the resulting protected `origin/main`, not from any branch
+7. Start S6 from the resulting protected `origin/main`, not from any branch
    listed as backup, archive, merged, or do-not-land.
 
 ## Refresh commands

@@ -472,11 +472,13 @@ and `HISTORY_INDEX.md`.
   letting them accumulate.
 - `docs/status/workspace.md` is the canonical current inventory for local
   worktrees, local/remote branch aliases, open or merged PR ownership, ignored
-  artifacts, and overlap between workstreams. Before creating or reviving a
-  branch/worktree, refresh its commands and match by purpose, PR, and commit so
-  a differently named alias is not reimplemented as new work. The inventory is
-  advisory and grants no deletion authority; ignored files require their own
-  preserve/delete decision even when the tracked tree is clean.
+  artifacts, directly coupled sibling repositories, and overlap between
+  workstreams. Before creating or reviving a branch/worktree, refresh its
+  commands and match by purpose, PR, and commit so a differently named alias is
+  not reimplemented as new work. The inventory is advisory and grants no
+  deletion authority; ignored files and dirty companion-repository output
+  require their own preserve/delete decision even when the SEAM tracked tree
+  is clean.
 - Benchmark evidence proves SEAM value but never grants trademark rights,
   implies endorsement, or grants access to private hosted, enterprise,
   customer-specific, or unreleased SEAM offerings.

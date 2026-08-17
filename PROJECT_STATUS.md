@@ -226,7 +226,7 @@ publication boundary.
 | [`packaging-licensing`](docs/status/packaging-licensing.md) | distribution shape, licensing, public/private boundary |
 | [`protocol-continuity`](docs/status/protocol-continuity.md) | history protocol, streams, routing, context budget |
 | [`operations`](docs/status/operations.md) | pgvector, Docker, CI, guardrails, operator workflows |
-| [`workspace`](docs/status/workspace.md) | worktrees, branch/PR aliases, local artifacts, overlap, and cleanup boundaries |
+| [`workspace`](docs/status/workspace.md) | worktrees, branch/PR aliases, coupled repositories, local artifacts, overlap, and cleanup boundaries |
 | [`deferred`](docs/status/deferred.md) | explicitly parked backlog |
 
 Index and routing hints: [`docs/status/index.md`](docs/status/index.md)

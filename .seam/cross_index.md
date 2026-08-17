@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 631
+total_events: 632
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-11T10:19:44Z | history:375:37cbccba | session-event | done | benchmark, locomo, handoff, evidence, judge | docs/handoffs/2026-07-11-cat1-cat3-pr1-pr2-pr3-handoff.md |
 | 2026-07-11T11:00:41Z | history:376:73a04b3c | session-event | done | benchmark, locomo, judge, audit, quality, verify | docs/audits/2026-07-11-cat13-judge2-paid-rejudge.md, tools/h2/rejudge_record.... |
 | 2026-07-11T15:32:11Z | history:377:761edaec | session-event | done | benchmark, locomo, audit, judge, retrieval, quality | docs/audits/2026-07-11-cat13-private-offline-adjudication.md, PROJECT_STATUS.md |
 | 2026-07-11T17:17:35Z | history:378:f77e4b36 | session-event | done | handoff, protocol, continuity, multi-agent, ci, docs, ver... | docs/handoffs/INDEX.md,docs/handoffs/2026-07-11-cat1-cat3-success-contract-ha... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-15T23:23:49Z | history:566:af03d830 | session-event | done | branding, docs, test, verify | HISTORY#565,HISTORY#564,tools/branding/assets.py,tests/audit/test_branding_as... |
 | 2026-08-17T11:51:21Z | history:567:06d54ca3 | session-event | done | status, worktree, reconcile, audit, docs, continuity | docs/status/workspace.md,PROJECT_STATUS.md,REPO_LEDGER.md,PR#207,PR#213 |
 | 2026-08-17T11:53:16Z | history:568:4ae87616 | session-event | done | verify, status, worktree, docs, continuity, test | HISTORY#567,docs/status/workspace.md,tests/audit/test_wiki_navigation.py,tool... |
+| 2026-08-17T11:58:12Z | history:569:68651609 | session-event | changed | status, worktree, reconcile, audit, docs, continuity | docs/status/workspace.md,REPO_LEDGER.md,HISTORY#568 |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0431.cross.md | 2026-04-15T00:00:00Z..2026-07-10T12:38:26Z | 431 | (multi) | (multi) |
+| 0001-0432.cross.md | 2026-04-15T00:00:00Z..2026-07-11T10:19:44Z | 432 | (multi) | (multi) |

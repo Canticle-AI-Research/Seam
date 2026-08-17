@@ -18563,3 +18563,17 @@ tokens: 169
 ---
 Qualified the workspace inventory and its routing pointers. The focused documentation, status, worktree-policy, history, and streams slice passed 122 tests in 7.77 seconds. verify_integrity, verify_routing, verify_handoffs, verify_continuity, verify_streams, verify_wiki, and verify_audit_claims all passed; the wiki reports 219 reachable active documentation pages. The canonical working-tree secret and private-session scan passed with only its ten declared binary or hash-pinned policy exclusions, and git diff --check passed. No runtime code, benchmark, provider, deployment, release, PR state, branch contents, database, ignored artifact, or cleanup target changed. The remaining publication step is to commit and push the exact inventory paths, open the bounded PR, verify its current-head checks, and remove the temporary inventory worktree after merge.
 ---END-ENTRY-#568---
+
+---BEGIN-ENTRY-#569---
+id: 569
+date: 2026-08-17T11:58:12Z
+agent: codex
+status: changed
+topics: status, worktree, reconcile, audit, docs, continuity
+commits: 3327d38
+refs: docs/status/workspace.md,REPO_LEDGER.md,HISTORY#568
+supersedes: 568
+tokens: 194
+---
+Extended the canonical workspace inventory after the signed inventory commit exposed two directly coupled sibling repositories that Git worktree enumeration cannot show. The separate seam-records evidence repository was clean at main@6921381 before the installed SEAM post-commit collector refreshed 174 tracked paths and 14 untracked paths; that generated candidate refresh remains local, uncommitted, and neither discarded nor published. The clean Seam_Runtime checkout is separately recorded at main@0d7ec37 with its public-client role, two SEAM-side fetched remote refs, and the enforced private-to-public pre-push freeze. The inventory now prevents either companion from being mistaken for a duplicate worktree or implementation branch and assigns each its own explicit disposition boundary. No pre-existing worktree, branch, artifact, record output, public-client file, or remote ref was deleted, staged, pushed, or overwritten. Next: publish the inventory PR, then review seam-records independently before resolving PR #207 and PR #213.
+---END-ENTRY-#569---

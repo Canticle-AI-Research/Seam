@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 568
-total_tokens: ~295469
-latest_id: 568
+total_entries: 569
+total_tokens: ~295663
+latest_id: 569
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 569 | 2026-08-17 | changed | 686516098323ef5c | status,worktree,reconcile,audit,+ | 568 |
 | 568 | 2026-08-17 | done | 4ae87616f3a2035f | verify,status,worktree,docs,+ | 567 |
 | 567 | 2026-08-17 | done | 06d54ca3bdac84e1 | status,worktree,reconcile,audit,+ | 566 |
 | 566 | 2026-08-15 | done | af03d83050a700fa | branding,docs,test,verify | 565 |
@@ -599,7 +600,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=7 latest=#530, #529, #526, #522, #466
-- audit: count=117 latest=#567, #563, #560, #558, #553
+- audit: count=118 latest=#569, #567, #563, #560, #558
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=205 latest=#553, #547, #519, #518, #517
@@ -645,7 +646,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=30 latest=#568, #567, #563, #560, #553
+- continuity: count=31 latest=#569, #568, #567, #563, #560
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -675,7 +676,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=74 latest=#568, #567, #566, #565, #564
+- docs: count=75 latest=#569, #568, #567, #566, #565
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -829,7 +830,7 @@ compact: true
 - readme: count=25 latest=#353, #352, #347, #346, #345
 - reasoning: count=8 latest=#499, #498, #497, #495, #367
 - recall: count=2 latest=#320, #317
-- reconcile: count=3 latest=#567, #405, #182
+- reconcile: count=4 latest=#569, #567, #405, #182
 - reconciliation: count=1 latest=#305
 - recovery: count=2 latest=#433, #271
 - redos: count=2 latest=#309, #298
@@ -879,7 +880,7 @@ compact: true
 - sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=175 latest=#568, #567, #560, #553, #552
+- status: count=176 latest=#569, #568, #567, #560, #553
 - storage: count=24 latest=#533, #532, #530, #529, #526
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -919,7 +920,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=5 latest=#568, #567, #555, #534, #406
+- worktree: count=6 latest=#569, #568, #567, #555, #534
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -927,7 +928,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 39
+- changed: 40
 - done: 500
 - in-progress: 8
 - planned: 21
