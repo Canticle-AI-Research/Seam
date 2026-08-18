@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 570
-total_tokens: ~295910
-latest_id: 570
+total_entries: 571
+total_tokens: ~296090
+latest_id: 571
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 571 | 2026-08-18 | done | ca7f1d9e5c7569bf | memory,mirl,persist,benchmark,+ | none |
 | 570 | 2026-08-17 | changed | 78018fef051832c8 | correction,audit,history,status,+ | 569 |
 | 569 | 2026-08-17 | changed | 686516098323ef5c | status,worktree,reconcile,audit,+ | 568 |
 | 568 | 2026-08-17 | done | 4ae87616f3a2035f | verify,status,worktree,docs,+ | 567 |
@@ -601,10 +602,10 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=7 latest=#530, #529, #526, #522, #466
-- audit: count=119 latest=#570, #569, #567, #563, #560
+- audit: count=120 latest=#571, #570, #569, #567, #563
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
-- benchmark: count=205 latest=#553, #547, #519, #518, #517
+- benchmark: count=206 latest=#571, #553, #547, #519, #518
 - benchmarks: count=5 latest=#538, #509, #508, #507, #493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
@@ -677,7 +678,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=75 latest=#569, #568, #567, #566, #565
+- docs: count=76 latest=#571, #569, #568, #567, #566
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -763,10 +764,10 @@ compact: true
 - measurement: count=2 latest=#459, #369
 - mem0: count=13 latest=#538, #410, #395, #394, #393
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
-- memory: count=28 latest=#543, #494, #466, #465, #463
+- memory: count=29 latest=#571, #543, #494, #466, #465
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
-- mirl: count=36 latest=#530, #510, #495, #471, #467
+- mirl: count=37 latest=#571, #530, #510, #495, #471
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
 - models: count=3 latest=#450, #403, #182
@@ -797,7 +798,7 @@ compact: true
 - parity: count=1 latest=#556
 - parked: count=1 latest=#412
 - performance: count=4 latest=#447, #364, #363, #362
-- persist: count=37 latest=#547, #530, #529, #526, #522
+- persist: count=38 latest=#571, #547, #530, #529, #526
 - pgvector: count=34 latest=#490, #489, #488, #487, #486
 - plan: count=22 latest=#511, #437, #436, #432, #422
 - planner: count=1 latest=#288
@@ -817,7 +818,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=113 latest=#564, #563, #536, #534, #531
 - prov: count=1 latest=#316
-- provenance: count=24 latest=#562, #561, #540, #530, #529
+- provenance: count=25 latest=#571, #562, #561, #540, #530
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -928,8 +929,8 @@ compact: true
 
 ## status rollup
 
-- roots: 86
+- roots: 87
 - changed: 41
-- done: 500
+- done: 501
 - in-progress: 8
 - planned: 21

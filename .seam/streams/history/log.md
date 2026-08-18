@@ -18591,3 +18591,17 @@ tokens: 247
 ---
 Corrected and scoped two continuity facts found during exact-head PR #220 review. Base commit 7756240 has subject text ending in HISTORY#567, but its document-renderer work is canonically recorded in HISTORY#566; the subject suffix is erroneous and this append-only correction preserves the immutable commit and history entry rather than reassigning either. HISTORY#568 used the required changed-document command python -m tools.docs.verify_audit_claims --changed-since HEAD, which passed because this branch changed no docs/audits files; its earlier wording did not state that scope. The separate unscoped historical-audit scan is not green: on this reviewed tree it checks 25 audit documents and reports nine pre-existing issues across six older audit files, including two 2026-08-12 audit defects and one timeline date mismatch. PR #220 does not claim to repair those historical documents. Also clarified the inventory publication step as conditional after merge and recorded that configured BlackhatShiftey/Seam redirects to canonical Canticle-AI-Research/Seam, so live organization PR links remain correct. Next: regenerate continuity outputs, requalify the changed-doc gates, push the correction, and resolve the review threads.
 ---END-ENTRY-#570---
+
+---BEGIN-ENTRY-#571---
+id: 571
+date: 2026-08-18T08:05:32Z
+agent: codex
+status: done
+topics: memory, mirl, persist, benchmark, audit, docs, provenance
+commits: pending
+refs: docs/audits/2026-08-18-seam-second-brain-persistence-dissertation.md,docs/audits/2026-08-18-advanced-agent-persistence-layers.md,docs/audits/INDEX.md,SEAM_SPEC_V0.1.md,docs/MIRL_V1.md
+supersedes: none
+tokens: 180
+---
+Defined the decision and proof contract for SEAM as a benchmark-proven second-brain persistence architecture. The consensus dissertation fixes the product boundary: SEAM owns durable evidence, canonical MIRL, temporal and lifecycle state, derived retrieval and compiled knowledge, bounded PACK context, public reasoning provenance, governance, and recovery; Ghost or another model/agent owns active cognition. The companion primary-source audit compares Karpathy's LLM Wiki, LangGraph, Letta, Graphiti/Zep, Mem0, A-MEM, MemOS, EverMemOS, Hindsight, and MIRIX, and separates vendor claims from matched or independent evidence. It found no universal memory leaderboard and records a current Mem0 README-to-artifact discrepancy rather than treating the headline as reproduced. The proposed proof program combines LoCoMo, LongMemEval, BEAM, EverMemBench, MemoryArena, LongMemEval-V2, EMemBench, HaluMem, and SEAM-native provenance, correction, deletion, tenancy, recovery, and rebuild conformance gates. This is a target architecture and evidence constitution, not a claim that the current implementation already satisfies the frontier portfolio. No runtime code, benchmark result, provider run, deployment state, or product release changed.
+---END-ENTRY-#571---

@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-08-12-full-repo-audit
+latest: 2026-08-18-seam-second-brain-persistence-dissertation
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,8 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-08-18 | [SEAM second-brain persistence dissertation](2026-08-18-seam-second-brain-persistence-dissertation.md) | architecture and consensus | `HISTORY#571` |
+| 2026-08-18 | [Advanced agent persistence layers](2026-08-18-advanced-agent-persistence-layers.md) | research and benchmarks | `HISTORY#571` |
 | 2026-08-12 | [Full-repository audit](2026-08-12-full-repo-audit.md) | **whole-repo** | `HISTORY#560` |
 | 2026-08-12 | [Complete project timeline](2026-08-12-seam-complete-timeline.md) | timeline | `HISTORY#560` |
 | 2026-08-10 | [Track S visual status report](2026-08-10-track-s-visual-status-report.md) | status reconciliation | `HISTORY#553` |
