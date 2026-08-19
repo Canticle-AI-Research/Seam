@@ -348,6 +348,8 @@ SETTINGS: tuple[Setting, ...] = (
             description="Maximum tracked rate-limit keys before eviction."),
     Setting("SEAM_API_MAX_BODY_BYTES", "API & Server", "int", default="5000000", minimum=1,
             description="Maximum accepted request body size in bytes."),
+    Setting("SEAM_CHAT_MAX_RESPONSE_BYTES", "API & Server", "int", default="5000000", minimum=1,
+            description="Maximum accepted chat-provider response size in bytes."),
     Setting("SEAM_API_CORS_ORIGINS", "API & Server", "csv",
             placeholder="https://example.com",
             description="Comma-separated CORS origin allowlist."),

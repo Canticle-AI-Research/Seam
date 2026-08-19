@@ -16,6 +16,14 @@ from benchmarks.external.common.types import AdapterAnswer, BenchmarkCase, Memor
 RESULT_VERSION = "SEAM-EXTERNAL-MEMORY-BENCHMARK-RESULT/1"
 
 
+def _close_factory_adapter(adapter: MemorySystemAdapter) -> None:
+    """Close an adapter owned by a runner factory, when it supports cleanup."""
+
+    close = getattr(adapter, "close", None)
+    if callable(close):
+        close()
+
+
 def _canonical_json(obj) -> str:
     """Canonical JSON serialization: sorted keys, no trailing whitespace."""
     return json.dumps(obj, sort_keys=True, separators=(",", ":"))
@@ -88,15 +96,19 @@ def run_benchmark_parallel(
 ) -> dict:
     """Run independent benchmark cases concurrently while preserving report order."""
     if workers <= 1:
-        return run_benchmark(
-            adapter=adapter_factory(),
-            cases=cases,
-            dataset_source=dataset_source,
-            judge=judge_factory() if judge_factory else None,
-            judge_batch=judge_batch,
-            save_context=save_context,
-            progress=progress,
-        )
+        adapter = adapter_factory()
+        try:
+            return run_benchmark(
+                adapter=adapter,
+                cases=cases,
+                dataset_source=dataset_source,
+                judge=judge_factory() if judge_factory else None,
+                judge_batch=judge_batch,
+                save_context=save_context,
+                progress=progress,
+            )
+        finally:
+            _close_factory_adapter(adapter)
 
     started_ts = time.time()
     run_started_at = datetime.now(timezone.utc).isoformat()
@@ -113,8 +125,20 @@ def run_benchmark_parallel(
 
     def _worker(index: int, case: BenchmarkCase) -> tuple[int, dict]:
         adapter = adapter_factory()
-        worker_judge = None if batch_judge is not None else (judge_factory() if judge_factory else None)
-        return index, _run_case(adapter, case, worker_judge, save_context=save_context)
+        try:
+            worker_judge = (
+                None
+                if batch_judge is not None
+                else (judge_factory() if judge_factory else None)
+            )
+            return index, _run_case(
+                adapter,
+                case,
+                worker_judge,
+                save_context=save_context,
+            )
+        finally:
+            _close_factory_adapter(adapter)
 
     completed = 0
     with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -226,18 +250,22 @@ def run_benchmark_grouped_parallel(
     run flushes partial results to durable storage and survives interruption.
     """
     if workers <= 1:
-        return run_benchmark_grouped(
-            adapter=adapter_factory(),
-            cases=cases,
-            scope_id=scope_id,
-            dataset_source=dataset_source,
-            judge=judge_factory() if judge_factory else None,
-            judge_cross=judge_cross,
-            judge_batch=judge_batch,
-            save_context=save_context,
-            progress=progress,
-            checkpoint=checkpoint,
-        )
+        adapter = adapter_factory()
+        try:
+            return run_benchmark_grouped(
+                adapter=adapter,
+                cases=cases,
+                scope_id=scope_id,
+                dataset_source=dataset_source,
+                judge=judge_factory() if judge_factory else None,
+                judge_cross=judge_cross,
+                judge_batch=judge_batch,
+                save_context=save_context,
+                progress=progress,
+                checkpoint=checkpoint,
+            )
+        finally:
+            _close_factory_adapter(adapter)
 
     started_ts = time.time()
     run_started_at = datetime.now(timezone.utc).isoformat()
@@ -254,14 +282,21 @@ def run_benchmark_grouped_parallel(
 
     def _worker(scope: str, group: list[BenchmarkCase]) -> list[dict]:
         adapter = adapter_factory()
-        worker_judge = None if batch_judge is not None else (judge_factory() if judge_factory else None)
-        return _run_grouped_scope(
-            adapter=adapter,
-            scope=scope,
-            group=group,
-            judge=worker_judge,
-            save_context=save_context,
-        )
+        try:
+            worker_judge = (
+                None
+                if batch_judge is not None
+                else (judge_factory() if judge_factory else None)
+            )
+            return _run_grouped_scope(
+                adapter=adapter,
+                scope=scope,
+                group=group,
+                judge=worker_judge,
+                save_context=save_context,
+            )
+        finally:
+            _close_factory_adapter(adapter)
 
     completed = 0
     with ThreadPoolExecutor(max_workers=workers) as executor:

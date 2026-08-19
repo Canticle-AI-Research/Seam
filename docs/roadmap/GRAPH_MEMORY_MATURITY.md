@@ -100,17 +100,25 @@ Already present:
   explicit non-displacement reservation, and order/truncation are deterministic;
 - G6 `lifecycle/2` provides append-only operation/event audit, boundary-scoped
   soft deletion, idempotent batch-ingest plans, interrupted-operation resume,
-  concurrent planning, exact tenant authorization, and stable Store/Runtime/SDK
-  APIs. Canonical MIRL remains present for audit while current retrieval,
-  stale G4/G5 support, and configured SQLite/pgvector/Chroma projections exclude
-  or remove deleted records;
+  concurrent planning, exact caller-supplied tenant-boundary validation, and
+  stable Store/Runtime/SDK APIs. This is not authenticated principal binding;
+  Track S S6 supplies that authorization boundary. Canonical MIRL remains
+  present for audit while ordinary current retrieval, stale G4/G5 support, and
+  lifecycle cleanup exclude or remove deleted records. Protected `main` does
+  not yet satisfy that statement for every projection path: a pending vector-
+  outbox intent can replay a `deleted_soft` record after reopen. The 2026-08-18
+  audit candidate filters and acknowledges that intent; the full projection
+  guarantee remains requalified until the repair merges;
 - G7/R6 provider-free qualification freezes separate native, event-only,
   matched-Mem0, and matched-Zep lanes. The real three-tenant native micro-suite
   completed with matched context/result budgets: native and event-only both
   scored usefulness `1.0`, with zero graph-incremental evidence hits, concurrent
   completion, one recovered interrupted read, and zero provider calls. This is
   a valid parity result, not an incremental-value or competitive publication
-  claim.
+  claim. G7/R6 implementation qualification is therefore distinct from Track S
+  S9 claim qualification: public top-level graph wording additionally requires
+  the matched multi-benchmark causal program and evidence tiers in
+  `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`.
 
 Remaining structural gaps:
 
@@ -127,7 +135,11 @@ Remaining structural gaps:
   frozen manifests retain null scoreboards and exact `--allow-paid` commands;
   Mem0 requires provider-backed extraction plus the shared answerer/judge, and
   Zep additionally requires live-service credentials. No comparative claim may
-  be borrowed from the provider-free native lane.
+  be borrowed from the provider-free native lane;
+- native conformance, GraphRAG-Bench, STaRK, Memora/FAMA, LongMemEval-V2, and
+  MemoryArena do not yet have one matched K0-K6/R0-R4 qualification bundle.
+  BEAM-1M likewise has no scored graph ablation. These are Track S S9 evidence
+  gaps, not missing graph-storage implementation.
 
 ## Build sequence
 
@@ -139,13 +151,12 @@ Remaining structural gaps:
 | G4 Graph products | Evolving entity summaries, communities, community summaries, multi-episode observations | Every derived sentence names supporting record and episode IDs; trust gates fail closed |
 | G5 Context assembly | Facts, entities, episodes, summaries, and observations packed by task, trust, time, and token budget | Exact refs/backtraces, non-displacement tests, deterministic budget behavior |
 | G6 Lifecycle and scale | User/thread/graph APIs, scoped deletion, async/batch ingest, recovery, backend portability | Deletion audit, crash recovery, concurrency/load gates, no tenant leakage |
-| G7 Qualification | Native SEAM and matched Mem0/Zep benchmark lanes plus scale and ablation suites | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims |
+| G7 Qualification | Native SEAM and matched Mem0/Zep lanes establish the provider-free implementation boundary; Track S S9 adds the multi-benchmark causal portfolio | Separate scoreboards, frozen contracts, graph-component attribution, no borrowed claims; top-level wording requires matched R3 evidence and independent R4 confirmation at the exact claim scope |
 
 The parallel reasoning-graph sequence is defined in
 `docs/REASONING_GRAPH.md`. R1-R6 are implemented through the provider-free
 qualification boundary; matched provider-backed scoreboards remain unrun.
-Reasoning
-outcomes are never benchmarked or advertised as knowledge unless a later
+Reasoning outcomes are never benchmarked or advertised as knowledge unless a later
 reviewed-promotion contract explicitly admits them into MIRL.
 
 Benchmarks remain qualification evidence throughout, but they no longer gate

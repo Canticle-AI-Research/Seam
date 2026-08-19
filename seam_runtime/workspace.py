@@ -610,8 +610,11 @@ def spread_graph_activation(
         if hop >= max_hops:
             continue
         for neighbor, edge in adjacency.get(node_id, []):
-            confidence = float(edge.get("confidence") or 1.0)
+            raw_confidence = edge.get("confidence")
+            confidence = float(1.0 if raw_confidence is None else raw_confidence)
             next_score = score * decay * max(0.0, min(confidence, 1.0))
+            if next_score <= 0.0:
+                continue
             if next_score <= best.get(neighbor, -1.0):
                 continue
             best[neighbor] = next_score

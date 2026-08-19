@@ -5,6 +5,7 @@ import json
 import math
 import os
 import re
+import tempfile
 import time as _time
 import uuid
 from collections.abc import Iterable
@@ -110,8 +111,19 @@ class SeamLocomoAdapter:
             raise ValueError(f"unknown answer contract {answer_contract!r}")
         if retrieval_mode not in {"legacy-weighted", "hybrid", "mix"}:
             raise ValueError(f"unknown retrieval mode {retrieval_mode!r}")
-        # TODO: default db_path should be tmp_path, not a gitignored project dir
-        self._db_root = Path(db_path) if db_path is not None else Path("test_seam/locomo")
+        self._temp_dir: tempfile.TemporaryDirectory[str] | None = None
+        if db_path is not None:
+            self._db_root = Path(db_path)
+        elif keep_db:
+            # Persistence is the explicit purpose of --keep-db. Preserve its
+            # established reusable location when the operator does not select
+            # a directory.
+            self._db_root = Path("test_seam/locomo")
+        else:
+            self._temp_dir = tempfile.TemporaryDirectory(
+                prefix="seam-bench-locomo-"
+            )
+            self._db_root = Path(self._temp_dir.name)
         from seam_runtime.derived_fact_context import configure_derived_facts
 
         self._derived_facts = configure_derived_facts(
@@ -204,6 +216,9 @@ class SeamLocomoAdapter:
             if callable(close):
                 close()
         self._runtime_by_scope.clear()
+        if self._temp_dir is not None:
+            self._temp_dir.cleanup()
+            self._temp_dir = None
 
     def preflight(self, scope_ids: Iterable[str] = ()) -> dict[str, object]:
         """Fail fast unless the benchmark's embedding contract is operational.

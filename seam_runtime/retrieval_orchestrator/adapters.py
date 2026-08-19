@@ -1467,7 +1467,7 @@ select
 from scored_rows
 where (structured_score + lexical_score) > 0
 {gating_clause}
-order by sql_score desc, lexical_hits desc, updated_at desc, id asc
+order by sql_score desc, id asc
 limit ?
 """
     params: list[object] = []

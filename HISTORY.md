@@ -18591,3 +18591,159 @@ tokens: 247
 ---
 Corrected and scoped two continuity facts found during exact-head PR #220 review. Base commit 7756240 has subject text ending in HISTORY#567, but its document-renderer work is canonically recorded in HISTORY#566; the subject suffix is erroneous and this append-only correction preserves the immutable commit and history entry rather than reassigning either. HISTORY#568 used the required changed-document command python -m tools.docs.verify_audit_claims --changed-since HEAD, which passed because this branch changed no docs/audits files; its earlier wording did not state that scope. The separate unscoped historical-audit scan is not green: on this reviewed tree it checks 25 audit documents and reports nine pre-existing issues across six older audit files, including two 2026-08-12 audit defects and one timeline date mismatch. PR #220 does not claim to repair those historical documents. Also clarified the inventory publication step as conditional after merge and recorded that configured BlackhatShiftey/Seam redirects to canonical Canticle-AI-Research/Seam, so live organization PR links remain correct. Next: regenerate continuity outputs, requalify the changed-doc gates, push the correction, and resolve the review threads.
 ---END-ENTRY-#570---
+
+---BEGIN-ENTRY-#571---
+id: 571
+date: 2026-08-19T04:06:43Z
+agent: codex
+status: done
+topics: audit, benchmark, bugfix, graph, harden, operator, persist, retrieval, security, status, storage, surface, test, tui, verify, webui, worktree
+commits: pending
+refs: HISTORY#570,PROJECT_STATUS.md,REPO_LEDGER.md,docs/audits/2026-08-18-track-s-deployment-readiness-audit.md,docs/audits/2026-08-18-graph-benchmark-readiness-research.md,docs/handoffs/2026-08-18-track-s-deployment-readiness.md
+supersedes: 570
+tokens: 1128
+---
+Audited Track S, graph-benchmark evidence, operator surfaces, and deployment
+readiness from protected `main@48c5448`, using only the latest verified local
+snapshot, `HISTORY_INDEX.md`, the cross-index hot zone, and bounded recent
+context packs. The full `HISTORY.md` was not read or re-audited.
+
+The reconciled verdict is now explicit and routed: S0-S5 are published, while
+later deterministic-SQL-tie and soft-delete/outbox-replay counterexamples need
+this candidate's merge and requalification before S6. S6-S10 remain ordered
+work. The active WebUI is a mixed live/simulated prototype rather than a beta;
+the runtime-backed Textual TUI remains incomplete against the eight-workflow
+target, and the operator's newer TUI source was not present in the active
+checkouts or installed artifacts. Hosted deployment remains blocked by S6 and
+an unqualified service/TLS/shared-limiter/backup topology.
+
+The companion graph-readiness report records the current evidence boundary:
+LoCoMo's matched graph/non-graph arms tie at `0.776048` with zero admissible
+semantic relations, and WANDR/G7-R6 are parity rather than graph-lift evidence.
+It defines native conformance plus GraphRAG-Bench, STaRK, Memora/FAMA,
+LongMemEval-V2, MemoryArena, and BEAM-1M; matched K0-K6/R0-R4 causal arms;
+sealed per-case quality/latency/cost artifacts; R3 admission; and independent
+R4 reproduction before public top-level graph wording. The stable publication
+rule is recorded in `REPO_LEDGER.md` and the S9 exit gate.
+
+Bounded repairs implemented on `audit/track-s-deployment-20260818`:
+
+- capped both server chat provider schemas before JSON buffering; `/chat`
+  returns content-free 502 and `/chat/stream` emits a sanitized terminal
+  failure without persisting the oversized answer;
+- made REST `/persist` create-only under `BEGIN IMMEDIATE`, returned
+  content-free 409 on collision, rolled back the pooled connection on failure,
+  and kept internal runtime/store upsert behavior;
+- prevented pending vector-outbox replay from reindexing `deleted_soft`
+  records;
+- made equal-score SQL truncation terminate by canonical record ID;
+- stopped zero-confidence graph edges from becoming full-confidence or
+  propagating zero activations;
+- preserved documented GET/HEAD health operations, stable GET OpenAPI IDs,
+  distinct HEAD IDs, and nonempty command-catalog summaries;
+- moved default LoCoMo databases to disposable temporary roots and closed
+  every factory/replay-owned adapter on serial, parallel, success, and failure
+  paths; and
+- made the pre-push hook resolve the actual primary worktree instead of the
+  linked checkout that invoked it.
+
+Verification on the frozen candidate:
+
+- `SEAM_STRICT_NO_SKIP=1 HF_HUB_OFFLINE=1 HF_HUB_CACHE=/mnt/t7/hf-cache PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/ -m "not external" --durations=25` -> 2,854 passed, 23 deselected, 2 established compiler xfailed, 3 subtests passed, zero skips in 392.34s.
+- `PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN" SEAM_STRICT_NO_SKIP=1 PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/ -m external --durations=25` -> 23 passed, 2,856 deselected, zero skips in 3.40s against the configured live service; the DSN value was not printed or recorded.
+- All directly affected regression modules passed; whole-repository Ruff,
+  Python compilation, dependency contract, status streams, and diff hygiene
+  passed.
+- `python -m tools.docs.verify_audit_claims --changed-since HEAD` checked three
+  changed audit documents, 60 citations, and seven labelled findings with no
+  issues.
+- `python -m tools.security.secret_scan --working-tree` passed with ten known
+  policy-excluded binary/hash-pinned paths and no secret/session finding.
+- CodeRabbit completed on the expanded tracked diff with one finding: the G6
+  roadmap overstated deleted-projection safety. The claim is now explicitly
+  candidate-only until merge. Untracked new audit documents received an
+  independent manual consistency review because the service omitted them.
+
+No paid benchmark, comparator/model-provider call, hosted deployment, release,
+publication, merge, or operator-artifact deletion occurred. PR #221's separate
+research work and the primary checkout's ignored/untracked artifacts were
+preserved. Whichever candidate lands second must rebase and rechain its
+independently allocated next history entry.
+
+Remaining work is routed in the audit and current handoff: land/reconcile this
+candidate, close shared TUI provider-host/response-cap parity and local-gate
+parity, then execute S6 principal tenancy, S7 admissible semantic ingest, S8
+surface retrieval parity, S9 matched multi-benchmark causal qualification, and
+S10 release/deployment proof in dependency order.
+---END-ENTRY-#571---
+
+---BEGIN-ENTRY-#572---
+id: 572
+date: 2026-08-19T04:11:06Z
+agent: codex
+status: done
+topics: bugfix, git-hooks, test, verify, worktree
+commits: pending
+refs: HISTORY#571,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py
+supersedes: 571
+tokens: 313
+---
+The first push attempt for the Track S audit candidate was correctly left
+unpublished after the pre-push gate falsely reported five clean/exempt
+worktrees as dirty. No override was used.
+
+The push runs inside Git's exported `GIT_DIR`/`GIT_WORK_TREE` environment.
+Although the candidate had corrected primary-worktree resolution,
+`git -C <sibling> status` still inherited the caller's Git directory and
+compared each sibling path against the caller's index. The hook now clears both
+variables for each sibling status command so Git resolves that worktree's own
+`.git` file. A real three-worktree regression gives the caller and clean
+sibling different committed trees, recreates Git's hook environment, and
+proves the clean sibling is not misclassified.
+
+`SEAM_STRICT_NO_SKIP=1 PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -q tests/audit/test_public_safe_gate.py` passed all 49 tests. `bash -n tools/git-hooks/pre-push`, Ruff on the Python regression, and `git diff --check` passed. An earlier command incorrectly included the Bash hook in Python Ruff's input and failed with shell-as-Python parser errors; it was an invalid verification scope, not a source defect, and was replaced by the correct shell syntax check.
+
+Next: rebuild the continuity chain, amend and re-sign the still-local candidate
+commit, rerun the pre-push gate without overrides, then open the draft PR.
+---END-ENTRY-#572---
+
+---BEGIN-ENTRY-#573---
+id: 573
+date: 2026-08-19T04:13:50Z
+agent: codex
+status: changed
+topics: bugfix, correction, git-hooks, verify, worktree
+commits: pending
+refs: HISTORY#572,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py,docs/status/workspace.md
+supersedes: 572
+tokens: 349
+---
+The corrected candidate pre-push hook passed its real Git-hook-environment
+simulation, but a second ordinary push attempt still ran the stale installed
+hook and was refused. No branch was published and no override had yet been
+used.
+
+The shared hook path is
+`/home/terrabyte/Documents/Projects/Seam/.git/hooks/pre-push`, a relative
+symlink to `../../tools/git-hooks/pre-push`; from the shared Git directory that
+always resolves into the primary checkout. The primary checkout remains on the
+separate PR #221 branch, so it necessarily carries the protected-main version
+of the hook until this candidate merges. A linked candidate cannot make the
+installed symlink execute its unmerged file.
+
+Read-only status checks show the primary checkout's 38 preserved operator
+artifacts and zero uncommitted paths in every non-primary linked worktree. The
+stale installed hook instead reported 102/85/92/64/67 false paths because of
+the inherited Git-directory defect. The candidate script was then invoked
+directly with the real candidate `GIT_DIR`, `GIT_WORK_TREE`, ref update, remote,
+and signed head; its secret/session, signature, and linked-worktree checks all
+passed with exit 0.
+
+One push will therefore use the hook's documented
+`SEAM_ALLOW_DIRTY_WORKTREES=1` escape hatch solely to bypass the already-
+reproduced stale installed dirty-worktree result. The installed hook still runs
+and must pass the secret/session and signature gates. This is not permission to
+discard, stage, or modify any primary or sibling worktree state. The candidate
+repair plus regression is what makes future post-merge pushes work without the
+override.
+---END-ENTRY-#573---

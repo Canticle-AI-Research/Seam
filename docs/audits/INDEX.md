@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-08-12-full-repo-audit
+latest: 2026-08-18-track-s-deployment-readiness-audit
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,8 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-08-18 | [Track S and deployment readiness audit](2026-08-18-track-s-deployment-readiness-audit.md) | Track S / surfaces / deployment | `HISTORY#571` |
+| 2026-08-18 | [Graph benchmark readiness beyond LoCoMo](2026-08-18-graph-benchmark-readiness-research.md) | benchmark research | `HISTORY#571` |
 | 2026-08-12 | [Full-repository audit](2026-08-12-full-repo-audit.md) | **whole-repo** | `HISTORY#560` |
 | 2026-08-12 | [Complete project timeline](2026-08-12-seam-complete-timeline.md) | timeline | `HISTORY#560` |
 | 2026-08-10 | [Track S visual status report](2026-08-10-track-s-visual-status-report.md) | status reconciliation | `HISTORY#553` |

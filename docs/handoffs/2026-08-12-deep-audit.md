@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-12-deep-audit
 supersedes: 2026-08-05-tui-rebuild-canticle
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#560
 ---
 

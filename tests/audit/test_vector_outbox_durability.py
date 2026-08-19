@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import pytest
 
-from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.models import HashEmbeddingModel
 from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 from seam_runtime.runtime import SeamRuntime
@@ -366,6 +366,53 @@ def test_replay_settles_intents_whose_record_is_gone(tmp_path) -> None:
         assert runtime.store.pending_vector_outbox_count() == 0
     finally:
         runtime.close()
+
+
+def test_reopen_settles_deleted_record_intent_without_reindexing(tmp_path) -> None:
+    """A soft delete wins over an earlier unacknowledged index intent."""
+
+    path = tmp_path / "deleted-intent.db"
+    adapter = _CountingAdapter()
+    runtime = _runtime(path, adapter)
+    record = _record("clm:deleted-before-replay")
+    record.ns = "tenant-a"
+    try:
+        runtime.store.persist_ir(
+            IRBatch([record]),
+            _preserve_node_vectors=True,
+            _enqueue_vector_outbox=True,
+        )
+        planned = runtime.plan_scoped_delete(
+            tenant_id="tenant-a",
+            namespace="tenant-a",
+            scope="thread",
+            record_ids=[record.id],
+            idempotency_key="delete-before-outbox-replay",
+            actor="operator",
+        )
+        applied = runtime.apply_scoped_delete(
+            tenant_id="tenant-a",
+            operation_id=str(planned["operation_id"]),
+            actor="operator",
+        )
+        assert applied["state"] == "applied"
+        assert runtime.store.pending_vector_outbox_count() == 1
+        assert runtime.store.load_ir(ids=[record.id]).records[0].status is (
+            Status.DELETED_SOFT
+        )
+    finally:
+        runtime.close()
+
+    reopened_adapter = _CountingAdapter()
+    reopened = _runtime(path, reopened_adapter)
+    try:
+        assert reopened_adapter.indexed == []
+        assert reopened.store.pending_vector_outbox_count() == 0
+        assert reopened.store.load_ir(ids=[record.id]).records[0].status is (
+            Status.DELETED_SOFT
+        )
+    finally:
+        reopened.close()
 
 
 # --------------------------------------------------------------------------

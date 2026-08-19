@@ -3,11 +3,12 @@
 > Worktrees, branches, pull requests, local-only artifacts, and overlap between
 > active workstreams
 
-_Snapshot authority: live local Git and GitHub state reconciled on 2026-08-17
-against `origin/main@7756240` and canonical GitHub repository
+_Snapshot authority: live SEAM worktrees and GitHub pull requests reconciled on
+2026-08-18 against `origin/main@48c5448` and canonical GitHub repository
 `Canticle-AI-Research/Seam`. This is a dated current-state snapshot, not a
 self-updating dashboard or chronology. Re-run the refresh commands before
-acting on it._
+acting on it. Sibling-repository and long-tail branch detail retained below was
+last audited on 2026-08-17 and is labelled accordingly._
 
 ## Use this before creating work
 
@@ -26,10 +27,9 @@ report a worktree as clean while removal would still destroy local data.
 
 | Logical item | Physical identities | State | Unique purpose | Next action |
 | --- | --- | --- | --- | --- |
-| Protected main | primary checkout; local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | HEAD and remote both `7756240`; tracked tree clean; configured `BlackhatShiftey/Seam` URL redirects to the canonical organization repository | Canonical published source for all new work | Preserve the untracked skill installation; stage only explicit inventory paths |
-| Workspace inventory publication | `Seam-workspace-inventory`; `docs/workspace-inventory`; PR #220 | Temporary documentation branch from `7756240`; active only until PR #220 merges | Publishes this canonical anti-duplication map | If absent from main, finish PR #220; after merge, remove only this temporary worktree/local branch and treat this row as snapshot history |
-| Durable evidence store | sibling repository `/home/terrabyte/Documents/Projects/seam-records`; `BlackhatShiftey/seam-records` | `main@6921381` matches `origin/main`; SEAM's post-commit collector refreshed 174 tracked paths and 14 untracked paths after the inventory commit | Deliberately separate append-only audits, benchmark/test records, and report mirrors, so the measured system and its evidence do not share one mutable history | Preserve the generated candidate refresh; review and publish or discard it as a separate `seam-records` decision, never absorb it into this PR |
-| Public client repository | sibling checkout `/home/terrabyte/Documents/Projects/Seam_Runtime`; SEAM remote `seam-runtime`; `BlackhatShiftey/Seam_Runtime` | Clean `main@0d7ec37`, exactly aligned with its own `origin/main`; SEAM also retains two fetched remote refs | Separately authored Apache-2.0 `seam-client` boundary; not the private runtime and not a live private-to-public mirror | Keep isolated; SEAM's pre-push hook forbids pushing private-repo commits to this remote |
+| Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Local and remote both `48c5448`; no current worktree is checked out on local `main` | Canonical published source for new work | Start/resume only after exact ancestry and worktree reconciliation |
+| Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; draft PR clean/mergeable with green checks at audit cutoff | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; whichever candidate lands second must rebase its HISTORY entry |
+| Track S/deployment audit candidate | `Seam-track-s-audit`; `audit/track-s-deployment-20260818` | Isolated from `origin/main@48c5448`; implementation/docs/tests in progress at audit cutoff | Bounded F-5/F-6/F-10/F-11 and hygiene repairs plus the current audit/to-do | Finish exact-head verification, push, open a draft PR, then remove this temporary worktree |
 | Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 3 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
 | Native-roadmap pre-reconcile backup | local `archive/native-model-roadmap-pre-reconcile` | Clean branch; 5 commits ahead and 15 behind main; not a second PR | Preserves the earlier unsigned/unreconciled roadmap lineage that PR #207 replaced | Keep only as a recovery source until PR #207 is resolved; never implement from it independently |
 | Vector-cache replay repair | `Seam-pr213-repair`; local `repair/pr213-full-suite`; remote `origin/blackhatshiftey-performance-improvements`; PR #213 | Clean; local and remote head `4d2609e`; 2 commits ahead and 15 behind main; draft PR is conflicting | Preserves warmed SQLite vector matrices across no-op replay, detects supported cross-process changes, clears cache after rollback restore, and fixes the streaming fake | Rebase/rechain on current main, rerun vector plus full/external gates, then publish before S6 changes overlapping vector cleanup |
@@ -39,33 +39,37 @@ report a worktree as clean while removal would still destroy local data.
 | Retrieval consolidation source | local and remote `refactor/unify-retrieval-paths` | 10 commits ahead and 38 behind main; no PR | Historical source line for single-package consolidation, trace attribution, WANDR replay, and related repairs | Do not land wholesale: it contains the 59 tracked `.ua` artifacts excluded by Track S S0; compare only a named file or commit against current main |
 
 Pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207),
-[#213](https://github.com/Canticle-AI-Research/Seam/pull/213),
-[#214](https://github.com/Canticle-AI-Research/Seam/pull/214), and
-[#216](https://github.com/Canticle-AI-Research/Seam/pull/216).
+[#213](https://github.com/Canticle-AI-Research/Seam/pull/213), and
+[#221](https://github.com/Canticle-AI-Research/Seam/pull/221).
 
 ## Physical worktree register
 
 ### `/home/terrabyte/Documents/Projects/Seam`
 
-- Role: primary protected-main checkout.
-- Branch/head: `main@7756240`, exactly aligned with `origin/main` after fetch.
+- Role: primary checkout for draft PR #221, not protected main.
+- Branch/head: `research/advanced-persistence-landscape@d699944`, tracking the
+  identically named remote branch; its base is `main@48c5448`.
 - Repository identity: GitHub resolves both the configured legacy owner URL
   `BlackhatShiftey/Seam` and `Canticle-AI-Research/Seam` to canonical
   `Canticle-AI-Research/Seam`; PR links therefore use the organization URL.
 - Tracked state: clean.
-- Local-only state: `skills-lock.json` plus 35 untracked skill directories.
+- Local-only state: `AppDir/io.github.OpenToonz.desktop`, the
+  `squashfs-root -> ./AppDir` symlink, `skills-lock.json`, and 35 untracked
+  skill directories.
   These belong to one GitHub-sourced Matt Pocock skill installation and are
   not part of the `skills/rebuild-agent-layer-and-drift-gate` branch.
 - Boundary: do not use `git add -A`; do not move, delete, or absorb the skill
   bundle into another PR without an explicit ownership decision.
 
-### `/home/terrabyte/Documents/Projects/Seam-workspace-inventory`
+### `/home/terrabyte/Documents/Projects/Seam-track-s-audit`
 
-- Role: temporary isolated branch for this inventory.
-- Branch/head: `docs/workspace-inventory@7756240` at creation.
-- Tracked state: active documentation changes only.
-- Boundary: this worktree must be committed, pushed, and removed after its PR
-  is complete; it is not a new long-lived workstream.
+- Role: temporary isolated Track S/deployment audit and repair candidate.
+- Branch/base: `audit/track-s-deployment-20260818` from
+  `origin/main@48c5448`.
+- Tracked state: intentionally dirty during the audit; candidate scope is
+  recorded in its report and HISTORY#571.
+- Boundary: commit, push, open a draft PR, and remove this linked worktree at
+  session close. Do not absorb primary-checkout artifacts or PR #221 files.
 
 ### `/home/terrabyte/Documents/Projects/Seam-native-model-roadmap`
 
@@ -185,7 +189,6 @@ proof of unpublished work: squash-merged PR heads can still appear unique.
 | `refactor/unify-retrieval-paths` | 10 / 38 | Contaminated reconstruction/source line for package consolidation, retrieval trace attribution, WANDR replay, infrastructure fail-fast, and provenance-chain work. It includes tracked `.ua` artifacts intentionally excluded by S0. | Historical source; explicit do-not-land hold |
 | `repair/pr213-full-suite` | 2 / 15 | Local alias for open draft PR #213. See the logical-item and worktree entries above. | Active open PR |
 | `skills/rebuild-agent-layer-and-drift-gate` | 1 / 1 | Local-only agent-layer rebuild with `.opencode` changes, an audit profile, skill verifier, and closeout/hook changes. Its HISTORY#566 conflicts with canonical main's report-renderer HISTORY#566. It is distinct from the primary checkout's untracked Matt Pocock skill bundle. | Recent local WIP; preserve and rechain before PR |
-| `docs/workspace-inventory` | 0 / 0 at creation | Temporary branch that owns this page and its navigation/policy pointers. | Active current session; remove after publication |
 
 ## Remote branch register
 
@@ -197,7 +200,7 @@ its local branch.
 
 | Remote branch | Relationship to main | Full description | Disposition boundary |
 | --- | ---: | --- | --- |
-| `origin/main` | canonical | Protected publication source at `7756240` | Never direct-push |
+| `origin/main` | canonical | Protected publication source at `48c5448` | Never direct-push |
 | `origin/backup/local-pgvector-bootstrap` | 2 ahead / 409 behind | Early local-pgvector bootstrap backup with Compose/init SQL, PowerShell setup, old project-map docs, an imported design source, and a PDF handoff artifact | Protected historical backup; never use as current pgvector setup without a file-by-file rewrite |
 | `origin/copilot/agent-types-on-github` | 0 ahead / 3 behind | Remote pointer already fully contained by main at the PR #216 merge | Remote cleanup candidate; deletion needs exact approval |
 | `origin/copilot/understanding-operations` | 0 ahead / 15 behind | Remote pointer already fully contained by main at the Track S visual-status merge | Remote cleanup candidate; deletion needs exact approval |
@@ -285,23 +288,24 @@ features and not the same work as `skills/rebuild-agent-layer-and-drift-gate`.
 
 ## Recommended resolution order before Track S S6
 
-1. If this inventory is not yet on protected main, finish PR #220. Once it is
-   merged, remove only its temporary worktree/local branch; the published page
-   remains the route for subsequent decisions.
-2. Review the generated `seam-records` candidate refresh as a separate
+1. Finish and review the Track S/deployment repair candidate. Reconcile its
+   next HISTORY entry with draft PR #221; whichever lands second must rebase.
+2. Merge, revise, or explicitly close PR #221 so the benchmark-research
+   boundary is unambiguous on current main.
+3. Review the generated `seam-records` candidate refresh as a separate
    repository decision; do not make Track S depend on unpublished record
    mirrors.
-3. Resolve PR #207 on current main or explicitly close it while retaining its
+4. Resolve PR #207 on current main or explicitly close it while retaining its
    archive source. It overlaps the roadmap/status/history surfaces S6 must
    update.
-4. Resolve draft PR #213 on current main or explicitly close it. Its vector
+5. Resolve draft PR #213 on current main or explicitly close it. Its vector
    cache and rollback paths overlap S6's recoverable deletion cleanup.
-5. With exact operator approval, remove the merged TUI worktree/branch. For the
+6. With exact operator approval, remove the merged TUI worktree/branch. For the
    wiki worktree, decide the handoff/database artifact disposition first.
-6. Audit local-only `agent/g3-finish-remaining-gaps` and
+7. Audit local-only `agent/g3-finish-remaining-gaps` and
    `skills/rebuild-agent-layer-and-drift-gate`; classify each as salvage,
    publish, archive, or abandon without copying it into S6 by default.
-7. Start S6 from the resulting protected `origin/main`, not from any branch
+8. Start S6 from the resulting protected `origin/main`, not from any branch
    listed as backup, archive, merged, or do-not-land.
 
 ## Refresh commands

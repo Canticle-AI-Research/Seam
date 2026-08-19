@@ -158,3 +158,37 @@ class TestGeneratedDocsRoutesFollowTheAuthDecision:
         client = self._client(monkeypatch, None)
 
         assert client.get(path).status_code == 200
+
+    def test_openapi_operation_ids_are_unique(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("SEAM_DB_PATH", str(tmp_path / "openapi_ids.db"))
+        client = self._client(monkeypatch, None)
+
+        schema = client.get("/openapi.json").json()
+        operation_ids = [
+            operation["operationId"]
+            for path_item in schema["paths"].values()
+            for operation in path_item.values()
+            if isinstance(operation, dict) and "operationId" in operation
+        ]
+
+        assert len(operation_ids) == len(set(operation_ids))
+        expected_health_operations = {
+            "/health": {
+                "get": ("health_health_get", "Health"),
+                "head": ("health_health_head", "Health"),
+            },
+            "/v1/health": {
+                "get": ("public_health_v1_health_get", "Public Health"),
+                "head": ("public_health_v1_health_head", "Public Health"),
+            },
+        }
+        for path, expected_operations in expected_health_operations.items():
+            path_item = schema["paths"][path]
+            assert set(path_item) == set(expected_operations)
+            for method, (operation_id, summary) in expected_operations.items():
+                operation = path_item[method]
+                assert operation["operationId"] == operation_id
+                assert operation["summary"] == summary
+                assert operation["responses"]["200"]["content"][
+                    "application/json"
+                ]["schema"]

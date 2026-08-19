@@ -6,6 +6,11 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Status: baseline measured, Track S promotion gates open
 
+The 2026-08-18 audit candidate repairs the SQL leg's mutable equal-score
+tiebreak and the deleted-record vector-outbox replay counterexample. Those are
+branch-local fixes until their PR merges; they do not complete S8 or S9. See
+`docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`.
+
 One canonical engine remains the architectural invariant.
 `RetrievalOrchestrator` owns SQL, vector, graph, graph-node, and explicit
 temporal retrieval. `SeamRuntime.retrieve()` is the canonical entry;
@@ -86,6 +91,10 @@ claim citing a missing PROV and a PROV naming no entity/activity/agent, and
    at or above `0.7664201903042236` with category non-regression. A qualifying
    semantic graph corpus and fresh attributable graph-only lift are separate
    requirements; otherwise graph/scorer behavior stays default-off.
+6. **Top-level graph wording is multi-benchmark gated.** Current LoCoMo,
+   WANDR, and G7/R6 evidence is parity or graph-inert. The proposed causal
+   portfolio, ablations, artifacts, and R0-R4 evidence tiers live in
+   `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`.
 
 ## Methodology note
 

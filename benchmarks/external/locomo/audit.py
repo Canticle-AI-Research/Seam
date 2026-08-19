@@ -301,11 +301,27 @@ def run_context_replay(
     result_path: str,
     dataset_path: str,
     sample_n: int = 5,
+    *,
+    _adapter: object | None = None,
 ) -> list[dict]:
     """Replay retrieval for sampled failed cases without calling any API.
 
     Returns one dict per replayed case with full diagnostic info.
     """
+    if _adapter is None:
+        from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
+
+        owned_adapter = SeamLocomoAdapter(answerer=None)
+        try:
+            return run_context_replay(
+                result_path,
+                dataset_path,
+                sample_n,
+                _adapter=owned_adapter,
+            )
+        finally:
+            owned_adapter.close()
+
     with open(result_path, "r", encoding="utf-8") as fh:
         result = json.load(fh)
     result_cases = result["cases"]
@@ -337,9 +353,7 @@ def run_context_replay(
     # replay per scope — single adapter, per-scope DB isolation
     replay_rows: list[dict] = []
 
-    from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
-
-    adapter = SeamLocomoAdapter(answerer=None)
+    adapter = _adapter
 
     for scope, scope_cases in scope_groups.items():
         ds_case = dataset_by_id.get(scope_cases[0]["case_id"])

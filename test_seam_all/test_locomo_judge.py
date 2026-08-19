@@ -18,6 +18,7 @@ from benchmarks.external.common.judge import (
 from benchmarks.external.common.runner import (
     run_benchmark,
     run_benchmark_grouped,
+    run_benchmark_grouped_parallel,
     run_benchmark_parallel,
 )
 from benchmarks.external.common.types import (
@@ -321,6 +322,75 @@ def test_run_benchmark_parallel_preserves_case_order_and_scores() -> None:
     assert report["scores"]["context_recall_mean"] == 1.0
     assert report["scores"]["judge_score_mean"] == 0.0
     assert completed[-1] == (4, 4)
+
+
+@pytest.mark.parametrize(
+    ("grouped", "workers", "should_fail"),
+    [
+        (False, 1, False),
+        (False, 2, False),
+        (True, 1, False),
+        (True, 2, False),
+        (False, 1, True),
+        (False, 2, True),
+        (True, 1, True),
+        (True, 2, True),
+    ],
+)
+def test_factory_owned_adapters_are_closed(
+    grouped: bool,
+    workers: int,
+    should_fail: bool,
+) -> None:
+    """Every adapter created by a parallel runner is closed on every path."""
+
+    adapters: list[_MinimalAdapter] = []
+
+    class _ClosableAdapter(_MinimalAdapter):
+        def __init__(self) -> None:
+            super().__init__()
+            self.closed = False
+            adapters.append(self)
+
+        def close(self) -> None:
+            self.closed = True
+
+        def answer(self, scope_id: str, question: str) -> AdapterAnswer:
+            if should_fail:
+                raise RuntimeError("simulated adapter failure")
+            return super().answer(scope_id, question)
+
+    cases = _minimal_cases(2)
+
+    def _run() -> dict:
+        if grouped:
+            return run_benchmark_grouped_parallel(
+                adapter_factory=_ClosableAdapter,
+                adapter_name="minimal",
+                cases=cases,
+                scope_id=lambda case: case.case_id,
+                workers=workers,
+            )
+        return run_benchmark_parallel(
+            adapter_factory=_ClosableAdapter,
+            adapter_name="minimal",
+            cases=cases,
+            workers=workers,
+        )
+
+    report = None
+    if should_fail and not grouped:
+        with pytest.raises(RuntimeError, match="simulated adapter failure"):
+            _run()
+    else:
+        report = _run()
+
+    if should_fail and grouped:
+        assert report is not None
+        assert all(case["error"]["stage"] == "answer" for case in report["cases"])
+
+    assert adapters
+    assert all(adapter.closed for adapter in adapters)
 
 
 def test_run_benchmark_grouped_ingests_each_scope_once() -> None:

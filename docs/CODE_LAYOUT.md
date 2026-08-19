@@ -41,7 +41,12 @@ not have to infer what works from directory names alone.
 - `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and bounded retrieval-policy candidates wired through durable baseline/candidate experiments, the strict multi-family proposal ratchet, explicit operator approval, applied-flag reconciliation, and revert. See `docs/IMPROVEMENT_EXPERIMENTS.md`.
 - `tools/graph_retrieval_qualification.py` + `tools/graph_real_corpus_qualification.py` - synthetic scale/query-shape and pinned LoCoMo development/holdout qualification for G3 node-vector fusion and safe policy selection.
 - `benchmarks/graph_reasoning_qualification.py` - provider-free real-runtime G7/R6 native-versus-event-only ablation, concurrent recovery probe, exact graph attribution, and matched Mem0/Zep paid-boundary plans.
-- `seam_runtime/webui/` - the SEAM browser dashboard served by the REST API: `dashboard.html` (the IDE-style operator UI), `seam-api.js`, `tweaks-panel.jsx`, branding, and icons. `seam serve` and `seam webui` serve these at `/` on the same origin as the API; packaged with the wheel. This is the functional dashboard (HISTORY#285).
+- `seam_runtime/webui/` - the shipped single-file browser prototype served by
+  the REST API: `dashboard.html`, `seam-api.js`, `tweaks-panel.jsx`,
+  branding, and icons. `seam serve` and `seam webui` serve these at `/` on
+  the same origin as the API; packaged with the wheel. It currently mixes live
+  calls with simulated/browser-local behavior and is not an operator beta; see
+  `docs/status/surfaces.md`.
 - `seam_runtime/tui/` - the live terminal dashboard (`app.py` shell and `/`
   palette, `commands.py` catalog derived at runtime from the backend's own
   parser, `panels.py` worker-backed structured views, `settings_screen.py`,

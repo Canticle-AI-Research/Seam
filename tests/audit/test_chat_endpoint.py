@@ -258,6 +258,147 @@ class TestChatEndpoint:
         assert "127.0.0.1" not in detail
         assert ":9" not in detail
 
+    @pytest.mark.parametrize(
+        ("provider_name", "include_content_length"),
+        [("local", True), ("Anthropic", False)],
+    )
+    def test_chat_caps_provider_responses_before_parse_or_persist(
+        self,
+        monkeypatch,
+        provider_name,
+        include_content_length,
+    ):
+        """Both provider schemas must honor the same allocation bound.
+
+        The no-Content-Length case proves the bounded read, while the declared
+        length case proves an oversized response is rejected before reading.
+        """
+
+        monkeypatch.setenv("SEAM_CHAT_MAX_RESPONSE_BYTES", "128")
+        sentinel = "oversized-provider-turn-sentinel"
+
+        class _OversizedProvider(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):  # noqa: N802 - stdlib hook name
+                content_length = int(self.headers.get("Content-Length", "0"))
+                self.rfile.read(content_length)
+                if provider_name == "Anthropic":
+                    payload = {
+                        "content": [{"type": "text", "text": sentinel}],
+                        "padding": "x" * 512,
+                    }
+                else:
+                    payload = {
+                        "choices": [{"message": {"content": sentinel}}],
+                        "padding": "x" * 512,
+                    }
+                body = json.dumps(payload).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                if include_content_length:
+                    self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        service = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _OversizedProvider)
+        thread = threading.Thread(target=service.serve_forever, daemon=True)
+        thread.start()
+        client = self._client()
+        try:
+            resp = client.post("/chat", json={
+                "message": "do not persist this failed turn",
+                "model": "local-model",
+                "provider": provider_name,
+                "base_url": f"http://127.0.0.1:{service.server_address[1]}/v1",
+                "use_memory": False,
+            })
+        finally:
+            service.shutdown()
+            service.server_close()
+            thread.join(timeout=5)
+
+        assert resp.status_code == 502
+        assert resp.json()["detail"] == (
+            "provider call failed: ChatProviderResponseTooLarge"
+        )
+        search = client.get("/search", params={"query": sentinel, "budget": 5})
+        assert search.status_code == 200
+        assert search.json()["candidates"] == []
+
+    def test_chat_stream_caps_provider_response_before_answer_or_persist(
+        self,
+        monkeypatch,
+    ):
+        """The streaming surface shares the provider allocation bound."""
+
+        monkeypatch.setenv("SEAM_CHAT_MAX_RESPONSE_BYTES", "128")
+        sentinel = "oversized-stream-provider-sentinel"
+
+        class _OversizedStreamingProvider(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):  # noqa: N802 - stdlib hook name
+                content_length = int(self.headers.get("Content-Length", "0"))
+                self.rfile.read(content_length)
+                body = json.dumps(
+                    {
+                        "choices": [{"message": {"content": sentinel}}],
+                        "padding": "x" * 512,
+                    }
+                ).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        service = http.server.ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            _OversizedStreamingProvider,
+        )
+        thread = threading.Thread(target=service.serve_forever, daemon=True)
+        thread.start()
+        client = self._client()
+        try:
+            response = client.post(
+                "/chat/stream",
+                json={
+                    "message": "do not persist this failed streaming turn",
+                    "model": "local-model",
+                    "provider": "local",
+                    "base_url": (
+                        f"http://127.0.0.1:{service.server_address[1]}/v1"
+                    ),
+                    "use_memory": False,
+                },
+            )
+        finally:
+            service.shutdown()
+            service.server_close()
+            thread.join(timeout=5)
+
+        events = [
+            json.loads(line.removeprefix("data: "))
+            for line in response.text.splitlines()
+            if line.startswith("data: ")
+        ]
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("text/event-stream")
+        assert events[-1]["event_type"] == "failure"
+        assert events[-1]["payload"]["error_type"] == (
+            "ChatProviderResponseTooLarge"
+        )
+        assert not any(
+            event["event_type"] in {"answer_delta", "completion"}
+            for event in events
+        )
+        assert sentinel not in response.text
+        search = client.get("/search", params={"query": sentinel, "budget": 5})
+        assert search.status_code == 200
+        assert search.json()["candidates"] == []
+
     def test_system_prompt_includes_context_and_instruction(self):
         prompt = _seam_chat_system_prompt("[clm:1] Alice prefers dark mode")
         assert "SEAM" in prompt

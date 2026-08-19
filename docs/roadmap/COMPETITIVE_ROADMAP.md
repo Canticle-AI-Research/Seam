@@ -5,35 +5,40 @@
 **Roadmap stream items:** `roadmap:track:M` and sub-items.
 
 Priority order: what must exist first for anything downstream to matter.
-Each item states what it unblocks. Nothing ships to users until P0 is validated.
+Each item states what it unblocks. No new competitive positioning or benchmark-
+based market claim ships until P0 is validated; existing releases are not P0
+evidence.
 
-## Positioning (2026-07-18)
+## Positioning evidence (2026-07-18 snapshot; reconciled 2026-08-18)
 
-**Every memory provider on the market is vector-only.** Mem0, Zep, MemMachine,
-Mnemosyne — all of them embed text, store vectors, and retrieve by semantic
-similarity. That is their entire retrieval story.
+This section preserves the July harness results as dated evidence, not as a
+current market inventory or a universal superiority claim. Several memory
+systems combine vector retrieval with graph, temporal, or other signals, and
+the configurations below were not all matched on extraction, retrieval depth,
+provider version, cost, or latency.
 
-**SEAM is the only hybrid retrieval memory system.** Four independent scoring
-channels — lexical, semantic, graph, and temporal — fused into one ranked
-result. A vector match alone doesn't win; the system cross-checks against
-keyword overlap, graph relationships, and temporal ordering. This is why SEAM
-outperforms every competitor in head-to-head benchmarks: the other side only
-has one channel.
+SEAM implements a versioned hybrid retrieval path over lexical, semantic,
+graph, and temporal signals with provenance traces. Current LoCoMo, WANDR, and
+G7/R6 evidence does not show graph-caused competitive lift. The governing claim
+boundary and required matched causal portfolio are recorded in
+`../audits/2026-08-18-graph-benchmark-readiness-research.md`.
 
-### The competitive field
+### Historical field notes (not a matched comparison)
 
-| Provider | Retrieval | Extraction | Storage | Published LoCoMo |
+| Provider | Retrieval note at the snapshot | Extraction | Storage | Reported or observed LoCoMo |
 |---|---|---|---|---|
 | **Mem0** | Vector (semantic-only, LLM-ranked) | Paid LLM per message | Cloud (Qdrant/Weaviate) | ~66.9% paper / ~62% independent |
 | **Zep** | Vector + graph edges | Paid LLM | Cloud (Zep) | No public LoCoMo; in-harness 0.5249 |
 | **MemMachine** | Vector (semantic-only) | LLM extraction | Cloud | ~91.6% (own methodology, not comparable) |
 | **Mnemosyne** | Vector (semantic-only) | None (raw text) | Local SQLite | Not published |
-| **SEAM** | **Hybrid** (lexical + semantic + graph + temporal) | **Local MIRL** (no LLM) | **Local SQLite** | **88.1%** (mem0-harness, same judge) |
+| **SEAM** | **Hybrid** (lexical + semantic + graph + temporal) | **Local MIRL** (no LLM) | **Local SQLite** | **88.1% historical internal run** (mem0 harness; unmatched retrieval depth) |
 
-### Head-to-head evidence
+### Historical harness evidence
 
-In SEAM's own harness (judge/1, gpt-4o-mini answerer + judge held constant across
-all adapters, same 344 holdout cases):
+In SEAM's own harness, the answerer, judge, and 344 holdout cases were held
+constant across adapters. Retrieval budgets and the systems' extraction and
+service paths were not fully matched, so this is a dated system result rather
+than R3-tier causal or efficiency evidence:
 
 | System | Aggregate | Cat1 Multi-hop | Cat2 Temporal | Cat3 Open-domain | Cat4 Single-hop |
 |---|---|---|---|---|---|
@@ -48,29 +53,34 @@ In Mem0's own harness (lenient binary judge, gpt-4o-mini, top-200):
 | Mem0 (arXiv:2504.19413 Table 1) | 51.15% | 72.93% | — |
 | **SEAM** | **88.7%** | **86.5%** | **88.1%** (333/378) |
 
-SEAM leads both (open-domain +13.6 pts, multi-hop +37.6 pts). The earlier
+SEAM's result is numerically higher on both displayed metrics (open-domain
++13.6 points, multi-hop +37.6 points). The earlier
 reading of this table — "matches on theirs, multi-hop -2.7 pts" — was derived
 from a 91.3% Mem0 multi-hop figure that is not in the paper; see
 `../kb/memory-systems/mem0.md`. Qualification: SEAM ran top_k=200 against the
-paper's 10, so this is budget-matched (~1.3x tokens), not depth-matched. No
-other local-first system has published comparable numbers. No vector-only
-system has SEAM's retrieval architecture.
+paper's 10, so the result is not retrieval-depth matched. It establishes the
+historical SEAM result under that configuration, not universal, graph-specific,
+or efficiency superiority over Mem0 or the wider market.
 
-### Positioning statement
+### Working product thesis, not a benchmark conclusion
 
-**SEAM is the higher-grade, more efficient standard for agent memory.** The
-positioning is not "a Mem0 alternative." It is "what memory should be" —
-hybrid retrieval, local-first, zero per-turn extraction cost, full provenance.
-Every framework adapter reinforces this: one line of code swaps a vector-only
-backend for SEAM's hybrid retrieval graph.
+SEAM aims to differentiate through local-first canonical memory, hybrid
+retrieval, and inspectable provenance. Whether that architecture is more
+accurate or efficient than a named alternative must be established at the
+exact tested scope with matched quality, latency, token, cost, and storage
+evidence. Framework adapters expose the architecture; they do not prove the
+competitive claim.
 
 ---
 
 ## P0 — Standard Benchmark Integration (BLOCKS EVERYTHING)
 
-The whole benchmark suite exists to run the actual LoCoMo, LongMemEval, and BEAM
-evaluations — not as a replacement for them. Internal benchmarks validate engineering
-correctness. Standard benchmarks validate competitive position. These are different things.
+The benchmark suite exists to run standard evaluations, not replace them with
+internal fixtures. LoCoMo, LongMemEval, and BEAM remain memory-quality and
+scale lanes. Graph claims additionally require native conformance,
+GraphRAG-Bench, STaRK, Memora/FAMA, LongMemEval-V2, and MemoryArena under the
+2026-08-18 causal contract. Internal benchmarks validate engineering
+correctness; matched standard benchmarks qualify a scoped competitive claim.
 
 ### P0.1 — Wire SEAM into mem0's open-source benchmark harness
 
@@ -80,15 +90,18 @@ SEAM's retrieval interface must accept a query string and return ranked memory r
 the format the harness scores against.
 
 **Why first:** Every other priority — marketing, integrations, MCP registry, migration
-tools — depends on having a public number. Without a LoCoMo score run on the standard
-harness, SEAM has no credible way to enter the conversation. Mem0's paper (arXiv
+tools — depends on having a reproducible public comparison. Without matched,
+sealed benchmark evidence, SEAM has no credible way to enter the conversation. Mem0's paper (arXiv
 2504.19413) reports LoCoMo LLM-as-judge ≈ 66.9% (mem0-graph ~+2%), judged by gpt-4o-mini;
 independent re-evals land ~62%. Zep publishes temporal scores. MemMachine publishes 0.9169
-under its own methodology. SEAM publishes nothing comparable yet. **Vendor numbers are NOT
-apples-to-apples** (different answerer/judge/categories); the only defensible target is
-mem0 run through SEAM's own harness with the answerer + judge held constant (see
-`benchmarks/external/locomo/adapters/mem0.py` + the shared answerer wrapper). The "91.6"
-this doc previously cited for mem0 was wrong — likely conflated with MemMachine's 0.9169.
+under its own methodology. SEAM's historical runs above are not a fully matched
+competitive publication. **Vendor numbers are NOT apples-to-apples** (different
+answerer/judge/categories); one defensible lane is Mem0 run through SEAM's own
+harness with the answerer, judge, cases, retrieval/context budgets, and scorer
+held constant (see `benchmarks/external/locomo/adapters/mem0.py` + the shared
+answerer wrapper). The broader graph claim additionally requires the causal
+portfolio in the 2026-08-18 graph-readiness report. The "91.6" this doc
+previously cited for mem0 was wrong — likely conflated with MemMachine's 0.9169.
 
 **Engineering prerequisite check:**
 - [ ] Can `seam.recall(query)` return ranked results with scores right now?
@@ -106,14 +119,15 @@ temporal) and LongMemEval (5 categories: information extraction, multi-session r
 temporal reasoning, knowledge updates, abstention). Published with full methodology: which
 embedding model, which LLM judge, which retrieval mode, exact SEAM version hash.
 
-**Differentiator to include:** Attach SEAM provenance trace to every benchmark answer. No
-other system does this. The trace shows: raw input → MIRL record → retrieval path → answer
-derivation. Even if the score is lower than mem0's, provenance-traced answers are a
-fundamentally stronger claim.
+**Differentiator to include:** Attach a SEAM provenance trace to every benchmark
+answer: raw input → MIRL record → retrieval path → selected answer evidence.
+That makes the result more inspectable; it does not by itself make the score
+better or establish that no competitor offers comparable tracing.
 
 ### P0.2 — Run LoCoMo
 
-**Dataset:** 1,540 questions, 50 long-term chat histories, 4 categories.
+**Dataset:** the pinned 10-conversation corpus loads 1,542 answerable cases
+(the four primary categories plus two answer-bearing category-5 rows).
 **Scoring:** LLM-as-a-Judge (match mem0's methodology for direct comparison).
 **Publish:** Per-category breakdown. Do not aggregate into a single number without showing
 the components.
@@ -133,7 +147,7 @@ the components.
 **Why separately:** LongMemEval tests knowledge updates and abstention, which LoCoMo does
 not. If a user says "I moved to Berlin" after previously saying "I live in Tokyo," the
 system must return Berlin and suppress Tokyo. This is where mem0's ADD/UPDATE/DELETE
-pipeline was specifically designed to win.
+pipeline is specifically designed to handle update/delete workloads.
 
 **SEAM's angle:** MIRL records with timestamps and provenance should handle this by
 returning the most recent assertion with full lineage. If SEAM doesn't currently have an
@@ -189,7 +203,8 @@ best-available guess.
 
 ## P2 — Ship the Product Surface
 
-Only after P0 numbers exist and P1 gaps are addressed.
+Treat this as new market-distribution work after P0 evidence and P1 gaps are
+addressed. Existing product artifacts do not retroactively qualify P0.
 
 ### P2.1 — pip install seam-memory
 
@@ -204,11 +219,12 @@ result = seam.recall("What are my editor preferences?")
 MIRL compilation, retrieval mode selection, and compression happen silently. Power features
 behind `seam[advanced]` extras.
 
-### P2.2 — seam serve (MCP server on registry)
+### P2.2 — `seam mcp stdio` (MCP server on registry)
 
-`seam serve` starts MCP on stdio or HTTP. One command. Registers on the MCP registry for
-discoverability. This makes SEAM work with Claude Code, Codex, Gemini CLI, OpenClaw,
-Hermes, and every other MCP-speaking agent.
+`seam mcp stdio` / `seam-mcp` starts the standards-compliant MCP JSON-RPC
+server over stdio; `seam mcp serve` is the legacy JSON-lines bridge and
+`seam serve` is the REST/WebUI server. Registry publication and each named
+client remain separate compatibility and distribution proofs.
 
 ### P2.3 — seam trace (provenance as a feature)
 
@@ -320,15 +336,16 @@ pitch — the kind of adoption driver that spreads through word of mouth.
 
 **Method:** Custom memory plugin implementing OpenClaw's memory backend interface.
 
-**Pitch:** *"Six memory plugins exist. None of them are provenance-traced or
-locally compiled. Make SEAM the seventh — and the benchmarked best."*
+**Pitch:** *"Add SEAM as a provenance-traced, locally compiled memory option and
+benchmark every plugin under the same workload."*
 
 **Why fourth:** OpenClaw already has 6 memory plugins in its registry. Each one
 is a direct competitive comparison point — SEAM can be benchmarked against every
 existing plugin on the same workloads. OpenClaw's plugin architecture means a
 SEAM backend is a drop-in that every OpenClaw user can try with zero code
-changes. The benchmark-verified positioning (88.1% on the mem0-harness)
-translates directly to a plugin listing.
+changes. The historical 88.1% mem0-harness result does not transfer to this
+plugin comparison; a listing must use a fresh matched run over the declared
+plugin workload and disclose quality, latency, token, cost, and storage bounds.
 
 **Adoption signal:** OpenClaw's memory plugin ecosystem is the densest
 concentration of memory-system users. A SEAM plugin there is a direct
@@ -361,10 +378,10 @@ value yet.
 
 ### P4.1 — Enterprise provenance for regulated industries
 
-Healthcare, legal, financial services need audit trails on AI memory. SEAM's provenance
-chain is literally a compliance feature. Target: teams building AI agents in
-HIPAA/SOC2/GDPR environments who need to prove what their agent "remembers" and where it
-came from.
+Healthcare, legal, and financial-service teams often need audit trails on AI
+memory. SEAM's provenance chain can support that auditability, but it is not by
+itself evidence of HIPAA, SOC 2, GDPR, or product-level compliance. Any regulated
+positioning requires a separate legal, security, deployment, and controls review.
 
 ### P4.2 — Paid support tier
 
@@ -396,6 +413,7 @@ a recurring revenue hook.
 
 | Date | Decision | Reason |
 |------|----------|--------|
+| 2026-08-18 | LoCoMo is a memory-quality lane, not sufficient graph-performance evidence | Current LoCoMo graph/non-graph arms are tied and graph-inert. Scoped top-level graph claims require the matched causal portfolio, sealed per-case and efficiency evidence, and independent reproduction defined by the graph-readiness report. |
 | 2026-05-20 | Standard benchmarks (LoCoMo/LongMemEval/BEAM) are P0 | Internal benchmarks validate engineering. Standard benchmarks validate competitive position. Without public numbers on the same suites competitors use, SEAM cannot credibly enter the market. |
 | 2026-05-20 | Engineering fixes sequenced AFTER benchmark runs, not before | Don't pre-optimize for problems you haven't measured. Let the benchmarks reveal the real gaps. |
 | 2026-05-20 | Product surface (pip, MCP, imports) is P2, not P1 | Shipping a product that can't demonstrate competitive performance creates a first impression you can't undo. Numbers first, then distribution. |

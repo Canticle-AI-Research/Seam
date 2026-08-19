@@ -4,12 +4,14 @@
 **Activated:** 2026-08-01 via `HISTORY#511`
 **Latest evidence:** S5 is published through PR #199 at `main@19b3a76`,
 qualified by `HISTORY#532` and published by `HISTORY#533`; S4 remains recorded
-by `HISTORY#530` and `HISTORY#531`
+by `HISTORY#530` and `HISTORY#531`. Later S1 deterministic-SQL-tie and S5
+soft-delete/outbox-replay counterexamples are repaired on the 2026-08-18 audit
+candidate and must land with fresh regression evidence before S6 begins.
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** S0-S5 are merged; S6 is the next stage and must be
-built on `main@19b3a76` (S5's published head) or a later protected head
-rather than stacked on an unmerged base
+**Publication boundary:** S0-S5 are merged; the audit-candidate S1/S5 repairs
+are the next publication prerequisite. S6 then begins from the later protected
+head, not from an unmerged base.
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
 It converts the verified F1-F22 findings below into one dependency-ordered
@@ -66,7 +68,15 @@ core-storage/1-to-/2 plus KG/5-to-/6 transitions on that merged S3 base.
 
 These are audit verdicts, not severity labels and not completion claims.
 
-## Authoritative F1-F22 verdict matrix
+## Authoritative F1-F22 activation-time verdict matrix
+
+This matrix freezes what was verified when the campaign was activated; it is
+not the current defect list. The stage status sections below supersede its
+future-tense repair language. Current resolution at the 2026-08-18 audit:
+S0-S5 are published; S3 closed F1, S4 closed F10/F11, S5 closed the original
+F7/F14 conditions, and S2/F17 is published. Later S1/F2-class deterministic-tie
+and S5/F7-class soft-delete replay counterexamples are repaired on the audit
+candidate and must be requalified before S6.
 
 | Finding | Verdict | Verified production boundary | Owning stage(s) |
 | --- | --- | --- | --- |
@@ -116,8 +126,8 @@ S0 through S9 ---------------------------> S10
 
 ## S0 - Canonical baseline
 
-**Status:** locally qualified on 2026-08-01 via `HISTORY#513`; protected-main
-merge evidence remains a repository/PR event, not an additional S0 defect fix.
+**Status:** published through PR #190 at `main@778de2c`; local qualification is
+recorded by `HISTORY#513`.
 
 **Purpose:** establish one clean replacement baseline, preserve the reviewed
 semantic integration, and exclude source-branch contamination before defect
@@ -140,9 +150,13 @@ repair begins.
 
 ## S1 - Immediate fail-closed guardrails
 
-**Status:** locally qualified on 2026-08-01 via `HISTORY#520`; doctor dependency
-policy corrected via `HISTORY#524`. Protected-main CI and merge remain the
-publication boundary.
+**Status:** published through PR #191 at `main@ebbf2f3`; local qualification is
+recorded by `HISTORY#520`, with the doctor dependency-policy correction in
+`HISTORY#524`. The 2026-08-12 full audit's F-11 found a later counterexample
+to the tied-order exit clause: the SQL leg used mutable `updated_at` before
+record id. The 2026-08-18 candidate removes that tiebreak and must land with
+fresh evidence before S6. This is a Track-S F2-class invariant; it is not
+campaign finding F11, which S4 owns.
 
 **Purpose:** remove crash, nondeterminism, unsafe factory, scanner, version, and
 dependency hazards before introducing migrations.
@@ -166,9 +180,9 @@ dependency hazards before introducing migrations.
 
 ## S2 - Migration spine
 
-**Status:** locally requalified on 2026-08-02 via `HISTORY#526` after the
-post-S2 forward-migration audit finding. Protected-main CI and merge remain the
-publication boundary.
+**Status:** published through PR #193 at `main@6b7c22d`; local requalification
+after the post-S2 forward-migration audit finding is recorded by
+`HISTORY#526`.
 
 **Purpose:** add one central, transactional, recoverable schema/projection
 version spine before any durable layout changes.
@@ -293,7 +307,11 @@ canonical-state restoration.
 
 **Status:** published through PR #199 at `main@19b3a76`, after all eight
 required and advisory checks passed on the exact head. Every clause below has
-evidence. S6-S10 all depend on this stage directly or transitively.
+evidence from that qualification boundary. A later persist-failure →
+soft-delete → reopen counterexample showed that pending index intents could
+reindex a `deleted_soft` record. The 2026-08-18 audit candidate filters and
+acknowledges those intents; its merge and fresh regression evidence are a
+prerequisite for S6. S6-S10 all depend on this stage directly or transitively.
 
 **Purpose:** make derived-index updates process-durable and eliminate search-time
 connection/schema churn without changing answers.
@@ -426,7 +444,8 @@ and identity policy.
 
 ## S9 - Provider-free retrieval and semantic qualification
 
-**Purpose:** decide promotion with full-corpus, offline, attributable evidence;
+**Purpose:** decide local graph/scorer promotion with full-corpus, attributable
+evidence and qualify scoped graph-performance claims across more than LoCoMo;
 keep graph/scorer behavior default-off until semantic substrate qualifies.
 
 **Findings:** promotion boundary for F3, F5, F8, and F9.
@@ -445,6 +464,25 @@ keep graph/scorer behavior default-off until semantic substrate qualifies.
   hub concentration, cross-turn paths/motifs, and human-reviewed precision.
 - A fresh matched ablation shows attributable graph-only lift. If any graph
   substrate or lift gate fails, graph/scorer behavior remains default-off.
+- The claim-critical portfolio in
+  `docs/audits/2026-08-18-graph-benchmark-readiness-research.md` is executed:
+  native graph conformance, GraphRAG-Bench, STaRK, Memora/FAMA,
+  LongMemEval-V2, and MemoryArena. BEAM-1M is the required companion scale lane
+  before broader top-level-memory wording. LoCoMo remains a memory-quality
+  floor, not the sole graph benchmark.
+- Each applicable corpus runs matched K0-K6 or R0-R4 causal arms with the same
+  source records, model/reader/judge, prompts, cases/splits, retrieval and
+  answer-facing budgets, seeds, timeouts, and evaluator. Unavailable or
+  unauthorized provider-backed comparators are `NOT_RUN`, never zero or
+  silently omitted.
+- The sealed bundle retains per-case retrieved evidence, graph paths and
+  provenance, graph-incremental cases, latency, peak memory, storage size,
+  provider calls, tokens/cost, failures, code/data/config hashes, paired deltas,
+  and uncertainty. Aggregate score movement alone cannot pass S9.
+- The internally controlled evidence reaches R3 matched-causal scope under the
+  report's knowledge-graph and reasoning-graph admission rules. Public
+  “top-level” wording remains prohibited until an unaffiliated reproduction
+  reaches R4 for the exact central claim; R4 confirms only that frozen scope.
 
 ## S10 - Required CI and release gates
 
