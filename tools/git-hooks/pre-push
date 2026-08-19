@@ -115,12 +115,24 @@ done
 # The primary worktree is deliberately exempt: uncommitted work there is
 # ordinary in-progress editing, and a hook that refuses that gets bypassed.
 DIRTY_WORKTREES=""
-PRIMARY_WT=$(git rev-parse --path-format=absolute --show-toplevel 2>/dev/null || echo "$REPO_ROOT")
+# `git worktree list` always reports the primary worktree first. Do not use
+# `git rev-parse --show-toplevel` here: when a push starts from a linked
+# worktree that resolves the current linked checkout and incorrectly subjects
+# the intentionally exempt primary checkout to the linked-worktree gate.
+PRIMARY_WT=$(git worktree list --porcelain 2>/dev/null \
+  | sed -n 's/^worktree //p' \
+  | sed -n '1p')
+PRIMARY_WT=${PRIMARY_WT:-$REPO_ROOT}
 while read -r WT_PATH; do
   [ -n "$WT_PATH" ] || continue
   [ "$WT_PATH" = "$PRIMARY_WT" ] && continue
   [ -d "$WT_PATH" ] || continue
-  WT_DIRTY=$(git -C "$WT_PATH" status --porcelain 2>/dev/null | grep -c . || true)
+  # Git exports GIT_DIR/GIT_WORK_TREE while invoking hooks. If those values
+  # leak into `git -C <sibling>`, -C changes only cwd while Git still inspects
+  # the caller's worktree, producing a large false dirty count. Resolve each
+  # linked checkout from its own .git file instead.
+  WT_DIRTY=$(env -u GIT_DIR -u GIT_WORK_TREE \
+    git -C "$WT_PATH" status --porcelain 2>/dev/null | grep -c . || true)
   if [ "${WT_DIRTY:-0}" -gt 0 ]; then
     DIRTY_WORKTREES="${DIRTY_WORKTREES}  ${WT_PATH} (${WT_DIRTY} uncommitted file(s))
 "

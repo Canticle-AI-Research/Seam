@@ -226,8 +226,10 @@ Open `http://127.0.0.1:8765/` in a browser, or:
 seam webui
 ```
 
-Provider keys for dashboard chat stay operator-owned. Set them in the Web UI Settings
-panel or export them in your shell — never commit or ingest `.env` files.
+Provider keys for dashboard chat stay operator-owned. Export them in the launch
+environment. The TUI can also read `~/.config/seam/seam.env` with mode 0600;
+the server/WebUI does not load that file automatically. Do not enter
+credentials in the prototype WebUI; never commit or ingest environment files.
 
 Temporary OpenRouter session example:
 

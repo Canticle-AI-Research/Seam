@@ -39,6 +39,8 @@ status.
 
 ## Recorded audits
 
+- `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`
+- `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`
 - `docs/audits/2026-05-31-cat4-single-hop-attribution.md`
 - `docs/audits/2026-06-01-semantic-recovery-policy-experiment.md`
 - `docs/audits/2026-06-01-paid-locomo-slice-validation.md`
@@ -47,3 +49,9 @@ status.
 ## Hard rule
 
 No paid benchmark run — including small smokes — without explicit operator approval.
+
+Current LoCoMo, WANDR, and G7/R6 results do not establish graph-caused
+competitive lift. “Top-level graph” wording requires matched causal arms beyond
+LoCoMo, per-case evidence and efficiency disclosure, and independent
+reproduction under the evidence tiers proposed in the 2026-08-18 graph
+readiness report.

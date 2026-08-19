@@ -67,8 +67,11 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     unreachable, kept as deprecated dead code because its 28 test usages are
     the only coverage of several dashboard behaviours. Removal is deferred.
 - Dashboard installers: `seam-dash` shim (Windows `.cmd` + POSIX).
-- Browser dashboard served by the REST server: `seam serve` / `seam webui`. The
-  static `dashboard.html` IDE shell is the shipped working UI. Its knowledge
+- Browser dashboard served by the REST server: `seam serve` / `seam webui`.
+  The static `dashboard.html` IDE shell is a shipped prototype, not an
+  operator beta. It mixes live API data with browser-local simulations,
+  credentials in `localStorage`, mock fallback data, and actions that report
+  success without backend acknowledgement. Its knowledge
   graph keeps **Topology** available and adds **Constellation** as an alternate
   presentation of the same canonical payload: the selected node is the north
   star, deterministic breadth-first distance sets the rings, and only real
@@ -91,11 +94,21 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Active / open direction
 
+- The operator's newer TUI version was not found in active worktrees, the
+  installed entrypoint, `AppDir/`, or `squashfs-root/` during the 2026-08-18
+  audit. Integration waits for its source path/archive. The current TUI still
+  needs the target scope, Recall preview, Review, Curate, Health, and Settings
+  workflow slices, plus provider-host and response-allocation policies shared
+  with REST.
 - The served browser surface is the self-contained
   `seam_runtime/webui/dashboard.html`. The former Vite/React source is archived
   at `archive/webui-vite-source/` and is not an active rewrite or source of
   runtime truth. Any future modular browser build must be re-established as a
   new verified source path rather than resumed implicitly from the archive.
+- Before restyling the WebUI, remove credential persistence and simulated
+  success, require backend acknowledgements, label unavailable/demo states
+  explicitly, and add browser truthfulness tests. Only then capture fresh
+  desktop/mobile renders for operator approval.
 - Track S S6 must bind every authenticated data operation to a principal and
   add an idempotent opaque deletion/retention contract without leaking tenant,
   MIRL, policy, or graph internals through `/v1`.

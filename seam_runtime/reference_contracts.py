@@ -31,6 +31,10 @@ class CanonicalReferenceIntegrityError(RuntimeError):
     """A referenced canonical row violates the closed MIRL kind contract."""
 
 
+class CanonicalRecordAlreadyExistsError(CanonicalReferenceIntegrityError):
+    """A create-only persistence request collides with a canonical record."""
+
+
 class CanonicalReferenceMetadataError(CanonicalReferenceIntegrityError):
     """Reserved record-level reference metadata violates its closed shape."""
 

@@ -18,6 +18,7 @@ from typing import Any
 from .installer import default_runtime_db_path
 from .jspace import JLensUnavailable, JLensWorker, jlens_worker_from_env, workspace_capabilities
 from .mirl import IRBatch
+from .reference_contracts import CanonicalRecordAlreadyExistsError
 from .runtime import SeamRuntime
 from .workspace import WORKSPACE_EVENT_TYPES, content_fingerprint, spread_graph_activation, sse_frame
 
@@ -197,6 +198,46 @@ def _max_body_bytes_from_env() -> int:
         return max(0, int(raw))
     except ValueError:
         return 5000000
+
+
+_DEFAULT_CHAT_MAX_RESPONSE_BYTES = 5_000_000
+
+
+class ChatProviderResponseTooLarge(RuntimeError):
+    """A chat provider response exceeded the configured allocation bound."""
+
+
+def _chat_max_response_bytes_from_env() -> int:
+    raw = os.environ.get("SEAM_CHAT_MAX_RESPONSE_BYTES") or str(
+        _DEFAULT_CHAT_MAX_RESPONSE_BYTES
+    )
+    try:
+        return max(1, int(raw))
+    except ValueError:
+        return _DEFAULT_CHAT_MAX_RESPONSE_BYTES
+
+
+def _read_chat_provider_response(response: Any) -> bytes:
+    """Read one provider body without allowing unbounded buffering."""
+
+    max_bytes = _chat_max_response_bytes_from_env()
+    content_length = response.headers.get("Content-Length")
+    if content_length is not None:
+        try:
+            if int(content_length) > max_bytes:
+                raise ChatProviderResponseTooLarge(
+                    f"chat provider response exceeds {max_bytes} bytes"
+                )
+        except ValueError:
+            # A malformed header is not trusted as a bound; the capped read
+            # below remains authoritative.
+            pass
+    payload = response.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise ChatProviderResponseTooLarge(
+            f"chat provider response exceeds {max_bytes} bytes"
+        )
+    return payload
 
 
 def _cors_origins_from_env() -> list[str]:
@@ -515,7 +556,7 @@ def _call_chat_provider(
         headers = {"content-type": "application/json", "x-api-key": api_key, "anthropic-version": "2023-06-01"}
         req = urllib.request.Request(url, data=_json.dumps(body).encode("utf-8"), headers=headers, method="POST")
         with opener.open(req, timeout=timeout) as resp:
-            data = _json.loads(resp.read().decode("utf-8"))
+            data = _json.loads(_read_chat_provider_response(resp).decode("utf-8"))
         parts = data.get("content") or []
         return "".join(p.get("text", "") for p in parts if p.get("type") == "text") or "(empty response)"
     url = base + "/chat/completions"
@@ -523,7 +564,7 @@ def _call_chat_provider(
     headers = {"content-type": "application/json", "authorization": "Bearer " + api_key}
     req = urllib.request.Request(url, data=_json.dumps(body).encode("utf-8"), headers=headers, method="POST")
     with opener.open(req, timeout=timeout) as resp:
-        data = _json.loads(resp.read().decode("utf-8"))
+        data = _json.loads(_read_chat_provider_response(resp).decode("utf-8"))
     choices = data.get("choices") or []
     if choices:
         return choices[0].get("message", {}).get("content", "") or "(empty response)"
@@ -687,9 +728,15 @@ def create_app(
         LOGGER.error("Request failed: %s", type(exc).__name__)
         return JSONResponse({"detail": "Internal server error"}, status_code=500)
 
-    @app.api_route(
+    @app.head(
         "/health",
-        methods=["GET", "HEAD"],
+        operation_id="health_health_head",
+        summary="Health",
+        dependencies=[Depends(rate_limit_only)],
+    )
+    @app.get(
+        "/health",
+        summary="Health",
         dependencies=[Depends(rate_limit_only)],
     )
     def health() -> Any:
@@ -697,9 +744,15 @@ def create_app(
             return JSONResponse({"status": "degraded"}, status_code=503)
         return {"status": "ok"}
 
-    @app.api_route(
+    @app.head(
         "/v1/health",
-        methods=["GET", "HEAD"],
+        operation_id="public_health_v1_health_head",
+        summary="Public Health",
+        dependencies=[Depends(rate_limit_only)],
+    )
+    @app.get(
+        "/v1/health",
+        summary="Public Health",
         dependencies=[Depends(rate_limit_only)],
     )
     def public_health() -> Any:
@@ -1101,12 +1154,22 @@ def create_app(
         )
         return result.to_dict(include_machine_text=bool(payload.get("include_machine_text", False)))
 
-    @app.post("/persist", summary="Persist MIRL records from JSON", dependencies=[Depends(guard)])
+    @app.post(
+        "/persist",
+        summary="Create MIRL records from JSON; existing IDs return 409",
+        dependencies=[Depends(guard)],
+    )
     def persist(payload: dict[str, object]) -> dict[str, object]:
         records = payload.get("records")
         if not isinstance(records, list):
             raise HTTPException(status_code=400, detail="records list is required")
-        return runtime.persist_ir(IRBatch.from_json(records)).to_dict()
+        try:
+            return runtime.persist_ir(
+                IRBatch.from_json(records),
+                reject_existing_ids=True,
+            ).to_dict()
+        except CanonicalRecordAlreadyExistsError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     @app.post("/chat", summary="Retrieve memory context, then call the chat model", dependencies=[Depends(guard)])
     def chat(payload: dict[str, object]) -> dict[str, object]:
@@ -1193,7 +1256,7 @@ def create_app(
             if is_loopback:
                 raise HTTPException(status_code=502, detail=f"provider error {exc.code}")
             try:
-                detail = exc.read().decode("utf-8")[:400]
+                detail = exc.read(401).decode("utf-8")[:400]
             except Exception:
                 detail = str(exc)
             raise HTTPException(status_code=502, detail=f"provider error {exc.code}: {detail}")

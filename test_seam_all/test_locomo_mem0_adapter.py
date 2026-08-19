@@ -251,10 +251,18 @@ def test_answer_retrieval_latency_populated() -> None:
     assert answer.answer_latency_ms == 0.0
 
 
-def test_close_cleans_temp_dir() -> None:
-    """When constructed via stub, close is a no-op (no store_dir)."""
+def test_close_cleans_temp_dir(tmp_path) -> None:
+    """Comparator cleanup removes its real temporary store directory."""
+
     adapter = _build_adapter()
-    adapter.close()  # Should not raise
+    store_dir = tmp_path / "mem0-store"
+    store_dir.mkdir()
+    (store_dir / "state.bin").write_bytes(b"test-state")
+    adapter._store_dir = str(store_dir)
+
+    adapter.close()
+
+    assert not store_dir.exists()
 
 
 # -- Runner integration -------------------------------------------------

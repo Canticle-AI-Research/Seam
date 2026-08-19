@@ -284,15 +284,16 @@ Canonical facts remain in their existing documents.
 The structural continuity gates pass, but several current-facing statements
 are semantically stale:
 
-- `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md:5-10` calls S4 the latest
-  evidence and directs S6 to start from `main@ea4e46e`, while
-  `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md:290-294` records S5 as published
-  at `main@19b3a76` and as a dependency of every later stage. Following the
-  header literally could start S6 from a stale base that omits S5.
-- `PROJECT_STATUS.md:20-23`, `PROJECT_STATUS.md:175-183`, and
-  `docs/status/operations.md:96-99` say the S6 tenancy decision is unwritten and
-  `/v1` has zero HTTP tests. The in-process optional-principal decision is
-  recorded at `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md:336-338`; HTTP
+- At this report's pinned `main@2f4af74`, the then-current
+  `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md` header called S4 the latest
+  evidence and directed S6 to start from `main@ea4e46e`, while its S5 section
+  recorded S5 as published at `main@19b3a76` and as a dependency of every later
+  stage. Following that historical header literally could have started S6 from
+  a stale base that omitted S5; the active campaign has since been corrected.
+- At that same pinned revision, the then-current `PROJECT_STATUS.md` and
+  `docs/status/operations.md` said the S6 tenancy decision was unwritten and
+  `/v1` had zero HTTP tests. The in-process optional-principal decision is now
+  recorded at `docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md:356-363`; HTTP
   characterization coverage is documented at
   `tests/audit/test_public_api_v1_http.py:1-12`, including the deliberately
   insecure one-token cross-namespace case at

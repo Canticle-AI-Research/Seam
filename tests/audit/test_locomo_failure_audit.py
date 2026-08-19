@@ -5,10 +5,13 @@ import os
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from benchmarks.external.locomo.audit import (
     _classify,
     _context_format_kind,
     run_audit,
+    run_context_replay,
     write_markdown,
 )
 
@@ -97,6 +100,35 @@ def _write_result_json(result: dict) -> str:
     with open(path, "w") as f:
         json.dump(result, f)
     return path
+
+
+def test_context_replay_closes_its_owned_adapter(monkeypatch, tmp_path):
+    """Audit replay deterministically releases its temporary runtime root."""
+
+    from benchmarks.external.locomo.adapters import seam as seam_adapter_module
+
+    closed: list[bool] = []
+
+    class _Adapter:
+        def __init__(self, *, answerer):
+            assert answerer is None
+
+        def close(self):
+            closed.append(True)
+
+    monkeypatch.setattr(seam_adapter_module, "SeamLocomoAdapter", _Adapter)
+    result_path = tmp_path / "result.json"
+    result_path.write_text(json.dumps({"cases": []}), encoding="utf-8")
+    dataset_path = tmp_path / "dataset.json"
+    dataset_path.write_text("[]", encoding="utf-8")
+
+    assert run_context_replay(str(result_path), str(dataset_path)) == []
+    with pytest.raises(FileNotFoundError):
+        run_context_replay(
+            str(tmp_path / "missing-result.json"),
+            str(dataset_path),
+        )
+    assert closed == [True, True]
 
 
 # ---------------------------------------------------------------------------

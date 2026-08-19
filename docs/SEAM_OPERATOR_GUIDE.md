@@ -257,6 +257,22 @@ seam serve --host 127.0.0.1 --port 8765
 seam webui
 ```
 
+The browser dashboard is currently a local prototype with simulated actions
+and browser-local state. Do not enter provider credentials or treat its
+save/restart/benchmark/command success messages as backend acknowledgement.
+Export server credentials in the launch environment; the server does not load
+`~/.config/seam/seam.env` automatically.
+
+If the operator intentionally maintains shell-safe assignments in that file,
+source it before launching the server:
+
+```bash
+set -a
+. ~/.config/seam/seam.env
+set +a
+seam webui --host 127.0.0.1 --port 8765
+```
+
 ### MCP stdio bridge (Cursor, Claude Desktop, other MCP clients)
 
 ```bash

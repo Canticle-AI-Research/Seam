@@ -123,9 +123,11 @@ Rules:
 - Do not expose, print, copy, delete, or summarize secrets.
 - Do not ingest secrets, `.env` files, credential files, private keys, provider
   session links, ignored local artifacts, or private chat/share links.
-- API keys, local `.env` files, and local `.conf` files are operator-owned.
-  The operator can set them in the SEAM Web UI Settings panel or maintain them
-  manually in ignored local config files.
+- API keys and local environment files are operator-owned. Export server/WebUI
+  variables in their launch environment. The TUI can additionally read
+  `~/.config/seam/seam.env` (mode 0600); the server does not load that file
+  automatically. Do not enter credentials in the prototype WebUI; its browser
+  storage is not an approved secret store.
 - Prefer project installers and documented commands over ad hoc setup.
 - Do not install `bench-judge`, `bench-mem0`, or `bench-zep` unless the operator
   explicitly approves provider/API-key benchmark dependencies.
@@ -144,13 +146,12 @@ Steps:
 4. Verify the install:
    `seam doctor`
 5. Ask the operator to set any needed provider keys and local config before
-   enabling paid/provider-backed features:
-   - Web UI path: run `seam webui`, open Settings, enter provider keys,
-     `SEAM_CHAT_API_KEY`, `SEAM_CHAT_BASE_URL`, `SEAM_CHAT_MODEL`,
-     `SEAM_PGVECTOR_DSN`, `SEAM_API_TOKEN`, or `SEAM_LOCAL_ENV` as needed, then
-     save the local env from the Settings panel.
-   - Manual path: create or edit ignored local `.env` or `.conf` files, export
-     the needed variables in the shell, and never commit or ingest those files.
+   enabling paid/provider-backed features. Export the variables in the current
+   shell. For the TUI, `~/.config/seam/seam.env` with mode 0600 is also
+   supported. The server and WebUI do not load it: if the operator chooses to
+   use that shell-safe file, source it explicitly with
+   `set -a; . ~/.config/seam/seam.env; set +a` before launch. Never commit or
+   ingest the file. Do not use the prototype WebUI Settings panel for secrets.
 6. Re-run:
    `seam doctor`
 7. Ingest safe repo context as persistent memory:
@@ -178,7 +179,7 @@ Steps:
    - install path used
    - optional extras installed
    - whether `seam doctor` passed
-   - whether API keys/local config were set in Web UI Settings or manually
+   - whether API keys/local config were set in the shell or operator env file
    - whether memory search/context returned useful repo context
    - whether the write-then-read smoke test round-tripped correctly
    - whether MCP was configured and its tool list verified, or only CLI
@@ -202,17 +203,27 @@ seam dashboard --snapshot --no-clear
 Inside the dashboard, use `reload` or `/reload` to refresh the visible runtime
 state, metrics, panels, and chart surfaces without restarting.
 
-To configure API keys and local runtime settings without editing files by hand,
-run the browser Web UI and open Settings:
+The browser WebUI is a prototype for local inspection. It currently contains
+simulated actions and browser-local state; do not enter provider credentials or
+treat its Settings save/restart controls as runtime acknowledgement:
 
 ```bash
 seam webui --host 127.0.0.1 --port 8765
 ```
 
-Settings covers provider keys, chat/API settings, embedding settings, database
-paths, pgvector DSNs, `SEAM_LOCAL_ENV`, REST API tokens, and save/reload local
-env controls. Operators can also maintain ignored local `.env` or `.conf` files
-manually; those files must not be committed or ingested as memory.
+Export provider keys, chat/API settings, pgvector DSNs, and REST tokens in the
+server/WebUI launch environment. The TUI may also read
+`~/.config/seam/seam.env` (mode 0600), but the server does not load it
+automatically. That file is operator-owned and must not be committed or
+ingested as memory. To deliberately reuse its shell-safe assignments for a
+server process, source it before launch:
+
+```bash
+set -a
+. ~/.config/seam/seam.env
+set +a
+seam webui --host 127.0.0.1 --port 8765
+```
 
 ## Why SEAM
 
@@ -222,7 +233,9 @@ manually; those files must not be committed or ingested as memory.
 - Agent bridge: `seam mcp stdio` / `seam-mcp` exposes a standard MCP server for Gemini, Claude, Cursor, and other agents. Gemini's project config starts it with `--ensure-pgvector` so Docker Compose pgvector is ready before MCP tool discovery. `seam mcp serve` remains available for legacy JSON-lines wrappers.
 - Provenance: records keep refs, evidence, trace edges, and source document status.
 - Benchmark discipline: benchmark bundles are hash-verified, diffed, gated, and separated from holdout publication runs.
-- Operator surface: CLI, Textual dashboard, REST API, and installer shims all use the same runtime.
+- Operator surface: CLI, Textual dashboard, REST API, and installer shims use
+  the runtime. The prototype WebUI is not yet part of the same-behavior
+  guarantee.
 
 ## Core Commands
 
@@ -372,7 +385,7 @@ Useful endpoints:
 - `GET /search?query=durable+memory&budget=5`
 - `POST /context`
 - `POST /lossless-compress`
-- `POST /persist`
+- `POST /persist` (create-only; an existing canonical ID returns 409)
 
 Set `SEAM_API_TOKEN` to require `Authorization: Bearer <local-token>` for
 protected endpoints.

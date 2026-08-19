@@ -178,12 +178,21 @@ fail with `HTTP 429`, rate-limit, quota, or billing errors.
 
 ### Fix
 
-Set or rotate the provider API key in one of two operator-owned places:
+Set or rotate the provider API key in an operator-owned location: export it in
+the launch environment. The TUI can also read
+`~/.config/seam/seam.env` with mode 0600; the server/WebUI does not load that
+file automatically. Do not enter credentials in the prototype WebUI. Never
+commit or ingest environment files.
 
-- Web UI: run `seam webui`, open Settings, set the provider key or
-  `SEAM_CHAT_API_KEY`, and save the local env.
-- Manual: export the needed key in the current shell or edit an ignored local
-  `.env`/`.conf` file. Never commit or ingest those files.
+If the operator intentionally keeps shell-safe assignments in that file,
+source it explicitly before starting a server command:
+
+```bash
+set -a
+. ~/.config/seam/seam.env
+set +a
+seam webui --host 127.0.0.1 --port 8765
+```
 
 If the key is valid, check provider quota, billing, model access, and request
 rate. Paid benchmark dependencies such as `bench-judge`, `bench-mem0`, and
@@ -191,13 +200,8 @@ rate. Paid benchmark dependencies such as `bench-judge`, `bench-mem0`, and
 
 ### Verify
 
-Re-run the failed command after the operator confirms provider access. For chat
-or API setup, run:
-
-```bash
-seam doctor
-seam webui --host 127.0.0.1 --port 8765
-```
+After the operator confirms provider access, run `seam doctor`, then repeat the
+command that originally failed.
 
 ## Do-Not-Proceed Blockers
 

@@ -203,6 +203,7 @@ from .reasoning_promotion import (
     review_reasoning_promotion as review_reasoning_promotion_row,
 )
 from .reference_contracts import (
+    CanonicalRecordAlreadyExistsError,
     CanonicalReferenceIntegrityError,
     reference_candidate_ids,
     remap_record_references,
@@ -984,6 +985,7 @@ class SQLiteStore:
         *,
         reconcile_entities: bool = True,
         preserve_node_vectors: bool = False,
+        reject_existing_ids: bool = False,
     ) -> list[str]:
         """Persist canonical MIRL and its graph projection in one transaction."""
 
@@ -1007,6 +1009,15 @@ class SQLiteStore:
             connection.execute("begin immediate")
         incoming_kinds = {record.id: record.kind for record in batch.records}
         stored_incoming_kinds = stored_reference_kinds(connection, incoming_kinds)
+        if reject_existing_ids and stored_incoming_kinds:
+            # The REST surface is create-only. Perform this check only after
+            # BEGIN IMMEDIATE so another process cannot insert a colliding id
+            # between the check and the canonical write. Do not include ids in
+            # the exception: callers need the conflict class, not store
+            # membership disclosure.
+            raise CanonicalRecordAlreadyExistsError(
+                "one or more canonical record ids already exist"
+            )
         if any(
             stored_kind is not incoming_kinds[record_id]
             for record_id, stored_kind in stored_incoming_kinds.items()
@@ -1195,20 +1206,27 @@ class SQLiteStore:
         *,
         _preserve_node_vectors: bool = False,
         _enqueue_vector_outbox: bool = False,
+        _reject_existing_ids: bool = False,
     ) -> PersistReport:
         with self._pool.checkout() as connection:
-            stored_ids = self._persist_ir_on_connection(
-                connection,
-                batch,
-                preserve_node_vectors=_preserve_node_vectors,
-            )
-            outbox_entry_ids: list[int] = []
-            if _enqueue_vector_outbox:
-                # Same connection, same transaction, same commit as the
-                # canonical rows. Enqueuing after the commit would reintroduce
-                # exactly the window this exists to close.
-                outbox_entry_ids = enqueue_index_intents(connection, stored_ids)
-            connection.commit()
+            try:
+                stored_ids = self._persist_ir_on_connection(
+                    connection,
+                    batch,
+                    preserve_node_vectors=_preserve_node_vectors,
+                    reject_existing_ids=_reject_existing_ids,
+                )
+                outbox_entry_ids: list[int] = []
+                if _enqueue_vector_outbox:
+                    # Same connection, same transaction, same commit as the
+                    # canonical rows. Enqueuing after the commit would
+                    # reintroduce exactly the window this exists to close.
+                    outbox_entry_ids = enqueue_index_intents(connection, stored_ids)
+                connection.commit()
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
         return PersistReport(
             stored_ids=stored_ids,
             store_path=self.path,

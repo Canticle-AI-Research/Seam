@@ -599,5 +599,26 @@ def test_spreading_activation_is_bounded_deterministic_and_provenance_preserving
         {"node_id": "c", "activation": 0.2592, "hop": 2, "from_node_id": "b", "via_edge_id": "edge:bc"},
     ]
     assert spread_graph_activation(graph, ["a"], limit=2) == activated[:2]
+    assert spread_graph_activation(
+        {
+            "edges": [
+                {
+                    "id": "edge:zero",
+                    "source": "a",
+                    "target": "blocked",
+                    "confidence": 0.0,
+                }
+            ]
+        },
+        ["a"],
+    ) == [
+        {
+            "node_id": "a",
+            "activation": 1.0,
+            "hop": 0,
+            "from_node_id": None,
+            "via_edge_id": None,
+        }
+    ]
     with pytest.raises(ValueError, match="decay"):
         spread_graph_activation(graph, ["a"], decay=0.0)

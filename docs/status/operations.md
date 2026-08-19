@@ -96,14 +96,25 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   DDL was also why warm retrieval kept opening connections despite the pool.
   Divergence (missing/stale/orphan) is detected and repaired on all three
   backends, with Chroma gaining the inspection methods it lacked.
+- The 2026-08-18 audit found a later S5 counterexample: a pending index intent
+  could survive a soft delete and reindex the deleted record on reopen. The
+  audit candidate filters canonical `deleted_soft` records during replay and
+  acknowledges their stale intents; this is not protected-main fact until its
+  PR merges.
 - S6 (principal tenancy and opaque deletion) is the next stage and is unstarted.
   The termination decision is recorded (2026-08-05, HISTORY#538): tenancy
   terminates in-process with an optional principal. `/v1` still has no tenancy
   binding, and carries 35 HTTP-level tests.
+- Hosted beta remains beyond the current repository boundary. TLS, a shared
+  limiter, service supervision, external secret injection, backup/restore,
+  upgrade/rollback, and disaster-recovery evidence require a tested deployment
+  reference after S6 rather than inference from package-release smoke tests.
 - The live pgvector lane is exercised locally by exporting `PGVECTOR_TEST_DSN`
   from the running `seam-pgvector` container (`SEAM_PGVECTOR_DSN`, port 55432).
-  Without it, 4 external cases skip; with it the full suite was 2382 passed,
-  0 skipped, 2 xfailed at the 2026-08-12 audit run.
+  Service-gated cases are marked `external`: run them against the live service
+  or explicitly deselect the external marker for the non-external lane; they
+  must not silently skip. Historical evidence: with the service live, the
+  2026-08-12 audit run was 2382 passed, 0 skipped, 2 xfailed.
 - The history advisory lock now resolves through a linked worktree's
   `gitdir:` pointer, so `python -m tools.history.new_entry` no longer leaves an
   untracked `HISTORY_INDEX.md.lock` inside a worktree's working tree where

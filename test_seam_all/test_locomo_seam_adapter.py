@@ -4,6 +4,16 @@ from benchmarks.external.common.types import ConversationTurn
 from benchmarks.external.locomo.adapters.seam import SeamLocomoAdapter
 
 
+def test_default_database_root_is_disposable() -> None:
+    adapter = SeamLocomoAdapter()
+    db_root = adapter._db_root
+
+    assert db_root.is_dir()
+    adapter.close()
+
+    assert not db_root.exists()
+
+
 def test_ingest_and_answer(tmp_path) -> None:
     """Ingest turns with different facts, then answer a question about one fact."""
     db_path = str(tmp_path / "test.db")

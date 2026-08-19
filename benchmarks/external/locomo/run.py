@@ -461,7 +461,11 @@ def main() -> None:
         "--db-path",
         type=str,
         default=None,
-        help="(seam adapter) Directory for per-scope SQLite databases. Default: test_seam/locomo. Use with --keep-db to isolate a benchmark slice from other DBs.",
+        help=(
+            "(seam adapter) Directory for per-scope SQLite databases. "
+            "Default: a disposable temporary directory, or test_seam/locomo "
+            "with --keep-db."
+        ),
     )
     parser.add_argument(
         "--semantic-recovery-mode",

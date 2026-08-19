@@ -23,6 +23,12 @@ from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.models import HashEmbeddingModel
 from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
 from seam_runtime.retrieval_orchestrator import adapters as adapter_module
+from seam_runtime.retrieval_orchestrator.adapters import SQLiteIRAdapter
+from seam_runtime.retrieval_orchestrator.types import (
+    QueryFilters,
+    QueryIntent,
+    RetrievalPlan,
+)
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.vector_adapters import SQLiteVectorAdapter
 
@@ -201,5 +207,34 @@ def test_repeated_quiet_requests_are_bit_identical(tmp_path) -> None:
             for _ in range(4)
         }
         assert len(digests) == 1, digests
+    finally:
+        runtime.close()
+
+
+def test_sql_truncation_ties_ignore_mutable_update_timestamps(tmp_path) -> None:
+    """Metadata-only rewrites cannot change equal-score candidate membership."""
+
+    path = tmp_path / "sql-tiebreak.db"
+    runtime = _runtime(path)
+    try:
+        records = [_record(f"clm:{suffix}") for suffix in ("a", "b", "c", "z")]
+        runtime.persist_ir(IRBatch(records))
+        plan = RetrievalPlan(
+            query="compilers",
+            normalized_query="compilers",
+            intent=QueryIntent.HYBRID,
+            filters=QueryFilters(namespace="work", scope="thread"),
+            legs=[],
+        )
+        adapter = SQLiteIRAdapter(runtime.store)
+        before = [hit.record.id for hit in adapter.search(plan, limit=2)]
+
+        rewritten = _record("clm:z")
+        rewritten.updated_at = "2999-01-01T00:00:00+00:00"
+        runtime.persist_ir(IRBatch([rewritten]))
+        after = [hit.record.id for hit in adapter.search(plan, limit=2)]
+
+        assert before == ["clm:a", "clm:b"]
+        assert after == before
     finally:
         runtime.close()

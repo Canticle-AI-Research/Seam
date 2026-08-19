@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 633
+total_events: 636
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-11T15:32:11Z | history:377:761edaec | session-event | done | benchmark, locomo, audit, judge, retrieval, quality | docs/audits/2026-07-11-cat13-private-offline-adjudication.md, PROJECT_STATUS.md |
-| 2026-07-11T17:17:35Z | history:378:f77e4b36 | session-event | done | handoff, protocol, continuity, multi-agent, ci, docs, ver... | docs/handoffs/INDEX.md,docs/handoffs/2026-07-11-cat1-cat3-success-contract-ha... |
-| 2026-07-11T17:18:09Z | history:379:4c759d1c | session-event | changed | history, handoff, bugfix, continuity, verify | docs/handoffs/INDEX.md,docs/handoffs/2026-07-11-cat1-cat3-success-contract-ha... |
 | 2026-07-11T18:01:34Z | history:380:8b3fadc7 | session-event | changed | ci, handoff, bugfix, protocol, verify, tests, history | .github/workflows/ci.yml,tests/audit/test_ci_verify_gates.py,PR#141 |
 | 2026-07-11T22:58:00Z | history:381:e34c302b | session-event | in-progress | benchmark, locomo, retrieval, answerer, quality, handoff,... | docs/handoffs/2026-07-11-cat13-semantic-conversation-adapter-in-progress.md,.... |
 | 2026-07-12T00:03:58Z | history:382:32666036 | session-event | done | benchmark, locomo, retrieval, prompt, quality, handoff, c... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-17T11:53:16Z | history:568:4ae87616 | session-event | done | verify, status, worktree, docs, continuity, test | HISTORY#567,docs/status/workspace.md,tests/audit/test_wiki_navigation.py,tool... |
 | 2026-08-17T11:58:12Z | history:569:68651609 | session-event | changed | status, worktree, reconcile, audit, docs, continuity | docs/status/workspace.md,REPO_LEDGER.md,HISTORY#568 |
 | 2026-08-17T12:11:09Z | history:570:78018fef | session-event | changed | correction, audit, history, status, reconcile, verify | HISTORY#566,HISTORY#568,HISTORY#569,docs/status/workspace.md,PR#220 |
+| 2026-08-19T04:06:43Z | history:571:ead7bf1e | session-event | done | audit, benchmark, bugfix, graph, harden, operator, persis... | HISTORY#570,PROJECT_STATUS.md,REPO_LEDGER.md,docs/audits/2026-08-18-track-s-d... |
+| 2026-08-19T04:11:06Z | history:572:0b3a3ad6 | session-event | done | bugfix, git-hooks, test, verify, worktree | HISTORY#571,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py |
+| 2026-08-19T04:13:50Z | history:573:3744fd57 | session-event | changed | bugfix, correction, git-hooks, verify, worktree | HISTORY#572,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py,doc... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0433.cross.md | 2026-04-15T00:00:00Z..2026-07-11T11:00:41Z | 433 | (multi) | (multi) |
+| 0001-0436.cross.md | 2026-04-15T00:00:00Z..2026-07-11T17:18:09Z | 436 | (multi) | (multi) |

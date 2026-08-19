@@ -7,6 +7,7 @@ within the same push -- not just a diff of tip trees, which would miss it.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -265,12 +266,72 @@ def test_pre_push_hook_refuses_legacy_public_remote() -> None:
 
 def test_pre_push_hook_allows_private_origin() -> None:
     hook = REPO / "tools" / "git-hooks" / "pre-push"
+    env = os.environ.copy()
+    # This test owns the remote-boundary assertion. Worktree dirtiness is an
+    # independent pre-push contract with its own tests and must not make this
+    # result depend on an operator's unrelated in-progress checkout.
+    env["SEAM_ALLOW_DIRTY_WORKTREES"] = "1"
     result = subprocess.run(
         ["bash", str(hook), "origin", "https://github.com/BlackhatShiftey/Seam"],
         cwd=REPO,
+        env=env,
         input="",
         capture_output=True,
         text=True,
         check=False,
     )
     assert result.returncode == 0
+
+
+def test_pre_push_hook_exempts_real_primary_from_a_linked_worktree(
+    throwaway_repo: Path,
+    tmp_path: Path,
+) -> None:
+    """The primary exemption must not change with the caller's current cwd."""
+
+    _commit(throwaway_repo, {"README.md": "primary\n"}, "primary state")
+    linked = tmp_path / "linked"
+    _git(throwaway_repo, "worktree", "add", "-q", "-b", "linked-test", str(linked))
+    (throwaway_repo / "operator-wip.txt").write_text("preserve me\n")
+
+    hook = REPO / "tools" / "git-hooks" / "pre-push"
+    result = subprocess.run(
+        ["bash", str(hook), "origin", "https://github.com/example/private"],
+        cwd=linked,
+        input="",
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+
+
+def test_pre_push_hook_clears_hook_git_env_for_sibling_worktrees(
+    throwaway_repo: Path,
+    tmp_path: Path,
+) -> None:
+    """A clean sibling stays clean under Git's exported hook environment."""
+
+    _commit(throwaway_repo, {"README.md": "primary\n"}, "primary state")
+    caller = tmp_path / "caller"
+    sibling = tmp_path / "sibling"
+    _git(throwaway_repo, "worktree", "add", "-q", "-b", "caller-test", str(caller))
+    _git(throwaway_repo, "worktree", "add", "-q", "-b", "sibling-test", str(sibling))
+    _commit(caller, {"caller-only.txt": "committed\n"}, "diverge caller")
+
+    env = os.environ.copy()
+    env["GIT_DIR"] = _git(caller, "rev-parse", "--absolute-git-dir")
+    env["GIT_WORK_TREE"] = str(caller)
+    hook = REPO / "tools" / "git-hooks" / "pre-push"
+    result = subprocess.run(
+        ["bash", str(hook), "origin", "https://github.com/example/private"],
+        cwd=caller,
+        env=env,
+        input="",
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr

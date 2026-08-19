@@ -91,10 +91,12 @@ standalone Provenance tab is removed — keeping both would duplicate
 `#prov-query` and fail the mount on duplicate ids.
 
 ### S2a — Every command carries a description, and the menu is organized
+(landed, HISTORY#541)
 
-Measured: **104 of the 153 catalog commands have no description** — all 66 CLI
-commands, all 27 REST routes, and 11 of 21 SDK methods. Only the dashboard
-verbs (a hand-maintained dict) and the MCP tools (real metadata) are covered.
+All 153 catalog entries now carry source-owned descriptions, and the palette
+is organized by task with Run and Reference sections. The prose below records
+the pre-landing design rationale; its missing-description count is historical,
+not current state.
 
 The descriptions belong **at the source, not in the TUI**. `commands.py`
 derives from each surface's own metadata on purpose; an empty description is
@@ -117,7 +119,12 @@ together.
 A test asserting every catalog entry has a non-empty summary is the gate that
 keeps the next added command from arriving undescribed.
 
-### S2b — Input modes, navigation, palette hardening
+### S2b — Input modes, navigation, palette hardening (landed, HISTORY#542)
+
+The three sigil modes, keyboard tab navigation, visible `tab <name>` command,
+and palette-race repair are landed. The remainder of this section preserves the
+pre-landing interaction and security rationale; imperative defect language
+below is historical, not open work.
 
 Three sigils set the mode, matching what the superseded dashboard did
 (`dashboard.py:1175-1195`) so muscle memory survives:

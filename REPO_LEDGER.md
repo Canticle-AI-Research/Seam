@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-07-30
+Last updated: 2026-08-18
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -277,7 +277,8 @@ and `HISTORY_INDEX.md`.
   second truth store.
 - G6 lifecycle is append-only audit around canonical MIRL, not hard deletion of
   truth. A scoped delete validates every target against one namespace/scope,
-  requires exact tenant authorization, marks canonical rows `deleted_soft`,
+  requires exact caller-supplied internal boundary ownership, marks canonical
+  rows `deleted_soft`,
   retains prior content for audit, and removes only disposable graph/vector/
   projection rows. Cross-store vector cleanup uses a committed
   `cleanup_pending` outbox: external failure remains recoverable and caller-owned
@@ -287,6 +288,10 @@ and `HISTORY_INDEX.md`.
   progress, and resumes after interruption without duplicating canonical rows.
   Raw batch text is digest-bound in a tenant-authorized transient table and
   purged on completion; it is never copied into append-only lifecycle JSON.
+  A pending vector-index intent never outranks later canonical lifecycle truth:
+  replay acknowledges intents for missing or `deleted_soft` records without
+  indexing them. This internal tenant-id/prefix validation is not authenticated
+  principal binding; Track S S6 supplies that authorization boundary.
 - Assertion trust is evidence-gated and fail-closed. Claim/relation/event/state
   records enter `/chat` and `/chat/stream` asserted memory only when current and
   `supported` or `verified` inside the requested namespace and scope. Model or
@@ -344,6 +349,14 @@ and `HISTORY_INDEX.md`.
   results. Native/event-only comparisons use identical context and result
   budgets; the current corrected provider-free result is parity, not an
   incremental graph-value claim.
+  LoCoMo remains a memory-quality and regression floor; by itself it cannot
+  establish graph-caused lift or top-level graph/reasoning performance. Public
+  top-level claims require the matched causal arms, fixed budgets, per-case
+  evidence, quality/latency/cost accounting, and R3 admission across the
+  multi-benchmark portfolio defined in
+  `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`, followed by
+  one independent R4 reproduction. Vendor or paper scores remain attributed
+  context until reproduced under that contract.
   See `docs/REASONING_GRAPH.md`.
 - Cross-leg retrieval fusion uses the fixed, versioned
   `reciprocal-rank-fusion/2` contract. Each SQL, record-vector, graph-node,
@@ -636,12 +649,25 @@ and `HISTORY_INDEX.md`.
 - Protected endpoints require `Authorization: Bearer <token>` when `SEAM_API_TOKEN` is set; leave that variable unset only for trusted local development.
 - `/health` is unauthenticated for local service checks but still participates in the same rate limiter.
 - Rate limiting is configured by `SEAM_API_RATE_LIMIT_PER_MINUTE` or `SEAM_API_RATE_LIMIT`; `0` or unset disables the limiter.
-- Local browser dashboard origins `http://127.0.0.1:5173` and `http://localhost:5173` are allowed by default through CORS so the Vite WebUI can call the API during development. Override with `SEAM_API_CORS_ORIGINS` as a comma-separated list, or set it to `0`, `false`, `off`, or `none` to disable CORS.
+- Legacy/custom local development origins `http://127.0.0.1:5173` and
+  `http://localhost:5173` remain allowed by default through CORS. The active
+  bundled WebUI is same-origin; the old Vite source is archived. Override with
+  `SEAM_API_CORS_ORIGINS`, or set it to `0`, `false`, `off`, or `none`
+  to disable CORS.
 - API handlers must use existing `SeamRuntime` behavior and public report `to_dict()` methods rather than inventing parallel response fields.
 - POST/PUT/PATCH bodies are bounded by `SEAM_API_MAX_BODY_BYTES` (default `5000000`; `0` disables). Oversized requests return HTTP 413 before endpoint handlers run.
+- Private REST `POST /persist` is create-only at the HTTP boundary. It checks
+  canonical id collisions while holding the SQLite write lock and returns a
+  content-free HTTP 409 without changing the existing row. Direct
+  `SeamRuntime` and store persistence remain deliberate internal upsert paths.
 - Authenticated REST servers refuse non-loopback binds such as `0.0.0.0` unless the operator intentionally sets `SEAM_API_ALLOW_INSECURE_REMOTE=1` or places the API behind a TLS terminator. Bearer-token deployments should prefer loopback plus TLS reverse proxy for remote access.
 - The built-in rate limiter is process-local. If `SEAM_API_RATE_LIMIT_PER_MINUTE` is enabled, `seam serve --workers` greater than 1 is refused unless `SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT=1` is set after an external shared limiter is in front. `SEAM_API_RATE_LIMIT_MAX_KEYS` bounds tracked client keys.
 - The `/chat` endpoint's outbound provider call is SSRF-guarded by a host allowlist: the caller-supplied `base_url` host must be a built-in provider (`_BUILTIN_CHAT_HOSTS`) or loopback (local Ollama); arbitrary hosts are rejected. Operators permit additional custom/self-hosted providers via `SEAM_CHAT_ALLOWED_HOSTS` (comma-separated) — an operator-set knob, never caller-set. The allowlist closes DNS-rebinding by construction; a resolved-IP range check (private/link-local/reserved/multicast/unspecified rejected, loopback exempt) is kept as defense-in-depth, and the outbound opener refuses 3xx redirects so a validated host cannot bounce to an internal address.
+- Buffered `/chat` provider responses are bounded by
+  `SEAM_CHAT_MAX_RESPONSE_BYTES` (default `5000000`). Declared oversized
+  bodies refuse before reading; undeclared or malformed-length bodies are read
+  through the same hard allocation cap. A rejected response is never compiled
+  or persisted.
 - Process-environment chat credentials are bound one-to-one to their built-in
   provider hosts. A request cannot select another variable name, custom hosts
   require an explicit caller-owned key, and validated loopback targets never
@@ -650,6 +676,11 @@ and `HISTORY_INDEX.md`.
   development; automatic first-launch token provisioning is a separate
   authentication/UX policy boundary and is not implied by the credential-
   forwarding fix.
+- Operator surfaces must distinguish live, unavailable, and demo data. Browser-
+  local timers, random metrics, mock records, or fake command results must never
+  be presented as successful runtime actions, and provider credentials must not
+  be persisted in browser `localStorage`. Truthful backend acknowledgement and
+  explicit error states precede beta or production-readiness claims.
 
 ## Benchmark Publication Policy
 
@@ -657,6 +688,12 @@ Holographic Surface claims must report `surface_exact_rate`, payload hash match
 rate, direct query exactness, stored surface lookup, stored surface query after
 original-output deletion, repair success, repair query exactness, and the PNG
 mode (`bw1`, `rgb`/`rgb24`, explicit `rgba32`, or explicit `rgba64`).
+
+Graph or reasoning-pattern superiority claims must also satisfy the R3 matched-
+causal portfolio and independent R4 reproduction gate in
+`docs/audits/2026-08-18-graph-benchmark-readiness-research.md`. LoCoMo-only,
+implementation-conformance, saturated-parity, and provider-free placeholder
+results must stay scoped to those narrower claims.
 
 Published benchmark statements must include:
 

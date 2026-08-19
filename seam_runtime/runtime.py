@@ -31,6 +31,7 @@ from .mirl import (
     RecordKind,
     SearchCandidate,
     SearchResult,
+    Status,
     TraceGraph,
     VerifyReport,
 )
@@ -288,7 +289,12 @@ class SeamRuntime:
     def normalize_ir(self, ir_batch: IRBatch) -> IRBatch:
         return IRBatch(sorted(ir_batch.records, key=lambda record: record.id))
 
-    def persist_ir(self, ir_batch: IRBatch) -> PersistReport:
+    def persist_ir(
+        self,
+        ir_batch: IRBatch,
+        *,
+        reject_existing_ids: bool = False,
+    ) -> PersistReport:
         """Persist one write and its vector compensation as one runtime section.
 
         SQLite protects each canonical transaction, while a configured vector
@@ -298,9 +304,17 @@ class SeamRuntime:
         """
 
         with self._persist_projection_lock:
-            return self._persist_ir_locked(ir_batch)
+            return self._persist_ir_locked(
+                ir_batch,
+                reject_existing_ids=reject_existing_ids,
+            )
 
-    def _persist_ir_locked(self, ir_batch: IRBatch) -> PersistReport:
+    def _persist_ir_locked(
+        self,
+        ir_batch: IRBatch,
+        *,
+        reject_existing_ids: bool = False,
+    ) -> PersistReport:
         """Validate and persist MIRL, then refresh vector and node projections.
 
         This is a strict write path: invalid MIRL raises before storage, and
@@ -321,6 +335,7 @@ class SeamRuntime:
             # The intent to index commits with the records themselves, so a
             # crash before indexing leaves durable evidence that it is owed.
             _enqueue_vector_outbox=True,
+            _reject_existing_ids=reject_existing_ids,
         )
         persisted = self.store.load_ir(ids=persist_report.stored_ids)
         vector_error_type: str | None = None
@@ -473,9 +488,14 @@ class SeamRuntime:
                 # Records the intent named but canonical no longer holds were
                 # rolled back or deleted after the intent was written. There is
                 # nothing to index, so the intent is settled rather than stuck.
-                if batch.records:
-                    self.vector_adapter.index_records(batch.records)
-                    summary["reindexed"] += len(batch.records)
+                live_records = [
+                    record
+                    for record in batch.records
+                    if record.status is not Status.DELETED_SOFT
+                ]
+                if live_records:
+                    self.vector_adapter.index_records(live_records)
+                    summary["reindexed"] += len(live_records)
                 self.store.acknowledge_vector_outbox(entry_ids)
                 summary["acknowledged"] += len(entry_ids)
             except Exception as exc:
