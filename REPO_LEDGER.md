@@ -120,11 +120,21 @@ and `HISTORY_INDEX.md`.
   `seam-runtime` 1.3.1 (yanked, deliberately retained as a rollback point).
   Removing the in-tree tooling does not unpublish them; it means no further
   releases of them are produced from this repository.
+- GitHub Issues are the coordination intake, not a replacement for SEAM's
+  status/history authorities. Blank issues are disabled. Structured forms own
+  bugs, features, research/benchmark tasks, and private-runtime release
+  proposals; sensitive security findings route to private advisories. Issue
+  closure, labels, and milestones do not by themselves prove implementation,
+  qualification, publication, or deployment.
 - `.github/workflows/package-release.yml` is RETAINED and is the only remaining
-  release path: it builds the private `seam-runtime` package, scans wheel and
-  sdist, smoke-tests the installed commands, and creates a private GitHub
-  Release. It has no PyPI target or publish job. Private 2.4.0 is live as GitHub
-  release `v2.4.0`, pinned to protected-main merge
+  release path: serialized manual dispatch is restricted to the default branch
+  and an exact new SemVer already present in `pyproject.toml`; it builds exactly
+  one private `seam-runtime` wheel and sdist, rejects unsafe members and
+  secret-shaped packaged content, smoke-tests the installed commands, emits and
+  verifies `SHA256SUMS.txt`, and creates an immutable private GitHub Release
+  with categorized generated notes. It has no PyPI target, publish job, or
+  `id-token` permission. Private 2.4.0 is live as GitHub release `v2.4.0`,
+  pinned to protected-main merge
   `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist
   passed clean installation, SQLite, and live-pgvector API proofs.
 - The compiled `seam-self-host` distribution is RETIRED. Published 1.1.2 stays

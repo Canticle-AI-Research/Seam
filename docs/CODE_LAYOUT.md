@@ -104,12 +104,15 @@ not have to infer what works from directory names alone.
   of `LICENSE`. Change Date is four years per published version; Change License
   is MPL 2.0. Membership in the Distributed Runtime is decided by publication
   plus a conspicuous per-file notice, never by path.
-- `tools/release/` - secret and reserved-material push gate only.
-  `verify_public_safe.py` inspects every object newly reachable by a push and
-  blocks secret-shaped content and private paths; `public_manifest.py` supplies
-  the path classification it depends on. This gate exists because a `seam.db`
-  snapshot once leaked into another repository's history (HISTORY#344) and is
-  retained for that reason alone, independent of any distribution split.
+- `tools/release/` - release-boundary verification. `verify_public_safe.py`
+  inspects every object newly reachable by a push and blocks secret-shaped
+  content and private paths; `public_manifest.py` supplies the path
+  classification it depends on. This gate exists because a `seam.db` snapshot
+  once leaked into another repository's history (HISTORY#344) and is retained
+  for that reason alone, independent of any distribution split.
+  `verify_private_artifacts.py` separately opens the built private wheel and
+  sdist, rejects unsafe/non-regular/credential-shaped members, and applies the
+  canonical content-free secret scanner before GitHub Release upload.
 - SINGLE PACKAGE. `seam-runtime` (root `pyproject.toml`) is the only package
   definition: the full private runtime with readable MIRL and HS/1 source, used
   to operate the hosted service. The separate compiled `seam-self-host`

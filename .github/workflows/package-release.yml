@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: private-package-release
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,6 +23,22 @@ jobs:
     steps:
       - name: Check out the selected commit
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify protected-main release boundary
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "${GITHUB_REF}" != "refs/heads/${DEFAULT_BRANCH}" ]]; then
+            echo "Package releases must be dispatched from ${DEFAULT_BRANCH}, not ${GITHUB_REF}." >&2
+            exit 1
+          fi
+          if git show-ref --verify --quiet "refs/tags/v${REQUESTED_VERSION}"; then
+            echo "Tag v${REQUESTED_VERSION} already exists; releases are immutable." >&2
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,12 +52,20 @@ jobs:
         run: |
           python - <<'PY'
           import os
+          import re
           import tomllib
           from pathlib import Path
 
           project_file = Path("pyproject.toml")
           version = tomllib.loads(project_file.read_text(encoding="utf-8"))["project"]["version"]
           requested = os.environ["REQUESTED_VERSION"].strip()
+          semver = re.compile(
+              r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
+              r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+              r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+          )
+          if not semver.fullmatch(requested):
+              raise SystemExit(f"requested version {requested!r} is not exact SemVer without a leading v")
           if version != requested:
               raise SystemExit(f"{project_file} version {version!r} does not match requested version {requested!r}")
           print(f"version={version}", file=open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"))
@@ -49,6 +77,9 @@ jobs:
           python -m build --wheel --sdist
           python -m twine check dist/*
 
+      - name: Verify private release artifacts
+        run: python -m tools.release.verify_private_artifacts dist/*
+
       - name: Smoke-test wheel
         run: |
           repo_root="$PWD"
@@ -58,6 +89,23 @@ jobs:
           seam --help
           seam-mcp --help
           seam-server --help
+
+      - name: Write artifact checksums
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          dist = Path("dist")
+          artifacts = sorted(
+              path for path in dist.iterdir()
+              if path.is_file() and path.name != "SHA256SUMS.txt"
+          )
+          if not artifacts:
+              raise SystemExit("no release artifacts found")
+          lines = [f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}" for path in artifacts]
+          (dist / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
 
       - name: Upload reviewed distributions
         uses: actions/upload-artifact@v4
@@ -80,6 +128,10 @@ jobs:
           name: python-distributions-${{ needs.build.outputs.version }}
           path: dist/
 
+      - name: Verify downloaded artifact checksums
+        working-directory: dist
+        run: sha256sum --check SHA256SUMS.txt
+
       - name: Create private GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -90,4 +142,5 @@ jobs:
             --repo "${GITHUB_REPOSITORY}" \
             --target "${COMMIT_SHA}" \
             --title "SEAM ${VERSION}" \
-            --notes "Private proprietary SEAM runtime release ${VERSION}."
+            --notes "Private proprietary SEAM runtime release ${VERSION}." \
+            --generate-notes

@@ -1,0 +1,67 @@
+name: Research or benchmark task
+description: Define a reproducible research question without overstating the evidence boundary.
+title: "[Research] "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Research question
+      description: State one falsifiable question or comparison.
+    validations:
+      required: true
+
+  - type: textarea
+    id: baseline
+    attributes:
+      label: Baseline and hypotheses
+      description: Name the matched baseline, hypotheses, and confounders that must be controlled.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+      description: Specify fixtures, commands, metrics, hashes, provenance, and holdout requirements.
+      placeholder: |
+        Dataset/fixture and hash:
+        Baseline command:
+        Candidate command:
+        Metrics and promotion threshold:
+        Holdout boundary:
+        Durable artifact destination:
+    validations:
+      required: true
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider-cost boundary
+      options:
+        - Provider-free only
+        - Paid provider may be proposed but requires explicit approval before execution
+        - Existing immutable paid artifact only; no new calls
+    validations:
+      required: true
+
+  - type: textarea
+    id: claims
+    attributes:
+      label: Allowed claim if successful
+      description: Write the narrowest claim the evidence could support and what it would still not prove.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Research checks
+      options:
+        - label: I will preserve commands, hashes, per-case evidence, dependency state, and the exact commit.
+          required: true
+        - label: I will not make paid calls without explicit operator approval.
+          required: true
+        - label: I will report null or negative results rather than silently changing the success criterion.
+          required: true

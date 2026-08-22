@@ -18893,3 +18893,43 @@ repeat the exact staged and candidate secret checks, then create and verify the
 signed commit, push the bounded branch, open its draft PR, and observe exact-head
 CI. S6 remains branch-local and S7 has not started.
 ---END-ENTRY-#576---
+
+---BEGIN-ENTRY-#577---
+id: 577
+date: 2026-08-22T11:32:21Z
+agent: codex
+status: done
+topics: ci, docs, gates, operator, registry, security, tests, verify
+commits: pending
+refs: HISTORY#576,.github/ISSUE_TEMPLATE,.github/workflows/package-release.yml,.github/release.yml,tools/release/verify_private_artifacts.py
+supersedes: 576
+tokens: 381
+---
+Established structured GitHub issue intake and a reproducible private-release
+management path on the isolated `chore/github-issues-releases` branch stacked
+above the exact S6 candidate head. Bug, feature, research/benchmark, and release
+forms now require bounded evidence and content-safety checks; blank issues are
+disabled and sensitive reports route to private security advisories. Issues
+remain coordination state rather than implementation, benchmark, publication,
+or deployment proof.
+
+The existing manual private package workflow now serializes dispatches, refuses
+non-default-branch or existing-tag release attempts, requires an exact SemVer
+already present in `pyproject.toml`, opens and scans exactly one built wheel and
+sdist for unsafe members and secret-shaped content, smoke-tests the installed
+commands, emits and re-verifies `SHA256SUMS.txt`, and creates an immutable
+private GitHub Release with categorized generated notes. It still has no PyPI
+target, publish job, or OIDC publication permission. A release checklist records
+the proposal, protected-main, evidence, asset, checksum, immutable-release, and
+post-publication history boundaries.
+
+Focused configuration and release tests passed 20 cases. Whole-file Ruff passed
+for the new Python verifier and tests. A real 2.4.0 wheel and sdist built outside
+the repository, passed the new archive verifier, and passed `twine check`; their
+temporary build products remained under `/tmp`, while generated build/egg-info
+directories were moved out of the worktree. The canonical wiki verifier and
+diff hygiene passed before closeout. No version bump, tag, release, deployment,
+paid provider call, GitHub issue/milestone mutation, or public artifact occurred.
+The S6 branch and primary research checkout remain untouched; this work must stay
+in its separate stacked PR until S6 merges and the PR can retarget to main.
+---END-ENTRY-#577---

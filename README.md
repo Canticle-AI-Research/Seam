@@ -467,21 +467,40 @@ The design stance is unchanged: SQLite is canonical, derived indexes are
 rebuildable, lossless claims require exact reconstruction, and compressed
 artifacts must remain useful to an agent without hiding provenance.
 
+## GitHub Issues and Work Tracking
+
+GitHub Issues are enabled for this private repository. New work enters through
+one of four structured forms under [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/):
+bug, feature, research/benchmark, or private-runtime release. Blank issues are
+disabled, and sensitive security reports route to a private security advisory.
+
+Issue state is coordination, not implementation evidence. Current operating
+truth remains in the status streams, chronology remains append-only in
+`HISTORY.md`, and a release issue does not authorize paid calls, publication,
+deployment, or a public artifact.
+
 ## Package Releases
 
 The manual **Package release** GitHub Actions workflow
 ([`.github/workflows/package-release.yml`](.github/workflows/package-release.yml))
-is `workflow_dispatch`-only and takes one input: the exact `version` already set
-in `pyproject.toml`. It has two jobs:
+is `workflow_dispatch`-only, serialized, and takes one input: the exact SemVer
+`version` already set in `pyproject.toml`. Dispatch must come from the default
+branch and the immutable `v<version>` tag must not already exist. It has two
+jobs:
 
 - **`build`** — verifies the requested version matches `pyproject.toml` and
-  fails otherwise, builds the wheel and sdist, runs `twine check`, smoke-tests
+  fails otherwise, builds exactly one wheel and one sdist, runs `twine check`,
+  rejects unsafe archive members or secret-shaped packaged content, smoke-tests
   the wheel by installing it with the `[server,pgvector]` extras alongside
-  `seam-client==2.0.0` and running `seam`, `seam-mcp`, and `seam-server`
-  `--help`, then uploads the distributions as a 7-day artifact.
+  `seam-client==2.0.0`, writes `SHA256SUMS.txt`, and uploads the reviewed set as
+  a 7-day artifact.
 - **`private-github-release`** — gated on the `private-package-release`
-  environment, downloads that artifact and runs `gh release create` against
-  **this private repository only**.
+  environment, downloads and checksum-verifies that artifact, then creates an
+  immutable GitHub Release against **this private repository only** with notes
+  generated through [`.github/release.yml`](.github/release.yml).
+
+Use the [private release checklist](.github/RELEASE_CHECKLIST.md) from proposal
+through post-publication verification.
 
 **There is no PyPI path.** The workflow has no publish job, no target selector,
 and no `id-token` permission, so it cannot publish to an index even by mistake.

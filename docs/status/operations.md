@@ -25,6 +25,15 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - `scripts/windows/launch_dashboard.bat` (wraps `launch_dashboard.ps1`).
 - `scripts/store_benchmark.ps1` archives benchmark runs with sequence+time folders,
   run index, and publication metadata/hashes.
+- GitHub Issues use structured bug, feature, research/benchmark, and private
+  release forms. Blank issues are disabled and sensitive findings route to a
+  private security advisory; issues coordinate work but do not supersede SEAM
+  status, history, handoff, or evidence authorities.
+- The serialized manual package-release workflow accepts only a new exact
+  SemVer from the default branch. It scans the built private wheel/sdist,
+  smoke-tests installed commands, emits and re-verifies `SHA256SUMS.txt`, and
+  creates an immutable private GitHub Release with categorized generated notes.
+  It has no PyPI target or OIDC publication permission.
 
 ## Track S operating state
 

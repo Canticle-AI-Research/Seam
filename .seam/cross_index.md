@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 639
+total_events: 640
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-12T05:39:56Z | history:383:6b2cac1d | session-event | done | benchmark, locomo, quality, retrieval, merge, verify, pai... | HISTORY.md,PROJECT_STATUS.md,HISTORY_INDEX.md |
 | 2026-07-12T21:22:48Z | history:384:096e1844 | session-event | done | benchmark, locomo, competitors, zep, mem0, paid-validatio... | benchmarks/external/locomo/run.py,benchmarks/external/locomo/adapters/zep.py,... |
 | 2026-07-13T03:25:35Z | history:385:4f2a7c73 | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, v... | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md |
 | 2026-07-13T23:21:38Z | history:386:1c619b66 | session-event | done | benchmark, locomo, retrieval, quality, command, tests, ha... | seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_loco... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-19T09:47:52Z | history:574:bbc227ed | session-event | in-progress | audit, continuity, handoff, harden, lifecycle, migration,... | HISTORY#573,docs/handoffs/2026-08-19-track-s-s6-in-progress.md,docs/audits/20... |
 | 2026-08-22T08:42:39Z | history:575:4278e8b9 | session-event | changed | audit, bugfix, continuity, handoff, harden, lifecycle, mi... | HISTORY#574,docs/handoffs/2026-08-22-track-s-s6-locally-qualified.md,docs/aud... |
 | 2026-08-22T08:47:54Z | history:576:9eb10e23 | session-event | changed | correction, audit, continuity, docs, verify | HISTORY#575,docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.... |
+| 2026-08-22T11:32:21Z | history:577:78bedf46 | session-event | done | ci, docs, gates, operator, registry, security, tests, verify | HISTORY#576,.github/ISSUE_TEMPLATE,.github/workflows/package-release.yml,.git... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0439.cross.md | 2026-04-15T00:00:00Z..2026-07-12T00:03:58Z | 439 | (multi) | (multi) |
+| 0001-0440.cross.md | 2026-04-15T00:00:00Z..2026-07-12T05:39:56Z | 440 | (multi) | (multi) |
