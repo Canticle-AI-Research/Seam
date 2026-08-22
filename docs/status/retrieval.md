@@ -6,10 +6,19 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Status: baseline measured, Track S promotion gates open
 
-The 2026-08-18 audit candidate repairs the SQL leg's mutable equal-score
-tiebreak and the deleted-record vector-outbox replay counterexample. Those are
-branch-local fixes until their PR merges; they do not complete S8 or S9. See
+PR #222 merged the SQL leg's deterministic equal-score tiebreak and the
+deleted-record vector-outbox replay repair at protected `main@a177852`. Those
+repairs do not complete S8 or S9. See
 `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`.
+
+The unpublished S6 candidate derives the internal recall/context boundary from
+an in-process principal and registers generation-bound opaque handles before
+responding.
+Its opaque delete path lifecycle-excludes an owned record immediately and
+leaves derived cleanup recoverable. That is candidate tenancy/deletion
+evidence, not S7 semantic-graph admission or S8 surface/retrieval-policy parity;
+local review and closeout are green, while signed publication, exact-head CI,
+and merge remain.
 
 One canonical engine remains the architectural invariant.
 `RetrievalOrchestrator` owns SQL, vector, graph, graph-node, and explicit
@@ -99,10 +108,15 @@ claim citing a missing PROV and a PROV naming no entity/activity/agent, and
 ## Methodology note
 
 Retrieval **mutates** the SQLite store **when retrieval-event writing is
-enabled**, as it is on the benchmark path. Under default flags it does not: a
-`retrieve()` leaves the database and WAL byte-identical (re-verified
-2026-08-02 — ingest, close, hash, reopen, retrieve, close, re-hash). The read
-path is pure by default; the benchmark path is not.
+enabled**, as it is on the benchmark path. Under default flags, direct
+`SeamRuntime.retrieve()` does not: it leaves the database and WAL byte-identical
+(re-verified 2026-08-02 — ingest, close, hash, reopen, retrieve, close,
+re-hash). The unpublished S6 principal-mode `/v1/memories/recall` and
+`/v1/context` routes are intentionally stateful even with event writing off:
+they register every returned generation-bound opaque handle before responding.
+Read-purity measurements must therefore use direct/non-principal retrieval or
+a fresh isolated store and must not hash a store after principal-mode recall as
+though no derived write occurred.
 
 The cloning rule therefore stands unchanged for measurement: A/B arms must each
 start from a clone of one pristine ingest-only snapshot

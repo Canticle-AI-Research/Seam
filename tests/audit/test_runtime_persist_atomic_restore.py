@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.retrieval_orchestrator import RetrievalOrchestrator
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.sdk import SeamSDK
@@ -1037,6 +1037,80 @@ def test_failed_record_index_preserves_indirect_provenance_node_vectors(
         runtime.close()
 
 
+def test_failed_reingest_restores_exact_public_memory_handle_rows(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "runtime-public-handle-restore.sqlite3"
+    model = _ToggleEmbeddingModel()
+    runtime = SeamRuntime(path, embedding_model=model)
+    tenant_id = "principal:" + ("a" * 64)
+    namespace = f"{tenant_id}.sdk.default"
+    handle_id = "mem_" + ("b" * 24)
+    original_generation = "c" * 64
+    replacement_generation = "d" * 64
+    subject = MIRLRecord(
+        id="ent:public-handle-restore-subject",
+        kind=RecordKind.ENT,
+        ns=namespace,
+        scope="thread",
+        attrs={"label": "Public handle restore subject", "entity_type": "test"},
+    )
+    original = MIRLRecord(
+        id="clm:public-handle-restore",
+        kind=RecordKind.CLM,
+        ns=namespace,
+        scope="thread",
+        status=Status.DELETED_SOFT,
+        attrs={
+            "subject": subject.id,
+            "predicate": "value",
+            "object": "Original public handle",
+        },
+        ext={"public_memory_generation": original_generation},
+    )
+    replacement = MIRLRecord.from_dict(original.to_dict())
+    replacement.status = Status.ASSERTED
+    replacement.attrs["object"] = "Replacement trigger failure"
+    replacement.ext["public_memory_generation"] = replacement_generation
+    try:
+        runtime.persist_ir(IRBatch([subject, original]))
+        runtime.store.register_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handles={handle_id: (original.id, original_generation)},
+        )
+        before_record = runtime.store.load_ir(ids=[original.id]).records[0].to_dict()
+        with sqlite3.connect(path) as connection:
+            before_handles = connection.execute(
+                "select * from public_memory_handle order by handle_id"
+            ).fetchall()
+
+        model.fail = True
+        with pytest.raises(
+            RuntimeError,
+            match="canonical and vector writes were restored",
+        ):
+            runtime.persist_ir(IRBatch([replacement]))
+
+        assert runtime.store.load_ir(ids=[original.id]).records[0].to_dict() == (
+            before_record
+        )
+        with sqlite3.connect(path) as connection:
+            after_handles = connection.execute(
+                "select * from public_memory_handle order by handle_id"
+            ).fetchall()
+        assert after_handles == before_handles
+        assert runtime.store.resolve_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handle_ids=[handle_id],
+        ) == {handle_id: (original.id, original_generation)}
+    finally:
+        runtime.close()
+
+
 def test_vector_and_restore_failures_do_not_expose_canonical_ids(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
@@ -1068,8 +1142,10 @@ def test_vector_and_restore_failures_do_not_expose_canonical_ids(
             _touched_ids: list[str],
             *,
             previous_vector_rows: object,
+            previous_public_memory_handle_rows: object,
         ) -> None:
             del previous_vector_rows
+            del previous_public_memory_handle_rows
             raise RuntimeError(
                 "private restore failure for clm:private-restore-log-record"
             )

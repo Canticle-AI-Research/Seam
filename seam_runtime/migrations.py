@@ -26,6 +26,10 @@ from typing import Final
 from uuid import uuid4
 
 from .mirl import MIRLRecord
+from .public_memory_handles import (
+    init_public_memory_handles,
+    public_memory_handle_schema_errors,
+)
 from .reference_contracts import (
     CanonicalReferenceIntegrityError,
     CanonicalReferenceMetadataError,
@@ -117,6 +121,7 @@ _REQUIRED_PROJECTION_TABLES: Final = {
             "retrieval_event",
             "improvement_experiment",
             "improvement_experiment_event",
+            "public_memory_handle",
         }
     ),
     "graph_products": frozenset({"graph_product_build", "graph_product", "graph_product_sentence"}),
@@ -151,8 +156,12 @@ _REQUIRED_PROJECTION_TABLES: Final = {
     "workspace": frozenset({"workspace_run", "workspace_event"}),
 }
 
-_CORE_STORAGE_V2_TABLES: Final = (
+_CORE_STORAGE_V3_TABLES: Final = (
     _REQUIRED_PROJECTION_TABLES["core_storage"]
+    - {"public_memory_handle"}
+)
+_CORE_STORAGE_V2_TABLES: Final = (
+    _CORE_STORAGE_V3_TABLES
     - {"improvement_experiment", "improvement_experiment_event"}
 )
 _CORE_STORAGE_V1_TABLES: Final = _CORE_STORAGE_V2_TABLES - {"ir_edge_sources"}
@@ -658,6 +667,7 @@ def _initialize_versioned_core(
     if expected_projection_versions.get("core_storage") in {
         "core-storage/2",
         "core-storage/3",
+        "core-storage/4",
     }:
         initialize_ir_edge_sources_schema(connection)
         _rebuild_typed_ir_edges(connection)
@@ -794,6 +804,21 @@ def _upgrade_core_storage_improvement_experiments(
     init_improvement_experiment_schema(connection)
 
 
+def _upgrade_core_storage_public_memory_handles(
+    connection: ProjectionMigrationConnection,
+) -> None:
+    """Install the indexed opaque-handle projection for S6 public deletion."""
+
+    if connection.execute(
+        "select 1 from sqlite_master where type = 'table' "
+        "and name = 'public_memory_handle'"
+    ).fetchone() is not None:
+        raise MigrationError(
+            "core-storage/3 public-memory-handle table is unexpectedly present"
+        )
+    init_public_memory_handles(connection)  # type: ignore[arg-type]
+
+
 def _upgrade_knowledge_graph_typed_references(
     connection: ProjectionMigrationConnection,
 ) -> None:
@@ -839,8 +864,17 @@ PROJECTION_MIGRATIONS: Final[tuple[ProjectionMigration, ...]] = (
         to_version="core-storage/3",
         name="append-only-improvement-experiment-ledger",
         source_required_tables=_CORE_STORAGE_V2_TABLES,
-        target_required_tables=_REQUIRED_PROJECTION_TABLES["core_storage"],
+        target_required_tables=_CORE_STORAGE_V3_TABLES,
         upgrade=_upgrade_core_storage_improvement_experiments,
+    ),
+    ProjectionMigration(
+        projection_name="core_storage",
+        from_version="core-storage/3",
+        to_version="core-storage/4",
+        name="indexed-public-memory-handles",
+        source_required_tables=_CORE_STORAGE_V3_TABLES,
+        target_required_tables=_REQUIRED_PROJECTION_TABLES["core_storage"],
+        upgrade=_upgrade_core_storage_public_memory_handles,
     ),
     ProjectionMigration(
         projection_name="knowledge_graph",
@@ -1139,6 +1173,49 @@ def _projection_table_contracts_for_plan(
     return contracts
 
 
+def _validate_planned_target_tables_absent(
+    connection: sqlite3.Connection,
+    tables: set[str],
+    planned: tuple[ProjectionMigration, ...],
+) -> None:
+    """Preflight introduced tables before publishing a migration backup."""
+
+    strict_target_tables = {
+        "indexed-public-memory-handles": frozenset({"public_memory_handle"}),
+    }
+    unexpected = {
+        table
+        for migration in planned
+        for table in strict_target_tables.get(migration.name, ())
+        if table in tables
+    }
+    if any(
+        migration.name == "append-only-improvement-experiment-ledger"
+        for migration in planned
+    ):
+        experiment_tables = {
+            "improvement_experiment",
+            "improvement_experiment_event",
+        }
+        present = experiment_tables & tables
+        if present:
+            if present != experiment_tables:
+                unexpected.update(present)
+            else:
+                from .improvement_experiments import (
+                    improvement_experiment_schema_errors,
+                )
+
+                if improvement_experiment_schema_errors(connection):
+                    unexpected.update(present)
+    rendered = sorted(unexpected)
+    if rendered:
+        raise DatabaseIntegrityError(
+            "Projection migration target tables are unexpectedly present "
+            f"before their registered step: {rendered}"
+        )
+
+
 def _validate_projection_rows(
     connection: sqlite3.Connection,
     expected_projection_versions: Mapping[str, str],
@@ -1188,6 +1265,16 @@ def _validate_required_table_contracts(
         if schema_errors:
             raise DatabaseIntegrityError(
                 "core-storage/3 improvement-experiment schema is invalid: "
+                + ", ".join(schema_errors)
+            )
+    if any(
+        "public_memory_handle" in required
+        for required in required_tables.values()
+    ):
+        schema_errors = public_memory_handle_schema_errors(connection)
+        if schema_errors:
+            raise DatabaseIntegrityError(
+                "core-storage/4 public-memory-handle schema is invalid: "
                 + ", ".join(schema_errors)
             )
 
@@ -1471,6 +1558,7 @@ def _inspect_connection(
             expected_projection_versions,
             projection_migrations,
         )
+        _validate_planned_target_tables_absent(connection, tables, planned)
         source_table_contracts = _projection_table_contracts_for_plan(
             actual_projection_versions,
             expected_projection_versions,

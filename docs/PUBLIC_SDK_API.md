@@ -20,6 +20,7 @@ The public API exposes:
 - remember one text memory
 - recall text memories
 - assemble prompt-ready text context
+- delete caller-owned opaque memory handles in principal mode
 - agent, namespace, scope, and session partitioning
 
 It does not expose:
@@ -35,9 +36,12 @@ version.
 
 ## Authentication
 
-The `/v1` stateful endpoints use the existing server bearer-token guard. A
-hosted or remotely reachable deployment must configure `SEAM_API_TOKEN`; an
-authorized local server may retain the existing loopback development behavior.
+The `/v1` stateful endpoints use a bearer-token guard. Legacy token-only mode
+authenticates one trusted deployment boundary; it is not multi-tenant identity.
+Principal mode resolves the bearer credential to a stable subject inside the
+process, derives the tenant boundary from that subject, and disables legacy
+private data routes. The environment adapter pairs `SEAM_API_TOKEN` with
+`SEAM_API_PRINCIPAL`; an embedding application can inject its own resolver.
 
 ```http
 Authorization: Bearer <SEAM_API_TOKEN>
@@ -47,6 +51,14 @@ Authorization: Bearer <SEAM_API_TOKEN>
 authentication. Both expose storage-backed readiness, cached for five seconds.
 GET returns `status: ok` with `200` or `status: degraded` with `503`, without
 connection details. HEAD returns the corresponding status code without a body.
+
+Principal mode always has a bounded process-local limiter: when the configured
+limit is unset or zero, it defaults to 60 requests per minute. Invalid or
+rotating credentials share a client-address pre-resolver bucket; a successfully
+resolved subject uses its own stable bucket. Multi-worker launch is refused
+while this process-local limiter is active unless an operator explicitly
+acknowledges a shared upstream limiter. Legacy mode retains its existing
+configuration, including an unset/zero limit disabling rate limiting.
 
 ## Partitions
 
@@ -97,13 +109,52 @@ cannot use the public API to address arbitrary private runtime namespaces.
 ```
 
 The response contains a `memories` list. Each item has an opaque `id`, public
-`text`, relevance `score`, and `created_at`.
+`text`, relevance `score`, and `created_at`. In principal mode, recall registers
+the returned opaque handles in the caller's exact tenant/namespace/scope before
+the response is sent. The registration is derived state, but it makes this API
+call a storage write even though canonical memory content is unchanged.
 
 ### `POST /v1/context`
 
 Accepts the recall fields plus `max_chars`. The response contains the same
 public memory items and a bounded `context` string ready for insertion into an
-agent prompt.
+agent prompt. Principal-mode context assembly has the same handle-registration
+write as recall.
+
+### `POST /v1/memories/delete` (principal mode only)
+
+```json
+{
+  "memory_ids": ["mem_..."],
+  "namespace": "research-agent",
+  "scope": "thread",
+  "session_id": "thread-42",
+  "idempotency_key": "delete-turn-42"
+}
+```
+
+```json
+{
+  "api_version": "v1",
+  "accepted": true,
+  "deletion_id": "del_...",
+  "status": "deleted",
+  "namespace": "research-agent",
+  "scope": "thread",
+  "session_id": "thread-42"
+}
+```
+
+Deletion resolves at most 50 registered opaque handles inside the exact caller
+boundary and reuses the canonical lifecycle soft-delete/audit/recoverable-
+cleanup engine. A cleanup adapter failure returns the same opaque receipt with
+`status: pending`; retrying the same request resumes it. Foreign, forged, stale,
+or replaced-generation handles return the same content-free 404. Reusing an
+idempotency key for a different handle set, recalling a stale snapshot, or
+remembering content while an earlier scoped deletion is still active returns
+409. Re-remembering after a completed delete mints a new generation and the old
+handle cannot delete it. Deletion receipts remain stable across public-ID-key
+rotation.
 
 ## Compatibility
 
@@ -115,3 +166,8 @@ of coercing JSON objects, arrays, numbers, or booleans. Current limits are
 100,000 characters for memory text, 4,096 for a query, 128 for namespace,
 session, and agent identifiers, 50 recalled memories, and 65,536 characters
 for assembled context. A `429` response includes `Retry-After: 60`.
+
+Principal mode requires a stable public-ID key of at least 32 bytes, supplied
+by the embedding application or `SEAM_API_PUBLIC_ID_KEY`. The key renders
+`mem_` capabilities; it, the resolved principal subject, canonical IDs, and
+lifecycle operation IDs are never returned by this API.

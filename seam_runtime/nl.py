@@ -81,6 +81,7 @@ def compile_nl(
     source_timestamp: str | None = None,
     derived_fact_policy: str | None = None,
     allow_env_extractor: bool = True,
+    id_salt: str | None = None,
 ) -> IRBatch:
     """Compile arbitrary natural language (memory or conversation turn) into
     faithful MIRL.
@@ -101,7 +102,12 @@ def compile_nl(
     coverage/temporal retention are preserved; the LLM path is best-effort
     deterministic only (the floor is the determinism guarantee). Resolved from
     ``SEAM_NL_EXTRACTOR`` when not passed; CI never sets it, so the floor stays
-    the default + only CI-measured behavior."""
+    the default + only CI-measured behavior.
+
+    ``id_salt`` is an internal boundary adapter: when supplied, deterministic
+    record identities remain stable inside that boundary but cannot collide
+    with identical source text compiled for another principal namespace. The
+    default remains byte-identical to the unsalted MIRL contract."""
     if (
         extractor is None
         and allow_env_extractor
@@ -116,7 +122,25 @@ def compile_nl(
     # (the content claim already carries every token), so they are pure liability and
     # superseded by the grounded opt-in extractor. See HISTORY#317.
     regex_enrich = bool(os.environ.get("SEAM_NL_REGEX_ENRICH"))
-    source_hash = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()[:12]
+    source_identity = raw_text
+    if id_salt is not None:
+        if not isinstance(id_salt, str) or not id_salt:
+            raise ValueError("id_salt must be a non-empty string when provided")
+        source_identity = json.dumps(
+            {
+                "contract": "salted-source-identity/1",
+                "id_salt": id_salt,
+                "raw_text": raw_text,
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    source_digest = hashlib.sha256(source_identity.encode("utf-8")).hexdigest()
+    # Preserve every legacy unsalted identifier byte-for-byte. Principal-bound
+    # callers use the full digest so canonical IDs do not collapse to the
+    # compiler floor's historical 48-bit convenience suffix.
+    source_hash = source_digest if id_salt is not None else source_digest[:12]
     raw_id = f"raw:{source_hash}"
     prov_id = f"prov:compile:{source_hash}"
 

@@ -5,11 +5,14 @@ import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import pytest
+
 from seam_runtime import BatchIngestItem, SeamSDK
 from seam_runtime.lifecycle import (
     apply_scoped_delete,
     init_lifecycle,
     plan_batch_ingest,
+    plan_scoped_delete,
 )
 from seam_runtime.mirl import Status
 from seam_runtime.runtime import SeamRuntime
@@ -40,6 +43,39 @@ def _claim_id(report) -> str:
         for record_id in report.stored_ids
         if record_id.startswith("clm:")
     )
+
+
+@pytest.mark.parametrize(
+    "generation",
+    [
+        "",
+        "a" * 63,
+        "a" * 65,
+        "A" * 64,
+        "g" * 64,
+    ],
+)
+def test_scoped_delete_refuses_malformed_generation_precondition(
+    generation: str,
+) -> None:
+    connection = sqlite3.connect(":memory:")
+    try:
+        with pytest.raises(
+            ValueError,
+            match="record generation must be 64 lowercase hexadecimal characters",
+        ):
+            plan_scoped_delete(
+                connection,
+                tenant_id="tenant-a",
+                namespace="tenant-a",
+                scope="thread",
+                record_ids=["clm:generation-contract"],
+                idempotency_key="generation-contract",
+                actor="operator",
+                record_generations={"clm:generation-contract": generation},
+            )
+    finally:
+        connection.close()
 
 
 def test_scoped_delete_is_audited_soft_and_tenant_isolated(

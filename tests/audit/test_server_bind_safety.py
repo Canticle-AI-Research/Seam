@@ -7,6 +7,8 @@ from pathlib import Path
 import pytest
 
 from seam_runtime.server import (
+    _DEFAULT_PRINCIPAL_RATE_LIMIT_PER_MINUTE,
+    _effective_rate_limit,
     _factory_server_settings,
     _is_remote_bind,
     _validate_server_safety,
@@ -14,6 +16,26 @@ from seam_runtime.server import (
 
 
 class TestRemoteBindSafety:
+    def test_principal_mode_has_a_bounded_default_rate_limit(self, monkeypatch):
+        monkeypatch.delenv("SEAM_API_RATE_LIMIT_PER_MINUTE", raising=False)
+        monkeypatch.delenv("SEAM_API_RATE_LIMIT", raising=False)
+
+        assert _effective_rate_limit(principal_mode=False) == 0
+        assert _effective_rate_limit(principal_mode=True) == (
+            _DEFAULT_PRINCIPAL_RATE_LIMIT_PER_MINUTE
+        )
+
+    def test_principal_mode_default_refuses_multiple_process_local_workers(
+        self, monkeypatch
+    ):
+        monkeypatch.delenv("SEAM_API_RATE_LIMIT_PER_MINUTE", raising=False)
+        monkeypatch.delenv("SEAM_API_RATE_LIMIT", raising=False)
+        monkeypatch.delenv("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT", raising=False)
+        monkeypatch.setenv("SEAM_API_PRINCIPAL", "account/alice")
+
+        with pytest.raises(RuntimeError, match="rate limiting is process-local"):
+            _validate_server_safety(host="127.0.0.1", workers=2)
+
     @pytest.mark.parametrize("workers", [0, -1, True])
     def test_non_positive_or_boolean_worker_count_is_rejected(self, workers, monkeypatch):
         monkeypatch.delenv("SEAM_API_RATE_LIMIT_PER_MINUTE", raising=False)

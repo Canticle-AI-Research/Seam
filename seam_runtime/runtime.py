@@ -187,6 +187,7 @@ class SeamRuntime:
         source_timestamp: str | None = None,
         derived_fact_policy: str | None = None,
         allow_env_extractor: bool = True,
+        id_salt: str | None = None,
     ) -> IRBatch:
         batch = compile_nl(
             raw_text,
@@ -198,6 +199,7 @@ class SeamRuntime:
             source_timestamp=source_timestamp,
             derived_fact_policy=derived_fact_policy,
             allow_env_extractor=allow_env_extractor,
+            id_salt=id_salt,
         )
         resolved_agent = self._resolve_agent_id(agent_id)
         if resolved_agent:
@@ -329,6 +331,9 @@ class SeamRuntime:
         touched_ids = [record.id for record in normalized.records]
         previous = self.store.load_ir(ids=touched_ids) if touched_ids else IRBatch([])
         previous_vector_rows = self.store.snapshot_vector_rows(touched_ids)
+        previous_public_memory_handle_rows = (
+            self.store.snapshot_public_memory_handle_rows(touched_ids)
+        )
         persist_report = self.store.persist_ir(
             normalized,
             _preserve_node_vectors=True,
@@ -354,6 +359,9 @@ class SeamRuntime:
                     previous,
                     touched_ids,
                     previous_vector_rows=previous_vector_rows,
+                    previous_public_memory_handle_rows=(
+                        previous_public_memory_handle_rows
+                    ),
                 )
             except Exception as rollback_exc:
                 canonical_restore_error_type = type(rollback_exc).__name__
@@ -701,6 +709,8 @@ class SeamRuntime:
         record_ids: list[str],
         idempotency_key: str,
         actor: str,
+        idempotency_context: str | None = None,
+        record_generations: dict[str, str] | None = None,
     ) -> dict[str, object]:
         return self.store.plan_scoped_delete(
             tenant_id=tenant_id,
@@ -709,6 +719,8 @@ class SeamRuntime:
             record_ids=record_ids,
             idempotency_key=idempotency_key,
             actor=actor,
+            idempotency_context=idempotency_context,
+            record_generations=record_generations,
         )
 
     def apply_scoped_delete(

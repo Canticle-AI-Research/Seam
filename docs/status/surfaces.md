@@ -80,9 +80,15 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   static, and presents the final state directly under reduced motion.
 - REST API: bearer-token guard when `SEAM_API_TOKEN` is configured, bounded
   request bodies, env-configurable, optional `server` extra. An unset token is
-  trusted-loopback development only; automatic token provisioning and
-  principal identity are not yet implemented. Shared hosted tenancy and opaque
-  remote deletion remain Track S S6 work.
+  trusted-loopback development only; automatic token provisioning remains an
+  open authentication/UX policy. Protected main's token-only mode is a trusted
+  single-user gate, not tenancy. The unpublished Track S S6 candidate adds
+  optional in-process principal resolution and indexed opaque deletion. In
+  principal mode it derives the internal tenant/namespace from the subject,
+  binds handles/deletion to the canonical generation, defaults to a bounded
+  process-local limiter, and disables legacy private data routes. Its local
+  runtime lanes, review, and closeout gates are green; signed publication,
+  exact-head CI, and merge remain.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime
@@ -94,12 +100,14 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Active / open direction
 
-- The operator's newer TUI version was not found in active worktrees, the
-  installed entrypoint, `AppDir/`, or `squashfs-root/` during the 2026-08-18
-  audit. Integration waits for its source path/archive. The current TUI still
-  needs the target scope, Recall preview, Review, Curate, Health, and Settings
-  workflow slices, plus provider-host and response-allocation policies shared
-  with REST.
+- The operator-authored source was subsequently located at
+  `/media/terrabyte/External2/SEAM TUI Concept.dc.html`. It is a visual
+  mock/prototype, not a runnable replacement or shipped surface. A separate
+  clean `feat/tui-concept-shell` worktree is porting its operator-loop concepts
+  into the runtime-backed Textual app. Until that candidate passes review and
+  merges, the current TUI still needs the target scope, Recall preview, Review,
+  Curate, Health, and Settings workflow slices, plus provider-host and response-
+  allocation policies shared with REST.
 - The served browser surface is the self-contained
   `seam_runtime/webui/dashboard.html`. The former Vite/React source is archived
   at `archive/webui-vite-source/` and is not an active rewrite or source of
@@ -109,9 +117,12 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   success, require backend acknowledgements, label unavailable/demo states
   explicitly, and add browser truthfulness tests. Only then capture fresh
   desktop/mobile renders for operator approval.
-- Track S S6 must bind every authenticated data operation to a principal and
-  add an idempotent opaque deletion/retention contract without leaking tenant,
-  MIRL, policy, or graph internals through `/v1`.
+- Track S S6's unpublished candidate binds every principal-mode data operation
+  to an in-process identity and adds indexed, idempotent opaque deletion without
+  leaking tenant, MIRL, policy, or graph internals through `/v1`. Publication
+  still requires a signed commit, bounded draft PR, exact-head CI, and merge.
+- S7 remains next after S6 publication; it owns admissible semantic ingest and
+  exact evidence, not this surface/security slice. S7 has not started.
 - Track S S8 must prove every shipped surface returns the same retrieval IDs and
   order as direct `SeamRuntime.retrieve()` under the same request.
 - Turn the SEAM CLI into a first-class agent CLI (model routing, tool execution,

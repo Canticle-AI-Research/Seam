@@ -193,3 +193,20 @@ def test_compile_nl_floor_is_faithful():
             assert token in allowed, f"claim subject {label!r} not grounded in the input"
     assert not any(r.attrs.get("label") == "SEAM" for r in ent_by_id.values()), \
         "floor must not invent a SEAM entity for unrelated input"
+
+
+def test_salted_source_identity_is_injective_across_nul_boundaries() -> None:
+    first = compile_nl(
+        "\0payload",
+        id_salt="tenant",
+        allow_env_extractor=False,
+    )
+    second = compile_nl(
+        "payload",
+        id_salt="tenant\0",
+        allow_env_extractor=False,
+    )
+
+    assert {record.id for record in first.records}.isdisjoint(
+        record.id for record in second.records
+    )

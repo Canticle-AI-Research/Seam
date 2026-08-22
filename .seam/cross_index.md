@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 636
+total_events: 639
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-11T18:01:34Z | history:380:8b3fadc7 | session-event | changed | ci, handoff, bugfix, protocol, verify, tests, history | .github/workflows/ci.yml,tests/audit/test_ci_verify_gates.py,PR#141 |
-| 2026-07-11T22:58:00Z | history:381:e34c302b | session-event | in-progress | benchmark, locomo, retrieval, answerer, quality, handoff,... | docs/handoffs/2026-07-11-cat13-semantic-conversation-adapter-in-progress.md,.... |
-| 2026-07-12T00:03:58Z | history:382:32666036 | session-event | done | benchmark, locomo, retrieval, prompt, quality, handoff, c... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
 | 2026-07-12T05:39:56Z | history:383:6b2cac1d | session-event | done | benchmark, locomo, quality, retrieval, merge, verify, pai... | HISTORY.md,PROJECT_STATUS.md,HISTORY_INDEX.md |
 | 2026-07-12T21:22:48Z | history:384:096e1844 | session-event | done | benchmark, locomo, competitors, zep, mem0, paid-validatio... | benchmarks/external/locomo/run.py,benchmarks/external/locomo/adapters/zep.py,... |
 | 2026-07-13T03:25:35Z | history:385:4f2a7c73 | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, v... | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-19T04:06:43Z | history:571:ead7bf1e | session-event | done | audit, benchmark, bugfix, graph, harden, operator, persis... | HISTORY#570,PROJECT_STATUS.md,REPO_LEDGER.md,docs/audits/2026-08-18-track-s-d... |
 | 2026-08-19T04:11:06Z | history:572:0b3a3ad6 | session-event | done | bugfix, git-hooks, test, verify, worktree | HISTORY#571,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py |
 | 2026-08-19T04:13:50Z | history:573:3744fd57 | session-event | changed | bugfix, correction, git-hooks, verify, worktree | HISTORY#572,tools/git-hooks/pre-push,tests/audit/test_public_safe_gate.py,doc... |
+| 2026-08-19T09:47:52Z | history:574:bbc227ed | session-event | in-progress | audit, continuity, handoff, harden, lifecycle, migration,... | HISTORY#573,docs/handoffs/2026-08-19-track-s-s6-in-progress.md,docs/audits/20... |
+| 2026-08-22T08:42:39Z | history:575:4278e8b9 | session-event | changed | audit, bugfix, continuity, handoff, harden, lifecycle, mi... | HISTORY#574,docs/handoffs/2026-08-22-track-s-s6-locally-qualified.md,docs/aud... |
+| 2026-08-22T08:47:54Z | history:576:9eb10e23 | session-event | changed | correction, audit, continuity, docs, verify | HISTORY#575,docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0436.cross.md | 2026-04-15T00:00:00Z..2026-07-11T17:18:09Z | 436 | (multi) | (multi) |
+| 0001-0439.cross.md | 2026-04-15T00:00:00Z..2026-07-12T00:03:58Z | 439 | (multi) | (multi) |

@@ -13,7 +13,7 @@ import uuid
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .installer import default_runtime_db_path
 from .jspace import JLensUnavailable, JLensWorker, jlens_worker_from_env, workspace_capabilities
@@ -21,6 +21,9 @@ from .mirl import IRBatch
 from .reference_contracts import CanonicalRecordAlreadyExistsError
 from .runtime import SeamRuntime
 from .workspace import WORKSPACE_EVENT_TYPES, content_fingerprint, spread_graph_activation, sse_frame
+
+if TYPE_CHECKING:
+    from .public_api import PrincipalResolver
 
 LOGGER = logging.getLogger(__name__)
 
@@ -129,8 +132,13 @@ class RateLimiter:
     _lock: Any = field(default_factory=threading.Lock, repr=False, compare=False)
 
     def check(self, key: str) -> bool:
+        return self.reserve(key) is not None
+
+    def reserve(self, key: str) -> float | None:
+        """Atomically reserve one request slot and return its release token."""
+
         if self.limit_per_minute <= 0:
-            return True
+            return 0.0
         with self._lock:
             now = time.monotonic()
             window_start = now - 60.0
@@ -141,10 +149,28 @@ class RateLimiter:
             recent = [stamp for stamp in self.hits.get(key, []) if stamp >= window_start]
             if len(recent) >= self.limit_per_minute:
                 self.hits[key] = recent
-                return False
+                return None
             recent.append(now)
             self.hits[key] = recent
-            return True
+            return now
+
+    def release(self, key: str, reservation: float) -> None:
+        """Release the exact slot reserved for a successful authentication."""
+
+        if self.limit_per_minute <= 0:
+            return
+        with self._lock:
+            recent = self.hits.get(key)
+            if not recent:
+                return
+            try:
+                recent.remove(reservation)
+            except ValueError:
+                return
+            if recent:
+                self.hits[key] = recent
+            else:
+                self.hits.pop(key, None)
 
     def _purge(self, window_start: float) -> None:
         stale = [key for key, stamps in self.hits.items() if not any(stamp >= window_start for stamp in stamps)]
@@ -176,12 +202,22 @@ class ReadinessCache:
             return self._ready
 
 
+_DEFAULT_PRINCIPAL_RATE_LIMIT_PER_MINUTE = 60
+
+
 def _rate_limit_from_env() -> int:
     raw = os.environ.get("SEAM_API_RATE_LIMIT_PER_MINUTE") or os.environ.get("SEAM_API_RATE_LIMIT") or "0"
     try:
         return max(0, int(raw))
     except ValueError:
         return 0
+
+
+def _effective_rate_limit(*, principal_mode: bool) -> int:
+    configured = _rate_limit_from_env()
+    if principal_mode and configured <= 0:
+        return _DEFAULT_PRINCIPAL_RATE_LIMIT_PER_MINUTE
+    return configured
 
 
 def _rate_limit_max_keys_from_env() -> int:
@@ -254,6 +290,16 @@ def _client_key(request: Any, authorization: str | None = None) -> str:
         return hashlib.sha256(authorization.encode()).hexdigest()
     client = getattr(request, "client", None)
     return getattr(client, "host", "local") or "local"
+
+
+def _principal_client_key(subject: str) -> str:
+    return hashlib.sha256(f"principal\0{subject}".encode()).hexdigest()
+
+
+def _principal_auth_failure_key(request: Any) -> str:
+    return hashlib.sha256(
+        f"principal-auth-failure\0{_client_key(request)}".encode()
+    ).hexdigest()
 
 
 class _RequestBodyTooLarge(Exception):
@@ -656,6 +702,8 @@ def create_app(
     runtime: SeamRuntime | None = None,
     shutdown_state: ShutdownState | None = None,
     jlens_worker: JLensWorker | None = None,
+    principal_resolver: PrincipalResolver | None = None,
+    public_id_key: bytes | None = None,
 ) -> Any:
     Depends, FastAPI, Header, HTTPException, Query, Request = _require_fastapi()
     # Required: `from __future__ import annotations` defers annotation evaluation,
@@ -668,18 +716,57 @@ def create_app(
         runtime = SeamRuntime(db_path)
     from starlette.responses import JSONResponse
 
-    limiter = RateLimiter(_rate_limit_from_env(), max_keys=_rate_limit_max_keys_from_env())
+    rate_limit_max_keys = _rate_limit_max_keys_from_env()
     readiness = ReadinessCache(runtime)
     token = os.environ.get("SEAM_API_TOKEN")
+    principal_subject = os.environ.get("SEAM_API_PRINCIPAL")
+    resolved_principal_resolver = principal_resolver
+    if principal_subject:
+        if principal_resolver is not None:
+            raise RuntimeError(
+                "configure either an injected principal resolver or "
+                "SEAM_API_PRINCIPAL, not both"
+            )
+        if not token:
+            raise RuntimeError("SEAM_API_PRINCIPAL requires SEAM_API_TOKEN")
+        from .public_api import StaticPrincipalResolver
+
+        resolved_principal_resolver = StaticPrincipalResolver(
+            {token: principal_subject}
+        )
+        token = None
+    elif principal_resolver is not None and token:
+        raise RuntimeError(
+            "SEAM_API_TOKEN cannot bypass an injected principal resolver"
+        )
+    principal_mode = resolved_principal_resolver is not None
+    effective_rate_limit = _effective_rate_limit(principal_mode=principal_mode)
+    limiter = RateLimiter(effective_rate_limit, max_keys=rate_limit_max_keys)
+    principal_resolver_limiter = RateLimiter(
+        effective_rate_limit,
+        max_keys=rate_limit_max_keys,
+    )
+    resolved_public_id_key = public_id_key
+    if principal_mode:
+        if resolved_public_id_key is None:
+            configured_key = os.environ.get("SEAM_API_PUBLIC_ID_KEY")
+            resolved_public_id_key = (
+                configured_key.encode("utf-8") if configured_key else None
+            )
+        if not isinstance(resolved_public_id_key, bytes) or len(resolved_public_id_key) < 32:
+            raise RuntimeError(
+                "principal mode requires a stable public ID key: set "
+                "SEAM_API_PUBLIC_ID_KEY (at least 32 bytes) or inject public_id_key"
+            )
     state = shutdown_state or ShutdownState()
     resolved_jlens_worker = jlens_worker or jlens_worker_from_env()
 
     # FastAPI's generated docs routes are registered without dependencies, so they
     # bypass both the bearer guard and the rate limiter. When an operator has set
-    # SEAM_API_TOKEN they have asked for an authenticated surface, and anonymous
+    # authentication they have asked for an authenticated surface, and anonymous
     # schema/path disclosure (plus an unmetered per-request schema rebuild)
     # contradicts that. Unauthenticated loopback development keeps the docs.
-    _docs_enabled = not token
+    _docs_enabled = not token and not principal_mode
     app = FastAPI(
         title="SEAM Runtime API",
         version="0.1",
@@ -701,27 +788,85 @@ def create_app(
             allow_headers=["Authorization", "Content-Type"],
         )
 
-    def guard(request: Request, authorization: str | None = Header(default=None)) -> None:
-        if not limiter.check(_client_key(request, authorization)):
+    principal_paths = frozenset(
+        {
+            "/v1/memories",
+            "/v1/memories/recall",
+            "/v1/memories/delete",
+            "/v1/context",
+        }
+    )
+
+    def enforce_rate_limit(
+        request: Request,
+        key: str,
+        *,
+        selected_limiter: RateLimiter | None = None,
+    ) -> float:
+        active_limiter = selected_limiter or limiter
+        reservation = active_limiter.reserve(key)
+        if reservation is None:
             LOGGER.warning("Rate limit exceeded for client %s", request.client.host if request.client else "unknown")
             raise HTTPException(
                 status_code=429,
                 detail="Rate limit exceeded",
                 headers={"Retry-After": "60"},
             )
+        return reservation
+
+    def guard(request: Request, authorization: str | None = Header(default=None)) -> Any:
+        if principal_mode:
+            if request.url.path not in principal_paths:
+                enforce_rate_limit(request, _client_key(request))
+                raise HTTPException(status_code=404, detail="Not found")
+            prefix = "Bearer "
+            credential = (
+                authorization[len(prefix) :]
+                if authorization and authorization.startswith(prefix)
+                else ""
+            )
+            auth_failure_key = _principal_auth_failure_key(request)
+            # Reserve the client/IP attempt atomically before invoking a
+            # potentially expensive injected resolver. This second bounded
+            # limiter closes concurrent credential-rotation bursts; a resolved
+            # principal is still subject to its stable cross-IP key below.
+            auth_reservation = enforce_rate_limit(
+                request,
+                auth_failure_key,
+                selected_limiter=principal_resolver_limiter,
+            )
+            principal = resolved_principal_resolver.resolve_bearer(credential)
+            if principal is None:
+                LOGGER.warning(
+                    "Auth failed for client %s",
+                    request.client.host if request.client else "unknown",
+                )
+                raise HTTPException(
+                    status_code=401,
+                    detail="Missing or invalid bearer token",
+                )
+            principal_resolver_limiter.release(
+                auth_failure_key,
+                auth_reservation,
+            )
+            enforce_rate_limit(request, _principal_client_key(principal.subject))
+            return principal
         if token:
             expected = f"Bearer {token}"
+            enforce_rate_limit(request, _client_key(request, authorization))
             if not authorization or not hmac.compare_digest(authorization, expected):
                 LOGGER.warning("Auth failed for client %s", request.client.host if request.client else "unknown")
                 raise HTTPException(status_code=401, detail="Missing or invalid bearer token")
+            return None
+        enforce_rate_limit(request, _client_key(request, authorization))
 
-    def rate_limit_only(request: Request, authorization: str | None = Header(default=None)) -> None:
-        if not limiter.check(_client_key(request, authorization)):
-            raise HTTPException(
-                status_code=429,
-                detail="Rate limit exceeded",
-                headers={"Retry-After": "60"},
-            )
+    def rate_limit_only(
+        request: Request, authorization: str | None = Header(default=None)
+    ) -> None:
+        enforce_rate_limit(
+            request,
+            _client_key(request, None if principal_mode else authorization),
+        )
 
     @app.exception_handler(Exception)
     async def unhandled_request_error(_request: Request, exc: Exception) -> Any:
@@ -765,32 +910,84 @@ def create_app(
             )
         return {"status": "ok", "api_version": PUBLIC_API_VERSION}
 
-    @app.post("/v1/memories", summary="Store a memory via the public API", dependencies=[Depends(guard)])
-    def public_remember(payload: dict[str, object]) -> dict[str, object]:
-        from .public_api import PublicAPIInputError, remember
+    @app.post("/v1/memories", summary="Store a memory via the public API")
+    def public_remember(
+        payload: dict[str, object], principal: Any = Depends(guard)
+    ) -> dict[str, object]:
+        from .public_api import PublicAPIConflictError, PublicAPIInputError, remember
 
         try:
-            return remember(runtime, payload)
+            return remember(runtime, payload, principal=principal)
         except PublicAPIInputError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except PublicAPIConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.post("/v1/memories/recall", summary="Recall memories via the public API", dependencies=[Depends(guard)])
-    def public_recall(payload: dict[str, object]) -> dict[str, object]:
-        from .public_api import PublicAPIInputError, recall
+    @app.post("/v1/memories/recall", summary="Recall memories via the public API")
+    def public_recall(
+        payload: dict[str, object], principal: Any = Depends(guard)
+    ) -> dict[str, object]:
+        from .public_api import PublicAPIConflictError, PublicAPIInputError, recall
 
         try:
-            return recall(runtime, payload)
+            return recall(
+                runtime,
+                payload,
+                principal=principal,
+                public_id_key=resolved_public_id_key,
+            )
         except PublicAPIInputError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except PublicAPIConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.post("/v1/context", summary="Assemble a context pack via the public API", dependencies=[Depends(guard)])
-    def public_context(payload: dict[str, object]) -> dict[str, object]:
-        from .public_api import PublicAPIInputError, context
+    @app.post("/v1/context", summary="Assemble a context pack via the public API")
+    def public_context(
+        payload: dict[str, object], principal: Any = Depends(guard)
+    ) -> dict[str, object]:
+        from .public_api import PublicAPIConflictError, PublicAPIInputError, context
 
         try:
-            return context(runtime, payload)
+            return context(
+                runtime,
+                payload,
+                principal=principal,
+                public_id_key=resolved_public_id_key,
+            )
         except PublicAPIInputError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except PublicAPIConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    if principal_mode:
+
+        @app.post(
+            "/v1/memories/delete",
+            summary="Delete opaque memories via the public API",
+        )
+        def public_delete_memories(
+            payload: dict[str, object], principal: Any = Depends(guard)
+        ) -> dict[str, object]:
+            from .public_api import (
+                PublicAPIConflictError,
+                PublicAPIInputError,
+                PublicAPINotFoundError,
+                delete,
+            )
+
+            try:
+                return delete(
+                    runtime,
+                    payload,
+                    principal=principal,
+                    public_id_key=resolved_public_id_key,
+                )
+            except PublicAPIInputError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+            except PublicAPINotFoundError as exc:
+                raise HTTPException(status_code=404, detail="Memory not found") from exc
+            except PublicAPIConflictError as exc:
+                raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     @app.get("/stats", summary="Return runtime and store statistics", dependencies=[Depends(guard)])
     def stats() -> dict[str, object]:
@@ -1579,9 +1776,11 @@ def create_app(
             },
         )
 
-    # Serve the static dashboard from this same server (added last so the API
-    # routes above take precedence over the static mount).
-    _mount_webui(app)
+    # The shipped dashboard names private MIRL/graph routes and is therefore a
+    # trusted local operator surface, not part of the opaque hosted contract.
+    # Principal mode serves only its four memory routes plus health probes.
+    if not principal_mode:
+        _mount_webui(app)
     return app
 
 
@@ -1626,7 +1825,8 @@ def run_server(
 def _validate_server_safety(host: str, workers: int) -> None:
     if isinstance(workers, bool) or not isinstance(workers, int) or workers <= 0:
         raise RuntimeError("SEAM server worker count must be a positive integer")
-    if _rate_limit_from_env() > 0 and workers > 1 and not _env_truthy("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT"):
+    principal_mode = bool(os.environ.get("SEAM_API_PRINCIPAL"))
+    if _effective_rate_limit(principal_mode=principal_mode) > 0 and workers > 1 and not _env_truthy("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT"):
         raise RuntimeError(
             "SEAM API rate limiting is process-local; use one worker or set "
             "SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT=1 after placing a shared limiter in front."
