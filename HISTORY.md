@@ -18933,3 +18933,31 @@ paid provider call, GitHub issue/milestone mutation, or public artifact occurred
 The S6 branch and primary research checkout remain untouched; this work must stay
 in its separate stacked PR until S6 merges and the PR can retarget to main.
 ---END-ENTRY-#577---
+
+---BEGIN-ENTRY-#578---
+id: 578
+date: 2026-08-22T11:39:49Z
+agent: codex
+status: changed
+topics: bugfix, ci, correction, gates, pyproject, tests, verify
+commits: pending
+refs: HISTORY#577,PR#224,.github/workflows/package-release.yml,tools/ci/verify_dependency_contract.py
+supersedes: 577
+tokens: 205
+---
+Exact-head `repo-hygiene` on draft PR #224 rejected the package-release
+workflow because the dependency-contract verifier interpreted the inline
+SemVer regular expression's character classes as Python extras named
+`0-9A-Za-z-`. The other five fast lanes passed, and the advisory suite correctly
+did not start behind the failed prerequisite.
+
+Replaced that regular expression with a small explicit SemVer parser using
+ASCII digit/identifier checks, including core leading-zero rejection,
+prerelease numeric leading-zero rejection, and bounded build metadata. The
+workflow retains the same exact-version/default-branch/new-tag contract without
+creating dependency-looking bracket syntax. The dependency-contract verifier,
+29 focused GitHub configuration/gate tests, Ruff, and diff hygiene now pass
+locally. No release, tag, version bump, issue, milestone, label, deployment, or
+paid call occurred. PR #224 remains a stacked draft pending the repaired
+exact-head CI rerun and S6 merge/retargeting.
+---END-ENTRY-#578---

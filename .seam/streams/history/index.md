@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 577
-total_tokens: ~299694
-latest_id: 577
+total_entries: 578
+total_tokens: ~299899
+latest_id: 578
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 578 | 2026-08-22 | changed | f28243f2a1ebfab5 | bugfix,ci,correction,gates,+ | 577 |
 | 577 | 2026-08-22 | done | 78bedf462f9ede0f | ci,docs,gates,operator,+ | 576 |
 | 576 | 2026-08-22 | changed | 9eb10e234a4f412a | correction,audit,continuity,docs,+ | 575 |
 | 575 | 2026-08-22 | changed | 4278e8b95c130ecb | audit,bugfix,continuity,handoff,+ | 574 |
@@ -619,7 +620,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=64 latest=#575, #573, #572, #571, #565
+- bugfix: count=65 latest=#578, #575, #573, #572, #571
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -631,7 +632,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=48 latest=#577, #558, #556, #539, #536
+- ci: count=49 latest=#578, #577, #558, #556, #539
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -659,7 +660,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=9 latest=#576, #573, #570, #558, #557
+- correction: count=10 latest=#578, #576, #573, #570, #558
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -710,7 +711,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=3 latest=#510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=5 latest=#577, #557, #556, #555, #539
+- gates: count=6 latest=#578, #577, #557, #556, #555
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=3 latest=#561, #360, #324
@@ -830,7 +831,7 @@ compact: true
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
-- pyproject: count=13 latest=#524, #520, #470, #469, #468
+- pyproject: count=14 latest=#578, #524, #520, #470, #469
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -905,7 +906,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=104 latest=#575, #574, #572, #571, #568
 - test-artifacts: count=1 latest=#506
-- tests: count=40 latest=#577, #558, #554, #539, #531
+- tests: count=41 latest=#578, #577, #558, #554, #539
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -921,7 +922,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=395 latest=#577, #576, #575, #573, #572
+- verify: count=396 latest=#578, #577, #576, #575, #573
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -938,7 +939,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 44
+- changed: 45
 - done: 503
 - in-progress: 9
 - planned: 21

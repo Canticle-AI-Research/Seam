@@ -52,19 +52,38 @@ jobs:
         run: |
           python - <<'PY'
           import os
-          import re
+          import string
           import tomllib
           from pathlib import Path
 
           project_file = Path("pyproject.toml")
           version = tomllib.loads(project_file.read_text(encoding="utf-8"))["project"]["version"]
           requested = os.environ["REQUESTED_VERSION"].strip()
-          semver = re.compile(
-              r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
-              r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
-              r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+
+          def valid_identifiers(value: str, *, reject_numeric_leading_zero: bool) -> bool:
+              allowed = string.ascii_letters + string.digits + "-"
+              for identifier in value.split("."):
+                  if not identifier or any(character not in allowed for character in identifier):
+                      return False
+                  if reject_numeric_leading_zero and identifier.isascii() and identifier.isdigit():
+                      if len(identifier) > 1 and identifier.startswith("0"):
+                          return False
+              return True
+
+          base, build_separator, build = requested.partition("+")
+          core, prerelease_separator, prerelease = base.partition("-")
+          core_parts = core.split(".")
+          valid_core = len(core_parts) == 3 and all(
+              part and part.isascii() and part.isdigit() and (part == "0" or not part.startswith("0"))
+              for part in core_parts
           )
-          if not semver.fullmatch(requested):
+          valid_prerelease = not prerelease_separator or valid_identifiers(
+              prerelease, reject_numeric_leading_zero=True
+          )
+          valid_build = not build_separator or valid_identifiers(
+              build, reject_numeric_leading_zero=False
+          )
+          if "+" in build or not (valid_core and valid_prerelease and valid_build):
               raise SystemExit(f"requested version {requested!r} is not exact SemVer without a leading v")
           if version != requested:
               raise SystemExit(f"{project_file} version {version!r} does not match requested version {requested!r}")
