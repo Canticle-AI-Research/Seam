@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 655
+total_events: 656
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-15T14:17:19Z | history:399:008c723c | session-event | changed | history, continuity, verify, handoff, benchmark, locomo | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
 | 2026-07-15T14:24:23Z | history:400:2d638e36 | session-event | done | bugfix, benchmark, locomo, retrieval, temporal, tests, ci... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 | 2026-07-16T00:00:00Z | roadmap:058:d10da061 | status-change | bootstrap | agent, openclaw, namespaces, profiles, console | ROADMAP.md:1726 |
 | 2026-07-16T00:00:00Z | roadmap:059:d7fe472b | status-change | bootstrap | android, mobile, small-models, memory-loop | ROADMAP.md:1786 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T05:44:09Z | history:590:4d1f24c9 | session-event | done | correction, status, tests, continuity | HISTORY#589,PR#224,docs/status/surfaces.md,tests/audit/test_github_issue_rele... |
 | 2026-08-23T06:18:40Z | history:591:1783b7f2 | session-event | done | bugfix, security, tests, ci, continuity | HISTORY#590,PR#224,.github/workflows/package-release.yml,.github/workflows/pu... |
 | 2026-08-23T06:22:44Z | history:592:e6988503 | session-event | done | harden, security, ci, tests, continuity | HISTORY#591,PR#224,.github/workflows/publish-private-release.yml,.github/RELE... |
+| 2026-08-23T06:43:21Z | history:593:0ad1cd51 | session-event | done | harden, security, tests, ci, docs, continuity | HISTORY#592,PR#224,.github/workflows/package-release.yml,.github/workflows/pu... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0455.cross.md | 2026-04-15T00:00:00Z..2026-07-15T14:14:56Z | 455 | (multi) | (multi) |
+| 0001-0456.cross.md | 2026-04-15T00:00:00Z..2026-07-15T14:17:19Z | 456 | (multi) | (multi) |

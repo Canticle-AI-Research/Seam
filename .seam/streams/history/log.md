@@ -19343,3 +19343,33 @@ The focused 28-case secret/configuration audit, Ruff, and embedded Bash syntax
 check pass after the repair. This successor does not create any issue,
 milestone, tag, release, deployment, or paid external operation.
 ---END-ENTRY-#592---
+
+---BEGIN-ENTRY-#593---
+id: 593
+date: 2026-08-23T06:43:21Z
+agent: Codex
+status: done
+topics: harden, security, tests, ci, docs, continuity
+commits: 6606780
+refs: HISTORY#592,PR#224,.github/workflows/package-release.yml,.github/workflows/publish-private-release.yml,.github/RELEASE_CHECKLIST.md,.github/workflows/ci.yml,pyproject.toml,tools/security/secret_scan.py,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,README.md,REPO_LEDGER.md,docs/status/operations.md,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 592
+tokens: 233
+---
+Sixth exact-head review repairs are complete on PR #224. The guarded publish
+workflow now binds the operator-reviewed notes digest, requires the manifest to
+cover exactly the wheel and sdist, validates distribution name/version in both
+filenames and canonical package metadata, and rereads protected main in its
+final unchanged-state guard. The artifact gate recognizes concatenated token
+and OAuth filename stems, rejects every Windows-forbidden ordinary filename
+character, scans UTF-16LE/BE secret-bearing members, and converts encrypted or
+otherwise unreadable member failures to ordinal-only findings. README now
+documents both draft preparation and guarded publication.
+
+The nine reviewed counterexamples are covered by the focused audit. After the
+repairs, 39 secret-scan/configuration cases pass, Ruff and both embedded Bash
+syntax checks pass, and the actual previously built 2.4.0 wheel/sdist pass the
+new filename/metadata identity verifier and twine check. The `packaging`
+library is a direct bounded release-test dependency rather than a transitive
+assumption. No issue, milestone, tag, release, deployment, or paid external
+operation was created.
+---END-ENTRY-#593---

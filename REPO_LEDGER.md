@@ -137,8 +137,9 @@ and `HISTORY_INDEX.md`.
   environment-gated `publish-private-release.yml` follow-up after an operator
   reviews the generated notes for private data and unsupported claims. The
   follow-up requires that target to remain the current protected-main head and
-  rechecks the lightweight tag, reviewed manifest digest, downloaded
-  asset checksums and contents, notes secret scan, and draft-state fingerprint
+  rechecks the lightweight tag, reviewed manifest and notes digests, exact
+  checksum coverage, downloaded artifact name/version metadata and content,
+  notes secret scan, unchanged draft fingerprint, and live protected head
   immediately before publication. A
   failed attempt removes only its exact unpublished draft/tag, while ambiguous
   or already-published state is left for operator review. Prerelease SemVer is

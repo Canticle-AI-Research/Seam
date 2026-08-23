@@ -90,7 +90,7 @@ jobs:
         # the same range is the parity this slice is about. PyYAML is likewise a
         # direct import in the issue/release configuration audit, not a dependency
         # that may arrive accidentally through the benchmark extras.
-        run: python -m pip install pytest httpx 'markdown-it-py>=4.0,<5.0' 'PyYAML>=6.0,<7.0'
+        run: python -m pip install pytest httpx 'markdown-it-py>=4.0,<5.0' 'PyYAML>=6.0,<7.0' 'packaging>=24,<27'
 
       - name: Linux installer smoke test
         run: sh ./installers/install_seam_linux.sh --dev

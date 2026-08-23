@@ -95,12 +95,16 @@ jobs:
 
       - name: Build distributions
         run: |
-          python -m pip install --upgrade build twine
+          python -m pip install --upgrade build twine 'packaging>=24,<27'
           python -m build --wheel --sdist
           python -m twine check dist/*
 
       - name: Verify private release artifacts
-        run: python -m tools.release.verify_private_artifacts dist/*
+        run: >-
+          python -m tools.release.verify_private_artifacts
+          --expected-name seam-runtime
+          --expected-version "${{ steps.version.outputs.version }}"
+          dist/*
 
       - name: Smoke-test wheel
         run: |

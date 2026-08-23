@@ -122,12 +122,16 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert publish_job["permissions"] == {"contents": "write"}
     assert "git/ref/tags/v${VERSION}" in follow_up_raw
     assert "EXPECTED_SHA" in follow_up_raw
+    assert "EXPECTED_NOTES_SHA256" in follow_up_raw
     assert '${EXPECTED_SHA,,}' in follow_up_raw
     assert '.object.type == "commit"' in follow_up_raw
     assert "current protected-main head" in follow_up_raw
     assert "gh release download" in follow_up_raw
     assert "sha256sum --check" in follow_up_raw
     assert "tools.release.verify_private_artifacts" in follow_up_raw
+    assert "--expected-name seam-runtime" in follow_up_raw
+    assert "SHA256SUMS.txt must cover exactly" in follow_up_raw
+    assert "final_main_sha" in follow_up_raw
     assert "include_binary=True" in follow_up_raw
     assert "gh release edit" in follow_up_raw
 
@@ -136,6 +140,7 @@ def test_repository_tests_declare_yaml_directly() -> None:
     project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     lint = project["project"]["optional-dependencies"]["lint"]
     assert any(requirement.casefold().startswith("pyyaml") for requirement in lint)
+    assert any(requirement.casefold().startswith("packaging") for requirement in lint)
     assert "PyYAML" in CI_WORKFLOW.read_text(encoding="utf-8")
 
 
@@ -188,6 +193,34 @@ def test_private_artifact_verifier_accepts_one_clean_wheel_and_sdist(tmp_path: P
     assert verify_artifacts([wheel, sdist]) == []
 
 
+def test_private_artifact_verifier_binds_distribution_identity(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    metadata = b"Metadata-Version: 2.4\nName: seam-runtime\nVersion: 2.5.0\n\n"
+    _write_wheel(
+        wheel,
+        {
+            "seam_runtime/__init__.py": b"",
+            "seam_runtime-2.5.0.dist-info/METADATA": metadata,
+        },
+    )
+    _write_sdist(
+        sdist,
+        {
+            "seam_runtime-2.5.0/PKG-INFO": metadata,
+            "seam_runtime-2.5.0/README.md": b"private runtime\n",
+        },
+    )
+
+    assert verify_artifacts(
+        [wheel, sdist], expected_name="seam-runtime", expected_version="2.5.0"
+    ) == []
+    findings = verify_artifacts(
+        [wheel, sdist], expected_name="seam-runtime", expected_version="2.6.0"
+    )
+    assert sum("version_mismatch" in finding for finding in findings) == 4
+
+
 def test_private_artifact_verifier_rejects_secret_and_unsafe_paths(tmp_path: Path) -> None:
     wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
     sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
@@ -214,6 +247,19 @@ def test_private_artifact_verifier_scans_bounded_binary_members(tmp_path: Path) 
     assert any("api_key" in finding for finding in findings)
 
 
+@pytest.mark.parametrize("encoding", ["utf-16-le", "utf-16-be"])
+def test_private_artifact_verifier_scans_utf16_members(
+    tmp_path: Path, encoding: str
+) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    secret = "sk-" + "proj-" + "d" * 24
+    _write_wheel(wheel, {"seam_runtime/settings.txt": secret.encode(encoding)})
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    assert any("api_key" in finding for finding in verify_artifacts([wheel, sdist]))
+
+
 def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
     tmp_path: Path,
 ) -> None:
@@ -229,6 +275,8 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
             "seam_runtime/passwords.json": b'{"password":"ordinary-password"}\n',
             "seam_runtime/token.json": b'{"access_token":"ordinary-password-value"}\n',
             "seam_runtime/auth.json": b'{"auth":"ordinary-password-value"}\n',
+            "seam_runtime/oauth2.json": b'{"access_token":"ordinary-password-value"}\n',
+            "seam_runtime/authtoken.json": b'{"access_token":"ordinary-password-value"}\n',
             "C:/credentials.json": b"placeholder\n",
         },
     )
@@ -236,7 +284,7 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
 
     findings = verify_artifacts([wheel, sdist])
 
-    assert sum("credential_path" in finding for finding in findings) >= 7
+    assert sum("credential_path" in finding for finding in findings) >= 9
     assert any("unsafe_member_path" in finding for finding in findings)
 
 
@@ -312,6 +360,21 @@ def test_private_artifact_verifier_rejects_windows_device_names(
     assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
 
 
+@pytest.mark.parametrize("invalid_character", ["<", ">", ":", '"', "|", "?", "*"])
+def test_private_artifact_verifier_rejects_windows_invalid_characters(
+    tmp_path: Path, invalid_character: str
+) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    _write_wheel(
+        wheel,
+        {f"seam_runtime/webui/foo{invalid_character}.txt": b"unsafe\n"},
+    )
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
+
+
 def test_private_artifact_verifier_redacts_member_names(tmp_path: Path) -> None:
     wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
     sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
@@ -327,6 +390,25 @@ def test_private_artifact_verifier_redacts_member_names(tmp_path: Path) -> None:
     assert findings
     assert leaked not in "\n".join(findings)
     assert any("member[" in finding for finding in findings)
+
+
+def test_private_artifact_verifier_redacts_archive_read_failures(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    leaked = "sk-" + "proj-" + "e" * 24
+    _write_wheel(wheel, {f"seam_runtime/{leaked}.txt": b"placeholder\n"})
+    content = bytearray(wheel.read_bytes())
+    local_header = content.index(b"PK\x03\x04")
+    central_header = content.index(b"PK\x01\x02")
+    content[local_header + 6 : local_header + 8] = (1).to_bytes(2, "little")
+    content[central_header + 8 : central_header + 10] = (1).to_bytes(2, "little")
+    wheel.write_bytes(content)
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert any("unreadable_member" in finding for finding in findings)
+    assert leaked not in "\n".join(findings)
 
 
 def test_operations_status_records_merged_s6() -> None:

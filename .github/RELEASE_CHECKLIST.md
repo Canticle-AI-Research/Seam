@@ -27,10 +27,14 @@ It does not authorize PyPI publication, a public-client release, or deployment.
       provider session links, and unsupported deployment or benchmark claims.
 - [ ] Download the reviewed draft assets, verify `SHA256SUMS.txt`, and record
       the SHA256 digest of that manifest.
+- [ ] Export the reviewed generated notes with `gh release view v<version>
+      --json body --jq '.body' > reviewed-notes.md` and record that file's
+      SHA256 digest.
 - [ ] Dispatch **Publish reviewed private release** from current `main` with the
-      exact version, tagged commit SHA, and reviewed manifest digest; approve
-      its `private-package-release` gate only after the draft review. If `main`
-      advanced during review, restart preparation from the new head.
+      exact version, tagged commit SHA, reviewed manifest digest, and reviewed
+      notes digest; approve its `private-package-release` gate only after the
+      draft review. If `main` advanced during review, restart preparation from
+      the new head.
 - [ ] Do not publish the draft directly from the GitHub release page; the
       guarded follow-up rechecks the mutable tag, notes, assets, and checksums
       immediately before publication.

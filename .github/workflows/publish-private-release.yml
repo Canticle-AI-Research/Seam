@@ -15,6 +15,10 @@ on:
         description: SHA256 of the reviewed draft asset SHA256SUMS.txt
         required: true
         type: string
+      notes_sha256:
+        description: SHA256 of the reviewed generated release notes
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -36,6 +40,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install release verification dependency
+        run: python -m pip install 'packaging>=24,<27'
+
       - name: Reverify reviewed draft and publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -43,6 +50,7 @@ jobs:
           VERSION: ${{ inputs.version }}
           EXPECTED_SHA: ${{ inputs.commit_sha }}
           EXPECTED_MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+          EXPECTED_NOTES_SHA256: ${{ inputs.notes_sha256 }}
           WORKFLOW_SHA: ${{ github.sha }}
         run: |
           python - <<'PY'
@@ -53,6 +61,7 @@ jobs:
           version = os.environ["VERSION"]
           expected_sha = os.environ["EXPECTED_SHA"]
           manifest_sha = os.environ["EXPECTED_MANIFEST_SHA256"]
+          notes_sha = os.environ["EXPECTED_NOTES_SHA256"]
           with open("pyproject.toml", "rb") as project_file:
               project_version = tomllib.load(project_file)["project"]["version"]
           if version != project_version:
@@ -63,6 +72,8 @@ jobs:
               raise SystemExit("commit_sha must be one full hexadecimal commit SHA.")
           if len(manifest_sha) != 64 or any(char not in string.hexdigits for char in manifest_sha):
               raise SystemExit("manifest_sha256 must be one full hexadecimal SHA256 digest.")
+          if len(notes_sha) != 64 or any(char not in string.hexdigits for char in notes_sha):
+              raise SystemExit("notes_sha256 must be one full hexadecimal SHA256 digest.")
           PY
 
           current_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
@@ -94,6 +105,7 @@ jobs:
             exit 1
           fi
           python - <<'PY'
+          import re
           from pathlib import Path
 
           assets = sorted(path.name for path in Path("draft-assets").iterdir() if path.is_file())
@@ -101,6 +113,15 @@ jobs:
           sdists = [name for name in assets if name.endswith(".tar.gz")]
           if len(wheels) != 1 or len(sdists) != 1 or assets != sorted([*wheels, *sdists, "SHA256SUMS.txt"]):
               raise SystemExit("Unexpected draft asset set.")
+          manifest_lines = Path("draft-assets/SHA256SUMS.txt").read_text(encoding="utf-8").splitlines()
+          manifest_names = []
+          for line in manifest_lines:
+              match = re.fullmatch(r"[0-9a-fA-F]{64} [ *]([^/\\]+)", line)
+              if match is None:
+                  raise SystemExit("Malformed SHA256SUMS.txt entry.")
+              manifest_names.append(match.group(1))
+          if len(manifest_names) != 2 or sorted(manifest_names) != sorted([*wheels, *sdists]):
+              raise SystemExit("SHA256SUMS.txt must cover exactly the wheel and sdist once each.")
           PY
           actual_manifest_sha256="$(sha256sum draft-assets/SHA256SUMS.txt | cut -d ' ' -f 1)"
           if [[ "${actual_manifest_sha256}" != "${EXPECTED_MANIFEST_SHA256,,}" ]]; then
@@ -108,9 +129,17 @@ jobs:
             exit 1
           fi
           (cd draft-assets && sha256sum --check SHA256SUMS.txt)
-          python -m tools.release.verify_private_artifacts draft-assets/*.whl draft-assets/*.tar.gz
+          python -m tools.release.verify_private_artifacts \
+            --expected-name seam-runtime \
+            --expected-version "${VERSION}" \
+            draft-assets/*.whl draft-assets/*.tar.gz
 
           gh release view "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --json body --jq '.body' > draft-notes.md
+          actual_notes_sha256="$(sha256sum draft-notes.md | cut -d ' ' -f 1)"
+          if [[ "${actual_notes_sha256}" != "${EXPECTED_NOTES_SHA256,,}" ]]; then
+            echo "Reviewed release notes digest changed; refusing publication." >&2
+            exit 1
+          fi
           python - <<'PY'
           from pathlib import Path
           from tools.security.secret_scan import scan_bytes
@@ -127,9 +156,10 @@ jobs:
 
           final_tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" \
             --jq 'if .object.type == "commit" then .object.sha else error("annotated release tags are not accepted") end')"
+          final_main_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
           release_state_after="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" \
             --jq '[.id, .draft, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
-          if [[ "${final_tag_sha}" != "${EXPECTED_SHA,,}" || "${release_state_after}" != "${release_state_before}" ]]; then
+          if [[ "${final_main_sha}" != "${EXPECTED_SHA,,}" || "${final_tag_sha}" != "${EXPECTED_SHA,,}" || "${release_state_after}" != "${release_state_before}" ]]; then
             echo "Draft state changed during verification; refusing publication." >&2
             exit 1
           fi

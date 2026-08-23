@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#592
+history: HISTORY#593
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -77,13 +77,18 @@ history: HISTORY#592
 - A focused local follow-up requires that reviewed tag to remain the current
   protected-main head and explicitly rejects annotated tags because the
   preparation workflow owns one atomic lightweight tag.
+- The sixth exact-head review added final protected-head revalidation, reviewed
+  notes digest binding, exact manifest coverage, artifact filename/metadata
+  identity, UTF-16 secret scanning, safe archive-read failures, concatenated
+  token/auth stems, complete Windows-invalid character rejection, and README
+  documentation for both guarded stages.
 
 ## Next exact steps
 
-HISTORY#591, its signed review-repair commits, exact candidate scan, initial
+HISTORY#592, its signed review-repair commits, exact candidate scan, initial
 required checks, and the prior review cycles are complete. Continue with:
 
-1. Push the completed focused local-review successor.
+1. Push the completed sixth exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

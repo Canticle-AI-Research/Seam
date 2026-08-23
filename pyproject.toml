@@ -50,7 +50,7 @@ all-extras = ["textual>=8.0,<9.0", "httpx>=0.24,<1.0", "psycopg[binary]>=3.0,<4.
 # via `seam[lint]`. markdown-it-py gives the wiki verifier CommonMark parsing
 # semantics instead of maintaining an unsafe partial Markdown parser; PyYAML
 # is imported directly by repository configuration tests.
-lint = ["ruff>=0.6,<1.0", "markdown-it-py>=4.0,<5.0", "PyYAML>=6.0,<7.0"]
+lint = ["ruff>=0.6,<1.0", "markdown-it-py>=4.0,<5.0", "PyYAML>=6.0,<7.0", "packaging>=24,<27"]
 
 [tool.seam.dependency-contract]
 schema = "seam-dependency-contract/1"

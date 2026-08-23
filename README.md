@@ -485,8 +485,7 @@ The manual **Package release** GitHub Actions workflow
 ([`.github/workflows/package-release.yml`](.github/workflows/package-release.yml))
 is `workflow_dispatch`-only, serialized, and takes one input: the exact SemVer
 `version` already set in `pyproject.toml`. Dispatch must come from the default
-branch and the immutable `v<version>` tag must not already exist. It has two
-jobs:
+branch and the `v<version>` tag must not already exist. It has two jobs:
 
 - **`build`** — verifies the requested version matches `pyproject.toml` and
   fails otherwise, builds exactly one wheel and one sdist, runs `twine check`,
@@ -496,14 +495,23 @@ jobs:
   a 7-day artifact.
 - **`private-github-release`** — gated on the `private-package-release`
   environment, downloads and checksum-verifies that artifact, then creates an
-  immutable GitHub Release against **this private repository only** with notes
-  generated through [`.github/release.yml`](.github/release.yml).
+  asset-complete draft GitHub Release against **this private repository only**
+  with notes generated through [`.github/release.yml`](.github/release.yml).
+
+After an operator reviews the draft notes and assets, the separate manual
+**Publish reviewed private release** workflow
+([`.github/workflows/publish-private-release.yml`](.github/workflows/publish-private-release.yml))
+requires their notes/manifest digests and the exact tagged commit. Its protected
+environment gate revalidates current main, tag type/target, artifact identity,
+complete checksum coverage, packaged content, notes, and unchanged draft state
+immediately before publication. Do not publish the draft directly from the
+release page.
 
 Use the [private release checklist](.github/RELEASE_CHECKLIST.md) from proposal
 through post-publication verification.
 
-**There is no PyPI path.** The workflow has no publish job, no target selector,
-and no `id-token` permission, so it cannot publish to an index even by mistake.
+**There is no PyPI path.** Neither workflow has a package-index target or
+`id-token` permission, so neither can publish to an index even by mistake.
 The package is additionally marked `Private :: Do Not Upload` in
 `pyproject.toml` as a tripwire against an accidental upload, and
 `tools/release/verify_public_safe.py` blocks secret-shaped content and private

@@ -15,7 +15,18 @@ import stat
 import tarfile
 import unicodedata
 import zipfile
+from email import policy
+from email.parser import BytesParser
 from pathlib import Path, PurePosixPath, PureWindowsPath
+
+from packaging.utils import (
+    InvalidSdistFilename,
+    InvalidWheelFilename,
+    canonicalize_name,
+    canonicalize_version,
+    parse_sdist_filename,
+    parse_wheel_filename,
+)
 
 from tools.security.secret_scan import MAX_SCAN_BYTES, scan_bytes
 
@@ -46,11 +57,21 @@ _DENIED_FILENAME_WORDS = frozenset(
         "tokens",
     }
 )
+_DENIED_COLLAPSED_FILENAME_SUFFIXES = (
+    "accesstoken",
+    "authtoken",
+    "idtoken",
+    "oauthtoken",
+    "refreshtoken",
+    "token",
+    "tokens",
+)
 _WINDOWS_RESERVED_BASENAMES = frozenset(
     {"aux", "clock$", "con", "nul", "prn"}
     | {f"com{index}" for index in range(1, 10)}
     | {f"lpt{index}" for index in range(1, 10)}
 )
+_WINDOWS_FORBIDDEN_CHARACTERS = frozenset('<>:"|?*')
 _NESTED_ARCHIVE_SUFFIXES = frozenset(
     {
         ".7z",
@@ -83,6 +104,8 @@ def _validate_member_path(
         return f"{archive.name}:{member_ref}: unsafe_member_path"
     if any(part.endswith((".", " ")) for part in member.parts):
         return f"{archive.name}:{member_ref}: unsafe_member_path"
+    if any(any(char in _WINDOWS_FORBIDDEN_CHARACTERS for char in part) for part in member.parts):
+        return f"{archive.name}:{member_ref}: unsafe_member_path"
     if any(
         part.split(".", 1)[0].casefold() in _WINDOWS_RESERVED_BASENAMES
         for part in member.parts
@@ -99,7 +122,13 @@ def _validate_member_path(
     if any(marker in lowered_parts[-1] for marker in _DENIED_FILENAME_MARKERS):
         return f"{archive.name}:{member_ref}: credential_path"
     filename_words = frozenset(re.findall(r"[a-z0-9]+", lowered_parts[-1]))
-    if filename_words & _DENIED_FILENAME_WORDS:
+    filename_stem = lowered_parts[-1].rsplit(".", 1)[0]
+    collapsed_stem = "".join(re.findall(r"[a-z0-9]+", filename_stem))
+    if (
+        filename_words & _DENIED_FILENAME_WORDS
+        or collapsed_stem.startswith("oauth") and collapsed_stem[5:].isdigit()
+        or collapsed_stem.endswith(_DENIED_COLLAPSED_FILENAME_SUFFIXES)
+    ):
         return f"{archive.name}:{member_ref}: credential_path"
     if any(part in {"secrets", "credentials"} for part in lowered_parts[:-1]):
         return f"{archive.name}:{member_ref}: credential_directory"
@@ -164,15 +193,18 @@ def _scan_wheel(path: Path) -> list[str]:
                 if mode not in {0, stat.S_IFREG}:
                     findings.append(f"{path.name}:{member_ref}: non_regular_member")
                     continue
-                with archive.open(info) as stream:
-                    header = stream.read(512)
-                    content_gate = _content_gate(
-                        path, info.filename, member_ref, info.file_size, header
-                    )
-                    if content_gate is not None:
-                        findings.extend(content_gate)
-                        continue
-                    findings.extend(_scan_member(path, member_ref, header + stream.read()))
+                try:
+                    with archive.open(info) as stream:
+                        header = stream.read(512)
+                        content_gate = _content_gate(
+                            path, info.filename, member_ref, info.file_size, header
+                        )
+                        if content_gate is not None:
+                            findings.extend(content_gate)
+                            continue
+                        findings.extend(_scan_member(path, member_ref, header + stream.read()))
+                except (EOFError, OSError, RuntimeError, zipfile.BadZipFile):
+                    findings.append(f"{path.name}:{member_ref}: unreadable_member")
     except (OSError, zipfile.BadZipFile) as exc:
         findings.append(f"{path.name}: invalid_wheel:{type(exc).__name__}")
     return findings
@@ -194,7 +226,11 @@ def _scan_sdist(path: Path) -> list[str]:
                 if not info.isfile():
                     findings.append(f"{path.name}:{member_ref}: non_regular_member")
                     continue
-                stream = archive.extractfile(info)
+                try:
+                    stream = archive.extractfile(info)
+                except (EOFError, OSError, RuntimeError, tarfile.TarError):
+                    findings.append(f"{path.name}:{member_ref}: unreadable_member")
+                    continue
                 if stream is None:
                     findings.append(f"{path.name}:{member_ref}: unreadable_member")
                     continue
@@ -209,7 +245,84 @@ def _scan_sdist(path: Path) -> list[str]:
     return findings
 
 
-def verify_artifacts(paths: list[Path]) -> list[str]:
+def _metadata_identity(content: bytes) -> tuple[str, str] | None:
+    message = BytesParser(policy=policy.default).parsebytes(content, headersonly=True)
+    names = message.get_all("Name", [])
+    versions = message.get_all("Version", [])
+    if len(names) != 1 or len(versions) != 1:
+        return None
+    return names[0], versions[0]
+
+
+def _scan_wheel_identity(path: Path, expected_name: str, expected_version: str) -> list[str]:
+    findings: list[str] = []
+    try:
+        name, version, _build, _tags = parse_wheel_filename(path.name)
+        if canonicalize_name(name) != canonicalize_name(expected_name):
+            findings.append(f"{path.name}: artifact_name_mismatch")
+        if canonicalize_version(str(version)) != canonicalize_version(expected_version):
+            findings.append(f"{path.name}: artifact_version_mismatch")
+        with zipfile.ZipFile(path) as archive:
+            metadata_members = [info for info in archive.infolist() if info.filename.endswith(".dist-info/METADATA")]
+            if len(metadata_members) != 1:
+                return [*findings, f"{path.name}: expected_one_metadata_member"]
+            with archive.open(metadata_members[0]) as stream:
+                content = stream.read(MAX_SCAN_BYTES + 1)
+    except (EOFError, InvalidWheelFilename, OSError, RuntimeError, zipfile.BadZipFile):
+        return [*findings, f"{path.name}: unreadable_artifact_identity"]
+    if len(content) > MAX_SCAN_BYTES:
+        return [*findings, f"{path.name}: artifact_metadata_size_limit"]
+    identity = _metadata_identity(content)
+    if identity is None:
+        return [*findings, f"{path.name}: invalid_artifact_metadata"]
+    metadata_name, metadata_version = identity
+    if canonicalize_name(metadata_name) != canonicalize_name(expected_name):
+        findings.append(f"{path.name}: metadata_name_mismatch")
+    if canonicalize_version(metadata_version) != canonicalize_version(expected_version):
+        findings.append(f"{path.name}: metadata_version_mismatch")
+    return findings
+
+
+def _scan_sdist_identity(path: Path, expected_name: str, expected_version: str) -> list[str]:
+    findings: list[str] = []
+    try:
+        name, version = parse_sdist_filename(path.name)
+        if canonicalize_name(name) != canonicalize_name(expected_name):
+            findings.append(f"{path.name}: artifact_name_mismatch")
+        if canonicalize_version(str(version)) != canonicalize_version(expected_version):
+            findings.append(f"{path.name}: artifact_version_mismatch")
+        with tarfile.open(path, mode="r:gz") as archive:
+            metadata_members = [
+                info
+                for info in archive.getmembers()
+                if info.isfile()
+                and len(PurePosixPath(info.name).parts) == 2
+                and PurePosixPath(info.name).name == "PKG-INFO"
+            ]
+            if len(metadata_members) != 1:
+                return [*findings, f"{path.name}: expected_one_metadata_member"]
+            stream = archive.extractfile(metadata_members[0])
+            if stream is None:
+                return [*findings, f"{path.name}: unreadable_artifact_identity"]
+            content = stream.read(MAX_SCAN_BYTES + 1)
+    except (EOFError, InvalidSdistFilename, OSError, RuntimeError, tarfile.TarError):
+        return [*findings, f"{path.name}: unreadable_artifact_identity"]
+    if len(content) > MAX_SCAN_BYTES:
+        return [*findings, f"{path.name}: artifact_metadata_size_limit"]
+    identity = _metadata_identity(content)
+    if identity is None:
+        return [*findings, f"{path.name}: invalid_artifact_metadata"]
+    metadata_name, metadata_version = identity
+    if canonicalize_name(metadata_name) != canonicalize_name(expected_name):
+        findings.append(f"{path.name}: metadata_name_mismatch")
+    if canonicalize_version(metadata_version) != canonicalize_version(expected_version):
+        findings.append(f"{path.name}: metadata_version_mismatch")
+    return findings
+
+
+def verify_artifacts(
+    paths: list[Path], *, expected_name: str | None = None, expected_version: str | None = None
+) -> list[str]:
     findings: list[str] = []
     wheels = [path for path in paths if path.name.endswith(".whl")]
     sdists = [path for path in paths if path.name.endswith(".tar.gz")]
@@ -222,21 +335,33 @@ def verify_artifacts(paths: list[Path]) -> list[str]:
         findings.append(f"{path.name}: unsupported_artifact")
     for path in wheels:
         findings.extend(_scan_wheel(path))
+        if expected_name is not None and expected_version is not None:
+            findings.extend(_scan_wheel_identity(path, expected_name, expected_version))
     for path in sdists:
         findings.extend(_scan_sdist(path))
+        if expected_name is not None and expected_version is not None:
+            findings.extend(_scan_sdist_identity(path, expected_name, expected_version))
     return findings
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--expected-name")
+    parser.add_argument("--expected-version")
     parser.add_argument("artifacts", nargs="+", type=Path)
     args = parser.parse_args(argv)
+    if (args.expected_name is None) != (args.expected_version is None):
+        parser.error("--expected-name and --expected-version must be provided together")
     missing = [path for path in args.artifacts if not path.is_file()]
     if missing:
         for path in missing:
             print(f"{path}: missing_artifact")
         return 1
-    findings = verify_artifacts(args.artifacts)
+    findings = verify_artifacts(
+        args.artifacts,
+        expected_name=args.expected_name,
+        expected_version=args.expected_version,
+    )
     if findings:
         print(f"Private artifact verification FAILED with {len(findings)} finding(s):")
         for finding in findings:
