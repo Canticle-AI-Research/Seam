@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 650
+total_events: 651
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-15T11:35:53Z | history:394:f348135d | session-event | done | benchmark, mem0, harness, cleanup | benchmarks/external/mem0_harness/README.md,benchmarks/external/mem0_harness/s... |
 | 2026-07-15T11:49:56Z | history:395:de5bf982 | session-event | done | benchmark, locomo, mem0, harness, retrieval, quality, tes... | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
 | 2026-07-15T12:08:08Z | history:396:6f876cc6 | session-event | done | benchmark, locomo, quality, audit | docs/audits/2026-07-15-champion-problem-scan.md,PROJECT_STATUS.md |
 | 2026-07-15T12:24:16Z | history:397:c5ff6b8a | session-event | done | benchmark, locomo, quality, handoff, continuity, verify | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T04:49:40Z | history:585:b1224212 | session-event | changed | bugfix, ci, docs, gates, handoff, security, status, test,... | HISTORY#584,PR#224,tools/release/verify_private_artifacts.py,.github/workflow... |
 | 2026-08-23T04:57:49Z | history:586:dbb95462 | session-event | changed | audit, ci, correction, docs, handoff, provenance, test, v... | HISTORY#585,PR#224,tests/audit/test_github_issue_release_config.py,.seam/cros... |
 | 2026-08-23T04:58:37Z | history:587:b4188469 | session-event | changed | correction, history, integrity, provenance, verify | HISTORY#586,tests/audit/test_github_issue_release_config.py,docs/handoffs/202... |
+| 2026-08-23T05:16:34Z | history:588:5a13faf0 | session-event | changed | atomicity, bugfix, ci, docs, gates, handoff, pyproject, s... | HISTORY#587,PR#224,.github/workflows/package-release.yml,.github/workflows/ci... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0450.cross.md | 2026-04-15T00:00:00Z..2026-07-15T11:29:48Z | 450 | (multi) | (multi) |
+| 0001-0451.cross.md | 2026-04-15T00:00:00Z..2026-07-15T11:35:53Z | 451 | (multi) | (multi) |

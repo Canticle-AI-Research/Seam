@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import tarfile
+import tomllib
 import zipfile
 from pathlib import Path
 
@@ -17,6 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ISSUE_TEMPLATE_DIR = REPO_ROOT / ".github" / "ISSUE_TEMPLATE"
 PACKAGE_RELEASE = REPO_ROOT / ".github" / "workflows" / "package-release.yml"
 OPERATIONS_STATUS = REPO_ROOT / "docs" / "status" / "operations.md"
+CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
 
 def _write_wheel(path: Path, members: dict[str, bytes]) -> None:
@@ -88,7 +90,7 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "sha256sum --check" in raw
     assert "--generate-notes" in raw
     assert "git/ref/heads/${DEFAULT_BRANCH}" in raw
-    assert "RELEASE_SHA: ${{ github.sha }}" in raw
+    assert "COMMIT_SHA: ${{ github.sha }}" in raw
     assert "current protected-main head" in raw
     assert "prerelease: ${{ steps.version.outputs.prerelease }}" in raw
     assert "--prerelease" in raw
@@ -97,6 +99,20 @@ def test_package_release_stays_private_and_verifiable() -> None:
     publish = document["jobs"]["private-github-release"]
     assert publish["environment"] == "private-package-release"
     assert publish["permissions"] == {"contents": "write"}
+    creation = next(step for step in publish["steps"] if step["name"] == "Create private GitHub release")
+    run = creation["run"]
+    assert run.index("git/ref/heads/${DEFAULT_BRANCH}") < run.index('ref="refs/tags/v${VERSION}"')
+    assert "--draft" in run
+    assert "gh release edit" in run
+    assert "cleanup_failed_publication" in run
+    assert "draft" in run
+
+
+def test_repository_tests_declare_yaml_directly() -> None:
+    project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    lint = project["project"]["optional-dependencies"]["lint"]
+    assert any(requirement.casefold().startswith("pyyaml") for requirement in lint)
+    assert "PyYAML" in CI_WORKFLOW.read_text(encoding="utf-8")
 
 
 def _run_version_step(tmp_path: Path, *, project_version: str, requested: str) -> subprocess.CompletedProcess[str]:
@@ -171,6 +187,7 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
             "seam_runtime/secrets.txt": b"placeholder\n",
             "seam_runtime/.env.production": b"placeholder\n",
             "seam_runtime/client_secret.json": b'{"client_secret":"ordinary-password"}\n',
+            "seam_runtime/passwords.json": b'{"password":"ordinary-password"}\n',
             "C:/credentials.json": b"placeholder\n",
         },
     )
@@ -178,7 +195,13 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
 
     findings = verify_artifacts([wheel, sdist])
 
-    for name in ("credentials.json", "secrets.txt", ".env.production", "client_secret.json"):
+    for name in (
+        "credentials.json",
+        "secrets.txt",
+        ".env.production",
+        "client_secret.json",
+        "passwords.json",
+    ):
         assert any(name in finding and "credential_path" in finding for finding in findings)
     assert any("C:/credentials.json" in finding and "unsafe_member_path" in finding for finding in findings)
 
@@ -195,14 +218,33 @@ def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> No
             "seam_runtime/webui/assets.zip": b"uninspected archive",
             "seam_runtime/webui/assets.jar": nested.getvalue(),
             "seam_runtime/webui/payload.bin": nested.getvalue(),
+            "seam_runtime/webui/payload.zst": b"\x28\xb5\x2f\xfdcompressed",
+            "seam_runtime/webui/compressed.bin": b"\x28\xb5\x2f\xfdcompressed",
         },
     )
     _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
-    for name in ("assets.zip", "assets.jar", "payload.bin"):
+    for name in ("assets.zip", "assets.jar", "payload.bin", "payload.zst", "compressed.bin"):
         assert any(name in finding and "nested_archive" in finding for finding in findings)
+
+
+def test_private_artifact_verifier_rejects_casefolded_duplicate_paths(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    _write_wheel(
+        wheel,
+        {
+            "seam_runtime/config.py": b"LOWER = True\n",
+            "seam_runtime/CONFIG.py": b"UPPER = True\n",
+        },
+    )
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert any("CONFIG.py" in finding and "duplicate_member" in finding for finding in findings)
 
 
 def test_operations_status_records_merged_s6() -> None:

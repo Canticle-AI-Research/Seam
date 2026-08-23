@@ -144,23 +144,6 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Revalidate protected-main release boundary
-        env:
-          GH_TOKEN: ${{ github.token }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          RELEASE_SHA: ${{ github.sha }}
-          VERSION: ${{ needs.build.outputs.version }}
-        run: |
-          current_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
-          if [[ "${current_sha}" != "${RELEASE_SHA}" ]]; then
-            echo "Release commit ${RELEASE_SHA} is no longer the current protected-main head ${current_sha}; restart the workflow." >&2
-            exit 1
-          fi
-          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" >/dev/null 2>&1; then
-            echo "Tag v${VERSION} was created while the release awaited approval; releases are immutable." >&2
-            exit 1
-          fi
-
       - name: Download reviewed distributions
         uses: actions/download-artifact@v4
         with:
@@ -174,18 +157,61 @@ jobs:
       - name: Create private GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           VERSION: ${{ needs.build.outputs.version }}
           PRERELEASE: ${{ needs.build.outputs.prerelease }}
           COMMIT_SHA: ${{ github.sha }}
         run: |
+          tag_reserved=false
+          publication_complete=false
+          cleanup_failed_publication() {
+            status=$?
+            trap - EXIT
+            if [[ "${status}" -eq 0 || "${tag_reserved}" != "true" || "${publication_complete}" == "true" ]]; then
+              exit "${status}"
+            fi
+            set +e
+            current_tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" --jq '.object.sha' 2>/dev/null)"
+            if [[ "${current_tag_sha}" != "${COMMIT_SHA}" ]]; then
+              echo "Failed publication did not retain the expected tag target; leaving remote state for operator review." >&2
+              exit "${status}"
+            fi
+            if ! release_draft="$(gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate \
+              --jq ".[] | select(.tag_name == \"v${VERSION}\") | .draft")"; then
+              echo "Could not inspect release state; leaving the expected tag for operator review." >&2
+              exit "${status}"
+            fi
+            can_delete_tag=true
+            if [[ "${release_draft}" == "true" ]]; then
+              if ! gh release delete "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --yes; then
+                can_delete_tag=false
+              fi
+            elif [[ "${release_draft}" == "false" ]]; then
+              can_delete_tag=false
+              echo "Release v${VERSION} is already published; refusing automatic cleanup." >&2
+            fi
+            if [[ "${can_delete_tag}" == "true" ]]; then
+              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/v${VERSION}" >/dev/null
+            fi
+            exit "${status}"
+          }
+          trap cleanup_failed_publication EXIT
+
           release_flags=()
           if [[ "${PRERELEASE}" == "true" ]]; then
             release_flags+=(--prerelease)
           fi
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+
+          current_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
+          if [[ "${current_sha}" != "${COMMIT_SHA}" ]]; then
+            echo "Release commit ${COMMIT_SHA} is no longer the current protected-main head ${current_sha}; restart the workflow." >&2
+            exit 1
+          fi
+          tag_sha="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
             -f ref="refs/tags/v${VERSION}" \
-            -f sha="${COMMIT_SHA}" >/dev/null
-          tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" --jq '.object.sha')"
+            -f sha="${COMMIT_SHA}" \
+            --jq '.object.sha')"
+          tag_reserved=true
           if [[ "${tag_sha}" != "${COMMIT_SHA}" ]]; then
             echo "Created tag v${VERSION} does not target release commit ${COMMIT_SHA}." >&2
             exit 1
@@ -193,7 +219,12 @@ jobs:
           gh release create "v${VERSION}" dist/* \
             --repo "${GITHUB_REPOSITORY}" \
             --verify-tag \
+            --draft \
             "${release_flags[@]}" \
             --title "SEAM ${VERSION}" \
             --notes "Private proprietary SEAM runtime release ${VERSION}." \
             --generate-notes
+          gh release edit "v${VERSION}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --draft=false
+          publication_complete=true

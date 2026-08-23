@@ -132,7 +132,12 @@ and `HISTORY_INDEX.md`.
   one private `seam-runtime` wheel and sdist, rejects unsafe members and
   secret-shaped packaged content, smoke-tests the installed commands, emits and
   verifies `SHA256SUMS.txt`, and creates an immutable private GitHub Release
-  with categorized generated notes. It has no PyPI target, publish job, or
+  with categorized generated notes. After environment approval it revalidates
+  the live protected head immediately before atomically reserving the exact tag,
+  builds the release as a draft, and publishes only after asset upload; a failed
+  attempt removes only its exact unpublished draft/tag, while ambiguous or
+  already-published state is left for operator review. Prerelease SemVer is
+  marked as a GitHub prerelease. It has no PyPI target, publish job, or
   `id-token` permission. Private 2.4.0 is live as GitHub release `v2.4.0`,
   pinned to protected-main merge
   `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist

@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import stat
 import tarfile
+import unicodedata
 import zipfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
@@ -28,9 +29,25 @@ _DENIED_NAMES = frozenset(
     }
 )
 _DENIED_SUFFIXES = frozenset({".db", ".key", ".p12", ".pem", ".pfx", ".sqlite", ".sqlite3"})
-_DENIED_FILENAME_MARKERS = (".env", "credential", "dotenv", "secret")
+_DENIED_FILENAME_MARKERS = (".env", "credential", "dotenv", "passwd", "password", "secret")
 _NESTED_ARCHIVE_SUFFIXES = frozenset(
-    {".7z", ".bz2", ".egg", ".gz", ".rar", ".tar", ".tgz", ".txz", ".whl", ".xz", ".zip"}
+    {
+        ".7z",
+        ".br",
+        ".bz2",
+        ".egg",
+        ".gz",
+        ".lz4",
+        ".rar",
+        ".tar",
+        ".tgz",
+        ".txz",
+        ".whl",
+        ".xz",
+        ".zip",
+        ".zst",
+        ".zstd",
+    }
 )
 
 
@@ -42,9 +59,10 @@ def _validate_member_path(archive: Path, raw_name: str, seen: set[str]) -> str |
     if not normalized or not member.parts or member.is_absolute() or ".." in member.parts:
         return f"{archive.name}:{raw_name}: unsafe_member_path"
     canonical = member.as_posix()
-    if canonical in seen:
+    canonical_key = unicodedata.normalize("NFC", canonical).casefold()
+    if canonical_key in seen:
         return f"{archive.name}:{canonical}: duplicate_member"
-    seen.add(canonical)
+    seen.add(canonical_key)
     lowered_parts = tuple(part.casefold() for part in member.parts)
     if any(part in _DENIED_NAMES for part in lowered_parts):
         return f"{archive.name}:{canonical}: credential_path"
@@ -72,6 +90,11 @@ def _has_archive_magic(header: bytes) -> bool:
         or header.startswith(b"\xfd7zXZ\x00")
         or header.startswith(b"7z\xbc\xaf'\x1c")
         or header.startswith(b"Rar!\x1a\x07")
+        or header.startswith(b"\x28\xb5\x2f\xfd")
+        or header.startswith(b"\x04\x22\x4d\x18")
+        or len(header) >= 4
+        and 0x50 <= header[0] <= 0x5F
+        and header[1:4] == b"\x2a\x4d\x18"
         or len(header) >= 262
         and header[257:262] == b"ustar"
     )

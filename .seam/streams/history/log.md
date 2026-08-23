@@ -19209,3 +19209,33 @@ index, stream mirror, cross-index, and snapshot, then repeat every closeout
 gate. No product code, issue, milestone, tag, release, version, deployment,
 public artifact, provider call, or paid work changed.
 ---END-ENTRY-#587---
+
+---BEGIN-ENTRY-#588---
+id: 588
+date: 2026-08-23T05:16:34Z
+agent: Codex
+status: changed
+topics: atomicity, bugfix, ci, docs, gates, handoff, pyproject, security, test, verify
+commits: pending
+refs: HISTORY#587,PR#224,.github/workflows/package-release.yml,.github/workflows/ci.yml,pyproject.toml,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,REPO_LEDGER.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 587
+tokens: 246
+---
+Repaired all six actionable findings from the third exact-head Codex review of
+PR #224. The artifact gate rejects password/passwd filenames, Zstandard and LZ4
+containers by suffix or magic, and Unicode-normalized case-fold path collisions.
+PyYAML is now a direct bounded lint/test dependency and an explicit CI install,
+not a transitive benchmark-extra accident.
+
+The publishing job performs live protected-head validation immediately before
+atomic tag reservation, creates and uploads the release as a draft, and only
+then publishes it. Its failure trap removes only a tag still targeting the
+expected SHA and an unpublished draft; lookup failures, target drift, or an
+already-published release remain untouched for operator review. Fifteen focused
+tests, Ruff, dependency-contract verification, Bash syntax, and diff hygiene
+pass. A real 2.4.0 wheel and sdist built from an isolated copy of the repaired
+working tree passed the hardened private-artifact verifier and `twine check`.
+No issue, milestone, tag, release, version bump, deployment, public artifact,
+provider call, or paid work occurred. Signed push, repeat exact-head required
+CI, and final exact-head review remain publication gates.
+---END-ENTRY-#588---

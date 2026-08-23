@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#587
+history: HISTORY#588
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -57,13 +57,19 @@ history: HISTORY#587
   an unrecognized `payload.bin` ZIP fixture. Its timestamp suggestion was
   rejected: the cited canonical HISTORY entries contain date-only values, so
   derived cross-index rows correctly preserve them without invented instants.
+- The third exact-head review added password-family filenames, Zstandard/LZ4
+  container detection, Unicode-normalized case-fold collision rejection,
+  direct PyYAML test dependencies, live-head validation adjacent to atomic tag
+  reservation, and recoverable exact draft/tag cleanup on failed publication.
+  A real 2.4.0 wheel and sdist built from the repaired working tree pass the
+  hardened verifier and `twine check`.
 
 ## Next exact steps
 
-HISTORY#585, its signed review-repair commits, exact candidate scan, initial
+HISTORY#587, its signed review-repair commits, exact candidate scan, initial
 required checks, and the prior review cycles are complete. Continue with:
 
-1. Push the completed second exact-head review-repair successor.
+1. Push the completed third exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.
