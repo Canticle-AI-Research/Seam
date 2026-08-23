@@ -128,6 +128,7 @@ def _require_uvicorn() -> Any:
 class RateLimiter:
     limit_per_minute: int = 0
     max_keys: int = 10000
+    evict_oldest: bool = True
     hits: dict[str, list[float]] = field(default_factory=dict)
     _lock: Any = field(default_factory=threading.Lock, repr=False, compare=False)
 
@@ -144,6 +145,8 @@ class RateLimiter:
             window_start = now - 60.0
             self._purge(window_start)
             if key not in self.hits and len(self.hits) >= self.max_keys:
+                if not self.evict_oldest:
+                    return None
                 oldest_key = min(self.hits, key=lambda item: self.hits[item][-1] if self.hits[item] else 0.0)
                 self.hits.pop(oldest_key, None)
             recent = [stamp for stamp in self.hits.get(key, []) if stamp >= window_start]
@@ -300,6 +303,28 @@ def _principal_auth_failure_key(request: Any) -> str:
     return hashlib.sha256(
         f"principal-auth-failure\0{_client_key(request)}".encode()
     ).hexdigest()
+
+
+def _principal_credential_key(credential: str) -> str:
+    return hashlib.sha256(
+        f"principal-credential\0{credential}".encode()
+    ).hexdigest()
+
+
+def _request_route_path(request: Any) -> str:
+    """Return the ASGI routing path without a deployment root prefix."""
+
+    path = request.scope.get("path")
+    if not isinstance(path, str) or not path.startswith("/"):
+        path = request.url.path
+    root_path = request.scope.get("root_path")
+    if isinstance(root_path, str) and root_path:
+        normalized_root = root_path.rstrip("/")
+        if path == normalized_root:
+            return "/"
+        if path.startswith(f"{normalized_root}/"):
+            return path[len(normalized_root) :]
+    return path
 
 
 class _RequestBodyTooLarge(Exception):
@@ -704,6 +729,7 @@ def create_app(
     jlens_worker: JLensWorker | None = None,
     principal_resolver: PrincipalResolver | None = None,
     public_id_key: bytes | None = None,
+    process_workers: int | None = None,
 ) -> Any:
     Depends, FastAPI, Header, HTTPException, Query, Request = _require_fastapi()
     # Required: `from __future__ import annotations` defers annotation evaluation,
@@ -740,11 +766,26 @@ def create_app(
             "SEAM_API_TOKEN cannot bypass an injected principal resolver"
         )
     principal_mode = resolved_principal_resolver is not None
+    if principal_mode and process_workers is None:
+        raise RuntimeError(
+            "principal mode requires an explicit "
+            "process_workers count"
+        )
+    if process_workers is not None:
+        _validate_process_local_rate_limit(
+            workers=process_workers,
+            principal_mode=principal_mode,
+        )
     effective_rate_limit = _effective_rate_limit(principal_mode=principal_mode)
     limiter = RateLimiter(effective_rate_limit, max_keys=rate_limit_max_keys)
     principal_resolver_limiter = RateLimiter(
         effective_rate_limit,
         max_keys=rate_limit_max_keys,
+    )
+    principal_credential_limiter = RateLimiter(
+        effective_rate_limit,
+        max_keys=rate_limit_max_keys,
+        evict_oldest=False,
     )
     resolved_public_id_key = public_id_key
     if principal_mode:
@@ -796,6 +837,16 @@ def create_app(
             "/v1/context",
         }
     )
+    principal_operations = frozenset(
+        {
+            ("GET", "/health"),
+            ("HEAD", "/health"),
+            ("GET", "/v1/health"),
+            ("HEAD", "/v1/health"),
+            *(("POST", path) for path in principal_paths),
+            *(("OPTIONS", path) for path in principal_paths),
+        }
+    )
 
     def enforce_rate_limit(
         request: Request,
@@ -816,7 +867,7 @@ def create_app(
 
     def guard(request: Request, authorization: str | None = Header(default=None)) -> Any:
         if principal_mode:
-            if request.url.path not in principal_paths:
+            if _request_route_path(request) not in principal_paths:
                 enforce_rate_limit(request, _client_key(request))
                 raise HTTPException(status_code=404, detail="Not found")
             prefix = "Bearer "
@@ -826,15 +877,39 @@ def create_app(
                 else ""
             )
             auth_failure_key = _principal_auth_failure_key(request)
-            # Reserve the client/IP attempt atomically before invoking a
-            # potentially expensive injected resolver. This second bounded
-            # limiter closes concurrent credential-rotation bursts; a resolved
-            # principal is still subject to its stable cross-IP key below.
-            auth_reservation = enforce_rate_limit(
-                request,
-                auth_failure_key,
-                selected_limiter=principal_resolver_limiter,
+            preparse_reservation = getattr(
+                request.state,
+                "seam_principal_auth_reservation",
+                None,
             )
+            if (
+                isinstance(preparse_reservation, tuple)
+                and len(preparse_reservation) == 2
+                and preparse_reservation[0] == auth_failure_key
+            ):
+                auth_reservation = float(preparse_reservation[1])
+            else:
+                auth_reservation = enforce_rate_limit(
+                    request,
+                    auth_failure_key,
+                    selected_limiter=principal_resolver_limiter,
+                )
+            # Bound repeated use of one credential before invoking a resolver.
+            # This reservation intentionally remains consumed after success;
+            # unlike the client/IP rotation bucket below, it is the resolver-
+            # invocation budget for this credential fingerprint.
+            try:
+                enforce_rate_limit(
+                    request,
+                    _principal_credential_key(credential),
+                    selected_limiter=principal_credential_limiter,
+                )
+            except HTTPException:
+                principal_resolver_limiter.release(
+                    auth_failure_key,
+                    auth_reservation,
+                )
+                raise
             principal = resolved_principal_resolver.resolve_bearer(credential)
             if principal is None:
                 LOGGER.warning(
@@ -867,6 +942,39 @@ def create_app(
             request,
             _client_key(request, None if principal_mode else authorization),
         )
+
+    @app.middleware("http")
+    async def enforce_principal_surface(request: Request, call_next: Any) -> Any:
+        route_path = _request_route_path(request)
+        if principal_mode and (request.method, route_path) not in principal_operations:
+            try:
+                enforce_rate_limit(request, _client_key(request))
+            except HTTPException as exc:
+                return JSONResponse(
+                    {"detail": exc.detail},
+                    status_code=exc.status_code,
+                    headers=exc.headers,
+                )
+            return JSONResponse({"detail": "Not found"}, status_code=404)
+        if principal_mode and request.method == "POST" and route_path in principal_paths:
+            auth_failure_key = _principal_auth_failure_key(request)
+            try:
+                auth_reservation = enforce_rate_limit(
+                    request,
+                    auth_failure_key,
+                    selected_limiter=principal_resolver_limiter,
+                )
+            except HTTPException as exc:
+                return JSONResponse(
+                    {"detail": exc.detail},
+                    status_code=exc.status_code,
+                    headers=exc.headers,
+                )
+            request.state.seam_principal_auth_reservation = (
+                auth_failure_key,
+                auth_reservation,
+            )
+        return await call_next(request)
 
     @app.exception_handler(Exception)
     async def unhandled_request_error(_request: Request, exc: Exception) -> Any:
@@ -1823,14 +1931,11 @@ def run_server(
 
 
 def _validate_server_safety(host: str, workers: int) -> None:
-    if isinstance(workers, bool) or not isinstance(workers, int) or workers <= 0:
-        raise RuntimeError("SEAM server worker count must be a positive integer")
     principal_mode = bool(os.environ.get("SEAM_API_PRINCIPAL"))
-    if _effective_rate_limit(principal_mode=principal_mode) > 0 and workers > 1 and not _env_truthy("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT"):
-        raise RuntimeError(
-            "SEAM API rate limiting is process-local; use one worker or set "
-            "SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT=1 after placing a shared limiter in front."
-        )
+    _validate_process_local_rate_limit(
+        workers=workers,
+        principal_mode=principal_mode,
+    )
     if _is_remote_bind(host) and not os.environ.get("SEAM_API_TOKEN") and not _env_truthy("SEAM_API_ALLOW_REMOTE_NO_TOKEN"):
         raise RuntimeError(
             "Refusing to bind API to a non-loopback host without an authentication token. "
@@ -1841,6 +1946,22 @@ def _validate_server_safety(host: str, workers: int) -> None:
         raise RuntimeError(
             "Refusing to bind authenticated API to a non-loopback host without TLS. "
             "Use a TLS reverse proxy, bind to 127.0.0.1, or set SEAM_API_ALLOW_INSECURE_REMOTE=1 intentionally."
+        )
+
+
+def _validate_process_local_rate_limit(
+    *, workers: int, principal_mode: bool
+) -> None:
+    if isinstance(workers, bool) or not isinstance(workers, int) or workers <= 0:
+        raise RuntimeError("SEAM server worker count must be a positive integer")
+    if (
+        _effective_rate_limit(principal_mode=principal_mode) > 0
+        and workers > 1
+        and not _env_truthy("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT")
+    ):
+        raise RuntimeError(
+            "SEAM API rate limiting is process-local; use one worker or set "
+            "SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT=1 after placing a shared limiter in front."
         )
 
 
@@ -1996,7 +2117,10 @@ def _walk_tree(
 def create_app_from_env() -> Any:
     host, workers = _factory_server_settings()
     _validate_server_safety(host=host, workers=workers)
-    return create_app(SeamRuntime(os.environ.get("SEAM_SERVER_DB") or default_runtime_db_path()))
+    return create_app(
+        SeamRuntime(os.environ.get("SEAM_SERVER_DB") or default_runtime_db_path()),
+        process_workers=workers,
+    )
 
 
 def main(argv: list[str] | None = None) -> None:

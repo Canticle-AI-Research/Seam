@@ -12,6 +12,7 @@ from typing import Protocol
 from .lifecycle import (
     LifecycleIdempotencyConflictError,
     LifecycleOperationPendingError,
+    LifecycleStaleIncarnationError,
 )
 from .mirl import VALID_SCOPES, MIRLRecord, SearchCandidate
 from .public_memory_handles import (
@@ -357,42 +358,68 @@ def delete(
         scope,
         principal=principal,
     )
-    resolved_memories = _resolve_memory_ids(
-        runtime,
-        memory_ids,
-        namespace=internal_namespace,
-        scope=scope,
-        principal=principal,
-    )
-    record_ids = [record_id for record_id, _generation in resolved_memories]
-    record_generations = {
-        record_id: generation for record_id, generation in resolved_memories
-    }
-    if len(record_generations) != len(record_ids):
-        raise PublicAPIInputError("memory_ids must name distinct memories")
     tenant_id = _tenant_id(principal)
     actor = _principal_actor(principal)
-    try:
-        operation = runtime.plan_scoped_delete(
+    idempotency_context = _delete_idempotency_context(memory_ids)
+    operation = runtime.store.lifecycle_operation_by_idempotency_key(
+        tenant_id=tenant_id,
+        idempotency_key=idempotency_key,
+    )
+    if operation is not None:
+        payload_details = operation.get("payload")
+        if (
+            operation.get("kind") != "scoped_delete"
+            or operation.get("namespace") != internal_namespace
+            or operation.get("scope") != scope
+            or not isinstance(payload_details, dict)
+            or payload_details.get("idempotency_context") != idempotency_context
+        ):
+            raise PublicAPIConflictError(
+                "idempotency_key already names a different deletion"
+            )
+        if not runtime.store.scoped_delete_retry_matches_current_incarnation(
             tenant_id=tenant_id,
+            operation_id=str(operation["operation_id"]),
+        ):
+            raise PublicAPINotFoundError("memory not found")
+    else:
+        resolved_memories = _resolve_memory_ids(
+            runtime,
+            memory_ids,
             namespace=internal_namespace,
             scope=scope,
-            record_ids=record_ids,
-            idempotency_key=idempotency_key,
-            actor=actor,
-            idempotency_context=_delete_idempotency_context(memory_ids),
-            record_generations=record_generations,
+            principal=principal,
         )
-    except LifecycleIdempotencyConflictError as exc:
-        raise PublicAPIConflictError(
-            "idempotency_key already names a different deletion"
-        ) from exc
+        record_ids = [record_id for record_id, _generation in resolved_memories]
+        record_generations = {
+            record_id: generation for record_id, generation in resolved_memories
+        }
+        if len(record_generations) != len(record_ids):
+            raise PublicAPIInputError("memory_ids must name distinct memories")
+        try:
+            operation = runtime.plan_scoped_delete(
+                tenant_id=tenant_id,
+                namespace=internal_namespace,
+                scope=scope,
+                record_ids=record_ids,
+                idempotency_key=idempotency_key,
+                actor=actor,
+                idempotency_context=idempotency_context,
+                record_generations=record_generations,
+            )
+        except LifecycleIdempotencyConflictError as exc:
+            raise PublicAPIConflictError(
+                "idempotency_key already names a different deletion"
+            ) from exc
     try:
         applied = runtime.apply_scoped_delete(
             tenant_id=tenant_id,
             operation_id=str(operation["operation_id"]),
             actor=actor,
+            require_current_incarnation=True,
         )
+    except LifecycleStaleIncarnationError as exc:
+        raise PublicAPINotFoundError("memory not found") from exc
     except Exception as exc:
         # The lifecycle engine commits canonical soft-delete + the recoverable
         # cleanup intent before calling external derived-index adapters. If an
@@ -595,7 +622,7 @@ def _public_memories(
             break
     if principal is not None:
         try:
-            runtime.store.register_public_memory_handles(
+            runtime.register_public_memory_handles(
                 tenant_id=_tenant_id(principal),
                 namespace=namespace,
                 scope=scope,

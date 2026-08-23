@@ -225,8 +225,9 @@ def register_public_memory_handles(
     placeholders = ",".join("?" for _ in record_ids)
     rows = connection.execute(
         "select id, payload_json from ir_records "
-        f"where id in ({placeholders}) and ns = ? and scope = ?",
-        [*record_ids, ns, selected_scope],
+        f"where id in ({placeholders}) and ns = ? and scope = ? "
+        "and status != ?",
+        [*record_ids, ns, selected_scope, "deleted_soft"],
     ).fetchall()
     current_generations = {
         str(row[0]): _payload_generation(str(row[1])) for row in rows
@@ -322,8 +323,9 @@ def resolve_public_memory_handles(
         "records.payload_json from public_memory_handle handles "
         "join ir_records records on records.id = handles.record_id "
         f"where handles.handle_id in ({placeholders}) "
-        "and handles.tenant_id = ? and handles.ns = ? and handles.scope = ?",
-        [*normalized, tenant, ns, selected_scope],
+        "and handles.tenant_id = ? and handles.ns = ? and handles.scope = ? "
+        "and records.status != ?",
+        [*normalized, tenant, ns, selected_scope, "deleted_soft"],
     ).fetchall()
     return {
         str(row[0]): (str(row[1]), str(row[2]))
@@ -364,7 +366,7 @@ def restore_public_memory_handle_rows(
     record_ids: Iterable[str],
     previous_rows: Sequence[tuple[object, ...]],
 ) -> None:
-    """Restore one exact handle slice inside the caller's write transaction."""
+    """Restore prior rows while preserving concurrently registered valid rows."""
 
     ordered_ids = sorted(
         {_required_preserving(record_id, "record_id") for record_id in record_ids}
@@ -380,6 +382,34 @@ def restore_public_memory_handle_rows(
         if handle_id in expected:
             raise ValueError("invalid public memory handle rollback snapshot")
         expected[handle_id] = row
+    current_rows = snapshot_public_memory_handle_rows(connection, ordered_ids)
+    canonical_rows: dict[str, tuple[str, str, str | None]] = {}
+    if ordered_ids:
+        for start in range(0, len(ordered_ids), 500):
+            chunk = ordered_ids[start : start + 500]
+            placeholders = ",".join("?" for _ in chunk)
+            for row in connection.execute(
+                "select id, ns, scope, status, payload_json from ir_records "
+                f"where id in ({placeholders})",
+                chunk,
+            ).fetchall():
+                if str(row[3]) == "deleted_soft":
+                    continue
+                canonical_rows[str(row[0])] = (
+                    str(row[1]),
+                    str(row[2]),
+                    _payload_generation(str(row[4])),
+                )
+    restored = dict(expected)
+    for raw_row in current_rows:
+        row = tuple(raw_row)
+        handle_id = str(row[0])
+        if handle_id in restored:
+            continue
+        record_id = str(row[4])
+        canonical = canonical_rows.get(record_id)
+        if canonical == (str(row[2]), str(row[3]), str(row[5])):
+            restored[handle_id] = row
     for start in range(0, len(ordered_ids), 500):
         chunk = ordered_ids[start : start + 500]
         placeholders = ",".join("?" for _ in chunk)
@@ -387,15 +417,15 @@ def restore_public_memory_handle_rows(
             f"delete from public_memory_handle where record_id in ({placeholders})",
             chunk,
         )
-    if expected:
+    if restored:
         columns = ", ".join(_ROW_COLUMNS)
         placeholders = ", ".join("?" for _ in _ROW_COLUMNS)
         connection.executemany(
             f"insert into public_memory_handle ({columns}) values ({placeholders})",
-            [expected[handle_id] for handle_id in sorted(expected)],
+            [restored[handle_id] for handle_id in sorted(restored)],
         )
     actual = snapshot_public_memory_handle_rows(connection, ordered_ids)
-    if actual != tuple(expected[handle_id] for handle_id in sorted(expected)):
+    if actual != tuple(restored[handle_id] for handle_id in sorted(restored)):
         raise RuntimeError("public memory handle rollback failed")
 
 

@@ -28,6 +28,10 @@ class LifecycleOperationPendingError(RuntimeError):
     """Raised when a write overlaps unfinished lifecycle work."""
 
 
+class LifecycleStaleIncarnationError(RuntimeError):
+    """Raised when an applied delete retry no longer names the live incarnation."""
+
+
 @dataclass(frozen=True, slots=True)
 class BatchIngestItem:
     text: str
@@ -210,6 +214,7 @@ def apply_scoped_delete(
     actor: str,
     interrupt_after_intent: bool = False,
     delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+    require_current_incarnation: bool = False,
 ) -> dict[str, object]:
     """Soft-delete exact boundary-owned MIRL with a recoverable cleanup outbox."""
 
@@ -230,6 +235,16 @@ def apply_scoped_delete(
             raise ValueError("lifecycle tenant does not own operation namespace")
         latest = _latest_state(connection, operation_id)
         if latest == "applied":
+            if require_current_incarnation and not (
+                scoped_delete_retry_matches_current_incarnation(
+                    connection,
+                    tenant_id=tenant,
+                    operation_id=operation_id,
+                )
+            ):
+                raise LifecycleStaleIncarnationError(
+                    "scoped deletion no longer names the current incarnation"
+                )
             return _get_lifecycle_operation(connection, tenant, operation_id)
         if latest in {"failed", "refused"}:
             raise ValueError(f"cannot apply lifecycle operation in state {latest}")
@@ -562,6 +577,63 @@ def get_lifecycle_operation(
     return _get_lifecycle_operation(connection, tenant, operation_id)
 
 
+def get_lifecycle_operation_by_idempotency_key(
+    connection: sqlite3.Connection,
+    *,
+    tenant_id: str,
+    idempotency_key: str,
+) -> dict[str, object] | None:
+    """Return one tenant-scoped operation by its unique retry key."""
+
+    tenant = _required(tenant_id, "tenant_id")
+    key = _required(idempotency_key, "idempotency_key")
+    init_lifecycle(connection)
+    row = connection.execute(
+        "select operation_id from lifecycle_operation "
+        "where tenant_id = ? and idempotency_key = ?",
+        (tenant, key),
+    ).fetchone()
+    if row is None:
+        return None
+    return _get_lifecycle_operation(connection, tenant, str(row[0]))
+
+
+def scoped_delete_retry_matches_current_incarnation(
+    connection: sqlite3.Connection,
+    *,
+    tenant_id: str,
+    operation_id: str,
+) -> bool:
+    """Reject an old retry key after any target has a new live incarnation."""
+
+    tenant = _required(tenant_id, "tenant_id")
+    operation = _get_lifecycle_operation(connection, tenant, operation_id)
+    if operation["kind"] != "scoped_delete":
+        return False
+    payload = operation["payload"]
+    if not isinstance(payload, dict):
+        return False
+    generations = payload.get("record_generations")
+    if not isinstance(generations, dict):
+        return True
+    record_ids = sorted(str(record_id) for record_id in generations)
+    if not record_ids:
+        return True
+    placeholders = ",".join("?" for _ in record_ids)
+    rows = connection.execute(
+        "select id, status, payload_json from ir_records "
+        f"where id in ({placeholders})",
+        record_ids,
+    ).fetchall()
+    for row in rows:
+        if str(row[1]) == Status.DELETED_SOFT.value:
+            continue
+        expected = generations.get(str(row[0]))
+        if not isinstance(expected, str) or _record_generation(str(row[2])) != expected:
+            return False
+    return True
+
+
 def _get_lifecycle_operation(
     connection: sqlite3.Connection, tenant_id: str, operation_id: str
 ) -> dict[str, object]:
@@ -772,6 +844,7 @@ def _target_rows(
 def ensure_no_active_scoped_delete(
     connection: sqlite3.Connection,
     *,
+    tenant_id: str,
     namespace: str,
     scope: str,
     record_ids: Iterable[str],
@@ -782,12 +855,17 @@ def ensure_no_active_scoped_delete(
     init_lifecycle(connection)
     rows = connection.execute(
         "select operation.payload_json from lifecycle_operation operation "
-        "where operation.kind = 'scoped_delete' and operation.ns = ? "
+        "where operation.tenant_id = ? and operation.kind = 'scoped_delete' "
+        "and operation.ns = ? "
         "and operation.scope = ? and (select event.state from lifecycle_event event "
         "where event.operation_id = operation.operation_id "
         "order by event.event_seq desc limit 1) "
         "in ('planned', 'applying', 'cleanup_pending')",
-        (_required(namespace, "namespace"), _required(scope, "scope")),
+        (
+            _required(tenant_id, "tenant_id"),
+            _required(namespace, "namespace"),
+            _required(scope, "scope"),
+        ),
     ).fetchall()
     if any(
         targets.intersection(json.loads(str(row[0])).get("record_ids", ()))

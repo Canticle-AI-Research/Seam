@@ -19,6 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+import threading
 
 import pytest
 from fastapi.testclient import TestClient
@@ -77,6 +78,34 @@ class TestPublicHealth:
         monkeypatch.setenv("SEAM_API_TOKEN", "secret-token")
         resp = TestClient(create_app_from_env()).get("/v1/health")
         assert resp.status_code == 200
+
+    def test_principal_routes_honor_asgi_root_path(self, tmp_path):
+        runtime = SeamRuntime(tmp_path / "root-path.db", allow_pgvector_env=False)
+        app = create_app(
+            runtime,
+            principal_resolver=StaticPrincipalResolver(
+                {"root-token": "account/root-path"}
+            ),
+            public_id_key=b"principal-root-path-public-key-32",
+            process_workers=1,
+        )
+        try:
+            with TestClient(
+                app,
+                root_path="/seam",
+                base_url="http://testserver/seam",
+            ) as client:
+                health = client.get("/v1/health")
+                remember_response = client.post(
+                    "/v1/memories",
+                    json={"text": "Root path memory."},
+                    headers={"Authorization": "Bearer root-token"},
+                )
+        finally:
+            runtime.close()
+
+        assert health.status_code == 200
+        assert remember_response.status_code == 200
 
 
 class TestPublicRemember:
@@ -411,6 +440,7 @@ def principal_api(tmp_path):
         runtime,
         principal_resolver=resolver,
         public_id_key=b"principal-public-id-key-for-tests",
+        process_workers=1,
     )
     with TestClient(app) as client:
         yield client, runtime, db_path
@@ -451,6 +481,49 @@ class TestPublicApiPrincipalTenancy:
             "/stats",
             headers={"Authorization": "Bearer environment-token"},
         ).status_code == 404
+
+    @pytest.mark.parametrize(
+        ("method", "path"),
+        [
+            ("POST", "/stats"),
+            ("GET", "/stats/"),
+            ("GET", "/workspace/events"),
+        ],
+    )
+    def test_private_route_shapes_are_hidden_before_router_matching(
+        self, principal_api, method, path
+    ):
+        client, _runtime, _db_path = principal_api
+
+        response = client.request(
+            method,
+            path,
+            headers=_principal_headers("a"),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Not found"}
+        assert "allow" not in response.headers
+        assert "location" not in response.headers
+
+    def test_principal_memory_cors_preflight_reaches_cors_middleware(
+        self, principal_api
+    ):
+        client, _runtime, _db_path = principal_api
+
+        response = client.options(
+            "/v1/memories",
+            headers={
+                "Origin": "http://localhost:5173",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.headers["access-control-allow-origin"] == (
+            "http://localhost:5173"
+        )
 
     def test_same_request_dimensions_and_content_remain_principal_isolated(
         self, principal_api
@@ -685,8 +758,16 @@ class TestPublicApiPrincipalTenancy:
         repeated = _post_as(
             client, "a", "/v1/memories/delete", deletion_payload
         )
+        stale_with_new_key = _post_as(
+            client,
+            "a",
+            "/v1/memories/delete",
+            {**deletion_payload, "idempotency_key": "alice-delete-2"},
+        )
         assert first.status_code == repeated.status_code == 200
         assert first.json() == repeated.json()
+        assert stale_with_new_key.status_code == 404
+        assert stale_with_new_key.json() == {"detail": "Memory not found"}
         assert first.json()["deletion_id"].startswith("del_")
         assert first.json()["status"] == "deleted"
         assert _post_as(
@@ -835,6 +916,110 @@ class TestPublicApiPrincipalTenancy:
             for payload in payloads
         )
 
+    def test_applied_delete_retry_rechecks_generation_inside_apply(
+        self, principal_api, monkeypatch
+    ):
+        client, runtime, _db_path = principal_api
+        headers = _principal_headers("a")
+        text = "The apply retry race marker is violet harbor."
+        query = {"query": "apply retry race marker violet harbor"}
+        assert client.post(
+            "/v1/memories", json={"text": text}, headers=headers
+        ).status_code == 200
+        memory_id = client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"][0]["id"]
+        payload = {
+            "memory_ids": [memory_id],
+            "idempotency_key": "apply-retry-generation-race",
+        }
+        assert client.post(
+            "/v1/memories/delete", json=payload, headers=headers
+        ).status_code == 200
+
+        original_apply = runtime.apply_scoped_delete
+        injected = False
+
+        def reingest_before_applied_fast_path(*args, **kwargs):
+            nonlocal injected
+            if not injected:
+                injected = True
+                remember(
+                    runtime,
+                    {"text": text},
+                    principal=PublicPrincipal("account/alice"),
+                )
+            return original_apply(*args, **kwargs)
+
+        monkeypatch.setattr(
+            runtime,
+            "apply_scoped_delete",
+            reingest_before_applied_fast_path,
+        )
+        stale_retry = client.post(
+            "/v1/memories/delete", json=payload, headers=headers
+        )
+
+        assert stale_retry.status_code == 404
+        assert stale_retry.json() == {"detail": "Memory not found"}
+        assert client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"]
+
+    def test_concurrent_first_plan_rechecks_returned_operation_generation(
+        self, principal_api, monkeypatch
+    ):
+        client, runtime, _db_path = principal_api
+        headers = _principal_headers("a")
+        text = "The concurrent planning marker is silver delta."
+        query = {"query": "concurrent planning marker silver delta"}
+        assert client.post(
+            "/v1/memories", json={"text": text}, headers=headers
+        ).status_code == 200
+        memory_id = client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"][0]["id"]
+        original_plan = runtime.plan_scoped_delete
+        original_apply = runtime.apply_scoped_delete
+        injected = False
+
+        def win_plan_apply_and_reingest(*args, **kwargs):
+            nonlocal injected
+            operation = original_plan(*args, **kwargs)
+            if not injected:
+                injected = True
+                original_apply(
+                    tenant_id=str(operation["tenant_id"]),
+                    operation_id=str(operation["operation_id"]),
+                    actor="principal-api",
+                )
+                remember(
+                    runtime,
+                    {"text": text},
+                    principal=PublicPrincipal("account/alice"),
+                )
+            return operation
+
+        monkeypatch.setattr(
+            runtime,
+            "plan_scoped_delete",
+            win_plan_apply_and_reingest,
+        )
+        response = client.post(
+            "/v1/memories/delete",
+            json={
+                "memory_ids": [memory_id],
+                "idempotency_key": "concurrent-first-plan",
+            },
+            headers=headers,
+        )
+
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Memory not found"}
+        assert client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"]
+
     def test_stale_resolved_handle_cannot_delete_replacement_generation(
         self, principal_api, monkeypatch
     ):
@@ -901,7 +1086,7 @@ class TestPublicApiPrincipalTenancy:
         assert client.post(
             "/v1/memories", json={"text": text}, headers=headers
         ).status_code == 200
-        original_register = runtime.store.register_public_memory_handles
+        original_register = runtime.register_public_memory_handles
         original_plan = runtime.plan_scoped_delete
         replaced = False
 
@@ -936,7 +1121,7 @@ class TestPublicApiPrincipalTenancy:
             return original_register(**kwargs)
 
         monkeypatch.setattr(
-            runtime.store,
+            runtime,
             "register_public_memory_handles",
             replace_before_registration,
         )
@@ -947,7 +1132,7 @@ class TestPublicApiPrincipalTenancy:
         assert stale.status_code == 409
         assert stale.json() == {"detail": "memory changed during recall; retry"}
         monkeypatch.setattr(
-            runtime.store,
+            runtime,
             "register_public_memory_handles",
             original_register,
         )
@@ -956,6 +1141,108 @@ class TestPublicApiPrincipalTenancy:
         )
         assert retry.status_code == 200
         assert len(retry.json()["memories"]) == 1
+
+    def test_deleted_recall_snapshot_cannot_publish_a_handle(
+        self, principal_api, monkeypatch
+    ):
+        client, runtime, _db_path = principal_api
+        headers = _principal_headers("a")
+        text = "The deleted registration marker is jade harbor."
+        query = {"query": "deleted registration marker jade harbor"}
+        assert client.post(
+            "/v1/memories", json={"text": text}, headers=headers
+        ).status_code == 200
+        original_register = runtime.register_public_memory_handles
+        deleted = False
+
+        def delete_before_registration(**kwargs):
+            nonlocal deleted
+            if not deleted:
+                generations = {
+                    record_id: generation
+                    for record_id, generation in kwargs["handles"].values()
+                }
+                operation = runtime.plan_scoped_delete(
+                    tenant_id=kwargs["tenant_id"],
+                    namespace=kwargs["namespace"],
+                    scope=kwargs["scope"],
+                    record_ids=list(generations),
+                    idempotency_key="delete-before-registration",
+                    actor="principal-test",
+                    record_generations=generations,
+                )
+                runtime.apply_scoped_delete(
+                    tenant_id=kwargs["tenant_id"],
+                    operation_id=str(operation["operation_id"]),
+                    actor="principal-test",
+                )
+                deleted = True
+            return original_register(**kwargs)
+
+        monkeypatch.setattr(
+            runtime,
+            "register_public_memory_handles",
+            delete_before_registration,
+        )
+
+        stale = client.post("/v1/memories/recall", json=query, headers=headers)
+
+        assert stale.status_code == 409
+        assert stale.json() == {"detail": "memory changed during recall; retry"}
+
+    def test_handle_registration_joins_the_runtime_projection_lock(
+        self, principal_api
+    ):
+        client, runtime, db_path = principal_api
+        headers = _principal_headers("a")
+        assert client.post(
+            "/v1/memories",
+            json={"text": "The projection lock marker is copper fir."},
+            headers=headers,
+        ).status_code == 200
+        memory_id = client.post(
+            "/v1/memories/recall",
+            json={"query": "projection lock marker copper fir"},
+            headers=headers,
+        ).json()["memories"][0]["id"]
+        with sqlite3.connect(db_path) as connection:
+            tenant_id, namespace, scope, record_id, generation = connection.execute(
+                "select tenant_id, ns, scope, record_id, generation "
+                "from public_memory_handle where handle_id = ?",
+                (memory_id,),
+            ).fetchone()
+
+        lock_held = threading.Event()
+        release_lock = threading.Event()
+        registration_done = threading.Event()
+
+        def hold_projection_lock():
+            with runtime._persist_projection_lock:
+                lock_held.set()
+                assert release_lock.wait(timeout=5)
+
+        def register_handle():
+            runtime.register_public_memory_handles(
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                handles={memory_id: (record_id, generation)},
+            )
+            registration_done.set()
+
+        holder = threading.Thread(target=hold_projection_lock)
+        registrar = threading.Thread(target=register_handle)
+        holder.start()
+        assert lock_held.wait(timeout=5)
+        registrar.start()
+        assert not registration_done.wait(timeout=0.1)
+        release_lock.set()
+        holder.join(timeout=5)
+        registrar.join(timeout=5)
+
+        assert registration_done.is_set()
+        assert not holder.is_alive()
+        assert not registrar.is_alive()
 
     def test_one_delete_key_cannot_name_different_handle_sets(self, principal_api):
         client, _runtime, _db_path = principal_api
@@ -1258,6 +1545,7 @@ class TestPublicApiPrincipalTenancy:
                     principal_resolver=StaticPrincipalResolver(
                         {"token-a": "account/alice"}
                     ),
+                    process_workers=1,
                 )
         finally:
             runtime.close()
@@ -1277,6 +1565,7 @@ class TestPublicApiPrincipalTenancy:
                     original,
                     principal_resolver=resolver,
                     public_id_key=b"original-public-id-key-32-bytes-long",
+                    process_workers=1,
                 )
             ) as client:
                 assert client.post(
@@ -1310,6 +1599,7 @@ class TestPublicApiPrincipalTenancy:
                     reopened,
                     principal_resolver=resolver,
                     public_id_key=b"replacement-public-id-key-32-bytes-long",
+                    process_workers=1,
                 )
             ) as client:
                 response = client.post(

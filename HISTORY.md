@@ -18896,22 +18896,109 @@ CI. S6 remains branch-local and S7 has not started.
 
 ---BEGIN-ENTRY-#577---
 id: 577
+date: 2026-08-23T03:02:53Z
+agent: Codex
+status: changed
+topics: bugfix, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#576,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/public_api.py,seam_runtime/server.py,seam_runtime/runtime.py,seam_runtime/lifecycle.py,docs/handoffs/2026-08-22-track-s-s6-review-repaired.md
+supersedes: 576
+tokens: 196
+---
+Repaired six late exact-head review findings before merging Track S S6. Public
+handle registration/resolution now excludes soft-deleted records; deletion
+replay is bound to the original absent/deleted incarnation; principal startup
+requires an exact worker declaration; handle mutation/rollback share the
+runtime projection lock; active-delete lookup is tenant-first; and a
+rate-limited pre-router allowlist closes method and slash disclosure while
+retaining valid CORS preflight behavior.
+
+The strict focused lifecycle/auth/public-HTTP/compensation/bind-safety slice
+collected and passed 175 tests. Ruff, diff checking, and the canonical
+working-tree secret/session scan passed. A first CodeRabbit working-tree review
+found the explicit-worker and CORS omissions; both were repaired, and the
+second review returned no findings. This is still branch-local PR #223 evidence:
+the repaired signed commit, push, exact-head required CI, and protected-main
+merge remain pending.
+---END-ENTRY-#577---
+
+---BEGIN-ENTRY-#578---
+id: 578
+date: 2026-08-23T03:35:00Z
+agent: Codex
+status: changed
+topics: bugfix, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#577,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/lifecycle.py,seam_runtime/server.py,tests/audit/test_runtime_persist_atomic_restore.py,docs/handoffs/2026-08-22-track-s-s6-second-review-repaired.md
+supersedes: 577
+tokens: 212
+---
+Repaired four reproducible P2 findings from the second exact-head Codex review
+of PR #223. Projection compensation now preserves cross-process handle
+registrations only when they remain valid against the restored active canonical
+generation; applied deletion retries recheck incarnation inside the lifecycle
+transaction; principal route filtering normalizes ASGI root paths; and a
+credential-fingerprint budget bounds repeated successful resolver calls without
+coupling distinct principals behind one client address.
+
+Four minimal regressions failed on signed head 921cfd0 and passed after repair.
+The expanded strict focused slice collected and passed 179 tests, and
+changed-path Ruff passed. CodeRabbit found one minor spawned-process cleanup
+issue; it was repaired and the exact regression and Ruff reran green. A further
+included review was rate-limited, so no post-cleanup CodeRabbit-clean claim is
+made. This remains branch-local evidence: the third signed commit, candidate
+secret scan, push, exact-head required CI, final review, and protected-main
+merge remain pending.
+---END-ENTRY-#578---
+
+---BEGIN-ENTRY-#579---
+id: 579
+date: 2026-08-23T04:00:04Z
+agent: Codex
+status: changed
+topics: atomicity, bugfix, locking, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#578,PR#223,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtime/public_api.py,tests/audit/test_runtime_persist_atomic_restore.py,docs/handoffs/2026-08-22-track-s-s6-third-review-repaired.md
+supersedes: 578
+tokens: 235
+---
+Repaired the third exact-head Codex review cycle for PR #223: a P1 in which
+failed projection compensation could resurrect a deletion completed by another
+worker, plus concurrent first-plan replay, credential-budget eviction, and
+malformed-body pre-auth rate-limit gaps. Store-path-keyed reentrant file
+serialization now spans canonical write/projection/compensation, scoped-delete
+planning/apply, and handle publication across processes; every public apply
+rechecks incarnation; the credential limiter refuses new keys at active-map
+capacity; and principal POST middleware reserves the client budget before body
+parsing.
+
+CodeRabbit then found two valid lock-hardening issues. The lock file now lives
+beside the resolved database under the store directory's permissions, and POSIX
+and Windows acquisition use nonblocking retries with a shared 60-second
+deadline. Six minimal regressions went red then green. The expanded strict
+focused slice collected and passed 185 tests, and changed-path Ruff passed.
+This remains branch-local evidence: the fourth signed commit, candidate secret
+scan, push, exact-head required CI, final review, and protected-main merge
+remain pending.
+---END-ENTRY-#579---
+
+---BEGIN-ENTRY-#580---
+id: 580
 date: 2026-08-22T11:32:21Z
 agent: codex
 status: done
 topics: ci, docs, gates, operator, registry, security, tests, verify
 commits: pending
-refs: HISTORY#576,.github/ISSUE_TEMPLATE,.github/workflows/package-release.yml,.github/release.yml,tools/release/verify_private_artifacts.py
-supersedes: 576
+refs: HISTORY#579,.github/ISSUE_TEMPLATE,.github/workflows/package-release.yml,.github/release.yml,tools/release/verify_private_artifacts.py
+supersedes: 579
 tokens: 381
 ---
 Established structured GitHub issue intake and a reproducible private-release
-management path on the isolated `chore/github-issues-releases` branch stacked
-above the exact S6 candidate head. Bug, feature, research/benchmark, and release
-forms now require bounded evidence and content-safety checks; blank issues are
-disabled and sensitive reports route to private security advisories. Issues
-remain coordination state rather than implementation, benchmark, publication,
-or deployment proof.
+management path on the isolated `chore/github-issues-releases` branch. Bug,
+feature, research/benchmark, and release forms now require bounded evidence and
+content-safety checks; blank issues are disabled and sensitive reports route to
+private security advisories. Issues remain coordination state rather than
+implementation, benchmark, publication, or deployment proof.
 
 The existing manual private package workflow now serializes dispatches, refuses
 non-default-branch or existing-tag release attempts, requires an exact SemVer
@@ -18930,19 +19017,18 @@ temporary build products remained under `/tmp`, while generated build/egg-info
 directories were moved out of the worktree. The canonical wiki verifier and
 diff hygiene passed before closeout. No version bump, tag, release, deployment,
 paid provider call, GitHub issue/milestone mutation, or public artifact occurred.
-The S6 branch and primary research checkout remain untouched; this work must stay
-in its separate stacked PR until S6 merges and the PR can retarget to main.
----END-ENTRY-#577---
+The work remained branch-local pending protected-main integration.
+---END-ENTRY-#580---
 
----BEGIN-ENTRY-#578---
-id: 578
+---BEGIN-ENTRY-#581---
+id: 581
 date: 2026-08-22T11:39:49Z
 agent: codex
 status: changed
 topics: bugfix, ci, correction, gates, pyproject, tests, verify
 commits: pending
-refs: HISTORY#577,PR#224,.github/workflows/package-release.yml,tools/ci/verify_dependency_contract.py
-supersedes: 577
+refs: HISTORY#580,PR#224,.github/workflows/package-release.yml,tools/ci/verify_dependency_contract.py
+supersedes: 580
 tokens: 205
 ---
 Exact-head `repo-hygiene` on draft PR #224 rejected the package-release
@@ -18958,6 +19044,6 @@ workflow retains the same exact-version/default-branch/new-tag contract without
 creating dependency-looking bracket syntax. The dependency-contract verifier,
 29 focused GitHub configuration/gate tests, Ruff, and diff hygiene now pass
 locally. No release, tag, version bump, issue, milestone, label, deployment, or
-paid call occurred. PR #224 remains a stacked draft pending the repaired
-exact-head CI rerun and S6 merge/retargeting.
----END-ENTRY-#578---
+paid call occurred. PR #224 remained draft pending repaired exact-head CI and
+protected-main integration.
+---END-ENTRY-#581---

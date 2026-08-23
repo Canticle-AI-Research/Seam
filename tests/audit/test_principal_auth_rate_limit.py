@@ -81,6 +81,7 @@ def test_successful_principals_release_the_shared_client_reservation(
             runtime,
             principal_resolver=resolver,
             public_id_key=b"principal-rate-limit-public-id-key",
+            process_workers=1,
         )) as client:
             alice = client.post(
                 "/v1/memories",
@@ -99,6 +100,127 @@ def test_successful_principals_release_the_shared_client_reservation(
     assert bob.status_code == 200
 
 
+def test_subject_limit_blocks_repeated_valid_credential_before_resolver(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "valid-resolver-budget.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            responses = [
+                client.post(
+                    "/v1/memories/recall",
+                    json={"query": "resolver budget"},
+                    headers={"Authorization": "Bearer valid-token"},
+                )
+                for _ in range(3)
+            ]
+    finally:
+        runtime.close()
+
+    assert [response.status_code for response in responses] == [200, 429, 429]
+    assert resolver.credentials == ["valid-token"]
+
+
+def test_credential_budget_does_not_evict_live_key_at_capacity(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "2")
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_MAX_KEYS", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "credential-budget-capacity.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            def recall(credential: str):
+                return client.post(
+                    "/v1/memories/recall",
+                    json={"query": "credential capacity"},
+                    headers={"Authorization": f"Bearer {credential}"},
+                )
+
+            responses = [
+                recall("valid-token"),
+                recall("rotating-invalid-one"),
+                recall("valid-token"),
+                recall("rotating-invalid-two"),
+                recall("valid-token"),
+            ]
+    finally:
+        runtime.close()
+
+    assert [response.status_code for response in responses] == [
+        200,
+        429,
+        200,
+        429,
+        429,
+    ]
+    assert resolver.credentials == ["valid-token", "valid-token"]
+
+
+def test_malformed_public_bodies_consume_preparse_client_budget(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "malformed-preparse-budget.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            first = client.post(
+                "/v1/memories",
+                content=b"{",
+                headers={
+                    "Authorization": "Bearer valid-token",
+                    "Content-Type": "application/json",
+                },
+            )
+            second = client.post(
+                "/v1/memories",
+                content=b"{",
+                headers={
+                    "Authorization": "Bearer valid-token",
+                    "Content-Type": "application/json",
+                },
+            )
+    finally:
+        runtime.close()
+
+    assert first.status_code == 422
+    assert second.status_code == 429
+    assert resolver.credentials == []
+
+
 def test_rotating_invalid_bearer_tokens_share_the_client_rate_limit(
     monkeypatch, tmp_path
 ) -> None:
@@ -114,6 +236,7 @@ def test_rotating_invalid_bearer_tokens_share_the_client_rate_limit(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             )
         ) as client:
             first = client.post(
@@ -154,6 +277,7 @@ def test_authenticated_aliases_use_one_stable_principal_key(
             runtime,
             principal_resolver=resolver,
             public_id_key=b"principal-rate-limit-public-id-key",
+            process_workers=1,
         )
         with (
             TestClient(app, client=("192.0.2.10", 50000)) as first_client,
@@ -192,6 +316,7 @@ def test_concurrent_invalid_burst_invokes_resolver_only_within_client_bound(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             )
         ) as client:
             with ThreadPoolExecutor(max_workers=8) as executor:
@@ -230,6 +355,7 @@ def test_resolver_failures_are_bounded_before_reinvocation(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             ),
             raise_server_exceptions=False,
         ) as client:
@@ -300,6 +426,7 @@ def test_health_remains_unauthenticated_and_rate_limited_by_client(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             )
         ) as client:
             first = client.get(
@@ -315,4 +442,41 @@ def test_health_remains_unauthenticated_and_rate_limited_by_client(
 
     assert first.status_code == 200
     assert second.status_code == 429
+    assert resolver.credentials == []
+
+
+def test_hidden_private_routes_are_rate_limited_before_router_matching(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "hidden-route-rate-limit.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            first = client.post(
+                "/stats",
+                headers={"Authorization": "Bearer valid-token"},
+            )
+            second = client.get(
+                "/stats/",
+                headers={"Authorization": "Bearer valid-token"},
+                follow_redirects=False,
+            )
+    finally:
+        runtime.close()
+
+    assert first.status_code == 404
+    assert first.json() == {"detail": "Not found"}
+    assert second.status_code == 429
+    assert second.headers["Retry-After"] == "60"
     assert resolver.credentials == []

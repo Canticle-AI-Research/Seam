@@ -686,17 +686,46 @@ and `HISTORY_INDEX.md`.
   multi-worker launch is refused unless an upstream shared limiter is
   explicitly acknowledged. Legacy token-only mode preserves its configured
   zero/unset behavior.
+- An injected principal resolver must declare the exact `process_workers`
+  topology when creating the app. The same process-local limiter refusal then
+  applies to injected and environment adapters; omission is a startup error,
+  not an assumed single-worker deployment.
+- SQLite runtime canonical writes, vector projection/compensation, scoped
+  delete planning/apply, and public-handle publication share a reentrant
+  cross-process file lock keyed to the resolved store path. The lock is stored
+  beside the database under the store directory's permissions and uses a
+  bounded 60-second nonblocking acquisition loop on POSIX and Windows. This is
+  canonical/projection atomicity across local workers; it is not an upstream
+  shared request limiter or distributed-database claim.
+- Principal authentication uses three bounded process-local budgets: a
+  client/IP reservation for pre-parse work and rotating invalid credentials, a
+  non-released credential-fingerprint budget for resolver invocations, and a
+  stable hashed principal budget for authenticated requests. The credential
+  budget refuses new fingerprints at key-map capacity rather than evicting a
+  live reservation. Successful authentication releases only the client/IP
+  reservation, so separate principals sharing one address remain independent
+  without allowing one valid credential to invoke an injected resolver beyond
+  its request budget.
 - Candidate principal-mode data routes are `POST /v1/memories`,
   `POST /v1/memories/recall`, `POST /v1/context`, and
   `POST /v1/memories/delete`. Delete accepts only exact indexed, generation-
   bound opaque handles inside the caller's derived tenant/namespace/scope and
   reuses the existing G6 lifecycle plan/apply and recoverable-cleanup contracts.
   Recall/context registration verifies the canonical generation in the same
-  write transaction; deletion plans recheck it inside the canonical delete
-  transaction; writes overlapping an active scoped deletion refuse. Local
-  affected, canonical non-external, and live pgvector lanes plus local review
-  and continuity/static closeout are green, but signed publication, exact-head
-  CI, and merge remain before this becomes protected-main behavior.
+  write transaction and shares the runtime projection lock with write
+  compensation; cross-process rollback additionally preserves concurrent
+  handle rows only when they still match the restored active canonical
+  generation. Deleted records cannot publish or resolve handles. Same-key
+  delete retries resume the existing operation only while no target has a new
+  live generation, with every public apply fast path rechecking that condition
+  inside the lifecycle transaction, including a planner that raced and returned
+  an existing operation. Deletion plans recheck generation inside the
+  canonical delete transaction; writes overlapping an active tenant-indexed
+  scoped deletion refuse. Principal mode blocks disallowed route/method pairs
+  before router matching, normalizes the ASGI `root_path`, and allows CORS
+  preflights for its four data routes.
+  Repaired-head exact CI and merge remain before this becomes protected-main
+  behavior.
 - `/health` is unauthenticated for local service checks but still participates in the same rate limiter.
 - Rate limiting is configured by `SEAM_API_RATE_LIMIT_PER_MINUTE` or
   `SEAM_API_RATE_LIMIT`; `0` or unset disables the limiter in legacy mode and
