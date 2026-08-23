@@ -86,13 +86,15 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   optional in-process principal resolution and indexed opaque deletion. In
   principal mode it derives the internal tenant/namespace from the subject,
   binds handles/deletion to the canonical generation, defaults to a bounded
-  process-local limiter with separate client-rotation, credential-resolver, and
-  stable-subject budgets, requires injected hosts to declare their worker
-  count, and blocks legacy private route/method shapes before router matching
-  while retaining allowed CORS preflights and mounted `root_path` routing. Its
-  original exact head was CI-green; ten findings across two exact-head review
-  cycles are now locally repaired with 179 focused tests. The third head still
-  needs exact-head CI, final review, and merge.
+  process-local limiter with separate pre-parse client, non-evicting credential-
+  resolver, and stable-subject budgets, requires injected hosts to declare
+  their worker count, and blocks legacy private route/method shapes before
+  router matching while retaining allowed CORS preflights and mounted
+  `root_path` routing. Store-local writes, deletion, and compensation share a
+  bounded cross-process lock. Fourteen findings across three exact-head Codex
+  review cycles plus CodeRabbit lock hardening are now locally repaired with
+  185 focused tests. The fourth head still needs exact-head CI, final review,
+  and merge.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime

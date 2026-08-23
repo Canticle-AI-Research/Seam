@@ -365,7 +365,6 @@ def delete(
         tenant_id=tenant_id,
         idempotency_key=idempotency_key,
     )
-    retrying_existing_operation = operation is not None
     if operation is not None:
         payload_details = operation.get("payload")
         if (
@@ -417,7 +416,7 @@ def delete(
             tenant_id=tenant_id,
             operation_id=str(operation["operation_id"]),
             actor=actor,
-            require_current_incarnation=retrying_existing_operation,
+            require_current_incarnation=True,
         )
     except LifecycleStaleIncarnationError as exc:
         raise PublicAPINotFoundError("memory not found") from exc

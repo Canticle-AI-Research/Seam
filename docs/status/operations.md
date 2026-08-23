@@ -111,16 +111,18 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   recoverable cleanup. Principal mode defaults to a bounded 60-request/minute
   process-local limiter when configuration is unset or zero and refuses unsafe
   multi-worker launch. Injected resolvers must declare their exact worker count.
-  Resolver calls have a credential-fingerprint budget in addition to client/IP
-  rotation and stable-subject budgets. Handle publication shares the local
-  runtime projection lock; rollback preserves independently committed valid
-  registrations across processes. Active-record checks exclude soft-deleted
-  incarnations, applied retries recheck generation transactionally, routed
-  paths normalize ASGI `root_path`, and lifecycle pending-work lookup begins
-  with the tenant index. The original 460-test affected slice, 2,926-test
-  canonical non-external lane, and 23-test live pgvector lane passed; the two
-  exact-head review repairs pass 179 strict-no-skip focused tests and local
-  review. Third-head CI and merge remain.
+  Resolver calls have a non-evicting credential-fingerprint budget in addition
+  to pre-parse client/IP and stable-subject budgets. Canonical writes,
+  projection/compensation, delete planning/apply, and handle publication share
+  a store-local reentrant cross-process lock with a bounded acquisition
+  deadline; rollback also preserves independently committed valid
+  registrations. Active-record checks exclude soft-deleted incarnations,
+  every public apply rechecks generation transactionally, routed paths
+  normalize ASGI `root_path`, and lifecycle pending-work lookup begins with the
+  tenant index. The original 460-test affected slice, 2,926-test canonical
+  non-external lane, and 23-test live pgvector lane passed; three exact-head
+  review repairs pass 185 strict-no-skip focused tests and local review.
+  Fourth-head CI/final review and merge remain.
 - Hosted beta remains beyond the current repository boundary. TLS, a shared
   limiter, service supervision, external secret injection, backup/restore,
   upgrade/rollback, and disaster-recovery evidence require a tested deployment

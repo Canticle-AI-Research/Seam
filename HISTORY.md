@@ -18950,3 +18950,34 @@ made. This remains branch-local evidence: the third signed commit, candidate
 secret scan, push, exact-head required CI, final review, and protected-main
 merge remain pending.
 ---END-ENTRY-#578---
+
+---BEGIN-ENTRY-#579---
+id: 579
+date: 2026-08-23T04:00:04Z
+agent: Codex
+status: changed
+topics: atomicity, bugfix, locking, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#578,PR#223,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtime/public_api.py,tests/audit/test_runtime_persist_atomic_restore.py,docs/handoffs/2026-08-22-track-s-s6-third-review-repaired.md
+supersedes: 578
+tokens: 235
+---
+Repaired the third exact-head Codex review cycle for PR #223: a P1 in which
+failed projection compensation could resurrect a deletion completed by another
+worker, plus concurrent first-plan replay, credential-budget eviction, and
+malformed-body pre-auth rate-limit gaps. Store-path-keyed reentrant file
+serialization now spans canonical write/projection/compensation, scoped-delete
+planning/apply, and handle publication across processes; every public apply
+rechecks incarnation; the credential limiter refuses new keys at active-map
+capacity; and principal POST middleware reserves the client budget before body
+parsing.
+
+CodeRabbit then found two valid lock-hardening issues. The lock file now lives
+beside the resolved database under the store directory's permissions, and POSIX
+and Windows acquisition use nonblocking retries with a shared 60-second
+deadline. Six minimal regressions went red then green. The expanded strict
+focused slice collected and passed 185 tests, and changed-path Ruff passed.
+This remains branch-local evidence: the fourth signed commit, candidate secret
+scan, push, exact-head required CI, final review, and protected-main merge
+remain pending.
+---END-ENTRY-#579---

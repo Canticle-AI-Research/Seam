@@ -106,6 +106,12 @@ rollback, and disaster recovery remain S10 work.
     invoking an expensive injected resolver.
 14. A mounted/reverse-proxied app supplies a nonempty ASGI `root_path` that
     could make the pre-router allowlist reject legitimate public routes.
+15. A failed writer restores its pre-write snapshot after another process has
+    completed deletion, resurrecting canonical content and handles.
+16. Rotating credential fingerprints fill the bounded key map and evict an
+    active valid-credential resolver budget.
+17. Malformed public POST bodies consume parser/allocation work before an
+    endpoint dependency can reserve a rate-limit slot.
 
 ## Partial-failure cases
 
@@ -135,6 +141,10 @@ rollback, and disaster recovery remain S10 work.
 9. Another process registers a handle after a failed writer's snapshot but
    before compensation: rollback preserves the row only if it still matches
    the restored active canonical boundary and generation.
+10. Another process deletes a record while a writer is blocked in external
+    projection: store-local interprocess serialization orders compensation
+    before the delete can complete, so rollback cannot resurrect the response-
+    acknowledged deletion.
 
 ## Controls
 
@@ -145,6 +155,8 @@ rollback, and disaster recovery remain S10 work.
 | Foreign/forged delete | Keyed `mem_` handles plus exact indexed tenant/ns/scope lookup | Foreign and unknown return identical content-free 404 | Owned record remains live | Foreign-vs-unknown test |
 | Legacy route bypass | Pre-router principal-mode guard compares the ASGI routed path against exact health/data method-path pairs | Route matrix, including wrong methods, slash variants, and mounted prefixes | Reconfigure only by deliberate app restart | `/stats`, `/persist`, `/chat`, schema, redirect, rate-limit, CORS, and `root_path` tests |
 | Valid-credential resolver exhaustion | Credential-fingerprint budget is consumed before resolver invocation and retained after success | Resolver call count vs HTTP 429 sequence | Wait for the bounded window or rotate a deliberately provisioned credential | Repeated-valid-credential regression |
+| Credential-budget eviction | Resolver budget refuses unseen fingerprints while its bounded map contains live keys | Key-map occupancy and resolver call count | Wait for expiry; do not evict active reservations | Capacity/rotation regression |
+| Malformed pre-auth body work | Principal POST middleware reserves the client/auth budget before framework parsing; guard reuses or releases it | Consecutive malformed responses become 422 then 429 at a one-request budget | Wait for the bounded window | Malformed-JSON preparse regression |
 | Idempotency collision | Lifecycle per-tenant uniqueness and operation fingerprint | HTTP 409 without internal IDs | Use a new caller key | Delete replay/conflict coverage |
 | Cleanup failure | Canonical soft delete commits before external cleanup; durable `cleanup_pending` | Recoverable-operation query and append-only events | Repeat same opaque deletion/resume lifecycle | Injected cleanup-failure test |
 | Unbounded handle resolution | Primary-key/composite-boundary handle index; max 50 IDs | No namespace `load_ir` on delete | Rebuild derived registrations through recall | Indexed-resolution regression |
@@ -153,6 +165,7 @@ rollback, and disaster recovery remain S10 work.
 | Stale recall publishes old capability | Registration checks an active record/generation under the runtime projection lock | Mismatch fails closed without registering a row | Retry recall against a current snapshot | Recall-registration and rollback-serialization race tests |
 | Pending cleanup erases replacement | Writes overlapping `planned`, `applying`, or `cleanup_pending` scoped deletion are rejected | Content-free 409 plus durable lifecycle state | Resume the original deletion, then re-remember | Pending-cleanup/reingest test |
 | Failed vector write loses handles | Runtime compensation restores prior rows and preserves only concurrent rows valid against restored active canonical state | Whole-table hash/row equality plus spawned-process registration race | Retry the original persist | Compensation and cross-process registration regressions |
+| Failed writer resurrects deletion | Reentrant store-local cross-process lock spans canonical write, projection, compensation, delete planning/apply, and handle publication | Spawned writer/delete ordering and terminal canonical status | Retry failed writer only after the deletion completes | Cross-process deletion/compensation regression |
 
 ## Prompt, memory, and agent authority
 
@@ -182,10 +195,11 @@ rollback, and disaster recovery remain S10 work.
 - Context/candidates: recall at most 50; context at most 65,536 characters.
 - Authentication limiting: principal mode defaults to 60 requests/minute when
   configuration is unset or zero. Invalid/rotating credentials share a bounded
-  client-address pre-resolver bucket; each credential fingerprint has a
-  non-released resolver-invocation budget; successful subjects use stable
-  per-principal buckets. The limiter is process-local, so multi-worker launch
-  is refused unless an upstream shared limiter is explicitly acknowledged.
+  client-address pre-parse/resolver bucket; each credential fingerprint has a
+  non-released, non-evicting resolver-invocation budget; successful subjects
+  use stable per-principal buckets. The limiter is process-local, so
+  multi-worker launch is refused unless an upstream shared limiter is
+  explicitly acknowledged.
 - Memory/disk: O(number of returned/requested handles) per operation. The
   append-only derived handle projection can grow with newly rendered records;
   retention/compaction policy is residual S10 operational work.
@@ -246,6 +260,15 @@ rollback, and disaster recovery remain S10 work.
   credential resolver budget. Four minimal regressions went red then green; the
   expanded strict focused slice collected and passed 179 tests. CodeRabbit's
   one minor spawned-process cleanup finding was repaired and reverified.
+- A third exact-head review of `82849ab` found a cross-process deletion
+  resurrection P1 plus three P2 gaps in concurrent first-plan replay, credential
+  map eviction, and malformed-body pre-auth work. Reentrant store-local file
+  serialization, universal public-apply incarnation checking, a non-evicting
+  credential map, and pre-parse client reservation repair them. CodeRabbit then
+  found two lock hardening gaps: the file now lives beside the resolved store
+  rather than shared `/tmp`, and both POSIX/Windows acquisition paths use a
+  bounded nonblocking deadline. Six minimal regressions went red then green;
+  the expanded strict focused slice collected and passed 185 tests.
 - The canonical working-tree secret/session scan, whole-tree Ruff, active-Python
   compilation, dependency check, diff/audit checks, and continuity closeout are
   green. Signed publication, exact-head CI, and merge remain before this is

@@ -966,6 +966,60 @@ class TestPublicApiPrincipalTenancy:
             "/v1/memories/recall", json=query, headers=headers
         ).json()["memories"]
 
+    def test_concurrent_first_plan_rechecks_returned_operation_generation(
+        self, principal_api, monkeypatch
+    ):
+        client, runtime, _db_path = principal_api
+        headers = _principal_headers("a")
+        text = "The concurrent planning marker is silver delta."
+        query = {"query": "concurrent planning marker silver delta"}
+        assert client.post(
+            "/v1/memories", json={"text": text}, headers=headers
+        ).status_code == 200
+        memory_id = client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"][0]["id"]
+        original_plan = runtime.plan_scoped_delete
+        original_apply = runtime.apply_scoped_delete
+        injected = False
+
+        def win_plan_apply_and_reingest(*args, **kwargs):
+            nonlocal injected
+            operation = original_plan(*args, **kwargs)
+            if not injected:
+                injected = True
+                original_apply(
+                    tenant_id=str(operation["tenant_id"]),
+                    operation_id=str(operation["operation_id"]),
+                    actor="principal-api",
+                )
+                remember(
+                    runtime,
+                    {"text": text},
+                    principal=PublicPrincipal("account/alice"),
+                )
+            return operation
+
+        monkeypatch.setattr(
+            runtime,
+            "plan_scoped_delete",
+            win_plan_apply_and_reingest,
+        )
+        response = client.post(
+            "/v1/memories/delete",
+            json={
+                "memory_ids": [memory_id],
+                "idempotency_key": "concurrent-first-plan",
+            },
+            headers=headers,
+        )
+
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Memory not found"}
+        assert client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"]
+
     def test_stale_resolved_handle_cannot_delete_replacement_generation(
         self, principal_api, monkeypatch
     ):

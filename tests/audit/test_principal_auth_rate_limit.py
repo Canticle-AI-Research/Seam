@@ -133,6 +133,94 @@ def test_subject_limit_blocks_repeated_valid_credential_before_resolver(
     assert resolver.credentials == ["valid-token"]
 
 
+def test_credential_budget_does_not_evict_live_key_at_capacity(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "2")
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_MAX_KEYS", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "credential-budget-capacity.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            def recall(credential: str):
+                return client.post(
+                    "/v1/memories/recall",
+                    json={"query": "credential capacity"},
+                    headers={"Authorization": f"Bearer {credential}"},
+                )
+
+            responses = [
+                recall("valid-token"),
+                recall("rotating-invalid-one"),
+                recall("valid-token"),
+                recall("rotating-invalid-two"),
+                recall("valid-token"),
+            ]
+    finally:
+        runtime.close()
+
+    assert [response.status_code for response in responses] == [
+        200,
+        429,
+        200,
+        429,
+        429,
+    ]
+    assert resolver.credentials == ["valid-token", "valid-token"]
+
+
+def test_malformed_public_bodies_consume_preparse_client_budget(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "malformed-preparse-budget.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            first = client.post(
+                "/v1/memories",
+                content=b"{",
+                headers={
+                    "Authorization": "Bearer valid-token",
+                    "Content-Type": "application/json",
+                },
+            )
+            second = client.post(
+                "/v1/memories",
+                content=b"{",
+                headers={
+                    "Authorization": "Bearer valid-token",
+                    "Content-Type": "application/json",
+                },
+            )
+    finally:
+        runtime.close()
+
+    assert first.status_code == 422
+    assert second.status_code == 429
+    assert resolver.credentials == []
+
+
 def test_rotating_invalid_bearer_tokens_share_the_client_rate_limit(
     monkeypatch, tmp_path
 ) -> None:

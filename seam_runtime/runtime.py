@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
 import threading
+import time
 from collections.abc import Callable
 from pathlib import Path
 
@@ -53,14 +55,115 @@ from .verify import verify_ir
 LOGGER = logging.getLogger(__name__)
 
 _RUNTIME_PERSIST_LOCKS_GUARD = threading.Lock()
-_RUNTIME_PERSIST_LOCKS: dict[str, threading.RLock] = {}
+_RUNTIME_PERSIST_LOCKS: dict[str, "_RuntimePersistLock"] = {}
+_PERSIST_LOCK_TIMEOUT_SECONDS = 60.0
+
+
+class _RuntimePersistLock:
+    """Reentrant in-process lock backed by one cross-process file lock."""
+
+    def __init__(self, file_identity: str | None) -> None:
+        self._thread_lock = threading.RLock()
+        self._depth = 0
+        self._file_handle = None
+        self._lock_path: Path | None = None
+        if file_identity is not None:
+            digest = hashlib.sha256(file_identity.encode("utf-8")).hexdigest()
+            store_path = Path(file_identity)
+            self._lock_path = (
+                store_path.parent / f".seam-runtime-{digest[:16]}.lock"
+            )
+
+    def __enter__(self) -> "_RuntimePersistLock":
+        self._thread_lock.acquire()
+        try:
+            if self._depth == 0:
+                self._acquire_process_lock()
+            self._depth += 1
+            return self
+        except Exception:
+            self._thread_lock.release()
+            raise
+
+    def __exit__(self, exc_type, exc, traceback) -> None:
+        del exc_type, exc, traceback
+        try:
+            self._depth -= 1
+            if self._depth == 0:
+                self._release_process_lock()
+        finally:
+            self._thread_lock.release()
+
+    def _acquire_process_lock(self) -> None:
+        if self._lock_path is None:
+            return
+        self._lock_path.parent.mkdir(parents=True, exist_ok=True)
+        handle = self._lock_path.open("a+b")
+        deadline = time.monotonic() + _PERSIST_LOCK_TIMEOUT_SECONDS
+        try:
+            if os.name == "nt":
+                import msvcrt
+
+                handle.seek(0, os.SEEK_END)
+                if handle.tell() == 0:
+                    handle.write(b"\0")
+                    handle.flush()
+                handle.seek(0)
+                while True:
+                    try:
+                        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                        break
+                    except OSError:
+                        if time.monotonic() >= deadline:
+                            raise TimeoutError(
+                                "timed out acquiring the runtime persistence lock"
+                            ) from None
+                        time.sleep(0.05)
+            else:
+                import fcntl
+
+                while True:
+                    try:
+                        fcntl.flock(
+                            handle.fileno(),
+                            fcntl.LOCK_EX | fcntl.LOCK_NB,
+                        )
+                        break
+                    except OSError:
+                        if time.monotonic() >= deadline:
+                            raise TimeoutError(
+                                "timed out acquiring the runtime persistence lock"
+                            ) from None
+                        time.sleep(0.05)
+        except Exception:
+            handle.close()
+            raise
+        self._file_handle = handle
+
+    def _release_process_lock(self) -> None:
+        handle = self._file_handle
+        self._file_handle = None
+        if handle is None:
+            return
+        try:
+            if os.name == "nt":
+                import msvcrt
+
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            handle.close()
 
 
 def _runtime_persist_lock(
     store_path: str | Path,
     *,
     memory_identity: int,
-) -> threading.RLock:
+) -> _RuntimePersistLock:
     """Share one write+projection critical section per local canonical store."""
 
     raw_path = str(store_path)
@@ -72,7 +175,7 @@ def _runtime_persist_lock(
     with _RUNTIME_PERSIST_LOCKS_GUARD:
         lock = _RUNTIME_PERSIST_LOCKS.get(key)
         if lock is None:
-            lock = threading.RLock()
+            lock = _RuntimePersistLock(None if raw_path == ":memory:" else key)
             _RUNTIME_PERSIST_LOCKS[key] = lock
         return lock
 
@@ -712,16 +815,17 @@ class SeamRuntime:
         idempotency_context: str | None = None,
         record_generations: dict[str, str] | None = None,
     ) -> dict[str, object]:
-        return self.store.plan_scoped_delete(
-            tenant_id=tenant_id,
-            namespace=namespace,
-            scope=scope,
-            record_ids=record_ids,
-            idempotency_key=idempotency_key,
-            actor=actor,
-            idempotency_context=idempotency_context,
-            record_generations=record_generations,
-        )
+        with self._persist_projection_lock:
+            return self.store.plan_scoped_delete(
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                record_ids=record_ids,
+                idempotency_key=idempotency_key,
+                actor=actor,
+                idempotency_context=idempotency_context,
+                record_generations=record_generations,
+            )
 
     def register_public_memory_handles(
         self,

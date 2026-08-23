@@ -11,7 +11,7 @@
 
 **2026-08-22 — protected `main@a177852` includes PR #222's bounded Track S
 audit repairs; S6 PR #223 is signed, locally runtime-qualified, and repaired
-after two exact-head GitHub reviews.** The governing reports are:
+after three exact-head GitHub reviews.** The governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and
@@ -21,11 +21,12 @@ after two exact-head GitHub reviews.** The governing reports are:
 Track S is not complete. S0-S5 are published through PRs #190, #191, #193,
 #194, #195, and #199, and PR #222 landed the later S1/S5 counterexample
 repairs. S6 is implemented only on `track-s/s6-principal-tenancy`. Its original
-exact head passed every required and advisory CI lane. Its first review repair
-head passed every required CI lane, then a second exact-head review found four
-more reproducible defects. Ten review findings are now repaired across the two
-cycles; the latest strict-no-skip slice passed 179 tests. A third signed head,
-repeat exact-head CI, final review, and merge remain.
+exact head passed every required and advisory CI lane. Its first and second
+review-repair heads each passed every required CI lane before the next
+exact-head review exposed additional races or surface gaps. Fourteen Codex
+findings are now repaired across three cycles, plus CodeRabbit's final lock
+hardening; the latest strict-no-skip slice passed 185 tests. A fourth signed
+head, repeat exact-head CI, final review, and merge remain.
 S7-S10 stay dependency-ordered:
 
 ```text

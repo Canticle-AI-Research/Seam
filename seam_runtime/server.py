@@ -128,6 +128,7 @@ def _require_uvicorn() -> Any:
 class RateLimiter:
     limit_per_minute: int = 0
     max_keys: int = 10000
+    evict_oldest: bool = True
     hits: dict[str, list[float]] = field(default_factory=dict)
     _lock: Any = field(default_factory=threading.Lock, repr=False, compare=False)
 
@@ -144,6 +145,8 @@ class RateLimiter:
             window_start = now - 60.0
             self._purge(window_start)
             if key not in self.hits and len(self.hits) >= self.max_keys:
+                if not self.evict_oldest:
+                    return None
                 oldest_key = min(self.hits, key=lambda item: self.hits[item][-1] if self.hits[item] else 0.0)
                 self.hits.pop(oldest_key, None)
             recent = [stamp for stamp in self.hits.get(key, []) if stamp >= window_start]
@@ -782,6 +785,7 @@ def create_app(
     principal_credential_limiter = RateLimiter(
         effective_rate_limit,
         max_keys=rate_limit_max_keys,
+        evict_oldest=False,
     )
     resolved_public_id_key = public_id_key
     if principal_mode:
@@ -872,25 +876,40 @@ def create_app(
                 if authorization and authorization.startswith(prefix)
                 else ""
             )
+            auth_failure_key = _principal_auth_failure_key(request)
+            preparse_reservation = getattr(
+                request.state,
+                "seam_principal_auth_reservation",
+                None,
+            )
+            if (
+                isinstance(preparse_reservation, tuple)
+                and len(preparse_reservation) == 2
+                and preparse_reservation[0] == auth_failure_key
+            ):
+                auth_reservation = float(preparse_reservation[1])
+            else:
+                auth_reservation = enforce_rate_limit(
+                    request,
+                    auth_failure_key,
+                    selected_limiter=principal_resolver_limiter,
+                )
             # Bound repeated use of one credential before invoking a resolver.
             # This reservation intentionally remains consumed after success;
             # unlike the client/IP rotation bucket below, it is the resolver-
             # invocation budget for this credential fingerprint.
-            enforce_rate_limit(
-                request,
-                _principal_credential_key(credential),
-                selected_limiter=principal_credential_limiter,
-            )
-            auth_failure_key = _principal_auth_failure_key(request)
-            # Reserve the client/IP attempt atomically before invoking a
-            # potentially expensive injected resolver. This second bounded
-            # limiter closes concurrent credential-rotation bursts; a resolved
-            # principal is still subject to its stable cross-IP key below.
-            auth_reservation = enforce_rate_limit(
-                request,
-                auth_failure_key,
-                selected_limiter=principal_resolver_limiter,
-            )
+            try:
+                enforce_rate_limit(
+                    request,
+                    _principal_credential_key(credential),
+                    selected_limiter=principal_credential_limiter,
+                )
+            except HTTPException:
+                principal_resolver_limiter.release(
+                    auth_failure_key,
+                    auth_reservation,
+                )
+                raise
             principal = resolved_principal_resolver.resolve_bearer(credential)
             if principal is None:
                 LOGGER.warning(
@@ -926,10 +945,8 @@ def create_app(
 
     @app.middleware("http")
     async def enforce_principal_surface(request: Request, call_next: Any) -> Any:
-        if principal_mode and (
-            request.method,
-            _request_route_path(request),
-        ) not in principal_operations:
+        route_path = _request_route_path(request)
+        if principal_mode and (request.method, route_path) not in principal_operations:
             try:
                 enforce_rate_limit(request, _client_key(request))
             except HTTPException as exc:
@@ -939,6 +956,24 @@ def create_app(
                     headers=exc.headers,
                 )
             return JSONResponse({"detail": "Not found"}, status_code=404)
+        if principal_mode and request.method == "POST" and route_path in principal_paths:
+            auth_failure_key = _principal_auth_failure_key(request)
+            try:
+                auth_reservation = enforce_rate_limit(
+                    request,
+                    auth_failure_key,
+                    selected_limiter=principal_resolver_limiter,
+                )
+            except HTTPException as exc:
+                return JSONResponse(
+                    {"detail": exc.detail},
+                    status_code=exc.status_code,
+                    headers=exc.headers,
+                )
+            request.state.seam_principal_auth_reservation = (
+                auth_failure_key,
+                auth_reservation,
+            )
         return await call_next(request)
 
     @app.exception_handler(Exception)

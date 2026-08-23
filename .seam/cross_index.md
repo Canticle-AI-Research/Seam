@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 641
+total_events: 642
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-13T03:25:35Z | history:385:4f2a7c73 | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, v... | PROJECT_STATUS.md,HISTORY.md,HISTORY_INDEX.md |
 | 2026-07-13T23:21:38Z | history:386:1c619b66 | session-event | done | benchmark, locomo, retrieval, quality, command, tests, ha... | seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_loco... |
 | 2026-07-13T23:45:23Z | history:387:1d31ef23 | session-event | changed | history, handoff, status, verify, ci | PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-13-improve-val... |
 | 2026-07-14T01:43:37Z | history:388:1e8e9de6 | session-event | done | review, ci, merge, history, status, verify | seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_loco... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-22T08:47:54Z | history:576:9eb10e23 | session-event | changed | correction, audit, continuity, docs, verify | HISTORY#575,docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.... |
 | 2026-08-23T03:02:53Z | history:577:00ea6abf | session-event | changed | bugfix, security, surface, storage, test, verify, continu... | HISTORY#576,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/public_... |
 | 2026-08-23T03:35:00Z | history:578:a71f9112 | session-event | changed | bugfix, security, surface, storage, test, verify, continu... | HISTORY#577,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/lifecyc... |
+| 2026-08-23T04:00:04Z | history:579:becfc7bc | session-event | changed | atomicity, bugfix, locking, security, surface, storage, t... | HISTORY#578,PR#223,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtim... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0441.cross.md | 2026-04-15T00:00:00Z..2026-07-12T21:22:48Z | 441 | (multi) | (multi) |
+| 0001-0442.cross.md | 2026-04-15T00:00:00Z..2026-07-13T03:25:35Z | 442 | (multi) | (multi) |
