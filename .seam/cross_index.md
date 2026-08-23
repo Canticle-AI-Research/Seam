@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 660
+total_events: 661
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-16T13:46:22Z | history:402:90136fda | session-event | in-progress | graph, memory, provenance, dashboard, webui, retrieval, a... | seam_runtime/knowledge_graph.py,seam_runtime/storage.py,seam_runtime/runtime.... |
 | 2026-07-16T19:01:09Z | history:403:11d8ecbd | session-event | done | graph, memory, trust, provenance, webui, dashboard, retri... | seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py... |
 | 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
 | 2026-07-16T23:08:58Z | history:405:465cd643 | session-event | done | benchmark, locomo, merge, pgvector, analysis, levers, rec... | PROJECT_STATUS.md,HISTORY.md,seam_runtime/conversation.py,seam_runtime/vector... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T07:42:39Z | history:595:c22a9f95 | session-event | done | ci, security, audit, tests, continuity, operator, config | .github/workflows/publish-private-release.yml; tools/release/verify_private_a... |
 | 2026-08-23T07:43:37Z | history:596:75761dda | session-event | done | correction, continuity, history, verify, audit | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
 | 2026-08-23T08:06:23Z | history:597:5125a974 | session-event | done | bugfix, security, ci, tests, audit, continuity, operator | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
+| 2026-08-23T08:24:16Z | history:598:fc770ef9 | session-event | done | ci, docs, handoff, status, continuity, operator, config, ... | PROJECT_STATUS.md,docs/status/workspace.md,docs/handoffs/2026-08-23-s6-github... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0460.cross.md | 2026-04-15T00:00:00Z..2026-07-16T12:38:06Z | 460 | (multi) | (multi) |
+| 0001-0461.cross.md | 2026-04-15T00:00:00Z..2026-07-16T13:46:22Z | 461 | (multi) | (multi) |

@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-22-github-operations-restacked
+latest: 2026-08-23-s6-github-operations-merged-s7-next
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-22-github-operations-restacked` | [2026-08-22-github-operations-restacked.md](2026-08-22-github-operations-restacked.md) | `2026-08-22-track-s-s6-third-review-repaired` | `HISTORY#597` | `current` |
+| `2026-08-23-s6-github-operations-merged-s7-next` | [2026-08-23-s6-github-operations-merged-s7-next.md](2026-08-23-s6-github-operations-merged-s7-next.md) | `2026-08-22-github-operations-restacked` | `HISTORY#598` | `current` |
+| `2026-08-22-github-operations-restacked` | [2026-08-22-github-operations-restacked.md](2026-08-22-github-operations-restacked.md) | `2026-08-22-track-s-s6-third-review-repaired` | `HISTORY#597` | `superseded` |
 | `2026-08-22-track-s-s6-third-review-repaired` | [2026-08-22-track-s-s6-third-review-repaired.md](2026-08-22-track-s-s6-third-review-repaired.md) | `2026-08-22-track-s-s6-second-review-repaired` | `HISTORY#579` | `superseded` |
 | `2026-08-22-track-s-s6-second-review-repaired` | [2026-08-22-track-s-s6-second-review-repaired.md](2026-08-22-track-s-s6-second-review-repaired.md) | `2026-08-22-track-s-s6-review-repaired` | `HISTORY#578` | `superseded` |
 | `2026-08-22-track-s-s6-review-repaired` | [2026-08-22-track-s-s6-review-repaired.md](2026-08-22-track-s-s6-review-repaired.md) | `2026-08-22-track-s-s6-locally-qualified` | `HISTORY#577` | `superseded` |
