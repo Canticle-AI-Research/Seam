@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#596
+history: HISTORY#597
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -94,15 +94,19 @@ history: HISTORY#596
   rule with HTTP 422 on the current private-repo plan, so the actor allowlist is
   the supported solo-operator boundary and must not be described as a separate
   reviewer approval.
+- The ninth exact-head review exports the validated title value into the text
+  scanner, rejects reruns and requires both the original and triggering actors
+  to match the configured operator, applies canonical secret patterns to
+  normalized archive member paths without echoing them, and scans the complete
+  decompressed sdist stream including bytes after tar's logical end marker.
 
 ## Next exact steps
 
-HISTORY#596's corrected closeout for the locally qualified eighth-review repair,
-the prior signed repair
+HISTORY#597's locally qualified ninth-review repair, the prior signed repair
 commits, exact candidate scans, required checks, and review cycles are complete
 through the local boundary. Continue with:
 
-1. Commit and push the completed eighth exact-head review-repair successor.
+1. Commit and push the completed ninth exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

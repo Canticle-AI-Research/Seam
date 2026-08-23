@@ -10,6 +10,7 @@ scanner. Reports never echo matched content.
 from __future__ import annotations
 
 import argparse
+import gzip
 import re
 import stat
 import tarfile
@@ -119,6 +120,8 @@ def _validate_member_path(
     if canonical_key in seen:
         return f"{archive.name}:{member_ref}: duplicate_member"
     seen.add(canonical_key)
+    if scan_bytes(member_ref, canonical.encode("utf-8"), include_binary=True):
+        return f"{archive.name}:{member_ref}: secret_in_member_path"
     lowered_parts = tuple(part.casefold() for part in member.parts)
     if any(part in _DENIED_NAMES for part in lowered_parts):
         return f"{archive.name}:{member_ref}: credential_path"
@@ -162,6 +165,24 @@ def _scan_container_bytes(path: Path) -> list[str]:
                 overlap = content[-4096:]
     except OSError:
         findings.append(f"{path.name}: unreadable_artifact_container")
+    return findings
+
+
+def _scan_decompressed_sdist_bytes(path: Path) -> list[str]:
+    findings: list[str] = []
+    overlap = b""
+    chunk_number = 0
+    try:
+        with gzip.open(path, "rb") as stream:
+            while chunk := stream.read(MAX_SCAN_BYTES - len(overlap)):
+                chunk_number += 1
+                content = overlap + chunk
+                findings.extend(
+                    _scan_member(path, f"decompressed-container[{chunk_number}]", content)
+                )
+                overlap = content[-4096:]
+    except (EOFError, gzip.BadGzipFile, OSError):
+        findings.append(f"{path.name}: unreadable_decompressed_container")
     return findings
 
 
@@ -234,7 +255,7 @@ def _scan_wheel(path: Path) -> list[str]:
 
 
 def _scan_sdist(path: Path) -> list[str]:
-    findings = _scan_container_bytes(path)
+    findings = [*_scan_container_bytes(path), *_scan_decompressed_sdist_bytes(path)]
     seen: set[str] = set()
     try:
         with tarfile.open(path, mode="r:gz") as archive:

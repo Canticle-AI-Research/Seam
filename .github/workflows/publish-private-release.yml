@@ -46,8 +46,16 @@ jobs:
         env:
           ACTOR: ${{ github.actor }}
           APPROVER: ${{ vars.PRIVATE_RELEASE_APPROVER }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
         run: |
-          if [[ -z "${APPROVER}" || "${ACTOR}" != "${APPROVER}" ]]; then
+          if [[ "${RUN_ATTEMPT}" != "1" ]]; then
+            echo "Publication workflow reruns are forbidden; dispatch a new reviewed run." >&2
+            exit 1
+          fi
+          if [[ -z "${APPROVER}" \
+            || "${ACTOR}" != "${APPROVER}" \
+            || "${TRIGGERING_ACTOR}" != "${APPROVER}" ]]; then
             echo "Only the configured private release operator may dispatch publication." >&2
             exit 1
           fi
@@ -160,7 +168,7 @@ jobs:
             echo "Reviewed release title changed; refusing publication." >&2
             exit 1
           fi
-          export RELEASE_TITLE
+          export RELEASE_TITLE="${release_title}"
 
           mkdir prepared-assets draft-assets
           if ! gh run download "${EXPECTED_RUN_ID}" --repo "${GITHUB_REPOSITORY}" \

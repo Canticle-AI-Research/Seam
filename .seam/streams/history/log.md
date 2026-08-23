@@ -19483,3 +19483,43 @@ repairs. Next: complete the canonical closeout from this entry, create the
 signed successor commit, push it to PR #224, reply to the five review threads,
 and require repeat exact-head CI and review before merge.
 ---END-ENTRY-#596---
+
+---BEGIN-ENTRY-#597---
+id: 597
+date: 2026-08-23T08:06:23Z
+agent: Codex
+status: done
+topics: bugfix, security, ci, tests, audit, continuity, operator
+commits: 4d64ec9322b0a50ab4287c445506851d4d060925
+refs: .github/workflows/publish-private-release.yml,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,.github/RELEASE_CHECKLIST.md,README.md,REPO_LEDGER.md,docs/status/operations.md,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md,PR#224
+supersedes: 596
+tokens: 445
+---
+PR #224 exact head `4d64ec9322b0a50ab4287c445506851d4d060925`
+passed `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` before
+the ninth Codex review reported four bounded publication defects. The guarded
+workflow now exports the validated title value rather than an unset shell name,
+rejects every workflow rerun, and requires both `github.actor` and
+`github.triggering_actor` to match the admin-controlled
+`PRIVATE_RELEASE_APPROVER` variable before the write-permission job. The
+artifact verifier applies the canonical secret/session scanner to normalized
+member paths while reporting only ordinals, and scans the complete decompressed
+gzip stream so unreferenced bytes after tar's logical end marker cannot hide a
+credential.
+
+Focused regressions reproduce the provider-key member path and the
+gzip-compressed post-tar payload. The first focused rerun exposed one test
+contract collision: the prior unreadable-ZIP fixture's secret-bearing filename
+now correctly failed at the earlier path scan, so that fixture was changed to a
+non-secret private marker while the new test independently proves secret-path
+rejection and ordinal-only reporting. After that correction, the focused audit,
+pinned Ruff, YAML and extracted Bash syntax checks, `git diff --check`, the
+complete non-external `tests/audit` suite under strict no-skip behavior, and the
+real 2.4.0 wheel/sdist verification all pass.
+
+The live repository actor variable and protected-branch environment recorded
+by HISTORY#596 are unchanged. No issue, milestone, tag, release, deployment,
+paid call, or publication was created. Next: complete canonical closeout, sign
+and push the ninth-review successor, reply to the four review threads, and
+repeat exact-head required CI and review before merging PR #224.
+---END-ENTRY-#597---

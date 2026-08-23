@@ -502,16 +502,18 @@ After an operator reviews the draft notes and assets, the separate manual
 **Publish reviewed private release** workflow
 ([`.github/workflows/publish-private-release.yml`](.github/workflows/publish-private-release.yml))
 requires the successful preparation run ID, notes/manifest digests, and the
-exact tagged commit. Before its write-permission job can run, the dispatcher
-must match the repository `PRIVATE_RELEASE_APPROVER` Actions variable. It then
-downloads the immutable preparation-run artifact and requires the draft assets
-to match it byte-for-byte while revalidating current main, tag type/target,
-artifact identity, release title, complete checksum coverage, packaged content,
-notes, and unchanged draft state immediately before publication. The operator
-must first confirm repository release immutability is enabled; the workflow
-verifies the published result and removes a mutable release/tag if that
-invariant is not honored. Do not publish the draft directly from the release
-page.
+exact tagged commit. Before its write-permission job can run, both the original
+actor and triggering actor must match the repository
+`PRIVATE_RELEASE_APPROVER` Actions variable, and the run must be a fresh first
+attempt rather than a workflow rerun. It then downloads the immutable
+preparation-run artifact and requires the draft assets to match it byte-for-byte
+while revalidating current main, tag type/target, artifact identity, release
+title, complete checksum coverage, packaged content (including archive member
+paths and the full decompressed sdist stream), notes, and unchanged draft state
+immediately before publication. The operator must first confirm repository
+release immutability is enabled; the workflow verifies the published result and
+removes a mutable release/tag if that invariant is not honored. Do not publish
+the draft directly from the release page.
 
 Use the [private release checklist](.github/RELEASE_CHECKLIST.md) from proposal
 through post-publication verification.

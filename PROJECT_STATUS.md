@@ -10,7 +10,7 @@
 ## Current headline
 
 **2026-08-23 — protected `main@abd2a59` includes merged Track S S6 PR #223;
-GitHub operations PR #224 is restacked on that head, and its eighth-review
+GitHub operations PR #224 is restacked on that head, and its ninth-review
 successor is locally qualified for repeat exact-head publication gates.** The
 governing reports are:
 

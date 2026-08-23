@@ -29,6 +29,9 @@ It does not authorize PyPI publication, a public-client release, or deployment.
       `PRIVATE_RELEASE_APPROVER` Actions variable. The current private-repo
       plan does not provide environment required reviewers, so this allowlist
       is the supported publication-actor boundary.
+- [ ] Dispatch a fresh publication run from that account. Workflow reruns are
+      forbidden; both the original actor and triggering actor must match the
+      configured operator.
 - [ ] Review the generated draft release notes for private data, secrets,
       provider session links, and unsupported deployment or benchmark claims.
 - [ ] Confirm the draft title is exactly `SEAM <version>`.

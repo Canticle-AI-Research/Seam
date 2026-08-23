@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import io
 import os
 import stat
@@ -123,6 +124,9 @@ def test_package_release_stays_private_and_verifiable() -> None:
     authorize_job = follow_up["jobs"]["authorize-publisher"]
     assert authorize_job["permissions"] == {}
     assert "PRIVATE_RELEASE_APPROVER" in follow_up_raw
+    assert "TRIGGERING_ACTOR" in follow_up_raw
+    assert "RUN_ATTEMPT" in follow_up_raw
+    assert "Publication workflow reruns are forbidden" in follow_up_raw
     assert "Only the configured private release operator" in follow_up_raw
     assert publish_job["needs"] == "authorize-publisher"
     assert publish_job["environment"] == "private-package-release"
@@ -152,6 +156,7 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "release_title" in follow_up_raw
     assert '"SEAM ${VERSION}"' in follow_up_raw
     assert '"release-title"' in follow_up_raw
+    assert 'export RELEASE_TITLE="${release_title}"' in follow_up_raw
     assert ".immutable" in follow_up_raw
     assert "include_binary=True" in follow_up_raw
     assert "gh release edit" in follow_up_raw
@@ -322,6 +327,22 @@ def test_private_artifact_verifier_rejects_secret_and_unsafe_paths(tmp_path: Pat
     assert any("unsafe_member_path" in finding for finding in findings)
 
 
+def test_private_artifact_verifier_scans_secret_patterns_in_member_paths(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    secret = "sk-" + "proj-" + "8" * 24
+    _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
+    _write_sdist(
+        sdist,
+        {f"seam_runtime-2.5.0/{secret}.txt": b"clean payload\n"},
+    )
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert any("secret_in_member_path" in finding for finding in findings)
+    assert secret not in "\n".join(findings)
+
+
 def test_private_artifact_verifier_scans_bounded_binary_members(tmp_path: Path) -> None:
     wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
     sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
@@ -358,6 +379,24 @@ def test_private_artifact_verifier_scans_unreferenced_container_bytes(tmp_path: 
     with wheel.open("ab") as stream:
         stream.write(secret)
     _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    assert any("api_key" in finding for finding in verify_artifacts([wheel, sdist]))
+
+
+def test_private_artifact_verifier_scans_unreferenced_decompressed_sdist_bytes(
+    tmp_path: Path,
+) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    secret = ("sk-" + "proj-" + "7" * 24).encode()
+    _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
+    raw_tar = io.BytesIO()
+    with tarfile.open(fileobj=raw_tar, mode="w") as archive:
+        content = b"private runtime\n"
+        info = tarfile.TarInfo("seam_runtime-2.5.0/README.md")
+        info.size = len(content)
+        archive.addfile(info, io.BytesIO(content))
+    sdist.write_bytes(gzip.compress(raw_tar.getvalue() + secret))
 
     assert any("api_key" in finding for finding in verify_artifacts([wheel, sdist]))
 
@@ -508,7 +547,7 @@ def test_private_artifact_verifier_redacts_member_names(tmp_path: Path) -> None:
 def test_private_artifact_verifier_redacts_archive_read_failures(tmp_path: Path) -> None:
     wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
     sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
-    leaked = "sk-" + "proj-" + "e" * 24
+    leaked = "private-filename-do-not-echo"
     _write_wheel(wheel, {f"seam_runtime/{leaked}.txt": b"placeholder\n"})
     content = bytearray(wheel.read_bytes())
     local_header = content.index(b"PK\x03\x04")

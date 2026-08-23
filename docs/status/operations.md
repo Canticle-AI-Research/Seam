@@ -34,14 +34,16 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   smoke-tests installed commands, emits and re-verifies `SHA256SUMS.txt`, and
   creates a private GitHub Release draft with categorized generated notes.
   After an operator reviews those notes, a separate environment-gated follow-up
-  first requires the dispatcher to match the admin-controlled
-  `PRIVATE_RELEASE_APPROVER` repository variable, then requires the reviewed
-  tag to remain the current protected-main head. It downloads the immutable
-  artifact from the named successful preparation run and binds the draft to it
-  byte-for-byte while rechecking tag type/target, reviewed manifest and notes
-  digests, exact checksum coverage, downloaded artifact identity/content,
-  exact title, release-text scan, unchanged draft state, and the live protected
-  head immediately before publishing. It requires an operator
+  first requires a fresh first attempt whose original and triggering actors
+  both match the admin-controlled `PRIVATE_RELEASE_APPROVER` repository
+  variable, then requires the reviewed tag to remain the current protected-main
+  head. It downloads the immutable artifact from the named successful
+  preparation run and binds the draft to it byte-for-byte while rechecking tag
+  type/target, reviewed manifest and notes digests, exact checksum coverage,
+  downloaded artifact identity/content, member paths and the complete
+  decompressed sdist stream, exact title, release-text scan, unchanged draft
+  state, and the live protected head immediately before publishing. It requires
+  an operator
   immutability-setting confirmation and then verifies the published immutable
   flag, removing a mutable release/tag on failure. It has no PyPI target or
   OIDC publication permission.

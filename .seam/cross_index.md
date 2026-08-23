@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 659
+total_events: 660
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-16T12:38:06Z | history:401:ae65e22b | session-event | done | bugfix, benchmark, locomo, persist, tests, ci, handoff, v... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 | 2026-07-16T13:46:22Z | history:402:90136fda | session-event | in-progress | graph, memory, provenance, dashboard, webui, retrieval, a... | seam_runtime/knowledge_graph.py,seam_runtime/storage.py,seam_runtime/runtime.... |
 | 2026-07-16T19:01:09Z | history:403:11d8ecbd | session-event | done | graph, memory, trust, provenance, webui, dashboard, retri... | seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py... |
 | 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T07:04:24Z | history:594:29ecb58f | session-event | done | harden, security, tests, ci, docs, continuity | HISTORY#593,PR#224,.github/workflows/package-release.yml,.github/workflows/pu... |
 | 2026-08-23T07:42:39Z | history:595:c22a9f95 | session-event | done | ci, security, audit, tests, continuity, operator, config | .github/workflows/publish-private-release.yml; tools/release/verify_private_a... |
 | 2026-08-23T07:43:37Z | history:596:75761dda | session-event | done | correction, continuity, history, verify, audit | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
+| 2026-08-23T08:06:23Z | history:597:5125a974 | session-event | done | bugfix, security, ci, tests, audit, continuity, operator | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0459.cross.md | 2026-04-15T00:00:00Z..2026-07-16T00:00:00Z | 459 | (multi) | (multi) |
+| 0001-0460.cross.md | 2026-04-15T00:00:00Z..2026-07-16T12:38:06Z | 460 | (multi) | (multi) |
