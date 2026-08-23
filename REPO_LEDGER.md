@@ -92,12 +92,11 @@ and `HISTORY_INDEX.md`.
   calls use the existing bearer-token guard. Public namespaces are mapped
   under an SDK-only prefix with optional hashed session partitions, and
   responses use opaque receipts/IDs plus user-facing text rather than private
-  record shapes. The unpublished Track S S6 candidate adds
+  record shapes. Published Track S S6 adds
   `/v1/memories/delete` and an optional in-process principal resolver. In
   principal mode, the subject derives the internal tenant/namespace boundary
   and legacy private data routes return 404; token-only mode remains a trusted
-  single-user gate and is not tenancy. This candidate is not stable public
-  behavior until signed publication, exact-head CI, and merge complete.
+  single-user gate and is not tenancy.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY
@@ -131,13 +130,14 @@ and `HISTORY_INDEX.md`.
   and an exact new SemVer already present in `pyproject.toml`; it builds exactly
   one private `seam-runtime` wheel and sdist, rejects unsafe members and
   secret-shaped packaged content, smoke-tests the installed commands, emits and
-  verifies `SHA256SUMS.txt`, and creates an immutable private GitHub Release
-  with categorized generated notes. After environment approval it revalidates
+  verifies `SHA256SUMS.txt`, and creates a private GitHub Release draft with
+  categorized generated notes. After environment approval it revalidates
   the live protected head immediately before atomically reserving the exact tag,
-  builds the release as a draft, and publishes only after asset upload; a failed
-  attempt removes only its exact unpublished draft/tag, while ambiguous or
-  already-published state is left for operator review. Prerelease SemVer is
-  marked as a GitHub prerelease. It has no PyPI target, publish job, or
+  uploads assets into the draft, and leaves publication to an operator after
+  reviewing the generated notes for private data and unsupported claims. A
+  failed attempt removes only its exact unpublished draft/tag, while ambiguous
+  or already-published state is left for operator review. Prerelease SemVer is
+  marked as a GitHub prerelease. It has no PyPI target, automated publish step, or
   `id-token` permission. Private 2.4.0 is live as GitHub release `v2.4.0`,
   pinned to protected-main merge
   `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist
@@ -198,9 +198,8 @@ and `HISTORY_INDEX.md`.
   downstream step leaves the durable `/5` checkpoint truthful and resumable.
   Core storage advances exactly `core-storage/1 -> /2` to persist typed IR-edge
   endpoints and `core-storage/2 -> /3` for the append-only improvement-
-  experiment ledger. The unpublished S6 candidate adds the registered
-  `core-storage/3 -> /4` indexed public-memory-handle projection; it is not a
-  protected-main contract until merge. Both S4 rebuilds consume canonical
+  experiment ledger. Published S6 adds the registered `core-storage/3 -> /4`
+  indexed public-memory-handle projection. Both S4 rebuilds consume canonical
   records in bounded batches;
   edge-type checks use at most 900 SQLite variables rather than one query per
   edge. A registry-less central-v0 store at exact `core-storage/1` plus KG/4 is
@@ -315,8 +314,8 @@ and `HISTORY_INDEX.md`.
   purged on completion; it is never copied into append-only lifecycle JSON.
   A pending vector-index intent never outranks later canonical lifecycle truth:
   replay acknowledges intents for missing or `deleted_soft` records without
-  indexing them. Protected main's internal tenant-id/prefix validation is not
-  authenticated principal binding. The unpublished Track S S6 candidate binds
+  indexing them. Internal tenant-id/prefix validation alone is not
+  authenticated principal binding. Published Track S S6 binds
   the resolved in-process principal to that existing lifecycle boundary and
   resolves generation-bound opaque delete handles through an exact indexed
   projection; it does not add a second deletion state machine.
@@ -678,7 +677,7 @@ and `HISTORY_INDEX.md`.
 - Bearer-token-only operation authenticates one trusted deployment boundary;
   it does not identify principals and must not be described as shared hosted
   tenancy.
-- The unpublished Track S S6 candidate optionally resolves a bearer credential
+- Published Track S S6 optionally resolves a bearer credential
   to a stable in-process principal. The environment adapter binds
   `SEAM_API_TOKEN` to `SEAM_API_PRINCIPAL`; injected deployments may supply a
   resolver directly. Principal mode requires a stable injected public-ID key or

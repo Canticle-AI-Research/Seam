@@ -32,8 +32,9 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - The serialized manual package-release workflow accepts only a new exact
   SemVer from the default branch. It scans the built private wheel/sdist,
   smoke-tests installed commands, emits and re-verifies `SHA256SUMS.txt`, and
-  creates an immutable private GitHub Release with categorized generated notes.
-  It has no PyPI target or OIDC publication permission.
+  creates a private GitHub Release draft with categorized generated notes.
+  An operator reviews those notes before manually publishing the immutable
+  release. It has no PyPI target or OIDC publication permission.
 
 ## Track S operating state
 

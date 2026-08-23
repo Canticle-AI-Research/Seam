@@ -16,7 +16,7 @@ import unicodedata
 import zipfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
-from tools.security.secret_scan import BINARY_EXTENSIONS, MAX_SCAN_BYTES, scan_bytes
+from tools.security.secret_scan import MAX_SCAN_BYTES, scan_bytes
 
 _DENIED_NAMES = frozenset(
     {
@@ -58,6 +58,8 @@ def _validate_member_path(archive: Path, raw_name: str, seen: set[str]) -> str |
     member = PurePosixPath(normalized)
     if not normalized or not member.parts or member.is_absolute() or ".." in member.parts:
         return f"{archive.name}:{raw_name}: unsafe_member_path"
+    if any(part.endswith((".", " ")) for part in member.parts):
+        return f"{archive.name}:{raw_name}: unsafe_member_path"
     canonical = member.as_posix()
     canonical_key = unicodedata.normalize("NFC", canonical).casefold()
     if canonical_key in seen:
@@ -78,7 +80,7 @@ def _validate_member_path(archive: Path, raw_name: str, seen: set[str]) -> str |
 def _scan_member(archive: Path, name: str, content: bytes) -> list[str]:
     return [
         f"{archive.name}:{finding.path}:{finding.line}: {finding.kind}"
-        for finding in scan_bytes(name, content)
+        for finding in scan_bytes(name, content, include_binary=True)
     ]
 
 
@@ -104,8 +106,6 @@ def _content_gate(archive: Path, name: str, size: int, header: bytes) -> list[st
     suffix = Path(name).suffix.casefold()
     if suffix in _NESTED_ARCHIVE_SUFFIXES or _has_archive_magic(header):
         return [f"{archive.name}:{name}:0: nested_archive"]
-    if suffix in BINARY_EXTENSIONS:
-        return []
     if size > MAX_SCAN_BYTES:
         return [f"{archive.name}:{name}:0: scan_size_limit"]
     return None

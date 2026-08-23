@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 588
-total_tokens: ~301933
-latest_id: 588
+total_entries: 589
+total_tokens: ~302120
+latest_id: 589
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 589 | 2026-08-23 | done | ba639c268f9a4a29 | bugfix,security,status,tests,+ | 588 |
 | 588 | 2026-08-23 | changed | 5a13faf02d62912e | atomicity,bugfix,ci,docs,+ | 587 |
 | 587 | 2026-08-23 | changed | b41884695bd28b3a | correction,history,integrity,provenance,+ | 586 |
 | 586 | 2026-08-23 | changed | dbb95462ca0a9ca5 | audit,ci,correction,docs,+ | 585 |
@@ -630,7 +631,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=72 latest=#588, #585, #584, #583, #581
+- bugfix: count=73 latest=#589, #588, #585, #584, #583
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -665,7 +666,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=37 latest=#579, #578, #577, #576, #575
+- continuity: count=38 latest=#589, #579, #578, #577, #576
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -881,7 +882,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=93 latest=#588, #585, #584, #583, #582
+- security: count=94 latest=#589, #588, #585, #584, #583
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -901,7 +902,7 @@ compact: true
 - sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=180 latest=#585, #583, #571, #570, #569
+- status: count=181 latest=#589, #585, #583, #571, #570
 - storage: count=30 latest=#579, #578, #577, #575, #574
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -916,7 +917,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=112 latest=#588, #586, #585, #584, #583
 - test-artifacts: count=1 latest=#506
-- tests: count=41 latest=#581, #580, #558, #554, #539
+- tests: count=42 latest=#589, #581, #580, #558, #554
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -950,6 +951,6 @@ compact: true
 
 - roots: 86
 - changed: 55
-- done: 503
+- done: 504
 - in-progress: 9
 - planned: 21

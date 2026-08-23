@@ -19239,3 +19239,29 @@ No issue, milestone, tag, release, version bump, deployment, public artifact,
 provider call, or paid work occurred. Signed push, repeat exact-head required
 CI, and final exact-head review remain publication gates.
 ---END-ENTRY-#588---
+
+---BEGIN-ENTRY-#589---
+id: 589
+date: 2026-08-23T05:35:28Z
+agent: Codex
+status: done
+topics: bugfix, security, status, tests, continuity
+commits: 31fe973
+refs: HISTORY#588,PR#224,.github/workflows/package-release.yml,.github/RELEASE_CHECKLIST.md,.github/ISSUE_TEMPLATE/release.yml,tools/security/secret_scan.py,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,REPO_LEDGER.md,PROJECT_STATUS.md,docs/status/operations.md,docs/status/retrieval.md,docs/status/surfaces.md,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 588
+tokens: 187
+---
+Fourth exact-head review repairs are complete on PR #224. The private-artifact
+gate now scans every bounded member, including binary assets, with the canonical
+secret patterns and rejects members over the scan ceiling; Windows-trimmed
+trailing-dot/space paths also fail closed. The release workflow now stops at an
+asset-complete draft so an operator can inspect generated notes before manual
+publication. All active ledger/retrieval/surface authorities now describe S6 as
+published protected-main behavior rather than an unpublished candidate.
+
+The four reviewed counterexamples first failed focused regressions. After the
+repairs, 23 secret-scan/configuration audit cases pass, Ruff and embedded Bash
+syntax checks pass, and a fresh real 2.4.0 wheel/sdist build passes both the
+hardened artifact verifier and twine check. No issue, milestone, tag, release,
+deployment, or paid external operation was created.
+---END-ENTRY-#589---

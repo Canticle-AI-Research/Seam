@@ -23,6 +23,9 @@ It does not authorize PyPI publication, a public-client release, or deployment.
 - [ ] Dispatch **Package release** on `main` with the exact version already in
       `pyproject.toml`.
 - [ ] Let the `private-package-release` environment gate the publishing job.
+- [ ] Review the generated draft release notes for private data, secrets,
+      provider session links, and unsupported deployment or benchmark claims.
+- [ ] After that review, manually publish the reviewed draft from GitHub.
 - [ ] Do not add PyPI credentials, `id-token: write`, or a public target.
 
 ## Verify the immutable release
@@ -30,8 +33,8 @@ It does not authorize PyPI publication, a public-client release, or deployment.
 - [ ] Confirm the release targets the intended full commit SHA.
 - [ ] Confirm the wheel, sdist, and `SHA256SUMS.txt` are attached.
 - [ ] Download the assets and verify `sha256sum -c SHA256SUMS.txt`.
-- [ ] Confirm generated release notes include the intended pull requests and
-      no private data, secrets, or unsupported deployment/benchmark claims.
+- [ ] Confirm the published notes match the reviewed draft and include the
+      intended pull requests.
 - [ ] Confirm GitHub marks the release immutable.
 - [ ] Record the release URL, tag, asset digests, verification boundary, and
       any downstream deployment work in append-only SEAM history.

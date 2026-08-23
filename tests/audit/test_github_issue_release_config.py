@@ -17,6 +17,7 @@ from tools.release.verify_private_artifacts import verify_artifacts
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ISSUE_TEMPLATE_DIR = REPO_ROOT / ".github" / "ISSUE_TEMPLATE"
 PACKAGE_RELEASE = REPO_ROOT / ".github" / "workflows" / "package-release.yml"
+RELEASE_CHECKLIST = REPO_ROOT / ".github" / "RELEASE_CHECKLIST.md"
 OPERATIONS_STATUS = REPO_ROOT / "docs" / "status" / "operations.md"
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
@@ -99,13 +100,18 @@ def test_package_release_stays_private_and_verifiable() -> None:
     publish = document["jobs"]["private-github-release"]
     assert publish["environment"] == "private-package-release"
     assert publish["permissions"] == {"contents": "write"}
-    creation = next(step for step in publish["steps"] if step["name"] == "Create private GitHub release")
+    creation = next(
+        step for step in publish["steps"] if step["name"] == "Create private GitHub release draft"
+    )
     run = creation["run"]
     assert run.index("git/ref/heads/${DEFAULT_BRANCH}") < run.index('ref="refs/tags/v${VERSION}"')
     assert "--draft" in run
-    assert "gh release edit" in run
+    assert "gh release edit" not in run
     assert "cleanup_failed_publication" in run
     assert "draft" in run
+    checklist = RELEASE_CHECKLIST.read_text(encoding="utf-8")
+    assert "Review the generated draft release notes" in checklist
+    assert "manually publish the reviewed draft" in checklist
 
 
 def test_repository_tests_declare_yaml_directly() -> None:
@@ -173,6 +179,21 @@ def test_private_artifact_verifier_rejects_secret_and_unsafe_paths(tmp_path: Pat
     findings = verify_artifacts([wheel, sdist])
     assert any("api_key" in finding for finding in findings)
     assert any("unsafe_member_path" in finding for finding in findings)
+
+
+def test_private_artifact_verifier_scans_bounded_binary_members(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    secret = ("sk-" + "proj-" + "b" * 24).encode()
+    _write_wheel(
+        wheel,
+        {"seam_runtime/webui/leak.png": b"\x89PNG\r\n\x1a\nmetadata=" + secret},
+    )
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert any("leak.png" in finding and "api_key" in finding for finding in findings)
 
 
 def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
@@ -247,10 +268,37 @@ def test_private_artifact_verifier_rejects_casefolded_duplicate_paths(tmp_path: 
     assert any("CONFIG.py" in finding and "duplicate_member" in finding for finding in findings)
 
 
+@pytest.mark.parametrize("unsafe_name", ["config.py.", "config.py "])
+def test_private_artifact_verifier_rejects_windows_trimmed_paths(
+    tmp_path: Path, unsafe_name: str
+) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    _write_wheel(
+        wheel,
+        {
+            "seam_runtime/config.py": b"SAFE = True\n",
+            f"seam_runtime/{unsafe_name}": b"COLLISION = True\n",
+        },
+    )
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert any(unsafe_name in finding and "unsafe_member_path" in finding for finding in findings)
+
+
 def test_operations_status_records_merged_s6() -> None:
     raw = OPERATIONS_STATUS.read_text(encoding="utf-8")
     assert "S6 (principal tenancy and opaque deletion) is published" in raw
     assert "Fourth-head CI/final review and merge remain" not in raw
+
+    for path in (
+        REPO_ROOT / "REPO_LEDGER.md",
+        REPO_ROOT / "docs" / "status" / "retrieval.md",
+        REPO_ROOT / "docs" / "status" / "surfaces.md",
+    ):
+        assert "unpublished s6" not in path.read_text(encoding="utf-8").casefold()
 
 
 def test_private_artifact_verifier_rejects_non_regular_sdist_members(tmp_path: Path) -> None:

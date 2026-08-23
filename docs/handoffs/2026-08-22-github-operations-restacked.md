@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#588
+history: HISTORY#589
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -63,13 +63,17 @@ history: HISTORY#588
   reservation, and recoverable exact draft/tag cleanup on failed publication.
   A real 2.4.0 wheel and sdist built from the repaired working tree pass the
   hardened verifier and `twine check`.
+- The fourth exact-head review closed binary-member secret scanning and
+  Windows trailing-dot/space path collisions, reconciled every active S6
+  authority to merged protected-main state, and left generated release notes
+  in a draft for explicit operator review before manual publication.
 
 ## Next exact steps
 
-HISTORY#587, its signed review-repair commits, exact candidate scan, initial
+HISTORY#588, its signed review-repair commits, exact candidate scan, initial
 required checks, and the prior review cycles are complete. Continue with:
 
-1. Push the completed third exact-head review-repair successor.
+1. Push the completed fourth exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

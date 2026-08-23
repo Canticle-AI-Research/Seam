@@ -11,14 +11,13 @@ deleted-record vector-outbox replay repair at protected `main@a177852`. Those
 repairs do not complete S8 or S9. See
 `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`.
 
-The unpublished S6 candidate derives the internal recall/context boundary from
+Published S6 derives the internal recall/context boundary from
 an in-process principal and registers generation-bound opaque handles before
 responding.
 Its opaque delete path lifecycle-excludes an owned record immediately and
 leaves derived cleanup recoverable. That is candidate tenancy/deletion
 evidence, not S7 semantic-graph admission or S8 surface/retrieval-policy parity;
-local review and closeout are green, while signed publication, exact-head CI,
-and merge remain.
+its protected-main publication does not advance those later Track S gates.
 
 One canonical engine remains the architectural invariant.
 `RetrievalOrchestrator` owns SQL, vector, graph, graph-node, and explicit
@@ -111,7 +110,7 @@ Retrieval **mutates** the SQLite store **when retrieval-event writing is
 enabled**, as it is on the benchmark path. Under default flags, direct
 `SeamRuntime.retrieve()` does not: it leaves the database and WAL byte-identical
 (re-verified 2026-08-02 — ingest, close, hash, reopen, retrieve, close,
-re-hash). The unpublished S6 principal-mode `/v1/memories/recall` and
+re-hash). The published S6 principal-mode `/v1/memories/recall` and
 `/v1/context` routes are intentionally stateful even with event writing off:
 they register every returned generation-bound opaque handle before responding.
 Read-purity measurements must therefore use direct/non-principal retrieval or

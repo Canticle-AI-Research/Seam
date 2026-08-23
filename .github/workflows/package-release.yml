@@ -154,7 +154,7 @@ jobs:
         working-directory: dist
         run: sha256sum --check SHA256SUMS.txt
 
-      - name: Create private GitHub release
+      - name: Create private GitHub release draft
         env:
           GH_TOKEN: ${{ github.token }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -163,11 +163,11 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
         run: |
           tag_reserved=false
-          publication_complete=false
+          draft_complete=false
           cleanup_failed_publication() {
             status=$?
             trap - EXIT
-            if [[ "${status}" -eq 0 || "${tag_reserved}" != "true" || "${publication_complete}" == "true" ]]; then
+            if [[ "${status}" -eq 0 || "${tag_reserved}" != "true" || "${draft_complete}" == "true" ]]; then
               exit "${status}"
             fi
             set +e
@@ -224,7 +224,5 @@ jobs:
             --title "SEAM ${VERSION}" \
             --notes "Private proprietary SEAM runtime release ${VERSION}." \
             --generate-notes
-          gh release edit "v${VERSION}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --draft=false
-          publication_complete=true
+          draft_complete=true
+          echo "Draft v${VERSION} created. Review its generated notes and manually publish it only after checklist approval."

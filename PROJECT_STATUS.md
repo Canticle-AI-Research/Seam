@@ -22,7 +22,7 @@ Track S is not complete. S0-S6 are published through PRs #190, #191, #193,
 #194, #195, #199, and #223, and PR #222 landed the later S1/S5 counterexample
 repairs. S6's exact source head `fbefb81` passed the three required checks after
 185 focused strict-no-skip tests and three review-repair cycles; its final
-Codex review found no major issue before merge. Draft PR #224 is an operational
+Codex review found no major issue before merge. PR #224 is an operational
 follow-up for structured issue intake and private GitHub Release hardening, not
 another Track S stage. Its setup remains branch-local until repeat exact-head
 checks, review, and merge complete.

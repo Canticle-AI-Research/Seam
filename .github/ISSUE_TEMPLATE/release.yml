@@ -53,5 +53,5 @@ body:
           required: true
         - label: Before publication, the version must be reviewed on protected main and the tag must not exist.
           required: true
-        - label: Release assets, checksums, generated notes, and the exact target commit will be verified after publication.
+        - label: Generated draft notes will be reviewed before publication; release assets, checksums, and the exact target commit will be reverified after publication.
           required: true
