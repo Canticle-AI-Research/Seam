@@ -429,8 +429,10 @@ claim c1:
             _touched_ids,
             *,
             previous_vector_rows,
+            previous_public_memory_handle_rows,
         ):
             del previous_vector_rows
+            del previous_public_memory_handle_rows
             raise RuntimeError("restore unavailable")
 
         runtime.vector_adapter = FailingVectorAdapter()

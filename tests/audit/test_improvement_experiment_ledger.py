@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 
 import pytest
 
 from seam_runtime.improvement_experiments import json_sha256
-from seam_runtime.migrations import MigrationError
+from seam_runtime.migrations import DatabaseIntegrityError, MigrationError
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.retrieval import RetrievalFlags, load_retrieval_flags
 from seam_runtime.self_improve import RatchetGateEvidence, ScoreReport
 from seam_runtime.storage import SQLiteStore
@@ -449,6 +451,7 @@ def test_core_storage_two_migrates_to_experiment_ledger(tmp_path) -> None:
     store = SQLiteStore(path)
     store.close()
     with sqlite3.connect(path) as connection:
+        connection.execute("drop table public_memory_handle")
         connection.execute("drop table improvement_experiment_event")
         connection.execute("drop table improvement_experiment")
         connection.execute(
@@ -457,13 +460,207 @@ def test_core_storage_two_migrates_to_experiment_ledger(tmp_path) -> None:
         )
 
     migrated = SQLiteStore(path)
-    assert migrated.migration_result.applied_steps == ("append-only-improvement-experiment-ledger",)
+    assert migrated.migration_result.applied_steps == (
+        "append-only-improvement-experiment-ledger",
+        "indexed-public-memory-handles",
+    )
     assert migrated.iter_improvement_experiments() == []
     with sqlite3.connect(path) as connection:
         version = connection.execute(
             "select projection_version from seam_projection_versions where projection_name = 'core_storage'"
         ).fetchone()[0]
-    assert version == "core-storage/3"
+    assert version == "core-storage/4"
+
+
+def test_core_storage_three_migrates_to_indexed_public_handles(tmp_path) -> None:
+    path = tmp_path / "core-three.db"
+    store = SQLiteStore(path)
+    store.close()
+    with sqlite3.connect(path) as connection:
+        connection.execute("drop table public_memory_handle")
+        connection.execute(
+            "update seam_projection_versions set projection_version = 'core-storage/3' "
+            "where projection_name = 'core_storage'"
+        )
+
+    migrated = SQLiteStore(path)
+    try:
+        assert migrated.migration_result.applied_steps == (
+            "indexed-public-memory-handles",
+        )
+        with sqlite3.connect(path) as connection:
+            version = connection.execute(
+                "select projection_version from seam_projection_versions "
+                "where projection_name = 'core_storage'"
+            ).fetchone()[0]
+            assert version == "core-storage/4"
+            assert connection.execute(
+                "select 1 from sqlite_master where type = 'table' "
+                "and name = 'public_memory_handle'"
+            ).fetchone() == (1,)
+    finally:
+        migrated.close()
+
+
+def test_populated_core_storage_three_migration_preserves_existing_rows(
+    tmp_path,
+) -> None:
+    path = tmp_path / "populated-core-three.db"
+    store = SQLiteStore(path)
+    try:
+        store.persist_ir(
+            IRBatch(
+                [
+                    MIRLRecord(
+                        id="raw:migration-witness",
+                        kind=RecordKind.RAW,
+                        ns="migration",
+                        scope="preservation",
+                        attrs={
+                            "content": "Ada reviews the migration with Grace.",
+                            "media_type": "text/plain",
+                        },
+                    ),
+                    MIRLRecord(
+                        id="span:migration-witness",
+                        kind=RecordKind.SPAN,
+                        ns="migration",
+                        scope="preservation",
+                        attrs={
+                            "raw_id": "raw:migration-witness",
+                            "start": 0,
+                            "end": 3,
+                        },
+                    ),
+                    MIRLRecord(
+                        id="prov:migration-witness",
+                        kind=RecordKind.PROV,
+                        ns="migration",
+                        scope="preservation",
+                        attrs={
+                            "entity": "raw:migration-witness",
+                            "activity": "migration-regression-fixture",
+                        },
+                    ),
+                    MIRLRecord(
+                        id="ent:migration-ada",
+                        kind=RecordKind.ENT,
+                        ns="migration",
+                        scope="preservation",
+                        attrs={"label": "Ada", "entity_type": "person"},
+                    ),
+                    MIRLRecord(
+                        id="ent:migration-grace",
+                        kind=RecordKind.ENT,
+                        ns="migration",
+                        scope="preservation",
+                        attrs={"label": "Grace", "entity_type": "person"},
+                    ),
+                    MIRLRecord(
+                        id="rel:migration-review",
+                        kind=RecordKind.REL,
+                        ns="migration",
+                        scope="preservation",
+                        prov=["prov:migration-witness"],
+                        evidence=["span:migration-witness"],
+                        attrs={
+                            "src": "ent:migration-ada",
+                            "predicate": "reviews_with",
+                            "dst": "ent:migration-grace",
+                        },
+                    ),
+                ]
+            )
+        )
+    finally:
+        store.close()
+
+    preserved_tables = (
+        "raw_docs",
+        "raw_spans",
+        "ir_records",
+        "ir_edges",
+        "ir_edge_sources",
+        "prov_log",
+        "knowledge_nodes",
+        "knowledge_edges",
+        "knowledge_node_terms",
+    )
+    with closing(sqlite3.connect(path)) as connection:
+        before = {
+            table: connection.execute(
+                f'select * from "{table}" order by rowid'
+            ).fetchall()
+            for table in preserved_tables
+        }
+        assert all(before.values())
+        connection.execute("drop table public_memory_handle")
+        connection.execute(
+            "update seam_projection_versions set projection_version = 'core-storage/3' "
+            "where projection_name = 'core_storage'"
+        )
+        connection.commit()
+
+    migrated = SQLiteStore(path)
+    try:
+        assert migrated.migration_result.applied_steps == (
+            "indexed-public-memory-handles",
+        )
+    finally:
+        migrated.close()
+
+    with closing(sqlite3.connect(path)) as connection:
+        after = {
+            table: connection.execute(
+                f'select * from "{table}" order by rowid'
+            ).fetchall()
+            for table in preserved_tables
+        }
+        assert after == before
+        assert connection.execute(
+            "select count(*) from public_memory_handle"
+        ).fetchone() == (0,)
+        assert connection.execute(
+            "select projection_version from seam_projection_versions "
+            "where projection_name = 'core_storage'"
+        ).fetchone() == ("core-storage/4",)
+
+
+def test_public_handle_projection_migration_rolls_back_atomically(tmp_path) -> None:
+    path = tmp_path / "core-three-rollback.db"
+    store = SQLiteStore(path)
+    store.close()
+    with sqlite3.connect(path) as connection:
+        connection.execute("drop table public_memory_handle")
+        connection.execute(
+            "update seam_projection_versions set projection_version = 'core-storage/3' "
+            "where projection_name = 'core_storage'"
+        )
+
+    def fail_after_handle_step(step, _connection) -> None:
+        if step.name == "indexed-public-memory-handles":
+            raise RuntimeError("injected handle migration failure")
+
+    with pytest.raises(MigrationError, match="rolled back"):
+        SQLiteStore(path, _migration_failure_injector=fail_after_handle_step)
+
+    with sqlite3.connect(path) as connection:
+        assert connection.execute(
+            "select projection_version from seam_projection_versions "
+            "where projection_name = 'core_storage'"
+        ).fetchone()[0] == "core-storage/3"
+        assert connection.execute(
+            "select 1 from sqlite_master where type = 'table' "
+            "and name = 'public_memory_handle'"
+        ).fetchone() is None
+
+    resumed = SQLiteStore(path)
+    try:
+        assert resumed.migration_result.applied_steps == (
+            "indexed-public-memory-handles",
+        )
+    finally:
+        resumed.close()
 
 
 def test_core_storage_two_refuses_preexisting_experiment_table(tmp_path) -> None:
@@ -471,6 +668,7 @@ def test_core_storage_two_refuses_preexisting_experiment_table(tmp_path) -> None
     store = SQLiteStore(path)
     store.close()
     with sqlite3.connect(path) as connection:
+        connection.execute("drop table public_memory_handle")
         connection.execute("drop table improvement_experiment_event")
         connection.execute("drop table improvement_experiment")
         connection.execute("create table improvement_experiment (unexpected text)")
@@ -479,8 +677,12 @@ def test_core_storage_two_refuses_preexisting_experiment_table(tmp_path) -> None
             "where projection_name = 'core_storage'"
         )
 
-    with pytest.raises(MigrationError, match="partially present"):
-        SQLiteStore(path)
+    before_bytes = path.read_bytes()
+    backup_dir = tmp_path / "unexpected-partial-backups"
+    with pytest.raises(DatabaseIntegrityError, match="target tables"):
+        SQLiteStore(path, _migration_backup_dir=backup_dir)
+    assert path.read_bytes() == before_bytes
+    assert not backup_dir.exists()
     with sqlite3.connect(path) as connection:
         version = connection.execute(
             "select projection_version from seam_projection_versions "
@@ -494,6 +696,7 @@ def test_core_storage_two_refuses_incompatible_complete_table_pair(tmp_path) -> 
     store = SQLiteStore(path)
     store.close()
     with sqlite3.connect(path) as connection:
+        connection.execute("drop table public_memory_handle")
         connection.execute("drop table improvement_experiment_event")
         connection.execute("drop table improvement_experiment")
         connection.execute("create table improvement_experiment (unexpected text)")
@@ -505,5 +708,9 @@ def test_core_storage_two_refuses_incompatible_complete_table_pair(tmp_path) -> 
             "where projection_name = 'core_storage'"
         )
 
-    with pytest.raises(MigrationError, match="incompatible schema"):
-        SQLiteStore(path)
+    before_bytes = path.read_bytes()
+    backup_dir = tmp_path / "unexpected-incompatible-backups"
+    with pytest.raises(DatabaseIntegrityError, match="target tables"):
+        SQLiteStore(path, _migration_backup_dir=backup_dir)
+    assert path.read_bytes() == before_bytes
+    assert not backup_dir.exists()

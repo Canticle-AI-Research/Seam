@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-08-18
+Last updated: 2026-08-22
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -87,11 +87,17 @@ and `HISTORY_INDEX.md`.
   framework-neutral agent-memory hooks. It must not import, package, copy, or
   expose private runtime modules, MIRL/HS/1 implementation, storage, retrieval,
   graph, PACK, surface, or benchmark internals.
-- The stable public server boundary is `/v1/health`, `/v1/memories`,
-  `/v1/memories/recall`, and `/v1/context`. Public stateful calls use the
-  existing bearer-token guard. Public namespaces are mapped under an
-  SDK-only prefix with optional hashed session partitions, and responses use
-  opaque receipts/IDs plus user-facing text rather than private record shapes.
+- The stable protected-main public server boundary is `/v1/health`,
+  `/v1/memories`, `/v1/memories/recall`, and `/v1/context`. Public stateful
+  calls use the existing bearer-token guard. Public namespaces are mapped
+  under an SDK-only prefix with optional hashed session partitions, and
+  responses use opaque receipts/IDs plus user-facing text rather than private
+  record shapes. The unpublished Track S S6 candidate adds
+  `/v1/memories/delete` and an optional in-process principal resolver. In
+  principal mode, the subject derives the internal tenant/namespace boundary
+  and legacy private data routes return 404; token-only mode remains a trusted
+  single-user gate and is not tenancy. This candidate is not stable public
+  behavior until signed publication, exact-head CI, and merge complete.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY
@@ -176,7 +182,11 @@ and `HISTORY_INDEX.md`.
   and restores those same canonical exclusions and judgements. A failed
   downstream step leaves the durable `/5` checkpoint truthful and resumable.
   Core storage advances exactly `core-storage/1 -> /2` to persist typed IR-edge
-  endpoints. Both S4 rebuilds consume canonical records in bounded batches;
+  endpoints and `core-storage/2 -> /3` for the append-only improvement-
+  experiment ledger. The unpublished S6 candidate adds the registered
+  `core-storage/3 -> /4` indexed public-memory-handle projection; it is not a
+  protected-main contract until merge. Both S4 rebuilds consume canonical
+  records in bounded batches;
   edge-type checks use at most 900 SQLite variables rather than one query per
   edge. A registry-less central-v0 store at exact `core-storage/1` plus KG/4 is
   the only supported pre-spine projection bootstrap: it runs the registered
@@ -290,8 +300,11 @@ and `HISTORY_INDEX.md`.
   purged on completion; it is never copied into append-only lifecycle JSON.
   A pending vector-index intent never outranks later canonical lifecycle truth:
   replay acknowledges intents for missing or `deleted_soft` records without
-  indexing them. This internal tenant-id/prefix validation is not authenticated
-  principal binding; Track S S6 supplies that authorization boundary.
+  indexing them. Protected main's internal tenant-id/prefix validation is not
+  authenticated principal binding. The unpublished Track S S6 candidate binds
+  the resolved in-process principal to that existing lifecycle boundary and
+  resolves generation-bound opaque delete handles through an exact indexed
+  projection; it does not add a second deletion state machine.
 - Assertion trust is evidence-gated and fail-closed. Claim/relation/event/state
   records enter `/chat` and `/chat/stream` asserted memory only when current and
   `supported` or `verified` inside the requested namespace and scope. Model or
@@ -647,8 +660,66 @@ and `HISTORY_INDEX.md`.
 - The REST API is optional and installed with the `server` extra.
 - `seam serve` and `seam-server` run the FastAPI/Uvicorn surface against the configured SQLite database.
 - Protected endpoints require `Authorization: Bearer <token>` when `SEAM_API_TOKEN` is set; leave that variable unset only for trusted local development.
+- Bearer-token-only operation authenticates one trusted deployment boundary;
+  it does not identify principals and must not be described as shared hosted
+  tenancy.
+- The unpublished Track S S6 candidate optionally resolves a bearer credential
+  to a stable in-process principal. The environment adapter binds
+  `SEAM_API_TOKEN` to `SEAM_API_PRINCIPAL`; injected deployments may supply a
+  resolver directly. Principal mode requires a stable injected public-ID key or
+  `SEAM_API_PUBLIC_ID_KEY` of at least 32 bytes, derives internal tenant and
+  namespace identity from the subject, and disables legacy private data routes.
+- Candidate principal mode cannot silently run unbounded: unset or zero rate-
+  limit configuration resolves to 60 requests per minute. Invalid/rotating
+  credentials share a bounded client-address pre-resolver bucket, successful
+  requests release that reservation and use a stable subject bucket, and
+  multi-worker launch is refused unless an upstream shared limiter is
+  explicitly acknowledged. Legacy token-only mode preserves its configured
+  zero/unset behavior.
+- An injected principal resolver must declare the exact `process_workers`
+  topology when creating the app. The same process-local limiter refusal then
+  applies to injected and environment adapters; omission is a startup error,
+  not an assumed single-worker deployment.
+- SQLite runtime canonical writes, vector projection/compensation, scoped
+  delete planning/apply, and public-handle publication share a reentrant
+  cross-process file lock keyed to the resolved store path. The lock is stored
+  beside the database under the store directory's permissions and uses a
+  bounded 60-second nonblocking acquisition loop on POSIX and Windows. This is
+  canonical/projection atomicity across local workers; it is not an upstream
+  shared request limiter or distributed-database claim.
+- Principal authentication uses three bounded process-local budgets: a
+  client/IP reservation for pre-parse work and rotating invalid credentials, a
+  non-released credential-fingerprint budget for resolver invocations, and a
+  stable hashed principal budget for authenticated requests. The credential
+  budget refuses new fingerprints at key-map capacity rather than evicting a
+  live reservation. Successful authentication releases only the client/IP
+  reservation, so separate principals sharing one address remain independent
+  without allowing one valid credential to invoke an injected resolver beyond
+  its request budget.
+- Candidate principal-mode data routes are `POST /v1/memories`,
+  `POST /v1/memories/recall`, `POST /v1/context`, and
+  `POST /v1/memories/delete`. Delete accepts only exact indexed, generation-
+  bound opaque handles inside the caller's derived tenant/namespace/scope and
+  reuses the existing G6 lifecycle plan/apply and recoverable-cleanup contracts.
+  Recall/context registration verifies the canonical generation in the same
+  write transaction and shares the runtime projection lock with write
+  compensation; cross-process rollback additionally preserves concurrent
+  handle rows only when they still match the restored active canonical
+  generation. Deleted records cannot publish or resolve handles. Same-key
+  delete retries resume the existing operation only while no target has a new
+  live generation, with every public apply fast path rechecking that condition
+  inside the lifecycle transaction, including a planner that raced and returned
+  an existing operation. Deletion plans recheck generation inside the
+  canonical delete transaction; writes overlapping an active tenant-indexed
+  scoped deletion refuse. Principal mode blocks disallowed route/method pairs
+  before router matching, normalizes the ASGI `root_path`, and allows CORS
+  preflights for its four data routes.
+  Repaired-head exact CI and merge remain before this becomes protected-main
+  behavior.
 - `/health` is unauthenticated for local service checks but still participates in the same rate limiter.
-- Rate limiting is configured by `SEAM_API_RATE_LIMIT_PER_MINUTE` or `SEAM_API_RATE_LIMIT`; `0` or unset disables the limiter.
+- Rate limiting is configured by `SEAM_API_RATE_LIMIT_PER_MINUTE` or
+  `SEAM_API_RATE_LIMIT`; `0` or unset disables the limiter in legacy mode and
+  selects the bounded 60-request/minute default in candidate principal mode.
 - Legacy/custom local development origins `http://127.0.0.1:5173` and
   `http://localhost:5173` remain allowed by default through CORS. The active
   bundled WebUI is same-origin; the old Vite source is archived. Override with

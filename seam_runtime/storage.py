@@ -109,12 +109,15 @@ from .lifecycle import (
     begin_batch_ingest,
     complete_batch_ingest,
     completed_batch_indexes,
+    ensure_no_active_scoped_delete,
     get_lifecycle_operation,
+    get_lifecycle_operation_by_idempotency_key,
     init_lifecycle,
     plan_batch_ingest,
     plan_scoped_delete,
     record_batch_item,
     recoverable_operations,
+    scoped_delete_retry_matches_current_incarnation,
 )
 from .migrations import (
     CURRENT_SCHEMA_VERSION,
@@ -139,6 +142,22 @@ from .mirl import (
     utc_now,
 )
 from .pool import ConnectionPool, SnapshotAwarePool
+from .public_memory_handles import (
+    PUBLIC_MEMORY_GENERATION_EXTENSION,
+    init_public_memory_handles,
+)
+from .public_memory_handles import (
+    register_public_memory_handles as register_public_memory_handle_rows,
+)
+from .public_memory_handles import (
+    resolve_public_memory_handles as resolve_public_memory_handle_rows,
+)
+from .public_memory_handles import (
+    restore_public_memory_handle_rows as restore_public_memory_handle_row_snapshot,
+)
+from .public_memory_handles import (
+    snapshot_public_memory_handle_rows as snapshot_public_memory_handle_row_snapshot,
+)
 from .read_snapshot import (
     bind_connection,
     memory_snapshot_key,
@@ -213,6 +232,7 @@ from .reference_contracts import (
     validate_typed_ir_edges,
 )
 from .retry import retry_db_operation
+from .tenancy import is_principal_namespace, principal_tenant_id
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
 from .vector_outbox import (
     acknowledge,
@@ -239,7 +259,7 @@ LOGGER = logging.getLogger(__name__)
 
 STORE_PROJECTION_VERSIONS = {
     "canonical_mirl": SCHEMA_VERSION,
-    "core_storage": "core-storage/3",
+    "core_storage": "core-storage/4",
     "graph_products": f"graph-products-schema/{GRAPH_PRODUCT_SCHEMA_VERSION}",
     "knowledge_graph": PROJECTION_VERSION,
     "knowledge_graph_vectors": GRAPH_NODE_VECTOR_TEXT_VERSION,
@@ -710,6 +730,7 @@ class SQLiteStore:
         init_knowledge_graph(connection, allow_migration=True)
         init_graph_products(connection)
         init_lifecycle(connection)
+        init_public_memory_handles(connection)
         init_workspace_schema(connection)
         init_reasoning_graph(connection)
         init_reasoning_promotion(connection)
@@ -933,6 +954,59 @@ class SQLiteStore:
             ).fetchall()
         return [dict(row) for row in rows]
 
+    @retry_db_operation()
+    def register_public_memory_handles(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        handles: Mapping[str, tuple[str, str]],
+    ) -> None:
+        with self._pool.checkout() as connection:
+            try:
+                connection.execute("begin immediate")
+                register_public_memory_handle_rows(
+                    connection,
+                    tenant_id=tenant_id,
+                    namespace=namespace,
+                    scope=scope,
+                    handles=handles,
+                )
+                connection.commit()
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
+
+    def resolve_public_memory_handles(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        handle_ids: Sequence[str],
+    ) -> dict[str, tuple[str, str]]:
+        with self._pool.checkout() as connection:
+            return resolve_public_memory_handle_rows(
+                connection,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                handle_ids=handle_ids,
+            )
+
+    def snapshot_public_memory_handle_rows(
+        self,
+        record_ids: Iterable[str],
+    ) -> tuple[tuple[object, ...], ...]:
+        """Capture exact handle rows before a runtime projection write."""
+
+        with self._pool.checkout() as connection:
+            return snapshot_public_memory_handle_row_snapshot(
+                connection, record_ids
+            )
+
     def _reconcile_entities(self, connection: sqlite3.Connection, batch: IRBatch) -> tuple[dict[str, str], set[str]]:
         """Cross-turn entity coreference, scoped strictly per ``ns``.
 
@@ -1029,6 +1103,48 @@ class SQLiteStore:
             raise CanonicalReferenceIntegrityError(
                 "canonical record kind cannot change during persistence"
             )
+        incoming_boundaries = {
+            record.id: (record.ns, record.scope) for record in batch.records
+        }
+        stored_record_states: dict[str, tuple[str, str, str]] = {}
+        ordered_record_ids = sorted(incoming_boundaries)
+        for start in range(0, len(ordered_record_ids), 500):
+            chunk = ordered_record_ids[start : start + 500]
+            placeholders = ",".join("?" for _ in chunk)
+            stored_record_states.update(
+                {
+                    str(row[0]): (
+                        str(row[1]),
+                        str(row[2]),
+                        str(row[3]),
+                    )
+                    for row in connection.execute(
+                        "select id, ns, scope, status "
+                        "from ir_records where id in "
+                        f"({placeholders})",
+                        chunk,
+                    ).fetchall()
+                }
+            )
+        stored_boundaries = {
+            record_id: (stored[0], stored[1])
+            for record_id, stored in stored_record_states.items()
+        }
+        if any(
+            stored_boundary != incoming_boundaries[record_id]
+            and (
+                is_principal_namespace(stored_boundary[0])
+                or is_principal_namespace(incoming_boundaries[record_id][0])
+            )
+            for record_id, stored_boundary in stored_boundaries.items()
+        ):
+            # Principal-salted identifiers are immutable ownership keys. A
+            # collision must fail closed before entity reconciliation or any
+            # derived projection can move a hosted record to another boundary.
+            # Legacy/self-host canonical movement remains byte-compatible.
+            raise CanonicalReferenceIntegrityError(
+                "canonical record boundary cannot change during persistence"
+            )
         previous_provenance_targets = self._stored_provenance_targets(
             connection,
             (
@@ -1045,6 +1161,99 @@ class SQLiteStore:
         projected = [record for record in batch.records if record.id not in skip_ids]
         for record in projected:
             remap_record_references(record, id_map)
+        public_generation_records = [
+            record
+            for record in projected
+            if is_principal_namespace(record.ns)
+            and PUBLIC_MEMORY_GENERATION_EXTENSION in record.ext
+        ]
+        stored_principal_payloads: dict[str, str] = {}
+        public_generation_record_ids = sorted(
+            {record.id for record in public_generation_records}
+        )
+        for start in range(0, len(public_generation_record_ids), 500):
+            chunk = public_generation_record_ids[start : start + 500]
+            placeholders = ",".join("?" for _ in chunk)
+            stored_principal_payloads.update(
+                {
+                    str(row[0]): str(row[1])
+                    for row in connection.execute(
+                        "select id, payload_json from ir_records where id in "
+                        f"({placeholders})",
+                        chunk,
+                    ).fetchall()
+                }
+            )
+        for namespace, scope in sorted(
+            {(record.ns, record.scope) for record in public_generation_records}
+        ):
+            tenant_id = principal_tenant_id(namespace)
+            if tenant_id is None:
+                raise CanonicalReferenceIntegrityError(
+                    "principal memory namespace is malformed"
+                )
+            ensure_no_active_scoped_delete(
+                connection,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                record_ids=(
+                    record.id
+                    for record in public_generation_records
+                    if record.ns == namespace and record.scope == scope
+                ),
+            )
+        replaced_public_generations: list[str] = []
+        for record in projected:
+            if not is_principal_namespace(record.ns):
+                continue
+            incoming_generation = record.ext.get(
+                PUBLIC_MEMORY_GENERATION_EXTENSION
+            )
+            if incoming_generation is None:
+                continue
+            if (
+                not isinstance(incoming_generation, str)
+                or len(incoming_generation) != 64
+                or any(
+                    character not in "0123456789abcdef"
+                    for character in incoming_generation
+                )
+            ):
+                raise CanonicalReferenceIntegrityError(
+                    "public memory generation is invalid"
+                )
+            stored_state = stored_record_states.get(record.id)
+            stored_payload_json = stored_principal_payloads.get(record.id)
+            if stored_state is None or stored_payload_json is None:
+                continue
+            stored_payload = json.loads(stored_payload_json)
+            stored_ext = stored_payload.get("ext")
+            stored_generation = (
+                stored_ext.get(PUBLIC_MEMORY_GENERATION_EXTENSION)
+                if isinstance(stored_ext, dict)
+                else None
+            )
+            if (
+                stored_generation is not None
+                and stored_state[2] != Status.DELETED_SOFT.value
+                and record.status is not Status.DELETED_SOFT
+            ):
+                # A duplicate live remember is the same incarnation. Preserve
+                # its registered capabilities; only resurrection after a
+                # completed delete accepts a newly minted generation.
+                record.ext[PUBLIC_MEMORY_GENERATION_EXTENSION] = stored_generation
+                continue
+            if stored_generation != incoming_generation:
+                replaced_public_generations.append(record.id)
+        for start in range(0, len(replaced_public_generations), 500):
+            chunk = replaced_public_generations[start : start + 500]
+            placeholders = ",".join("?" for _ in chunk)
+            connection.execute(
+                "delete from public_memory_handle where record_id in "
+                f"({placeholders})",
+                chunk,
+            )
         projected_virtual_references = {
             record.id: frozenset(
                 id_map.get(reference_id, reference_id)
@@ -1081,9 +1290,20 @@ class SQLiteStore:
             )
             connection.execute(
                 """
-                insert or replace into ir_records
+                insert into ir_records
                 (id, kind, ns, scope, status, conf, t0, t1, created_at, updated_at, payload_json)
                 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                on conflict(id) do update set
+                    kind = excluded.kind,
+                    ns = excluded.ns,
+                    scope = excluded.scope,
+                    status = excluded.status,
+                    conf = excluded.conf,
+                    t0 = excluded.t0,
+                    t1 = excluded.t1,
+                    created_at = excluded.created_at,
+                    updated_at = excluded.updated_at,
+                    payload_json = excluded.payload_json
                 """,
                 (
                     record.id,
@@ -2032,6 +2252,7 @@ class SQLiteStore:
         touched_ids: Sequence[str],
         *,
         previous_vector_rows: Sequence[tuple[object, ...]] = (),
+        previous_public_memory_handle_rows: Sequence[tuple[object, ...]],
     ) -> None:
         """Restore one failed runtime write without a delete-then-reinsert gap.
 
@@ -2070,6 +2291,11 @@ class SQLiteStore:
                     connection,
                     ordered_touched_ids,
                     previous_vector_rows,
+                )
+                restore_public_memory_handle_row_snapshot(
+                    connection,
+                    ordered_touched_ids,
+                    previous_public_memory_handle_rows,
                 )
                 connection.commit()
             except Exception:
@@ -2576,6 +2802,8 @@ class SQLiteStore:
         record_ids: Iterable[str],
         idempotency_key: str,
         actor: str,
+        idempotency_context: str | None = None,
+        record_generations: Mapping[str, str] | None = None,
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return plan_scoped_delete(
@@ -2586,6 +2814,8 @@ class SQLiteStore:
                 record_ids=record_ids,
                 idempotency_key=idempotency_key,
                 actor=actor,
+                idempotency_context=idempotency_context,
+                record_generations=record_generations,
             )
 
     @retry_db_operation()
@@ -2597,6 +2827,7 @@ class SQLiteStore:
         actor: str,
         interrupt_after_intent: bool = False,
         delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+        require_current_incarnation: bool = False,
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return apply_scoped_delete(
@@ -2606,6 +2837,7 @@ class SQLiteStore:
                 actor=actor,
                 interrupt_after_intent=interrupt_after_intent,
                 delete_derived_records=delete_derived_records,
+                require_current_incarnation=require_current_incarnation,
             )
 
     @retry_db_operation()
@@ -2699,6 +2931,26 @@ class SQLiteStore:
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return get_lifecycle_operation(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def lifecycle_operation_by_idempotency_key(
+        self, *, tenant_id: str, idempotency_key: str
+    ) -> dict[str, object] | None:
+        with self._pool.checkout() as connection:
+            return get_lifecycle_operation_by_idempotency_key(
+                connection,
+                tenant_id=tenant_id,
+                idempotency_key=idempotency_key,
+            )
+
+    def scoped_delete_retry_matches_current_incarnation(
+        self, *, tenant_id: str, operation_id: str
+    ) -> bool:
+        with self._pool.checkout() as connection:
+            return scoped_delete_retry_matches_current_incarnation(
                 connection,
                 tenant_id=tenant_id,
                 operation_id=operation_id,

@@ -5,11 +5,15 @@ import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import pytest
+
 from seam_runtime import BatchIngestItem, SeamSDK
 from seam_runtime.lifecycle import (
     apply_scoped_delete,
+    ensure_no_active_scoped_delete,
     init_lifecycle,
     plan_batch_ingest,
+    plan_scoped_delete,
 )
 from seam_runtime.mirl import Status
 from seam_runtime.runtime import SeamRuntime
@@ -34,12 +38,72 @@ class _TrackingVectorAdapter:
         return {}
 
 
+def test_active_delete_lookup_is_tenant_index_scoped() -> None:
+    connection = sqlite3.connect(":memory:")
+    statements: list[str] = []
+    tenant_id = "principal:" + "a" * 64
+    namespace = f"{tenant_id}.sdk.boundary-{'b' * 64}"
+    try:
+        init_lifecycle(connection)
+        connection.set_trace_callback(statements.append)
+
+        ensure_no_active_scoped_delete(
+            connection,
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            record_ids=["clm:tenant-index-scope"],
+        )
+    finally:
+        connection.close()
+
+    query = next(
+        statement
+        for statement in statements
+        if "from lifecycle_operation operation" in statement
+    )
+    assert "operation.tenant_id =" in query
+
+
 def _claim_id(report) -> str:
     return next(
         record_id
         for record_id in report.stored_ids
         if record_id.startswith("clm:")
     )
+
+
+@pytest.mark.parametrize(
+    "generation",
+    [
+        "",
+        "a" * 63,
+        "a" * 65,
+        "A" * 64,
+        "g" * 64,
+    ],
+)
+def test_scoped_delete_refuses_malformed_generation_precondition(
+    generation: str,
+) -> None:
+    connection = sqlite3.connect(":memory:")
+    try:
+        with pytest.raises(
+            ValueError,
+            match="record generation must be 64 lowercase hexadecimal characters",
+        ):
+            plan_scoped_delete(
+                connection,
+                tenant_id="tenant-a",
+                namespace="tenant-a",
+                scope="thread",
+                record_ids=["clm:generation-contract"],
+                idempotency_key="generation-contract",
+                actor="operator",
+                record_generations={"clm:generation-contract": generation},
+            )
+    finally:
+        connection.close()
 
 
 def test_scoped_delete_is_audited_soft_and_tenant_isolated(

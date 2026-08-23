@@ -96,25 +96,46 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   DDL was also why warm retrieval kept opening connections despite the pool.
   Divergence (missing/stale/orphan) is detected and repaired on all three
   backends, with Chroma gaining the inspection methods it lacked.
-- The 2026-08-18 audit found a later S5 counterexample: a pending index intent
-  could survive a soft delete and reindex the deleted record on reopen. The
-  audit candidate filters canonical `deleted_soft` records during replay and
-  acknowledges their stale intents; this is not protected-main fact until its
-  PR merges.
-- S6 (principal tenancy and opaque deletion) is the next stage and is unstarted.
-  The termination decision is recorded (2026-08-05, HISTORY#538): tenancy
-  terminates in-process with an optional principal. `/v1` still has no tenancy
-  binding, and carries 35 HTTP-level tests.
+- PR #222 merged the 2026-08-18 S1/S5 counterexample repairs at protected
+  `main@a177852`: a pending index intent can no longer reindex a
+  `deleted_soft` record on reopen, and equal-score SQL ordering ends at the
+  canonical record ID.
+- S6 (principal tenancy and opaque deletion) now has an unpublished
+  implementation candidate on `track-s/s6-principal-tenancy`. Principal mode
+  resolves a stable subject in-process, derives its internal tenant/namespace
+  boundary, and disables legacy private data routes; the legacy token-only mode
+  remains trusted single-user operation with no tenancy guarantee. Recall and
+  context register returned opaque handles in the exact
+  `core-storage/3 -> /4` indexed projection, and delete resolves only those
+  generation-bound handles before reusing G6 lifecycle soft delete, audit, and
+  recoverable cleanup. Principal mode defaults to a bounded 60-request/minute
+  process-local limiter when configuration is unset or zero and refuses unsafe
+  multi-worker launch. Injected resolvers must declare their exact worker count.
+  Resolver calls have a non-evicting credential-fingerprint budget in addition
+  to pre-parse client/IP and stable-subject budgets. Canonical writes,
+  projection/compensation, delete planning/apply, and handle publication share
+  a store-local reentrant cross-process lock with a bounded acquisition
+  deadline; rollback also preserves independently committed valid
+  registrations. Active-record checks exclude soft-deleted incarnations,
+  every public apply rechecks generation transactionally, routed paths
+  normalize ASGI `root_path`, and lifecycle pending-work lookup begins with the
+  tenant index. The original 460-test affected slice, 2,926-test canonical
+  non-external lane, and 23-test live pgvector lane passed; three exact-head
+  review repairs pass 185 strict-no-skip focused tests and local review.
+  Fourth-head CI/final review and merge remain.
 - Hosted beta remains beyond the current repository boundary. TLS, a shared
   limiter, service supervision, external secret injection, backup/restore,
   upgrade/rollback, and disaster-recovery evidence require a tested deployment
-  reference after S6 rather than inference from package-release smoke tests.
+  reference after S6 merges rather than inference from candidate or package-
+  release smoke tests.
 - The live pgvector lane is exercised locally by exporting `PGVECTOR_TEST_DSN`
   from the running `seam-pgvector` container (`SEAM_PGVECTOR_DSN`, port 55432).
   Service-gated cases are marked `external`: run them against the live service
   or explicitly deselect the external marker for the non-external lane; they
-  must not silently skip. Historical evidence: with the service live, the
-  2026-08-12 audit run was 2382 passed, 0 skipped, 2 xfailed.
+  must not silently skip. Current candidate evidence used an isolated pgvector
+  0.8.6 container: 23 external tests passed with 2,354 non-external cases
+  deselected. The isolated canonical lane passed 2,926 tests, deselected those
+  same 23 external cases, and recorded 2 expected xfails plus 3 passed subtests.
 - The history advisory lock now resolves through a linked worktree's
   `gitdir:` pointer, so `python -m tools.history.new_entry` no longer leaves an
   untracked `HISTORY_INDEX.md.lock` inside a worktree's working tree where

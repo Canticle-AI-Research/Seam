@@ -18747,3 +18747,237 @@ discard, stage, or modify any primary or sibling worktree state. The candidate
 repair plus regression is what makes future post-merge pushes work without the
 override.
 ---END-ENTRY-#573---
+
+---BEGIN-ENTRY-#574---
+id: 574
+date: 2026-08-19T09:47:52Z
+agent: codex
+status: in-progress
+topics: audit, continuity, handoff, harden, lifecycle, migration, security, storage, test
+commits: pending
+refs: HISTORY#573,docs/handoffs/2026-08-19-track-s-s6-in-progress.md,docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.md,seam_runtime/public_api.py,seam_runtime/public_memory_handles.py,seam_runtime/lifecycle.py,seam_runtime/storage.py
+supersedes: 573
+tokens: 612
+---
+Track S S6 principal tenancy and opaque deletion remain an uncommitted
+candidate on `track-s/s6-principal-tenancy` from `main@a177852`. Optional
+in-process principal binding, boundary isolation, principal-only deletion,
+private-surface removal, bounded resolver work, the registered core-storage/4
+handle projection, and migration/compatibility guardrails are implemented but
+not published or declared complete.
+
+Independent Sol review invalidated the earlier focused green boundary with
+generation races. A stale handle resolved before delete/re-add could delete the
+replacement generation; a stale recall could register its old capability after
+replacement; resuming old `cleanup_pending` work could erase the replacement
+external vector; failed vector-write compensation did not restore handle rows;
+and deletion receipt identity changed across public-ID-key rotation.
+
+The cutoff refactor adds a generation column to the handle projection, begins
+generation-aware registration/resolution and lifecycle preconditions, blocks
+writes overlapping active scoped deletion, and preserves the generation of a
+duplicate live remember. It is intentionally unfinished. Handle-schema tests
+still pass bare record IDs and omit the new column, runtime compensation still
+needs handle-row snapshot/restore, deletion receipts still need rotation-stable
+identity, and all five concurrency/rollback regressions remain to be completed.
+The provisional threat model and public SDK documentation must be reconciled
+after behavior freezes.
+
+Cut-off recovery verification ran collect-only across 305 selected public API,
+handle, auth, lifecycle, migration, and typed-reference tests and compiled all
+touched runtime modules successfully. The current focused run stops at the
+expected handle-fixture type mismatch; earlier green focused slices are not
+current evidence after this refactor. No full suite, live pgvector lane,
+exact-head CI, commit, push, PR, merge, release, or deployment occurred.
+
+The tracked handoff names every touched area, exact reproduction command, and
+the required recovery order. The separate TUI concept branch and every
+primary/sibling worktree artifact remain outside S6 scope.
+---END-ENTRY-#574---
+
+---BEGIN-ENTRY-#575---
+id: 575
+date: 2026-08-22T08:42:39Z
+agent: codex
+status: changed
+topics: audit, bugfix, continuity, handoff, harden, lifecycle, migration, security, storage, test, verify
+commits: pending
+refs: HISTORY#574,docs/handoffs/2026-08-22-track-s-s6-locally-qualified.md,docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.md,seam_runtime/public_api.py,seam_runtime/public_memory_handles.py,seam_runtime/lifecycle.py,seam_runtime/storage.py
+supersedes: 574
+tokens: 744
+---
+Track S S6 principal tenancy and opaque deletion are locally qualified on the
+still-unpublished `track-s/s6-principal-tenancy` candidate from exact protected
+`origin/main@a177852`. Principal-derived namespaces and salted canonical IDs,
+principal-mode route removal and bounded authentication limiting, the registered
+`core-storage/3 -> core-storage/4` generation-bound handle projection, and
+principal-only indexed lifecycle deletion preserve the legacy trusted-local
+token/no-token behavior while adding no second canonical store or deletion state
+machine.
+
+This entry closes HISTORY#574's five generation/rollback gaps. Lifecycle apply
+rechecks a handle's exact generation inside the delete transaction; stale recall
+registration checks the generation in its own write transaction; writes refuse
+while matching delete work is `planned`, `applying`, or `cleanup_pending`, even
+if the canonical row was separately removed; runtime vector compensation
+requires and restores the exact prior handle-row snapshot; and opaque deletion
+receipt identity no longer depends on the rotatable public-ID key. Duplicate
+delete handles now fail the documented unique-ID contract before lifecycle work.
+
+The canonical working-tree secret/session scan passed before external review.
+CodeRabbit reviewed the tracked uncommitted diff and returned two major findings.
+Its rollback-snapshot finding was valid and produced the required-keyword repair
+above. Its injected-resolver multi-worker finding does not apply to either
+supported `seam serve` launch path: both `run_server` and
+`create_app_from_env` use the environment principal adapter already covered by
+the worker-safety check, while resolver injection exists only on embedded
+`create_app`. Manual review covered the eight untracked candidate files that the
+service omitted and found the missing-row lifecycle and duplicate-handle defects
+above. A post-repair service rerun was rate-limited; no service-clean claim is
+made.
+
+Fresh post-review verification collected and passed the complete 460-test
+affected slice with strict no-skip. Earlier final-width qualification remains
+scoped to its recorded isolated environment: the canonical non-external lane
+passed 2,926 tests with 23 external tests deselected, two established compiler
+xfails, and three passed subtests; the isolated live pgvector 0.8.6 lane passed
+23 external tests with 2,354 non-external cases deselected. The first broad run
+(21 failures, six errors, 2,899 passes) is invalid environmental evidence: CLI
+and MCP subprocesses opened the preserved pre-generation root `seam.db`, while
+an inherited DSN selected a stopped pgvector service. Fresh database and isolated
+service reruns replaced that evidence; neither artifact was deleted or
+overwritten.
+
+Whole-tree Ruff, active-Python compilation, dependency-contract verification,
+diff hygiene, audit-claim verification, the final working-tree secret/session
+scan, and the exact integrity, routing, handoff, continuity, streams, and wiki
+gates pass on this local closeout. The ignored root database, ignored test and
+benchmark outputs, local context handoffs, separate TUI worktree, primary
+checkout, and every sibling worktree remain unstaged and untouched.
+
+This is local candidate evidence, not protected-main, package, release, hosted,
+or deployment evidence. No commit, push, PR, exact-head CI, merge, release, or
+deployment occurred in this closeout block. The publication successor must
+freeze the explicit candidate path list, create and verify a signed commit, push
+the bounded branch, open the draft PR, and observe exact-head required and
+advisory CI before S6 can merge; S7 has not started.
+---END-ENTRY-#575---
+
+---BEGIN-ENTRY-#576---
+id: 576
+date: 2026-08-22T08:47:54Z
+agent: codex
+status: changed
+topics: correction, audit, continuity, docs, verify
+commits: pending
+refs: HISTORY#575,docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.md,docs/handoffs/2026-08-22-track-s-s6-locally-qualified.md
+supersedes: 575
+tokens: 257
+---
+Corrected HISTORY#575's publication-boundary diff-hygiene evidence without
+editing the append-only prior entry. Its unstaged `git diff --check` command
+exited successfully, but that command does not inspect untracked files. After
+freezing and explicitly staging the S6 candidate, the index-aware
+`git diff --cached --check` exposed three trailing-space lines in the previously
+untracked principal-tenancy threat model. Those spaces are removed; the staged
+candidate check now passes.
+
+The three static commands that the cutoff had recorded before execution were
+run first on exact base `origin/main@a177852`: whole-tree Ruff passed, active
+Python compilation exited zero (with only `Can't list 'experimental'` because
+that retired tree is absent), and dependency-contract verification passed.
+The working-tree secret/session scan, changed-audit claim check, integrity,
+routing, handoff, continuity, streams, and wiki gates also passed before this
+correction. The publication successor must regenerate derived continuity state,
+repeat the exact staged and candidate secret checks, then create and verify the
+signed commit, push the bounded branch, open its draft PR, and observe exact-head
+CI. S6 remains branch-local and S7 has not started.
+---END-ENTRY-#576---
+
+---BEGIN-ENTRY-#577---
+id: 577
+date: 2026-08-23T03:02:53Z
+agent: Codex
+status: changed
+topics: bugfix, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#576,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/public_api.py,seam_runtime/server.py,seam_runtime/runtime.py,seam_runtime/lifecycle.py,docs/handoffs/2026-08-22-track-s-s6-review-repaired.md
+supersedes: 576
+tokens: 196
+---
+Repaired six late exact-head review findings before merging Track S S6. Public
+handle registration/resolution now excludes soft-deleted records; deletion
+replay is bound to the original absent/deleted incarnation; principal startup
+requires an exact worker declaration; handle mutation/rollback share the
+runtime projection lock; active-delete lookup is tenant-first; and a
+rate-limited pre-router allowlist closes method and slash disclosure while
+retaining valid CORS preflight behavior.
+
+The strict focused lifecycle/auth/public-HTTP/compensation/bind-safety slice
+collected and passed 175 tests. Ruff, diff checking, and the canonical
+working-tree secret/session scan passed. A first CodeRabbit working-tree review
+found the explicit-worker and CORS omissions; both were repaired, and the
+second review returned no findings. This is still branch-local PR #223 evidence:
+the repaired signed commit, push, exact-head required CI, and protected-main
+merge remain pending.
+---END-ENTRY-#577---
+
+---BEGIN-ENTRY-#578---
+id: 578
+date: 2026-08-23T03:35:00Z
+agent: Codex
+status: changed
+topics: bugfix, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#577,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/lifecycle.py,seam_runtime/server.py,tests/audit/test_runtime_persist_atomic_restore.py,docs/handoffs/2026-08-22-track-s-s6-second-review-repaired.md
+supersedes: 577
+tokens: 212
+---
+Repaired four reproducible P2 findings from the second exact-head Codex review
+of PR #223. Projection compensation now preserves cross-process handle
+registrations only when they remain valid against the restored active canonical
+generation; applied deletion retries recheck incarnation inside the lifecycle
+transaction; principal route filtering normalizes ASGI root paths; and a
+credential-fingerprint budget bounds repeated successful resolver calls without
+coupling distinct principals behind one client address.
+
+Four minimal regressions failed on signed head 921cfd0 and passed after repair.
+The expanded strict focused slice collected and passed 179 tests, and
+changed-path Ruff passed. CodeRabbit found one minor spawned-process cleanup
+issue; it was repaired and the exact regression and Ruff reran green. A further
+included review was rate-limited, so no post-cleanup CodeRabbit-clean claim is
+made. This remains branch-local evidence: the third signed commit, candidate
+secret scan, push, exact-head required CI, final review, and protected-main
+merge remain pending.
+---END-ENTRY-#578---
+
+---BEGIN-ENTRY-#579---
+id: 579
+date: 2026-08-23T04:00:04Z
+agent: Codex
+status: changed
+topics: atomicity, bugfix, locking, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#578,PR#223,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtime/public_api.py,tests/audit/test_runtime_persist_atomic_restore.py,docs/handoffs/2026-08-22-track-s-s6-third-review-repaired.md
+supersedes: 578
+tokens: 235
+---
+Repaired the third exact-head Codex review cycle for PR #223: a P1 in which
+failed projection compensation could resurrect a deletion completed by another
+worker, plus concurrent first-plan replay, credential-budget eviction, and
+malformed-body pre-auth rate-limit gaps. Store-path-keyed reentrant file
+serialization now spans canonical write/projection/compensation, scoped-delete
+planning/apply, and handle publication across processes; every public apply
+rechecks incarnation; the credential limiter refuses new keys at active-map
+capacity; and principal POST middleware reserves the client budget before body
+parsing.
+
+CodeRabbit then found two valid lock-hardening issues. The lock file now lives
+beside the resolved database under the store directory's permissions, and POSIX
+and Windows acquisition use nonblocking retries with a shared 60-second
+deadline. Six minimal regressions went red then green. The expanded strict
+focused slice collected and passed 185 tests, and changed-path Ruff passed.
+This remains branch-local evidence: the fourth signed commit, candidate secret
+scan, push, exact-head required CI, final review, and protected-main merge
+remain pending.
+---END-ENTRY-#579---

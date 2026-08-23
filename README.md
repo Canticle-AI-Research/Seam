@@ -211,6 +211,11 @@ treat its Settings save/restart controls as runtime acknowledgement:
 seam webui --host 127.0.0.1 --port 8765
 ```
 
+An operator-authored TUI concept is being evaluated in a separate worktree and
+branch. It is a visual mock, not a shipped application; the installed Textual
+dashboard remains the supported local TUI until any runtime-backed port is
+reviewed and merged.
+
 Export provider keys, chat/API settings, pgvector DSNs, and REST tokens in the
 server/WebUI launch environment. The TUI may also read
 `~/.config/seam/seam.env` (mode 0600), but the server does not load it
@@ -388,7 +393,18 @@ Useful endpoints:
 - `POST /persist` (create-only; an existing canonical ID returns 409)
 
 Set `SEAM_API_TOKEN` to require `Authorization: Bearer <local-token>` for
-protected endpoints.
+protected endpoints. This token-only mode is a trusted single-user gate, not a
+multi-tenant identity boundary.
+
+Protected `main@a177852` exposes the public SDK boundary at `/v1/health`,
+`/v1/memories`, `/v1/memories/recall`, and `/v1/context`. The unpublished Track
+S S6 candidate adds optional in-process principal resolution and
+`POST /v1/memories/delete`: principal mode derives internal tenancy from the
+resolved subject, disables legacy private data routes, applies a bounded
+process-local limiter by default, and resolves generation-bound indexed opaque
+handles only inside that boundary. Its local runtime lanes, review, and closeout
+gates are green, but signed publication, exact-head CI, and merge remain; do not
+treat the candidate as installed or hosted-deployment behavior yet.
 
 ## Benchmark Glassbox
 

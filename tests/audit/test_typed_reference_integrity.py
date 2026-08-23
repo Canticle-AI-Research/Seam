@@ -302,6 +302,7 @@ def _record_for_reference_position(
 
 
 def _downgrade_core_storage_to_v1(connection: sqlite3.Connection) -> None:
+    connection.execute("drop table public_memory_handle")
     connection.execute("drop table ir_edge_sources")
     connection.execute("alter table ir_edges drop column src_ref_type")
     connection.execute("alter table ir_edges drop column dst_ref_type")
@@ -1550,6 +1551,52 @@ def test_persist_ir_rejects_canonical_kind_change_without_table_changes(
         store.close()
 
 
+@pytest.mark.parametrize(
+    ("replacement_namespace", "replacement_scope"),
+    [
+        ("other-namespace", "thread"),
+        (None, "project"),
+    ],
+)
+def test_persist_ir_rejects_canonical_boundary_change_without_table_changes(
+    tmp_path: Path,
+    replacement_namespace: str | None,
+    replacement_scope: str,
+) -> None:
+    path = tmp_path / "canonical-boundary-change.db"
+    principal_tenant = "principal:" + ("a" * 64)
+    principal_namespace = f"{principal_tenant}.sdk.boundary-{'b' * 64}"
+    record_id = "private-canonical-boundary-change"
+    original = MIRLRecord(
+        id=record_id,
+        kind=RecordKind.META,
+        ns=principal_namespace,
+        scope="thread",
+        attrs={"key": "boundary", "value": "original"},
+    )
+    replacement = MIRLRecord(
+        id=record_id,
+        kind=RecordKind.META,
+        ns=replacement_namespace or principal_namespace,
+        scope=replacement_scope,
+        attrs={"key": "boundary", "value": "replacement"},
+    )
+    store = SQLiteStore(path)
+    try:
+        store.persist_ir(IRBatch([original]))
+        before = _all_table_hashes(path)
+        with pytest.raises(
+            CanonicalReferenceIntegrityError,
+            match="canonical record boundary cannot change during persistence",
+        ) as raised:
+            store.persist_ir(IRBatch([replacement]))
+
+        assert record_id not in str(raised.value)
+        assert _all_table_hashes(path) == before
+    finally:
+        store.close()
+
+
 def test_whole_message_colon_text_projects_only_literal_value_nodes() -> None:
     message = (
         "Meet at 09:30. Visit https://example.com/a:b. "
@@ -2009,6 +2056,7 @@ def test_core_storage_v1_migration_rebuilds_endpoint_types_idempotently(
         assert migrated.migration_result.applied_steps == (
             "typed-ir-edge-endpoints",
             "append-only-improvement-experiment-ledger",
+            "indexed-public-memory-handles",
         )
         expected = (source.id, "ENT", "links", target.id, "ENT")
         assert expected in _edge_rows(migrated)
@@ -2473,6 +2521,7 @@ def test_core_rebuild_validates_edge_types_in_bounded_query_chunks(
         assert migrated.migration_result.applied_steps == (
             "typed-ir-edge-endpoints",
             "append-only-improvement-experiment-ledger",
+            "indexed-public-memory-handles",
         )
         with closing(migrated._connect()) as connection:
             assert connection.execute(
@@ -2750,6 +2799,7 @@ def test_s4_rebuilds_use_deterministic_bounded_canonical_batches(
         assert migrated.migration_result.applied_steps == (
             "typed-ir-edge-endpoints",
             "append-only-improvement-experiment-ledger",
+            "indexed-public-memory-handles",
             "typed-knowledge-references",
         )
         with closing(migrated._connect()) as connection:

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-18-track-s-deployment-readiness
 supersedes: 2026-08-12-deep-audit
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#571
 ---
 

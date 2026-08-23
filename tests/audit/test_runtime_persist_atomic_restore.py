@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import multiprocessing
 import sqlite3
 import threading
 from contextlib import closing
@@ -11,7 +12,8 @@ from pathlib import Path
 
 import pytest
 
-from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
+import seam_runtime.runtime as runtime_module
+from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.retrieval_orchestrator import RetrievalOrchestrator
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.sdk import SeamSDK
@@ -65,6 +67,125 @@ class _BlockingDeleteMemoryAdapter(MemoryVectorAdapter):
         if not self.release.wait(timeout=5):
             raise RuntimeError("timed out waiting to release derived deletion")
         super().delete_records(record_ids)
+
+
+def _register_public_handle_in_process(
+    path: str,
+    tenant_id: str,
+    namespace: str,
+    handle_id: str,
+    record_id: str,
+    generation: str,
+    started,
+    completed,
+) -> None:
+    runtime = SeamRuntime(path, allow_pgvector_env=False)
+    try:
+        started.set()
+        runtime.register_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handles={handle_id: (record_id, generation)},
+        )
+        completed.set()
+    finally:
+        runtime.close()
+
+
+def _delete_record_in_process(
+    path: str,
+    tenant_id: str,
+    namespace: str,
+    record_id: str,
+    generation: str,
+    started,
+    completed,
+) -> None:
+    runtime = SeamRuntime(path, allow_pgvector_env=False)
+    try:
+        started.set()
+        operation = runtime.plan_scoped_delete(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            record_ids=[record_id],
+            idempotency_key="cross-process-delete",
+            actor="test-deleter",
+            record_generations={record_id: generation},
+        )
+        runtime.apply_scoped_delete(
+            tenant_id=tenant_id,
+            operation_id=str(operation["operation_id"]),
+            actor="test-deleter",
+        )
+        completed.set()
+    finally:
+        runtime.close()
+
+
+def _hold_runtime_persist_lock_in_process(path: str, started, release) -> None:
+    runtime = SeamRuntime(path, allow_pgvector_env=False)
+    try:
+        with runtime._persist_projection_lock:
+            started.set()
+            assert release.wait(timeout=10)
+    finally:
+        runtime.close()
+
+
+def test_runtime_persist_lock_lives_beside_resolved_store(tmp_path: Path) -> None:
+    path = tmp_path / "nested" / "runtime-lock-placement.sqlite3"
+    path.parent.mkdir()
+    runtime = SeamRuntime(path, allow_pgvector_env=False)
+    try:
+        assert runtime._persist_projection_lock._lock_path is not None
+        assert runtime._persist_projection_lock._lock_path.parent == path.parent
+    finally:
+        runtime.close()
+
+
+def test_runtime_persist_lock_acquisition_has_a_deadline(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "runtime-lock-timeout.sqlite3"
+    process_context = multiprocessing.get_context("spawn")
+    started = process_context.Event()
+    release = process_context.Event()
+    process = process_context.Process(
+        target=_hold_runtime_persist_lock_in_process,
+        args=(str(path), started, release),
+    )
+    process.start()
+    try:
+        assert started.wait(timeout=10)
+        monkeypatch.setattr(
+            runtime_module,
+            "_PERSIST_LOCK_TIMEOUT_SECONDS",
+            0.1,
+        )
+        runtime = SeamRuntime(path, allow_pgvector_env=False)
+        record = MIRLRecord(
+            id="ent:runtime-lock-timeout",
+            kind=RecordKind.ENT,
+            attrs={"label": "Runtime lock timeout", "entity_type": "test"},
+        )
+        try:
+            with pytest.raises(
+                TimeoutError,
+                match="timed out acquiring the runtime persistence lock",
+            ):
+                runtime.persist_ir(IRBatch([record]))
+        finally:
+            runtime.close()
+    finally:
+        release.set()
+        process.join(timeout=10)
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=5)
+        assert process.exitcode == 0
 
 
 def _logical_table_hashes(path: Path) -> dict[str, str]:
@@ -1037,6 +1158,264 @@ def test_failed_record_index_preserves_indirect_provenance_node_vectors(
         runtime.close()
 
 
+def test_failed_reingest_restores_exact_public_memory_handle_rows(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "runtime-public-handle-restore.sqlite3"
+    model = _ToggleEmbeddingModel()
+    runtime = SeamRuntime(path, embedding_model=model)
+    tenant_id = "principal:" + ("a" * 64)
+    namespace = f"{tenant_id}.sdk.default"
+    handle_id = "mem_" + ("b" * 24)
+    original_generation = "c" * 64
+    replacement_generation = "d" * 64
+    subject = MIRLRecord(
+        id="ent:public-handle-restore-subject",
+        kind=RecordKind.ENT,
+        ns=namespace,
+        scope="thread",
+        attrs={"label": "Public handle restore subject", "entity_type": "test"},
+    )
+    original = MIRLRecord(
+        id="clm:public-handle-restore",
+        kind=RecordKind.CLM,
+        ns=namespace,
+        scope="thread",
+        status=Status.ASSERTED,
+        attrs={
+            "subject": subject.id,
+            "predicate": "value",
+            "object": "Original public handle",
+        },
+        ext={"public_memory_generation": original_generation},
+    )
+    replacement = MIRLRecord.from_dict(original.to_dict())
+    replacement.status = Status.ASSERTED
+    replacement.attrs["object"] = "Replacement trigger failure"
+    replacement.ext["public_memory_generation"] = replacement_generation
+    try:
+        runtime.persist_ir(IRBatch([subject, original]))
+        runtime.store.register_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handles={handle_id: (original.id, original_generation)},
+        )
+        deleted_original = MIRLRecord.from_dict(original.to_dict())
+        deleted_original.status = Status.DELETED_SOFT
+        runtime.persist_ir(IRBatch([deleted_original]))
+        before_record = runtime.store.load_ir(ids=[original.id]).records[0].to_dict()
+        with sqlite3.connect(path) as connection:
+            before_handles = connection.execute(
+                "select * from public_memory_handle order by handle_id"
+            ).fetchall()
+
+        model.fail = True
+        with pytest.raises(
+            RuntimeError,
+            match="canonical and vector writes were restored",
+        ):
+            runtime.persist_ir(IRBatch([replacement]))
+
+        assert runtime.store.load_ir(ids=[original.id]).records[0].to_dict() == (
+            before_record
+        )
+        with sqlite3.connect(path) as connection:
+            after_handles = connection.execute(
+                "select * from public_memory_handle order by handle_id"
+            ).fetchall()
+        assert after_handles == before_handles
+        assert runtime.store.resolve_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handle_ids=[handle_id],
+        ) == {}
+    finally:
+        runtime.close()
+
+
+def test_failed_writer_preserves_concurrent_valid_handle_registration(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "runtime-concurrent-public-handle-restore.sqlite3"
+    model = _ToggleEmbeddingModel()
+    adapter = _BlockingFailingMemoryAdapter(model)
+    runtime_a = SeamRuntime(path, embedding_model=model, vector_adapter=adapter)
+    tenant_id = "principal:" + ("e" * 64)
+    namespace = f"{tenant_id}.sdk.default"
+    generation = "f" * 64
+    handle_id = "mem_" + ("1" * 24)
+    subject = MIRLRecord(
+        id="ent:concurrent-public-handle-subject",
+        kind=RecordKind.ENT,
+        ns=namespace,
+        scope="thread",
+        attrs={"label": "Concurrent public handle", "entity_type": "test"},
+    )
+    original = MIRLRecord(
+        id="clm:concurrent-public-handle",
+        kind=RecordKind.CLM,
+        ns=namespace,
+        scope="thread",
+        status=Status.ASSERTED,
+        attrs={
+            "subject": subject.id,
+            "predicate": "value",
+            "object": "original",
+        },
+        ext={"public_memory_generation": generation},
+    )
+    writer_a = MIRLRecord.from_dict(original.to_dict())
+    writer_a.attrs["object"] = "writer-a"
+    outcome: dict[str, object] = {}
+    writer: threading.Thread | None = None
+    process: multiprocessing.Process | None = None
+
+    def run_failed_writer() -> None:
+        try:
+            runtime_a.persist_ir(IRBatch([writer_a]))
+        except Exception as exc:  # noqa: BLE001 - capture thread outcome
+            outcome["error"] = exc
+
+    try:
+        runtime_a.persist_ir(IRBatch([subject, original]))
+        writer = threading.Thread(target=run_failed_writer)
+        writer.start()
+        assert adapter.entered.wait(timeout=5)
+
+        process_context = multiprocessing.get_context("spawn")
+        started = process_context.Event()
+        completed = process_context.Event()
+        process = process_context.Process(
+            target=_register_public_handle_in_process,
+            args=(
+                str(path),
+                tenant_id,
+                namespace,
+                handle_id,
+                original.id,
+                generation,
+                started,
+                completed,
+            ),
+        )
+        process.start()
+        assert started.wait(timeout=10)
+        assert not completed.wait(timeout=0.5)
+        adapter.release.set()
+        writer.join(timeout=5)
+        assert not writer.is_alive()
+        assert isinstance(outcome.get("error"), RuntimeError)
+        process.join(timeout=10)
+        assert not process.is_alive()
+        assert process.exitcode == 0
+        assert completed.is_set()
+
+        assert runtime_a.store.resolve_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handle_ids=[handle_id],
+        ) == {handle_id: (original.id, generation)}
+    finally:
+        adapter.release.set()
+        if process is not None:
+            if process.is_alive():
+                process.terminate()
+            process.join(timeout=5)
+        if writer is not None:
+            writer.join(timeout=5)
+        runtime_a.close()
+
+
+def test_failed_writer_cannot_resurrect_cross_process_delete(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "runtime-cross-process-delete-restore.sqlite3"
+    model = _ToggleEmbeddingModel()
+    adapter = _BlockingFailingMemoryAdapter(model)
+    runtime = SeamRuntime(path, embedding_model=model, vector_adapter=adapter)
+    tenant_id = "principal:" + ("2" * 64)
+    namespace = f"{tenant_id}.sdk.default"
+    generation = "3" * 64
+    subject = MIRLRecord(
+        id="ent:cross-process-delete-subject",
+        kind=RecordKind.ENT,
+        ns=namespace,
+        scope="thread",
+        attrs={"label": "Cross-process delete", "entity_type": "test"},
+    )
+    original = MIRLRecord(
+        id="clm:cross-process-delete",
+        kind=RecordKind.CLM,
+        ns=namespace,
+        scope="thread",
+        status=Status.ASSERTED,
+        attrs={
+            "subject": subject.id,
+            "predicate": "value",
+            "object": "original",
+        },
+        ext={"public_memory_generation": generation},
+    )
+    writer_record = MIRLRecord.from_dict(original.to_dict())
+    writer_record.attrs["object"] = "writer-a"
+    outcome: dict[str, object] = {}
+    writer: threading.Thread | None = None
+    process: multiprocessing.Process | None = None
+
+    def run_failed_writer() -> None:
+        try:
+            runtime.persist_ir(IRBatch([writer_record]))
+        except Exception as exc:  # noqa: BLE001 - capture thread outcome
+            outcome["error"] = exc
+
+    try:
+        runtime.persist_ir(IRBatch([subject, original]))
+        writer = threading.Thread(target=run_failed_writer)
+        writer.start()
+        assert adapter.entered.wait(timeout=5)
+
+        process_context = multiprocessing.get_context("spawn")
+        started = process_context.Event()
+        completed = process_context.Event()
+        process = process_context.Process(
+            target=_delete_record_in_process,
+            args=(
+                str(path),
+                tenant_id,
+                namespace,
+                original.id,
+                generation,
+                started,
+                completed,
+            ),
+        )
+        process.start()
+        assert started.wait(timeout=10)
+        assert not completed.wait(timeout=0.5)
+        adapter.release.set()
+        writer.join(timeout=5)
+        assert not writer.is_alive()
+        assert isinstance(outcome.get("error"), RuntimeError)
+        process.join(timeout=10)
+        assert not process.is_alive()
+        assert process.exitcode == 0
+        assert completed.is_set()
+        restored = runtime.store.load_ir(ids=[original.id]).records[0]
+        assert restored.status is Status.DELETED_SOFT
+    finally:
+        adapter.release.set()
+        if process is not None:
+            if process.is_alive():
+                process.terminate()
+            process.join(timeout=5)
+        if writer is not None:
+            writer.join(timeout=5)
+        runtime.close()
+
+
 def test_vector_and_restore_failures_do_not_expose_canonical_ids(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
@@ -1068,8 +1447,10 @@ def test_vector_and_restore_failures_do_not_expose_canonical_ids(
             _touched_ids: list[str],
             *,
             previous_vector_rows: object,
+            previous_public_memory_handle_rows: object,
         ) -> None:
             del previous_vector_rows
+            del previous_public_memory_handle_rows
             raise RuntimeError(
                 "private restore failure for clm:private-restore-log-record"
             )

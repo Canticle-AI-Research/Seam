@@ -12,11 +12,24 @@ from uuid import uuid4
 
 from .knowledge_graph import remove_records as remove_knowledge_records
 from .mirl import Status, utc_now
+from .tenancy import tenant_owns_namespace as _tenant_owns_namespace
 
 LIFECYCLE_SCHEMA_VERSION = 1
 LIFECYCLE_CONTRACT_VERSION = "lifecycle/2"
 OPERATION_KINDS = frozenset({"scoped_delete", "batch_ingest"})
 TERMINAL_STATES = frozenset({"applied", "failed", "refused"})
+
+
+class LifecycleIdempotencyConflictError(ValueError):
+    """Raised when one idempotency key is reused for different work."""
+
+
+class LifecycleOperationPendingError(RuntimeError):
+    """Raised when a write overlaps unfinished lifecycle work."""
+
+
+class LifecycleStaleIncarnationError(RuntimeError):
+    """Raised when an applied delete retry no longer names the live incarnation."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,9 +142,26 @@ def plan_scoped_delete(
     record_ids: Iterable[str],
     idempotency_key: str,
     actor: str,
+    idempotency_context: str | None = None,
+    record_generations: Mapping[str, str] | None = None,
     created_at: str | None = None,
 ) -> dict[str, object]:
     targets = _refs(record_ids, "record_ids")
+    payload: dict[str, object] = {"record_ids": targets}
+    if idempotency_context is not None:
+        payload["idempotency_context"] = _required(
+            idempotency_context, "idempotency_context"
+        )
+    if record_generations is not None:
+        normalized_generations = {
+            _required(record_id, "record_generations key"): _required_generation(
+                generation
+            )
+            for record_id, generation in record_generations.items()
+        }
+        if set(normalized_generations) != set(targets):
+            raise ValueError("record generations must exactly match record_ids")
+        payload["record_generations"] = normalized_generations
     return _plan_operation(
         connection,
         tenant_id=tenant_id,
@@ -140,7 +170,7 @@ def plan_scoped_delete(
         kind="scoped_delete",
         idempotency_key=idempotency_key,
         actor=actor,
-        payload={"record_ids": targets},
+        payload=payload,
         created_at=created_at,
     )
 
@@ -184,6 +214,7 @@ def apply_scoped_delete(
     actor: str,
     interrupt_after_intent: bool = False,
     delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+    require_current_incarnation: bool = False,
 ) -> dict[str, object]:
     """Soft-delete exact boundary-owned MIRL with a recoverable cleanup outbox."""
 
@@ -204,6 +235,16 @@ def apply_scoped_delete(
             raise ValueError("lifecycle tenant does not own operation namespace")
         latest = _latest_state(connection, operation_id)
         if latest == "applied":
+            if require_current_incarnation and not (
+                scoped_delete_retry_matches_current_incarnation(
+                    connection,
+                    tenant_id=tenant,
+                    operation_id=operation_id,
+                )
+            ):
+                raise LifecycleStaleIncarnationError(
+                    "scoped deletion no longer names the current incarnation"
+                )
             return _get_lifecycle_operation(connection, tenant, operation_id)
         if latest in {"failed", "refused"}:
             raise ValueError(f"cannot apply lifecycle operation in state {latest}")
@@ -218,7 +259,17 @@ def apply_scoped_delete(
                 if str(row["ns"]) != operation["namespace"]
                 or str(row["scope"]) != operation["scope"]
             )
-            if missing or cross_boundary:
+            expected_generations = operation["payload"].get(
+                "record_generations", {}
+            )
+            generation_mismatch = sorted(
+                str(row["id"])
+                for row in rows
+                if str(row["id"]) in expected_generations
+                and _record_generation(str(row["payload_json"]))
+                != expected_generations[str(row["id"])]
+            )
+            if missing or cross_boundary or generation_mismatch:
                 _append_event(
                     connection,
                     operation_id=operation_id,
@@ -226,6 +277,7 @@ def apply_scoped_delete(
                     actor=selected_actor,
                     detail={
                         "cross_boundary_record_ids": cross_boundary,
+                        "generation_mismatch_record_ids": generation_mismatch,
                         "missing_record_ids": missing,
                     },
                 )
@@ -525,6 +577,63 @@ def get_lifecycle_operation(
     return _get_lifecycle_operation(connection, tenant, operation_id)
 
 
+def get_lifecycle_operation_by_idempotency_key(
+    connection: sqlite3.Connection,
+    *,
+    tenant_id: str,
+    idempotency_key: str,
+) -> dict[str, object] | None:
+    """Return one tenant-scoped operation by its unique retry key."""
+
+    tenant = _required(tenant_id, "tenant_id")
+    key = _required(idempotency_key, "idempotency_key")
+    init_lifecycle(connection)
+    row = connection.execute(
+        "select operation_id from lifecycle_operation "
+        "where tenant_id = ? and idempotency_key = ?",
+        (tenant, key),
+    ).fetchone()
+    if row is None:
+        return None
+    return _get_lifecycle_operation(connection, tenant, str(row[0]))
+
+
+def scoped_delete_retry_matches_current_incarnation(
+    connection: sqlite3.Connection,
+    *,
+    tenant_id: str,
+    operation_id: str,
+) -> bool:
+    """Reject an old retry key after any target has a new live incarnation."""
+
+    tenant = _required(tenant_id, "tenant_id")
+    operation = _get_lifecycle_operation(connection, tenant, operation_id)
+    if operation["kind"] != "scoped_delete":
+        return False
+    payload = operation["payload"]
+    if not isinstance(payload, dict):
+        return False
+    generations = payload.get("record_generations")
+    if not isinstance(generations, dict):
+        return True
+    record_ids = sorted(str(record_id) for record_id in generations)
+    if not record_ids:
+        return True
+    placeholders = ",".join("?" for _ in record_ids)
+    rows = connection.execute(
+        "select id, status, payload_json from ir_records "
+        f"where id in ({placeholders})",
+        record_ids,
+    ).fetchall()
+    for row in rows:
+        if str(row[1]) == Status.DELETED_SOFT.value:
+            continue
+        expected = generations.get(str(row[0]))
+        if not isinstance(expected, str) or _record_generation(str(row[2])) != expected:
+            return False
+    return True
+
+
 def _get_lifecycle_operation(
     connection: sqlite3.Connection, tenant_id: str, operation_id: str
 ) -> dict[str, object]:
@@ -599,7 +708,7 @@ def _plan_operation(
         ).fetchone()
         if existing is not None:
             if str(existing[1]) != fingerprint:
-                raise ValueError(
+                raise LifecycleIdempotencyConflictError(
                     "idempotency key already names a different operation"
                 )
             return _get_lifecycle_operation(
@@ -732,6 +841,50 @@ def _target_rows(
     ).fetchall()
 
 
+def ensure_no_active_scoped_delete(
+    connection: sqlite3.Connection,
+    *,
+    tenant_id: str,
+    namespace: str,
+    scope: str,
+    record_ids: Iterable[str],
+) -> None:
+    """Refuse a new incarnation while delete cleanup can still resume."""
+
+    targets = set(_refs(record_ids, "record_ids"))
+    init_lifecycle(connection)
+    rows = connection.execute(
+        "select operation.payload_json from lifecycle_operation operation "
+        "where operation.tenant_id = ? and operation.kind = 'scoped_delete' "
+        "and operation.ns = ? "
+        "and operation.scope = ? and (select event.state from lifecycle_event event "
+        "where event.operation_id = operation.operation_id "
+        "order by event.event_seq desc limit 1) "
+        "in ('planned', 'applying', 'cleanup_pending')",
+        (
+            _required(tenant_id, "tenant_id"),
+            _required(namespace, "namespace"),
+            _required(scope, "scope"),
+        ),
+    ).fetchall()
+    if any(
+        targets.intersection(json.loads(str(row[0])).get("record_ids", ()))
+        for row in rows
+    ):
+        raise LifecycleOperationPendingError(
+            "memory deletion is still pending"
+        )
+
+
+def _record_generation(payload_json: str) -> str | None:
+    payload = json.loads(payload_json)
+    ext = payload.get("ext")
+    generation = (
+        ext.get("public_memory_generation") if isinstance(ext, dict) else None
+    )
+    return generation if isinstance(generation, str) else None
+
+
 @contextmanager
 def _transaction(connection: sqlite3.Connection) -> Iterator[None]:
     owned = not connection.in_transaction
@@ -765,12 +918,16 @@ def _required(value: object, field: str) -> str:
     return value.strip()
 
 
-def _tenant_owns_namespace(tenant_id: str, namespace: str) -> bool:
-    return (
-        namespace == tenant_id
-        or namespace.startswith(f"{tenant_id}.")
-        or namespace.startswith(f"{tenant_id}:")
-    )
+def _required_generation(value: object) -> str:
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        raise ValueError(
+            "record generation must be 64 lowercase hexadecimal characters"
+        )
+    return value
 
 
 def _canonical_json(value: object) -> str:

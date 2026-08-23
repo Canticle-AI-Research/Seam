@@ -9,36 +9,42 @@
 
 ## Current headline
 
-**2026-08-18 — Track S, graph-benchmark, operator-surface, and deployment
-readiness were re-audited from protected `main@48c5448`.** The governing
-reports are:
+**2026-08-22 — protected `main@a177852` includes PR #222's bounded Track S
+audit repairs; S6 PR #223 is signed, locally runtime-qualified, and repaired
+after three exact-head GitHub reviews.** The governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and
+- `docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.md`; and
 - the current handoff in `docs/handoffs/INDEX.md`.
 
 Track S is not complete. S0-S5 are published through PRs #190, #191, #193,
-#194, #195, and #199. Later S1/S5 counterexamples are repaired on the audit
-candidate and require merge/requalification before S6. S6-S10 remain ordered
-work:
+#194, #195, and #199, and PR #222 landed the later S1/S5 counterexample
+repairs. S6 is implemented only on `track-s/s6-principal-tenancy`. Its original
+exact head passed every required and advisory CI lane. Its first and second
+review-repair heads each passed every required CI lane before the next
+exact-head review exposed additional races or surface gaps. Fourteen Codex
+findings are now repaired across three cycles, plus CodeRabbit's final lock
+hardening; the latest strict-no-skip slice passed 185 tests. A fourth signed
+head, repeat exact-head CI, final review, and merge remain.
+S7-S10 stay dependency-ordered:
 
 ```text
-S6 principal tenancy
+S6 principal tenancy candidate
   -> S7 admissible semantic graph
   -> S8 one coherent retrieval engine
   -> S9 matched multi-benchmark qualification
   -> S10 required CI, release, and deployment proof
 ```
 
-The audit candidate closes the bounded, non-design findings that could be
-reproduced safely now: capped server `/chat` provider responses (2026-08-12
+PR #222 closed the bounded, non-design findings that could be reproduced
+safely: capped server `/chat` provider responses (2026-08-12
 audit F-5), create-only REST `/persist` collisions (audit F-6), deleted-record
 vector-outbox replay (audit F-10), deterministic SQL-leg ties (audit F-11),
 zero-confidence activation leakage, duplicate
 OpenAPI operation IDs, disposable LoCoMo adapter state, and linked-worktree
-pre-push misclassification. These are branch-local candidate repairs until
-their PR merges; internal runtime/store persistence deliberately remains an
-upsert.
+pre-push misclassification. These are protected-main facts at `a177852`;
+internal runtime/store persistence deliberately remains an upsert.
 
 Those hyphenated IDs belong to the 2026-08-12 full-repository audit, not the
 campaign's activation-time F1-F22 matrix.
@@ -51,18 +57,23 @@ incremental hits. A top-level claim therefore requires the causal portfolio in
 the graph-readiness report, not another unsupported headline score.
 
 The Textual TUI is a real seven-tab, runtime-backed local operator surface, but
-the target Review/Curate/Health workflow is incomplete. The operator's newer
-TUI source was not found in any active checkout, installed entrypoint,
-`AppDir/`, or `squashfs-root/`; it must be supplied before integration.
+the target Review/Curate/Health workflow is incomplete. The operator-authored
+source was located at `/media/terrabyte/External2/SEAM TUI Concept.dc.html` and
+audited as a visual mock/prototype, not a runnable replacement. A separate
+`feat/tui-concept-shell` candidate is porting that concept; neither it nor the
+external source is shipped behavior.
 The served WebUI is a prototype that mixes live API calls with simulated
 success, mock persistence, browser-stored credentials, and fabricated metrics.
 It is not a beta operator surface and should be made truthful and secure before
 a visual restyle.
 
-Hosted deployment is blocked by S6 and by the absence of a tested production
-topology for TLS, shared rate limiting, service supervision, backup/restore,
-and disaster recovery. Trusted-loopback single-user use remains the current
-deployment boundary.
+Hosted deployment remains blocked until repaired S6 PR #223 completes
+exact-head CI and merge, and until a production topology proves
+TLS, shared rate
+limiting, service supervision, backup/restore, and disaster recovery.
+Trusted-loopback single-user use remains the protected-main deployment
+boundary. The candidate's legacy token-only mode is likewise trusted and does
+not provide tenancy.
 
 The 2026-08-12 full-repository audit and its detailed prior headline remain
 available at `docs/audits/2026-08-12-full-repo-audit.md` and
