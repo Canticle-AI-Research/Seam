@@ -25,7 +25,15 @@ It does not authorize PyPI publication, a public-client release, or deployment.
 - [ ] Let the `private-package-release` environment gate the publishing job.
 - [ ] Review the generated draft release notes for private data, secrets,
       provider session links, and unsupported deployment or benchmark claims.
-- [ ] After that review, manually publish the reviewed draft from GitHub.
+- [ ] Download the reviewed draft assets, verify `SHA256SUMS.txt`, and record
+      the SHA256 digest of that manifest.
+- [ ] Dispatch **Publish reviewed private release** from current `main` with the
+      exact version, tagged commit SHA, and reviewed manifest digest; approve
+      its `private-package-release` gate only after the draft review. If `main`
+      advanced during review, restart preparation from the new head.
+- [ ] Do not publish the draft directly from the GitHub release page; the
+      guarded follow-up rechecks the mutable tag, notes, assets, and checksums
+      immediately before publication.
 - [ ] Do not add PyPI credentials, `id-token: write`, or a public target.
 
 ## Verify the immutable release

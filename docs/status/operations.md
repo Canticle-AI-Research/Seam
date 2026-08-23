@@ -33,8 +33,11 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   SemVer from the default branch. It scans the built private wheel/sdist,
   smoke-tests installed commands, emits and re-verifies `SHA256SUMS.txt`, and
   creates a private GitHub Release draft with categorized generated notes.
-  An operator reviews those notes before manually publishing the immutable
-  release. It has no PyPI target or OIDC publication permission.
+  After an operator reviews those notes, a separate environment-gated follow-up
+  requires the reviewed tag to remain the current protected-main head and
+  rechecks its type/target, reviewed manifest digest, downloaded assets,
+  checksums, notes, and draft state immediately before publishing the
+  immutable release. It has no PyPI target or OIDC publication permission.
 
 ## Track S operating state
 

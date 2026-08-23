@@ -17,6 +17,7 @@ from tools.release.verify_private_artifacts import verify_artifacts
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ISSUE_TEMPLATE_DIR = REPO_ROOT / ".github" / "ISSUE_TEMPLATE"
 PACKAGE_RELEASE = REPO_ROOT / ".github" / "workflows" / "package-release.yml"
+PUBLISH_RELEASE = REPO_ROOT / ".github" / "workflows" / "publish-private-release.yml"
 RELEASE_CHECKLIST = REPO_ROOT / ".github" / "RELEASE_CHECKLIST.md"
 OPERATIONS_STATUS = REPO_ROOT / "docs" / "status" / "operations.md"
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
@@ -111,7 +112,24 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "draft" in run
     checklist = RELEASE_CHECKLIST.read_text(encoding="utf-8")
     assert "Review the generated draft release notes" in checklist
-    assert "manually publish the reviewed draft" in checklist
+    assert "Publish reviewed private release" in checklist
+    assert "Do not publish the draft directly" in checklist
+
+    follow_up_raw = PUBLISH_RELEASE.read_text(encoding="utf-8")
+    follow_up = yaml.safe_load(follow_up_raw)
+    publish_job = follow_up["jobs"]["publish-reviewed-draft"]
+    assert publish_job["environment"] == "private-package-release"
+    assert publish_job["permissions"] == {"contents": "write"}
+    assert "git/ref/tags/v${VERSION}" in follow_up_raw
+    assert "EXPECTED_SHA" in follow_up_raw
+    assert '${EXPECTED_SHA,,}' in follow_up_raw
+    assert '.object.type == "commit"' in follow_up_raw
+    assert "current protected-main head" in follow_up_raw
+    assert "gh release download" in follow_up_raw
+    assert "sha256sum --check" in follow_up_raw
+    assert "tools.release.verify_private_artifacts" in follow_up_raw
+    assert "include_binary=True" in follow_up_raw
+    assert "gh release edit" in follow_up_raw
 
 
 def test_repository_tests_declare_yaml_directly() -> None:
@@ -193,7 +211,7 @@ def test_private_artifact_verifier_scans_bounded_binary_members(tmp_path: Path) 
 
     findings = verify_artifacts([wheel, sdist])
 
-    assert any("leak.png" in finding and "api_key" in finding for finding in findings)
+    assert any("api_key" in finding for finding in findings)
 
 
 def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
@@ -209,6 +227,8 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
             "seam_runtime/.env.production": b"placeholder\n",
             "seam_runtime/client_secret.json": b'{"client_secret":"ordinary-password"}\n',
             "seam_runtime/passwords.json": b'{"password":"ordinary-password"}\n',
+            "seam_runtime/token.json": b'{"access_token":"ordinary-password-value"}\n',
+            "seam_runtime/auth.json": b'{"auth":"ordinary-password-value"}\n',
             "C:/credentials.json": b"placeholder\n",
         },
     )
@@ -216,15 +236,8 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
 
     findings = verify_artifacts([wheel, sdist])
 
-    for name in (
-        "credentials.json",
-        "secrets.txt",
-        ".env.production",
-        "client_secret.json",
-        "passwords.json",
-    ):
-        assert any(name in finding and "credential_path" in finding for finding in findings)
-    assert any("C:/credentials.json" in finding and "unsafe_member_path" in finding for finding in findings)
+    assert sum("credential_path" in finding for finding in findings) >= 7
+    assert any("unsafe_member_path" in finding for finding in findings)
 
 
 def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> None:
@@ -247,8 +260,7 @@ def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> No
 
     findings = verify_artifacts([wheel, sdist])
 
-    for name in ("assets.zip", "assets.jar", "payload.bin", "payload.zst", "compressed.bin"):
-        assert any(name in finding and "nested_archive" in finding for finding in findings)
+    assert sum("nested_archive" in finding for finding in findings) == 5
 
 
 def test_private_artifact_verifier_rejects_casefolded_duplicate_paths(tmp_path: Path) -> None:
@@ -265,7 +277,7 @@ def test_private_artifact_verifier_rejects_casefolded_duplicate_paths(tmp_path: 
 
     findings = verify_artifacts([wheel, sdist])
 
-    assert any("CONFIG.py" in finding and "duplicate_member" in finding for finding in findings)
+    assert any("duplicate_member" in finding for finding in findings)
 
 
 @pytest.mark.parametrize("unsafe_name", ["config.py.", "config.py "])
@@ -285,7 +297,36 @@ def test_private_artifact_verifier_rejects_windows_trimmed_paths(
 
     findings = verify_artifacts([wheel, sdist])
 
-    assert any(unsafe_name in finding and "unsafe_member_path" in finding for finding in findings)
+    assert any("unsafe_member_path" in finding for finding in findings)
+
+
+@pytest.mark.parametrize("reserved_name", ["CON.py", "aux.txt", "COM1.js", "lpt9"])
+def test_private_artifact_verifier_rejects_windows_device_names(
+    tmp_path: Path, reserved_name: str
+) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    _write_wheel(wheel, {f"seam_runtime/{reserved_name}": b"unsafe\n"})
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
+
+
+def test_private_artifact_verifier_redacts_member_names(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    leaked = "sk-" + "proj-" + "c" * 24
+    _write_wheel(
+        wheel,
+        {f"seam_runtime/client_secret_{leaked}.json": b"placeholder\n"},
+    )
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert findings
+    assert leaked not in "\n".join(findings)
+    assert any("member[" in finding for finding in findings)
 
 
 def test_operations_status_records_merged_s6() -> None:

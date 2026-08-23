@@ -1,0 +1,136 @@
+name: Publish reviewed private release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact SemVer of the existing draft, without the v prefix
+        required: true
+        type: string
+      commit_sha:
+        description: Full protected-main commit SHA targeted by the reviewed draft
+        required: true
+        type: string
+      manifest_sha256:
+        description: SHA256 of the reviewed draft asset SHA256SUMS.txt
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-release
+  cancel-in-progress: false
+
+jobs:
+  publish-reviewed-draft:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    environment: private-package-release
+    permissions:
+      contents: write
+    steps:
+      - name: Check out current protected main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reverify reviewed draft and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          VERSION: ${{ inputs.version }}
+          EXPECTED_SHA: ${{ inputs.commit_sha }}
+          EXPECTED_MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+          WORKFLOW_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import os
+          import string
+          import tomllib
+
+          version = os.environ["VERSION"]
+          expected_sha = os.environ["EXPECTED_SHA"]
+          manifest_sha = os.environ["EXPECTED_MANIFEST_SHA256"]
+          with open("pyproject.toml", "rb") as project_file:
+              project_version = tomllib.load(project_file)["project"]["version"]
+          if version != project_version:
+              raise SystemExit(
+                  f"Requested version {version!r} does not match protected-main project version {project_version!r}."
+              )
+          if len(expected_sha) != 40 or any(char not in string.hexdigits for char in expected_sha):
+              raise SystemExit("commit_sha must be one full hexadecimal commit SHA.")
+          if len(manifest_sha) != 64 or any(char not in string.hexdigits for char in manifest_sha):
+              raise SystemExit("manifest_sha256 must be one full hexadecimal SHA256 digest.")
+          PY
+
+          current_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
+          if [[ "${current_sha}" != "${WORKFLOW_SHA}" ]]; then
+            echo "Publish workflow must run from the current protected-main head." >&2
+            exit 1
+          fi
+          if [[ "${EXPECTED_SHA,,}" != "${WORKFLOW_SHA}" ]]; then
+            echo "Reviewed tag must still target the current protected-main head." >&2
+            exit 1
+          fi
+          tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" \
+            --jq 'if .object.type == "commit" then .object.sha else error("annotated release tags are not accepted") end')"
+          if [[ "${tag_sha}" != "${EXPECTED_SHA,,}" ]]; then
+            echo "Reviewed tag target changed; refusing publication." >&2
+            exit 1
+          fi
+          release_state_before="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" \
+            --jq '[.id, .draft, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
+          if [[ "$(gh release view "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --json isDraft --jq '.isDraft')" != "true" ]]; then
+            echo "Release v${VERSION} is not an unpublished draft." >&2
+            exit 1
+          fi
+
+          mkdir draft-assets
+          if ! gh release download "v${VERSION}" --repo "${GITHUB_REPOSITORY}" \
+            --dir draft-assets >/dev/null 2>&1; then
+            echo "Could not download the complete reviewed draft asset set." >&2
+            exit 1
+          fi
+          python - <<'PY'
+          from pathlib import Path
+
+          assets = sorted(path.name for path in Path("draft-assets").iterdir() if path.is_file())
+          wheels = [name for name in assets if name.endswith(".whl")]
+          sdists = [name for name in assets if name.endswith(".tar.gz")]
+          if len(wheels) != 1 or len(sdists) != 1 or assets != sorted([*wheels, *sdists, "SHA256SUMS.txt"]):
+              raise SystemExit("Unexpected draft asset set.")
+          PY
+          actual_manifest_sha256="$(sha256sum draft-assets/SHA256SUMS.txt | cut -d ' ' -f 1)"
+          if [[ "${actual_manifest_sha256}" != "${EXPECTED_MANIFEST_SHA256,,}" ]]; then
+            echo "Reviewed SHA256SUMS.txt digest changed; refusing publication." >&2
+            exit 1
+          fi
+          (cd draft-assets && sha256sum --check SHA256SUMS.txt)
+          python -m tools.release.verify_private_artifacts draft-assets/*.whl draft-assets/*.tar.gz
+
+          gh release view "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --json body --jq '.body' > draft-notes.md
+          python - <<'PY'
+          from pathlib import Path
+          from tools.security.secret_scan import scan_bytes
+
+          findings = scan_bytes(
+              "draft-notes.md",
+              Path("draft-notes.md").read_bytes(),
+              include_binary=True,
+          )
+          if findings:
+              kinds = ", ".join(sorted({finding.kind for finding in findings}))
+              raise SystemExit(f"Draft release notes failed secret/session scan: {kinds}")
+          PY
+
+          final_tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" \
+            --jq 'if .object.type == "commit" then .object.sha else error("annotated release tags are not accepted") end')"
+          release_state_after="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" \
+            --jq '[.id, .draft, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
+          if [[ "${final_tag_sha}" != "${EXPECTED_SHA,,}" || "${release_state_after}" != "${release_state_before}" ]]; then
+            echo "Draft state changed during verification; refusing publication." >&2
+            exit 1
+          fi
+          gh release edit "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --draft=false

@@ -19288,3 +19288,58 @@ This is a documentation/audit successor to HISTORY#589; it does not change S6
 runtime behavior or create any GitHub issue, milestone, tag, release, or
 deployment.
 ---END-ENTRY-#590---
+
+---BEGIN-ENTRY-#591---
+id: 591
+date: 2026-08-23T06:18:40Z
+agent: Codex
+status: done
+topics: bugfix, security, tests, ci, continuity
+commits: 95fad57
+refs: HISTORY#590,PR#224,.github/workflows/package-release.yml,.github/workflows/publish-private-release.yml,.github/RELEASE_CHECKLIST.md,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,REPO_LEDGER.md,docs/status/operations.md,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 590
+tokens: 259
+---
+Fifth exact-head review repairs are complete on PR #224. Private artifact
+verification now rejects token/auth filename families and Windows reserved
+device basenames, while every member finding uses a safe ordinal rather than a
+potentially secret-bearing archive path. Publication is split into a reviewed
+draft preparation workflow and a separate environment-approved follow-up. The
+follow-up revalidates the protected workflow head, exact tag target, reviewed
+manifest digest, downloaded asset set/checksums/content, generated-note secret
+scan, and unchanged draft fingerprint immediately before publication.
+
+The four reviewed counterexamples first failed focused regressions. After the
+repairs, 28 secret-scan/configuration audit cases pass, Ruff and both embedded
+Bash syntax checks pass, and a fresh real 2.4.0 wheel/sdist build passes the
+hardened verifier and twine check. An initial broad audit run failed because no
+pgvector service was running; rerunning `pytest -q tests/audit` with both live
+DSN variables bound to a session-created isolated pgvector container passed at
+exit zero under strict no-skip. The temporary container and volume were removed
+by the registered cleanup trap. No issue, milestone, tag, release, deployment,
+or paid external operation was created.
+---END-ENTRY-#591---
+
+---BEGIN-ENTRY-#592---
+id: 592
+date: 2026-08-23T06:22:44Z
+agent: Codex
+status: done
+topics: harden, security, ci, tests, continuity
+commits: 95fad57
+refs: HISTORY#591,PR#224,.github/workflows/publish-private-release.yml,.github/RELEASE_CHECKLIST.md,tests/audit/test_github_issue_release_config.py,REPO_LEDGER.md,docs/status/operations.md,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 591
+tokens: 135
+---
+A focused local CodeRabbit review of the HISTORY#591 repair found two tag-boundary
+ambiguities before commit. The guarded publish workflow now requires the
+operator-reviewed commit to remain the current dispatched protected-main head;
+if main advances during draft review, preparation must restart. The workflow
+also explicitly rejects annotated tags rather than dereferencing them because
+the paired preparation workflow atomically creates and owns one lightweight tag
+at the verified commit.
+
+The focused 28-case secret/configuration audit, Ruff, and embedded Bash syntax
+check pass after the repair. This successor does not create any issue,
+milestone, tag, release, deployment, or paid external operation.
+---END-ENTRY-#592---

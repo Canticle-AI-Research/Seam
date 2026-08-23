@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#590
+history: HISTORY#592
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -70,13 +70,20 @@ history: HISTORY#590
 - A follow-up local CodeRabbit pass found and removed the last stale
   pre-merge S6 sentence in the active surfaces status; the audit now rejects
   that pending-publication wording.
+- The fifth exact-head review added token/auth filename families, Windows
+  reserved-device rejection, ordinal-only archive-member reporting, and a
+  separate guarded publish workflow that revalidates the mutable reviewed
+  draft immediately before publication.
+- A focused local follow-up requires that reviewed tag to remain the current
+  protected-main head and explicitly rejects annotated tags because the
+  preparation workflow owns one atomic lightweight tag.
 
 ## Next exact steps
 
-HISTORY#589, its signed review-repair commits, exact candidate scan, initial
+HISTORY#591, its signed review-repair commits, exact candidate scan, initial
 required checks, and the prior review cycles are complete. Continue with:
 
-1. Push the completed local-review status successor.
+1. Push the completed focused local-review successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

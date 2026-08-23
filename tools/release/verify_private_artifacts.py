@@ -10,6 +10,7 @@ scanner. Reports never echo matched content.
 from __future__ import annotations
 
 import argparse
+import re
 import stat
 import tarfile
 import unicodedata
@@ -30,6 +31,26 @@ _DENIED_NAMES = frozenset(
 )
 _DENIED_SUFFIXES = frozenset({".db", ".key", ".p12", ".pem", ".pfx", ".sqlite", ".sqlite3"})
 _DENIED_FILENAME_MARKERS = (".env", "credential", "dotenv", "passwd", "password", "secret")
+_DENIED_FILENAME_WORDS = frozenset(
+    {
+        "access_token",
+        "accesstoken",
+        "auth",
+        "authentication",
+        "id_token",
+        "idtoken",
+        "oauth",
+        "refresh_token",
+        "refreshtoken",
+        "token",
+        "tokens",
+    }
+)
+_WINDOWS_RESERVED_BASENAMES = frozenset(
+    {"aux", "clock$", "con", "nul", "prn"}
+    | {f"com{index}" for index in range(1, 10)}
+    | {f"lpt{index}" for index in range(1, 10)}
+)
 _NESTED_ARCHIVE_SUFFIXES = frozenset(
     {
         ".7z",
@@ -51,36 +72,46 @@ _NESTED_ARCHIVE_SUFFIXES = frozenset(
 )
 
 
-def _validate_member_path(archive: Path, raw_name: str, seen: set[str]) -> str | None:
+def _validate_member_path(
+    archive: Path, raw_name: str, seen: set[str], member_ref: str
+) -> str | None:
     if PureWindowsPath(raw_name).drive:
-        return f"{archive.name}:{raw_name}: unsafe_member_path"
+        return f"{archive.name}:{member_ref}: unsafe_member_path"
     normalized = raw_name.replace("\\", "/")
     member = PurePosixPath(normalized)
     if not normalized or not member.parts or member.is_absolute() or ".." in member.parts:
-        return f"{archive.name}:{raw_name}: unsafe_member_path"
+        return f"{archive.name}:{member_ref}: unsafe_member_path"
     if any(part.endswith((".", " ")) for part in member.parts):
-        return f"{archive.name}:{raw_name}: unsafe_member_path"
+        return f"{archive.name}:{member_ref}: unsafe_member_path"
+    if any(
+        part.split(".", 1)[0].casefold() in _WINDOWS_RESERVED_BASENAMES
+        for part in member.parts
+    ):
+        return f"{archive.name}:{member_ref}: unsafe_member_path"
     canonical = member.as_posix()
     canonical_key = unicodedata.normalize("NFC", canonical).casefold()
     if canonical_key in seen:
-        return f"{archive.name}:{canonical}: duplicate_member"
+        return f"{archive.name}:{member_ref}: duplicate_member"
     seen.add(canonical_key)
     lowered_parts = tuple(part.casefold() for part in member.parts)
     if any(part in _DENIED_NAMES for part in lowered_parts):
-        return f"{archive.name}:{canonical}: credential_path"
+        return f"{archive.name}:{member_ref}: credential_path"
     if any(marker in lowered_parts[-1] for marker in _DENIED_FILENAME_MARKERS):
-        return f"{archive.name}:{canonical}: credential_path"
+        return f"{archive.name}:{member_ref}: credential_path"
+    filename_words = frozenset(re.findall(r"[a-z0-9]+", lowered_parts[-1]))
+    if filename_words & _DENIED_FILENAME_WORDS:
+        return f"{archive.name}:{member_ref}: credential_path"
     if any(part in {"secrets", "credentials"} for part in lowered_parts[:-1]):
-        return f"{archive.name}:{canonical}: credential_directory"
+        return f"{archive.name}:{member_ref}: credential_directory"
     if member.suffix.casefold() in _DENIED_SUFFIXES:
-        return f"{archive.name}:{canonical}: credential_or_database_suffix"
+        return f"{archive.name}:{member_ref}: credential_or_database_suffix"
     return None
 
 
-def _scan_member(archive: Path, name: str, content: bytes) -> list[str]:
+def _scan_member(archive: Path, member_ref: str, content: bytes) -> list[str]:
     return [
         f"{archive.name}:{finding.path}:{finding.line}: {finding.kind}"
-        for finding in scan_bytes(name, content, include_binary=True)
+        for finding in scan_bytes(member_ref, content, include_binary=True)
     ]
 
 
@@ -102,12 +133,14 @@ def _has_archive_magic(header: bytes) -> bool:
     )
 
 
-def _content_gate(archive: Path, name: str, size: int, header: bytes) -> list[str] | None:
+def _content_gate(
+    archive: Path, name: str, member_ref: str, size: int, header: bytes
+) -> list[str] | None:
     suffix = Path(name).suffix.casefold()
     if suffix in _NESTED_ARCHIVE_SUFFIXES or _has_archive_magic(header):
-        return [f"{archive.name}:{name}:0: nested_archive"]
+        return [f"{archive.name}:{member_ref}:0: nested_archive"]
     if size > MAX_SCAN_BYTES:
-        return [f"{archive.name}:{name}:0: scan_size_limit"]
+        return [f"{archive.name}:{member_ref}:0: scan_size_limit"]
     return None
 
 
@@ -116,27 +149,30 @@ def _scan_wheel(path: Path) -> list[str]:
     seen: set[str] = set()
     try:
         with zipfile.ZipFile(path) as archive:
-            for info in archive.infolist():
-                path_finding = _validate_member_path(path, info.filename, seen)
+            for ordinal, info in enumerate(archive.infolist(), start=1):
+                member_ref = f"member[{ordinal}]"
+                path_finding = _validate_member_path(path, info.filename, seen, member_ref)
                 if path_finding:
                     findings.append(path_finding)
                     continue
                 mode = (info.external_attr >> 16) & 0o170000
                 if mode == stat.S_IFLNK:
-                    findings.append(f"{path.name}:{info.filename}: symbolic_link")
+                    findings.append(f"{path.name}:{member_ref}: symbolic_link")
                     continue
                 if info.is_dir():
                     continue
                 if mode not in {0, stat.S_IFREG}:
-                    findings.append(f"{path.name}:{info.filename}: non_regular_member")
+                    findings.append(f"{path.name}:{member_ref}: non_regular_member")
                     continue
                 with archive.open(info) as stream:
                     header = stream.read(512)
-                    content_gate = _content_gate(path, info.filename, info.file_size, header)
+                    content_gate = _content_gate(
+                        path, info.filename, member_ref, info.file_size, header
+                    )
                     if content_gate is not None:
                         findings.extend(content_gate)
                         continue
-                    findings.extend(_scan_member(path, info.filename, header + stream.read()))
+                    findings.extend(_scan_member(path, member_ref, header + stream.read()))
     except (OSError, zipfile.BadZipFile) as exc:
         findings.append(f"{path.name}: invalid_wheel:{type(exc).__name__}")
     return findings
@@ -147,26 +183,27 @@ def _scan_sdist(path: Path) -> list[str]:
     seen: set[str] = set()
     try:
         with tarfile.open(path, mode="r:gz") as archive:
-            for info in archive.getmembers():
-                path_finding = _validate_member_path(path, info.name, seen)
+            for ordinal, info in enumerate(archive.getmembers(), start=1):
+                member_ref = f"member[{ordinal}]"
+                path_finding = _validate_member_path(path, info.name, seen, member_ref)
                 if path_finding:
                     findings.append(path_finding)
                     continue
                 if info.isdir():
                     continue
                 if not info.isfile():
-                    findings.append(f"{path.name}:{info.name}: non_regular_member")
+                    findings.append(f"{path.name}:{member_ref}: non_regular_member")
                     continue
                 stream = archive.extractfile(info)
                 if stream is None:
-                    findings.append(f"{path.name}:{info.name}: unreadable_member")
+                    findings.append(f"{path.name}:{member_ref}: unreadable_member")
                     continue
                 header = stream.read(512)
-                content_gate = _content_gate(path, info.name, info.size, header)
+                content_gate = _content_gate(path, info.name, member_ref, info.size, header)
                 if content_gate is not None:
                     findings.extend(content_gate)
                     continue
-                findings.extend(_scan_member(path, info.name, header + stream.read()))
+                findings.extend(_scan_member(path, member_ref, header + stream.read()))
     except (OSError, tarfile.TarError) as exc:
         findings.append(f"{path.name}: invalid_sdist:{type(exc).__name__}")
     return findings

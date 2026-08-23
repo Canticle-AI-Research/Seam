@@ -133,11 +133,16 @@ and `HISTORY_INDEX.md`.
   verifies `SHA256SUMS.txt`, and creates a private GitHub Release draft with
   categorized generated notes. After environment approval it revalidates
   the live protected head immediately before atomically reserving the exact tag,
-  uploads assets into the draft, and leaves publication to an operator after
-  reviewing the generated notes for private data and unsupported claims. A
+  uploads assets into the draft, and leaves publication to the separate
+  environment-gated `publish-private-release.yml` follow-up after an operator
+  reviews the generated notes for private data and unsupported claims. The
+  follow-up requires that target to remain the current protected-main head and
+  rechecks the lightweight tag, reviewed manifest digest, downloaded
+  asset checksums and contents, notes secret scan, and draft-state fingerprint
+  immediately before publication. A
   failed attempt removes only its exact unpublished draft/tag, while ambiguous
   or already-published state is left for operator review. Prerelease SemVer is
-  marked as a GitHub prerelease. It has no PyPI target, automated publish step, or
+  marked as a GitHub prerelease. It has no PyPI target, public publish step, or
   `id-token` permission. Private 2.4.0 is live as GitHub release `v2.4.0`,
   pinned to protected-main merge
   `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist
