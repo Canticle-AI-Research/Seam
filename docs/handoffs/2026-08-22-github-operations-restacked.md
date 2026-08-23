@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#597
 ---
 

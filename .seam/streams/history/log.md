@@ -19523,3 +19523,46 @@ paid call, or publication was created. Next: complete canonical closeout, sign
 and push the ninth-review successor, reply to the four review threads, and
 repeat exact-head required CI and review before merging PR #224.
 ---END-ENTRY-#597---
+
+---BEGIN-ENTRY-#598---
+id: 598
+date: 2026-08-23T08:24:16Z
+agent: Codex
+status: done
+topics: ci, docs, handoff, status, continuity, operator, config, graph
+commits: f47f5821f4c7f67dc21f1521d2e1731c18f2ad45,1bb5adba69858a2267a9a764c917022925bc5460
+refs: PROJECT_STATUS.md,docs/status/workspace.md,docs/handoffs/2026-08-23-s6-github-operations-merged-s7-next.md,docs/handoffs/INDEX.md,.github/ISSUE_TEMPLATE/config.yml,.github/workflows/publish-private-release.yml,PR#224,issue#212
+supersedes: 597
+tokens: 455
+---
+GitHub operations PR #224 merged through protected main after exact source head
+`f47f5821f4c7f67dc21f1521d2e1731c18f2ad45` passed `repo-hygiene`,
+`chroma-real-smoke`, and `locomo-quickstart-bil2` and its exact-head Codex
+review completed with no inline findings. GitHub created merge commit
+`1bb5adba69858a2267a9a764c917022925bc5460`. The merged source branch was
+deleted remotely by repository policy, pruned locally, and its fully merged
+local branch was deleted; `chore/github-operations-closeout` starts exactly at
+that protected-main commit.
+
+Live default-branch API verification resolves all five issue-template files and
+the guarded private publication workflow. The admin-controlled
+`PRIVATE_RELEASE_APPROVER=BlackhatShiftey` repository variable is live. Issues
+are enabled, only pre-existing issue #212 is open, and no milestones exist.
+Therefore structured intake is set up, but no populated GitHub backlog or
+milestone plan was created. Existing releases remain historical state; this
+work created no issue, milestone, tag, release, deployment, publication, or
+paid provider call.
+
+The project router, live workspace inventory, and new canonical handoff now
+record PR #224 as protected-main fact and route next work to S7 admissible
+semantic memory. S7 remains governed by the campaign exit gate: exact
+SPAN-to-RAW proof for admitted REL records, deterministic temporal predicate
+reconciliation, concurrency/idempotency/as-of correctness, 100 percent exact
+ENT source coverage, and preserved multiword/same-name identity separation.
+PRs #207, #213, and #221 remain open and conflicting on older heads and are not
+qualified by this closeout.
+
+Next: publish this documentation-only closeout through its own protected PR,
+then begin S7 only from the verified protected-main successor containing the
+new handoff.
+---END-ENTRY-#598---

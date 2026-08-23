@@ -9,9 +9,9 @@
 
 ## Current headline
 
-**2026-08-23 — protected `main@abd2a59` includes merged Track S S6 PR #223;
-GitHub operations PR #224 is restacked on that head, and its ninth-review
-successor is locally qualified for repeat exact-head publication gates.** The
+**2026-08-23 — protected `main@1bb5adb` includes Track S S6 PR #223 and merged
+GitHub operations PR #224; S7 admissible semantic ingest is next.** Structured
+issue intake and guarded private-release preparation/publication are live. The
 governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
@@ -23,12 +23,13 @@ Track S is not complete. S0-S6 are published through PRs #190, #191, #193,
 #194, #195, #199, and #223, and PR #222 landed the later S1/S5 counterexample
 repairs. S6's exact source head `fbefb81` passed the three required checks after
 185 focused strict-no-skip tests and three review-repair cycles; its final
-Codex review found no major issue before merge. PR #224 is an operational
-follow-up for structured issue intake and private GitHub Release hardening, not
-another Track S stage. Its issue forms and workflows remain branch-local until
-the signed successor passes repeat exact-head checks/review and merges; the
-live repository now has the admin-controlled `PRIVATE_RELEASE_APPROVER`
-variable required by that successor.
+Codex review found no major issue before merge. PR #224's structured issue
+forms and guarded private GitHub Release workflows are now protected-main fact,
+not another Track S stage. Live verification found only existing issue #212
+open and no milestones; the forms establish intake, not a populated backlog.
+The repository has the admin-controlled `PRIVATE_RELEASE_APPROVER` variable,
+and no new issue, milestone, tag, release, or deployment was created during
+setup.
 S7-S10 stay dependency-ordered:
 
 ```text

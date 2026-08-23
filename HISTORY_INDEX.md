@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 597
-total_tokens: ~304361
-latest_id: 597
+total_entries: 598
+total_tokens: ~304816
+latest_id: 598
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 598 | 2026-08-23 | done | fc770ef992f3fc22 | ci,docs,handoff,status,+ | 597 |
 | 597 | 2026-08-23 | done | 5125a974ecc3167b | bugfix,security,ci,tests,+ | 596 |
 | 596 | 2026-08-23 | done | 75761dda7f83f5e2 | correction,continuity,history,verify,+ | 595 |
 | 595 | 2026-08-23 | done | c22a9f9589db7fca | ci,security,audit,tests,+ | 594 |
@@ -651,7 +652,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=61 latest=#597, #595, #594, #593, #592
+- ci: count=62 latest=#598, #597, #595, #594, #593
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -669,12 +670,12 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=4 latest=#595, #559, #554, #537
+- config: count=5 latest=#598, #595, #559, #554, #537
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=46 latest=#597, #596, #595, #594, #593
+- continuity: count=47 latest=#598, #597, #596, #595, #594
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -704,7 +705,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=85 latest=#594, #593, #588, #586, #585
+- docs: count=86 latest=#598, #594, #593, #588, #586
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -740,11 +741,11 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=53 latest=#571, #553, #547, #545, #544
+- graph: count=54 latest=#598, #571, #553, #547, #545
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=87 latest=#588, #586, #585, #584, #583
+- handoff: count=88 latest=#598, #588, #586, #585, #584
 - harden: count=8 latest=#594, #593, #592, #575, #574
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -815,7 +816,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=8 latest=#597, #595, #582, #580, #571
+- operator: count=9 latest=#598, #597, #595, #582, #580
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -910,7 +911,7 @@ compact: true
 - sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=182 latest=#590, #589, #585, #583, #571
+- status: count=183 latest=#598, #590, #589, #585, #583
 - storage: count=30 latest=#579, #578, #577, #575, #574
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -959,6 +960,6 @@ compact: true
 
 - roots: 86
 - changed: 55
-- done: 512
+- done: 513
 - in-progress: 9
 - planned: 21
