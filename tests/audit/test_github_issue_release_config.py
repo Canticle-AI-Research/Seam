@@ -298,7 +298,9 @@ def test_operations_status_records_merged_s6() -> None:
         REPO_ROOT / "docs" / "status" / "retrieval.md",
         REPO_ROOT / "docs" / "status" / "surfaces.md",
     ):
-        assert "unpublished s6" not in path.read_text(encoding="utf-8").casefold()
+        status = path.read_text(encoding="utf-8").casefold()
+        assert "unpublished s6" not in status
+        assert "the fourth head still needs exact-head ci" not in status
 
 
 def test_private_artifact_verifier_rejects_non_regular_sdist_members(tmp_path: Path) -> None:

@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#589
+history: HISTORY#590
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -67,13 +67,16 @@ history: HISTORY#589
   Windows trailing-dot/space path collisions, reconciled every active S6
   authority to merged protected-main state, and left generated release notes
   in a draft for explicit operator review before manual publication.
+- A follow-up local CodeRabbit pass found and removed the last stale
+  pre-merge S6 sentence in the active surfaces status; the audit now rejects
+  that pending-publication wording.
 
 ## Next exact steps
 
-HISTORY#588, its signed review-repair commits, exact candidate scan, initial
+HISTORY#589, its signed review-repair commits, exact candidate scan, initial
 required checks, and the prior review cycles are complete. Continue with:
 
-1. Push the completed fourth exact-head review-repair successor.
+1. Push the completed local-review status successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

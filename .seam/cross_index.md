@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 652
+total_events: 653
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-15T12:08:08Z | history:396:6f876cc6 | session-event | done | benchmark, locomo, quality, audit | docs/audits/2026-07-15-champion-problem-scan.md,PROJECT_STATUS.md |
 | 2026-07-15T12:24:16Z | history:397:c5ff6b8a | session-event | done | benchmark, locomo, quality, handoff, continuity, verify | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
 | 2026-07-15T14:14:56Z | history:398:07f4efb0 | session-event | done | benchmark, locomo, judge, quality, audit, handoff, verify... | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
 | 2026-07-15T14:17:19Z | history:399:008c723c | session-event | changed | history, continuity, verify, handoff, benchmark, locomo | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T04:58:37Z | history:587:b4188469 | session-event | changed | correction, history, integrity, provenance, verify | HISTORY#586,tests/audit/test_github_issue_release_config.py,docs/handoffs/202... |
 | 2026-08-23T05:16:34Z | history:588:5a13faf0 | session-event | changed | atomicity, bugfix, ci, docs, gates, handoff, pyproject, s... | HISTORY#587,PR#224,.github/workflows/package-release.yml,.github/workflows/ci... |
 | 2026-08-23T05:35:28Z | history:589:ba639c26 | session-event | done | bugfix, security, status, tests, continuity | HISTORY#588,PR#224,.github/workflows/package-release.yml,.github/RELEASE_CHEC... |
+| 2026-08-23T05:44:09Z | history:590:4d1f24c9 | session-event | done | correction, status, tests, continuity | HISTORY#589,PR#224,docs/status/surfaces.md,tests/audit/test_github_issue_rele... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0452.cross.md | 2026-04-15T00:00:00Z..2026-07-15T11:49:56Z | 452 | (multi) | (multi) |
+| 0001-0453.cross.md | 2026-04-15T00:00:00Z..2026-07-15T12:08:08Z | 453 | (multi) | (multi) |

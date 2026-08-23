@@ -19265,3 +19265,26 @@ syntax checks pass, and a fresh real 2.4.0 wheel/sdist build passes both the
 hardened artifact verifier and twine check. No issue, milestone, tag, release,
 deployment, or paid external operation was created.
 ---END-ENTRY-#589---
+
+---BEGIN-ENTRY-#590---
+id: 590
+date: 2026-08-23T05:44:09Z
+agent: Codex
+status: done
+topics: correction, status, tests, continuity
+commits: 52e6b60
+refs: HISTORY#589,PR#224,docs/status/surfaces.md,tests/audit/test_github_issue_release_config.py,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 589
+tokens: 121
+---
+A follow-up local CodeRabbit review of PR #224 found one remaining contradictory
+S6 status sentence in the active surfaces authority. The sentence still said
+the fourth S6 head needed CI, review, and merge even though PR #223 is already
+published on protected main. The status now records those gates as completed
+before merge, and the focused GitHub configuration audit rejects the stale
+pending-publication wording.
+
+This is a documentation/audit successor to HISTORY#589; it does not change S6
+runtime behavior or create any GitHub issue, milestone, tag, release, or
+deployment.
+---END-ENTRY-#590---

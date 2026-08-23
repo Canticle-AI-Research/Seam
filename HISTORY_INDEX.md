@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 589
-total_tokens: ~302120
-latest_id: 589
+total_entries: 590
+total_tokens: ~302241
+latest_id: 590
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 590 | 2026-08-23 | done | 4d1f24c9c9fab7da | correction,status,tests,continuity | 589 |
 | 589 | 2026-08-23 | done | ba639c268f9a4a29 | bugfix,security,status,tests,+ | 588 |
 | 588 | 2026-08-23 | changed | 5a13faf02d62912e | atomicity,bugfix,ci,docs,+ | 587 |
 | 587 | 2026-08-23 | changed | b41884695bd28b3a | correction,history,integrity,provenance,+ | 586 |
@@ -666,12 +667,12 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=38 latest=#589, #579, #578, #577, #576
+- continuity: count=39 latest=#590, #589, #579, #578, #577
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=12 latest=#587, #586, #581, #576, #573
+- correction: count=13 latest=#590, #587, #586, #581, #576
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -902,7 +903,7 @@ compact: true
 - sqlite: count=2 latest=#506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=181 latest=#589, #585, #583, #571, #570
+- status: count=182 latest=#590, #589, #585, #583, #571
 - storage: count=30 latest=#579, #578, #577, #575, #574
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -917,7 +918,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=112 latest=#588, #586, #585, #584, #583
 - test-artifacts: count=1 latest=#506
-- tests: count=42 latest=#589, #581, #580, #558, #554
+- tests: count=43 latest=#590, #589, #581, #580, #558
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -951,6 +952,6 @@ compact: true
 
 - roots: 86
 - changed: 55
-- done: 504
+- done: 505
 - in-progress: 9
 - planned: 21
