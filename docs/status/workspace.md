@@ -4,7 +4,7 @@
 > active workstreams
 
 _Snapshot authority: live SEAM worktrees and open GitHub pull requests
-reconciled on 2026-08-22 against protected `origin/main@a177852` and canonical
+reconciled on 2026-08-22 against protected `origin/main@abd2a59` and canonical
 GitHub repository `Canticle-AI-Research/Seam`. Local `main` remains stale at
 `48c5448`; do not mistake it for the protected remote head. This is a dated
 current-state snapshot, not a self-updating dashboard or chronology. Re-run the
@@ -29,11 +29,11 @@ report a worktree as clean while removal would still destroy local data.
 
 | Logical item | Physical identities | State | Unique purpose | Next action |
 | --- | --- | --- | --- | --- |
-| Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Protected remote is `a177852` after merged PR #222; local `main` is still `48c5448`; no worktree is checked out on local `main` | Canonical published source for new work | Base new work on the verified remote head, not the stale local pointer |
+| Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Protected remote is `abd2a59` after merged PR #223; local `main` is still `48c5448`; no worktree is checked out on local `main` | Canonical published source for new work | Base new work on the verified remote head, not the stale local pointer |
 | Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; 1 commit ahead and 1 behind protected main; draft PR is open and conflicting | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; rebase/rechain before publication |
 | Track S/deployment audit | merged PR #222; former `audit/track-s-deployment-20260818` worktree/branch | Published at protected `main@a177852`; temporary worktree and branch are gone | Bounded F-5/F-6/F-10/F-11 and hygiene repairs plus the deployment-readiness audit | Treat as protected-main fact; do not recreate the retired candidate |
-| Track S S6 candidate | `Seam-track-s-s6`; `track-s/s6-principal-tenancy`; PR #223 | Signed heads `41c51a4`, `921cfd0`, and `82849ab` cleared their required CI gates before successive exact-head reviews exposed more defects; fourteen Codex findings plus lock hardening are locally repaired with 185 focused tests | Optional in-process principal binding, prefix-safe pre-router shutdown, cross-process canonical/projection serialization, indexed generation-bound opaque handles, and G6 lifecycle delete | Close out and push the fourth signed head, pass repeat exact-head CI/review, then merge before S7 |
-| GitHub issue/release setup | `Seam-github-operations`; `chore/github-issues-releases`; stacked draft PR #224 | Clean pushed head `d992af5`; exact stacked-head CI is green, but it remains based on the pre-repair S6 head | Structured issue forms and hardened private GitHub Release workflow | Restack after S6 merges, retarget to `main`, rerun exact-head CI, then merge separately |
+| Track S S6 | `Seam-track-s-s6`; `track-s/s6-principal-tenancy`; merged PR #223 | Published on protected `main@abd2a59`; exact head `fbefb81` passed all required checks and the final Codex review found no major issue | Optional in-process principal binding, prefix-safe pre-router shutdown, cross-process canonical/projection serialization, indexed generation-bound opaque handles, and G6 lifecycle delete | Treat S6 as protected-main behavior; start S7 only from the current handoff after GitHub operations closeout |
+| GitHub issue/release setup | `Seam-github-operations`; `chore/github-issues-releases`; draft PR #224 | Restacked onto `main@abd2a59` in signed merge `b3d35ec`; focused configuration, Ruff, dependency-contract, secret, and continuity gates pass locally | Structured issue forms and hardened private GitHub Release workflow | Push the restacked head, pass exact-head required CI/review, then merge separately |
 | TUI concept port | `Seam-tui-concept-shell`; local `feat/tui-concept-shell` | Clean at `54bc01a`; 1 commit ahead and 0 behind protected main; no remote/PR | Runtime-backed Textual port of the external operator mock's workflow and visual concepts | Keep separate from S6; review, qualify, publish, or revise without claiming the mock or candidate shipped |
 | Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 5 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
 | Native-roadmap pre-reconcile backup | local `archive/native-model-roadmap-pre-reconcile` | Clean branch; 5 commits ahead and 17 behind main; not a second PR | Preserves the earlier unsigned/unreconciled roadmap lineage that PR #207 replaced | Keep only as a recovery source until PR #207 is resolved; never implement from it independently |
@@ -45,8 +45,7 @@ report a worktree as clean while removal would still destroy local data.
 
 Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207),
 [#213](https://github.com/Canticle-AI-Research/Seam/pull/213),
-[#221](https://github.com/Canticle-AI-Research/Seam/pull/221),
-[#223](https://github.com/Canticle-AI-Research/Seam/pull/223), and stacked draft
+[#221](https://github.com/Canticle-AI-Research/Seam/pull/221), and draft
 [#224](https://github.com/Canticle-AI-Research/Seam/pull/224).
 
 ## Physical worktree register
@@ -71,26 +70,22 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 
 ### `/home/terrabyte/Documents/Projects/Seam-track-s-s6`
 
-- Role: isolated Track S S6 implementation candidate.
-- Branch/base: `track-s/s6-principal-tenancy` from exact protected
-  `origin/main@a177852`.
-- Tracked state: signed PR #223 heads `41c51a4`, `921cfd0`, and `82849ab`
-  passed their required CI gates. Three successive exact-head Codex reviews
-  found fourteen total actionable defects; the latest CodeRabbit pass added
-  store-local lock placement and bounded acquisition hardening. The worktree is
-  intentionally dirty with that bounded successor; the expanded 185-test
-  strict-no-skip slice and changed-path Ruff are green before closeout/push.
-- Boundary: this is candidate evidence only. Do not call principal tenancy,
-  opaque deletion, or `core-storage/4` protected-main behavior before signed
-  publication, exact-head CI, and merge.
+- Role: retained clean source worktree for merged Track S S6.
+- Branch/head: `track-s/s6-principal-tenancy@fbefb81`; PR #223 merged to
+  protected `main@abd2a59`.
+- Tracked state: clean. The exact head passed all three required checks, and
+  the final Codex review reported no major issue.
+- Boundary: the branch is retained while PR #224 finishes its former stacked
+  dependency; no cleanup is authorized by this inventory.
 
 ### `/home/terrabyte/Documents/Projects/Seam-github-operations`
 
-- Role: isolated GitHub Issues and private Releases setup stacked above S6.
-- Branch/head: `chore/github-issues-releases@d992af5`, pushed as draft PR #224
-  with base `track-s/s6-principal-tenancy`.
-- Tracked state: clean; its stacked exact-head CI is green. It must be restacked
-  on repaired/merged S6, retargeted to `main`, and requalified before merge.
+- Role: isolated GitHub Issues and private Releases setup.
+- Branch/head: `chore/github-issues-releases` is locally restacked on protected
+  `main@abd2a59` by signed merge `b3d35ec`; draft PR #224 targets `main`.
+- Tracked state: locally clean before the current bookkeeping successor;
+  focused configuration tests, Ruff, dependency-contract, secret scan, and
+  all continuity gates pass. Exact-head push, CI, and review remain.
 - Boundary: issue templates and release hardening are not live on protected
   main yet; no new issue, milestone, tag, release, or deployment was created.
 

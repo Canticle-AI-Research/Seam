@@ -19047,3 +19047,29 @@ locally. No release, tag, version bump, issue, milestone, label, deployment, or
 paid call occurred. PR #224 remained draft pending repaired exact-head CI and
 protected-main integration.
 ---END-ENTRY-#581---
+
+---BEGIN-ENTRY-#582---
+id: 582
+date: 2026-08-23T04:15:43Z
+agent: Codex
+status: changed
+topics: ci, docs, gates, handoff, history, operator, registry, security, verify
+commits: pending
+refs: HISTORY#581,PR#223,PR#224,docs/handoffs/2026-08-22-github-operations-restacked.md,docs/status/workspace.md
+supersedes: 581
+tokens: 182
+---
+Restacked draft PR #224 onto protected `main@abd2a59` after S6 PR #223 merged.
+The signed merge preserved the published HISTORY#577-#579 chain and renumbered
+the branch-only GitHub-operations entries to HISTORY#580/#581 before rebuilding
+all derived history and stream state. No protected history was rewritten.
+
+Structured bug, feature, research/benchmark, and release issue forms, the
+private-release checklist, generated-note categories, hardened manual release
+workflow, and archive verifier remain the bounded candidate. Focused GitHub
+configuration tests, Ruff, dependency-contract verification, diff hygiene, the
+canonical secret/session scan, and all continuity gates pass locally. No issue,
+milestone, label, tag, release, version bump, deployment, public artifact, or
+paid call occurred. The exact pushed head still requires protected CI and final
+review before merge.
+---END-ENTRY-#582---

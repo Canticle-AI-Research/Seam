@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 581
-total_tokens: ~300542
-latest_id: 581
+total_entries: 582
+total_tokens: ~300724
+latest_id: 582
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 582 | 2026-08-23 | changed | c8609f49d02202f8 | ci,docs,gates,handoff,+ | 581 |
 | 581 | 2026-08-22 | changed | ac6688b9311f2322 | bugfix,ci,correction,gates,+ | 580 |
 | 580 | 2026-08-22 | done | e79d1fe975f5522e | ci,docs,gates,operator,+ | 579 |
 | 579 | 2026-08-23 | changed | becfc7bcd1e22fa0 | atomicity,bugfix,locking,security,+ | 578 |
@@ -635,7 +636,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=49 latest=#581, #580, #558, #556, #539
+- ci: count=50 latest=#582, #581, #580, #558, #556
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -688,7 +689,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=77 latest=#580, #576, #569, #568, #567
+- docs: count=78 latest=#582, #580, #576, #569, #568
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -714,7 +715,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=3 latest=#510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=6 latest=#581, #580, #557, #556, #555
+- gates: count=7 latest=#582, #581, #580, #557, #556
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - git: count=3 latest=#561, #360, #324
@@ -728,11 +729,11 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=81 latest=#579, #578, #577, #575, #574
+- handoff: count=82 latest=#582, #579, #578, #577, #575
 - harden: count=5 latest=#575, #574, #571, #527, #182
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=312 latest=#570, #565, #564, #563, #562
+- history: count=313 latest=#582, #570, #565, #564, #563
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
@@ -799,7 +800,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=5 latest=#580, #571, #353, #340, #179
+- operator: count=6 latest=#582, #580, #571, #353, #340
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -851,7 +852,7 @@ compact: true
 - refactor: count=1 latest=#284
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
-- registry: count=7 latest=#580, #526, #409, #350, #348
+- registry: count=8 latest=#582, #580, #526, #409, #350
 - release: count=7 latest=#486, #485, #484, #476, #356
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
@@ -874,7 +875,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=88 latest=#580, #579, #578, #577, #575
+- security: count=89 latest=#582, #580, #579, #578, #577
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -925,7 +926,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=399 latest=#581, #580, #579, #578, #577
+- verify: count=400 latest=#582, #581, #580, #579, #578
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -942,7 +943,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 48
+- changed: 49
 - done: 503
 - in-progress: 9
 - planned: 21

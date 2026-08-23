@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 644
+total_events: 645
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-14T01:43:37Z | history:388:1e8e9de6 | session-event | done | review, ci, merge, history, status, verify | seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_loco... |
 | 2026-07-14T03:41:21Z | history:389:a8b788fe | session-event | done | benchmark, locomo, retrieval, quality, command, tests, ve... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
 | 2026-07-15T01:05:17Z | history:390:5136df2c | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, b... | benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py... |
 | 2026-07-15T03:19:09Z | history:391:aa60db95 | session-event | done | benchmark, locomo, quality, audit, verify | docs/audits/2026-07-14-post-temporal-per-case-review.md,PROJECT_STATUS.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T03:02:53Z | history:577:00ea6abf | session-event | changed | bugfix, security, surface, storage, test, verify, continu... | HISTORY#576,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/public_... |
 | 2026-08-23T03:35:00Z | history:578:a71f9112 | session-event | changed | bugfix, security, surface, storage, test, verify, continu... | HISTORY#577,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/lifecyc... |
 | 2026-08-23T04:00:04Z | history:579:becfc7bc | session-event | changed | atomicity, bugfix, locking, security, surface, storage, t... | HISTORY#578,PR#223,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtim... |
+| 2026-08-23T04:15:43Z | history:582:c8609f49 | session-event | changed | ci, docs, gates, handoff, history, operator, registry, se... | HISTORY#581,PR#223,PR#224,docs/handoffs/2026-08-22-github-operations-restacke... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0444.cross.md | 2026-04-15T00:00:00Z..2026-07-13T23:45:23Z | 444 | (multi) | (multi) |
+| 0001-0445.cross.md | 2026-04-15T00:00:00Z..2026-07-14T01:43:37Z | 445 | (multi) | (multi) |
