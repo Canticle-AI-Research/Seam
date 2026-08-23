@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-22-track-s-s6-review-repaired
 supersedes: 2026-08-22-track-s-s6-locally-qualified
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#577
 ---
 

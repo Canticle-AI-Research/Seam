@@ -680,6 +680,13 @@ and `HISTORY_INDEX.md`.
   topology when creating the app. The same process-local limiter refusal then
   applies to injected and environment adapters; omission is a startup error,
   not an assumed single-worker deployment.
+- Principal authentication uses three bounded process-local budgets: a
+  client/IP reservation for rotating invalid credentials, a non-released
+  credential-fingerprint budget for resolver invocations, and a stable hashed
+  principal budget for authenticated requests. Successful authentication
+  releases only the client/IP reservation, so separate principals sharing one
+  address remain independent without allowing one valid credential to invoke
+  an injected resolver beyond its request budget.
 - Candidate principal-mode data routes are `POST /v1/memories`,
   `POST /v1/memories/recall`, `POST /v1/context`, and
   `POST /v1/memories/delete`. Delete accepts only exact indexed, generation-
@@ -687,12 +694,16 @@ and `HISTORY_INDEX.md`.
   reuses the existing G6 lifecycle plan/apply and recoverable-cleanup contracts.
   Recall/context registration verifies the canonical generation in the same
   write transaction and shares the runtime projection lock with write
-  compensation; deleted records cannot publish or resolve handles. Same-key
+  compensation; cross-process rollback additionally preserves concurrent
+  handle rows only when they still match the restored active canonical
+  generation. Deleted records cannot publish or resolve handles. Same-key
   delete retries resume the existing operation only while no target has a new
-  live generation. Deletion plans recheck generation inside the canonical
-  delete transaction; writes overlapping an active tenant-indexed scoped
-  deletion refuse. Principal mode blocks disallowed route/method pairs before
-  router matching while allowing CORS preflights for its four data routes.
+  live generation, with the applied fast path rechecking that condition inside
+  the lifecycle transaction. Deletion plans recheck generation inside the
+  canonical delete transaction; writes overlapping an active tenant-indexed
+  scoped deletion refuse. Principal mode blocks disallowed route/method pairs
+  before router matching, normalizes the ASGI `root_path`, and allows CORS
+  preflights for its four data routes.
   Repaired-head exact CI and merge remain before this becomes protected-main
   behavior.
 - `/health` is unauthenticated for local service checks but still participates in the same rate limiter.

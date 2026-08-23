@@ -18921,3 +18921,32 @@ second review returned no findings. This is still branch-local PR #223 evidence:
 the repaired signed commit, push, exact-head required CI, and protected-main
 merge remain pending.
 ---END-ENTRY-#577---
+
+---BEGIN-ENTRY-#578---
+id: 578
+date: 2026-08-23T03:35:00Z
+agent: Codex
+status: changed
+topics: bugfix, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#577,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/lifecycle.py,seam_runtime/server.py,tests/audit/test_runtime_persist_atomic_restore.py,docs/handoffs/2026-08-22-track-s-s6-second-review-repaired.md
+supersedes: 577
+tokens: 212
+---
+Repaired four reproducible P2 findings from the second exact-head Codex review
+of PR #223. Projection compensation now preserves cross-process handle
+registrations only when they remain valid against the restored active canonical
+generation; applied deletion retries recheck incarnation inside the lifecycle
+transaction; principal route filtering normalizes ASGI root paths; and a
+credential-fingerprint budget bounds repeated successful resolver calls without
+coupling distinct principals behind one client address.
+
+Four minimal regressions failed on signed head 921cfd0 and passed after repair.
+The expanded strict focused slice collected and passed 179 tests, and
+changed-path Ruff passed. CodeRabbit found one minor spawned-process cleanup
+issue; it was repaired and the exact regression and Ruff reran green. A further
+included review was rate-limited, so no post-cleanup CodeRabbit-clean claim is
+made. This remains branch-local evidence: the third signed commit, candidate
+secret scan, push, exact-head required CI, final review, and protected-main
+merge remain pending.
+---END-ENTRY-#578---

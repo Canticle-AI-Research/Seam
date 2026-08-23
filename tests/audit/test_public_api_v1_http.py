@@ -79,6 +79,34 @@ class TestPublicHealth:
         resp = TestClient(create_app_from_env()).get("/v1/health")
         assert resp.status_code == 200
 
+    def test_principal_routes_honor_asgi_root_path(self, tmp_path):
+        runtime = SeamRuntime(tmp_path / "root-path.db", allow_pgvector_env=False)
+        app = create_app(
+            runtime,
+            principal_resolver=StaticPrincipalResolver(
+                {"root-token": "account/root-path"}
+            ),
+            public_id_key=b"principal-root-path-public-key-32",
+            process_workers=1,
+        )
+        try:
+            with TestClient(
+                app,
+                root_path="/seam",
+                base_url="http://testserver/seam",
+            ) as client:
+                health = client.get("/v1/health")
+                remember_response = client.post(
+                    "/v1/memories",
+                    json={"text": "Root path memory."},
+                    headers={"Authorization": "Bearer root-token"},
+                )
+        finally:
+            runtime.close()
+
+        assert health.status_code == 200
+        assert remember_response.status_code == 200
+
 
 class TestPublicRemember:
     def test_returns_receipt_and_echoes_dimensions(self, client):
@@ -887,6 +915,56 @@ class TestPublicApiPrincipalTenancy:
             isinstance(payload["ext"].get("public_memory_generation"), str)
             for payload in payloads
         )
+
+    def test_applied_delete_retry_rechecks_generation_inside_apply(
+        self, principal_api, monkeypatch
+    ):
+        client, runtime, _db_path = principal_api
+        headers = _principal_headers("a")
+        text = "The apply retry race marker is violet harbor."
+        query = {"query": "apply retry race marker violet harbor"}
+        assert client.post(
+            "/v1/memories", json={"text": text}, headers=headers
+        ).status_code == 200
+        memory_id = client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"][0]["id"]
+        payload = {
+            "memory_ids": [memory_id],
+            "idempotency_key": "apply-retry-generation-race",
+        }
+        assert client.post(
+            "/v1/memories/delete", json=payload, headers=headers
+        ).status_code == 200
+
+        original_apply = runtime.apply_scoped_delete
+        injected = False
+
+        def reingest_before_applied_fast_path(*args, **kwargs):
+            nonlocal injected
+            if not injected:
+                injected = True
+                remember(
+                    runtime,
+                    {"text": text},
+                    principal=PublicPrincipal("account/alice"),
+                )
+            return original_apply(*args, **kwargs)
+
+        monkeypatch.setattr(
+            runtime,
+            "apply_scoped_delete",
+            reingest_before_applied_fast_path,
+        )
+        stale_retry = client.post(
+            "/v1/memories/delete", json=payload, headers=headers
+        )
+
+        assert stale_retry.status_code == 404
+        assert stale_retry.json() == {"detail": "Memory not found"}
+        assert client.post(
+            "/v1/memories/recall", json=query, headers=headers
+        ).json()["memories"]
 
     def test_stale_resolved_handle_cannot_delete_replacement_generation(
         self, principal_api, monkeypatch

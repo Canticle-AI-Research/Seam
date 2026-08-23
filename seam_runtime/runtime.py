@@ -748,6 +748,7 @@ class SeamRuntime:
         operation_id: str,
         actor: str,
         interrupt_after_intent: bool = False,
+        require_current_incarnation: bool = False,
     ) -> dict[str, object]:
         with self._persist_projection_lock:
             return self.store.apply_scoped_delete(
@@ -756,6 +757,7 @@ class SeamRuntime:
                 actor=actor,
                 interrupt_after_intent=interrupt_after_intent,
                 delete_derived_records=self._delete_derived_records,
+                require_current_incarnation=require_current_incarnation,
             )
 
     def batch_ingest(

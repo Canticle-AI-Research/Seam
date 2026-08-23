@@ -32,7 +32,7 @@ report a worktree as clean while removal would still destroy local data.
 | Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Protected remote is `a177852` after merged PR #222; local `main` is still `48c5448`; no worktree is checked out on local `main` | Canonical published source for new work | Base new work on the verified remote head, not the stale local pointer |
 | Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; 1 commit ahead and 1 behind protected main; draft PR is open and conflicting | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; rebase/rechain before publication |
 | Track S/deployment audit | merged PR #222; former `audit/track-s-deployment-20260818` worktree/branch | Published at protected `main@a177852`; temporary worktree and branch are gone | Bounded F-5/F-6/F-10/F-11 and hygiene repairs plus the deployment-readiness audit | Treat as protected-main fact; do not recreate the retired candidate |
-| Track S S6 candidate | `Seam-track-s-s6`; `track-s/s6-principal-tenancy`; PR #223 | Signed head `41c51a4` passed all required/advisory CI; six later GitHub findings are locally repaired on the dirty successor with 175 focused tests and a clean CodeRabbit rerun | Optional in-process principal binding, pre-router legacy-route shutdown, indexed generation-bound opaque handles, and G6 lifecycle delete | Close out and push the signed repair, pass repeat exact-head CI, then merge before S7 |
+| Track S S6 candidate | `Seam-track-s-s6`; `track-s/s6-principal-tenancy`; PR #223 | Signed head `41c51a4` passed all required/advisory CI; repair head `921cfd0` passed all required CI before a second exact-head review found four more defects; ten total findings are locally repaired with 179 focused tests | Optional in-process principal binding, prefix-safe pre-router shutdown, indexed generation-bound opaque handles, and G6 lifecycle delete | Close out and push the third signed head, pass repeat exact-head CI/review, then merge before S7 |
 | GitHub issue/release setup | `Seam-github-operations`; `chore/github-issues-releases`; stacked draft PR #224 | Clean pushed head `d992af5`; exact stacked-head CI is green, but it remains based on the pre-repair S6 head | Structured issue forms and hardened private GitHub Release workflow | Restack after S6 merges, retarget to `main`, rerun exact-head CI, then merge separately |
 | TUI concept port | `Seam-tui-concept-shell`; local `feat/tui-concept-shell` | Clean at `54bc01a`; 1 commit ahead and 0 behind protected main; no remote/PR | Runtime-backed Textual port of the external operator mock's workflow and visual concepts | Keep separate from S6; review, qualify, publish, or revise without claiming the mock or candidate shipped |
 | Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 5 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
@@ -75,9 +75,11 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 - Branch/base: `track-s/s6-principal-tenancy` from exact protected
   `origin/main@a177852`.
 - Tracked state: signed PR #223 head `41c51a4` passed every required and
-  advisory CI lane. The worktree is intentionally dirty with the bounded
-  repair for six later GitHub review findings; its 175-test strict-no-skip
-  slice and post-fix CodeRabbit review are green before closeout and push.
+  advisory CI lane; repair head `921cfd0` passed all three required checks.
+  A second exact-head Codex review found four more reproducible defects. The
+  worktree is intentionally dirty with their bounded repair; the expanded
+  179-test strict-no-skip slice and post-CodeRabbit cleanup regression are
+  green before closeout and push.
 - Boundary: this is candidate evidence only. Do not call principal tenancy,
   opaque deletion, or `core-storage/4` protected-main behavior before signed
   publication, exact-head CI, and merge.

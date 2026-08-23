@@ -12,6 +12,7 @@ from typing import Protocol
 from .lifecycle import (
     LifecycleIdempotencyConflictError,
     LifecycleOperationPendingError,
+    LifecycleStaleIncarnationError,
 )
 from .mirl import VALID_SCOPES, MIRLRecord, SearchCandidate
 from .public_memory_handles import (
@@ -364,6 +365,7 @@ def delete(
         tenant_id=tenant_id,
         idempotency_key=idempotency_key,
     )
+    retrying_existing_operation = operation is not None
     if operation is not None:
         payload_details = operation.get("payload")
         if (
@@ -415,7 +417,10 @@ def delete(
             tenant_id=tenant_id,
             operation_id=str(operation["operation_id"]),
             actor=actor,
+            require_current_incarnation=retrying_existing_operation,
         )
+    except LifecycleStaleIncarnationError as exc:
+        raise PublicAPINotFoundError("memory not found") from exc
     except Exception as exc:
         # The lifecycle engine commits canonical soft-delete + the recoverable
         # cleanup intent before calling external derived-index adapters. If an

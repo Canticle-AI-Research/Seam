@@ -102,6 +102,10 @@ rollback, and disaster recovery remain S10 work.
     resumed external cleanup could otherwise erase the replacement vector.
 12. A deployment under-declares its process worker count so the process-local
     limiter is mistaken for shared enforcement.
+13. A caller with one valid credential exhausts its subject budget but keeps
+    invoking an expensive injected resolver.
+14. A mounted/reverse-proxied app supplies a nonempty ASGI `root_path` that
+    could make the pre-router allowlist reject legitimate public routes.
 
 ## Partial-failure cases
 
@@ -128,6 +132,9 @@ rollback, and disaster recovery remain S10 work.
    record: the old operation can be replayed only while its original generation
    remains absent/deleted; the replacement receives the same content-free 404
    as an unknown handle.
+9. Another process registers a handle after a failed writer's snapshot but
+   before compensation: rollback preserves the row only if it still matches
+   the restored active canonical boundary and generation.
 
 ## Controls
 
@@ -136,7 +143,8 @@ rollback, and disaster recovery remain S10 work.
 | Namespace/session replay | Principal-derived internal namespace; caller labels are suffixes only | Exact stored namespace inspection | None required; request sees an empty boundary | Two-principal replay matrix |
 | Identical-text overwrite | Principal namespace salts deterministic MIRL IDs | Two distinct namespaces and public IDs | Retry is safe inside each boundary | Same-content two-principal test |
 | Foreign/forged delete | Keyed `mem_` handles plus exact indexed tenant/ns/scope lookup | Foreign and unknown return identical content-free 404 | Owned record remains live | Foreign-vs-unknown test |
-| Legacy route bypass | Pre-router principal-mode guard returns 404 outside exact health/data method-path pairs | Route matrix, including wrong methods and slash variants | Reconfigure only by deliberate app restart | `/stats`, `/persist`, `/chat`, schema, redirect, rate-limit, and CORS tests |
+| Legacy route bypass | Pre-router principal-mode guard compares the ASGI routed path against exact health/data method-path pairs | Route matrix, including wrong methods, slash variants, and mounted prefixes | Reconfigure only by deliberate app restart | `/stats`, `/persist`, `/chat`, schema, redirect, rate-limit, CORS, and `root_path` tests |
+| Valid-credential resolver exhaustion | Credential-fingerprint budget is consumed before resolver invocation and retained after success | Resolver call count vs HTTP 429 sequence | Wait for the bounded window or rotate a deliberately provisioned credential | Repeated-valid-credential regression |
 | Idempotency collision | Lifecycle per-tenant uniqueness and operation fingerprint | HTTP 409 without internal IDs | Use a new caller key | Delete replay/conflict coverage |
 | Cleanup failure | Canonical soft delete commits before external cleanup; durable `cleanup_pending` | Recoverable-operation query and append-only events | Repeat same opaque deletion/resume lifecycle | Injected cleanup-failure test |
 | Unbounded handle resolution | Primary-key/composite-boundary handle index; max 50 IDs | No namespace `load_ir` on delete | Rebuild derived registrations through recall | Indexed-resolution regression |
@@ -144,7 +152,7 @@ rollback, and disaster recovery remain S10 work.
 | Stale handle deletes replacement | Handle row and lifecycle precondition carry the canonical generation | In-transaction generation mismatch refuses the operation | Recall the replacement to receive its new handle | Resolve-then-replace race test |
 | Stale recall publishes old capability | Registration checks an active record/generation under the runtime projection lock | Mismatch fails closed without registering a row | Retry recall against a current snapshot | Recall-registration and rollback-serialization race tests |
 | Pending cleanup erases replacement | Writes overlapping `planned`, `applying`, or `cleanup_pending` scoped deletion are rejected | Content-free 409 plus durable lifecycle state | Resume the original deletion, then re-remember | Pending-cleanup/reingest test |
-| Failed vector write loses handles | Runtime compensation snapshots and restores exact handle rows | Whole-table hash/row equality around injected failure | Retry the original persist | Compensation regression |
+| Failed vector write loses handles | Runtime compensation restores prior rows and preserves only concurrent rows valid against restored active canonical state | Whole-table hash/row equality plus spawned-process registration race | Retry the original persist | Compensation and cross-process registration regressions |
 
 ## Prompt, memory, and agent authority
 
@@ -174,9 +182,10 @@ rollback, and disaster recovery remain S10 work.
 - Context/candidates: recall at most 50; context at most 65,536 characters.
 - Authentication limiting: principal mode defaults to 60 requests/minute when
   configuration is unset or zero. Invalid/rotating credentials share a bounded
-  client-address pre-resolver bucket; successful subjects use stable per-
-  principal buckets. The limiter is process-local, so multi-worker launch is
-  refused unless an upstream shared limiter is explicitly acknowledged.
+  client-address pre-resolver bucket; each credential fingerprint has a
+  non-released resolver-invocation budget; successful subjects use stable
+  per-principal buckets. The limiter is process-local, so multi-worker launch
+  is refused unless an upstream shared limiter is explicitly acknowledged.
 - Memory/disk: O(number of returned/requested handles) per operation. The
   append-only derived handle projection can grow with newly rendered records;
   retention/compaction policy is residual S10 operational work.
@@ -228,6 +237,15 @@ rollback, and disaster recovery remain S10 work.
   collected and passed 175 tests; the follow-up CodeRabbit working-tree review
   returned no findings. Exact-head CI on the repaired commit remains the merge
   gate.
+- A second exact-head review of `921cfd0` found four more reproducible defects:
+  cross-process registration loss during projection rollback, a stale applied-
+  retry race, mounted `root_path` rejection, and unbounded resolver calls after
+  subject limiting. The fixes preserve only concurrent handle rows still valid
+  against restored canonical state, recheck replay generation inside the
+  lifecycle transaction, normalize the routed ASGI path, and retain a hashed
+  credential resolver budget. Four minimal regressions went red then green; the
+  expanded strict focused slice collected and passed 179 tests. CodeRabbit's
+  one minor spawned-process cleanup finding was repaired and reverified.
 - The canonical working-tree secret/session scan, whole-tree Ruff, active-Python
   compilation, dependency check, diff/audit checks, and continuity closeout are
   green. Signed publication, exact-head CI, and merge remain before this is

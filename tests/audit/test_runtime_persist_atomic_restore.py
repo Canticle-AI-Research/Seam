@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import multiprocessing
 import sqlite3
 import threading
 from contextlib import closing
@@ -65,6 +66,26 @@ class _BlockingDeleteMemoryAdapter(MemoryVectorAdapter):
         if not self.release.wait(timeout=5):
             raise RuntimeError("timed out waiting to release derived deletion")
         super().delete_records(record_ids)
+
+
+def _register_public_handle_in_process(
+    path: str,
+    tenant_id: str,
+    namespace: str,
+    handle_id: str,
+    record_id: str,
+    generation: str,
+) -> None:
+    runtime = SeamRuntime(path, allow_pgvector_env=False)
+    try:
+        runtime.register_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handles={handle_id: (record_id, generation)},
+        )
+    finally:
+        runtime.close()
 
 
 def _logical_table_hashes(path: Path) -> dict[str, str]:
@@ -1112,6 +1133,92 @@ def test_failed_reingest_restores_exact_public_memory_handle_rows(
         ) == {}
     finally:
         runtime.close()
+
+
+def test_failed_writer_preserves_concurrent_valid_handle_registration(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "runtime-concurrent-public-handle-restore.sqlite3"
+    model = _ToggleEmbeddingModel()
+    adapter = _BlockingFailingMemoryAdapter(model)
+    runtime_a = SeamRuntime(path, embedding_model=model, vector_adapter=adapter)
+    tenant_id = "principal:" + ("e" * 64)
+    namespace = f"{tenant_id}.sdk.default"
+    generation = "f" * 64
+    handle_id = "mem_" + ("1" * 24)
+    subject = MIRLRecord(
+        id="ent:concurrent-public-handle-subject",
+        kind=RecordKind.ENT,
+        ns=namespace,
+        scope="thread",
+        attrs={"label": "Concurrent public handle", "entity_type": "test"},
+    )
+    original = MIRLRecord(
+        id="clm:concurrent-public-handle",
+        kind=RecordKind.CLM,
+        ns=namespace,
+        scope="thread",
+        status=Status.ASSERTED,
+        attrs={
+            "subject": subject.id,
+            "predicate": "value",
+            "object": "original",
+        },
+        ext={"public_memory_generation": generation},
+    )
+    writer_a = MIRLRecord.from_dict(original.to_dict())
+    writer_a.attrs["object"] = "writer-a"
+    outcome: dict[str, object] = {}
+    writer: threading.Thread | None = None
+    process: multiprocessing.Process | None = None
+
+    def run_failed_writer() -> None:
+        try:
+            runtime_a.persist_ir(IRBatch([writer_a]))
+        except Exception as exc:  # noqa: BLE001 - capture thread outcome
+            outcome["error"] = exc
+
+    try:
+        runtime_a.persist_ir(IRBatch([subject, original]))
+        writer = threading.Thread(target=run_failed_writer)
+        writer.start()
+        assert adapter.entered.wait(timeout=5)
+
+        process = multiprocessing.get_context("spawn").Process(
+            target=_register_public_handle_in_process,
+            args=(
+                str(path),
+                tenant_id,
+                namespace,
+                handle_id,
+                original.id,
+                generation,
+            ),
+        )
+        process.start()
+        process.join(timeout=10)
+        assert not process.is_alive()
+        assert process.exitcode == 0
+        adapter.release.set()
+        writer.join(timeout=5)
+        assert not writer.is_alive()
+        assert isinstance(outcome.get("error"), RuntimeError)
+
+        assert runtime_a.store.resolve_public_memory_handles(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            handle_ids=[handle_id],
+        ) == {handle_id: (original.id, generation)}
+    finally:
+        adapter.release.set()
+        if process is not None:
+            if process.is_alive():
+                process.terminate()
+            process.join(timeout=5)
+        if writer is not None:
+            writer.join(timeout=5)
+        runtime_a.close()
 
 
 def test_vector_and_restore_failures_do_not_expose_canonical_ids(

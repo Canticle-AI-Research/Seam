@@ -28,6 +28,10 @@ class LifecycleOperationPendingError(RuntimeError):
     """Raised when a write overlaps unfinished lifecycle work."""
 
 
+class LifecycleStaleIncarnationError(RuntimeError):
+    """Raised when an applied delete retry no longer names the live incarnation."""
+
+
 @dataclass(frozen=True, slots=True)
 class BatchIngestItem:
     text: str
@@ -210,6 +214,7 @@ def apply_scoped_delete(
     actor: str,
     interrupt_after_intent: bool = False,
     delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+    require_current_incarnation: bool = False,
 ) -> dict[str, object]:
     """Soft-delete exact boundary-owned MIRL with a recoverable cleanup outbox."""
 
@@ -230,6 +235,16 @@ def apply_scoped_delete(
             raise ValueError("lifecycle tenant does not own operation namespace")
         latest = _latest_state(connection, operation_id)
         if latest == "applied":
+            if require_current_incarnation and not (
+                scoped_delete_retry_matches_current_incarnation(
+                    connection,
+                    tenant_id=tenant,
+                    operation_id=operation_id,
+                )
+            ):
+                raise LifecycleStaleIncarnationError(
+                    "scoped deletion no longer names the current incarnation"
+                )
             return _get_lifecycle_operation(connection, tenant, operation_id)
         if latest in {"failed", "refused"}:
             raise ValueError(f"cannot apply lifecycle operation in state {latest}")

@@ -2827,6 +2827,7 @@ class SQLiteStore:
         actor: str,
         interrupt_after_intent: bool = False,
         delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+        require_current_incarnation: bool = False,
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return apply_scoped_delete(
@@ -2836,6 +2837,7 @@ class SQLiteStore:
                 actor=actor,
                 interrupt_after_intent=interrupt_after_intent,
                 delete_derived_records=delete_derived_records,
+                require_current_incarnation=require_current_incarnation,
             )
 
     @retry_db_operation()

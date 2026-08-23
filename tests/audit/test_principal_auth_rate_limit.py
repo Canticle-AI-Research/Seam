@@ -100,6 +100,39 @@ def test_successful_principals_release_the_shared_client_reservation(
     assert bob.status_code == 200
 
 
+def test_subject_limit_blocks_repeated_valid_credential_before_resolver(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "valid-resolver-budget.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            responses = [
+                client.post(
+                    "/v1/memories/recall",
+                    json={"query": "resolver budget"},
+                    headers={"Authorization": "Bearer valid-token"},
+                )
+                for _ in range(3)
+            ]
+    finally:
+        runtime.close()
+
+    assert [response.status_code for response in responses] == [200, 429, 429]
+    assert resolver.credentials == ["valid-token"]
+
+
 def test_rotating_invalid_bearer_tokens_share_the_client_rate_limit(
     monkeypatch, tmp_path
 ) -> None:

@@ -302,6 +302,28 @@ def _principal_auth_failure_key(request: Any) -> str:
     ).hexdigest()
 
 
+def _principal_credential_key(credential: str) -> str:
+    return hashlib.sha256(
+        f"principal-credential\0{credential}".encode()
+    ).hexdigest()
+
+
+def _request_route_path(request: Any) -> str:
+    """Return the ASGI routing path without a deployment root prefix."""
+
+    path = request.scope.get("path")
+    if not isinstance(path, str) or not path.startswith("/"):
+        path = request.url.path
+    root_path = request.scope.get("root_path")
+    if isinstance(root_path, str) and root_path:
+        normalized_root = root_path.rstrip("/")
+        if path == normalized_root:
+            return "/"
+        if path.startswith(f"{normalized_root}/"):
+            return path[len(normalized_root) :]
+    return path
+
+
 class _RequestBodyTooLarge(Exception):
     pass
 
@@ -757,6 +779,10 @@ def create_app(
         effective_rate_limit,
         max_keys=rate_limit_max_keys,
     )
+    principal_credential_limiter = RateLimiter(
+        effective_rate_limit,
+        max_keys=rate_limit_max_keys,
+    )
     resolved_public_id_key = public_id_key
     if principal_mode:
         if resolved_public_id_key is None:
@@ -837,7 +863,7 @@ def create_app(
 
     def guard(request: Request, authorization: str | None = Header(default=None)) -> Any:
         if principal_mode:
-            if request.url.path not in principal_paths:
+            if _request_route_path(request) not in principal_paths:
                 enforce_rate_limit(request, _client_key(request))
                 raise HTTPException(status_code=404, detail="Not found")
             prefix = "Bearer "
@@ -845,6 +871,15 @@ def create_app(
                 authorization[len(prefix) :]
                 if authorization and authorization.startswith(prefix)
                 else ""
+            )
+            # Bound repeated use of one credential before invoking a resolver.
+            # This reservation intentionally remains consumed after success;
+            # unlike the client/IP rotation bucket below, it is the resolver-
+            # invocation budget for this credential fingerprint.
+            enforce_rate_limit(
+                request,
+                _principal_credential_key(credential),
+                selected_limiter=principal_credential_limiter,
             )
             auth_failure_key = _principal_auth_failure_key(request)
             # Reserve the client/IP attempt atomically before invoking a
@@ -891,7 +926,10 @@ def create_app(
 
     @app.middleware("http")
     async def enforce_principal_surface(request: Request, call_next: Any) -> Any:
-        if principal_mode and (request.method, request.url.path) not in principal_operations:
+        if principal_mode and (
+            request.method,
+            _request_route_path(request),
+        ) not in principal_operations:
             try:
                 enforce_rate_limit(request, _client_key(request))
             except HTTPException as exc:
