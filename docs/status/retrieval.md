@@ -82,10 +82,13 @@ claim citing a missing PROV and a PROV naming no entity/activity/agent, and
    discards score magnitude, while the legacy scorer preserves it; cat3 is the
    name-the-entity-from-clues category where one record is decisively right.
    Cheapest test is a free run preserving magnitude as a tiebreak.
-2. **ENT provenance is 0.0000.** Entities carry `prov` (compile lineage) but
-   empty `evidence`, so a retrieved entity cannot prove which span mentioned it
-   — even though the entity id encodes the source doc hash. Fixing it is a
-   `compile_nl` change that alters ingest output and every corpus digest.
+2. **The recorded ENT provenance measurement remains 0.0000; branch-local S7
+   repair exists.** On `track-s/s7-semantic-ingest`, `compile_nl` accumulates
+   the exact proposition SPAN for every entity mention, including repeated
+   mentions. Historical corpora still contain evidence-empty ENTs and every
+   affected corpus digest changes on re-ingest, so this is not a replacement
+   measurement or an S7 exit claim. Rebuild the native corpus and measure
+   retrieved ENT coverage before promotion.
 3. **`fusion_leg_weights` is UNVALIDATED** on a live graph leg — #509's arm C was
    confounded because the structural exclusion had already zeroed the leg. It
    ships an env var (`SEAM_RETRIEVAL_LEG_WEIGHTS`) and a policy fingerprint; do

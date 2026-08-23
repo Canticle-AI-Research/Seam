@@ -176,6 +176,17 @@ _PREFIX_KINDS = {
 
 _GRAPH_TERM_TOKEN_RE = re.compile(r"[^\W]+(?:[:-][^\W]+)*", re.UNICODE)
 _INDEXABLE_CONCEPT_KINDS = frozenset({"entity", "value", "agent", "symbol"})
+_ENTITY_TERM_STOPWORDS = frozenset(
+    {
+        "a", "an", "and", "are", "as", "at", "be", "by", "did", "do",
+        "does", "for", "from", "he", "her", "hers", "him", "his", "how",
+        "i", "in", "into", "is", "it", "its", "me", "my", "of", "on",
+        "or", "our", "ours", "she", "that", "the", "their", "theirs",
+        "them", "they", "this", "to", "us", "we", "what", "when",
+        "where", "which", "who", "why", "with", "without", "you", "your",
+        "yours",
+    }
+)
 
 
 def normalize_graph_term(value: object) -> str:
@@ -200,6 +211,13 @@ def _term_values(value: object) -> list[str]:
     return []
 
 
+def _admissible_entity_term(value: object) -> bool:
+    """Reject entity terms made entirely from closed-class stopwords."""
+
+    tokens = tokenize_graph_term(value)
+    return bool(tokens) and any(token not in _ENTITY_TERM_STOPWORDS for token in tokens)
+
+
 def _record_graph_terms(record: MIRLRecord, label: str) -> list[tuple[str, str]]:
     """Return explicit concept terms for a canonical MIRL node.
 
@@ -212,9 +230,14 @@ def _record_graph_terms(record: MIRLRecord, label: str) -> list[tuple[str, str]]
     attrs = record.attrs
     terms: list[tuple[str, str]] = []
     if record.kind == RecordKind.ENT:
-        terms.append((label, "canonical"))
+        if _admissible_entity_term(label):
+            terms.append((label, "canonical"))
         for key in ("alias", "aliases"):
-            terms.extend((value, "alias") for value in _term_values(attrs.get(key)))
+            terms.extend(
+                (value, "alias")
+                for value in _term_values(attrs.get(key))
+                if _admissible_entity_term(value)
+            )
     elif record.kind == RecordKind.SYM:
         for key, term_kind in (
             ("symbol", "symbol"),
@@ -233,6 +256,8 @@ def _record_graph_terms(record: MIRLRecord, label: str) -> list[tuple[str, str]]
 def _safe_reference_term(kind: str, label: str) -> bool:
     if kind not in _INDEXABLE_CONCEPT_KINDS:
         return False
+    if kind == "entity":
+        return _admissible_entity_term(label)
     if kind != "value":
         return True
     # Deterministic-floor CLMs store the full source turn as their object. A

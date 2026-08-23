@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 661
+total_events: 664
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-16T19:01:09Z | history:403:11d8ecbd | session-event | done | graph, memory, trust, provenance, webui, dashboard, retri... | seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py... |
-| 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
-| 2026-07-16T23:08:58Z | history:405:465cd643 | session-event | done | benchmark, locomo, merge, pgvector, analysis, levers, rec... | PROJECT_STATUS.md,HISTORY.md,seam_runtime/conversation.py,seam_runtime/vector... |
 | 2026-07-17T04:04:48Z | history:406:ed2e5617 | session-event | done | hygiene, gitignore, worktree, artifacts | .gitignore |
 | 2026-07-17T04:52:38Z | history:407:2a544db0 | session-event | done | roadmap, agent, openclaw, android, namespaces, planning | ROADMAP.md,PROJECT_STATUS.md |
 | 2026-07-17T04:59:20Z | history:408:324140f0 | session-event | done | benchmark, locomo, levers, answer-contract, exact-answer,... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T07:43:37Z | history:596:75761dda | session-event | done | correction, continuity, history, verify, audit | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
 | 2026-08-23T08:06:23Z | history:597:5125a974 | session-event | done | bugfix, security, ci, tests, audit, continuity, operator | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
 | 2026-08-23T08:24:16Z | history:598:fc770ef9 | session-event | done | ci, docs, handoff, status, continuity, operator, config, ... | PROJECT_STATUS.md,docs/status/workspace.md,docs/handoffs/2026-08-23-s6-github... |
+| 2026-08-23T18:15:22Z | history:599:50f3a10e | session-event | in-progress | compile, mirl, provenance, graph, retrieval, tests, verif... | seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity... |
+| 2026-08-23T18:16:25Z | history:600:9babbd39 | session-event | changed | correction, continuity, history, verify, tests, handoff | HISTORY.md,HISTORY_INDEX.md,docs/handoffs/2026-08-23-track-s-s7-entity-eviden... |
+| 2026-08-23T18:33:19Z | history:601:7033115f | session-event | in-progress | tests, verify, continuity, status, compile, mirl, provena... | seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0461.cross.md | 2026-04-15T00:00:00Z..2026-07-16T13:46:22Z | 461 | (multi) | (multi) |
+| 0001-0464.cross.md | 2026-04-15T00:00:00Z..2026-07-16T23:08:58Z | 464 | (multi) | (multi) |

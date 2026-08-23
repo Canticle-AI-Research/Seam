@@ -9,10 +9,12 @@
 
 ## Current headline
 
-**2026-08-23 — protected `main@1bb5adb` includes Track S S6 PR #223 and merged
-GitHub operations PR #224; S7 admissible semantic ingest is next.** Structured
-issue intake and guarded private-release preparation/publication are live. The
-governing reports are:
+**2026-08-23 — protected `main@1752532` contains finished Track S S6, and S7
+admissible semantic ingest is active on `track-s/s7-semantic-ingest`.** The
+first branch-local slice gives compiled entities exact mention evidence and
+rejects stopword-only entity terms while preserving multiword names. It is not
+yet protected-main behavior and does not complete S7. The governing reports
+are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and
@@ -30,11 +32,14 @@ open and no milestones; the forms establish intake, not a populated backlog.
 The repository has the admin-controlled `PRIVATE_RELEASE_APPROVER` variable,
 and no new issue, milestone, tag, release, or deployment was created during
 setup.
+The active S7 slice leaves temporal reconciliation, concurrent/as-of proof,
+same-name-person separation, frozen-corpus review, and a fresh retrieved-ENT
+coverage measurement open.
 S7-S10 stay dependency-ordered:
 
 ```text
 S6 principal tenancy published
-  -> S7 admissible semantic graph
+  -> S7 admissible semantic graph (in progress, branch-local)
   -> S8 one coherent retrieval engine
   -> S9 matched multi-benchmark qualification
   -> S10 required CI, release, and deployment proof

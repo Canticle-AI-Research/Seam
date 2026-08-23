@@ -410,6 +410,11 @@ truth deterministically, and make entity evidence retrieval-grade.
 **Findings:** F5, F12, F15.
 **Dependencies:** S3, S4, and S6.
 
+**Status (2026-08-23): in progress, branch-local.** The first
+`track-s/s7-semantic-ingest` slice gives compiled ENTs exact repeated-mention
+SPAN evidence and rejects stopword-only graph identity terms without breaking
+multiword names. It does not close the exit gate below; see HISTORY#601.
+
 **Exit gate (all required):**
 
 - Every admitted REL carries exact SPAN-to-RAW proof; unknown predicates never

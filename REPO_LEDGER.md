@@ -297,6 +297,14 @@ and `HISTORY_INDEX.md`.
   `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; benchmarks qualify completed graph
   stages but do not gate construction of missing graph substrate. See
   HISTORY#454.
+- Track S S7 makes entity admission evidence-bearing rather than label-only.
+  The compiler accumulates each observed mention's exact proposition SPAN on
+  the turn-local canonical ENT, so repeated mentions retain every source
+  location. Entity identity terms made entirely from a closed stopword set are
+  excluded from the rebuildable graph index while multiword names remain
+  intact. This is branch-local substrate, not proof of full S7 entity quality:
+  cross-turn same-name separation and a frozen independently reviewed corpus
+  remain required. See HISTORY#601.
 - The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
   parallel truth store. Explicit facets and already-present MIRL fields may
   project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing

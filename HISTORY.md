@@ -19566,3 +19566,63 @@ Next: publish this documentation-only closeout through its own protected PR,
 then begin S7 only from the verified protected-main successor containing the
 new handoff.
 ---END-ENTRY-#598---
+
+---BEGIN-ENTRY-#599---
+id: 599
+date: 2026-08-23T18:15:22Z
+agent: codex-gpt-5
+status: in-progress
+topics: compile, mirl, provenance, graph, retrieval, tests, verify, handoff, continuity, status
+commits: pending
+refs: seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity_evidence.py,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/status/retrieval.md,docs/status/workspace.md,docs/handoffs/2026-08-23-track-s-s7-entity-evidence-in-progress.md
+supersedes: 598
+tokens: 600
+---
+Confirmed Track S S6 is finished before opening S7. Live GitHub state shows PR #223 merged at `abd2a597a73b63dd5bf6af59f419abbd5c7fd67f`; its exact source head `fbefb81317bb4256ab5de77ce62760bb77a7a091` passed the required `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` checks and is an ancestor of protected `origin/main@1752532d62369739129b4a9c4aae6f43a79e0992`. Reused the clean former S6 worktree and switched it to new branch `track-s/s7-semantic-ingest` at that exact protected head. The primary `research/advanced-persistence-landscape` checkout and its unrelated untracked operator assets were preserved unchanged.
+
+Started S7 with one coherent entity-evidence slice. `compile_nl` now attaches each admitted entity mention to its exact containing proposition SPAN and accumulates distinct evidence spans when the same turn-local entity is mentioned repeatedly. The graph identity projection rejects canonical or alias entity terms composed entirely of closed-class stopwords while preserving multiword names. New audit tests prove complete persisted SPAN-to-RAW resolution for compiled ENTs, repeated-mention evidence retention, stopword-only rejection, and multiword-term survival. This changes compiler output and corpus digests; historical corpora remain evidence-empty and the recorded retrieved-ENT result remains 0.0000 until rebuild and remeasurement.
+
+The new tests were run before implementation and failed in all three intended places: compiled ENTs had no evidence, repeated entities retained zero mention spans, and `we` entered `knowledge_node_terms`. After implementation, `tests/audit/test_s7_entity_evidence.py` passed 3 tests. The adjacent provenance, entity-coreference, knowledge-graph, relation qualification/ingest, conversation compiler, persistence concurrency, and NL fidelity slice collected 173 tests and passed. Ruff on the three changed Python files and `git diff --check` passed. The linked worktree has no local `.venv`; the first local-venv context-pack command failed for that reason, after which all Python commands used the unchanged primary checkout environment at `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python` with `PYTHONPATH=.`.
+
+S7 remains in progress. No test-vs-implementation mismatch or undefined symbol is known. The next agent should first run the focused S7/audit slice, then implement and counterexample-test functional versus multivalued predicate policy and older/newer/equal/missing-time reconciliation. Same-name-person separation, concurrency/idempotency/as-of proof, a frozen independently reviewed native entity/relation corpus, and fresh retrieved-ENT coverage remain mandatory. S8 must not start before those S7 exit gates close.
+---END-ENTRY-#599---
+
+---BEGIN-ENTRY-#600---
+id: 600
+date: 2026-08-23T18:16:25Z
+agent: codex-gpt-5
+status: changed
+topics: correction, continuity, history, verify, tests, handoff
+commits: pending
+refs: HISTORY.md,HISTORY_INDEX.md,docs/handoffs/2026-08-23-track-s-s7-entity-evidence-in-progress.md,docs/handoffs/INDEX.md
+supersedes: 599
+tokens: 347
+---
+Supersedes HISTORY#599's unscoped combined test-count sentence. The implementation and S7 boundary are unchanged; this entry records the verification with exact path scopes so the result is auditable.
+
+`PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest tests/audit/test_s7_entity_evidence.py tests/audit/test_provenance_chain.py tests/audit/test_entity_coreference.py tests/audit/test_knowledge_graph.py tests/audit/test_relation_extraction_qualification.py tests/audit/test_relation_extraction_ingest.py -q` passed 92 tests.
+
+`PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest tests/audit/test_conversation_turn_compile.py tests/audit/test_persist_ir_concurrency.py tests/fidelity/test_nl_extract.py -q` passed 81 tests. A separate collect-only command over those same nine exact modules succeeded. `PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m ruff check seam_runtime/nl.py seam_runtime/knowledge_graph.py tests/audit/test_s7_entity_evidence.py` and `git diff --check` passed.
+
+The initial closeout for HISTORY#599 appended the entry, rebuilt the history index/mirror/cross-index, wrote snapshot `20260823-181530-871293-codex-gpt-5.json`, and passed integrity, routing, and handoff verification. Continuity then failed only because HISTORY#599 stated the combined test count without pytest path scope. No gate is reported green beyond that failure point. Rebuild the derived chain and rerun every required gate after this correction.
+---END-ENTRY-#600---
+
+---BEGIN-ENTRY-#601---
+id: 601
+date: 2026-08-23T18:33:19Z
+agent: codex-gpt-5
+status: in-progress
+topics: tests, verify, continuity, status, compile, mirl, provenance, graph, retrieval, handoff
+commits: pending
+refs: seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity_evidence.py,docs/handoffs/2026-08-23-track-s-s7-entity-evidence-in-progress.md
+supersedes: 600
+tokens: 327
+---
+Supersedes HISTORY#600 with the completed broad regression boundary; the S7 implementation and open campaign gates are unchanged.
+
+The first broad command, `PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -m "not external" -q`, failed. The failures were environmental: the retained worktree contains a pre-existing ignored `seam.db` last modified on 2026-08-19 whose `core-storage/4` public-handle schema is stale, and the operator shell exports `SEAM_PGVECTOR_DSN`. Default-path CLI/MCP tests opened that stale database, while `test_seam_all` quickstart paths inherited the pgvector adapter and failed projection. This failed run is not reported as product evidence. The pre-existing database was preserved.
+
+The isolated rerun passed: `env -u SEAM_PGVECTOR_DSN SEAM_DB_PATH=/tmp/seam-s7-broad-20260823/seam.db PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -m "not external" -q`. This exercises the complete non-external pytest lane against a fresh database without the external pgvector service. The previously recorded focused 92-test and 81-test scopes remain green and provide the direct touched-module evidence.
+
+S7 remains in progress. The branch still must prove deterministic temporal reconciliation, concurrency/idempotency/as-of behavior, same-name-person separation, frozen-corpus independent review, and fresh retrieved-ENT coverage before S7 can be marked complete or S8 can start.
+---END-ENTRY-#601---
