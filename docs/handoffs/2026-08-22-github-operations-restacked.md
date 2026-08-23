@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#593
+history: HISTORY#594
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -82,13 +82,17 @@ history: HISTORY#593
   identity, UTF-16 secret scanning, safe archive-read failures, concatenated
   token/auth stems, complete Windows-invalid character rejection, and README
   documentation for both guarded stages.
+- The seventh exact-head review added token-store/cache prefixes, Windows
+  control characters, exact wheel dist-info binding, container-level archive
+  scanning, silent checksums, prerelease classification binding, guarded-flow
+  completion messaging, and operator plus post-publication immutability gates.
 
 ## Next exact steps
 
-HISTORY#592, its signed review-repair commits, exact candidate scan, initial
+HISTORY#593, its signed review-repair commits, exact candidate scan, initial
 required checks, and the prior review cycles are complete. Continue with:
 
-1. Push the completed sixth exact-head review-repair successor.
+1. Push the completed seventh exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

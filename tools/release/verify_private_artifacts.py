@@ -66,6 +66,7 @@ _DENIED_COLLAPSED_FILENAME_SUFFIXES = (
     "token",
     "tokens",
 )
+_SAFE_TOKEN_CODE_STEMS = frozenset({"tokenization", "tokenizer", "tokenizers"})
 _WINDOWS_RESERVED_BASENAMES = frozenset(
     {"aux", "clock$", "con", "nul", "prn"}
     | {f"com{index}" for index in range(1, 10)}
@@ -104,6 +105,8 @@ def _validate_member_path(
         return f"{archive.name}:{member_ref}: unsafe_member_path"
     if any(part.endswith((".", " ")) for part in member.parts):
         return f"{archive.name}:{member_ref}: unsafe_member_path"
+    if any(any(ord(char) < 32 for char in part) for part in member.parts):
+        return f"{archive.name}:{member_ref}: unsafe_member_path"
     if any(any(char in _WINDOWS_FORBIDDEN_CHARACTERS for char in part) for part in member.parts):
         return f"{archive.name}:{member_ref}: unsafe_member_path"
     if any(
@@ -128,6 +131,8 @@ def _validate_member_path(
         filename_words & _DENIED_FILENAME_WORDS
         or collapsed_stem.startswith("oauth") and collapsed_stem[5:].isdigit()
         or collapsed_stem.endswith(_DENIED_COLLAPSED_FILENAME_SUFFIXES)
+        or collapsed_stem.startswith(("oauth", "token"))
+        and collapsed_stem not in _SAFE_TOKEN_CODE_STEMS
     ):
         return f"{archive.name}:{member_ref}: credential_path"
     if any(part in {"secrets", "credentials"} for part in lowered_parts[:-1]):
@@ -142,6 +147,22 @@ def _scan_member(archive: Path, member_ref: str, content: bytes) -> list[str]:
         f"{archive.name}:{finding.path}:{finding.line}: {finding.kind}"
         for finding in scan_bytes(member_ref, content, include_binary=True)
     ]
+
+
+def _scan_container_bytes(path: Path) -> list[str]:
+    findings: list[str] = []
+    overlap = b""
+    chunk_number = 0
+    try:
+        with path.open("rb") as stream:
+            while chunk := stream.read(MAX_SCAN_BYTES - len(overlap)):
+                chunk_number += 1
+                content = overlap + chunk
+                findings.extend(_scan_member(path, f"container[{chunk_number}]", content))
+                overlap = content[-4096:]
+    except OSError:
+        findings.append(f"{path.name}: unreadable_artifact_container")
+    return findings
 
 
 def _has_archive_magic(header: bytes) -> bool:
@@ -174,7 +195,7 @@ def _content_gate(
 
 
 def _scan_wheel(path: Path) -> list[str]:
-    findings: list[str] = []
+    findings = _scan_container_bytes(path)
     seen: set[str] = set()
     try:
         with zipfile.ZipFile(path) as archive:
@@ -211,7 +232,7 @@ def _scan_wheel(path: Path) -> list[str]:
 
 
 def _scan_sdist(path: Path) -> list[str]:
-    findings: list[str] = []
+    findings = _scan_container_bytes(path)
     seen: set[str] = set()
     try:
         with tarfile.open(path, mode="r:gz") as archive:
@@ -262,8 +283,14 @@ def _scan_wheel_identity(path: Path, expected_name: str, expected_version: str) 
             findings.append(f"{path.name}: artifact_name_mismatch")
         if canonicalize_version(str(version)) != canonicalize_version(expected_version):
             findings.append(f"{path.name}: artifact_version_mismatch")
+        wheel_parts = path.name.removesuffix(".whl").split("-")
+        expected_metadata_path = f"{wheel_parts[0]}-{wheel_parts[1]}.dist-info/METADATA"
         with zipfile.ZipFile(path) as archive:
-            metadata_members = [info for info in archive.infolist() if info.filename.endswith(".dist-info/METADATA")]
+            metadata_members = [
+                info
+                for info in archive.infolist()
+                if info.filename == expected_metadata_path
+            ]
             if len(metadata_members) != 1:
                 return [*findings, f"{path.name}: expected_one_metadata_member"]
             with archive.open(metadata_members[0]) as stream:

@@ -19373,3 +19373,36 @@ library is a direct bounded release-test dependency rather than a transitive
 assumption. No issue, milestone, tag, release, deployment, or paid external
 operation was created.
 ---END-ENTRY-#593---
+
+---BEGIN-ENTRY-#594---
+id: 594
+date: 2026-08-23T07:04:24Z
+agent: Codex
+status: done
+topics: harden, security, tests, ci, docs, continuity
+commits: 7a2145d
+refs: HISTORY#593,PR#224,.github/workflows/package-release.yml,.github/workflows/publish-private-release.yml,.github/RELEASE_CHECKLIST.md,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,README.md,REPO_LEDGER.md,docs/status/operations.md,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 593
+tokens: 249
+---
+Seventh exact-head review repairs are complete on PR #224. Credential filename
+handling now rejects token/OAuth store and cache prefixes while preserving the
+runtime's known tokenization code names. Windows control characters fail closed,
+wheel identity requires the exact filename-derived dist-info metadata path, and
+bounded overlapping scans cover ZIP comments and unreferenced/appended archive
+bytes. The guarded publish workflow validates safe artifact identity before any
+checksum command, uses silent checksum status, binds prerelease classification,
+and directs preparation completion only to the guarded follow-up.
+
+GitHub does not expose the repository immutability setting in the documented
+REST repository schema. The checklist and workflow therefore require explicit
+operator confirmation from repository settings before publication, then verify
+the live published release `immutable` flag and remove the release/tag if the
+invariant is not honored.
+
+The eight reviewed counterexamples are covered by the focused audit. After the
+repairs, 42 secret-scan/configuration cases pass, Ruff and both embedded Bash
+syntax checks pass, and the real 2.4.0 wheel/sdist still pass the hardened
+identity/container verifier and twine check. No issue, milestone, tag, release,
+deployment, or paid external operation was created.
+---END-ENTRY-#594---

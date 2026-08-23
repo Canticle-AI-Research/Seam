@@ -229,4 +229,4 @@ jobs:
             --notes "Private proprietary SEAM runtime release ${VERSION}." \
             --generate-notes
           draft_complete=true
-          echo "Draft v${VERSION} created. Review its generated notes and manually publish it only after checklist approval."
+          echo "Draft v${VERSION} created. Review it, then dispatch Publish reviewed private release; do not publish it directly."

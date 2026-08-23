@@ -504,8 +504,10 @@ After an operator reviews the draft notes and assets, the separate manual
 requires their notes/manifest digests and the exact tagged commit. Its protected
 environment gate revalidates current main, tag type/target, artifact identity,
 complete checksum coverage, packaged content, notes, and unchanged draft state
-immediately before publication. Do not publish the draft directly from the
-release page.
+immediately before publication. The operator must first confirm repository
+release immutability is enabled; the workflow verifies the published result and
+removes a mutable release/tag if that invariant is not honored. Do not publish
+the draft directly from the release page.
 
 Use the [private release checklist](.github/RELEASE_CHECKLIST.md) from proposal
 through post-publication verification.

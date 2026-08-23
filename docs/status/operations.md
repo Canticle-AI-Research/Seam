@@ -38,7 +38,9 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   rechecks its type/target, reviewed manifest and notes digests, exact checksum
   coverage, downloaded artifact identity/content, notes scan, unchanged draft
   state, and the live protected head immediately before publishing the
-  immutable release. It has no PyPI target or OIDC publication permission.
+  release. It requires an operator immutability-setting confirmation and then
+  verifies the published immutable flag, removing a mutable release/tag on
+  failure. It has no PyPI target or OIDC publication permission.
 
 ## Track S operating state
 

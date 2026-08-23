@@ -19,6 +19,11 @@ on:
         description: SHA256 of the reviewed generated release notes
         required: true
         type: string
+      immutability_confirmed:
+        description: I verified release immutability is enabled in repository settings
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -51,6 +56,7 @@ jobs:
           EXPECTED_SHA: ${{ inputs.commit_sha }}
           EXPECTED_MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
           EXPECTED_NOTES_SHA256: ${{ inputs.notes_sha256 }}
+          IMMUTABILITY_CONFIRMED: ${{ inputs.immutability_confirmed }}
           WORKFLOW_SHA: ${{ github.sha }}
         run: |
           python - <<'PY'
@@ -76,6 +82,11 @@ jobs:
               raise SystemExit("notes_sha256 must be one full hexadecimal SHA256 digest.")
           PY
 
+          if [[ "${IMMUTABILITY_CONFIRMED}" != "true" ]]; then
+            echo "Repository release immutability must be verified before publication." >&2
+            exit 1
+          fi
+
           current_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
           if [[ "${current_sha}" != "${WORKFLOW_SHA}" ]]; then
             echo "Publish workflow must run from the current protected-main head." >&2
@@ -92,9 +103,19 @@ jobs:
             exit 1
           fi
           release_state_before="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" \
-            --jq '[.id, .draft, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
+            --jq '[.id, .draft, .prerelease, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
           if [[ "$(gh release view "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --json isDraft --jq '.isDraft')" != "true" ]]; then
             echo "Release v${VERSION} is not an unpublished draft." >&2
+            exit 1
+          fi
+          expected_prerelease=false
+          version_without_build="${VERSION%%+*}"
+          if [[ "${version_without_build}" == *-* ]]; then
+            expected_prerelease=true
+          fi
+          release_prerelease="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" --jq '.prerelease')"
+          if [[ "${release_prerelease}" != "${expected_prerelease}" ]]; then
+            echo "Reviewed prerelease classification changed; refusing publication." >&2
             exit 1
           fi
 
@@ -105,14 +126,31 @@ jobs:
             exit 1
           fi
           python - <<'PY'
+          import os
           import re
           from pathlib import Path
+
+          from packaging.utils import canonicalize_name, canonicalize_version, parse_sdist_filename, parse_wheel_filename
 
           assets = sorted(path.name for path in Path("draft-assets").iterdir() if path.is_file())
           wheels = [name for name in assets if name.endswith(".whl")]
           sdists = [name for name in assets if name.endswith(".tar.gz")]
           if len(wheels) != 1 or len(sdists) != 1 or assets != sorted([*wheels, *sdists, "SHA256SUMS.txt"]):
               raise SystemExit("Unexpected draft asset set.")
+          try:
+              wheel_name, wheel_version, _build, _tags = parse_wheel_filename(wheels[0])
+              sdist_name, sdist_version = parse_sdist_filename(sdists[0])
+          except Exception:
+              raise SystemExit("Unexpected draft artifact identity.") from None
+          expected_name = canonicalize_name("seam-runtime")
+          expected_version = canonicalize_version(os.environ["VERSION"])
+          if (
+              canonicalize_name(wheel_name) != expected_name
+              or canonicalize_name(sdist_name) != expected_name
+              or canonicalize_version(str(wheel_version)) != expected_version
+              or canonicalize_version(str(sdist_version)) != expected_version
+          ):
+              raise SystemExit("Unexpected draft artifact identity.")
           manifest_lines = Path("draft-assets/SHA256SUMS.txt").read_text(encoding="utf-8").splitlines()
           manifest_names = []
           for line in manifest_lines:
@@ -128,7 +166,7 @@ jobs:
             echo "Reviewed SHA256SUMS.txt digest changed; refusing publication." >&2
             exit 1
           fi
-          (cd draft-assets && sha256sum --check SHA256SUMS.txt)
+          (cd draft-assets && sha256sum --status --check SHA256SUMS.txt)
           python -m tools.release.verify_private_artifacts \
             --expected-name seam-runtime \
             --expected-version "${VERSION}" \
@@ -158,9 +196,14 @@ jobs:
             --jq 'if .object.type == "commit" then .object.sha else error("annotated release tags are not accepted") end')"
           final_main_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
           release_state_after="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" \
-            --jq '[.id, .draft, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
+            --jq '[.id, .draft, .prerelease, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
           if [[ "${final_main_sha}" != "${EXPECTED_SHA,,}" || "${final_tag_sha}" != "${EXPECTED_SHA,,}" || "${release_state_after}" != "${release_state_before}" ]]; then
             echo "Draft state changed during verification; refusing publication." >&2
             exit 1
           fi
           gh release edit "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --draft=false
+          if [[ "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" --jq '.immutable')" != "true" ]]; then
+            echo "Published release is not immutable; removing the mutable release and tag." >&2
+            gh release delete "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag --yes >/dev/null 2>&1 || true
+            exit 1
+          fi

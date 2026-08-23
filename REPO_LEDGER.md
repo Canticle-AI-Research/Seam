@@ -140,7 +140,9 @@ and `HISTORY_INDEX.md`.
   rechecks the lightweight tag, reviewed manifest and notes digests, exact
   checksum coverage, downloaded artifact name/version metadata and content,
   notes secret scan, unchanged draft fingerprint, and live protected head
-  immediately before publication. A
+  immediately before publication. The operator must attest the live repository
+  immutability setting, and the follow-up verifies the published release's
+  immutable flag or removes the mutable release/tag. A
   failed attempt removes only its exact unpublished draft/tag, while ambiguous
   or already-published state is left for operator review. Prerelease SemVer is
   marked as a GitHub prerelease. It has no PyPI target, public publish step, or

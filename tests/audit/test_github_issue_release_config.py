@@ -123,15 +123,19 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "git/ref/tags/v${VERSION}" in follow_up_raw
     assert "EXPECTED_SHA" in follow_up_raw
     assert "EXPECTED_NOTES_SHA256" in follow_up_raw
+    assert "IMMUTABILITY_CONFIRMED" in follow_up_raw
     assert '${EXPECTED_SHA,,}' in follow_up_raw
     assert '.object.type == "commit"' in follow_up_raw
     assert "current protected-main head" in follow_up_raw
     assert "gh release download" in follow_up_raw
-    assert "sha256sum --check" in follow_up_raw
+    assert "sha256sum --status --check" in follow_up_raw
     assert "tools.release.verify_private_artifacts" in follow_up_raw
     assert "--expected-name seam-runtime" in follow_up_raw
     assert "SHA256SUMS.txt must cover exactly" in follow_up_raw
     assert "final_main_sha" in follow_up_raw
+    assert "sha256sum --status --check" in follow_up_raw
+    assert ".prerelease" in follow_up_raw
+    assert ".immutable" in follow_up_raw
     assert "include_binary=True" in follow_up_raw
     assert "gh release edit" in follow_up_raw
 
@@ -221,6 +225,20 @@ def test_private_artifact_verifier_binds_distribution_identity(tmp_path: Path) -
     assert sum("version_mismatch" in finding for finding in findings) == 4
 
 
+def test_private_artifact_verifier_binds_wheel_metadata_directory(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    metadata = b"Metadata-Version: 2.4\nName: seam-runtime\nVersion: 2.5.0\n\n"
+    _write_wheel(wheel, {"other-1.0.dist-info/METADATA": metadata})
+    _write_sdist(sdist, {"seam_runtime-2.5.0/PKG-INFO": metadata})
+
+    findings = verify_artifacts(
+        [wheel, sdist], expected_name="seam-runtime", expected_version="2.5.0"
+    )
+
+    assert any("expected_one_metadata_member" in finding for finding in findings)
+
+
 def test_private_artifact_verifier_rejects_secret_and_unsafe_paths(tmp_path: Path) -> None:
     wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
     sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
@@ -260,6 +278,18 @@ def test_private_artifact_verifier_scans_utf16_members(
     assert any("api_key" in finding for finding in verify_artifacts([wheel, sdist]))
 
 
+def test_private_artifact_verifier_scans_unreferenced_container_bytes(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    secret = ("sk-" + "proj-" + "f" * 24).encode()
+    _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
+    with wheel.open("ab") as stream:
+        stream.write(secret)
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    assert any("api_key" in finding for finding in verify_artifacts([wheel, sdist]))
+
+
 def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
     tmp_path: Path,
 ) -> None:
@@ -277,6 +307,8 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
             "seam_runtime/auth.json": b'{"auth":"ordinary-password-value"}\n',
             "seam_runtime/oauth2.json": b'{"access_token":"ordinary-password-value"}\n',
             "seam_runtime/authtoken.json": b'{"access_token":"ordinary-password-value"}\n',
+            "seam_runtime/tokenstore.json": b'{"access_token":"ordinary-password-value"}\n',
+            "seam_runtime/oauthcache.json": b'{"access_token":"ordinary-password-value"}\n',
             "C:/credentials.json": b"placeholder\n",
         },
     )
@@ -284,7 +316,7 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
 
     findings = verify_artifacts([wheel, sdist])
 
-    assert sum("credential_path" in finding for finding in findings) >= 9
+    assert sum("credential_path" in finding for finding in findings) >= 11
     assert any("unsafe_member_path" in finding for finding in findings)
 
 
@@ -370,6 +402,15 @@ def test_private_artifact_verifier_rejects_windows_invalid_characters(
         wheel,
         {f"seam_runtime/webui/foo{invalid_character}.txt": b"unsafe\n"},
     )
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
+
+
+def test_private_artifact_verifier_rejects_windows_control_characters(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    _write_wheel(wheel, {"seam_runtime/foo\x01.txt": b"unsafe\n"})
     _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
 
     assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
