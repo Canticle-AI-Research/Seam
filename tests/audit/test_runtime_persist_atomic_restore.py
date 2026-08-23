@@ -1060,7 +1060,7 @@ def test_failed_reingest_restores_exact_public_memory_handle_rows(
         kind=RecordKind.CLM,
         ns=namespace,
         scope="thread",
-        status=Status.DELETED_SOFT,
+        status=Status.ASSERTED,
         attrs={
             "subject": subject.id,
             "predicate": "value",
@@ -1080,6 +1080,9 @@ def test_failed_reingest_restores_exact_public_memory_handle_rows(
             scope="thread",
             handles={handle_id: (original.id, original_generation)},
         )
+        deleted_original = MIRLRecord.from_dict(original.to_dict())
+        deleted_original.status = Status.DELETED_SOFT
+        runtime.persist_ir(IRBatch([deleted_original]))
         before_record = runtime.store.load_ir(ids=[original.id]).records[0].to_dict()
         with sqlite3.connect(path) as connection:
             before_handles = connection.execute(
@@ -1106,7 +1109,7 @@ def test_failed_reingest_restores_exact_public_memory_handle_rows(
             namespace=namespace,
             scope="thread",
             handle_ids=[handle_id],
-        ) == {handle_id: (original.id, original_generation)}
+        ) == {}
     finally:
         runtime.close()
 

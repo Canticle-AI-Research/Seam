@@ -6,12 +6,15 @@ from pathlib import Path
 
 import pytest
 
+from seam_runtime.public_api import StaticPrincipalResolver
+from seam_runtime.runtime import SeamRuntime
 from seam_runtime.server import (
     _DEFAULT_PRINCIPAL_RATE_LIMIT_PER_MINUTE,
     _effective_rate_limit,
     _factory_server_settings,
     _is_remote_bind,
     _validate_server_safety,
+    create_app,
 )
 
 
@@ -35,6 +38,48 @@ class TestRemoteBindSafety:
 
         with pytest.raises(RuntimeError, match="rate limiting is process-local"):
             _validate_server_safety(host="127.0.0.1", workers=2)
+
+    def test_injected_principal_resolver_requires_explicit_worker_topology(
+        self, monkeypatch, tmp_path
+    ):
+        monkeypatch.delenv("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT", raising=False)
+        runtime = SeamRuntime(tmp_path / "injected-worker-topology.db")
+        resolver = StaticPrincipalResolver({"token": "account/alice"})
+        try:
+            with pytest.raises(RuntimeError, match="explicit process_workers"):
+                create_app(
+                    runtime,
+                    principal_resolver=resolver,
+                    public_id_key=b"injected-worker-public-id-key-32-bytes",
+                )
+            with pytest.raises(RuntimeError, match="rate limiting is process-local"):
+                create_app(
+                    runtime,
+                    principal_resolver=resolver,
+                    public_id_key=b"injected-worker-public-id-key-32-bytes",
+                    process_workers=2,
+                )
+        finally:
+            runtime.close()
+
+    def test_environment_principal_mode_validates_declared_workers(
+        self, monkeypatch, tmp_path
+    ):
+        monkeypatch.setenv("SEAM_API_TOKEN", "environment-token")
+        monkeypatch.setenv("SEAM_API_PRINCIPAL", "account/alice")
+        monkeypatch.setenv(
+            "SEAM_API_PUBLIC_ID_KEY",
+            "environment-public-id-key-32-bytes",
+        )
+        monkeypatch.delenv("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT", raising=False)
+        runtime = SeamRuntime(tmp_path / "environment-worker-topology.db")
+        try:
+            with pytest.raises(RuntimeError, match="explicit process_workers"):
+                create_app(runtime)
+            with pytest.raises(RuntimeError, match="rate limiting is process-local"):
+                create_app(runtime, process_workers=2)
+        finally:
+            runtime.close()
 
     @pytest.mark.parametrize("workers", [0, -1, True])
     def test_non_positive_or_boolean_worker_count_is_rejected(self, workers, monkeypatch):

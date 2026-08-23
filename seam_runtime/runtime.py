@@ -723,6 +723,24 @@ class SeamRuntime:
             record_generations=record_generations,
         )
 
+    def register_public_memory_handles(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        scope: str,
+        handles: dict[str, tuple[str, str]],
+    ) -> None:
+        """Serialize recall capability publication with write compensation."""
+
+        with self._persist_projection_lock:
+            self.store.register_public_memory_handles(
+                tenant_id=tenant_id,
+                namespace=namespace,
+                scope=scope,
+                handles=handles,
+            )
+
     def apply_scoped_delete(
         self,
         *,

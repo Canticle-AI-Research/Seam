@@ -1,6 +1,6 @@
 # Track S S6 principal-tenancy threat-model delta
 
-**Date:** 2026-08-19; candidate requalified 2026-08-22
+**Date:** 2026-08-19; candidate requalified and review-repaired 2026-08-22
 **Scope:** optional in-process principal binding, opaque public deletion, and
 the indexed public-handle projection
 **Baseline:** protected `main@a177852`
@@ -14,8 +14,9 @@ self-host behavior. A configured principal is resolved from a bearer credential
 inside the process, hashed into an internal tenant identity, and combined with
 the caller's namespace/session labels. The labels can select only inside that
 principal. Principal mode serves the opaque `/v1` memory routes and health
-checks; older private data routes return 404 rather than retaining the shared-
-token bypass.
+checks. A pre-router allowlist returns the same rate-limited 404 for older
+private routes, wrong methods, and slash variants while retaining CORS
+preflight handling.
 
 Recall/context register every returned `mem_` handle plus its canonical
 generation in a versioned indexed projection before sending the response.
@@ -34,14 +35,17 @@ rollback, and disaster recovery remain S10 work.
 
 ## Changed entrypoints and boundaries
 
-- `create_app(..., principal_resolver=..., public_id_key=...)` is the hosted
+- `create_app(..., principal_resolver=..., public_id_key=...,
+  process_workers=<exact-count>)` is the hosted
   authentication adapter seam. `SEAM_API_PRINCIPAL` can bind the existing
   `SEAM_API_TOKEN` to one stable subject for a single-principal deployment.
 - `POST /v1/memories`, `/v1/memories/recall`, `/v1/context`, and
   `/v1/memories/delete` receive the resolved principal as a dependency.
-- Principal mode disables legacy private data routes and generated API docs in
-  process. `GET/HEAD /health` and `/v1/health` remain rate-limited service
-  probes without memory access.
+- Principal mode disables legacy private data routes and generated API docs
+  before router matching. `GET/HEAD /health` and `/v1/health` remain
+  rate-limited service probes without memory access, and `OPTIONS` remains
+  available only for the four public data routes so CORS middleware can answer
+  valid preflights.
 - Recall/context now write a disposable `public_memory_handle` projection,
   including the canonical generation, before returning opaque memory IDs. Core
   storage advances through the exact registered `core-storage/3 ->
@@ -96,6 +100,8 @@ rollback, and disaster recovery remain S10 work.
     capability after the replacement commits.
 11. A caller re-adds a record while an older delete is `cleanup_pending`, so
     resumed external cleanup could otherwise erase the replacement vector.
+12. A deployment under-declares its process worker count so the process-local
+    limiter is mistaken for shared enforcement.
 
 ## Partial-failure cases
 
@@ -118,6 +124,10 @@ rollback, and disaster recovery remain S10 work.
 7. Vector publication fails after canonical/handle mutation: runtime
    compensation restores the exact prior canonical, vector-outbox, and handle
    rows before surfacing the failure.
+8. A caller retries an old deletion key after re-ingesting the same canonical
+   record: the old operation can be replayed only while its original generation
+   remains absent/deleted; the replacement receives the same content-free 404
+   as an unknown handle.
 
 ## Controls
 
@@ -126,13 +136,13 @@ rollback, and disaster recovery remain S10 work.
 | Namespace/session replay | Principal-derived internal namespace; caller labels are suffixes only | Exact stored namespace inspection | None required; request sees an empty boundary | Two-principal replay matrix |
 | Identical-text overwrite | Principal namespace salts deterministic MIRL IDs | Two distinct namespaces and public IDs | Retry is safe inside each boundary | Same-content two-principal test |
 | Foreign/forged delete | Keyed `mem_` handles plus exact indexed tenant/ns/scope lookup | Foreign and unknown return identical content-free 404 | Owned record remains live | Foreign-vs-unknown test |
-| Legacy route bypass | Principal-mode guard returns 404 outside the four data routes | Route matrix | Reconfigure only by deliberate app restart | `/stats`, `/persist`, `/chat`, schema tests |
+| Legacy route bypass | Pre-router principal-mode guard returns 404 outside exact health/data method-path pairs | Route matrix, including wrong methods and slash variants | Reconfigure only by deliberate app restart | `/stats`, `/persist`, `/chat`, schema, redirect, rate-limit, and CORS tests |
 | Idempotency collision | Lifecycle per-tenant uniqueness and operation fingerprint | HTTP 409 without internal IDs | Use a new caller key | Delete replay/conflict coverage |
 | Cleanup failure | Canonical soft delete commits before external cleanup; durable `cleanup_pending` | Recoverable-operation query and append-only events | Repeat same opaque deletion/resume lifecycle | Injected cleanup-failure test |
 | Unbounded handle resolution | Primary-key/composite-boundary handle index; max 50 IDs | No namespace `load_ir` on delete | Rebuild derived registrations through recall | Indexed-resolution regression |
 | Schema drift/interruption | Registered core-storage/3-to-/4 step with required-table contract | Projection registry + integrity/foreign-key checks | Backup, rollback, reopen/resume | Migration and rollback-injection tests |
 | Stale handle deletes replacement | Handle row and lifecycle precondition carry the canonical generation | In-transaction generation mismatch refuses the operation | Recall the replacement to receive its new handle | Resolve-then-replace race test |
-| Stale recall publishes old capability | Registration checks record/generation under the same write transaction | Mismatch fails closed without registering a row | Retry recall against a current snapshot | Recall-registration race test |
+| Stale recall publishes old capability | Registration checks an active record/generation under the runtime projection lock | Mismatch fails closed without registering a row | Retry recall against a current snapshot | Recall-registration and rollback-serialization race tests |
 | Pending cleanup erases replacement | Writes overlapping `planned`, `applying`, or `cleanup_pending` scoped deletion are rejected | Content-free 409 plus durable lifecycle state | Resume the original deletion, then re-remember | Pending-cleanup/reingest test |
 | Failed vector write loses handles | Runtime compensation snapshots and restores exact handle rows | Whole-table hash/row equality around injected failure | Retry the original persist | Compensation regression |
 
@@ -211,6 +221,13 @@ rollback, and disaster recovery remain S10 work.
   rollback snapshot that could erase handles, active-delete recreation after a
   separately removed canonical row, and duplicate delete handles contradicting
   the unique-ID contract.
+- A later exact-PR-head review found and repaired six additional boundary
+  defects: deleted-handle registration and replay, worker-count
+  under-declaration, handle rollback serialization, tenant-first active-delete
+  lookup, and router-level method/redirect disclosure. The strict focused slice
+  collected and passed 175 tests; the follow-up CodeRabbit working-tree review
+  returned no findings. Exact-head CI on the repaired commit remains the merge
+  gate.
 - The canonical working-tree secret/session scan, whole-tree Ruff, active-Python
   compilation, dependency check, diff/audit checks, and continuity closeout are
   green. Signed publication, exact-head CI, and merge remain before this is

@@ -225,8 +225,9 @@ def register_public_memory_handles(
     placeholders = ",".join("?" for _ in record_ids)
     rows = connection.execute(
         "select id, payload_json from ir_records "
-        f"where id in ({placeholders}) and ns = ? and scope = ?",
-        [*record_ids, ns, selected_scope],
+        f"where id in ({placeholders}) and ns = ? and scope = ? "
+        "and status != ?",
+        [*record_ids, ns, selected_scope, "deleted_soft"],
     ).fetchall()
     current_generations = {
         str(row[0]): _payload_generation(str(row[1])) for row in rows
@@ -322,8 +323,9 @@ def resolve_public_memory_handles(
         "records.payload_json from public_memory_handle handles "
         "join ir_records records on records.id = handles.record_id "
         f"where handles.handle_id in ({placeholders}) "
-        "and handles.tenant_id = ? and handles.ns = ? and handles.scope = ?",
-        [*normalized, tenant, ns, selected_scope],
+        "and handles.tenant_id = ? and handles.ns = ? and handles.scope = ? "
+        "and records.status != ?",
+        [*normalized, tenant, ns, selected_scope, "deleted_soft"],
     ).fetchall()
     return {
         str(row[0]): (str(row[1]), str(row[2]))

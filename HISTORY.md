@@ -18893,3 +18893,31 @@ repeat the exact staged and candidate secret checks, then create and verify the
 signed commit, push the bounded branch, open its draft PR, and observe exact-head
 CI. S6 remains branch-local and S7 has not started.
 ---END-ENTRY-#576---
+
+---BEGIN-ENTRY-#577---
+id: 577
+date: 2026-08-23T03:02:53Z
+agent: Codex
+status: changed
+topics: bugfix, security, surface, storage, test, verify, continuity, handoff
+commits: pending
+refs: HISTORY#576,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/public_api.py,seam_runtime/server.py,seam_runtime/runtime.py,seam_runtime/lifecycle.py,docs/handoffs/2026-08-22-track-s-s6-review-repaired.md
+supersedes: 576
+tokens: 196
+---
+Repaired six late exact-head review findings before merging Track S S6. Public
+handle registration/resolution now excludes soft-deleted records; deletion
+replay is bound to the original absent/deleted incarnation; principal startup
+requires an exact worker declaration; handle mutation/rollback share the
+runtime projection lock; active-delete lookup is tenant-first; and a
+rate-limited pre-router allowlist closes method and slash disclosure while
+retaining valid CORS preflight behavior.
+
+The strict focused lifecycle/auth/public-HTTP/compensation/bind-safety slice
+collected and passed 175 tests. Ruff, diff checking, and the canonical
+working-tree secret/session scan passed. A first CodeRabbit working-tree review
+found the explicit-worker and CORS omissions; both were repaired, and the
+second review returned no findings. This is still branch-local PR #223 evidence:
+the repaired signed commit, push, exact-head required CI, and protected-main
+merge remain pending.
+---END-ENTRY-#577---

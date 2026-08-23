@@ -32,7 +32,8 @@ report a worktree as clean while removal would still destroy local data.
 | Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Protected remote is `a177852` after merged PR #222; local `main` is still `48c5448`; no worktree is checked out on local `main` | Canonical published source for new work | Base new work on the verified remote head, not the stale local pointer |
 | Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; 1 commit ahead and 1 behind protected main; draft PR is open and conflicting | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; rebase/rechain before publication |
 | Track S/deployment audit | merged PR #222; former `audit/track-s-deployment-20260818` worktree/branch | Published at protected `main@a177852`; temporary worktree and branch are gone | Bounded F-5/F-6/F-10/F-11 and hygiene repairs plus the deployment-readiness audit | Treat as protected-main fact; do not recreate the retired candidate |
-| Track S S6 candidate | `Seam-track-s-s6`; `track-s/s6-principal-tenancy` | Based exactly on `origin/main@a177852`; runtime lanes, local review, and closeout gates are green on the intentionally dirty unpublished tree; no PR yet | Optional in-process principal binding, legacy-route shutdown in principal mode, indexed generation-bound opaque handles, and G6 lifecycle delete | Create the signed commit, open the bounded PR, pass exact-head CI, then merge before S7 |
+| Track S S6 candidate | `Seam-track-s-s6`; `track-s/s6-principal-tenancy`; PR #223 | Signed head `41c51a4` passed all required/advisory CI; six later GitHub findings are locally repaired on the dirty successor with 175 focused tests and a clean CodeRabbit rerun | Optional in-process principal binding, pre-router legacy-route shutdown, indexed generation-bound opaque handles, and G6 lifecycle delete | Close out and push the signed repair, pass repeat exact-head CI, then merge before S7 |
+| GitHub issue/release setup | `Seam-github-operations`; `chore/github-issues-releases`; stacked draft PR #224 | Clean pushed head `d992af5`; exact stacked-head CI is green, but it remains based on the pre-repair S6 head | Structured issue forms and hardened private GitHub Release workflow | Restack after S6 merges, retarget to `main`, rerun exact-head CI, then merge separately |
 | TUI concept port | `Seam-tui-concept-shell`; local `feat/tui-concept-shell` | Clean at `54bc01a`; 1 commit ahead and 0 behind protected main; no remote/PR | Runtime-backed Textual port of the external operator mock's workflow and visual concepts | Keep separate from S6; review, qualify, publish, or revise without claiming the mock or candidate shipped |
 | Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 5 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
 | Native-roadmap pre-reconcile backup | local `archive/native-model-roadmap-pre-reconcile` | Clean branch; 5 commits ahead and 17 behind main; not a second PR | Preserves the earlier unsigned/unreconciled roadmap lineage that PR #207 replaced | Keep only as a recovery source until PR #207 is resolved; never implement from it independently |
@@ -43,8 +44,10 @@ report a worktree as clean while removal would still destroy local data.
 | Retrieval consolidation source | local and remote `refactor/unify-retrieval-paths` | 10 commits ahead and 38 behind main; no PR | Historical source line for single-package consolidation, trace attribution, WANDR replay, and related repairs | Do not land wholesale: it contains the 59 tracked `.ua` artifacts excluded by Track S S0; compare only a named file or commit against current main |
 
 Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207),
-[#213](https://github.com/Canticle-AI-Research/Seam/pull/213), and
-[#221](https://github.com/Canticle-AI-Research/Seam/pull/221).
+[#213](https://github.com/Canticle-AI-Research/Seam/pull/213),
+[#221](https://github.com/Canticle-AI-Research/Seam/pull/221),
+[#223](https://github.com/Canticle-AI-Research/Seam/pull/223), and stacked draft
+[#224](https://github.com/Canticle-AI-Research/Seam/pull/224).
 
 ## Physical worktree register
 
@@ -71,13 +74,23 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 - Role: isolated Track S S6 implementation candidate.
 - Branch/base: `track-s/s6-principal-tenancy` from exact protected
   `origin/main@a177852`.
-- Tracked state: intentionally dirty while the publication successor prepares
-  the signed commit. The affected, canonical non-external, and isolated live
-  pgvector lanes plus local review and closeout gates are green; no S6 PR exists
-  yet.
+- Tracked state: signed PR #223 head `41c51a4` passed every required and
+  advisory CI lane. The worktree is intentionally dirty with the bounded
+  repair for six later GitHub review findings; its 175-test strict-no-skip
+  slice and post-fix CodeRabbit review are green before closeout and push.
 - Boundary: this is candidate evidence only. Do not call principal tenancy,
   opaque deletion, or `core-storage/4` protected-main behavior before signed
   publication, exact-head CI, and merge.
+
+### `/home/terrabyte/Documents/Projects/Seam-github-operations`
+
+- Role: isolated GitHub Issues and private Releases setup stacked above S6.
+- Branch/head: `chore/github-issues-releases@d992af5`, pushed as draft PR #224
+  with base `track-s/s6-principal-tenancy`.
+- Tracked state: clean; its stacked exact-head CI is green. It must be restacked
+  on repaired/merged S6, retargeted to `main`, and requalified before merge.
+- Boundary: issue templates and release hardening are not live on protected
+  main yet; no new issue, milestone, tag, release, or deployment was created.
 
 ### `/home/terrabyte/Documents/Projects/Seam-tui-concept-shell`
 

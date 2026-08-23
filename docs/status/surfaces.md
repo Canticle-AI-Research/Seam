@@ -86,9 +86,11 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   optional in-process principal resolution and indexed opaque deletion. In
   principal mode it derives the internal tenant/namespace from the subject,
   binds handles/deletion to the canonical generation, defaults to a bounded
-  process-local limiter, and disables legacy private data routes. Its local
-  runtime lanes, review, and closeout gates are green; signed publication,
-  exact-head CI, and merge remain.
+  process-local limiter, requires injected hosts to declare their worker count,
+  and blocks legacy private route/method shapes before router matching while
+  retaining allowed CORS preflights. Its original exact head was CI-green; the
+  later review repair is locally green and still needs repaired-head CI and
+  merge.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime
@@ -117,10 +119,10 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   success, require backend acknowledgements, label unavailable/demo states
   explicitly, and add browser truthfulness tests. Only then capture fresh
   desktop/mobile renders for operator approval.
-- Track S S6's unpublished candidate binds every principal-mode data operation
+- Track S S6 PR #223 binds every principal-mode data operation
   to an in-process identity and adds indexed, idempotent opaque deletion without
   leaking tenant, MIRL, policy, or graph internals through `/v1`. Publication
-  still requires a signed commit, bounded draft PR, exact-head CI, and merge.
+  still requires its signed review-repair commit, repeat exact-head CI, and merge.
 - S7 remains next after S6 publication; it owns admissible semantic ingest and
   exact evidence, not this surface/security slice. S7 has not started.
 - Track S S8 must prove every shipped surface returns the same retrieval IDs and

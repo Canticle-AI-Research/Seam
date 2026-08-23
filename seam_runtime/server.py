@@ -704,6 +704,7 @@ def create_app(
     jlens_worker: JLensWorker | None = None,
     principal_resolver: PrincipalResolver | None = None,
     public_id_key: bytes | None = None,
+    process_workers: int | None = None,
 ) -> Any:
     Depends, FastAPI, Header, HTTPException, Query, Request = _require_fastapi()
     # Required: `from __future__ import annotations` defers annotation evaluation,
@@ -740,6 +741,16 @@ def create_app(
             "SEAM_API_TOKEN cannot bypass an injected principal resolver"
         )
     principal_mode = resolved_principal_resolver is not None
+    if principal_mode and process_workers is None:
+        raise RuntimeError(
+            "principal mode requires an explicit "
+            "process_workers count"
+        )
+    if process_workers is not None:
+        _validate_process_local_rate_limit(
+            workers=process_workers,
+            principal_mode=principal_mode,
+        )
     effective_rate_limit = _effective_rate_limit(principal_mode=principal_mode)
     limiter = RateLimiter(effective_rate_limit, max_keys=rate_limit_max_keys)
     principal_resolver_limiter = RateLimiter(
@@ -794,6 +805,16 @@ def create_app(
             "/v1/memories/recall",
             "/v1/memories/delete",
             "/v1/context",
+        }
+    )
+    principal_operations = frozenset(
+        {
+            ("GET", "/health"),
+            ("HEAD", "/health"),
+            ("GET", "/v1/health"),
+            ("HEAD", "/v1/health"),
+            *(("POST", path) for path in principal_paths),
+            *(("OPTIONS", path) for path in principal_paths),
         }
     )
 
@@ -867,6 +888,20 @@ def create_app(
             request,
             _client_key(request, None if principal_mode else authorization),
         )
+
+    @app.middleware("http")
+    async def enforce_principal_surface(request: Request, call_next: Any) -> Any:
+        if principal_mode and (request.method, request.url.path) not in principal_operations:
+            try:
+                enforce_rate_limit(request, _client_key(request))
+            except HTTPException as exc:
+                return JSONResponse(
+                    {"detail": exc.detail},
+                    status_code=exc.status_code,
+                    headers=exc.headers,
+                )
+            return JSONResponse({"detail": "Not found"}, status_code=404)
+        return await call_next(request)
 
     @app.exception_handler(Exception)
     async def unhandled_request_error(_request: Request, exc: Exception) -> Any:
@@ -1823,14 +1858,11 @@ def run_server(
 
 
 def _validate_server_safety(host: str, workers: int) -> None:
-    if isinstance(workers, bool) or not isinstance(workers, int) or workers <= 0:
-        raise RuntimeError("SEAM server worker count must be a positive integer")
     principal_mode = bool(os.environ.get("SEAM_API_PRINCIPAL"))
-    if _effective_rate_limit(principal_mode=principal_mode) > 0 and workers > 1 and not _env_truthy("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT"):
-        raise RuntimeError(
-            "SEAM API rate limiting is process-local; use one worker or set "
-            "SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT=1 after placing a shared limiter in front."
-        )
+    _validate_process_local_rate_limit(
+        workers=workers,
+        principal_mode=principal_mode,
+    )
     if _is_remote_bind(host) and not os.environ.get("SEAM_API_TOKEN") and not _env_truthy("SEAM_API_ALLOW_REMOTE_NO_TOKEN"):
         raise RuntimeError(
             "Refusing to bind API to a non-loopback host without an authentication token. "
@@ -1841,6 +1873,22 @@ def _validate_server_safety(host: str, workers: int) -> None:
         raise RuntimeError(
             "Refusing to bind authenticated API to a non-loopback host without TLS. "
             "Use a TLS reverse proxy, bind to 127.0.0.1, or set SEAM_API_ALLOW_INSECURE_REMOTE=1 intentionally."
+        )
+
+
+def _validate_process_local_rate_limit(
+    *, workers: int, principal_mode: bool
+) -> None:
+    if isinstance(workers, bool) or not isinstance(workers, int) or workers <= 0:
+        raise RuntimeError("SEAM server worker count must be a positive integer")
+    if (
+        _effective_rate_limit(principal_mode=principal_mode) > 0
+        and workers > 1
+        and not _env_truthy("SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT")
+    ):
+        raise RuntimeError(
+            "SEAM API rate limiting is process-local; use one worker or set "
+            "SEAM_API_ALLOW_PROCESS_LOCAL_RATE_LIMIT=1 after placing a shared limiter in front."
         )
 
 
@@ -1996,7 +2044,10 @@ def _walk_tree(
 def create_app_from_env() -> Any:
     host, workers = _factory_server_settings()
     _validate_server_safety(host=host, workers=workers)
-    return create_app(SeamRuntime(os.environ.get("SEAM_SERVER_DB") or default_runtime_db_path()))
+    return create_app(
+        SeamRuntime(os.environ.get("SEAM_SERVER_DB") or default_runtime_db_path()),
+        process_workers=workers,
+    )
 
 
 def main(argv: list[str] | None = None) -> None:

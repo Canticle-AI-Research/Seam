@@ -81,6 +81,7 @@ def test_successful_principals_release_the_shared_client_reservation(
             runtime,
             principal_resolver=resolver,
             public_id_key=b"principal-rate-limit-public-id-key",
+            process_workers=1,
         )) as client:
             alice = client.post(
                 "/v1/memories",
@@ -114,6 +115,7 @@ def test_rotating_invalid_bearer_tokens_share_the_client_rate_limit(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             )
         ) as client:
             first = client.post(
@@ -154,6 +156,7 @@ def test_authenticated_aliases_use_one_stable_principal_key(
             runtime,
             principal_resolver=resolver,
             public_id_key=b"principal-rate-limit-public-id-key",
+            process_workers=1,
         )
         with (
             TestClient(app, client=("192.0.2.10", 50000)) as first_client,
@@ -192,6 +195,7 @@ def test_concurrent_invalid_burst_invokes_resolver_only_within_client_bound(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             )
         ) as client:
             with ThreadPoolExecutor(max_workers=8) as executor:
@@ -230,6 +234,7 @@ def test_resolver_failures_are_bounded_before_reinvocation(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             ),
             raise_server_exceptions=False,
         ) as client:
@@ -300,6 +305,7 @@ def test_health_remains_unauthenticated_and_rate_limited_by_client(
                 runtime,
                 principal_resolver=resolver,
                 public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
             )
         ) as client:
             first = client.get(
@@ -315,4 +321,41 @@ def test_health_remains_unauthenticated_and_rate_limited_by_client(
 
     assert first.status_code == 200
     assert second.status_code == 429
+    assert resolver.credentials == []
+
+
+def test_hidden_private_routes_are_rate_limited_before_router_matching(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("SEAM_API_RATE_LIMIT_PER_MINUTE", "1")
+    monkeypatch.delenv("SEAM_API_TOKEN", raising=False)
+    monkeypatch.delenv("SEAM_API_PRINCIPAL", raising=False)
+    resolver = _RecordingResolver({"valid-token": "account/alice"})
+    runtime = SeamRuntime(tmp_path / "hidden-route-rate-limit.db")
+
+    try:
+        with TestClient(
+            create_app(
+                runtime,
+                principal_resolver=resolver,
+                public_id_key=b"principal-rate-limit-public-id-key",
+                process_workers=1,
+            )
+        ) as client:
+            first = client.post(
+                "/stats",
+                headers={"Authorization": "Bearer valid-token"},
+            )
+            second = client.get(
+                "/stats/",
+                headers={"Authorization": "Bearer valid-token"},
+                follow_redirects=False,
+            )
+    finally:
+        runtime.close()
+
+    assert first.status_code == 404
+    assert first.json() == {"detail": "Not found"}
+    assert second.status_code == 429
+    assert second.headers["Retry-After"] == "60"
     assert resolver.credentials == []

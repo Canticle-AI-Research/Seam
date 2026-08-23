@@ -111,11 +111,13 @@ from .lifecycle import (
     completed_batch_indexes,
     ensure_no_active_scoped_delete,
     get_lifecycle_operation,
+    get_lifecycle_operation_by_idempotency_key,
     init_lifecycle,
     plan_batch_ingest,
     plan_scoped_delete,
     record_batch_item,
     recoverable_operations,
+    scoped_delete_retry_matches_current_incarnation,
 )
 from .migrations import (
     CURRENT_SCHEMA_VERSION,
@@ -230,7 +232,7 @@ from .reference_contracts import (
     validate_typed_ir_edges,
 )
 from .retry import retry_db_operation
-from .tenancy import is_principal_namespace
+from .tenancy import is_principal_namespace, principal_tenant_id
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
 from .vector_outbox import (
     acknowledge,
@@ -1185,8 +1187,14 @@ class SQLiteStore:
         for namespace, scope in sorted(
             {(record.ns, record.scope) for record in public_generation_records}
         ):
+            tenant_id = principal_tenant_id(namespace)
+            if tenant_id is None:
+                raise CanonicalReferenceIntegrityError(
+                    "principal memory namespace is malformed"
+                )
             ensure_no_active_scoped_delete(
                 connection,
+                tenant_id=tenant_id,
                 namespace=namespace,
                 scope=scope,
                 record_ids=(
@@ -2921,6 +2929,26 @@ class SQLiteStore:
     ) -> dict[str, object]:
         with self._pool.checkout() as connection:
             return get_lifecycle_operation(
+                connection,
+                tenant_id=tenant_id,
+                operation_id=operation_id,
+            )
+
+    def lifecycle_operation_by_idempotency_key(
+        self, *, tenant_id: str, idempotency_key: str
+    ) -> dict[str, object] | None:
+        with self._pool.checkout() as connection:
+            return get_lifecycle_operation_by_idempotency_key(
+                connection,
+                tenant_id=tenant_id,
+                idempotency_key=idempotency_key,
+            )
+
+    def scoped_delete_retry_matches_current_incarnation(
+        self, *, tenant_id: str, operation_id: str
+    ) -> bool:
+        with self._pool.checkout() as connection:
+            return scoped_delete_retry_matches_current_incarnation(
                 connection,
                 tenant_id=tenant_id,
                 operation_id=operation_id,

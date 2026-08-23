@@ -10,6 +10,7 @@ import pytest
 from seam_runtime import BatchIngestItem, SeamSDK
 from seam_runtime.lifecycle import (
     apply_scoped_delete,
+    ensure_no_active_scoped_delete,
     init_lifecycle,
     plan_batch_ingest,
     plan_scoped_delete,
@@ -35,6 +36,33 @@ class _TrackingVectorAdapter:
 
     def search(self, query, limit=10, namespace=None, scope=None):
         return {}
+
+
+def test_active_delete_lookup_is_tenant_index_scoped() -> None:
+    connection = sqlite3.connect(":memory:")
+    statements: list[str] = []
+    tenant_id = "principal:" + "a" * 64
+    namespace = f"{tenant_id}.sdk.boundary-{'b' * 64}"
+    try:
+        init_lifecycle(connection)
+        connection.set_trace_callback(statements.append)
+
+        ensure_no_active_scoped_delete(
+            connection,
+            tenant_id=tenant_id,
+            namespace=namespace,
+            scope="thread",
+            record_ids=["clm:tenant-index-scope"],
+        )
+    finally:
+        connection.close()
+
+    query = next(
+        statement
+        for statement in statements
+        if "from lifecycle_operation operation" in statement
+    )
+    assert "operation.tenant_id =" in query
 
 
 def _claim_id(report) -> str:

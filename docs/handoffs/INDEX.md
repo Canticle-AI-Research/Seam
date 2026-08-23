@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-22-track-s-s6-locally-qualified
+latest: 2026-08-22-track-s-s6-review-repaired
 ---
 
 # SEAM Handoff Registry
@@ -17,7 +17,8 @@ run `python -m tools.history.verify_handoffs`.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-22-track-s-s6-locally-qualified` | [2026-08-22-track-s-s6-locally-qualified.md](2026-08-22-track-s-s6-locally-qualified.md) | `2026-08-19-track-s-s6-in-progress` | `HISTORY#575` | `current` |
+| `2026-08-22-track-s-s6-review-repaired` | [2026-08-22-track-s-s6-review-repaired.md](2026-08-22-track-s-s6-review-repaired.md) | `2026-08-22-track-s-s6-locally-qualified` | `HISTORY#577` | `current` |
+| `2026-08-22-track-s-s6-locally-qualified` | [2026-08-22-track-s-s6-locally-qualified.md](2026-08-22-track-s-s6-locally-qualified.md) | `2026-08-19-track-s-s6-in-progress` | `HISTORY#575` | `superseded` |
 | `2026-08-19-track-s-s6-in-progress` | [2026-08-19-track-s-s6-in-progress.md](2026-08-19-track-s-s6-in-progress.md) | `2026-08-18-track-s-deployment-readiness` | `HISTORY#574` | `superseded` |
 | `2026-08-18-track-s-deployment-readiness` | [2026-08-18-track-s-deployment-readiness.md](2026-08-18-track-s-deployment-readiness.md) | `2026-08-12-deep-audit` | `HISTORY#571` | `superseded` |
 | `2026-08-12-deep-audit` | [2026-08-12-deep-audit.md](2026-08-12-deep-audit.md) | `2026-08-05-tui-rebuild-canticle` | `HISTORY#560` | `superseded` |
