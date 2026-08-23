@@ -98,17 +98,42 @@ def _scan_bytes_summary(path: str, content: bytes) -> ScanSummary:
             return ScanSummary((), ((path, "hash_pinned_oversize"),))
         return ScanSummary((SecretFinding(path=path, line=0, kind="scan_size_limit"),))
     if b"\0" in content[:4096]:
-        return ScanSummary((), ((path, "binary_nul"),))
-    text = content.decode("utf-8", errors="replace")
+        return ScanSummary(_find_secret_patterns(path, content), ((path, "binary_nul"),))
+    return ScanSummary(_find_secret_patterns(path, content))
+
+
+def _find_secret_patterns(path: str, content: bytes) -> tuple[SecretFinding, ...]:
+    texts = [content.decode("utf-8", errors="replace")]
+    if content.startswith((b"\xff\xfe", b"\xfe\xff")):
+        texts.append(content.decode("utf-16", errors="replace"))
+    if b"\0" in content:
+        texts.extend(
+            (
+                content.decode("utf-16-le", errors="replace"),
+                content.decode("utf-16-be", errors="replace"),
+            )
+        )
     findings: list[SecretFinding] = []
-    for line_number, line in enumerate(text.splitlines(), start=1):
-        for kind, pattern in SECRET_PATTERNS:
-            if pattern.search(line):
-                findings.append(SecretFinding(path=path, line=line_number, kind=kind))
-    return ScanSummary(tuple(findings))
+    seen: set[tuple[int, str]] = set()
+    for text in dict.fromkeys(texts):
+        for line_number, line in enumerate(text.splitlines(), start=1):
+            for kind, pattern in SECRET_PATTERNS:
+                identity = (line_number, kind)
+                if identity not in seen and pattern.search(line):
+                    findings.append(SecretFinding(path=path, line=line_number, kind=kind))
+                    seen.add(identity)
+    return tuple(findings)
 
 
-def scan_bytes(path: str, content: bytes) -> tuple[SecretFinding, ...]:
+def scan_bytes(
+    path: str, content: bytes, *, include_binary: bool = False
+) -> tuple[SecretFinding, ...]:
+    """Scan one bounded payload, optionally ignoring binary policy exclusions."""
+
+    if include_binary:
+        if len(content) > MAX_SCAN_BYTES:
+            return (SecretFinding(path=path, line=0, kind="scan_size_limit"),)
+        return _find_secret_patterns(path, content)
     return _scan_bytes_summary(path, content).findings
 
 

@@ -1,0 +1,57 @@
+name: Release proposal
+description: Propose and track one private SEAM runtime GitHub Release.
+title: "[Release] "
+labels:
+  - enhancement
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Proposed version
+      description: Use an exact SemVer value without a leading v.
+      placeholder: 2.5.0
+    validations:
+      required: true
+
+  - type: input
+    id: target
+    attributes:
+      label: Intended protected-main commit
+      description: Optional at proposal time; edit the issue to pin the full commit SHA once the release candidate is frozen.
+      placeholder: Full 40-character commit SHA
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Included scope
+      description: Summarize user-visible changes and link the governing PRs or HISTORY entries.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Qualification evidence
+      description: Record required/advisory CI, local or external lanes, migration proof, security scan, and intentionally skipped checks.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: Residual risk and rollback
+      description: Name known limitations, compatibility boundaries, backup/restore evidence, and the rollback point.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Release boundary
+      options:
+        - label: This is a private GitHub Release of seam-runtime, not a PyPI or public-client publication.
+          required: true
+        - label: Before publication, the version must be reviewed on protected main and the tag must not exist.
+          required: true
+        - label: Generated draft notes will be reviewed before publication; release assets, checksums, and the exact target commit will be reverified after publication.
+          required: true

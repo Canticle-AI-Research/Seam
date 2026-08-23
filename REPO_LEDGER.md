@@ -92,12 +92,11 @@ and `HISTORY_INDEX.md`.
   calls use the existing bearer-token guard. Public namespaces are mapped
   under an SDK-only prefix with optional hashed session partitions, and
   responses use opaque receipts/IDs plus user-facing text rather than private
-  record shapes. The unpublished Track S S6 candidate adds
+  record shapes. Published Track S S6 adds
   `/v1/memories/delete` and an optional in-process principal resolver. In
   principal mode, the subject derives the internal tenant/namespace boundary
   and legacy private data routes return 404; token-only mode remains a trusted
-  single-user gate and is not tenancy. This candidate is not stable public
-  behavior until signed publication, exact-head CI, and merge complete.
+  single-user gate and is not tenancy.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY
@@ -120,11 +119,40 @@ and `HISTORY_INDEX.md`.
   `seam-runtime` 1.3.1 (yanked, deliberately retained as a rollback point).
   Removing the in-tree tooling does not unpublish them; it means no further
   releases of them are produced from this repository.
+- GitHub Issues are the coordination intake, not a replacement for SEAM's
+  status/history authorities. Blank issues are disabled. Structured forms own
+  bugs, features, research/benchmark tasks, and private-runtime release
+  proposals; sensitive security findings route to private advisories. Issue
+  closure, labels, and milestones do not by themselves prove implementation,
+  qualification, publication, or deployment.
 - `.github/workflows/package-release.yml` is RETAINED and is the only remaining
-  release path: it builds the private `seam-runtime` package, scans wheel and
-  sdist, smoke-tests the installed commands, and creates a private GitHub
-  Release. It has no PyPI target or publish job. Private 2.4.0 is live as GitHub
-  release `v2.4.0`, pinned to protected-main merge
+  release path: serialized manual dispatch is restricted to the default branch
+  and an exact new SemVer already present in `pyproject.toml`; it builds exactly
+  one private `seam-runtime` wheel and sdist, rejects unsafe members and
+  secret-shaped packaged content, smoke-tests the installed commands, emits and
+  verifies `SHA256SUMS.txt`, and creates a private GitHub Release draft with
+  categorized generated notes. After environment approval it revalidates
+  the live protected head immediately before atomically reserving the exact tag,
+  uploads assets into the draft, and leaves publication to the separate
+  environment-gated `publish-private-release.yml` follow-up after an operator
+  reviews the generated notes for private data and unsupported claims. The
+  follow-up runs only on a fresh first attempt whose original and triggering
+  actors both match the account named by the repository
+  `PRIVATE_RELEASE_APPROVER` Actions variable, requires that target to remain
+  the current protected-main head, and binds the reviewed draft byte-for-byte
+  to the immutable artifact from the named successful preparation run. It
+  rechecks the lightweight tag, reviewed manifest and notes digests, exact
+  checksum coverage, downloaded artifact name/version metadata and content,
+  archive member paths and the complete decompressed sdist stream, exact
+  release title, text secret scan, unchanged draft fingerprint, and live
+  protected head immediately before publication. The operator must attest the
+  live repository immutability setting, and the follow-up verifies the
+  published release's immutable flag or removes the mutable release/tag. A
+  failed attempt removes only its exact unpublished draft/tag, while ambiguous
+  or already-published state is left for operator review. Prerelease SemVer is
+  marked as a GitHub prerelease. It has no PyPI target, public publish step, or
+  `id-token` permission. Private 2.4.0 is live as GitHub release `v2.4.0`,
+  pinned to protected-main merge
   `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist
   passed clean installation, SQLite, and live-pgvector API proofs.
 - The compiled `seam-self-host` distribution is RETIRED. Published 1.1.2 stays
@@ -141,9 +169,14 @@ and `HISTORY_INDEX.md`.
   private `seam-runtime` PyPI prohibition.
 - The private GitHub repository has `private-package-release` and `pypi`
   environments restricted to protected branches. The current account plan did
-  not accept a wait-timer protection rule, so do not describe either
-  environment as reviewer-approved or time-delayed. PyPI itself still requires
-  the separate Trusted Publisher registration before any OIDC upload can work.
+  not accept wait-timer or required-reviewer protection rules, so do not
+  describe either environment as reviewer-approved or time-delayed. Private
+  release publication instead fails before the write-permission job unless
+  both `github.actor` and `github.triggering_actor` match the admin-controlled
+  `PRIVATE_RELEASE_APPROVER` repository variable, and reruns are rejected; the
+  protected-branch environment remains a second deployment boundary. PyPI
+  itself still requires the separate Trusted Publisher registration before any
+  OIDC upload can work.
 - Security-sensitive reports should be handled privately through `SECURITY.md`;
   do not disclose private data, credential material, customer data, or exploit
   details in public issues.
@@ -183,9 +216,8 @@ and `HISTORY_INDEX.md`.
   downstream step leaves the durable `/5` checkpoint truthful and resumable.
   Core storage advances exactly `core-storage/1 -> /2` to persist typed IR-edge
   endpoints and `core-storage/2 -> /3` for the append-only improvement-
-  experiment ledger. The unpublished S6 candidate adds the registered
-  `core-storage/3 -> /4` indexed public-memory-handle projection; it is not a
-  protected-main contract until merge. Both S4 rebuilds consume canonical
+  experiment ledger. Published S6 adds the registered `core-storage/3 -> /4`
+  indexed public-memory-handle projection. Both S4 rebuilds consume canonical
   records in bounded batches;
   edge-type checks use at most 900 SQLite variables rather than one query per
   edge. A registry-less central-v0 store at exact `core-storage/1` plus KG/4 is
@@ -300,8 +332,8 @@ and `HISTORY_INDEX.md`.
   purged on completion; it is never copied into append-only lifecycle JSON.
   A pending vector-index intent never outranks later canonical lifecycle truth:
   replay acknowledges intents for missing or `deleted_soft` records without
-  indexing them. Protected main's internal tenant-id/prefix validation is not
-  authenticated principal binding. The unpublished Track S S6 candidate binds
+  indexing them. Internal tenant-id/prefix validation alone is not
+  authenticated principal binding. Published Track S S6 binds
   the resolved in-process principal to that existing lifecycle boundary and
   resolves generation-bound opaque delete handles through an exact indexed
   projection; it does not add a second deletion state machine.
@@ -663,7 +695,7 @@ and `HISTORY_INDEX.md`.
 - Bearer-token-only operation authenticates one trusted deployment boundary;
   it does not identify principals and must not be described as shared hosted
   tenancy.
-- The unpublished Track S S6 candidate optionally resolves a bearer credential
+- Published Track S S6 optionally resolves a bearer credential
   to a stable in-process principal. The environment adapter binds
   `SEAM_API_TOKEN` to `SEAM_API_PRINCIPAL`; injected deployments may supply a
   resolver directly. Principal mode requires a stable injected public-ID key or

@@ -25,6 +25,28 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - `scripts/windows/launch_dashboard.bat` (wraps `launch_dashboard.ps1`).
 - `scripts/store_benchmark.ps1` archives benchmark runs with sequence+time folders,
   run index, and publication metadata/hashes.
+- GitHub Issues use structured bug, feature, research/benchmark, and private
+  release forms. Blank issues are disabled and sensitive findings route to a
+  private security advisory; issues coordinate work but do not supersede SEAM
+  status, history, handoff, or evidence authorities.
+- The serialized manual package-release workflow accepts only a new exact
+  SemVer from the default branch. It scans the built private wheel/sdist,
+  smoke-tests installed commands, emits and re-verifies `SHA256SUMS.txt`, and
+  creates a private GitHub Release draft with categorized generated notes.
+  After an operator reviews those notes, a separate environment-gated follow-up
+  first requires a fresh first attempt whose original and triggering actors
+  both match the admin-controlled `PRIVATE_RELEASE_APPROVER` repository
+  variable, then requires the reviewed tag to remain the current protected-main
+  head. It downloads the immutable artifact from the named successful
+  preparation run and binds the draft to it byte-for-byte while rechecking tag
+  type/target, reviewed manifest and notes digests, exact checksum coverage,
+  downloaded artifact identity/content, member paths and the complete
+  decompressed sdist stream, exact title, release-text scan, unchanged draft
+  state, and the live protected head immediately before publishing. It requires
+  an operator
+  immutability-setting confirmation and then verifies the published immutable
+  flag, removing a mutable release/tag on failure. It has no PyPI target or
+  OIDC publication permission.
 
 ## Track S operating state
 
@@ -100,8 +122,8 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   `main@a177852`: a pending index intent can no longer reindex a
   `deleted_soft` record on reopen, and equal-score SQL ordering ends at the
   canonical record ID.
-- S6 (principal tenancy and opaque deletion) now has an unpublished
-  implementation candidate on `track-s/s6-principal-tenancy`. Principal mode
+- S6 (principal tenancy and opaque deletion) is published through PR #223 at
+  protected `main@abd2a59`. Principal mode
   resolves a stable subject in-process, derives its internal tenant/namespace
   boundary, and disables legacy private data routes; the legacy token-only mode
   remains trusted single-user operation with no tenancy guarantee. Recall and
@@ -122,12 +144,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   tenant index. The original 460-test affected slice, 2,926-test canonical
   non-external lane, and 23-test live pgvector lane passed; three exact-head
   review repairs pass 185 strict-no-skip focused tests and local review.
-  Fourth-head CI/final review and merge remain.
+  The fourth signed head `fbefb81` passed all three required checks and its
+  final Codex review found no major issue before protected-main merge.
 - Hosted beta remains beyond the current repository boundary. TLS, a shared
   limiter, service supervision, external secret injection, backup/restore,
   upgrade/rollback, and disaster-recovery evidence require a tested deployment
-  reference after S6 merges rather than inference from candidate or package-
-  release smoke tests.
+  reference after S7-S9 qualification rather than inference from repository or
+  package-release smoke tests.
 - The live pgvector lane is exercised locally by exporting `PGVECTOR_TEST_DSN`
   from the running `seam-pgvector` container (`SEAM_PGVECTOR_DSN`, port 55432).
   Service-gated cases are marked `external`: run them against the live service

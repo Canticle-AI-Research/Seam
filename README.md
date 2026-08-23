@@ -467,24 +467,59 @@ The design stance is unchanged: SQLite is canonical, derived indexes are
 rebuildable, lossless claims require exact reconstruction, and compressed
 artifacts must remain useful to an agent without hiding provenance.
 
+## GitHub Issues and Work Tracking
+
+GitHub Issues are enabled for this private repository. New work enters through
+one of four structured forms under [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/):
+bug, feature, research/benchmark, or private-runtime release. Blank issues are
+disabled, and sensitive security reports route to a private security advisory.
+
+Issue state is coordination, not implementation evidence. Current operating
+truth remains in the status streams, chronology remains append-only in
+`HISTORY.md`, and a release issue does not authorize paid calls, publication,
+deployment, or a public artifact.
+
 ## Package Releases
 
 The manual **Package release** GitHub Actions workflow
 ([`.github/workflows/package-release.yml`](.github/workflows/package-release.yml))
-is `workflow_dispatch`-only and takes one input: the exact `version` already set
-in `pyproject.toml`. It has two jobs:
+is `workflow_dispatch`-only, serialized, and takes one input: the exact SemVer
+`version` already set in `pyproject.toml`. Dispatch must come from the default
+branch and the `v<version>` tag must not already exist. It has two jobs:
 
 - **`build`** — verifies the requested version matches `pyproject.toml` and
-  fails otherwise, builds the wheel and sdist, runs `twine check`, smoke-tests
+  fails otherwise, builds exactly one wheel and one sdist, runs `twine check`,
+  rejects unsafe archive members or secret-shaped packaged content, smoke-tests
   the wheel by installing it with the `[server,pgvector]` extras alongside
-  `seam-client==2.0.0` and running `seam`, `seam-mcp`, and `seam-server`
-  `--help`, then uploads the distributions as a 7-day artifact.
+  `seam-client==2.0.0`, writes `SHA256SUMS.txt`, and uploads the reviewed set as
+  a 7-day artifact.
 - **`private-github-release`** — gated on the `private-package-release`
-  environment, downloads that artifact and runs `gh release create` against
-  **this private repository only**.
+  environment, downloads and checksum-verifies that artifact, then creates an
+  asset-complete draft GitHub Release against **this private repository only**
+  with notes generated through [`.github/release.yml`](.github/release.yml).
 
-**There is no PyPI path.** The workflow has no publish job, no target selector,
-and no `id-token` permission, so it cannot publish to an index even by mistake.
+After an operator reviews the draft notes and assets, the separate manual
+**Publish reviewed private release** workflow
+([`.github/workflows/publish-private-release.yml`](.github/workflows/publish-private-release.yml))
+requires the successful preparation run ID, notes/manifest digests, and the
+exact tagged commit. Before its write-permission job can run, both the original
+actor and triggering actor must match the repository
+`PRIVATE_RELEASE_APPROVER` Actions variable, and the run must be a fresh first
+attempt rather than a workflow rerun. It then downloads the immutable
+preparation-run artifact and requires the draft assets to match it byte-for-byte
+while revalidating current main, tag type/target, artifact identity, release
+title, complete checksum coverage, packaged content (including archive member
+paths and the full decompressed sdist stream), notes, and unchanged draft state
+immediately before publication. The operator must first confirm repository
+release immutability is enabled; the workflow verifies the published result and
+removes a mutable release/tag if that invariant is not honored. Do not publish
+the draft directly from the release page.
+
+Use the [private release checklist](.github/RELEASE_CHECKLIST.md) from proposal
+through post-publication verification.
+
+**There is no PyPI path.** Neither workflow has a package-index target or
+`id-token` permission, so neither can publish to an index even by mistake.
 The package is additionally marked `Private :: Do Not Upload` in
 `pyproject.toml` as a tripwire against an accidental upload, and
 `tools/release/verify_public_safe.py` blocks secret-shaped content and private

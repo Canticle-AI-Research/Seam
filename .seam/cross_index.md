@@ -2,31 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 642
+total_events: 660
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-13T23:21:38Z | history:386:1c619b66 | session-event | done | benchmark, locomo, retrieval, quality, command, tests, ha... | seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_loco... |
-| 2026-07-13T23:45:23Z | history:387:1d31ef23 | session-event | changed | history, handoff, status, verify, ci | PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-13-improve-val... |
-| 2026-07-14T01:43:37Z | history:388:1e8e9de6 | session-event | done | review, ci, merge, history, status, verify | seam_runtime/cli.py,tests/audit/test_judged_scorer.py,test_seam_all/test_loco... |
-| 2026-07-14T03:41:21Z | history:389:a8b788fe | session-event | done | benchmark, locomo, retrieval, quality, command, tests, ve... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
-| 2026-07-15T01:05:17Z | history:390:5136df2c | session-event | done | benchmark, locomo, retrieval, quality, paid-validation, b... | benchmarks/external/locomo/judged_scorer.py,tests/audit/test_judged_scorer.py... |
-| 2026-07-15T03:19:09Z | history:391:aa60db95 | session-event | done | benchmark, locomo, quality, audit, verify | docs/audits/2026-07-14-post-temporal-per-case-review.md,PROJECT_STATUS.md |
-| 2026-07-15T11:14:21Z | history:392:212b18cf | session-event | done | benchmark, locomo, quality, paid-validation, negative-res... | seam_runtime/conversation.py,tools/h2/rejudge_record.py,tests/audit/test_sema... |
-| 2026-07-15T11:29:48Z | history:393:765c2d9f | session-event | done | benchmark, mem0, harness, command, tests, verify | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
-| 2026-07-15T11:35:53Z | history:394:f348135d | session-event | done | benchmark, mem0, harness, cleanup | benchmarks/external/mem0_harness/README.md,benchmarks/external/mem0_harness/s... |
-| 2026-07-15T11:49:56Z | history:395:de5bf982 | session-event | done | benchmark, locomo, mem0, harness, retrieval, quality, tes... | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
-| 2026-07-15T12:08:08Z | history:396:6f876cc6 | session-event | done | benchmark, locomo, quality, audit | docs/audits/2026-07-15-champion-problem-scan.md,PROJECT_STATUS.md |
-| 2026-07-15T12:24:16Z | history:397:c5ff6b8a | session-event | done | benchmark, locomo, quality, handoff, continuity, verify | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
-| 2026-07-15T14:14:56Z | history:398:07f4efb0 | session-event | done | benchmark, locomo, judge, quality, audit, handoff, verify... | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
-| 2026-07-15T14:17:19Z | history:399:008c723c | session-event | changed | history, continuity, verify, handoff, benchmark, locomo | PROJECT_STATUS.md,docs/audits/2026-07-15-c4-and-mem0-cat13-score.md,docs/hand... |
-| 2026-07-15T14:24:23Z | history:400:2d638e36 | session-event | done | bugfix, benchmark, locomo, retrieval, temporal, tests, ci... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
-| 2026-07-16T00:00:00Z | roadmap:058:d10da061 | status-change | bootstrap | agent, openclaw, namespaces, profiles, console | ROADMAP.md:1726 |
-| 2026-07-16T00:00:00Z | roadmap:059:d7fe472b | status-change | bootstrap | android, mobile, small-models, memory-loop | ROADMAP.md:1786 |
-| 2026-07-16T12:38:06Z | history:401:ae65e22b | session-event | done | bugfix, benchmark, locomo, persist, tests, ci, handoff, v... | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 | 2026-07-16T13:46:22Z | history:402:90136fda | session-event | in-progress | graph, memory, provenance, dashboard, webui, retrieval, a... | seam_runtime/knowledge_graph.py,seam_runtime/storage.py,seam_runtime/runtime.... |
 | 2026-07-16T19:01:09Z | history:403:11d8ecbd | session-event | done | graph, memory, trust, provenance, webui, dashboard, retri... | seam_runtime/knowledge_graph.py,seam_runtime/nl.py,seam_runtime/nl_extract.py... |
 | 2026-07-16T21:24:03Z | history:404:f1d35210 | session-event | done | bugfix, webui, dashboard, persist, graph, security, tests... | seam_runtime/webui/dashboard.html,tests/audit/test_webui_auto_ingest.py,PROJE... |
@@ -206,13 +188,31 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-19T09:47:52Z | history:574:bbc227ed | session-event | in-progress | audit, continuity, handoff, harden, lifecycle, migration,... | HISTORY#573,docs/handoffs/2026-08-19-track-s-s6-in-progress.md,docs/audits/20... |
 | 2026-08-22T08:42:39Z | history:575:4278e8b9 | session-event | changed | audit, bugfix, continuity, handoff, harden, lifecycle, mi... | HISTORY#574,docs/handoffs/2026-08-22-track-s-s6-locally-qualified.md,docs/aud... |
 | 2026-08-22T08:47:54Z | history:576:9eb10e23 | session-event | changed | correction, audit, continuity, docs, verify | HISTORY#575,docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.... |
+| 2026-08-22T11:32:21Z | history:580:e79d1fe9 | session-event | done | ci, docs, gates, operator, registry, security, tests, verify | HISTORY#579,.github/ISSUE_TEMPLATE,.github/workflows/package-release.yml,.git... |
+| 2026-08-22T11:39:49Z | history:581:ac6688b9 | session-event | changed | bugfix, ci, correction, gates, pyproject, tests, verify | HISTORY#580,PR#224,.github/workflows/package-release.yml,tools/ci/verify_depe... |
 | 2026-08-23T03:02:53Z | history:577:00ea6abf | session-event | changed | bugfix, security, surface, storage, test, verify, continu... | HISTORY#576,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/public_... |
 | 2026-08-23T03:35:00Z | history:578:a71f9112 | session-event | changed | bugfix, security, surface, storage, test, verify, continu... | HISTORY#577,PR#223,seam_runtime/public_memory_handles.py,seam_runtime/lifecyc... |
 | 2026-08-23T04:00:04Z | history:579:becfc7bc | session-event | changed | atomicity, bugfix, locking, security, surface, storage, t... | HISTORY#578,PR#223,seam_runtime/runtime.py,seam_runtime/server.py,seam_runtim... |
+| 2026-08-23T04:15:43Z | history:582:c8609f49 | session-event | changed | ci, docs, gates, handoff, history, operator, registry, se... | HISTORY#581,PR#223,PR#224,docs/handoffs/2026-08-22-github-operations-restacke... |
+| 2026-08-23T04:31:22Z | history:583:ab9783a4 | session-event | changed | bugfix, ci, docs, gates, handoff, security, status, test,... | HISTORY#582,PR#224,tools/release/verify_private_artifacts.py,.github/workflow... |
+| 2026-08-23T04:35:27Z | history:584:67598c4b | session-event | changed | bugfix, ci, docs, gates, handoff, security, test, verify | HISTORY#583,PR#224,.github/workflows/package-release.yml,tests/audit/test_git... |
+| 2026-08-23T04:49:40Z | history:585:b1224212 | session-event | changed | bugfix, ci, docs, gates, handoff, security, status, test,... | HISTORY#584,PR#224,tools/release/verify_private_artifacts.py,.github/workflow... |
+| 2026-08-23T04:57:49Z | history:586:dbb95462 | session-event | changed | audit, ci, correction, docs, handoff, provenance, test, v... | HISTORY#585,PR#224,tests/audit/test_github_issue_release_config.py,.seam/cros... |
+| 2026-08-23T04:58:37Z | history:587:b4188469 | session-event | changed | correction, history, integrity, provenance, verify | HISTORY#586,tests/audit/test_github_issue_release_config.py,docs/handoffs/202... |
+| 2026-08-23T05:16:34Z | history:588:5a13faf0 | session-event | changed | atomicity, bugfix, ci, docs, gates, handoff, pyproject, s... | HISTORY#587,PR#224,.github/workflows/package-release.yml,.github/workflows/ci... |
+| 2026-08-23T05:35:28Z | history:589:ba639c26 | session-event | done | bugfix, security, status, tests, continuity | HISTORY#588,PR#224,.github/workflows/package-release.yml,.github/RELEASE_CHEC... |
+| 2026-08-23T05:44:09Z | history:590:4d1f24c9 | session-event | done | correction, status, tests, continuity | HISTORY#589,PR#224,docs/status/surfaces.md,tests/audit/test_github_issue_rele... |
+| 2026-08-23T06:18:40Z | history:591:1783b7f2 | session-event | done | bugfix, security, tests, ci, continuity | HISTORY#590,PR#224,.github/workflows/package-release.yml,.github/workflows/pu... |
+| 2026-08-23T06:22:44Z | history:592:e6988503 | session-event | done | harden, security, ci, tests, continuity | HISTORY#591,PR#224,.github/workflows/publish-private-release.yml,.github/RELE... |
+| 2026-08-23T06:43:21Z | history:593:0ad1cd51 | session-event | done | harden, security, tests, ci, docs, continuity | HISTORY#592,PR#224,.github/workflows/package-release.yml,.github/workflows/pu... |
+| 2026-08-23T07:04:24Z | history:594:29ecb58f | session-event | done | harden, security, tests, ci, docs, continuity | HISTORY#593,PR#224,.github/workflows/package-release.yml,.github/workflows/pu... |
+| 2026-08-23T07:42:39Z | history:595:c22a9f95 | session-event | done | ci, security, audit, tests, continuity, operator, config | .github/workflows/publish-private-release.yml; tools/release/verify_private_a... |
+| 2026-08-23T07:43:37Z | history:596:75761dda | session-event | done | correction, continuity, history, verify, audit | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
+| 2026-08-23T08:06:23Z | history:597:5125a974 | session-event | done | bugfix, security, ci, tests, audit, continuity, operator | .github/workflows/publish-private-release.yml,tools/release/verify_private_ar... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0442.cross.md | 2026-04-15T00:00:00Z..2026-07-13T03:25:35Z | 442 | (multi) | (multi) |
+| 0001-0460.cross.md | 2026-04-15T00:00:00Z..2026-07-16T12:38:06Z | 460 | (multi) | (multi) |

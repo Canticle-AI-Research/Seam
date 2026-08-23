@@ -82,7 +82,7 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   request bodies, env-configurable, optional `server` extra. An unset token is
   trusted-loopback development only; automatic token provisioning remains an
   open authentication/UX policy. Protected main's token-only mode is a trusted
-  single-user gate, not tenancy. The unpublished Track S S6 candidate adds
+  single-user gate, not tenancy. Published Track S S6 adds
   optional in-process principal resolution and indexed opaque deletion. In
   principal mode it derives the internal tenant/namespace from the subject,
   binds handles/deletion to the canonical generation, defaults to a bounded
@@ -92,9 +92,8 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   router matching while retaining allowed CORS preflights and mounted
   `root_path` routing. Store-local writes, deletion, and compensation share a
   bounded cross-process lock. Fourteen findings across three exact-head Codex
-  review cycles plus CodeRabbit lock hardening are now locally repaired with
-  185 focused tests. The fourth head still needs exact-head CI, final review,
-  and merge.
+  review cycles plus CodeRabbit lock hardening were repaired and qualified with
+  185 focused tests before PR #223 merged.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime
