@@ -13,7 +13,7 @@ import argparse
 import stat
 import tarfile
 import zipfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 from tools.security.secret_scan import BINARY_EXTENSIONS, MAX_SCAN_BYTES, scan_bytes
 
@@ -28,12 +28,18 @@ _DENIED_NAMES = frozenset(
     }
 )
 _DENIED_SUFFIXES = frozenset({".db", ".key", ".p12", ".pem", ".pfx", ".sqlite", ".sqlite3"})
+_DENIED_FILE_PREFIXES = (".env", "credentials", "secrets")
+_NESTED_ARCHIVE_SUFFIXES = frozenset(
+    {".7z", ".bz2", ".egg", ".gz", ".rar", ".tar", ".tgz", ".txz", ".whl", ".xz", ".zip"}
+)
 
 
 def _validate_member_path(archive: Path, raw_name: str, seen: set[str]) -> str | None:
+    if PureWindowsPath(raw_name).drive:
+        return f"{archive.name}:{raw_name}: unsafe_member_path"
     normalized = raw_name.replace("\\", "/")
     member = PurePosixPath(normalized)
-    if not normalized or member.is_absolute() or ".." in member.parts:
+    if not normalized or not member.parts or member.is_absolute() or ".." in member.parts:
         return f"{archive.name}:{raw_name}: unsafe_member_path"
     canonical = member.as_posix()
     if canonical in seen:
@@ -41,6 +47,8 @@ def _validate_member_path(archive: Path, raw_name: str, seen: set[str]) -> str |
     seen.add(canonical)
     lowered_parts = tuple(part.casefold() for part in member.parts)
     if any(part in _DENIED_NAMES for part in lowered_parts):
+        return f"{archive.name}:{canonical}: credential_path"
+    if lowered_parts[-1].startswith(_DENIED_FILE_PREFIXES):
         return f"{archive.name}:{canonical}: credential_path"
     if any(part in {"secrets", "credentials"} for part in lowered_parts[:-1]):
         return f"{archive.name}:{canonical}: credential_directory"
@@ -57,7 +65,10 @@ def _scan_member(archive: Path, name: str, content: bytes) -> list[str]:
 
 
 def _content_gate(archive: Path, name: str, size: int) -> list[str] | None:
-    if Path(name).suffix.casefold() in BINARY_EXTENSIONS:
+    suffix = Path(name).suffix.casefold()
+    if suffix in _NESTED_ARCHIVE_SUFFIXES:
+        return [f"{archive.name}:{name}:0: nested_archive"]
+    if suffix in BINARY_EXTENSIONS:
         return []
     if size > MAX_SCAN_BYTES:
         return [f"{archive.name}:{name}:0: scan_size_limit"]

@@ -19073,3 +19073,32 @@ milestone, label, tag, release, version bump, deployment, public artifact, or
 paid call occurred. The exact pushed head still requires protected CI and final
 review before merge.
 ---END-ENTRY-#582---
+
+---BEGIN-ENTRY-#583---
+id: 583
+date: 2026-08-23T04:31:22Z
+agent: Codex
+status: changed
+topics: bugfix, ci, docs, gates, handoff, security, status, test, verify
+commits: pending
+refs: HISTORY#582,PR#224,tools/release/verify_private_artifacts.py,.github/workflows/package-release.yml,.github/ISSUE_TEMPLATE/release.yml,docs/handoffs/2026-08-22-github-operations-restacked.md,PROJECT_STATUS.md,docs/status/workspace.md
+supersedes: 582
+tokens: 218
+---
+Repaired all actionable exact-head review findings on PR #224 before merge.
+The private-artifact verifier now rejects Windows drive-qualified members,
+credential-family filename variants, and nested archives instead of silently
+skipping their content. Red regressions cover `credentials.json`, `secrets.txt`,
+`.env.production`, `C:/credentials.json`, and a nested ZIP; the expanded direct
+module passes eight tests and Ruff remains clean.
+
+The release-proposal form now states protected-main review as a future
+publication prerequisite. The environment-gated publishing job revalidates the
+live default-branch head against the dispatched release SHA and rechecks tag
+absence after approval. Project and workspace status now consistently record
+S6 as published at `main@abd2a59`, with S7 next after this operational PR.
+Dependency-contract verification and diff hygiene pass. No issue, milestone,
+tag, release, version bump, deployment, public artifact, provider call, or paid
+work occurred; the repaired successor still requires signed publication,
+repeat exact-head required CI, and final review.
+---END-ENTRY-#583---

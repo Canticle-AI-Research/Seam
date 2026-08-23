@@ -53,7 +53,7 @@ body:
       options:
         - label: This is a private GitHub Release of seam-runtime, not a PyPI or public-client publication.
           required: true
-        - label: The version is already reviewed on protected main and the tag does not exist.
+        - label: Before publication, the version must be reviewed on protected main and the tag must not exist.
           required: true
         - label: Release assets, checksums, generated notes, and the exact target commit will be verified after publication.
           required: true

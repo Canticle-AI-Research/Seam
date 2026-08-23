@@ -9,28 +9,27 @@
 
 ## Current headline
 
-**2026-08-22 — protected `main@a177852` includes PR #222's bounded Track S
-audit repairs; S6 PR #223 is signed, locally runtime-qualified, and repaired
-after three exact-head GitHub reviews.** The governing reports are:
+**2026-08-22 — protected `main@abd2a59` includes merged Track S S6 PR #223;
+GitHub operations PR #224 is restacked on that head and under exact-head
+requalification.** The governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and
 - `docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.md`; and
 - the current handoff in `docs/handoffs/INDEX.md`.
 
-Track S is not complete. S0-S5 are published through PRs #190, #191, #193,
-#194, #195, and #199, and PR #222 landed the later S1/S5 counterexample
-repairs. S6 is implemented only on `track-s/s6-principal-tenancy`. Its original
-exact head passed every required and advisory CI lane. Its first and second
-review-repair heads each passed every required CI lane before the next
-exact-head review exposed additional races or surface gaps. Fourteen Codex
-findings are now repaired across three cycles, plus CodeRabbit's final lock
-hardening; the latest strict-no-skip slice passed 185 tests. A fourth signed
-head, repeat exact-head CI, final review, and merge remain.
+Track S is not complete. S0-S6 are published through PRs #190, #191, #193,
+#194, #195, #199, and #223, and PR #222 landed the later S1/S5 counterexample
+repairs. S6's exact source head `fbefb81` passed the three required checks after
+185 focused strict-no-skip tests and three review-repair cycles; its final
+Codex review found no major issue before merge. Draft PR #224 is an operational
+follow-up for structured issue intake and private GitHub Release hardening, not
+another Track S stage. Its setup remains branch-local until repeat exact-head
+checks, review, and merge complete.
 S7-S10 stay dependency-ordered:
 
 ```text
-S6 principal tenancy candidate
+S6 principal tenancy published
   -> S7 admissible semantic graph
   -> S8 one coherent retrieval engine
   -> S9 matched multi-benchmark qualification
@@ -67,13 +66,11 @@ success, mock persistence, browser-stored credentials, and fabricated metrics.
 It is not a beta operator surface and should be made truthful and secure before
 a visual restyle.
 
-Hosted deployment remains blocked until repaired S6 PR #223 completes
-exact-head CI and merge, and until a production topology proves
-TLS, shared rate
-limiting, service supervision, backup/restore, and disaster recovery.
-Trusted-loopback single-user use remains the protected-main deployment
-boundary. The candidate's legacy token-only mode is likewise trusted and does
-not provide tenancy.
+Hosted deployment remains blocked on S7-S10 qualification and a production
+topology that proves TLS, shared rate limiting, service supervision,
+backup/restore, and disaster recovery. Trusted-loopback single-user use remains
+the deployment boundary unless S6 principal mode is explicitly configured; its
+legacy token-only mode is likewise trusted and does not provide tenancy.
 
 The 2026-08-12 full-repository audit and its detailed prior headline remain
 available at `docs/audits/2026-08-12-full-repo-audit.md` and

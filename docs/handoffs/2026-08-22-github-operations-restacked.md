@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#582
+history: HISTORY#583
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -36,14 +36,26 @@ history: HISTORY#582
   history, routing, handoff, continuity, stream, and wiki gates pass locally.
 - Exact-head GitHub CI and final review remain publication gates.
 
+## Exact-head review repairs
+
+- Credential-family filenames, Windows drive-qualified members, and nested
+  archives now fail closed before release upload; focused regressions cover the
+  concrete reviewed counterexamples.
+- The release-proposal form records publication prerequisites without requiring
+  a proposal author to claim that protected-main review already happened.
+- The environment-gated publishing job rechecks both the live default-branch
+  head and tag absence after approval, closing the wait-window race.
+- `PROJECT_STATUS.md` and the workspace stream now consistently record merged
+  S6 at `main@abd2a59` and PR #224 as the only remaining operational candidate.
+
 ## Next exact steps
 
-1. Append HISTORY#582 and regenerate canonical history, stream, and snapshot
-   state.
-2. Create and verify a signed bookkeeping commit, scan the exact candidate,
-   and push PR #224.
-3. Mark the draft ready, require `repo-hygiene`, `chroma-real-smoke`, and
+HISTORY#582, its signed bookkeeping commit, exact candidate scan, initial push,
+required checks, and the first exact-head review are complete. Continue with:
+
+1. Repair and requalify any exact-head review findings.
+2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.
-4. Publish a final protected-main status/handoff successor naming S7 as next;
+3. Publish a final protected-main status/handoff successor naming S7 as next;
    do not create backlog issues or releases unless the operator asks for them.

@@ -33,7 +33,7 @@ report a worktree as clean while removal would still destroy local data.
 | Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; 1 commit ahead and 1 behind protected main; draft PR is open and conflicting | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; rebase/rechain before publication |
 | Track S/deployment audit | merged PR #222; former `audit/track-s-deployment-20260818` worktree/branch | Published at protected `main@a177852`; temporary worktree and branch are gone | Bounded F-5/F-6/F-10/F-11 and hygiene repairs plus the deployment-readiness audit | Treat as protected-main fact; do not recreate the retired candidate |
 | Track S S6 | `Seam-track-s-s6`; `track-s/s6-principal-tenancy`; merged PR #223 | Published on protected `main@abd2a59`; exact head `fbefb81` passed all required checks and the final Codex review found no major issue | Optional in-process principal binding, prefix-safe pre-router shutdown, cross-process canonical/projection serialization, indexed generation-bound opaque handles, and G6 lifecycle delete | Treat S6 as protected-main behavior; start S7 only from the current handoff after GitHub operations closeout |
-| GitHub issue/release setup | `Seam-github-operations`; `chore/github-issues-releases`; draft PR #224 | Restacked onto `main@abd2a59` in signed merge `b3d35ec`; focused configuration, Ruff, dependency-contract, secret, and continuity gates pass locally | Structured issue forms and hardened private GitHub Release workflow | Push the restacked head, pass exact-head required CI/review, then merge separately |
+| GitHub issue/release setup | `Seam-github-operations`; `chore/github-issues-releases`; PR #224 | Restacked onto `main@abd2a59` in signed merge `b3d35ec`; pushed head `ae25454` passed all three required checks before exact-head review exposed release-boundary gaps now under local repair | Structured issue forms and hardened private GitHub Release workflow | Finish the review repairs, push a signed successor, repeat exact-head CI/review, then merge separately |
 | TUI concept port | `Seam-tui-concept-shell`; local `feat/tui-concept-shell` | Clean at `54bc01a`; 1 commit ahead and 0 behind protected main; no remote/PR | Runtime-backed Textual port of the external operator mock's workflow and visual concepts | Keep separate from S6; review, qualify, publish, or revise without claiming the mock or candidate shipped |
 | Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 5 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
 | Native-roadmap pre-reconcile backup | local `archive/native-model-roadmap-pre-reconcile` | Clean branch; 5 commits ahead and 17 behind main; not a second PR | Preserves the earlier unsigned/unreconciled roadmap lineage that PR #207 replaced | Keep only as a recovery source until PR #207 is resolved; never implement from it independently |
@@ -55,7 +55,7 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 - Role: primary checkout for draft PR #221, not protected main.
 - Branch/head: `research/advanced-persistence-landscape@d699944`, tracking the
   identically named remote branch; it is 1 commit ahead and 1 behind protected
-  `origin/main@a177852` and the PR currently conflicts.
+  `origin/main@abd2a59` and the PR currently conflicts.
 - Repository identity: GitHub resolves both the configured legacy owner URL
   `BlackhatShiftey/Seam` and `Canticle-AI-Research/Seam` to canonical
   `Canticle-AI-Research/Seam`; PR links therefore use the organization URL.
@@ -81,11 +81,12 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 ### `/home/terrabyte/Documents/Projects/Seam-github-operations`
 
 - Role: isolated GitHub Issues and private Releases setup.
-- Branch/head: `chore/github-issues-releases` is locally restacked on protected
-  `main@abd2a59` by signed merge `b3d35ec`; draft PR #224 targets `main`.
-- Tracked state: locally clean before the current bookkeeping successor;
-  focused configuration tests, Ruff, dependency-contract, secret scan, and
-  all continuity gates pass. Exact-head push, CI, and review remain.
+- Branch/head: `chore/github-issues-releases` is restacked on protected
+  `main@abd2a59` by signed merge `b3d35ec`; PR #224 targets `main`.
+- Tracked state: pushed head `ae25454` passed all three required checks before
+  exact-head review found credential/archive, proposal-order, release-head, and
+  status reconciliation gaps. Their bounded repairs are local and unqualified
+  until a signed successor passes repeat CI and review.
 - Boundary: issue templates and release hardening are not live on protected
   main yet; no new issue, milestone, tag, release, or deployment was created.
 
@@ -230,7 +231,7 @@ its local branch.
 
 | Remote branch | Relationship to main | Full description | Disposition boundary |
 | --- | ---: | --- | --- |
-| `origin/main` | canonical | Protected publication source at `a177852` after merged PR #222 | Never direct-push |
+| `origin/main` | canonical | Protected publication source at `abd2a59` after merged PR #223 | Never direct-push |
 | `origin/backup/local-pgvector-bootstrap` | 2 ahead / 409 behind | Early local-pgvector bootstrap backup with Compose/init SQL, PowerShell setup, old project-map docs, an imported design source, and a PDF handoff artifact | Protected historical backup; never use as current pgvector setup without a file-by-file rewrite |
 | `origin/copilot/agent-types-on-github` | 0 ahead / 3 behind | Remote pointer already fully contained by main at the PR #216 merge | Remote cleanup candidate; deletion needs exact approval |
 | `origin/copilot/understanding-operations` | 0 ahead / 15 behind | Remote pointer already fully contained by main at the Track S visual-status merge | Remote cleanup candidate; deletion needs exact approval |
@@ -315,18 +316,18 @@ features and not the same work as `skills/rebuild-agent-layer-and-drift-gate`.
 8. `Seam_Runtime` is the isolated public-client source. Its `seam-client`
    package is not a second private runtime, and SEAM's `seam-runtime` remote is
    not a publication route for current private code.
-9. `track-s/s6-principal-tenancy` is the only current S6 implementation
-   candidate. Its dirty runtime/docs/tests are coordinated work, not
-   protected-main facts or material to reimplement in another worktree.
+9. `track-s/s6-principal-tenancy` is the retained source branch for merged
+   PR #223. Its S6 runtime behavior is protected-main fact at `abd2a59`; the
+   branch is not a second candidate or a base for new work.
 10. `feat/tui-concept-shell` owns the separate TUI concept port. The external
     `.dc.html` file is design input only; do not copy its prototype behavior into
     S6 or describe either source as shipped.
 
 ## Recommended resolution order
 
-1. Freeze and review the S6 candidate on its exact `a177852` base. Complete the
-   full repository gates and continuity chain, open the bounded PR, pass
-   exact-head CI, and merge before beginning S7.
+1. Finish PR #224's bounded exact-head review repairs and merge its GitHub
+   Issues/private Releases setup before beginning S7 from `main@abd2a59` or its
+   protected successor.
 2. Keep the TUI concept port separate. Review and qualify its runtime-backed
    behavior, then publish or revise it without coupling Track S stage status to
    the external mock.
@@ -347,9 +348,9 @@ features and not the same work as `skills/rebuild-agent-layer-and-drift-gate`.
 8. Audit local-only `agent/g3-finish-remaining-gaps` and
    `skills/rebuild-agent-layer-and-drift-gate`; classify each as salvage,
    publish, archive, or abandon without copying it into S6 by default.
-9. After S6 publishes, execute S7 semantic ingest before S8 retrieval/surface
-   parity. S9 remains downstream of both, and S10 remains the release and
-   deployment proof over completed S0-S9 evidence.
+9. After the GitHub operations closeout, execute S7 semantic ingest before S8
+   retrieval/surface parity. S9 remains downstream of both, and S10 remains the
+   release and deployment proof over completed S0-S9 evidence.
 
 ## Refresh commands
 
