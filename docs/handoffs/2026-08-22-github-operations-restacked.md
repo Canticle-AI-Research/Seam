@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#584
+history: HISTORY#585
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -47,13 +47,20 @@ history: HISTORY#584
   head and tag absence after approval, closing the wait-window race.
 - `PROJECT_STATUS.md` and the workspace stream now consistently record merged
   S6 at `main@abd2a59` and PR #224 as the only remaining operational candidate.
+- The second exact-head review expanded credential detection to embedded
+  markers such as `client_secret`, detects nested containers by archive magic
+  as well as suffix, classifies SemVer prereleases for GitHub, creates the tag
+  atomically at the verified SHA before `--verify-tag` publication, keeps the
+  proposal target optional until freeze, and reconciles the routed operations
+  stream with merged S6.
 
 ## Next exact steps
 
-HISTORY#583, its signed review-repair commit, exact candidate scan, initial
-required checks, and both local review cycles are complete. Continue with:
+HISTORY#584, its signed review-repair commits, exact candidate scan, initial
+required checks, and the two prior local review cycles are complete. Continue
+with:
 
-1. Push the completed review-repair successor.
+1. Push the completed second exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

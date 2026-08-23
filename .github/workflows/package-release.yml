@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
       - name: Check out the selected commit
         uses: actions/checkout@v4
@@ -87,7 +88,9 @@ jobs:
               raise SystemExit(f"requested version {requested!r} is not exact SemVer without a leading v")
           if version != requested:
               raise SystemExit(f"{project_file} version {version!r} does not match requested version {requested!r}")
-          print(f"version={version}", file=open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              print(f"version={version}", file=output)
+              print(f"prerelease={str(bool(prerelease_separator)).lower()}", file=output)
           PY
 
       - name: Build distributions
@@ -172,11 +175,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.build.outputs.version }}
+          PRERELEASE: ${{ needs.build.outputs.prerelease }}
           COMMIT_SHA: ${{ github.sha }}
         run: |
+          release_flags=()
+          if [[ "${PRERELEASE}" == "true" ]]; then
+            release_flags+=(--prerelease)
+          fi
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f ref="refs/tags/v${VERSION}" \
+            -f sha="${COMMIT_SHA}" >/dev/null
+          tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" --jq '.object.sha')"
+          if [[ "${tag_sha}" != "${COMMIT_SHA}" ]]; then
+            echo "Created tag v${VERSION} does not target release commit ${COMMIT_SHA}." >&2
+            exit 1
+          fi
           gh release create "v${VERSION}" dist/* \
             --repo "${GITHUB_REPOSITORY}" \
-            --target "${COMMIT_SHA}" \
+            --verify-tag \
+            "${release_flags[@]}" \
             --title "SEAM ${VERSION}" \
             --notes "Private proprietary SEAM runtime release ${VERSION}." \
             --generate-notes

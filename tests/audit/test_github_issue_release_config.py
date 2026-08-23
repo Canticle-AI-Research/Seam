@@ -16,6 +16,7 @@ from tools.release.verify_private_artifacts import verify_artifacts
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ISSUE_TEMPLATE_DIR = REPO_ROOT / ".github" / "ISSUE_TEMPLATE"
 PACKAGE_RELEASE = REPO_ROOT / ".github" / "workflows" / "package-release.yml"
+OPERATIONS_STATUS = REPO_ROOT / "docs" / "status" / "operations.md"
 
 
 def _write_wheel(path: Path, members: dict[str, bytes]) -> None:
@@ -57,6 +58,8 @@ def test_issue_forms_are_structured_and_content_safe() -> None:
     labels = [option["label"] for option in boundary["attributes"]["options"]]
     assert any("Before publication" in label for label in labels)
     assert not any("already reviewed" in label for label in labels)
+    target = next(field for field in release_form["body"] if field.get("id") == "target")
+    assert target.get("validations", {}).get("required") is not True
 
 
 def test_release_notes_config_has_bounded_categories_and_catchall() -> None:
@@ -87,30 +90,54 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "git/ref/heads/${DEFAULT_BRANCH}" in raw
     assert "RELEASE_SHA: ${{ github.sha }}" in raw
     assert "current protected-main head" in raw
+    assert "prerelease: ${{ steps.version.outputs.prerelease }}" in raw
+    assert "--prerelease" in raw
+    assert "git/refs" in raw
+    assert "--verify-tag" in raw
     publish = document["jobs"]["private-github-release"]
     assert publish["environment"] == "private-package-release"
     assert publish["permissions"] == {"contents": "write"}
 
 
-@pytest.mark.parametrize("requested", [" 2.4.0", "2.4.0 "])
-def test_package_release_rejects_semver_whitespace(tmp_path: Path, requested: str) -> None:
+def _run_version_step(tmp_path: Path, *, project_version: str, requested: str) -> subprocess.CompletedProcess[str]:
     document = yaml.safe_load(PACKAGE_RELEASE.read_text(encoding="utf-8"))
     step = next(step for step in document["jobs"]["build"]["steps"] if step.get("id") == "version")
     script = step["run"].removeprefix("python - <<'PY'\n").removesuffix("PY\n")
+    (tmp_path / "pyproject.toml").write_text(
+        f'[project]\nname = "seam-runtime"\nversion = "{project_version}"\n',
+        encoding="utf-8",
+    )
     output = tmp_path / "github-output.txt"
     env = os.environ.copy()
     env.update({"GITHUB_OUTPUT": str(output), "REQUESTED_VERSION": requested})
-
-    result = subprocess.run(
+    return subprocess.run(
         [sys.executable, "-c", script],
-        cwd=REPO_ROOT,
+        cwd=tmp_path,
         env=env,
         check=False,
         capture_output=True,
         text=True,
     )
 
+
+@pytest.mark.parametrize("requested", [" 2.4.0", "2.4.0 "])
+def test_package_release_rejects_semver_whitespace(tmp_path: Path, requested: str) -> None:
+    result = _run_version_step(tmp_path, project_version="2.4.0", requested=requested)
+
     assert result.returncode != 0
+
+
+@pytest.mark.parametrize(
+    ("version", "expected"),
+    [("2.5.0", "prerelease=false"), ("2.5.0-rc.1", "prerelease=true")],
+)
+def test_package_release_classifies_semver_prereleases(
+    tmp_path: Path, version: str, expected: str
+) -> None:
+    result = _run_version_step(tmp_path, project_version=version, requested=version)
+
+    assert result.returncode == 0, result.stderr
+    assert expected in (tmp_path / "github-output.txt").read_text(encoding="utf-8")
 
 
 def test_private_artifact_verifier_accepts_one_clean_wheel_and_sdist(tmp_path: Path) -> None:
@@ -143,6 +170,7 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
             "seam_runtime/credentials.json": b"placeholder\n",
             "seam_runtime/secrets.txt": b"placeholder\n",
             "seam_runtime/.env.production": b"placeholder\n",
+            "seam_runtime/client_secret.json": b'{"client_secret":"ordinary-password"}\n',
             "C:/credentials.json": b"placeholder\n",
         },
     )
@@ -150,7 +178,7 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
 
     findings = verify_artifacts([wheel, sdist])
 
-    for name in ("credentials.json", "secrets.txt", ".env.production"):
+    for name in ("credentials.json", "secrets.txt", ".env.production", "client_secret.json"):
         assert any(name in finding and "credential_path" in finding for finding in findings)
     assert any("C:/credentials.json" in finding and "unsafe_member_path" in finding for finding in findings)
 
@@ -158,12 +186,28 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
 def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> None:
     wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
     sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
-    _write_wheel(wheel, {"seam_runtime/webui/assets.zip": b"uninspected archive"})
+    nested = io.BytesIO()
+    with zipfile.ZipFile(nested, mode="w") as archive:
+        archive.writestr(".env", b"PASSWORD=ordinary-password\n")
+    _write_wheel(
+        wheel,
+        {
+            "seam_runtime/webui/assets.zip": b"uninspected archive",
+            "seam_runtime/webui/assets.jar": nested.getvalue(),
+        },
+    )
     _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
-    assert any("assets.zip" in finding and "nested_archive" in finding for finding in findings)
+    for name in ("assets.zip", "assets.jar"):
+        assert any(name in finding and "nested_archive" in finding for finding in findings)
+
+
+def test_operations_status_records_merged_s6() -> None:
+    raw = OPERATIONS_STATUS.read_text(encoding="utf-8")
+    assert "S6 (principal tenancy and opaque deletion) is published" in raw
+    assert "Fourth-head CI/final review and merge remain" not in raw
 
 
 def test_private_artifact_verifier_rejects_non_regular_sdist_members(tmp_path: Path) -> None:

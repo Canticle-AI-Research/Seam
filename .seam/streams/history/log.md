@@ -19128,3 +19128,32 @@ tag, release, version bump, deployment, public artifact, provider call, or paid
 work occurred. Signed push, repeat exact-head CI, and final exact-head review
 remain publication gates.
 ---END-ENTRY-#584---
+
+---BEGIN-ENTRY-#585---
+id: 585
+date: 2026-08-23T04:49:40Z
+agent: Codex
+status: changed
+topics: bugfix, ci, docs, gates, handoff, security, status, test, verify
+commits: pending
+refs: HISTORY#584,PR#224,tools/release/verify_private_artifacts.py,.github/workflows/package-release.yml,.github/ISSUE_TEMPLATE/release.yml,tests/audit/test_github_issue_release_config.py,docs/status/operations.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 584
+tokens: 226
+---
+Repaired all six actionable findings from the second exact-head Codex review of
+PR #224. Credential detection now rejects embedded markers such as
+`client_secret`; nested ZIP/JAR and other containers are detected by magic as
+well as suffix while only bounded headers are read before binary/size routing.
+The release form keeps its intended target optional until candidate freeze, and
+the routed operations stream now records S6 as merged at `main@abd2a59`.
+
+The version gate emits a tested prerelease classification. Publishing creates
+the lightweight tag atomically at the already revalidated release SHA, verifies
+its target, and uses `gh release create --verify-tag`; prerelease SemVer adds the
+GitHub prerelease flag. Seven new or expanded red regressions now pass, and the
+direct configuration/release module passes thirteen tests. Ruff,
+dependency-contract verification, and diff hygiene pass. No issue, milestone,
+tag, release, version bump, deployment, public artifact, provider call, or paid
+work occurred. Signed push, repeat exact-head required CI, and final exact-head
+review remain publication gates.
+---END-ENTRY-#585---

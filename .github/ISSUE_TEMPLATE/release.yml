@@ -17,10 +17,8 @@ body:
     id: target
     attributes:
       label: Intended protected-main commit
-      description: Pin the full commit SHA once the release candidate is frozen.
+      description: Optional at proposal time; edit the issue to pin the full commit SHA once the release candidate is frozen.
       placeholder: Full 40-character commit SHA
-    validations:
-      required: true
 
   - type: textarea
     id: scope

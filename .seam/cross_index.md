@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 647
+total_events: 648
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-15T03:19:09Z | history:391:aa60db95 | session-event | done | benchmark, locomo, quality, audit, verify | docs/audits/2026-07-14-post-temporal-per-case-review.md,PROJECT_STATUS.md |
 | 2026-07-15T11:14:21Z | history:392:212b18cf | session-event | done | benchmark, locomo, quality, paid-validation, negative-res... | seam_runtime/conversation.py,tools/h2/rejudge_record.py,tests/audit/test_sema... |
 | 2026-07-15T11:29:48Z | history:393:765c2d9f | session-event | done | benchmark, mem0, harness, command, tests, verify | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 | 2026-07-15T11:35:53Z | history:394:f348135d | session-event | done | benchmark, mem0, harness, cleanup | benchmarks/external/mem0_harness/README.md,benchmarks/external/mem0_harness/s... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T04:15:43Z | history:582:c8609f49 | session-event | changed | ci, docs, gates, handoff, history, operator, registry, se... | HISTORY#581,PR#223,PR#224,docs/handoffs/2026-08-22-github-operations-restacke... |
 | 2026-08-23T04:31:22Z | history:583:ab9783a4 | session-event | changed | bugfix, ci, docs, gates, handoff, security, status, test,... | HISTORY#582,PR#224,tools/release/verify_private_artifacts.py,.github/workflow... |
 | 2026-08-23T04:35:27Z | history:584:67598c4b | session-event | changed | bugfix, ci, docs, gates, handoff, security, test, verify | HISTORY#583,PR#224,.github/workflows/package-release.yml,tests/audit/test_git... |
+| 2026-08-23T04:49:40Z | history:585:b1224212 | session-event | changed | bugfix, ci, docs, gates, handoff, security, status, test,... | HISTORY#584,PR#224,tools/release/verify_private_artifacts.py,.github/workflow... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0447.cross.md | 2026-04-15T00:00:00Z..2026-07-15T01:05:17Z | 447 | (multi) | (multi) |
+| 0001-0448.cross.md | 2026-04-15T00:00:00Z..2026-07-15T03:19:09Z | 448 | (multi) | (multi) |
