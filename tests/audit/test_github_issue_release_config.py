@@ -194,13 +194,14 @@ def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> No
         {
             "seam_runtime/webui/assets.zip": b"uninspected archive",
             "seam_runtime/webui/assets.jar": nested.getvalue(),
+            "seam_runtime/webui/payload.bin": nested.getvalue(),
         },
     )
     _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
-    for name in ("assets.zip", "assets.jar"):
+    for name in ("assets.zip", "assets.jar", "payload.bin"):
         assert any(name in finding and "nested_archive" in finding for finding in findings)
 
 

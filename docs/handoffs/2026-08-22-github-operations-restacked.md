@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#585
+history: HISTORY#587
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -53,12 +53,15 @@ history: HISTORY#585
   atomically at the verified SHA before `--verify-tag` publication, keeps the
   proposal target optional until freeze, and reconciles the routed operations
   stream with merged S6.
+- The follow-up CodeRabbit review's archive-magic evidence gap is closed with
+  an unrecognized `payload.bin` ZIP fixture. Its timestamp suggestion was
+  rejected: the cited canonical HISTORY entries contain date-only values, so
+  derived cross-index rows correctly preserve them without invented instants.
 
 ## Next exact steps
 
-HISTORY#584, its signed review-repair commits, exact candidate scan, initial
-required checks, and the two prior local review cycles are complete. Continue
-with:
+HISTORY#585, its signed review-repair commits, exact candidate scan, initial
+required checks, and the prior review cycles are complete. Continue with:
 
 1. Push the completed second exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and

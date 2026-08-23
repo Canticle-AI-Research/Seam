@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 648
+total_events: 650
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-15T11:14:21Z | history:392:212b18cf | session-event | done | benchmark, locomo, quality, paid-validation, negative-res... | seam_runtime/conversation.py,tools/h2/rejudge_record.py,tests/audit/test_sema... |
-| 2026-07-15T11:29:48Z | history:393:765c2d9f | session-event | done | benchmark, mem0, harness, command, tests, verify | benchmarks/external/mem0_harness/seam_mem0_server.py,tests/audit/test_seam_me... |
 | 2026-07-15T11:35:53Z | history:394:f348135d | session-event | done | benchmark, mem0, harness, cleanup | benchmarks/external/mem0_harness/README.md,benchmarks/external/mem0_harness/s... |
 | 2026-07-15T11:49:56Z | history:395:de5bf982 | session-event | done | benchmark, locomo, mem0, harness, retrieval, quality, tes... | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
 | 2026-07-15T12:08:08Z | history:396:6f876cc6 | session-event | done | benchmark, locomo, quality, audit | docs/audits/2026-07-15-champion-problem-scan.md,PROJECT_STATUS.md |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T04:31:22Z | history:583:ab9783a4 | session-event | changed | bugfix, ci, docs, gates, handoff, security, status, test,... | HISTORY#582,PR#224,tools/release/verify_private_artifacts.py,.github/workflow... |
 | 2026-08-23T04:35:27Z | history:584:67598c4b | session-event | changed | bugfix, ci, docs, gates, handoff, security, test, verify | HISTORY#583,PR#224,.github/workflows/package-release.yml,tests/audit/test_git... |
 | 2026-08-23T04:49:40Z | history:585:b1224212 | session-event | changed | bugfix, ci, docs, gates, handoff, security, status, test,... | HISTORY#584,PR#224,tools/release/verify_private_artifacts.py,.github/workflow... |
+| 2026-08-23T04:57:49Z | history:586:dbb95462 | session-event | changed | audit, ci, correction, docs, handoff, provenance, test, v... | HISTORY#585,PR#224,tests/audit/test_github_issue_release_config.py,.seam/cros... |
+| 2026-08-23T04:58:37Z | history:587:b4188469 | session-event | changed | correction, history, integrity, provenance, verify | HISTORY#586,tests/audit/test_github_issue_release_config.py,docs/handoffs/202... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0448.cross.md | 2026-04-15T00:00:00Z..2026-07-15T03:19:09Z | 448 | (multi) | (multi) |
+| 0001-0450.cross.md | 2026-04-15T00:00:00Z..2026-07-15T11:29:48Z | 450 | (multi) | (multi) |

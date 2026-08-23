@@ -19157,3 +19157,55 @@ tag, release, version bump, deployment, public artifact, provider call, or paid
 work occurred. Signed push, repeat exact-head required CI, and final exact-head
 review remain publication gates.
 ---END-ENTRY-#585---
+
+---BEGIN-ENTRY-#586---
+id: 586
+date: 2026-08-23T04:57:49Z
+agent: Codex
+status: changed
+topics: audit, ci, correction, docs, handoff, provenance, test, verify
+commits: pending
+refs: HISTORY#585,PR#224,tests/audit/test_github_issue_release_config.py,.seam/cross_index_archive/0001-0448.cross.md,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 585
+tokens: 201
+---
+Disposed the two findings from the follow-up CodeRabbit review of signed
+PR #224 repair head `fb99d8f`. The valid evidence gap is closed: the nested
+archive regression now includes ZIP bytes under the unrecognized filename
+`payload.bin`, alongside `.zip` and `.jar`, and all three fail as
+`nested_archive` by magic or suffix.
+
+The suggested cross-index timestamp rewrite was rejected after checking the
+canonical source. HISTORY#185, #187-#190, and #199 contain date-only values;
+the derived archive correctly preserves those dates. No complete UTC instants
+exist to recover, and substituting midnight or invented times would violate
+provenance. The direct module remains thirteen tests green and Ruff/diff
+hygiene pass. No issue, milestone, tag, release, version bump, deployment,
+public artifact, provider call, or paid work occurred. Signed push, repeat
+exact-head required CI, and final exact-head review remain publication gates.
+---END-ENTRY-#586---
+
+---BEGIN-ENTRY-#587---
+id: 587
+date: 2026-08-23T04:58:37Z
+agent: Codex
+status: changed
+topics: correction, history, integrity, provenance, verify
+commits: pending
+refs: HISTORY#586,tests/audit/test_github_issue_release_config.py,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 586
+tokens: 154
+---
+Corrected HISTORY#586's unstable derived-file reference without editing that
+append-only entry. The review disposition itself remains accurate: canonical
+date-only HISTORY values were preserved, and the unrecognized-suffix archive
+magic regression passes. The mistake was naming the current numbered
+cross-index archive in `refs`; closeout rotates that derived filename as the
+history stream grows, so it cannot be a durable source reference.
+
+This successor points only to stable authored paths and records the failed
+continuity attempt honestly. After this correction, regenerate the history
+index, stream mirror, cross-index, and snapshot, then repeat every closeout
+gate. No product code, issue, milestone, tag, release, version, deployment,
+public artifact, provider call, or paid work changed.
+---END-ENTRY-#587---
