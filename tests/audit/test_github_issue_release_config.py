@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import os
+import stat
 import subprocess
 import sys
 import tarfile
@@ -117,11 +118,24 @@ def test_package_release_stays_private_and_verifiable() -> None:
 
     follow_up_raw = PUBLISH_RELEASE.read_text(encoding="utf-8")
     follow_up = yaml.safe_load(follow_up_raw)
+    assert follow_up["permissions"] == {"actions": "read", "contents": "read"}
     publish_job = follow_up["jobs"]["publish-reviewed-draft"]
+    authorize_job = follow_up["jobs"]["authorize-publisher"]
+    assert authorize_job["permissions"] == {}
+    assert "PRIVATE_RELEASE_APPROVER" in follow_up_raw
+    assert "Only the configured private release operator" in follow_up_raw
+    assert publish_job["needs"] == "authorize-publisher"
     assert publish_job["environment"] == "private-package-release"
-    assert publish_job["permissions"] == {"contents": "write"}
+    assert publish_job["permissions"] == {"actions": "read", "contents": "write"}
     assert "git/ref/tags/v${VERSION}" in follow_up_raw
     assert "EXPECTED_SHA" in follow_up_raw
+    assert "EXPECTED_RUN_ID" in follow_up_raw
+    assert "actions/runs/${EXPECTED_RUN_ID}" in follow_up_raw
+    assert 'run_path}' in follow_up_raw
+    assert 'run_sha}' in follow_up_raw
+    assert 'gh run download "${EXPECTED_RUN_ID}"' in follow_up_raw
+    assert "prepared-assets" in follow_up_raw
+    assert "trusted preparation-run artifact bytes" in follow_up_raw
     assert "EXPECTED_NOTES_SHA256" in follow_up_raw
     assert "IMMUTABILITY_CONFIRMED" in follow_up_raw
     assert '${EXPECTED_SHA,,}' in follow_up_raw
@@ -135,6 +149,9 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "final_main_sha" in follow_up_raw
     assert "sha256sum --status --check" in follow_up_raw
     assert ".prerelease" in follow_up_raw
+    assert "release_title" in follow_up_raw
+    assert '"SEAM ${VERSION}"' in follow_up_raw
+    assert '"release-title"' in follow_up_raw
     assert ".immutable" in follow_up_raw
     assert "include_binary=True" in follow_up_raw
     assert "gh release edit" in follow_up_raw
@@ -237,6 +254,61 @@ def test_private_artifact_verifier_binds_wheel_metadata_directory(tmp_path: Path
     )
 
     assert any("expected_one_metadata_member" in finding for finding in findings)
+
+
+def test_private_artifact_verifier_binds_sdist_root_directory(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    metadata = b"Metadata-Version: 2.4\nName: seam-runtime\nVersion: 2.5.0\n\n"
+    _write_wheel(
+        wheel,
+        {"seam_runtime-2.5.0.dist-info/METADATA": metadata},
+    )
+    _write_sdist(
+        sdist,
+        {
+            "other-project/PKG-INFO": metadata,
+            "other-project/README.md": b"misleading root\n",
+        },
+    )
+
+    findings = verify_artifacts(
+        [wheel, sdist], expected_name="seam-runtime", expected_version="2.5.0"
+    )
+
+    assert any("sdist_root_mismatch" in finding for finding in findings)
+    assert any("expected_one_metadata_member" in finding for finding in findings)
+
+
+def test_private_artifact_verifier_rejects_payload_bearing_zip_directory(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    secret = ("sk-" + "proj-" + "9" * 24).encode()
+    with zipfile.ZipFile(wheel, mode="w") as archive:
+        directory = zipfile.ZipInfo("seam_runtime/")
+        directory.external_attr = (stat.S_IFDIR | 0o755) << 16
+        archive.writestr(directory, secret, compress_type=zipfile.ZIP_DEFLATED)
+    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert any("payload_directory_member" in finding for finding in findings)
+    assert secret.decode() not in "\n".join(findings)
+
+
+def test_private_artifact_verifier_rejects_payload_bearing_tar_directory(tmp_path: Path) -> None:
+    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
+    with tarfile.open(sdist, mode="w:gz") as archive:
+        directory = tarfile.TarInfo("seam_runtime-2.5.0/")
+        directory.type = tarfile.DIRTYPE
+        directory.size = 7
+        archive.addfile(directory, io.BytesIO(b"payload"))
+
+    findings = verify_artifacts([wheel, sdist])
+
+    assert any("payload_directory_member" in finding for finding in findings)
 
 
 def test_private_artifact_verifier_rejects_secret_and_unsafe_paths(tmp_path: Path) -> None:

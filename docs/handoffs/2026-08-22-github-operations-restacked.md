@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#594
+history: HISTORY#596
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -86,13 +86,23 @@ history: HISTORY#594
   control characters, exact wheel dist-info binding, container-level archive
   scanning, silent checksums, prerelease classification binding, guarded-flow
   completion messaging, and operator plus post-publication immutability gates.
+- The eighth exact-head review binds publication to the immutable artifact from
+  the named successful preparation run, requires the configured publication
+  actor before the write-permission job, binds and scans the exact release
+  title, enforces the filename-derived sdist root, and rejects payload-bearing
+  archive directory entries. GitHub rejected a required-reviewer environment
+  rule with HTTP 422 on the current private-repo plan, so the actor allowlist is
+  the supported solo-operator boundary and must not be described as a separate
+  reviewer approval.
 
 ## Next exact steps
 
-HISTORY#593, its signed review-repair commits, exact candidate scan, initial
-required checks, and the prior review cycles are complete. Continue with:
+HISTORY#596's corrected closeout for the locally qualified eighth-review repair,
+the prior signed repair
+commits, exact candidate scans, required checks, and review cycles are complete
+through the local boundary. Continue with:
 
-1. Push the completed seventh exact-head review-repair successor.
+1. Commit and push the completed eighth exact-head review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

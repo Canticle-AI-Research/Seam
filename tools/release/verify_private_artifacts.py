@@ -210,6 +210,8 @@ def _scan_wheel(path: Path) -> list[str]:
                     findings.append(f"{path.name}:{member_ref}: symbolic_link")
                     continue
                 if info.is_dir():
+                    if info.file_size or info.compress_size:
+                        findings.append(f"{path.name}:{member_ref}: payload_directory_member")
                     continue
                 if mode not in {0, stat.S_IFREG}:
                     findings.append(f"{path.name}:{member_ref}: non_regular_member")
@@ -243,6 +245,8 @@ def _scan_sdist(path: Path) -> list[str]:
                     findings.append(path_finding)
                     continue
                 if info.isdir():
+                    if info.size:
+                        findings.append(f"{path.name}:{member_ref}: payload_directory_member")
                     continue
                 if not info.isfile():
                     findings.append(f"{path.name}:{member_ref}: non_regular_member")
@@ -318,13 +322,20 @@ def _scan_sdist_identity(path: Path, expected_name: str, expected_version: str) 
             findings.append(f"{path.name}: artifact_name_mismatch")
         if canonicalize_version(str(version)) != canonicalize_version(expected_version):
             findings.append(f"{path.name}: artifact_version_mismatch")
+        expected_root = path.name.removesuffix(".tar.gz")
         with tarfile.open(path, mode="r:gz") as archive:
+            members = archive.getmembers()
+            if any(
+                not PurePosixPath(info.name).parts
+                or PurePosixPath(info.name).parts[0] != expected_root
+                for info in members
+            ):
+                findings.append(f"{path.name}: sdist_root_mismatch")
             metadata_members = [
                 info
-                for info in archive.getmembers()
+                for info in members
                 if info.isfile()
-                and len(PurePosixPath(info.name).parts) == 2
-                and PurePosixPath(info.name).name == "PKG-INFO"
+                and PurePosixPath(info.name).as_posix() == f"{expected_root}/PKG-INFO"
             ]
             if len(metadata_members) != 1:
                 return [*findings, f"{path.name}: expected_one_metadata_member"]

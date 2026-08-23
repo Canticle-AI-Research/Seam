@@ -9,9 +9,10 @@
 
 ## Current headline
 
-**2026-08-22 — protected `main@abd2a59` includes merged Track S S6 PR #223;
-GitHub operations PR #224 is restacked on that head and under exact-head
-requalification.** The governing reports are:
+**2026-08-23 — protected `main@abd2a59` includes merged Track S S6 PR #223;
+GitHub operations PR #224 is restacked on that head, and its eighth-review
+successor is locally qualified for repeat exact-head publication gates.** The
+governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and
@@ -24,8 +25,10 @@ repairs. S6's exact source head `fbefb81` passed the three required checks after
 185 focused strict-no-skip tests and three review-repair cycles; its final
 Codex review found no major issue before merge. PR #224 is an operational
 follow-up for structured issue intake and private GitHub Release hardening, not
-another Track S stage. Its setup remains branch-local until repeat exact-head
-checks, review, and merge complete.
+another Track S stage. Its issue forms and workflows remain branch-local until
+the signed successor passes repeat exact-head checks/review and merges; the
+live repository now has the admin-controlled `PRIVATE_RELEASE_APPROVER`
+variable required by that successor.
 S7-S10 stay dependency-ordered:
 
 ```text

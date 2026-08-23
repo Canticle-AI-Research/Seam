@@ -136,13 +136,16 @@ and `HISTORY_INDEX.md`.
   uploads assets into the draft, and leaves publication to the separate
   environment-gated `publish-private-release.yml` follow-up after an operator
   reviews the generated notes for private data and unsupported claims. The
-  follow-up requires that target to remain the current protected-main head and
+  follow-up runs only for the account named by the repository
+  `PRIVATE_RELEASE_APPROVER` Actions variable, requires that target to remain
+  the current protected-main head, and binds the reviewed draft byte-for-byte
+  to the immutable artifact from the named successful preparation run. It
   rechecks the lightweight tag, reviewed manifest and notes digests, exact
   checksum coverage, downloaded artifact name/version metadata and content,
-  notes secret scan, unchanged draft fingerprint, and live protected head
-  immediately before publication. The operator must attest the live repository
-  immutability setting, and the follow-up verifies the published release's
-  immutable flag or removes the mutable release/tag. A
+  exact release title, text secret scan, unchanged draft fingerprint, and live
+  protected head immediately before publication. The operator must attest the
+  live repository immutability setting, and the follow-up verifies the
+  published release's immutable flag or removes the mutable release/tag. A
   failed attempt removes only its exact unpublished draft/tag, while ambiguous
   or already-published state is left for operator review. Prerelease SemVer is
   marked as a GitHub prerelease. It has no PyPI target, public publish step, or
@@ -164,9 +167,13 @@ and `HISTORY_INDEX.md`.
   private `seam-runtime` PyPI prohibition.
 - The private GitHub repository has `private-package-release` and `pypi`
   environments restricted to protected branches. The current account plan did
-  not accept a wait-timer protection rule, so do not describe either
-  environment as reviewer-approved or time-delayed. PyPI itself still requires
-  the separate Trusted Publisher registration before any OIDC upload can work.
+  not accept wait-timer or required-reviewer protection rules, so do not
+  describe either environment as reviewer-approved or time-delayed. Private
+  release publication instead fails before the write-permission job unless
+  `github.actor` matches the admin-controlled `PRIVATE_RELEASE_APPROVER`
+  repository variable; the protected-branch environment remains a second
+  deployment boundary. PyPI itself still requires the separate Trusted
+  Publisher registration before any OIDC upload can work.
 - Security-sensitive reports should be handled privately through `SECURITY.md`;
   do not disclose private data, credential material, customer data, or exploit
   details in public issues.

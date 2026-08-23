@@ -11,6 +11,10 @@ on:
         description: Full protected-main commit SHA targeted by the reviewed draft
         required: true
         type: string
+      preparation_run_id:
+        description: Successful Package release workflow run that produced the reviewed assets
+        required: true
+        type: string
       manifest_sha256:
         description: SHA256 of the reviewed draft asset SHA256SUMS.txt
         required: true
@@ -26,6 +30,7 @@ on:
         type: boolean
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -33,11 +38,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  authorize-publisher:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require the configured private release operator
+        env:
+          ACTOR: ${{ github.actor }}
+          APPROVER: ${{ vars.PRIVATE_RELEASE_APPROVER }}
+        run: |
+          if [[ -z "${APPROVER}" || "${ACTOR}" != "${APPROVER}" ]]; then
+            echo "Only the configured private release operator may dispatch publication." >&2
+            exit 1
+          fi
+
   publish-reviewed-draft:
+    needs: authorize-publisher
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     environment: private-package-release
     permissions:
+      actions: read
       contents: write
     steps:
       - name: Check out current protected main
@@ -54,6 +75,7 @@ jobs:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           VERSION: ${{ inputs.version }}
           EXPECTED_SHA: ${{ inputs.commit_sha }}
+          EXPECTED_RUN_ID: ${{ inputs.preparation_run_id }}
           EXPECTED_MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
           EXPECTED_NOTES_SHA256: ${{ inputs.notes_sha256 }}
           IMMUTABILITY_CONFIRMED: ${{ inputs.immutability_confirmed }}
@@ -68,6 +90,7 @@ jobs:
           expected_sha = os.environ["EXPECTED_SHA"]
           manifest_sha = os.environ["EXPECTED_MANIFEST_SHA256"]
           notes_sha = os.environ["EXPECTED_NOTES_SHA256"]
+          run_id = os.environ["EXPECTED_RUN_ID"]
           with open("pyproject.toml", "rb") as project_file:
               project_version = tomllib.load(project_file)["project"]["version"]
           if version != project_version:
@@ -80,6 +103,8 @@ jobs:
               raise SystemExit("manifest_sha256 must be one full hexadecimal SHA256 digest.")
           if len(notes_sha) != 64 or any(char not in string.hexdigits for char in notes_sha):
               raise SystemExit("notes_sha256 must be one full hexadecimal SHA256 digest.")
+          if not run_id.isascii() or not run_id.isdigit() or int(run_id) < 1:
+              raise SystemExit("preparation_run_id must be one positive GitHub Actions run ID.")
           PY
 
           if [[ "${IMMUTABILITY_CONFIRMED}" != "true" ]]; then
@@ -96,6 +121,18 @@ jobs:
             echo "Reviewed tag must still target the current protected-main head." >&2
             exit 1
           fi
+          run_state="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${EXPECTED_RUN_ID}" \
+            --jq '[.path, .event, .status, .conclusion, .head_branch, .head_sha] | @tsv')"
+          IFS=$'\t' read -r run_path run_event run_status run_conclusion run_branch run_sha <<< "${run_state}"
+          if [[ "${run_path}" != ".github/workflows/package-release.yml" \
+            || "${run_event}" != "workflow_dispatch" \
+            || "${run_status}" != "completed" \
+            || "${run_conclusion}" != "success" \
+            || "${run_branch}" != "${DEFAULT_BRANCH}" \
+            || "${run_sha}" != "${EXPECTED_SHA,,}" ]]; then
+            echo "Preparation run is not a successful Package release run for the reviewed protected-main commit." >&2
+            exit 1
+          fi
           tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" \
             --jq 'if .object.type == "commit" then .object.sha else error("annotated release tags are not accepted") end')"
           if [[ "${tag_sha}" != "${EXPECTED_SHA,,}" ]]; then
@@ -103,7 +140,7 @@ jobs:
             exit 1
           fi
           release_state_before="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" \
-            --jq '[.id, .draft, .prerelease, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
+            --jq '[.id, .name, .draft, .prerelease, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
           if [[ "$(gh release view "v${VERSION}" --repo "${GITHUB_REPOSITORY}" --json isDraft --jq '.isDraft')" != "true" ]]; then
             echo "Release v${VERSION} is not an unpublished draft." >&2
             exit 1
@@ -118,25 +155,51 @@ jobs:
             echo "Reviewed prerelease classification changed; refusing publication." >&2
             exit 1
           fi
+          release_title="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" --jq '.name')"
+          if [[ "${release_title}" != "SEAM ${VERSION}" ]]; then
+            echo "Reviewed release title changed; refusing publication." >&2
+            exit 1
+          fi
+          export RELEASE_TITLE
 
-          mkdir draft-assets
+          mkdir prepared-assets draft-assets
+          if ! gh run download "${EXPECTED_RUN_ID}" --repo "${GITHUB_REPOSITORY}" \
+            --name "python-distributions-${VERSION}" --dir prepared-assets >/dev/null 2>&1; then
+            echo "Could not download the trusted preparation-run artifact." >&2
+            exit 1
+          fi
           if ! gh release download "v${VERSION}" --repo "${GITHUB_REPOSITORY}" \
             --dir draft-assets >/dev/null 2>&1; then
             echo "Could not download the complete reviewed draft asset set." >&2
             exit 1
           fi
           python - <<'PY'
+          import hashlib
           import os
           import re
           from pathlib import Path
 
           from packaging.utils import canonicalize_name, canonicalize_version, parse_sdist_filename, parse_wheel_filename
 
-          assets = sorted(path.name for path in Path("draft-assets").iterdir() if path.is_file())
+          prepared = Path("prepared-assets")
+          draft = Path("draft-assets")
+          prepared_assets = sorted(path.name for path in prepared.iterdir() if path.is_file())
+          assets = sorted(path.name for path in draft.iterdir() if path.is_file())
           wheels = [name for name in assets if name.endswith(".whl")]
           sdists = [name for name in assets if name.endswith(".tar.gz")]
           if len(wheels) != 1 or len(sdists) != 1 or assets != sorted([*wheels, *sdists, "SHA256SUMS.txt"]):
               raise SystemExit("Unexpected draft asset set.")
+          if prepared_assets != assets:
+              raise SystemExit("Draft assets do not match the trusted preparation-run artifact set.")
+          def digest(path: Path) -> str:
+              value = hashlib.sha256()
+              with path.open("rb") as stream:
+                  while chunk := stream.read(1024 * 1024):
+                      value.update(chunk)
+              return value.hexdigest()
+          for name in assets:
+              if digest(prepared / name) != digest(draft / name):
+                  raise SystemExit("Draft assets do not match the trusted preparation-run artifact bytes.")
           try:
               wheel_name, wheel_version, _build, _tags = parse_wheel_filename(wheels[0])
               sdist_name, sdist_version = parse_sdist_filename(sdists[0])
@@ -179,24 +242,32 @@ jobs:
             exit 1
           fi
           python - <<'PY'
+          import os
           from pathlib import Path
           from tools.security.secret_scan import scan_bytes
 
-          findings = scan_bytes(
-              "draft-notes.md",
-              Path("draft-notes.md").read_bytes(),
-              include_binary=True,
-          )
+          findings = [
+              *scan_bytes(
+                  "draft-notes.md",
+                  Path("draft-notes.md").read_bytes(),
+                  include_binary=True,
+              ),
+              *scan_bytes(
+                  "release-title",
+                  os.environ["RELEASE_TITLE"].encode(),
+                  include_binary=True,
+              ),
+          ]
           if findings:
               kinds = ", ".join(sorted({finding.kind for finding in findings}))
-              raise SystemExit(f"Draft release notes failed secret/session scan: {kinds}")
+              raise SystemExit(f"Draft release text failed secret/session scan: {kinds}")
           PY
 
           final_tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" \
             --jq 'if .object.type == "commit" then .object.sha else error("annotated release tags are not accepted") end')"
           final_main_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')"
           release_state_after="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" \
-            --jq '[.id, .draft, .prerelease, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
+            --jq '[.id, .name, .draft, .prerelease, .updated_at, (.assets | map([.id, .name, .size, .updated_at]) | sort)] | @json')"
           if [[ "${final_main_sha}" != "${EXPECTED_SHA,,}" || "${final_tag_sha}" != "${EXPECTED_SHA,,}" || "${release_state_after}" != "${release_state_before}" ]]; then
             echo "Draft state changed during verification; refusing publication." >&2
             exit 1

@@ -19406,3 +19406,80 @@ syntax checks pass, and the real 2.4.0 wheel/sdist still pass the hardened
 identity/container verifier and twine check. No issue, milestone, tag, release,
 deployment, or paid external operation was created.
 ---END-ENTRY-#594---
+
+---BEGIN-ENTRY-#595---
+id: 595
+date: 2026-08-23T07:42:39Z
+agent: Codex
+status: done
+topics: ci, security, audit, tests, continuity, operator, config
+commits: c1368898a10db8574d0e4e8e257298854c806c36; signed successor pending
+refs: .github/workflows/publish-private-release.yml; tools/release/verify_private_artifacts.py; tests/audit/test_github_issue_release_config.py; REPO_LEDGER.md; docs/status/operations.md; docs/handoffs/2026-08-22-github-operations-restacked.md; PR#224
+supersedes: 594
+tokens: 595
+---
+PR #224's exact head `c1368898a10db8574d0e4e8e257298854c806c36`
+passed `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` before
+the requested Codex review reported five bounded private-publication findings.
+The repaired successor now requires the dispatcher to match the
+admin-controlled `PRIVATE_RELEASE_APPROVER` repository variable before its
+write-permission job can run, identifies one successful `Package release`
+workflow run at the exact protected-main SHA, downloads that run's immutable
+Actions artifact, and requires the mutable draft assets to match it
+byte-for-byte. Release state now binds the exact `SEAM <version>` title and
+secret-scans all release text. The archive verifier requires the
+filename-derived sdist root and rejects ZIP or tar directory entries carrying
+payload bytes.
+
+The live `private-package-release` environment still enforces protected
+branches. GitHub rejected adding a required reviewer with HTTP 422 because the
+current private-repository billing plan does not support that protection rule;
+the environment was verified unchanged. The repository variable
+`PRIVATE_RELEASE_APPROVER=BlackhatShiftey` was then created as the supported
+solo-operator allowlist. This is an actor boundary, not a separate reviewer
+approval, and future status must preserve that distinction.
+
+Verification passed on the repaired working tree:
+
+- `python3 -m pytest tests/audit/test_github_issue_release_config.py -q`;
+- `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest
+  tests/audit -m 'not external' -q` with strict no-skip behavior;
+- pinned Ruff over the verifier and focused audit module;
+- YAML parsing, `git diff --check`, and extracted Bash syntax checks for both
+  release workflows; and
+- the hardened verifier against the previously built real 2.4.0 wheel and
+  sdist under `/tmp/seam-pr224-review6.9xF11k/dist/`.
+
+The live-pgvector full audit had already passed on the immediately preceding
+HISTORY#594 head; this successor changes only release workflow/configuration,
+archive verification, tests, and current-state documentation. No issue,
+milestone, tag, release, deployment, paid call, or publication was created.
+Next: sign and push the successor, reply to the five exact review threads,
+repeat the three required checks and exact-head review, merge PR #224, then
+publish a protected-main handoff naming S7 as next.
+---END-ENTRY-#595---
+
+---BEGIN-ENTRY-#596---
+id: 596
+date: 2026-08-23T07:43:37Z
+agent: Codex
+status: done
+topics: correction, continuity, history, verify, audit
+commits: c1368898a10db8574d0e4e8e257298854c806c36
+refs: .github/workflows/publish-private-release.yml,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,REPO_LEDGER.md,docs/status/operations.md,docs/status/workspace.md,docs/handoffs/2026-08-22-github-operations-restacked.md,PR#224
+supersedes: 595
+tokens: 204
+---
+HISTORY#595 recorded the complete eighth-review repair and verification
+boundary, but its `refs` value was passed to the closeout tool with semicolons.
+The continuity verifier correctly interpreted that as one nonexistent combined
+path and stopped after integrity, routing, and handoff verification. This entry
+supersedes that bookkeeping defect with the same evidence scoped to discrete,
+verifiable refs; HISTORY#595 remains append-only and unchanged.
+
+No implementation or external state changed during this correction. The PR
+candidate remains locally qualified and uncommitted after the eighth-review
+repairs. Next: complete the canonical closeout from this entry, create the
+signed successor commit, push it to PR #224, reply to the five review threads,
+and require repeat exact-head CI and review before merge.
+---END-ENTRY-#596---
