@@ -2,7 +2,7 @@
 handoff_id: 2026-08-22-github-operations-restacked
 supersedes: 2026-08-22-track-s-s6-third-review-repaired
 handoff_status: current
-history: HISTORY#583
+history: HISTORY#584
 ---
 
 # GitHub Issues and private Releases — restacked candidate
@@ -50,10 +50,10 @@ history: HISTORY#583
 
 ## Next exact steps
 
-HISTORY#582, its signed bookkeeping commit, exact candidate scan, initial push,
-required checks, and the first exact-head review are complete. Continue with:
+HISTORY#583, its signed review-repair commit, exact candidate scan, initial
+required checks, and both local review cycles are complete. Continue with:
 
-1. Repair and requalify any exact-head review findings.
+1. Push the completed review-repair successor.
 2. Require `repo-hygiene`, `chroma-real-smoke`, and
    `locomo-quickstart-bil2` on the pushed head, obtain exact-head review, and
    merge through protected `main`.

@@ -19102,3 +19102,29 @@ tag, release, version bump, deployment, public artifact, provider call, or paid
 work occurred; the repaired successor still requires signed publication,
 repeat exact-head required CI, and final review.
 ---END-ENTRY-#583---
+
+---BEGIN-ENTRY-#584---
+id: 584
+date: 2026-08-23T04:35:27Z
+agent: Codex
+status: changed
+topics: bugfix, ci, docs, gates, handoff, security, test, verify
+commits: pending
+refs: HISTORY#583,PR#224,.github/workflows/package-release.yml,tests/audit/test_github_issue_release_config.py,docs/handoffs/2026-08-22-github-operations-restacked.md
+supersedes: 583
+tokens: 164
+---
+Closed the two follow-up CodeRabbit findings on the PR #224 review-repair head.
+The handoff checkpoint now starts after completed HISTORY#583 repairs instead
+of directing an operator to repeat them. Manual release version validation no
+longer strips operator input: leading and trailing whitespace now fail exact
+SemVer validation, keeping version comparison, tag selection, and release
+targeting on one byte-exact value.
+
+Two red subprocess regressions for leading and trailing whitespace now pass.
+The expanded direct configuration/release module passes ten tests; Ruff,
+dependency-contract verification, and diff hygiene pass. No issue, milestone,
+tag, release, version bump, deployment, public artifact, provider call, or paid
+work occurred. Signed push, repeat exact-head CI, and final exact-head review
+remain publication gates.
+---END-ENTRY-#584---

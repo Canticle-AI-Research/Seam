@@ -58,7 +58,7 @@ jobs:
 
           project_file = Path("pyproject.toml")
           version = tomllib.loads(project_file.read_text(encoding="utf-8"))["project"]["version"]
-          requested = os.environ["REQUESTED_VERSION"].strip()
+          requested = os.environ["REQUESTED_VERSION"]
 
           def valid_identifiers(value: str, *, reject_numeric_leading_zero: bool) -> bool:
               allowed = string.ascii_letters + string.digits + "-"

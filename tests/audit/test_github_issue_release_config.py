@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import io
+import os
+import subprocess
+import sys
 import tarfile
 import zipfile
 from pathlib import Path
 
+import pytest
 import yaml
 
 from tools.release.verify_private_artifacts import verify_artifacts
@@ -86,6 +90,27 @@ def test_package_release_stays_private_and_verifiable() -> None:
     publish = document["jobs"]["private-github-release"]
     assert publish["environment"] == "private-package-release"
     assert publish["permissions"] == {"contents": "write"}
+
+
+@pytest.mark.parametrize("requested", [" 2.4.0", "2.4.0 "])
+def test_package_release_rejects_semver_whitespace(tmp_path: Path, requested: str) -> None:
+    document = yaml.safe_load(PACKAGE_RELEASE.read_text(encoding="utf-8"))
+    step = next(step for step in document["jobs"]["build"]["steps"] if step.get("id") == "version")
+    script = step["run"].removeprefix("python - <<'PY'\n").removesuffix("PY\n")
+    output = tmp_path / "github-output.txt"
+    env = os.environ.copy()
+    env.update({"GITHUB_OUTPUT": str(output), "REQUESTED_VERSION": requested})
+
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=REPO_ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
 
 
 def test_private_artifact_verifier_accepts_one_clean_wheel_and_sdist(tmp_path: Path) -> None:
