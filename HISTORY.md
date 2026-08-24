@@ -19626,3 +19626,45 @@ The isolated rerun passed: `env -u SEAM_PGVECTOR_DSN SEAM_DB_PATH=/tmp/seam-s7-b
 
 S7 remains in progress. The branch still must prove deterministic temporal reconciliation, concurrency/idempotency/as-of behavior, same-name-person separation, frozen-corpus independent review, and fresh retrieved-ENT coverage before S7 can be marked complete or S8 can start.
 ---END-ENTRY-#601---
+
+---BEGIN-ENTRY-#602---
+id: 602
+date: 2026-08-24T21:28:51Z
+agent: codex-gpt-5
+status: done
+topics: atomicity, continuity, graph, handoff, mirl, provenance, reconcile, retrieval, status, tests, verify
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/DATA_ROUTING.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/status/retrieval.md,docs/status/workspace.md,docs/status/surfaces.md,docs/handoffs/2026-08-23-track-s-s7-locally-qualified.md,docs/handoffs/INDEX.md,seam_runtime/reconcile.py,seam_runtime/storage.py,seam_runtime/knowledge_graph.py,seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_s7_temporal_identity_admission.py,tests/audit/test_s7_entity_evidence.py,tests/audit/test_handoff_registry.py,tools/history/verify_handoffs.py
+supersedes: 601
+tokens: 663
+---
+Track S S7 is locally qualified on `track-s/s7-semantic-ingest` in draft PR #226, superseding the in-progress boundary in HISTORY#601. Protected `origin/main@1752532` still contains only S0-S6; S8 remains blocked until the S7 candidate passes exact-head review and merges.
+
+Functional and multivalued claims now reconcile deterministically within `(namespace, scope, subject, predicate)`. Event time selects newer functional truth; equal or missing event time uses deterministic confidence/ID resolution without fabricating supersession. Derived state and relation IDs are stable, and two concurrent runtime instances replay the same reconciliation idempotently. Public graph traversal honors valid-time intervals for as-of reads.
+
+Entity canonicalization is scoped by namespace and scope. Explicit `seam.entity_identity` keys separate same-name people, while repeat mentions accumulate exact provenance and evidence on the canonical entity. Canonical REL endpoints cannot cross a namespace or scope boundary. MIRL may preserve open-vocabulary relation evidence, but retrieval adapters and public graph traversal admit only the closed reviewed predicate registry.
+
+The provider-free retrieved-ENT conformance fixture returned five entities; all 5/5 resolved through complete exact SPAN-to-RAW provenance chains. This closes the S7 mechanism gate only. Historical native LoCoMo ENT coverage remains 0.0000, and native corpus freeze/review, scorer eligibility, full-corpus measurement, and promotion remain S9.
+
+Successor sanity verification passed 45 tests scoped to `tests/audit/test_s7_temporal_identity_admission.py`, `tests/audit/test_s7_entity_evidence.py`, `tests/audit/test_relation_extraction_qualification.py`, `tests/audit/test_handoff_registry.py`, and `tests/audit/test_deep_knowledge_graph.py`. The earlier isolated complete non-external lane selected 3,007 of 3,030 collected tests and passed 3,005 with two established xfails and 23 external tests deselected. Ruff and `git diff --check` passed. An initial successor command invoked the `pytest` console entry point and failed collection because it omitted the repository from `sys.path`; rerunning the same slice through `python3 -m pytest` passed and is the recorded product evidence.
+
+The handoff verifier and governing continuity policy now require every tracked handoff to reference a strictly later HISTORY event whose timestamp does not regress relative to its predecessor. Next: commit and push this coherent S7 completion, require exact-head required/advisory CI and review, merge through protected main, then publish a bounded protected-main S8-next handoff before starting S8.
+---END-ENTRY-#602---
+
+---BEGIN-ENTRY-#603---
+id: 603
+date: 2026-08-24T21:55:57Z
+agent: Codex
+status: changed
+topics: bugfix, continuity, graph, handoff, ledger, provenance, retrieval, tests, verify
+commits: pending
+refs: REPO_LEDGER.md,seam_runtime/knowledge_graph.py,seam_runtime/storage.py,tests/audit/test_s7_temporal_identity_admission.py,tests/audit/test_s7_entity_evidence.py,docs/handoffs/2026-08-24-track-s-s7-review-repaired.md,docs/handoffs/INDEX.md
+supersedes: 602
+tokens: 337
+---
+CodeRabbit review of the locally qualified S7 candidate produced four valid current-tree findings and four derived/archive false positives. The valid repairs are complete. REL persistence now checks every canonical reference candidate, including provenance and evidence, against the relation namespace and scope before any graph mutation. Graph-product facts apply the same closed admitted-predicate registry as direct traversal, so an unregistered relation cannot enter G4 products or G5 context candidates. Entity-evidence tests require exact proposition slices, and the stable ledger now assigns native-corpus freeze, independent review, and scorer promotion to S9.
+
+The prescribed repair scope passed 174 tests across `tests/audit/test_s7_temporal_identity_admission.py`, `tests/audit/test_s7_entity_evidence.py`, `tests/audit/test_graph_products.py`, `tests/audit/test_g4_r5_integration.py`, `tests/audit/test_g5_g7_integration.py`, and `tests/audit/test_typed_reference_integrity.py`. Changed-path Ruff, `python -m tools.history.verify_integrity`, and `git diff --check` passed. The four rejected review comments target retired or generated cross-index material and would require hand-editing derived files or inventing unavailable timestamps; HISTORY#586 and HISTORY#587 already govern that provenance boundary.
+
+This event supersedes HISTORY#602 and advances the tracked handoff chain to `docs/handoffs/2026-08-24-track-s-s7-review-repaired.md`. S7 remains branch-local until PR #226 passes exact-head CI and review and merges through protected main. S8 remains blocked until a bounded protected-main successor handoff is published and merged.
+---END-ENTRY-#603---

@@ -113,6 +113,47 @@ PROVENANCE_PREDICATES = frozenset(
     }
 )
 
+# Only registered canonical REL predicates may enter retrieval traversal. MIRL
+# remains able to preserve an open-vocabulary REL as canonical evidence, but an
+# unreviewed spelling cannot silently become graph topology. Extend this set as
+# a versioned code change with corpus evidence.
+ADMITTED_RELATION_PREDICATES = frozenset(
+    {
+        *EPISTEMIC_PREDICATES,
+        *CAUSAL_PREDICATES,
+        *TEMPORAL_PREDICATES,
+        "affiliated_with",
+        "attended",
+        "collaborates_with",
+        "connects",
+        "depends_on",
+        "governs",
+        "has",
+        "knows",
+        "leads",
+        "likes",
+        "located_in",
+        "manages",
+        "member_of",
+        "mentions",
+        "mentored",
+        "mentors",
+        "met",
+        "next_scale_node",
+        "owns",
+        "references",
+        "related_to",
+        "reports_to",
+        "requires",
+        "reviews_with",
+        "uses",
+        "uses_domain",
+        "went_to",
+        "works_at",
+        "works_with",
+    }
+)
+
 _FACET_PREDICATES = {
     "who": "performed_by",
     "what": "about",
@@ -2581,7 +2622,15 @@ def _node_time_clauses(params: list[object], *, at: str | None, include_history:
 
 
 def _edge_time_clauses(params: list[object], *, at: str | None, include_history: bool) -> list[str]:
-    clauses: list[str] = []
+    admitted_predicates = sorted(ADMITTED_RELATION_PREDICATES)
+    clauses: list[str] = [
+        "(case when json_valid(e.properties_json) "
+        "then json_extract(e.properties_json, '$.relation_id') end is null "
+        "or lower(trim(e.predicate)) in ("
+        + ",".join("?" for _ in admitted_predicates)
+        + "))"
+    ]
+    params.extend(admitted_predicates)
     if at:
         clauses.extend(
             [

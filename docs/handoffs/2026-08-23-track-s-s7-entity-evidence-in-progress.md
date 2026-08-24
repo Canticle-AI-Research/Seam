@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-23-track-s-s7-entity-evidence-in-progress
 supersedes: 2026-08-23-s6-github-operations-merged-s7-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#601
 ---
 

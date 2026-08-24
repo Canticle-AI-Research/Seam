@@ -297,14 +297,15 @@ and `HISTORY_INDEX.md`.
   `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; benchmarks qualify completed graph
   stages but do not gate construction of missing graph substrate. See
   HISTORY#454.
-- Track S S7 makes entity admission evidence-bearing rather than label-only.
-  The compiler accumulates each observed mention's exact proposition SPAN on
-  the turn-local canonical ENT, so repeated mentions retain every source
-  location. Entity identity terms made entirely from a closed stopword set are
-  excluded from the rebuildable graph index while multiword names remain
-  intact. This is branch-local substrate, not proof of full S7 entity quality:
-  cross-turn same-name separation and a frozen independently reviewed corpus
-  remain required. See HISTORY#601.
+- Track S S7 is locally qualified on draft PR #226, not yet protected-main
+  behavior. The compiler accumulates each observed mention's exact proposition
+  SPAN; scoped canonicalization merges repeat evidence while explicit identity
+  keys keep same-name people separate. Temporal/cardinality reconciliation,
+  concurrent replay, as-of intervals, cross-boundary REL refusal, and closed
+  predicate admission now have provider-free counterexamples. A retrieved-ENT
+  fixture resolves 5/5 entities through complete exact SPAN-to-RAW chains.
+  Historical native LoCoMo ENT coverage remains 0.0000; native corpus
+  freeze/review and scorer promotion remain S9. See HISTORY#602.
 - The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
   parallel truth store. Explicit facets and already-present MIRL fields may
   project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing
@@ -589,7 +590,11 @@ and `HISTORY_INDEX.md`.
   supersedes the current head; standalone dated files are not valid handoffs.
 - `python -m tools.history.verify_handoffs` enforces path/history existence,
   metadata agreement, one root, no cycles or forks, one current/live head, and
-  `latest`/table-order consistency. It runs in local commit and CI gates.
+  `latest`/table-order consistency. Every handoff is part of the authoritative
+  temporal chain: the newer handoff must reference a strictly later HISTORY ID
+  whose timestamp is not earlier than its predecessor's entry. The verifier
+  enforces those ID and timestamp constraints across the complete registered
+  chain, and it runs in local commit and CI gates.
 - Session close writes one validated snapshot in `.seam/snapshots/`.
 - `HISTORY_INDEX.md` and snapshots are derived artifacts; `HISTORY.md` is authoritative.
 - The `handoff/archive` branch is reserved for PDF and handoff artifact publication, not primary runtime/source work.

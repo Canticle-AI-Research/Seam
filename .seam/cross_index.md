@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 664
+total_events: 666
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-17T04:04:48Z | history:406:ed2e5617 | session-event | done | hygiene, gitignore, worktree, artifacts | .gitignore |
-| 2026-07-17T04:52:38Z | history:407:2a544db0 | session-event | done | roadmap, agent, openclaw, android, namespaces, planning | ROADMAP.md,PROJECT_STATUS.md |
 | 2026-07-17T04:59:20Z | history:408:324140f0 | session-event | done | benchmark, locomo, levers, answer-contract, exact-answer,... | seam_runtime/conversation.py,seam_runtime/retrieval.py,seam_runtime/self_impr... |
 | 2026-07-17T09:27:04Z | history:409:144ab2d9 | session-event | done | handoff, registry, exact-answer, closeout | docs/handoffs/2026-07-17-exact-answer-contract-handoff.md,docs/handoffs/INDEX.md |
 | 2026-07-17T09:39:49Z | history:410:97eaf38f | session-event | done | benchmark, results, proof, provenance, locomo, mem0, publish | benchmarks/RESULTS.md,benchmarks/BENCHMARK_LOG.md |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-23T18:15:22Z | history:599:50f3a10e | session-event | in-progress | compile, mirl, provenance, graph, retrieval, tests, verif... | seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity... |
 | 2026-08-23T18:16:25Z | history:600:9babbd39 | session-event | changed | correction, continuity, history, verify, tests, handoff | HISTORY.md,HISTORY_INDEX.md,docs/handoffs/2026-08-23-track-s-s7-entity-eviden... |
 | 2026-08-23T18:33:19Z | history:601:7033115f | session-event | in-progress | tests, verify, continuity, status, compile, mirl, provena... | seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity... |
+| 2026-08-24T21:28:51Z | history:602:480cd8bb | session-event | done | atomicity, continuity, graph, handoff, mirl, provenance, ... | PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/DATA_ROUTING.md,docs/roadmap/... |
+| 2026-08-24T21:55:57Z | history:603:3c0a7516 | session-event | changed | bugfix, continuity, graph, handoff, ledger, provenance, r... | REPO_LEDGER.md,seam_runtime/knowledge_graph.py,seam_runtime/storage.py,tests/... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0464.cross.md | 2026-04-15T00:00:00Z..2026-07-16T23:08:58Z | 464 | (multi) | (multi) |
+| 0001-0466.cross.md | 2026-04-15T00:00:00Z..2026-07-17T04:52:38Z | 466 | (multi) | (multi) |

@@ -244,7 +244,7 @@ def test_exact_backtrace_rejects_episode_hash_corruption(
     assert artifacts.report["checks"]["exact_backtrace"] is False
 
 
-def test_namespace_wide_coreference_scope_trap_is_named(
+def test_entity_coreference_is_scoped_before_relation_admission(
     tmp_path: Path,
 ) -> None:
     database = tmp_path / "cross-scope.db"
@@ -283,12 +283,12 @@ def test_namespace_wide_coreference_scope_trap_is_named(
 
     artifacts = _qualify(database)
 
-    assert artifacts.report["status"] == "failed"
-    assert (
-        artifacts.report["rejections"]["canonical_entity_scope_mismatch"]
-        == 1
-    )
-    assert artifacts.report["checks"]["full_admission"] is False
+    assert artifacts.report["status"] == "insufficient_evidence"
+    assert artifacts.report["rejections"].get(
+        "canonical_entity_scope_mismatch", 0
+    ) == 0
+    assert artifacts.report["funnel"]["relations_admitted"] == 1
+    assert artifacts.report["checks"]["full_admission"] is True
 
 
 def test_raw_identity_pin_mismatch_fails_closed(tmp_path: Path) -> None:
