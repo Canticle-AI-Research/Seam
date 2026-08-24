@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-24-track-s-s7-review-repaired
+latest: 2026-08-24-track-s-s7-merged-s8-next
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-24-track-s-s7-review-repaired` | [2026-08-24-track-s-s7-review-repaired.md](2026-08-24-track-s-s7-review-repaired.md) | `2026-08-23-track-s-s7-locally-qualified` | `HISTORY#603` | `current` |
+| `2026-08-24-track-s-s7-merged-s8-next` | [2026-08-24-track-s-s7-merged-s8-next.md](2026-08-24-track-s-s7-merged-s8-next.md) | `2026-08-24-track-s-s7-review-repaired` | `HISTORY#604` | `current` |
+| `2026-08-24-track-s-s7-review-repaired` | [2026-08-24-track-s-s7-review-repaired.md](2026-08-24-track-s-s7-review-repaired.md) | `2026-08-23-track-s-s7-locally-qualified` | `HISTORY#603` | `superseded` |
 | `2026-08-23-track-s-s7-locally-qualified` | [2026-08-23-track-s-s7-locally-qualified.md](2026-08-23-track-s-s7-locally-qualified.md) | `2026-08-23-track-s-s7-entity-evidence-in-progress` | `HISTORY#602` | `superseded` |
 | `2026-08-23-track-s-s7-entity-evidence-in-progress` | [2026-08-23-track-s-s7-entity-evidence-in-progress.md](2026-08-23-track-s-s7-entity-evidence-in-progress.md) | `2026-08-23-s6-github-operations-merged-s7-next` | `HISTORY#601` | `superseded` |
 | `2026-08-23-s6-github-operations-merged-s7-next` | [2026-08-23-s6-github-operations-merged-s7-next.md](2026-08-23-s6-github-operations-merged-s7-next.md) | `2026-08-22-github-operations-restacked` | `HISTORY#598` | `superseded` |

@@ -125,9 +125,9 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - Published Track S S6 PR #223 binds every principal-mode data operation to an
   in-process identity and adds indexed, idempotent opaque deletion without
   leaking tenant, MIRL, policy, or graph internals through `/v1`.
-- S7 is locally qualified in draft PR #226 with admissible semantic ingest,
-  temporal/scoped identity contracts, and exact retrieved-ENT evidence. It is
-  not protected-main behavior yet, so S8 surface parity remains blocked.
+- S7 is published through PR #226 at protected `main@3385343` with admissible
+  semantic ingest, temporal/scoped identity contracts, and exact retrieved-ENT
+  evidence. S8 surface parity is the next dependency-ordered stage.
 - Track S S8 must prove every shipped surface returns the same retrieval IDs and
   order as direct `SeamRuntime.retrieve()` under the same request.
 - Turn the SEAM CLI into a first-class agent CLI (model routing, tool execution,

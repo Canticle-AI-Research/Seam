@@ -82,9 +82,9 @@ claim citing a missing PROV and a PROV naming no entity/activity/agent, and
    discards score magnitude, while the legacy scorer preserves it; cat3 is the
    name-the-entity-from-clues category where one record is decisively right.
    Cheapest test is a free run preserving magnitude as a tiebreak.
-2. **S7 is locally qualified, while the native ENT measurement remains
-   0.0000.** Draft PR #226 accumulates exact proposition SPANs for repeated ENT
-   mentions and its provider-free retrieval conformance fixture resolves 5/5
+2. **S7 is published, while the native ENT measurement remains 0.0000.**
+   PR #226 at protected `main@3385343` accumulates exact proposition SPANs for
+   repeated ENT mentions and its provider-free retrieval conformance fixture resolves 5/5
    retrieved entities through complete exact SPAN-to-RAW chains. Historical
    corpora still contain evidence-empty ENTs and every affected digest changes
    on re-ingest. The 5/5 fixture closes the S7 mechanism gate; it is not a

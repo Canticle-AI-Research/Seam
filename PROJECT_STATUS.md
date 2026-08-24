@@ -9,15 +9,15 @@
 
 ## Current headline
 
-**2026-08-24 — protected `main@1752532` contains finished Track S S6, and S7
-is locally qualified on `track-s/s7-semantic-ingest` in draft PR #226.** The
-branch closes the S7 exit mechanics: exact entity mention evidence,
+**2026-08-24 — protected `main@3385343` contains finished Track S S7 through
+merged PR #226, and S8 is the next dependency-ordered stage.** S7 closes the
+exit mechanics for exact entity mention evidence,
 same-boundary and explicit identity reconciliation, deterministic temporal
 reconciliation, concurrent replay idempotency, fail-closed REL traversal, and
 as-of graph intervals. A provider-free retrieved-ENT fixture resolved 5/5
-entities through complete exact SPAN-to-RAW chains. This is branch-local
-qualification, not protected-main behavior; S8 remains blocked until S7
-merges. The governing reports are:
+entities through complete exact SPAN-to-RAW chains. The chronological
+S8-next handoff must itself reach protected main before S8 implementation
+begins. The governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and
@@ -38,12 +38,12 @@ setup.
 The historical native LoCoMo ENT measurement remains 0.0000. Native corpus
 freeze/review, scorer eligibility, and promotion remain S9 work; the 5/5 S7
 conformance fixture is not a production-corpus or quality-lift claim.
-S7-S10 stay dependency-ordered:
+S8-S10 stay dependency-ordered:
 
 ```text
 S6 principal tenancy published
-  -> S7 admissible semantic graph (locally qualified, PR #226)
-  -> S8 one coherent retrieval engine
+  -> S7 admissible semantic graph (published, PR #226)
+  -> S8 one coherent retrieval engine (next)
   -> S9 matched multi-benchmark qualification
   -> S10 required CI, release, and deployment proof
 ```
@@ -78,7 +78,7 @@ success, mock persistence, browser-stored credentials, and fabricated metrics.
 It is not a beta operator surface and should be made truthful and secure before
 a visual restyle.
 
-Hosted deployment remains blocked on S7-S10 qualification and a production
+Hosted deployment remains blocked on S8-S10 qualification and a production
 topology that proves TLS, shared rate limiting, service supervision,
 backup/restore, and disaster recovery. Trusted-loopback single-user use remains
 the deployment boundary unless S6 principal mode is explicitly configured; its

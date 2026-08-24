@@ -297,15 +297,17 @@ and `HISTORY_INDEX.md`.
   `docs/roadmap/GRAPH_MEMORY_MATURITY.md`; benchmarks qualify completed graph
   stages but do not gate construction of missing graph substrate. See
   HISTORY#454.
-- Track S S7 is locally qualified on draft PR #226, not yet protected-main
-  behavior. The compiler accumulates each observed mention's exact proposition
+- Track S S7 is published through PR #226 at protected merge `3385343`. The
+  compiler accumulates each observed mention's exact proposition
   SPAN; scoped canonicalization merges repeat evidence while explicit identity
   keys keep same-name people separate. Temporal/cardinality reconciliation,
   concurrent replay, as-of intervals, cross-boundary REL refusal, and closed
   predicate admission now have provider-free counterexamples. A retrieved-ENT
   fixture resolves 5/5 entities through complete exact SPAN-to-RAW chains.
   Historical native LoCoMo ENT coverage remains 0.0000; native corpus
-  freeze/review and scorer promotion remain S9. See HISTORY#602.
+  freeze/review and scorer promotion remain S9. S8 is the next stage and must
+  begin only from protected main containing the chronological S8-next handoff.
+  See HISTORY#602, HISTORY#603, and HISTORY#604.
 - The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
   parallel truth store. Explicit facets and already-present MIRL fields may
   project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing
