@@ -19668,3 +19668,21 @@ The prescribed repair scope passed 174 tests across `tests/audit/test_s7_tempora
 
 This event supersedes HISTORY#602 and advances the tracked handoff chain to `docs/handoffs/2026-08-24-track-s-s7-review-repaired.md`. S7 remains branch-local until PR #226 passes exact-head CI and review and merges through protected main. S8 remains blocked until a bounded protected-main successor handoff is published and merged.
 ---END-ENTRY-#603---
+
+---BEGIN-ENTRY-#604---
+id: 604
+date: 2026-08-24T23:23:12Z
+agent: Codex
+status: done
+topics: ci, continuity, graph, handoff, provenance, retrieval, status, verify, worktree
+commits: 338534361429103a00f2bd19f0dae14eee4b54c6
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/status/retrieval.md,docs/status/surfaces.md,docs/status/workspace.md,docs/handoffs/2026-08-24-track-s-s7-review-repaired.md,docs/handoffs/2026-08-24-track-s-s7-merged-s8-next.md,docs/handoffs/INDEX.md,PR#226
+supersedes: 603
+tokens: 396
+---
+Track S S7 is published through protected PR #226. Exact signed source head `d50315a4964f2b00571907fd6e6675a2459ce56b` matched the PR head, passed required `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2`, passed advisory `test-and-benchmark`, and passed pgvector, package-smoke, and registry-plan jobs. The exact-head GitHub Codex review completed without a listed finding. GitHub created merge commit `338534361429103a00f2bd19f0dae14eee4b54c6`; ancestry is verified, and the remote and local S7 branches are gone.
+
+The protected source now includes S7 exact entity evidence, scoped identity, deterministic temporal/cardinality reconciliation, concurrency/idempotency/as-of behavior, cross-boundary REL refusal, and closed predicate admission. Its provider-free retrieved-ENT conformance fixture resolves 5/5 exact SPAN-to-RAW chains. Historical native LoCoMo ENT coverage remains 0.0000; native-corpus freeze/review and scorer promotion remain S9.
+
+This event supersedes HISTORY#603 and advances the one-live-head handoff chain to `docs/handoffs/2026-08-24-track-s-s7-merged-s8-next.md`. The bounded `track-s/s8-next-handoff` branch starts exactly at protected `origin/main@3385343` and contains no S8 implementation. After this chronological handoff passes full closeout, exact-head CI/review, and protected merge, S8 may begin on a new branch from that protected successor. S8 owns coherent legacy/RRF/weighted-fusion policy, fail-closed leg names, surface candidate parity, exactly-once tenant-scoped retrieval events with answer-inert telemetry failure, and reversible audited identity merges. S9 remains the promotion gate.
+---END-ENTRY-#604---

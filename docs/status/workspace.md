@@ -4,7 +4,7 @@
 > active workstreams
 
 _Snapshot authority: live SEAM worktrees and open GitHub pull requests
-reconciled on 2026-08-24 against protected `origin/main@1752532` and canonical
+reconciled on 2026-08-24 against protected `origin/main@3385343` and canonical
 GitHub repository `Canticle-AI-Research/Seam`. Local `main` remains stale at
 `48c5448`; do not mistake it for the protected remote head. This is a dated
 current-state snapshot, not a self-updating dashboard or chronology. Re-run the
@@ -29,25 +29,24 @@ report a worktree as clean while removal would still destroy local data.
 
 | Logical item | Physical identities | State | Unique purpose | Next action |
 | --- | --- | --- | --- | --- |
-| Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Protected remote is `1752532` after merged closeout PR #225; local `main` is still `48c5448`; no worktree is checked out on local `main` | Canonical published source for new work | Base new work on the verified remote head, not the stale local pointer |
-| Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; 1 commit ahead and 25 behind protected main; draft PR is open and conflicting | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; rebase/rechain before publication |
+| Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Protected remote is `3385343` after merged S7 PR #226; local `main` is still `48c5448`; no worktree is checked out on local `main` | Canonical published source for new work | Base new work on the verified remote head, not the stale local pointer |
+| Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; 1 commit ahead and 28 behind protected main; draft PR is open and conflicting | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; rebase/rechain before publication |
 | Track S/deployment audit | merged PR #222; former `audit/track-s-deployment-20260818` worktree/branch | Published at protected `main@a177852`; temporary worktree and branch are gone | Bounded F-5/F-6/F-10/F-11 and hygiene repairs plus the deployment-readiness audit | Treat as protected-main fact; do not recreate the retired candidate |
-| Track S S6 | merged PR #223; merge commit `abd2a59`; source head `fbefb81` | Published on protected `main`; exact source head is 20 commits behind and fully contained by `main@1752532` | Optional in-process principal binding, prefix-safe pre-router shutdown, cross-process canonical/projection serialization, indexed generation-bound opaque handles, and G6 lifecycle delete | Treat S6 as finished protected-main behavior |
-| Track S S7 | reused worktree `Seam-track-s-s6`; `track-s/s7-semantic-ingest`; draft PR #226 | Branch starts exactly at protected `main@1752532`; S7 is locally qualified with uncommitted closeout work over source head `bbcdbde` | Temporal/cardinality reconciliation, scoped identity and mention accumulation, REL admission, as-of intervals, and 5/5 provider-free retrieved-ENT provenance conformance | Commit and push the coherent completion, qualify exact-head CI/review, then merge; do not treat native-corpus promotion as S7 or begin S8 before protected publication |
+| Track S S6 | merged PR #223; merge commit `abd2a59`; source head `fbefb81` | Published on protected `main`; exact source head is fully contained by `main@3385343` | Optional in-process principal binding, prefix-safe pre-router shutdown, cross-process canonical/projection serialization, indexed generation-bound opaque handles, and G6 lifecycle delete | Treat S6 as finished protected-main behavior |
+| Track S S7 / S8 handoff | reused worktree `Seam-track-s-s6`; merged PR #226; `track-s/s8-next-handoff` | S7 source `d50315a` is published by merge `3385343`; the merged remote/local S7 branches are gone; the clean handoff branch starts exactly at that protected head | Published temporal/cardinality reconciliation, scoped identity and mention accumulation, REL admission, as-of intervals, and 5/5 provider-free retrieved-ENT provenance conformance; bounded chronological transition to S8 | Publish and merge only the S8-next handoff, then begin S8 from its protected successor; native-corpus promotion remains S9 |
 | GitHub issue/release setup | detached `Seam-github-operations`; merged PRs #224 and #225 | Published through closeout `main@1752532`; PR #224 source head `f47f582` passed all required checks and an exact-head Codex review with no inline findings; source/closeout branches are deleted | Structured issue forms and guarded private GitHub Release prepare/publish workflows | Treat the setup and closeout handoff as protected-main fact |
-| TUI concept port | `Seam-tui-concept-shell`; local `feat/tui-concept-shell` | Clean at `54bc01a`; 1 commit ahead and 24 behind protected main; no remote/PR | Runtime-backed Textual port of the external operator mock's workflow and visual concepts | Keep separate from S6; review, qualify, publish, or revise without claiming the mock or candidate shipped |
-| Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 29 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
+| TUI concept port | `Seam-tui-concept-shell`; local `feat/tui-concept-shell` | Clean at `54bc01a`; 1 commit ahead and 27 behind protected main; no remote/PR | Runtime-backed Textual port of the external operator mock's workflow and visual concepts | Keep separate from Track S; review, qualify, publish, or revise without claiming the mock or candidate shipped |
+| Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 32 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
 | Native-roadmap pre-reconcile backup | local `archive/native-model-roadmap-pre-reconcile` | Clean branch; 5 commits ahead and 41 behind main; not a second PR | Preserves the earlier unsigned/unreconciled roadmap lineage that PR #207 replaced | Keep only as a recovery source until PR #207 is resolved; never implement from it independently |
-| Vector-cache replay repair | `Seam-pr213-repair`; local `repair/pr213-full-suite`; remote `origin/blackhatshiftey-performance-improvements`; PR #213 | Clean; local and remote head `4d2609e`; 2 commits ahead and 41 behind main; draft PR is conflicting | Preserves warmed SQLite vector matrices across no-op replay, detects supported cross-process changes, clears cache after rollback restore, and fixes the streaming fake | Rebase/rechain on current main and reassess overlap with published S6 before publication |
-| Wiki publication | `Seam-wiki`; local `docs/seam-wiki`; merged PR #214 | Tracked tree clean; 0 commits ahead and 32 behind main; remote branch gone | Historical source work for verified CommonMark wiki navigation and audit registry rules, already published | Salvage or explicitly discard ignored local data before worktree removal; local branch is otherwise cleanup-eligible |
-| TUI reload repair | `Seam-tui-reload-fix`; local `fix/tui-meta-digits-reload`; merged PR #216 | Tracked tree clean; 0 commits ahead and 28 behind main; remote branch gone | Historical source work for refreshing Alt-digit behavior after settings reload, already published | Cleanup-eligible after exact approval; only caches and ignored snapshots remain |
-| Agent-skill layer rebuild | local `skills/rebuild-agent-layer-and-drift-gate` | Local-only commit `d2151ad`; 1 commit ahead and 25 behind main; no PR | Rebuilds the tracked agent layer, adds an audit profile and skill-drift verifier, and changes `.opencode` agent/skill material | Preserve as active local WIP; rebase and resolve its colliding HISTORY#566 before any publication decision |
+| Vector-cache replay repair | `Seam-pr213-repair`; local `repair/pr213-full-suite`; remote `origin/blackhatshiftey-performance-improvements`; PR #213 | Clean; local and remote head `4d2609e`; 2 commits ahead and 44 behind main; draft PR is open and conflicting | Preserves warmed SQLite vector matrices across no-op replay, detects supported cross-process changes, clears cache after rollback restore, and fixes the streaming fake | Rebase/rechain on current main and reassess overlap with published S5-S7 before publication |
+| Wiki publication | `Seam-wiki`; local `docs/seam-wiki`; merged PR #214 | Tracked tree clean; 0 commits ahead and 37 behind main; remote branch gone | Historical source work for verified CommonMark wiki navigation and audit registry rules, already published | Salvage or explicitly discard ignored local data before worktree removal; local branch is otherwise cleanup-eligible |
+| TUI reload repair | `Seam-tui-reload-fix`; local `fix/tui-meta-digits-reload`; merged PR #216 | Tracked tree clean; 0 commits ahead and 33 behind main; remote branch gone | Historical source work for refreshing Alt-digit behavior after settings reload, already published | Cleanup-eligible after exact approval; only caches and ignored snapshots remain |
+| Agent-skill layer rebuild | local `skills/rebuild-agent-layer-and-drift-gate` | Local-only commit `d2151ad`; 1 commit ahead and 30 behind main; no PR | Rebuilds the tracked agent layer, adds an audit profile and skill-drift verifier, and changes `.opencode` agent/skill material | Preserve as active local WIP; rebase and resolve its colliding HISTORY#566 before any publication decision |
 | Retrieval consolidation source | local and remote `refactor/unify-retrieval-paths` | 10 commits ahead and 62 behind main; no PR | Historical source line for single-package consolidation, trace attribution, WANDR replay, and related repairs | Do not land wholesale: it contains the 59 tracked `.ua` artifacts excluded by Track S S0; compare only a named file or commit against current main |
 
 Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207),
-[#213](https://github.com/Canticle-AI-Research/Seam/pull/213), draft
-[#221](https://github.com/Canticle-AI-Research/Seam/pull/221), and draft
-[#226](https://github.com/Canticle-AI-Research/Seam/pull/226).
+draft [#213](https://github.com/Canticle-AI-Research/Seam/pull/213), and
+draft [#221](https://github.com/Canticle-AI-Research/Seam/pull/221).
 
 ## Physical worktree register
 
@@ -55,8 +54,8 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 
 - Role: primary checkout for draft PR #221, not protected main.
 - Branch/head: `research/advanced-persistence-landscape@d699944`, tracking the
-  identically named remote branch; it is 1 commit ahead and 25 behind protected
-  `origin/main@1752532` and the PR currently conflicts.
+  identically named remote branch; it is 1 commit ahead and 28 behind protected
+  `origin/main@3385343`; live mergeability must be refreshed before publication.
 - Repository identity: GitHub resolves both the configured legacy owner URL
   `BlackhatShiftey/Seam` and `Canticle-AI-Research/Seam` to canonical
   `Canticle-AI-Research/Seam`; PR links therefore use the organization URL.
@@ -71,13 +70,15 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 
 ### `/home/terrabyte/Documents/Projects/Seam-track-s-s6`
 
-- Role: active Track S S7 worktree, reusing the former S6 path.
-- Branch/head: `track-s/s7-semantic-ingest` started exactly at protected
-  `origin/main@1752532`; the path name is historical and is not branch state.
-- Tracked state: S7 exit mechanics are locally qualified; implementation,
-  tests, and closeout remain branch-local pending PR #226 publication.
-- Boundary: S6 remains published through PR #223. This worktree now owns only
-  S7; do not infer protected publication or native-corpus scorer promotion.
+- Role: bounded Track S S8-next handoff worktree, reusing the historical S6 path.
+- Branch/head: `track-s/s8-next-handoff` starts exactly at protected
+  `origin/main@3385343`; the path name is historical and is not branch state.
+- Published state: S7 source `d50315a` passed exact-head required and advisory
+  CI and merged through PR #226 at `3385343`; its remote and local branches are
+  gone.
+- Boundary: publish and merge only the chronological S8-next handoff here.
+  Begin S8 implementation only from the protected successor containing it;
+  native-corpus scorer promotion remains S9.
 
 ### `/home/terrabyte/Documents/Projects/Seam-github-operations`
 
@@ -98,12 +99,12 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 
 - Role: separate runtime-backed port of the operator TUI concept.
 - Branch/head: local-only `feat/tui-concept-shell@54bc01a`, 1 commit ahead and
-  24 behind protected main.
+  27 behind protected main.
 - Tracked state: clean at the 2026-08-19 refresh; no remote or PR.
 - Source boundary: `/media/terrabyte/External2/SEAM TUI Concept.dc.html` was
   audited as a visual mock/prototype, not a runnable replacement. Neither that
   external file nor this branch is shipped behavior.
-- Boundary: keep this port independent from S6 runtime, threat-model, and
+- Boundary: keep this port independent from Track S runtime, threat-model, and
   continuity changes.
 
 ### `/home/terrabyte/Documents/Projects/Seam-native-model-roadmap`
@@ -111,7 +112,7 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 - Role: active recovery checkout for PR #207.
 - Branch/head: local `docs/seam-native-model-roadmap-reconciled@4a4f8d8`, now
   correctly tracking `origin/docs/seam-native-model-roadmap@4a4f8d8`.
-- Tracked state: clean. Relative to main it is 3 commits ahead and 29 behind.
+- Tracked state: clean. Relative to main it is 3 commits ahead and 32 behind.
 - GitHub state: open, non-draft, `CONFLICTING`/`DIRTY`; all recorded checks
   passed on the old 2026-08-12 head, which is not current-main qualification.
 - Conflict boundary: only continuity/status outputs currently conflict
@@ -126,7 +127,7 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 - Role: active recovery checkout for draft PR #213.
 - Branch/head: `repair/pr213-full-suite@4d2609e`, tracking the differently
   named remote head `origin/blackhatshiftey-performance-improvements@4d2609e`.
-- Tracked state: clean. Relative to main it is 2 commits ahead and 41 behind.
+- Tracked state: clean. Relative to main it is 2 commits ahead and 44 behind.
 - GitHub state: open draft, `CONFLICTING`/`DIRTY`; all recorded checks passed
   on the old 2026-08-12 head, not on current main.
 - Conflict boundary: current merge simulation reports conflicts only in
@@ -139,7 +140,7 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 
 - Role: merged PR #216 source checkout.
 - Branch/head: `fix/tui-meta-digits-reload@b6da2a8`; remote branch is gone.
-- Tracked state: clean; head is fully contained by main and 28 commits behind.
+- Tracked state: clean; head is fully contained by main and 33 commits behind.
 - Ignored state: two local snapshots and disposable caches only;
   approximately 24 MB total checkout size.
 - Disposition: safe code-wise to remove after exact approval. No unique
@@ -149,7 +150,7 @@ Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207
 
 - Role: merged PR #214 source checkout with local evidence still present.
 - Branch/head: `docs/seam-wiki@4bd08c0`; remote branch is gone.
-- Tracked state: clean; head is fully contained by main and 32 commits behind.
+- Tracked state: clean; head is fully contained by main and 37 commits behind.
 - Ignored/local state: one 4,091-byte context handoff, three snapshots, a
   921,600-byte `seam.db`, two 17-byte zero-case LoCoMo quickstart records, and
   thirteen LoCoMo SQLite databases of roughly 2.3-2.8 MB each under
@@ -235,7 +236,7 @@ its local branch.
 
 | Remote branch | Relationship to main | Full description | Disposition boundary |
 | --- | ---: | --- | --- |
-| `origin/main` | canonical | Protected publication source at `1752532` after merged closeout PR #225 | Never direct-push |
+| `origin/main` | canonical | Protected publication source at `3385343` after merged S7 PR #226 | Never direct-push |
 | `origin/backup/local-pgvector-bootstrap` | 2 ahead / 409 behind | Early local-pgvector bootstrap backup with Compose/init SQL, PowerShell setup, old project-map docs, an imported design source, and a PDF handoff artifact | Protected historical backup; never use as current pgvector setup without a file-by-file rewrite |
 | `origin/copilot/agent-types-on-github` | 0 ahead / 3 behind | Remote pointer already fully contained by main at the PR #216 merge | Remote cleanup candidate; deletion needs exact approval |
 | `origin/copilot/understanding-operations` | 0 ahead / 15 behind | Remote pointer already fully contained by main at the Track S visual-status merge | Remote cleanup candidate; deletion needs exact approval |
@@ -320,17 +321,17 @@ features and not the same work as `skills/rebuild-agent-layer-and-drift-gate`.
 8. `Seam_Runtime` is the isolated public-client source. Its `seam-client`
    package is not a second private runtime, and SEAM's `seam-runtime` remote is
    not a publication route for current private code.
-9. S6 runtime behavior is protected-main fact through merged PR #223. The
-   former S6 worktree now hosts `track-s/s7-semantic-ingest` based exactly on
-   `main@1752532`; the historical directory name is not a second S6 candidate.
+9. S6 and S7 runtime behavior are protected-main facts through merged PRs #223
+   and #226. The historical S6 worktree now hosts only the bounded
+   `track-s/s8-next-handoff` branch based exactly on `main@3385343`.
 10. `feat/tui-concept-shell` owns the separate TUI concept port. The external
     `.dc.html` file is design input only; do not copy its prototype behavior into
     S6 or describe either source as shipped.
 
 ## Recommended resolution order
 
-1. Publish locally qualified S7 through draft PR #226 after exact-head gates
-   and review; begin S8 only from the resulting protected-main handoff.
+1. Publish and merge the bounded chronological S8-next handoff, then begin S8
+   only from the resulting protected-main successor.
 2. Keep the TUI concept port separate. Review and qualify its runtime-backed
    behavior, then publish or revise it without coupling Track S stage status to
    the external mock.
@@ -351,9 +352,9 @@ features and not the same work as `skills/rebuild-agent-layer-and-drift-gate`.
 8. Audit local-only `agent/g3-finish-remaining-gaps` and
    `skills/rebuild-agent-layer-and-drift-gate`; classify each as salvage,
    publish, archive, or abandon without copying it into S6 by default.
-9. Complete S7 semantic ingest before S8 retrieval/surface parity. S9 remains
-   downstream of both, and S10 remains the release and deployment proof over
-   completed S0-S9 evidence.
+9. Complete S8 retrieval/surface parity from the protected successor containing
+   its handoff. S9 remains downstream of S7 and S8, and S10 remains the release
+   and deployment proof over completed S0-S9 evidence.
 
 ## Refresh commands
 

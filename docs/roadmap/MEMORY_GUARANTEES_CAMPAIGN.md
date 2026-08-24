@@ -410,16 +410,18 @@ truth deterministically, and make entity evidence retrieval-grade.
 **Findings:** F5, F12, F15.
 **Dependencies:** S3, S4, and S6.
 
-**Status (2026-08-24): locally qualified, not yet published.** Draft PR #226 on
-`track-s/s7-semantic-ingest` satisfies the exit mechanics below with
-provider-free counterexamples: exact repeated-mention ENT evidence,
+**Status (2026-08-24): published through PR #226 at protected
+`main@3385343`.** The exact source head `d50315a` passed required and advisory
+CI before merge and satisfies the exit mechanics below with provider-free
+counterexamples: exact repeated-mention ENT evidence,
 same-boundary explicit identity, deterministic functional/multivalued temporal
 reconciliation, concurrent replay idempotency, as-of intervals, and a closed
 REL predicate registry. The retrieved-ENT conformance fixture resolves 5/5
 entities through complete exact SPAN-to-RAW chains. Historical native LoCoMo
 ENT coverage remains 0.0000; corpus freeze/review and scorer promotion remain
-S9 and are not implied by this local S7 result. S8 must wait for protected-main
-publication. See HISTORY#602.
+S9 and are not implied by this S7 result. S8 is next, but implementation must
+start only from protected main containing the chronological S8-next handoff.
+See HISTORY#602, HISTORY#603, and HISTORY#604.
 
 **Exit gate (all required):**
 
