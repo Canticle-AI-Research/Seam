@@ -121,7 +121,11 @@ Bounded reading protocol that keeps session-start cost flat as the repo grows. T
 
 - Follow the Session End checklist above. `verify_continuity`, `verify_streams`,
   and `verify_wiki` must pass.
-- `verify_handoffs` must pass whenever tracked handoff state exists or changes; never leave an unindexed handoff document or more than one live head.
+- `verify_handoffs` must pass whenever tracked handoff state exists or changes;
+  never leave an unindexed handoff document or more than one live head. Every
+  tracked handoff is a chronological HISTORY event: its `history` entry must be
+  strictly later than its predecessor's entry, and its timestamp must not
+  predate that predecessor.
 - If `ROADMAP.md` items changed status, re-run the roadmap parser so the stream and the derived `state.md` stay aligned with the authored prose.
 - The cross-index always regenerates from the streams; never hand-edit it.
 

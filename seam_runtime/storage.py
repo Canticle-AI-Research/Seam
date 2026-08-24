@@ -65,6 +65,7 @@ from .improvement_experiments import (
     event_sha256 as improvement_event_sha256,
 )
 from .knowledge_graph import (
+    ADMITTED_RELATION_PREDICATES,
     GRAPH_NODE_VECTOR_TEXT_VERSION,
     PROJECTION_VERSION,
     graph_stats,
@@ -1007,50 +1008,67 @@ class SQLiteStore:
                 connection, record_ids
             )
 
-    def _reconcile_entities(self, connection: sqlite3.Connection, batch: IRBatch) -> tuple[dict[str, str], set[str]]:
-        """Cross-turn entity coreference, scoped strictly per ``ns``.
+    def _reconcile_entities(
+        self,
+        connection: sqlite3.Connection,
+        batch: IRBatch,
+    ) -> tuple[dict[str, str], set[str], list[MIRLRecord]]:
+        """Cross-turn entity coreference, scoped per ``(ns, scope)``.
 
         Every ``compile_nl`` call is independent and mints a fresh ``ent:``
         id per label, so the same real-world entity gets a different id in
         every turn it is mentioned in (HISTORY#321/#323 cat1 root cause).
-        This makes the FIRST occurrence of a normalized label within an ``ns``
-        canonical: later ENT records with the same normalized label (from an
-        earlier persist call, or earlier in this same incoming batch) are not
-        inserted; ``id_map`` carries their id to the canonical one so callers
-        can rewrite CLM/REL references before persisting. Never merges across
-        ``ns`` (SEAM's existing multi-tenant isolation boundary, HISTORY#274).
+        The first occurrence of an identity is canonical. An explicit
+        ``ext["seam.entity_identity"]`` is the stable identity key; otherwise
+        the normalized label remains the backwards-compatible key. Explicitly
+        keyed and label-only identities never collapse into one another. Later
+        mentions accumulate provenance/evidence on the canonical ENT while
+        ``id_map`` rewrites their references. No merge crosses namespace or
+        scope.
         """
         id_map: dict[str, str] = {}
         skip_ids: set[str] = set()
+        canonical_updates: dict[str, MIRLRecord] = {}
         batch_ent_records = [r for r in batch.records if r.kind == RecordKind.ENT]
         if not batch_ent_records:
-            return id_map, skip_ids
-        namespaces = {r.ns for r in batch_ent_records}
-        for ns in namespaces:
-            canonical_by_norm: dict[str, str] = {}
+            return id_map, skip_ids, []
+
+        incoming_by_id = {record.id: record for record in batch_ent_records}
+        boundaries = {(record.ns, record.scope) for record in batch_ent_records}
+        for ns, scope in sorted(boundaries):
+            canonical_by_identity: dict[tuple[str, str], MIRLRecord] = {}
             for row in connection.execute(
-                "select id, payload_json from ir_records where kind = ? and ns = ? order by created_at, id",
-                (RecordKind.ENT.value, ns),
+                "select id, payload_json from ir_records "
+                "where kind = ? and ns = ? and scope = ? order by created_at, id",
+                (RecordKind.ENT.value, ns, scope),
             ):
-                existing_attrs = json.loads(row["payload_json"]).get("attrs", {})
-                label = existing_attrs.get("label")
-                if not label:
+                existing = MIRLRecord.from_dict(json.loads(row["payload_json"]))
+                identity = _entity_identity(existing)
+                if identity is None:
                     continue
-                canonical_by_norm.setdefault(_normalize_entity_label(str(label)), row["id"])
+                canonical_by_identity.setdefault(identity, existing)
             for record in batch_ent_records:
-                if record.ns != ns:
+                if (record.ns, record.scope) != (ns, scope):
                     continue
-                label = record.attrs.get("label")
-                if not label:
+                identity = _entity_identity(record)
+                if identity is None:
                     continue
-                norm = _normalize_entity_label(str(label))
-                canonical_id = canonical_by_norm.get(norm)
-                if canonical_id is not None and canonical_id != record.id:
-                    id_map[record.id] = canonical_id
+                canonical = canonical_by_identity.get(identity)
+                if canonical is not None and canonical.id != record.id:
+                    id_map[record.id] = canonical.id
                     skip_ids.add(record.id)
+                    if _merge_entity_mentions(canonical, record):
+                        if canonical.id in incoming_by_id:
+                            _merge_entity_mentions(incoming_by_id[canonical.id], canonical)
+                            canonical_by_identity[identity] = incoming_by_id[canonical.id]
+                        else:
+                            canonical_updates[canonical.id] = canonical
+                elif canonical is not None:
+                    _merge_entity_mentions(record, canonical)
+                    canonical_by_identity[identity] = record
                 else:
-                    canonical_by_norm.setdefault(norm, record.id)
-        return id_map, skip_ids
+                    canonical_by_identity[identity] = record
+        return id_map, skip_ids, [canonical_updates[key] for key in sorted(canonical_updates)]
 
     def _persist_ir_on_connection(
         self,
@@ -1153,12 +1171,19 @@ class SQLiteStore:
                 if record.kind is RecordKind.PROV
             ),
         )
-        id_map, skip_ids = (
+        id_map, skip_ids, canonical_entity_updates = (
             self._reconcile_entities(connection, batch)
             if reconcile_entities
-            else ({}, set())
+            else ({}, set(), [])
         )
-        projected = [record for record in batch.records if record.id not in skip_ids]
+        projected = [
+            *canonical_entity_updates,
+            *(record for record in batch.records if record.id not in skip_ids),
+        ]
+        for record in canonical_entity_updates:
+            virtual_references_by_id[record.id] = validate_record_reference_contract(
+                record
+            )
         for record in projected:
             remap_record_references(record, id_map)
         public_generation_records = [
@@ -1270,6 +1295,35 @@ class SQLiteStore:
         }
         known_record_kinds = stored_reference_kinds(connection, candidate_ids)
         known_record_kinds.update(batch_kinds)
+        canonical_boundaries = {
+            record.id: (record.ns, record.scope) for record in projected
+        }
+        stored_candidate_ids = sorted(candidate_ids - set(canonical_boundaries))
+        for start in range(0, len(stored_candidate_ids), 500):
+            chunk = stored_candidate_ids[start : start + 500]
+            placeholders = ",".join("?" for _ in chunk)
+            canonical_boundaries.update(
+                {
+                    str(row[0]): (str(row[1]), str(row[2]))
+                    for row in connection.execute(
+                        "select id, ns, scope from ir_records where id in "
+                        f"({placeholders})",
+                        chunk,
+                    ).fetchall()
+                }
+            )
+        for record in projected:
+            if record.kind is not RecordKind.REL:
+                continue
+            for reference_id in reference_candidate_ids(record):
+                reference_boundary = canonical_boundaries.get(reference_id)
+                if reference_boundary is not None and reference_boundary != (
+                    record.ns,
+                    record.scope,
+                ):
+                    raise CanonicalReferenceIntegrityError(
+                        "canonical relation reference crosses its namespace or scope boundary"
+                    )
         for record in projected:
             validate_typed_ir_edges(
                 typed_ir_edges(
@@ -2429,6 +2483,8 @@ class SQLiteStore:
             Status.DELETED_SOFT.value,
         )
         placeholders = ",".join("?" for _ in excluded)
+        admitted_predicates = sorted(ADMITTED_RELATION_PREDICATES)
+        admitted_placeholders = ",".join("?" for _ in admitted_predicates)
         rows = connection.execute(
             "select e.id, e.src_id, src.label as src_label, e.dst_id, "
             "dst.label as dst_label, e.predicate, e.source_record_id "
@@ -2440,6 +2496,9 @@ class SQLiteStore:
             f"and e.status not in ({placeholders}) and e.expired_at is null "
             f"and src.status not in ({placeholders}) "
             f"and dst.status not in ({placeholders}) "
+            "and (case when json_valid(e.properties_json) "
+            "then json_extract(e.properties_json, '$.relation_id') end is null "
+            f"or lower(trim(e.predicate)) in ({admitted_placeholders})) "
             "order by e.id limit ?",
             (
                 namespace,
@@ -2447,6 +2506,7 @@ class SQLiteStore:
                 *excluded,
                 *excluded,
                 *excluded,
+                *admitted_predicates,
                 max_facts + 1,
             ),
         ).fetchall()
@@ -5321,6 +5381,39 @@ def _current_context_record_ids(
 def _normalize_entity_label(label: str) -> str:
     """Lowercase + collapsed whitespace, the coreference dedup key."""
     return " ".join(label.lower().split())
+
+
+def _entity_identity(record: MIRLRecord) -> tuple[str, str] | None:
+    explicit = record.ext.get("seam.entity_identity")
+    if explicit is not None:
+        if (
+            not isinstance(explicit, str)
+            or not explicit.strip()
+            or explicit != explicit.strip()
+        ):
+            raise ValueError("entity identity key must be a nonblank trimmed string")
+        return ("explicit", explicit.casefold())
+    label = record.attrs.get("label")
+    if not isinstance(label, str) or not label.strip():
+        return None
+    return ("label", _normalize_entity_label(label))
+
+
+def _merge_entity_mentions(canonical: MIRLRecord, mention: MIRLRecord) -> bool:
+    """Accumulate exact mention anchors without replacing canonical identity."""
+
+    changed = False
+    merged_prov = sorted(set(canonical.prov) | set(mention.prov))
+    if merged_prov != canonical.prov:
+        canonical.prov = merged_prov
+        changed = True
+    merged_evidence = sorted(set(canonical.evidence) | set(mention.evidence))
+    if merged_evidence != canonical.evidence:
+        canonical.evidence = merged_evidence
+        changed = True
+    if changed and mention.updated_at > canonical.updated_at:
+        canonical.updated_at = mention.updated_at
+    return changed
 
 
 def _load_record_by_id(connection: sqlite3.Connection, record_id: str) -> MIRLRecord | None:

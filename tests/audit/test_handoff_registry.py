@@ -184,3 +184,16 @@ def test_newest_first_table_order_is_enforced(tmp_path: Path) -> None:
 
     assert not ok
     assert any("newest-first chain must start" in error for error in errors)
+
+
+def test_handoff_history_references_must_follow_chronological_chain(
+    tmp_path: Path,
+) -> None:
+    rows = _valid_rows()
+    rows[0] = replace(rows[0], history="HISTORY#1")
+    index, history = _write_registry(tmp_path, rows)
+
+    ok, errors = _verify(tmp_path, index, history)
+
+    assert not ok
+    assert any("handoff history order broken" in error for error in errors)

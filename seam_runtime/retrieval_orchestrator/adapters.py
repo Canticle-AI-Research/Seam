@@ -8,6 +8,7 @@ from typing import Protocol
 
 from seam_runtime.bm25 import BM25Index
 from seam_runtime.knowledge_graph import (
+    ADMITTED_RELATION_PREDICATES,
     CURRENT_EXCLUDED_STATUSES,
     _edge_time_clauses,
     _episode_filter_clauses,
@@ -399,7 +400,13 @@ def _canonical_relation_edge_where(
     """Build the fail-closed admission predicate for traversable graph edges."""
 
     where = list(_CANONICAL_RELATION_EDGE_CLAUSES)
-    params: list[object] = []
+    admitted_predicates = sorted(ADMITTED_RELATION_PREDICATES)
+    where.append(
+        "lower(trim(e.predicate)) in ("
+        + ",".join("?" for _ in admitted_predicates)
+        + ")"
+    )
+    params: list[object] = [*admitted_predicates]
     if plan.filters.scope:
         where.append("e.scope = ?")
         params.append(plan.filters.scope)

@@ -13,8 +13,8 @@ SEAM preserves complete history without loading complete history.
 - `docs/handoffs/INDEX.md` is the canonical current-handoff route: one `latest`
   pointer plus one explicit, newest-first supersession chain.
 - `docs/handoffs/*.md` stores tracked recovery documents. Each document is
-  registered, carries chain metadata, and has exactly one current head across
-  the repo.
+  registered, carries chain metadata, references its own chronological
+  `HISTORY.md` event, and has exactly one current head across the repo.
 - `.seam/snapshots/` stores bounded handoff packs.
 
 ## Routing Rule
@@ -46,6 +46,7 @@ python -m tools.history.verify_continuity
 - `verify_routing` checks the classification tree, parent links, route ledgers, route lifecycle fields, and referenced history entries.
 - `verify_handoffs` checks registered documents and history refs, document/index
   metadata agreement, missing supersession targets, cycles, forks, table order,
-  and agreement between the single live head and `latest`.
+  agreement between the single live head and `latest`, and strict newest-first
+  HISTORY IDs with non-regressing timestamps across the entire handoff chain.
 
 If a route is wrong, fix the route and record why. Do not rewrite old history to make the route look clean.

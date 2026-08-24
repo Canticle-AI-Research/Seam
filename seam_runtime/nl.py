@@ -158,18 +158,22 @@ def compile_nl(
         entity_type: str = "entity",
         *,
         promote_type: bool = False,
+        evidence_id: str | None = None,
     ) -> str:
         """Resolve (and lazily create) an ENT for ``label``, deduped by its
-        lowercased form. The first call's ``entity_type`` wins (so a speaker
-        resolved as ``person`` is not downgraded by a later generic mention)."""
+        lowercased form. Every observed mention retains its proposition SPAN;
+        the first call's ``entity_type`` wins (so a speaker resolved as
+        ``person`` is not downgraded by a later generic mention)."""
         key = label.lower()
         existing = entity_ids.get(key)
         if existing is not None:
-            if promote_type:
-                for record in records:
-                    if record.id == existing and record.kind == RecordKind.ENT:
+            for record in records:
+                if record.id == existing and record.kind == RecordKind.ENT:
+                    if promote_type:
                         record.attrs["entity_type"] = entity_type
-                        break
+                    if evidence_id is not None and evidence_id not in record.evidence:
+                        record.evidence.append(evidence_id)
+                    break
             return existing
         slug = re.sub(r"[^a-z0-9]+", "_", key).strip("_") or "entity"
         base = f"ent:{slug}:{source_hash}"
@@ -187,6 +191,7 @@ def compile_nl(
                 ns=ns,
                 scope=scope,
                 prov=[prov_id],
+                evidence=[evidence_id] if evidence_id is not None else [],
                 attrs={"entity_type": entity_type, "label": label},
             )
         )
@@ -237,10 +242,6 @@ def compile_nl(
             "timestamp": source_timestamp or "",
             "prefix_end": source_prefix_end,
         }
-
-    # High-confidence proper-noun entities anywhere in the text.
-    for run in _proper_noun_runs(raw_text):
-        entity_id(run, "entity")
 
     span_index = 1
     claim_index = 1
@@ -332,9 +333,18 @@ def compile_nl(
             MIRLRecord(id=span_id, kind=RecordKind.SPAN, ns=ns, scope=scope, status=Status.OBSERVED,
                        attrs={"raw_id": raw_id, "start": start, "end": end})
         )
+        # Bind each admitted entity mention to the exact proposition SPAN that
+        # contains it. Repeated mentions accumulate evidence on the canonical
+        # turn-local ENT instead of losing their later source locations.
+        for run in _proper_noun_runs(proposition):
+            entity_id(run, "entity", evidence_id=span_id)
         # Grounded subject: the turn speaker if present, else the proposition's
         # leading noun phrase (both are drawn from the input text).
-        subject = speaker_subject or entity_id(subject_label, "entity")
+        subject = speaker_subject or entity_id(
+            subject_label,
+            "entity",
+            evidence_id=span_id,
+        )
         # Floor: the verbatim content claim carries the full proposition (this is
         # what satisfies the contract's coverage check + temporal retention).
         add_claim("content", proposition, subject, span_id)
@@ -380,6 +390,7 @@ def compile_nl(
                     explicit_speaker,
                     "person",
                     promote_type=True,
+                    evidence_id=span_id,
                 )
                 evidence_start = evidence_offset + sentence_fact.evidence_start
                 evidence_end = evidence_offset + sentence_fact.evidence_end
@@ -486,7 +497,11 @@ def compile_nl(
                         _normalized_label(entity.name) in rebased_subjects
                     ):
                         continue
-                    entity_id(entity.name, entity.entity_type)
+                    entity_id(
+                        entity.name,
+                        entity.entity_type,
+                        evidence_id=span_id,
+                    )
             # Extractor-identified entity names gate REL emission below: a
             # claim's object is only a real entity-entity edge when the
             # extractor itself flagged that phrase (or its head words) as an
@@ -518,9 +533,10 @@ def compile_nl(
                     resolved_subject_label,
                     "person" if rebased else "entity",
                     promote_type=rebased,
+                    evidence_id=span_id,
                 )
                 object_ent_id = (
-                    entity_id(claim.obj, "entity")
+                    entity_id(claim.obj, "entity", evidence_id=span_id)
                     if not derived_fact_policy
                     else None
                 )

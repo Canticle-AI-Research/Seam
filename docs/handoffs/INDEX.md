@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-23-s6-github-operations-merged-s7-next
+latest: 2026-08-24-track-s-s7-review-repaired
 ---
 
 # SEAM Handoff Registry
@@ -13,11 +13,16 @@ linear supersession chain.
 Every tracked handoff must declare `handoff_id`, `supersedes`,
 `handoff_status`, and `history` in its opening metadata block. Add the new
 handoff at the top, mark its predecessor `superseded`, advance `latest`, and
-run `python -m tools.history.verify_handoffs`.
+run `python -m tools.history.verify_handoffs`. Handoffs are chronological
+HISTORY events, not a parallel timeline: every newer row must reference a
+strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-23-s6-github-operations-merged-s7-next` | [2026-08-23-s6-github-operations-merged-s7-next.md](2026-08-23-s6-github-operations-merged-s7-next.md) | `2026-08-22-github-operations-restacked` | `HISTORY#598` | `current` |
+| `2026-08-24-track-s-s7-review-repaired` | [2026-08-24-track-s-s7-review-repaired.md](2026-08-24-track-s-s7-review-repaired.md) | `2026-08-23-track-s-s7-locally-qualified` | `HISTORY#603` | `current` |
+| `2026-08-23-track-s-s7-locally-qualified` | [2026-08-23-track-s-s7-locally-qualified.md](2026-08-23-track-s-s7-locally-qualified.md) | `2026-08-23-track-s-s7-entity-evidence-in-progress` | `HISTORY#602` | `superseded` |
+| `2026-08-23-track-s-s7-entity-evidence-in-progress` | [2026-08-23-track-s-s7-entity-evidence-in-progress.md](2026-08-23-track-s-s7-entity-evidence-in-progress.md) | `2026-08-23-s6-github-operations-merged-s7-next` | `HISTORY#601` | `superseded` |
+| `2026-08-23-s6-github-operations-merged-s7-next` | [2026-08-23-s6-github-operations-merged-s7-next.md](2026-08-23-s6-github-operations-merged-s7-next.md) | `2026-08-22-github-operations-restacked` | `HISTORY#598` | `superseded` |
 | `2026-08-22-github-operations-restacked` | [2026-08-22-github-operations-restacked.md](2026-08-22-github-operations-restacked.md) | `2026-08-22-track-s-s6-third-review-repaired` | `HISTORY#597` | `superseded` |
 | `2026-08-22-track-s-s6-third-review-repaired` | [2026-08-22-track-s-s6-third-review-repaired.md](2026-08-22-track-s-s6-third-review-repaired.md) | `2026-08-22-track-s-s6-second-review-repaired` | `HISTORY#579` | `superseded` |
 | `2026-08-22-track-s-s6-second-review-repaired` | [2026-08-22-track-s-s6-second-review-repaired.md](2026-08-22-track-s-s6-second-review-repaired.md) | `2026-08-22-track-s-s6-review-repaired` | `HISTORY#578` | `superseded` |

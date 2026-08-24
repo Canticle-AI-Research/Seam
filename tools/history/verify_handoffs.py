@@ -6,9 +6,16 @@ import json
 import re
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
-from tools.history.history_lib import HISTORY_PATH, REPO_ROOT, parse_entries, read_history_bytes
+from tools.history.history_lib import (
+    HISTORY_PATH,
+    REPO_ROOT,
+    Entry,
+    parse_entries,
+    read_history_bytes,
+)
 
 HANDOFFS_DIR = REPO_ROOT / "docs" / "handoffs"
 INDEX_PATH = HANDOFFS_DIR / "INDEX.md"
@@ -143,13 +150,23 @@ def _parse_index(index_path: Path) -> tuple[dict[str, str], list[HandoffRow], li
     return metadata, rows, errors
 
 
-def _history_ids(history_path: Path) -> tuple[set[int], list[str]]:
+def _history_entries(history_path: Path) -> tuple[dict[int, Entry], list[str]]:
     try:
         data = read_history_bytes(history_path)
         entries = parse_entries(data) if data else []
     except (OSError, ValueError) as exc:
-        return set(), [f"cannot parse history at {history_path}: {exc}"]
-    return {entry.id for entry in entries}, []
+        return {}, [f"cannot parse history at {history_path}: {exc}"]
+    return {entry.id: entry for entry in entries}, []
+
+
+def _history_time(value: str) -> datetime | None:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _resolve_handoff_path(index_path: Path, raw_path: str, repo_root: Path) -> Path | None:
@@ -190,7 +207,7 @@ def verify_handoffs(
     if latest is None:
         errors.append("index metadata must declare latest")
 
-    history_ids, history_errors = _history_ids(history_path)
+    history_entries, history_errors = _history_entries(history_path)
     errors.extend(history_errors)
 
     ids: set[str] = set()
@@ -215,7 +232,7 @@ def verify_handoffs(
         match = HISTORY_RE.fullmatch(row.history)
         if not match:
             errors.append(f"handoff {row.handoff_id} has invalid history ref {row.history!r}")
-        elif int(match.group(1)) not in history_ids:
+        elif int(match.group(1)) not in history_entries:
             errors.append(f"handoff {row.handoff_id} references missing {row.history}")
 
         resolved = _resolve_handoff_path(index_path, row.path, repo_root)
@@ -285,6 +302,33 @@ def verify_handoffs(
             errors.append(
                 f"newest-first order broken: {previous.handoff_id} must supersede {current.handoff_id}"
             )
+        previous_match = HISTORY_RE.fullmatch(previous.history)
+        current_match = HISTORY_RE.fullmatch(current.history)
+        if previous_match and current_match:
+            previous_id = int(previous_match.group(1))
+            current_id = int(current_match.group(1))
+            if previous_id <= current_id:
+                errors.append(
+                    "handoff history order broken: "
+                    f"{previous.handoff_id} {previous.history} must be later than "
+                    f"{current.handoff_id} {current.history}"
+                )
+            previous_entry = history_entries.get(previous_id)
+            current_entry = history_entries.get(current_id)
+            if previous_entry is not None and current_entry is not None:
+                previous_time = _history_time(previous_entry.date)
+                current_time = _history_time(current_entry.date)
+                if previous_time is None or current_time is None:
+                    errors.append(
+                        "handoff history entry has an invalid temporal timestamp: "
+                        f"{previous.history} or {current.history}"
+                    )
+                elif previous_time < current_time:
+                    errors.append(
+                        "handoff temporal order broken: "
+                        f"{previous.handoff_id} {previous_entry.date} predates "
+                        f"{current.handoff_id} {current_entry.date}"
+                    )
     if rows and rows[-1].supersedes is not None:
         errors.append(f"oldest handoff {rows[-1].handoff_id} must supersede none")
 

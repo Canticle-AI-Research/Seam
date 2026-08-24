@@ -1419,11 +1419,13 @@ claim c1:
     def test_reconcile_supersedes_when_winner_newer(self) -> None:
         newer = MIRLRecord(
             id="clm:a", kind=RecordKind.CLM,
+            t0="2025-06-01T00:00:01Z",
             updated_at="2025-06-01T00:00:01Z", conf=0.5,
             attrs={"subject": "X", "predicate": "color", "object": "red"},
         )
         older = MIRLRecord(
             id="clm:b", kind=RecordKind.CLM,
+            t0="2025-06-01T00:00:00Z",
             updated_at="2025-06-01T00:00:00Z", conf=0.9,
             attrs={"subject": "X", "predicate": "color", "object": "blue"},
         )

@@ -12,7 +12,10 @@ from seam_runtime.knowledge_graph import (
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, Status
 from seam_runtime.nl import compile_nl
 from seam_runtime.nl_extract import ExtractedClaim, ExtractedEntity, Extraction, ground_extraction
-from seam_runtime.reference_contracts import VIRTUAL_REFS_EXTENSION
+from seam_runtime.reference_contracts import (
+    VIRTUAL_REFS_EXTENSION,
+    CanonicalReferenceIntegrityError,
+)
 from seam_runtime.runtime import SeamRuntime
 from seam_runtime.self_improve import (
     GraphProbe,
@@ -270,16 +273,17 @@ def test_cross_tenant_epistemic_evidence_cannot_upgrade_claim(
     # source episode differ by namespace or scope. Trust evaluation must
     # constrain every part of the path, rather than accepting the edge's
     # target-facing tenant alone.
-    runtime.persist_ir(IRBatch([foreign_raw_record, foreign_prov_record,
-        MIRLRecord(
-            id="rel:cross-tenant-support",
-            kind=RecordKind.REL,
-            ns="team.alpha",
-            scope="project",
+    with pytest.raises(CanonicalReferenceIntegrityError, match="crosses"):
+        runtime.persist_ir(IRBatch([foreign_raw_record, foreign_prov_record,
+            MIRLRecord(
+                id="rel:cross-tenant-support",
+                kind=RecordKind.REL,
+                ns="team.alpha",
+                scope="project",
                 prov=[foreign_prov_record.id],
-            attrs={"src": foreign_claim, "predicate": "supports", "dst": target.id},
-        )
-    ]))
+                attrs={"src": foreign_claim, "predicate": "supports", "dst": target.id},
+            )
+        ]))
 
     node = runtime.store.knowledge_node(target.id)["node"]
     assert node["trust_state"] == "unverified"
@@ -418,6 +422,7 @@ def test_graph_probe_generation_covers_safety_and_reasoning_motifs(runtime: Seam
     unsupported = MIRLRecord(
         id="clm:unsupported-probe",
         kind=RecordKind.CLM,
+        scope="thread",
         ext={"agent_id": "model", VIRTUAL_REFS_EXTENSION: ["ent:a"]},
         attrs={"subject": "ent:a", "predicate": "claims", "object": "unverified"},
     )
@@ -426,22 +431,25 @@ def test_graph_probe_generation_covers_safety_and_reasoning_motifs(runtime: Seam
         MIRLRecord(
             id="rel:a-b",
             kind=RecordKind.REL,
+            scope="thread",
             ext={VIRTUAL_REFS_EXTENSION: ["ent:a", "ent:b"]},
             attrs={"src": "ent:a", "predicate": "uses", "dst": "ent:b"},
         ),
         MIRLRecord(
             id="rel:b-c",
             kind=RecordKind.REL,
+            scope="thread",
             ext={VIRTUAL_REFS_EXTENSION: ["ent:b", "ent:c"]},
             attrs={"src": "ent:b", "predicate": "precedes", "dst": "ent:c"},
         ),
         MIRLRecord(
             id="rel:cause",
             kind=RecordKind.REL,
+            scope="thread",
             ext={VIRTUAL_REFS_EXTENSION: ["ent:c", "ent:d"]},
             attrs={"src": "ent:c", "predicate": "caused_by", "dst": "ent:d"},
         ),
-        MIRLRecord(id="rel:dispute", kind=RecordKind.REL, attrs={"src": unsupported.id, "predicate": "contradicts", "dst": _claim_id(rich)}),
+        MIRLRecord(id="rel:dispute", kind=RecordKind.REL, scope="thread", attrs={"src": unsupported.id, "predicate": "contradicts", "dst": _claim_id(rich)}),
     ]))
     with runtime.store._pool.checkout() as connection:
         first = generate_graph_probes(connection, sample=None, seed=9)

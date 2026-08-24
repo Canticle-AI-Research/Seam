@@ -19566,3 +19566,105 @@ Next: publish this documentation-only closeout through its own protected PR,
 then begin S7 only from the verified protected-main successor containing the
 new handoff.
 ---END-ENTRY-#598---
+
+---BEGIN-ENTRY-#599---
+id: 599
+date: 2026-08-23T18:15:22Z
+agent: codex-gpt-5
+status: in-progress
+topics: compile, mirl, provenance, graph, retrieval, tests, verify, handoff, continuity, status
+commits: pending
+refs: seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity_evidence.py,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/status/retrieval.md,docs/status/workspace.md,docs/handoffs/2026-08-23-track-s-s7-entity-evidence-in-progress.md
+supersedes: 598
+tokens: 600
+---
+Confirmed Track S S6 is finished before opening S7. Live GitHub state shows PR #223 merged at `abd2a597a73b63dd5bf6af59f419abbd5c7fd67f`; its exact source head `fbefb81317bb4256ab5de77ce62760bb77a7a091` passed the required `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` checks and is an ancestor of protected `origin/main@1752532d62369739129b4a9c4aae6f43a79e0992`. Reused the clean former S6 worktree and switched it to new branch `track-s/s7-semantic-ingest` at that exact protected head. The primary `research/advanced-persistence-landscape` checkout and its unrelated untracked operator assets were preserved unchanged.
+
+Started S7 with one coherent entity-evidence slice. `compile_nl` now attaches each admitted entity mention to its exact containing proposition SPAN and accumulates distinct evidence spans when the same turn-local entity is mentioned repeatedly. The graph identity projection rejects canonical or alias entity terms composed entirely of closed-class stopwords while preserving multiword names. New audit tests prove complete persisted SPAN-to-RAW resolution for compiled ENTs, repeated-mention evidence retention, stopword-only rejection, and multiword-term survival. This changes compiler output and corpus digests; historical corpora remain evidence-empty and the recorded retrieved-ENT result remains 0.0000 until rebuild and remeasurement.
+
+The new tests were run before implementation and failed in all three intended places: compiled ENTs had no evidence, repeated entities retained zero mention spans, and `we` entered `knowledge_node_terms`. After implementation, `tests/audit/test_s7_entity_evidence.py` passed 3 tests. The adjacent provenance, entity-coreference, knowledge-graph, relation qualification/ingest, conversation compiler, persistence concurrency, and NL fidelity slice collected 173 tests and passed. Ruff on the three changed Python files and `git diff --check` passed. The linked worktree has no local `.venv`; the first local-venv context-pack command failed for that reason, after which all Python commands used the unchanged primary checkout environment at `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python` with `PYTHONPATH=.`.
+
+S7 remains in progress. No test-vs-implementation mismatch or undefined symbol is known. The next agent should first run the focused S7/audit slice, then implement and counterexample-test functional versus multivalued predicate policy and older/newer/equal/missing-time reconciliation. Same-name-person separation, concurrency/idempotency/as-of proof, a frozen independently reviewed native entity/relation corpus, and fresh retrieved-ENT coverage remain mandatory. S8 must not start before those S7 exit gates close.
+---END-ENTRY-#599---
+
+---BEGIN-ENTRY-#600---
+id: 600
+date: 2026-08-23T18:16:25Z
+agent: codex-gpt-5
+status: changed
+topics: correction, continuity, history, verify, tests, handoff
+commits: pending
+refs: HISTORY.md,HISTORY_INDEX.md,docs/handoffs/2026-08-23-track-s-s7-entity-evidence-in-progress.md,docs/handoffs/INDEX.md
+supersedes: 599
+tokens: 347
+---
+Supersedes HISTORY#599's unscoped combined test-count sentence. The implementation and S7 boundary are unchanged; this entry records the verification with exact path scopes so the result is auditable.
+
+`PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest tests/audit/test_s7_entity_evidence.py tests/audit/test_provenance_chain.py tests/audit/test_entity_coreference.py tests/audit/test_knowledge_graph.py tests/audit/test_relation_extraction_qualification.py tests/audit/test_relation_extraction_ingest.py -q` passed 92 tests.
+
+`PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest tests/audit/test_conversation_turn_compile.py tests/audit/test_persist_ir_concurrency.py tests/fidelity/test_nl_extract.py -q` passed 81 tests. A separate collect-only command over those same nine exact modules succeeded. `PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m ruff check seam_runtime/nl.py seam_runtime/knowledge_graph.py tests/audit/test_s7_entity_evidence.py` and `git diff --check` passed.
+
+The initial closeout for HISTORY#599 appended the entry, rebuilt the history index/mirror/cross-index, wrote snapshot `20260823-181530-871293-codex-gpt-5.json`, and passed integrity, routing, and handoff verification. Continuity then failed only because HISTORY#599 stated the combined test count without pytest path scope. No gate is reported green beyond that failure point. Rebuild the derived chain and rerun every required gate after this correction.
+---END-ENTRY-#600---
+
+---BEGIN-ENTRY-#601---
+id: 601
+date: 2026-08-23T18:33:19Z
+agent: codex-gpt-5
+status: in-progress
+topics: tests, verify, continuity, status, compile, mirl, provenance, graph, retrieval, handoff
+commits: pending
+refs: seam_runtime/nl.py,seam_runtime/knowledge_graph.py,tests/audit/test_s7_entity_evidence.py,docs/handoffs/2026-08-23-track-s-s7-entity-evidence-in-progress.md
+supersedes: 600
+tokens: 327
+---
+Supersedes HISTORY#600 with the completed broad regression boundary; the S7 implementation and open campaign gates are unchanged.
+
+The first broad command, `PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -m "not external" -q`, failed. The failures were environmental: the retained worktree contains a pre-existing ignored `seam.db` last modified on 2026-08-19 whose `core-storage/4` public-handle schema is stale, and the operator shell exports `SEAM_PGVECTOR_DSN`. Default-path CLI/MCP tests opened that stale database, while `test_seam_all` quickstart paths inherited the pgvector adapter and failed projection. This failed run is not reported as product evidence. The pre-existing database was preserved.
+
+The isolated rerun passed: `env -u SEAM_PGVECTOR_DSN SEAM_DB_PATH=/tmp/seam-s7-broad-20260823/seam.db PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -m "not external" -q`. This exercises the complete non-external pytest lane against a fresh database without the external pgvector service. The previously recorded focused 92-test and 81-test scopes remain green and provide the direct touched-module evidence.
+
+S7 remains in progress. The branch still must prove deterministic temporal reconciliation, concurrency/idempotency/as-of behavior, same-name-person separation, frozen-corpus independent review, and fresh retrieved-ENT coverage before S7 can be marked complete or S8 can start.
+---END-ENTRY-#601---
+
+---BEGIN-ENTRY-#602---
+id: 602
+date: 2026-08-24T21:28:51Z
+agent: codex-gpt-5
+status: done
+topics: atomicity, continuity, graph, handoff, mirl, provenance, reconcile, retrieval, status, tests, verify
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/DATA_ROUTING.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/status/retrieval.md,docs/status/workspace.md,docs/status/surfaces.md,docs/handoffs/2026-08-23-track-s-s7-locally-qualified.md,docs/handoffs/INDEX.md,seam_runtime/reconcile.py,seam_runtime/storage.py,seam_runtime/knowledge_graph.py,seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_s7_temporal_identity_admission.py,tests/audit/test_s7_entity_evidence.py,tests/audit/test_handoff_registry.py,tools/history/verify_handoffs.py
+supersedes: 601
+tokens: 663
+---
+Track S S7 is locally qualified on `track-s/s7-semantic-ingest` in draft PR #226, superseding the in-progress boundary in HISTORY#601. Protected `origin/main@1752532` still contains only S0-S6; S8 remains blocked until the S7 candidate passes exact-head review and merges.
+
+Functional and multivalued claims now reconcile deterministically within `(namespace, scope, subject, predicate)`. Event time selects newer functional truth; equal or missing event time uses deterministic confidence/ID resolution without fabricating supersession. Derived state and relation IDs are stable, and two concurrent runtime instances replay the same reconciliation idempotently. Public graph traversal honors valid-time intervals for as-of reads.
+
+Entity canonicalization is scoped by namespace and scope. Explicit `seam.entity_identity` keys separate same-name people, while repeat mentions accumulate exact provenance and evidence on the canonical entity. Canonical REL endpoints cannot cross a namespace or scope boundary. MIRL may preserve open-vocabulary relation evidence, but retrieval adapters and public graph traversal admit only the closed reviewed predicate registry.
+
+The provider-free retrieved-ENT conformance fixture returned five entities; all 5/5 resolved through complete exact SPAN-to-RAW provenance chains. This closes the S7 mechanism gate only. Historical native LoCoMo ENT coverage remains 0.0000, and native corpus freeze/review, scorer eligibility, full-corpus measurement, and promotion remain S9.
+
+Successor sanity verification passed 45 tests scoped to `tests/audit/test_s7_temporal_identity_admission.py`, `tests/audit/test_s7_entity_evidence.py`, `tests/audit/test_relation_extraction_qualification.py`, `tests/audit/test_handoff_registry.py`, and `tests/audit/test_deep_knowledge_graph.py`. The earlier isolated complete non-external lane selected 3,007 of 3,030 collected tests and passed 3,005 with two established xfails and 23 external tests deselected. Ruff and `git diff --check` passed. An initial successor command invoked the `pytest` console entry point and failed collection because it omitted the repository from `sys.path`; rerunning the same slice through `python3 -m pytest` passed and is the recorded product evidence.
+
+The handoff verifier and governing continuity policy now require every tracked handoff to reference a strictly later HISTORY event whose timestamp does not regress relative to its predecessor. Next: commit and push this coherent S7 completion, require exact-head required/advisory CI and review, merge through protected main, then publish a bounded protected-main S8-next handoff before starting S8.
+---END-ENTRY-#602---
+
+---BEGIN-ENTRY-#603---
+id: 603
+date: 2026-08-24T21:55:57Z
+agent: Codex
+status: changed
+topics: bugfix, continuity, graph, handoff, ledger, provenance, retrieval, tests, verify
+commits: pending
+refs: REPO_LEDGER.md,seam_runtime/knowledge_graph.py,seam_runtime/storage.py,tests/audit/test_s7_temporal_identity_admission.py,tests/audit/test_s7_entity_evidence.py,docs/handoffs/2026-08-24-track-s-s7-review-repaired.md,docs/handoffs/INDEX.md
+supersedes: 602
+tokens: 337
+---
+CodeRabbit review of the locally qualified S7 candidate produced four valid current-tree findings and four derived/archive false positives. The valid repairs are complete. REL persistence now checks every canonical reference candidate, including provenance and evidence, against the relation namespace and scope before any graph mutation. Graph-product facts apply the same closed admitted-predicate registry as direct traversal, so an unregistered relation cannot enter G4 products or G5 context candidates. Entity-evidence tests require exact proposition slices, and the stable ledger now assigns native-corpus freeze, independent review, and scorer promotion to S9.
+
+The prescribed repair scope passed 174 tests across `tests/audit/test_s7_temporal_identity_admission.py`, `tests/audit/test_s7_entity_evidence.py`, `tests/audit/test_graph_products.py`, `tests/audit/test_g4_r5_integration.py`, `tests/audit/test_g5_g7_integration.py`, and `tests/audit/test_typed_reference_integrity.py`. Changed-path Ruff, `python -m tools.history.verify_integrity`, and `git diff --check` passed. The four rejected review comments target retired or generated cross-index material and would require hand-editing derived files or inventing unavailable timestamps; HISTORY#586 and HISTORY#587 already govern that provenance boundary.
+
+This event supersedes HISTORY#602 and advances the tracked handoff chain to `docs/handoffs/2026-08-24-track-s-s7-review-repaired.md`. S7 remains branch-local until PR #226 passes exact-head CI and review and merges through protected main. S8 remains blocked until a bounded protected-main successor handoff is published and merged.
+---END-ENTRY-#603---
