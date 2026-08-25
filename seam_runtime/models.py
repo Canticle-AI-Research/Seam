@@ -150,6 +150,10 @@ class OpenAICompatibleEmbeddingModel:
     dimension: int = 1536
     # Inputs per request for `embed_many`.
     batch_size: int = 64
+    # Approximate aggregate-size ceiling per request, in characters. Providers
+    # cap total TOKENS; ~4 chars/token makes this a conservative stand-in
+    # without taking a tokenizer dependency.
+    char_budget: int = 400_000
 
     def __post_init__(self) -> None:
         if self.dimensions is not None:
@@ -161,12 +165,31 @@ class OpenAICompatibleEmbeddingModel:
         return self._request([text])[0]
 
     def embed_many(self, texts: Sequence[str]) -> list[list[float]]:
-        # The provider accepts a list input, so one round trip covers the whole
-        # batch. Chunked because request bodies are bounded.
+        """Batch by BOTH item count and aggregate size.
+
+        Counting alone is not safe: embedding endpoints cap total tokens per
+        request, and indexable RAW records are long. A fixed count of 64 long
+        inputs can exceed that cap and return a non-retryable 400 -- which
+        would fail the whole vector-index transaction for records that each
+        succeeded individually before batching. `char_budget` approximates the
+        token cap conservatively; a single oversized item still ships alone,
+        exactly as it did when every input was its own request.
+        """
+
         out: list[list[float]] = []
-        batch = list(texts)
-        for start in range(0, len(batch), self.batch_size):
-            out.extend(self._request(batch[start : start + self.batch_size]))
+        batch: list[str] = []
+        budget = 0
+        for text in texts:
+            size = len(text)
+            if batch and (
+                len(batch) >= self.batch_size or budget + size > self.char_budget
+            ):
+                out.extend(self._request(batch))
+                batch, budget = [], 0
+            batch.append(text)
+            budget += size
+        if batch:
+            out.extend(self._request(batch))
         return out
 
     def _request(self, inputs: list[str]) -> list[list[float]]:
@@ -221,6 +244,12 @@ class OpenAICompatibleEmbeddingModel:
         return vectors
 
 
+# Records embedded and written per flush during bulk indexing. Bounded so a
+# large IRBatch cannot hold every rendered string and every vector in memory at
+# once: 280k records at 384 dims would be gigabytes of Python floats.
+EMBED_FLUSH_SIZE = 512
+
+
 def embed_texts(model: Any, texts: Sequence[str]) -> list[list[float]]:
     """Embed a batch through ``embed_many`` when the model offers it.
 
@@ -232,15 +261,25 @@ def embed_texts(model: Any, texts: Sequence[str]) -> list[list[float]]:
 
     if not texts:
         return []
+    items = list(texts)
     batched = getattr(model, "embed_many", None)
-    if callable(batched):
-        vectors = batched(list(texts))
-        if len(vectors) != len(texts):
+    # A model may explicitly subclass the Protocol and implement only `embed`.
+    # `getattr` then finds the protocol's own `...` stub, which returns None --
+    # so an identity check against the stub is required, not just `callable`.
+    stub = getattr(EmbeddingModel, "embed_many", None)
+    if callable(batched) and getattr(batched, "__func__", None) is not stub:
+        vectors = batched(items)
+        if vectors is None:
+            # Belt and braces: an unoverridden stub reached through some other
+            # route still degrades to the documented per-text contract.
+            return [model.embed(text) for text in items]
+        vectors = list(vectors)
+        if len(vectors) != len(items):
             raise RuntimeError(
-                f"embed_many returned {len(vectors)} vectors for {len(texts)} texts"
+                f"embed_many returned {len(vectors)} vectors for {len(items)} texts"
             )
-        return list(vectors)
-    return [model.embed(text) for text in texts]
+        return vectors
+    return [model.embed(text) for text in items]
 
 
 def embedding_settings_from_env() -> EmbeddingSettings:

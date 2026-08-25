@@ -127,3 +127,105 @@ def test_indexing_a_batch_matches_indexing_one_at_a_time(tmp_path):
     finally:
         one.close()
         bulk.close()
+
+
+# -- review repairs (PR #230) -------------------------------------------
+
+
+def test_explicit_protocol_subclass_without_embed_many_still_works():
+    """A model may subclass the Protocol and implement only `embed`.
+
+    `getattr` then finds the protocol's own `...` stub, which returns None.
+    Treating that as a real batch implementation crashed bulk persistence for
+    otherwise valid custom models.
+    """
+
+    from seam_runtime.models import EmbeddingModel
+
+    class CustomModel(EmbeddingModel):
+        name = "custom/1"
+        dimension = 3
+
+        def embed(self, text: str) -> list[float]:
+            return [float(len(text)), 0.0, 0.0]
+
+    assert embed_texts(CustomModel(), ["ab", "cde"]) == [
+        [2.0, 0.0, 0.0],
+        [3.0, 0.0, 0.0],
+    ]
+
+
+def test_index_records_flushes_in_bounded_slices(tmp_path, monkeypatch):
+    """A large batch must not hold every rendered string and vector at once."""
+
+    from seam_runtime import models as models_module
+    from seam_runtime.mirl import MIRLRecord, RecordKind
+    from seam_runtime.vector import SQLiteVectorIndex
+
+    monkeypatch.setattr(models_module, "EMBED_FLUSH_SIZE", 4)
+    import seam_runtime.vector as vector_module
+
+    monkeypatch.setattr(vector_module, "EMBED_FLUSH_SIZE", 4)
+
+    seen: list[int] = []
+
+    class _Counting(HashEmbeddingModel):
+        def embed_many(self, texts):
+            seen.append(len(texts))
+            return [self.embed(t) for t in texts]
+
+    records = [
+        MIRLRecord(
+            id=f"clm:bounded:{i}",
+            kind=RecordKind.CLM,
+            ns="library.rare-books",
+            scope="project",
+            attrs={"subject": f"s{i}", "predicate": "p", "object": f"o{i}"},
+        )
+        for i in range(10)
+    ]
+    index = SQLiteVectorIndex(str(tmp_path / "bounded.db"), _Counting())
+    index.index_records(records)
+
+    assert seen, "the batch path must have been used"
+    assert max(seen) <= 4, f"a flush exceeded the bound: {seen}"
+    assert sum(seen) == len(records)
+
+
+def test_cloud_batches_split_on_aggregate_size_not_just_count():
+    """Providers cap total tokens per request, not item count."""
+
+    from seam_runtime.models import OpenAICompatibleEmbeddingModel
+
+    model = OpenAICompatibleEmbeddingModel(model="test", dimension=3)
+    model.batch_size = 100          # count would never split these
+    model.char_budget = 50          # ...but size must
+
+    requests: list[list[str]] = []
+
+    def _fake_request(inputs: list[str]) -> list[list[float]]:
+        requests.append(list(inputs))
+        return [[1.0, 0.0, 0.0] for _ in inputs]
+
+    model._request = _fake_request  # type: ignore[method-assign]
+    vectors = model.embed_many(["x" * 30, "y" * 30, "z" * 30])
+
+    assert len(vectors) == 3
+    assert len(requests) == 3, f"expected a split per oversized item, got {requests}"
+    assert all(len(r) == 1 for r in requests)
+
+
+def test_a_single_oversized_input_still_ships_alone():
+    """One huge record must not be dropped or silently merged."""
+
+    from seam_runtime.models import OpenAICompatibleEmbeddingModel
+
+    model = OpenAICompatibleEmbeddingModel(model="test", dimension=3)
+    model.char_budget = 10
+    requests: list[list[str]] = []
+    model._request = lambda inputs: (  # type: ignore[method-assign]
+        requests.append(list(inputs)) or [[1.0, 0.0, 0.0] for _ in inputs]
+    )
+
+    assert len(model.embed_many(["z" * 500])) == 1
+    assert requests == [["z" * 500]]

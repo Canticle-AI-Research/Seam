@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 608
-total_tokens: ~310883
-latest_id: 608
+total_entries: 609
+total_tokens: ~311959
+latest_id: 609
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 609 | 2026-08-25 | done | 65310eb59416714b | performance,ingest,embedding,vector,+ | 608 |
 | 608 | 2026-08-25 | done | 60a9ec6af6ca0179 | performance,ingest,embedding,vector,+ | 607 |
 | 607 | 2026-08-25 | done | 695934a285d5de87 | retrieval,fusion,graph,telemetry,+ | 606 |
 | 606 | 2026-08-25 | in-progress | 3c7d00cf93c8d02b | retrieval,fusion,graph,telemetry,+ | 605 |
@@ -719,7 +720,7 @@ compact: true
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
-- embedding: count=1 latest=#608
+- embedding: count=2 latest=#609, #608
 - embeddings: count=1 latest=#486
 - enforcement: count=2 latest=#534, #294
 - engineering: count=1 latest=#331
@@ -770,7 +771,7 @@ compact: true
 - improve: count=1 latest=#302
 - inference: count=1 latest=#413
 - infra: count=3 latest=#453, #425, #271
-- ingest: count=3 latest=#608, #317, #303
+- ingest: count=4 latest=#609, #608, #317, #303
 - installer: count=16 latest=#360, #352, #337, #204, #177
 - instrumentation: count=1 latest=#366
 - integrity: count=16 latest=#587, #547, #531, #530, #529
@@ -837,7 +838,7 @@ compact: true
 - palette: count=1 latest=#541
 - parity: count=1 latest=#556
 - parked: count=1 latest=#412
-- performance: count=5 latest=#608, #447, #364, #363, #362
+- performance: count=6 latest=#609, #608, #447, #364, #363
 - persist: count=38 latest=#571, #547, #530, #529, #526
 - pgvector: count=34 latest=#490, #489, #488, #487, #486
 - plan: count=22 latest=#511, #437, #436, #432, #422
@@ -889,7 +890,7 @@ compact: true
 - retrieval: count=150 latest=#608, #607, #606, #605, #604
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
-- review: count=2 latest=#606, #388
+- review: count=3 latest=#609, #606, #388
 - roadmap: count=68 latest=#560, #551, #540, #538, #531
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
@@ -937,7 +938,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=112 latest=#588, #586, #585, #584, #583
 - test-artifacts: count=1 latest=#506
-- tests: count=57 latest=#608, #606, #605, #603, #602
+- tests: count=58 latest=#609, #608, #606, #605, #603
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -951,9 +952,9 @@ compact: true
 - trust: count=2 latest=#526, #403
 - tui: count=34 latest=#571, #559, #554, #543, #542
 - unify: count=1 latest=#311
-- vector: count=37 latest=#608, #533, #532, #530, #502
+- vector: count=38 latest=#609, #608, #533, #532, #530
 - vector-adapters: count=1 latest=#359
-- verify: count=417 latest=#608, #607, #606, #605, #604
+- verify: count=418 latest=#609, #608, #607, #606, #605
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -971,6 +972,6 @@ compact: true
 
 - roots: 86
 - changed: 57
-- done: 517
+- done: 518
 - in-progress: 13
 - planned: 21

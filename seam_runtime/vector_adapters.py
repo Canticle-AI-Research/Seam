@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 from .mirl import MIRLRecord
-from .models import EmbeddingModel, cosine, embed_texts
+from .models import EMBED_FLUSH_SIZE, EmbeddingModel, cosine, embed_texts
 from .vector import (
     INDEXABLE_KINDS,
     LEGACY_VECTOR_TEXT_VERSION,
@@ -355,6 +355,51 @@ class PgVectorAdapter:
         self.ensure_schema()
         with self._connect() as connection:
             with connection.cursor() as cursor:
+
+                def _write(record, source_text, source_hash, vector):
+                    cursor.execute(
+                        f"""
+                        insert into {self.table_name}
+                            (record_id, model_name, dimension, source_text,
+                             source_hash, render_version, namespace, scope,
+                             embedding, updated_at)
+                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s::vector, %s)
+                        on conflict (record_id, model_name) do update
+                        set model_name = excluded.model_name,
+                            dimension = excluded.dimension,
+                            source_text = excluded.source_text,
+                            source_hash = excluded.source_hash,
+                            render_version = excluded.render_version,
+                            namespace = excluded.namespace,
+                            scope = excluded.scope,
+                            embedding = excluded.embedding,
+                            updated_at = excluded.updated_at
+                        """,
+                        (
+                            record.id,
+                            self.model.name,
+                            len(vector),
+                            source_text,
+                            source_hash,
+                            VECTOR_TEXT_VERSION,
+                            record.ns or "",
+                            record.scope or "",
+                            _vector_literal(vector),
+                            record.updated_at,
+                        ),
+                    )
+
+                def _flush(rows: list[tuple[MIRLRecord, str, str]]) -> None:
+                    """Embed and write one bounded slice, then release it."""
+                    if not rows:
+                        return
+                    vectors = embed_texts(self.model, [text for _, text, _ in rows])
+                    for (record, source_text, source_hash), vector in zip(
+                        rows, vectors, strict=True
+                    ):
+                        _write(record, source_text, source_hash, vector)
+                    rows.clear()
+
                 pending: list[tuple[MIRLRecord, str, str]] = []
                 for record in records:
                     if record.kind not in INDEXABLE_KINDS:
@@ -391,45 +436,14 @@ class PgVectorAdapter:
                                 ),
                             )
                         continue
-                    # Deferred so one model call covers the whole batch.
+                    # Deferred so one model call covers many records, flushed in
+                    # bounded slices so a large batch cannot hold every rendered
+                    # string and every vector in memory at once.
                     pending.append((record, source_text, source_hash))
+                    if len(pending) >= EMBED_FLUSH_SIZE:
+                        _flush(pending)
 
-                for (record, source_text, source_hash), vector in zip(
-                    pending,
-                    embed_texts(self.model, [t for _, t, _ in pending]) if pending else [],
-                    strict=True,
-                ):
-                    cursor.execute(
-                        f"""
-                        insert into {self.table_name}
-                            (record_id, model_name, dimension, source_text,
-                             source_hash, render_version, namespace, scope,
-                             embedding, updated_at)
-                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s::vector, %s)
-                        on conflict (record_id, model_name) do update
-                        set model_name = excluded.model_name,
-                            dimension = excluded.dimension,
-                            source_text = excluded.source_text,
-                            source_hash = excluded.source_hash,
-                            render_version = excluded.render_version,
-                            namespace = excluded.namespace,
-                            scope = excluded.scope,
-                            embedding = excluded.embedding,
-                            updated_at = excluded.updated_at
-                        """,
-                        (
-                            record.id,
-                            self.model.name,
-                            len(vector),
-                            source_text,
-                            source_hash,
-                            VECTOR_TEXT_VERSION,
-                            record.ns or "",
-                            record.scope or "",
-                            _vector_literal(vector),
-                            record.updated_at,
-                        ),
-                    )
+                _flush(pending)
             connection.commit()
 
     def delete_records(self, record_ids: list[str]) -> None:

@@ -19780,3 +19780,31 @@ Verification: `pytest tests/audit/test_batched_embedding.py` holds 6 `def test_`
 
 This is a performance and correctness-preserving change with no retrieval-behavior change: batched and per-record embedding produce identical stored vectors, which the end-to-end test asserts directly. It is unrelated to the Track S campaign gates. It does, however, expose a campaign gap worth naming: S0-S10 contains no ingest-throughput or storage-amplification lane, and LoCoMo is four orders of magnitude too small to surface this class of defect.
 ---END-ENTRY-#608---
+
+---BEGIN-ENTRY-#609---
+id: 609
+date: 2026-08-25T19:00:18Z
+agent: Claude
+status: done
+topics: performance, ingest, embedding, vector, review, tests, verify
+commits: pending
+refs: seam_runtime/models.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py,tests/audit/test_batched_embedding.py,tools/ingest_throughput_probe.py,PR#230
+supersedes: 608
+tokens: 1076
+---
+The exact-head review of PR #230 returned four findings against `16f1ee5`'s successor `4c222e0`. All four were legitimate, three of them regressions introduced by HISTORY#608 itself, and each was reproduced before repair. This entry records them rather than quietly folding the fixes into the original claim.
+
+The protocol-stub crash was real and is fixed. `EmbeddingModel` is a `typing.Protocol`, and a model may explicitly subclass it while implementing only the documented `embed` contract. `getattr(model, "embed_many")` then resolves the protocol's own `...` stub, which returns `None`, so `embed_texts` called it and failed with `TypeError: object of type 'NoneType' has no len()` instead of using the promised per-text fallback. Reproduced directly against an explicit subclass before repair. `embed_texts` now compares the resolved function against the protocol stub by identity and additionally treats a `None` return as "not implemented", so a valid custom model degrades to the documented loop instead of crashing bulk persistence.
+
+The unbounded-memory finding was real and is fixed. As first written, batching accumulated every pending record, every rendered source string, and every returned vector before performing any database write. That is the failure mode of exactly the workload the change targets: the roughly 280,000 records implied by the measured corpus, at 384 dimensions, would be gigabytes of Python float objects held simultaneously. Both the SQLite writer in `seam_runtime/vector.py` and the pgvector writer in `seam_runtime/vector_adapters.py` now flush in bounded slices of `EMBED_FLUSH_SIZE` (512) and clear each slice after writing it, so peak memory is a function of the flush bound rather than of batch size.
+
+The cloud token-budget finding was real and is fixed. Chunking the OpenAI-compatible path by a fixed count of 64 respected item count but not the provider's aggregate per-request token cap. Because RAW records are indexable and long, a batch of individually valid inputs could exceed that cap and return a non-retryable 400, failing the entire vector-index transaction for records that had each succeeded as separate requests before HISTORY#608. `embed_many` now splits on item count AND aggregate size against a conservative `char_budget` of 400,000 characters, and a single oversized input still ships in a request of its own exactly as it did before batching.
+
+The provenance finding was fair. HISTORY#608 recorded exact timings from a private corpus with no command, artifact, model identifier, or hardware specification that would let anyone re-run or compare them. `tools/ingest_throughput_probe.py` now makes those claims reproducible on any text directory or on synthetic input, and reports the model name, resolved torch device, and Python version alongside the per-record versus batched embedding rate, the per-chunk versus bulk-persist chunk rate, and bytes written per chunk. A synthetic 40-chunk run on this machine recorded `st:/mnt/t7/hf-models/BAAI/bge-small-en-v1.5` on `cuda:0` at 127.3 records per second per-record versus 820.1 batched (6.44x), and 2.66 versus 35.03 chunks per second for per-chunk versus bulk persist (13.14x). Those synthetic figures are deliberately not the same as the real-corpus figures in HISTORY#608: synthetic passages are shorter and more uniform, so they yield fewer records per chunk. The probe reports its own inputs so the two are never confused.
+
+One further defect was found and fixed while repairing the pgvector writer, and is recorded because linting did not catch it: an intermediate edit left `_flush` invoked inside the record loop while `_write` was defined after that loop. Both names live in the same function scope, so Ruff's F821 does not fire, but a mid-loop flush would have raised `NameError` at runtime. The method was rewritten as a whole rather than patched further, with `_write` and `_flush` both defined before the loop.
+
+Verification: `pytest tests/audit/test_batched_embedding.py` holds 10 `def test_` functions, four of them added here, covering the explicit-protocol-subclass fallback, the bounded flush, size-based cloud batch splitting, and single-oversized-input handling. The flush bound was confirmed to be a real detector: with the bound monkeypatched to 4, ten records produced three flushes of 4, 4, and 2 rather than one flush of 10. The affected vector and pgvector scope passed 216 tests with both DSNs set. The full non-external suite passed 3048 tests with 2 xfailed, no failures and no skips. Changed-path Ruff and the secret scan pass.
+
+No retrieval behavior changes here. Batched and per-record embedding continue to produce identical stored vectors, which an end-to-end test asserts against `vector_index` contents directly. Storage amplification of roughly 1 MB per chunk is still unaddressed and remains the open blocker for whole-corpus ingest, alongside the separate finding that `temporal_window` contributes a ranking leg rather than a filter.
+---END-ENTRY-#609---
