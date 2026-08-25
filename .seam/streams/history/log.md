@@ -19890,3 +19890,31 @@ Verification: `pytest tests/audit/test_batched_embedding.py` holds 18 `def test_
 
 Cumulative record for PR #230: eighteen review findings across four rounds, the large majority regressions introduced by the change itself, including a false vector-parity claim, an unsupported replacement for it, a silent data-corruption path in provider index handling, an inflated corpus-duration figure, an overstated test count, two tests that passed for the wrong reason, and the same unbounded-batch defect repaired in four separate locations. The underlying performance result stands, is reproducible through `tools/ingest_throughput_probe.py`, and is correctly characterised as 3.5x. Storage amplification of roughly 361 KB per chunk and the unmeasured throughput degradation curve remain the blockers for whole-corpus ingest.
 ---END-ENTRY-#612---
+
+---BEGIN-ENTRY-#613---
+id: 613
+date: 2026-08-25T21:09:20Z
+agent: Claude
+status: done
+topics: audit, models, persist, graph, retrieval, tests, vector, verify
+commits: pending
+refs: seam_runtime/runtime.py,tools/ranking_parity_probe.py,tests/audit/test_batched_embedding.py,PR#230
+supersedes: 612
+tokens: 999
+---
+The fifth exact-head review of PR #230 returned two findings against `022e058`. Both were legitimate, and both are cases where an earlier repair in this same campaign addressed only the reported symptom.
+
+The node-vector memory bound was incomplete and is now fixed properly. HISTORY#611 bounded the embedding CALL in `project_node_vectors` into windows of `EMBED_FLUSH_SIZE`, which was reported and recorded as closing that finding. It did not. Every returned vector was still retained in a `fresh` map, then copied again into a complete `embedded` list, and nothing was written until the entire projection finished. Peak memory therefore remained proportional to the number of cache-missing nodes rather than to the bound, so hundreds of thousands of 384- or 1536-dimensional vectors could still be alive simultaneously and terminate a bulk ingest. The function now streams: each window is embedded, converted to storage rows, written through `store_node_vectors`, and released before the next window begins. The per-node fallback is preserved but scoped to the failing window, so completed provider calls are still never repeated.
+
+This is the fifth location in which the same unbounded-batch defect has been repaired, across four review rounds: the SQLite and pgvector writers in HISTORY#609, node-vector embedding in HISTORY#610, the in-memory adapter in HISTORY#612, and now node-vector STORAGE here. HISTORY#612 already recorded that the repairs were addressing reported instances rather than the class; this entry records that the observation did not prevent a further instance of exactly the same kind, one level below the one just fixed. The generalisable rule is that bounding an embedding call is insufficient on its own -- the results must also be consumed and released within the same bound.
+
+The ranking-parity measurement had no reproducible artifact and now does. HISTORY#611 recorded that throughput claims were unreproducible and closed that finding by adding `tools/ingest_throughput_probe.py`. HISTORY#612 then introduced an entirely new empirical claim, about drift versus ranking margin, supported only by figures quoted in prose and by a test that ranks two hand-authored score arrays and cannot reproduce a corpus measurement. `tools/ranking_parity_probe.py` now embeds a corpus both per-record and batched, compares top-1, top-5, and top-k orderings across a query set, and reports maximum component drift alongside the smallest adjacent score gap, because a parity claim is only meaningful when drift is compared against margin. It exits non-zero when any ordering differs, so it can gate a claim rather than decorate one.
+
+Two recorded runs on this machine, both with `st:/mnt/t7/hf-models/BAAI/bge-small-en-v1.5` on `cuda:0` under Python 3.12.3. On 29 chunks of real rare-book text with six queries: maximum component drift 2.1390793641939965e-07, smallest top-k margin 2.04953004765418e-05, margin/drift ratio 95.81, orderings changed 0 at k=1, k=5, and k=10. On the corpus-free synthetic path with 80 chunks: drift 1.4536842940504613e-07, margin 1.5961421383492436e-06, ratio 10.98, orderings changed 0 at all three depths. The synthetic ratio is nearly nine times tighter than the real-corpus ratio because synthetic passages are far more similar to one another, which is itself worth recording: the headroom protecting ranking parity is a function of corpus diversity, not a constant of the model. A homogeneous corpus narrows margins and brings ordering closer to the drift floor.
+
+The corpus used for the real-text run is the operator's licensed book material and is deliberately NOT committed. The durable reproduction path is the probe itself plus its synthetic mode, which demonstrates the same property without any private input; the real-text run is reproducible by pointing `--text-dir` at extracted text from the same source.
+
+Verification: `pytest tests/audit/test_batched_embedding.py` holds 18 `def test_` functions, count taken from a static grep at this commit, and skips none. The affected node-vector, graph, and vector scope passed 409 tests with both pgvector DSNs set. The full non-external suite passed 3056 tests with 2 xfailed, no failures and no skips. Changed-path Ruff, `git diff --check`, and the secret scan pass.
+
+Cumulative record for PR #230: twenty review findings across five rounds, the large majority regressions introduced by this change. The performance result stands at a corrected 3.5x and is reproducible. Storage amplification of roughly 361 KB per chunk and the unmeasured throughput degradation curve remain the blockers for whole-corpus ingest, and neither is addressed here.
+---END-ENTRY-#613---
