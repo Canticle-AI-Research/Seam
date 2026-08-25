@@ -443,8 +443,8 @@ and identity policy.
 **Findings:** F3, F8, F9.
 **Dependencies:** S1, S5, S6, and S7.
 
-**Status (2026-08-25): branch-local on `track-s/s8-retrieval-coherence`
-(HISTORY#605, #606), NOT protected-main behavior.** All six exit-gate bullets
+**Status (2026-08-25): the mechanism slice is published through merged PR #228
+at protected `main@bb156e3` (HISTORY#605, #606, #607). S8 is NOT complete.** All six exit-gate bullets
 below now have passing counterexample tests, each confirmed red before green.
 Two deployment-audit sub-items are also closed: the process-lifetime flag cache
 is qualified by an explicit `refresh_retrieval_flags()` contract, and three

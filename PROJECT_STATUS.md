@@ -9,17 +9,16 @@
 
 ## Current headline
 
-**2026-08-25 — protected `main@440a014` contains finished Track S S7 through
-merged PR #226 and the chronological S8-next handoff through merged PR #227;
-the first bounded S8 retrieval-coherence slice is branch-local on
-`track-s/s8-retrieval-coherence`.** S7 closes the
+**2026-08-25 — protected `main@bb156e3` contains finished Track S S7 through
+merged PR #226, the chronological S8-next handoff through merged PR #227, and
+the S8 retrieval-coherence mechanism slice through merged PR #228.** S7 closes the
 exit mechanics for exact entity mention evidence,
 same-boundary and explicit identity reconciliation, deterministic temporal
 reconciliation, concurrent replay idempotency, fail-closed REL traversal, and
 as-of graph intervals. A provider-free retrieved-ENT fixture resolved 5/5
 entities through complete exact SPAN-to-RAW chains. The chronological
 S8-next handoff reached protected main before implementation began. The
-branch-local S8 work now closes fail-closed fusion leg names over the exact set
+published S8 mechanism work closes fail-closed fusion leg names over the exact set
 the engine emits (including `chroma`), legacy-policy adapter isolation,
 persisted absent/all-one/zero/non-unit weighted-policy replay with all-one
 bitwise identical to `/2`, `search_ir`/REST candidate parity with direct
