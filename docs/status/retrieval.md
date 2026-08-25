@@ -29,10 +29,19 @@ verified Track S S8 gaps.
 The planner currently accepts `legacy-weighted/1` (the pre-refactor RAW/BM25/
 vector behavioral control) and `reciprocal-rank-fusion/2`. Non-empty
 `fusion_leg_weights` apply weighted contributions and report
-`weighted-reciprocal-rank-fusion/1`, but policy persistence does not yet accept
-that identifier and unknown leg names are not rejected. Weighted fusion is
-therefore an implemented, unpromoted path rather than a coherent supported
-policy; S8 owns its exact replay and validation contract.
+`weighted-reciprocal-rank-fusion/1`. Unknown leg names ARE now rejected: the
+S8 slice at HISTORY#605/#606 closed `FUSION_LEG_NAMES` over exactly the leg
+names the engine can emit (`chroma`, `graph`, `graph_node`, `sql`, `temporal`,
+`vector`) and validates once at the public runtime boundary, before planning,
+adapter search, or candidate-dependent fusion. `reasoning_graph.RETRIEVAL_SOURCES`
+is now that same definition, so the recorder cannot drift from what fusion
+accepts. Name enforcement is split deliberately: `SEAM_RETRIEVAL_LEG_WEIGHTS`
+normalizes whitespace around each name so `graph=0.3, vector=1.0` works, and
+programmatic `RetrievalFlags` require an exact canonical name; a misspelling
+from either surface fails before search. Policy persistence still does not
+accept the `weighted-reciprocal-rank-fusion/1` identifier, so weighted fusion
+remains an implemented, unpromoted path; S8 still owns its exact replay
+contract.
 
 ## The #503 overall-regression premise is lifted; promotion remains open
 
@@ -90,15 +99,26 @@ claim citing a missing PROV and a PROV naming no entity/activity/agent, and
    on re-ingest. The 5/5 fixture closes the S7 mechanism gate; it is not a
    replacement native-corpus measurement or scorer-promotion claim. Native
    corpus freeze/review and promotion remain S9.
-3. **`fusion_leg_weights` is UNVALIDATED** on a live graph leg — #509's arm C was
-   confounded because the structural exclusion had already zeroed the leg. It
-   ships an env var (`SEAM_RETRIEVAL_LEG_WEIGHTS`) and a policy fingerprint; do
-   not present it as a supported lever until S8 proves absent/all-1/zero/non-unit
-   replay, exact `/2` equivalence for all-1, and fail-closed leg names.
-4. **Surface/event identity is not yet qualified end to end.** S8 requires every
-   shipped surface to match direct `retrieve()` IDs/order and exactly one
-   tenant-scoped event per successful enabled retrieval without answer changes
-   on telemetry failure.
+3. **`fusion_leg_weights` replay is now proven** — #509's arm C was confounded
+   because the structural exclusion had already zeroed the leg. It ships an env
+   var (`SEAM_RETRIEVAL_LEG_WEIGHTS`) and a policy fingerprint. HISTORY#606
+   closes the replay contract: fail-closed leg names, absent/all-one/zero/
+   non-unit persisted replay, and all-one scores bitwise identical to `/2`.
+   Policy persistence now accepts `weighted-reciprocal-rank-fusion/1`, stores
+   the exact weights a run ranked under (`reasoning_retrieval.leg_weights_json`),
+   and re-derives the recorded score from them. This is a mechanism gate, not a
+   quality claim: no measured lift is attached to any non-unit weight, so the
+   lever stays unpromoted and default-inert.
+4. **Surface/event identity is qualified across the shipped surfaces**
+   (HISTORY#606) — runtime, `search_ir`, REST, SDK, MCP, and the TUI read path. `search_ir` no longer hardcodes its ranking policy;
+   it is an explicit pass-through that returns the `retrieve()` ranking narrowed
+   to the compatibility record kinds, proven under BOTH policies. Retrieval
+   telemetry moved to the engine, so every path records exactly one
+   tenant-scoped (`ns:scope`) event per successful retrieval, default-off via
+   `SEAM_RETRIEVAL_EVENTS`, with telemetry failure proven answer-inert. **Still
+   open:** `search_ir`'s default remains `legacy-weighted/1` — retiring it in
+   favour of `/2` changes every recorded LoCoMo/mem0 arm and is therefore an
+   S9-gated measurement decision, not an S8 refactor.
 5. **Promotion remains S9-gated.** The provider-free 1,542-case result must stay
    at or above `0.7664201903042236` with category non-regression. A qualifying
    semantic graph corpus and fresh attributable graph-only lift are separate

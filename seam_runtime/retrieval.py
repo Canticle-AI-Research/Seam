@@ -85,6 +85,16 @@ class RetrievalFlags:
     #
     # Env: SEAM_RETRIEVAL_LEG_WEIGHTS="graph=0.3,vector=1.0"
     fusion_leg_weights: tuple[tuple[str, float], ...] = ()
+    # Record one tenant-scoped `retrieval_event` row per successful retrieval.
+    # Default OFF: telemetry is an operator decision, and a retrieval that
+    # cannot write must still answer, so this never affects candidates.
+    #
+    # Keep it off under the LoCoMo/mem0 harnesses: those adapters append their
+    # OWN `retrieval_event` row per question, so enabling this there would
+    # double-count the substrate the self-improvement loop reads.
+    #
+    # Env: SEAM_RETRIEVAL_EVENTS=1
+    retrieval_events: bool = False
     # Retrieval DEPTH override (candidate count requested from search). None =
     # use the call-site `budget`. A measured win (HISTORY#320): the benchmark
     # default of 20 was STARVING recall - deeper retrieval lifts paid judge_score
@@ -361,6 +371,8 @@ def _retrieval_env_overrides(env: Mapping[str, str]) -> dict[str, object]:
         out["scoped_vectors"] = _truthy("SEAM_RETRIEVAL_SCOPED_VECTORS")
     if _present("SEAM_RETRIEVAL_ENTITY_GROUNDED"):
         out["entity_grounded_scoring"] = _truthy("SEAM_RETRIEVAL_ENTITY_GROUNDED")
+    if _present("SEAM_RETRIEVAL_EVENTS"):
+        out["retrieval_events"] = _truthy("SEAM_RETRIEVAL_EVENTS")
     if _present("SEAM_RETRIEVAL_LEG_WEIGHTS"):
         out["fusion_leg_weights"] = _parse_leg_weights(
             env["SEAM_RETRIEVAL_LEG_WEIGHTS"]
@@ -459,6 +471,7 @@ def retrieval_flags_from_env(env: Mapping[str, str] | None = None) -> RetrievalF
         scoped_vectors=_on("SEAM_RETRIEVAL_SCOPED_VECTORS"),
         entity_grounded_scoring=_on("SEAM_RETRIEVAL_ENTITY_GROUNDED"),
         fusion_leg_weights=_parse_leg_weights(env.get("SEAM_RETRIEVAL_LEG_WEIGHTS", "")),
+        retrieval_events=_on("SEAM_RETRIEVAL_EVENTS"),
         # explicit knob var wins over the profile preset
         search_top_k=_pos_int("SEAM_RETRIEVAL_TOP_K") or p_top_k,
         context_budget=_pos_int("SEAM_RETRIEVAL_CONTEXT_BUDGET") or p_budget,

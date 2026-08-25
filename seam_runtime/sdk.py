@@ -464,6 +464,7 @@ class ReasoningSession:
             leg_latency_ms=result.leg_latency_ms,
             total_latency_ms=result.total_latency_ms,
             policy=result.policy,
+            leg_weights=result.leg_weights,
             agent_id=self.agent_id if isinstance(self.agent_id, str) else None,
         )
         return ReasonedRetrieval(result=result, reasoning=reasoning)

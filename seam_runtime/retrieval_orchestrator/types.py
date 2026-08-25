@@ -230,6 +230,10 @@ class RetrievalDecisionResult:
     leg_hits: dict[str, list[LegHit]] = field(default_factory=dict)
     leg_latency_ms: dict[str, float] = field(default_factory=dict)
     total_latency_ms: float = 0.0
+    # The exact normalized weights this result was ranked under. Persistence
+    # needs them to re-derive `candidate.score`; without them a weighted
+    # retrieval is unreplayable.
+    leg_weights: dict[str, float] = field(default_factory=dict)
 
     @property
     def ranked(self) -> list[RetrievalCandidate]:
@@ -248,6 +252,7 @@ class RetrievalDecisionResult:
                 name: round(value, 6) for name, value in self.leg_latency_ms.items()
             },
             "total_latency_ms": round(self.total_latency_ms, 6),
+            "leg_weights": dict(sorted(self.leg_weights.items())),
         }
 
 

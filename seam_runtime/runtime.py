@@ -1058,12 +1058,28 @@ class SeamRuntime:
             return {"model_name": model_name, "embedded": 0, "failed": 0, "error": True}
         return {"model_name": model_name, "embedded": written, "failed": failed}
 
+    def refresh_retrieval_flags(self):
+        """Drop the cached flags and re-resolve them from store plus env.
+
+        The cache below is deliberately process-lifetime, so a long-lived
+        surface (REST, MCP, TUI) does NOT observe an applied-state change made
+        after it started. That is a stability guarantee, not an oversight:
+        scoring must not shift underneath an in-flight session. This method is
+        the explicit, auditable way to adopt new applied state -- call it after
+        `upsert_retrieval_flag_state`/`replace_retrieval_flag_state` when the
+        running process should pick the change up.
+        """
+
+        self._retrieval_flags = None
+        return self._retrieval_flags_cached()
+
     def _retrieval_flags_cached(self):
         """Resolve effective retrieval flags once and cache for this runtime.
 
         Layers defaults < persisted applied-state < env (see
         ``load_retrieval_flags``); caching keeps scoring stable across queries
-        for the process lifetime.
+        for the process lifetime. Use `refresh_retrieval_flags()` to adopt
+        applied-state changes explicitly.
         """
         flags = getattr(self, "_retrieval_flags", None)
         if flags is None:
@@ -1140,12 +1156,22 @@ class SeamRuntime:
         ns: str | None = None,
         flags=None,
         include_trace: bool = False,
+        ranking_policy: str = "legacy-weighted/1",
     ) -> SearchResult:
         """Compatibility result shape over the canonical retrieval engine.
 
         ``search_ir`` remains as the longstanding local API, but it no longer
         executes a second scoring pipeline. Every runtime surface now receives
         candidates from ``RetrievalOrchestrator`` through ``retrieve``.
+
+        ``ranking_policy`` is an explicit pass-through so this compatibility
+        shape can no longer *silently* rank differently from ``retrieve()``.
+        The default stays ``legacy-weighted/1`` deliberately: it is the
+        versioned behavioral control that every recorded LoCoMo/mem0 arm was
+        measured under, and promoting the surface default to
+        ``reciprocal-rank-fusion/2`` is an S9-gated measurement change, not an
+        S8 refactor. Given the same policy, this method returns exactly the
+        ``retrieve()`` ranking, narrowed to the compatibility record kinds.
         """
 
         resolved_flags = flags if flags is not None else self._retrieval_flags_cached()
@@ -1173,7 +1199,7 @@ class SeamRuntime:
             ns=ns,
             flags=resolved_flags,
             mode="mix",
-            ranking_policy="legacy-weighted/1",
+            ranking_policy=ranking_policy,
             include_trace=include_trace,
         )
         compatible_ranked = [

@@ -31,6 +31,10 @@ LOGGER = logging.getLogger(__name__)
 
 PROJECTION_VERSION = "knowledge-graph/6"
 _CANONICAL_PROJECTION_BATCH_SIZE = 500
+# Keep every one-shot ``IN (...)`` below SQLite's legacy 999-variable floor.
+# The traversal binds its frontier TWICE per statement (src and dst), so this
+# chunk is half the usual per-statement budget.
+_EDGE_FRONTIER_CHUNK = 400
 _CANONICAL_PROV_AGENT_TABLE = "seam_canonical_prov_agents"
 # Graph nodes carry their own derived semantic projection, versioned separately
 # from `mirl-vector-text/*` because a node is not a record: it is an identity
@@ -1578,26 +1582,52 @@ def query_graph(
     for _ in range(hops):
         if not frontier or len(selected) >= limit:
             break
-        placeholders = ",".join("?" for _ in frontier)
-        edge_where = [f"(e.src_id in ({placeholders}) or e.dst_id in ({placeholders}))"]
-        edge_params: list[object] = [*frontier, *frontier]
-        if namespace:
-            edge_where.append("e.ns = ?")
-            edge_params.append(namespace)
-        if scope:
-            edge_where.append("e.scope = ?")
-            edge_params.append(scope)
-        edge_where.extend(_edge_time_clauses(edge_params, at=at, include_history=include_history))
-        rows = connection.execute(
-            "select e.* from knowledge_edges e "
-            f"where {' and '.join(edge_where)} "
-            # The terminal e.id tiebreak is load-bearing: rows are consumed in
-            # returned order and the loop stops at `limit`, so an arbitrary order
-            # among ties changes which nodes are in the answer, not just their
-            # order. confidence defaults to 0, so ties are the common case.
-            "order by e.confidence desc, e.updated_at desc, e.id limit ?",
-            [*edge_params, max(limit * 8, 200)],
-        ).fetchall()
+        # The frontier is bound TWICE per statement (src and dst), so a tuned
+        # deep-retrieval limit pushes a single one-shot `IN (...)` past SQLite's
+        # 999-variable floor. Chunking keeps every statement bounded.
+        #
+        # This is exactly equivalent to the one-shot query: each chunk applies
+        # the same ordering and the same row cap, and any edge in the global
+        # top-N also ranks within its own chunk's top-N (a chunk matches a
+        # subset of the rows), so re-sorting the union and re-truncating below
+        # reproduces the one-shot result -- including its tiebreaks.
+        ordered_frontier = sorted(frontier)
+        edge_row_cap = max(limit * 8, 200)
+        merged_rows: dict[str, sqlite3.Row] = {}
+        for start in range(0, len(ordered_frontier), _EDGE_FRONTIER_CHUNK):
+            chunk = ordered_frontier[start : start + _EDGE_FRONTIER_CHUNK]
+            placeholders = ",".join("?" for _ in chunk)
+            edge_where = [
+                f"(e.src_id in ({placeholders}) or e.dst_id in ({placeholders}))"
+            ]
+            edge_params: list[object] = [*chunk, *chunk]
+            if namespace:
+                edge_where.append("e.ns = ?")
+                edge_params.append(namespace)
+            if scope:
+                edge_where.append("e.scope = ?")
+                edge_params.append(scope)
+            edge_where.extend(
+                _edge_time_clauses(edge_params, at=at, include_history=include_history)
+            )
+            for row in connection.execute(
+                "select e.* from knowledge_edges e "
+                f"where {' and '.join(edge_where)} "
+                # The terminal e.id tiebreak is load-bearing: rows are consumed in
+                # returned order and the loop stops at `limit`, so an arbitrary order
+                # among ties changes which nodes are in the answer, not just their
+                # order. confidence defaults to 0, so ties are the common case.
+                "order by e.confidence desc, e.updated_at desc, e.id limit ?",
+                [*edge_params, edge_row_cap],
+            ).fetchall():
+                merged_rows.setdefault(str(row["id"]), row)
+        # Reproduce `order by confidence desc, updated_at desc, id` with
+        # stable sorts applied least-significant first. `updated_at` is text,
+        # so a single composite key cannot express its descending direction.
+        rows = sorted(merged_rows.values(), key=lambda row: str(row["id"]))
+        rows.sort(key=lambda row: str(row["updated_at"] or ""), reverse=True)
+        rows.sort(key=lambda row: float(row["confidence"] or 0.0), reverse=True)
+        rows = rows[:edge_row_cap]
         next_frontier: set[str] = set()
         for row in rows:
             edge_by_id[str(row["id"])] = row
@@ -1621,41 +1651,74 @@ def query_graph(
 
     node_rows: list[sqlite3.Row] = []
     if selected:
-        placeholders = ",".join("?" for _ in selected)
-        node_params: list[object] = [*selected]
-        node_where = [f"n.id in ({placeholders})"]
-        if namespace:
-            node_where.append("n.ns = ?")
-            node_params.append(namespace)
-        if scope:
-            node_where.append("n.scope = ?")
-            node_params.append(scope)
-        node_where.extend(_node_time_clauses(node_params, at=at, include_history=include_history))
-        node_rows = connection.execute(
-            f"select n.* from knowledge_nodes n where {' and '.join(node_where)}",
-            node_params,
-        ).fetchall()
+        # `selected` is bounded by `limit` (up to 1000), which alone exceeds
+        # the legacy 999-variable floor. The query is unordered and unlimited,
+        # so chunking returns exactly the same row set.
+        ordered_selected = sorted(selected)
+        for start in range(0, len(ordered_selected), _EDGE_FRONTIER_CHUNK):
+            chunk = ordered_selected[start : start + _EDGE_FRONTIER_CHUNK]
+            placeholders = ",".join("?" for _ in chunk)
+            node_params: list[object] = [*chunk]
+            node_where = [f"n.id in ({placeholders})"]
+            if namespace:
+                node_where.append("n.ns = ?")
+                node_params.append(namespace)
+            if scope:
+                node_where.append("n.scope = ?")
+                node_params.append(scope)
+            node_where.extend(
+                _node_time_clauses(node_params, at=at, include_history=include_history)
+            )
+            node_rows.extend(
+                connection.execute(
+                    f"select n.* from knowledge_nodes n where {' and '.join(node_where)}",
+                    node_params,
+                ).fetchall()
+            )
     selected = {str(row["id"]) for row in node_rows}
     # Include all edges internal to the selected subgraph, not only the edges
     # that happened to discover the nodes during traversal.
     if selected:
-        placeholders = ",".join("?" for _ in selected)
-        edge_params = [*selected, *selected]
-        edge_where = [
-            f"e.src_id in ({placeholders})",
-            f"e.dst_id in ({placeholders})",
+        # Both sides are constrained, so staying under the floor means walking
+        # the cross product of chunks. `selected` is capped at `limit`, so this
+        # is at most a handful of statements. Rows are re-sorted afterwards to
+        # reproduce the single-statement order exactly.
+        ordered_selected = sorted(selected)
+        chunks = [
+            ordered_selected[start : start + _EDGE_FRONTIER_CHUNK]
+            for start in range(0, len(ordered_selected), _EDGE_FRONTIER_CHUNK)
         ]
-        if namespace:
-            edge_where.append("e.ns = ?")
-            edge_params.append(namespace)
-        if scope:
-            edge_where.append("e.scope = ?")
-            edge_params.append(scope)
-        edge_where.extend(_edge_time_clauses(edge_params, at=at, include_history=include_history))
-        for row in connection.execute(
-            f"select e.* from knowledge_edges e where {' and '.join(edge_where)} order by e.confidence desc, e.id",
-            edge_params,
-        ).fetchall():
+        internal_rows: dict[str, sqlite3.Row] = {}
+        for src_chunk in chunks:
+            src_placeholders = ",".join("?" for _ in src_chunk)
+            for dst_chunk in chunks:
+                dst_placeholders = ",".join("?" for _ in dst_chunk)
+                edge_params = [*src_chunk, *dst_chunk]
+                edge_where = [
+                    f"e.src_id in ({src_placeholders})",
+                    f"e.dst_id in ({dst_placeholders})",
+                ]
+                if namespace:
+                    edge_where.append("e.ns = ?")
+                    edge_params.append(namespace)
+                if scope:
+                    edge_where.append("e.scope = ?")
+                    edge_params.append(scope)
+                edge_where.extend(
+                    _edge_time_clauses(
+                        edge_params, at=at, include_history=include_history
+                    )
+                )
+                for row in connection.execute(
+                    f"select e.* from knowledge_edges e where {' and '.join(edge_where)}",
+                    edge_params,
+                ).fetchall():
+                    internal_rows.setdefault(str(row["id"]), row)
+        ordered_internal = sorted(internal_rows.values(), key=lambda row: str(row["id"]))
+        ordered_internal.sort(
+            key=lambda row: float(row["confidence"] or 0.0), reverse=True
+        )
+        for row in ordered_internal:
             edge_by_id[str(row["id"])] = row
 
     agents_by_node, sources_by_node = _node_episode_facets(
@@ -2697,27 +2760,13 @@ def _graph_episode_rows(
     include_history: bool,
     limit: int,
 ) -> list[sqlite3.Row]:
-    relationship_clauses: list[str] = []
-    relationship_params: list[object] = []
-    if seed_episode_ids:
-        placeholders = ",".join("?" for _ in seed_episode_ids)
-        relationship_clauses.append(f"ep.id in ({placeholders})")
-        relationship_params.extend(sorted(seed_episode_ids))
-    if node_ids:
-        placeholders = ",".join("?" for _ in node_ids)
-        relationship_clauses.append(
-            "exists (select 1 from knowledge_node_episodes ne "
-            f"where ne.episode_id = ep.id and ne.node_id in ({placeholders}))"
-        )
-        relationship_params.extend(sorted(node_ids))
-    if edge_ids:
-        placeholders = ",".join("?" for _ in edge_ids)
-        relationship_clauses.append(
-            "exists (select 1 from knowledge_edge_episodes ee "
-            f"where ee.episode_id = ep.id and ee.edge_id in ({placeholders}))"
-        )
-        relationship_params.extend(sorted(edge_ids))
-    if not relationship_clauses:
+    # The three id sets are OR-ed, so each can be run as its own statement and
+    # unioned. Splitting this way -- rather than chunking one combined clause --
+    # keeps every statement under the legacy 999-variable floor no matter how
+    # large a traversal grew. Each sub-statement keeps the same ordering and
+    # the same row cap, so re-sorting and re-truncating the union below returns
+    # exactly what the single statement returned.
+    if not (seed_episode_ids or node_ids or edge_ids):
         return []
     filters, filter_params = _episode_filter_clauses(
         namespace=namespace,
@@ -2726,19 +2775,54 @@ def _graph_episode_rows(
         at=at,
         include_history=include_history,
     )
-    order_params: list[object] = []
+
+    def _chunks(values: set[str]) -> list[list[str]]:
+        ordered = sorted(values)
+        return [
+            ordered[start : start + _EDGE_FRONTIER_CHUNK]
+            for start in range(0, len(ordered), _EDGE_FRONTIER_CHUNK)
+        ]
+
+    clause_plans: list[tuple[str, list[str]]] = []
+    for chunk in _chunks(seed_episode_ids):
+        placeholders = ",".join("?" for _ in chunk)
+        clause_plans.append((f"ep.id in ({placeholders})", chunk))
+    for chunk in _chunks(node_ids):
+        placeholders = ",".join("?" for _ in chunk)
+        clause_plans.append(
+            (
+                "exists (select 1 from knowledge_node_episodes ne "
+                f"where ne.episode_id = ep.id and ne.node_id in ({placeholders}))",
+                chunk,
+            )
+        )
+    for chunk in _chunks(edge_ids):
+        placeholders = ",".join("?" for _ in chunk)
+        clause_plans.append(
+            (
+                "exists (select 1 from knowledge_edge_episodes ee "
+                f"where ee.episode_id = ep.id and ee.edge_id in ({placeholders}))",
+                chunk,
+            )
+        )
+
+    merged: dict[str, sqlite3.Row] = {}
+    for clause, clause_params in clause_plans:
+        for row in connection.execute(
+            "select ep.* from knowledge_episodes ep "
+            f"where ({clause}) and {' and '.join(filters)} "
+            "order by ep.recorded_at desc, ep.id limit ?",
+            [*clause_params, *filter_params, limit],
+        ).fetchall():
+            merged.setdefault(str(row["id"]), row)
+
+    # Reproduce `order by <seed first>, recorded_at desc, id` with stable
+    # sorts applied least-significant first.
+    rows = sorted(merged.values(), key=lambda row: str(row["id"]))
+    rows.sort(key=lambda row: str(row["recorded_at"] or ""), reverse=True)
     if seed_episode_ids:
-        placeholders = ",".join("?" for _ in seed_episode_ids)
-        order = f"case when ep.id in ({placeholders}) then 0 else 1 end, "
-        order_params.extend(sorted(seed_episode_ids))
-    else:
-        order = ""
-    return connection.execute(
-        "select ep.* from knowledge_episodes ep "
-        f"where ({' or '.join(relationship_clauses)}) and {' and '.join(filters)} "
-        f"order by {order}ep.recorded_at desc, ep.id limit ?",
-        [*relationship_params, *filter_params, *order_params, limit],
-    ).fetchall()
+        rows.sort(key=lambda row: 0 if str(row["id"]) in seed_episode_ids else 1)
+    return rows[:limit]
 
 
 def _episode_provenance_edges(

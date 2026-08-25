@@ -45,6 +45,13 @@ FUSION_POLICY_WEIGHTED_CONTRACT = (
 FUSION_POLICY_WEIGHTED_FINGERPRINT = hashlib.sha256(
     FUSION_POLICY_WEIGHTED_CONTRACT.encode("utf-8")
 ).hexdigest()
+# Every leg name the engine can emit as a fusion source. `ChromaSemanticAdapter`
+# tags its hits "chroma", so omitting it would reject a working ablation while
+# leaving that leg silently at the default weight.  `legacy_weighted` is absent
+# deliberately: the pre-refactor control never reaches weighted fusion.
+FUSION_LEG_NAMES = frozenset(
+    {"chroma", "graph", "graph_node", "sql", "temporal", "vector"}
+)
 
 
 def normalize_leg_weights(
@@ -60,14 +67,20 @@ def normalize_leg_weights(
         return {}
     resolved: dict[str, float] = {}
     for leg, weight in weights.items():
+        leg_name = str(leg)
+        if leg_name not in FUSION_LEG_NAMES:
+            expected = ", ".join(sorted(FUSION_LEG_NAMES))
+            raise ValueError(
+                f"unknown fusion leg {leg_name!r}; expected one of: {expected}"
+            )
         if isinstance(weight, bool) or not isinstance(weight, (int, float)):
-            raise TypeError(f"fusion weight for {leg!r} must be numeric")
+            raise TypeError(f"fusion weight for {leg_name!r} must be numeric")
         value = float(weight)
         if not 0.0 <= value <= 1_000.0:
             raise ValueError(
-                f"fusion weight for {leg!r} must be within [0.0, 1000.0]"
+                f"fusion weight for {leg_name!r} must be within [0.0, 1000.0]"
             )
-        resolved[str(leg)] = value
+        resolved[leg_name] = value
     return resolved
 
 
