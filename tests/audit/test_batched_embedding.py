@@ -423,3 +423,128 @@ def test_node_vector_fallback_skips_already_embedded_entries():
         assert len(fresh) == 4
     finally:
         monkey.undo()
+
+
+def test_batch_shrinks_on_device_memory_pressure(monkeypatch):
+    """A batch too large for the device must shrink, not fail persistence.
+
+    A fixed batch that suits a small model can exhaust memory on a larger one
+    the per-record path handled fine. Propagating that failure would roll back
+    persistence for a supported configuration.
+    """
+
+    import sys
+    from types import SimpleNamespace
+
+    from seam_runtime.models import SentenceTransformerModel
+
+    attempted: list[int] = []
+
+    class _MemoryBoundTransformer:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        def get_sentence_embedding_dimension(self) -> int:
+            return 3
+
+        def encode(self, text, **kwargs):
+            import numpy as np
+
+            if isinstance(text, str):
+                return np.array([1.0, 0.0, 0.0])
+            size = int(kwargs.get("batch_size", 0))
+            attempted.append(size)
+            if size > 8:
+                raise RuntimeError("CUDA out of memory")
+            return np.array([[1.0, 0.0, 0.0] for _ in text])
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        SimpleNamespace(SentenceTransformer=_MemoryBoundTransformer),
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "huggingface_hub",
+        SimpleNamespace(snapshot_download=lambda **kwargs: "/nonexistent/mem-test"),
+    )
+
+    model = SentenceTransformerModel(model_name="mem-test", local_files_only=True)
+    model.batch_size = 64
+    vectors = model.embed_many(["a", "b", "c"])
+
+    assert len(vectors) == 3
+    assert attempted[0] == 64, "it must try the configured batch first"
+    assert attempted[-1] <= 8, f"it must shrink until the device accepts: {attempted}"
+    assert attempted == sorted(attempted, reverse=True), "it must shrink monotonically"
+
+
+def test_a_non_memory_error_is_not_retried_as_memory_pressure(monkeypatch):
+    """Only memory failures shrink; a real bug must surface immediately."""
+
+    import sys
+    from types import SimpleNamespace
+
+    from seam_runtime.models import SentenceTransformerModel
+
+    calls: list[int] = []
+
+    class _BrokenTransformer:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        def get_sentence_embedding_dimension(self) -> int:
+            return 3
+
+        def encode(self, text, **kwargs):
+            import numpy as np
+
+            if isinstance(text, str):
+                return np.array([1.0, 0.0, 0.0])
+            calls.append(1)
+            raise RuntimeError("model configuration is invalid")
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        SimpleNamespace(SentenceTransformer=_BrokenTransformer),
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "huggingface_hub",
+        SimpleNamespace(snapshot_download=lambda **kwargs: "/nonexistent/broken"),
+    )
+
+    model = SentenceTransformerModel(model_name="broken", local_files_only=True)
+    with pytest.raises(RuntimeError, match="configuration is invalid"):
+        model.embed_many(["a", "b"])
+    assert len(calls) == 1, "a non-memory error must not be retried"
+
+
+def test_ranking_survives_drift_only_while_margins_exceed_it():
+    """Bound the parity claim with a measurement, not an assertion.
+
+    Batched neural embeddings drift ~2e-07 per component. On a real 57-chunk
+    corpus the smallest top-10 score gap measured ~2.4e-05, about 100x the
+    drift, and no top-1/5/10 ordering changed across six queries. That is
+    evidence for a margin, NOT a proof that ordering can never change: this
+    test also pins the failure boundary, where a gap below the drift does flip
+    the result. Any future claim of retrieval parity must compare drift to
+    margin rather than assume one dominates.
+    """
+
+    drift = 2.1e-07
+
+    def rank(scores: list[float]) -> list[int]:
+        return sorted(range(len(scores)), key=lambda i: -scores[i])
+
+    # Margin comfortably above the drift: ordering must be preserved.
+    wide = [0.90, 0.80, 0.70]
+    wide_drifted = [s + (drift if i % 2 else -drift) for i, s in enumerate(wide)]
+    assert rank(wide) == rank(wide_drifted)
+
+    # Margin below the drift: ordering CAN flip, and the test says so plainly.
+    narrow = [0.9000000, 0.8999999]
+    assert narrow[0] - narrow[1] < drift
+    narrow_drifted = [narrow[0] - drift, narrow[1] + drift]
+    assert rank(narrow) != rank(narrow_drifted)

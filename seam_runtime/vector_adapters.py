@@ -131,11 +131,14 @@ class MemoryVectorAdapter:
 
     def index_records(self, records: list[MIRLRecord]) -> None:
         indexable = [r for r in records if r.kind in INDEXABLE_KINDS]
-        if not indexable:
-            return
-        texts = [SQLiteVectorIndex.render_record_text(r) for r in indexable]
-        for record, vector in zip(indexable, embed_texts(self.model, texts), strict=True):
-            self._rows[record.id] = (record, vector)
+        # Bounded like the SQLite and pgvector writers: a large surface passed
+        # through this adapter would otherwise materialise every rendered
+        # string and the model's whole output before storing any row.
+        for start in range(0, len(indexable), EMBED_FLUSH_SIZE):
+            window = indexable[start : start + EMBED_FLUSH_SIZE]
+            texts = [SQLiteVectorIndex.render_record_text(r) for r in window]
+            for record, vector in zip(window, embed_texts(self.model, texts), strict=True):
+                self._rows[record.id] = (record, vector)
 
     def delete_records(self, record_ids: list[str]) -> None:
         for record_id in record_ids:
