@@ -19730,3 +19730,25 @@ Verification. `pytest tests/audit/test_s8_retrieval_coherence.py` holds 22 `def 
 
 Two S8 items remain deliberately open and are recorded rather than silently closed. The boundary-only SQL gate is not decided. `search_ir` still defaults to `legacy-weighted/1`: it feeds the LoCoMo adapter and the mem0 harness, so retiring it in favour of `/2` would change every recorded arm and is an S9-gated measurement decision requiring an operator-approved paid re-run, not an S8 refactor. No graph or scorer promotion, benchmark headline, or quality lift is claimed here; S9 remains the promotion gate.
 ---END-ENTRY-#606---
+
+---BEGIN-ENTRY-#607---
+id: 607
+date: 2026-08-25T14:03:36Z
+agent: Claude
+status: done
+topics: retrieval, fusion, graph, telemetry, surfaces, status, continuity, handoff, verify, ci
+commits: bb156e3335ea17aebd6226774512ac681c00553f
+refs: PROJECT_STATUS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-25-track-s-s8-retrieval-coherence-review-repaired.md,docs/handoffs/2026-08-25-track-s-s8-slice-published.md,docs/handoffs/INDEX.md,PR#228
+supersedes: 606
+tokens: 616
+---
+The S8 retrieval-coherence review-repair slice is published through protected PR #228. Exact signed source head `16f1ee581637c7297c9aa766b5f58af9d39a5771` matched the PR head and passed `repo-hygiene`, `chroma-real-smoke`, `locomo-quickstart-bil2`, `pgvector-integration`, `package-smoke`, `registry-plan`, and `test-and-benchmark` before merge. Ancestry is verified and the merged branch is deleted on the remote and locally.
+
+Protected main now carries the S8 mechanism work recorded in HISTORY#606: the closed fusion-leg set covering every name the engine emits, one shared definition between fusion and the reasoning recorder, persisted weighted-policy replay with `reasoning_retrieval.leg_weights_json` and its additive migration, candidate ID/order parity with direct `retrieve()` across `search_ir`, REST, the SDK engine path, MCP, and the TUI read path, exactly one tenant-scoped retrieval event per successful retrieval with telemetry failure proven answer-inert, an explicit `refresh_retrieval_flags()` contract for the process-lifetime flag cache, and three graph-traversal statements bounded under SQLite's legacy 999-variable floor.
+
+This is mechanism publication only. No graph, scorer, quality, or benchmark claim is attached, and no default retrieval behavior changed: retrieval telemetry ships default-off behind `SEAM_RETRIEVAL_EVENTS`, and weighted fusion remains inert until an operator sets a weight. S9 remains the promotion gate.
+
+Two assigned S8 items stay open and are recorded rather than silently closed. The boundary-only SQL gate is undecided. `search_ir` still defaults to `legacy-weighted/1`, because it feeds the LoCoMo adapter and the mem0 harness and retiring it in favour of `reciprocal-rank-fusion/2` would change every recorded arm; that is an S9-gated measurement decision requiring an operator-approved paid re-run, not an S8 refactor.
+
+Repository bookkeeping performed alongside this publication: the `origin` remote was repointed from the redirecting `BlackhatShiftey/Seam` path to the canonical `Canticle-AI-Research/Seam`, and the local `main` branch was fast-forwarded from `48c5448` to protected main with no divergence. A stale local `seam.db` dated 2026-08-19, missing the `public_memory_handle.generation` column, was found to fail nine `test_seam_all` CLI cases because `seam doctor` opens it by default; it predates this work, is unrelated to this diff, and CI checkouts carry no such file. It was preserved under an ignored name rather than deleted, and a valid database regenerated in its place. One open high-severity Dependabot alert remains for `nanoid` in `archive/webui-vite-source/package-lock.json`, which is archived source rather than shipped code.
+---END-ENTRY-#607---
