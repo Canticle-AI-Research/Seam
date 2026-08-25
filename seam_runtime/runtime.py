@@ -37,7 +37,7 @@ from .mirl import (
     TraceGraph,
     VerifyReport,
 )
-from .models import EmbeddingModel, default_embedding_model
+from .models import EmbeddingModel, default_embedding_model, embed_texts
 from .nl import compile_nl
 from .pack import pack_record, pack_records
 from .reconcile import reconcile_ir
@@ -1042,15 +1042,39 @@ class SeamRuntime:
             self.store.cleanup_orphan_node_vectors()
             embedded: list[dict[str, object]] = []
             failed = 0
+            # Embed every cache-missing node in ONE model call. Per-node calls
+            # made bulk ingest run a GPU at batch size 1, which is almost all
+            # overhead; the reuse cache is still consulted first so nothing is
+            # paid for twice.
+            missing = [
+                entry for entry in pending
+                if reusable.get(str(entry["source_hash"])) is None
+            ]
+            fresh: dict[int, list[float]] = {}
+            if missing:
+                try:
+                    vectors = embed_texts(
+                        model, [str(entry["source_text"]) for entry in missing]
+                    )
+                    fresh = {id(entry): vec for entry, vec in zip(missing, vectors, strict=True)}
+                except Exception:
+                    # Fall back to per-node embedding so ONE unembeddable node
+                    # cannot strand the whole batch.
+                    LOGGER.exception(
+                        "Batched node-vector embedding failed; retrying per node"
+                    )
+                    for entry in missing:
+                        try:
+                            fresh[id(entry)] = model.embed(str(entry["source_text"]))
+                        except Exception:
+                            continue
             for entry in pending:
                 vector = reusable.get(str(entry["source_hash"]))
                 if vector is None:
-                    try:
-                        vector = model.embed(str(entry["source_text"]))
-                    except Exception:
-                        # One unembeddable node must not strand the rest of the batch.
-                        failed += 1
-                        continue
+                    vector = fresh.get(id(entry))
+                if vector is None:
+                    failed += 1
+                    continue
                 embedded.append({**entry, "vector": vector})
             written = self.store.store_node_vectors(model_name, embedded)
         except Exception:

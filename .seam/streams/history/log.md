@@ -19752,3 +19752,31 @@ Two assigned S8 items stay open and are recorded rather than silently closed. Th
 
 Repository bookkeeping performed alongside this publication: the `origin` remote was repointed from the redirecting `BlackhatShiftey/Seam` path to the canonical `Canticle-AI-Research/Seam`, and the local `main` branch was fast-forwarded from `48c5448` to protected main with no divergence. A stale local `seam.db` dated 2026-08-19, missing the `public_memory_handle.generation` column, was found to fail nine `test_seam_all` CLI cases because `seam doctor` opens it by default; it predates this work, is unrelated to this diff, and CI checkouts carry no such file. It was preserved under an ignored name rather than deleted, and a valid database regenerated in its place. One open high-severity Dependabot alert remains for `nanoid` in `archive/webui-vite-source/package-lock.json`, which is archived source rather than shipped code.
 ---END-ENTRY-#607---
+
+---BEGIN-ENTRY-#608---
+id: 608
+date: 2026-08-25T18:31:13Z
+agent: Claude
+status: done
+topics: performance, ingest, embedding, vector, graph, retrieval, tests, verify
+commits: pending
+refs: seam_runtime/models.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/runtime.py,tests/audit/test_batched_embedding.py
+supersedes: 607
+tokens: 1067
+---
+Bulk document ingest was profiled against a real 633-file, 4.9 GB rare-book corpus on external storage and found unusable at that scale. This entry records the measured cause, the repair, and the part that remains unsolved.
+
+Profiling the persist path on 37 chunks of one book isolated the cost precisely: `compile_nl` took 1.1 ms per chunk while `persist_ir` took 732 ms per chunk, so compilation was 0.15 percent of ingest and persistence was the whole problem. Instrumenting the embedding model showed 85 percent of persist time inside embedding, split across two separate per-record paths: the vector-index writers in `seam_runtime/vector.py` and `seam_runtime/vector_adapters.py`, and graph node-vector projection in `SeamRuntime.project_node_vectors`. Each embedded one string per call against a CUDA-resident model, so the GPU ran at batch size one. A direct measurement on the same model and device recorded 120 records per second per-record versus 2679 records per second at batch 64.
+
+The first repair attempt was wrong and is recorded rather than hidden. Calling `model.embed_many(...)` directly from the call sites measured 0.9x, slightly slower than the baseline, and failed 22 existing tests with `AttributeError` because `EmbeddingModel` is a structural protocol whose legitimate implementations, including every in-repo test double, define only `embed`. Requiring the new method was a design error. The landed form adds `embed_texts(model, texts)` in `seam_runtime/models.py`, which uses `embed_many` when a model offers it, falls back to a per-text loop when it does not, rejects a length mismatch between returned vectors and input texts, and returns immediately on an empty batch. `embed_many` is implemented for the hash, sentence-transformers, and OpenAI-compatible models; the OpenAI path was refactored to send one request per batch through a shared `_request` helper that orders results by the provider's `index` field rather than trusting response order.
+
+Measured end to end on the same 37-chunk workload: 1.36 chunks per second before, 1.80 after batching alone, and 4.80 when many chunks are also compiled into one `IRBatch` and persisted in a single `persist_ir` call. Batching alone is limited because one persist per chunk keeps each batch near 18 texts; the bulk-persist shape is what saturates the device. Extrapolated across the roughly 280,000 chunks that corpus implies, this moves a projected 19-day ingest to approximately 16 hours.
+
+Storage is NOT fixed and is the remaining blocker. Ingest still writes about 1 MB per chunk, roughly 280 GB for the full corpus, because each chunk expands to about 40 records (RAW, PROV, roughly 14 SPAN, 9 ENT, and 14 CLM) and each is projected into the knowledge graph with its own vector. On a 254-chunk sample the graph projection tables accounted for about 120 MB of 255 MB total. That amplification is what buys provenance and defensible recall, so it is a deliberate trade rather than waste, but it is the wrong trade for archival bulk ingest. Moving vectors to pgvector and offering a lighter document-ingest profile remain open.
+
+Two related findings are recorded without repair. Retrieval quality on that corpus is sound: a 150-chunk five-book slice embedded with a local bge-small scored paraphrase recall@1 0.60 and recall@5 1.00 against deliberately paraphrased queries, well above the hash-embedder baseline. Temporal retrieval, by contrast, does not filter: era stamps persisted correctly on all 5,469 records, but `temporal_window` contributes a ranking leg rather than a filter, so the sql and vector legs still return out-of-era candidates and fusion admits them. A 1890-1920 window returned 1965 material. Era-scoped retrieval therefore needs a real filter, which this entry does not add.
+
+Verification: `pytest tests/audit/test_batched_embedding.py` holds 6 `def test_` functions covering fallback for models without `embed_many`, single-call batching when offered, empty-batch short-circuit, byte-identical vectors between batched and per-record paths, rejection of a short return, and an end-to-end proof that `vector_index` contents are identical whether records are persisted one batch at a time or in one bulk batch. The full non-external suite passed 3044 tests with 2 xfailed, no failures and no skips, with both pgvector DSNs set. Changed-path Ruff and the secret scan pass.
+
+This is a performance and correctness-preserving change with no retrieval-behavior change: batched and per-record embedding produce identical stored vectors, which the end-to-end test asserts directly. It is unrelated to the Track S campaign gates. It does, however, expose a campaign gap worth naming: S0-S10 contains no ingest-throughput or storage-amplification lane, and LoCoMo is four orders of magnitude too small to surface this class of defect.
+---END-ENTRY-#608---

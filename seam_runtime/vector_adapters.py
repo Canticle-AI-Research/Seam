@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 from .mirl import MIRLRecord
-from .models import EmbeddingModel, cosine
+from .models import EmbeddingModel, cosine, embed_texts
 from .vector import (
     INDEXABLE_KINDS,
     LEGACY_VECTOR_TEXT_VERSION,
@@ -130,11 +130,12 @@ class MemoryVectorAdapter:
     )
 
     def index_records(self, records: list[MIRLRecord]) -> None:
-        for record in records:
-            if record.kind not in INDEXABLE_KINDS:
-                continue
-            text = SQLiteVectorIndex.render_record_text(record)
-            self._rows[record.id] = (record, self.model.embed(text))
+        indexable = [r for r in records if r.kind in INDEXABLE_KINDS]
+        if not indexable:
+            return
+        texts = [SQLiteVectorIndex.render_record_text(r) for r in indexable]
+        for record, vector in zip(indexable, embed_texts(self.model, texts), strict=True):
+            self._rows[record.id] = (record, vector)
 
     def delete_records(self, record_ids: list[str]) -> None:
         for record_id in record_ids:
@@ -354,6 +355,7 @@ class PgVectorAdapter:
         self.ensure_schema()
         with self._connect() as connection:
             with connection.cursor() as cursor:
+                pending: list[tuple[MIRLRecord, str, str]] = []
                 for record in records:
                     if record.kind not in INDEXABLE_KINDS:
                         continue
@@ -389,7 +391,14 @@ class PgVectorAdapter:
                                 ),
                             )
                         continue
-                    vector = self.model.embed(source_text)
+                    # Deferred so one model call covers the whole batch.
+                    pending.append((record, source_text, source_hash))
+
+                for (record, source_text, source_hash), vector in zip(
+                    pending,
+                    embed_texts(self.model, [t for _, t, _ in pending]) if pending else [],
+                    strict=True,
+                ):
                     cursor.execute(
                         f"""
                         insert into {self.table_name}

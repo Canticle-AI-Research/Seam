@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from .mirl import MIRLRecord, RecordKind
-from .models import EmbeddingModel, cosine
+from .models import EmbeddingModel, cosine, embed_texts
 from .read_snapshot import active_connection, record_physical_open
 
 try:
@@ -165,6 +165,7 @@ class SQLiteVectorIndex:
     def index_records(self, records: Iterable[MIRLRecord]) -> None:
         self.ensure_schema()
         with closing(self._connect()) as connection:
+            pending: list[tuple[MIRLRecord, str, str]] = []
             for record in records:
                 if record.kind not in INDEXABLE_KINDS:
                     continue
@@ -200,27 +201,42 @@ class SQLiteVectorIndex:
                             ),
                         )
                     continue
-                vector = self.model.embed(source_text)
-                connection.execute(
-                    """
-                    insert or replace into vector_index
-                        (record_id, model_name, dimension, source_text, source_hash,
-                         render_version, namespace, scope, vector_json, updated_at)
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        record.id,
-                        self.model.name,
-                        len(vector),
-                        source_text,
-                        source_hash,
-                        VECTOR_TEXT_VERSION,
-                        record.ns or "",
-                        record.scope or "",
-                        json.dumps(vector),
-                        record.updated_at,
-                    ),
-                )
+                # Defer the embedding: doing it here would run the model once
+                # per record. Bulk ingest sends thousands of records per
+                # document, and a GPU model called one string at a time is
+                # almost entirely call overhead.
+                pending.append((record, source_text, source_hash))
+
+            if pending:
+                vectors = embed_texts(self.model, [text for _, text, _ in pending])
+                if len(vectors) != len(pending):
+                    raise RuntimeError(
+                        "embed_many returned "
+                        f"{len(vectors)} vectors for {len(pending)} records"
+                    )
+                for (record, source_text, source_hash), vector in zip(
+                    pending, vectors, strict=True
+                ):
+                    connection.execute(
+                        """
+                        insert or replace into vector_index
+                            (record_id, model_name, dimension, source_text, source_hash,
+                             render_version, namespace, scope, vector_json, updated_at)
+                        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            record.id,
+                            self.model.name,
+                            len(vector),
+                            source_text,
+                            source_hash,
+                            VECTOR_TEXT_VERSION,
+                            record.ns or "",
+                            record.scope or "",
+                            json.dumps(vector),
+                            record.updated_at,
+                        ),
+                    )
             connection.commit()
         # A local write may invalidate any cached matrix; the per-search
         # fingerprint check would catch it anyway, but clearing here avoids one
