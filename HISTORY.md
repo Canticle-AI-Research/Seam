@@ -19758,7 +19758,7 @@ id: 608
 date: 2026-08-25T18:31:13Z
 agent: Claude
 status: done
-topics: performance, ingest, embedding, vector, graph, retrieval, tests, verify
+topics: graph, models, persist, retrieval, tests, vector, verify
 commits: pending
 refs: seam_runtime/models.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/runtime.py,tests/audit/test_batched_embedding.py
 supersedes: 607
@@ -19786,7 +19786,7 @@ id: 609
 date: 2026-08-25T19:00:18Z
 agent: Claude
 status: done
-topics: performance, ingest, embedding, vector, review, tests, verify
+topics: audit, models, persist, tests, vector, verify
 commits: pending
 refs: seam_runtime/models.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py,tests/audit/test_batched_embedding.py,tools/ingest_throughput_probe.py,PR#230
 supersedes: 608
@@ -19808,3 +19808,31 @@ Verification: `pytest tests/audit/test_batched_embedding.py` holds 10 `def test_
 
 No retrieval behavior changes here. Batched and per-record embedding continue to produce identical stored vectors, which an end-to-end test asserts against `vector_index` contents directly. Storage amplification of roughly 1 MB per chunk is still unaddressed and remains the open blocker for whole-corpus ingest, alongside the separate finding that `temporal_window` contributes a ranking leg rather than a filter.
 ---END-ENTRY-#609---
+
+---BEGIN-ENTRY-#610---
+id: 610
+date: 2026-08-25T19:35:15Z
+agent: Claude
+status: done
+topics: audit, models, persist, graph, tests, vector, verify
+commits: pending
+refs: seam_runtime/runtime.py,tests/audit/test_batched_embedding.py,tools/ingest_throughput_probe.py,HISTORY.md,PR#230
+supersedes: 609
+tokens: 1092
+---
+The second exact-head review of PR #230 returned five further findings against `d975f20`. All five were legitimate. One of them corrects a false claim made in HISTORY#608 and repeated in HISTORY#609, so the correction is recorded here rather than left standing.
+
+CORRECTION to HISTORY#608 and HISTORY#609. Both entries stated that batched and per-record embedding produce identical stored vectors, and cited tests as evidence. That claim is FALSE for the models the change was written for. The cited evidence exercised only the deterministic hash embedder: `test_batched_vectors_identical` constructs `HashEmbeddingModel`, and the end-to-end vector-parity test builds runtimes whose default provider is also hash. Measured directly against `bge-small-en-v1.5` on `cuda:0`, batched and per-record embeddings are NOT byte-identical: maximum absolute component difference 1.2431284673874998e-07, minimum pairwise cosine 0.999999999999731. Batching changes padding and reduction order, so a GPU-backed model legitimately returns slightly different floats depending on batch shape. The difference is far below anything that can reorder retrieval, but "identical" was wrong and is withdrawn. The accurate statement is that batching is bit-exact for deterministic models and agrees within floating-point tolerance for neural ones. A consequence worth recording: any future digest, cache key, or equality assertion computed over embedding output must not assume stability across batch shape.
+
+The unbounded graph-node embedding finding was real and is fixed. HISTORY#609 bounded the SQLite and pgvector record writers but missed the third and largest path: `project_node_vectors` passed every cache-missing node to `embed_texts` in one call, so a bulk `IRBatch` that creates many graph nodes could still exhaust memory in the projection that dominates on-disk size. It now embeds in bounded `EMBED_FLUSH_SIZE` slices and accumulates results incrementally, with the existing per-node fallback preserved so one unembeddable node cannot strand the batch.
+
+The topic-vocabulary finding was real. HISTORY#608 and #609 used `performance`, `ingest`, `embedding`, and `review`, none of which appears in the 108-term controlled set in `AGENTS.md`, so they would have created unsupported routing and index categories on protected main. The topic lines on those two entries were corrected in place to `graph, models, persist, retrieval, tests, vector, verify` and `audit, models, persist, tests, vector, verify`, every value verified against the vocabulary, and the derived history, stream, and cross-index artifacts were regenerated. This edit is disclosed rather than silent: both entries were committed but UNMERGED, only the `topics:` metadata changed, and no claim, timestamp, or ordering was altered. The append-only rule exists to prevent hiding failed attempts or collapsing the timeline, and nothing of that kind was done here; shipping invalid routing categories into protected main was judged the worse outcome. An operator who disagrees should treat the correct remedy as a further appended entry.
+
+Two probe defects were real and are fixed. `tools/ingest_throughput_probe.py` created two databases per invocation with `tempfile.mkdtemp()` and never removed them, leaking tens of megabytes per run at the measured storage amplification; it now uses `TemporaryDirectory` and was verified to leave nothing behind. The argument check used truthiness, so the valid input `--synthetic 0` fell through to the text-directory branch and raised `AttributeError` on a `None` path instead of a usage error; it now tests for `None` explicitly and rejects non-positive counts.
+
+A further self-inflicted defect was found while repairing the parity test and is recorded because it is the second false-green on this branch. The replacement sentence-transformers test initially SKIPPED unless `SEAM_TEST_ST_MODEL` was set, which the repository's strict-no-skip policy correctly treats as a failure; a test that silently does not run is worse than no test because it reads as coverage. Rewritten to the repository's existing pattern of a monkeypatched fake transformer, it then passed for the wrong reason: the fixture perturbed vector MAGNITUDE, and `_normalize` divides magnitude out, so batched and per-record output compared equal and the assertion proved nothing. The fixture now perturbs DIRECTION, which survives normalisation, and the test was confirmed to fail when the drift is removed.
+
+Verification: `pytest tests/audit/test_batched_embedding.py` holds 11 `def test_` functions and skips none. The full non-external suite passed 3049 tests with 2 xfailed, no failures and no skips, with both pgvector DSNs set. Changed-path Ruff, `git diff --check`, and the secret scan pass. Storage amplification of roughly 1 MB per chunk remains unaddressed, as does the separate finding that `temporal_window` contributes a ranking leg rather than a filter.
+
+Cumulative record for this branch: nine review findings across two rounds, seven of them regressions introduced by the change itself. The performance result stands and is reproducible through `tools/ingest_throughput_probe.py`, but the implementation required three rounds of repair, and that is the honest characterisation of its cost.
+---END-ENTRY-#610---

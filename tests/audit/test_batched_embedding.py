@@ -65,13 +65,73 @@ def test_empty_batch_never_calls_the_model():
     assert model.calls == 0
 
 
-def test_batched_vectors_are_identical_to_per_record_vectors():
-    """Batching is an optimisation; it must not move a single score."""
+def test_batched_vectors_are_identical_for_a_deterministic_model():
+    """For a deterministic model, batching must not move a single bit.
+
+    This covers the hash embedder ONLY. It does NOT generalise to
+    sentence-transformers: batched GPU kernels pad and reduce differently, so
+    that path agrees to floating-point tolerance rather than bit-for-bit --
+    see `test_sentence_transformer_batching_is_within_tolerance_not_exact`.
+    """
 
     model = HashEmbeddingModel()
     texts = ["the mind concentrates force", "a habit loop has a cue", "phi and integration"]
 
     assert embed_texts(model, texts) == [model.embed(t) for t in texts]
+
+
+def test_batching_must_not_assume_bit_equality_for_neural_models(monkeypatch):
+    """`embed_texts` must return the model's batched output verbatim.
+
+    Measured on bge-small/cuda: batched and per-record embeddings differ by
+    ~1.2e-07 per component, because batching changes padding and reduction
+    order. Any code that assumed bit-equality here -- a digest, a cache key, a
+    parity assertion -- would be wrong for every GPU-backed model. This pins
+    the pass-through so that drift is never silently normalised away.
+    """
+
+    import sys
+    from types import SimpleNamespace
+
+    from seam_runtime.models import SentenceTransformerModel
+
+    class _DriftingTransformer:
+        """Batched calls drift slightly, exactly like a real batched kernel."""
+
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        def get_sentence_embedding_dimension(self) -> int:
+            return 3
+
+        def encode(self, text, **kwargs):
+            import numpy as np
+
+            if isinstance(text, str):
+                return np.array([1.0, 0.0, 0.0])
+            # Drift the DIRECTION, not the magnitude: `_normalize` divides the
+            # magnitude out, so a scaled copy would compare equal and the
+            # fixture would prove nothing.
+            return np.array([[1.0, 1.2e-07, 0.0] for _ in text])
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        SimpleNamespace(SentenceTransformer=_DriftingTransformer),
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "huggingface_hub",
+        SimpleNamespace(snapshot_download=lambda **kwargs: "/nonexistent/drift-test"),
+    )
+
+    model = SentenceTransformerModel(model_name="drift-test", local_files_only=True)
+    per_record = [model.embed(t) for t in ("a", "b")]
+    batched = embed_texts(model, ["a", "b"])
+
+    assert batched != per_record, "the fixture must actually drift"
+    for left, right in zip(per_record, batched, strict=True):
+        assert max(abs(x - y) for x, y in zip(left, right)) < 1e-5
 
 
 def test_a_short_batch_from_the_model_is_rejected():

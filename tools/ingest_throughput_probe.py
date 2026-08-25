@@ -69,11 +69,12 @@ def main() -> int:
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
-    chunks = (
-        _synthetic(args.synthetic)
-        if args.synthetic
-        else _from_dir(args.text_dir, args.chunks)
-    )
+    if args.synthetic is not None:
+        if args.synthetic < 1:
+            parser.error("--synthetic must be a positive chunk count")
+        chunks = _synthetic(args.synthetic)
+    else:
+        chunks = _from_dir(args.text_dir, args.chunks)
     if not chunks:
         parser.error("no chunks collected")
 
@@ -93,20 +94,28 @@ def main() -> int:
     batched = time.perf_counter() - t
 
     def run(bulk: bool) -> tuple[float, float]:
-        rt = SeamRuntime(Path(tempfile.mkdtemp()) / "probe.db", allow_pgvector_env=False)
-        start = time.perf_counter()
-        records = []
-        for index, chunk in enumerate(chunks):
-            batch = rt.compile_nl(chunk, source_ref=f"probe://{index}", ns=NS, scope=SCOPE)
-            if bulk:
-                records.extend(batch.records)
-            else:
-                rt.persist_ir(batch)
-        if bulk:
-            rt.persist_ir(IRBatch(records))
-        elapsed = time.perf_counter() - start
-        size = Path(rt.store.path).stat().st_size
-        rt.close()
+        # TemporaryDirectory, not mkdtemp: at the measured storage
+        # amplification a large run would otherwise leave hundreds of
+        # megabytes behind in the system temp directory on every invocation.
+        with tempfile.TemporaryDirectory(prefix="seam-probe-") as tmp:
+            rt = SeamRuntime(Path(tmp) / "probe.db", allow_pgvector_env=False)
+            try:
+                start = time.perf_counter()
+                records = []
+                for index, chunk in enumerate(chunks):
+                    batch = rt.compile_nl(
+                        chunk, source_ref=f"probe://{index}", ns=NS, scope=SCOPE
+                    )
+                    if bulk:
+                        records.extend(batch.records)
+                    else:
+                        rt.persist_ir(batch)
+                if bulk:
+                    rt.persist_ir(IRBatch(records))
+                elapsed = time.perf_counter() - start
+                size = Path(rt.store.path).stat().st_size
+            finally:
+                rt.close()
         return elapsed, size
 
     per_chunk_s, per_chunk_bytes = run(bulk=False)

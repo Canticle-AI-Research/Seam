@@ -37,7 +37,12 @@ from .mirl import (
     TraceGraph,
     VerifyReport,
 )
-from .models import EmbeddingModel, default_embedding_model, embed_texts
+from .models import (
+    EMBED_FLUSH_SIZE,
+    EmbeddingModel,
+    default_embedding_model,
+    embed_texts,
+)
 from .nl import compile_nl
 from .pack import pack_record, pack_records
 from .reconcile import reconcile_ir
@@ -1053,10 +1058,18 @@ class SeamRuntime:
             fresh: dict[int, list[float]] = {}
             if missing:
                 try:
-                    vectors = embed_texts(
-                        model, [str(entry["source_text"]) for entry in missing]
-                    )
-                    fresh = {id(entry): vec for entry, vec in zip(missing, vectors, strict=True)}
+                    # Bounded slices for the same reason the record writers are
+                    # bounded: a bulk IRBatch can create tens of thousands of
+                    # nodes, and holding every vector before storing any would
+                    # exhaust memory in the largest projection.
+                    for start in range(0, len(missing), EMBED_FLUSH_SIZE):
+                        window = missing[start : start + EMBED_FLUSH_SIZE]
+                        vectors = embed_texts(
+                            model, [str(entry["source_text"]) for entry in window]
+                        )
+                        fresh.update(
+                            {id(entry): vec for entry, vec in zip(window, vectors, strict=True)}
+                        )
                 except Exception:
                     # Fall back to per-node embedding so ONE unembeddable node
                     # cannot strand the whole batch.
