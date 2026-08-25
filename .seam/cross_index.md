@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 673
+total_events: 674
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-17T19:55:01Z | history:415:4f266a98 | session-event | changed | roadmap, benchmark, graph, memory, retrieval, comparator,... | ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md |
 | 2026-07-17T20:50:51Z | history:416:2c227cbc | session-event | done | benchmark, locomo, memory, retrieval, pack, provenance, q... | seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/exte... |
 | 2026-07-18T01:03:48Z | history:417:5760e59a | session-event | done | benchmark, locomo, memory, retrieval, quality, test, hand... | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
 | 2026-07-18T04:00:00Z | history:418:caca6117 | session-event | done | roadmap, docs, agent, memory |  |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-25T18:31:13Z | history:608:8470fbb0 | session-event | done | graph, models, persist, retrieval, tests, vector, verify | seam_runtime/models.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py... |
 | 2026-08-25T19:00:18Z | history:609:a7192eea | session-event | done | audit, models, persist, tests, vector, verify | seam_runtime/models.py,seam_runtime/vector.py,seam_runtime/vector_adapters.py... |
 | 2026-08-25T19:35:15Z | history:610:ab0b72b3 | session-event | done | audit, models, persist, graph, tests, vector, verify | seam_runtime/runtime.py,tests/audit/test_batched_embedding.py,tools/ingest_th... |
+| 2026-08-25T20:07:52Z | history:611:10fcadfa | session-event | done | audit, models, persist, graph, tests, vector, verify | seam_runtime/models.py,seam_runtime/runtime.py,tests/audit/test_batched_embed... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0473.cross.md | 2026-04-15T00:00:00Z..2026-07-17T19:52:56Z | 473 | (multi) | (multi) |
+| 0001-0474.cross.md | 2026-04-15T00:00:00Z..2026-07-17T19:55:01Z | 474 | (multi) | (multi) |

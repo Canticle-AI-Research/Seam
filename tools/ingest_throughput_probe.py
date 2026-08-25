@@ -113,9 +113,17 @@ def main() -> int:
                 if bulk:
                     rt.persist_ir(IRBatch(records))
                 elapsed = time.perf_counter() - start
-                size = Path(rt.store.path).stat().st_size
+                db_path = Path(rt.store.path)
             finally:
                 rt.close()
+            # Size AFTER close: the store runs in WAL mode, so committed pages
+            # can still be resident in `-wal` and reading the main file alone
+            # can underreport the database by roughly half.
+            size = sum(
+                candidate.stat().st_size
+                for suffix in ("", "-wal", "-shm")
+                if (candidate := db_path.with_name(db_path.name + suffix)).exists()
+            )
         return elapsed, size
 
     per_chunk_s, per_chunk_bytes = run(bulk=False)

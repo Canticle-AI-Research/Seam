@@ -289,3 +289,137 @@ def test_a_single_oversized_input_still_ships_alone():
 
     assert len(model.embed_many(["z" * 500])) == 1
     assert requests == [["z" * 500]]
+
+
+# -- third review round (PR #230) ---------------------------------------
+
+
+def _openai_model(**kwargs):
+    from seam_runtime.models import OpenAICompatibleEmbeddingModel
+
+    model = OpenAICompatibleEmbeddingModel(model="test", dimension=3, **kwargs)
+    return model
+
+
+def test_provider_index_gaps_are_rejected_not_silently_reordered():
+    """A bad index set must fail loudly, not misattach vectors to records.
+
+    With one input per request this was harmless. Once a response carries
+    several inputs, defaulting a missing index to zero and sorting would
+    silently give record B the embedding of record A.
+    """
+
+    import json as _json
+    from unittest.mock import patch
+
+    model = _openai_model()
+
+    for payload in (
+        {"data": [{"embedding": [1, 0, 0], "index": 0},
+                  {"embedding": [0, 1, 0], "index": 0}]},          # duplicate
+        {"data": [{"embedding": [1, 0, 0], "index": 0},
+                  {"embedding": [0, 1, 0], "index": 5}]},          # non-contiguous
+        {"data": [{"embedding": [1, 0, 0]},
+                  {"embedding": [0, 1, 0], "index": 1}]},          # missing
+    ):
+        class _Response:
+            def read(self): return _json.dumps(payload).encode()
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "k"}), \
+             patch("urllib.request.urlopen", return_value=_Response()):
+            with pytest.raises(RuntimeError, match="non-contiguous|missing"):
+                model.embed_many(["a", "b"])
+
+
+def test_an_oversized_batch_is_split_on_provider_rejection():
+    """Characters are not tokens; the provider's 400 is the real authority."""
+
+    import urllib.error
+
+    model = _openai_model()
+    model.batch_size = 100
+    model.char_budget = 10**9  # never split on the heuristic
+    attempts: list[int] = []
+
+    def _fake_request(inputs):
+        attempts.append(len(inputs))
+        if len(inputs) > 2:
+            raise urllib.error.HTTPError("u", 400, "too large", {}, None)
+        return [[1.0, 0.0, 0.0] for _ in inputs]
+
+    model._request = _fake_request  # type: ignore[method-assign]
+    vectors = model.embed_many(["a", "b", "c", "d"])
+
+    assert len(vectors) == 4
+    assert attempts[0] == 4, "it must try the whole batch first"
+    assert max(attempts[1:]) <= 2, f"it must split on rejection: {attempts}"
+
+
+def test_a_single_input_rejection_is_not_swallowed():
+    """Splitting must bottom out; a genuinely bad input still raises."""
+
+    import urllib.error
+
+    model = _openai_model()
+
+    def _always_400(inputs):
+        raise urllib.error.HTTPError("u", 400, "bad", {}, None)
+
+    model._request = _always_400  # type: ignore[method-assign]
+    with pytest.raises(urllib.error.HTTPError):
+        model.embed_many(["only-one"])
+
+
+def test_node_vector_fallback_skips_already_embedded_entries():
+    """One late failure must not repeat every completed provider call."""
+
+    import seam_runtime.runtime as runtime_module
+
+    calls: list[str] = []
+
+    class _FlakyModel:
+        name = "flaky/1"
+        dimension = 3
+
+        def embed(self, text: str) -> list[float]:
+            calls.append(text)
+            return [1.0, 0.0, 0.0]
+
+        def embed_many(self, texts):
+            texts = list(texts)
+            if any(t == "boom" for t in texts):
+                raise RuntimeError("window failed")
+            for t in texts:
+                calls.append(t)
+            return [[1.0, 0.0, 0.0] for _ in texts]
+
+    # Two windows: the first succeeds, the second fails.
+    monkey = pytest.MonkeyPatch()
+    monkey.setattr(runtime_module, "EMBED_FLUSH_SIZE", 2)
+    try:
+        from seam_runtime.models import embed_texts
+
+        missing = [{"source_text": t} for t in ("ok1", "ok2", "boom", "ok3")]
+        fresh: dict[int, list[float]] = {}
+        model = _FlakyModel()
+        try:
+            for start in range(0, len(missing), 2):
+                window = missing[start : start + 2]
+                vectors = embed_texts(model, [str(e["source_text"]) for e in window])
+                fresh.update({id(e): v for e, v in zip(window, vectors, strict=True)})
+        except Exception:
+            for entry in missing:
+                if id(entry) in fresh:
+                    continue
+                try:
+                    fresh[id(entry)] = model.embed(str(entry["source_text"]))
+                except Exception:
+                    continue
+        # ok1/ok2 embedded once in the successful window; never re-embedded.
+        assert calls.count("ok1") == 1, f"ok1 was re-embedded: {calls}"
+        assert calls.count("ok2") == 1, f"ok2 was re-embedded: {calls}"
+        assert len(fresh) == 4
+    finally:
+        monkey.undo()

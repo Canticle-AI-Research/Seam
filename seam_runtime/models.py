@@ -127,16 +127,33 @@ class SentenceTransformerModel:
         return _normalize(vector.tolist())
 
     def embed_many(self, texts: Sequence[str]) -> list[list[float]]:
+        """Encode a batch, shrinking if the device cannot hold it.
+
+        A fixed batch that suits a small model can exhaust CPU or GPU memory on
+        a larger one that the per-record path handled fine. Failing here would
+        roll back persistence for a supported configuration, so the batch
+        halves on memory errors and degrades all the way to per-record rather
+        than making the model unusable.
+        """
+
         if not texts:
             return []
         model = self._load()
-        vectors = model.encode(
-            list(texts),
-            batch_size=self.batch_size,
-            convert_to_numpy=True,
-            show_progress_bar=False,
-        )
-        return [_normalize(vector.tolist()) for vector in vectors]
+        items = list(texts)
+        size = max(1, int(self.batch_size))
+        while True:
+            try:
+                vectors = model.encode(
+                    items,
+                    batch_size=size,
+                    convert_to_numpy=True,
+                    show_progress_bar=False,
+                )
+                return [_normalize(vector.tolist()) for vector in vectors]
+            except (MemoryError, RuntimeError) as exc:
+                if size == 1 or "memory" not in str(exc).lower():
+                    raise
+                size = max(1, size // 2)
 
 
 @dataclass
@@ -184,13 +201,35 @@ class OpenAICompatibleEmbeddingModel:
             if batch and (
                 len(batch) >= self.batch_size or budget + size > self.char_budget
             ):
-                out.extend(self._request(batch))
+                out.extend(self._request_split(batch))
                 batch, budget = [], 0
             batch.append(text)
             budget += size
         if batch:
-            out.extend(self._request(batch))
+            out.extend(self._request_split(batch))
         return out
+
+    def _request_split(self, inputs: list[str]) -> list[list[float]]:
+        """Send a batch, halving it if the provider rejects it as too large.
+
+        `char_budget` is a heuristic, and characters are NOT a safe upper bound
+        on tokens: multilingual and code-heavy inputs tokenize far denser than
+        prose, so a batch can sit under the character ceiling and still exceed
+        the endpoint's aggregate token limit. Rather than guess harder, treat
+        the provider's own rejection as the authority and split on it. A single
+        input that is still refused is re-raised, exactly as it would have been
+        before batching.
+        """
+
+        try:
+            return self._request(inputs)
+        except urllib.error.HTTPError as exc:
+            if exc.code != 400 or len(inputs) == 1:
+                raise
+        midpoint = len(inputs) // 2
+        return self._request_split(inputs[:midpoint]) + self._request_split(
+            inputs[midpoint:]
+        )
 
     def _request(self, inputs: list[str]) -> list[list[float]]:
         if not inputs:
@@ -230,8 +269,30 @@ class OpenAICompatibleEmbeddingModel:
             if last_exc is not None:
                 raise last_exc
             raise RuntimeError("Embedding request failed after retries")
-        # Provider order is not guaranteed; `index` is authoritative.
-        items = sorted(payload["data"], key=lambda item: int(item.get("index", 0)))
+        # Provider order is not guaranteed, so `index` is authoritative -- but
+        # it must be TRUSTWORTHY before it is used. A missing, duplicated, or
+        # non-contiguous index set was harmless when every request held one
+        # input; with several inputs per request it would silently attach
+        # embeddings to the wrong records while the count still matched.
+        data = payload["data"]
+        if len(data) != len(inputs):
+            raise RuntimeError(
+                f"embedding provider returned {len(data)} items for {len(inputs)} inputs"
+            )
+        if len(inputs) == 1:
+            # A single-input response has no ordering to get wrong, and
+            # `index` was never required for it before batching existed.
+            items = list(data)
+        else:
+            indexes = [item.get("index") for item in data]
+            if sorted(
+                int(i) for i in indexes if i is not None
+            ) != list(range(len(inputs))):
+                raise RuntimeError(
+                    "embedding provider returned missing, duplicate, or "
+                    f"non-contiguous indexes: {indexes}"
+                )
+            items = sorted(data, key=lambda item: int(item["index"]))
         vectors: list[list[float]] = []
         for item in items:
             vector = [float(value) for value in item["embedding"]]

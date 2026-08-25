@@ -1072,11 +1072,16 @@ class SeamRuntime:
                         )
                 except Exception:
                     # Fall back to per-node embedding so ONE unembeddable node
-                    # cannot strand the whole batch.
+                    # cannot strand the whole batch -- but only for nodes that
+                    # are still missing. Re-embedding windows that already
+                    # succeeded would repeat completed provider calls and can
+                    # nearly double the cost of a large paid projection.
                     LOGGER.exception(
                         "Batched node-vector embedding failed; retrying per node"
                     )
                     for entry in missing:
+                        if id(entry) in fresh:
+                            continue
                         try:
                             fresh[id(entry)] = model.embed(str(entry["source_text"]))
                         except Exception:
