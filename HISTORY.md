@@ -19686,3 +19686,21 @@ The protected source now includes S7 exact entity evidence, scoped identity, det
 
 This event supersedes HISTORY#603 and advances the one-live-head handoff chain to `docs/handoffs/2026-08-24-track-s-s7-merged-s8-next.md`. The bounded `track-s/s8-next-handoff` branch starts exactly at protected `origin/main@3385343` and contains no S8 implementation. After this chronological handoff passes full closeout, exact-head CI/review, and protected merge, S8 may begin on a new branch from that protected successor. S8 owns coherent legacy/RRF/weighted-fusion policy, fail-closed leg names, surface candidate parity, exactly-once tenant-scoped retrieval events with answer-inert telemetry failure, and reversible audited identity merges. S9 remains the promotion gate.
 ---END-ENTRY-#604---
+
+---BEGIN-ENTRY-#605---
+id: 605
+date: 2026-08-25T00:16:08Z
+agent: Codex
+status: in-progress
+topics: config, continuity, handoff, retrieval, status, tests, verify
+commits: pending
+refs: PROJECT_STATUS.md,seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orchestrator/orchestrator.py,tests/audit/test_fusion_leg_weights.py,docs/handoffs/2026-08-24-track-s-s7-merged-s8-next.md,docs/handoffs/2026-08-25-track-s-s8-retrieval-coherence-in-progress.md,docs/handoffs/INDEX.md
+supersedes: 604
+tokens: 537
+---
+Track S S8 began only after the chronological S8-next handoff merged through protected PR #227 at `440a014313870067d4c2f04a528aec9e235ba01f`. This first bounded branch-local slice closes one retrieval-coherence seam: weighted-fusion leg names are now the exact closed set `sql`, `vector`, `graph`, `graph_node`, and `temporal`. Unknown, legacy-only, or whitespace-padded names fail at the public runtime boundary before planning or adapter search. The orchestrator validates once and reuses the normalized map for ranking; exact known configured-but-inactive legs remain accepted.
+
+The public unknown-leg tracer and the independent whitespace-padded `" vector "` tracer each failed red with `DID NOT RAISE` before its repair. After repair, `tests/audit/test_fusion_leg_weights.py` passed 21 tests, and the exact affected scope `tests/audit/test_fusion_leg_weights.py tests/audit/test_retrieval_consolidation.py tests/audit/test_retrieval_trace_plumbing.py tests/audit/test_retrieval_flags.py` collected and passed 69 tests. A first `tests/audit -q` run reached 100 percent without assertion failures but correctly failed strict no-skip because 23 real-pgvector tests skipped with both DSNs absent. With the existing local pgvector container healthy and both DSNs set, the five pgvector modules passed 30 tests and `tests/audit -q` collected 2,458 tests across 191 files and passed at 100 percent with no failures or skips; the container was then restored to its prior stopped state. Changed-path Ruff, `git diff --check`, and the canonical secret/private-session scan passed. CodeRabbit CLI 0.7.5 reviewed the exact three-file uncommitted diff against `440a014313870067d4c2f04a528aec9e235ba01f` and returned zero findings.
+
+This event is `status: in-progress` and supersedes HISTORY#604. It advances the one-live-head handoff chain to `docs/handoffs/2026-08-25-track-s-s8-retrieval-coherence-in-progress.md`. S8 is not complete: persisted weighted-policy replay, shipped-surface candidate parity, exactly-once tenant-scoped answer-inert retrieval events, reversible audited identity merges, process-lifetime flag-cache policy, SQLite 999-variable floors, and boundary-only SQL/legacy decisions remain open. S9 remains the promotion gate, and no graph/scorer qualification or protected-main behavior is claimed.
+---END-ENTRY-#605---

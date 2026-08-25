@@ -13,6 +13,7 @@ from seam_runtime.retrieval_policy import (
     FUSION_POLICY_WEIGHTED,
     FUSION_RANK_CONSTANT,
     candidate_set_fingerprint,
+    normalize_leg_weights,
 )
 from seam_runtime.runtime import SeamRuntime
 
@@ -251,6 +252,9 @@ class RetrievalOrchestrator:
         list,
         str | None,
     ]:
+        leg_weights = normalize_leg_weights(
+            dict(getattr(flags, "fusion_leg_weights", ()) or ())
+        )
         plan = self.plan(
             query=query,
             scope=scope,
@@ -360,7 +364,6 @@ class RetrievalOrchestrator:
 
         # Empty weights reproduce unweighted `reciprocal-rank-fusion/2` exactly,
         # so this is inert unless an operator sets them.
-        leg_weights = dict(getattr(flags, "fusion_leg_weights", ()) or ())
         ranked = (
             rank_legacy_weighted_hits(leg_hits["legacy_weighted"])
             if plan.ranking_policy == "legacy-weighted/1"

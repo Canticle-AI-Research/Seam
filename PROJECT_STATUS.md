@@ -9,15 +9,19 @@
 
 ## Current headline
 
-**2026-08-24 — protected `main@3385343` contains finished Track S S7 through
-merged PR #226, and S8 is the next dependency-ordered stage.** S7 closes the
+**2026-08-25 — protected `main@440a014` contains finished Track S S7 through
+merged PR #226 and the chronological S8-next handoff through merged PR #227;
+the first bounded S8 retrieval-coherence slice is branch-local on
+`track-s/s8-retrieval-coherence`.** S7 closes the
 exit mechanics for exact entity mention evidence,
 same-boundary and explicit identity reconciliation, deterministic temporal
 reconciliation, concurrent replay idempotency, fail-closed REL traversal, and
 as-of graph intervals. A provider-free retrieved-ENT fixture resolved 5/5
 entities through complete exact SPAN-to-RAW chains. The chronological
-S8-next handoff must itself reach protected main before S8 implementation
-begins. The governing reports are:
+S8-next handoff reached protected main before implementation began. The first
+S8 slice makes weighted-fusion leg names a closed exact runtime contract and
+rejects misspelled or whitespace-padded names before planning or adapter
+search; it does not complete S8 or authorize S9. The governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and

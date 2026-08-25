@@ -124,6 +124,38 @@ def test_default_flags_carry_no_weights():
     assert RetrievalFlags().fusion_leg_weights == ()
 
 
+def test_unknown_leg_name_is_rejected_even_when_search_has_no_hits(tmp_path):
+    """A misspelled leg must fail before candidate-dependent fusion runs."""
+
+    from seam_runtime.runtime import SeamRuntime
+
+    rt = SeamRuntime(tmp_path / "unknown-leg.db", allow_pgvector_env=False)
+    try:
+        with pytest.raises(ValueError, match="unknown fusion leg.*vectro"):
+            rt.retrieve(
+                "empty retrieval",
+                flags=RetrievalFlags(fusion_leg_weights=(("vectro", 1.0),)),
+            )
+    finally:
+        rt.close()
+
+
+def test_whitespace_padded_leg_name_is_rejected_at_runtime_boundary(tmp_path):
+    """Direct runtime flags require an exact canonical fusion-leg name."""
+
+    from seam_runtime.runtime import SeamRuntime
+
+    rt = SeamRuntime(tmp_path / "padded-leg.db", allow_pgvector_env=False)
+    try:
+        with pytest.raises(ValueError, match="unknown fusion leg.* vector "):
+            rt.retrieve(
+                "empty retrieval",
+                flags=RetrievalFlags(fusion_leg_weights=((" vector ", 1.0),)),
+            )
+    finally:
+        rt.close()
+
+
 # -- end to end ---------------------------------------------------------
 
 
