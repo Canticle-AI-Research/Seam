@@ -13,13 +13,17 @@ from uuid import uuid4
 from .migrations import execute_script
 from .mirl import utc_now
 from .retrieval_policy import (
+    FUSION_LEG_NAMES,
     FUSION_POLICY,
     FUSION_POLICY_FINGERPRINT,
+    FUSION_POLICY_WEIGHTED,
+    FUSION_POLICY_WEIGHTED_FINGERPRINT,
     RETRIEVAL_PLANNER,
     RETRIEVAL_REASON_CODES,
     candidate_set_fingerprint,
     contribution_rank,
-    fusion_score,
+    normalize_leg_weights,
+    weighted_fusion_score,
 )
 
 REASONING_SCHEMA_VERSION = 1
@@ -63,11 +67,17 @@ _STATUS_TRANSITIONS = {
 }
 _SUPPORTING_RELATIONS = frozenset({"uses", "supports", "derives", "tests", "answers"})
 RETRIEVAL_POLICY = FUSION_POLICY
+# Persistence accepts the weighted policy too: the orchestrator reports it as
+# soon as any leg weight is set, so refusing it here turned a supported
+# retrieval into an unrecordable one.
+RETRIEVAL_POLICIES = {
+    FUSION_POLICY: FUSION_POLICY_FINGERPRINT,
+    FUSION_POLICY_WEIGHTED: FUSION_POLICY_WEIGHTED_FINGERPRINT,
+}
 RETRIEVAL_MODES = frozenset({"vector", "graph", "hybrid", "mix"})
 RETRIEVAL_INTENTS = frozenset({"structured", "semantic", "hybrid", "graph", "mix"})
-RETRIEVAL_SOURCES = frozenset(
-    {"sql", "vector", "graph", "graph_node", "chroma"}
-)
+# One definition, so the recorder cannot drift from what fusion accepts.
+RETRIEVAL_SOURCES = FUSION_LEG_NAMES
 MAX_RETRIEVAL_CANDIDATES = 128
 REASONING_CHECK_KINDS = frozenset({"test", "tool", "review", "challenge"})
 REASONING_VERDICTS = frozenset({"passed", "failed", "error", "contradicted"})
@@ -136,6 +146,16 @@ def _migrate_reasoning_retrieval_schema(connection: sqlite3.Connection) -> None:
     if retrieval_columns and "graph_node_latency_ms" not in retrieval_columns:
         connection.execute(
             "alter table reasoning_retrieval add column graph_node_latency_ms real"
+        )
+    if retrieval_columns and "leg_weights_json" not in retrieval_columns:
+        connection.execute("drop trigger if exists reasoning_retrieval_no_update")
+        connection.execute(
+            "alter table reasoning_retrieval add column leg_weights_json text"
+        )
+        # Every pre-existing row was recorded under unweighted `/2`.
+        connection.execute(
+            "update reasoning_retrieval set leg_weights_json = "
+            "coalesce(leg_weights_json, '{}')"
         )
 
     snapshot_columns = {"record_ns", "record_scope", "record_sha256"}
@@ -288,6 +308,7 @@ def init_reasoning_graph(connection: sqlite3.Connection) -> None:
             graph_node_latency_ms real,
             graph_latency_ms real,
             total_latency_ms real not null,
+            leg_weights_json text not null default '{}',
             created_at text not null,
             schema_version integer not null default 1,
             foreign key (run_id) references workspace_run(run_id),
@@ -1111,6 +1132,7 @@ def _retrieval_candidate_rows(
     candidates: Iterable[ReasoningRetrievalCandidate],
     budget: int,
     total_candidates: int,
+    leg_weights: Mapping[str, float] | None = None,
 ) -> tuple[ReasoningRetrievalCandidate, ...]:
     resolved = tuple(islice(iter(candidates), MAX_RETRIEVAL_CANDIDATES + 1))
     if len(resolved) > MAX_RETRIEVAL_CANDIDATES:
@@ -1179,7 +1201,9 @@ def _retrieval_candidate_rows(
             if not math.isfinite(float(score)) or abs(float(score)) > 1_000_000:
                 raise ValueError("retrieval source scores must be finite")
             contribution_rank(float(score))
-        expected_score = fusion_score(candidate.sources)
+        # Absent/all-1.0 weights make this bit-identical to `fusion_score`,
+        # so an unweighted retrieval validates exactly as it always did.
+        expected_score = weighted_fusion_score(candidate.sources, leg_weights)
         if not math.isclose(
             float(candidate.score), expected_score, rel_tol=1e-12, abs_tol=1e-12
         ):
@@ -1239,6 +1263,7 @@ def record_reasoning_retrieval(
     leg_latency_ms: Mapping[str, float],
     total_latency_ms: float,
     policy: str = RETRIEVAL_POLICY,
+    leg_weights: Mapping[str, float] | None = None,
     graph_at: str | None = None,
     graph_include_history: bool = False,
     agent_id: str | None = None,
@@ -1311,8 +1336,16 @@ def record_reasoning_retrieval(
         if not 1 <= value <= 4096:
             raise ValueError("retrieval leg limits must be between 1 and 4096")
         resolved_leg_limits[leg] = value
-    if policy != RETRIEVAL_POLICY:
+    if policy not in RETRIEVAL_POLICIES:
         raise ValueError(f"unsupported retrieval policy: {policy}")
+    resolved_leg_weights = normalize_leg_weights(leg_weights)
+    if policy == FUSION_POLICY_WEIGHTED and not resolved_leg_weights:
+        raise ValueError(
+            "weighted retrieval policy requires the leg weights it ranked under"
+        )
+    if policy == FUSION_POLICY and resolved_leg_weights:
+        raise ValueError("unweighted retrieval policy cannot record leg weights")
+    resolved_policy_fingerprint = RETRIEVAL_POLICIES[policy]
     resolved_backend = _required_text(
         semantic_backend, "semantic backend", limit=64
     ).lower()
@@ -1350,6 +1383,7 @@ def record_reasoning_retrieval(
         candidates=candidates,
         budget=int(budget),
         total_candidates=int(total_candidates),
+        leg_weights=resolved_leg_weights,
     )
     if bool(candidates_truncated) != (total_candidates > len(resolved_candidates)):
         raise ValueError("candidates_truncated does not match the recorded pool")
@@ -1451,10 +1485,10 @@ def record_reasoning_retrieval(
              total_candidates, recorded_candidates,
              selected_count, candidates_truncated, sql_latency_ms,
              vector_latency_ms, graph_node_latency_ms, graph_latency_ms,
-             total_latency_ms, created_at,
+             total_latency_ms, leg_weights_json, created_at,
              graph_at, graph_include_history,
              schema_version)
-        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
         """,
         (
             retrieval_id,
@@ -1481,7 +1515,7 @@ def record_reasoning_retrieval(
             resolved_leg_limits["vector"],
             resolved_leg_limits["graph"],
             policy,
-            FUSION_POLICY_FINGERPRINT,
+            resolved_policy_fingerprint,
             candidate_set_sha256,
             resolved_backend,
             resolved_adapter,
@@ -1497,6 +1531,9 @@ def record_reasoning_retrieval(
             latencies["graph_node"],
             latencies["graph"],
             resolved_total_latency,
+            json.dumps(
+                dict(sorted(resolved_leg_weights.items())), separators=(",", ":")
+            ),
             resolved_created_at,
             resolved_graph_at,
             int(graph_include_history),
@@ -1995,6 +2032,10 @@ def _retrieval_from_row(
         "decision_node_id": row["decision_node_id"],
         "query_sha256": row["query_sha256"],
         "normalized_query": row["normalized_query"],
+        "leg_weights": json.loads(
+            (row["leg_weights_json"] if "leg_weights_json" in row.keys() else None)
+            or "{}"
+        ),
         "planner": row["planner"],
         "mode": row["mode"],
         "intent": row["intent"],

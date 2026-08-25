@@ -45,7 +45,13 @@ FUSION_POLICY_WEIGHTED_CONTRACT = (
 FUSION_POLICY_WEIGHTED_FINGERPRINT = hashlib.sha256(
     FUSION_POLICY_WEIGHTED_CONTRACT.encode("utf-8")
 ).hexdigest()
-FUSION_LEG_NAMES = frozenset({"graph", "graph_node", "sql", "temporal", "vector"})
+# Every leg name the engine can emit as a fusion source. `ChromaSemanticAdapter`
+# tags its hits "chroma", so omitting it would reject a working ablation while
+# leaving that leg silently at the default weight.  `legacy_weighted` is absent
+# deliberately: the pre-refactor control never reaches weighted fusion.
+FUSION_LEG_NAMES = frozenset(
+    {"chroma", "graph", "graph_node", "sql", "temporal", "vector"}
+)
 
 
 def normalize_leg_weights(

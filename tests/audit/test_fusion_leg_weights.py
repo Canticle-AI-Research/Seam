@@ -218,3 +218,97 @@ def test_zeroed_graph_leg_still_appears_in_the_trace(tmp_path):
     assert "graph" in (result.trace or {}).get("legs", {})
     assert result.trace["fusion"]["policy"] == "weighted-reciprocal-rank-fusion/1"
     assert result.trace["fusion"]["leg_weights"] == {"graph": 0.0}
+
+
+# -- closed leg set completeness (S8 review repair) ---------------------
+
+
+def test_closed_leg_set_covers_every_leg_the_engine_can_emit():
+    """The closed set must equal the engine's canonical retrieval sources.
+
+    A closed set that omits an emitted leg is worse than no closed set: it
+    rejects a working ablation while leaving that leg silently at weight 1.0,
+    because `weighted_fusion_score` falls back to the default for any source
+    key it was not given.
+    """
+
+    import re
+    from pathlib import Path
+
+    from seam_runtime.reasoning_graph import RETRIEVAL_SOURCES
+    from seam_runtime.retrieval_policy import FUSION_LEG_NAMES
+
+    assert RETRIEVAL_SOURCES == FUSION_LEG_NAMES
+
+    adapters = Path("seam_runtime/retrieval_orchestrator/adapters.py").read_text()
+    emitted = set(re.findall(r'LegHit\(\s*leg="([a-z_]+)"', adapters))
+    # `legacy_weighted` is the pre-refactor control; it never reaches weighted
+    # fusion, so it is deliberately not a weightable fusion leg.
+    assert emitted - {"legacy_weighted"} <= FUSION_LEG_NAMES
+
+
+def test_chroma_backed_semantic_leg_is_weightable():
+    """`chroma` is an emitted fusion source, so it must accept a weight.
+
+    `ChromaSemanticAdapter` tags its hits `leg="chroma"`, so fusion groups them
+    under that key. Rejecting the name made a Chroma-backed leg ablation
+    impossible while `{"vector": 0.0}` silently left the leg fully weighted.
+    """
+
+    assert normalize_leg_weights({"chroma": 0.0}) == {"chroma": 0.0}
+    sources = {"sql": 1 / 61, "chroma": 1 / 61}
+    assert weighted_fusion_score(sources, {"chroma": 0.0}) == pytest.approx(1 / 61)
+
+
+# -- where each half of the name contract is enforced (S8 review repair) ----
+
+
+def test_env_surface_normalizes_padding_then_still_requires_a_known_name():
+    """`SEAM_RETRIEVAL_LEG_WEIGHTS` owns whitespace; it does not own spelling.
+
+    `graph=0.3, vector=1.0` is the natural way to write the variable, so the
+    env parser strips around each name. That normalization is the ONLY
+    latitude: a name that is not a canonical leg still reaches the runtime
+    boundary intact and fails there, before any search runs.
+    """
+
+    assert retrieval_flags_from_env(
+        {"SEAM_RETRIEVAL_LEG_WEIGHTS": "graph=0.3, vector=1.0"}
+    ).fusion_leg_weights == (("graph", 0.3), ("vector", 1.0))
+    assert retrieval_flags_from_env(
+        {"SEAM_RETRIEVAL_LEG_WEIGHTS": " vector =0"}
+    ).fusion_leg_weights == (("vector", 0.0),)
+    # Padding is normalized; a misspelling survives parsing on purpose.
+    assert retrieval_flags_from_env(
+        {"SEAM_RETRIEVAL_LEG_WEIGHTS": " vectr =1.0"}
+    ).fusion_leg_weights == (("vectr", 1.0),)
+
+
+def test_env_sourced_unknown_leg_name_fails_before_search(tmp_path):
+    """The env surface must fail closed at the boundary, not silently ignore."""
+
+    from seam_runtime.runtime import SeamRuntime
+
+    flags = retrieval_flags_from_env({"SEAM_RETRIEVAL_LEG_WEIGHTS": "vectr=1.0"})
+    rt = SeamRuntime(tmp_path / "env-unknown-leg.db", allow_pgvector_env=False)
+    try:
+        with pytest.raises(ValueError, match="unknown fusion leg.*vectr"):
+            rt.retrieve("empty retrieval", flags=flags)
+    finally:
+        rt.close()
+
+
+def test_direct_flags_still_require_an_exact_canonical_name(tmp_path):
+    """Programmatic callers get no normalization latitude at all."""
+
+    from seam_runtime.runtime import SeamRuntime
+
+    rt = SeamRuntime(tmp_path / "direct-padded-leg.db", allow_pgvector_env=False)
+    try:
+        with pytest.raises(ValueError, match="unknown fusion leg"):
+            rt.retrieve(
+                "empty retrieval",
+                flags=RetrievalFlags(fusion_leg_weights=((" vector ", 1.0),)),
+            )
+    finally:
+        rt.close()

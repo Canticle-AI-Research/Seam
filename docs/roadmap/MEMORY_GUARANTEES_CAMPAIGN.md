@@ -443,6 +443,18 @@ and identity policy.
 **Findings:** F3, F8, F9.
 **Dependencies:** S1, S5, S6, and S7.
 
+**Status (2026-08-25): branch-local on `track-s/s8-retrieval-coherence`
+(HISTORY#605, #606), NOT protected-main behavior.** All six exit-gate bullets
+below now have passing counterexample tests, each confirmed red before green.
+Two deployment-audit sub-items are also closed: the process-lifetime flag cache
+is qualified by an explicit `refresh_retrieval_flags()` contract, and three
+graph-traversal statements are bounded under SQLite's legacy 999-variable
+floor. Two assigned items remain open on purpose: the boundary-only SQL gate is
+undecided, and `search_ir` still defaults to `legacy-weighted/1` because
+retiring it would change every recorded LoCoMo/mem0 arm, which is an S9-gated
+measurement decision requiring an operator-approved paid re-run. Nothing here
+is a quality, graph, or benchmark claim; S9 remains the promotion gate.
+
 **Exit gate (all required):**
 
 - A legacy-policy plan executes only the legacy adapter.

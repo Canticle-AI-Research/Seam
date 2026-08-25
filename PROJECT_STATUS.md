@@ -18,10 +18,21 @@ same-boundary and explicit identity reconciliation, deterministic temporal
 reconciliation, concurrent replay idempotency, fail-closed REL traversal, and
 as-of graph intervals. A provider-free retrieved-ENT fixture resolved 5/5
 entities through complete exact SPAN-to-RAW chains. The chronological
-S8-next handoff reached protected main before implementation began. The first
-S8 slice makes weighted-fusion leg names a closed exact runtime contract and
-rejects misspelled or whitespace-padded names before planning or adapter
-search; it does not complete S8 or authorize S9. The governing reports are:
+S8-next handoff reached protected main before implementation began. The
+branch-local S8 work now closes fail-closed fusion leg names over the exact set
+the engine emits (including `chroma`), legacy-policy adapter isolation,
+persisted absent/all-one/zero/non-unit weighted-policy replay with all-one
+bitwise identical to `/2`, `search_ir`/REST candidate parity with direct
+`retrieve()` under the same policy across REST, SDK, MCP, and the TUI read
+path, exactly one tenant-scoped retrieval event
+per successful retrieval with telemetry failure proven answer-inert, an
+explicit process-lifetime flag-cache refresh contract, and SQLite
+999-variable-floor bounds on three graph-traversal statements. It does NOT
+complete S8: the boundary-only SQL gate decision remains, and `search_ir`
+still defaults to `legacy-weighted/1` because retiring
+it would change every recorded LoCoMo/mem0 arm — an S9-gated measurement
+decision, not an S8 refactor. Nothing here authorizes S9 or claims a
+quality lift. The governing reports are:
 
 - `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
 - `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and

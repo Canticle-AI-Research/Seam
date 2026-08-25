@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-25-track-s-s8-retrieval-coherence-in-progress
 supersedes: 2026-08-24-track-s-s7-merged-s8-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#605
 ---
 

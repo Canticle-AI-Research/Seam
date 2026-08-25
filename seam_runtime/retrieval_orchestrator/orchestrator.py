@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import uuid
 from contextlib import nullcontext
 from datetime import datetime
 from time import perf_counter
@@ -92,6 +94,60 @@ class RetrievalOrchestrator:
                 self.semantic_adapter.delete_records
             )
 
+    def _telemetry_run_id(self) -> str:
+        """A stable id for this process's retrievals.
+
+        An explicit `SEAM_RUN_ID` lets an operator correlate events with an
+        external run; otherwise one id per orchestrator keeps a session's
+        events groupable without inventing cross-session identity.
+        """
+
+        configured = (os.environ.get("SEAM_RUN_ID") or "").strip()
+        if configured:
+            return configured
+        existing = getattr(self, "_generated_run_id", None)
+        if existing is None:
+            existing = f"seam-runtime:{uuid.uuid4()}"
+            self._generated_run_id = existing
+        return existing
+
+    def _record_retrieval_event(
+        self,
+        *,
+        query: str,
+        namespace: str | None,
+        scope: str | None,
+        flags,
+        candidates: list,
+    ) -> None:
+        """Append exactly one tenant-scoped retrieval event, or nothing.
+
+        Telemetry is strictly downstream of the answer: this runs after the
+        candidates are final, and ANY failure here is swallowed. A retrieval
+        that cannot be recorded must still return the same candidates it
+        already computed -- an observability outage is not an answer outage.
+        """
+
+        if not getattr(flags, "retrieval_events", False):
+            return
+        try:
+            # Tenancy lives in the namespace, so the event is scoped to the
+            # exact ns/scope boundary the request was answered under. Without
+            # this an operator cannot tell whose retrieval an event describes.
+            resolved_ns = (namespace or "local.default").strip() or "local.default"
+            resolved_scope = (scope or "*").strip() or "*"
+            self.runtime.store.write_retrieval_event(
+                run_id=self._telemetry_run_id(),
+                scope=f"{resolved_ns}:{resolved_scope}",
+                query=query,
+                candidate_ids=[candidate.record.id for candidate in candidates],
+                ranks=list(range(1, len(candidates) + 1)) or None,
+                scores=[float(candidate.score) for candidate in candidates] or None,
+                source_kind="live",
+            )
+        except Exception:
+            return
+
     def plan(
         self,
         query: str,
@@ -159,7 +215,9 @@ class RetrievalOrchestrator:
         resolved_flags = (
             flags if flags is not None else self.runtime._retrieval_flags_cached()
         )
-        leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
+        leg_weights = normalize_leg_weights(
+            dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
+        )
         (
             plan,
             leg_hits,
@@ -190,6 +248,13 @@ class RetrievalOrchestrator:
             ),
         )
         retained = ranked[:candidate_trace_limit]
+        self._record_retrieval_event(
+            query=query,
+            namespace=namespace,
+            scope=scope,
+            flags=resolved_flags,
+            candidates=retained[:budget],
+        )
         return RetrievalDecisionResult(
             plan=plan,
             selected=retained[:budget],
@@ -210,6 +275,7 @@ class RetrievalOrchestrator:
             leg_hits=leg_hits,
             leg_latency_ms=leg_latency_ms,
             total_latency_ms=total_latency_ms,
+            leg_weights=leg_weights,
         )
 
     def _execute(self, **kwargs):
@@ -402,7 +468,9 @@ class RetrievalOrchestrator:
         resolved_flags = (
             flags if flags is not None else self.runtime._retrieval_flags_cached()
         )
-        leg_weights = dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
+        leg_weights = normalize_leg_weights(
+            dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
+        )
         candidate_budget = (
             int(resolved_flags.search_top_k)
             if resolved_flags.search_top_k
@@ -465,6 +533,13 @@ class RetrievalOrchestrator:
                 graph_skipped_reason=graph_skipped_reason,
                 leg_weights=leg_weights,
             )
+        self._record_retrieval_event(
+            query=query,
+            namespace=namespace,
+            scope=scope,
+            flags=resolved_flags,
+            candidates=selected,
+        )
         return RetrievalSearchResult(
             query=query,
             normalized_query=plan.normalized_query,
