@@ -37,7 +37,12 @@ from .mirl import (
     TraceGraph,
     VerifyReport,
 )
-from .models import EmbeddingModel, default_embedding_model
+from .models import (
+    EMBED_FLUSH_SIZE,
+    EmbeddingModel,
+    default_embedding_model,
+    embed_texts,
+)
 from .nl import compile_nl
 from .pack import pack_record, pack_records
 from .reconcile import reconcile_ir
@@ -1040,19 +1045,60 @@ class SeamRuntime:
                 model_name, [str(entry["source_hash"]) for entry in pending]
             )
             self.store.cleanup_orphan_node_vectors()
-            embedded: list[dict[str, object]] = []
+            written = 0
             failed = 0
-            for entry in pending:
-                vector = reusable.get(str(entry["source_hash"]))
-                if vector is None:
-                    try:
-                        vector = model.embed(str(entry["source_text"]))
-                    except Exception:
-                        # One unembeddable node must not strand the rest of the batch.
+
+            def _embed_window(window: list) -> dict[int, list[float]]:
+                """Embed one window, degrading to per-node on failure."""
+                try:
+                    vectors = embed_texts(
+                        model, [str(entry["source_text"]) for entry in window]
+                    )
+                    return {
+                        id(entry): vector
+                        for entry, vector in zip(window, vectors, strict=True)
+                    }
+                except Exception:
+                    # One unembeddable node must not strand its window. Only
+                    # this window is retried, so completed provider calls are
+                    # never repeated.
+                    LOGGER.exception(
+                        "Batched node-vector embedding failed; retrying per node"
+                    )
+                    resolved: dict[int, list[float]] = {}
+                    for entry in window:
+                        try:
+                            resolved[id(entry)] = model.embed(str(entry["source_text"]))
+                        except Exception:
+                            continue
+                    return resolved
+
+            # Store each window BEFORE advancing. Bounding only the embedding
+            # call is not enough: retaining every returned vector until the end
+            # keeps hundreds of thousands of Python floats alive at once, which
+            # is the same exhaustion this bound exists to prevent.
+            for start_index in range(0, len(pending), EMBED_FLUSH_SIZE):
+                window = pending[start_index : start_index + EMBED_FLUSH_SIZE]
+                missing = [
+                    entry
+                    for entry in window
+                    if reusable.get(str(entry["source_hash"])) is None
+                ]
+                fresh = _embed_window(missing) if missing else {}
+                batch: list[dict[str, object]] = []
+                for entry in window:
+                    vector = reusable.get(str(entry["source_hash"]))
+                    if vector is None:
+                        vector = fresh.get(id(entry))
+                    if vector is None:
                         failed += 1
                         continue
-                embedded.append({**entry, "vector": vector})
-            written = self.store.store_node_vectors(model_name, embedded)
+                    batch.append({**entry, "vector": vector})
+                if batch:
+                    written += self.store.store_node_vectors(model_name, batch)
+                # Release this window's vectors before embedding the next.
+                fresh.clear()
+                batch.clear()
         except Exception:
             LOGGER.exception("Graph node vector projection failed; nodes remain pending")
             return {"model_name": model_name, "embedded": 0, "failed": 0, "error": True}
