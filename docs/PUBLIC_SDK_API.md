@@ -1,8 +1,11 @@
 # Public SEAM Agent SDK API
 
 The public SDK talks to a deliberately small, opaque `/v1` API. This document
-is the private runtime-side contract. The public implementation and examples
-live in `BlackhatShiftey/Seam_Runtime/sdk`.
+is the private runtime-side contract. The released Apache-2.0 `seam-client`
+2.x package covers the memory and context routes. Agent products may also call
+the additive agent-turn routes directly through an independently authored HTTP
+adapter; Ghost is the first consumer. Neither client shape may import or
+reproduce private runtime internals.
 
 Install the released public client with:
 
@@ -21,6 +24,7 @@ The public API exposes:
 - recall text memories
 - assemble prompt-ready text context
 - delete caller-owned opaque memory handles in principal mode
+- open, annotate, complete, or reject a provenance-backed agent turn
 - agent, namespace, scope, and session partitioning
 
 It does not expose:
@@ -120,6 +124,116 @@ Accepts the recall fields plus `max_chars`. The response contains the same
 public memory items and a bounded `context` string ready for insertion into an
 agent prompt. Principal-mode context assembly has the same handle-registration
 write as recall.
+
+### Agent-turn lifecycle
+
+The four agent-turn routes let a public agent retain retrieval, tool-decision,
+verification, outcome, and durable-memory provenance without exposing the
+private graph. `turn_id`, `verification_ids`, and `receipt_id` are opaque
+capabilities. Clients must not parse or synthesize them.
+
+```text
+POST /v1/agent/turns/begin
+        |
+        +--> POST /v1/agent/turns/actions   (zero or more batches)
+        |
+        +--> POST /v1/agent/turns/complete (accepted + durable memory)
+        `--> POST /v1/agent/turns/fail     (rejected + no memory ingest)
+```
+
+Every request carries the same `namespace`, `scope`, and optional `session_id`
+partition. In principal mode the server additionally derives the caller's
+tenant boundary from the bearer credential. A valid turn handle from another
+principal or partition returns content-free `404`.
+
+#### `POST /v1/agent/turns/begin`
+
+```json
+{
+  "query": "What does the operator prefer?",
+  "namespace": "ghost",
+  "scope": "thread",
+  "session_id": "thread-42",
+  "limit": 8,
+  "graph_hops": 2,
+  "agent_id": "ghost",
+  "model": "gpt-5.6-terra",
+  "provider": "openai"
+}
+```
+
+The response contains an opaque `turn_id` and the same bounded public
+`memories` shape as recall. Internally, the service records one reasoned
+retrieval and its selected evidence; no candidates, ranking reasons, canonical
+record IDs, or graph nodes cross the public boundary.
+
+#### `POST /v1/agent/turns/actions`
+
+```json
+{
+  "namespace": "ghost",
+  "scope": "thread",
+  "session_id": "thread-42",
+  "turn_id": "opaque-turn-handle",
+  "attempts": [
+    {
+      "name": "read_file",
+      "request": "{\"path\":\"notes.txt\"}",
+      "output": "bounded raw tool result",
+      "ok": true,
+      "exit_code": 0,
+      "duration_ms": 4.5
+    }
+  ]
+}
+```
+
+At most 64 attempts are accepted per call. The server records a decision and a
+verification for each attempt, stores only the tool-result hash and length in
+the reasoning graph, and returns opaque `verification_ids` plus the subset of
+`passed_verification_ids`. Raw tool output is never returned. Adding actions
+after a terminal outcome returns `409`.
+
+A turn supports at most 64 tool verifications in total across all action
+batches. Attempt names are at most 128 characters, serialized requests at most
+500, and raw results at most 200,000. Ghost itself serializes tool arguments to
+at most 300 characters before this boundary.
+
+#### `POST /v1/agent/turns/complete`
+
+```json
+{
+  "namespace": "ghost",
+  "scope": "thread",
+  "session_id": "thread-42",
+  "turn_id": "opaque-turn-handle",
+  "user_input": "Remember that I prefer concise evidence.",
+  "assistant_output": "I will remember that preference."
+}
+```
+
+Completion compiles and persists the exchange through the canonical runtime,
+derives selected evidence and passed checks server-side, and accepts the
+outcome. The response contains `accepted`, an opaque `receipt_id`,
+`memory_count`, and `replayed`. Repeating an accepted completion is idempotent;
+attempting to complete a rejected turn returns `409`.
+
+#### `POST /v1/agent/turns/fail`
+
+```json
+{
+  "namespace": "ghost",
+  "scope": "thread",
+  "session_id": "thread-42",
+  "turn_id": "opaque-turn-handle",
+  "error_type": "RuntimeError"
+}
+```
+
+Failure accepts only a bounded error class name, marks the run rejected, and
+does not compile or ingest the failed exchange. Exception messages, tracebacks,
+provider payloads, and partial assistant output must never be sent. Repeating a
+terminal failure is idempotent.
 
 ### `POST /v1/memories/delete` (principal mode only)
 

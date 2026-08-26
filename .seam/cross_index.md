@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 670
+total_events: 671
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-17T19:11:22Z | history:412:626d3dcc | session-event | done | benchmark, locomo, exact-answer, negative-result, paid, p... | seam_runtime/conversation.py |
 | 2026-07-17T19:32:03Z | history:413:a74254d9 | session-event | done | benchmark, locomo, cat3, open-domain, inference, lever, h... | seam_runtime/conversation.py,seam_runtime/self_improve.py,tests/audit/test_se... |
 | 2026-07-17T19:52:56Z | history:414:96038f7d | session-event | planned | roadmap, benchmark, graph, memory, retrieval, comparator,... | ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md,docs/KNOWLEDGE_GRAPH.md |
 | 2026-07-17T19:55:01Z | history:415:4f266a98 | session-event | changed | roadmap, benchmark, graph, memory, retrieval, comparator,... | ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-25T00:16:08Z | history:605:68e6a04f | session-event | in-progress | config, continuity, handoff, retrieval, status, tests, ve... | PROJECT_STATUS.md,seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orc... |
 | 2026-08-25T05:46:37Z | history:606:3c7d00cf | session-event | in-progress | retrieval, fusion, graph, telemetry, migration, sqlite, s... | PROJECT_STATUS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/status/retr... |
 | 2026-08-25T14:03:36Z | history:607:695934a2 | session-event | done | retrieval, fusion, graph, telemetry, surfaces, status, co... | PROJECT_STATUS.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/20... |
+| 2026-08-26T02:23:26Z | history:608:47d3c72d | session-event | in-progress | api, ghost, http, reasoning, security, surfaces, tests, v... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/PUBLIC_SDK_API.md,docs/status/surfaces.... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0470.cross.md | 2026-04-15T00:00:00Z..2026-07-17T17:48:07Z | 470 | (multi) | (multi) |
+| 0001-0471.cross.md | 2026-04-15T00:00:00Z..2026-07-17T19:11:22Z | 471 | (multi) | (multi) |

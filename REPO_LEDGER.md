@@ -87,8 +87,9 @@ and `HISTORY_INDEX.md`.
   framework-neutral agent-memory hooks. It must not import, package, copy, or
   expose private runtime modules, MIRL/HS/1 implementation, storage, retrieval,
   graph, PACK, surface, or benchmark internals.
-- The stable protected-main public server boundary is `/v1/health`,
-  `/v1/memories`, `/v1/memories/recall`, and `/v1/context`. Public stateful
+- The stable public server boundary is `/v1/health`, `/v1/memories`,
+  `/v1/memories/recall`, `/v1/context`, and the opaque
+  `/v1/agent/turns/{begin,actions,complete,fail}` lifecycle. Public stateful
   calls use the existing bearer-token guard. Public namespaces are mapped
   under an SDK-only prefix with optional hashed session partitions, and
   responses use opaque receipts/IDs plus user-facing text rather than private
@@ -96,7 +97,14 @@ and `HISTORY_INDEX.md`.
   `/v1/memories/delete` and an optional in-process principal resolver. In
   principal mode, the subject derives the internal tenant/namespace boundary
   and legacy private data routes return 404; token-only mode remains a trusted
-  single-user gate and is not tenancy.
+  single-user gate and is not tenancy. Agent-turn routes preserve reasoned
+  retrieval, decision, verification, terminal outcome, and accepted-turn
+  ingest through the existing runtime while exposing only bounded text and
+  opaque handles. The service derives evidence and passed checks server-side,
+  stores tool-result hash/length rather than raw output in the reasoning graph,
+  rejects cross-boundary handles with content-free 404, and never ingests a
+  failed turn. They are additive server routes; their presence does not change
+  the frozen legacy repository or grant distribution rights to private code.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY

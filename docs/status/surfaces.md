@@ -94,6 +94,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   bounded cross-process lock. Fourteen findings across three exact-head Codex
   review cycles plus CodeRabbit lock hardening were repaired and qualified with
   185 focused tests before PR #223 merged.
+  - The branch-local Ghost integration candidate adds four opaque agent-turn
+    routes: begin, actions, complete, and fail. They preserve reasoned
+    retrieval, decision/verification, accepted-turn ingest, rejected-turn
+    non-ingest, idempotent terminal replay, and principal isolation through the
+    existing runtime. No MIRL records, graph rows, candidate ledgers, raw tool
+    output, or private identifiers enter responses. This is not protected-main
+    behavior until its PR passes required checks and merges.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime

@@ -9,6 +9,14 @@
 
 ## Current headline
 
+**Branch-local surface note:** `feat/ghost-api-parity` adds an opaque public
+agent-turn lifecycle for Ghost without distributing private SEAM code. Focused
+HTTP tests cover accepted completion and recall, rejected-turn non-ingest,
+cross-principal handle isolation, terminal replay idempotency, and refusal of
+post-terminal action writes. This remains candidate behavior until protected
+CI, review, and merge complete; it does not alter Track S stage or hosted-
+deployment claims.
+
 **2026-08-25 — protected `main@bb156e3` contains finished Track S S7 through
 merged PR #226, the chronological S8-next handoff through merged PR #227, and
 the S8 retrieval-coherence mechanism slice through merged PR #228.** S7 closes the
