@@ -101,6 +101,12 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
     existing runtime. No MIRL records, graph rows, candidate ledgers, raw tool
     output, or private identifiers enter responses. This is source publication,
     not proof of a compatible hosted endpoint or a public runtime release.
+  - A branch-local additive candidate extends that boundary with explicit
+    admit/reject/review decisions, principal/workspace/project/thread
+    partitioning, current/history memory views, visible lifecycle status, and
+    principal-only correction through replacement + `supersedes` + canonical
+    soft-delete. Focused provider-free tests pass locally; protected merge and
+    hosted qualification remain open.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime

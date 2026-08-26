@@ -34,6 +34,19 @@ MAX_TOOL_RESULT_CHARS = 200_000
 MAX_TURN_TEXT_CHARS = 100_000
 _NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _TURN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9:._-]{0,127}$")
+MEMORY_ADMISSION_DECISIONS = frozenset({"admit", "reject", "review"})
+MEMORY_ADMISSION_KINDS = frozenset(
+    {
+        "conversation",
+        "decision",
+        "event",
+        "none",
+        "preference",
+        "procedure",
+        "project_fact",
+        "task_state",
+    }
+)
 
 
 def begin_turn(
@@ -65,6 +78,7 @@ def begin_turn(
         budget=request.limit,
         mode="mix",
         graph_hops=graph_hops,
+        graph_include_history=request.view == "history",
     )
     memories = _public_memories(
         runtime,
@@ -81,6 +95,7 @@ def begin_turn(
         scope=request.scope,
         principal=principal,
         public_id_key=public_id_key,
+        register_handles=request.view == "current",
     )
     return {
         "api_version": PUBLIC_API_VERSION,
@@ -88,6 +103,9 @@ def begin_turn(
         "namespace": request.namespace,
         "scope": request.scope,
         "session_id": request.session_id,
+        "workspace": request.workspace,
+        "project": request.project,
+        "view": request.view,
         "memories": memories,
     }
 
@@ -203,6 +221,7 @@ def _complete_turn_locked(
             session.run_id,
             stored_count=stored_count,
             replayed=True,
+            admission=_stored_memory_admission(session),
         )
 
     user_input = _required_text(
@@ -213,24 +232,32 @@ def _complete_turn_locked(
         "assistant_output",
         maximum=MAX_TURN_TEXT_CHARS,
     )
+    admission = _parse_memory_admission(payload.get("memory_admission"))
+    admission_node = session.add_node(
+        "decision",
+        _memory_admission_summary(admission),
+        operation="memory_admission",
+    )
     source_digest = hashlib.sha256(
         f"public-agent-turn/1\0{session.run_id}".encode("utf-8")
     ).hexdigest()[:24]
     receipt_id = _agent_receipt_id(session.run_id)
-    batch = runtime.compile_nl(
-        f"User: {user_input}\nGhost: {assistant_output}",
-        source_ref=f"sdk://agent-turn/{source_digest}",
-        ns=session.ns,
-        scope=session.scope,
-        agent_id=session.agent_id if isinstance(session.agent_id, str) else None,
-        id_salt=session.ns if principal is not None else None,
-    )
-    if principal is not None:
-        generation = _public_memory_generation(receipt_id)
-        for record in batch.records:
-            record.ext[PUBLIC_MEMORY_GENERATION_EXTENSION] = generation
-    report = runtime.persist_ir(batch)
-    knowledge_refs = tuple(str(record_id) for record_id in report.stored_ids)
+    knowledge_refs: tuple[str, ...] = ()
+    if admission["decision"] == "admit":
+        batch = runtime.compile_nl(
+            f"User: {user_input}\nGhost: {assistant_output}",
+            source_ref=f"sdk://agent-turn/{source_digest}",
+            ns=session.ns,
+            scope=session.scope,
+            agent_id=session.agent_id if isinstance(session.agent_id, str) else None,
+            id_salt=session.ns if principal is not None else None,
+        )
+        if principal is not None:
+            generation = _public_memory_generation(receipt_id)
+            for record in batch.records:
+                record.ext[PUBLIC_MEMORY_GENERATION_EXTENSION] = generation
+        report = runtime.persist_ir(batch)
+        knowledge_refs = tuple(str(record_id) for record_id in report.stored_ids)
     evidence_refs = _selected_evidence_refs(session)
     passed_ids = tuple(
         str(item["verification_id"])
@@ -243,17 +270,20 @@ def _complete_turn_locked(
             verification_ids=passed_ids,
             evidence_refs=evidence_refs,
             knowledge_refs=knowledge_refs,
+            supporting_node_ids=(str(admission_node["node_id"]),),
         )
     else:
         session.finalize(
             "Ghost completed the user turn.",
             evidence_refs=evidence_refs,
             knowledge_refs=knowledge_refs,
+            supporting_node_ids=(str(admission_node["node_id"]),),
         )
     return _completion_receipt(
         session.run_id,
         stored_count=len(knowledge_refs),
         replayed=False,
+        admission=admission,
     )
 
 
@@ -349,7 +379,11 @@ def _terminal_outcome(session: ReasoningSession) -> dict[str, object] | None:
 
 
 def _completion_receipt(
-    turn_id: str, *, stored_count: int, replayed: bool
+    turn_id: str,
+    *,
+    stored_count: int,
+    replayed: bool,
+    admission: dict[str, str],
 ) -> dict[str, object]:
     return {
         "api_version": PUBLIC_API_VERSION,
@@ -357,8 +391,70 @@ def _completion_receipt(
         "accepted": True,
         "receipt_id": _agent_receipt_id(turn_id),
         "memory_count": stored_count,
+        "memory_admission": admission,
         "replayed": replayed,
     }
+
+
+def _parse_memory_admission(value: object) -> dict[str, str]:
+    if value is None:
+        return {
+            "decision": "admit",
+            "kind": "conversation",
+            "reason_code": "legacy_auto",
+        }
+    if not isinstance(value, dict):
+        raise PublicAPIInputError("memory_admission must be an object")
+    unknown = set(value) - {"decision", "kind", "reason_code"}
+    if unknown:
+        raise PublicAPIInputError(
+            "memory_admission contains unsupported fields: "
+            + ", ".join(sorted(unknown))
+        )
+    decision = _required_name(value.get("decision"), "memory_admission decision").lower()
+    kind = _required_name(value.get("kind"), "memory_admission kind").lower()
+    reason_code = _required_name(
+        value.get("reason_code"), "memory_admission reason_code"
+    ).lower()
+    if decision not in MEMORY_ADMISSION_DECISIONS:
+        raise PublicAPIInputError(
+            "memory_admission decision must be admit, reject, or review"
+        )
+    if kind not in MEMORY_ADMISSION_KINDS:
+        raise PublicAPIInputError(
+            "memory_admission kind must be conversation, decision, event, none, "
+            "preference, procedure, project_fact, or task_state"
+        )
+    if decision == "admit" and kind == "none":
+        raise PublicAPIInputError("admitted memory must have a durable kind")
+    if decision != "admit" and kind != "none":
+        raise PublicAPIInputError("rejected or review memory must use kind none")
+    return {"decision": decision, "kind": kind, "reason_code": reason_code}
+
+
+def _memory_admission_summary(admission: dict[str, str]) -> str:
+    return "memory_admission:{decision}:{kind}:{reason_code}".format(**admission)
+
+
+def _stored_memory_admission(session: ReasoningSession) -> dict[str, str]:
+    decisions = [
+        node
+        for node in session.graph().get("nodes") or []
+        if isinstance(node, dict)
+        and node.get("kind") == "decision"
+        and node.get("operation") == "memory_admission"
+    ]
+    if not decisions:
+        return {
+            "decision": "admit",
+            "kind": "conversation",
+            "reason_code": "legacy_auto",
+        }
+    summary = str(decisions[-1].get("summary") or "")
+    parts = summary.split(":", 3)
+    if len(parts) != 4 or parts[0] != "memory_admission":
+        raise RuntimeError("stored memory admission decision is malformed")
+    return {"decision": parts[1], "kind": parts[2], "reason_code": parts[3]}
 
 
 def _required_name(value: object, name: str) -> str:

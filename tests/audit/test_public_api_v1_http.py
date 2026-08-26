@@ -210,7 +210,7 @@ class TestPublicRecall:
             assert memory["id"].startswith("mem_")
             # Opaque: never a raw canonical record id.
             assert "::" not in memory["id"]
-            assert set(memory) == {"id", "text", "score", "created_at"}
+            assert set(memory) == {"id", "text", "score", "created_at", "status"}
         assert [m["id"] for m in first] == [m["id"] for m in second]
 
     def test_empty_store_returns_no_memories_not_an_error(self, client):
@@ -660,23 +660,23 @@ class TestPublicApiPrincipalTenancy:
         client, runtime, _db_path = principal_api
         seen: list[str | None] = []
         original_compile = runtime.compile_nl
-        original_search = runtime.search_ir
+        original_retrieve = runtime.retrieve
         original_plan_delete = runtime.plan_scoped_delete
 
         def capture_compile(*args, **kwargs):
             seen.append(kwargs.get("ns"))
             return original_compile(*args, **kwargs)
 
-        def capture_search(*args, **kwargs):
+        def capture_retrieve(*args, **kwargs):
             seen.append(kwargs.get("ns"))
-            return original_search(*args, **kwargs)
+            return original_retrieve(*args, **kwargs)
 
         def capture_delete(*args, **kwargs):
             seen.append(kwargs.get("namespace"))
             return original_plan_delete(*args, **kwargs)
 
         monkeypatch.setattr(runtime, "compile_nl", capture_compile)
-        monkeypatch.setattr(runtime, "search_ir", capture_search)
+        monkeypatch.setattr(runtime, "retrieve", capture_retrieve)
         monkeypatch.setattr(runtime, "plan_scoped_delete", capture_delete)
         headers = _principal_headers("a")
         client.post(
@@ -1612,3 +1612,157 @@ class TestPublicApiPrincipalTenancy:
                 assert response.json()["deletion_id"] == original_deletion_id
         finally:
             reopened.close()
+
+
+class TestPublicMemoryGovernance:
+    def test_workspace_project_and_thread_form_independent_boundaries(
+        self, principal_api
+    ):
+        client, _runtime, _db_path = principal_api
+        headers = _principal_headers("a")
+        first = {
+            "namespace": "ghost",
+            "scope": "thread",
+            "workspace": "canticle",
+            "project": "ghost",
+            "session_id": "thread-1",
+        }
+        second = {**first, "project": "seam", "session_id": "thread-2"}
+        assert client.post(
+            "/v1/memories",
+            json={"text": "The private boundary marker is violet harbor.", **first},
+            headers=headers,
+        ).status_code == 200
+
+        own = client.post(
+            "/v1/memories/recall",
+            json={"query": "violet harbor", **first},
+            headers=headers,
+        )
+        crossed = client.post(
+            "/v1/memories/recall",
+            json={"query": "violet harbor", **second},
+            headers=headers,
+        )
+        assert own.status_code == crossed.status_code == 200
+        assert own.json()["memories"]
+        assert crossed.json()["memories"] == []
+        assert own.json()["workspace"] == "canticle"
+        assert own.json()["project"] == "ghost"
+
+    def test_correction_is_additive_idempotent_and_history_is_explicit(
+        self, principal_api
+    ):
+        client, runtime, _db_path = principal_api
+        headers = _principal_headers("a")
+        dimensions = {
+            "namespace": "ghost",
+            "scope": "thread",
+            "workspace": "canticle",
+            "project": "ghost",
+            "session_id": "thread-correction",
+        }
+        old_text = "The deploy region is east ridge obsolete-marker."
+        new_text = "The deploy region is west ridge corrected-marker."
+        assert client.post(
+            "/v1/memories",
+            json={"text": old_text, **dimensions},
+            headers=headers,
+        ).status_code == 200
+        recalled = client.post(
+            "/v1/memories/recall",
+            json={"query": "east ridge obsolete-marker", **dimensions},
+            headers=headers,
+        ).json()["memories"]
+        old_handle = recalled[0]["id"]
+
+        payload = {
+            "memory_ids": [old_handle],
+            "text": new_text,
+            "idempotency_key": "correct-deploy-region-1",
+            **dimensions,
+        }
+        first = client.post(
+            "/v1/memories/correct", json=payload, headers=headers
+        )
+        replay = client.post(
+            "/v1/memories/correct", json=payload, headers=headers
+        )
+        assert first.status_code == replay.status_code == 200
+        assert first.json()["correction_id"] == replay.json()["correction_id"]
+        assert first.json()["receipt_id"] == replay.json()["receipt_id"]
+        assert first.json()["memory"]["id"] == replay.json()["memory"]["id"]
+        assert first.json()["memory"]["status"] == "observed"
+        correction_relations = [
+            record
+            for record in runtime.store.load_ir().records
+            if record.ext.get("public_correction_fingerprint")
+        ]
+        assert len(correction_relations) == 1
+        assert correction_relations[0].attrs["predicate"] == "supersedes"
+        assert correction_relations[0].ext["supersedes"]
+
+        conflict = client.post(
+            "/v1/memories/correct",
+            json={**payload, "text": "A different replacement."},
+            headers=headers,
+        )
+        assert conflict.status_code == 409
+
+        current = client.post(
+            "/v1/memories/recall",
+            json={"query": "deploy region ridge", "view": "current", **dimensions},
+            headers=headers,
+        ).json()["memories"]
+        history = client.post(
+            "/v1/memories/recall",
+            json={
+                "query": "east ridge obsolete-marker",
+                "view": "history",
+                **dimensions,
+            },
+            headers=headers,
+        ).json()["memories"]
+        assert any("west ridge" in item["text"].lower() for item in current)
+        assert not any("east ridge" in item["text"].lower() for item in current)
+        assert any(
+            "east ridge" in item["text"].lower()
+            and item["status"] == "deleted_soft"
+            for item in history
+        )
+
+    def test_correction_handle_cannot_cross_principal_or_boundary(self, principal_api):
+        client, _runtime, _db_path = principal_api
+        alice = _principal_headers("a")
+        bob = _principal_headers("b")
+        dimensions = {
+            "namespace": "ghost",
+            "scope": "thread",
+            "workspace": "canticle",
+            "project": "ghost",
+            "session_id": "thread-private",
+        }
+        client.post(
+            "/v1/memories",
+            json={"text": "Alice correction boundary marker.", **dimensions},
+            headers=alice,
+        )
+        handle = client.post(
+            "/v1/memories/recall",
+            json={"query": "Alice correction boundary marker", **dimensions},
+            headers=alice,
+        ).json()["memories"][0]["id"]
+        payload = {
+            "memory_ids": [handle],
+            "text": "Crossed replacement.",
+            "idempotency_key": "crossed-correction-1",
+            **dimensions,
+        }
+        assert client.post(
+            "/v1/memories/correct", json=payload, headers=bob
+        ).status_code == 404
+        assert client.post(
+            "/v1/memories/correct",
+            json={**payload, "session_id": "thread-other"},
+            headers=alice,
+        ).status_code == 404

@@ -19830,3 +19830,43 @@ handoff advances to
 `docs/handoffs/2026-08-25-ghost-public-agent-api-published.md`; Ghost PR #8 must
 still pass its own public-install and transport checks.
 ---END-ENTRY-#609---
+
+---BEGIN-ENTRY-#610---
+id: 610
+date: 2026-08-26T04:46:12Z
+agent: codex
+status: done
+topics: api, memory, security, tests, docs, handoff, history
+commits: working-tree
+refs: seam_runtime/public_api.py,seam_runtime/public_agent_api.py,seam_runtime/server.py,docs/PUBLIC_SDK_API.md,docs/handoffs/2026-08-25-ghost-memory-governance-locally-qualified.md
+supersedes: 609
+tokens: 403
+---
+Ghost deliberate-memory governance is locally qualified on an isolated branch
+based on current protected main. The public boundary now records explicit
+admit/reject/review decisions, persists only admitted turns, adds
+principal/workspace/project/thread isolation, exposes current or historical
+retrieval with lifecycle status, and corrects memory additively through a
+replacement, a provenance-bearing `supersedes` relation, and canonical soft
+deletion. Historical records remain visible for audit but cannot mint mutation
+handles.
+
+Verification: focused public-agent/public-memory HTTP suites passed;
+`PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest
+-q -m "not external" --deselect
+test_seam_all/test_cli_import_isolation.py::test_doctor_streams_resolves_repo_tools_from_console_script`
+passed; `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m ruff check
+.` passed; `python -m build --wheel` built `seam_runtime-2.4.0`; and `git diff
+--check` passed. The deselected test deliberately clears `PYTHONPATH` and uses
+the shared primary checkout, so it cannot address this linked worktree. An
+earlier unrestricted pytest attempt failed strict no-skip only because the
+local external pgvector DSN was absent; the supported non-external lane then
+passed. CodeRabbit review was rate-limited; bounded manual review repaired a
+history-only handle-registration defect and added its regression test.
+
+The stale dirty primary checkout and its duplicate local `HISTORY#605`, Cline
+stream roll, TUI work, ignored corpora, skills, and operator files were not
+edited, staged, cleaned, or renumbered. This event is canonical `HISTORY#610`,
+supersedes `HISTORY#609`, changes no Track S stage, and makes no memory-quality,
+package-release, or hosted-deployment claim.
+---END-ENTRY-#610---
