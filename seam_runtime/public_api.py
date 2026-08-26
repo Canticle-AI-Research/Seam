@@ -14,7 +14,7 @@ from .lifecycle import (
     LifecycleOperationPendingError,
     LifecycleStaleIncarnationError,
 )
-from .mirl import VALID_SCOPES, MIRLRecord, SearchCandidate
+from .mirl import VALID_SCOPES, IRBatch, MIRLRecord, RecordKind, SearchCandidate, Status
 from .public_memory_handles import (
     PUBLIC_MEMORY_GENERATION_EXTENSION,
     PublicMemoryHandleStaleError,
@@ -29,6 +29,7 @@ MAX_QUERY_CHARS = 4_096
 MAX_CONTEXT_CHARS = 65_536
 MAX_RECALL_LIMIT = 50
 MAX_DELETE_IDS = 50
+MEMORY_VIEWS = frozenset({"current", "history"})
 
 _DIMENSION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _MEMORY_ID_RE = re.compile(r"^mem_[0-9a-f]{24}$")
@@ -111,6 +112,9 @@ class PublicMemoryQuery:
     namespace: str
     scope: str
     session_id: str | None
+    workspace: str | None
+    project: str | None
+    view: str
     limit: int
     principal: PublicPrincipal | None
 
@@ -121,6 +125,8 @@ class PublicMemoryQuery:
             self.session_id,
             self.scope,
             principal=self.principal,
+            workspace=self.workspace,
+            project=self.project,
         )
 
 
@@ -172,6 +178,9 @@ def parse_memory_query(
     )
     scope = _validate_scope(payload.get("scope"))
     session_id = _validate_optional_dimension(payload.get("session_id"), "session_id")
+    workspace = _validate_optional_dimension(payload.get("workspace"), "workspace")
+    project = _validate_optional_dimension(payload.get("project"), "project")
+    view = _validate_memory_view(payload.get("view"))
     raw_limit = payload.get("limit", 5)
     if isinstance(raw_limit, bool):
         raise PublicAPIInputError("limit must be an integer")
@@ -188,6 +197,9 @@ def parse_memory_query(
         namespace=namespace,
         scope=scope,
         session_id=session_id,
+        workspace=workspace,
+        project=project,
+        view=view,
         limit=limit,
         principal=principal,
     )
@@ -205,6 +217,8 @@ def remember(
     )
     scope = _validate_scope(payload.get("scope"))
     session_id = _validate_optional_dimension(payload.get("session_id"), "session_id")
+    workspace = _validate_optional_dimension(payload.get("workspace"), "workspace")
+    project = _validate_optional_dimension(payload.get("project"), "project")
     agent_id = validate_agent_id(payload.get("agent_id"))
     receipt_id = f"rcpt_{uuid.uuid4().hex}"
     internal_namespace = _internal_namespace(
@@ -212,6 +226,8 @@ def remember(
         session_id,
         scope,
         principal=principal,
+        workspace=workspace,
+        project=project,
     )
     batch = runtime.compile_nl(
         text,
@@ -237,6 +253,8 @@ def remember(
         "namespace": namespace,
         "scope": scope,
         "session_id": session_id,
+        "workspace": workspace,
+        "project": project,
     }
 
 
@@ -248,21 +266,31 @@ def recall(
     public_id_key: bytes | None = None,
 ) -> dict[str, object]:
     request = parse_memory_query(payload, principal=principal)
-    result = runtime.search_ir(
+    result = runtime.retrieve(
         query=request.query,
         ns=request.internal_namespace,
         scope=request.scope,
         budget=request.limit,
         lens="general",
+        mode="mix",
+        graph_include_history=request.view == "history",
     )
     memories = _public_memories(
         runtime,
-        result.candidates,
+        [
+            SearchCandidate(
+                record=candidate.record,
+                score=candidate.score,
+                reasons=list(candidate.reasons),
+            )
+            for candidate in result.candidates
+        ],
         limit=request.limit,
         namespace=request.internal_namespace,
         scope=request.scope,
         principal=principal,
         public_id_key=public_id_key,
+        register_handles=request.view == "current",
     )
     return {
         "api_version": PUBLIC_API_VERSION,
@@ -270,6 +298,9 @@ def recall(
         "namespace": request.namespace,
         "scope": request.scope,
         "session_id": request.session_id,
+        "workspace": request.workspace,
+        "project": request.project,
+        "view": request.view,
         "memories": memories,
     }
 
@@ -294,21 +325,31 @@ def context(
             f"max_chars must be between 1 and {MAX_CONTEXT_CHARS}"
         )
 
-    result = runtime.search_ir(
+    result = runtime.retrieve(
         query=request.query,
         ns=request.internal_namespace,
         scope=request.scope,
         budget=request.limit,
         lens="general",
+        mode="mix",
+        graph_include_history=request.view == "history",
     )
     memories = _public_memories(
         runtime,
-        result.candidates,
+        [
+            SearchCandidate(
+                record=candidate.record,
+                score=candidate.score,
+                reasons=list(candidate.reasons),
+            )
+            for candidate in result.candidates
+        ],
         limit=request.limit,
         namespace=request.internal_namespace,
         scope=request.scope,
         principal=principal,
         public_id_key=public_id_key,
+        register_handles=request.view == "current",
     )
     lines: list[str] = []
     used = 0
@@ -331,6 +372,9 @@ def context(
         "namespace": request.namespace,
         "scope": request.scope,
         "session_id": request.session_id,
+        "workspace": request.workspace,
+        "project": request.project,
+        "view": request.view,
         "context": "\n".join(lines),
         "memories": memories,
     }
@@ -351,12 +395,16 @@ def delete(
     )
     scope = _validate_scope(payload.get("scope"))
     session_id = _validate_optional_dimension(payload.get("session_id"), "session_id")
+    workspace = _validate_optional_dimension(payload.get("workspace"), "workspace")
+    project = _validate_optional_dimension(payload.get("project"), "project")
     idempotency_key = _validate_idempotency_key(payload.get("idempotency_key"))
     internal_namespace = _internal_namespace(
         namespace,
         session_id,
         scope,
         principal=principal,
+        workspace=workspace,
+        project=project,
     )
     tenant_id = _tenant_id(principal)
     actor = _principal_actor(principal)
@@ -453,6 +501,161 @@ def delete(
         "namespace": namespace,
         "scope": scope,
         "session_id": session_id,
+        "workspace": workspace,
+        "project": project,
+    }
+
+
+def correct(
+    runtime: SeamRuntime,
+    payload: dict[str, object],
+    *,
+    principal: PublicPrincipal | None = None,
+    public_id_key: bytes | None = None,
+) -> dict[str, object]:
+    """Add a replacement, link it to history, then soft-delete the old memory."""
+
+    if principal is None:
+        raise PublicAPINotFoundError("memory not found")
+    memory_ids = _validate_memory_ids(payload.get("memory_ids"))
+    if len(memory_ids) != 1:
+        raise PublicAPIInputError("correction requires exactly one memory id")
+    replacement = validate_memory_text(payload.get("text"))
+    namespace = _validate_dimension(
+        payload.get("namespace"), "namespace", DEFAULT_NAMESPACE
+    )
+    scope = _validate_scope(payload.get("scope"))
+    session_id = _validate_optional_dimension(payload.get("session_id"), "session_id")
+    workspace = _validate_optional_dimension(payload.get("workspace"), "workspace")
+    project = _validate_optional_dimension(payload.get("project"), "project")
+    idempotency_key = _validate_idempotency_key(payload.get("idempotency_key"))
+    internal_namespace = _internal_namespace(
+        namespace,
+        session_id,
+        scope,
+        principal=principal,
+        workspace=workspace,
+        project=project,
+    )
+    fingerprint = _correction_fingerprint(
+        memory_id=memory_ids[0],
+        text=replacement,
+        namespace=internal_namespace,
+        scope=scope,
+        idempotency_key=idempotency_key,
+    )
+    operation_digest = hashlib.sha256(
+        json.dumps(
+            {
+                "contract": "principal-memory-correction-operation/1",
+                "idempotency_key": idempotency_key,
+                "namespace": internal_namespace,
+                "scope": scope,
+                "tenant_id": _tenant_id(principal),
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    relation_id = f"rel:public-correction:{operation_digest[:24]}"
+    receipt_id = f"rcpt_{operation_digest[:24]}"
+    delete_key = f"correction-delete-{hashlib.sha256(idempotency_key.encode()).hexdigest()[:24]}"
+
+    with runtime._persist_projection_lock:
+        existing = runtime.store.load_ir(ids=[relation_id]).by_id().get(relation_id)
+        representative_id: str
+        if existing is not None:
+            if existing.ext.get("public_correction_fingerprint") != fingerprint:
+                raise PublicAPIConflictError(
+                    "idempotency_key already names a different correction"
+                )
+            representative_id = str(existing.attrs.get("src") or "")
+        else:
+            resolved = _resolve_memory_ids(
+                runtime,
+                memory_ids,
+                namespace=internal_namespace,
+                scope=scope,
+                principal=principal,
+            )
+            old_record_id = resolved[0][0]
+            batch = runtime.compile_nl(
+                replacement,
+                source_ref=f"sdk://memory-correction/{fingerprint[:24]}",
+                ns=internal_namespace,
+                scope=scope,
+                id_salt=internal_namespace,
+            )
+            representative = next(
+                (record for record in batch.records if record.kind == RecordKind.RAW),
+                batch.records[0],
+            )
+            representative_id = representative.id
+            generation = _public_memory_generation(receipt_id)
+            for record in batch.records:
+                record.ext[PUBLIC_MEMORY_GENERATION_EXTENSION] = generation
+            relation = MIRLRecord(
+                id=relation_id,
+                kind=RecordKind.REL,
+                ns=internal_namespace,
+                scope=scope,
+                status=Status.ASSERTED,
+                conf=1.0,
+                prov=list(representative.prov),
+                evidence=[representative_id],
+                ext={
+                    PUBLIC_MEMORY_GENERATION_EXTENSION: generation,
+                    "public_correction_fingerprint": fingerprint,
+                    "supersedes": [old_record_id],
+                },
+                attrs={
+                    "src": representative_id,
+                    "predicate": "supersedes",
+                    "dst": old_record_id,
+                },
+            )
+            runtime.persist_ir(IRBatch([*batch.records, relation]))
+
+        deletion = delete(
+            runtime,
+            {
+                "memory_ids": list(memory_ids),
+                "namespace": namespace,
+                "scope": scope,
+                "session_id": session_id,
+                "workspace": workspace,
+                "project": project,
+                "idempotency_key": delete_key,
+            },
+            principal=principal,
+            public_id_key=public_id_key,
+        )
+        representative = runtime.store.load_ir(ids=[representative_id]).by_id().get(
+            representative_id
+        )
+        if representative is None:
+            raise RuntimeError("corrected memory is missing its replacement")
+        memories = _public_memories(
+            runtime,
+            [SearchCandidate(record=representative, score=1.0, reasons=["correction"])],
+            limit=1,
+            namespace=internal_namespace,
+            scope=scope,
+            principal=principal,
+            public_id_key=public_id_key,
+        )
+    return {
+        "api_version": PUBLIC_API_VERSION,
+        "accepted": True,
+        "correction_id": f"cor_{fingerprint[:24]}",
+        "receipt_id": receipt_id,
+        "status": deletion["status"],
+        "memory": memories[0],
+        "namespace": namespace,
+        "scope": scope,
+        "session_id": session_id,
+        "workspace": workspace,
+        "project": project,
     }
 
 
@@ -497,6 +700,17 @@ def _validate_scope(value: object) -> str:
     if resolved not in VALID_SCOPES:
         allowed = ", ".join(sorted(VALID_SCOPES))
         raise PublicAPIInputError(f"scope must be one of: {allowed}")
+    return resolved
+
+
+def _validate_memory_view(value: object) -> str:
+    if value is None:
+        return "current"
+    if not isinstance(value, str):
+        raise PublicAPIInputError("view must be a string")
+    resolved = value.strip().lower()
+    if resolved not in MEMORY_VIEWS:
+        raise PublicAPIInputError("view must be current or history")
     return resolved
 
 
@@ -551,9 +765,17 @@ def _internal_namespace(
     scope: str,
     *,
     principal: PublicPrincipal | None = None,
+    workspace: str | None = None,
+    project: str | None = None,
 ) -> str:
     if principal is None:
         resolved = f"sdk.{namespace}"
+        if workspace:
+            digest = hashlib.sha256(workspace.encode("utf-8")).hexdigest()[:16]
+            resolved = f"{resolved}.workspace-{digest}"
+        if project:
+            digest = hashlib.sha256(project.encode("utf-8")).hexdigest()[:16]
+            resolved = f"{resolved}.project-{digest}"
         if session_id:
             digest = hashlib.sha256(session_id.encode("utf-8")).hexdigest()[:16]
             resolved = f"{resolved}.session-{digest}"
@@ -563,13 +785,20 @@ def _internal_namespace(
     # delimiter ambiguity. The full digest keeps the internal namespace bounded
     # while preserving a 256-bit collision barrier; caller labels remain echoed
     # separately in public responses.
+    boundary: dict[str, object] = {
+        "contract": (
+            "principal-memory-boundary/2"
+            if workspace is not None or project is not None
+            else "principal-memory-boundary/1"
+        ),
+        "namespace": namespace,
+        "scope": scope,
+        "session_id": session_id,
+    }
+    if workspace is not None or project is not None:
+        boundary.update(workspace=workspace, project=project)
     boundary_material = json.dumps(
-        {
-            "contract": "principal-memory-boundary/1",
-            "namespace": namespace,
-            "scope": scope,
-            "session_id": session_id,
-        },
+        boundary,
         sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")
@@ -586,6 +815,7 @@ def _public_memories(
     scope: str,
     principal: PublicPrincipal | None = None,
     public_id_key: bytes | None = None,
+    register_handles: bool = True,
 ) -> list[dict[str, object]]:
     memories: list[dict[str, object]] = []
     handles: dict[str, tuple[str, str]] = {}
@@ -604,7 +834,7 @@ def _public_memories(
             public_id_key=public_id_key,
             generation=generation,
         )
-        if principal is not None:
+        if principal is not None and register_handles:
             if not isinstance(generation, str):
                 raise RuntimeError(
                     "principal memory record is missing its generation"
@@ -616,11 +846,12 @@ def _public_memories(
                 "text": text,
                 "score": round(float(candidate.score), 6),
                 "created_at": candidate.record.created_at,
+                "status": candidate.record.status.value,
             }
         )
         if len(memories) >= limit:
             break
-    if principal is not None:
+    if principal is not None and register_handles:
         try:
             runtime.register_public_memory_handles(
                 tenant_id=_tenant_id(principal),
@@ -720,6 +951,29 @@ def _delete_idempotency_context(memory_ids: tuple[str, ...]) -> str:
         {
             "contract": "principal-delete-idempotency/1",
             "memory_ids": sorted(memory_ids),
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(material).hexdigest()
+
+
+def _correction_fingerprint(
+    *,
+    memory_id: str,
+    text: str,
+    namespace: str,
+    scope: str,
+    idempotency_key: str,
+) -> str:
+    material = json.dumps(
+        {
+            "contract": "public-memory-correction/1",
+            "idempotency_key": idempotency_key,
+            "memory_id": memory_id,
+            "namespace": namespace,
+            "scope": scope,
+            "text_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
         },
         sort_keys=True,
         separators=(",", ":"),

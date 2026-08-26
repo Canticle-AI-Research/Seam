@@ -94,7 +94,7 @@ and `HISTORY_INDEX.md`.
   under an SDK-only prefix with optional hashed session partitions, and
   responses use opaque receipts/IDs plus user-facing text rather than private
   record shapes. Published Track S S6 adds
-  `/v1/memories/delete` and an optional in-process principal resolver. In
+  `/v1/memories/correct`, `/v1/memories/delete`, and an optional in-process principal resolver. In
   principal mode, the subject derives the internal tenant/namespace boundary
   and legacy private data routes return 404; token-only mode remains a trusted
   single-user gate and is not tenancy. Agent-turn routes preserve reasoned
@@ -107,6 +107,14 @@ and `HISTORY_INDEX.md`.
   the frozen legacy repository or grant distribution rights to private code.
   The route implementation is protected-main source through PR #231 at merge
   `9d29c24`; that fact does not claim a compatible hosted deployment.
+- Public memory admission is an explicit server-recorded decision. Agent-turn
+  completion accepts `admit`, `reject`, or `review`; only `admit` compiles
+  durable memory, while absent admission retains legacy auto-admit compatibility.
+  Workspace and project join principal/namespace/scope/session in the hashed
+  boundary. Correction is additive: it persists a replacement and
+  `supersedes` relation before applying the existing auditable soft-delete to
+  the old record. `current` retrieval excludes retired records; `history`
+  retrieval can show their status but never republishes a mutable handle.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY
@@ -755,7 +763,8 @@ and `HISTORY_INDEX.md`.
   its request budget.
 - Candidate principal-mode data routes are `POST /v1/memories`,
   `POST /v1/memories/recall`, `POST /v1/context`, and
-  `POST /v1/memories/delete`. Delete accepts only exact indexed, generation-
+  `POST /v1/memories/correct` plus `POST /v1/memories/delete`. Correction and
+  delete accept only exact indexed, generation-
   bound opaque handles inside the caller's derived tenant/namespace/scope and
   reuses the existing G6 lifecycle plan/apply and recoverable-cleanup contracts.
   Recall/context registration verifies the canonical generation in the same
@@ -770,7 +779,7 @@ and `HISTORY_INDEX.md`.
   canonical delete transaction; writes overlapping an active tenant-indexed
   scoped deletion refuse. Principal mode blocks disallowed route/method pairs
   before router matching, normalizes the ASGI `root_path`, and allows CORS
-  preflights for its four data routes.
+  preflights for its five data routes.
   Repaired-head exact CI and merge remain before this becomes protected-main
   behavior.
 - `/health` is unauthenticated for local service checks but still participates in the same rate limiter.

@@ -837,6 +837,7 @@ def create_app(
             "/v1/agent/turns/fail",
             "/v1/memories",
             "/v1/memories/recall",
+            "/v1/memories/correct",
             "/v1/memories/delete",
             "/v1/context",
         }
@@ -1157,6 +1158,34 @@ def create_app(
             raise HTTPException(status_code=404, detail="Turn not found") from exc
 
     if principal_mode:
+
+        @app.post(
+            "/v1/memories/correct",
+            summary="Correct an opaque memory via the public API",
+        )
+        def public_correct_memory(
+            payload: dict[str, object], principal: Any = Depends(guard)
+        ) -> dict[str, object]:
+            from .public_api import (
+                PublicAPIConflictError,
+                PublicAPIInputError,
+                PublicAPINotFoundError,
+                correct,
+            )
+
+            try:
+                return correct(
+                    runtime,
+                    payload,
+                    principal=principal,
+                    public_id_key=resolved_public_id_key,
+                )
+            except PublicAPIInputError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+            except PublicAPINotFoundError as exc:
+                raise HTTPException(status_code=404, detail="Memory not found") from exc
+            except PublicAPIConflictError as exc:
+                raise HTTPException(status_code=409, detail=str(exc)) from exc
 
         @app.post(
             "/v1/memories/delete",

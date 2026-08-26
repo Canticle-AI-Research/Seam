@@ -23,9 +23,10 @@ The public API exposes:
 - remember one text memory
 - recall text memories
 - assemble prompt-ready text context
+- correct caller-owned opaque memory handles in principal mode
 - delete caller-owned opaque memory handles in principal mode
 - open, annotate, complete, or reject a provenance-backed agent turn
-- agent, namespace, scope, and session partitioning
+- principal, workspace, project, namespace, scope, and session partitioning
 
 It does not expose:
 
@@ -68,6 +69,8 @@ configuration, including an unset/zero limit disabling rate limiting.
 
 - `namespace` identifies an agent or application.
 - `session_id` optionally isolates a conversation or run.
+- `workspace` optionally isolates an operator workspace.
+- `project` optionally isolates a project inside that workspace.
 - `scope` is semantic and must be one of `ephemeral`, `global`, `org`,
   `project`, `thread`, or `user`.
 
@@ -83,6 +86,8 @@ cannot use the public API to address arbitrary private runtime namespaces.
   "text": "The operator prefers evidence-backed answers.",
   "namespace": "research-agent",
   "scope": "thread",
+  "workspace": "canticle",
+  "project": "ghost",
   "session_id": "thread-42",
   "agent_id": "researcher"
 }
@@ -96,6 +101,8 @@ cannot use the public API to address arbitrary private runtime namespaces.
   "memory_count": 1,
   "namespace": "research-agent",
   "scope": "thread",
+  "workspace": "canticle",
+  "project": "ghost",
   "session_id": "thread-42"
 }
 ```
@@ -107,13 +114,18 @@ cannot use the public API to address arbitrary private runtime namespaces.
   "query": "answer style",
   "namespace": "research-agent",
   "scope": "thread",
+  "workspace": "canticle",
+  "project": "ghost",
   "session_id": "thread-42",
-  "limit": 5
+  "limit": 5,
+  "view": "current"
 }
 ```
 
 The response contains a `memories` list. Each item has an opaque `id`, public
-`text`, relevance `score`, and `created_at`. In principal mode, recall registers
+`text`, relevance `score`, `created_at`, and lifecycle `status`. `view` is
+`current` by default; `history` includes retained soft-deleted records and does
+not register their handles for mutation. In principal mode, current recall registers
 the returned opaque handles in the caller's exact tenant/namespace/scope before
 the response is sent. The registration is derived state, but it makes this API
 call a storage write even though canonical memory content is unchanged.
@@ -137,12 +149,12 @@ POST /v1/agent/turns/begin
         |
         +--> POST /v1/agent/turns/actions   (zero or more batches)
         |
-        +--> POST /v1/agent/turns/complete (accepted + durable memory)
+        +--> POST /v1/agent/turns/complete (accepted + admission decision)
         `--> POST /v1/agent/turns/fail     (rejected + no memory ingest)
 ```
 
-Every request carries the same `namespace`, `scope`, and optional `session_id`
-partition. In principal mode the server additionally derives the caller's
+Every request carries the same `workspace`, `project`, `namespace`, `scope`,
+and optional `session_id` partition. In principal mode the server additionally derives the caller's
 tenant boundary from the bearer credential. A valid turn handle from another
 principal or partition returns content-free `404`.
 
@@ -208,14 +220,23 @@ at most 300 characters before this boundary.
   "session_id": "thread-42",
   "turn_id": "opaque-turn-handle",
   "user_input": "Remember that I prefer concise evidence.",
-  "assistant_output": "I will remember that preference."
+  "assistant_output": "I will remember that preference.",
+  "memory_admission": {
+    "decision": "admit",
+    "kind": "preference",
+    "reason_code": "explicit_remember"
+  }
 }
 ```
 
-Completion compiles and persists the exchange through the canonical runtime,
-derives selected evidence and passed checks server-side, and accepts the
-outcome. The response contains `accepted`, an opaque `receipt_id`,
-`memory_count`, and `replayed`. Repeating an accepted completion is idempotent;
+Completion records one auditable admission decision and accepts the reasoning
+outcome. `admit` compiles and persists the exchange; `reject` and `review`
+finalize with `memory_count: 0`. Accepted durable kinds are `conversation`,
+`decision`, `event`, `preference`, `procedure`, `project_fact`, and
+`task_state`; non-admission uses `kind: none`. Omitting `memory_admission`
+preserves the legacy auto-admit contract for older clients. The response
+contains `accepted`, an opaque `receipt_id`, `memory_count`, the exact
+`memory_admission`, and `replayed`. Repeating an accepted completion is idempotent;
 attempting to complete a rejected turn returns `409`.
 
 #### `POST /v1/agent/turns/fail`
@@ -235,6 +256,30 @@ does not compile or ingest the failed exchange. Exception messages, tracebacks,
 provider payloads, and partial assistant output must never be sent. Repeating a
 terminal failure is idempotent.
 
+### `POST /v1/memories/correct` (principal mode only)
+
+```json
+{
+  "memory_ids": ["mem_..."],
+  "text": "The operator prefers concise, evidence-first answers.",
+  "namespace": "research-agent",
+  "scope": "thread",
+  "workspace": "canticle",
+  "project": "ghost",
+  "session_id": "thread-42",
+  "idempotency_key": "correct-answer-style-1"
+}
+```
+
+Correction accepts exactly one current opaque handle. It compiles the
+replacement, writes an additive `supersedes` relation, then uses the canonical
+soft-delete lifecycle on the replaced record. The response returns a stable
+`correction_id`, `receipt_id`, deletion status, and the replacement public
+memory item. An identical retry is idempotent; reusing the key for different
+content returns `409`; foreign, stale, or cross-boundary handles return the same
+content-free `404`. Historical recall retains the replaced record with
+`status: deleted_soft`.
+
 ### `POST /v1/memories/delete` (principal mode only)
 
 ```json
@@ -242,6 +287,8 @@ terminal failure is idempotent.
   "memory_ids": ["mem_..."],
   "namespace": "research-agent",
   "scope": "thread",
+  "workspace": "canticle",
+  "project": "ghost",
   "session_id": "thread-42",
   "idempotency_key": "delete-turn-42"
 }
@@ -278,7 +325,7 @@ version. Private implementation changes do not change the public contract.
 The service rejects non-string `text`, `query`, and partition values instead
 of coercing JSON objects, arrays, numbers, or booleans. Current limits are
 100,000 characters for memory text, 4,096 for a query, 128 for namespace,
-session, and agent identifiers, 50 recalled memories, and 65,536 characters
+workspace, project, session, and agent identifiers, 50 recalled memories, and 65,536 characters
 for assembled context. A `429` response includes `Retry-After: 60`.
 
 Principal mode requires a stable public-ID key of at least 32 bytes, supplied

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from seam_runtime.public_api import PublicPrincipal, StaticPrincipalResolver
@@ -244,5 +245,189 @@ def test_tool_verification_limit_applies_across_action_batches(tmp_path) -> None
                 ),
             )
             assert overflow.status_code == 409
+    finally:
+        runtime.close()
+
+
+@pytest.mark.parametrize(
+    ("decision", "reason_code"),
+    [("reject", "transient"), ("review", "unconfirmed_durable")],
+)
+def test_non_admission_completes_reasoning_without_storing_memory(
+    tmp_path, decision: str, reason_code: str
+) -> None:
+    runtime = SeamRuntime(tmp_path / "rejected-admission.db", allow_pgvector_env=False)
+    try:
+        with TestClient(create_app(runtime)) as client:
+            turn_id = _begin(client, query="transient weather chatter").json()["turn_id"]
+            completed = client.post(
+                "/v1/agent/turns/complete",
+                json=_dimensions(
+                    turn_id=turn_id,
+                    user_input="It is raining right now.",
+                    assistant_output="Take an umbrella.",
+                    memory_admission={
+                        "decision": decision,
+                        "kind": "none",
+                        "reason_code": reason_code,
+                    },
+                ),
+            )
+            assert completed.status_code == 200
+            assert completed.json()["memory_count"] == 0
+            assert completed.json()["memory_admission"] == {
+                "decision": decision,
+                "kind": "none",
+                "reason_code": reason_code,
+            }
+
+            replay = client.post(
+                "/v1/agent/turns/complete",
+                json=_dimensions(
+                    turn_id=turn_id,
+                    user_input="ignored on replay",
+                    assistant_output="ignored on replay",
+                ),
+            )
+            assert replay.status_code == 200
+            assert replay.json()["replayed"] is True
+            assert replay.json()["memory_admission"] == completed.json()[
+                "memory_admission"
+            ]
+            recalled = client.post(
+                "/v1/memories/recall",
+                json=_dimensions(query="raining umbrella", limit=8),
+            )
+            assert recalled.status_code == 200
+            assert recalled.json()["memories"] == []
+
+        graph = runtime.store.reasoning_graph(turn_id)
+        admission_nodes = [
+            node
+            for node in graph["nodes"]
+            if node["kind"] == "decision"
+            and node.get("operation") == "memory_admission"
+        ]
+        assert len(admission_nodes) == 1
+        outcomes = [node for node in graph["nodes"] if node["kind"] == "outcome"]
+        assert outcomes[-1]["status"] == "accepted"
+        assert any(
+            edge["src_node_id"] == admission_nodes[0]["node_id"]
+            and edge["dst_node_id"] == outcomes[-1]["node_id"]
+            and edge["relation"] == "supports"
+            for edge in graph["edges"]
+        )
+    finally:
+        runtime.close()
+
+
+def test_explicit_admission_stores_memory_and_invalid_combinations_fail(tmp_path) -> None:
+    runtime = SeamRuntime(tmp_path / "explicit-admission.db", allow_pgvector_env=False)
+    try:
+        with TestClient(create_app(runtime)) as client:
+            admitted_turn = _begin(client, query="operator preference").json()["turn_id"]
+            admitted = client.post(
+                "/v1/agent/turns/complete",
+                json=_dimensions(
+                    turn_id=admitted_turn,
+                    user_input="Remember that I prefer indigo terminals.",
+                    assistant_output="I will remember that preference.",
+                    memory_admission={
+                        "decision": "admit",
+                        "kind": "preference",
+                        "reason_code": "explicit_remember",
+                    },
+                ),
+            )
+            assert admitted.status_code == 200
+            assert admitted.json()["memory_count"] > 0
+
+            invalid_turn = _begin(client, query="invalid admission").json()["turn_id"]
+            invalid = client.post(
+                "/v1/agent/turns/complete",
+                json=_dimensions(
+                    turn_id=invalid_turn,
+                    user_input="Do not store this.",
+                    assistant_output="Understood.",
+                    memory_admission={
+                        "decision": "reject",
+                        "kind": "preference",
+                        "reason_code": "not_allowed",
+                    },
+                ),
+            )
+            assert invalid.status_code == 400
+            graph = runtime.store.reasoning_graph(invalid_turn)
+            assert not any(node["kind"] == "outcome" for node in graph["nodes"])
+    finally:
+        runtime.close()
+
+
+def test_history_begin_does_not_publish_mutation_handles(tmp_path) -> None:
+    runtime = SeamRuntime(tmp_path / "history-turn.db", allow_pgvector_env=False)
+    app = create_app(
+        runtime,
+        principal_resolver=StaticPrincipalResolver(
+            {"alice-token": PublicPrincipal("alice")}
+        ),
+        public_id_key=b"history-agent-turn-test-key-32-bytes",
+        process_workers=1,
+    )
+    headers = {"Authorization": "Bearer alice-token"}
+    dimensions = _dimensions(workspace="workspace-1", project="project-1")
+    try:
+        with TestClient(app) as client:
+            stored = client.post(
+                "/v1/memories",
+                json={"text": "The history marker is amber quartz.", **dimensions},
+                headers=headers,
+            )
+            assert stored.status_code == 200
+            current = client.post(
+                "/v1/memories/recall",
+                json={"query": "amber quartz", **dimensions},
+                headers=headers,
+            )
+            memory_id = current.json()["memories"][0]["id"]
+            deleted = client.post(
+                "/v1/memories/delete",
+                json={
+                    "memory_ids": [memory_id],
+                    "idempotency_key": "delete-history-agent-marker",
+                    **dimensions,
+                },
+                headers=headers,
+            )
+            assert deleted.status_code == 200
+
+            historical = client.post(
+                "/v1/agent/turns/begin",
+                json={
+                    "query": "amber quartz",
+                    "limit": 8,
+                    "graph_hops": 1,
+                    "agent_id": "ghost",
+                    "view": "history",
+                    **dimensions,
+                },
+                headers=headers,
+            )
+            assert historical.status_code == 200
+            old = next(
+                item
+                for item in historical.json()["memories"]
+                if "amber quartz" in item["text"].lower()
+                and item["status"] == "deleted_soft"
+            )
+            mutation = client.post(
+                "/v1/memories/delete",
+                json={
+                    "memory_ids": [old["id"]],
+                    "idempotency_key": "delete-history-only-handle",
+                    **dimensions,
+                },
+                headers=headers,
+            )
+            assert mutation.status_code == 404
     finally:
         runtime.close()
