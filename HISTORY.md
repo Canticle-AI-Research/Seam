@@ -19797,3 +19797,36 @@ surface is branch-local until exact-head required CI/review and protected merge.
 It does not change Track S stage, publish a runtime/client, or establish a
 hosted deployment.
 ---END-ENTRY-#608---
+
+---BEGIN-ENTRY-#609---
+id: 609
+date: 2026-08-26T02:44:42Z
+agent: Codex
+status: done
+topics: api, ghost, http, reasoning, security, surfaces, tests, verify, continuity, handoff, ci, status
+commits: 9d29c24429431ab036bfc4981358055a475ac3b7
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/PUBLIC_SDK_API.md,docs/status/surfaces.md,docs/handoffs/2026-08-25-ghost-public-agent-api-locally-qualified.md,docs/handoffs/2026-08-25-ghost-public-agent-api-published.md,docs/handoffs/INDEX.md,PR#231
+supersedes: 608
+tokens: 302
+---
+PR #231 published the opaque Ghost agent-turn lifecycle through protected
+`main@9d29c24429431ab036bfc4981358055a475ac3b7`. Its exact source head
+`40562b36e7922b7bc63db2856b5183281a2a69f7` passed all seven hosted jobs before
+merge: `repo-hygiene`, `chroma-real-smoke`, `locomo-quickstart-bil2`,
+`pgvector-integration`, `package-smoke`, `registry-plan`, and
+`test-and-benchmark`.
+
+Protected main now owns the additive begin/actions/complete/fail boundary. The
+service derives retrieval, decisions, verification evidence, persistence, and
+terminal outcomes internally while returning only bounded text, opaque handles,
+and receipts. Cross-principal and cross-session handles remain content-free 404;
+failed turns do not ingest; terminal replay is idempotent; and the cumulative
+verification bound is enforced across batches.
+
+This is source/API publication only. It does not publish the private runtime,
+release a package, prove a compatible hosted endpoint, run a provider or paid
+benchmark, alter Track S stage, or authorize deployment claims. The live
+handoff advances to
+`docs/handoffs/2026-08-25-ghost-public-agent-api-published.md`; Ghost PR #8 must
+still pass its own public-install and transport checks.
+---END-ENTRY-#609---

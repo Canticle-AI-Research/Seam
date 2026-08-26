@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-08-25-ghost-public-agent-api-locally-qualified
+latest: 2026-08-25-ghost-public-agent-api-published
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-08-25-ghost-public-agent-api-locally-qualified` | [2026-08-25-ghost-public-agent-api-locally-qualified.md](2026-08-25-ghost-public-agent-api-locally-qualified.md) | `2026-08-25-track-s-s8-slice-published` | `HISTORY#608` | `current` |
+| `2026-08-25-ghost-public-agent-api-published` | [2026-08-25-ghost-public-agent-api-published.md](2026-08-25-ghost-public-agent-api-published.md) | `2026-08-25-ghost-public-agent-api-locally-qualified` | `HISTORY#609` | `current` |
+| `2026-08-25-ghost-public-agent-api-locally-qualified` | [2026-08-25-ghost-public-agent-api-locally-qualified.md](2026-08-25-ghost-public-agent-api-locally-qualified.md) | `2026-08-25-track-s-s8-slice-published` | `HISTORY#608` | `superseded` |
 | `2026-08-25-track-s-s8-slice-published` | [2026-08-25-track-s-s8-slice-published.md](2026-08-25-track-s-s8-slice-published.md) | `2026-08-25-track-s-s8-retrieval-coherence-review-repaired` | `HISTORY#607` | `superseded` |
 | `2026-08-25-track-s-s8-retrieval-coherence-review-repaired` | [2026-08-25-track-s-s8-retrieval-coherence-review-repaired.md](2026-08-25-track-s-s8-retrieval-coherence-review-repaired.md) | `2026-08-25-track-s-s8-retrieval-coherence-in-progress` | `HISTORY#606` | `superseded` |
 | `2026-08-25-track-s-s8-retrieval-coherence-in-progress` | [2026-08-25-track-s-s8-retrieval-coherence-in-progress.md](2026-08-25-track-s-s8-retrieval-coherence-in-progress.md) | `2026-08-24-track-s-s7-merged-s8-next` | `HISTORY#605` | `superseded` |

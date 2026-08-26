@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-08-22
+Last updated: 2026-08-25
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -105,6 +105,8 @@ and `HISTORY_INDEX.md`.
   rejects cross-boundary handles with content-free 404, and never ingests a
   failed turn. They are additive server routes; their presence does not change
   the frozen legacy repository or grant distribution rights to private code.
+  The route implementation is protected-main source through PR #231 at merge
+  `9d29c24`; that fact does not claim a compatible hosted deployment.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY
