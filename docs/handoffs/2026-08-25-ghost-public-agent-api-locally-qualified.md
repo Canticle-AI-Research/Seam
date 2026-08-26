@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-25-ghost-public-agent-api-locally-qualified
 supersedes: 2026-08-25-track-s-s8-slice-published
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#608
 ---
 
