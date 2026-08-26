@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 673
+total_events: 674
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-17T19:55:01Z | history:415:4f266a98 | session-event | changed | roadmap, benchmark, graph, memory, retrieval, comparator,... | ROADMAP.md,PROJECT_STATUS.md,benchmarks/RESULTS.md |
 | 2026-07-17T20:50:51Z | history:416:2c227cbc | session-event | done | benchmark, locomo, memory, retrieval, pack, provenance, q... | seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/exte... |
 | 2026-07-18T01:03:48Z | history:417:5760e59a | session-event | done | benchmark, locomo, memory, retrieval, quality, test, hand... | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
 | 2026-07-18T04:00:00Z | history:418:caca6117 | session-event | done | roadmap, docs, agent, memory |  |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-26T02:23:26Z | history:608:47d3c72d | session-event | in-progress | api, ghost, http, reasoning, security, surfaces, tests, v... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/PUBLIC_SDK_API.md,docs/status/surfaces.... |
 | 2026-08-26T02:44:42Z | history:609:5bce8e1b | session-event | done | api, ghost, http, reasoning, security, surfaces, tests, v... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/PUBLIC_SDK_API.md,docs/status/surfaces.... |
 | 2026-08-26T04:46:12Z | history:610:24bafb1c | session-event | done | api, memory, security, tests, docs, handoff, history | seam_runtime/public_api.py,seam_runtime/public_agent_api.py,seam_runtime/serv... |
+| 2026-08-26T05:06:01Z | history:611:f93e5b6f | session-event | done | api, memory, ci, security, docs, handoff, history | https://github.com/Canticle-AI-Research/Seam/pull/233,docs/handoffs/2026-08-2... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0473.cross.md | 2026-04-15T00:00:00Z..2026-07-17T19:52:56Z | 473 | (multi) | (multi) |
+| 0001-0474.cross.md | 2026-04-15T00:00:00Z..2026-07-17T19:55:01Z | 474 | (multi) | (multi) |

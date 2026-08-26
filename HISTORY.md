@@ -19870,3 +19870,35 @@ edited, staged, cleaned, or renumbered. This event is canonical `HISTORY#610`,
 supersedes `HISTORY#609`, changes no Track S stage, and makes no memory-quality,
 package-release, or hosted-deployment claim.
 ---END-ENTRY-#610---
+
+---BEGIN-ENTRY-#611---
+id: 611
+date: 2026-08-26T05:06:01Z
+agent: codex
+status: done
+topics: api, memory, ci, security, docs, handoff, history
+commits: 0b0724407f05e07d98001ac1f4fcb401ba7fe2fe
+refs: https://github.com/Canticle-AI-Research/Seam/pull/233,docs/handoffs/2026-08-26-ghost-memory-governance-published.md,PROJECT_STATUS.md
+supersedes: 610
+tokens: 299
+---
+PR #233 published Ghost deliberate-memory governance to protected SEAM main.
+Exact source `f8a14864ff430cf9dcec230967e30b53f0360aa9` merged as
+`0b0724407f05e07d98001ac1f4fcb401ba7fe2fe`. Exact-head runs `32931607726`
+and `32931607783` passed all seven hosted jobs: `repo-hygiene`,
+`chroma-real-smoke`, `locomo-quickstart-bil2`, `pgvector-integration`,
+`package-smoke`, `registry-plan`, and `test-and-benchmark`.
+
+Protected source now records explicit admit/reject/review decisions, persists
+only admitted turns, separates principal/workspace/project/namespace/scope/
+thread boundaries, exposes current and historical lifecycle status, and
+corrects memory additively through a replacement, a provenance-bearing
+`supersedes` relation, and canonical soft deletion. History-only IDs cannot be
+registered as mutation handles.
+
+This is source publication only. It changes no Track S stage and makes no
+memory-quality, package-release, or hosted-deployment claim. The stale dirty
+primary checkout, Cline's duplicate local `HISTORY#605`, TUI and licensing WIP,
+ignored corpora, skills, and operator files remain untouched. This publication
+event supersedes `HISTORY#610` and advances the linear handoff chain.
+---END-ENTRY-#611---

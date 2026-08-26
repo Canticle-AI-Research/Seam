@@ -9,14 +9,14 @@
 
 ## Current headline
 
-**2026-08-25 — branch-local deliberate-memory governance candidate.** The
-public boundary now supports explicit admit/reject/review decisions, additive
-correction and supersession, current/history views, lifecycle status, and
-principal/workspace/project/thread isolation. Focused provider-free HTTP tests
-cover rejection without ingest, admission replay, correction idempotency and
-conflict, history retention, and cross-boundary denial. This remains local
-until exact-head review, protected merge, and successor closeout; it changes no
-Track S stage and makes no memory-quality or hosted-deployment claim.
+**2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance
+for Ghost through PR #233.** The exact source head `f8a1486` passed all seven
+hosted jobs in runs `32931607726` and `32931607783`. The public boundary now
+records explicit admit/reject/review decisions, persists only admitted turns,
+isolates principal/workspace/project/thread state, exposes current/history
+views with lifecycle status, and corrects caller-owned memory additively with a
+`supersedes` relation plus canonical soft deletion. This changes no Track S
+stage and makes no memory-quality, package-release, or hosted-deployment claim.
 
 **2026-08-25 — protected `main@9d29c24` publishes the opaque public agent-turn
 lifecycle for Ghost through PR #231 without distributing private SEAM code.**

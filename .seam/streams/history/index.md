@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 610
-total_tokens: ~310943
-latest_id: 610
+total_entries: 611
+total_tokens: ~311242
+latest_id: 611
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 611 | 2026-08-26 | done | f93e5b6f42d1ace3 | api,memory,ci,security,+ | 610 |
 | 610 | 2026-08-26 | done | 24bafb1c9cdec97b | api,memory,security,tests,+ | 609 |
 | 609 | 2026-08-26 | done | 5bce8e1b0baa8726 | api,ghost,http,reasoning,+ | 608 |
 | 608 | 2026-08-26 | in-progress | 47d3c72dc311562d | api,ghost,http,reasoning,+ | 607 |
@@ -637,7 +638,7 @@ compact: true
 - animation: count=7 latest=#549, #544, #543, #068, #052
 - answer-contract: count=1 latest=#408
 - answerer: count=8 latest=#381, #368, #367, #365, #333
-- api: count=5 latest=#610, #609, #608, #541, #535
+- api: count=6 latest=#611, #610, #609, #608, #541
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=10 latest=#602, #588, #579, #530, #529
@@ -664,7 +665,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=65 latest=#609, #607, #604, #598, #597
+- ci: count=66 latest=#611, #609, #607, #604, #598
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -717,7 +718,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=87 latest=#610, #598, #594, #593, #588
+- docs: count=88 latest=#611, #610, #598, #594, #593
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -758,11 +759,11 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=100 latest=#610, #609, #608, #607, #606
+- handoff: count=101 latest=#611, #610, #609, #608, #607
 - harden: count=8 latest=#594, #593, #592, #575, #574
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=317 latest=#610, #600, #596, #587, #582
+- history: count=318 latest=#611, #610, #600, #596, #587
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
@@ -806,7 +807,7 @@ compact: true
 - measurement: count=2 latest=#459, #369
 - mem0: count=13 latest=#538, #410, #395, #394, #393
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
-- memory: count=29 latest=#610, #543, #494, #466, #465
+- memory: count=30 latest=#611, #610, #543, #494, #466
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - migration: count=3 latest=#606, #575, #574
@@ -905,7 +906,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=103 latest=#610, #609, #608, #597, #595
+- security: count=104 latest=#611, #610, #609, #608, #597
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -974,6 +975,6 @@ compact: true
 
 - roots: 86
 - changed: 57
-- done: 518
+- done: 519
 - in-progress: 14
 - planned: 21
