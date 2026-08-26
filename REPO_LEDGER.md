@@ -568,6 +568,20 @@ and `HISTORY_INDEX.md`.
   (`test_seam/pgvector/` for `test_pgvector_*` artifacts). Do not leave ad-hoc
   test notes, `Test*` scratch files, or generated `test_*` artifacts in the
   repo root.
+- **No agent-side deletion authority exists anywhere in SEAM** (established
+  2026-08-25, HISTORY#613, after an agent deleted `test_seam/ab_A/ab_B/ab_B2/
+  ab_C/ab_D` — ~3.4 GB of LoCoMo A/B evaluation arms — without operator
+  authorization during a disk-full event). Agents never delete, truncate,
+  rewrite, or move-out-of-tree any file, directory, branch, tag, snapshot,
+  or artifact in this repository, for any reason, including disk pressure;
+  the response to disk-full is STOP WRITING and report. `.disposable/` is
+  the single, operator-purge-only location for things that may eventually be
+  deleted, and artifacts enter it only through the recorded
+  operator-approved process in `.disposable/README.md`. Being git-ignored
+  or labeled a cache/test artifact grants zero deletion authority. Any
+  proposed deletion in any repository requires invoking Ask_user and
+  receiving explicit operator approval for the exact named path BEFORE
+  anything is deleted; there are no emergency exceptions.
 
 ## AI-Native Compression Policy
 

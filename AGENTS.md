@@ -157,6 +157,23 @@ Bounded reading protocol that keeps session-start cost flat as the repo grows. T
 
 ## Security Rules
 
+- **NEVER DELETE ANYTHING in this repository.** There is no agent-side
+  deletion authority anywhere in SEAM. Git-ignored status, cache labels,
+  "disposable"/"regenerable" inferences, and disk pressure grant none.
+  `.disposable/` is the ONLY location anything may ever be deleted from,
+  and only the operator deletes from it; artifacts enter it only through
+  the recorded operator-approved process in `.disposable/README.md`
+  (established 2026-08-25 after an agent destroyed A/B evaluation arms —
+  see HISTORY#613). On disk-full or truncation risk: STOP WRITING and
+  report to the operator. Deleting or moving repo content to "fix" disk
+  space is the exact failure HISTORY#613 records.
+- **If a deletion is ever genuinely proposed, the agent MUST invoke
+  Ask_user and obtain explicit operator approval for the exact named path
+  BEFORE deleting anything in any repo.** Approval is scoped to the named
+  path and that action only. Silence, inference, prior permissions, or
+  emergency conditions (disk-full, truncation risk) are never approval.
+  The correct action under pressure is Ask_user or STOP — never a
+  unilateral delete.
 - Never commit API keys, passwords, tokens, private keys, local `.env` values, provider session links, chat/share links, thread links, or local agent transcript links.
 - Do not put Claude/Codex/ChatGPT session URLs or generated conversation links in commit messages, `HISTORY.md`, snapshots, handoffs, docs, or comments. Summarize the useful state and point to repo files instead.
 - Use placeholders such as `<local-password>` only in examples; real values must live in ignored local files or the operator environment.
@@ -165,7 +182,8 @@ Bounded reading protocol that keeps session-start cost flat as the repo grows. T
 
 ## Invariants
 
-- `HISTORY.md` is append-only.
+- `HISTORY.md` is append-only. No entry is ever edited, rewritten, or removed — including entries that record failures. Every mistake is recorded, never erased.
+- Nothing is ever deleted by an agent anywhere in the repository. `.disposable/` is the only deletable location and is operator-purge-only.
 - `HISTORY_INDEX.md` is derived state.
 - Snapshot integrity must be verified before use.
 - Status updates never edit old entries; use `supersedes`.

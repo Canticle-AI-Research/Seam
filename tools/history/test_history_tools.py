@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from tools.history import history_lib
 from tools.history import new_entry as new_entry_module
+from tools.history.audit_latest import audit_latest_entry
 from tools.history.build_context_pack import build_context_pack
 from tools.history.history_lib import (
     compute_entry_hash,
@@ -896,6 +897,92 @@ class TestVerifyRouting(TempRepoBase):
         ok, errs = verify_routing(manifest, repo_root=self.root, history_path=self.history)
         self.assertFalse(ok)
         self.assertTrue(any("missing HISTORY#999" in err for err in errs))
+
+
+def audit_entries(
+    *,
+    latest_topics: str = "verify,tests",
+    latest_date: str = "2026-08-24T12:00:00Z",
+    latest_supersedes: str = "001",
+    prev_date: str = "2026-08-23T12:00:00Z",
+) -> list:
+    """Two-entry HISTORY fixture for latest-entry audits (in-vocab topics, ordered dates)."""
+    return parse_entries(
+        (
+            format_entry(
+                id=1,
+                date=prev_date,
+                agent="test",
+                status="done",
+                topics=["verify"],
+                commits="none",
+                refs="none",
+                supersedes="none",
+                tokens=10,
+                body="Predecessor body.",
+            )
+            + "\n\n"
+            + format_entry(
+                id=2,
+                date=latest_date,
+                agent="test",
+                status="done",
+                topics=latest_topics.split(","),
+                commits="none",
+                refs="none",
+                supersedes=latest_supersedes,
+                tokens=10,
+                body="Latest body.",
+            )
+        ).encode("utf-8")
+    )
+
+
+class TestAuditLatestEntryTopics(unittest.TestCase):
+    def test_out_of_vocabulary_topic_is_flagged(self):
+        entries = audit_entries(latest_topics="verify,bogus-topic")
+        issues = audit_latest_entry(entries)
+        self.assertEqual([i.kind for i in issues], ["topic"])
+        self.assertIn("bogus-topic", issues[0].message)
+
+    def test_controlled_vocabulary_topics_pass(self):
+        entries = audit_entries(latest_topics="verify,tests,continuity")
+        self.assertEqual(audit_latest_entry(entries), [])
+
+
+class TestAuditLatestEntryDates(unittest.TestCase):
+    def test_non_iso_date_is_flagged(self):
+        entries = audit_entries(latest_date="Aug 24 2026")
+        issues = audit_latest_entry(entries)
+        self.assertEqual([i.kind for i in issues], ["date"])
+        self.assertIn("Aug 24 2026", issues[0].message)
+
+    def test_date_before_predecessor_is_flagged(self):
+        entries = audit_entries(
+            latest_date="2026-08-22T12:00:00Z",
+            prev_date="2026-08-23T12:00:00Z",
+        )
+        issues = audit_latest_entry(entries)
+        self.assertEqual([i.kind for i in issues], ["date"])
+        self.assertIn("predecessor", issues[0].message)
+
+
+class TestAuditLatestEntrySupersedes(unittest.TestCase):
+    def test_supersedes_pointing_at_missing_entry_is_flagged(self):
+        entries = audit_entries(latest_supersedes="999")
+        issues = audit_latest_entry(entries)
+        self.assertEqual([i.kind for i in issues], ["supersedes"])
+        self.assertIn("999", issues[0].message)
+
+    def test_supersedes_pointing_at_self_is_flagged(self):
+        entries = audit_entries(latest_supersedes="002")
+        issues = audit_latest_entry(entries)
+        self.assertEqual([i.kind for i in issues], ["supersedes"])
+        self.assertIn("earlier", issues[0].message)
+
+    def test_supersedes_none_passes(self):
+        entries = audit_entries(latest_supersedes="none")
+        self.assertEqual(audit_latest_entry(entries), [])
 
 
 if __name__ == "__main__":

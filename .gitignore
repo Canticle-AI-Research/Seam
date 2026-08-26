@@ -101,3 +101,7 @@ benchmarks/runs/locomo/*.json
 benchmarks/runs/records/
 # Local durable benchmark dataset copies (redundant with the in-repo committed copy; do not double-commit)
 .dataset_store/
+# .disposable/ — the ONLY location in this repository from which anything
+# may ever be deleted, and only by the operator. Agents never delete here.
+.disposable/*
+!/.disposable/README.md
