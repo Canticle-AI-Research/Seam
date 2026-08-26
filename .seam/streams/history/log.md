@@ -19752,3 +19752,48 @@ Two assigned S8 items stay open and are recorded rather than silently closed. Th
 
 Repository bookkeeping performed alongside this publication: the `origin` remote was repointed from the redirecting `BlackhatShiftey/Seam` path to the canonical `Canticle-AI-Research/Seam`, and the local `main` branch was fast-forwarded from `48c5448` to protected main with no divergence. A stale local `seam.db` dated 2026-08-19, missing the `public_memory_handle.generation` column, was found to fail nine `test_seam_all` CLI cases because `seam doctor` opens it by default; it predates this work, is unrelated to this diff, and CI checkouts carry no such file. It was preserved under an ignored name rather than deleted, and a valid database regenerated in its place. One open high-severity Dependabot alert remains for `nanoid` in `archive/webui-vite-source/package-lock.json`, which is archived source rather than shipped code.
 ---END-ENTRY-#607---
+
+---BEGIN-ENTRY-#608---
+id: 608
+date: 2026-08-26T02:23:26Z
+agent: Codex
+status: in-progress
+topics: api, ghost, http, reasoning, security, surfaces, tests, verify, continuity, handoff
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/PUBLIC_SDK_API.md,docs/status/surfaces.md,seam_runtime/server.py,seam_runtime/public_agent_api.py,tests/audit/test_public_agent_turn_api.py,docs/handoffs/2026-08-25-ghost-public-agent-api-locally-qualified.md,docs/handoffs/INDEX.md
+supersedes: 607
+tokens: 422
+---
+Added a reasoning-preserving opaque public agent-turn lifecycle for Ghost on
+`feat/ghost-api-parity`, based exactly on protected
+`origin/main@bc6b927e6fbc3cbef7db505e1af0929a6cf839f2`. Four additive routes
+open reasoned retrieval, record bounded tool decisions/verifications, complete
+accepted turns through canonical compile/persist/finalize, and reject failed
+turns without ingest. Public responses expose bounded text and opaque handles,
+not MIRL records, graph rows, candidate ledgers, canonical IDs, or raw tool
+output.
+
+Principal, namespace, scope, and optional session isolation reuse the public
+boundary parser; foreign handles return content-free 404. Terminal mutation is
+serialized by the runtime write/projection lock. Completion and failure replay
+idempotently, actions after a terminal outcome conflict, accepted replay
+retains its durable memory count, and the existing verified-outcome maximum of
+64 checks is enforced cumulatively across action batches. Tool result text is
+preserved exactly until the existing SDK hashes it, while non-finite duration
+values fail input validation.
+
+The adjacent public API, principal authorization/rate-limit, reasoning graph,
+and bind-safety slice passed 165 tests with no skips; changed-path Ruff and
+`git diff --check` passed. CodeRabbit returned four findings. Durable replay
+count and cumulative verification bounds were repaired. The 500-character
+request limit was documented because Ghost caps serialized tool arguments at
+300. An explicit session field comparison was not added because session ID is
+already incorporated into the checked internal namespace; a cross-session 404
+test pins that enforcement.
+
+This event advances the one-live-head handoff chain to
+`docs/handoffs/2026-08-25-ghost-public-agent-api-locally-qualified.md`. The
+surface is branch-local until exact-head required CI/review and protected merge.
+It does not change Track S stage, publish a runtime/client, or establish a
+hosted deployment.
+---END-ENTRY-#608---

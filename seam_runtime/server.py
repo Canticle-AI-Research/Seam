@@ -831,6 +831,10 @@ def create_app(
 
     principal_paths = frozenset(
         {
+            "/v1/agent/turns/actions",
+            "/v1/agent/turns/begin",
+            "/v1/agent/turns/complete",
+            "/v1/agent/turns/fail",
             "/v1/memories",
             "/v1/memories/recall",
             "/v1/memories/delete",
@@ -1066,6 +1070,91 @@ def create_app(
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         except PublicAPIConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post(
+        "/v1/agent/turns/begin",
+        summary="Begin a provenance-backed public agent turn",
+    )
+    def public_begin_agent_turn(
+        payload: dict[str, object], principal: Any = Depends(guard)
+    ) -> dict[str, object]:
+        from .public_agent_api import begin_turn
+        from .public_api import PublicAPIConflictError, PublicAPIInputError
+
+        try:
+            return begin_turn(
+                runtime,
+                payload,
+                principal=principal,
+                public_id_key=resolved_public_id_key,
+            )
+        except PublicAPIInputError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except PublicAPIConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post(
+        "/v1/agent/turns/actions",
+        summary="Record public agent tool decisions and checks",
+    )
+    def public_record_agent_actions(
+        payload: dict[str, object], principal: Any = Depends(guard)
+    ) -> dict[str, object]:
+        from .public_agent_api import record_actions
+        from .public_api import (
+            PublicAPIConflictError,
+            PublicAPIInputError,
+            PublicAPINotFoundError,
+        )
+
+        try:
+            return record_actions(runtime, payload, principal=principal)
+        except PublicAPIInputError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except PublicAPINotFoundError as exc:
+            raise HTTPException(status_code=404, detail="Turn not found") from exc
+        except PublicAPIConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post(
+        "/v1/agent/turns/complete",
+        summary="Complete a provenance-backed public agent turn",
+    )
+    def public_complete_agent_turn(
+        payload: dict[str, object], principal: Any = Depends(guard)
+    ) -> dict[str, object]:
+        from .public_agent_api import complete_turn
+        from .public_api import (
+            PublicAPIConflictError,
+            PublicAPIInputError,
+            PublicAPINotFoundError,
+        )
+
+        try:
+            return complete_turn(runtime, payload, principal=principal)
+        except PublicAPIInputError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except PublicAPINotFoundError as exc:
+            raise HTTPException(status_code=404, detail="Turn not found") from exc
+        except PublicAPIConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post(
+        "/v1/agent/turns/fail",
+        summary="Reject a failed public agent turn without ingest",
+    )
+    def public_fail_agent_turn(
+        payload: dict[str, object], principal: Any = Depends(guard)
+    ) -> dict[str, object]:
+        from .public_agent_api import fail_turn
+        from .public_api import PublicAPIInputError, PublicAPINotFoundError
+
+        try:
+            return fail_turn(runtime, payload, principal=principal)
+        except PublicAPIInputError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except PublicAPINotFoundError as exc:
+            raise HTTPException(status_code=404, detail="Turn not found") from exc
 
     if principal_mode:
 
