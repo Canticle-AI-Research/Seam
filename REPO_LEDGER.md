@@ -761,7 +761,7 @@ and `HISTORY_INDEX.md`.
   reservation, so separate principals sharing one address remain independent
   without allowing one valid credential to invoke an injected resolver beyond
   its request budget.
-- Candidate principal-mode data routes are `POST /v1/memories`,
+- Protected principal-mode data routes are `POST /v1/memories`,
   `POST /v1/memories/recall`, `POST /v1/context`, and
   `POST /v1/memories/correct` plus `POST /v1/memories/delete`. Correction and
   delete accept only exact indexed, generation-
@@ -779,9 +779,9 @@ and `HISTORY_INDEX.md`.
   canonical delete transaction; writes overlapping an active tenant-indexed
   scoped deletion refuse. Principal mode blocks disallowed route/method pairs
   before router matching, normalizes the ASGI `root_path`, and allows CORS
-  preflights for its five data routes.
-  Repaired-head exact CI and merge remain before this becomes protected-main
-  behavior.
+  preflights for its five data routes. Deliberate-memory admission, dimensions,
+  views, lifecycle status, and correction reached protected main through PR
+  #233 at merge `0b07244`; that is source publication, not deployment proof.
 - `/health` is unauthenticated for local service checks but still participates in the same rate limiter.
 - Rate limiting is configured by `SEAM_API_RATE_LIMIT_PER_MINUTE` or
   `SEAM_API_RATE_LIMIT`; `0` or unset disables the limiter in legacy mode and
