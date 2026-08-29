@@ -1,31 +1,32 @@
 # Roadmap Index
 
-total_events: 63
-latest_id: 63
+total_events: 64
+latest_id: 64
 source: streams/roadmap/log.md
 schema: seam-stream-index/v1
-content_hash: e91d15cc55a5015f65f746ecaf17adfd8c1c05e2a639a90c0ed37a3335527b4e
+content_hash: ef955a070af41451c0d899e98bb461c27b5ae77d9247e43f6d9d7f24e7bf842a
 
 ## entries (newest first)
 
 | id | date | kind | item | event | hash | supersedes | topics |
 |---|---|---|---|---|---|---|---|
-| 063 | 2026-08-01T00:00:00Z | status-change | roadmap:track:S | bootstrap | c23e87bfb908ffed | none | audit, storage, retrieval, security, ... |
-| 062 | 2026-08-01T00:00:00Z | status-change | roadmap:track:N2 | bootstrap | d5499fc478eb6887 | none | packaging, selfhost, distribution, mc... |
-| 061 | 2026-07-24T00:00:00Z | status-change | roadmap:track:N | bootstrap | f52ecd5e6ac764ae | none | packaging, release, distribution |
-| 060 | 2026-07-22T00:00:00Z | status-change | roadmap:track:R | bootstrap | 2a5a9591b1162822 | none | graph, memory, retrieval, benchmark, ... |
-| 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | d7fe472bcb9bc0db | none | android, mobile, small-models, memory... |
-| 058 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | d10da061d139f1d0 | none | agent, openclaw, namespaces, profiles... |
-| 057 | 2026-06-15T00:00:00Z | status-change | roadmap:track:O | bootstrap | e0ab5148eca96107 | none | query, sql, retrieval, benchmark, bird |
+| 064 | 2026-08-29T00:00:00Z | status-change | roadmap:track:V | bootstrap | 86674593b3579fb9 | none | agent, memory, provenance, search, cl... |
+| 063 | 2026-08-01T00:00:00Z | status-change | roadmap:track:S | bootstrap | 3a76f8b9c67680fa | none | audit, storage, retrieval, security, ... |
+| 062 | 2026-08-01T00:00:00Z | status-change | roadmap:track:N2 | bootstrap | dad581a3473e6f1a | none | packaging, selfhost, distribution, mc... |
+| 061 | 2026-07-24T00:00:00Z | status-change | roadmap:track:N | bootstrap | 12c9af416f795056 | none | packaging, release, distribution |
+| 060 | 2026-07-22T00:00:00Z | status-change | roadmap:track:R | bootstrap | 573f38fe39b1551e | none | graph, memory, retrieval, benchmark, ... |
+| 059 | 2026-07-16T00:00:00Z | status-change | roadmap:track:Q | bootstrap | f0e43c231edf68f4 | none | android, mobile, small-models, memory... |
+| 058 | 2026-07-16T00:00:00Z | status-change | roadmap:track:P | bootstrap | e083d31b2f473123 | none | agent, openclaw, namespaces, profiles... |
+| 057 | 2026-06-15T00:00:00Z | status-change | roadmap:track:O | bootstrap | 27f54ade3d2c0609 | none | query, sql, retrieval, benchmark, bird |
 | 056 | 2026-05-31T00:00:00Z | status-change | roadmap:track:G5 | bootstrap | 659e2ea60107e32c | none | surface, search, verify, integrity |
 | 055 | 2026-05-25T00:00:00Z | status-change | roadmap:track:H2 | bootstrap | 2bde78b68bbe2d5f | none | protocol, history, plan |
 | 054 | 2026-05-25T00:00:00Z | status-change | roadmap:track:F:backlog:experience-stream-empty | bootstrap | 4b2f3d540cf06dfc | none | experience, protocol |
 | 053 | 2026-05-25T00:00:00Z | status-change | roadmap:track:F:backlog:scoring-weights | bootstrap | b5337aac24e36f48 | none | retrieval, benchmark |
-| 052 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K18 | bootstrap | e84c2b0c71c2f88e | none | retrieval, rank, audit |
-| 051 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K17 | bootstrap | 14b9746cdeefc03f | none | integrity, audit, snapshot |
-| 050 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K16 | bootstrap | 6c50c0d9caf75a88 | none | verify, command, audit |
-| 049 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K15 | bootstrap | b181338c03e1191b | none | verify, audit, provenance |
-| 048 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K14 | bootstrap | 3aca64b7110b69d2 | none | verify, audit, retrieval |
+| 052 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K18 | bootstrap | bfeb44344a02b4e2 | none | retrieval, rank, audit |
+| 051 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K17 | bootstrap | 535b2da6f693b9e8 | none | integrity, audit, snapshot |
+| 050 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K16 | bootstrap | a6a3a95946bf7b47 | none | verify, command, audit |
+| 049 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K15 | bootstrap | ed49a96fd468e422 | none | verify, audit, provenance |
+| 048 | 2026-05-18T00:00:00Z | status-change | roadmap:track:K14 | bootstrap | 986d29aa166247bd | none | verify, audit, retrieval |
 | 047 | 2026-05-18T00:00:00Z | status-change | roadmap:track:F:backlog:verify-continuity-ref-existence | bootstrap | 4b8d158173a3a392 | none | verify, continuity, history |
 | 046 | 2026-05-18T00:00:00Z | status-change | roadmap:track:F:backlog:test-claude-judge-flaky | bootstrap | baf1f8a9fc8db7ba | none | tests, judge |
 | 045 | 2026-05-18T00:00:00Z | status-change | roadmap:track:F:backlog:superseded-phase-tree | bootstrap | 7353eba38db00c84 | none | roadmap, docs |
@@ -36,10 +37,10 @@ content_hash: e91d15cc55a5015f65f746ecaf17adfd8c1c05e2a639a90c0ed37a3335527b4e
 | 040 | 2026-05-18T00:00:00Z | status-change | roadmap:track:F:backlog:installer-symlink | bootstrap | 800f9062d6002757 | none | installer, linux |
 | 039 | 2026-05-18T00:00:00Z | status-change | roadmap:track:F:backlog:security-md | bootstrap | 1ad3c1121147ab09 | none | docs, security |
 | 038 | 2026-05-18T00:00:00Z | status-change | roadmap:track:F:asserttrue-scrub | bootstrap | 6ee5251d78d642de | none | tests, quality |
-| 037 | 2026-05-17T00:00:00Z | status-change | roadmap:track:I | bootstrap | a49767b3315204ec | none | benchmark, retrieval, comparator |
-| 036 | 2026-05-15T00:00:00Z | status-change | roadmap:track:K | bootstrap | e51d9c4c9524908a | none | security, audit, trust, benchmark |
-| 035 | 2026-05-15T00:00:00Z | status-change | roadmap:track:J | bootstrap | 842b0cf620072485 | none | codec, compress, prompt, benchmark |
-| 034 | 2026-05-15T00:00:00Z | status-change | roadmap:track:L | bootstrap | 853263130f3c5585 | none | agent, compiler, skills |
+| 037 | 2026-05-17T00:00:00Z | status-change | roadmap:track:I | bootstrap | b8d02a559e870043 | none | benchmark, retrieval, comparator |
+| 036 | 2026-05-15T00:00:00Z | status-change | roadmap:track:K | bootstrap | 883258670c90d018 | none | security, audit, trust, benchmark |
+| 035 | 2026-05-15T00:00:00Z | status-change | roadmap:track:J | bootstrap | 828a11b2b4f92f53 | none | codec, compress, prompt, benchmark |
+| 034 | 2026-05-15T00:00:00Z | status-change | roadmap:track:L | bootstrap | 69d5747f14b9766e | none | agent, compiler, skills |
 | 033 | 2026-05-15T00:00:00Z | status-change | roadmap:track:H4 | bootstrap | e7dd0d7a99fc3a39 | none | protocol, retrieval, search, vector |
 | 032 | 2026-05-15T00:00:00Z | status-change | roadmap:track:H3 | bootstrap | 211f6c94aaeae48c | none | protocol, retrieval, search |
 | 031 | 2026-05-15T00:00:00Z | status-change | roadmap:track:H1 | bootstrap | 812106410a15fecc | none | protocol, history, plan, roadmap |

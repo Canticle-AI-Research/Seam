@@ -19902,3 +19902,36 @@ primary checkout, Cline's duplicate local `HISTORY#605`, TUI and licensing WIP,
 ignored corpora, skills, and operator files remain untouched. This publication
 event supersedes `HISTORY#610` and advances the linear handoff chain.
 ---END-ENTRY-#611---
+
+---BEGIN-ENTRY-#612---
+id: 612
+date: 2026-08-29T14:33:14-05:00
+agent: codex
+status: planned
+topics: agent, memory, provenance, search, cli, trust, roadmap, handoff, history
+commits: working-tree
+refs: ROADMAP.md,REPO_LEDGER.md,docs/handoffs/2026-08-29-grounded-research-acquisition-roadmap.md
+supersedes: 611
+tokens: 354
+---
+Track V records the planned, deferred grounded-research acquisition boundary.
+SEAM will own deterministic Hugging Face and arXiv adapters, immutable
+license-aware source manifests, canonical RAW/MIRL ingestion, additive version
+supersession, and exact source anchors. Hugging Face is CLI-first through `hf`;
+arXiv uses its official API or OAI-PMH endpoint because it has no equivalent
+official CLI. Agents, downloaded-code execution, model training, and a second
+memory store remain outside this layer.
+
+Ghost owns the Research Librarian agent, query planning, source-selection
+reasons, and Codex/Claude/DeepSeek/local-model orchestration. The SuperML
+reference contributes only the cross-client grounded-workflow and evaluation
+shape; its startup context injection, plugin/MCP knowledge store, and separate
+memory authority are not copied.
+
+This is roadmap and continuity work only. No adapter, provider call, download,
+ingest, corpus, benchmark, runtime, or Track S stage changed. Track V remains
+blocked behind the unresolved S8 boundary-only SQL decision, S9 retrieval
+qualification, and H4 library substrate, and must start with a frozen 5-10 item
+fixture before any bulk acquisition. The new handoff preserves that execution
+order and supersedes the prior publication handoff without changing its facts.
+---END-ENTRY-#612---
