@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-26-ghost-memory-governance-published
 supersedes: 2026-08-25-ghost-memory-governance-locally-qualified
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#611
 ---
 

@@ -17,7 +17,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:R` — since 2026-07-22 via history:454 — topics: graph, memory, retrieval, benchmark, comparator, provenance
 - `roadmap:track:S` — since 2026-08-01 via history:511 — topics: audit, storage, retrieval, security, graph, provenance, benchmark, verify
 
-## planned (35)
+## planned (36)
 
 - `roadmap:track:A2` — since 2026-04-18 via none — topics: benchmark, dashboard, animation
 - `roadmap:track:A3` — since 2026-04-18 via none — topics: benchmark, dashboard, graph
@@ -54,6 +54,7 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:O` — since 2026-06-15 via history:319 — topics: query, sql, retrieval, benchmark, bird
 - `roadmap:track:P` — since 2026-07-16 via history:407 — topics: agent, openclaw, namespaces, profiles, console
 - `roadmap:track:Q` — since 2026-07-16 via history:407 — topics: android, mobile, small-models, memory-loop
+- `roadmap:track:V` — since 2026-08-29 via history:612 — topics: agent, memory, provenance, search, cli, trust
 
 ## later (2)
 

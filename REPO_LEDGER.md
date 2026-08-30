@@ -115,6 +115,15 @@ and `HISTORY_INDEX.md`.
   `supersedes` relation before applying the existing auditable soft-delete to
   the old record. `current` retrieval excludes retired records; `history`
   retrieval can show their status but never republishes a mutable handle.
+- External research acquisition belongs behind SEAM's canonical ingestion
+  boundary. Source adapters are deterministic, CLI-first where an official CLI
+  exists, and provenance-complete; they do not run agents or create a second
+  memory store. Ghost owns research orchestration and source-selection reasons,
+  while SEAM owns immutable manifests, normalized RAW/MIRL, lifecycle, and
+  retrieval. MCP is an authorized fallback only when required utility cannot be
+  reproduced through the provider's CLI or official non-MCP API. See planned
+  Track V and `HISTORY#612`; this is an architecture decision, not implemented
+  acquisition behavior.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
 - SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY

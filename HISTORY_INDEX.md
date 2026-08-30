@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 611
-total_tokens: ~311242
-latest_id: 611
+total_entries: 612
+total_tokens: ~311596
+latest_id: 612
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 612 | 2026-08-29 | planned | 81b319943882e163 | agent,memory,provenance,search,+ | 611 |
 | 611 | 2026-08-26 | done | f93e5b6f42d1ace3 | api,memory,ci,security,+ | 610 |
 | 610 | 2026-08-26 | done | 24bafb1c9cdec97b | api,memory,security,tests,+ | 609 |
 | 609 | 2026-08-26 | done | 5bce8e1b0baa8726 | api,ghost,http,reasoning,+ | 608 |
@@ -629,7 +630,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=11 latest=#494, #471, #470, #469, #466
+- agent: count=12 latest=#612, #494, #471, #470, #469
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -669,7 +670,7 @@ compact: true
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
-- cli: count=8 latest=#541, #537, #457, #411, #302
+- cli: count=9 latest=#612, #541, #537, #457, #411
 - closeout: count=1 latest=#409
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
@@ -759,11 +760,11 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=101 latest=#611, #610, #609, #608, #607
+- handoff: count=102 latest=#612, #611, #610, #609, #608
 - harden: count=8 latest=#594, #593, #592, #575, #574
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=318 latest=#611, #610, #600, #596, #587
+- history: count=319 latest=#612, #611, #610, #600, #596
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
@@ -807,7 +808,7 @@ compact: true
 - measurement: count=2 latest=#459, #369
 - mem0: count=13 latest=#538, #410, #395, #394, #393
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
-- memory: count=30 latest=#611, #610, #543, #494, #466
+- memory: count=31 latest=#612, #611, #610, #543, #494
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - migration: count=3 latest=#606, #575, #574
@@ -862,7 +863,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=113 latest=#564, #563, #536, #534, #531
 - prov: count=1 latest=#316
-- provenance: count=31 latest=#604, #603, #602, #601, #599
+- provenance: count=32 latest=#612, #604, #603, #602, #601
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -894,7 +895,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=2 latest=#606, #388
-- roadmap: count=68 latest=#560, #551, #540, #538, #531
+- roadmap: count=69 latest=#612, #560, #551, #540, #538
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -905,7 +906,7 @@ compact: true
 - scorer: count=2 latest=#325, #292
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
-- search: count=16 latest=#276, #242, #240, #181, #154
+- search: count=17 latest=#612, #276, #242, #240, #181
 - security: count=104 latest=#611, #610, #609, #608, #597
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
@@ -952,7 +953,7 @@ compact: true
 - track-r: count=5 latest=#459, #458, #457, #456, #455
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
-- trust: count=2 latest=#526, #403
+- trust: count=3 latest=#612, #526, #403
 - tui: count=34 latest=#571, #559, #554, #543, #542
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
@@ -977,4 +978,4 @@ compact: true
 - changed: 57
 - done: 519
 - in-progress: 14
-- planned: 21
+- planned: 22

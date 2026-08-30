@@ -1382,6 +1382,62 @@ to a pip-installable `seam_protocol/` package for templating into other repos.
 **Gate:** Re-ingestion of unchanged content is a no-op (hash skip). Library
 namespaces (`ns=library.*`) stay separate from canonical `local.default`.
 Template scaffolds cleanly into a fresh repo with `seam-protocol init`.
+
+## Track V — Grounded Research Acquisition
+
+<!-- seam:item
+id: roadmap:track:V
+status: planned
+status-since: 2026-08-29
+status-by: history:612
+supersedes: none
+topics: agent, memory, provenance, search, cli, trust
+priority: 2
+phase: 1
+-->
+
+**Status:** Planned and deferred. No adapter, provider call, download, corpus,
+or ingestion job is implemented by this roadmap entry. Begin only after the
+current Track S S8/S9 retrieval-qualification boundary and the H4 library
+substrate are ready.
+
+**What:** Add deterministic source-acquisition adapters at SEAM's canonical
+ingestion boundary, starting with Hugging Face and arXiv. Hugging Face uses the
+`hf` CLI first. arXiv uses its official API or OAI-PMH endpoint because it has
+no equivalent official CLI. Both adapters normalize into one compact,
+idempotent acquisition contract rather than becoming agent runtimes or new
+memory owners.
+
+Each acquired item carries an immutable source manifest with a stable source
+reference, exact revision or version, content hashes, authorship and date,
+license and gated-access state, retrieval timestamp, parser version, and
+file/page/section/row anchors where the source permits them. Re-ingestion of an
+unchanged revision is a no-op; a changed revision supersedes rather than
+overwrites its predecessor. RAW/MIRL remains canonical, while graph, vector,
+PACK, and library-stream views remain derived. Large PDFs, datasets, archives,
+and model weights stay outside the SQLite working store and are referenced by
+manifest.
+
+**Safety boundary:** Acquisition enforces a license allowlist, treats fetched
+content as untrusted data, never executes downloaded code, applies explicit
+rate/budget policies, and requires operator approval for private or gated
+sources. It begins with a bounded 5-10 paper/model/dataset fixture rather than
+bulk collection. Training or fine-tuning model weights is a separate later
+decision, not an effect of ingestion.
+
+Ghost owns the Research Librarian agent, query planning, source-selection
+reasons, and model/harness orchestration. SEAM owns deterministic fetching,
+normalization, provenance, lifecycle, and retrieval. The useful SuperML pattern
+is cross-client grounded research plus an evaluation loop; SEAM does not copy
+its plugin startup injection, MCP knowledge store, or create a second memory
+authority.
+
+**Gate:** A frozen fixture proves adapter parity, idempotent re-ingestion,
+version supersession, exact source-to-RAW provenance, license/access policy,
+zero cross-boundary leakage, and retrieval traces back to immutable manifests.
+The evidence also records provider/network/cost counters. No scale, quality,
+training, or autonomous-learning claim is allowed from this gate alone.
+
 ## Track L — Agent / Skills Compiler
 
 <!-- seam:item
@@ -1989,6 +2045,7 @@ Next plug-and-play target - external memory benchmark credibility
 Later - benchmark credibility, scale, and adaptive context loop
 - H3: Retrieval integration with stream filters (after H1 substrate stable)
 - H4: Generalized library streams + seam_protocol templating (after H1-H3)
+- V: Grounded research acquisition (after S8/S9 and H4; coordinated with Ghost G3a)
 - C5: Cross-machine reproducibility
 - C4: Adversarial testing
 - C3: Gold standard benchmarks (BEIR/MTEB)
