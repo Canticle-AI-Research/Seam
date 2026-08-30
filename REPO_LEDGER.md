@@ -87,6 +87,24 @@ and `HISTORY_INDEX.md`.
   framework-neutral agent-memory hooks. It must not import, package, copy, or
   expose private runtime modules, MIRL/HS/1 implementation, storage, retrieval,
   graph, PACK, surface, or benchmark internals.
+- The current operator-approved target product and licensing boundary is
+  recorded in `CONTEXT.md` and
+  `docs/superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md`.
+  SEAM Self-Host is the complete operator-run SEAM product, not a reduced
+  public substitute. The intended PolyForm Shield 1.0.0 source-available layer
+  includes the SEAM backend, in-process SeamSDK, Ghost as a SEAM agent, MIRL,
+  SEAM-HS/1, the Improvement Loop, SEAM-specific graph logic, and protected
+  benchmark execution. The intended Apache-2.0 layer includes `seam-client`,
+  public contracts and connectors, the TUI and WebUI frontends, neutral graph
+  renderers, Benchmark Glassbox presentation and real charting, public
+  provenance formats, and deployment tooling that does not embed protected
+  implementation. SEAM Suite keeps terminal control separate from independently
+  openable browser graph and benchmark dashboards; terminal ASCII is not the
+  graph or benchmark product. This target supersedes the prior private-only,
+  no-distribution direction as product policy, but it does not retroactively
+  relicense any file or artifact. Current package metadata, historical grants,
+  the frozen mirror boundary, and release gates remain facts until a separately
+  reviewed implementation changes them.
 - The stable public server boundary is `/v1/health`, `/v1/memories`,
   `/v1/memories/recall`, `/v1/context`, and the opaque
   `/v1/agent/turns/{begin,actions,complete,fail}` lifecycle. Public stateful

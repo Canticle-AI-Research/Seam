@@ -9,6 +9,21 @@
 
 ## Current headline
 
+**2026-08-29 — the operator approved the target SEAM product and licensing
+boundary; implementation and relicensing have not started.** SEAM Self-Host is
+the complete user-operated SEAM product, delivered through SEAM Suite: a TUI
+control center plus independently openable browser dashboards for real
+knowledge, reasoning, provenance, and benchmark graphs. The intended
+source-available layer uses PolyForm Shield 1.0.0 and includes the SEAM backend,
+SeamSDK, Ghost as a SEAM agent, MIRL, SEAM-HS/1, and the Improvement Loop. The
+intended Apache-2.0 layer includes `seam-client`, public interface contracts,
+connectors, frontends, neutral graph renderers, Benchmark Glassbox
+presentation, provenance interchange formats, and deployment tooling that does
+not embed protected implementation. This is an approved design boundary, not a
+license grant, release, deployment, or claim that current package metadata has
+already been corrected. See `CONTEXT.md` and the dated product/licensing design
+linked from `docs/README.md`.
+
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance
 for Ghost through PR #233.** The exact source head `f8a1486` passed all seven
 hosted jobs in runs `32931607726` and `32931607783`. The public boundary now

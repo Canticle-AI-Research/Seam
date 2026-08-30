@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 612
-total_tokens: ~311596
-latest_id: 612
+total_entries: 613
+total_tokens: ~311902
+latest_id: 613
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 613 | 2026-08-30 | changed | 86f747fca4dacf90 | docs,roadmap,operator,surface,+ | 612 |
 | 612 | 2026-08-29 | planned | 81b319943882e163 | agent,memory,provenance,search,+ | 611 |
 | 611 | 2026-08-26 | done | f93e5b6f42d1ace3 | api,memory,ci,security,+ | 610 |
 | 610 | 2026-08-26 | done | 24bafb1c9cdec97b | api,memory,security,tests,+ | 609 |
@@ -719,7 +720,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=88 latest=#611, #610, #598, #594, #593
+- docs: count=89 latest=#613, #611, #610, #598, #594
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -832,7 +833,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=9 latest=#598, #597, #595, #582, #580
+- operator: count=10 latest=#613, #598, #597, #595, #582
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -895,7 +896,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=2 latest=#606, #388
-- roadmap: count=69 latest=#612, #560, #551, #540, #538
+- roadmap: count=70 latest=#613, #612, #560, #551, #540
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -907,7 +908,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=17 latest=#612, #276, #242, #240, #181
-- security: count=104 latest=#611, #610, #609, #608, #597
+- security: count=105 latest=#613, #611, #610, #609, #608
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -931,7 +932,7 @@ compact: true
 - storage: count=30 latest=#579, #578, #577, #575, #574
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
-- surface: count=19 latest=#579, #578, #577, #571, #550
+- surface: count=20 latest=#613, #579, #578, #577, #571
 - surfaces: count=7 latest=#609, #608, #607, #606, #541
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
@@ -975,7 +976,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 57
+- changed: 58
 - done: 519
 - in-progress: 14
 - planned: 22

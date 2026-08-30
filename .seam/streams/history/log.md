@@ -19935,3 +19935,39 @@ qualification, and H4 library substrate, and must start with a frozen 5-10 item
 fixture before any bulk acquisition. The new handoff preserves that execution
 order and supersedes the prior publication handoff without changing its facts.
 ---END-ENTRY-#612---
+
+---BEGIN-ENTRY-#613---
+id: 613
+date: 2026-08-30T01:00:36Z
+agent: codex
+status: changed
+topics: docs, roadmap, operator, surface, security
+commits: f7bad6d,pending
+refs: CONTEXT.md,PROJECT_STATUS.md,REPO_LEDGER.md,docs/status/packaging-licensing.md,docs/superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md
+supersedes: 612
+tokens: 306
+---
+The operator-approved SEAM product and licensing direction is now written as a
+design boundary and stable glossary. SEAM Self-Host is the complete
+operator-run product. SEAM Suite consists of a TUI control center plus
+independently openable browser dashboards for real knowledge, reasoning,
+provenance, and benchmark graphs. Ghost remains a SEAM agent rather than a
+second memory system.
+
+The target PolyForm Shield 1.0.0 source-available layer contains the SEAM
+backend, in-process SeamSDK, Ghost, MIRL, SEAM-HS/1, the Improvement Loop, and
+SEAM-specific graph and benchmark logic. The target Apache-2.0 layer contains
+the opaque `seam-client`, public contracts and connectors, frontends, neutral
+graph renderers, Benchmark Glassbox presentation and charting, public
+provenance formats, and deployment tooling that does not embed protected
+implementation. Terminal ASCII remains limited to requested explanations; it
+is not the graph or benchmark product.
+
+This entry records design and policy only. Current `LICENSE`, package metadata,
+release workflows, historical Apache/BUSL grants, and artifact contents are
+unchanged. No current file or release is relicensed, no Suite dashboard is
+implemented, and no counsel review or publication is claimed. A later
+implementation plan must inventory exact modules, preserve historical grants,
+add artifact manifests and boundary tests, and keep local, committed, merged,
+released, and deployed states distinct.
+---END-ENTRY-#613---
