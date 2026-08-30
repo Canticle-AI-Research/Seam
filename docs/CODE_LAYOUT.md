@@ -99,11 +99,11 @@ not have to infer what works from directory names alone.
   repo files or hashed durable artifacts and never carry credentials or session
   URLs.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
-- `LICENSES/BUSL-1.1.txt` - controlling text and filled parameters for the SEAM
-  Distributed Runtime, published under Business Source License 1.1 by Section 7A
-  of `LICENSE`. Change Date is four years per published version; Change License
-  is MPL 2.0. Membership in the Distributed Runtime is decided by publication
-  plus a conspicuous per-file notice, never by path.
+- `LICENSES/HISTORICAL/BUSL-1.1.txt` - last BUSL parameters retained as
+  historical evidence for exact previously published artifacts; it makes no
+  current or future repository grant.
+- `LICENSES/README.md` - registry separating current private package terms from
+  historical license evidence.
 - `tools/release/` - release-boundary verification. `verify_public_safe.py`
   inspects every object newly reachable by a push and blocks secret-shaped
   content and private paths; `public_manifest.py` supplies the path

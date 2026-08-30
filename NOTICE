@@ -1,39 +1,36 @@
-SEAM / MIRL
-Copyright © 2026 Nicholas Thomas (BlackhatShiftey). All rights reserved.
+SEAM / MIRL / HS/1
+Copyright © 2026 Nicholas Thomas. All rights reserved.
 
-This private repository and its non-public contents are proprietary. MIRL's
-specification text, source code, schemas as expressed, documentation, examples,
-tests, diagrams, and other original works of authorship are copyrighted and
-reserved under LICENSE. SEAM-HS/1's specification, container expression,
-visual designs, source code, codecs, surface library, documentation, examples,
-tests, and related original works are separately named copyrighted and
-reserved HS/1 materials.
+This private repository and its non-public contents are proprietary. The root
+LICENSE controls current repository material. It grants no public,
+source-available, commercial, hosted, redistribution, derivative-work,
+model-training, or independent implementation rights.
 
-The SEAM Distributed Runtime, version 2.4.0 or later, is published under the
-Business Source License 1.1. Its controlling text and parameters are at
-LICENSES/BUSL-1.1.txt and the grant is stated in Section 7A of LICENSE.
-Self-hosting the Distributed Runtime — on your own hardware or on
-infrastructure you rent, for your own or your organization's purposes,
-including internal commercial production use — is permitted at no charge, with
-no limit on scale or number of users. Non-commercial research, education, and
-the publication of benchmark or evaluation results are likewise permitted.
-What the grant withholds is offering the Distributed Runtime to third parties
-on a hosted or embedded basis as a competitive offering. Each published version
-converts to MPL 2.0 four years after that version is published.
+MIRL specifications, source, schemas as expressed, documentation, examples,
+tests, diagrams, compiler/retrieval/provenance machinery, PACK, codecs, and
+related implementation material are Reserved Materials. SEAM-HS/1 authored
+specifications, container expression, visual designs, source, codecs, surface
+libraries, documentation, tests, and related implementation material are also
+Reserved Materials. Planned SEAM-U weights, training/data systems, and private
+inference artifacts remain separately reserved.
 
-Exact versions previously published at
-https://github.com/BlackhatShiftey/Seam_Runtime under Apache-2.0 retain that
-license. Portions of the current repository that are unchanged Legacy Apache
-Materials retain their Apache-2.0 terms; the license text is preserved at
-LICENSES/Apache-2.0.txt. Nothing in the private license narrows those existing
-rights.
+Historical grants are not revoked. Exact legacy file versions published under
+Apache-2.0 retain that license. Exact artifacts previously published under
+BUSL-1.1 retain the terms shipped with those artifacts. The Apache text is at
+LICENSES/Apache-2.0.txt; the last BUSL parameters are retained only as a
+historical record at LICENSES/HISTORICAL/BUSL-1.1.txt. Neither file grants
+rights in later private versions or another product.
 
-Except for the Distributed Runtime grant above and the legacy Apache grant, no
-public, commercial, hosted, redistribution, derivative-work, model-training, or
-implementation right is granted by access to private material. Neither grant
-applies automatically to later private versions, unpublished changes, or new
-MIRL- or HS/1-related material that has not been published under it.
+Adjacent products are licensed by their own repositories and artifacts:
 
-Third-party materials remain subject to their own licenses. SEAM and MIRL
-names, logos, protocol identifiers, visual identity, and associated marks are
-reserved to the extent protected by applicable law.
+- thin public SEAM/Canticle clients and protocols: Apache-2.0;
+- source-distributed SEAM SDK and SEAM Node products: PolyForm Shield 1.0.0;
+- this canonical SEAM/MIRL/HS/1 runtime and planned SEAM-U assets:
+  proprietary / All Rights Reserved.
+
+SEAM, MIRL, HS/1, SEAM-U, Canticle, Canticle Core, and Ghost names, marks,
+logos, mascots, protocol identifiers, visual identity, and trade dress are not
+licensed by a software grant. See TRADEMARKS.md.
+
+Third-party dependencies and incorporated materials remain governed by their
+own terms.

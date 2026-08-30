@@ -5,20 +5,22 @@ Status: **founder draft, not legal advice.** Written in plain language on purpos
 wording before publishing. Companion to [`docs/pricing-tiers.md`](pricing-tiers.md),
 [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md), and [`NOTICE`](../NOTICE).
 
+These terms are prospective. No qualifying SEAM Node repository, artifact
+manifest, or release is recorded by this canonical repository yet. Features,
+rights, and cancellation behavior must be checked against the exact future Node
+artifact and its license before these terms are published.
+
 ## 1. What these terms cover
 
 These terms govern **paid SEAM subscriptions, credits, and the Founder program**.
-They do **not** restrict the SEAM Distributed Runtime, which is licensed
-separately under the Business Source License 1.1
-([`LICENSES/BUSL-1.1.txt`](../LICENSES/BUSL-1.1.txt)) and is free to use,
-self-host, and modify — with or without a subscription. A subscription is never
-required to run SEAM.
+They do **not** replace or narrow the software license shipped with a separately
+distributed SEAM Node product. The intended Node source license is PolyForm
+Shield 1.0.0: source-available, not open source, with noncompeting internal and
+commercial use permitted under its exact terms. A subscription is not the
+source of those software rights.
 
-Source-available, not open source. Running SEAM yourself, at any scale,
-including for internal commercial production use, is free and always will be.
-The single restriction is that you may not offer SEAM to third parties as a
-paid competing hosted service. Each published version becomes MPL-2.0 four
-years after it ships.
+The canonical private SEAM/MIRL/HS/1 repository is a different product boundary
+and is not licensed by these terms or by PolyForm Shield.
 
 ## 2. Plain-language definitions
 
@@ -33,9 +35,9 @@ years after it ships.
   (up to 1 KB).**
 - **BYO-key** — you supply your own model/API key, so the processing runs on your
   account. BYO-key usage is unlimited and never billed by us.
-- **Self-host** — running the SEAM Distributed Runtime on your own machine, or
-  on infrastructure you rent, for yourself or your organization. Fully unlimited
-  and free under BUSL-1.1, including for internal commercial production use.
+- **Self-host** — running a separately licensed SEAM Node artifact on your own
+  machine or rented infrastructure for yourself or your organization, subject
+  to the license shipped with that exact artifact.
 
 ## 3. Plans and prices
 
@@ -101,10 +103,9 @@ You choose how to pay for managed usage:
   paid cycle. Cancellation is **one click** — no phone call, no retention maze.
 - **Cancel-safe guarantee.** Cancelling or downgrading **never disables your
   self-hosted node, never deletes your data, and never revokes your ability to
-  run the Distributed Runtime.** Your right to self-host comes from BUSL-1.1,
-  not from your subscription, so cancelling cannot touch it. You lose hosted
-  conveniences (sync, remote plane,
-  managed writes), not the product or your memories.
+  exercise the software license shipped with your Node artifact.** Those rights
+  do not come from a subscription. You lose hosted conveniences (sync, remote
+  plane, managed writes), not rights already granted by the artifact license.
 - **Data export is always free**, on any plan and after cancellation.
 - **Refunds.** Unused **prepaid credits** are refundable on request, minus credits
   already consumed **[legal: refund window + method]**. Subscription fees for the
@@ -174,29 +175,26 @@ non-payment of other charges **[legal: this clause needs real wording]**.
 **Refunds on the Founder Pass** — refundable within a stated window if unused
 **[legal]**; after founder benefits have been applied, it is non-refundable.
 
-## 12. Source-available core and self-hosting
+## 12. Source-available Node and self-hosting
 
-- The SEAM Distributed Runtime is licensed under BUSL-1.1. Nothing in these
-  terms restricts your rights under that license.
-- **Self-hosting is free, at any scale, forever** — on your own hardware or on
-  infrastructure you rent, for yourself or your organization, including internal
-  commercial production use. No subscription, no user cap, no phone-home.
-- **The one restriction:** you may not offer the Distributed Runtime to third
-  parties as a paid competing hosted service. Free offerings are never
-  competitive; neither is internal use across affiliates under common control.
-- **Each version becomes MPL-2.0 four years after it ships.** The eventual
-  open-source grant is written into the license, not promised in marketing.
-- **The core never loses a feature to create a paid tier.** Paid plans only add
-  hosted conveniences and managed compute.
-- Everything paid is reproducible with the core plus your own infrastructure;
-  you are always free to self-host instead of subscribe.
+- A separately distributed SEAM Node is intended to use PolyForm Shield 1.0.0.
+  Nothing in these service terms narrows rights granted by that artifact.
+- Noncompeting self-hosting, including internal commercial use, is governed by
+  Shield's exact terms and does not require a hosted subscription.
+- Shield permanently withholds use to provide a competing product; it has no
+  BUSL-style automatic conversion date.
+- Paid plans add hosted conveniences, managed compute, support, and contractual
+  protections. They do not relicense the canonical private runtime.
+- A competing, OEM, redistribution, or broader enterprise use requires a
+  separate commercial agreement.
 
 ## 13. Data ownership and privacy
 
 - **Your memories are yours.** We claim no ownership of your stored content.
 - **Hosted backup is end-to-end encrypted** — we store ciphertext and cannot read
   your memories **[legal: match to actual crypto implementation]**.
-- We do not require telemetry or a phone-home for the core to function.
+- The planned Node will not require pay-to-use telemetry or a phone-home merely
+  to exercise rights granted by its exact artifact license.
 - Privacy specifics are governed by the SEAM Privacy Policy **[legal: link]**.
 
 ## 14. Service, availability, and disclaimers **[legal]**

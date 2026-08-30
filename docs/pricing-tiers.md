@@ -5,16 +5,26 @@ the full system: the tier ladder, the feature matrix, what "unlimited" honestly
 means, and how every capability is sorted into **free**, **combine-with-self-host**,
 or **hosted**.
 
+All SEAM Node rows below are prospective product requirements. No qualifying
+Node repository, artifact manifest, or release is recorded here yet. "Node"
+never means the canonical private `seam-runtime`, MIRL/HS/1 implementation,
+private benchmarks, or SEAM-U assets. A released Node includes only the surface
+expressly listed by its own repository, manifest, and Shield license.
+To qualify for this proposed pricing model, that manifest must include stable
+BYO-key hooks and free data export; otherwise the unconditional matrix promises
+below must be removed before publication.
+
 Related boundary docs: [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md),
 [`docs/PROTECTION_MODEL.md`](PROTECTION_MODEL.md), [`NOTICE`](../NOTICE).
 
 ## The three rules the whole model obeys
 
 1. **The subscription buys convenience and hosted infrastructure — never the
-   ability to run SEAM.** Everything paid is reproducible with the open core +
-   your own infra, and we document the DIY path.
+   rights already granted by a separately licensed SEAM Node artifact.** The
+   self-host path remains distinct from the canonical private runtime.
 2. **Charge for what costs *us* money (compute, storage, human time, legal
-   liability). Give away what doesn't (the software itself).** This is why the
+   liability). Keep the separately released Node usable under its artifact
+   license.** This is why the
    price scales fairly with customer size — a solo dev consumes little and pays
    little; an enterprise consumes a lot and pays a lot.
 3. **The core never loses a feature to create a paid tier.** Paid tiers only
@@ -35,9 +45,11 @@ Genuinely unlimited, on every tier including Community:
 
 - **Unlimited self-hosting** — run the node on your own hardware or rented
   infrastructure, at any scale, any number of users, including internal
-  commercial production use. This is a right granted by BUSL-1.1, not a plan
-  feature, so no subscription change can revoke it.
-- **Unlimited stored memories** — it's your disk. MIRL records are tiny.
+  commercial production use when permitted by the exact PolyForm Shield terms.
+  This is an artifact-license right, not a plan feature, so a subscription
+  change cannot revoke it.
+- **Unlimited stored memories** — it's your disk; exact storage behavior follows
+  the released Node artifact.
 - **Unlimited retrieval / queries** — it's your CPU. We literally cannot meter
   your own machine, and we never meter a read on the hosted path either.
 - **Unlimited devices synced** — sync bandwidth is negligible.
@@ -124,13 +136,12 @@ honest multiple of real cost. Then no subscriber can ever cost more than they pa
     charge rent and we never expire your memories (unlike Hindsight's 30-day
     decay). Hosted *backup* is a separate, published per-tier ceiling (5 GB /
     50 GB / 500 GB) because that storage is ours to pay for.
-  - **The entire self-host + BYO-key path** — genuinely uncapped, because you
-    bring the compute. This is how SEAM is honestly one of the only "unlimited"
-    memory products on the market.
+  - **The released Node self-host + BYO-key surface** — genuinely uncapped where
+    permitted by its exact artifact license, because you bring the compute.
 
 Three headline "unlimited"s competitors can't cleanly match: **unlimited recall**
 (mem0 caps it), **unlimited permanent storage** (Hindsight decays, mem0 caps
-count), and **unlimited everything self-hosted**.
+count), and **unlimited permitted use of the released self-host surface**.
 
 ### Prepaid and postpaid — both, you choose
 
@@ -157,10 +168,12 @@ cheaper and without the greed.
 |---|---|---|---|---|---|---|
 | **Price** | $0 | ~$5/mo | ~$15/mo | ~$40/mo | ~$20/seat/mo | Custom |
 | **For** | Self-hosters | Effortless solo self-host | Power user | Heaviest managed use | Shared memory | Compliance & scale |
-| **License** | BUSL-1.1 (self-host free) | + hosted conveniences | | | | + commercial terms |
+| **License** | PolyForm Shield Node (noncompeting self-host) | + hosted conveniences | | | | + commercial terms |
 
-Yearly = 2 months free. Community is not a trial and not a lite build — it is the
-whole product.
+Yearly = 2 months free. Community is not intended as a timed trial or a
+subscription-disabled build: it receives the complete separately released Node
+artifact defined by that artifact's manifest. It does not receive this
+canonical private runtime or private MIRL/HS/1 internals.
 
 ### Founder program (launch) — two layers
 
@@ -215,14 +228,14 @@ pattern, no bait-and-switch.
 
 Legend: ✓ = included · — = not included · numbers = that tier's allowance.
 
-### Runtime & core — everything works on the free tier
+### Prospective Node surface — the released Node artifact works on the free tier
 
 | Feature | Community | Solo | Pro | Max | Team | Enterprise |
 |---|---|---|---|---|---|---|
-| Full local runtime (all retrieval signals, MIRL, provenance) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| All interfaces (CLI, shell, TUI, REST, MCP) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Self-improvement loop | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Lever-packs / tuned retrieval (manual pull) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Released Node local-memory service (public surface only) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Interfaces shipped by the Node manifest | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Local improvement features expressly shipped with Node | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Public extension packs expressly shipped for Node | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | **Unlimited** stored memories | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | **Unlimited** local retrieval / queries | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Bring-your-own inference key (**unlimited**) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -241,9 +254,9 @@ Legend: ✓ = included · — = not included · numbers = that tier's allowance.
 | Priority support (front of line) | — | — | ✓ | ✓ | ✓ | ✓ |
 
 Backup caps are published numbers, not "unlimited with fair-use fine print."
-MIRL records are text — even heavy users rarely exceed tens of MB — so these
-ceilings are generous by construction and almost never bind. Self-hosted storage
-on your own disk remains genuinely unlimited and is not affected by any of this.
+These ceilings are strategy assumptions that require measurement against the
+actual Node format before launch. Self-hosted storage on your own disk remains
+outside hosted backup quotas and is not affected by any of this.
 
 ### Managed usage — the only metered thing (real COGS)
 
@@ -285,9 +298,12 @@ visible line item covering payment processing + ops. Postpaid is enterprise-side
 
 ## Fully-hosted SEAM (managed node) — optional add-on
 
-For people who won't self-host at all: we run the node, same runtime. Priced by
-usage (storage + inference), toggled on top of any paid tier. Highest margin when
-run on open models on our own compute rather than reselling frontier tokens.
+For people who will not self-host: we operate a managed service implementing
+the published Node API. That statement does not promise distribution of, or
+identity with, this canonical private runtime. The add-on meters managed writes
+and managed inference as defined above; hosted backup remains governed by the
+published per-tier storage ceiling. Its economics require measurement before
+launch.
 
 Kept deliberately *off* the main ladder so self-hosting stays the first-class
 path and the funnel doesn't quietly drift cloud-ward.
@@ -296,18 +312,17 @@ path and the funnel doesn't quietly drift cloud-ward.
 
 This is the sorting logic behind the matrix, stated plainly for future features.
 
-**Free (Community, BUSL-1.1) — "makes SEAM *work*":**
-the entire runtime, every interface, unlimited memories/queries, BYO-key,
-lever-packs, self-improvement loop, community support, free export. The product
-is fully functional here forever. This is also the marketing engine.
+**Free (Community, PolyForm Shield Node) — "makes SEAM *work*":**
+the complete surface actually shipped in the separately distributed Node
+manifest, permitted local memories/queries, required BYO-key hooks, community
+support, and free export. Proposed improvement features and extension packs are
+included only if the Node artifact expressly contains them. The artifact is not
+a grant to this canonical private runtime.
 
-Source-available, not Apache. Self-hosting — including internal commercial
-production use at any scale — is free and always will be. The single
-restriction is that you may not resell SEAM as a competing hosted service.
-Each version becomes MPL-2.0 four years after it ships, so the promise is
-enforceable rather than a matter of trust. This is what makes the ladder below
-safe to build: the generosity is real, and the one thing it withholds is the
-one thing that would destroy the business.
+Source-available, not Apache and not OSI open source. Shield permits use under
+its exact terms and permanently withholds use to provide a competing product;
+there is no automatic conversion date. The canonical SEAM/MIRL/HS/1 runtime is
+not part of this public grant.
 
 **Combine-with-self-host (Solo/Pro/Max) — "makes *your node* effortless":**
 `seam login`, encrypted backup, cross-device sync, remote control plane,
@@ -342,14 +357,17 @@ the fair, cheap ladder that connects the two.
 
 ## Guardrails (the promises that keep it honest)
 
-1. The core never loses a feature to create a paid tier — paid only adds.
-2. Everything paid is reproducible with the open core + your own infra; we
-   document the DIY path.
+1. The released Node artifact never loses a licensed feature to create a paid
+   tier — paid services only add.
+2. Hosted conveniences have a documented self-managed path where the separately
+   licensed Node contract supports one.
 3. Cancel-safe: downgrading never disables your local node or holds your data.
 4. Your memories stay yours — hosted backup is E2E encrypted (we hold
    ciphertext), export is always free.
-5. No pay-to-use telemetry — the core never needs an account or phone-home.
-6. Benchmarks stay free and honest — the harness is in the open core, never gated.
+5. No pay-to-use telemetry — the released Node self-host surface never needs a
+   paid account merely to exercise rights granted by its artifact license.
+6. Public benchmark methods and reports stay reproducible under their own
+   publication terms; private holdouts and licensed datasets remain protected.
 7. Managed inference is never marked up opaquely — cost + a visible fee.
 8. "Unlimited" always means genuinely uncapped or a published number — no silent
    throttle, no silent model downgrade.

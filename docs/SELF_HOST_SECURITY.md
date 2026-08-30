@@ -28,8 +28,9 @@ leakage:
 - Only `/v1/health`, `/v1/memories`, `/v1/memories/recall`, and `/v1/context`
   are registered. OpenAPI/docs, dashboard, stats, graph, storage, reasoning,
   benchmark, MIRL, PACK, HS/1, and operator routes are absent.
-- An offline Ed25519 entitlement is **optional**. Self-hosting is granted by
-  BUSL-1.1 without limit on scale or number of users, so an unentitled node runs
+- An offline Ed25519 entitlement is **optional**. For the exact historical
+  release described here, self-hosting was granted by its shipped BUSL-1.1
+  terms without limit on scale or number of users, so an unentitled node runs
   the full `/v1` surface; the entitlement identifies a supported deployment and
   unlocks no capability. When one is mounted it is verified before the server
   starts and fails closed on a bad signature, a foreign product, or a malformed
@@ -67,8 +68,9 @@ four-route surface as the image, with these differences:
   root, capability drop, loopback-only Compose mapping, or container
   no-new-privileges policy; the host operator must enforce equivalent process,
   account, network, and data-volume controls;
-- `tools.release.verify_selfhost_wheel` scans real wheel contents, requires the
-  BUSL-1.1 text and metadata, rejects runtime source and secret-shaped content,
+- the retired `tools.release.verify_selfhost_wheel` scanned real wheel contents,
+  required the historical BUSL-1.1 text and metadata, rejected runtime source
+  and secret-shaped content,
   and caps reserved-identifier exposure at the measured 414-occurrence
   baseline; and
 - the build installs the wheel into a clean pinned Python container and proves

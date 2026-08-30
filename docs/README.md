@@ -19,6 +19,7 @@ coverage, open the [documentation map](DOCUMENTATION_MAP.md).
 | File or find reports, evidence, or history | [Reports and evidence](REPORTS_AND_EVIDENCE.md) | [Audit registry](audits/INDEX.md), [history index](../HISTORY_INDEX.md), [current handoff](handoffs/INDEX.md), and [data routing](DATA_ROUTING.md) |
 | Research memory systems or benchmarks | [Retrieval knowledgebase](kb/README.md) | [Benchmark SOP](BENCHMARK_SOP.md), [retrieval evaluation](RETRIEVAL_EVAL_V1.md), and [benchmark run records](BENCHMARK_RUN_RECORDS.md) |
 | Work on branding or product surfaces | [Branding hub](../branding/README.md) | [Canonical identity kit](../branding/kit/README.md), [cosmic UI kit](../branding/canticle-cosmic-kit/README.md), and [surface status](status/surfaces.md) |
+| Understand licensing or company readiness | [Legal/company router](legal/README.md) | [Licensing architecture](legal/LICENSING_ARCHITECTURE.md), [company IP readiness](legal/COMPANY_IP_READINESS.md), and [packaging status](status/packaging-licensing.md) |
 
 ```mermaid
 flowchart LR
@@ -66,6 +67,8 @@ without promoting a weaker source into a stronger claim:
 - [Topic ledgers](ledgers/README.md) — stable routed facts; chronology remains in
   history.
 - [Status streams](status/index.md) — current state by area.
+- [Legal and company readiness](legal/README.md) — current distribution,
+  ownership, trademark, contribution, and incorporation boundaries.
 - [Reports and evidence](REPORTS_AND_EVIDENCE.md) — the canonical storage and
   routing rule for human-readable reports, raw artifacts, and derived summaries.
 - [Audit registry](audits/INDEX.md) — recorded review and measurement evidence.

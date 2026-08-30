@@ -385,9 +385,13 @@ positioning requires a separate legal, security, deployment, and controls review
 
 ### P4.2 — Paid support tier
 
-Source-available core under BUSL-1.1 (free to self-host, converts to MPL-2.0
-after four years). Paid tier for: priority support, custom MIRL type
-definitions, deployment consulting, SLA on consolidation engine performance.
+Separate source-available SEAM SDK/Node products under PolyForm Shield 1.0.0,
+with the canonical MIRL/HS/1 runtime remaining proprietary. Noncompeting
+internal commercial self-hosting allowed by an exact Shielded artifact does not
+require a paid tier. Paid offerings cover priority support, hosted services,
+deployment consulting, consolidation-engine SLAs, and separately negotiated
+rights outside the default artifact license, including competing-product, OEM,
+redistribution, or broader enterprise terms.
 
 ### P4.3 — Hosted consolidation service
 

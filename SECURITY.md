@@ -34,4 +34,7 @@ Security reports may cover runtime behavior, installers, API authentication, ben
 
 Commercial use, hosted service use, SaaS use, embedded use, redistribution, and customer deployment remain governed by `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md`.
 
-Self-hosting the SEAM Distributed Runtime is free under the Business Source License 1.1 (`LICENSES/BUSL-1.1.txt`), including for internal commercial production use at any scale. Security research on it, and publication of the results, is permitted.
+Exact historical source-available releases retain the security-research and
+self-host rights granted by the license shipped with each artifact. This
+private repository makes no public security-research or self-host grant;
+written authorization or a separately licensed SDK/Node artifact is required.

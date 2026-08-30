@@ -534,42 +534,27 @@ repository.
 
 ## License
 
-**Self-hosting SEAM is free.** The SEAM Distributed Runtime, version 2.4.0 or
-later, is published under the Business Source License 1.1
-([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt)). You may run it on your own
-hardware or on infrastructure you rent, for your own or your organization's
-purposes — including internal commercial production use — at no charge, with no
-limit on scale or number of users. Non-commercial research, education, and
-publishing benchmark or evaluation results are permitted too.
+This canonical SEAM repository and its readable runtime, MIRL, HS/1, research,
+benchmark, and planned SEAM-U materials are proprietary and All Rights
+Reserved. Repository access does not grant a right to copy, publish,
+distribute, implement, host, commercialize, train on, or use this material in
+another project.
 
-The one thing the grant withholds is offering the Distributed Runtime to third
-parties on a hosted or embedded basis as a *competitive offering*: a paid
-product or service that significantly overlaps with a paid version of SEAM.
-Free offerings are never competitive, and neither is internal use across
-affiliates under common control. Each published version converts to MPL 2.0
-four years after it is published.
+Canticle places licenses by product boundary:
 
-Everything below concerns material outside the Distributed Runtime.
+- thin public clients, protocols, examples, and connectors: Apache-2.0;
+- separately distributed SEAM SDK and SEAM Node source: PolyForm Shield 1.0.0;
+- this private runtime plus MIRL/HS/1/SEAM-U and hosted-control internals:
+  proprietary.
 
-The rest of the SEAM repository and all non-public MIRL- and HS/1-related
-material are proprietary. MIRL's specification text, source code, schemas as expressed,
-documentation, examples, tests, diagrams, and other original works of
-authorship are copyrighted and reserved. HS/1's specification, container
-expression, visual designs, codecs, surface library, source, documentation,
-examples, tests, and related original works are separately named copyrighted
-and reserved materials. Repository access does not grant a right to copy,
-publish, distribute, implement, host, commercialize, train on, or use that
-material in another project.
+Exact artifacts already published under Apache-2.0 or BUSL-1.1 retain the
+terms shipped with those artifacts. The last BUSL parameters are preserved at
+[LICENSES/HISTORICAL/BUSL-1.1.txt](LICENSES/HISTORICAL/BUSL-1.1.txt) as a
+historical record only; this repository makes no new BUSL grant.
 
-Exact versions previously published at
-<https://github.com/BlackhatShiftey/Seam_Runtime> under Apache-2.0 retain that
-license. The legacy grant is not revoked, but it does not apply automatically
-to later private versions, unpublished changes, or new MIRL or HS/1 material.
-The private-to-public mirror is frozen pending a separately designed and
-legally reviewed distribution boundary. The Apache text applicable to legacy
-material is preserved at
-[LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
-
-The controlling terms are [LICENSE](LICENSE), [NOTICE](NOTICE), and
-[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md). Any external permission
-requires a separate written agreement from the project owner.
+The controlling terms are [LICENSE](LICENSE), [NOTICE](NOTICE),
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md), and the interim
+[trademark policy](TRADEMARKS.md). See the
+[licensing architecture](docs/legal/LICENSING_ARCHITECTURE.md) for the complete
+repository/artifact matrix. Any external permission requires a separate
+written agreement from the Project Owner.

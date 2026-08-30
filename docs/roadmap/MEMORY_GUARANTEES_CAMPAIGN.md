@@ -375,8 +375,11 @@ existing self-host user, buying only the removal of a misconfiguration mode that
 the two-principal matrix already covers.
 
 Optionality is what keeps the settled product shape intact: the paid hosted API
-configures principals and gets a real boundary; the free BUSL self-host configures
-none and never encounters the feature.
+configures principals and gets a real boundary; a separately distributed
+self-host product configures none and never encounters the feature. Historical
+BUSL releases retain their shipped terms, while any prospective SEAM SDK/Node
+source distribution carries its own PolyForm Shield license outside this
+private repository.
 
 **Reuse, do not reinvent.** `seam_runtime/lifecycle.py` already implements the
 delete substrate this stage's fourth clause requires: a `tenant_id` column,

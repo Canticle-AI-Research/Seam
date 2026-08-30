@@ -11,11 +11,21 @@ operator-controlled infrastructure; it is not distributed. A public edition will
 built separately from the ground up, with separation as an architectural property
 rather than a boundary retrofitted onto a codebase that was not designed for one.
 
-Single full package with readable MIRL and HS/1 source. LICENSE, NOTICE,
-COMMERCIAL_LICENSE.md, and the `Private :: Do Not Upload` tripwire are unchanged.
-`package-release.yml` has no `pypi-publish` job: the full-MIRL runtime has **no PyPI
-path at all**. The parameterized BUSL-1.1 text is retained, unused, for the future
-public edition.
+Single full package with readable MIRL and HS/1 source. The root license is
+permanently proprietary and the `Private :: Do Not Upload` tripwire remains.
+`package-release.yml` has no `pypi-publish` job: the full-MIRL runtime has **no
+PyPI path at all**.
+
+BUSL is historical, not prospective. Exact previously published artifacts keep
+their shipped terms; the last BUSL parameters were copied unchanged to
+`LICENSES/HISTORICAL/BUSL-1.1.txt` as explicitly classified evidence while the
+original tracked license file remains preserved. Future source-distributed
+SEAM SDK/Node products are intended to use PolyForm Shield in separate
+repositories. No qualifying Node repository, manifest, or released artifact is
+recorded by this canonical repository yet, so the Node feature/pricing documents
+are prospective strategy, not an available grant or release route. The thin
+public client remains Apache-2.0. This private package carries neither Shield
+nor a current BUSL grant.
 
 ## Retained push gate
 

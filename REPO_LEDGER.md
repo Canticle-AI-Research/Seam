@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-08-22
+Last updated: 2026-08-25
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -54,18 +54,16 @@ and `HISTORY_INDEX.md`.
   specification, container expression, visual designs, codecs, surface
   library, source, docs, tests, and related implementation material are
   separately named copyrighted Reserved Materials under the same terms.
-- The SEAM Distributed Runtime, version 2.4.0 or later, is published under the
-  Business Source License 1.1 as of 2026-07-27 (`LICENSE` v2.1 §7A, parameters
-  in `LICENSES/BUSL-1.1.txt`). Change Date is four years per published version;
-  Change License is MPL 2.0. The Additional Use Grant permits free self-hosting
-  at any scale, including internal commercial production use, plus
-  non-commercial research, education, and publication of benchmark results; it
-  withholds offering the runtime to third parties on a hosted or embedded basis
-  as a paid competitive offering. Membership in the Distributed Runtime is
-  decided by publication plus a conspicuous per-file BUSL notice, never by path
-  — a shared filename, purpose, interface, or ancestry grants nothing.
-  Publishing one version waives nothing in unpublished versions and creates no
-  obligation to publish any future version.
+- The canonical readable SEAM runtime, MIRL, HS/1, private research, benchmarks,
+  and planned SEAM-U assets are permanently proprietary. The root package makes
+  no current BUSL or PolyForm grant. Exact artifacts already published under
+  BUSL-1.1 retain their shipped terms; the last parameters are preserved at
+  `LICENSES/HISTORICAL/BUSL-1.1.txt` as historical evidence only.
+- Canticle's prospective distribution model uses Apache-2.0 for thin public
+  clients/protocols, PolyForm Shield 1.0.0 for separately source-distributed
+  SEAM SDK/Node products, and proprietary controls for this runtime plus hosted
+  control planes and SEAM-U assets. A license belongs to its exact repository,
+  file versions, and artifact; shared names/interfaces/ancestry grant nothing.
 - `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that
@@ -110,10 +108,9 @@ and `HISTORY_INDEX.md`.
   tooling, the self-host release workflow, and the boundary audit suite were all
   removed. A public edition will be built separately, from the ground up, with
   separation as an architectural property rather than a boundary retrofitted
-  onto a codebase that was not designed for it. `LICENSES/BUSL-1.1.txt` is
-  already parameterized for that future edition (Licensor, Licensed Work 2.4.0+,
-  self-hosting permitted, competing hosted resale withheld, four-year Change
-  Date to MPL 2.0) and is retained unused until then.
+  onto a codebase that was not designed for it. Any successor source product is
+  built in a separate repository under PolyForm Shield plus optional commercial
+  terms; do not reactivate the historical BUSL template here.
 - Artifacts already published are unaffected and stay live: `seam-self-host`
   1.1.2 and Apache-2.0 `seam-client` 2.0.0 on PyPI, and legacy Apache-2.0
   `seam-runtime` 1.3.1 (yanked, deliberately retained as a rollback point).

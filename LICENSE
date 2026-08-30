@@ -1,122 +1,93 @@
-SEAM PRIVATE REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE
-Version 2.1 — Effective July 27, 2026
+SEAM PRIVATE REPOSITORY, MIRL, HS/1, AND RESEARCH MATERIALS LICENSE
+Version 3.0 — Effective August 25, 2026
 
-Copyright © 2026 Nicholas Thomas (BlackhatShiftey). All rights reserved.
+Copyright © 2026 Nicholas Thomas. All rights reserved.
 
-IMPORTANT: THIS IS A PROPRIETARY LICENSE, NOT AN OPEN-SOURCE LICENSE.
+IMPORTANT: THIS IS A PROPRIETARY LICENSE, NOT AN OPEN-SOURCE OR
+SOURCE-AVAILABLE LICENSE.
 
 This license governs the private SEAM repository and all Reserved Materials
 made available from it on or after the Effective Date, except for third-party
 materials or a specific file or version that the Project Owner has expressly
 licensed under different written terms.
 
-SCOPE NOTE — SEPARATELY LICENSED DISTRIBUTED RUNTIME. As of Version 2.1, the
-Project Owner publishes a defined subset of this repository, the Distributed
-Runtime, under the Business Source License 1.1. Section 7A states that grant
-and `LICENSES/BUSL-1.1.txt` contains its controlling text. Self-hosting the
-Distributed Runtime, including for internal commercial production use, is
-permitted by that grant at no charge. Everything else in this repository —
-including the MIRL and HS/1 specifications, private benchmarks and holdouts,
-research, history, and release tooling — remains Reserved Materials governed
-by the proprietary terms below.
+The Project Owner is Nicholas Thomas. A future Canticle legal entity becomes a
+Project Owner only after it receives the applicable rights through a written
+assignment or other legally sufficient instrument. A repository, organization,
+brand, or company name does not itself transfer ownership.
 
 1. DEFINITIONS
 
-"Project Owner" means Nicholas Thomas, operating as BlackhatShiftey, or a
-successor that owns the applicable copyrights.
-
-"Private Repository" means the non-public SEAM development repository,
+"Private Repository" means this non-public SEAM development repository,
 including its source code, specifications, schemas, documentation, tests,
-benchmarks, fixtures, designs, research, build and release tooling, history,
-and other materials.
+benchmarks, fixtures, designs, research, models, data, build and release
+tooling, history, and other materials.
 
 "Reserved Materials" means all material in the Private Repository that is not
 expressly identified in writing by the Project Owner as carrying another
 license.
 
 "MIRL Reserved Materials" means the copyrighted expression and non-public
-implementation materials relating to MIRL, including:
-
-- the MIRL specifications, explanatory text, diagrams, examples, record
-  definitions, schemas, grammars, serializations, field selections, and
-  authored arrangements or compilations;
-- source code and documentation for MIRL records, compilation, decompilation,
-  extraction, grounding, normalization, reconciliation, storage, indexing,
-  retrieval, graph projection, vectorization, and provenance;
-- PACK, symbol-table, improvement-loop, compression, readable-compression,
-  lossless, LX, RC, and related codec implementations or documentation;
-- SDK, CLI, API, MCP, dashboard, benchmark, test, fixture, and integration
-  material that implements, exposes, evaluates, or is derived from the
-  non-public MIRL implementation; and
-- non-public modifications, extensions, ports, translations, or derivative
-  works of any of the foregoing.
+implementation materials relating to MIRL, including specifications, schemas,
+records, compilation, extraction, grounding, normalization, reconciliation,
+storage, indexing, retrieval, graph projection, vectorization, provenance,
+PACK, symbol-table and improvement-loop machinery, compression, and codecs.
 
 "HS/1 Reserved Materials" means the copyrighted expression and non-public
-implementation materials relating to SEAM-HS/1 Holographic Surfaces, including:
+implementation materials relating to SEAM-HS/1 Holographic Surfaces, including
+specifications, container expression, visual designs, codecs, surface
+libraries, compilation, encoding, decoding, verification, repair, storage,
+query, rendering, and provenance.
 
-- the HS/1 specification, explanatory text, diagrams, examples, container
-  format, headers, metadata, authored arrangements, and visual designs;
-- source code and documentation for surface compilation, pixel packing,
-  encoding, decoding, hashing, verification, repair, storage, lookup, query,
-  context extraction, import, export, rendering, and provenance;
-- surface libraries, adapters, SDK, CLI, API, MCP, dashboard, benchmark, test,
-  fixture, and integration material that implements, exposes, evaluates, or is
-  derived from the non-public HS/1 implementation; and
-- non-public modifications, extensions, ports, translations, or derivative
-  works of any of the foregoing.
+"SEAM-U Reserved Materials" means any non-public SEAM-U weights, checkpoints,
+optimizer state, tokenizer, training or alignment code, data mixture,
+annotations, prompts, evaluations, inference implementation, and related model
+artifacts developed or controlled by the Project Owner.
 
 "Authorized Contributor" means a person whom the Project Owner has expressly
 authorized in writing to access the Private Repository for work on SEAM.
 
-"Legacy Apache Materials" means only the exact file versions that the Project
-Owner previously published in the public repository at
-https://github.com/BlackhatShiftey/Seam_Runtime while those versions carried
-the Apache License, Version 2.0. The public repository's commit history
-identifies those versions.
+"Legacy Apache Materials" means only exact file versions previously published
+under the Apache License, Version 2.0. The public repository and artifact
+history identifies those versions.
 
-"Distributed Runtime" means only those file versions that the Project Owner
-publishes as the SEAM Distributed Runtime source distribution, version 2.4.0
-or later, and that carry a conspicuous Business Source License 1.1 notice. The
-published distribution's manifest identifies those versions. Material in the
-Private Repository that the Project Owner has not published in that
-distribution is not part of the Distributed Runtime, and does not become part
-of it because it shares a filename, purpose, interface, or ancestry with a
-published file.
+"Historical Source-Available Releases" means only exact artifacts previously
+published under the Business Source License 1.1 or another source-available
+license. The artifact's own license, version, manifest, and publication record
+identify those releases.
 
 2. COPYRIGHT AND OWNERSHIP
 
-The MIRL specifications, source code, documentation, examples, tests, diagrams,
-and other original works of authorship are copyrighted. The Project Owner
-reserves all copyright and other rights in the Reserved Materials and MIRL
+The Project Owner reserves all copyright and other rights in Reserved
+Materials, MIRL Reserved Materials, HS/1 Reserved Materials, and SEAM-U
 Reserved Materials except where an express written license says otherwise.
 
-Access to the Private Repository, possession of a copy, discussion of MIRL, or
-knowledge that a feature exists does not grant any license or permission.
+Access to the Private Repository, possession of a copy, discussion of a
+feature, or knowledge that a feature exists does not grant a license or
+permission.
 
 This license does not claim copyright in abstract ideas, facts, procedures,
 systems, methods of operation, or short names as such. It reserves copyright
-in their original expression and reserves any separate trademark, patent,
-contract, confidentiality, and trade-secret rights that may apply.
+in their original expression and any separate trademark, patent, contract,
+confidentiality, and trade-secret rights that may apply.
 
 3. NO PUBLIC LICENSE GRANT
 
-Except for the Distributed Runtime grant in Section 7A and the Legacy Apache
-Materials in Section 7, no right is granted to use, copy, reproduce, modify,
-adapt, translate, distribute, publish, display, perform, sublicense, sell,
-host, disclose, or create derivative works from the Reserved Materials, MIRL
-Reserved Materials, or HS/1 Reserved Materials. All rights not expressly
-granted in this license or a separate written agreement are reserved.
+Except for exact third-party or Legacy Apache Materials carrying their own
+terms, no right is granted to use, copy, reproduce, modify, adapt, translate,
+distribute, publish, display, perform, sublicense, sell, host, disclose, train
+on, or create derivative works from the Reserved Materials.
+
+The presence of a historical license text in `LICENSES/HISTORICAL/` records a
+past grant. It does not grant rights in this repository, a later version, an
+unpublished version, or a different product.
 
 4. LIMITED AUTHORIZED-CONTRIBUTOR PERMISSION
 
 An Authorized Contributor may access, run, copy, and modify Reserved Materials
-only:
-
-- within access controls approved by the Project Owner;
-- solely to perform work for the benefit of the SEAM project;
-- only for the period and scope of that authorization; and
-- subject to this license and any separate confidentiality, employment,
-  contractor, or contribution agreement.
+only within approved access controls, solely for approved SEAM work, for the
+authorized period and scope, and subject to this license plus any applicable
+confidentiality, employment, contractor, or contribution agreement.
 
 This permission is personal, limited, revocable, non-exclusive,
 non-transferable, and non-sublicensable. It does not authorize publication,
@@ -128,90 +99,64 @@ Unless the Project Owner gives prior written permission, You may not:
 
 - copy, publish, distribute, mirror, upload, transmit, or disclose Reserved
   Materials outside approved private systems;
-- use Reserved Materials, MIRL Reserved Materials, or HS/1 Reserved Materials
-  in any product, service, library, standard, specification, hosted offering,
-  customer deployment, or commercial activity;
-- use non-public MIRL material to create or assist a competing, substitute,
-  compatible, or substantially similar implementation;
-- use non-public HS/1 material to create or assist a competing, substitute,
-  compatible, or substantially similar image-surface or visual-memory
-  implementation;
+- use Reserved Materials in a product, service, library, standard,
+  specification, hosted offering, customer deployment, or commercial activity;
+- use non-public SEAM, MIRL, HS/1, or SEAM-U material to create or assist a
+  competing, substitute, compatible, or substantially similar implementation;
 - extract, scrape, mine, index, benchmark, or use Reserved Materials as
   training, fine-tuning, retrieval, evaluation, or synthetic-data material for
   a model or dataset;
-- remove or alter copyright, ownership, confidentiality, license, provenance,
-  or access-control notices;
+- remove or alter ownership, confidentiality, license, provenance, or
+  access-control notices;
 - bypass or help another person bypass repository, release, export, or
   publication controls; or
-- represent that access to SEAM grants rights in MIRL, SEAM branding, or any
-  private offering.
+- represent that repository access grants rights in SEAM, MIRL, HS/1, SEAM-U,
+  Canticle branding, or any private offering.
 
 Nothing in this section restricts a right that applicable law does not permit
-the Project Owner to restrict. Where such a mandatory right applies, it must be
-exercised only to the minimum extent the law requires.
+the Project Owner to restrict. A mandatory right must be exercised only to the
+minimum extent the law requires.
 
 6. CONFIDENTIALITY
 
 Non-public Reserved Materials are confidential. Authorized Contributors must
 use reasonable safeguards, limit access to authorized people, and promptly
-report suspected loss, disclosure, or unauthorized access to the Project
-Owner. Confidentiality obligations do not apply to information that the
-recipient can document was lawfully public through no breach of an obligation,
-but public availability of Legacy Apache Materials does not make later private
-versions public.
+report suspected loss, disclosure, or unauthorized access. Confidentiality
+does not apply to information the recipient can document was lawfully public
+through no breach of an obligation, but public availability of an older release
+does not make later private versions public.
 
 7. LEGACY APACHE-2.0 MATERIALS
 
 This license does not revoke, narrow, or replace rights already granted for
-Legacy Apache Materials. Those exact published versions remain available under
-the Apache License, Version 2.0, according to their public repository history.
-The required Apache-2.0 text is preserved at `LICENSES/Apache-2.0.txt`.
+Legacy Apache Materials. Those exact published versions remain under Apache
+License 2.0. The required text is preserved at
+`LICENSES/Apache-2.0.txt`.
 
 No later private version, unpublished change, MIRL extension, HS/1 extension,
-or other Reserved Material becomes Apache-licensed merely because it has the
-same filename, purpose, interface, ancestry, or relationship to a Legacy
-Apache Material. Only an express written license grant by the Project Owner
-can publish a new version under Apache-2.0 or another license.
+SEAM-U material, or other Reserved Material becomes Apache-licensed because it
+shares a filename, purpose, interface, ancestry, or relationship with a Legacy
+Apache Material.
 
-7A. DISTRIBUTED RUNTIME — BUSINESS SOURCE LICENSE 1.1
+8. HISTORICAL SOURCE-AVAILABLE RELEASES
 
-The Project Owner licenses the Distributed Runtime under the Business Source
-License 1.1. The controlling text, including the Licensor, Licensed Work,
-Additional Use Grant, Change Date, and Change License parameters, is at
-`LICENSES/BUSL-1.1.txt`. That text governs all use of the Distributed Runtime
-and prevails over Sections 3, 5, and 6 for that material only.
+This license does not revoke, narrow, or replace rights already granted for a
+Historical Source-Available Release. Each exact artifact remains governed by
+the license shipped with that artifact. The last parameterized BUSL-1.1 text is
+retained at `LICENSES/HISTORICAL/BUSL-1.1.txt` as a historical record.
 
-Under that grant, and subject to its Additional Use Grant, You may run the
-Distributed Runtime yourself, on your own hardware or on infrastructure you
-rent, for your own or your organization's purposes, including internal
-commercial production use, at no charge and with no limit on scale or number
-of users. You may also use it for non-commercial research and education and
-may publish benchmark or evaluation results. What the grant withholds is
-offering the Distributed Runtime to third parties on a hosted or embedded
-basis as a competitive offering, as that term is defined in the Additional Use
-Grant.
+No new BUSL grant is made by this repository. No later private version,
+unpublished change, or other product inherits a historical source-available
+license. A future source-distributed SEAM SDK or SEAM Node is licensed only by
+the terms in its own separately reviewed repository and artifact.
 
-Each published version of the Distributed Runtime converts to the Change
-License, MPL 2.0, four years after that version is published. Conversion
-applies separately to each version and does not convert any Reserved Material.
-
-This section grants no rights in Reserved Materials, MIRL Reserved Materials,
-or HS/1 Reserved Materials that the Project Owner has not published in the
-Distributed Runtime, and no trademark rights of any kind. Publication of a
-version under this section is not a waiver of the Project Owner's rights in
-any unpublished version, and does not oblige the Project Owner to publish any
-future version.
-
-8. THIRD-PARTY MATERIALS
+9. THIRD-PARTY MATERIALS
 
 Third-party software, datasets, models, media, or other components remain
-subject to their own licenses. Legacy Apache Materials incorporated into this
-repository also remain subject to Apache-2.0 for those exact materials. This
-license governs new Reserved Materials and the repository as a private
-collection; it grants no rights in third-party or Legacy Apache Materials and
-does not override their terms.
+subject to their own licenses. This license grants no rights in third-party
+materials and does not override their terms.
 
-9. CONTRIBUTIONS
+10. CONTRIBUTIONS
 
 By intentionally submitting a contribution for inclusion in the Private
 Repository, the contributor represents that the contributor has the right to
@@ -219,34 +164,36 @@ submit it and grants the Project Owner a perpetual, worldwide, irrevocable,
 non-exclusive, royalty-free, fully paid-up license to use, reproduce, modify,
 adapt, prepare derivative works of, display, perform, distribute, sublicense,
 relicense, commercially license, and otherwise exploit that contribution as
-part of SEAM, MIRL, or related offerings.
+part of SEAM, MIRL, HS/1, SEAM-U, or related offerings.
 
 The contributor retains any copyright the contributor owns. A separate signed
-agreement controls if it conflicts with this section.
+agreement controls if it conflicts with this section. External contributions
+are not accepted until the Project Owner expressly opens that process under
+written inbound terms.
 
-10. TRADEMARKS AND PATENTS
+11. TRADEMARKS AND PATENTS
 
 No trademark, service-mark, trade-name, branding, certification, or patent
-license is granted. The SEAM and MIRL names, logos, protocol identifiers,
-visual identity, and associated branding remain reserved to the extent
-protected by applicable law.
+license is granted. The SEAM, MIRL, HS/1, SEAM-U, Canticle, Canticle Core, and
+Ghost names, logos, protocol identifiers, visual identity, and associated
+branding remain reserved to the extent protected by applicable law.
 
-11. TERMINATION
+12. TERMINATION
 
 Any permission under this license terminates automatically upon breach. Upon
-termination or revocation of access, the recipient must stop using the
-Reserved Materials and return or securely delete copies under the recipient's
-control, except for copies that applicable law or an authorized written
-retention policy requires.
+termination or revocation of access, the recipient must stop using Reserved
+Materials and return or securely delete copies under the recipient's control,
+except where applicable law or an authorized written retention policy requires
+retention.
 
-12. NO WARRANTY
+13. NO WARRANTY
 
 THE RESERVED MATERIALS ARE PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT,
 SECURITY, ACCURACY, AVAILABILITY, OR ERROR-FREE OPERATION.
 
-13. LIMITATION OF LIABILITY
+14. LIMITATION OF LIABILITY
 
 TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE PROJECT OWNER AND CONTRIBUTORS WILL
 NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL,
@@ -254,16 +201,14 @@ EXEMPLARY, OR PUNITIVE DAMAGES, LOST PROFITS, LOST REVENUE, LOST DATA, BUSINESS
 INTERRUPTION, OR OTHER LOSS ARISING FROM THE RESERVED MATERIALS, THIS LICENSE,
 OR ANY USE OR INABILITY TO USE THE RESERVED MATERIALS.
 
-14. SEVERABILITY AND NO WAIVER
+15. SEVERABILITY, NO WAIVER, AND SEPARATE TERMS
 
 If a provision is unenforceable, it will be limited to the minimum extent
 necessary and the remaining provisions will continue in effect. A failure to
 enforce a provision is not a waiver. A waiver or additional permission must be
 in writing from the Project Owner.
 
-15. SEPARATE WRITTEN TERMS
-
 Evaluation, research, commercial, hosted, enterprise, integration,
 distribution, standards, or other permissions are available only through a
-separate written agreement from the Project Owner. That agreement controls for
-the scope it expressly covers.
+separate written agreement. That agreement controls for the scope it expressly
+covers.

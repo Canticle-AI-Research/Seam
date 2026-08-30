@@ -38,11 +38,12 @@ controls, confidentiality, reserved trademarks, and any separately applicable
 patent or contract rights alongside copyright. Policy documents must not claim
 that copyright alone creates a monopoly over an abstract memory architecture.
 
-## Distributed Runtime boundary (BUSL-1.1)
+## Historical Distributed Runtime boundary (BUSL-1.1)
 
-Effective 2026-07-27, `LICENSE` v2.1 §7A publishes a defined subset of this
+At the 2026-07-27 policy boundary, `LICENSE` v2.1 §7A published a defined subset of this
 repository — the Distributed Runtime, version 2.4.0 or later — under the
-Business Source License 1.1. Parameters are in `LICENSES/BUSL-1.1.txt`:
+Business Source License 1.1. Those parameters are retained at
+`LICENSES/HISTORICAL/BUSL-1.1.txt`:
 Change Date four years per version, Change License MPL 2.0.
 
 The boundary is defined by *publication*, not by path. A file version is part
@@ -65,6 +66,10 @@ Consequences for the controls below:
   BUSL-aware scanner; it does not reuse the thin-shim allow-list.
 - Publishing a version under BUSL waives nothing in unpublished versions and
   creates no obligation to publish any future version.
+
+Current policy makes no new BUSL grant. Future source-distributed SDK/Node
+products use PolyForm Shield in separate repositories; the canonical runtime
+remains proprietary. See `docs/legal/LICENSING_ARCHITECTURE.md`.
 
 ## Legacy Apache boundary
 

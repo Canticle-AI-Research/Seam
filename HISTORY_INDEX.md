@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 611
-total_tokens: ~314270
-latest_id: 611
+total_entries: 612
+total_tokens: ~314470
+latest_id: 612
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 612 | 2026-08-30 | abandoned | 79c875c18020d850 | docs,security,roadmap,operator,+ | 611 |
 | 611 | 2026-08-25 | done | 10fcadfa06921088 | audit,models,persist,graph,+ | 610 |
 | 610 | 2026-08-25 | done | ab0b72b32afa9dac | audit,models,persist,graph,+ | 609 |
 | 609 | 2026-08-25 | done | a7192eea09929752 | audit,models,persist,tests,+ | 608 |
@@ -642,7 +643,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=10 latest=#602, #588, #579, #530, #529
-- audit: count=130 latest=#611, #610, #609, #597, #596
+- audit: count=131 latest=#612, #611, #610, #609, #597
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=206 latest=#571, #553, #547, #519, #518
@@ -718,7 +719,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=86 latest=#598, #594, #593, #588, #586
+- docs: count=87 latest=#612, #598, #594, #593, #588
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -829,7 +830,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=9 latest=#598, #597, #595, #582, #580
+- operator: count=10 latest=#612, #598, #597, #595, #582
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=12 latest=#496, #460, #450, #448, #446
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -892,7 +893,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=2 latest=#606, #388
-- roadmap: count=68 latest=#560, #551, #540, #538, #531
+- roadmap: count=69 latest=#612, #560, #551, #540, #538
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -904,7 +905,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=16 latest=#276, #242, #240, #181, #154
-- security: count=100 latest=#597, #595, #594, #593, #592
+- security: count=101 latest=#612, #597, #595, #594, #593
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -972,6 +973,7 @@ compact: true
 ## status rollup
 
 - roots: 86
+- abandoned: 1
 - changed: 57
 - done: 520
 - in-progress: 13

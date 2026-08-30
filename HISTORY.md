@@ -19864,3 +19864,32 @@ Verification: `pytest tests/audit/test_batched_embedding.py` holds 16 `def test_
 
 Cumulative record for PR #230: fifteen review findings across three rounds, the large majority of them regressions introduced by the change itself, including a false vector-parity claim, a silent data-corruption path in provider index handling, two tests that passed for the wrong reason, and an inflated headline duration. The performance result stands, is reproducible through the probe, and is correctly characterised as 3.5x. Storage amplification of roughly 361 KB per chunk and the unmeasured degradation curve remain the real blockers for whole-corpus ingest, alongside the separate finding that `temporal_window` contributes a ranking leg rather than a filter.
 ---END-ENTRY-#611---
+
+---BEGIN-ENTRY-#612---
+id: 612
+date: 2026-08-30T01:04:55Z
+agent: codex
+status: abandoned
+topics: docs, security, roadmap, operator, audit
+commits: pending
+refs: docs/audits/2026-08-25-seam-company-licensing-boundary.md,docs/audits/INDEX.md,LICENSE,NOTICE,COMMERCIAL_LICENSE.md
+supersedes: 611
+tokens: 200
+---
+The unmerged private-runtime licensing draft is preserved on branch
+`preserve/superseded-private-license-draft-20260829` for provenance only. The
+draft would have kept the canonical SEAM runtime proprietary, applied
+PolyForm Shield only to separately authored future SDK/Node products, and
+tested that PolyForm was absent from this repository.
+
+That direction is abandoned. It conflicts with the later operator-approved
+boundary in which the complete self-host SEAM product, SeamSDK, Ghost, MIRL,
+SEAM-HS/1, and the Improvement Loop are source-available under the intended
+PolyForm Shield layer. The audit is marked superseded and its nonexistent
+history reference is corrected to this branch-local entry.
+
+This commit is a preservation boundary, not a merge candidate, license grant,
+release, legal qualification, or current product claim. The original BUSL
+license file remains in place; the historical copy is additive so the branch
+does not delete tracked license evidence.
+---END-ENTRY-#612---
