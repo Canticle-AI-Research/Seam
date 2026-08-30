@@ -45,6 +45,12 @@ Screen {
 
 /* ── Brand rail ───────────────────────────────────────── */
 
+#brand-rule {
+    height: 1;
+    background: $bg-deep;
+    overflow: hidden;
+}
+
 #brand-bar {
     height: 3;
     padding: 0 2;
@@ -78,7 +84,8 @@ Screen {
 #brand-context {
     color: $text-dim;
     width: 1fr;
-    padding: 1 0 0 1;
+    padding: 1 1 0 1;
+    text-overflow: ellipsis;
 }
 
 #brand-mode {
@@ -89,9 +96,12 @@ Screen {
 }
 
 #brand-status {
-    width: auto;
-    padding: 1 0 0 0;
+    width: 10;
+    height: 3;
+    padding: 1 2 0 2;
     color: $green;
+    background: $bg-panel;
+    border: round $edge;
 }
 
 /* ── Launch lockup ────────────────────────────────────── */
@@ -329,7 +339,73 @@ DataTable > .datatable--hover {
 
 /* ── Settings ─────────────────────────────────────────── */
 
+#settings-workspace {
+    height: 1fr;
+    background: $bg-deep;
+}
+
+#settings-list-pane {
+    width: 25;
+    min-width: 18;
+    max-width: 45;
+    padding: 1;
+    background: $bg-deep;
+}
+
+#settings-section-list {
+    height: 1fr;
+    background: $bg-deep;
+}
+
+SettingsSectionItem {
+    height: 3;
+    padding: 1 1 0 1;
+    color: $text-muted;
+}
+
+SettingsSectionItem.-highlight,
+SettingsSectionItem:hover {
+    background: $bg-panel;
+    color: $text-main;
+}
+
+#settings-divider {
+    width: 1;
+    min-width: 1;
+    height: 1fr;
+    background: $edge;
+    color: $edge-hi;
+    content-align: center middle;
+}
+
+#settings-divider:hover, #settings-divider:focus,
+#settings-divider.-dragging {
+    background: $cyan;
+    color: $bg-deep;
+}
+
+#settings-detail-pane {
+    width: 1fr;
+    min-width: 48;
+    padding: 1 2;
+}
+
+#settings-section-title {
+    height: 2;
+    color: $text-main;
+    text-style: bold;
+}
+
+#settings-body {
+    height: 1fr;
+}
+
+.settings-section {
+    height: auto;
+}
+
 #settings-search {
+    width: 40;
     border: round $edge;
     background: $bg-panel;
     margin: 0 0 1 0;
@@ -446,10 +522,7 @@ Button.-danger {
 /* ── Help rail ────────────────────────────────────────── */
 
 #help-rail {
-    height: 1;
-    padding: 0 2;
-    color: $text-dim;
-    background: $bg-deep;
+    display: none;
 }
 
 .key {
@@ -486,12 +559,33 @@ Input:focus {
 }
 
 #command-input {
-    border: round $edge;
-    background: $bg-sunk;
+    width: 1fr;
+    height: 3;
+    border: none;
+    background: transparent;
 }
 
 #command-input:focus {
-    border: round $pink;
+    border: none;
+}
+
+#command-bar {
+    height: 3;
+    padding: 0 1;
+    background: $bg-deep;
+    border-top: solid $edge;
+}
+
+#command-sigil {
+    width: 3;
+    height: 3;
+    content-align: center middle;
+}
+
+#command-bar Button {
+    height: 3;
+    width: auto;
+    margin-left: 1;
 }
 
 /* Input-mode indicator (S2b Part 1) -- the third of the three places the
@@ -568,4 +662,476 @@ Tooltip {
     background: $surface-alt;
     color: $text-main;
     border: round $edge;
+}
+
+/* ── Canticle rework: nav rail + sections + overlay drawers ── */
+/*
+ * The IA rework replaces the TabbedContent strip with a left nav rail
+ * (nav.py), a ContentSwitcher of five section pages, and three docked
+ * right overlays (overlays.py). Page widgets keep `panel-{id}` ids so
+ * app.py's switching/refresh contract is unchanged.
+ */
+
+#app-body {
+    height: 1fr;
+}
+
+#sections {
+    width: 1fr;
+    height: 1fr;
+}
+
+#panel-memory, #panel-retrieval, #panel-benchmarks,
+#panel-compression, #panel-settings {
+    height: 1fr;
+}
+
+/* Nav rail rows */
+
+#nav-list {
+    height: 1fr;
+}
+
+NavRailItem {
+    height: 4;
+    layout: horizontal;
+    padding: 0 1;
+}
+
+NavRailItem.-active {
+    background: $surface-alt;
+    border-left: thick $magenta;
+}
+
+.nav-hotkey {
+    width: 2;
+    color: $text-dim;
+    text-style: bold;
+}
+
+.nav-glyph {
+    width: 4;
+    margin: 0 1 0 0;
+    text-style: bold;
+}
+
+.nav-label {
+    width: 12;
+    text-style: bold;
+}
+
+.nav-summary {
+    width: 1fr;
+    color: $text-dim;
+}
+
+#nav-hints {
+    height: 2;
+    color: $text-dim;
+    padding: 0 1;
+}
+
+#nav-help {
+    width: 1fr;
+    margin: 0 1 1 1;
+}
+
+/* Shared page furniture */
+
+.pane-label {
+    height: 1;
+    color: $text-dim;
+    text-style: bold;
+}
+
+.page-title {
+    height: 1;
+    color: $magenta;
+    text-style: bold;
+}
+
+.page-subtitle {
+    height: 1;
+    color: $text-dim;
+}
+
+/* Memory page: list pane (left) + detail pane (right) */
+
+#memory-list-pane {
+    width: 55;
+    min-width: 35;
+    max-width: 90;
+    background: $bg-deep;
+}
+
+#memory-detail-pane {
+    width: 1fr;
+    min-width: 40;
+    padding: 1 2;
+    background: $bg-deep;
+}
+
+#memory-view-toggle, #detail-mode-toggle {
+    height: 3;
+    padding: 0 1;
+}
+
+#memory-search {
+    margin: 0 1;
+}
+
+#memory-divider {
+    width: 1;
+    min-width: 1;
+    height: 1fr;
+    background: $edge;
+    color: $edge-hi;
+    content-align: center middle;
+}
+
+#memory-divider:hover, #memory-divider:focus,
+#memory-divider.-dragging {
+    background: $cyan;
+    color: $bg-deep;
+}
+
+#memory-graph-pane {
+    height: 1fr;
+    min-height: 8;
+    display: none;
+    background: $bg-sunk;
+}
+
+#graph-toolbar {
+    height: 6;
+    background: $bg-deep;
+    border-bottom: solid $edge;
+}
+
+#graph-controls, #graph-layout-controls {
+    height: 3;
+    padding: 0 1;
+    background: $bg-deep;
+}
+
+#graph-controls Button, #graph-layout-controls Button {
+    height: 3;
+    min-width: 3;
+    width: auto;
+    margin: 0 1 0 0;
+}
+
+#graph-layout-controls Button.-active {
+    border: round $cyan;
+    color: $cyan;
+    background: $bg-panel;
+}
+
+#graph-layout-controls Button {
+    margin: 0;
+}
+
+#layout-force {
+    width: 12;
+}
+
+#layout-tree {
+    width: 11;
+}
+
+#layout-constellation {
+    width: 1fr;
+}
+
+#graph-zoom-label {
+    width: 6;
+    height: 3;
+    content-align: center middle;
+    color: $text-dim;
+}
+
+#graph-gesture-hint {
+    display: none;
+}
+
+#graph-help {
+    height: 1;
+    padding: 0 1;
+    color: $text-dim;
+    background: $bg-deep;
+}
+
+#constellation-graph {
+    height: 1fr;
+    min-height: 8;
+    background: $bg-sunk;
+    color: $text-main;
+    overflow: hidden;
+}
+
+#constellation-graph:focus {
+    border: solid $cyan;
+}
+
+#detail-header {
+    height: 3;
+}
+
+#detail-kind {
+    width: auto;
+    margin: 0 1 0 0;
+}
+
+#detail-id {
+    width: 1fr;
+}
+
+#detail-meta {
+    height: 1;
+    color: $text-dim;
+}
+
+#detail-record-pane {
+    height: auto;
+    max-height: 18;
+    min-height: 6;
+}
+
+#detail-mirl-pane {
+    height: 1fr;
+    min-height: 6;
+}
+
+#detail-mirl-pane {
+    display: none;
+}
+
+#detail-attrs {
+    height: auto;
+    max-height: 13;
+    min-height: 4;
+}
+
+#detail-summary {
+    height: auto;
+    min-height: 3;
+    max-height: 6;
+    padding: 1 2;
+    margin: 0 0 1 0;
+    border-left: thick $mint;
+    background: $bg-panel;
+    color: $text-main;
+}
+
+#detail-mirl {
+    height: 1fr;
+    min-height: 4;
+}
+
+#memory-prov {
+    height: 1fr;
+    min-height: 8;
+}
+
+#prov-tree {
+    height: 1fr;
+    min-height: 5;
+}
+
+/* Retrieval page: score cards + status grid + timeline */
+
+#retrieval-scores {
+    height: 7;
+    margin: 0 0 1 0;
+}
+
+#retrieval-scores > Vertical, .status-row > Vertical {
+    border: round $edge;
+    background: $bg-panel;
+    padding: 0 1;
+}
+
+.score-label {
+    height: 1;
+    color: $text-dim;
+    text-style: bold;
+}
+
+.score-value {
+    height: 3;
+    color: $text-main;
+    text-style: bold;
+}
+
+.score-trend {
+    height: 1;
+    color: $text-dim;
+}
+
+.status-row {
+    height: 5;
+    margin: 0 0 1 0;
+}
+
+.status-label {
+    height: 1;
+    color: $text-dim;
+}
+
+.status-value {
+    height: 1;
+}
+
+.status-detail {
+    height: 1;
+    color: $text-dim;
+}
+
+.timeline {
+    height: auto;
+    max-height: 12;
+    padding: 0 1;
+}
+
+/* Chat drawer */
+
+#chat-header, #drawer-header, #connections-header {
+    height: 3;
+}
+
+#chat-title, #drawer-title, #connections-title {
+    width: 1fr;
+    text-style: bold;
+}
+
+#chat-model-line {
+    height: 1;
+    color: $text-dim;
+    padding: 0 1;
+}
+
+#chat-log {
+    height: 1fr;
+}
+
+#chat-input-row {
+    height: 3;
+}
+
+#chat-draft {
+    width: 1fr;
+}
+
+/* Memories drawer */
+
+#drawer-count {
+    height: 1;
+    padding: 0 1;
+}
+
+#drawer-activity {
+    height: auto;
+    max-height: 8;
+    padding: 0 1;
+    color: $text-dim;
+}
+
+#drawer-filter {
+    height: 3;
+}
+
+#drawer-filter-hint {
+    height: 1;
+    color: $text-dim;
+    padding: 0 1;
+}
+
+#drawer-records {
+    height: 1fr;
+}
+
+.drawer-record-id {
+    height: 1;
+    text-style: bold;
+}
+
+.drawer-record-preview {
+    height: 1;
+    color: $text-muted;
+}
+
+.drawer-record-meta {
+    height: 1;
+    color: $text-dim;
+}
+
+/* Connections popover */
+
+#connections-body {
+    padding: 0 1;
+}
+
+/* App-level surfaces */
+
+#app-log {
+    display: none;
+    height: 6;
+    min-height: 4;
+    border-top: solid $edge;
+    background: $bg-deep;
+}
+
+#app-log.-open {
+    display: block;
+}
+
+#topbar-chat, #topbar-memories, #topbar-connections, #topbar-log {
+    margin-left: 1;
+}
+
+/* Compact terminals keep both halves of Memory usable by collapsing the
+ * rail to its hotkey + glyph instead of clipping the detail pane off-screen. */
+Screen.-compact NavRail {
+    width: 12;
+    padding: 1 0 0 0;
+}
+
+Screen.-compact NavRailItem {
+    padding: 0 1;
+}
+
+Screen.-compact .nav-label, Screen.-compact .nav-summary {
+    display: none;
+}
+
+Screen.-compact .nav-glyph {
+    width: 3;
+    margin: 0;
+}
+
+Screen.-compact #nav-hints {
+    display: none;
+}
+
+Screen.-compact #nav-help {
+    margin: 0 0 1 0;
+    padding: 0;
+}
+
+Screen.-compact #memory-list-pane,
+Screen.-compact #memory-detail-pane {
+    min-width: 34;
+}
+
+Screen.-compact #memory-list-pane {
+    width: 44;
+}
+
+Screen.-compact #graph-gesture-hint {
+    display: none;
+}
+
+Screen.-compact #layout-force,
+Screen.-compact #layout-tree {
+    display: none;
 }

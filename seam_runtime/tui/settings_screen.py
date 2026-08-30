@@ -24,10 +24,20 @@ from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Button, Input, Label, Select, Static, Switch
+from textual.widgets import (
+    Button,
+    Input,
+    Label,
+    ListItem,
+    ListView,
+    Select,
+    Static,
+    Switch,
+)
 
 from .. import config
 from .keys import SeamInput
+from .split_pane import PaneDivider
 
 __all__ = ["SettingsPanel"]
 
@@ -140,34 +150,86 @@ class SettingRow(Horizontal):
         self.tooltip = self.setting.description or None
 
 
+class SettingsSectionItem(ListItem):
+    """One row in the design's settings section rail."""
+
+    def __init__(self, group: str) -> None:
+        super().__init__(Static(group), id=f"settings-nav-{_slug(group)}")
+        self.group = group
+
+
 class SettingsPanel(Vertical):
     """Scrollable, searchable view over the entire settings registry."""
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._active_group = config.GROUPS[0]
+
     def compose(self) -> ComposeResult:
-        yield SeamInput(
-            placeholder="Filter settings…  (name, description, or group)",
-            id="settings-search",
-        )
-        with VerticalScroll(id="settings-body"):
-            for group in config.GROUPS:
-                rows = config.settings_in_group(group)
-                if group == "Custom Keys":
-                    rows = config.custom_settings()
-                if not rows and group != "Custom Keys":
-                    continue
-                yield Static(f"── {group} ", classes="settings-group",
-                             id=f"group-{_slug(group)}")
-                for setting in rows:
-                    row = SettingRow(setting)
-                    yield row
-                    if setting.description:
-                        yield Static(setting.description, classes="settings-help")
-                if group == "Custom Keys":
-                    yield from self._compose_add_key()
-        with Horizontal(id="settings-actions"):
-            yield Button("Save", id="settings-save", classes="-primary")
-            yield Button("Reload", id="settings-reload")
-            yield Static("", id="settings-status")
+        with Horizontal(id="settings-workspace"):
+            with Vertical(id="settings-list-pane"):
+                yield ListView(
+                    *(SettingsSectionItem(group) for group in config.GROUPS),
+                    id="settings-section-list",
+                )
+            yield PaneDivider(
+                target_id="settings-list-pane",
+                minimum=18,
+                maximum=45,
+                other_minimum=48,
+                id="settings-divider",
+            )
+            with Vertical(id="settings-detail-pane"):
+                yield Static(self._active_group, id="settings-section-title")
+                yield SeamInput(
+                    placeholder="Filter this section…",
+                    id="settings-search",
+                )
+                with VerticalScroll(id="settings-body"):
+                    for group in config.GROUPS:
+                        rows = config.settings_in_group(group)
+                        if group == "Custom Keys":
+                            rows = config.custom_settings()
+                        if not rows and group != "Custom Keys":
+                            continue
+                        with Vertical(
+                            id=f"settings-section-{_slug(group)}",
+                            classes="settings-section",
+                        ):
+                            for setting in rows:
+                                row = SettingRow(setting)
+                                yield row
+                                if setting.description:
+                                    yield Static(
+                                        setting.description,
+                                        classes="settings-help",
+                                    )
+                            if group == "Custom Keys":
+                                yield from self._compose_add_key()
+                with Horizontal(id="settings-actions"):
+                    yield Button("Save", id="settings-save", classes="-primary")
+                    yield Button("Reload", id="settings-reload")
+                    yield Static("", id="settings-status")
+
+    def on_mount(self) -> None:
+        self._show_group(self._active_group)
+
+    @on(ListView.Selected, "#settings-section-list")
+    def _select_group(self, event: ListView.Selected) -> None:
+        if isinstance(event.item, SettingsSectionItem):
+            self._show_group(event.item.group)
+
+    def _show_group(self, group: str) -> None:
+        self._active_group = group
+        self.query_one("#settings-section-title", Static).update(group)
+        self.query_one("#settings-search", Input).value = ""
+        for section in self.query(".settings-section"):
+            section.display = section.id == f"settings-section-{_slug(group)}"
+
+    @on(PaneDivider.Resized)
+    def _resize_settings_sections(self, event: PaneDivider.Resized) -> None:
+        self.query_one("#settings-list-pane").styles.width = event.width
+        self.refresh(layout=True)
 
     def _compose_add_key(self) -> ComposeResult:
         """Render the form for adding a variable SEAM does not ship."""
@@ -215,29 +277,20 @@ class SettingsPanel(Vertical):
     @on(Input.Changed, "#settings-search")
     def _filter(self, event: Input.Changed) -> None:
         query = event.value.strip().lower()
-        visible_groups: set[str] = set()
 
         for row in self.query(SettingRow):
             setting = row.setting
+            if setting.group != self._active_group:
+                continue
             hit = (
                 not query
                 or query in setting.name.lower()
                 or query in setting.description.lower()
-                or query in setting.group.lower()
             )
             row.display = hit
             help_text = row.next_sibling
             if isinstance(help_text, Static) and "settings-help" in help_text.classes:
                 help_text.display = hit
-            if hit:
-                visible_groups.add(setting.group)
-
-        for group in config.GROUPS:
-            try:
-                header = self.query_one(f"#group-{_slug(group)}", Static)
-            except Exception:
-                continue
-            header.display = group in visible_groups
 
     # -- actions -----------------------------------------------------------
 

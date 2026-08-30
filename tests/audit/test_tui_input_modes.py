@@ -66,14 +66,15 @@ class TestModeDispatch:
 
         asyncio.run(_check())
 
-    def test_bare_question_mark_latches_chat_mode_and_switches_tab(
+    def test_bare_question_mark_latches_chat_mode_and_opens_drawer(
         self, tmp_path, monkeypatch
     ) -> None:
         import asyncio
 
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import Input
 
         from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.overlays import ChatDrawer
 
         app = SeamTUI(_backend(tmp_path, monkeypatch))
 
@@ -88,7 +89,10 @@ class TestModeDispatch:
                 assert field.value == ""
                 assert field.has_class("-mode-chat")
                 assert field.placeholder == "message the model"
-                assert app.query_one(TabbedContent).active == "tab-chat"
+                # Chat is an overlay drawer now, not a section: latching
+                # chat must open the drawer so replies are never written
+                # somewhere the operator is not looking.
+                assert app.query_one(ChatDrawer).open
 
         asyncio.run(_check())
 
@@ -238,9 +242,9 @@ class TestModeDispatch:
             async with app.run_test(size=(200, 50)) as pilot:
                 await pilot.pause()
                 # Latch chat mode through the real bare-`?` path (not by
-                # calling `_set_mode` directly) so it also switches the
-                # visible tab to Chat, matching what an operator would
-                # actually see before typing `!pwd`.
+                # calling `_set_mode` directly) so it also opens the chat
+                # drawer, matching what an operator would actually see
+                # before typing `!pwd`.
                 field = app.query_one("#command-input", Input)
                 field.focus()
                 await pilot.press("?", "enter")
@@ -250,12 +254,13 @@ class TestModeDispatch:
                 field.value = "!pwd"
                 await pilot.press("enter")
                 for _ in range(50):
-                    if "exit_code" in _log_text(app, "chat"):
+                    if "exit_code" in _log_text(app, app._active_tab_id()):
                         break
                     await pilot.pause(0.05)
-                # The shell ran (rendered into the active tab's log, which is
-                # Chat since that is what was active)...
-                assert "exit_code: 0" in _log_text(app, "chat")
+                # The shell ran. Chat is an overlay drawer now, so the
+                # output lands in the active section's log (Memory's page
+                # has no log of its own; `_write` routes it to `#app-log`)...
+                assert "exit_code: 0" in _log_text(app, "memory")
                 # ...and it did not disturb the latched mode.
                 assert app.mode == "chat"
 
@@ -371,11 +376,22 @@ class TestModeDispatch:
 
 
 def _log_text(app, tab_id: str) -> str:
+    """Read a surface's log, mirroring `app._write`'s routing.
+
+    Chat renders in the drawer's `#chat-log`; sections whose page owns no
+    `#log-{id}` (Memory) fall back to the shared `#app-log`.
+    """
     from textual.widgets import RichLog
 
-    if tab_id == "settings":
-        tab_id = "memory"
-    log = app.query_one(f"#log-{tab_id}", RichLog)
+    if tab_id == "chat":
+        log = app.query_one("#chat-log", RichLog)
+    else:
+        if tab_id == "settings":
+            tab_id = "memory"
+        try:
+            log = app.query_one(f"#log-{tab_id}", RichLog)
+        except Exception:
+            log = app.query_one("#app-log", RichLog)
     return "\n".join(strip.text for strip in log.lines)
 
 
@@ -477,9 +493,9 @@ class TestTabNavigation:
     def test_alt_n_jumps_directly(self, tmp_path, monkeypatch) -> None:
         import asyncio
 
-        from textual.widgets import TabbedContent
+        from textual.widgets import ContentSwitcher
 
-        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.app import SECTIONS, SeamTUI
 
         app = SeamTUI(_backend(tmp_path, monkeypatch))
 
@@ -488,7 +504,7 @@ class TestTabNavigation:
                 await pilot.pause()
                 await pilot.press("alt+3")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == f"tab-{TABS[2][0]}"
+                assert app.query_one(ContentSwitcher).current == f"panel-{SECTIONS[2].id}"
 
         asyncio.run(_check())
 
@@ -527,9 +543,9 @@ class TestTabNavigation:
         import asyncio
 
         from textual import events
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
-        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.app import SECTIONS, SeamTUI
 
         app = SeamTUI(_backend(tmp_path, monkeypatch))
 
@@ -539,10 +555,10 @@ class TestTabNavigation:
                 field = app.query_one("#command-input", Input)
                 field.focus()
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == "tab-memory"
+                assert app.query_one(ContentSwitcher).current == "panel-memory"
                 app.post_message(events.Key("pound_sign", "£"))
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == f"tab-{TABS[2][0]}"
+                assert app.query_one(ContentSwitcher).current == f"panel-{SECTIONS[2].id}"
                 assert field.value == ""
 
         asyncio.run(_check())
@@ -556,9 +572,9 @@ class TestTabNavigation:
         import asyncio
 
         from textual import events
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
-        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.app import SECTIONS, SeamTUI
 
         monkeypatch.setenv("SEAM_TUI_META_DIGITS", "off")
         app = SeamTUI(_backend(tmp_path, monkeypatch))
@@ -571,11 +587,11 @@ class TestTabNavigation:
                 await pilot.pause()
                 app.post_message(events.Key("pound_sign", "£"))
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == "tab-memory"
+                assert app.query_one(ContentSwitcher).current == "panel-memory"
                 assert field.value == "£"
                 await pilot.press("alt+3")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == f"tab-{TABS[2][0]}"
+                assert app.query_one(ContentSwitcher).current == f"panel-{SECTIONS[2].id}"
 
         asyncio.run(_check())
 
@@ -586,10 +602,10 @@ class TestTabNavigation:
         import asyncio
 
         from textual import events
-        from textual.widgets import Button, Input, TabbedContent
+        from textual.widgets import Button, ContentSwitcher, Input
 
         from seam_runtime import config
-        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.app import SECTIONS, SeamTUI
 
         monkeypatch.delenv("SEAM_TUI_META_DIGITS", raising=False)
         monkeypatch.setattr(config, "config_path", lambda: tmp_path / "settings.env")
@@ -600,8 +616,8 @@ class TestTabNavigation:
         async def _check() -> None:
             async with app.run_test(size=(200, 50)) as pilot:
                 await pilot.pause()
-                tabs = app.query_one(TabbedContent)
-                tabs.active = "tab-settings"
+                tabs = app.query_one(ContentSwitcher)
+                tabs.current = "panel-settings"
                 config.save_persisted({"SEAM_TUI_META_DIGITS": "off"})
                 app.query_one("#settings-reload", Button).press()
                 await pilot.pause()
@@ -613,12 +629,12 @@ class TestTabNavigation:
                 field.focus()
                 app.post_message(events.Key("pound_sign", "£"))
                 await pilot.pause()
-                assert tabs.active == "tab-settings"
+                assert tabs.current == "panel-settings"
                 assert field.value == "£"
 
                 await pilot.press("alt+3")
                 await pilot.pause()
-                assert tabs.active == f"tab-{TABS[2][0]}"
+                assert tabs.current == f"panel-{SECTIONS[2].id}"
 
         asyncio.run(_check())
 
@@ -632,9 +648,9 @@ class TestTabNavigation:
         """
         import asyncio
 
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
-        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.app import SECTIONS, SeamTUI
         from seam_runtime.tui.keys import SeamInput
 
         app = SeamTUI(_backend(tmp_path, monkeypatch))
@@ -643,8 +659,8 @@ class TestTabNavigation:
             async with app.run_test(size=(200, 50)) as pilot:
                 await pilot.pause()
                 # Visit every tab so lazily-composed panels are mounted.
-                for tab_id, _ in TABS:
-                    app.query_one(TabbedContent).active = f"tab-{tab_id}"
+                for section in SECTIONS:
+                    app.query_one(ContentSwitcher).current = f"panel-{section.id}"
                     await pilot.pause()
                 plain = [
                     widget.id or widget.__class__.__name__
@@ -664,9 +680,9 @@ class TestTabNavigation:
         holds focus almost always."""
         import asyncio
 
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
-        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.app import SECTIONS, SeamTUI
 
         app = SeamTUI(_backend(tmp_path, monkeypatch))
 
@@ -675,19 +691,19 @@ class TestTabNavigation:
                 await pilot.pause()
                 app.query_one("#command-input", Input).focus()
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == "tab-memory"
+                assert app.query_one(ContentSwitcher).current == "panel-memory"
                 await pilot.press("ctrl+right")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == f"tab-{TABS[1][0]}"
+                assert app.query_one(ContentSwitcher).current == f"panel-{SECTIONS[1].id}"
 
         asyncio.run(_check())
 
     def test_ctrl_left_cycles_backward_and_wraps(self, tmp_path, monkeypatch) -> None:
         import asyncio
 
-        from textual.widgets import TabbedContent
+        from textual.widgets import ContentSwitcher
 
-        from seam_runtime.tui.app import TABS, SeamTUI
+        from seam_runtime.tui.app import SECTIONS, SeamTUI
 
         app = SeamTUI(_backend(tmp_path, monkeypatch))
 
@@ -698,14 +714,14 @@ class TestTabNavigation:
                 # the last one, not raise or stick.
                 await pilot.press("ctrl+left")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == f"tab-{TABS[-1][0]}"
+                assert app.query_one(ContentSwitcher).current == f"panel-{SECTIONS[-1].id}"
 
         asyncio.run(_check())
 
     def test_tab_command_switches_by_case_insensitive_prefix(self, tmp_path, monkeypatch) -> None:
         import asyncio
 
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
         from seam_runtime.tui.app import SeamTUI
 
@@ -719,14 +735,14 @@ class TestTabNavigation:
                 field.value = "tab BENCH"
                 await pilot.press("enter")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == "tab-benchmarks"
+                assert app.query_one(ContentSwitcher).current == "panel-benchmarks"
 
         asyncio.run(_check())
 
     def test_tab_command_by_label_prefix(self, tmp_path, monkeypatch) -> None:
         import asyncio
 
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
         from seam_runtime.tui.app import SeamTUI
 
@@ -737,17 +753,17 @@ class TestTabNavigation:
                 await pilot.pause()
                 field = app.query_one("#command-input", Input)
                 field.focus()
-                field.value = "tab Live"
+                field.value = "tab Sett"
                 await pilot.press("enter")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == "tab-live"
+                assert app.query_one(ContentSwitcher).current == "panel-settings"
 
         asyncio.run(_check())
 
     def test_unknown_tab_name_errors_and_changes_nothing(self, tmp_path, monkeypatch) -> None:
         import asyncio
 
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
         from seam_runtime.tui.app import SeamTUI
 
@@ -756,21 +772,21 @@ class TestTabNavigation:
         async def _check() -> None:
             async with app.run_test(size=(200, 50)) as pilot:
                 await pilot.pause()
-                before = app.query_one(TabbedContent).active
+                before = app.query_one(ContentSwitcher).current
                 field = app.query_one("#command-input", Input)
                 field.focus()
                 field.value = "tab nonexistent"
                 await pilot.press("enter")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == before
-                assert "no tab matches" in _log_text(app, app._active_tab_id())
+                assert app.query_one(ContentSwitcher).current == before
+                assert "no section matches" in _log_text(app, app._active_tab_id())
 
         asyncio.run(_check())
 
     def test_bare_tab_command_shows_usage_and_changes_nothing(self, tmp_path, monkeypatch) -> None:
         import asyncio
 
-        from textual.widgets import Input, TabbedContent
+        from textual.widgets import ContentSwitcher, Input
 
         from seam_runtime.tui.app import SeamTUI
 
@@ -779,13 +795,13 @@ class TestTabNavigation:
         async def _check() -> None:
             async with app.run_test(size=(200, 50)) as pilot:
                 await pilot.pause()
-                before = app.query_one(TabbedContent).active
+                before = app.query_one(ContentSwitcher).current
                 field = app.query_one("#command-input", Input)
                 field.focus()
                 field.value = "tab"
                 await pilot.press("enter")
                 await pilot.pause()
-                assert app.query_one(TabbedContent).active == before
+                assert app.query_one(ContentSwitcher).current == before
                 assert "usage: tab" in _log_text(app, app._active_tab_id())
 
         asyncio.run(_check())

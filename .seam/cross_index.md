@@ -2,17 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 676
+total_events: 680
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-18T04:00:00Z | history:418:caca6117 | session-event | done | roadmap, docs, agent, memory |  |
-| 2026-07-18T11:21:47Z | history:419:3f64d78d | session-event | done | benchmark, locomo, retrieval, quality, verify | docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md |
-| 2026-07-18T11:28:05Z | history:420:cf6c4060 | session-event | done | benchmark, locomo, retrieval, memory, quality, plan | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
-| 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 | 2026-07-18T21:24:25Z | history:422:b54c82e6 | session-event | done | benchmark, locomo, handoff, test, plan | benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_pa... |
 | 2026-07-19T05:20:46Z | history:423:22ed4a4c | session-event | done | benchmark, locomo, paid-run, handoff, test | docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md,docs/handoffs/2... |
 | 2026-07-19T13:48:23Z | history:424:43ca0434 | session-event | done | benchmark, locomo, paid-run, mem0-harness, ops | benchmarks/external/mem0_harness/seam_mem0_server.py,docs/handoffs/2026-07-19... |
@@ -209,10 +205,14 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-26T04:01:31Z | history:613:2e041a97 | session-event | changed | security, correction, history, audit, protocol, operator,... | .disposable/README.md,AGENTS.md,REPO_LEDGER.md,.gitignore |
 | 2026-08-26T04:46:12Z | history:610:24bafb1c | session-event | done | api, memory, security, tests, docs, handoff, history | seam_runtime/public_api.py,seam_runtime/public_agent_api.py,seam_runtime/serv... |
 | 2026-08-26T05:06:01Z | history:611:f93e5b6f | session-event | done | api, memory, ci, security, docs, handoff, history | https://github.com/Canticle-AI-Research/Seam/pull/233,docs/handoffs/2026-08-2... |
+| 2026-08-28T00:08:47Z | history:614:257cf4a5 | session-event | done | tui, navigation, surface, memory, retrieval, chat, config... | seam_runtime/tui/app.py,seam_runtime/tui/panels.py,seam_runtime/tui/theme.tcs... |
+| 2026-08-28T01:03:39Z | history:615:452dcb35 | session-event | changed | tui, textual, graph, navigation, config, correction, test... | seam_runtime/tui/app.py,seam_runtime/tui/graph_canvas.py,seam_runtime/tui/spl... |
+| 2026-08-29T19:47:27Z | history:616:18b24984 | session-event | changed | skills, operator, security, protocol, history | .disposable/2026-08-29-matt-pocock-ts-skills/README.md,.disposable/README.md,... |
+| 2026-08-30T01:10:58Z | history:617:d9c71d7b | session-event | abandoned | tui, graph, dashboard, surface, correction, history | seam_runtime/tui/app.py,seam_runtime/tui/graph_canvas.py,seam_runtime/tui/mem... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0476.cross.md | 2026-04-15T00:00:00Z..2026-07-18T01:03:48Z | 476 | (multi) | (multi) |
+| 0001-0480.cross.md | 2026-04-15T00:00:00Z..2026-07-18T20:13:22Z | 480 | (multi) | (multi) |

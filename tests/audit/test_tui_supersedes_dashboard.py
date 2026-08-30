@@ -439,10 +439,10 @@ class TestMemoryPageIsNowAWorkspace:
     """
 
     def test_no_prov_tab_or_panel_class(self) -> None:
-        from seam_runtime.tui.app import TABS
+        from seam_runtime.tui.app import SECTIONS
         from seam_runtime.tui.panels import PANEL_CLASSES
 
-        assert "prov" not in dict(TABS)
+        assert "prov" not in {section.id for section in SECTIONS}
         assert "prov" not in PANEL_CLASSES
 
     def _backend_with_a_record(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
@@ -479,16 +479,18 @@ class TestMemoryPageIsNowAWorkspace:
         async def _check() -> None:
             async with app.run_test(size=(200, 60)) as pilot:
                 await pilot.pause()
-                assert len(app.query("#log-memory")) == 1
+                # The page's shared log moved to app level (`#app-log`);
+                # the memory page itself is now the records/detail workspace.
+                assert len(app.query("#app-log")) == 1
                 assert len(app.query("#prov-query")) == 1
                 assert len(app.query("#prov-tree")) == 1
                 assert len(app.query("#memory-copy-id")) == 1
                 assert not app.query("#log-prov")
+                assert not app.query("#log-memory")
 
                 # And specifically inside the memory page, not floating
                 # somewhere else in the DOM.
                 panel = app.query_one("#panel-memory")
-                assert panel.query_one("#log-memory") is not None
                 assert panel.query_one("#prov-query") is not None
                 assert panel.query_one("#prov-tree") is not None
 
@@ -599,14 +601,17 @@ class TestMemoryPageIsNowAWorkspace:
                 expected_id = records._row_ids[0]
 
                 table = app.query_one("#memory-table", DataTable)
+                query = app.query_one("#prov-query", Input)
+                before_query = query.value
                 table.focus()
                 await pilot.pause()
                 await pilot.press("y")
                 await pilot.pause(0.2)
 
                 assert app.clipboard == expected_id
-                # `y` only yanks -- it must not also drive the trace below.
-                assert app.query_one("#prov-query", Input).value == ""
+                # `y` only yanks -- it must not change whichever trace the
+                # designed detail pane already follows.
+                assert query.value == before_query
 
         asyncio.run(_check())
 
@@ -659,7 +664,8 @@ class TestMemoryPageIsNowAWorkspace:
         import asyncio
 
         from seam_runtime.tui.app import SeamTUI
-        from seam_runtime.tui.panels import MemoryPanel, MemoryRecordsPanel, ProvPanel
+        from seam_runtime.tui.memory_page import MemoryPage
+        from seam_runtime.tui.panels import MemoryRecordsPanel, ProvPanel
 
         backend = self._backend_with_a_record(tmp_path, monkeypatch)
         app = SeamTUI(backend)
@@ -675,10 +681,279 @@ class TestMemoryPageIsNowAWorkspace:
                 monkeypatch.setattr(records, "reload", lambda: records_calls.append(None))
                 monkeypatch.setattr(prov, "reload", lambda: prov_calls.append(None))
 
-                app.query_one("#panel-memory", MemoryPanel).reload()
+                app.query_one("#panel-memory", MemoryPage).reload()
 
                 assert records_calls == [None]
                 assert prov_calls == [None]
+
+        asyncio.run(_check())
+
+    def test_first_visible_record_populates_detail_without_enter(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The painted cursor and detail pane must describe the same row."""
+        import asyncio
+
+        from textual.widgets import DataTable
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.memory_page import MemoryPage
+        from seam_runtime.tui.panels import MemoryRecordsPanel
+
+        app = SeamTUI(self._backend_with_a_record(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                records = app.query_one("#memory-records", MemoryRecordsPanel)
+                detail = app.query_one("#panel-memory", MemoryPage)
+                attrs = app.query_one("#detail-attrs", DataTable)
+                for _ in range(50):
+                    if records._row_ids and detail._selected_id and attrs.row_count:
+                        break
+                    await pilot.pause(0.05)
+
+                assert records._row_ids
+                assert detail._selected_id == records._row_ids[0]
+                assert attrs.row_count > 0
+
+        asyncio.run(_check())
+
+    def test_memory_search_filters_live_and_keeps_detail_in_sync(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import Input
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.memory_page import MemoryPage
+        from seam_runtime.tui.panels import MemoryRecordsPanel
+
+        app = SeamTUI(self._backend_with_a_record(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                records = app.query_one("#memory-records", MemoryRecordsPanel)
+                for _ in range(50):
+                    if len(records._row_ids) > 1:
+                        break
+                    await pilot.pause(0.05)
+                assert len(records._row_ids) > 1
+                expected_id = records._row_ids[-1]
+
+                app.query_one("#memory-search", Input).value = expected_id
+                await pilot.pause()
+
+                assert records._row_ids == [expected_id]
+                assert app.query_one("#panel-memory", MemoryPage)._selected_id == expected_id
+
+        asyncio.run(_check())
+
+    def test_graph_view_uses_the_real_knowledge_graph_and_constellation_layout(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The design's Graph view is a node canvas, never an edge table."""
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.graph_canvas import ConstellationGraph
+
+        backend = self._backend_with_a_record(tmp_path, monkeypatch)
+        calls: list[dict[str, object]] = []
+        payload = {
+            "nodes": [
+                {"id": "ent:seam", "label": "SEAM", "kind": "ent", "degree": 2},
+                {"id": "clm:sqlite", "label": "SQLite is canonical", "kind": "clm", "degree": 1},
+                {"id": "ent:sqlite", "label": "SQLite", "kind": "ent", "degree": 1},
+            ],
+            "edges": [
+                {"source": "clm:sqlite", "target": "ent:seam", "predicate": "about"},
+                {"source": "ent:seam", "target": "ent:sqlite", "predicate": "uses"},
+            ],
+            "stats": {"nodes": 3, "edges": 2},
+        }
+
+        def _knowledge_graph(**kwargs: object) -> dict[str, object]:
+            calls.append(kwargs)
+            return payload
+
+        monkeypatch.setattr(backend.runtime, "knowledge_graph", _knowledge_graph)
+        monkeypatch.setattr(
+            backend.runtime,
+            "trace",
+            lambda _record_id: (_ for _ in ()).throw(
+                AssertionError("Graph view must not collapse to the selected trace")
+            ),
+        )
+        monkeypatch.setenv("SEAM_TUI_MOTION", "off")
+        app = SeamTUI(backend)
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.click("#view-graph-btn")
+                graph = app.query_one("#constellation-graph", ConstellationGraph)
+                for _ in range(50):
+                    if graph.node_count == 3:
+                        break
+                    await pilot.pause(0.05)
+
+                assert calls == [{"limit": 300, "hops": 2}]
+                assert graph.node_count == 3
+                assert graph.edge_count == 2
+                assert not app.query("#graph-edges")
+
+                await pilot.click("#layout-constellation")
+                await pilot.pause()
+                assert graph.graph_layout == "constellation"
+                assert graph.zoom == 1.0
+                assert "SEAM" in graph.rendered_plain_text
+
+        asyncio.run(_check())
+
+    def test_memory_divider_drag_resizes_both_panes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The five-pixel design divider is an interaction, not decoration."""
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.setenv("SEAM_TUI_MOTION", "off")
+        app = SeamTUI(self._backend_with_a_record(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                await pilot.pause()
+                left = app.query_one("#memory-list-pane")
+                right = app.query_one("#memory-detail-pane")
+                divider = app.query_one("#memory-divider")
+                before_left = left.region.width
+                before_right = right.region.width
+                target_x = divider.region.x + 12
+                target_y = divider.region.y + 2
+
+                await pilot.mouse_down(divider, offset=(0, 2))
+                await pilot.hover(offset=(target_x, target_y))
+                await pilot.mouse_up(offset=(target_x, target_y))
+                await pilot.pause()
+
+                assert left.region.width >= before_left + 10
+                assert right.region.width <= before_right - 10
+                assert divider.region.x == left.region.right
+
+        asyncio.run(_check())
+
+    def test_settings_section_divider_is_also_resizable(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+
+        monkeypatch.setenv("SEAM_TUI_MOTION", "off")
+        app = SeamTUI(self._backend_with_a_record(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                app._activate_section("settings")
+                await pilot.pause()
+                left = app.query_one("#settings-list-pane")
+                divider = app.query_one("#settings-divider")
+                before = left.region.width
+                target = (divider.region.x + 8, divider.region.y + 2)
+
+                await pilot.mouse_down(divider, offset=(0, 2))
+                await pilot.hover(offset=target)
+                await pilot.mouse_up(offset=target)
+                await pilot.pause()
+
+                assert left.region.width >= before + 6
+
+        asyncio.run(_check())
+
+    def test_overlays_are_exclusive_and_escape_closes_the_open_surface(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.overlays import (
+            ChatDrawer,
+            ConnectionsPopover,
+            MemoriesDrawer,
+        )
+
+        app = SeamTUI(self._backend_with_a_record(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                app._on_topbar_chat()
+                await pilot.pause()
+                assert app.query_one(ChatDrawer).open
+                assert not app.query_one(MemoriesDrawer).open
+
+                app._on_topbar_memories()
+                await pilot.pause()
+                assert not app.query_one(ChatDrawer).open
+                assert app.query_one(MemoriesDrawer).open
+                assert not app.query_one(ConnectionsPopover).open
+
+                app.action_seam_mode()
+                assert not app.query_one(MemoriesDrawer).open
+
+        asyncio.run(_check())
+
+    def test_new_chat_resets_history_and_activity_log_is_collapsible(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from textual.widgets import RichLog
+
+        from seam_runtime.tui.app import SeamTUI
+        from seam_runtime.tui.overlays import ChatDrawer
+
+        app = SeamTUI(self._backend_with_a_record(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(200, 60)) as pilot:
+                log = app.query_one("#app-log", RichLog)
+                assert not log.has_class("-open")
+
+                app._write("memory", "operator-visible result")
+                assert log.has_class("-open")
+                app._on_topbar_log()
+                assert not log.has_class("-open")
+
+                drawer = app.query_one(ChatDrawer)
+                drawer.set_open(True)
+                app.chat_history[:] = [
+                    {"role": "user", "content": "old question"},
+                    {"role": "assistant", "content": "old answer"},
+                ]
+                assert app.start_new_chat()
+                await pilot.pause()
+                assert app.chat_history == []
+                assert "new local conversation" in "\n".join(
+                    strip.text for strip in drawer.query_one("#chat-log", RichLog).lines
+                )
+
+        asyncio.run(_check())
+
+    def test_compact_terminal_collapses_rail_without_hiding_memory_detail(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import asyncio
+
+        from seam_runtime.tui.app import SeamTUI
+
+        app = SeamTUI(self._backend_with_a_record(tmp_path, monkeypatch))
+
+        async def _check() -> None:
+            async with app.run_test(size=(100, 32)) as pilot:
+                await pilot.pause()
+                assert app.screen.has_class("-compact")
+                assert app.query_one("#memory-detail-pane").region.width > 0
 
         asyncio.run(_check())
 

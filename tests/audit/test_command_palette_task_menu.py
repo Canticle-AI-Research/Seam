@@ -456,7 +456,7 @@ class TestReferenceCardCarriesTheFullSdkSignature:
                 app._palette_result(f"sdk:{spec.name}")
                 await pilot.pause()
                 text = "\n".join(
-                    strip.text for strip in app.query_one("#log-memory", RichLog).lines
+                    strip.text for strip in app.query_one("#app-log", RichLog).lines
                 )
                 assert spec.full_signature in text
                 # The row's trimmed form must not be what's mistaken for

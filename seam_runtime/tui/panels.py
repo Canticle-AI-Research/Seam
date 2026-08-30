@@ -35,6 +35,7 @@ from textual import on, work
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
+from textual.message import Message
 from textual.widgets import Button, DataTable, Input, RichLog, Tree
 
 from ..mirl import MIRLRecord, SearchCandidate, TraceGraph
@@ -141,6 +142,19 @@ class MemoryRecordsPanel(_RuntimePanel):
     #: up the DOM from the focused widget -- see `action_yank_id` below.
     BINDINGS = [Binding("y", "yank_id", "Copy id", show=False)]
 
+    class RecordSelected(Message):
+        """Posted when a row becomes the inspected record.
+
+        Carries the row's namespace/scope so detail panes can show them
+        without re-deriving them from the id.
+        """
+
+        def __init__(self, record_id: str, namespace: str, scope: str) -> None:
+            super().__init__()
+            self.record_id = record_id
+            self.namespace = namespace
+            self.scope = scope
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Source of truth for "the id under row N", in the same order
@@ -150,13 +164,23 @@ class MemoryRecordsPanel(_RuntimePanel):
         # records yet") for an id -- they index into this list, never the
         # table's rendered text.
         self._row_ids: list[str] = []
+        #: Every loaded row (id, kind, scope, ns, preview, created), kept so
+        #: `apply_filter` can re-render a subset without a second store walk.
+        self._rows: list[tuple[str, str, str, str, str, str]] = []
+        #: The active client-side filter from the memory search box.
+        self._filter: str = ""
+        #: The record the detail workspace is currently showing. Keeping it
+        #: here lets a filter redraw preserve selection when possible and
+        #: choose the first visible row when it is not.
+        self._selected_record_id: str | None = None
+
 
     def compose(self) -> ComposeResult:
         yield DataTable(id="memory-table")
 
     def on_mount(self) -> None:
         table = self.query_one("#memory-table", DataTable)
-        table.add_columns("id", "kind", "scope", "namespace", "text preview", "created")
+        table.add_columns("id", "kind", "preview", "created")
         table.cursor_type = "row"
         self.refresh_records()
 
@@ -214,22 +238,103 @@ class MemoryRecordsPanel(_RuntimePanel):
         return rows
 
     def _render_rows(self, rows: list[tuple[str, str, str, str, str, str]]) -> None:
+        self._rows = list(rows)
+        self._render_visible_rows()
+
+    def _render_visible_rows(self) -> None:
+        """Render `self._rows` through `self._filter` into the table.
+
+        Filtering is client-side over rows already fetched from
+        `list_record_summaries`/`load_ir`; it never issues a second query,
+        so the search box cannot invent a data path (contract #1).
+        """
         table = self.query_one("#memory-table", DataTable)
         table.clear()
         self._row_ids = []
-        if not rows:
+        needle = self._filter.strip().lower()
+        visible = [
+            row
+            for row in self._rows
+            if not needle
+            or needle in row[0].lower()
+            or needle in row[1].lower()
+            or needle in row[2].lower()
+            or needle in row[3].lower()
+            or needle in row[4].lower()
+        ]
+        if not self._rows:
             _status_row(table, "no MIRL records yet — run compile to create some",
-                        color=brand.TEXT_DIM, columns=6)
+                        color=brand.TEXT_DIM, columns=4)
             return
-        for record_id, kind, scope, ns, preview, created in rows:
-            table.add_row(record_id, kind, scope, ns, preview, created)
+        if not visible:
+            _status_row(table, f"no records match {self._filter!r}",
+                        color=brand.TEXT_DIM, columns=4)
+            return
+        for record_id, kind, scope, ns, preview, created in visible:
+            color = {
+                "ENT": brand.MINT,
+                "CLM": brand.CYAN,
+                "REL": brand.LAVENDER,
+                "RAW": brand.ORANGE,
+            }.get(kind.upper(), brand.TEXT_MUTED)
+            table.add_row(
+                record_id,
+                f"[b {color}]{kind}[/]",
+                preview,
+                created[:10],
+            )
             self._row_ids.append(record_id)
+
+        # A DataTable draws its cursor on row zero immediately, so the detail
+        # workspace must inspect that same row immediately. Previously the
+        # cursor looked selected while the detail pane said "no record
+        # selected" until Enter was pressed.
+        selected_id = (
+            self._selected_record_id
+            if self._selected_record_id in self._row_ids
+            else self._row_ids[0]
+        )
+        table.move_cursor(row=self._row_ids.index(selected_id))
+        self._publish_selection(selected_id)
+
+    def apply_filter(self, query: str) -> None:
+        """Set the client-side filter and re-render the loaded rows."""
+        self._filter = query
+        if self.is_mounted:
+            self._render_visible_rows()
+
+    def try_select_id(self, record_id: str) -> bool:
+        """Move the cursor to `record_id`'s row and select it, if loaded.
+
+        Returns whether the id was found. This is the "paste an id into the
+        search box to jump straight to it" affordance from the design: an
+        exact id beats text filtering, so a pasted id inspects the record
+        even when its text does not match the filter.
+        """
+        try:
+            index = self._row_ids.index(record_id)
+        except ValueError:
+            return False
+        table = self.query_one("#memory-table", DataTable)
+        table.move_cursor(row=index)
+        self._publish_selection(record_id)
+        return True
+
+    def _publish_selection(self, record_id: str) -> None:
+        """Tell the detail pane (and the trace panel) which record is active."""
+        for record_id_found, kind, scope, ns, preview, created in self._rows:
+            if record_id_found == record_id:
+                self._selected_record_id = record_id
+                self.post_message(self.RecordSelected(record_id, ns, scope))
+                break
 
     def _render_error(self, message: str) -> None:
         table = self.query_one("#memory-table", DataTable)
         table.clear()
         _status_row(table, f"error: {message}", color=brand.RED, columns=6)
         self._row_ids = []
+        self._rows = []
+        self._selected_record_id = None
 
     # -- copyable ids --------------------------------------------------
 
@@ -285,6 +390,7 @@ class MemoryRecordsPanel(_RuntimePanel):
         if record_id is None:
             self._log(f"[{brand.TEXT_DIM}]no record under the cursor[/]")
             return
+        self._publish_selection(record_id)
         try:
             query = self.app.query_one("#prov-query", Input)
         except Exception:

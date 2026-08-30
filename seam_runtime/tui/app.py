@@ -24,12 +24,13 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import (
+    Button,
+    ContentSwitcher,
     Input,
+    ListView,
     OptionList,
     RichLog,
     Static,
-    TabbedContent,
-    TabPane,
 )
 from textual.widgets.option_list import Option
 
@@ -44,28 +45,40 @@ from .commands import (
     filter_catalog,
 )
 from .keys import META_DIGIT_KEYS, SeamInput
-from .panels import PANEL_CLASSES
+from .memory_page import MemoryPage
+from .nav import HELP_URL, SECTIONS, NavRail
+from .overlays import ChatDrawer, ConnectionsPopover, MemoriesDrawer
+from .panels import BenchmarksPanel, CompressionPanel, MemoryRecordsPanel
+from .retrieval_page import RetrievalPage
 from .settings_screen import SettingsPanel
 
 __all__ = ["SeamTUI", "CommandPalette", "run"]
 
 THEME_PATH = Path(__file__).with_name("theme.tcss")
 
-#: Tab id -> label. `TabbedContent.active` is always `f"tab-{id}"`. The `tab`
-#: command (below, `_run_tab_command`) matches an operator's argument
-#: case-insensitively against both the id and the label here (prefix match
-#: is fine) and switches to it directly -- it does NOT delegate to the
-#: backend's own `tab` verb, whose argparse choices (`runtime`/`benchmark`)
-#: are the previous dashboard's tab names and do not exist on this one.
-TABS: tuple[tuple[str, str], ...] = (
-    ("memory", "Memory"),
-    ("retrieval", "Retrieval"),
-    ("benchmarks", "Benchmarks"),
-    ("compression", "Compression"),
-    ("chat", "Chat"),
-    ("live", "Live"),
-    ("settings", "Settings"),
-)
+#: Section switching replaces the old `TabbedContent` strip: the nav rail
+#: (`nav.py`) is the one place sections are declared, and `#sections`
+#: (a `ContentSwitcher`) holds one page per section id. Page ids keep the
+#: `panel-{id}` spelling so `_refresh_panel` and the `tab` command keep
+#: working unchanged.
+#:
+#: Chat is not a section in this information architecture — it is the
+#: topbar's overlay drawer (`overlays.py::ChatDrawer`) — so `tab chat`
+#: opens the drawer instead of switching a section. The previous `live`
+#: tab has no section either; its workspace-event feed now lives in the
+#: Retrieval section's activity timeline and the memories drawer.
+#: Command echoes that used to target `#log-live` fall back to the
+#: app log (`#app-log`) via `_write`.
+SECTION_PAGES: dict[str, type] = {
+    "memory": MemoryPage,
+    "retrieval": RetrievalPage,
+    "benchmarks": BenchmarksPanel,
+    "compression": CompressionPanel,
+    "settings": SettingsPanel,
+}
+
+#: `tab` command aliases beyond the sections: `chat` opens the drawer.
+TAB_COMMAND_EXTRAS: tuple[str, ...] = ("chat",)
 
 #: Reference-row surface tag shown in the palette. "rest" reads better than
 #: the internal "api" key next to "cli"/"mcp"/"sdk".
@@ -93,6 +106,7 @@ _MODE_PLACEHOLDERS: dict[str, str] = {
 _MODE_COLORS: dict[str, str] = {
     "seam": brand.PINK, "shell": brand.ORANGE, "chat": brand.CYAN,
 }
+_MODE_SIGILS: dict[str, str] = {"seam": "❯", "shell": "!", "chat": "?"}
 #: Palette option ids -> (label, summary) for the "Modes" group (Part 5).
 _MODE_MENU_ROWS: tuple[tuple[str, str, str], ...] = (
     ("mode:shell", "!shell", "Latch shell mode -- bare text runs a shell command"),
@@ -254,9 +268,8 @@ class CommandPalette(ModalScreen[str]):
 
 
 #: `alt+1`..`alt+N`, capped at 9 (there is no "alt+10" key) -- derived from
-#: `len(TABS)` rather than hardcoded, because TABS has already changed size
-#: once (S1 removed the standalone Provenance tab) and will again (S9 folds
-#: Benchmarks/Compression into Engine).
+#: `len(SECTIONS)` rather than hardcoded, because the section list has
+#: already changed size once and will again.
 #:
 #: Each tab gets both spellings: the real `alt+N` keycode, and what an
 #: "Alt sends Escape" terminal actually delivers instead (see `keys.py`).
@@ -266,13 +279,13 @@ class CommandPalette(ModalScreen[str]):
 #: `#command-input` holds focus almost always.
 _JUMP_TAB_BINDINGS: tuple[Binding, ...] = tuple(
     binding
-    for i in range(1, min(len(TABS), 9) + 1)
+    for i in range(1, min(len(SECTIONS), 9) + 1)
     for binding in (
-        Binding(f"alt+{i}", f"jump_tab({i - 1})", f"Tab {i}", show=False, priority=True),
+        Binding(f"alt+{i}", f"jump_tab({i - 1})", f"Section {i}", show=False, priority=True),
         Binding(
             META_DIGIT_KEYS[i - 1],
             f"jump_tab_meta({i - 1})",
-            f"Tab {i}",
+            f"Section {i}",
             show=False,
             priority=True,
         ),
@@ -348,6 +361,7 @@ class SeamTUI(App[None]):
         self.chat_history: list[dict[str, str]] = []
         self._chat_busy = False
         self._chat_intro_shown = False
+        self._app_log_count = 0
         motion = config.effective_value("SEAM_TUI_MOTION").strip().lower()
         self._startup_motion = motion if motion in {"full", "reduced", "off"} else "full"
         #: Whether `_META_DIGIT_KEYS` still jump tabs; see the binding table.
@@ -369,28 +383,40 @@ class SeamTUI(App[None]):
     # -- layout ------------------------------------------------------------
 
     def compose(self) -> ComposeResult:
+        yield Static(brand.rule(240), id="brand-rule")
         with Horizontal(id="brand-bar"):
             with Horizontal(id="brand-lockup"):
                 yield Static(brand.terminal_prompt(), id="brand-symbol")
                 yield Static(brand.product_wordmark(), id="brand-product")
-            yield Static(str(self.backend.runtime.store.path), id="brand-context")
+            yield Static("SEAM › Memory › Table", id="brand-context")
             yield Static("seam", id="brand-mode")
+            # The mockup's topbar affordances: the overlay surfaces are
+            # reachable from the top bar, not the nav rail.
+            yield Button("Chat", id="topbar-chat", compact=True)
+            yield Button("Memories", id="topbar-memories", compact=True)
+
+        with Horizontal(id="app-body"):
+            yield NavRail(id="nav-rail")
+            with ContentSwitcher(id="sections", initial="panel-memory"):
+                for section in SECTIONS:
+                    page = SECTION_PAGES[section.id]
+                    yield page(id=f"panel-{section.id}")  # type: ignore[call-arg]
+
+        # Docked right overlays; each stays `display: none` until opened.
+        yield ChatDrawer(id="chat-drawer")
+        yield MemoriesDrawer(id="memories-drawer")
+        yield ConnectionsPopover(id="connections-popover")
+
+        yield RichLog(id="app-log", markup=True, wrap=True, highlight=True)
+        with Horizontal(id="command-bar"):
+            yield Static("❯", id="command-sigil")
+            yield SeamInput(
+                placeholder=_MODE_PLACEHOLDERS["seam"],
+                id="command-input",
+            )
+            yield Button("Connections", id="topbar-connections", compact=True)
             yield Static("ready", id="brand-status")
-
-        with TabbedContent(id="tabs"):
-            for tab_id, label in TABS:
-                with TabPane(label, id=f"tab-{tab_id}"):
-                    if tab_id == "settings":
-                        yield SettingsPanel()
-                    else:
-                        # Each panel owns its own `#log-{tab_id}` RichLog, so
-                        # `_write()` and `action_clear_output()` below keep
-                        # working unchanged -- only the container around that
-                        # log changed, from a bare RichLog to a RichLog plus
-                        # a DataTable/Tree/Input showing structured state.
-                        yield PANEL_CLASSES[tab_id](id=f"panel-{tab_id}")
-
-        yield SeamInput(placeholder=_MODE_PLACEHOLDERS["seam"], id="command-input")
+            yield Button("Log", id="topbar-log", compact=True)
         yield Static(
             "[b]/[/b] commands   [b]![/b] shell   [b]?[/b] chat   [b]^S[/b] settings   "
             "[b]y[/b] copy id   [b]^L[/b] clear   [b]^C[/b] quit",
@@ -478,6 +504,10 @@ class SeamTUI(App[None]):
         if self._startup_active:
             self._finish_startup_animation()
 
+    def on_resize(self, event: events.Resize) -> None:
+        """Collapse the rail before it can crowd out the Memory detail pane."""
+        self.screen.set_class(event.size.width < 120, "-compact")
+
     def on_mount(self) -> None:
         self._cursor_on = True
         if self._startup_motion == "full":
@@ -486,37 +516,183 @@ class SeamTUI(App[None]):
                 self._blink,
             )
         self._start_startup_animation()
+        # Authoritative rail/section sync: the switcher starts on Memory and
+        # the rail must agree from the first frame.
+        self._activate_section("memory")
+        self.query_one("#brand-context", Static).tooltip = str(
+            self.backend.runtime.store.path
+        )
         self._write(
             "memory",
             f"[b {brand.PINK}]SEAM ready[/]  [{brand.TEXT_DIM}]"
             f"{len(self.catalog)} commands · press / for the menu · "
-            f"{len(config.SETTINGS)} settings in the Settings tab[/]",
+            f"{len(config.SETTINGS)} settings in the Settings section[/]",
         )
-        # The Memory tab is now a page (table + provenance trace + this log,
-        # panels.py's `MemoryPanel`), and neither the copy-id key nor the
+        # The Memory section is now a page (records list + detail pane +
+        # provenance trace), and neither the copy-id key nor the
         # trace-on-select behaviour is otherwise visible without reading the
         # source, so say it once, dim, right under the splash.
         self._write(
             "memory",
             f"[{brand.TEXT_DIM}]tip: select a record (enter or click) to "
-            f"trace it below · paste an id in the field · [b]Copy ID[/b] or "
-            f"[b]y[/b] copies explicitly[/]",
+            f"inspect and trace it · paste an id in the search field · "
+            f"[b]Copy ID[/b] or [b]y[/b] copies explicitly[/]",
         )
+        # Startup guidance is retained in the activity log and counted on
+        # the topbar, but the workspace gets the vertical room by default.
+        # The next command output reveals the log automatically.
+        self._set_app_log_open(False)
         self.query_one("#command-input", Input).focus()
         self._set_mode("seam")
 
     # -- helpers -----------------------------------------------------------
 
     def _active_tab_id(self) -> str:
-        active = self.query_one(TabbedContent).active or "tab-memory"
-        return active.removeprefix("tab-")
+        active = self.query_one(ContentSwitcher).current or "panel-memory"
+        return active.removeprefix("panel-")
+
+    def _activate_section(self, section_id: str) -> None:
+        """Switch `#sections` to `section_id` and sync the nav rail."""
+        try:
+            self.query_one(ContentSwitcher).current = f"panel-{section_id}"
+        except Exception:
+            return
+        try:
+            self.query_one(NavRail).highlight(section_id)
+        except Exception:
+            pass
+        self._update_breadcrumb()
+
+    def _update_breadcrumb(self) -> None:
+        section_id = self._active_tab_id()
+        section = next((item for item in SECTIONS if item.id == section_id), None)
+        parts = ["SEAM", section.label if section is not None else section_id.title()]
+        if section_id == "memory":
+            try:
+                page = self.query_one("#panel-memory", MemoryPage)
+                parts.append("Graph" if page._view_mode == "graph" else "Table")
+                if page._selected_id:
+                    parts.append(page._selected_id)
+            except Exception:
+                pass
+        self.query_one("#brand-context", Static).update(" › ".join(parts))
+
+    @on(Button.Pressed, "#view-table-btn, #view-graph-btn")
+    def _on_memory_view_breadcrumb(self) -> None:
+        self.call_after_refresh(self._update_breadcrumb)
+
+    @on(MemoryRecordsPanel.RecordSelected)
+    def _on_memory_selection_breadcrumb(self) -> None:
+        self.call_after_refresh(self._update_breadcrumb)
+
+    @on(ListView.Selected, "#nav-list")
+    def _on_nav_selected(self, event: ListView.Selected) -> None:
+        """A rail row selected (Enter or click) activates its section."""
+        section = getattr(event.item, "section", None)
+        if section is not None:
+            self._activate_section(section.id)
+
+    @on(Button.Pressed, "#nav-help")
+    def _on_nav_help(self) -> None:
+        """The rail's Help row: copy the support URL, never spawn a browser."""
+        self.copy_to_clipboard(HELP_URL)
+        self._write(
+            "memory",
+            f"[{brand.TEXT_DIM}]support url copied ↓\n{HELP_URL}[/]",
+        )
+
+    @on(Button.Pressed, "#topbar-chat")
+    def _on_topbar_chat(self) -> None:
+        drawer = self.query_one(ChatDrawer)
+        if drawer.open:
+            drawer.set_open(False)
+            return
+        self._refresh_chat_client()
+        self._sync_chat_model_line()
+        self._open_overlay(drawer)
+
+    @on(Button.Pressed, "#topbar-memories")
+    def _on_topbar_memories(self) -> None:
+        drawer = self.query_one(MemoriesDrawer)
+        if drawer.open:
+            drawer.set_open(False)
+            return
+        self._open_overlay(drawer)
+
+    @on(Button.Pressed, "#topbar-connections")
+    def _on_topbar_connections(self) -> None:
+        popover = self.query_one(ConnectionsPopover)
+        if popover.open:
+            popover.set_open(False)
+            return
+        self._open_overlay(popover)
+
+    @on(Button.Pressed, "#topbar-log")
+    def _on_topbar_log(self) -> None:
+        self._set_app_log_open(not self.query_one("#app-log").has_class("-open"))
+
+    def _open_overlay(
+        self,
+        target: ChatDrawer | MemoriesDrawer | ConnectionsPopover,
+        *,
+        focus: bool = True,
+    ) -> None:
+        """Open one right-hand surface and close the other two."""
+        for overlay_type in (ChatDrawer, MemoriesDrawer, ConnectionsPopover):
+            overlay = self.query_one(overlay_type)
+            if overlay is target:
+                continue
+            overlay.set_open(False)
+        if isinstance(target, ChatDrawer):
+            target.set_open(True, focus=focus)
+        else:
+            target.set_open(True)
+
+    def _close_overlays(self) -> bool:
+        """Close every open right-hand surface; return whether one closed."""
+        closed = False
+        for overlay_type in (ChatDrawer, MemoriesDrawer, ConnectionsPopover):
+            overlay = self.query_one(overlay_type)
+            if overlay.open:
+                overlay.set_open(False)
+                closed = True
+        return closed
+
+    def _set_app_log_open(self, open: bool) -> None:
+        log = self.query_one("#app-log", RichLog)
+        log.set_class(open, "-open")
+        try:
+            button = self.query_one("#topbar-log", Button)
+            suffix = f" · {self._app_log_count}" if self._app_log_count else ""
+            button.label = f"{'Hide log' if open else 'Log'}{suffix}"
+        except Exception:
+            pass
 
     def _write(self, tab_id: str, text: str) -> None:
-        """Write to a tab's log, falling back to Memory for the settings tab."""
+        """Write to a section's log, routing chat to the drawer.
+
+        Chat has no section log — it is the ChatDrawer's transcript
+        (`#chat-log`). Sections whose page owns no `#log-{id}` RichLog
+        (Memory's page is a table/detail workspace) fall back to the
+        shared app log so output is always visible somewhere.
+        """
+        if tab_id == "chat":
+            try:
+                self.query_one("#chat-log", RichLog).write(text)
+                return
+            except Exception:
+                pass
         if tab_id == "settings":
             tab_id = "memory"
         try:
             self.query_one(f"#log-{tab_id}", RichLog).write(text)
+            return
+        except Exception:
+            pass
+        try:
+            self.query_one("#app-log", RichLog).write(text)
+            self._app_log_count += 1
+            self._set_app_log_open(True)
         except Exception:
             pass
 
@@ -564,17 +740,25 @@ class SeamTUI(App[None]):
         colour = brand.RED if shell_disabled else _MODE_COLORS.get(mode, brand.TEXT_MUTED)
         label = f"shell (disabled: {shell.ALLOW_SHELL_ENV})" if shell_disabled else mode
         self.query_one("#brand-mode", Static).update(f"[{colour}]{label}[/]")
+        self.query_one("#command-sigil", Static).update(
+            f"[b {colour}]{_MODE_SIGILS.get(mode, '❯')}[/]"
+        )
 
     def _show_chat_tab(self) -> None:
-        """Entering chat mode -- latched or one-shot -- always switches the
-        visible tab, so a reply is never written somewhere the operator is
-        not looking (Part 3 of S2b)."""
-        self.query_one(TabbedContent).active = "tab-chat"
+        """Entering chat mode -- latched or one-shot -- always opens the
+        chat drawer, so a reply is never written somewhere the operator is
+        not looking (Part 3 of S2b). Focus stays on `#command-input`: the
+        latch contract is that the next keystrokes are chat text typed in
+        the command bar, not the drawer's own field."""
+        self._open_overlay(self.query_one(ChatDrawer), focus=False)
 
     # -- actions -----------------------------------------------------------
 
     def action_seam_mode(self) -> None:
-        """Escape returns to seam mode and the global command bar."""
+        """Escape closes an overlay first, then returns to seam mode."""
+        if self._close_overlays():
+            self.query_one("#command-input", Input).focus()
+            return
         self._set_mode("seam")
         self.query_one("#command-input", Input).focus()
 
@@ -677,10 +861,25 @@ class SeamTUI(App[None]):
 
         self.chat_client = SeamChatClient()
 
+    def _sync_chat_model_line(self) -> None:
+        """Keep the drawer header truthful after Settings changes."""
+        drawer = self.query_one(ChatDrawer)
+        if self.chat_client.configured:
+            drawer.set_model_line(
+                f"[{brand.TEXT_DIM}]{self.chat_client.model} · "
+                f"{self.chat_client.base_url}[/]"
+            )
+        else:
+            drawer.set_model_line(
+                f"[{brand.TEXT_MUTED}]not configured — set SEAM_CHAT_API_KEY, "
+                f"SEAM_CHAT_BASE_URL, and SEAM_CHAT_MODEL in Settings[/]"
+            )
+
     def _enter_chat_mode(self) -> None:
-        """Latch chat, show its transcript, and surface configuration state."""
+        """Latch chat, open its drawer, and surface configuration state."""
         self._refresh_chat_client()
         self._set_mode("chat")
+        self._sync_chat_model_line()
         self._show_chat_tab()
         if self._chat_intro_shown:
             return
@@ -699,6 +898,28 @@ class SeamTUI(App[None]):
                 f"SEAM_CHAT_API_KEY, SEAM_CHAT_BASE_URL, and SEAM_CHAT_MODEL "
                 f"in Settings, then send a message.[/]",
             )
+
+    def start_new_chat(self) -> bool:
+        """Start a fresh local conversation without inventing server threads."""
+        if self._chat_busy:
+            self._write(
+                "chat",
+                f"[{brand.YELLOW}]Wait for the running reply before starting "
+                f"a new conversation.[/]",
+            )
+            return False
+        self.chat_history.clear()
+        self._chat_intro_shown = False
+        drawer = self.query_one(ChatDrawer)
+        drawer.clear_transcript()
+        self._refresh_chat_client()
+        self._sync_chat_model_line()
+        self._write(
+            "chat",
+            f"[{brand.TEXT_DIM}]new local conversation · no server-side thread created[/]",
+        )
+        drawer.focus_draft()
+        return True
 
     def _show_reference(self, spec: CommandSpec) -> None:
         """Print a reference card for a command the TUI does not execute."""
@@ -728,21 +949,34 @@ class SeamTUI(App[None]):
         self._write(self._active_tab_id(), "\n".join(lines))
 
     def action_show_settings(self) -> None:
-        self.query_one(TabbedContent).active = "tab-settings"
+        self._activate_section("settings")
 
     def action_clear_output(self) -> None:
         tab_id = self._active_tab_id()
+        if tab_id == "chat":
+            try:
+                self.query_one("#chat-log", RichLog).clear()
+            except Exception:
+                pass
+            return
         if tab_id == "settings":
             return
         try:
             self.query_one(f"#log-{tab_id}", RichLog).clear()
+            return
+        except Exception:
+            pass
+        try:
+            self.query_one("#app-log", RichLog).clear()
+            self._app_log_count = 0
+            self._set_app_log_open(False)
         except Exception:
             pass
 
     def action_jump_tab(self, index: int) -> None:
-        """`alt+1`..`alt+N`: jump directly to the Nth tab."""
-        if 0 <= index < len(TABS):
-            self.query_one(TabbedContent).active = f"tab-{TABS[index][0]}"
+        """`alt+1`..`alt+N`: jump directly to the Nth section."""
+        if 0 <= index < len(SECTIONS):
+            self._activate_section(SECTIONS[index].id)
 
     def action_jump_tab_meta(self, index: int) -> None:
         """The same jump, reached by `alt+N`'s "Alt sends Escape" spelling.
@@ -760,13 +994,15 @@ class SeamTUI(App[None]):
         self._cycle_tab(-1)
 
     def _cycle_tab(self, delta: int) -> None:
-        tabs = self.query_one(TabbedContent)
-        ids = [f"tab-{tab_id}" for tab_id, _ in TABS]
+        sections = self.query_one(ContentSwitcher)
+        ids = [f"panel-{section.id}" for section in SECTIONS]
         try:
-            index = ids.index(tabs.active)
+            index = ids.index(sections.current or "panel-memory")
         except ValueError:
             index = 0
-        tabs.active = ids[(index + delta) % len(ids)]
+        target = ids[(index + delta) % len(ids)]
+        sections.current = target
+        self.query_one(NavRail).highlight(target.removeprefix("panel-"))
 
     @on(Input.Changed, "#command-input")
     def _on_input_prefix(self, event: Input.Changed) -> None:
@@ -866,8 +1102,10 @@ class SeamTUI(App[None]):
         `DashboardApp`'s own `tab` verb (`dashboard.py:2421`) only accepts
         `runtime`/`benchmark` -- the previous dashboard's tab names -- so
         forwarding to `backend.execute("tab ...")` could never move this
-        UI's tabs. Matching is case-insensitive and a prefix match against
-        either the tab id or its label is enough (`mem` reaches Memory).
+        UI's sections. Matching is case-insensitive and a prefix match
+        against either the section id or its label is enough (`mem`
+        reaches Memory). `tab chat` opens the chat drawer instead of
+        switching a section.
         """
         source_tab = self._active_tab_id()
         echo = f"\n[b {brand.PINK}]{brand.PROMPT}[/] [b {brand.MAGENTA}]tab[/]"
@@ -875,7 +1113,10 @@ class SeamTUI(App[None]):
             echo += f" [{brand.TEXT_MUTED}]{argument}[/]"
         self._write(source_tab, echo)
 
-        valid = ", ".join(f"{tab_id} ({label})" for tab_id, label in TABS)
+        valid = ", ".join(
+            [f"{section.id} ({section.label})" for section in SECTIONS]
+            + [f"{name} (overlay)" for name in TAB_COMMAND_EXTRAS]
+        )
         if not argument:
             self._write(source_tab, f"[{brand.RED}]usage: tab <name>[/]  [{brand.TEXT_DIM}]{valid}[/]")
             self._set_status(f"[{brand.RED}]error[/]")
@@ -883,19 +1124,32 @@ class SeamTUI(App[None]):
 
         needle = argument.lower()
         match = next(
-            (tab_id for tab_id, label in TABS
-             if tab_id.lower().startswith(needle) or label.lower().startswith(needle)),
+            (
+                section.id
+                for section in SECTIONS
+                if section.id.lower().startswith(needle)
+                or section.label.lower().startswith(needle)
+            ),
             None,
         )
+        if match is None and any(
+            name.startswith(needle) for name in TAB_COMMAND_EXTRAS
+        ):
+            self._refresh_chat_client()
+            self._sync_chat_model_line()
+            self._open_overlay(self.query_one(ChatDrawer))
+            self._write("chat", f"[{brand.MINT}]chat drawer opened[/]")
+            self._set_status(f"[{brand.MINT}]ready[/]")
+            return
         if match is None:
             self._write(
                 source_tab,
-                f"[{brand.RED}]no tab matches {argument!r}[/]  [{brand.TEXT_DIM}]{valid}[/]",
+                f"[{brand.RED}]no section matches {argument!r}[/]  [{brand.TEXT_DIM}]{valid}[/]",
             )
             self._set_status(f"[{brand.RED}]error[/]")
             return
 
-        self.query_one(TabbedContent).active = f"tab-{match}"
+        self._activate_section(match)
         self._write(match, f"[{brand.MINT}]switched to {match}[/]")
         self._set_status(f"[{brand.MINT}]ready[/]")
 
@@ -906,9 +1160,9 @@ class SeamTUI(App[None]):
         tab_id = self._active_tab_id()
         if tab_id == "settings":
             # Settings has no output log. Keep the result visible instead of
-            # silently redirecting it to a tab the operator cannot see.
+            # silently redirecting it to a section the operator cannot see.
             tab_id = "memory"
-            self.query_one(TabbedContent).active = "tab-memory"
+            self._activate_section("memory")
         if not command:
             self._write(tab_id, f"[{brand.TEXT_DIM}]enter a shell command after ![/]")
             return
@@ -964,6 +1218,7 @@ class SeamTUI(App[None]):
         # small, state-free client before every request so the next message
         # sees the effective key/base/model without a restart.
         self._refresh_chat_client()
+        self._sync_chat_model_line()
         self._show_chat_tab()
         self._write("chat", f"\n[b {brand.CYAN}]?{brand.PROMPT}[/] [{brand.TEXT_MUTED}]{message}[/]")
         self._set_status(f"[{brand.YELLOW}]working…[/]")
