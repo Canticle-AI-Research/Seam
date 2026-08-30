@@ -12,6 +12,7 @@ coverage, open the [documentation map](DOCUMENTATION_MAP.md).
 | I want to... | Start here | Then use |
 | --- | --- | --- |
 | Understand what SEAM is | [SEAM governing specification](../SEAM_SPEC_V0.1.md) | [MIRL v1 contract](MIRL_V1.md) and [engineering architecture](engineering/01_ARCHITECTURE.md) |
+| Understand product and licensing terms | [SEAM product language](../CONTEXT.md) | [Product and licensing boundary design](superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md) and [packaging/licensing status](status/packaging-licensing.md) |
 | Install and use SEAM | [Operator guide](SEAM_OPERATOR_GUIDE.md) | [Setup](setup.md), [how-to runbooks](howto/README.md), and [troubleshooting](errors.md) |
 | Understand the architecture | [Engineering manual](engineering/README.md) | [RAG architecture](RAG_ARCHITECTURE.md), [knowledge graph](KNOWLEDGE_GRAPH.md), and [reasoning graph](REASONING_GRAPH.md) |
 | Engineer or verify a change | [Engineering change SOP](engineering/06_ENGINEERING_CHANGE_SOP.md) | [Verification matrix](engineering/VERIFICATION_MATRIX.md), [test and benchmark SOP](engineering/07_TEST_AND_BENCHMARK_SOP.md), and [code layout](CODE_LAYOUT.md) |
@@ -73,6 +74,10 @@ without promoting a weaker source into a stronger claim:
   its supersession chain.
 - [Retrieval knowledgebase](kb/README.md) — memory-system research, benchmark
   traps, and measured lever history.
+- [SEAM product language](../CONTEXT.md) — stable meanings for SEAM, the Suite,
+  Ghost, the SDK/client split, operator surfaces, and protected core.
+- [Product and licensing boundary design](superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md)
+  — operator-approved direction pending implementation and legal review.
 
 ## Keep the wiki truthful
 

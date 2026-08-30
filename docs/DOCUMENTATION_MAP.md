@@ -16,6 +16,7 @@ authored roadmaps and prompts are not implementation evidence.
 | Task | Primary route |
 | --- | --- |
 | Understand the product contract | [SEAM specification](../SEAM_SPEC_V0.1.md) → [MIRL v1](MIRL_V1.md) |
+| Understand product and licensing terms | [SEAM product language](../CONTEXT.md) → [Product and licensing boundary design](superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md) → [Packaging/licensing status](status/packaging-licensing.md) |
 | Install, configure, or operate SEAM | [Operator guide](SEAM_OPERATOR_GUIDE.md) → [Setup](setup.md) → [How-to runbooks](howto/README.md) → [Errors](errors.md) |
 | Understand system architecture | [Engineering architecture](engineering/01_ARCHITECTURE.md) → [RAG architecture](RAG_ARCHITECTURE.md) |
 | Change or verify code | [Engineering manual](engineering/README.md) → [Verification matrix](engineering/VERIFICATION_MATRIX.md) |
@@ -50,6 +51,10 @@ renders page names as code instead of links, Level 3 supplies the direct links.
 
 ### Product and representation contracts
 
+- [SEAM product language](../CONTEXT.md) — stable product and licensing
+  glossary.
+- [Product and licensing boundary design](superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md)
+  — approved target separation; not an implemented license grant.
 - [MIRL v1](MIRL_V1.md) — canonical memory IR and readable-lossless contract.
 - [Holographic Surface](HOLOGRAPHIC_SURFACE.md) — SEAM-HS/1 architecture.
 - [Symbol Nursery](SYMBOL_NURSERY.md) — symbol staging and evaluation notes.
