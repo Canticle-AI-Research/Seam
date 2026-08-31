@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import multiprocessing
 import sqlite3
 import threading
 from contextlib import closing
@@ -35,6 +36,15 @@ def _build_fixture(path: Path, fixture_name: str) -> None:
     script = (FIXTURE_DIR / fixture_name).read_text(encoding="utf-8")
     with sqlite3.connect(path) as connection:
         connection.executescript(script)
+
+
+def _hold_supported_store(path: str, started, release) -> None:
+    store = SQLiteStore(path)
+    try:
+        started.set()
+        assert release.wait(timeout=10)
+    finally:
+        store.close()
 
 
 def _sha256(path: Path) -> str:
@@ -923,6 +933,75 @@ def test_real_pre_migration_backup_restores_then_reupgrades(tmp_path: Path) -> N
         reopened.close()
 
 
+def test_restore_refuses_while_a_supported_store_is_live(tmp_path: Path) -> None:
+    database_path = tmp_path / "live-store-restore-target.db"
+    backup_path = tmp_path / "live-store-restore-backup.db"
+    live_store = SQLiteStore(database_path)
+    with sqlite3.connect(backup_path) as backup:
+        backup.execute("create table recovered (id integer primary key)")
+    before = database_path.read_bytes()
+
+    try:
+        with pytest.raises(RuntimeError, match="active SEAM store"):
+            restore_database_backup(database_path, backup_path)
+
+        assert database_path.read_bytes() == before
+        live_store.check_ready()
+    finally:
+        live_store.close()
+
+
+def test_restore_lease_crosses_processes_and_releases_on_store_close(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "cross-process-restore-target.db"
+    backup_path = tmp_path / "cross-process-restore-backup.db"
+    with sqlite3.connect(backup_path) as backup:
+        backup.execute("create table recovered (id integer primary key)")
+    process_context = multiprocessing.get_context("spawn")
+    started = process_context.Event()
+    release = process_context.Event()
+    process = process_context.Process(
+        target=_hold_supported_store,
+        args=(str(database_path), started, release),
+    )
+    process.start()
+    try:
+        assert started.wait(timeout=10)
+        with pytest.raises(RuntimeError, match="active SEAM store"):
+            restore_database_backup(database_path, backup_path)
+    finally:
+        release.set()
+        process.join(timeout=10)
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=5)
+        assert process.exitcode == 0
+
+    restore_database_backup(database_path, backup_path)
+    with sqlite3.connect(database_path) as recovered:
+        assert "recovered" in _tables(recovered)
+
+
+def test_failed_store_initialization_releases_the_restore_lease(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database_path = tmp_path / "failed-store-init-target.db"
+    backup_path = tmp_path / "failed-store-init-backup.db"
+    with sqlite3.connect(backup_path) as backup:
+        backup.execute("create table recovered (id integer primary key)")
+    monkeypatch.setenv("SEAM_DB_POOL_SIZE", "not-an-integer")
+
+    with pytest.raises(ValueError, match="invalid literal"):
+        SQLiteStore(database_path)
+
+    monkeypatch.delenv("SEAM_DB_POOL_SIZE")
+    restore_database_backup(database_path, backup_path)
+    with sqlite3.connect(database_path) as recovered:
+        assert "recovered" in _tables(recovered)
+
+
 def test_failed_atomic_restore_leaves_original_and_sidecars_untouched(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -951,6 +1030,38 @@ def test_failed_atomic_restore_leaves_original_and_sidecars_untouched(
         b"sidecar-1",
         b"sidecar-2",
     ]
+
+
+def test_failed_sidecar_cleanup_does_not_commit_the_restored_database(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database_path = tmp_path / "sidecar-cleanup-target.db"
+    backup_path = tmp_path / "sidecar-cleanup-backup.db"
+    with sqlite3.connect(database_path) as connection:
+        connection.execute("create table original (id integer primary key)")
+    with sqlite3.connect(backup_path) as connection:
+        connection.execute("create table recovered (id integer primary key)")
+    original_bytes = database_path.read_bytes()
+    stale_journal = Path(f"{database_path}-journal")
+    stale_journal.write_bytes(b"stale-journal")
+    real_replace = migration_module.os.replace
+
+    def fail_stale_sidecar_quarantine(source, destination) -> None:
+        if Path(source) == stale_journal:
+            raise OSError("injected stale sidecar cleanup failure")
+        real_replace(source, destination)
+
+    monkeypatch.setattr(
+        migration_module.os,
+        "replace",
+        fail_stale_sidecar_quarantine,
+    )
+    with pytest.raises(OSError, match="injected stale sidecar cleanup failure"):
+        restore_database_backup(database_path, backup_path)
+
+    assert database_path.read_bytes() == original_bytes
+    assert stale_journal.read_bytes() == b"stale-journal"
 
 
 @pytest.mark.parametrize(

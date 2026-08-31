@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-29-grounded-research-acquisition-roadmap
 supersedes: 2026-08-26-ghost-memory-governance-published
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#612
 ---
 

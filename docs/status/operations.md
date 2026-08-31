@@ -50,6 +50,15 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Track S operating state
 
+- Branch-local D1.1-D1.3 at `feat/s8-s10-production-core` enforce restore as a
+  canonical-store recovery boundary. Supported stores retain a lifetime
+  cross-process lease; restore refuses against a live store, checkpoints valid
+  WAL state, and quarantines old sidecars before replacement. Seventy-five
+  focused non-external tests and a zero-finding staged CodeRabbit review cover
+  the candidate. The full 3,057-test non-external collection also exits zero
+  with the existing pinned-model cache, two expected xfails, and no skips. The
+  systematic filesystem-transition failure matrix remains D1.4. This is not
+  protected-main fact and does not complete S8-S10.
 - S1 routes real Uvicorn `--factory` startup through the same bind and worker
   safety validation as normal launch.
 - `tools.security.secret_scan` owns the canonical secret/session patterns.

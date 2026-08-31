@@ -9,6 +9,23 @@
 
 ## Current headline
 
+**2026-08-30 — branch-local Track S production-core consolidation starts D1
+from protected `main@780b377`; it is not yet published.** The governing
+S8-S10 execution spec reconciles the Track S history with the 2026-08-29 deep
+audit, explicitly defers the operator surface, and dependency-orders ten
+controlled TDD streams. The first stream makes canonical-store restore an
+enforced recovery boundary: supported file-backed stores hold a cross-process
+lifetime lease, restore refuses while one is live, recognized WAL state is
+checkpointed, and old sidecars are quarantined before the replacement commit
+point. Seventy-five focused non-external tests and a zero-finding staged
+CodeRabbit review currently qualify D1.1-D1.3. The full 3,057-test
+non-external collection exits zero with the explicit existing model cache,
+two expected xfails, and no skips. The systematic filesystem-transition
+failure matrix remains D1.4 work. This does not
+complete S8, start S9 measurement, satisfy S10 hosted CI/release gates, or make
+a hosted-production claim. See
+`docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
+
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance
 for Ghost through PR #233.** The exact source head `f8a1486` passed all seven
 hosted jobs in runs `32931607726` and `32931607783`. The public boundary now
