@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 679
+total_events: 680
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 | 2026-07-18T21:24:25Z | history:422:b54c82e6 | session-event | done | benchmark, locomo, handoff, test, plan | benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_pa... |
 | 2026-07-19T05:20:46Z | history:423:22ed4a4c | session-event | done | benchmark, locomo, paid-run, handoff, test | docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md,docs/handoffs/2... |
 | 2026-07-19T13:48:23Z | history:424:43ca0434 | session-event | done | benchmark, locomo, paid-run, mem0-harness, ops | benchmarks/external/mem0_harness/seam_mem0_server.py,docs/handoffs/2026-07-19... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-31T20:24:22Z | history:613:381d6dfe | session-event | done | agent, multi-agent, session, git-hooks, test, tests, veri... | .codex/agents,.codex/hooks.json,tools/agents,docs/SOP_AGENT_ORCHESTRATION.md,... |
 | 2026-08-31T20:52:14Z | history:614:6d55a92f | session-event | changed | agent, multi-agent, session, git-hooks, test, tests, veri... | .codex/hooks.json,tests/audit/test_session_end_agent_closeout.py,docs/SOP_AGE... |
 | 2026-08-31T21:02:39Z | history:615:9c162dec | session-event | changed | agent, multi-agent, protocol, config, docs, correction, t... | AGENTS.md,REPO_LEDGER.md,docs/SOP_AGENT_ORCHESTRATION.md,tests/audit/test_cod... |
+| 2026-08-31T23:21:41Z | history:616:966b04be | session-event | in-progress | agent, multi-agent, session, protocol, harden, security, ... | .codex/agents/seam_root_orchestrator.toml,tools/agents/session_end_closeout.p... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0479.cross.md | 2026-04-15T00:00:00Z..2026-07-18T11:28:05Z | 479 | (multi) | (multi) |
+| 0001-0480.cross.md | 2026-04-15T00:00:00Z..2026-07-18T20:13:22Z | 480 | (multi) | (multi) |

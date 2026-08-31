@@ -1,7 +1,7 @@
 # SOP — Codex Root-Supplied Agent Orchestration
 
-Issued: 2026-08-31  
-Authority: `AGENTS.md` and `REPO_LEDGER.md`  
+Issued: 2026-08-31
+Authority: `AGENTS.md` and `REPO_LEDGER.md`
 Schemas: `tools/agents/schemas/`
 
 ## Purpose
@@ -160,6 +160,13 @@ repo-wide scan.
    The root validates and atomically stores its receipt, then performs any
    authorized continuity, PR, or publication action.
 
+The root evaluates context usage at coherent work boundaries with
+`python -m tools.agents.context_guardian`. It updates a durable checkpoint from
+45%, emits `COMPACT_AT_MILESTONE` or `COMPACT_NOW` from 65%, and writes a
+successor handoff plus emits `HANDOFF_REQUIRED` at 82%. Two recorded
+compactions also force `HANDOFF_REQUIRED`. The helper cannot compact a model
+context window itself; it makes the required action and durable state explicit.
+
 ## Session state and TDD evidence
 
 During a repo-changing root session, maintain the ignored file:
@@ -197,6 +204,34 @@ Each TDD cycle records one public behavior and:
 Passing tests do not prove TDD. A runtime path without a complete recorded
 cycle is `TDD_UNPROVEN`.
 
+## Context guardian
+
+Observe current usage with bounded summary items and one concrete resume step:
+
+```bash
+python -m tools.agents.context_guardian \
+  --session-id "$CODEX_SESSION_ID" \
+  observe \
+  --used-tokens <used> \
+  --context-limit <limit> \
+  --summary "<durable completed or in-flight fact>" \
+  --next-step "<first exact successor action>"
+```
+
+Add `--at-coherent-milestone` only when the current atomic slice is safe to
+compact. After the actual context compaction completes, record it with:
+
+```bash
+python -m tools.agents.context_guardian \
+  --session-id "$CODEX_SESSION_ID" record-compaction
+```
+
+Guardian state and checkpoints live under ignored
+`.seam/orchestration/context/`; successor handoffs live under ignored
+`.context-handoffs/`. Artifacts are atomically written with mode `0600`, are
+bounded to 256 KiB, and reject secret-shaped, private-link, multiline, unsafe
+identity, symlinked-state, and invalid lifecycle content.
+
 ## SessionEnd hook
 
 The tracked `.codex/hooks.json` adds a project `SessionEnd` command. User-global
@@ -217,16 +252,51 @@ It does not read the Codex transcript, run tests, call
 `tools.history.closeout`, modify history, or start nested `codex exec` work.
 Those operations are too slow, mutable, and recursion-prone for shutdown.
 
-At the next root Session Start, every request without a matching receipt is a
-mandatory release wave before new writes. The root supplies the request to
+At the next root Session Start, every request without a validated `QUALIFIED`
+receipt is a mandatory release wave before new writes. The root supplies the request to
 `seam_release_orchestrator`, confirms that its head and diff fingerprint still
 match, validates its `seam-agent-closeout-receipt/v1` result, and stores it at
-the request's `receipt_path`.
+the request's `receipt_path`. A non-qualified first verdict remains immutable;
+later retries are stored as content-addressed records under
+`.seam/orchestration/session-end/receipt-attempts/`. When a repair changes the
+diff fingerprint, the `QUALIFIED` receipt for the newer exact-state request
+lists the older reviewed request IDs in `supersedes_request_ids`. The successor
+may have a new Codex session ID, but it must remain in the same repository,
+worktree, and branch lineage.
+
+List validated requests without launching a model:
+
+```bash
+python -m tools.agents.closeout_queue pending
+```
+
+After the read-only release orchestrator returns receipt JSON, the root admits
+it only through the validator and no-clobber atomic writer:
+
+```bash
+python -m tools.agents.closeout_queue store \
+  --request <queued-request.json> \
+  --receipt <candidate-receipt.json>
+```
+
+The queue rejects oversized, malformed, symlinked, hash-mismatched,
+scope-mismatched, authority-expanding, incomplete-check, or conflicting
+records. A byte-equivalent existing receipt or attempt is idempotent. Receipt
+records are never overwritten or deleted, and a later `QUALIFIED` attempt may
+supersede prior non-qualified evidence. Supersession is admitted only for older
+requests in the same repository/worktree/branch lineage that already have a
+validated non-qualified verdict; content-addressed attempt names are re-derived
+and verified during reads. Once any validated receipt is
+`QUALIFIED`, its own request and every explicitly superseded request leave the
+pending queue. The queue never launches a model, runs a check, or repairs the
+worktree.
 
 Receipt meaning:
 
 - `QUALIFIED`: exact scope matches; TDD is proven or not required; every
   required test/gate and continuity check passed; work aligns with the plan.
+  It may explicitly supersede older reviewed exact-state requests from the same
+  repository lineage.
 - `NOT_QUALIFIED`: an executed check failed or required TDD evidence is absent.
 - `BLOCKED`: an external dependency or authority boundary prevented a required
   check.
@@ -255,6 +325,8 @@ next action and remain pending evidence for the root.
 python3 -m pytest \
   tests/audit/test_agent_session_state.py \
   tests/audit/test_session_end_agent_closeout.py \
+  tests/audit/test_closeout_queue.py \
+  tests/audit/test_context_guardian.py \
   tests/audit/test_codex_agent_profiles.py \
   tests/audit/test_history_closeout.py \
   tests/audit/test_local_gates_match_ci.py -q

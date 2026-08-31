@@ -17,6 +17,7 @@ import re
 import stat
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,18 @@ MAX_EVENT_BYTES = 1024 * 1024
 MAX_SESSION_STATE_BYTES = 256 * 1024
 MAX_CHANGED_PATHS = 512
 MAX_UNTRACKED_HASH_BYTES = 64 * 1024 * 1024
+HOOK_BUDGET_SECONDS = 2.5
+REQUIRED_CLOSEOUT_CHECKS = (
+    "confirm current diff fingerprint matches request",
+    "git diff --check",
+    "run root-supplied affected tests when available",
+    "python -m tools.history.verify_integrity",
+    "python -m tools.history.verify_routing",
+    "python -m tools.history.verify_handoffs",
+    "python -m tools.history.verify_continuity",
+    "python -m tools.streams.verify_streams",
+    "python -m tools.docs.verify_wiki",
+)
 
 RUNTIME_PATHS = (
     "seam.py",
@@ -190,21 +203,44 @@ def _redact(value: object, limit: int = 1000) -> str:
     return text[:limit].strip()
 
 
-def _git(repo_root: Path, *args: str, check: bool = True) -> bytes:
-    result = subprocess.run(
-        ["git", *args],
-        cwd=repo_root,
-        capture_output=True,
-        check=False,
-    )
+def _git(
+    repo_root: Path,
+    *args: str,
+    check: bool = True,
+    deadline: float | None = None,
+) -> bytes:
+    timeout = HOOK_BUDGET_SECONDS if deadline is None else deadline - time.monotonic()
+    if timeout <= 0:
+        raise SessionEndError("SessionEnd hook deadline exceeded before Git completed")
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            capture_output=True,
+            check=False,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise SessionEndError(
+            f"git {' '.join(args)} timed out before the SessionEnd deadline"
+        ) from exc
     if check and result.returncode != 0:
         message = result.stderr.decode("utf-8", errors="replace").strip()
         raise SessionEndError(f"git {' '.join(args)} failed: {_redact(message, 300)}")
     return result.stdout if result.returncode == 0 else b""
 
 
-def _git_text(repo_root: Path, *args: str, check: bool = True) -> str:
-    return _git(repo_root, *args, check=check).decode("utf-8", errors="replace").strip()
+def _git_text(
+    repo_root: Path,
+    *args: str,
+    check: bool = True,
+    deadline: float | None = None,
+) -> str:
+    return (
+        _git(repo_root, *args, check=check, deadline=deadline)
+        .decode("utf-8", errors="replace")
+        .strip()
+    )
 
 
 def _inside_repo(cwd: Path, repo_root: Path) -> bool:
@@ -229,17 +265,37 @@ def _load_session_state(
     return None
 
 
-def _valid_base(repo_root: Path, value: object) -> str | None:
+def _valid_base(
+    repo_root: Path, value: object, *, deadline: float | None = None
+) -> str | None:
     if not isinstance(value, str) or not re.fullmatch(r"[0-9a-fA-F]{7,64}", value):
         return None
-    resolved = _git_text(repo_root, "rev-parse", "--verify", f"{value}^{{commit}}", check=False)
+    resolved = _git_text(
+        repo_root,
+        "rev-parse",
+        "--verify",
+        f"{value}^{{commit}}",
+        check=False,
+        deadline=deadline,
+    )
     return resolved or None
 
 
-def _changed_paths(repo_root: Path, base_sha: str | None) -> tuple[list[str], bool]:
+def _changed_paths(
+    repo_root: Path, base_sha: str | None, *, deadline: float | None = None
+) -> tuple[list[str], bool]:
     baseline = base_sha or "HEAD"
-    tracked = _git(repo_root, "diff", "--name-only", "-z", baseline).split(b"\x00")
-    untracked = _git(repo_root, "ls-files", "--others", "--exclude-standard", "-z").split(b"\x00")
+    tracked = _git(
+        repo_root, "diff", "--name-only", "-z", baseline, deadline=deadline
+    ).split(b"\x00")
+    untracked = _git(
+        repo_root,
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z",
+        deadline=deadline,
+    ).split(b"\x00")
     paths = sorted(
         {
             item.decode("utf-8", errors="replace")
@@ -248,10 +304,10 @@ def _changed_paths(repo_root: Path, base_sha: str | None) -> tuple[list[str], bo
         }
     )
     truncated = len(paths) > MAX_CHANGED_PATHS
-    return paths[:MAX_CHANGED_PATHS], truncated
+    return paths, truncated
 
 
-def _runtime_paths(paths: list[str]) -> list[str]:
+def runtime_paths(paths: list[str]) -> list[str]:
     return [
         path
         for path in paths
@@ -293,7 +349,7 @@ def _valid_cycle(cycle: object) -> bool:
 def assess_tdd(paths: list[str], state: dict[str, Any] | None) -> dict[str, Any]:
     """Assess recorded red/green evidence against the changed runtime paths."""
 
-    runtime = _runtime_paths(paths)
+    runtime = runtime_paths(paths)
     if not runtime:
         return {
             "status": "TDD_NOT_REQUIRED",
@@ -349,34 +405,66 @@ def _bounded_context(state: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
-def _fingerprint(repo_root: Path, head: str, base_sha: str | None, paths: list[str]) -> str:
+def _fingerprint(
+    repo_root: Path,
+    head: str,
+    base_sha: str | None,
+    paths: list[str],
+    *,
+    deadline: float | None = None,
+) -> str:
     digest = hashlib.sha256()
     digest.update(head.encode("ascii", errors="replace"))
     digest.update((base_sha or "HEAD").encode("ascii", errors="replace"))
-    digest.update(_git(repo_root, "diff", "--binary", base_sha or "HEAD"))
+    digest.update(
+        _git(
+            repo_root,
+            "diff",
+            "--raw",
+            "--no-abbrev",
+            "-z",
+            base_sha or "HEAD",
+            deadline=deadline,
+        )
+    )
     untracked = {
         item.decode("utf-8", errors="replace")
         for item in _git(
-            repo_root, "ls-files", "--others", "--exclude-standard", "-z"
+            repo_root, "ls-files", "--others", "--exclude-standard", "-z",
+            deadline=deadline,
         ).split(b"\x00")
         if item
     }
     total_bytes = 0
     for path in paths:
+        if deadline is not None and time.monotonic() >= deadline:
+            raise SessionEndError("SessionEnd hook deadline exceeded during fingerprinting")
         digest.update(b"\x00")
         digest.update(path.encode("utf-8", errors="replace"))
-        if path not in untracked:
-            continue
+        digest.update(b"\x00untracked" if path in untracked else b"\x00tracked")
+        path_kind = "untracked path" if path in untracked else "tracked path"
         candidate = repo_root / path
         try:
             candidate.relative_to(repo_root)
             resolved_parent = candidate.parent.resolve(strict=True)
             if not _inside_repo(resolved_parent, repo_root):
-                raise ValueError("untracked parent escapes repo")
+                raise ValueError("changed path parent escapes repo")
             metadata = candidate.lstat()
+        except FileNotFoundError as exc:
+            if path in untracked:
+                raise SessionEndError(
+                    f"cannot fingerprint untracked path: {_redact(path, 300)}"
+                ) from exc
+            digest.update(b"\x00deleted")
+            continue
         except (OSError, ValueError) as exc:
-            raise SessionEndError(f"cannot fingerprint untracked path: {_redact(path, 300)}") from exc
+            raise SessionEndError(
+                f"cannot fingerprint changed path: {_redact(path, 300)}"
+            ) from exc
         digest.update(str(stat.S_IFMT(metadata.st_mode)).encode("ascii"))
+        if stat.S_ISDIR(metadata.st_mode):
+            digest.update(b"\x00directory")
+            continue
         if stat.S_ISLNK(metadata.st_mode):
             digest.update(os.readlink(candidate).encode("utf-8", errors="replace"))
             after_link = candidate.lstat()
@@ -398,16 +486,20 @@ def _fingerprint(repo_root: Path, head: str, base_sha: str | None, paths: list[s
             )
             if before_identity != after_identity:
                 raise SessionEndError(
-                    f"untracked symlink changed during fingerprint: {_redact(path, 300)}"
+                    f"{path_kind} symlink changed during fingerprint: {_redact(path, 300)}"
                 )
             continue
         if not stat.S_ISREG(metadata.st_mode):
-            raise SessionEndError(f"untracked path is not a regular file: {_redact(path, 300)}")
+            raise SessionEndError(
+                f"changed path is not a regular file: {_redact(path, 300)}"
+            )
         flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
         try:
             descriptor = os.open(candidate, flags)
         except OSError as exc:
-            raise SessionEndError(f"cannot open untracked path safely: {_redact(path, 300)}") from exc
+            raise SessionEndError(
+                f"cannot open changed path safely: {_redact(path, 300)}"
+            ) from exc
         with os.fdopen(descriptor, "rb", closefd=True) as handle:
             opened = os.fstat(handle.fileno())
             preopen_identity = (
@@ -428,12 +520,21 @@ def _fingerprint(repo_root: Path, head: str, base_sha: str | None, paths: list[s
             )
             if preopen_identity != opened_identity:
                 raise SessionEndError(
-                    f"untracked path changed before fingerprint: {_redact(path, 300)}"
+                    f"{path_kind} changed before fingerprint: {_redact(path, 300)}"
                 )
             total_bytes += opened.st_size
             if total_bytes > MAX_UNTRACKED_HASH_BYTES:
-                raise SessionEndError("untracked content exceeds the 64 MiB fingerprint bound")
-            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                raise SessionEndError(
+                    "changed content exceeds the 64 MiB fingerprint bound"
+                )
+            while True:
+                if deadline is not None and time.monotonic() >= deadline:
+                    raise SessionEndError(
+                        "SessionEnd hook deadline exceeded during fingerprinting"
+                    )
+                chunk = handle.read(1024 * 1024)
+                if not chunk:
+                    break
                 digest.update(chunk)
             finished = os.fstat(handle.fileno())
         finished_identity = (
@@ -445,18 +546,80 @@ def _fingerprint(repo_root: Path, head: str, base_sha: str | None, paths: list[s
             finished.st_ctime_ns,
         )
         if opened_identity != finished_identity:
-            raise SessionEndError(f"untracked path changed during fingerprint: {_redact(path, 300)}")
+            raise SessionEndError(
+                f"{path_kind} changed during fingerprint: {_redact(path, 300)}"
+            )
     return digest.hexdigest()
 
 
-def _atomic_json(path: Path, value: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+def _canonical_json(value: dict[str, Any]) -> bytes:
+    return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def _validate_existing_request(
+    path: Path,
+    *,
+    request_id: str,
+    session_id: str,
+    fingerprint: str,
+) -> None:
+    try:
+        metadata = path.lstat()
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > MAX_EVENT_BYTES:
+            raise SessionEndError("conflicting closeout request is not a bounded regular file")
+        existing = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SessionEndError("conflicting closeout request cannot be validated") from exc
+    if not isinstance(existing, dict):
+        raise SessionEndError("conflicting closeout request is not an object")
+    stored_hash = existing.get("request_sha256")
+    unsigned = {key: item for key, item in existing.items() if key != "request_sha256"}
+    computed_hash = hashlib.sha256(
+        json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    repo = existing.get("repo")
+    if (
+        existing.get("schema") != "seam-agent-closeout-request/v1"
+        or existing.get("request_id") != request_id
+        or existing.get("session_id") != session_id
+        or stored_hash != computed_hash
+        or not isinstance(repo, dict)
+        or repo.get("diff_fingerprint") != fingerprint
+    ):
+        raise SessionEndError("conflicting closeout request already exists")
+
+
+def _atomic_json_once(path: Path, value: dict[str, Any]) -> bool:
+    if path.parent.is_symlink():
+        raise SessionEndError("closeout request directory cannot be a symlink")
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    encoded = _canonical_json(value)
+    if len(encoded) > MAX_EVENT_BYTES:
+        raise SessionEndError("closeout request exceeds the 1 MiB bound")
     temporary = path.with_suffix(path.suffix + f".tmp.{os.getpid()}")
-    temporary.write_text(
-        json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    descriptor = os.open(
+        temporary,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_CLOEXEC", 0),
+        0o600,
     )
-    os.chmod(temporary, 0o600)
-    os.replace(temporary, path)
+    try:
+        with os.fdopen(descriptor, "wb", closefd=True) as handle:
+            handle.write(encoded)
+            handle.flush()
+            os.fsync(handle.fileno())
+        try:
+            os.link(temporary, path)
+        except FileExistsError:
+            return False
+        os.chmod(path, 0o600)
+        directory = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        temporary.unlink(missing_ok=True)
+    return True
 
 
 def handle_session_end(
@@ -472,6 +635,7 @@ def handle_session_end(
         return {"status": "SKIPPED_RECURSION_GUARD"}
     if dispatch:
         raise SessionEndError("SessionEnd supports durable queueing, not nested model dispatch")
+    deadline = time.monotonic() + HOOK_BUDGET_SECONDS
     repo_root = repo_root.resolve(strict=True)
     cwd_value = event.get("cwd")
     if not isinstance(cwd_value, str) or not cwd_value:
@@ -479,31 +643,56 @@ def handle_session_end(
     cwd = Path(cwd_value).expanduser().resolve(strict=True)
     if not _inside_repo(cwd, repo_root):
         return {"status": "SKIPPED_OUTSIDE_REPO"}
-    if _git_text(repo_root, "rev-parse", "--show-toplevel") != str(repo_root):
+    if (
+        _git_text(repo_root, "rev-parse", "--show-toplevel", deadline=deadline)
+        != str(repo_root)
+    ):
         raise SessionEndError("configured repo root is not the active Git root")
 
     session_id = _safe_session_id(event.get("session_id"))
     state = _load_session_state(session_id, repo_root=repo_root, state_root=state_root)
-    base_sha = _valid_base(repo_root, state.get("base_sha") if state else None)
+    base_sha = _valid_base(
+        repo_root, state.get("base_sha") if state else None, deadline=deadline
+    )
     if state is not None and base_sha is None:
         raise SessionEndError("session state base_sha does not resolve to a commit")
-    paths, paths_truncated = _changed_paths(repo_root, base_sha)
+    paths, paths_truncated = _changed_paths(repo_root, base_sha, deadline=deadline)
     if not paths:
         return {"status": "CLEAN_NO_REQUEST"}
+    displayed_paths = paths[:MAX_CHANGED_PATHS]
 
-    head = _git_text(repo_root, "rev-parse", "HEAD")
-    fingerprint = _fingerprint(repo_root, head, base_sha, paths)
+    head = _git_text(repo_root, "rev-parse", "HEAD", deadline=deadline)
+    fingerprint = _fingerprint(
+        repo_root, head, base_sha, paths, deadline=deadline
+    )
     request_id = f"{session_id}-{fingerprint[:16]}"
     request_path = state_root / "requests" / f"{request_id}.json"
     receipt_path = state_root / "receipts" / f"{request_id}.json"
-    if request_path.exists():
+    if os.path.lexists(request_path):
+        _validate_existing_request(
+            request_path,
+            request_id=request_id,
+            session_id=session_id,
+            fingerprint=fingerprint,
+        )
         return {
             "status": "ALREADY_QUEUED",
             "request_id": request_id,
             "request_path": str(request_path),
         }
 
-    runtime = _runtime_paths(paths)
+    runtime = runtime_paths(displayed_paths)
+    tdd_evidence = assess_tdd(displayed_paths, state)
+    change_class = "runtime" if runtime else "non_runtime"
+    if paths_truncated:
+        change_class = "runtime"
+        tdd_evidence = {
+            "status": "TDD_UNPROVEN",
+            "runtime_paths": runtime,
+            "covered_runtime_paths": [],
+            "missing_runtime_paths": runtime,
+            "cycle_count": tdd_evidence["cycle_count"],
+        }
     request = {
         "schema": "seam-agent-closeout-request/v1",
         "request_id": request_id,
@@ -513,18 +702,32 @@ def handle_session_end(
         "repo": {
             "root": str(repo_root),
             "cwd": str(cwd),
-            "branch": _git_text(repo_root, "branch", "--show-current", check=False) or "detached",
+            "branch": _git_text(
+                repo_root,
+                "branch",
+                "--show-current",
+                check=False,
+                deadline=deadline,
+            )
+            or "detached",
             "head": head,
             "base_sha": base_sha,
-            "origin_main": _git_text(repo_root, "rev-parse", "origin/main", check=False) or None,
+            "origin_main": _git_text(
+                repo_root,
+                "rev-parse",
+                "origin/main",
+                check=False,
+                deadline=deadline,
+            )
+            or None,
             "worktree": str(repo_root),
             "diff_fingerprint": fingerprint,
-            "changed_paths": paths,
+            "changed_paths": displayed_paths,
             "changed_paths_truncated": paths_truncated,
         },
-        "change_class": "runtime" if runtime else "non_runtime",
+        "change_class": change_class,
         "context": _bounded_context(state),
-        "tdd_evidence": assess_tdd(paths, state),
+        "tdd_evidence": tdd_evidence,
         "authority": {
             "mode": "verify_only",
             "allowed_writes": [],
@@ -535,24 +738,26 @@ def handle_session_end(
                 "invoke paid providers",
             ],
         },
-        "required_checks": [
-            "confirm current diff fingerprint matches request",
-            "git diff --check",
-            "run root-supplied affected tests when available",
-            "python -m tools.history.verify_integrity",
-            "python -m tools.history.verify_routing",
-            "python -m tools.history.verify_handoffs",
-            "python -m tools.history.verify_continuity",
-            "python -m tools.streams.verify_streams",
-            "python -m tools.docs.verify_wiki",
-        ],
+        "required_checks": list(REQUIRED_CLOSEOUT_CHECKS),
         "receipt_path": str(receipt_path),
         "request_schema": "tools/agents/schemas/closeout-request.schema.json",
         "receipt_schema": "tools/agents/schemas/closeout-receipt.schema.json",
     }
     canonical = json.dumps(request, sort_keys=True, separators=(",", ":")).encode("utf-8")
     request["request_sha256"] = hashlib.sha256(canonical).hexdigest()
-    _atomic_json(request_path, request)
+    stored = _atomic_json_once(request_path, request)
+    if not stored:
+        _validate_existing_request(
+            request_path,
+            request_id=request_id,
+            session_id=session_id,
+            fingerprint=fingerprint,
+        )
+        return {
+            "status": "ALREADY_QUEUED",
+            "request_id": request_id,
+            "request_path": str(request_path),
+        }
     return {
         "status": "QUEUED",
         "request_id": request_id,

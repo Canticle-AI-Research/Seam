@@ -68,6 +68,19 @@ def test_delegation_depth_and_integration_authority_are_explicit() -> None:
         assert "Do not stage, commit, push, merge" in instructions, path.name
 
 
+def test_root_profile_activates_the_bounded_context_guardian() -> None:
+    root = tomllib.loads(
+        (AGENT_DIR / "seam_root_orchestrator.toml").read_text(encoding="utf-8")
+    )["developer_instructions"]
+
+    assert "tools.agents.context_guardian" in root
+    assert "45%" in root
+    assert "65%" in root
+    assert "82%" in root
+    assert "two compactions" in root
+    assert "HANDOFF_REQUIRED" in root
+
+
 def test_context_packet_schema_carries_context_not_repo_reading_instructions() -> None:
     schema = json.loads(PACKET_SCHEMA.read_text(encoding="utf-8"))
     required = set(schema["required"])

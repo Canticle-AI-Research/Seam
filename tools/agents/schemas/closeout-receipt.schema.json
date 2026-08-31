@@ -11,6 +11,7 @@
     "session_id",
     "completed_at",
     "status",
+    "supersedes_request_ids",
     "scope",
     "tdd",
     "checks",
@@ -26,6 +27,17 @@
     "completed_at": {"type": "string", "format": "date-time"},
     "status": {
       "enum": ["QUALIFIED", "NOT_QUALIFIED", "BLOCKED", "INDETERMINATE"]
+    },
+    "supersedes_request_ids": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "pattern": "^[A-Za-z0-9._-]+$"
+      }
     },
     "scope": {
       "type": "object",
@@ -56,8 +68,9 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["command", "status", "exit_code", "evidence"],
+        "required": ["requirement", "command", "status", "exit_code", "evidence"],
         "properties": {
+          "requirement": {"type": "string", "minLength": 1, "maxLength": 2000},
           "command": {"type": "string", "minLength": 1, "maxLength": 2000},
           "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN"]},
           "exit_code": {"type": ["integer", "null"]},

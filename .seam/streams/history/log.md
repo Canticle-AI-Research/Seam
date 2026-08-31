@@ -20065,3 +20065,25 @@ Changed-scope Ruff and `git diff --check` also passed. This changes no SEAM
 runtime behavior, Track S state, benchmark, release, deployment, or model
 quality claim. The self-hosted CI runner mount blocker remains separate.
 ---END-ENTRY-#615---
+
+---BEGIN-ENTRY-#616---
+id: 616
+date: 2026-08-31T23:21:41Z
+agent: codex
+status: in-progress
+topics: agent, multi-agent, session, protocol, harden, security, test, tests, verify, continuity, git-hooks
+commits: pending
+refs: .codex/agents/seam_root_orchestrator.toml,tools/agents/session_end_closeout.py,tools/agents/closeout_queue.py,tools/agents/context_guardian.py,tools/agents/schemas/closeout-receipt.schema.json,docs/SOP_AGENT_ORCHESTRATION.md,REPO_LEDGER.md,tests/audit/test_session_end_agent_closeout.py,tests/audit/test_closeout_queue.py,tests/audit/test_context_guardian.py,PR#238
+supersedes: 615
+tokens: 439
+---
+Hardened the branch-local Codex orchestration candidate after a two-reviewer surface audit. The SessionEnd producer now shares one bounded Git deadline, fingerprints every changed regular file rather than only untracked content, fails closed on truncated display scope, caps request size, validates existing requests, and publishes requests without clobbering. The root-owned closeout queue strictly validates queued requests and receipts, exact required checks, status semantics, scope, TDD evidence, authority, paths, timestamps, symlink boundaries, and content-addressed immutable receipt attempts.
+
+A failed, blocked, or indeterminate verdict remains pending and immutable. A later same-state qualified attempt closes it without overwriting evidence. If repair creates a new fingerprint or successor Codex session, the newer qualified receipt may explicitly supersede only older requests in the same repository, worktree, and branch lineage that already have validated non-qualified evidence. Unreviewed, cross-lineage, non-chronological, malformed, renamed, or symlink-redirected records fail closed.
+
+Added the context guardian for the operator 45/65/82 percent lifecycle. It writes bounded mode-0600 checkpoints, emits milestone compaction actions, requires a successor handoff at 82 percent or after two recorded compactions, and validates lifecycle state, checkpoint content, timestamps, and parent directories on reads and writes. It records required actions and durable artifacts but does not claim to compact model context itself.
+
+TDD covered the final review findings before implementation. The scoped command over eight agent-orchestration audit files passed 85 tests. Collect-only resolved 16 closeout-queue, 23 context-guardian, and 20 SessionEnd tests. Changed-scope Ruff, Python compilation, git diff --check, and the full non-external repository suite passed locally against an isolated database. Two independent final reviewers reported no remaining hard blocker in the targeted code and policy surface.
+
+PR 238 remains draft and branch-local. Fresh trusted Codex project discovery plus one live request to release-orchestrator to receipt cycle is still an explicit activation gate; no released, deployed, benchmark, Track S, or memory-quality claim changes. The dirty primary checkout remains untouched.
+---END-ENTRY-#616---

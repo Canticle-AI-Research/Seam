@@ -669,9 +669,21 @@ and `HISTORY_INDEX.md`.
   verify-only request under ignored `.seam/orchestration/session-end/` state.
   It never reads transcripts, starts nested model sessions, runs closeout, or
   mutates history. The next root session must dispatch every pending request to
-  the read-only release orchestrator before new writes. Runtime paths without a
-  complete recorded red-before-green cycle are `TDD_UNPROVEN`; passing tests do
-  not upgrade that status.
+  the read-only release orchestrator before new writes. Requests remain pending
+  until any strictly validated receipt is `QUALIFIED`; non-qualified verdicts
+  and later content-addressed retry attempts are immutable evidence and are
+  never overwritten. A `QUALIFIED` receipt for repaired exact state may
+  explicitly supersede older requests across successor Codex sessions only
+  when they share the same repository/worktree/branch lineage and already have
+  validated non-qualified evidence; unreviewed, cross-lineage, or
+  non-chronological supersession is rejected. Runtime paths without a complete
+  recorded red-before-green cycle are `TDD_UNPROVEN`; passing tests do not
+  upgrade that status.
+- The Codex context guardian persists bounded checkpoints from 45% context
+  usage, requests compaction at the next coherent milestone from 65%, and
+  writes a successor handoff and requires stop at 82%. Two recorded
+  compactions force handoff even below 82%. It records model lifecycle actions;
+  it does not claim to compact the model context itself.
 - DeepSeek parallel audit execution is documented in `docs/SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md` (see HISTORY#205). That SOP is the durable handoff for asking DeepSeek to use its own parallel workers for SEAM debugging, systematic audit, verification, adversarial review, and merge-request preparation. Codex review/merge handling remains local and non-agentic unless the operator explicitly changes that constraint.
 - Advisor/executor execution is documented in `docs/SOP_ADVISOR_EXECUTOR_LOOP.md`. Codex or true Claude Opus may act as Advisor for strategy, planning, review, and final approval; `claude-ds`/DeepSeek acts as bounded Executor for Advisor-authored task packets, must escalate uncertainty with `ADVISOR_ESCALATION`, and does not own commits, pushes, history closeout, architecture, or scope expansion unless explicitly delegated.
 

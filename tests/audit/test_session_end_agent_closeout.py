@@ -284,6 +284,28 @@ def test_duplicate_delivery_is_idempotent(sample_repo: Path, tmp_path: Path) -> 
     assert len(list((state_root / "requests").glob("*.json"))) == 1
 
 
+def test_conflicting_existing_request_fails_closed(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    (sample_repo / "seam_runtime" / "feature.py").write_text(
+        "VALUE = 2\n", encoding="utf-8"
+    )
+    state_root = tmp_path / "state"
+    first = session_end_closeout.handle_session_end(
+        _event(sample_repo), repo_root=sample_repo, state_root=state_root, dispatch=False
+    )
+    request_path = Path(first["request_path"])
+    request_path.write_text('{"schema":"tampered"}\n', encoding="utf-8")
+
+    with pytest.raises(session_end_closeout.SessionEndError, match="conflicting"):
+        session_end_closeout.handle_session_end(
+            _event(sample_repo),
+            repo_root=sample_repo,
+            state_root=state_root,
+            dispatch=False,
+        )
+
+
 def test_untracked_content_change_creates_a_new_exact_state_request(
     sample_repo: Path, tmp_path: Path
 ) -> None:
@@ -302,6 +324,102 @@ def test_untracked_content_change_creates_a_new_exact_state_request(
     assert first["status"] == second["status"] == "QUEUED"
     assert first["request_id"] != second["request_id"]
     assert len(list((state_root / "requests").glob("*.json"))) == 2
+
+
+def test_truncated_display_paths_still_fail_closed_for_runtime_and_fingerprint(
+    sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (sample_repo / "a.txt").write_text("a\n", encoding="utf-8")
+    (sample_repo / "b.txt").write_text("b\n", encoding="utf-8")
+    omitted_runtime = sample_repo / "seam_runtime" / "omitted.py"
+    omitted_runtime.write_text("VALUE = 1\n", encoding="utf-8")
+    state_root = tmp_path / "state"
+    monkeypatch.setattr(session_end_closeout, "MAX_CHANGED_PATHS", 2)
+
+    first = session_end_closeout.handle_session_end(
+        _event(sample_repo), repo_root=sample_repo, state_root=state_root, dispatch=False
+    )
+    first_request = json.loads(Path(first["request_path"]).read_text(encoding="utf-8"))
+
+    assert first_request["repo"]["changed_paths"] == ["a.txt", "b.txt"]
+    assert first_request["repo"]["changed_paths_truncated"] is True
+    assert first_request["change_class"] == "runtime"
+    assert first_request["tdd_evidence"]["status"] == "TDD_UNPROVEN"
+
+    omitted_runtime.write_text("VALUE = 2\n", encoding="utf-8")
+    second = session_end_closeout.handle_session_end(
+        _event(sample_repo), repo_root=sample_repo, state_root=state_root, dispatch=False
+    )
+
+    assert second["request_id"] != first["request_id"]
+
+
+def test_truncated_request_bounds_tdd_paths_and_stays_consumable(
+    sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for index in range(4):
+        (sample_repo / "seam_runtime" / f"new_{index}.py").write_text(
+            f"VALUE = {index}\n", encoding="utf-8"
+        )
+    state_root = tmp_path / "state"
+    monkeypatch.setattr(session_end_closeout, "MAX_CHANGED_PATHS", 2)
+
+    queued = session_end_closeout.handle_session_end(
+        _event(sample_repo), repo_root=sample_repo, state_root=state_root, dispatch=False
+    )
+    request = json.loads(Path(queued["request_path"]).read_text(encoding="utf-8"))
+
+    assert request["repo"]["changed_paths_truncated"] is True
+    assert request["change_class"] == "runtime"
+    assert request["tdd_evidence"]["status"] == "TDD_UNPROVEN"
+    assert len(request["tdd_evidence"]["runtime_paths"]) <= 2
+
+
+def test_git_timeout_fails_closed_before_writing_a_request(
+    sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (sample_repo / "seam_runtime" / "feature.py").write_text(
+        "VALUE = 2\n", encoding="utf-8"
+    )
+    state_root = tmp_path / "state"
+
+    def timing_out(command, *args, **kwargs):  # type: ignore[no-untyped-def]
+        timeout = kwargs.get("timeout")
+        if not isinstance(timeout, (int, float)) or timeout <= 0:
+            raise AssertionError("every Git subprocess must carry a positive deadline")
+        raise subprocess.TimeoutExpired(command, timeout)
+
+    monkeypatch.setattr(session_end_closeout.subprocess, "run", timing_out)
+
+    with pytest.raises(session_end_closeout.SessionEndError, match="timed out|deadline"):
+        session_end_closeout.handle_session_end(
+            _event(sample_repo),
+            repo_root=sample_repo,
+            state_root=state_root,
+            dispatch=False,
+        )
+
+    assert not state_root.exists()
+
+
+def test_tracked_content_fingerprint_enforces_the_content_bound(
+    sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (sample_repo / "seam_runtime" / "feature.py").write_text(
+        "VALUE = 200\n", encoding="utf-8"
+    )
+    state_root = tmp_path / "state"
+    monkeypatch.setattr(session_end_closeout, "MAX_UNTRACKED_HASH_BYTES", 4)
+
+    with pytest.raises(session_end_closeout.SessionEndError, match="content exceeds"):
+        session_end_closeout.handle_session_end(
+            _event(sample_repo),
+            repo_root=sample_repo,
+            state_root=state_root,
+            dispatch=False,
+        )
+
+    assert not state_root.exists()
 
 
 def test_untracked_replacement_between_stat_and_open_fails_closed(
