@@ -73,7 +73,7 @@ not have to infer what works from directory names alone.
 
 ## Active Tooling
 
-- `.codex/agents/` - project-scoped root, context, delivery, assurance, and
+- `.codex/agents/` - Codex-only project-scoped root, context, delivery, assurance, and
   release orchestrator profiles. They consume root-supplied context packets;
   they are not independent repository-startup entrypoints.
 - `.codex/hooks.json` - additive Codex project hooks. The `SessionEnd` command

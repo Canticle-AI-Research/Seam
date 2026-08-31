@@ -20029,3 +20029,39 @@ activation remains operator trust-gated, and exact-head CI remains blocked on
 restoring a POSIX-capable runner workspace. No Track S, runtime product,
 benchmark, release, deploy, or model-quality claim changed.
 ---END-ENTRY-#614---
+
+---BEGIN-ENTRY-#615---
+id: 615
+date: 2026-08-31T21:02:39Z
+agent: codex
+status: changed
+topics: agent, multi-agent, protocol, config, docs, correction, test, tests, verify, continuity
+commits: pending
+refs: AGENTS.md,REPO_LEDGER.md,docs/SOP_AGENT_ORCHESTRATION.md,tests/audit/test_codex_agent_profiles.py,PR#238
+supersedes: 614
+tokens: 317
+---
+Corrected the orchestration scope after the operator clarified that each LLM
+already has its own style and model-specific setup. The root/context/delivery/
+assurance/release topology, context packets, session state, and SessionEnd hook
+are now explicitly Codex-only. Shared `AGENTS.md` policy continues to govern
+repository safety, continuity, Git, and evidence invariants across models, but
+it no longer describes one global orchestration style.
+
+The correction also restores the existing DeepSeek-specific parallel-audit
+wording rather than claiming the Codex pipeline supersedes it. The SOP title,
+purpose, wiki link, SOP index, code-layout description, and stable ledger now
+name their Codex scope. No Claude, Gemini, DeepSeek, Qwen, Aider, OpenCode, or
+other model configuration was created, edited, or adopted by this pipeline.
+
+The documentation contract was tightened first and failed against the prior
+global wording. The focused `pytest -q` command over
+`tests/audit/test_codex_agent_profiles.py`,
+`tests/audit/test_agent_session_state.py`,
+`tests/audit/test_session_end_agent_closeout.py`,
+`tests/audit/test_history_closeout.py`, and
+`tests/audit/test_local_gates_match_ci.py` then passed after the correction.
+Changed-scope Ruff and `git diff --check` also passed. This changes no SEAM
+runtime behavior, Track S state, benchmark, release, deployment, or model
+quality claim. The self-hosted CI runner mount blocker remains separate.
+---END-ENTRY-#615---

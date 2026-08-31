@@ -1,4 +1,4 @@
-# SOP — Root-Supplied Agent Orchestration
+# SOP — Codex Root-Supplied Agent Orchestration
 
 Issued: 2026-08-31  
 Authority: `AGENTS.md` and `REPO_LEDGER.md`  
@@ -6,10 +6,17 @@ Schemas: `tools/agents/schemas/`
 
 ## Purpose
 
-SEAM uses specialists as temporary faculties of one root-owned initiative. The
-root agent reads repository continuity and governing contracts once, keeps the
-operator conversation and plan, and supplies each child with a bounded context
-packet. A delegated agent does not begin another cold repository session.
+This SOP applies only to Codex and its project-scoped custom agents. Claude, Gemini, DeepSeek,
+and other LLMs keep their own orchestration styles and model-specific
+configuration. They continue to share SEAM's repository safety, continuity,
+and Git policy, but this topology and packet protocol do not govern their agent
+trees.
+
+Codex uses specialists as temporary faculties of one root-owned initiative.
+The Codex root reads repository continuity and governing contracts once, keeps
+the operator conversation and plan, and supplies each child with a bounded
+context packet. A delegated Codex agent does not begin another cold repository
+session.
 
 This is context delegation, not context duplication. Agents do not literally
 share a model context window. They share a root-curated context spine with

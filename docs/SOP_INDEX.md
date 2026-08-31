@@ -16,7 +16,7 @@ or remains necessary.
 
 ## Advisor, audit, and remediation workflows
 
-- [Root-supplied agent orchestration](SOP_AGENT_ORCHESTRATION.md) — bounded
+- [Codex root-supplied agent orchestration](SOP_AGENT_ORCHESTRATION.md) — bounded
   context packets, four logical domain roles, JIT specialists, and SessionEnd
   closeout qualification.
 - [Advisor / Executor loop](SOP_ADVISOR_EXECUTOR_LOOP.md)

@@ -9,6 +9,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AGENT_DIR = REPO_ROOT / ".codex" / "agents"
 PACKET_SCHEMA = REPO_ROOT / "tools" / "agents" / "schemas" / "context-packet.schema.json"
+AGENTS_POLICY = REPO_ROOT / "AGENTS.md"
+REPO_LEDGER = REPO_ROOT / "REPO_LEDGER.md"
+ORCHESTRATION_SOP = REPO_ROOT / "docs" / "SOP_AGENT_ORCHESTRATION.md"
 
 EXPECTED_AGENTS = {
     "seam_root_orchestrator": "workspace-write",
@@ -84,3 +87,18 @@ def test_context_packet_schema_carries_context_not_repo_reading_instructions() -
     } <= required
     assert schema["properties"]["specialist_budget"]["maximum"] == 2
     assert schema["additionalProperties"] is False
+
+
+def test_orchestration_policy_is_codex_only_and_preserves_other_model_styles() -> None:
+    agents_policy = AGENTS_POLICY.read_text(encoding="utf-8")
+    ledger = REPO_LEDGER.read_text(encoding="utf-8")
+    sop = ORCHESTRATION_SOP.read_text(encoding="utf-8")
+
+    assert "Model-specific orchestration stays in each model's own configuration" in agents_policy
+    assert "### Codex-Only Delegated Context Fast Path" in agents_policy
+    assert "This fast path applies only to Codex" in agents_policy
+    assert "Codex-only root-supplied agent orchestration" in ledger
+    assert "This SOP applies only to Codex" in sop
+    assert "Claude, Gemini, DeepSeek" in sop
+    assert "keep their own orchestration styles" in sop
+    assert "Codex review/merge handling remains local and non-agentic" in ledger

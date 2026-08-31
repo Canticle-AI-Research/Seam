@@ -1,6 +1,7 @@
 # AGENTS.md
 
-Canonical multi-agent protocol for this repo. All models use the same rules.
+Canonical shared repository safety and continuity protocol. All models follow
+these repo invariants. Model-specific orchestration stays in each model's own configuration.
 
 ## Session Start
 
@@ -27,12 +28,17 @@ Then:
   Do not leave ad-hoc `Test*`, `test_*`, or `test_pgvector_*` scratch files in
   the repo root.
 
-### Delegated Context Fast Path
+### Codex-Only Delegated Context Fast Path
 
-The Session Start sequence above is for the root agent. A spawned domain
-orchestrator or specialist takes this fast path only when the root supplies a
-schema-valid `seam-agent-context-packet/v1` and attests that it completed
-Session Start at the packet's `base_sha`:
+This fast path applies only to Codex root sessions and Codex-spawned custom
+agents. Other LLMs keep their own orchestration styles and model-specific
+guides while continuing to follow the shared repository safety, continuity,
+and Git rules in this file.
+
+The Session Start sequence above is for the Codex root agent. A Codex-spawned
+domain orchestrator or specialist takes this fast path only when the root
+supplies a schema-valid `seam-agent-context-packet/v1` and attests that it
+completed Session Start at the packet's `base_sha`:
 
 - Use the packet's supplied facts and open only its exact `allowed_reads`.
 - Do not repeat the root Session Start sequence and do not read `HISTORY.md`.
@@ -47,7 +53,7 @@ Session Start at the packet's `base_sha`:
 The root remains responsible for source freshness, cross-domain integration,
 operator dialogue, and final judgment. See `docs/SOP_AGENT_ORCHESTRATION.md`.
 
-Before the root authorizes new writes, reconcile every local
+Before the Codex root authorizes new writes, reconcile every local
 `.seam/orchestration/session-end/requests/*.json` without its named receipt.
 Dispatch it to `seam_release_orchestrator`; a non-`QUALIFIED` receipt remains an
 open condition, not permission to continue silently.

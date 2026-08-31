@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 614
-total_tokens: ~312615
-latest_id: 614
+total_entries: 615
+total_tokens: ~312932
+latest_id: 615
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 615 | 2026-08-31 | changed | 9c162dec33a2ef90 | agent,multi-agent,protocol,config,+ | 614 |
 | 614 | 2026-08-31 | changed | 6d55a92f41d52cb4 | agent,multi-agent,session,git-hooks,+ | 613 |
 | 613 | 2026-08-31 | done | 381d6dfe0d931712 | agent,multi-agent,session,git-hooks,+ | 612 |
 | 612 | 2026-08-29 | planned | 81b319943882e163 | agent,memory,provenance,search,+ | 611 |
@@ -632,7 +633,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=14 latest=#614, #613, #612, #494, #471
+- agent: count=15 latest=#615, #614, #613, #612, #494
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -686,17 +687,17 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=8 latest=#614, #613, #605, #598, #595
+- config: count=9 latest=#615, #614, #613, #605, #598
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=60 latest=#614, #613, #609, #608, #607
+- continuity: count=61 latest=#615, #614, #613, #609, #608
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=15 latest=#600, #596, #590, #587, #586
+- correction: count=16 latest=#615, #600, #596, #590, #587
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -721,7 +722,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=8 latest=#483, #482, #480, #477, #471
-- docs: count=89 latest=#613, #611, #610, #598, #594
+- docs: count=90 latest=#615, #613, #611, #610, #598
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -819,7 +820,7 @@ compact: true
 - model-selection: count=1 latest=#368
 - models: count=3 latest=#450, #403, #182
 - modes: count=1 latest=#542
-- multi-agent: count=22 latest=#614, #613, #378, #268, #231
+- multi-agent: count=23 latest=#615, #614, #613, #378, #268
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=5 latest=#484, #033, #024, #009, #002
@@ -863,7 +864,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=113 latest=#564, #563, #536, #534, #531
+- protocol: count=114 latest=#615, #564, #563, #536, #534
 - prov: count=1 latest=#316
 - provenance: count=32 latest=#612, #604, #603, #602, #601
 - publication: count=1 latest=#533
@@ -942,9 +943,9 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=114 latest=#614, #613, #588, #586, #585
+- test: count=115 latest=#615, #614, #613, #588, #586
 - test-artifacts: count=1 latest=#506
-- tests: count=61 latest=#614, #613, #610, #609, #608
+- tests: count=62 latest=#615, #614, #613, #610, #609
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -960,7 +961,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=420 latest=#614, #613, #609, #608, #607
+- verify: count=421 latest=#615, #614, #613, #609, #608
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -977,7 +978,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 58
+- changed: 59
 - done: 520
 - in-progress: 14
 - planned: 22
