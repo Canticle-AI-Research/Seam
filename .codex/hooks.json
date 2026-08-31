@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 tools/agents/session_end_closeout.py",
-            "timeout": 10,
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/tools/agents/session_end_closeout.py\"",
+            "timeout": 3,
             "statusMessage": "Queueing bounded SEAM closeout verification"
           }
         ]

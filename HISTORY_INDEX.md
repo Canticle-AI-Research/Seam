@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 613
-total_tokens: ~312209
-latest_id: 613
+total_entries: 614
+total_tokens: ~312615
+latest_id: 614
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 614 | 2026-08-31 | changed | 6d55a92f41d52cb4 | agent,multi-agent,session,git-hooks,+ | 613 |
 | 613 | 2026-08-31 | done | 381d6dfe0d931712 | agent,multi-agent,session,git-hooks,+ | 612 |
 | 612 | 2026-08-29 | planned | 81b319943882e163 | agent,memory,provenance,search,+ | 611 |
 | 611 | 2026-08-26 | done | f93e5b6f42d1ace3 | api,memory,ci,security,+ | 610 |
@@ -631,7 +632,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=13 latest=#613, #612, #494, #471, #470
+- agent: count=14 latest=#614, #613, #612, #494, #471
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -667,7 +668,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=66 latest=#611, #609, #607, #604, #598
+- ci: count=67 latest=#614, #611, #609, #607, #604
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=3 latest=#506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -685,12 +686,12 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=7 latest=#613, #605, #598, #595, #559
+- config: count=8 latest=#614, #613, #605, #598, #595
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=3 latest=#316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=59 latest=#613, #609, #608, #607, #606
+- continuity: count=60 latest=#614, #613, #609, #608, #607
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -751,7 +752,7 @@ compact: true
 - generation: count=1 latest=#365
 - ghost: count=2 latest=#609, #608
 - git: count=3 latest=#561, #360, #324
-- git-hooks: count=10 latest=#613, #573, #572, #562, #531
+- git-hooks: count=11 latest=#614, #613, #573, #572, #562
 - gitignore: count=1 latest=#406
 - gold-noise: count=1 latest=#369
 - gold-standard: count=1 latest=#038
@@ -818,7 +819,7 @@ compact: true
 - model-selection: count=1 latest=#368
 - models: count=3 latest=#450, #403, #182
 - modes: count=1 latest=#542
-- multi-agent: count=21 latest=#613, #378, #268, #231, #230
+- multi-agent: count=22 latest=#614, #613, #378, #268, #231
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=5 latest=#484, #033, #024, #009, #002
@@ -914,7 +915,7 @@ compact: true
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
 - semantic-seeding: count=1 latest=#492
 - server: count=6 latest=#520, #457, #300, #288, #286
-- session: count=4 latest=#613, #027, #025, #019
+- session: count=5 latest=#614, #613, #027, #025, #019
 - session-end: count=1 latest=#306
 - shell: count=1 latest=#542
 - signing: count=1 latest=#561
@@ -941,9 +942,9 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=2 latest=#441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=113 latest=#613, #588, #586, #585, #584
+- test: count=114 latest=#614, #613, #588, #586, #585
 - test-artifacts: count=1 latest=#506
-- tests: count=60 latest=#613, #610, #609, #608, #606
+- tests: count=61 latest=#614, #613, #610, #609, #608
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -954,12 +955,12 @@ compact: true
 - track-r: count=5 latest=#459, #458, #457, #456, #455
 - track-s: count=2 latest=#533, #532
 - training-corpus: count=1 latest=#366
-- trust: count=4 latest=#613, #612, #526, #403
+- trust: count=5 latest=#614, #613, #612, #526, #403
 - tui: count=34 latest=#571, #559, #554, #543, #542
 - unify: count=1 latest=#311
 - vector: count=36 latest=#533, #532, #530, #502, #465
 - vector-adapters: count=1 latest=#359
-- verify: count=419 latest=#613, #609, #608, #607, #606
+- verify: count=420 latest=#614, #613, #609, #608, #607
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -976,7 +977,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 57
+- changed: 58
 - done: 520
 - in-progress: 14
 - planned: 22

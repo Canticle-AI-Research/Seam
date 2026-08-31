@@ -369,8 +369,12 @@ def test_session_end_hook_is_additive_bounded_and_points_at_dispatcher() -> None
     assert len(command_hooks) == 1
     hook = command_hooks[0]
     assert hook["type"] == "command"
-    assert hook["command"] == "/usr/bin/python3 tools/agents/session_end_closeout.py"
-    assert 1 <= hook["timeout"] <= 30
+    assert hook["command"] == (
+        '/usr/bin/python3 "$(git rev-parse --show-toplevel)/tools/agents/'
+        'session_end_closeout.py"'
+    )
+    # Codex caps SessionEnd hooks at three seconds.
+    assert 1 <= hook["timeout"] <= 3
 
 
 def test_closeout_receipt_schema_is_fail_closed() -> None:

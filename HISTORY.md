@@ -19986,3 +19986,46 @@ The user-owned dirty primary checkout and its unrelated audit/handoff work were
 not modified. It also carries a separate uncommitted next-history-ID candidate;
 whichever continuity branch merges second must rechain against protected main.
 ---END-ENTRY-#613---
+
+---BEGIN-ENTRY-#614---
+id: 614
+date: 2026-08-31T20:52:14Z
+agent: codex
+status: changed
+topics: agent, multi-agent, session, git-hooks, test, tests, verify, continuity, config, ci, trust
+commits: pending
+refs: .codex/hooks.json,tests/audit/test_session_end_agent_closeout.py,docs/SOP_AGENT_ORCHESTRATION.md,PR#238
+supersedes: 613
+tokens: 406
+---
+Corrected the project SessionEnd hook against the current Codex lifecycle
+contract. The hook timeout is now the supported three-second maximum, and its
+command resolves the dispatcher from `git rev-parse --show-toplevel` so a
+session started below the repository root does not silently target a missing
+relative path. A focused configuration test was tightened first and failed on
+the prior ten-second, cwd-relative definition; the corrected hook then passed
+the focused `pytest -q` command over
+`tests/audit/test_agent_session_state.py`,
+`tests/audit/test_session_end_agent_closeout.py`,
+`tests/audit/test_codex_agent_profiles.py`,
+`tests/audit/test_history_closeout.py`, and
+`tests/audit/test_local_gates_match_ci.py`. Changed-scope Ruff and
+`git diff --check` also passed.
+
+Runner investigation was operational evidence, not a SEAM product change. The
+first PR #238 run failed before all steps because the self-hosted runner `_work`
+link targeted an inaccessible `/mnt/data` path. Repointing it to the currently
+mounted Samsung T7 proved that direct destination invalid too: T7 is exFAT,
+and `actions/setup-python@v5` initialization requires symlink creation. Every
+rerun job therefore stopped during Set up job with `Operation not permitted`.
+The T7 directory is not claimed as a qualified runner workspace. The original
+ext4 mount at `/mnt/data` is masked by an unrelated `/dev/sdb1` mount at
+`/mnt`; restoring it requires an operator-authorized unmount because this
+session cannot satisfy the local elevation prompt.
+
+The five custom agent profiles still match the current project-scoped TOML
+schema and preserve the root-supplied packet boundary. Actual project hook
+activation remains operator trust-gated, and exact-head CI remains blocked on
+restoring a POSIX-capable runner workspace. No Track S, runtime product,
+benchmark, release, deploy, or model-quality claim changed.
+---END-ENTRY-#614---

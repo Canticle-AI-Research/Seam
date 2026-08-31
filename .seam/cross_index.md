@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 677
+total_events: 678
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-18T11:21:47Z | history:419:3f64d78d | session-event | done | benchmark, locomo, retrieval, quality, verify | docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md |
 | 2026-07-18T11:28:05Z | history:420:cf6c4060 | session-event | done | benchmark, locomo, retrieval, memory, quality, plan | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 | 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 | 2026-07-18T21:24:25Z | history:422:b54c82e6 | session-event | done | benchmark, locomo, handoff, test, plan | benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_pa... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-29T00:00:00Z | roadmap:064:86674593 | status-change | bootstrap | agent, memory, provenance, search, cli, trust | ROADMAP.md:1388 |
 | 2026-08-29T14:33:14-05:00 | history:612:81b31994 | session-event | planned | agent, memory, provenance, search, cli, trust, roadmap, h... | ROADMAP.md,REPO_LEDGER.md,docs/handoffs/2026-08-29-grounded-research-acquisit... |
 | 2026-08-31T20:24:22Z | history:613:381d6dfe | session-event | done | agent, multi-agent, session, git-hooks, test, tests, veri... | .codex/agents,.codex/hooks.json,tools/agents,docs/SOP_AGENT_ORCHESTRATION.md,... |
+| 2026-08-31T20:52:14Z | history:614:6d55a92f | session-event | changed | agent, multi-agent, session, git-hooks, test, tests, veri... | .codex/hooks.json,tests/audit/test_session_end_agent_closeout.py,docs/SOP_AGE... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0477.cross.md | 2026-04-15T00:00:00Z..2026-07-18T04:00:00Z | 477 | (multi) | (multi) |
+| 0001-0478.cross.md | 2026-04-15T00:00:00Z..2026-07-18T11:21:47Z | 478 | (multi) | (multi) |
