@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seam.local/schemas/agent-context-packet-v1.json",
+  "title": "SEAM Agent Context Packet v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "task_id",
+    "parent_task_id",
+    "role",
+    "base_sha",
+    "objective",
+    "acceptance_criteria",
+    "non_goals",
+    "supplied_context",
+    "owned_paths",
+    "allowed_reads",
+    "forbidden_reads",
+    "dependencies",
+    "exact_commands",
+    "stop_if",
+    "specialist_budget",
+    "return_contract"
+  ],
+  "properties": {
+    "schema": {"const": "seam-agent-context-packet/v1"},
+    "run_id": {"type": "string", "minLength": 1, "maxLength": 180},
+    "task_id": {"type": "string", "minLength": 1, "maxLength": 180},
+    "parent_task_id": {"type": ["string", "null"], "maxLength": 180},
+    "role": {"type": "string", "minLength": 1, "maxLength": 100},
+    "base_sha": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+    "objective": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 24,
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+    },
+    "non_goals": {
+      "type": "array",
+      "maxItems": 24,
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+    },
+    "supplied_context": {
+      "type": "array",
+      "maxItems": 48,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "digest", "facts"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1, "maxLength": 500},
+          "digest": {"type": "string", "minLength": 1, "maxLength": 4000},
+          "facts": {
+            "type": "array",
+            "maxItems": 24,
+            "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+          }
+        }
+      }
+    },
+    "owned_paths": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"type": "string", "minLength": 1, "maxLength": 500}
+    },
+    "allowed_reads": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"type": "string", "minLength": 1, "maxLength": 500}
+    },
+    "forbidden_reads": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"type": "string", "minLength": 1, "maxLength": 500}
+    },
+    "dependencies": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {"type": "string", "minLength": 1, "maxLength": 180}
+    },
+    "exact_commands": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {"type": "string", "minLength": 1, "maxLength": 2000}
+    },
+    "stop_if": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+    },
+    "specialist_budget": {"type": "integer", "minimum": 0, "maximum": 2},
+    "return_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "max_words", "required_evidence"],
+      "properties": {
+        "format": {"const": "SEAM_RETURN_PACKET/v1"},
+        "max_words": {"type": "integer", "minimum": 100, "maximum": 900},
+        "required_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {"type": "string", "minLength": 1, "maxLength": 300}
+        }
+      }
+    }
+  }
+}

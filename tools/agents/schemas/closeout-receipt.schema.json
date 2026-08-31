@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seam.local/schemas/agent-closeout-receipt-v1.json",
+  "title": "SEAM Agent Closeout Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_id",
+    "request_sha256",
+    "session_id",
+    "completed_at",
+    "status",
+    "scope",
+    "tdd",
+    "checks",
+    "continuity",
+    "project_alignment",
+    "next_action"
+  ],
+  "properties": {
+    "schema": {"const": "seam-agent-closeout-receipt/v1"},
+    "request_id": {"type": "string", "minLength": 1, "maxLength": 200},
+    "request_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "session_id": {"type": "string", "minLength": 1, "maxLength": 180},
+    "completed_at": {"type": "string", "format": "date-time"},
+    "status": {
+      "enum": ["QUALIFIED", "NOT_QUALIFIED", "BLOCKED", "INDETERMINATE"]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["head", "diff_fingerprint", "matches_request"],
+      "properties": {
+        "head": {"type": "string", "minLength": 1, "maxLength": 64},
+        "diff_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "matches_request": {"type": "boolean"}
+      }
+    },
+    "tdd": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"enum": ["TDD_PROVEN", "TDD_UNPROVEN", "TDD_NOT_REQUIRED"]},
+        "evidence": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "status", "exit_code", "evidence"],
+        "properties": {
+          "command": {"type": "string", "minLength": 1, "maxLength": 2000},
+          "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN"]},
+          "exit_code": {"type": ["integer", "null"]},
+          "evidence": {"type": "string", "minLength": 1, "maxLength": 2000}
+        }
+      }
+    },
+    "continuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN"]},
+        "evidence": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+        }
+      }
+    },
+    "project_alignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"enum": ["ALIGNED", "DRIFTED", "INDETERMINATE"]},
+        "evidence": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+        }
+      }
+    },
+    "next_action": {"type": "string", "minLength": 1, "maxLength": 2000}
+  }
+}

@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 676
+total_events: 677
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-18T04:00:00Z | history:418:caca6117 | session-event | done | roadmap, docs, agent, memory |  |
 | 2026-07-18T11:21:47Z | history:419:3f64d78d | session-event | done | benchmark, locomo, retrieval, quality, verify | docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md |
 | 2026-07-18T11:28:05Z | history:420:cf6c4060 | session-event | done | benchmark, locomo, retrieval, memory, quality, plan | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
 | 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-26T05:06:01Z | history:611:f93e5b6f | session-event | done | api, memory, ci, security, docs, handoff, history | https://github.com/Canticle-AI-Research/Seam/pull/233,docs/handoffs/2026-08-2... |
 | 2026-08-29T00:00:00Z | roadmap:064:86674593 | status-change | bootstrap | agent, memory, provenance, search, cli, trust | ROADMAP.md:1388 |
 | 2026-08-29T14:33:14-05:00 | history:612:81b31994 | session-event | planned | agent, memory, provenance, search, cli, trust, roadmap, h... | ROADMAP.md,REPO_LEDGER.md,docs/handoffs/2026-08-29-grounded-research-acquisit... |
+| 2026-08-31T20:24:22Z | history:613:381d6dfe | session-event | done | agent, multi-agent, session, git-hooks, test, tests, veri... | .codex/agents,.codex/hooks.json,tools/agents,docs/SOP_AGENT_ORCHESTRATION.md,... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0476.cross.md | 2026-04-15T00:00:00Z..2026-07-18T01:03:48Z | 476 | (multi) | (multi) |
+| 0001-0477.cross.md | 2026-04-15T00:00:00Z..2026-07-18T04:00:00Z | 477 | (multi) | (multi) |

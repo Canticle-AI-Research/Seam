@@ -19935,3 +19935,54 @@ qualification, and H4 library substrate, and must start with a frozen 5-10 item
 fixture before any bulk acquisition. The new handoff preserves that execution
 order and supersedes the prior publication handoff without changing its facts.
 ---END-ENTRY-#612---
+
+---BEGIN-ENTRY-#613---
+id: 613
+date: 2026-08-31T20:24:22Z
+agent: codex
+status: done
+topics: agent, multi-agent, session, git-hooks, test, tests, verify, continuity, config, docs, trust
+commits: pending
+refs: .codex/agents,.codex/hooks.json,tools/agents,docs/SOP_AGENT_ORCHESTRATION.md,AGENTS.md,REPO_LEDGER.md
+supersedes: 612
+tokens: 613
+---
+Implemented project-scoped, root-supplied agent orchestration without changing
+SEAM product behavior or Track S status. The root now performs canonical startup
+once, builds schema-bounded context packets, and activates four logical domain
+roles in waves: context, delivery, assurance, and release. Children read only
+packet-listed context, return MISSING_CONTEXT instead of surveying the repo,
+and may delegate only one level under an explicit specialist budget. Five flat
+Codex profiles, packet/session/request/receipt schemas, current policy, and the
+operator SOP record those boundaries.
+
+The additive Codex SessionEnd hook queues an idempotent exact-state request; it
+does not read transcripts, launch nested model sessions, run closeout, or mutate
+history. Runtime paths without complete root-recorded red-before-green evidence
+remain TDD_UNPROVEN. The root session-state helper rejects oversized,
+schema-invalid, secret-shaped, and private-link content. Exact-state hashing
+includes untracked content, binds pre-open and opened file identity, rejects
+replacement races, and fails closed above its bound. The read-only release role
+returns a receipt to the root and has no write, commit, push, merge, release, or
+paid-provider authority.
+
+Verification: the scoped command `python3 -m pytest
+tests/audit/test_agent_session_state.py
+tests/audit/test_session_end_agent_closeout.py
+tests/audit/test_codex_agent_profiles.py tests/audit/test_history_closeout.py
+tests/audit/test_local_gates_match_ci.py -q` passed 42 tests. Changed-scope Ruff,
+`git diff --check`, wiki reachability, profile validation, and the content-free
+secret/session scan passed. Independent assurance rejected two earlier states,
+then qualified the repaired bounded scope with no remaining finding.
+
+The full non-external `tests/audit` attempt produced 36 existing LoCoMo/Mem0
+failures sharing `LocalEntryNotFoundError` during vector indexing. A
+representative failure reproduced in the unchanged primary checkout at
+`origin/main`, so this branch records but does not widen into that environment
+or model-cache problem. Fresh-client project-hook discovery, operator trust,
+and live release-role execution remain unclaimed activation gates.
+
+The user-owned dirty primary checkout and its unrelated audit/handoff work were
+not modified. It also carries a separate uncommitted next-history-ID candidate;
+whichever continuity branch merges second must rechain against protected main.
+---END-ENTRY-#613---

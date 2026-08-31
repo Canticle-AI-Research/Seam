@@ -65,6 +65,10 @@ seam_runtime/_handoff_20260419/
 # Derived snapshot payloads (keep directory marker only)
 .seam/snapshots/*.json
 .seam/surfaces/
+# Local orchestration state. Schemas and profiles remain tracked elsewhere.
+.seam/orchestration/sessions/
+.seam/orchestration/session-end/requests/
+.seam/orchestration/session-end/receipts/
 
 # Local editor and agent config
 .cursor/
