@@ -20140,3 +20140,51 @@ custom profiles in an already-running client and makes no release, deployment,
 benchmark, Track S, or memory-quality claim. The separate draft PR 237 remains
 the S8-S10 delivery candidate and is intentionally untouched.
 ---END-ENTRY-#617---
+
+---BEGIN-ENTRY-#618---
+id: 618
+date: 2026-09-01T01:57:48Z
+agent: codex
+status: changed
+topics: agent, multi-agent, session, protocol, bugfix, correction, harden, security, test, tests, verify, continuity, git-hooks
+commits: pending
+refs: tools/agents/closeout_queue.py,tools/agents/schemas/closeout-request.schema.json,tests/audit/test_closeout_queue.py,PR#238
+supersedes: 617
+tokens: 569
+---
+Corrected the locally qualified orchestration state after the first live
+post-commit SessionEnd cycle exposed a same-version queue compatibility defect.
+The current hook produced a valid cycle-bearing TDD_PROVEN request, but pending
+validation stopped on an older immutable seam-agent-closeout-request/v1 record
+whose historical five-field TDD summary predated the new cycles field. The
+field had been made mandatory without a schema-version change.
+
+The queue and v1 schema now recognize only the exact historical five-field and
+current six-field TDD shapes. Current cycle-bearing records still undergo
+independent TDD recomputation. Historical summary-only records remain readable,
+but a cycle-less runtime request cannot newly store a QUALIFIED receipt. An
+already-existing legacy QUALIFIED receipt remains immutable historical evidence
+only: it is non-dispositive, cannot close or supersede a request, and leaves the
+request pending until a newer cycle-bearing qualification supersedes it.
+
+The public-seam regression first reproduced pending's exact `closeout request
+TDD fields are invalid` failure. Two additional red-green regressions then
+proved that a new legacy runtime qualification is rejected before receipt
+publication and an existing legacy qualification cannot disposition or
+supersede current work. The focused orchestration/local-gate audit slice passed,
+Ruff and git diff check passed, and a fresh independent integrity review found
+no remaining issue in the compatibility repair.
+
+On the final repaired tree, the strict non-external repository suite completed
+at 100 percent with two established expected failures and no failure or skip;
+all 23 external tests passed against the healthy local pgvector container. The
+content-free secret/private-session scan passed. The earlier hosted checks on
+8b7c9c823e6155592990da76d83068e18fb249e2 do not qualify this successor tree;
+fresh exact-head CI and a new cycle-bearing stored release receipt remain
+mandatory before protected merge.
+
+This supersedes the exact-state qualification claim in HISTORY#617 without
+rewriting it. PR 238 remains draft and branch-local. No release, deployment,
+benchmark, Track S, or memory-quality claim changes, and draft PR 237 remains
+untouched as the separate S8-S10 candidate.
+---END-ENTRY-#618---

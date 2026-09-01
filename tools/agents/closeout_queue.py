@@ -72,6 +72,7 @@ TDD_FIELDS = {
     "cycle_count",
     "cycles",
 }
+LEGACY_TDD_FIELDS = TDD_FIELDS - {"cycles"}
 RECEIPT_FIELDS = {
     "schema",
     "request_id",
@@ -356,9 +357,12 @@ def validate_request(
         if not _string_list(context.get(field), maximum=128, maximum_length=500):
             raise CloseoutQueueError(f"closeout request context {field} is invalid")
     tdd = value.get("tdd_evidence")
-    if not isinstance(tdd, dict) or set(tdd) != TDD_FIELDS:
+    if not isinstance(tdd, dict) or set(tdd) not in {
+        frozenset(TDD_FIELDS),
+        frozenset(LEGACY_TDD_FIELDS),
+    }:
         raise CloseoutQueueError("closeout request TDD fields are invalid")
-    cycles = _validate_tdd_cycles(tdd.get("cycles"))
+    cycles = _validate_tdd_cycles(tdd.get("cycles")) if "cycles" in tdd else None
     for field in ("runtime_paths", "covered_runtime_paths", "missing_runtime_paths"):
         if not _string_list(tdd.get(field), maximum=2048):
             raise CloseoutQueueError(f"closeout request TDD {field} is invalid")
@@ -397,26 +401,27 @@ def validate_request(
         raise CloseoutQueueError("closeout request TDD omits visible runtime paths")
     if tdd_runtime_paths != visible_runtime_paths:
         raise CloseoutQueueError("closeout request TDD runtime paths do not match changed paths")
-    recomputed = assess_tdd(paths, {"tdd_cycles": cycles})
-    if truncated:
-        recomputed.update(
-            {
-                "status": "TDD_UNPROVEN",
-                "covered_runtime_paths": [],
-                "missing_runtime_paths": recomputed["runtime_paths"],
-            }
-        )
-    for field in (
-        "status",
-        "runtime_paths",
-        "covered_runtime_paths",
-        "missing_runtime_paths",
-        "cycle_count",
-    ):
-        if tdd[field] != recomputed[field]:
-            raise CloseoutQueueError(
-                "closeout request TDD summary does not recompute from cycle evidence"
+    if cycles is not None:
+        recomputed = assess_tdd(paths, {"tdd_cycles": cycles})
+        if truncated:
+            recomputed.update(
+                {
+                    "status": "TDD_UNPROVEN",
+                    "covered_runtime_paths": [],
+                    "missing_runtime_paths": recomputed["runtime_paths"],
+                }
             )
+        for field in (
+            "status",
+            "runtime_paths",
+            "covered_runtime_paths",
+            "missing_runtime_paths",
+            "cycle_count",
+        ):
+            if tdd[field] != recomputed[field]:
+                raise CloseoutQueueError(
+                    "closeout request TDD summary does not recompute from cycle evidence"
+                )
     authority = value.get("authority")
     if not isinstance(authority, dict) or set(authority) != {
         "mode",
@@ -756,6 +761,17 @@ def _load_queued_requests(state_root: Path) -> list[dict[str, Any]]:
     return requests
 
 
+def _receipt_is_dispositive(
+    request: dict[str, Any], receipt: dict[str, Any]
+) -> bool:
+    """Return whether a receipt may close or supersede its request."""
+
+    return receipt["status"] == "QUALIFIED" and not (
+        request["change_class"] == "runtime"
+        and "cycles" not in request["tdd_evidence"]
+    )
+
+
 def _validate_supersession_targets(
     request: dict[str, Any],
     receipt: dict[str, Any],
@@ -787,7 +803,7 @@ def _validate_supersession_targets(
             )
         target_receipts = _stored_receipts(target, state_root=state_root)
         if not any(
-            target_receipt["status"] != "QUALIFIED"
+            not _receipt_is_dispositive(target, target_receipt)
             for _, target_receipt in target_receipts
         ):
             raise CloseoutQueueError(
@@ -841,6 +857,12 @@ def store_receipt(
     if queued_request != request:
         raise CloseoutQueueError("closeout request differs from its queued record")
     receipt = validate_receipt(request, receipt, state_root=state_root)
+    if receipt["status"] == "QUALIFIED" and not _receipt_is_dispositive(
+        request, receipt
+    ):
+        raise CloseoutQueueError(
+            "QUALIFIED receipt requires independently recomputable cycle evidence"
+        )
     _validate_supersession_targets(request, receipt, state_root=state_root)
     encoded = _canonical_record(receipt)
     stored = _stored_receipts(request, state_root=state_root)
@@ -854,7 +876,7 @@ def store_receipt(
                 else "ALREADY_STORED_ATTEMPT"
             )
             return {"status": status, "receipt_path": str(existing_path)}
-    if any(existing["status"] == "QUALIFIED" for _, existing in stored):
+    if any(_receipt_is_dispositive(request, existing) for _, existing in stored):
         raise CloseoutQueueError("conflicting qualified closeout receipt already exists")
 
     canonical = _expected_receipt_path(state_root, request["request_id"])
@@ -871,7 +893,7 @@ def store_receipt(
                     "status": "ALREADY_STORED",
                     "receipt_path": str(existing_path),
                 }
-        if any(existing["status"] == "QUALIFIED" for _, existing in stored):
+        if any(_receipt_is_dispositive(request, existing) for _, existing in stored):
             raise CloseoutQueueError(
                 "conflicting qualified closeout receipt already exists"
             )
@@ -905,7 +927,7 @@ def pending(state_root: Path = DEFAULT_STATE_ROOT) -> dict[str, Any]:
         receipts = [receipt for _, receipt in stored]
         receipts_by_id[request["request_id"]] = receipts
         for receipt in receipts:
-            if receipt["status"] == "QUALIFIED":
+            if _receipt_is_dispositive(request, receipt):
                 _validate_supersession_targets(
                     request,
                     receipt,
@@ -918,7 +940,7 @@ def pending(state_root: Path = DEFAULT_STATE_ROOT) -> dict[str, Any]:
         if request["request_id"] in superseded:
             continue
         if any(
-            receipt["status"] == "QUALIFIED"
+            _receipt_is_dispositive(request, receipt)
             for receipt in receipts_by_id[request["request_id"]]
         ):
             continue

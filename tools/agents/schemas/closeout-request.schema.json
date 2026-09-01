@@ -77,7 +77,7 @@
     "tdd_evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "runtime_paths", "covered_runtime_paths", "missing_runtime_paths", "cycle_count", "cycles"],
+      "required": ["status", "runtime_paths", "covered_runtime_paths", "missing_runtime_paths", "cycle_count"],
       "properties": {
         "status": {"enum": ["TDD_PROVEN", "TDD_UNPROVEN", "TDD_NOT_REQUIRED"]},
         "runtime_paths": {"type": "array", "items": {"type": "string"}},

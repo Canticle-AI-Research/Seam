@@ -100,6 +100,67 @@ def test_pending_returns_a_hash_validated_request_for_the_release_profile(
     ]
 
 
+def test_pending_accepts_v1_request_from_pre_cycle_evidence_producer(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _runtime_queued_request(sample_repo, state_root)
+    request_path = Path(str(queued["request_path"]))
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    request["tdd_evidence"].pop("cycles")
+    request["request_sha256"] = closeout_queue._request_hash(request)
+    request_path.write_text(json.dumps(request), encoding="utf-8")
+
+    result = closeout_queue.pending(state_root)
+
+    assert [item["request_id"] for item in result["requests"]] == [
+        request["request_id"]
+    ]
+
+
+def test_store_rejects_new_qualified_receipt_for_legacy_runtime_request(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _runtime_queued_request(sample_repo, state_root)
+    request_path = Path(str(queued["request_path"]))
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    request["tdd_evidence"].pop("cycles")
+    request["request_sha256"] = closeout_queue._request_hash(request)
+    request_path.write_text(json.dumps(request), encoding="utf-8")
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="cycle evidence"):
+        closeout_queue.store_receipt(
+            request,
+            _qualified_receipt(request),
+            state_root=state_root,
+        )
+    assert not Path(request["receipt_path"]).exists()
+
+
+def test_existing_legacy_qualified_receipt_is_historical_not_dispositive(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _runtime_queued_request(sample_repo, state_root)
+    request_path = Path(str(queued["request_path"]))
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    request["tdd_evidence"].pop("cycles")
+    request["request_sha256"] = closeout_queue._request_hash(request)
+    request_path.write_text(json.dumps(request), encoding="utf-8")
+    receipt_path = Path(request["receipt_path"])
+    receipt_path.parent.mkdir(parents=True)
+    receipt_path.write_text(
+        json.dumps(_qualified_receipt(request)), encoding="utf-8"
+    )
+
+    result = closeout_queue.pending(state_root)
+
+    assert [item["request_id"] for item in result["requests"]] == [
+        request["request_id"]
+    ]
+
+
 def _qualified_receipt(request: dict[str, object]) -> dict[str, object]:
     repo = request["repo"]
     assert isinstance(repo, dict)
