@@ -214,8 +214,8 @@ independent assurance are green. D2 is protected-main complete.
 3. Prove cleanup restart/idempotency and no deleted-record resurrection.
 4. Specify Physical Erasure separately; do not silently reinterpret soft delete.
 
-**Current evidence:** branch `feat/d3-lifecycle-exclusion` from protected
-`main@a7333f0` applies transitive current eligibility to retrieval and its trace,
+**Current evidence:** protected `main@253037a` contains D3 through merged PR
+#241. It applies transitive current eligibility to retrieval and its trace,
 memory/decompile, PACK, graph products, identity metadata, and reusable derived
 vectors while retaining canonical `load_ir` history. Explicit public history
 continues to expose retained lifecycle records without publishing mutation
@@ -225,15 +225,30 @@ invalidation preserves unchanged shared endpoints, reprojects changed
 survivors, and refuses deleted-only source hashes. Hard-delete identity
 conflicts remain auditable while every present non-current endpoint remains
 hidden. The 3,225-case non-external collection has 3,223 passes and two
-established xfails; all 23 live pgvector tests, focused tests, Ruff, and
-independent assurance are green. D3 remains locally qualified until exact-head
-hosted checks, a root-stored receipt, and protected merge complete.
+established xfails; all 23 live pgvector tests, focused tests, Ruff, exact-head
+hosted checks, a root-stored receipt, and independent assurance are green. D3
+is protected-main complete.
 
 ### D4 - Snapshot Integrity
 
 1. A rejected write inside a read snapshot leaves the snapshot active.
 2. Every later read in the request observes the original committed state.
 3. Snapshot close owns the only rollback/end transition.
+
+**Current evidence:** branch `codex/d4-snapshot-integrity` from protected
+`main@253037a` keeps rejected store writes inside the original committed read
+snapshot and exposes only a guarded connection/cursor facade to nested callers.
+SQLite query-only mode plus an exhaustive mutating-action authorizer deny
+transaction/savepoint control, close and authorizer replacement, BLOB writes,
+deserialize, mutating PRAGMAs, attached databases, and temp/vtable mutation;
+only the owner removes the guards, rolls back, restores prior connection state,
+and returns the physical connection to the pool. Later request reads remain on
+the original committed state after every rejected path. The 3,238 selected
+non-external cases are green with two established xfails; all 23 live pgvector
+external tests, the 51-case focused regression matrix, changed-file Ruff, diff
+checks, and independent standards/spec assurance are green. D4 remains locally
+qualified until exact-head hosted checks, a root-stored receipt, and protected
+merge complete.
 
 ### T1 - Temporal Semantics
 
@@ -359,11 +374,12 @@ decision.
 4. D1.4 systematic filesystem-transition failure matrix (protected-main
    complete through PR #239).
 5. D2 atomic ingest (protected-main complete through PR #240).
-6. D3 lifecycle exclusion across every Product Core read (locally qualified;
-   protected merge next).
-7. D4 and T1 correctness slices after D3 protected merge.
-8. G1 and R1, followed by R2.
-9. Freeze S8, run Q1, then freeze and qualify C1.
+6. D3 lifecycle exclusion across every Product Core read (protected-main
+   complete through PR #241).
+7. D4 snapshot integrity (locally qualified; protected merge next).
+8. T1 temporal semantics after D4 protected merge.
+9. G1 and R1, followed by R2.
+10. Freeze S8, run Q1, then freeze and qualify C1.
 
 The first slice is intentionally small enough to review independently while
 establishing the Recovery Boundary architecture used by every later stage.

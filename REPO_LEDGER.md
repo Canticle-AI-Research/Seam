@@ -129,6 +129,16 @@ and `HISTORY_INDEX.md`.
   state; any endpoint still present with a non-current status hides the merge.
   Soft deletion does not imply Physical Erasure, which remains a separate
   explicit contract.
+- A bound SQLite read snapshot exposes a guarded connection/cursor facade, not
+  the owner-managed raw pooled connection. SQLite `query_only` mode and the
+  authorizer jointly reject writes, transaction/savepoint control, connection
+  close or authorizer replacement, BLOB mutation, deserialize, mutating
+  PRAGMAs, ATTACH/DETACH, temp/vtable mutation, and equivalent end-state
+  controls. The snapshot owner alone removes those guards, rolls back the read
+  transaction, restores the prior query-only/isolation settings, and returns
+  the physical connection to the pool. A rejected nested write or control
+  attempt therefore cannot advance, terminate, or reconfigure later reads in
+  the request.
 - External research acquisition belongs behind SEAM's canonical ingestion
   boundary. Source adapters are deterministic, CLI-first where an official CLI
   exists, and provenance-complete; they do not run agents or create a second
