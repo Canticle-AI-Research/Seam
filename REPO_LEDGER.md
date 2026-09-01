@@ -221,13 +221,19 @@ and `HISTORY_INDEX.md`.
   supported store is live. Restore validates the backup before touching the
   target, checkpoints recognized WAL state, quarantines remaining legacy
   sidecars before the database replacement commit point, fsyncs the replacement
-  boundary, and never attaches an old WAL or journal to restored bytes. This
+  boundary, and never attaches an old WAL or journal to restored bytes. Private,
+  default-off restore failure seams name both pre-operation and completed-
+  transition boundaries; the audit matrix requires every failure to reopen as
+  the complete old logical state before replacement or complete backup logical
+  state after replacement, with integrity and foreign keys valid. Rollback and
+  cleanup continue after secondary failures without masking the initiating
+  exception. This
   lifetime lease is distinct from the transient writer lock used by ordinary
   persistence. A POSIX fork child must establish process-local lease registry
   state before opening its own store, and only the PID that acquired a lease
   may explicitly unlock it. See
   `docs/adr/0001-canonical-store-lifetime-lease.md`,
-  `docs/SQLITE_MIGRATIONS.md`, and HISTORY#620.
+  `docs/SQLITE_MIGRATIONS.md`, HISTORY#620, and HISTORY#621.
 - Canonical SQLite and every initialized durable projection are governed by
   the central `seam_runtime.migrations` spine at schema version 2. Read-only
   preflight refuses unknown/newer schema identities, projection registries, or

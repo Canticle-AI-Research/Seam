@@ -9,25 +9,20 @@
 
 ## Current headline
 
-**2026-08-30 — branch-local Track S production-core consolidation starts D1
-and is restacked on protected `main@a408ec3`; it is not yet published.** The governing
-S8-S10 execution spec reconciles the Track S history with the 2026-08-29 deep
-audit, explicitly defers the operator surface, and dependency-orders ten
-controlled TDD streams. The first stream makes canonical-store restore an
-enforced recovery boundary: supported file-backed stores hold a cross-process
-lifetime lease, restore refuses while one is live, recognized WAL state is
-checkpointed, and old sidecars are quarantined before the replacement commit
-point. POSIX fork children preserve parent-owned leases, acquire distinct
-child-owned leases for fresh stores, and release inherited duplicates only
-after the final inherited logical store closes. Seventy-eight focused
-non-external tests, the earlier zero-finding staged CodeRabbit review, and a
-zero-finding independent final assurance pass currently qualify D1.1-D1.3.
-The full 3,146-test
-non-external collection exits zero with the explicit existing model cache,
-two expected xfails, and no skips. The systematic filesystem-transition
-failure matrix remains D1.4 work. This does not
-complete S8, start S9 measurement, satisfy S10 hosted CI/release gates, or make
-a hosted-production claim. See
+**2026-09-01 — protected `main@71c1489` contains the Track S S8-S10 execution
+specification and D1.1-D1.3; D1.4 is locally qualified on
+`feat/d1-restore-failure-matrix`.** The recovery boundary now has private,
+default-off failure seams around every supported restore filesystem operation
+and completed transition. The matrix proves exact old-or-backup logical state,
+SQLite integrity, foreign keys, WAL preservation, the replacement commit
+boundary, rollback continuation, and primary-error preservation under
+secondary cleanup failures. The 125-test focused recovery slice, 3,193-case
+non-external collection with two established xfails, all 23 live pgvector
+external tests, and independent assurance are green. This branch still needs
+commit, exact-head hosted checks, a root-stored qualification receipt, and a
+protected merge before D1 is protected-main complete. D2 is the next stream;
+S8 remains incomplete, S9 has not started, and no S10 release, deployment, or
+hosted-production claim is made. See
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
 
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance
