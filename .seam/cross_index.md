@@ -2,20 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 676
+total_events: 683
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-18T04:00:00Z | history:418:caca6117 | session-event | done | roadmap, docs, agent, memory |  |
-| 2026-07-18T11:21:47Z | history:419:3f64d78d | session-event | done | benchmark, locomo, retrieval, quality, verify | docs/handoffs/2026-07-17-hc3-open-domain-cat3-handoff.md,PROJECT_STATUS.md |
-| 2026-07-18T11:28:05Z | history:420:cf6c4060 | session-event | done | benchmark, locomo, retrieval, memory, quality, plan | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
-| 2026-07-18T20:13:22Z | history:421:95bef19b | session-event | done | benchmark, locomo, retrieval, verify, quality | docs/audits/2026-07-18-mem0-cat1-noncount-miss-mining.md,PROJECT_STATUS.md |
-| 2026-07-18T21:24:25Z | history:422:b54c82e6 | session-event | done | benchmark, locomo, handoff, test, plan | benchmarks/external/mem0_harness/parity_probe_answerer.py,tests/audit/test_pa... |
-| 2026-07-19T05:20:46Z | history:423:22ed4a4c | session-event | done | benchmark, locomo, paid-run, handoff, test | docs/handoffs/2026-07-19-matched-answerer-full-run-handoff.md,docs/handoffs/2... |
-| 2026-07-19T13:48:23Z | history:424:43ca0434 | session-event | done | benchmark, locomo, paid-run, mem0-harness, ops | benchmarks/external/mem0_harness/seam_mem0_server.py,docs/handoffs/2026-07-19... |
 | 2026-07-19T15:01:35Z | history:425:9d000c10 | session-event | done | ci, ops, infra, cost | .github/workflows/ci.yml,.github/workflows/ci-windows.yml |
 | 2026-07-19T16:04:15Z | history:426:f3bd1e40 | session-event | done | benchmark, locomo, ci, ops | .github/workflows/ci.yml |
 | 2026-07-19T19:47:29Z | history:427:8872a7d3 | session-event | done | benchmark, locomo, paid-run, handoff, retrieval, ci | seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/se... |
@@ -209,10 +202,17 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-26T05:06:01Z | history:611:f93e5b6f | session-event | done | api, memory, ci, security, docs, handoff, history | https://github.com/Canticle-AI-Research/Seam/pull/233,docs/handoffs/2026-08-2... |
 | 2026-08-29T00:00:00Z | roadmap:064:86674593 | status-change | bootstrap | agent, memory, provenance, search, cli, trust | ROADMAP.md:1388 |
 | 2026-08-29T14:33:14-05:00 | history:612:81b31994 | session-event | planned | agent, memory, provenance, search, cli, trust, roadmap, h... | ROADMAP.md,REPO_LEDGER.md,docs/handoffs/2026-08-29-grounded-research-acquisit... |
+| 2026-08-31T20:24:22Z | history:613:381d6dfe | session-event | done | agent, multi-agent, session, git-hooks, test, tests, veri... | .codex/agents,.codex/hooks.json,tools/agents,docs/SOP_AGENT_ORCHESTRATION.md,... |
+| 2026-08-31T20:52:14Z | history:614:6d55a92f | session-event | changed | agent, multi-agent, session, git-hooks, test, tests, veri... | .codex/hooks.json,tests/audit/test_session_end_agent_closeout.py,docs/SOP_AGE... |
+| 2026-08-31T21:02:39Z | history:615:9c162dec | session-event | changed | agent, multi-agent, protocol, config, docs, correction, t... | AGENTS.md,REPO_LEDGER.md,docs/SOP_AGENT_ORCHESTRATION.md,tests/audit/test_cod... |
+| 2026-08-31T23:21:41Z | history:616:966b04be | session-event | in-progress | agent, multi-agent, session, protocol, harden, security, ... | .codex/agents/seam_root_orchestrator.toml,tools/agents/session_end_closeout.p... |
+| 2026-09-01T01:37:26Z | history:617:28339172 | session-event | done | agent, multi-agent, session, protocol, harden, security, ... | .gitignore,docs/SOP_SEAM_CODEX_WORKFLOW.md,docs/SOP_AGENT_ORCHESTRATION.md,do... |
+| 2026-09-01T01:57:48Z | history:618:dc72ab99 | session-event | changed | agent, multi-agent, session, protocol, bugfix, correction... | tools/agents/closeout_queue.py,tools/agents/schemas/closeout-request.schema.j... |
+| 2026-09-01T02:11:53Z | history:619:dfc9bbb1 | session-event | changed | agent, multi-agent, session, protocol, bugfix, correction... | tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,PR#238 |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0476.cross.md | 2026-04-15T00:00:00Z..2026-07-18T01:03:48Z | 476 | (multi) | (multi) |
+| 0001-0483.cross.md | 2026-04-15T00:00:00Z..2026-07-19T13:48:23Z | 483 | (multi) | (multi) |

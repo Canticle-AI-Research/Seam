@@ -11,11 +11,17 @@ or remains necessary.
 
 ## Operator workflows
 
+- [Continuing SEAM work with Codex](SOP_SEAM_CODEX_WORKFLOW.md) — ordered
+  reconciliation, delivery, assurance, qualification, protected merge, and
+  durable-resume workflow for continuing a SEAM initiative.
 - [Model integration](SOP_MODEL_INTEGRATION.md) — configure model providers and adapters.
 - [Holographic Surface workflow](SOP_HOLOGRAPHIC_SURFACE.md) — encode, verify, query, and import surface artifacts.
 
 ## Advisor, audit, and remediation workflows
 
+- [Codex root-supplied agent orchestration](SOP_AGENT_ORCHESTRATION.md) — bounded
+  context packets, four logical domain roles, JIT specialists, and SessionEnd
+  closeout qualification.
 - [Advisor / Executor loop](SOP_ADVISOR_EXECUTOR_LOOP.md)
 - [DeepSeek parallel audit execution](SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md)
 - [Deep audit remediation blueprint](SOP_DEEP_AUDIT_REMEDIATION_BLUEPRINT.md)

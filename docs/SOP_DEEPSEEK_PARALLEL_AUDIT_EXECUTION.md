@@ -70,7 +70,9 @@ DeepSeek execution. Structure work accordingly:
 
 ## Parallel-Agent Topology For DeepSeek
 
-DeepSeek should use parallel agents. Codex should not.
+DeepSeek should use the worker lanes below. Codex delegation is governed by
+`SOP_AGENT_ORCHESTRATION.md`; this older model-specific packet does not define
+or restrict the current Codex topology.
 
 Coordinator responsibilities:
 

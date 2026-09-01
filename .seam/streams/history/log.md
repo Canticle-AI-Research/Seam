@@ -19935,3 +19935,303 @@ qualification, and H4 library substrate, and must start with a frozen 5-10 item
 fixture before any bulk acquisition. The new handoff preserves that execution
 order and supersedes the prior publication handoff without changing its facts.
 ---END-ENTRY-#612---
+
+---BEGIN-ENTRY-#613---
+id: 613
+date: 2026-08-31T20:24:22Z
+agent: codex
+status: done
+topics: agent, multi-agent, session, git-hooks, test, tests, verify, continuity, config, docs, trust
+commits: pending
+refs: .codex/agents,.codex/hooks.json,tools/agents,docs/SOP_AGENT_ORCHESTRATION.md,AGENTS.md,REPO_LEDGER.md
+supersedes: 612
+tokens: 613
+---
+Implemented project-scoped, root-supplied agent orchestration without changing
+SEAM product behavior or Track S status. The root now performs canonical startup
+once, builds schema-bounded context packets, and activates four logical domain
+roles in waves: context, delivery, assurance, and release. Children read only
+packet-listed context, return MISSING_CONTEXT instead of surveying the repo,
+and may delegate only one level under an explicit specialist budget. Five flat
+Codex profiles, packet/session/request/receipt schemas, current policy, and the
+operator SOP record those boundaries.
+
+The additive Codex SessionEnd hook queues an idempotent exact-state request; it
+does not read transcripts, launch nested model sessions, run closeout, or mutate
+history. Runtime paths without complete root-recorded red-before-green evidence
+remain TDD_UNPROVEN. The root session-state helper rejects oversized,
+schema-invalid, secret-shaped, and private-link content. Exact-state hashing
+includes untracked content, binds pre-open and opened file identity, rejects
+replacement races, and fails closed above its bound. The read-only release role
+returns a receipt to the root and has no write, commit, push, merge, release, or
+paid-provider authority.
+
+Verification: the scoped command `python3 -m pytest
+tests/audit/test_agent_session_state.py
+tests/audit/test_session_end_agent_closeout.py
+tests/audit/test_codex_agent_profiles.py tests/audit/test_history_closeout.py
+tests/audit/test_local_gates_match_ci.py -q` passed 42 tests. Changed-scope Ruff,
+`git diff --check`, wiki reachability, profile validation, and the content-free
+secret/session scan passed. Independent assurance rejected two earlier states,
+then qualified the repaired bounded scope with no remaining finding.
+
+The full non-external `tests/audit` attempt produced 36 existing LoCoMo/Mem0
+failures sharing `LocalEntryNotFoundError` during vector indexing. A
+representative failure reproduced in the unchanged primary checkout at
+`origin/main`, so this branch records but does not widen into that environment
+or model-cache problem. Fresh-client project-hook discovery, operator trust,
+and live release-role execution remain unclaimed activation gates.
+
+The user-owned dirty primary checkout and its unrelated audit/handoff work were
+not modified. It also carries a separate uncommitted next-history-ID candidate;
+whichever continuity branch merges second must rechain against protected main.
+---END-ENTRY-#613---
+
+---BEGIN-ENTRY-#614---
+id: 614
+date: 2026-08-31T20:52:14Z
+agent: codex
+status: changed
+topics: agent, multi-agent, session, git-hooks, test, tests, verify, continuity, config, ci, trust
+commits: pending
+refs: .codex/hooks.json,tests/audit/test_session_end_agent_closeout.py,docs/SOP_AGENT_ORCHESTRATION.md,PR#238
+supersedes: 613
+tokens: 406
+---
+Corrected the project SessionEnd hook against the current Codex lifecycle
+contract. The hook timeout is now the supported three-second maximum, and its
+command resolves the dispatcher from `git rev-parse --show-toplevel` so a
+session started below the repository root does not silently target a missing
+relative path. A focused configuration test was tightened first and failed on
+the prior ten-second, cwd-relative definition; the corrected hook then passed
+the focused `pytest -q` command over
+`tests/audit/test_agent_session_state.py`,
+`tests/audit/test_session_end_agent_closeout.py`,
+`tests/audit/test_codex_agent_profiles.py`,
+`tests/audit/test_history_closeout.py`, and
+`tests/audit/test_local_gates_match_ci.py`. Changed-scope Ruff and
+`git diff --check` also passed.
+
+Runner investigation was operational evidence, not a SEAM product change. The
+first PR #238 run failed before all steps because the self-hosted runner `_work`
+link targeted an inaccessible `/mnt/data` path. Repointing it to the currently
+mounted Samsung T7 proved that direct destination invalid too: T7 is exFAT,
+and `actions/setup-python@v5` initialization requires symlink creation. Every
+rerun job therefore stopped during Set up job with `Operation not permitted`.
+The T7 directory is not claimed as a qualified runner workspace. The original
+ext4 mount at `/mnt/data` is masked by an unrelated `/dev/sdb1` mount at
+`/mnt`; restoring it requires an operator-authorized unmount because this
+session cannot satisfy the local elevation prompt.
+
+The five custom agent profiles still match the current project-scoped TOML
+schema and preserve the root-supplied packet boundary. Actual project hook
+activation remains operator trust-gated, and exact-head CI remains blocked on
+restoring a POSIX-capable runner workspace. No Track S, runtime product,
+benchmark, release, deploy, or model-quality claim changed.
+---END-ENTRY-#614---
+
+---BEGIN-ENTRY-#615---
+id: 615
+date: 2026-08-31T21:02:39Z
+agent: codex
+status: changed
+topics: agent, multi-agent, protocol, config, docs, correction, test, tests, verify, continuity
+commits: pending
+refs: AGENTS.md,REPO_LEDGER.md,docs/SOP_AGENT_ORCHESTRATION.md,tests/audit/test_codex_agent_profiles.py,PR#238
+supersedes: 614
+tokens: 317
+---
+Corrected the orchestration scope after the operator clarified that each LLM
+already has its own style and model-specific setup. The root/context/delivery/
+assurance/release topology, context packets, session state, and SessionEnd hook
+are now explicitly Codex-only. Shared `AGENTS.md` policy continues to govern
+repository safety, continuity, Git, and evidence invariants across models, but
+it no longer describes one global orchestration style.
+
+The correction also restores the existing DeepSeek-specific parallel-audit
+wording rather than claiming the Codex pipeline supersedes it. The SOP title,
+purpose, wiki link, SOP index, code-layout description, and stable ledger now
+name their Codex scope. No Claude, Gemini, DeepSeek, Qwen, Aider, OpenCode, or
+other model configuration was created, edited, or adopted by this pipeline.
+
+The documentation contract was tightened first and failed against the prior
+global wording. The focused `pytest -q` command over
+`tests/audit/test_codex_agent_profiles.py`,
+`tests/audit/test_agent_session_state.py`,
+`tests/audit/test_session_end_agent_closeout.py`,
+`tests/audit/test_history_closeout.py`, and
+`tests/audit/test_local_gates_match_ci.py` then passed after the correction.
+Changed-scope Ruff and `git diff --check` also passed. This changes no SEAM
+runtime behavior, Track S state, benchmark, release, deployment, or model
+quality claim. The self-hosted CI runner mount blocker remains separate.
+---END-ENTRY-#615---
+
+---BEGIN-ENTRY-#616---
+id: 616
+date: 2026-08-31T23:21:41Z
+agent: codex
+status: in-progress
+topics: agent, multi-agent, session, protocol, harden, security, test, tests, verify, continuity, git-hooks
+commits: pending
+refs: .codex/agents/seam_root_orchestrator.toml,tools/agents/session_end_closeout.py,tools/agents/closeout_queue.py,tools/agents/context_guardian.py,tools/agents/schemas/closeout-receipt.schema.json,docs/SOP_AGENT_ORCHESTRATION.md,REPO_LEDGER.md,tests/audit/test_session_end_agent_closeout.py,tests/audit/test_closeout_queue.py,tests/audit/test_context_guardian.py,PR#238
+supersedes: 615
+tokens: 439
+---
+Hardened the branch-local Codex orchestration candidate after a two-reviewer surface audit. The SessionEnd producer now shares one bounded Git deadline, fingerprints every changed regular file rather than only untracked content, fails closed on truncated display scope, caps request size, validates existing requests, and publishes requests without clobbering. The root-owned closeout queue strictly validates queued requests and receipts, exact required checks, status semantics, scope, TDD evidence, authority, paths, timestamps, symlink boundaries, and content-addressed immutable receipt attempts.
+
+A failed, blocked, or indeterminate verdict remains pending and immutable. A later same-state qualified attempt closes it without overwriting evidence. If repair creates a new fingerprint or successor Codex session, the newer qualified receipt may explicitly supersede only older requests in the same repository, worktree, and branch lineage that already have validated non-qualified evidence. Unreviewed, cross-lineage, non-chronological, malformed, renamed, or symlink-redirected records fail closed.
+
+Added the context guardian for the operator 45/65/82 percent lifecycle. It writes bounded mode-0600 checkpoints, emits milestone compaction actions, requires a successor handoff at 82 percent or after two recorded compactions, and validates lifecycle state, checkpoint content, timestamps, and parent directories on reads and writes. It records required actions and durable artifacts but does not claim to compact model context itself.
+
+TDD covered the final review findings before implementation. The scoped command over eight agent-orchestration audit files passed 85 tests. Collect-only resolved 16 closeout-queue, 23 context-guardian, and 20 SessionEnd tests. Changed-scope Ruff, Python compilation, git diff --check, and the full non-external repository suite passed locally against an isolated database. Two independent final reviewers reported no remaining hard blocker in the targeted code and policy surface.
+
+PR 238 remains draft and branch-local. Fresh trusted Codex project discovery plus one live request to release-orchestrator to receipt cycle is still an explicit activation gate; no released, deployed, benchmark, Track S, or memory-quality claim changes. The dirty primary checkout remains untouched.
+---END-ENTRY-#616---
+
+---BEGIN-ENTRY-#617---
+id: 617
+date: 2026-09-01T01:37:26Z
+agent: codex
+status: done
+topics: agent, multi-agent, session, protocol, harden, security, test, tests, verify, continuity, git-hooks, docs
+commits: pending
+refs: .gitignore,docs/SOP_SEAM_CODEX_WORKFLOW.md,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_INDEX.md,docs/README.md,tools/agents/session_end_closeout.py,tools/agents/closeout_queue.py,tools/agents/schemas/closeout-request.schema.json,tests/audit/test_session_end_agent_closeout.py,tests/audit/test_closeout_queue.py,tests/audit/test_codex_agent_profiles.py,PR#238
+supersedes: 616
+tokens: 677
+---
+Repaired and locally qualified the Codex agent-orchestration candidate after
+independent integrity and workflow assurance rejected the prior exact state.
+SessionEnd requests now embed bounded per-cycle TDD records; the root queue
+validates those records and recomputes TDD status and runtime-path coverage
+instead of trusting producer summaries. Receipt admission recomputes the live
+Git scope and content identity, requires repeated stable scope signatures, and
+performs a final point-in-time verification immediately before canonical or
+attempt publication. The contract does not claim to lock out arbitrary editors:
+any later mutation requires a new exact-state request and qualification.
+
+The request validator now enforces the schema's bounded identifiers, paths,
+requirements, commands, evidence, forbidden actions, and next-action fields.
+Tracked ignore policy covers only generated orchestration context, receipt
+attempt, and successor-handoff artifacts while keeping schemas and durable
+configuration visible. Fresh regressions cover producer/consumer TDD parity,
+live-scope drift, repeated-signature mutation, schema bounds, and ignore scope.
+
+Added the operator runbook for continuing SEAM work with Codex. Its twelve
+ordered phases cover live reconciliation, operator contract, bounded context,
+protected delivery, public-seam red/green work, integration, independent
+assurance, canonical closeout, exact-head PR/CI, stored release qualification,
+protected merge, and exact-main resume. Each phase has one owner and an
+observable completion boundary, while the existing orchestration SOP retains
+the packet, role, session, guardian, request, and receipt mechanics.
+
+Verification on the repaired tree: focused orchestration and local-gate audit
+tests passed; touched tests collected without import errors; changed-scope Ruff,
+wiki verification, git diff check, and the content-free secret/private-session
+scan passed. The strict non-external repository suite completed at 100 percent
+with two established expected failures and no failure or skip. After starting
+the healthy local pgvector service and supplying its credentials without
+embedding them in a DSN or repository artifact, all 23 external tests passed.
+Two fresh independent assurance passes reported no finding on the final
+integrity and workflow/ignore surfaces.
+
+This state remains branch-local in PR 238 until commit, push, exact-head CI,
+fresh stored QUALIFIED receipt, and protected merge. It does not activate
+custom profiles in an already-running client and makes no release, deployment,
+benchmark, Track S, or memory-quality claim. The separate draft PR 237 remains
+the S8-S10 delivery candidate and is intentionally untouched.
+---END-ENTRY-#617---
+
+---BEGIN-ENTRY-#618---
+id: 618
+date: 2026-09-01T01:57:48Z
+agent: codex
+status: changed
+topics: agent, multi-agent, session, protocol, bugfix, correction, harden, security, test, tests, verify, continuity, git-hooks
+commits: pending
+refs: tools/agents/closeout_queue.py,tools/agents/schemas/closeout-request.schema.json,tests/audit/test_closeout_queue.py,PR#238
+supersedes: 617
+tokens: 569
+---
+Corrected the locally qualified orchestration state after the first live
+post-commit SessionEnd cycle exposed a same-version queue compatibility defect.
+The current hook produced a valid cycle-bearing TDD_PROVEN request, but pending
+validation stopped on an older immutable seam-agent-closeout-request/v1 record
+whose historical five-field TDD summary predated the new cycles field. The
+field had been made mandatory without a schema-version change.
+
+The queue and v1 schema now recognize only the exact historical five-field and
+current six-field TDD shapes. Current cycle-bearing records still undergo
+independent TDD recomputation. Historical summary-only records remain readable,
+but a cycle-less runtime request cannot newly store a QUALIFIED receipt. An
+already-existing legacy QUALIFIED receipt remains immutable historical evidence
+only: it is non-dispositive, cannot close or supersede a request, and leaves the
+request pending until a newer cycle-bearing qualification supersedes it.
+
+The public-seam regression first reproduced pending's exact `closeout request
+TDD fields are invalid` failure. Two additional red-green regressions then
+proved that a new legacy runtime qualification is rejected before receipt
+publication and an existing legacy qualification cannot disposition or
+supersede current work. The focused orchestration/local-gate audit slice passed,
+Ruff and git diff check passed, and a fresh independent integrity review found
+no remaining issue in the compatibility repair.
+
+On the final repaired tree, the strict non-external repository suite completed
+at 100 percent with two established expected failures and no failure or skip;
+all 23 external tests passed against the healthy local pgvector container. The
+content-free secret/private-session scan passed. The earlier hosted checks on
+8b7c9c823e6155592990da76d83068e18fb249e2 do not qualify this successor tree;
+fresh exact-head CI and a new cycle-bearing stored release receipt remain
+mandatory before protected merge.
+
+This supersedes the exact-state qualification claim in HISTORY#617 without
+rewriting it. PR 238 remains draft and branch-local. No release, deployment,
+benchmark, Track S, or memory-quality claim changes, and draft PR 237 remains
+untouched as the separate S8-S10 candidate.
+---END-ENTRY-#618---
+
+---BEGIN-ENTRY-#619---
+id: 619
+date: 2026-09-01T02:11:53Z
+agent: codex
+status: changed
+topics: agent, multi-agent, session, protocol, bugfix, correction, atomicity, harden, security, test, tests, verify, continuity, git-hooks
+commits: pending
+refs: tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,PR#238
+supersedes: 618
+tokens: 535
+---
+Closed the stale-request succession deadlock discovered while reconciling the
+live SessionEnd queue after HISTORY#618. A successor qualification may
+supersede an older exact-state request only after validated non-qualified
+evidence exists, but receipt storage previously required every request to
+still equal the live tree. That made a truthful INDETERMINATE receipt about a
+repaired, now-stale request impossible to admit.
+
+Receipt admission now has two explicit stable-scope branches. When
+scope.matches_request is true, repeated live HEAD/path/content signatures must
+equal the request exactly. When it is false, repeated live signatures must
+differ from the request and must equal the receipt's declared HEAD and diff
+fingerprint exactly. False mismatch claims are rejected when the live tree
+still matches, and wrong declared mismatch scope is rejected. The repeated
+verification remains immediately before canonical or attempt publication.
+QUALIFIED receipts retain the exact-match requirement.
+
+The red public-seam store regression reproduced the unconditional exact-scope
+rejection. Green regressions prove truthful stable mismatch admission, false
+mismatch rejection, and safe current-request supersession after validated
+INDETERMINATE evidence. The focused producer/queue and compatibility slices,
+Ruff, collection, and git diff check passed. Fresh independent integrity
+assurance reported no finding on exact, mismatch, prepublication, or
+supersession semantics.
+
+On this final repaired tree the strict non-external repository suite completed
+at 100 percent with two established expected failures and no failure or skip,
+and all 23 external pgvector tests passed. Canonical secret/private-session
+scanning passed. Hosted results from earlier heads remain superseded; fresh
+exact-head CI and root-stored receipts for stale non-qualified evidence plus
+the current cycle-bearing QUALIFIED request remain required before merge.
+
+PR 238 remains draft and branch-local. This changes no release, deployment,
+benchmark, Track S, or memory-quality claim, and it does not modify draft PR
+237 or the operator's unrelated dirty worktrees.
+---END-ENTRY-#619---

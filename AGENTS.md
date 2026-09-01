@@ -1,6 +1,7 @@
 # AGENTS.md
 
-Canonical multi-agent protocol for this repo. All models use the same rules.
+Canonical shared repository safety and continuity protocol. All models follow
+these repo invariants. Model-specific orchestration stays in each model's own configuration.
 
 ## Session Start
 
@@ -27,6 +28,36 @@ Then:
   Do not leave ad-hoc `Test*`, `test_*`, or `test_pgvector_*` scratch files in
   the repo root.
 
+### Codex-Only Delegated Context Fast Path
+
+This fast path applies only to Codex root sessions and Codex-spawned custom
+agents. Other LLMs keep their own orchestration styles and model-specific
+guides while continuing to follow the shared repository safety, continuity,
+and Git rules in this file.
+
+The Session Start sequence above is for the Codex root agent. A Codex-spawned
+domain orchestrator or specialist takes this fast path only when the root
+supplies a schema-valid `seam-agent-context-packet/v1` and attests that it
+completed Session Start at the packet's `base_sha`:
+
+- Use the packet's supplied facts and open only its exact `allowed_reads`.
+- Do not repeat the root Session Start sequence and do not read `HISTORY.md`.
+- Do not run a broad repository scan. Stay inside packet ownership and active
+  paths explicitly named by the root.
+- If the packet is insufficient, return `MISSING_CONTEXT` with the smallest
+  missing fact, source range, artifact, or operator decision. The root amends
+  the packet; the child does not widen its own context.
+- A domain orchestrator may create a smaller child packet only when
+  `specialist_budget` is positive. Specialists cannot delegate.
+
+The root remains responsible for source freshness, cross-domain integration,
+operator dialogue, and final judgment. See `docs/SOP_AGENT_ORCHESTRATION.md`.
+
+Before the Codex root authorizes new writes, reconcile every local
+`.seam/orchestration/session-end/requests/*.json` without its named receipt.
+Dispatch it to `seam_release_orchestrator`; a non-`QUALIFIED` receipt remains an
+open condition, not permission to continue silently.
+
 ## Session End
 
 If state changed:
@@ -52,6 +83,12 @@ If you created a working branch: push it if the work is real, delete it locally 
 If you stashed anything: restore or drop it before ending. Stashes are invisible to `git status`, `git log`, and branch/PR listings, so an abandoned one lingers unnoticed (especially in this multi-agent repo, where stashing to clear a tree mid-context-switch is common). `git stash list` surfaces them, and `seam doctor` reports them as a non-blocking advisory so a cleanliness sweep catches orphaned local WIP.
 
 Use `tools/history/*` scripts for the canonical history protocol and `tools/streams/*` scripts for the multi-stream substrate (history mirror, roadmap, experience, cross-index). Run `python -m tools.git.scan_stale_branches` on-demand to audit branch health; the repo has `delete_branch_on_merge` enabled on GitHub so merged PR branches auto-delete.
+
+For a repo-changing Codex root session, keep the ignored bounded session state
+at `.seam/orchestration/sessions/$CODEX_SESSION_ID.json` current with the
+objective, base SHA, plan, constraints, affected tests, and witnessed red/green
+cycles. The project `SessionEnd` hook queues verification from this record; it
+does not infer TDD from a green test run or copy transcript content.
 
 ## Cut-off Recovery
 

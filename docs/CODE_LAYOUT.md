@@ -73,6 +73,14 @@ not have to infer what works from directory names alone.
 
 ## Active Tooling
 
+- `.codex/agents/` - Codex-only project-scoped root, context, delivery, assurance, and
+  release orchestrator profiles. They consume root-supplied context packets;
+  they are not independent repository-startup entrypoints.
+- `.codex/hooks.json` - additive Codex project hooks. The `SessionEnd` command
+  queues bounded closeout verification and requires operator hook trust.
+- `tools/agents/` - context/session/receipt schemas and the non-mutating
+  SessionEnd request producer. Local requests, receipts, and root session state
+  stay ignored under `.seam/orchestration/`.
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
 - `docs/README.md` - single canonical human-facing SEAM Wiki home; it routes to
   existing authorities without duplicating their volatile facts.
