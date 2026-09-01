@@ -43,7 +43,9 @@ class _CountingAdapter:
 
     def __init__(self) -> None:
         self.indexed: list[list[str]] = []
+        self.deleted: list[list[str]] = []
         self.fail = False
+        self.fail_delete = False
 
     def index_records(self, records) -> None:
         if self.fail:
@@ -51,7 +53,9 @@ class _CountingAdapter:
         self.indexed.append([record.id for record in records])
 
     def delete_records(self, record_ids) -> None:
-        return None
+        if self.fail_delete:
+            raise RuntimeError("vector delete unavailable")
+        self.deleted.append(list(record_ids))
 
     def search(self, query, limit=10, namespace=None, scope=None):
         return {}
@@ -183,6 +187,108 @@ def test_crash_after_canonical_commit_before_indexing_converges(tmp_path) -> Non
         assert reopened_adapter.indexed, "reopen did not index the owed record"
         assert "clm:one" in reopened_adapter.indexed[0]
         assert reopened.store.pending_vector_outbox_count() == 0
+    finally:
+        reopened.close()
+
+
+def test_ingest_replay_indexes_winner_and_removes_superseded_generation(
+    tmp_path,
+) -> None:
+    path = tmp_path / "ingest-reconcile.db"
+    source_ref = "test://outbox/ingest-reconcile"
+    adapter = _CountingAdapter()
+    runtime = _runtime(path, adapter)
+    try:
+        previous = runtime.ingest_text(
+            "amberquartz old generation", source_ref=source_ref
+        )
+
+        def crash_after_commit(transition: str) -> None:
+            if transition == "after_commit":
+                raise RuntimeError("simulated crash")
+
+        runtime._ingest_failure_injector = crash_after_commit
+        with pytest.raises(RuntimeError, match="simulated crash"):
+            runtime.ingest_text(
+                "cobaltzircon winning generation", source_ref=source_ref
+            )
+        pending = runtime.store.pending_vector_outbox()
+        new_ids = {
+            str(entry["record_id"])
+            for entry in pending
+            if str(entry["record_id"]) not in previous.stored_ids
+        }
+        old_ids = {
+            str(entry["record_id"])
+            for entry in pending
+            if str(entry["record_id"]) in previous.stored_ids
+        }
+        assert new_ids
+        assert old_ids
+    finally:
+        runtime.close()
+
+    reopened_adapter = _CountingAdapter()
+    reopened = _runtime(path, reopened_adapter)
+    try:
+        assert new_ids <= {
+            record_id
+            for batch in reopened_adapter.indexed
+            for record_id in batch
+        }
+        assert old_ids <= {
+            record_id
+            for batch in reopened_adapter.deleted
+            for record_id in batch
+        }
+        assert reopened.store.pending_vector_outbox_count() == 0
+        documents = reopened.store.list_document_status(limit=20)
+        active = [document for document in documents if document["deleted_at"] is None]
+        assert len(active) == 1
+        assert active[0]["indexed_status"] == "indexed"
+    finally:
+        reopened.close()
+
+
+def test_ingest_document_stays_pending_until_old_generation_deletes_ack(
+    tmp_path,
+) -> None:
+    path = tmp_path / "ingest-delete-pending.db"
+    source_ref = "test://outbox/delete-pending"
+    runtime = _runtime(path, _CountingAdapter())
+    try:
+        runtime.ingest_text("amberquartz old generation", source_ref=source_ref)
+
+        def crash_after_commit(transition: str) -> None:
+            if transition == "after_commit":
+                raise RuntimeError("simulated crash")
+
+        runtime._ingest_failure_injector = crash_after_commit
+        with pytest.raises(RuntimeError, match="simulated crash"):
+            runtime.ingest_text(
+                "cobaltzircon winning generation", source_ref=source_ref
+            )
+    finally:
+        runtime.close()
+
+    adapter = _CountingAdapter()
+    adapter.fail = True
+    reopened = _runtime(path, adapter)
+    try:
+        adapter.fail = False
+        adapter.fail_delete = True
+        summary = reopened.replay_vector_outbox(batch_size=1)
+
+        assert summary["failed"] > 0
+        assert reopened.store.pending_vector_outbox_count() > 0
+        active = [
+            document
+            for document in reopened.store.list_document_status(limit=20)
+            if document["source_ref"] == source_ref
+            and document["deleted_at"] is None
+        ]
+        assert len(active) == 1
+        assert active[0]["indexed_status"] == "pending"
     finally:
         reopened.close()
 

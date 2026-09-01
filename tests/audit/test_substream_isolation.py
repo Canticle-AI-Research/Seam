@@ -56,8 +56,18 @@ def _sqlite_runtime(path) -> SeamRuntime:
 
 
 def _ingest_two_namespaces(rt: SeamRuntime) -> None:
-    rt.ingest_text("Alpha team shipped the apples orchard project.", ns="tenant:a", scope="thread")
-    rt.ingest_text("Beta team shipped the bananas grove project.", ns="tenant:b", scope="thread")
+    rt.ingest_text(
+        "Alpha team shipped the apples orchard project.",
+        source_ref="test://substream/tenant-a",
+        ns="tenant:a",
+        scope="thread",
+    )
+    rt.ingest_text(
+        "Beta team shipped the bananas grove project.",
+        source_ref="test://substream/tenant-b",
+        ns="tenant:b",
+        scope="thread",
+    )
 
 
 def _result_namespaces(result) -> set[str]:

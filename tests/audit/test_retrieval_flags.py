@@ -123,7 +123,10 @@ def test_search_top_k_overrides_call_site_budget(tmp_path):
     from seam_runtime.runtime import SeamRuntime
     rt = SeamRuntime(str(tmp_path / "topk.db"))
     for i in range(12):
-        rt.ingest_conversation_turn(f"Fact number {i}: the widget {i} ships on day {i}.")
+        rt.ingest_conversation_turn(
+            f"Fact number {i}: the widget {i} ships on day {i}.",
+            source_ref=f"test://retrieval-flags/top-k/{i}",
+        )
     narrow = rt.search_ir("widget ships", budget=3, include_raw=True)
     deep = rt.search_ir("widget ships", budget=3, include_raw=True, flags=RetrievalFlags(search_top_k=20))
     assert len(deep.candidates) > len(narrow.candidates)

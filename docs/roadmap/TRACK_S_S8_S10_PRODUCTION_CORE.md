@@ -170,16 +170,13 @@ The accepted lock protocol is recorded in
 5. Injected failure at every filesystem transition yields either the complete
    old state or complete backup state; reopen passes integrity/FK checks.
 
-**Current evidence:** protected `main@71c1489` contains D1.1-D1.3 through PR
-#237. Branch-local D1.4 adds named, private, default-off failure seams before
-real filesystem operations and after completed transitions. Exact old/backup
-relational payloads, integrity, foreign keys, recognized WAL rows, both sides
-of the replacement commit boundary, rollback continuation, and primary-error
-preservation are green across 125 focused tests. The complete 3,193-case
-non-external collection exits zero with two established xfails, all 23 live
-pgvector external cases pass, and independent assurance reports zero findings.
-D1.4 still requires exact-head hosted qualification and protected merge; S8
-therefore remains incomplete.
+**Current evidence:** protected `main@64e4434` contains D1.1-D1.4 through PRs
+#237 and #239. Named, private, default-off failure seams cover supported restore
+filesystem operations and completed transitions. Exact old/backup relational
+payloads, integrity, foreign keys, recognized WAL rows, both sides of the
+replacement commit boundary, rollback continuation, primary-error preservation,
+exact-head hosted qualification, and the root-stored receipt are complete. D1
+is protected-main complete; S8 remains incomplete.
 
 ### D2 - Atomic Ingest
 
@@ -192,6 +189,20 @@ changes canonical writes.
    or the complete new outcome through `SeamRuntime`, never orphan live records.
 3. Prove idempotent replay and concurrent same-source ingest.
 4. Keep external vector work derived and recoverable through the outbox.
+
+**Current evidence:** branch `feat/d2-atomic-ingest` from protected
+`main@64e4434` defines a compatible `IngestOutcome` and commits normalized MIRL
+and graph rows, boundary-scoped supersession, document status, and durable
+vector intent in one SQLite transaction. Failure before commit rolls back to
+the complete prior document; failure after commit leaves one canonical pending
+outcome whose record and node projections replay idempotently. The winning
+generation remains current, superseded vectors are deleted before
+acknowledgement, shared graph entities survive rebuild, and namespace/scope
+boundaries do not supersede one another. The 60-test focused slice, 3,213-case
+non-external collection with two established xfails, all 23 live pgvector
+external tests, Ruff, and independent assurance are green. D2 remains locally
+qualified until exact-head hosted checks, a root-stored receipt, and protected
+merge complete; D3 has not started.
 
 ### D3 - Lifecycle Exclusion
 
@@ -331,9 +342,9 @@ decision.
 1. D1.1 live-store restore refusal (protected-main complete).
 2. D1.2 multi-process lease and post-close restore (protected-main complete).
 3. D1.3 stale-sidecar crash-safe restore commit point (protected-main complete).
-4. D1.4 systematic filesystem-transition failure matrix (locally qualified;
-   exact-head hosted qualification and protected merge remain).
-5. D2 atomic ingest (next after D1.4 merges).
+4. D1.4 systematic filesystem-transition failure matrix (protected-main
+   complete through PR #239).
+5. D2 atomic ingest (locally qualified; protected merge next).
 6. D3 lifecycle exclusion across every Product Core read.
 7. D4 and T1 correctness slices.
 8. G1 and R1, followed by R2.

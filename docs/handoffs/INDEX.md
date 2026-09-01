@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-09-01-track-s-d1-locally-qualified-d2-next
+latest: 2026-09-01-track-s-d2-locally-qualified-d3-next
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-01-track-s-d1-locally-qualified-d2-next` | [2026-09-01-track-s-d1-locally-qualified-d2-next.md](2026-09-01-track-s-d1-locally-qualified-d2-next.md) | `2026-08-30-track-s-s8-s10-production-core-d1` | `HISTORY#621` | `current` |
+| `2026-09-01-track-s-d2-locally-qualified-d3-next` | [2026-09-01-track-s-d2-locally-qualified-d3-next.md](2026-09-01-track-s-d2-locally-qualified-d3-next.md) | `2026-09-01-track-s-d1-locally-qualified-d2-next` | `HISTORY#622` | `current` |
+| `2026-09-01-track-s-d1-locally-qualified-d2-next` | [2026-09-01-track-s-d1-locally-qualified-d2-next.md](2026-09-01-track-s-d1-locally-qualified-d2-next.md) | `2026-08-30-track-s-s8-s10-production-core-d1` | `HISTORY#621` | `superseded` |
 | `2026-08-30-track-s-s8-s10-production-core-d1` | [2026-08-30-track-s-s8-s10-production-core-d1.md](2026-08-30-track-s-s8-s10-production-core-d1.md) | `2026-08-29-grounded-research-acquisition-roadmap` | `HISTORY#620` | `superseded` |
 | `2026-08-29-grounded-research-acquisition-roadmap` | [2026-08-29-grounded-research-acquisition-roadmap.md](2026-08-29-grounded-research-acquisition-roadmap.md) | `2026-08-26-ghost-memory-governance-published` | `HISTORY#612` | `superseded` |
 | `2026-08-26-ghost-memory-governance-published` | [2026-08-26-ghost-memory-governance-published.md](2026-08-26-ghost-memory-governance-published.md) | `2026-08-25-ghost-memory-governance-locally-qualified` | `HISTORY#611` | `superseded` |

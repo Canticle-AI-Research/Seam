@@ -708,14 +708,14 @@ def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> 
     ):
         return
     cursor = connection.execute(
-        "select document_id, source_ref, deleted_at from document_status "
+        "select document_id, ns, scope, source_ref, deleted_at from document_status "
         "where deleted_at is not null order by deleted_at, document_id"
     )
     while True:
         rows = cursor.fetchmany(_CANONICAL_PROJECTION_BATCH_SIZE)
         if not rows:
             break
-        for document_id, source_ref, deleted_at in rows:
+        for document_id, namespace, scope, source_ref, deleted_at in rows:
             document_id = str(document_id)
             suffix = document_id.split(":", 1)[1] if document_id.startswith("doc:") else ""
             if re.fullmatch(r"[0-9a-f]{16}", suffix) is None:
@@ -732,15 +732,23 @@ def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> 
             connection.execute(
                 "update knowledge_episodes set status = 'superseded', "
                 "expired_at = coalesce(expired_at, ?) "
-                "where source_ref = ? and source_record_id like ?",
-                (str(deleted_at), str(source_ref), raw_prefix),
+                "where ns = ? and scope = ? and source_ref = ? "
+                "and source_record_id like ?",
+                (
+                    str(deleted_at),
+                    str(namespace),
+                    str(scope),
+                    str(source_ref),
+                    raw_prefix,
+                ),
             )
             connection.execute(
                 "update knowledge_edges set expired_at = coalesce(expired_at, ?), "
                 "status = 'superseded', updated_at = ? where id in ("
                 "  select ke.edge_id from knowledge_edge_episodes ke "
                 "  join knowledge_episodes ep on ep.id = ke.episode_id "
-                "  where ep.source_ref = ? and ep.source_record_id like ? "
+                "  where ep.ns = ? and ep.scope = ? and ep.source_ref = ? "
+                "    and ep.source_record_id like ? "
                 "    and ep.status = 'superseded'"
                 ") and not exists ("
                 "  select 1 from knowledge_edge_episodes active_ke "
@@ -748,7 +756,43 @@ def _restore_canonical_document_supersession(connection: sqlite3.Connection) -> 
                 "  where active_ke.edge_id = knowledge_edges.id "
                 "    and active_ep.status = 'active'"
                 ")",
-                (str(deleted_at), str(deleted_at), str(source_ref), raw_prefix),
+                (
+                    str(deleted_at),
+                    str(deleted_at),
+                    str(namespace),
+                    str(scope),
+                    str(source_ref),
+                    raw_prefix,
+                ),
+            )
+            canonical_pattern = f"%:{suffix}:%"
+            connection.execute(
+                "update knowledge_edges set expired_at = coalesce(expired_at, ?), "
+                "status = 'superseded', updated_at = ? "
+                "where ns = ? and scope = ? and source_record_id like ? "
+                "and exists (select 1 from ir_records canonical "
+                "where canonical.id = knowledge_edges.source_record_id "
+                "and canonical.status = 'superseded')",
+                (
+                    str(deleted_at),
+                    str(deleted_at),
+                    str(namespace),
+                    str(scope),
+                    canonical_pattern,
+                ),
+            )
+            connection.execute(
+                "update knowledge_nodes set status = 'superseded', updated_at = ? "
+                "where ns = ? and scope = ? and source_record_id like ? "
+                "and exists (select 1 from ir_records canonical "
+                "where canonical.id = knowledge_nodes.source_record_id "
+                "and canonical.status = 'superseded')",
+                (
+                    str(deleted_at),
+                    str(namespace),
+                    str(scope),
+                    canonical_pattern,
+                ),
             )
 
 
@@ -1408,30 +1452,50 @@ def remove_records(
 def supersede_source(
     connection: sqlite3.Connection,
     *,
+    namespace: str,
+    scope: str,
     source_ref: str,
     except_document_id: str,
     superseded_at: str,
+    superseded_record_ids: Iterable[str] = (),
 ) -> None:
     suffix = except_document_id.split(":", 1)[-1]
     active_raw_prefix = f"raw:{suffix}:%"
     connection.execute(
         "update knowledge_episodes set status = 'superseded', expired_at = coalesce(expired_at, ?) "
-        "where source_ref = ? and source_record_id not like ?",
-        (superseded_at, source_ref, active_raw_prefix),
+        "where ns = ? and scope = ? and source_ref = ? "
+        "and source_record_id not like ?",
+        (superseded_at, namespace, scope, source_ref, active_raw_prefix),
     )
     connection.execute(
         "update knowledge_edges set expired_at = coalesce(expired_at, ?), status = 'superseded', updated_at = ? "
         "where id in ("
         "  select ke.edge_id from knowledge_edge_episodes ke "
         "  join knowledge_episodes ep on ep.id = ke.episode_id "
-        "  where ep.source_ref = ? and ep.status = 'superseded'"
+        "  where ep.ns = ? and ep.scope = ? and ep.source_ref = ? "
+        "    and ep.status = 'superseded'"
         ") and not exists ("
         "  select 1 from knowledge_edge_episodes active_ke "
         "  join knowledge_episodes active_ep on active_ep.id = active_ke.episode_id "
         "  where active_ke.edge_id = knowledge_edges.id and active_ep.status = 'active'"
         ")",
-        (superseded_at, superseded_at, source_ref),
+        (superseded_at, superseded_at, namespace, scope, source_ref),
     )
+    record_ids = sorted({str(record_id) for record_id in superseded_record_ids})
+    for start in range(0, len(record_ids), _EDGE_FRONTIER_CHUNK):
+        chunk = record_ids[start : start + _EDGE_FRONTIER_CHUNK]
+        placeholders = ",".join("?" for _ in chunk)
+        connection.execute(
+            "update knowledge_edges set expired_at = coalesce(expired_at, ?), "
+            "status = 'superseded', updated_at = ? "
+            f"where source_record_id in ({placeholders})",
+            [superseded_at, superseded_at, *chunk],
+        )
+        connection.execute(
+            "update knowledge_nodes set status = 'superseded', updated_at = ? "
+            f"where source_record_id in ({placeholders})",
+            [superseded_at, *chunk],
+        )
 
 
 def query_graph(

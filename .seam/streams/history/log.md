@@ -20323,3 +20323,54 @@ a root-stored QUALIFIED receipt, protected merge, and exact-main resume. D2 is
 next only after that merge. S8 remains incomplete; S9, S10, release,
 deployment, and hosted-production claims remain unchanged.
 ---END-ENTRY-#621---
+
+---BEGIN-ENTRY-#622---
+id: 622
+date: 2026-09-01T05:27:38Z
+agent: codex
+status: done
+topics: storage, atomicity, persist, vector, graph, agent, multi-agent, session, bugfix, continuity, handoff, history, test, tests, verify
+commits: pending
+refs: seam_runtime/agent_memory.py,seam_runtime/knowledge_graph.py,seam_runtime/runtime.py,seam_runtime/storage.py,seam_runtime/vector_outbox.py,tools/relation_extraction_ingest.py,tests/audit/test_atomic_ingest.py,tests/audit/test_reingest_source_dedup.py,tests/audit/test_vector_outbox_durability.py,PROJECT_STATUS.md,REPO_LEDGER.md,docs/KNOWLEDGE_GRAPH.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-09-01-track-s-d2-locally-qualified-d3-next.md
+supersedes: 621
+tokens: 492
+---
+Closed the branch-local D2 Atomic Ingest gap from protected main@64e4434 after
+PR 239 published the complete D1 recovery boundary. `ingest_text` and
+`ingest_conversation_turn` now expose one compatible `IngestOutcome` while
+normalized MIRL and graph projection, namespace/scope/source-bounded
+supersession, document status, and durable vector reconciliation intents commit
+inside one SQLite transaction. Preview ingest remains mutation-free.
+
+Failure injection proves every pre-commit transition returns to the complete
+previous document. A committed projection failure leaves one canonical pending
+outcome. Replay indexes current records, deletes lifecycle-ineligible vectors,
+reprojects node vectors, and advances the document to indexed only after every
+intent associated with that ingest is acknowledged. Spawned same-source races
+leave one active winner; distinct namespace or scope boundaries do not
+supersede one another. Historical graph episodes remain available, obsolete
+content is absent from current retrieval, and canonical graph rebuild preserves
+shared entities still referenced by the winning generation.
+
+Independent assurance rejected two intermediate states: physical removal of
+historical graph projection and incomplete outbox/document association, then
+suffix-wide graph rebuild supersession and a relation-extraction identity
+mismatch. Three delivery waves repaired those findings. Final assurance
+returned PASS with zero findings. Eight root-recorded red-green cycles retain
+the rollback, reconciliation, lifecycle, boundary, rebuild, and identity
+evidence in the session-state hook input.
+
+The focused atomic-ingest/general-persistence slice passes 60 tests. The full
+non-external collection completes 3,213 tests with two established expected
+failures and no failure or skip. The first external command used the wrong
+container role and only one of the two supported DSN variable names; after
+correcting that environment without changing code, all 23 live pgvector tests
+pass. Affected graph, relation-extraction, retrieval, chat, MCP, and WebUI
+surfaces, changed-file Ruff, and git diff checks are green.
+
+D2 is locally qualified, not protected-main complete. This branch still
+requires explicit staging, signed commit, push, fresh exact-head hosted checks,
+a root-stored QUALIFIED receipt, protected merge, and exact-main resume. D3 is
+next only after that merge. S8 remains incomplete; S9, S10, release,
+deployment, and hosted-production claims remain unchanged.
+---END-ENTRY-#622---

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-01-track-s-d1-locally-qualified-d2-next
 supersedes: 2026-08-30-track-s-s8-s10-production-core-d1
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#621
 ---
 

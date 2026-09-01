@@ -10,7 +10,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from .agent_memory import (
-    IngestReport,
+    IngestOutcome,
     compact_memory_index,
     full_memory_records,
     namespace_ingest_batch,
@@ -195,6 +195,7 @@ class SeamRuntime:
             self.store.path,
             memory_identity=id(self.store),
         )
+        self._ingest_failure_injector: Callable[[str], None] | None = None
         self.embedding_model = embedding_model or default_embedding_model()
         resolved_dsn = pgvector_dsn or (
             os.environ.get("SEAM_PGVECTOR_DSN")
@@ -326,35 +327,133 @@ class SeamRuntime:
         scope: str = "thread",
         persist: bool = True,
         agent_id: str | None = None,
-    ) -> IngestReport:
+    ) -> IngestOutcome:
         resolved_agent = self._resolve_agent_id(agent_id)
-        document_id = stable_document_id(source_ref, text)
+        document_id = stable_document_id(source_ref, text, ns=ns, scope=scope)
         batch = namespace_ingest_batch(
             self.compile_nl(text, source_ref=source_ref, ns=ns, scope=scope, agent_id=resolved_agent),
             document_id,
         )
-        stored_ids: list[str] = []
-        if persist:
-            stored_ids = self.persist_ir(batch).stored_ids
-            # Mark previous versions of this source as superseded.
-            self.store.mark_document_superseded_by_source_ref(source_ref, except_document_id=document_id)
-        document = self.store.upsert_document_status(
+        metadata = {
+            "record_count": len(batch.records),
+            "indexable_count": len([record for record in batch.records if record.kind in {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}]),
+            "agent_id": resolved_agent,
+        }
+        return self._commit_ingest(
+            batch,
+            text=text,
             document_id=document_id,
+            source_ref=source_ref,
             ns=ns,
             scope=scope,
-            source_ref=source_ref,
-            source_hash=source_hash(text),
-            byte_count=len(text.encode("utf-8")),
-            chunk_count=max(1, len(batch.kind(RecordKind.SPAN))),
-            extraction_status="compiled",
-            indexed_status="indexed" if persist else "not_indexed",
-            metadata={
-                "record_count": len(batch.records),
-                "indexable_count": len([record for record in batch.records if record.kind in {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}]),
-                "agent_id": resolved_agent,
-            },
+            metadata=metadata,
+            persist=persist,
         )
-        return IngestReport(document=document, stored_ids=stored_ids)
+
+    def _commit_ingest(
+        self,
+        batch: IRBatch,
+        *,
+        text: str,
+        document_id: str,
+        source_ref: str,
+        ns: str,
+        scope: str,
+        metadata: dict[str, object],
+        persist: bool,
+    ) -> IngestOutcome:
+        """Commit canonical ingest state, then converge its derived vectors."""
+
+        if not persist:
+            document = {
+                "document_id": document_id,
+                "ns": ns,
+                "scope": scope,
+                "source_ref": source_ref,
+                "source_hash": source_hash(text),
+                "byte_count": len(text.encode("utf-8")),
+                "chunk_count": max(1, len(batch.kind(RecordKind.SPAN))),
+                "extraction_status": "compiled",
+                "indexed_status": "not_indexed",
+                "deleted_at": None,
+                "metadata": metadata,
+                "created_at": None,
+                "updated_at": None,
+            }
+            return IngestOutcome(document=document, stored_ids=[])
+
+        report = self.verify_ir(batch)
+        if not report.valid:
+            raise ValueError(json.dumps(report.to_dict(), indent=2))
+        normalized = self.normalize_ir(batch)
+        with self._persist_projection_lock:
+            (
+                persist_report,
+                document,
+                superseded_document_ids,
+                superseded_record_ids,
+            ) = self.store.persist_ingest_outcome(
+                normalized,
+                document_id=document_id,
+                ns=ns,
+                scope=scope,
+                source_ref=source_ref,
+                source_hash=source_hash(text),
+                byte_count=len(text.encode("utf-8")),
+                chunk_count=max(1, len(normalized.kind(RecordKind.SPAN))),
+                metadata=metadata,
+                failure_injector=self._ingest_failure_injector,
+            )
+            intent_record_ids = [
+                *persist_report.stored_ids,
+                *superseded_record_ids,
+            ]
+            if self._ingest_failure_injector is not None:
+                self._ingest_failure_injector("after_commit")
+            try:
+                persisted = self.store.load_ir(ids=persist_report.stored_ids)
+                active = [
+                    record
+                    for record in persisted.records
+                    if record.status not in {
+                        Status.CONTRADICTED,
+                        Status.SUPERSEDED,
+                        Status.DEPRECATED,
+                        Status.DELETED_SOFT,
+                    }
+                ]
+                if active:
+                    self.vector_adapter.index_records(active)
+                if superseded_record_ids:
+                    self.vector_adapter.delete_records(superseded_record_ids)
+                if self._ingest_failure_injector is not None:
+                    self._ingest_failure_injector("after_vector_projection")
+                node_projection = self.project_node_vectors()
+                if node_projection.get("error") or int(
+                    node_projection.get("failed", 0)
+                ):
+                    raise RuntimeError("ingest node-vector projection remains pending")
+                document = self.store.complete_ingest_projection(
+                    document_id, persist_report.outbox_entry_ids
+                )
+            except Exception as exc:
+                self._note_vector_outbox_failure(
+                    persist_report, type(exc).__name__
+                )
+                return IngestOutcome(
+                    document=document,
+                    stored_ids=persist_report.stored_ids,
+                    superseded_document_ids=superseded_document_ids,
+                    vector_intent_record_ids=intent_record_ids,
+                    projection_pending=True,
+                )
+        return IngestOutcome(
+            document=document,
+            stored_ids=persist_report.stored_ids,
+            superseded_document_ids=superseded_document_ids,
+            vector_intent_record_ids=intent_record_ids,
+            projection_pending=False,
+        )
 
     def verify_ir(self, ir_batch: IRBatch) -> VerifyReport:
         batch_ids = {record.id for record in ir_batch.records}
@@ -596,17 +695,35 @@ class SeamRuntime:
             record_ids = sorted({str(entry["record_id"]) for entry in chunk})
             try:
                 batch = self.store.load_ir(ids=record_ids)
-                # Records the intent named but canonical no longer holds were
-                # rolled back or deleted after the intent was written. There is
-                # nothing to index, so the intent is settled rather than stuck.
+                # An ingest intent is reconciliation, not unconditional
+                # insertion: current canonical records are indexed and any
+                # missing or lifecycle-ineligible record is removed from the
+                # derived adapter before the intent is settled.
                 live_records = [
                     record
                     for record in batch.records
-                    if record.status is not Status.DELETED_SOFT
+                    if record.status not in {
+                        Status.CONTRADICTED,
+                        Status.SUPERSEDED,
+                        Status.DEPRECATED,
+                        Status.DELETED_SOFT,
+                    }
                 ]
                 if live_records:
                     self.vector_adapter.index_records(live_records)
                     summary["reindexed"] += len(live_records)
+                live_ids = {record.id for record in live_records}
+                remove_ids = sorted(set(record_ids) - live_ids)
+                if remove_ids:
+                    self.vector_adapter.delete_records(remove_ids)
+                if any(entry.get("ingest_document_id") for entry in chunk):
+                    node_projection = self.project_node_vectors()
+                    if node_projection.get("error") or int(
+                        node_projection.get("failed", 0)
+                    ):
+                        raise RuntimeError(
+                            "ingest node-vector projection remains pending"
+                        )
                 self.store.acknowledge_vector_outbox(entry_ids)
                 summary["acknowledged"] += len(entry_ids)
             except Exception as exc:
@@ -624,6 +741,12 @@ class SeamRuntime:
                     LOGGER.warning(
                         "Could not record vector outbox failure", exc_info=True
                     )
+        try:
+            self.store.complete_reconciled_ingest_documents()
+        except Exception:
+            LOGGER.warning(
+                "Could not complete reconciled ingest documents", exc_info=True
+            )
         return summary
 
     def _restore_external_vector_projection(
@@ -1252,12 +1375,12 @@ class SeamRuntime:
         source_timestamp: str | None = None,
         derived_fact_policy: str | None = None,
         allow_env_extractor: bool = True,
-    ) -> IngestReport:
+    ) -> IngestOutcome:
         # Unified compiler (HISTORY#311): conversation turns and plain memories
         # share one faithful pipeline. `ingest_conversation_turn` is kept as the
         # benchmark/agent entry point but delegates to compile_nl.
         resolved_agent = self._resolve_agent_id(agent_id)
-        document_id = stable_document_id(source_ref, text)
+        document_id = stable_document_id(source_ref, text, ns=ns, scope=scope)
         batch = namespace_ingest_batch(
             self.compile_nl(
                 text,
@@ -1273,12 +1396,6 @@ class SeamRuntime:
             ),
             document_id,
         )
-        stored_ids: list[str] = []
-        if persist:
-            stored_ids = self.persist_ir(batch).stored_ids
-            self.store.mark_document_superseded_by_source_ref(
-                source_ref, except_document_id=document_id
-            )
         metadata: dict[str, object] = {
             "record_count": len(batch.records),
             "indexable_count": len([
@@ -1303,19 +1420,16 @@ class SeamRuntime:
             }
             if len(fingerprints) == 1:
                 metadata["derived_fact_config_fingerprint"] = fingerprints.pop()
-        document = self.store.upsert_document_status(
+        return self._commit_ingest(
+            batch,
+            text=text,
             document_id=document_id,
+            source_ref=source_ref,
             ns=ns,
             scope=scope,
-            source_ref=source_ref,
-            source_hash=source_hash(text),
-            byte_count=len(text.encode("utf-8")),
-            chunk_count=max(1, len(batch.kind(RecordKind.SPAN))),
-            extraction_status="compiled",
-            indexed_status="indexed" if persist else "not_indexed",
             metadata=metadata,
+            persist=persist,
         )
-        return IngestReport(document=document, stored_ids=stored_ids)
 
     def memory_search(self, query: str, scope: str | None = None, budget: int = 5) -> dict[str, object]:
         result = self.search_ir(query, scope=scope, budget=budget)
