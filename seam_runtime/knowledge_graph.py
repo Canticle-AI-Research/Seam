@@ -1864,6 +1864,12 @@ def query_graph(
         for row in ordered_internal:
             edge_by_id[str(row["id"])] = row
 
+    edge_by_id = {
+        edge_id: row
+        for edge_id, row in edge_by_id.items()
+        if str(row["src_id"]) in selected and str(row["dst_id"]) in selected
+    }
+
     agents_by_node, sources_by_node = _node_episode_facets(
         connection,
         selected,
@@ -3215,9 +3221,18 @@ def _trust_profiles(
     source_rows: list[sqlite3.Row] = []
     if source_ids:
         source_placeholders = ",".join("?" for _ in source_ids)
+        source_params: list[object] = [*sorted(source_ids)]
+        source_where = [f"n.id in ({source_placeholders})"]
+        source_where.extend(
+            _node_time_clauses(
+                source_params,
+                at=at,
+                include_history=include_history,
+            )
+        )
         source_rows = connection.execute(
-            f"select * from knowledge_nodes where id in ({source_placeholders})",
-            sorted(source_ids),
+            f"select n.* from knowledge_nodes n where {' and '.join(source_where)}",
+            source_params,
         ).fetchall()
     node_by_id = {str(row["id"]): row for row in [*rows, *source_rows]}
     target_by_id = {str(row["id"]): row for row in rows}
@@ -3263,23 +3278,44 @@ def _trust_profiles(
     ).fetchall()
     independent: dict[str, set[str]] = {}
     model_only: dict[str, set[str]] = {}
+    independent_episode_ids: dict[str, set[str]] = {}
+    model_only_episode_ids: dict[str, set[str]] = {}
     for episode in episode_rows:
         node_id = str(episode["node_id"])
         linked_node = node_by_id.get(node_id)
         if linked_node is None or not same_tenant(episode, linked_node):
             continue
-        target = independent if _episode_is_independent(episode) else model_only
+        is_independent = _episode_is_independent(episode)
+        target = independent if is_independent else model_only
+        exact_target = (
+            independent_episode_ids if is_independent else model_only_episode_ids
+        )
         target.setdefault(node_id, set()).add(_evidence_key(episode))
+        exact_target.setdefault(node_id, set()).add(str(episode["id"]))
 
     independent_edge_evidence: dict[str, set[str]] = {}
+    independent_edge_episode_ids: dict[str, set[str]] = {}
     edge_ids = {str(edge["id"]) for edge in epistemic_edges}
     if edge_ids:
         edge_placeholders = ",".join("?" for _ in edge_ids)
+        edge_episode_where = [f"ee.edge_id in ({edge_placeholders})"]
+        edge_episode_params: list[object] = [*sorted(edge_ids)]
+        if at:
+            edge_episode_where.extend(
+                [
+                    "seam_timestamp_key(ep.recorded_at) <= seam_timestamp_key(?)",
+                    "(ep.expired_at is null or trim(ep.expired_at) = '' "
+                    "or seam_timestamp_key(ep.expired_at) > seam_timestamp_key(?))",
+                ]
+            )
+            edge_episode_params.extend([at, at])
+        elif not include_history:
+            edge_episode_where.append("ep.status = 'active'")
         edge_episode_rows = connection.execute(
             "select distinct ee.edge_id, ep.* from knowledge_edge_episodes ee "
             "join knowledge_episodes ep on ep.id = ee.episode_id "
-            f"where ee.edge_id in ({edge_placeholders}) order by ee.edge_id, ep.id",
-            sorted(edge_ids),
+            f"where {' and '.join(edge_episode_where)} order by ee.edge_id, ep.id",
+            edge_episode_params,
         ).fetchall()
         edge_by_id = {str(edge["id"]): edge for edge in epistemic_edges}
         for episode in edge_episode_rows:
@@ -3288,6 +3324,9 @@ def _trust_profiles(
             if not same_tenant(episode, target) or not _episode_is_independent(episode):
                 continue
             independent_edge_evidence.setdefault(str(edge["id"]), set()).add(_evidence_key(episode))
+            independent_edge_episode_ids.setdefault(
+                str(edge["id"]), set()
+            ).add(str(episode["id"]))
 
     incoming: dict[str, list[sqlite3.Row]] = {}
     for edge in epistemic_edges:
@@ -3336,7 +3375,23 @@ def _trust_profiles(
             and independent.get(str(edge["src_id"]))
             and independent_edge_evidence.get(str(edge["id"]))
         ]
-        disputes = [edge for edge in node_edges if str(edge["predicate"]).lower() in {"contradicts", "refutes"}]
+        candidate_disputes = [
+            edge
+            for edge in node_edges
+            if str(edge["predicate"]).lower() in {"contradicts", "refutes"}
+        ]
+        disputes = [
+            edge
+            for edge in candidate_disputes
+            if independent.get(str(edge["src_id"]))
+            and independent_edge_evidence.get(str(edge["id"]))
+        ]
+        dispute_ids = {str(edge["id"]) for edge in disputes}
+        ignored_disputes = [
+            edge
+            for edge in candidate_disputes
+            if str(edge["id"]) not in dispute_ids
+        ]
         verified_supersessions = [
             edge
             for edge in node_edges
@@ -3349,11 +3404,49 @@ def _trust_profiles(
             independent_evidence.update(independent.get(str(edge["src_id"]), ()))
             independent_evidence.update(independent_edge_evidence.get(str(edge["id"]), ()))
         independent_count = len(independent_evidence)
+        status_record_id = str(row["source_record_id"] or node_id)
+        status_contradicted = status == Status.CONTRADICTED.value
+        evidenced_status_contradiction = bool(
+            status_contradicted and independent.get(node_id)
+        )
+        decision_edges = {
+            str(edge["id"]): edge
+            for edge in [
+                *supported_by,
+                *disputes,
+                *verified_refutations,
+                *verified_supersessions,
+            ]
+        }
+        decision_episode_ids = set(independent_episode_ids.get(node_id, ()))
+        decision_edge_episode_ids: set[str] = set()
+        for edge in decision_edges.values():
+            decision_episode_ids.update(
+                independent_episode_ids.get(str(edge["src_id"]), ())
+            )
+            edge_episode_ids = independent_edge_episode_ids.get(
+                str(edge["id"]), ()
+            )
+            decision_episode_ids.update(edge_episode_ids)
+            decision_edge_episode_ids.update(edge_episode_ids)
+
+        def _edge_ids(edges: Iterable[sqlite3.Row]) -> list[str]:
+            return sorted({str(edge["id"]) for edge in edges})
+
+        def _edge_record_ids(edges: Iterable[sqlite3.Row]) -> list[str]:
+            return sorted(
+                {
+                    str(edge["source_record_id"])
+                    for edge in edges
+                    if edge["source_record_id"]
+                }
+            )
+
         reasons: list[str] = []
         if status == Status.SUPERSEDED.value or verified_supersessions:
             trust_state = "superseded"
             reasons.append("superseded by canonical lifecycle or independently evidenced relation")
-        elif status == Status.CONTRADICTED.value or verified_refutations:
+        elif evidenced_status_contradiction or verified_refutations:
             trust_state = "refuted"
             reasons.append("refuted by independently evidenced knowledge")
         elif disputes:
@@ -3382,6 +3475,34 @@ def _trust_profiles(
             "model_output_evidence_count": len(model_only.get(node_id, ())),
             "support_edge_count": len(supported_by),
             "dispute_edge_count": len(disputes),
+            "decision_evidence": {
+                "independent_episode_ids": sorted(decision_episode_ids),
+                "edge_episode_ids": sorted(decision_edge_episode_ids),
+                "status_record_ids": (
+                    [status_record_id] if evidenced_status_contradiction else []
+                ),
+                "ignored_status_record_ids": (
+                    [status_record_id]
+                    if status_contradicted and not evidenced_status_contradiction
+                    else []
+                ),
+                "support_edge_ids": _edge_ids(supported_by),
+                "support_record_ids": _edge_record_ids(supported_by),
+                "dispute_edge_ids": _edge_ids(disputes),
+                "dispute_record_ids": _edge_record_ids(disputes),
+                "refutation_edge_ids": _edge_ids(verified_refutations),
+                "refutation_record_ids": _edge_record_ids(
+                    verified_refutations
+                ),
+                "supersession_edge_ids": _edge_ids(verified_supersessions),
+                "supersession_record_ids": _edge_record_ids(
+                    verified_supersessions
+                ),
+                "ignored_dispute_edge_ids": _edge_ids(ignored_disputes),
+                "ignored_dispute_record_ids": _edge_record_ids(
+                    ignored_disputes
+                ),
+            },
             "reasons": reasons,
         }
     return profiles

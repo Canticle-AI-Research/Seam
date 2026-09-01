@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-09-01-track-s-t1-locally-qualified-g1-next
+latest: 2026-09-01-track-s-g1-locally-qualified-r1-next
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-01-track-s-t1-locally-qualified-g1-next` | [2026-09-01-track-s-t1-locally-qualified-g1-next.md](2026-09-01-track-s-t1-locally-qualified-g1-next.md) | `2026-09-01-track-s-d4-locally-qualified-t1-next` | `HISTORY#627` | `current` |
+| `2026-09-01-track-s-g1-locally-qualified-r1-next` | [2026-09-01-track-s-g1-locally-qualified-r1-next.md](2026-09-01-track-s-g1-locally-qualified-r1-next.md) | `2026-09-01-track-s-t1-locally-qualified-g1-next` | `HISTORY#628` | `current` |
+| `2026-09-01-track-s-t1-locally-qualified-g1-next` | [2026-09-01-track-s-t1-locally-qualified-g1-next.md](2026-09-01-track-s-t1-locally-qualified-g1-next.md) | `2026-09-01-track-s-d4-locally-qualified-t1-next` | `HISTORY#627` | `superseded` |
 | `2026-09-01-track-s-d4-locally-qualified-t1-next` | [2026-09-01-track-s-d4-locally-qualified-t1-next.md](2026-09-01-track-s-d4-locally-qualified-t1-next.md) | `2026-09-01-track-s-d3-locally-qualified-d4-next` | `HISTORY#625` | `superseded` |
 | `2026-09-01-track-s-d3-locally-qualified-d4-next` | [2026-09-01-track-s-d3-locally-qualified-d4-next.md](2026-09-01-track-s-d3-locally-qualified-d4-next.md) | `2026-09-01-track-s-d2-locally-qualified-d3-next` | `HISTORY#623` | `superseded` |
 | `2026-09-01-track-s-d2-locally-qualified-d3-next` | [2026-09-01-track-s-d2-locally-qualified-d3-next.md](2026-09-01-track-s-d2-locally-qualified-d3-next.md) | `2026-09-01-track-s-d1-locally-qualified-d2-next` | `HISTORY#622` | `superseded` |

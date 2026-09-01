@@ -20480,3 +20480,27 @@ tokens: 105
 ---
 Correction to HISTORY#626: the implementation, qualification, and claim-boundary body remains factual, but its refs field was passed to the append tool with semicolons and therefore became one nonexistent path. This append-only successor records the same four references as separate canonical refs and owns the locally-qualified T1 handoff chronology. No runtime behavior, test result, or protected-main claim changes.
 ---END-ENTRY-#627---
+
+---BEGIN-ENTRY-#628---
+id: 628
+date: 2026-09-01T18:48:03Z
+agent: codex-gpt-5
+status: done
+topics: graph, trust, provenance, temporal, test, tests, verify, continuity, handoff, status, bugfix
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-09-01-track-s-g1-locally-qualified-r1-next.md,seam_runtime/knowledge_graph.py,seam_runtime/reasoning_patterns.py,seam_runtime/migrations.py,tests/audit/test_deep_knowledge_graph.py,tests/audit/test_reasoning_patterns.py,tests/audit/test_sqlite_migration_spine.py,test_seam_all/test_cli_import_isolation.py
+supersedes: 627
+tokens: 432
+---
+G1 Graph and Trust Integrity is locally qualified on codex/s8-g1-graph-trust from protected main@72fbaa13d34608a16d56c9459140d59b1b436836 after T1 merged through PR #243.
+
+Trust demotion now requires same-boundary, horizon-visible source nodes and relation evidence. Unevidenced contradicted status and relation disputes remain explicit ignored decision inputs. Trust payloads expose exact episode, graph-edge, and canonical record IDs, and graph reads prune every edge whose endpoint is excluded by the same current/history/time filters.
+
+Reasoning-pattern results now retain genuinely conflicting later outcomes in an append-only disagreement ledger. The reasoning_patterns projection advances from reasoning-pattern-schema/1 to /2 through a fail-closed migration; successful disagreements require a verified accepted outcome. Replays are idempotent by success state plus outcome ID and return the originally stored reason and timestamp, so caller wording cannot inflate trust statistics or invent provenance.
+
+Root-witnessed red/green cycles cover unevidenced disputes, bare contradicted status, future edge evidence, future contradiction sources, endpoint closure, disagreement retention, same-outcome idempotency, stored-evidence replay, and the v1-to-v2 migration. Two independent reviews rejected partial states and both final reviews returned no findings.
+
+Verification on the exact working tree: all 119 focused graph/reasoning/migration tests passed; changed-file Ruff and git diff --check passed; the full provider-free selection collected 3,269 cases and exited 0 with the two established xfails; an isolated loopback pgvector container then ran all 23 external tests with strict no-skip. Interrupted qualification artifacts were preserved rather than deleted under test_seam/g1-interrupted-default-db, outside the active artifact patterns.
+
+G1 is locally qualified, not protected-main complete. Commit, push, exact-head hosted checks, root-stored QUALIFIED receipt, protected merge, and exact-main verification remain. R1 and then R2 remain before the S8 freeze. S9/S10, release, deployment, and hosted-production claims remain unopened.
+---END-ENTRY-#628---

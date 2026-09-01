@@ -9,24 +9,24 @@
 
 ## Current headline
 
-**2026-09-01 — protected `main@0f4bd82` contains complete D1 Recovery, D2
-Atomic Ingest, D3 Lifecycle Exclusion, and D4 Snapshot Integrity through PR
-#242; T1 Temporal Semantics is locally qualified on
-`codex/t1-public-seam`.** One shared timestamp policy now treats `Z`/`z`,
-numeric offsets, and naive-as-UTC values as comparable instants, distinguishes
-missing open bounds from invalid fail-closed values, and drives reconciliation,
-graph as-of/current visibility and order, stale horizons, graph products,
-trace/self-improvement reads, context assembly, and both retrieval policies.
-Original MIRL timestamp text remains canonical evidence; only derived
-comparison/projection keys are normalized. Context serialization is explicitly
-versioned as `context-assembly/2`. The exact candidate has the full 3,257-case
-non-external selection green with the two established xfails, all 23 live
-pgvector external tests green with zero skips, a 130-case affected matrix green,
-changed-file Ruff and diff checks green, and independent standards/spec reviews
-with no remaining finding. T1 still requires commit, exact-head hosted checks,
-a root-stored qualification receipt, and protected merge. S8 remains
-incomplete; G1, R1, and R2 remain before the S8 freeze, S9 has not started, and
-no S10 release, deployment, or hosted-production claim is made. See
+**2026-09-01 — protected `main@72fbaa1` contains complete D1 Recovery, D2
+Atomic Ingest, D3 Lifecycle Exclusion, D4 Snapshot Integrity, and T1 Temporal
+Semantics through PR #243; G1 Graph and Trust Integrity is locally qualified on
+`codex/s8-g1-graph-trust`.** Contradiction/refutation now demotes only through
+same-boundary, horizon-visible source and edge evidence; unevidenced status and
+relation disputes remain explicit ignored decision inputs. Graph reads prune
+every edge whose endpoint is filtered. Trust decisions expose exact episode,
+edge, and canonical record IDs. Reasoning-pattern result disagreement is an
+append-only `reasoning-pattern-schema/2` ledger with verified-success guards,
+v1 migration, outcome-based idempotency, and canonical replay evidence. The
+exact candidate completed all 3,269 selected non-external tests with exit 0 and
+the two established xfails, all 23 isolated live-pgvector external tests with
+zero skips, a 119-case focused graph/reasoning/migration matrix, changed-file
+Ruff and diff checks, and two independent final reviews with no findings. G1
+still requires commit, exact-head hosted checks, a root-stored qualification
+receipt, and protected merge. S8 remains incomplete; R1 and R2 remain before
+the S8 freeze, S9 has not started, and no S10 release, deployment, or
+hosted-production claim is made. See
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
 
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance

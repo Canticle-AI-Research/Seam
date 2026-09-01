@@ -348,7 +348,8 @@ def test_epistemic_edges_support_contest_refute_and_supersede(runtime: SeamRunti
         MIRLRecord(
             id="rel:contradict",
             kind=RecordKind.REL,
-            attrs={"src": unsupported_dispute.id, "predicate": "contradicts", "dst": targets[1].id},
+            prov=[source_prov_record.id],
+            attrs={"src": source_id, "predicate": "contradicts", "dst": targets[1].id},
         ),
         MIRLRecord(
             id="rel:refute",
@@ -377,6 +378,309 @@ def test_epistemic_edges_support_contest_refute_and_supersede(runtime: SeamRunti
         assert assertable_record_ids(connection, [target.id for target in targets]) == {
             "clm:supported-target"
         }
+
+
+def test_unevidenced_contradiction_cannot_demote_verified_claim(runtime: SeamRuntime) -> None:
+    target_batch = runtime.compile_nl(
+        "A release audit says Orion shipped.",
+        source_ref="human://release-audit",
+        scope="project",
+    )
+    corroborating_batch = runtime.compile_nl(
+        "A deployment log confirms Orion shipped.",
+        source_ref="human://deployment-log",
+        scope="project",
+    )
+    runtime.persist_ir(target_batch)
+    runtime.persist_ir(corroborating_batch)
+    target_id = _claim_id(target_batch)
+    corroborating_id = _claim_id(corroborating_batch)
+    corroborating_prov = next(
+        record for record in corroborating_batch.records if record.kind == RecordKind.PROV
+    )
+    unsupported_dispute = MIRLRecord(
+        id="clm:unsupported-shipping-dispute",
+        kind=RecordKind.CLM,
+        scope="project",
+        ext={
+            "agent_id": "planner",
+            VIRTUAL_REFS_EXTENSION: ["ent:orion"],
+        },
+        attrs={
+            "subject": "ent:orion",
+            "predicate": "shipping_state",
+            "object": "not shipped",
+        },
+    )
+    runtime.persist_ir(
+        IRBatch(
+            [
+                unsupported_dispute,
+                MIRLRecord(
+                    id="rel:independent-shipping-support",
+                    kind=RecordKind.REL,
+                    scope="project",
+                    prov=[corroborating_prov.id],
+                    attrs={
+                        "src": corroborating_id,
+                        "predicate": "corroborates",
+                        "dst": target_id,
+                    },
+                ),
+                MIRLRecord(
+                    id="rel:unevidenced-shipping-contradiction",
+                    kind=RecordKind.REL,
+                    scope="project",
+                    attrs={
+                        "src": unsupported_dispute.id,
+                        "predicate": "contradicts",
+                        "dst": target_id,
+                    },
+                ),
+            ]
+        )
+    )
+
+    target = runtime.store.knowledge_node(target_id)["node"]
+    assert target["trust_state"] == "verified"
+    assert target["assertable"] is True
+    assert target["trust"]["dispute_edge_count"] == 0
+    decision_evidence = target["trust"]["decision_evidence"]
+    assert decision_evidence["support_record_ids"] == [
+        "rel:independent-shipping-support"
+    ]
+    assert decision_evidence["dispute_record_ids"] == []
+    assert decision_evidence["ignored_dispute_record_ids"] == [
+        "rel:unevidenced-shipping-contradiction"
+    ]
+    assert decision_evidence["independent_episode_ids"]
+    assert all(
+        episode_id.startswith("episode:")
+        for episode_id in decision_evidence["independent_episode_ids"]
+    )
+
+
+def test_unevidenced_contradicted_status_is_not_treated_as_refuted(runtime: SeamRuntime) -> None:
+    claim = MIRLRecord(
+        id="clm:bare-contradicted-status",
+        kind=RecordKind.CLM,
+        scope="project",
+        status=Status.CONTRADICTED,
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:orion"]},
+        attrs={
+            "subject": "ent:orion",
+            "predicate": "shipping_state",
+            "object": "shipped",
+        },
+    )
+    runtime.persist_ir(IRBatch([claim]))
+
+    node = runtime.store.knowledge_node(
+        claim.id,
+        include_history=True,
+    )["node"]
+    assert node["trust_state"] == "unverified"
+    assert node["assertable"] is False
+    assert node["trust"]["decision_evidence"][
+        "ignored_status_record_ids"
+    ] == [claim.id]
+
+
+def test_future_edge_evidence_cannot_contest_earlier_graph_horizon(runtime: SeamRuntime) -> None:
+    past_raw = MIRLRecord(
+        id="raw:past-independent-source",
+        kind=RecordKind.RAW,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        attrs={
+            "content": "An independent source discussed Orion.",
+            "source_ref": "human://past-source",
+        },
+    )
+    past_prov = MIRLRecord(
+        id="prov:past-independent-source",
+        kind=RecordKind.PROV,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        attrs={"entity": past_raw.id, "activity": "observed"},
+    )
+    future_raw = MIRLRecord(
+        id="raw:future-contradiction-source",
+        kind=RecordKind.RAW,
+        scope="project",
+        created_at="2025-01-01T00:00:00+00:00",
+        updated_at="2025-01-01T00:00:00+00:00",
+        attrs={
+            "content": "Later evidence contradicted the Orion claim.",
+            "source_ref": "human://future-source",
+        },
+    )
+    future_prov = MIRLRecord(
+        id="prov:future-contradiction-source",
+        kind=RecordKind.PROV,
+        scope="project",
+        created_at="2025-01-01T00:00:00+00:00",
+        updated_at="2025-01-01T00:00:00+00:00",
+        attrs={"entity": future_raw.id, "activity": "observed"},
+    )
+    source = MIRLRecord(
+        id="clm:past-independent-disputer",
+        kind=RecordKind.CLM,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        prov=[past_prov.id],
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:orion"]},
+        attrs={
+            "subject": "ent:orion",
+            "predicate": "shipping_state",
+            "object": "not shipped",
+        },
+    )
+    target = MIRLRecord(
+        id="clm:earlier-horizon-target",
+        kind=RecordKind.CLM,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        prov=[past_prov.id],
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:orion"]},
+        attrs={
+            "subject": "ent:orion",
+            "predicate": "shipping_state",
+            "object": "shipped",
+        },
+    )
+    contradiction = MIRLRecord(
+        id="rel:future-evidenced-contradiction",
+        kind=RecordKind.REL,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        prov=[future_prov.id],
+        attrs={
+            "src": source.id,
+            "predicate": "contradicts",
+            "dst": target.id,
+        },
+    )
+    runtime.persist_ir(
+        IRBatch(
+            [
+                past_raw,
+                past_prov,
+                future_raw,
+                future_prov,
+                source,
+                target,
+                contradiction,
+            ]
+        )
+    )
+
+    earlier = runtime.store.knowledge_node(
+        target.id,
+        include_history=True,
+        at="2024-06-01T00:00:00+00:00",
+    )["node"]
+    later = runtime.store.knowledge_node(
+        target.id,
+        include_history=True,
+        at="2025-06-01T00:00:00+00:00",
+    )["node"]
+    assert earlier["trust_state"] == "supported"
+    assert earlier["trust"]["dispute_edge_count"] == 0
+    assert later["trust_state"] == "contested"
+    assert later["trust"]["dispute_edge_count"] == 1
+
+
+def test_future_contradiction_source_cannot_contest_earlier_graph_horizon(
+    runtime: SeamRuntime,
+) -> None:
+    past_raw = MIRLRecord(
+        id="raw:source-horizon-evidence",
+        kind=RecordKind.RAW,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        attrs={
+            "content": "An independent source discussed Orion.",
+            "source_ref": "human://source-horizon-evidence",
+        },
+    )
+    past_prov = MIRLRecord(
+        id="prov:source-horizon-evidence",
+        kind=RecordKind.PROV,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        attrs={"entity": past_raw.id, "activity": "observed"},
+    )
+    target = MIRLRecord(
+        id="clm:source-horizon-target",
+        kind=RecordKind.CLM,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        prov=[past_prov.id],
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:orion"]},
+        attrs={
+            "subject": "ent:orion",
+            "predicate": "shipping_state",
+            "object": "shipped",
+        },
+    )
+    future_source = MIRLRecord(
+        id="clm:future-source-horizon-disputer",
+        kind=RecordKind.CLM,
+        scope="project",
+        created_at="2025-01-01T00:00:00+00:00",
+        updated_at="2025-01-01T00:00:00+00:00",
+        prov=[past_prov.id],
+        ext={VIRTUAL_REFS_EXTENSION: ["ent:orion"]},
+        attrs={
+            "subject": "ent:orion",
+            "predicate": "shipping_state",
+            "object": "not shipped",
+        },
+    )
+    contradiction = MIRLRecord(
+        id="rel:future-source-horizon-contradiction",
+        kind=RecordKind.REL,
+        scope="project",
+        created_at="2024-01-01T00:00:00+00:00",
+        updated_at="2024-01-01T00:00:00+00:00",
+        prov=[past_prov.id],
+        attrs={
+            "src": future_source.id,
+            "predicate": "contradicts",
+            "dst": target.id,
+        },
+    )
+    runtime.persist_ir(
+        IRBatch([past_raw, past_prov, target, future_source, contradiction])
+    )
+
+    earlier = runtime.store.knowledge_node(
+        target.id,
+        include_history=True,
+        at="2024-06-01T00:00:00+00:00",
+    )
+    later = runtime.store.knowledge_node(
+        target.id,
+        include_history=True,
+        at="2025-06-01T00:00:00+00:00",
+    )
+    earlier_node_ids = {
+        str(node["id"]) for node in [earlier["node"], *earlier["neighbors"]]
+    }
+    assert future_source.id not in earlier_node_ids
+    assert earlier["node"]["trust_state"] == "supported"
+    assert earlier["node"]["trust"]["dispute_edge_count"] == 0
+    assert later["node"]["trust_state"] == "contested"
+    assert later["node"]["trust"]["dispute_edge_count"] == 1
 
 
 def test_hypothetical_stale_and_superseded_claims_are_not_assertable(runtime: SeamRuntime) -> None:
@@ -410,6 +714,45 @@ def test_hypothetical_stale_and_superseded_claims_are_not_assertable(runtime: Se
         "clm:stale": "stale",
         "clm:superseded": "superseded",
     }
+
+
+def test_current_graph_never_returns_edge_with_filtered_endpoint(runtime: SeamRuntime) -> None:
+    current = _entity("ent:current-endpoint", "Current endpoint")
+    superseded = MIRLRecord(
+        id="ent:superseded-endpoint",
+        kind=RecordKind.ENT,
+        scope="project",
+        status=Status.SUPERSEDED,
+        attrs={
+            "label": "Superseded endpoint",
+            "entity_type": "system",
+        },
+    )
+    relation = MIRLRecord(
+        id="rel:filtered-endpoint",
+        kind=RecordKind.REL,
+        scope="project",
+        attrs={
+            "src": current.id,
+            "predicate": "depends_on",
+            "dst": superseded.id,
+        },
+    )
+    runtime.persist_ir(IRBatch([current, superseded, relation]))
+
+    graph = runtime.store.knowledge_graph(
+        root_id=current.id,
+        include_history=False,
+        limit=20,
+        hops=1,
+    )
+    node_ids = {str(node["id"]) for node in graph["nodes"]}
+    assert current.id in node_ids
+    assert superseded.id not in node_ids
+    assert all(
+        edge["source"] in node_ids and edge["target"] in node_ids
+        for edge in graph["edges"]
+    )
 
 
 def test_graph_probe_generation_covers_safety_and_reasoning_motifs(runtime: SeamRuntime) -> None:

@@ -194,3 +194,91 @@ def test_pattern_feedback_cannot_cross_reasoning_runs(tmp_path):
 
         source.reject_pattern(str(use["use_id"]), reason="did not transfer")
         assert seam.runtime.store.reasoning_pattern(pattern_id)["failures"] == 1
+
+
+def test_later_verified_pattern_outcome_is_retained_as_disagreement(tmp_path):
+    with SeamSDK(tmp_path / "pattern-disagreement.db", allow_pgvector_env=False) as seam:
+        _, outcome = _verified_run(
+            seam, "Choose a safe database migration."
+        )
+        pattern_id = str(outcome["learned_pattern_id"])
+        reused = seam.start_reasoning(
+            "Choose a safe database migration.",
+            ns="acme",
+            scope="thread",
+        )
+        use = reused.use_pattern(pattern_id)
+        reused.reject_pattern(
+            str(use["use_id"]),
+            reason="the first attempted application failed",
+        )
+        hypothesis = reused.add_node(
+            "hypothesis",
+            "Retry with the reversible migration path.",
+            operation="compare-reversible-options",
+        )
+        check = reused.verify(
+            str(hypothesis["node_id"]),
+            check_kind="test",
+            check_ref="tests/test_retry.py::test_reversible",
+            verdict="passed",
+            summary="The corrected application passed.",
+        )
+        verified = reused.finalize_verified(
+            "Use the corrected reversible path.",
+            verification_ids=[str(check["verification_id"])],
+            supporting_node_ids=[str(hypothesis["node_id"])],
+        )
+
+        pattern = seam.runtime.store.reasoning_pattern(pattern_id)
+        assert verified["pattern_feedback_count"] == 1
+        assert pattern["successes"] == 2
+        assert pattern["failures"] == 1
+        assert pattern["disagreement_count"] == 1
+        disagreement = pattern["disagreements"][0]
+        assert disagreement["disagreement_id"].startswith("rdis:")
+        assert disagreement["use_id"] == str(use["use_id"])
+        assert disagreement["prior_succeeded"] is False
+        assert disagreement["later_succeeded"] is True
+        assert disagreement["outcome_node_id"] == verified["node_id"]
+        assert disagreement["reason"] == (
+            "pattern reuse supported a verified accepted outcome"
+        )
+
+        repeated = seam.runtime.store.record_reasoning_pattern_feedback(
+            use_id=str(use["use_id"]),
+            expected_run_id=reused.run_id,
+            succeeded=True,
+            outcome_node_id=str(verified["node_id"]),
+            reason="same successful outcome, described differently",
+        )
+        assert repeated["result_id"] == disagreement["disagreement_id"]
+        assert repeated["reason"] == disagreement["reason"]
+        replayed_pattern = seam.runtime.store.reasoning_pattern(pattern_id)
+        assert replayed_pattern["successes"] == 2
+        assert replayed_pattern["failures"] == 1
+        assert replayed_pattern["disagreement_count"] == 1
+
+
+def test_reworded_same_pattern_outcome_is_idempotent(tmp_path):
+    with SeamSDK(tmp_path / "pattern-reworded-result.db", allow_pgvector_env=False) as seam:
+        source, outcome = _verified_run(
+            seam, "Choose a safe database migration."
+        )
+        pattern_id = str(outcome["learned_pattern_id"])
+        use = source.use_pattern(pattern_id)
+
+        first = source.reject_pattern(
+            str(use["use_id"]),
+            reason="the attempted application failed",
+        )
+        repeated = source.reject_pattern(
+            str(use["use_id"]),
+            reason="same outcome, described with different words",
+        )
+
+        pattern = seam.runtime.store.reasoning_pattern(pattern_id)
+        assert repeated["result_id"] == first["result_id"]
+        assert pattern["failures"] == 1
+        assert pattern["disagreement_count"] == 0
+        assert pattern["disagreements"] == []

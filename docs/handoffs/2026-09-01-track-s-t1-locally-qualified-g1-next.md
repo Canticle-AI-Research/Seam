@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-01-track-s-t1-locally-qualified-g1-next
 supersedes: 2026-09-01-track-s-d4-locally-qualified-t1-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#627
 ---
 

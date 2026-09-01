@@ -480,6 +480,54 @@ def test_empty_store_runs_every_step_and_reopens_without_writes(tmp_path: Path) 
     assert _sha256(database_path) == before
 
 
+def test_reasoning_pattern_v1_store_upgrades_disagreement_ledger(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "reasoning-pattern-v1.db"
+    store = SQLiteStore(database_path)
+    store.close()
+
+    with sqlite3.connect(database_path) as connection:
+        connection.execute("drop table reasoning_pattern_result_disagreement")
+        connection.execute(
+            f"update {PROJECTION_TABLE} set projection_version = ? "
+            "where projection_name = 'reasoning_patterns'",
+            ("reasoning-pattern-schema/1",),
+        )
+        connection.commit()
+
+    upgraded = SQLiteStore(database_path)
+    try:
+        assert upgraded.migration_result.applied_steps == (
+            "append-only-reasoning-pattern-disagreement-ledger",
+        )
+        with upgraded._pool.checkout() as connection:
+            tables = {
+                str(row[0])
+                for row in connection.execute(
+                    "select name from sqlite_master where type = 'table'"
+                )
+            }
+            triggers = {
+                str(row[0])
+                for row in connection.execute(
+                    "select name from sqlite_master where type = 'trigger'"
+                )
+            }
+            assert "reasoning_pattern_result_disagreement" in tables
+            assert {
+                "reasoning_pattern_disagreement_no_update",
+                "reasoning_pattern_disagreement_no_delete",
+                "reasoning_pattern_disagreement_guard",
+            } <= triggers
+            assert connection.execute(
+                f"select projection_version from {PROJECTION_TABLE} "
+                "where projection_name = 'reasoning_patterns'"
+            ).fetchone()[0] == "reasoning-pattern-schema/2"
+    finally:
+        upgraded.close()
+
+
 @pytest.mark.parametrize(
     ("failed_step", "expected_version"),
     [
