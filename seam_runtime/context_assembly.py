@@ -12,13 +12,14 @@ import json
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Callable, Iterable
 
 from .mirl import token_count
+from .temporal import normalize_timestamp, parse_iso
 
 CONTEXT_ASSEMBLY_SCHEMA_VERSION = 1
-CONTEXT_ASSEMBLY_CONTRACT_VERSION = "context-assembly/1"
+CONTEXT_ASSEMBLY_CONTRACT_VERSION = "context-assembly/2"
 CONTEXT_KINDS = frozenset(
     {
         "fact",
@@ -49,10 +50,10 @@ _TERM_RE = re.compile(r"[\w]+", re.UNICODE)
 class ContextCandidate:
     """One context unit with an exact route back to canonical evidence.
 
-    ``occurred_at`` and ``valid_until`` must be timezone-aware ISO-8601 values.
-    The end of the validity interval is exclusive. Derived G4 products must
-    carry ``product_id`` in addition to their exact source record and episode
-    references.
+    ``occurred_at`` and ``valid_until`` must be ISO-8601 values. Naive values
+    are interpreted as UTC under SEAM's shared timestamp policy. The end of the
+    validity interval is exclusive. Derived G4 products must carry
+    ``product_id`` in addition to their exact source record and episode refs.
     """
 
     candidate_id: str
@@ -359,7 +360,7 @@ def _render_header(
     as_of: str,
 ) -> str:
     return (
-        "SEAM-CONTEXT/1|"
+        "SEAM-CONTEXT/2|"
         + _canonical_json(
             {
                 "as_of": as_of,
@@ -403,15 +404,11 @@ def _terms(value: str) -> tuple[str, ...]:
 
 def _parse_time(value: object, field: str) -> tuple[datetime, str]:
     text = _required(value, field)
-    candidate = text[:-1] + "+00:00" if text.endswith("Z") else text
-    try:
-        parsed = datetime.fromisoformat(candidate)
-    except ValueError as exc:
-        raise ValueError(f"{field} must be ISO-8601") from exc
-    if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise ValueError(f"{field} must include a timezone")
-    normalized = parsed.astimezone(timezone.utc)
-    return normalized, normalized.isoformat().replace("+00:00", "Z")
+    parsed = parse_iso(text)
+    normalized = normalize_timestamp(text)
+    if parsed is None or normalized is None:
+        raise ValueError(f"{field} must be ISO-8601")
+    return parsed, normalized
 
 
 def _refs(values: object, field: str) -> tuple[str, ...]:

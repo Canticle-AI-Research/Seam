@@ -325,7 +325,7 @@ def generate_graph_probes(
     ]
     node_params: list[object] = []
     edge_where = [
-        "expired_at is null",
+        "(expired_at is null or trim(expired_at) = '')",
         "status not in ('contradicted','superseded','deprecated','deleted_soft')",
     ]
     edge_params: list[object] = []

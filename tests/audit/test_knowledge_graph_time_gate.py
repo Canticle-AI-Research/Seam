@@ -19,13 +19,13 @@ def test_time_reached_fails_closed_for_non_iso_timestamp(
     assert value not in caplog.text
 
 
-def test_time_reached_fails_closed_for_incomparable_iso_timestamps(
+def test_time_reached_treats_naive_iso_timestamp_as_utc(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     with caplog.at_level(logging.WARNING, logger="seam_runtime.knowledge_graph"):
         assert _time_reached("2020-01-01", "2026-08-01T00:00:00+00:00") is True
 
-    assert "treating the validity interval as expired" in caplog.text
+    assert not caplog.records
 
 
 def test_time_reached_preserves_valid_iso_ordering(

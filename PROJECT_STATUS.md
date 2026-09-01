@@ -9,23 +9,24 @@
 
 ## Current headline
 
-**2026-09-01 — protected `main@253037a` contains complete D1 Recovery, D2
-Atomic Ingest, and D3 Lifecycle Exclusion; D4 Snapshot Integrity is locally
-qualified on `codex/d4-snapshot-integrity`.** D3 reached protected main through
-PR #241. D4 now keeps a rejected store write inside the original committed read
-snapshot, gives nested readers a guarded connection/cursor facade, denies every
-transaction and savepoint transition, and keeps authorizer removal, close,
-BLOB mutation, deserialize, mutating PRAGMAs, ATTACH/DETACH, and other SQLite
-mutation controls under the snapshot owner's exclusive release boundary.
-Owner-managed `query_only` state is restored when the pooled connection is
-returned. The exact candidate has 3,238 selected non-external cases green with
-two established xfails, all 23 live pgvector external tests green, 51 focused
-snapshot/pool/retrieval/lifecycle regressions green, changed-file Ruff and diff
-checks green, and independent standards/spec assurance with no remaining
-finding. D4 still requires commit, exact-head hosted checks, a root-stored
-qualification receipt, and protected merge before it is protected-main
-complete. T1 follows only after that merge; S8 remains incomplete, S9 has not
-started, and no S10 release, deployment, or hosted-production claim is made. See
+**2026-09-01 — protected `main@0f4bd82` contains complete D1 Recovery, D2
+Atomic Ingest, D3 Lifecycle Exclusion, and D4 Snapshot Integrity through PR
+#242; T1 Temporal Semantics is locally qualified on
+`codex/t1-public-seam`.** One shared timestamp policy now treats `Z`/`z`,
+numeric offsets, and naive-as-UTC values as comparable instants, distinguishes
+missing open bounds from invalid fail-closed values, and drives reconciliation,
+graph as-of/current visibility and order, stale horizons, graph products,
+trace/self-improvement reads, context assembly, and both retrieval policies.
+Original MIRL timestamp text remains canonical evidence; only derived
+comparison/projection keys are normalized. Context serialization is explicitly
+versioned as `context-assembly/2`. The exact candidate has the full 3,257-case
+non-external selection green with the two established xfails, all 23 live
+pgvector external tests green with zero skips, a 130-case affected matrix green,
+changed-file Ruff and diff checks green, and independent standards/spec reviews
+with no remaining finding. T1 still requires commit, exact-head hosted checks,
+a root-stored qualification receipt, and protected merge. S8 remains
+incomplete; G1, R1, and R2 remain before the S8 freeze, S9 has not started, and
+no S10 release, deployment, or hosted-production claim is made. See
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
 
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance

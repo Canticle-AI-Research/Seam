@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import datetime
+
+from seam_runtime.temporal import normalize_datetime, normalize_timestamp
 
 from .types import QueryFilters, QueryIntent, RetrievalLeg, RetrievalPlan
 
@@ -12,16 +14,10 @@ RETRIEVAL_MODES = {"vector", "graph", "hybrid", "mix"}
 RANKING_POLICIES = {"legacy-weighted/1", "reciprocal-rank-fusion/2"}
 
 
-def _is_timezone_aware(value: datetime) -> bool:
-    return value.utcoffset() is not None
-
-
 def _utc_naive(value: datetime) -> datetime:
     """Normalize an aware query timestamp to the store's UTC-naive contract."""
 
-    if not _is_timezone_aware(value):
-        return value
-    return value.astimezone(timezone.utc).replace(tzinfo=None)
+    return normalize_datetime(value)
 
 
 def build_plan(
@@ -54,8 +50,11 @@ def build_plan(
         raise ValueError("graph_hops must be between 0 and 3")
     if not isinstance(semantic_graph_seeding, bool):
         raise TypeError("semantic_graph_seeding must be a boolean")
-    if graph_at is not None and (not isinstance(graph_at, str) or not graph_at.strip()):
-        raise ValueError("graph_at must be a non-empty timestamp string when provided")
+    if graph_at is not None:
+        if not isinstance(graph_at, str) or not graph_at.strip():
+            raise ValueError("graph_at must be a non-empty timestamp string when provided")
+        if normalize_timestamp(graph_at) is None:
+            raise ValueError("graph_at must be a valid ISO-8601 timestamp")
     if not isinstance(graph_include_history, bool):
         raise TypeError("graph_include_history must be a boolean")
     if not isinstance(lens, str) or not lens.strip():
@@ -71,28 +70,13 @@ def build_plan(
             or not all(isinstance(value, datetime) for value in temporal_window)
         ):
             raise TypeError("temporal_window must be a pair of datetimes")
-        if _is_timezone_aware(temporal_window[0]) != _is_timezone_aware(
-            temporal_window[1]
-        ):
-            raise ValueError(
-                "temporal_window endpoints must both be naive or timezone-aware"
-            )
+        temporal_window = tuple(_utc_naive(value) for value in temporal_window)
         if temporal_window[0] > temporal_window[1]:
             raise ValueError("temporal_window start must not follow its end")
     if temporal_reference is not None and not isinstance(
         temporal_reference, datetime
     ):
         raise TypeError("temporal_reference must be a datetime")
-    if temporal_reference is not None and temporal_window is not None:
-        if _is_timezone_aware(temporal_reference) != _is_timezone_aware(
-            temporal_window[0]
-        ):
-            raise ValueError(
-                "temporal_reference and temporal_window must agree on "
-                "timezone awareness"
-            )
-    if temporal_window is not None:
-        temporal_window = tuple(_utc_naive(value) for value in temporal_window)
     if temporal_reference is not None:
         temporal_reference = _utc_naive(temporal_reference)
     filters = _extract_filters(query, scope=scope, namespace=namespace)

@@ -3,7 +3,7 @@
 [Back to SEAM roadmaps](README.md)
 
 **Status:** active execution specification
-**Protected baseline:** `main@a408ec3`
+**Protected baseline:** `main@0f4bd82`
 **Governing contracts:** [SEAM specification](../../SEAM_SPEC_V0.1.md),
 [MIRL v1](../MIRL_V1.md), and the
 [Track S campaign](MEMORY_GUARANTEES_CAMPAIGN.md)
@@ -235,8 +235,8 @@ is protected-main complete.
 2. Every later read in the request observes the original committed state.
 3. Snapshot close owns the only rollback/end transition.
 
-**Current evidence:** branch `codex/d4-snapshot-integrity` from protected
-`main@253037a` keeps rejected store writes inside the original committed read
+**Current evidence:** protected `main@0f4bd82` contains D4 through merged PR
+#242. It keeps rejected store writes inside the original committed read
 snapshot and exposes only a guarded connection/cursor facade to nested callers.
 SQLite query-only mode plus an exhaustive mutating-action authorizer deny
 transaction/savepoint control, close and authorizer replacement, BLOB writes,
@@ -246,9 +246,8 @@ and returns the physical connection to the pool. Later request reads remain on
 the original committed state after every rejected path. The 3,238 selected
 non-external cases are green with two established xfails; all 23 live pgvector
 external tests, the 51-case focused regression matrix, changed-file Ruff, diff
-checks, and independent standards/spec assurance are green. D4 remains locally
-qualified until exact-head hosted checks, a root-stored receipt, and protected
-merge complete.
+checks, independent standards/spec assurance, exact-head hosted checks, and the
+root-stored receipt are green. D4 is protected-main complete.
 
 ### T1 - Temporal Semantics
 
@@ -257,6 +256,20 @@ merge complete.
 2. Reconciliation, graph-as-of, stale horizon, and temporal retrieval share the
    same policy and fail-closed direction.
 3. Equivalent instants produce identical truth and retrieval order.
+
+**Current evidence:** branch `codex/t1-public-seam` from protected
+`main@0f4bd82` centralizes timestamp parsing and comparison for `Z`/`z`,
+numeric offsets, naive-as-UTC values, missing/blank open bounds, and invalid
+fail-closed values. Reconciliation, graph as-of/current reads and deterministic
+ordering, stale horizons, graph-source selection, graph products, trace,
+self-improvement probes, context assembly, reasoning patterns, and both
+retrieval policies now share that contract. Original MIRL timestamp text is
+unchanged; derived keys are canonical UTC. The full 3,257-case non-external
+selection is green with two established xfails, all 23 live pgvector external
+tests pass with zero skips, the 130-case affected matrix is green, Ruff/diff
+checks are green, and two independent final reviews report no finding. T1 is
+locally qualified until exact-head hosted checks, a root-stored receipt, and
+protected merge complete.
 
 ### R1 - S8 Retrieval Contract
 
@@ -376,9 +389,9 @@ decision.
 5. D2 atomic ingest (protected-main complete through PR #240).
 6. D3 lifecycle exclusion across every Product Core read (protected-main
    complete through PR #241).
-7. D4 snapshot integrity (locally qualified; protected merge next).
-8. T1 temporal semantics after D4 protected merge.
-9. G1 and R1, followed by R2.
+7. D4 snapshot integrity (protected-main complete through PR #242).
+8. T1 temporal semantics (locally qualified; protected merge next).
+9. G1 and R1 after T1 protected merge, followed by R2.
 10. Freeze S8, run Q1, then freeze and qualify C1.
 
 The first slice is intentionally small enough to review independently while

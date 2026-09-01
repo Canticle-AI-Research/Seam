@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timedelta
+import sqlite3
+from collections.abc import Iterable
+from datetime import datetime, timedelta, timezone
 from math import exp
 
 _MONTH = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
@@ -56,14 +58,95 @@ def detect_temporal_tokens(question: str) -> list[str]:
 
 
 def parse_iso(ts: str | None) -> datetime | None:
-    if not ts:
+    """Parse a supported timestamp into the canonical UTC-naive instant.
+
+    Naive values are interpreted as UTC for compatibility with SEAM's stored
+    timestamp contract.  Aware values, including ``Z`` and numeric offsets,
+    are converted to UTC before their timezone marker is removed.  Missing and
+    invalid values remain distinct from valid instants by returning ``None``.
+    """
+
+    if not isinstance(ts, str) or not ts.strip():
         return None
-    for fmt in ("%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(ts, fmt)
-        except ValueError:
-            continue
-    return None
+    candidate = ts.strip()
+    if candidate.endswith(("Z", "z")):
+        candidate = candidate[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(candidate)
+    except ValueError:
+        return None
+    return normalize_datetime(parsed)
+
+
+def is_missing_timestamp(value: object) -> bool:
+    """Return whether ``value`` represents an absent, open interval bound."""
+
+    return value is None or (isinstance(value, str) and not value.strip())
+
+
+def normalize_datetime(value: datetime) -> datetime:
+    """Return ``value`` as the canonical UTC-naive comparison instant."""
+
+    if value.tzinfo is None or value.utcoffset() is None:
+        return value.replace(tzinfo=None)
+    return value.astimezone(timezone.utc).replace(tzinfo=None)
+
+
+def normalize_timestamp(value: str | None) -> str | None:
+    """Return a fixed-width UTC timestamp key or ``None`` when not parseable."""
+
+    parsed = parse_iso(value)
+    if parsed is None:
+        return None
+    return parsed.isoformat(timespec="microseconds") + "Z"
+
+
+def compare_timestamps(left: str | None, right: str | None) -> int | None:
+    """Compare two timestamp values under the canonical policy.
+
+    ``None`` means at least one side is missing or invalid, allowing each
+    caller to apply its own fail-closed direction without inventing a second
+    parser.
+    """
+
+    left_key = normalize_timestamp(left)
+    right_key = normalize_timestamp(right)
+    if left_key is None or right_key is None:
+        return None
+    return (left_key > right_key) - (left_key < right_key)
+
+
+def canonical_timestamp_extreme(
+    values: Iterable[object],
+    *,
+    latest: bool,
+) -> str | None:
+    """Select an earliest/latest valid instant and return its canonical key.
+
+    Missing and invalid values never outrank a valid instant. If every supplied
+    value is invalid, no timestamp is established.
+    """
+
+    normalized = [
+        key
+        for value in values
+        if (key := normalize_timestamp(str(value) if value is not None else None))
+        is not None
+    ]
+    if not normalized:
+        return None
+    return (max if latest else min)(normalized)
+
+
+def register_sqlite_timestamp_functions(connection: sqlite3.Connection) -> None:
+    """Install deterministic SQL comparison keys backed by this policy."""
+
+    connection.create_function(
+        "seam_timestamp_key",
+        1,
+        normalize_timestamp,
+        deterministic=True,
+    )
 
 
 def parse_temporal_reference(question: str, *, anchor: datetime | None = None) -> datetime | None:
@@ -106,6 +189,8 @@ def temporal_distance_score(
         return 0.0
     if decay_constant <= 0:
         raise ValueError("decay_constant must be positive")
+    question_date_ref = normalize_datetime(question_date_ref)
+    candidate_timestamp = normalize_datetime(candidate_timestamp)
     delta_days = abs((candidate_timestamp - question_date_ref).total_seconds()) / 86400.0
     return exp(-delta_days / decay_constant)
 

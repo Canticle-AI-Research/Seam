@@ -7,7 +7,6 @@ import os
 import sqlite3
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import contextmanager
-from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -235,6 +234,11 @@ from .reference_contracts import (
 )
 from .retry import retry_db_operation
 from .store_lease import StoreUseLease
+from .temporal import (
+    canonical_timestamp_extreme,
+    normalize_timestamp,
+    register_sqlite_timestamp_functions,
+)
 from .tenancy import is_principal_namespace, principal_tenant_id
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
 from .vector_outbox import (
@@ -364,6 +368,7 @@ class SQLiteStore:
                     check_same_thread=False,
                 )
                 self._mem_anchor.row_factory = sqlite3.Row
+                register_sqlite_timestamp_functions(self._mem_anchor)
                 self.migration_result = migrate_memory_database(
                     self._mem_anchor,
                     initialize_schema=self._initialize_current_schema,
@@ -440,6 +445,7 @@ class SQLiteStore:
                 check_same_thread=False,
             )
         connection.row_factory = sqlite3.Row
+        register_sqlite_timestamp_functions(connection)
         if self.path != ":memory:":
             connection.execute("pragma journal_mode=WAL")
         connection.execute("pragma busy_timeout=5000")
@@ -2799,7 +2805,8 @@ class SQLiteStore:
             "join knowledge_nodes dst on dst.id = e.dst_id "
             "where e.ns = ? and e.scope = ? "
             "and e.edge_kind in ('semantic', 'causal', 'temporal') "
-            f"and e.status not in ({placeholders}) and e.expired_at is null "
+            f"and e.status not in ({placeholders}) "
+            "and (e.expired_at is null or trim(e.expired_at) = '') "
             f"and src.status not in ({placeholders}) "
             f"and dst.status not in ({placeholders}) "
             "and (case when json_valid(e.properties_json) "
@@ -3528,7 +3535,8 @@ class SQLiteStore:
                 refs = [(current, "trace", dst, dst) for dst in _trace_refs(record)]
                 edge_rows = connection.execute(
                     "select src_id, predicate, dst_id from knowledge_edges "
-                    "where (src_id = ? or dst_id = ?) and expired_at is null "
+                    "where (src_id = ? or dst_id = ?) "
+                    "and (expired_at is null or trim(expired_at) = '') "
                     "and status not in ('contradicted','superseded','deprecated','deleted_soft') "
                     "order by id",
                     (current, current),
@@ -5739,18 +5747,12 @@ def _document_status_row(row: sqlite3.Row) -> dict[str, object]:
 
 
 def _context_timestamp(*values: object) -> str | None:
-    """Return the first parseable timestamp as explicit UTC-aware ISO-8601."""
+    """Return the first parseable timestamp under the shared UTC policy."""
 
     for value in values:
-        if value in (None, ""):
-            continue
-        try:
-            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
-        except ValueError:
-            continue
-        if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
-        return parsed.isoformat()
+        normalized = normalize_timestamp(str(value) if value is not None else None)
+        if normalized is not None:
+            return normalized
     return None
 
 
@@ -5819,8 +5821,12 @@ def _merge_entity_mentions(canonical: MIRLRecord, mention: MIRLRecord) -> bool:
     if merged_evidence != canonical.evidence:
         canonical.evidence = merged_evidence
         changed = True
-    if changed and mention.updated_at > canonical.updated_at:
-        canonical.updated_at = mention.updated_at
+    if changed:
+        latest = canonical_timestamp_extreme(
+            (canonical.updated_at, mention.updated_at), latest=True
+        )
+        if latest is not None:
+            canonical.updated_at = latest
     return changed
 
 

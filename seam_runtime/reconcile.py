@@ -3,10 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import defaultdict
-from datetime import datetime, timezone
+from collections.abc import Iterable
+from datetime import datetime
 from enum import Enum
 
 from .mirl import IRBatch, MIRLRecord, ReconcileReport, RecordKind, Status
+from .temporal import canonical_timestamp_extreme, parse_iso
 
 PREDICATE_CARDINALITY_EXTENSION = "seam.predicate_cardinality"
 RECONCILIATION_CONTRACT = "temporal-reconciliation/1"
@@ -132,7 +134,10 @@ def reconcile_ir(batch: IRBatch) -> ReconcileReport:
             state_value = [object_values[key] for key in ordered_object_keys]
             state_confidence = max(claim.conf for claim in representatives)
             timed = [claim for claim in representatives if _event_time(claim) is not None]
-            state_t0 = min(timed, key=lambda item: _event_time(item) or datetime.max.replace(tzinfo=timezone.utc)).t0 if timed else None
+            state_t0 = min(
+                timed,
+                key=lambda item: _event_time(item) or datetime.max,
+            ).t0 if timed else None
             state_t1 = None
 
         material = "\x1f".join((RECONCILIATION_CONTRACT, ns, scope, subject, predicate))
@@ -145,8 +150,12 @@ def reconcile_ir(batch: IRBatch) -> ReconcileReport:
                 scope=scope,
                 status=Status.INFERRED,
                 conf=state_confidence,
-                created_at=min(claim.created_at for claim in group),
-                updated_at=max(claim.updated_at for claim in group),
+                created_at=_required_timestamp_extreme(
+                    (claim.created_at for claim in group), latest=False
+                ),
+                updated_at=_required_timestamp_extreme(
+                    (claim.updated_at for claim in group), latest=True
+                ),
                 t0=state_t0,
                 t1=state_t1,
                 prov=sorted({prov for claim in group for prov in claim.prov}),
@@ -174,22 +183,14 @@ def _canonical_value(value: object) -> str:
 
 
 def _event_time(record: MIRLRecord) -> datetime | None:
-    if not isinstance(record.t0, str) or not record.t0.strip():
-        return None
-    try:
-        value = datetime.fromisoformat(record.t0.strip().replace("Z", "+00:00"))
-    except ValueError:
-        return None
-    if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+    return parse_iso(record.t0)
 
 
 def _winner_key(record: MIRLRecord) -> tuple[int, datetime, float, str]:
     event_time = _event_time(record)
     return (
         int(event_time is not None),
-        event_time or datetime.min.replace(tzinfo=timezone.utc),
+        event_time or datetime.min,
         float(record.conf),
         record.id,
     )
@@ -221,8 +222,12 @@ def _relation_record(
         scope=winner.scope,
         status=Status.INFERRED,
         conf=0.75,
-        created_at=min(winner.created_at, loser.created_at),
-        updated_at=max(winner.updated_at, loser.updated_at),
+        created_at=_required_timestamp_extreme(
+            (winner.created_at, loser.created_at), latest=False
+        ),
+        updated_at=_required_timestamp_extreme(
+            (winner.updated_at, loser.updated_at), latest=True
+        ),
         t0=winner.t0,
         ext={"reconciliation_contract": RECONCILIATION_CONTRACT},
         attrs={"src": winner.id, "predicate": relation, "dst": loser.id},
@@ -236,3 +241,12 @@ def _action_key(action: dict[str, object]) -> tuple[str, str, str]:
         str(action.get("winner") or (records[0] if isinstance(records, list) and records else "")),
         str(action.get("loser") or (records[-1] if isinstance(records, list) and records else "")),
     )
+
+
+def _required_timestamp_extreme(
+    values: Iterable[object], *, latest: bool
+) -> str:
+    selected = canonical_timestamp_extreme(values, latest=latest)
+    if selected is None:
+        raise ValueError("reconciliation metadata timestamps must be valid ISO-8601")
+    return selected

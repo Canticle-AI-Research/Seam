@@ -26,6 +26,12 @@ from .reference_contracts import (
     stored_reference_kinds,
     validate_record_reference_contract,
 )
+from .temporal import (
+    compare_timestamps,
+    is_missing_timestamp,
+    normalize_timestamp,
+    register_sqlite_timestamp_functions,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -1580,6 +1586,8 @@ def query_graph(
     hops: int = 2,
     semantic_seed_ids: Iterable[str] | None = None,
 ) -> dict[str, object]:
+    _ensure_timestamp_functions(connection)
+    at = _normalize_graph_horizon(at)
     limit = max(1, min(int(limit), 1000))
     hops = max(0, min(int(hops), 5))
     query = (query or "").strip()
@@ -1633,7 +1641,7 @@ def query_graph(
             " select count(*) from knowledge_edges e where e.src_id = n.id or e.dst_id = n.id"
             ") as degree from knowledge_nodes n "
             f"where {' and '.join(where)} "
-            "order by degree desc, n.updated_at desc, n.id limit ?",
+            "order by degree desc, seam_timestamp_key(n.updated_at) desc, n.id limit ?",
             [*params, seed_limit],
         ).fetchall()
     selected = {str(row["id"]) for row in seed_rows}
@@ -1692,7 +1700,8 @@ def query_graph(
             episode_params.append(f"%{query.lower()}%")
         episode_seed_rows = connection.execute(
             "select ep.* from knowledge_episodes ep "
-            f"where {' and '.join(episode_where)} order by ep.recorded_at desc, ep.id limit ?",
+            f"where {' and '.join(episode_where)} "
+            "order by seam_timestamp_key(ep.recorded_at) desc, ep.id limit ?",
             [*episode_params, seed_limit],
         ).fetchall()
         episode_seed_ids = [str(row["id"]) for row in episode_seed_rows]
@@ -1748,7 +1757,7 @@ def query_graph(
                 # returned order and the loop stops at `limit`, so an arbitrary order
                 # among ties changes which nodes are in the answer, not just their
                 # order. confidence defaults to 0, so ties are the common case.
-                "order by e.confidence desc, e.updated_at desc, e.id limit ?",
+                "order by e.confidence desc, seam_timestamp_key(e.updated_at) desc, e.id limit ?",
                 [*edge_params, edge_row_cap],
             ).fetchall():
                 merged_rows.setdefault(str(row["id"]), row)
@@ -1756,7 +1765,10 @@ def query_graph(
         # stable sorts applied least-significant first. `updated_at` is text,
         # so a single composite key cannot express its descending direction.
         rows = sorted(merged_rows.values(), key=lambda row: str(row["id"]))
-        rows.sort(key=lambda row: str(row["updated_at"] or ""), reverse=True)
+        rows.sort(
+            key=lambda row: normalize_timestamp(str(row["updated_at"] or "")) or "",
+            reverse=True,
+        )
         rows.sort(key=lambda row: float(row["confidence"] or 0.0), reverse=True)
         rows = rows[:edge_row_cap]
         next_frontier: set[str] = set()
@@ -1936,6 +1948,8 @@ def node_detail(
     include_history: bool = True,
     at: str | None = None,
 ) -> dict[str, object]:
+    _ensure_timestamp_functions(connection)
+    at = _normalize_graph_horizon(at)
     row = connection.execute("select * from knowledge_nodes where id = ?", (node_id,)).fetchone()
     if row is None:
         episode_where, episode_params = _episode_filter_clauses(
@@ -2011,8 +2025,8 @@ def node_detail(
     if at:
         episode_where.extend(
             [
-                "ep.recorded_at <= ?",
-                "(ep.expired_at is null or ep.expired_at > ?)",
+                "seam_timestamp_key(ep.recorded_at) <= seam_timestamp_key(?)",
+                "(ep.expired_at is null or trim(ep.expired_at) = '' or seam_timestamp_key(ep.expired_at) > seam_timestamp_key(?))",
             ]
         )
         episode_params.extend([at, at])
@@ -2021,7 +2035,8 @@ def node_detail(
     episodes = connection.execute(
         "select distinct ep.* from knowledge_episodes ep "
         "join knowledge_node_episodes ne on ne.episode_id = ep.id "
-        f"where {' and '.join(episode_where)} order by ep.recorded_at desc",
+        f"where {' and '.join(episode_where)} "
+        "order by seam_timestamp_key(ep.recorded_at) desc, ep.id",
         episode_params,
     ).fetchall()
     outgoing = [edge for edge in graph["edges"] if edge["source"] == node_id]
@@ -2599,16 +2614,23 @@ def _upsert_node(
             record.scope,
             record.status.value,
             float(record.conf),
-            record.t0,
-            record.t1,
-            record.created_at,
-            record.updated_at,
+            _graph_timestamp(record.t0),
+            _graph_timestamp(record.t1),
+            _graph_timestamp(record.created_at),
+            _graph_timestamp(record.updated_at),
             agent_id,
             record.id,
             int(synthetic),
             _json(properties),
         ),
     )
+
+
+def _graph_timestamp(value: str | None) -> str | None:
+    """Canonicalize valid graph projection times without opening invalid ends."""
+
+    normalized = normalize_timestamp(value)
+    return normalized if normalized is not None else value
 
 
 def _record_agent(
@@ -2794,12 +2816,13 @@ def _node_time_clauses(params: list[object], *, at: str | None, include_history:
         placeholders = ",".join("?" for _ in CURRENT_EXCLUDED_STATUSES)
         clauses.extend(
             [
-                "coalesce(n.valid_from, n.created_at) <= ?",
-                "(n.valid_to is null or n.valid_to > ?)",
-                f"(n.status not in ({placeholders}) or n.updated_at > ?)",
+                "seam_timestamp_key(coalesce(nullif(trim(n.valid_from), ''), n.created_at)) <= seam_timestamp_key(?)",
+                "(n.valid_to is null or trim(n.valid_to) = '' or seam_timestamp_key(n.valid_to) > seam_timestamp_key(?))",
+                f"(n.status not in ({placeholders}) or seam_timestamp_key(n.updated_at) > seam_timestamp_key(?))",
                 "(not exists (select 1 from knowledge_node_episodes ne where ne.node_id = n.id) "
                 "or exists (select 1 from knowledge_node_episodes ne join knowledge_episodes ep on ep.id = ne.episode_id "
-                "where ne.node_id = n.id and ep.recorded_at <= ? and (ep.expired_at is null or ep.expired_at > ?)))",
+                "where ne.node_id = n.id and seam_timestamp_key(ep.recorded_at) <= seam_timestamp_key(?) "
+                "and (ep.expired_at is null or trim(ep.expired_at) = '' or seam_timestamp_key(ep.expired_at) > seam_timestamp_key(?))))",
             ]
         )
         params.extend([at, at, *sorted(CURRENT_EXCLUDED_STATUSES), at, at, at])
@@ -2828,15 +2851,20 @@ def _edge_time_clauses(params: list[object], *, at: str | None, include_history:
     if at:
         clauses.extend(
             [
-                "coalesce(e.valid_from, e.created_at) <= ?",
-                "(e.valid_to is null or e.valid_to > ?)",
-                "(e.expired_at is null or e.expired_at > ?)",
+                "seam_timestamp_key(coalesce(nullif(trim(e.valid_from), ''), e.created_at)) <= seam_timestamp_key(?)",
+                "(e.valid_to is null or trim(e.valid_to) = '' or seam_timestamp_key(e.valid_to) > seam_timestamp_key(?))",
+                "(e.expired_at is null or trim(e.expired_at) = '' or seam_timestamp_key(e.expired_at) > seam_timestamp_key(?))",
             ]
         )
         params.extend([at, at, at])
     elif not include_history:
         placeholders = ",".join("?" for _ in CURRENT_EXCLUDED_STATUSES)
-        clauses.extend([f"e.status not in ({placeholders})", "e.expired_at is null"])
+        clauses.extend(
+            [
+                f"e.status not in ({placeholders})",
+                "(e.expired_at is null or trim(e.expired_at) = '')",
+            ]
+        )
         params.extend(sorted(CURRENT_EXCLUDED_STATUSES))
         clauses.append(
             "(not exists (select 1 from knowledge_edge_episodes ee where ee.edge_id = e.id) "
@@ -2868,8 +2896,8 @@ def _episode_filter_clauses(
     if at:
         clauses.extend(
             [
-                "ep.recorded_at <= ?",
-                "(ep.expired_at is null or ep.expired_at > ?)",
+                "seam_timestamp_key(ep.recorded_at) <= seam_timestamp_key(?)",
+                "(ep.expired_at is null or trim(ep.expired_at) = '' or seam_timestamp_key(ep.expired_at) > seam_timestamp_key(?))",
             ]
         )
         params.extend([at, at])
@@ -2942,7 +2970,7 @@ def _graph_episode_rows(
         for row in connection.execute(
             "select ep.* from knowledge_episodes ep "
             f"where ({clause}) and {' and '.join(filters)} "
-            "order by ep.recorded_at desc, ep.id limit ?",
+            "order by seam_timestamp_key(ep.recorded_at) desc, ep.id limit ?",
             [*clause_params, *filter_params, limit],
         ).fetchall():
             merged.setdefault(str(row["id"]), row)
@@ -2950,7 +2978,10 @@ def _graph_episode_rows(
     # Reproduce `order by <seed first>, recorded_at desc, id` with stable
     # sorts applied least-significant first.
     rows = sorted(merged.values(), key=lambda row: str(row["id"]))
-    rows.sort(key=lambda row: str(row["recorded_at"] or ""), reverse=True)
+    rows.sort(
+        key=lambda row: normalize_timestamp(str(row["recorded_at"] or "")) or "",
+        reverse=True,
+    )
     if seed_episode_ids:
         rows.sort(key=lambda row: 0 if str(row["id"]) in seed_episode_ids else 1)
     return rows[:limit]
@@ -3042,8 +3073,8 @@ def _node_episode_facets(
     if at:
         where.extend(
             [
-                "ep.recorded_at <= ?",
-                "(ep.expired_at is null or ep.expired_at > ?)",
+                "seam_timestamp_key(ep.recorded_at) <= seam_timestamp_key(?)",
+                "(ep.expired_at is null or trim(ep.expired_at) = '' or seam_timestamp_key(ep.expired_at) > seam_timestamp_key(?))",
             ]
         )
         params.extend([at, at])
@@ -3100,25 +3131,47 @@ def _node_visible_at(row: sqlite3.Row, *, at: str | None) -> bool:
         return status not in CURRENT_EXCLUDED_STATUSES and not _time_reached(row["valid_to"], utc_now())
     start = row["valid_from"] or row["created_at"]
     end = row["valid_to"]
-    if start and str(start) > at:
+    start_order = compare_timestamps(str(start) if start is not None else None, at)
+    if start_order is None or start_order > 0:
         return False
-    if end and str(end) <= at:
+    if not is_missing_timestamp(end):
+        end_order = compare_timestamps(str(end), at)
+        if end_order is None or end_order <= 0:
+            return False
+    if status not in CURRENT_EXCLUDED_STATUSES:
+        return True
+    updated_order = compare_timestamps(str(row["updated_at"]), at)
+    if updated_order is None or updated_order <= 0:
         return False
-    return status not in CURRENT_EXCLUDED_STATUSES or str(row["updated_at"]) > at
+    return True
+
+
+def _normalize_graph_horizon(at: str | None) -> str | None:
+    if at is None:
+        return None
+    normalized = normalize_timestamp(at)
+    if normalized is None:
+        raise ValueError("knowledge graph horizon must be a valid ISO-8601 timestamp")
+    return normalized
+
+
+def _ensure_timestamp_functions(connection: object) -> None:
+    """Register UDFs on raw connections; snapshot facades inherit them."""
+
+    if hasattr(connection, "create_function"):
+        register_sqlite_timestamp_functions(connection)  # type: ignore[arg-type]
 
 
 def _time_reached(value: object, horizon: str) -> bool:
-    if value in (None, ""):
+    if is_missing_timestamp(value):
         return False
-    try:
-        return datetime.fromisoformat(str(value).replace("Z", "+00:00")) <= datetime.fromisoformat(
-            horizon.replace("Z", "+00:00")
-        )
-    except (TypeError, ValueError):
-        LOGGER.warning(
-            "Invalid or incomparable timestamp in knowledge trust gate; treating the validity interval as expired"
-        )
-        return True
+    order = compare_timestamps(str(value), horizon)
+    if order is not None:
+        return order <= 0
+    LOGGER.warning(
+        "Invalid or incomparable timestamp in knowledge trust gate; treating the validity interval as expired"
+    )
+    return True
 
 
 def _trust_profiles(
@@ -3193,7 +3246,12 @@ def _trust_profiles(
     episode_where = [f"ne.node_id in ({evidence_placeholders})"]
     episode_params: list[object] = [*sorted(evidence_node_ids)]
     if at:
-        episode_where.extend(["ep.recorded_at <= ?", "(ep.expired_at is null or ep.expired_at > ?)"])
+        episode_where.extend(
+            [
+                "seam_timestamp_key(ep.recorded_at) <= seam_timestamp_key(?)",
+                "(ep.expired_at is null or trim(ep.expired_at) = '' or seam_timestamp_key(ep.expired_at) > seam_timestamp_key(?))",
+            ]
+        )
         episode_params.extend([at, at])
     elif not include_history:
         episode_where.append("ep.status = 'active'")
@@ -3252,7 +3310,12 @@ def _trust_profiles(
             continue
 
         status = str(row["status"])
-        if at and status in CURRENT_EXCLUDED_STATUSES and str(row["updated_at"]) > at:
+        updated_order = (
+            compare_timestamps(str(row["updated_at"]), at)
+            if at and status in CURRENT_EXCLUDED_STATUSES
+            else None
+        )
+        if updated_order is not None and updated_order > 0:
             # The row stores current status, while point-in-time visibility
             # admits it before that transition. Treat the later status as not
             # yet effective at the requested horizon.
@@ -3352,7 +3415,10 @@ def _graph_stats(connection: sqlite3.Connection, *, include_history: bool) -> di
             "join knowledge_episodes ep on ep.id = ne.episode_id "
             "where ne.node_id = knowledge_nodes.id and ep.status = 'active'))"
         )
-        edge_where = f"status not in ({placeholders}) and expired_at is null"
+        edge_where = (
+            f"status not in ({placeholders}) "
+            "and (expired_at is null or trim(expired_at) = '')"
+        )
         params = excluded
     node_count = connection.execute(f"select count(*) from knowledge_nodes where {node_where}", params).fetchone()[0]
     edge_count = connection.execute(f"select count(*) from knowledge_edges where {edge_where}", params).fetchone()[0]

@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 689
+total_events: 691
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-20T01:39:34Z | history:431:c0a57164 | session-event | done | retrieval, benchmark, mem0-harness, lever | seam_runtime/second_hop_context.py,benchmarks/external/mem0_harness/seam_mem0... |
-| 2026-07-20T01:52:14Z | history:432:99068044 | session-event | done | retrieval, benchmark, negative-result, plan | seam_runtime/second_hop_context.py,tests/audit/test_second_hop_context.py |
 | 2026-07-20T02:46:05Z | history:433:c3150c72 | session-event | done | retrieval, benchmark, mem0-harness, lever, recovery | seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/exte... |
 | 2026-07-20T09:48:51Z | history:434:291b0956 | session-event | done | benchmark, locomo, paid-run, negative-result, mem0-harness | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
 | 2026-07-20T13:40:00Z | history:435:ec698280 | session-event | done | benchmark, locomo, mirl, retrieval, compile, provenance, ... | seam_runtime/derived_fact_context.py,seam_runtime/nl_extract.py,seam_runtime/... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-01T06:40:36Z | history:623:7d1e4f8a | session-event | done | lifecycle, storage, graph, retrieval, pack, identity, vec... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/KNOWLEDGE_GRAPH.md,docs/roadmap/TRACK_S... |
 | 2026-09-01T07:24:12Z | history:624:48115f87 | session-event | done | bugfix, storage, snapshot, sqlite, test, tests, verify, c... | seam_runtime/read_snapshot.py,tests/audit/test_read_snapshot_consistency.py,d... |
 | 2026-09-01T07:30:52Z | history:625:b19ab757 | session-event | changed | history, correction, continuity, verify, handoff, status | HISTORY.md,HISTORY_INDEX.md,docs/handoffs/2026-09-01-track-s-d4-locally-quali... |
+| 2026-09-01T09:05:40Z | history:626:d11694cf | session-event | done | temporal, storage, graph, retrieval, reconcile, context, ... | seam_runtime/temporal.py; tests/audit/test_temporal_semantics_contract.py; do... |
+| 2026-09-01T09:07:07Z | history:627:60846791 | session-event | changed | history, correction, continuity, verify, handoff, temporal | seam_runtime/temporal.py,tests/audit/test_temporal_semantics_contract.py,docs... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0489.cross.md | 2026-04-15T00:00:00Z..2026-07-20T00:26:26Z | 489 | (multi) | (multi) |
+| 0001-0491.cross.md | 2026-04-15T00:00:00Z..2026-07-20T01:52:14Z | 491 | (multi) | (multi) |

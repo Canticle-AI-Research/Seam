@@ -102,7 +102,7 @@ def test_assembles_all_g5_kinds_with_exact_backtraces_and_version() -> None:
         "community_summary",
         "observation",
     }
-    assert pack.rendered.startswith("SEAM-CONTEXT/1|")
+    assert pack.rendered.startswith("SEAM-CONTEXT/2|")
     assert pack.token_cost <= pack.token_budget
     assert pack.refs == tuple(
         sorted({ref for item in pack.items for ref in item.record_ids})
@@ -282,13 +282,14 @@ def test_budget_is_exact_and_never_partially_truncates_items() -> None:
     assert short.omitted_candidate_ids == ("one",)
 
 
-def test_invalid_budget_and_naive_time_are_rejected() -> None:
+def test_invalid_budget_is_rejected_and_naive_time_is_utc() -> None:
     with pytest.raises(ValueError, match="positive"):
         _assemble([], token_budget=0)
     with pytest.raises(ValueError, match="non-negative"):
         _assemble([], fact_reserve_tokens=-1)
-    with pytest.raises(ValueError, match="timezone"):
-        _assemble([], as_of="2026-07-29T12:00:00")
+    assert _assemble([], as_of="2026-07-29T12:00:00").as_of == (
+        "2026-07-29T12:00:00.000000Z"
+    )
     with pytest.raises(ValueError, match="too small"):
         _assemble([], token_budget=1)
 

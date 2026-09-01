@@ -392,12 +392,20 @@ and `HISTORY_INDEX.md`.
   snapshot so stale derived text cannot remain current. Every rendered sentence
   carries exact supporting MIRL record and active episode IDs, and only current
   `supported` or `verified` same-namespace/scope facts may contribute text.
-- G5 context assembly is a disposable `context-assembly/1` PACK over current
+- T1 temporal decisions use `seam_runtime.temporal` as their single comparison
+  policy. `Z`/`z`, numeric offsets, and naive values interpreted as UTC resolve
+  to one UTC-naive instant key. Missing or blank interval bounds remain open;
+  invalid nonblank values cannot establish visibility, recency, supersession,
+  or temporal retrieval. SQLite graph predicates use the same deterministic
+  Python policy through a connection-lifecycle UDF. Canonical MIRL timestamp
+  text is not rewritten; derived graph/context metadata may use canonical UTC
+  keys. See HISTORY#627.
+- G5 context assembly is a disposable `context-assembly/2` PACK over current
   canonical facts/entities/episodes and G4 products. Every item retains exact
   record and episode backtraces; derived items also retain their product ID.
-  Task/trust/time ordering, whole-item truncation, exact token accounting, and
-  the grounded-fact reservation are deterministic. Context never becomes a
-  second truth store.
+  Task/trust/time ordering, naive-as-UTC admission, canonical UTC serialization,
+  whole-item truncation, exact token accounting, and the grounded-fact
+  reservation are deterministic. Context never becomes a second truth store.
 - G6 lifecycle is append-only audit around canonical MIRL, not hard deletion of
   truth. A scoped delete validates every target against one namespace/scope,
   requires exact caller-supplied internal boundary ownership, marks canonical

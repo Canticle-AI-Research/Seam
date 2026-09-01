@@ -112,7 +112,7 @@ def run_provider_free_native_qualification(
                 dataset_sha256=_digest(fixture_rows),
                 native_contract_sha256=_digest(
                     {
-                        "context": "context-assembly/1",
+                        "context": "context-assembly/2",
                         "context_token_budget": MATCHED_CONTEXT_TOKEN_BUDGET,
                         "fact_reserve_tokens": MATCHED_FACT_RESERVE_TOKENS,
                         "graph_products": "graph-products/1",
