@@ -23,10 +23,12 @@ One canonical engine remains the architectural invariant.
 `RetrievalOrchestrator` owns SQL, vector, graph, graph-node, and explicit
 temporal retrieval. `SeamRuntime.retrieve()` is the canonical entry;
 `search_ir()` is an explicit compatibility result/evidence adapter over that
-engine and passes its selected policy through the same planner. The remaining
-S8 boundary is the boundary-only SQL gate; changing `search_ir()`'s default
-away from the recorded legacy control is an S9 measurement and promotion
-decision.
+engine and passes its selected policy through the same planner. R1 records the
+boundary-only SQL decision: query-authored `ns:` plus `scope:` filters admit
+the non-lexical SQL tail at inclusive score `0.80`; runtime-supplied tenant
+boundaries do not request it, and graph seed acquisition refuses the tail below
+structured score `1.00`. Changing `search_ir()`'s default away from the
+recorded legacy control remains an S9 measurement and promotion decision.
 
 The planner currently accepts `legacy-weighted/1` (the pre-refactor RAW/BM25/
 vector behavioral control) and `reciprocal-rank-fusion/2`. Non-empty

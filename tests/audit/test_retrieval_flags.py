@@ -72,6 +72,36 @@ def test_invalid_persisted_and_environment_rrf_k_fail_closed():
     assert load_retrieval_flags(None, {"SEAM_RETRIEVAL_RRF_K": "--5"}).rrf_k == 60
 
 
+def test_persisted_optional_budget_flags_are_settable_and_invalid_values_are_logged(
+    caplog,
+):
+    from seam_runtime.retrieval import load_retrieval_flags
+
+    class ValidState:
+        def iter_retrieval_flag_state(self):
+            return [
+                {"flag_key": "search_top_k", "flag_value": 100},
+                {"flag_key": "context_budget", "flag_value": 8_000},
+            ]
+
+    resolved = load_retrieval_flags(ValidState(), {})
+    assert resolved.search_top_k == 100
+    assert resolved.context_budget == 8_000
+
+    class InvalidState:
+        def iter_retrieval_flag_state(self):
+            return [
+                {"flag_key": "search_top_k", "flag_value": 0},
+                {"flag_key": "context_budget", "flag_value": True},
+            ]
+
+    rejected = load_retrieval_flags(InvalidState(), {})
+    assert rejected.search_top_k is None
+    assert rejected.context_budget is None
+    assert "search_top_k" in caplog.text
+    assert "context_budget" in caplog.text
+
+
 def test_flag_env_parsing_truthy_variants():
     assert retrieval_flags_from_env({}) == RetrievalFlags()
     assert retrieval_flags_from_env({"SEAM_RETRIEVAL_SEMANTIC_ZERO": "1"}).semantic_zero_no_vector is True

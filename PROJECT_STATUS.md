@@ -9,24 +9,24 @@
 
 ## Current headline
 
-**2026-09-01 — protected `main@72fbaa1` contains complete D1 Recovery, D2
-Atomic Ingest, D3 Lifecycle Exclusion, D4 Snapshot Integrity, and T1 Temporal
-Semantics through PR #243; G1 Graph and Trust Integrity is locally qualified on
-`codex/s8-g1-graph-trust`.** Contradiction/refutation now demotes only through
-same-boundary, horizon-visible source and edge evidence; unevidenced status and
-relation disputes remain explicit ignored decision inputs. Graph reads prune
-every edge whose endpoint is filtered. Trust decisions expose exact episode,
-edge, and canonical record IDs. Reasoning-pattern result disagreement is an
-append-only `reasoning-pattern-schema/2` ledger with verified-success guards,
-v1 migration, outcome-based idempotency, and canonical replay evidence. The
-exact candidate completed all 3,269 selected non-external tests with exit 0 and
-the two established xfails, all 23 isolated live-pgvector external tests with
-zero skips, a 119-case focused graph/reasoning/migration matrix, changed-file
-Ruff and diff checks, and two independent final reviews with no findings. G1
-still requires commit, exact-head hosted checks, a root-stored qualification
-receipt, and protected merge. S8 remains incomplete; R1 and R2 remain before
-the S8 freeze, S9 has not started, and no S10 release, deployment, or
-hosted-production claim is made. See
+**2026-09-01 — protected `main@e8ff231` contains complete D1-D4, T1, and G1
+through merged PR #244; R1 Retrieval Contract is locally qualified on
+`codex/s8-r1-retrieval-contract`.** Persisted positive retrieval depth/context
+values now survive applied-state loading while remaining excluded from
+self-improvement proposal flags. Query-authored `ns:` plus `scope:` filters
+admit the SQL non-lexical tail at the named inclusive score `0.80`; runtime-only
+tenant boundaries do not request that tail, and graph seed acquisition refuses
+it below `1.00`. Both RRF implementations now use one-based ranks and stable ID
+ties. Runtime, MCP, SDK, and compatibility paths resolve graph semantic seeding
+from one applied policy unless a caller explicitly overrides it, while every
+materialized plan records the resolved boolean. `legacy-weighted/1` remains the
+versioned compatibility default pending S9 Promotion evidence. The exact tree
+passed the 119-case affected matrix, the full strict non-external selection
+with the two established xfails and no skips, all 23 isolated live-pgvector
+external tests, changed-file Ruff, and diff checks. R1 still requires commit,
+exact-head hosted checks, a root-stored qualification receipt, and protected
+merge. S8 remains incomplete; R2 remains before the freeze, S9 has not started,
+and no S10 release, deployment, or hosted-production claim is made. See
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
 
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance

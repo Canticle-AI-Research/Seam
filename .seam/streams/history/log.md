@@ -20504,3 +20504,25 @@ Verification on the exact working tree: all 119 focused graph/reasoning/migratio
 
 G1 is locally qualified, not protected-main complete. Commit, push, exact-head hosted checks, root-stored QUALIFIED receipt, protected merge, and exact-main verification remain. R1 and then R2 remain before the S8 freeze. S9/S10, release, deployment, and hosted-production claims remain unopened.
 ---END-ENTRY-#628---
+
+---BEGIN-ENTRY-#629---
+id: 629
+date: 2026-09-01T19:37:17Z
+agent: codex-gpt-5
+status: done
+topics: retrieval, rank, config, graph, surface, test, tests, verify, continuity, handoff, status, bugfix
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/status/retrieval.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-09-01-track-s-r1-locally-qualified-r2-next.md,seam_runtime/retrieval.py,seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orchestrator/orchestrator.py,seam_runtime/sdk.py,tests/audit/test_retrieval_flags.py,tests/audit/test_s8_r1_retrieval_contract.py
+supersedes: 628
+tokens: 399
+---
+R1 Retrieval Contract is locally qualified on codex/s8-r1-retrieval-contract from protected main e8ff231dc5b327f802ccacbaf06b8819b152129d after G1 merged through PR 244.
+
+Persisted positive search_top_k and context_budget values now survive applied-state loading with logged fail-closed rejection while remaining excluded from self-improvement proposal flags. Query-authored ns plus scope filters admit the SQL non-lexical tail at inclusive score 0.80; runtime-only tenant boundaries do not request that tail, and graph seed acquisition requires lexical evidence or structured score 1.00. Component and orchestrator RRF now share one-based ranks and stable record-ID ties. Runtime, MCP, SDK, and compatibility paths resolve graph semantic seeding from one applied policy unless explicitly overridden, and every plan records the resolved boolean. legacy-weighted/1 remains the versioned compatibility default pending S9 Promotion evidence.
+
+Root-witnessed red/green cycles cover valid and invalid persisted depth values, the boundary-only SQL gate, RRF rank-base parity, and graph semantic-seeding parity across runtime, MCP, and SDK. The first full-suite run exposed overbroad tenant-tail admission and config-lever promotion; both were corrected and their regressions remain tested.
+
+Verification on the exact working tree: the 119-case affected retrieval/SDK/MCP matrix passed; changed-file Ruff and git diff --check passed; the full strict non-external selection exited 0 with the two established xfails and no skips; an isolated loopback pgvector container ran all 23 external tests with strict no-skip.
+
+R1 is locally qualified, not protected-main complete. Signed commit, push, exact-head hosted checks, root-stored QUALIFIED receipt, protected merge, and exact-main verification remain. R2 remains before the S8 freeze. S9, S10, release, deployment, and hosted-production claims remain unopened.
+---END-ENTRY-#629---

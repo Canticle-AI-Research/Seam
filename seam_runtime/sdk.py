@@ -340,7 +340,7 @@ class ReasoningSession:
         budget: int = 5,
         mode: str = "mix",
         graph_hops: int = 1,
-        semantic_graph_seeding: bool = True,
+        semantic_graph_seeding: bool | None = None,
         graph_at: str | None = None,
         graph_include_history: bool = False,
         semantic_backend: str = "seam",
@@ -362,8 +362,10 @@ class ReasoningSession:
             raise TypeError("graph_hops must be an integer")
         if not 0 <= graph_hops <= 3:
             raise ValueError("graph_hops must be between 0 and 3")
-        if not isinstance(semantic_graph_seeding, bool):
-            raise TypeError("semantic_graph_seeding must be a boolean")
+        if semantic_graph_seeding is not None and not isinstance(
+            semantic_graph_seeding, bool
+        ):
+            raise TypeError("semantic_graph_seeding must be a boolean or None")
         if graph_at is not None and (not isinstance(graph_at, str) or not graph_at.strip()):
             raise ValueError("graph_at must be a non-empty timestamp string when provided")
         if not isinstance(graph_include_history, bool):
@@ -389,7 +391,7 @@ class ReasoningSession:
         budget: int,
         mode: str,
         graph_hops: int,
-        semantic_graph_seeding: bool,
+        semantic_graph_seeding: bool | None,
         graph_at: str | None,
         graph_include_history: bool,
         semantic_backend: str,

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 628
-total_tokens: ~318407
-latest_id: 628
+total_entries: 629
+total_tokens: ~318806
+latest_id: 629
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 629 | 2026-09-01 | done | 58e229d9508564d0 | retrieval,rank,config,graph,+ | 628 |
 | 628 | 2026-09-01 | done | abb91d25905fb41c | graph,trust,provenance,temporal,+ | 627 |
 | 627 | 2026-09-01 | changed | 6084679108875138 | history,correction,continuity,verify,+ | 626 |
 | 626 | 2026-09-01 | done | d11694cf093cfdc7 | temporal,storage,graph,retrieval,+ | 625 |
@@ -670,7 +671,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=84 latest=#628, #624, #623, #622, #621
+- bugfix: count=85 latest=#629, #628, #624, #623, #622
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -700,12 +701,12 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=9 latest=#615, #614, #613, #605, #598
+- config: count=10 latest=#629, #615, #614, #613, #605
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=74 latest=#628, #627, #626, #625, #624
+- continuity: count=75 latest=#629, #628, #627, #626, #625
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -772,11 +773,11 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=65 latest=#628, #626, #623, #622, #607
+- graph: count=66 latest=#629, #628, #626, #623, #622
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=111 latest=#628, #627, #626, #625, #624
+- handoff: count=112 latest=#629, #628, #627, #626, #625
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -887,7 +888,7 @@ compact: true
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
-- rank: count=12 latest=#521, #504, #503, #494, #479
+- rank: count=13 latest=#629, #521, #504, #503, #494
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
 - readme: count=25 latest=#353, #352, #347, #346, #345
@@ -907,7 +908,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=151 latest=#626, #623, #607, #606, #605
+- retrieval: count=152 latest=#629, #626, #623, #607, #606
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=2 latest=#606, #388
@@ -943,11 +944,11 @@ compact: true
 - sqlite: count=4 latest=#624, #606, #506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=194 latest=#628, #625, #624, #609, #607
+- status: count=195 latest=#629, #628, #625, #624, #609
 - storage: count=36 latest=#626, #624, #623, #622, #621
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
-- surface: count=19 latest=#579, #578, #577, #571, #550
+- surface: count=20 latest=#629, #579, #578, #577, #571
 - surfaces: count=7 latest=#609, #608, #607, #606, #541
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
@@ -956,9 +957,9 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=5 latest=#628, #627, #626, #441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=125 latest=#628, #624, #623, #622, #621
+- test: count=126 latest=#629, #628, #624, #623, #622
 - test-artifacts: count=1 latest=#506
-- tests: count=73 latest=#628, #626, #624, #623, #622
+- tests: count=74 latest=#629, #628, #626, #624, #623
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -974,7 +975,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=38 latest=#623, #622, #533, #532, #530
 - vector-adapters: count=1 latest=#359
-- verify: count=434 latest=#628, #627, #626, #625, #624
+- verify: count=435 latest=#629, #628, #627, #626, #625
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -992,6 +993,6 @@ compact: true
 
 - roots: 86
 - changed: 63
-- done: 528
+- done: 529
 - in-progress: 15
 - planned: 22

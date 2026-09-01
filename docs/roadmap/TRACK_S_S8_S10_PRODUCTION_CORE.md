@@ -285,6 +285,20 @@ protected merge complete.
 5. Retain legacy behavior as a versioned adapter until S9 Promotion evidence
    changes the default.
 
+**Current evidence:** branch `codex/s8-r1-retrieval-contract` from protected
+`main@e8ff231` closes F-20-F-23. Persisted positive depth/context values load
+with logged fail-closed rejection but remain config-only, not proposal levers.
+Two query-authored boundary filters admit the SQL non-lexical tail at `0.80`;
+runtime tenancy alone does not, and graph seed SQL requires lexical evidence or
+structured score `1.00`. Component and orchestrator RRF use one-based ranks and
+stable record-ID ties. Graph semantic seeding resolves once from applied flags
+across runtime, MCP, SDK, and compatibility paths, with explicit overrides
+materialized in the plan. `legacy-weighted/1` remains the versioned default.
+The 119-case affected matrix, full strict non-external selection, all 23 live
+pgvector external tests, changed-file Ruff, and diff checks are green. R1 is
+locally qualified until exact-head hosted checks, a root-stored receipt, and
+protected merge complete.
+
 **S8 completion gate:** D1-D4, T1, R1, R2, and G1 are green; every original S8
 mechanism exit remains green; the boundary-only SQL decision is recorded; and
 the legacy default is either retained explicitly or promoted by S9 evidence.
