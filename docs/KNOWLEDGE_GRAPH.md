@@ -29,6 +29,19 @@ and `knowledge_episodes` are durable indexed projections rebuilt from those
 sources; stale graph lifecycle rows are never copied forward. PACK and
 dashboard views remain disposable presentations.
 
+Ordinary Product Core reads recursively exclude both a non-current record and
+records whose canonical support is non-current. `load_ir` remains the explicit
+retained-history seam, and a requested public history view may expose retained
+lifecycle state without creating a mutable handle. Current graph products are
+rebuilt from surviving facts inside lifecycle apply; immutable product rows may
+remain at rest but ordinary graph-product reads filter ineligible support.
+Derived node vectors are invalidated only when a node disappears or its
+rendered source changes, so unchanged shared endpoints remain reusable and
+changed survivors are reprojected. Identity-merge judgements also remain at
+rest: hard-delete reprojection can leave an auditable `conflict`, while any
+endpoint still present in a non-current lifecycle state hides that judgement
+from ordinary reads.
+
 ## 5W1H+Then ontology
 
 Every claim, relation, event, and state may expose a conservative derived lens:

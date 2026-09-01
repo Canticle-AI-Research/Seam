@@ -9,23 +9,24 @@
 
 ## Current headline
 
-**2026-09-01 — protected `main@64e4434` contains the complete D1 recovery
-boundary; D2 Atomic Ingest is locally qualified on `feat/d2-atomic-ingest`.**
-One runtime ingest now commits canonical MIRL and graph state, same-source
-supersession, document status, and durable vector reconciliation intent in one
-SQLite transaction scoped by namespace, scope, and source. External record and
-node vectors remain derived: projection failure returns a canonical pending
-outcome, and replay converges the winning generation while deleting superseded
-record vectors before the document becomes indexed. Failure injection,
-idempotent replay, spawned concurrency, same-source boundary isolation,
-historical graph preservation, canonical rebuild, and integrity/FK checks are
-green. Qualification is 60 focused tests, the 3,213-case non-external
-collection with two established xfails, all 23 live pgvector external tests,
-and independent assurance with zero findings. D2 still requires commit,
-exact-head hosted checks, a root-stored qualification receipt, and protected
-merge before it is protected-main complete. D3 is next only after that merge;
-S8 remains incomplete, S9 has not started, and no S10 release, deployment, or
-hosted-production claim is made. See
+**2026-09-01 — protected `main@a7333f0` contains complete D1 Recovery and D2
+Atomic Ingest; D3 Lifecycle Exclusion is locally qualified on
+`feat/d3-lifecycle-exclusion`.** Ordinary Product Core reads now exclude a
+soft-deleted record and any transitively dependent record across retrieval,
+trace, memory/decompile, PACK, graph products, identity metadata, and derived
+vector reuse while `load_ir` retains canonical history. Explicit public
+history remains a separate retained-state surface. Lifecycle apply rebuilds
+current graph products from surviving facts in the same transaction, cleanup
+resume is content-free and idempotent, and node-vector invalidation preserves
+unchanged shared endpoints while reprojecting changed survivors. Hard-delete
+identity conflicts remain auditable; present non-current endpoints stay hidden.
+Qualification is 3,223 non-external passes plus two established xfails, all 23
+live pgvector external tests, 100 focused root tests before compatibility
+repairs, the repaired 36-test delivery slice, and independent assurance. D3
+still requires commit, exact-head hosted checks, a root-stored qualification
+receipt, and protected merge before it is protected-main complete. D4 is next
+only after that merge; S8 remains incomplete, S9 has not started, and no S10
+release, deployment, or hosted-production claim is made. See
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
 
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance

@@ -214,6 +214,8 @@ def apply_scoped_delete(
     actor: str,
     interrupt_after_intent: bool = False,
     delete_derived_records: Callable[[tuple[str, ...]], None] | None = None,
+    rebuild_current_graph_products: Callable[[sqlite3.Connection, str, str], None]
+    | None = None,
     require_current_incarnation: bool = False,
 ) -> dict[str, object]:
     """Soft-delete exact boundary-owned MIRL with a recoverable cleanup outbox."""
@@ -318,6 +320,12 @@ def apply_scoped_delete(
                     ),
                 )
             remove_knowledge_records(connection, targets)
+            if rebuild_current_graph_products is not None:
+                rebuild_current_graph_products(
+                    connection,
+                    str(operation["namespace"]),
+                    str(operation["scope"]),
+                )
             placeholders = ",".join("?" for _ in targets)
             connection.execute(
                 f"delete from vector_index where record_id in ({placeholders})",
