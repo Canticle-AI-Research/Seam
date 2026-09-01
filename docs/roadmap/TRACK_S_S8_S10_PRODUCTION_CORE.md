@@ -3,7 +3,7 @@
 [Back to SEAM roadmaps](README.md)
 
 **Status:** active execution specification
-**Protected baseline:** `main@780b377`
+**Protected baseline:** `main@a408ec3`
 **Governing contracts:** [SEAM specification](../../SEAM_SPEC_V0.1.md),
 [MIRL v1](../MIRL_V1.md), and the
 [Track S campaign](MEMORY_GUARANTEES_CAMPAIGN.md)
@@ -171,7 +171,8 @@ The accepted lock protocol is recorded in
    old state or complete backup state; reopen passes integrity/FK checks.
 
 **Current branch evidence:** D1.1-D1.3 are implemented. The focused recovery
-slice passes 75 tests, the complete 3,057-test non-external collection exits
+slice passes 78 tests, including parent-owned, child-owned, and inherited
+refcount POSIX fork lifecycles. The complete 3,146-test non-external collection exits
 zero with two expected xfails and no skips when routed to the existing pinned
 model cache, and staged CodeRabbit review reports zero findings. D1.4 remains
 open for the systematic filesystem-transition failure matrix; this stream and
@@ -228,7 +229,7 @@ changes canonical writes.
 5. Retain legacy behavior as a versioned adapter until S9 Promotion evidence
    changes the default.
 
-**S8 completion gate:** D1-D4, T1, R1, and G1 are green; every original S8
+**S8 completion gate:** D1-D4, T1, R1, R2, and G1 are green; every original S8
 mechanism exit remains green; the boundary-only SQL decision is recorded; and
 the legacy default is either retained explicitly or promoted by S9 evidence.
 

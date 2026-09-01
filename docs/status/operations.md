@@ -53,9 +53,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - Branch-local D1.1-D1.3 at `feat/s8-s10-production-core` enforce restore as a
   canonical-store recovery boundary. Supported stores retain a lifetime
   cross-process lease; restore refuses against a live store, checkpoints valid
-  WAL state, and quarantines old sidecars before replacement. Seventy-five
-  focused non-external tests and a zero-finding staged CodeRabbit review cover
-  the candidate. The full 3,057-test non-external collection also exits zero
+  WAL state, and quarantines old sidecars before replacement. Fork children
+  keep inherited leases parent-safe, acquire process-owned leases for fresh
+  stores, and close inherited duplicate handles by logical refcount.
+  Seventy-eight
+  focused non-external tests, the earlier zero-finding staged CodeRabbit
+  review, and a zero-finding independent final assurance pass cover the
+  candidate. The full 3,146-test non-external collection also exits zero
   with the existing pinned-model cache, two expected xfails, and no skips. The
   systematic filesystem-transition failure matrix remains D1.4. This is not
   protected-main fact and does not complete S8-S10.

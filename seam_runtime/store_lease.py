@@ -30,6 +30,24 @@ class _SharedLease:
 _LEASE_CONDITION = threading.Condition()
 _SHARED_LEASES: dict[str, _SharedLease] = {}
 _EXCLUSIVE_LEASES: set[str] = set()
+_LEASE_PROCESS_ID = os.getpid()
+
+
+def _ensure_process_local_state() -> None:
+    """Detach lock registries inherited from another process."""
+
+    global _LEASE_CONDITION, _LEASE_PROCESS_ID
+
+    current_pid = os.getpid()
+    if current_pid == _LEASE_PROCESS_ID:
+        return
+
+    # After fork, the vanished parent threads may have left the copied
+    # condition locked. Replace it before acquiring any process-local lease.
+    _LEASE_CONDITION = threading.Condition()
+    _SHARED_LEASES.clear()
+    _EXCLUSIVE_LEASES.clear()
+    _LEASE_PROCESS_ID = current_pid
 
 
 def _database_identity(path: str | Path) -> str:
@@ -97,7 +115,9 @@ class StoreUseLease:
     """Shared cross-process lease owned by one supported store lifetime."""
 
     def __init__(self, path: str | Path) -> None:
+        _ensure_process_local_state()
         self._identity = _database_identity(path)
+        self._owner_pid = os.getpid()
         self._closed = False
         with _LEASE_CONDITION:
             while self._identity in _EXCLUSIVE_LEASES:
@@ -105,6 +125,7 @@ class StoreUseLease:
             existing = _SHARED_LEASES.get(self._identity)
             if existing is not None:
                 existing.references += 1
+                self._lease = existing
                 return
             handle = _open_lock_file(self._identity)
             try:
@@ -112,15 +133,30 @@ class StoreUseLease:
             except BaseException:
                 handle.close()
                 raise
-            _SHARED_LEASES[self._identity] = _SharedLease(handle, 1)
+            self._lease = _SharedLease(handle, 1)
+            _SHARED_LEASES[self._identity] = self._lease
 
     def close(self) -> None:
         if self._closed:
             return
+        if os.getpid() != self._owner_pid:
+            _ensure_process_local_state()
+            with _LEASE_CONDITION:
+                if self._closed:
+                    return
+                self._lease.references -= 1
+                if self._lease.references == 0:
+                    # A fork child closes its duplicate only after every
+                    # inherited logical store sharing it is closed. Explicit
+                    # LOCK_UN would also release the parent's flock because
+                    # both descriptors share one open file description.
+                    self._lease.handle.close()
+                self._closed = True
+            return
         with _LEASE_CONDITION:
             if self._closed:
                 return
-            lease = _SHARED_LEASES[self._identity]
+            lease = self._lease
             lease.references -= 1
             if lease.references == 0:
                 try:
@@ -136,6 +172,7 @@ class StoreUseLease:
 def exclusive_store_maintenance(path: str | Path) -> Iterator[None]:
     """Acquire the target's exclusive maintenance lease without waiting."""
 
+    _ensure_process_local_state()
     identity = _database_identity(path)
     with _LEASE_CONDITION:
         if identity in _SHARED_LEASES or identity in _EXCLUSIVE_LEASES:

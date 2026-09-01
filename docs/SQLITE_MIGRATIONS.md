@@ -127,6 +127,11 @@ the exact backup. Every supported file-backed store holds a lifetime shared
 lease; restore takes the corresponding exclusive maintenance lease without
 waiting and raises `DatabaseInUseError` instead of crossing a live store:
 
+On POSIX, forked children do not share lease-registry ownership with their
+parent. A child that opens its own store acquires its own process-local lease,
+while closing an inherited parent store in the child cannot unlock the
+parent-owned lease.
+
 ```python
 from seam_runtime.migrations import DatabaseInUseError, restore_database_backup
 

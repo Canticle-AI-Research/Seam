@@ -2,7 +2,7 @@
 handoff_id: 2026-08-30-track-s-s8-s10-production-core-d1
 supersedes: 2026-08-29-grounded-research-acquisition-roadmap
 handoff_status: current
-history: HISTORY#615
+history: HISTORY#620
 ---
 
 # Track S S8-S10 production-core consolidation and D1
@@ -21,9 +21,13 @@ Supported file-backed stores now hold a cross-process lifetime lease. Restore va
 the backup before mutation, refuses while a supported store is live,
 checkpoints recognized target WAL state, quarantines remaining sidecars before
 the database replacement commit point, and fsyncs the replacement boundary.
-The focused non-external recovery slice has 75 passing tests; the staged
-CodeRabbit review covered all candidate files with zero findings.
-The full 3,057-test non-external collection also exits zero when
+Fork children preserve parent-owned locks, acquire child-owned locks for fresh
+stores, and release inherited duplicate handles after the final inherited
+logical store closes. The focused non-external recovery slice has 78 passing
+tests. The staged CodeRabbit review covered the original candidate files with
+zero findings, and independent assurance returned zero findings after the
+final fork repairs.
+The full 3,146-test non-external collection also exits zero when
 `HF_HUB_CACHE` names the existing pinned-model cache, with two expected xfails
 and no skips. The default machine cache variable currently points elsewhere;
 the first full run therefore failed closed at model preflight rather than

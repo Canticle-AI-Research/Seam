@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import multiprocessing
+import os
 import sqlite3
 import threading
+import time
 from contextlib import closing
 from pathlib import Path
 
@@ -45,6 +47,88 @@ def _hold_supported_store(path: str, started, release) -> None:
         assert release.wait(timeout=10)
     finally:
         store.close()
+
+
+def _close_inherited_supported_store(store: SQLiteStore) -> None:
+    store.close()
+
+
+def _close_inherited_stores_in_stages(
+    stores: tuple[SQLiteStore, SQLiteStore],
+    first_closed,
+    close_last,
+    last_closed,
+    release_child,
+    child_stopped,
+) -> None:
+    try:
+        stores[0].close()
+        first_closed.set()
+        assert close_last.wait(timeout=10)
+        stores[1].close()
+        last_closed.set()
+        assert release_child.wait(timeout=10)
+    finally:
+        child_stopped.set()
+
+
+def _fork_store_owner(
+    path: str,
+    first_closed,
+    close_last,
+    last_closed,
+    release_child,
+    child_stopped,
+) -> None:
+    stores = (SQLiteStore(path), SQLiteStore(path))
+    fork_context = multiprocessing.get_context("fork")
+    child = fork_context.Process(
+        target=_close_inherited_stores_in_stages,
+        args=(
+            stores,
+            first_closed,
+            close_last,
+            last_closed,
+            release_child,
+            child_stopped,
+        ),
+    )
+    child.start()
+    if not first_closed.wait(timeout=10):
+        os._exit(1)
+    os._exit(0)
+
+
+def _wait_for_process_exit(pid: int, timeout: float = 10.0) -> None:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        result = os.waitid(
+            os.P_PID,
+            pid,
+            os.WEXITED | os.WNOHANG | os.WNOWAIT,
+        )
+        if result is not None:
+            assert result.si_code == os.CLD_EXITED
+            assert result.si_status == 0
+            return
+        time.sleep(0.01)
+    raise AssertionError("store owner did not exit before timeout")
+
+
+def _attempt_restore_twice(
+    path: str,
+    backup_path: str,
+    commands,
+    results,
+) -> None:
+    for _ in range(2):
+        assert commands.recv() == "restore"
+        try:
+            restore_database_backup(path, backup_path)
+        except Exception as exc:
+            results.send((type(exc).__name__, str(exc)))
+        else:
+            results.send(("restored", ""))
 
 
 def _sha256(path: Path) -> str:
@@ -979,6 +1063,197 @@ def test_restore_lease_crosses_processes_and_releases_on_store_close(
         assert process.exitcode == 0
 
     restore_database_backup(database_path, backup_path)
+    with sqlite3.connect(database_path) as recovered:
+        assert "recovered" in _tables(recovered)
+
+
+@pytest.mark.skipif(
+    "fork" not in multiprocessing.get_all_start_methods(),
+    reason="POSIX fork semantics are required",
+)
+def test_fork_child_close_preserves_parent_store_lease(tmp_path: Path) -> None:
+    database_path = tmp_path / "fork-parent-restore-target.db"
+    backup_path = tmp_path / "fork-parent-restore-backup.db"
+    with sqlite3.connect(backup_path) as backup:
+        backup.execute("create table recovered (id integer primary key)")
+
+    live_store = SQLiteStore(database_path)
+    fork_context = multiprocessing.get_context("fork")
+    child = fork_context.Process(
+        target=_close_inherited_supported_store,
+        args=(live_store,),
+    )
+    child.start()
+    child.join(timeout=10)
+    if child.is_alive():
+        child.terminate()
+        child.join(timeout=5)
+    assert child.exitcode == 0
+
+    spawn_context = multiprocessing.get_context("spawn")
+    parent_commands, child_commands = spawn_context.Pipe()
+    parent_results, child_results = spawn_context.Pipe()
+    restorer = spawn_context.Process(
+        target=_attempt_restore_twice,
+        args=(
+            str(database_path),
+            str(backup_path),
+            child_commands,
+            child_results,
+        ),
+    )
+    restorer.start()
+    try:
+        parent_commands.send("restore")
+        error_type, error_message = parent_results.recv()
+        assert error_type == "DatabaseInUseError"
+        assert "active SEAM store" in error_message
+
+        live_store.close()
+        parent_commands.send("restore")
+        assert parent_results.recv() == ("restored", "")
+    finally:
+        live_store.close()
+        restorer.join(timeout=10)
+        if restorer.is_alive():
+            restorer.terminate()
+            restorer.join(timeout=5)
+        parent_commands.close()
+        child_commands.close()
+        parent_results.close()
+        child_results.close()
+    assert restorer.exitcode == 0
+
+    with sqlite3.connect(database_path) as recovered:
+        assert "recovered" in _tables(recovered)
+
+
+@pytest.mark.skipif(
+    "fork" not in multiprocessing.get_all_start_methods(),
+    reason="POSIX fork semantics are required",
+)
+def test_fork_child_store_acquires_process_owned_lease(tmp_path: Path) -> None:
+    database_path = tmp_path / "fork-child-restore-target.db"
+    backup_path = tmp_path / "fork-child-restore-backup.db"
+    with sqlite3.connect(backup_path) as backup:
+        backup.execute("create table recovered (id integer primary key)")
+
+    parent_store = SQLiteStore(database_path)
+    fork_context = multiprocessing.get_context("fork")
+    child_started = fork_context.Event()
+    release_child = fork_context.Event()
+    child = fork_context.Process(
+        target=_hold_supported_store,
+        args=(str(database_path), child_started, release_child),
+    )
+    child.start()
+    assert child_started.wait(timeout=10)
+    parent_store.close()
+
+    spawn_context = multiprocessing.get_context("spawn")
+    parent_commands, child_commands = spawn_context.Pipe()
+    parent_results, child_results = spawn_context.Pipe()
+    restorer = spawn_context.Process(
+        target=_attempt_restore_twice,
+        args=(
+            str(database_path),
+            str(backup_path),
+            child_commands,
+            child_results,
+        ),
+    )
+    commands_sent = 0
+    restorer.start()
+    try:
+        parent_commands.send("restore")
+        commands_sent += 1
+        error_type, error_message = parent_results.recv()
+        assert error_type == "DatabaseInUseError"
+        assert "active SEAM store" in error_message
+
+        release_child.set()
+        child.join(timeout=10)
+        assert child.exitcode == 0
+
+        parent_commands.send("restore")
+        commands_sent += 1
+        assert parent_results.recv() == ("restored", "")
+    finally:
+        parent_store.close()
+        release_child.set()
+        child.join(timeout=10)
+        if child.is_alive():
+            child.terminate()
+            child.join(timeout=5)
+        if restorer.is_alive() and commands_sent < 2:
+            restorer.terminate()
+        restorer.join(timeout=10)
+        if restorer.is_alive():
+            restorer.terminate()
+            restorer.join(timeout=5)
+        parent_commands.close()
+        child_commands.close()
+        parent_results.close()
+        child_results.close()
+    assert restorer.exitcode == 0
+
+    with sqlite3.connect(database_path) as recovered:
+        assert "recovered" in _tables(recovered)
+
+
+@pytest.mark.skipif(
+    "fork" not in multiprocessing.get_all_start_methods()
+    or not hasattr(os, "WNOWAIT"),
+    reason="POSIX fork and non-reaping process waits are required",
+)
+def test_closed_fork_child_does_not_retain_store_lease(tmp_path: Path) -> None:
+    database_path = tmp_path / "fork-closed-child-restore-target.db"
+    backup_path = tmp_path / "fork-closed-child-restore-backup.db"
+    with sqlite3.connect(backup_path) as backup:
+        backup.execute("create table recovered (id integer primary key)")
+
+    spawn_context = multiprocessing.get_context("spawn")
+    first_closed = spawn_context.Event()
+    close_last = spawn_context.Event()
+    last_closed = spawn_context.Event()
+    release_child = spawn_context.Event()
+    child_stopped = spawn_context.Event()
+    owner = spawn_context.Process(
+        target=_fork_store_owner,
+        args=(
+            str(database_path),
+            first_closed,
+            close_last,
+            last_closed,
+            release_child,
+            child_stopped,
+        ),
+    )
+    owner.start()
+    try:
+        assert first_closed.wait(timeout=10)
+        assert owner.pid is not None
+        _wait_for_process_exit(owner.pid)
+
+        with pytest.raises(RuntimeError, match="active SEAM store"):
+            restore_database_backup(database_path, backup_path)
+
+        close_last.set()
+        assert last_closed.wait(timeout=10)
+        assert not child_stopped.is_set()
+        restore_database_backup(database_path, backup_path)
+        assert not child_stopped.is_set()
+    finally:
+        close_last.set()
+        release_child.set()
+        child_did_stop = child_stopped.wait(timeout=10)
+        owner.join(timeout=10)
+        if owner.is_alive():
+            owner.terminate()
+            owner.join(timeout=5)
+        assert child_did_stop
+    assert owner.exitcode == 0
+
     with sqlite3.connect(database_path) as recovered:
         assert "recovered" in _tables(recovered)
 

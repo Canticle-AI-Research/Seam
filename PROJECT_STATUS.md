@@ -10,15 +10,19 @@
 ## Current headline
 
 **2026-08-30 — branch-local Track S production-core consolidation starts D1
-from protected `main@780b377`; it is not yet published.** The governing
+and is restacked on protected `main@a408ec3`; it is not yet published.** The governing
 S8-S10 execution spec reconciles the Track S history with the 2026-08-29 deep
 audit, explicitly defers the operator surface, and dependency-orders ten
 controlled TDD streams. The first stream makes canonical-store restore an
 enforced recovery boundary: supported file-backed stores hold a cross-process
 lifetime lease, restore refuses while one is live, recognized WAL state is
 checkpointed, and old sidecars are quarantined before the replacement commit
-point. Seventy-five focused non-external tests and a zero-finding staged
-CodeRabbit review currently qualify D1.1-D1.3. The full 3,057-test
+point. POSIX fork children preserve parent-owned leases, acquire distinct
+child-owned leases for fresh stores, and release inherited duplicates only
+after the final inherited logical store closes. Seventy-eight focused
+non-external tests, the earlier zero-finding staged CodeRabbit review, and a
+zero-finding independent final assurance pass currently qualify D1.1-D1.3.
+The full 3,146-test
 non-external collection exits zero with the explicit existing model cache,
 two expected xfails, and no skips. The systematic filesystem-transition
 failure matrix remains D1.4 work. This does not
