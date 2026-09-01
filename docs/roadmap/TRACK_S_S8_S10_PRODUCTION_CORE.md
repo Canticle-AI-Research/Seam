@@ -298,6 +298,20 @@ the legacy default is either retained explicitly or promoted by S9 evidence.
    the same trust/time/boundary filters.
 4. Exact evidence remains recoverable for every decision.
 
+**Current evidence:** branch `codex/s8-g1-graph-trust` from protected
+`main@72fbaa1` admits contradiction/refutation only when source node, relation,
+source evidence, and edge evidence share the target boundary and requested time
+horizon. Unevidenced status/relation disputes remain explicit ignored inputs;
+trust payloads expose exact episode, graph-edge, and canonical record IDs.
+Graph reads prune edges whose endpoint is filtered. Reasoning-pattern conflicts
+append to the migrated `reasoning-pattern-schema/2` disagreement ledger while
+same-outcome replays remain idempotent and return stored evidence. All 3,269
+selected non-external tests completed with exit 0 and the two established
+xfails; all 23 isolated live-pgvector external tests passed with zero skips; the
+119-case focused matrix, Ruff/diff checks, and two independent reviews are
+green. G1 remains locally qualified until exact-head hosted checks, a
+root-stored receipt, and protected merge complete.
+
 ### R2 - Retrieval Scale and Backend Parity
 
 **Dependency:** R1 correctness before optimization.

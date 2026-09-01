@@ -8,7 +8,7 @@ import sys
 def test_seam_doctor_runs_without_retrieval_orchestrator_imported():
     """seam doctor should succeed even when retrieval_orchestrator is not importable."""
     env = os.environ.copy()
-    env["SEAM_DB"] = ":memory:"
+    env["SEAM_DB_PATH"] = ":memory:"
     result = subprocess.run(
         [sys.executable, "-m", "seam", "doctor"],
         capture_output=True,

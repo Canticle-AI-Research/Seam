@@ -143,7 +143,14 @@ _REQUIRED_PROJECTION_TABLES: Final = {
     "knowledge_graph_vectors": frozenset({"knowledge_node_vectors"}),
     "lifecycle": frozenset({"lifecycle_operation", "lifecycle_event", "lifecycle_batch_payload"}),
     "reasoning_graph": frozenset({"reasoning_node", "reasoning_edge", "reasoning_state"}),
-    "reasoning_patterns": frozenset({"reasoning_pattern", "reasoning_pattern_use", "reasoning_pattern_result"}),
+    "reasoning_patterns": frozenset(
+        {
+            "reasoning_pattern",
+            "reasoning_pattern_use",
+            "reasoning_pattern_result",
+            "reasoning_pattern_result_disagreement",
+        }
+    ),
     "reasoning_promotion": frozenset(
         {
             "reasoning_promotion_proposal",
@@ -167,6 +174,10 @@ _CORE_STORAGE_V2_TABLES: Final = (
     - {"improvement_experiment", "improvement_experiment_event"}
 )
 _CORE_STORAGE_V1_TABLES: Final = _CORE_STORAGE_V2_TABLES - {"ir_edge_sources"}
+_REASONING_PATTERNS_V1_TABLES: Final = (
+    _REQUIRED_PROJECTION_TABLES["reasoning_patterns"]
+    - {"reasoning_pattern_result_disagreement"}
+)
 
 
 class MigrationError(RuntimeError):
@@ -847,6 +858,23 @@ def _upgrade_knowledge_graph_typed_references(
         )
 
 
+def _upgrade_reasoning_pattern_disagreement_ledger(
+    connection: ProjectionMigrationConnection,
+) -> None:
+    """Install the append-only disagreement ledger on existing pattern stores."""
+
+    if connection.execute(
+        "select 1 from sqlite_master where type = 'table' "
+        "and name = 'reasoning_pattern_result_disagreement'"
+    ).fetchone() is not None:
+        raise MigrationError(
+            "reasoning-pattern-schema/1 disagreement ledger is unexpectedly present"
+        )
+    from .reasoning_patterns import init_reasoning_patterns
+
+    init_reasoning_patterns(connection)  # type: ignore[arg-type]
+
+
 # Projection changes are registered statically alongside the code that knows
 # how to perform them. Each transition is exact; arbitrary version ordering is
 # intentionally unsupported.
@@ -895,6 +923,17 @@ PROJECTION_MIGRATIONS: Final[tuple[ProjectionMigration, ...]] = (
         source_required_tables=_REQUIRED_PROJECTION_TABLES["knowledge_graph"],
         target_required_tables=_REQUIRED_PROJECTION_TABLES["knowledge_graph"],
         upgrade=_upgrade_knowledge_graph_typed_references,
+    ),
+    ProjectionMigration(
+        projection_name="reasoning_patterns",
+        from_version="reasoning-pattern-schema/1",
+        to_version="reasoning-pattern-schema/2",
+        name="append-only-reasoning-pattern-disagreement-ledger",
+        source_required_tables=_REASONING_PATTERNS_V1_TABLES,
+        target_required_tables=_REQUIRED_PROJECTION_TABLES[
+            "reasoning_patterns"
+        ],
+        upgrade=_upgrade_reasoning_pattern_disagreement_ledger,
     ),
 )
 

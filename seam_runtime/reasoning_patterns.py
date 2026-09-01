@@ -12,7 +12,7 @@ from .migrations import execute_script
 from .mirl import utc_now
 from .temporal import parse_iso
 
-REASONING_PATTERN_SCHEMA_VERSION = 1
+REASONING_PATTERN_SCHEMA_VERSION = 2
 DEFAULT_PATTERN_MAX_AGE_DAYS = 90
 DEFAULT_PATTERN_MIN_TRUST = 0.5
 _WORD_RE = re.compile(r"[a-z0-9][a-z0-9_.:/+-]*")
@@ -90,12 +90,33 @@ def init_reasoning_patterns(connection: sqlite3.Connection) -> None:
             foreign key (use_id) references reasoning_pattern_use(use_id),
             foreign key (outcome_node_id) references reasoning_node(node_id)
         );
+        create table if not exists reasoning_pattern_result_disagreement (
+            disagreement_id text primary key,
+            use_id text not null,
+            prior_result_id text not null,
+            outcome_node_id text,
+            succeeded integer not null check (succeeded in (0, 1)),
+            reason text,
+            created_at text not null,
+            schema_version integer not null default 1,
+            foreign key (use_id) references reasoning_pattern_use(use_id),
+            foreign key (prior_result_id) references reasoning_pattern_result(result_id),
+            foreign key (outcome_node_id) references reasoning_node(node_id)
+        );
         create index if not exists idx_reasoning_pattern_boundary
             on reasoning_pattern (ns, scope, created_at);
         create index if not exists idx_reasoning_pattern_signature
             on reasoning_pattern (task_signature);
         create index if not exists idx_reasoning_pattern_use_run
             on reasoning_pattern_use (run_id);
+        create index if not exists idx_reasoning_pattern_disagreement_use
+            on reasoning_pattern_result_disagreement (use_id, created_at);
+        create unique index if not exists idx_reasoning_pattern_disagreement_identity
+            on reasoning_pattern_result_disagreement (
+                use_id,
+                succeeded,
+                coalesce(outcome_node_id, '')
+            );
         create trigger if not exists reasoning_pattern_no_update
         before update on reasoning_pattern begin
             select raise(abort, 'reasoning_pattern is append-only');
@@ -119,6 +140,23 @@ def init_reasoning_patterns(connection: sqlite3.Connection) -> None:
         create trigger if not exists reasoning_pattern_result_no_delete
         before delete on reasoning_pattern_result begin
             select raise(abort, 'reasoning_pattern_result is append-only');
+        end;
+        create trigger if not exists reasoning_pattern_disagreement_no_update
+        before update on reasoning_pattern_result_disagreement begin
+            select raise(abort, 'reasoning_pattern_result_disagreement is append-only');
+        end;
+        create trigger if not exists reasoning_pattern_disagreement_no_delete
+        before delete on reasoning_pattern_result_disagreement begin
+            select raise(abort, 'reasoning_pattern_result_disagreement is append-only');
+        end;
+        create trigger if not exists reasoning_pattern_disagreement_prior_guard
+        before insert on reasoning_pattern_result_disagreement
+        when not exists (
+            select 1 from reasoning_pattern_result r
+            where r.result_id = new.prior_result_id
+              and r.use_id = new.use_id
+        ) begin
+            select raise(abort, 'reasoning pattern disagreement prior result does not match use');
         end;
         create trigger if not exists reasoning_pattern_use_scope_guard
         before insert on reasoning_pattern_use
@@ -154,6 +192,30 @@ def init_reasoning_patterns(connection: sqlite3.Connection) -> None:
             )
         ) begin
             select raise(abort, 'successful pattern use requires a verified accepted outcome');
+        end;
+        create trigger if not exists reasoning_pattern_disagreement_guard
+        before insert on reasoning_pattern_result_disagreement
+        when new.succeeded = 1 and (
+            new.outcome_node_id is null or not exists (
+                select 1
+                from reasoning_pattern_use u
+                join reasoning_node n on n.node_id = new.outcome_node_id
+                join reasoning_state s on s.node_id = n.node_id
+                where u.use_id = new.use_id
+                  and n.run_id = u.run_id
+                  and n.kind = 'outcome'
+                  and s.seq = (
+                      select max(latest.seq) from reasoning_state latest
+                      where latest.node_id = n.node_id
+                  )
+                  and s.status = 'accepted'
+                  and exists (
+                      select 1 from reasoning_outcome_verification ov
+                      where ov.outcome_node_id = n.node_id
+                  )
+            )
+        ) begin
+            select raise(abort, 'successful pattern disagreement requires a verified accepted outcome');
         end;
         """
     )
@@ -373,7 +435,7 @@ def distill_reasoning_pattern(
 
 def _pattern_stats(
     connection: sqlite3.Connection, pattern_id: str
-) -> tuple[int, int, int]:
+) -> tuple[int, int, int, int]:
     row = connection.execute(
         """
         select
@@ -386,7 +448,53 @@ def _pattern_stats(
         """,
         (pattern_id,),
     ).fetchone()
-    return int(row["uses"]), int(row["successes"]), int(row["failures"])
+    disagreement = connection.execute(
+        """
+        select
+            count(d.disagreement_id) as disagreements,
+            coalesce(sum(case when d.succeeded = 1 then 1 else 0 end), 0) as successes,
+            coalesce(sum(case when d.succeeded = 0 then 1 else 0 end), 0) as failures
+        from reasoning_pattern_result_disagreement d
+        join reasoning_pattern_use u on u.use_id = d.use_id
+        where u.pattern_id = ?
+        """,
+        (pattern_id,),
+    ).fetchone()
+    return (
+        int(row["uses"]),
+        int(row["successes"]) + int(disagreement["successes"]),
+        int(row["failures"]) + int(disagreement["failures"]),
+        int(disagreement["disagreements"]),
+    )
+
+
+def _pattern_disagreements(
+    connection: sqlite3.Connection, pattern_id: str
+) -> list[dict[str, object]]:
+    rows = connection.execute(
+        """
+        select d.*, r.succeeded as prior_succeeded
+        from reasoning_pattern_result_disagreement d
+        join reasoning_pattern_use u on u.use_id = d.use_id
+        join reasoning_pattern_result r on r.result_id = d.prior_result_id
+        where u.pattern_id = ?
+        order by d.created_at, d.disagreement_id
+        """,
+        (pattern_id,),
+    ).fetchall()
+    return [
+        {
+            "disagreement_id": str(row["disagreement_id"]),
+            "use_id": str(row["use_id"]),
+            "prior_result_id": str(row["prior_result_id"]),
+            "prior_succeeded": bool(row["prior_succeeded"]),
+            "later_succeeded": bool(row["succeeded"]),
+            "outcome_node_id": row["outcome_node_id"],
+            "reason": row["reason"],
+            "created_at": str(row["created_at"]),
+        }
+        for row in rows
+    ]
 
 
 def _pattern_validity(
@@ -437,7 +545,7 @@ def _parse_timestamp(value: str) -> datetime:
 def _pattern_payload(
     connection: sqlite3.Connection, row: sqlite3.Row
 ) -> dict[str, object]:
-    uses, reuse_successes, failures = _pattern_stats(
+    uses, reuse_successes, failures, disagreement_count = _pattern_stats(
         connection, str(row["pattern_id"])
     )
     successes = 1 + reuse_successes
@@ -460,6 +568,10 @@ def _pattern_payload(
         "uses": uses,
         "successes": successes,
         "failures": failures,
+        "disagreement_count": disagreement_count,
+        "disagreements": _pattern_disagreements(
+            connection, str(row["pattern_id"])
+        ),
         "trust_score": trust,
         "created_at": str(row["created_at"]),
         "schema_version": int(row["schema_version"]),
@@ -623,11 +735,13 @@ def record_reasoning_pattern_result(
         and str(use["run_id"]) != expected_run_id
     ):
         raise ValueError("reasoning pattern use does not belong to this run")
+    normalized_reason = str(reason).strip() if reason is not None else ""
+    resolved_reason = normalized_reason[:1024] or None
     existing = connection.execute(
         "select * from reasoning_pattern_result where use_id = ?", (use_id,)
     ).fetchone()
     if existing is not None:
-        return {
+        prior = {
             "result_id": str(existing["result_id"]),
             "use_id": str(existing["use_id"]),
             "outcome_node_id": existing["outcome_node_id"],
@@ -635,8 +749,54 @@ def record_reasoning_pattern_result(
             "reason": existing["reason"],
             "created_at": str(existing["created_at"]),
         }
+        if (
+            prior["succeeded"] == succeeded
+            and prior["outcome_node_id"] == outcome_node_id
+        ):
+            return prior
+        disagreement = connection.execute(
+            "select * from reasoning_pattern_result_disagreement "
+            "where use_id = ? and succeeded = ? "
+            "and coalesce(outcome_node_id, '') = coalesce(?, '')",
+            (use_id, int(succeeded), outcome_node_id),
+        ).fetchone()
+        if disagreement is None:
+            disagreement_id = f"rdis:{uuid4().hex}"
+            resolved_created_at = created_at or utc_now()
+            disagreement_prior_result_id = str(prior["result_id"])
+            connection.execute(
+                "insert into reasoning_pattern_result_disagreement "
+                "(disagreement_id, use_id, prior_result_id, outcome_node_id, "
+                "succeeded, reason, created_at, schema_version) "
+                "values (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    disagreement_id,
+                    use_id,
+                    prior["result_id"],
+                    outcome_node_id,
+                    int(succeeded),
+                    resolved_reason,
+                    resolved_created_at,
+                    REASONING_PATTERN_SCHEMA_VERSION,
+                ),
+            )
+        else:
+            disagreement_id = str(disagreement["disagreement_id"])
+            resolved_created_at = str(disagreement["created_at"])
+            disagreement_prior_result_id = str(disagreement["prior_result_id"])
+            outcome_node_id = disagreement["outcome_node_id"]
+            succeeded = bool(disagreement["succeeded"])
+            resolved_reason = disagreement["reason"]
+        return {
+            "result_id": disagreement_id,
+            "use_id": use_id,
+            "outcome_node_id": outcome_node_id,
+            "succeeded": succeeded,
+            "reason": resolved_reason,
+            "created_at": resolved_created_at,
+            "disagrees_with": disagreement_prior_result_id,
+        }
     result_id = f"rres:{uuid4().hex}"
-    resolved_reason = str(reason).strip()[:1024] if reason else None
     resolved_created_at = created_at or utc_now()
     connection.execute(
         "insert into reasoning_pattern_result "

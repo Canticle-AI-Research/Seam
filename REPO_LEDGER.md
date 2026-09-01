@@ -400,6 +400,16 @@ and `HISTORY_INDEX.md`.
   Python policy through a connection-lifecycle UDF. Canonical MIRL timestamp
   text is not rewritten; derived graph/context metadata may use canonical UTC
   keys. See HISTORY#627.
+- G1 trust demotion is evidence-gated. A contradiction or refutation relation
+  participates only when its source node, relation, source episode, and edge
+  episode are visible at the same time and namespace/scope boundary. A bare
+  contradicted status without independent evidence remains unverified, not
+  refuted. Every trust result exposes exact episode, graph-edge, and canonical
+  record IDs for used and ignored inputs, and every returned graph edge has two
+  returned endpoints. Repeated reasoning-pattern outcomes are idempotent by
+  success state plus outcome ID; genuinely conflicting outcomes append to the
+  guarded `reasoning-pattern-schema/2` disagreement ledger and remain visible
+  in pattern trust statistics. See HISTORY#628.
 - G5 context assembly is a disposable `context-assembly/2` PACK over current
   canonical facts/entities/episodes and G4 products. Every item retains exact
   record and episode backtraces; derived items also retain their product ID.

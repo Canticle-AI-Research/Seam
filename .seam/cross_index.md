@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 691
+total_events: 692
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-20T02:46:05Z | history:433:c3150c72 | session-event | done | retrieval, benchmark, mem0-harness, lever, recovery | seam_runtime/event_count_context.py,seam_runtime/retrieval.py,benchmarks/exte... |
 | 2026-07-20T09:48:51Z | history:434:291b0956 | session-event | done | benchmark, locomo, paid-run, negative-result, mem0-harness | benchmarks/external/mem0_harness/microgate_event_count_context.py,tests/audit... |
 | 2026-07-20T13:40:00Z | history:435:ec698280 | session-event | done | benchmark, locomo, mirl, retrieval, compile, provenance, ... | seam_runtime/derived_fact_context.py,seam_runtime/nl_extract.py,seam_runtime/... |
 | 2026-07-20T14:03:53Z | history:436:1394218c | session-event | done | handoff, benchmark, retrieval, derived-facts, plan | docs/handoffs/2026-07-20-derived-facts-landed-and-kb-scaffold.md,docs/handoff... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-01T07:30:52Z | history:625:b19ab757 | session-event | changed | history, correction, continuity, verify, handoff, status | HISTORY.md,HISTORY_INDEX.md,docs/handoffs/2026-09-01-track-s-d4-locally-quali... |
 | 2026-09-01T09:05:40Z | history:626:d11694cf | session-event | done | temporal, storage, graph, retrieval, reconcile, context, ... | seam_runtime/temporal.py; tests/audit/test_temporal_semantics_contract.py; do... |
 | 2026-09-01T09:07:07Z | history:627:60846791 | session-event | changed | history, correction, continuity, verify, handoff, temporal | seam_runtime/temporal.py,tests/audit/test_temporal_semantics_contract.py,docs... |
+| 2026-09-01T18:48:03Z | history:628:abb91d25 | session-event | done | graph, trust, provenance, temporal, test, tests, verify, ... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0491.cross.md | 2026-04-15T00:00:00Z..2026-07-20T01:52:14Z | 491 | (multi) | (multi) |
+| 0001-0492.cross.md | 2026-04-15T00:00:00Z..2026-07-20T02:46:05Z | 492 | (multi) | (multi) |
