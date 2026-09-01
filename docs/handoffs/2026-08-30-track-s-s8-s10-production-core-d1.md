@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-08-30-track-s-s8-s10-production-core-d1
 supersedes: 2026-08-29-grounded-research-acquisition-roadmap
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#620
 ---
 

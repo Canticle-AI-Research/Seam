@@ -50,19 +50,15 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Track S operating state
 
-- Branch-local D1.1-D1.3 at `feat/s8-s10-production-core` enforce restore as a
-  canonical-store recovery boundary. Supported stores retain a lifetime
-  cross-process lease; restore refuses against a live store, checkpoints valid
-  WAL state, and quarantines old sidecars before replacement. Fork children
-  keep inherited leases parent-safe, acquire process-owned leases for fresh
-  stores, and close inherited duplicate handles by logical refcount.
-  Seventy-eight
-  focused non-external tests, the earlier zero-finding staged CodeRabbit
-  review, and a zero-finding independent final assurance pass cover the
-  candidate. The full 3,146-test non-external collection also exits zero
-  with the existing pinned-model cache, two expected xfails, and no skips. The
-  systematic filesystem-transition failure matrix remains D1.4. This is not
-  protected-main fact and does not complete S8-S10.
+- Protected `main@71c1489` contains D1.1-D1.3 through PR #237. Branch-local
+  D1.4 at `feat/d1-restore-failure-matrix` adds private, default-off seams for
+  every supported restore operation and completed transition. Exact relational
+  state, integrity, foreign keys, WAL stabilization, replacement interruption,
+  rollback continuation, and primary-error preservation are covered by 125
+  focused tests. The 3,193-case non-external collection exits zero with two
+  established xfails, all 23 live pgvector external cases pass, and independent
+  assurance reports zero findings. D1.4 is locally qualified but not yet
+  protected-main fact; D2 and the rest of S8-S10 remain open.
 - S1 routes real Uvicorn `--factory` startup through the same bind and worker
   safety validation as normal launch.
 - `tools.security.secret_scan` owns the canonical secret/session patterns.

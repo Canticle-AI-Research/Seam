@@ -170,13 +170,16 @@ The accepted lock protocol is recorded in
 5. Injected failure at every filesystem transition yields either the complete
    old state or complete backup state; reopen passes integrity/FK checks.
 
-**Current branch evidence:** D1.1-D1.3 are implemented. The focused recovery
-slice passes 78 tests, including parent-owned, child-owned, and inherited
-refcount POSIX fork lifecycles. The complete 3,146-test non-external collection exits
-zero with two expected xfails and no skips when routed to the existing pinned
-model cache, and staged CodeRabbit review reports zero findings. D1.4 remains
-open for the systematic filesystem-transition failure matrix; this stream and
-S8 therefore remain incomplete.
+**Current evidence:** protected `main@71c1489` contains D1.1-D1.3 through PR
+#237. Branch-local D1.4 adds named, private, default-off failure seams before
+real filesystem operations and after completed transitions. Exact old/backup
+relational payloads, integrity, foreign keys, recognized WAL rows, both sides
+of the replacement commit boundary, rollback continuation, and primary-error
+preservation are green across 125 focused tests. The complete 3,193-case
+non-external collection exits zero with two established xfails, all 23 live
+pgvector external cases pass, and independent assurance reports zero findings.
+D1.4 still requires exact-head hosted qualification and protected merge; S8
+therefore remains incomplete.
 
 ### D2 - Atomic Ingest
 
@@ -325,11 +328,12 @@ decision.
 
 ## Immediate execution order
 
-1. D1.1 live-store restore refusal (branch-local candidate complete).
-2. D1.2 multi-process lease and post-close restore (branch-local candidate complete).
-3. D1.3 stale-sidecar crash-safe restore commit point (branch-local candidate complete).
-4. D1.4 systematic filesystem-transition failure matrix.
-5. D2 atomic ingest.
+1. D1.1 live-store restore refusal (protected-main complete).
+2. D1.2 multi-process lease and post-close restore (protected-main complete).
+3. D1.3 stale-sidecar crash-safe restore commit point (protected-main complete).
+4. D1.4 systematic filesystem-transition failure matrix (locally qualified;
+   exact-head hosted qualification and protected merge remain).
+5. D2 atomic ingest (next after D1.4 merges).
 6. D3 lifecycle exclusion across every Product Core read.
 7. D4 and T1 correctness slices.
 8. G1 and R1, followed by R2.

@@ -131,6 +131,33 @@ def _attempt_restore_twice(
             results.send(("restored", ""))
 
 
+def _leave_valid_restore_wal(path: str) -> None:
+    connection = sqlite3.connect(path)
+    connection.execute("pragma foreign_keys=ON")
+    connection.execute("pragma journal_mode=WAL")
+    connection.execute("insert into restore_parent values (2, 'wal-parent')")
+    connection.execute("insert into restore_child values (2, 2, 'wal-child')")
+    connection.commit()
+    os._exit(0)
+
+
+def _interrupt_restore_at_transition(
+    path: str,
+    backup_path: str,
+    transition: str,
+) -> None:
+    def interrupt(event) -> None:
+        if event.name == transition:
+            os._exit(73)
+
+    restore_database_backup(
+        path,
+        backup_path,
+        _failure_injector=interrupt,
+    )
+    os._exit(74)
+
+
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -144,6 +171,133 @@ def _assert_sqlite_checks(
 ) -> None:
     assert [str(row[0]) for row in connection.execute("pragma integrity_check")] == ["ok"]
     assert connection.execute("pragma foreign_key_check").fetchall() == []
+
+
+def _create_restore_state(path: Path, marker: str) -> None:
+    if marker == "old":
+        row_id = 1
+    elif marker == "backup":
+        row_id = 7
+    else:
+        raise ValueError(f"unknown restore fixture marker: {marker}")
+    with sqlite3.connect(path) as connection:
+        connection.execute("pragma foreign_keys=ON")
+        connection.execute(
+            "create table restore_marker (value text primary key)"
+        )
+        connection.execute("insert into restore_marker values (?)", (marker,))
+        connection.execute(
+            "create table restore_parent ("
+            "id integer primary key, payload text not null)"
+        )
+        connection.execute(
+            "create table restore_child ("
+            "id integer primary key, parent_id integer not null "
+            "references restore_parent(id), payload text not null)"
+        )
+        connection.execute(
+            "insert into restore_parent values (?, ?)",
+            (row_id, f"{marker}-parent"),
+        )
+        connection.execute(
+            "insert into restore_child values (?, ?, ?)",
+            (row_id, row_id, f"{marker}-child"),
+        )
+
+
+def _assert_restore_state(
+    path: Path,
+    marker: str,
+    *,
+    wal_added: bool = False,
+) -> None:
+    row_id = 1 if marker == "old" else 7
+    expected_parents = [(row_id, f"{marker}-parent")]
+    expected_children = [(row_id, row_id, f"{marker}-child")]
+    if wal_added:
+        assert marker == "old"
+        expected_parents.append((2, "wal-parent"))
+        expected_children.append((2, 2, "wal-child"))
+    with sqlite3.connect(path) as connection:
+        connection.execute("pragma foreign_keys=ON")
+        assert connection.execute(
+            "select value from restore_marker"
+        ).fetchall() == [(marker,)]
+        assert connection.execute(
+            "select id, payload from restore_parent order by id"
+        ).fetchall() == expected_parents
+        assert connection.execute(
+            "select id, parent_id, payload from restore_child order by id"
+        ).fetchall() == expected_children
+        _assert_sqlite_checks(connection)
+
+
+def _restore_residues(database_path: Path) -> tuple[list[Path], list[Path]]:
+    temporary = sorted(
+        database_path.parent.glob(f".{database_path.name}.restore-*.sqlite3")
+    )
+    quarantined = sorted(
+        database_path.parent.glob(f".{database_path.name}.restore-old-*")
+    )
+    return temporary, quarantined
+
+
+def _prepare_restore_case(
+    tmp_path: Path,
+    name: str,
+) -> tuple[Path, Path, dict[str, bytes]]:
+    database_path = tmp_path / f"{name}-target.db"
+    backup_path = tmp_path / f"{name}-backup.db"
+    _create_restore_state(database_path, "old")
+    _create_restore_state(backup_path, "backup")
+    sidecar_bytes = {
+        suffix: f"{name}-sidecar{suffix}".encode()
+        for suffix in ("-wal", "-shm", "-journal")
+    }
+    for suffix, content in sidecar_bytes.items():
+        Path(f"{database_path}{suffix}").write_bytes(content)
+    return database_path, backup_path, sidecar_bytes
+
+
+def _assert_restore_case(
+    database_path: Path,
+    expected_state: str,
+    sidecar_bytes: dict[str, bytes],
+    *,
+    quarantine_suffixes: tuple[str, ...] = (),
+    temporary_count: int = 0,
+) -> None:
+    temporary, quarantined = _restore_residues(database_path)
+    assert len(temporary) == temporary_count
+    assert tuple(
+        suffix
+        for suffix in ("-wal", "-shm", "-journal")
+        if any(path.name.endswith(suffix) for path in quarantined)
+    ) == quarantine_suffixes
+    if expected_state == "old":
+        assert quarantined == []
+        assert {
+            suffix: Path(f"{database_path}{suffix}").read_bytes()
+            for suffix in sidecar_bytes
+        } == sidecar_bytes
+    else:
+        assert all(
+            not Path(f"{database_path}{suffix}").exists()
+            for suffix in sidecar_bytes
+        )
+    _assert_restore_state(database_path, expected_state)
+
+
+def test_restore_state_oracle_rejects_hybrid_marker_and_payload(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "hybrid-oracle.db"
+    _create_restore_state(database_path, "old")
+    with sqlite3.connect(database_path) as connection:
+        connection.execute("update restore_marker set value = 'backup'")
+
+    with pytest.raises(AssertionError):
+        _assert_restore_state(database_path, "backup")
 
 
 def test_every_maintained_historical_fixture_is_registered() -> None:
@@ -1337,6 +1491,462 @@ def test_failed_sidecar_cleanup_does_not_commit_the_restored_database(
 
     assert database_path.read_bytes() == original_bytes
     assert stale_journal.read_bytes() == b"stale-journal"
+
+
+_POSIX_PERMISSIONS_REQUIRED = pytest.mark.skipif(
+    os.name == "nt",
+    reason="POSIX temporary-file permissions are unavailable",
+)
+_DIRECTORY_FSYNC_REQUIRED = pytest.mark.skipif(
+    os.name == "nt",
+    reason="directory fsync is unavailable on Windows",
+)
+
+
+@pytest.mark.parametrize(
+    ("transition", "expected_state", "expected_quarantine_suffixes"),
+    [
+        ("copy-backup-to-temp", "old", ()),
+        pytest.param(
+            "set-temp-permissions",
+            "old",
+            (),
+            marks=_POSIX_PERMISSIONS_REQUIRED,
+        ),
+        ("fsync-temp", "old", ()),
+        ("fsync-stabilized-target", "old", ()),
+        ("stabilize-target", "old", ()),
+        ("quarantine-sidecar:-wal", "old", ()),
+        ("quarantine-sidecar:-shm", "old", ()),
+        ("quarantine-sidecar:-journal", "old", ()),
+        pytest.param(
+            "fsync-precommit-directory",
+            "old",
+            (),
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+        ("commit-replacement", "backup", ()),
+        pytest.param(
+            "fsync-postcommit-directory",
+            "backup",
+            (),
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+        ("cleanup-quarantine:-wal", "backup", ("-shm", "-journal")),
+        ("cleanup-quarantine:-shm", "backup", ("-journal",)),
+        ("cleanup-quarantine:-journal", "backup", ()),
+        pytest.param(
+            "fsync-final-cleanup-directory",
+            "backup",
+            (),
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+    ],
+)
+def test_restore_transition_failure_matrix_preserves_complete_state(
+    tmp_path: Path,
+    transition: str,
+    expected_state: str,
+    expected_quarantine_suffixes: tuple[str, ...],
+) -> None:
+    database_path, backup_path, sidecar_bytes = _prepare_restore_case(
+        tmp_path, "transition-matrix"
+    )
+
+    reached: list[tuple[str, str]] = []
+
+    def fail_at_requested_transition(event) -> None:
+        assert vars(event) == {
+            "name": event.name,
+            "durable_state": event.durable_state,
+        }
+        reached.append((event.name, event.durable_state))
+        if event.name == transition:
+            raise RuntimeError(f"injected restore transition: {transition}")
+
+    with pytest.raises(RuntimeError, match=f"restore transition: {transition}"):
+        restore_database_backup(
+            database_path,
+            backup_path,
+            _failure_injector=fail_at_requested_transition,
+        )
+
+    assert (transition, expected_state) in reached
+    _assert_restore_case(
+        database_path,
+        expected_state,
+        sidecar_bytes,
+        quarantine_suffixes=expected_quarantine_suffixes,
+    )
+
+
+@pytest.mark.parametrize(
+    ("operation", "expected_state", "expected_quarantine_suffixes"),
+    [
+        ("copy-backup-to-temp", "old", ()),
+        pytest.param(
+            "set-temp-permissions",
+            "old",
+            (),
+            marks=_POSIX_PERMISSIONS_REQUIRED,
+        ),
+        ("fsync-temp", "old", ()),
+        ("fsync-stabilized-target", "old", ()),
+        ("quarantine-sidecar:-wal", "old", ()),
+        ("quarantine-sidecar:-shm", "old", ()),
+        ("quarantine-sidecar:-journal", "old", ()),
+        pytest.param(
+            "fsync-precommit-directory",
+            "old",
+            (),
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+        ("commit-replacement", "old", ()),
+        pytest.param(
+            "fsync-postcommit-directory",
+            "backup",
+            (),
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+        ("cleanup-quarantine:-wal", "backup", ("-wal",)),
+        ("cleanup-quarantine:-shm", "backup", ("-shm",)),
+        ("cleanup-quarantine:-journal", "backup", ("-journal",)),
+        pytest.param(
+            "fsync-final-cleanup-directory",
+            "backup",
+            (),
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+    ],
+)
+def test_restore_operation_failure_matrix_preserves_complete_state(
+    tmp_path: Path,
+    operation: str,
+    expected_state: str,
+    expected_quarantine_suffixes: tuple[str, ...],
+) -> None:
+    database_path, backup_path, sidecar_bytes = _prepare_restore_case(
+        tmp_path, "operation-matrix"
+    )
+
+    reached: list[tuple[str, str]] = []
+
+    def fail_operation(event) -> None:
+        assert vars(event) == {
+            "name": event.name,
+            "durable_state": event.durable_state,
+        }
+        reached.append((event.name, event.durable_state))
+        if event.name == operation:
+            raise OSError(f"injected restore operation failure: {operation}")
+
+    if operation.startswith("cleanup-quarantine:"):
+        restore_database_backup(
+            database_path,
+            backup_path,
+            _operation_failure_injector=fail_operation,
+        )
+    else:
+        with pytest.raises(OSError, match=f"operation failure: {operation}"):
+            restore_database_backup(
+                database_path,
+                backup_path,
+                _operation_failure_injector=fail_operation,
+            )
+
+    assert (operation, expected_state) in reached
+    _assert_restore_case(
+        database_path,
+        expected_state,
+        sidecar_bytes,
+        quarantine_suffixes=expected_quarantine_suffixes,
+    )
+
+
+@pytest.mark.parametrize(
+    "secondary_transition",
+    [
+        "rollback-restore-sidecar:-journal",
+        "rollback-restore-sidecar:-shm",
+        "rollback-restore-sidecar:-wal",
+        pytest.param(
+            "fsync-rollback-directory",
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+        "remove-temp-file",
+    ],
+)
+def test_restore_two_fault_rollback_preserves_primary_and_complete_old_state(
+    tmp_path: Path,
+    secondary_transition: str,
+) -> None:
+    database_path, backup_path, sidecar_bytes = _prepare_restore_case(
+        tmp_path, "rollback-matrix"
+    )
+
+    reached: list[tuple[str, str]] = []
+
+    def fail_primary_then_secondary(event) -> None:
+        reached.append((event.name, event.durable_state))
+        if event.name == "fsync-precommit-directory":
+            raise RuntimeError("primary restore failure")
+        if event.name == secondary_transition:
+            raise OSError(f"secondary rollback failure: {secondary_transition}")
+
+    with pytest.raises(RuntimeError, match="primary restore failure"):
+        restore_database_backup(
+            database_path,
+            backup_path,
+            _failure_injector=fail_primary_then_secondary,
+        )
+
+    assert (secondary_transition, "old") in reached
+    reached_names = {name for name, _state in reached}
+    assert {
+        "rollback-restore-sidecar:-journal",
+        "rollback-restore-sidecar:-shm",
+        "rollback-restore-sidecar:-wal",
+        "fsync-rollback-directory",
+        "remove-temp-file",
+    }.issubset(reached_names)
+    _assert_restore_case(database_path, "old", sidecar_bytes)
+
+
+@pytest.mark.parametrize(
+    ("secondary_operation", "expected_temporary_count"),
+    [
+        ("rollback-restore-sidecar:-journal", 0),
+        ("rollback-restore-sidecar:-shm", 0),
+        ("rollback-restore-sidecar:-wal", 0),
+        pytest.param(
+            "fsync-rollback-directory",
+            0,
+            marks=_DIRECTORY_FSYNC_REQUIRED,
+        ),
+        ("remove-temp-file", 1),
+    ],
+)
+def test_restore_actual_rollback_failure_preserves_primary_and_old_state(
+    tmp_path: Path,
+    secondary_operation: str,
+    expected_temporary_count: int,
+) -> None:
+    database_path, backup_path, sidecar_bytes = _prepare_restore_case(
+        tmp_path, "actual-rollback"
+    )
+
+    reached: list[tuple[str, str]] = []
+    secondary_failed = False
+
+    def fail_primary_and_one_rollback_operation(event) -> None:
+        nonlocal secondary_failed
+        reached.append((event.name, event.durable_state))
+        if event.name == "fsync-precommit-directory":
+            raise RuntimeError("primary operation failure")
+        if event.name == secondary_operation and not secondary_failed:
+            secondary_failed = True
+            raise OSError(f"secondary operation failure: {secondary_operation}")
+
+    with pytest.raises(RuntimeError, match="primary operation failure") as exc_info:
+        restore_database_backup(
+            database_path,
+            backup_path,
+            _operation_failure_injector=fail_primary_and_one_rollback_operation,
+        )
+
+    assert (secondary_operation, "old") in reached
+    assert any(
+        secondary_operation in note and "OSError" in note
+        for note in exc_info.value.__notes__
+    )
+    _assert_restore_case(
+        database_path,
+        "old",
+        sidecar_bytes,
+        temporary_count=expected_temporary_count,
+    )
+
+
+@_DIRECTORY_FSYNC_REQUIRED
+def test_final_directory_failure_does_not_mask_postcommit_primary(
+    tmp_path: Path,
+) -> None:
+    database_path, backup_path, sidecar_bytes = _prepare_restore_case(
+        tmp_path, "final-fsync-primary"
+    )
+
+    def fail_postcommit_and_final_fsync(event) -> None:
+        if event.name == "fsync-postcommit-directory":
+            raise RuntimeError("primary postcommit operation failure")
+        if event.name == "fsync-final-cleanup-directory":
+            raise OSError("secondary final directory fsync failure")
+
+    with pytest.raises(
+        RuntimeError,
+        match="primary postcommit operation failure",
+    ) as exc_info:
+        restore_database_backup(
+            database_path,
+            backup_path,
+            _operation_failure_injector=fail_postcommit_and_final_fsync,
+        )
+
+    assert any(
+        "fsync-final-cleanup-directory" in note and "OSError" in note
+        for note in exc_info.value.__notes__
+    )
+    _assert_restore_case(database_path, "backup", sidecar_bytes)
+
+
+@pytest.mark.parametrize(
+    "transition",
+    ["checkpoint-target-wal", "set-target-journal-delete"],
+)
+def test_restore_wal_stabilization_transitions_are_reachable(
+    tmp_path: Path,
+    transition: str,
+) -> None:
+    database_path = tmp_path / "wal-matrix-target.db"
+    backup_path = tmp_path / "wal-matrix-backup.db"
+    _create_restore_state(database_path, "old")
+    _create_restore_state(backup_path, "backup")
+    process_context = multiprocessing.get_context("spawn")
+    writer = process_context.Process(
+        target=_leave_valid_restore_wal,
+        args=(str(database_path),),
+    )
+    writer.start()
+    writer.join(timeout=10)
+    if writer.is_alive():
+        writer.terminate()
+        writer.join(timeout=5)
+    assert writer.exitcode == 0
+    assert Path(f"{database_path}-wal").read_bytes()[:4] in {
+        b"\x37\x7f\x06\x82",
+        b"\x37\x7f\x06\x83",
+    }
+
+    reached: list[tuple[str, str]] = []
+
+    def fail_at_requested_transition(event) -> None:
+        reached.append((event.name, event.durable_state))
+        if event.name == transition:
+            raise RuntimeError(f"injected restore transition: {transition}")
+
+    with pytest.raises(RuntimeError, match=f"restore transition: {transition}"):
+        restore_database_backup(
+            database_path,
+            backup_path,
+            _failure_injector=fail_at_requested_transition,
+        )
+
+    assert (transition, "old") in reached
+    assert _restore_residues(database_path) == ([], [])
+    _assert_restore_state(database_path, "old", wal_added=True)
+
+
+@pytest.mark.parametrize(
+    ("operation", "expected_active_sidecars"),
+    [
+        ("checkpoint-target-wal", ("-wal", "-shm")),
+        ("set-target-journal-delete", ()),
+    ],
+)
+def test_restore_wal_operation_failures_preserve_complete_old_state(
+    tmp_path: Path,
+    operation: str,
+    expected_active_sidecars: tuple[str, ...],
+) -> None:
+    database_path = tmp_path / "wal-operation-target.db"
+    backup_path = tmp_path / "wal-operation-backup.db"
+    _create_restore_state(database_path, "old")
+    _create_restore_state(backup_path, "backup")
+    process_context = multiprocessing.get_context("spawn")
+    writer = process_context.Process(
+        target=_leave_valid_restore_wal,
+        args=(str(database_path),),
+    )
+    writer.start()
+    writer.join(timeout=10)
+    if writer.is_alive():
+        writer.terminate()
+        writer.join(timeout=5)
+    assert writer.exitcode == 0
+
+    reached: list[tuple[str, str]] = []
+
+    def fail_operation(event) -> None:
+        reached.append((event.name, event.durable_state))
+        if event.name == operation:
+            raise OSError(f"injected restore operation failure: {operation}")
+
+    with pytest.raises(OSError, match=f"operation failure: {operation}"):
+        restore_database_backup(
+            database_path,
+            backup_path,
+            _operation_failure_injector=fail_operation,
+        )
+
+    assert (operation, "old") in reached
+    assert _restore_residues(database_path) == ([], [])
+    assert tuple(
+        suffix
+        for suffix in ("-wal", "-shm", "-journal")
+        if Path(f"{database_path}{suffix}").exists()
+    ) == expected_active_sidecars
+    _assert_restore_state(database_path, "old", wal_added=True)
+
+
+@pytest.mark.skipif(
+    os.name == "nt",
+    reason="abrupt POSIX process exit is required",
+)
+@pytest.mark.parametrize(
+    ("transition", "expected_state", "expected_temporary_count"),
+    [
+        ("fsync-precommit-directory", "old", 1),
+        ("commit-replacement", "backup", 0),
+    ],
+)
+def test_restore_interruption_respects_commit_boundary(
+    tmp_path: Path,
+    transition: str,
+    expected_state: str,
+    expected_temporary_count: int,
+) -> None:
+    database_path = tmp_path / "interruption-target.db"
+    backup_path = tmp_path / "interruption-backup.db"
+    _create_restore_state(database_path, "old")
+    _create_restore_state(backup_path, "backup")
+    for suffix in ("-wal", "-shm", "-journal"):
+        Path(f"{database_path}{suffix}").write_bytes(
+            f"interruption-sidecar{suffix}".encode()
+        )
+
+    process_context = multiprocessing.get_context("spawn")
+    restorer = process_context.Process(
+        target=_interrupt_restore_at_transition,
+        args=(str(database_path), str(backup_path), transition),
+    )
+    restorer.start()
+    restorer.join(timeout=10)
+    if restorer.is_alive():
+        restorer.terminate()
+        restorer.join(timeout=5)
+    assert restorer.exitcode == 73
+
+    temporary, quarantined = _restore_residues(database_path)
+    assert len(temporary) == expected_temporary_count
+    assert tuple(
+        suffix
+        for suffix in ("-wal", "-shm", "-journal")
+        if any(path.name.endswith(suffix) for path in quarantined)
+    ) == ("-wal", "-shm", "-journal")
+    assert all(
+        not Path(f"{database_path}{suffix}").exists()
+        for suffix in ("-wal", "-shm", "-journal")
+    )
+    _assert_restore_state(database_path, expected_state)
 
 
 @pytest.mark.parametrize(

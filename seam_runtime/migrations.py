@@ -16,13 +16,14 @@ import os
 import re
 import shutil
 import sqlite3
+import sys
 import tempfile
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from contextlib import closing
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Final
+from typing import Final, Literal
 from uuid import uuid4
 
 from .mirl import MIRLRecord
@@ -950,6 +951,85 @@ FailureInjector = Callable[
     [MigrationStep | ProjectionMigration, ProjectionMigrationConnection],
     None,
 ]
+
+
+@dataclass(frozen=True)
+class _RestoreTransition:
+    name: str
+    durable_state: Literal["old", "backup"]
+
+
+_RestoreFailureInjector = Callable[[_RestoreTransition], None]
+
+
+@dataclass(frozen=True)
+class _RestoreOperation:
+    name: str
+    durable_state: Literal["old", "backup"]
+
+
+_RestoreOperationFailureInjector = Callable[[_RestoreOperation], None]
+
+
+def _before_restore_operation(
+    failure_injector: _RestoreOperationFailureInjector | None,
+    name: str,
+    *,
+    replacement_committed: bool,
+) -> None:
+    if failure_injector is None:
+        return
+    failure_injector(
+        _RestoreOperation(
+            name=name,
+            durable_state="backup" if replacement_committed else "old",
+        )
+    )
+
+
+def _after_restore_transition(
+    failure_injector: _RestoreFailureInjector | None,
+    name: str,
+    *,
+    replacement_committed: bool,
+) -> None:
+    if failure_injector is None:
+        return
+    failure_injector(
+        _RestoreTransition(
+            name=name,
+            durable_state="backup" if replacement_committed else "old",
+        )
+    )
+
+
+def _record_secondary_restore_failure(
+    primary_error: BaseException,
+    transition: str,
+    secondary_error: BaseException,
+) -> None:
+    primary_error.add_note(
+        f"secondary restore transition {transition} failed with "
+        f"{type(secondary_error).__name__}"
+    )
+
+
+def _run_restore_directory_fsync(
+    path: Path,
+    failure_injector: _RestoreOperationFailureInjector | None,
+    name: str,
+    *,
+    replacement_committed: bool,
+) -> bool:
+    if os.name == "nt":
+        return False
+    _before_restore_operation(
+        failure_injector,
+        name,
+        replacement_committed=replacement_committed,
+    )
+    _fsync_directory(path)
+    return True
 
 
 def execute_script(connection: sqlite3.Connection, script: str) -> None:
@@ -2215,7 +2295,12 @@ def _read_prefix(path: Path, length: int) -> bytes:
         return handle.read(length)
 
 
-def _stabilize_restore_target(database_path: Path) -> None:
+def _stabilize_restore_target(
+    database_path: Path,
+    *,
+    failure_injector: _RestoreFailureInjector | None = None,
+    operation_failure_injector: _RestoreOperationFailureInjector | None = None,
+) -> None:
     """Make a valid old target self-contained before detaching its sidecars."""
 
     if not database_path.is_file():
@@ -2230,16 +2315,46 @@ def _stabilize_restore_target(database_path: Path) -> None:
     } or journal_magic == b"\xd9\xd5\x05\xf9\x20\xa1\x63\xd7"
     if not recognized_recovery_state:
         with database_path.open("rb") as target_file:
+            _before_restore_operation(
+                operation_failure_injector,
+                "fsync-stabilized-target",
+                replacement_committed=False,
+            )
             os.fsync(target_file.fileno())
+        _after_restore_transition(
+            failure_injector,
+            "fsync-stabilized-target",
+            replacement_committed=False,
+        )
         return
     try:
         with closing(sqlite3.connect(str(database_path), timeout=0.0)) as connection:
+            _before_restore_operation(
+                operation_failure_injector,
+                "checkpoint-target-wal",
+                replacement_committed=False,
+            )
             checkpoint = connection.execute("pragma wal_checkpoint(TRUNCATE)").fetchone()
             if checkpoint is not None and int(checkpoint[0]) != 0:
                 raise DatabaseInUseError(
                     "database has an active SQLite user; close it before restore"
                 )
+            _after_restore_transition(
+                failure_injector,
+                "checkpoint-target-wal",
+                replacement_committed=False,
+            )
+            _before_restore_operation(
+                operation_failure_injector,
+                "set-target-journal-delete",
+                replacement_committed=False,
+            )
             connection.execute("pragma journal_mode=DELETE").fetchone()
+            _after_restore_transition(
+                failure_injector,
+                "set-target-journal-delete",
+                replacement_committed=False,
+            )
     except DatabaseInUseError:
         raise
     except sqlite3.DatabaseError:
@@ -2251,10 +2366,26 @@ def _stabilize_restore_target(database_path: Path) -> None:
             "validated backup and quarantining every old sidecar"
         )
     with database_path.open("rb") as target_file:
+        _before_restore_operation(
+            operation_failure_injector,
+            "fsync-stabilized-target",
+            replacement_committed=False,
+        )
         os.fsync(target_file.fileno())
+    _after_restore_transition(
+        failure_injector,
+        "fsync-stabilized-target",
+        replacement_committed=False,
+    )
 
 
-def restore_database_backup(path: str | Path, backup_path: str | Path) -> None:
+def restore_database_backup(
+    path: str | Path,
+    backup_path: str | Path,
+    *,
+    _failure_injector: _RestoreFailureInjector | None = None,
+    _operation_failure_injector: _RestoreOperationFailureInjector | None = None,
+) -> None:
     """Validate and atomically restore one pre-migration SQLite backup.
 
     The caller must close every runtime using ``path`` before restore. SQLite
@@ -2280,12 +2411,51 @@ def restore_database_backup(path: str | Path, backup_path: str | Path) -> None:
         quarantined_sidecars: list[tuple[Path, Path]] = []
         replacement_committed = False
         try:
+            _before_restore_operation(
+                _operation_failure_injector,
+                "copy-backup-to-temp",
+                replacement_committed=False,
+            )
             shutil.copyfile(source_path, temporary_path)
+            _after_restore_transition(
+                _failure_injector,
+                "copy-backup-to-temp",
+                replacement_committed=False,
+            )
             if os.name != "nt":
+                _before_restore_operation(
+                    _operation_failure_injector,
+                    "set-temp-permissions",
+                    replacement_committed=False,
+                )
                 temporary_path.chmod(0o600)
+                _after_restore_transition(
+                    _failure_injector,
+                    "set-temp-permissions",
+                    replacement_committed=False,
+                )
             with temporary_path.open("rb") as temporary_file:
+                _before_restore_operation(
+                    _operation_failure_injector,
+                    "fsync-temp",
+                    replacement_committed=False,
+                )
                 os.fsync(temporary_file.fileno())
-            _stabilize_restore_target(database_path)
+            _after_restore_transition(
+                _failure_injector,
+                "fsync-temp",
+                replacement_committed=False,
+            )
+            _stabilize_restore_target(
+                database_path,
+                failure_injector=_failure_injector,
+                operation_failure_injector=_operation_failure_injector,
+            )
+            _after_restore_transition(
+                _failure_injector,
+                "stabilize-target",
+                replacement_committed=False,
+            )
             quarantine_token = uuid4().hex
             for suffix in ("-wal", "-shm", "-journal"):
                 sidecar = Path(f"{database_path}{suffix}")
@@ -2294,25 +2464,188 @@ def restore_database_backup(path: str | Path, backup_path: str | Path) -> None:
                 quarantine = database_path.parent / (
                     f".{database_path.name}.restore-old-{quarantine_token}{suffix}"
                 )
+                _before_restore_operation(
+                    _operation_failure_injector,
+                    f"quarantine-sidecar:{suffix}",
+                    replacement_committed=False,
+                )
                 os.replace(sidecar, quarantine)
                 quarantined_sidecars.append((sidecar, quarantine))
-            _fsync_directory(database_path.parent)
+                _after_restore_transition(
+                    _failure_injector,
+                    f"quarantine-sidecar:{suffix}",
+                    replacement_committed=False,
+                )
+            if _run_restore_directory_fsync(
+                database_path.parent,
+                _operation_failure_injector,
+                "fsync-precommit-directory",
+                replacement_committed=False,
+            ):
+                _after_restore_transition(
+                    _failure_injector,
+                    "fsync-precommit-directory",
+                    replacement_committed=False,
+                )
+            _before_restore_operation(
+                _operation_failure_injector,
+                "commit-replacement",
+                replacement_committed=False,
+            )
             os.replace(temporary_path, database_path)
             replacement_committed = True
-            _fsync_directory(database_path.parent)
-        except BaseException:
+            _after_restore_transition(
+                _failure_injector,
+                "commit-replacement",
+                replacement_committed=True,
+            )
+            if _run_restore_directory_fsync(
+                database_path.parent,
+                _operation_failure_injector,
+                "fsync-postcommit-directory",
+                replacement_committed=True,
+            ):
+                _after_restore_transition(
+                    _failure_injector,
+                    "fsync-postcommit-directory",
+                    replacement_committed=True,
+                )
+        except BaseException as primary_error:
             if not replacement_committed:
+                failed_rollback_restores: list[tuple[Path, Path, str]] = []
                 for sidecar, quarantine in reversed(quarantined_sidecars):
                     if quarantine.exists() and not sidecar.exists():
+                        suffix = sidecar.name.removeprefix(database_path.name)
+                        transition = f"rollback-restore-sidecar:{suffix}"
+                        try:
+                            _before_restore_operation(
+                                _operation_failure_injector,
+                                transition,
+                                replacement_committed=False,
+                            )
+                            os.replace(quarantine, sidecar)
+                        except BaseException as secondary_error:
+                            _record_secondary_restore_failure(
+                                primary_error,
+                                transition,
+                                secondary_error,
+                            )
+                            failed_rollback_restores.append(
+                                (sidecar, quarantine, transition)
+                            )
+                            continue
+                        try:
+                            _after_restore_transition(
+                                _failure_injector,
+                                transition,
+                                replacement_committed=False,
+                            )
+                        except BaseException as secondary_error:
+                            _record_secondary_restore_failure(
+                                primary_error,
+                                transition,
+                                secondary_error,
+                            )
+                for sidecar, quarantine, transition in failed_rollback_restores:
+                    if not quarantine.exists() or sidecar.exists():
+                        continue
+                    try:
+                        _before_restore_operation(
+                            _operation_failure_injector,
+                            transition,
+                            replacement_committed=False,
+                        )
                         os.replace(quarantine, sidecar)
-                _fsync_directory(database_path.parent)
+                    except BaseException as secondary_error:
+                        _record_secondary_restore_failure(
+                            primary_error,
+                            transition,
+                            secondary_error,
+                        )
+                        continue
+                    try:
+                        _after_restore_transition(
+                            _failure_injector,
+                            transition,
+                            replacement_committed=False,
+                        )
+                    except BaseException as secondary_error:
+                        _record_secondary_restore_failure(
+                            primary_error,
+                            transition,
+                            secondary_error,
+                        )
+                try:
+                    rollback_directory_synced = _run_restore_directory_fsync(
+                        database_path.parent,
+                        _operation_failure_injector,
+                        "fsync-rollback-directory",
+                        replacement_committed=False,
+                    )
+                except BaseException as secondary_error:
+                    _record_secondary_restore_failure(
+                        primary_error,
+                        "fsync-rollback-directory",
+                        secondary_error,
+                    )
+                else:
+                    if rollback_directory_synced:
+                        try:
+                            _after_restore_transition(
+                                _failure_injector,
+                                "fsync-rollback-directory",
+                                replacement_committed=False,
+                            )
+                        except BaseException as secondary_error:
+                            _record_secondary_restore_failure(
+                                primary_error,
+                                "fsync-rollback-directory",
+                                secondary_error,
+                            )
             raise
         finally:
+            active_error = sys.exception()
             if temporary_path.exists():
-                temporary_path.unlink()
-            if replacement_committed:
-                for _sidecar, quarantine in quarantined_sidecars:
+                try:
+                    _before_restore_operation(
+                        _operation_failure_injector,
+                        "remove-temp-file",
+                        replacement_committed=replacement_committed,
+                    )
+                    temporary_path.unlink()
+                except BaseException as secondary_error:
+                    if active_error is None:
+                        raise
+                    _record_secondary_restore_failure(
+                        active_error,
+                        "remove-temp-file",
+                        secondary_error,
+                    )
+                else:
                     try:
+                        _after_restore_transition(
+                            _failure_injector,
+                            "remove-temp-file",
+                            replacement_committed=replacement_committed,
+                        )
+                    except BaseException as secondary_error:
+                        if active_error is None:
+                            raise
+                        _record_secondary_restore_failure(
+                            active_error,
+                            "remove-temp-file",
+                            secondary_error,
+                        )
+            if replacement_committed:
+                for sidecar, quarantine in quarantined_sidecars:
+                    try:
+                        suffix = sidecar.name.removeprefix(database_path.name)
+                        transition = f"cleanup-quarantine:{suffix}"
+                        _before_restore_operation(
+                            _operation_failure_injector,
+                            transition,
+                            replacement_committed=True,
+                        )
                         quarantine.unlink(missing_ok=True)
                     except OSError:
                         LOGGER.warning(
@@ -2320,4 +2653,49 @@ def restore_database_backup(path: str | Path, backup_path: str | Path) -> None:
                             "sidecar could not be removed: %s",
                             quarantine.name,
                         )
-                _fsync_directory(database_path.parent)
+                    else:
+                        try:
+                            _after_restore_transition(
+                                _failure_injector,
+                                transition,
+                                replacement_committed=True,
+                            )
+                        except BaseException as secondary_error:
+                            if active_error is None:
+                                raise
+                            _record_secondary_restore_failure(
+                                active_error,
+                                transition,
+                                secondary_error,
+                            )
+                try:
+                    final_directory_synced = _run_restore_directory_fsync(
+                        database_path.parent,
+                        _operation_failure_injector,
+                        "fsync-final-cleanup-directory",
+                        replacement_committed=True,
+                    )
+                except BaseException as secondary_error:
+                    if active_error is None:
+                        raise
+                    _record_secondary_restore_failure(
+                        active_error,
+                        "fsync-final-cleanup-directory",
+                        secondary_error,
+                    )
+                else:
+                    if final_directory_synced:
+                        try:
+                            _after_restore_transition(
+                                _failure_injector,
+                                "fsync-final-cleanup-directory",
+                                replacement_committed=True,
+                            )
+                        except BaseException as secondary_error:
+                            if active_error is None:
+                                raise
+                            _record_secondary_restore_failure(
+                                active_error,
+                                "fsync-final-cleanup-directory",
+                                secondary_error,
+                            )

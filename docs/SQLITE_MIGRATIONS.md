@@ -149,6 +149,15 @@ from the recovered version. Restore is an explicit rollback to the
 pre-migration snapshot: it intentionally discards any commits made after that
 backup was captured.
 
+The restore failure contract is checked at each supported copy, permission,
+file-fsync, WAL checkpoint, journal normalization, sidecar move, directory-
+fsync, replacement, rollback, temporary-file removal, and quarantine-cleanup
+boundary. Failures before the database replacement preserve the complete old
+logical state; failures after it preserve the complete backup logical state.
+Secondary rollback or cleanup errors are attached to, and do not replace, the
+initiating exception. Directory-fsync and abrupt-process interruption evidence
+is POSIX-scoped because Windows does not expose the same operations.
+
 ## Qualification
 
 `tests/audit/test_sqlite_migration_spine.py` proves:
@@ -183,3 +192,10 @@ backup was captured.
   without changing the target; restore succeeds after the final lease closes;
 - sidecar quarantine failure occurs before the replacement commit point and
   leaves the old database active.
+- named completed-transition and real pre-operation failure matrices reopen to
+  exact old-or-backup relational payloads with integrity and foreign keys
+  valid, including recognized WAL state;
+- replacement interruption proves the durable commit boundary, while rollback
+  restoration, temporary cleanup, quarantine cleanup, and final directory
+  durability faults preserve the primary exception and the appropriate
+  logical state.

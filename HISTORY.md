@@ -20281,3 +20281,45 @@ exact-head hosted checks, root-stored release qualification, protected merge,
 and an exact-main resume remain required before this becomes protected-main
 fact.
 ---END-ENTRY-#620---
+
+---BEGIN-ENTRY-#621---
+id: 621
+date: 2026-09-01T04:20:44Z
+agent: codex
+status: done
+topics: storage, docker, atomicity, bugfix, continuity, handoff, history, test, tests, verify
+commits: pending
+refs: seam_runtime/migrations.py,tests/audit/test_sqlite_migration_spine.py,PROJECT_STATUS.md,REPO_LEDGER.md,docs/SQLITE_MIGRATIONS.md,docs/status/operations.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-09-01-track-s-d1-locally-qualified-d2-next.md
+supersedes: 620
+tokens: 366
+---
+Closed the branch-local D1.4 restore failure-matrix gap on protected
+main@71c1489 after PR 237 published D1.1-D1.3. Private default-off seams now
+name both pre-operation and completed-transition restore boundaries without
+changing ordinary callers. The systematic matrix distinguishes complete old
+and backup relational payloads, checks SQLite integrity and foreign keys,
+preserves recognized WAL rows, brackets the replacement commit point with
+spawned interruption, retries rollback sidecar restoration, and retains the
+initiating exception when temporary cleanup or final directory durability also
+fails.
+
+Independent assurance first rejected the marker-only oracle, callback-only
+failure coverage, and masked-primary cleanup behavior. Three additional
+root-recorded red-green cycles repaired those exact defects. The final
+assurance rerun reproduced real commit-replacement, rollback-replace,
+temporary-unlink, and final-directory-fsync failures and returned PASS with no
+finding. Windows scope remains explicit: directory fsync and abrupt POSIX
+process-exit evidence are not claimed there.
+
+The focused migration, restore, and snapshot slice passes 125 tests. The full
+nonexternal collection completes 3,193 cases with two established expected
+failures and no failure or skip using the pinned local model cache. All 23
+external tests pass against the healthy local pgvector container on its actual
+published host port. Changed runtime/test Ruff and git diff checks are clean.
+
+D1 is locally qualified, not protected-main complete. This branch still
+requires explicit staging, signed commit, push, fresh exact-head hosted checks,
+a root-stored QUALIFIED receipt, protected merge, and exact-main resume. D2 is
+next only after that merge. S8 remains incomplete; S9, S10, release,
+deployment, and hosted-production claims remain unchanged.
+---END-ENTRY-#621---
