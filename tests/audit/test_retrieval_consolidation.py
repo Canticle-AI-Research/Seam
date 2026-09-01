@@ -274,43 +274,42 @@ def test_canonical_retrieval_fuses_explicit_temporal_context(tmp_path) -> None:
         runtime.close()
 
 
-def test_canonical_planner_rejects_mixed_temporal_awareness(tmp_path) -> None:
+def test_canonical_planner_normalizes_mixed_temporal_awareness(tmp_path) -> None:
     runtime = _runtime(tmp_path)
     try:
-        with pytest.raises(
-            ValueError,
-            match="endpoints must both be naive or timezone-aware",
-        ):
-            runtime.retrieve(
-                "Alice event",
-                budget=2,
-                temporal_window=(
-                    datetime(2024, 3, 1),
-                    datetime(2024, 5, 31, tzinfo=UTC),
-                ),
-            )
+        result = runtime.retrieve(
+            "Alice event",
+            budget=2,
+            include_trace=True,
+            temporal_window=(
+                datetime(2024, 3, 1),
+                datetime(2024, 5, 31, tzinfo=UTC),
+            ),
+        )
+        assert result.trace is not None
+        assert result.trace["plan"]["temporal_window_applied"] is True
     finally:
         runtime.close()
 
 
-def test_canonical_planner_rejects_reference_window_awareness_mismatch(
+def test_canonical_planner_normalizes_reference_window_awareness_mismatch(
     tmp_path,
 ) -> None:
     runtime = _runtime(tmp_path)
     try:
-        with pytest.raises(
-            ValueError,
-            match="temporal_reference and temporal_window must agree",
-        ):
-            runtime.retrieve(
-                "Alice event",
-                budget=2,
-                temporal_reference=datetime(2024, 4, 15, tzinfo=UTC),
-                temporal_window=(
-                    datetime(2024, 3, 1),
-                    datetime(2024, 5, 31),
-                ),
-            )
+        result = runtime.retrieve(
+            "Alice event",
+            budget=2,
+            include_trace=True,
+            temporal_reference=datetime(2024, 4, 15, tzinfo=UTC),
+            temporal_window=(
+                datetime(2024, 3, 1),
+                datetime(2024, 5, 31),
+            ),
+        )
+        assert result.trace is not None
+        assert result.trace["plan"]["temporal_reference_applied"] is True
+        assert result.trace["plan"]["temporal_window_applied"] is True
     finally:
         runtime.close()
 

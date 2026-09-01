@@ -21,7 +21,7 @@ from .mirl import (
     iter_textual_fields,
 )
 from .symbols import build_symbol_maps
-from .temporal import parse_iso, temporal_distance_score
+from .temporal import normalize_datetime, parse_iso, temporal_distance_score
 
 LOGGER = logging.getLogger(__name__)
 
@@ -537,6 +537,15 @@ _CURRENT_EXCLUDED_STATUSES = {
 
 
 def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: int = 5, vector_scores: dict[str, float] | None = None, namespace: str | None = None, include_raw: bool = False, bm25_index: BM25Index | None = None, temporal_window: tuple[datetime, datetime] | None = None, temporal_reference: datetime | None = None, flags: RetrievalFlags | None = None) -> SearchResult:
+    if temporal_reference is not None:
+        temporal_reference = normalize_datetime(temporal_reference)
+    if temporal_window is not None:
+        temporal_window = (
+            normalize_datetime(temporal_window[0]),
+            normalize_datetime(temporal_window[1]),
+        )
+        if temporal_window[0] > temporal_window[1]:
+            raise ValueError("temporal_window start must not follow its end")
     flags = flags or RetrievalFlags()
     _, symbol_to_expansion = build_symbol_maps(batch.records, namespace=namespace)
     expanded_query = _expand_query(query, symbol_to_expansion)

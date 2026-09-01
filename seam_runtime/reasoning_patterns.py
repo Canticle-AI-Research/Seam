@@ -5,11 +5,12 @@ import json
 import math
 import re
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import uuid4
 
 from .migrations import execute_script
 from .mirl import utc_now
+from .temporal import parse_iso
 
 REASONING_PATTERN_SCHEMA_VERSION = 1
 DEFAULT_PATTERN_MAX_AGE_DAYS = 90
@@ -427,9 +428,10 @@ def _pattern_validity(
 
 
 def _parse_timestamp(value: str) -> datetime:
-    resolved = str(value).replace("Z", "+00:00")
-    parsed = datetime.fromisoformat(resolved)
-    return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=timezone.utc)
+    parsed = parse_iso(value)
+    if parsed is None:
+        raise ValueError("timestamp must be valid ISO-8601")
+    return parsed
 
 
 def _pattern_payload(

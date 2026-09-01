@@ -209,9 +209,9 @@ def _support_paths(
     seed_placeholders = ",".join("?" for _ in seed_ids)
     status_placeholders = ",".join("?" for _ in EXCLUDED_STATUSES)
     where = [
-        "e.expired_at is null",
+        "(e.expired_at is null or trim(e.expired_at) = '')",
         f"e.status not in ({status_placeholders})",
-        "ep.expired_at is null",
+        "(ep.expired_at is null or trim(ep.expired_at) = '')",
         f"ep.status not in ({status_placeholders})",
         f"(e.src_id in ({seed_placeholders}) or e.dst_id in ({seed_placeholders}))",
     ]
@@ -256,7 +256,7 @@ def _support_paths(
                 )
     mention_where = [
         f"ep.status not in ({status_placeholders})",
-        "ep.expired_at is null",
+        "(ep.expired_at is null or trim(ep.expired_at) = '')",
         f"ne.node_id in ({seed_placeholders})",
     ]
     mention_params: list[object] = [*EXCLUDED_STATUSES, *seed_ids]

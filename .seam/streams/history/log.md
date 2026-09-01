@@ -20444,3 +20444,39 @@ tokens: 135
 ---
 Metadata correction for HISTORY#624 under the append-only history contract. The topic sqlite is not in AGENTS.md's controlled vocabulary. The effective valid topic set for the D4 qualification entry is bugfix, storage, snapshot, test, tests, verify, continuity, handoff, status, and roadmap. All substantive D4 implementation, qualification, claim-boundary, and next-step facts recorded in HISTORY#624 remain unchanged. The current D4 handoff advances to this strictly later correction entry so startup routing resolves the valid metadata.
 ---END-ENTRY-#625---
+
+---BEGIN-ENTRY-#626---
+id: 626
+date: 2026-09-01T09:05:40Z
+agent: codex-gpt-5
+status: done
+topics: temporal, storage, graph, retrieval, reconcile, context, tests, verify, handoff, continuity
+commits: pending
+refs: seam_runtime/temporal.py; tests/audit/test_temporal_semantics_contract.py; docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md; docs/handoffs/2026-09-01-track-s-t1-locally-qualified-g1-next.md
+supersedes: 625
+tokens: 474
+---
+T1 Temporal Semantics is locally qualified on codex/t1-public-seam from protected main@0f4bd829058aa65770b1f25ef092f4bd166b8bd2 after D4 merged through PR #242.
+
+One policy in seam_runtime/temporal.py now owns Z/z, numeric offsets, naive-as-UTC values, missing/blank interval bounds, invalid fail-closed values, canonical extrema, and the SQLite timestamp UDF. Reconciliation, graph as-of/current visibility and deterministic ordering, stale horizons, graph-source selection, graph products, trace, self-improvement probes, context assembly, reasoning patterns, and legacy/RRF temporal retrieval use that policy. Original MIRL timestamp text remains unchanged; derived comparison and projection metadata may use canonical UTC keys. Context bytes and naive-time admission are versioned as context-assembly/2, including the qualification manifest.
+
+Root-witnessed public tests and two independent reviewers rejected partial iterations for aware legacy retrieval, blank interval handling, context parser drift, snapshot/direct SQLite UDF registration, lexical derived timestamp writers, stale contract labeling, blank starts, graph-source selection, and blank expiration across G4/G5/trace/self-improvement. Every reproduction is covered and both final reviews report no finding.
+
+Verification on the exact working tree: the 130-case affected matrix passed; changed-file Ruff and git diff --check passed; the full provider-free selection collected 3,257 cases after deselecting 23 external tests and exited 0 with the two established xfails; the live external lane then passed all 23 tests with strict no-skip. The first external attempt failed only because PGVECTOR_TEST_DSN was absent; the rerun used the supported private local environment without exposing credentials. An interrupted run left one ignored transient SQLite artifact; it was preserved under test_seam/t1-full rather than deleted, after which artifact hygiene passed 5/5.
+
+T1 is locally qualified, not protected-main complete. Commit, push, exact-head hosted checks, root-stored QUALIFIED receipt, protected merge, and exact-main verification remain. After that, G1 is the next isolated stream; R1 and then R2 remain before the S8 freeze. S9/S10, release, deployment, and hosted-production claims remain unopened.
+---END-ENTRY-#626---
+
+---BEGIN-ENTRY-#627---
+id: 627
+date: 2026-09-01T09:07:07Z
+agent: codex-gpt-5
+status: changed
+topics: history, correction, continuity, verify, handoff, temporal
+commits: pending
+refs: seam_runtime/temporal.py,tests/audit/test_temporal_semantics_contract.py,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-09-01-track-s-t1-locally-qualified-g1-next.md
+supersedes: 626
+tokens: 105
+---
+Correction to HISTORY#626: the implementation, qualification, and claim-boundary body remains factual, but its refs field was passed to the append tool with semicolons and therefore became one nonexistent path. This append-only successor records the same four references as separate canonical refs and owns the locally-qualified T1 handoff chronology. No runtime behavior, test result, or protected-main claim changes.
+---END-ENTRY-#627---

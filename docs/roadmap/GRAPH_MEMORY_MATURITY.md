@@ -94,7 +94,7 @@ Already present:
   observations. Latest reads are boundary-scoped and every derived sentence
   retains exact supporting record and episode IDs; only current supported or
   verified facts may contribute text;
-- G5 `context-assembly/1` PACKs facts, entities, episodes, G4 summaries, and
+- G5 `context-assembly/2` PACKs facts, entities, episodes, G4 summaries, and
   observations by task, trust, time, and exact token budget. Every rendered
   item retains record/episode/product backtraces, grounded facts receive an
   explicit non-displacement reservation, and order/truncation are deterministic;

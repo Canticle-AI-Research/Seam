@@ -247,6 +247,32 @@ def test_contradicted_superseded_expired_and_cross_scope_are_excluded() -> None:
     assert result == []
 
 
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_blank_expiration_is_open_across_edge_episode_and_mention_paths(
+    blank: str,
+) -> None:
+    conn = _connect()
+    _node(conn, "ent:alice", "Alice")
+    _node(conn, "ent:bob", "Bob")
+    _node(conn, "ent:hub", "Hub")
+    _episode(conn, "ep_edge", "raw:R1", expired_at=blank)
+    _episode(conn, "ep_mention", "raw:R1", expired_at=blank)
+    _edge(
+        conn,
+        "e1",
+        "ent:alice",
+        "ent:hub",
+        "ep_edge",
+        expired_at=blank,
+    )
+    _mention(conn, "ent:bob", "ep_mention", "raw:R1")
+    conn.commit()
+
+    result = select_graph_source_raw(conn, "alice bob", ns="n", scope="s")
+
+    assert [selection.source_record_id for selection in result] == ["raw:R1"]
+
+
 def test_one_concept_across_multiple_nodes_does_not_inflate_agreement() -> None:
     # "Carol" is a single query term represented as both an entity and a value
     # node, both grounding raw:R1. One-to-one concept/token matching means the
