@@ -233,6 +233,7 @@ from .reference_contracts import (
     validate_typed_ir_edges,
 )
 from .retry import retry_db_operation
+from .store_lease import StoreUseLease
 from .tenancy import is_principal_namespace, principal_tenant_id
 from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
 from .vector_outbox import (
@@ -329,51 +330,58 @@ class SQLiteStore:
     ) -> None:
         self.path = str(path)
         self._mem_anchor: sqlite3.Connection | None = None
+        self._store_use_lease: StoreUseLease | None = None
+        self._pool: SnapshotAwarePool | None = None
         self._verified_improvement_heads: dict[str, tuple[int, str]] = {}
-        if self.path != ":memory:":
-            resolved = Path(self.path).expanduser().resolve()
-            self.path = str(resolved)
-            # Resolve the snapshot key before anything can open a connection:
-            # ``_connect`` reports every physical open against it.
-            self._snapshot_key = snapshot_key_for_path(self.path)
-            _prepare_private_database(resolved)
-            self.migration_result = migrate_database(
-                resolved,
-                initialize_schema=self._initialize_current_schema,
-                expected_projection_versions=STORE_PROJECTION_VERSIONS,
-                failure_injector=_migration_failure_injector,
-                backup_dir=_migration_backup_dir,
+        try:
+            if self.path != ":memory:":
+                resolved = Path(self.path).expanduser().resolve()
+                self.path = str(resolved)
+                # Resolve the snapshot key before anything can open a connection:
+                # ``_connect`` reports every physical open against it.
+                self._snapshot_key = snapshot_key_for_path(self.path)
+                _prepare_private_database(resolved)
+                self._store_use_lease = StoreUseLease(resolved)
+                self.migration_result = migrate_database(
+                    resolved,
+                    initialize_schema=self._initialize_current_schema,
+                    expected_projection_versions=STORE_PROJECTION_VERSIONS,
+                    failure_injector=_migration_failure_injector,
+                    backup_dir=_migration_backup_dir,
+                )
+            else:
+                # A private in-memory database cannot be shared by path, so it is
+                # keyed on this store and never joins another database's snapshot.
+                self._snapshot_key = memory_snapshot_key(self)
+                # Keep one anchor connection alive so that the shared in-memory
+                # database persists across per-operation connections.
+                self._mem_anchor = sqlite3.connect(
+                    f"file:mem_{id(self)}?mode=memory&cache=shared",
+                    uri=True,
+                    timeout=5.0,
+                    check_same_thread=False,
+                )
+                self._mem_anchor.row_factory = sqlite3.Row
+                self.migration_result = migrate_memory_database(
+                    self._mem_anchor,
+                    initialize_schema=self._initialize_current_schema,
+                    expected_projection_versions=STORE_PROJECTION_VERSIONS,
+                )
+            resolved_pool_size = pool_size if pool_size is not None else int(os.environ.get("SEAM_DB_POOL_SIZE", "5"))
+            # A file database is shared by identity of the file, so any other reader
+            # of the same path -- notably the SQLite vector index, which is opened on
+            # ``store.path`` -- joins this store's read snapshot.
+            self._pool = SnapshotAwarePool(
+                ConnectionPool(
+                    connect_factory=self._connect,
+                    pool_size=resolved_pool_size,
+                    idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
+                ),
+                self._snapshot_key,
             )
-        else:
-            # A private in-memory database cannot be shared by path, so it is
-            # keyed on this store and never joins another database's snapshot.
-            self._snapshot_key = memory_snapshot_key(self)
-            # Keep one anchor connection alive so that the shared in-memory
-            # database persists across per-operation connections.
-            self._mem_anchor = sqlite3.connect(
-                f"file:mem_{id(self)}?mode=memory&cache=shared",
-                uri=True,
-                timeout=5.0,
-                check_same_thread=False,
-            )
-            self._mem_anchor.row_factory = sqlite3.Row
-            self.migration_result = migrate_memory_database(
-                self._mem_anchor,
-                initialize_schema=self._initialize_current_schema,
-                expected_projection_versions=STORE_PROJECTION_VERSIONS,
-            )
-        resolved_pool_size = pool_size if pool_size is not None else int(os.environ.get("SEAM_DB_POOL_SIZE", "5"))
-        # A file database is shared by identity of the file, so any other reader
-        # of the same path -- notably the SQLite vector index, which is opened on
-        # ``store.path`` -- joins this store's read snapshot.
-        self._pool = SnapshotAwarePool(
-            ConnectionPool(
-                connect_factory=self._connect,
-                pool_size=resolved_pool_size,
-                idle_timeout=int(os.environ.get("SEAM_DB_POOL_TIMEOUT", "300")),
-            ),
-            self._snapshot_key,
-        )
+        except BaseException:
+            self.close()
+            raise
 
     @contextmanager
     def read_snapshot(self):
@@ -438,12 +446,18 @@ class SQLiteStore:
         return connection
 
     def close(self) -> None:
-        pool = getattr(self, "_pool", None)
-        if pool is not None:
-            pool.close()
-        if self._mem_anchor is not None:
-            self._mem_anchor.close()
-            self._mem_anchor = None
+        try:
+            pool = getattr(self, "_pool", None)
+            if pool is not None:
+                pool.close()
+            if self._mem_anchor is not None:
+                self._mem_anchor.close()
+                self._mem_anchor = None
+        finally:
+            lease = self._store_use_lease
+            if lease is not None:
+                lease.close()
+                self._store_use_lease = None
 
     def __enter__(self) -> "SQLiteStore":
         return self

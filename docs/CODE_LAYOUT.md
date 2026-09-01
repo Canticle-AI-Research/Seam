@@ -13,6 +13,9 @@ not have to infer what works from directory names alone.
   registries, read-only then exclusive-owner preflight, same-owner retained
   backups, separately committed integrity/foreign-key-gated steps, and explicit
   atomic recovery.
+- `seam_runtime/store_lease.py` - lifetime shared leases for supported
+  file-backed canonical stores and the exclusive maintenance lease required by
+  byte-replacing recovery.
 - `seam_runtime/retrieval_orchestrator/` - the single canonical multi-leg
   retrieval engine (planner, SQL/vector/graph/temporal adapters, and fixed
   rank-normalized merger) powering runtime `retrieve`, compatibility

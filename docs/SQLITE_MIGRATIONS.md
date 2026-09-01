@@ -122,21 +122,32 @@ than skipping the guarded supersession rebuild.
 
 ## Recovery
 
-Quiesce writers and close every runtime and SQLite handle first, then restore
-the exact backup:
+Quiesce writers and close every runtime and `SQLiteStore` first, then restore
+the exact backup. Every supported file-backed store holds a lifetime shared
+lease; restore takes the corresponding exclusive maintenance lease without
+waiting and raises `DatabaseInUseError` instead of crossing a live store:
+
+On POSIX, forked children do not share lease-registry ownership with their
+parent. A child that opens its own store acquires its own process-local lease,
+while closing an inherited parent store in the child cannot unlock the
+parent-owned lease.
 
 ```python
-from seam_runtime.migrations import restore_database_backup
+from seam_runtime.migrations import DatabaseInUseError, restore_database_backup
 
 restore_database_backup("seam.db", "seam.db.seam-backups/seam.pre-migration-v0-<id>.sqlite3")
 ```
 
 Recovery validates the backup's SQLite integrity and foreign keys, copies it to
-a same-directory temporary file, fsyncs it, removes only the target database's
-stale SQLite sidecars, and atomically replaces the target. Reopening SEAM then
-runs the supported upgrade again from the recovered version. Restore is an
-explicit rollback to the pre-migration snapshot: it intentionally discards any
-commits made after that backup was captured.
+a same-directory temporary file, and fsyncs it. Recognized live WAL/journal
+state is checkpointed into the old target; every remaining old sidecar is moved
+to a non-SQLite quarantine name and directory-fsynced before the restored file
+becomes the single replacement commit point. A crash can therefore reopen the
+self-contained old target or the restored target, but an old WAL cannot attach
+to the restored bytes. Reopening SEAM then runs the supported upgrade again
+from the recovered version. Restore is an explicit rollback to the
+pre-migration snapshot: it intentionally discards any commits made after that
+backup was captured.
 
 ## Qualification
 
@@ -168,3 +179,7 @@ commits made after that backup was captured.
 - missing, extra, and changed unregistered projection states remain
   byte-unchanged and create no backup;
 - a pre-migration backup restores deleted canonical truth and re-upgrades.
+- a live supported store refuses restore in-process and across processes,
+  without changing the target; restore succeeds after the final lease closes;
+- sidecar quarantine failure occurs before the replacement commit point and
+  leaves the old database active.

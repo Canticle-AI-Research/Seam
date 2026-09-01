@@ -2,16 +2,16 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S5 is published through PR #199 at `main@19b3a76`,
-qualified by `HISTORY#532` and published by `HISTORY#533`; S4 remains recorded
-by `HISTORY#530` and `HISTORY#531`. Later S1 deterministic-SQL-tie and S5
-soft-delete/outbox-replay counterexamples are repaired on the 2026-08-18 audit
-candidate and must land with fresh regression evidence before S6 begins.
+**Latest evidence:** S0-S7 are published. The bounded S8 mechanism slice is
+published through PR #228 at `main@bb156e3` and HISTORY#605-#607; S8 remains
+open at the boundary-only SQL decision and the explicitly S9-gated legacy
+default decision. The current controlled execution plan is
+[`TRACK_S_S8_S10_PRODUCTION_CORE.md`](TRACK_S_S8_S10_PRODUCTION_CORE.md).
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** S0-S5 are merged; the audit-candidate S1/S5 repairs
-are the next publication prerequisite. S6 then begins from the later protected
-head, not from an unmerged base.
+**Publication boundary:** S0-S7 and the named S8 mechanism slice are merged.
+Later audit findings enter the completion path only after reproduction against
+current protected main and a governing-invariant check.
 
 Track S is the production-hardening campaign for SEAM's durable-memory core.
 It converts the verified F1-F22 findings below into one dependency-ordered

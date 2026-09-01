@@ -22,9 +22,11 @@ its protected-main publication does not advance those later Track S gates.
 One canonical engine remains the architectural invariant.
 `RetrievalOrchestrator` owns SQL, vector, graph, graph-node, and explicit
 temporal retrieval. `SeamRuntime.retrieve()` is the canonical entry;
-`search_ir()` is a compatibility result/evidence adapter over that engine, but
-its legacy-policy hardcoding and the planner work executed around that path are
-verified Track S S8 gaps.
+`search_ir()` is an explicit compatibility result/evidence adapter over that
+engine and passes its selected policy through the same planner. The remaining
+S8 boundary is the boundary-only SQL gate; changing `search_ir()`'s default
+away from the recorded legacy control is an S9 measurement and promotion
+decision.
 
 The planner currently accepts `legacy-weighted/1` (the pre-refactor RAW/BM25/
 vector behavioral control) and `reciprocal-rank-fusion/2`. Non-empty
@@ -38,10 +40,10 @@ is now that same definition, so the recorder cannot drift from what fusion
 accepts. Name enforcement is split deliberately: `SEAM_RETRIEVAL_LEG_WEIGHTS`
 normalizes whitespace around each name so `graph=0.3, vector=1.0` works, and
 programmatic `RetrievalFlags` require an exact canonical name; a misspelling
-from either surface fails before search. Policy persistence still does not
-accept the `weighted-reciprocal-rank-fusion/1` identifier, so weighted fusion
-remains an implemented, unpromoted path; S8 still owns its exact replay
-contract.
+from either surface fails before search. Policy persistence accepts
+`weighted-reciprocal-rank-fusion/1`, stores the exact leg weights, and proves
+absent/all-one/zero/non-unit replay; weighted fusion remains implemented but
+unpromoted because no quality lift is attached to a non-unit policy.
 
 ## The #503 overall-regression premise is lifted; promotion remains open
 

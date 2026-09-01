@@ -8,6 +8,7 @@ __pycache__/
 *.db-shm
 *.db-journal
 .seam-runtime-*.lock
+.seam-store-*.lock
 *.seam-backups/
 test_seam/
 .seam_chroma/

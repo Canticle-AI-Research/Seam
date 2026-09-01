@@ -38,6 +38,7 @@ from .reference_contracts import (
     typed_ir_edges,
     validate_record_reference_contract,
 )
+from .store_lease import DatabaseInUseError, exclusive_store_maintenance
 
 CURRENT_SCHEMA_VERSION: Final = 2
 MIGRATION_TABLE: Final = "seam_schema_migrations"
@@ -2207,6 +2208,52 @@ def migrate_memory_database(
     return MigrationResult(0, CURRENT_SCHEMA_VERSION, tuple(applied), None)
 
 
+def _read_prefix(path: Path, length: int) -> bytes:
+    if not path.is_file():
+        return b""
+    with path.open("rb") as handle:
+        return handle.read(length)
+
+
+def _stabilize_restore_target(database_path: Path) -> None:
+    """Make a valid old target self-contained before detaching its sidecars."""
+
+    if not database_path.is_file():
+        return
+    wal_path = Path(f"{database_path}-wal")
+    journal_path = Path(f"{database_path}-journal")
+    wal_magic = _read_prefix(wal_path, 4)
+    journal_magic = _read_prefix(journal_path, 8)
+    recognized_recovery_state = wal_magic in {
+        b"\x37\x7f\x06\x82",
+        b"\x37\x7f\x06\x83",
+    } or journal_magic == b"\xd9\xd5\x05\xf9\x20\xa1\x63\xd7"
+    if not recognized_recovery_state:
+        with database_path.open("rb") as target_file:
+            os.fsync(target_file.fileno())
+        return
+    try:
+        with closing(sqlite3.connect(str(database_path), timeout=0.0)) as connection:
+            checkpoint = connection.execute("pragma wal_checkpoint(TRUNCATE)").fetchone()
+            if checkpoint is not None and int(checkpoint[0]) != 0:
+                raise DatabaseInUseError(
+                    "database has an active SQLite user; close it before restore"
+                )
+            connection.execute("pragma journal_mode=DELETE").fetchone()
+    except DatabaseInUseError:
+        raise
+    except sqlite3.DatabaseError:
+        # Restore is also the recovery path for a damaged target. Its backup was
+        # validated above; unrecognized old sidecars are quarantined below so
+        # they can never attach to the restored file.
+        LOGGER.warning(
+            "Could not checkpoint the restore target; proceeding with the "
+            "validated backup and quarantining every old sidecar"
+        )
+    with database_path.open("rb") as target_file:
+        os.fsync(target_file.fileno())
+
+
 def restore_database_backup(path: str | Path, backup_path: str | Path) -> None:
     """Validate and atomically restore one pre-migration SQLite backup.
 
@@ -2222,30 +2269,55 @@ def restore_database_backup(path: str | Path, backup_path: str | Path) -> None:
     with sqlite3.connect(str(source_path)) as source:
         _check_integrity(source)
 
-    descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{database_path.name}.restore-",
-        suffix=".sqlite3",
-        dir=database_path.parent,
-    )
-    os.close(descriptor)
-    temporary_path = Path(temporary_name)
-    try:
-        shutil.copyfile(source_path, temporary_path)
-        if os.name != "nt":
-            temporary_path.chmod(0o600)
-        with temporary_path.open("rb") as temporary_file:
-            os.fsync(temporary_file.fileno())
-        os.replace(temporary_path, database_path)
-        for suffix in ("-wal", "-shm", "-journal"):
-            sidecar = Path(f"{database_path}{suffix}")
-            if sidecar.exists():
-                sidecar.unlink()
-        if os.name != "nt":
-            directory_fd = os.open(database_path.parent, os.O_RDONLY)
-            try:
-                os.fsync(directory_fd)
-            finally:
-                os.close(directory_fd)
-    finally:
-        if temporary_path.exists():
-            temporary_path.unlink()
+    with exclusive_store_maintenance(database_path):
+        descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{database_path.name}.restore-",
+            suffix=".sqlite3",
+            dir=database_path.parent,
+        )
+        os.close(descriptor)
+        temporary_path = Path(temporary_name)
+        quarantined_sidecars: list[tuple[Path, Path]] = []
+        replacement_committed = False
+        try:
+            shutil.copyfile(source_path, temporary_path)
+            if os.name != "nt":
+                temporary_path.chmod(0o600)
+            with temporary_path.open("rb") as temporary_file:
+                os.fsync(temporary_file.fileno())
+            _stabilize_restore_target(database_path)
+            quarantine_token = uuid4().hex
+            for suffix in ("-wal", "-shm", "-journal"):
+                sidecar = Path(f"{database_path}{suffix}")
+                if not sidecar.exists():
+                    continue
+                quarantine = database_path.parent / (
+                    f".{database_path.name}.restore-old-{quarantine_token}{suffix}"
+                )
+                os.replace(sidecar, quarantine)
+                quarantined_sidecars.append((sidecar, quarantine))
+            _fsync_directory(database_path.parent)
+            os.replace(temporary_path, database_path)
+            replacement_committed = True
+            _fsync_directory(database_path.parent)
+        except BaseException:
+            if not replacement_committed:
+                for sidecar, quarantine in reversed(quarantined_sidecars):
+                    if quarantine.exists() and not sidecar.exists():
+                        os.replace(quarantine, sidecar)
+                _fsync_directory(database_path.parent)
+            raise
+        finally:
+            if temporary_path.exists():
+                temporary_path.unlink()
+            if replacement_committed:
+                for _sidecar, quarantine in quarantined_sidecars:
+                    try:
+                        quarantine.unlink(missing_ok=True)
+                    except OSError:
+                        LOGGER.warning(
+                            "Restored database is active but an old quarantined "
+                            "sidecar could not be removed: %s",
+                            quarantine.name,
+                        )
+                _fsync_directory(database_path.parent)

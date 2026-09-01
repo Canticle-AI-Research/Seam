@@ -20235,3 +20235,49 @@ PR 238 remains draft and branch-local. This changes no release, deployment,
 benchmark, Track S, or memory-quality claim, and it does not modify draft PR
 237 or the operator's unrelated dirty worktrees.
 ---END-ENTRY-#619---
+
+---BEGIN-ENTRY-#620---
+id: 620
+date: 2026-09-01T03:26:59Z
+agent: codex
+status: done
+topics: storage, docker, agent, multi-agent, session, protocol, atomicity, bugfix, continuity, handoff, plan, test, tests, verify
+commits: pending
+refs: seam_runtime/store_lease.py,seam_runtime/storage.py,seam_runtime/migrations.py,tests/audit/test_sqlite_migration_spine.py,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-08-30-track-s-s8-s10-production-core-d1.md,PR#237
+supersedes: 612
+tokens: 538
+---
+Restacked draft PR 237 from its obsolete 780b377 baseline onto protected
+main@a408ec3 after PR 238 published the Codex orchestration workflow. The
+production-core execution specification now makes R2 an explicit S8 gate and
+orders D1-D4, T1, G1, R1, R2, Q1, and C1 without claiming S8, S9, S10,
+release, or deployment completion.
+
+The context, delivery, and assurance pipeline qualified the D1.1-D1.3 recovery
+slice only after three public-seam red-green fork lifecycle repairs. Supported
+file-backed stores retain a shared lifetime lease; restore takes a nonblocking
+exclusive maintenance lease, validates the backup before mutation, stabilizes
+recognized WAL state, quarantines old sidecars before the replacement commit
+point, and fsyncs the replacement boundary. POSIX fork children cannot unlock
+parent-owned leases, fresh child stores acquire process-owned handles, and
+inherited duplicate handles close by copied logical refcount after the final
+inherited store closes. Independent assurance rejected two earlier states and
+then returned PASS with no finding on the cumulative candidate.
+
+The focused migration, restore, and snapshot slice passes 78 tests. All 23
+external tests pass against the healthy local pgvector container on its actual
+published host port. The strict non-external suite completes with two
+established expected failures and no failure or skip after one stale database
+artifact from an intentionally interrupted earlier run was moved, without
+deletion, into .disposable/test-artifacts-20260901. Changed runtime/test Ruff,
+git diff checks, and candidate secret/private-session scanning are clean.
+
+D1.4 remains open: named failure injection at each copy, fsync, target
+stabilization, sidecar quarantine, replacement, rollback, and cleanup
+transition must reopen to exactly complete old or backup state with SQLite
+integrity and foreign-key checks. This entry therefore closes only the
+D1.1-D1.3 PR slice. Fresh commit, force-with-lease push of the rebased branch,
+exact-head hosted checks, root-stored release qualification, protected merge,
+and an exact-main resume remain required before this becomes protected-main
+fact.
+---END-ENTRY-#620---

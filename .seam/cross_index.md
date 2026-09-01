@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 683
+total_events: 684
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-19T15:01:35Z | history:425:9d000c10 | session-event | done | ci, ops, infra, cost | .github/workflows/ci.yml,.github/workflows/ci-windows.yml |
 | 2026-07-19T16:04:15Z | history:426:f3bd1e40 | session-event | done | benchmark, locomo, ci, ops | .github/workflows/ci.yml |
 | 2026-07-19T19:47:29Z | history:427:8872a7d3 | session-event | done | benchmark, locomo, paid-run, handoff, retrieval, ci | seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/se... |
 | 2026-07-19T21:02:19Z | history:428:bf0ea168 | session-event | done | ops, cost, benchmark, tooling | benchmarks/external/common/cost_report.py,tests/audit/test_cost_report.py |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-01T01:37:26Z | history:617:28339172 | session-event | done | agent, multi-agent, session, protocol, harden, security, ... | .gitignore,docs/SOP_SEAM_CODEX_WORKFLOW.md,docs/SOP_AGENT_ORCHESTRATION.md,do... |
 | 2026-09-01T01:57:48Z | history:618:dc72ab99 | session-event | changed | agent, multi-agent, session, protocol, bugfix, correction... | tools/agents/closeout_queue.py,tools/agents/schemas/closeout-request.schema.j... |
 | 2026-09-01T02:11:53Z | history:619:dfc9bbb1 | session-event | changed | agent, multi-agent, session, protocol, bugfix, correction... | tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,PR#238 |
+| 2026-09-01T03:26:59Z | history:620:4839e084 | session-event | done | storage, docker, agent, multi-agent, session, protocol, a... | seam_runtime/store_lease.py,seam_runtime/storage.py,seam_runtime/migrations.p... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0483.cross.md | 2026-04-15T00:00:00Z..2026-07-19T13:48:23Z | 483 | (multi) | (multi) |
+| 0001-0484.cross.md | 2026-04-15T00:00:00Z..2026-07-19T15:01:35Z | 484 | (multi) | (multi) |

@@ -215,6 +215,19 @@ and `HISTORY_INDEX.md`.
   history tooling. Package and release metadata must accurately identify the
   private proprietary distribution.
 - SQLite is canonical source of truth.
+- Supported file-backed `SQLiteStore` instances hold a shared, cross-process
+  lease for the full store lifetime. Byte-replacing maintenance acquires the
+  corresponding exclusive lease without waiting and refuses while any
+  supported store is live. Restore validates the backup before touching the
+  target, checkpoints recognized WAL state, quarantines remaining legacy
+  sidecars before the database replacement commit point, fsyncs the replacement
+  boundary, and never attaches an old WAL or journal to restored bytes. This
+  lifetime lease is distinct from the transient writer lock used by ordinary
+  persistence. A POSIX fork child must establish process-local lease registry
+  state before opening its own store, and only the PID that acquired a lease
+  may explicitly unlock it. See
+  `docs/adr/0001-canonical-store-lifetime-lease.md`,
+  `docs/SQLITE_MIGRATIONS.md`, and HISTORY#620.
 - Canonical SQLite and every initialized durable projection are governed by
   the central `seam_runtime.migrations` spine at schema version 2. Read-only
   preflight refuses unknown/newer schema identities, projection registries, or

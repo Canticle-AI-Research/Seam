@@ -12,6 +12,7 @@ claim against current status, active code, named tests, and history evidence.
 
 - [Graph Memory Maturity](GRAPH_MEMORY_MATURITY.md)
 - [Memory Guarantees Campaign](MEMORY_GUARANTEES_CAMPAIGN.md)
+- [Track S S8-S10 Production-Core Completion](TRACK_S_S8_S10_PRODUCTION_CORE.md)
 - [Memory Benchmarks](MEMORY_BENCHMARKS.md)
 - [Competitive Roadmap](COMPETITIVE_ROADMAP.md)
 - [SEAM Query Engine SQL2 Learnings](SEAM_QUERY_ENGINE_SQL2_LEARNINGS.md)
