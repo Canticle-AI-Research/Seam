@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
@@ -10,20 +10,46 @@ from .mirl import IRBatch, MIRLRecord, RecordKind
 
 
 @dataclass(frozen=True)
-class IngestReport:
+class IngestOutcome:
     document: dict[str, object]
     stored_ids: list[str]
+    superseded_document_ids: list[str] = field(default_factory=list)
+    vector_intent_record_ids: list[str] = field(default_factory=list)
+    projection_pending: bool = False
 
     def to_dict(self) -> dict[str, object]:
-        return {"document": self.document, "stored_ids": list(self.stored_ids)}
+        return {
+            "document": self.document,
+            "stored_ids": list(self.stored_ids),
+            "superseded_document_ids": list(self.superseded_document_ids),
+            "vector_intent_record_ids": list(self.vector_intent_record_ids),
+            "projection_pending": self.projection_pending,
+        }
+
+
+# Compatibility name retained for callers that adopted the original report.
+IngestReport = IngestOutcome
 
 
 def source_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def stable_document_id(source_ref: str, text: str) -> str:
-    digest = hashlib.sha256(f"{source_ref}\n{source_hash(text)}".encode("utf-8")).hexdigest()[:16]
+def stable_document_id(
+    source_ref: str,
+    text: str,
+    *,
+    ns: str | None = None,
+    scope: str | None = None,
+) -> str:
+    boundary_ref = (
+        source_ref
+        if (ns, scope) in {(None, None), ("local.default", "thread")}
+        else f"{ns}\n{scope}\n{source_ref}"
+    )
+    digest = hashlib.sha256(
+        f"{boundary_ref}\n{source_hash(text)}".encode("utf-8")
+    ).hexdigest()[:16]
     return f"doc:{digest}"
 
 

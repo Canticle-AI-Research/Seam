@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 685
+total_events: 686
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-19T19:47:29Z | history:427:8872a7d3 | session-event | done | benchmark, locomo, paid-run, handoff, retrieval, ci | seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/se... |
 | 2026-07-19T21:02:19Z | history:428:bf0ea168 | session-event | done | ops, cost, benchmark, tooling | benchmarks/external/common/cost_report.py,tests/audit/test_cost_report.py |
 | 2026-07-19T21:18:24Z | history:429:121a6292 | session-event | done | benchmark, locomo, paid-run, negative-result | benchmarks/external/common/cost_report.py,docs/handoffs/2026-07-19-matched-ru... |
 | 2026-07-20T00:26:26Z | history:430:8b5c726f | session-event | done | bugfix, benchmark, locomo, handoff, verify, audit, contin... | seam_runtime/temporal_instance_context.py,benchmarks/external/common/cost_rep... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-01T02:11:53Z | history:619:dfc9bbb1 | session-event | changed | agent, multi-agent, session, protocol, bugfix, correction... | tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,PR#238 |
 | 2026-09-01T03:26:59Z | history:620:4839e084 | session-event | done | storage, docker, agent, multi-agent, session, protocol, a... | seam_runtime/store_lease.py,seam_runtime/storage.py,seam_runtime/migrations.p... |
 | 2026-09-01T04:20:44Z | history:621:523e1b50 | session-event | done | storage, docker, atomicity, bugfix, continuity, handoff, ... | seam_runtime/migrations.py,tests/audit/test_sqlite_migration_spine.py,PROJECT... |
+| 2026-09-01T05:27:38Z | history:622:1a548d41 | session-event | done | storage, atomicity, persist, vector, graph, agent, multi-... | seam_runtime/agent_memory.py,seam_runtime/knowledge_graph.py,seam_runtime/run... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0485.cross.md | 2026-04-15T00:00:00Z..2026-07-19T16:04:15Z | 485 | (multi) | (multi) |
+| 0001-0486.cross.md | 2026-04-15T00:00:00Z..2026-07-19T19:47:29Z | 486 | (multi) | (multi) |

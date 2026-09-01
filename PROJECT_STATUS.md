@@ -9,18 +9,21 @@
 
 ## Current headline
 
-**2026-09-01 — protected `main@71c1489` contains the Track S S8-S10 execution
-specification and D1.1-D1.3; D1.4 is locally qualified on
-`feat/d1-restore-failure-matrix`.** The recovery boundary now has private,
-default-off failure seams around every supported restore filesystem operation
-and completed transition. The matrix proves exact old-or-backup logical state,
-SQLite integrity, foreign keys, WAL preservation, the replacement commit
-boundary, rollback continuation, and primary-error preservation under
-secondary cleanup failures. The 125-test focused recovery slice, 3,193-case
-non-external collection with two established xfails, all 23 live pgvector
-external tests, and independent assurance are green. This branch still needs
-commit, exact-head hosted checks, a root-stored qualification receipt, and a
-protected merge before D1 is protected-main complete. D2 is the next stream;
+**2026-09-01 — protected `main@64e4434` contains the complete D1 recovery
+boundary; D2 Atomic Ingest is locally qualified on `feat/d2-atomic-ingest`.**
+One runtime ingest now commits canonical MIRL and graph state, same-source
+supersession, document status, and durable vector reconciliation intent in one
+SQLite transaction scoped by namespace, scope, and source. External record and
+node vectors remain derived: projection failure returns a canonical pending
+outcome, and replay converges the winning generation while deleting superseded
+record vectors before the document becomes indexed. Failure injection,
+idempotent replay, spawned concurrency, same-source boundary isolation,
+historical graph preservation, canonical rebuild, and integrity/FK checks are
+green. Qualification is 60 focused tests, the 3,213-case non-external
+collection with two established xfails, all 23 live pgvector external tests,
+and independent assurance with zero findings. D2 still requires commit,
+exact-head hosted checks, a root-stored qualification receipt, and protected
+merge before it is protected-main complete. D3 is next only after that merge;
 S8 remains incomplete, S9 has not started, and no S10 release, deployment, or
 hosted-production claim is made. See
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.

@@ -520,6 +520,15 @@ and `HISTORY_INDEX.md`.
   an explicit full reindex (or explicit Chroma index sync) to upgrade them.
   Boundary-only repair never upgrades render versions or invokes embeddings.
 - Document ingest status is canonical SQLite metadata. Source refs, source hashes, extraction status, index status, and deletion state belong in `document_status`, not only in derived vector stores.
+- A public runtime ingest exposes one canonical `IngestOutcome`. MIRL records
+  and graph projection, namespace/scope/source-bounded supersession, the active
+  `document_status` row, and durable record-vector reconciliation intents
+  commit under one `BEGIN IMMEDIATE` transaction. External record and node
+  vectors remain derived: a projection failure leaves the committed document
+  `pending`; replay indexes current records, deletes lifecycle-ineligible
+  records, rebuilds node vectors, and only then atomically acknowledges every
+  ingest-associated intent and advances the document to `indexed`. Preview
+  (`persist=False`) is mutation-free. See HISTORY#622.
 - Agent-facing retrieval should use progressive disclosure where possible: compact search/index results first, then full MIRL records by selected IDs.
 - Default agent RAG should prefer `mix` retrieval only after benchmark validation; the supported retrieval modes are `vector`, `graph`, `hybrid`, and `mix`.
 - Retrieval is ANSWERER-AWARE via named profiles in `RetrievalFlags` (`RETRIEVAL_PROFILES`, env `SEAM_RETRIEVAL_PROFILE`): `compact`=(top_k 100, context_budget 8000) for small/local answerers (tight context, dilution-averse) and `broad`=(300, 60000) for capable answerers (high coverage). The right retrieval knee is answerer-dependent — holdout-validated on LoCoMo cat1 (a capable answerer's broad knee +0.139 judged where the same broad context COLLAPSED a weak 3B answerer). `search_top_k` and `context_budget` are CONFIG knobs (env-driven, explicit vars override the preset). They are loop-tunable as candidate levers (`candidate_levers(profile_levers=True)`) ONLY when every scorer in the improvement loop is dilution-sensitive (`profile_safe`) — the free-LoCoMo answer-quality scorer (`PooledLocomoAnswerQualityScorer`, generated-answer `token_f1` via a local Ollama answerer) or the operator-gated paid judge — and NEVER under the `#290` self-probe or `#292` context_recall scorers, which a bigger budget mechanically inflates (the gaming hazard `#320`/`#328` originally avoided by excluding the knobs entirely; `#332`/Strand B re-admits them behind the `profile_safe` gate). `run_improvement_cycle` enables `profile_levers` iff every scorer reports `profile_safe`; `getattr(scorer, "profile_safe", False)` defaults unmarked scorers to unsafe. Default (no profile) is byte-identical to the prior baseline — both knobs `None` → call-site budget / prior 512 pack default. The profile flows through `load_retrieval_flags` so every surface (CLI/REST/MCP/dashboard/benchmark) inherits it, not just the benchmark.

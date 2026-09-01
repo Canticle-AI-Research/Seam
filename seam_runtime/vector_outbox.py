@@ -66,13 +66,28 @@ def init_vector_outbox(connection: sqlite3.Connection) -> None:
             operation text not null check (operation in ('{OPERATION_INDEX}')),
             enqueued_at text not null,
             attempts integer not null default 0,
-            last_error text
+            last_error text,
+            ingest_document_id text
         )
         """
     )
+    columns = {
+        str(row[1])
+        for row in connection.execute(
+            f"pragma table_info({VECTOR_OUTBOX_TABLE})"
+        ).fetchall()
+    }
+    if "ingest_document_id" not in columns:
+        connection.execute(
+            f"alter table {VECTOR_OUTBOX_TABLE} add column ingest_document_id text"
+        )
     connection.execute(
         f"create index if not exists {VECTOR_OUTBOX_TABLE}_record_idx "
         f"on {VECTOR_OUTBOX_TABLE} (record_id)"
+    )
+    connection.execute(
+        f"create index if not exists {VECTOR_OUTBOX_TABLE}_ingest_document_idx "
+        f"on {VECTOR_OUTBOX_TABLE} (ingest_document_id)"
     )
 
 
@@ -81,6 +96,7 @@ def enqueue_index_intents(
     record_ids: Sequence[str],
     *,
     now: str | None = None,
+    ingest_document_id: str | None = None,
 ) -> list[int]:
     """Record that ``record_ids`` owe a vector index update.
 
@@ -98,8 +114,9 @@ def enqueue_index_intents(
     for record_id in ordered:
         cursor = connection.execute(
             f"insert into {VECTOR_OUTBOX_TABLE} "
-            "(record_id, operation, enqueued_at) values (?, ?, ?)",
-            (record_id, OPERATION_INDEX, enqueued_at),
+            "(record_id, operation, enqueued_at, ingest_document_id) "
+            "values (?, ?, ?, ?)",
+            (record_id, OPERATION_INDEX, enqueued_at, ingest_document_id),
         )
         entry_ids.append(int(cursor.lastrowid))
     return entry_ids
@@ -114,8 +131,18 @@ def pending_entries(
 
     if not _table_exists(connection):
         return []
+    has_document_id = any(
+        str(row[1]) == "ingest_document_id"
+        for row in connection.execute(
+            f"pragma table_info({VECTOR_OUTBOX_TABLE})"
+        ).fetchall()
+    )
+    document_expression = (
+        "ingest_document_id" if has_document_id else "null as ingest_document_id"
+    )
     sql = (
-        f"select entry_id, record_id, operation, enqueued_at, attempts, last_error "
+        f"select entry_id, record_id, operation, enqueued_at, attempts, last_error, "
+        f"{document_expression} "
         f"from {VECTOR_OUTBOX_TABLE} order by entry_id"
     )
     params: list[object] = []
@@ -130,6 +157,7 @@ def pending_entries(
             "enqueued_at": str(row[3]),
             "attempts": int(row[4]),
             "last_error": row[5],
+            "ingest_document_id": row[6],
         }
         for row in connection.execute(sql, params).fetchall()
     ]

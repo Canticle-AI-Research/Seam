@@ -90,6 +90,14 @@ def test_reingest_same_source_ref_dedup(runtime: SeamRuntime):
         f"Search result: {json.dumps(search_result, indent=2)[:500]}"
     )
 
+    obsolete_result = runtime.memory_search("alpha bravo charlie")
+    assert "alpha bravo charlie" not in json.dumps(
+        obsolete_result.get("results", []), sort_keys=True
+    ).lower(), (
+        "Superseded unique content remained reachable after same-source reingest: "
+        f"{json.dumps(obsolete_result, indent=2)[:500]}"
+    )
+
 
 def test_reingest_same_source_ref_multiple_generations(runtime: SeamRuntime):
     """Ingest three times with the same source_ref; only the latest should be
@@ -159,3 +167,5 @@ def test_reingest_no_persist_skips_dedup(runtime: SeamRuntime):
     # The report should still have the document info even without persist.
     assert report2.document is not None
     assert report2.stored_ids == []
+    with pytest.raises(KeyError):
+        runtime.store.read_document_status(str(report2.document["document_id"]))

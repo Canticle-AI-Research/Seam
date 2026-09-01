@@ -239,6 +239,7 @@ from .vector import LEGACY_VECTOR_TEXT_VERSION, VECTOR_TEXT_VERSION
 from .vector_outbox import (
     acknowledge,
     enqueue_index_intents,
+    init_vector_outbox,
     pending_count,
     pending_entries,
     record_failure,
@@ -1522,6 +1523,169 @@ class SQLiteStore:
         )
 
     @retry_db_operation()
+    def persist_ingest_outcome(
+        self,
+        batch: IRBatch,
+        *,
+        document_id: str,
+        ns: str,
+        scope: str,
+        source_ref: str,
+        source_hash: str,
+        byte_count: int,
+        chunk_count: int,
+        metadata: dict[str, object],
+        failure_injector: Callable[[str], None] | None = None,
+    ) -> tuple[PersistReport, dict[str, object], list[str], list[str]]:
+        """Commit the complete canonical ingest outcome in one transaction."""
+
+        inject = failure_injector or (lambda _transition: None)
+        now = utc_now()
+        with self._pool.checkout() as connection:
+            try:
+                if not connection.in_transaction:
+                    connection.execute("begin immediate")
+                old_rows = connection.execute(
+                    "select document_id from document_status "
+                    "where ns = ? and scope = ? and source_ref = ? "
+                    "and document_id != ? and deleted_at is null "
+                    "order by document_id",
+                    (ns, scope, source_ref, document_id),
+                ).fetchall()
+                superseded_document_ids = [str(row[0]) for row in old_rows]
+
+                stored_ids = self._persist_ir_on_connection(
+                    connection,
+                    batch,
+                    preserve_node_vectors=True,
+                )
+                inject("after_canonical_records")
+
+                protected_ids = set(stored_ids)
+                for record in batch.records:
+                    protected_ids.update(reference_candidate_ids(record))
+                superseded_record_ids = self._supersede_ingest_records(
+                    connection,
+                    superseded_document_ids,
+                    protected_ids=protected_ids,
+                    superseded_at=now,
+                )
+                if superseded_document_ids:
+                    placeholders = ",".join("?" for _ in superseded_document_ids)
+                    connection.execute(
+                        "update document_status set deleted_at = ?, updated_at = ? "
+                        f"where document_id in ({placeholders})",
+                        [now, now, *superseded_document_ids],
+                    )
+                supersede_knowledge_source(
+                    connection,
+                    namespace=ns,
+                    scope=scope,
+                    source_ref=source_ref,
+                    except_document_id=document_id,
+                    superseded_at=now,
+                    superseded_record_ids=superseded_record_ids,
+                )
+                inject("after_supersession")
+
+                existing = connection.execute(
+                    "select created_at from document_status where document_id = ?",
+                    (document_id,),
+                ).fetchone()
+                created_at = str(existing[0]) if existing else now
+                connection.execute(
+                    """
+                    insert or replace into document_status
+                    (document_id, ns, scope, source_ref, source_hash, byte_count,
+                     chunk_count, extraction_status, indexed_status, deleted_at,
+                     metadata_json, created_at, updated_at)
+                    values (?, ?, ?, ?, ?, ?, ?, 'compiled', 'pending', null, ?, ?, ?)
+                    """,
+                    (
+                        document_id,
+                        ns,
+                        scope,
+                        source_ref,
+                        source_hash,
+                        int(byte_count),
+                        int(chunk_count),
+                        json.dumps(metadata, sort_keys=True, separators=(",", ":")),
+                        created_at,
+                        now,
+                    ),
+                )
+                inject("after_document_status")
+
+                index_entry_ids = enqueue_index_intents(
+                    connection,
+                    stored_ids,
+                    ingest_document_id=document_id,
+                )
+                delete_entry_ids = enqueue_index_intents(
+                    connection,
+                    superseded_record_ids,
+                    ingest_document_id=document_id,
+                )
+                inject("after_vector_intents")
+                connection.commit()
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
+
+        document = self.read_document_status(document_id)
+        return (
+            PersistReport(
+                stored_ids=stored_ids,
+                store_path=self.path,
+                outbox_entry_ids=[*index_entry_ids, *delete_entry_ids],
+            ),
+            document,
+            superseded_document_ids,
+            superseded_record_ids,
+        )
+
+    def _supersede_ingest_records(
+        self,
+        connection: sqlite3.Connection,
+        document_ids: Sequence[str],
+        *,
+        protected_ids: set[str],
+        superseded_at: str,
+    ) -> list[str]:
+        candidates: set[str] = set()
+        for old_document_id in document_ids:
+            suffix = old_document_id.split(":", 1)[-1]
+            candidates.update(
+                str(row[0])
+                for row in connection.execute(
+                    "select id from ir_records where id like ?",
+                    (f"%:{suffix}:%",),
+                ).fetchall()
+            )
+        superseded_ids = sorted(candidates - protected_ids)
+        for record_id in superseded_ids:
+            row = connection.execute(
+                "select payload_json from ir_records where id = ?", (record_id,)
+            ).fetchone()
+            if row is None:
+                continue
+            payload = json.loads(str(row[0]))
+            payload["status"] = Status.SUPERSEDED.value
+            payload["updated_at"] = superseded_at
+            connection.execute(
+                "update ir_records set status = ?, updated_at = ?, payload_json = ? "
+                "where id = ?",
+                (
+                    Status.SUPERSEDED.value,
+                    superseded_at,
+                    json.dumps(payload, sort_keys=True, separators=(",", ":")),
+                    record_id,
+                ),
+            )
+        return superseded_ids
+
+    @retry_db_operation()
     def acknowledge_vector_outbox(self, entry_ids: Iterable[int]) -> int:
         """Retire intents whose vector update is durably applied."""
 
@@ -1530,15 +1694,72 @@ class SQLiteStore:
             connection.commit()
         return removed
 
+    @retry_db_operation()
+    def complete_ingest_projection(
+        self, document_id: str, entry_ids: Iterable[int]
+    ) -> dict[str, object]:
+        """Retire projection intent and mark its document indexed atomically."""
+
+        with self._pool.checkout() as connection:
+            try:
+                if not connection.in_transaction:
+                    connection.execute("begin immediate")
+                acknowledge(connection, entry_ids)
+                connection.execute(
+                    "update document_status set indexed_status = 'indexed', "
+                    "updated_at = ? where document_id = ?",
+                    (utc_now(), document_id),
+                )
+                connection.commit()
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
+        return self.read_document_status(document_id)
+
     def pending_vector_outbox(self, *, limit: int | None = None) -> list[dict[str, object]]:
         """Return vector index intents that were never acknowledged."""
 
         with self._pool.checkout() as connection:
+            init_vector_outbox(connection)
+            connection.commit()
             return pending_entries(connection, limit=limit)
 
     def pending_vector_outbox_count(self) -> int:
         with self._pool.checkout() as connection:
             return pending_count(connection)
+
+    @retry_db_operation()
+    def complete_reconciled_ingest_documents(self) -> int:
+        """Mark pending ingest documents indexed once none of their intents remain."""
+
+        now = utc_now()
+        with self._pool.checkout() as connection:
+            rows = connection.execute(
+                "select document_id from document_status "
+                "where indexed_status = 'pending' and deleted_at is null"
+            ).fetchall()
+            completed = 0
+            for row in rows:
+                document_id = str(row[0])
+                pending = connection.execute(
+                    "select 1 from vector_outbox "
+                    "where ingest_document_id = ? limit 1",
+                    (document_id,),
+                ).fetchone()
+                if pending is not None:
+                    continue
+                completed += int(
+                    connection.execute(
+                        "update document_status set indexed_status = 'indexed', "
+                        "updated_at = ? where document_id = ? "
+                        "and indexed_status = 'pending' and deleted_at is null",
+                        (now, document_id),
+                    ).rowcount
+                    or 0
+                )
+            connection.commit()
+        return completed
 
     @retry_db_operation()
     def record_vector_outbox_failure(
@@ -1605,13 +1826,29 @@ class SQLiteStore:
         """Mark all other documents with the same source_ref as deleted (superseded)."""
         now = utc_now()
         with self._pool.checkout() as connection:
+            boundary = connection.execute(
+                "select ns, scope from document_status where document_id = ?",
+                (except_document_id,),
+            ).fetchone()
+            if boundary is None:
+                raise KeyError(except_document_id)
             cursor = connection.execute(
                 "update document_status set deleted_at = ?, updated_at = ? "
-                "where source_ref = ? and document_id != ? and deleted_at is null",
-                (now, now, source_ref, except_document_id),
+                "where ns = ? and scope = ? and source_ref = ? "
+                "and document_id != ? and deleted_at is null",
+                (
+                    now,
+                    now,
+                    str(boundary["ns"]),
+                    str(boundary["scope"]),
+                    source_ref,
+                    except_document_id,
+                ),
             )
             supersede_knowledge_source(
                 connection,
+                namespace=str(boundary["ns"]),
+                scope=str(boundary["scope"]),
                 source_ref=source_ref,
                 except_document_id=except_document_id,
                 superseded_at=now,

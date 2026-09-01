@@ -326,7 +326,12 @@ def _expected_raw_identity(
                 derived_fact_policy=None,
                 allow_env_extractor=False,
             ),
-            stable_document_id(item.source_ref, item.text),
+            stable_document_id(
+                item.source_ref,
+                item.text,
+                ns=namespace,
+                scope="thread",
+            ),
         )
         raw_records = batch.kind(RecordKind.RAW)
         if len(raw_records) != 1:
