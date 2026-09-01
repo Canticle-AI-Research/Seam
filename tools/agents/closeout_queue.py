@@ -822,7 +822,9 @@ def _live_scope_signature(
     return head, tuple(paths), fingerprint
 
 
-def _verify_live_scope(request: dict[str, Any]) -> None:
+def _verify_live_scope(
+    request: dict[str, Any], receipt: dict[str, Any]
+) -> None:
     repo = request["repo"]
     try:
         repo_root = Path(repo["root"]).resolve(strict=True)
@@ -839,8 +841,23 @@ def _verify_live_scope(request: dict[str, Any]) -> None:
     if first != final:
         raise CloseoutQueueError("closeout live Git scope did not remain stable")
     head, _, fingerprint = final
-    if head != repo["head"] or fingerprint != repo["diff_fingerprint"]:
+    live_scope = (head, fingerprint)
+    request_scope = (repo["head"], repo["diff_fingerprint"])
+    receipt_scope = (
+        receipt["scope"]["head"],
+        receipt["scope"]["diff_fingerprint"],
+    )
+    if receipt["scope"]["matches_request"] and live_scope != request_scope:
         raise CloseoutQueueError("closeout live Git scope drifted from request")
+    if not receipt["scope"]["matches_request"]:
+        if live_scope == request_scope:
+            raise CloseoutQueueError(
+                "closeout receipt claims drift while live scope still matches request"
+            )
+        if live_scope != receipt_scope:
+            raise CloseoutQueueError(
+                "closeout receipt mismatch scope does not describe stable live Git scope"
+            )
 
 
 def store_receipt(
@@ -868,7 +885,7 @@ def store_receipt(
     stored = _stored_receipts(request, state_root=state_root)
     for existing_path, existing in stored:
         if _canonical_record(existing) == encoded:
-            _verify_live_scope(request)
+            _verify_live_scope(request, receipt)
             status = (
                 "ALREADY_STORED"
                 if existing_path
@@ -882,13 +899,13 @@ def store_receipt(
     canonical = _expected_receipt_path(state_root, request["request_id"])
     if not stored:
         _ensure_state_directory(canonical.parent, label="receipt")
-        _verify_live_scope(request)
+        _verify_live_scope(request, receipt)
         if _publish_record_once(canonical, encoded):
             return {"status": "STORED", "receipt_path": str(canonical)}
         stored = _stored_receipts(request, state_root=state_root)
         for existing_path, existing in stored:
             if _canonical_record(existing) == encoded:
-                _verify_live_scope(request)
+                _verify_live_scope(request, receipt)
                 return {
                     "status": "ALREADY_STORED",
                     "receipt_path": str(existing_path),
@@ -900,14 +917,14 @@ def store_receipt(
 
     attempt = _receipt_attempt_path(state_root, request["request_id"], encoded)
     _ensure_state_directory(attempt.parent, label="receipt-attempt")
-    _verify_live_scope(request)
+    _verify_live_scope(request, receipt)
     if not _publish_record_once(attempt, encoded):
         existing = validate_receipt(
             request, _load_json(attempt), state_root=state_root
         )
         if _canonical_record(existing) != encoded:
             raise CloseoutQueueError("conflicting closeout receipt attempt exists")
-        _verify_live_scope(request)
+        _verify_live_scope(request, receipt)
         return {"status": "ALREADY_STORED_ATTEMPT", "receipt_path": str(attempt)}
     return {"status": "STORED_ATTEMPT", "receipt_path": str(attempt)}
 

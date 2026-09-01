@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 682
+total_events: 683
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-19T13:48:23Z | history:424:43ca0434 | session-event | done | benchmark, locomo, paid-run, mem0-harness, ops | benchmarks/external/mem0_harness/seam_mem0_server.py,docs/handoffs/2026-07-19... |
 | 2026-07-19T15:01:35Z | history:425:9d000c10 | session-event | done | ci, ops, infra, cost | .github/workflows/ci.yml,.github/workflows/ci-windows.yml |
 | 2026-07-19T16:04:15Z | history:426:f3bd1e40 | session-event | done | benchmark, locomo, ci, ops | .github/workflows/ci.yml |
 | 2026-07-19T19:47:29Z | history:427:8872a7d3 | session-event | done | benchmark, locomo, paid-run, handoff, retrieval, ci | seam_runtime/temporal_instance_context.py,benchmarks/external/mem0_harness/se... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-08-31T23:21:41Z | history:616:966b04be | session-event | in-progress | agent, multi-agent, session, protocol, harden, security, ... | .codex/agents/seam_root_orchestrator.toml,tools/agents/session_end_closeout.p... |
 | 2026-09-01T01:37:26Z | history:617:28339172 | session-event | done | agent, multi-agent, session, protocol, harden, security, ... | .gitignore,docs/SOP_SEAM_CODEX_WORKFLOW.md,docs/SOP_AGENT_ORCHESTRATION.md,do... |
 | 2026-09-01T01:57:48Z | history:618:dc72ab99 | session-event | changed | agent, multi-agent, session, protocol, bugfix, correction... | tools/agents/closeout_queue.py,tools/agents/schemas/closeout-request.schema.j... |
+| 2026-09-01T02:11:53Z | history:619:dfc9bbb1 | session-event | changed | agent, multi-agent, session, protocol, bugfix, correction... | tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,PR#238 |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0482.cross.md | 2026-04-15T00:00:00Z..2026-07-19T05:20:46Z | 482 | (multi) | (multi) |
+| 0001-0483.cross.md | 2026-04-15T00:00:00Z..2026-07-19T13:48:23Z | 483 | (multi) | (multi) |

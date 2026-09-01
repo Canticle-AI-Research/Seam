@@ -20188,3 +20188,50 @@ rewriting it. PR 238 remains draft and branch-local. No release, deployment,
 benchmark, Track S, or memory-quality claim changes, and draft PR 237 remains
 untouched as the separate S8-S10 candidate.
 ---END-ENTRY-#618---
+
+---BEGIN-ENTRY-#619---
+id: 619
+date: 2026-09-01T02:11:53Z
+agent: codex
+status: changed
+topics: agent, multi-agent, session, protocol, bugfix, correction, atomicity, harden, security, test, tests, verify, continuity, git-hooks
+commits: pending
+refs: tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,PR#238
+supersedes: 618
+tokens: 535
+---
+Closed the stale-request succession deadlock discovered while reconciling the
+live SessionEnd queue after HISTORY#618. A successor qualification may
+supersede an older exact-state request only after validated non-qualified
+evidence exists, but receipt storage previously required every request to
+still equal the live tree. That made a truthful INDETERMINATE receipt about a
+repaired, now-stale request impossible to admit.
+
+Receipt admission now has two explicit stable-scope branches. When
+scope.matches_request is true, repeated live HEAD/path/content signatures must
+equal the request exactly. When it is false, repeated live signatures must
+differ from the request and must equal the receipt's declared HEAD and diff
+fingerprint exactly. False mismatch claims are rejected when the live tree
+still matches, and wrong declared mismatch scope is rejected. The repeated
+verification remains immediately before canonical or attempt publication.
+QUALIFIED receipts retain the exact-match requirement.
+
+The red public-seam store regression reproduced the unconditional exact-scope
+rejection. Green regressions prove truthful stable mismatch admission, false
+mismatch rejection, and safe current-request supersession after validated
+INDETERMINATE evidence. The focused producer/queue and compatibility slices,
+Ruff, collection, and git diff check passed. Fresh independent integrity
+assurance reported no finding on exact, mismatch, prepublication, or
+supersession semantics.
+
+On this final repaired tree the strict non-external repository suite completed
+at 100 percent with two established expected failures and no failure or skip,
+and all 23 external pgvector tests passed. Canonical secret/private-session
+scanning passed. Hosted results from earlier heads remain superseded; fresh
+exact-head CI and root-stored receipts for stale non-qualified evidence plus
+the current cycle-bearing QUALIFIED request remain required before merge.
+
+PR 238 remains draft and branch-local. This changes no release, deployment,
+benchmark, Track S, or memory-quality claim, and it does not modify draft PR
+237 or the operator's unrelated dirty worktrees.
+---END-ENTRY-#619---

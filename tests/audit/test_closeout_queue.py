@@ -239,6 +239,102 @@ def test_store_recomputes_live_scope_before_admitting_receipt(
         closeout_queue.store_receipt(request, receipt, state_root=state_root)
 
 
+def test_store_accepts_indeterminate_receipt_describing_stable_live_mismatch(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    stale_queued = _queued_request(sample_repo, state_root)
+    stale_request = json.loads(
+        Path(str(stale_queued["request_path"])).read_text(encoding="utf-8")
+    )
+    (sample_repo / "README.md").write_text("current state\n", encoding="utf-8")
+    current_queued = session_end_closeout.handle_session_end(
+        {"session_id": "queue-current", "cwd": str(sample_repo)},
+        repo_root=sample_repo,
+        state_root=state_root,
+        dispatch=False,
+    )
+    current_request = json.loads(
+        Path(str(current_queued["request_path"])).read_text(encoding="utf-8")
+    )
+    receipt = _qualified_receipt(stale_request)
+    receipt["status"] = "INDETERMINATE"
+    receipt["scope"] = {
+        "head": current_request["repo"]["head"],
+        "diff_fingerprint": current_request["repo"]["diff_fingerprint"],
+        "matches_request": False,
+    }
+    receipt["next_action"] = "Qualify the newer exact-state request."
+
+    stored = closeout_queue.store_receipt(
+        stale_request, receipt, state_root=state_root
+    )
+
+    assert stored["status"] == "STORED"
+
+
+def test_store_rejects_false_mismatch_when_live_scope_still_matches_request(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _queued_request(sample_repo, state_root)
+    request = json.loads(
+        Path(str(queued["request_path"])).read_text(encoding="utf-8")
+    )
+    receipt = _qualified_receipt(request)
+    receipt["status"] = "INDETERMINATE"
+    receipt["scope"] = {
+        "head": "f" * 40,
+        "diff_fingerprint": "f" * 64,
+        "matches_request": False,
+    }
+    receipt["next_action"] = "Recompute the actual current scope."
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="claims drift"):
+        closeout_queue.store_receipt(request, receipt, state_root=state_root)
+    assert not Path(request["receipt_path"]).exists()
+
+
+def test_current_qualified_request_supersedes_stale_indeterminate_mismatch(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    stale_queued = _queued_request(sample_repo, state_root)
+    stale_request = json.loads(
+        Path(str(stale_queued["request_path"])).read_text(encoding="utf-8")
+    )
+    (sample_repo / "README.md").write_text("current state\n", encoding="utf-8")
+    current_queued = session_end_closeout.handle_session_end(
+        {"session_id": "queue-current", "cwd": str(sample_repo)},
+        repo_root=sample_repo,
+        state_root=state_root,
+        dispatch=False,
+    )
+    current_request = json.loads(
+        Path(str(current_queued["request_path"])).read_text(encoding="utf-8")
+    )
+    stale_receipt = _qualified_receipt(stale_request)
+    stale_receipt["status"] = "INDETERMINATE"
+    stale_receipt["scope"] = {
+        "head": current_request["repo"]["head"],
+        "diff_fingerprint": current_request["repo"]["diff_fingerprint"],
+        "matches_request": False,
+    }
+    stale_receipt["next_action"] = "Qualify the newer exact-state request."
+    closeout_queue.store_receipt(
+        stale_request, stale_receipt, state_root=state_root
+    )
+    current_receipt = _qualified_receipt(current_request)
+    current_receipt["supersedes_request_ids"] = [stale_request["request_id"]]
+
+    stored = closeout_queue.store_receipt(
+        current_request, current_receipt, state_root=state_root
+    )
+
+    assert stored["status"] == "STORED"
+    assert closeout_queue.pending(state_root)["requests"] == []
+
+
 def test_store_rejects_mutation_between_repeated_live_scope_signatures(
     sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
