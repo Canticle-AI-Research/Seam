@@ -66,9 +66,12 @@ seam_runtime/_handoff_20260419/
 .seam/snapshots/*.json
 .seam/surfaces/
 # Local orchestration state. Schemas and profiles remain tracked elsewhere.
+.seam/orchestration/context/
 .seam/orchestration/sessions/
 .seam/orchestration/session-end/requests/
 .seam/orchestration/session-end/receipts/
+.seam/orchestration/session-end/receipt-attempts/
+.context-handoffs/
 
 # Local editor and agent config
 .cursor/

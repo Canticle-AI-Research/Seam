@@ -6,6 +6,11 @@ Schemas: `tools/agents/schemas/`
 
 ## Purpose
 
+Use [Continuing SEAM work with Codex](SOP_SEAM_CODEX_WORKFLOW.md) when the
+operator asks to continue, resume, repair, or complete a SEAM initiative. That
+runbook owns the end-to-end sequence; this SOP owns the agent topology, packet,
+session-state, guardian, and closeout mechanics used within its waves.
+
 This SOP applies only to Codex and its project-scoped custom agents. Claude, Gemini, DeepSeek,
 and other LLMs keep their own orchestration styles and model-specific
 configuration. They continue to share SEAM's repository safety, continuity,
@@ -244,9 +249,11 @@ The command `tools/agents/session_end_closeout.py`:
 2. validates `session_id` and that `cwd` is inside this Git root;
 3. reads Git metadata plus the bounded root session-state record;
 4. classifies changed paths and evaluates recorded TDD coverage;
-5. writes one permission-restricted, fingerprint-keyed request under
+5. embeds the bounded red/green cycle records so release can recompute the TDD
+   summary and changed-runtime-path coverage independently;
+6. writes one permission-restricted, fingerprint-keyed request under
    `.seam/orchestration/session-end/requests/`; and
-6. exits within the hook timeout.
+7. exits within the hook timeout.
 
 It does not read the Codex transcript, run tests, call
 `tools.history.closeout`, modify history, or start nested `codex exec` work.
@@ -278,6 +285,13 @@ python -m tools.agents.closeout_queue store \
   --request <queued-request.json> \
   --receipt <candidate-receipt.json>
 ```
+
+Receipt storage requires a stable repeated live-worktree HEAD, changed-path,
+and content fingerprint immediately before publication. That final stable
+verification is the receipt's point-in-time exact-state boundary; it does not
+lock arbitrary editors. A receipt that merely echoes a stale request is
+rejected, and any later worktree mutation requires the root to create a new
+request and repeat qualification before merge.
 
 The queue rejects oversized, malformed, symlinked, hash-mismatched,
 scope-mismatched, authority-expanding, incomplete-check, or conflicting

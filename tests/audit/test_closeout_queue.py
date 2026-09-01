@@ -41,6 +41,51 @@ def _queued_request(sample_repo: Path, state_root: Path) -> dict[str, object]:
     )
 
 
+def _runtime_queued_request(sample_repo: Path, state_root: Path) -> dict[str, object]:
+    runtime_path = sample_repo / "seam_runtime" / "feature.py"
+    runtime_path.parent.mkdir()
+    runtime_path.write_text("VALUE = 2\n", encoding="utf-8")
+    sessions = state_root / "sessions"
+    sessions.mkdir(parents=True)
+    session_state = {
+        "schema": "seam-agent-session-state/v1",
+        "session_id": "queue-runtime",
+        "base_sha": _git(sample_repo, "rev-parse", "HEAD"),
+        "objective": "Change the runtime feature.",
+        "plan": ["Pin the behavior", "Implement it"],
+        "constraints": [],
+        "affected_tests": ["tests/test_feature.py"],
+        "tdd_cycles": [
+            {
+                "behavior": "feature exposes the new value",
+                "test_refs": ["tests/test_feature.py::test_feature_value"],
+                "implementation_refs": ["seam_runtime/feature.py"],
+                "red": {
+                    "command": "pytest tests/test_feature.py::test_feature_value -q",
+                    "exit_code": 1,
+                    "observed_at": "2026-08-31T18:00:00Z",
+                    "fingerprint": "red-fingerprint",
+                },
+                "green": {
+                    "command": "pytest tests/test_feature.py::test_feature_value -q",
+                    "exit_code": 0,
+                    "observed_at": "2026-08-31T18:02:00Z",
+                    "fingerprint": "green-fingerprint",
+                },
+            }
+        ],
+    }
+    (sessions / "queue-runtime.json").write_text(
+        json.dumps(session_state), encoding="utf-8"
+    )
+    return session_end_closeout.handle_session_end(
+        {"session_id": "queue-runtime", "cwd": str(sample_repo)},
+        repo_root=sample_repo,
+        state_root=state_root,
+        dispatch=False,
+    )
+
+
 def test_pending_returns_a_hash_validated_request_for_the_release_profile(
     sample_repo: Path, tmp_path: Path
 ) -> None:
@@ -115,6 +160,51 @@ def test_root_stores_a_qualified_receipt_atomically_and_idempotently(
         closeout_queue.store_receipt(request, conflicting, state_root=state_root)
 
 
+@pytest.mark.parametrize("drift", ["content", "head"])
+def test_store_recomputes_live_scope_before_admitting_receipt(
+    sample_repo: Path, tmp_path: Path, drift: str
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _queued_request(sample_repo, state_root)
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    receipt = _qualified_receipt(request)
+    if drift == "content":
+        (sample_repo / "README.md").write_text("drifted content\n", encoding="utf-8")
+    else:
+        _git(sample_repo, "add", "README.md")
+        _git(sample_repo, "commit", "-qm", "drifted head")
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="live Git scope drifted"):
+        closeout_queue.store_receipt(request, receipt, state_root=state_root)
+
+
+def test_store_rejects_mutation_between_repeated_live_scope_signatures(
+    sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _queued_request(sample_repo, state_root)
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    receipt = _qualified_receipt(request)
+    original_fingerprint = closeout_queue._fingerprint
+    fingerprint_calls = 0
+
+    def mutate_after_first_fingerprint(*args, **kwargs):  # type: ignore[no-untyped-def]
+        nonlocal fingerprint_calls
+        fingerprint = original_fingerprint(*args, **kwargs)
+        fingerprint_calls += 1
+        if fingerprint_calls == 1:
+            (sample_repo / "README.md").write_text(
+                "mutated between signatures\n", encoding="utf-8"
+            )
+        return fingerprint
+
+    monkeypatch.setattr(closeout_queue, "_fingerprint", mutate_after_first_fingerprint)
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="did not remain stable"):
+        closeout_queue.store_receipt(request, receipt, state_root=state_root)
+    assert not Path(request["receipt_path"]).exists()
+
+
 def test_cli_surfaces_pending_requests_and_stores_only_validated_receipts(
     sample_repo: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -177,6 +267,55 @@ def test_pending_rejects_semantically_tampered_tdd_even_with_a_fresh_hash(
 
     with pytest.raises(closeout_queue.CloseoutQueueError, match="TDD"):
         closeout_queue.pending(state_root)
+
+
+def test_request_tdd_summary_must_recompute_from_embedded_cycles(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _runtime_queued_request(sample_repo, state_root)
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    request["tdd_evidence"]["status"] = "TDD_UNPROVEN"
+    request["tdd_evidence"]["covered_runtime_paths"] = []
+    request["tdd_evidence"]["missing_runtime_paths"] = ["seam_runtime/feature.py"]
+    request["request_sha256"] = closeout_queue._request_hash(request)
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="recompute"):
+        closeout_queue.validate_request(request, state_root=state_root)
+
+
+@pytest.mark.parametrize("invalid", ["changed_path", "empty_forbidden_actions"])
+def test_request_validator_enforces_schema_path_and_authority_bounds(
+    sample_repo: Path, tmp_path: Path, invalid: str
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _queued_request(sample_repo, state_root)
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    if invalid == "changed_path":
+        request["repo"]["changed_paths"] = ["x" * 1001]
+    else:
+        request["authority"]["forbidden_actions"] = []
+    request["request_sha256"] = closeout_queue._request_hash(request)
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="changed_paths|forbidden"):
+        closeout_queue.validate_request(request, state_root=state_root)
+
+
+@pytest.mark.parametrize("field", ["command", "evidence", "next_action"])
+def test_receipt_validator_enforces_schema_text_bounds(
+    sample_repo: Path, tmp_path: Path, field: str
+) -> None:
+    state_root = tmp_path / "state"
+    queued = _queued_request(sample_repo, state_root)
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    receipt = _qualified_receipt(request)
+    if field == "next_action":
+        receipt[field] = "x" * 2001
+    else:
+        receipt["checks"][0][field] = "x" * 2001
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match=field):
+        closeout_queue.validate_receipt(request, receipt, state_root=state_root)
 
 
 def test_pending_rejects_runtime_path_reclassified_as_non_runtime(

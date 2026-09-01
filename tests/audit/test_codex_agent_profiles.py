@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -115,3 +116,49 @@ def test_orchestration_policy_is_codex_only_and_preserves_other_model_styles() -
     assert "Claude, Gemini, DeepSeek" in sop
     assert "keep their own orchestration styles" in sop
     assert "Codex review/merge handling remains local and non-agentic" in ledger
+
+
+def test_local_orchestration_artifacts_are_ignored_in_a_fresh_clone(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / ".gitignore").write_text(
+        (REPO_ROOT / ".gitignore").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    local_artifacts = [
+        ".seam/orchestration/context/probe.json",
+        ".seam/orchestration/session-end/receipt-attempts/probe.json",
+        ".context-handoffs/probe.md",
+    ]
+
+    result = subprocess.run(
+        ["git", "check-ignore", "--verbose", *local_artifacts],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert [line.rsplit("\t", 1)[-1] for line in result.stdout.splitlines()] == (
+        local_artifacts
+    )
+    assert all(
+        line.startswith(".gitignore:") for line in result.stdout.splitlines()
+    ), result.stdout
+
+    tracked_orchestration_paths = [
+        ".seam/orchestration/schema.json",
+        ".seam/orchestration/session-end/schema.json",
+    ]
+    tracked_result = subprocess.run(
+        ["git", "check-ignore", "--verbose", *tracked_orchestration_paths],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert tracked_result.returncode == 1
+    assert tracked_result.stdout == ""

@@ -129,6 +129,7 @@ def test_root_supplied_session_state_can_prove_red_green_cycle(
     assert request["tdd_evidence"]["covered_runtime_paths"] == [
         "seam_runtime/feature.py"
     ]
+    assert request["tdd_evidence"]["cycles"] == session_state["tdd_cycles"]
 
 
 def test_schema_invalid_session_state_cannot_prove_tdd(
@@ -521,3 +522,17 @@ def test_closeout_request_schema_pins_bounded_context_and_authority() -> None:
     assert schema["properties"]["authority"]["properties"]["mode"]["const"] == "verify_only"
     assert schema["properties"]["authority"]["properties"]["allowed_writes"]["maxItems"] == 0
     assert schema["properties"]["repo"]["properties"]["changed_paths"]["maxItems"] == 512
+    assert (
+        schema["properties"]["repo"]["properties"]["changed_paths"]["items"][
+            "maxLength"
+        ]
+        == 1000
+    )
+    forbidden = schema["properties"]["authority"]["properties"]["forbidden_actions"]
+    assert forbidden["minItems"] == 1
+    assert forbidden["maxItems"] == 32
+    assert forbidden["items"] == {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000,
+    }

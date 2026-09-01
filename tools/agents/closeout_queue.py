@@ -18,6 +18,11 @@ from typing import Any
 from tools.agents.session_end_closeout import (
     DEFAULT_STATE_ROOT,
     REQUIRED_CLOSEOUT_CHECKS,
+    SessionEndError,
+    _changed_paths,
+    _fingerprint,
+    _git_text,
+    assess_tdd,
     runtime_paths,
 )
 
@@ -65,6 +70,7 @@ TDD_FIELDS = {
     "covered_runtime_paths",
     "missing_runtime_paths",
     "cycle_count",
+    "cycles",
 }
 RECEIPT_FIELDS = {
     "schema",
@@ -189,15 +195,78 @@ def _string_list(
     *,
     maximum: int,
     maximum_length: int = 1000,
+    minimum: int = 0,
 ) -> bool:
     return (
         isinstance(value, list)
-        and len(value) <= maximum
+        and minimum <= len(value) <= maximum
         and all(
             isinstance(item, str) and 0 < len(item) <= maximum_length
             for item in value
         )
     )
+
+
+def _validate_tdd_cycles(value: object) -> list[dict[str, Any]]:
+    if not isinstance(value, list) or len(value) > 128:
+        raise CloseoutQueueError("closeout request TDD cycles are invalid")
+    for cycle in value:
+        if not isinstance(cycle, dict) or set(cycle) != {
+            "behavior",
+            "test_refs",
+            "implementation_refs",
+            "red",
+            "green",
+        }:
+            raise CloseoutQueueError("closeout request TDD cycle fields are invalid")
+        if (
+            not isinstance(cycle.get("behavior"), str)
+            or not 1 <= len(cycle["behavior"]) <= 1000
+        ):
+            raise CloseoutQueueError("closeout request TDD cycle behavior is invalid")
+        for field in ("test_refs", "implementation_refs"):
+            if not _string_list(
+                cycle.get(field), maximum=32, maximum_length=500, minimum=1
+            ):
+                raise CloseoutQueueError(
+                    f"closeout request TDD cycle {field} is invalid"
+                )
+        for phase_name in ("red", "green"):
+            phase = cycle.get(phase_name)
+            if not isinstance(phase, dict) or set(phase) != {
+                "command",
+                "exit_code",
+                "observed_at",
+                "fingerprint",
+            }:
+                raise CloseoutQueueError(
+                    f"closeout request TDD {phase_name} phase is invalid"
+                )
+            if (
+                not isinstance(phase.get("command"), str)
+                or not 1 <= len(phase["command"]) <= 2000
+            ):
+                raise CloseoutQueueError(
+                    f"closeout request TDD {phase_name} command is invalid"
+                )
+            if isinstance(phase.get("exit_code"), bool) or not isinstance(
+                phase.get("exit_code"), int
+            ):
+                raise CloseoutQueueError(
+                    f"closeout request TDD {phase_name} exit_code is invalid"
+                )
+            _timestamp(
+                phase.get("observed_at"),
+                label=f"request TDD {phase_name} observed_at",
+            )
+            if (
+                not isinstance(phase.get("fingerprint"), str)
+                or not 1 <= len(phase["fingerprint"]) <= 256
+            ):
+                raise CloseoutQueueError(
+                    f"closeout request TDD {phase_name} fingerprint is invalid"
+                )
+    return value
 
 
 def validate_request(
@@ -218,7 +287,11 @@ def validate_request(
     if request_sha256 != _request_hash(value):
         raise CloseoutQueueError("closeout request_sha256 does not match request content")
     session_id = value.get("session_id")
-    if not isinstance(session_id, str) or not SAFE_ID.fullmatch(session_id):
+    if (
+        not isinstance(session_id, str)
+        or len(session_id) > 180
+        or not SAFE_ID.fullmatch(session_id)
+    ):
         raise CloseoutQueueError("closeout request session_id is unsafe")
     if value.get("trigger") != "SessionEnd":
         raise CloseoutQueueError("closeout request trigger is unsupported")
@@ -255,7 +328,7 @@ def validate_request(
             raise CloseoutQueueError(f"closeout request repo.{field} is invalid")
     paths = repo.get("changed_paths")
     if not isinstance(paths, list) or len(paths) > 512 or not all(
-        isinstance(path, str) and path for path in paths
+        isinstance(path, str) and 0 < len(path) <= 1000 for path in paths
     ):
         raise CloseoutQueueError("closeout request changed_paths is invalid")
     if len(set(paths)) != len(paths) or any(
@@ -285,6 +358,7 @@ def validate_request(
     tdd = value.get("tdd_evidence")
     if not isinstance(tdd, dict) or set(tdd) != TDD_FIELDS:
         raise CloseoutQueueError("closeout request TDD fields are invalid")
+    cycles = _validate_tdd_cycles(tdd.get("cycles"))
     for field in ("runtime_paths", "covered_runtime_paths", "missing_runtime_paths"):
         if not _string_list(tdd.get(field), maximum=2048):
             raise CloseoutQueueError(f"closeout request TDD {field} is invalid")
@@ -323,6 +397,26 @@ def validate_request(
         raise CloseoutQueueError("closeout request TDD omits visible runtime paths")
     if tdd_runtime_paths != visible_runtime_paths:
         raise CloseoutQueueError("closeout request TDD runtime paths do not match changed paths")
+    recomputed = assess_tdd(paths, {"tdd_cycles": cycles})
+    if truncated:
+        recomputed.update(
+            {
+                "status": "TDD_UNPROVEN",
+                "covered_runtime_paths": [],
+                "missing_runtime_paths": recomputed["runtime_paths"],
+            }
+        )
+    for field in (
+        "status",
+        "runtime_paths",
+        "covered_runtime_paths",
+        "missing_runtime_paths",
+        "cycle_count",
+    ):
+        if tdd[field] != recomputed[field]:
+            raise CloseoutQueueError(
+                "closeout request TDD summary does not recompute from cycle evidence"
+            )
     authority = value.get("authority")
     if not isinstance(authority, dict) or set(authority) != {
         "mode",
@@ -332,7 +426,12 @@ def validate_request(
         raise CloseoutQueueError("closeout request authority fields are invalid")
     if authority.get("mode") != "verify_only" or authority.get("allowed_writes") != []:
         raise CloseoutQueueError("closeout request grants release-agent write authority")
-    if not _string_list(authority.get("forbidden_actions"), maximum=32):
+    if not _string_list(
+        authority.get("forbidden_actions"),
+        maximum=32,
+        maximum_length=1000,
+        minimum=1,
+    ):
         raise CloseoutQueueError("closeout request forbidden actions are invalid")
     checks = value.get("required_checks")
     if not isinstance(checks, list) or not checks or len(set(checks)) != len(checks) or not all(
@@ -427,10 +526,16 @@ def validate_receipt(
             "evidence",
         }:
             raise CloseoutQueueError("closeout receipt check fields are invalid")
-        if not isinstance(check.get("requirement"), str) or not check["requirement"]:
+        if (
+            not isinstance(check.get("requirement"), str)
+            or not 1 <= len(check["requirement"]) <= 2000
+        ):
             raise CloseoutQueueError("closeout receipt check requirement is invalid")
         requirements.append(check["requirement"])
-        if not isinstance(check.get("command"), str) or not check["command"]:
+        if (
+            not isinstance(check.get("command"), str)
+            or not 1 <= len(check["command"]) <= 2000
+        ):
             raise CloseoutQueueError("closeout receipt check command is invalid")
         if check.get("status") not in {"PASS", "FAIL", "BLOCKED", "NOT_RUN"}:
             raise CloseoutQueueError("closeout receipt check status is invalid")
@@ -438,7 +543,10 @@ def validate_receipt(
             check.get("exit_code"), (int, type(None))
         ):
             raise CloseoutQueueError("closeout receipt check exit_code is invalid")
-        if not isinstance(check.get("evidence"), str) or not check["evidence"]:
+        if (
+            not isinstance(check.get("evidence"), str)
+            or not 1 <= len(check["evidence"]) <= 2000
+        ):
             raise CloseoutQueueError("closeout receipt check evidence is invalid")
     if requirements != request["required_checks"]:
         raise CloseoutQueueError("closeout receipt checks do not cover exact requirements")
@@ -461,7 +569,11 @@ def validate_receipt(
         "INDETERMINATE",
     } or not _string_list(alignment.get("evidence"), maximum=32):
         raise CloseoutQueueError("closeout receipt project alignment is invalid")
-    if not isinstance(receipt.get("next_action"), str) or not receipt["next_action"].strip():
+    if (
+        not isinstance(receipt.get("next_action"), str)
+        or not receipt["next_action"].strip()
+        or len(receipt["next_action"]) > 2000
+    ):
         raise CloseoutQueueError("closeout receipt next_action is required")
     if status == "QUALIFIED":
         if request["repo"]["changed_paths_truncated"]:
@@ -683,6 +795,38 @@ def _validate_supersession_targets(
             )
 
 
+def _live_scope_signature(
+    repo_root: Path, base_sha: str | None
+) -> tuple[str, tuple[str, ...], str]:
+    head = _git_text(repo_root, "rev-parse", "HEAD")
+    paths, _ = _changed_paths(repo_root, base_sha)
+    fingerprint = _fingerprint(repo_root, head, base_sha, paths)
+    if _git_text(repo_root, "rev-parse", "HEAD") != head:
+        raise CloseoutQueueError("closeout live Git scope drifted during admission")
+    return head, tuple(paths), fingerprint
+
+
+def _verify_live_scope(request: dict[str, Any]) -> None:
+    repo = request["repo"]
+    try:
+        repo_root = Path(repo["root"]).resolve(strict=True)
+        if repo_root != Path(repo["worktree"]).resolve(strict=True):
+            raise CloseoutQueueError("closeout request worktree is no longer available")
+        if _git_text(repo_root, "rev-parse", "--show-toplevel") != str(repo_root):
+            raise CloseoutQueueError("closeout request root is no longer the active Git root")
+        first = _live_scope_signature(repo_root, repo["base_sha"])
+        final = _live_scope_signature(repo_root, repo["base_sha"])
+    except (OSError, RuntimeError, SessionEndError) as exc:
+        raise CloseoutQueueError(
+            "closeout live Git scope could not be recomputed"
+        ) from exc
+    if first != final:
+        raise CloseoutQueueError("closeout live Git scope did not remain stable")
+    head, _, fingerprint = final
+    if head != repo["head"] or fingerprint != repo["diff_fingerprint"]:
+        raise CloseoutQueueError("closeout live Git scope drifted from request")
+
+
 def store_receipt(
     request: object,
     receipt: object,
@@ -702,6 +846,7 @@ def store_receipt(
     stored = _stored_receipts(request, state_root=state_root)
     for existing_path, existing in stored:
         if _canonical_record(existing) == encoded:
+            _verify_live_scope(request)
             status = (
                 "ALREADY_STORED"
                 if existing_path
@@ -715,11 +860,13 @@ def store_receipt(
     canonical = _expected_receipt_path(state_root, request["request_id"])
     if not stored:
         _ensure_state_directory(canonical.parent, label="receipt")
+        _verify_live_scope(request)
         if _publish_record_once(canonical, encoded):
             return {"status": "STORED", "receipt_path": str(canonical)}
         stored = _stored_receipts(request, state_root=state_root)
         for existing_path, existing in stored:
             if _canonical_record(existing) == encoded:
+                _verify_live_scope(request)
                 return {
                     "status": "ALREADY_STORED",
                     "receipt_path": str(existing_path),
@@ -731,12 +878,14 @@ def store_receipt(
 
     attempt = _receipt_attempt_path(state_root, request["request_id"], encoded)
     _ensure_state_directory(attempt.parent, label="receipt-attempt")
+    _verify_live_scope(request)
     if not _publish_record_once(attempt, encoded):
         existing = validate_receipt(
             request, _load_json(attempt), state_root=state_root
         )
         if _canonical_record(existing) != encoded:
             raise CloseoutQueueError("conflicting closeout receipt attempt exists")
+        _verify_live_scope(request)
         return {"status": "ALREADY_STORED_ATTEMPT", "receipt_path": str(attempt)}
     return {"status": "STORED_ATTEMPT", "receipt_path": str(attempt)}
 

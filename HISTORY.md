@@ -20087,3 +20087,56 @@ TDD covered the final review findings before implementation. The scoped command 
 
 PR 238 remains draft and branch-local. Fresh trusted Codex project discovery plus one live request to release-orchestrator to receipt cycle is still an explicit activation gate; no released, deployed, benchmark, Track S, or memory-quality claim changes. The dirty primary checkout remains untouched.
 ---END-ENTRY-#616---
+
+---BEGIN-ENTRY-#617---
+id: 617
+date: 2026-09-01T01:37:26Z
+agent: codex
+status: done
+topics: agent, multi-agent, session, protocol, harden, security, test, tests, verify, continuity, git-hooks, docs
+commits: pending
+refs: .gitignore,docs/SOP_SEAM_CODEX_WORKFLOW.md,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_INDEX.md,docs/README.md,tools/agents/session_end_closeout.py,tools/agents/closeout_queue.py,tools/agents/schemas/closeout-request.schema.json,tests/audit/test_session_end_agent_closeout.py,tests/audit/test_closeout_queue.py,tests/audit/test_codex_agent_profiles.py,PR#238
+supersedes: 616
+tokens: 677
+---
+Repaired and locally qualified the Codex agent-orchestration candidate after
+independent integrity and workflow assurance rejected the prior exact state.
+SessionEnd requests now embed bounded per-cycle TDD records; the root queue
+validates those records and recomputes TDD status and runtime-path coverage
+instead of trusting producer summaries. Receipt admission recomputes the live
+Git scope and content identity, requires repeated stable scope signatures, and
+performs a final point-in-time verification immediately before canonical or
+attempt publication. The contract does not claim to lock out arbitrary editors:
+any later mutation requires a new exact-state request and qualification.
+
+The request validator now enforces the schema's bounded identifiers, paths,
+requirements, commands, evidence, forbidden actions, and next-action fields.
+Tracked ignore policy covers only generated orchestration context, receipt
+attempt, and successor-handoff artifacts while keeping schemas and durable
+configuration visible. Fresh regressions cover producer/consumer TDD parity,
+live-scope drift, repeated-signature mutation, schema bounds, and ignore scope.
+
+Added the operator runbook for continuing SEAM work with Codex. Its twelve
+ordered phases cover live reconciliation, operator contract, bounded context,
+protected delivery, public-seam red/green work, integration, independent
+assurance, canonical closeout, exact-head PR/CI, stored release qualification,
+protected merge, and exact-main resume. Each phase has one owner and an
+observable completion boundary, while the existing orchestration SOP retains
+the packet, role, session, guardian, request, and receipt mechanics.
+
+Verification on the repaired tree: focused orchestration and local-gate audit
+tests passed; touched tests collected without import errors; changed-scope Ruff,
+wiki verification, git diff check, and the content-free secret/private-session
+scan passed. The strict non-external repository suite completed at 100 percent
+with two established expected failures and no failure or skip. After starting
+the healthy local pgvector service and supplying its credentials without
+embedding them in a DSN or repository artifact, all 23 external tests passed.
+Two fresh independent assurance passes reported no finding on the final
+integrity and workflow/ignore surfaces.
+
+This state remains branch-local in PR 238 until commit, push, exact-head CI,
+fresh stored QUALIFIED receipt, and protected merge. It does not activate
+custom profiles in an already-running client and makes no release, deployment,
+benchmark, Track S, or memory-quality claim. The separate draft PR 237 remains
+the S8-S10 delivery candidate and is intentionally untouched.
+---END-ENTRY-#617---

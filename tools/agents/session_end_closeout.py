@@ -349,6 +349,7 @@ def _valid_cycle(cycle: object) -> bool:
 def assess_tdd(paths: list[str], state: dict[str, Any] | None) -> dict[str, Any]:
     """Assess recorded red/green evidence against the changed runtime paths."""
 
+    cycles = state.get("tdd_cycles", []) if state else []
     runtime = runtime_paths(paths)
     if not runtime:
         return {
@@ -357,8 +358,8 @@ def assess_tdd(paths: list[str], state: dict[str, Any] | None) -> dict[str, Any]
             "covered_runtime_paths": [],
             "missing_runtime_paths": [],
             "cycle_count": 0,
+            "cycles": cycles,
         }
-    cycles = state.get("tdd_cycles", []) if state else []
     valid = [cycle for cycle in cycles if _valid_cycle(cycle)]
     covered = sorted(
         {
@@ -375,6 +376,7 @@ def assess_tdd(paths: list[str], state: dict[str, Any] | None) -> dict[str, Any]
         "covered_runtime_paths": covered,
         "missing_runtime_paths": missing,
         "cycle_count": len(valid),
+        "cycles": cycles,
     }
 
 
@@ -692,6 +694,7 @@ def handle_session_end(
             "covered_runtime_paths": [],
             "missing_runtime_paths": runtime,
             "cycle_count": tdd_evidence["cycle_count"],
+            "cycles": tdd_evidence["cycles"],
         }
     request = {
         "schema": "seam-agent-closeout-request/v1",

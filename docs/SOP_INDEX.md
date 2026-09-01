@@ -11,6 +11,9 @@ or remains necessary.
 
 ## Operator workflows
 
+- [Continuing SEAM work with Codex](SOP_SEAM_CODEX_WORKFLOW.md) — ordered
+  reconciliation, delivery, assurance, qualification, protected merge, and
+  durable-resume workflow for continuing a SEAM initiative.
 - [Model integration](SOP_MODEL_INTEGRATION.md) — configure model providers and adapters.
 - [Holographic Surface workflow](SOP_HOLOGRAPHIC_SURFACE.md) — encode, verify, query, and import surface artifacts.
 
