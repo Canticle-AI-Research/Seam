@@ -18,6 +18,7 @@ tested against observable state, not against connection bookkeeping.
 
 from __future__ import annotations
 
+import sqlite3
 import threading
 
 import pytest
@@ -197,8 +198,6 @@ def test_snapshot_denies_writes_instead_of_discarding_them(tmp_path) -> None:
     mode strictly worse than the tear being fixed.
     """
 
-    import sqlite3
-
     runtime = _runtime(tmp_path)
     try:
         _seed(runtime, 2)
@@ -216,6 +215,198 @@ def test_snapshot_denies_writes_instead_of_discarding_them(tmp_path) -> None:
 
         # The refused writes changed nothing.
         assert len(runtime.store.load_ir(ns="work", scope="thread").records) == 2
+    finally:
+        runtime.close()
+
+
+def test_rejected_store_write_preserves_bound_snapshot_until_owner_close(
+    tmp_path,
+) -> None:
+    """A rejected store write must not end or advance the request snapshot."""
+
+    runtime = _runtime(tmp_path)
+    try:
+        _seed(runtime, 3, prefix="before")
+        key = snapshot_key_for_path(runtime.store.path)
+        rejected = IRBatch([_record("clm:rejected", "rejected write")])
+
+        with runtime.store.read_snapshot() as snapshot:
+            baseline = {
+                record.id
+                for record in runtime.store.load_ir(
+                    ns="work", scope="thread"
+                ).records
+            }
+            assert snapshot.in_transaction
+
+            with pytest.raises(sqlite3.DatabaseError):
+                runtime.store.persist_ir(rejected)
+
+            assert snapshot.in_transaction
+            assert active_connection(key) is snapshot
+
+            def ingest_elsewhere() -> None:
+                writer = _runtime(tmp_path)
+                try:
+                    _seed(writer, 1, prefix="concurrent")
+                finally:
+                    writer.close()
+
+            ingest = threading.Thread(target=ingest_elsewhere)
+            ingest.start()
+            ingest.join(timeout=60)
+            assert not ingest.is_alive()
+
+            after_load = {
+                record.id
+                for record in runtime.store.load_ir(
+                    ns="work", scope="thread"
+                ).records
+            }
+            after_search = {
+                candidate.record.id for candidate in _search(runtime).candidates
+            }
+            assert after_load == baseline
+            assert "clm:rejected" not in after_search
+            assert "clm:concurrent-0" not in after_search
+
+        assert active_connection(key) is None
+        assert not snapshot.in_transaction
+        visible_after_close = {
+            record.id
+            for record in runtime.store.load_ir(ns="work", scope="thread").records
+        }
+        assert "clm:concurrent-0" in visible_after_close
+        assert "clm:rejected" not in visible_after_close
+    finally:
+        runtime.close()
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "api_commit",
+        "api_rollback",
+        "sql_commit",
+        "sql_rollback",
+        "sql_savepoint",
+        "sql_release",
+        "sql_rollback_to",
+        "api_close",
+        "authorizer_replace",
+        "cursor_connection_close",
+        "context_exit",
+        "blob_write",
+        "deserialize",
+        "attach_database",
+    ],
+)
+def test_snapshot_owner_exclusively_controls_transaction_end(
+    tmp_path,
+    operation: str,
+) -> None:
+    """Nested callers cannot commit, roll back, or control savepoints."""
+
+    runtime = _runtime(tmp_path)
+    try:
+        _seed(runtime, 2)
+        key = snapshot_key_for_path(runtime.store.path)
+
+        with runtime.store.read_snapshot() as snapshot:
+            if operation == "api_commit":
+                attempt = snapshot.commit
+            elif operation == "api_rollback":
+                attempt = snapshot.rollback
+            elif operation == "api_close":
+                attempt = snapshot.close
+            elif operation == "authorizer_replace":
+
+                def attempt() -> None:
+                    snapshot.set_authorizer(None)
+
+            elif operation == "cursor_connection_close":
+                attempt = snapshot.cursor().connection.close
+            elif operation == "context_exit":
+
+                def attempt() -> None:
+                    snapshot.__exit__(None, None, None)
+
+            elif operation == "blob_write":
+
+                def attempt() -> None:
+                    snapshot.blobopen(
+                        "ir_records",
+                        "payload_json",
+                        1,
+                        readonly=False,
+                    )
+
+            elif operation == "deserialize":
+
+                def attempt() -> None:
+                    snapshot.deserialize(b"not-a-database")
+
+            elif operation == "attach_database":
+
+                def attempt() -> None:
+                    snapshot.execute("attach ':memory:' as d4_other")
+
+            else:
+                statements = {
+                    "sql_commit": "commit",
+                    "sql_rollback": "rollback",
+                    "sql_savepoint": "savepoint d4_probe",
+                    "sql_release": "release d4_probe",
+                    "sql_rollback_to": "rollback to d4_probe",
+                }
+                statement = statements[operation]
+
+                def attempt() -> None:
+                    snapshot.execute(statement)
+
+            with pytest.raises(sqlite3.DatabaseError):
+                attempt()
+
+            assert snapshot.in_transaction
+            assert active_connection(key) is snapshot
+            assert len(
+                runtime.store.load_ir(ns="work", scope="thread").records
+            ) == 2
+            assert "d4_other" not in {
+                row[1] for row in snapshot.execute("pragma database_list")
+            }
+
+        assert active_connection(key) is None
+        assert not snapshot.in_transaction
+    finally:
+        runtime.close()
+
+
+def test_mutating_pragmas_cannot_change_later_snapshot_reads(tmp_path) -> None:
+    """Connection and database PRAGMAs remain owner-controlled."""
+
+    runtime = _runtime(tmp_path)
+    try:
+        _seed(runtime, 2)
+
+        with runtime.store.read_snapshot() as snapshot:
+            original_version = snapshot.execute("pragma user_version").fetchone()[0]
+            assert snapshot.execute("pragma query_only").fetchone()[0] == 1
+
+            with pytest.raises(sqlite3.DatabaseError):
+                snapshot.execute("pragma user_version=123")
+            with pytest.raises(sqlite3.DatabaseError):
+                snapshot.execute("pragma query_only=off")
+
+            assert snapshot.execute("pragma user_version").fetchone()[0] == original_version
+            assert snapshot.execute("pragma query_only").fetchone()[0] == 1
+            assert len(
+                runtime.store.load_ir(ns="work", scope="thread").records
+            ) == 2
+
+        with runtime.store._pool.checkout() as connection:
+            assert connection.execute("pragma query_only").fetchone()[0] == 0
+            assert connection.execute("pragma user_version").fetchone()[0] == 0
     finally:
         runtime.close()
 

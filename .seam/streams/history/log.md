@@ -20416,3 +20416,31 @@ This entry advances the chronological handoff to D4 after D3 protected merge.
 D3 is not yet protected-main complete. No S8, S9, S10, release, deployment, or
 hosted-production claim is made.
 ---END-ENTRY-#623---
+
+---BEGIN-ENTRY-#624---
+id: 624
+date: 2026-09-01T07:24:12Z
+agent: Codex
+status: done
+topics: bugfix, storage, snapshot, sqlite, test, tests, verify, continuity, handoff, status, roadmap
+commits: none
+refs: seam_runtime/read_snapshot.py,tests/audit/test_read_snapshot_consistency.py,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-09-01-track-s-d4-locally-qualified-t1-next.md
+supersedes: 623
+tokens: 332
+---
+D4 Snapshot Integrity is locally qualified on codex/d4-snapshot-integrity from protected main@253037a. A rejected write through the normal store path preserves the active committed read snapshot. Nested callers receive guarded connection and cursor facades; owner-managed query_only plus the SQLite authorizer reject transaction/savepoint controls, close and authorizer replacement, BLOB mutation, deserialize, mutating PRAGMAs, ATTACH/DETACH, temp/vtable mutation, and the remaining mutating action family. The owner alone removes guards, rolls back, restores prior connection settings, and returns the physical connection to the pool. Verification on the exact candidate: 3,238 non-external cases selected with exit 0 and two established xfails; 23 live pgvector external tests passed; the 51-case focused snapshot/pool/retrieval/lifecycle matrix passed; changed-file Ruff and git diff --check passed. Independent standards/spec assurance rejected partial iterations for raw close, broad delegation, BLOB/deserialize, mutating PRAGMA, and ATTACH escape paths; the final review found no issue. D4 remains unpublished until signed commit, push, exact-head hosted checks, root-stored QUALIFIED receipt, protected merge, and exact-main resume. T1 is next only after that merge; no S8-S10 completion or deployment claim is made.
+---END-ENTRY-#624---
+
+---BEGIN-ENTRY-#625---
+id: 625
+date: 2026-09-01T07:30:52Z
+agent: Codex
+status: changed
+topics: history, correction, continuity, verify, handoff, status
+commits: none
+refs: HISTORY.md,HISTORY_INDEX.md,docs/handoffs/2026-09-01-track-s-d4-locally-qualified-t1-next.md,docs/handoffs/INDEX.md
+supersedes: 624
+tokens: 135
+---
+Metadata correction for HISTORY#624 under the append-only history contract. The topic sqlite is not in AGENTS.md's controlled vocabulary. The effective valid topic set for the D4 qualification entry is bugfix, storage, snapshot, test, tests, verify, continuity, handoff, status, and roadmap. All substantive D4 implementation, qualification, claim-boundary, and next-step facts recorded in HISTORY#624 remain unchanged. The current D4 handoff advances to this strictly later correction entry so startup routing resolves the valid metadata.
+---END-ENTRY-#625---
