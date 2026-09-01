@@ -410,6 +410,17 @@ and `HISTORY_INDEX.md`.
   success state plus outcome ID; genuinely conflicting outcomes append to the
   guarded `reasoning-pattern-schema/2` disagreement ledger and remain visible
   in pattern trust statistics. See HISTORY#628.
+- R1 retrieval policy resolves once. Positive persisted `search_top_k` and
+  `context_budget` values load fail-closed with logged rejection while staying
+  outside self-improvement proposal flags. The SQL leg admits a non-lexical
+  tail at score `0.80` only when the query explicitly authors both `ns:` and
+  `scope:`; runtime tenant boundaries remain isolation-only, and graph seed
+  acquisition requires lexical evidence or structured score `1.00`. Component
+  and orchestrator RRF both use one-based rank plus record-ID ties. Graph
+  semantic seeding resolves from the same applied flags across runtime, MCP,
+  SDK, and compatibility paths, then becomes an explicit boolean in the plan.
+  `legacy-weighted/1` remains the versioned compatibility adapter until S9
+  Promotion evidence changes it. See HISTORY#629.
 - G5 context assembly is a disposable `context-assembly/2` PACK over current
   canonical facts/entities/episodes and G4 products. Every item retains exact
   record and episode backtraces; derived items also retain their product ID.

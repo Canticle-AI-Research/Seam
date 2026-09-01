@@ -1327,6 +1327,8 @@ def _build_structured_sql(
     *,
     include_graph_kinds: bool = False,
 ) -> tuple[str, list[object]]:
+    boundary_filter_score = 0.40
+    boundary_only_gate_score = boundary_filter_score * 2
     allowed_kinds = ["CLM", "EVT", "REL", "STA"]
     if plan.include_raw:
         allowed_kinds.append("RAW")
@@ -1370,6 +1372,8 @@ def _build_structured_sql(
 
     structured_parts: list[str] = []
     structured_params: list[object] = []
+    boundary_parts: list[str] = []
+    boundary_params: list[object] = []
     if plan.filters.ids:
         placeholders = ",".join("?" for _ in plan.filters.ids)
         structured_parts.append(f"case when id in ({placeholders}) then 1.20 else 0 end")
@@ -1379,11 +1383,23 @@ def _build_structured_sql(
         structured_parts.append(f"case when kind in ({placeholders}) then 0.80 else 0 end")
         structured_params.extend(plan.filters.kinds)
     if plan.filters.namespace:
-        structured_parts.append("case when ns = ? then 0.40 else 0 end")
+        structured_parts.append(
+            f"case when ns = ? then {boundary_filter_score} else 0 end"
+        )
         structured_params.append(plan.filters.namespace)
+        boundary_parts.append(
+            f"case when ns = ? then {boundary_filter_score} else 0 end"
+        )
+        boundary_params.append(plan.filters.namespace)
     if plan.filters.scope:
-        structured_parts.append("case when scope = ? then 0.40 else 0 end")
+        structured_parts.append(
+            f"case when scope = ? then {boundary_filter_score} else 0 end"
+        )
         structured_params.append(plan.filters.scope)
+        boundary_parts.append(
+            f"case when scope = ? then {boundary_filter_score} else 0 end"
+        )
+        boundary_params.append(plan.filters.scope)
     if plan.filters.predicate:
         structured_parts.append("case when predicate_text = ? then 0.75 else 0 end")
         structured_params.append(plan.filters.predicate.lower())
@@ -1395,6 +1411,7 @@ def _build_structured_sql(
         structured_parts.append("case when object_text like ? escape '\\' then 0.65 else 0 end")
         structured_params.append(f"%{escaped}%")
     structured_expr = " + ".join(structured_parts) if structured_parts else "0.0"
+    boundary_expr = " + ".join(boundary_parts) if boundary_parts else "0.0"
 
     lexical_count_parts: list[str] = []
     lexical_count_params: list[object] = []
@@ -1415,19 +1432,28 @@ def _build_structured_sql(
     gating_clause = ""
     gating_params: list[object] = []
     if query_tokens:
-        # Two explicit boundary filters (normally namespace + scope) are
-        # sufficient to retain non-lexical tail records.  The historical
-        # ``search_ir`` contract ranked that bounded tail through its temporal
-        # channel; keeping it here preserves closure/fact composition without
-        # admitting unrelated namespaces or scopes. Graph seed selection stays
-        # lexical so zero-hop/hop bounds cannot be bypassed by boundary-only
-        # matches.
-        structured_gate = (
-            0.8 if plan.include_raw and not include_graph_kinds else 1.0
-        )
-        gating_clause = (
-            f"and (lexical_hits > 0 or structured_score >= {structured_gate})"
-        )
+        if include_graph_kinds:
+            # Graph seed acquisition explicitly refuses the boundary-only 0.80
+            # tail: otherwise every record in a tenant can become a seed and
+            # bypass the bounded lexical/semantic frontier. A score of 1.00 or
+            # greater still admits an explicit non-boundary structured match.
+            gating_clause = "and (lexical_hits > 0 or structured_score >= 1.0)"
+        else:
+            explicit_namespace = bool(re.search(r"\bns:[^\s]+", plan.query))
+            explicit_scope = bool(re.search(r"\bscope:[^\s]+", plan.query))
+            boundary_tail_clause = (
+                f" or boundary_score >= {boundary_only_gate_score}"
+                if explicit_namespace and explicit_scope
+                else ""
+            )
+            # Namespace and scope each contribute 0.40, so two query-authored
+            # boundary filters enable the named inclusive 0.80 tail. Boundaries
+            # supplied by the runtime remain isolation constraints, not a recall
+            # request. Other non-lexical structured matches require score 1.00.
+            gating_clause = (
+                "and (lexical_hits > 0 or structured_score >= 1.0"
+                f"{boundary_tail_clause})"
+            )
 
     query = f"""
 with record_rows as (
@@ -1459,6 +1485,7 @@ scored_rows as (
         conf,
         updated_at,
         {structured_expr} as structured_score,
+        {boundary_expr} as boundary_score,
         {lexical_hits_expr} as lexical_hits,
         {lexical_score_expr} as lexical_score,
         case when t0 is not null then 0.10 else 0.0 end as temporal_score
@@ -1480,6 +1507,7 @@ limit ?
     params: list[object] = []
     params.extend(where_params)
     params.extend(structured_params)
+    params.extend(boundary_params)
     params.extend(lexical_count_params)
     params.extend(lexical_score_params)
     params.extend(gating_params)

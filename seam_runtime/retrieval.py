@@ -518,8 +518,23 @@ def load_retrieval_flags(
             key = row.get("flag_key")
             if key not in field_types:
                 continue
-            coerced = coerce_flag_value(key, row.get("flag_value"))
+            raw_value = row.get("flag_value")
+            if key in {"search_top_k", "context_budget"}:
+                coerced = (
+                    raw_value
+                    if isinstance(raw_value, int)
+                    and not isinstance(raw_value, bool)
+                    and raw_value > 0
+                    else None
+                )
+            else:
+                coerced = coerce_flag_value(key, raw_value)
             if coerced is None:
+                LOGGER.warning(
+                    "Ignoring invalid persisted retrieval flag %s; the prior "
+                    "effective value remains active.",
+                    key,
+                )
                 continue
             values[key] = coerced
 
@@ -626,15 +641,16 @@ def _fuse_weighted(scored: list[tuple[MIRLRecord, dict[str, float]]], batch_by_i
 
 
 def _fuse_rrf(scored: list[tuple[MIRLRecord, dict[str, float]]], batch_by_id: dict[str, MIRLRecord], k: int) -> list[SearchCandidate]:
-    # Per-channel descending rank; only records with a positive channel score
-    # participate in that channel. RRF score = sum_c 1/(k + rank_c).
+    # Per-channel descending one-based rank, matching the canonical
+    # retrieval-orchestrator fusion contract. Only records with a positive
+    # channel score participate. RRF score = sum_c 1/(k + rank_c).
     rrf: dict[str, float] = defaultdict(float)
     for name, _ in _WEIGHTS:
         ranked = sorted(
             ((channels[name], record) for record, channels in scored if channels[name] > 0),
             key=lambda pair: (-pair[0], pair[1].id),
         )
-        for rank, (_score, record) in enumerate(ranked):
+        for rank, (_score, record) in enumerate(ranked, start=1):
             rrf[record.id] += 1.0 / (k + rank)
     candidates: list[SearchCandidate] = []
     for record, channels in scored:

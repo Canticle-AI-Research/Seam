@@ -193,7 +193,7 @@ class RetrievalOrchestrator:
         *,
         namespace: str | None = None,
         graph_hops: int = 1,
-        semantic_graph_seeding: bool = False,
+        semantic_graph_seeding: bool | None = None,
         graph_at: str | None = None,
         graph_include_history: bool = False,
         candidate_trace_limit: int = 128,
@@ -215,6 +215,11 @@ class RetrievalOrchestrator:
         resolved_flags = (
             flags if flags is not None else self.runtime._retrieval_flags_cached()
         )
+        resolved_semantic_graph_seeding = (
+            bool(resolved_flags.graph_semantic_seeds)
+            if semantic_graph_seeding is None
+            else semantic_graph_seeding
+        )
         leg_weights = normalize_leg_weights(
             dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
         )
@@ -232,7 +237,7 @@ class RetrievalOrchestrator:
             mode=mode,
             namespace=namespace,
             graph_hops=graph_hops,
-            semantic_graph_seeding=semantic_graph_seeding,
+            semantic_graph_seeding=resolved_semantic_graph_seeding,
             graph_at=graph_at,
             graph_include_history=graph_include_history,
             lens=lens,
@@ -454,7 +459,7 @@ class RetrievalOrchestrator:
         *,
         namespace: str | None = None,
         graph_hops: int = 1,
-        semantic_graph_seeding: bool = False,
+        semantic_graph_seeding: bool | None = None,
         graph_at: str | None = None,
         graph_include_history: bool = False,
         lens: str = "general",
@@ -467,6 +472,11 @@ class RetrievalOrchestrator:
     ) -> RetrievalSearchResult:
         resolved_flags = (
             flags if flags is not None else self.runtime._retrieval_flags_cached()
+        )
+        resolved_semantic_graph_seeding = (
+            bool(resolved_flags.graph_semantic_seeds)
+            if semantic_graph_seeding is None
+            else semantic_graph_seeding
         )
         leg_weights = normalize_leg_weights(
             dict(getattr(resolved_flags, "fusion_leg_weights", ()) or ())
@@ -494,7 +504,7 @@ class RetrievalOrchestrator:
                 mode=mode,
                 namespace=namespace,
                 graph_hops=graph_hops,
-                semantic_graph_seeding=semantic_graph_seeding,
+                semantic_graph_seeding=resolved_semantic_graph_seeding,
                 graph_at=graph_at,
                 graph_include_history=graph_include_history,
                 lens=lens,
