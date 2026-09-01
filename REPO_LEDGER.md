@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-08-25
+Last updated: 2026-09-01
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -115,6 +115,20 @@ and `HISTORY_INDEX.md`.
   `supersedes` relation before applying the existing auditable soft-delete to
   the old record. `current` retrieval excludes retired records; `history`
   retrieval can show their status but never republishes a mutable handle.
+- Canonical lifecycle state and ordinary-read eligibility are distinct from
+  retention. `load_ir` remains the retained-history seam. Ordinary Product Core
+  reads recursively exclude records in a non-current lifecycle status and any
+  record whose canonical support is ineligible. Explicit `history` views may
+  read retained lifecycle state, but current retrieval, trace, memory/decompile,
+  PACK, current/history graph-product surfaces, identity metadata, and reusable
+  derived vectors fail closed. Lifecycle apply rebuilds current graph products
+  from surviving facts inside the canonical delete transaction. Node-vector
+  invalidation removes only deleted or render-changed sources, preserving an
+  unchanged shared endpoint and reprojecting changed survivors. A hard-deleted
+  endpoint may leave a revalidated identity `conflict` visible as durable audit
+  state; any endpoint still present with a non-current status hides the merge.
+  Soft deletion does not imply Physical Erasure, which remains a separate
+  explicit contract.
 - External research acquisition belongs behind SEAM's canonical ingestion
   boundary. Source adapters are deterministic, CLI-first where an official CLI
   exists, and provenance-complete; they do not run agents or create a second

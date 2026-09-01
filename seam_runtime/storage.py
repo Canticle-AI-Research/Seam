@@ -66,6 +66,7 @@ from .improvement_experiments import (
 )
 from .knowledge_graph import (
     ADMITTED_RELATION_PREDICATES,
+    CURRENT_EXCLUDED_STATUSES,
     GRAPH_NODE_VECTOR_TEXT_VERSION,
     PROJECTION_VERSION,
     graph_stats,
@@ -2331,6 +2332,60 @@ class SQLiteStore:
         return IRBatch(records)
 
     @staticmethod
+    def _ordinary_read_eligible_ids(
+        connection: sqlite3.Connection, record_ids: Iterable[str]
+    ) -> set[str]:
+        """Resolve transitive current eligibility without changing retention."""
+
+        requested = {str(record_id) for record_id in record_ids}
+        records: dict[str, MIRLRecord] = {}
+        pending = set(requested)
+        while pending:
+            batch = sorted(pending)[:500]
+            pending.difference_update(batch)
+            placeholders = ",".join("?" for _ in batch)
+            rows = connection.execute(
+                "select payload_json from ir_records "
+                f"where id in ({placeholders})",
+                batch,
+            ).fetchall()
+            for row in rows:
+                record = MIRLRecord.from_dict(json.loads(row["payload_json"]))
+                if record.id in records:
+                    continue
+                records[record.id] = record
+                pending.update(reference_candidate_ids(record) - records.keys())
+
+        ineligible = {
+            record_id
+            for record_id, record in records.items()
+            if record.status.value in CURRENT_EXCLUDED_STATUSES
+        }
+        changed = True
+        while changed:
+            changed = False
+            for record_id, record in records.items():
+                if record_id not in ineligible and reference_candidate_ids(record) & ineligible:
+                    ineligible.add(record_id)
+                    changed = True
+        return requested & records.keys() - ineligible
+
+    def ordinary_read_ir(
+        self,
+        ids: list[str] | None = None,
+        ns: str | None = None,
+        scope: str | None = None,
+    ) -> IRBatch:
+        """Return current records whose canonical support is also current."""
+
+        batch = self.load_ir(ids=ids, ns=ns, scope=scope)
+        with self._pool.checkout() as connection:
+            eligible = self._ordinary_read_eligible_ids(
+                connection, (record.id for record in batch.records)
+            )
+        return IRBatch([record for record in batch.records if record.id in eligible])
+
+    @staticmethod
     def _vector_rows_on_connection(
         connection: sqlite3.Connection,
         record_ids: Iterable[str],
@@ -2849,7 +2904,7 @@ class SQLiteStore:
         """Read the latest complete G4 product snapshot for one boundary."""
 
         with self._pool.checkout() as connection:
-            return read_graph_product_rows(
+            rows = read_graph_product_rows(
                 connection,
                 namespace=namespace,
                 scope=scope,
@@ -2857,6 +2912,30 @@ class SQLiteStore:
                 subject_id=subject_id,
                 limit=limit,
             )
+            return self._eligible_graph_product_rows(connection, rows)
+
+    @classmethod
+    def _eligible_graph_product_rows(
+        cls, connection: sqlite3.Connection, rows: list[dict[str, object]]
+    ) -> list[dict[str, object]]:
+        support = {
+            str(record_id)
+            for row in rows
+            for sentence in row.get("sentences", [])
+            if isinstance(sentence, dict)
+            for record_id in sentence.get("supporting_record_ids", [])
+        }
+        eligible = cls._ordinary_read_eligible_ids(connection, support)
+        return [
+            row
+            for row in rows
+            if all(
+                str(record_id) in eligible
+                for sentence in row.get("sentences", [])
+                if isinstance(sentence, dict)
+                for record_id in sentence.get("supporting_record_ids", [])
+            )
+        ]
 
     def graph_product_history(
         self,
@@ -2869,13 +2948,14 @@ class SQLiteStore:
         """Read immutable versions of one boundary-scoped G4 product."""
 
         with self._pool.checkout() as connection:
-            return graph_product_history_rows(
+            rows = graph_product_history_rows(
                 connection,
                 namespace=namespace,
                 scope=scope,
                 stable_key=stable_key,
                 limit=limit,
             )
+            return self._eligible_graph_product_rows(connection, rows)
 
     def context_candidates(
         self,
@@ -3148,8 +3228,25 @@ class SQLiteStore:
                 actor=actor,
                 interrupt_after_intent=interrupt_after_intent,
                 delete_derived_records=delete_derived_records,
+                rebuild_current_graph_products=self._rebuild_graph_products_on_connection,
                 require_current_incarnation=require_current_incarnation,
             )
+
+    def _rebuild_graph_products_on_connection(
+        self, connection: sqlite3.Connection, namespace: str, scope: str
+    ) -> None:
+        facts = self._current_graph_product_facts(
+            connection, namespace=namespace, scope=scope, max_facts=10_000
+        )
+        rebuild_graph_product_rows(
+            connection,
+            namespace=namespace,
+            scope=scope,
+            facts=facts,
+            max_facts=10_000,
+            min_observation_episodes=2,
+            max_sentences_per_product=64,
+        )
 
     @retry_db_operation()
     def plan_batch_ingest(
@@ -3284,14 +3381,58 @@ class SQLiteStore:
     ) -> list[dict[str, object]]:
         """Read the identity-merge ledger (graph maturity G2)."""
         with self._pool.checkout() as connection:
-            return list_identity_merges(
+            rows = list_identity_merges(
                 connection, ns=ns, scope=scope, statuses=statuses
             )
+            return self._ordinary_identity_rows(connection, rows)
+
+    @classmethod
+    def _ordinary_identity_rows(
+        cls,
+        connection: sqlite3.Connection,
+        rows: list[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        touched = {
+            str(row[key])
+            for row in rows
+            for key in ("canonical_node_id", "alias_node_id")
+        }
+        if not touched:
+            return []
+        eligible = cls._ordinary_read_eligible_ids(connection, touched)
+        placeholders = ",".join("?" for _ in touched)
+        present = {
+            str(row["id"])
+            for row in connection.execute(
+                f"select id from ir_records where id in ({placeholders})",
+                sorted(touched),
+            ).fetchall()
+        }
+        visible: list[dict[str, object]] = []
+        for row in rows:
+            endpoints = {
+                str(row["canonical_node_id"]),
+                str(row["alias_node_id"]),
+            }
+            if endpoints <= eligible or (
+                str(row["status"]) == "conflict"
+                and all(endpoint in eligible or endpoint not in present for endpoint in endpoints)
+            ):
+                visible.append(row)
+        return visible
 
     def identity_merge_audit(self, node_id: str) -> list[dict[str, object]]:
         """Every merge touching ``node_id`` (any status) plus its evidence."""
         with self._pool.checkout() as connection:
-            return identity_merge_audit_detail(connection, node_id)
+            present = connection.execute(
+                "select 1 from ir_records where id = ?", (node_id,)
+            ).fetchone()
+            if present is not None and node_id not in self._ordinary_read_eligible_ids(
+                connection, [node_id]
+            ):
+                return []
+            rows = identity_merge_audit_detail(connection, node_id)
+            return self._ordinary_identity_rows(connection, rows)
 
     @retry_db_operation()
     def generate_identity_merge_candidates(
@@ -3350,18 +3491,30 @@ class SQLiteStore:
             )
 
     def read_pack(self, pack_id: str) -> Pack:
-        batch = self.load_ir(ids=[pack_id])
+        batch = self.ordinary_read_ir(ids=[pack_id])
         if not batch.records:
             raise KeyError(pack_id)
         record = batch.records[0]
         if record.kind != RecordKind.PACK:
             raise KeyError(pack_id)
-        return Pack.from_record(record)
+        pack = Pack.from_record(record)
+        if pack.refs:
+            referenced = self.load_ir(ids=pack.refs).by_id()
+            if len(referenced) != len(set(pack.refs)) or any(
+                referenced.get(record_id) is None
+                or referenced[record_id].status is Status.DELETED_SOFT
+                for record_id in pack.refs
+            ):
+                # PACK is disposable derived state. Keep the stored artifact
+                # for audit, but refuse an ordinary read once any exact support
+                # has become lifecycle-ineligible.
+                raise KeyError(pack_id)
+        return pack
 
     def trace(self, root_id: str) -> TraceGraph:
         with self._pool.checkout() as connection:
             root = _load_record_by_id(connection, root_id)
-            if root is None:
+            if root is None or root_id not in self._ordinary_read_eligible_ids(connection, [root_id]):
                 raise KeyError(root_id)
             records = {root_id: root}
             seen = {root_id}
@@ -3385,6 +3538,8 @@ class SQLiteStore:
                     refs.append((row["src_id"], row["predicate"], row["dst_id"], neighbor))
                 for src, edge_type, dst, neighbor in dict.fromkeys(refs):
                     target = _load_record_by_id(connection, neighbor)
+                    if target is not None and neighbor not in self._ordinary_read_eligible_ids(connection, [neighbor]):
+                        continue
                     if target is None and neighbor not in record.prov and neighbor not in record.evidence:
                         continue
                     edge_key = (src, edge_type, dst)

@@ -1390,6 +1390,43 @@ def remove_records(
     if not ids:
         return
     placeholders = ",".join("?" for _ in ids)
+    affected_node_ids: set[str] = set()
+    for start in range(0, len(ids), _EDGE_FRONTIER_CHUNK):
+        chunk = ids[start : start + _EDGE_FRONTIER_CHUNK]
+        chunk_placeholders = ",".join("?" for _ in chunk)
+        affected_node_ids.update(
+            str(row[0])
+            for row in connection.execute(
+                "select id from knowledge_nodes "
+                f"where source_record_id in ({chunk_placeholders}) "
+                "union select node_id from knowledge_node_episodes "
+                f"where source_record_id in ({chunk_placeholders}) "
+                "union select src_id from knowledge_edges "
+                f"where source_record_id in ({chunk_placeholders}) "
+                "union select dst_id from knowledge_edges "
+                f"where source_record_id in ({chunk_placeholders})",
+                [*chunk, *chunk, *chunk, *chunk],
+            ).fetchall()
+        )
+    prior_node_renders: dict[str, str] = {}
+    for start in range(0, len(affected_node_ids), _EDGE_FRONTIER_CHUNK):
+        chunk = sorted(affected_node_ids)[start : start + _EDGE_FRONTIER_CHUNK]
+        rows = connection.execute(
+            "select id, kind, label, properties_json from knowledge_nodes where id in ("
+            + ",".join("?" for _ in chunk)
+            + ")",
+            chunk,
+        ).fetchall()
+        prior_node_renders.update(
+            {
+                str(row["id"]): render_node_text(
+                    str(row["kind"]),
+                    str(row["label"]),
+                    json.loads(str(row["properties_json"])),
+                )
+                for row in rows
+            }
+        )
     removal_times = {
         str(row[0]): str(row[1])
         for row in connection.execute(
@@ -1438,6 +1475,36 @@ def remove_records(
                 _json({"reference": node_id}),
                 node_id,
             ),
+        )
+    stale_node_ids: set[str] = set()
+    for start in range(0, len(prior_node_renders), _EDGE_FRONTIER_CHUNK):
+        chunk = sorted(prior_node_renders)[start : start + _EDGE_FRONTIER_CHUNK]
+        rows = connection.execute(
+            "select id, kind, label, properties_json from knowledge_nodes where id in ("
+            + ",".join("?" for _ in chunk)
+            + ")",
+            chunk,
+        ).fetchall()
+        current = {
+            str(row["id"]): render_node_text(
+                str(row["kind"]),
+                str(row["label"]),
+                json.loads(str(row["properties_json"])),
+            )
+            for row in rows
+        }
+        stale_node_ids.update(
+            node_id
+            for node_id in chunk
+            if current.get(node_id) != prior_node_renders[node_id]
+        )
+    for start in range(0, len(stale_node_ids), _EDGE_FRONTIER_CHUNK):
+        chunk = sorted(stale_node_ids)[start : start + _EDGE_FRONTIER_CHUNK]
+        connection.execute(
+            "delete from knowledge_node_vectors where node_id in ("
+            + ",".join("?" for _ in chunk)
+            + ")",
+            chunk,
         )
     if revalidate_identity_merges:
         # Deletion is where nodes actually disappear; re-validate the durable

@@ -190,8 +190,8 @@ changes canonical writes.
 3. Prove idempotent replay and concurrent same-source ingest.
 4. Keep external vector work derived and recoverable through the outbox.
 
-**Current evidence:** branch `feat/d2-atomic-ingest` from protected
-`main@64e4434` defines a compatible `IngestOutcome` and commits normalized MIRL
+**Current evidence:** protected `main@a7333f0` contains D2 through merged PR
+#240. It defines a compatible `IngestOutcome` and commits normalized MIRL
 and graph rows, boundary-scoped supersession, document status, and durable
 vector intent in one SQLite transaction. Failure before commit rolls back to
 the complete prior document; failure after commit leaves one canonical pending
@@ -200,9 +200,8 @@ generation remains current, superseded vectors are deleted before
 acknowledgement, shared graph entities survive rebuild, and namespace/scope
 boundaries do not supersede one another. The 60-test focused slice, 3,213-case
 non-external collection with two established xfails, all 23 live pgvector
-external tests, Ruff, and independent assurance are green. D2 remains locally
-qualified until exact-head hosted checks, a root-stored receipt, and protected
-merge complete; D3 has not started.
+external tests, Ruff, exact-head hosted checks, a root-stored receipt, and
+independent assurance are green. D2 is protected-main complete.
 
 ### D3 - Lifecycle Exclusion
 
@@ -214,6 +213,21 @@ merge complete; D3 has not started.
    history.
 3. Prove cleanup restart/idempotency and no deleted-record resurrection.
 4. Specify Physical Erasure separately; do not silently reinterpret soft delete.
+
+**Current evidence:** branch `feat/d3-lifecycle-exclusion` from protected
+`main@a7333f0` applies transitive current eligibility to retrieval and its trace,
+memory/decompile, PACK, graph products, identity metadata, and reusable derived
+vectors while retaining canonical `load_ir` history. Explicit public history
+continues to expose retained lifecycle records without publishing mutation
+handles. Delete apply rebuilds current graph products from surviving facts in
+the same transaction; cleanup replay is content-free and idempotent. Vector
+invalidation preserves unchanged shared endpoints, reprojects changed
+survivors, and refuses deleted-only source hashes. Hard-delete identity
+conflicts remain auditable while every present non-current endpoint remains
+hidden. The 3,225-case non-external collection has 3,223 passes and two
+established xfails; all 23 live pgvector tests, focused tests, Ruff, and
+independent assurance are green. D3 remains locally qualified until exact-head
+hosted checks, a root-stored receipt, and protected merge complete.
 
 ### D4 - Snapshot Integrity
 
@@ -344,9 +358,10 @@ decision.
 3. D1.3 stale-sidecar crash-safe restore commit point (protected-main complete).
 4. D1.4 systematic filesystem-transition failure matrix (protected-main
    complete through PR #239).
-5. D2 atomic ingest (locally qualified; protected merge next).
-6. D3 lifecycle exclusion across every Product Core read.
-7. D4 and T1 correctness slices.
+5. D2 atomic ingest (protected-main complete through PR #240).
+6. D3 lifecycle exclusion across every Product Core read (locally qualified;
+   protected merge next).
+7. D4 and T1 correctness slices after D3 protected merge.
 8. G1 and R1, followed by R2.
 9. Freeze S8, run Q1, then freeze and qualify C1.
 

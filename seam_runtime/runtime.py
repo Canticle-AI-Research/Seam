@@ -978,7 +978,7 @@ class SeamRuntime:
         require_current_incarnation: bool = False,
     ) -> dict[str, object]:
         with self._persist_projection_lock:
-            return self.store.apply_scoped_delete(
+            operation = self.store.apply_scoped_delete(
                 tenant_id=tenant_id,
                 operation_id=operation_id,
                 actor=actor,
@@ -986,6 +986,8 @@ class SeamRuntime:
                 delete_derived_records=self._delete_derived_records,
                 require_current_incarnation=require_current_incarnation,
             )
+            self._project_node_vectors_locked()
+            return operation
 
     def batch_ingest(
         self,
@@ -1248,7 +1250,7 @@ class SeamRuntime:
         resolved_flags = flags if flags is not None else self._retrieval_flags_cached()
         if semantic_graph_seeding is None:
             semantic_graph_seeding = bool(resolved_flags.graph_semantic_seeds)
-        return self._retrieval_orchestrator_cached().search(
+        result = self._retrieval_orchestrator_cached().search(
             query=query,
             scope=scope,
             budget=budget,
@@ -1266,6 +1268,48 @@ class SeamRuntime:
             flags=resolved_flags,
             ranking_policy=ranking_policy,
         )
+        # Historical retrieval is an explicit operator/API view. Its purpose
+        # is to expose retained correction history, including lifecycle state;
+        # ordinary current retrieval still passes through the exclusion gate.
+        if graph_include_history:
+            return result
+        eligible = self.store.ordinary_read_ir(
+            ids=[candidate.record.id for candidate in result.candidates],
+            ns=ns,
+            scope=scope,
+        ).by_id()
+        result.candidates = [
+            candidate
+            for candidate in result.candidates
+            if candidate.record.id in eligible
+        ]
+        if result.trace is not None:
+            allowed = set(eligible)
+            legs = result.trace.get("legs")
+            if isinstance(legs, dict):
+                for name, hits in legs.items():
+                    if isinstance(hits, list):
+                        retained = [
+                            hit
+                            for hit in hits
+                            if isinstance(hit, dict)
+                            and str(hit.get("record_id")) in allowed
+                        ]
+                        for rank, hit in enumerate(retained, start=1):
+                            hit["rank"] = rank
+                        legs[name] = retained
+                        leg_counts = result.trace.get("leg_counts")
+                        if isinstance(leg_counts, dict):
+                            count = leg_counts.get(name)
+                            if isinstance(count, dict):
+                                count["retained"] = len(retained)
+            fusion = result.trace.get("fusion")
+            if isinstance(fusion, dict):
+                for key in ("selected_ids", "rejected_ids"):
+                    values = fusion.get(key)
+                    if isinstance(values, list):
+                        fusion[key] = [value for value in values if value in allowed]
+        return result
 
     def search_ir(
         self,
@@ -1437,7 +1481,7 @@ class SeamRuntime:
         return compact_memory_index([candidate.record for candidate in result.candidates], query=query, scores=scores)
 
     def memory_get(self, record_ids: list[str], include_timeline: bool = False) -> dict[str, object]:
-        batch = self.store.load_ir(ids=record_ids)
+        batch = self.store.ordinary_read_ir(ids=record_ids)
         payload = full_memory_records(batch.records)
         if include_timeline:
             needed_ids = set(record_ids)
@@ -1451,7 +1495,7 @@ class SeamRuntime:
                 obj = record.attrs.get("object")
                 if isinstance(obj, str):
                     needed_ids.add(obj)
-            timeline_batch = self.store.load_ir(ids=list(needed_ids))
+            timeline_batch = self.store.ordinary_read_ir(ids=list(needed_ids))
             payload["context"] = neighbor_timeline(timeline_batch, record_ids)
         return payload
 
@@ -1500,7 +1544,11 @@ class SeamRuntime:
         if budget is None:
             cb = getattr(self._retrieval_flags_cached(), "context_budget", None)
             budget = cb if cb else 512
-        batch = self.store.load_ir(ids=record_ids) if record_ids else self.store.load_ir()
+        batch = (
+            self.store.ordinary_read_ir(ids=record_ids)
+            if record_ids
+            else self.store.ordinary_read_ir()
+        )
         namespace = batch.records[0].ns if batch.records else None
         pack = pack_records(batch.records, lens=lens, budget=budget, mode=mode, profile=profile, namespace=namespace)
         pack_mirl = pack_record(pack, ns=batch.records[0].ns if batch.records else "local.default", scope=batch.records[0].scope if batch.records else "project")
@@ -1513,7 +1561,7 @@ class SeamRuntime:
         return pack
 
     def decompile_ir(self, record_ids: list[str], mode: str = "expanded") -> str:
-        batch = self.store.load_ir(ids=record_ids)
+        batch = self.store.ordinary_read_ir(ids=record_ids)
         claims = [record for record in batch.records if record.kind == RecordKind.CLM]
         states = [record for record in batch.records if record.kind == RecordKind.STA]
         if states:

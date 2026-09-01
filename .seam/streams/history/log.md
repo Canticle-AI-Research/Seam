@@ -20374,3 +20374,45 @@ a root-stored QUALIFIED receipt, protected merge, and exact-main resume. D3 is
 next only after that merge. S8 remains incomplete; S9, S10, release,
 deployment, and hosted-production claims remain unchanged.
 ---END-ENTRY-#622---
+
+---BEGIN-ENTRY-#623---
+id: 623
+date: 2026-09-01T06:40:36Z
+agent: Codex GPT-5.6
+status: done
+topics: lifecycle, storage, graph, retrieval, pack, identity, vector, atomicity, agent, multi-agent, session, bugfix, continuity, handoff, history, test, tests, verify
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/KNOWLEDGE_GRAPH.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/2026-09-01-track-s-d3-locally-qualified-d4-next.md,seam_runtime/knowledge_graph.py,seam_runtime/lifecycle.py,seam_runtime/runtime.py,seam_runtime/storage.py,tests/audit/test_lifecycle_exclusion.py
+supersedes: 622
+tokens: 381
+---
+D3 Lifecycle Exclusion is locally qualified on `feat/d3-lifecycle-exclusion`
+from protected `main@a7333f0`. Canonical `load_ir` remains retained history,
+while ordinary current reads recursively exclude non-current records and
+dependents whose canonical support is ineligible across retrieval/trace,
+memory/decompile, PACK, graph products, identity metadata, and reusable node
+vectors. Explicit public history remains a separate retained-state surface.
+
+Lifecycle apply now rebuilds current graph products from surviving facts in
+the same delete transaction. Cleanup failure, reopen, repeated resume, and
+repeated rebuild remain content-free and idempotent. Node-vector invalidation
+preserves unchanged shared endpoints, removes deleted-only hashes, and
+reprojects changed survivors. Hard-delete identity conflicts remain visible as
+durable audit state; any endpoint still present with a non-current lifecycle
+status hides the merge from ordinary list and audit reads.
+
+The first full non-external run found two compatibility regressions: public
+history no longer exposed retained corrections, and a hard-delete identity
+conflict disappeared after reprojection. Delivery repaired both; assurance then
+rejected an over-broad conflict exception, which was narrowed to admit only
+current or genuinely absent endpoints. The final 3,225-case non-external run
+has 3,223 passes and two established xfails, with zero failures or errors. All
+23 live pgvector external tests pass. Focused lifecycle/graph/vector/identity
+qualification, the 36-test compatibility slice, changed-file Ruff, and diff
+hygiene are green. Twelve root-recorded red/green cycles preserve the witnessed
+repair chain.
+
+This entry advances the chronological handoff to D4 after D3 protected merge.
+D3 is not yet protected-main complete. No S8, S9, S10, release, deployment, or
+hosted-production claim is made.
+---END-ENTRY-#623---
