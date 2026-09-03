@@ -20526,3 +20526,17 @@ Verification on the exact working tree: the 119-case affected retrieval/SDK/MCP 
 
 R1 is locally qualified, not protected-main complete. Signed commit, push, exact-head hosted checks, root-stored QUALIFIED receipt, protected merge, and exact-main verification remain. R2 remains before the S8 freeze. S9, S10, release, deployment, and hosted-production claims remain unopened.
 ---END-ENTRY-#629---
+
+---BEGIN-ENTRY-#630---
+id: 630
+date: 2026-09-03T02:22:07Z
+agent: codex-gpt-5
+status: done
+topics: retrieval, status, continuity, handoff, verify, test, tests, ci, correction, history
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/status/retrieval.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/handoffs/INDEX.md,docs/handoffs/2026-09-01-track-s-r1-locally-qualified-r2-next.md,docs/handoffs/2026-09-02-track-s-r1-protected-main-r2-next.md,PR#245
+supersedes: 629
+tokens: 320
+---
+R1 Retrieval Contract is protected-main source through PR #245 at merge f8c33491205da2c8916698086604ee9850ee5860 from candidate 6815fe6abdb0b7165409bdd7db8bf1c768cba371. Every hosted candidate check passed, and exact-main CI run 33551586780, external-memory run 33551586758, and CodeQL run 33551585858 completed successfully. A 2026-09-02 local recheck passed 34 focused R1 tests. The first full non-external attempt failed because the configured local pgvector service was stopped; after starting the existing service, the full strict non-external selection exited 0 with the two established xfails and no skips. The first external-only attempt failed the strict no-skip gate because PGVECTOR_TEST_DSN was absent; the supported private-environment rerun passed all 23 external tests. The available ignored orchestration ledger contains no R1 pre-merge receipt. This successor records that process-evidence gap and requires fresh independent post-merge exact-state release qualification rather than claiming the earlier order retroactively. Status, ledger, retrieval, roadmap, and handoff surfaces now route to R2. R1 source and exact-main verification are complete; S8 is not frozen, S9 and S10 have not started, and no release, deployment, or hosted-production claim is made.
+---END-ENTRY-#630---

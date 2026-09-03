@@ -257,8 +257,8 @@ root-stored receipt are green. D4 is protected-main complete.
    same policy and fail-closed direction.
 3. Equivalent instants produce identical truth and retrieval order.
 
-**Current evidence:** branch `codex/t1-public-seam` from protected
-`main@0f4bd82` centralizes timestamp parsing and comparison for `Z`/`z`,
+**Current evidence:** protected PR #243 at merge `72fbaa1` centralizes timestamp
+parsing and comparison for `Z`/`z`,
 numeric offsets, naive-as-UTC values, missing/blank open bounds, and invalid
 fail-closed values. Reconciliation, graph as-of/current reads and deterministic
 ordering, stale horizons, graph-source selection, graph products, trace,
@@ -268,8 +268,7 @@ unchanged; derived keys are canonical UTC. The full 3,257-case non-external
 selection is green with two established xfails, all 23 live pgvector external
 tests pass with zero skips, the 130-case affected matrix is green, Ruff/diff
 checks are green, and two independent final reviews report no finding. T1 is
-locally qualified until exact-head hosted checks, a root-stored receipt, and
-protected merge complete.
+protected-main complete.
 
 ### R1 - S8 Retrieval Contract
 
@@ -285,8 +284,8 @@ protected merge complete.
 5. Retain legacy behavior as a versioned adapter until S9 Promotion evidence
    changes the default.
 
-**Current evidence:** branch `codex/s8-r1-retrieval-contract` from protected
-`main@e8ff231` closes F-20-F-23. Persisted positive depth/context values load
+**Current evidence:** protected PR #245 at candidate `6815fe6` and merge
+`f8c3349` closes F-20-F-23. Persisted positive depth/context values load
 with logged fail-closed rejection but remain config-only, not proposal levers.
 Two query-authored boundary filters admit the SQL non-lexical tail at `0.80`;
 runtime tenancy alone does not, and graph seed SQL requires lexical evidence or
@@ -295,9 +294,15 @@ stable record-ID ties. Graph semantic seeding resolves once from applied flags
 across runtime, MCP, SDK, and compatibility paths, with explicit overrides
 materialized in the plan. `legacy-weighted/1` remains the versioned default.
 The 119-case affected matrix, full strict non-external selection, all 23 live
-pgvector external tests, changed-file Ruff, and diff checks are green. R1 is
-locally qualified until exact-head hosted checks, a root-stored receipt, and
-protected merge complete.
+pgvector external tests, changed-file Ruff, and diff checks are green. Every
+hosted candidate check passed before merge; exact-main CI, external-memory, and
+CodeQL workflows are green. A 2026-09-02 local successor recheck passed 34
+focused tests, the full strict non-external selection with two established
+xfails and no skips, and all 23 live-pgvector tests. The currently available
+ignored orchestration ledger does not contain R1's pre-merge receipt, so the
+post-merge continuity successor receives a fresh exact-state release
+qualification and records the earlier process-evidence gap without rewriting
+history. R1 source and exact-main verification are complete; R2 remains open.
 
 **S8 completion gate:** D1-D4, T1, R1, R2, and G1 are green; every original S8
 mechanism exit remains green; the boundary-only SQL decision is recorded; and
@@ -312,8 +317,8 @@ the legacy default is either retained explicitly or promoted by S9 evidence.
    the same trust/time/boundary filters.
 4. Exact evidence remains recoverable for every decision.
 
-**Current evidence:** branch `codex/s8-g1-graph-trust` from protected
-`main@72fbaa1` admits contradiction/refutation only when source node, relation,
+**Current evidence:** protected PR #244 at merge `e8ff231` admits
+contradiction/refutation only when source node, relation,
 source evidence, and edge evidence share the target boundary and requested time
 horizon. Unevidenced status/relation disputes remain explicit ignored inputs;
 trust payloads expose exact episode, graph-edge, and canonical record IDs.
@@ -323,8 +328,7 @@ same-outcome replays remain idempotent and return stored evidence. All 3,269
 selected non-external tests completed with exit 0 and the two established
 xfails; all 23 isolated live-pgvector external tests passed with zero skips; the
 119-case focused matrix, Ruff/diff checks, and two independent reviews are
-green. G1 remains locally qualified until exact-head hosted checks, a
-root-stored receipt, and protected merge complete.
+green. G1 is protected-main complete.
 
 ### R2 - Retrieval Scale and Backend Parity
 

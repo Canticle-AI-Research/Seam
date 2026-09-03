@@ -9,24 +9,29 @@
 
 ## Current headline
 
-**2026-09-01 — protected `main@e8ff231` contains complete D1-D4, T1, and G1
-through merged PR #244; R1 Retrieval Contract is locally qualified on
-`codex/s8-r1-retrieval-contract`.** Persisted positive retrieval depth/context
-values now survive applied-state loading while remaining excluded from
-self-improvement proposal flags. Query-authored `ns:` plus `scope:` filters
+**2026-09-02 — protected `main@f8c3349` contains complete D1-D4, T1, G1, and
+the R1 Retrieval Contract through merged PR #245.** Persisted positive
+retrieval depth/context values now survive applied-state loading while
+remaining excluded from self-improvement proposal flags. Query-authored `ns:`
+plus `scope:` filters
 admit the SQL non-lexical tail at the named inclusive score `0.80`; runtime-only
 tenant boundaries do not request that tail, and graph seed acquisition refuses
 it below `1.00`. Both RRF implementations now use one-based ranks and stable ID
 ties. Runtime, MCP, SDK, and compatibility paths resolve graph semantic seeding
 from one applied policy unless a caller explicitly overrides it, while every
 materialized plan records the resolved boolean. `legacy-weighted/1` remains the
-versioned compatibility default pending S9 Promotion evidence. The exact tree
-passed the 119-case affected matrix, the full strict non-external selection
-with the two established xfails and no skips, all 23 isolated live-pgvector
-external tests, changed-file Ruff, and diff checks. R1 still requires commit,
-exact-head hosted checks, a root-stored qualification receipt, and protected
-merge. S8 remains incomplete; R2 remains before the freeze, S9 has not started,
-and no S10 release, deployment, or hosted-production claim is made. See
+versioned compatibility default pending S9 Promotion evidence. Candidate
+`6815fe6` passed the affected matrix, the full strict non-external selection,
+all 23 isolated live-pgvector tests, and every hosted PR check before merge.
+The resulting exact main passed CI run `33551586780`, external-memory run
+`33551586758`, and CodeQL run `33551585858`; a 2026-09-02 local recheck passed
+34 focused R1 tests, the full strict non-external selection with the two
+established xfails and no skips, and all 23 live-pgvector external tests. The
+available ignored orchestration ledger does not contain R1's pre-merge receipt,
+so this corrective successor must obtain a fresh post-merge exact-state release
+qualification without pretending the earlier workflow order can be proven.
+S8 remains incomplete; R2 remains before the freeze, S9 has not started, and no
+S10 release, deployment, or hosted-production claim is made. See
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
 
 **2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance
