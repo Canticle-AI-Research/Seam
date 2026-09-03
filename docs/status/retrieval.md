@@ -4,7 +4,7 @@
 
 _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
-## Status: baseline measured, Track S promotion gates open
+## Status: R1 protected on main; R2 scale/parity gate open
 
 PR #222 merged the SQL leg's deterministic equal-score tiebreak and the
 deleted-record vector-outbox replay repair at protected `main@a177852`. Those
@@ -29,6 +29,14 @@ the non-lexical SQL tail at inclusive score `0.80`; runtime-supplied tenant
 boundaries do not request it, and graph seed acquisition refuses the tail below
 structured score `1.00`. Changing `search_ir()`'s default away from the
 recorded legacy control remains an S9 measurement and promotion decision.
+
+R1 is protected-main source through PR #245 at merge `f8c3349`. Candidate
+`6815fe6` passed every hosted PR check; the resulting exact main passed CI run
+`33551586780`, external-memory run `33551586758`, and CodeQL run `33551585858`.
+The 2026-09-02 local successor recheck passed 34 focused R1 tests, the complete
+strict non-external selection with the two established xfails and no skips,
+and all 23 live-pgvector external tests. R2 Retrieval Scale and Backend Parity
+remains required before S8 can freeze.
 
 The planner currently accepts `legacy-weighted/1` (the pre-refactor RAW/BM25/
 vector behavioral control) and `reciprocal-rank-fusion/2`. Non-empty
