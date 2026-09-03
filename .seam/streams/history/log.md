@@ -20558,3 +20558,31 @@ The 34-case focused R1 result used `/home/terrabyte/Documents/Projects/Seam/.ven
 
 HISTORY#628 is the merge-bearing successor for T1 through PR #243, and HISTORY#629 is the merge-bearing successor for G1 through PR #244. `REPO_LEDGER.md` now points those protected-main facts at #627/#628 and #628/#629 respectively. R1 remains protected-main complete, R2 remains next, S8 remains unfrozen, and no S9, S10, release, deployment, or hosted-production claim is added.
 ---END-ENTRY-#631---
+
+---BEGIN-ENTRY-#632---
+id: 632
+date: 2026-09-03T07:04:51Z
+agent: claude-opus-5
+status: done
+topics: history, audit, continuity, verify, ci, cleanup, security, test, tests, correction, review
+commits: pending
+refs: docs/audits/2026-08-29-full-repo-audit.md,docs/audits/INDEX.md,docs/roadmap/DROPPED_PR_TRACKS.md,tools/git-hooks/pre-commit,PR#207,PR#221,PR#236,PR#213,PR#230
+supersedes: 631
+tokens: 733
+---
+PR-queue surface cleanup executed from the 2026-09-02 audit. The five open PRs were one problem five times: test-merging every head against origin/main showed no source conflict in any of them, with every conflict confined to append-only chain files and rename/rename collisions on row-count-named cross-index archives. Drift is self-worsening, so the queue was resolved rather than rebased in place.
+
+The recovered whole-repository audit is now tracked at docs/audits/2026-08-29-full-repo-audit.md and registered in docs/audits/INDEX.md, which advances latest to 2026-08-29-full-repo-audit. It was previously untracked working-tree-only content at risk of loss. Its evidence manifest already declared no raw artifacts, satisfying the registry policy_start contract.
+
+docs/roadmap/DROPPED_PR_TRACKS.md records the substance and recovery commands for the closed research tracks so closure does not erase the reasoning. PRs 207, 221, and 236 are closed unmerged with their branches preserved and per-PR recovery instructions posted. PR 230 remains the only PR carrying source absent from main.
+
+One defect was salvaged from PR 207 and landed here: tools/git-hooks/pre-commit was recorded in the index as mode 100644. Git skips a non-executable hook without reporting it, so every fresh clone and CI checkout ran without the pre-commit gate; the gate only survived on checkouts where the on-disk executable bit predated the mode regression. The tracked mode is now 100755.
+
+A prior audit verdict is corrected rather than carried forward. PR 213 was provisionally classified as subsumed by PR 230 on source-file overlap alone. Enumerating its full changed-file set showed four test files that PR 230 does not touch, one of which, tests/audit/test_vector_index_idempotency.py, exists on no other branch. PR 213 therefore stays open with that correction recorded on the PR, and the landing order is PR 230 first, then a rebase of PR 213.
+
+The untracked docs/handoffs/2026-08-30-deep-audit-findings.md was deliberately not landed. A condensed successor covering the same S8 through S10 production-core ground is already tracked as docs/handoffs/2026-08-30-track-s-s8-s10-production-core-d1.md, and the handoff registry is a single-headed linear chain that has since advanced through HISTORY#630. Registering a second 2026-08-30 head would fork that chain, and rewriting seven committed successors to insert it would collapse the timeline. The draft remains available in the operator working tree.
+
+Verification on the exact working tree: `pytest tests/` reported 2842 passed, 2 xfailed, and no skips in 307.01s, exiting 0, run with PYTHONPATH=. and PGVECTOR_TEST_DSN exported from the operator .env so the pgvector lane executed live rather than skipping. A first attempt reported 23 failed and 2819 passed; every failure was a psycopg OperationalError from the stopped local seam-pgvector container, matching the environment cause already recorded in HISTORY#630. Starting the existing container, which exited cleanly and retained its data volume, cleared all 23 without any source change. The repository secret scan reported OK with only the ten established policy-excluded binary and hash-pinned paths.
+
+No source behavior changed. No release, deployment, benchmark, or hosted-production claim is made or altered.
+---END-ENTRY-#632---
