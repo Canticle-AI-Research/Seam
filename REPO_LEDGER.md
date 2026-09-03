@@ -400,7 +400,7 @@ and `HISTORY_INDEX.md`.
   Python policy through a connection-lifecycle UDF. Canonical MIRL timestamp
   text is not rewritten; derived graph/context metadata may use canonical UTC
   keys. T1 is protected-main source through PR #243 at merge `72fbaa1`. See
-  HISTORY#627 and HISTORY#630.
+  HISTORY#627 and HISTORY#628.
 - G1 trust demotion is evidence-gated. A contradiction or refutation relation
   participates only when its source node, relation, source episode, and edge
   episode are visible at the same time and namespace/scope boundary. A bare
@@ -411,7 +411,7 @@ and `HISTORY_INDEX.md`.
   success state plus outcome ID; genuinely conflicting outcomes append to the
   guarded `reasoning-pattern-schema/2` disagreement ledger and remain visible
   in pattern trust statistics. G1 is protected-main source through PR #244 at
-  merge `e8ff231`. See HISTORY#628 and HISTORY#630.
+  merge `e8ff231`. See HISTORY#628 and HISTORY#629.
 - R1 retrieval policy resolves once. Positive persisted `search_top_k` and
   `context_budget` values load fail-closed with logged rejection while staying
   outside self-improvement proposal flags. The SQL leg admits a non-lexical

@@ -20540,3 +20540,21 @@ tokens: 320
 ---
 R1 Retrieval Contract is protected-main source through PR #245 at merge f8c33491205da2c8916698086604ee9850ee5860 from candidate 6815fe6abdb0b7165409bdd7db8bf1c768cba371. Every hosted candidate check passed, and exact-main CI run 33551586780, external-memory run 33551586758, and CodeQL run 33551585858 completed successfully. A 2026-09-02 local recheck passed 34 focused R1 tests. The first full non-external attempt failed because the configured local pgvector service was stopped; after starting the existing service, the full strict non-external selection exited 0 with the two established xfails and no skips. The first external-only attempt failed the strict no-skip gate because PGVECTOR_TEST_DSN was absent; the supported private-environment rerun passed all 23 external tests. The available ignored orchestration ledger contains no R1 pre-merge receipt. This successor records that process-evidence gap and requires fresh independent post-merge exact-state release qualification rather than claiming the earlier order retroactively. Status, ledger, retrieval, roadmap, and handoff surfaces now route to R2. R1 source and exact-main verification are complete; S8 is not frozen, S9 and S10 have not started, and no release, deployment, or hosted-production claim is made.
 ---END-ENTRY-#630---
+
+---BEGIN-ENTRY-#631---
+id: 631
+date: 2026-09-03T02:52:56Z
+agent: codex-gpt-5
+status: changed
+topics: retrieval, status, continuity, verify, test, tests, ci, correction, history, review
+commits: a60685d
+refs: REPO_LEDGER.md,tests/audit/test_retrieval_flags.py,tests/audit/test_s8_r1_retrieval_contract.py,docs/handoffs/2026-09-02-track-s-r1-protected-main-r2-next.md,PR#246
+supersedes: 630
+tokens: 329
+---
+Correction and evidence locator for HISTORY#630. Its R1 protected-main and result claims remain unchanged, while this append-only successor records the exact reproducible test selections and fixes two ledger continuity pointers identified by PR #246 review.
+
+The 34-case focused R1 result used `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -q tests/audit/test_retrieval_flags.py tests/audit/test_s8_r1_retrieval_contract.py`. The strict provider-free rerun used `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -q -m "not external"` and exited 0 with the two established xfails and no skips after the existing local pgvector service was started. The 23-case live-pgvector result used `bash -ic 'export PGVECTOR_TEST_DSN="$SEAM_PGVECTOR_DSN"; /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest -q -m external'`; it passed without recording or exposing the private DSN value.
+
+HISTORY#628 is the merge-bearing successor for T1 through PR #243, and HISTORY#629 is the merge-bearing successor for G1 through PR #244. `REPO_LEDGER.md` now points those protected-main facts at #627/#628 and #628/#629 respectively. R1 remains protected-main complete, R2 remains next, S8 remains unfrozen, and no S9, S10, release, deployment, or hosted-production claim is added.
+---END-ENTRY-#631---
