@@ -31,6 +31,11 @@ claim against current status, active code, named tests, and history evidence.
 - [Trust, Security, Lineage, and Auditability](TRUST_SECURITY_AUDITABILITY.md)
 - [TUI Operator Surface](TUI_OPERATOR_SURFACE.md)
 
+## Parked tracks
+
+- [Dropped PR Tracks](DROPPED_PR_TRACKS.md) — long-horizon material removed
+  from the active PR queue, with recovery commands. Closed, not deleted.
+
 `ROADMAP.md` at the repository root is the authored canonical roadmap. The
 derived state view is the fast status route; these focused pages provide
 narrative and design context only.

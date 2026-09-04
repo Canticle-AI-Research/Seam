@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 695
+total_events: 696
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-20T14:09:56Z | history:437:d729f0ca | session-event | done | kb, docs, retrieval, benchmark, reference, plan | docs/kb/README.md,docs/kb/eval-methodology/benchmark-traps.md,docs/kb/eval-me... |
 | 2026-07-20T22:26:20Z | history:438:2d0eac31 | session-event | done | derived-facts, grounded-clm, retrieval, benchmark, compil... | seam_runtime/nl_extract.py,seam_runtime/nl.py,seam_runtime/derived_fact_conte... |
 | 2026-07-21T01:17:20Z | history:439:f81b36f6 | session-event | done | benchmark,locomo,memory,retrieval,compile,provenance,audi... | docs/audits/2026-07-20-memory-competitor-ratchet.md,seam_runtime/sentence_gro... |
 | 2026-07-21T03:37:52Z | history:440:c44f9f60 | session-event | in-progress | benchmark,longmemeval,beam,memory,audit,bugfix,protocol,t... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-01T19:37:17Z | history:629:58e229d9 | session-event | done | retrieval, rank, config, graph, surface, test, tests, ver... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/status/retrieval.md,docs/roadmap/TRACK_... |
 | 2026-09-03T02:22:07Z | history:630:2523358b | session-event | done | retrieval, status, continuity, handoff, verify, test, tes... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/status/retrieval.md,docs/roadmap/TRACK_... |
 | 2026-09-03T02:52:56Z | history:631:85b95deb | session-event | changed | retrieval, status, continuity, verify, test, tests, ci, c... | REPO_LEDGER.md,tests/audit/test_retrieval_flags.py,tests/audit/test_s8_r1_ret... |
+| 2026-09-03T07:04:51Z | history:632:ff49be45 | session-event | done | history, audit, continuity, verify, ci, cleanup, security... | docs/audits/2026-08-29-full-repo-audit.md,docs/audits/INDEX.md,docs/roadmap/D... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0495.cross.md | 2026-04-15T00:00:00Z..2026-07-20T14:03:53Z | 495 | (multi) | (multi) |
+| 0001-0496.cross.md | 2026-04-15T00:00:00Z..2026-07-20T14:09:56Z | 496 | (multi) | (multi) |
