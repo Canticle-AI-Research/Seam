@@ -1466,7 +1466,7 @@ wheels = [
 
 [[package]]
 name = "mem0ai"
-version = "0.1.118"
+version = "2.0.0b2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "openai" },
@@ -1477,9 +1477,9 @@ dependencies = [
     { name = "qdrant-client" },
     { name = "sqlalchemy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/db/1d/b7797ee607d0de2979d2a8b4c0c102989d5e1a1c9d67478dc6a2e2e0b2a8/mem0ai-0.1.118.tar.gz", hash = "sha256:d62497286616357f8726b849afc20031cd0ab56d1cf312fa289b006be33c3ce7", size = 159324, upload-time = "2025-09-25T20:53:00.427Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/56/2526e0634fd7ba484040a26a1bb0b28c8c9dd813ca4e9ad499e81f1e1471/mem0ai-2.0.0b2.tar.gz", hash = "sha256:cdc90c8806382b8c1a001ff4f47d03ff9646f4e6151b89b2b0d18736a60b16ba", size = 210483, upload-time = "2026-04-16T10:56:39.378Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/70/e648ab026aa6505b920ed405a422727777bebdc5135691b2ca6350a02062/mem0ai-0.1.118-py3-none-any.whl", hash = "sha256:c2b371224a340fd5529d608dfbd2e77c610c7ffe421005ff7e862fd6f322cca8", size = 239476, upload-time = "2025-09-25T20:52:58.32Z" },
+    { url = "https://files.pythonhosted.org/packages/ea/ea/8b74afcbde2407a63b66115f8da0dfc523131b6d4220a1e6f3d9b0a7a76b/mem0ai-2.0.0b2-py3-none-any.whl", hash = "sha256:31d7016b9d8ff7096cc975b9b961f83a7e0f562c74a2873a20db4793cc1f43ba", size = 298199, upload-time = "2026-04-16T10:56:37.335Z" },
 ]
 
 [[package]]
@@ -3764,8 +3764,8 @@ requires-dist = [
     { name = "httpx", marker = "extra == 'all-extras'", specifier = ">=0.24,<1.0" },
     { name = "httpx", marker = "extra == 'dash'", specifier = ">=0.24,<1.0" },
     { name = "markdown-it-py", marker = "extra == 'lint'", specifier = ">=4.0,<5.0" },
-    { name = "mem0ai", marker = "extra == 'all-extras'", specifier = ">=0.1.0,<1.0" },
-    { name = "mem0ai", marker = "extra == 'bench-mem0'", specifier = ">=0.1.0,<1.0" },
+    { name = "mem0ai", marker = "extra == 'all-extras'", specifier = ">=0.1.0,<3.0" },
+    { name = "mem0ai", marker = "extra == 'bench-mem0'", specifier = ">=0.1.0,<3.0" },
     { name = "openai", marker = "extra == 'all-extras'", specifier = ">=1.0,<2.0" },
     { name = "openai", marker = "extra == 'bench-judge'", specifier = ">=1.0,<2.0" },
     { name = "packaging", marker = "extra == 'lint'", specifier = ">=24,<27" },
