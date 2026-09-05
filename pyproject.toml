@@ -52,6 +52,16 @@ all-extras = ["textual>=8.0,<9.0", "httpx>=0.24,<1.0", "psycopg[binary]>=3.0,<4.
 # is imported directly by repository configuration tests.
 lint = ["ruff>=0.6,<1.0", "markdown-it-py>=4.0,<5.0", "PyYAML>=6.0,<7.0", "packaging>=24,<27"]
 
+[tool.uv]
+# chroma and bench-mem0 pin incompatible chromadb majors on purpose: the
+# embedded chroma path tracks 1.x, while mem0's benchmark harness requires the
+# 0.4.x line. They are never installed together, and `all-extras` already
+# excludes chromadb for the same reason. Declaring the conflict lets a resolver
+# lock the project instead of failing; without it `uv lock` has no solution.
+conflicts = [
+    [{ extra = "chroma" }, { extra = "bench-mem0" }],
+]
+
 [tool.seam.dependency-contract]
 schema = "seam-dependency-contract/1"
 runtime-source = "project.dependencies"
