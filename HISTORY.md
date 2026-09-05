@@ -20586,3 +20586,40 @@ Verification on the exact working tree: `pytest tests/` reported 2842 passed, 2 
 
 No source behavior changed. No release, deployment, benchmark, or hosted-production claim is made or altered.
 ---END-ENTRY-#632---
+
+---BEGIN-ENTRY-#633---
+id: 633
+date: 2026-09-05T04:28:46Z
+agent: codex
+status: in-progress
+topics: pyproject, config, ci, verify, continuity, security
+commits: 7e9c93b
+refs: pyproject.toml,uv.lock,PR#248
+supersedes: 632
+tokens: 335
+---
+PR #248 LOCKFILE RECONCILED LOCALLY: rebased `add-uv-lockfile` onto protected
+`main@bd7e32f` without conflict. The branch adds `uv.lock` plus the explicit uv
+conflict between the opt-in `chroma` and `bench-mem0` extras, whose incompatible
+Chroma major lines are intentional and never installed together.
+
+Scoped verification on this rebased tree passed: `uv lock --check` resolved 159
+packages; `python -m tools.ci.verify_dependency_contract` reported
+`Dependency contract OK`; `pytest -q tests/audit/test_chroma_optional.py -m
+'not external'` passed 5 tests with zero skips; and `git diff --check
+origin/main...HEAD` passed. The PR body was rewritten through the GitHub REST
+CLI path to remove a private provider/session URL and now records the package
+boundary without reproducing that URL.
+
+This slice does not rename or publish a package. The private
+`seam-runtime` tree retains `Private :: Do Not Upload`; public PyPI naming and
+the observed GitHub visibility/policy mismatch remain separate operator-review
+work. CI does not yet run `uv lock --check`; adding that durable lock-sync gate
+remains pending confirmation of the proposed repo-hygiene seam before the PR is
+marked ready.
+
+The dirty primary audit checkout and the live locked Claude cleanup worktree
+were preserved and excluded. Next: push this rebased closeout head, verify fresh
+PR checks, then either add the approved lock-sync gate or retain the PR as draft
+with that exact gap visible.
+---END-ENTRY-#633---

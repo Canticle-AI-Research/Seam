@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 632
-total_tokens: ~320188
-latest_id: 632
+total_entries: 633
+total_tokens: ~320523
+latest_id: 633
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 633 | 2026-09-05 | in-progress | afe1156c5c597125 | pyproject,config,ci,verify,+ | 632 |
 | 632 | 2026-09-03 | done | ff49be454d6d442b | history,audit,continuity,verify,+ | 631 |
 | 631 | 2026-09-03 | changed | 85b95debab6503e7 | retrieval,status,continuity,verify,+ | 630 |
 | 630 | 2026-09-03 | done | 2523358bfb7d9bc3 | retrieval,status,continuity,handoff,+ | 629 |
@@ -686,7 +687,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=6 latest=#524, #296, #295, #293, #017
-- ci: count=70 latest=#632, #631, #630, #614, #611
+- ci: count=71 latest=#633, #632, #631, #630, #614
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -704,12 +705,12 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=10 latest=#629, #615, #614, #613, #605
+- config: count=11 latest=#633, #629, #615, #614, #613
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=78 latest=#632, #631, #630, #629, #628
+- continuity: count=79 latest=#633, #632, #631, #630, #629
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -887,7 +888,7 @@ compact: true
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
-- pyproject: count=15 latest=#588, #581, #524, #520, #470
+- pyproject: count=16 latest=#633, #588, #581, #524, #520
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -927,7 +928,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=17 latest=#612, #276, #242, #240, #181
-- security: count=109 latest=#632, #619, #618, #617, #616
+- security: count=110 latest=#633, #632, #619, #618, #617
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -978,7 +979,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=38 latest=#623, #622, #533, #532, #530
 - vector-adapters: count=1 latest=#359
-- verify: count=438 latest=#632, #631, #630, #629, #628
+- verify: count=439 latest=#633, #632, #631, #630, #629
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -997,5 +998,5 @@ compact: true
 - roots: 86
 - changed: 64
 - done: 531
-- in-progress: 15
+- in-progress: 16
 - planned: 22
