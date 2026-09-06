@@ -15,9 +15,13 @@ and limited to the Product Core defined in [the domain language](../../CONTEXT.m
 Complete S8-S10 as one evidence chain over a frozen Product Core. Do not use
 operator-surface work to hide or postpone durability, lifecycle, transaction,
 retrieval, graph, qualification, or release defects. The TUI, benchmark UI,
-graph dashboards, WebUI, and HTTP/public presentation layer are deferred and
-cannot establish or block Product Core correctness unless an already-published
-Track S invariant specifically depends on them.
+graph dashboards, WebUI, and HTTP/public presentation layer belong to the
+separate operator lane in the [launch plan](SEAM_LAUNCH.md) (HISTORY#634).
+They cannot establish or block Product Core correctness unless an
+already-published Track S invariant specifically depends on them. The operator
+now prioritizes product completion before expensive benchmark score work;
+S8 prerequisites, S9 qualification/Promotion, and S10 proof requirements remain
+unchanged.
 
 This specification consolidates:
 

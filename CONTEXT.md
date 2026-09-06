@@ -1,8 +1,10 @@
 # SEAM Product Core
 
-SEAM is a provenance-preserving memory system whose canonical evidence and
+SEAM (Surface Encoded Agent Memory) is a provenance-preserving memory system whose canonical evidence and
 memory remain durable while retrieval, graph, and context products stay
 rebuildable and evidence-bound.
+
+Product and deployment names live in [SEAM products](docs/PRODUCTS.md).
 
 ## Language
 

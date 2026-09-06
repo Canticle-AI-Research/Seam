@@ -32,7 +32,9 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - The serialized manual package-release workflow accepts only a new exact
   SemVer from the default branch. It scans the built private wheel/sdist,
   smoke-tests installed commands, emits and re-verifies `SHA256SUMS.txt`, and
-  creates a private GitHub Release draft with categorized generated notes.
+  creates a GitHub Release draft with categorized generated notes. Workflow
+  names do not establish private visibility; L1 must reconcile the actual
+  destination before dispatch (see the packaging status stream).
   After an operator reviews those notes, a separate environment-gated follow-up
   first requires a fresh first attempt whose original and triggering actors
   both match the admin-controlled `PRIVATE_RELEASE_APPROVER` repository
@@ -50,15 +52,11 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Track S operating state
 
-- Protected `main@71c1489` contains D1.1-D1.3 through PR #237. Branch-local
-  D1.4 at `feat/d1-restore-failure-matrix` adds private, default-off seams for
-  every supported restore operation and completed transition. Exact relational
-  state, integrity, foreign keys, WAL stabilization, replacement interruption,
-  rollback continuation, and primary-error preservation are covered by 125
-  focused tests. The 3,193-case non-external collection exits zero with two
-  established xfails, all 23 live pgvector external cases pass, and independent
-  assurance reports zero findings. D1.4 is locally qualified but not yet
-  protected-main fact; D2 and the rest of S8-S10 remain open.
+- The HISTORY#634 baseline is protected `main@8834601`, containing D1-D4,
+  T1, G1, and R1. R2 remains before S8 freeze; use the current handoff and
+  `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` for execution details.
+  Historical D1-local qualification statements are superseded by the merged
+  source chain; this documentation pass does not rerun runtime qualification.
 - S1 routes real Uvicorn `--factory` startup through the same bind and worker
   safety validation as normal launch.
 - `tools.security.secret_scan` owns the canonical secret/session patterns.

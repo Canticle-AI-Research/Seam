@@ -8,6 +8,12 @@ current stage status. Start with the
 [derived roadmap state](../../.seam/streams/roadmap/state.md), then verify any
 claim against current status, active code, named tests, and history evidence.
 
+## Launch sequence
+
+- [SEAM launch plan](SEAM_LAUNCH.md) — ordered acceptance criteria for packaging,
+  Product Core, Suite, API/WebUI, and later benchmark score work.
+- [Product definitions](../PRODUCTS.md) — names and deployment boundaries.
+
 ## Memory, graph, retrieval, and qualification
 
 - [Graph Memory Maturity](GRAPH_MEMORY_MATURITY.md)

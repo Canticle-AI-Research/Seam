@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 633
-total_tokens: ~320523
-latest_id: 633
+total_entries: 634
+total_tokens: ~321309
+latest_id: 634
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 634 | 2026-09-06 | changed | 8c16ad77c7d0cb0d | docs,naming,plan,roadmap,+ | 633 |
 | 633 | 2026-09-05 | in-progress | afe1156c5c597125 | pyproject,config,ci,verify,+ | 632 |
 | 632 | 2026-09-03 | done | ff49be454d6d442b | history,audit,continuity,verify,+ | 631 |
 | 631 | 2026-09-03 | changed | 85b95debab6503e7 | retrieval,status,continuity,verify,+ | 630 |
@@ -710,7 +711,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=79 latest=#633, #632, #631, #630, #629
+- continuity: count=80 latest=#634, #633, #632, #631, #630
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -740,7 +741,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=91 latest=#617, #615, #613, #611, #610
+- docs: count=92 latest=#634, #617, #615, #613, #611
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -781,7 +782,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=113 latest=#630, #629, #628, #627, #626
+- handoff: count=114 latest=#634, #630, #629, #628, #627
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -841,7 +842,7 @@ compact: true
 - multi-agent: count=30 latest=#623, #622, #620, #619, #618
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
-- naming: count=5 latest=#484, #033, #024, #009, #002
+- naming: count=6 latest=#634, #484, #033, #024, #009
 - navigation: count=2 latest=#556, #542
 - negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
@@ -866,7 +867,7 @@ compact: true
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
 - pgvector: count=34 latest=#490, #489, #488, #487, #486
-- plan: count=23 latest=#620, #511, #437, #436, #432
+- plan: count=24 latest=#634, #620, #511, #437, #436
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - positioning: count=1 latest=#538
@@ -916,7 +917,7 @@ compact: true
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=4 latest=#632, #631, #606, #388
-- roadmap: count=70 latest=#624, #612, #560, #551, #540
+- roadmap: count=71 latest=#634, #624, #612, #560, #551
 - roundtrip: count=2 latest=#007, #006
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
@@ -948,7 +949,7 @@ compact: true
 - sqlite: count=4 latest=#624, #606, #506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=197 latest=#631, #630, #629, #628, #625
+- status: count=198 latest=#634, #631, #630, #629, #628
 - storage: count=36 latest=#626, #624, #623, #622, #621
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -979,7 +980,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=38 latest=#623, #622, #533, #532, #530
 - vector-adapters: count=1 latest=#359
-- verify: count=439 latest=#633, #632, #631, #630, #629
+- verify: count=440 latest=#634, #633, #632, #631, #630
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -996,7 +997,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 64
+- changed: 65
 - done: 531
 - in-progress: 16
 - planned: 22

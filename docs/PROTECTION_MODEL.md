@@ -1,11 +1,11 @@
 # SEAM private repository and MIRL/HS/1 protection boundary
 
-> **HISTORICAL — SUPERSEDED.** The retrofitted distribution split this
-> document describes was retired: SEAM is now a single full package with
-> readable MIRL/HS-1 source, used privately to operate the hosted service.
-> This file is retained deliberately as design input for the public edition,
-> which will be built separately from the ground up with separation as an
-> architectural property rather than a gate bolted on afterward.
+> **HISTORICAL — SUPERSEDED.** This document describes the retired distribution
+> split. Its commands, repository visibility assumptions, and future-tense
+> instructions are not current policy. Current definitions and constraints are
+> [SEAM products](PRODUCTS.md) and [packaging status](status/packaging-licensing.md)
+> (HISTORY#634); license files remain controlling. Preserve the text below only
+> as historical design input, not as a recovery or publication runbook.
 
 Effective 2026-07-24, the private `BlackhatShiftey/Seam` repository is
 proprietary and the legacy `BlackhatShiftey/Seam_Runtime` public mirror is

@@ -10,7 +10,7 @@ Read in order:
 2. `REPO_LEDGER.md`
 3. `HISTORY_INDEX.md`
 4. `docs/CODE_LAYOUT.md`
-5. `docs/handoffs/INDEX.md`, then the document named by its `latest` field.
+5. `docs/handoffs/INDEX.md`, then the document named by its `latest` field. For launch organization, product naming, packaging, or operator-surface planning, follow that handoff to `docs/PRODUCTS.md` and `docs/roadmap/SEAM_LAUNCH.md`.
 6. `docs/DATA_ROUTING.md` when the task touches history, ledgers, maintenance records, routing, context budget, or auditability.
 7. `SEAM_SPEC_V0.1.md` **and** `docs/MIRL_V1.md` when the task touches SEAM product behavior — compilation/`compile_nl`, MIRL/IR records, compression, PACK, retrieval, surfaces (HS/1), codecs (RC/1, LX/1), the symbol/improvement loop, benchmarks, or any design decision or measurement claim about how SEAM should behave. The spec is the **governing contract**: do not redesign, "improve", or declare a component broken without first checking the contract it is actually supposed to satisfy (see REPO_LEDGER "SEAM spec is the governing contract"). The process docs above tell you the repo's *state*; the spec tells you what SEAM *is*.
 
@@ -21,7 +21,7 @@ Then:
 - Never read all of `HISTORY.md`; pull only needed entries by indexed line/byte ranges.
 - Treat `archive/code/`, `docs/archive/`, `build/`, `.venv/`, `test_seam/`, and generated/cache paths as inactive unless the user explicitly asks for historical, retired, or local test-artifact material.
 - `test_seam/` is the ignored sink for isolated SQLite `test_seam_*.db` artifacts from test runs. Do not scan it for project source, runtime state, roadmap direction, or repo evidence unless investigating test-artifact cleanup.
-- For normal code search, stay in active paths: `seam_runtime/`, `seam.py`, `experimental/`, `tools/`, `scripts/`, `installers/`, `docs/`, tests, and root status files.
+- For normal code search, stay in active paths: `seam_runtime/`, `seam.py`, `tools/`, `scripts/`, `installers/`, `docs/`, tests, and root status files.
 - Test documentation and local test artifacts have fixed homes: tracked testing
   notes live under `tests/docs/`, and disposable generated test outputs live
   under ignored `test_seam/` subdirectories such as `test_seam/pgvector/`.

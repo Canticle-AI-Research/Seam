@@ -20623,3 +20623,71 @@ were preserved and excluded. Next: push this rebased closeout head, verify fresh
 PR checks, then either add the approved lock-sync gate or retain the PR as draft
 with that exact gap visible.
 ---END-ENTRY-#633---
+
+---BEGIN-ENTRY-#634---
+id: 634
+date: 2026-09-06T07:43:09Z
+agent: codex
+status: changed
+topics: docs, naming, plan, roadmap, status, handoff, continuity, verify
+commits: pending
+refs: AGENTS.md,CONTEXT.md,PROJECT_STATUS.md,README.md,REPO_LEDGER.md,ROADMAP.md,SEAM_SPEC_V0.1.md,docs/PRODUCTS.md,docs/roadmap/SEAM_LAUNCH.md,docs/status/packaging-licensing.md,docs/status/surfaces.md,docs/status/workspace.md,docs/status/operations.md,docs/handoffs/2026-09-06-launch-baseline-packaging-next.md
+supersedes: 633
+tokens: 786
+---
+LAUNCH DOCUMENTATION BASELINE: the operator set SEAM to Surface Encoded Agent
+Memory and prioritized documentation first, packaging migration preparation
+next, Product Core completion, Suite, paid API/WebUI, then expensive benchmark
+score work. docs/PRODUCTS.md defines the product roles and candidate artifact
+names; docs/roadmap/SEAM_LAUNCH.md defines L0-L6 acceptance and change-impact
+checks. R2 remains the first runtime slice before S8 freeze. Existing S9
+Promotion, S10 qualification, and ordinary correctness gates are retained.
+
+Reconciled protected main at 88346018f47c75c49e19b90ea2321a6b0930e002 via
+`git fetch origin`, `git rev-parse origin/main`, and the GitHub commits/main
+API. PR #248 is merged; the exact-main check-runs API reported its required
+checks successful. Root worktree, stash, and validated closeout-queue inspection
+preceded the isolated docs/launch-baseline-20260906 branch. The existing dirty
+primary audit branch and staged/unstaged Codex hook work are preserved; exact
+path exclusions and current worktree identities are in the new handoff.
+
+GitHub repository metadata reports canonical Seam public; old private-only
+source/destination descriptions were therefore reconciled without changing
+visibility or licensing. PyPI JSON metadata reports unrelated seam, legacy
+seam-runtime 1.3.1, seam-self-host 1.1.2, and seam-client 2.0.0. GitHub lists
+v2.4.0. The separate Seam_SDK metadata declares seam-sdk 0.1.0 with an older
+runtime pin. Legacy Seam_Runtime lookup returned HTTP 404, with cause and
+owner access unverified. Package-name absence is not registration proof.
+These observations do not qualify exact artifacts, fresh installs, or hosted
+availability. The root package and its PyPI prohibition remain unchanged.
+
+Updated README/spec identity, concise status routing, stable product/build
+policy, active-source and hosted-access guidance, and historical-document
+routing. Replaced A3/A4 ASCII-first prescriptions and the surviving N2 layout
+mandate with the accepted browser/product direction. Added only the Launch
+roadmap marker; no existing roadmap IDs were removed. Current operations and
+workspace decision maps supersede stale local-stage and worktree claims while
+retaining clearly dated recovery inventory.
+
+Independent read-only assurance found stale install/publication/source text,
+a remaining acronym example, and an overbroad A-Web edit. Repairs retained
+source-use authorization and correct publication boundaries; the accidentally
+removed A-CLI/A1 sections were restored verbatim from the base. Re-review
+reported no remaining blockers and confirmed roadmap-marker preservation.
+
+Pre-closeout verification: `python -m tools.docs.verify_wiki`,
+`python -m tools.ci.verify_dependency_contract`, `git diff --check`, and
+`python -m pytest -q tests/audit/test_local_gates_match_ci.py
+tests/audit/test_dependency_contract.py -m "not external"` exited zero in the
+isolated launch worktree using the primary checkout virtualenv. The canonical
+working-tree secret scanner passed with its documented inherited exclusions;
+candidate text is scanned again before staging. TDD does not apply to this
+documentation-only slice; no runtime suite or paid benchmark was run.
+
+This entry precedes the final canonical closeout gates; final gate/CI evidence
+belongs to the candidate qualification receipt and PR, not an inferred pass
+from this entry. Next: review and checkpoint the docs candidate, prepare L1's
+source/ownership/artifact/compatibility packet, then implement R2. No runtime,
+license, package metadata, hook activation, protected merge, release,
+deployment, or paid provider action is part of this change.
+---END-ENTRY-#634---

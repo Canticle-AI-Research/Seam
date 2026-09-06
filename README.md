@@ -2,7 +2,7 @@
 
 Give your local AI agent persistent memory in one command.
 
-SEAM is a local memory runtime for agents. It stores durable MIRL records in
+SEAM means **Surface Encoded Agent Memory**. It is a memory runtime for agents. It stores durable MIRL records in
 SQLite, retrieves compact context with lexical, graph, temporal, and vector
 signals, tracks provenance, exposes a dashboard/API, and gates benchmark claims
 before they are treated as real progress.
@@ -10,29 +10,37 @@ before they are treated as real progress.
 > **Documentation:** Start at the [SEAM Wiki](docs/README.md) for task-first
 > routes into operator guides, architecture, current state, evidence, and plans.
 
+The launch product family is **Canticle SEAM Suite** (self-hosted),
+**Canticle SEAM API** (paid hosted service), and **SEAM WebUI** (the API operator
+surface). These are target products, not a claim of current launch readiness.
+See the [product map](docs/PRODUCTS.md), [launch plan](docs/roadmap/SEAM_LAUNCH.md),
+and [current packaging constraints](docs/status/packaging-licensing.md).
+
 ## Install
 
-Authorized private-repository install:
+Source-development install for contributors authorized by the Project Owner,
+subject to the repository's existing license terms:
 
 ```bash
-python -m pip install "seam-runtime @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
+python -m pip install "seam-runtime @ git+https://github.com/Canticle-AI-Research/Seam.git@main"
 ```
 
 Install with REST API and dashboard extras:
 
 ```bash
-python -m pip install "seam-runtime[server,dash] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
+python -m pip install "seam-runtime[server,dash] @ git+https://github.com/Canticle-AI-Research/Seam.git@main"
 ```
 
-Repository authorization is required. Once private release tags exist, replace
-`@main` with a pinned tag. The clone-and-installer flows below remain the full
+These commands follow moving `main`; use a reviewed commit or release tag for
+a reproducible installation. Public repository visibility does not change the
+[license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
 operator setup path for repo-local development, persistent state setup, and
 platform shims.
 
 ## Public agent SDK
 
 Custom agents should depend on the separate Apache-2.0 `seam-client` package,
-not this private runtime package. The public SDK provides sync/async
+with a distinct contract from this full runtime package. The public SDK provides sync/async
 `remember`, `recall`, and context hooks over the stable `/v1` API without
 shipping MIRL, HS/1, storage, retrieval, graph, PACK, or benchmark internals.
 
@@ -43,7 +51,7 @@ python -m pip install seam-client
 See [`docs/PUBLIC_SDK_API.md`](docs/PUBLIC_SDK_API.md). Hosted access and API
 credentials remain separately provisioned.
 
-## Private local Python SDK
+## Local Python SDK
 
 Agents can use one local SDK for canonical knowledge and non-canonical public
 reasoning records:
@@ -79,30 +87,32 @@ selected and rejected record IDs, evidence fingerprints, scores, controlled
 reason codes, and latency. It makes no provider call by default and does not
 copy record payloads into the reasoning graph.
 
-Private repo install requires an authenticated GitHub CLI session.
+The installer flows below are for authorized source-development use under
+[LICENSE](LICENSE). They use the GitHub CLI with the canonical repository;
+public visibility does not replace the required use authorization.
 
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 Repo-local Linux development bootstrap:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 ## Agent Setup Prompt
@@ -469,7 +479,7 @@ artifacts must remain useful to an agent without hiding provenance.
 
 ## GitHub Issues and Work Tracking
 
-GitHub Issues are enabled for this private repository. New work enters through
+GitHub Issues are enabled for this repository. New work enters through
 one of four structured forms under [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/):
 bug, feature, research/benchmark, or private-runtime release. Blank issues are
 disabled, and sensitive security reports route to a private security advisory.
@@ -495,8 +505,13 @@ branch and the `v<version>` tag must not already exist. It has two jobs:
   a 7-day artifact.
 - **`private-github-release`** — gated on the `private-package-release`
   environment, downloads and checksum-verifies that artifact, then creates an
-  asset-complete draft GitHub Release against **this private repository only**
+  asset-complete draft GitHub Release against **this repository**
   with notes generated through [`.github/release.yml`](.github/release.yml).
+
+The workflow names retain the historical word "private". They do not establish
+repository or release visibility. Complete the
+[packaging destination review](docs/status/packaging-licensing.md#next-packaging-task)
+before any dispatch.
 
 After an operator reviews the draft notes and assets, the separate manual
 **Publish reviewed private release** workflow
@@ -523,8 +538,10 @@ through post-publication verification.
 The package is additionally marked `Private :: Do Not Upload` in
 `pyproject.toml` as a tripwire against an accidental upload, and
 `tools/release/verify_public_safe.py` blocks secret-shaped content and private
-paths on push. Publishing anything public requires a separately built and
-reviewed artifact — not this workflow and not this package.
+paths on push. These workflows can publish GitHub release assets to this
+repository; visibility follows the destination's actual settings. L1 must
+qualify artifact membership and destination before dispatch. The root package
+remains prohibited from PyPI.
 
 The existing `seam-runtime` 1.3.1 release on PyPI and `server.json` describe the
 legacy Apache-2.0 artifact. They remain pinned to that legacy public release.
@@ -565,8 +582,8 @@ Exact versions previously published at
 <https://github.com/BlackhatShiftey/Seam_Runtime> under Apache-2.0 retain that
 license. The legacy grant is not revoked, but it does not apply automatically
 to later private versions, unpublished changes, or new MIRL or HS/1 material.
-The private-to-public mirror is frozen pending a separately designed and
-legally reviewed distribution boundary. The Apache text applicable to legacy
+The private-to-public mirror tooling was removed. The new Suite distribution
+boundary is a separate reviewed L1 design; it does not reactivate that mirror. The Apache text applicable to legacy
 material is preserved at
 [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
 
