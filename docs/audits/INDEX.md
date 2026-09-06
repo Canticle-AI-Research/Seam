@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-08-29-full-repo-audit
+latest: 2026-09-06-l1-packaging-migration
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,7 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-09-06 | [L1 packaging and SDK migration preparation](2026-09-06-l1-packaging-migration.md) | package/source/ownership map and scoped artifact evidence | `HISTORY#635` |
 | 2026-08-29 | [Full-repository audit](2026-08-29-full-repo-audit.md) | whole-repo health audit | `HISTORY#632` |
 | 2026-08-19 | [Track S S6 principal-tenancy threat-model delta](2026-08-19-track-s-s6-principal-tenancy-threat-model.md) | security / tenancy / deletion | `HISTORY#575` |
 | 2026-08-18 | [Track S and deployment readiness audit](2026-08-18-track-s-deployment-readiness-audit.md) | Track S / surfaces / deployment | `HISTORY#571` |

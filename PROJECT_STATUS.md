@@ -5,14 +5,20 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-09-06 — documentation and launch organization first; packaging migration
-preparation next.** The product direction is Surface Encoded Agent Memory,
+**2026-09-06 — L1 packaging preparation candidate; private paid SDK boundary
+recorded.** The product direction is Surface Encoded Agent Memory,
 Canticle SEAM Suite for self-hosting, and Canticle SEAM API with SEAM WebUI for
 the paid service. See the [product map](docs/PRODUCTS.md),
 [launch plan](docs/roadmap/SEAM_LAUNCH.md), and current handoff in
 [the registry](docs/handoffs/INDEX.md). Decision and reconciliation: HISTORY#634.
 
-The checked protected baseline is `main@8834601` (PR #248). It contains D1-D4,
+The [L1 packaging candidate](docs/audits/2026-09-06-l1-packaging-migration.md)
+now records exact local artifact evidence and unresolved release blockers
+(HISTORY#635). SEAM SDK is private, with access for paying users; the public
+HTTP client remains a distinct artifact. See the current handoff for scope.
+
+The checked protected baseline is `main@7c08104` (PR #250); it contains the
+launch documentation baseline (HISTORY#636). It contains D1-D4,
 T1, G1, and R1, followed by the R1 continuity correction, audit cleanup, and uv
 lockfile work. **R2 Retrieval Scale and Backend Parity remains the next runtime
 slice before S8 freeze.** `legacy-weighted/1` remains the compatibility default;

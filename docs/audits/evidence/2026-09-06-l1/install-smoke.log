@@ -1,0 +1,48 @@
+Auth failed for client 127.0.0.1
+[
+  {
+    "probe": "runtime-local-interface",
+    "result": "passed",
+    "retrieval_candidates": 1
+  },
+  {
+    "probe": "private-paid-sdk-overlay",
+    "result": "passed",
+    "retrieval_candidates": 1
+  },
+  {
+    "probe": "published-client-real-loopback-http",
+    "result": "passed",
+    "coverage": [
+      "sync health/remember/recall/context",
+      "async health/remember/recall/context",
+      "session exclusion",
+      "unauthenticated recall denied"
+    ],
+    "mode": "trusted single-user, not principal-tenancy qualification"
+  },
+  {
+    "probe": "seam --help",
+    "result": "passed"
+  },
+  {
+    "probe": "seam-server --help",
+    "result": "passed"
+  },
+  {
+    "probe": "seam-mcp --help",
+    "result": "passed"
+  },
+  {
+    "probe": "seam-benchmark --help",
+    "result": "passed"
+  },
+  {
+    "probe": "environment",
+    "python": "3.13.12",
+    "runtime": "2.4.0",
+    "client": "2.0.0",
+    "private_sdk": "0.1.0",
+    "runtime_source": "/home/terrabyte/.local/share/seam/packaging/l1-20260906/runtime-env/lib/python3.13/site-packages/seam_runtime/__init__.py"
+  }
+]

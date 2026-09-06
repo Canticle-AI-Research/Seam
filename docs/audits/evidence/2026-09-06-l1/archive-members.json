@@ -1,0 +1,3403 @@
+[
+  {
+    "artifact_path": "pypi/seam-client/seam_client-2.0.0-py3-none-any.whl",
+    "artifact_sha256": "03585afd5e6e42168cf24e47c703b8bf8a77a72b92e56b4efdb9421811cc372f",
+    "members": [
+      {
+        "path": "seam_client-2.0.0.dist-info/METADATA",
+        "sha256": "2d3c6a229569cb8316bf1924d84fb2a1484300e4b28df03cc952e6c22dd2fa7d",
+        "size_bytes": 5479
+      },
+      {
+        "path": "seam_client-2.0.0.dist-info/RECORD",
+        "sha256": "a20bfc8e6a85209bcb27dbe7c747539c834b40a29993b9bba4fbba6dd6ddc168",
+        "size_bytes": 1045
+      },
+      {
+        "path": "seam_client-2.0.0.dist-info/WHEEL",
+        "sha256": "2b6eb4118ce7cd7b09601406aa623c553c4476265836f0d9c16f5c061f7efcc0",
+        "size_bytes": 91
+      },
+      {
+        "path": "seam_client-2.0.0.dist-info/licenses/LICENSE",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_client-2.0.0.dist-info/top_level.txt",
+        "sha256": "a503603243faab6fe0c169a4855c2b68eb224a0e9eeab681ad225a19f32e4e73",
+        "size_bytes": 12
+      },
+      {
+        "path": "seam_client/__init__.py",
+        "sha256": "5117a81669d07a177ff579e4c2776768a6a29fdaad64847a887c3b05e52af296",
+        "size_bytes": 830
+      },
+      {
+        "path": "seam_client/_transport.py",
+        "sha256": "6d1c8483f5f925561056cc424711eba2d807e56b914833ba64f1307344db6962",
+        "size_bytes": 2106
+      },
+      {
+        "path": "seam_client/agent.py",
+        "sha256": "0d4b80ebdcfa5409f7ec3f2a7664e844defdfade62ec1c059ad8b1473d4740c3",
+        "size_bytes": 7937
+      },
+      {
+        "path": "seam_client/async_client.py",
+        "sha256": "a049a63edb1ef2288b7df65a64530b52fdb4f45d5347e108dcfcda8f1064cc7f",
+        "size_bytes": 3528
+      },
+      {
+        "path": "seam_client/client.py",
+        "sha256": "17c6f9593b28d20b3de8cd48c23a5622a624a400591cc7dac0e4e718a0c9f74c",
+        "size_bytes": 3625
+      },
+      {
+        "path": "seam_client/errors.py",
+        "sha256": "5a94b28a56c9a2e65a934b27dc604b698d3e8991b768608b58e4bfd21d867d17",
+        "size_bytes": 828
+      },
+      {
+        "path": "seam_client/models.py",
+        "sha256": "ef4cb099f61071124451170527d41a3dc39f9ba9460faceaf79758854d9807f8",
+        "size_bytes": 4169
+      },
+      {
+        "path": "seam_client/py.typed",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_bytes": 1
+      }
+    ]
+  },
+  {
+    "artifact_path": "pypi/seam-runtime/seam_runtime-1.3.1-py3-none-any.whl",
+    "artifact_sha256": "2abd1e0e1ef3f7d1cacd2099608ad76367d3ed901031e032dc0d8d21b85901e7",
+    "members": [
+      {
+        "path": "seam.py",
+        "sha256": "3b66decbed69988addd5de79471f4f5fda7a081bbdc759d88d9114cf78a32050",
+        "size_bytes": 5206
+      },
+      {
+        "path": "seam_runtime-1.3.1.dist-info/METADATA",
+        "sha256": "a88e131ed47eece9089d1edbd5c3bb268756ec07db15795c3bc591e3dea98a4d",
+        "size_bytes": 30162
+      },
+      {
+        "path": "seam_runtime-1.3.1.dist-info/RECORD",
+        "sha256": "d9c37e80fb3dcc4f1bf4d8e359f76da80718e23b58e5782b344f8c43233b70f9",
+        "size_bytes": 6307
+      },
+      {
+        "path": "seam_runtime-1.3.1.dist-info/WHEEL",
+        "sha256": "2b6eb4118ce7cd7b09601406aa623c553c4476265836f0d9c16f5c061f7efcc0",
+        "size_bytes": 91
+      },
+      {
+        "path": "seam_runtime-1.3.1.dist-info/entry_points.txt",
+        "sha256": "bc3aa8b6ae8a12da58af7011b2d4c07171426de9b5856c1e7caf5bd5d88eb062",
+        "size_bytes": 193
+      },
+      {
+        "path": "seam_runtime-1.3.1.dist-info/licenses/LICENSE",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_runtime-1.3.1.dist-info/licenses/NOTICE",
+        "sha256": "f6cc1f2646575f6fb62e34f715d7d143adf7e92fe885e1e01ebdbd6aae79da17",
+        "size_bytes": 656
+      },
+      {
+        "path": "seam_runtime-1.3.1.dist-info/top_level.txt",
+        "sha256": "463c08c8a0de0b83116e4a5beb7d55e3bfd09bccc3c9e52ae8d35d41064d742b",
+        "size_bytes": 18
+      },
+      {
+        "path": "seam_runtime/__init__.py",
+        "sha256": "dbf415309f51b126eb456afa528d3f6c69fafe9ce2b70b4fa48db53f0e103e49",
+        "size_bytes": 457
+      },
+      {
+        "path": "seam_runtime/agent_memory.py",
+        "sha256": "419b323603e01ca054a7bfe17299018ef10258ad2bbd2cd86818fc4bd14238c9",
+        "size_bytes": 5296
+      },
+      {
+        "path": "seam_runtime/benchmark_baseline_policy.py",
+        "sha256": "704b6a3e8dbf4b88831b86942772a6f695a32043fbbb1876b9aade917481c027",
+        "size_bytes": 3496
+      },
+      {
+        "path": "seam_runtime/benchmark_integrity.py",
+        "sha256": "15ddfd9ed4aca676d18b405fcc8d90b82b701384f3edfa9b70492bfcb3fd8547",
+        "size_bytes": 17546
+      },
+      {
+        "path": "seam_runtime/benchmarks.py",
+        "sha256": "45ca7d7dc785d503e1033a82d796df25cc3ff4b793c25dbff9b9ef19a21300b7",
+        "size_bytes": 100811
+      },
+      {
+        "path": "seam_runtime/bm25.py",
+        "sha256": "d3dc976ffc55fe938d27ee81793f7884ab13907a385140616de3a92a6c993c61",
+        "size_bytes": 2118
+      },
+      {
+        "path": "seam_runtime/cli.py",
+        "sha256": "ceaa2c4b5d712ada82d92e285813f8ea0f8a238ef56fc0ef0d4abf0082adb1a8",
+        "size_bytes": 108081
+      },
+      {
+        "path": "seam_runtime/context_views.py",
+        "sha256": "268dfe369f5f05cac37124574b5d32c7e7efb4811e69716f002032eb1b55c2ef",
+        "size_bytes": 7799
+      },
+      {
+        "path": "seam_runtime/dashboard.py",
+        "sha256": "e2b30d10b4ea3f3a94e56763262c5a569ff12c824bda80fa70214867477e4f7f",
+        "size_bytes": 156320
+      },
+      {
+        "path": "seam_runtime/doctor.py",
+        "sha256": "29866403e59773b2c9ba8dc2526f6396be7520b36f34ccbfbadee9c9b12feb5e",
+        "size_bytes": 6905
+      },
+      {
+        "path": "seam_runtime/dsl.py",
+        "sha256": "3f1b38295289878c7eb85432ac28542a55a8d1e57c21b970dc9c6bd551056071",
+        "size_bytes": 7139
+      },
+      {
+        "path": "seam_runtime/evals.py",
+        "sha256": "350affa84ffc99398e7dbe8d37612421b643b2a9e51999eeec09869ee92e0174",
+        "size_bytes": 8999
+      },
+      {
+        "path": "seam_runtime/external_memory_benchmarks.py",
+        "sha256": "9e3b100216466f3175321ed8781d0d12634ca3655286f9dde229730fbff49512",
+        "size_bytes": 8259
+      },
+      {
+        "path": "seam_runtime/holographic.py",
+        "sha256": "c2a93044acf16648617b6785578d00901ff7368c674c7292c6050cabc4c2bf80",
+        "size_bytes": 22012
+      },
+      {
+        "path": "seam_runtime/improvement.py",
+        "sha256": "28ec39980e4cf31f39599204c59630500732a4a8000ca7c0d9f9d03fd4caf5e2",
+        "size_bytes": 4269
+      },
+      {
+        "path": "seam_runtime/installer.py",
+        "sha256": "7eac679a4845411653957adfa3a448341b494aad6754f3c085a9d87f520c944a",
+        "size_bytes": 14953
+      },
+      {
+        "path": "seam_runtime/lossless.py",
+        "sha256": "d6d9990186bb12be7e820c43c7a96e6d6f0678b8fbf1323c52dc2cd62367766d",
+        "size_bytes": 36912
+      },
+      {
+        "path": "seam_runtime/lx1.py",
+        "sha256": "fd09b2ad72fda6bb7aedc71c6bf55c335e5a99f7a7cfd7ef8ef44c4aa25b2926",
+        "size_bytes": 10199
+      },
+      {
+        "path": "seam_runtime/mcp.py",
+        "sha256": "ae13481fa82344f73c24e84dbe6a386d955a63df2d34e784224073b7e5777357",
+        "size_bytes": 24970
+      },
+      {
+        "path": "seam_runtime/mcp_protocol.py",
+        "sha256": "41e374dc3f9f42c56e75c14313cb7efdf3d91d88740d3e754956ebe82da65f2d",
+        "size_bytes": 11440
+      },
+      {
+        "path": "seam_runtime/mirl.py",
+        "sha256": "d6d24aea12d3a5365de3e60c33055393087158d2d1d1f67615f70e10d7e4383f",
+        "size_bytes": 11517
+      },
+      {
+        "path": "seam_runtime/models.py",
+        "sha256": "33ca35e5f92c9bd3362182f346365d8a018de6540ffd96753ef302010d6377a5",
+        "size_bytes": 7648
+      },
+      {
+        "path": "seam_runtime/nl.py",
+        "sha256": "863912ef4a65f4686d9355575c161bf8250b51d929ef5847db481ad487a045a9",
+        "size_bytes": 16059
+      },
+      {
+        "path": "seam_runtime/nl_extract.py",
+        "sha256": "8ab7d518e0543b62d043e00bb9c543c9e18ef23abec91b8dd03903159e091f51",
+        "size_bytes": 8075
+      },
+      {
+        "path": "seam_runtime/pack.py",
+        "sha256": "e9462f2a49468e2f27cede9ebf3ed80e6dadc14dcb5912beccbb4a6a1dcb0b0b",
+        "size_bytes": 15080
+      },
+      {
+        "path": "seam_runtime/pgvector_bootstrap.py",
+        "sha256": "c741f6962d9ab8064c7536b596ac5cd4c6926d020935e1f52da0a014bebe8088",
+        "size_bytes": 7910
+      },
+      {
+        "path": "seam_runtime/pool.py",
+        "sha256": "8196feb397fb5bd3db773eee721eb8b2fa3f8d0c5b743751e30350f2d03c76b5",
+        "size_bytes": 6574
+      },
+      {
+        "path": "seam_runtime/reconcile.py",
+        "sha256": "64a9df60837e5126b3f3b488ff31adbc092486ab96cf6bdf0fee9dfc07f7ace6",
+        "size_bytes": 2604
+      },
+      {
+        "path": "seam_runtime/retrieval.py",
+        "sha256": "74db2795013fc6744c56122b4298ab768570c0b4b91d6061e6f8b17a604cd553",
+        "size_bytes": 19281
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/README.md",
+        "sha256": "1f8b7880e55443922e9a06e1871cf2974f9d3dfa2f44902323999cda138037aa",
+        "size_bytes": 2289
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/__init__.py",
+        "sha256": "1aaa903f0cefa9174df5155a621d9ecd688c68e9ebd2c7878696677fcdb550ea",
+        "size_bytes": 819
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/adapters.py",
+        "sha256": "0f24bf6d351669d2f6129ca9b74824872a332f52cd7116e27e53612e024de1dc",
+        "size_bytes": 18965
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/merger.py",
+        "sha256": "4c5579738307187b55822b8578c9fdde83e83c3b808948105a258129459b83f9",
+        "size_bytes": 999
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/orchestrator.py",
+        "sha256": "eef4ffb729a0166e5fe520b1f4e3933035ce3f9b01bc16f5b769da6836d5b362",
+        "size_bytes": 4954
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/planner.py",
+        "sha256": "abb14583bba0e23f7242761c5bbc6c9564909e7520c3c862e2130d6ea4db00fc",
+        "size_bytes": 3352
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/types.py",
+        "sha256": "03b538ace9a81c044af6cbe076e3f5e07298067dff5c66a472500bcc6d73610e",
+        "size_bytes": 4866
+      },
+      {
+        "path": "seam_runtime/retry.py",
+        "sha256": "caf51fcd3c92a9ca95d1bfb45bbfe9f21587c859bece3c8e818c56eca3ea3024",
+        "size_bytes": 5920
+      },
+      {
+        "path": "seam_runtime/runtime.py",
+        "sha256": "89703f8f5a7765cdda55aa59792bbcd75dbe7bf944923ff10579c71aecfaeb10",
+        "size_bytes": 19110
+      },
+      {
+        "path": "seam_runtime/self_improve.py",
+        "sha256": "6abe7f33f28d0ad97b6e9c2fa98389d2e0a4352d76244b70cf8b8abc99ac6134",
+        "size_bytes": 17260
+      },
+      {
+        "path": "seam_runtime/server.py",
+        "sha256": "ca72bb31e30d9ef3a4b8a9ce907b3dece82ad80e242847025ae452e2f6f6bdbf",
+        "size_bytes": 42614
+      },
+      {
+        "path": "seam_runtime/skills/__init__.py",
+        "sha256": "c7043b352598abadfe9e29e880539c4c09048d6bad47671df6f38540d7addc95",
+        "size_bytes": 571
+      },
+      {
+        "path": "seam_runtime/skills/factory.py",
+        "sha256": "4d8113f6dfa7b68be8b26212a6450b957fb90c42a5ee9851a3bc8507a8106506",
+        "size_bytes": 6200
+      },
+      {
+        "path": "seam_runtime/skills/skill_ir.py",
+        "sha256": "739d0ca7c23dc81a6f1a6490a454452f1a7817116800478776b00d4e399dd4c1",
+        "size_bytes": 3493
+      },
+      {
+        "path": "seam_runtime/storage.py",
+        "sha256": "7310d67a3b8f2c952711d9828a3448e889dc2cb45a4d3ab9ba7b4d82fe54ba38",
+        "size_bytes": 72438
+      },
+      {
+        "path": "seam_runtime/surface_adapters.py",
+        "sha256": "1bf05d06b3de710506686b56556ea1fa34fe708106b2e7e4efebab8ff65bfdd5",
+        "size_bytes": 5485
+      },
+      {
+        "path": "seam_runtime/symbols.py",
+        "sha256": "9c99b2b95a660ee14fa498ed5e1019de3d541d01e609fb0a89b881e09466f4dd",
+        "size_bytes": 8995
+      },
+      {
+        "path": "seam_runtime/temporal.py",
+        "sha256": "6c38a4550cabff2c6b2256d80294f236718be4c8c541dea4bd06f49026854059",
+        "size_bytes": 3665
+      },
+      {
+        "path": "seam_runtime/tokenization.py",
+        "sha256": "bed739478b70345556b36131fea1f40b3af6e26fdbeff8b8d59beca5945ca48a",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime/transpile.py",
+        "sha256": "43a7c3f235931c75d779db7d110abe1c8a6d2c7e5f8ef537d00d2246d27db65b",
+        "size_bytes": 689
+      },
+      {
+        "path": "seam_runtime/ui/__init__.py",
+        "sha256": "5ac2376956c748b64ccfafaa0e49adc898a078f2e57011c39ebfd4bda62a5ca4",
+        "size_bytes": 524
+      },
+      {
+        "path": "seam_runtime/ui/animations.py",
+        "sha256": "493d4a0f5e0b873b004e4df53bf05941059e930acf53cb6b2fc8924a4d64617d",
+        "size_bytes": 18622
+      },
+      {
+        "path": "seam_runtime/ui/bars.py",
+        "sha256": "2322daadf56f78db3c8c8a975a49c07efc988f69d5e90ef4b0b170480838f391",
+        "size_bytes": 8282
+      },
+      {
+        "path": "seam_runtime/ui/logo.py",
+        "sha256": "110c4b92207e6059f5c7712e19083784875e19733c098da0349f9fc8532a17d7",
+        "size_bytes": 13504
+      },
+      {
+        "path": "seam_runtime/ui/theme.py",
+        "sha256": "bee3bcade9919220ce7950241f6e0d64bf66c139dd3754b67dc35991c8fa4446",
+        "size_bytes": 6799
+      },
+      {
+        "path": "seam_runtime/vector.py",
+        "sha256": "8d869383120add173e62c0771f147778c0ca2ff41a6a72122d80cad65785e57d",
+        "size_bytes": 7297
+      },
+      {
+        "path": "seam_runtime/vector_adapters.py",
+        "sha256": "0fc8307dc149c0eb3edd83e6b8b487459b2c8497d7a531bd0eb1a4c5bc934a7d",
+        "size_bytes": 10777
+      },
+      {
+        "path": "seam_runtime/verify.py",
+        "sha256": "09209cc623ceea77164712aaa873cef8e0f08730e9bcb3cc58c3de3c37f43afa",
+        "size_bytes": 6980
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-glitch.png",
+        "sha256": "65440072e6f9fd90762a88fed3cd0337e5961c0a06463d418d72af55ecadc05d",
+        "size_bytes": 266616
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-mark-retro.svg",
+        "sha256": "1a2339140ea8b260c738b415eb015980117d77c378455537d96975e41421fd00",
+        "size_bytes": 1979
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-mark-terminal.svg",
+        "sha256": "87dfd8b7a69134777af2af1d8ed9cfa29577193c00db35884e00468d04d3664c",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime/webui/dashboard.html",
+        "sha256": "cf3baf35ad76a5dc7f4af8927b40504ee60260ffad85886a7246f4664b5081bd",
+        "size_bytes": 400438
+      },
+      {
+        "path": "seam_runtime/webui/favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "size_bytes": 9522
+      },
+      {
+        "path": "seam_runtime/webui/icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "size_bytes": 5031
+      },
+      {
+        "path": "seam_runtime/webui/seam-api.js",
+        "sha256": "51827c49fc0babd2736dbd77c96fe3559cb70b896370f37d0ff85a370fca657d",
+        "size_bytes": 9811
+      },
+      {
+        "path": "seam_runtime/webui/tweaks-panel.jsx",
+        "sha256": "3de8e8c1af99a3f785fe478891dc502e94f0c829fb9c50c427aa960d338d5b90",
+        "size_bytes": 18513
+      }
+    ]
+  },
+  {
+    "artifact_path": "pypi/seam-self-host/seam_self_host-1.1.2-cp312-cp312-manylinux_2_28_x86_64.whl",
+    "artifact_sha256": "36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362",
+    "members": [
+      {
+        "path": "seam_runtime.cpython-312-x86_64-linux-gnu.so",
+        "sha256": "6fd19852610f957e56f7385d52a099f4851378dd58af2725651b6ff0fc90f193",
+        "size_bytes": 10026320
+      },
+      {
+        "path": "seam_self_host-1.1.2.dist-info/METADATA",
+        "sha256": "0ac2cfe506d4d4f3a6725427975dc65e701780242b74dec42db30c0127040715",
+        "size_bytes": 15069
+      },
+      {
+        "path": "seam_self_host-1.1.2.dist-info/RECORD",
+        "sha256": "568739be5557e8790685c90b7d205566aff07225935f50bba0de1511cee92598",
+        "size_bytes": 561
+      },
+      {
+        "path": "seam_self_host-1.1.2.dist-info/WHEEL",
+        "sha256": "082c27f1383fd54c8b47265d50f2c1c03f351a157bfed736c271e0da2ebc333e",
+        "size_bytes": 114
+      },
+      {
+        "path": "seam_self_host-1.1.2.dist-info/entry_points.txt",
+        "sha256": "2b477df0222534198d6241086d604079b6d7de42db43aea4817904ed7425aeaa",
+        "size_bytes": 104
+      },
+      {
+        "path": "seam_self_host-1.1.2.dist-info/licenses/LICENSES/BUSL-1.1.txt",
+        "sha256": "e84b6996cfc3fab624b6950648a68446a8c9abe6c05ac6659c767e9637ed88e5",
+        "size_bytes": 5526
+      }
+    ]
+  },
+  {
+    "artifact_path": "pypi/seam-client/seam_client-2.0.0.tar.gz",
+    "artifact_sha256": "37af38068982fa44d54ab0a5ed696319d4711a6d8a18dbf004a1123a2aac7096",
+    "members": [
+      {
+        "path": "seam_client-2.0.0/LICENSE",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_client-2.0.0/PKG-INFO",
+        "sha256": "2d3c6a229569cb8316bf1924d84fb2a1484300e4b28df03cc952e6c22dd2fa7d",
+        "size_bytes": 5479
+      },
+      {
+        "path": "seam_client-2.0.0/README.md",
+        "sha256": "344c254de7d792da930a43bfeae74577d22a193c71a9931d70c228461bf01516",
+        "size_bytes": 4210
+      },
+      {
+        "path": "seam_client-2.0.0/pyproject.toml",
+        "sha256": "df23a4aa370592a5c5663771ce717a224889220ddd6e1e641ce2c64739880271",
+        "size_bytes": 1523
+      },
+      {
+        "path": "seam_client-2.0.0/setup.cfg",
+        "sha256": "1c473cbaee8da5fc46e7f0158794af5cea4414c34a3cf3f180c2001f5e38bd3e",
+        "size_bytes": 38
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client.egg-info/PKG-INFO",
+        "sha256": "2d3c6a229569cb8316bf1924d84fb2a1484300e4b28df03cc952e6c22dd2fa7d",
+        "size_bytes": 5479
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client.egg-info/SOURCES.txt",
+        "sha256": "c9012aeca40a0c446b9d8f629dd7b92dfc6595778067fde4efbd4fbd2b0480c3",
+        "size_bytes": 544
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client.egg-info/dependency_links.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_bytes": 1
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client.egg-info/requires.txt",
+        "sha256": "5819e77cff020345e15b9edc3852c87b73bf9ff48c1764d83004d22755bd284d",
+        "size_bytes": 110
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client.egg-info/top_level.txt",
+        "sha256": "a503603243faab6fe0c169a4855c2b68eb224a0e9eeab681ad225a19f32e4e73",
+        "size_bytes": 12
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/__init__.py",
+        "sha256": "5117a81669d07a177ff579e4c2776768a6a29fdaad64847a887c3b05e52af296",
+        "size_bytes": 830
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/_transport.py",
+        "sha256": "6d1c8483f5f925561056cc424711eba2d807e56b914833ba64f1307344db6962",
+        "size_bytes": 2106
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/agent.py",
+        "sha256": "0d4b80ebdcfa5409f7ec3f2a7664e844defdfade62ec1c059ad8b1473d4740c3",
+        "size_bytes": 7937
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/async_client.py",
+        "sha256": "a049a63edb1ef2288b7df65a64530b52fdb4f45d5347e108dcfcda8f1064cc7f",
+        "size_bytes": 3528
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/client.py",
+        "sha256": "17c6f9593b28d20b3de8cd48c23a5622a624a400591cc7dac0e4e718a0c9f74c",
+        "size_bytes": 3625
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/errors.py",
+        "sha256": "5a94b28a56c9a2e65a934b27dc604b698d3e8991b768608b58e4bfd21d867d17",
+        "size_bytes": 828
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/models.py",
+        "sha256": "ef4cb099f61071124451170527d41a3dc39f9ba9460faceaf79758854d9807f8",
+        "size_bytes": 4169
+      },
+      {
+        "path": "seam_client-2.0.0/src/seam_client/py.typed",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_bytes": 1
+      },
+      {
+        "path": "seam_client-2.0.0/tests/test_agent.py",
+        "sha256": "90e4491d92d8097bb96c9973da9b9b5fcf30d0e4f23008b96703c6b1bd04276e",
+        "size_bytes": 6251
+      },
+      {
+        "path": "seam_client-2.0.0/tests/test_artifact_boundary.py",
+        "sha256": "8b3142f3622bfad5094edf88b0bcb526428c59ee7e10f768e5f8f8a2c7b0561e",
+        "size_bytes": 2178
+      },
+      {
+        "path": "seam_client-2.0.0/tests/test_async_client.py",
+        "sha256": "5e3a1810f5f7a69a37ae00d8759c5baa96c7b05ffff47a81ad21cc44bba88c20",
+        "size_bytes": 2521
+      },
+      {
+        "path": "seam_client-2.0.0/tests/test_client.py",
+        "sha256": "cc9bf21d7ab516ea51c0df242c6a96fcd00ffa36b1f17972d158bbb151a84eff",
+        "size_bytes": 4766
+      }
+    ]
+  },
+  {
+    "artifact_path": "pypi/seam-runtime/seam_runtime-1.3.1.tar.gz",
+    "artifact_sha256": "ea0915a87bcfb4c66ce6e0d7a1282a126841913f2886246dbcf4f634cefe4167",
+    "members": [
+      {
+        "path": "seam_runtime-1.3.1/COMMERCIAL_LICENSE.md",
+        "sha256": "832008826fcb67f12f475689866f301cf68479f2342fba2b5c4fcc8c5143f2d4",
+        "size_bytes": 1783
+      },
+      {
+        "path": "seam_runtime-1.3.1/CONTRIBUTING.md",
+        "sha256": "6db0bd62d738469320133cc7bc018520a65af039f30f9f1d9738f80ff865eac2",
+        "size_bytes": 2552
+      },
+      {
+        "path": "seam_runtime-1.3.1/LICENSE",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_runtime-1.3.1/MANIFEST.in",
+        "sha256": "f681f47176044e19aca937d74fdd10523b3c73ad31fac284f6a9eb6b8f894880",
+        "size_bytes": 258
+      },
+      {
+        "path": "seam_runtime-1.3.1/NOTICE",
+        "sha256": "f6cc1f2646575f6fb62e34f715d7d143adf7e92fe885e1e01ebdbd6aae79da17",
+        "size_bytes": 656
+      },
+      {
+        "path": "seam_runtime-1.3.1/PKG-INFO",
+        "sha256": "a88e131ed47eece9089d1edbd5c3bb268756ec07db15795c3bc591e3dea98a4d",
+        "size_bytes": 30162
+      },
+      {
+        "path": "seam_runtime-1.3.1/README.md",
+        "sha256": "78ed65017bd5dd82ee3d9102a9ec32871900c00e6afb099cfeb56ce06d39ef60",
+        "size_bytes": 14802
+      },
+      {
+        "path": "seam_runtime-1.3.1/SECURITY.md",
+        "sha256": "b9ce1267bef7fc05a2b07d7420f6ec2b45161e3150ebbe6f928d1076889f02f7",
+        "size_bytes": 1634
+      },
+      {
+        "path": "seam_runtime-1.3.1/pyproject.toml",
+        "sha256": "ea43943d895f459bac5daca447e00cf5a5ed4122f8596a018929694ee6b96afc",
+        "size_bytes": 2748
+      },
+      {
+        "path": "seam_runtime-1.3.1/requirements.txt",
+        "sha256": "a52312832da79d7ce455bddebe9a47247b3503f74aea77065eb36b692a9c7c1c",
+        "size_bytes": 31
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam.py",
+        "sha256": "3b66decbed69988addd5de79471f4f5fda7a081bbdc759d88d9114cf78a32050",
+        "size_bytes": 5206
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime.egg-info/PKG-INFO",
+        "sha256": "a88e131ed47eece9089d1edbd5c3bb268756ec07db15795c3bc591e3dea98a4d",
+        "size_bytes": 30162
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime.egg-info/SOURCES.txt",
+        "sha256": "b57d20e7903c4703de9a604d6c7fd33efa9cde4019edb208156281c64697177b",
+        "size_bytes": 2302
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime.egg-info/dependency_links.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_bytes": 1
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime.egg-info/entry_points.txt",
+        "sha256": "bc3aa8b6ae8a12da58af7011b2d4c07171426de9b5856c1e7caf5bd5d88eb062",
+        "size_bytes": 193
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime.egg-info/requires.txt",
+        "sha256": "790af443ddc197b7ef22dac018d3714baf8b7bfc9287b7bef768073eecf9271e",
+        "size_bytes": 734
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime.egg-info/top_level.txt",
+        "sha256": "463c08c8a0de0b83116e4a5beb7d55e3bfd09bccc3c9e52ae8d35d41064d742b",
+        "size_bytes": 18
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/__init__.py",
+        "sha256": "dbf415309f51b126eb456afa528d3f6c69fafe9ce2b70b4fa48db53f0e103e49",
+        "size_bytes": 457
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/agent_memory.py",
+        "sha256": "419b323603e01ca054a7bfe17299018ef10258ad2bbd2cd86818fc4bd14238c9",
+        "size_bytes": 5296
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/benchmark_baseline_policy.py",
+        "sha256": "704b6a3e8dbf4b88831b86942772a6f695a32043fbbb1876b9aade917481c027",
+        "size_bytes": 3496
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/benchmark_integrity.py",
+        "sha256": "15ddfd9ed4aca676d18b405fcc8d90b82b701384f3edfa9b70492bfcb3fd8547",
+        "size_bytes": 17546
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/benchmarks.py",
+        "sha256": "45ca7d7dc785d503e1033a82d796df25cc3ff4b793c25dbff9b9ef19a21300b7",
+        "size_bytes": 100811
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/bm25.py",
+        "sha256": "d3dc976ffc55fe938d27ee81793f7884ab13907a385140616de3a92a6c993c61",
+        "size_bytes": 2118
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/cli.py",
+        "sha256": "ceaa2c4b5d712ada82d92e285813f8ea0f8a238ef56fc0ef0d4abf0082adb1a8",
+        "size_bytes": 108081
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/context_views.py",
+        "sha256": "268dfe369f5f05cac37124574b5d32c7e7efb4811e69716f002032eb1b55c2ef",
+        "size_bytes": 7799
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/dashboard.py",
+        "sha256": "e2b30d10b4ea3f3a94e56763262c5a569ff12c824bda80fa70214867477e4f7f",
+        "size_bytes": 156320
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/doctor.py",
+        "sha256": "29866403e59773b2c9ba8dc2526f6396be7520b36f34ccbfbadee9c9b12feb5e",
+        "size_bytes": 6905
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/dsl.py",
+        "sha256": "3f1b38295289878c7eb85432ac28542a55a8d1e57c21b970dc9c6bd551056071",
+        "size_bytes": 7139
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/evals.py",
+        "sha256": "350affa84ffc99398e7dbe8d37612421b643b2a9e51999eeec09869ee92e0174",
+        "size_bytes": 8999
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/external_memory_benchmarks.py",
+        "sha256": "9e3b100216466f3175321ed8781d0d12634ca3655286f9dde229730fbff49512",
+        "size_bytes": 8259
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/holographic.py",
+        "sha256": "c2a93044acf16648617b6785578d00901ff7368c674c7292c6050cabc4c2bf80",
+        "size_bytes": 22012
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/improvement.py",
+        "sha256": "28ec39980e4cf31f39599204c59630500732a4a8000ca7c0d9f9d03fd4caf5e2",
+        "size_bytes": 4269
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/installer.py",
+        "sha256": "7eac679a4845411653957adfa3a448341b494aad6754f3c085a9d87f520c944a",
+        "size_bytes": 14953
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/lossless.py",
+        "sha256": "d6d9990186bb12be7e820c43c7a96e6d6f0678b8fbf1323c52dc2cd62367766d",
+        "size_bytes": 36912
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/lx1.py",
+        "sha256": "fd09b2ad72fda6bb7aedc71c6bf55c335e5a99f7a7cfd7ef8ef44c4aa25b2926",
+        "size_bytes": 10199
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/mcp.py",
+        "sha256": "ae13481fa82344f73c24e84dbe6a386d955a63df2d34e784224073b7e5777357",
+        "size_bytes": 24970
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/mcp_protocol.py",
+        "sha256": "41e374dc3f9f42c56e75c14313cb7efdf3d91d88740d3e754956ebe82da65f2d",
+        "size_bytes": 11440
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/mirl.py",
+        "sha256": "d6d24aea12d3a5365de3e60c33055393087158d2d1d1f67615f70e10d7e4383f",
+        "size_bytes": 11517
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/models.py",
+        "sha256": "33ca35e5f92c9bd3362182f346365d8a018de6540ffd96753ef302010d6377a5",
+        "size_bytes": 7648
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/nl.py",
+        "sha256": "863912ef4a65f4686d9355575c161bf8250b51d929ef5847db481ad487a045a9",
+        "size_bytes": 16059
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/nl_extract.py",
+        "sha256": "8ab7d518e0543b62d043e00bb9c543c9e18ef23abec91b8dd03903159e091f51",
+        "size_bytes": 8075
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/pack.py",
+        "sha256": "e9462f2a49468e2f27cede9ebf3ed80e6dadc14dcb5912beccbb4a6a1dcb0b0b",
+        "size_bytes": 15080
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/pgvector_bootstrap.py",
+        "sha256": "c741f6962d9ab8064c7536b596ac5cd4c6926d020935e1f52da0a014bebe8088",
+        "size_bytes": 7910
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/pool.py",
+        "sha256": "8196feb397fb5bd3db773eee721eb8b2fa3f8d0c5b743751e30350f2d03c76b5",
+        "size_bytes": 6574
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/reconcile.py",
+        "sha256": "64a9df60837e5126b3f3b488ff31adbc092486ab96cf6bdf0fee9dfc07f7ace6",
+        "size_bytes": 2604
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval.py",
+        "sha256": "74db2795013fc6744c56122b4298ab768570c0b4b91d6061e6f8b17a604cd553",
+        "size_bytes": 19281
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval_orchestrator/README.md",
+        "sha256": "1f8b7880e55443922e9a06e1871cf2974f9d3dfa2f44902323999cda138037aa",
+        "size_bytes": 2289
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval_orchestrator/__init__.py",
+        "sha256": "1aaa903f0cefa9174df5155a621d9ecd688c68e9ebd2c7878696677fcdb550ea",
+        "size_bytes": 819
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval_orchestrator/adapters.py",
+        "sha256": "0f24bf6d351669d2f6129ca9b74824872a332f52cd7116e27e53612e024de1dc",
+        "size_bytes": 18965
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval_orchestrator/merger.py",
+        "sha256": "4c5579738307187b55822b8578c9fdde83e83c3b808948105a258129459b83f9",
+        "size_bytes": 999
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval_orchestrator/orchestrator.py",
+        "sha256": "eef4ffb729a0166e5fe520b1f4e3933035ce3f9b01bc16f5b769da6836d5b362",
+        "size_bytes": 4954
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval_orchestrator/planner.py",
+        "sha256": "abb14583bba0e23f7242761c5bbc6c9564909e7520c3c862e2130d6ea4db00fc",
+        "size_bytes": 3352
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retrieval_orchestrator/types.py",
+        "sha256": "03b538ace9a81c044af6cbe076e3f5e07298067dff5c66a472500bcc6d73610e",
+        "size_bytes": 4866
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/retry.py",
+        "sha256": "caf51fcd3c92a9ca95d1bfb45bbfe9f21587c859bece3c8e818c56eca3ea3024",
+        "size_bytes": 5920
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/runtime.py",
+        "sha256": "89703f8f5a7765cdda55aa59792bbcd75dbe7bf944923ff10579c71aecfaeb10",
+        "size_bytes": 19110
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/self_improve.py",
+        "sha256": "6abe7f33f28d0ad97b6e9c2fa98389d2e0a4352d76244b70cf8b8abc99ac6134",
+        "size_bytes": 17260
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/server.py",
+        "sha256": "ca72bb31e30d9ef3a4b8a9ce907b3dece82ad80e242847025ae452e2f6f6bdbf",
+        "size_bytes": 42614
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/skills/__init__.py",
+        "sha256": "c7043b352598abadfe9e29e880539c4c09048d6bad47671df6f38540d7addc95",
+        "size_bytes": 571
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/skills/factory.py",
+        "sha256": "4d8113f6dfa7b68be8b26212a6450b957fb90c42a5ee9851a3bc8507a8106506",
+        "size_bytes": 6200
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/skills/skill_ir.py",
+        "sha256": "739d0ca7c23dc81a6f1a6490a454452f1a7817116800478776b00d4e399dd4c1",
+        "size_bytes": 3493
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/storage.py",
+        "sha256": "7310d67a3b8f2c952711d9828a3448e889dc2cb45a4d3ab9ba7b4d82fe54ba38",
+        "size_bytes": 72438
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/surface_adapters.py",
+        "sha256": "1bf05d06b3de710506686b56556ea1fa34fe708106b2e7e4efebab8ff65bfdd5",
+        "size_bytes": 5485
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/symbols.py",
+        "sha256": "9c99b2b95a660ee14fa498ed5e1019de3d541d01e609fb0a89b881e09466f4dd",
+        "size_bytes": 8995
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/temporal.py",
+        "sha256": "6c38a4550cabff2c6b2256d80294f236718be4c8c541dea4bd06f49026854059",
+        "size_bytes": 3665
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/tokenization.py",
+        "sha256": "bed739478b70345556b36131fea1f40b3af6e26fdbeff8b8d59beca5945ca48a",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/transpile.py",
+        "sha256": "43a7c3f235931c75d779db7d110abe1c8a6d2c7e5f8ef537d00d2246d27db65b",
+        "size_bytes": 689
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/ui/__init__.py",
+        "sha256": "5ac2376956c748b64ccfafaa0e49adc898a078f2e57011c39ebfd4bda62a5ca4",
+        "size_bytes": 524
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/ui/animations.py",
+        "sha256": "493d4a0f5e0b873b004e4df53bf05941059e930acf53cb6b2fc8924a4d64617d",
+        "size_bytes": 18622
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/ui/bars.py",
+        "sha256": "2322daadf56f78db3c8c8a975a49c07efc988f69d5e90ef4b0b170480838f391",
+        "size_bytes": 8282
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/ui/logo.py",
+        "sha256": "110c4b92207e6059f5c7712e19083784875e19733c098da0349f9fc8532a17d7",
+        "size_bytes": 13504
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/ui/theme.py",
+        "sha256": "bee3bcade9919220ce7950241f6e0d64bf66c139dd3754b67dc35991c8fa4446",
+        "size_bytes": 6799
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/vector.py",
+        "sha256": "8d869383120add173e62c0771f147778c0ca2ff41a6a72122d80cad65785e57d",
+        "size_bytes": 7297
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/vector_adapters.py",
+        "sha256": "0fc8307dc149c0eb3edd83e6b8b487459b2c8497d7a531bd0eb1a4c5bc934a7d",
+        "size_bytes": 10777
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/verify.py",
+        "sha256": "09209cc623ceea77164712aaa873cef8e0f08730e9bcb3cc58c3de3c37f43afa",
+        "size_bytes": 6980
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/branding/seam-glitch.png",
+        "sha256": "65440072e6f9fd90762a88fed3cd0337e5961c0a06463d418d72af55ecadc05d",
+        "size_bytes": 266616
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/branding/seam-mark-retro.svg",
+        "sha256": "1a2339140ea8b260c738b415eb015980117d77c378455537d96975e41421fd00",
+        "size_bytes": 1979
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/branding/seam-mark-terminal.svg",
+        "sha256": "87dfd8b7a69134777af2af1d8ed9cfa29577193c00db35884e00468d04d3664c",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/dashboard.html",
+        "sha256": "cf3baf35ad76a5dc7f4af8927b40504ee60260ffad85886a7246f4664b5081bd",
+        "size_bytes": 400438
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "size_bytes": 9522
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "size_bytes": 5031
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/seam-api.js",
+        "sha256": "51827c49fc0babd2736dbd77c96fe3559cb70b896370f37d0ff85a370fca657d",
+        "size_bytes": 9811
+      },
+      {
+        "path": "seam_runtime-1.3.1/seam_runtime/webui/tweaks-panel.jsx",
+        "sha256": "3de8e8c1af99a3f785fe478891dc502e94f0c829fb9c50c427aa960d338d5b90",
+        "size_bytes": 18513
+      },
+      {
+        "path": "seam_runtime-1.3.1/setup.cfg",
+        "sha256": "1c473cbaee8da5fc46e7f0158794af5cea4414c34a3cf3f180c2001f5e38bd3e",
+        "size_bytes": 38
+      }
+    ]
+  },
+  {
+    "artifact_path": "github-v2.4.0/seam_runtime-2.4.0-py3-none-any.whl",
+    "artifact_sha256": "cb71fc3e15d103ef63e5c15d9325c2b24645b61d6b42548dcfda4b64fe2f3d21",
+    "members": [
+      {
+        "path": "seam.py",
+        "sha256": "dd0a36aa064e6712c55d31f9b79741e4ee48861456d492d5052dd8261a68c5af",
+        "size_bytes": 5831
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/METADATA",
+        "sha256": "12908c4e7d9e525eef4e1904a1cd0dafb58535ecf2a2f809c8c600a4214ead05",
+        "size_bytes": 23720
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/RECORD",
+        "sha256": "fe088497aa5594fd579f5d365c3c876244136b0004b5a5778f44bab88107ff6d",
+        "size_bytes": 8446
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/WHEEL",
+        "sha256": "2b6eb4118ce7cd7b09601406aa623c553c4476265836f0d9c16f5c061f7efcc0",
+        "size_bytes": 91
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/entry_points.txt",
+        "sha256": "bc3aa8b6ae8a12da58af7011b2d4c07171426de9b5856c1e7caf5bd5d88eb062",
+        "size_bytes": 193
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/COMMERCIAL_LICENSE.md",
+        "sha256": "df30552fa6d14414a83c07ad1186460ec63309c2d17ca64f7a911d146aa098e0",
+        "size_bytes": 3819
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/LICENSE",
+        "sha256": "3c7b5b71e6aad5b890d2ad7f5967c8ed326d037a06414a5e07f3b250c56784e8",
+        "size_bytes": 13674
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/LICENSES/Apache-2.0.txt",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/LICENSES/BUSL-1.1.txt",
+        "sha256": "e84b6996cfc3fab624b6950648a68446a8c9abe6c05ac6659c767e9637ed88e5",
+        "size_bytes": 5526
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/NOTICE",
+        "sha256": "a19dca60f188a0be0b09b9dc21d0709a560a6f717425c9eb236f89ad2baecf59",
+        "size_bytes": 2327
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/top_level.txt",
+        "sha256": "463c08c8a0de0b83116e4a5beb7d55e3bfd09bccc3c9e52ae8d35d41064d742b",
+        "size_bytes": 18
+      },
+      {
+        "path": "seam_runtime/__init__.py",
+        "sha256": "7cfd671bd76ce71c8f6a68ebbef42f04b74aba6abd61b8626ee9a8197efd62c7",
+        "size_bytes": 583
+      },
+      {
+        "path": "seam_runtime/agent_memory.py",
+        "sha256": "419b323603e01ca054a7bfe17299018ef10258ad2bbd2cd86818fc4bd14238c9",
+        "size_bytes": 5296
+      },
+      {
+        "path": "seam_runtime/benchmark_baseline_policy.py",
+        "sha256": "71351edc58774fc07e1f01e5f8ab6d5130aa32cc4bacb10b924440b8d397da92",
+        "size_bytes": 3495
+      },
+      {
+        "path": "seam_runtime/benchmark_integrity.py",
+        "sha256": "15ddfd9ed4aca676d18b405fcc8d90b82b701384f3edfa9b70492bfcb3fd8547",
+        "size_bytes": 17546
+      },
+      {
+        "path": "seam_runtime/benchmarks.py",
+        "sha256": "6e6aee53b72d53156652ea7f817e1aca074f52502b515724673b21cb9e81bd9a",
+        "size_bytes": 100811
+      },
+      {
+        "path": "seam_runtime/bm25.py",
+        "sha256": "a65be001026c693b59522f077f56cc246c8bc3ff8d159e81582697b82b681c43",
+        "size_bytes": 2089
+      },
+      {
+        "path": "seam_runtime/cli.py",
+        "sha256": "a71825f47394aa083974bef27bf61ea5f51724e4e3ebe3cf1b801c9a85c8e1a1",
+        "size_bytes": 127328
+      },
+      {
+        "path": "seam_runtime/context_views.py",
+        "sha256": "c02d18683dc38013daa026bf676f2f1aebf8e9921edbc5612e25217aa25c66a7",
+        "size_bytes": 7798
+      },
+      {
+        "path": "seam_runtime/conversation.py",
+        "sha256": "7255ad193a29943865acc8b687299427845c1eaa485e01c48afc19b005e04f1d",
+        "size_bytes": 20832
+      },
+      {
+        "path": "seam_runtime/dashboard.py",
+        "sha256": "f9190d4f1a1fe66eeb08537750691ecc59cf6b3701fd37580aeaddc97e537f06",
+        "size_bytes": 156318
+      },
+      {
+        "path": "seam_runtime/derived_fact_context.py",
+        "sha256": "9c4264560c1a76b3164e15be80a6f9f7cd45d77fe728c6682ccf2ffeef40b145",
+        "size_bytes": 47406
+      },
+      {
+        "path": "seam_runtime/doctor.py",
+        "sha256": "29866403e59773b2c9ba8dc2526f6396be7520b36f34ccbfbadee9c9b12feb5e",
+        "size_bytes": 6905
+      },
+      {
+        "path": "seam_runtime/dsl.py",
+        "sha256": "338e9a3ed02db4c8e3d01829e1c1da2e6fe0d2c4dcf86056da3422e282fa06b3",
+        "size_bytes": 7138
+      },
+      {
+        "path": "seam_runtime/evals.py",
+        "sha256": "aa2d8e91b49c2d89e5230967a6300d2cedfc7f52aa6ce25afe32a5a22ec08cff",
+        "size_bytes": 8999
+      },
+      {
+        "path": "seam_runtime/event_count_context.py",
+        "sha256": "7598774372d0c1729471648671e1a7f24150731c099a143bc9b78722091665ef",
+        "size_bytes": 32775
+      },
+      {
+        "path": "seam_runtime/external_memory_benchmarks.py",
+        "sha256": "9e3b100216466f3175321ed8781d0d12634ca3655286f9dde229730fbff49512",
+        "size_bytes": 8259
+      },
+      {
+        "path": "seam_runtime/graph_source_selector.py",
+        "sha256": "730f82562651ffe0dba4625a0c78a7ec7c907a45babbd202eb4b2c569eed7fe4",
+        "size_bytes": 14957
+      },
+      {
+        "path": "seam_runtime/holographic.py",
+        "sha256": "18ae5d2e7e3a17d09cce5f1913cdc10647dfdfb1ad701990bbeca98420a28b50",
+        "size_bytes": 22011
+      },
+      {
+        "path": "seam_runtime/identity_resolution.py",
+        "sha256": "7359bf6b720fe006ffbba1ca205dcf90682c6239378cc761d908ea6b67ce2585",
+        "size_bytes": 21558
+      },
+      {
+        "path": "seam_runtime/improvement.py",
+        "sha256": "4cb0fb58abf5981b3f43b66d162acbb66f23e5aca4ce539c44615f774d96c6d7",
+        "size_bytes": 5621
+      },
+      {
+        "path": "seam_runtime/installer.py",
+        "sha256": "e1a2d995d46fb14dbd1674d09d39a59f6427128e7bf3fd670906d650357457ab",
+        "size_bytes": 15019
+      },
+      {
+        "path": "seam_runtime/jspace.py",
+        "sha256": "b3b15faf1aae21c0e89b414feddef309f4f1854326abb7e9b22aa8487927b738",
+        "size_bytes": 23231
+      },
+      {
+        "path": "seam_runtime/knowledge_graph.py",
+        "sha256": "24ab9c698705eaf4e6bdc58ef1139fb96f3041aea06da36d7de2c14fa5afbb47",
+        "size_bytes": 93877
+      },
+      {
+        "path": "seam_runtime/lossless.py",
+        "sha256": "395000cb7bcb2db8e27beabb50dd59bb67804d473b62f954a03869dedaa6aa0c",
+        "size_bytes": 36911
+      },
+      {
+        "path": "seam_runtime/lx1.py",
+        "sha256": "fd09b2ad72fda6bb7aedc71c6bf55c335e5a99f7a7cfd7ef8ef44c4aa25b2926",
+        "size_bytes": 10199
+      },
+      {
+        "path": "seam_runtime/mcp.py",
+        "sha256": "2e208112cfcbc04c335f64f960e281c20ec3ebf6a4329aee0383d9a433a490ba",
+        "size_bytes": 30327
+      },
+      {
+        "path": "seam_runtime/mcp_protocol.py",
+        "sha256": "eb29b1d9a1b13dc4a260fb51a96fe0b3cfd72c89b8c1c3dd347a310e536ae04f",
+        "size_bytes": 11418
+      },
+      {
+        "path": "seam_runtime/mirl.py",
+        "sha256": "e6e8e732f6de36be532c0977f3777c5696130927104365ffcc1c2c24b42ae0c2",
+        "size_bytes": 11516
+      },
+      {
+        "path": "seam_runtime/models.py",
+        "sha256": "c0cf8aa4e49038f20b07583ed4df65fc95691471eb6c63ce24a1c1cc2fac3e75",
+        "size_bytes": 9421
+      },
+      {
+        "path": "seam_runtime/multi_scope_pack.py",
+        "sha256": "2c5784167ab1c3efd0af5052a585a10eae22c886c7ec6bce270cd62caf440b19",
+        "size_bytes": 32164
+      },
+      {
+        "path": "seam_runtime/multi_speaker_facts.py",
+        "sha256": "a4f7126d5a028e1ac9f49a78415c79dea51a1a50b2a38c166add0461d8357e31",
+        "size_bytes": 17384
+      },
+      {
+        "path": "seam_runtime/nl.py",
+        "sha256": "637e74c0d6f06bca5ab953be34e4f52eff4303c113b14613ac51ecd33e9e9dfc",
+        "size_bytes": 32551
+      },
+      {
+        "path": "seam_runtime/nl_extract.py",
+        "sha256": "0ef39b8a1d04df636d8dedcd97dd42279a8b943c75effc1e9b50d312ee177d66",
+        "size_bytes": 27222
+      },
+      {
+        "path": "seam_runtime/pack.py",
+        "sha256": "2fb6698526023568c64c20878b31bedc8aa2b90d2da9485c701baa0955058310",
+        "size_bytes": 15815
+      },
+      {
+        "path": "seam_runtime/pgvector_bootstrap.py",
+        "sha256": "44bfce51388d3cf7ad815649c868fe55a3eecc8964c120566578251e52ed21fd",
+        "size_bytes": 7909
+      },
+      {
+        "path": "seam_runtime/pool.py",
+        "sha256": "8196feb397fb5bd3db773eee721eb8b2fa3f8d0c5b743751e30350f2d03c76b5",
+        "size_bytes": 6574
+      },
+      {
+        "path": "seam_runtime/public_api.py",
+        "sha256": "9bf373c87336746f2302c2a90a87f143452ead2ea713a1046e2c4bebc5dfd028",
+        "size_bytes": 9606
+      },
+      {
+        "path": "seam_runtime/reasoning_graph.py",
+        "sha256": "0dce03644c5afb602b23ee44d79fd7e132716c74579bc94b913855095d6317f1",
+        "size_bytes": 84848
+      },
+      {
+        "path": "seam_runtime/reconcile.py",
+        "sha256": "64a9df60837e5126b3f3b488ff31adbc092486ab96cf6bdf0fee9dfc07f7ace6",
+        "size_bytes": 2604
+      },
+      {
+        "path": "seam_runtime/retrieval.py",
+        "sha256": "1c5acf7a559c01de5b90819d8817f024edf58ef8cade72c6dc6675beed4ecebc",
+        "size_bytes": 27176
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/README.md",
+        "sha256": "47b13ed0f34ca57c942801ffd5767cf7b67924ac105f5879bf0ca3598cdd5da4",
+        "size_bytes": 2361
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/__init__.py",
+        "sha256": "7c79e620aef458c03196edffe78fe01cf516261cbd431f7a1fa08254b44d290c",
+        "size_bytes": 917
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/adapters.py",
+        "sha256": "d902746d9c91c5e85c1906e51034b4f6c1f990ce2e729bdefe9ffc2873098a2e",
+        "size_bytes": 31460
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/merger.py",
+        "sha256": "9c4e03699d553aa7b879b65acd3da90e29311637c5f290ca59cb858dbc173d3d",
+        "size_bytes": 2684
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/orchestrator.py",
+        "sha256": "5ea4be1c4fe1a1fff33d7ed25fafcdaff06d25c840ce58e983865201859317fc",
+        "size_bytes": 10649
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/planner.py",
+        "sha256": "fd8249dc630c2219d4f5a632b89871d05f9d096d7fd141917c126d0e2bf68167",
+        "size_bytes": 5147
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/types.py",
+        "sha256": "8f256cac731a33388f1ee0eeeb728494f8b180acb569b8134761c5fcfa416742",
+        "size_bytes": 7556
+      },
+      {
+        "path": "seam_runtime/retrieval_policy.py",
+        "sha256": "cfe3f5199560d48d717fabc7c2d29a2ebcab5247f480d62d5584a8b53d3dacb5",
+        "size_bytes": 3394
+      },
+      {
+        "path": "seam_runtime/retry.py",
+        "sha256": "caf51fcd3c92a9ca95d1bfb45bbfe9f21587c859bece3c8e818c56eca3ea3024",
+        "size_bytes": 5920
+      },
+      {
+        "path": "seam_runtime/runtime.py",
+        "sha256": "5f34504c05e7643c9457291c4d1be4b3a078fc0b68eff9b61e92999b64260847",
+        "size_bytes": 23943
+      },
+      {
+        "path": "seam_runtime/sdk.py",
+        "sha256": "1ae795435d7ed386f6ef039bacbc1f321077b596dd457e33bd18a6a52e5a69f7",
+        "size_bytes": 15377
+      },
+      {
+        "path": "seam_runtime/second_hop_context.py",
+        "sha256": "f813ad538d438eea04d672c172cc2c5c56bd04a0b7589643564c925d5d4b31d7",
+        "size_bytes": 6625
+      },
+      {
+        "path": "seam_runtime/self_improve.py",
+        "sha256": "7c36b7daf963ece8c8a7c1fa5b1c9f4d514a67cc1cce6a487fea4530a02fd801",
+        "size_bytes": 35510
+      },
+      {
+        "path": "seam_runtime/selfhost.py",
+        "sha256": "6d2e030bc7dd9e56204fc62e198a6ffeec50973ce2cbfd35ef86f6f7e174e7a7",
+        "size_bytes": 16658
+      },
+      {
+        "path": "seam_runtime/selfhost_entitlement.py",
+        "sha256": "fc6add0dcc7a1c4228059d57fb0eebdc52d2ada80057c2eff9e6bf75b169dcd6",
+        "size_bytes": 7358
+      },
+      {
+        "path": "seam_runtime/selfhost_mcp.py",
+        "sha256": "9414d513f249f7b736a4878538ee923f2337377811236f14b611406a762e111b",
+        "size_bytes": 14257
+      },
+      {
+        "path": "seam_runtime/sentence_grounded_facts.py",
+        "sha256": "1780911c39e4d2fe3658075a0c5c12a1a02e84512a7f6c13e3969e0093c75d80",
+        "size_bytes": 11231
+      },
+      {
+        "path": "seam_runtime/server.py",
+        "sha256": "b076f30512179f1ca67c4d5fae869404a62d07a6344d86a44c8d3aafd0374024",
+        "size_bytes": 67152
+      },
+      {
+        "path": "seam_runtime/skills/__init__.py",
+        "sha256": "c1cb9af0f6268112f585946400f3867f6c1ea49ff7d675e20878cfb8b94b976d",
+        "size_bytes": 571
+      },
+      {
+        "path": "seam_runtime/skills/factory.py",
+        "sha256": "4d8113f6dfa7b68be8b26212a6450b957fb90c42a5ee9851a3bc8507a8106506",
+        "size_bytes": 6200
+      },
+      {
+        "path": "seam_runtime/skills/skill_ir.py",
+        "sha256": "739d0ca7c23dc81a6f1a6490a454452f1a7817116800478776b00d4e399dd4c1",
+        "size_bytes": 3493
+      },
+      {
+        "path": "seam_runtime/storage.py",
+        "sha256": "cfd90cf9863389ded7cdee475fb3fad219472d79a4d249046b274a7160a9acc3",
+        "size_bytes": 100386
+      },
+      {
+        "path": "seam_runtime/surface_adapters.py",
+        "sha256": "1b72e55d44590ca21d136ab2422758f1091f47a31c2111261e53601e9bcd95d7",
+        "size_bytes": 5484
+      },
+      {
+        "path": "seam_runtime/symbols.py",
+        "sha256": "9c99b2b95a660ee14fa498ed5e1019de3d541d01e609fb0a89b881e09466f4dd",
+        "size_bytes": 8995
+      },
+      {
+        "path": "seam_runtime/temporal.py",
+        "sha256": "6c38a4550cabff2c6b2256d80294f236718be4c8c541dea4bd06f49026854059",
+        "size_bytes": 3665
+      },
+      {
+        "path": "seam_runtime/temporal_instance_context.py",
+        "sha256": "cc5ca6a90ab6fcb2f8dbfde071a68e624b934ad56e8517a76427cb212fd58c1a",
+        "size_bytes": 6321
+      },
+      {
+        "path": "seam_runtime/tokenization.py",
+        "sha256": "bed739478b70345556b36131fea1f40b3af6e26fdbeff8b8d59beca5945ca48a",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime/transpile.py",
+        "sha256": "43a7c3f235931c75d779db7d110abe1c8a6d2c7e5f8ef537d00d2246d27db65b",
+        "size_bytes": 689
+      },
+      {
+        "path": "seam_runtime/ui/__init__.py",
+        "sha256": "5ac2376956c748b64ccfafaa0e49adc898a078f2e57011c39ebfd4bda62a5ca4",
+        "size_bytes": 524
+      },
+      {
+        "path": "seam_runtime/ui/animations.py",
+        "sha256": "62808e06de92431d5c314a71c58d43f9ecabe87979c11019ac6fd4e6d9ae2d00",
+        "size_bytes": 18614
+      },
+      {
+        "path": "seam_runtime/ui/bars.py",
+        "sha256": "e2e22fe56d4979359f70bc1e58646e31d4b57741836746a868bdcb5a03eec60a",
+        "size_bytes": 8281
+      },
+      {
+        "path": "seam_runtime/ui/logo.py",
+        "sha256": "814f8de45d558aa4352027025bc64991dada336fe7ac04d78db25cb99670e8b7",
+        "size_bytes": 13503
+      },
+      {
+        "path": "seam_runtime/ui/theme.py",
+        "sha256": "e77033a1a3b185b3d5ffc694d855eec5d2ff8eadeb38167a2cf9b252547257f0",
+        "size_bytes": 6798
+      },
+      {
+        "path": "seam_runtime/vector.py",
+        "sha256": "3089e10620c9c5177df0c184f9ba380d73834833385eafeed4215869044e23a9",
+        "size_bytes": 19609
+      },
+      {
+        "path": "seam_runtime/vector_adapters.py",
+        "sha256": "e53939d4d255b3fcc9f86e366da789cceb5ac4d7c143a02c8fa1f7e01b38c8cb",
+        "size_bytes": 22513
+      },
+      {
+        "path": "seam_runtime/verify.py",
+        "sha256": "573430ba8b3e17e1777ee072f3ed0ea7ee44f15d6c6bf5e407c38c77992d6bb6",
+        "size_bytes": 6979
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-glitch.png",
+        "sha256": "65440072e6f9fd90762a88fed3cd0337e5961c0a06463d418d72af55ecadc05d",
+        "size_bytes": 266616
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-mark-retro.svg",
+        "sha256": "1a2339140ea8b260c738b415eb015980117d77c378455537d96975e41421fd00",
+        "size_bytes": 1979
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-mark-terminal.svg",
+        "sha256": "87dfd8b7a69134777af2af1d8ed9cfa29577193c00db35884e00468d04d3664c",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime/webui/dashboard.html",
+        "sha256": "9e2477dbf5fda458d98c42454c0d7640bfc59a0252f6b70fab226e7d91516aa6",
+        "size_bytes": 454792
+      },
+      {
+        "path": "seam_runtime/webui/favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "size_bytes": 9522
+      },
+      {
+        "path": "seam_runtime/webui/icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "size_bytes": 5031
+      },
+      {
+        "path": "seam_runtime/webui/seam-api.js",
+        "sha256": "7646a9c925d1723a759ade3e4f88ed3a8fd891e694ce4526cf74ae7ac85bb450",
+        "size_bytes": 16896
+      },
+      {
+        "path": "seam_runtime/webui/tweaks-panel.jsx",
+        "sha256": "3de8e8c1af99a3f785fe478891dc502e94f0c829fb9c50c427aa960d338d5b90",
+        "size_bytes": 18513
+      },
+      {
+        "path": "seam_runtime/workspace.py",
+        "sha256": "e369deba668621d0116778928d8bfbeb614825995456e6d58a77a2aad7d1c771",
+        "size_bytes": 20025
+      }
+    ]
+  },
+  {
+    "artifact_path": "github-v2.4.0/seam_runtime-2.4.0.tar.gz",
+    "artifact_sha256": "c47fb91433db0b01a579679bc8cf2850e51f33e20d89f71bce601416bab6988f",
+    "members": [
+      {
+        "path": "seam_runtime-2.4.0/COMMERCIAL_LICENSE.md",
+        "sha256": "df30552fa6d14414a83c07ad1186460ec63309c2d17ca64f7a911d146aa098e0",
+        "size_bytes": 3819
+      },
+      {
+        "path": "seam_runtime-2.4.0/CONTRIBUTING.md",
+        "sha256": "f7e5b39d3f1b8ef1aee8cefff00dd5e951b8a06e1ad64e97e59c6dabfe6c4a33",
+        "size_bytes": 2715
+      },
+      {
+        "path": "seam_runtime-2.4.0/LICENSE",
+        "sha256": "3c7b5b71e6aad5b890d2ad7f5967c8ed326d037a06414a5e07f3b250c56784e8",
+        "size_bytes": 13674
+      },
+      {
+        "path": "seam_runtime-2.4.0/LICENSES/Apache-2.0.txt",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_runtime-2.4.0/LICENSES/BUSL-1.1.txt",
+        "sha256": "e84b6996cfc3fab624b6950648a68446a8c9abe6c05ac6659c767e9637ed88e5",
+        "size_bytes": 5526
+      },
+      {
+        "path": "seam_runtime-2.4.0/MANIFEST.in",
+        "sha256": "347e7d9f5aa32ccf4f8ef17e5b4bc2b9d41d61e0c697284a0f1748052d70aa85",
+        "size_bytes": 290
+      },
+      {
+        "path": "seam_runtime-2.4.0/NOTICE",
+        "sha256": "a19dca60f188a0be0b09b9dc21d0709a560a6f717425c9eb236f89ad2baecf59",
+        "size_bytes": 2327
+      },
+      {
+        "path": "seam_runtime-2.4.0/PKG-INFO",
+        "sha256": "12908c4e7d9e525eef4e1904a1cd0dafb58535ecf2a2f809c8c600a4214ead05",
+        "size_bytes": 23720
+      },
+      {
+        "path": "seam_runtime-2.4.0/README.md",
+        "sha256": "461e57987a1be57e51e4f91056017209d0f0fa58ac23d0c0bbfea2bda47b91b9",
+        "size_bytes": 20917
+      },
+      {
+        "path": "seam_runtime-2.4.0/SECURITY.md",
+        "sha256": "f5ad44e57d623bf1daa4dc7e070c8ba4ceb93447fa997ba87fdca91b9f7f4442",
+        "size_bytes": 1884
+      },
+      {
+        "path": "seam_runtime-2.4.0/pyproject.toml",
+        "sha256": "47dcccedc20870414bb440969592f4ceea83cf8321197b627cdcda8c0ade307c",
+        "size_bytes": 4015
+      },
+      {
+        "path": "seam_runtime-2.4.0/requirements.txt",
+        "sha256": "a52312832da79d7ce455bddebe9a47247b3503f74aea77065eb36b692a9c7c1c",
+        "size_bytes": 31
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam.py",
+        "sha256": "dd0a36aa064e6712c55d31f9b79741e4ee48861456d492d5052dd8261a68c5af",
+        "size_bytes": 5831
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/PKG-INFO",
+        "sha256": "12908c4e7d9e525eef4e1904a1cd0dafb58535ecf2a2f809c8c600a4214ead05",
+        "size_bytes": 23720
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/SOURCES.txt",
+        "sha256": "2950cfa6c5322a74fed08cda3e10cab959396a62ea760b556b0c42c31f2952ab",
+        "size_bytes": 2994
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/dependency_links.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_bytes": 1
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/entry_points.txt",
+        "sha256": "bc3aa8b6ae8a12da58af7011b2d4c07171426de9b5856c1e7caf5bd5d88eb062",
+        "size_bytes": 193
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/requires.txt",
+        "sha256": "3c602c273e71483c70fb45737391cf0c2a1b40fe7a271e8130a5564200d10f4b",
+        "size_bytes": 839
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/top_level.txt",
+        "sha256": "463c08c8a0de0b83116e4a5beb7d55e3bfd09bccc3c9e52ae8d35d41064d742b",
+        "size_bytes": 18
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/__init__.py",
+        "sha256": "7cfd671bd76ce71c8f6a68ebbef42f04b74aba6abd61b8626ee9a8197efd62c7",
+        "size_bytes": 583
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/agent_memory.py",
+        "sha256": "419b323603e01ca054a7bfe17299018ef10258ad2bbd2cd86818fc4bd14238c9",
+        "size_bytes": 5296
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/benchmark_baseline_policy.py",
+        "sha256": "71351edc58774fc07e1f01e5f8ab6d5130aa32cc4bacb10b924440b8d397da92",
+        "size_bytes": 3495
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/benchmark_integrity.py",
+        "sha256": "15ddfd9ed4aca676d18b405fcc8d90b82b701384f3edfa9b70492bfcb3fd8547",
+        "size_bytes": 17546
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/benchmarks.py",
+        "sha256": "6e6aee53b72d53156652ea7f817e1aca074f52502b515724673b21cb9e81bd9a",
+        "size_bytes": 100811
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/bm25.py",
+        "sha256": "a65be001026c693b59522f077f56cc246c8bc3ff8d159e81582697b82b681c43",
+        "size_bytes": 2089
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/cli.py",
+        "sha256": "a71825f47394aa083974bef27bf61ea5f51724e4e3ebe3cf1b801c9a85c8e1a1",
+        "size_bytes": 127328
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/context_views.py",
+        "sha256": "c02d18683dc38013daa026bf676f2f1aebf8e9921edbc5612e25217aa25c66a7",
+        "size_bytes": 7798
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/conversation.py",
+        "sha256": "7255ad193a29943865acc8b687299427845c1eaa485e01c48afc19b005e04f1d",
+        "size_bytes": 20832
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/dashboard.py",
+        "sha256": "f9190d4f1a1fe66eeb08537750691ecc59cf6b3701fd37580aeaddc97e537f06",
+        "size_bytes": 156318
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/derived_fact_context.py",
+        "sha256": "9c4264560c1a76b3164e15be80a6f9f7cd45d77fe728c6682ccf2ffeef40b145",
+        "size_bytes": 47406
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/doctor.py",
+        "sha256": "29866403e59773b2c9ba8dc2526f6396be7520b36f34ccbfbadee9c9b12feb5e",
+        "size_bytes": 6905
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/dsl.py",
+        "sha256": "338e9a3ed02db4c8e3d01829e1c1da2e6fe0d2c4dcf86056da3422e282fa06b3",
+        "size_bytes": 7138
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/evals.py",
+        "sha256": "aa2d8e91b49c2d89e5230967a6300d2cedfc7f52aa6ce25afe32a5a22ec08cff",
+        "size_bytes": 8999
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/event_count_context.py",
+        "sha256": "7598774372d0c1729471648671e1a7f24150731c099a143bc9b78722091665ef",
+        "size_bytes": 32775
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/external_memory_benchmarks.py",
+        "sha256": "9e3b100216466f3175321ed8781d0d12634ca3655286f9dde229730fbff49512",
+        "size_bytes": 8259
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/graph_source_selector.py",
+        "sha256": "730f82562651ffe0dba4625a0c78a7ec7c907a45babbd202eb4b2c569eed7fe4",
+        "size_bytes": 14957
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/holographic.py",
+        "sha256": "18ae5d2e7e3a17d09cce5f1913cdc10647dfdfb1ad701990bbeca98420a28b50",
+        "size_bytes": 22011
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/identity_resolution.py",
+        "sha256": "7359bf6b720fe006ffbba1ca205dcf90682c6239378cc761d908ea6b67ce2585",
+        "size_bytes": 21558
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/improvement.py",
+        "sha256": "4cb0fb58abf5981b3f43b66d162acbb66f23e5aca4ce539c44615f774d96c6d7",
+        "size_bytes": 5621
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/installer.py",
+        "sha256": "e1a2d995d46fb14dbd1674d09d39a59f6427128e7bf3fd670906d650357457ab",
+        "size_bytes": 15019
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/jspace.py",
+        "sha256": "b3b15faf1aae21c0e89b414feddef309f4f1854326abb7e9b22aa8487927b738",
+        "size_bytes": 23231
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/knowledge_graph.py",
+        "sha256": "24ab9c698705eaf4e6bdc58ef1139fb96f3041aea06da36d7de2c14fa5afbb47",
+        "size_bytes": 93877
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/lossless.py",
+        "sha256": "395000cb7bcb2db8e27beabb50dd59bb67804d473b62f954a03869dedaa6aa0c",
+        "size_bytes": 36911
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/lx1.py",
+        "sha256": "fd09b2ad72fda6bb7aedc71c6bf55c335e5a99f7a7cfd7ef8ef44c4aa25b2926",
+        "size_bytes": 10199
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/mcp.py",
+        "sha256": "2e208112cfcbc04c335f64f960e281c20ec3ebf6a4329aee0383d9a433a490ba",
+        "size_bytes": 30327
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/mcp_protocol.py",
+        "sha256": "eb29b1d9a1b13dc4a260fb51a96fe0b3cfd72c89b8c1c3dd347a310e536ae04f",
+        "size_bytes": 11418
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/mirl.py",
+        "sha256": "e6e8e732f6de36be532c0977f3777c5696130927104365ffcc1c2c24b42ae0c2",
+        "size_bytes": 11516
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/models.py",
+        "sha256": "c0cf8aa4e49038f20b07583ed4df65fc95691471eb6c63ce24a1c1cc2fac3e75",
+        "size_bytes": 9421
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/multi_scope_pack.py",
+        "sha256": "2c5784167ab1c3efd0af5052a585a10eae22c886c7ec6bce270cd62caf440b19",
+        "size_bytes": 32164
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/multi_speaker_facts.py",
+        "sha256": "a4f7126d5a028e1ac9f49a78415c79dea51a1a50b2a38c166add0461d8357e31",
+        "size_bytes": 17384
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/nl.py",
+        "sha256": "637e74c0d6f06bca5ab953be34e4f52eff4303c113b14613ac51ecd33e9e9dfc",
+        "size_bytes": 32551
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/nl_extract.py",
+        "sha256": "0ef39b8a1d04df636d8dedcd97dd42279a8b943c75effc1e9b50d312ee177d66",
+        "size_bytes": 27222
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/pack.py",
+        "sha256": "2fb6698526023568c64c20878b31bedc8aa2b90d2da9485c701baa0955058310",
+        "size_bytes": 15815
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/pgvector_bootstrap.py",
+        "sha256": "44bfce51388d3cf7ad815649c868fe55a3eecc8964c120566578251e52ed21fd",
+        "size_bytes": 7909
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/pool.py",
+        "sha256": "8196feb397fb5bd3db773eee721eb8b2fa3f8d0c5b743751e30350f2d03c76b5",
+        "size_bytes": 6574
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/public_api.py",
+        "sha256": "9bf373c87336746f2302c2a90a87f143452ead2ea713a1046e2c4bebc5dfd028",
+        "size_bytes": 9606
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/reasoning_graph.py",
+        "sha256": "0dce03644c5afb602b23ee44d79fd7e132716c74579bc94b913855095d6317f1",
+        "size_bytes": 84848
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/reconcile.py",
+        "sha256": "64a9df60837e5126b3f3b488ff31adbc092486ab96cf6bdf0fee9dfc07f7ace6",
+        "size_bytes": 2604
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval.py",
+        "sha256": "1c5acf7a559c01de5b90819d8817f024edf58ef8cade72c6dc6675beed4ecebc",
+        "size_bytes": 27176
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/README.md",
+        "sha256": "47b13ed0f34ca57c942801ffd5767cf7b67924ac105f5879bf0ca3598cdd5da4",
+        "size_bytes": 2361
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/__init__.py",
+        "sha256": "7c79e620aef458c03196edffe78fe01cf516261cbd431f7a1fa08254b44d290c",
+        "size_bytes": 917
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/adapters.py",
+        "sha256": "d902746d9c91c5e85c1906e51034b4f6c1f990ce2e729bdefe9ffc2873098a2e",
+        "size_bytes": 31460
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/merger.py",
+        "sha256": "9c4e03699d553aa7b879b65acd3da90e29311637c5f290ca59cb858dbc173d3d",
+        "size_bytes": 2684
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/orchestrator.py",
+        "sha256": "5ea4be1c4fe1a1fff33d7ed25fafcdaff06d25c840ce58e983865201859317fc",
+        "size_bytes": 10649
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/planner.py",
+        "sha256": "fd8249dc630c2219d4f5a632b89871d05f9d096d7fd141917c126d0e2bf68167",
+        "size_bytes": 5147
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/types.py",
+        "sha256": "8f256cac731a33388f1ee0eeeb728494f8b180acb569b8134761c5fcfa416742",
+        "size_bytes": 7556
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_policy.py",
+        "sha256": "cfe3f5199560d48d717fabc7c2d29a2ebcab5247f480d62d5584a8b53d3dacb5",
+        "size_bytes": 3394
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retry.py",
+        "sha256": "caf51fcd3c92a9ca95d1bfb45bbfe9f21587c859bece3c8e818c56eca3ea3024",
+        "size_bytes": 5920
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/runtime.py",
+        "sha256": "5f34504c05e7643c9457291c4d1be4b3a078fc0b68eff9b61e92999b64260847",
+        "size_bytes": 23943
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/sdk.py",
+        "sha256": "1ae795435d7ed386f6ef039bacbc1f321077b596dd457e33bd18a6a52e5a69f7",
+        "size_bytes": 15377
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/second_hop_context.py",
+        "sha256": "f813ad538d438eea04d672c172cc2c5c56bd04a0b7589643564c925d5d4b31d7",
+        "size_bytes": 6625
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/self_improve.py",
+        "sha256": "7c36b7daf963ece8c8a7c1fa5b1c9f4d514a67cc1cce6a487fea4530a02fd801",
+        "size_bytes": 35510
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/selfhost.py",
+        "sha256": "6d2e030bc7dd9e56204fc62e198a6ffeec50973ce2cbfd35ef86f6f7e174e7a7",
+        "size_bytes": 16658
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/selfhost_entitlement.py",
+        "sha256": "fc6add0dcc7a1c4228059d57fb0eebdc52d2ada80057c2eff9e6bf75b169dcd6",
+        "size_bytes": 7358
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/selfhost_mcp.py",
+        "sha256": "9414d513f249f7b736a4878538ee923f2337377811236f14b611406a762e111b",
+        "size_bytes": 14257
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/sentence_grounded_facts.py",
+        "sha256": "1780911c39e4d2fe3658075a0c5c12a1a02e84512a7f6c13e3969e0093c75d80",
+        "size_bytes": 11231
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/server.py",
+        "sha256": "b076f30512179f1ca67c4d5fae869404a62d07a6344d86a44c8d3aafd0374024",
+        "size_bytes": 67152
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/skills/__init__.py",
+        "sha256": "c1cb9af0f6268112f585946400f3867f6c1ea49ff7d675e20878cfb8b94b976d",
+        "size_bytes": 571
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/skills/factory.py",
+        "sha256": "4d8113f6dfa7b68be8b26212a6450b957fb90c42a5ee9851a3bc8507a8106506",
+        "size_bytes": 6200
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/skills/skill_ir.py",
+        "sha256": "739d0ca7c23dc81a6f1a6490a454452f1a7817116800478776b00d4e399dd4c1",
+        "size_bytes": 3493
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/storage.py",
+        "sha256": "cfd90cf9863389ded7cdee475fb3fad219472d79a4d249046b274a7160a9acc3",
+        "size_bytes": 100386
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/surface_adapters.py",
+        "sha256": "1b72e55d44590ca21d136ab2422758f1091f47a31c2111261e53601e9bcd95d7",
+        "size_bytes": 5484
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/symbols.py",
+        "sha256": "9c99b2b95a660ee14fa498ed5e1019de3d541d01e609fb0a89b881e09466f4dd",
+        "size_bytes": 8995
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/temporal.py",
+        "sha256": "6c38a4550cabff2c6b2256d80294f236718be4c8c541dea4bd06f49026854059",
+        "size_bytes": 3665
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/temporal_instance_context.py",
+        "sha256": "cc5ca6a90ab6fcb2f8dbfde071a68e624b934ad56e8517a76427cb212fd58c1a",
+        "size_bytes": 6321
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tokenization.py",
+        "sha256": "bed739478b70345556b36131fea1f40b3af6e26fdbeff8b8d59beca5945ca48a",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/transpile.py",
+        "sha256": "43a7c3f235931c75d779db7d110abe1c8a6d2c7e5f8ef537d00d2246d27db65b",
+        "size_bytes": 689
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/__init__.py",
+        "sha256": "5ac2376956c748b64ccfafaa0e49adc898a078f2e57011c39ebfd4bda62a5ca4",
+        "size_bytes": 524
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/animations.py",
+        "sha256": "62808e06de92431d5c314a71c58d43f9ecabe87979c11019ac6fd4e6d9ae2d00",
+        "size_bytes": 18614
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/bars.py",
+        "sha256": "e2e22fe56d4979359f70bc1e58646e31d4b57741836746a868bdcb5a03eec60a",
+        "size_bytes": 8281
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/logo.py",
+        "sha256": "814f8de45d558aa4352027025bc64991dada336fe7ac04d78db25cb99670e8b7",
+        "size_bytes": 13503
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/theme.py",
+        "sha256": "e77033a1a3b185b3d5ffc694d855eec5d2ff8eadeb38167a2cf9b252547257f0",
+        "size_bytes": 6798
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/vector.py",
+        "sha256": "3089e10620c9c5177df0c184f9ba380d73834833385eafeed4215869044e23a9",
+        "size_bytes": 19609
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/vector_adapters.py",
+        "sha256": "e53939d4d255b3fcc9f86e366da789cceb5ac4d7c143a02c8fa1f7e01b38c8cb",
+        "size_bytes": 22513
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/verify.py",
+        "sha256": "573430ba8b3e17e1777ee072f3ed0ea7ee44f15d6c6bf5e407c38c77992d6bb6",
+        "size_bytes": 6979
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/branding/seam-glitch.png",
+        "sha256": "65440072e6f9fd90762a88fed3cd0337e5961c0a06463d418d72af55ecadc05d",
+        "size_bytes": 266616
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/branding/seam-mark-retro.svg",
+        "sha256": "1a2339140ea8b260c738b415eb015980117d77c378455537d96975e41421fd00",
+        "size_bytes": 1979
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/branding/seam-mark-terminal.svg",
+        "sha256": "87dfd8b7a69134777af2af1d8ed9cfa29577193c00db35884e00468d04d3664c",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/dashboard.html",
+        "sha256": "9e2477dbf5fda458d98c42454c0d7640bfc59a0252f6b70fab226e7d91516aa6",
+        "size_bytes": 454792
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "size_bytes": 9522
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "size_bytes": 5031
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/seam-api.js",
+        "sha256": "7646a9c925d1723a759ade3e4f88ed3a8fd891e694ce4526cf74ae7ac85bb450",
+        "size_bytes": 16896
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/tweaks-panel.jsx",
+        "sha256": "3de8e8c1af99a3f785fe478891dc502e94f0c829fb9c50c427aa960d338d5b90",
+        "size_bytes": 18513
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/workspace.py",
+        "sha256": "e369deba668621d0116778928d8bfbeb614825995456e6d58a77a2aad7d1c771",
+        "size_bytes": 20025
+      },
+      {
+        "path": "seam_runtime-2.4.0/setup.cfg",
+        "sha256": "1c473cbaee8da5fc46e7f0158794af5cea4414c34a3cf3f180c2001f5e38bd3e",
+        "size_bytes": 38
+      }
+    ]
+  },
+  {
+    "artifact_path": "runtime-candidate/seam_runtime-2.4.0-py3-none-any.whl",
+    "artifact_sha256": "c4a6f2fc1cdc1a04152d9d126da645006210ae9e78e24e8bd071d61b944f71bf",
+    "members": [
+      {
+        "path": "seam.py",
+        "sha256": "dd0a36aa064e6712c55d31f9b79741e4ee48861456d492d5052dd8261a68c5af",
+        "size_bytes": 5831
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/METADATA",
+        "sha256": "026cc7f83cc4d442086394bef1017f6887ac7b67fbb6276af6928d10c73bc111",
+        "size_bytes": 29196
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/RECORD",
+        "sha256": "7439d7ad55cbee09c7067d604f13aa144c05e7f52584ef935c3e8857328f6dda",
+        "size_bytes": 10440
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/WHEEL",
+        "sha256": "61532836a2b3111b7ec23519c09df7c41180c27165fb872a6d8913b566b88ad1",
+        "size_bytes": 91
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/entry_points.txt",
+        "sha256": "40a8bc764c1c002bfdd85e3a31f60e4ae801b603868846c9a752acf72bc50fe4",
+        "size_bytes": 230
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/COMMERCIAL_LICENSE.md",
+        "sha256": "df30552fa6d14414a83c07ad1186460ec63309c2d17ca64f7a911d146aa098e0",
+        "size_bytes": 3819
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/LICENSE",
+        "sha256": "3c7b5b71e6aad5b890d2ad7f5967c8ed326d037a06414a5e07f3b250c56784e8",
+        "size_bytes": 13674
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/LICENSES/Apache-2.0.txt",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/LICENSES/BUSL-1.1.txt",
+        "sha256": "e84b6996cfc3fab624b6950648a68446a8c9abe6c05ac6659c767e9637ed88e5",
+        "size_bytes": 5526
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/licenses/NOTICE",
+        "sha256": "a19dca60f188a0be0b09b9dc21d0709a560a6f717425c9eb236f89ad2baecf59",
+        "size_bytes": 2327
+      },
+      {
+        "path": "seam_runtime-2.4.0.dist-info/top_level.txt",
+        "sha256": "463c08c8a0de0b83116e4a5beb7d55e3bfd09bccc3c9e52ae8d35d41064d742b",
+        "size_bytes": 18
+      },
+      {
+        "path": "seam_runtime/__init__.py",
+        "sha256": "40906e39ac48c557c25f18c962fb39da085a45dcccb1e6c82a251bcd4be0a8cd",
+        "size_bytes": 1304
+      },
+      {
+        "path": "seam_runtime/agent_memory.py",
+        "sha256": "3fff68c1b13f848c066ac511c6f5cd117bcb6c16ccc1c10e939a6e9aba8e2e7f",
+        "size_bytes": 6084
+      },
+      {
+        "path": "seam_runtime/benchmark_baseline_policy.py",
+        "sha256": "71351edc58774fc07e1f01e5f8ab6d5130aa32cc4bacb10b924440b8d397da92",
+        "size_bytes": 3495
+      },
+      {
+        "path": "seam_runtime/benchmark_integrity.py",
+        "sha256": "15ddfd9ed4aca676d18b405fcc8d90b82b701384f3edfa9b70492bfcb3fd8547",
+        "size_bytes": 17546
+      },
+      {
+        "path": "seam_runtime/benchmarks.py",
+        "sha256": "6e6aee53b72d53156652ea7f817e1aca074f52502b515724673b21cb9e81bd9a",
+        "size_bytes": 100811
+      },
+      {
+        "path": "seam_runtime/bm25.py",
+        "sha256": "a65be001026c693b59522f077f56cc246c8bc3ff8d159e81582697b82b681c43",
+        "size_bytes": 2089
+      },
+      {
+        "path": "seam_runtime/cli.py",
+        "sha256": "621cabc7c7593a75c5b8da06edb0927f900d989d46a6d837719cbf162aacb900",
+        "size_bytes": 132965
+      },
+      {
+        "path": "seam_runtime/config.py",
+        "sha256": "6a845c01a0e886b7dbc0b22bde9f89a404b9cb0025662fb777ccd770acb62baf",
+        "size_bytes": 39039
+      },
+      {
+        "path": "seam_runtime/context_assembly.py",
+        "sha256": "4957f007d37ee1910ec2777528d3296930aaa1bb59a9d439e4323942515e9932",
+        "size_bytes": 14730
+      },
+      {
+        "path": "seam_runtime/context_views.py",
+        "sha256": "c02d18683dc38013daa026bf676f2f1aebf8e9921edbc5612e25217aa25c66a7",
+        "size_bytes": 7798
+      },
+      {
+        "path": "seam_runtime/conversation.py",
+        "sha256": "7255ad193a29943865acc8b687299427845c1eaa485e01c48afc19b005e04f1d",
+        "size_bytes": 20832
+      },
+      {
+        "path": "seam_runtime/dashboard.py",
+        "sha256": "ad2a1e5ff1eacd06be1b1827d2ac27b0feb5509d6b934d40dddb5ae46f52ce26",
+        "size_bytes": 158288
+      },
+      {
+        "path": "seam_runtime/derived_fact_context.py",
+        "sha256": "9c4264560c1a76b3164e15be80a6f9f7cd45d77fe728c6682ccf2ffeef40b145",
+        "size_bytes": 47406
+      },
+      {
+        "path": "seam_runtime/doctor.py",
+        "sha256": "bad625fbb315a98412a4d7b8434fdd354552206001780812a4feb75cf9837175",
+        "size_bytes": 7513
+      },
+      {
+        "path": "seam_runtime/dsl.py",
+        "sha256": "338e9a3ed02db4c8e3d01829e1c1da2e6fe0d2c4dcf86056da3422e282fa06b3",
+        "size_bytes": 7138
+      },
+      {
+        "path": "seam_runtime/evals.py",
+        "sha256": "aa2d8e91b49c2d89e5230967a6300d2cedfc7f52aa6ce25afe32a5a22ec08cff",
+        "size_bytes": 8999
+      },
+      {
+        "path": "seam_runtime/event_count_context.py",
+        "sha256": "7598774372d0c1729471648671e1a7f24150731c099a143bc9b78722091665ef",
+        "size_bytes": 32775
+      },
+      {
+        "path": "seam_runtime/external_memory_benchmarks.py",
+        "sha256": "9e3b100216466f3175321ed8781d0d12634ca3655286f9dde229730fbff49512",
+        "size_bytes": 8259
+      },
+      {
+        "path": "seam_runtime/graph_products.py",
+        "sha256": "7de47e91521abc880d744437a45841da888959fa3027f11ab462ed869a45d98c",
+        "size_bytes": 26205
+      },
+      {
+        "path": "seam_runtime/graph_source_selector.py",
+        "sha256": "94800a7ba3a39b8a1c5ae069a8ad1da5a4d007db193e3f0778eaca774bfaf32c",
+        "size_bytes": 15046
+      },
+      {
+        "path": "seam_runtime/holographic.py",
+        "sha256": "1be7f20671369caae600a272be6691debbee8ee39c0c9519fd0010871df4116e",
+        "size_bytes": 23148
+      },
+      {
+        "path": "seam_runtime/identity_resolution.py",
+        "sha256": "7359bf6b720fe006ffbba1ca205dcf90682c6239378cc761d908ea6b67ce2585",
+        "size_bytes": 21558
+      },
+      {
+        "path": "seam_runtime/improvement.py",
+        "sha256": "87e11cd67d01c8193b4e6d7e7fd24effc85e0b515f7be801044770f71ae31fda",
+        "size_bytes": 5641
+      },
+      {
+        "path": "seam_runtime/improvement_experiments.py",
+        "sha256": "321eaaf680c8dd25aeec5370f66ac7c82fb9d9deb8f0e1b9afc778fd038bce3d",
+        "size_bytes": 15386
+      },
+      {
+        "path": "seam_runtime/installer.py",
+        "sha256": "e1a2d995d46fb14dbd1674d09d39a59f6427128e7bf3fd670906d650357457ab",
+        "size_bytes": 15019
+      },
+      {
+        "path": "seam_runtime/jspace.py",
+        "sha256": "b3b15faf1aae21c0e89b414feddef309f4f1854326abb7e9b22aa8487927b738",
+        "size_bytes": 23231
+      },
+      {
+        "path": "seam_runtime/knowledge_graph.py",
+        "sha256": "7b99cc5076ad2310260e39a3dc3b1d19f0201ec1e692caab4b1e3cda9a93a066",
+        "size_bytes": 152639
+      },
+      {
+        "path": "seam_runtime/lifecycle.py",
+        "sha256": "668b0163019605b3c8923c80777647ae6c96d99e399a4f9e6b3a58386f792fa1",
+        "size_bytes": 33368
+      },
+      {
+        "path": "seam_runtime/lossless.py",
+        "sha256": "395000cb7bcb2db8e27beabb50dd59bb67804d473b62f954a03869dedaa6aa0c",
+        "size_bytes": 36911
+      },
+      {
+        "path": "seam_runtime/lx1.py",
+        "sha256": "fd09b2ad72fda6bb7aedc71c6bf55c335e5a99f7a7cfd7ef8ef44c4aa25b2926",
+        "size_bytes": 10199
+      },
+      {
+        "path": "seam_runtime/mcp.py",
+        "sha256": "70fbb8e31250215c1a306c14c292925b9e6ce64b05967f7484ac986ef00054e1",
+        "size_bytes": 30620
+      },
+      {
+        "path": "seam_runtime/mcp_protocol.py",
+        "sha256": "5e3d2a99bfd4d66721f33827f90f81d9492e104412dc40c3bb3afbd1a785172b",
+        "size_bytes": 11766
+      },
+      {
+        "path": "seam_runtime/migrations.py",
+        "sha256": "2d519133db5b6c391696bb8f51f481888b32f06b8f52681ede3463ac0b4a411a",
+        "size_bytes": 103857
+      },
+      {
+        "path": "seam_runtime/mirl.py",
+        "sha256": "f32af617b6fb28dfa1b430efc6d975ec9cac3febb7559cbaeee00bfc2a67850a",
+        "size_bytes": 13071
+      },
+      {
+        "path": "seam_runtime/models.py",
+        "sha256": "c0cf8aa4e49038f20b07583ed4df65fc95691471eb6c63ce24a1c1cc2fac3e75",
+        "size_bytes": 9421
+      },
+      {
+        "path": "seam_runtime/multi_scope_pack.py",
+        "sha256": "2c5784167ab1c3efd0af5052a585a10eae22c886c7ec6bce270cd62caf440b19",
+        "size_bytes": 32164
+      },
+      {
+        "path": "seam_runtime/multi_speaker_facts.py",
+        "sha256": "a4f7126d5a028e1ac9f49a78415c79dea51a1a50b2a38c166add0461d8357e31",
+        "size_bytes": 17384
+      },
+      {
+        "path": "seam_runtime/nl.py",
+        "sha256": "3f800a5ae4ef92d4898a0c2fe8f1824a43c025c6eb62c496d6ddf94061b4ef03",
+        "size_bytes": 37951
+      },
+      {
+        "path": "seam_runtime/nl_extract.py",
+        "sha256": "65f1f409ebd0a1b6bee8cc8a2ceee0835d5737b9f0b45082fe5abc4dfd815672",
+        "size_bytes": 28338
+      },
+      {
+        "path": "seam_runtime/pack.py",
+        "sha256": "2fb6698526023568c64c20878b31bedc8aa2b90d2da9485c701baa0955058310",
+        "size_bytes": 15815
+      },
+      {
+        "path": "seam_runtime/pgvector_bootstrap.py",
+        "sha256": "44bfce51388d3cf7ad815649c868fe55a3eecc8964c120566578251e52ed21fd",
+        "size_bytes": 7909
+      },
+      {
+        "path": "seam_runtime/pool.py",
+        "sha256": "bc4db7f1029eb744c254f4cfa92c5b9b0cb8511cb851de1e9169cf08530b719a",
+        "size_bytes": 8305
+      },
+      {
+        "path": "seam_runtime/provenance.py",
+        "sha256": "8e5e109db4d672907cbd3984682af51f8d1764c230771f20ac336f51758ec918",
+        "size_bytes": 10576
+      },
+      {
+        "path": "seam_runtime/public_agent_api.py",
+        "sha256": "ec607423056412d73e9ab48b041a84e86012b5dc8665bb6d37aed51b80836167",
+        "size_bytes": 18649
+      },
+      {
+        "path": "seam_runtime/public_api.py",
+        "sha256": "faad4838019e6cd8aa8c1c56e60e7a841fc7e47a48fae22a1eaa47329dd72086",
+        "size_bytes": 35028
+      },
+      {
+        "path": "seam_runtime/public_memory_handles.py",
+        "sha256": "c0ba2b6c0b1fdc818a932535727f2e983378fd8cea788c51f14abd9d2db5a5fd",
+        "size_bytes": 17491
+      },
+      {
+        "path": "seam_runtime/qualification.py",
+        "sha256": "89a2065c7eb60f8a93aa68ff850dcbcb6f74ff43aa18f9873799efb640e11ad1",
+        "size_bytes": 31060
+      },
+      {
+        "path": "seam_runtime/read_snapshot.py",
+        "sha256": "dde7c8eb3693c0553087e652554deb0e0a8c1c5fd846890b26caac8af85f4622",
+        "size_bytes": 12650
+      },
+      {
+        "path": "seam_runtime/reasoning_graph.py",
+        "sha256": "8a08088f7f006da0e254d2a70e6230c9b8f1ea6bda6528c3cfa0c4ade8b2ab25",
+        "size_bytes": 87735
+      },
+      {
+        "path": "seam_runtime/reasoning_patterns.py",
+        "sha256": "9f7084244c39c036543302831d727acc771f9410ed54a1f4a4bd6b6e8b555e76",
+        "size_bytes": 32317
+      },
+      {
+        "path": "seam_runtime/reasoning_promotion.py",
+        "sha256": "1edce6eedf780a347760d024e2ac6bd904d52bd024ca87f0a523b92cf4a724ba",
+        "size_bytes": 41173
+      },
+      {
+        "path": "seam_runtime/reconcile.py",
+        "sha256": "399163fb25fa24f7a1333cbe10527ceda11784f56a76d104e3a22f322b4bb0e1",
+        "size_bytes": 9185
+      },
+      {
+        "path": "seam_runtime/reference_contracts.py",
+        "sha256": "1e833628fbf622dff066aaa40d3a83f67071a62aba14a09050feba4f8826df3e",
+        "size_bytes": 21980
+      },
+      {
+        "path": "seam_runtime/retrieval.py",
+        "sha256": "6cf37653ac881a4aa214e3b4240bbb1ecf8cb45bdcfe6997edbf3b20f739c70a",
+        "size_bytes": 35223
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/README.md",
+        "sha256": "47b13ed0f34ca57c942801ffd5767cf7b67924ac105f5879bf0ca3598cdd5da4",
+        "size_bytes": 2361
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/__init__.py",
+        "sha256": "78a39c03052f4d3e16fab173787a53085639c887af1391c75987e5341c9cdb58",
+        "size_bytes": 994
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/adapters.py",
+        "sha256": "1a78d5175920ecb8bb6f64ef199ee34e52b6d32e55f5b7ee1938fdeabe46c8a5",
+        "size_bytes": 63236
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/merger.py",
+        "sha256": "44e5b0dd0fbcd12bf400a1134792d577b75eb0b2650b8989a9d26c2288f95abd",
+        "size_bytes": 4138
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/orchestrator.py",
+        "sha256": "4f7d775b49508c0b9f36a11bc2ceb60dc842f711caa5ab535c3d154f866eb3bc",
+        "size_bytes": 28269
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/planner.py",
+        "sha256": "f5d34946d40c956ae59b3e91ecde30269288573f0c63f7e267ea24448182d7eb",
+        "size_bytes": 8500
+      },
+      {
+        "path": "seam_runtime/retrieval_orchestrator/types.py",
+        "sha256": "57c6a63e135b98f6c4cab0c944c50643ad32bd3ba52420f98c440fae7bf727d5",
+        "size_bytes": 9159
+      },
+      {
+        "path": "seam_runtime/retrieval_policy.py",
+        "sha256": "3b21ddbd1c0cd3515d881f95873ac3976f7700872fa6df18686608962ec66911",
+        "size_bytes": 6557
+      },
+      {
+        "path": "seam_runtime/retry.py",
+        "sha256": "caf51fcd3c92a9ca95d1bfb45bbfe9f21587c859bece3c8e818c56eca3ea3024",
+        "size_bytes": 5920
+      },
+      {
+        "path": "seam_runtime/runtime.py",
+        "sha256": "0e5ff02ad1bc51e67a041075d674d0f1fbf17ac97f910d4f2648722e4e9e8e1a",
+        "size_bytes": 73662
+      },
+      {
+        "path": "seam_runtime/sdk.py",
+        "sha256": "6a977cef3d211a70ef417c8ffb935166e5f3bf2a75b682d063259699da59bc97",
+        "size_bytes": 27579
+      },
+      {
+        "path": "seam_runtime/second_hop_context.py",
+        "sha256": "f813ad538d438eea04d672c172cc2c5c56bd04a0b7589643564c925d5d4b31d7",
+        "size_bytes": 6625
+      },
+      {
+        "path": "seam_runtime/self_improve.py",
+        "sha256": "81c6ff56cd5fdbcbaaf41545ca319cd1995ac1d4fe583fee6dfc9fd068c7a998",
+        "size_bytes": 45104
+      },
+      {
+        "path": "seam_runtime/sentence_grounded_facts.py",
+        "sha256": "1780911c39e4d2fe3658075a0c5c12a1a02e84512a7f6c13e3969e0093c75d80",
+        "size_bytes": 11231
+      },
+      {
+        "path": "seam_runtime/server.py",
+        "sha256": "ffd1e47e811d1bafef313cae08068516131535a00e20b7536b7d2f6705af5227",
+        "size_bytes": 92190
+      },
+      {
+        "path": "seam_runtime/skills/__init__.py",
+        "sha256": "c1cb9af0f6268112f585946400f3867f6c1ea49ff7d675e20878cfb8b94b976d",
+        "size_bytes": 571
+      },
+      {
+        "path": "seam_runtime/skills/factory.py",
+        "sha256": "4d8113f6dfa7b68be8b26212a6450b957fb90c42a5ee9851a3bc8507a8106506",
+        "size_bytes": 6200
+      },
+      {
+        "path": "seam_runtime/skills/skill_ir.py",
+        "sha256": "739d0ca7c23dc81a6f1a6490a454452f1a7817116800478776b00d4e399dd4c1",
+        "size_bytes": 3493
+      },
+      {
+        "path": "seam_runtime/storage.py",
+        "sha256": "832b2fbc2815fdf31794f19e5c2f8a93a51d16138f6e011f774e949c3e2717da",
+        "size_bytes": 234563
+      },
+      {
+        "path": "seam_runtime/store_lease.py",
+        "sha256": "c2ac9ac3beaefe4be775c46023e2a9c44628a0fde62fa45abf468d9882ad7abb",
+        "size_bytes": 6480
+      },
+      {
+        "path": "seam_runtime/surface_adapters.py",
+        "sha256": "1b72e55d44590ca21d136ab2422758f1091f47a31c2111261e53601e9bcd95d7",
+        "size_bytes": 5484
+      },
+      {
+        "path": "seam_runtime/symbols.py",
+        "sha256": "9c99b2b95a660ee14fa498ed5e1019de3d541d01e609fb0a89b881e09466f4dd",
+        "size_bytes": 8995
+      },
+      {
+        "path": "seam_runtime/temporal.py",
+        "sha256": "65201750ccb507f24efdf04231c079ed643dd9390a422af0d8265b5cbea43aa0",
+        "size_bytes": 6519
+      },
+      {
+        "path": "seam_runtime/temporal_instance_context.py",
+        "sha256": "1368433bb52686fd0887a66662a1f48f1ccd99316089e71b22761b9b2a0b1a60",
+        "size_bytes": 6602
+      },
+      {
+        "path": "seam_runtime/tenancy.py",
+        "sha256": "e85e0fb46ab10278fe2827a9db2747cbb9c7b4ee8bd7f49e9f01355e3919dd47",
+        "size_bytes": 934
+      },
+      {
+        "path": "seam_runtime/tokenization.py",
+        "sha256": "bed739478b70345556b36131fea1f40b3af6e26fdbeff8b8d59beca5945ca48a",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime/transpile.py",
+        "sha256": "43a7c3f235931c75d779db7d110abe1c8a6d2c7e5f8ef537d00d2246d27db65b",
+        "size_bytes": 689
+      },
+      {
+        "path": "seam_runtime/tui/__init__.py",
+        "sha256": "b7b6425bbe42b6e9b65ba0e7232ecd2967c567fdc84c0acf0bc9544b030df719",
+        "size_bytes": 561
+      },
+      {
+        "path": "seam_runtime/tui/app.py",
+        "sha256": "1b049980cabe13ce262917051720a0353992541b2bfdf3c250099ec499051ba4",
+        "size_bytes": 48437
+      },
+      {
+        "path": "seam_runtime/tui/brand.py",
+        "sha256": "b59af2623c77c519726b3be7f0bc8bd436aabe5adac849d91d0a120771166c2b",
+        "size_bytes": 5614
+      },
+      {
+        "path": "seam_runtime/tui/commands.py",
+        "sha256": "32c1de828e0687d2aa6648f168c1ad5632852d65308ec158e5f8af326e0ee006",
+        "size_bytes": 23648
+      },
+      {
+        "path": "seam_runtime/tui/keys.py",
+        "sha256": "86e62b4a117619b0b0032a0e1fcc9773b7aaae796fc1140b27fc7b950d7e842b",
+        "size_bytes": 2850
+      },
+      {
+        "path": "seam_runtime/tui/panels.py",
+        "sha256": "f4cb8100ad6e58ca5b2b1747833f5de0bd2af1c1c3b150152df4ae052670a613",
+        "size_bytes": 32520
+      },
+      {
+        "path": "seam_runtime/tui/settings_screen.py",
+        "sha256": "f5268905b525b3dc7c5198de91cfba58e46cd241b693dbf86b13c3360ec9b879",
+        "size_bytes": 12064
+      },
+      {
+        "path": "seam_runtime/tui/shell.py",
+        "sha256": "9c45a256ffdc70ae799daf16a23134afd93ef25e8a9835338244bc188ddf4e0b",
+        "size_bytes": 10849
+      },
+      {
+        "path": "seam_runtime/tui/theme.tcss",
+        "sha256": "2924faf8d3392a32b38d6a738e0e98812ee1ba05790507b64882dcb2ae5ab521",
+        "size_bytes": 11580
+      },
+      {
+        "path": "seam_runtime/ui/__init__.py",
+        "sha256": "5ac2376956c748b64ccfafaa0e49adc898a078f2e57011c39ebfd4bda62a5ca4",
+        "size_bytes": 524
+      },
+      {
+        "path": "seam_runtime/ui/animations.py",
+        "sha256": "62808e06de92431d5c314a71c58d43f9ecabe87979c11019ac6fd4e6d9ae2d00",
+        "size_bytes": 18614
+      },
+      {
+        "path": "seam_runtime/ui/bars.py",
+        "sha256": "e2e22fe56d4979359f70bc1e58646e31d4b57741836746a868bdcb5a03eec60a",
+        "size_bytes": 8281
+      },
+      {
+        "path": "seam_runtime/ui/logo.py",
+        "sha256": "2d597858aa2a70a8e44be03aac65162e96531b9ba47f591fe7f09b16915cb975",
+        "size_bytes": 13455
+      },
+      {
+        "path": "seam_runtime/ui/theme.py",
+        "sha256": "e77033a1a3b185b3d5ffc694d855eec5d2ff8eadeb38167a2cf9b252547257f0",
+        "size_bytes": 6798
+      },
+      {
+        "path": "seam_runtime/vector.py",
+        "sha256": "ec2a98c4681974e4995f4c374f5786c8973c041ba3deb9bef482f0e77e8021ea",
+        "size_bytes": 25061
+      },
+      {
+        "path": "seam_runtime/vector_adapters.py",
+        "sha256": "23edd2a3dcbfbcd3ec8230ce4cbc2ad036f10b6ffaf1c0287e4802aaa43c9766",
+        "size_bytes": 28761
+      },
+      {
+        "path": "seam_runtime/vector_outbox.py",
+        "sha256": "66c234afe01cde932daa697c763e1615184fe48f86d4a9608d40d9b2e48147f8",
+        "size_bytes": 7852
+      },
+      {
+        "path": "seam_runtime/verify.py",
+        "sha256": "962c4c66a72d552265438d47073e09ff9f77b65b2436b336805314688a2d06a5",
+        "size_bytes": 7948
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-glitch.png",
+        "sha256": "65440072e6f9fd90762a88fed3cd0337e5961c0a06463d418d72af55ecadc05d",
+        "size_bytes": 266616
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-mark-retro.svg",
+        "sha256": "1a2339140ea8b260c738b415eb015980117d77c378455537d96975e41421fd00",
+        "size_bytes": 1979
+      },
+      {
+        "path": "seam_runtime/webui/branding/seam-mark-terminal.svg",
+        "sha256": "87dfd8b7a69134777af2af1d8ed9cfa29577193c00db35884e00468d04d3664c",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime/webui/dashboard.html",
+        "sha256": "76b0179e2647888e1f98b347e5df338f8c219b53a1ad314db162525563c84d48",
+        "size_bytes": 475561
+      },
+      {
+        "path": "seam_runtime/webui/favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "size_bytes": 9522
+      },
+      {
+        "path": "seam_runtime/webui/icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "size_bytes": 5031
+      },
+      {
+        "path": "seam_runtime/webui/seam-api.js",
+        "sha256": "7646a9c925d1723a759ade3e4f88ed3a8fd891e694ce4526cf74ae7ac85bb450",
+        "size_bytes": 16896
+      },
+      {
+        "path": "seam_runtime/webui/tweaks-panel.jsx",
+        "sha256": "3de8e8c1af99a3f785fe478891dc502e94f0c829fb9c50c427aa960d338d5b90",
+        "size_bytes": 18513
+      },
+      {
+        "path": "seam_runtime/workspace.py",
+        "sha256": "e64120971ad1d147ee3f3758b9d53d37eb7082443662e38a36d1263a89f710b1",
+        "size_bytes": 20205
+      }
+    ]
+  },
+  {
+    "artifact_path": "runtime-candidate/seam_runtime-2.4.0.tar.gz",
+    "artifact_sha256": "5a9ab0ce9dd769834055d2924aa7be7e0349d6d0e5392868a963688d10ac8d58",
+    "members": [
+      {
+        "path": "seam_runtime-2.4.0/COMMERCIAL_LICENSE.md",
+        "sha256": "df30552fa6d14414a83c07ad1186460ec63309c2d17ca64f7a911d146aa098e0",
+        "size_bytes": 3819
+      },
+      {
+        "path": "seam_runtime-2.4.0/CONTRIBUTING.md",
+        "sha256": "f7e5b39d3f1b8ef1aee8cefff00dd5e951b8a06e1ad64e97e59c6dabfe6c4a33",
+        "size_bytes": 2715
+      },
+      {
+        "path": "seam_runtime-2.4.0/LICENSE",
+        "sha256": "3c7b5b71e6aad5b890d2ad7f5967c8ed326d037a06414a5e07f3b250c56784e8",
+        "size_bytes": 13674
+      },
+      {
+        "path": "seam_runtime-2.4.0/LICENSES/Apache-2.0.txt",
+        "sha256": "81408593b37c518e0278a2648827b74479c2bb51bddaa7384a9b21eaa98143ac",
+        "size_bytes": 11346
+      },
+      {
+        "path": "seam_runtime-2.4.0/LICENSES/BUSL-1.1.txt",
+        "sha256": "e84b6996cfc3fab624b6950648a68446a8c9abe6c05ac6659c767e9637ed88e5",
+        "size_bytes": 5526
+      },
+      {
+        "path": "seam_runtime-2.4.0/MANIFEST.in",
+        "sha256": "823e218f794e1659fa112926a106b3c62a2a3c83ee6c93b579b87c29d82973da",
+        "size_bytes": 332
+      },
+      {
+        "path": "seam_runtime-2.4.0/NOTICE",
+        "sha256": "a19dca60f188a0be0b09b9dc21d0709a560a6f717425c9eb236f89ad2baecf59",
+        "size_bytes": 2327
+      },
+      {
+        "path": "seam_runtime-2.4.0/PKG-INFO",
+        "sha256": "026cc7f83cc4d442086394bef1017f6887ac7b67fbb6276af6928d10c73bc111",
+        "size_bytes": 29196
+      },
+      {
+        "path": "seam_runtime-2.4.0/README.md",
+        "sha256": "65137a17b2de7d04ee7fa98af3a68fed30bbc4f0c7bc7886548cfea6f46a3a88",
+        "size_bytes": 26442
+      },
+      {
+        "path": "seam_runtime-2.4.0/SECURITY.md",
+        "sha256": "f5ad44e57d623bf1daa4dc7e070c8ba4ceb93447fa997ba87fdca91b9f7f4442",
+        "size_bytes": 1884
+      },
+      {
+        "path": "seam_runtime-2.4.0/pyproject.toml",
+        "sha256": "df03bf0820fcc3bc89cf47a182661ed323e098b90a9f839d7a0fc9b62660a41f",
+        "size_bytes": 5136
+      },
+      {
+        "path": "seam_runtime-2.4.0/requirements.txt",
+        "sha256": "f2e3c82f9c5f2a95853ba18ec9cbf4dcd4552be332e690a90f824a3857c78c58",
+        "size_bytes": 36
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam.py",
+        "sha256": "dd0a36aa064e6712c55d31f9b79741e4ee48861456d492d5052dd8261a68c5af",
+        "size_bytes": 5831
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/PKG-INFO",
+        "sha256": "026cc7f83cc4d442086394bef1017f6887ac7b67fbb6276af6928d10c73bc111",
+        "size_bytes": 29196
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/SOURCES.txt",
+        "sha256": "0e47b577c0efce8075a07f45a6e415bb16b04fcb1c0ebd3f5055dc7994f72ce3",
+        "size_bytes": 3680
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/dependency_links.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_bytes": 1
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/entry_points.txt",
+        "sha256": "40a8bc764c1c002bfdd85e3a31f60e4ae801b603868846c9a752acf72bc50fe4",
+        "size_bytes": 230
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/requires.txt",
+        "sha256": "898ee7da6da10a7fbd478e30b7768af8ee58f4ab333776a0685b90b0e235f9b6",
+        "size_bytes": 815
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime.egg-info/top_level.txt",
+        "sha256": "463c08c8a0de0b83116e4a5beb7d55e3bfd09bccc3c9e52ae8d35d41064d742b",
+        "size_bytes": 18
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/__init__.py",
+        "sha256": "40906e39ac48c557c25f18c962fb39da085a45dcccb1e6c82a251bcd4be0a8cd",
+        "size_bytes": 1304
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/agent_memory.py",
+        "sha256": "3fff68c1b13f848c066ac511c6f5cd117bcb6c16ccc1c10e939a6e9aba8e2e7f",
+        "size_bytes": 6084
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/benchmark_baseline_policy.py",
+        "sha256": "71351edc58774fc07e1f01e5f8ab6d5130aa32cc4bacb10b924440b8d397da92",
+        "size_bytes": 3495
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/benchmark_integrity.py",
+        "sha256": "15ddfd9ed4aca676d18b405fcc8d90b82b701384f3edfa9b70492bfcb3fd8547",
+        "size_bytes": 17546
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/benchmarks.py",
+        "sha256": "6e6aee53b72d53156652ea7f817e1aca074f52502b515724673b21cb9e81bd9a",
+        "size_bytes": 100811
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/bm25.py",
+        "sha256": "a65be001026c693b59522f077f56cc246c8bc3ff8d159e81582697b82b681c43",
+        "size_bytes": 2089
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/cli.py",
+        "sha256": "621cabc7c7593a75c5b8da06edb0927f900d989d46a6d837719cbf162aacb900",
+        "size_bytes": 132965
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/config.py",
+        "sha256": "6a845c01a0e886b7dbc0b22bde9f89a404b9cb0025662fb777ccd770acb62baf",
+        "size_bytes": 39039
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/context_assembly.py",
+        "sha256": "4957f007d37ee1910ec2777528d3296930aaa1bb59a9d439e4323942515e9932",
+        "size_bytes": 14730
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/context_views.py",
+        "sha256": "c02d18683dc38013daa026bf676f2f1aebf8e9921edbc5612e25217aa25c66a7",
+        "size_bytes": 7798
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/conversation.py",
+        "sha256": "7255ad193a29943865acc8b687299427845c1eaa485e01c48afc19b005e04f1d",
+        "size_bytes": 20832
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/dashboard.py",
+        "sha256": "ad2a1e5ff1eacd06be1b1827d2ac27b0feb5509d6b934d40dddb5ae46f52ce26",
+        "size_bytes": 158288
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/derived_fact_context.py",
+        "sha256": "9c4264560c1a76b3164e15be80a6f9f7cd45d77fe728c6682ccf2ffeef40b145",
+        "size_bytes": 47406
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/doctor.py",
+        "sha256": "bad625fbb315a98412a4d7b8434fdd354552206001780812a4feb75cf9837175",
+        "size_bytes": 7513
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/dsl.py",
+        "sha256": "338e9a3ed02db4c8e3d01829e1c1da2e6fe0d2c4dcf86056da3422e282fa06b3",
+        "size_bytes": 7138
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/evals.py",
+        "sha256": "aa2d8e91b49c2d89e5230967a6300d2cedfc7f52aa6ce25afe32a5a22ec08cff",
+        "size_bytes": 8999
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/event_count_context.py",
+        "sha256": "7598774372d0c1729471648671e1a7f24150731c099a143bc9b78722091665ef",
+        "size_bytes": 32775
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/external_memory_benchmarks.py",
+        "sha256": "9e3b100216466f3175321ed8781d0d12634ca3655286f9dde229730fbff49512",
+        "size_bytes": 8259
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/graph_products.py",
+        "sha256": "7de47e91521abc880d744437a45841da888959fa3027f11ab462ed869a45d98c",
+        "size_bytes": 26205
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/graph_source_selector.py",
+        "sha256": "94800a7ba3a39b8a1c5ae069a8ad1da5a4d007db193e3f0778eaca774bfaf32c",
+        "size_bytes": 15046
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/holographic.py",
+        "sha256": "1be7f20671369caae600a272be6691debbee8ee39c0c9519fd0010871df4116e",
+        "size_bytes": 23148
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/identity_resolution.py",
+        "sha256": "7359bf6b720fe006ffbba1ca205dcf90682c6239378cc761d908ea6b67ce2585",
+        "size_bytes": 21558
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/improvement.py",
+        "sha256": "87e11cd67d01c8193b4e6d7e7fd24effc85e0b515f7be801044770f71ae31fda",
+        "size_bytes": 5641
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/improvement_experiments.py",
+        "sha256": "321eaaf680c8dd25aeec5370f66ac7c82fb9d9deb8f0e1b9afc778fd038bce3d",
+        "size_bytes": 15386
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/installer.py",
+        "sha256": "e1a2d995d46fb14dbd1674d09d39a59f6427128e7bf3fd670906d650357457ab",
+        "size_bytes": 15019
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/jspace.py",
+        "sha256": "b3b15faf1aae21c0e89b414feddef309f4f1854326abb7e9b22aa8487927b738",
+        "size_bytes": 23231
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/knowledge_graph.py",
+        "sha256": "7b99cc5076ad2310260e39a3dc3b1d19f0201ec1e692caab4b1e3cda9a93a066",
+        "size_bytes": 152639
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/lifecycle.py",
+        "sha256": "668b0163019605b3c8923c80777647ae6c96d99e399a4f9e6b3a58386f792fa1",
+        "size_bytes": 33368
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/lossless.py",
+        "sha256": "395000cb7bcb2db8e27beabb50dd59bb67804d473b62f954a03869dedaa6aa0c",
+        "size_bytes": 36911
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/lx1.py",
+        "sha256": "fd09b2ad72fda6bb7aedc71c6bf55c335e5a99f7a7cfd7ef8ef44c4aa25b2926",
+        "size_bytes": 10199
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/mcp.py",
+        "sha256": "70fbb8e31250215c1a306c14c292925b9e6ce64b05967f7484ac986ef00054e1",
+        "size_bytes": 30620
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/mcp_protocol.py",
+        "sha256": "5e3d2a99bfd4d66721f33827f90f81d9492e104412dc40c3bb3afbd1a785172b",
+        "size_bytes": 11766
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/migrations.py",
+        "sha256": "2d519133db5b6c391696bb8f51f481888b32f06b8f52681ede3463ac0b4a411a",
+        "size_bytes": 103857
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/mirl.py",
+        "sha256": "f32af617b6fb28dfa1b430efc6d975ec9cac3febb7559cbaeee00bfc2a67850a",
+        "size_bytes": 13071
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/models.py",
+        "sha256": "c0cf8aa4e49038f20b07583ed4df65fc95691471eb6c63ce24a1c1cc2fac3e75",
+        "size_bytes": 9421
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/multi_scope_pack.py",
+        "sha256": "2c5784167ab1c3efd0af5052a585a10eae22c886c7ec6bce270cd62caf440b19",
+        "size_bytes": 32164
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/multi_speaker_facts.py",
+        "sha256": "a4f7126d5a028e1ac9f49a78415c79dea51a1a50b2a38c166add0461d8357e31",
+        "size_bytes": 17384
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/nl.py",
+        "sha256": "3f800a5ae4ef92d4898a0c2fe8f1824a43c025c6eb62c496d6ddf94061b4ef03",
+        "size_bytes": 37951
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/nl_extract.py",
+        "sha256": "65f1f409ebd0a1b6bee8cc8a2ceee0835d5737b9f0b45082fe5abc4dfd815672",
+        "size_bytes": 28338
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/pack.py",
+        "sha256": "2fb6698526023568c64c20878b31bedc8aa2b90d2da9485c701baa0955058310",
+        "size_bytes": 15815
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/pgvector_bootstrap.py",
+        "sha256": "44bfce51388d3cf7ad815649c868fe55a3eecc8964c120566578251e52ed21fd",
+        "size_bytes": 7909
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/pool.py",
+        "sha256": "bc4db7f1029eb744c254f4cfa92c5b9b0cb8511cb851de1e9169cf08530b719a",
+        "size_bytes": 8305
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/provenance.py",
+        "sha256": "8e5e109db4d672907cbd3984682af51f8d1764c230771f20ac336f51758ec918",
+        "size_bytes": 10576
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/public_agent_api.py",
+        "sha256": "ec607423056412d73e9ab48b041a84e86012b5dc8665bb6d37aed51b80836167",
+        "size_bytes": 18649
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/public_api.py",
+        "sha256": "faad4838019e6cd8aa8c1c56e60e7a841fc7e47a48fae22a1eaa47329dd72086",
+        "size_bytes": 35028
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/public_memory_handles.py",
+        "sha256": "c0ba2b6c0b1fdc818a932535727f2e983378fd8cea788c51f14abd9d2db5a5fd",
+        "size_bytes": 17491
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/qualification.py",
+        "sha256": "89a2065c7eb60f8a93aa68ff850dcbcb6f74ff43aa18f9873799efb640e11ad1",
+        "size_bytes": 31060
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/read_snapshot.py",
+        "sha256": "dde7c8eb3693c0553087e652554deb0e0a8c1c5fd846890b26caac8af85f4622",
+        "size_bytes": 12650
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/reasoning_graph.py",
+        "sha256": "8a08088f7f006da0e254d2a70e6230c9b8f1ea6bda6528c3cfa0c4ade8b2ab25",
+        "size_bytes": 87735
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/reasoning_patterns.py",
+        "sha256": "9f7084244c39c036543302831d727acc771f9410ed54a1f4a4bd6b6e8b555e76",
+        "size_bytes": 32317
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/reasoning_promotion.py",
+        "sha256": "1edce6eedf780a347760d024e2ac6bd904d52bd024ca87f0a523b92cf4a724ba",
+        "size_bytes": 41173
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/reconcile.py",
+        "sha256": "399163fb25fa24f7a1333cbe10527ceda11784f56a76d104e3a22f322b4bb0e1",
+        "size_bytes": 9185
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/reference_contracts.py",
+        "sha256": "1e833628fbf622dff066aaa40d3a83f67071a62aba14a09050feba4f8826df3e",
+        "size_bytes": 21980
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval.py",
+        "sha256": "6cf37653ac881a4aa214e3b4240bbb1ecf8cb45bdcfe6997edbf3b20f739c70a",
+        "size_bytes": 35223
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/README.md",
+        "sha256": "47b13ed0f34ca57c942801ffd5767cf7b67924ac105f5879bf0ca3598cdd5da4",
+        "size_bytes": 2361
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/__init__.py",
+        "sha256": "78a39c03052f4d3e16fab173787a53085639c887af1391c75987e5341c9cdb58",
+        "size_bytes": 994
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/adapters.py",
+        "sha256": "1a78d5175920ecb8bb6f64ef199ee34e52b6d32e55f5b7ee1938fdeabe46c8a5",
+        "size_bytes": 63236
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/merger.py",
+        "sha256": "44e5b0dd0fbcd12bf400a1134792d577b75eb0b2650b8989a9d26c2288f95abd",
+        "size_bytes": 4138
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/orchestrator.py",
+        "sha256": "4f7d775b49508c0b9f36a11bc2ceb60dc842f711caa5ab535c3d154f866eb3bc",
+        "size_bytes": 28269
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/planner.py",
+        "sha256": "f5d34946d40c956ae59b3e91ecde30269288573f0c63f7e267ea24448182d7eb",
+        "size_bytes": 8500
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_orchestrator/types.py",
+        "sha256": "57c6a63e135b98f6c4cab0c944c50643ad32bd3ba52420f98c440fae7bf727d5",
+        "size_bytes": 9159
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retrieval_policy.py",
+        "sha256": "3b21ddbd1c0cd3515d881f95873ac3976f7700872fa6df18686608962ec66911",
+        "size_bytes": 6557
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/retry.py",
+        "sha256": "caf51fcd3c92a9ca95d1bfb45bbfe9f21587c859bece3c8e818c56eca3ea3024",
+        "size_bytes": 5920
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/runtime.py",
+        "sha256": "0e5ff02ad1bc51e67a041075d674d0f1fbf17ac97f910d4f2648722e4e9e8e1a",
+        "size_bytes": 73662
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/sdk.py",
+        "sha256": "6a977cef3d211a70ef417c8ffb935166e5f3bf2a75b682d063259699da59bc97",
+        "size_bytes": 27579
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/second_hop_context.py",
+        "sha256": "f813ad538d438eea04d672c172cc2c5c56bd04a0b7589643564c925d5d4b31d7",
+        "size_bytes": 6625
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/self_improve.py",
+        "sha256": "81c6ff56cd5fdbcbaaf41545ca319cd1995ac1d4fe583fee6dfc9fd068c7a998",
+        "size_bytes": 45104
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/sentence_grounded_facts.py",
+        "sha256": "1780911c39e4d2fe3658075a0c5c12a1a02e84512a7f6c13e3969e0093c75d80",
+        "size_bytes": 11231
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/server.py",
+        "sha256": "ffd1e47e811d1bafef313cae08068516131535a00e20b7536b7d2f6705af5227",
+        "size_bytes": 92190
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/skills/__init__.py",
+        "sha256": "c1cb9af0f6268112f585946400f3867f6c1ea49ff7d675e20878cfb8b94b976d",
+        "size_bytes": 571
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/skills/factory.py",
+        "sha256": "4d8113f6dfa7b68be8b26212a6450b957fb90c42a5ee9851a3bc8507a8106506",
+        "size_bytes": 6200
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/skills/skill_ir.py",
+        "sha256": "739d0ca7c23dc81a6f1a6490a454452f1a7817116800478776b00d4e399dd4c1",
+        "size_bytes": 3493
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/storage.py",
+        "sha256": "832b2fbc2815fdf31794f19e5c2f8a93a51d16138f6e011f774e949c3e2717da",
+        "size_bytes": 234563
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/store_lease.py",
+        "sha256": "c2ac9ac3beaefe4be775c46023e2a9c44628a0fde62fa45abf468d9882ad7abb",
+        "size_bytes": 6480
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/surface_adapters.py",
+        "sha256": "1b72e55d44590ca21d136ab2422758f1091f47a31c2111261e53601e9bcd95d7",
+        "size_bytes": 5484
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/symbols.py",
+        "sha256": "9c99b2b95a660ee14fa498ed5e1019de3d541d01e609fb0a89b881e09466f4dd",
+        "size_bytes": 8995
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/temporal.py",
+        "sha256": "65201750ccb507f24efdf04231c079ed643dd9390a422af0d8265b5cbea43aa0",
+        "size_bytes": 6519
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/temporal_instance_context.py",
+        "sha256": "1368433bb52686fd0887a66662a1f48f1ccd99316089e71b22761b9b2a0b1a60",
+        "size_bytes": 6602
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tenancy.py",
+        "sha256": "e85e0fb46ab10278fe2827a9db2747cbb9c7b4ee8bd7f49e9f01355e3919dd47",
+        "size_bytes": 934
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tokenization.py",
+        "sha256": "bed739478b70345556b36131fea1f40b3af6e26fdbeff8b8d59beca5945ca48a",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/transpile.py",
+        "sha256": "43a7c3f235931c75d779db7d110abe1c8a6d2c7e5f8ef537d00d2246d27db65b",
+        "size_bytes": 689
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/__init__.py",
+        "sha256": "b7b6425bbe42b6e9b65ba0e7232ecd2967c567fdc84c0acf0bc9544b030df719",
+        "size_bytes": 561
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/app.py",
+        "sha256": "1b049980cabe13ce262917051720a0353992541b2bfdf3c250099ec499051ba4",
+        "size_bytes": 48437
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/brand.py",
+        "sha256": "b59af2623c77c519726b3be7f0bc8bd436aabe5adac849d91d0a120771166c2b",
+        "size_bytes": 5614
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/commands.py",
+        "sha256": "32c1de828e0687d2aa6648f168c1ad5632852d65308ec158e5f8af326e0ee006",
+        "size_bytes": 23648
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/keys.py",
+        "sha256": "86e62b4a117619b0b0032a0e1fcc9773b7aaae796fc1140b27fc7b950d7e842b",
+        "size_bytes": 2850
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/panels.py",
+        "sha256": "f4cb8100ad6e58ca5b2b1747833f5de0bd2af1c1c3b150152df4ae052670a613",
+        "size_bytes": 32520
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/settings_screen.py",
+        "sha256": "f5268905b525b3dc7c5198de91cfba58e46cd241b693dbf86b13c3360ec9b879",
+        "size_bytes": 12064
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/shell.py",
+        "sha256": "9c45a256ffdc70ae799daf16a23134afd93ef25e8a9835338244bc188ddf4e0b",
+        "size_bytes": 10849
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/tui/theme.tcss",
+        "sha256": "2924faf8d3392a32b38d6a738e0e98812ee1ba05790507b64882dcb2ae5ab521",
+        "size_bytes": 11580
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/__init__.py",
+        "sha256": "5ac2376956c748b64ccfafaa0e49adc898a078f2e57011c39ebfd4bda62a5ca4",
+        "size_bytes": 524
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/animations.py",
+        "sha256": "62808e06de92431d5c314a71c58d43f9ecabe87979c11019ac6fd4e6d9ae2d00",
+        "size_bytes": 18614
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/bars.py",
+        "sha256": "e2e22fe56d4979359f70bc1e58646e31d4b57741836746a868bdcb5a03eec60a",
+        "size_bytes": 8281
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/logo.py",
+        "sha256": "2d597858aa2a70a8e44be03aac65162e96531b9ba47f591fe7f09b16915cb975",
+        "size_bytes": 13455
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/ui/theme.py",
+        "sha256": "e77033a1a3b185b3d5ffc694d855eec5d2ff8eadeb38167a2cf9b252547257f0",
+        "size_bytes": 6798
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/vector.py",
+        "sha256": "ec2a98c4681974e4995f4c374f5786c8973c041ba3deb9bef482f0e77e8021ea",
+        "size_bytes": 25061
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/vector_adapters.py",
+        "sha256": "23edd2a3dcbfbcd3ec8230ce4cbc2ad036f10b6ffaf1c0287e4802aaa43c9766",
+        "size_bytes": 28761
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/vector_outbox.py",
+        "sha256": "66c234afe01cde932daa697c763e1615184fe48f86d4a9608d40d9b2e48147f8",
+        "size_bytes": 7852
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/verify.py",
+        "sha256": "962c4c66a72d552265438d47073e09ff9f77b65b2436b336805314688a2d06a5",
+        "size_bytes": 7948
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/branding/seam-glitch.png",
+        "sha256": "65440072e6f9fd90762a88fed3cd0337e5961c0a06463d418d72af55ecadc05d",
+        "size_bytes": 266616
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/branding/seam-mark-retro.svg",
+        "sha256": "1a2339140ea8b260c738b415eb015980117d77c378455537d96975e41421fd00",
+        "size_bytes": 1979
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/branding/seam-mark-terminal.svg",
+        "sha256": "87dfd8b7a69134777af2af1d8ed9cfa29577193c00db35884e00468d04d3664c",
+        "size_bytes": 788
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/dashboard.html",
+        "sha256": "76b0179e2647888e1f98b347e5df338f8c219b53a1ad314db162525563c84d48",
+        "size_bytes": 475561
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "size_bytes": 9522
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "size_bytes": 5031
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/seam-api.js",
+        "sha256": "7646a9c925d1723a759ade3e4f88ed3a8fd891e694ce4526cf74ae7ac85bb450",
+        "size_bytes": 16896
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/webui/tweaks-panel.jsx",
+        "sha256": "3de8e8c1af99a3f785fe478891dc502e94f0c829fb9c50c427aa960d338d5b90",
+        "size_bytes": 18513
+      },
+      {
+        "path": "seam_runtime-2.4.0/seam_runtime/workspace.py",
+        "sha256": "e64120971ad1d147ee3f3758b9d53d37eb7082443662e38a36d1263a89f710b1",
+        "size_bytes": 20205
+      },
+      {
+        "path": "seam_runtime-2.4.0/setup.cfg",
+        "sha256": "1c473cbaee8da5fc46e7f0158794af5cea4414c34a3cf3f180c2001f5e38bd3e",
+        "size_bytes": 38
+      }
+    ]
+  },
+  {
+    "artifact_path": "sdk-candidate/seam_sdk-0.1.0-py3-none-any.whl",
+    "artifact_sha256": "7386088b6c85a33557cf01e732ab9c864ba8efe7911bcd650ff113add896182e",
+    "members": [
+      {
+        "path": "seam_sdk-0.1.0.dist-info/METADATA",
+        "sha256": "ca80ffa78808817ec445294eadab28380b9df68cf6270375668a20a7abd27ce1",
+        "size_bytes": 5919
+      },
+      {
+        "path": "seam_sdk-0.1.0.dist-info/RECORD",
+        "sha256": "1a163163a36b69d779951934bfa72941f9df39036cca530b18b3cc158536c11c",
+        "size_bytes": 619
+      },
+      {
+        "path": "seam_sdk-0.1.0.dist-info/WHEEL",
+        "sha256": "61532836a2b3111b7ec23519c09df7c41180c27165fb872a6d8913b566b88ad1",
+        "size_bytes": 91
+      },
+      {
+        "path": "seam_sdk-0.1.0.dist-info/licenses/LICENSE",
+        "sha256": "8f964d66575456c0c44a6bbf126aabfc959009f0cbdb04def7d8fac4a1d1cd43",
+        "size_bytes": 5671
+      },
+      {
+        "path": "seam_sdk-0.1.0.dist-info/top_level.txt",
+        "sha256": "cb491366a68ba8488a8f48f97bce80072b28f972f4e1bf590d2d5c83f5b19e64",
+        "size_bytes": 9
+      },
+      {
+        "path": "seam_sdk/__init__.py",
+        "sha256": "bbfd46d9f1fd1ef82dd0730ddd23de890bc6e3a9a9703df1f1e44ceb383cdd92",
+        "size_bytes": 243
+      },
+      {
+        "path": "seam_sdk/py.typed",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      },
+      {
+        "path": "seam_sdk/sdk.py",
+        "sha256": "0bdabcaa189c99ffb23ddff72bc9de7fb08e809db7ba622ea1232d8cff56297a",
+        "size_bytes": 27536
+      }
+    ]
+  },
+  {
+    "artifact_path": "sdk-candidate/seam_sdk-0.1.0.tar.gz",
+    "artifact_sha256": "c1bd79d692193b9a2f3f0576ab5396ed216136b52fb1c67e2e811c87114fa0da",
+    "members": [
+      {
+        "path": "seam_sdk-0.1.0/LICENSE",
+        "sha256": "8f964d66575456c0c44a6bbf126aabfc959009f0cbdb04def7d8fac4a1d1cd43",
+        "size_bytes": 5671
+      },
+      {
+        "path": "seam_sdk-0.1.0/PKG-INFO",
+        "sha256": "ca80ffa78808817ec445294eadab28380b9df68cf6270375668a20a7abd27ce1",
+        "size_bytes": 5919
+      },
+      {
+        "path": "seam_sdk-0.1.0/README.md",
+        "sha256": "ba899c9def3cf25ab79fa46db781b32185af4f5aa27165eb7e466ff2341211b4",
+        "size_bytes": 4535
+      },
+      {
+        "path": "seam_sdk-0.1.0/pyproject.toml",
+        "sha256": "f890a242f30502832b8f9d02af9cc0fa2c12ae6ec6d767b0ebb656dcbc90da4f",
+        "size_bytes": 2750
+      },
+      {
+        "path": "seam_sdk-0.1.0/setup.cfg",
+        "sha256": "1c473cbaee8da5fc46e7f0158794af5cea4414c34a3cf3f180c2001f5e38bd3e",
+        "size_bytes": 38
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk.egg-info/PKG-INFO",
+        "sha256": "ca80ffa78808817ec445294eadab28380b9df68cf6270375668a20a7abd27ce1",
+        "size_bytes": 5919
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk.egg-info/SOURCES.txt",
+        "sha256": "1015f5022a4fcb12b758fe42ac5eff5e6ccd2a3107daf551815ac9a08d56c03c",
+        "size_bytes": 308
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk.egg-info/dependency_links.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_bytes": 1
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk.egg-info/requires.txt",
+        "sha256": "a8a90b34569b88e60342e6d4ef4b0ee0f2746d8a80f8b8fe47d0c1494d93709c",
+        "size_bytes": 393
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk.egg-info/top_level.txt",
+        "sha256": "cb491366a68ba8488a8f48f97bce80072b28f972f4e1bf590d2d5c83f5b19e64",
+        "size_bytes": 9
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk/__init__.py",
+        "sha256": "bbfd46d9f1fd1ef82dd0730ddd23de890bc6e3a9a9703df1f1e44ceb383cdd92",
+        "size_bytes": 243
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk/py.typed",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      },
+      {
+        "path": "seam_sdk-0.1.0/src/seam_sdk/sdk.py",
+        "sha256": "0bdabcaa189c99ffb23ddff72bc9de7fb08e809db7ba622ea1232d8cff56297a",
+        "size_bytes": 27536
+      },
+      {
+        "path": "seam_sdk-0.1.0/tests/test_reasoning_graph.py",
+        "sha256": "fed20d02efc67e284a67b02a42db0887fb0f3089b12f538a1ea299f2f8a26a18",
+        "size_bytes": 8418
+      }
+    ]
+  }
+]

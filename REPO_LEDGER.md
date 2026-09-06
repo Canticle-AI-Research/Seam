@@ -145,6 +145,12 @@ bounded task-specific reading; do not maintain a competing sequence here.
   acquisition behavior.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
+- **Private paid SDK boundary (HISTORY#635).** SEAM SDK is a private artifact
+  with access for paying users. Keep it distinct from the public HTTP client
+  and from the runtime-local adapter; do not infer public SDK publication or
+  automatic Suite inclusion. Existing license texts are unchanged. The L1
+  packet records candidate membership, compatibility evidence, and unresolved
+  customer delivery/source ownership work.
 - PRODUCT DIRECTION. Canticle SEAM Suite is the self-hosted operator product;
   Canticle SEAM API is the paid hosted service and SEAM WebUI its operator
   surface. `docs/PRODUCTS.md` owns these definitions. The former prohibition on

@@ -1,0 +1,13 @@
+{
+  "source": "captured terminal results of qualify_installs.py legacy-write then upgrade-read",
+  "legacy_version": "1.3.1",
+  "candidate_version": "2.4.0",
+  "records_before": 5,
+  "records_after": 5,
+  "record_dicts_identical": true,
+  "exit_codes": [
+    0,
+    0
+  ],
+  "scope": "single synthetic HashEmbeddingModel SQLite fixture; not an arbitrary user-database or rollback guarantee"
+}

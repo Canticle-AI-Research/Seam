@@ -17,11 +17,16 @@ that a package, complete interface, or hosted service is available today.
 | Canticle SEAM Suite | Self-hosted SEAM operated on the user's infrastructure | Product Core, TUI, browser graph dashboard, knowledge database inspection, and benchmark glassbox |
 | Canticle SEAM API | Paid hosted SEAM service | Supported API contract, customer access and isolation, usage controls, and service operations |
 | SEAM WebUI | Operator surface for SEAM API | Integrated customer dashboard using authorized service APIs, styled with Canticle components |
-| SEAM SDK | Developer integration family | Explicitly distinguished HTTP client and local runtime SDK; supported versions and capabilities must be documented separately |
+| SEAM SDK | Private developer SDK with access for paying users | Private runtime integration; customer delivery and supported versions require qualification |
+| Public HTTP client | Separate Python client for the public API | Transport and opaque public models; distinct from the private paid SDK |
 
 The Suite TUI handles terminal operation, status, and workflow controls. The
 rich graph experience runs in a browser and can open independently. A terminal
 approximation does not satisfy the browser design's acceptance criteria.
+
+The paid SDK access boundary was clarified by the operator in HISTORY#635.
+Further paid capabilities remain unspecified. This product decision does not
+change existing license texts or establish an entitlement implementation.
 
 ## Suite graph dashboard
 
@@ -69,7 +74,7 @@ Product names above are the agreed direction. Artifact names below are
 | Suite installation/distribution | `canticle-seam-suite` | Root `seam-runtime`; retired `seam-self-host` artifacts |
 | Hosted service deployment artifact, if separately packaged | `canticle-seam-api` | Existing service in the runtime repository; no public PyPI requirement |
 | Public Python HTTP client | `canticle-seam-client` | Published `seam-client` |
-| Local Python runtime SDK | `canticle-seam-sdk` | Separate `Seam_SDK` repository declaring `seam-sdk` |
+| Private paid Python SDK | `canticle-seam-sdk` (private delivery only) | Private `Seam_SDK` repository declaring `seam-sdk`; no public PyPI publication |
 
 Do not rename imports, commands, package metadata, repositories, or published
 artifacts through prose changes. Choose those migration details together,

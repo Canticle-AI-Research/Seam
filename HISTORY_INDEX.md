@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 634
-total_tokens: ~321309
-latest_id: 634
+total_entries: 636
+total_tokens: ~322564
+latest_id: 636
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 636 | 2026-09-06 | changed | e98b481a12715f39 | continuity,handoff,status,docs,+ | 635 |
+| 635 | 2026-09-06 | in-progress | b93d437e44c190b8 | pyproject,docs,verify,naming,+ | 634 |
 | 634 | 2026-09-06 | changed | 8c16ad77c7d0cb0d | docs,naming,plan,roadmap,+ | 633 |
 | 633 | 2026-09-05 | in-progress | afe1156c5c597125 | pyproject,config,ci,verify,+ | 632 |
 | 632 | 2026-09-03 | done | ff49be454d6d442b | history,audit,continuity,verify,+ | 631 |
@@ -711,7 +713,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=80 latest=#634, #633, #632, #631, #630
+- continuity: count=82 latest=#636, #635, #634, #633, #632
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -741,7 +743,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=92 latest=#634, #617, #615, #613, #611
+- docs: count=94 latest=#636, #635, #634, #617, #615
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -782,7 +784,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=114 latest=#634, #630, #629, #628, #627
+- handoff: count=116 latest=#636, #635, #634, #630, #629
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -842,7 +844,7 @@ compact: true
 - multi-agent: count=30 latest=#623, #622, #620, #619, #618
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
-- naming: count=6 latest=#634, #484, #033, #024, #009
+- naming: count=7 latest=#635, #634, #484, #033, #024
 - navigation: count=2 latest=#556, #542
 - negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
@@ -854,7 +856,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=9 latest=#598, #597, #595, #582, #580
+- operator: count=11 latest=#636, #635, #598, #597, #595
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -889,7 +891,7 @@ compact: true
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
-- pyproject: count=16 latest=#633, #588, #581, #524, #520
+- pyproject: count=17 latest=#635, #633, #588, #581, #524
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -929,7 +931,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=17 latest=#612, #276, #242, #240, #181
-- security: count=110 latest=#633, #632, #619, #618, #617
+- security: count=111 latest=#635, #633, #632, #619, #618
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -949,7 +951,7 @@ compact: true
 - sqlite: count=4 latest=#624, #606, #506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=198 latest=#634, #631, #630, #629, #628
+- status: count=199 latest=#636, #634, #631, #630, #629
 - storage: count=36 latest=#626, #624, #623, #622, #621
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -980,7 +982,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=38 latest=#623, #622, #533, #532, #530
 - vector-adapters: count=1 latest=#359
-- verify: count=440 latest=#634, #633, #632, #631, #630
+- verify: count=442 latest=#636, #635, #634, #633, #632
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -997,7 +999,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 65
+- changed: 66
 - done: 531
-- in-progress: 16
+- in-progress: 17
 - planned: 22

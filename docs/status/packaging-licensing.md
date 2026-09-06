@@ -7,6 +7,27 @@ lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
 
+## L1 candidate
+
+The [L1 migration packet](../audits/2026-09-06-l1-packaging-migration.md)
+records exact artifact/member hashes, the source/ownership map, scoped installed
+package evidence, and release blockers (HISTORY#635). Documentation baseline
+PR #250 is merged at `7c08104` (HISTORY#636). This L1 packet remains a branch
+candidate until its own protected merge; it does not qualify a package release.
+
+**SEAM SDK is private, with access for paying users.** Its customer delivery
+is separate from the public HTTP client and is not automatically included in
+Suite. The private SDK currently pins an older runtime and has two retrieval
+contract differences requiring a separate private compatibility change.
+
+Local runtime/SDK candidates built and passed archive scanning; the installed
+HTTP-client subset, explicit-seeding SDK probes, existing SDK reasoning tests,
+and one synthetic legacy-runtime data upgrade passed. These scoped results do
+not qualify a new package name, full SDK parity, arbitrary upgrades, release
+rights, or hosted service. Ownership/source recovery, exact Suite membership,
+a fresh successor version, paid delivery, and compiled self-host migration
+remain explicit blockers in the packet. R2 remains the next runtime slice.
+
 ## Current boundary
 
 `Canticle-AI-Research/Seam` is the canonical development repository. GitHub

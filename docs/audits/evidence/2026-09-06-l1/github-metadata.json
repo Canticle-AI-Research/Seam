@@ -1,0 +1,49 @@
+[
+  {
+    "command": [
+      "gh",
+      "repo",
+      "view",
+      "Canticle-AI-Research/Seam",
+      "--json",
+      "nameWithOwner,visibility,viewerPermission"
+    ],
+    "exit_code": 0,
+    "output": "{\"nameWithOwner\":\"Canticle-AI-Research/Seam\",\"viewerPermission\":\"ADMIN\",\"visibility\":\"PUBLIC\"}\n"
+  },
+  {
+    "command": [
+      "gh",
+      "release",
+      "view",
+      "v2.4.0",
+      "--repo",
+      "Canticle-AI-Research/Seam",
+      "--json",
+      "tagName,isDraft,isPrerelease,targetCommitish,publishedAt,assets"
+    ],
+    "exit_code": 0,
+    "output": "{\"assets\":[{\"apiUrl\":\"https://api.github.com/repos/Canticle-AI-Research/Seam/releases/assets/493532203\",\"contentType\":\"application/octet-stream\",\"createdAt\":\"2026-07-29T03:23:53Z\",\"downloadCount\":1,\"id\":\"RA_kwDOR_w5e84darQr\",\"label\":\"\",\"name\":\"seam_runtime-2.4.0-py3-none-any.whl\",\"size\":818620,\"state\":\"uploaded\",\"updatedAt\":\"2026-07-29T03:23:53Z\",\"url\":\"https://github.com/Canticle-AI-Research/Seam/releases/download/v2.4.0/seam_runtime-2.4.0-py3-none-any.whl\"},{\"apiUrl\":\"https://api.github.com/repos/Canticle-AI-Research/Seam/releases/assets/493532204\",\"contentType\":\"application/x-gtar\",\"createdAt\":\"2026-07-29T03:23:53Z\",\"downloadCount\":1,\"id\":\"RA_kwDOR_w5e84darQs\",\"label\":\"\",\"name\":\"seam_runtime-2.4.0.tar.gz\",\"size\":790485,\"state\":\"uploaded\",\"updatedAt\":\"2026-07-29T03:23:53Z\",\"url\":\"https://github.com/Canticle-AI-Research/Seam/releases/download/v2.4.0/seam_runtime-2.4.0.tar.gz\"}],\"isDraft\":false,\"isPrerelease\":false,\"publishedAt\":\"2026-07-29T03:23:54Z\",\"tagName\":\"v2.4.0\",\"targetCommitish\":\"01f35817810f1490c88e9f832d92c8f1aab3944d\"}\n"
+  },
+  {
+    "command": [
+      "gh",
+      "api",
+      "repos/Canticle-AI-Research/Seam/environments",
+      "--jq",
+      ".environments[] | {name,protection_rules,deployment_branch_policy}"
+    ],
+    "exit_code": 0,
+    "output": "{\"deployment_branch_policy\":null,\"name\":\"copilot\",\"protection_rules\":[]}\n{\"deployment_branch_policy\":null,\"name\":\"Preview\",\"protection_rules\":[]}\n{\"deployment_branch_policy\":{\"custom_branch_policies\":false,\"protected_branches\":true},\"name\":\"private-package-release\",\"protection_rules\":[{\"id\":60791492,\"node_id\":\"GA_kwDOR_w5e84Dn5rE\",\"type\":\"branch_policy\"}]}\n{\"deployment_branch_policy\":null,\"name\":\"Production\",\"protection_rules\":[]}\n{\"deployment_branch_policy\":{\"custom_branch_policies\":false,\"protected_branches\":true},\"name\":\"pypi\",\"protection_rules\":[{\"id\":60791493,\"node_id\":\"GA_kwDOR_w5e84Dn5rF\",\"type\":\"branch_policy\"}]}\n"
+  },
+  {
+    "variable": "PRIVATE_RELEASE_APPROVER",
+    "read_exit_code": 0,
+    "configured": true,
+    "is_true": null
+  },
+  {
+    "workflow_immutability_gate": "inputs.immutability_confirmed",
+    "github_setting_verified": false
+  }
+]
