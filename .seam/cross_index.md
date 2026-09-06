@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 699
+total_events: 701
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-21T04:38:43Z | history:441:ea8c3fb0 | session-event | done | benchmark,longmemeval,beam,memory,temporal,graph,audit,bu... | benchmarks/external/mem0_harness/upstream_runner.py,benchmarks/external/commo... |
-| 2026-07-21T07:08:50Z | history:442:4d879e77 | session-event | done | graph, memory, retrieval, benchmark, audit, bugfix, test,... | benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/externa... |
 | 2026-07-21T07:20:56Z | history:443:dc33c3b0 | session-event | done | history, verify, audit, benchmark, handoff | HISTORY.md,PROJECT_STATUS.md,docs/handoffs/2026-07-21-canonical-graph-fill-fr... |
 | 2026-07-21T11:08:11Z | history:444:f50aee8b | session-event | changed | graph, memory, retrieval, benchmark, audit, bugfix, test,... | benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/externa... |
 | 2026-07-21T19:47:21Z | history:445:3c8a382d | session-event | in-progress | benchmark, beam, pack, retrieval, audit, test, handoff, v... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_s... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-05T04:28:46Z | history:633:afe1156c | session-event | in-progress | pyproject, config, ci, verify, continuity, security | pyproject.toml,uv.lock,PR#248 |
 | 2026-09-06T00:00:00Z | roadmap:065:9bd87472 | status-change | bootstrap | roadmap, plan, naming, surface, dashboard, graph, verify | ROADMAP.md:8 |
 | 2026-09-06T07:43:09Z | history:634:8c16ad77 | session-event | changed | docs, naming, plan, roadmap, status, handoff, continuity,... | AGENTS.md,CONTEXT.md,PROJECT_STATUS.md,README.md,REPO_LEDGER.md,ROADMAP.md,SE... |
+| 2026-09-06T08:35:12Z | history:635:b93d437e | session-event | in-progress | pyproject, docs, verify, naming, operator, security, hand... | docs/audits/2026-09-06-l1-packaging-migration.md,docs/audits/INDEX.md,docs/au... |
+| 2026-09-06T08:40:12Z | history:636:e98b481a | session-event | changed | continuity, handoff, status, docs, verify, operator | PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/handoffs/2026-09-06... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0499.cross.md | 2026-04-15T00:00:00Z..2026-07-21T03:37:52Z | 499 | (multi) | (multi) |
+| 0001-0501.cross.md | 2026-04-15T00:00:00Z..2026-07-21T07:08:50Z | 501 | (multi) | (multi) |

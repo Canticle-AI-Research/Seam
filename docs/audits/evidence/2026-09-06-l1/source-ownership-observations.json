@@ -1,0 +1,205 @@
+{
+  "observed_at": "2026-09-06T08:37:08.839579+00:00",
+  "observations": [
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/Canticle-AI-Research/Seam_SDK",
+        "--jq",
+        "{full_name,private,default_branch,permissions}"
+      ],
+      "exit_code": 0,
+      "result": {
+        "default_branch": "main",
+        "full_name": "Canticle-AI-Research/Seam_SDK",
+        "permissions": {
+          "admin": true,
+          "maintain": true,
+          "pull": true,
+          "push": true,
+          "triage": true
+        },
+        "private": true
+      }
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/BlackhatShiftey/Seam_Runtime",
+        "--jq",
+        "{full_name,private,default_branch,permissions}"
+      ],
+      "exit_code": 1,
+      "result": {
+        "message": "Not Found",
+        "documentation_url": "https://docs.github.com/rest/repos/repos#get-a-repository",
+        "status": "404"
+      }
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/Canticle-AI-Research/Seam_Runtime",
+        "--jq",
+        "{full_name,private,default_branch,permissions}"
+      ],
+      "exit_code": 1,
+      "result": {
+        "message": "Not Found",
+        "documentation_url": "https://docs.github.com/rest/repos/repos#get-a-repository",
+        "status": "404"
+      }
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/Canticle-AI-Research/Seam/actions/permissions/workflow"
+      ],
+      "exit_code": 0,
+      "result": {
+        "default_workflow_permissions": "read",
+        "can_approve_pull_request_reviews": false
+      }
+    },
+    {
+      "url": "https://pypi.org/pypi/seam/json",
+      "http_status": 200,
+      "response_sha256": "0ae6c63206fc6af5bb330ce2cd531d347d9a18220c9c4905c6d609964f29198a",
+      "name": "seam",
+      "version": "3.14.1",
+      "project_urls": {
+        "Homepage": "https://github.com/seamapi/python",
+        "Repository": "https://github.com/seamapi/python"
+      },
+      "artifacts": [
+        {
+          "filename": "seam-3.14.1-py3-none-any.whl",
+          "published_sha256": "69b6f57d43059515189c70a4ff3b39d6e39e8445b23745b170352925739125b6",
+          "local_sha256": null,
+          "url": "https://files.pythonhosted.org/packages/b7/cb/2f7a5e0f26bbd60682b354e17544dc86ac04cbc5705e1fd5f910d9d643be/seam-3.14.1-py3-none-any.whl",
+          "matches_published": null
+        },
+        {
+          "filename": "seam-3.14.1.tar.gz",
+          "published_sha256": "3a5e9a402d53435df540a5285a2815afdff78347559923c7a6843a61c978c343",
+          "local_sha256": null,
+          "url": "https://files.pythonhosted.org/packages/74/bf/8eb2b3abbda19b45fcafa5ca9ccebad546f2b144662cbd02e747025db327/seam-3.14.1.tar.gz",
+          "matches_published": null
+        }
+      ],
+      "version_url": "https://pypi.org/pypi/seam/3.14.1/json"
+    },
+    {
+      "url": "https://pypi.org/pypi/seam-runtime/json",
+      "http_status": 200,
+      "response_sha256": "eaf8a15ad82730a9f0cbdf2b5ea44f97796dceeb774dd0130df7af1cba0f0f72",
+      "name": "seam-runtime",
+      "version": "1.3.1",
+      "project_urls": {
+        "Homepage": "https://github.com/BlackhatShiftey/Seam_Runtime",
+        "Issues": "https://github.com/BlackhatShiftey/Seam_Runtime/issues",
+        "Repository": "https://github.com/BlackhatShiftey/Seam_Runtime"
+      },
+      "artifacts": [
+        {
+          "filename": "seam_runtime-1.3.1-py3-none-any.whl",
+          "published_sha256": "2abd1e0e1ef3f7d1cacd2099608ad76367d3ed901031e032dc0d8d21b85901e7",
+          "local_sha256": "2abd1e0e1ef3f7d1cacd2099608ad76367d3ed901031e032dc0d8d21b85901e7",
+          "url": "https://files.pythonhosted.org/packages/c7/98/c696fca6dda04d10ae5a482f9ee1cf838390d8767d03dd39475a55b43747/seam_runtime-1.3.1-py3-none-any.whl",
+          "matches_published": true
+        },
+        {
+          "filename": "seam_runtime-1.3.1.tar.gz",
+          "published_sha256": "ea0915a87bcfb4c66ce6e0d7a1282a126841913f2886246dbcf4f634cefe4167",
+          "local_sha256": "ea0915a87bcfb4c66ce6e0d7a1282a126841913f2886246dbcf4f634cefe4167",
+          "url": "https://files.pythonhosted.org/packages/b9/0c/0f4259140c270baeaedcfa26b0a14efc7765c89651d6084de9c387ee324f/seam_runtime-1.3.1.tar.gz",
+          "matches_published": true
+        }
+      ],
+      "version_url": "https://pypi.org/pypi/seam-runtime/1.3.1/json"
+    },
+    {
+      "url": "https://pypi.org/pypi/seam-self-host/json",
+      "http_status": 200,
+      "response_sha256": "d8f8ff5fce38bf2755ed2633308f4f7a6e6eb67fd199d67a32095b2854fcc9b5",
+      "name": "seam-self-host",
+      "version": "1.1.2",
+      "project_urls": {
+        "Documentation": "https://github.com/BlackhatShiftey/Seam/blob/main/docs/SELF_HOST_SECURITY.md",
+        "Homepage": "https://github.com/BlackhatShiftey/Seam",
+        "Issues": "https://github.com/BlackhatShiftey/Seam/issues"
+      },
+      "artifacts": [
+        {
+          "filename": "seam_self_host-1.1.2-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "published_sha256": "36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362",
+          "local_sha256": "36d67629dbd97c74634f61c3bbadc2f37d768ac21bfe599216ee89a19153d362",
+          "url": "https://files.pythonhosted.org/packages/1b/38/12a8302fc71854420c9528598f21276ae1148a27bab617fb1feace75b8b7/seam_self_host-1.1.2-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "matches_published": true
+        }
+      ],
+      "version_url": "https://pypi.org/pypi/seam-self-host/1.1.2/json"
+    },
+    {
+      "url": "https://pypi.org/pypi/seam-client/json",
+      "http_status": 200,
+      "response_sha256": "bef6e1d1e235ba0f9ce94bebddf9dd6c8963e585af84cc769f461efdc9fa7ce9",
+      "name": "seam-client",
+      "version": "2.0.0",
+      "project_urls": {
+        "Documentation": "https://github.com/BlackhatShiftey/Seam_Runtime/tree/main/sdk",
+        "Homepage": "https://canticle.cc",
+        "Issues": "https://github.com/BlackhatShiftey/Seam_Runtime/issues",
+        "Repository": "https://github.com/BlackhatShiftey/Seam_Runtime"
+      },
+      "artifacts": [
+        {
+          "filename": "seam_client-2.0.0-py3-none-any.whl",
+          "published_sha256": "03585afd5e6e42168cf24e47c703b8bf8a77a72b92e56b4efdb9421811cc372f",
+          "local_sha256": "03585afd5e6e42168cf24e47c703b8bf8a77a72b92e56b4efdb9421811cc372f",
+          "url": "https://files.pythonhosted.org/packages/bf/46/583d00f0723759a2293813182def008da110f3397a56e56bee2ff7cea584/seam_client-2.0.0-py3-none-any.whl",
+          "matches_published": true
+        },
+        {
+          "filename": "seam_client-2.0.0.tar.gz",
+          "published_sha256": "37af38068982fa44d54ab0a5ed696319d4711a6d8a18dbf004a1123a2aac7096",
+          "local_sha256": "37af38068982fa44d54ab0a5ed696319d4711a6d8a18dbf004a1123a2aac7096",
+          "url": "https://files.pythonhosted.org/packages/e3/5a/a9672e6a166d11a03bced5ca9750ec1759ebfe2b65dc90225ae07b41403e/seam_client-2.0.0.tar.gz",
+          "matches_published": true
+        }
+      ],
+      "version_url": "https://pypi.org/pypi/seam-client/2.0.0/json"
+    },
+    {
+      "url": "https://pypi.org/pypi/canticle-seam-suite/json",
+      "http_status": 404
+    },
+    {
+      "url": "https://pypi.org/pypi/canticle-seam-api/json",
+      "http_status": 404
+    },
+    {
+      "url": "https://pypi.org/pypi/canticle-seam-client/json",
+      "http_status": 404
+    },
+    {
+      "url": "https://pypi.org/pypi/canticle-seam-sdk/json",
+      "http_status": 404
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/Canticle-AI-Research/Seam_SDK/commits/main",
+        "--jq",
+        ".sha"
+      ],
+      "exit_code": 0,
+      "sha": "294ab08919646a03dcdceb3c777dfd7d8eabc624"
+    }
+  ]
+}

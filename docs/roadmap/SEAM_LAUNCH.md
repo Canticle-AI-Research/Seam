@@ -40,6 +40,11 @@ different benchmark for one another, and do not promise the result in advance.
 
 ## Next task: L1 packaging migration packet
 
+The [L1 candidate packet](../audits/2026-09-06-l1-packaging-migration.md)
+contains source/ownership mapping, exact artifact inventories, installed
+compatibility evidence, and explicit release blockers (HISTORY#635). It records
+the operator clarification that SDK access is private and paid.
+
 Follow [the packaging checklist](../status/packaging-licensing.md#next-packaging-task).
 Its output is a reviewable artifact/source map and migration proposal. Verify
 legacy package ownership, repository locations, and release access using the

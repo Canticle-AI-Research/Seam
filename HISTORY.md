@@ -20691,3 +20691,119 @@ source/ownership/artifact/compatibility packet, then implement R2. No runtime,
 license, package metadata, hook activation, protected merge, release,
 deployment, or paid provider action is part of this change.
 ---END-ENTRY-#634---
+
+---BEGIN-ENTRY-#635---
+id: 635
+date: 2026-09-06T08:35:12Z
+agent: codex
+status: in-progress
+topics: pyproject, docs, verify, naming, operator, security, handoff, continuity
+commits: pending
+refs: docs/audits/2026-09-06-l1-packaging-migration.md,docs/audits/INDEX.md,docs/audits/evidence/2026-09-06-l1/artifact-inventory.json,docs/audits/evidence/2026-09-06-l1/runtime-members.json,docs/PRODUCTS.md,docs/status/packaging-licensing.md,docs/roadmap/SEAM_LAUNCH.md,docs/handoffs/2026-09-06-l1-packaging-candidate.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 634
+tokens: 858
+---
+L1 PACKAGING PREPARATION: prepared the reviewable package/source/ownership
+map, exact artifact and archive-member inventories, compatibility proposal,
+and scoped installed-artifact evidence in
+`docs/audits/2026-09-06-l1-packaging-migration.md` and its tracked evidence.
+The operator clarified that SEAM SDK is private and access is for paying
+users. Updated the product map and durable/current status to preserve that
+boundary, distinct from the public HTTP client; future paid capabilities
+remain unspecified. Existing license texts and package metadata are unchanged.
+
+Reconciled protected origin/main at 88346018f47c75c49e19b90ea2321a6b0930e002
+and draft PR #250 at 25518300eabf95288555ca7794e4e964656a4497. The new L1
+branch is stacked on that documentation dependency in an isolated temporary
+worktree. Pending closeout queues were empty. The primary audit/history work,
+locked audit-cleanup worktree and dirty Codex-hook candidate are preserved and
+excluded as recorded in the successor handoff. No stash was created.
+
+Downloaded legacy runtime, compiled self-host and public-client artifacts;
+verified the PyPI hashes; inspected existing GitHub v2.4.0 assets. Refreshed
+repository permissions and visibility through gh. The legacy source coordinate
+still returns 404; the private SDK repository is accessible at 294ab08.
+PyPI owner access, successor-name eligibility and authoritative client source
+remain unverified. Current runtime and existing GitHub assets share version
+2.4.0 but differ in contents. Exact membership/notices, a fresh release
+version, private paid delivery and compiled self-host migration remain work.
+No publication or ownership claim follows from download or repository access.
+
+Exported runtime 2551830 and private SDK 294ab08 outside the working tree and
+built unchanged wheel/sdist candidates with uv build. The canonical private
+artifact verifier passed for those pairs and the downloaded public client.
+The installed CPython 3.13.12 probe exercised local SDK ingest/retrieval with
+explicit graph seeding disabled, actual sync/async public-client loopback HTTP
+calls, session exclusion, unauthenticated rejection, and CLI help. The private
+SDK pytest selection at its exported tests/test_reasoning_graph.py exited zero
+against a manually substituted current runtime. The probe's legacy-write and
+upgrade-read phases preserved exact synthetic record dictionaries from
+installed runtime 1.3.1 to the current candidate. Exact commands, environment,
+hashes, fixture, limitations and corrected harness authoring errors are in the
+report/evidence. No general SDK parity, arbitrary database upgrade, platform
+matrix, reproducible build, hosted tenancy or release qualification is claimed.
+
+Independent SDK context inspection identified seeding-default/None handling
+and retrieval audit leg_weights drift. Its repair and full repin/customer
+access qualification belong in a separate private SDK change. Public-client
+coverage omits newer server operations. Neither implementation was edited.
+
+Pre-closeout candidate secret scanning and diff checks passed. The existing
+`python -m pytest -q tests/audit/test_local_gates_match_ci.py
+tests/audit/test_dependency_contract.py -m "not external"` slice and
+`python -m tools.ci.verify_dependency_contract` passed using the primary
+checkout virtualenv from the L1 worktree. Documentation/evidence only: TDD
+is not applicable. Final independent assurance, canonical gate results and
+exact-head CI are recorded in the qualification receipt/PR after this entry.
+Initial wiki checks correctly rejected the not-yet-appended history ref and
+an unpaired evidence path; the manifest declaration was corrected before
+closeout. No full runtime suite or paid benchmark was run.
+
+Next: review the stacked documentation packet, resolve explicit operator and
+release blockers, then take R2 as the next runtime slice. No package upload,
+private SDK source publication, protected merge, deployment, hook activation,
+license change or paid provider call is authorized here. A one-push
+SEAM_ALLOW_DIRTY_WORKTREES exception preserves the unrelated hook candidate;
+commit signing, candidate scanning and continuity gates remain enforced.
+---END-ENTRY-#635---
+
+---BEGIN-ENTRY-#636---
+id: 636
+date: 2026-09-06T08:40:12Z
+agent: codex
+status: changed
+topics: continuity, handoff, status, docs, verify, operator
+commits: pending
+refs: PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/handoffs/2026-09-06-l1-packaging-candidate.md,docs/handoffs/INDEX.md,docs/audits/evidence/2026-09-06-l1/source-ownership-observations.json,PR#250
+supersedes: 635
+tokens: 397
+---
+L1 CONTINUITY AND DOCUMENTATION MERGE AUTHORITY: after HISTORY#635, the
+operator requested a handoff, push and merge when finished. This authorizes
+publication of the reviewed documentation branch and its PR #250 dependency,
+not package publication, deployment, customer access changes or paid calls.
+
+PR #250 was marked ready and merged after verifying its exact source head
+25518300eabf95288555ca7794e4e964656a4497 and all required checks. The merge
+is protected 7c0810447d46afd5aa419651926c767400d43d87, verified via gh pr view
+and a fresh git fetch. L1 is rebased on this baseline before push; its required
+checks and protected merge remain a separate next action. Current status and
+the successor handoff now name that baseline and the operator's authority.
+
+Independent read-only L1 assurance verified archive and member hashes, scoped
+compatibility claims and the private paid SDK boundary. It requested retained
+remote observations and published PyPI digests. Added sanitized command/status,
+SDK-head, name/source lookup, workflow-permission and published/local digest
+comparisons to the tracked source-ownership observations. Re-review accepted
+the repaired documentation/evidence packet with no remaining findings.
+
+The canonical closeout of HISTORY#635 passed after replacing citations to
+absent historical source files with clearly identified archived module names.
+The first audit-claim failure remains a recorded gate failure, not a runtime
+regression; no gate was suppressed. Final qualification and exact-head CI
+belong to the candidate receipt and PR. Runtime/SDK source, package metadata,
+licenses, customer entitlements and release workflows remain unchanged.
+The current handoff is bound to this chronological successor. Remaining release
+blockers and R2-next direction remain in the L1 report. Unrelated primary audit,
+locked cleanup and Codex-hook worktrees remain preserved and excluded.
+---END-ENTRY-#636---

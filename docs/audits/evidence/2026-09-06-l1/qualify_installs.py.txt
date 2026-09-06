@@ -1,0 +1,107 @@
+"""Local, provider-free L1 artifact probes. Run from outside the source tree."""
+import asyncio
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import secrets
+import socket
+import subprocess
+import sys
+import threading
+import time
+
+ROOT = Path(__file__).resolve().parent
+for name in list(os.environ):
+    if name.startswith(("SEAM_", "OPENAI_", "ANTHROPIC_", "AZURE_", "GOOGLE_", "HF_")):
+        del os.environ[name]
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+os.environ["TIKTOKEN_CACHE_DIR"] = str(ROOT / "tiktoken-cache")
+
+from seam_runtime.runtime import SeamRuntime
+from seam_runtime.models import HashEmbeddingModel
+
+phase = sys.argv[1]
+if phase in ("legacy-write", "upgrade-read"):
+    rt = SeamRuntime(ROOT / "upgrade-fixture.db", embedding_model=HashEmbeddingModel())
+    try:
+        if phase == "legacy-write":
+            rt.ingest_text("L1 upgrade evidence: the project color is violet.", ns="l1.upgrade")
+        batch = rt.store.load_ir(ns="l1.upgrade")
+        records = {r.id: r.to_dict() for r in batch.records}
+        if phase == "legacy-write":
+            (ROOT / "legacy-records.json").write_text(json.dumps(records, sort_keys=True))
+        else:
+            assert records == json.loads((ROOT / "legacy-records.json").read_text())
+        print(json.dumps({"phase": phase, "runtime_version": importlib.metadata.version("seam-runtime"), "records": len(records), "result": "passed"}))
+    finally:
+        rt.close()
+    raise SystemExit(0)
+
+from seam_runtime.sdk import SeamSDK as RuntimeSDK
+from seam_sdk import SeamSDK as PaidSDK
+from seam_client import SeamClient, AsyncSeamClient, AuthenticationError
+from seam_runtime.server import create_app
+import uvicorn
+
+results = []
+for cls, label in [(RuntimeSDK, "runtime-local-interface"), (PaidSDK, "private-paid-sdk-overlay")]:
+    with cls(ROOT / (label + ".db"), embedding_model=HashEmbeddingModel(), allow_pgvector_env=False) as sdk:
+        sdk.ingest("L1 installed SDK evidence: the project color is violet.", ns="local.default")
+        run = sdk.start_reasoning("Find the project color", recommend_patterns=False)
+        response = run.retrieve("violet", semantic_graph_seeding=False)
+        assert response.result.selected, label
+        assert run.retrievals(), label
+        assert sdk.knowledge(), label
+        results.append({"probe": label, "result": "passed", "retrieval_candidates": len(response.result.selected)})
+
+rt = SeamRuntime(ROOT / "http-fixture.db", embedding_model=HashEmbeddingModel(), allow_pgvector_env=False)
+os.environ["SEAM_API_TOKEN"] = secrets.token_urlsafe(32)
+app = create_app(runtime=rt)
+sock = socket.socket()
+sock.bind(("127.0.0.1", 0))
+port = sock.getsockname()[1]
+server = uvicorn.Server(uvicorn.Config(app, log_level="critical", access_log=False))
+thread = threading.Thread(target=lambda: server.run(sockets=[sock]), daemon=True)
+thread.start()
+try:
+    deadline = time.monotonic() + 15
+    while not server.started and time.monotonic() < deadline:
+        time.sleep(0.05)
+    assert server.started
+    base = f"http://127.0.0.1:{port}"
+    with SeamClient(base_url=base, api_key=os.environ["SEAM_API_TOKEN"]) as client:
+        assert client.health().api_version == "v1"
+        client.remember("The L1 HTTP fixture color is violet.", namespace="l1", session_id="fixture")
+        assert client.recall("violet", namespace="l1", session_id="fixture").memories
+        assert "violet" in client.context("violet", namespace="l1", session_id="fixture").context
+        assert not client.recall("violet", namespace="l1", session_id="different").memories
+    with SeamClient(base_url=base) as denied:
+        try:
+            denied.recall("violet")
+        except AuthenticationError:
+            pass
+        else:
+            raise AssertionError("Unauthenticated recall was accepted")
+    async def async_probe():
+        async with AsyncSeamClient(base_url=base, api_key=os.environ["SEAM_API_TOKEN"]) as client:
+            assert (await client.health()).api_version == "v1"
+            await client.remember("Async L1 HTTP fixture is amber.", namespace="async-l1")
+            assert (await client.recall("amber", namespace="async-l1")).memories
+            assert "amber" in (await client.context("amber", namespace="async-l1")).context
+    asyncio.run(async_probe())
+    results.append({"probe": "published-client-real-loopback-http", "result": "passed", "coverage": ["sync health/remember/recall/context", "async health/remember/recall/context", "session exclusion", "unauthenticated recall denied"], "mode": "trusted single-user, not principal-tenancy qualification"})
+finally:
+    server.should_exit = True
+    thread.join(timeout=10)
+    sock.close()
+    rt.close()
+    del os.environ["SEAM_API_TOKEN"]
+
+for command in ["seam", "seam-server", "seam-mcp", "seam-benchmark"]:
+    result = subprocess.run([str(Path(sys.executable).parent / command), "--help"], cwd=ROOT, capture_output=True, text=True, timeout=20)
+    assert result.returncode == 0, (command, result.returncode, result.stderr)
+    results.append({"probe": command + " --help", "result": "passed"})
+results.append({"probe": "environment", "python": sys.version.split()[0], "runtime": importlib.metadata.version("seam-runtime"), "client": importlib.metadata.version("seam-client"), "private_sdk": importlib.metadata.version("seam-sdk"), "runtime_source": str(Path(sys.modules['seam_runtime'].__file__).resolve())})
+print(json.dumps(results, indent=2))
