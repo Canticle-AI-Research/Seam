@@ -6,6 +6,15 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Status: R1 protected on main; R2 scale/parity gate open
 
+HISTORY#637 records the first R2 structured SQLite scale slice: per-record
+indexed source-text lookup replaces aggregation across all namespaces, with
+unchanged scores and query boundary gates. Public hybrid retrieval tests pin
+fixed-slice SQL work and candidate parity; see
+`tests/docs/r2-sqlite-scale.md` for exact evidence and limitations. Compatibility
+and temporal acquisition, pgvector HNSW expression/tie behavior and full backend
+parity remain open. This slice does not freeze S8. Resume through
+`docs/handoffs/INDEX.md`; verify its exact PR/main state before continuing.
+
 PR #222 merged the SQL leg's deterministic equal-score tiebreak and the
 deleted-record vector-outbox replay repair at protected `main@a177852`. Those
 repairs do not complete S8 or S9. See

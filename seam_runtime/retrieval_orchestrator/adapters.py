@@ -1466,16 +1466,15 @@ with record_rows as (
         r.t0,
         r.updated_at,
         r.payload_json,
-        lower(coalesce(v.source_text, r.payload_json)) as search_text,
+        lower(coalesce((
+            select max(v.source_text)
+            from vector_index v
+            where v.record_id = r.id
+        ), r.payload_json)) as search_text,
         lower(coalesce(json_extract(r.payload_json, '$.attrs.predicate'), '')) as predicate_text,
         lower(coalesce(json_extract(r.payload_json, '$.attrs.subject'), '')) as subject_text,
         lower(coalesce(json_extract(r.payload_json, '$.attrs.object'), '')) as object_text
     from ir_records r
-    left join (
-        select record_id, max(source_text) as source_text
-        from vector_index
-        group by record_id
-    ) v on v.record_id = r.id
     where {' and '.join(where_clauses)}
 ),
 scored_rows as (

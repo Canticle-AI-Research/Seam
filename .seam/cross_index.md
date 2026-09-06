@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 701
+total_events: 702
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-21T07:20:56Z | history:443:dc33c3b0 | session-event | done | history, verify, audit, benchmark, handoff | HISTORY.md,PROJECT_STATUS.md,docs/handoffs/2026-07-21-canonical-graph-fill-fr... |
 | 2026-07-21T11:08:11Z | history:444:f50aee8b | session-event | changed | graph, memory, retrieval, benchmark, audit, bugfix, test,... | benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/externa... |
 | 2026-07-21T19:47:21Z | history:445:3c8a382d | session-event | in-progress | benchmark, beam, pack, retrieval, audit, test, handoff, v... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_s... |
 | 2026-07-21T20:24:11Z | history:446:365a3c98 | session-event | done | benchmark, beam, pack, retrieval, audit, test, handoff, v... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_s... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-06T07:43:09Z | history:634:8c16ad77 | session-event | changed | docs, naming, plan, roadmap, status, handoff, continuity,... | AGENTS.md,CONTEXT.md,PROJECT_STATUS.md,README.md,REPO_LEDGER.md,ROADMAP.md,SE... |
 | 2026-09-06T08:35:12Z | history:635:b93d437e | session-event | in-progress | pyproject, docs, verify, naming, operator, security, hand... | docs/audits/2026-09-06-l1-packaging-migration.md,docs/audits/INDEX.md,docs/au... |
 | 2026-09-06T08:40:12Z | history:636:e98b481a | session-event | changed | continuity, handoff, status, docs, verify, operator | PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/handoffs/2026-09-06... |
+| 2026-09-06T19:27:24Z | history:637:a30f5aff | session-event | in-progress | retrieval, storage, test, verify, handoff, continuity | seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_s8_r2_sqlite... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0501.cross.md | 2026-04-15T00:00:00Z..2026-07-21T07:08:50Z | 501 | (multi) | (multi) |
+| 0001-0502.cross.md | 2026-04-15T00:00:00Z..2026-07-21T07:20:56Z | 502 | (multi) | (multi) |
