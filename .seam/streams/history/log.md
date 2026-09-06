@@ -20807,3 +20807,66 @@ The current handoff is bound to this chronological successor. Remaining release
 blockers and R2-next direction remain in the L1 report. Unrelated primary audit,
 locked cleanup and Codex-hook worktrees remain preserved and excluded.
 ---END-ENTRY-#636---
+
+---BEGIN-ENTRY-#637---
+id: 637
+date: 2026-09-06T19:27:24Z
+agent: codex
+status: in-progress
+topics: retrieval, storage, test, verify, handoff, continuity
+commits: pending
+refs: seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_s8_r2_sqlite_scale.py,tests/docs/r2-sqlite-scale.md,docs/handoffs/2026-09-06-r2-sqlite-scale-next.md,docs/handoffs/INDEX.md,docs/status/retrieval.md,PROJECT_STATUS.md
+supersedes: 636
+tokens: 694
+---
+R2 STRUCTURED SQLITE SCALE SLICE: continued from protected origin/main
+2f6e7478f38dad918bc448eaaf53e50764a69525 (merged PR #251), preserving the
+primary dirty audit checkout, locked cleanup worktree and Codex-hook candidate.
+Validated pending closeout queues were empty. No stash was created. The
+operator authorized R2, a context-capacity/completion handoff, push and
+protected merge. The context checkpoint selected this coherent partial slice;
+it does not complete R2 or freeze S8.
+
+Replaced the global grouped vector_index join in _build_structured_sql with
+record-ID correlated max(source_text), using the existing composite primary
+key. No schema/migration or ranking-policy default changed. All-model MAX,
+case-sensitive ordering before lowercasing, payload fallback, empty sources,
+boundary gates and ID ties remain unchanged. Shared graph seed acquisition
+uses the same corrected query.
+
+Witnessed TDD at the public SeamRuntime.retrieve(mode="hybrid") seam:
+PYTEST_ADDOPTS=-rP PYTHONPATH=. /home/terrabyte/Documents/Projects/Seam/.venv/bin/python
+-m pytest -q tests/audit/test_s8_r2_sqlite_scale.py -m 'not external' failed
+only the two growth cases before the runtime edit and passed all eight cases
+afterward, with identical test bytes. tests/docs/r2-sqlite-scale.md records
+exact timestamps, hashes, fixture, SQL VM counts and measurement limits.
+An earlier fixture authoring error was corrected before the valid red run.
+The fixed selected slice stays near its own SQL instruction baseline as
+unrelated namespaces grow; whole-request and selected-namespace growth are
+not qualified. Small-corpus instruction cost increased.
+
+The focused pytest selection at tests/audit/test_s8_r1_retrieval_contract.py,
+tests/audit/test_s8_retrieval_coherence.py,
+tests/audit/test_temporal_semantics_contract.py and
+tests/audit/test_retrieval_consolidation.py passed outside the sandbox. Two
+initial sandbox attempts stalled in the existing REST TestClient thread portal
+and were interrupted; no runtime repair is attributed to that environment
+observation. New-test collection, scoped Ruff and diff checks passed.
+Independent read-only assurance passed the exact adapter/test hashes and
+ranked-row comparisons including graph, filters, metadata mismatch and NULL
+semantics. The broader tests/audit selection and final canonical closeout,
+exact-head CI and release receipt are publication gates; their final outcomes
+belong to the candidate PR/receipt after this entry.
+
+Updated current status and created the chronological R2 handoff. Temporal and
+legacy compatibility acquisition remain unbounded. Legacy symbol maps,
+graph/entity scoring and BM25 statistics require full-batch context, so an
+arbitrary prefilter would silently change the baseline; the handoff names
+parity-first acquisition work. pgvector HNSW expression use and tie behavior
+must be qualified together with SQLite/Chroma parity. S8/S9/S10 and L1 release
+blockers remain open; no paid calls, package publication or deployment occurred.
+The documented one-push SEAM_ALLOW_DIRTY_WORKTREES exception preserves excluded
+work while retaining signing, secret scans and continuity gates. The clean
+worktree/merged branch are removed after publication; canonical resume state
+survives on protected main.
+---END-ENTRY-#637---

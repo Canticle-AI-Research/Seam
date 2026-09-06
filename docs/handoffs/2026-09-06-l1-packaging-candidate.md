@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-06-l1-packaging-candidate
 supersedes: 2026-09-06-launch-baseline-packaging-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#636
 ---
 

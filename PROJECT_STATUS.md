@@ -5,8 +5,11 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-09-06 — L1 packaging preparation candidate; private paid SDK boundary
-recorded.** The product direction is Surface Encoded Agent Memory,
+**2026-09-06 — R2 structured SQLite scale slice; acquisition and backend parity
+remain open.** HISTORY#637 records the scoped runtime change and its
+[evidence](tests/docs/r2-sqlite-scale.md). L1 packaging preparation and the
+private paid SDK boundary remain recorded.
+The product direction is Surface Encoded Agent Memory,
 Canticle SEAM Suite for self-hosting, and Canticle SEAM API with SEAM WebUI for
 the paid service. See the [product map](docs/PRODUCTS.md),
 [launch plan](docs/roadmap/SEAM_LAUNCH.md), and current handoff in
@@ -17,11 +20,12 @@ now records exact local artifact evidence and unresolved release blockers
 (HISTORY#635). SEAM SDK is private, with access for paying users; the public
 HTTP client remains a distinct artifact. See the current handoff for scope.
 
-The checked protected baseline is `main@7c08104` (PR #250); it contains the
-launch documentation baseline (HISTORY#636). It contains D1-D4,
+The checked protected baseline is `main@2f6e747` (PR #251); it contains the
+launch documentation and L1 packaging candidate (HISTORY#634-#636). It contains D1-D4,
 T1, G1, and R1, followed by the R1 continuity correction, audit cleanup, and uv
-lockfile work. **R2 Retrieval Scale and Backend Parity remains the next runtime
-slice before S8 freeze.** `legacy-weighted/1` remains the compatibility default;
+lockfile work. **R2 Retrieval Scale and Backend Parity remains in progress
+before S8 freeze.** The structured SQL slice does not complete its acquisition
+or backend gates. `legacy-weighted/1` remains the compatibility default;
 S9 Promotion evidence is still required to change it. See
 [Track S](docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md) and HISTORY#630-#633.
 
