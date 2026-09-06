@@ -3,14 +3,11 @@
 > Worktrees, branches, pull requests, local-only artifacts, and overlap between
 > active workstreams
 
-_Snapshot authority: live SEAM worktrees and open GitHub pull requests
-reconciled on 2026-08-24 against protected `origin/main@3385343` and canonical
-GitHub repository `Canticle-AI-Research/Seam`. Local `main` remains stale at
-`48c5448`; do not mistake it for the protected remote head. This is a dated
-current-state snapshot, not a self-updating dashboard or chronology. Re-run the
-refresh commands before acting on it. Sibling-repository and long-tail branch
-detail retained below was last audited on 2026-08-17 and is labelled
-accordingly._
+_Current launch reconciliation: 2026-09-06 at protected `origin/main@8834601`,
+recorded in HISTORY#634. The decision map below is the current baseline.
+Historical physical/sibling/branch registers remain dated recovery references;
+they are not evidence that those worktrees, branches, or access paths still
+exist. Re-run the refresh commands before acting._
 
 ## Use this before creating work
 
@@ -27,28 +24,25 @@ report a worktree as clean while removal would still destroy local data.
 
 ## Current decision map
 
-| Logical item | Physical identities | State | Unique purpose | Next action |
-| --- | --- | --- | --- | --- |
-| Protected main | local `main`; `origin/main`; canonical GitHub `Canticle-AI-Research/Seam` | Protected remote is `3385343` after merged S7 PR #226; local `main` is still `48c5448`; no worktree is checked out on local `main` | Canonical published source for new work | Base new work on the verified remote head, not the stale local pointer |
-| Persistence-landscape research | primary checkout `Seam`; `research/advanced-persistence-landscape`; PR #221 | Tracked tree clean at `d699944`; 1 commit ahead and 28 behind protected main; draft PR is open and conflicting | Separate documentation research on benchmark-proven persistence | Preserve its untracked operator artifacts; rebase/rechain before publication |
-| Track S/deployment audit | merged PR #222; former `audit/track-s-deployment-20260818` worktree/branch | Published at protected `main@a177852`; temporary worktree and branch are gone | Bounded F-5/F-6/F-10/F-11 and hygiene repairs plus the deployment-readiness audit | Treat as protected-main fact; do not recreate the retired candidate |
-| Track S S6 | merged PR #223; merge commit `abd2a59`; source head `fbefb81` | Published on protected `main`; exact source head is fully contained by `main@3385343` | Optional in-process principal binding, prefix-safe pre-router shutdown, cross-process canonical/projection serialization, indexed generation-bound opaque handles, and G6 lifecycle delete | Treat S6 as finished protected-main behavior |
-| Track S S7 / S8 handoff | reused worktree `Seam-track-s-s6`; merged PR #226; `track-s/s8-next-handoff` | S7 source `d50315a` is published by merge `3385343`; the merged remote/local S7 branches are gone; the clean handoff branch starts exactly at that protected head | Published temporal/cardinality reconciliation, scoped identity and mention accumulation, REL admission, as-of intervals, and 5/5 provider-free retrieved-ENT provenance conformance; bounded chronological transition to S8 | Publish and merge only the S8-next handoff, then begin S8 from its protected successor; native-corpus promotion remains S9 |
-| GitHub issue/release setup | detached `Seam-github-operations`; merged PRs #224 and #225 | Published through closeout `main@1752532`; PR #224 source head `f47f582` passed all required checks and an exact-head Codex review with no inline findings; source/closeout branches are deleted | Structured issue forms and guarded private GitHub Release prepare/publish workflows | Treat the setup and closeout handoff as protected-main fact |
-| TUI concept port | `Seam-tui-concept-shell`; local `feat/tui-concept-shell` | Clean at `54bc01a`; 1 commit ahead and 27 behind protected main; no remote/PR | Runtime-backed Textual port of the external operator mock's workflow and visual concepts | Keep separate from Track S; review, qualify, publish, or revise without claiming the mock or candidate shipped |
-| Native-model and embodied roadmap | `Seam-native-model-roadmap`; local `docs/seam-native-model-roadmap-reconciled`; remote `origin/docs/seam-native-model-roadmap`; PR #207 | Clean; local and remote head `4a4f8d8`; 3 commits ahead and 32 behind main; PR is open, non-draft, and conflicting | Adds the SEAM-native model ladder, ESP32-S3/Galaxy Tab embodied roadmap, append-only future/plan/executed streams, training-eligibility boundaries, and roadmap lifecycle tooling | Rebase/rechain on current main, regenerate derived streams/history, rerun exact-head gates, then merge or close explicitly |
-| Native-roadmap pre-reconcile backup | local `archive/native-model-roadmap-pre-reconcile` | Clean branch; 5 commits ahead and 41 behind main; not a second PR | Preserves the earlier unsigned/unreconciled roadmap lineage that PR #207 replaced | Keep only as a recovery source until PR #207 is resolved; never implement from it independently |
-| Vector-cache replay repair | `Seam-pr213-repair`; local `repair/pr213-full-suite`; remote `origin/blackhatshiftey-performance-improvements`; PR #213 | Clean; local and remote head `4d2609e`; 2 commits ahead and 44 behind main; draft PR is open and conflicting | Preserves warmed SQLite vector matrices across no-op replay, detects supported cross-process changes, clears cache after rollback restore, and fixes the streaming fake | Rebase/rechain on current main and reassess overlap with published S5-S7 before publication |
-| Wiki publication | `Seam-wiki`; local `docs/seam-wiki`; merged PR #214 | Tracked tree clean; 0 commits ahead and 37 behind main; remote branch gone | Historical source work for verified CommonMark wiki navigation and audit registry rules, already published | Salvage or explicitly discard ignored local data before worktree removal; local branch is otherwise cleanup-eligible |
-| TUI reload repair | `Seam-tui-reload-fix`; local `fix/tui-meta-digits-reload`; merged PR #216 | Tracked tree clean; 0 commits ahead and 33 behind main; remote branch gone | Historical source work for refreshing Alt-digit behavior after settings reload, already published | Cleanup-eligible after exact approval; only caches and ignored snapshots remain |
-| Agent-skill layer rebuild | local `skills/rebuild-agent-layer-and-drift-gate` | Local-only commit `d2151ad`; 1 commit ahead and 30 behind main; no PR | Rebuilds the tracked agent layer, adds an audit profile and skill-drift verifier, and changes `.opencode` agent/skill material | Preserve as active local WIP; rebase and resolve its colliding HISTORY#566 before any publication decision |
-| Retrieval consolidation source | local and remote `refactor/unify-retrieval-paths` | 10 commits ahead and 62 behind main; no PR | Historical source line for single-package consolidation, trace attribution, WANDR replay, and related repairs | Do not land wholesale: it contains the 59 tracked `.ua` artifacts excluded by Track S S0; compare only a named file or commit against current main |
+| Logical item | Physical identities | Verified baseline | Next action |
+| --- | --- | --- | --- |
+| Protected main | `origin/main`; `Canticle-AI-Research/Seam` | `8834601`, matching the live GitHub main SHA | Use the verified protected base for new slices |
+| Primary audit work | Primary `Seam` checkout; `docs/deep-audit-20260829` | `780b377`, behind protected main with dirty audit/history/handoff state | Preserve; compare recovered work against merged PR #247 before any cleanup |
+| Audit cleanup | `.claude/worktrees/audit-cleanup-20260903`; `docs/audit-cleanup-20260903` | Clean at `99c9d48`, PR #247 merged; worktree remains locked | Owner reviews retained local state and lock before removal |
+| Codex hook candidate | `.worktrees/codex-pretool-hooks`; `fix/codex-pretool-hooks` | Base `8834601` with staged and unstaged hook/test/docs changes; no matching open PR observed | Finish and review as a separate slice; reconcile provisional history numbering on rebase |
+| Launch documentation | `docs/launch-baseline-20260906`, isolated from the protected baseline | Documentation candidate described by the current handoff | Review the baseline, then L1 packaging preparation; R2 first runtime slice |
+| Dependency update | PR #249 | Open dependency update, outside this documentation slice | Evaluate separately against the dependency and benchmark contracts |
 
-Open pull requests: [#207](https://github.com/Canticle-AI-Research/Seam/pull/207),
-draft [#213](https://github.com/Canticle-AI-Research/Seam/pull/213), and
-draft [#221](https://github.com/Canticle-AI-Research/Seam/pull/221).
+The validated local SessionEnd queue had no pending requests and `git stash
+list` was empty at reconciliation. These observations are time-scoped, not
+permanent cleanliness claims. Exact dirty-path exclusions are in the
+[current handoff](../handoffs/INDEX.md).
 
 ## Physical worktree register
+
+Historical inventory below was last reconciled on 2026-08-24 (sibling and
+long-tail branch data on 2026-08-17). It is retained for recovery only. The
+current decision map above supersedes its operational next-action wording.
 
 ### `/home/terrabyte/Documents/Projects/Seam`
 

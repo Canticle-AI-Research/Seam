@@ -1,6 +1,9 @@
 # SEAM v0.1
 
-SEAM stands for Semantic Encoding for Agent Memory.
+SEAM stands for Surface Encoded Agent Memory.
+
+Product names and deployment roles are defined in [SEAM products](docs/PRODUCTS.md).
+This naming update preserves the technical contracts below (HISTORY#634).
 
 It is a universal, machine-first language for storing, compressing, retrieving, and evolving information for AI systems. It is designed to work across:
 
@@ -615,7 +618,7 @@ To store more in fewer tokens, SEAM uses symbol dictionaries.
 
 ```txt
 =|sym:1|scope=project:p:1|long="retrieval-augmented generation"|short=rag
-=|sym:2|scope=project:p:1|long="semantic encoding for agent memory"|short=seam
+=|sym:2|scope=project:p:1|long="surface encoded agent memory"|short=seam
 ```
 
 Rules:

@@ -1,150 +1,41 @@
 # SEAM Project Status
 
-> **This file is a router, not an archive.** It holds the single current
-> headline plus pointers. Detail lives in routed status streams; chronology
-> lives in `HISTORY.md`. Both are authoritative over this file.
->
-> Read the stream your task touches — see `docs/status/index.md` — rather
-> than loading the whole status surface.
+This file routes current operating state. Detail lives in the status streams;
+chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-09-02 — protected `main@f8c3349` contains complete D1-D4, T1, G1, and
-the R1 Retrieval Contract through merged PR #245.** Persisted positive
-retrieval depth/context values now survive applied-state loading while
-remaining excluded from self-improvement proposal flags. Query-authored `ns:`
-plus `scope:` filters
-admit the SQL non-lexical tail at the named inclusive score `0.80`; runtime-only
-tenant boundaries do not request that tail, and graph seed acquisition refuses
-it below `1.00`. Both RRF implementations now use one-based ranks and stable ID
-ties. Runtime, MCP, SDK, and compatibility paths resolve graph semantic seeding
-from one applied policy unless a caller explicitly overrides it, while every
-materialized plan records the resolved boolean. `legacy-weighted/1` remains the
-versioned compatibility default pending S9 Promotion evidence. Candidate
-`6815fe6` passed the affected matrix, the full strict non-external selection,
-all 23 isolated live-pgvector tests, and every hosted PR check before merge.
-The resulting exact main passed CI run `33551586780`, external-memory run
-`33551586758`, and CodeQL run `33551585858`; a 2026-09-02 local recheck passed
-34 focused R1 tests, the full strict non-external selection with the two
-established xfails and no skips, and all 23 live-pgvector external tests. The
-available ignored orchestration ledger does not contain R1's pre-merge receipt,
-so this corrective successor must obtain a fresh post-merge exact-state release
-qualification without pretending the earlier workflow order can be proven.
-S8 remains incomplete; R2 remains before the freeze, S9 has not started, and no
-S10 release, deployment, or hosted-production claim is made. See
-`docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` and the current handoff.
+**2026-09-06 — documentation and launch organization first; packaging migration
+preparation next.** The product direction is Surface Encoded Agent Memory,
+Canticle SEAM Suite for self-hosting, and Canticle SEAM API with SEAM WebUI for
+the paid service. See the [product map](docs/PRODUCTS.md),
+[launch plan](docs/roadmap/SEAM_LAUNCH.md), and current handoff in
+[the registry](docs/handoffs/INDEX.md). Decision and reconciliation: HISTORY#634.
 
-**2026-08-26 — protected `main@0b07244` publishes deliberate-memory governance
-for Ghost through PR #233.** The exact source head `f8a1486` passed all seven
-hosted jobs in runs `32931607726` and `32931607783`. The public boundary now
-records explicit admit/reject/review decisions, persists only admitted turns,
-isolates principal/workspace/project/thread state, exposes current/history
-views with lifecycle status, and corrects caller-owned memory additively with a
-`supersedes` relation plus canonical soft deletion. This changes no Track S
-stage and makes no memory-quality, package-release, or hosted-deployment claim.
+The checked protected baseline is `main@8834601` (PR #248). It contains D1-D4,
+T1, G1, and R1, followed by the R1 continuity correction, audit cleanup, and uv
+lockfile work. **R2 Retrieval Scale and Backend Parity remains the next runtime
+slice before S8 freeze.** `legacy-weighted/1` remains the compatibility default;
+S9 Promotion evidence is still required to change it. See
+[Track S](docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md) and HISTORY#630-#633.
 
-**2026-08-25 — protected `main@9d29c24` publishes the opaque public agent-turn
-lifecycle for Ghost through PR #231 without distributing private SEAM code.**
-The exact source head `40562b3` passed all seven hosted jobs before merge.
-Focused HTTP tests cover accepted completion and recall, rejected-turn
-non-ingest, cross-principal and cross-session handle isolation, terminal replay
-idempotency, and refusal of post-terminal action writes. This source
-publication does not alter Track S stage and is not a hosted-deployment or
-public-runtime-release claim.
+The operator-surface lane is now part of launch delivery. Complete and review
+Suite and API/WebUI before the expensive benchmark score campaign; existing
+correctness, security, conformance, and required CI checks continue throughout.
+The requested 90% target needs a named benchmark/metric and agreed evaluation
+conditions. S9 qualification and S10 release/deployment proof remain open.
 
-**2026-08-25 — protected `main@bb156e3` contains finished Track S S7 through
-merged PR #226, the chronological S8-next handoff through merged PR #227, and
-the S8 retrieval-coherence mechanism slice through merged PR #228.** S7 closes the
-exit mechanics for exact entity mention evidence,
-same-boundary and explicit identity reconciliation, deterministic temporal
-reconciliation, concurrent replay idempotency, fail-closed REL traversal, and
-as-of graph intervals. A provider-free retrieved-ENT fixture resolved 5/5
-entities through complete exact SPAN-to-RAW chains. The chronological
-S8-next handoff reached protected main before implementation began. The
-published S8 mechanism work closes fail-closed fusion leg names over the exact set
-the engine emits (including `chroma`), legacy-policy adapter isolation,
-persisted absent/all-one/zero/non-unit weighted-policy replay with all-one
-bitwise identical to `/2`, `search_ir`/REST candidate parity with direct
-`retrieve()` under the same policy across REST, SDK, MCP, and the TUI read
-path, exactly one tenant-scoped retrieval event
-per successful retrieval with telemetry failure proven answer-inert, an
-explicit process-lifetime flag-cache refresh contract, and SQLite
-999-variable-floor bounds on three graph-traversal statements. It does NOT
-complete S8: the boundary-only SQL gate decision remains, and `search_ir`
-still defaults to `legacy-weighted/1` because retiring
-it would change every recorded LoCoMo/mem0 arm — an S9-gated measurement
-decision, not an S8 refactor. Nothing here authorizes S9 or claims a
-quality lift. The governing reports are:
+The TUI and browser prototype are existing implementation inputs. Review,
+curation, health, real backend acknowledgements, credential handling, and the
+independently loadable graph/database/glassbox sections need acceptance evidence.
+Use the [surface stream](docs/status/surfaces.md) for those boundaries.
 
-- `docs/audits/2026-08-18-track-s-deployment-readiness-audit.md`;
-- `docs/audits/2026-08-18-graph-benchmark-readiness-research.md`; and
-- `docs/audits/2026-08-19-track-s-s6-principal-tenancy-threat-model.md`; and
-- the current handoff in `docs/handoffs/INDEX.md`.
-
-Track S is not complete. S0-S6 are published through PRs #190, #191, #193,
-#194, #195, #199, and #223, and PR #222 landed the later S1/S5 counterexample
-repairs. S6's exact source head `fbefb81` passed the three required checks after
-185 focused strict-no-skip tests and three review-repair cycles; its final
-Codex review found no major issue before merge. PR #224's structured issue
-forms and guarded private GitHub Release workflows are now protected-main fact,
-not another Track S stage. Live verification found only existing issue #212
-open and no milestones; the forms establish intake, not a populated backlog.
-The repository has the admin-controlled `PRIVATE_RELEASE_APPROVER` variable,
-and no new issue, milestone, tag, release, or deployment was created during
-setup.
-The historical native LoCoMo ENT measurement remains 0.0000. Native corpus
-freeze/review, scorer eligibility, and promotion remain S9 work; the 5/5 S7
-conformance fixture is not a production-corpus or quality-lift claim.
-S8-S10 stay dependency-ordered:
-
-```text
-S6 principal tenancy published
-  -> S7 admissible semantic graph (published, PR #226)
-  -> S8 one coherent retrieval engine (next)
-  -> S9 matched multi-benchmark qualification
-  -> S10 required CI, release, and deployment proof
-```
-
-PR #222 closed the bounded, non-design findings that could be reproduced
-safely: capped server `/chat` provider responses (2026-08-12
-audit F-5), create-only REST `/persist` collisions (audit F-6), deleted-record
-vector-outbox replay (audit F-10), deterministic SQL-leg ties (audit F-11),
-zero-confidence activation leakage, duplicate
-OpenAPI operation IDs, disposable LoCoMo adapter state, and linked-worktree
-pre-push misclassification. These are protected-main facts at `a177852`;
-internal runtime/store persistence deliberately remains an upsert.
-
-Those hyphenated IDs belong to the 2026-08-12 full-repository audit, not the
-campaign's activation-time F1-F22 matrix.
-
-Current graph evidence proves structure, provenance machinery, and parity, not
-a graph-caused quality advantage. The matched 1,542-case LoCoMo graph/non-graph
-arms tie at `0.776048` because the snapshot has zero admissible semantic
-relations; WANDR and G7/R6 are saturated parity lanes with zero graph-
-incremental hits. A top-level claim therefore requires the causal portfolio in
-the graph-readiness report, not another unsupported headline score.
-
-The Textual TUI is a real seven-tab, runtime-backed local operator surface, but
-the target Review/Curate/Health workflow is incomplete. The operator-authored
-source was located at `/media/terrabyte/External2/SEAM TUI Concept.dc.html` and
-audited as a visual mock/prototype, not a runnable replacement. A separate
-`feat/tui-concept-shell` candidate is porting that concept; neither it nor the
-external source is shipped behavior.
-The served WebUI is a prototype that mixes live API calls with simulated
-success, mock persistence, browser-stored credentials, and fabricated metrics.
-It is not a beta operator surface and should be made truthful and secure before
-a visual restyle.
-
-Hosted deployment remains blocked on S8-S10 qualification and a production
-topology that proves TLS, shared rate limiting, service supervision,
-backup/restore, and disaster recovery. Trusted-loopback single-user use remains
-the deployment boundary unless S6 principal mode is explicitly configured; its
-legacy token-only mode is likewise trusted and does not provide tenancy.
-
-The 2026-08-12 full-repository audit and its detailed prior headline remain
-available at `docs/audits/2026-08-12-full-repo-audit.md` and
-`docs/handoffs/2026-08-12-deep-audit.md`; they are historical evidence, not
-the current router.
+GitHub currently reports the canonical repository as public. Root package
+metadata still declares `seam-runtime` 2.4.0 with `Private :: Do Not Upload`;
+existing license files and the PyPI prohibition are unchanged. The
+[packaging stream](docs/status/packaging-licensing.md) separates source visibility,
+existing releases, future artifact eligibility, and migration work. No naming
+change in these docs publishes a package or deploys a service.
 
 ## Status streams
 

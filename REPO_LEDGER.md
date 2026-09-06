@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-03
+Last updated: 2026-09-06
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -8,14 +8,13 @@ and `HISTORY_INDEX.md`.
 
 ## Startup Read Order
 
-1. `PROJECT_STATUS.md` (current state)
-2. `AGENTS.md` (cross-agent protocol)
-3. `HISTORY_INDEX.md` (history map)
-4. `HISTORY.md` only by surgical read using indexed line/byte ranges
+`AGENTS.md` owns the canonical startup sequence. Follow the current handoff for
+bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Project Identity
 
-- `SEAM`: runtime/tool identity
+- `SEAM`: Surface Encoded Agent Memory; runtime/tool identity
+- Product/deployment names: `docs/PRODUCTS.md`; launch order: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634)
 - `MIRL`: canonical memory IR
 - `PACK`: derived prompt-time context representation
 - `SEAM-LX/1`: exact machine-text envelope for lossless workflows
@@ -33,7 +32,7 @@ and `HISTORY_INDEX.md`.
   Exact/Context/Narrative contracts) define what SEAM IS. Every change to SEAM
   product behavior is measured against them. Agents MUST read the spec before
   redesigning, "improving", or declaring a component broken (AGENTS.md Session
-  Start item 6). A component is only "broken" if it fails the contract it is
+  Start item 7). A component is only "broken" if it fails the contract it is
   actually supposed to satisfy — e.g. RC/1's contract is lossless + directly
   queryable + exact rebuild (NOT token reduction; token reduction lives in PACK,
   the symbol loop, and the Track J codec); the former overfit `compile_nl` stub
@@ -44,28 +43,24 @@ and `HISTORY_INDEX.md`.
   ad-hoc properties. This decision exists because the spec was historically
   absent from the mandatory read order, which let implementations drift from the
   design (the overfit `compile_nl` stub being the clearest case).
-- `Canticle-AI-Research/Seam` is the canonical proprietary private development
-  repository. The locally configured legacy URL `BlackhatShiftey/Seam`
-  currently redirects to that organization repository; treat the two owner
-  strings as one repository identity, not two publication targets. MIRL's
+- `Canticle-AI-Research/Seam` is the canonical development repository and is
+  reported public by GitHub at the HISTORY#634 baseline. The legacy
+  `BlackhatShiftey/Seam` coordinate appears in older metadata; use the canonical
+  organization coordinate for new documentation. Visibility does not change
+  license terms or establish artifact eligibility. Current release constraints
+  are routed through `docs/status/packaging-licensing.md`. MIRL's
   authored specification, source, schemas as expressed,
   documentation, examples, tests, diagrams, and related implementation
   material are copyrighted Reserved Materials under `LICENSE`. HS/1's authored
   specification, container expression, visual designs, codecs, surface
   library, source, docs, tests, and related implementation material are
   separately named copyrighted Reserved Materials under the same terms.
-- The SEAM Distributed Runtime, version 2.4.0 or later, is published under the
-  Business Source License 1.1 as of 2026-07-27 (`LICENSE` v2.1 §7A, parameters
-  in `LICENSES/BUSL-1.1.txt`). Change Date is four years per published version;
-  Change License is MPL 2.0. The Additional Use Grant permits free self-hosting
-  at any scale, including internal commercial production use, plus
-  non-commercial research, education, and publication of benchmark results; it
-  withholds offering the runtime to third parties on a hosted or embedded basis
-  as a paid competitive offering. Membership in the Distributed Runtime is
-  decided by publication plus a conspicuous per-file BUSL notice, never by path
-  — a shared filename, purpose, interface, or ancestry grants nothing.
-  Publishing one version waives nothing in unpublished versions and creates no
-  obligation to publish any future version.
+- `LICENSE` section 7A and `LICENSES/BUSL-1.1.txt` define the Distributed
+  Runtime grant. Membership requires the exact published file versions,
+  manifest, and notices specified by `LICENSE`; a repository path or public
+  visibility is not a substitute. Use the controlling texts for terms and the
+  L1 packaging packet for candidate membership. This documentation baseline
+  grants no new rights and changes no license file.
 - `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that
@@ -150,94 +145,52 @@ and `HISTORY_INDEX.md`.
   acquisition behavior.
 - Private contributions use the proprietary contribution grant in
   `LICENSE`/`CONTRIBUTING.md` unless a separate signed agreement controls.
-- SINGLE PACKAGE POLICY. `seam-runtime` (root `pyproject.toml`) is the ONLY
-  package definition in this repository. It is the full private runtime with
-  readable MIRL and HS/1 source, used to operate the hosted service on
-  operator-controlled infrastructure. It is not distributed. It must retain the
-  `Private :: Do Not Upload` classifier as the tripwire against an accidental
-  PyPI upload of a full-MIRL runtime.
-- The retrofitted distribution split is RETIRED. The compiled `seam-self-host`
-  package, the API-only `public_pkg/` shim, `selfhost/`, their build and verify
-  tooling, the self-host release workflow, and the boundary audit suite were all
-  removed. A public edition will be built separately, from the ground up, with
-  separation as an architectural property rather than a boundary retrofitted
-  onto a codebase that was not designed for it. `LICENSES/BUSL-1.1.txt` is
-  already parameterized for that future edition (Licensor, Licensed Work 2.4.0+,
-  self-hosting permitted, competing hosted resale withheld, four-year Change
-  Date to MPL 2.0) and is retained unused until then.
-- Artifacts already published are unaffected and stay live: `seam-self-host`
-  1.1.2 and Apache-2.0 `seam-client` 2.0.0 on PyPI, and legacy Apache-2.0
-  `seam-runtime` 1.3.1 (yanked, deliberately retained as a rollback point).
-  Removing the in-tree tooling does not unpublish them; it means no further
-  releases of them are produced from this repository.
+- PRODUCT DIRECTION. Canticle SEAM Suite is the self-hosted operator product;
+  Canticle SEAM API is the paid hosted service and SEAM WebUI its operator
+  surface. `docs/PRODUCTS.md` owns these definitions. The former prohibition on
+  reconsidering product shape is superseded by the operator's launch direction
+  at HISTORY#634. Existing runtime invariants and artifact boundaries still
+  apply; a product decision does not silently change package contents.
+- CURRENT BUILD. The root `pyproject.toml` still defines only `seam-runtime`
+  2.4.0, containing the full runtime and readable MIRL/HS/1 source. Preserve
+  `Private :: Do Not Upload` and the existing artifact/secret gates until a
+  separately reviewed distribution manifest and qualification establish the
+  intended new artifacts. Candidate names and migration requirements live in
+  `docs/status/packaging-licensing.md`; none are published by this decision.
+- RETIRED IMPLEMENTATIONS. The compiled self-host build, `public_pkg/` shim,
+  and mirror tooling were removed. Do not restore them as an incidental naming
+  fix. Design the Suite boundary explicitly from current requirements. Legacy
+  releases remain historical artifacts with their own attached terms; inspect
+  their exact metadata and contents when preparing migration.
 - GitHub Issues are the coordination intake, not a replacement for SEAM's
   status/history authorities. Blank issues are disabled. Structured forms own
   bugs, features, research/benchmark tasks, and private-runtime release
   proposals; sensitive security findings route to private advisories. Issue
   closure, labels, and milestones do not by themselves prove implementation,
   qualification, publication, or deployment.
-- `.github/workflows/package-release.yml` is RETAINED and is the only remaining
-  release path: serialized manual dispatch is restricted to the default branch
-  and an exact new SemVer already present in `pyproject.toml`; it builds exactly
-  one private `seam-runtime` wheel and sdist, rejects unsafe members and
-  secret-shaped packaged content, smoke-tests the installed commands, emits and
-  verifies `SHA256SUMS.txt`, and creates a private GitHub Release draft with
-  categorized generated notes. After environment approval it revalidates
-  the live protected head immediately before atomically reserving the exact tag,
-  uploads assets into the draft, and leaves publication to the separate
-  environment-gated `publish-private-release.yml` follow-up after an operator
-  reviews the generated notes for private data and unsupported claims. The
-  follow-up runs only on a fresh first attempt whose original and triggering
-  actors both match the account named by the repository
-  `PRIVATE_RELEASE_APPROVER` Actions variable, requires that target to remain
-  the current protected-main head, and binds the reviewed draft byte-for-byte
-  to the immutable artifact from the named successful preparation run. It
-  rechecks the lightweight tag, reviewed manifest and notes digests, exact
-  checksum coverage, downloaded artifact name/version metadata and content,
-  archive member paths and the complete decompressed sdist stream, exact
-  release title, text secret scan, unchanged draft fingerprint, and live
-  protected head immediately before publication. The operator must attest the
-  live repository immutability setting, and the follow-up verifies the
-  published release's immutable flag or removes the mutable release/tag. A
-  failed attempt removes only its exact unpublished draft/tag, while ambiguous
-  or already-published state is left for operator review. Prerelease SemVer is
-  marked as a GitHub prerelease. It has no PyPI target, public publish step, or
-  `id-token` permission. Private 2.4.0 is live as GitHub release `v2.4.0`,
-  pinned to protected-main merge
-  `01f35817810f1490c88e9f832d92c8f1aab3944d`; its downloaded wheel and sdist
-  passed clean installation, SQLite, and live-pgvector API proofs.
-- The compiled `seam-self-host` distribution is RETIRED. Published 1.1.2 stays
-  live on PyPI and keeps working; removing the in-tree tooling means no further
-  releases are produced from this repository. Its package definition, Docker
-  builder, content ratchet, and boundary proofs were removed with the rest of
-  the retrofitted split. Do not reconstruct them here — a public edition is a
-  separate ground-up build with separation designed in.
-- Apache-2.0 `seam-client` 2.0.0 is live at
-  `https://pypi.org/project/seam-client/`. It was published from reviewed
-  public `Seam_Runtime/main` through the protected `pypi` environment and PyPI
-  Trusted Publishing/OIDC. Live metadata and clean isolated installs were
-  verified. No stored PyPI token is used, and this release does not change the
-  private `seam-runtime` PyPI prohibition.
-- The private GitHub repository has `private-package-release` and `pypi`
-  environments restricted to protected branches. The current account plan did
-  not accept wait-timer or required-reviewer protection rules, so do not
-  describe either environment as reviewer-approved or time-delayed. Private
-  release publication instead fails before the write-permission job unless
-  both `github.actor` and `github.triggering_actor` match the admin-controlled
-  `PRIVATE_RELEASE_APPROVER` repository variable, and reruns are rejected; the
-  protected-branch environment remains a second deployment boundary. PyPI
-  itself still requires the separate Trusted Publisher registration before any
-  OIDC upload can work.
+- RELEASE AUTOMATION. `package-release.yml` prepares reviewed root artifacts
+  and a GitHub draft; `publish-private-release.yml` performs the separate
+  operator-gated publication. Preserve their exact-head, artifact, digest,
+  and publisher controls. Neither workflow's historical name proves private
+  visibility. Reconcile destination visibility, artifact membership, and live
+  environment protections in L1 before dispatch. The root build has no PyPI
+  upload job and retains `Private :: Do Not Upload`.
+- EXISTING DISTRIBUTIONS. GitHub lists release `v2.4.0`, and PyPI reports
+  legacy `seam-runtime` 1.3.1, `seam-self-host` 1.1.2, and `seam-client` 2.0.0
+  metadata at HISTORY#634. Current installability, exact contents, ownership,
+  and migration behavior require their own checks; older clean-install results
+  are not fresh qualification. The separate `Seam_SDK` repository is the local
+  SDK integration candidate, not the public HTTP client.
 - Security-sensitive reports should be handled privately through `SECURITY.md`;
   do not disclose private data, credential material, customer data, or exploit
   details in public issues.
-- `docs/PROTECTION_MODEL.md` documents the public/private repo split and must
-  not be added to the mandatory startup read list unless the task touches
-  licensing, contribution policy, repo protection, or public/private separation.
+- `docs/PROTECTION_MODEL.md` is historical design input about the retired
+  split. Current product and release decisions route through `docs/PRODUCTS.md`
+  and `docs/status/packaging-licensing.md`; license files govern rights.
 - Protection changes must not silently alter runtime behavior, CLI commands,
   installer behavior, dashboard behavior, API behavior, benchmark behavior, or
-  history tooling. Package and release metadata must accurately identify the
-  private proprietary distribution.
+  history tooling. Package and release metadata must identify the exact
+  artifact and its controlling terms.
 - SQLite is canonical source of truth.
 - Supported file-backed `SQLiteStore` instances hold a shared, cross-process
   lease for the full store lifetime. Byte-replacing maintenance acquires the

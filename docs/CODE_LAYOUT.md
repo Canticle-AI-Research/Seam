@@ -124,23 +124,16 @@ not have to infer what works from directory names alone.
   `verify_private_artifacts.py` separately opens the built private wheel and
   sdist, rejects unsafe/non-regular/credential-shaped members, and applies the
   canonical content-free secret scanner before GitHub Release upload.
-- SINGLE PACKAGE. `seam-runtime` (root `pyproject.toml`) is the only package
-  definition: the full private runtime with readable MIRL and HS/1 source, used
-  to operate the hosted service. The separate compiled `seam-self-host`
-  distribution, the API-only `public_pkg/` shim, their build/verify tooling, and
-  the boundary audit suite were removed after the retrofitted split proved to be
-  the wrong shape. A public edition will be built separately, from the ground up,
-  with separation as an architectural property rather than a gate bolted on
-  afterward. `Private :: Do Not Upload` is retained as the tripwire against an
-  accidental PyPI upload of a full-MIRL runtime.
-- `.github/workflows/package-release.yml` - `workflow_dispatch`-only private
-  release: a `build` job (version-matches-pyproject check, wheel+sdist,
-  `twine check`, wheel smoke install, 7-day artifact) and a
-  `private-github-release` job gated on the `private-package-release`
-  environment that creates a GitHub Release in this private repo. It has **no
-  PyPI job, no publish target selector, and no `id-token` permission**, so it
-  cannot publish to an index. `Private :: Do Not Upload` (above) is the
-  independent tripwire.
+- CURRENT BUILD. Root `pyproject.toml` defines `seam-runtime` 2.4.0, the full
+  runtime with readable MIRL and HS/1 source and `Private :: Do Not Upload`.
+  Retired compiled self-host and API-only shim tooling must not be restored
+  implicitly. The [product map](PRODUCTS.md) defines the Suite/API direction;
+  [packaging status](status/packaging-licensing.md) owns artifact migration.
+- `.github/workflows/package-release.yml` prepares a root wheel/sdist and
+  a GitHub draft; `publish-private-release.yml` is the separate operator-gated
+  publication step. Their historical names do not prove private visibility.
+  The preparation workflow has no PyPI upload job. Reconcile exact artifact
+  membership and destination visibility before dispatch.
 - `tools/*.py` - active benchmark/projection helper scripts.
 - `scripts/` - active operator scripts and guarded runners.
 - `installers/` - active installation entrypoints and installer docs.

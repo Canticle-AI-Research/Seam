@@ -4,6 +4,16 @@
 
 _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
+## Launch direction
+
+The [product map](../PRODUCTS.md) and [launch plan](../roadmap/SEAM_LAUNCH.md)
+now govern operator-surface priorities (HISTORY#634). Suite includes the TUI
+and an independently openable browser dashboard with the diamond constellation
+overview and separate knowledge graph, reasoning graph, database, and benchmark
+sections. SEAM WebUI operates the paid API. Complete the products before the
+expensive benchmark score campaign while retaining existing correctness gates.
+This direction does not change the implementation evidence below.
+
 ## Stable
 
 - Core runtime paths: compile, verify, persist, search, context, benchmark.
@@ -140,7 +150,7 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   leaking tenant, MIRL, policy, or graph internals through `/v1`.
 - S7 is published through PR #226 at protected `main@3385343` with admissible
   semantic ingest, temporal/scoped identity contracts, and exact retrieved-ENT
-  evidence. S8 surface parity is the next dependency-ordered stage.
+  evidence. The current core handoff places R2 before S8 freeze.
 - Track S S8 must prove every shipped surface returns the same retrieval IDs and
   order as direct `SeamRuntime.retrieve()` under the same request.
 - Turn the SEAM CLI into a first-class agent CLI (model routing, tool execution,

@@ -1,7 +1,30 @@
 # SEAM Improvement Roadmap & SOP Blueprint
 
-**Last updated:** 2026-08-01
+**Last updated:** 2026-09-06
 **Status:** Active planning document. This is the living roadmap for SEAM development beyond the stable v1 core.
+
+## Track Launch — Suite and API launch sequence
+
+<!-- seam:item
+id: roadmap:track:Launch
+status: in-progress
+status-since: 2026-09-06
+status-by: history:634
+supersedes: none
+topics: roadmap, plan, naming, surface, dashboard, graph, verify
+priority: 1
+phase: 1
+-->
+
+**Current priority:** documentation baseline, then packaging/SDK migration
+preparation. R2 remains the next runtime slice before S8 freeze. Complete
+Suite and API/WebUI before expensive benchmark score optimization, preserving
+existing correctness gates and S9/S10 qualification requirements.
+
+The [launch plan](docs/roadmap/SEAM_LAUNCH.md) owns the bounded L0-L6 acceptance
+checklist; [SEAM products](docs/PRODUCTS.md) owns names and deployment roles.
+Older tracks below are component plans and historical milestones, not a claim
+that the new products are finished. Use this sequence for launch ordering.
 
 ## 2026-05-01 Functional Visual Memory Target
 
@@ -189,41 +212,36 @@ priority: 0
 phase: 1
 -->
 
-**What:** Make the browser dashboard feel like an IDE/operator workspace, using
-the prototype in `experimental/webui/` as the visual target. The shell should
-keep an activity bar, explorer/files view, tabbed main editor/workspace, agent
-pane, terminal/command surface, memory view, ingest view, benchmark view,
-settings, and status bar.
+**What:** Complete the browser operator experience from the shipped prototype
+at `seam_runtime/webui/dashboard.html`, its API client, and the intended design
+reference. The former `experimental/webui/` location is retired; do not create
+new active work there. The [product map](docs/PRODUCTS.md) separates the Suite
+browser dashboard from the hosted API's SEAM WebUI.
 
-**Role:** This is the future REST API GUI, not a replacement for the stable
-Textual terminal dashboard yet. Textual remains the terminal-first dashboard;
-the web dashboard becomes the richer browser surface served by or alongside
-`seam serve`.
-
-**Current prototype:** `experimental/webui/seam-dashboard-prototype.html`
-contains the IDE-like SEAM dashboard mockup and supporting assets. It currently
-uses demo state and must be wired to real SEAM endpoints before runtime
-promotion.
+**Role:** Suite uses a local operator surface alongside its TUI. Hosted WebUI
+uses customer-authorized API contracts. Shared Canticle components and
+navigation do not imply shared permissions or artifact contents.
 
 **SOP:**
-1. Keep the prototype under `experimental/webui/` until it has real API wiring,
-   local build/test commands, and no CDN/Babel runtime dependency.
-2. Split the single-file prototype into a maintainable app shell, API client,
-   state stores, panes, and shared visual tokens.
-3. Wire first to existing REST endpoints: `/health`, `/stats`, `/compile`,
-   `/search`, `/context`, `/persist`, and `/lossless-compress`.
-4. Add backend endpoints only when the GUI needs behavior that the REST API
-   cannot currently provide: ingest file, benchmark run/gate, surface
-   list/show/query/repair, event logs, and model/chat routing.
-5. Keep secrets local. API keys and bearer tokens must be entered through local
-   environment/config surfaces and must not be committed.
-6. Package only after verification proves browser UI state matches real SEAM
-   runtime state.
+1. Confirm the intended reference and identify the current prototype's live,
+   simulated, and unavailable behaviors before restructuring it.
+2. Specify maintainable app, client, state, and visual-component boundaries;
+   verify any new build/source path explicitly rather than reviving an archive.
+3. Local Suite adapters may use supported local operator endpoints. Hosted
+   WebUI must use authorized customer-scoped contracts; do not expose legacy
+   private REST routes to fill gaps in hosted graph inspection.
+4. Require actual backend acknowledgement, explicit error/unavailable states,
+   and the operator-authorized credential flow; remove browser credential
+   persistence and fabricated success from accepted workflows.
+5. Review real desktop/mobile renders and interaction tests, then verify
+   packaged UI assets against the intended deployment.
 
-**Gate:** `seam serve` or a dedicated `seam web` command can open the IDE-like
-dashboard, connect to a local SEAM API, show real health/stats/search/context
-data, run at least one compile-or-search workflow, and pass browser smoke tests
-without breaking `seam dashboard`.
+**Gate:** Existing `seam serve` / `seam webui` open the Suite's supported local
+browser flow without breaking the TUI. The API customer's WebUI is separately
+qualified for isolation and permissions. Graph/database/glassbox acceptance
+and the order of remaining work are in the [launch plan](docs/roadmap/SEAM_LAUNCH.md).
+
+---
 
 ### A-CLI: First-Class Agent CLI
 
@@ -326,7 +344,7 @@ phase: 1
 
 ---
 
-### A3: Benchmark History Graphs (ASCII sparklines)
+### A3: Benchmark History Graphs
 
 <!-- seam:item
 id: roadmap:track:A3
@@ -339,25 +357,24 @@ priority: 1
 phase: 1
 -->
 
-**What:** In the Benchmark tab, show a sparkline graph of recall@k and token savings across the last N stored runs, so you can see whether the system is improving or regressing over time.
+**What:** Browser glassbox charts over saved benchmark runs, with configuration,
+per-case evidence, executed retrieval paths, and comparable metrics visible.
+This section is independently loadable in the Suite dashboard. See
+[launch acceptance](docs/roadmap/SEAM_LAUNCH.md).
 
-**How:**
-- Query `benchmark_runs` table from SQLite for last 10 runs
-- Compute per-family summary metrics per run
-- Render as ASCII sparklines using a lightweight library (`sparklines`, `plotext`, or hand-rolled)
-- Show in the Benchmark tab's third panel column
+**SOP:** Use existing saved-run contracts, resolve each plotted value to its
+run evidence, label incomparable or unrun measurements, and review the rendered
+browser interaction. A TUI summary may link or launch the browser view; the
+former ASCII-first implementation prescription is retired by HISTORY#634.
 
-**SOP:**
-1. Add a `load_benchmark_history(limit)` helper to `storage.py`
-2. Add `_build_benchmark_history_graph()` to `DashboardApp`
-3. Swap it into the Benchmark tab layout alongside the existing summary table
-4. Sparkline renders as a single Rich `Text` object — no external rendering dependency
-
-**Gate:** Must work with zero runs (show empty state gracefully) and with 1+ runs.
+**Gate:** Correct empty, loading, unavailable, and failure states; plotted
+values match saved evidence; browser rendering is reviewed. No paid benchmark
+run is needed to implement the viewer over existing or clearly labeled test
+fixtures.
 
 ---
 
-### A4: Vector Space Visualization
+### A4: Graph Exploration and Optional Vector Projection
 
 <!-- seam:item
 id: roadmap:track:A4
@@ -370,23 +387,25 @@ priority: 1
 phase: 1
 -->
 
-**What:** A new `vectors` command in the dashboard (or a standalone `seam vectors` CLI command) that projects stored embeddings to 2D using UMAP or t-SNE and renders a scatter plot colored by record kind.
+**What:** The Suite's browser dashboard presents the diamond constellation
+overview and independently loadable knowledge and reasoning graphs. Record
+inspection links each displayed item to its evidence. The knowledge database
+and benchmark glassbox are independently loadable companion sections, as
+specified in [SEAM products](docs/PRODUCTS.md).
 
-**Do we need a separate tool?** No — but it needs optional dependencies. The projection math (`umap-learn` or `scikit-learn` for t-SNE) is heavy. Keep it behind an optional extra (`seam-runtime[viz]`). The rendering can be ASCII (via `plotext`) in the terminal or HTML canvas via a web artifact.
+**SOP:** Confirm the intended browser reference, consume existing graph
+contracts, preserve scope/time/lifecycle semantics, and review real selection,
+filtering, evidence navigation, and responsive rendering. The TUI controls or
+launches the browser surface; terminal rendering is not a substitute for it.
 
-**How:**
-1. Add `viz` optional extra to `pyproject.toml`: `umap-learn>=0.5`, `plotext>=5.0`
-2. Add `seam_runtime/viz.py`: load vectors from SQLite, run UMAP, return 2D coordinates + kind labels
-3. Add `vectors` command to dashboard and CLI
-4. Render: ASCII scatter via `plotext` for terminal; HTML canvas artifact for richer view
+A vector scatter projection is an optional later view with a separately
+specified purpose and dependency budget. Geometric proximity must not be
+presented as a verified semantic relationship. The former ASCII-first and
+unqualified optional-extra prescription is retired by HISTORY#634.
 
-**SOP:**
-1. Implement `viz.py` with graceful `ImportError` guard (same pattern as `rich` guard)
-2. Add `vectors` command to `_build_command_parser` in `DashboardApp`
-3. ASCII render first; HTML artifact as a follow-on
-4. Test: mock the embedding data, assert 2D projection output shape
-
-**Gate:** Must degrade gracefully if `umap-learn` is not installed — show a clear install hint.
+**Gate:** Independent graph loading, exact evidence links, correct boundary
+filtering and failure states, plus reviewed desktop/mobile renders. Optional
+projection availability does not block ordinary graph inspection.
 
 ---
 
@@ -1636,52 +1655,22 @@ priority: 3
 phase: 1
 -->
 
-**Status:** Done for the current release boundary. Private release plumbing
-and fail-closed gates are implemented; the opaque `/v1` API is merged; and the
-separately authored Apache-2.0 `seam-client` 2.0.0 SDK is live on PyPI.
-Hosted availability remains a separate product activation decision.
+**Status:** Historical package/release milestone. Its completed marker does
+not qualify the new Suite or hosted API for launch.
 
-**Distribution target:** private authenticated distribution from
-`BlackhatShiftey/Seam`. The legacy public `BlackhatShiftey/Seam_Runtime`
-snapshot remains available under the license attached to its published
-versions, but private-to-public synchronization is frozen as of 2026-07-24.
-Package name `seam-runtime` remains the intended private package name.
+The root build is still `seam-runtime` 2.4.0 with `Private :: Do Not Upload`.
+The canonical repository is `Canticle-AI-Research/Seam`; GitHub reports it as
+public at HISTORY#634. Existing GitHub workflows retain historical "private"
+labels, which do not prove destination visibility. The old shim, mirror, and
+compiled self-host build are retired implementation paths.
 
-**License gate:** the private repository and new MIRL- and HS/1-related material
-are proprietary, except the SEAM Distributed Runtime, which is published under
-BUSL-1.1 as of 2026-07-27 (`LICENSE` v2.1 §7A, `LICENSES/BUSL-1.1.txt`; Change
-Date four years per version, Change License MPL 2.0). Exact versions already
-published under Apache-2.0 keep that license; later private versions do not
-inherit it. A runtime distribution under BUSL requires its own published
-manifest, its own BUSL-aware artifact scanner, and per-file BUSL notices on
-exactly the files it ships — it must not reuse the thin-shim allow-list, and it
-must still export no MIRL or HS/1 Reserved Materials beyond the published set.
-
-Phase work:
-
-1. Complete remaining project metadata (authors and long-description content
-   type); package URLs, keywords, package discovery, private license metadata,
-   and version 2.4.0 are set.
-2. The manual Package release workflow builds wheel+sdist, runs `twine check`,
-   smoke-installs the wheel (with `seam-client==2.0.0`), and retains reviewed
-   artifacts for 7 days.
-3. Private-distribution release workflow: the `private-github-release` job
-   requires the `private-package-release` environment, attaches artifacts to a
-   GitHub Release in this private repo, and keeps `Private :: Do Not Upload`.
-   There is **no `pypi` environment and no publish job** — the workflow has no
-   target selector and no `id-token` permission, so publishing to an index is
-   not reachable from it. The account plan did not accept a wait-timer rule.
-4. Do not publish the current private package or resume the legacy mirror.
-   `seam-client` is a separate Apache-2.0 artifact under the frozen public
-   repository's `sdk/` build root. Its sync/async clients and agent hooks call
-   opaque `/v1` memory endpoints; wheel/sdist allow-list gates reject private
-   runtime paths and markers. The private MIRL/HS/1-bearing artifacts remain
-   blocked from PyPI.
-5. Done: merged private PRs #163/#164 and public PR #1, configured the public
-   repository's protected `pypi` environment and pending Trusted Publisher,
-   then published exact version 0.1.0 from reviewed public `main`. Workflow
-   30107050434 and a fresh PyPI install passed. Hosted access is a separate
-   activation gate.
+The current [packaging stream](docs/status/packaging-licensing.md) owns observed
+coordinates and the ordered L1 migration checklist. The
+[product map](docs/PRODUCTS.md) defines Suite, API, WebUI, and the two SDK roles.
+Candidate names are not reserved or published. Exact artifact membership,
+existing license terms, publisher access, clean installs, and upgrade behavior
+must be resolved before a new release. HISTORY#634 supersedes this track's old
+private-repository assumptions; it does not rewrite prior release events.
 
 ---
 
@@ -1698,18 +1687,12 @@ priority: 3
 phase: 1
 -->
 
-**Status:** Done / superseded. This track described restoring modules to the
-compiled self-host edition. That edition, its entitlement gate, and the
-retrofitted split-distribution tooling have since been removed. SEAM is one full
-private package with readable MIRL/HS-1 source; there is no compiled self-host
-surface to expand.
-
-The historical measurements in HISTORY#477/#480 remain valid for the retired
-artifact, but they are not current implementation instructions. Any future
-public edition must be designed separately from the ground up, with its own
-repository, dependency boundary, license, manifest, and verification contract.
-Do not restore the removed self-host modules or entitlement path into this
-private package.
+**Historical retirement milestone:** the old compiled self-host artifact and
+its in-tree implementation were retired. This marker does not describe the
+new Suite's completion or prescribe its repository layout. Track Launch and
+L1 own the new distribution design, with explicit file membership, dependency,
+license, and verification boundaries. Do not revive the removed entitlement
+or split tooling as an incidental rename.
 
 ---
 
@@ -2032,7 +2015,7 @@ Now - retrieval feedback loop + browser dashboard / REST API GUI + context strea
 
 Next - dashboard and agent ergonomics
 - A2: Benchmark progress bar
-- A3: ASCII sparkline graphs
+- A3: Browser benchmark history graphs
 - A6: Presentation mode
 - D1: SEAM as Claude/Gemini/Codex tool set
 
@@ -2082,7 +2065,7 @@ Phase 1 (Now — functional visual memory + foundational polish)
 
 Phase 2 (Dashboard enhancement)
 ├── A2: Benchmark progress bar
-├── A3: ASCII sparkline graphs
+├── A3: Browser benchmark history graphs
 ├── A1: NL→MIRL compilation animation
 └── A6: Presentation mode
 
