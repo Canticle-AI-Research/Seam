@@ -2,14 +2,17 @@
 
 **Status:** in progress
 **Activated:** 2026-08-01 via `HISTORY#511`
-**Latest evidence:** S0-S7 are published. The bounded S8 mechanism slice is
-published through PR #228 at `main@bb156e3` and HISTORY#605-#607; S8 remains
-open at the boundary-only SQL decision and the explicitly S9-gated legacy
-default decision. The current controlled execution plan is
+**Latest evidence:** S0-S7, the original S8 mechanisms, and D1-D4/T1/G1/R1 are
+protected-main source. R1 resolved the boundary-only SQL decision and retained
+the legacy default explicitly. R2 and all S8 local gates are qualified at
+HISTORY#640; exact candidate CI, independent release qualification, protected
+merge and exact-main verification remain before the S8 freeze claim. S9/S10
+remain open. The current controlled execution plan is
 [`TRACK_S_S8_S10_PRODUCTION_CORE.md`](TRACK_S_S8_S10_PRODUCTION_CORE.md).
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** S0-S7 and the named S8 mechanism slice are merged.
+**Publication boundary:** the protected baseline is `main@5f115664` (PR #253).
+The R2 backend/S8 freeze successor is locally qualified, pending publication.
 Later audit findings enter the completion path only after reproduction against
 current protected main and a governing-invariant check.
 
@@ -443,7 +446,7 @@ and identity policy.
 **Findings:** F3, F8, F9.
 **Dependencies:** S1, S5, S6, and S7.
 
-**Status (2026-08-25): the mechanism slice is published through merged PR #228
+**Historical mechanism checkpoint (2026-08-25): the mechanism slice is published through merged PR #228
 at protected `main@bb156e3` (HISTORY#605, #606, #607). S8 is NOT complete.** All six exit-gate bullets
 below now have passing counterexample tests, each confirmed red before green.
 Two deployment-audit sub-items are also closed: the process-lifetime flag cache
@@ -454,6 +457,13 @@ undecided, and `search_ir` still defaults to `legacy-weighted/1` because
 retiring it would change every recorded LoCoMo/mem0 arm, which is an S9-gated
 measurement decision requiring an operator-approved paid re-run. Nothing here
 is a quality, graph, or benchmark claim; S9 remains the promotion gate.
+
+**Completion successor (2026-09-07, HISTORY#640):** R1 recorded the
+boundary-only SQL decision and deliberately retained the legacy default. R2
+implementation and all original exits now have local qualification in
+[the S8 evidence matrix](../../tests/docs/s8-completion.md). The current
+handoff distinguishes that candidate from protected merge/exact-main freeze.
+S9 and S10 remain separate.
 
 **Exit gate (all required):**
 

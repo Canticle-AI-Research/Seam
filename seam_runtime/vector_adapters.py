@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import heapq
 import inspect
+import json
 import re
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Iterable, Protocol
 
 from .mirl import MIRLRecord
 from .models import EmbeddingModel, cosine
@@ -17,6 +19,19 @@ from .vector import (
 
 # PostgreSQL SQLSTATE for "undefined_table".
 _UNDEFINED_TABLE_SQLSTATE = "42P01"
+_ORIGINAL_VECTOR_VERSION = "original-float64/1"
+_VECTOR_PAGE_SIZE = 128
+
+
+@dataclass
+class _VectorCandidate:
+    score: float
+    record_id: str
+
+    def __lt__(self, other: _VectorCandidate) -> bool:
+        # The heap root is the worst retained result, including the ID cutoff.
+        return (self.score < other.score or
+                (self.score == other.score and self.record_id > other.record_id))
 
 
 class VectorAdapter(Protocol):
@@ -71,6 +86,7 @@ class SQLiteVectorAdapter:
     path: str
     model: EmbeddingModel
     name: str = "sqlite-vector"
+    search_mode: str = field(default="exact", init=False)
     index_records_atomic: bool = field(default=True, init=False, repr=False)
 
     def __post_init__(self) -> None:
@@ -124,6 +140,7 @@ class MemoryVectorAdapter:
 
     model: EmbeddingModel
     name: str = "memory-vector"
+    search_mode: str = field(default="exact", init=False)
     index_records_atomic: bool = field(default=False, init=False, repr=False)
     _rows: dict[str, tuple[MIRLRecord, list[float]]] = field(
         default_factory=dict, init=False, repr=False
@@ -161,11 +178,12 @@ class MemoryVectorAdapter:
 
 @dataclass
 class PgVectorAdapter:
-    dsn: str
+    dsn: str = field(repr=False)
     model: EmbeddingModel
     table_name: str = "seam_vector_index"
     name: str = "pgvector"
     ef_search: int = 40
+    search_mode: str = field(default="exact", kw_only=True)
     # One connection transaction covers every record in index_records. Runtime
     # compensation must not call record-wide delete_records here: a shared
     # table may contain rows for other embedding models.
@@ -173,6 +191,8 @@ class PgVectorAdapter:
 
     def __post_init__(self) -> None:
         _validate_table_name(self.table_name)
+        if self.search_mode not in {"exact", "approximate"}:
+            raise ValueError("search_mode must be 'exact' or 'approximate'")
         self.ann_index_status: str | None = None
         self._schema_ready = False
 
@@ -216,10 +236,23 @@ class PgVectorAdapter:
                         namespace text not null default '',
                         scope text not null default '',
                         embedding vector not null,
+                        original_vector_json text,
+                        original_vector_version text not null default '',
                         updated_at text not null,
                         primary key (record_id, model_name)
                     )
                     """
+                )
+                # Old native float32 vectors cannot reconstruct their originals.
+                # Metadata migration deliberately leaves them unqualified until
+                # an explicit index_records call re-embeds the source.
+                cursor.execute(
+                    f"alter table {self.table_name} add column if not exists "
+                    "original_vector_json text"
+                )
+                cursor.execute(
+                    f"alter table {self.table_name} add column if not exists "
+                    "original_vector_version text not null default ''"
                 )
                 cursor.execute(
                     """
@@ -286,6 +319,13 @@ class PgVectorAdapter:
                     f"create index if not exists {self.table_name}_boundary_idx "
                     f"on {self.table_name} (namespace, scope, model_name)"
                 )
+                # An array key is collision-free and gives ANALYZE statistics
+                # for the actual model/namespace pair. Independent estimates
+                # over correlated columns can favor scanning an entire model.
+                cursor.execute(
+                    f"create index if not exists {self.table_name}_exact_namespace_idx "
+                    f"on {self.table_name} ((ARRAY[model_name, namespace]))"
+                )
                 self._migrate_composite_pk(cursor)
                 if self.ann_index_status != "ok":
                     self._ensure_hnsw_index(cursor)
@@ -293,8 +333,8 @@ class PgVectorAdapter:
         self._schema_ready = True
 
     def _ensure_hnsw_index(self, cursor) -> None:
-        """Ensure an HNSW index covers this adapter's own embedding dimension,
-        so pgvector search stops being an exact brute-force scan at scale.
+        """Ensure an HNSW index covers this adapter's own embedding dimension
+        for optional approximate search. Exact reads never use its cutoff.
 
         pgvector's hnsw access method requires a fixed-dimension vector type,
         but the ``embedding`` column itself stays dimensionless: this table's
@@ -326,6 +366,7 @@ class PgVectorAdapter:
             where dimension = {target_dimension}
             """
         )
+        # This is schema readiness, not evidence of a particular query plan.
         self.ann_index_status = "ok"
 
     def _migrate_composite_pk(self, cursor) -> None:
@@ -361,7 +402,8 @@ class PgVectorAdapter:
                     source_hash = _hash_text(source_text)
                     cursor.execute(
                         f"select source_hash, dimension, render_version, "
-                        f"namespace, scope from {self.table_name} "
+                        f"namespace, scope, original_vector_json, "
+                        f"original_vector_version from {self.table_name} "
                         "where record_id = %s and model_name = %s",
                         (record.id, self.model.name),
                     )
@@ -371,6 +413,10 @@ class PgVectorAdapter:
                         and current[2] == VECTOR_TEXT_VERSION
                         and current[0] == source_hash
                         and int(current[1]) == int(self.model.dimension)
+                        and current[6] == _ORIGINAL_VECTOR_VERSION
+                        and stored_vector_issue(
+                            current[5], expected_dimension=int(self.model.dimension)
+                        ) in (None, "vector_all_zero")
                     ):
                         if (
                             current[3] != (record.ns or "")
@@ -395,8 +441,9 @@ class PgVectorAdapter:
                         insert into {self.table_name}
                             (record_id, model_name, dimension, source_text,
                              source_hash, render_version, namespace, scope,
-                             embedding, updated_at)
-                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s::vector, %s)
+                             embedding, original_vector_json,
+                             original_vector_version, updated_at)
+                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s::vector, %s, %s, %s)
                         on conflict (record_id, model_name) do update
                         set model_name = excluded.model_name,
                             dimension = excluded.dimension,
@@ -406,6 +453,8 @@ class PgVectorAdapter:
                             namespace = excluded.namespace,
                             scope = excluded.scope,
                             embedding = excluded.embedding,
+                            original_vector_json = excluded.original_vector_json,
+                            original_vector_version = excluded.original_vector_version,
                             updated_at = excluded.updated_at
                         """,
                         (
@@ -418,6 +467,8 @@ class PgVectorAdapter:
                             record.ns or "",
                             record.scope or "",
                             _vector_literal(vector),
+                            json.dumps(vector, allow_nan=False),
+                            _ORIGINAL_VECTOR_VERSION,
                             record.updated_at,
                         ),
                     )
@@ -452,11 +503,12 @@ class PgVectorAdapter:
         # A table that does not exist yet holds no vectors, so the honest
         # answer is an empty result, not a side effect.
         _validate_table_name(self.table_name)
+        if limit <= 0:
+            return {}
         query_vector = self.model.embed(query)
         ns_clause = "and namespace = %s " if namespace is not None else ""
         scope_clause = "and scope = %s " if scope is not None else ""
         params: list[object] = [
-            _vector_literal(query_vector),
             self.model.name,
             len(query_vector),
             VECTOR_TEXT_VERSION,
@@ -465,33 +517,88 @@ class PgVectorAdapter:
             params.append(namespace)
         if scope is not None:
             params.append(scope)
-        params.extend([_vector_literal(query_vector), limit])
+        statement = f"""
+            select record_id, original_vector_json, original_vector_version
+            from {self.table_name}
+            where model_name = %s and dimension = %s
+              and render_version = %s {ns_clause}{scope_clause}
+            """
+        approximate = self.search_mode == "approximate"
+        if not approximate and namespace is not None:
+            statement += " and ARRAY[model_name, namespace] = %s::text[]"
+            params.append([self.model.name, namespace])
+        if approximate:
+            # Literal integer dimension makes the partial-index predicate
+            # provable even for a generic prepared plan. Keep distance as the
+            # sole ORDER BY expression; ties are ordered after ANN acquisition.
+            dimension = len(query_vector)
+            statement = f"""
+                select record_id, original_vector_json, original_vector_version
+                from {self.table_name}
+                where model_name = %s and dimension = {dimension}
+                  and render_version = %s {ns_clause}{scope_clause}
+                order by embedding::vector({dimension}) <=> %s::vector({dimension})
+                limit %s
+                """
+            params.pop(1)
+            params.extend([_vector_literal(query_vector), max(limit * 3, 10)])
         try:
             with self._connect() as connection:
-                with connection.cursor() as cursor:
-                    # hnsw.ef_search is a session GUC, not a bind-parameterizable
-                    # value under SET; set_config's 2nd arg IS a regular parameter.
-                    cursor.execute("select set_config('hnsw.ef_search', %s, false)", (str(int(self.ef_search)),))
-                    cursor.execute(
-                        f"""
-                        select record_id, 1 - (embedding <=> %s::vector) as score
-                        from {self.table_name}
-                        where model_name = %s and dimension = %s
-                          and render_version = %s {ns_clause}{scope_clause}
-                        order by embedding <=> %s::vector
-                        limit %s
-                        """,
-                        params,
+                if approximate:
+                    with connection.cursor() as settings:
+                        settings.execute(
+                            "select set_config('hnsw.ef_search', %s, true)",
+                            (str(int(self.ef_search)),),
+                        )
+                        settings.execute(
+                            "select set_config('hnsw.iterative_scan', %s, true)",
+                            ("strict_order",),
+                        )
+                # A named cursor bounds psycopg buffering and retains one SELECT
+                # snapshot across pages; OFFSET/keyset queries would not.
+                options = {} if approximate else {"name": "seam_exact_vectors"}
+                with connection.cursor(**options) as cursor:
+                    cursor.execute(statement, params)
+                    return self._rank_original_vectors(
+                        _iter_vector_rows(cursor), query_vector, limit
                     )
-                    rows = cursor.fetchall()
         except Exception as exc:
             # 42P01 undefined_table: nothing has been indexed against this table
             # yet. Reported as "no matches" rather than repaired here, so search
             # stays free of schema effects. Any other failure is real.
+            if getattr(exc, "sqlstate", None) == "42703":
+                raise RuntimeError(
+                    "Vector schema is outdated; initialize the index and reindex records before search"
+                ) from exc
             if getattr(exc, "sqlstate", None) != _UNDEFINED_TABLE_SQLSTATE:
                 raise
             return {}
-        return {record_id: float(score) for record_id, score in rows if score is not None and float(score) > 0}
+
+    @staticmethod
+    def _rank_original_vectors(
+        rows: Iterable[tuple[str, str, str]], query_vector: list[float], limit: int
+    ) -> dict[str, float]:
+        # In approximate mode only the selected subset reaches this scorer;
+        # reranking does not recover omitted neighbours or boundary ties.
+        top: list[_VectorCandidate] = []
+        for record_id, payload, version in rows:
+            issue = stored_vector_issue(payload, expected_dimension=len(query_vector))
+            if version != _ORIGINAL_VECTOR_VERSION or issue not in (None, "vector_all_zero"):
+                raise RuntimeError(
+                    "Original vector unavailable or invalid; reindex records before search"
+                )
+            score = cosine(query_vector, json.loads(payload))
+            if score <= 0:
+                continue
+            item = _VectorCandidate(score, record_id)
+            if len(top) < limit:
+                heapq.heappush(top, item)
+            elif top[0] < item:
+                heapq.heapreplace(top, item)
+        return {
+            item.record_id: item.score
+            for item in sorted(top, key=lambda item: (-item.score, item.record_id))
+        }
 
     def stale_records(self, records: list[MIRLRecord]) -> list[dict[str, object]]:
         _validate_table_name(self.table_name)
@@ -506,7 +613,8 @@ class PgVectorAdapter:
                     source_hash = _hash_text(source_text)
                     cursor.execute(
                         f"select source_hash, dimension, render_version, "
-                        f"namespace, scope, embedding::text from {self.table_name} "
+                        f"namespace, scope, embedding::text, original_vector_json, "
+                        f"original_vector_version from {self.table_name} "
                         "where record_id = %s and model_name = %s",
                         (record.id, self.model.name),
                     )
@@ -533,6 +641,15 @@ class PgVectorAdapter:
                             row[5],
                             expected_dimension=int(self.model.dimension),
                         )
+                        if vector_issue is None:
+                            if row[6] is None or row[7] != _ORIGINAL_VECTOR_VERSION:
+                                vector_issue = "original_vector_missing"
+                            else:
+                                original_issue = stored_vector_issue(
+                                    row[6], expected_dimension=int(self.model.dimension)
+                                )
+                                if original_issue not in (None, "vector_all_zero"):
+                                    vector_issue = "original_" + original_issue
                         if vector_issue is not None:
                             stale.append(
                                 {"record_id": record.id, "reason": vector_issue}
@@ -667,7 +784,12 @@ def _validate_table_name(name: str) -> None:
 
 
 def _vector_literal(vector: list[float]) -> str:
-    return "[" + ",".join(f"{float(value):.8f}" for value in vector) + "]"
+    return "[" + ",".join(repr(float(value)) for value in vector) + "]"
+
+
+def _iter_vector_rows(cursor):
+    while rows := cursor.fetchmany(_VECTOR_PAGE_SIZE):
+        yield from rows
 
 
 def _hash_text(text: str) -> str:

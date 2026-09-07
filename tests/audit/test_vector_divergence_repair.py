@@ -20,6 +20,7 @@ clause holds in provider-free lanes instead of only where those services run.
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind
 from seam_runtime.models import HashEmbeddingModel
@@ -295,6 +296,10 @@ class _Collection:
     def __init__(self) -> None:
         self.rows: dict[str, dict[str, object]] = {}
         self.deleted: list[list[str]] = []
+        self.metadata = {}
+
+    def modify(self, *, metadata):
+        self.metadata = metadata
 
     def upsert(self, *, ids, embeddings, documents, metadatas) -> None:
         for record_id, document, metadata in zip(ids, documents, metadatas, strict=False):
@@ -325,6 +330,7 @@ def _chroma(runtime, collection) -> ChromaSemanticAdapter:
     return ChromaSemanticAdapter(
         store=runtime.store,
         embedding_model=runtime.embedding_model,
+        persist_directory=str(Path(runtime.store.path).parent / "chroma"),
         client=_Client(collection),
     )
 
@@ -393,6 +399,24 @@ def test_chroma_detects_a_render_version_change(tmp_path) -> None:
         collection.rows["clm:one"]["metadata"]["vector_text_version"] = "mirl-vector-text/1"
         report = runtime.verify_vector_divergence(vector_adapter=adapter)
         assert _reasons(report["stale"]) == {"render_version_changed"}
+    finally:
+        runtime.close()
+
+
+def test_chroma_detects_original_vector_metadata_requiring_resynchronization(tmp_path) -> None:
+    runtime = _runtime(tmp_path / "chroma-original.db")
+    try:
+        runtime.persist_ir(IRBatch([_record("clm:one")]))
+        collection = _Collection()
+        adapter = _chroma(runtime, collection)
+        adapter.sync_batch(runtime.store.load_ir())
+        collection.rows["clm:one"]["metadata"]["vector_original_version"] = "old"
+
+        report = runtime.verify_vector_divergence(vector_adapter=adapter)
+
+        assert _reasons(report["stale"]) == {"vector_original_version_changed"}
+        runtime.repair_vector_divergence(vector_adapter=adapter)
+        assert runtime.verify_vector_divergence(vector_adapter=adapter)["diverged"] is False
     finally:
         runtime.close()
 

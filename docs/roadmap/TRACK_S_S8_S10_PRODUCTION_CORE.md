@@ -306,7 +306,7 @@ xfails and no skips, and all 23 live-pgvector tests. The currently available
 ignored orchestration ledger does not contain R1's pre-merge receipt, so the
 post-merge continuity successor receives a fresh exact-state release
 qualification and records the earlier process-evidence gap without rewriting
-history. R1 source and exact-main verification are complete; R2 remains open.
+history. R1 source and exact-main verification are complete; the R2 successor evidence is recorded below.
 
 **S8 completion gate:** D1-D4, T1, R1, R2, and G1 are green; every original S8
 mechanism exit remains green; the boundary-only SQL decision is recorded; and
@@ -344,6 +344,18 @@ green. G1 is protected-main complete.
 3. Make pgvector query expressions match the admitted HNSW index contract.
 4. Pin deterministic backend tie behavior.
 5. Add fixed-slice growth budgets and SQLite/pgvector/Chroma parity cases.
+
+**Local completion checkpoint (HISTORY#640):** all five requirements now have
+implementation and regression evidence. Structured SQLite and
+temporal/compatibility acquisition are protected through PRs #252/#253. The
+backend successor preserves original-vector arithmetic, makes approximation
+explicit, fixes tied cutoff membership and validates real PostgreSQL HNSW
+plans plus SQLite/PostgreSQL/Chroma growth. See
+[backend evidence](../../tests/docs/r2-backend-parity.md) and the complete
+[S8 gate matrix](../../tests/docs/s8-completion.md). The independent reviews
+have no unresolved blocker. Exact candidate CI, release receipt, protected
+merge and exact-main verification establish the S8 freeze; this local
+checkpoint does not claim S9 or S10 completion.
 
 ### Q1 - S9 Qualification
 
@@ -426,9 +438,14 @@ decision.
 6. D3 lifecycle exclusion across every Product Core read (protected-main
    complete through PR #241).
 7. D4 snapshot integrity (protected-main complete through PR #242).
-8. T1 temporal semantics (locally qualified; protected merge next).
-9. G1 and R1 after T1 protected merge, followed by R2.
-10. Freeze S8, run Q1, then freeze and qualify C1.
+8. T1 temporal semantics (protected-main complete through PR #243).
+9. G1 and R1 (protected-main complete through PRs #244/#245), followed by R2
+   (acquisition merged through PRs #252/#253; backend locally qualified at
+   HISTORY#640).
+10. Qualify and protected-merge the R2/S8 candidate, verify exact main and
+    record the S8 freeze. The launch plan then prioritizes operator-product
+    completion before expensive Q1 score work; Q1 and C1 keep their own gates.
 
-The first slice is intentionally small enough to review independently while
-establishing the Recovery Boundary architecture used by every later stage.
+The completed D1 slices establish the Recovery Boundary architecture used by
+the later stages. Local R2 qualification does not establish the protected
+freeze or waive downstream qualification.

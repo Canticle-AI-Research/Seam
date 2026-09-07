@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import heapq
 import json
 import re
+from contextlib import closing, contextmanager, nullcontext
 from dataclasses import dataclass
+from itertools import islice
+from pathlib import Path
 from typing import Protocol
 
 from seam_runtime.knowledge_graph import (
@@ -14,10 +18,15 @@ from seam_runtime.knowledge_graph import (
     _node_time_clauses,
 )
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, iter_textual_fields
-from seam_runtime.models import EmbeddingModel
+from seam_runtime.models import EmbeddingModel, cosine
 from seam_runtime.retrieval import search_stream
 from seam_runtime.storage import SQLiteStore
-from seam_runtime.vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION, SQLiteVectorIndex
+from seam_runtime.vector import (
+    INDEXABLE_KINDS,
+    VECTOR_TEXT_VERSION,
+    SQLiteVectorIndex,
+    stored_vector_issue,
+)
 from seam_runtime.vector_adapters import VectorAdapter, search_vector_adapter
 
 from .types import GraphPathHop, LegHit, RetrievalPlan
@@ -164,32 +173,53 @@ class SeamVectorSearchAdapter:
 
     def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
-        if not query_text.strip():
+        if not query_text.strip() or limit <= 0:
             return []
-        raw_scores = search_vector_adapter(
-            self.vector_adapter,
-            query_text,
-            limit=max(limit * 3, 10),
-            namespace=plan.filters.namespace,
-            scope=plan.filters.scope,
-        )
-        if not raw_scores:
-            return []
-        batch = self.store.load_ir(ids=list(raw_scores))
-        by_id = batch.by_id()
-        hits: list[LegHit] = []
-        for record_id, raw_score in raw_scores.items():
-            record = by_id.get(record_id)
-            if (
-                record is None
-                or (record.kind == RecordKind.RAW and not plan.include_raw)
-                or not plan.filters.matches(record)
-            ):
-                continue
-            if plan.filters.active():
-                raw_score += 0.05 * _matched_filter_count(record, plan)
-            hits.append(LegHit(leg="vector", record=record, score=raw_score, reasons=[f"semantic={raw_score:.2f}"]))
-        return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
+        exact = getattr(self.vector_adapter, "search_mode", None) == "exact"
+        depth = max(limit * 3, 10)
+        while True:
+            raw_scores = search_vector_adapter(
+                self.vector_adapter,
+                query_text,
+                limit=depth,
+                namespace=plan.filters.namespace,
+                scope=plan.filters.scope,
+            )
+            if not raw_scores:
+                return []
+
+            def eligible_hits():
+                ids = list(raw_scores)
+                for offset in range(0, len(ids), 128):
+                    chunk = ids[offset : offset + 128]
+                    reader = self.store.load_ir
+                    if exact and not plan.graph_include_history:
+                        reader = getattr(self.store, "ordinary_read_ir", reader)
+                    batch = reader(ids=chunk)
+                    for record in batch.records:
+                        if (
+                            (record.kind == RecordKind.RAW and not plan.include_raw)
+                            or not plan.filters.matches(record)
+                        ):
+                            continue
+                        raw_score = raw_scores[record.id]
+                        if plan.filters.active():
+                            raw_score += 0.05 * _matched_filter_count(record, plan)
+                        yield LegHit(
+                            leg="vector", record=record, score=raw_score,
+                            reasons=[f"semantic={raw_score:.2f}"],
+                        )
+
+            hits = heapq.nsmallest(
+                limit, eligible_hits(), key=lambda hit: (-hit.score, hit.record.id),
+            )
+            # Every matching record receives the same field-filter bonus, so
+            # an exact backend's score/ID prefix can stop once this page fills.
+            # A short filtered page alone is not evidence of backend exhaustion.
+            # Scalar candidate IDs/scores may grow; live MIRL loads stay paged.
+            if not exact or len(hits) >= limit or len(raw_scores) < depth:
+                return hits
+            depth *= 2
 
 
 class SQLiteTemporalAdapter:
@@ -1100,6 +1130,10 @@ class SQLiteGraphAdapter:
         return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
 
 
+_CHROMA_EXACT_VERSION = "seam-chroma-exact/1"
+_CHROMA_EXACT_PAGE_SIZE = 128
+
+
 @dataclass
 class ChromaSemanticAdapter:
     store: SQLiteStore
@@ -1108,6 +1142,49 @@ class ChromaSemanticAdapter:
     collection_name: str = "seam_hybrid"
     client: object | None = None
     sync_on_search: bool = False  # default flipped; callers that need sync call sync_persistent_indexes explicitly
+    search_mode: str = "exact"
+
+    def __post_init__(self) -> None:
+        if self.search_mode not in {"exact", "approximate"}:
+            raise ValueError("Chroma search_mode must be exact or approximate")
+
+    @contextmanager
+    def read_lock(self):
+        """Serialize adapter operations before taking a canonical snapshot.
+
+        The canonical persistence lock is always first. A second named lock
+        serializes different canonical stores using the same local collection.
+        Persistent client settings identify the actual storage, including when
+        an injected client ignores the adapter's directory hint. Opaque and
+        nonpersistent clients conservatively share one process-only lock.
+        Direct external Chroma writes do not participate in this protocol.
+        """
+        store_path = getattr(self.store, "path", None)
+        if store_path is None:  # Lightweight component-test stores own no DB.
+            yield
+            return
+        from seam_runtime.runtime import _runtime_persist_lock
+
+        canonical = _runtime_persist_lock(store_path, memory_identity=id(self.store))
+        client = self._client()
+        get_settings = getattr(client, "get_settings", None)
+        settings = get_settings() if callable(get_settings) else None
+        if getattr(settings, "is_persistent", False):
+            identity = json.dumps([
+                getattr(client, "tenant", None), getattr(client, "database", None), self.collection_name,
+            ], separators=(",", ":"))
+            collection_identity = (
+                Path(settings.persist_directory).expanduser().resolve()
+                / f".seam-chroma-{hashlib.sha256(identity.encode()).hexdigest()}"
+            )
+            collection_lock = _runtime_persist_lock(collection_identity, memory_identity=id(client))
+        else:
+            # Directory hints cannot prove opaque clients use different stores.
+            collection_lock = _runtime_persist_lock(
+                ":memory:", memory_identity=id(ChromaSemanticAdapter),
+            )
+        with canonical, collection_lock:
+            yield
 
     def _client(self):
         if self.client is not None:
@@ -1129,10 +1206,15 @@ class ChromaSemanticAdapter:
         ids = plan.filters.ids or None if plan is not None else None
         namespace = plan.filters.namespace if plan is not None else None
         scope = plan.filters.scope if plan is not None else None
-        batch = self.store.load_ir(ids=ids, ns=namespace, scope=scope)
-        return self.sync_batch(batch)
+        with self.read_lock():
+            batch = self.store.load_ir(ids=ids, ns=namespace, scope=scope)
+            return self.sync_batch(batch)
 
     def sync_batch(self, batch: IRBatch) -> int:
+        with self.read_lock():
+            return self._sync_batch_locked(batch)
+
+    def _sync_batch_locked(self, batch: IRBatch) -> int:
         records = [
             record
             for record in batch.records
@@ -1143,13 +1225,28 @@ class ChromaSemanticAdapter:
             return 0
         collection = self._collection()
         rendered = [SQLiteVectorIndex.render_record_text(record) for record in records]
+        vectors = [self.embedding_model.embed(text) for text in rendered]
+        for vector in vectors:
+            issue = stored_vector_issue(vector, expected_dimension=self.embedding_model.dimension)
+            if issue not in {None, "vector_all_zero"}:
+                raise ValueError(f"Cannot sync Chroma original vector: {issue}")
+        # Mark initialization before publication: a failed/partial upsert must
+        # never become indistinguishable from an intentionally unsynced index.
+        metadata = dict(getattr(collection, "metadata", None) or {})
+        # Space is already fixed in the collection configuration; Chroma
+        # rejects modify(metadata=...) whenever this creation-only key appears.
+        metadata.pop("hnsw:space", None)
+        metadata["seam_exact_initialized"] = True
+        collection.modify(metadata=metadata)
         collection.upsert(
             ids=[record.id for record in records],
-            embeddings=[self.embedding_model.embed(text) for text in rendered],
+            embeddings=vectors,
             documents=rendered,
             metadatas=[
-                _chroma_metadata(record, source_text)
-                for record, source_text in zip(records, rendered, strict=True)
+                _chroma_metadata(
+                    record, source_text, model_name=self.embedding_model.name, vector=vector,
+                )
+                for record, source_text, vector in zip(records, rendered, vectors, strict=True)
             ],
         )
         return len(records)
@@ -1158,7 +1255,8 @@ class ChromaSemanticAdapter:
         ids = sorted({str(record_id).strip() for record_id in record_ids})
         if not ids or any(not record_id for record_id in ids):
             raise ValueError("record_ids must contain non-empty references")
-        self._collection().delete(ids=ids)
+        with self.read_lock():
+            self._collection().delete(ids=ids)
 
     def indexable_records(self, records: list[MIRLRecord]) -> list[MIRLRecord]:
         """Return the records this backend is expected to hold.
@@ -1204,6 +1302,8 @@ class ChromaSemanticAdapter:
                 stale.append({"record_id": record.id, "reason": "namespace_changed"})
             elif metadata.get("scope") != record.scope:
                 stale.append({"record_id": record.id, "reason": "scope_changed"})
+            elif (issue := _chroma_exact_issue(record, metadata, self.embedding_model)) is not None:
+                stale.append({"record_id": record.id, "reason": issue})
         return stale
 
     def orphan_records(
@@ -1242,8 +1342,88 @@ class ChromaSemanticAdapter:
 
     def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
         query_text = plan.normalized_query or plan.query
-        if not query_text.strip():
+        if not query_text.strip() or limit <= 0:
             return []
+        if self.search_mode not in {"exact", "approximate"}:
+            raise ValueError("Chroma search_mode must be exact or approximate")
+        with self.read_lock():
+            snapshot = getattr(self.store, "read_snapshot", None)
+            with snapshot() if snapshot is not None else nullcontext():
+                if self.search_mode == "approximate":
+                    return self._search_approximate(plan, limit)
+                if self.sync_on_search:
+                    self.sync_records(plan)
+                collection = self._collection()
+                if (
+                    not (getattr(collection, "metadata", None) or {}).get("seam_exact_initialized")
+                    and collection.count() == 0
+                ):
+                    # Default-off synchronization has historically allowed an
+                    # empty collection. Initialized-but-missing rows fail below.
+                    return []
+                query_vector = self.embedding_model.embed(query_text)
+                issue = stored_vector_issue(query_vector, expected_dimension=self.embedding_model.dimension)
+                if issue == "vector_all_zero":
+                    return []
+                if issue is not None:
+                    raise ValueError(f"Invalid Chroma query vector: {issue}")
+                return heapq.nsmallest(
+                    limit,
+                    self._exact_hits(plan, collection, query_vector),
+                    key=lambda hit: (-hit.score, hit.record.id),
+                )
+
+    def _exact_hits(self, plan, collection, query_vector):
+        # Every canonical page is from the caller's read snapshot. Fetch by ID,
+        # not mutable Chroma offsets, and reject missing/stale eligible rows.
+        with closing(self.store.iter_ir(
+            ns=plan.filters.namespace, scope=plan.filters.scope,
+            page_size=_CHROMA_EXACT_PAGE_SIZE,
+        )) as records:
+            while page := list(islice(records, _CHROMA_EXACT_PAGE_SIZE)):
+                page = [
+                    record for record in page
+                    if record.kind in INDEXABLE_KINDS
+                    and (record.kind != RecordKind.RAW or plan.include_raw)
+                    and (plan.graph_include_history or record.status.value not in CURRENT_EXCLUDED_STATUSES)
+                    and plan.filters.matches(record)
+                ]
+                if not page:
+                    continue
+                if not plan.graph_include_history:
+                    with self.store._pool.checkout() as connection:
+                        eligible = self.store._ordinary_read_eligible_ids(
+                            connection, (record.id for record in page),
+                        )
+                    page = [record for record in page if record.id in eligible]
+                if not page:
+                    continue
+                ids = [record.id for record in page]
+                response = collection.get(ids=ids, include=["metadatas"])
+                returned_ids = response.get("ids") or []
+                metadatas = response.get("metadatas") or []
+                if (
+                    len(returned_ids) != len(ids)
+                    or len(metadatas) != len(ids)
+                    or set(returned_ids) != set(ids)
+                ):
+                    raise RuntimeError("Chroma exact projection coverage is incomplete; synchronize the index")
+                by_id = dict(zip(returned_ids, metadatas, strict=True))
+                for record in page:
+                    metadata = by_id[record.id]
+                    issue = _chroma_exact_issue(record, metadata, self.embedding_model)
+                    if issue is not None:
+                        raise RuntimeError(f"Chroma exact projection is stale ({issue}); synchronize the index")
+                    vector = json.loads(metadata["vector_original_json"])
+                    score = cosine(query_vector, vector)
+                    if score <= 0:
+                        continue
+                    if plan.filters.active():
+                        score += 0.05 * _matched_filter_count(record, plan)
+                    yield LegHit(leg="chroma", record=record, score=score, reasons=[f"chroma={score:.2f}"])
+
+    def _search_approximate(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
+        query_text = plan.normalized_query or plan.query
         if self.sync_on_search:
             self.sync_records(plan)
         collection = self._collection()
@@ -1253,7 +1433,9 @@ class ChromaSemanticAdapter:
             "include": ["metadatas", "distances", "documents"],
         }
         boundary_filters = [
-            {"vector_text_version": {"$eq": VECTOR_TEXT_VERSION}}
+            {"vector_text_version": {"$eq": VECTOR_TEXT_VERSION}},
+            {"model_name": {"$eq": self.embedding_model.name}},
+            {"dimension": {"$eq": self.embedding_model.dimension}},
         ]
         if plan.filters.namespace:
             boundary_filters.append({"ns": {"$eq": plan.filters.namespace}})
@@ -1575,7 +1757,34 @@ def _zip_chroma_entries(payload: object) -> dict[str, dict[str, object]]:
     return entries
 
 
-def _chroma_metadata(record: MIRLRecord, source_text: str) -> dict[str, str]:
+def _chroma_exact_issue(record, metadata, model) -> str | None:
+    if not isinstance(metadata, dict):
+        return "metadata_missing"
+    expected = {
+        "kind": record.kind.value,
+        "ns": record.ns,
+        "scope": record.scope,
+        "vector_text_version": VECTOR_TEXT_VERSION,
+        "source_hash": hashlib.sha256(SQLiteVectorIndex.render_record_text(record).encode("utf-8")).hexdigest(),
+        "model_name": model.name,
+        "dimension": model.dimension,
+        "vector_original_version": _CHROMA_EXACT_VERSION,
+    }
+    for field, value in expected.items():
+        if metadata.get(field) != value:
+            return f"{field}_changed"
+    original = metadata.get("vector_original_json")
+    if not isinstance(original, str):
+        return "original_missing"
+    if metadata.get("vector_original_sha256") != hashlib.sha256(original.encode("utf-8")).hexdigest():
+        return "original_hash_changed"
+    issue = stored_vector_issue(original, expected_dimension=model.dimension)
+    return None if issue == "vector_all_zero" else issue
+
+
+def _chroma_metadata(
+    record: MIRLRecord, source_text: str, *, model_name: str, vector: list[float],
+) -> dict[str, object]:
     attrs = record.attrs
     metadata = {
         "kind": record.kind.value,
@@ -1583,7 +1792,14 @@ def _chroma_metadata(record: MIRLRecord, source_text: str) -> dict[str, str]:
         "scope": record.scope,
         "vector_text_version": VECTOR_TEXT_VERSION,
         "source_hash": hashlib.sha256(source_text.encode("utf-8")).hexdigest(),
+        "model_name": model_name,
+        "dimension": len(vector),
+        "vector_original_version": _CHROMA_EXACT_VERSION,
+        "vector_original_json": json.dumps(vector, separators=(",", ":"), allow_nan=False),
     }
+    metadata["vector_original_sha256"] = hashlib.sha256(
+        metadata["vector_original_json"].encode("utf-8")
+    ).hexdigest()
     if "predicate" in attrs:
         metadata["predicate"] = str(attrs.get("predicate"))
     if "subject" in attrs:

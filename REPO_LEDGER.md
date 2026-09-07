@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-06
+Last updated: 2026-09-07
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -530,6 +530,20 @@ bounded task-specific reading; do not maintain a competing sequence here.
   their scope cannot be inferred safely inside the external vector table.
   Namespace/scope-only repair must update metadata without recomputing an
   unchanged embedding, including when the configured embedder is paid/remote.
+- Vector search defaults to `exact`; `vector_search_mode="approximate"` or
+  `SEAM_VECTOR_SEARCH_MODE=approximate` explicitly opts supported backends into
+  ANN. Constructor selection wins over the environment and remains stable for
+  that runtime. Injected adapters retain their declared policy. Public plans
+  expose the actual backend mode; ranking policy remains independently selected
+  and `legacy-weighted/1` remains the compatibility default.
+  Exact search preserves original-vector cosine scores and smaller-record-ID
+  ties across SQLite, pgvector and Chroma. Native indexes are projections;
+  missing original-vector metadata requires explicit migration/reindex or
+  synchronization, never search-time embedding repair. Approximate membership
+  and quality require separate evidence. Chroma's supported persistent-client
+  writes serialize by actual storage/tenant/database/collection identity before
+  opening the canonical snapshot; arbitrary external writes and remote-service
+  atomicity are outside this contract. See `tests/docs/r2-backend-parity.md`.
 - Derived vector text is governed by the explicit
   `mirl-vector-text/2` contract. Generic records render in deterministic
   semantic field order with recursively sorted maps and stable list order;

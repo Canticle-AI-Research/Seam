@@ -45,10 +45,11 @@ _OBJECT_ONLY_GROUNDED_CLM_POLICIES = {
 
 @dataclass
 class _VectorCache:
-    """Deserialized vectors for one (model, dimension, namespace), reused across
-    queries. ``fingerprint`` = (row count, max updated_at) for the slice; a
-    mismatch on the next search rebuilds, so writes from THIS process or any
-    other (the MCP server and CLI share the DB) invalidate correctly."""
+    """Deserialized vectors for one (model, dimension, namespace, scope).
+
+    The fingerprint hashes ordered IDs and vector contents in the read snapshot,
+    so replacements and boundary changes invalidate even with stale timestamps.
+    """
 
     fingerprint: tuple[int, str]
     ids: list[str]
@@ -57,6 +58,8 @@ class _VectorCache:
 
 
 class SQLiteVectorIndex:
+    search_mode = "exact"
+
     def __init__(self, path: str, model: EmbeddingModel) -> None:
         self.path = path
         self.model = model
@@ -96,7 +99,13 @@ class SQLiteVectorIndex:
                 yield bound
                 return
         with closing(self._connect()) as connection:
-            yield connection
+            # Fingerprint and cache refill must observe the same committed
+            # state even when search runs outside a bound runtime snapshot.
+            connection.execute("begin")
+            try:
+                yield connection
+            finally:
+                connection.rollback()
 
     def ensure_schema(self, *, force: bool = False) -> None:
         """Create or migrate the vector table, at most once per index instance.
@@ -159,6 +168,11 @@ class SQLiteVectorIndex:
                         "select r.scope from ir_records r where r.id = vector_index.record_id"
                         "), '')"
                     )
+            connection.execute(
+                "create index if not exists idx_vector_index_search_slice "
+                "on vector_index (model_name, dimension, render_version, "
+                "namespace, scope, record_id)"
+            )
             connection.commit()
         self._schema_ready = True
 
@@ -270,13 +284,15 @@ class SQLiteVectorIndex:
         namespace: str | None,
         scope: str | None,
     ) -> tuple[int, str]:
-        """Cheap invalidation key: (row count, max updated_at) for the slice.
+        """Hash the visible slice without deserializing or retaining its rows.
 
-        An ``insert or replace`` stamps the record's ``updated_at`` (monotonic
-        at ingest), so both new rows (count) and content changes (max ts) move
-        the fingerprint; a stale cache is rebuilt on the next search."""
+        Caller-provided timestamps need not advance on replacement. Reading
+        the actual IDs and vector JSON also detects writes from other index
+        instances and works for both old and new bound snapshots. This costs
+        O(selected vector bytes) per query, even when the matrix is reused.
+        """
         sql = (
-            "select count(*), coalesce(max(updated_at), '') from vector_index "
+            "select record_id, vector_json from vector_index "
             "where model_name = ? and dimension = ? and render_version = ?"
         )
         params: list[object] = [
@@ -290,8 +306,16 @@ class SQLiteVectorIndex:
         if scope is not None:
             sql += " and scope = ?"
             params.append(scope)
-        row = connection.execute(sql, params).fetchone()
-        return (int(row[0]), str(row[1]))
+        sql += " order by record_id"
+        digest = hashlib.sha256()
+        count = 0
+        for row in connection.execute(sql, params):
+            for value in (row["record_id"], row["vector_json"]):
+                encoded = value.encode("utf-8")
+                digest.update(len(encoded).to_bytes(8, "big"))
+                digest.update(encoded)
+            count += 1
+        return count, digest.hexdigest()
 
     def _load_cache(
         self,
@@ -330,7 +354,7 @@ class SQLiteVectorIndex:
             # Per-row norm (NOT batched norm(matrix, axis=1)): the batched
             # reduction rounds differently than cosine()'s per-vector
             # np.linalg.norm, which would flip tied records. Matching it per row
-            # keeps scores bit-identical to the pure-Python scan.
+            # keeps scores bit-identical to the scan with the NumPy scorer.
             norms = _numpy.array(
                 [_numpy.linalg.norm(matrix[i]) for i in range(matrix.shape[0])],
                 dtype=_numpy.float64,
@@ -363,27 +387,23 @@ class SQLiteVectorIndex:
         norms = cache.norms
         # Score PER ROW with ``matrix[i] @ query`` -- the identical operation
         # ``cosine()`` performs (same float64 operands, same np.dot reduction,
-        # same norms), so scores are bit-identical to the pure-Python scan and
+        # same norms), so scores are bit-identical to the NumPy-backed scan and
         # rankings never change. A single batched ``matrix @ query`` is faster
         # but its gemv reduction rounds differently, flipping tied records
         # (measured: reorders on hash-embedding ties). The win here is skipping
         # json.loads (was ~88% of the scan) and re-deserialization across
         # queries, not vectorizing the dot.
-        top: list[tuple[float, str]] = []
-        for i, record_id in enumerate(cache.ids):
-            row_norm = float(norms[i])
-            if not row_norm:
-                continue
-            score = float(query @ matrix[i]) / (row_norm * query_norm)
-            if score <= 0:
-                continue
-            item = (score, record_id)
-            if len(top) < limit:
-                heapq.heappush(top, item)
-            elif item > top[0]:
-                heapq.heapreplace(top, item)
-        ordered = sorted(((record_id, score) for score, record_id in top), key=lambda item: item[1], reverse=True)
-        return dict(ordered)
+        def scored_rows():
+            for i, record_id in enumerate(cache.ids):
+                row_norm = float(norms[i])
+                if not row_norm:
+                    continue
+                score = float(query @ matrix[i]) / (row_norm * query_norm)
+                if score <= 0:
+                    continue
+                yield record_id, score
+
+        return _top_scores(scored_rows(), limit)
 
     def _search_scan(
         self,
@@ -393,7 +413,6 @@ class SQLiteVectorIndex:
         scope: str | None,
     ) -> dict[str, float]:
         """Pure-Python fallback (numpy absent): brute-force per-row cosine."""
-        top: list[tuple[float, str]] = []
         sql = (
             "select record_id, vector_json from vector_index "
             "where model_name = ? and dimension = ? and render_version = ?"
@@ -411,17 +430,15 @@ class SQLiteVectorIndex:
             params.append(scope)
         with self._read_connection() as connection:
             rows = connection.execute(sql, params)
-            for row in rows:
-                score = cosine(query_vector, json.loads(row["vector_json"]))
-                if score <= 0:
-                    continue
-                item = (score, row["record_id"])
-                if len(top) < limit:
-                    heapq.heappush(top, item)
-                elif item > top[0]:
-                    heapq.heapreplace(top, item)
-        ordered = sorted(((record_id, score) for score, record_id in top), key=lambda item: item[1], reverse=True)
-        return dict(ordered)
+
+            def scored_rows():
+                for row in rows:
+                    score = cosine(query_vector, json.loads(row["vector_json"]))
+                    if score <= 0:
+                        continue
+                    yield row["record_id"], score
+
+            return _top_scores(scored_rows(), limit)
 
     def stale_records(self, records: Iterable[MIRLRecord]) -> list[dict[str, object]]:
         self.ensure_schema()
@@ -548,6 +565,11 @@ class SQLiteVectorIndex:
         parts = [record.kind.value]
         parts.extend(_iter_deterministic_textual_fields(record))
         return " ".join(part for part in parts if part)
+
+
+def _top_scores(scored: Iterable[tuple[str, float]], limit: int) -> dict[str, float]:
+    """Select exact winners in score/ID order while retaining at most K rows."""
+    return dict(heapq.nsmallest(limit, scored, key=lambda item: (-item[1], item[0])))
 
 
 def _iter_deterministic_textual_fields(record: MIRLRecord) -> Iterable[str]:

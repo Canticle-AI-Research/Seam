@@ -20956,3 +20956,79 @@ Independent temporal assurance reran the original numeric timestamp reproduction
 
 Next: scan and sign the candidate, push a draft PR, verify required checks on that exact head, obtain a freshly authored release receipt, merge through protected main, and retain raw evidence before worktree cleanup. Full R2 remains open: exact versus approximate pgvector policy and equal-score cutoff policy await operator input, followed by real backend parity/plan/scale proof. No backend default, tie behavior, paid run, package publication or deployment was changed or performed. Preserve the excluded dirty primary and older worktrees named in the handoff.
 ---END-ENTRY-#639---
+
+---BEGIN-ENTRY-#640---
+id: 640
+date: 2026-09-07T05:09:34Z
+agent: codex
+status: done
+topics: retrieval, vector, pgvector, chroma, parity, rank, verify, tests, handoff, continuity
+commits: pending
+refs: seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/runtime.py,tests/docs/r2-backend-parity.md,tests/docs/s8-completion.md,docs/handoffs/2026-09-07-r2-backend-s8-qualified.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,docs/status/retrieval.md,REPO_LEDGER.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/roadmap/SEAM_LAUNCH.md
+supersedes: 639
+tokens: 933
+---
+R2 backend completion and S8 freeze candidate, resumed from protected
+main 5f115664b7ce7bd01f04b6f21ce5c3cf53ea0d0b (PR #253). The inherited
+backend worktree contained coherent uncommitted runtime and tests, while the
+primary checkout retained excluded audit work. The operator-approved exact
+default, explicit approximate selection and smaller-record-ID ties were
+recovered from the continuation packet; legacy-weighted/1 remains unchanged.
+
+SQLite now selects complete tied cutoffs and fingerprints vector contents in
+the same snapshot as cache refill. PostgreSQL preserves original vectors,
+streams exact candidates through a server cursor, and matches optional ANN
+queries to dimension-specific HNSW expressions with transaction-local settings.
+Chroma exact search pages canonical eligible IDs, validates complete original
+vector/model/render/source coverage, and serializes supported projection writes
+by actual persistent collection identity. Canonical admission expands exact
+prefixes past RAW/attribute/lifecycle exclusions. Runtime selection and public
+traces report the actual backend mode. New external cases are routed into
+installed-backend CI lanes. Selected-corpus vector work and some scalar metadata
+can still grow; page bounds do not establish constant total memory or latency.
+
+Recovery preserved earlier failed broad runs and their credential redaction.
+The resumed audit found an old SQLite downgrade fixture retaining a new scoped
+index and a native Chroma fake missing its explicit mode/model/client contract.
+Fixed only those fixtures; retained their assertions and added model/dimension
+predicate checks. Independent import-block verification proves the fake no
+longer depends on Chroma being installed. No runtime source changed on resume.
+
+Independent standards review reports no blocker; a possible duplicate top-K
+heap remains a nonblocking future refactor, owned by the runtime maintainer and
+covered by parity tests. Independent spec review identified missing real Chroma
+fixed-slice growth evidence. Added and independently reproduced its exact
+direct/public results under unrelated namespace/scope and separate model
+collection growth. Each local sample retained 1669 canonical SQLite VM steps,
+65 canonical rows and one 64-ID Chroma page; Chroma internal CPU/I/O remains
+unmeasured. All original S8 exits and D1-D4/T1/G1/R1/R2 gates are mapped in
+tests/docs/s8-completion.md. The SQL-tail decision remains inclusive 0.80 for
+query-authored namespace plus scope; legacy ranking remains the default.
+
+Verification: the exact non-external integration command in tests/docs/s8-completion.md completed 3540 passed, 65 deselected, 2 xfailed, 2 warnings in 508.17s (0:08:28); live backend selection passed 64 pre-growth cases, final Chroma selection passed 25 cases, and independent growth rerun passed. No skips. Changed-module collection and repository-wide Ruff/diff/secret scans passed. Current commands, source/test hashes,
+output hashes and limitations are retained under test_seam/r2-backend/resume/.
+Both session schemas validate. Thirteen recovered development cycles match
+twenty-six phase references and twenty-five distinct raw logs; seven changed
+runtime files have coverage. Eleven cycles retain identical whole-test-file
+hashes; initial mode/SQLite fixture adjustments remain explicitly documented,
+without inventing per-function hashes or counting green-only checks as TDD.
+
+This records local source qualification, not a completed protected merge.
+Exact pushed-head required CI, independently authored/stored release receipt,
+protected PR merge and exact-main checks are the remaining publication gate.
+The accepted protected merge is the S8 freeze baseline once those checks pass.
+S9 qualification/Promotion, S10 release/deployment proof, L1 SDK/package delivery
+blockers and operator-surface acceptance remain separate. No paid provider,
+package publication or deployment was performed. The launch plan still puts
+operator-product completion before expensive score campaigns.
+
+Preserve the primary audit checkout's HISTORY/index/stream changes, audit and
+handoff indexes/documents, .codex/, .disposable/ and .seam/orchestration/; preserve
+the locked audit-cleanup and dirty Codex-hook worktrees. Root alone owns this
+backend branch's explicit staging, canonical closeout and protected merge.
+Retain raw logs, manifests, scripts, session state and the independently
+returned release receipt before removing the clean merged worktree. Stop only
+the owned scratch PostgreSQL container and remove only its generated connection
+file. No stash was created. The documented one-push dirty-worktree exception
+preserves excluded work while signatures, scans and all gates remain enforced.
+---END-ENTRY-#640---
