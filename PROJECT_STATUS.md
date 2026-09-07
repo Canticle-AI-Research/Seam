@@ -5,33 +5,26 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-09-07 — R2 temporal and compatibility acquisition slice; backend policy
-and parity remain open.** HISTORY#638 records bounded record materialization
-and its [evidence](tests/docs/r2-acquisition-parity.md); HISTORY#639 records
-the completed local audit and independent reviews, with publication pending. The prior structured
-SQLite slice is merged through PR #252. L1 packaging preparation and the
-private paid SDK boundary remain recorded.
-The product direction is Surface Encoded Agent Memory,
-Canticle SEAM Suite for self-hosting, and Canticle SEAM API with SEAM WebUI for
-the paid service. See the [product map](docs/PRODUCTS.md),
-[launch plan](docs/roadmap/SEAM_LAUNCH.md), and current handoff in
-[the registry](docs/handoffs/INDEX.md). Decision and reconciliation: HISTORY#634.
+**2026-09-07 — R2 backend implementation and all S8 local mechanism gates are
+qualified; the protected freeze candidate awaits publication checks.**
+HISTORY#640 records exact vector defaults, explicit approximation, deterministic
+cutoffs, real backend parity/growth and independent review. See the
+[S8 gate matrix](tests/docs/s8-completion.md),
+[backend evidence](tests/docs/r2-backend-parity.md), and
+[current handoff](docs/handoffs/INDEX.md) for the exact candidate boundary.
+The protected starting baseline is `main@5f115664` (PR #253); SQLite structured
+scale and temporal/compatibility acquisition are already merged through PRs
+#252 and #253. Local qualification does not itself establish the protected
+freeze. Candidate CI, the independent release receipt and exact-main checks
+must pass before that claim.
 
-The [L1 packaging candidate](docs/audits/2026-09-06-l1-packaging-migration.md)
-now records exact local artifact evidence and unresolved release blockers
-(HISTORY#635). SEAM SDK is private, with access for paying users; the public
-HTTP client remains a distinct artifact. See the current handoff for scope.
-
-The checked protected baseline is `main@ab9fe4b` (PR #252); it contains the
-launch documentation, L1 packaging candidate and structured SQLite scale slice
-(HISTORY#634-#637). It contains D1-D4,
-T1, G1, and R1, followed by the R1 continuity correction, audit cleanup, and uv
-lockfile work. **R2 Retrieval Scale and Backend Parity remains in progress
-before S8 freeze.** Acquisition retains exact scoring while bounding live
-record payloads; selected-corpus work and scoring metadata can still grow.
-Backend policy and parity gates remain. `legacy-weighted/1` remains the compatibility default;
-S9 Promotion evidence is still required to change it. See
-[Track S](docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md) and HISTORY#630-#633.
+The SQL-tail decision remains recorded and `legacy-weighted/1` remains the
+compatibility default. S9 qualification/Promotion and S10 release/deployment
+proof are separate. Surface Encoded Agent Memory, self-hosted Canticle SEAM
+Suite, paid Canticle SEAM API and SEAM WebUI retain the boundaries in the
+[product map](docs/PRODUCTS.md) and [launch plan](docs/roadmap/SEAM_LAUNCH.md).
+The [L1 packet](docs/audits/2026-09-06-l1-packaging-migration.md) records private
+paid SDK access and unresolved customer-delivery/artifact blockers.
 
 The operator-surface lane is now part of launch delivery. Complete and review
 Suite and API/WebUI before the expensive benchmark score campaign; existing

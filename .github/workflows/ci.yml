@@ -169,7 +169,8 @@ jobs:
         # substream; SEAM_PGVECTOR_DSN gates real_adapter. Strict no-skip
         # (tests/conftest.py, default on) fails the job if any of these skip.
         #
-        # This list must name EVERY file carrying `pytest.mark.external`. It
+        # The dedicated backend jobs must cover EVERY external-marked file. This
+        # list owns pgvector; real Chroma cases run in chroma-real-smoke. It
         # previously named only three, so 13 of 23 external tests ran in no lane
         # at all; `-m "not external"` deselects rather than skips, so strict
         # no-skip could not see the gap. `test_ci_enforces_no_silent_skips`
@@ -179,7 +180,7 @@ jobs:
           PGPASSWORD: seam_ci_password
           SEAM_PGVECTOR_DSN: postgresql://seam_ci@localhost:55433/seam_ci
           PGVECTOR_TEST_DSN: "host=localhost port=55433 dbname=seam_ci user=seam_ci password=seam_ci_password"
-        run: python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py tests/audit/test_pgvector_render_contract.py tests/audit/test_pgvector_boundary_resync.py -q
+        run: python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py tests/audit/test_pgvector_render_contract.py tests/audit/test_pgvector_boundary_resync.py tests/audit/test_s8_r2_pgvector_parity.py -q
 
   package-smoke:
     runs-on: [self-hosted, seam-box]
@@ -278,6 +279,12 @@ jobs:
 
       - name: Run real Chroma smoke
         run: python -m tools.ci.chroma_real_smoke
+
+      - name: Install backend test dependencies
+        run: python -m pip install pytest
+
+      - name: Verify real Chroma exact retrieval contract
+        run: python -m pytest tests/audit/test_s8_r2_chroma_exact.py tests/audit/test_s8_r2_semantic_admission.py -q -m external
 
   locomo-quickstart-bil2:
     runs-on: [self-hosted, seam-box]

@@ -4,20 +4,22 @@
 
 _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
-## Status: R1 protected on main; R2 scale/parity gate open
+## Status: R2 and S8 locally qualified; protected freeze candidate
 
-HISTORY#637 records the first R2 structured SQLite scale slice: per-record
-indexed source-text lookup replaces aggregation across all namespaces, with
-unchanged scores and query boundary gates. Public hybrid retrieval tests pin
-fixed-slice SQL work and candidate parity; see
-`tests/docs/r2-sqlite-scale.md` for exact evidence and limitations. HISTORY#638
-adds bounded temporal winner acquisition and streaming compatibility scoring;
-see `tests/docs/r2-acquisition-parity.md` and HISTORY#639 for integrated
-verification and the pending publication boundary. Full scoring-context metadata and
-selected-corpus work remain distinct from bounded live record materialization.
-pgvector HNSW expression/tie behavior and full backend parity remain open,
-with operator policy choices recorded in the handoff. This does not freeze S8. Resume through
-`docs/handoffs/INDEX.md`; verify its exact PR/main state before continuing.
+HISTORY#640 records completion of the backend slice on the protected
+`5f115664` acquisition baseline (PR #253). Exact search preserves original
+cosine arithmetic and smaller-ID ties across SQLite, pgvector and real Chroma;
+approximation is explicit and appears in public plans/traces. Growth, coverage,
+snapshot, filtering, original-vector migration and actual optional HNSW-plan
+evidence live in `tests/docs/r2-backend-parity.md`. Earlier structured and
+temporal/compatibility slices remain recorded in HISTORY#637-#639.
+
+All S8 prerequisites and original mechanism exits have local regression
+evidence in `tests/docs/s8-completion.md`. Full selected-corpus work, scalar
+metadata, cache storage, bounded pages and latency remain separate claims.
+This checkpoint awaits exact candidate CI, independently stored release
+qualification, protected merge and exact-main verification. The registry owns
+the current publication boundary. No ranking default is promoted.
 
 PR #222 merged the SQL leg's deterministic equal-score tiebreak and the
 deleted-record vector-outbox replay repair at protected `main@a177852`. Those
@@ -49,7 +51,7 @@ R1 is protected-main source through PR #245 at merge `f8c3349`. Candidate
 The 2026-09-02 local successor recheck passed 34 focused R1 tests, the complete
 strict non-external selection with the two established xfails and no skips,
 and all 23 live-pgvector external tests. R2 Retrieval Scale and Backend Parity
-remains required before S8 can freeze.
+is addressed by the HISTORY#640 successor; protected freeze checks remain separate.
 
 The planner currently accepts `legacy-weighted/1` (the pre-refactor RAW/BM25/
 vector behavioral control) and `reciprocal-rank-fusion/2`. Non-empty

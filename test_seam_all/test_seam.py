@@ -612,19 +612,15 @@ claim c1:
             def fetchall(self):
                 raise AssertionError("search must stream vector rows")
 
-        class CountRow:
-            # The cache-invalidation fingerprint query (HISTORY#364):
-            # select count(*), coalesce(max(updated_at), '') ...
-            def fetchone(self):
-                return (2, "2026-01-01T00:00:00")
-
         class FakeConnection:
             def execute(self, query, params=()):
-                # The row scan must stream (StreamingRows.fetchall raises); the
-                # fingerprint COUNT query is a scalar and reads via fetchone.
-                if "count(" in query:
-                    return CountRow()
+                # Both the content fingerprint and scoring scan stream rows.
+                if query.strip().lower() == "begin":
+                    return None
                 return StreamingRows()
+
+            def rollback(self):
+                return None
 
             def close(self):
                 return None
@@ -3973,10 +3969,11 @@ claim c2:
 
 
 class _FakePgCursor:
-    def __init__(self, store: dict, sql_log: list) -> None:
+    def __init__(self, store: dict, sql_log: list, name=None) -> None:
         self._store = store
         self._sql_log = sql_log
         self._rows: list = []
+        self.name = name
 
     def __enter__(self):
         return self
@@ -3986,7 +3983,8 @@ class _FakePgCursor:
 
     def execute(self, sql: str, params=None) -> None:
         self._sql_log.append(sql.strip())
-        sql_lower = sql.strip().lower()
+        sql_lower = " ".join(sql.strip().lower().split())
+        self._rows = []
         if sql_lower.startswith("insert") and params:
             (
                 record_id,
@@ -3998,10 +3996,12 @@ class _FakePgCursor:
                 namespace,
                 scope,
                 vec_literal,
+                original_vector_json,
+                original_vector_version,
                 updated_at,
             ) = params
-            vec = [float(x) for x in vec_literal.strip("[]").split(",")]
-            self._store[record_id] = {
+            vec = json.loads(vec_literal)
+            self._store[(record_id, model_name)] = {
                 "model": model_name,
                 "dim": dimension,
                 "vec": vec,
@@ -4009,7 +4009,19 @@ class _FakePgCursor:
                 "render_version": render_version,
                 "namespace": namespace,
                 "scope": scope,
+                "original_vector_json": original_vector_json,
+                "original_vector_version": original_vector_version,
             }
+        elif sql_lower.startswith("update") and params:
+            namespace, scope, updated_at, record_id, model_name = params
+            entry = self._store.get((record_id, model_name))
+            if entry is not None:
+                entry.update(namespace=namespace, scope=scope)
+        elif sql_lower.startswith("delete") and params:
+            ids = set(params[0])
+            for key in list(self._store):
+                if key[0] in ids:
+                    del self._store[key]
         elif sql_lower.startswith("select") and params:
             if "information_schema.columns" in sql_lower:
                 self._rows = [("source_hash",)]
@@ -4024,27 +4036,37 @@ class _FakePgCursor:
                 return
             if "source_hash, dimension, render_version" in sql_lower:
                 record_id, model_name = params
-                entry = self._store.get(record_id)
-                self._rows = [
-                    (
+                entry = self._store.get((record_id, model_name))
+                if entry is not None:
+                    values = (
                         entry["source_hash"],
                         entry["dim"],
                         entry["render_version"],
                         entry["namespace"],
                         entry["scope"],
                     )
-                ] if entry and entry["model"] == model_name else []
+                    if "embedding::text" in sql_lower:
+                        values += (json.dumps(entry["vec"]),)
+                    if "original_vector_json" in sql_lower:
+                        values += (entry["original_vector_json"], entry["original_vector_version"])
+                    self._rows = [values]
                 return
-            vec_literal, model_name, dimension, render_version = params[:4]
-            filter_values = list(params[4:-2])
+            approximate = "order by embedding::vector" in sql_lower
+            if approximate:
+                model_name, render_version = params[:2]
+                dimension = int(re.search(r"dimension = (\d+)", sql_lower).group(1))
+                filter_values = list(params[2:-2])
+                query_vec = json.loads(params[-2])
+                limit = params[-1]
+            else:
+                model_name, dimension, render_version = params[:3]
+                filter_values = list(params[3:])
             namespace = (
                 filter_values.pop(0) if "namespace = %s" in sql_lower else None
             )
             scope = filter_values.pop(0) if "scope = %s" in sql_lower else None
-            limit = params[-1]
-            query_vec = [float(x) for x in vec_literal.strip("[]").split(",")]
-            scored = []
-            for rid, entry in self._store.items():
+            selected = []
+            for (rid, _model), entry in self._store.items():
                 if (
                     entry["model"] != model_name
                     or entry["dim"] != dimension
@@ -4055,14 +4077,24 @@ class _FakePgCursor:
                     continue
                 if scope is not None and entry["scope"] != scope:
                     continue
-                score = cosine(query_vec, entry["vec"])
-                if score > 0:
-                    scored.append((rid, score))
-            scored.sort(key=lambda item: -item[1])
-            self._rows = scored[:limit]
+                selected.append((rid, entry))
+            if approximate:
+                selected.sort(key=lambda item: -cosine(query_vec, item[1]["vec"]))
+                selected = selected[:limit]
+            # Exact search receives the complete eligible original-vector slice;
+            # production code owns scoring and cutoff selection.
+            self._rows = [
+                (rid, entry["original_vector_json"], entry["original_vector_version"])
+                for rid, entry in selected
+            ]
 
     def fetchall(self):
-        return self._rows
+        rows, self._rows = self._rows, []
+        return rows
+
+    def fetchmany(self, size):
+        rows, self._rows = self._rows[:size], self._rows[size:]
+        return rows
 
     def fetchone(self):
         return self._rows[0] if self._rows else None
@@ -4079,8 +4111,8 @@ class _FakePgConnection:
     def __exit__(self, *args):
         pass
 
-    def cursor(self):
-        return _FakePgCursor(self._store, self._sql_log)
+    def cursor(self, *, name=None):
+        return _FakePgCursor(self._store, self._sql_log, name=name)
 
     def commit(self):
         pass
@@ -4099,6 +4131,28 @@ class FakePgVectorAdapter(PgVectorAdapter):
 class FakeChromaCollection:
     def __init__(self) -> None:
         self.entries: dict[str, dict[str, object]] = {}
+        self.metadata: dict[str, object] = {}
+
+    def modify(self, *, metadata):
+        self.metadata = dict(metadata)
+
+    def count(self):
+        return len(self.entries)
+
+    def get(self, *, ids=None, include=None):
+        selected = self.entries if ids is None else {
+            record_id: self.entries[record_id]
+            for record_id in ids if record_id in self.entries
+        }
+        payload = {"ids": list(selected)}
+        for field, key in (("metadatas", "metadata"), ("documents", "document"), ("embeddings", "embedding")):
+            if include is None or field in include:
+                payload[field] = [entry[key] for entry in selected.values()]
+        return payload
+
+    def delete(self, *, ids):
+        for record_id in ids:
+            self.entries.pop(record_id, None)
 
     def upsert(self, ids, embeddings, documents, metadatas) -> None:
         for record_id, embedding, document, metadata in zip(ids, embeddings, documents, metadatas, strict=False):
@@ -4143,8 +4197,12 @@ def _fake_chroma_matches_where(metadata, where):
 class FakeChromaClient:
     def __init__(self) -> None:
         self.collection = FakeChromaCollection()
+        self._created = False
 
     def get_or_create_collection(self, name, metadata=None):
+        if not self._created:
+            self.collection.metadata = dict(metadata or {})
+            self._created = True
         return self.collection
 
 

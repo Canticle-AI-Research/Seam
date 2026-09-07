@@ -1265,6 +1265,8 @@ def test_sqlite_scope_column_upgrade_backfills_from_canonical_ir(
     first.persist_ir(IRBatch([record]))
     first.close()
     with sqlite3.connect(path) as connection:
+        # Recreate the pre-scope schema, including its absence of a scoped index.
+        connection.execute("drop index idx_vector_index_search_slice")
         connection.execute("alter table vector_index drop column scope")
 
     second = SeamRuntime(path, allow_pgvector_env=False)
@@ -1286,6 +1288,9 @@ class _BoundaryCollection:
 
 
 class _Embedding:
+    name = "boundary-test"
+    dimension = 1
+
     def embed(self, text: str) -> list[float]:
         return [1.0]
 
@@ -1294,7 +1299,9 @@ def test_chroma_leg_filters_namespace_and_scope_before_top_k(
     runtime: SeamRuntime,
 ) -> None:
     collection = _BoundaryCollection()
-    adapter = ChromaSemanticAdapter(runtime.store, _Embedding())
+    adapter = ChromaSemanticAdapter(
+        runtime.store, _Embedding(), search_mode="approximate", client=object()
+    )
     adapter._collection = lambda: collection
     plan = build_plan(
         "compiler", scope="thread", namespace="alpha", mode="vector"
@@ -1304,6 +1311,8 @@ def test_chroma_leg_filters_namespace_and_scope_before_top_k(
     assert collection.options["where"] == {
         "$and": [
             {"vector_text_version": {"$eq": "mirl-vector-text/2"}},
+            {"model_name": {"$eq": "boundary-test"}},
+            {"dimension": {"$eq": 1}},
             {"ns": {"$eq": "alpha"}},
             {"scope": {"$eq": "thread"}},
         ]

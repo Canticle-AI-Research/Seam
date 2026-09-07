@@ -57,6 +57,13 @@ def _store_read_snapshot(store):
     return snapshot()
 
 
+def _semantic_read_lock(adapter):
+    """Fence external projection changes before opening the SQLite snapshot."""
+
+    lock = getattr(adapter, "read_lock", None)
+    return lock() if callable(lock) else nullcontext()
+
+
 class RetrievalOrchestrator:
     def __init__(
         self,
@@ -86,6 +93,7 @@ class RetrievalOrchestrator:
                 runtime.embedding_model,
                 persist_directory=chroma_path,
                 collection_name=chroma_collection,
+                search_mode=getattr(runtime, "vector_search_mode", "exact"),
             )
         else:
             self.semantic_adapter = SeamVectorSearchAdapter(runtime.store, runtime.vector_adapter)
@@ -167,7 +175,7 @@ class RetrievalOrchestrator:
         candidate_budget: int | None = None,
         ranking_policy: str = "reciprocal-rank-fusion/2",
     ) -> RetrievalPlan:
-        return build_plan(
+        plan = build_plan(
             query=query,
             scope=scope,
             budget=candidate_budget if candidate_budget is not None else budget,
@@ -183,6 +191,23 @@ class RetrievalOrchestrator:
             temporal_reference=temporal_reference,
             ranking_policy=ranking_policy,
         )
+        leg_names = {leg.name for leg in plan.legs}
+        if "legacy_weighted" in leg_names:
+            adapter = self.runtime.vector_adapter
+        elif "vector" in leg_names:
+            adapter = (
+                self.semantic_adapter.vector_adapter
+                if isinstance(self.semantic_adapter, SeamVectorSearchAdapter)
+                else self.semantic_adapter
+            )
+        else:
+            plan.vector_search_mode = "unused"
+            return plan
+        declared_mode = getattr(adapter, "search_mode", "unknown")
+        plan.vector_search_mode = (
+            declared_mode if declared_mode in {"exact", "approximate"} else "unknown"
+        )
+        return plan
 
     def decide(
         self,
@@ -293,7 +318,10 @@ class RetrievalOrchestrator:
         provenance resolution) keep theirs.
         """
 
-        with _store_read_snapshot(self.runtime.store):
+        with (
+            _semantic_read_lock(self.semantic_adapter),
+            _store_read_snapshot(self.runtime.store),
+        ):
             return self._execute_snapshotted(**kwargs)
 
     def _execute_snapshotted(
@@ -489,7 +517,10 @@ class RetrievalOrchestrator:
         # Hold one snapshot across retrieval AND provenance resolution. Citing a
         # candidate against source rows read from a later state would attest a
         # chain that never existed alongside the answer it justifies.
-        with _store_read_snapshot(self.runtime.store):
+        with (
+            _semantic_read_lock(self.semantic_adapter),
+            _store_read_snapshot(self.runtime.store),
+        ):
             (
                 plan,
                 leg_hits,
@@ -497,7 +528,7 @@ class RetrievalOrchestrator:
                 total_latency_ms,
                 ranked,
                 graph_skipped_reason,
-            ) = self._execute(
+            ) = self._execute_snapshotted(
                 query=query,
                 scope=scope,
                 budget=budget,
@@ -658,6 +689,7 @@ def _serialize_search_trace(
             "budget": budget,
             "candidate_budget": candidate_budget,
             "ranking_policy": plan.ranking_policy,
+            "vector_search_mode": plan.vector_search_mode,
             "graph_hops": plan.graph_hops,
             "semantic_graph_seeding": plan.semantic_graph_seeding,
             "graph_at_applied": plan.graph_at is not None,

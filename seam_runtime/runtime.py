@@ -189,7 +189,18 @@ class SeamRuntime:
         pgvector_dsn: str | None = None,
         pgvector_table: str | None = None,
         allow_pgvector_env: bool = True,
+        vector_search_mode: str | None = None,
     ) -> None:
+        resolved_search_mode = (
+            os.environ.get("SEAM_VECTOR_SEARCH_MODE", "exact")
+            if vector_search_mode is None
+            else vector_search_mode
+        )
+        if resolved_search_mode not in {"exact", "approximate"}:
+            raise ValueError("vector_search_mode must be 'exact' or 'approximate'")
+        # Select once per runtime. Injected adapters retain their own policy;
+        # retrieval traces report the actual adapter's declared search mode.
+        self.vector_search_mode = resolved_search_mode
         self.store = SQLiteStore(store_path)
         self._persist_projection_lock = _runtime_persist_lock(
             self.store.path,
@@ -206,7 +217,12 @@ class SeamRuntime:
         if vector_adapter is not None:
             self.vector_adapter = vector_adapter
         elif resolved_dsn:
-            self.vector_adapter = PgVectorAdapter(resolved_dsn, self.embedding_model, table_name=resolved_table)
+            self.vector_adapter = PgVectorAdapter(
+                resolved_dsn,
+                self.embedding_model,
+                table_name=resolved_table,
+                search_mode=self.vector_search_mode,
+            )
         else:
             self.vector_adapter = SQLiteVectorAdapter(self.store.path, self.embedding_model)
         self._derived_delete_hooks: list[

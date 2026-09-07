@@ -27,7 +27,7 @@ handoff, status, and derived-stream workflow.
 | L6 | Launch qualification and publication | L1-L5 evidence for the offered product | S10 reproducibility and applicable deployment gates pass; release notes, support/upgrade instructions, artifacts, and public claims match the qualified candidate; operator authorizes publication |
 
 L1 prepares package migration; it does not authorize an early public release.
-R2 remains the first runtime implementation slice. Interface specifications and
+R2 and the S8 gates now have a locally qualified freeze candidate (HISTORY#640). Interface specifications and
 design reviews can proceed while core work is underway, but they cannot waive
 core correctness. Existing regression, security, conformance, and CI smoke
 checks continue throughout. Expensive score optimization follows product
@@ -38,7 +38,7 @@ split, model/judge, context budget, and execution budget. Record those before
 any score campaign. Do not substitute retrieval recall, answer accuracy, or a
 different benchmark for one another, and do not promise the result in advance.
 
-## Next task: L1 packaging migration packet
+## Current checkpoint and next product work
 
 The [L1 candidate packet](../audits/2026-09-06-l1-packaging-migration.md)
 contains source/ownership mapping, exact artifact inventories, installed
@@ -51,9 +51,14 @@ legacy package ownership, repository locations, and release access using the
 CLI before changing coordinates. Preserve existing users' install and upgrade
 paths. No rename alone proves distribution eligibility.
 
-After that packet, the first code task is **R2 Retrieval Scale and Backend
-Parity** in [Track S](TRACK_S_S8_S10_PRODUCTION_CORE.md). That specification
-continues to own its detailed invariants and qualification gates.
+R2 and the S8 completion conditions now have local evidence in
+[the gate matrix](../../tests/docs/s8-completion.md). Verify the protected
+freeze through the current handoff before advancing L3 operator acceptance.
+The next bounded product pass should select one real Suite/API/WebUI workflow,
+inspect its current implementation, and record public-seam acceptance before
+editing. L1 delivery blockers remain explicit; expensive benchmark score work
+still follows product completion. [Track S](TRACK_S_S8_S10_PRODUCTION_CORE.md)
+continues to own core qualification and Promotion.
 
 ## Operator workflow acceptance
 

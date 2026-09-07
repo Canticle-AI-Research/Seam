@@ -205,7 +205,8 @@ def test_search_respects_ef_search_override():
 
     dsn = os.environ["SEAM_PGVECTOR_DSN"]
     table = f"seam_vector_index_test_{uuid.uuid4().hex[:12]}"
-    adapter = PgVectorAdapter(dsn=dsn, model=HashEmbeddingModel(), table_name=table, ef_search=17)
+    adapter = PgVectorAdapter(dsn=dsn, model=HashEmbeddingModel(), table_name=table,
+                              ef_search=17, search_mode="approximate")
     try:
         records = _make_records()
         adapter.index_records(records)
@@ -234,6 +235,9 @@ def test_search_respects_ef_search_override():
 
             def fetchall(self):
                 return self._real_cursor.fetchall()
+
+            def fetchmany(self, size):
+                return self._real_cursor.fetchmany(size)
 
             def fetchone(self):
                 return self._real_cursor.fetchone()

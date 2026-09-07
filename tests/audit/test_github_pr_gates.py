@@ -20,7 +20,7 @@ def _external_test_files() -> set[str]:
     """Every test file carrying the external marker, as repo-relative paths.
 
     Derived from the tree rather than hardcoded: a new external test must be
-    added to the pgvector job or `test_ci_enforces_no_silent_skips` fails.
+    added to a dedicated backend job or `test_ci_enforces_no_silent_skips` fails.
     This file is excluded -- it names the marker in its own assertions.
     """
     this_file = Path(__file__).resolve()
@@ -56,8 +56,8 @@ def test_ci_workflow_requires_locomo_bil2_and_chroma_smokes() -> None:
 
 def test_ci_enforces_no_silent_skips() -> None:
     """The CI must never let a test silently skip: the main job deselects the
-    real-service (external) tests, and a dedicated job runs EVERY external test
-    against the live pgvector service with PGVECTOR_TEST_DSN set.
+    real-service (external) tests, and dedicated backend jobs run EVERY external
+    test with their actual service or optional embedded backend installed.
 
     The required file set is computed from the test tree, not hardcoded. The
     previous version asserted two filenames while claiming to cover "every
@@ -71,18 +71,27 @@ def test_ci_enforces_no_silent_skips() -> None:
 
     workflow = yaml.safe_load(raw)
     pgvector_steps = workflow["jobs"]["pgvector-integration"]["steps"]
-    commands = " ".join(step.get("run", "") for step in pgvector_steps)
+    chroma_steps = workflow["jobs"]["chroma-real-smoke"]["steps"]
+    pgvector_commands = " ".join(step.get("run", "") for step in pgvector_steps)
+    chroma_commands = " ".join(step.get("run", "") for step in chroma_steps)
+    commands = pgvector_commands + " " + chroma_commands
     env_blocks = " ".join(
         " ".join(f"{k}={v}" for k, v in (step.get("env") or {}).items())
         for step in pgvector_steps
     )
     assert "PGVECTOR_TEST_DSN" in env_blocks  # pgvector job sets the gate's DSN
+    assert "tests/audit/test_s8_r2_pgvector_parity.py" in pgvector_commands
+    assert "tests/audit/test_s8_r2_chroma_exact.py" in chroma_commands
+    assert "tests/audit/test_s8_r2_semantic_admission.py" in chroma_commands
+    assert 'python -m pip install -e ".[server,chroma]"' in chroma_commands
+    assert "python -m pytest" in chroma_commands
+    assert "-m external" in chroma_commands
 
     required = _external_test_files()
     assert required, "no external-marked test files found; the discovery glob is wrong"
     missing = sorted(path for path in required if path not in commands)
     assert not missing, (
-        "these files carry pytest.mark.external but the pgvector-integration job "
+        "these files carry pytest.mark.external but the dedicated backend jobs "
         f"does not run them, so their tests execute in no CI lane: {missing}"
     )
 

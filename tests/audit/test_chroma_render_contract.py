@@ -9,6 +9,9 @@ from seam_runtime.vector import VECTOR_TEXT_VERSION, SQLiteVectorIndex
 
 
 class _Embedding:
+    name = "test-chroma/1"
+    dimension = 1
+
     def __init__(self) -> None:
         self.texts: list[str] = []
 
@@ -36,6 +39,10 @@ class _Collection:
     def __init__(self) -> None:
         self.rows: dict[str, dict[str, object]] = {}
         self.query_options: dict[str, object] | None = None
+        self.metadata = {}
+
+    def modify(self, *, metadata):
+        self.metadata = metadata
 
     def upsert(self, *, ids, embeddings, documents, metadatas) -> None:
         for record_id, embedding, document, metadata in zip(
@@ -129,7 +136,7 @@ def test_chroma_sync_stamps_v2_source_contract_and_stable_document() -> None:
 
 def test_chroma_search_composes_v2_filter_with_namespace_and_scope() -> None:
     collection = _Collection()
-    adapter = ChromaSemanticAdapter(_Store([]), _Embedding())
+    adapter = ChromaSemanticAdapter(_Store([]), _Embedding(), search_mode="approximate")
     adapter._collection = lambda: collection
     plan = build_plan(
         "compiler", namespace="alpha", scope="thread", mode="vector"
@@ -139,6 +146,8 @@ def test_chroma_search_composes_v2_filter_with_namespace_and_scope() -> None:
     assert collection.query_options["where"] == {
         "$and": [
             {"vector_text_version": {"$eq": VECTOR_TEXT_VERSION}},
+            {"model_name": {"$eq": "test-chroma/1"}},
+            {"dimension": {"$eq": 1}},
             {"ns": {"$eq": "alpha"}},
             {"scope": {"$eq": "thread"}},
         ]
@@ -164,11 +173,13 @@ def test_chroma_search_fails_closed_on_legacy_rows_before_top_k() -> None:
                 "ns": "alpha",
                 "scope": "thread",
                 "vector_text_version": VECTOR_TEXT_VERSION,
+                "model_name": "test-chroma/1",
+                "dimension": 1,
             },
             "distance": 0.5,
         },
     }
-    adapter = ChromaSemanticAdapter(_Store([current, legacy]), _Embedding())
+    adapter = ChromaSemanticAdapter(_Store([current, legacy]), _Embedding(), search_mode="approximate")
     adapter._collection = lambda: collection
     plan = build_plan(
         "evidence", namespace="alpha", scope="thread", mode="vector"
@@ -180,6 +191,8 @@ def test_chroma_search_fails_closed_on_legacy_rows_before_top_k() -> None:
     assert collection.query_options["where"] == {
         "$and": [
             {"vector_text_version": {"$eq": VECTOR_TEXT_VERSION}},
+            {"model_name": {"$eq": "test-chroma/1"}},
+            {"dimension": {"$eq": 1}},
             {"ns": {"$eq": "alpha"}},
             {"scope": {"$eq": "thread"}},
         ]
@@ -188,10 +201,14 @@ def test_chroma_search_fails_closed_on_legacy_rows_before_top_k() -> None:
 
 def test_chroma_search_always_filters_v2_without_boundary_filters() -> None:
     collection = _Collection()
-    adapter = ChromaSemanticAdapter(_Store([]), _Embedding())
+    adapter = ChromaSemanticAdapter(_Store([]), _Embedding(), search_mode="approximate")
     adapter._collection = lambda: collection
 
     assert adapter.search(build_plan("compiler", mode="vector"), limit=5) == []
     assert collection.query_options["where"] == {
-        "vector_text_version": {"$eq": VECTOR_TEXT_VERSION}
+        "$and": [
+            {"vector_text_version": {"$eq": VECTOR_TEXT_VERSION}},
+            {"model_name": {"$eq": "test-chroma/1"}},
+            {"dimension": {"$eq": 1}},
+        ]
     }

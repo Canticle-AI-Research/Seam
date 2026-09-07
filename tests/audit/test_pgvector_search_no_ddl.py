@@ -13,6 +13,7 @@ live pgvector service is available.
 
 from __future__ import annotations
 
+import json
 import re
 
 import pytest
@@ -62,6 +63,10 @@ class _FakeCursor:
     def fetchall(self):
         return list(self._rows)
 
+    def fetchmany(self, size):
+        rows, self._rows = self._rows[:size], self._rows[size:]
+        return rows
+
     def fetchone(self):
         return self._rows[0] if self._rows else None
 
@@ -92,7 +97,7 @@ class _FakeConnection:
     def __exit__(self, *exc):
         return False
 
-    def cursor(self):
+    def cursor(self, **kwargs):
         return _FakeCursor(self)
 
     def commit(self):
@@ -136,12 +141,13 @@ def _record(record_id: str = "clm:one") -> MIRLRecord:
 
 
 def test_search_issues_no_ddl(tmp_path) -> None:
-    recorder = _Recorder(search_rows=[("clm:one", 0.9)])
+    vector = HashEmbeddingModel(name="probe", dimension=8).embed("compiler")
+    recorder = _Recorder(search_rows=[("clm:one", json.dumps(vector), "original-float64/1")])
     adapter = _adapter(recorder)
 
     hits = adapter.search("compiler", limit=5)
 
-    assert hits == {"clm:one": 0.9}
+    assert hits == {"clm:one": 1.0}
     assert recorder.ddl() == [], f"search issued DDL: {recorder.ddl()}"
     assert not any(
         "information_schema" in statement.lower() for statement in recorder.statements
@@ -149,7 +155,8 @@ def test_search_issues_no_ddl(tmp_path) -> None:
 
 
 def test_repeated_search_never_ensures_schema() -> None:
-    recorder = _Recorder(search_rows=[("clm:one", 0.5)])
+    vector = HashEmbeddingModel(name="probe", dimension=8).embed("compiler")
+    recorder = _Recorder(search_rows=[("clm:one", json.dumps(vector), "original-float64/1")])
     adapter = _adapter(recorder)
 
     for _ in range(5):

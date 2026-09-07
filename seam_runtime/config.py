@@ -260,6 +260,11 @@ SETTINGS: tuple[Setting, ...] = (
             description="pgvector port used when composing a DSN from parts."),
 
     # -- Retrieval ----------------------------------------------------------
+    Setting("SEAM_VECTOR_SEARCH_MODE", "Retrieval", "enum", default="exact",
+            choices=("exact", "approximate"),
+            description="Exact search preserves complete vector ranking. Approximate search "
+                        "opts supported backends into ANN and may omit relevant records. "
+                        "SQLite always searches exactly."),
     Setting("SEAM_RETRIEVAL_PROFILE", "Retrieval", "enum",
             choices=("", "compact", "broad"),
             description="Answerer-tier preset. 'compact' = (top_k 100, budget 8000); "

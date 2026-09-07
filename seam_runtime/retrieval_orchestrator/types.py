@@ -98,6 +98,7 @@ class RetrievalPlan:
     temporal_window: tuple[datetime, datetime] | None = None
     temporal_reference: datetime | None = None
     ranking_policy: str = "reciprocal-rank-fusion/2"
+    vector_search_mode: str = "unknown"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -122,6 +123,7 @@ class RetrievalPlan:
                 else None
             ),
             "ranking_policy": self.ranking_policy,
+            "vector_search_mode": self.vector_search_mode,
             "filters": self.filters.to_dict(),
             "legs": [leg.to_dict() for leg in self.legs],
         }
