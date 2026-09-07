@@ -4,15 +4,15 @@
 **Activated:** 2026-08-01 via `HISTORY#511`
 **Latest evidence:** S0-S7, the original S8 mechanisms, and D1-D4/T1/G1/R1 are
 protected-main source. R1 resolved the boundary-only SQL decision and retained
-the legacy default explicitly. R2 and all S8 local gates are qualified at
-HISTORY#640; exact candidate CI, independent release qualification, protected
-merge and exact-main verification remain before the S8 freeze claim. S9/S10
+the legacy default explicitly. R2 and all S8 gates are qualified at
+HISTORY#640 and protected through PR #254 at `main@2f9a96b9`, with exact-main
+verification recorded at HISTORY#641. S9/S10
 remain open. The current controlled execution plan is
 [`TRACK_S_S8_S10_PRODUCTION_CORE.md`](TRACK_S_S8_S10_PRODUCTION_CORE.md).
 **Roadmap item:** `roadmap:track:S`
 **Execution boundary:** provider-free, local, fail-closed, and evidence-gated
-**Publication boundary:** the protected baseline is `main@5f115664` (PR #253).
-The R2 backend/S8 freeze successor is locally qualified, pending publication.
+**Publication boundary:** S8 is frozen at protected `main@2f9a96b9` (PR #254).
+This is source qualification, not S9/S10 or a product release/deployment.
 Later audit findings enter the completion path only after reproduction against
 current protected main and a governing-invariant check.
 
@@ -461,9 +461,8 @@ is a quality, graph, or benchmark claim; S9 remains the promotion gate.
 **Completion successor (2026-09-07, HISTORY#640):** R1 recorded the
 boundary-only SQL decision and deliberately retained the legacy default. R2
 implementation and all original exits now have local qualification in
-[the S8 evidence matrix](../../tests/docs/s8-completion.md). The current
-handoff distinguishes that candidate from protected merge/exact-main freeze.
-S9 and S10 remain separate.
+[the S8 evidence matrix](../../tests/docs/s8-completion.md). HISTORY#641 records its protected
+merge and exact-main freeze through PR #254. S9 and S10 remain separate.
 
 **Exit gate (all required):**
 

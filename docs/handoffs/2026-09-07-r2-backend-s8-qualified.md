@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-07-r2-backend-s8-qualified
 supersedes: 2026-09-07-r2-acquisition-backend-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#640
 ---
 

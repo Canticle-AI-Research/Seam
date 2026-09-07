@@ -5,26 +5,28 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-09-07 — R2 backend implementation and all S8 local mechanism gates are
-qualified; the protected freeze candidate awaits publication checks.**
-HISTORY#640 records exact vector defaults, explicit approximation, deterministic
-cutoffs, real backend parity/growth and independent review. See the
-[S8 gate matrix](tests/docs/s8-completion.md),
-[backend evidence](tests/docs/r2-backend-parity.md), and
-[current handoff](docs/handoffs/INDEX.md) for the exact candidate boundary.
-The protected starting baseline is `main@5f115664` (PR #253); SQLite structured
-scale and temporal/compatibility acquisition are already merged through PRs
-#252 and #253. Local qualification does not itself establish the protected
-freeze. Candidate CI, the independent release receipt and exact-main checks
-must pass before that claim.
+**2026-09-07 — R2 is complete and S8 is frozen on protected main through
+PR #254 at `2f9a96b9`.** Candidate `a6715c2f` passed the three required checks
+and PostgreSQL integration, received an independently authored and validated
+release receipt, and merged through the protected PR path. The resulting
+main tree is identical to the qualified candidate; the same required checks
+and PostgreSQL integration passed on exact main. HISTORY#641 records the
+publication boundary and [current handoff](docs/handoffs/INDEX.md).
 
-The SQL-tail decision remains recorded and `legacy-weighted/1` remains the
-compatibility default. S9 qualification/Promotion and S10 release/deployment
-proof are separate. Surface Encoded Agent Memory, self-hosted Canticle SEAM
-Suite, paid Canticle SEAM API and SEAM WebUI retain the boundaries in the
-[product map](docs/PRODUCTS.md) and [launch plan](docs/roadmap/SEAM_LAUNCH.md).
-The [L1 packet](docs/audits/2026-09-06-l1-packaging-migration.md) records private
-paid SDK access and unresolved customer-delivery/artifact blockers.
+The [S8 gate matrix](tests/docs/s8-completion.md) covers all prerequisites and
+original mechanism exits; [backend evidence](tests/docs/r2-backend-parity.md)
+separates exact parity from selected-corpus work, cache/page storage, ANN recall
+and synthetic cost measurements. The SQL-tail decision is recorded and
+`legacy-weighted/1` remains the compatibility default. S9 qualification and
+Promotion, S10 release/deployment proof, and operator-product acceptance remain
+open. No benchmark quality improvement or hosted-production claim follows
+from this freeze.
+
+The next bounded initiative is one real Suite/API/WebUI operator workflow,
+starting with the [surface inventory](docs/status/surfaces.md) and
+[launch acceptance](docs/roadmap/SEAM_LAUNCH.md). The
+[L1 packet](docs/audits/2026-09-06-l1-packaging-migration.md) still records
+private paid SDK access and unresolved customer-delivery/artifact blockers.
 
 The operator-surface lane is now part of launch delivery. Complete and review
 Suite and API/WebUI before the expensive benchmark score campaign; existing
