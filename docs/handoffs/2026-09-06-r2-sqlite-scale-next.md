@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-06-r2-sqlite-scale-next
 supersedes: 2026-09-06-l1-packaging-candidate
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#637
 ---
 

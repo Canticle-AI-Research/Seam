@@ -11,6 +11,74 @@ def _tokens(text: str) -> list[str]:
     return _TOKEN.findall(text.lower())
 
 
+def _inverse_document_frequencies(
+    n: int, df: Counter[str], q_tokens: list[str]
+) -> dict[str, float]:
+    return {
+        term: math.log(1 + (n - df[term] + 0.5) / (df[term] + 0.5))
+        for term in set(q_tokens)
+    }
+
+
+def _score_document(
+    counts: Counter[str], dl: int, *, q_tokens: list[str], avgdl: float,
+    idf: dict[str, float], k1: float, b: float,
+) -> float:
+    """Shared formula, including query multiplicity and float operation order."""
+    score = 0.0
+    for term in q_tokens:
+        if term not in counts:
+            continue
+        f = counts[term]
+        num = f * (k1 + 1)
+        den = f + k1 * (1 - b + b * dl / avgdl)
+        score += idf.get(term, 0.0) * (num / den)
+    return score
+
+
+class BM25Query:
+    """Exact corpus statistics for one query, without retained documents.
+
+    ``add`` observes every tokenized document, including noncandidate/status
+    excluded records. Only query-term document frequencies survive each call.
+    After accumulation, ``score`` rescans individual texts using the same
+    formula as ``BM25Index``. Full-corpus normalization needs a separate pass.
+    """
+
+    def __init__(self, query: str, k1: float = 1.5, b: float = 0.75) -> None:
+        self.k1, self.b = k1, b
+        self._q_tokens = _tokens(query)
+        self._terms = set(self._q_tokens)
+        self._df: Counter[str] = Counter()
+        self._n = 0
+        self._total_length = 0
+        self._idf: dict[str, float] | None = None
+
+    def add(self, text: str) -> None:
+        tokens = _tokens(text)
+        if not tokens:
+            return
+        self._n += 1
+        self._total_length += len(tokens)
+        for term in self._terms.intersection(tokens):
+            self._df[term] += 1
+        self._idf = None
+
+    def score(self, text: str) -> float:
+        if not self._n or not self._q_tokens:
+            return 0.0
+        tokens = _tokens(text)
+        if self._idf is None:
+            self._idf = _inverse_document_frequencies(
+                self._n, self._df, self._q_tokens
+            )
+        return _score_document(
+            Counter(tokens), len(tokens), q_tokens=self._q_tokens,
+            avgdl=self._total_length / self._n, idf=self._idf,
+            k1=self.k1, b=self.b,
+        )
+
+
 class BM25Index:
     """Per-corpus BM25 over plain text documents.
 
@@ -46,22 +114,15 @@ class BM25Index:
         q_tokens = _tokens(query)
         if not q_tokens:
             return {}
-        idf = {
-            term: math.log(1 + (n - self._df[term] + 0.5) / (self._df[term] + 0.5))
-            for term in set(q_tokens)
-        }
+        idf = _inverse_document_frequencies(n, self._df, q_tokens)
         out: dict[str, float] = {}
         for i, doc_id in enumerate(self._doc_ids):
             counts = self._doc_tokens[i]
             dl = self._doc_lens[i]
-            score = 0.0
-            for term in q_tokens:
-                if term not in counts:
-                    continue
-                f = counts[term]
-                num = f * (self.k1 + 1)
-                den = f + self.k1 * (1 - self.b + self.b * dl / avgdl)
-                score += idf.get(term, 0.0) * (num / den)
+            score = _score_document(
+                counts, dl, q_tokens=q_tokens, avgdl=avgdl, idf=idf,
+                k1=self.k1, b=self.b,
+            )
             if score > 0:
                 out[doc_id] = score
         return out

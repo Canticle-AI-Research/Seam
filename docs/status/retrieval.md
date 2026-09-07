@@ -10,9 +10,13 @@ HISTORY#637 records the first R2 structured SQLite scale slice: per-record
 indexed source-text lookup replaces aggregation across all namespaces, with
 unchanged scores and query boundary gates. Public hybrid retrieval tests pin
 fixed-slice SQL work and candidate parity; see
-`tests/docs/r2-sqlite-scale.md` for exact evidence and limitations. Compatibility
-and temporal acquisition, pgvector HNSW expression/tie behavior and full backend
-parity remain open. This slice does not freeze S8. Resume through
+`tests/docs/r2-sqlite-scale.md` for exact evidence and limitations. HISTORY#638
+adds bounded temporal winner acquisition and streaming compatibility scoring;
+see `tests/docs/r2-acquisition-parity.md` and HISTORY#639 for integrated
+verification and the pending publication boundary. Full scoring-context metadata and
+selected-corpus work remain distinct from bounded live record materialization.
+pgvector HNSW expression/tie behavior and full backend parity remain open,
+with operator policy choices recorded in the handoff. This does not freeze S8. Resume through
 `docs/handoffs/INDEX.md`; verify its exact PR/main state before continuing.
 
 PR #222 merged the SQL leg's deterministic equal-score tiebreak and the

@@ -20870,3 +20870,89 @@ work while retaining signing, secret scans and continuity gates. The clean
 worktree/merged branch are removed after publication; canonical resume state
 survives on protected main.
 ---END-ENTRY-#637---
+
+---BEGIN-ENTRY-#638---
+id: 638
+date: 2026-09-07T00:31:46Z
+agent: codex
+status: in-progress
+topics: retrieval, storage, rank, test, verify, correction, handoff, continuity
+commits: pending
+refs: seam_runtime/storage.py,seam_runtime/retrieval.py,seam_runtime/bm25.py,seam_runtime/temporal.py,seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_s8_r2_temporal_scale.py,tests/audit/test_s8_r2_legacy_scale.py,tests/docs/r2-acquisition-parity.md,docs/handoffs/2026-09-07-r2-acquisition-backend-next.md,docs/handoffs/INDEX.md,docs/status/retrieval.md,PROJECT_STATUS.md
+supersedes: 637
+tokens: 734
+---
+R2 ACQUISITION CONTINUATION: resumed from protected main
+ab9fe4b8d0d6a2c8bac4449fb683e2a50539cb03 (PR #252), preserving unrelated
+primary audit files, locked cleanup and dirty Codex-hook worktrees. Pending
+closeout queues were empty. The operator requested a verified work loop with
+subagents, handoffs, push and protected merge. No stash was created.
+
+Temporal retrieval now selects exact canonical-score winners in SQLite before
+MIRL payload materialization. The existing temporal connection registration
+installs deterministic score and exact Python attribute-text UDFs without
+weakening read-snapshot guards. Streaming compatibility scoring uses bounded
+canonical IR pages and shared channel/graph/fusion/BM25 primitives. It preserves
+whole-context symbols, entity/graph metadata, original-query BM25 corpus/max,
+status/boundary behavior and legacy-weighted/1. Weighted selection retains
+top-K records; internal RRF retains scalar IDs/channel scores for exact ranks.
+Both still perform selected-corpus work; metadata and total constructed MIRL
+can grow. No arbitrary prefilter, schema migration or backend default changes.
+
+Witnessed public red/green cycles for temporal and compatibility growth were
+recorded with unchanged test bytes, timestamps and output fingerprints in the
+bounded session state. Delivery's temporal/coherence selection and expanded
+compatibility/consolidation/R1/BM25 selection passed; exact commands, hashes,
+materialization measurements and limitations live in
+tests/docs/r2-acquisition-parity.md and retained local evidence. Fixture setup
+failures preceded the valid red runs and are not TDD proof. Collection and
+scoped Ruff passed. Independent temporal review then found a real type-parity
+regression: numeric payload t0 became parseable after SQLite TEXT affinity.
+A dedicated reference/window red/green repair requires the canonical payload
+timestamp to be a string before scoring. Independent rereview, integrated
+full audit and final publication gates are completed against the final
+candidate after this entry; do not infer them from initial focused greens.
+
+The earlier PR #252 stored receipt has unverified independent authorship: its
+release worker reported it did not author it or complete every attributed
+check. Retained that receipt unchanged. A fresh independent review and six
+canonical continuity gates plus the public SQLite regression passed on clean
+exact main on 2026-09-07; primary completed evidence preserves manifest/hash
+and logs. Original /tmp logs are unavailable, and hashes were not treated as
+reconstructed raw evidence. Existing external pgvector baseline tests passed
+on an owned isolated service. Removed the clean detached baseline worktree;
+stopped only the owned scratch service and removed its generated credentials.
+
+Recorded two pending operator choices: exact pgvector default with explicit
+approximation versus a measured approximate default, and a common smaller-ID
+cutoff versus SQLite's historical larger-ID admission. HNSW expression matching
+and deterministic SQLite/pgvector/Chroma parity remain open until decisions and
+live qualification. Post-query sorting cannot repair backend cutoff loss.
+Updated status and chronological handoff to this partial R2 acquisition slice;
+R2 remains in progress and S8/S9/S10 and L1 release blockers remain open. No
+paid provider, package publication or deployment occurred. Root owns canonical
+closeout, current independent receipt admission, exact-head CI and protected
+merge. Archive raw evidence before removing the clean merged working branch
+and worktree. The documented single-push dirty-worktree exception preserves
+excluded work without bypassing signatures, scans or continuity gates.
+---END-ENTRY-#638---
+
+---BEGIN-ENTRY-#639---
+id: 639
+date: 2026-09-07T00:42:43Z
+agent: codex
+status: changed
+topics: correction, verify, continuity, handoff, retrieval
+commits: pending
+refs: tests/docs/r2-acquisition-parity.md,docs/handoffs/2026-09-07-r2-acquisition-backend-next.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,docs/status/retrieval.md
+supersedes: 638
+tokens: 474
+---
+Correct HISTORY#638 publication wording and record final acquisition verification. The earlier sentence that independent rereview, the integrated audit and publication gates "are completed" combined future work with completed work prematurely. HISTORY#638 is preserved unchanged. At this correction, both independent runtime reviews and the integrated audit have actually passed; pushed-head CI, final release qualification and protected merge are still pending.
+
+Verification: from this acquisition worktree, PYTHONPATH=. with the primary .venv Python and an isolated SEAM_DB_PATH ran `-m pytest tests/audit/ -m "not external" -ra --durations=15 -o addopts=` between 2026-09-07 00:30:06 and 00:36:05 UTC: 2,929 passed, 23 explicitly deselected external cases, zero skips, two existing migration-lease fork deprecation warnings. `test_seam/r2-closeout/audit.json` binds unchanged before/after hashes for all five changed runtime sources and both new regression modules; output SHA256 baf507ff325db6757170547abb7aff6e35119191c0c73d16515c0f5f85ce470f. Scoped Ruff and affected-module collection passed. The full audit need not be repeated for these documentation-only corrections.
+
+Independent temporal assurance reran the original numeric timestamp reproduction and 39 selected public/temporal cases after repair; all passed. Independent compatibility assurance matched 2,304 scorer cases and 288 BM25 cases against the original baseline implementations, with cursor cleanup and shared-snapshot checks. The final docs review found only the now-recorded history-status correction. Rebind the current acquisition handoff and registry to this verification event; tests/docs/r2-acquisition-parity.md records commands, hashes and boundaries.
+
+Next: scan and sign the candidate, push a draft PR, verify required checks on that exact head, obtain a freshly authored release receipt, merge through protected main, and retain raw evidence before worktree cleanup. Full R2 remains open: exact versus approximate pgvector policy and equal-score cutoff policy await operator input, followed by real backend parity/plan/scale proof. No backend default, tie behavior, paid run, package publication or deployment was changed or performed. Preserve the excluded dirty primary and older worktrees named in the handoff.
+---END-ENTRY-#639---
