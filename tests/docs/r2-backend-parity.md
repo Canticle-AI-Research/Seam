@@ -128,9 +128,9 @@ and its raw output. The live backend suite passed 64 cases before the growth
 addition; the final real-Chroma selection passed 25 cases with five explicit
 non-external deselections, and independent growth assurance passed the added
 case. No skip was admitted. Independent standards and spec reviews report no
-unresolved blocker. Exact candidate CI/release qualification, protected merge
-and exact-main freeze verification remain the publication boundary recorded
-by the current handoff.
+unresolved blocker. HISTORY#641 records protected PR #254, its independently
+stored release receipt, the identical merge tree and exact-main required/backend
+checks. The S8 source freeze is `2f9a96b9`; the measurement limits above remain.
 
 The recovery pass corrected two old fixtures in
 `tests/audit/test_reasoning_retrieval.py`: the simulated pre-scope SQLite schema

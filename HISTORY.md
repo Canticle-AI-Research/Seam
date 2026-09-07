@@ -21032,3 +21032,51 @@ the owned scratch PostgreSQL container and remove only its generated connection
 file. No stash was created. The documented one-push dirty-worktree exception
 preserves excluded work while signatures, scans and all gates remain enforced.
 ---END-ENTRY-#640---
+
+---BEGIN-ENTRY-#641---
+id: 641
+date: 2026-09-07T05:33:01Z
+agent: codex
+status: done
+topics: retrieval, audit, handoff, docs, continuity, status, verify
+commits: 2f9a96b9bbc1015bb8057e01793e42cec95034af
+refs: PROJECT_STATUS.md,docs/status/retrieval.md,docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md,docs/roadmap/SEAM_LAUNCH.md,tests/docs/s8-completion.md,tests/docs/r2-backend-parity.md,docs/handoffs/INDEX.md,docs/handoffs/2026-09-07-s8-protected-main-suite-next.md
+supersedes: 640
+tokens: 592
+---
+Protected S8 freeze following HISTORY#640. PR #254 merged signed candidate
+a6715c2f32f3c72efd501fb8be6b3303a9a105f3 at
+2f9a96b9bbc1015bb8057e01793e42cec95034af. Root checked identical candidate/main
+trees and candidate ancestry. Candidate required checks plus pgvector passed;
+the independently authored QUALIFIED receipt was validated/stored through the
+canonical queue and the exact fingerprint was rechecked immediately before
+protected merge. CI run34086580171 on exact main now passes repo-hygiene,
+chroma-real-smoke, locomo-quickstart-bil2 and pgvector-integration. This is a
+scoped job result, not an inferred whole-workflow/advisory outcome.
+
+R2 and every documented S8 gate are complete at that frozen source baseline.
+tests/docs/s8-completion.md maps prerequisite and original-mechanism tests;
+tests/docs/r2-backend-parity.md retains exact commands, source hashes, real
+backend/plan/growth results and cost limits. The previous source integration
+result and known xfails remain recorded unchanged. This successor changes
+documentation/continuity only; runtime, tests and CI remain byte-identical.
+No new runtime TDD cycle or full-source rerun is claimed for these docs.
+
+Update current status, roadmap pointers and chronological handoff to the
+protected freeze. Preserve exact default/explicit approximation/smaller-ID
+ties, the 0.80 boundary-only SQL decision and legacy-weighted/1. The next bounded
+product pass starts from current surface code and one real supported operator
+workflow under launch acceptance. S9/Promotion, S10, L1 SDK/artifact delivery
+blockers and Suite/API/WebUI acceptance remain separate. No paid evaluation,
+package publication or deployment was performed.
+
+Canonical closeout, candidate scan, independent docs review, pushed-head
+required CI and a fresh documentation-only release receipt govern this
+successor PR. Root will verify its exact protected main and retain raw source
+and publication evidence before cleanup. The primary audit and older hook/
+locked cleanup worktrees remain excluded exactly as listed in the handoff.
+The two owned merged branches and backend worktree are finished after evidence
+preservation; only the owned scratch PostgreSQL service and connection file
+are removed. No stash was created. The one-push dirty-worktree exception keeps
+excluded work intact without bypassing signatures, scans or gates.
+---END-ENTRY-#641---

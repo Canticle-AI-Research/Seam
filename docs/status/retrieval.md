@@ -4,22 +4,22 @@
 
 _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
-## Status: R2 and S8 locally qualified; protected freeze candidate
+## Status: R2 complete; S8 protected freeze
 
-HISTORY#640 records completion of the backend slice on the protected
-`5f115664` acquisition baseline (PR #253). Exact search preserves original
-cosine arithmetic and smaller-ID ties across SQLite, pgvector and real Chroma;
-approximation is explicit and appears in public plans/traces. Growth, coverage,
-snapshot, filtering, original-vector migration and actual optional HNSW-plan
-evidence live in `tests/docs/r2-backend-parity.md`. Earlier structured and
-temporal/compatibility slices remain recorded in HISTORY#637-#639.
+HISTORY#641 records protected PR #254 at `main@2f9a96b9` after candidate
+`a6715c2f` passed required CI, PostgreSQL integration and independently stored
+release qualification. Exact-main required/backend checks passed and its tree
+matches the qualified source. All S8 prerequisites and original mechanism exits
+have evidence in `tests/docs/s8-completion.md`.
 
-All S8 prerequisites and original mechanism exits have local regression
-evidence in `tests/docs/s8-completion.md`. Full selected-corpus work, scalar
+Exact search preserves original cosine arithmetic and smaller-ID ties across
+SQLite, pgvector and real Chroma. Approximation is explicit and reported in
+public plans/traces. Growth, coverage, snapshots, filtering, original-vector
+migration and actual optional HNSW-plan evidence remain scoped in
+`tests/docs/r2-backend-parity.md`. Earlier structured and temporal/compatibility
+acquisition are protected through PRs #252/#253. Selected-corpus work, scalar
 metadata, cache storage, bounded pages and latency remain separate claims.
-This checkpoint awaits exact candidate CI, independently stored release
-qualification, protected merge and exact-main verification. The registry owns
-the current publication boundary. No ranking default is promoted.
+`legacy-weighted/1` remains the compatibility default; S9 Promotion is open.
 
 PR #222 merged the SQL leg's deterministic equal-score tiebreak and the
 deleted-record vector-outbox replay repair at protected `main@a177852`. Those

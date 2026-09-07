@@ -27,7 +27,7 @@ handoff, status, and derived-stream workflow.
 | L6 | Launch qualification and publication | L1-L5 evidence for the offered product | S10 reproducibility and applicable deployment gates pass; release notes, support/upgrade instructions, artifacts, and public claims match the qualified candidate; operator authorizes publication |
 
 L1 prepares package migration; it does not authorize an early public release.
-R2 and the S8 gates now have a locally qualified freeze candidate (HISTORY#640). Interface specifications and
+R2 and the S8 gates are frozen through protected PR #254 (HISTORY#641). Interface specifications and
 design reviews can proceed while core work is underway, but they cannot waive
 core correctness. Existing regression, security, conformance, and CI smoke
 checks continue throughout. Expensive score optimization follows product
@@ -51,9 +51,10 @@ legacy package ownership, repository locations, and release access using the
 CLI before changing coordinates. Preserve existing users' install and upgrade
 paths. No rename alone proves distribution eligibility.
 
-R2 and the S8 completion conditions now have local evidence in
-[the gate matrix](../../tests/docs/s8-completion.md). Verify the protected
-freeze through the current handoff before advancing L3 operator acceptance.
+R2 and the S8 completion conditions are protected at `main@2f9a96b9`
+(PR #254), with exact-main checks recorded at HISTORY#641 and evidence in
+[the gate matrix](../../tests/docs/s8-completion.md). L3 operator acceptance
+is the next product lane.
 The next bounded product pass should select one real Suite/API/WebUI workflow,
 inspect its current implementation, and record public-seam acceptance before
 editing. L1 delivery blockers remain explicit; expensive benchmark score work

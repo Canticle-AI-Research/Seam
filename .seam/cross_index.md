@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 705
+total_events: 706
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-21T21:26:08Z | history:447:c51ad1e0 | session-event | done | ci, test, benchmark, bugfix, performance, verify, continuity | .github/workflows/ci.yml,seam_runtime/models.py,test_seam_all/test_locomo_run... |
 | 2026-07-21T23:48:47Z | history:448:8fa1aac6 | session-event | done | benchmark, locomo, retrieval, compile, provenance, audit,... | seam_runtime/multi_speaker_facts.py,seam_runtime/derived_fact_context.py,seam... |
 | 2026-07-21T23:50:13Z | history:449:3656720f | session-event | changed | test, verify, history, continuity, audit | HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/histor... |
 | 2026-07-22T00:00:00Z | roadmap:060:ee1d9abf | status-change | bootstrap | graph, memory, retrieval, benchmark, comparator, provenance | ROADMAP.md:1862 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-07T00:31:46Z | history:638:3276f5f2 | session-event | in-progress | retrieval, storage, rank, test, verify, correction, hando... | seam_runtime/storage.py,seam_runtime/retrieval.py,seam_runtime/bm25.py,seam_r... |
 | 2026-09-07T00:42:43Z | history:639:5874e5ca | session-event | changed | correction, verify, continuity, handoff, retrieval | tests/docs/r2-acquisition-parity.md,docs/handoffs/2026-09-07-r2-acquisition-b... |
 | 2026-09-07T05:09:34Z | history:640:0b04b96a | session-event | done | retrieval, vector, pgvector, chroma, parity, rank, verify... | seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval... |
+| 2026-09-07T05:33:01Z | history:641:69f4500c | session-event | done | retrieval, audit, handoff, docs, continuity, status, verify | PROJECT_STATUS.md,docs/status/retrieval.md,docs/roadmap/MEMORY_GUARANTEES_CAM... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0505.cross.md | 2026-04-15T00:00:00Z..2026-07-21T20:24:11Z | 505 | (multi) | (multi) |
+| 0001-0506.cross.md | 2026-04-15T00:00:00Z..2026-07-21T21:26:08Z | 506 | (multi) | (multi) |

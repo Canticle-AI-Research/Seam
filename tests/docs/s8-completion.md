@@ -3,8 +3,13 @@
 The governing completion gate is
 [`TRACK_S_S8_S10_PRODUCTION_CORE.md`](../../docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md#r1---s8-retrieval-contract).
 This matrix binds its prerequisites and the original S8 mechanism exits to
-executable regressions. Protected merge and exact-main verification establish
-the frozen source baseline; local tests alone do not establish publication.
+executable regressions. The frozen source baseline is protected
+`main@2f9a96b9bbc1015bb8057e01793e42cec95034af` through PR #254 (HISTORY#641).
+Candidate `a6715c2f` passed required CI, PostgreSQL integration and independently
+stored release qualification before merge. CI run `34086580171` passed the
+three required checks plus PostgreSQL integration on exact main; its source
+tree is identical to the qualified candidate. Advisory workflow outcomes are
+recorded separately and are not inferred from required-job success.
 
 ## Prerequisites
 

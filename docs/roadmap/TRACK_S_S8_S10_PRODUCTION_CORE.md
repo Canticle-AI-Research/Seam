@@ -345,7 +345,7 @@ green. G1 is protected-main complete.
 4. Pin deterministic backend tie behavior.
 5. Add fixed-slice growth budgets and SQLite/pgvector/Chroma parity cases.
 
-**Local completion checkpoint (HISTORY#640):** all five requirements now have
+**Completed (HISTORY#640/#641):** all five requirements have
 implementation and regression evidence. Structured SQLite and
 temporal/compatibility acquisition are protected through PRs #252/#253. The
 backend successor preserves original-vector arithmetic, makes approximation
@@ -353,9 +353,10 @@ explicit, fixes tied cutoff membership and validates real PostgreSQL HNSW
 plans plus SQLite/PostgreSQL/Chroma growth. See
 [backend evidence](../../tests/docs/r2-backend-parity.md) and the complete
 [S8 gate matrix](../../tests/docs/s8-completion.md). The independent reviews
-have no unresolved blocker. Exact candidate CI, release receipt, protected
-merge and exact-main verification establish the S8 freeze; this local
-checkpoint does not claim S9 or S10 completion.
+have no unresolved blocker. Candidate `a6715c2f` passed required/backend CI
+and independently stored release qualification, then protected-merged through
+PR #254 at `2f9a96b9`. Exact-main required/backend checks passed on the identical
+source tree, establishing the S8 freeze. S9 and S10 remain open.
 
 ### Q1 - S9 Qualification
 
@@ -440,12 +441,10 @@ decision.
 7. D4 snapshot integrity (protected-main complete through PR #242).
 8. T1 temporal semantics (protected-main complete through PR #243).
 9. G1 and R1 (protected-main complete through PRs #244/#245), followed by R2
-   (acquisition merged through PRs #252/#253; backend locally qualified at
-   HISTORY#640).
-10. Qualify and protected-merge the R2/S8 candidate, verify exact main and
-    record the S8 freeze. The launch plan then prioritizes operator-product
-    completion before expensive Q1 score work; Q1 and C1 keep their own gates.
+   (protected through PRs #252/#253/#254; S8 freeze at `2f9a96b9`, HISTORY#641).
+10. Continue the launch plan's operator-product completion before expensive
+    Q1 score work. Q1 and C1 retain their own frozen-baseline qualification gates.
 
 The completed D1 slices establish the Recovery Boundary architecture used by
-the later stages. Local R2 qualification does not establish the protected
-freeze or waive downstream qualification.
+the later stages. The verified S8 freeze does not waive downstream
+qualification.
