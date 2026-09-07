@@ -7,9 +7,10 @@ from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from dataclasses import fields as dataclass_fields
 from datetime import datetime
-from typing import Iterable, Mapping, Protocol
+from heapq import nsmallest
+from typing import Callable, Iterable, Mapping, Protocol
 
-from .bm25 import BM25Index
+from .bm25 import BM25Index, BM25Query
 from .mirl import (
     IRBatch,
     MIRLRecord,
@@ -583,36 +584,16 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
     bm25_scores: dict[str, float] = bm25_index.score(query) if bm25_index else {}
     max_bm25 = max(bm25_scores.values()) if bm25_scores else 1.0
 
-    # First pass: per-channel scores for every candidate record.
-    scored: list[tuple[MIRLRecord, dict[str, float]]] = []
-    for record in records:
-        if record.kind not in candidate_kinds:
-            continue
-        lexical = _lexical_score(record, tokens)
-        bm25_applies = record.id in bm25_scores and (flags.bm25_all_kinds or record.kind == RecordKind.RAW)
-        if bm25_applies:
-            lexical = max(lexical, bm25_scores[record.id] / max(max_bm25, 1.0))
-        if record.id in vector_scores:
-            semantic = vector_scores[record.id]
-        elif flags.semantic_zero_no_vector and vector_scores:
-            semantic = 0.0
-        else:
-            semantic = _semantic_score(record, query_vector)
-        if flags.entity_grounded_scoring:
-            graph_bonus = _entity_grounded_score(record, tokens, ent_labels)
-        else:
-            graph_bonus = _graph_score(record, tokens, graph)
-        if temporal_reference is not None:
-            temporal = temporal_distance_score(temporal_reference, parse_iso(record.t0))
-        elif temporal_window is not None:
-            t0_parsed = parse_iso(record.t0)
-            if t0_parsed and temporal_window[0] <= t0_parsed <= temporal_window[1]:
-                temporal = 1.0
-            else:
-                temporal = 0.0
-        else:
-            temporal = _temporal_score(record)
-        scored.append((record, {"lexical": lexical, "semantic": semantic, "graph": graph_bonus, "temporal": temporal}))
+    context = _ChannelContext(
+        tokens=tokens, query_vector=query_vector, graph=graph,
+        ent_labels=ent_labels, vector_scores=vector_scores, max_bm25=max_bm25,
+        temporal_reference=temporal_reference, temporal_window=temporal_window,
+        flags=flags,
+    )
+    scored = [
+        (record, _score_channels(record, context, bm25_scores.get(record.id)))
+        for record in records if record.kind in candidate_kinds
+    ]
 
     if flags.fusion == "rrf":
         candidates = _fuse_rrf(scored, batch_by_id, k=flags.rrf_k)
@@ -625,6 +606,181 @@ def search_batch(batch: IRBatch, query: str, scope: str | None = None, limit: in
     )
 
 
+@dataclass
+class _ChannelContext:
+    tokens: list[str]
+    query_vector: Counter[str]
+    graph: dict[str, set[str]]
+    ent_labels: dict[str, str]
+    vector_scores: dict[str, float]
+    max_bm25: float
+    temporal_reference: datetime | None
+    temporal_window: tuple[datetime, datetime] | None
+    flags: RetrievalFlags
+
+
+def _score_channels(
+    record: MIRLRecord, context: _ChannelContext, bm25_score: float | None
+) -> dict[str, float]:
+    """Canonical per-record scoring for both full-batch and streaming reads."""
+    flags = context.flags
+    lexical = _lexical_score(record, context.tokens)
+    if bm25_score is not None and (flags.bm25_all_kinds or record.kind == RecordKind.RAW):
+        lexical = max(lexical, bm25_score / max(context.max_bm25, 1.0))
+    if record.id in context.vector_scores:
+        semantic = context.vector_scores[record.id]
+    elif flags.semantic_zero_no_vector and context.vector_scores:
+        semantic = 0.0
+    else:
+        semantic = _semantic_score(record, context.query_vector)
+    if flags.entity_grounded_scoring:
+        graph_bonus = _entity_grounded_score(record, context.tokens, context.ent_labels)
+    else:
+        graph_bonus = _graph_score(record, context.tokens, context.graph)
+    if context.temporal_reference is not None:
+        temporal = temporal_distance_score(context.temporal_reference, parse_iso(record.t0))
+    elif context.temporal_window is not None:
+        timestamp = parse_iso(record.t0)
+        temporal = (
+            1.0 if timestamp and context.temporal_window[0] <= timestamp <= context.temporal_window[1]
+            else 0.0
+        )
+    else:
+        temporal = _temporal_score(record)
+    return {"lexical": lexical, "semantic": semantic, "graph": graph_bonus, "temporal": temporal}
+
+
+def _bm25_text(record: MIRLRecord, all_kinds: bool) -> str:
+    if record.kind == RecordKind.RAW:
+        content = record.attrs.get("content")
+        return content if isinstance(content, str) and content else ""
+    return " ".join(iter_textual_fields(record)) if all_kinds else ""
+
+
+def search_stream(
+    record_source: Callable[[], Iterable[MIRLRecord]],
+    query: str,
+    *,
+    scope: str | None = None,
+    limit: int = 5,
+    vector_scores: dict[str, float] | None = None,
+    include_raw: bool = False,
+    temporal_window: tuple[datetime, datetime] | None = None,
+    temporal_reference: datetime | None = None,
+    flags: RetrievalFlags | None = None,
+) -> SearchResult:
+    """Compatibility ranking from repeatable, ID-ordered canonical row scans.
+
+    The caller holds one request snapshot over every pass. Live record/payload
+    materialization is bounded by the source page plus top-K winners; it is
+    NOT constant total memory or sublinear work. Full graph/entity/symbol
+    context metadata survives the context pass. BM25 retains query-term corpus
+    statistics and scans again for full-corpus normalization. Internal RRF also
+    retains O(candidate count) ID/channel scalars for exact channel ranks, then
+    hydrates only winners during a final scan. Total constructed MIRL objects
+    therefore grows linearly with the corpus (two to four passes).
+
+    This ranking bridge omits evidence hydration: the orchestrator owns the
+    selected candidates' provenance and current-state resolution, as before.
+    """
+    flags = flags or RetrievalFlags()
+    if temporal_reference is not None:
+        temporal_reference = normalize_datetime(temporal_reference)
+    if temporal_window is not None:
+        temporal_window = tuple(normalize_datetime(value) for value in temporal_window)
+        if temporal_window[0] > temporal_window[1]:
+            raise ValueError("temporal_window start must not follow its end")
+    bm25 = BM25Query(query) if include_raw or flags.bm25_all_kinds else None
+    graph: dict[str, set[str]] = defaultdict(set)
+    ent_labels: dict[str, str] = {}
+    symbols: dict[str, str] = {}
+    namespace = None
+    first = True
+    for record in record_source():
+        if first:
+            namespace, first = record.ns, False
+        # Symbol maps precede status exclusion in the full-batch contract.
+        if record.kind == RecordKind.SYM:
+            _, additions = build_symbol_maps([record], namespace=namespace)
+            symbols.update(additions)
+        # BM25 observes the complete acquired corpus, including excluded
+        # statuses and kinds which cannot become returned candidates.
+        if bm25 is not None:
+            bm25.add(_bm25_text(record, flags.bm25_all_kinds))
+        if (scope is None or record.scope == scope) and record.status not in _CURRENT_EXCLUDED_STATUSES:
+            _add_graph_record(graph, record)
+            if record.kind == RecordKind.ENT:
+                ent_labels[record.id] = str(record.attrs.get("label", ""))
+    # Do not keep the last payload alive between passes.
+    if not first:
+        del record
+    expanded_query = _expand_query(query, symbols)
+    tokens = _tokens(expanded_query)
+    max_bm25 = 1.0
+    if bm25 is not None:
+        max_bm25 = max(
+            (bm25.score(_bm25_text(record, flags.bm25_all_kinds)) for record in record_source()),
+            default=0.0,
+        )
+    context = _ChannelContext(
+        tokens=tokens, query_vector=Counter(tokens), graph=graph,
+        ent_labels=ent_labels, vector_scores=vector_scores or {}, max_bm25=max_bm25,
+        temporal_reference=temporal_reference, temporal_window=temporal_window,
+        flags=flags,
+    )
+    candidate_kinds = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}
+    if include_raw:
+        candidate_kinds.add(RecordKind.RAW)
+
+    def scored_records():
+        for record in record_source():
+            if (
+                record.kind not in candidate_kinds
+                or (scope is not None and record.scope != scope)
+                or record.status in _CURRENT_EXCLUDED_STATUSES
+            ):
+                continue
+            bm25_score = bm25.score(_bm25_text(record, flags.bm25_all_kinds)) if bm25 else None
+            yield record, _score_channels(record, context, bm25_score)
+
+    if flags.fusion == "rrf":
+        # Discard every record after scoring; channel values and IDs are the
+        # only namespace-sized candidate data needed to reproduce exact ranks.
+        scored = [(record.id, channels) for record, channels in scored_records()]
+        rrf = _rrf_scores(scored, flags.rrf_k)
+        winners = dict(nsmallest(
+            limit, ((record_id, score) for record_id, score in rrf.items() if score > 0),
+            key=lambda pair: (-pair[1], pair[0]),
+        ))
+        winner_channels = {record_id: channels for record_id, channels in scored if record_id in winners}
+        del scored, rrf
+        candidates = [
+            SearchCandidate(record=record, score=winners[record.id], reasons=_reasons(winner_channels[record.id]))
+            for record in record_source() if record.id in winners
+        ]
+        candidates.sort(key=lambda candidate: (-candidate.score, candidate.record.id))
+    else:
+        weights = flags.weight_pairs()
+
+        def weighted_candidates():
+            for record, channels in scored_records():
+                score = _weighted_score(channels, weights)
+                if score <= 0:
+                    continue
+                yield SearchCandidate(record=record, score=score, reasons=_reasons(channels))
+
+        candidates = nsmallest(
+            limit, weighted_candidates(), key=lambda candidate: (-candidate.score, candidate.record.id)
+        )
+    return SearchResult(query=expanded_query, candidates=candidates)
+
+
+def _weighted_score(
+    channels: dict[str, float], weights: tuple[tuple[str, float], ...]
+) -> float:
+    return sum(weight * channels[name] for name, weight in weights)
+
+
 def _reasons(channels: dict[str, float]) -> list[str]:
     return [f"{name}={channels[name]:.2f}" for name, _ in _WEIGHTS]
 
@@ -632,7 +788,7 @@ def _reasons(channels: dict[str, float]) -> list[str]:
 def _fuse_weighted(scored: list[tuple[MIRLRecord, dict[str, float]]], batch_by_id: dict[str, MIRLRecord], weights: tuple[tuple[str, float], ...] = _WEIGHTS) -> list[SearchCandidate]:
     candidates: list[SearchCandidate] = []
     for record, channels in scored:
-        score = sum(weight * channels[name] for name, weight in weights)
+        score = _weighted_score(channels, weights)
         if score <= 0:
             continue
         evidence = [batch_by_id[ev] for ev in record.evidence if ev in batch_by_id]
@@ -641,17 +797,7 @@ def _fuse_weighted(scored: list[tuple[MIRLRecord, dict[str, float]]], batch_by_i
 
 
 def _fuse_rrf(scored: list[tuple[MIRLRecord, dict[str, float]]], batch_by_id: dict[str, MIRLRecord], k: int) -> list[SearchCandidate]:
-    # Per-channel descending one-based rank, matching the canonical
-    # retrieval-orchestrator fusion contract. Only records with a positive
-    # channel score participate. RRF score = sum_c 1/(k + rank_c).
-    rrf: dict[str, float] = defaultdict(float)
-    for name, _ in _WEIGHTS:
-        ranked = sorted(
-            ((channels[name], record) for record, channels in scored if channels[name] > 0),
-            key=lambda pair: (-pair[0], pair[1].id),
-        )
-        for rank, (_score, record) in enumerate(ranked, start=1):
-            rrf[record.id] += 1.0 / (k + rank)
+    rrf = _rrf_scores([(record.id, channels) for record, channels in scored], k)
     candidates: list[SearchCandidate] = []
     for record, channels in scored:
         score = rrf.get(record.id, 0.0)
@@ -660,6 +806,21 @@ def _fuse_rrf(scored: list[tuple[MIRLRecord, dict[str, float]]], batch_by_id: di
         evidence = [batch_by_id[ev] for ev in record.evidence if ev in batch_by_id]
         candidates.append(SearchCandidate(record=record, score=score, reasons=_reasons(channels), evidence=evidence))
     return candidates
+
+
+def _rrf_scores(scored: list[tuple[str, dict[str, float]]], k: int) -> dict[str, float]:
+    # Per-channel descending one-based rank, matching the canonical
+    # retrieval-orchestrator fusion contract. Only records with a positive
+    # channel score participate. RRF score = sum_c 1/(k + rank_c).
+    rrf: dict[str, float] = defaultdict(float)
+    for name, _ in _WEIGHTS:
+        ranked = sorted(
+            ((channels[name], record_id) for record_id, channels in scored if channels[name] > 0),
+            key=lambda pair: (-pair[0], pair[1]),
+        )
+        for rank, (_score, record_id) in enumerate(ranked, start=1):
+            rrf[record_id] += 1.0 / (k + rank)
+    return rrf
 
 
 def raw_search(records: Iterable[MIRLRecord], query: str, limit: int = 5) -> SearchResult:
@@ -676,21 +837,25 @@ def raw_search(records: Iterable[MIRLRecord], query: str, limit: int = 5) -> Sea
     return SearchResult(query=query, candidates=sorted(candidates, key=lambda item: item.score, reverse=True)[:limit])
 
 
-def _graph(records: list[MIRLRecord]) -> dict[str, set[str]]:
+def _graph(records: Iterable[MIRLRecord]) -> dict[str, set[str]]:
     graph: dict[str, set[str]] = defaultdict(set)
     for record in records:
-        if record.kind == RecordKind.REL:
-            src = str(record.attrs.get("src"))
-            dst = str(record.attrs.get("dst"))
-            graph[src].add(dst)
-            graph[dst].add(src)
-        elif record.kind == RecordKind.CLM:
-            subject = str(record.attrs.get("subject"))
-            obj = record.attrs.get("object")
-            if isinstance(obj, str) and obj.startswith(("ent:", "clm:", "evt:", "sta:", "sym:")):
-                graph[subject].add(obj)
-                graph[obj].add(subject)
+        _add_graph_record(graph, record)
     return graph
+
+
+def _add_graph_record(graph: dict[str, set[str]], record: MIRLRecord) -> None:
+    if record.kind == RecordKind.REL:
+        src = str(record.attrs.get("src"))
+        dst = str(record.attrs.get("dst"))
+        graph[src].add(dst)
+        graph[dst].add(src)
+    elif record.kind == RecordKind.CLM:
+        subject = str(record.attrs.get("subject"))
+        obj = record.attrs.get("object")
+        if isinstance(obj, str) and obj.startswith(("ent:", "clm:", "evt:", "sta:", "sym:")):
+            graph[subject].add(obj)
+            graph[obj].add(subject)
 
 
 def _tokens(text: str) -> list[str]:

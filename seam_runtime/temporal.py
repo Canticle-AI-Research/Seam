@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 from collections.abc import Iterable
@@ -147,6 +148,37 @@ def register_sqlite_timestamp_functions(connection: sqlite3.Connection) -> None:
         normalize_timestamp,
         deterministic=True,
     )
+    connection.create_function(
+        "seam_temporal_distance_score",
+        2,
+        _sqlite_temporal_distance_score,
+        deterministic=True,
+    )
+    connection.create_function(
+        "seam_temporal_filter_text",
+        2,
+        _sqlite_temporal_filter_text,
+        deterministic=True,
+    )
+
+
+def _sqlite_temporal_distance_score(reference: str, timestamp: str | None) -> float:
+    """Keep SQL top-k ordering identical to the canonical Python scorer."""
+
+    return temporal_distance_score(parse_iso(reference), parse_iso(timestamp))
+
+
+def _sqlite_temporal_filter_text(encoded_values: str, value_type: str | None) -> str:
+    """Mirror QueryFilters.matches without materializing a MIRL payload.
+
+    SQLite lower() is ASCII-only and scalar JSON extraction coerces booleans
+    and large integers. The caller uses multi-path json_extract to retain the
+    original JSON value inside an array, then supplies json_type to distinguish
+    an absent attribute (the Python get default is "") from explicit null.
+    """
+
+    value = "" if value_type is None else json.loads(encoded_values)[0]
+    return str(value).lower()
 
 
 def parse_temporal_reference(question: str, *, anchor: datetime | None = None) -> datetime | None:

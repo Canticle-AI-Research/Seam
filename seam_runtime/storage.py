@@ -2294,6 +2294,44 @@ class SQLiteStore:
             "and sources.dst_id = ir_edges.dst_id)"
         )
 
+    def iter_ir(
+        self,
+        *,
+        ns: str | None = None,
+        scope: str | None = None,
+        page_size: int = 128,
+    ) -> Iterable[MIRLRecord]:
+        """Scan canonical IR in ID order with bounded live payload pages.
+
+        This is a full scan of the requested boundary, not a candidate cap.
+        Each row uses the same canonical constructor as ``load_ir``. The
+        pool joins an enclosing request snapshot, so repeated scoring passes
+        see the same state. Consumers must exhaust or close the iterator.
+        """
+        if isinstance(page_size, bool) or not isinstance(page_size, int):
+            raise TypeError("page_size must be an integer")
+        if page_size <= 0:
+            raise ValueError("page_size must be positive")
+        query = "select payload_json from ir_records where 1=1"
+        params: list[object] = []
+        if ns:
+            query += " and ns = ?"
+            params.append(ns)
+        if scope:
+            query += " and scope = ?"
+            params.append(scope)
+        query += " order by id"
+        with self._pool.checkout() as connection:
+            cursor = connection.execute(query, params)
+            try:
+                while rows := cursor.fetchmany(page_size):
+                    for row in rows:
+                        yield MIRLRecord.from_dict(json.loads(row["payload_json"]))
+                    # Release the old page before asking SQLite for the next.
+                    del row, rows
+            finally:
+                cursor.close()
+
     def load_ir(
         self,
         ids: list[str] | None = None,

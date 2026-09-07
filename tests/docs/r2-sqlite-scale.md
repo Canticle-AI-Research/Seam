@@ -4,6 +4,12 @@ HISTORY#637 records this partial R2 implementation. The governing plan is
 `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md`; recovery routes through
 `docs/handoffs/INDEX.md`.
 
+Evidence refresh (HISTORY#638): the original `/tmp` raw logs are no longer
+available, and the old release receipt's independent authorship is unverified.
+Fresh post-merge independent checks and retained evidence are recorded in
+`tests/docs/r2-acquisition-parity.md`. The original observations below remain
+historical; their hashes do not replace missing raw logs.
+
 ## Change and public contract
 
 `_build_structured_sql` now looks up `max(source_text)` by canonical record ID

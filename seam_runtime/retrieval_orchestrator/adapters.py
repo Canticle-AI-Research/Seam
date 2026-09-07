@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass
 from typing import Protocol
 
-from seam_runtime.bm25 import BM25Index
 from seam_runtime.knowledge_graph import (
     ADMITTED_RELATION_PREDICATES,
     CURRENT_EXCLUDED_STATUSES,
@@ -16,9 +15,8 @@ from seam_runtime.knowledge_graph import (
 )
 from seam_runtime.mirl import IRBatch, MIRLRecord, RecordKind, iter_textual_fields
 from seam_runtime.models import EmbeddingModel
-from seam_runtime.retrieval import search_batch
+from seam_runtime.retrieval import search_stream
 from seam_runtime.storage import SQLiteStore
-from seam_runtime.temporal import parse_iso, temporal_distance_score
 from seam_runtime.vector import INDEXABLE_KINDS, VECTOR_TEXT_VERSION, SQLiteVectorIndex
 from seam_runtime.vector_adapters import VectorAdapter, search_vector_adapter
 
@@ -93,12 +91,11 @@ class SemanticAdapter(Protocol):
 
 
 class LegacyWeightedAdapter:
-    """Materialize the former runtime ranking as a named orchestrator policy.
+    """Exact compatibility scoring with bounded live canonical payloads.
 
-    The old public ``search_ir`` scorer is retained as a component-level helper
-    for representation tests, but live compatibility retrieval reaches it only
-    through this adapter and the orchestrator plan.  Keeping the semantics
-    intact gives the RRF/graph path an auditable, same-runtime control.
+    The orchestrator holds the request snapshot. Full scoring context and scan
+    work still grow with the selected corpus; only live payloads and weighted
+    candidate retention are bounded. Internal RRF retains ID/channel scalars.
     """
 
     def __init__(self, store: SQLiteStore, vector_adapter: VectorAdapter) -> None:
@@ -106,10 +103,6 @@ class LegacyWeightedAdapter:
         self.vector_adapter = vector_adapter
 
     def search(self, plan: RetrievalPlan, limit: int, *, flags) -> list[LegHit]:
-        batch = self.store.load_ir(
-            ns=plan.filters.namespace,
-            scope=plan.filters.scope,
-        )
         vector_scores = search_vector_adapter(
             self.vector_adapter,
             plan.query,
@@ -117,29 +110,15 @@ class LegacyWeightedAdapter:
             namespace=plan.filters.namespace,
             scope=plan.filters.scope,
         )
-        bm25 = None
-        if plan.include_raw or flags.bm25_all_kinds:
-            bm25 = BM25Index()
-            for record in batch.records:
-                if record.kind == RecordKind.RAW:
-                    content = record.attrs.get("content")
-                    text = content if isinstance(content, str) and content else ""
-                elif flags.bm25_all_kinds:
-                    text = " ".join(iter_textual_fields(record))
-                else:
-                    text = ""
-                if text:
-                    bm25.add(record.id, text)
-        namespace = batch.records[0].ns if batch.records else None
-        result = search_batch(
-            batch,
+        result = search_stream(
+            lambda: self.store.iter_ir(
+                ns=plan.filters.namespace, scope=plan.filters.scope,
+            ),
             query=plan.query,
             scope=plan.filters.scope,
             limit=limit,
             vector_scores=vector_scores,
-            namespace=namespace,
             include_raw=plan.include_raw,
-            bm25_index=bm25,
             temporal_window=plan.temporal_window,
             temporal_reference=plan.temporal_reference,
             flags=flags,
@@ -222,48 +201,99 @@ class SQLiteTemporalAdapter:
     def search(self, plan: RetrievalPlan, limit: int) -> list[LegHit]:
         if plan.temporal_reference is None and plan.temporal_window is None:
             return []
-        batch = self.store.load_ir(
-            ids=plan.filters.ids or None,
-            ns=plan.filters.namespace,
-            scope=plan.filters.scope,
-        )
         allowed_kinds = {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}
         if plan.include_raw:
             allowed_kinds.add(RecordKind.RAW)
-        hits: list[LegHit] = []
-        for record in batch.records:
-            if (
-                record.kind not in allowed_kinds
-                or (
-                    not plan.graph_include_history
-                    and record.status.value in CURRENT_EXCLUDED_STATUSES
-                )
-                or not plan.filters.matches(record)
-            ):
+        kinds = sorted(kind.value for kind in allowed_kinds)
+        if plan.filters.kinds:
+            kinds = [kind for kind in kinds if kind in plan.filters.kinds]
+        if not kinds:
+            return []
+        # The TEXT column coerces numeric t0 values (20260101 -> "20260101").
+        # Canonical parse_iso accepts only payload strings, so retain that type
+        # boundary before scoring the stored timestamp column.
+        where = [
+            f"kind in ({','.join('?' for _ in kinds)})",
+            "json_type(payload_json, '$.t0') = 'text'",
+        ]
+        filter_params: list[object] = [*kinds]
+        if plan.filters.ids:
+            where.append(f"id in ({','.join('?' for _ in plan.filters.ids)})")
+            filter_params.extend(plan.filters.ids)
+        for column, value in (
+            ("ns", plan.filters.namespace), ("scope", plan.filters.scope)
+        ):
+            if value:
+                where.append(f"{column} = ?")
+                filter_params.append(value)
+        if not plan.graph_include_history:
+            statuses = sorted(CURRENT_EXCLUDED_STATUSES)
+            where.append(f"status not in ({','.join('?' for _ in statuses)})")
+            filter_params.extend(statuses)
+        for attribute, value in (
+            ("predicate", plan.filters.predicate),
+            ("subject", plan.filters.subject),
+            ("object", plan.filters.object_text),
+        ):
+            if not value:
                 continue
-            timestamp = parse_iso(record.t0)
-            if plan.temporal_reference is not None:
-                score = temporal_distance_score(plan.temporal_reference, timestamp)
-                reason = f"temporal_reference={score:.4f}"
-            else:
-                assert plan.temporal_window is not None
-                score = (
-                    1.0
-                    if timestamp is not None
-                    and plan.temporal_window[0] <= timestamp <= plan.temporal_window[1]
-                    else 0.0
-                )
-                reason = f"temporal_window={score:.4f}"
-            if score > 0:
-                hits.append(
-                    LegHit(
-                        leg="temporal",
-                        record=record,
-                        score=score,
-                        reasons=[reason],
-                    )
-                )
-        return sorted(hits, key=lambda item: (-item.score, item.record.id))[:limit]
+            path = f"$.attrs.{attribute}"
+            # Two paths return JSON text, preserving booleans/large integers
+            # and containers rather than SQLite's scalar type coercions.
+            text_expr = (
+                "seam_temporal_filter_text("
+                f"json_extract(payload_json, '{path}', '{path}'), "
+                f"json_type(payload_json, '{path}'))"
+            )
+            where.append(
+                f"instr({text_expr}, ?) > 0"
+                if attribute == "object"
+                else f"{text_expr} = ?"
+            )
+            filter_params.append(value.lower())
+        if plan.temporal_reference is not None:
+            score_expr = "seam_temporal_distance_score(?, t0)"
+            score_params = [plan.temporal_reference.isoformat()]
+            reason_name = "temporal_reference"
+        else:
+            assert plan.temporal_window is not None
+            score_expr = (
+                "case when seam_timestamp_key(t0) between "
+                "seam_timestamp_key(?) and seam_timestamp_key(?) "
+                "then 1.0 else 0.0 end"
+            )
+            score_params = [value.isoformat() for value in plan.temporal_window]
+            reason_name = "temporal_window"
+        # LIMIT prevents the candidate subquery from being flattened into the
+        # payload join. Only bounded winners cross into Python as MIRL records;
+        # timestamp/filter scanning remains SQLite work inside the request's
+        # existing read snapshot. Score ordering uses temporal.py exactly,
+        # including subsecond distinctions, float ties, and zero underflow.
+        query = (
+            "with temporal_rows as ("
+            f"select id, {score_expr} as temporal_score from ir_records "
+            f"where {' and '.join(where)}"
+            "), temporal_candidates as ("
+            "select id, temporal_score from temporal_rows "
+            "where temporal_score > 0 "
+            "order by temporal_score desc, id limit ?"
+            ") select r.payload_json, c.temporal_score "
+            "from temporal_candidates c join ir_records r on r.id = c.id "
+            "order by c.temporal_score desc, c.id"
+        )
+        with self.store._pool.checkout() as connection:
+            rows = connection.execute(
+                query, [*score_params, *filter_params, limit]
+            ).fetchall()
+        return [
+            LegHit(
+                leg="temporal",
+                record=MIRLRecord.from_dict(json.loads(row["payload_json"])),
+                score=float(row["temporal_score"]),
+                reasons=[f"{reason_name}={float(row['temporal_score']):.4f}"],
+            )
+            for row in rows
+        ]
 
 
 class GraphNodeSemanticAdapter:

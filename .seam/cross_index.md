@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 702
+total_events: 704
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-21T11:08:11Z | history:444:f50aee8b | session-event | changed | graph, memory, retrieval, benchmark, audit, bugfix, test,... | benchmarks/external/mem0_harness/preflight_graph_memory.py,benchmarks/externa... |
-| 2026-07-21T19:47:21Z | history:445:3c8a382d | session-event | in-progress | benchmark, beam, pack, retrieval, audit, test, handoff, v... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_s... |
 | 2026-07-21T20:24:11Z | history:446:365a3c98 | session-event | done | benchmark, beam, pack, retrieval, audit, test, handoff, v... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/seam_mem0_s... |
 | 2026-07-21T21:26:08Z | history:447:c51ad1e0 | session-event | done | ci, test, benchmark, bugfix, performance, verify, continuity | .github/workflows/ci.yml,seam_runtime/models.py,test_seam_all/test_locomo_run... |
 | 2026-07-21T23:48:47Z | history:448:8fa1aac6 | session-event | done | benchmark, locomo, retrieval, compile, provenance, audit,... | seam_runtime/multi_speaker_facts.py,seam_runtime/derived_fact_context.py,seam... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-06T08:35:12Z | history:635:b93d437e | session-event | in-progress | pyproject, docs, verify, naming, operator, security, hand... | docs/audits/2026-09-06-l1-packaging-migration.md,docs/audits/INDEX.md,docs/au... |
 | 2026-09-06T08:40:12Z | history:636:e98b481a | session-event | changed | continuity, handoff, status, docs, verify, operator | PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/handoffs/2026-09-06... |
 | 2026-09-06T19:27:24Z | history:637:a30f5aff | session-event | in-progress | retrieval, storage, test, verify, handoff, continuity | seam_runtime/retrieval_orchestrator/adapters.py,tests/audit/test_s8_r2_sqlite... |
+| 2026-09-07T00:31:46Z | history:638:3276f5f2 | session-event | in-progress | retrieval, storage, rank, test, verify, correction, hando... | seam_runtime/storage.py,seam_runtime/retrieval.py,seam_runtime/bm25.py,seam_r... |
+| 2026-09-07T00:42:43Z | history:639:5874e5ca | session-event | changed | correction, verify, continuity, handoff, retrieval | tests/docs/r2-acquisition-parity.md,docs/handoffs/2026-09-07-r2-acquisition-b... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0502.cross.md | 2026-04-15T00:00:00Z..2026-07-21T07:20:56Z | 502 | (multi) | (multi) |
+| 0001-0504.cross.md | 2026-04-15T00:00:00Z..2026-07-21T19:47:21Z | 504 | (multi) | (multi) |

@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-09-06-r2-sqlite-scale-next
+latest: 2026-09-07-r2-acquisition-backend-next
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-06-r2-sqlite-scale-next` | [2026-09-06-r2-sqlite-scale-next.md](2026-09-06-r2-sqlite-scale-next.md) | `2026-09-06-l1-packaging-candidate` | `HISTORY#637` | `current` |
+| `2026-09-07-r2-acquisition-backend-next` | [2026-09-07-r2-acquisition-backend-next.md](2026-09-07-r2-acquisition-backend-next.md) | `2026-09-06-r2-sqlite-scale-next` | `HISTORY#639` | `current` |
+| `2026-09-06-r2-sqlite-scale-next` | [2026-09-06-r2-sqlite-scale-next.md](2026-09-06-r2-sqlite-scale-next.md) | `2026-09-06-l1-packaging-candidate` | `HISTORY#637` | `superseded` |
 | `2026-09-06-l1-packaging-candidate` | [2026-09-06-l1-packaging-candidate.md](2026-09-06-l1-packaging-candidate.md) | `2026-09-06-launch-baseline-packaging-next` | `HISTORY#636` | `superseded` |
 | `2026-09-06-launch-baseline-packaging-next` | [2026-09-06-launch-baseline-packaging-next.md](2026-09-06-launch-baseline-packaging-next.md) | `2026-09-02-track-s-r1-protected-main-r2-next` | `HISTORY#634` | `superseded` |
 | `2026-09-02-track-s-r1-protected-main-r2-next` | [2026-09-02-track-s-r1-protected-main-r2-next.md](2026-09-02-track-s-r1-protected-main-r2-next.md) | `2026-09-01-track-s-r1-locally-qualified-r2-next` | `HISTORY#630` | `superseded` |
