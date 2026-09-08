@@ -10,29 +10,42 @@ before they are treated as real progress.
 > **Documentation:** Start at the [SEAM Wiki](docs/README.md) for task-first
 > routes into operator guides, architecture, current state, evidence, and plans.
 
-The launch product family is **Canticle SEAM Suite** (self-hosted),
-**Canticle SEAM API** (paid hosted service), and **SEAM WebUI** (the API operator
-surface). These are target products, not a claim of current launch readiness.
+The launch product family is **SEAM Suite** (`seam-suite`, self-hosted TUI,
+benchmark glassbox, and browser graph dashboard), **SEAM Client** (the paid
+hosted API and its all-in-one WebUI), and **SEAM SDK** (`seam-sdk`, private
+SDK for paying users). The existing PyPI `seam-client` is the separate Python
+HTTP client for the service; installing it does not install the dashboard or
+provide paid access. These are product definitions, not launch-readiness claims.
 See the [product map](docs/PRODUCTS.md), [launch plan](docs/roadmap/SEAM_LAUNCH.md),
 and [current packaging constraints](docs/status/packaging-licensing.md).
 
 ## Install
 
-Source-development install for contributors authorized by the Project Owner,
-subject to the repository's existing license terms:
+The `seam-suite` rename is a **2.4.1rc1 candidate**. TestPyPI is the first
+registry target; production PyPI is unchanged. Public upload remains blocked
+until exact artifact membership is reviewed and TestPyPI publishing access is
+configured. See the [TestPyPI-first procedure](docs/TESTPYPI.md).
+
+Use a fresh virtual environment: old `seam-runtime` and `seam-self-host`
+distributions can own the same imports and commands. This is not an in-place
+`pip install --upgrade` migration.
+
+From a checkout containing this candidate, source-development install for
+contributors authorized by the Project Owner, subject to the existing license
+terms:
 
 ```bash
-python -m pip install "seam-runtime @ git+https://github.com/Canticle-AI-Research/Seam.git@main"
+python -m pip install .
 ```
 
 Install with REST API and dashboard extras:
 
 ```bash
-python -m pip install "seam-runtime[server,dash] @ git+https://github.com/Canticle-AI-Research/Seam.git@main"
+python -m pip install ".[server,dash]"
 ```
 
-These commands follow moving `main`; use a reviewed commit or release tag for
-a reproducible installation. Public repository visibility does not change the
+Use a reviewed commit or release tag for a reproducible checkout; the naming
+candidate is not on `main` until its PR merges. Public repository visibility does not change the
 [license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
 operator setup path for repo-local development, persistent state setup, and
 platform shims.

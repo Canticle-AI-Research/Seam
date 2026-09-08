@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-07-s8-protected-main-suite-next
 supersedes: 2026-09-07-r2-backend-s8-qualified
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#641
 ---
 

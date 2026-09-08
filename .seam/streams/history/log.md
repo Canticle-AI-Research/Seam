@@ -21080,3 +21080,52 @@ preservation; only the owned scratch PostgreSQL service and connection file
 are removed. No stash was created. The one-push dirty-worktree exception keeps
 excluded work intact without bypassing signatures, scans or gates.
 ---END-ENTRY-#641---
+
+---BEGIN-ENTRY-#642---
+id: 642
+date: 2026-09-08T04:35:09Z
+agent: codex
+status: in-progress
+topics: pyproject, naming, docs, mcp, test, verify, handoff, continuity
+commits: pending
+refs: pyproject.toml,uv.lock,seam_runtime/mcp_protocol.py,tests/audit/test_mcp_stdio_smoke.py,tests/audit/test_github_issue_release_config.py,README.md,docs/PRODUCTS.md,docs/TESTPYPI.md,docs/status/packaging-licensing.md,docs/roadmap/SEAM_LAUNCH.md,PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/INDEX.md,docs/handoffs/2026-09-08-package-names-testpypi-candidate.md
+supersedes: 641
+tokens: 489
+---
+Prepare operator-selected product/package names from protected db2bca7.
+Classes: package metadata, MCP interface identity, documentation and continuity.
+The source candidate is seam-suite 2.4.1rc1; seam and seam_runtime imports and
+commands remain. MCP initialize prefers Suite metadata then seam-runtime,
+then unknown. Release expectations and lock conflict identities change without
+altering dependency versions, licenses, Private classifier or publication gates.
+SEAM Client names the paid API plus WebUI; existing seam-client stays the
+Python HTTP transport and seam-sdk stays private paid delivery.
+
+The operator requires TestPyPI first and no production accident. No upload,
+registry settings change, release deletion, paid provider or deployment was
+performed. Browser showed TestPyPI signed out; no publishing credential was
+configured. Exact public artifact membership/notices remain unresolved from
+L1; Private :: Do Not Upload is retained and applies to both public registries.
+No private SDK implementation was accessed or copied in this change.
+
+Verification: .venv/bin/python -m pytest tests/audit/test_mcp_stdio_smoke.py
+tests/audit/test_github_issue_release_config.py -q passed 47 cases after four
+new MCP cases failed first; independent code assurance reran the same slice.
+uv lock --check --offline passed with identity-only changes. Scoped Ruff and
+diff checks passed. The initial README candidate-name VCS install against old
+main was corrected to checkout-local installation after independent docs review.
+uv build produced both candidate archives; strict Twine metadata checks and
+verify_private_artifacts with exact expected name/version passed. Exact hashes
+and the isolated installation scope are in the new handoff. The wheel with
+server/dash extras passed dependency checks, installed metadata/version and
+four help commands, then remember/search persistence across CLI processes.
+No full-suite, GUI, arbitrary-upgrade, hosted or competitive claim follows.
+
+Update current product map, package status, README, canonical metadata URLs,
+launch pointers, ledger and chronological handoff. Record real red/green in
+session state and preserve source/CI distinction. S8 freeze stays complete;
+L1/TestPyPI publishing access and eligibility are the next packaging blockers.
+The private release workflow retains its SemVer gate and rejects this PEP 440
+rc1 candidate. Canonical continuity and an independent closeout review govern
+the draft PR; pushed-head CI remains distinct from these local results.
+---END-ENTRY-#642---

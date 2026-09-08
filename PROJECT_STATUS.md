@@ -5,6 +5,13 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-08 naming candidate:** `seam-suite` 2.4.1rc1 names the self-hosted
+Suite; SEAM Client names the paid API and its WebUI; `seam-sdk` remains private
+paid delivery. The existing `seam-client` wheel remains a Python HTTP client.
+TestPyPI must precede production publication. Artifact eligibility and test
+publisher access remain open; see [the procedure](docs/TESTPYPI.md) and
+HISTORY#642. This branch candidate does not publish a package.
+
 **2026-09-07 — R2 is complete and S8 is frozen on protected main through
 PR #254 at `2f9a96b9`.** Candidate `a6715c2f` passed the three required checks
 and PostgreSQL integration, received an independently authored and validated
@@ -40,7 +47,7 @@ independently loadable graph/database/glassbox sections need acceptance evidence
 Use the [surface stream](docs/status/surfaces.md) for those boundaries.
 
 GitHub currently reports the canonical repository as public. Root package
-metadata still declares `seam-runtime` 2.4.0 with `Private :: Do Not Upload`;
+metadata now declares the `seam-suite` 2.4.1rc1 candidate with `Private :: Do Not Upload`;
 existing license files and the PyPI prohibition are unchanged. The
 [packaging stream](docs/status/packaging-licensing.md) separates source visibility,
 existing releases, future artifact eligibility, and migration work. No naming

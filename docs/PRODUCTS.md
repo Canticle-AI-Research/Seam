@@ -5,7 +5,8 @@
 **SEAM means Surface Encoded Agent Memory.** This is the current product name;
 the RAW/MIRL/PACK/LENS behavior remains governed by the
 [SEAM specification](../SEAM_SPEC_V0.1.md) and [MIRL contract](MIRL_V1.md).
-The launch direction is recorded in HISTORY#634.
+The launch direction is recorded in HISTORY#634; names and TestPyPI-first
+publication were updated by the operator in HISTORY#642.
 
 ## Product family
 
@@ -14,15 +15,19 @@ that a package, complete interface, or hosted service is available today.
 
 | Name | Role | Included experience |
 | --- | --- | --- |
-| Canticle SEAM Suite | Self-hosted SEAM operated on the user's infrastructure | Product Core, TUI, browser graph dashboard, knowledge database inspection, and benchmark glassbox |
-| Canticle SEAM API | Paid hosted SEAM service | Supported API contract, customer access and isolation, usage controls, and service operations |
-| SEAM WebUI | Operator surface for SEAM API | Integrated customer dashboard using authorized service APIs, styled with Canticle components |
-| SEAM SDK | Private developer SDK with access for paying users | Private runtime integration; customer delivery and supported versions require qualification |
-| Public HTTP client | Separate Python client for the public API | Transport and opaque public models; distinct from the private paid SDK |
+| SEAM Suite (`seam-suite`) | Self-hosted SEAM operated on the user's infrastructure | Product Core, TUI, browser graph dashboard, knowledge database inspection, and benchmark glassbox |
+| SEAM Client | Paid hosted API and its all-in-one WebUI dashboard | Supported API contract, customer access and isolation, usage controls, and integrated operator dashboard |
+| SEAM SDK (`seam-sdk`) | Private developer SDK with access for paying users | Private runtime integration; customer delivery and supported versions require qualification |
+| Python HTTP client (`seam-client`) | Separate Python client for the public API | Transport and opaque public models; distinct from the private paid SDK |
 
 The Suite TUI handles terminal operation, status, and workflow controls. The
 rich graph experience runs in a browser and can open independently. A terminal
 approximation does not satisfy the browser design's acceptance criteria.
+
+“SEAM WebUI” names the browser component of SEAM Client; it is not a fourth
+product. The existing `seam-client` Python distribution remains a transport
+library, distinct from the hosted dashboard. Its installation does not grant
+service access. The browser UI is delivered by the service, not by that wheel.
 
 The paid SDK access boundary was clarified by the operator in HISTORY#635.
 Further paid capabilities remain unspecified. This product decision does not
@@ -66,20 +71,25 @@ routes to make a graph view work.
 
 ## Product names and artifact names
 
-Product names above are the agreed direction. Artifact names below are
-**candidates**, pending the packaging migration checklist:
+The operator-selected names replace the earlier `canticle-seam-*` proposals.
+Product names, Python distributions, and service deployments are separate:
 
-| Artifact role | Candidate name | Existing coordinate to reconcile |
+| Artifact role | Selected name | Existing coordinate to reconcile |
 | --- | --- | --- |
-| Suite installation/distribution | `canticle-seam-suite` | Root `seam-runtime`; retired `seam-self-host` artifacts |
-| Hosted service deployment artifact, if separately packaged | `canticle-seam-api` | Existing service in the runtime repository; no public PyPI requirement |
-| Public Python HTTP client | `canticle-seam-client` | Published `seam-client` |
-| Private paid Python SDK | `canticle-seam-sdk` (private delivery only) | Private `Seam_SDK` repository declaring `seam-sdk`; no public PyPI publication |
+| Suite installation/distribution | `seam-suite` | Renamed root candidate, formerly `seam-runtime`; retired `seam-self-host` artifacts require explicit migration |
+| Hosted API and dashboard | SEAM Client | Existing server and WebUI; no separate public server package is required |
+| Python HTTP client for SEAM Client | `seam-client` | Existing published Python client; keep `seam_client` imports and compatibility |
+| Private paid Python SDK | `seam-sdk` (private delivery only) | Private `Seam_SDK` repository already declares this distribution name |
 
-Do not rename imports, commands, package metadata, repositories, or published
-artifacts through prose changes. Choose those migration details together,
-with clean-install and upgrade evidence. A missing PyPI project is not a name
-reservation or a guarantee of registration.
+The root distribution candidate is `seam-suite` 2.4.1rc1. Existing `seam` and
+`seam_runtime` imports and console commands remain unchanged. Install in a
+fresh environment rather than co-installing overlapping legacy distributions.
+The new name does not qualify the current source bundle for public upload.
+
+**TestPyPI first:** use [the testing procedure](TESTPYPI.md) before any
+production publication. TestPyPI is public, has independent accounts and
+project ownership, and does not reserve a production name. Neither public
+registry receives the private paid SDK. Existing releases remain intact.
 
 Current distribution facts and the next packaging task live in
 [packaging status](status/packaging-licensing.md). The ordered acceptance

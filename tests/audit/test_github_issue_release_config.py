@@ -148,7 +148,7 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "gh release download" in follow_up_raw
     assert "sha256sum --status --check" in follow_up_raw
     assert "tools.release.verify_private_artifacts" in follow_up_raw
-    assert "--expected-name seam-runtime" in follow_up_raw
+    assert "--expected-name seam-suite" in follow_up_raw
     assert "SHA256SUMS.txt must cover exactly" in follow_up_raw
     assert "final_main_sha" in follow_up_raw
     assert "sha256sum --status --check" in follow_up_raw
@@ -175,7 +175,7 @@ def _run_version_step(tmp_path: Path, *, project_version: str, requested: str) -
     step = next(step for step in document["jobs"]["build"]["steps"] if step.get("id") == "version")
     script = step["run"].removeprefix("python - <<'PY'\n").removesuffix("PY\n")
     (tmp_path / "pyproject.toml").write_text(
-        f'[project]\nname = "seam-runtime"\nversion = "{project_version}"\n',
+        f'[project]\nname = "seam-suite"\nversion = "{project_version}"\n',
         encoding="utf-8",
     )
     output = tmp_path / "github-output.txt"
@@ -212,62 +212,62 @@ def test_package_release_classifies_semver_prereleases(
 
 
 def test_private_artifact_verifier_accepts_one_clean_wheel_and_sdist(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(wheel, {"seam_runtime/__init__.py": b"VERSION = '2.5.0'\n"})
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
     assert verify_artifacts([wheel, sdist]) == []
 
 
 def test_private_artifact_verifier_binds_distribution_identity(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
-    metadata = b"Metadata-Version: 2.4\nName: seam-runtime\nVersion: 2.5.0\n\n"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
+    metadata = b"Metadata-Version: 2.4\nName: seam-suite\nVersion: 2.5.0\n\n"
     _write_wheel(
         wheel,
         {
             "seam_runtime/__init__.py": b"",
-            "seam_runtime-2.5.0.dist-info/METADATA": metadata,
+            "seam_suite-2.5.0.dist-info/METADATA": metadata,
         },
     )
     _write_sdist(
         sdist,
         {
-            "seam_runtime-2.5.0/PKG-INFO": metadata,
-            "seam_runtime-2.5.0/README.md": b"private runtime\n",
+            "seam_suite-2.5.0/PKG-INFO": metadata,
+            "seam_suite-2.5.0/README.md": b"private runtime\n",
         },
     )
 
     assert verify_artifacts(
-        [wheel, sdist], expected_name="seam-runtime", expected_version="2.5.0"
+        [wheel, sdist], expected_name="seam-suite", expected_version="2.5.0"
     ) == []
     findings = verify_artifacts(
-        [wheel, sdist], expected_name="seam-runtime", expected_version="2.6.0"
+        [wheel, sdist], expected_name="seam-suite", expected_version="2.6.0"
     )
     assert sum("version_mismatch" in finding for finding in findings) == 4
 
 
 def test_private_artifact_verifier_binds_wheel_metadata_directory(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
-    metadata = b"Metadata-Version: 2.4\nName: seam-runtime\nVersion: 2.5.0\n\n"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
+    metadata = b"Metadata-Version: 2.4\nName: seam-suite\nVersion: 2.5.0\n\n"
     _write_wheel(wheel, {"other-1.0.dist-info/METADATA": metadata})
-    _write_sdist(sdist, {"seam_runtime-2.5.0/PKG-INFO": metadata})
+    _write_sdist(sdist, {"seam_suite-2.5.0/PKG-INFO": metadata})
 
     findings = verify_artifacts(
-        [wheel, sdist], expected_name="seam-runtime", expected_version="2.5.0"
+        [wheel, sdist], expected_name="seam-suite", expected_version="2.5.0"
     )
 
     assert any("expected_one_metadata_member" in finding for finding in findings)
 
 
 def test_private_artifact_verifier_binds_sdist_root_directory(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
-    metadata = b"Metadata-Version: 2.4\nName: seam-runtime\nVersion: 2.5.0\n\n"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
+    metadata = b"Metadata-Version: 2.4\nName: seam-suite\nVersion: 2.5.0\n\n"
     _write_wheel(
         wheel,
-        {"seam_runtime-2.5.0.dist-info/METADATA": metadata},
+        {"seam_suite-2.5.0.dist-info/METADATA": metadata},
     )
     _write_sdist(
         sdist,
@@ -278,7 +278,7 @@ def test_private_artifact_verifier_binds_sdist_root_directory(tmp_path: Path) ->
     )
 
     findings = verify_artifacts(
-        [wheel, sdist], expected_name="seam-runtime", expected_version="2.5.0"
+        [wheel, sdist], expected_name="seam-suite", expected_version="2.5.0"
     )
 
     assert any("sdist_root_mismatch" in finding for finding in findings)
@@ -286,14 +286,14 @@ def test_private_artifact_verifier_binds_sdist_root_directory(tmp_path: Path) ->
 
 
 def test_private_artifact_verifier_rejects_payload_bearing_zip_directory(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     secret = ("sk-" + "proj-" + "9" * 24).encode()
     with zipfile.ZipFile(wheel, mode="w") as archive:
         directory = zipfile.ZipInfo("seam_runtime/")
         directory.external_attr = (stat.S_IFDIR | 0o755) << 16
         archive.writestr(directory, secret, compress_type=zipfile.ZIP_DEFLATED)
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -302,11 +302,11 @@ def test_private_artifact_verifier_rejects_payload_bearing_zip_directory(tmp_pat
 
 
 def test_private_artifact_verifier_rejects_payload_bearing_tar_directory(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
     with tarfile.open(sdist, mode="w:gz") as archive:
-        directory = tarfile.TarInfo("seam_runtime-2.5.0/")
+        directory = tarfile.TarInfo("seam_suite-2.5.0/")
         directory.type = tarfile.DIRTYPE
         directory.size = 7
         archive.addfile(directory, io.BytesIO(b"payload"))
@@ -317,8 +317,8 @@ def test_private_artifact_verifier_rejects_payload_bearing_tar_directory(tmp_pat
 
 
 def test_private_artifact_verifier_rejects_secret_and_unsafe_paths(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     secret = ("sk-" + "proj-" + "a" * 24).encode()
     _write_wheel(wheel, {"seam_runtime/config.py": b"TOKEN = b'" + secret + b"'\n"})
     _write_sdist(sdist, {"../credentials.txt": b"not allowed\n"})
@@ -328,13 +328,13 @@ def test_private_artifact_verifier_rejects_secret_and_unsafe_paths(tmp_path: Pat
 
 
 def test_private_artifact_verifier_scans_secret_patterns_in_member_paths(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     secret = "sk-" + "proj-" + "8" * 24
     _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
     _write_sdist(
         sdist,
-        {f"seam_runtime-2.5.0/{secret}.txt": b"clean payload\n"},
+        {f"seam_suite-2.5.0/{secret}.txt": b"clean payload\n"},
     )
 
     findings = verify_artifacts([wheel, sdist])
@@ -344,14 +344,14 @@ def test_private_artifact_verifier_scans_secret_patterns_in_member_paths(tmp_pat
 
 
 def test_private_artifact_verifier_scans_bounded_binary_members(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     secret = ("sk-" + "proj-" + "b" * 24).encode()
     _write_wheel(
         wheel,
         {"seam_runtime/webui/leak.png": b"\x89PNG\r\n\x1a\nmetadata=" + secret},
     )
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -362,23 +362,23 @@ def test_private_artifact_verifier_scans_bounded_binary_members(tmp_path: Path) 
 def test_private_artifact_verifier_scans_utf16_members(
     tmp_path: Path, encoding: str
 ) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     secret = "sk-" + "proj-" + "d" * 24
     _write_wheel(wheel, {"seam_runtime/settings.txt": secret.encode(encoding)})
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     assert any("api_key" in finding for finding in verify_artifacts([wheel, sdist]))
 
 
 def test_private_artifact_verifier_scans_unreferenced_container_bytes(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     secret = ("sk-" + "proj-" + "f" * 24).encode()
     _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
     with wheel.open("ab") as stream:
         stream.write(secret)
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     assert any("api_key" in finding for finding in verify_artifacts([wheel, sdist]))
 
@@ -386,14 +386,14 @@ def test_private_artifact_verifier_scans_unreferenced_container_bytes(tmp_path: 
 def test_private_artifact_verifier_scans_unreferenced_decompressed_sdist_bytes(
     tmp_path: Path,
 ) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     secret = ("sk-" + "proj-" + "7" * 24).encode()
     _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
     raw_tar = io.BytesIO()
     with tarfile.open(fileobj=raw_tar, mode="w") as archive:
         content = b"private runtime\n"
-        info = tarfile.TarInfo("seam_runtime-2.5.0/README.md")
+        info = tarfile.TarInfo("seam_suite-2.5.0/README.md")
         info.size = len(content)
         archive.addfile(info, io.BytesIO(content))
     sdist.write_bytes(gzip.compress(raw_tar.getvalue() + secret))
@@ -404,8 +404,8 @@ def test_private_artifact_verifier_scans_unreferenced_decompressed_sdist_bytes(
 def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
     tmp_path: Path,
 ) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(
         wheel,
         {
@@ -423,7 +423,7 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
             "C:/credentials.json": b"placeholder\n",
         },
     )
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -432,8 +432,8 @@ def test_private_artifact_verifier_rejects_credential_prefixed_and_drive_paths(
 
 
 def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     nested = io.BytesIO()
     with zipfile.ZipFile(nested, mode="w") as archive:
         archive.writestr(".env", b"PASSWORD=ordinary-password\n")
@@ -447,7 +447,7 @@ def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> No
             "seam_runtime/webui/compressed.bin": b"\x28\xb5\x2f\xfdcompressed",
         },
     )
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -455,8 +455,8 @@ def test_private_artifact_verifier_rejects_nested_archives(tmp_path: Path) -> No
 
 
 def test_private_artifact_verifier_rejects_casefolded_duplicate_paths(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(
         wheel,
         {
@@ -464,7 +464,7 @@ def test_private_artifact_verifier_rejects_casefolded_duplicate_paths(tmp_path: 
             "seam_runtime/CONFIG.py": b"UPPER = True\n",
         },
     )
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -475,8 +475,8 @@ def test_private_artifact_verifier_rejects_casefolded_duplicate_paths(tmp_path: 
 def test_private_artifact_verifier_rejects_windows_trimmed_paths(
     tmp_path: Path, unsafe_name: str
 ) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(
         wheel,
         {
@@ -484,7 +484,7 @@ def test_private_artifact_verifier_rejects_windows_trimmed_paths(
             f"seam_runtime/{unsafe_name}": b"COLLISION = True\n",
         },
     )
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -495,10 +495,10 @@ def test_private_artifact_verifier_rejects_windows_trimmed_paths(
 def test_private_artifact_verifier_rejects_windows_device_names(
     tmp_path: Path, reserved_name: str
 ) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(wheel, {f"seam_runtime/{reserved_name}": b"unsafe\n"})
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
 
@@ -507,35 +507,35 @@ def test_private_artifact_verifier_rejects_windows_device_names(
 def test_private_artifact_verifier_rejects_windows_invalid_characters(
     tmp_path: Path, invalid_character: str
 ) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(
         wheel,
         {f"seam_runtime/webui/foo{invalid_character}.txt": b"unsafe\n"},
     )
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
 
 
 def test_private_artifact_verifier_rejects_windows_control_characters(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(wheel, {"seam_runtime/foo\x01.txt": b"unsafe\n"})
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     assert any("unsafe_member_path" in finding for finding in verify_artifacts([wheel, sdist]))
 
 
 def test_private_artifact_verifier_redacts_member_names(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     leaked = "sk-" + "proj-" + "c" * 24
     _write_wheel(
         wheel,
         {f"seam_runtime/client_secret_{leaked}.json": b"placeholder\n"},
     )
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -545,8 +545,8 @@ def test_private_artifact_verifier_redacts_member_names(tmp_path: Path) -> None:
 
 
 def test_private_artifact_verifier_redacts_archive_read_failures(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     leaked = "private-filename-do-not-echo"
     _write_wheel(wheel, {f"seam_runtime/{leaked}.txt": b"placeholder\n"})
     content = bytearray(wheel.read_bytes())
@@ -555,7 +555,7 @@ def test_private_artifact_verifier_redacts_archive_read_failures(tmp_path: Path)
     content[local_header + 6 : local_header + 8] = (1).to_bytes(2, "little")
     content[central_header + 8 : central_header + 10] = (1).to_bytes(2, "little")
     wheel.write_bytes(content)
-    _write_sdist(sdist, {"seam_runtime-2.5.0/README.md": b"private runtime\n"})
+    _write_sdist(sdist, {"seam_suite-2.5.0/README.md": b"private runtime\n"})
 
     findings = verify_artifacts([wheel, sdist])
 
@@ -579,11 +579,11 @@ def test_operations_status_records_merged_s6() -> None:
 
 
 def test_private_artifact_verifier_rejects_non_regular_sdist_members(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_runtime-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_runtime-2.5.0.tar.gz"
+    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
+    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
     _write_wheel(wheel, {"seam_runtime/__init__.py": b""})
     with tarfile.open(sdist, mode="w:gz") as archive:
-        link = tarfile.TarInfo("seam_runtime-2.5.0/latest")
+        link = tarfile.TarInfo("seam_suite-2.5.0/latest")
         link.type = tarfile.SYMTYPE
         link.linkname = "../../outside"
         archive.addfile(link)

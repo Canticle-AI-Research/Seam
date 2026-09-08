@@ -119,13 +119,33 @@ def test_mcp_stdio_handshake():
                 pass
 
 
-def test_runtime_version_falls_back_when_package_metadata_is_absent(monkeypatch):
+@pytest.mark.parametrize(
+    ("installed", "expected", "lookups"),
+    [
+        ({"seam-suite": "2.4.1rc1"}, "2.4.1rc1", ["seam-suite"]),
+        (
+            {"seam-suite": "2.4.1rc1", "seam-runtime": "2.4.0"},
+            "2.4.1rc1",
+            ["seam-suite"],
+        ),
+        ({"seam-runtime": "2.4.0"}, "2.4.0", ["seam-suite", "seam-runtime"]),
+        ({}, "unknown", ["seam-suite", "seam-runtime"]),
+    ],
+)
+def test_mcp_initialize_reports_installed_distribution_version(monkeypatch, installed, expected, lookups):
     from importlib.metadata import PackageNotFoundError
 
     import seam_runtime.mcp_protocol as protocol
 
-    def missing(_distribution: str) -> str:
-        raise PackageNotFoundError
+    queried = []
 
-    monkeypatch.setattr(protocol, "version", missing)
-    assert protocol._runtime_package_version() == "unknown"
+    def installed_version(distribution: str) -> str:
+        queried.append(distribution)
+        if distribution not in installed:
+            raise PackageNotFoundError(distribution)
+        return installed[distribution]
+
+    monkeypatch.setattr(protocol, "version", installed_version)
+    response = protocol._handle_jsonrpc_message(None, json.loads(INITIALIZE))
+    assert response["result"]["serverInfo"]["version"] == expected
+    assert queried == lookups

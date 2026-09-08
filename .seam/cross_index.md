@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 706
+total_events: 707
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-21T23:48:47Z | history:448:8fa1aac6 | session-event | done | benchmark, locomo, retrieval, compile, provenance, audit,... | seam_runtime/multi_speaker_facts.py,seam_runtime/derived_fact_context.py,seam... |
 | 2026-07-21T23:50:13Z | history:449:3656720f | session-event | changed | test, verify, history, continuity, audit | HISTORY.md,HISTORY_INDEX.md,.seam/streams/history/log.md,.seam/streams/histor... |
 | 2026-07-22T00:00:00Z | roadmap:060:ee1d9abf | status-change | bootstrap | graph, memory, retrieval, benchmark, comparator, provenance | ROADMAP.md:1862 |
 | 2026-07-22T03:34:11Z | history:450:2b21583d | session-event | done | benchmark, locomo, retrieval, pack, graph, models, audit,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_n... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-07T00:42:43Z | history:639:5874e5ca | session-event | changed | correction, verify, continuity, handoff, retrieval | tests/docs/r2-acquisition-parity.md,docs/handoffs/2026-09-07-r2-acquisition-b... |
 | 2026-09-07T05:09:34Z | history:640:0b04b96a | session-event | done | retrieval, vector, pgvector, chroma, parity, rank, verify... | seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval... |
 | 2026-09-07T05:33:01Z | history:641:69f4500c | session-event | done | retrieval, audit, handoff, docs, continuity, status, verify | PROJECT_STATUS.md,docs/status/retrieval.md,docs/roadmap/MEMORY_GUARANTEES_CAM... |
+| 2026-09-08T04:35:09Z | history:642:0e6661f5 | session-event | in-progress | pyproject, naming, docs, mcp, test, verify, handoff, cont... | pyproject.toml,uv.lock,seam_runtime/mcp_protocol.py,tests/audit/test_mcp_stdi... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0506.cross.md | 2026-04-15T00:00:00Z..2026-07-21T21:26:08Z | 506 | (multi) | (multi) |
+| 0001-0507.cross.md | 2026-04-15T00:00:00Z..2026-07-21T23:48:47Z | 507 | (multi) | (multi) |

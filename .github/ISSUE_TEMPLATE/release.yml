@@ -49,7 +49,7 @@ body:
     attributes:
       label: Release boundary
       options:
-        - label: This is a private GitHub Release of seam-runtime, not a PyPI or public-client publication.
+        - label: This is a private GitHub Release of seam-suite, not a PyPI or public-client publication.
           required: true
         - label: Before publication, the version must be reviewed on protected main and the tag must not exist.
           required: true

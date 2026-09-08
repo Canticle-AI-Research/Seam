@@ -4,7 +4,7 @@
 
 **Direction:** documentation baseline, packaging migration preparation,
 Product Core completion, Suite, hosted API/WebUI, then benchmark score work.
-**Decision record:** HISTORY#634.
+**Decision record:** HISTORY#634; naming and TestPyPI-first update HISTORY#642.
 **Product definitions:** [SEAM products](../PRODUCTS.md).
 **Current implementation state:** [project status](../../PROJECT_STATUS.md)
 and the [current handoff](../handoffs/INDEX.md).
@@ -37,6 +37,17 @@ The 90% target still needs an agreed benchmark family, metric, evaluation
 split, model/judge, context budget, and execution budget. Record those before
 any score campaign. Do not substitute retrieval recall, answer accuracy, or a
 different benchmark for one another, and do not promise the result in advance.
+
+## Test registry before production
+
+The selected names are `seam-suite`, SEAM Client (paid API plus WebUI), and
+private `seam-sdk`; the existing `seam-client` Python wheel stays distinct
+from the hosted dashboard. See [the product map](../PRODUCTS.md).
+
+The operator requires [TestPyPI qualification](../TESTPYPI.md) before
+production PyPI publication. TestPyPI is public and cannot receive the private
+SDK. Exact artifact review and publishing access still precede a test upload;
+a test upload does not authorize production publication or prove launch readiness.
 
 ## Current checkpoint and next product work
 
