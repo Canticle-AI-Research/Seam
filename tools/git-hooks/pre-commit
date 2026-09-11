@@ -27,15 +27,13 @@ cd "$REPO_ROOT" || {
 
 # --- 1. Scope block ----------------------------------------------------------
 
-BLOCKED_RE='^(\.claude/|\.opencode/|\.agents/|opencode\.jsonc?$)'
-
-BAD=$(git diff --cached --name-only --diff-filter=ACMR | grep -E "$BLOCKED_RE" || true)
-if [ -n "$BAD" ]; then
-  printf '%s\n' "[SEAM pre-commit] Blocked agent-local paths from commit:" >&2
-  printf '%s\n' "$BAD" >&2
-  printf '%s\n' "Unstage with: git restore --staged -- <path>" >&2
+PY=python3
+command -v "$PY" >/dev/null 2>&1 || PY=python
+if ! command -v "$PY" >/dev/null 2>&1; then
+  echo "[SEAM pre-commit] python not found on PATH; refusing to bypass verify chain." >&2
   exit 1
 fi
+"$PY" -m tools.git.verify_agent_config --staged || exit 1
 
 # --- 2. Verify chain ---------------------------------------------------------
 
@@ -45,13 +43,6 @@ if [ -e "$REPO_ROOT/.git/MERGE_HEAD" ] || \
    [ -d "$REPO_ROOT/.git/rebase-merge" ] || \
    [ -d "$REPO_ROOT/.git/rebase-apply" ]; then
   exit 0
-fi
-
-PY=python3
-command -v "$PY" >/dev/null 2>&1 || PY=python
-if ! command -v "$PY" >/dev/null 2>&1; then
-  echo "[SEAM pre-commit] python not found on PATH; refusing to bypass verify chain." >&2
-  exit 1
 fi
 
 FAIL=0
