@@ -8,8 +8,8 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 conflicts = [[
-    { package = "seam-runtime", extra = "bench-mem0" },
-    { package = "seam-runtime", extra = "chroma" },
+    { package = "seam-suite", extra = "bench-mem0" },
+    { package = "seam-suite", extra = "chroma" },
 ]]
 
 [[package]]
@@ -195,7 +195,7 @@ version = "4.14.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "idna" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/61/cc/a381afa6efea9f496eff839d4a6a1aed3bfafc7b3ab4b0d1b243a12573dd/anyio-4.14.2.tar.gz", hash = "sha256:cfa139f3ed1a23ee8f88a145ddb5ac7605b8bbfd8592baacd7ce3d8bb4313c7f", size = 260176, upload-time = "2026-07-12T20:29:07.082Z" }
 wheels = [
@@ -474,8 +474,8 @@ name = "chroma-hnswlib"
 version = "0.7.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-12-seam-runtime-bench-mem0') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-12-seam-runtime-bench-mem0') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-10-seam-suite-bench-mem0') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-10-seam-suite-bench-mem0') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/73/09/10d57569e399ce9cbc5eee2134996581c957f63a9addfa6ca657daf006b8/chroma_hnswlib-0.7.6.tar.gz", hash = "sha256:4dce282543039681160259d29fcde6151cc9106c6461e0485f57cdccd83059b7", size = 32256, upload-time = "2024-07-22T20:19:29.259Z" }
 wheels = [
@@ -510,8 +510,8 @@ dependencies = [
     { name = "importlib-resources" },
     { name = "kubernetes" },
     { name = "mmh3" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-12-seam-runtime-bench-mem0') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-12-seam-runtime-bench-mem0') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-10-seam-suite-bench-mem0') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-10-seam-suite-bench-mem0') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "onnxruntime" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp-proto-grpc" },
@@ -529,7 +529,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "typer" },
     { name = "typing-extensions" },
-    { name = "uvicorn", extra = ["standard"], marker = "extra == 'extra-12-seam-runtime-bench-mem0'" },
+    { name = "uvicorn", extra = ["standard"], marker = "extra == 'extra-10-seam-suite-bench-mem0'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/39/cd/f0f2de3f466ff514fb6b58271c14f6d22198402bb5b71b8d890231265946/chromadb-0.6.3.tar.gz", hash = "sha256:c8f34c0b704b9108b04491480a36d42e894a960429f87c6516027b5481d59ed3", size = 29297929, upload-time = "2025-01-14T22:20:40.184Z" }
 wheels = [
@@ -555,8 +555,8 @@ dependencies = [
     { name = "jsonschema" },
     { name = "kubernetes" },
     { name = "mmh3" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-12-seam-runtime-chroma') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-12-seam-runtime-chroma') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-10-seam-suite-chroma') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-10-seam-suite-chroma') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "onnxruntime" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp-proto-grpc" },
@@ -574,7 +574,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "typer" },
     { name = "typing-extensions" },
-    { name = "uvicorn", extra = ["standard"], marker = "extra == 'extra-12-seam-runtime-chroma'" },
+    { name = "uvicorn", extra = ["standard"], marker = "extra == 'extra-10-seam-suite-chroma'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/92/d1/5e33b26985f0c7046a0be1cee2158ada1748ee700d2545057fde1468d74d/chromadb-1.5.9.tar.gz", hash = "sha256:5c20e62a455c28bacac927f26116a73fd8e1799e0d908be8e8a4f02197a54731", size = 2595635, upload-time = "2026-05-05T05:54:51.713Z" }
 wheels = [
@@ -655,43 +655,43 @@ wheels = [
 
 [package.optional-dependencies]
 cublas = [
-    { name = "nvidia-cublas", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cublas", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 cudart = [
-    { name = "nvidia-cuda-runtime", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cuda-runtime", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 cufft = [
-    { name = "nvidia-cufft", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cufft", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 cufile = [
-    { name = "nvidia-cufile", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (sys_platform != 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cufile", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (sys_platform != 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 cupti = [
-    { name = "nvidia-cuda-cupti", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cuda-cupti", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 curand = [
-    { name = "nvidia-curand", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-curand", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 cusolver = [
-    { name = "nvidia-cublas", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-cusolver", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-cusparse", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cublas", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-cusolver", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-cusparse", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 cusparse = [
-    { name = "nvidia-cusparse", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cusparse", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 nvjitlink = [
-    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 nvrtc = [
-    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 nvtx = [
-    { name = "nvidia-nvtx", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-nvtx", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 
 [[package]]
@@ -1146,7 +1146,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
     { name = "fsspec" },
-    { name = "hf-xet", marker = "platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "hf-xet", marker = "platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "packaging" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -2100,8 +2100,8 @@ version = "1.29.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flatbuffers" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-12-seam-runtime-bench-mem0') or (python_full_version < '3.12' and extra == 'extra-12-seam-runtime-chroma') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-12-seam-runtime-bench-mem0') or (python_full_version >= '3.12' and extra == 'extra-12-seam-runtime-chroma') or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-10-seam-suite-bench-mem0') or (python_full_version < '3.12' and extra == 'extra-10-seam-suite-chroma') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-10-seam-suite-bench-mem0') or (python_full_version >= '3.12' and extra == 'extra-10-seam-suite-chroma') or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "packaging" },
     { name = "protobuf" },
 ]
@@ -2468,7 +2468,7 @@ name = "portalocker"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5e/77/65b857a69ed876e1951e88aaba60f5ce6120c33703f7cb61a3c894b8c1b6/portalocker-3.2.0.tar.gz", hash = "sha256:1f3002956a54a8c3730586c5c77bf18fae4149e07eaf1c29fc3faf4d5a3f89ac", size = 95644, upload-time = "2025-06-14T13:20:40.03Z" }
 wheels = [
@@ -2620,8 +2620,8 @@ name = "psycopg"
 version = "3.3.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/72/73/8fb739d0f6bba247b9b93c9840c402a4f88545be5f1d4b02b23366371c00/psycopg-3.3.5.tar.gz", hash = "sha256:d0a3d9ccf5788af054cbd745278cb02401b5c312aeaafbf2c6144460aec47da4", size = 166508, upload-time = "2026-08-31T22:45:43.151Z" }
 wheels = [
@@ -2630,7 +2630,7 @@ wheels = [
 
 [package.optional-dependencies]
 binary = [
-    { name = "psycopg-binary", marker = "implementation_name != 'pypy' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "psycopg-binary", marker = "implementation_name != 'pypy' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 
 [[package]]
@@ -3135,8 +3135,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "grpcio" },
     { name = "httpx", extra = ["http2"] },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "portalocker" },
     { name = "protobuf" },
     { name = "pydantic" },
@@ -3501,10 +3501,10 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
     { name = "narwhals" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "threadpoolctl" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/fa/6f/37092bdb25f712817231799fc5674d8e704066a8a70c1d2d40517e18b4ab/scikit_learn-1.9.0.tar.gz", hash = "sha256:8833266989d3a5110178a9fae30783675460724d0e1efb13b14901d2c660c557", size = 7750767, upload-time = "2026-06-02T11:54:32.706Z" }
@@ -3549,7 +3549,7 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7a/97/5a3609c4f8d58b039179648e62dd220f89864f56f7357f5d4f45c29eb2cc/scipy-1.17.1.tar.gz", hash = "sha256:95d8e012d8cb8816c226aef832200b1d45109ed4464303e997c5b13122b297c0", size = 30573822, upload-time = "2026-02-23T00:26:24.851Z" }
 wheels = [
@@ -3625,7 +3625,7 @@ resolution-markers = [
     "python_full_version == '3.12.*'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7e/74/66de6258867beb2ef08f35f9f2ac017a52cacd5081714d239ff1a442d458/scipy-1.18.1.tar.gz", hash = "sha256:52c4b7422442aba924d03ad4019852b08a92e64ea187b933135687bfe2747307", size = 30781235, upload-time = "2026-08-21T23:28:50.599Z" }
 wheels = [
@@ -3692,8 +3692,8 @@ wheels = [
 ]
 
 [[package]]
-name = "seam-runtime"
-version = "2.4.0"
+name = "seam-suite"
+version = "2.4.1rc1"
 source = { editable = "." }
 dependencies = [
     { name = "rich" },
@@ -3795,12 +3795,12 @@ version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "huggingface-hub" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "pillow" },
     { name = "scikit-learn" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "torch" },
     { name = "tqdm" },
     { name = "transformers" },
@@ -3851,7 +3851,7 @@ name = "sqlalchemy"
 version = "2.0.52"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "greenlet", marker = "platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "greenlet", marker = "platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3b/21/77b4c147963073040dc3c3a5cb7a8c3001a1893c0209432cb77f9df836aa/sqlalchemy-2.0.52.tar.gz", hash = "sha256:5e2d46356ac2ccb7d268ab6c2319ac6a2b42f1b8d5fd8bd3d46855cd82abee97", size = 9945637, upload-time = "2026-08-11T19:07:09.829Z" }
@@ -3894,7 +3894,7 @@ version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b5/b4/205b0d5241d934e8add0c38aa924c4f9fb7330834ff11e5444db964ec3f9/starlette-1.6.0.tar.gz", hash = "sha256:d4e3ac5e546444960c710297a3c9fc3f7ebae1b7e963f3d36173b49da535be9b", size = 2716969, upload-time = "2026-08-08T18:27:57.512Z" }
 wheels = [
@@ -4040,19 +4040,19 @@ name = "torch"
 version = "2.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cuda-bindings", marker = "(python_full_version < '3.15' and sys_platform == 'linux') or (python_full_version >= '3.15' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform != 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "cuda-toolkit", extra = ["cublas", "cudart", "cufft", "cufile", "cupti", "curand", "cusolver", "cusparse", "nvjitlink", "nvrtc", "nvtx"], marker = "sys_platform == 'linux' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "cuda-bindings", marker = "(python_full_version < '3.15' and sys_platform == 'linux') or (python_full_version >= '3.15' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform != 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "cuda-toolkit", extra = ["cublas", "cudart", "cufft", "cufile", "cupti", "curand", "cusolver", "cusparse", "nvjitlink", "nvrtc", "nvtx"], marker = "sys_platform == 'linux' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "filelock" },
     { name = "fsspec" },
     { name = "jinja2" },
     { name = "networkx" },
-    { name = "nvidia-cudnn-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-cusparselt-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-nccl-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "nvidia-nvshmem-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "nvidia-cudnn-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-cusparselt-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-nccl-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "nvidia-nvshmem-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "setuptools" },
     { name = "sympy" },
-    { name = "triton", marker = "(python_full_version < '3.15' and sys_platform == 'linux') or (python_full_version >= '3.15' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform != 'linux' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "triton", marker = "(python_full_version < '3.15' and sys_platform == 'linux') or (python_full_version >= '3.15' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform != 'linux' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "typing-extensions" },
 ]
 wheels = [
@@ -4083,7 +4083,7 @@ name = "tqdm"
 version = "4.70.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/21/3b/6c24bec5be5e743ffd99576daa5cc077722fc7d5bbc00bd133fa0c698dc6/tqdm-4.70.0.tar.gz", hash = "sha256:55b0b0dbd97462d06ebee91e4dac24ed4d4702be82b24f07e6c1d27e08cea220", size = 795438, upload-time = "2026-07-27T11:33:15.271Z" }
 wheels = [
@@ -4097,8 +4097,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
     { name = "huggingface-hub" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
-    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "packaging" },
     { name = "pyyaml" },
     { name = "regex" },
@@ -4201,7 +4201,7 @@ standard = [
     { name = "httptools" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
-    { name = "uvloop", marker = "(platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32') or (platform_python_implementation == 'PyPy' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'cygwin' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma') or (sys_platform == 'win32' and extra == 'extra-12-seam-runtime-bench-mem0' and extra == 'extra-12-seam-runtime-chroma')" },
+    { name = "uvloop", marker = "(platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32') or (platform_python_implementation == 'PyPy' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'cygwin' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma') or (sys_platform == 'win32' and extra == 'extra-10-seam-suite-bench-mem0' and extra == 'extra-10-seam-suite-chroma')" },
     { name = "watchfiles" },
     { name = "websockets" },
 ]

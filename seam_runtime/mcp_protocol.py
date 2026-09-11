@@ -19,12 +19,14 @@ DEFAULT_PROTOCOL_VERSION = SUPPORTED_PROTOCOL_VERSIONS[0]
 
 
 def _runtime_package_version() -> str:
-    """Return the installed private runtime version used by this handshake."""
+    """Return the suite version, accepting legacy runtime installations."""
 
-    try:
-        return version("seam-runtime")
-    except PackageNotFoundError:  # pragma: no cover - source-only misuse
-        return "unknown"
+    for distribution in ("seam-suite", "seam-runtime"):
+        try:
+            return version(distribution)
+        except PackageNotFoundError:
+            continue
+    return "unknown"
 
 JSONRPC_PARSE_ERROR = -32700
 JSONRPC_INVALID_REQUEST = -32600

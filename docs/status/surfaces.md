@@ -10,7 +10,8 @@ The [product map](../PRODUCTS.md) and [launch plan](../roadmap/SEAM_LAUNCH.md)
 now govern operator-surface priorities (HISTORY#634). Suite includes the TUI
 and an independently openable browser dashboard with the diamond constellation
 overview and separate knowledge graph, reasoning graph, database, and benchmark
-sections. SEAM WebUI operates the paid API. Complete the products before the
+sections. SEAM Client is the paid API and its all-in-one WebUI. The existing
+`seam-client` wheel is its separate Python HTTP client. Complete the products before the
 expensive benchmark score campaign while retaining existing correctness gates.
 This direction does not change the implementation evidence below.
 

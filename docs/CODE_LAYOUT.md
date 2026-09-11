@@ -124,7 +124,7 @@ not have to infer what works from directory names alone.
   `verify_private_artifacts.py` separately opens the built private wheel and
   sdist, rejects unsafe/non-regular/credential-shaped members, and applies the
   canonical content-free secret scanner before GitHub Release upload.
-- CURRENT BUILD. Root `pyproject.toml` defines `seam-runtime` 2.4.0, the full
+- CURRENT BUILD. Root `pyproject.toml` defines `seam-suite` 2.4.1rc1 (unpublished candidate), the full
   runtime with readable MIRL and HS/1 source and `Private :: Do Not Upload`.
   Retired compiled self-host and API-only shim tooling must not be restored
   implicitly. The [product map](PRODUCTS.md) defines the Suite/API direction;

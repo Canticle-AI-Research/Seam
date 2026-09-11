@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -151,14 +151,15 @@ bounded task-specific reading; do not maintain a competing sequence here.
   automatic Suite inclusion. Existing license texts are unchanged. The L1
   packet records candidate membership, compatibility evidence, and unresolved
   customer delivery/source ownership work.
-- PRODUCT DIRECTION. Canticle SEAM Suite is the self-hosted operator product;
-  Canticle SEAM API is the paid hosted service and SEAM WebUI its operator
-  surface. `docs/PRODUCTS.md` owns these definitions. The former prohibition on
+- PRODUCT DIRECTION (HISTORY#642). SEAM Suite (`seam-suite`) is the self-hosted
+  operator product; SEAM Client is the paid hosted API with its all-in-one
+  WebUI. The existing `seam-client` Python wheel remains its separate HTTP
+  transport client. `seam-sdk` remains the private SDK for paying users. `docs/PRODUCTS.md` owns these definitions. The former prohibition on
   reconsidering product shape is superseded by the operator's launch direction
   at HISTORY#634. Existing runtime invariants and artifact boundaries still
   apply; a product decision does not silently change package contents.
-- CURRENT BUILD. The root `pyproject.toml` still defines only `seam-runtime`
-  2.4.0, containing the full runtime and readable MIRL/HS/1 source. Preserve
+- CURRENT BUILD. The root `pyproject.toml` still defines the `seam-suite`
+  2.4.1rc1 candidate, containing the full runtime and readable MIRL/HS/1 source. Preserve
   `Private :: Do Not Upload` and the existing artifact/secret gates until a
   separately reviewed distribution manifest and qualification establish the
   intended new artifacts. Candidate names and migration requirements live in
@@ -174,6 +175,11 @@ bounded task-specific reading; do not maintain a competing sequence here.
   proposals; sensitive security findings route to private advisories. Issue
   closure, labels, and milestones do not by themselves prove implementation,
   qualification, publication, or deployment.
+- TEST REGISTRY FIRST (HISTORY#642). Validate an eligible Suite candidate on
+  TestPyPI before any production PyPI publication. TestPyPI is public, not a
+  private artifact store; never upload the private paid SDK there. Existing
+  releases remain intact. A new name or registry does not waive exact
+  artifact membership, notices, scans, or publication authorization.
 - RELEASE AUTOMATION. `package-release.yml` prepares reviewed root artifacts
   and a GitHub draft; `publish-private-release.yml` performs the separate
   operator-gated publication. Preserve their exact-head, artifact, digest,
@@ -522,7 +528,7 @@ bounded task-specific reading; do not maintain a competing sequence here.
   operator approval plus apply. The AutoResearch-style fixed-evaluator/bounded-
   search pattern does not authorize arbitrary downloaded code or unrestricted
   source modification. See `docs/IMPROVEMENT_EXPERIMENTS.md`.
-- Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam[chroma]`, `seam[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
+- Vector stores (SQLite vector index, Chroma, PgVector) are derived retrieval layers. The SQLite vector adapter is the DEFAULT backend; `chromadb` and `psycopg` (pgvector) are OPTIONAL extras (`seam-suite[chroma]`, `seam-suite[pgvector]`), never core dependencies. All Chroma imports are lazy (`ChromaSemanticAdapter._client` raises a clear error if chromadb is absent). chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the Chroma SERVER); SEAM uses only the embedded `PersistentClient` so the server/auth surface is not reachable, but chromadb is kept OPT-IN ONLY: not in core `dependencies`, not in `requirements.txt` (installer/bootstrap path), and not in `all-extras` - only in the explicit `chroma` extra. Do not reintroduce it to any default/convenience path (guarded by `tests/audit/test_chroma_optional.py`).
 - Native SQLite and pgvector vector searches carry both namespace and scope into
   pre-top-K filtering; post-filtering remains a fail-closed defense. SQLite
   upgrades backfill both fields from canonical `ir_records`. Existing external
@@ -799,8 +805,8 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Lint Policy
 
-- `ruff` is the one general-purpose Python linter (install via `seam[lint]`); config lives in `pyproject.toml`'s `[tool.ruff]`/`[tool.ruff.lint]`. Rule set is deliberately narrow (`E4`, `E7`, `E9`, `F`, `I`) — no `E501`/pure-style rules, no mypy/type-check gate yet.
-- The dev-only `seam[lint]` extra also carries `markdown-it-py`, which gives the
+- `ruff` is the one general-purpose Python linter (install via `seam-suite[lint]`); config lives in `pyproject.toml`'s `[tool.ruff]`/`[tool.ruff.lint]`. Rule set is deliberately narrow (`E4`, `E7`, `E9`, `F`, `I`) — no `E501`/pure-style rules, no mypy/type-check gate yet.
+- The dev-only `seam-suite[lint]` extra also carries `markdown-it-py`, which gives the
   required wiki verifier actual CommonMark semantics without adding a runtime
   dependency to SEAM.
 - `extend-exclude` skips `archive/` and `build/` (retired/generated code, never a gate). `per-file-ignores` carries structural `E402` exemptions for `seam_runtime/dashboard.py` (optional rich/textual import guards) and `installers/install_seam.py` (sys.path-before-import) — both intentional, not accidents.
