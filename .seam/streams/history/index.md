@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 643
-total_tokens: ~327220
-latest_id: 643
+total_entries: 644
+total_tokens: ~327537
+latest_id: 644
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 644 | 2026-09-11 | done | aad22f58881cd364 | config,security,git-hooks,tests,+ | 643 |
 | 643 | 2026-09-11 | done | defb023ec3823bf8 | config,memory,agent,git-hooks,+ | 642 |
 | 642 | 2026-09-08 | in-progress | 0e6661f58453d638 | pyproject,naming,docs,mcp,+ | 641 |
 | 641 | 2026-09-07 | done | 69f4500c66144e71 | retrieval,audit,handoff,docs,+ | 640 |
@@ -715,12 +716,12 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=12 latest=#643, #633, #629, #615, #614
+- config: count=13 latest=#644, #643, #633, #629, #615
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=89 latest=#643, #642, #641, #640, #639
+- continuity: count=90 latest=#644, #643, #642, #641, #640
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -781,7 +782,7 @@ compact: true
 - generation: count=1 latest=#365
 - ghost: count=2 latest=#609, #608
 - git: count=3 latest=#561, #360, #324
-- git-hooks: count=16 latest=#643, #619, #618, #617, #616
+- git-hooks: count=17 latest=#644, #643, #619, #618, #617
 - gitignore: count=1 latest=#406
 - gold-noise: count=1 latest=#369
 - gold-standard: count=1 latest=#038
@@ -938,7 +939,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=17 latest=#612, #276, #242, #240, #181
-- security: count=111 latest=#635, #633, #632, #619, #618
+- security: count=112 latest=#644, #635, #633, #632, #619
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -973,7 +974,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=132 latest=#642, #638, #637, #632, #631
 - test-artifacts: count=1 latest=#506
-- tests: count=79 latest=#643, #640, #632, #631, #630
+- tests: count=80 latest=#644, #643, #640, #632, #631
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -989,7 +990,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=449 latest=#643, #642, #641, #640, #639
+- verify: count=450 latest=#644, #643, #642, #641, #640
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1007,6 +1008,6 @@ compact: true
 
 - roots: 86
 - changed: 67
-- done: 534
+- done: 535
 - in-progress: 20
 - planned: 22

@@ -55,12 +55,34 @@ def test_removed_pin_cannot_hide_behind_an_untracked_copy(repo):
     assert verify(repo, staged=True)
 
 
+def test_worktree_link_is_rejected_before_opening(repo, monkeypatch):
+    from pathlib import Path
+
+    original = Path.open
+    monkeypatch.setattr(Path, "is_symlink", lambda self: self == repo / PIN_PATH)
+
+    def forbid_pin_open(self, *args, **kwargs):
+        assert self != repo / PIN_PATH, "validator opened a symlink target"
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", forbid_pin_open)
+    assert verify(repo)
+
+
+def test_oversized_index_blob_is_rejected(repo):
+    (repo / PIN_PATH).write_bytes(b" " * 100000 + json.dumps(PIN).encode())
+    subprocess.run(["git", "add", PIN_PATH], cwd=repo, check=True)
+    assert verify(repo)
+    assert verify(repo, staged=True)
+
+
 @pytest.mark.parametrize("path", [
     ".claude/settings.local.json",
     ".claude/agents/helper.md",
     ".opencode/config.json",
     ".agents/notes.md",
     "nested/.claude/settings.json",
+    ".CLAUDE/settings.json",
     "opencode.jsonc",
 ])
 def test_other_agent_files_remain_blocked(repo, path):
@@ -68,7 +90,7 @@ def test_other_agent_files_remain_blocked(repo, path):
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text("local data")
     subprocess.run(["git", "add", "-f", path], cwd=repo, check=True)
-    assert any(path in problem for problem in verify(repo, staged=True))
+    assert any(path.casefold() in problem.casefold() for problem in verify(repo, staged=True))
 
 
 def test_staged_symlink_is_rejected(repo):

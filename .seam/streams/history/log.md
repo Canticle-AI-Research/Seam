@@ -21185,3 +21185,34 @@ they acquire this commit; local configuration was applied separately to the
 existing checkouts. Canonical continuity checks follow this entry. Pushed-head
 CI and any protected-main merge remain separate evidence from local checks.
 ---END-ENTRY-#643---
+
+---BEGIN-ENTRY-#644---
+id: 644
+date: 2026-09-11T07:04:02Z
+agent: codex
+status: done
+topics: config, security, git-hooks, tests, verify, continuity
+commits: pending
+refs: tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,docs/CLAUDE_MEMORY.md
+supersedes: 643
+tokens: 317
+---
+Final local review of HISTORY#643 found that the memory-pin validator should
+reject symlink metadata before accessing contents and bound reads before
+parsing. Working-copy reads now stop after 1025 bytes; staged verification
+checks Git blob size first and reads the object ID captured from the index,
+not a subsequently re-resolved path. Reject case-variant Claude directory
+names too, including on case-insensitive checkout filesystems. These tighten
+the same single-setting exception; no broader agent configuration is admitted.
+
+Verification: /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest
+tests/audit/test_claude_memory_pin.py tests/audit/test_local_gates_match_ci.py
+tests/audit/test_public_safe_gate.py -o addopts='' passed 84 cases, zero skips.
+The added cases exercise pre-open symlink refusal, oversized working/staged
+config and case-variant paths. Full-repository Ruff passed. PR #258's initial
+head a98f510 passed repo-hygiene, chroma-real-smoke and locomo-quickstart-bil2;
+that historical CI does not qualify this follow-up head, which requires its
+own pushed checks. Canonical closeout follows. The already-verified local
+memory migration, preserved archives, SDK exclusion and pre-existing dirty
+worktree exclusions remain unchanged.
+---END-ENTRY-#644---
