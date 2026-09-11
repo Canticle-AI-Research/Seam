@@ -213,7 +213,7 @@ jobs:
               sdist_name, sdist_version = parse_sdist_filename(sdists[0])
           except Exception:
               raise SystemExit("Unexpected draft artifact identity.") from None
-          expected_name = canonicalize_name("seam-runtime")
+          expected_name = canonicalize_name("seam-suite")
           expected_version = canonicalize_version(os.environ["VERSION"])
           if (
               canonicalize_name(wheel_name) != expected_name
@@ -239,7 +239,7 @@ jobs:
           fi
           (cd draft-assets && sha256sum --status --check SHA256SUMS.txt)
           python -m tools.release.verify_private_artifacts \
-            --expected-name seam-runtime \
+            --expected-name seam-suite \
             --expected-version "${VERSION}" \
             draft-assets/*.whl draft-assets/*.tar.gz
 

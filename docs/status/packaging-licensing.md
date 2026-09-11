@@ -7,13 +7,26 @@ lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
 
-## L1 candidate
+## Current naming candidate
+
+HISTORY#642 selects `seam-suite` for self-hosted Suite, SEAM Client for the
+paid API plus its WebUI, and `seam-sdk` for private paid delivery. Existing
+`seam-client` remains the Python HTTP client, not a dashboard distribution.
+The root candidate is `seam-suite` 2.4.1rc1; imports and commands retain their
+existing names. This is a source change, not a published package.
+
+The operator requires **TestPyPI first**. Follow [the procedure](../TESTPYPI.md);
+production publication and deletion of legacy releases are excluded. TestPyPI
+access and exact Suite artifact membership remain unresolved. No private SDK
+source may be included in either public index.
+
+## L1 preparation evidence
 
 The [L1 migration packet](../audits/2026-09-06-l1-packaging-migration.md)
 records exact artifact/member hashes, the source/ownership map, scoped installed
 package evidence, and release blockers (HISTORY#635). Documentation baseline
-PR #250 is merged at `7c08104` (HISTORY#636). This L1 packet remains a branch
-candidate until its own protected merge; it does not qualify a package release.
+PR #250 is merged at `7c08104` (HISTORY#636). This packet records scoped preparation evidence; it does not qualify a package
+release.
 
 **SEAM SDK is private, with access for paying users.** Its customer delivery
 is separate from the public HTTP client and is not automatically included in
@@ -26,7 +39,7 @@ and one synthetic legacy-runtime data upgrade passed. These scoped results do
 not qualify a new package name, full SDK parity, arbitrary upgrades, release
 rights, or hosted service. Ownership/source recovery, exact Suite membership,
 a fresh successor version, paid delivery, and compiled self-host migration
-remain explicit blockers in the packet. R2 remains the next runtime slice.
+remain explicit blockers in the packet. R2/S8 is now complete through PR #254; operator-product acceptance remains next.
 
 ## Current boundary
 
@@ -35,10 +48,12 @@ reports it as public at the launch baseline. Repository visibility, licensing,
 package contents, and release visibility are separate properties; the old
 description "private repository" must not be used as proof of access control.
 
-The root build still declares **`seam-runtime` 2.4.0** and
+The renamed root candidate declares **`seam-suite` 2.4.1rc1** and
 `Private :: Do Not Upload`. It contains the full runtime and readable MIRL/HS/1
-source. That build remains blocked from PyPI. The product naming decision does
-not remove the classifier, alter license terms, or qualify a Suite artifact.
+source. That build remains blocked from PyPI and TestPyPI pending artifact review. The rename does not remove the classifier, alter license terms, or qualify a
+public Suite artifact. Existing release workflows still enforce their SemVer
+input contract; this PEP 440 release candidate is tested locally and does not
+pass that publication workflow.
 
 [LICENSE](../../LICENSE), [NOTICE](../../NOTICE),
 [COMMERCIAL_LICENSE.md](../../COMMERCIAL_LICENSE.md), and the named license

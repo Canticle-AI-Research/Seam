@@ -102,7 +102,7 @@ jobs:
       - name: Verify private release artifacts
         run: >-
           python -m tools.release.verify_private_artifacts
-          --expected-name seam-runtime
+          --expected-name seam-suite
           --expected-version "${{ steps.version.outputs.version }}"
           dist/*
 
