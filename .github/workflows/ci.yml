@@ -113,6 +113,9 @@ jobs:
       - name: Verify SEAM handoff registry
         run: python -m tools.history.verify_handoffs
 
+      - name: Verify agent configuration scope
+        run: python -m tools.git.verify_agent_config
+
       - name: Verify SEAM streams
         run: python -m tools.streams.verify_streams
 

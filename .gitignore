@@ -55,7 +55,10 @@ selfhost/*.oci
 seam_runtime/config.toml
 
 # Local agent/tooling state
-.claude/
+/.claude/*
+!/.claude/settings.json
+**/.claude/
+!/.claude/
 .lingma/
 .ua/
 .pytest_cache/

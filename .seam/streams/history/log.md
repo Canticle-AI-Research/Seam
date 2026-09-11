@@ -21129,3 +21129,59 @@ The private release workflow retains its SemVer gate and rejects this PEP 440
 rc1 candidate. Canonical continuity and an independent closeout review govern
 the draft PR; pushed-head CI remains distinct from these local results.
 ---END-ENTRY-#642---
+
+---BEGIN-ENTRY-#643---
+id: 643
+date: 2026-09-11T06:56:17Z
+agent: codex
+status: done
+topics: config, memory, agent, git-hooks, tests, verify, docs, continuity
+commits: pending
+refs: .claude/settings.json,.gitignore,tools/git/verify_agent_config.py,tools/git-hooks/pre-commit,tools/claude/preflight_protocol.sh,tools/history/closeout.py,.github/workflows/ci.yml,tests/audit/test_claude_memory_pin.py,docs/CLAUDE_MEMORY.md,docs/README.md,REPO_LEDGER.md
+supersedes: 642
+tokens: 740
+---
+Implement the operator-requested Claude memory consolidation from protected
+main 7bd47d2. Independent checkout paths previously selected separate local
+memory stores. Root .claude/settings.json now carries only the stable
+home-relative memory-directory pin. Update ignore rules and the canonical
+commit scope check to admit exactly that regular-file JSON object; reject
+extra settings, duplicate keys, alternate paths, symlinks and other Claude
+state. Preserve the existing staged-change guard for older agent-local paths.
+CI, Claude preflight and closeout validate the same memory pin. No runtime,
+benchmark, dependency, SDK or publication-boundary behavior changes.
+
+Document first-session workspace trust, settings precedence, per-machine
+scope, older branches, local-hook migration, archive separation, index size
+limits, historical fact qualification, compatibility-link permissions and
+concurrent-write limits. Add the page to the wiki and update durable policy.
+The operator's existing hooks and individual settings were merged into local
+settings with backups and semantic equality checks; private memory remains
+outside Git. The separate SDK memory was excluded and its hashes unchanged.
+Original memory bytes and divergent versions were preserved in an external
+archive before old paths became compatibility links to the shared store.
+
+Verification: /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest
+tests/audit/test_claude_memory_pin.py tests/audit/test_local_gates_match_ci.py
+tests/audit/test_public_safe_gate.py -o addopts='' passed 81 cases, zero skips.
+Scoped Ruff and diff hygiene passed. Wiki verification initially rejected the
+unlinked page; adding its navigation route fixed the check. A first test
+fixture was blocked by global ignores; force-staging the intentionally-invalid
+fixture made the negative scope test exercise the validator.
+
+Installed Claude Code 2.1.266 was exercised against a loopback-only HTTP stub,
+without real credentials or paid model requests. Fresh requests loaded the
+configured memory from the primary checkout, a subdirectory, a linked
+worktree, this candidate, and independent repository fixtures; an SDK checkout
+was a negative control. A SessionStart hook writing settings failed to affect
+the first request, so it was rejected as a routing mechanism. Directory-link
+reads and writes preserved the link and updated its target; manual permission
+mode can request approval for legacy-link writes, so fresh sessions should use
+the direct configured path. This does not add transactional multiwriter memory.
+
+The primary checkout's unrelated audit/history changes and existing worktrees
+remain outside this branch. The source pin reaches future clones only after
+they acquire this commit; local configuration was applied separately to the
+existing checkouts. Canonical continuity checks follow this entry. Pushed-head
+CI and any protected-main merge remain separate evidence from local checks.
+---END-ENTRY-#643---
