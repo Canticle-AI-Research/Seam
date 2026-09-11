@@ -52,6 +52,7 @@ run_gate() {
 }
 
 run_gate "verify_integrity" "$PY" -m tools.history.verify_integrity
+run_gate "verify_agent_config" "$PY" -m tools.git.verify_agent_config
 run_gate "verify_routing"   "$PY" -m tools.history.verify_routing
 run_gate "verify_handoffs"  "$PY" -m tools.history.verify_handoffs
 # The recorded-fact audit runs here. It MUST match the required CI check
