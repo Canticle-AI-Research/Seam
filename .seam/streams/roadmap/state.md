@@ -9,12 +9,13 @@ Regenerate: `python -m tools.streams.roadmap_parser --emit-state`.
 - `roadmap:track:F:backlog:scoring-weights` — since 2026-05-25 via history:243 — topics: retrieval, benchmark
 - `roadmap:track:H2` — since 2026-05-25 via history:243 — topics: protocol, history, plan
 
-## in-progress (6)
+## in-progress (7)
 
 - `roadmap:track:A-CLI` — since 2026-05-07 via history:137 — topics: command, chat, dashboard
 - `roadmap:track:A-Web` — since 2026-05-10 via history:163 — topics: dashboard, webui, command
 - `roadmap:track:E1` — since 2026-04-30 via history:121 — topics: pgvector, vector, docker
-- `roadmap:track:Launch` — since 2026-09-06 via history:634 — topics: roadmap, plan, naming, surface, dashboard, graph, verify
+- `roadmap:track:Launch` — since 2026-09-12 via history:645 — topics: roadmap, plan, naming, surface, dashboard, graph, verify
+- `roadmap:track:MemoryFormation` — since 2026-09-12 via history:645 — topics: roadmap, plan, compile, memory, graph, benchmark, provenance
 - `roadmap:track:R` — since 2026-07-22 via history:454 — topics: graph, memory, retrieval, benchmark, comparator, provenance
 - `roadmap:track:S` — since 2026-08-01 via history:511 — topics: audit, storage, retrieval, security, graph, provenance, benchmark, verify
 

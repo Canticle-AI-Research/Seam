@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-08-package-names-testpypi-candidate
 supersedes: 2026-09-07-s8-protected-main-suite-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#642
 ---
 

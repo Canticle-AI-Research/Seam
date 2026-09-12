@@ -2,9 +2,10 @@
 
 [Back to SEAM roadmaps](README.md)
 
-**Direction:** documentation baseline, packaging migration preparation,
-Product Core completion, Suite, hosted API/WebUI, then benchmark score work.
-**Decision record:** HISTORY#634; naming and TestPyPI-first update HISTORY#642.
+**Direction:** retained product acceptance backlog. The active
+[memory-formation roadmap](MEMORY_FORMATION.md) supersedes the previous
+surface-first score-campaign order and owns what to do next.
+**Decision record:** HISTORY#634; naming/TestPyPI HISTORY#642; priority HISTORY#645.
 **Product definitions:** [SEAM products](../PRODUCTS.md).
 **Current implementation state:** [project status](../../PROJECT_STATUS.md)
 and the [current handoff](../handoffs/INDEX.md).
@@ -23,17 +24,17 @@ handoff, status, and derived-stream workflow.
 | L2 | Product Core and graph completion | L0; distribution decisions from L1 where relevant | R2 and the S8 freeze conditions pass; knowledge/reasoning workflows prove evidence, lifecycle, temporal, recovery, and retrieval behavior through supported interfaces |
 | L3 | SEAM Suite operator experience | Stable L2 contracts; L1 distribution boundary | TUI workflows and the browser dashboard operate real data; all four sections load independently; approved renders and installation/upgrade evidence exist |
 | L4 | SEAM API, SDK compatibility, and WebUI | Stable L2 contracts; shared L3 components where applicable | Customer isolation, authentication, supported SDK behavior, usage controls, real operator actions, and deployment recovery are qualified on the intended service topology |
-| L5 | Benchmark qualification and score improvement | Product completion through L4; frozen eligible S8 baseline | S9 evidence identifies the exact benchmark/metric and conditions; the requested 90% target is measured on the agreed protocol, with failures and uncertainty retained |
+| L5 | Benchmark qualification and score improvement | Memory roadmap M5 protocol; frozen eligible S8 baseline | S9 evidence identifies the exact benchmark/metric and conditions; any agreed score target is measured on the named protocol, with failures and uncertainty retained |
 | L6 | Launch qualification and publication | L1-L5 evidence for the offered product | S10 reproducibility and applicable deployment gates pass; release notes, support/upgrade instructions, artifacts, and public claims match the qualified candidate; operator authorizes publication |
 
 L1 prepares package migration; it does not authorize an early public release.
 R2 and the S8 gates are frozen through protected PR #254 (HISTORY#641). Interface specifications and
 design reviews can proceed while core work is underway, but they cannot waive
 core correctness. Existing regression, security, conformance, and CI smoke
-checks continue throughout. Expensive score optimization follows product
-completion; benchmark default changes remain subject to S9 Promotion.
+checks continue throughout. Memory-formation evaluation follows its own setup/design dependencies;
+benchmark default changes remain subject to S9 Promotion.
 
-The 90% target still needs an agreed benchmark family, metric, evaluation
+Historical score aspirations still need an agreed benchmark family, metric, evaluation
 split, model/judge, context budget, and execution budget. Record those before
 any score campaign. Do not substitute retrieval recall, answer accuracy, or a
 different benchmark for one another, and do not promise the result in advance.
@@ -65,11 +66,11 @@ paths. No rename alone proves distribution eligibility.
 R2 and the S8 completion conditions are protected at `main@2f9a96b9`
 (PR #254), with exact-main checks recorded at HISTORY#641 and evidence in
 [the gate matrix](../../tests/docs/s8-completion.md). L3 operator acceptance
-is the next product lane.
-The next bounded product pass should select one real Suite/API/WebUI workflow,
+remains the product acceptance lane after the active formation work.
+When that lane resumes, select one real Suite/API/WebUI workflow,
 inspect its current implementation, and record public-seam acceptance before
-editing. L1 delivery blockers remain explicit; expensive benchmark score work
-still follows product completion. [Track S](TRACK_S_S8_S10_PRODUCTION_CORE.md)
+editing. L1 delivery blockers remain explicit; evaluation sequencing follows
+the active memory-formation roadmap. [Track S](TRACK_S_S8_S10_PRODUCTION_CORE.md)
 continues to own core qualification and Promotion.
 
 ## Operator workflow acceptance

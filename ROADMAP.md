@@ -1,30 +1,51 @@
 # SEAM Improvement Roadmap & SOP Blueprint
 
-**Last updated:** 2026-09-06
+**Last updated:** 2026-09-12
 **Status:** Active planning document. This is the living roadmap for SEAM development beyond the stable v1 core.
+
+## Track Memory Formation — active execution roadmap
+
+<!-- seam:item
+id: roadmap:track:MemoryFormation
+status: in-progress
+status-since: 2026-09-12
+status-by: history:645
+supersedes: none
+topics: roadmap, plan, compile, memory, graph, benchmark, provenance
+priority: 1
+phase: 1
+-->
+
+**Current priority:** setup and audit of context-preserving memory formation
+and temporal entity aggregation. The [detailed roadmap](docs/roadmap/MEMORY_FORMATION.md)
+owns request coverage, M0-Q1 work streams, dependency order, parallel scopes,
+acceptance criteria and the current ready set. Use it when the operator asks
+what is next. BIL-3, Anthropic benchmark setup and report-home discovery can
+proceed alongside the initial audit. Runtime implementation has not started.
+This supersedes the earlier surface-first campaign ordering while preserving
+completed R2/S8 facts, current compatibility and S9/S10 qualification gates.
 
 ## Track Launch — Suite and API launch sequence
 
 <!-- seam:item
 id: roadmap:track:Launch
 status: in-progress
-status-since: 2026-09-06
-status-by: history:634
+status-since: 2026-09-12
+status-by: history:645
 supersedes: none
 topics: roadmap, plan, naming, surface, dashboard, graph, verify
-priority: 1
+priority: 2
 phase: 1
 -->
 
-**Current priority:** documentation baseline, then packaging/SDK migration
-preparation. R2 remains the next runtime slice before S8 freeze. Complete
-Suite and API/WebUI before expensive benchmark score optimization, preserving
-existing correctness gates and S9/S10 qualification requirements.
-
-The [launch plan](docs/roadmap/SEAM_LAUNCH.md) owns the bounded L0-L6 acceptance
-checklist; [SEAM products](docs/PRODUCTS.md) owns names and deployment roles.
-Older tracks below are component plans and historical milestones, not a claim
-that the new products are finished. Use this sequence for launch ordering.
+**Current priority:** retained product acceptance backlog, sequenced by the
+[active memory-formation roadmap](docs/roadmap/MEMORY_FORMATION.md).
+The [launch plan](docs/roadmap/SEAM_LAUNCH.md) owns bounded L0-L6 product
+acceptance; [SEAM products](docs/PRODUCTS.md) owns names and deployment roles.
+Memory-formation investigation and its bounded benchmark setup now precede
+completion of the Suite/API surface campaign. Packaging/publication blockers
+and S9/S10 Promotion remain explicit; no new runtime or deployment claim is
+made by this priority change.
 
 ## 2026-05-01 Functional Visual Memory Target
 

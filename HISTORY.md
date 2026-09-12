@@ -21216,3 +21216,29 @@ own pushed checks. Canonical closeout follows. The already-verified local
 memory migration, preserved archives, SDK exclusion and pre-existing dirty
 worktree exclusions remain unchanged.
 ---END-ENTRY-#644---
+
+---BEGIN-ENTRY-#645---
+id: 645
+date: 2026-09-12T18:10:09Z
+agent: codex
+status: changed
+topics: roadmap, plan, memory, compile, graph, benchmark, handoff, continuity, reconcile
+commits: 736eb91cdb6ce3267d74dec4400b663e9dbfadf3
+refs: docs/roadmap/MEMORY_FORMATION.md,docs/handoffs/2026-09-12-memory-formation-roadmap.md,PROJECT_STATUS.md,REPO_LEDGER.md,ROADMAP.md,docs/roadmap/DROPPED_PR_TRACKS.md
+supersedes: 642
+tokens: 728
+---
+Recovered the operator-confirmed Chunking Strategy Proposal discussion and registered its complete direction through the detailed memory-formation roadmap and chronological handoff. The request register preserves all R01-R14 requirements: chunking/temporal entities, audit before diagnosis, plan then implement/evaluate, BIL-3, direct Anthropic setup and reported budget, report storage/formats/website, G7 continuity, foundational memory/reasoning, Sleep/Daydream, automatic/manual operation and graph experience. The reported beyond-80-percent aspiration remains unqualified pending a named metric/protocol.
+
+The authored root track and detailed M0-Q1 specification now define the ready set, temporal dependencies, independent parallel scopes, public-seam acceptance, compatibility/provenance/lifecycle boundaries and evidence exits. PROJECT_STATUS, REPO_LEDGER, roadmap README and retained launch backlog route what-is-next to this specification. M1 audit is first; B1, E1 and P0 can proceed independently. No runtime implementation, BIL-3 support, paid call, measured improvement, website deployment or package publication is claimed.
+
+Live GitHub triage on main b623032 found required checks green for archive dependency PR257. Independent release qualification checked its exact b1751676 head/fingerprint, canonical gates, archive subtree equality and preserved npm evidence. A missing local snapshot initially failed continuity; root generated a canonical snapshot and the rerun passed. The schema-valid QUALIFIED receipt was canonically stored before protected merge at 736eb91cdb6ce3267d74dec4400b663e9dbfadf3. This documentation branch then fast-forwarded to that main. Advisory test_preflight_gates_match_canonical_commit_hook failed identically on main and PR257; issue260 tracks separate repair without weakening gates.
+
+GitHub bookkeeping: issue259 tracks roadmap execution; issue212, whose body explicitly records the fixed TUI defect and durable explanation, closed completed. PR249 and PR230 converted to draft with compatibility and conflict blockers; PR213 retained draft pending semantic salvage. Their bodies now point to the current handoff/roadmap. gh pr edit initially failed on retired Projects classic GraphQL; gh api PATCH successfully applied the prepared notes. DROPPED_PR_TRACKS corrects the false PR213 closure/subsumption and PR230 chain-only-conflict claims. Five unique named tests on exact PR213 are preservation evidence, not proof that every behavior is semantically absent elsewhere.
+
+Independent documentation assurance identified two dependency ambiguities: M3 now owns only its segmentation/source-anchor fixture subset, M4 owns derived entity fixtures; M2 inputs now consistently include M1 findings, B1 metadata contract and E1 evaluation design, while provider credentials/P0 storage do not block design. Relative links and diff checks passed during review. Canonical history/stream/snapshot closeout follows this append; final gate logs, pushed-head CI and release receipt determine qualification. At this entry's preparation, the documentation PR has not been pushed or merged.
+
+Preserved unrelated primary dirt and independent worktrees are enumerated in the handoff. The separate local Codex sleep-learning HISTORY645 will require renumbering when resumed; it does not implement SEAM Sleep/Daydream. Host credential presence does not prove authentication or G7 access. The installed desktop supports compact when idle but exposes no verified assistant path to fire it automatically after this turn; no fake slash-command queue or background workaround was installed.
+
+Next unresolved step after this documentation is merged: M1 audit plus parallel B1/E1/P0 setup, then M2 design from evidence. Runtime work, paid benchmarks and report-home discovery remain unstarted.
+---END-ENTRY-#645---

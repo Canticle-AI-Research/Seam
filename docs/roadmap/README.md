@@ -8,10 +8,16 @@ current stage status. Start with the
 [derived roadmap state](../../.seam/streams/roadmap/state.md), then verify any
 claim against current status, active code, named tests, and history evidence.
 
-## Launch sequence
+## Active execution roadmap
+
+- [Memory formation and temporal entity aggregation](MEMORY_FORMATION.md) —
+  the detailed roadmap for what to do next: recovered requests, setup,
+  temporal dependencies, parallel work streams and acceptance gates.
+
+## Product acceptance backlog
 
 - [SEAM launch plan](SEAM_LAUNCH.md) — ordered acceptance criteria for packaging,
-  Product Core, Suite, API/WebUI, and later benchmark score work.
+  Product Core, Suite and API/WebUI; priority follows the active roadmap.
 - [Product definitions](../PRODUCTS.md) — names and deployment boundaries.
 
 ## Memory, graph, retrieval, and qualification
@@ -44,4 +50,6 @@ claim against current status, active code, named tests, and history evidence.
 
 `ROADMAP.md` at the repository root is the authored canonical roadmap. The
 derived state view is the fast status route; these focused pages provide
-narrative and design context only.
+narrative and design context. The Memory Formation page is the detailed
+execution specification routed by its root marker; implementation status still
+requires named evidence.
