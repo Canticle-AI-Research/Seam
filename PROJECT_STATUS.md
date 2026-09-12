@@ -5,6 +5,16 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-12 — memory formation is the active priority.** The
+[detailed roadmap](docs/roadmap/MEMORY_FORMATION.md) preserves the recovered
+chunking/temporal-entity direction and defines setup, dependency-ordered work
+streams and parallel scopes. Start with M1's current-code/history audit; B1
+(BIL-3 design), E1 (Anthropic/evaluation setup) and P0 (report-home discovery)
+can follow alongside it after the documentation merge. The diagnosis remains
+a hypothesis. No formation implementation, BIL-3 support, paid benchmark or
+website deployment was performed in this planning slice. See HISTORY#645 and
+the [current handoff](docs/handoffs/INDEX.md).
+
 **2026-09-08 naming candidate:** `seam-suite` 2.4.1rc1 names the self-hosted
 Suite; SEAM Client names the paid API and its WebUI; `seam-sdk` remains private
 paid delivery. The existing `seam-client` wheel remains a Python HTTP client.
@@ -29,17 +39,13 @@ Promotion, S10 release/deployment proof, and operator-product acceptance remain
 open. No benchmark quality improvement or hosted-production claim follows
 from this freeze.
 
-The next bounded initiative is one real Suite/API/WebUI operator workflow,
-starting with the [surface inventory](docs/status/surfaces.md) and
-[launch acceptance](docs/roadmap/SEAM_LAUNCH.md). The
-[L1 packet](docs/audits/2026-09-06-l1-packaging-migration.md) still records
-private paid SDK access and unresolved customer-delivery/artifact blockers.
-
-The operator-surface lane is now part of launch delivery. Complete and review
-Suite and API/WebUI before the expensive benchmark score campaign; existing
-correctness, security, conformance, and required CI checks continue throughout.
-The requested 90% target needs a named benchmark/metric and agreed evaluation
-conditions. S9 qualification and S10 release/deployment proof remain open.
+The previous surface-first score-campaign sequence is superseded by the
+new roadmap. Surface and packaging acceptance remain required for their
+products; the [launch plan](docs/roadmap/SEAM_LAUNCH.md) is retained as that
+backlog. The [L1 packet](docs/audits/2026-09-06-l1-packaging-migration.md)
+continues to record private SDK and artifact/customer-delivery blockers.
+Score aspirations require a named benchmark, metric and agreed conditions;
+existing correctness and required CI checks continue throughout.
 
 The TUI and browser prototype are existing implementation inputs. Review,
 curation, health, real backend acknowledgements, credential handling, and the

@@ -129,13 +129,25 @@ git show origin/research/advanced-persistence-landscape:docs/audits/2026-08-18-a
 
 - **PR #236** (`docs/seam-product-license-boundary-20260829`) — superseded;
   `docs/status/packaging-licensing.md` already carries this content on `main`.
-- **PR #213** (`blackhatshiftey-performance-improvements`) — subsumed by
-  PR #230, which touches the same three files and is 51 commits newer.
+## September 12 correction — PR #213 remains open
+
+The earlier closed/subsumed description was incorrect. Live GitHub still
+shows draft #213 at `4d2609e59ffca85eb2c4c6c4e995e62f545744ec`.
+Exact-tree searches found five named cache/idempotency tests there that are
+absent under those names from main `b623032` and #230 `6313f85`, including
+older-timestamp external replacement and same-timestamp delete/reindex cases.
+Semantic duplication has not been established. Preserve this work until a
+bounded salvage review records a disposition for each unique behavior.
+See HISTORY#645 and the current handoff for queue reconciliation.
 
 ## Kept
 
-- **PR #230** (`perf/batched-embedding`) — the only open PR carrying code
-  absent from `main` (`tools/ingest_throughput_probe.py`,
+- **PR #230** (`perf/batched-embedding`) — an open PR carrying batching code
+  absent from the inspected `main` (`tools/ingest_throughput_probe.py`,
   `tools/ranking_parity_probe.py`, `tests/audit/test_batched_embedding.py`,
   plus batching in `seam_runtime/{models,runtime,vector,vector_adapters}.py`).
-  Needs a rebase; conflicts are chain-file only.
+  Needs repair/rebase and current qualification. September 12 triage found
+  it conflicting at `6313f85`; September 11 merge-analysis evidence includes
+  `seam_runtime/vector_adapters.py` as well as chronology files. The older
+  chain-file-only description is stale. This optimization is parked while
+  the active memory-formation roadmap begins.

@@ -9,7 +9,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:320
+refs: ROADMAP.md:341
 topics: benchmark, dashboard, animation
 tokens: 41
 ---
@@ -27,7 +27,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:349
+refs: ROADMAP.md:370
 topics: benchmark, dashboard, graph
 tokens: 41
 ---
@@ -45,7 +45,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:379
+refs: ROADMAP.md:400
 topics: vector, dashboard, graph
 tokens: 41
 ---
@@ -63,7 +63,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:452
+refs: ROADMAP.md:473
 topics: dashboard, benchmark, animation
 tokens: 41
 ---
@@ -81,7 +81,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:484
+refs: ROADMAP.md:505
 topics: naming, alias, command
 tokens: 41
 ---
@@ -99,7 +99,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:535
+refs: ROADMAP.md:556
 topics: naming, alias, command
 tokens: 41
 ---
@@ -117,7 +117,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:639
+refs: ROADMAP.md:660
 topics: benchmark, gold-standard, retrieval
 tokens: 41
 ---
@@ -135,7 +135,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:670
+refs: ROADMAP.md:691
 topics: benchmark, fixture, verify
 tokens: 41
 ---
@@ -153,7 +153,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:693
+refs: ROADMAP.md:714
 topics: benchmark, verify, windows, linux
 tokens: 41
 ---
@@ -171,7 +171,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:718
+refs: ROADMAP.md:739
 topics: mcp, chat, multi-agent
 tokens: 41
 ---
@@ -189,7 +189,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:748
+refs: ROADMAP.md:769
 topics: compress, persist, compile
 tokens: 41
 ---
@@ -207,7 +207,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:772
+refs: ROADMAP.md:793
 topics: compile, persist, command
 tokens: 41
 ---
@@ -225,7 +225,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:822
+refs: ROADMAP.md:843
 topics: persist, vector
 tokens: 41
 ---
@@ -243,7 +243,7 @@ from: (initial)
 to: done
 caused-by: history:063
 supersedes: none
-refs: ROADMAP.md:159
+refs: ROADMAP.md:180
 topics: dashboard, tui, textual
 tokens: 42
 ---
@@ -261,7 +261,7 @@ from: (initial)
 to: done
 caused-by: history:068
 supersedes: none
-refs: ROADMAP.md:288
+refs: ROADMAP.md:309
 topics: dashboard, animation, mirl
 tokens: 42
 ---
@@ -279,7 +279,7 @@ from: (initial)
 to: done
 caused-by: history:074
 supersedes: none
-refs: ROADMAP.md:414
+refs: ROADMAP.md:435
 topics: dashboard, chat, command
 tokens: 42
 ---
@@ -297,7 +297,7 @@ from: (initial)
 to: done
 caused-by: history:152
 supersedes: none
-refs: ROADMAP.md:589
+refs: ROADMAP.md:610
 topics: benchmark, holdout, fixture
 tokens: 42
 ---
@@ -315,7 +315,7 @@ from: (initial)
 to: done
 caused-by: history:153
 supersedes: none
-refs: ROADMAP.md:614
+refs: ROADMAP.md:635
 topics: benchmark, diff, verify
 tokens: 42
 ---
@@ -333,7 +333,7 @@ from: (initial)
 to: done
 caused-by: history:154
 supersedes: none
-refs: ROADMAP.md:845
+refs: ROADMAP.md:866
 topics: command, persist, retrieval
 tokens: 42
 ---
@@ -351,7 +351,7 @@ from: (initial)
 to: done
 caused-by: history:099
 supersedes: none
-refs: ROADMAP.md:1026
+refs: ROADMAP.md:1047
 topics: readme, docs, installer
 tokens: 42
 ---
@@ -369,7 +369,7 @@ from: (initial)
 to: done
 caused-by: history:099
 supersedes: none
-refs: ROADMAP.md:1053
+refs: ROADMAP.md:1074
 topics: docs, readme, doctor
 tokens: 42
 ---
@@ -387,7 +387,7 @@ from: (initial)
 to: in-progress
 caused-by: history:121
 supersedes: none
-refs: ROADMAP.md:799
+refs: ROADMAP.md:820
 topics: pgvector, vector, docker
 tokens: 42
 ---
@@ -405,7 +405,7 @@ from: (initial)
 to: done
 caused-by: history:117
 supersedes: none
-refs: ROADMAP.md:1156
+refs: ROADMAP.md:1177
 topics: surface, ledger, persist
 tokens: 43
 ---
@@ -423,7 +423,7 @@ from: (initial)
 to: done
 caused-by: history:117
 supersedes: none
-refs: ROADMAP.md:1177
+refs: ROADMAP.md:1198
 topics: surface, retrieval, command
 tokens: 43
 ---
@@ -441,7 +441,7 @@ from: (initial)
 to: done
 caused-by: history:117
 supersedes: none
-refs: ROADMAP.md:1200
+refs: ROADMAP.md:1221
 topics: surface, benchmark, fixture
 tokens: 43
 ---
@@ -459,7 +459,7 @@ from: (initial)
 to: in-progress
 caused-by: history:137
 supersedes: none
-refs: ROADMAP.md:248
+refs: ROADMAP.md:269
 topics: command, chat, dashboard
 tokens: 43
 ---
@@ -477,7 +477,7 @@ from: (initial)
 to: done
 caused-by: history:147
 supersedes: none
-refs: ROADMAP.md:562
+refs: ROADMAP.md:583
 topics: readme, docs, command
 tokens: 42
 ---
@@ -495,7 +495,7 @@ from: (initial)
 to: done
 caused-by: history:147
 supersedes: none
-refs: ROADMAP.md:1084
+refs: ROADMAP.md:1105
 topics: docs, readme, command
 tokens: 42
 ---
@@ -513,7 +513,7 @@ from: (initial)
 to: done
 caused-by: history:145
 supersedes: none
-refs: ROADMAP.md:1116
+refs: ROADMAP.md:1137
 topics: compile, mirl, surface
 tokens: 43
 ---
@@ -531,7 +531,7 @@ from: (initial)
 to: in-progress
 caused-by: history:163
 supersedes: none
-refs: ROADMAP.md:204
+refs: ROADMAP.md:225
 topics: dashboard, webui, command
 tokens: 43
 ---
@@ -549,7 +549,7 @@ from: (initial)
 to: done
 caused-by: history:170
 supersedes: none
-refs: ROADMAP.md:1280
+refs: ROADMAP.md:1301
 topics: protocol, history, plan, roadmap
 tokens: 42
 ---
@@ -567,7 +567,7 @@ from: (initial)
 to: later
 caused-by: history:165
 supersedes: none
-refs: ROADMAP.md:1358
+refs: ROADMAP.md:1379
 topics: protocol, retrieval, search
 tokens: 42
 ---
@@ -585,7 +585,7 @@ from: (initial)
 to: later
 caused-by: history:165
 supersedes: none
-refs: ROADMAP.md:1382
+refs: ROADMAP.md:1403
 topics: protocol, retrieval, search, vector
 tokens: 42
 ---
@@ -603,7 +603,7 @@ from: (initial)
 to: planned
 caused-by: history:180
 supersedes: none
-refs: ROADMAP.md:1462
+refs: ROADMAP.md:1483
 topics: agent, compiler, skills
 tokens: 42
 ---
@@ -621,7 +621,7 @@ from: (initial)
 to: planned
 caused-by: history:180
 supersedes: none
-refs: ROADMAP.md:1525
+refs: ROADMAP.md:1546
 topics: codec, compress, prompt, benchmark
 tokens: 43
 ---
@@ -639,7 +639,7 @@ from: (initial)
 to: planned
 caused-by: history:180
 supersedes: none
-refs: ROADMAP.md:1545
+refs: ROADMAP.md:1566
 topics: security, audit, trust, benchmark
 tokens: 43
 ---
@@ -657,7 +657,7 @@ from: (initial)
 to: done
 caused-by: history:189
 supersedes: none
-refs: ROADMAP.md:1494
+refs: ROADMAP.md:1515
 topics: benchmark, retrieval, comparator
 tokens: 41
 ---
@@ -675,7 +675,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:871
+refs: ROADMAP.md:892
 topics: tests, quality
 tokens: 48
 ---
@@ -693,7 +693,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:886
+refs: ROADMAP.md:907
 topics: docs, security
 tokens: 48
 ---
@@ -711,7 +711,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:897
+refs: ROADMAP.md:918
 topics: installer, linux
 tokens: 50
 ---
@@ -729,7 +729,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:908
+refs: ROADMAP.md:929
 topics: git-hooks, macos
 tokens: 53
 ---
@@ -747,7 +747,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:930
+refs: ROADMAP.md:951
 topics: models, retry
 tokens: 50
 ---
@@ -765,7 +765,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:941
+refs: ROADMAP.md:962
 topics: pack, json
 tokens: 52
 ---
@@ -783,7 +783,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:952
+refs: ROADMAP.md:973
 topics: scripts, windows
 tokens: 51
 ---
@@ -801,7 +801,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:974
+refs: ROADMAP.md:995
 topics: roadmap, docs
 tokens: 51
 ---
@@ -819,7 +819,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:985
+refs: ROADMAP.md:1006
 topics: tests, judge
 tokens: 53
 ---
@@ -837,7 +837,7 @@ from: (initial)
 to: planned
 caused-by: history:PENDING
 supersedes: none
-refs: ROADMAP.md:996
+refs: ROADMAP.md:1017
 topics: verify, continuity, history
 tokens: 53
 ---
@@ -855,7 +855,7 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1567
+refs: ROADMAP.md:1588
 topics: verify, audit, retrieval
 tokens: 44
 ---
@@ -873,7 +873,7 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1585
+refs: ROADMAP.md:1606
 topics: verify, audit, provenance
 tokens: 44
 ---
@@ -891,7 +891,7 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1598
+refs: ROADMAP.md:1619
 topics: verify, command, audit
 tokens: 44
 ---
@@ -909,7 +909,7 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1611
+refs: ROADMAP.md:1632
 topics: integrity, audit, snapshot
 tokens: 44
 ---
@@ -927,7 +927,7 @@ from: (initial)
 to: planned
 caused-by: history:196
 supersedes: none
-refs: ROADMAP.md:1624
+refs: ROADMAP.md:1645
 topics: retrieval, rank, audit
 tokens: 44
 ---
@@ -945,7 +945,7 @@ from: (initial)
 to: now
 caused-by: history:243
 supersedes: none
-refs: ROADMAP.md:919
+refs: ROADMAP.md:940
 topics: retrieval, benchmark
 tokens: 49
 ---
@@ -963,7 +963,7 @@ from: (initial)
 to: now
 caused-by: history:243
 supersedes: none
-refs: ROADMAP.md:963
+refs: ROADMAP.md:984
 topics: experience, protocol
 tokens: 48
 ---
@@ -981,7 +981,7 @@ from: (initial)
 to: now
 caused-by: history:243
 supersedes: none
-refs: ROADMAP.md:1313
+refs: ROADMAP.md:1334
 topics: protocol, history, plan
 tokens: 42
 ---
@@ -999,7 +999,7 @@ from: (initial)
 to: planned
 caused-by: none
 supersedes: none
-refs: ROADMAP.md:1223
+refs: ROADMAP.md:1244
 topics: surface, search, verify, integrity
 tokens: 42
 ---
@@ -1017,7 +1017,7 @@ from: (initial)
 to: planned
 caused-by: history:319
 supersedes: none
-refs: ROADMAP.md:1701
+refs: ROADMAP.md:1722
 topics: query, sql, retrieval, benchmark, bird
 tokens: 43
 ---
@@ -1035,7 +1035,7 @@ from: (initial)
 to: planned
 caused-by: history:407
 supersedes: none
-refs: ROADMAP.md:1765
+refs: ROADMAP.md:1786
 topics: agent, openclaw, namespaces, profiles, console
 tokens: 42
 ---
@@ -1053,7 +1053,7 @@ from: (initial)
 to: planned
 caused-by: history:407
 supersedes: none
-refs: ROADMAP.md:1825
+refs: ROADMAP.md:1846
 topics: android, mobile, small-models, memory-loop
 tokens: 43
 ---
@@ -1071,7 +1071,7 @@ from: (initial)
 to: in-progress
 caused-by: history:454
 supersedes: none
-refs: ROADMAP.md:1862
+refs: ROADMAP.md:1883
 topics: graph, memory, retrieval, benchmark, comparator, provenance
 tokens: 42
 ---
@@ -1089,7 +1089,7 @@ from: (initial)
 to: done
 caused-by: history:470
 supersedes: none
-refs: ROADMAP.md:1647
+refs: ROADMAP.md:1668
 topics: packaging, release, distribution
 tokens: 41
 ---
@@ -1107,7 +1107,7 @@ from: (initial)
 to: done
 caused-by: history:513
 supersedes: none
-refs: ROADMAP.md:1679
+refs: ROADMAP.md:1700
 topics: packaging, selfhost, distribution, mcp, cli
 tokens: 42
 ---
@@ -1125,7 +1125,7 @@ from: (initial)
 to: in-progress
 caused-by: history:511
 supersedes: none
-refs: ROADMAP.md:1948
+refs: ROADMAP.md:1969
 topics: audit, storage, retrieval, security, graph, provenance, benchmark, verify
 tokens: 41
 ---
@@ -1143,7 +1143,7 @@ from: (initial)
 to: planned
 caused-by: history:612
 supersedes: none
-refs: ROADMAP.md:1407
+refs: ROADMAP.md:1428
 topics: agent, memory, provenance, search, cli, trust
 tokens: 43
 ---
@@ -1152,18 +1152,36 @@ Bootstrap status capture for roadmap:track:V: status=planned, status-since=2026-
 
 ---BEGIN-ROADMAP-EVENT-#065---
 id: roadmap:065
-date: 2026-09-06T00:00:00Z
+date: 2026-09-12T00:00:00Z
+agent: bootstrap
+kind: status-change
+item: roadmap:track:MemoryFormation
+event: bootstrap
+from: (initial)
+to: in-progress
+caused-by: history:645
+supersedes: none
+refs: ROADMAP.md:8
+topics: roadmap, plan, compile, memory, graph, benchmark, provenance
+tokens: 43
+---
+Bootstrap status capture for roadmap:track:MemoryFormation: status=in-progress, status-since=2026-09-12, caused-by=history:645. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#065---
+
+---BEGIN-ROADMAP-EVENT-#066---
+id: roadmap:066
+date: 2026-09-12T00:00:00Z
 agent: bootstrap
 kind: status-change
 item: roadmap:track:Launch
 event: bootstrap
 from: (initial)
 to: in-progress
-caused-by: history:634
+caused-by: history:645
 supersedes: none
-refs: ROADMAP.md:8
+refs: ROADMAP.md:30
 topics: roadmap, plan, naming, surface, dashboard, graph, verify
 tokens: 42
 ---
-Bootstrap status capture for roadmap:track:Launch: status=in-progress, status-since=2026-09-06, caused-by=history:634. Sourced from ROADMAP.md seam:item marker.
----END-ROADMAP-EVENT-#065---
+Bootstrap status capture for roadmap:track:Launch: status=in-progress, status-since=2026-09-12, caused-by=history:645. Sourced from ROADMAP.md seam:item marker.
+---END-ROADMAP-EVENT-#066---

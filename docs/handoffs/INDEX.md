@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-09-08-package-names-testpypi-candidate
+latest: 2026-09-12-memory-formation-roadmap
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-08-package-names-testpypi-candidate` | [2026-09-08-package-names-testpypi-candidate.md](2026-09-08-package-names-testpypi-candidate.md) | `2026-09-07-s8-protected-main-suite-next` | `HISTORY#642` | `current` |
+| `2026-09-12-memory-formation-roadmap` | [2026-09-12-memory-formation-roadmap.md](2026-09-12-memory-formation-roadmap.md) | `2026-09-08-package-names-testpypi-candidate` | `HISTORY#645` | `current` |
+| `2026-09-08-package-names-testpypi-candidate` | [2026-09-08-package-names-testpypi-candidate.md](2026-09-08-package-names-testpypi-candidate.md) | `2026-09-07-s8-protected-main-suite-next` | `HISTORY#642` | `superseded` |
 | `2026-09-07-s8-protected-main-suite-next` | [2026-09-07-s8-protected-main-suite-next.md](2026-09-07-s8-protected-main-suite-next.md) | `2026-09-07-r2-backend-s8-qualified` | `HISTORY#641` | `superseded` |
 | `2026-09-07-r2-backend-s8-qualified` | [2026-09-07-r2-backend-s8-qualified.md](2026-09-07-r2-backend-s8-qualified.md) | `2026-09-07-r2-acquisition-backend-next` | `HISTORY#640` | `superseded` |
 | `2026-09-07-r2-acquisition-backend-next` | [2026-09-07-r2-acquisition-backend-next.md](2026-09-07-r2-acquisition-backend-next.md) | `2026-09-06-r2-sqlite-scale-next` | `HISTORY#639` | `superseded` |
