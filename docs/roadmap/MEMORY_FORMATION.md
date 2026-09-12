@@ -1,7 +1,9 @@
 # Memory formation and temporal entity aggregation roadmap
 
-**Decision record:** HISTORY#645, 2026-09-12.  
-**Stage:** setup and investigation; implementation has not started.  
+**Decision record:** HISTORY#645, 2026-09-12.
+
+**Stage:** setup and investigation; implementation has not started.
+
 **Owner:** root integration agent, with bounded stream owners assigned per slice.
 
 This is the detailed execution specification for the operator's new SEAM
