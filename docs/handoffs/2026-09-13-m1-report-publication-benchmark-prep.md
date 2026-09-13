@@ -2,7 +2,7 @@
 handoff_id: 2026-09-13-m1-report-publication-benchmark-prep
 supersedes: 2026-09-12-memory-formation-roadmap
 handoff_status: current
-history: HISTORY#651
+history: HISTORY#652
 ---
 
 # M1 evidence, first report and benchmark-preparation handoff
@@ -15,6 +15,15 @@ requested a checkpoint before benchmarks. Those authorizations persist.
 The site is **not yet verified live**. The source checkpoint is committed;
 the M1 public edition is now admitted by a real source revision and both
 content hashes. Independent assurance/release qualification is still open.
+
+The branch and this handoff have been pushed and draft
+[PR #264](https://github.com/Canticle-AI-Research/Seam/pull/264) exists. An
+additional concrete release condition is now known: the closeout classifier
+includes `tools/` as runtime paths, and `tools/memory_formation_m1.py` has no
+recorded red-before-green cycle. Its result is `TDD_UNPROVEN`; the publisher
+modules are covered. Do not fabricate a historical failing test or treat a
+new green run as proof that such a cycle happened. Independent release must
+resolve that condition under the governing protocol before a qualified claim.
 
 The governing detailed roadmap remains
 [`docs/roadmap/MEMORY_FORMATION.md`](../roadmap/MEMORY_FORMATION.md).
@@ -62,9 +71,11 @@ last checked protected-main SHA was
 The source checkpoint is signed commit
 `e01284de37140b2d56a2c53e68d45f309f7e89e5`. It contains the publisher, M1
 canonical audit/evidence and public edition, and HISTORY through #650.
-The following catalog/handoff commit is a successor; discover its actual SHA
-with Git. Push/PR/check results must be verified live, not inferred from this
-pre-push checkpoint.
+The first catalog/handoff successor is
+`0ebdde80595497a43b61754f216b919e6ee6bcc9`, verified pushed when PR #264 was
+created. This handoff's later bookkeeping update creates another head;
+discover the current SHA and checks with Git/GitHub. Push and draft creation
+are established; qualification, merge and deployment are not.
 
 `report-site/catalog.json` selects exactly one report:
 
@@ -204,7 +215,10 @@ is a separate stale artifact. Neither URL is a public deployment.
    publisher slice.
 2. In a session that permits independent agents, follow
    `docs/SOP_AGENT_ORCHESTRATION.md`: independent assurance, then release on
-   the exact-state request. Validate and store the receipt. This author did
+   the exact-state request. Its current TDD assessment is `TDD_UNPROVEN` for
+   the audit helper named above, despite the existing focused tests passing.
+   Resolve that concrete condition without inventing evidence. Validate and
+   store the independently produced receipt. This author did
    not delegate or author an independent acceptance receipt. A queued request
    is not qualification; use the session base `614141c5...`, not clean HEAD,
    to capture the complete committed publisher delta.
@@ -251,6 +265,9 @@ is a separate stale artifact. Neither URL is a public deployment.
 - GitHub issues #259 (roadmap execution) and #260 (closeout-hook test alignment)
   were still open at this checkpoint. PRs #249, #230 and #213 remain separate;
   this publication work does not close or qualify them.
+- Draft PR #264 holds this publication/handoff work. Keep it draft until
+  independent review, the recorded TDD condition and current required checks
+  are resolved. Publication authorization is already granted.
 - Keep any pending release request accessible until qualified. Finish owned
   worktree/branch cleanup after the review and merge, preserving the external
   preview and any required ignored receipt state. Never abandon an unrecorded

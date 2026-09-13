@@ -21541,3 +21541,25 @@ Next: commit this catalog/handoff slice, push the branch and open a reviewable d
 
 Unrelated primary dirty state, the standalone M1 worktree and independent sleep-learning/pretool/audit-cleanup work remain preserved. The two stopped task containers remain after their separately recorded deletion-guard rejection. No implementation symbols or test/implementation imports are missing. This source checkpoint and handoff do not establish push, merge or website deployment; verify those states live. Keep the worktree and pending release request available for independent review.
 ---END-ENTRY-#651---
+
+---BEGIN-ENTRY-#652---
+id: 652
+date: 2026-09-13T07:51:59Z
+agent: codex
+status: in-progress
+topics: docs, handoff, ci, verify, provenance
+commits: pending
+refs: docs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,docs/REPORT_SITE.md
+supersedes: 651
+tokens: 569
+---
+Both signed commits e01284de37140b2d56a2c53e68d45f309f7e89e5 and 0ebdde80595497a43b61754f216b919e6ee6bcc9 were pushed to origin/feat/seam-reports-pages-20260912. GitHub confirms draft PR #264 for this head: https://github.com/Canticle-AI-Research/Seam/pull/264. The push kept signature, secret and continuity checks; the documented one-push dirty-worktree exception preserved unrelated active worktrees. The primary log redaction succeeded under explicit authorization. This establishes push and draft creation, not qualification, protected merge or live deployment.
+
+Ran the existing closeout TDD assessor against the bounded session state and the complete delta from base 614141c5aa96fd51d4dee2e09c186bb4035c0377. The checked scope contained 37 paths and was not truncated. The classifier treats tools/ as runtime: publisher modules tools/reports/__init__.py, prepare_site.py and publication_safety.py have recorded coverage, but tools/memory_formation_m1.py does not. The exact result is TDD_UNPROVEN with that single missing path. The audit probe was written as an observation helper without a recorded red-before-green cycle. Passing current tests cannot retroactively establish one. No fake receipt or fabricated test history was added, and no code was moved merely to evade classification.
+
+Updated the indexed handoff, its registry history pointer, PROJECT_STATUS.md and docs/REPORT_SITE.md with the live PR and concrete release limitation. This qualifies earlier semantic statements that the audit did not modify SEAM behavior: the release classifier's broader tools/ scope still applies. No runtime code, catalog pin, public edition or public artifact changed in this checkpoint. Current focused test and rendered/privacy evidence remains in #649/#651.
+
+The next main session must inspect PR #264 and the final exact-state request, independently review the work and resolve the TDD condition under repository policy, pass current required checks, and merge by a lineage-preserving merge commit before verifying Pages deployment. Publication authorization persists. This side conversation prohibits subagents, so it cannot author the independent release receipt. Benchmark work remains gated by M1 review, B1 metadata and E1 evaluation/provider/cost preparation; no paid call or improvement claim was made.
+
+Finish this small bookkeeping commit and push, then update the bounded session state and queue the final comparison against the original session base. Keep the exact request and worktree available for release review. Record new GitHub check outcomes as observed, not assumed. Existing independent worktrees and the two stopped task containers remain preserved. No additional source implementation or test mismatch is introduced by this documentation-only update.
+---END-ENTRY-#652---

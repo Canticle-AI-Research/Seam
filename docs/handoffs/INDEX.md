@@ -19,7 +19,7 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-13-m1-report-publication-benchmark-prep` | [2026-09-13-m1-report-publication-benchmark-prep.md](2026-09-13-m1-report-publication-benchmark-prep.md) | `2026-09-12-memory-formation-roadmap` | `HISTORY#651` | `current` |
+| `2026-09-13-m1-report-publication-benchmark-prep` | [2026-09-13-m1-report-publication-benchmark-prep.md](2026-09-13-m1-report-publication-benchmark-prep.md) | `2026-09-12-memory-formation-roadmap` | `HISTORY#652` | `current` |
 | `2026-09-12-memory-formation-roadmap` | [2026-09-12-memory-formation-roadmap.md](2026-09-12-memory-formation-roadmap.md) | `2026-09-08-package-names-testpypi-candidate` | `HISTORY#645` | `superseded` |
 | `2026-09-08-package-names-testpypi-candidate` | [2026-09-08-package-names-testpypi-candidate.md](2026-09-08-package-names-testpypi-candidate.md) | `2026-09-07-s8-protected-main-suite-next` | `HISTORY#642` | `superseded` |
 | `2026-09-07-s8-protected-main-suite-next` | [2026-09-07-s8-protected-main-suite-next.md](2026-09-07-s8-protected-main-suite-next.md) | `2026-09-07-r2-backend-s8-qualified` | `HISTORY#641` | `superseded` |

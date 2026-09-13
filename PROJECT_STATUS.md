@@ -24,7 +24,8 @@ only from main after complete-artifact privacy checks and with a nonempty
 revision-pinned catalog. M1's catalog entry now pins source commit `e01284de`
 (HISTORY#651). The operator
 authorized the exact primary-log URL redaction and it is complete (HISTORY#650).
-Independent qualification remains open. Public Pages returned 404 on
+Draft PR #264 is pushed. Independent qualification and the audit helper's
+recorded `TDD_UNPROVEN` condition remain open (HISTORY#652). Public Pages returned 404 on
 September 13; the preview remains local.
 HISTORY#649 supersedes the publication hold in HISTORY#648. Memory formation
 remains the active priority; M1 review, B1 metadata and E1 design precede M2.

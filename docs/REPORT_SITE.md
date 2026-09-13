@@ -48,6 +48,11 @@ Independent assurance and protected-merge qualification remain open. No
 delegated review may run in this side conversation. The source commit and
 complete source/edition hashes are now recorded in the catalog; publication
 still awaits review and protected merge.
+The work is pushed in draft PR #264. The closeout assessment also reports
+`TDD_UNPROVEN` for the diagnostic helper `tools/memory_formation_m1.py`, which
+has no recorded red-before-green cycle. The publisher modules are covered.
+This concrete condition must be resolved under the release protocol; a green
+test run is not historical TDD evidence. See HISTORY#652 and the indexed handoff.
 The source audit is recorded here by HISTORY#649; its separate audit branch
 has a local HISTORY#646. Preserve both append-only histories; the publication
 branch's existing #646-648 are the report-site preparation chain.

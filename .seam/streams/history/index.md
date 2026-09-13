@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 651
-total_tokens: ~332504
-latest_id: 651
+total_entries: 652
+total_tokens: ~333073
+latest_id: 652
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 652 | 2026-09-13 | in-progress | 77f50f67f73ef0ef | docs,handoff,ci,verify,+ | 651 |
 | 651 | 2026-09-13 | in-progress | 4edb74fac7c353b1 | handoff,docs,provenance,ci,+ | 650 |
 | 650 | 2026-09-13 | in-progress | 2cfbc9108b113025 | docs,security,provenance,handoff | 649 |
 | 649 | 2026-09-13 | in-progress | b77bda3b1055fc37 | docs,ci,security,provenance,+ | 648 |
@@ -705,7 +706,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=76 latest=#651, #649, #648, #647, #646
+- ci: count=77 latest=#652, #651, #649, #648, #647
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -758,7 +759,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=103 latest=#651, #650, #649, #648, #647
+- docs: count=104 latest=#652, #651, #650, #649, #648
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -799,7 +800,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=125 latest=#651, #650, #645, #642, #641
+- handoff: count=126 latest=#652, #651, #650, #645, #642
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -902,7 +903,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=119 latest=#620, #619, #618, #617, #616
 - prov: count=1 latest=#316
-- provenance: count=39 latest=#651, #650, #649, #648, #647
+- provenance: count=40 latest=#652, #651, #650, #649, #648
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -997,7 +998,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=450 latest=#644, #643, #642, #641, #640
+- verify: count=451 latest=#652, #644, #643, #642, #641
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1016,5 +1017,5 @@ compact: true
 - roots: 86
 - changed: 68
 - done: 535
-- in-progress: 26
+- in-progress: 27
 - planned: 22
