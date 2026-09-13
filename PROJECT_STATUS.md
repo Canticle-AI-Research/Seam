@@ -15,6 +15,30 @@ a hypothesis. No formation implementation, BIL-3 support, paid benchmark or
 website deployment was performed in this planning slice. See HISTORY#645 and
 the [current handoff](docs/handoffs/INDEX.md).
 
+**2026-09-13 domain clarification:** the operator owns `canticle.cc` and
+has authorized its use for the reports site. The planned hostname is
+`reports.canticle.cc`; `canticle.ai` was only an entered name. Existing site
+source is on draft PR #264, with successful PR build checks but no deployment.
+The diagnostic helper's missing test-first evidence still prevents full-PR
+qualification. The [domain/publication handoff](docs/handoffs/2026-09-13-reports-domain-publication-next.md)
+records the exact DNS observations and deployment order (HISTORY#653).
+No Pages/DNS settings changed in this handoff pass.
+
+**2026-09-13 report publication authorized; first deployment pending:** the
+operator lifted the report-site hold after reviewing the design. Today's
+[M1 formation audit](docs/audits/2026-09-13-memory-formation-m1.md) and its
+public edition are prepared as the first report; older reports remain excluded.
+The [report library](docs/REPORT_SITE.md) workflow candidate allows publication
+only from main after complete-artifact privacy checks and with a nonempty
+revision-pinned catalog. M1's catalog entry now pins source commit `e01284de`
+(HISTORY#651). The operator
+authorized the exact primary-log URL redaction and it is complete (HISTORY#650).
+Draft PR #264 is pushed. Independent qualification and the audit helper's
+recorded `TDD_UNPROVEN` condition remain open (HISTORY#652). Public Pages returned 404 on
+September 13; the preview remains local.
+HISTORY#649 supersedes the publication hold in HISTORY#648. Memory formation
+remains the active priority; M1 review, B1 metadata and E1 design precede M2.
+
 **2026-09-08 naming candidate:** `seam-suite` 2.4.1rc1 names the self-hosted
 Suite; SEAM Client names the paid API and its WebUI; `seam-sdk` remains private
 paid delivery. The existing `seam-client` wheel remains a Python HTTP client.

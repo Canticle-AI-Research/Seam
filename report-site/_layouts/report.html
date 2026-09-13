@@ -1,0 +1,27 @@
+---
+layout: default
+---
+<div class="article-wrap">
+  <header class="article-header">
+    <a class="back-link" href="{{ '/' | relative_url }}">← Report library</a>
+    <p class="article-type"><span class="kind kind-{{ page.kind }}">{{ page.kind | capitalize }}</span><time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: '%d %B %Y' }}</time></p>
+    <h1>{{ page.title | escape }}</h1>
+    <p class="article-summary">{{ page.summary | escape }}</p>
+  </header>
+  <div class="article-grid">
+    <article class="prose">
+      <aside class="context-note" aria-label="Report context"><strong>Read in context</strong><p>{{ page.context | escape }}</p></aside>
+      {{ content }}
+    </article>
+    <aside class="source-panel" aria-label="Source and provenance">
+      <h2>Follow the evidence</h2>
+      <p>The original report is preserved at a specific repository revision.</p>
+      <a class="source-button" href="{{ page.source_url | escape }}">View the pinned source ↗</a>
+      <a href="{{ '/sources/' | append: page.report_id | append: '.md' | relative_url }}" download>Download public edition</a>
+      <dl><dt>Source revision</dt><dd><code title="{{ page.revision }}">{{ page.revision | slice: 0, 12 }}</code></dd>
+      <dt>Source SHA-256</dt><dd><code class="digest">{{ page.sha256 }}</code></dd>
+      <dt>Public edition SHA-256</dt><dd><code class="digest">{{ page.edition_sha256 }}</code></dd></dl>
+      <a href="https://github.com/Canticle-AI-Research/Seam/blob/main/docs/roadmap/MEMORY_FORMATION.md">Current SEAM roadmap ↗</a>
+    </aside>
+  </div>
+</div>

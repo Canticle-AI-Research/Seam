@@ -1,0 +1,127 @@
+name: SEAM reports on GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'report-site/**'
+      - 'tools/reports/**'
+      - 'tests/audit/test_report_site.py'
+      - 'tests/audit/test_report_publication_safety.py'
+      - 'tests/audit/test_report_deployment_boundary.py'
+      - 'tools/security/secret_scan.py'
+      - 'branding/kit/**'
+      - '.github/workflows/reports-pages.yml'
+  pull_request:
+    paths:
+      - 'report-site/**'
+      - 'tools/reports/**'
+      - 'tests/audit/test_report_site.py'
+      - 'tests/audit/test_report_publication_safety.py'
+      - 'tests/audit/test_report_deployment_boundary.py'
+      - 'tools/security/secret_scan.py'
+      - 'branding/kit/**'
+      - '.github/workflows/reports-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reports-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: reports-site-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      report_count: ${{ steps.publication.outputs.report_count }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read Pages configuration
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v6.0.0
+      - name: Validate publication exporter
+        run: |
+          python -m pip install pytest 'PyYAML>=6,<7'
+          python -m pytest tests/audit/test_report_site.py tests/audit/test_report_publication_safety.py tests/audit/test_report_deployment_boundary.py -q -o addopts=
+      - name: Prepare pinned public reports
+        run: python -m tools.reports.prepare_site --output test_seam/report-site/source
+      - name: Build Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: test_seam/report-site/source
+          destination: test_seam/report-site/site
+      - name: Check built publication
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import re
+          from urllib.parse import unquote, urlsplit
+          import xml.etree.ElementTree as ET
+
+          site = Path('test_seam/report-site/site')
+          manifest = json.loads((site / 'manifest.json').read_text())
+          assert (site / 'index.html').is_file()
+          ET.parse(site / 'feed.xml')
+          for report in manifest['reports']:
+              assert (site / 'reports' / report['id'] / 'index.html').is_file()
+              raw = (site / 'sources' / (report['id'] + '.md')).read_bytes()
+              assert hashlib.sha256(raw).hexdigest() == report['edition_sha256']
+          for page in site.rglob('*.html'):
+              for href in re.findall(r'(?:href|src)="([^"]+)"', page.read_text()):
+                  url = urlsplit(href)
+                  if url.scheme or url.netloc or not url.path:
+                      continue
+                  assert url.path.startswith('/Seam/'), (page.name, 'unexpected base path')
+                  target = site / unquote(url.path.removeprefix('/Seam/'))
+                  assert target.is_file() or (target / 'index.html').is_file(), (page.name, 'broken local link')
+          print('Built report pages, source hashes, feed and local links verified.')
+          PY
+      - name: Block confidential content in the complete publication
+        id: privacy
+        run: python -m tools.reports.publication_safety --site test_seam/report-site/site
+      - name: Count admitted reports
+        id: publication
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('test_seam/report-site/site/manifest.json').read_text())
+          print(f"report_count={len(manifest['reports'])}")
+          PY
+      - name: Upload reviewed Pages artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && steps.publication.outputs.report_count != '0'
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: test_seam/report-site/site
+
+  deploy:
+    name: reports-site-deploy
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.build.outputs.report_count != '0'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy reviewed reports
+        id: deployment
+        uses: actions/deploy-pages@v5.0.1

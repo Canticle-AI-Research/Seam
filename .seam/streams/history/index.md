@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 645
-total_tokens: ~328265
-latest_id: 645
+total_entries: 653
+total_tokens: ~333678
+latest_id: 653
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,14 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 653 | 2026-09-13 | in-progress | 64c22c20de98a38d | handoff,docs,webui,verify,+ | 652 |
+| 652 | 2026-09-13 | in-progress | 77f50f67f73ef0ef | docs,handoff,ci,verify,+ | 651 |
+| 651 | 2026-09-13 | in-progress | 4edb74fac7c353b1 | handoff,docs,provenance,ci,+ | 650 |
+| 650 | 2026-09-13 | in-progress | 2cfbc9108b113025 | docs,security,provenance,handoff | 649 |
+| 649 | 2026-09-13 | in-progress | b77bda3b1055fc37 | docs,ci,security,provenance,+ | 648 |
+| 648 | 2026-09-13 | in-progress | 4e9cdbca1b2f58ec | docs,security,ci,provenance,+ | 647 |
+| 647 | 2026-09-12 | in-progress | cb5b0af3ca2369de | security,docs,ci,provenance,+ | 646 |
+| 646 | 2026-09-12 | in-progress | ee7d1a05aa5fe772 | docs,provenance,ci | 645 |
 | 645 | 2026-09-12 | changed | 6eec8c818b90ca63 | roadmap,plan,memory,compile,+ | 642 |
 | 644 | 2026-09-11 | done | aad22f58881cd364 | config,security,git-hooks,tests,+ | 643 |
 | 643 | 2026-09-11 | done | defb023ec3823bf8 | config,memory,agent,git-hooks,+ | 642 |
@@ -676,7 +684,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=15 latest=#623, #622, #621, #620, #619
-- audit: count=129 latest=#641, #632, #597, #596, #595
+- audit: count=131 latest=#651, #649, #641, #632, #597
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=207 latest=#645, #571, #553, #547, #519
@@ -699,7 +707,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=71 latest=#633, #632, #631, #630, #614
+- ci: count=77 latest=#652, #651, #649, #648, #647
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -722,7 +730,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=91 latest=#645, #644, #643, #642, #641
+- continuity: count=92 latest=#653, #645, #644, #643, #642
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -752,7 +760,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=97 latest=#643, #642, #641, #636, #635
+- docs: count=105 latest=#653, #652, #651, #650, #649
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -793,7 +801,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=123 latest=#645, #642, #641, #640, #639
+- handoff: count=127 latest=#653, #652, #651, #650, #645
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -865,7 +873,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=11 latest=#636, #635, #598, #597, #595
+- operator: count=12 latest=#653, #636, #635, #598, #597
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -878,7 +886,7 @@ compact: true
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
 - pgvector: count=35 latest=#640, #490, #489, #488, #487
-- plan: count=25 latest=#645, #634, #620, #511, #437
+- plan: count=26 latest=#653, #645, #634, #620, #511
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - positioning: count=1 latest=#538
@@ -896,7 +904,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=119 latest=#620, #619, #618, #617, #616
 - prov: count=1 latest=#316
-- provenance: count=33 latest=#628, #612, #604, #603, #602
+- provenance: count=40 latest=#652, #651, #650, #649, #648
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -940,7 +948,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=17 latest=#612, #276, #242, #240, #181
-- security: count=112 latest=#644, #635, #633, #632, #619
+- security: count=117 latest=#651, #650, #649, #648, #647
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -975,7 +983,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=132 latest=#642, #638, #637, #632, #631
 - test-artifacts: count=1 latest=#506
-- tests: count=80 latest=#644, #643, #640, #632, #631
+- tests: count=83 latest=#649, #648, #647, #644, #643
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -991,10 +999,10 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=450 latest=#644, #643, #642, #641, #640
+- verify: count=452 latest=#653, #652, #644, #643, #642
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
-- webui: count=13 latest=#571, #545, #544, #543, #404
+- webui: count=14 latest=#653, #571, #545, #544, #543
 - wiki: count=2 latest=#557, #556
 - windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
@@ -1010,5 +1018,5 @@ compact: true
 - roots: 86
 - changed: 68
 - done: 535
-- in-progress: 20
+- in-progress: 28
 - planned: 22

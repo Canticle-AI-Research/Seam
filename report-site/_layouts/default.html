@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="{{ page.summary | default: site.description | escape }}">
+  <title>{% if page.title %}{{ page.title | escape }} · {% endif %}SEAM Reports · Canticle</title>
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
+  <link rel="stylesheet" href="{{ '/assets/reports.css' | relative_url }}">
+  <link rel="alternate" type="application/atom+xml" title="SEAM Reports" href="{{ '/feed.xml' | absolute_url }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="https://canticle.cc" aria-label="Canticle Research home"><img src="{{ '/assets/canticle.svg' | relative_url }}" width="168" height="40" alt="Canticle"></a>
+    <span class="product-name">SEAM / Reports</span>
+    <nav aria-label="Main navigation">
+      <a href="{{ '/' | relative_url }}">Library</a>
+      <a href="{{ '/about/' | relative_url }}">About the reports</a>
+      <a href="https://github.com/Canticle-AI-Research/Seam">Repository</a>
+    </nav>
+  </header>
+  <main id="main">{{ content }}</main>
+  <footer class="site-footer">
+    <p>Research you can inspect.</p>
+    <nav aria-label="Footer navigation">
+      <a href="https://canticle.cc">Canticle Research</a>
+      <a href="{{ '/feed.xml' | relative_url }}">Report feed</a>
+      <a href="{{ '/manifest.json' | relative_url }}">Source manifest</a>
+    </nav>
+    <small>Each report describes its named revision and conditions. Later work may change the conclusion.</small>
+  </footer>
+  {% if page.library %}<script src="{{ '/assets/library.js' | relative_url }}" defer></script>{% endif %}
+</body>
+</html>
