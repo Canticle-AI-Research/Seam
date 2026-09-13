@@ -1,4 +1,18 @@
 {
   "schema": 1,
-  "reports": []
+  "reports": [
+    {
+      "id": "2026-09-13-memory-formation-m1",
+      "title": "Where memory loses its context",
+      "date": "2026-09-13",
+      "kind": "research",
+      "summary": "An audit of speaker attribution, source-event identity and segmentation in SEAM, with reproducible examples and a bounded proposal for what comes next.",
+      "context": "Synthetic diagnostic evidence at the inspected revision. The identified gaps are not fixed by this report, and these observations do not establish a benchmark-score improvement or independent qualification.",
+      "source": "docs/audits/2026-09-13-memory-formation-m1.md",
+      "revision": "e01284de37140b2d56a2c53e68d45f309f7e89e5",
+      "sha256": "6622d77ac780d45a7192834ddf63e7a0b8e3d8148a36cdb67220f963e92a5a39",
+      "edition": "report-site/editions/2026-09-13-memory-formation-m1.md",
+      "edition_sha256": "101aaf0e2bc00e8625ee1a3b851b2a0ee6678afc40e66a7ea756a811364b9658"
+    }
+  ]
 }

@@ -24,7 +24,9 @@ candidate. The fresh-start boundary remains.
   outside the publication input. Source checks are a backstop; a reviewer
   must still assess whether the selected content is suitable for public use.
 
-The catalog remains empty pending the first source commit. New reports cover work beginning with
+The first catalog entry pins the M1 source at
+`e01284de37140b2d56a2c53e68d45f309f7e89e5`, with independent source and public-edition
+digests (HISTORY#651). New reports cover work beginning with
 the operator's September 12 fresh-start request; do not backfill earlier audit
 or testing records. The two initial historical public editions were removed
 from this site candidate. Their canonical repository sources remain intact.
@@ -43,8 +45,9 @@ resolved; do not ask for that same authorization again or copy the removed
 value into any record.
 
 Independent assurance and protected-merge qualification remain open. No
-delegated review may run in this side conversation. A source commit and
-complete source/edition hashes are prerequisites to adding M1 to the catalog.
+delegated review may run in this side conversation. The source commit and
+complete source/edition hashes are now recorded in the catalog; publication
+still awaits review and protected merge.
 The source audit is recorded here by HISTORY#649; its separate audit branch
 has a local HISTORY#646. Preserve both append-only histories; the publication
 branch's existing #646-648 are the report-site preparation chain.

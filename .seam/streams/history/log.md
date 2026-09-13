@@ -21517,3 +21517,27 @@ This source checkpoint intentionally keeps catalog reports empty so no page can 
 
 The prior focused test, Ruff, actionlint and complete-artifact privacy evidence remains in #649; this checkpoint changes only operating documentation and the specifically authorized untracked local log. Canonical continuity gates are rerun by closeout. The primary audit/handoff work, sibling M1 branch and unrelated worktrees remain preserved. The two stopped temporary containers recorded in #649 are still retained because their deletion was separately blocked. There are no missing implementation symbols or known test/implementation import mismatches. No push, PR, merge or website deployment is claimed at this source checkpoint.
 ---END-ENTRY-#650---
+
+---BEGIN-ENTRY-#651---
+id: 651
+date: 2026-09-13T07:44:44Z
+agent: codex
+status: in-progress
+topics: handoff, docs, provenance, ci, security, audit
+commits: pending
+refs: report-site/catalog.json,docs/REPORT_SITE.md,report-site/README.md,PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md,docs/handoffs/2026-09-12-memory-formation-roadmap.md
+supersedes: 650
+tokens: 637
+---
+Admitted the first new public report and wrote the operator-requested detailed pre-benchmark handoff. The M1 source is committed at e01284de37140b2d56a2c53e68d45f309f7e89e5. The catalog now carries the exact source and public-edition digests. No historical reports were admitted.
+
+The actual one-report catalog exported successfully and built with the official cached Jekyll Pages image v1.0.13. Verified the report route, pinned source revision, public-edition download digest, sole Atom entry and all local links. The complete-artifact privacy gate passed all 11 generated files without exclusions. Desktop and narrow Chrome screenshots were inspected; report content is readable in both. No unexecuted interaction or broad-browser-suite claim follows. A loopback preview serves the isolated artifact on port 8774; the old empty preview on 8773 is separate.
+
+Created and registered docs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md as the single current handoff, superseding the September 12 predecessor. It preserves source/edition pins, M1 gaps/counterexamples, all fourteen requests through the governing roadmap, benchmark prerequisites, test/privacy/build evidence, inherited issue #260, persistent publication approval, the completed URL-only redaction, live-publication uncertainty and exact release/PR resume steps. Current-session telemetry was unavailable, so this is an explicitly authored repository checkpoint, not an automatic-compaction claim.
+
+No formation fix, BIL-3 implementation, authenticated provider/balance verification, paid smoke or benchmark-score improvement occurred. M1 review, B1 metadata contract and E1 evaluation design remain inputs to M2. Existing publisher test evidence is recorded in #649; this slice changes catalog and documentation only. The admitted export and rendered-artifact checks are its new content-specific verification. The initial attempt to write this temporary closeout body through a shell command was rejected by the deletion guard; writing a new file through the patch editor provided a reviewable creation without altering existing data.
+
+Next: commit this catalog/handoff slice, push the branch and open a reviewable draft PR. Use only the documented scoped dirty-worktree push exception if needed to preserve unrelated active work, with signature/content/continuity gates enforced. Independent assurance and exact-state release qualification must precede protected merge and deployment. Subagents are prohibited in this side conversation; no independent acceptance receipt is authored here. Queue the final closeout against session base 614141c5aa96fd51d4dee2e09c186bb4035c0377 so it captures all committed changes; clean HEAD alone is not the session comparison base.
+
+Unrelated primary dirty state, the standalone M1 worktree and independent sleep-learning/pretool/audit-cleanup work remain preserved. The two stopped task containers remain after their separately recorded deletion-guard rejection. No implementation symbols or test/implementation imports are missing. This source checkpoint and handoff do not establish push, merge or website deployment; verify those states live. Keep the worktree and pending release request available for independent review.
+---END-ENTRY-#651---

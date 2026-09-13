@@ -3,12 +3,12 @@
 Jekyll presentation templates and an explicit public report catalog. Operator
 and publication policy: [public report site](../docs/REPORT_SITE.md).
 
-The catalog starts empty. Include only new work from the operator's September
+The first catalog entry is the M1 formation audit. Include only new work from the operator's September
 12 fresh-start request onward; do not import earlier repository reports.
 The operator authorized publication on September 13. Main-branch builds may
 upload and deploy only after validation, with at least one admitted report.
 Pull requests and empty catalogs validate without publishing. The first M1
-edition is prepared; source commit, catalog admission and qualification remain
+edition and source commit are pinned; qualification and deployment remain
 pending. The earlier private-link staging blocker was resolved with the
 operator's explicit approval; see the operator policy for current status.
 

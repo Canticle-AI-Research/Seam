@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 716
+total_events: 717
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
 | 2026-07-22T14:59:22Z | history:460:f3d5ac63 | session-event | done | graph, bugfix, verify, history, continuity, retrieval, pa... | seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-13T05:06:58Z | history:648:4e9cdbca | session-event | in-progress | docs, security, ci, provenance, tests | report-site/catalog.json,report-site/index.html,report-site/feed.xml,tools/re... |
 | 2026-09-13T06:43:11Z | history:649:b77bda3b | session-event | in-progress | docs, ci, security, provenance, audit, tests | docs/REPORT_SITE.md,docs/audits/INDEX.md,docs/audits/2026-09-13-memory-format... |
 | 2026-09-13T07:30:58Z | history:650:2cfbc910 | session-event | in-progress | docs, security, provenance, handoff | docs/REPORT_SITE.md,PROJECT_STATUS.md,report-site/README.md |
+| 2026-09-13T07:44:44Z | history:651:4edb74fa | session-event | in-progress | handoff, docs, provenance, ci, security, audit | report-site/catalog.json,docs/REPORT_SITE.md,report-site/README.md,PROJECT_ST... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0516.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:31:29Z | 516 | (multi) | (multi) |
+| 0001-0517.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:47:52Z | 517 | (multi) | (multi) |

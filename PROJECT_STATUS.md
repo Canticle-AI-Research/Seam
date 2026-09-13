@@ -21,7 +21,8 @@ operator lifted the report-site hold after reviewing the design. Today's
 public edition are prepared as the first report; older reports remain excluded.
 The [report library](docs/REPORT_SITE.md) workflow candidate allows publication
 only from main after complete-artifact privacy checks and with a nonempty
-revision-pinned catalog. The catalog awaits the source commit. The operator
+revision-pinned catalog. M1's catalog entry now pins source commit `e01284de`
+(HISTORY#651). The operator
 authorized the exact primary-log URL redaction and it is complete (HISTORY#650).
 Independent qualification remains open. Public Pages returned 404 on
 September 13; the preview remains local.
