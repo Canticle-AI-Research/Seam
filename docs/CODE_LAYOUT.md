@@ -89,6 +89,10 @@ not have to infer what works from directory names alone.
   existing authorities without duplicating their volatile facts.
 - `docs/REPORTS_AND_EVIDENCE.md` - canonical rule for filing human-readable
   reports and routing raw artifacts, current state, chronology, and archives.
+- `report-site/` and `tools/reports/` - curated Jekyll report presentation and
+  revision-pinned public export; `docs/REPORT_SITE.md` defines publication and
+  the guarded publication workflow and current deployment status. Generated output
+  stays under ignored `test_seam/` or an external local preview directory.
 - `tools/docs/verify_wiki.py` - fail-closed wiki coverage and rendered-link
   verifier. It uses the dev-only `markdown-it-py` dependency for CommonMark
   links, handles raw HTML anchors, rejects unsafe local paths and symlinks,

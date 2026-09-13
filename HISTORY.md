@@ -21242,3 +21242,278 @@ Preserved unrelated primary dirt and independent worktrees are enumerated in the
 
 Next unresolved step after this documentation is merged: M1 audit plus parallel B1/E1/P0 setup, then M2 design from evidence. Runtime work, paid benchmarks and report-home discovery remain unstarted.
 ---END-ENTRY-#645---
+
+---BEGIN-ENTRY-#646---
+id: 646
+date: 2026-09-12T19:30:38Z
+agent: codex
+status: in-progress
+topics: docs, provenance, ci
+commits: pending
+refs: docs/REPORT_SITE.md,report-site/catalog.json,.github/workflows/reports-pages.yml,tools/reports/prepare_site.py,tests/audit/test_report_site.py
+supersedes: 645
+tokens: 785
+---
+Prepared the independently scoped SEAM public report publisher on
+feat/seam-reports-pages-20260912 from protected main 614141c5. The initial
+catalog selects two existing reports (the entity-aggregation investigation
+and S8 completion record) by complete Git revision and source SHA-256.
+Generated pages retain historical context, source links and byte-identical
+Markdown downloads. No new benchmark, formation implementation, paper or
+current product-qualification claim was produced.
+
+Added Canticle-branded Jekyll library/report templates, search and type filters,
+Atom feed, public manifest, an explicit publication exporter and operator
+instructions in docs/REPORT_SITE.md. The exporter reads pinned Git blobs and
+rejects invalid pins, hashes, duplicate IDs, unsafe source text and existing
+destinations. The workflow validates pull-request previews and deploys only
+from main; generated pages, source hashes, feed and local links are checked.
+Canonical report storage, the active memory-formation roadmap and the live
+handoff head remain unchanged.
+
+GitHub Pages API setup for Canticle-AI-Research/Seam confirmed build_type
+workflow and HTTPS enforcement at the default organization project URL.
+API status remains null: configuration is not a successful deployment.
+No custom domain, DNS change or Canticle main-website edit occurred.
+
+Verification: the new publication tests witnessed a failing import before
+implementation, then passed. A second red/green cycle caught rejected date
+metadata being echoed. Final focused collection selected 14 tests and the
+focused run passed 14 tests with no skips using
+python -m pytest tests/audit/test_report_site.py -q -o addopts=.
+The official Jekyll Pages image v1.0.13 built the selected catalog; the workflow
+post-build validator passed source hashes, report routes, feed XML and all
+local links. Chromium checks passed search, type filters, empty state, report
+navigation, downloaded-source digest and desktop/mobile overflow checks with
+no browser script errors. Scoped Ruff and actionlint 1.7.12 passed.
+
+The broader command python -m pytest tests/audit/ -q -m 'not external'
+-o addopts= finished with 3005 passed, one failed, 65 external tests explicitly
+deselected and two multiprocessing fork warnings in 381.09 seconds. The failure
+was tests/audit/test_history_closeout.py::test_preflight_gates_match_canonical_commit_hook.
+It expects verify_agent_config in the hook's run_gate lines, while the hook
+invokes that gate directly. The same test failed against files exported from
+unchanged base 614141c5; neither the hook, test nor closeout helper changed in
+this slice. This is recorded as an inherited audit failure, not a green suite.
+
+Local build repairs included Jekyll's reserved id overriding download routes,
+and optional-front-matter rendering duplicate source pages without context.
+The generated report_id and disabled optional-front-matter plugin resolve
+those defects. Docker's initial bind mount was rejected by host sharing;
+an isolated container copy produced the successful build without changing
+Docker settings.
+
+Independent assurance and release qualification are still open. The operator
+explicitly prohibited subagents in this side conversation, so this root did
+not delegate or self-author an independent acceptance receipt. Keep the PR
+draft until that review, exact-head required checks and protected merge are
+complete; then verify the first Pages deployment and public routes. Local
+build evidence and Pages configuration do not establish live publication.
+
+The pre-existing primary audit edits and separate audit-cleanup, pretool-hook
+and sleep-learning worktrees were preserved and excluded. In particular the
+dirty sleep-learning tree is independent ongoing work; a scoped push may use
+the documented one-push dirty-worktree override to preserve it. No unrelated
+PR, roadmap stream, benchmark service or provider configuration was changed.
+
+Staging subsequently remained blocked: the installed PreToolUse continuity
+hook checked the primary checkout and flagged a private-session URL in its
+pre-existing untracked error.log, despite a clean scan in this isolated
+checkout. Explicit Git checkout selection did not change that hook result.
+A content-preserving URL redaction was attempted under AGENTS.md's security
+rule but the deletion guard rejected the overwrite and required explicit
+operator authorization. The file was not changed. The operator was asked to
+authorize only that redaction; no authorization had arrived at this checkpoint.
+No report-site commit, push or PR exists yet. Re-run the exporter/focused tests
+from docs/REPORT_SITE.md, resolve the recorded hook blocker, then stage only
+this branch's publisher and continuity files. Independent qualification remains
+open separately. There are no known missing implementation symbols or imports.
+---END-ENTRY-#646---
+
+---BEGIN-ENTRY-#647---
+id: 647
+date: 2026-09-12T23:01:18Z
+agent: codex
+status: in-progress
+topics: security, docs, ci, provenance, tests
+commits: pending
+refs: tools/reports/publication_safety.py,tools/reports/prepare_site.py,tests/audit/test_report_publication_safety.py,tests/audit/test_report_site.py,report-site/catalog.json,docs/REPORT_SITE.md,.github/workflows/reports-pages.yml
+supersedes: 646
+tokens: 646
+---
+The operator strengthened the website publication requirement: no secrets,
+environment variables or session links anywhere in the public site. This is
+scoped continuation of the report publisher from HISTORY#646; it does not
+authorize the previously blocked primary error.log mutation.
+
+The earlier generated artifact had no recognized secret/session findings, but
+its two original report downloads and rendered report pages included ten
+environment-variable references in total. The new public-artifact gate rejects
+that earlier artifact with exit 2. It was never uploaded or deployed.
+
+Replaced raw report publication with reviewed public editions under
+report-site/editions/. The canonical source records remain unchanged and are
+still pinned by complete Git revision and source SHA-256. A separate
+edition_sha256 binds each downloadable public edition. Runtime configuration,
+local artifact locations and execution commands are omitted, while historical
+measurements and limitations retain their source scope. Page/download labels,
+the public manifest and operator docs distinguish original source from edition.
+
+Added tools/reports/publication_safety.py. It reuses canonical credential/session
+patterns and adds confidential assignments, environment references, private
+paths, credential-bearing URLs and common encoded forms. The exporter scans
+metadata, editions, explicit template/asset inputs and the canonical brand SVG
+before writing output. The built-artifact gate scans every permitted file;
+unexpected files, symlinks, binary/unreadable content and oversize inputs block
+publication. Both preview and Pages uploads depend on this gate. It never
+prints rejected contents or values and does not read local environment files.
+These checks backstop reviewed editions; arbitrary unknown secrets are not
+claimed to be perfectly recognizable by pattern matching.
+
+Verification command: `python -m pytest tests/audit/test_report_site.py tests/audit/test_report_publication_safety.py tests/audit/test_secret_scan.py -q -o addopts=`.
+Observed output: `46 passed in 1.52s`, with no skips.
+Collection command: `python -m pytest tests/audit/test_report_site.py tests/audit/test_report_publication_safety.py --collect-only -q -o addopts=`.
+Observed output: `41 tests collected in 0.11s`, without import errors. These
+collector totals include parametrized cases. The initial continuity pass
+treated the earlier wording as a static function-count claim; the record now
+quotes the collector output with its exact command, and gates are rerun
+without suppression. Witnessed
+red/green cycles cover the new safety module and edition-only export contract.
+Scoped Ruff and actionlint 1.7.12 passed. The official Jekyll Pages image
+v1.0.13 rebuilt the current catalog; the workflow's built-page/link/feed/hash
+validator passed. Running python -m tools.reports.publication_safety --site
+against that isolated build passed all 13 output files with no scan exclusions.
+Chromium verified both public-edition download hashes against edition_sha256,
+confirmed they differ from the raw-source hashes, and rendered both reports
+without horizontal overflow at desktop and mobile widths.
+The prior broad-audit inherited hook-test failure remains recorded in #646;
+no new broad-suite success is claimed for this follow-up.
+
+Publishing remains blocked before staging by the primary-checkout error.log
+condition and the deletion guard's explicit-authorization requirement. That
+file is unchanged; no retry, hook bypass, commit, push, PR or live website
+publication occurred in this follow-up. Independent assurance/release review
+also remains open because subagents are prohibited in this side conversation.
+Next: resolve that precise blocker with the operator, recheck the isolated
+publisher state and current required gates, push a reviewable draft, qualify
+independently, then merge and verify the first deployment. No implementation
+symbols or imports are missing; the implementation matches its focused tests.
+---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-13T05:06:58Z
+agent: codex
+status: in-progress
+topics: docs, security, ci, provenance, tests
+commits: pending
+refs: report-site/catalog.json,report-site/index.html,report-site/feed.xml,tools/reports/prepare_site.py,tests/audit/test_report_site.py,.github/workflows/reports-pages.yml,docs/REPORT_SITE.md
+supersedes: 647
+tokens: 775
+---
+The operator requested a fresh empty report library, with reports only from
+new work starting at the September 12 request, and explicitly paused all
+publication pending visual review. This supersedes the initial historical
+catalog and deployment-next instructions in HISTORY#646 and HISTORY#647.
+Memory formation roadmap and the registered main-thread handoff are unchanged.
+
+The catalog is now empty. Removed only the two newly authored historical
+public editions from report-site/; the canonical audit and testing sources
+were preserved. The exporter accepts an empty reports array and copies no
+existing report merely because it is present in the repository. The library
+renders a deliberate empty state, hides unavailable filtering controls and
+labels the preview's publication hold. The empty Atom feed has a valid updated
+timestamp. Updated PROJECT_STATUS.md, REPO_LEDGER.md, docs/REPORT_SITE.md,
+docs/CODE_LAYOUT.md and report-site/README.md to preserve these instructions.
+
+The reports-pages workflow now validates only. Removed Pages configuration,
+both artifact uploads, deployment, write permissions and identity-token access.
+No remote Pages setting, GitHub branch, PR, main Canticle website or DNS was
+changed by this follow-up. No push, merge or deployment occurred. Future
+publication requires explicit operator authorization; a build passing does
+not lift the hold. The strict full-artifact confidential-content gate remains.
+
+Verification command: `python -m pytest tests/audit/test_report_site.py tests/audit/test_report_publication_safety.py tests/audit/test_secret_scan.py -q -o addopts=`.
+Observed output: `47 passed in 1.48s`, with no skips. A witnessed regression
+cycle first failed because the exporter rejected an empty catalog, then passed
+after accepting it while preserving the explicit selection boundary.
+Collection command: `python -m pytest tests/audit/test_report_site.py tests/audit/test_report_publication_safety.py --collect-only -q -o addopts=`.
+Observed output: `42 tests collected in 0.11s`, without import errors. Scoped
+Ruff and actionlint passed. The official Jekyll Pages image v1.0.13 built the
+empty catalog in a disposable container. The workflow's built-publication
+validator passed; the feed has no entries and the workflow has no upload or
+deployment action. The publication-safety scanner passed all 9 built files,
+without exclusions. Chromium verified the empty library and About navigation
+at desktop and mobile widths, with no horizontal overflow or script errors;
+the prior S8 report route returns 404. No new broad-audit success is claimed;
+the inherited hook-test failure remains scoped in HISTORY#646.
+
+The sanitized artifact and desktop/mobile screenshots are retained outside the
+repository in the operator's local preview store under seam-reports-fresh-20260913.
+A loopback-only preview serves the isolated artifact at port 8773 under /Seam/;
+HTTP returned 200 and the desktop opener accepted the request. The server's
+root contains only the site mount, not the checkout or private recovery notes.
+The shell guard blocked saving a new screenshot-check script through shell
+redirection; creating that new external file with the patch editor succeeded.
+The earlier primary error.log staging blocker was neither retried nor changed.
+
+This remains a dirty local preview candidate on feat/seam-reports-pages-20260912,
+intentionally retained for review under the operator's no-publication request.
+No implementation symbols or imports are missing, and focused tests match the
+implementation. Resume by reading docs/REPORT_SITE.md, checking the current
+catalog and rerunning its exporter and focused validation from a fresh output
+directory. Await visual feedback; do not restore historical entries or enable
+uploads/deployment automatically. Independent qualification and any eventual
+staging-blocker resolution remain separate future conditions.
+---END-ENTRY-#648---
+
+---BEGIN-ENTRY-#649---
+id: 649
+date: 2026-09-13T06:43:11Z
+agent: codex
+status: in-progress
+topics: docs, ci, security, provenance, audit, tests
+commits: pending
+refs: docs/REPORT_SITE.md,docs/audits/INDEX.md,docs/audits/2026-09-13-memory-formation-m1.md,docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json,report-site/editions/2026-09-13-memory-formation-m1.md,.github/workflows/reports-pages.yml,tests/audit/test_report_deployment_boundary.py,tools/memory_formation_m1.py,PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md
+supersedes: 648
+tokens: 1009
+---
+The operator approved the report-site design and explicitly requested publication of new reports. This lifts HISTORY#648's publication hold while retaining the September 12 fresh-start cutoff and the requirement for no confidential content or environment references in any website file.
+
+Live read-only checks: the existing loopback preview returned HTTP 200; https://canticle-ai-research.github.io/Seam/ returned HTTP 404. GitHub Pages remains configured for workflow builds, with no github-pages deployments listed. Configuration and local rendering are not live publication.
+
+Prepared report-site/editions/2026-09-13-memory-formation-m1.md as the first public research edition. It preserves M1's actual scope and controls while omitting local execution details. Imported only the canonical M1 audit, its synthetic observation artifact and reproducible helper from the separate M1 worktree; registered the report here under HISTORY#649. The source audit describes revision 614141c5aa96fd51d4dee2e09c186bb4035c0377 and retains both artifact hashes. Its separate audit branch keeps its own local HISTORY#646; this publication branch preserves the pre-existing report-site entries #646-648 and records the integration prospectively. No older report has been added to the site.
+
+The catalog is still empty: the original source must be committed before a real full revision pin and source digest can be admitted. Do not fabricate a pin or weaken the exporter to publish uncommitted material. Complete source commit, catalog admission, independent review, required exact-head checks and protected merge in that order. The operator's publication authorization persists; do not ask for it again. The unrelated primary error.log redaction permission is a separate unresolved condition.
+
+Updated the reports-pages workflow to read Pages configuration, validate and scan every generated file, and upload only from main with an admitted nonempty catalog. Deployment depends on successful build, uses github-pages, grants Pages write and identity-token permissions only to deployment, and serializes deployments in the pages concurrency group. PR builds and empty catalogs cannot upload/deploy. Official GitHub release metadata and action definitions verified configure-pages 6.0.0, upload-pages-artifact 5.0.0 and deploy-pages 5.0.1. Updated operator docs, current status, ledger and site copy to record authorization without claiming deployment.
+
+Verification command: `python -m pytest tests/audit/test_report_site.py tests/audit/test_report_publication_safety.py tests/audit/test_report_deployment_boundary.py tests/audit/test_secret_scan.py -q -o addopts= -p no:cacheprovider`.
+Observed output: `48 passed in 1.59s` with no skips. The new deployment-boundary test first failed with KeyError for the absent deploy job and then passed; that witnessed cycle was appended while preserving earlier session cycles. Scoped Ruff and actionlint 1.7.12 passed. Public-edition and changed-template privacy checks passed. The isolated working-tree secret scan passed under the canonical exclusion policy; no candidate text was excluded.
+
+The current empty catalog exported successfully. The cached official Jekyll Pages image v1.0.13 initially failed with a SystemStackError because the local container used double-slash root paths. Repeating the build under /work succeeded. Built routes, feed and empty manifest checks passed. The complete-publication scanner passed all 9 built files without exclusions. This verifies the current empty catalog; M1 report-page export awaits its source commit and catalog pin. Generated output is under ignored test_seam/report-site/publication-20260913/. No website upload or deployment occurred.
+
+Recovery blockers: the installed PreToolUse continuity hook still prevents staging because the primary checkout contains private-link content in untracked error.log. Prior exact-value redaction was rejected by the deletion guard pending explicit approval; no value is copied and the file remains untouched. Independent assurance remains open because subagents are prohibited in this side conversation; do not self-author a receipt. Cleanup of the task's two stopped build containers, seam-reports-publish-check-20260913 and seam-reports-publish-check-20260913-v2, was also rejected by the deletion guard. They are stopped and retained, not running services. No hook bypass, branch commit, push, PR or protected merge is claimed.
+
+No runtime behavior was modified, no new score was measured, and no symbols or implementation/test import gaps are missing. Primary dirty audit/handoff work, the standalone M1 branch and the unrelated sleep-learning/pretool/audit-cleanup worktrees remain untouched. Next action after scoped blocker resolution: stage this publisher plus M1 source and continuity files explicitly, validate the staged diff, commit the canonical source, and then admit the public edition using exact Git and content digests. Continue through independent qualification and protected merge, and verify public report routes/downloads and manifest after deployment. M1 review plus B1 metadata and E1 design remain prerequisites to M2 selection.
+---END-ENTRY-#649---
+
+---BEGIN-ENTRY-#650---
+id: 650
+date: 2026-09-13T07:30:58Z
+agent: codex
+status: in-progress
+topics: docs, security, provenance, handoff
+commits: pending
+refs: docs/REPORT_SITE.md,PROJECT_STATUS.md,report-site/README.md
+supersedes: 649
+tokens: 387
+---
+The operator explicitly approved the previously requested URL-only redaction and asked whether to fire a handoff before benchmarks. Redacted exactly one private session URL in the primary checkout's untracked error.log, preserving its surrounding bytes. The follow-up canonical scan of that file returned zero findings. The value was never printed or copied into this branch. The earlier primary-log staging blocker is resolved; publication authorization from HISTORY#649 persists.
+
+Updated docs/REPORT_SITE.md, PROJECT_STATUS.md and report-site/README.md to remove the stale redaction blocker. Report source, public edition, workflow and verification from #649 are unchanged. A detailed indexed handoff will follow after the canonical source commit and actual catalog pin are available. No paid benchmark or runtime fix is implied: M1 is an audit candidate, and M1 review, B1 metadata contract and E1 evaluation design/provider setup remain before the next appropriate roadmap gates.
+
+This source checkpoint intentionally keeps catalog reports empty so no page can reference an invented or uncommitted source revision. Commit the current canonical M1 source and publisher, then admit its public edition using this checkpoint's real full Git SHA plus source/edition digests. Build the admitted page and download, complete independent qualification and protected merge, then verify live publication. Side-conversation rules still prohibit subagents and self-authored independent receipts; no independent qualification is claimed.
+
+The prior focused test, Ruff, actionlint and complete-artifact privacy evidence remains in #649; this checkpoint changes only operating documentation and the specifically authorized untracked local log. Canonical continuity gates are rerun by closeout. The primary audit/handoff work, sibling M1 branch and unrelated worktrees remain preserved. The two stopped temporary containers recorded in #649 are still retained because their deletion was separately blocked. There are no missing implementation symbols or known test/implementation import mismatches. No push, PR, merge or website deployment is claimed at this source checkpoint.
+---END-ENTRY-#650---

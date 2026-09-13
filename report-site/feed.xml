@@ -1,0 +1,22 @@
+---
+layout: null
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>SEAM Reports · Canticle Research</title>
+  <id>{{ '/' | absolute_url | xml_escape }}</id>
+  <link href="{{ '/feed.xml' | absolute_url | xml_escape }}" rel="self"/>
+  <link href="{{ '/' | absolute_url | xml_escape }}"/>
+  {% assign ordered = site.reports | sort: 'date' | reverse %}
+  <updated>{{ ordered.first.date | default: site.time | date_to_xmlschema }}</updated>
+  <author><name>Canticle Research</name></author>
+  {% for report in ordered %}
+  <entry>
+    <title>{{ report.title | xml_escape }}</title>
+    <id>{{ report.url | absolute_url | xml_escape }}</id>
+    <link href="{{ report.url | absolute_url | xml_escape }}"/>
+    <updated>{{ report.date | date_to_xmlschema }}</updated>
+    <summary>{{ report.summary | xml_escape }}</summary>
+  </entry>
+  {% endfor %}
+</feed>

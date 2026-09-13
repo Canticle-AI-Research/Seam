@@ -798,6 +798,19 @@ bounded task-specific reading; do not maintain a competing sequence here.
   no raw artifacts or each durable artifact's path and SHA-256. Raw benchmark
   bundles remain in their configured durable artifact store or ignored run
   directory; historical reports before that boundary are not rewritten.
+- The public report site is a curated reading view, governed by
+  `docs/REPORT_SITE.md`. Its catalog pins report sources to complete Git
+  revisions and SHA-256 digests; publication never relocates the canonical
+  evidence home or turns a historical report into a current qualification.
+  Reviewed public editions omit runtime configuration and local/private
+  references. Every generated file must pass the confidential-content gate
+  before a preview or deployment artifact is uploaded (HISTORY#647).
+  The library includes only new work from September 12 onward; historical
+  reports are not backfilled. The operator lifted HISTORY#648's publication
+  hold on September 13 (HISTORY#649). Main-only publication still requires
+  source commits, pinned public editions, full-artifact privacy checks,
+  independent qualification and protected merge. Empty catalogs and PR builds
+  do not upload or deploy. Authorization is not evidence of live deployment.
 - Inactive docs, old handoffs, superseded setup notes, and historical coding artifacts live under `docs/archive/`.
 - Archived docs are traceability records, not current instructions.
 - When old prose is useful, rewrite the current part into an active doc and point to `HISTORY#NNN`; do not duplicate stale context across active docs.

@@ -1,0 +1,64 @@
+---
+title: Report library
+library: true
+---
+<section class="hero">
+  <div>
+    <p class="section-label"><span class="status-dot" aria-hidden="true"></span> Canticle Research / SEAM</p>
+    <h1>The work.<br>The evidence.</h1>
+    <p class="hero-copy">Research, benchmark investigations and test records from SEAM. Read the methods, inspect the outcomes, and follow each finding to its source.</p>
+    <a class="primary-link" href="#library">Explore the reports <span aria-hidden="true">↓</span></a>
+  </div>
+  <aside class="evidence-map" aria-label="Every report connects methods, outcomes and source evidence">
+    <div class="terminal-title"><span aria-hidden="true">❯</span> Inside a report</div>
+    <div class="map-root">A question worth testing</div>
+    <div class="map-branches">
+      <p><span aria-hidden="true">├─</span> Method &amp; conditions</p>
+      <p><span aria-hidden="true">├─</span> Results &amp; failures</p>
+      <p><span aria-hidden="true">├─</span> Limits &amp; uncertainty</p>
+      <p><span aria-hidden="true">└─</span> Sources you can inspect</p>
+    </div>
+    <p class="map-note">Keep the conclusion connected<br>to what was actually tested.</p>
+  </aside>
+</section>
+<section class="library" id="library" aria-labelledby="library-heading">
+  {% assign ordered = site.reports | sort: 'date' | reverse %}
+  <div class="library-heading">
+    <div><p class="section-label">The report library</p><h2 id="library-heading">Explore the record</h2></div>
+    {% unless ordered == empty %}
+    <label class="search-label">Find a report<input id="report-search" type="search" placeholder="Search titles and topics" autocomplete="off"></label>
+    {% endunless %}
+  </div>
+  {% if ordered == empty %}
+  <div class="empty-state fresh-start">
+    <p class="section-label">A fresh start</p>
+    <h3>Nothing published yet.</h3>
+    <p>New research, benchmark results and test reports will appear here as the work is completed and reviewed.</p>
+    <span class="preview-label">First report in preparation</span>
+  </div>
+  {% else %}
+  <div class="filters" role="group" aria-label="Filter reports by type">
+    <button type="button" data-kind="all" aria-pressed="true">All reports</button>
+    <button type="button" data-kind="research" aria-pressed="false">Research</button>
+    <button type="button" data-kind="benchmark" aria-pressed="false">Benchmarks</button>
+    <button type="button" data-kind="test" aria-pressed="false">Tests &amp; qualification</button>
+  </div>
+  <p id="filter-status" class="filter-status" aria-live="polite"></p>
+  <div class="report-list">
+  {% for report in ordered %}
+    <article class="report-row" data-report-kind="{{ report.kind | escape }}">
+      <div class="report-meta"><time datetime="{{ report.date | date: '%Y-%m-%d' }}">{{ report.date | date: '%d %b %Y' }}</time><span class="kind kind-{{ report.kind }}">{{ report.kind | capitalize }}</span></div>
+      <div class="report-info"><h3><a href="{{ report.url | relative_url }}">{{ report.title | escape }}</a></h3><p>{{ report.summary | escape }}</p></div>
+      <a class="report-open" href="{{ report.url | relative_url }}" aria-label="Read {{ report.title | escape }}">Read report <span aria-hidden="true">↗</span></a>
+    </article>
+  {% endfor %}
+  </div>
+  <p id="no-results" class="empty-state" hidden>No published reports match this selection. Try another type or clear your search.</p>
+  {% endif %}
+  <p class="library-note">The library begins with new work from this point forward. Earlier repository reports are not being imported.</p>
+</section>
+<section class="reading-guide">
+  <h2>Read a result in context.</h2>
+  <p>A qualification test, a benchmark score and a research proposal answer different questions. Each report keeps its date, source revision and limitations visible.</p>
+  <a href="{{ '/about/' | relative_url }}">How the library works</a>
+</section>

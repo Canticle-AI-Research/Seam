@@ -47,6 +47,12 @@ records or pretending old hashes were captured when they were not.
 supporting summaries. Use the benchmark results, current status, repo ledger,
 and active code for current claims.
 
+## Public reading site
+
+The [public SEAM report site](REPORT_SITE.md) is a curated reading view of
+revision-pinned reports. Its catalog selects public material explicitly; it
+does not move the canonical report home or publish every audit automatically.
+
 ## Filing checklist
 
 1. Name the report with an ISO date and a short descriptive slug.

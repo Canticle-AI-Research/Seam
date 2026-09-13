@@ -1,0 +1,25 @@
+title: SEAM Reports
+description: Research, benchmark investigations and qualification evidence from Canticle Research.
+url: https://canticle-ai-research.github.io
+baseurl: /Seam
+repository: Canticle-AI-Research/Seam
+markdown: kramdown
+excerpt_separator: ""
+optional_front_matter:
+  enabled: false
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+collections:
+  reports:
+    output: true
+    permalink: /reports/:name/
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+exclude:
+  - README.md
+  - catalog.json
+timezone: UTC

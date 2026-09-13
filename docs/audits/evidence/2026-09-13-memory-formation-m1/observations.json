@@ -1,0 +1,1168 @@
+{
+  "compiler": {
+    "bracket_alice": {
+      "kinds": {
+        "CLM": 2,
+        "ENT": 3,
+        "PROV": 1,
+        "RAW": 1,
+        "SPAN": 2
+      },
+      "raw": [
+        {
+          "id": "raw:836bbd9c4649",
+          "content": "[Alice 2026-09-01] I moved to Oslo. I enjoy painting.",
+          "source_metadata": null
+        }
+      ],
+      "claims": [
+        {
+          "id": "clm:836bbd9c4649:1",
+          "text": "[Alice 2026-09-01] I moved to Oslo.",
+          "predicate": "content",
+          "subject_id": "ent:alice:836bbd9c4649",
+          "subject_label": "Alice",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:836bbd9c4649:1"
+          ]
+        },
+        {
+          "id": "clm:836bbd9c4649:2",
+          "text": "I enjoy painting.",
+          "predicate": "content",
+          "subject_id": "ent:i:836bbd9c4649",
+          "subject_label": "I",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:836bbd9c4649:2"
+          ]
+        }
+      ],
+      "span_count": 2,
+      "span_bounds": [
+        [
+          0,
+          35
+        ],
+        [
+          36,
+          53
+        ]
+      ],
+      "span_text_exact": true,
+      "raw_exact": true
+    },
+    "bracket_bob": {
+      "kinds": {
+        "CLM": 2,
+        "ENT": 3,
+        "PROV": 1,
+        "RAW": 1,
+        "SPAN": 2
+      },
+      "raw": [
+        {
+          "id": "raw:21eb4a0ff0c2",
+          "content": "[Bob 2026-09-02] I moved to Rome. I enjoy hiking.",
+          "source_metadata": null
+        }
+      ],
+      "claims": [
+        {
+          "id": "clm:21eb4a0ff0c2:1",
+          "text": "[Bob 2026-09-02] I moved to Rome.",
+          "predicate": "content",
+          "subject_id": "ent:bob:21eb4a0ff0c2",
+          "subject_label": "Bob",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:21eb4a0ff0c2:1"
+          ]
+        },
+        {
+          "id": "clm:21eb4a0ff0c2:2",
+          "text": "I enjoy hiking.",
+          "predicate": "content",
+          "subject_id": "ent:i:21eb4a0ff0c2",
+          "subject_label": "I",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:21eb4a0ff0c2:2"
+          ]
+        }
+      ],
+      "span_count": 2,
+      "span_bounds": [
+        [
+          0,
+          33
+        ],
+        [
+          34,
+          49
+        ]
+      ],
+      "span_text_exact": true,
+      "raw_exact": true
+    },
+    "colon_control": {
+      "kinds": {
+        "CLM": 2,
+        "ENT": 2,
+        "PROV": 1,
+        "RAW": 1,
+        "SPAN": 2
+      },
+      "raw": [
+        {
+          "id": "raw:4a6a442647c2",
+          "content": "Alice: I moved to Oslo. I enjoy painting.",
+          "source_metadata": null
+        }
+      ],
+      "claims": [
+        {
+          "id": "clm:4a6a442647c2:1",
+          "text": "Alice: I moved to Oslo.",
+          "predicate": "content",
+          "subject_id": "ent:alice:4a6a442647c2",
+          "subject_label": "Alice",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:4a6a442647c2:1"
+          ]
+        },
+        {
+          "id": "clm:4a6a442647c2:2",
+          "text": "I enjoy painting.",
+          "predicate": "content",
+          "subject_id": "ent:alice:4a6a442647c2",
+          "subject_label": "Alice",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:4a6a442647c2:2"
+          ]
+        }
+      ],
+      "span_count": 2,
+      "span_bounds": [
+        [
+          0,
+          23
+        ],
+        [
+          24,
+          41
+        ]
+      ],
+      "span_text_exact": true,
+      "raw_exact": true
+    },
+    "unicode": {
+      "kinds": {
+        "PROV": 1,
+        "RAW": 1
+      },
+      "raw": [
+        {
+          "id": "raw:4f92e270643e",
+          "content": "東京が好きです。大阪に住んでいます。",
+          "source_metadata": null
+        }
+      ],
+      "claims": [],
+      "span_count": 0,
+      "span_bounds": [],
+      "span_text_exact": true,
+      "raw_exact": true
+    },
+    "abbreviation": {
+      "kinds": {
+        "CLM": 3,
+        "ENT": 4,
+        "PROV": 1,
+        "RAW": 1,
+        "SPAN": 3
+      },
+      "raw": [
+        {
+          "id": "raw:e58e1e05513f",
+          "content": "Dr. Chen moved to Oslo. She works there.",
+          "source_metadata": null
+        }
+      ],
+      "claims": [
+        {
+          "id": "clm:e58e1e05513f:1",
+          "text": "Dr.",
+          "predicate": "content",
+          "subject_id": "ent:dr:e58e1e05513f",
+          "subject_label": "Dr",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:e58e1e05513f:1"
+          ]
+        },
+        {
+          "id": "clm:e58e1e05513f:2",
+          "text": "Chen moved to Oslo.",
+          "predicate": "content",
+          "subject_id": "ent:chen:e58e1e05513f",
+          "subject_label": "Chen",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:e58e1e05513f:2"
+          ]
+        },
+        {
+          "id": "clm:e58e1e05513f:3",
+          "text": "She works there.",
+          "predicate": "content",
+          "subject_id": "ent:she:e58e1e05513f",
+          "subject_label": "She",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:e58e1e05513f:3"
+          ]
+        }
+      ],
+      "span_count": 3,
+      "span_bounds": [
+        [
+          0,
+          3
+        ],
+        [
+          4,
+          23
+        ],
+        [
+          24,
+          40
+        ]
+      ],
+      "span_text_exact": true,
+      "raw_exact": true
+    },
+    "newline_speakers": {
+      "kinds": {
+        "CLM": 1,
+        "ENT": 2,
+        "PROV": 1,
+        "RAW": 1,
+        "SPAN": 1
+      },
+      "raw": [
+        {
+          "id": "raw:1de4da121454",
+          "content": "Alice: I like tea\nBob: I like coffee",
+          "source_metadata": null
+        }
+      ],
+      "claims": [
+        {
+          "id": "clm:1de4da121454:1",
+          "text": "Alice: I like tea\nBob: I like coffee",
+          "predicate": "content",
+          "subject_id": "ent:alice:1de4da121454",
+          "subject_label": "Alice",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:1de4da121454:1"
+          ]
+        }
+      ],
+      "span_count": 1,
+      "span_bounds": [
+        [
+          0,
+          36
+        ]
+      ],
+      "span_text_exact": true,
+      "raw_exact": true
+    },
+    "state_changes": {
+      "kinds": {
+        "CLM": 2,
+        "ENT": 3,
+        "PROV": 1,
+        "RAW": 1,
+        "SPAN": 2
+      },
+      "raw": [
+        {
+          "id": "raw:3228789100ca",
+          "content": "Alice: I lived in Oslo. I now live in Rome.",
+          "source_metadata": null
+        }
+      ],
+      "claims": [
+        {
+          "id": "clm:3228789100ca:1",
+          "text": "Alice: I lived in Oslo.",
+          "predicate": "content",
+          "subject_id": "ent:alice:3228789100ca",
+          "subject_label": "Alice",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:3228789100ca:1"
+          ]
+        },
+        {
+          "id": "clm:3228789100ca:2",
+          "text": "I now live in Rome.",
+          "predicate": "content",
+          "subject_id": "ent:alice:3228789100ca",
+          "subject_label": "Alice",
+          "t0": null,
+          "t1": null,
+          "status": "asserted",
+          "evidence": [
+            "span:3228789100ca:2"
+          ]
+        }
+      ],
+      "span_count": 2,
+      "span_bounds": [
+        [
+          0,
+          23
+        ],
+        [
+          24,
+          43
+        ]
+      ],
+      "span_text_exact": true,
+      "raw_exact": true
+    },
+    "unpunctuated_long": {
+      "input_recipe": "word plus space repeated 2000 times",
+      "input_characters": 10000,
+      "span_count": 1,
+      "maximum_span_characters": 9999,
+      "raw_exact": true
+    }
+  },
+  "loader": {
+    "input": [
+      {
+        "sample_id": "m1-synthetic",
+        "conversation": {
+          "sessions": [
+            {
+              "date_time": "2026-09-03",
+              "dialogs": [
+                {
+                  "speaker": "Eve",
+                  "text": "I visited the museum.",
+                  "dia_id": "D1:1",
+                  "blip_caption": "M1_CAPTION_CEDAR"
+                },
+                {
+                  "speaker": "Eve",
+                  "text": "I visited the museum.",
+                  "dia_id": "D1:2",
+                  "blip_caption": "M1_CAPTION_CEDAR"
+                }
+              ]
+            }
+          ],
+          "session_id": "distinct-session"
+        },
+        "qa": [
+          {
+            "question": "Synthetic loader control?",
+            "answer": "museum",
+            "category": 4
+          }
+        ]
+      }
+    ],
+    "output_turns": [
+      {
+        "speaker": "Eve",
+        "text": "I visited the museum.",
+        "timestamp": "2026-09-03"
+      },
+      {
+        "speaker": "Eve",
+        "text": "I visited the museum.",
+        "timestamp": "2026-09-03"
+      }
+    ],
+    "distinct_input_dialogue_ids": [
+      "D1:1",
+      "D1:2"
+    ],
+    "loaded_turns_equal": true
+  },
+  "adapter": {
+    "kinds": {
+      "CLM": 5,
+      "ENT": 6,
+      "PROV": 3,
+      "RAW": 3,
+      "SPAN": 5
+    },
+    "raw": [
+      {
+        "id": "raw:67948eccaf1cef5b:944db5f66f90",
+        "content": "[Eve 2026-09-03] I visited the museum.",
+        "source_metadata": null
+      },
+      {
+        "id": "raw:93951826c7b58424:836bbd9c4649",
+        "content": "[Alice 2026-09-01] I moved to Oslo. I enjoy painting.",
+        "source_metadata": null
+      },
+      {
+        "id": "raw:b13a05887d2a3bfd:21eb4a0ff0c2",
+        "content": "[Bob 2026-09-02] I moved to Rome. I enjoy hiking.",
+        "source_metadata": null
+      }
+    ],
+    "claims": [
+      {
+        "id": "clm:67948eccaf1cef5b:944db5f66f90:1",
+        "text": "[Eve 2026-09-03] I visited the museum.",
+        "predicate": "content",
+        "subject_id": "ent:67948eccaf1cef5b:eve:944db5f66f90",
+        "subject_label": "Eve",
+        "t0": null,
+        "t1": null,
+        "status": "asserted",
+        "evidence": [
+          "span:67948eccaf1cef5b:944db5f66f90:1"
+        ]
+      },
+      {
+        "id": "clm:93951826c7b58424:836bbd9c4649:1",
+        "text": "[Alice 2026-09-01] I moved to Oslo.",
+        "predicate": "content",
+        "subject_id": "ent:93951826c7b58424:alice:836bbd9c4649",
+        "subject_label": "Alice",
+        "t0": null,
+        "t1": null,
+        "status": "asserted",
+        "evidence": [
+          "span:93951826c7b58424:836bbd9c4649:1"
+        ]
+      },
+      {
+        "id": "clm:93951826c7b58424:836bbd9c4649:2",
+        "text": "I enjoy painting.",
+        "predicate": "content",
+        "subject_id": "ent:93951826c7b58424:i:836bbd9c4649",
+        "subject_label": "I",
+        "t0": null,
+        "t1": null,
+        "status": "asserted",
+        "evidence": [
+          "span:93951826c7b58424:836bbd9c4649:2"
+        ]
+      },
+      {
+        "id": "clm:b13a05887d2a3bfd:21eb4a0ff0c2:1",
+        "text": "[Bob 2026-09-02] I moved to Rome.",
+        "predicate": "content",
+        "subject_id": "ent:b13a05887d2a3bfd:bob:21eb4a0ff0c2",
+        "subject_label": "Bob",
+        "t0": null,
+        "t1": null,
+        "status": "asserted",
+        "evidence": [
+          "span:b13a05887d2a3bfd:21eb4a0ff0c2:1"
+        ]
+      },
+      {
+        "id": "clm:b13a05887d2a3bfd:21eb4a0ff0c2:2",
+        "text": "I enjoy hiking.",
+        "predicate": "content",
+        "subject_id": "ent:93951826c7b58424:i:836bbd9c4649",
+        "subject_label": "I",
+        "t0": null,
+        "t1": null,
+        "status": "asserted",
+        "evidence": [
+          "span:b13a05887d2a3bfd:21eb4a0ff0c2:2"
+        ]
+      }
+    ],
+    "span_count": 5,
+    "span_bounds": [
+      [
+        0,
+        38
+      ],
+      [
+        0,
+        35
+      ],
+      [
+        36,
+        53
+      ],
+      [
+        0,
+        33
+      ],
+      [
+        34,
+        49
+      ]
+    ],
+    "span_text_exact": true,
+    "input_turns": [
+      {
+        "speaker": "Alice",
+        "text": "I moved to Oslo. I enjoy painting.",
+        "timestamp": "2026-09-01"
+      },
+      {
+        "speaker": "Bob",
+        "text": "I moved to Rome. I enjoy hiking.",
+        "timestamp": "2026-09-02"
+      },
+      {
+        "speaker": "Eve",
+        "text": "I visited the museum.",
+        "timestamp": "2026-09-03"
+      },
+      {
+        "speaker": "Eve",
+        "text": "I visited the museum.",
+        "timestamp": "2026-09-03"
+      }
+    ],
+    "embedding_model": "st:BAAI/bge-small-en-v1.5@5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "text_column_checks": {
+      "painting": 1,
+      "museum": 1,
+      "M1_CAPTION_CEDAR": 0,
+      "M1_UNSTATED_SENTINEL": 0
+    },
+    "graph_edge_count": 74,
+    "canonical_relation_rows": 0,
+    "retrieval": {
+      "query": "What does Alice enjoy?",
+      "context": "[Alice 2026-09-01] I moved to Oslo. I enjoy painting.\n[Bob 2026-09-02] I moved to Rome. I enjoy hiking.\n[Eve 2026-09-03] I visited the museum.",
+      "generated_answer": null
+    },
+    "graph_product_build": {
+      "build_seq": 1,
+      "build_id": "gpb:e910045d2ebe8007de7476ac",
+      "namespace": "locomo:formation-audit",
+      "scope": "thread",
+      "algorithm_version": "graph-products/1",
+      "source_fingerprint": "c2585e21fbfc64a2850caefe3a85f8061c5fc8ccf5b86867c03f484dd703521b",
+      "accepted_fact_count": 5,
+      "rejected_fact_count": 0,
+      "created_at": "2026-09-13T05:55:57+00:00",
+      "schema_version": 1,
+      "product_count": 14,
+      "reused": false
+    },
+    "graph_products": [
+      {
+        "product_id": "gp:c9b008eebd6694ba112110a7",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "community_summary",
+        "stable_key": "community:ent:67948eccaf1cef5b:eve:944db5f66f90",
+        "subject_id": null,
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "3917bb4181a43aef3ecc17152eae01daed5efe37b7ae09b552e369a616a66824",
+        "payload": {
+          "anchor_id": "ent:67948eccaf1cef5b:eve:944db5f66f90",
+          "member_ids": [
+            "ent:67948eccaf1cef5b:eve:944db5f66f90",
+            "value:fc25837191d2a981d13a"
+          ],
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:bcf638eaf4d97a493e2f90bd",
+            "ordinal": 1,
+            "text": "Eve content [Eve 2026-09-03] I visited the museum..",
+            "supporting_record_ids": [
+              "clm:67948eccaf1cef5b:944db5f66f90:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:a81568af2a49e149d220"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:44b1db1015badce76a2b63cd",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "community_summary",
+        "stable_key": "community:ent:93951826c7b58424:alice:836bbd9c4649",
+        "subject_id": null,
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "3ac43517fcb48228741404704e28fab29d99de6b0ce38299fad756564b2e1cc3",
+        "payload": {
+          "anchor_id": "ent:93951826c7b58424:alice:836bbd9c4649",
+          "member_ids": [
+            "ent:93951826c7b58424:alice:836bbd9c4649",
+            "value:dd84284339ea816a5b45"
+          ],
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:b43351b2087d47638caf1518",
+            "ordinal": 1,
+            "text": "Alice content [Alice 2026-09-01] I moved to Oslo..",
+            "supporting_record_ids": [
+              "clm:93951826c7b58424:836bbd9c4649:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:2e78c46d1285f3cbc3d8"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:7a598d7ca79775a41bb2cda2",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "community_summary",
+        "stable_key": "community:ent:93951826c7b58424:i:836bbd9c4649",
+        "subject_id": null,
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "27bc7b5f8214791ce8132efe5b061cc8e3a2f681c9e1f94ecbb8fc3106600321",
+        "payload": {
+          "anchor_id": "ent:93951826c7b58424:i:836bbd9c4649",
+          "member_ids": [
+            "ent:93951826c7b58424:i:836bbd9c4649",
+            "value:a1d4f20e76da31898a13",
+            "value:c0e2222ad4757da4a695"
+          ],
+          "sentence_count": 2
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:a0e8c21a2f56eaf3907a4d21",
+            "ordinal": 1,
+            "text": "I content I enjoy painting..",
+            "supporting_record_ids": [
+              "clm:93951826c7b58424:836bbd9c4649:2"
+            ],
+            "supporting_episode_ids": [
+              "episode:2e78c46d1285f3cbc3d8"
+            ]
+          },
+          {
+            "sentence_id": "gps:3f29e9370778f9e170c6ccc6",
+            "ordinal": 2,
+            "text": "I content I enjoy hiking..",
+            "supporting_record_ids": [
+              "clm:b13a05887d2a3bfd:21eb4a0ff0c2:2"
+            ],
+            "supporting_episode_ids": [
+              "episode:3a3c3788e33afbadc11a"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:086f2581b638a4f4d4bb94ab",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "community_summary",
+        "stable_key": "community:ent:b13a05887d2a3bfd:bob:21eb4a0ff0c2",
+        "subject_id": null,
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "e69601520fc61bf3d32d7da3915b380293b79c7cd975801ef34d708790831a6c",
+        "payload": {
+          "anchor_id": "ent:b13a05887d2a3bfd:bob:21eb4a0ff0c2",
+          "member_ids": [
+            "ent:b13a05887d2a3bfd:bob:21eb4a0ff0c2",
+            "value:0ddf65cc36624229d069"
+          ],
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:4bd3823652925e76c337e9b8",
+            "ordinal": 1,
+            "text": "Bob content [Bob 2026-09-02] I moved to Rome..",
+            "supporting_record_ids": [
+              "clm:b13a05887d2a3bfd:21eb4a0ff0c2:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:3a3c3788e33afbadc11a"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:4aa3e10f6c999e7a162f7da4",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:ent:67948eccaf1cef5b:eve:944db5f66f90",
+        "subject_id": "ent:67948eccaf1cef5b:eve:944db5f66f90",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "8525dfc3cd5bcccd8ea8963e824e1d28e10cfa82168730fe248d96d1eddbbe92",
+        "payload": {
+          "entity_id": "ent:67948eccaf1cef5b:eve:944db5f66f90",
+          "label": "Eve",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:4a654183b363d01eabb1e0a1",
+            "ordinal": 1,
+            "text": "Eve content [Eve 2026-09-03] I visited the museum..",
+            "supporting_record_ids": [
+              "clm:67948eccaf1cef5b:944db5f66f90:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:a81568af2a49e149d220"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:4acd75bf215b398a89a17e26",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:ent:93951826c7b58424:alice:836bbd9c4649",
+        "subject_id": "ent:93951826c7b58424:alice:836bbd9c4649",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "19170d17f4988ebf5581e77f5ce4acc3d0cb54e31cf17b5fa437a9c9d4edea99",
+        "payload": {
+          "entity_id": "ent:93951826c7b58424:alice:836bbd9c4649",
+          "label": "Alice",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:3e5727bf631a9a02d9efd618",
+            "ordinal": 1,
+            "text": "Alice content [Alice 2026-09-01] I moved to Oslo..",
+            "supporting_record_ids": [
+              "clm:93951826c7b58424:836bbd9c4649:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:2e78c46d1285f3cbc3d8"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:ca96949e3fa73051d6e1c499",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:ent:93951826c7b58424:i:836bbd9c4649",
+        "subject_id": "ent:93951826c7b58424:i:836bbd9c4649",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "7d2dd5bb4da8a80e08155d9a0644d275d7816bdfdfb7e4e27ffdf5fee6f8932e",
+        "payload": {
+          "entity_id": "ent:93951826c7b58424:i:836bbd9c4649",
+          "label": "I",
+          "sentence_count": 2
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:73f6d19d3c4bbe88d10275fb",
+            "ordinal": 1,
+            "text": "I content I enjoy painting..",
+            "supporting_record_ids": [
+              "clm:93951826c7b58424:836bbd9c4649:2"
+            ],
+            "supporting_episode_ids": [
+              "episode:2e78c46d1285f3cbc3d8"
+            ]
+          },
+          {
+            "sentence_id": "gps:3a334a139fb1d1b1c7067786",
+            "ordinal": 2,
+            "text": "I content I enjoy hiking..",
+            "supporting_record_ids": [
+              "clm:b13a05887d2a3bfd:21eb4a0ff0c2:2"
+            ],
+            "supporting_episode_ids": [
+              "episode:3a3c3788e33afbadc11a"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:e542ecd50bd309ba3eff8877",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:ent:b13a05887d2a3bfd:bob:21eb4a0ff0c2",
+        "subject_id": "ent:b13a05887d2a3bfd:bob:21eb4a0ff0c2",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "0b1b2806b7b09338e18c62f77f0d69a20556fe0934b8035c7eefc0574acae38a",
+        "payload": {
+          "entity_id": "ent:b13a05887d2a3bfd:bob:21eb4a0ff0c2",
+          "label": "Bob",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:be192682d4a36edcd209e4aa",
+            "ordinal": 1,
+            "text": "Bob content [Bob 2026-09-02] I moved to Rome..",
+            "supporting_record_ids": [
+              "clm:b13a05887d2a3bfd:21eb4a0ff0c2:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:3a3c3788e33afbadc11a"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:c99c634a72c4881b1d68509e",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:value:0ddf65cc36624229d069",
+        "subject_id": "value:0ddf65cc36624229d069",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "56601f1277ef54e1cbf26a00f60822820cd51be92c615c83d59cf044afb270f0",
+        "payload": {
+          "entity_id": "value:0ddf65cc36624229d069",
+          "label": "[Bob 2026-09-02] I moved to Rome.",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:d59d93567db9f07a4299ea71",
+            "ordinal": 1,
+            "text": "Bob content [Bob 2026-09-02] I moved to Rome..",
+            "supporting_record_ids": [
+              "clm:b13a05887d2a3bfd:21eb4a0ff0c2:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:3a3c3788e33afbadc11a"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:c597515365f5b2bc6d4b5d0f",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:value:a1d4f20e76da31898a13",
+        "subject_id": "value:a1d4f20e76da31898a13",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "f9ac0c216c7d5ac4275491c43efe70273c1c3c9e4ae3daee89a12e87a432ef95",
+        "payload": {
+          "entity_id": "value:a1d4f20e76da31898a13",
+          "label": "I enjoy painting.",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:1a1be65d98a65f6e41e5d13e",
+            "ordinal": 1,
+            "text": "I content I enjoy painting..",
+            "supporting_record_ids": [
+              "clm:93951826c7b58424:836bbd9c4649:2"
+            ],
+            "supporting_episode_ids": [
+              "episode:2e78c46d1285f3cbc3d8"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:252fed813daef77825140e20",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:value:c0e2222ad4757da4a695",
+        "subject_id": "value:c0e2222ad4757da4a695",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "449ee74198fd3e8b7e4fcdc2ea8f997be30722787f938c71da3ff21366a1a02b",
+        "payload": {
+          "entity_id": "value:c0e2222ad4757da4a695",
+          "label": "I enjoy hiking.",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:ae8b76e4e03427526c3fe412",
+            "ordinal": 1,
+            "text": "I content I enjoy hiking..",
+            "supporting_record_ids": [
+              "clm:b13a05887d2a3bfd:21eb4a0ff0c2:2"
+            ],
+            "supporting_episode_ids": [
+              "episode:3a3c3788e33afbadc11a"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:913f81e0e5272991aad2baa0",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:value:dd84284339ea816a5b45",
+        "subject_id": "value:dd84284339ea816a5b45",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "a3c3d9b6d2ff60729914b97b0e9619ab6f8b6c01d7ec666cef0d8b8f2b6caac0",
+        "payload": {
+          "entity_id": "value:dd84284339ea816a5b45",
+          "label": "[Alice 2026-09-01] I moved to Oslo.",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:8814fc9c5d8980140e0fed82",
+            "ordinal": 1,
+            "text": "Alice content [Alice 2026-09-01] I moved to Oslo..",
+            "supporting_record_ids": [
+              "clm:93951826c7b58424:836bbd9c4649:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:2e78c46d1285f3cbc3d8"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:85aa5233441f2cded92db9e9",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "entity_summary",
+        "stable_key": "entity:value:fc25837191d2a981d13a",
+        "subject_id": "value:fc25837191d2a981d13a",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "c36271e232b398d104cb095e3d74dce7a87f6763e6887790f6afac385cddb14f",
+        "payload": {
+          "entity_id": "value:fc25837191d2a981d13a",
+          "label": "[Eve 2026-09-03] I visited the museum.",
+          "sentence_count": 1
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:4dad14eecc2520a69c994001",
+            "ordinal": 1,
+            "text": "Eve content [Eve 2026-09-03] I visited the museum..",
+            "supporting_record_ids": [
+              "clm:67948eccaf1cef5b:944db5f66f90:1"
+            ],
+            "supporting_episode_ids": [
+              "episode:a81568af2a49e149d220"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "gp:bcfd01c5a0256601edfd5110",
+        "build_id": "gpb:e910045d2ebe8007de7476ac",
+        "namespace": "locomo:formation-audit",
+        "scope": "thread",
+        "kind": "observation",
+        "stable_key": "observation:3628d4ebe03d99b33375",
+        "subject_id": "ent:93951826c7b58424:i:836bbd9c4649",
+        "version": 1,
+        "algorithm_version": "graph-products/1",
+        "source_fingerprint": "4424e5207f40e8c548891bc5c80e2154c18397f3d3044859296ff5bec91bdec5",
+        "payload": {
+          "entity_id": "ent:93951826c7b58424:i:836bbd9c4649",
+          "episode_count": 2,
+          "predicate": "content",
+          "record_count": 2
+        },
+        "created_at": "2026-09-13T05:55:57+00:00",
+        "schema_version": 1,
+        "sentences": [
+          {
+            "sentence_id": "gps:9c69cc35ffda366490b47b94",
+            "ordinal": 1,
+            "text": "I has recurring content evidence across 2 episodes.",
+            "supporting_record_ids": [
+              "clm:93951826c7b58424:836bbd9c4649:2",
+              "clm:b13a05887d2a3bfd:21eb4a0ff0c2:2"
+            ],
+            "supporting_episode_ids": [
+              "episode:2e78c46d1285f3cbc3d8",
+              "episode:3a3c3788e33afbadc11a"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "distinct_source_reference_control": {
+    "kinds": {
+      "CLM": 2,
+      "ENT": 1,
+      "PROV": 2,
+      "RAW": 2,
+      "SPAN": 2
+    },
+    "raw": [
+      {
+        "id": "raw:034c0e51a989ee2b:c9149996d85e",
+        "content": "Eve: I visited the museum.",
+        "source_metadata": null
+      },
+      {
+        "id": "raw:689437c474fc4ba7:c9149996d85e",
+        "content": "Eve: I visited the museum.",
+        "source_metadata": null
+      }
+    ],
+    "claims": [
+      {
+        "id": "clm:034c0e51a989ee2b:c9149996d85e:1",
+        "text": "Eve: I visited the museum.",
+        "predicate": "content",
+        "subject_id": "ent:689437c474fc4ba7:eve:c9149996d85e",
+        "subject_label": "Eve",
+        "t0": null,
+        "t1": null,
+        "status": "asserted",
+        "evidence": [
+          "span:034c0e51a989ee2b:c9149996d85e:1"
+        ]
+      },
+      {
+        "id": "clm:689437c474fc4ba7:c9149996d85e:1",
+        "text": "Eve: I visited the museum.",
+        "predicate": "content",
+        "subject_id": "ent:689437c474fc4ba7:eve:c9149996d85e",
+        "subject_label": "Eve",
+        "t0": null,
+        "t1": null,
+        "status": "asserted",
+        "evidence": [
+          "span:689437c474fc4ba7:c9149996d85e:1"
+        ]
+      }
+    ],
+    "span_count": 2,
+    "span_bounds": [
+      [
+        0,
+        26
+      ],
+      [
+        0,
+        26
+      ]
+    ],
+    "span_text_exact": true,
+    "embedding_model": "hash-bow-v1"
+  },
+  "persisted_unicode": {
+    "kinds": {
+      "PROV": 1,
+      "RAW": 1
+    },
+    "raw": [
+      {
+        "id": "raw:b251433c90aab391:4f92e270643e",
+        "content": "東京が好きです。大阪に住んでいます。",
+        "source_metadata": null
+      }
+    ],
+    "claims": [],
+    "span_count": 0,
+    "span_bounds": [],
+    "span_text_exact": true,
+    "ingest_chunk_count": 1,
+    "ingest_extraction_status": "compiled"
+  },
+  "schema": "seam-m1-formation-observations/v1",
+  "revision": "614141c5aa96fd51d4dee2e09c186bb4035c0377",
+  "observed_at": "2026-09-13T05:55:57.641422+00:00",
+  "probe_sha256": "671835eef3b42f86651df6455cafbca96ebd6de103b656370931d2ce8d5bedb7",
+  "synthetic_inputs_only": true,
+  "quality_benchmark": false,
+  "provider_calls": 0,
+  "website_publication": false
+}

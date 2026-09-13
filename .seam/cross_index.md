@@ -2,18 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 711
+total_events: 716
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T05:03:16Z | history:452:92876be2 | session-event | changed | benchmark, retrieval, derived-facts, non-displacing-pack,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_f... |
-| 2026-07-22T06:23:10Z | history:453:5dd3c7e3 | session-event | changed | retrieval, graph, knowledge-graph, non-displacing-pack, m... | seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_m... |
-| 2026-07-22T07:28:54Z | history:454:74725c05 | session-event | done | graph, memory, retrieval, provenance, compile, roadmap, b... | seam_runtime/knowledge_graph.py,seam_runtime/graph_source_selector.py,seam_ru... |
-| 2026-07-22T08:10:43Z | history:455:133e97d5 | session-event | done | graph, identity, resolution, knowledge-graph, verify, tes... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-22T08:31:29Z | history:456:c5d91902 | session-event | done | graph, identity, resolution, candidate, knowledge-graph, ... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
@@ -209,10 +204,15 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-12T00:00:00Z | roadmap:065:edc2edab | status-change | bootstrap | roadmap, plan, compile, memory, graph, benchmark, provenance | ROADMAP.md:8 |
 | 2026-09-12T00:00:00Z | roadmap:066:5dce8b5d | status-change | bootstrap | roadmap, plan, naming, surface, dashboard, graph, verify | ROADMAP.md:30 |
 | 2026-09-12T18:10:09Z | history:645:6eec8c81 | session-event | changed | roadmap, plan, memory, compile, graph, benchmark, handoff... | docs/roadmap/MEMORY_FORMATION.md,docs/handoffs/2026-09-12-memory-formation-ro... |
+| 2026-09-12T19:30:38Z | history:646:ee7d1a05 | session-event | in-progress | docs, provenance, ci | docs/REPORT_SITE.md,report-site/catalog.json,.github/workflows/reports-pages.... |
+| 2026-09-12T23:01:18Z | history:647:cb5b0af3 | session-event | in-progress | security, docs, ci, provenance, tests | tools/reports/publication_safety.py,tools/reports/prepare_site.py,tests/audit... |
+| 2026-09-13T05:06:58Z | history:648:4e9cdbca | session-event | in-progress | docs, security, ci, provenance, tests | report-site/catalog.json,report-site/index.html,report-site/feed.xml,tools/re... |
+| 2026-09-13T06:43:11Z | history:649:b77bda3b | session-event | in-progress | docs, ci, security, provenance, audit, tests | docs/REPORT_SITE.md,docs/audits/INDEX.md,docs/audits/2026-09-13-memory-format... |
+| 2026-09-13T07:30:58Z | history:650:2cfbc910 | session-event | in-progress | docs, security, provenance, handoff | docs/REPORT_SITE.md,PROJECT_STATUS.md,report-site/README.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0511.cross.md | 2026-04-15T00:00:00Z..2026-07-22T03:38:17Z | 511 | (multi) | (multi) |
+| 0001-0516.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:31:29Z | 516 | (multi) | (multi) |

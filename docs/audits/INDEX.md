@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-09-06-l1-packaging-migration
+latest: 2026-09-13-memory-formation-m1
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,7 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-09-13 | [M1 memory formation audit](2026-09-13-memory-formation-m1.md) | source metadata, segmentation, identity, temporal and graph formation | `HISTORY#649` |
 | 2026-09-06 | [L1 packaging and SDK migration preparation](2026-09-06-l1-packaging-migration.md) | package/source/ownership map and scoped artifact evidence | `HISTORY#635` |
 | 2026-08-29 | [Full-repository audit](2026-08-29-full-repo-audit.md) | whole-repo health audit | `HISTORY#632` |
 | 2026-08-19 | [Track S S6 principal-tenancy threat-model delta](2026-08-19-track-s-s6-principal-tenancy-threat-model.md) | security / tenancy / deletion | `HISTORY#575` |
