@@ -21563,3 +21563,27 @@ The next main session must inspect PR #264 and the final exact-state request, in
 
 Finish this small bookkeeping commit and push, then update the bounded session state and queue the final comparison against the original session base. Keep the exact request and worktree available for release review. Record new GitHub check outcomes as observed, not assumed. Existing independent worktrees and the two stopped task containers remain preserved. No additional source implementation or test mismatch is introduced by this documentation-only update.
 ---END-ENTRY-#652---
+
+---BEGIN-ENTRY-#653---
+id: 653
+date: 2026-09-13T08:22:19Z
+agent: codex
+status: in-progress
+topics: handoff, docs, webui, verify, continuity, operator, plan
+commits: 99d0ffa0e12982b14eaee33241151bfc052bf8e9
+refs: docs/handoffs/2026-09-13-reports-domain-publication-next.md,docs/REPORT_SITE.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 652
+tokens: 605
+---
+The operator asked to repair the reports website, then requested a handoff. Read-only discovery located the existing Jekyll library in draft PR264 at99d0ffa0e12982b14eaee33241151bfc052bf8e9, three commits ahead of inspected main614141c5. Site source, exporter, curated M1 edition and main-only workflow already exist; no replacement page is needed. The handoff preserves their paths, pinned source e01284de ancestry and current publication boundary.
+
+Live gh checks at the inspected PR head showed the site build, required hygiene/Chroma/LoCoMo checks, package smoke and PostgreSQL integration successful. Deployment was skipped by the intended PR-only condition; advisory test-and-benchmark failed. This pass did not re-diagnose that advisory log. The public free Pages URL returned404, Pages cname was null, and no github-pages deployment existed. No Pages settings, DNS records, runtime source or website assets changed in this pass.
+
+The operator clarified that canticle.ai was only a name entered in Pages, then confirmed ownership of canticle.cc and explicitly authorized using it. The chosen planned hostname is reports.canticle.cc, preserving existing apex website and mail. DNS probes found canticle.ai using dns-parking.com nameservers and2.57.91.91 with HTTPS failure; canticle.cc uses dane/hope.ns.cloudflare.com and reports.canticle.cc returned no A/CNAME answer. DNS-account access and record inventory remain unverified. The successor records qualified free-URL deployment first, followed by coordinated Jekyll/base-path, Pages hostname, CNAME and HTTPS verification.
+
+Independent release disposition of the existing exact request was NOT_QUALIFIED because tools/memory_formation_m1.py lacks recorded red-before-green evidence. Root canonically stored that validated receipt before documentation changes. Unexecuted release checks in that disposition are explicitly NOT_RUN. Publisher paths remain recorded as covered, not newly re-proven by this handoff. No historical TDD evidence was invented and no code was moved to evade classification. The full PR remains draft pending honest resolution and independent qualification; a documentation checkpoint is not a merged/deployed product.
+
+Registered the chronological successor handoff, advanced the registry, marked the predecessor superseded, and updated PROJECT_STATUS, REPO_LEDGER and REPORT_SITE routing. The context-handoff monitor also wrote a local continuation note; its generated transcript pointer was removed. Canonical continuity gates run after this append. No runtime tests or paid calls were performed in this handoff pass. Existing primary, reports, standalone M1 and independent worktrees are preserved.
+
+Next: resume latest PR264 head and release evidence; resolve helper TDD_UNPROVEN without fabrication, qualify a lineage-preserving merge, verify main Pages deployment and expected report/artifact hashes, then configure and verify the already-authorized reports.canticle.cc hostname with actual DNS account access. Preserve the full roadmap and M1/B1/E1 prerequisites in the predecessor and detailed roadmap.
+---END-ENTRY-#653---

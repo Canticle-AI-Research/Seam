@@ -798,6 +798,7 @@ bounded task-specific reading; do not maintain a competing sequence here.
   no raw artifacts or each durable artifact's path and SHA-256. Raw benchmark
   bundles remain in their configured durable artifact store or ignored run
   directory; historical reports before that boundary are not rewritten.
+- Reports-domain authorization: the operator owns `canticle.cc` and approved its use for the report library; use the `reports.canticle.cc` subdomain while preserving the apex website/mail. First qualify and verify the free GitHub Pages deployment; then coordinate DNS, Pages hostname, Jekyll URL/base path and HTTPS. `canticle.ai` was only an entered name and is outside this plan. Configuration remains pending; see HISTORY#653 and `docs/REPORT_SITE.md`.
 - The public report site is a curated reading view, governed by
   `docs/REPORT_SITE.md`. Its catalog pins report sources to complete Git
   revisions and SHA-256 digests; publication never relocates the canonical

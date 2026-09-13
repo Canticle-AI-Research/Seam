@@ -12,6 +12,20 @@ preview. The operator lifted that publication hold on September 13;
 HISTORY#649 records the first M1 public edition and guarded deployment
 candidate. The fresh-start boundary remains.
 
+## September 13 domain clarification
+
+The operator confirmed ownership of `canticle.cc` and authorized using it for
+this report library. The intended subdomain is `reports.canticle.cc`; preserve
+the existing apex website and mail. `canticle.ai` was only a name entered in
+Pages, not an owned domain established by the operator.
+
+The free Pages URL remains the first deployment/verification target. Current
+Jekyll configuration still uses its `/Seam` base path; custom-domain site
+configuration, DNS account access, Pages hostname and HTTPS remain pending.
+Follow the [current domain handoff](handoffs/2026-09-13-reports-domain-publication-next.md)
+for the qualified-merge prerequisite and coordinated cutover plan (HISTORY#653).
+This records authorization and findings, not a deployed domain.
+
 ## Publication boundary
 
 - Authorized destination: `https://canticle-ai-research.github.io/Seam/`.

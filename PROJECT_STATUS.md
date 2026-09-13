@@ -15,6 +15,15 @@ a hypothesis. No formation implementation, BIL-3 support, paid benchmark or
 website deployment was performed in this planning slice. See HISTORY#645 and
 the [current handoff](docs/handoffs/INDEX.md).
 
+**2026-09-13 domain clarification:** the operator owns `canticle.cc` and
+has authorized its use for the reports site. The planned hostname is
+`reports.canticle.cc`; `canticle.ai` was only an entered name. Existing site
+source is on draft PR #264, with successful PR build checks but no deployment.
+The diagnostic helper's missing test-first evidence still prevents full-PR
+qualification. The [domain/publication handoff](docs/handoffs/2026-09-13-reports-domain-publication-next.md)
+records the exact DNS observations and deployment order (HISTORY#653).
+No Pages/DNS settings changed in this handoff pass.
+
 **2026-09-13 report publication authorized; first deployment pending:** the
 operator lifted the report-site hold after reviewing the design. Today's
 [M1 formation audit](docs/audits/2026-09-13-memory-formation-m1.md) and its
