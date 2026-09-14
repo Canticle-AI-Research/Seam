@@ -159,6 +159,39 @@ def _verdict_from_json_text(text: str, *, judge_name: str, judge_model: str) -> 
     return verdict
 
 
+class ClaudeCodeJudge:
+    """Subscription-backed synchronous judge; deliberately has no batch method."""
+    name = "claude-code"
+
+    def __init__(self, model=None, *, prompt_version=DEFAULT_JUDGE_PROMPT_VERSION):
+        from benchmarks.external.common.claude_code import DEFAULT_MODEL
+        if prompt_version not in JUDGE_PROMPT_VERSIONS:
+            raise ValueError("unknown judge prompt version")
+        self.model = model or DEFAULT_MODEL
+        self.prompt_version = prompt_version
+        self.last_usage = None
+        self.last_groundedness = None
+
+    def score(self, *, question, gold, pred) -> JudgeVerdict:
+        from benchmarks.external.common.claude_code import ClaudeCodeError, generate
+        self.last_usage = None
+        self.last_groundedness = None
+        diag = {}
+        text = generate(self.model, JUDGE_PROMPT_VERSIONS[self.prompt_version].format(
+            question=question, gold=gold, pred=pred), diag_out=diag)
+        self.last_usage = diag
+        failure = False
+        try:
+            verdict, groundedness = _parse_judge_json(
+                text, judge_name=self.name, judge_model=diag["served_model"])
+        except (ValueError, TypeError, AttributeError):
+            failure = True
+        if failure:
+            raise ClaudeCodeError("claude-code: invalid judge verdict")
+        self.last_groundedness = groundedness
+        return verdict
+
+
 class ClaudeJudge:
     name = "claude"
 
@@ -536,8 +569,10 @@ def build_judge(
         return None
     if name == "stub":
         return StubJudge()
+    if name == "claude-code":
+        return ClaudeCodeJudge(model=model, prompt_version=prompt_version)
     if name == "claude":
         return ClaudeJudge(model=model, prompt_version=prompt_version)
     if name == "openai":
         return OpenAIJudge(model=model, prompt_version=prompt_version)
-    raise ValueError(f"unknown judge: {name!r} (use stub|claude|openai|none)")
+    raise ValueError(f"unknown judge: {name!r} (use stub|claude|claude-code|openai|none)")

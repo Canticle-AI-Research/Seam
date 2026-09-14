@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-12-memory-formation-roadmap
 supersedes: 2026-09-08-package-names-testpypi-candidate
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#645
 ---
 

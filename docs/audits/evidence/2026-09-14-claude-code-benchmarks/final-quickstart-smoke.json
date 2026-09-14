@@ -1,0 +1,150 @@
+{
+  "version": "SEAM-EXTERNAL-MEMORY-BENCHMARK-RESULT/1",
+  "benchmark": "locomo",
+  "adapter": "seam",
+  "dataset": {
+    "source": "quickstart",
+    "case_count": 1
+  },
+  "run_started_at": "2026-09-14T12:44:13.227438+00:00",
+  "elapsed_seconds": 12.920426845550537,
+  "scores": {
+    "context_recall_mean": 1.0,
+    "answer_em_mean": 0.0,
+    "answer_f1_mean": 0.33333333333333337,
+    "judge_score_mean": 1.0,
+    "judge_count": 1,
+    "correct_count": 1,
+    "partial_count": 0,
+    "incorrect_count": 0,
+    "per_category": {
+      "1": {
+        "context_recall_mean": 1.0,
+        "case_count": 1,
+        "judge_score_mean": 1.0
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "conv-1::q0",
+      "category": "1",
+      "scores": {
+        "context_recall": 1.0,
+        "answer_em": 0.0,
+        "answer_f1": 0.33333333333333337
+      },
+      "retrieval_latency_ms": 34.96854499098845,
+      "answer_latency_ms": 4288.240339024924,
+      "_prediction": "Japan (Tokyo, Kyoto, and Osaka)",
+      "answerer_diagnostics": {
+        "retrieval_policy": {
+          "mode": "baseline",
+          "context_char_budget": 8000,
+          "search_top_k": 100,
+          "rerank_top_k": 20,
+          "retrieval_mode": "legacy-weighted"
+        },
+        "retrieval": {
+          "candidate_count": 48,
+          "closure_id_count": 96,
+          "sub_question_count": 0
+        },
+        "conversation_adapter": "off",
+        "inference_policy": "context-only",
+        "temporal_policy": "off",
+        "answer_contract": "off",
+        "conversation_intent": "direct",
+        "provider": "claude-code",
+        "transport": "claude-code-cli",
+        "auth_method": "claude.ai",
+        "model": "claude-haiku-4-5-20251001",
+        "served_model": "claude-haiku-4-5-20251001",
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 2526,
+            "outputTokens": 271,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "costUSD": 0.003881,
+            "provider": "firstParty",
+            "costBasis": "list",
+            "canonicalModel": "claude-haiku-4-5",
+            "thinkingTokens": 243
+          }
+        },
+        "prompt_tokens": 1021,
+        "completion_tokens": 260,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "cli_reported_cost_usd": 0.003881,
+        "billing_basis": "claude-code-reported-usd-not-account-charge"
+      },
+      "judge": {
+        "verdict": "correct",
+        "score": 1.0,
+        "rationale": "The system answer correctly identifies Japan as the destination and provides supporting details about specific cities, which conveys the same meaning as the gold answer without contradiction or error.",
+        "judge_name": "claude-code",
+        "judge_model": "claude-haiku-4-5-20251001",
+        "usage": {
+          "provider": "claude-code",
+          "transport": "claude-code-cli",
+          "auth_method": "claude.ai",
+          "model": "claude-haiku-4-5-20251001",
+          "served_model": "claude-haiku-4-5-20251001",
+          "model_usage": {
+            "claude-haiku-4-5-20251001": {
+              "inputTokens": 1601,
+              "outputTokens": 524,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0,
+              "costUSD": 0.004221,
+              "provider": "firstParty",
+              "costBasis": "list",
+              "canonicalModel": "claude-haiku-4-5",
+              "thinkingTokens": 455
+            }
+          },
+          "prompt_tokens": 559,
+          "completion_tokens": 510,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "cli_reported_cost_usd": 0.004221,
+          "billing_basis": "claude-code-reported-usd-not-account-charge"
+        }
+      }
+    }
+  ],
+  "integrity_hash": "10679a449bcbb3a558727392694dc0e2ac79593bec61c699c9f981e12434f5ac",
+  "embedding_preflight": {
+    "schema": "seam-locomo-embedding-preflight/1",
+    "contract_sha256": "6e74ec4dcc0b16f9ab7025f1ddbd963f5c5e04cfe87f63a88e29c9995c06c706",
+    "provider": "sentence-transformers-local/1",
+    "model": "BAAI/bge-small-en-v1.5",
+    "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "name": "st:BAAI/bge-small-en-v1.5@5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "dimension": 384,
+    "normalization": "seam-model-wrapper/1",
+    "local_files_only": true,
+    "probe": {
+      "performed": true,
+      "dimension": 384,
+      "finite": true,
+      "nonzero": true
+    },
+    "keep_db": {
+      "enabled": false,
+      "reused_scopes_checked": 0,
+      "indexable_records_checked": 0,
+      "stale_records": 0,
+      "orphan_records": 0
+    }
+  },
+  "embedding_preflight_sha256": "22d3f861ff97995404390857ae07dd99b034c3961e7b010f95221ea9e4b92542",
+  "run_contract": {
+    "schema": "seam-locomo-run-contract/1",
+    "report_integrity_hash": "10679a449bcbb3a558727392694dc0e2ac79593bec61c699c9f981e12434f5ac",
+    "embedding_preflight_sha256": "22d3f861ff97995404390857ae07dd99b034c3961e7b010f95221ea9e4b92542",
+    "integrity_sha256": "eeb957e2f120687392583c71969fa43e6020343034e7b510923d89006e5a77f3"
+  }
+}

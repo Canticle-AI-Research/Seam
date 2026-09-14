@@ -5,6 +5,18 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-14 — Claude.ai benchmark transport candidate.** The operator's
+roughly $50 is on Claude.ai, not the API Console. The explicit
+[`claude-code` answerer/judge](docs/CLAUDE_CODE_BENCHMARKS.md) uses the
+existing subscription login with API credentials excluded. Real one-case
+quickstart answering/judging has succeeded; this establishes provider wiring,
+not a chunking baseline or improvement. See HISTORY#646 and the
+[current handoff](docs/handoffs/INDEX.md) for verification and delivery state.
+M1 has an audit candidate on draft PR #264, still unqualified because its
+helper lacks historical test-first evidence. M1 acceptance, B1 metadata and
+E1 evaluation design remain the prerequisites for M2; provider setup and
+website deployment must not displace that formation work.
+
 **2026-09-12 — memory formation is the active priority.** The
 [detailed roadmap](docs/roadmap/MEMORY_FORMATION.md) preserves the recovered
 chunking/temporal-entity direction and defines setup, dependency-ordered work

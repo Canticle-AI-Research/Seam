@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 711
+total_events: 712
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T05:03:16Z | history:452:92876be2 | session-event | changed | benchmark, retrieval, derived-facts, non-displacing-pack,... | seam_runtime/multi_scope_pack.py,benchmarks/external/mem0_harness/preflight_f... |
 | 2026-07-22T06:23:10Z | history:453:5dd3c7e3 | session-event | changed | retrieval, graph, knowledge-graph, non-displacing-pack, m... | seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_m... |
 | 2026-07-22T07:28:54Z | history:454:74725c05 | session-event | done | graph, memory, retrieval, provenance, compile, roadmap, b... | seam_runtime/knowledge_graph.py,seam_runtime/graph_source_selector.py,seam_ru... |
 | 2026-07-22T08:10:43Z | history:455:133e97d5 | session-event | done | graph, identity, resolution, knowledge-graph, verify, tes... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-12T00:00:00Z | roadmap:065:edc2edab | status-change | bootstrap | roadmap, plan, compile, memory, graph, benchmark, provenance | ROADMAP.md:8 |
 | 2026-09-12T00:00:00Z | roadmap:066:5dce8b5d | status-change | bootstrap | roadmap, plan, naming, surface, dashboard, graph, verify | ROADMAP.md:30 |
 | 2026-09-12T18:10:09Z | history:645:6eec8c81 | session-event | changed | roadmap, plan, memory, compile, graph, benchmark, handoff... | docs/roadmap/MEMORY_FORMATION.md,docs/handoffs/2026-09-12-memory-formation-ro... |
+| 2026-09-14T12:55:45Z | history:646:beb12051 | session-event | changed | benchmark, models, tests, verify, handoff, docs, config | benchmarks/external/common/claude_code.py,benchmarks/external/common/runner.p... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0511.cross.md | 2026-04-15T00:00:00Z..2026-07-22T03:38:17Z | 511 | (multi) | (multi) |
+| 0001-0512.cross.md | 2026-04-15T00:00:00Z..2026-07-22T05:03:16Z | 512 | (multi) | (multi) |

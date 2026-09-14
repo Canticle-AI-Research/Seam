@@ -4,6 +4,15 @@
 
 **Stage:** setup and investigation; implementation has not started.
 
+**September 14 provider correction:** the operator's roughly $50 is on
+Claude.ai, not the API Console. E1 now uses the supported Claude Code
+subscription route described in [Claude Code benchmarks](../CLAUDE_CODE_BENCHMARKS.md).
+This supersedes the earlier direct-API funding assumption in R05/E1.
+The M1 audit candidate exists on draft PR #264; it awaits independent
+acceptance and resolution of its helper's historical test-first evidence gap.
+Formation implementation has not started. Provider connectivity does not
+complete B1 metadata or E1's full evaluation contract.
+
 **Owner:** root integration agent, with bounded stream owners assigned per slice.
 
 This is the detailed execution specification for the operator's new SEAM
@@ -34,7 +43,7 @@ not displace the opening chunking and temporal-entity priorities.
 | R02 | Audit active code, Git history, prior experiments and measured results before declaring the diagnosis established | M1 |
 | R03 | Produce a feasible detailed plan before implementation, then test, benchmark and qualify deployment | M0-M5, Q1 |
 | R04 | Develop BIL-3 alongside memory formation; BIL-2 is useful but insufficient for the requested reproducibility scope | B1-B2 |
-| R05 | Configure direct Anthropic access for benchmarking; operator reported $72 credit | E1-E2 |
+| R05 | Configure Claude benchmarking using the funded Claude.ai account; September 14 clarification supersedes the initial direct-API/$72 assumption with roughly $50 Claude.ai balance | E1-E2 |
 | R06 | Keep Canticle's website current with benchmark/test reporting | P2 |
 | R07 | Find and use the existing consolidated report/data home; categorize benchmarks, tests and metadata; retain superseded evidence | P0 |
 | R08 | Create Canticle-styled research papers and separate benchmark/test reports, including predictions, actual outcomes and failures | P1-P2 |
@@ -55,8 +64,8 @@ answer quality are separate measurements; no result is promised.
 
 | Order | Work | Status and exit |
 | --- | --- | --- |
-| 1 | M0: register roadmap, current handoff, PR dispositions and durable routing | This documentation slice; complete only after protected merge and recorded receipt |
-| 2 | M1: current ingestion and temporal-identity audit | Ready after M0; produce evidence map and confirmed failure cases before M2 |
+| 1 | M0: register roadmap, current handoff, PR dispositions and durable routing | Merged through PR #261 |
+| 2 | M1: current ingestion and temporal-identity audit | Candidate on draft PR #264; review evidence and resolve its release condition before accepting M1 |
 | Parallel with M1 | B1: BIL-3 schema design; E1: provider/evaluation setup; P0: report-home discovery | Ready after M0; own separate files and return concrete artifacts |
 | After M1 and design inputs | M2: architecture decision and acceptance fixtures | Requires M1 evidence, B1 metadata contract and E1 evaluation design; credential access and P0 storage discovery do not block M2 |
 | After M2 | M3: context-preserving segmentation; M4: temporal entity projection | M3 first; M4 consumes the M2 record contract and validated M3 output |
@@ -227,19 +236,19 @@ meet the adopted specification.
 
 **E1 — campaign contract and credentials.** Can run beside M1 without paid
 execution. Inspect current runner/provider interfaces and installed CLI help;
-verify direct Anthropic support, chosen model roles and cost accounting. The
-operator reported $72 credit; current process presence of an Anthropic key is
-not authentication or balance verification. Configure only through private
-operator environment/ignored configuration; never ask for a key in chat or
-place it in tracked files. Establish accessible models, budget and billing
-source. Record a bounded smoke limit, per-run and campaign ceiling, retries,
+verify Claude Code subscription support, chosen model roles and cost accounting.
+The operator clarified that the available roughly $50 is on Claude.ai;
+an inherited API key is not the intended billing source and must not be used.
+Use the supported CLI login, never copy OAuth credentials into API requests,
+and keep all credentials outside tracked artifacts. Establish accessible
+models, budget and billing source. Record a bounded smoke limit, per-run and campaign ceiling, retries,
 abort criteria and spend receipt routing before calls. If provider balance
 cannot be queried, say so and use an explicit conservative cap from available
 operator evidence rather than inventing a balance.
 
 Freeze dataset version/hash, split and holdout, baseline SHA/config,
 answerer/judge protocol, comparator pin, context/token budget, metrics and
-uncertainty procedure. Direct Anthropic experiments are a named separate lane
+uncertainty procedure. Claude Code subscription experiments are a named separate lane
 when they differ from published Mem0 answerer/judge conditions. Do not compare
 that lane to a published scoreboard as if conditions matched. Keep strict
 native and incumbent-relative judge scoreboards separate. PR #249's proposed

@@ -111,6 +111,9 @@ def generate_short_answer(
     extra = {"diag_out": diag_out} if diag_out is not None else {}
     from benchmarks.external.locomo.adapters import seam as _seam
 
+    if answerer == "claude-code":
+        from benchmarks.external.common.claude_code import generate
+        return generate(answerer_model, prompt, **extra)
     if answerer == "openai":
         return _seam._openai_short_answer(answerer_model or "gpt-4o-mini", prompt, **extra)
     if answerer == "claude":

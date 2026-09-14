@@ -21242,3 +21242,25 @@ Preserved unrelated primary dirt and independent worktrees are enumerated in the
 
 Next unresolved step after this documentation is merged: M1 audit plus parallel B1/E1/P0 setup, then M2 design from evidence. Runtime work, paid benchmarks and report-home discovery remain unstarted.
 ---END-ENTRY-#645---
+
+---BEGIN-ENTRY-#646---
+id: 646
+date: 2026-09-14T12:55:45Z
+agent: codex
+status: changed
+topics: benchmark, models, tests, verify, handoff, docs, config
+commits: pending
+refs: benchmarks/external/common/claude_code.py,benchmarks/external/common/runner.py,benchmarks/external/locomo/run.py,tests/audit/test_claude_code_benchmark.py,docs/CLAUDE_CODE_BENCHMARKS.md,docs/audits/2026-09-14-claude-code-benchmarks.md,docs/handoffs/2026-09-14-claude-code-benchmark-next.md,docs/roadmap/MEMORY_FORMATION.md
+supersedes: 645
+tokens: 502
+---
+Added explicit Claude Code subscription answering, primary judging and cross-judging to the existing LoCoMo runner. The operator corrected the funding source to Claude.ai and authorized implementation, bounded smoke, push, protected merge and a detailed ChatGPT continuation handoff. The existing direct API choice remains distinct.
+
+Transport requires a Claude.ai first-party login in an isolated CLI environment, disables tools and settings/session persistence, and shares conservative process-local call reservations across roles and retries. It records sanitized reported usage without equating list value with verified account charges. Independent review found and repaired lost known accounting after verdict parsing errors; primary and cross-judge failures remain nonzero and omit malformed response text.
+
+Verification: the six-module pytest command in docs/audits/2026-09-14-claude-code-benchmarks.md passed 97 tests after repair. Independent assurance ran the provider/shared-answerer modules and separate malformed-verdict reproductions. Eleven witnessed red/green cycles were imported into canonical session state; original and repair logs remain separately hash-verified in local delivery evidence. Ruff and whitespace validation passed in delivery. The final reviewed-source quickstart used real cached embeddings, SQLite retrieval and claude-haiku-4-5-20251001 for both roles; source hashes stayed unchanged and the run exited successfully. Its selected synthetic case conv-1::q0 answered Japan (Tokyo, Kyoto, and Osaka), judged correct. All seven implementation inference calls reported USD 0.027124; actual account debit is unknown. Portable sanitized smoke results and source hashes are committed with the report. Continuity and exact-head release qualification remain separate closeout gates.
+
+Updated the detailed formation roadmap funding correction, current status, durable transport policy and canonical handoff. This is connectivity/integration evidence, not a chunking improvement, paid development baseline, holdout evaluation or complete E1/E2 campaign. Next: resolve M1 acceptance on PR264, define B1 metadata and E1 evaluation selection/configuration, then retain a matched paid development baseline before M2/M3 formation work. Sleep/Daydream requirements remain on the roadmap.
+
+The main-based provider branch deliberately excludes PR264's site and M1 helper, which remain draft and NOT_QUALIFIED for missing historical TDD evidence. Its branch-local HISTORY through 653 requires chronological reconciliation before later integration. Preserve unrelated dirty primary and other worktrees; no stash was created. Required GitHub checks and protected merge must be observed before claiming delivery, and no website deployment is implied.
+---END-ENTRY-#646---

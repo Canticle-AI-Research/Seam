@@ -1,0 +1,40 @@
+{
+  "schema": "seam-claude-code-smoke-summary/v1",
+  "runtime_base_sha": "614141c5aa96fd51d4dee2e09c186bb4035c0377",
+  "cli_version": "2.1.270",
+  "transport": "claude-code-cli",
+  "auth_method": "claude.ai",
+  "model": "claude-haiku-4-5-20251001",
+  "billing_basis": "list-value-not-verified-account-debit",
+  "initial_connection_reported_usd": 0.001555,
+  "initial_runner_reported_usd": 0.00898,
+  "final_runner_reported_usd": 0.008102,
+  "total_session_reported_usd": 0.027124,
+  "inference_calls": 7,
+  "final_exit_code": 0,
+  "final_source_stable": true,
+  "source_sha256": {
+    "benchmarks/external/common/answerer.py": "efdd16f66d012914db90cce84dc12c6d463bb339c9680c5efb97581f8a71fb6f",
+    "benchmarks/external/common/claude_code.py": "70a78b7cb486c1145353d35a713a438cd2bb1f589fc821272bd31fac62cf7980",
+    "benchmarks/external/common/judge.py": "7ecbd100853c304f643d7e5853659f4c4c4a809076836f54980d80617b196048",
+    "benchmarks/external/common/run_record.py": "9a4c1e5c0ee329d49e38758bcbdfb0cfae4d98f808534d123dbdc966903d1ade",
+    "benchmarks/external/common/runner.py": "bb4ef9b0496cc0af115ab8f1a84a071465569dbd46efdd49bb08131a215255ec",
+    "benchmarks/external/locomo/adapters/seam.py": "eb4965eef097f35b267bb2bb5ae00fa3e1f040f683d1a0519bcb89b14b7115f3",
+    "benchmarks/external/locomo/run.py": "9e895853bb649f7d47c5c22b0b84e80e03ddcb1dc62fb2f3b1fcbd285818dc12",
+    "tests/audit/test_claude_code_benchmark.py": "e7790a80128278689b2bea0e260d8fa85d222e9f3c1563962601fa8ae35da7ba"
+  },
+  "fixture_hash": "42b395fdc2fd3edb203aec7ac0c0ee8de31bcf206546ec6e063f8c9dbb15e0e5",
+  "selected_cases": [
+    "conv-1::q0"
+  ],
+  "baseline_quality_claim": false,
+  "chunking_improvement_claim": false,
+  "paid_campaign_run": false,
+  "settings": {
+    "SEAM_BENCH_CLAUDE_CODE_TOTAL_BUDGET_USD": "0.20",
+    "SEAM_BENCH_CLAUDE_CODE_MAX_BUDGET_USD": "0.10",
+    "SEAM_BENCH_CLAUDE_CODE_MAX_CALLS": "2",
+    "SEAM_BENCH_CLAUDE_CODE_TIMEOUT_SECONDS": "45"
+  },
+  "reviewed_runner_reported_usd": 0.008487
+}
