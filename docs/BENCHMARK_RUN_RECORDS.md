@@ -1,5 +1,9 @@
 # Benchmark run records — full-fidelity capture
 
+For Claude.ai-funded answering and judging, use the explicit
+[`claude-code` subscription transport](CLAUDE_CODE_BENCHMARKS.md). Its CLI
+reported cost is distinct from direct API billing and actual account debits.
+
 Every judged benchmark run can emit one durable artifact so a paid run is never
 again reduced to a handful of aggregate numbers. Introduced in HISTORY#366 after
 a ~$1–1.5 cat1/cat3 paid A/B kept only six summary figures (HISTORY#365).

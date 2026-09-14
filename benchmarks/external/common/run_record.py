@@ -135,6 +135,16 @@ def _seam_version() -> str | None:
         return None
 
 
+def _subscription_accounting(diagnostics: dict) -> dict:
+    """Keep CLI-reported usage distinct from legacy price-table estimates."""
+    if diagnostics.get("provider") != "claude-code":
+        return {}
+    fields = ("provider", "transport", "auth_method", "served_model", "model_usage",
+              "cache_read_input_tokens", "cache_creation_input_tokens",
+              "cli_reported_cost_usd", "billing_basis")
+    return {key: diagnostics.get(key) for key in fields}
+
+
 @dataclass
 class RunRecord:
     """Accumulates a full run. ``meta`` is free-form provenance; ``add_case``
@@ -221,12 +231,14 @@ class RunRecord:
                 "reasoning_tokens": diag.get("reasoning_tokens"),
                 "finish_reason": diag.get("finish_reason"),
                 "cost_usd": answerer_cost,
+                **_subscription_accounting(diag),
             },
             "judge": {
                 "model": judge_model,
                 "prompt_tokens": j.get("prompt_tokens"),
                 "completion_tokens": j.get("completion_tokens"),
                 "cost_usd": judge_cost,
+                **_subscription_accounting(j),
             },
             "latency_ms": {
                 "retrieval": retrieval_latency_ms,

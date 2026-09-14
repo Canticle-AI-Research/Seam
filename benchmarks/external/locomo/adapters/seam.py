@@ -715,6 +715,9 @@ class SeamLocomoAdapter:
                 }
             )
         extra = {"diag_out": diag_out} if diag_out is not None else {}
+        if self._answerer == "claude-code":
+            from benchmarks.external.common.claude_code import generate
+            return generate(self._answerer_model, prompt, **extra)
         if self._answerer == "openai":
             return _openai_short_answer(self._answerer_model or "gpt-4o-mini", prompt, **extra)
         if self._answerer == "claude":

@@ -474,6 +474,10 @@ def _score_case(
         if answer.answerer_diagnostics is not None:
             case_entry["answerer_diagnostics"] = answer.answerer_diagnostics
 
+    # Subscription accounting survives even when retrieved text is not saved.
+    if (answer.answerer_diagnostics or {}).get("provider") == "claude-code":
+        case_entry["answerer_diagnostics"] = answer.answerer_diagnostics
+
     # Retained independently of save_context: the trace is the attribution
     # artifact for ranking A/Bs, and it is only ever populated when the run
     # explicitly requested it.
@@ -499,6 +503,10 @@ def _score_case(
             }
         except Exception as exc:
             case_entry["judge"] = {"error": str(exc)}
+        # A validated transport response incurred reported usage even if its
+        # verdict could not be parsed. Unknown usage stays absent.
+        if getattr(judge, "name", None) == "claude-code" and judge.last_usage is not None:
+            case_entry["judge"]["usage"] = dict(judge.last_usage)
 
     return case_entry
 
@@ -597,6 +605,8 @@ def _build_report(
                     }
                 except Exception as exc:
                     cross_entry = {"error": str(exc)}
+                if getattr(judge_cross, "name", None) == "claude-code" and judge_cross.last_usage is not None:
+                    cross_entry["usage"] = dict(judge_cross.last_usage)
                 case["judge_cross"] = cross_entry
         cross_verdicts = [case.get("judge_cross", {}) for case in case_results]
         scorable = [v for v in cross_verdicts if "verdict" in v]

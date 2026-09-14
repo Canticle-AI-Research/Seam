@@ -17,6 +17,13 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
 - Active execution direction: root `ROADMAP.md` registers `roadmap:track:MemoryFormation`; `docs/roadmap/MEMORY_FORMATION.md` is its detailed specification, request register, dependency graph and current ready set (HISTORY#645). When the operator asks what is next, consult that specification and the current handoff, verify live completion evidence, and choose the earliest unblocked slice. Preserve the opening formation priorities; BIL-3, provider setup and report routing can proceed in independent scopes. Plans do not supersede the governing SEAM/MIRL contracts or establish implementation evidence.
 - `MIRL`: canonical memory IR
+- Benchmark funding correction (HISTORY#646): use the explicit `claude-code`
+  transport for the operator's funded Claude.ai account; `claude` remains the
+  separately billed API route. Never substitute an inherited API key or copy
+  OAuth credentials into API requests. Process-local reservations and CLI
+  reported usage are not account debit evidence; see
+  `docs/CLAUDE_CODE_BENCHMARKS.md`. A provider smoke does not complete the
+  formation evaluation contract or qualify PR #264's separate M1 helper.
 - `PACK`: derived prompt-time context representation
 - `SEAM-LX/1`: exact machine-text envelope for lossless workflows
 - `SEAM-HS/1`: lossless PNG-backed Holographic Surface for visual memory snapshots

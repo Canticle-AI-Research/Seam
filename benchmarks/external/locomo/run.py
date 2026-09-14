@@ -321,7 +321,7 @@ def main() -> None:
     parser.add_argument(
         "--judge",
         default=None,
-        choices=["none", "stub", "claude", "openai"],
+        choices=["none", "stub", "claude", "claude-code", "openai"],
         help="LLM judge in addition to string-match scoring",
     )
     parser.add_argument(
@@ -359,7 +359,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--answerer",
-        choices=["none", "openai", "claude", "deepseek"],
+        choices=["none", "openai", "claude", "claude-code", "deepseek"],
         default="none",
         help="Generate a short answer from retrieved context (default: none)",
     )
@@ -409,7 +409,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--judge-cross",
-        choices=["none", "stub", "openai", "claude"],
+        choices=["none", "stub", "openai", "claude", "claude-code"],
         default="none",
         help="Optional second judge for cross-check (default: none)",
     )
@@ -531,6 +531,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    if args.judge_batch and "claude-code" in {args.judge, args.judge_cross}:
+        parser.error("claude-code does not support --judge-batch; no paid calls were made")
+
     dataset_path = args.dataset_path or args.dataset
     paid_capable = (
         _paid_adapter_configuration(
@@ -538,8 +541,8 @@ def main() -> None:
             answerer=args.answerer,
             decomposer=args.decomposer,
         )
-        or args.judge in {"claude", "openai"}
-        or args.judge_cross in {"claude", "openai"}
+        or args.judge in {"claude", "claude-code", "openai"}
+        or args.judge_cross in {"claude", "claude-code", "openai"}
     )
     if paid_capable and not args.dry_run and not args.allow_paid:
         parser.error(
@@ -777,6 +780,14 @@ def main() -> None:
             "binding failed"
         )
 
+    if "claude-code" in {args.answerer, args.judge, args.judge_cross}:
+        failed = any(
+            case.get("error") or case.get("judge", {}).get("error")
+            or case.get("judge_cross", {}).get("error")
+            for case in report.get("cases", [])
+        )
+        if failed:
+            raise SystemExit("claude-code benchmark failed; diagnostic report preserved")
     _fail_on_infrastructure_error(report)
 
 
