@@ -21264,3 +21264,25 @@ Updated the detailed formation roadmap funding correction, current status, durab
 
 The main-based provider branch deliberately excludes PR264's site and M1 helper, which remain draft and NOT_QUALIFIED for missing historical TDD evidence. Its branch-local HISTORY through 653 requires chronological reconciliation before later integration. Preserve unrelated dirty primary and other worktrees; no stash was created. Required GitHub checks and protected merge must be observed before claiming delivery, and no website deployment is implied.
 ---END-ENTRY-#646---
+
+---BEGIN-ENTRY-#647---
+id: 647
+date: 2026-09-15T21:57:57Z
+agent: claude-sonnet-5
+status: done
+topics: ci, docker, pgvector, infra
+commits: pending
+refs: .github/workflows/ci.yml
+supersedes: 646
+tokens: 516
+---
+Diagnosed and fixed an anonymous-volume leak in the self-hosted CI runner (seam-terrabyte). The operator noticed local Docker had grown from one image to dozens; investigation found 296 orphaned anonymous volumes (~15GB) accumulated over weeks of pgvector-integration job runs (722 worker logs since mid-August, bursts of 100+ jobs/day). Docker system inspection traced the mechanism: the pgvector/pgvector:0.8.6-pg18-trixie image declares VOLUME /var/lib/postgresql in its own Dockerfile, so Docker auto-creates a fresh anonymous volume on every service-container start regardless of what the workflow requests, and the runner never cleaned those up between jobs.
+
+Also identified as a secondary factor: Docker MCP Toolkit had 21 MCP servers enabled locally, each pulled by digest (untagged), accounting for most of the remaining image footprint; left untouched pending operator confirmation of which servers are actually used.
+
+Immediate remediation on the operator's machine: docker volume prune -f (reclaimed 15.25GB, 308 volumes down to 11), docker container prune -f, and removal of 10 superseded image tags (old pgvector 0.8.2/0.8.3/0.8.5, six stale seam-selfhost/seam-node-wheel-spike build tags), reclaiming a further ~3.1GB.
+
+Root-cause fix in .github/workflows/ci.yml: added --mount type=tmpfs,destination=/var/lib/postgresql to the pgvector-integration job's service options, satisfying the image's VOLUME declaration with a tmpfs mount instead of letting Docker allocate a real anonymous volume. CI Postgres data does not need to persist past the job. Verified locally by running the exact service image with the new mount: volume count was unchanged across container start/stop (previously +1 anonymous volume per run), and pg_isready reported healthy immediately.
+
+Next: land this PR through the seam-terrabyte self-hosted runner's own CI (including the pgvector-integration job this change modifies) to confirm the tmpfs mount does not regress the real-pgvector test suite, then merge. No application code changed; this is CI-infrastructure only.
+---END-ENTRY-#647---

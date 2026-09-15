@@ -145,11 +145,21 @@ jobs:
           POSTGRES_PASSWORD: seam_ci_password
         ports:
           - 55433:5432
+        # The pgvector image declares `VOLUME /var/lib/postgresql` in its
+        # Dockerfile, so Docker auto-creates a fresh anonymous volume on
+        # every service-container start even though this workflow never
+        # asks for one. On the self-hosted runner those orphaned ~48MB
+        # volumes never get cleaned up between jobs and silently
+        # accumulated into the hundreds. CI Postgres data doesn't need to
+        # survive past the job anyway, so mount tmpfs at that exact path
+        # to satisfy the VOLUME declaration without Docker allocating a
+        # real one.
         options: >-
           --health-cmd "pg_isready -U seam_ci -d seam_ci"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+          --mount type=tmpfs,destination=/var/lib/postgresql
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
