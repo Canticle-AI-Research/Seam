@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 646
-total_tokens: ~328767
-latest_id: 646
+total_entries: 647
+total_tokens: ~329283
+latest_id: 647
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 647 | 2026-09-15 | done | 07c54bcd4279ae4f | ci,docker,pgvector,infra | 646 |
 | 646 | 2026-09-14 | changed | beb120512ffa2168 | benchmark,models,tests,verify,+ | 645 |
 | 645 | 2026-09-12 | changed | 6eec8c818b90ca63 | roadmap,plan,memory,compile,+ | 642 |
 | 644 | 2026-09-11 | done | aad22f58881cd364 | config,security,git-hooks,tests,+ | 643 |
@@ -700,7 +701,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=71 latest=#633, #632, #631, #630, #614
+- ci: count=72 latest=#647, #633, #632, #631, #630
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -752,7 +753,7 @@ compact: true
 - distribution: count=2 latest=#501, #474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=10 latest=#621, #620, #483, #482, #480
+- docker: count=11 latest=#647, #621, #620, #483, #482
 - docs: count=98 latest=#646, #643, #642, #641, #636
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
@@ -808,7 +809,7 @@ compact: true
 - identity: count=6 latest=#623, #459, #458, #457, #456
 - improve: count=1 latest=#302
 - inference: count=1 latest=#413
-- infra: count=3 latest=#453, #425, #271
+- infra: count=4 latest=#647, #453, #425, #271
 - ingest: count=2 latest=#317, #303
 - installer: count=16 latest=#360, #352, #337, #204, #177
 - instrumentation: count=1 latest=#366
@@ -878,7 +879,7 @@ compact: true
 - parked: count=1 latest=#412
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
-- pgvector: count=35 latest=#640, #490, #489, #488, #487
+- pgvector: count=36 latest=#647, #640, #490, #489, #488
 - plan: count=25 latest=#645, #634, #620, #511, #437
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
@@ -1010,6 +1011,6 @@ compact: true
 
 - roots: 86
 - changed: 69
-- done: 535
+- done: 536
 - in-progress: 20
 - planned: 22
