@@ -159,9 +159,13 @@ bounded task-specific reading; do not maintain a competing sequence here.
   automatic Suite inclusion. Existing license texts are unchanged. The L1
   packet records candidate membership, compatibility evidence, and unresolved
   customer delivery/source ownership work.
-- PRODUCT DIRECTION (HISTORY#647, superseding naming at HISTORY#642). SEAM Suite (`seam-suite`) is the self-hosted
-  operator product; SEAM API (`seam-api`) is the public API surface with its
-  WebUI. The existing `seam-client` Python wheel remains its separate HTTP
+- PRODUCT DIRECTION (HISTORY#647 naming; HISTORY#648 readiness and installation).
+  SEAM Suite (`seam-suite`) has a usable self-hosted core; its TUI, graph dashboard
+  and benchmark glassbox remain in development. SEAM API (`seam-api`) is planned
+  as a local runtime/server, API client support and WebUI installation; product
+  development has not started. Existing API code is a building block, not a
+  product-readiness claim. Registry availability is a separate status. The
+  existing `seam-client` Python wheel remains its separate HTTP
   transport client. `seam-sdk` remains the private SDK for paying users. `docs/PRODUCTS.md` owns these definitions. The former prohibition on
   reconsidering product shape is superseded by the operator's launch direction
   at HISTORY#634. Existing runtime invariants and artifact boundaries still

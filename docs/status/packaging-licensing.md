@@ -19,8 +19,14 @@ existing names. This is a source change, not a published package.
 The [release-flow repair](../RELEASE_FLOW.md) makes terminal/browser dependencies
 part of the default Suite installation, adds isolated wheel/sdist startup
 checks, and reconciles the GitHub workflows with canonical Python prerelease
-versions and exact artifact identity. The public client/server payload for a
-new `seam-api` wheel still needs confirmation; no placeholder wheel is created.
+versions and exact artifact identity. HISTORY#648 clarifies the intended
+`seam-api` installation: local runtime/server, client support, and WebUI. Its
+product development has not started; exact package membership and implementation
+still need design. No placeholder wheel is created.
+
+The self-hosted core is usable for local operation, while Suite's TUI, graph
+dashboard, and benchmark glassbox remain in development. This early-access
+product status does not establish a published or fully qualified package.
 
 The operator requires **TestPyPI first**. Follow [the procedure](../TESTPYPI.md);
 production publication and deletion of legacy releases are excluded. TestPyPI

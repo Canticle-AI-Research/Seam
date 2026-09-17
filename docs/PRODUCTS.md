@@ -8,6 +8,8 @@ the RAW/MIRL/PACK/LENS behavior remains governed by the
 The launch direction is recorded in HISTORY#634; names and TestPyPI-first
 publication were updated by the operator in HISTORY#642. HISTORY#647 replaces
 the hosted "SEAM Client" product label with **SEAM API (`seam-api`)**.
+HISTORY#648 records the operator's readiness clarification and intended local
+API/WebUI installation.
 
 ## Product family
 
@@ -17,7 +19,7 @@ that a package, complete interface, or hosted service is available today.
 | Name | Role | Included experience |
 | --- | --- | --- |
 | SEAM Suite (`seam-suite`) | Self-hosted SEAM operated on the user's infrastructure | Product Core, TUI, browser graph dashboard, knowledge database inspection, and benchmark glassbox |
-| SEAM API (`seam-api`) | Public API surface and its WebUI | Supported API contract, customer access and isolation, usage controls, and integrated browser dashboard |
+| SEAM API (`seam-api`) | Planned local installation for the public API surface and WebUI | Shared runtime, API server, API client dependencies, and browser interface; a hosted service is a separate deployment |
 | SEAM SDK (`seam-sdk`) | Private developer SDK with access for paying users | Private runtime integration; customer delivery and supported versions require qualification |
 | Python HTTP client (`seam-client`) | Separate Python client for the public API | Transport and opaque public models; distinct from the private paid SDK |
 
@@ -27,12 +29,28 @@ approximation does not satisfy the browser design's acceptance criteria.
 
 “SEAM WebUI” names the browser component of SEAM API; it is not a fourth
 product. The existing `seam-client` Python distribution remains a transport
-library, distinct from the hosted dashboard. Its installation does not grant
-service access. The browser UI is delivered by the service, not by that wheel.
+library, distinct from the planned API/WebUI installation. Its installation
+does not provide a local server, the WebUI, or hosted service access. The planned
+`seam-api` install will supply the local server and served browser interface.
 
 The paid SDK access boundary was clarified by the operator in HISTORY#635.
 Further paid capabilities remain unspecified. This product decision does not
 change existing license texts or establish an entitlement implementation.
+
+## Current readiness
+
+| Component | Current state |
+| --- | --- |
+| Self-hosted SEAM core | Usable for local operation; this is the operator's plug-and-play core milestone, not a claim that every planned capability is finished |
+| Suite operator surfaces | TUI, browser graph dashboard, and benchmark glassbox remain in development; the full Suite is early access |
+| SEAM API product | Planned; product development has not started and there is no product download |
+| New PyPI distributions | Publication is separately gated; usable source and installed startup checks do not establish registry availability |
+
+Existing REST routes, the legacy HTTP client, and a browser prototype are
+building blocks. They do not establish a finished API/WebUI product. The
+[surface status](status/surfaces.md) retains implementation-level evidence;
+the [release flow](RELEASE_FLOW.md) separates product maturity, package
+availability, and the proposed API setup.
 
 ## Suite graph dashboard
 
@@ -78,7 +96,7 @@ Product names, Python distributions, and service deployments are separate:
 | Artifact role | Selected name | Existing coordinate to reconcile |
 | --- | --- | --- |
 | Suite installation/distribution | `seam-suite` | Renamed root candidate, formerly `seam-runtime`; retired `seam-self-host` artifacts require explicit migration |
-| Public API and WebUI | `seam-api` | New product name; public client/server artifact boundary still needs confirmation before a new wheel is created |
+| Local API server, client support, and WebUI | `seam-api` | Planned installation shape; implementation and exact public artifact membership remain to be designed |
 | Legacy Python HTTP client for SEAM API | `seam-client` | Existing published Python client; preserve existing `seam_client` imports during migration |
 | Private paid Python SDK | `seam-sdk` (private delivery only) | Private `Seam_SDK` repository already declares this distribution name |
 

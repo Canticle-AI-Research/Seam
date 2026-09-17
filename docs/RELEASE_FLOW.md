@@ -6,13 +6,49 @@
 
 | Product | Purpose | Distribution state |
 | --- | --- | --- |
-| `seam-suite` | Self-hosted TUI, browser graph dashboard and benchmark glassbox | Root wheel/sdist candidate; not yet on PyPI |
-| `seam-api` | Public API surface and WebUI | Selected product name; confirm public client versus server artifact before creating a new wheel |
+| `seam-suite` | Usable self-hosted core; TUI, browser graph dashboard and benchmark glassbox still in development | Early-access product; root wheel/sdist candidate not yet on PyPI |
+| `seam-api` | Planned local API server, client support, and WebUI | Product development has not started; no download |
 | `seam-sdk` | Private SDK for paying users | Separate private delivery |
 
 The old `seam-client` wheel is an HTTP transport library. It is not the new
 Suite, the WebUI, or the private SDK. Keep its existing imports compatible
 until its replacement contract and source ownership are resolved.
+
+Product maturity and package availability are independent. The operator
+considers the self-hosted core usable for plug-and-play local operation. The
+operator interfaces remain unfinished. Downloads must show both that maturity
+and whether an actual, verified package is published; it must not present the
+future API product as ready because Console or low-level API code exists.
+
+## Planned seam-api installation
+
+The selected direction is to install the software needed to run SEAM locally
+through the API and WebUI. This is a plan, not an implemented package:
+
+```text
+API client or WebUI -> local API server -> shared SEAM runtime -> local storage
+```
+
+1. Reuse the same runtime as Suite through a reviewed runtime dependency.
+   Do not ship a second, independently maintained copy of `seam_runtime`, and
+   do not rename the legacy HTTP client and present it as a complete server.
+2. Include the API server, served WebUI assets, and required client libraries.
+   A client alone only sends requests; it does not run the memory engine.
+3. Provide a first-run path that configures local storage, starts a loopback
+   server, opens the WebUI, and checks a real client/server memory round trip.
+   Define exact commands during implementation; no working `seam-api` command
+   is claimed here.
+4. Preserve the public API contract and private SDK boundary. Review exposed
+   routes, authentication, version compatibility, restart/recovery and clean
+   installation before offering the new package.
+5. Qualify the exact eligible artifacts on TestPyPI before production PyPI.
+   A hosted API endpoint remains a separate deployment with its own access
+   and operational requirements.
+
+Existing server routes and the browser prototype can inform that work. The
+API product itself has not started. The exact runtime dependency, artifact
+membership, launcher and supported client contract still need implementation
+design; no new public core package name is implied by this plan.
 
 ## Install the reviewed Suite candidate
 
@@ -52,6 +88,8 @@ have a new version and pass artifact qualification before publication.
 The companion Canticle website repair consumes `https://pypi.org/pypi/seam-suite/json`.
 It selects one supported, non-yanked stable wheel and derives the displayed
 version, exact file URL and SHA-256-pinned install command from that release.
+The early-access maturity label does not change that selector; offering a
+prerelease candidate would need a separate release-channel change and review.
 Missing, mismatched or unavailable metadata keeps downloads disabled. Existing
 account checks remain separate. The website change needs its own reviewed
 deployment; this SEAM branch does not deploy Canticle.cc.

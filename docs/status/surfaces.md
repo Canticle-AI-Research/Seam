@@ -7,13 +7,16 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 ## Launch direction
 
 The [product map](../PRODUCTS.md) and [launch plan](../roadmap/SEAM_LAUNCH.md)
-now govern operator-surface priorities (HISTORY#634). Suite includes the TUI
+define the operator-surface backlog (HISTORY#634, clarified HISTORY#648). Suite includes the TUI
 and an independently openable browser dashboard with the diamond constellation
 overview and separate knowledge graph, reasoning graph, database, and benchmark
-sections. SEAM Client is the paid API and its all-in-one WebUI. The existing
-`seam-client` wheel is its separate Python HTTP client. Complete the products before the
-expensive benchmark score campaign while retaining existing correctness gates.
-This direction does not change the implementation evidence below.
+sections. The self-hosted core is usable; these operator surfaces remain in
+development and the full Suite is early access. SEAM API (`seam-api`) is the
+planned local API server/client/WebUI installation; product development has
+not started. The existing `seam-client` wheel is a separate HTTP transport
+library. Existing routes and prototypes do not establish finished API product
+readiness. The active memory-formation roadmap retains execution priority;
+this product clarification does not change the implementation evidence below.
 
 ## Stable
 

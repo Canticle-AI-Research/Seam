@@ -6,7 +6,8 @@
 [memory-formation roadmap](MEMORY_FORMATION.md) supersedes the previous
 surface-first score-campaign order and owns what to do next.
 **Decision record:** HISTORY#634; TestPyPI HISTORY#642; formation priority HISTORY#645;
-current package repair and `seam-api` naming HISTORY#647.
+current package repair and `seam-api` naming HISTORY#647; readiness and local
+API/WebUI installation direction HISTORY#648.
 **Product definitions:** [SEAM products](../PRODUCTS.md).
 **Current implementation state:** [project status](../../PROJECT_STATUS.md)
 and the [current handoff](../handoffs/INDEX.md).
@@ -57,6 +58,13 @@ SDK. Exact artifact review and publishing access still precede a test upload;
 a test upload does not authorize production publication or prove launch readiness.
 
 ## Current checkpoint and next product work
+
+The operator's current readiness distinction is: self-hosted core usable for
+local operation; Suite TUI, graph dashboard and benchmark glassbox unfinished;
+`seam-api` product development not started. This does not mark L3, L4 or L6
+complete. The planned API install runs the shared runtime/server locally with
+client support and served WebUI; exact artifacts and implementation remain
+future work. See [the setup plan](../RELEASE_FLOW.md#planned-seam-api-installation).
 
 The [L1 candidate packet](../audits/2026-09-06-l1-packaging-migration.md)
 contains source/ownership mapping, exact artifact inventories, installed

@@ -16,6 +16,10 @@ public API surface and its WebUI), and **SEAM SDK** (`seam-sdk`, private
 SDK for paying users). The existing PyPI `seam-client` is the separate Python
 HTTP client for the service; installing it does not install the dashboard or
 provide paid access. These are product definitions, not launch-readiness claims.
+The self-hosted core is usable for local operation; the Suite's TUI, graph
+dashboard, and benchmark glassbox are still in development. The full Suite is
+early access. The `seam-api` product is planned and development has not started;
+existing HTTP routes and client code do not make that product complete.
 See the [product map](docs/PRODUCTS.md), [launch plan](docs/roadmap/SEAM_LAUNCH.md),
 and [current packaging constraints](docs/status/packaging-licensing.md).
 
@@ -49,9 +53,11 @@ platform shims.
 
 For migration, explicit upgrades, release checks, and the website's download
 connection, see [Package installation and release flow](docs/RELEASE_FLOW.md).
-`seam-api` identifies the public API/WebUI product. Its client/server package
-boundary must be confirmed before creating a public wheel; renaming the full
-runtime as `seam-api` would not establish that boundary.
+`seam-api` is planned as a local API/WebUI installation: the runtime and server
+run on the user's machine, and the client and WebUI connect to that server.
+See the [proposed setup](docs/RELEASE_FLOW.md#planned-seam-api-installation).
+It has no product download yet; exact artifact membership and implementation
+remain future work.
 
 ## Public agent SDK
 

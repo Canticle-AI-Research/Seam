@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 647
-total_tokens: ~329472
-latest_id: 647
+total_entries: 648
+total_tokens: ~329977
+latest_id: 648
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 648 | 2026-09-17 | changed | efc492a0147ee8b7 | docs,naming,surface,webui,+ | 647 |
 | 647 | 2026-09-17 | in-progress | 80033515806fc892 | naming,pyproject,bugfix,ci,+ | 646 |
 | 646 | 2026-09-14 | changed | beb120512ffa2168 | benchmark,models,tests,verify,+ | 645 |
 | 645 | 2026-09-12 | changed | 6eec8c818b90ca63 | roadmap,plan,memory,compile,+ | 642 |
@@ -724,7 +725,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=92 latest=#647, #645, #644, #643, #642
+- continuity: count=93 latest=#648, #647, #645, #644, #643
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -754,7 +755,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=99 latest=#647, #646, #643, #642, #641
+- docs: count=100 latest=#648, #647, #646, #643, #642
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -795,7 +796,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=125 latest=#647, #646, #645, #642, #641
+- handoff: count=126 latest=#648, #647, #646, #645, #642
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -855,7 +856,7 @@ compact: true
 - multi-agent: count=30 latest=#623, #622, #620, #619, #618
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
-- naming: count=9 latest=#647, #642, #635, #634, #484
+- naming: count=10 latest=#648, #647, #642, #635, #634
 - navigation: count=2 latest=#556, #542
 - negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
@@ -880,7 +881,7 @@ compact: true
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
 - pgvector: count=35 latest=#640, #490, #489, #488, #487
-- plan: count=25 latest=#645, #634, #620, #511, #437
+- plan: count=26 latest=#648, #645, #634, #620, #511
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - positioning: count=1 latest=#538
@@ -966,7 +967,7 @@ compact: true
 - storage: count=38 latest=#638, #637, #626, #624, #623
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
-- surface: count=20 latest=#629, #579, #578, #577, #571
+- surface: count=21 latest=#648, #629, #579, #578, #577
 - surfaces: count=7 latest=#609, #608, #607, #606, #541
 - symbols: count=2 latest=#316, #309
 - t7: count=1 latest=#367
@@ -996,7 +997,7 @@ compact: true
 - verify: count=452 latest=#647, #646, #644, #643, #642
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
-- webui: count=13 latest=#571, #545, #544, #543, #404
+- webui: count=14 latest=#648, #571, #545, #544, #543
 - wiki: count=2 latest=#557, #556
 - windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
@@ -1010,7 +1011,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 69
+- changed: 70
 - done: 535
 - in-progress: 21
 - planned: 22

@@ -21286,3 +21286,23 @@ Verification: clean Linux/Python3.12 wheel and sdist environments passed tests/p
 
 Updated canonical product/install/release docs, status, ledger and chronological handoff. New code red/green evidence is in local session state; external logs and artifacts are retained under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages. Public Suite file/notices eligibility, TestPyPI publisher access and seam-api client-versus-server payload remain unresolved. Private classifier and existing license terms remain. No package upload, release/tag publication, legacy deletion, paid provider call or website deployment occurred. Draft PR and exact-head CI/receipt state must be checked before merge. Preserve unrelated primary audit/history/handoff and other linked worktrees, and the website's unrelated local assets; no stash was created.
 ---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-17T16:22:25Z
+agent: codex
+status: changed
+topics: docs, naming, surface, webui, plan, handoff, continuity
+commits: pending
+refs: README.md,PROJECT_STATUS.md,REPO_LEDGER.md,docs/PRODUCTS.md,docs/RELEASE_FLOW.md,docs/TESTPYPI.md,docs/status/surfaces.md,docs/status/packaging-licensing.md,docs/roadmap/SEAM_LAUNCH.md,docs/handoffs/2026-09-17-product-readiness.md
+supersedes: 647
+tokens: 505
+---
+The operator clarified product readiness after HISTORY#647: the self-hosted core is usable for plug-and-play local operation, but Suite's TUI, graph dashboard and benchmark glassbox remain unfinished. The seam-api product has not started. Their selected local installation direction supplies the runtime/server, client dependencies and served WebUI; a client alone cannot run the engine. Exact dependency, artifacts, launcher and contract still require design and implementation. Existing server routes and prototypes are building blocks, not evidence of a completed API product.
+
+Updated README, product map, release and TestPyPI procedures, surface/packaging status, ledger, project status and launch backlog. The companion website PR29 changes Downloads and public docs to label Suite early access with usable core and unfinished operator interfaces, label API planned and not started, and distinguish product maturity from actual package publication. Account/Console links no longer imply a working API product. Runtime behavior, download selector, license, private SDK and account/pricing/cohort/vault policies are unchanged. The stable-only release selector still rejects prereleases; early-access product copy does not change that contract.
+
+Resumed SEAM PR266 from 0a4771efe873c9b3c5ae9f3d1175b3a7666b2438 and website PR29 from 090be67008ab8031dc435a1a68f3317fd38d3f85 in fresh isolated worktrees outside /tmp. The website commands node --test tests/downloads-release.test.js and python3 -m unittest discover -s tests -p test_package_downloads.py passed after the copy changes; diff checks passed. No new tests for wording, runtime changes, paid experiment, registry upload or production deployment occurred. A live-page HTTP request failed with a TLS error, so rendered production status remains unverified; owner browser review uses the branch preview.
+
+The prior package receipt remains NOT_QUALIFIED because its path classifier demands runtime TDD for installer documentation and a dashboard wording correction; this docs-only follow-up cannot clear it or qualify the cumulative PR. Prior full-suite failures, required GitHub checks, API implementation and artifact/publisher setup remain explicit in the new chronological handoff. Preserve unrelated primary/linked worktrees and website assets. External continuation evidence is under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages/readiness. Both PRs stay draft for DeepSeek; verify the final exact heads and remove task worktrees after push.
+---END-ENTRY-#648---

@@ -5,6 +5,16 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-17 — product readiness clarified.** The self-hosted core is usable
+for local operation; Suite's TUI, graph dashboard and benchmark glassbox are
+still in development. The full Suite is early access. The `seam-api` product
+has not started; the intended installation supplies a local runtime/API server,
+client support and WebUI. Existing routes and prototypes are building blocks,
+not a finished API product. Downloads and docs distinguish this maturity from
+actual package publication. See HISTORY#648 and the
+[setup plan](docs/RELEASE_FLOW.md#planned-seam-api-installation). Both existing
+draft PRs remain under review; prior qualification conditions remain open.
+
 **2026-09-17 — package and release-flow repair candidate.** The operator
 selects `seam-suite` for the self-hosted TUI, graph dashboard and benchmark
 glassbox, and `seam-api` for the public API surface and WebUI. Suite's default
@@ -12,7 +22,7 @@ installation now includes terminal/browser dependencies. Release validation
 accepts canonical Python prereleases and preserves exact artifact identity.
 See [release flow](docs/RELEASE_FLOW.md) and HISTORY#647 for installed-artifact
 verification, website coordination, and remaining public-upload/API-package
-decisions. This is branch work; PyPI publication and website deployment remain
+decisions. This is branch work; PyPI publication and production website deployment remain
 unperformed. Existing formation work and draft PR #264 remain separate.
 
 **2026-09-14 — Claude.ai benchmark transport candidate.** The operator's

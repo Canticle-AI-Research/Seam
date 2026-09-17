@@ -12,7 +12,7 @@ this preparation pass.
 | Name | What it identifies | Test destination |
 | --- | --- | --- |
 | `seam-suite` | Self-hosted runtime, TUI, benchmark glassbox, and browser graph dashboard | Local candidate first; TestPyPI only after exact public artifact review |
-| `seam-api` | Public API surface and its WebUI | Service staging; confirm client/server artifact boundary before building a new public wheel |
+| `seam-api` | Planned local API server/client/WebUI installation; product development not started | Implement and review exact artifact membership before local qualification and TestPyPI |
 | `seam-client` | Existing Python HTTP client for the service | Separate client release process after source/owner recovery |
 | `seam-sdk` | Private SDK for paying users | Local test environment or authenticated private distribution; never PyPI or TestPyPI |
 
