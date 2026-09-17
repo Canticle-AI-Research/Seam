@@ -5,6 +5,13 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-17 — Suite MCP registration prepared.** The existing registry listing
+points to yanked `seam-runtime` 1.3.1. The candidate metadata now targets
+`io.github.Canticle-AI-Research/seam-suite`, with local/published-package checks
+and a guarded manual registration workflow. The root build's public artifact
+review and `Private :: Do Not Upload` still block publication. No new MCP
+registration was performed. See [the guide](docs/MCP_REGISTRY.md) and HISTORY#649.
+
 **2026-09-17 — product readiness clarified.** The self-hosted core is usable
 for local operation; Suite's TUI, graph dashboard and benchmark glassbox are
 still in development. The full Suite is early access. The `seam-api` product

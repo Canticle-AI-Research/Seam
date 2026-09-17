@@ -21306,3 +21306,23 @@ Resumed SEAM PR266 from 0a4771efe873c9b3c5ae9f3d1175b3a7666b2438 and website PR2
 
 The prior package receipt remains NOT_QUALIFIED because its path classifier demands runtime TDD for installer documentation and a dashboard wording correction; this docs-only follow-up cannot clear it or qualify the cumulative PR. Prior full-suite failures, required GitHub checks, API implementation and artifact/publisher setup remain explicit in the new chronological handoff. Preserve unrelated primary/linked worktrees and website assets. External continuation evidence is under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages/readiness. Both PRs stay draft for DeepSeek; verify the final exact heads and remove task worktrees after push.
 ---END-ENTRY-#648---
+
+---BEGIN-ENTRY-#649---
+id: 649
+date: 2026-09-17T16:55:44Z
+agent: codex
+status: in-progress
+topics: mcp, registry, naming, ci, docs, verify, handoff, continuity
+commits: pending
+refs: server.json,README.md,PROJECT_STATUS.md,REPO_LEDGER.md,tools/release/verify_mcp_registry.py,tests/audit/test_mcp_registry_release.py,.github/workflows/mcp-registry.yml,docs/MCP_REGISTRY.md,docs/RELEASE_FLOW.md,docs/handoffs/2026-09-17-suite-mcp-registration.md
+supersedes: 648
+tokens: 655
+---
+Prepared the operator-requested MCP registration path as an addition to HISTORY#647 package repairs and HISTORY#648 readiness clarification. The official registry still lists io.github.BlackhatShiftey/seam-runtime 1.3.1 active, backed by the yanked broken legacy PyPI release. No canonical Suite listing was returned. GitHub verified active/admin organization membership for the existing operator. No registry login, publish, deprecation, Python upload, protected merge or production deployment occurred.
+
+The root manifest now targets io.github.Canticle-AI-Research/seam-suite 2.4.1rc1 and the canonical repository. It corrects command construction for clients that append a versioned package spec, using --from and the seam-mcp entrypoint, with default SQLite and no optional pgvector DSN in default metadata. README carries the matching PyPI ownership marker. A read-only release helper validates local identity and, explicitly, production metadata and non-yanked artifacts; the existing private-upload classifier stops that publication check. The guarded manual registry workflow requires current protected main, configured operator identity and first attempt, verifies the public release, downloads a checksum-pinned official publisher, uses GitHub OIDC, and checks public read-back. It remains unexecuted and does not upload Python packages.
+
+Tests in tests/audit/test_mcp_registry_release.py were witnessed failing before implementation and passing afterward; the bounded session state preserves commands, times and fingerprints. The combined pytest run of that module plus tests/audit/test_mcp_stdio_smoke.py, tests/audit/test_mcp_tools_call_smoke.py and tests/audit/test_github_issue_release_config.py passed, as did collection, scoped Ruff and diff checks. Official publisher v1.8.1 validate server.json passed; its validate --help dispatch quirk was reconciled by reading the source and running the real command. Fresh wheel/sdist passed strict Twine and artifact checks. The wheel metadata contains the ownership marker. A no-cache uvx install from the local wheel exercised help, MCP initialization, synthetic ingestion/search and retrieval after restart with operator/provider environment excluded. A generic Python archive-inspection snippet was blocked by the deletion guard; a read-only unzip inspection completed safely. This is local artifact evidence, not a production registry install or full-suite qualification.
+
+The MCP guide, wiki route, release docs, status and ledger document publication order and current blockers. The website documentation now uses an absolute installed seam-mcp path with default SQLite and states that MCP belongs to Suite rather than the unstarted API product. Website node --test tests/downloads-release.test.js and python3 -m unittest discover -s tests -p test_package_downloads.py passed after that update. Public artifact membership/notices, TestPyPI access/qualification and the production package remain prerequisites. The stable-only website selector still rejects this rc version. Prior cumulative NOT_QUALIFIED and full-suite/CI conditions remain open; docs-only readiness qualification does not supersede them. Both draft PRs are retained for DeepSeek review. See the new indexed handoff for exact scope, remaining gates, evidence under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages/mcp, and worktree cleanup requirements.
+---END-ENTRY-#649---

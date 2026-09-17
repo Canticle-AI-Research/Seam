@@ -565,11 +565,16 @@ repository; visibility follows the destination's actual settings. L1 must
 qualify artifact membership and destination before dispatch. The root package
 remains prohibited from PyPI.
 
-The existing `seam-runtime` 1.3.1 release on PyPI and `server.json` describe the
-legacy Apache-2.0 artifact. They remain pinned to that legacy public release.
-Publishing a later PyPI version requires a clean public artifact with its own
-license, package layout, and review; it does not authorize publishing this
-repository.
+The existing MCP Registry listing still points at the yanked `seam-runtime`
+1.3.1 release. The replacement [`server.json`](server.json) describes the
+`seam-suite` candidate under `io.github.Canticle-AI-Research/seam-suite`.
+It is prepared metadata, not evidence of a published package or registry entry.
+MCP is included in Suite through `seam-mcp`; it does not require the planned
+API product. See the [MCP registration and installation guide](docs/MCP_REGISTRY.md).
+Publishing requires the reviewed public artifact, successful TestPyPI
+qualification, production PyPI release, then registry registration.
+
+<!-- mcp-name: io.github.Canticle-AI-Research/seam-suite -->
 
 ## License
 

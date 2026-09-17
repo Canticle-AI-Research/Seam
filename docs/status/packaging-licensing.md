@@ -95,6 +95,12 @@ metadata require a deliberate source/ownership check.
 
 ## Existing release automation
 
+The [MCP Registry preparation](../MCP_REGISTRY.md) adds a manual metadata-only
+workflow for `io.github.Canticle-AI-Research/seam-suite`. It requires the exact
+Suite version to exist on production PyPI with its ownership marker and usable
+artifacts. The private-upload tripwire remains enforced. Schema validation is
+not registration; the new listing has not been published. See HISTORY#649.
+
 `package-release.yml` prepares a root wheel/sdist and a GitHub draft;
 `publish-private-release.yml` publishes a reviewed draft through its configured
 operator gate. Their names retain the historical word "private". Those names

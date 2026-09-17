@@ -132,6 +132,13 @@ belongs in either public registry.
 
 ## Review checkpoint
 
+Suite includes the `seam-mcp` server. Its prepared
+[MCP Registry flow](MCP_REGISTRY.md) registers discovery metadata only after a
+qualified production PyPI release exists. The manual registry workflow checks
+the exact package/version and ownership marker; it cannot publish the Python
+package or clear its private-upload restriction. The legacy registry listing
+still points to yanked `seam-runtime` 1.3.1 until migration is completed.
+
 Live PyPI metadata queried on 2026-09-17 reported:
 
 - `seam-runtime` 1.3.1: both artifacts yanked, reason `broken`.

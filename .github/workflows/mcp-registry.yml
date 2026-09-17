@@ -1,0 +1,108 @@
+name: Publish Suite MCP Registry metadata
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact Suite version already qualified and published on production PyPI
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seam-mcp-registry
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.run_attempt == 1 &&
+      vars.MCP_REGISTRY_APPROVER != '' &&
+      github.actor == vars.MCP_REGISTRY_APPROVER &&
+      github.triggering_actor == vars.MCP_REGISTRY_APPROVER
+    runs-on: ubuntu-latest
+    environment: mcp-registry
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify protected head and published PyPI prerequisite
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          git fetch --no-tags origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          python -m pip install 'packaging>=24,<27'
+          python -m tools.release.verify_mcp_registry --expected-version "$REQUESTED_VERSION" --published
+
+      - name: Install verified MCP publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/seam-mcp-publisher"
+          gh release download v1.8.1 --repo modelcontextprotocol/registry \
+            --pattern mcp-publisher_linux_amd64.tar.gz --dir "$RUNNER_TEMP/seam-mcp-publisher"
+          python - <<'PY'
+          import hashlib
+          import os
+          import tarfile
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP']) / 'seam-mcp-publisher'
+          archive = root / 'mcp-publisher_linux_amd64.tar.gz'
+          expected = 'a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc'
+          if hashlib.sha256(archive.read_bytes()).hexdigest() != expected:
+              raise SystemExit('publisher archive checksum mismatch')
+          with tarfile.open(archive) as bundle:
+              member = bundle.getmember('mcp-publisher')
+              if not member.isfile() or member.size > 50 * 1024 * 1024:
+                  raise SystemExit('unexpected publisher archive member')
+              with (root / 'mcp-publisher').open('xb') as output:
+                  output.write(bundle.extractfile(member).read())
+          (root / 'mcp-publisher').chmod(0o700)
+          PY
+
+      - name: Register the exact Suite metadata
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          publisher="$RUNNER_TEMP/seam-mcp-publisher/mcp-publisher"
+          "$publisher" validate server.json
+          git fetch --no-tags origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          python -m tools.release.verify_mcp_registry --expected-version "$REQUESTED_VERSION" --published
+          "$publisher" login github-oidc --registry https://registry.modelcontextprotocol.io
+          trap '"$publisher" logout' EXIT
+          "$publisher" publish server.json
+
+      - name: Verify public registry read-back
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import quote
+          from urllib.request import urlopen
+
+          expected = json.loads(Path('server.json').read_text())
+          name = quote(expected['name'], safe='')
+          version = quote(expected['version'], safe='')
+          url = f'https://registry.modelcontextprotocol.io/v0.1/servers/{name}/versions/{version}'
+          with urlopen(url, timeout=20) as response:
+              actual = json.load(response)['server']
+          for key in ('name', 'version', 'repository', 'packages'):
+              if actual.get(key) != expected[key]:
+                  raise SystemExit(f'registry read-back mismatch: {key}')
+          print(f'Verified public MCP registration: {expected["name"]} {expected["version"]}')
+          PY

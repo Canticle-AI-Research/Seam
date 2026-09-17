@@ -204,6 +204,15 @@ bounded task-specific reading; do not maintain a competing sequence here.
   visibility. Reconcile destination visibility, artifact membership, and live
   environment protections in L1 before dispatch. The root build has no PyPI
   upload job and retains `Private :: Do Not Upload`.
+- MCP REGISTRATION (HISTORY#649). Suite owns the local `seam-mcp` entrypoint;
+  it does not wait for the planned API product. `server.json` is prepared for
+  `io.github.Canticle-AI-Research/seam-suite`, with a matching README ownership
+  marker. Register only after the exact eligible Suite release is qualified
+  on TestPyPI and published on production PyPI. The manual `mcp-registry.yml`
+  workflow checks protected main, operator identity, version, public metadata
+  and ownership before OIDC publication and public read-back. It does not
+  authorize a Python upload. The old registry listing remains historical
+  migration work; see `docs/MCP_REGISTRY.md` for current observed status.
 - EXISTING DISTRIBUTIONS. GitHub lists release `v2.4.0`, and PyPI reports
   legacy `seam-runtime` 1.3.1, `seam-self-host` 1.1.2, and `seam-client` 2.0.0
   metadata at HISTORY#634. Current installability, exact contents, ownership,
