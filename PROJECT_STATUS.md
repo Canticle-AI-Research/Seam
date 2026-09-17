@@ -5,6 +5,16 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-17 — package and release-flow repair candidate.** The operator
+selects `seam-suite` for the self-hosted TUI, graph dashboard and benchmark
+glassbox, and `seam-api` for the public API surface and WebUI. Suite's default
+installation now includes terminal/browser dependencies. Release validation
+accepts canonical Python prereleases and preserves exact artifact identity.
+See [release flow](docs/RELEASE_FLOW.md) and HISTORY#647 for installed-artifact
+verification, website coordination, and remaining public-upload/API-package
+decisions. This is branch work; PyPI publication and website deployment remain
+unperformed. Existing formation work and draft PR #264 remain separate.
+
 **2026-09-14 — Claude.ai benchmark transport candidate.** The operator's
 roughly $50 is on Claude.ai, not the API Console. The explicit
 [`claude-code` answerer/judge](docs/CLAUDE_CODE_BENCHMARKS.md) uses the
@@ -27,12 +37,12 @@ a hypothesis. No formation implementation, BIL-3 support, paid benchmark or
 website deployment was performed in this planning slice. See HISTORY#645 and
 the [current handoff](docs/handoffs/INDEX.md).
 
-**2026-09-08 naming candidate:** `seam-suite` 2.4.1rc1 names the self-hosted
-Suite; SEAM Client names the paid API and its WebUI; `seam-sdk` remains private
+**Current naming candidate:** `seam-suite` 2.4.1rc1 names the self-hosted
+Suite; `seam-api` names the public API surface and its WebUI; `seam-sdk` remains private
 paid delivery. The existing `seam-client` wheel remains a Python HTTP client.
 TestPyPI must precede production publication. Artifact eligibility and test
 publisher access remain open; see [the procedure](docs/TESTPYPI.md) and
-HISTORY#642. This branch candidate does not publish a package.
+HISTORY#642 and HISTORY#647. This branch candidate does not publish a package.
 
 **2026-09-07 — R2 is complete and S8 is frozen on protected main through
 PR #254 at `2f9a96b9`.** Candidate `a6715c2f` passed the three required checks

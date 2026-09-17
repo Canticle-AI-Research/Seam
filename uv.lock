@@ -3696,8 +3696,13 @@ name = "seam-suite"
 version = "2.4.1rc1"
 source = { editable = "." }
 dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "python-multipart" },
     { name = "rich" },
+    { name = "textual" },
     { name = "tiktoken" },
+    { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.optional-dependencies]
@@ -3759,8 +3764,10 @@ requires-dist = [
     { name = "anthropic", marker = "extra == 'bench-judge'", specifier = ">=0.40,<1.0" },
     { name = "chromadb", marker = "extra == 'bench-mem0'", specifier = ">=0.4.0,<1.0" },
     { name = "chromadb", marker = "extra == 'chroma'", specifier = ">=1.0,<2.0" },
+    { name = "fastapi", specifier = ">=0.100,<1.0" },
     { name = "fastapi", marker = "extra == 'all-extras'", specifier = ">=0.100,<1.0" },
     { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.100,<1.0" },
+    { name = "httpx", specifier = ">=0.24,<1.0" },
     { name = "httpx", marker = "extra == 'all-extras'", specifier = ">=0.24,<1.0" },
     { name = "httpx", marker = "extra == 'dash'", specifier = ">=0.24,<1.0" },
     { name = "markdown-it-py", marker = "extra == 'lint'", specifier = ">=4.0,<5.0" },
@@ -3771,6 +3778,7 @@ requires-dist = [
     { name = "packaging", marker = "extra == 'lint'", specifier = ">=24,<27" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'all-extras'", specifier = ">=3.0,<4.0" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'pgvector'", specifier = ">=3.0,<4.0" },
+    { name = "python-multipart", specifier = ">=0.0.6,<1.0" },
     { name = "python-multipart", marker = "extra == 'all-extras'", specifier = ">=0.0.6,<1.0" },
     { name = "python-multipart", marker = "extra == 'server'", specifier = ">=0.0.6,<1.0" },
     { name = "pyyaml", marker = "extra == 'lint'", specifier = ">=6.0,<7.0" },
@@ -3779,9 +3787,11 @@ requires-dist = [
     { name = "sentence-transformers", marker = "extra == 'all-extras'", specifier = ">=2.0,<3.0" },
     { name = "sentence-transformers", marker = "extra == 'rerank'", specifier = ">=2.0,<3.0" },
     { name = "sentence-transformers", marker = "extra == 'sbert'", specifier = ">=2.0,<3.0" },
+    { name = "textual", specifier = ">=8.0,<9.0" },
     { name = "textual", marker = "extra == 'all-extras'", specifier = ">=8.0,<9.0" },
     { name = "textual", marker = "extra == 'dash'", specifier = ">=8.0,<9.0" },
     { name = "tiktoken", specifier = ">=0.8.0,<1.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.23,<1.0" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'all-extras'", specifier = ">=0.23,<1.0" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'server'", specifier = ">=0.23,<1.0" },
     { name = "zep-cloud", marker = "extra == 'all-extras'", specifier = ">=2.0.0,<3.0" },

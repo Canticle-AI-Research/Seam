@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-08
+Last updated: 2026-09-17
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -159,13 +159,18 @@ bounded task-specific reading; do not maintain a competing sequence here.
   automatic Suite inclusion. Existing license texts are unchanged. The L1
   packet records candidate membership, compatibility evidence, and unresolved
   customer delivery/source ownership work.
-- PRODUCT DIRECTION (HISTORY#642). SEAM Suite (`seam-suite`) is the self-hosted
-  operator product; SEAM Client is the paid hosted API with its all-in-one
+- PRODUCT DIRECTION (HISTORY#647, superseding naming at HISTORY#642). SEAM Suite (`seam-suite`) is the self-hosted
+  operator product; SEAM API (`seam-api`) is the public API surface with its
   WebUI. The existing `seam-client` Python wheel remains its separate HTTP
   transport client. `seam-sdk` remains the private SDK for paying users. `docs/PRODUCTS.md` owns these definitions. The former prohibition on
   reconsidering product shape is superseded by the operator's launch direction
   at HISTORY#634. Existing runtime invariants and artifact boundaries still
   apply; a product decision does not silently change package contents.
+- Suite includes TUI and browser-server dependencies by default. `[dash]` and
+  `[server]` remain compatible extras; model/vector/provider integrations stay
+  opt-in. Clean wheel and sdist environments must exercise installed TUI startup,
+  packaged web assets, API health and console entrypoints. Source-checkout help
+  alone is insufficient package evidence. See `docs/RELEASE_FLOW.md`.
 - CURRENT BUILD. The root `pyproject.toml` still defines the `seam-suite`
   2.4.1rc1 candidate, containing the full runtime and readable MIRL/HS/1 source. Preserve
   `Private :: Do Not Upload` and the existing artifact/secret gates until a

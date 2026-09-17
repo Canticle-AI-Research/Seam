@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-09-14-claude-code-benchmark-next
+latest: 2026-09-17-package-release-repair
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-14-claude-code-benchmark-next` | [2026-09-14-claude-code-benchmark-next.md](2026-09-14-claude-code-benchmark-next.md) | `2026-09-12-memory-formation-roadmap` | `HISTORY#646` | `current` |
+| `2026-09-17-package-release-repair` | [2026-09-17-package-release-repair.md](2026-09-17-package-release-repair.md) | `2026-09-14-claude-code-benchmark-next` | `HISTORY#647` | `current` |
+| `2026-09-14-claude-code-benchmark-next` | [2026-09-14-claude-code-benchmark-next.md](2026-09-14-claude-code-benchmark-next.md) | `2026-09-12-memory-formation-roadmap` | `HISTORY#646` | `superseded` |
 | `2026-09-12-memory-formation-roadmap` | [2026-09-12-memory-formation-roadmap.md](2026-09-12-memory-formation-roadmap.md) | `2026-09-08-package-names-testpypi-candidate` | `HISTORY#645` | `superseded` |
 | `2026-09-08-package-names-testpypi-candidate` | [2026-09-08-package-names-testpypi-candidate.md](2026-09-08-package-names-testpypi-candidate.md) | `2026-09-07-s8-protected-main-suite-next` | `HISTORY#642` | `superseded` |
 | `2026-09-07-s8-protected-main-suite-next` | [2026-09-07-s8-protected-main-suite-next.md](2026-09-07-s8-protected-main-suite-next.md) | `2026-09-07-r2-backend-s8-qualified` | `HISTORY#641` | `superseded` |

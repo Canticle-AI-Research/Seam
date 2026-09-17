@@ -14,6 +14,7 @@ coverage, open the [documentation map](DOCUMENTATION_MAP.md).
 | Organize the launch | [Product map](PRODUCTS.md) | [Launch plan](roadmap/SEAM_LAUNCH.md), [packaging migration](status/packaging-licensing.md), and [current handoff](handoffs/INDEX.md) |
 | Understand what SEAM is | [SEAM governing specification](../SEAM_SPEC_V0.1.md) | [MIRL v1 contract](MIRL_V1.md) and [engineering architecture](engineering/01_ARCHITECTURE.md) |
 | Install and use SEAM | [Operator guide](SEAM_OPERATOR_GUIDE.md) | [Setup](setup.md), [how-to runbooks](howto/README.md), and [troubleshooting](errors.md) |
+| Install, update, or release the renamed packages | [Package release flow](RELEASE_FLOW.md) | [Product map](PRODUCTS.md), [TestPyPI procedure](TESTPYPI.md), and [packaging status](status/packaging-licensing.md) |
 | Understand the architecture | [Engineering manual](engineering/README.md) | [RAG architecture](RAG_ARCHITECTURE.md), [knowledge graph](KNOWLEDGE_GRAPH.md), and [reasoning graph](REASONING_GRAPH.md) |
 | Continue or resume a SEAM initiative with Codex | [Continuing SEAM work with Codex](SOP_SEAM_CODEX_WORKFLOW.md) | [Codex agent orchestration mechanics](SOP_AGENT_ORCHESTRATION.md), [engineering change SOP](engineering/06_ENGINEERING_CHANGE_SOP.md), and [current handoff](handoffs/INDEX.md) |
 | Keep Claude memory consistent across checkouts | [Claude auto memory](CLAUDE_MEMORY.md) | [Repository policy](../REPO_LEDGER.md) and [current handoff](handoffs/INDEX.md) |

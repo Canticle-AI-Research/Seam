@@ -9,11 +9,18 @@ and dated observations are recorded in HISTORY#634 and the
 
 ## Current naming candidate
 
-HISTORY#642 selects `seam-suite` for self-hosted Suite, SEAM Client for the
-paid API plus its WebUI, and `seam-sdk` for private paid delivery. Existing
+HISTORY#647 selects `seam-suite` for self-hosted Suite and `seam-api` for the
+public API surface plus WebUI, replacing the earlier SEAM Client product label
+from HISTORY#642. `seam-sdk` remains private paid delivery. Existing
 `seam-client` remains the Python HTTP client, not a dashboard distribution.
 The root candidate is `seam-suite` 2.4.1rc1; imports and commands retain their
 existing names. This is a source change, not a published package.
+
+The [release-flow repair](../RELEASE_FLOW.md) makes terminal/browser dependencies
+part of the default Suite installation, adds isolated wheel/sdist startup
+checks, and reconciles the GitHub workflows with canonical Python prerelease
+versions and exact artifact identity. The public client/server payload for a
+new `seam-api` wheel still needs confirmation; no placeholder wheel is created.
 
 The operator requires **TestPyPI first**. Follow [the procedure](../TESTPYPI.md);
 production publication and deletion of legacy releases are excluded. TestPyPI
@@ -51,9 +58,9 @@ description "private repository" must not be used as proof of access control.
 The renamed root candidate declares **`seam-suite` 2.4.1rc1** and
 `Private :: Do Not Upload`. It contains the full runtime and readable MIRL/HS/1
 source. That build remains blocked from PyPI and TestPyPI pending artifact review. The rename does not remove the classifier, alter license terms, or qualify a
-public Suite artifact. Existing release workflows still enforce their SemVer
-input contract; this PEP 440 release candidate is tested locally and does not
-pass that publication workflow.
+public Suite artifact. GitHub workflows now accept canonical PEP 440 versions,
+including this release candidate; successful version validation does not
+waive artifact eligibility, approver controls, or TestPyPI qualification.
 
 [LICENSE](../../LICENSE), [NOTICE](../../NOTICE),
 [COMMERCIAL_LICENSE.md](../../COMMERCIAL_LICENSE.md), and the named license
@@ -67,8 +74,9 @@ exact boundary in L1 before changing package contents or publication controls.
 | Coordinate | Baseline observation | Migration treatment |
 | --- | --- | --- |
 | PyPI `seam` | Unrelated Seam API SDK | Do not use as Canticle's distribution name |
-| PyPI `seam-runtime` | Legacy 1.3.1 metadata | Preserve legacy-version history and audit upgrade behavior; do not upload the root build here |
-| PyPI `seam-self-host` | Legacy 1.1.2 metadata; its in-tree build was retired | Inventory users and replacement path; do not recreate removed split tooling implicitly |
+| PyPI `seam-runtime` | 1.3.1 yanked with reason `broken` on 2026-09-17 | Preserve legacy-version history and audit upgrade behavior; do not upload the root build here |
+| PyPI `seam-self-host` | 1.1.2 has only a CPython 3.12 manylinux x86-64 wheel on 2026-09-17 | Use a new Suite environment; do not recreate removed split tooling implicitly |
+| PyPI/TestPyPI `seam-suite`, `seam-api` | HTTP 404 on 2026-09-17 | Names are not registered/owned merely because metadata is absent |
 | PyPI `seam-client` | Public HTTP client 2.0.0 metadata | Confirm current source and owner access, then plan compatibility and any successor name |
 | `Canticle-AI-Research/Seam_SDK` | Separate repository declaring `seam-sdk` 0.1.0 with a Git-pinned runtime dependency | Verify the runtime pin, supported interfaces, duplicated SDK code, and release boundary |
 | GitHub release `v2.4.0` | Existing release in the canonical repository | Inspect exact assets and terms before treating it as a Suite migration input |

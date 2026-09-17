@@ -21264,3 +21264,25 @@ Updated the detailed formation roadmap funding correction, current status, durab
 
 The main-based provider branch deliberately excludes PR264's site and M1 helper, which remain draft and NOT_QUALIFIED for missing historical TDD evidence. Its branch-local HISTORY through 653 requires chronological reconciliation before later integration. Preserve unrelated dirty primary and other worktrees; no stash was created. Required GitHub checks and protected merge must be observed before claiming delivery, and no website deployment is implied.
 ---END-ENTRY-#646---
+
+---BEGIN-ENTRY-#647---
+id: 647
+date: 2026-09-17T15:28:18Z
+agent: codex
+status: in-progress
+topics: naming, pyproject, bugfix, ci, installer, docs, verify, handoff, continuity
+commits: pending
+refs: pyproject.toml,requirements.txt,seam_runtime/doctor.py,seam_runtime/dashboard.py,tools/release/release_version.py,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,tests/audit/test_chroma_optional.py,tests/package/smoke_installed_suite.py,.github/workflows/ci.yml,.github/workflows/package-release.yml,.github/workflows/publish-private-release.yml,docs/RELEASE_FLOW.md,docs/PRODUCTS.md,docs/TESTPYPI.md,docs/handoffs/2026-09-17-package-release-repair.md
+supersedes: 646
+tokens: 705
+---
+Prepared the operator-requested package repair on protected-main baseline 66fd3f93081712871ff827e756026c3e73c71790. The selected names are seam-suite for self-hosted TUI, graph dashboard and benchmark glassbox, and seam-api for the public API surface and WebUI. This supersedes the SEAM Client product label from HISTORY#642; the old seam-client transport and private paid SDK remain distinct. The operator requested updated GitHub/SEAM docs and a handoff for their subsequent DeepSeek review.
+
+Reproduced missing TUI/browser dependencies from the default built Suite. Promote terminal/browser dependencies to core, retain compatibility extras and optional model/vector/provider boundaries, and update doctor checks including legacy python-multipart import compatibility. CI installs exact wheel and sdist artifacts in distinct fresh environments with cache reuse disabled, then exercises isolated imports, console commands, TUI mount, public health and packaged assets. The guarded GitHub workflows share canonical Python prerelease parsing and exact requested/filename/metadata identity; existing approver, protected-head, digest and no-PyPI-upload controls remain. A dashboard install-hint edit is presentation-only and carries no behavioral TDD claim.
+
+Current PyPI queries found seam-runtime 1.3.1 yanked with reason broken, seam-self-host 1.1.2 available only as a CPython3.12 manylinux x86-64 wheel, seam-client metadata still pointing at the unavailable legacy repository, and no seam-suite or seam-api metadata on PyPI/TestPyPI. No absence establishes ownership. The companion Cantlicle branch fix/seam-product-downloads-20260917 binds its displayed Suite version, exact wheel URL, SHA256 and install command to validated non-yanked PyPI metadata, keeps missing packages unavailable, preserves account gates, updates public docs/product labels and retires the removed mirror publisher. No site deployment is implied.
+
+Verification: clean Linux/Python3.12 wheel and sdist environments passed tests/package/smoke_installed_suite.py and dependency checks with no extras; the supported python-multipart0.0.6 installation exposed and then passed its import compatibility repair. The five-module focused pytest selection in docs/handoffs/2026-09-17-package-release-repair.md passed. Independent package assurance found the repaired multipart issue. The full nonexternal tests/audit run completed with three failures: existing closeout gate-order drift tracked by issue260 and two durability assertions tied to the /tmp checkout. Unchanged main outside /tmp reproduced only the gate-order failure and passed both durability assertions. Website focused Node/Python checks passed; full website unittest failure/error records match unchanged main. Full-suite success, cross-platform GUI acceptance and hosted readiness are not claimed.
+
+Updated canonical product/install/release docs, status, ledger and chronological handoff. New code red/green evidence is in local session state; external logs and artifacts are retained under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages. Public Suite file/notices eligibility, TestPyPI publisher access and seam-api client-versus-server payload remain unresolved. Private classifier and existing license terms remain. No package upload, release/tag publication, legacy deletion, paid provider call or website deployment occurred. Draft PR and exact-head CI/receipt state must be checked before merge. Preserve unrelated primary audit/history/handoff and other linked worktrees, and the website's unrelated local assets; no stash was created.
+---END-ENTRY-#647---

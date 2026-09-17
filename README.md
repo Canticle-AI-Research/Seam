@@ -11,8 +11,8 @@ before they are treated as real progress.
 > routes into operator guides, architecture, current state, evidence, and plans.
 
 The launch product family is **SEAM Suite** (`seam-suite`, self-hosted TUI,
-benchmark glassbox, and browser graph dashboard), **SEAM Client** (the paid
-hosted API and its all-in-one WebUI), and **SEAM SDK** (`seam-sdk`, private
+benchmark glassbox, and browser graph dashboard), **SEAM API** (`seam-api`, the
+public API surface and its WebUI), and **SEAM SDK** (`seam-sdk`, private
 SDK for paying users). The existing PyPI `seam-client` is the separate Python
 HTTP client for the service; installing it does not install the dashboard or
 provide paid access. These are product definitions, not launch-readiness claims.
@@ -38,17 +38,20 @@ terms:
 python -m pip install .
 ```
 
-Install with REST API and dashboard extras:
+The default Suite install includes the terminal UI and browser-server dependencies.
+The `[dash]` and `[server]` extras remain compatibility aliases; optional vector
+backends, embedding models, and benchmark providers still have their own extras.
 
-```bash
-python -m pip install ".[server,dash]"
-```
-
-Use a reviewed commit or release tag for a reproducible checkout; the naming
-candidate is not on `main` until its PR merges. Public repository visibility does not change the
+Use a reviewed commit or release tag for a reproducible checkout. Public repository visibility does not change the
 [license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
 operator setup path for repo-local development, persistent state setup, and
 platform shims.
+
+For migration, explicit upgrades, release checks, and the website's download
+connection, see [Package installation and release flow](docs/RELEASE_FLOW.md).
+`seam-api` identifies the public API/WebUI product. Its client/server package
+boundary must be confirmed before creating a public wheel; renaming the full
+runtime as `seam-api` would not establish that boundary.
 
 ## Public agent SDK
 

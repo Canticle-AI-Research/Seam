@@ -3164,7 +3164,7 @@ def _ensure_textual() -> None:
     if _TEXTUAL_IMPORT_ERROR is not None:  # pragma: no cover - environment-dependent path
         raise SystemExit(
             "The interactive dashboard requires 'textual'. Install optional dependencies with:\n"
-            "  pip install seam-runtime[dash]"
+            "  python -m pip install --upgrade seam-suite"
         ) from _TEXTUAL_IMPORT_ERROR
 
 

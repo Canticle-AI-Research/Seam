@@ -202,13 +202,23 @@ jobs:
           python -m build --wheel --sdist
 
       - name: Install built wheel
-        run: python -m pip install dist/*.whl
-
-      - name: Smoke installed commands
         run: |
-          seam --help
-          seam-mcp --help
-          seam-server --help
+          smoke_root="$(mktemp -d "${RUNNER_TEMP}/seam-package-smoke.XXXXXX")"
+          echo "SEAM_PACKAGE_SMOKE_ROOT=${smoke_root}" >> "$GITHUB_ENV"
+          python -m venv "${smoke_root}/wheel"
+          "${smoke_root}/wheel/bin/python" -m pip install --no-cache-dir dist/*.whl
+
+      - name: Smoke installed Suite outside the checkout
+        run: |
+          "${SEAM_PACKAGE_SMOKE_ROOT}/wheel/bin/python" -I tests/package/smoke_installed_suite.py
+          "${SEAM_PACKAGE_SMOKE_ROOT}/wheel/bin/python" -m pip check
+
+      - name: Smoke source distribution in a separate environment
+        run: |
+          python -m venv "${SEAM_PACKAGE_SMOKE_ROOT}/sdist"
+          "${SEAM_PACKAGE_SMOKE_ROOT}/sdist/bin/python" -m pip install --no-cache-dir dist/*.tar.gz
+          "${SEAM_PACKAGE_SMOKE_ROOT}/sdist/bin/python" -I tests/package/smoke_installed_suite.py
+          "${SEAM_PACKAGE_SMOKE_ROOT}/sdist/bin/python" -m pip check
 
   repo-hygiene:
     runs-on: [self-hosted, seam-box]

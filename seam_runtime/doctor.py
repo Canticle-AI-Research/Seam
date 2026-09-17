@@ -16,14 +16,21 @@ from .runtime import SeamRuntime
 # must never make a policy-compliant core install fail doctor. The audit suite
 # independently resolves the canonical dependency-contract runtime source and
 # rejects drift between that source and this packaged-runtime list.
-REQUIRED_DEPENDENCIES: tuple[str, ...] = ("rich", "tiktoken")
+REQUIRED_DEPENDENCIES: tuple[str, ...] = (
+    "rich", "tiktoken", "textual", "httpx", "fastapi", "uvicorn", "python_multipart"
+)
 
 
 def _dependency_available(name: str) -> bool:
-    try:
-        return find_spec(name) is not None
-    except (ImportError, AttributeError, ValueError):
-        return False
+    # The supported python-multipart 0.0.6 floor uses the legacy import name.
+    candidates = (name, "multipart") if name == "python_multipart" else (name,)
+    for candidate in candidates:
+        try:
+            if find_spec(candidate) is not None:
+                return True
+        except (ImportError, AttributeError, ValueError):
+            continue
+    return False
 
 
 def check_pgvector(dsn: str | None) -> dict[str, object]:
@@ -146,9 +153,8 @@ def build_doctor_report() -> dict[str, object]:
     )
     pgvector_dsn = os.environ.get("SEAM_PGVECTOR_DSN")
     dependencies = {
-        "rich": _dependency_available("rich"),
+        **{name: _dependency_available(name) for name in REQUIRED_DEPENDENCIES},
         "chromadb": _dependency_available("chromadb"),
-        "tiktoken": _dependency_available("tiktoken"),
         "psycopg": _dependency_available("psycopg"),
         "sentence_transformers": _dependency_available("sentence_transformers"),
     }

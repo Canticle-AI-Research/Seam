@@ -6,7 +6,8 @@
 the RAW/MIRL/PACK/LENS behavior remains governed by the
 [SEAM specification](../SEAM_SPEC_V0.1.md) and [MIRL contract](MIRL_V1.md).
 The launch direction is recorded in HISTORY#634; names and TestPyPI-first
-publication were updated by the operator in HISTORY#642.
+publication were updated by the operator in HISTORY#642. HISTORY#647 replaces
+the hosted "SEAM Client" product label with **SEAM API (`seam-api`)**.
 
 ## Product family
 
@@ -16,7 +17,7 @@ that a package, complete interface, or hosted service is available today.
 | Name | Role | Included experience |
 | --- | --- | --- |
 | SEAM Suite (`seam-suite`) | Self-hosted SEAM operated on the user's infrastructure | Product Core, TUI, browser graph dashboard, knowledge database inspection, and benchmark glassbox |
-| SEAM Client | Paid hosted API and its all-in-one WebUI dashboard | Supported API contract, customer access and isolation, usage controls, and integrated operator dashboard |
+| SEAM API (`seam-api`) | Public API surface and its WebUI | Supported API contract, customer access and isolation, usage controls, and integrated browser dashboard |
 | SEAM SDK (`seam-sdk`) | Private developer SDK with access for paying users | Private runtime integration; customer delivery and supported versions require qualification |
 | Python HTTP client (`seam-client`) | Separate Python client for the public API | Transport and opaque public models; distinct from the private paid SDK |
 
@@ -24,7 +25,7 @@ The Suite TUI handles terminal operation, status, and workflow controls. The
 rich graph experience runs in a browser and can open independently. A terminal
 approximation does not satisfy the browser design's acceptance criteria.
 
-“SEAM WebUI” names the browser component of SEAM Client; it is not a fourth
+“SEAM WebUI” names the browser component of SEAM API; it is not a fourth
 product. The existing `seam-client` Python distribution remains a transport
 library, distinct from the hosted dashboard. Its installation does not grant
 service access. The browser UI is delivered by the service, not by that wheel.
@@ -77,14 +78,18 @@ Product names, Python distributions, and service deployments are separate:
 | Artifact role | Selected name | Existing coordinate to reconcile |
 | --- | --- | --- |
 | Suite installation/distribution | `seam-suite` | Renamed root candidate, formerly `seam-runtime`; retired `seam-self-host` artifacts require explicit migration |
-| Hosted API and dashboard | SEAM Client | Existing server and WebUI; no separate public server package is required |
-| Python HTTP client for SEAM Client | `seam-client` | Existing published Python client; keep `seam_client` imports and compatibility |
+| Public API and WebUI | `seam-api` | New product name; public client/server artifact boundary still needs confirmation before a new wheel is created |
+| Legacy Python HTTP client for SEAM API | `seam-client` | Existing published Python client; preserve existing `seam_client` imports during migration |
 | Private paid Python SDK | `seam-sdk` (private delivery only) | Private `Seam_SDK` repository already declares this distribution name |
 
 The root distribution candidate is `seam-suite` 2.4.1rc1. Existing `seam` and
 `seam_runtime` imports and console commands remain unchanged. Install in a
 fresh environment rather than co-installing overlapping legacy distributions.
 The new name does not qualify the current source bundle for public upload.
+Suite installs its TUI and browser-server dependencies by default. Optional
+model, vector, and benchmark-provider dependencies remain opt-in. A package
+smoke proves installation and startup; full graph/glassbox workflow acceptance
+remains a separate product requirement.
 
 **TestPyPI first:** use [the testing procedure](TESTPYPI.md) before any
 production publication. TestPyPI is public, has independent accounts and
