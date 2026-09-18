@@ -18,11 +18,11 @@ and optionally transfer/fuse that context between compatible open-weight models.
 
 The architectural invariant is:
 
-\`\`\`text
+```text
 RAW / MIRL = durable truth and provenance
 PACK       = disposable token-facing context
 LATENT     = disposable model-specific acceleration/communication artifact
-\`\`\`
+```
 
 A latent artifact must always be traceable back to the MIRL records and
 retrieval decision that produced it. It is never allowed to become the only
@@ -41,7 +41,7 @@ Keep the work in the canonical SEAM repository while it depends directly on:
 Use a dedicated branch and optional experimental package boundary so model
 dependencies do not leak into the base runtime.
 
-Extract a separate \`seam-cachebridge\` repository only when at least two of the
+Extract a separate `seam-cachebridge` repository only when at least two of the
 following are true:
 
 1. projector/fuser training requires an independently deployed GPU service;
@@ -54,6 +54,99 @@ following are true:
 If extraction happens, MIRL selection, provenance, trust gating and benchmark
 claim policy remain owned by SEAM. Only model-specific capture/projection/fusion
 moves out.
+
+## Experimental discipline — baseline before mutation
+
+This lane follows a hard baseline-first rule:
+
+> **No experimental mechanism is implemented until the unchanged system has a
+> reproducible, preserved baseline under the exact evaluation contract that will
+> be used to judge the candidate.**
+
+The baseline is not a smoke test and is not reconstructed after the fact. It is
+captured from a clean, identified pre-change commit before the experimental
+variable is introduced.
+
+For every LC stage that changes measurable behavior:
+
+1. define the hypothesis and the metric(s) before implementation;
+2. freeze the evaluation population, dataset/hash, prompts/templates, model and
+   tokenizer revisions, retrieval configuration, budgets, hardware/runtime
+   description, and scoring procedure;
+3. run the unchanged control and persist the raw result bundle plus hashes;
+4. record the exact baseline commit and verify it predates the first
+   behavior-changing candidate commit;
+5. make one bounded experimental change;
+6. rerun the same contract;
+7. report both absolute results and deltas;
+8. preserve every prior result instead of replacing the historical baseline;
+9. if the evaluation contract changes materially, capture a new versioned
+   baseline before making the next comparison.
+
+The cumulative evidence model is:
+
+```text
+B0  unchanged SEAM / receiver control
+ |
+ +-- C1  induction-aware PACK
+ |      compare to B0 and previous stage
+ |
+ +-- C2  latent capture/replay
+ |      compare to B0 and C1
+ |
+ +-- C3  CacheBridge projection/fusion
+ |      compare to B0 and C2
+ |
+ +-- C4+ later mechanisms
+        compare to B0 and immediate predecessor
+```
+
+This produces two views at all times:
+
+- **absolute retrospective delta** from the original frozen baseline; and
+- **marginal delta** attributable to the newest bounded change.
+
+A stage cannot be described as an improvement merely because its final score is
+high. It must show the preserved before/after evidence under a matched contract.
+
+### Baseline artifact concept
+
+Each experiment should eventually be represented by a versioned manifest with
+at least:
+
+- experiment ID and roadmap stage
+- baseline commit and candidate commit
+- dataset/evaluation manifest hash
+- model/tokenizer revisions
+- retrieval/PACK configuration
+- prompt/template hashes
+- runtime/hardware description
+- metrics and budgets
+- raw-result artifact hashes
+- absolute and marginal deltas
+- provenance-integrity result
+- decision: proceed, revise, hold, or abandon
+
+The roadmap does not prescribe the final storage implementation yet. LC0 should
+decide whether this becomes a SEAM experiment stream, benchmark bundle extension,
+or a small dedicated experiment ledger. Whatever representation is chosen must
+be append-only in practice: old baselines and failed candidates stay reviewable.
+
+### Review checkpoints
+
+At the end of every LC stage, stop and review the evidence before opening the
+next mechanism. The review asks:
+
+- Did the candidate beat the unchanged baseline?
+- Did it beat the immediately previous stage?
+- What did it cost in latency, tokens, VRAM, cache bytes, complexity, or risk?
+- Did provenance/trust guarantees stay intact?
+- Is the observed gain large and stable enough to justify the next layer of
+  complexity?
+- Did any control regress?
+
+A negative or ambiguous result is useful data. The roadmap permits holding,
+redesigning, or abandoning a stage instead of automatically progressing.
 
 ## Research questions
 
@@ -83,7 +176,7 @@ moves out.
 
 ## Proposed architecture
 
-\`\`\`text
+```text
                      SEAM canonical memory
                             MIRL
                               |
@@ -108,7 +201,7 @@ moves out.
                                                        projector / fuser
                                                                   |
                                                              receiver
-\`\`\`
+```
 
 ### LatentContextSpec
 
@@ -132,7 +225,7 @@ It contains no tensor payload.
 A derived, disposable artifact containing or referencing captured model state:
 
 - schema version
-- source \`LatentContextSpec\` fingerprint
+- source `LatentContextSpec` fingerprint
 - exact model/tokenizer revisions
 - KV tensor metadata and checksum
 - layer/head/dimension shape
@@ -188,8 +281,9 @@ Minimum metrics:
 - invalid/stale artifact rejection rate
 - no-change/control regression rate
 
-Exit: a provider-free baseline bundle exists and can be rerun without bridge
-training.
+Exit: a provider-free baseline bundle exists from a clean identified pre-change
+commit, is hash-preserved, can be rerun without bridge training, and is reviewed
+before any LC1+ behavior-changing implementation begins.
 
 ### LC1 — Induction-aware PACK baseline
 
@@ -198,11 +292,11 @@ training.
 Add an experimental PACK ordering strategy that groups retrieved evidence into
 repeated structural motifs such as:
 
-\`\`\`text
+```text
 situation -> action -> outcome
 situation' -> action' -> outcome'
 current situation -> ?
-\`\`\`
+```
 
 The implementation must preserve the exact same selected MIRL refs and evidence
 budget as the control PACK. Only ordering/grouping changes.
@@ -231,11 +325,11 @@ Implement an optional experimental adapter for Hugging Face causal LMs that:
 
 Suggested boundary:
 
-\`\`\`python
+```python
 spec = seam.latent.plan(query, model_id=...)
 artifact = adapter.capture(spec)
 answer = adapter.generate(query, latent=artifact)
-\`\`\`
+```
 
 Exit: replay is behaviorally equivalent to a normal matched prefill within a
 declared tolerance and all provenance checks round-trip.
@@ -308,11 +402,11 @@ losing provenance or materially regressing controls.
 
 Examples:
 
-\`\`\`text
+```text
 code specialist ----\
 math specialist -----+--> SEAM fusion policy --> receiver
 memory retrieval ----/
-\`\`\`
+```
 
 SEAM, not the models, owns the admission ledger:
 
@@ -380,7 +474,7 @@ Decision outputs:
 
 - keep experimental in SEAM;
 - promote to supported optional SEAM adapter;
-- extract \`seam-cachebridge\` behind a stable interface;
+- extract `seam-cachebridge` behind a stable interface;
 - abandon if benefits do not survive matched evaluation.
 
 No product or benchmark claim is promoted from a single demo.
@@ -389,7 +483,7 @@ No product or benchmark claim is promoted from a single demo.
 
 Recommended initial package layout:
 
-\`\`\`text
+```text
 seam_runtime/
   latent/
     __init__.py
@@ -412,7 +506,7 @@ tests/
   latent/
     test_hf_cache_replay.py
     test_cachebridge_projector.py
-\`\`\`
+```
 
 Do not add torch/transformers to SEAM core dependencies. Introduce a deliberate
 optional extra only when LC2 begins, after dependency/security review.
@@ -421,15 +515,15 @@ optional extra only when LC2 begins, after dependency/security review.
 
 Roadmap work begins on:
 
-\`feat/latent-cachebridge-roadmap-20260917\`
+`feat/latent-cachebridge-roadmap-20260917`
 
 Implementation should use a fresh branch from the then-current protected
-\`main\`, preferably one branch/PR per LC stage. Do not build LC2-LC6 directly on
+`main`, preferably one branch/PR per LC stage. Do not build LC2-LC6 directly on
 the roadmap branch.
 
 Suggested progression:
 
-\`\`\`text
+```text
 main
   |
   +-- feat/latent-cachebridge-lc0
@@ -437,7 +531,7 @@ main
   +-- feat/latent-cache-lc2
   +-- feat/cachebridge-lc3
   ...
-\`\`\`
+```
 
 Each stage must preserve the repo's existing history, handoff, benchmark and
 protected-main gates.
