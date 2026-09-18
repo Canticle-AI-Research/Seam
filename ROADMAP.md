@@ -47,6 +47,37 @@ completion of the Suite/API surface campaign. Packaging/publication blockers
 and S9/S10 Promotion remain explicit; no new runtime or deployment claim is
 made by this priority change.
 
+## Track Latent CacheBridge — model-native semantic communication
+
+<!-- seam:item
+id: roadmap:track:LatentCacheBridge
+status: planned
+status-since: 2026-09-17
+status-by: roadmap
+supersedes: none
+topics: roadmap, plan, memory, models, multi-agent, pack, provenance, benchmark
+priority: 3
+phase: 0
+-->
+
+**Role:** independent research lane running alongside the active Memory Formation
+work. It must not displace formation acceptance, launch blockers, or existing
+correctness gates.
+
+The [detailed Latent CacheBridge roadmap](docs/roadmap/LATENT_CACHEBRIDGE.md)
+defines LC0-LC8: reproduction/measurement, induction-aware PACK ordering,
+same-model KV capture, a SEAM-native learned cache projector/fuser,
+provenance-aware trust gating, heterogeneous transfer, multi-sharer fusion,
+security testing, and the final qualification/extraction decision.
+
+The governing boundary is that MIRL remains canonical and model-independent.
+KV caches and projected latent artifacts are disposable, versioned derivatives
+with exact backreferences to selected MIRL records and retrieval evidence. The
+work begins inside SEAM on isolated feature branches and optional dependencies;
+it moves to a separate \`seam-cachebridge\` repository only if the documented
+extraction gates are met. No latent implementation or performance claim is
+established by adding this roadmap lane.
+
 ## 2026-05-01 Functional Visual Memory Target
 
 The next roadmap target is making the full SEAM visual-memory loop functional:
