@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-09-14-claude-code-benchmarks
+latest: 2026-09-18-roadmap-fork-reconciliation
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,7 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-09-18 | [Roadmap fork reconciliation and open-PR disposition](2026-09-18-roadmap-fork-reconciliation.md) | continuity / roadmap registry / open-PR state | `HISTORY#647` |
 | 2026-09-14 | [Claude.ai subscription benchmark transport verification](2026-09-14-claude-code-benchmarks.md) | subscription transport, bounded real smoke and failure accounting | `HISTORY#646` |
 | 2026-09-06 | [L1 packaging and SDK migration preparation](2026-09-06-l1-packaging-migration.md) | package/source/ownership map and scoped artifact evidence | `HISTORY#635` |
 | 2026-08-29 | [Full-repository audit](2026-08-29-full-repo-audit.md) | whole-repo health audit | `HISTORY#632` |
