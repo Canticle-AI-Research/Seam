@@ -68,7 +68,10 @@ The [detailed Latent CacheBridge roadmap](docs/roadmap/LATENT_CACHEBRIDGE.md)
 defines LC0-LC8: reproduction/measurement, induction-aware PACK ordering,
 same-model KV capture, a SEAM-native learned cache projector/fuser,
 provenance-aware trust gating, heterogeneous transfer, multi-sharer fusion,
-security testing, and the final qualification/extraction decision.
+security testing, and the final qualification/extraction decision. The lane is
+baseline-first: the unchanged system must be measured and hash-preserved before
+any behavior-changing experiment, and every later stage must report both its
+delta from the original baseline and its marginal delta from the previous stage.
 
 The governing boundary is that MIRL remains canonical and model-independent.
 KV caches and projected latent artifacts are disposable, versioned derivatives
