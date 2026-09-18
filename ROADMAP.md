@@ -1,6 +1,6 @@
 # SEAM Improvement Roadmap & SOP Blueprint
 
-**Last updated:** 2026-09-12
+**Last updated:** 2026-09-18
 **Status:** Active planning document. This is the living roadmap for SEAM development beyond the stable v1 core.
 
 ## Track Memory Formation — active execution roadmap
@@ -46,6 +46,37 @@ Memory-formation investigation and its bounded benchmark setup now precede
 completion of the Suite/API surface campaign. Packaging/publication blockers
 and S9/S10 Promotion remain explicit; no new runtime or deployment claim is
 made by this priority change.
+
+## Track PCS — Persistent Concept State / CacheBridge research
+
+<!-- seam:item
+id: roadmap:track:PCS
+status: planned
+status-since: 2026-09-18
+status-by: none
+supersedes: none
+topics: roadmap, plan, memory, concepts, benchmark, provenance, models, persist
+priority: 4
+phase: 2
+-->
+
+**Status:** planned experimental research; not an implemented SEAM capability.
+The [detailed PCS/CacheBridge roadmap](docs/roadmap/PERSISTENT_CONCEPT_STATE.md)
+combines three prior-art baselines — Cache-to-Cache (C2C), Latent Cache Flow
+(LCF / cross-context LCF), and Dynamic Large Concept Models (DLCM) — into a
+baseline-first research program for SEAM Persistent Concept State.
+
+The SEAM-specific hypothesis is that a model can carry a bounded,
+reconstructable semantic working state across interactions, update only the
+novel provenance-backed delta, and reactivate that state through text first and
+then a learned latent bridge, without replaying the complete conversation on
+every turn. SQLite/RAW/MIRL/provenance remain canonical; concept state, KV
+artifacts, and latent bridge payloads are derived and disposable.
+
+**Hard gate:** start at PCS0 measurement freeze. Do not implement the proposed
+SEAM-native bridge before preserving matched full-context, retrieval, C2C, LCF,
+and DLCM/concept-compression baselines. No efficiency or quality claim exists
+until the corresponding retained evidence bundle exists.
 
 ## 2026-05-01 Functional Visual Memory Target
 
@@ -2050,6 +2081,7 @@ Later - benchmark credibility, scale, and adaptive context loop
 - H3: Retrieval integration with stream filters (after H1 substrate stable)
 - H4: Generalized library streams + seam_protocol templating (after H1-H3)
 - V: Grounded research acquisition (after S8/S9 and H4; coordinated with Ghost G3a)
+- PCS: Persistent Concept State / CacheBridge research; begin with PCS0 frozen baselines before any C2C/LCF/DLCM-derived implementation
 - C5: Cross-machine reproducibility
 - C4: Adversarial testing
 - C3: Gold standard benchmarks (BEIR/MTEB)
