@@ -21264,3 +21264,187 @@ Updated the detailed formation roadmap funding correction, current status, durab
 
 The main-based provider branch deliberately excludes PR264's site and M1 helper, which remain draft and NOT_QUALIFIED for missing historical TDD evidence. Its branch-local HISTORY through 653 requires chronological reconciliation before later integration. Preserve unrelated dirty primary and other worktrees; no stash was created. Required GitHub checks and protected merge must be observed before claiming delivery, and no website deployment is implied.
 ---END-ENTRY-#646---
+
+---BEGIN-ENTRY-#647---
+id: 647
+date: 2026-09-18T19:53:55Z
+agent: claude
+status: changed
+topics: roadmap, plan, handoff, continuity, audit, streams, verify, docs
+commits: pending
+refs: docs/audits/2026-09-18-roadmap-fork-reconciliation.md,docs/audits/INDEX.md,docs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md,docs/handoffs/2026-09-14-claude-code-benchmark-next.md,docs/handoffs/INDEX.md,PROJECT_STATUS.md,REPO_LEDGER.md
+supersedes: 646
+tokens: 1110
+---
+Reconciled the registered continuity chain against live repository state. The chain's head was 2026-09-14 (HISTORY#646); three pull requests opened after it were unregistered, two of which add overlapping research tracks. Documentation and continuity only: no runtime code, roadmap registration, benchmark, provider configuration, website or deployment changed, and no open pull request was modified, rebased or pushed to.
+
+Recorded state at protected main 66fd3f93081712871ff827e756026c3e73c71790, all open PRs draft. PR268 (head ab1bcd348d1a07e3546b77dfe67a5c923253cce7) registers roadmap:track:PCS with docs/roadmap/PERSISTENT_CONCEPT_STATE.md over stages PCS0-PCS10. PR267 (head 24e1725134d476798992cc7ecaef7de299d27cc6) registers roadmap:track:LatentCacheBridge with docs/roadmap/LATENT_CACHEBRIDGE.md over stages LC0-LC8. They are overlapping, not duplicates: PCS7 is the same mechanism PR267 develops across LC2-LC8, while PR267 uniquely holds the induction-aware PACK experiment, the security campaign, the package layout and the extraction criteria. Both patches insert into the identical gap at ROADMAP.md:44-50 under the same hunk header, so the second to merge conflicts; PR268 adds a backlog line at line 2050 that PR267 has no counterpart for. PR266, PR230 and PR213 are recorded as unregistered and technically unexamined. PR264's head is unchanged at 18abe44236021ba0bfddb78f55d067754c0d42ef, so its NOT_QUALIFIED, TDD_UNPROVEN disposition for tools/memory_formation_m1.py still describes current state.
+
+Neither research lane was accepted, started or funded. The recommendation recorded in the audit is to reconcile them to one registered track before either merges, retaining the PCS frame and folding LATENT_CACHEBRIDGE.md in as the referenced PCS7 mechanism specification; the operator owns that decision. Request R14 keeps the formation priorities dominant, so beginning PCS0 or LC0 before M1 acceptance, the B1 metadata contract and the E1 evaluation design would invert the roadmap's dependency order.
+
+Recorded two enforcement facts. ROADMAP.md carries 66 seam:item markers and .seam/streams/roadmap/state.md lists 66 items, so they agree at this commit, but tools/streams/verify_streams.py contains zero roadmap references: the Session End instruction to rerun tools.streams.roadmap_parser is enforced by no local gate and no required CI check, and state.md is what AGENTS.md directs agents to read instead of ROADMAP.md. A drift check is proposed, not implemented. Separately, five BIL-2 integrity gaps in seam_runtime/benchmark_integrity.py are recorded as B1 specification input per operator decision, for repair under B2 with no runtime change now: keyless verification of a signed bundle can return PASS on forged content because the missing-key signature check emits WARN at line 265 and WARN is tolerated by the status loop; the HMAC-SHA256 seal is symmetric so anyone able to verify is able to forge; result_hash strips VOLATILE_RESULT_HASH_KEYS recursively by key name so all latency fields are unsigned; validate_publication_readiness takes git_sha, fixture_hash and dataset_name as caller arguments and only checks non-emptiness, never binding them into the signed block; and build_input_manifest has no required/optional/unavailable/unsupported field taxonomy.
+
+Verification: the canonical preflight is eight gates, not the six listed in the AGENTS.md Session End text; tools/git-hooks/pre-commit and tools.history.closeout both also run verify_agent_config first and verify_audit_claims --changed-since HEAD last. All eight pass on this delivery. verify_wiki reports 276 active pages reachable once the declared lint extra markdown-it-py is installed; it cannot run in a bare container. verify_continuity reports no snapshot for the latest entry on a fresh clone because .seam/snapshots/*.json is gitignored at .gitignore:70 with only .gitkeep tracked; the snapshot is written locally at session close. Neither is a defect on main. verify_audit_claims initially rejected four citations to files existing only on PR264 and PR267 heads; those are now written as branch-qualified plain text rather than repository citations. Targeted tests/audit slice covering handoffs, wiki navigation, closeout, local-gates-match-CI, status streams, stream content hashing, substream isolation and PR gates ran with one pre-existing failure, tests/audit/test_history_closeout.py::test_preflight_gates_match_canonical_commit_hook, which reproduces identically on a clean origin/main worktree and is left unfixed as out of scope. The remaining tests/audit modules could not be collected because runtime extras such as fastapi are absent from this container; 15 modules error at import, which is an environment limitation and not an observed pass. Candidate files were scanned for secret-shaped values and provider session URLs with none present. ROADMAP.md was deliberately not modified, so no roadmap parser rerun is required and this branch does not conflict with PR267 or PR268.
+
+Unresolved next step: the operator decides which lane carries the research registration and whether PR264 is split. B1 and E1 are then the unblocked slices feeding M2; both were left unstarted by this delivery. The three arXiv identifiers cited by PR268 were not independently verified against upstream listings. HISTORY#646 carries commits: pending and its merge SHA was never backfilled; HISTORY.md is append-only so this is noted rather than edited.
+---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-19T01:03:58Z
+agent: claude
+status: changed
+topics: benchmark, locomo, holdout, plan, docs, verify, models, retrieval
+commits: pending
+refs: docs/E1_EVALUATION_CONTRACT.md,docs/README.md,benchmarks/external/locomo/holdout_assignment.json
+supersedes: 647
+tokens: 929
+---
+Froze the E1 evaluation contract for the memory-formation campaign and pinned the LoCoMo dev/holdout split in git. Documentation and a derived manifest only: no runtime code changed, no provider call was made, no benchmark was run and no score is claimed.
+
+Recorded frozen conditions in docs/E1_EVALUATION_CONTRACT.md: dataset locomo10.json at sha256 79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4 with 1542 runner cases and full-set fixture hash 405308a9159b88dd0675b798f59a3af16cdcc7061c31a6fcccc1638fe7f86d36; answerer and judge pinned to the claude-code subscription transport on claude-haiku-4-5-20251001; retrieval held fixed at legacy-weighted, top-k 100 and an 8000-character budget with real cached embeddings; judged correctness primary with string-match and recall explicitly secondary and non-promotable; fresh re-ingest required per formation arm with --keep-db forbidden; and separate scoreboards from any mem0-harness or published comparator number.
+
+Generated benchmarks/external/locomo/holdout_assignment.json via tools.h2.holdout_split at the default salt seam-locomo-v1 and ratio 0.8. The module docstring required this manifest to be committed so the split could not change silently, but no manifest existed: the split was computed on the fly from runner defaults and was reproducible only by convention. Generation reported dev=1198 holdout=344 added=1542 unchanged=0, and the runner's dev and holdout fixture hashes (75132ee187e058b2 and 35df739c70d7a781 prefixes) were identical before and after the manifest existed, so committing it pins current behavior and alters no past result. Manifest sha256 ea3e481ee052c620cc22aef4127a423e9b2e1c5d95f720911c8627ec4ccbfad4.
+
+Carried three benchmark-trap constraints into the contract as binding rules rather than advice: a 300-case no-change control run establishes a noise floor and any delta below it is reported as no detected change; free recall and overlap metrics triage only and never establish a win; and reported spend totals are lower bounds because artifacts retain only the last clean pass per case. Recorded the answerer-strength limitation explicitly, since a formation gain measured on haiku may shrink on a stronger answerer and is therefore insufficient for an external claim. Recorded the BIL-2 limitations from HISTORY#647 as a retention caveat: until B2 lands, a sealed bundle from this campaign is internal integrity evidence, not third-party attestation, and its timing fields are unsigned.
+
+Cost position: the single merged quickstart case reported USD 0.008487 for answerer plus judge, which projects to roughly 10.17 for a 1198-case dev run, 2.92 for holdout and 13.09 for the full set. That per-case figure is a lower bound taken from a small synthetic fixture and not a full-context case. The operator authorized only a bounded ten-case dev smoke with a 0.50 ceiling to measure the true per-case rate; no full run is authorized and the full-run budget is a separate operator decision.
+
+Verification: dry-run inspection of all, dev and holdout splits before and after manifest generation, with identical case counts and fixture hashes. verify_wiki passes and reports 277 active pages reachable after routing the contract from docs/README.md. Full eight-gate preflight run at closeout. No paid call, no holdout exposure and no ROADMAP.md change, so the roadmap parser needs no rerun and this branch still does not conflict with PR267 or PR268.
+
+Next unresolved step: run the authorized ten-case dev smoke and report the measured per-case cost, then obtain a full-run budget decision. M1 acceptance on PR264 and the B1 metadata contract remain separate prerequisites for M2 and are not advanced by this entry.
+---END-ENTRY-#648---
+
+---BEGIN-ENTRY-#649---
+id: 649
+date: 2026-09-19T01:16:06Z
+agent: claude
+status: changed
+topics: benchmark, integrity, security, verify, docs, plan, mirl, provenance
+commits: pending
+refs: docs/BIL_3_SPEC.md,docs/README.md
+supersedes: 648
+tokens: 1033
+---
+Recorded the B1 specification for BIL-3, the proposed Signed Reproducibility Bundle, in docs/BIL_3_SPEC.md. Specification only: no implementation, no supported level change, and no artifact may carry a BIL-3 label until B2 delivers it. BIL-0, BIL-1 and BIL-2 keep their documented semantics and verification behavior; BIL-3 is additive.
+
+The specification is driven by five defects verified against seam_runtime/benchmark_integrity.py at 66fd3f9 and first recorded in HISTORY#647. D1: a signed bundle verified without a key emits WARN at line 265, the status loop tolerates WARN, and overall status becomes PASS, so an actor without the key can rewrite result, recompute bil.result_hash and input_manifest_hash and have the bundle verify PASS to any keyless reader. D2: SIGNATURE_ALGO is HMAC-SHA256 at line 12, so every party able to verify is able to forge and no third-party attestation is possible. D3: result_hash strips VOLATILE_RESULT_HASH_KEYS recursively by key name at any depth via stable_result_hash_input at line 53, leaving every latency and elapsed field unsigned. D4: validate_publication_readiness at line 301 takes git_sha, fixture_hash and dataset_name as caller arguments and checks only non-emptiness, so the commit a published claim names is not bound into the seal. D5: build_input_manifest at line 65 has no taxonomy distinguishing a field never collected from one collected and empty.
+
+Resolutions specified: an explicit present/unavailable/unsupported/omitted field taxonomy with controlled reasons, where an absent field makes the bundle invalid; timing moved inside the seal with two hashes, a content_hash excluding wall-clock timestamps and an artifact_hash covering everything, and exclusions listed by explicit path rather than by recursive key name; Ed25519 signing over the canonical serialization of the whole bundle except the signature block, which places git SHA, fixture hash and dataset name inside the signed region by construction; fully specified canonical JSON serialization; key fingerprint and id carried with the signature, with an unknown key verifying as VALID_SIGNATURE_UNTRUSTED_KEY rather than as endorsement; and fail-closed verification returning exactly PASS, FAIL or UNVERIFIED, where UNVERIFIED is explicitly not a pass and publication readiness accepts only PASS.
+
+Also specified the formation metadata contract that M2 consumes, covering formation version, segmentation policy, segment count and size distribution, boundary signals, source-anchor coverage, attribution and timestamp preservation with a synthesized-timestamp counter that must be zero, entity-view version, contradictions retained, and a reingest_required flag that must be true for any formation comparison per the E1 prohibition on --keep-db. These fields are diagnostics and may never be reported as answer quality.
+
+Recorded that a signature proves artifact integrity and identity only and proves nothing about experiment design; that secrets are never fingerprinted into a manifest because hashing a credential leaks an oracle against it; and that changing BIL-2's keyless path from PASS to UNVERIFIED is a behavior change for existing consumers requiring a recorded migration decision under B2 rather than a silent fix. PKI, key distribution, rotation, revocation and transparency logging are explicitly out of scope.
+
+Verification: verify_wiki passes and reports 278 active pages reachable after routing the specification from docs/README.md. Full eight-gate preflight run at closeout. No runtime code was changed, no test was added or modified, no provider call was made and no benchmark was run by this entry. ROADMAP.md was not modified, so no roadmap parser rerun is required and this branch still does not conflict with PR267 or PR268.
+
+Next unresolved step: the operator runs the E1-authorized ten-case dev smoke on their own machine, since the remote container is host-authenticated with ANTHROPIC_BASE_URL set and is not the intended subscription billing source. B2 implementation of this specification, M1 acceptance on PR264 and the M2 design freeze remain open and are not advanced here.
+---END-ENTRY-#649---
+
+---BEGIN-ENTRY-#650---
+id: 650
+date: 2026-09-19T05:06:10Z
+agent: claude
+status: changed
+topics: benchmark, judge, locomo, docs, correction, verify, plan, integrity
+commits: pending
+refs: docs/E1_EVALUATION_CONTRACT.md,docs/BIL_3_SPEC.md
+supersedes: 649
+tokens: 1207
+---
+Corrected a factually wrong row in the frozen E1 evaluation contract and gave the contract an explicit version. Documentation only: no runtime code changed, no provider call was made, no benchmark was run and no score is claimed. The correction was made before any run exists under the contract, so it invalidates no result.
+
+The defect. Section 4 recorded "Batch judging | --judge-batch permitted for full runs (50% judge discount)". That describes a command the runner rejects. benchmarks/external/locomo/run.py lines 534-535 call parser.error("claude-code does not support --judge-batch; no paid calls were made") when args.judge_batch is set and claude-code appears in either judge role. ClaudeCodeJudge at benchmarks/external/common/judge.py line 162 is documented "Subscription-backed synchronous judge; deliberately has no batch method" and implements score_batch nowhere; only ClaudeJudge (line 250) and OpenAIJudge (line 435) implement it. The rejection is regression-tested by tests/audit/test_claude_code_benchmark.py line 176, test_runner_rejects_subscription_batch_before_spending, which asserts returncode 2 and that no calls directory is created. Reproduced on this exact tree at fad0f89: the documented smoke command with --judge-batch added exited 2 with that message and wrote no output file.
+
+The contract therefore permitted a command that cannot run on the transport it pins. Section 4 already excludes the separately billed claude API route, which is the only route where the Anthropic Batch API discount exists, so the row was self-contradictory as well as unexecutable.
+
+Cost impact: none. The observed per-case figure of USD 0.008487 recorded in HISTORY#648 was necessarily measured on the synchronous claude-code path, because batch never existed for that transport. The roughly 10.17 dev, 2.92 holdout and 13.09 full-set projections never contained a 50 percent discount and do not change. Section 9 now states that no batch discount is assumed and that the observed rate is the synchronous rate.
+
+Second defect, found while fixing the first and not reported by the original review. The contract's amendment rule required "a new contract version" and section 3 required every run to record "this contract's version", but the document defined no version string anywhere. Both requirements were unexecutable as written. The contract now carries e1-evaluation/1.1, and the originally frozen text from HISTORY#648 is retroactively e1-evaluation/1.0. No baseline, candidate or smoke has been run under 1.0, so there is no cross-version comparison to invalidate.
+
+Third finding, recorded but not repaired here. The transport-compatibility guard exists only in the LoCoMo CLI, not in the library path. _select_batch_judge in benchmarks/external/common/runner.py line 335 returns None when a judge lacks score_batch and the caller then falls back to per-case synchronous judging, asserted by test_seam_all/test_locomo_judge_batch.py test_judge_batch_falls_back_to_sync_when_judge_lacks_score_batch. Separately, _build_report at line 545 accepts judge_batch but writes no corresponding key into the report dict, so a batched run and a synchronous run produce indistinguishable artifacts. E1 section 3 requires each run to record answerer and judge identity, and judging mode is part of that identity because a batch judge is a different call path with different failure modes. Recorded in the BIL-3 specification section 4 as a field B2 must add. No runtime code was changed by this entry, so the library fallback and the missing report field both remain open.
+
+Verification: grep for E1_EVALUATION_CONTRACT across tests, tools and test_seam_all returned no matches, so no test or gate pins the contract text and the edit breaks no gate. The rejection was reproduced live at exit code 2 with no paid call and no artifact written. All eight canonical preflight gates pass in this container: verify_agent_config, verify_integrity, verify_routing, verify_handoffs, verify_continuity, verify_streams, verify_wiki and verify_audit_claims --changed-since HEAD. The wider tests/audit suite could not be collected because fastapi, anthropic and sentence_transformers are absent from this container; that is an environment limitation, not an observed pass. ROADMAP.md was not modified, so no roadmap parser rerun is required and this branch still does not conflict with PR267 or PR268.
+
+Next unresolved step: unchanged by this entry. The operator runs the E1-authorized ten-case dev smoke on their own machine and reports the measured per-case rate, which sizes the full-run budget. Expect dev fixture hash prefix 75132ee187e058b2 and case count 1198; a mismatch means the split moved and the contract is invalid. M1 acceptance on PR264, the M2 design freeze and B2 implementation remain open and are not advanced here.
+---END-ENTRY-#650---
+
+---BEGIN-ENTRY-#651---
+id: 651
+date: 2026-09-19T05:28:25Z
+agent: claude
+status: changed
+topics: benchmark, locomo, tests, harden, verify, integrity
+commits: pending
+refs: benchmarks/external/locomo/run.py,tests/audit/test_locomo_resume.py
+supersedes: 650
+tokens: 1013
+---
+Gave LoCoMo checkpoints an identity so an interrupted run can later be resumed safely, and added the validated resume-state reader. Runtime change to the benchmark runner only; no scoring, retrieval, formation or provider behavior changed and no benchmark was run.
+
+Motivation is a changed constraint, not a new feature request. The operator reported the Claude.ai usage credits are gone, so the campaign is no longer bounded by dollars but by the subscription plan's rolling rate limits. A full dev baseline under the E1 contract is 1198 cases times two roles, roughly 2396 synchronous CLI calls, which will cross a limit window mid-run. Audit of the runner found checkpoints were already written durably per case to a non-ephemeral partial file and retained on failure, but nothing could read one back: grep for resume, continue and from-partial across benchmarks/external/locomo/run.py and benchmarks/external/common/runner.py returned zero matches. An interrupted run therefore had to redo every completed case, which is affordable in cents and prohibitive against a rate-limited quota.
+
+Added ResumeMismatch, _checkpoint_payload and _resume_state, and extracted the argument parser into _build_parser so the CLI surface is testable. Checkpoint payloads now carry fixture_hash, computed once as run_fixture_hash before the checkpoint closure captures it, so every checkpoint records the exact case set it came from. _resume_state fails closed on a missing file, malformed JSON, a non-object payload, an absent fixture_hash (any checkpoint written before this change) and a fixture_hash naming a different case set; entries lacking a case_id are dropped rather than counted complete, so a malformed row cannot mask an unanswered case.
+
+Deliberately did not expose a --resume CLI flag. Skipping completed cases requires seeding their prior results back into the report, and common/runner.py indexes case_results by position over the full case list with aggregate scores computed from it. Filtering the case list in run.py would emit a report missing the skipped cases with scores computed over the remainder only. The correct seed is a prior_results parameter in run_benchmark_grouped and run_benchmark_grouped_parallel that pre-populates case_results by index and skips seeded cases; that is the next slice. A test asserts the flag is absent so the withheld state is explicit rather than forgotten.
+
+Verification: eleven witnessed red then green. The ten initially authored tests all failed against unmodified source (AttributeError for the absent helpers and _build_parser), then passed after implementation; two CLI-flag tests were then deliberately replaced by one asserting the flag is not exposed, which also went red then green. Final state is nine tests passing in tests/audit/test_locomo_resume.py and seven in tests/audit/test_locomo_result_durability.py. One durability test, TestQuickstartArchives::test_quickstart_writes_durable_copy_without_output, cannot run in this container because sentence-transformers is absent; it spawns a real quickstart subprocess requiring the pinned local embedding model, and its failure message names that missing dependency explicitly. That is an environment gap, not a regression, and it was deselected rather than counted as a pass.
+
+Also recorded from the same audit, not yet fixed: SEAM_BENCH_CLAUDE_CODE_MAX_CALLS defaults to 10 in benchmarks/external/common/claude_code.py, far below the roughly 2396 calls a full dev baseline needs, so the default allowance would abort such a run early; and the claude-code transport has no retry or backoff path, so a rate-limit response is not distinguished from any other failure. Both must be resolved before a subscription-limited baseline is attempted.
+
+Next unresolved step: add the prior_results seed to the grouped runners and expose --resume on top of it, then raise the call allowance and add rate-limit-aware backoff. M1 acceptance on PR264, the M2 design freeze and B2 implementation of the BIL-3 specification remain open and are not advanced here.
+---END-ENTRY-#651---
+
+---BEGIN-ENTRY-#652---
+id: 652
+date: 2026-09-19T05:43:48Z
+agent: claude
+status: changed
+topics: memory, compile, locomo, audit, tests, verify, provenance, graph
+commits: pending
+refs: tools/memory_formation_m1.py,tests/audit/test_memory_formation_m1_probe.py,docs/audits/2026-09-13-memory-formation-m1.md,docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json,docs/audits/INDEX.md
+supersedes: 651
+tokens: 1378
+---
+Split the M1 formation audit out of PR264 onto this branch, gave its observation probe a real test suite, and independently reproduced its recorded evidence. This resolves the TDD_UNPROVEN condition that has blocked M1 acceptance and therefore blocked M2 through M5.
+
+Why M1 was blocked. The roadmap makes M1 the gate for M2, and M2 the gate for M3, M4 and M5, so the entire formation chain waited on it. M1's deliverables existed only on PR264, a 38-file change that also ships a GitHub Pages website publisher, and the exact-state assessor reported TDD_UNPROVEN for tools/memory_formation_m1.py. Investigation found the cause was stronger than a missing red-green record: a grep for memory_formation_m1 across tests/ and test_seam_all/ on PR264's head returned nothing at all. The 195-line probe that produced M1's entire evidence base had zero test coverage. Its correctness claims existed only as bare assert statements inside the probe itself, which are removed under python -O and which no CI job ever executed, so the audit's evidence had no independent check.
+
+What was done. Wrote tests/audit/test_memory_formation_m1_probe.py first, against a checkout where the probe was absent, and recorded the collection error as the red state. Then brought tools/memory_formation_m1.py, docs/audits/2026-09-13-memory-formation-m1.md and its evidence manifest onto this branch from origin/feat/seam-reports-pages-20260912 and reran, reaching green. Twenty-four tests now cover the probe: sample-set completeness, byte-exact RAW preservation including unicode, SPAN offsets indexing the exact claim text with bounds inside the RAW document, describe() purity and determinism, subject-label resolution, evidence presence on every claim, speaker-form handling, and bounded spans for long unpunctuated input.
+
+Independent reproduction. Installed the declared sbert extra at sentence-transformers 2.7.0, inside the pyproject pin of >=2.0,<3.0 rather than the 6.1.0 pip resolves by default, and cached the pinned embedding model BAAI/bge-small-en-v1.5 at revision 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a. The probe then ran end to end and reproduced the committed observations exactly: text_column_checks painting=1, museum=1, M1_CAPTION_CEDAR=0, M1_UNSTATED_SENTINEL=0; graph_edge_count 74; canonical_relation_rows 0; loaded_turns_equal true; embedding model identity identical. The recorded evidence was captured at revision 614141c5 and this rerun is several commits later, so the reproduction is across commits rather than a replay.
+
+The findings that reproduce are the substance of M1. Blip caption metadata present on the input never reaches storage, so M1_CAPTION_CEDAR is absent while painting and museum are present, and the painting and museum controls prove the negative check is not vacuous. Two dialogue rows carrying distinct dia_ids D1:1 and D1:2 but identical text load as equal turns, losing their distinctness at the loader. The direct-runtime control shows that the same text ingested under two distinct source references does stay distinct, which localizes the collapse to the loader rather than to storage. These are the context-loss observations the chunking hypothesis predicted, now stated as executable expectations rather than prose.
+
+Gate repairs required by the split. The audit cited docs/REPORT_SITE.md, which exists only on PR264's website-publisher branch, so verify_audit_claims failed on a citation to a file absent from this repository. Rewrote that sentence as branch-qualified plain text using the same technique HISTORY647 applied, so the audit now stands independently of the publisher. Registered the audit in docs/audits/INDEX.md, initially in the wrong position; verify_wiki rejected the ordering and the row was moved after the 2026-09-14 entry to keep the registry newest-first.
+
+Verification: twenty-four tests pass in tests/audit/test_memory_formation_m1_probe.py with no warnings after converting two class-scoped fixtures from instance methods to classmethods, which pytest 10 will otherwise reject. Ruff passes on the probe and the new suite. The red state was witnessed as an ImportError collection failure before the probe was added. One earlier reading of the probe was wrong and is corrected here: the exception handler binds exc and does use it through type(exc).__name__, so there is no unused-variable defect; the handler does still discard the exception message, which is a deliberate privacy tradeoff that costs diagnostic detail.
+
+Recorded but not repaired: span_text_exact in describe() calls next() over a generator without a default, so a SPAN with no matching claim would raise RuntimeError from an exhausted generator rather than reporting a failed observation. The strict-no-skip allowlist in tests/conftest.py enumerates the fastapi server extra but not the sbert extra, although both are declared optional extras in pyproject.toml, so an sbert-gated skip would fail the session rather than being allowed; the new suite therefore imports directly and must not be skip-gated.
+
+Next unresolved step: PR264 must drop tools/memory_formation_m1.py, the M1 audit and its evidence manifest now that they live here, leaving that PR to carry only the website publisher. M1 acceptance still requires independent review. M2's design freeze is unblocked once M1 is accepted, since B1 and E1 both landed earlier on this branch. M3, M4 and M5 remain unstarted, and M5 additionally requires the resume seed, call-allowance and rate-limit work recorded in HISTORY651.
+---END-ENTRY-#652---
+
+---BEGIN-ENTRY-#653---
+id: 653
+date: 2026-09-19T20:23:50Z
+agent: claude
+status: changed
+topics: handoff, continuity, ci, benchmark, locomo, memory, audit, verify
+commits: pending
+refs: docs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md,docs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md,docs/handoffs/INDEX.md
+supersedes: 652
+tokens: 1114
+---
+Registered a new tracked handoff head covering the E1 correction, the B1 specification, the M1 split and the current CI blocker, and superseded 2026-09-18-roadmap-fork-reconciliation-next. Continuity only: no runtime code changed, no provider call was made, no benchmark was run and no score is claimed.
+
+Handoff content. The operator's working scope is M0 through M5; M0 through M10 does not exist and PCS0 through PCS10 is the separate unmerged research lane on PR268. The handoff records what landed in HISTORY650 through HISTORY652 on branch claude/roadmap-implementation-4cn2al, open as draft PR269 at head 782820f with nothing merged, and states the blocker once with its evidence.
+
+The blocker. benchmarks CI is defined in .github/workflows/ci.yml, whose six jobs all declare runs-on self-hosted plus seam-box, the operator's own machine, which is offline. The file's own header records the motive as private-repo hosted minutes burning real money per HISTORY425. This is neither a GitHub outage nor runner starvation: on identical commits at identical times external-memory-benchmarks.yml runs 645 through 648 and the CodeQL runs completed in fifteen to forty-five seconds on ubuntu-latest, and the GitHub Actions status page reported Operational with no incidents in twenty-four hours. Only ci.yml never starts a job. Run 35424767115 stayed queued from 05:44:43Z through at least 18:43Z, and the earlier runs 709 through 712 were cancelled by subsequent pushes because ci.yml sets cancel-in-progress true, not by starvation. All three required checks, repo-hygiene, chroma-real-smoke and locomo-quickstart-bil2, plus pgvector-integration and package-smoke run only on that runner while main is protected, so no pull request in this repository can merge until the machine is powered on with its Actions runner service running. An earlier session in this same conversation characterised this as repo-wide runner starvation; that was wrong, is corrected in the handoff, and the handoff instructs successors not to revert to it.
+
+Also carried into the handoff: the deliberate withholding of the --resume flag pending a prior_results seed in the grouped runners, since filtering cases in run.py would emit a report missing the skipped cases with aggregates computed over the remainder only; the five recorded-not-repaired findings, namely the call allowance defaulting to ten against a need of roughly 2396, the absent rate-limit backoff, the strict-no-skip allowlist covering the fastapi extra but not sbert, the next() call without a default in describe()'s span_text_exact, and the still-absent judge_batch field in _build_report; four do-not instructions covering OAuth token extraction, unilateral migration of CI to hosted runners, weakening the strict-no-skip gate, and writing Claude session URLs into repository artifacts; and the four outstanding operator decisions covering the PR267 versus PR268 lane registration, whether PR264 drops the M1 files now duplicated on this branch, whether PR269 is split per its body's four-way recommendation, and whether two fully-merged stale branches are deleted.
+
+Verification: all eight canonical preflight gates pass through tools.history.closeout, including verify_handoffs against the advanced registry and verify_wiki with the new handoff reachable. The registry head was advanced to 2026-09-19-e1-b1-m1-split-ci-blocked-next, the new row inserted newest-first referencing HISTORY653, and the predecessor marked superseded in both the registry row and its own front matter, preserving one linear supersession chain with a strictly later HISTORY id.
+
+Next unresolved step, ordered by what unblocks the most: bring seam-box online, since nothing merges until then; add the prior_results seed to run_benchmark_grouped and run_benchmark_grouped_parallel, then expose --resume on top of it, raise the call allowance and add rate-limit-aware backoff, none of which needs CI; obtain M1 acceptance review so the M2 design freeze can proceed, since B1 and E1 both landed; and have the operator run the E1-authorized ten-case dev smoke on their own machine, expecting dev fixture hash prefix 75132ee187e058b2 and case count 1198. M3, M4 and M5 remain unstarted. B2 is implementable now for sections 3 through 7 and 9 through 10 of the BIL-3 specification, which depend on nothing from M2. A CI/CD review and repo hygiene pass were requested by the operator and have not been delivered as written artifacts.
+---END-ENTRY-#653---

@@ -5,6 +5,20 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-18 — roadmap registry fork; formation ready set unchanged.** Three
+pull requests opened after the previous handoff were unregistered, and two of
+them (`#267` `roadmap:track:LatentCacheBridge`, `#268` `roadmap:track:PCS`)
+add overlapping research tracks that insert into the identical `ROADMAP.md`
+position and cannot both merge as authored. They must be reconciled to one
+registered track before either merges; neither may displace the formation
+priorities under request R14. Roadmap marker-to-stream drift is currently
+enforced by no gate. M1 remains blocked on PR #264's acceptance condition;
+B1 and E1 are unblocked and both feed M2. Five BIL-2 integrity gaps are
+recorded as B1 input, for repair under B2. See HISTORY#647, the
+[reconciliation audit](docs/audits/2026-09-18-roadmap-fork-reconciliation.md)
+and the [current handoff](docs/handoffs/INDEX.md). No runtime code, roadmap
+registration, benchmark or deployment changed in this slice.
+
 **2026-09-14 — Claude.ai benchmark transport candidate.** The operator's
 roughly $50 is on Claude.ai, not the API Console. The explicit
 [`claude-code` answerer/judge](docs/CLAUDE_CODE_BENCHMARKS.md) uses the
