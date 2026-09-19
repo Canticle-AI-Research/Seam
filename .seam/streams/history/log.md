@@ -21424,3 +21424,27 @@ Recorded but not repaired: span_text_exact in describe() calls next() over a gen
 
 Next unresolved step: PR264 must drop tools/memory_formation_m1.py, the M1 audit and its evidence manifest now that they live here, leaving that PR to carry only the website publisher. M1 acceptance still requires independent review. M2's design freeze is unblocked once M1 is accepted, since B1 and E1 both landed earlier on this branch. M3, M4 and M5 remain unstarted, and M5 additionally requires the resume seed, call-allowance and rate-limit work recorded in HISTORY651.
 ---END-ENTRY-#652---
+
+---BEGIN-ENTRY-#653---
+id: 653
+date: 2026-09-19T20:23:50Z
+agent: claude
+status: changed
+topics: handoff, continuity, ci, benchmark, locomo, memory, audit, verify
+commits: pending
+refs: docs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md,docs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md,docs/handoffs/INDEX.md
+supersedes: 652
+tokens: 1114
+---
+Registered a new tracked handoff head covering the E1 correction, the B1 specification, the M1 split and the current CI blocker, and superseded 2026-09-18-roadmap-fork-reconciliation-next. Continuity only: no runtime code changed, no provider call was made, no benchmark was run and no score is claimed.
+
+Handoff content. The operator's working scope is M0 through M5; M0 through M10 does not exist and PCS0 through PCS10 is the separate unmerged research lane on PR268. The handoff records what landed in HISTORY650 through HISTORY652 on branch claude/roadmap-implementation-4cn2al, open as draft PR269 at head 782820f with nothing merged, and states the blocker once with its evidence.
+
+The blocker. benchmarks CI is defined in .github/workflows/ci.yml, whose six jobs all declare runs-on self-hosted plus seam-box, the operator's own machine, which is offline. The file's own header records the motive as private-repo hosted minutes burning real money per HISTORY425. This is neither a GitHub outage nor runner starvation: on identical commits at identical times external-memory-benchmarks.yml runs 645 through 648 and the CodeQL runs completed in fifteen to forty-five seconds on ubuntu-latest, and the GitHub Actions status page reported Operational with no incidents in twenty-four hours. Only ci.yml never starts a job. Run 35424767115 stayed queued from 05:44:43Z through at least 18:43Z, and the earlier runs 709 through 712 were cancelled by subsequent pushes because ci.yml sets cancel-in-progress true, not by starvation. All three required checks, repo-hygiene, chroma-real-smoke and locomo-quickstart-bil2, plus pgvector-integration and package-smoke run only on that runner while main is protected, so no pull request in this repository can merge until the machine is powered on with its Actions runner service running. An earlier session in this same conversation characterised this as repo-wide runner starvation; that was wrong, is corrected in the handoff, and the handoff instructs successors not to revert to it.
+
+Also carried into the handoff: the deliberate withholding of the --resume flag pending a prior_results seed in the grouped runners, since filtering cases in run.py would emit a report missing the skipped cases with aggregates computed over the remainder only; the five recorded-not-repaired findings, namely the call allowance defaulting to ten against a need of roughly 2396, the absent rate-limit backoff, the strict-no-skip allowlist covering the fastapi extra but not sbert, the next() call without a default in describe()'s span_text_exact, and the still-absent judge_batch field in _build_report; four do-not instructions covering OAuth token extraction, unilateral migration of CI to hosted runners, weakening the strict-no-skip gate, and writing Claude session URLs into repository artifacts; and the four outstanding operator decisions covering the PR267 versus PR268 lane registration, whether PR264 drops the M1 files now duplicated on this branch, whether PR269 is split per its body's four-way recommendation, and whether two fully-merged stale branches are deleted.
+
+Verification: all eight canonical preflight gates pass through tools.history.closeout, including verify_handoffs against the advanced registry and verify_wiki with the new handoff reachable. The registry head was advanced to 2026-09-19-e1-b1-m1-split-ci-blocked-next, the new row inserted newest-first referencing HISTORY653, and the predecessor marked superseded in both the registry row and its own front matter, preserving one linear supersession chain with a strictly later HISTORY id.
+
+Next unresolved step, ordered by what unblocks the most: bring seam-box online, since nothing merges until then; add the prior_results seed to run_benchmark_grouped and run_benchmark_grouped_parallel, then expose --resume on top of it, raise the call allowance and add rate-limit-aware backoff, none of which needs CI; obtain M1 acceptance review so the M2 design freeze can proceed, since B1 and E1 both landed; and have the operator run the E1-authorized ten-case dev smoke on their own machine, expecting dev fixture hash prefix 75132ee187e058b2 and case count 1198. M3, M4 and M5 remain unstarted. B2 is implementable now for sections 3 through 7 and 9 through 10 of the BIL-3 specification, which depend on nothing from M2. A CI/CD review and repo hygiene pass were requested by the operator and have not been delivered as written artifacts.
+---END-ENTRY-#653---

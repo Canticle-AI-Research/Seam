@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-18-roadmap-fork-reconciliation-next
 supersedes: 2026-09-14-claude-code-benchmark-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#647
 ---
 
