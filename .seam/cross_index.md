@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 714
+total_events: 715
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T08:10:43Z | history:455:133e97d5 | session-event | done | graph, identity, resolution, knowledge-graph, verify, tes... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T08:31:29Z | history:456:c5d91902 | session-event | done | graph, identity, resolution, candidate, knowledge-graph, ... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-14T12:55:45Z | history:646:beb12051 | session-event | changed | benchmark, models, tests, verify, handoff, docs, config | benchmarks/external/common/claude_code.py,benchmarks/external/common/runner.p... |
 | 2026-09-18T19:53:55Z | history:647:ced06a36 | session-event | changed | roadmap, plan, handoff, continuity, audit, streams, verif... | docs/audits/2026-09-18-roadmap-fork-reconciliation.md,docs/audits/INDEX.md,do... |
 | 2026-09-19T01:03:58Z | history:648:e3a4fd90 | session-event | changed | benchmark, locomo, holdout, plan, docs, verify, models, r... | docs/E1_EVALUATION_CONTRACT.md,docs/README.md,benchmarks/external/locomo/hold... |
+| 2026-09-19T01:16:06Z | history:649:4ecc8665 | session-event | changed | benchmark, integrity, security, verify, docs, plan, mirl,... | docs/BIL_3_SPEC.md,docs/README.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0514.cross.md | 2026-04-15T00:00:00Z..2026-07-22T07:28:54Z | 514 | (multi) | (multi) |
+| 0001-0515.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:10:43Z | 515 | (multi) | (multi) |

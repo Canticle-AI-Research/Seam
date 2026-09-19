@@ -20,7 +20,7 @@ coverage, open the [documentation map](DOCUMENTATION_MAP.md).
 | Engineer or verify a change | [Engineering change SOP](engineering/06_ENGINEERING_CHANGE_SOP.md) | [Codex agent orchestration](SOP_AGENT_ORCHESTRATION.md), [verification matrix](engineering/VERIFICATION_MATRIX.md), [test and benchmark SOP](engineering/07_TEST_AND_BENCHMARK_SOP.md), and [code layout](CODE_LAYOUT.md) |
 | Find current state or plans | [Status streams](status/index.md) | [Project-status headline router](../PROJECT_STATUS.md), [workspace inventory](status/workspace.md), [derived roadmap state](../.seam/streams/roadmap/state.md), and [roadmap collection](roadmap/README.md) |
 | File or find reports, evidence, or history | [Reports and evidence](REPORTS_AND_EVIDENCE.md) | [Audit registry](audits/INDEX.md), [history index](../HISTORY_INDEX.md), [current handoff](handoffs/INDEX.md), and [data routing](DATA_ROUTING.md) |
-| Research memory systems or benchmarks | [Retrieval knowledgebase](kb/README.md) | [Benchmark SOP](BENCHMARK_SOP.md), [retrieval evaluation](RETRIEVAL_EVAL_V1.md), [E1 evaluation contract](E1_EVALUATION_CONTRACT.md), and [benchmark run records](BENCHMARK_RUN_RECORDS.md) |
+| Research memory systems or benchmarks | [Retrieval knowledgebase](kb/README.md) | [Benchmark SOP](BENCHMARK_SOP.md), [retrieval evaluation](RETRIEVAL_EVAL_V1.md), [E1 evaluation contract](E1_EVALUATION_CONTRACT.md), [BIL-3 specification](BIL_3_SPEC.md), and [benchmark run records](BENCHMARK_RUN_RECORDS.md) |
 | Work on branding or product surfaces | [Branding hub](../branding/README.md) | [Canonical identity kit](../branding/kit/README.md), [cosmic UI kit](../branding/canticle-cosmic-kit/README.md), and [surface status](status/surfaces.md) |
 
 ```mermaid

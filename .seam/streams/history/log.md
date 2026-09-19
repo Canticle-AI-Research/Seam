@@ -21314,3 +21314,29 @@ Verification: dry-run inspection of all, dev and holdout splits before and after
 
 Next unresolved step: run the authorized ten-case dev smoke and report the measured per-case cost, then obtain a full-run budget decision. M1 acceptance on PR264 and the B1 metadata contract remain separate prerequisites for M2 and are not advanced by this entry.
 ---END-ENTRY-#648---
+
+---BEGIN-ENTRY-#649---
+id: 649
+date: 2026-09-19T01:16:06Z
+agent: claude
+status: changed
+topics: benchmark, integrity, security, verify, docs, plan, mirl, provenance
+commits: pending
+refs: docs/BIL_3_SPEC.md,docs/README.md
+supersedes: 648
+tokens: 1033
+---
+Recorded the B1 specification for BIL-3, the proposed Signed Reproducibility Bundle, in docs/BIL_3_SPEC.md. Specification only: no implementation, no supported level change, and no artifact may carry a BIL-3 label until B2 delivers it. BIL-0, BIL-1 and BIL-2 keep their documented semantics and verification behavior; BIL-3 is additive.
+
+The specification is driven by five defects verified against seam_runtime/benchmark_integrity.py at 66fd3f9 and first recorded in HISTORY#647. D1: a signed bundle verified without a key emits WARN at line 265, the status loop tolerates WARN, and overall status becomes PASS, so an actor without the key can rewrite result, recompute bil.result_hash and input_manifest_hash and have the bundle verify PASS to any keyless reader. D2: SIGNATURE_ALGO is HMAC-SHA256 at line 12, so every party able to verify is able to forge and no third-party attestation is possible. D3: result_hash strips VOLATILE_RESULT_HASH_KEYS recursively by key name at any depth via stable_result_hash_input at line 53, leaving every latency and elapsed field unsigned. D4: validate_publication_readiness at line 301 takes git_sha, fixture_hash and dataset_name as caller arguments and checks only non-emptiness, so the commit a published claim names is not bound into the seal. D5: build_input_manifest at line 65 has no taxonomy distinguishing a field never collected from one collected and empty.
+
+Resolutions specified: an explicit present/unavailable/unsupported/omitted field taxonomy with controlled reasons, where an absent field makes the bundle invalid; timing moved inside the seal with two hashes, a content_hash excluding wall-clock timestamps and an artifact_hash covering everything, and exclusions listed by explicit path rather than by recursive key name; Ed25519 signing over the canonical serialization of the whole bundle except the signature block, which places git SHA, fixture hash and dataset name inside the signed region by construction; fully specified canonical JSON serialization; key fingerprint and id carried with the signature, with an unknown key verifying as VALID_SIGNATURE_UNTRUSTED_KEY rather than as endorsement; and fail-closed verification returning exactly PASS, FAIL or UNVERIFIED, where UNVERIFIED is explicitly not a pass and publication readiness accepts only PASS.
+
+Also specified the formation metadata contract that M2 consumes, covering formation version, segmentation policy, segment count and size distribution, boundary signals, source-anchor coverage, attribution and timestamp preservation with a synthesized-timestamp counter that must be zero, entity-view version, contradictions retained, and a reingest_required flag that must be true for any formation comparison per the E1 prohibition on --keep-db. These fields are diagnostics and may never be reported as answer quality.
+
+Recorded that a signature proves artifact integrity and identity only and proves nothing about experiment design; that secrets are never fingerprinted into a manifest because hashing a credential leaks an oracle against it; and that changing BIL-2's keyless path from PASS to UNVERIFIED is a behavior change for existing consumers requiring a recorded migration decision under B2 rather than a silent fix. PKI, key distribution, rotation, revocation and transparency logging are explicitly out of scope.
+
+Verification: verify_wiki passes and reports 278 active pages reachable after routing the specification from docs/README.md. Full eight-gate preflight run at closeout. No runtime code was changed, no test was added or modified, no provider call was made and no benchmark was run by this entry. ROADMAP.md was not modified, so no roadmap parser rerun is required and this branch still does not conflict with PR267 or PR268.
+
+Next unresolved step: the operator runs the E1-authorized ten-case dev smoke on their own machine, since the remote container is host-authenticated with ANTHROPIC_BASE_URL set and is not the intended subscription billing source. B2 implementation of this specification, M1 acceptance on PR264 and the M2 design freeze remain open and are not advanced here.
+---END-ENTRY-#649---
