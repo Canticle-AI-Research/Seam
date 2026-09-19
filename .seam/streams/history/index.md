@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 650
-total_tokens: ~333046
-latest_id: 650
+total_entries: 651
+total_tokens: ~334059
+latest_id: 651
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 651 | 2026-09-19 | changed | e0e39d5e6b3f08b2 | benchmark,locomo,tests,harden,+ | 650 |
 | 650 | 2026-09-19 | changed | 3188de69eb26d34a | benchmark,judge,locomo,docs,+ | 649 |
 | 649 | 2026-09-19 | changed | 4ecc8665ba5a4313 | benchmark,integrity,security,verify,+ | 648 |
 | 648 | 2026-09-19 | changed | e3a4fd90f478acb7 | benchmark,locomo,holdout,plan,+ | 647 |
@@ -684,7 +685,7 @@ compact: true
 - audit: count=130 latest=#647, #641, #632, #597, #596
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
-- benchmark: count=211 latest=#650, #649, #648, #646, #645
+- benchmark: count=212 latest=#651, #650, #649, #648, #646
 - benchmarks: count=5 latest=#538, #509, #508, #507, #493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
@@ -799,7 +800,7 @@ compact: true
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
 - handoff: count=125 latest=#647, #646, #645, #642, #641
-- harden: count=12 latest=#619, #618, #617, #616, #594
+- harden: count=13 latest=#651, #619, #618, #617, #616
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
 - history: count=327 latest=#632, #631, #630, #627, #625
@@ -816,7 +817,7 @@ compact: true
 - ingest: count=2 latest=#317, #303
 - installer: count=16 latest=#360, #352, #337, #204, #177
 - instrumentation: count=1 latest=#366
-- integrity: count=18 latest=#650, #649, #587, #547, #531
+- integrity: count=19 latest=#651, #650, #649, #587, #547
 - isolation: count=2 latest=#275, #274
 - judge: count=14 latest=#650, #398, #377, #376, #375
 - kb: count=1 latest=#437
@@ -834,7 +835,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=5 latest=#579, #526, #461, #283, #182
-- locomo: count=91 latest=#650, #648, #509, #508, #507
+- locomo: count=92 latest=#651, #650, #648, #509, #508
 - longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -980,7 +981,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=132 latest=#642, #638, #637, #632, #631
 - test-artifacts: count=1 latest=#506
-- tests: count=81 latest=#646, #644, #643, #640, #632
+- tests: count=82 latest=#651, #646, #644, #643, #640
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -996,7 +997,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=455 latest=#650, #649, #648, #647, #646
+- verify: count=456 latest=#651, #650, #649, #648, #647
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1013,7 +1014,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 73
+- changed: 74
 - done: 535
 - in-progress: 20
 - planned: 22

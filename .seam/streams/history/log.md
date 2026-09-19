@@ -21368,3 +21368,29 @@ Verification: grep for E1_EVALUATION_CONTRACT across tests, tools and test_seam_
 
 Next unresolved step: unchanged by this entry. The operator runs the E1-authorized ten-case dev smoke on their own machine and reports the measured per-case rate, which sizes the full-run budget. Expect dev fixture hash prefix 75132ee187e058b2 and case count 1198; a mismatch means the split moved and the contract is invalid. M1 acceptance on PR264, the M2 design freeze and B2 implementation remain open and are not advanced here.
 ---END-ENTRY-#650---
+
+---BEGIN-ENTRY-#651---
+id: 651
+date: 2026-09-19T05:28:25Z
+agent: claude
+status: changed
+topics: benchmark, locomo, tests, harden, verify, integrity
+commits: pending
+refs: benchmarks/external/locomo/run.py,tests/audit/test_locomo_resume.py
+supersedes: 650
+tokens: 1013
+---
+Gave LoCoMo checkpoints an identity so an interrupted run can later be resumed safely, and added the validated resume-state reader. Runtime change to the benchmark runner only; no scoring, retrieval, formation or provider behavior changed and no benchmark was run.
+
+Motivation is a changed constraint, not a new feature request. The operator reported the Claude.ai usage credits are gone, so the campaign is no longer bounded by dollars but by the subscription plan's rolling rate limits. A full dev baseline under the E1 contract is 1198 cases times two roles, roughly 2396 synchronous CLI calls, which will cross a limit window mid-run. Audit of the runner found checkpoints were already written durably per case to a non-ephemeral partial file and retained on failure, but nothing could read one back: grep for resume, continue and from-partial across benchmarks/external/locomo/run.py and benchmarks/external/common/runner.py returned zero matches. An interrupted run therefore had to redo every completed case, which is affordable in cents and prohibitive against a rate-limited quota.
+
+Added ResumeMismatch, _checkpoint_payload and _resume_state, and extracted the argument parser into _build_parser so the CLI surface is testable. Checkpoint payloads now carry fixture_hash, computed once as run_fixture_hash before the checkpoint closure captures it, so every checkpoint records the exact case set it came from. _resume_state fails closed on a missing file, malformed JSON, a non-object payload, an absent fixture_hash (any checkpoint written before this change) and a fixture_hash naming a different case set; entries lacking a case_id are dropped rather than counted complete, so a malformed row cannot mask an unanswered case.
+
+Deliberately did not expose a --resume CLI flag. Skipping completed cases requires seeding their prior results back into the report, and common/runner.py indexes case_results by position over the full case list with aggregate scores computed from it. Filtering the case list in run.py would emit a report missing the skipped cases with scores computed over the remainder only. The correct seed is a prior_results parameter in run_benchmark_grouped and run_benchmark_grouped_parallel that pre-populates case_results by index and skips seeded cases; that is the next slice. A test asserts the flag is absent so the withheld state is explicit rather than forgotten.
+
+Verification: eleven witnessed red then green. The ten initially authored tests all failed against unmodified source (AttributeError for the absent helpers and _build_parser), then passed after implementation; two CLI-flag tests were then deliberately replaced by one asserting the flag is not exposed, which also went red then green. Final state is nine tests passing in tests/audit/test_locomo_resume.py and seven in tests/audit/test_locomo_result_durability.py. One durability test, TestQuickstartArchives::test_quickstart_writes_durable_copy_without_output, cannot run in this container because sentence-transformers is absent; it spawns a real quickstart subprocess requiring the pinned local embedding model, and its failure message names that missing dependency explicitly. That is an environment gap, not a regression, and it was deselected rather than counted as a pass.
+
+Also recorded from the same audit, not yet fixed: SEAM_BENCH_CLAUDE_CODE_MAX_CALLS defaults to 10 in benchmarks/external/common/claude_code.py, far below the roughly 2396 calls a full dev baseline needs, so the default allowance would abort such a run early; and the claude-code transport has no retry or backoff path, so a rate-limit response is not distinguished from any other failure. Both must be resolved before a subscription-limited baseline is attempted.
+
+Next unresolved step: add the prior_results seed to the grouped runners and expose --resume on top of it, then raise the call allowance and add rate-limit-aware backoff. M1 acceptance on PR264, the M2 design freeze and B2 implementation of the BIL-3 specification remain open and are not advanced here.
+---END-ENTRY-#651---
