@@ -9,6 +9,11 @@ and dated observations are recorded in HISTORY#634 and the
 
 ## Current naming candidate
 
+The [2026-09-19 membership review](../audits/2026-09-19-suite-license-membership.md)
+reconciles exact candidate runtime bytes and missing standard BUSL closing
+sections. Current Suite membership remains an owner decision; no notice,
+license term or upload gate was changed. See HISTORY#650.
+
 HISTORY#647 selects `seam-suite` for self-hosted Suite and `seam-api` for the
 public API surface plus WebUI, replacing the earlier SEAM Client product label
 from HISTORY#642. `seam-sdk` remains private paid delivery. Existing

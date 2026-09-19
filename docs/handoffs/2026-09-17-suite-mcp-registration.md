@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-17-suite-mcp-registration
 supersedes: 2026-09-17-product-readiness
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#649
 ---
 

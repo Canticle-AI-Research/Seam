@@ -5,6 +5,13 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-19 — Suite licensing review recorded.** Saved wheel/sdist runtime
+bytes match PR #266; public membership remains owner-review-required. Review
+also found missing standard BUSL closing sections and scoped README's grant.
+No license terms, runtime behavior, publication controls or release changed.
+See the [membership review](docs/audits/2026-09-19-suite-license-membership.md)
+and HISTORY#650; required CI and cumulative qualification remain open.
+
 **2026-09-17 — Suite MCP registration prepared.** The existing registry listing
 points to yanked `seam-runtime` 1.3.1. The candidate metadata now targets
 `io.github.Canticle-AI-Research/seam-suite`, with local/published-package checks

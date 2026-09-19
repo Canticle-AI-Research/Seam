@@ -578,8 +578,14 @@ qualification, production PyPI release, then registry registration.
 
 ## License
 
-**Self-hosting SEAM is free.** The SEAM Distributed Runtime, version 2.4.0 or
-later, is published under the Business Source License 1.1
+**Self-hosting material covered by the Distributed Runtime grant is free.**
+That grant applies only to the exact published file versions identified as
+Distributed Runtime under [LICENSE](LICENSE), with its required manifest and
+notices. The current `seam-suite` 2.4.1rc1 candidate's membership remains under
+[review](docs/audits/2026-09-19-suite-license-membership.md); the grant must not
+be assumed to cover the entire source checkout or candidate package.
+
+The Distributed Runtime grant uses the Business Source License 1.1
 ([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt)). You may run it on your own
 hardware or on infrastructure you rent, for your own or your organization's
 purposes — including internal commercial production use — at no charge, with no

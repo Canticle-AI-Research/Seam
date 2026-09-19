@@ -21326,3 +21326,23 @@ Tests in tests/audit/test_mcp_registry_release.py were witnessed failing before 
 
 The MCP guide, wiki route, release docs, status and ledger document publication order and current blockers. The website documentation now uses an absolute installed seam-mcp path with default SQLite and states that MCP belongs to Suite rather than the unstarted API product. Website node --test tests/downloads-release.test.js and python3 -m unittest discover -s tests -p test_package_downloads.py passed after that update. Public artifact membership/notices, TestPyPI access/qualification and the production package remain prerequisites. The stable-only website selector still rejects this rc version. Prior cumulative NOT_QUALIFIED and full-suite/CI conditions remain open; docs-only readiness qualification does not supersede them. Both draft PRs are retained for DeepSeek review. See the new indexed handoff for exact scope, remaining gates, evidence under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages/mcp, and worktree cleanup requirements.
 ---END-ENTRY-#649---
+
+---BEGIN-ENTRY-#650---
+id: 650
+date: 2026-09-19T20:42:37Z
+agent: codex
+status: in-progress
+topics: audit, docs, pyproject, handoff, continuity, verify
+commits: pending
+refs: README.md,PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/audits/2026-09-19-suite-license-membership.md,docs/audits/evidence/2026-09-19-suite-license/members.json,docs/handoffs/2026-09-19-suite-license-review.md
+supersedes: 649
+tokens: 467
+---
+Continued HISTORY#649 and the September 18 licensing handoff on PR266 at 9f0bfae, based on protected main 66fd3f9. The primary August audit checkout and unrelated linked worktrees were preserved; their dirty audit/history/stream/handoff files and untracked artifacts are excluded. No snapshots existed in the isolated PR checkout; startup used the index and bounded HISTORY#649 pack. Both local closeout queues were empty; earlier cumulative NOT_QUALIFIED/TDD_UNPROVEN conditions remain open.
+
+The member map at docs/audits/evidence/2026-09-19-suite-license/members.json records 109 runtime files per saved wheel/sdist, scoped to seam.py and seam_runtime/**, all byte-identical to the inspected PR source. Complete regular-member scopes contain 119 wheel and 128 sdist files. The first-2048-byte BUSL text probe found no matches; this does not exclude every notice or resolve legacy rights. Exact artifact hashes remain in the report. No runtime execution, rebuild or private SDK inspection was needed.
+
+Compared LICENSES/BUSL-1.1.txt with pinned SPDX text and recorded missing closing permission/covenant sections without changing terms or claiming enforceability. README scopes free self-hosting to qualifying Distributed Runtime files. Report, status and handoff identify the remaining owner decision: exact candidate BUSL membership versus proprietary delivery permissions. License documents, package metadata, classifiers, artifacts and runtime code remain unchanged. Website PR29 separately corrects blanket Apache/open-source copy; its checks and owner browser review remain separate.
+
+Documentation verification scope is git diff --check, exact member/hash/source comparisons, canonical content-free secret scanning and tools.history.closeout with unsuppressed continuity/wiki/audit gates. Outputs and independent receipt are retained under external licensing-review-20260919 evidence; failures are not superseded by this description of scope. No runtime test or TDD claim applies. Live PR266 required checks at 9f0bfae showed chroma-real-smoke failure and repo-hygiene/locomo-quickstart-bil2 cancellation. Keep both PRs draft. No upload, registration, release, paid call, merge or deployment occurred. Next: owner membership decision, standard-text correction, approved notices and fresh artifact qualification.
+---END-ENTRY-#650---
