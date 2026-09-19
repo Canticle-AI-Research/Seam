@@ -110,7 +110,11 @@ not have to infer what works from directory names alone.
   repo files or hashed durable artifacts and never carry credentials or session
   URLs.
 - `tools/git-hooks/` - canonical git hooks (`pre-commit`, `pre-push`) installed via `tools/git-hooks/install.sh`.
-- `LICENSES/BUSL-1.1.txt` - controlling text and filled parameters for the SEAM
+- `LICENSES/SEAM-Suite-Personal.txt` and `LICENSES/SEAM-Suite-manifest.json` -
+  proprietary personal/noncommercial operating permission and exact Suite
+  implementation membership, under `LICENSE` section 7B. Business use needs
+  separate permission; MIRL/HS/1 reuse and the private paid SDK stay reserved.
+- `LICENSES/BUSL-1.1.txt` - preserved text and parameters for earlier SEAM
   Distributed Runtime, published under Business Source License 1.1 by Section 7A
   of `LICENSE`. Change Date is four years per published version; Change License
   is MPL 2.0. Membership in the Distributed Runtime is decided by publication

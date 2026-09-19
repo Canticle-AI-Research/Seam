@@ -5,13 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "seam-suite"
 version = "2.4.1rc1"
-description = "SEAM memory runtime and glassbox operator tooling for AI agents"
+description = "SEAM Suite: self-hosted agent memory, TUI, graph dashboard, and benchmark glassbox"
 readme = "README.md"
-# 2.4.0+ is the SEAM Distributed Runtime under BUSL-1.1 (NOTICE, LICENSE section 7A).
-# LicenseRef-SEAM-Proprietary still covers reserved MIRL/HS-1 expression; Apache-2.0
-# is retained only for unchanged Legacy Apache Materials already published at 1.3.x.
-license = "LicenseRef-SEAM-Proprietary AND BUSL-1.1 AND Apache-2.0"
-license-files = ["LICENSE", "NOTICE", "COMMERCIAL_LICENSE.md", "LICENSES/BUSL-1.1.txt", "LICENSES/Apache-2.0.txt"]
+# Proprietary personal/noncommercial Suite permission; LICENSE preserves exact
+# historical and third-party grants without extending them to new file versions.
+license = "LicenseRef-SEAM-Suite-Personal-1.0"
+license-files = ["LICENSE", "NOTICE", "COMMERCIAL_LICENSE.md", "LICENSES/SEAM-Suite-Personal.txt", "LICENSES/SEAM-Suite-manifest.json", "LICENSES/BUSL-1.1.txt", "LICENSES/Apache-2.0.txt"]
 requires-python = ">=3.11"
 classifiers = [
   "Private :: Do Not Upload",
@@ -20,6 +19,11 @@ keywords = ["ai", "agents", "memory", "mcp", "rag"]
 dependencies = [
   "rich>=14.2,<16",
   "tiktoken>=0.8.0,<1.0",
+  "textual>=8.0,<9.0",
+  "httpx>=0.24,<1.0",
+  "fastapi>=0.100,<1.0",
+  "uvicorn[standard]>=0.23,<1.0",
+  "python-multipart>=0.0.6,<1.0",
 ]
 
 [project.urls]
@@ -28,6 +32,7 @@ Repository = "https://github.com/Canticle-AI-Research/Seam"
 Issues = "https://github.com/Canticle-AI-Research/Seam/issues"
 
 [project.optional-dependencies]
+# Compatibility aliases: Suite includes its terminal and browser interfaces by default.
 dash = ["textual>=8.0,<9.0", "httpx>=0.24,<1.0"]
 # Opt-in only. chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an
 # UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the

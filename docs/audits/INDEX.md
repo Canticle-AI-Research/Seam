@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-09-14-claude-code-benchmarks
+latest: 2026-09-19-suite-personal-license
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,8 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-09-19 | [Suite personal license and artifact review](2026-09-19-suite-personal-license.md) | owner-selected personal grant, exact membership and installed startup | `HISTORY#651` |
+| 2026-09-19 | [Suite license and artifact membership review](2026-09-19-suite-license-membership.md) | exact candidate membership, license text discrepancy and copy scope | `HISTORY#650` |
 | 2026-09-14 | [Claude.ai subscription benchmark transport verification](2026-09-14-claude-code-benchmarks.md) | subscription transport, bounded real smoke and failure accounting | `HISTORY#646` |
 | 2026-09-06 | [L1 packaging and SDK migration preparation](2026-09-06-l1-packaging-migration.md) | package/source/ownership map and scoped artifact evidence | `HISTORY#635` |
 | 2026-08-29 | [Full-repository audit](2026-08-29-full-repo-audit.md) | whole-repo health audit | `HISTORY#632` |

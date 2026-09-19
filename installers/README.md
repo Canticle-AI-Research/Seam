@@ -1,39 +1,47 @@
-# SEAM Installers
+# SEAM Suite Installers
 
-This folder is the direct install surface for SEAM.
+These wrappers install a **complete reviewed checkout** of `seam-suite` into
+an operator environment. Suite includes TUI and browser-server dependencies by
+default. An individual wrapper downloaded from GitHub is not a standalone
+bootstrap: it needs the neighboring Python installer and project files.
 
-## One-Line Private Repo Install
+See [package installation and release flow](../docs/RELEASE_FLOW.md) for
+legacy-name migration and explicit upgrades. `seam-api` names the public API
+surface and WebUI; local Suite installation does not provision hosted access.
 
-Run `gh auth login` first for private repo access.
+## Checkout installation
+
+Use the canonical repository and a reviewed commit or tag. Repository
+visibility does not change the existing license terms.
 
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 macOS repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 macOS operator guide: [docs/MACOS.md](../docs/MACOS.md)
@@ -184,16 +192,7 @@ seam doctor
 Set `SEAM_PGVECTOR_DSN` in your local shell/profile from those local env values
 before running SEAM with PgVector. Do not write the DSN into repo files.
 
-## Public Release Installer Shape
+## Public package releases
 
-These are not active private-repo commands yet:
-
-```powershell
-irm https://example.com/seam/install.ps1 | iex
-```
-
-```bash
-curl -fsSL https://example.com/seam/install.sh | sh
-```
-
-Use them only after a public installer host exists.
+Follow the [TestPyPI-first procedure](../docs/TESTPYPI.md). Until a reviewed
+Suite artifact is published, there is no supported public bootstrap command.

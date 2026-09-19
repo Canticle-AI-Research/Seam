@@ -12,26 +12,34 @@ this preparation pass.
 | Name | What it identifies | Test destination |
 | --- | --- | --- |
 | `seam-suite` | Self-hosted runtime, TUI, benchmark glassbox, and browser graph dashboard | Local candidate first; TestPyPI only after exact public artifact review |
-| SEAM Client | Paid API service and its all-in-one WebUI | Service staging environment, not a replacement payload for the Python client wheel |
+| `seam-api` | Planned local API server/client/WebUI installation; product development not started | Implement and review exact artifact membership before local qualification and TestPyPI |
 | `seam-client` | Existing Python HTTP client for the service | Separate client release process after source/owner recovery |
 | `seam-sdk` | Private SDK for paying users | Local test environment or authenticated private distribution; never PyPI or TestPyPI |
 
 The root candidate is `seam-suite` 2.4.1rc1. It keeps the existing `seam` and
 `seam_runtime` imports and console commands. Install it in a fresh environment;
 do not co-install older distributions that own those same paths. The candidate
-still needs `[server,dash]` for the complete server/TUI dependency set.
+includes the server/TUI dependencies by default; `[server,dash]` remain
+compatibility aliases.
 
 ## Current blockers
 
+Suite remains proprietary under its
+[personal/noncommercial license](../LICENSES/SEAM-Suite-Personal.txt).
+The [manifest](../LICENSES/SEAM-Suite-manifest.json) identifies covered
+implementation versions. This license decision authorizes no upload and
+does not include the private paid SDK.
+
 - Root metadata retains `Private :: Do Not Upload`. Do not remove it merely
-  to make an upload succeed: the L1 exact file/version membership and notices
-  review is still open. Existing archive scans do not establish publication
-  eligibility. The current wheel/sdist must remain local until that review.
+  to make an upload succeed: final artifact/notices verification and release
+  approval are still required. The owner selected the narrow personal grant;
+  archive scans alone do not establish publication eligibility. Candidate
+  wheel/sdist files remain local until release qualification and approval.
 - No authenticated TestPyPI publisher was established in this preparation
   session. A GitHub repository connection is not TestPyPI project ownership.
-- The existing GitHub release workflow accepts its established SemVer input
-  contract. This PEP 440 `2.4.1rc1` candidate does not qualify through it; do
-  not dispatch a production or GitHub-release workflow as a test upload.
+- The GitHub workflows validate canonical Python versions, including `2.4.1rc1`.
+  They prepare/publish GitHub artifacts, not TestPyPI uploads. Version validation
+  alone does not establish public artifact eligibility or publishing authority.
 - TestPyPI project names and ownership are independent of production PyPI.
   A missing project page does not prove registration eligibility.
 
@@ -49,9 +57,12 @@ and [PyPI private-package guidance](https://pypi.org/help/#how-can-i-publish-my-
    seam-suite --expected-version 2.4.1rc1` with the exact wheel/sdist paths.
    Inspect the archive member inventory and license notices. Scanner success
    does not supersede the public membership decision above.
-3. Install the exact wheel with `[server,dash]` in a fresh environment outside
-   the source tree. Check dependency consistency, command help, installed
-   module origins, MCP version/discovery, and write-then-read persistence.
+3. Install the exact wheel without extras in a fresh environment outside
+   the source tree. Run `python -I tests/package/smoke_installed_suite.py`
+   from the reviewed checkout using that environment's interpreter; it checks
+   installed origins, all console help entrypoints, TUI startup, HTTP health,
+   and served browser assets. Repeat with the sdist in another fresh environment.
+   Also check dependency consistency, MCP discovery, and write/read persistence.
    Keep test data separate from operator databases. Preserve old environments
    and backups; this is not an arbitrary legacy-upgrade qualification.
 4. Bind public-upload approval to the reviewed member inventory and exact

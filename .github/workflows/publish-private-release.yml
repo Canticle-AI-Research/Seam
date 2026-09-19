@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Exact SemVer of the existing draft, without the v prefix
+        description: Exact canonical Python version of the existing draft, without the v prefix
         required: true
         type: string
       commit_sha:
@@ -89,10 +89,12 @@ jobs:
           IMMUTABILITY_CONFIRMED: ${{ inputs.immutability_confirmed }}
           WORKFLOW_SHA: ${{ github.sha }}
         run: |
-          python - <<'PY'
+          expected_prerelease="$(python - <<'PY'
           import os
           import string
           import tomllib
+
+          from tools.release.release_version import validate_release_version
 
           version = os.environ["VERSION"]
           expected_sha = os.environ["EXPECTED_SHA"]
@@ -101,10 +103,10 @@ jobs:
           run_id = os.environ["EXPECTED_RUN_ID"]
           with open("pyproject.toml", "rb") as project_file:
               project_version = tomllib.load(project_file)["project"]["version"]
-          if version != project_version:
-              raise SystemExit(
-                  f"Requested version {version!r} does not match protected-main project version {project_version!r}."
-              )
+          try:
+              parsed = validate_release_version(version, project_version=project_version)
+          except ValueError as exc:
+              raise SystemExit(str(exc)) from None
           if len(expected_sha) != 40 or any(char not in string.hexdigits for char in expected_sha):
               raise SystemExit("commit_sha must be one full hexadecimal commit SHA.")
           if len(manifest_sha) != 64 or any(char not in string.hexdigits for char in manifest_sha):
@@ -113,7 +115,9 @@ jobs:
               raise SystemExit("notes_sha256 must be one full hexadecimal SHA256 digest.")
           if not run_id.isascii() or not run_id.isdigit() or int(run_id) < 1:
               raise SystemExit("preparation_run_id must be one positive GitHub Actions run ID.")
+          print(str(parsed.is_prerelease).lower())
           PY
+          )"
 
           if [[ "${IMMUTABILITY_CONFIRMED}" != "true" ]]; then
             echo "Repository release immutability must be verified before publication." >&2
@@ -153,11 +157,6 @@ jobs:
             echo "Release v${VERSION} is not an unpublished draft." >&2
             exit 1
           fi
-          expected_prerelease=false
-          version_without_build="${VERSION%%+*}"
-          if [[ "${version_without_build}" == *-* ]]; then
-            expected_prerelease=true
-          fi
           release_prerelease="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" --jq '.prerelease')"
           if [[ "${release_prerelease}" != "${expected_prerelease}" ]]; then
             echo "Reviewed prerelease classification changed; refusing publication." >&2
@@ -187,7 +186,9 @@ jobs:
           import re
           from pathlib import Path
 
-          from packaging.utils import canonicalize_name, canonicalize_version, parse_sdist_filename, parse_wheel_filename
+          from packaging.utils import canonicalize_name, parse_sdist_filename, parse_wheel_filename
+
+          from tools.release.release_version import matches_release_version
 
           prepared = Path("prepared-assets")
           draft = Path("draft-assets")
@@ -209,17 +210,17 @@ jobs:
               if digest(prepared / name) != digest(draft / name):
                   raise SystemExit("Draft assets do not match the trusted preparation-run artifact bytes.")
           try:
-              wheel_name, wheel_version, _build, _tags = parse_wheel_filename(wheels[0])
-              sdist_name, sdist_version = parse_sdist_filename(sdists[0])
+              wheel_name, _wheel_version, _build, _tags = parse_wheel_filename(wheels[0])
+              sdist_name, _sdist_version = parse_sdist_filename(sdists[0])
           except Exception:
               raise SystemExit("Unexpected draft artifact identity.") from None
           expected_name = canonicalize_name("seam-suite")
-          expected_version = canonicalize_version(os.environ["VERSION"])
+          expected_version = os.environ["VERSION"]
           if (
               canonicalize_name(wheel_name) != expected_name
               or canonicalize_name(sdist_name) != expected_name
-              or canonicalize_version(str(wheel_version)) != expected_version
-              or canonicalize_version(str(sdist_version)) != expected_version
+              or not matches_release_version(wheels[0].split("-")[1], expected_version)
+              or not matches_release_version(sdists[0].removesuffix(".tar.gz").rsplit("-", 1)[1], expected_version)
           ):
               raise SystemExit("Unexpected draft artifact identity.")
           manifest_lines = Path("draft-assets/SHA256SUMS.txt").read_text(encoding="utf-8").splitlines()

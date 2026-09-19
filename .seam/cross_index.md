@@ -2,18 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 712
+total_events: 717
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T06:23:10Z | history:453:5dd3c7e3 | session-event | changed | retrieval, graph, knowledge-graph, non-displacing-pack, m... | seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_m... |
-| 2026-07-22T07:28:54Z | history:454:74725c05 | session-event | done | graph, memory, retrieval, provenance, compile, roadmap, b... | seam_runtime/knowledge_graph.py,seam_runtime/graph_source_selector.py,seam_ru... |
-| 2026-07-22T08:10:43Z | history:455:133e97d5 | session-event | done | graph, identity, resolution, knowledge-graph, verify, tes... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-22T08:31:29Z | history:456:c5d91902 | session-event | done | graph, identity, resolution, candidate, knowledge-graph, ... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
 | 2026-07-22T14:59:22Z | history:460:f3d5ac63 | session-event | done | graph, bugfix, verify, history, continuity, retrieval, pa... | seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,... |
@@ -209,10 +204,15 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-12T00:00:00Z | roadmap:066:5dce8b5d | status-change | bootstrap | roadmap, plan, naming, surface, dashboard, graph, verify | ROADMAP.md:30 |
 | 2026-09-12T18:10:09Z | history:645:6eec8c81 | session-event | changed | roadmap, plan, memory, compile, graph, benchmark, handoff... | docs/roadmap/MEMORY_FORMATION.md,docs/handoffs/2026-09-12-memory-formation-ro... |
 | 2026-09-14T12:55:45Z | history:646:beb12051 | session-event | changed | benchmark, models, tests, verify, handoff, docs, config | benchmarks/external/common/claude_code.py,benchmarks/external/common/runner.p... |
+| 2026-09-17T15:28:18Z | history:647:80033515 | session-event | in-progress | naming, pyproject, bugfix, ci, installer, docs, verify, h... | pyproject.toml,requirements.txt,seam_runtime/doctor.py,seam_runtime/dashboard... |
+| 2026-09-17T16:22:25Z | history:648:efc492a0 | session-event | changed | docs, naming, surface, webui, plan, handoff, continuity | README.md,PROJECT_STATUS.md,REPO_LEDGER.md,docs/PRODUCTS.md,docs/RELEASE_FLOW... |
+| 2026-09-17T16:55:44Z | history:649:d7b4937d | session-event | in-progress | mcp, registry, naming, ci, docs, verify, handoff, continuity | server.json,README.md,PROJECT_STATUS.md,REPO_LEDGER.md,tools/release/verify_m... |
+| 2026-09-19T20:42:37Z | history:650:0b899dec | session-event | in-progress | audit, docs, pyproject, handoff, continuity, verify | README.md,PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/audits/20... |
+| 2026-09-19T21:20:48Z | history:651:172de66b | session-event | changed | docs, pyproject, mirl, operator, audit, handoff | LICENSE,LICENSES/SEAM-Suite-Personal.txt,LICENSES/SEAM-Suite-manifest.json,py... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0512.cross.md | 2026-04-15T00:00:00Z..2026-07-22T05:03:16Z | 512 | (multi) | (multi) |
+| 0001-0517.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:47:52Z | 517 | (multi) | (multi) |

@@ -11,20 +11,28 @@ before they are treated as real progress.
 > routes into operator guides, architecture, current state, evidence, and plans.
 
 The launch product family is **SEAM Suite** (`seam-suite`, self-hosted TUI,
-benchmark glassbox, and browser graph dashboard), **SEAM Client** (the paid
-hosted API and its all-in-one WebUI), and **SEAM SDK** (`seam-sdk`, private
+benchmark glassbox, and browser graph dashboard), **SEAM API** (`seam-api`, the
+public API surface and its WebUI), and **SEAM SDK** (`seam-sdk`, private
 SDK for paying users). The existing PyPI `seam-client` is the separate Python
 HTTP client for the service; installing it does not install the dashboard or
 provide paid access. These are product definitions, not launch-readiness claims.
+The self-hosted core is usable for local operation; the Suite's TUI, graph
+dashboard, and benchmark glassbox are still in development. The full Suite is
+early access. The `seam-api` product is planned and development has not started;
+existing HTTP routes and client code do not make that product complete.
 See the [product map](docs/PRODUCTS.md), [launch plan](docs/roadmap/SEAM_LAUNCH.md),
 and [current packaging constraints](docs/status/packaging-licensing.md).
 
 ## Install
 
+Suite is proprietary. Free self-hosting is for **personal, noncommercial use
+only**; business use needs separate written permission from
+**licensing@canticle.cc**. See the [license](#license).
+
 The `seam-suite` rename is a **2.4.1rc1 candidate**. TestPyPI is the first
 registry target; production PyPI is unchanged. Public upload remains blocked
-until exact artifact membership is reviewed and TestPyPI publishing access is
-configured. See the [TestPyPI-first procedure](docs/TESTPYPI.md).
+until final artifact/notices verification, release approval and TestPyPI
+publisher setup are complete. See the [TestPyPI-first procedure](docs/TESTPYPI.md).
 
 Use a fresh virtual environment: old `seam-runtime` and `seam-self-host`
 distributions can own the same imports and commands. This is not an in-place
@@ -38,17 +46,22 @@ terms:
 python -m pip install .
 ```
 
-Install with REST API and dashboard extras:
+The default Suite install includes the terminal UI and browser-server dependencies.
+The `[dash]` and `[server]` extras remain compatibility aliases; optional vector
+backends, embedding models, and benchmark providers still have their own extras.
 
-```bash
-python -m pip install ".[server,dash]"
-```
-
-Use a reviewed commit or release tag for a reproducible checkout; the naming
-candidate is not on `main` until its PR merges. Public repository visibility does not change the
+Use a reviewed commit or release tag for a reproducible checkout. Public repository visibility does not change the
 [license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
 operator setup path for repo-local development, persistent state setup, and
 platform shims.
+
+For migration, explicit upgrades, release checks, and the website's download
+connection, see [Package installation and release flow](docs/RELEASE_FLOW.md).
+`seam-api` is planned as a local API/WebUI installation: the runtime and server
+run on the user's machine, and the client and WebUI connect to that server.
+See the [proposed setup](docs/RELEASE_FLOW.md#planned-seam-api-installation).
+It has no product download yet; exact artifact membership and implementation
+remain future work.
 
 ## Public agent SDK
 
@@ -556,30 +569,40 @@ repository; visibility follows the destination's actual settings. L1 must
 qualify artifact membership and destination before dispatch. The root package
 remains prohibited from PyPI.
 
-The existing `seam-runtime` 1.3.1 release on PyPI and `server.json` describe the
-legacy Apache-2.0 artifact. They remain pinned to that legacy public release.
-Publishing a later PyPI version requires a clean public artifact with its own
-license, package layout, and review; it does not authorize publishing this
-repository.
+The existing MCP Registry listing still points at the yanked `seam-runtime`
+1.3.1 release. The replacement [`server.json`](server.json) describes the
+`seam-suite` candidate under `io.github.Canticle-AI-Research/seam-suite`.
+It is prepared metadata, not evidence of a published package or registry entry.
+MCP is included in Suite through `seam-mcp`; it does not require the planned
+API product. See the [MCP registration and installation guide](docs/MCP_REGISTRY.md).
+Publishing requires the reviewed public artifact, successful TestPyPI
+qualification, production PyPI release, then registry registration.
+
+<!-- mcp-name: io.github.Canticle-AI-Research/seam-suite -->
 
 ## License
 
-**Self-hosting SEAM is free.** The SEAM Distributed Runtime, version 2.4.0 or
-later, is published under the Business Source License 1.1
-([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt)). You may run it on your own
-hardware or on infrastructure you rent, for your own or your organization's
-purposes — including internal commercial production use — at no charge, with no
-limit on scale or number of users. Non-commercial research, education, and
-publishing benchmark or evaluation results are permitted too.
+**Suite is proprietary and free to self-host for personal, noncommercial use
+only.** An individual may install, run, configure and back up their own
+authorized instance under the [Suite personal license](LICENSES/SEAM-Suite-Personal.txt).
+Covered implementation versions are identified in the
+[license manifest](LICENSES/SEAM-Suite-manifest.json).
 
-The one thing the grant withholds is offering the Distributed Runtime to third
-parties on a hosted or embedded basis as a *competitive offering*: a paid
-product or service that significantly overlaps with a paid version of SEAM.
-Free offerings are never competitive, and neither is internal use across
-affiliates under common control. Each published version converts to MPL 2.0
-four years after it is published.
+**Business use requires a separate written agreement**, including internal
+business use, work for an employer or client and commercial evaluation.
+Contact **licensing@canticle.cc** before that use.
 
-Everything below concerns material outside the Distributed Runtime.
+MIRL and HS/1 may operate inside that authorized Suite instance. Their
+implementation and specifications remain reserved: the personal grant does
+not permit standalone reuse, source modification, redistribution, incorporation
+into another product or a hosted commercial offering. Your own data remains
+yours; supported settings, APIs and data import/export remain available for
+permitted personal operation. The separate paid SDK is excluded.
+
+This personal grant has no automatic open-source conversion. Exact older
+Distributed Runtime versions retain their qualifying BUSL-1.1 rights,
+including their original change-license provisions. Those historical rights
+do not automatically extend to new Suite file versions.
 
 The rest of the SEAM repository and all non-public MIRL- and HS/1-related
 material are proprietary. MIRL's specification text, source code, schemas as expressed,
@@ -601,5 +624,6 @@ material is preserved at
 [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
 
 The controlling terms are [LICENSE](LICENSE), [NOTICE](NOTICE), and
-[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md). Any external permission
-requires a separate written agreement from the project owner.
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md). Permission beyond the narrow
+personal grant and applicable existing licenses requires a separate written
+agreement from the project owner.

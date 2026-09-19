@@ -51,6 +51,12 @@ def _canonical_doctor_dependencies() -> list[str]:
     return [_dependency_name(str(requirement)) for requirement in value]
 
 
+def test_doctor_recognizes_supported_legacy_multipart_import(monkeypatch):
+    # python-multipart 0.0.6 ships multipart; newer releases also expose python_multipart.
+    monkeypatch.setattr(doctor, "find_spec", lambda name: object() if name == "multipart" else None)
+    assert doctor._dependency_available("python_multipart")
+
+
 def test_chromadb_not_in_core_dependencies():
     assert not any("chromadb" in dep for dep in _project()["dependencies"])
 
@@ -70,7 +76,9 @@ def test_chromadb_only_in_the_explicit_chroma_extra():
 
 def test_doctor_follows_core_dependency_contract_when_chromadb_is_absent(monkeypatch):
     canonical_required = _canonical_doctor_dependencies()
-    assert canonical_required == ["rich", "tiktoken"]
+    assert canonical_required == [
+        "rich", "tiktoken", "textual", "httpx", "fastapi", "uvicorn", "python_multipart"
+    ]
 
     class _Runtime:
         def __init__(self, _db_path: str):
@@ -118,7 +126,9 @@ from seam_runtime.doctor import build_doctor_report
 report = build_doctor_report()
 assert report["status"] == "PASS", report
 assert report["dependencies"]["chromadb"] is False, report
-assert report["required_dependencies"] == ["rich", "tiktoken"], report
+assert report["required_dependencies"] == [
+    "rich", "tiktoken", "textual", "httpx", "fastapi", "uvicorn", "python_multipart"
+], report
 assert report["missing_required_dependencies"] == [], report
 '''
     env = os.environ.copy()

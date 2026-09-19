@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-08
+Last updated: 2026-09-19
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -63,12 +63,21 @@ bounded task-specific reading; do not maintain a competing sequence here.
   specification, container expression, visual designs, codecs, surface
   library, source, docs, tests, and related implementation material are
   separately named copyrighted Reserved Materials under the same terms.
-- `LICENSE` section 7A and `LICENSES/BUSL-1.1.txt` define the Distributed
+- The owner-selected Suite license is proprietary, personal and noncommercial
+  only (HISTORY#651). `LICENSE` section 7B, `LICENSES/SEAM-Suite-Personal.txt`
+  and `LICENSES/SEAM-Suite-manifest.json` govern the exact implementation
+  versions. Embedded MIRL/HS/1 operation is allowed solely as necessary to run
+  an authorized personal Suite instance; independent reuse, source modification,
+  redistribution and commercial use require separate permission. Business use,
+  including internal use, requires an agreement through licensing@canticle.cc.
+  The separate paid SDK is excluded. No automatic open-source conversion applies
+  to this grant; exact earlier Apache/BUSL and third-party rights are preserved.
+- `LICENSE` section 7A and `LICENSES/BUSL-1.1.txt` preserve the Distributed
   Runtime grant. Membership requires the exact published file versions,
   manifest, and notices specified by `LICENSE`; a repository path or public
   visibility is not a substitute. Use the controlling texts for terms and the
-  L1 packaging packet for candidate membership. This documentation baseline
-  grants no new rights and changes no license file.
+  L1 packaging packet for historical candidate membership. The new Suite
+  personal grant is a distinct, narrower permission under section 7B.
 - `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that
@@ -159,13 +168,22 @@ bounded task-specific reading; do not maintain a competing sequence here.
   automatic Suite inclusion. Existing license texts are unchanged. The L1
   packet records candidate membership, compatibility evidence, and unresolved
   customer delivery/source ownership work.
-- PRODUCT DIRECTION (HISTORY#642). SEAM Suite (`seam-suite`) is the self-hosted
-  operator product; SEAM Client is the paid hosted API with its all-in-one
-  WebUI. The existing `seam-client` Python wheel remains its separate HTTP
+- PRODUCT DIRECTION (HISTORY#647 naming; HISTORY#648 readiness and installation).
+  SEAM Suite (`seam-suite`) has a usable self-hosted core; its TUI, graph dashboard
+  and benchmark glassbox remain in development. SEAM API (`seam-api`) is planned
+  as a local runtime/server, API client support and WebUI installation; product
+  development has not started. Existing API code is a building block, not a
+  product-readiness claim. Registry availability is a separate status. The
+  existing `seam-client` Python wheel remains its separate HTTP
   transport client. `seam-sdk` remains the private SDK for paying users. `docs/PRODUCTS.md` owns these definitions. The former prohibition on
   reconsidering product shape is superseded by the operator's launch direction
   at HISTORY#634. Existing runtime invariants and artifact boundaries still
   apply; a product decision does not silently change package contents.
+- Suite includes TUI and browser-server dependencies by default. `[dash]` and
+  `[server]` remain compatible extras; model/vector/provider integrations stay
+  opt-in. Clean wheel and sdist environments must exercise installed TUI startup,
+  packaged web assets, API health and console entrypoints. Source-checkout help
+  alone is insufficient package evidence. See `docs/RELEASE_FLOW.md`.
 - CURRENT BUILD. The root `pyproject.toml` still defines the `seam-suite`
   2.4.1rc1 candidate, containing the full runtime and readable MIRL/HS/1 source. Preserve
   `Private :: Do Not Upload` and the existing artifact/secret gates until a
@@ -195,6 +213,15 @@ bounded task-specific reading; do not maintain a competing sequence here.
   visibility. Reconcile destination visibility, artifact membership, and live
   environment protections in L1 before dispatch. The root build has no PyPI
   upload job and retains `Private :: Do Not Upload`.
+- MCP REGISTRATION (HISTORY#649). Suite owns the local `seam-mcp` entrypoint;
+  it does not wait for the planned API product. `server.json` is prepared for
+  `io.github.Canticle-AI-Research/seam-suite`, with a matching README ownership
+  marker. Register only after the exact eligible Suite release is qualified
+  on TestPyPI and published on production PyPI. The manual `mcp-registry.yml`
+  workflow checks protected main, operator identity, version, public metadata
+  and ownership before OIDC publication and public read-back. It does not
+  authorize a Python upload. The old registry listing remains historical
+  migration work; see `docs/MCP_REGISTRY.md` for current observed status.
 - EXISTING DISTRIBUTIONS. GitHub lists release `v2.4.0`, and PyPI reports
   legacy `seam-runtime` 1.3.1, `seam-self-host` 1.1.2, and `seam-client` 2.0.0
   metadata at HISTORY#634. Current installability, exact contents, ownership,

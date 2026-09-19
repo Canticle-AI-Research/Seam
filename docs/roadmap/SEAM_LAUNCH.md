@@ -5,7 +5,9 @@
 **Direction:** retained product acceptance backlog. The active
 [memory-formation roadmap](MEMORY_FORMATION.md) supersedes the previous
 surface-first score-campaign order and owns what to do next.
-**Decision record:** HISTORY#634; naming/TestPyPI HISTORY#642; priority HISTORY#645.
+**Decision record:** HISTORY#634; TestPyPI HISTORY#642; formation priority HISTORY#645;
+current package repair and `seam-api` naming HISTORY#647; readiness and local
+API/WebUI installation direction HISTORY#648.
 **Product definitions:** [SEAM products](../PRODUCTS.md).
 **Current implementation state:** [project status](../../PROJECT_STATUS.md)
 and the [current handoff](../handoffs/INDEX.md).
@@ -41,9 +43,14 @@ different benchmark for one another, and do not promise the result in advance.
 
 ## Test registry before production
 
-The selected names are `seam-suite`, SEAM Client (paid API plus WebUI), and
+The selected names are `seam-suite`, `seam-api` (public API surface plus WebUI), and
 private `seam-sdk`; the existing `seam-client` Python wheel stays distinct
 from the hosted dashboard. See [the product map](../PRODUCTS.md).
+
+The current operator-requested repair covers package installation, release
+version validation, download/update routing, and the GitHub-facing docs. It
+does not complete or replace the formation work. See [release flow](../RELEASE_FLOW.md)
+for verified behavior and outstanding public-upload/API-artifact decisions.
 
 The operator requires [TestPyPI qualification](../TESTPYPI.md) before
 production PyPI publication. TestPyPI is public and cannot receive the private
@@ -51,6 +58,13 @@ SDK. Exact artifact review and publishing access still precede a test upload;
 a test upload does not authorize production publication or prove launch readiness.
 
 ## Current checkpoint and next product work
+
+The operator's current readiness distinction is: self-hosted core usable for
+local operation; Suite TUI, graph dashboard and benchmark glassbox unfinished;
+`seam-api` product development not started. This does not mark L3, L4 or L6
+complete. The planned API install runs the shared runtime/server locally with
+client support and served WebUI; exact artifacts and implementation remain
+future work. See [the setup plan](../RELEASE_FLOW.md#planned-seam-api-installation).
 
 The [L1 candidate packet](../audits/2026-09-06-l1-packaging-migration.md)
 contains source/ownership mapping, exact artifact inventories, installed

@@ -21264,3 +21264,103 @@ Updated the detailed formation roadmap funding correction, current status, durab
 
 The main-based provider branch deliberately excludes PR264's site and M1 helper, which remain draft and NOT_QUALIFIED for missing historical TDD evidence. Its branch-local HISTORY through 653 requires chronological reconciliation before later integration. Preserve unrelated dirty primary and other worktrees; no stash was created. Required GitHub checks and protected merge must be observed before claiming delivery, and no website deployment is implied.
 ---END-ENTRY-#646---
+
+---BEGIN-ENTRY-#647---
+id: 647
+date: 2026-09-17T15:28:18Z
+agent: codex
+status: in-progress
+topics: naming, pyproject, bugfix, ci, installer, docs, verify, handoff, continuity
+commits: pending
+refs: pyproject.toml,requirements.txt,seam_runtime/doctor.py,seam_runtime/dashboard.py,tools/release/release_version.py,tools/release/verify_private_artifacts.py,tests/audit/test_github_issue_release_config.py,tests/audit/test_chroma_optional.py,tests/package/smoke_installed_suite.py,.github/workflows/ci.yml,.github/workflows/package-release.yml,.github/workflows/publish-private-release.yml,docs/RELEASE_FLOW.md,docs/PRODUCTS.md,docs/TESTPYPI.md,docs/handoffs/2026-09-17-package-release-repair.md
+supersedes: 646
+tokens: 705
+---
+Prepared the operator-requested package repair on protected-main baseline 66fd3f93081712871ff827e756026c3e73c71790. The selected names are seam-suite for self-hosted TUI, graph dashboard and benchmark glassbox, and seam-api for the public API surface and WebUI. This supersedes the SEAM Client product label from HISTORY#642; the old seam-client transport and private paid SDK remain distinct. The operator requested updated GitHub/SEAM docs and a handoff for their subsequent DeepSeek review.
+
+Reproduced missing TUI/browser dependencies from the default built Suite. Promote terminal/browser dependencies to core, retain compatibility extras and optional model/vector/provider boundaries, and update doctor checks including legacy python-multipart import compatibility. CI installs exact wheel and sdist artifacts in distinct fresh environments with cache reuse disabled, then exercises isolated imports, console commands, TUI mount, public health and packaged assets. The guarded GitHub workflows share canonical Python prerelease parsing and exact requested/filename/metadata identity; existing approver, protected-head, digest and no-PyPI-upload controls remain. A dashboard install-hint edit is presentation-only and carries no behavioral TDD claim.
+
+Current PyPI queries found seam-runtime 1.3.1 yanked with reason broken, seam-self-host 1.1.2 available only as a CPython3.12 manylinux x86-64 wheel, seam-client metadata still pointing at the unavailable legacy repository, and no seam-suite or seam-api metadata on PyPI/TestPyPI. No absence establishes ownership. The companion Cantlicle branch fix/seam-product-downloads-20260917 binds its displayed Suite version, exact wheel URL, SHA256 and install command to validated non-yanked PyPI metadata, keeps missing packages unavailable, preserves account gates, updates public docs/product labels and retires the removed mirror publisher. No site deployment is implied.
+
+Verification: clean Linux/Python3.12 wheel and sdist environments passed tests/package/smoke_installed_suite.py and dependency checks with no extras; the supported python-multipart0.0.6 installation exposed and then passed its import compatibility repair. The five-module focused pytest selection in docs/handoffs/2026-09-17-package-release-repair.md passed. Independent package assurance found the repaired multipart issue. The full nonexternal tests/audit run completed with three failures: existing closeout gate-order drift tracked by issue260 and two durability assertions tied to the /tmp checkout. Unchanged main outside /tmp reproduced only the gate-order failure and passed both durability assertions. Website focused Node/Python checks passed; full website unittest failure/error records match unchanged main. Full-suite success, cross-platform GUI acceptance and hosted readiness are not claimed.
+
+Updated canonical product/install/release docs, status, ledger and chronological handoff. New code red/green evidence is in local session state; external logs and artifacts are retained under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages. Public Suite file/notices eligibility, TestPyPI publisher access and seam-api client-versus-server payload remain unresolved. Private classifier and existing license terms remain. No package upload, release/tag publication, legacy deletion, paid provider call or website deployment occurred. Draft PR and exact-head CI/receipt state must be checked before merge. Preserve unrelated primary audit/history/handoff and other linked worktrees, and the website's unrelated local assets; no stash was created.
+---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-17T16:22:25Z
+agent: codex
+status: changed
+topics: docs, naming, surface, webui, plan, handoff, continuity
+commits: pending
+refs: README.md,PROJECT_STATUS.md,REPO_LEDGER.md,docs/PRODUCTS.md,docs/RELEASE_FLOW.md,docs/TESTPYPI.md,docs/status/surfaces.md,docs/status/packaging-licensing.md,docs/roadmap/SEAM_LAUNCH.md,docs/handoffs/2026-09-17-product-readiness.md
+supersedes: 647
+tokens: 505
+---
+The operator clarified product readiness after HISTORY#647: the self-hosted core is usable for plug-and-play local operation, but Suite's TUI, graph dashboard and benchmark glassbox remain unfinished. The seam-api product has not started. Their selected local installation direction supplies the runtime/server, client dependencies and served WebUI; a client alone cannot run the engine. Exact dependency, artifacts, launcher and contract still require design and implementation. Existing server routes and prototypes are building blocks, not evidence of a completed API product.
+
+Updated README, product map, release and TestPyPI procedures, surface/packaging status, ledger, project status and launch backlog. The companion website PR29 changes Downloads and public docs to label Suite early access with usable core and unfinished operator interfaces, label API planned and not started, and distinguish product maturity from actual package publication. Account/Console links no longer imply a working API product. Runtime behavior, download selector, license, private SDK and account/pricing/cohort/vault policies are unchanged. The stable-only release selector still rejects prereleases; early-access product copy does not change that contract.
+
+Resumed SEAM PR266 from 0a4771efe873c9b3c5ae9f3d1175b3a7666b2438 and website PR29 from 090be67008ab8031dc435a1a68f3317fd38d3f85 in fresh isolated worktrees outside /tmp. The website commands node --test tests/downloads-release.test.js and python3 -m unittest discover -s tests -p test_package_downloads.py passed after the copy changes; diff checks passed. No new tests for wording, runtime changes, paid experiment, registry upload or production deployment occurred. A live-page HTTP request failed with a TLS error, so rendered production status remains unverified; owner browser review uses the branch preview.
+
+The prior package receipt remains NOT_QUALIFIED because its path classifier demands runtime TDD for installer documentation and a dashboard wording correction; this docs-only follow-up cannot clear it or qualify the cumulative PR. Prior full-suite failures, required GitHub checks, API implementation and artifact/publisher setup remain explicit in the new chronological handoff. Preserve unrelated primary/linked worktrees and website assets. External continuation evidence is under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages/readiness. Both PRs stay draft for DeepSeek; verify the final exact heads and remove task worktrees after push.
+---END-ENTRY-#648---
+
+---BEGIN-ENTRY-#649---
+id: 649
+date: 2026-09-17T16:55:44Z
+agent: codex
+status: in-progress
+topics: mcp, registry, naming, ci, docs, verify, handoff, continuity
+commits: pending
+refs: server.json,README.md,PROJECT_STATUS.md,REPO_LEDGER.md,tools/release/verify_mcp_registry.py,tests/audit/test_mcp_registry_release.py,.github/workflows/mcp-registry.yml,docs/MCP_REGISTRY.md,docs/RELEASE_FLOW.md,docs/handoffs/2026-09-17-suite-mcp-registration.md
+supersedes: 648
+tokens: 655
+---
+Prepared the operator-requested MCP registration path as an addition to HISTORY#647 package repairs and HISTORY#648 readiness clarification. The official registry still lists io.github.BlackhatShiftey/seam-runtime 1.3.1 active, backed by the yanked broken legacy PyPI release. No canonical Suite listing was returned. GitHub verified active/admin organization membership for the existing operator. No registry login, publish, deprecation, Python upload, protected merge or production deployment occurred.
+
+The root manifest now targets io.github.Canticle-AI-Research/seam-suite 2.4.1rc1 and the canonical repository. It corrects command construction for clients that append a versioned package spec, using --from and the seam-mcp entrypoint, with default SQLite and no optional pgvector DSN in default metadata. README carries the matching PyPI ownership marker. A read-only release helper validates local identity and, explicitly, production metadata and non-yanked artifacts; the existing private-upload classifier stops that publication check. The guarded manual registry workflow requires current protected main, configured operator identity and first attempt, verifies the public release, downloads a checksum-pinned official publisher, uses GitHub OIDC, and checks public read-back. It remains unexecuted and does not upload Python packages.
+
+Tests in tests/audit/test_mcp_registry_release.py were witnessed failing before implementation and passing afterward; the bounded session state preserves commands, times and fingerprints. The combined pytest run of that module plus tests/audit/test_mcp_stdio_smoke.py, tests/audit/test_mcp_tools_call_smoke.py and tests/audit/test_github_issue_release_config.py passed, as did collection, scoped Ruff and diff checks. Official publisher v1.8.1 validate server.json passed; its validate --help dispatch quirk was reconciled by reading the source and running the real command. Fresh wheel/sdist passed strict Twine and artifact checks. The wheel metadata contains the ownership marker. A no-cache uvx install from the local wheel exercised help, MCP initialization, synthetic ingestion/search and retrieval after restart with operator/provider environment excluded. A generic Python archive-inspection snippet was blocked by the deletion guard; a read-only unzip inspection completed safely. This is local artifact evidence, not a production registry install or full-suite qualification.
+
+The MCP guide, wiki route, release docs, status and ledger document publication order and current blockers. The website documentation now uses an absolute installed seam-mcp path with default SQLite and states that MCP belongs to Suite rather than the unstarted API product. Website node --test tests/downloads-release.test.js and python3 -m unittest discover -s tests -p test_package_downloads.py passed after that update. Public artifact membership/notices, TestPyPI access/qualification and the production package remain prerequisites. The stable-only website selector still rejects this rc version. Prior cumulative NOT_QUALIFIED and full-suite/CI conditions remain open; docs-only readiness qualification does not supersede them. Both draft PRs are retained for DeepSeek review. See the new indexed handoff for exact scope, remaining gates, evidence under /home/terrabyte/LLM-Logs/codex/releases/20260917-seam-packages/mcp, and worktree cleanup requirements.
+---END-ENTRY-#649---
+
+---BEGIN-ENTRY-#650---
+id: 650
+date: 2026-09-19T20:42:37Z
+agent: codex
+status: in-progress
+topics: audit, docs, pyproject, handoff, continuity, verify
+commits: pending
+refs: README.md,PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/audits/2026-09-19-suite-license-membership.md,docs/audits/evidence/2026-09-19-suite-license/members.json,docs/handoffs/2026-09-19-suite-license-review.md
+supersedes: 649
+tokens: 467
+---
+Continued HISTORY#649 and the September 18 licensing handoff on PR266 at 9f0bfae, based on protected main 66fd3f9. The primary August audit checkout and unrelated linked worktrees were preserved; their dirty audit/history/stream/handoff files and untracked artifacts are excluded. No snapshots existed in the isolated PR checkout; startup used the index and bounded HISTORY#649 pack. Both local closeout queues were empty; earlier cumulative NOT_QUALIFIED/TDD_UNPROVEN conditions remain open.
+
+The member map at docs/audits/evidence/2026-09-19-suite-license/members.json records 109 runtime files per saved wheel/sdist, scoped to seam.py and seam_runtime/**, all byte-identical to the inspected PR source. Complete regular-member scopes contain 119 wheel and 128 sdist files. The first-2048-byte BUSL text probe found no matches; this does not exclude every notice or resolve legacy rights. Exact artifact hashes remain in the report. No runtime execution, rebuild or private SDK inspection was needed.
+
+Compared LICENSES/BUSL-1.1.txt with pinned SPDX text and recorded missing closing permission/covenant sections without changing terms or claiming enforceability. README scopes free self-hosting to qualifying Distributed Runtime files. Report, status and handoff identify the remaining owner decision: exact candidate BUSL membership versus proprietary delivery permissions. License documents, package metadata, classifiers, artifacts and runtime code remain unchanged. Website PR29 separately corrects blanket Apache/open-source copy; its checks and owner browser review remain separate.
+
+Documentation verification scope is git diff --check, exact member/hash/source comparisons, canonical content-free secret scanning and tools.history.closeout with unsuppressed continuity/wiki/audit gates. Outputs and independent receipt are retained under external licensing-review-20260919 evidence; failures are not superseded by this description of scope. No runtime test or TDD claim applies. Live PR266 required checks at 9f0bfae showed chroma-real-smoke failure and repo-hygiene/locomo-quickstart-bil2 cancellation. Keep both PRs draft. No upload, registration, release, paid call, merge or deployment occurred. Next: owner membership decision, standard-text correction, approved notices and fresh artifact qualification.
+---END-ENTRY-#650---
+
+---BEGIN-ENTRY-#651---
+id: 651
+date: 2026-09-19T21:20:48Z
+agent: codex
+status: changed
+topics: docs, pyproject, mirl, operator, audit, handoff
+commits: pending
+refs: LICENSE,LICENSES/SEAM-Suite-Personal.txt,LICENSES/SEAM-Suite-manifest.json,pyproject.toml,docs/audits/2026-09-19-suite-personal-license.md,docs/handoffs/2026-09-19-suite-personal-license.md
+supersedes: 650
+tokens: 367
+---
+Owner selected proprietary personal, noncommercial Suite self-hosting only; internal business use requires a separate written agreement. Added LICENSE section 7B, the narrow personal license and exact SHA-256 membership manifest; aligned metadata, notices and current product/release docs. Embedded MIRL/HS/1 operation is permitted only to operate Suite, with independent reuse reserved. Earlier exact-version rights and the separate paid SDK boundary remain intact. No runtime source changed and no new BUSL membership was granted.
+
+Fresh wheel and sdist in the dated report's evidence manifest each match all 109 runtime paths listed in LICENSES/SEAM-Suite-manifest.json; seven license documents match source and both metadata records retain the private-upload classifier. Twine strict validation, private-artifact scanning, and the focused pytest slice tests/audit/test_github_issue_release_config.py plus tests/audit/test_mcp_registry_release.py passed. The existing tests/package/smoke_installed_suite.py passed four startup checks in each independent wheel/sdist environment. Independent license review corrected an overbroad trial restriction and confirmed the final scope. These checks do not establish cumulative PR or full-product qualification.
+
+PR #266 remains draft with prior cumulative NOT_QUALIFIED / TDD_UNPROVEN and required CI conditions open. The historical BUSL standard-text discrepancy remains separate. TestPyPI setup/final release eligibility remain gates; no upload, registry publication, merge, deployment or paid call occurred. Website draft PR #29 carries matching current-product copy at 13a40ea1b44a6e11f3c56daf9f3077324ee08bc9; baseline failures and owner visual acceptance remain recorded there. Primary dirty audit checkout and unrelated linked worktrees remain excluded. Canonical handoff advances to the personal-license decision and points to exact evidence and remaining work.
+---END-ENTRY-#651---

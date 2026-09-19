@@ -1,31 +1,32 @@
-SEAM PRIVATE REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE
-Version 2.1 — Effective July 27, 2026
+SEAM PROPRIETARY REPOSITORY, MIRL, AND HS/1 RESERVED MATERIALS LICENSE
+Version 2.2 — Effective September 19, 2026
 
 Copyright © 2026 Nicholas Thomas (BlackhatShiftey). All rights reserved.
 
 IMPORTANT: THIS IS A PROPRIETARY LICENSE, NOT AN OPEN-SOURCE LICENSE.
 
-This license governs the private SEAM repository and all Reserved Materials
+This license governs the proprietary SEAM repository and all Reserved Materials
 made available from it on or after the Effective Date, except for third-party
 materials or a specific file or version that the Project Owner has expressly
 licensed under different written terms.
 
-SCOPE NOTE — SEPARATELY LICENSED DISTRIBUTED RUNTIME. As of Version 2.1, the
-Project Owner publishes a defined subset of this repository, the Distributed
-Runtime, under the Business Source License 1.1. Section 7A states that grant
-and `LICENSES/BUSL-1.1.txt` contains its controlling text. Self-hosting the
-Distributed Runtime, including for internal commercial production use, is
-permitted by that grant at no charge. Everything else in this repository —
-including the MIRL and HS/1 specifications, private benchmarks and holdouts,
-research, history, and release tooling — remains Reserved Materials governed
-by the proprietary terms below.
+SCOPE NOTE — PROPRIETARY PERSONAL SELF-HOSTING. Section 7B grants limited
+personal, noncommercial permission to operate the exact Suite files identified
+by LICENSES/SEAM-Suite-manifest.json. It grants no independent MIRL or HS/1
+reuse rights. Business use requires separate written permission. Section 7A
+preserves the earlier Distributed Runtime grant for exact versions that
+qualified under it; this version does not revoke previously granted rights.
+The personal Suite grant does not place the new Suite under BUSL or promise
+conversion to an open-source license. Unlisted material, specifications,
+private benchmarks, research, history and release tooling remain reserved.
 
 1. DEFINITIONS
 
 "Project Owner" means Nicholas Thomas, operating as BlackhatShiftey, or a
 successor that owns the applicable copyrights.
 
-"Private Repository" means the non-public SEAM development repository,
+"Private Repository" means the SEAM development repository governed by this
+agreement, whether or not its contents are accessible publicly,
 including its source code, specifications, schemas, documentation, tests,
 benchmarks, fixtures, designs, research, build and release tooling, history,
 and other materials.
@@ -100,8 +101,9 @@ contract, confidentiality, and trade-secret rights that may apply.
 
 3. NO PUBLIC LICENSE GRANT
 
-Except for the Distributed Runtime grant in Section 7A and the Legacy Apache
-Materials in Section 7, no right is granted to use, copy, reproduce, modify,
+Except for the personal Suite operating permission in Section 7B, the
+Distributed Runtime grant in Section 7A and the Legacy Apache Materials in
+Section 7, no right is granted to use, copy, reproduce, modify,
 adapt, translate, distribute, publish, display, perform, sublicense, sell,
 host, disclose, or create derivative works from the Reserved Materials, MIRL
 Reserved Materials, or HS/1 Reserved Materials. All rights not expressly
@@ -124,7 +126,9 @@ external distribution, independent commercial use, or use for another project.
 
 5. PROHIBITED CONDUCT
 
-Unless the Project Owner gives prior written permission, You may not:
+Except for operations expressly permitted by Section 7B or other applicable
+grants in this license, and unless the Project Owner gives separate written
+permission, You may not:
 
 - copy, publish, distribute, mirror, upload, transmit, or disclose Reserved
   Materials outside approved private systems;
@@ -173,7 +177,12 @@ same filename, purpose, interface, ancestry, or relationship to a Legacy
 Apache Material. Only an express written license grant by the Project Owner
 can publish a new version under Apache-2.0 or another license.
 
-7A. DISTRIBUTED RUNTIME — BUSINESS SOURCE LICENSE 1.1
+7A. PRESERVED DISTRIBUTED RUNTIME GRANT — BUSINESS SOURCE LICENSE 1.1
+
+This section preserves the grant for exact Distributed Runtime versions
+qualifying under its publication, manifest and notice requirements. It does
+not grant BUSL rights in the new personal-use Suite identified in Section 7B.
+Rights already granted for earlier versions are not narrowed by Section 7B.
 
 The Project Owner licenses the Distributed Runtime under the Business Source
 License 1.1. The controlling text, including the Licensor, Licensed Work,
@@ -201,6 +210,24 @@ Distributed Runtime, and no trademark rights of any kind. Publication of a
 version under this section is not a waiver of the Project Owner's rights in
 any unpublished version, and does not oblige the Project Owner to publish any
 future version.
+
+7B. PROPRIETARY SUITE — PERSONAL, NONCOMMERCIAL SELF-HOSTING
+
+The Project Owner grants the narrow operating permission in
+LICENSES/SEAM-Suite-Personal.txt for the exact implementation file versions
+identified in LICENSES/SEAM-Suite-manifest.json. The separate license is part
+of this agreement and controls that permission. It permits an individual to
+install, execute, configure and back up Suite for their own personal,
+noncommercial purposes, including the embedded MIRL and HS/1 operations
+necessary to run that Suite. It does not grant standalone reuse,
+redistribution, source-modification or commercial rights in those materials.
+
+Business use, including internal business use, requires a separate written
+agreement from licensing@canticle.cc. For the specific Suite operations it
+permits, Section 7B prevails over Sections 3, 5 and 6; all other reserved
+rights remain in force. The separate paid SDK is excluded. The grant does not
+automatically convert to BUSL, MPL or an open-source license. Older grants and
+third-party rights remain protected by Sections 7, 7A and 8.
 
 8. THIRD-PARTY MATERIALS
 

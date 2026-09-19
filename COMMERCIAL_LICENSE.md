@@ -1,37 +1,35 @@
 # SEAM and MIRL commercial permissions
 
-The private SEAM repository and all non-public MIRL- and HS/1-related material
+The SEAM repository and its reserved MIRL- and HS/1-related material
 are proprietary. The controlling terms are in [LICENSE](LICENSE).
 
-## The Distributed Runtime is free to self-host
+## Suite: free personal, noncommercial self-hosting
 
-One defined subset is an exception to everything below: the SEAM Distributed
-Runtime, version 2.4.0 or later, is published under the Business Source License
-1.1 ([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt), granted by Section 7A of
-[LICENSE](LICENSE)).
+An individual may install, run, configure and back up an authorized Suite copy
+for their own personal, noncommercial purposes under the
+[Suite personal license](LICENSES/SEAM-Suite-Personal.txt) and
+[exact implementation manifest](LICENSES/SEAM-Suite-manifest.json).
+Embedded MIRL and HS/1 use is permitted only as needed to operate that copy.
+No standalone reuse, source modification, redistribution or commercial grant
+follows. The private paid SDK is not included in this permission.
 
-**You do not need a commercial license to run SEAM yourself.** The Additional
-Use Grant permits production use on your own hardware or on infrastructure you
-rent, for your own or your organization's purposes, including internal
-commercial use, with no limit on scale or number of users and no charge. It
-also permits non-commercial research, education, and publishing benchmark or
-evaluation results.
+**Business use requires a separate written agreement**, including internal
+company use, work for an employer or client, commercial evaluation and paid
+or hosted offerings. Hosting the software yourself does not waive this rule.
+Contact **licensing@canticle.cc** before such use. Personal self-hosting has no
+charge under the grant; it does not automatically convert to an open-source
+license after a period of time.
 
-**You do need one** to offer the Distributed Runtime to third parties on a
-hosted or embedded basis as a competitive offering — that is, a paid product or
-service that significantly overlaps with a paid version of SEAM. Free offerings
-are not competitive. Internal organizational use, including across affiliates
-under common control, is never competitive.
-
-Each published version converts to MPL 2.0 four years after it is published.
-Conversion applies per version and never converts unpublished material.
-
-Everything in the rest of this document concerns material *outside* the
-Distributed Runtime.
+Exact earlier Distributed Runtime versions retain their qualifying BUSL grant
+under [LICENSE section 7A](LICENSE) and
+[`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt), including their original
+change-license provisions. Exact legacy Apache rights also remain intact.
+Neither historical grant automatically applies to new Suite file versions.
 
 ## No permission from repository access
 
-Access to this repository does not authorize evaluation, copying,
+Except for the exact operations permitted by the Suite personal license or
+other applicable grants, access to this repository does not authorize evaluation, copying,
 redistribution, publication, implementation, hosting, commercial use,
 model-training use, or use in another product or project. Authorized
 contributors may use the material only for approved SEAM work.
@@ -50,13 +48,13 @@ implementation.
 
 ## Contact
 
-Licensing enquiries, including commercial licenses for use outside the BUSL-1.1
-Additional Use Grant: **licensing@canticle.cc**.
+Business and commercial Suite use, MIRL/HS/1 reuse, redistribution and other
+permissions outside the personal grant: **licensing@canticle.cc**.
 
 ## Separate written agreements
 
-Any external permission requires a separate written agreement from the project
-owner. Agreements may cover a specifically defined evaluation, research,
+Permissions beyond the personal grant and existing version-specific licenses
+require a separate written agreement from the project owner. Agreements may cover a specifically defined evaluation, research,
 commercial, hosted, enterprise, integration, standards, distribution, support,
 or customer scope. No permission is implied by discussions, repository access,
 issues, pull requests, documentation, or prior collaboration.

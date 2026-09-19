@@ -24,11 +24,11 @@ from packaging.utils import (
     InvalidSdistFilename,
     InvalidWheelFilename,
     canonicalize_name,
-    canonicalize_version,
     parse_sdist_filename,
     parse_wheel_filename,
 )
 
+from tools.release.release_version import matches_release_version
 from tools.security.secret_scan import MAX_SCAN_BYTES, scan_bytes
 
 _DENIED_NAMES = frozenset(
@@ -303,12 +303,12 @@ def _metadata_identity(content: bytes) -> tuple[str, str] | None:
 def _scan_wheel_identity(path: Path, expected_name: str, expected_version: str) -> list[str]:
     findings: list[str] = []
     try:
-        name, version, _build, _tags = parse_wheel_filename(path.name)
+        name, _version, _build, _tags = parse_wheel_filename(path.name)
         if canonicalize_name(name) != canonicalize_name(expected_name):
             findings.append(f"{path.name}: artifact_name_mismatch")
-        if canonicalize_version(str(version)) != canonicalize_version(expected_version):
-            findings.append(f"{path.name}: artifact_version_mismatch")
         wheel_parts = path.name.removesuffix(".whl").split("-")
+        if not matches_release_version(wheel_parts[1], expected_version):
+            findings.append(f"{path.name}: artifact_version_mismatch")
         expected_metadata_path = f"{wheel_parts[0]}-{wheel_parts[1]}.dist-info/METADATA"
         with zipfile.ZipFile(path) as archive:
             metadata_members = [
@@ -330,7 +330,7 @@ def _scan_wheel_identity(path: Path, expected_name: str, expected_version: str) 
     metadata_name, metadata_version = identity
     if canonicalize_name(metadata_name) != canonicalize_name(expected_name):
         findings.append(f"{path.name}: metadata_name_mismatch")
-    if canonicalize_version(metadata_version) != canonicalize_version(expected_version):
+    if not matches_release_version(metadata_version, expected_version):
         findings.append(f"{path.name}: metadata_version_mismatch")
     return findings
 
@@ -338,12 +338,12 @@ def _scan_wheel_identity(path: Path, expected_name: str, expected_version: str) 
 def _scan_sdist_identity(path: Path, expected_name: str, expected_version: str) -> list[str]:
     findings: list[str] = []
     try:
-        name, version = parse_sdist_filename(path.name)
+        name, _version = parse_sdist_filename(path.name)
         if canonicalize_name(name) != canonicalize_name(expected_name):
             findings.append(f"{path.name}: artifact_name_mismatch")
-        if canonicalize_version(str(version)) != canonicalize_version(expected_version):
-            findings.append(f"{path.name}: artifact_version_mismatch")
         expected_root = path.name.removesuffix(".tar.gz")
+        if not matches_release_version(expected_root.rsplit("-", 1)[1], expected_version):
+            findings.append(f"{path.name}: artifact_version_mismatch")
         with tarfile.open(path, mode="r:gz") as archive:
             members = archive.getmembers()
             if any(
@@ -374,7 +374,7 @@ def _scan_sdist_identity(path: Path, expected_name: str, expected_version: str) 
     metadata_name, metadata_version = identity
     if canonicalize_name(metadata_name) != canonicalize_name(expected_name):
         findings.append(f"{path.name}: metadata_name_mismatch")
-    if canonicalize_version(metadata_version) != canonicalize_version(expected_version):
+    if not matches_release_version(metadata_version, expected_version):
         findings.append(f"{path.name}: metadata_version_mismatch")
     return findings
 

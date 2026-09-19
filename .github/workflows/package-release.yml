@@ -46,6 +46,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install release verification dependency
+        run: python -m pip install 'packaging>=24,<27'
+
       - name: Verify requested version
         id: version
         env:
@@ -53,49 +56,27 @@ jobs:
         run: |
           python - <<'PY'
           import os
-          import string
           import tomllib
           from pathlib import Path
+
+          from tools.release.release_version import validate_release_version
 
           project_file = Path("pyproject.toml")
           version = tomllib.loads(project_file.read_text(encoding="utf-8"))["project"]["version"]
           requested = os.environ["REQUESTED_VERSION"]
 
-          def valid_identifiers(value: str, *, reject_numeric_leading_zero: bool) -> bool:
-              allowed = string.ascii_letters + string.digits + "-"
-              for identifier in value.split("."):
-                  if not identifier or any(character not in allowed for character in identifier):
-                      return False
-                  if reject_numeric_leading_zero and identifier.isascii() and identifier.isdigit():
-                      if len(identifier) > 1 and identifier.startswith("0"):
-                          return False
-              return True
-
-          base, build_separator, build = requested.partition("+")
-          core, prerelease_separator, prerelease = base.partition("-")
-          core_parts = core.split(".")
-          valid_core = len(core_parts) == 3 and all(
-              part and part.isascii() and part.isdigit() and (part == "0" or not part.startswith("0"))
-              for part in core_parts
-          )
-          valid_prerelease = not prerelease_separator or valid_identifiers(
-              prerelease, reject_numeric_leading_zero=True
-          )
-          valid_build = not build_separator or valid_identifiers(
-              build, reject_numeric_leading_zero=False
-          )
-          if "+" in build or not (valid_core and valid_prerelease and valid_build):
-              raise SystemExit(f"requested version {requested!r} is not exact SemVer without a leading v")
-          if version != requested:
-              raise SystemExit(f"{project_file} version {version!r} does not match requested version {requested!r}")
+          try:
+              parsed = validate_release_version(requested, project_version=version)
+          except ValueError as exc:
+              raise SystemExit(str(exc)) from None
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               print(f"version={version}", file=output)
-              print(f"prerelease={str(bool(prerelease_separator)).lower()}", file=output)
+              print(f"prerelease={str(parsed.is_prerelease).lower()}", file=output)
           PY
 
       - name: Build distributions
         run: |
-          python -m pip install --upgrade build twine 'packaging>=24,<27'
+          python -m pip install --upgrade build twine
           python -m build --wheel --sdist
           python -m twine check dist/*
 
@@ -110,11 +91,14 @@ jobs:
         run: |
           repo_root="$PWD"
           wheel="$(find "$repo_root/dist" -maxdepth 1 -name '*.whl' -print -quit)"
-          python -m pip install "${wheel}[server,pgvector]" "seam-client==2.0.0"
+          python -m pip install "${wheel}[pgvector]"
           cd /tmp
           seam --help
           seam-mcp --help
           seam-server --help
+          seam-tui --help
+          seam-dash --help
+          python -I "$repo_root/tests/package/smoke_installed_suite.py"
 
       - name: Write artifact checksums
         run: |
