@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 647
-total_tokens: ~329877
-latest_id: 647
+total_entries: 648
+total_tokens: ~330806
+latest_id: 648
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 648 | 2026-09-19 | changed | e3a4fd90f478acb7 | benchmark,locomo,holdout,plan,+ | 647 |
 | 647 | 2026-09-18 | changed | ced06a362286c762 | roadmap,plan,handoff,continuity,+ | 646 |
 | 646 | 2026-09-14 | changed | beb120512ffa2168 | benchmark,models,tests,verify,+ | 645 |
 | 645 | 2026-09-12 | changed | 6eec8c818b90ca63 | roadmap,plan,memory,compile,+ | 642 |
@@ -681,7 +682,7 @@ compact: true
 - audit: count=130 latest=#647, #641, #632, #597, #596
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
-- benchmark: count=208 latest=#646, #645, #571, #553, #547
+- benchmark: count=209 latest=#648, #646, #645, #571, #553
 - benchmarks: count=5 latest=#538, #509, #508, #507, #493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
@@ -754,7 +755,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=99 latest=#647, #646, #643, #642, #641
+- docs: count=100 latest=#648, #647, #646, #643, #642
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -800,7 +801,7 @@ compact: true
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
 - history: count=327 latest=#632, #631, #630, #627, #625
-- holdout: count=5 latest=#302, #152, #093, #092, #036
+- holdout: count=6 latest=#648, #302, #152, #093, #092
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
 - http: count=2 latest=#609, #608
@@ -831,7 +832,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=5 latest=#579, #526, #461, #283, #182
-- locomo: count=89 latest=#509, #508, #507, #505, #504
+- locomo: count=90 latest=#648, #509, #508, #507, #505
 - longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -850,7 +851,7 @@ compact: true
 - mirl: count=39 latest=#602, #601, #599, #530, #510
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
-- models: count=4 latest=#646, #450, #403, #182
+- models: count=5 latest=#648, #646, #450, #403, #182
 - modes: count=1 latest=#542
 - multi-agent: count=30 latest=#623, #622, #620, #619, #618
 - multihop: count=3 latest=#321, #319, #318
@@ -880,7 +881,7 @@ compact: true
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
 - pgvector: count=35 latest=#640, #490, #489, #488, #487
-- plan: count=26 latest=#647, #645, #634, #620, #511
+- plan: count=27 latest=#648, #647, #645, #634, #620
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - positioning: count=1 latest=#538
@@ -926,7 +927,7 @@ compact: true
 - resolution: count=5 latest=#459, #458, #457, #456, #455
 - rest: count=1 latest=#457
 - results: count=2 latest=#411, #410
-- retrieval: count=159 latest=#641, #640, #639, #638, #637
+- retrieval: count=160 latest=#648, #641, #640, #639, #638
 - retrievalflags: count=1 latest=#328
 - retry: count=5 latest=#522, #496, #466, #336, #182
 - review: count=4 latest=#632, #631, #606, #388
@@ -993,7 +994,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=452 latest=#647, #646, #644, #643, #642
+- verify: count=453 latest=#648, #647, #646, #644, #643
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1010,7 +1011,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 70
+- changed: 71
 - done: 535
 - in-progress: 20
 - planned: 22

@@ -21288,3 +21288,29 @@ Verification: the canonical preflight is eight gates, not the six listed in the 
 
 Unresolved next step: the operator decides which lane carries the research registration and whether PR264 is split. B1 and E1 are then the unblocked slices feeding M2; both were left unstarted by this delivery. The three arXiv identifiers cited by PR268 were not independently verified against upstream listings. HISTORY#646 carries commits: pending and its merge SHA was never backfilled; HISTORY.md is append-only so this is noted rather than edited.
 ---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-19T01:03:58Z
+agent: claude
+status: changed
+topics: benchmark, locomo, holdout, plan, docs, verify, models, retrieval
+commits: pending
+refs: docs/E1_EVALUATION_CONTRACT.md,docs/README.md,benchmarks/external/locomo/holdout_assignment.json
+supersedes: 647
+tokens: 929
+---
+Froze the E1 evaluation contract for the memory-formation campaign and pinned the LoCoMo dev/holdout split in git. Documentation and a derived manifest only: no runtime code changed, no provider call was made, no benchmark was run and no score is claimed.
+
+Recorded frozen conditions in docs/E1_EVALUATION_CONTRACT.md: dataset locomo10.json at sha256 79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4 with 1542 runner cases and full-set fixture hash 405308a9159b88dd0675b798f59a3af16cdcc7061c31a6fcccc1638fe7f86d36; answerer and judge pinned to the claude-code subscription transport on claude-haiku-4-5-20251001; retrieval held fixed at legacy-weighted, top-k 100 and an 8000-character budget with real cached embeddings; judged correctness primary with string-match and recall explicitly secondary and non-promotable; fresh re-ingest required per formation arm with --keep-db forbidden; and separate scoreboards from any mem0-harness or published comparator number.
+
+Generated benchmarks/external/locomo/holdout_assignment.json via tools.h2.holdout_split at the default salt seam-locomo-v1 and ratio 0.8. The module docstring required this manifest to be committed so the split could not change silently, but no manifest existed: the split was computed on the fly from runner defaults and was reproducible only by convention. Generation reported dev=1198 holdout=344 added=1542 unchanged=0, and the runner's dev and holdout fixture hashes (75132ee187e058b2 and 35df739c70d7a781 prefixes) were identical before and after the manifest existed, so committing it pins current behavior and alters no past result. Manifest sha256 ea3e481ee052c620cc22aef4127a423e9b2e1c5d95f720911c8627ec4ccbfad4.
+
+Carried three benchmark-trap constraints into the contract as binding rules rather than advice: a 300-case no-change control run establishes a noise floor and any delta below it is reported as no detected change; free recall and overlap metrics triage only and never establish a win; and reported spend totals are lower bounds because artifacts retain only the last clean pass per case. Recorded the answerer-strength limitation explicitly, since a formation gain measured on haiku may shrink on a stronger answerer and is therefore insufficient for an external claim. Recorded the BIL-2 limitations from HISTORY#647 as a retention caveat: until B2 lands, a sealed bundle from this campaign is internal integrity evidence, not third-party attestation, and its timing fields are unsigned.
+
+Cost position: the single merged quickstart case reported USD 0.008487 for answerer plus judge, which projects to roughly 10.17 for a 1198-case dev run, 2.92 for holdout and 13.09 for the full set. That per-case figure is a lower bound taken from a small synthetic fixture and not a full-context case. The operator authorized only a bounded ten-case dev smoke with a 0.50 ceiling to measure the true per-case rate; no full run is authorized and the full-run budget is a separate operator decision.
+
+Verification: dry-run inspection of all, dev and holdout splits before and after manifest generation, with identical case counts and fixture hashes. verify_wiki passes and reports 277 active pages reachable after routing the contract from docs/README.md. Full eight-gate preflight run at closeout. No paid call, no holdout exposure and no ROADMAP.md change, so the roadmap parser needs no rerun and this branch still does not conflict with PR267 or PR268.
+
+Next unresolved step: run the authorized ten-case dev smoke and report the measured per-case cost, then obtain a full-run budget decision. M1 acceptance on PR264 and the B1 metadata contract remain separate prerequisites for M2 and are not advanced by this entry.
+---END-ENTRY-#648---
