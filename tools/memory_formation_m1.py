@@ -57,7 +57,7 @@ def describe(batch) -> dict:
         "span_bounds": [[r.attrs["start"], r.attrs["end"]] for r in spans],
         "span_text_exact": all(
             by_id[r.attrs["raw_id"]].attrs["content"][r.attrs["start"]:r.attrs["end"]]
-            == next(c.attrs["object"] for c in claims if r.id in c.evidence)
+            == next((c.attrs["object"] for c in claims if r.id in c.evidence), None)
             for r in spans
         ),
     }

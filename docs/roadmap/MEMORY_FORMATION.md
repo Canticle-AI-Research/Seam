@@ -8,10 +8,13 @@
 Claude.ai, not the API Console. E1 now uses the supported Claude Code
 subscription route described in [Claude Code benchmarks](../CLAUDE_CODE_BENCHMARKS.md).
 This supersedes the earlier direct-API funding assumption in R05/E1.
-The M1 audit candidate exists on draft PR #264; it awaits independent
-acceptance and resolution of its helper's historical test-first evidence gap.
-Formation implementation has not started. Provider connectivity does not
-complete B1 metadata or E1's full evaluation contract.
+The M1 audit and probe have been copied into draft PR #269 independently of
+PR #264's website publisher. September 19 review supports the retained
+synthetic findings and identified gaps in the new verification suite; the
+current repair and disposition are recorded in HISTORY#654 and the current
+handoff. New tests do not retroactively prove the helper's original test-first
+development. Formation implementation has not started. B1 and E1 design
+candidates now exist on PR #269; full benchmark qualification remains open.
 
 **Owner:** root integration agent, with bounded stream owners assigned per slice.
 
@@ -65,8 +68,8 @@ answer quality are separate measurements; no result is promised.
 | Order | Work | Status and exit |
 | --- | --- | --- |
 | 1 | M0: register roadmap, current handoff, PR dispositions and durable routing | Merged through PR #261 |
-| 2 | M1: current ingestion and temporal-identity audit | Candidate on draft PR #264; review evidence and resolve its release condition before accepting M1 |
-| Parallel with M1 | B1: BIL-3 schema design; E1: provider/evaluation setup; P0: report-home discovery | Ready after M0; own separate files and return concrete artifacts |
+| 2 | M1: current ingestion and temporal-identity audit | Candidate on draft PR #269; retained findings independently reviewed, verification repair in HISTORY#654; candidate release qualification remains separate |
+| Parallel with M1 | B1: BIL-3 schema design; E1: provider/evaluation setup; P0: report-home discovery | B1 and E1 design candidates on PR #269; review independently of M1 and provider connectivity |
 | After M1 and design inputs | M2: architecture decision and acceptance fixtures | Requires M1 evidence, B1 metadata contract and E1 evaluation design; credential access and P0 storage discovery do not block M2 |
 | After M2 | M3: context-preserving segmentation; M4: temporal entity projection | M3 first; M4 consumes the M2 record contract and validated M3 output |
 | After M3/M4 | M5: integrated baseline/candidate evaluation | Requires E1-E2 and B2; no default or production promotion from a free diagnostic |

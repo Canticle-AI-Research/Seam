@@ -30,7 +30,7 @@ HISTORY entry for that report. Use
 | --- | --- | --- | --- |
 | 2026-09-18 | [Roadmap fork reconciliation and open-PR disposition](2026-09-18-roadmap-fork-reconciliation.md) | continuity / roadmap registry / open-PR state | `HISTORY#647` |
 | 2026-09-14 | [Claude.ai subscription benchmark transport verification](2026-09-14-claude-code-benchmarks.md) | subscription transport, bounded real smoke and failure accounting | `HISTORY#646` |
-| 2026-09-13 | [Memory formation M1: ingestion and temporal-identity audit](2026-09-13-memory-formation-m1.md) | compiler/loader/adapter formation observations and M2 proposal | `HISTORY#652` |
+| 2026-09-13 | [Memory formation M1: ingestion and temporal-identity audit](2026-09-13-memory-formation-m1.md) | compiler/loader/adapter formation observations and M2 proposal | `HISTORY#654` |
 | 2026-09-06 | [L1 packaging and SDK migration preparation](2026-09-06-l1-packaging-migration.md) | package/source/ownership map and scoped artifact evidence | `HISTORY#635` |
 | 2026-08-29 | [Full-repository audit](2026-08-29-full-repo-audit.md) | whole-repo health audit | `HISTORY#632` |
 | 2026-08-19 | [Track S S6 principal-tenancy threat-model delta](2026-08-19-track-s-s6-principal-tenancy-threat-model.md) | security / tenancy / deletion | `HISTORY#575` |

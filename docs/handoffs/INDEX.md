@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-09-19-e1-b1-m1-split-ci-blocked-next
+latest: 2026-09-19-m1-evidence-repair-next
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-19-e1-b1-m1-split-ci-blocked-next` | [2026-09-19-e1-b1-m1-split-ci-blocked-next.md](2026-09-19-e1-b1-m1-split-ci-blocked-next.md) | `2026-09-18-roadmap-fork-reconciliation-next` | `HISTORY#653` | `current` |
+| `2026-09-19-m1-evidence-repair-next` | [2026-09-19-m1-evidence-repair-next.md](2026-09-19-m1-evidence-repair-next.md) | `2026-09-19-e1-b1-m1-split-ci-blocked-next` | `HISTORY#654` | `current` |
+| `2026-09-19-e1-b1-m1-split-ci-blocked-next` | [2026-09-19-e1-b1-m1-split-ci-blocked-next.md](2026-09-19-e1-b1-m1-split-ci-blocked-next.md) | `2026-09-18-roadmap-fork-reconciliation-next` | `HISTORY#653` | `superseded` |
 | `2026-09-18-roadmap-fork-reconciliation-next` | [2026-09-18-roadmap-fork-reconciliation-next.md](2026-09-18-roadmap-fork-reconciliation-next.md) | `2026-09-14-claude-code-benchmark-next` | `HISTORY#647` | `superseded` |
 | `2026-09-14-claude-code-benchmark-next` | [2026-09-14-claude-code-benchmark-next.md](2026-09-14-claude-code-benchmark-next.md) | `2026-09-12-memory-formation-roadmap` | `HISTORY#646` | `superseded` |
 | `2026-09-12-memory-formation-roadmap` | [2026-09-12-memory-formation-roadmap.md](2026-09-12-memory-formation-roadmap.md) | `2026-09-08-package-names-testpypi-candidate` | `HISTORY#645` | `superseded` |

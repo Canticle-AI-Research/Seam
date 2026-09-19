@@ -2,7 +2,9 @@
 
 Date: 2026-09-13. Scope: the M1 investigation in
 [the memory-formation roadmap](../roadmap/MEMORY_FORMATION.md), following
-HISTORY#645. Recorded by HISTORY#649 in this publication-preparation branch.
+HISTORY#645. Originally recorded by HISTORY#649 on the separate publication
+branch, copied here through HISTORY#652, and independently reviewed in
+HISTORY#654.
 
 **Result:** the current default path preserves the supplied RAW text and its
 admitted proposition spans, but can lose structured speaker attribution, source
@@ -19,6 +21,26 @@ reports-site branch (PR #264) and is deliberately not cited as a repository
 path here, so this audit stands independently of the website publisher.
 
 ## Evidence boundary and reproduction
+
+### September 19 independent verification
+
+HISTORY#654 records independent review of the retained evidence and a focused
+repair of `tools/memory_formation_m1.py` and
+`tests/audit/test_memory_formation_m1_probe.py`. The original observations and
+their manifest hash are unchanged. The repaired suite compares semantic
+relationships and supporting claims rather than generated IDs: attribution and
+graph propagation, duplicate events and captions, segmentation and Unicode
+accounting, and absent structured temporal intervals. It explicitly records
+the existing 9,999-character single span as a missing bound. Orphaned SPAN
+evidence is reported as inexact rather than crashing the observation helper.
+
+The focused offline command `python -m pytest
+tests/audit/test_memory_formation_m1_probe.py -o addopts='' -q` passed 43 tests
+without skips. This is subsequent verification of the historical findings and
+a witnessed red/green repair of the observer. It does not retroactively prove
+test-first development of the original helper or qualify the cumulative PR.
+
+### Original observation capture
 
 Audited runtime, adapters, and existing tests at
 `614141c5aa96fd51d4dee2e09c186bb4035c0377` (merged roadmap PR #261).

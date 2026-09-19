@@ -5,6 +5,16 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-19 — M1 evidence verification repair on draft PR #269.** Independent
+review supports the retained synthetic diagnostic findings, but found that the
+new tests did not verify several central claims and mislabeled an unbounded
+span as bounded. The focused repair checks those observations and makes the
+probe report orphaned evidence as inexact. This is audit-instrument work;
+formation behavior and benchmark quality remain unchanged. See HISTORY#654
+and the [current handoff](docs/handoffs/INDEX.md). The local CI runner has been
+restored and is executing queued jobs; exact-head required checks still govern
+merge readiness. Historical test-first evidence is not established retroactively.
+
 **2026-09-18 — roadmap registry fork; formation ready set unchanged.** Three
 pull requests opened after the previous handoff were unregistered, and two of
 them (`#267` `roadmap:track:LatentCacheBridge`, `#268` `roadmap:track:PCS`)

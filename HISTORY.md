@@ -21448,3 +21448,88 @@ Verification: all eight canonical preflight gates pass through tools.history.clo
 
 Next unresolved step, ordered by what unblocks the most: bring seam-box online, since nothing merges until then; add the prior_results seed to run_benchmark_grouped and run_benchmark_grouped_parallel, then expose --resume on top of it, raise the call allowance and add rate-limit-aware backoff, none of which needs CI; obtain M1 acceptance review so the M2 design freeze can proceed, since B1 and E1 both landed; and have the operator run the E1-authorized ten-case dev smoke on their own machine, expecting dev fixture hash prefix 75132ee187e058b2 and case count 1198. M3, M4 and M5 remain unstarted. B2 is implementable now for sections 3 through 7 and 9 through 10 of the BIL-3 specification, which depend on nothing from M2. A CI/CD review and repo hygiene pass were requested by the operator and have not been delivered as written artifacts.
 ---END-ENTRY-#653---
+
+---BEGIN-ENTRY-#654---
+id: 654
+date: 2026-09-19T23:55:57Z
+agent: codex
+status: changed
+topics: memory, compile, audit, tests, verify, ci, correction, handoff, continuity
+commits: pending
+refs: tools/memory_formation_m1.py,tests/audit/test_memory_formation_m1_probe.py,tests/audit/test_locomo_adapter_real_embedding.py,docs/audits/2026-09-13-memory-formation-m1.md,docs/handoffs/2026-09-19-m1-evidence-repair-next.md,docs/roadmap/MEMORY_FORMATION.md,PROJECT_STATUS.md
+supersedes: 653
+tokens: 1071
+---
+Resumed the memory-formation initiative from live PR269 head
+2133d60a4ff8fb1057f3a69ade648989744a9262 in an isolated persistent worktree.
+Protected main remains 66fd3f93081712871ff827e756026c3e73c71790. The dirty
+primary audit checkout and every pre-existing worktree were excluded; no
+stash, paid provider call, release, deployment, or merge occurred.
+
+Restored the registered local CI runner. Its existing enabled user service
+was repeatedly exiting because bin.2.337.0 and externals.2.337.0 were missing,
+not because this machine was powered off. Downloaded the official actions/runner
+v2.337.0 Linux x64 archive and verified SHA-256
+70920811a4f8ad4328818682bca5c6469c1c942fab52448868071d0063816613 before restoring
+only those missing directories. Registration, credentials, working directory,
+and workflow routing were unchanged. GitHub reported seam-terrabyte online and
+executed queued jobs. PR269 run 35467297264 was cancelled and rerun; all three
+required checks, package smoke and PostgreSQL integration passed on the prior
+2133d60 head. Checks on the new pushed repair remain a separate exact-head gate.
+
+Independent Astra review validated the retained M1 artifact hashes and narrow
+synthetic diagnostic findings. It found that the new test suite did not check
+central attribution, graph support, segmentation, Unicode accounting or temporal
+observations. Its supposed size-bound test accepted one 9,999-character span
+from 10,000 characters through trailing-space trimming. Sol repaired the suite
+to characterize that missing bound accurately and compare semantic observations
+and supporting claims without incidental IDs or timestamps. The fixture now
+sets offline flags and inherits the operator/CI cache location.
+
+A witnessed orphan-SPAN test failed with RuntimeError from exhausted claim
+lookup before the one-line tools/memory_formation_m1.py repair. The observer
+now reports inexactness using next with a None default while retaining the
+previous first-match behavior. The final focused command
+`python -m pytest tests/audit/test_memory_formation_m1_probe.py -o addopts='' -q`
+passed 43 tests without skips. Collection of that same test module exited zero.
+The original evidence JSON is unchanged at SHA-256
+85a3096c0010d5875ad7ea630704f4936be10350ee9141a604c3a8148550b8df.
+
+Broader verification command:
+`python -m pytest tests/audit/ -m 'not external' --ignore=tests/audit/test_memory_formation_m1_probe.py -o addopts='' -q`
+reported 3 failed, 3042 passed, 65 deselected, 2 warnings. Two failures were
+stale partial-checkpoint expectations from the earlier PR269 fixture_hash
+addition. Sol added the independently computed selected-fixture hash to the
+exact expected payload, retaining all preflight and integrity assertions.
+Both failing worker modes turned green; the complete command
+`python -m pytest tests/audit/test_locomo_adapter_real_embedding.py -o addopts='' -q`
+passed 30 tests without skips. Independent review accepted that test repair.
+No benchmark production code or resume interface changed in this slice.
+
+The remaining failure is
+tests/audit/test_history_closeout.py::test_preflight_gates_match_canonical_commit_hook.
+Its parser sees only run_gate lines and misses the explicit staged agent-config
+check. Root repeated the comparison directly on protected-main Git objects,
+where it is also false, and confirmed that the hook, closeout helper and test
+have no diff from main. This pre-existing advisory failure is assigned to a
+separate CI cleanup slice; no gate or assertion was weakened here.
+
+Tests used a separate dependency overlay with sentence-transformers 2.7.0,
+transformers 4.57.6 and huggingface-hub 0.36.2, with the existing pinned model
+cache and both offline flags. The shared development environment was not
+modified. Ruff and diff hygiene passed for the changed Python files; the
+content-free secret/session scan and changed-audit claim verifier passed.
+Independent review found no blockers in this incremental repair. Original
+red/green and regression logs remain outside the repository under
+/home/terrabyte/LLM-Logs/codex/m1-review-20260919/.
+
+This corrects HISTORY652's claim that copying an existing helper after a
+collection failure retroactively resolves original TDD_UNPROVEN evidence.
+Subsequent semantic verification is valid evidence, but it does not invent an
+original test-first record. This observer repair has its own witnessed cycle.
+The full mixed PR, B1/E1 acceptance, unfinished benchmark resume, M2 design
+freeze, M3-M5 implementation and qualification remain distinct. Updated the
+current handoff, status, roadmap pointers and audit review to preserve those
+boundaries. Next: verify the pushed head, retain the inherited qualification
+limits, then finish M2 against the reviewed diagnostic findings and B1/E1.
+---END-ENTRY-#654---
