@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-17
+Last updated: 2026-09-19
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -63,12 +63,21 @@ bounded task-specific reading; do not maintain a competing sequence here.
   specification, container expression, visual designs, codecs, surface
   library, source, docs, tests, and related implementation material are
   separately named copyrighted Reserved Materials under the same terms.
-- `LICENSE` section 7A and `LICENSES/BUSL-1.1.txt` define the Distributed
+- The owner-selected Suite license is proprietary, personal and noncommercial
+  only (HISTORY#651). `LICENSE` section 7B, `LICENSES/SEAM-Suite-Personal.txt`
+  and `LICENSES/SEAM-Suite-manifest.json` govern the exact implementation
+  versions. Embedded MIRL/HS/1 operation is allowed solely as necessary to run
+  an authorized personal Suite instance; independent reuse, source modification,
+  redistribution and commercial use require separate permission. Business use,
+  including internal use, requires an agreement through licensing@canticle.cc.
+  The separate paid SDK is excluded. No automatic open-source conversion applies
+  to this grant; exact earlier Apache/BUSL and third-party rights are preserved.
+- `LICENSE` section 7A and `LICENSES/BUSL-1.1.txt` preserve the Distributed
   Runtime grant. Membership requires the exact published file versions,
   manifest, and notices specified by `LICENSE`; a repository path or public
   visibility is not a substitute. Use the controlling texts for terms and the
-  L1 packaging packet for candidate membership. This documentation baseline
-  grants no new rights and changes no license file.
+  L1 packaging packet for historical candidate membership. The new Suite
+  personal grant is a distinct, narrower permission under section 7B.
 - `BlackhatShiftey/Seam_Runtime` is a frozen legacy Apache-2.0 release. Exact
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that

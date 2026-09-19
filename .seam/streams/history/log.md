@@ -21346,3 +21346,21 @@ Compared LICENSES/BUSL-1.1.txt with pinned SPDX text and recorded missing closin
 
 Documentation verification scope is git diff --check, exact member/hash/source comparisons, canonical content-free secret scanning and tools.history.closeout with unsuppressed continuity/wiki/audit gates. Outputs and independent receipt are retained under external licensing-review-20260919 evidence; failures are not superseded by this description of scope. No runtime test or TDD claim applies. Live PR266 required checks at 9f0bfae showed chroma-real-smoke failure and repo-hygiene/locomo-quickstart-bil2 cancellation. Keep both PRs draft. No upload, registration, release, paid call, merge or deployment occurred. Next: owner membership decision, standard-text correction, approved notices and fresh artifact qualification.
 ---END-ENTRY-#650---
+
+---BEGIN-ENTRY-#651---
+id: 651
+date: 2026-09-19T21:20:48Z
+agent: codex
+status: changed
+topics: docs, pyproject, mirl, operator, audit, handoff
+commits: pending
+refs: LICENSE,LICENSES/SEAM-Suite-Personal.txt,LICENSES/SEAM-Suite-manifest.json,pyproject.toml,docs/audits/2026-09-19-suite-personal-license.md,docs/handoffs/2026-09-19-suite-personal-license.md
+supersedes: 650
+tokens: 367
+---
+Owner selected proprietary personal, noncommercial Suite self-hosting only; internal business use requires a separate written agreement. Added LICENSE section 7B, the narrow personal license and exact SHA-256 membership manifest; aligned metadata, notices and current product/release docs. Embedded MIRL/HS/1 operation is permitted only to operate Suite, with independent reuse reserved. Earlier exact-version rights and the separate paid SDK boundary remain intact. No runtime source changed and no new BUSL membership was granted.
+
+Fresh wheel and sdist in the dated report's evidence manifest each match all 109 runtime paths listed in LICENSES/SEAM-Suite-manifest.json; seven license documents match source and both metadata records retain the private-upload classifier. Twine strict validation, private-artifact scanning, and the focused pytest slice tests/audit/test_github_issue_release_config.py plus tests/audit/test_mcp_registry_release.py passed. The existing tests/package/smoke_installed_suite.py passed four startup checks in each independent wheel/sdist environment. Independent license review corrected an overbroad trial restriction and confirmed the final scope. These checks do not establish cumulative PR or full-product qualification.
+
+PR #266 remains draft with prior cumulative NOT_QUALIFIED / TDD_UNPROVEN and required CI conditions open. The historical BUSL standard-text discrepancy remains separate. TestPyPI setup/final release eligibility remain gates; no upload, registry publication, merge, deployment or paid call occurred. Website draft PR #29 carries matching current-product copy at 13a40ea1b44a6e11f3c56daf9f3077324ee08bc9; baseline failures and owner visual acceptance remain recorded there. Primary dirty audit checkout and unrelated linked worktrees remain excluded. Canonical handoff advances to the personal-license decision and points to exact evidence and remaining work.
+---END-ENTRY-#651---

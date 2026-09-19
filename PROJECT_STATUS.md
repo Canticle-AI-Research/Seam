@@ -5,12 +5,14 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-09-19 — Suite licensing review recorded.** Saved wheel/sdist runtime
-bytes match PR #266; public membership remains owner-review-required. Review
-also found missing standard BUSL closing sections and scoped README's grant.
-No license terms, runtime behavior, publication controls or release changed.
-See the [membership review](docs/audits/2026-09-19-suite-license-membership.md)
-and HISTORY#650; required CI and cumulative qualification remain open.
+**2026-09-19 — personal Suite license prepared.** The owner selected proprietary
+personal, noncommercial self-hosting only. Internal business use requires a
+separate written agreement; embedded MIRL operation does not permit independent
+reuse. Fresh wheel/sdist candidates contain the exact manifest and license and
+pass installed startup smoke checks, with runtime bytes unchanged. See the
+[decision and artifact review](docs/audits/2026-09-19-suite-personal-license.md)
+and HISTORY#651. Publication remains blocked; required CI and cumulative PR
+qualification remain open. Earlier version-specific grants are preserved.
 
 **2026-09-17 — Suite MCP registration prepared.** The existing registry listing
 points to yanked `seam-runtime` 1.3.1. The candidate metadata now targets

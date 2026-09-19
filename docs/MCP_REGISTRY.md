@@ -42,6 +42,11 @@ preserve its history and do not delete its versions as part of this repair.
 
 ## Use a reviewed local installation now
 
+Suite's [personal license](../LICENSES/SEAM-Suite-Personal.txt) permits only
+personal, noncommercial self-hosting. Business use requires written permission
+from licensing@canticle.cc. MCP access to your own permitted instance does not
+grant independent MIRL/HS/1 reuse or redistribution rights.
+
 Install the eligible local candidate into a fresh environment using the
 [installation procedure](RELEASE_FLOW.md#install-the-reviewed-suite-candidate).
 Point the MCP client's command at that environment's absolute `seam-mcp` path.

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-19-suite-license-review
 supersedes: 2026-09-17-suite-mcp-registration
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#650
 ---
 

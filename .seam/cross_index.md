@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 716
+total_events: 717
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
 | 2026-07-22T14:59:22Z | history:460:f3d5ac63 | session-event | done | graph, bugfix, verify, history, continuity, retrieval, pa... | seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-17T16:22:25Z | history:648:efc492a0 | session-event | changed | docs, naming, surface, webui, plan, handoff, continuity | README.md,PROJECT_STATUS.md,REPO_LEDGER.md,docs/PRODUCTS.md,docs/RELEASE_FLOW... |
 | 2026-09-17T16:55:44Z | history:649:d7b4937d | session-event | in-progress | mcp, registry, naming, ci, docs, verify, handoff, continuity | server.json,README.md,PROJECT_STATUS.md,REPO_LEDGER.md,tools/release/verify_m... |
 | 2026-09-19T20:42:37Z | history:650:0b899dec | session-event | in-progress | audit, docs, pyproject, handoff, continuity, verify | README.md,PROJECT_STATUS.md,docs/status/packaging-licensing.md,docs/audits/20... |
+| 2026-09-19T21:20:48Z | history:651:172de66b | session-event | changed | docs, pyproject, mirl, operator, audit, handoff | LICENSE,LICENSES/SEAM-Suite-Personal.txt,LICENSES/SEAM-Suite-manifest.json,py... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0516.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:31:29Z | 516 | (multi) | (multi) |
+| 0001-0517.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:47:52Z | 517 | (multi) | (multi) |

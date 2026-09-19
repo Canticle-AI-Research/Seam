@@ -39,6 +39,13 @@ change existing license texts or establish an entitlement implementation.
 
 ## Current readiness
 
+Suite uses a [proprietary personal license](../LICENSES/SEAM-Suite-Personal.txt):
+free self-hosting for an individual's own personal, noncommercial use only.
+Business use, including internal business use, requires separate written
+permission from **licensing@canticle.cc**. MIRL/HS/1 reuse is reserved beyond
+their necessary operation inside an authorized Suite instance. This permission
+does not include the paid SDK or override exact older license grants.
+
 | Component | Current state |
 | --- | --- |
 | Self-hosted SEAM core | Usable for local operation; this is the operator's plug-and-play core milestone, not a claim that every planned capability is finished |

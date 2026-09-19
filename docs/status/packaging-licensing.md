@@ -9,10 +9,15 @@ and dated observations are recorded in HISTORY#634 and the
 
 ## Current naming candidate
 
-The [2026-09-19 membership review](../audits/2026-09-19-suite-license-membership.md)
-reconciles exact candidate runtime bytes and missing standard BUSL closing
-sections. Current Suite membership remains an owner decision; no notice,
-license term or upload gate was changed. See HISTORY#650.
+The owner chose proprietary **personal, noncommercial self-hosting only**
+after the [membership review](../audits/2026-09-19-suite-license-membership.md).
+[LICENSE section 7B](../../LICENSE), the
+[personal license](../../LICENSES/SEAM-Suite-Personal.txt) and
+[exact manifest](../../LICENSES/SEAM-Suite-manifest.json) implement that choice.
+Business use, including internal use, needs a separate written agreement from
+licensing@canticle.cc. Embedded MIRL/HS/1 operation is allowed only as needed
+to run the authorized Suite; independent reuse remains reserved. Earlier
+version-specific grants stay intact. See HISTORY#651.
 
 HISTORY#647 selects `seam-suite` for self-hosted Suite and `seam-api` for the
 public API surface plus WebUI, replacing the earlier SEAM Client product label
@@ -35,7 +40,7 @@ product status does not establish a published or fully qualified package.
 
 The operator requires **TestPyPI first**. Follow [the procedure](../TESTPYPI.md);
 production publication and deletion of legacy releases are excluded. TestPyPI
-access and exact Suite artifact membership remain unresolved. No private SDK
+access and final artifact/release qualification remain unresolved. No private SDK
 source may be included in either public index.
 
 ## L1 preparation evidence
@@ -75,10 +80,11 @@ waive artifact eligibility, approver controls, or TestPyPI qualification.
 
 [LICENSE](../../LICENSE), [NOTICE](../../NOTICE),
 [COMMERCIAL_LICENSE.md](../../COMMERCIAL_LICENSE.md), and the named license
-texts remain controlling. `LICENSE` defines Distributed Runtime membership by
-published file version, manifest, and conspicuous notice. The new product map
-does not establish which files belong in a future distribution. Resolve that
-exact boundary in L1 before changing package contents or publication controls.
+texts remain controlling. The Suite personal manifest identifies exact current
+implementation bytes; changed versions require renewed manifest review before
+release. Historical Distributed Runtime membership remains governed by its own
+publication/manifest/notice requirements. License choice is not publication
+approval; final artifact, publisher and destination checks remain required.
 
 ## Coordinates to reconcile
 

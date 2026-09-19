@@ -25,10 +25,14 @@ and [current packaging constraints](docs/status/packaging-licensing.md).
 
 ## Install
 
+Suite is proprietary. Free self-hosting is for **personal, noncommercial use
+only**; business use needs separate written permission from
+**licensing@canticle.cc**. See the [license](#license).
+
 The `seam-suite` rename is a **2.4.1rc1 candidate**. TestPyPI is the first
 registry target; production PyPI is unchanged. Public upload remains blocked
-until exact artifact membership is reviewed and TestPyPI publishing access is
-configured. See the [TestPyPI-first procedure](docs/TESTPYPI.md).
+until final artifact/notices verification, release approval and TestPyPI
+publisher setup are complete. See the [TestPyPI-first procedure](docs/TESTPYPI.md).
 
 Use a fresh virtual environment: old `seam-runtime` and `seam-self-host`
 distributions can own the same imports and commands. This is not an in-place
@@ -578,28 +582,27 @@ qualification, production PyPI release, then registry registration.
 
 ## License
 
-**Self-hosting material covered by the Distributed Runtime grant is free.**
-That grant applies only to the exact published file versions identified as
-Distributed Runtime under [LICENSE](LICENSE), with its required manifest and
-notices. The current `seam-suite` 2.4.1rc1 candidate's membership remains under
-[review](docs/audits/2026-09-19-suite-license-membership.md); the grant must not
-be assumed to cover the entire source checkout or candidate package.
+**Suite is proprietary and free to self-host for personal, noncommercial use
+only.** An individual may install, run, configure and back up their own
+authorized instance under the [Suite personal license](LICENSES/SEAM-Suite-Personal.txt).
+Covered implementation versions are identified in the
+[license manifest](LICENSES/SEAM-Suite-manifest.json).
 
-The Distributed Runtime grant uses the Business Source License 1.1
-([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt)). You may run it on your own
-hardware or on infrastructure you rent, for your own or your organization's
-purposes — including internal commercial production use — at no charge, with no
-limit on scale or number of users. Non-commercial research, education, and
-publishing benchmark or evaluation results are permitted too.
+**Business use requires a separate written agreement**, including internal
+business use, work for an employer or client and commercial evaluation.
+Contact **licensing@canticle.cc** before that use.
 
-The one thing the grant withholds is offering the Distributed Runtime to third
-parties on a hosted or embedded basis as a *competitive offering*: a paid
-product or service that significantly overlaps with a paid version of SEAM.
-Free offerings are never competitive, and neither is internal use across
-affiliates under common control. Each published version converts to MPL 2.0
-four years after it is published.
+MIRL and HS/1 may operate inside that authorized Suite instance. Their
+implementation and specifications remain reserved: the personal grant does
+not permit standalone reuse, source modification, redistribution, incorporation
+into another product or a hosted commercial offering. Your own data remains
+yours; supported settings, APIs and data import/export remain available for
+permitted personal operation. The separate paid SDK is excluded.
 
-Everything below concerns material outside the Distributed Runtime.
+This personal grant has no automatic open-source conversion. Exact older
+Distributed Runtime versions retain their qualifying BUSL-1.1 rights,
+including their original change-license provisions. Those historical rights
+do not automatically extend to new Suite file versions.
 
 The rest of the SEAM repository and all non-public MIRL- and HS/1-related
 material are proprietary. MIRL's specification text, source code, schemas as expressed,
@@ -621,5 +624,6 @@ material is preserved at
 [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
 
 The controlling terms are [LICENSE](LICENSE), [NOTICE](NOTICE), and
-[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md). Any external permission
-requires a separate written agreement from the project owner.
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md). Permission beyond the narrow
+personal grant and applicable existing licenses requires a separate written
+agreement from the project owner.

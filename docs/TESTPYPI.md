@@ -24,10 +24,17 @@ compatibility aliases.
 
 ## Current blockers
 
+Suite remains proprietary under its
+[personal/noncommercial license](../LICENSES/SEAM-Suite-Personal.txt).
+The [manifest](../LICENSES/SEAM-Suite-manifest.json) identifies covered
+implementation versions. This license decision authorizes no upload and
+does not include the private paid SDK.
+
 - Root metadata retains `Private :: Do Not Upload`. Do not remove it merely
-  to make an upload succeed: the L1 exact file/version membership and notices
-  review is still open. Existing archive scans do not establish publication
-  eligibility. The current wheel/sdist must remain local until that review.
+  to make an upload succeed: final artifact/notices verification and release
+  approval are still required. The owner selected the narrow personal grant;
+  archive scans alone do not establish publication eligibility. Candidate
+  wheel/sdist files remain local until release qualification and approval.
 - No authenticated TestPyPI publisher was established in this preparation
   session. A GitHub repository connection is not TestPyPI project ownership.
 - The GitHub workflows validate canonical Python versions, including `2.4.1rc1`.

@@ -1,0 +1,99 @@
+SEAM SUITE PERSONAL SELF-HOSTING LICENSE
+Version 1.0 — September 19, 2026
+SPDX-License-Identifier: LicenseRef-SEAM-Suite-Personal-1.0
+
+Copyright (c) 2026 Nicholas Thomas (BlackhatShiftey). All rights reserved.
+This is a proprietary license, not an open-source license.
+
+1. COVERED SOFTWARE
+
+"Owner" means Nicholas Thomas or a successor that owns the applicable rights.
+"Suite" means the exact SEAM implementation file versions identified by path
+and SHA-256 in the accompanying SEAM-Suite-manifest.json, supplied by the Owner
+with these terms. It includes the MIRL and HS/1 implementation only as part
+of operating that Suite. The separate paid seam_sdk distribution, standalone
+specifications, research, private benchmarks, and unlisted implementation
+versions are not included in this grant.
+
+2. LIMITED PERSONAL, NONCOMMERCIAL SELF-HOSTING PERMISSION
+
+Subject to these terms, the Owner grants you, as an individual acting on your
+own behalf, a nonexclusive, royalty-free permission to install, copy, execute,
+configure and back up Suite solely for your own personal, noncommercial use
+on hardware you control or infrastructure you rent and control. You may use
+its supported interfaces, dependencies and configuration options for that
+purpose, and perform the local build or compilation steps needed to install
+and run your authorized copy. You may use accompanying build metadata and
+instructions only as needed for those permitted operations.
+
+The permission includes the use of embedded MIRL and HS/1 code that is
+necessary to operate Suite. It does not grant an independent license to those
+implementations, specifications or other Reserved Materials. There is no
+charge, installation-count limit or use-based fee under this personal grant.
+
+"Personal, noncommercial" excludes use for or on behalf of a business,
+employer, client or organization; paid work; internal business operations;
+commercial evaluation or development; and providing a product or service to
+others. An unpaid business trial or an internally hosted business installation is not
+personal use. Personal learning and experimentation for your own benefit are
+permitted. You may describe your experience and publish benchmark results
+from permitted use without distributing Suite or its protected source.
+
+3. RIGHTS RESERVED; SEPARATE PERMISSION FOR BUSINESS USE
+
+Except for section 2, or rights preserved in section 5, you may not:
+- extract or reuse MIRL, HS/1 or other Suite implementation or specification
+  material in another product, service, library or implementation;
+- modify, translate, port or make derivative works of that material;
+- distribute, republish, mirror, sublicense, sell or share Suite copies or
+  its protected source with others;
+- offer Suite or its MIRL/HS/1 capabilities as a hosted or embedded service;
+- use Suite or its protected material for business or commercial purposes;
+- use the protected source or specifications to train a model or create a
+  competing or substitute implementation; or
+- remove or alter ownership, copyright or license notices.
+
+Ordinary supported settings, configuring your own instance and the technical
+installation/build operations allowed by section 2 are not prohibited source
+modification. Your own data remains yours; this license does not claim rights
+in your inputs, factual content or user-owned outputs, or prevent their use
+through Suite's supported import/export interfaces. It does not license the
+underlying software or specifications merely because they process your data.
+
+For any business, commercial, organizational, redistribution or other use
+outside section 2, obtain a separate written agreement from the Owner at
+licensing@canticle.cc before that use. Public repository access, availability
+of a download and possession of source code do not expand this permission.
+
+4. OWNERSHIP AND DURATION
+
+The Owner retains ownership and all rights not expressly granted. No
+trademark, patent or endorsement right is granted. This personal grant does
+not automatically convert to BUSL, MPL or an open-source license after any
+period. The grant for a lawfully obtained version continues while you comply
+with its terms; publication of different terms for a later version does not
+change the terms of your existing copy. On breach, this permission terminates
+and you must stop using and remove copies covered only by this permission.
+
+5. EXISTING RIGHTS AND PRECEDENCE
+
+These terms do not revoke or narrow rights already granted for exact Legacy
+Apache Materials or exact versions previously licensed as the Distributed
+Runtime under BUSL. Third-party components retain their own licenses. A
+shared filename, interface or ancestry does not grant the same rights in a
+new version. No restriction applies where applicable law does not permit it.
+No copyright is claimed in abstract ideas, facts or methods of operation.
+
+For Suite and the operations expressly permitted by section 2, this license
+prevails over contrary restrictions in the repository LICENSE and NOTICE.
+For other materials and operations, the repository's reserved-rights terms
+continue to apply. A separate written agreement from the Owner controls the
+specific scope it covers. No right to the separate paid SDK is granted.
+
+6. NO WARRANTY; LIMITATION OF LIABILITY
+
+SUITE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND
+NONINFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE OWNER
+AND CONTRIBUTORS ARE NOT LIABLE FOR ANY CLAIM, LOSS OR DAMAGE ARISING FROM
+SUITE OR ITS USE, INCLUDING LOST DATA, PROFITS OR BUSINESS INTERRUPTION.

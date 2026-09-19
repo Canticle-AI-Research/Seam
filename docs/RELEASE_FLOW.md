@@ -132,6 +132,14 @@ belongs in either public registry.
 
 ## Review checkpoint
 
+Suite's [personal license](../LICENSES/SEAM-Suite-Personal.txt) allows only
+personal, noncommercial self-hosting. Internal business use also requires a
+separate written agreement from licensing@canticle.cc. Before a new release,
+compare its exact implementation bytes against
+[the license manifest](../LICENSES/SEAM-Suite-manifest.json), review any changes
+and include the controlling terms. Packaging approval does not expand rights
+in MIRL, HS/1 or the private paid SDK.
+
 Suite includes the `seam-mcp` server. Its prepared
 [MCP Registry flow](MCP_REGISTRY.md) registers discovery metadata only after a
 qualified production PyPI release exists. The manual registry workflow checks
