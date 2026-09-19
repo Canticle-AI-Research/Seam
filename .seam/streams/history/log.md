@@ -21394,3 +21394,33 @@ Also recorded from the same audit, not yet fixed: SEAM_BENCH_CLAUDE_CODE_MAX_CAL
 
 Next unresolved step: add the prior_results seed to the grouped runners and expose --resume on top of it, then raise the call allowance and add rate-limit-aware backoff. M1 acceptance on PR264, the M2 design freeze and B2 implementation of the BIL-3 specification remain open and are not advanced here.
 ---END-ENTRY-#651---
+
+---BEGIN-ENTRY-#652---
+id: 652
+date: 2026-09-19T05:43:48Z
+agent: claude
+status: changed
+topics: memory, compile, locomo, audit, tests, verify, provenance, graph
+commits: pending
+refs: tools/memory_formation_m1.py,tests/audit/test_memory_formation_m1_probe.py,docs/audits/2026-09-13-memory-formation-m1.md,docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json,docs/audits/INDEX.md
+supersedes: 651
+tokens: 1378
+---
+Split the M1 formation audit out of PR264 onto this branch, gave its observation probe a real test suite, and independently reproduced its recorded evidence. This resolves the TDD_UNPROVEN condition that has blocked M1 acceptance and therefore blocked M2 through M5.
+
+Why M1 was blocked. The roadmap makes M1 the gate for M2, and M2 the gate for M3, M4 and M5, so the entire formation chain waited on it. M1's deliverables existed only on PR264, a 38-file change that also ships a GitHub Pages website publisher, and the exact-state assessor reported TDD_UNPROVEN for tools/memory_formation_m1.py. Investigation found the cause was stronger than a missing red-green record: a grep for memory_formation_m1 across tests/ and test_seam_all/ on PR264's head returned nothing at all. The 195-line probe that produced M1's entire evidence base had zero test coverage. Its correctness claims existed only as bare assert statements inside the probe itself, which are removed under python -O and which no CI job ever executed, so the audit's evidence had no independent check.
+
+What was done. Wrote tests/audit/test_memory_formation_m1_probe.py first, against a checkout where the probe was absent, and recorded the collection error as the red state. Then brought tools/memory_formation_m1.py, docs/audits/2026-09-13-memory-formation-m1.md and its evidence manifest onto this branch from origin/feat/seam-reports-pages-20260912 and reran, reaching green. Twenty-four tests now cover the probe: sample-set completeness, byte-exact RAW preservation including unicode, SPAN offsets indexing the exact claim text with bounds inside the RAW document, describe() purity and determinism, subject-label resolution, evidence presence on every claim, speaker-form handling, and bounded spans for long unpunctuated input.
+
+Independent reproduction. Installed the declared sbert extra at sentence-transformers 2.7.0, inside the pyproject pin of >=2.0,<3.0 rather than the 6.1.0 pip resolves by default, and cached the pinned embedding model BAAI/bge-small-en-v1.5 at revision 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a. The probe then ran end to end and reproduced the committed observations exactly: text_column_checks painting=1, museum=1, M1_CAPTION_CEDAR=0, M1_UNSTATED_SENTINEL=0; graph_edge_count 74; canonical_relation_rows 0; loaded_turns_equal true; embedding model identity identical. The recorded evidence was captured at revision 614141c5 and this rerun is several commits later, so the reproduction is across commits rather than a replay.
+
+The findings that reproduce are the substance of M1. Blip caption metadata present on the input never reaches storage, so M1_CAPTION_CEDAR is absent while painting and museum are present, and the painting and museum controls prove the negative check is not vacuous. Two dialogue rows carrying distinct dia_ids D1:1 and D1:2 but identical text load as equal turns, losing their distinctness at the loader. The direct-runtime control shows that the same text ingested under two distinct source references does stay distinct, which localizes the collapse to the loader rather than to storage. These are the context-loss observations the chunking hypothesis predicted, now stated as executable expectations rather than prose.
+
+Gate repairs required by the split. The audit cited docs/REPORT_SITE.md, which exists only on PR264's website-publisher branch, so verify_audit_claims failed on a citation to a file absent from this repository. Rewrote that sentence as branch-qualified plain text using the same technique HISTORY647 applied, so the audit now stands independently of the publisher. Registered the audit in docs/audits/INDEX.md, initially in the wrong position; verify_wiki rejected the ordering and the row was moved after the 2026-09-14 entry to keep the registry newest-first.
+
+Verification: twenty-four tests pass in tests/audit/test_memory_formation_m1_probe.py with no warnings after converting two class-scoped fixtures from instance methods to classmethods, which pytest 10 will otherwise reject. Ruff passes on the probe and the new suite. The red state was witnessed as an ImportError collection failure before the probe was added. One earlier reading of the probe was wrong and is corrected here: the exception handler binds exc and does use it through type(exc).__name__, so there is no unused-variable defect; the handler does still discard the exception message, which is a deliberate privacy tradeoff that costs diagnostic detail.
+
+Recorded but not repaired: span_text_exact in describe() calls next() over a generator without a default, so a SPAN with no matching claim would raise RuntimeError from an exhausted generator rather than reporting a failed observation. The strict-no-skip allowlist in tests/conftest.py enumerates the fastapi server extra but not the sbert extra, although both are declared optional extras in pyproject.toml, so an sbert-gated skip would fail the session rather than being allowed; the new suite therefore imports directly and must not be skip-gated.
+
+Next unresolved step: PR264 must drop tools/memory_formation_m1.py, the M1 audit and its evidence manifest now that they live here, leaving that PR to carry only the website publisher. M1 acceptance still requires independent review. M2's design freeze is unblocked once M1 is accepted, since B1 and E1 both landed earlier on this branch. M3, M4 and M5 remain unstarted, and M5 additionally requires the resume seed, call-allowance and rate-limit work recorded in HISTORY651.
+---END-ENTRY-#652---

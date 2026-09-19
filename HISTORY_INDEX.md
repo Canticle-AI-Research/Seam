@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 651
-total_tokens: ~334059
-latest_id: 651
+total_entries: 652
+total_tokens: ~335437
+latest_id: 652
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 652 | 2026-09-19 | changed | bf1e59aeff8bb087 | memory,compile,locomo,audit,+ | 651 |
 | 651 | 2026-09-19 | changed | e0e39d5e6b3f08b2 | benchmark,locomo,tests,harden,+ | 650 |
 | 650 | 2026-09-19 | changed | 3188de69eb26d34a | benchmark,judge,locomo,docs,+ | 649 |
 | 649 | 2026-09-19 | changed | 4ecc8665ba5a4313 | benchmark,integrity,security,verify,+ | 648 |
@@ -682,7 +683,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=15 latest=#623, #622, #621, #620, #619
-- audit: count=130 latest=#647, #641, #632, #597, #596
+- audit: count=131 latest=#652, #647, #641, #632, #597
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=212 latest=#651, #650, #649, #648, #646
@@ -718,7 +719,7 @@ compact: true
 - comparator: count=2 latest=#415, #414
 - comparison: count=1 latest=#333
 - competitors: count=1 latest=#384
-- compile: count=21 latest=#645, #601, #599, #454, #448
+- compile: count=22 latest=#652, #645, #601, #599, #454
 - compiler: count=9 latest=#317, #313, #311, #309, #308
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
@@ -795,7 +796,7 @@ compact: true
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
 - gpt5: count=1 latest=#327
-- graph: count=67 latest=#645, #629, #628, #626, #623
+- graph: count=68 latest=#652, #645, #629, #628, #626
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
@@ -835,7 +836,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=5 latest=#579, #526, #461, #283, #182
-- locomo: count=92 latest=#651, #650, #648, #509, #508
+- locomo: count=93 latest=#652, #651, #650, #648, #509
 - longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -847,7 +848,7 @@ compact: true
 - measurement: count=2 latest=#459, #369
 - mem0: count=13 latest=#538, #410, #395, #394, #393
 - mem0-harness: count=6 latest=#453, #452, #434, #433, #431
-- memory: count=33 latest=#645, #643, #612, #611, #610
+- memory: count=34 latest=#652, #645, #643, #612, #611
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - migration: count=3 latest=#606, #575, #574
@@ -902,7 +903,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=119 latest=#620, #619, #618, #617, #616
 - prov: count=1 latest=#316
-- provenance: count=34 latest=#649, #628, #612, #604, #603
+- provenance: count=35 latest=#652, #649, #628, #612, #604
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -981,7 +982,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=132 latest=#642, #638, #637, #632, #631
 - test-artifacts: count=1 latest=#506
-- tests: count=82 latest=#651, #646, #644, #643, #640
+- tests: count=83 latest=#652, #651, #646, #644, #643
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -997,7 +998,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=456 latest=#651, #650, #649, #648, #647
+- verify: count=457 latest=#652, #651, #650, #649, #648
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1014,7 +1015,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 74
+- changed: 75
 - done: 535
 - in-progress: 20
 - planned: 22
