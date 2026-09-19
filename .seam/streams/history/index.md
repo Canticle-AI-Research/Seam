@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 649
-total_tokens: ~331839
-latest_id: 649
+total_entries: 650
+total_tokens: ~333046
+latest_id: 650
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 650 | 2026-09-19 | changed | 3188de69eb26d34a | benchmark,judge,locomo,docs,+ | 649 |
 | 649 | 2026-09-19 | changed | 4ecc8665ba5a4313 | benchmark,integrity,security,verify,+ | 648 |
 | 648 | 2026-09-19 | changed | e3a4fd90f478acb7 | benchmark,locomo,holdout,plan,+ | 647 |
 | 647 | 2026-09-18 | changed | ced06a362286c762 | roadmap,plan,handoff,continuity,+ | 646 |
@@ -683,7 +684,7 @@ compact: true
 - audit: count=130 latest=#647, #641, #632, #597, #596
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
-- benchmark: count=210 latest=#649, #648, #646, #645, #571
+- benchmark: count=211 latest=#650, #649, #648, #646, #645
 - benchmarks: count=5 latest=#538, #509, #508, #507, #493
 - bird: count=1 latest=#319
 - branch: count=1 latest=#280
@@ -731,7 +732,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=25 latest=#639, #638, #632, #631, #630
+- correction: count=26 latest=#650, #639, #638, #632, #631
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -756,7 +757,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=101 latest=#649, #648, #647, #646, #643
+- docs: count=102 latest=#650, #649, #648, #647, #646
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -815,9 +816,9 @@ compact: true
 - ingest: count=2 latest=#317, #303
 - installer: count=16 latest=#360, #352, #337, #204, #177
 - instrumentation: count=1 latest=#366
-- integrity: count=17 latest=#649, #587, #547, #531, #530
+- integrity: count=18 latest=#650, #649, #587, #547, #531
 - isolation: count=2 latest=#275, #274
-- judge: count=13 latest=#398, #377, #376, #375, #374
+- judge: count=14 latest=#650, #398, #377, #376, #375
 - kb: count=1 latest=#437
 - keyboard: count=1 latest=#554
 - knowledge-graph: count=5 latest=#458, #457, #456, #455, #453
@@ -833,7 +834,7 @@ compact: true
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
 - locking: count=5 latest=#579, #526, #461, #283, #182
-- locomo: count=90 latest=#648, #509, #508, #507, #505
+- locomo: count=91 latest=#650, #648, #509, #508, #507
 - longmemeval: count=3 latest=#441, #440, #223
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
@@ -882,7 +883,7 @@ compact: true
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
 - pgvector: count=35 latest=#640, #490, #489, #488, #487
-- plan: count=28 latest=#649, #648, #647, #645, #634
+- plan: count=29 latest=#650, #649, #648, #647, #645
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - positioning: count=1 latest=#538
@@ -995,7 +996,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=454 latest=#649, #648, #647, #646, #644
+- verify: count=455 latest=#650, #649, #648, #647, #646
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1012,7 +1013,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 72
+- changed: 73
 - done: 535
 - in-progress: 20
 - planned: 22

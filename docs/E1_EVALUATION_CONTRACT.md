@@ -1,7 +1,11 @@
 # E1 evaluation contract (memory-formation campaign)
 
+**Contract version:** `e1-evaluation/1.1`. The originally frozen text
+(HISTORY#648) is retroactively `e1-evaluation/1.0`; it defined no version
+string, which made both the amendment rule below and §3's per-run version
+record unexecutable. Amended before any run, so no result exists under 1.0.
 **Status:** frozen contract for the memory-formation baseline/candidate campaign.
-**Chronology:** HISTORY#648. **Stream:** E1 of [Memory formation](roadmap/MEMORY_FORMATION.md).
+**Chronology:** HISTORY#648, amended HISTORY#650. **Stream:** E1 of [Memory formation](roadmap/MEMORY_FORMATION.md).
 **Transport procedure:** [Claude Code benchmarks](CLAUDE_CODE_BENCHMARKS.md).
 **Traps that shaped this contract:** [benchmark traps](kb/eval-methodology/benchmark-traps.md).
 
@@ -77,7 +81,7 @@ A baseline reconstructed after a candidate exists is not a baseline.
 | Answerer | `--answerer claude-code`, model `claude-haiku-4-5-20251001` |
 | Primary judge | `--judge claude-code`, model `claude-haiku-4-5-20251001` |
 | Cross-judge | off for baseline; enabled only for a declared agreement study |
-| Batch judging | `--judge-batch` permitted for full runs (50% judge discount) |
+| Batch judging | **Not available on this transport.** The runner rejects `--judge-batch` when the judge is `claude-code` (`benchmarks/external/locomo/run.py`: "claude-code does not support --judge-batch; no paid calls were made"). `ClaudeCodeJudge` has no `score_batch` method by design. The 50% Batch-API discount exists only on the separately billed `claude` API route, which this contract excludes. All judging is synchronous, one call per case. |
 
 The `claude` choice is the separately billed API route. The two transports are
 never mixed inside one baseline/candidate comparison.
@@ -169,6 +173,11 @@ questions and carry separate labels.
 | Projected dev run (1,198) | ~$10.17 at the observed rate, before context growth |
 | Projected holdout run (344) | ~$2.92 |
 | Projected full set (1,542) | ~$13.09 |
+
+No batch discount is assumed in any figure above: the observed rate is the
+synchronous `claude-code` rate, which is the only rate this transport has. The
+projections were never inflated by an unavailable discount and do not shrink
+now that the row is corrected.
 
 **Authorized now:** a bounded ~10-case dev smoke, ceiling $0.50, whose purpose
 is to measure the true per-case cost on real cases. No full run is authorized

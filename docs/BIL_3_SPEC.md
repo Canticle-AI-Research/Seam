@@ -93,7 +93,13 @@ actually exercised.
 
 **`models`** — answerer and judge identity, **requested** model id and
 **served** model id recorded separately, transport name and version, seeds
-where the provider supports them, and any cross-judge.
+where the provider supports them, and any cross-judge. Judging mode
+(`synchronous` or `batch`) is recorded explicitly: `_build_report` in
+`benchmarks/external/common/runner.py` accepts `judge_batch` but emits no
+corresponding field, so a batched and a synchronous run currently produce
+indistinguishable artifacts. E1 §3 requires each run to record judge identity;
+mode is part of that identity, because a batch judge is a different call path
+with different failure modes. B2 adds the field.
 
 **`retrieval`** — policy identity, leg weights, top-k, context budget in both
 characters and tokens, embedding model identity plus version and hash.

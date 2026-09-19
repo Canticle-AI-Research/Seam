@@ -21340,3 +21340,31 @@ Verification: verify_wiki passes and reports 278 active pages reachable after ro
 
 Next unresolved step: the operator runs the E1-authorized ten-case dev smoke on their own machine, since the remote container is host-authenticated with ANTHROPIC_BASE_URL set and is not the intended subscription billing source. B2 implementation of this specification, M1 acceptance on PR264 and the M2 design freeze remain open and are not advanced here.
 ---END-ENTRY-#649---
+
+---BEGIN-ENTRY-#650---
+id: 650
+date: 2026-09-19T05:06:10Z
+agent: claude
+status: changed
+topics: benchmark, judge, locomo, docs, correction, verify, plan, integrity
+commits: pending
+refs: docs/E1_EVALUATION_CONTRACT.md,docs/BIL_3_SPEC.md
+supersedes: 649
+tokens: 1207
+---
+Corrected a factually wrong row in the frozen E1 evaluation contract and gave the contract an explicit version. Documentation only: no runtime code changed, no provider call was made, no benchmark was run and no score is claimed. The correction was made before any run exists under the contract, so it invalidates no result.
+
+The defect. Section 4 recorded "Batch judging | --judge-batch permitted for full runs (50% judge discount)". That describes a command the runner rejects. benchmarks/external/locomo/run.py lines 534-535 call parser.error("claude-code does not support --judge-batch; no paid calls were made") when args.judge_batch is set and claude-code appears in either judge role. ClaudeCodeJudge at benchmarks/external/common/judge.py line 162 is documented "Subscription-backed synchronous judge; deliberately has no batch method" and implements score_batch nowhere; only ClaudeJudge (line 250) and OpenAIJudge (line 435) implement it. The rejection is regression-tested by tests/audit/test_claude_code_benchmark.py line 176, test_runner_rejects_subscription_batch_before_spending, which asserts returncode 2 and that no calls directory is created. Reproduced on this exact tree at fad0f89: the documented smoke command with --judge-batch added exited 2 with that message and wrote no output file.
+
+The contract therefore permitted a command that cannot run on the transport it pins. Section 4 already excludes the separately billed claude API route, which is the only route where the Anthropic Batch API discount exists, so the row was self-contradictory as well as unexecutable.
+
+Cost impact: none. The observed per-case figure of USD 0.008487 recorded in HISTORY#648 was necessarily measured on the synchronous claude-code path, because batch never existed for that transport. The roughly 10.17 dev, 2.92 holdout and 13.09 full-set projections never contained a 50 percent discount and do not change. Section 9 now states that no batch discount is assumed and that the observed rate is the synchronous rate.
+
+Second defect, found while fixing the first and not reported by the original review. The contract's amendment rule required "a new contract version" and section 3 required every run to record "this contract's version", but the document defined no version string anywhere. Both requirements were unexecutable as written. The contract now carries e1-evaluation/1.1, and the originally frozen text from HISTORY#648 is retroactively e1-evaluation/1.0. No baseline, candidate or smoke has been run under 1.0, so there is no cross-version comparison to invalidate.
+
+Third finding, recorded but not repaired here. The transport-compatibility guard exists only in the LoCoMo CLI, not in the library path. _select_batch_judge in benchmarks/external/common/runner.py line 335 returns None when a judge lacks score_batch and the caller then falls back to per-case synchronous judging, asserted by test_seam_all/test_locomo_judge_batch.py test_judge_batch_falls_back_to_sync_when_judge_lacks_score_batch. Separately, _build_report at line 545 accepts judge_batch but writes no corresponding key into the report dict, so a batched run and a synchronous run produce indistinguishable artifacts. E1 section 3 requires each run to record answerer and judge identity, and judging mode is part of that identity because a batch judge is a different call path with different failure modes. Recorded in the BIL-3 specification section 4 as a field B2 must add. No runtime code was changed by this entry, so the library fallback and the missing report field both remain open.
+
+Verification: grep for E1_EVALUATION_CONTRACT across tests, tools and test_seam_all returned no matches, so no test or gate pins the contract text and the edit breaks no gate. The rejection was reproduced live at exit code 2 with no paid call and no artifact written. All eight canonical preflight gates pass in this container: verify_agent_config, verify_integrity, verify_routing, verify_handoffs, verify_continuity, verify_streams, verify_wiki and verify_audit_claims --changed-since HEAD. The wider tests/audit suite could not be collected because fastapi, anthropic and sentence_transformers are absent from this container; that is an environment limitation, not an observed pass. ROADMAP.md was not modified, so no roadmap parser rerun is required and this branch still does not conflict with PR267 or PR268.
+
+Next unresolved step: unchanged by this entry. The operator runs the E1-authorized ten-case dev smoke on their own machine and reports the measured per-case rate, which sizes the full-run budget. Expect dev fixture hash prefix 75132ee187e058b2 and case count 1198; a mismatch means the split moved and the contract is invalid. M1 acceptance on PR264, the M2 design freeze and B2 implementation remain open and are not advanced here.
+---END-ENTRY-#650---
