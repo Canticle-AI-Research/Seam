@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-08
+Last updated: 2026-09-19
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -17,6 +17,14 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
 - Active execution direction: root `ROADMAP.md` registers `roadmap:track:MemoryFormation`; `docs/roadmap/MEMORY_FORMATION.md` is its detailed specification, request register, dependency graph and current ready set (HISTORY#645). When the operator asks what is next, consult that specification and the current handoff, verify live completion evidence, and choose the earliest unblocked slice. Preserve the opening formation priorities; BIL-3, provider setup and report routing can proceed in independent scopes. Plans do not supersede the governing SEAM/MIRL contracts or establish implementation evidence.
 - `MIRL`: canonical memory IR
+- Formation candidate boundary: `context-segments/1` is an explicit Python
+  compiler/ingestion policy; `baseline` remains the compatibility default.
+  The bounded decision and fixtures are in
+  `docs/roadmap/MEMORY_FORMATION.md#m2-first-slice-decision-context-segments1`.
+  Candidate document generations include formation configuration and use
+  existing atomic same-source supersession. RAW/source references remain
+  evidence, and diagnostics are not retrieval or answer-quality claims.
+  Compare freshly ingested stores; no implicit database migration or promotion.
 - Benchmark funding correction (HISTORY#646): use the explicit `claude-code`
   transport for the operator's funded Claude.ai account; `claude` remains the
   separately billed API route. Never substitute an inherited API key or copy

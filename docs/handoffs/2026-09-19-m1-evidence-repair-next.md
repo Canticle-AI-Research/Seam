@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-19-m1-evidence-repair-next
 supersedes: 2026-09-19-e1-b1-m1-split-ci-blocked-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#654
 ---
 

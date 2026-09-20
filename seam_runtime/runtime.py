@@ -22,6 +22,7 @@ from .benchmarks import diff_benchmark_runs, evaluate_benchmark_gate, run_benchm
 from .context_assembly import ContextCandidate, ContextPack, assemble_context
 from .dsl import compile_dsl
 from .evals import run_retrieval_benchmark
+from .formation import BASELINE_FORMATION, CONTEXT_SEGMENTS_V1
 from .lifecycle import BatchIngestItem
 from .mirl import (
     Artifact,
@@ -57,6 +58,41 @@ LOGGER = logging.getLogger(__name__)
 _RUNTIME_PERSIST_LOCKS_GUARD = threading.Lock()
 _RUNTIME_PERSIST_LOCKS: dict[str, "_RuntimePersistLock"] = {}
 _PERSIST_LOCK_TIMEOUT_SECONDS = 60.0
+
+
+def _formation_document_id(
+    source_ref: str,
+    text: str,
+    *,
+    ns: str,
+    scope: str,
+    formation_policy: str,
+    max_segment_chars: int,
+    speaker: str | None = None,
+    source_timestamp: str | None = None,
+) -> str:
+    if formation_policy == BASELINE_FORMATION:
+        return stable_document_id(source_ref, text, ns=ns, scope=scope)
+    identity = json.dumps(
+        {
+            "contract": CONTEXT_SEGMENTS_V1,
+            "formation_policy": formation_policy,
+            "max_segment_chars": max_segment_chars,
+            "source_envelope": (
+                {
+                    "speaker": speaker.strip(),
+                    "source_timestamp": source_timestamp.strip(),
+                }
+                if isinstance(speaker, str) and isinstance(source_timestamp, str)
+                else None
+            ),
+            "text": text,
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return stable_document_id(source_ref, identity, ns=ns, scope=scope)
 
 
 class _RuntimePersistLock:
@@ -308,6 +344,8 @@ class SeamRuntime:
         derived_fact_policy: str | None = None,
         allow_env_extractor: bool = True,
         id_salt: str | None = None,
+        formation_policy: str = BASELINE_FORMATION,
+        max_segment_chars: int = 1024,
     ) -> IRBatch:
         batch = compile_nl(
             raw_text,
@@ -320,6 +358,8 @@ class SeamRuntime:
             derived_fact_policy=derived_fact_policy,
             allow_env_extractor=allow_env_extractor,
             id_salt=id_salt,
+            formation_policy=formation_policy,
+            max_segment_chars=max_segment_chars,
         )
         resolved_agent = self._resolve_agent_id(agent_id)
         if resolved_agent:
@@ -343,11 +383,29 @@ class SeamRuntime:
         scope: str = "thread",
         persist: bool = True,
         agent_id: str | None = None,
+        *,
+        formation_policy: str = BASELINE_FORMATION,
+        max_segment_chars: int = 1024,
     ) -> IngestOutcome:
         resolved_agent = self._resolve_agent_id(agent_id)
-        document_id = stable_document_id(source_ref, text, ns=ns, scope=scope)
+        document_id = _formation_document_id(
+            source_ref,
+            text,
+            ns=ns,
+            scope=scope,
+            formation_policy=formation_policy,
+            max_segment_chars=max_segment_chars,
+        )
         batch = namespace_ingest_batch(
-            self.compile_nl(text, source_ref=source_ref, ns=ns, scope=scope, agent_id=resolved_agent),
+            self.compile_nl(
+                text,
+                source_ref=source_ref,
+                ns=ns,
+                scope=scope,
+                agent_id=resolved_agent,
+                formation_policy=formation_policy,
+                max_segment_chars=max_segment_chars,
+            ),
             document_id,
         )
         metadata = {
@@ -355,6 +413,9 @@ class SeamRuntime:
             "indexable_count": len([record for record in batch.records if record.kind in {RecordKind.CLM, RecordKind.STA, RecordKind.EVT, RecordKind.REL}]),
             "agent_id": resolved_agent,
         }
+        formation = batch.kind(RecordKind.RAW)[0].ext.get("formation")
+        if isinstance(formation, dict):
+            metadata["formation"] = dict(formation)
         return self._commit_ingest(
             batch,
             text=text,
@@ -380,6 +441,7 @@ class SeamRuntime:
     ) -> IngestOutcome:
         """Commit canonical ingest state, then converge its derived vectors."""
 
+        chunk_count = max(1, len(batch.kind(RecordKind.SPAN)))
         if not persist:
             document = {
                 "document_id": document_id,
@@ -388,7 +450,7 @@ class SeamRuntime:
                 "source_ref": source_ref,
                 "source_hash": source_hash(text),
                 "byte_count": len(text.encode("utf-8")),
-                "chunk_count": max(1, len(batch.kind(RecordKind.SPAN))),
+                "chunk_count": chunk_count,
                 "extraction_status": "compiled",
                 "indexed_status": "not_indexed",
                 "deleted_at": None,
@@ -416,7 +478,7 @@ class SeamRuntime:
                 source_ref=source_ref,
                 source_hash=source_hash(text),
                 byte_count=len(text.encode("utf-8")),
-                chunk_count=max(1, len(normalized.kind(RecordKind.SPAN))),
+                chunk_count=chunk_count,
                 metadata=metadata,
                 failure_injector=self._ingest_failure_injector,
             )
@@ -1435,12 +1497,23 @@ class SeamRuntime:
         source_timestamp: str | None = None,
         derived_fact_policy: str | None = None,
         allow_env_extractor: bool = True,
+        formation_policy: str = BASELINE_FORMATION,
+        max_segment_chars: int = 1024,
     ) -> IngestOutcome:
         # Unified compiler (HISTORY#311): conversation turns and plain memories
         # share one faithful pipeline. `ingest_conversation_turn` is kept as the
         # benchmark/agent entry point but delegates to compile_nl.
         resolved_agent = self._resolve_agent_id(agent_id)
-        document_id = stable_document_id(source_ref, text, ns=ns, scope=scope)
+        document_id = _formation_document_id(
+            source_ref,
+            text,
+            ns=ns,
+            scope=scope,
+            formation_policy=formation_policy,
+            max_segment_chars=max_segment_chars,
+            speaker=speaker,
+            source_timestamp=source_timestamp,
+        )
         batch = namespace_ingest_batch(
             self.compile_nl(
                 text,
@@ -1453,6 +1526,8 @@ class SeamRuntime:
                 source_timestamp=source_timestamp,
                 derived_fact_policy=derived_fact_policy,
                 allow_env_extractor=allow_env_extractor,
+                formation_policy=formation_policy,
+                max_segment_chars=max_segment_chars,
             ),
             document_id,
         )
@@ -1464,6 +1539,9 @@ class SeamRuntime:
             ]),
             "agent_id": resolved_agent,
         }
+        formation = batch.kind(RecordKind.RAW)[0].ext.get("formation")
+        if isinstance(formation, dict):
+            metadata["formation"] = dict(formation)
         if derived_fact_policy:
             rich_claims = [
                 record

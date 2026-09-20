@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 720
+total_events: 721
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T15:21:34Z | history:461:d0e59411 | session-event | done | graph, memory, agent, protocol, storage, workspace, atomi... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,s... |
 | 2026-07-22T16:50:30Z | history:462:2b05af6b | session-event | done | graph, retrieval, memory, agent, verify, vector | docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2... |
 | 2026-07-23T02:46:46Z | history:463:3c16da17 | session-event | done | vector, retrieval, memory, verify | docs/RAG_ARCHITECTURE.md,tests/audit/test_pgvector_boundary_resync.py |
 | 2026-07-23T08:59:28Z | history:464:5d53be0e | session-event | done | vector, retrieval, bugfix, verify, test | seam_runtime/runtime.py,tests/audit/test_pgvector_boundary_resync.py,docs/RAG... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-19T05:43:48Z | history:652:bf1e59ae | session-event | changed | memory, compile, locomo, audit, tests, verify, provenance... | tools/memory_formation_m1.py,tests/audit/test_memory_formation_m1_probe.py,do... |
 | 2026-09-19T20:23:50Z | history:653:187d8dde | session-event | changed | handoff, continuity, ci, benchmark, locomo, memory, audit... | docs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md,docs/handoffs/2026... |
 | 2026-09-19T23:55:57Z | history:654:50b0fd21 | session-event | changed | memory, compile, audit, tests, verify, ci, correction, ha... | tools/memory_formation_m1.py,tests/audit/test_memory_formation_m1_probe.py,te... |
+| 2026-09-20T01:11:40Z | history:655:5702ab57 | session-event | changed | memory, compile, provenance, verify, handoff, roadmap | seam_runtime/formation.py,seam_runtime/nl.py,seam_runtime/runtime.py,tests/au... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0520.cross.md | 2026-04-15T00:00:00Z..2026-07-22T14:59:22Z | 520 | (multi) | (multi) |
+| 0001-0521.cross.md | 2026-04-15T00:00:00Z..2026-07-22T15:21:34Z | 521 | (multi) | (multi) |
