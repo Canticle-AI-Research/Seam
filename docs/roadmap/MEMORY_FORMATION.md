@@ -2,16 +2,22 @@
 
 **Decision record:** HISTORY#645, 2026-09-12.
 
-**Stage:** setup and investigation; implementation has not started.
+**Stage:** M1 diagnostic evidence accepted for design; M2's first-slice contract
+is frozen below. M3 is implemented and locally verified as an opt-in candidate;
+protected merge and cumulative PR acceptance remain separate. See HISTORY#655.
 
 **September 14 provider correction:** the operator's roughly $50 is on
 Claude.ai, not the API Console. E1 now uses the supported Claude Code
 subscription route described in [Claude Code benchmarks](../CLAUDE_CODE_BENCHMARKS.md).
 This supersedes the earlier direct-API funding assumption in R05/E1.
-The M1 audit candidate exists on draft PR #264; it awaits independent
-acceptance and resolution of its helper's historical test-first evidence gap.
-Formation implementation has not started. Provider connectivity does not
-complete B1 metadata or E1's full evaluation contract.
+The M1 audit and probe have been copied into draft PR #269 independently of
+PR #264's website publisher. September 19 review supports the retained
+synthetic findings and identified gaps in the new verification suite; the
+current repair and disposition are recorded in HISTORY#654 and the current
+handoff. New tests do not retroactively prove the helper's original test-first
+development. B1 and E1 design candidates exist on PR #269; the bounded M2
+decision below accepts their applicable diagnostic inputs, while recording
+the unresolved paid-evaluation contract separately.
 
 **Owner:** root integration agent, with bounded stream owners assigned per slice.
 
@@ -65,10 +71,10 @@ answer quality are separate measurements; no result is promised.
 | Order | Work | Status and exit |
 | --- | --- | --- |
 | 1 | M0: register roadmap, current handoff, PR dispositions and durable routing | Merged through PR #261 |
-| 2 | M1: current ingestion and temporal-identity audit | Candidate on draft PR #264; review evidence and resolve its release condition before accepting M1 |
-| Parallel with M1 | B1: BIL-3 schema design; E1: provider/evaluation setup; P0: report-home discovery | Ready after M0; own separate files and return concrete artifacts |
-| After M1 and design inputs | M2: architecture decision and acceptance fixtures | Requires M1 evidence, B1 metadata contract and E1 evaluation design; credential access and P0 storage discovery do not block M2 |
-| After M2 | M3: context-preserving segmentation; M4: temporal entity projection | M3 first; M4 consumes the M2 record contract and validated M3 output |
+| 2 | M1: current ingestion and temporal-identity audit | Diagnostic findings accepted for M2 after independent review and HISTORY#654 repair; original helper TDD and cumulative PR release qualification remain separate |
+| Parallel with M1 | B1: BIL-3 schema design; E1: provider/evaluation setup; P0: report-home discovery | B1 and E1 design candidates on PR #269; review independently of M1 and provider connectivity |
+| After M1 and design inputs | M2: architecture decision and acceptance fixtures | First-slice contract frozen below; executable M3 examples are developed at the named public interfaces |
+| After M2 | M3: context-preserving segmentation; M4: temporal entity projection | M3 implemented and locally verified as an opt-in candidate; protected merge remains open. M4 consumes the contract and validated M3 output and remains unimplemented |
 | After M3/M4 | M5: integrated baseline/candidate evaluation | Requires E1-E2 and B2; no default or production promotion from a free diagnostic |
 | Later | C1-C2, G1, P2, Q1 | Contract sketches/report templates can proceed earlier as noted below; runtime adoption and claims depend on demonstrated formation behavior |
 
@@ -115,8 +121,166 @@ interface tests before runtime implementation:
 | Migration | Name re-ingest/rebuild requirements, old/new coexistence, cost, rollback and exact promotion decision; do not silently mutate a user's database. |
 
 The prior chat proposed `temporal-entity/1` as an illustrative policy name.
-It is not registered or implemented. The present roadmap does not freeze a
-new wire format, database schema, retrieval policy, or chunk size prematurely.
+It is not registered or implemented. The first-slice decision below freezes
+only its explicitly named segmentation limit and Python interface; it does
+not freeze a temporal wire format, database schema or retrieval policy.
+
+## M2 first-slice decision: context-segments/1
+
+Frozen on September 20 UTC, September 19 operator-local, before candidate
+measurements. The independent architecture review accepts M1's narrow
+synthetic observations and counterexamples as sufficient design evidence.
+It does not accept the whole mixed PR, retroactively establish the original
+probe's test-first history, or establish a retrieval/answer-quality result.
+The original observations remain immutable.
+
+**Accepted inputs.** B1's [formation metadata contract](../BIL_3_SPEC.md#8-formation-metadata-contract-m2-consumes-this)
+names the diagnostic fields. E1 supplies fixed retrieval settings, separate
+freshly ingested arms, uncertainty controls, scoreboard separation and a locked
+holdout. Its paid campaign is not ready: the same-model answerer/judge in
+E1 section 4 must be reconciled with the operator's independent-review
+requirement, and no completed pre-candidate answer-quality baseline exists.
+Neither missing paid evidence nor provider funding blocks this explicitly
+provider-free mechanism implementation. Before paid benchmarks, notify the
+operator and agree exact model roles, call counts, caps and stop conditions;
+OpenAI, DeepSeek and possibly Grok are funding options, not selected models.
+
+**Baseline.** A fresh M1 diagnostic probe completed on clean `93eafed` before
+runtime edits. Its external observations have SHA-256
+`98696aa953114ccfb1cbe6608bb7c24249226dcfe08ac97f50ee1fdb71b2b5db`.
+This is a mechanism baseline, not an E1 judged baseline. The original tracked
+M1 fixture and baseline compiler regression suites remain unchanged controls.
+
+### Interfaces and records
+
+The existing Python `compile_nl`, `SeamRuntime.compile_nl`,
+`ingest_conversation_turn` and `ingest_text` interfaces gain keyword-only
+`formation_policy="baseline"` and `max_segment_chars=1024`. The explicit
+candidate policy is `context-segments/1`; baseline remains the default.
+Unknown policies and invalid candidate bounds fail before persistence. This creates
+no new HTTP, CLI, storage schema or retrieval-policy contract.
+
+The separate `seam_runtime/formation.py` segmenter preserves original Unicode
+code-point offsets. Existing `segment_propositions` remains unchanged because
+grounded extraction validates against its legacy boundaries. Candidate
+formation initially rejects rich extractors, derived-fact policies and enabled
+environment extraction/regex enrichment rather than silently combining
+unqualified grounding contracts.
+
+Boundaries recognize newlines, ASCII sentence endings, Unicode `。！？`,
+decimal exclusions and a small versioned abbreviation set (`Dr.`, `Mr.`,
+`Mrs.`, `Ms.`, `Prof.`, `e.g.`, `i.e.`). The hard fallback prefers whitespace,
+then splits exact character ranges when a word exceeds the bound. There is
+no overlap and no generated source prefix. The 1,024-character default is a
+resource limit frozen for this slice, not a measured token optimum or latency
+guarantee. Whitespace/separators remain verbatim in RAW. Empty and nonlexical
+input reports its actual zero emitted segments.
+
+Each admitted segment emits an exact SPAN and content claim with canonical
+provenance. Unicode-only text receives a source-grounded lexical fallback;
+its preservation does not imply language-specific entity recognition.
+Context offsets refer into original RAW, never to reconstructed text. A hard
+split retains its complete parent proposition/context range, including a
+condition or reported-speech qualifier outside the bounded fragment. Speaker
+evidence has an exact source range as well. A continuation fragment is not
+reinterpreted as a new independent speaker assertion. The character bound
+applies to the emitted SPAN; a context range is an offset reference and may
+cover a larger retained source region.
+Extensions contain offsets rather than record IDs, because the current
+ingestion namespace adapter does not rewrite extension references.
+
+### Attribution, time, identity and lifecycle
+
+Supplied speaker/time metadata is usable independently of extractor selection
+only when it matches the exact source envelope. Line-start colon speakers
+define local contexts. Mismatched explicitly supplied metadata rejects the
+candidate before persistence with a content-free error; absent metadata is
+valid and does not acquire an invented speaker or timestamp.
+Unquoted singular first-person statements may bind to
+that grounded speaker; an explicit statement about Bob inside Alice's turn
+retains Bob as its subject. Quoted or ambiguous attribution stays unresolved.
+Automatic binding is limited to an unambiguous `I` subject (including ordinary
+contractions). `My dog` and `My sister` retain their lexical subjects; ownership
+does not make the speaker the subject. A bare possessive such as `Mine` stays
+unresolved. Quote handling distinguishes nested delimiters and apostrophes.
+Observation timestamps are preserved as supplied; relative event time is not
+inferred, and missing time remains unknown. No event intervals or truth
+resolution are introduced in M3.
+
+The caller's `source_ref` supplies event identity. Distinct references preserve
+distinct repeated events; replay of the same reference/content is stable;
+changed content at the same reference follows existing correction and
+supersession semantics. Candidate compiler identity includes policy, bound,
+source reference, supplied source-envelope inputs and existing boundary salt.
+Envelope presence matters because it can change attribution and which header
+characters are interpreted as context. No second entity registry is
+introduced. Candidate document identity also includes the formation
+configuration. Switching policy or bound creates a distinct generation and
+uses the existing atomic same-source supersession transaction; it does not
+overwrite the old generation in place. Concurrent different-policy writers
+follow last-committed-generation semantics, not a cross-process refusal
+guarantee. Matched arms use fresh stores. Native-loader
+dialogue IDs and separate caption envelopes remain a named follow-up, so this
+slice cannot claim to repair metadata never delivered to the compiler.
+
+Existing lifecycle exclusion, scope isolation, source supersession and graph
+rebuild rules remain authoritative. M3 verifies that candidate records survive
+restart/replay and obey those rules. M4 will implement temporal entity views,
+contradiction interpretation and derived-view invalidation. Rollback selects
+baseline in a fresh store and re-ingests retained sources; no automatic
+migration or default promotion occurs.
+
+### Observable diagnostics
+
+Candidate RAW extensions and ingestion document metadata carry matching
+`formation` diagnostics under `seam-formation-diagnostics/1`, with
+`version="formation/1"` and `segmentation_policy="context-segments/1"`:
+actual segment count, character size
+summary, boundary-signal counts, exact source-anchor coverage, attribution and
+timestamp preservation fractions, compilation outcome and unavailable-field
+reasons. Source text and speaker labels do not appear in these diagnostics.
+Zero-denominator coverage is null, never a perfect score. Timestamp synthesis
+is zero. Token-size measurement is unavailable until a named tokenizer is
+measured; entity-view version and contradiction interpretation remain
+unavailable until M4. Re-ingestion requirements describe this policy and do
+not attest that a benchmark actually re-ingested its corpus. The legacy
+document `chunk_count` remains compatible and must not be read as proposition
+coverage.
+
+Coverage and preservation fields carry explicit numerators, denominators and
+a `fraction`, so absence cannot masquerade as full coverage. `segment_size`
+contains configured character bound and observed total/minimum/maximum plus
+an explicit unavailable token measurement. B1 collectors consume these named
+fields; this diagnostic payload is not itself a signed BIL-3 bundle.
+
+### Frozen examples and ownership
+
+Sol owns `seam_runtime/formation.py`, the two existing compiler/runtime files,
+and `tests/audit/test_memory_formation_m3.py`. Root owns this decision and
+continuity; independent Astra review checks the implementation and evidence.
+Tests exercise public compiler, ingestion and canonical store interfaces.
+
+| Example | Expected M3 behavior | Later M4 obligation |
+| --- | --- | --- |
+| `東京が好きです。大阪に住んでいます。` | Two exact spans/content claims; RAW unchanged | No inferred entity or location claim |
+| `Dr. Chen moved to Oslo. She works there.` | Two segments; abbreviation retained | Pronoun resolution remains unresolved |
+| `Value is 4.2. Next value is 5.` | Decimal retained inside first of two spans | None |
+| `Alice: I like tea` newline `Bob: I like coffee` | Separate local speaker contexts and grounded subjects | No unsupported identity merge |
+| Matched `[Alice 2026-09-01]` plus `I moved. Bob stayed.` | Alice for first person; Bob for explicit third person; exact timestamp retained | Event time differs from observation time |
+| Quoted `"I moved"` in Alice's turn; mismatched supplied envelope | No automatic quoted-person binding; malformed metadata fails closed | Resolve attribution only with further evidence |
+| Long spaced/unbroken/Unicode text, including `If Bob agrees, I will move.` | Every span within bound, exact offsets, no duplicated text; fragments retain full conditional parent context | Measure downstream usefulness separately |
+| Empty or punctuation-only text | Verbatim RAW, zero segments and null coverage denominator | None |
+| Same text with two source references; repeated same reference | Two source events; idempotent replay within each event | Distinct-event temporal projection |
+| Same reference with corrected text; deletion; restart; second scope | Existing supersession/exclusion; exact anchors after reopen; isolated scopes | Derived temporal view invalidation/rebuild |
+| Relative time, ambiguous names, changed residence, conflicting claims | Original wording/evidence retained independently | Unknown dates, transitions, contradictions and as-of views |
+
+M3 acceptance requires witnessed red/green behavior tests, baseline/fidelity,
+conversation, source-dedup and affected audit regressions, independent review,
+continuity, exact-head required CI and protected merge. Free mechanism
+conformance is reported separately from latency, retrieval and answer quality.
+No holdout is read or tuned during this slice. M5 still requires the separately
+resolved evaluation protocol, B2 and M4; no hypothesis is promoted from a
+passing mechanism test alone.
 
 ## Work stream specifications
 
@@ -361,9 +525,9 @@ chain or mark a whole stream complete from one successful fixture.
 
 ## First continuation packet
 
-After verifying this documentation merge on current main, start **M1** with
-a bounded ingestion-path audit and example matrix. In parallel dispatch **B1**,
-**E1** and **P0** if independent owners are available. M2 requires M1 findings, B1 metadata
-contract and E1 evaluation design. Provider access and P0 storage discovery
-continue independently; they must not accidentally block formation design. The current handoff carries the
-exact recovery context, PR heads/dispositions and preserved worktrees.
+Continue the frozen M2 decision with **M3** implementation and verification,
+then M4's temporal/entity contract. Do not repeat the completed M1 diagnostic
+audit or treat its acceptance as cumulative PR qualification. Resolve the paid
+E1 review protocol and benchmark baseline separately before M5; provider
+funding and P0 discovery remain independent. The current handoff carries exact
+recovery context, PR heads/dispositions and preserved worktrees.

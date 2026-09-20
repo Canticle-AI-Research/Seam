@@ -2,22 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 712
+total_events: 721
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T06:23:10Z | history:453:5dd3c7e3 | session-event | changed | retrieval, graph, knowledge-graph, non-displacing-pack, m... | seam_runtime/graph_source_selector.py,benchmarks/external/mem0_harness/seam_m... |
-| 2026-07-22T07:28:54Z | history:454:74725c05 | session-event | done | graph, memory, retrieval, provenance, compile, roadmap, b... | seam_runtime/knowledge_graph.py,seam_runtime/graph_source_selector.py,seam_ru... |
-| 2026-07-22T08:10:43Z | history:455:133e97d5 | session-event | done | graph, identity, resolution, knowledge-graph, verify, tes... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-22T08:31:29Z | history:456:c5d91902 | session-event | done | graph, identity, resolution, candidate, knowledge-graph, ... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
-| 2026-07-22T14:59:22Z | history:460:f3d5ac63 | session-event | done | graph, bugfix, verify, history, continuity, retrieval, pa... | seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,... |
-| 2026-07-22T15:21:34Z | history:461:d0e59411 | session-event | done | graph, memory, agent, protocol, storage, workspace, atomi... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,s... |
 | 2026-07-22T16:50:30Z | history:462:2b05af6b | session-event | done | graph, retrieval, memory, agent, verify, vector | docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2... |
 | 2026-07-23T02:46:46Z | history:463:3c16da17 | session-event | done | vector, retrieval, memory, verify | docs/RAG_ARCHITECTURE.md,tests/audit/test_pgvector_boundary_resync.py |
 | 2026-07-23T08:59:28Z | history:464:5d53be0e | session-event | done | vector, retrieval, bugfix, verify, test | seam_runtime/runtime.py,tests/audit/test_pgvector_boundary_resync.py,docs/RAG... |
@@ -209,10 +200,19 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-12T00:00:00Z | roadmap:066:5dce8b5d | status-change | bootstrap | roadmap, plan, naming, surface, dashboard, graph, verify | ROADMAP.md:30 |
 | 2026-09-12T18:10:09Z | history:645:6eec8c81 | session-event | changed | roadmap, plan, memory, compile, graph, benchmark, handoff... | docs/roadmap/MEMORY_FORMATION.md,docs/handoffs/2026-09-12-memory-formation-ro... |
 | 2026-09-14T12:55:45Z | history:646:beb12051 | session-event | changed | benchmark, models, tests, verify, handoff, docs, config | benchmarks/external/common/claude_code.py,benchmarks/external/common/runner.p... |
+| 2026-09-18T19:53:55Z | history:647:ced06a36 | session-event | changed | roadmap, plan, handoff, continuity, audit, streams, verif... | docs/audits/2026-09-18-roadmap-fork-reconciliation.md,docs/audits/INDEX.md,do... |
+| 2026-09-19T01:03:58Z | history:648:e3a4fd90 | session-event | changed | benchmark, locomo, holdout, plan, docs, verify, models, r... | docs/E1_EVALUATION_CONTRACT.md,docs/README.md,benchmarks/external/locomo/hold... |
+| 2026-09-19T01:16:06Z | history:649:4ecc8665 | session-event | changed | benchmark, integrity, security, verify, docs, plan, mirl,... | docs/BIL_3_SPEC.md,docs/README.md |
+| 2026-09-19T05:06:10Z | history:650:3188de69 | session-event | changed | benchmark, judge, locomo, docs, correction, verify, plan,... | docs/E1_EVALUATION_CONTRACT.md,docs/BIL_3_SPEC.md |
+| 2026-09-19T05:28:25Z | history:651:e0e39d5e | session-event | changed | benchmark, locomo, tests, harden, verify, integrity | benchmarks/external/locomo/run.py,tests/audit/test_locomo_resume.py |
+| 2026-09-19T05:43:48Z | history:652:bf1e59ae | session-event | changed | memory, compile, locomo, audit, tests, verify, provenance... | tools/memory_formation_m1.py,tests/audit/test_memory_formation_m1_probe.py,do... |
+| 2026-09-19T20:23:50Z | history:653:187d8dde | session-event | changed | handoff, continuity, ci, benchmark, locomo, memory, audit... | docs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md,docs/handoffs/2026... |
+| 2026-09-19T23:55:57Z | history:654:50b0fd21 | session-event | changed | memory, compile, audit, tests, verify, ci, correction, ha... | tools/memory_formation_m1.py,tests/audit/test_memory_formation_m1_probe.py,te... |
+| 2026-09-20T01:11:40Z | history:655:5702ab57 | session-event | changed | memory, compile, provenance, verify, handoff, roadmap | seam_runtime/formation.py,seam_runtime/nl.py,seam_runtime/runtime.py,tests/au... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0512.cross.md | 2026-04-15T00:00:00Z..2026-07-22T05:03:16Z | 512 | (multi) | (multi) |
+| 0001-0521.cross.md | 2026-04-15T00:00:00Z..2026-07-22T15:21:34Z | 521 | (multi) | (multi) |

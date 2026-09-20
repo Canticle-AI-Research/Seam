@@ -176,6 +176,88 @@ def _maybe_wrap_answerer(
     )
 
 
+class ResumeMismatch(RuntimeError):
+    """A checkpoint cannot be safely resumed into the current run.
+
+    Fail closed rather than blending results from a different case set: a
+    checkpoint carries answers keyed by case_id, and merging those into a run
+    over a different split would fabricate a result that never happened.
+    """
+
+
+def _checkpoint_payload(
+    *,
+    case_results: list,
+    completed: int,
+    total: int,
+    fixture_hash: str,
+    embedding_preflight=None,
+    embedding_preflight_sha256=None,
+) -> dict:
+    """Build the PARTIAL checkpoint body.
+
+    ``fixture_hash`` identifies the exact case set, so a later --resume can
+    refuse a checkpoint that came from a different dataset or split.
+    """
+    payload = {
+        "status": "PARTIAL",
+        "completed": completed,
+        "total": total,
+        "fixture_hash": fixture_hash,
+        "case_results": case_results,
+    }
+    if embedding_preflight is not None:
+        payload["embedding_preflight"] = embedding_preflight
+        payload["embedding_preflight_sha256"] = embedding_preflight_sha256
+    return payload
+
+
+def _resume_state(path, expected_fixture_hash: str):
+    """Read a checkpoint and return (completed_case_ids, prior_case_results).
+
+    Raises ResumeMismatch for anything that cannot be trusted: a missing or
+    malformed file, a checkpoint with no fixture hash (written before the
+    identity field existed), or one whose fixture hash names a different case
+    set. Entries without a case_id are dropped rather than counted done, so a
+    malformed row can never mask an unanswered case.
+    """
+    source = Path(path)
+    try:
+        raw = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ResumeMismatch(f"cannot read checkpoint {source}: {exc}") from exc
+    try:
+        payload = json.loads(raw)
+    except ValueError as exc:
+        raise ResumeMismatch(f"checkpoint {source} is not valid JSON: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ResumeMismatch(f"checkpoint {source} is not an object")
+
+    recorded = payload.get("fixture_hash")
+    if not recorded:
+        raise ResumeMismatch(
+            f"checkpoint {source} records no fixture_hash and predates resume "
+            "support; rerun from the start rather than blending case sets"
+        )
+    if recorded != expected_fixture_hash:
+        raise ResumeMismatch(
+            f"checkpoint {source} is from a different case set "
+            f"(checkpoint {recorded}, current {expected_fixture_hash})"
+        )
+
+    completed: set = set()
+    prior: list = []
+    for entry in payload.get("case_results") or []:
+        if not isinstance(entry, dict):
+            continue
+        cid = entry.get("case_id")
+        if cid is None:
+            continue
+        completed.add(str(cid))
+        prior.append(entry)
+    return completed, prior
+
+
 def _fixture_hash(cases) -> str:
     """Deterministic hash of the case definitions (questions + gold answers)."""
     payload = json.dumps(
@@ -269,7 +351,7 @@ def _attach_embedding_preflight_integrity(
     }
 
 
-def main() -> None:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="LoCoMo benchmark runner for SEAM")
     parser.add_argument(
         "--quickstart",
@@ -529,6 +611,11 @@ def main() -> None:
         default=None,
         help="(seam adapter) Run id for retrieval_event rows. Default: SEAM_RUN_ID or an auto-generated id.",
     )
+    return parser
+
+
+def main() -> None:
+    parser = _build_parser()
     args = parser.parse_args()
 
     if args.judge_batch and "claude-code" in {args.judge, args.judge_cross}:
@@ -658,23 +745,23 @@ def main() -> None:
     # a recoverable <stem>.partial.json on persistent disk (never /tmp).
     archive_dir = _resolve_archive_dir()
     archive_dir.mkdir(parents=True, exist_ok=True)
+    # Identity of the exact case set these checkpoints belong to, so a later
+    # resume can refuse a checkpoint written for a different dataset or split.
+    run_fixture_hash = _fixture_hash(cases)
     run_stem = _run_stem(args, len(cases))
     partial_path = archive_dir / f"{run_stem}.partial.json"
 
     def _checkpoint(case_results: list[dict], completed: int, total: int) -> None:
         # A flush failure must never crash the run it is protecting.
         try:
-            checkpoint_payload = {
-                "status": "PARTIAL",
-                "completed": completed,
-                "total": total,
-                "case_results": case_results,
-            }
-            if embedding_preflight is not None:
-                checkpoint_payload["embedding_preflight"] = embedding_preflight
-                checkpoint_payload["embedding_preflight_sha256"] = (
-                    embedding_preflight_sha256
-                )
+            checkpoint_payload = _checkpoint_payload(
+                case_results=case_results,
+                completed=completed,
+                total=total,
+                fixture_hash=run_fixture_hash,
+                embedding_preflight=embedding_preflight,
+                embedding_preflight_sha256=embedding_preflight_sha256,
+            )
             payload = json.dumps(
                 checkpoint_payload,
                 indent=2, default=str,

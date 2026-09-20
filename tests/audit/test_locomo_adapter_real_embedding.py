@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from benchmarks.external.common.dataset import load_quickstart_cases
 from benchmarks.external.common.types import BenchmarkCase, ConversationTurn
 
 
@@ -424,11 +425,13 @@ def test_cli_preflights_in_parent_before_runner_and_records_receipt(
     )
 
     receipt_sha256 = embedding_preflight_receipt_sha256(receipt)
+    expected_fixture_hash = locomo_run._fixture_hash(load_quickstart_cases()[:1])
     assert partial_payloads == [
         {
             "status": "PARTIAL",
             "completed": 1,
             "total": 1,
+            "fixture_hash": expected_fixture_hash,
             "case_results": [{"case_id": "scope-1::q0"}],
             "embedding_preflight": receipt,
             "embedding_preflight_sha256": receipt_sha256,

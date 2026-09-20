@@ -13,6 +13,12 @@ from .derived_fact_context import (
     is_singular_first_person,
     segment_propositions,
 )
+from .formation import (
+    BASELINE_FORMATION,
+    CONTEXT_SEGMENTS_V1,
+    FORMATION_POLICIES,
+    segment_context,
+)
 from .mirl import IRBatch, MIRLRecord, RecordKind, Status
 
 STOPWORDS = {"a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "into", "is", "it", "of", "on", "or", "that", "the", "this", "to", "we", "with", "without"}
@@ -44,6 +50,7 @@ _NON_ENTITY_CAPS = {"The", "A", "An", "My", "Our", "Your", "His", "Her", "Its", 
 # linear scan, NOT a regex (`[.!?]+(?=\s|$)` is polynomial on uncontrolled input).
 _WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9'-]*")
 _PROPER_NOUN_RUN = re.compile(r"[A-Z][A-Za-z0-9]*(?:\s+[A-Z][A-Za-z0-9]*)*")
+_GROUNDED_FIRST_PERSON_START = re.compile(r"I\b", re.IGNORECASE)
 
 # High-confidence conversational extractors (folded in from the former
 # compile_conversation_turn so there is exactly one compilation path).
@@ -82,6 +89,8 @@ def compile_nl(
     derived_fact_policy: str | None = None,
     allow_env_extractor: bool = True,
     id_salt: str | None = None,
+    formation_policy: str = BASELINE_FORMATION,
+    max_segment_chars: int = 1024,
 ) -> IRBatch:
     """Compile arbitrary natural language (memory or conversation turn) into
     faithful MIRL.
@@ -108,6 +117,29 @@ def compile_nl(
     record identities remain stable inside that boundary but cannot collide
     with identical source text compiled for another principal namespace. The
     default remains byte-identical to the unsalted MIRL contract."""
+    if formation_policy not in FORMATION_POLICIES:
+        raise ValueError("unsupported formation policy")
+    candidate_turn_metadata: tuple[str, int] | None = None
+    if formation_policy == CONTEXT_SEGMENTS_V1:
+        if (
+            extractor is not None
+            or derived_fact_policy is not None
+            or bool(os.environ.get("SEAM_NL_REGEX_ENRICH"))
+            or (
+                allow_env_extractor
+                and bool(os.environ.get("SEAM_NL_EXTRACTOR"))
+            )
+        ):
+            raise ValueError("context-segments/1 requires deterministic formation")
+        metadata_supplied = speaker is not None or source_timestamp is not None
+        if metadata_supplied:
+            candidate_turn_metadata = _validated_turn_metadata(
+                raw_text,
+                speaker=speaker,
+                source_timestamp=source_timestamp,
+            )
+            if candidate_turn_metadata is None:
+                raise ValueError("invalid context-segments/1 source envelope")
     if (
         extractor is None
         and allow_env_extractor
@@ -122,10 +154,32 @@ def compile_nl(
     # (the content claim already carries every token), so they are pure liability and
     # superseded by the grounded opt-in extractor. See HISTORY#317.
     regex_enrich = bool(os.environ.get("SEAM_NL_REGEX_ENRICH"))
+    if id_salt is not None and (not isinstance(id_salt, str) or not id_salt):
+        raise ValueError("id_salt must be a non-empty string when provided")
     source_identity = raw_text
-    if id_salt is not None:
-        if not isinstance(id_salt, str) or not id_salt:
-            raise ValueError("id_salt must be a non-empty string when provided")
+    if formation_policy == CONTEXT_SEGMENTS_V1:
+        source_identity = json.dumps(
+            {
+                "contract": CONTEXT_SEGMENTS_V1,
+                "formation_policy": formation_policy,
+                "id_salt": id_salt,
+                "max_segment_chars": max_segment_chars,
+                "raw_text": raw_text,
+                "source_envelope": (
+                    {
+                        "speaker": candidate_turn_metadata[0],
+                        "source_timestamp": (source_timestamp or "").strip(),
+                    }
+                    if candidate_turn_metadata is not None
+                    else None
+                ),
+                "source_ref": source_ref,
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    elif id_salt is not None:
         source_identity = json.dumps(
             {
                 "contract": "salted-source-identity/1",
@@ -140,7 +194,11 @@ def compile_nl(
     # Preserve every legacy unsalted identifier byte-for-byte. Principal-bound
     # callers use the full digest so canonical IDs do not collapse to the
     # compiler floor's historical 48-bit convenience suffix.
-    source_hash = source_digest if id_salt is not None else source_digest[:12]
+    source_hash = (
+        source_digest
+        if id_salt is not None or formation_policy == CONTEXT_SEGMENTS_V1
+        else source_digest[:12]
+    )
     raw_id = f"raw:{source_hash}"
     prov_id = f"prov:compile:{source_hash}"
 
@@ -159,12 +217,13 @@ def compile_nl(
         *,
         promote_type: bool = False,
         evidence_id: str | None = None,
+        identity_key: str | None = None,
     ) -> str:
         """Resolve (and lazily create) an ENT for ``label``, deduped by its
         lowercased form. Every observed mention retains its proposition SPAN;
         the first call's ``entity_type`` wins (so a speaker resolved as
         ``person`` is not downgraded by a later generic mention)."""
-        key = label.lower()
+        key = identity_key or label.lower()
         existing = entity_ids.get(key)
         if existing is not None:
             for record in records:
@@ -192,6 +251,11 @@ def compile_nl(
                 scope=scope,
                 prov=[prov_id],
                 evidence=[evidence_id] if evidence_id is not None else [],
+                ext=(
+                    {"seam.entity_identity": identity_key}
+                    if identity_key is not None
+                    else {}
+                ),
                 attrs={"entity_type": entity_type, "label": label},
             )
         )
@@ -200,7 +264,7 @@ def compile_nl(
     # Turn-level speaker ("Name:") grounds the conversational claims' subject.
     speaker_subject: str | None = None
     speaker_match = _SPEAKER_RE.match(raw_text)
-    if speaker_match:
+    if speaker_match and formation_policy == BASELINE_FORMATION:
         speaker_subject = entity_id(speaker_match.group(1), "person")
     # An explicitly supplied extractor may be used by the isolated relation
     # qualification lane without enabling the derived-facts serving policy.
@@ -211,7 +275,7 @@ def compile_nl(
     explicit_turn_metadata_requested = extractor is not None and (
         speaker is not None or source_timestamp is not None
     )
-    turn_metadata = (
+    turn_metadata = candidate_turn_metadata or (
         _validated_turn_metadata(
             raw_text,
             speaker=speaker,
@@ -323,31 +387,196 @@ def compile_nl(
                 speaker=explicit_speaker,
             )
 
-    for proposition, start, end in segment_propositions(raw_text):
-        subject_label = _leading_subject(proposition)
+    candidate_segments = None
+    if formation_policy == CONTEXT_SEGMENTS_V1:
+        candidate_segments = segment_context(
+            raw_text,
+            max_segment_chars=max_segment_chars,
+            content_start=source_prefix_end or 0,
+        )
+        propositions = (
+            (segment.text, segment.start, segment.end, segment)
+            for segment in candidate_segments
+        )
+    else:
+        propositions = (
+            (proposition, start, end, None)
+            for proposition, start, end in segment_propositions(raw_text)
+        )
+
+    admitted_segments = []
+    admitted_contexts: list[dict[str, object]] = []
+    parent_context_cache: dict[
+        tuple[int, int, int], tuple[str, bool, bool, bool]
+    ] = {}
+    source_timestamp_known = bool(
+        isinstance(source_timestamp, str) and source_timestamp.strip()
+    )
+    for proposition, start, end, formation_segment in propositions:
+        context_speaker: str | None = None
+        subject_text = proposition
+        quoted = False
+        parent_subject_label = ""
+        parent_first_person = False
+        parent_ambiguous_first_person = False
+        parent_quoted = False
+        if formation_segment is not None:
+            context_speaker = explicit_speaker or formation_segment.speaker
+            body_start = formation_segment.body_start
+            if source_prefix_end is not None and start <= source_prefix_end < end:
+                body_start = source_prefix_end
+            subject_text = raw_text[body_start:end].lstrip()
+            quoted = formation_segment.quoted or _starts_with_quote(subject_text)
+            parent_key = (
+                formation_segment.parent_start,
+                formation_segment.parent_end,
+                formation_segment.parent_body_start,
+            )
+            cached_parent = parent_context_cache.get(parent_key)
+            if cached_parent is None:
+                parent_text = raw_text[
+                    formation_segment.parent_body_start : formation_segment.parent_end
+                ].lstrip()
+                parent_surface = _strip_quote_prefix(parent_text)
+                parent_subject_label = _leading_subject(parent_surface)
+                if not parent_subject_label:
+                    parent_subject_label = parent_surface.rstrip(".!?。！？").strip()
+                parent_first_person = (
+                    _GROUNDED_FIRST_PERSON_START.match(parent_surface) is not None
+                )
+                parent_ambiguous_first_person = (
+                    is_singular_first_person(parent_subject_label)
+                    and parent_subject_label.casefold() != "i"
+                )
+                parent_quoted = (
+                    formation_segment.parent_quoted
+                    or _starts_with_quote(parent_text)
+                )
+                cached_parent = (
+                    parent_subject_label,
+                    parent_first_person,
+                    parent_ambiguous_first_person,
+                    parent_quoted,
+                )
+                parent_context_cache[parent_key] = cached_parent
+            else:
+                (
+                    parent_subject_label,
+                    parent_first_person,
+                    parent_ambiguous_first_person,
+                    parent_quoted,
+                ) = cached_parent
+        subject_surface = _strip_quote_prefix(subject_text)
+        if formation_segment is not None and not any(
+            char.isalnum() for char in subject_surface
+        ):
+            continue
+        subject_label = _leading_subject(subject_surface)
+        if formation_segment is not None and not subject_label:
+            subject_label = subject_surface.rstrip(".!?。！？").strip()
         if not subject_label:
             continue
         span_id = f"span:{source_hash}:{span_index}"
         span_index += 1
-        records.append(
-            MIRLRecord(id=span_id, kind=RecordKind.SPAN, ns=ns, scope=scope, status=Status.OBSERVED,
-                       attrs={"raw_id": raw_id, "start": start, "end": end})
+        span_record = MIRLRecord(
+            id=span_id,
+            kind=RecordKind.SPAN,
+            ns=ns,
+            scope=scope,
+            status=Status.OBSERVED,
+            attrs={"raw_id": raw_id, "start": start, "end": end},
         )
+        records.append(span_record)
         # Bind each admitted entity mention to the exact proposition SPAN that
         # contains it. Repeated mentions accumulate evidence on the canonical
         # turn-local ENT instead of losing their later source locations.
         for run in _proper_noun_runs(proposition):
+            if (
+                formation_segment is not None
+                and is_singular_first_person(run)
+            ):
+                continue
             entity_id(run, "entity", evidence_id=span_id)
         # Grounded subject: the turn speaker if present, else the proposition's
         # leading noun phrase (both are drawn from the input text).
-        subject = speaker_subject or entity_id(
-            subject_label,
-            "entity",
-            evidence_id=span_id,
+        first_person = _GROUNDED_FIRST_PERSON_START.match(subject_surface) is not None
+        ambiguous_first_person = (
+            is_singular_first_person(subject_label)
+            and subject_label.casefold() != "i"
         )
+        if formation_segment is not None and formation_segment.continuation:
+            subject_label = parent_subject_label
+            first_person = parent_first_person
+            ambiguous_first_person = parent_ambiguous_first_person
+            quoted = parent_quoted
+        speaker_eligible = bool(context_speaker and first_person)
+        if formation_segment is not None and speaker_eligible and not quoted:
+            assert context_speaker is not None
+            subject_label = context_speaker
+            attribution = "speaker"
+            subject = entity_id(
+                subject_label,
+                "person",
+                promote_type=True,
+                evidence_id=span_id,
+            )
+        elif formation_segment is not None and (
+            first_person or ambiguous_first_person
+        ):
+            attribution = "unresolved"
+            subject = entity_id(
+                subject_label,
+                "entity",
+                evidence_id=span_id,
+                identity_key=(
+                    f"{CONTEXT_SEGMENTS_V1}:unresolved:{source_hash}:{span_index - 1}"
+                ),
+            )
+        else:
+            attribution = "text"
+            subject = speaker_subject or entity_id(
+                subject_label,
+                "entity",
+                evidence_id=span_id,
+            )
         # Floor: the verbatim content claim carries the full proposition (this is
         # what satisfies the contract's coverage check + temporal retention).
-        add_claim("content", proposition, subject, span_id)
+        formation_context = None
+        if formation_segment is not None:
+            formation_context = {
+                "schema": "seam-formation-context/1",
+                "policy": CONTEXT_SEGMENTS_V1,
+                "segment_start": start,
+                "segment_end": end,
+                "context_start": (
+                    0
+                    if explicit_speaker is not None
+                    else formation_segment.context_start
+                ),
+                "context_end": formation_segment.context_end,
+                "boundary": formation_segment.boundary,
+                "attribution": attribution,
+                "speaker_eligible": speaker_eligible,
+                "speaker_grounded": attribution == "speaker",
+                "timestamp_grounded": source_timestamp_known,
+                "quoted": quoted,
+                "continuation": formation_segment.continuation,
+            }
+            span_record.ext["formation_context"] = dict(formation_context)
+        add_claim(
+            "content",
+            proposition,
+            subject,
+            span_id,
+            ext_fields=(
+                {"formation_context": dict(formation_context)}
+                if formation_context is not None
+                else None
+            ),
+        )
+        if formation_segment is not None and formation_context is not None:
+            admitted_segments.append(formation_segment)
+            admitted_contexts.append(formation_context)
         # Opt-in rich extractor: REAL (subject, relation, object) triples + entities
         # (already grounded against this proposition), replacing the regex
         # enrichment. Falls back to the regex enrichment when it returns nothing.
@@ -636,6 +865,73 @@ def compile_nl(
             # Legacy regex enrichment (default OFF; see SEAM_NL_REGEX_ENRICH above).
             _extract_conversational(proposition, subject, span_id, add_claim, speaker_match)
 
+    if candidate_segments is not None:
+        segment_count = len(admitted_segments)
+        attribution_eligible = sum(
+            bool(context["speaker_eligible"]) for context in admitted_contexts
+        )
+        attribution_grounded = sum(
+            bool(context["speaker_grounded"]) for context in admitted_contexts
+        )
+        timestamp_eligible = segment_count if source_timestamp_known else 0
+        timestamp_grounded = sum(
+            bool(context["timestamp_grounded"]) for context in admitted_contexts
+        )
+        exact_count = sum(
+            raw_text[segment.start:segment.end] == segment.text
+            for segment in admitted_segments
+        )
+        sizes = [segment.end - segment.start for segment in admitted_segments]
+        records[0].ext["formation"] = {
+            "schema": "seam-formation-diagnostics/1",
+            "version": "formation/1",
+            "segmentation_policy": CONTEXT_SEGMENTS_V1,
+            "source_characters": len(raw_text),
+            "segment_count": segment_count,
+            "segment_size": {
+                "configured_max_characters": max_segment_chars,
+                "characters": {
+                    "total": sum(sizes),
+                    "minimum": min(sizes) if sizes else None,
+                    "maximum": max(sizes) if sizes else None,
+                },
+                "tokens": {"available": False, "reason": "not measured"},
+            },
+            "boundary_signals": dict(
+                sorted(Counter(segment.boundary for segment in admitted_segments).items())
+            ),
+            "source_anchor_coverage": {
+                "exact": exact_count,
+                "emitted": segment_count,
+                "fraction": exact_count / segment_count if segment_count else None,
+            },
+            "attribution_preserved": {
+                "preserved": attribution_grounded,
+                "eligible": attribution_eligible,
+                "fraction": (
+                    attribution_grounded / attribution_eligible
+                    if attribution_eligible
+                    else None
+                ),
+            },
+            "timestamp_preserved": {
+                "preserved": timestamp_grounded,
+                "eligible": timestamp_eligible,
+                "fraction": (
+                    timestamp_grounded / timestamp_eligible
+                    if timestamp_eligible
+                    else None
+                ),
+            },
+            "timestamp_synthesized": 0,
+            "entity_view_version": {"available": False, "reason": "deferred to M4"},
+            "contradictions_retained": {
+                "available": False,
+                "reason": "deferred to M4",
+            },
+            "reingest_required": True,
+            "compilation_outcome": "compiled" if segment_count else "empty",
+        }
     return IRBatch(records)
 
 
@@ -846,6 +1142,17 @@ def _sentence_fact_record_id(
     )
     digest = hashlib.sha256(seed.encode()).hexdigest()[:12]
     return f"clm:{source_hash}:sentence-derived:{digest}"
+
+
+def _starts_with_quote(text: str) -> bool:
+    return text.lstrip().startswith(('"', "'", "“", "‘"))
+
+
+def _strip_quote_prefix(text: str) -> str:
+    candidate = text.lstrip()
+    while candidate.startswith(('"', "'", "“", "‘")):
+        candidate = candidate[1:].lstrip()
+    return candidate
 
 
 def _leading_subject(proposition: str) -> str:

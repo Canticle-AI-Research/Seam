@@ -5,6 +5,42 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-09-19 — M1 design evidence accepted; M2 first slice frozen.** The
+independently reviewed formation diagnostics support an opt-in segmentation
+candidate, `context-segments/1`, through the existing compiler/ingestion
+interfaces. The [M2 decision](docs/roadmap/MEMORY_FORMATION.md#m2-first-slice-decision-context-segments1)
+freezes exact source anchors, Unicode coverage, bounded segments, conservative
+speaker attribution and explicit generation supersession. M3 is implemented
+as a locally verified candidate; M4 and answer-quality evaluation remain open.
+See HISTORY#655 and the [current handoff](docs/handoffs/INDEX.md). Baseline remains
+the default. The paid E1 judging protocol needs reconciliation before a funded
+campaign; notify the operator and agree model roles and caps first.
+
+**2026-09-19 — M1 evidence verification repair on draft PR #269.** Independent
+review supports the retained synthetic diagnostic findings, but found that the
+new tests did not verify several central claims and mislabeled an unbounded
+span as bounded. The focused repair checks those observations and makes the
+probe report orphaned evidence as inexact. This is audit-instrument work;
+formation behavior and benchmark quality remain unchanged. See HISTORY#654
+and the [current handoff](docs/handoffs/INDEX.md). The local CI runner has been
+restored and is executing queued jobs; exact-head required checks still govern
+merge readiness. Historical test-first evidence is not established retroactively.
+
+**2026-09-18 — roadmap registry fork; formation ready set unchanged.** Three
+pull requests opened after the previous handoff were unregistered, and two of
+them (`#267` `roadmap:track:LatentCacheBridge`, `#268` `roadmap:track:PCS`)
+add overlapping research tracks that insert into the identical `ROADMAP.md`
+position and cannot both merge as authored. They must be reconciled to one
+registered track before either merges; neither may displace the formation
+priorities under request R14. Roadmap marker-to-stream drift is currently
+enforced by no gate. The M1 acceptance condition recorded at that checkpoint
+is resolved for design by the current headline; cumulative PR qualification
+remains separate. B1 and E1 feed M2. Five BIL-2 integrity gaps are
+recorded as B1 input, for repair under B2. See HISTORY#647, the
+[reconciliation audit](docs/audits/2026-09-18-roadmap-fork-reconciliation.md)
+and the [current handoff](docs/handoffs/INDEX.md). No runtime code, roadmap
+registration, benchmark or deployment changed in this slice.
+
 **2026-09-14 — Claude.ai benchmark transport candidate.** The operator's
 roughly $50 is on Claude.ai, not the API Console. The explicit
 [`claude-code` answerer/judge](docs/CLAUDE_CODE_BENCHMARKS.md) uses the
