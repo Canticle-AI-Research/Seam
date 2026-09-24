@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 646
-total_tokens: ~328767
-latest_id: 646
+total_entries: 648
+total_tokens: ~331133
+latest_id: 648
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 648 | 2026-09-24 | changed | 01521aff370b00b4 | hygiene,worktree,artifacts,gitignore,+ | 647 |
+| 647 | 2026-09-24 | changed | 8ee543e6097fa981 | ci,tests,verify,docs | 646 |
 | 646 | 2026-09-14 | changed | beb120512ffa2168 | benchmark,models,tests,verify,+ | 645 |
 | 645 | 2026-09-12 | changed | 6eec8c818b90ca63 | roadmap,plan,memory,compile,+ | 642 |
 | 644 | 2026-09-11 | done | aad22f58881cd364 | config,security,git-hooks,tests,+ | 643 |
@@ -675,7 +677,7 @@ compact: true
 - answerer: count=8 latest=#381, #368, #367, #365, #333
 - api: count=6 latest=#611, #610, #609, #608, #541
 - archive: count=1 latest=#326
-- artifacts: count=1 latest=#406
+- artifacts: count=2 latest=#648, #406
 - atomicity: count=15 latest=#623, #622, #621, #620, #619
 - audit: count=129 latest=#641, #632, #597, #596, #595
 - baseline: count=1 latest=#303
@@ -700,7 +702,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=71 latest=#633, #632, #631, #630, #614
+- ci: count=72 latest=#647, #633, #632, #631, #630
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -753,12 +755,12 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=98 latest=#646, #643, #642, #641, #636
+- docs: count=99 latest=#647, #646, #643, #642, #641
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
 - embeddings: count=1 latest=#486
-- enforcement: count=2 latest=#534, #294
+- enforcement: count=3 latest=#648, #534, #294
 - engineering: count=1 latest=#331
 - enrichment: count=1 latest=#317
 - entitlement: count=1 latest=#482
@@ -785,7 +787,7 @@ compact: true
 - ghost: count=2 latest=#609, #608
 - git: count=3 latest=#561, #360, #324
 - git-hooks: count=17 latest=#644, #643, #619, #618, #617
-- gitignore: count=1 latest=#406
+- gitignore: count=2 latest=#648, #406
 - gold-noise: count=1 latest=#369
 - gold-standard: count=1 latest=#038
 - governing-contract: count=1 latest=#304
@@ -804,7 +806,7 @@ compact: true
 - hooks: count=1 latest=#561
 - http: count=2 latest=#609, #608
 - huggingface: count=5 latest=#519, #518, #517, #516, #507
-- hygiene: count=3 latest=#534, #406, #324
+- hygiene: count=4 latest=#648, #534, #406, #324
 - identity: count=6 latest=#623, #459, #458, #457, #456
 - improve: count=1 latest=#302
 - inference: count=1 latest=#413
@@ -976,7 +978,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=132 latest=#642, #638, #637, #632, #631
 - test-artifacts: count=1 latest=#506
-- tests: count=81 latest=#646, #644, #643, #640, #632
+- tests: count=82 latest=#647, #646, #644, #643, #640
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -992,7 +994,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=451 latest=#646, #644, #643, #642, #641
+- verify: count=453 latest=#648, #647, #646, #644, #643
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1001,7 +1003,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=10 latest=#604, #573, #572, #571, #569
+- worktree: count=11 latest=#648, #604, #573, #572, #571
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -1009,7 +1011,7 @@ compact: true
 ## status rollup
 
 - roots: 86
-- changed: 69
+- changed: 71
 - done: 535
 - in-progress: 20
 - planned: 22

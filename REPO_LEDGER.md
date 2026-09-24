@@ -607,6 +607,27 @@ bounded task-specific reading; do not maintain a competing sequence here.
   --check`, and a non-printing secret/session URL scan. Paid answerer, judge,
   decomposer, or full LoCoMo runs remain operator-gated and must not be added
   to default PR CI.
+- `[tool.seam.workspace-contract]` in `pyproject.toml` is the checked authority
+  for what may exist untracked in a working tree, enforced by
+  `tools.git.verify_workspace` in the pre-commit chain and in closeout.
+  Gitignored paths are invisible to `git status`, so they accumulate and every
+  other gate reports green: reproduced with 16 stray files, a 4.4MB binary and
+  a dirty worktree present while all eleven repo-hygiene checks passed. Four
+  dispositions exist and a path must have one -- permitted, disposable sink
+  (size- and per-file-budgeted), forbidden scratch, or credential material that
+  must never exist. Adding a `.gitignore` line without a disposition fails the
+  gate. `--fix` prunes artifacts but never a worktree (may hold the only copy
+  of unpushed work) and never credential material (deleting it would hide that
+  it needs rotating). Ten prior incidents (HISTORY#406, #534, #555, #567-569,
+  #604) were each answered with a `.gitignore` line; HISTORY#534 diagnosed why
+  that fails -- the rule was prose "nobody was gated on".
+- Local gate parity is asserted as an invariant, never as a syntactic shape. A
+  gate may be enforced by `run_gate` (collects failures so one commit reports
+  all of them) or by a bare `... || exit 1` scope block ahead of the
+  merge/rebase early-exit (aborts immediately and still applies during merges,
+  as `verify_agent_config` does). Parity tests must assert coverage, argument
+  equivalence, relative order and abort-strength, so that strengthening a gate
+  cannot read as removing one. See HISTORY#647.
 - `tools.security.secret_scan` is the canonical repository credential and
   private-session scanner. CI scans the working tree; the private-origin
   pre-push hook scans every blob introduced by each pushed range, including

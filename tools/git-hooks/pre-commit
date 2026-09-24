@@ -57,6 +57,11 @@ run_gate() {
   rm -f "$log"
 }
 
+# Gitignored clutter is invisible to git status, so every other gate here
+# reports green while the tree fills with stray artifacts and abandoned
+# worktrees. Ten prior incidents were answered with a .gitignore line, which
+# hides the next one instead of preventing it. See HISTORY#534.
+run_gate "verify_workspace"  "$PY" -m tools.git.verify_workspace
 run_gate "verify_integrity"  "$PY" -m tools.history.verify_integrity
 run_gate "verify_routing"    "$PY" -m tools.history.verify_routing
 run_gate "verify_handoffs"   "$PY" -m tools.history.verify_handoffs

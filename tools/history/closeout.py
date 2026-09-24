@@ -44,6 +44,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 # staged. Kept in one place so this wrapper cannot omit a canonical gate.
 PREFLIGHT_GATES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("verify_agent_config", ("tools.git.verify_agent_config",)),
+    ("verify_workspace", ("tools.git.verify_workspace",)),
     ("verify_integrity", ("tools.history.verify_integrity",)),
     ("verify_routing", ("tools.history.verify_routing",)),
     ("verify_handoffs", ("tools.history.verify_handoffs",)),

@@ -24,26 +24,94 @@ def _base_args(body_file: Path) -> list[str]:
     ]
 
 
-def test_preflight_gates_match_canonical_commit_hook() -> None:
+# A gate may be invoked two ways in the hook, and the second is the stricter
+# one: `run_gate` records a failure and lets the remaining gates run so one
+# commit reports every problem, while a bare `... || exit 1` scope block aborts
+# immediately. `verify_agent_config` deliberately uses the bare form and sits
+# ahead of the merge/rebase early-exit, so it applies during merges when the
+# run_gate chain is skipped (b623032). An earlier version of this test matched
+# only `run_gate` lines in positional order, so that hardening read as a missing
+# gate. Assert the invariant instead: every canonical gate is enforced, none in
+# a form weaker than run_gate, and the shared chain keeps canonical order.
+RUN_GATE_RE = re.compile(r'^run_gate "([^"]+)"\s+"\$PY" -m (\S+)(.*)$')
+# Presence and strictness are matched independently: requiring `|| exit 1` to
+# match at all would make the abort assertion below vacuously true, since every
+# captured gate would already be an aborting one.
+BARE_GATE_RE = re.compile(r'^"\$PY" -m (tools\.\S+?)((?: [^|]*?)?)\s*(\|\|\s*exit 1)?\s*$')
+
+# Hook-only scoping arguments that narrow a gate to the staged tree. They make
+# a gate cheaper, never weaker, so they are not drift.
+STAGED_SCOPED = {"verify_wiki", "verify_agent_config"}
+
+
+def _hook_gates() -> tuple[dict[str, tuple[str, ...]], list[str], set[str]]:
+    """Return {module: args}, the run_gate module order, and aborting modules."""
+
     hook = (closeout.REPO_ROOT / "tools/git-hooks/pre-commit").read_text(
         encoding="utf-8"
     )
-    observed: list[tuple[str, tuple[str, ...]]] = []
+    gates: dict[str, tuple[str, ...]] = {}
+    chain_order: list[str] = []
+    aborting: set[str] = set()
     for line in hook.splitlines():
-        match = re.match(r'^run_gate "([^"]+)"\s+"\$PY" -m (\S+)(.*)$', line)
-        if match:
-            observed.append(
-                (
-                    match.group(1),
-                    (match.group(2), *match.group(3).strip().split()),
-                )
-            )
+        run_gate = RUN_GATE_RE.match(line)
+        if run_gate:
+            module = run_gate.group(2)
+            gates[module] = (module, *run_gate.group(3).strip().split())
+            chain_order.append(module)
+            continue
+        bare = BARE_GATE_RE.match(line)
+        if bare:
+            module = bare.group(1)
+            gates[module] = (module, *bare.group(2).strip().split())
+            if bare.group(3):
+                aborting.add(module)
+    return gates, chain_order, aborting
 
-    expected = tuple(
-        (label, (*args, "--staged") if label == "verify_wiki" else args)
-        for label, args in closeout.PREFLIGHT_GATES
+
+def test_commit_hook_enforces_every_canonical_preflight_gate() -> None:
+    """The hook must not omit a gate the closeout orchestrator claims to run."""
+
+    gates, _chain_order, _aborting = _hook_gates()
+    canonical = {args[0] for _label, args in closeout.PREFLIGHT_GATES}
+    missing = canonical - set(gates)
+    assert not missing, f"pre-commit hook omits canonical gates: {sorted(missing)}"
+
+
+def test_commit_hook_gate_arguments_match_canonical_invocations() -> None:
+    """A gate must not be narrowed in the hook beyond documented staged scoping."""
+
+    gates, _chain_order, _aborting = _hook_gates()
+    for label, args in closeout.PREFLIGHT_GATES:
+        module = args[0]
+        observed = gates[module]
+        allowed = {args}
+        if label in STAGED_SCOPED:
+            allowed.add((*args, "--staged"))
+        assert observed in allowed, (
+            f"{label} runs as {observed} in the hook; canonical is {args}"
+        )
+
+
+def test_commit_hook_chain_preserves_canonical_gate_order() -> None:
+    """Gates sharing the run_gate chain must keep their canonical order."""
+
+    _gates, chain_order, _aborting = _hook_gates()
+    canonical = [args[0] for _label, args in closeout.PREFLIGHT_GATES]
+    expected = [module for module in canonical if module in set(chain_order)]
+    assert chain_order == expected
+
+
+def test_gates_outside_the_run_gate_chain_abort_the_commit() -> None:
+    """A gate lifted out of the chain must abort, not merely be skipped."""
+
+    gates, chain_order, aborting = _hook_gates()
+    canonical = {args[0] for _label, args in closeout.PREFLIGHT_GATES}
+    lifted = (canonical & set(gates)) - set(chain_order)
+    assert lifted <= aborting, (
+        f"canonical gates run outside the chain without `|| exit 1`: "
+        f"{sorted(lifted - aborting)}"
     )
-    assert tuple(observed) == expected
 
 
 @pytest.mark.parametrize("value", ["0", "-1"])
