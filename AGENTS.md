@@ -64,7 +64,7 @@ If state changed:
 1. Append one entry to `HISTORY.md`.
 2. Rebuild `HISTORY_INDEX.md`.
 3. Write one snapshot JSON.
-4. Run `python -m tools.history.verify_integrity`, `python -m tools.history.verify_routing`, `python -m tools.history.verify_handoffs`, `python -m tools.history.verify_continuity`, `python -m tools.streams.verify_streams`, and `python -m tools.docs.verify_wiki`.
+4. Run `python -m tools.git.verify_workspace`, `python -m tools.history.verify_integrity`, `python -m tools.history.verify_routing`, `python -m tools.history.verify_handoffs`, `python -m tools.history.verify_continuity`, `python -m tools.streams.verify_streams`, and `python -m tools.docs.verify_wiki`.
 5. If `ROADMAP.md` changed: rerun `python -m tools.streams.roadmap_parser` to refresh the roadmap stream + state view; if any stream changed: rerun `python -m tools.streams.rebuild_cross_index` to refresh the derived global timeline.
 
 Run the gates above as written, with no suppression flags, and never let a local
@@ -75,6 +75,15 @@ with an unscoped test-count claim while `closeout` printed all gates green.
 `tests/audit/test_local_gates_match_ci.py` now fails if either local gate drifts
 weaker again. Convenience wrappers are allowed to be *slower* than the required
 check, never quieter.
+
+Workspace hygiene is now gated, not advisory: `python -m tools.git.verify_workspace`
+runs in the pre-commit chain and in closeout, and fails on gitignored clutter that
+`git status` cannot see -- undeclared artifact directories, oversized files in a
+disposable sink, stray scratch files at the repo root, credential material, and
+dirty or excess worktrees. `--fix` clears what is safely removable and never touches
+a worktree or a key. Silencing a new path in `.gitignore` now requires declaring it
+in `[tool.seam.workspace-contract]`; ten prior incidents were each "fixed" with a
+`.gitignore` line, which hid the next one instead of preventing it (HISTORY#534).
 
 If you created a git worktree during the session: finish it. Either commit, push, and `git worktree remove` it, or remove the worktree even if abandoning the work. Never leave a dirty worktree on a stale base for the next agent to find — that pattern caused real regressions before (see HISTORY#223 worktree triage).
 

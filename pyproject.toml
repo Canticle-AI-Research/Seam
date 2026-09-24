@@ -72,6 +72,53 @@ convenience-members = ["dash", "pgvector", "sbert", "server", "agent", "rerank",
 excluded-convenience-packages = ["chromadb"]
 retired-extras = ["selfhost"]
 
+[tool.seam.workspace-contract]
+schema = "seam-workspace-contract/1"
+# Gitignored entries are invisible to `git status`, so they accumulate forever
+# and no gate sees them. Ten worktree/artifact hygiene incidents (HISTORY#406,
+# #534, #555, #567-569, #604) were each "fixed" by adding a .gitignore line,
+# which hides the next occurrence instead of preventing it. This contract is
+# the checked authority for what may exist untracked in a working tree;
+# `tools.git.verify_workspace` fails on anything undeclared.
+#
+# Adding a path here is a deliberate, reviewable act. Adding a .gitignore line
+# without adding it here now fails the gate.
+# Entries may be exact names or globs. Globs exist because several legitimate
+# artifacts carry generated names (`seam_suite.egg-info/`, per-store lock files).
+allowed-ignored-roots = [
+    ".claude", ".context-handoffs", ".cursor", ".dataset_store", ".gemini",
+    ".lingma", ".opencode", ".pytest_cache", ".seam_chroma", ".ssh", ".ua",
+    ".venv", ".vscode", "__pycache__", "archive", "build", "conversations",
+    "credentials", "dist", "exports", "secrets", "selfhost",
+    "*.egg-info", ".seam-store-*.lock", ".seam-runtime-*.lock", "*.seam-backups",
+    "seam.db", "seam.db-wal", "seam.db-shm", "seam.db-journal",
+]
+# Disposable sinks: contents are regenerable and may be pruned at any time.
+# Each is size-budgeted so a stray binary or an unbounded dump fails loudly
+# instead of sitting there for months.
+sink-roots = [".playwright-mcp", ".wrangler", "diag_out", "test_seam", "visuals", "Webui-final-dash"]
+max-sink-mb = 25
+# A single large file inside a sink is the specific shape of the original
+# incident: HISTORY#406 found a 4.5MB compiled binary sitting in visuals/.
+# A total-size budget alone does not catch it.
+max-sink-file-mb = 2
+# Stray scratch files at the repository root. AGENTS.md already forbids these
+# in prose; this makes it enforceable.
+forbidden-root-globs = ["test_*", "Test*", "*_scratch.db", "*.png", "page-snapshot.md"]
+# A worktree per concurrent task is reasonable; a drawer full of them is the
+# failure mode HISTORY#223 and #534 describe.
+max-worktrees = 3
+# Never permitted in the tree at all. These are gitignored, so git stays quiet
+# about them, but "declare it in the contract" is the wrong remedy for a
+# private key. CLAUDE.md requires immediate deletion or redaction, so the gate
+# says that instead. tools.security.secret_scan inspects content; this catches
+# the file existing at all.
+forbidden-if-present = [
+    "credentials.json", "service_account.json", ".env",
+    "id_rsa", "id_rsa.*", "id_ed25519", "id_ed25519.*", "id_ecdsa", "id_ecdsa.*",
+    "*.pem", "*.key", "*.p12", "*.pfx",
+]
+
 [project.scripts]
 seam = "seam:main"
 seam-benchmark = "seam:benchmark_main"
