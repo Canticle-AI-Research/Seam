@@ -607,6 +607,13 @@ bounded task-specific reading; do not maintain a competing sequence here.
   --check`, and a non-printing secret/session URL scan. Paid answerer, judge,
   decomposer, or full LoCoMo runs remain operator-gated and must not be added
   to default PR CI.
+- Local gate parity is asserted as an invariant, never as a syntactic shape. A
+  gate may be enforced by `run_gate` (collects failures so one commit reports
+  all of them) or by a bare `... || exit 1` scope block ahead of the
+  merge/rebase early-exit (aborts immediately and still applies during merges,
+  as `verify_agent_config` does). Parity tests must assert coverage, argument
+  equivalence, relative order and abort-strength, so that strengthening a gate
+  cannot read as removing one. See HISTORY#647.
 - `tools.security.secret_scan` is the canonical repository credential and
   private-session scanner. CI scans the working tree; the private-origin
   pre-push hook scans every blob introduced by each pushed range, including
