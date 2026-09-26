@@ -3696,6 +3696,7 @@ name = "seam-suite"
 version = "2.4.1rc1"
 source = { editable = "." }
 dependencies = [
+    { name = "pyyaml" },
     { name = "rich" },
     { name = "tiktoken" },
 ]
@@ -3735,7 +3736,6 @@ dash = [
 lint = [
     { name = "markdown-it-py" },
     { name = "packaging" },
-    { name = "pyyaml" },
     { name = "ruff" },
 ]
 pgvector = [
@@ -3773,7 +3773,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], marker = "extra == 'pgvector'", specifier = ">=3.0,<4.0" },
     { name = "python-multipart", marker = "extra == 'all-extras'", specifier = ">=0.0.6,<1.0" },
     { name = "python-multipart", marker = "extra == 'server'", specifier = ">=0.0.6,<1.0" },
-    { name = "pyyaml", marker = "extra == 'lint'", specifier = ">=6.0,<7.0" },
+    { name = "pyyaml", specifier = ">=6.0,<7.0" },
     { name = "rich", specifier = ">=14.2,<16" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.6,<1.0" },
     { name = "sentence-transformers", marker = "extra == 'all-extras'", specifier = ">=2.0,<3.0" },

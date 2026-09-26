@@ -30,6 +30,15 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **Skill Knowledge Runtime boundary.** Track L's searchable SkillDB core lives
+  under `seam_runtime/skills/kb/` and stays usable without SEAM memory,
+  storage, server, graph-product, or continuity imports. Complete skill text is
+  retained in a provenance-bound registry; compact metadata is the discovery
+  surface; dependency/conflict/host validation produces an exact-budget
+  SkillFrame; and only a cooperating host adapter may place that frame into
+  model context. Persisting a window or returning CLI/MCP output is not
+  privileged-context injection. Model-specific inventory/config/bootstrap
+  integration belongs in adapters above this core.
 - **The SEAM spec is the governing contract.** `SEAM_SPEC_V0.1.md` (the four-layer
   RAW/IR/PACK/LENS model, the north star "maximum durable intelligence per token",
   the loss model RAW=phrasing/IR=meaning/PACK=utility, the NL<->IR<->PACK<->NL

@@ -164,8 +164,9 @@ def test_package_release_stays_private_and_verifiable() -> None:
 
 def test_repository_tests_declare_yaml_directly() -> None:
     project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    core = project["project"]["dependencies"]
     lint = project["project"]["optional-dependencies"]["lint"]
-    assert any(requirement.casefold().startswith("pyyaml") for requirement in lint)
+    assert any(requirement.casefold().startswith("pyyaml") for requirement in core)
     assert any(requirement.casefold().startswith("packaging") for requirement in lint)
     assert "PyYAML" in CI_WORKFLOW.read_text(encoding="utf-8")
 

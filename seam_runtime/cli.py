@@ -727,6 +727,9 @@ def build_parser() -> argparse.ArgumentParser:
     bench_publish_parser.add_argument("--git-sha", default="", help="Git SHA (else auto-detected from the repo)")
     bench_publish_parser.add_argument("--format", choices=["pretty", "json"], default="pretty")
 
+    from .skills.cli import add_skills_parser
+    add_skills_parser(subparsers)
+
     subparsers.add_parser("stats", help="Run retrieval benchmark summary")
     return parser
 
@@ -734,6 +737,10 @@ def build_parser() -> argparse.ArgumentParser:
 def run_cli(argv: list[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.command == "skills":
+        from .skills.cli import run_skills_command
+        run_skills_command(args)
+        return
     if args.command == "improve" and args.improve_command == "experiments":
         if args.verify and not args.experiment_id:
             parser.error("--verify requires --id")

@@ -70,7 +70,7 @@ def test_chromadb_only_in_the_explicit_chroma_extra():
 
 def test_doctor_follows_core_dependency_contract_when_chromadb_is_absent(monkeypatch):
     canonical_required = _canonical_doctor_dependencies()
-    assert canonical_required == ["rich", "tiktoken"]
+    assert canonical_required == ["pyyaml", "rich", "tiktoken"]
 
     class _Runtime:
         def __init__(self, _db_path: str):
@@ -100,6 +100,55 @@ def test_doctor_follows_core_dependency_contract_when_chromadb_is_absent(monkeyp
     assert report["status"] == "PASS"
 
 
+def test_doctor_maps_distribution_names_and_derives_required_probes(monkeypatch):
+    probed: list[str] = []
+
+    def available(name: str):
+        probed.append(name)
+        return object()
+
+    monkeypatch.setattr(doctor, "find_spec", available)
+    assert doctor._dependency_available("pyyaml") is True
+    assert probed == ["yaml"]
+    assert doctor._dependency_available("rich") is True
+    assert probed[-1] == "rich"
+
+    class _Runtime:
+        def __init__(self, _db_path: str):
+            pass
+
+        def compile_nl(self, _text: str) -> SimpleNamespace:
+            return SimpleNamespace(records=[object()])
+
+    lossless_result = SimpleNamespace(
+        roundtrip_match=True,
+        artifact=SimpleNamespace(token_estimator="test", token_savings_ratio=0.5),
+    )
+    monkeypatch.setattr(
+        doctor,
+        "REQUIRED_DEPENDENCIES",
+        ("pyyaml", "rich", "tiktoken", "future_core"),
+    )
+    monkeypatch.setattr(doctor, "SeamRuntime", _Runtime)
+    monkeypatch.setattr(doctor, "benchmark_text_lossless", lambda *_args, **_kwargs: lossless_result)
+    monkeypatch.setattr(doctor, "check_pgvector", lambda _dsn: {"configured": False})
+    monkeypatch.setattr(doctor, "check_commit_gate", lambda: {"status": "PASS"})
+    monkeypatch.setattr(doctor, "check_streams", lambda: {"status": "PASS"})
+    monkeypatch.setattr(doctor, "check_stashes", lambda: {"status": "clean", "count": 0})
+
+    report = doctor.build_doctor_report()
+
+    assert report["required_dependencies"] == [
+        "pyyaml",
+        "rich",
+        "tiktoken",
+        "future_core",
+    ]
+    assert report["dependencies"]["future_core"] is True
+    assert report["missing_required_dependencies"] == []
+    assert "future_core" in probed
+
+
 def test_real_doctor_runtime_passes_with_chromadb_import_blocked():
     script = r'''
 import importlib.abc
@@ -118,7 +167,7 @@ from seam_runtime.doctor import build_doctor_report
 report = build_doctor_report()
 assert report["status"] == "PASS", report
 assert report["dependencies"]["chromadb"] is False, report
-assert report["required_dependencies"] == ["rich", "tiktoken"], report
+assert report["required_dependencies"] == ["pyyaml", "rich", "tiktoken"], report
 assert report["missing_required_dependencies"] == [], report
 '''
     env = os.environ.copy()

@@ -16,12 +16,18 @@ from .runtime import SeamRuntime
 # must never make a policy-compliant core install fail doctor. The audit suite
 # independently resolves the canonical dependency-contract runtime source and
 # rejects drift between that source and this packaged-runtime list.
-REQUIRED_DEPENDENCIES: tuple[str, ...] = ("rich", "tiktoken")
+REQUIRED_DEPENDENCIES: tuple[str, ...] = ("pyyaml", "rich", "tiktoken")
+DEPENDENCY_IMPORT_NAMES: dict[str, str] = {"pyyaml": "yaml"}
+OPTIONAL_DEPENDENCIES: tuple[str, ...] = (
+    "chromadb",
+    "psycopg",
+    "sentence_transformers",
+)
 
 
 def _dependency_available(name: str) -> bool:
     try:
-        return find_spec(name) is not None
+        return find_spec(DEPENDENCY_IMPORT_NAMES.get(name, name)) is not None
     except (ImportError, AttributeError, ValueError):
         return False
 
@@ -145,14 +151,11 @@ def build_doctor_report() -> dict[str, object]:
         min_token_savings=0.30,
     )
     pgvector_dsn = os.environ.get("SEAM_PGVECTOR_DSN")
-    dependencies = {
-        "rich": _dependency_available("rich"),
-        "chromadb": _dependency_available("chromadb"),
-        "tiktoken": _dependency_available("tiktoken"),
-        "psycopg": _dependency_available("psycopg"),
-        "sentence_transformers": _dependency_available("sentence_transformers"),
-    }
     required_dependencies = list(REQUIRED_DEPENDENCIES)
+    dependencies = {
+        name: _dependency_available(name)
+        for name in (*REQUIRED_DEPENDENCIES, *OPTIONAL_DEPENDENCIES)
+    }
     missing_required = [name for name in required_dependencies if not dependencies.get(name)]
     deps_ok = not missing_required
     status = "PASS" if smoke_ok and lossless_result.roundtrip_match and deps_ok else "FAIL"
