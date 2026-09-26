@@ -21320,3 +21320,71 @@ prompt injection. The next separate slice is the Codex inventory/bootstrap
 adapter and reversible pilot profile; native catalog suppression must be
 qualified before changing the operator's default Codex configuration.
 ---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-26T08:32:04Z
+agent: codex
+status: done
+topics: skills, graph, search, agent, config, security, test, tests, verify, pyproject, docs, continuity
+commits: pending
+refs: seam_runtime/skills/adapters,tests/skills/test_codex_adapter.py,docs/skills/CODEX_ADAPTER.md,docs/CODE_LAYOUT.md,pyproject.toml
+supersedes: 647
+tokens: 752
+---
+Completed the Codex 0.157.x host adapter over the portable Skill Knowledge
+Runtime without changing the core boundary. The adapter uses the staged native
+app-server inventory, validates the enabled-only catalog fail closed, ingests
+only listed SKILL.md files, assigns membership-stable source identities,
+normalizes only uniquely resolved relations, and rejects ambiguous relations.
+Discovery searches the compact projection, closes dependencies and policy
+requirements, and publishes immutable private per-task windows containing the
+complete exact-budget SkillFrame and matching graph JSON/HTML. Inspection
+revalidates current source bytes, snapshot/plan/frame provenance, exact
+tokenizer accounting, artifact hashes, and reconstructed graph semantics.
+Adapter-owned directories/files remain mode 0700/0600 and atomic catalog
+publication performs no fallible operation after its commit point.
+
+Added the dedicated seam-skills-codex refresh/discover/inspect/bootstrap
+entrypoint and documented the adapter surface. Bootstrap prints, but never
+installs, a profile-v2 TOML layer with top-level developer instructions and
+skills.include_instructions=false. Skill text remains ordinary tool output:
+it cannot mutate privileged context, erase prior context, grant permissions,
+or execute itself. Independent assurance requested two repair passes covering
+inventory types, symlink ancestry, identity/dependency stability, exact-file
+ingestion, live drift, graph drift, token-accounting drift, atomic publication,
+and executable discovery, then approved the final working-tree candidate.
+
+Root verification used the managed SEAM environment. The adapter/core/factory
+slice passed 46 tests and collected the same 46 tests; Ruff, formatting, lock,
+and diff checks passed. The non-external tests/audit scope produced 3,036
+passes, 65 external deselections, and the single pre-existing
+test_preflight_gates_match_canonical_commit_hook failure; its hook, closeout,
+and test sources are unchanged from origin/main and HISTORY#645 already records
+that advisory mismatch. An explicit wheel and sdist build contained the
+adapter/entrypoint, and verify_private_artifacts accepted both archives. The
+ignored root-session record contains 29 witnessed red/green cycles; five early
+phase output fingerprints are explicitly marked unavailable after context
+compaction rather than reconstructed.
+
+Installed a reversible local pilot from the verified wheel in
+/home/terrabyte/.local/share/seam-skilldb-pilot/venv and created only the
+profile layer /home/terrabyte/.codex/skilldb.config.toml; the base Codex config,
+global AGENTS file, and installed native skills were not changed. Strict profile
+parsing succeeded. Filtered codex debug prompt-input evidence for the primary
+SEAM cwd measured 56,182 joined prompt characters with one native Available
+skills block at baseline versus 34,540 characters, no native block, and exactly
+one SkillDB bootstrap under the pilot. The repository-policy and security-rule
+markers remained present exactly once in both cases.
+
+The installed-wheel smoke, run outside the source checkout, observed 219 native
+skills, 216 enabled skills, zero inventory errors, and 216 indexed packages. A
+Cloudflare Workers task selected workers-best-practices,
+nextjs-on-cloudflare, and security-best-practices into a complete three-skill,
+3,568-token frame; hardened inspect accepted the unchanged window. Its
+standalone graph contains 432 nodes and 216 edges and rendered successfully in
+headless Chrome. Durable pilot state is under
+/home/terrabyte/.local/state/seam/skilldb/codex. This qualifies the reversible
+profile, not automatic privileged prompt injection or a default base-config
+change; ordinary sessions remain unchanged unless launched with -p skilldb.
+---END-ENTRY-#648---

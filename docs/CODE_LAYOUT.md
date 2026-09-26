@@ -47,6 +47,11 @@ not have to infer what works from directory names alone.
   graph projection. It deliberately does not import SEAM memory, storage,
   server, or repository-continuity modules. `seam-skills` is its dedicated
   installed CLI; model-specific host adapters remain a separate layer.
+- `seam_runtime/skills/adapters/codex.py` - thin Codex 0.157.x host adapter over
+  the portable core. It inventories enabled native skills, materializes
+  bounded complete frames and graph artifacts in private local state, and
+  prints a reversible profile-v2 bootstrap through `seam-skills-codex`; it does
+  not install, execute, delete, or grant authority to skill instructions.
 - `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and bounded retrieval-policy candidates wired through durable baseline/candidate experiments, the strict multi-family proposal ratchet, explicit operator approval, applied-flag reconciliation, and revert. See `docs/IMPROVEMENT_EXPERIMENTS.md`.
 - `tools/graph_retrieval_qualification.py` + `tools/graph_real_corpus_qualification.py` - synthetic scale/query-shape and pinned LoCoMo development/holdout qualification for G3 node-vector fusion and safe policy selection.
 - `benchmarks/graph_reasoning_qualification.py` - provider-free real-runtime G7/R6 native-versus-event-only ablation, concurrent recovery probe, exact graph attribution, and matched Mem0/Zep paid-boundary plans.
