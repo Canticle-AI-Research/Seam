@@ -76,6 +76,7 @@ retired-extras = ["selfhost"]
 [project.scripts]
 seam = "seam:main"
 seam-skills = "seam_runtime.skills.cli:main"
+seam-skills-codex = "seam_runtime.skills.adapters.codex:main"
 seam-benchmark = "seam:benchmark_main"
 seam-dash = "seam_runtime.dashboard:main"
 seam-tui = "seam_runtime.tui.app:main"
