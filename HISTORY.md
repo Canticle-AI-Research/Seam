@@ -21264,3 +21264,59 @@ Updated the detailed formation roadmap funding correction, current status, durab
 
 The main-based provider branch deliberately excludes PR264's site and M1 helper, which remain draft and NOT_QUALIFIED for missing historical TDD evidence. Its branch-local HISTORY through 653 requires chronological reconciliation before later integration. Preserve unrelated dirty primary and other worktrees; no stash was created. Required GitHub checks and protected merge must be observed before claiming delivery, and no website deployment is implied.
 ---END-ENTRY-#646---
+
+---BEGIN-ENTRY-#647---
+id: 647
+date: 2026-09-26T07:29:07Z
+agent: codex
+status: in-progress
+topics: skills, graph, search, agent, compiler, tests, verify, pyproject, docs, continuity
+commits: pending
+refs: seam_runtime/skills/kb,seam_runtime/skills/cli.py,seam_runtime/skills/__init__.py,seam_runtime/cli.py,seam_runtime/doctor.py,pyproject.toml,requirements.txt,uv.lock,tests/skills/test_skill_knowledge_runtime.py,test_seam_all/test_skill_factory.py,test_seam_all/test_seam.py,tests/audit/test_chroma_optional.py,tests/audit/test_github_issue_release_config.py,docs/roadmap/SKILLS_COMPILER.md,docs/CODE_LAYOUT.md,REPO_LEDGER.md
+supersedes: 646
+tokens: 585
+---
+Built the portable Track L Skill Knowledge Runtime core as a branch candidate.
+Typed YAML and Markdown roots compile complete instruction packages into an
+immutable provenance-bound registry plus a compact metadata-only search
+projection. Deterministic resolution closes declared dependencies, validates
+ordering/conflicts and host capabilities, and emits an exact-token-budgeted
+SkillFrame. Revisioned pinned/rotating windows use atomic compare-and-swap
+persistence. A typed graph projection and dependency-free HTML viewer expose
+skills, declared facets/relations, derived source hierarchy, and active-plan
+highlighting. The dedicated `seam-skills` entrypoint keeps this portable core
+independent of SEAM memory, storage, server, graph products and continuity
+modules; the existing `seam skills` surface remains additive.
+
+Safety and portability repairs fail closed on malformed policy metadata,
+tampered instruction/revision digests, stale snapshot/index associations,
+unsupported relations, missing requirements, conflicts, host permissions,
+token/skill budgets and stale graph plans. Canonical LF artifacts and CRLF
+Markdown parsing preserve Windows behavior without changing source bytes or
+hashes. Inferred display text has explicit derived-field provenance rather
+than appearing declared. PyYAML is now a bounded core dependency and doctor
+maps its distribution name to the `yaml` import while deriving required probes
+from the canonical dependency list.
+
+Verification on the managed environment: the focused skills/factory/doctor and
+dependency command passed 41 tests; focused collection found 32 tests; full
+Ruff, lock and diff checks passed. The non-external audit run completed 3,036
+passes, 65 intentional external deselections and one known baseline failure in
+`test_preflight_gates_match_canonical_commit_hook`; the failing hook/closeout
+sources are byte-identical to origin/main and HISTORY#645 already records that
+advisory drift. Explicit wheel and sdist builds included the new modules and
+entrypoint; an isolated wheel install completed index/find/plan/graph; private
+artifact and worktree secret/session scans passed. Twenty witnessed red/green
+cycles are retained in the ignored canonical session record. Independent
+assurance approved the repaired candidate.
+
+Live Codex 0.157.1 app-server inventory for the primary SEAM cwd reported 219
+discovered skills, 216 enabled and zero inventory errors. The final portable
+smoke indexed all 216 enabled paths without deleting or disabling any skill,
+ranked the Cloudflare/Workers query from the compact projection, formed a
+two-skill 1,815-token activation frame, and rendered a 432-node/216-edge graph
+in headless Chrome. This proves portable discovery/planning/visualization, not
+prompt injection. The next separate slice is the Codex inventory/bootstrap
+adapter and reversible pilot profile; native catalog suppression must be
+qualified before changing the operator's default Codex configuration.
+---END-ENTRY-#647---

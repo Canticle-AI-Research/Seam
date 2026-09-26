@@ -1,12 +1,50 @@
 # SEAM Skills Compiler — Phased Execution Plan
 
-**Status:** Planned execution plan. Concept harvested from `claude/seam-trust-security-manual-8mhEL`.
-**Track:** H — Agent Compiler.
+**Status:** Compiler plan plus Skill Knowledge Runtime MVP branch candidate.
+**Track:** L — Skills Compiler.
 **Extends:** `docs/roadmap/AGENT_COMPILER.md` Phase 4A (H1, H2, H5) and `docs/roadmap/SKILL_FACTORY.md`.
 
 This doc is the *how* for Track L. `AGENT_COMPILER.md` defines *what* the compiler must do (H1–H5). `SKILL_FACTORY.md` defines the adaptive observation/proposal/promotion loop on top of it. This doc lands the work in reviewable phases without duplicating either spec.
 
-The code that implements this plan is not yet on `main`. It lives on `claude/seam-trust-security-manual-8mhEL`. That branch will be reconciled in a follow-up PR (not Phase 1 of the roadmap consolidation).
+## Skill Knowledge Runtime MVP
+
+The branch-candidate `seam_runtime.skills.kb` package keeps complete skill instructions
+outside ordinary model context until deterministic discovery and policy
+validation select a bounded activation chain. Its portable core has no
+dependency on SEAM memory, storage, server, knowledge-graph, or repository
+continuity modules.
+
+The canonical flow is:
+
+1. `seam skills index --root LABEL=PATH --output skilldb.json` (or use
+   `--markdown-root LABEL=PATH` for external `SKILL.md` catalogs whose sibling
+   YAML files are configuration, not skill manifests; also available
+   through the non-conflicting `seam-skills` executable) ingests bounded
+   `skills/source/*.yaml` and external `SKILL.md` packages into an immutable,
+   deterministic SkillDB snapshot with SHA-256 source provenance. Indexing also
+   writes a compact `.index.json` metadata projection so discovery does not
+   deserialize or tokenize complete instructions.
+2. `seam skills find skilldb.json "query"` searches compact lexical and facet
+   projections without returning full instructions.
+3. `seam skills plan skilldb.json --skill LABEL:NAME --task "..."` closes
+   requirements, validates ordering/conflicts and host capabilities, then emits
+   a stable `ActivationPlan` plus a complete `SkillFrame` budgeted with an exact,
+   fingerprinted `tiktoken` encoding.
+4. `seam skills graph skilldb.json --output graph.html` writes either the JSON
+   graph payload or a self-contained HTML visualization. Supplying `--plan`
+   highlights the active chain.
+
+`--window PATH --expected-revision N` lets a cooperating host atomically persist
+an `ActiveSkillWindow` with pinned and rotating skills. This adapter only stores
+revisioned frame state. It does **not** mutate a model's system/developer context,
+and ordinary CLI or MCP output must not be described as privileged-context
+injection. A host must explicitly read the frame and place it at an authorized
+context boundary.
+
+The Skill Knowledge Runtime code is a branch candidate on
+`feat/skill-knowledge-runtime`; it is not shipped on `main` until its PR merges.
+Older compiler-plan material harvested from
+`claude/seam-trust-security-manual-8mhEL` remains historical design context.
 
 ## Hard rules
 

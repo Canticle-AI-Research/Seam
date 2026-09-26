@@ -41,6 +41,12 @@ not have to infer what works from directory names alone.
 - `seam_runtime/workspace.py` - append-only structured workspace run/event schema, allowlisted telemetry sanitization, SSE framing/replay, and deterministic graph-activation projection. It explicitly excludes credentials, hidden chain-of-thought, and raw activation tensors.
 - `seam_runtime/jspace.py` - optional J-lens capability boundary: unavailable/structured-only default, verified local Hugging Face Qwen adapter, and authenticated pinned remote worker. No model, lens, analyzer, download, or network dependency is enabled by default.
 - `seam_runtime/improvement_experiments.py` - H2 immutable experiment definitions and append-only SHA-256 event chains, with bounded structured evidence and raw-content rejection.
+- `seam_runtime/skills/kb/` - portable Track L Skill Knowledge Runtime: typed
+  package ingestion, compact metadata search, dependency/conflict planning,
+  exact-budget SkillFrames, revisioned active windows, and the standalone skill
+  graph projection. It deliberately does not import SEAM memory, storage,
+  server, or repository-continuity modules. `seam-skills` is its dedicated
+  installed CLI; model-specific host adapters remain a separate layer.
 - `seam_runtime/self_improve.py` + `tools/h2/improvement_loop.py` / `improvement_review.py` - graph-derived probes and bounded retrieval-policy candidates wired through durable baseline/candidate experiments, the strict multi-family proposal ratchet, explicit operator approval, applied-flag reconciliation, and revert. See `docs/IMPROVEMENT_EXPERIMENTS.md`.
 - `tools/graph_retrieval_qualification.py` + `tools/graph_real_corpus_qualification.py` - synthetic scale/query-shape and pinned LoCoMo development/holdout qualification for G3 node-vector fusion and safe policy selection.
 - `benchmarks/graph_reasoning_qualification.py` - provider-free real-runtime G7/R6 native-versus-event-only ablation, concurrent recovery probe, exact graph attribution, and matched Mem0/Zep paid-boundary plans.
