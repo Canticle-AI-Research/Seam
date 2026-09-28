@@ -21292,3 +21292,21 @@ Also recorded, not repaired: package-release.yml, publish-private-release.yml, e
 
 Next unresolved step: the withheld workflow timeouts need either the workflow scope granted to this session or the prepared patch applied by the operator. Separately, seam-box remains offline, so this branch cannot reach a required-check verdict any more than the open memory-formation PR can; nothing merges until that runner is powered on with its Actions service running.
 ---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-28T21:02:39Z
+agent: codex
+status: done
+topics: ci, gates, parity, tests, verify, pgvector, continuity
+commits: 085981a
+refs: tests/audit/test_history_closeout.py,tests/audit/test_local_gates_match_ci.py,REPO_LEDGER.md
+supersedes: 647
+tokens: 291
+---
+Completed current-branch qualification of the focused gate-parity invariant repair at 085981a. The corrected full strict suite ran with the existing Hugging Face cache preserved, live pgvector, a fresh ignored SQLite store, provider credentials removed from the child process, and no skip suppression: /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest tests/ -ra --durations=15 -o addopts= -p no:cacheprovider. Result: 3,224 collected; 3,222 passed; 2 expected xfailed; 0 failed; 0 skipped; 2 warnings; 456.68 seconds. The expected failures remain the documented compiler entity-extraction cases.
+
+An earlier full-suite attempt reported 30 embedding-dependent failures only because its test harness removed the non-secret HF_HUB_CACHE location before invoking local-only model loading. The corrected environment passed those same areas, including abstention, benchmark reproducibility, reranking, judged scoring, LoCoMo, mem0, pgvector, history-closeout, and local-gate-parity coverage. No product or test source change was needed for that harness error.
+
+The branch remains scoped to the safe parity extraction from draft PR #270. Its destructive verify_workspace --fix cleanup remains excluded and must not be run or merged as written. This entry records qualification evidence only; pushed-head CI and protected-main merge remain separate states.
+---END-ENTRY-#648---
