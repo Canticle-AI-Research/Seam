@@ -21334,3 +21334,25 @@ The first approved full-scope attempt was invalid because `docker-up` started on
 
 Delivery state at this entry is local implementation plus verified regression evidence. Commit, push, stacked draft PR, exact-head CI, independent closeout receipt, and final tracked handoff remain separate subsequent states.
 ---END-ENTRY-#649---
+
+---BEGIN-ENTRY-#650---
+id: 650
+date: 2026-09-29T11:35:33Z
+agent: codex
+status: done
+topics: ci, gates, config, security, tests, verify, continuity, handoff
+commits: cf5a6f2,a0f50a7
+refs: tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,tests/audit/test_local_gates_match_ci.py,.github/workflows/ci.yml,docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md,docs/handoffs/2026-09-29-agent-config-required-gate-next.md,PR#274
+supersedes: 649
+tokens: 806
+---
+Delivered the agent-configuration required-gate repair as draft PR #274 on `fix/agent-config-required-gate-20260929`, deliberately stacked on PR #273's exact head `efb30b73f97011e887a29e94c40e2167cb627e73`. The implementation inspects all Git index paths even when the staged diff is empty, preserves the exact root Claude memory pin, permits only the nine literal retained OpenCode skill documents with regular nonexecutable stage-zero metadata, and rejects other agent-local paths including case, nesting, symlink, and unresolved-entry variants. Required `repo-hygiene` invokes the validator unconditionally, and local parity assertions preserve the canonical hook's early `--staged || exit 1` strength. No production wrapper, required-check name, ruleset, runner, permission, timeout, runtime, benchmark, package, or release interface changed.
+
+TDD witnessed 27 failed and 74 passed before implementation, then 101 passed with the same focused three-file command. The required five-file scope passed 158 tests. Both validator modes, Ruff, and whitespace checks passed. After rejecting a connection-refused run without pgvector as invalid evidence, the approved full collection ran with the documented Compose service healthy and the existing nonsecret `HF_HUB_CACHE` preserved: 3,732 passed, 2 expected xfailed, 0 skipped, 0 failed, with two multiprocessing/fork warnings in 614.15 seconds. Working-tree and committed-range secret/session scans passed. No paid or product benchmark ran.
+
+The first exact-state closeout request `01a0ecb1-cde0-7b23-887b-ed4a420e27f8-2c698ba8182a816b` remains immutably admitted as `NOT_QUALIFIED`: a session-state command semicolon-joined multiple path references, so independent recomputation correctly found `TDD_UNPROVEN`. The real implementation-report correction was committed as `a0f50a7`, and a corrected cycle recorded the same witnessed RED/GREEN evidence with repeated CLI fields per literal path. Independent review of successor request `01a0ecb1-cde0-7b23-887b-ed4a420e27f8-a8e5bb0a950c7a3b` confirmed the exact head and diff fingerprint, recomputed `TDD_PROVEN`, passed 101 focused tests and all six continuity/wiki gates, and returned a validated `QUALIFIED` receipt that explicitly supersedes the failed request. The receipt was stored only after every worktree state root was re-enumerated; this worktree's pending queue is empty, while unrelated reports-worktree nonqualifying and indeterminate states remain preserved.
+
+On the independently qualified head `a0f50a792949a56525a0e9bd425d56a02f86a8af`, required `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` passed; package smoke, registry plan, and pgvector integration also passed. The branch push used the pre-push hook's documented one-push dirty-worktree continuation because six unrelated linked worktrees contain uncommitted owner work; signature, secret-scan, and public-freeze protections remained active, and those worktrees were not modified.
+
+Registered `docs/handoffs/2026-09-29-agent-config-required-gate-next.md` as the canonical tracked continuation and superseded the prior handoff head. PR #274 remains open, draft, and unmerged. The next authorized step is to keep it focused, inspect any new review evidence, and after PR #273's protected-main outcome reconcile and requalify the stack before any ready or merge decision. PRs #269/#270, runner isolation, general content safety, workspace cleanup, SkillDB, release workflows, and product/formation work remain excluded.
+---END-ENTRY-#650---
