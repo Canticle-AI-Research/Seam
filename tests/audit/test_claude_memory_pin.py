@@ -3,11 +3,31 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
+from pathlib import Path
 
 import pytest
 
-from tools.git.verify_agent_config import PIN, PIN_PATH, validate_pin, verify
+from tools.git.verify_agent_config import (
+    OPENCODE_COMPAT_PATHS,
+    PIN,
+    PIN_PATH,
+    validate_pin,
+    verify,
+)
+
+EXPECTED_OPENCODE_COMPAT_PATHS = (
+    ".opencode/skills/seam-architect/SKILL.md",
+    ".opencode/skills/seam-github-publisher/SKILL.md",
+    ".opencode/skills/seam-implementation-executor/SKILL.md",
+    ".opencode/skills/seam-implementation-planner/SKILL.md",
+    ".opencode/skills/seam-repo-navigator/SKILL.md",
+    ".opencode/skills/seam-roadmap-ledger-updater/SKILL.md",
+    ".opencode/skills/seam-session-closeout/SKILL.md",
+    ".opencode/skills/seam-skill-sync-auditor/SKILL.md",
+    ".opencode/skills/seam-test-hardener/SKILL.md",
+)
 
 
 @pytest.mark.parametrize("content", [
@@ -33,11 +53,34 @@ def test_pin_requires_a_regular_nonexecutable_file():
 @pytest.fixture
 def repo(tmp_path):
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    subprocess.run(
+        ["git", "config", "user.email", "agent-config-test@example.invalid"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Agent Config Test"],
+        cwd=tmp_path,
+        check=True,
+    )
     path = tmp_path / PIN_PATH
     path.parent.mkdir()
     path.write_text(json.dumps(PIN))
     subprocess.run(["git", "add", PIN_PATH], cwd=tmp_path, check=True)
     return tmp_path
+
+
+def _track_and_commit(repo: Path, path: str, content: str = "project docs") -> None:
+    target = repo / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(content, encoding="utf-8")
+    subprocess.run(["git", "add", "-f", path], cwd=repo, check=True)
+    subprocess.run(
+        ["git", "commit", "-qm", f"track {path}"], cwd=repo, check=True
+    )
+    assert subprocess.check_output(
+        ["git", "diff", "--cached", "--name-only"], cwd=repo, text=True
+    ) == ""
 
 
 def test_staged_bad_config_cannot_hide_behind_clean_working_copy(repo):
@@ -91,6 +134,102 @@ def test_other_agent_files_remain_blocked(repo, path):
     target.write_text("local data")
     subprocess.run(["git", "add", "-f", path], cwd=repo, check=True)
     assert any(path.casefold() in problem.casefold() for problem in verify(repo, staged=True))
+
+
+@pytest.mark.parametrize("staged", [False, True], ids=["working", "staged"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".opencode/config.json",
+        ".agents/notes.md",
+        "nested/.OpenCode/config.json",
+        "OpenCode.JSONC",
+    ],
+)
+def test_committed_forbidden_paths_fail_with_an_empty_staged_diff(repo, path, staged):
+    _track_and_commit(repo, path)
+
+    problems = verify(repo, staged=staged)
+
+    assert any(path.casefold() in problem.casefold() for problem in problems)
+
+
+@pytest.mark.parametrize("path", EXPECTED_OPENCODE_COMPAT_PATHS)
+@pytest.mark.parametrize("staged", [False, True], ids=["working", "staged"])
+def test_exact_opencode_project_docs_are_compatible(repo, path, staged):
+    assert OPENCODE_COMPAT_PATHS == frozenset(EXPECTED_OPENCODE_COMPAT_PATHS)
+    _track_and_commit(repo, path)
+
+    assert verify(repo, staged=staged) == []
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".opencode/skills/seam-architect/README.md",
+        ".opencode/skills/seam-architect/nested/SKILL.md",
+        ".opencode/skills/renamed/SKILL.md",
+        ".OpenCode/skills/seam-architect/SKILL.md",
+        ".opencode/skills/seam-architect/skill.md",
+        "nested/.opencode/skills/seam-architect/SKILL.md",
+    ],
+)
+@pytest.mark.parametrize("staged", [False, True], ids=["working", "staged"])
+def test_opencode_compatibility_rejects_near_miss_paths(repo, path, staged):
+    _track_and_commit(repo, path)
+
+    problems = verify(repo, staged=staged)
+
+    assert any(path.casefold() in problem.casefold() for problem in problems)
+
+
+@pytest.mark.parametrize("mode", ["100755", "120000"])
+@pytest.mark.parametrize("staged", [False, True], ids=["working", "staged"])
+def test_opencode_compatibility_rejects_nonregular_index_modes(
+    repo, mode, staged
+):
+    path = EXPECTED_OPENCODE_COMPAT_PATHS[0]
+    blob = subprocess.check_output(
+        ["git", "hash-object", "-w", "--stdin"],
+        input=b"project docs",
+        cwd=repo,
+    ).decode().strip()
+    subprocess.run(
+        ["git", "update-index", "--add", "--cacheinfo", f"{mode},{blob},{path}"],
+        cwd=repo,
+        check=True,
+    )
+    subprocess.run(["git", "commit", "-qm", f"track mode {mode}"], cwd=repo, check=True)
+
+    assert verify(repo, staged=staged)
+
+
+def test_opencode_compatibility_rejects_unresolved_index_entries(repo):
+    path = EXPECTED_OPENCODE_COMPAT_PATHS[0]
+    blob = subprocess.check_output(
+        ["git", "hash-object", "-w", "--stdin"],
+        input=b"project docs",
+        cwd=repo,
+    ).decode().strip()
+    subprocess.run(
+        ["git", "update-index", "--index-info"],
+        input=f"100644 {blob} 1\t{path}\n".encode(),
+        cwd=repo,
+        check=True,
+    )
+
+    assert any("unresolved index entry" in problem for problem in verify(repo, staged=True))
+
+
+def test_opencode_worktree_symlink_cannot_hide_behind_regular_index(repo):
+    path = EXPECTED_OPENCODE_COMPAT_PATHS[0]
+    _track_and_commit(repo, path)
+    target = repo / path
+    target.unlink()
+    os.symlink("elsewhere", target)
+
+    assert verify(repo)
+    assert verify(repo, staged=True) == []
 
 
 def test_staged_symlink_is_rejected(repo):

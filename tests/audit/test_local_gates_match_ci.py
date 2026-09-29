@@ -20,8 +20,10 @@ agent acts on.
 """
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
@@ -35,7 +37,9 @@ CI_YML = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 SUPPRESSION_FLAG = "--no-recorded-fact-audit"
 WIKI_GATE_MODULE = "tools.docs.verify_wiki"
 WIKI_STAGED_FLAG = "--staged"
+AGENT_CONFIG_MODULE = "tools.git.verify_agent_config"
 REQUIRED_GATE_MODULES = {
+    AGENT_CONFIG_MODULE,
     "tools.history.verify_handoffs",
     "tools.history.verify_integrity",
     "tools.history.verify_continuity",
@@ -50,22 +54,115 @@ REQUIRED_GATE_MODULES = {
 # Any new local gate belongs in this list.
 LOCAL_GATE_SCRIPTS = (PREFLIGHT_HOOK, COMMIT_HOOK)
 
+RUN_GATE_RE = re.compile(r'^run_gate "[^"]+"\s+"\$PY" -m (\S+)(.*)$')
+BARE_GATE_RE = re.compile(
+    r'^"\$PY" -m (tools\.\S+?)((?: [^|]*?)?)\s*(\|\|\s*.+)?$'
+)
+
+
+@dataclass(frozen=True)
+class GateInvocation:
+    module: str
+    args: tuple[str, ...]
+    line_number: int
+    form: str
+    aborts: bool
+
+
+def _script_gate_invocations(text: str) -> list[GateInvocation]:
+    """Parse supported gate forms while keeping presence separate from strength."""
+
+    invocations = []
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        run_gate = RUN_GATE_RE.match(line)
+        if run_gate:
+            invocations.append(
+                GateInvocation(
+                    module=run_gate.group(1),
+                    args=tuple(run_gate.group(2).strip().split()),
+                    line_number=line_number,
+                    form="run_gate",
+                    aborts=True,
+                )
+            )
+            continue
+        bare = BARE_GATE_RE.match(line)
+        if bare:
+            invocations.append(
+                GateInvocation(
+                    module=bare.group(1),
+                    args=tuple(bare.group(2).strip().split()),
+                    line_number=line_number,
+                    form="bare",
+                    aborts=bool(
+                        bare.group(3)
+                        and re.fullmatch(r"\|\|\s*exit 1\s*", bare.group(3))
+                    ),
+                )
+            )
+    return invocations
+
 
 def _gate_lines(script: Path) -> list[str]:
-    """Executable run_gate lines from a gate script, comments excluded."""
+    """Executable supported gate lines from a gate script, comments excluded."""
     lines = script.read_text(encoding="utf-8").splitlines()
-    return [line for line in lines if line.strip().startswith("run_gate")]
+    return [
+        line
+        for line in lines
+        if RUN_GATE_RE.match(line) or BARE_GATE_RE.match(line)
+    ]
 
 
 def _script_gate_modules(script: Path) -> set[str]:
-    """Return Python modules invoked by executable run_gate lines."""
+    """Return Python modules invoked by supported executable gate lines."""
 
-    modules = set()
-    for line in _gate_lines(script):
-        marker = " -m "
-        if marker in line:
-            modules.add(line.split(marker, 1)[1].split()[0])
-    return modules
+    return {
+        invocation.module
+        for invocation in _script_gate_invocations(script.read_text(encoding="utf-8"))
+    }
+
+
+def _required_ci_agent_config_step(workflow: dict) -> dict:
+    """Return the unconditional exact validator step from required hygiene."""
+
+    job = workflow["jobs"]["repo-hygiene"]
+    assert "if" not in job, "repo-hygiene must not conditionally bypass required gates"
+    matches = [
+        step
+        for step in job["steps"]
+        if AGENT_CONFIG_MODULE in str(step.get("run", ""))
+    ]
+    assert len(matches) == 1, (
+        "repo-hygiene must contain exactly one agent-configuration validator step"
+    )
+    step = matches[0]
+    assert "if" not in step, "agent-configuration validation must be unconditional"
+    assert not step.get("continue-on-error", False), (
+        "agent-configuration validation must fail repo-hygiene"
+    )
+    assert step["run"].strip() == f"python -m {AGENT_CONFIG_MODULE}", (
+        "agent-configuration validation must be an unsuppressed exact command"
+    )
+    return step
+
+
+def _assert_commit_hook_agent_config(text: str) -> None:
+    invocations = [
+        item for item in _script_gate_invocations(text) if item.module == AGENT_CONFIG_MODULE
+    ]
+    assert len(invocations) == 1, "commit hook must invoke agent-config exactly once"
+    invocation = invocations[0]
+    assert invocation.args == ("--staged",)
+    assert invocation.form == "bare"
+    assert invocation.aborts, "early agent-config scope block must abort immediately"
+    merge_exit = next(
+        index
+        for index, line in enumerate(text.splitlines(), start=1)
+        if ".git/MERGE_HEAD" in line
+    )
+    assert invocation.line_number < merge_exit, (
+        "agent-config scope block must run before merge/rebase early exits"
+    )
 
 
 @pytest.mark.parametrize("script", LOCAL_GATE_SCRIPTS, ids=lambda p: p.name)
@@ -141,6 +238,103 @@ def test_closeout_wrapper_covers_every_required_continuity_module():
     modules = {args[0] for _label, args in PREFLIGHT_GATES}
     missing = REQUIRED_GATE_MODULES - modules
     assert not missing, f"closeout omits required modules: {sorted(missing)}"
+
+
+def test_commit_hook_keeps_agent_config_staged_early_and_aborting():
+    _assert_commit_hook_agent_config(COMMIT_HOOK.read_text(encoding="utf-8"))
+
+
+def test_required_repo_hygiene_enforces_agent_config_unconditionally():
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    _required_ci_agent_config_step(workflow)
+
+
+@pytest.mark.parametrize("script", LOCAL_GATE_SCRIPTS, ids=lambda p: p.name)
+def test_parser_detects_removal_of_each_shell_agent_config_invocation(script):
+    text = script.read_text(encoding="utf-8")
+    invocation = next(
+        line for line in text.splitlines() if AGENT_CONFIG_MODULE in line and not line.lstrip().startswith("#")
+    )
+    mutated = text.replace(f"{invocation}\n", "", 1)
+
+    assert AGENT_CONFIG_MODULE not in {
+        item.module for item in _script_gate_invocations(mutated)
+    }
+
+
+def test_parity_detection_rejects_closeout_agent_config_removal():
+    from tools.history.closeout import PREFLIGHT_GATES
+
+    modules = {args[0] for _label, args in PREFLIGHT_GATES}
+    mutated = modules - {AGENT_CONFIG_MODULE}
+    assert AGENT_CONFIG_MODULE not in mutated
+    assert REQUIRED_GATE_MODULES - mutated == {AGENT_CONFIG_MODULE}
+
+
+def test_ci_detection_rejects_advisory_only_agent_config():
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    workflow["jobs"]["repo-hygiene"]["steps"] = [
+        step
+        for step in workflow["jobs"]["repo-hygiene"]["steps"]
+        if AGENT_CONFIG_MODULE not in str(step.get("run", ""))
+    ]
+    assert any(
+        AGENT_CONFIG_MODULE in str(step.get("run", ""))
+        for step in workflow["jobs"]["test-and-benchmark"]["steps"]
+    )
+    with pytest.raises(AssertionError, match="exactly one"):
+        _required_ci_agent_config_step(workflow)
+
+
+@pytest.mark.parametrize(
+    ("needle", "replacement", "message"),
+    [
+        (" --staged || exit 1", " || exit 1", ""),
+        (" || exit 1", " || true", "abort"),
+    ],
+)
+def test_commit_hook_detection_rejects_weakened_scope_block(
+    needle, replacement, message
+):
+    text = COMMIT_HOOK.read_text(encoding="utf-8")
+    gate_line = next(
+        line
+        for line in text.splitlines()
+        if AGENT_CONFIG_MODULE in line and line.startswith('"$PY"')
+    )
+    mutated = text.replace(gate_line, gate_line.replace(needle, replacement), 1)
+    with pytest.raises(AssertionError, match=message or None):
+        _assert_commit_hook_agent_config(mutated)
+
+
+def test_commit_hook_detection_rejects_late_scope_block():
+    text = COMMIT_HOOK.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    gate = next(line for line in lines if AGENT_CONFIG_MODULE in line and line.startswith('"$PY"'))
+    lines.remove(gate)
+    lines.append(gate)
+    with pytest.raises(AssertionError, match="before merge/rebase"):
+        _assert_commit_hook_agent_config("\n".join(lines))
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("if", "${{ false }}", "unconditional"),
+        ("continue-on-error", True, "fail repo-hygiene"),
+        ("run", f"python -m {AGENT_CONFIG_MODULE} || true", "unsuppressed"),
+    ],
+)
+def test_ci_detection_rejects_agent_config_bypass(field, value, message):
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    step = next(
+        step
+        for step in workflow["jobs"]["repo-hygiene"]["steps"]
+        if AGENT_CONFIG_MODULE in str(step.get("run", ""))
+    )
+    step[field] = value
+    with pytest.raises(AssertionError, match=message):
+        _required_ci_agent_config_step(workflow)
 
 
 def test_commit_hook_verifies_the_exact_staged_wiki():

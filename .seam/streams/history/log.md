@@ -21310,3 +21310,27 @@ An earlier full-suite attempt reported 30 embedding-dependent failures only beca
 
 The branch remains scoped to the safe parity extraction from draft PR #270. Its destructive verify_workspace --fix cleanup remains excluded and must not be run or merged as written. This entry records qualification evidence only; pushed-head CI and protected-main merge remain separate states.
 ---END-ENTRY-#648---
+
+---BEGIN-ENTRY-#649---
+id: 649
+date: 2026-09-29T11:12:08Z
+agent: codex
+status: done
+topics: ci, gates, config, security, tests, verify, continuity
+commits: pending
+refs: tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,tests/audit/test_local_gates_match_ci.py,.github/workflows/ci.yml,docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md,REPO_LEDGER.md
+supersedes: 648
+tokens: 759
+---
+Closed the four unresolved PR #258 agent-configuration findings as a focused security and required-gate slice stacked on PR #273 at efb30b73f97011e887a29e94c40e2167cb627e73. `tools.git.verify_agent_config` now classifies every Git index entry independently of staged-diff membership. It preserves the exact root Claude memory pin contract and admits only the literal nine-path `OPENCODE_COMPAT_PATHS` set as optional project documentation when each entry is stage zero and mode 100644. Other case-insensitive `.claude`, `.opencode`, and `.agents` path components and root OpenCode configuration names fail in both working-tree and staged modes. Compatible working-tree paths also fail closed on a missing file or symlink.
+
+Added the same validator as an unconditional exact command in required `repo-hygiene`; no new check name, ruleset, runner, permission, or timeout was introduced. Extended the local/CI parity audit to parse both supported `run_gate` and bare gate forms while separating presence from abort strength. The audit covers Claude preflight, the canonical hook, closeout, and required CI, and mutation checks reject invocation removal, advisory-only placement, missing hook `--staged`, weakened aborts, late hook placement, conditional execution, `continue-on-error`, and shell suppression. Production wrappers were not changed: the canonical hook retains its early bare `--staged || exit 1` scope block before merge/rebase exits.
+
+Corrected the active production-readiness SOP's absolute prohibition and recorded the narrow root-pin and OpenCode documentation exceptions in `docs/CLAUDE_MEMORY.md`, `REPO_LEDGER.md`, and `docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md`. Existing OpenCode document contents, SkillDB, runtime behavior, dependencies, runner isolation, general content safety, workspace cleanup, release workflows, and PR #269/#270 were excluded.
+
+TDD used real temporary Git repositories and copied/mutated gate structures. The exact three-file command `pytest tests/audit/test_claude_memory_pin.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q -p no:cacheprovider -o addopts=` first produced 27 failed and 74 passed against the unchanged implementation, then 101 passed after the implementation. The required five-file focused command adding `tests/audit/test_public_safe_gate.py` and `tests/audit/test_github_pr_gates.py` passed 158 tests. Both validator modes, `ruff check .`, and `git diff --check` passed.
+
+The first approved full-scope attempt was invalid because `docker-up` started only the Docker engine while the project pgvector service remained absent; it produced connection-refused cascades and is not qualification evidence. After starting the documented private-env Compose service and verifying `seam-pgvector` healthy without rendering its DSN, `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/ -ra --durations=25 -o addopts= -p no:cacheprovider` completed with 3,732 passed, 2 expected xfailed compiler entity-extraction cases, 0 skipped, 0 failed, and 2 multiprocessing/fork deprecation warnings in 614.15 seconds. The existing non-secret `HF_HUB_CACHE` was preserved. No paid or product benchmark ran.
+
+Delivery state at this entry is local implementation plus verified regression evidence. Commit, push, stacked draft PR, exact-head CI, independent closeout receipt, and final tracked handoff remain separate subsequent states.
+---END-ENTRY-#649---

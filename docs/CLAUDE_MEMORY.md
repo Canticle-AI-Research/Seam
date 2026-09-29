@@ -64,5 +64,11 @@ also do not enforce spending or deletion policy: existing hooks and operator
 approval remain necessary.
 
 The scope validator rejects additional tracked settings and validates staged
-content at commit time. Run `python -m tools.git.verify_agent_config` for a
-checkout check or add `--staged` to check the Git index.
+content at commit time. Its literal `OPENCODE_COMPAT_PATHS` set is the sole
+non-Claude compatibility exception: those exact regular, nonexecutable,
+stage-zero OpenCode skill documents may remain tracked as optional project
+documentation. No sibling, nested, renamed, or case-variant path is admitted,
+and none of the listed documents is required to exist. Run
+`python -m tools.git.verify_agent_config` for a checkout check or add `--staged`
+to check the Git index. The same validator runs unconditionally in required
+`repo-hygiene` CI.

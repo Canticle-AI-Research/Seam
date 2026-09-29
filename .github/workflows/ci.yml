@@ -238,6 +238,9 @@ jobs:
         # in this repo -- unlinted, and two I001 errors sat there undetected.
         run: ruff check .
 
+      - name: Verify agent configuration scope
+        run: python -m tools.git.verify_agent_config
+
       - name: Verify SEAM handoff registry
         run: python -m tools.history.verify_handoffs
 

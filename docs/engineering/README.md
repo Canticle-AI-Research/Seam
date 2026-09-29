@@ -63,6 +63,8 @@ However, abstention is not rewarded unconditionally. Engineers and agents must p
 - [Incident response and recovery](08_INCIDENT_RESPONSE.md): containment, preservation, eradication, recovery, and post-incident evidence.
 - [Epistemic calibration and abstention](09_EPISTEMIC_CALIBRATION.md): rewards justified uncertainty, penalizes unsupported certainty, and defines executable calibration metrics.
 - [Verification matrix](VERIFICATION_MATRIX.md): change classes mapped to required checks.
+- [Agent-configuration required-gate recovery](AGENT_CONFIG_GATE_RECOVERY.md):
+  focused plan and evidence contract for the tracked agent-local scope boundary.
 - [Templates](templates/README.md): change plan, architecture decision, threat-model delta, incident report, and handoff forms.
 - [`skills/seam-engineer/SKILL.md`](../../skills/seam-engineer/SKILL.md): compact routing skill for engineers and agents.
 
