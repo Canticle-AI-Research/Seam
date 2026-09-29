@@ -170,6 +170,17 @@ invocation, or regression outside this policy slice.
 | Full approved pytest scope with `PGVECTOR_TEST_DSN` bound and the existing `HF_HUB_CACHE` preserved | First attempt invalid: 48 failed, 19 errors, 3,678 passed, 2 xfailed | `docker-up` had started only the engine; the project pgvector service was absent and failures were connection-refused cascades. This is not qualification evidence. |
 | `pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/ -ra --durations=25 -o addopts= -p no:cacheprovider` with healthy Compose pgvector | 3,732 passed, 2 expected xfailed, 0 skipped | Two existing multiprocessing/fork deprecation warnings; no failures. |
 
+The first protocol request,
+`01a0ecb1-cde0-7b23-887b-ed4a420e27f8-2c698ba8182a816b`, was independently
+reviewed and preserved as `NOT_QUALIFIED`. The underlying RED and GREEN runs
+were valid, but the initial session-state command semicolon-joined multiple
+test and implementation references into one literal list element. Exact-path
+coverage therefore reported `TDD_UNPROVEN`. The immutable receipt was admitted
+before correction. A second cycle records the same witnessed timestamps,
+commands, exits, and fingerprints with one repeated CLI option per literal
+path. The successor exact-state request must supersede the failed request and
+qualify this corrected evidence independently.
+
 ## Exclusions and escalation
 
 Excluded: runner isolation, core test lanes, packaging, release workflows,
